@@ -14,8 +14,8 @@ For moving a whole server, or a household between servers, see also
 
 | Source | What it is |
 |---|---|
-| **A spreadsheet (CSV)** | One thing per row, with a header row naming the columns |
-| **A Homebox export** | The ZIP from Homebox v0.26 or newer (Collection settings → Export) |
+| **A spreadsheet (CSV)** | One thing per row, with a header row naming the columns; also Homebox's own spreadsheet export |
+| **A Homebox export** | The ZIP from Homebox v0.26.1 or newer, v0.27.0 recommended (Collection settings → Export) |
 | **A Kept export** | A location exported from this Kept or another one |
 
 Every import is checked before anything is written: **Check the import** shows **What the import
@@ -43,14 +43,39 @@ duplicates. An archive (a ZIP) can be up to 5 GB. Imported things arrive confirm
      is kept in the notes.
 4. **Check the import**, read the report, and import.
 
+#### Homebox's spreadsheet
+
+Every Homebox can export a spreadsheet (up to v0.25: **Tools → Import/Export → Export
+Inventory**). Homebox v0.10.3 and v0.11.0 write it tab-separated
+(`homebox-items.tsv`); Kept reads both. When the columns are Homebox's (`HB.name`,
+`HB.location`, …), Kept says so, matches the columns itself and reads what a plain spreadsheet
+import would drop:
+
+| Homebox column | Kept |
+|---|---|
+| `HB.asset_id`, and the item's link in `HB.url` (v0.13 and later) | Old labels: a printed Homebox label opens the thing |
+| `HB.sold_*` | The thing ended as sold, with its date, buyer, notes and price |
+| `HB.archived` | Your choice: **Thrown away, no longer in use**, **In use, tagged "Archived in Homebox"**, or **Leave out** |
+| `HB.warranty_expires`, `HB.lifetime_warranty` | A warranty from the purchase date, where Warranties is on |
+| `HB.warranty_details`, `HB.insured` | Lines in the notes |
+
+A price of 0 is read as no price (Homebox writes 0 when none was set). The location rows a
+v0.26 or later spreadsheet lists are left out; places come from each item's location path. A
+spreadsheet can't carry photos, files, maintenance or items inside items, and custom fields
+are only imported if you match them to a type's field. For all of that, use the export ZIP.
+
 ### A Homebox export
 
-Kept reads Homebox's own export ZIP, which holds everything, including the files. In Homebox, open
-**Collection settings → Export** and download the ZIP; a Homebox older than v0.26 has no export,
-so update it first.
+Kept reads Homebox's own export ZIP, which holds everything, including the files. In Homebox,
+open **Collection settings → Export** and download the ZIP. It exists from Homebox v0.26: use
+v0.26.1 or newer (v0.26.0's Docker image loses attachments), and v0.27.0 if you can. A Homebox
+older than v0.26 has no export: see
+[coming from an older Homebox](#coming-from-an-older-homebox). A ZIP without Homebox's
+`manifest.json` is refused with that advice.
 
 :::tip[If Homebox says "Topic has been Shutdown"]
-Homebox v0.26 makes one export each time it starts. Restart Homebox and export again.
+Homebox v0.26 makes one export each time it starts. Restart Homebox and export again, or update
+to v0.27.0, which doesn't have this limit.
 :::
 
 After the upload, Kept shows the collection and its export date. It goes into **A new location**
@@ -89,6 +114,37 @@ record's text is kept in the thing's notes.
 **Old labels keep working.** Each Homebox asset ID (`000-001`) is remembered. Kept's scanner
 recognises a Homebox label and opens the imported thing; if you point the old Homebox hostname at
 Kept, scanning with the phone's own camera works too.
+
+### Coming from an older Homebox
+
+A Homebox older than v0.26 can't make the export ZIP. Two ways in:
+
+- **Everything, photos and maintenance included:** update a copy of Homebox to v0.27.0 and
+  export the ZIP from the copy. Tested from Homebox v0.10.3 (the last release of the original
+  `hay-kot/homebox`) straight to v0.27.0.
+- **Quicker, with less:** import its [spreadsheet](#homeboxs-spreadsheet).
+
+The upgrade can't be undone (from v0.23, Homebox's own notes say so), so it runs on a copy and
+your Homebox stays as it is:
+
+1. **Stop Homebox and copy its data folder**, the one mounted at `/data` (`homebox.db` with its
+   `-wal` and `-shm` files, and the attachments). Keep the original as your backup.
+2. **Start Homebox v0.27.0 on the copy.** Homebox now lives at
+   `ghcr.io/sysadminsmedia/homebox`; v0.26 and later need `HBOX_AUTH_API_KEY_PEPPER`, 32 or
+   more random characters:
+
+   ```sh
+   docker run --rm -p 7745:7745      -e HBOX_AUTH_API_KEY_PEPPER="$(openssl rand -hex 24)"      -v /path/to/homebox-copy:/data      ghcr.io/sysadminsmedia/homebox:0.27.0
+   ```
+
+   The first start updates the database in one go. It also adds Homebox's eight starter rooms,
+   which Kept leaves out by default when they're empty.
+3. **Sign in** with your usual account and open **Collection settings → Export**. Download the
+   ZIP.
+4. **Import it into Kept** as [a Homebox export](#a-homebox-export).
+5. Stop the copy and delete it once the import is done.
+
+Photos added before Homebox recorded file types come through too: Kept checks each file itself.
 
 ### A Kept export
 
