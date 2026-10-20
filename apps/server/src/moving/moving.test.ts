@@ -304,6 +304,53 @@ describe('boxes', () => {
       box.containerId,
     );
   });
+
+  it('refuses to undo a box change once the box changed, left the move, or the move is done', async () => {
+    const mark = async (moveId: string, containerId: string, state: string) => {
+      const res = await call(t, `/api/v1/moves/${moveId}/boxes/${containerId}`, {
+        method: 'PATCH',
+        as: louis,
+        body: { state },
+      });
+      ok(res);
+      return res.headers[HEADER] as string;
+    };
+    const refusedSince = async (eventId: string) => {
+      const res = await undo(louis, eventId);
+      expect(res.statusCode, res.body).toBe(409);
+      expect(res.json()).toMatchObject({ code: 'undo_refused', reason: 'changed_since' });
+    };
+
+    // Changed since: marked in transit, then packed again.
+    const changed = await newBox(louis, move.id);
+    const first = await mark(move.id, changed.containerId, 'in_transit');
+    await mark(move.id, changed.containerId, 'packed');
+    await refusedSince(first);
+
+    // Left the move: no box row to compare with still counts as changed.
+    const gone = await newBox(louis, move.id);
+    const marked = await mark(move.id, gone.containerId, 'in_transit');
+    const out = await call(t, `/api/v1/moves/${move.id}/boxes/${gone.containerId}`, {
+      method: 'DELETE',
+      as: louis,
+    });
+    expect(out.statusCode, out.body).toBe(204);
+    await refusedSince(marked);
+
+    // The move is done.
+    const other = await start(louis, { name: 'Finished soon', toLocationId: house.id });
+    const last = await newBox(louis, other.id);
+    const inTransit = await mark(other.id, last.containerId, 'in_transit');
+    ok(
+      await call(t, `/api/v1/moves/${other.id}`, {
+        method: 'PATCH',
+        as: louis,
+        headers: ifMatch(other.rowVersion),
+        body: { status: 'done' },
+      }),
+    );
+    await refusedSince(inTransit);
+  });
 });
 
 describe('unpacking', () => {

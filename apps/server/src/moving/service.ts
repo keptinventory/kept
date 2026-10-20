@@ -918,8 +918,7 @@ async function boxAsLeft(args: UndoArgs): Promise<{ was: BoxImage; left: BoxImag
   );
   const now = rows[0];
   const changed =
-    !now ||
-    now.status !== 'active' ||
+    now?.status !== 'active' ||
     now.state !== left.state ||
     now.destination_place_id !== left.destination_place_id ||
     now.state_at.toISOString() !== left.state_at;
