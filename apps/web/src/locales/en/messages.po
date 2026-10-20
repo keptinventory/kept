@@ -25762,3 +25762,67 @@ msgstr "Take the tour"
 #: src/routes/_app/help.tsx
 msgid "The tour"
 msgstr "The tour"
+
+#: src/components/import/labels.ts
+msgid "A Homebox location, not an item, so it's skipped: places come from the items' location column."
+msgstr "A Homebox location, not an item, so it's skipped: places come from the items' location column."
+
+#: src/components/import/labels.ts
+msgid "It has no manifest.json, so it isn't an export from Homebox v0.26.1 or newer. A Homebox older than v0.26 can't make one: update a copy of it to v0.27.0 and export again, or import its spreadsheet (CSV) export instead."
+msgstr "It has no manifest.json, so it isn't an export from Homebox v0.26.1 or newer. A Homebox older than v0.26 can't make one: update a copy of it to v0.27.0 and export again, or import its spreadsheet (CSV) export instead."
+
+#: src/components/import/archive-step.tsx
+msgid "A Homebox older than v0.26 makes a spreadsheet instead of an export ZIP. Import it as a spreadsheet: names, places, tags, purchases, warranties, sales and old labels come across. For photos, files and maintenance too, update a copy of Homebox to v0.26.1 or newer (v0.27.0 recommended) and export the ZIP."
+msgstr "A Homebox older than v0.26 makes a spreadsheet instead of an export ZIP. Import it as a spreadsheet: names, places, tags, purchases, warranties, sales and old labels come across. For photos, files and maintenance too, update a copy of Homebox to v0.26.1 or newer (v0.27.0 recommended) and export the ZIP."
+
+#: src/components/import/choices-step.tsx
+msgid "Archived items aren't imported, sold ones included."
+msgstr "Archived items aren't imported, sold ones included."
+
+#: src/components/import/mapping-step.tsx
+msgid "Coming from an older Homebox"
+msgstr "Coming from an older Homebox"
+
+#: src/components/import/source-step.tsx
+msgid "Homebox v0.26.1 or newer (v0.27.0 recommended): Collection settings → Export. Older than v0.26: import its spreadsheet export, or update a copy of Homebox first."
+msgstr "Homebox v0.26.1 or newer (v0.27.0 recommended): Collection settings → Export. Older than v0.26: import its spreadsheet export, or update a copy of Homebox first."
+
+#: src/components/import/mapping-step.tsx
+msgid "Import a Homebox export instead"
+msgstr "Import a Homebox export instead"
+
+#: src/components/import/archive-step.tsx
+msgid "Import it as a spreadsheet"
+msgstr "Import it as a spreadsheet"
+
+#: src/components/import/choices-step.tsx
+msgid "In use, tagged \"Archived in Homebox\""
+msgstr "In use, tagged \"Archived in Homebox\""
+
+#: src/components/import/mapping-step.tsx
+msgid "Kept reads its asset IDs, so old Homebox labels still scan, and its archived and sold items, warranties and insured column. A spreadsheet can't carry photos, files, maintenance or items inside items: for those, update a copy of Homebox to v0.26.1 or newer (v0.27.0 recommended) and import its export ZIP."
+msgstr "Kept reads its asset IDs, so old Homebox labels still scan, and its archived and sold items, warranties and insured column. A spreadsheet can't carry photos, files, maintenance or items inside items: for those, update a copy of Homebox to v0.26.1 or newer (v0.27.0 recommended) and import its export ZIP."
+
+#: src/components/import/choices-step.tsx
+msgid "One with a sale still ends sold."
+msgstr "One with a sale still ends sold."
+
+#: src/components/import/choices-step.tsx
+msgid "Out of the lists, as in Homebox's archive. One with a sale ends sold instead."
+msgstr "Out of the lists, as in Homebox's archive. One with a sale ends sold instead."
+
+#: src/components/import/mapping-step.tsx
+msgid "Read by the Homebox preset"
+msgstr "Read by the Homebox preset"
+
+#: src/components/import/archive-step.tsx
+msgid "Restart Homebox and export again: v0.26 exports once each time it starts. v0.27.0 doesn't have this limit."
+msgstr "Restart Homebox and export again: v0.26 exports once each time it starts. v0.27.0 doesn't have this limit."
+
+#: src/components/import/mapping-step.tsx
+msgid "This is Homebox's spreadsheet export"
+msgstr "This is Homebox's spreadsheet export"
+
+#: src/components/import/choices-step.tsx
+msgid "Thrown away, no longer in use"
+msgstr "Thrown away, no longer in use"
