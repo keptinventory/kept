@@ -35,6 +35,7 @@ import type {
   ExtractBody,
   ExtractionAttempt,
 } from '../types';
+import { makeRoom } from './room';
 import type { StoredBatch } from './state';
 
 const CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
@@ -108,6 +109,26 @@ export function captureRoutes(state: MockState): MockRoute[] {
       const ai = cap().aiStatus[b.locationId];
       const result: CaptureResult = {};
 
+      if (b.mode === 'room') {
+        if (
+          !where.containerId &&
+          (!where.placeId || inv().places.some((x) => x.id === where.placeId && x.isUnplaced))
+        )
+          return err(400, 'validation', 'Choose the room or the box these photos are of.');
+        if (b.files.length < 1 || b.files.length > 5)
+          return err(400, 'validation', 'A room capture takes 1 to 5 photos.');
+        const item = makeRoom(state, {
+          id: b.id,
+          locationId: b.locationId,
+          batchId: b.batchId,
+          placeId: where.placeId,
+          containerId: where.containerId,
+          photos: b.files.length,
+        });
+        result.room = { id: b.id, photos: b.files.length, status: 'reading' };
+        result.inboxItemId = item.id;
+        return reply(201, result);
+      }
       if (b.attachToThingId) {
         const t = liveThing(inv(), b.attachToThingId);
         if (!t || t.locationId !== b.locationId) return notFound();

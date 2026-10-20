@@ -40,6 +40,8 @@ export const LocationView = z.object({
   require2fa: z.boolean(),
   moneyVisibleToViewers: z.boolean(),
   longUnseenMonths: z.number().int(),
+  /** Room photos stay on their place after review (#194); deleted then by default. */
+  keepRoomPhotos: z.boolean(),
   /** The owner's nominated successor (D165); shown to the owner only. */
   successorUserId: z.uuid().nullable(),
   memberCount: z.number().int(),
@@ -72,6 +74,7 @@ type LocationRow = {
   require_2fa: boolean;
   money_visible_to_viewers: boolean;
   long_unseen_months: number;
+  keep_room_photos: boolean;
   successor_user_id: string | null;
   provider_resolved: boolean;
   row_version: number;
@@ -142,7 +145,8 @@ async function locationRows(
 ): Promise<{ row: LocationRow; view: LocationView }[]> {
   const { rows } = await client.query<LocationRow>(
     `SELECT l.id, l.owner_account_id, l.name, l.kind, l.preset, l.timezone, l.currency, l.languages, l.require_2fa,
-            l.money_visible_to_viewers, l.long_unseen_months, l.successor_user_id, l.row_version,
+            l.money_visible_to_viewers, l.long_unseen_months, l.keep_room_photos,
+            l.successor_user_id, l.row_version,
             l.created_at, l.updated_at, m.role, m.expires_at AS membership_expires_at,
             lower(l.name) AS sort_name,
             kept.ai_provider_resolved(l.id) AS provider_resolved,
@@ -197,6 +201,7 @@ async function locationRows(
       require2fa: r.require_2fa,
       moneyVisibleToViewers: r.money_visible_to_viewers,
       longUnseenMonths: r.long_unseen_months,
+      keepRoomPhotos: r.keep_room_photos,
       successorUserId: r.role === 'owner' ? r.successor_user_id : null,
       memberCount: r.member_count,
       thingCount: r.thing_count,

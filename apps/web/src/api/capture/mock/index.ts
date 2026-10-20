@@ -10,6 +10,7 @@ import { captureRoutes } from './capture';
 import { importsRoutes } from './imports';
 import { inboxRoutes } from './inbox';
 import { labelsRoutes } from './labels';
+import { roomRoutes } from './room';
 import { scanRoutes } from './scan';
 import { syncRoutes } from './sync';
 import { templatesRoutes } from './templates';
@@ -19,6 +20,7 @@ export function captureMockRoutes(state: MockState): MockRoute[] {
   return [
     ...captureRoutes(state),
     ...inboxRoutes(state),
+    ...roomRoutes(state),
     ...aiRoutes(state),
     ...labelsRoutes(state),
     ...scanRoutes(state),

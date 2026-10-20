@@ -97,8 +97,20 @@ export function InboxList({ local }: { local?: LocalQueue | null }) {
     ...(kind ? { kind } : {}),
     ...(locationId ? { locationId } : {}),
   };
-  const query = useInbox(params);
-  const items = useMemo(() => query.data?.pages.flatMap((pg) => pg.items) ?? [], [query.data]);
+  const raw = useInbox(params);
+  // A room capture's card heads its batch on each page (#194).
+  const data = useMemo(
+    () =>
+      raw.data
+        ? {
+            ...raw.data,
+            pages: raw.data.pages.map((pg) => ({ ...pg, items: roomsFirst(pg.items) })),
+          }
+        : raw.data,
+    [raw.data],
+  );
+  const query = useMemo(() => ({ ...raw, data }) as typeof raw, [raw, data]);
+  const items = useMemo(() => data?.pages.flatMap((pg) => pg.items) ?? [], [data]);
   // The review pane beside the list, on a wide screen, only while something waits: with nothing
   // to review it said "Choose an item to review it here." (UI audit L6).
   const reviewPane = split && (items.length > 0 || query.isPending);
@@ -419,6 +431,30 @@ export function InboxList({ local }: { local?: LocalQueue | null }) {
  * `waiting_provider` are sent by the server when a key is saved; this covers what it can't see
  * and drafts from before there was a queue at all.
  */
+/** A room capture's card heads its batch, above the drafts it made (#194); otherwise the
+ * server's order. */
+export function roomsFirst(items: readonly InboxItem[]): InboxItem[] {
+  const out: InboxItem[] = [];
+  const done = new Set<string>();
+  for (const item of items) {
+    if (done.has(item.id)) continue;
+    const batch = item.batch?.id;
+    if (batch) {
+      for (const r of items) {
+        if (r.kind === 'room' && r.batch?.id === batch && !done.has(r.id)) {
+          out.push(r);
+          done.add(r.id);
+        }
+      }
+    }
+    if (!done.has(item.id)) {
+      out.push(item);
+      done.add(item.id);
+    }
+  }
+  return out;
+}
+
 export function unnamedToName(items: InboxItem[], aiOf: Map<string, AiStatus>): InboxItem[] {
   return items.filter((i) => {
     if (i.kind !== 'draft' || !i.thing || i.thing.name) return false;
@@ -583,6 +619,10 @@ function useRowTitle() {
     }
     if (item.kind === 'label_claim' && item.claim) return t`Label ${item.claim.code}`;
     if (item.kind === 'sync_drop') return t`A change couldn't apply`;
+    if (item.kind === 'room' && item.room) {
+      const name = item.room.target.name;
+      return t`Photos of ${name}`;
+    }
     return item.thing?.name ?? t`Unnamed thing`;
   };
 }

@@ -458,6 +458,7 @@ async function applyLocation(c: ApplyCtx, def: EntityDef, row: Row): Promise<App
     'money_visible_to_viewers',
     'require_2fa',
     'long_unseen_months',
+    'keep_room_photos',
     'languages',
   ];
   const fields = fieldsOf(def).filter((f) => settable.includes(f.column) && f.name in row);

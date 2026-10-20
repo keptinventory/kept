@@ -617,13 +617,13 @@ test('Arabic: capture and the inbox mirror, and short IDs stay left to right', a
   // The mode strip ("وضع الالتقاط", Capture mode) runs right to left: its first mode is the
   // rightmost.
   const strip = page.getByRole('radiogroup', { name: 'وضع الالتقاط' });
-  await expect(strip.getByRole('radio')).toHaveCount(4);
+  await expect(strip.getByRole('radio')).toHaveCount(5);
   const xs = await strip
     .getByRole('radio')
     .evaluateAll((els) =>
       els.map((e) => ((e.closest('label') ?? e) as HTMLElement).getBoundingClientRect().x),
     );
-  expect(xs.length).toBeGreaterThanOrEqual(4);
+  expect(xs.length).toBeGreaterThanOrEqual(5);
   expect([...xs].sort((p, q) => q - p)).toEqual(xs);
   await axe(page, 'Capture (Arabic)');
 

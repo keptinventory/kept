@@ -26,6 +26,7 @@ export const ROLE_BY_MODE: Readonly<Record<CaptureMode, AttachmentRole>> = {
   receipt: 'receipt',
   label: 'photo',
   reading: 'proof',
+  room: 'photo',
 };
 
 export type CaptureInput = {
@@ -114,6 +115,48 @@ export async function enqueueCapture(
     original: blobs?.original ?? null,
     display: blobs?.display ?? null,
   };
+}
+
+/** A Room capture as queued: its id, its key and the photos' local blobs. */
+export type QueuedRoom = { id: string; idempotencyKey: string; photos: LocalBlob[] };
+
+/**
+ * ROOM (#194): 1–5 photos of one room as one `create_thing` op, with the Kept codes the phone read
+ * in them (camera/still-codes.ts). It shows nothing in the place until Kept has listed what the
+ * photos show: the drafts arrive in the Inbox, under one Room card.
+ */
+export async function enqueueRoom(
+  store: OfflineStore,
+  input: { target: Target; batchId: string; images: readonly CapturedImage[]; codes: string[] },
+  { now = () => new Date(), ids = newId }: { now?: () => Date; ids?: () => string } = {},
+): Promise<QueuedRoom> {
+  const id = ids();
+  const blobs = [];
+  for (const image of input.images) blobs.push(await toLocalBlobs(image, ids));
+  const payload = {
+    id,
+    target: targetOf(input.target),
+    mode: 'room' as const,
+    batchId: input.batchId,
+    files: blobs.map((b) => ({
+      fileId: b.original.id,
+      role: 'photo' as const,
+      ...(b.display ? { displayFileId: b.display.id } : {}),
+      sha256: b.original.sha256,
+    })),
+    ...(input.codes.length > 0 ? { codes: [...input.codes] } : {}),
+  };
+  const item: Omit<QueueItem, 'clientVersion' | 'payloadVersion'> = {
+    clientId: id,
+    idempotencyKey: captureKey(id),
+    op: 'create_thing',
+    takenAt: now().toISOString(),
+    locationId: input.target.locationId,
+    payload,
+  };
+  const list = blobs.flatMap((b) => [b.original, ...(b.display ? [b.display] : [])]);
+  await store.enqueue(item, list);
+  return { id, idempotencyKey: item.idempotencyKey, photos: blobs.map((b) => b.original) };
 }
 
 /** A PDF can only be a receipt or an invoice: it goes as RECEIPT whatever was chosen. */

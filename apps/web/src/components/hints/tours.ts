@@ -122,6 +122,15 @@ export const TOURS: readonly Tour[] = [
       // Capture is a full screen with its controls at the bottom: the sheet docks at the top.
       { id: 'mode', to: '/capture', anchors: ['capture-mode'], dock: 'top', writes: true },
       { id: 'shutter', to: '/capture', anchors: ['capture-shutter'], dock: 'top', writes: true },
+      // #194: Room mode, where AI capture can run.
+      {
+        id: 'room',
+        to: '/capture',
+        anchors: ['capture-room'],
+        dock: 'top',
+        writes: true,
+        modules: ['ai_capture'],
+      },
       { id: 'whose', to: '/inbox', anchors: ['inbox-whose'], writes: true },
       { id: 'review', to: '/inbox', anchors: ['inbox-items'], writes: true },
     ],

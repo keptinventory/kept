@@ -11,3 +11,6 @@ export const captureLabelSearch = (thingId: string) => ({ label: thingId });
 
 export const captureLabelHref = (thingId: string) =>
   `/capture?label=${encodeURIComponent(thingId)}`;
+
+/** ROOM mode into a place (#194): "Fill from photos", "Photograph this room". */
+export const captureRoomSearch = (placeId: string) => ({ mode: 'room' as const, place: placeId });

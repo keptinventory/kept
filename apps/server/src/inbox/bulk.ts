@@ -11,6 +11,7 @@ import {
 } from '../audit/undo.js';
 import { rehomeOrphans } from '../capture/batch-undo.js';
 import { AppError, conflict, invalid, toErrorReply } from '../http/errors.js';
+import { placeAccepted } from '../room/map.js';
 import { moveBackForUndo, moveThings } from '../things/move.js';
 import { requireRole, updateThing, writableThing } from '../things/service.js';
 import { MoveTarget, type UpdateBody } from '../things/validate.js';
@@ -238,6 +239,14 @@ export async function bulk(ctx: Ctx, body: BulkBody): Promise<BulkResult> {
       if (reply.status >= 500) throw err;
       results.push({ id, ok: false, error: reply.body.code });
     }
+  }
+
+  // Accepted room photo drafts go on the map where their room is drawn (room/map.ts).
+  if (body.action === 'accept_names') {
+    await placeAccepted(
+      ctx,
+      [...byLocation.values()].flat().map((d) => d.before.id),
+    );
   }
 
   // One undoable event per location the selection spans (D150).

@@ -64,6 +64,9 @@ some. Under **This month**, a bar per limit shows the spend so far.
   the photo; each other one becomes a draft beside it, in the same place and batch, with its
   own picture cut from the photo, to confirm, merge or discard in the Inbox. How well the
   pictures are cut depends on the provider's boxes, so check a few drafts after turning it on.
+- **Room photos** (Room mode): one call per photo listing up to 60 objects, and for several
+  photos one short text-only call that merges them. The objects become drafts in the room, each
+  with its own picture ([Room photos](/users/room-photos/)).
 - **The assistant** answers from your inventory within your role, and each tool it uses adds a
   call. Changes it proposes show as a confirmation card that you approve; for viewers it is
   read-only.

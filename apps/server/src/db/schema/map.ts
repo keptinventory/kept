@@ -1,6 +1,7 @@
 import { MAP_ROOM_KINDS, MAP_SURFACES } from '@kept/shared';
 import { sql } from 'drizzle-orm';
 import {
+  boolean,
   check,
   foreignKey,
   index,
@@ -54,6 +55,9 @@ export const mapNodes = pgTable(
     /** A thing on a wall (#138): how high its middle hangs, in centimetres above the floor. Which
      * wall is its turn's (it faces into the room); null for everything standing. */
     height: integer('height_cm'),
+    /** Put here by Kept (a room photo's accepted thing), not by someone arranging: the next
+     * arrange shows it to nudge, and saving that arrange clears it. */
+    placedByKept: boolean('placed_by_kept').notNull().default(false),
     createdBy: uuid('created_by'),
     createdAt: tstz('created_at').notNull().defaultNow(),
   },

@@ -4,6 +4,14 @@ import type { KeptApp } from '../http/app.js';
 import { paginate, requireIfMatch } from '../http/conventions.js';
 import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
+import {
+  addPlaces,
+  closeRoom,
+  markRoomSeen,
+  PlacesBody,
+  retryRoom,
+  SeenBody,
+} from '../room/review.js';
 import { BulkBody, BulkResultSchema, bulk, registerInboxUndo } from './bulk.js';
 import {
   CandidatesQuery,
@@ -146,5 +154,37 @@ export async function inboxRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
     act(req, reply, restore),
   );
   app.post('/api/v1/inbox/:id/dismiss', item(Empty), (req, reply) => act(req, reply, dismiss));
+
+  // A room capture's card (#194): room/review.ts.
+  app.post(
+    '/api/v1/inbox/:id/room/places',
+    item(PlacesBody, z.object({ placeIds: z.array(z.uuid()) })),
+    (req, reply) =>
+      act(req, reply, async (ctx, id, v) => ({
+        placeIds: await addPlaces(ctx, id, v, req.body as z.infer<typeof PlacesBody>),
+      })),
+  );
+  app.post('/api/v1/inbox/:id/room/seen', item(SeenBody), (req, reply) =>
+    act(req, reply, async (ctx, id, v) => {
+      await markRoomSeen(ctx, id, v, req.body as z.infer<typeof SeenBody>);
+      return {};
+    }),
+  );
+  app.post(
+    '/api/v1/inbox/:id/room/done',
+    item(Empty, z.object({ photosKept: z.boolean() })),
+    (req, reply) => act(req, reply, (ctx, id, v) => closeRoom(ctx, id, v, 'done')),
+  );
+  app.post(
+    '/api/v1/inbox/:id/room/discard',
+    item(Empty, z.object({ photosKept: z.boolean() })),
+    (req, reply) => act(req, reply, (ctx, id, v) => closeRoom(ctx, id, v, 'discard')),
+  );
+  app.post('/api/v1/inbox/:id/room/retry', item(Empty), (req, reply) =>
+    act(req, reply, async (ctx, id, v) => {
+      await retryRoom(ctx, id, v);
+      return {};
+    }),
+  );
   app.post('/api/v1/inbox/:id/discard', item(Empty), (req, reply) => act(req, reply, discard));
 }

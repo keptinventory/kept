@@ -371,6 +371,7 @@ function MapBody({
 
   const engine = engineRef.current;
   const levelName = plan.levels.find((l) => l.key === es.levelKey)?.name ?? '';
+  const placedByKept = plan.items.filter((i) => i.placedByKept).slice(0, 12);
   const focusedRoom = es.focused ? plan.rooms.find((r) => r.id === es.focused) : undefined;
   const sel: CardSel | null = es.selected;
 
@@ -844,6 +845,22 @@ function MapBody({
               <Trans>Cancel</Trans>
             </button>
             <div className="kmap-hint">{hints[hint]}</div>
+            {placedByKept.length > 0 ? (
+              // #194: things Kept put on the floor from room photos, to move where they stand.
+              <div className="kmap-hint">
+                <Trans>Placed by Kept from room photos: move them where they stand.</Trans>{' '}
+                {placedByKept.map((i) => (
+                  <button
+                    key={i.id}
+                    type="button"
+                    className="kmap-btn"
+                    onClick={() => showOnMap({ type: 'item', id: i.id })}
+                  >
+                    <bdi>{i.name}</bdi>
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </div>
         ) : null}
         <div className="kmap-ctl" data-map-obstacle data-map-reserve="bottom">

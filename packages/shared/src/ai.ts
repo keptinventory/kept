@@ -315,6 +315,9 @@ export const LEDGER_TASKS = [
   'connection_test',
   // Step 7 (D69): search aliases proposed for imported things, opt-in after an import.
   'enrich_aliases',
+  // A room photo's objects, and the merge of a room capture's photos (text only).
+  'extract_room',
+  'extract_room_merge',
 ] as const;
 export type LedgerTask = (typeof LEDGER_TASKS)[number];
 

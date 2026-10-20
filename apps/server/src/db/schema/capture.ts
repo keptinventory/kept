@@ -20,6 +20,7 @@ import { attachments, files } from './files.js';
 import { meterReadings, meters } from './meters.js';
 import { purchases } from './purchases.js';
 import { types } from './registries.js';
+import { roomCaptures } from './room.js';
 import { serviceRecords } from './services.js';
 import { locations, ownerAccounts } from './tenancy.js';
 import { things } from './things.js';
@@ -54,6 +55,8 @@ export const extractions = pgTable(
     meterId: uuid('meter_id'),
     /** The draft service record whose invoice this reads; set at insert only. */
     serviceRecordId: uuid('service_record_id'),
+    /** ROOM: the room capture this photo is one of; set at insert only. */
+    roomCaptureId: uuid('room_capture_id'),
     mode: mode.col().notNull(),
     attempt: integer('attempt').notNull().default(1),
     status: status.col().notNull().default('queued'),
@@ -117,6 +120,16 @@ export const extractions = pgTable(
     })
       .onUpdate('cascade')
       .onDelete('cascade'),
+    foreignKey({
+      name: 'extractions_room_capture_fk',
+      columns: [t.locationId, t.roomCaptureId],
+      foreignColumns: [roomCaptures.locationId, roomCaptures.id],
+    })
+      .onUpdate('cascade')
+      .onDelete('cascade'),
+    index('extractions_room_capture_idx')
+      .on(t.roomCaptureId)
+      .where(sql`room_capture_id IS NOT NULL`),
     // One live attempt per attachment: a second queue of the same photo is refused (23505).
     uniqueIndex('extractions_live_uq')
       .on(t.attachmentId)
@@ -155,6 +168,8 @@ export const inboxItems = pgTable(
     meterReadingId: uuid('meter_reading_id'),
     extractionId: uuid('extraction_id'),
     otherThingId: uuid('other_thing_id'),
+    /** A `room` item's room capture. */
+    roomCaptureId: uuid('room_capture_id'),
     code: char('code', { length: 6 }),
     batchId: uuid('batch_id'),
     createdBy: uuid('created_by').notNull(),
@@ -173,7 +188,7 @@ export const inboxItems = pgTable(
     check('inbox_items_resolved_chk', sql`(resolved_at IS NULL) = (resolution IS NULL)`),
     check(
       'inbox_items_subject_chk',
-      sql`kind = 'sync_drop' OR num_nonnulls(thing_id, purchase_id, meter_reading_id, code) >= 1`,
+      sql`kind = 'sync_drop' OR num_nonnulls(thing_id, purchase_id, meter_reading_id, code, room_capture_id) >= 1`,
     ),
     foreignKey({
       name: 'inbox_items_thing_fk',
@@ -204,13 +219,21 @@ export const inboxItems = pgTable(
       .onUpdate('cascade')
       .onDelete('cascade'),
     foreignKey({
+      name: 'inbox_items_room_capture_fk',
+      columns: [t.locationId, t.roomCaptureId],
+      foreignColumns: [roomCaptures.locationId, roomCaptures.id],
+    })
+      .onUpdate('cascade')
+      .onDelete('cascade'),
+    foreignKey({
       name: 'inbox_items_other_thing_fk',
       columns: [t.locationId, t.otherThingId],
       foreignColumns: [things.locationId, things.id],
     })
       .onUpdate('cascade')
       .onDelete('cascade'),
-    // One open item per kind and subject (and duplicate pair, and code).
+    // One open item per kind and subject (and duplicate pair, and code). A `room` item's subject
+    // is its room capture, which isn't in the key: the capture opens it once.
     uniqueIndex('inbox_open_subject_uq')
       .on(
         t.kind,

@@ -15,6 +15,7 @@
 import {
   type CaptureMode,
   EXTRACTION_SCHEMAS,
+  RoomMerge,
   ServiceInvoiceExtraction,
   ThingManyExtraction,
 } from '@kept/shared';
@@ -158,6 +159,20 @@ export function thingManyWire(): JSONSchema7 {
     s = simplify(
       z.toJSONSchema(ThingManyExtraction, { target: 'draft-07', io: 'output' }),
     ) as JSONSchema7;
+    cache.set(id, s);
+  }
+  return s;
+}
+
+/** The structured-output name of a room capture's merge call; the mock reads it. */
+export const ROOM_MERGE_NAME = 'kept_room_merge';
+
+/** The merge of a room capture's photos (#194): groups of object indexes. */
+export function roomMergeWire(): JSONSchema7 {
+  const id = 'room-merge:simple';
+  let s = cache.get(id);
+  if (!s) {
+    s = simplify(z.toJSONSchema(RoomMerge, { target: 'draft-07', io: 'output' })) as JSONSchema7;
     cache.set(id, s);
   }
   return s;

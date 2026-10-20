@@ -425,6 +425,39 @@ describe('several things in one photo (1.4, D230)', () => {
     expect(split).toHaveLength(2);
   });
 
+  it('checks every drafted object for a duplicate, not only the first', async () => {
+    await setMulti(true);
+    const [shelfThing] = await own<{ id: string }>(
+      db,
+      `INSERT INTO public.things (location_id, place_id, name, serial)
+       SELECT $1, p.id, 'Old tape measure', 'TM-4471' FROM public.places p
+        WHERE p.location_id = $1 AND p.is_unplaced RETURNING id`,
+      [home.id],
+    );
+    const fileId = await up(louis, await bigJpeg());
+    const batchId = newId();
+    const out = await capture(louis, { batchId, files: [{ fileId, role: 'photo' }] });
+    const { key } = await keyOf(fileId, 'thing');
+    const answer = manyAnswer();
+    (answer.objects[1] as Record<string, unknown>).serial = c('TM-4471');
+    answers[key] = { output: answer };
+    expect((await run(louis, out.extraction.id)).status).toBe('succeeded');
+    const [tape] = await own<{ id: string }>(
+      db,
+      `SELECT id FROM public.things WHERE capture_batch_id = $1 AND name = 'Tape measure'`,
+      [batchId],
+    );
+    const dup = await own<{ other_thing_id: string; payload: Record<string, unknown> }>(
+      db,
+      `SELECT other_thing_id, payload FROM public.inbox_items
+        WHERE kind = 'duplicate' AND thing_id = $1 AND resolved_at IS NULL`,
+      [tape?.id],
+    );
+    expect(dup).toEqual([
+      { other_thing_id: shelfThing?.id, payload: expect.objectContaining({ reason: 'serial' }) },
+    ]);
+  });
+
   it('turned off (the default), asks for one object and makes one thing', async () => {
     const fileId = await up(louis, await bigJpeg());
     const batchId = newId();

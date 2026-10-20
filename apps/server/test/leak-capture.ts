@@ -91,6 +91,31 @@ export async function fillCapture(c: pg.ClientBase, t: Tenant, label: string): P
      VALUES ($1, 'draft', $2, $3, $4)`,
     [t.locationId, thing, extraction, t.userId],
   );
+  // Room photos (#194): a room capture of the box with its photo's extraction and its card.
+  const roomPhoto = await one(
+    `INSERT INTO public.attachments (location_id, file_id, thing_id, role, created_by)
+     SELECT location_id, file_id, $2, 'photo', created_by FROM public.attachments WHERE id = $1
+     RETURNING id`,
+    [photo, box],
+  );
+  const room = newId();
+  await c.query(
+    `INSERT INTO public.room_captures (id, location_id, container_id, batch_id, status, codes,
+                                       attachment_ids, result, created_by)
+     VALUES ($1, $2, $3, $4, 'ready', '{}', ARRAY[$5::uuid], '{"drafts": []}', $6)`,
+    [room, t.locationId, box, newId(), roomPhoto, t.userId],
+  );
+  await c.query(
+    `INSERT INTO public.extractions (location_id, attachment_id, room_capture_id, mode, status,
+                                     requested_by)
+     VALUES ($1, $2, $3, 'room', 'succeeded', $4)`,
+    [t.locationId, roomPhoto, room, t.userId],
+  );
+  await c.query(
+    `INSERT INTO public.inbox_items (location_id, kind, room_capture_id, created_by)
+     VALUES ($1, 'room', $2, $3)`,
+    [t.locationId, room, t.userId],
+  );
   const template = newId();
   await c.query(
     `INSERT INTO public.templates (id, owner_account_id, name, payload, created_by)

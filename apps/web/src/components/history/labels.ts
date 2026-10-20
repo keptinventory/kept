@@ -401,6 +401,8 @@ export function useSummary() {
       // #140: a sentence for every other action, and the refinements.
       'attachment.create.photo': () => t`Added a photo to ${name}`,
       'thing.capture': () => t`Captured ${name} from a photo`,
+      'room.capture': () => t`Photographed ${name} for Kept to list what is in it`,
+      'map.place': () => t`Put ${name} on the map`,
       'thing.capture.reading': () => t`Logged a reading of ${name} from a photo`,
       'thing.extract': () => t`Filled in ${name} from a photo`,
       'thing.reextract': () => t`Read the photo of ${name} again`,

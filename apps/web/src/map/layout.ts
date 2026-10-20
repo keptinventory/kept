@@ -103,6 +103,9 @@ export type Item = {
   /** Why it has its shape, when it was put on the map in this session (D249): from its type or
    * its name, or a guess the card asks about. Never stored; picking a shape clears it. */
   shapeFrom?: ShapeFrom;
+  /** Kept put it here by itself (a room photo's accepted thing, #194): Arrange lists it to
+   * nudge. Saving the arrangement makes it the person's. */
+  placedByKept?: boolean;
 };
 
 export type Plan = { levels: Level[]; rooms: Room[]; items: Item[] };
@@ -333,6 +336,7 @@ function itemOf(n: MapNodeView, model: MapModelKey, x: number, z: number): Item 
     isContainer: n.isContainer,
     quantity: n.quantity,
     auto: n.parentId === n.roomId && (n.subject === 'place' || n.isContainer),
+    ...(n.layout?.placedByKept ? { placedByKept: true } : {}),
   };
 }
 

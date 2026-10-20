@@ -13,6 +13,7 @@ import { CALL_COLUMNS, type CallRow, CallSummary, callSummaryOf } from '../extra
 import { type PageRequest, pageOf } from '../http/conventions.js';
 import { forbidden, invalid } from '../http/errors.js';
 import { requireCan, requireMembership } from '../locations/access.js';
+import { RoomViewSchema, roomViews } from '../room/view.js';
 import { thumbKeysOf, thumbUrlOf } from '../search/service.js';
 import { type Gate, gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
@@ -163,6 +164,7 @@ export const InboxItemSchema = z.object({
     })
     .optional(),
   currency: z.object({ seen: z.string(), options: z.array(z.string()) }).optional(),
+  room: RoomViewSchema.optional(),
   syncDrop: z
     .object({
       op: z.unknown(),
@@ -201,6 +203,7 @@ export type ItemRow = {
   meter_reading_id: string | null;
   extraction_id: string | null;
   other_thing_id: string | null;
+  room_capture_id: string | null;
   code: string | null;
   batch_id: string | null;
   created_by: string;
@@ -211,7 +214,8 @@ export type ItemRow = {
 };
 
 export const ITEM_COLUMNS = `i.id, i.location_id, i.kind, i.thing_id, i.purchase_id,
-  i.meter_reading_id, i.extraction_id, i.other_thing_id, i.code::text AS code, i.batch_id,
+  i.meter_reading_id, i.extraction_id, i.other_thing_id, i.room_capture_id, i.code::text AS code,
+  i.batch_id,
   i.created_by, i.payload, i.created_at, i.row_version`;
 
 /**
@@ -344,7 +348,8 @@ export async function listInbox(
                   < ($5::timestamptz, $6::uuid, $7::uuid))
      )${pattern ? SUBJECT_LAYERS : ''}
      SELECT s.id, s.location_id, s.kind, s.thing_id, s.purchase_id, s.meter_reading_id,
-            s.extraction_id, s.other_thing_id, s.code, s.batch_id, s.created_by, s.payload,
+            s.extraction_id, s.other_thing_id, s.room_capture_id, s.code, s.batch_id,
+            s.created_by, s.payload,
             s.created_at, s.row_version, up.display_name AS created_by_name,
             s.sort_at::text AS sort_at, coalesce(s.batch_id, s.id) AS group_key
        FROM ${pattern ? 'subjects' : 'filtered'} s
@@ -548,6 +553,11 @@ export async function itemsOf(
     );
     for (const r of ex) extractions.set(r.id, r);
   }
+
+  // Room cards (#194).
+  const rooms = await roomViews(client, files, [
+    ...new Set(items.flatMap((i) => (i.room_capture_id ? [i.room_capture_id] : []))),
+  ]);
 
   // Receipts: the purchase, its lines and pages.
   const purchaseIds = [...new Set(items.flatMap((i) => (i.purchase_id ? [i.purchase_id] : [])))];
@@ -853,6 +863,11 @@ export async function itemsOf(
           claimedFor: { kind: c.kind, id: c.id, name: str(c.name) ?? '' },
         };
       }
+    }
+
+    if (i.kind === 'room' && i.room_capture_id) {
+      const room = rooms.get(i.room_capture_id);
+      if (room) out.room = room;
     }
 
     if (i.kind === 'sync_drop') {

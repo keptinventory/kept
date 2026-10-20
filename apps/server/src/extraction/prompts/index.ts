@@ -8,6 +8,7 @@ import {
   type ReceiptVersion,
   receiptPrompt,
 } from './receipt.js';
+import { PROMPT_VERSION as ROOM_VERSION, roomPrompt } from './room.js';
 import {
   MANY_VERSION as THING_MANY_VERSION,
   PROMPT_VERSION as THING_VERSION,
@@ -24,6 +25,7 @@ export const PROMPT_VERSIONS: Readonly<Record<CaptureMode, string>> = Object.fre
   receipt: RECEIPT_VERSION,
   label: LABEL_VERSION,
   reading: READING_VERSION,
+  room: ROOM_VERSION,
 });
 
 /**
@@ -36,6 +38,7 @@ export const PROMPT_CHOICES: Readonly<Record<CaptureMode, readonly string[]>> = 
   receipt: RECEIPT_VERSIONS,
   label: [LABEL_VERSION],
   reading: [READING_VERSION],
+  room: [ROOM_VERSION],
 });
 
 /** The prompt for `mode`: the version in use, or `version` when given (T11). An unknown version
@@ -54,5 +57,7 @@ export function promptFor(mode: CaptureMode, ctx: PromptContext, version?: strin
       return labelPrompt(ctx);
     case 'reading':
       return readingPrompt(ctx);
+    case 'room':
+      return roomPrompt(ctx);
   }
 }

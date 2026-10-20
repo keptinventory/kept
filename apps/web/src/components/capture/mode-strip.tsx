@@ -12,6 +12,9 @@ import { useHint } from '@/components/hints/use-hint';
 
 const KEY = 'kept.capture.mode';
 
+const RADIO =
+  'flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-md px-1.5 text-center font-semibold text-[11.5px] text-[#BDB7AC] uppercase leading-tight tracking-[0.08em] outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-1 data-focus-visible:outline-[#F2EFE9] data-selected:bg-amber data-selected:text-amber-ink';
+
 export function storedMode(): CaptureMode {
   try {
     const v = localStorage.getItem(KEY);
@@ -42,7 +45,13 @@ export function swipeMode(mode: CaptureMode, dx: number, rtl: boolean): CaptureM
 
 export function useModeNames(): Record<CaptureMode, string> {
   const { t } = useLingui();
-  return { thing: t`Thing`, receipt: t`Receipt`, label: t`Label`, reading: t`Reading` };
+  return {
+    thing: t`Thing`,
+    receipt: t`Receipt`,
+    label: t`Label`,
+    reading: t`Reading`,
+    room: t`Room`,
+  };
 }
 
 export function ModeStrip({
@@ -66,15 +75,17 @@ export function ModeStrip({
       onChange={(v) => onChange(v as CaptureMode)}
       className="mx-3 mt-2.5 flex gap-1.5 rounded-[10px] bg-[#141311] p-1.5"
     >
-      {CAPTURE_MODES.map((m) => (
-        <Radio
-          key={m}
-          value={m}
-          className="flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-md px-1.5 text-center font-semibold text-[11.5px] text-[#BDB7AC] uppercase leading-tight tracking-[0.08em] outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-1 data-focus-visible:outline-[#F2EFE9] data-selected:bg-amber data-selected:text-amber-ink"
-        >
-          {names[m]}
-        </Radio>
-      ))}
+      {CAPTURE_MODES.map((m) =>
+        m === 'room' ? (
+          <Radio key={m} value={m} data-tour="capture-room" className={RADIO}>
+            {names[m]}
+          </Radio>
+        ) : (
+          <Radio key={m} value={m} className={RADIO}>
+            {names[m]}
+          </Radio>
+        ),
+      )}
     </RadioGroup>
   );
 }

@@ -46,7 +46,7 @@ export async function findDuplicate(
 export async function openDuplicate(
   client: pg.ClientBase,
   thing: { id: string; locationId: string; batchId: string | null },
-  extractionId: string,
+  extractionId: string | null,
   suggestedSerial: string | null,
 ): Promise<string | null> {
   const match = await findDuplicate(client, thing.id, suggestedSerial);

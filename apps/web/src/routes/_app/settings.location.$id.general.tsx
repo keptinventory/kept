@@ -3,7 +3,8 @@
  * it; the server checks). Its languages: the ones AI writes search aliases in when it fills in a
  * thing here, chosen in a multi-select with flags. Its timezone: dates here read in it. Its
  * currency: new amounts default to it (existing amounts keep theirs; converted totals need
- * Account → Exchange rates). Then the location's own codes: numbering and
+ * Account → Exchange rates). Room photos: whether the full photos of a room stay on its place
+ * after review (#194; deleted by default). Then the location's own codes: numbering and
  * the format rule (D208). Last, for the owner, Delete with "Export first" (D149).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -23,6 +24,7 @@ import { Section, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { Select, SelectItem } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
 
@@ -40,6 +42,7 @@ function GeneralPage() {
         <div className="grid gap-8">
           <NameForm key={`${loc.id}:${loc.name}`} location={loc} />
           <LanguagesForm key={`${loc.id}:${(loc.languages ?? []).join()}`} location={loc} />
+          <RoomPhotosForm location={loc} />
           <TimezoneForm key={`${loc.id}:${loc.timezone}`} location={loc} />
           <CurrencyForm key={`${loc.id}:${loc.currency}`} location={loc} />
           <OwnCodeSettingsSection locationId={loc.id} />
@@ -137,6 +140,43 @@ function LanguagesForm({ location }: { location: LocationDetail }) {
         <Trans>Save</Trans>
       </Button>
     </div>
+  );
+}
+
+/** Room photos (#194): the full photos of a room are deleted once it is reviewed, unless kept. */
+function RoomPhotosForm({ location }: { location: LocationDetail }) {
+  const { t } = useLingui();
+  const qc = useQueryClient();
+  const errorText = useErrorText();
+  const save = useMutation({
+    mutationFn: (keep: boolean) =>
+      updateLocation(location.id, { keepRoomPhotos: keep }, location.rowVersion),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: keys.location(location.id) });
+      await qc.invalidateQueries({ queryKey: keys.locations });
+      toast({ title: t`Saved`, tone: 'ok' });
+    },
+    onError: (e) => toast({ title: errorText(e), tone: 'danger' }),
+  });
+  return (
+    <Section title={<Trans>Room photos</Trans>}>
+      <div className="grid gap-2 rounded-[10px] border border-line bg-surface p-3.5">
+        <Switch
+          isSelected={location.keepRoomPhotos ?? false}
+          isDisabled={save.isPending}
+          onChange={(on) => save.mutate(on)}
+        >
+          <Trans>Keep room photos after review</Trans>
+        </Switch>
+        <p className="m-0 text-small text-ink-2">
+          <Trans>
+            When you photograph a room, Kept cuts a picture for each thing it finds. Once you close
+            the room in the inbox, the full photos are deleted, unless this is on: then they stay on
+            the room's page.
+          </Trans>
+        </p>
+      </div>
+    </Section>
   );
 }
 

@@ -196,6 +196,8 @@ export type LocationDetail = LocationSummary & {
   languages?: string[];
   moneyVisibleToViewers?: boolean;
   longUnseenMonths?: number;
+  /** Room photos stay on their place after review (#194). */
+  keepRoomPhotos?: boolean;
   /** The owner's nominated successor (D165); shown to the owner only. */
   successorUserId?: string | null;
   createdAt?: string;
@@ -224,6 +226,8 @@ export type UpdateLocationBody = {
   timezone?: string;
   /** Enabled currency code, uppercased by the server: new amounts default to it. */
   currency?: string;
+  /** Room photos stay on their place after review (#194); deleted then by default. */
+  keepRoomPhotos?: boolean;
 };
 
 /**

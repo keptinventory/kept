@@ -238,7 +238,8 @@ export class OutputWindow {
 /** What a call of a mode is expected to produce: the most seen so far, else the reference. */
 function expectedOutput(mode: EvalMode, seen: Map<EvalMode, number>): number {
   const task = mode === 'multi' ? 'extract_thing' : (`extract_${mode}` as const);
-  const ref = REFERENCE_FIGURES.tasks[task]?.outputTokens ?? 600;
+  const tasks: Partial<Record<string, { outputTokens: number }>> = REFERENCE_FIGURES.tasks;
+  const ref = tasks[task]?.outputTokens ?? 600;
   return Math.ceil(Math.max(ref, seen.get(mode) ?? 0) * 1.2);
 }
 

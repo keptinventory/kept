@@ -123,7 +123,9 @@ type InboxUpsert = {
   purchaseId?: string | null;
   meterReadingId?: string | null;
   otherThingId?: string | null;
-  extractionId: string;
+  /** Null for an item no extraction opened (a room photo's draft: its photo's extraction goes
+   * when the photo is deleted after review, and would take the item with it). */
+  extractionId: string | null;
   batchId: string | null;
   payload: Record<string, unknown>;
 };
@@ -154,7 +156,10 @@ export async function upsertInbox(client: pg.ClientBase, item: InboxUpsert): Pro
       item.otherThingId ?? null,
       item.extractionId,
       item.batchId,
-      JSON.stringify({ ...item.payload, extractionId: item.extractionId }),
+      JSON.stringify({
+        ...item.payload,
+        ...(item.extractionId ? { extractionId: item.extractionId } : {}),
+      }),
     ],
   );
   return (rows[0] as { id: string }).id;

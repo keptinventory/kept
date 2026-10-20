@@ -252,6 +252,8 @@ describe('D206 additions', () => {
       'embed_query',
       'connection_test',
       'enrich_aliases',
+      'extract_room',
+      'extract_room_merge',
     ]);
     expect(LEDGER_OUTCOMES).toEqual([
       'ok',
@@ -276,6 +278,8 @@ describe('D206 additions', () => {
     ['extract_thing', 'extraction'],
     ['extract_reading', 'extraction'],
     ['enrich_aliases', 'extraction'],
+    ['extract_room', 'extraction'],
+    ['extract_room_merge', 'extraction'],
     ['assistant_turn', 'assistant'],
     ['assistant_followup', 'assistant'],
     ['embed_query', 'embeddings'],

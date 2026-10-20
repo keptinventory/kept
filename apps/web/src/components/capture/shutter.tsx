@@ -21,6 +21,8 @@ export function useShutterLabel() {
         return t`Take photo: label`;
       case 'reading':
         return t`Take photo: reading`;
+      case 'room':
+        return t`Take photo: room`;
       default:
         return t`Take photo: new thing`;
     }

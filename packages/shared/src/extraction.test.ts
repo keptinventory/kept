@@ -13,6 +13,8 @@ import {
   REVIEW_FIELDS,
   ReadingExtraction,
   ReceiptExtraction,
+  RoomExtraction,
+  RoomMerge,
   ServiceInvoiceExtraction,
   ThingExtraction,
 } from './extraction.js';
@@ -70,7 +72,7 @@ describe('schemas (§2.1)', () => {
 
   it('has a schema per capture mode', () => {
     expect(Object.keys(EXTRACTION_SCHEMAS).sort()).toEqual(
-      ['label', 'reading', 'receipt', 'thing'].sort(),
+      ['label', 'reading', 'receipt', 'room', 'thing'].sort(),
     );
   });
 
@@ -208,7 +210,13 @@ describe('review rules (D19, D41, D128)', () => {
 
 describe('token caps (Q6)', () => {
   it('adds the reasoning allowance to the mode’s JSON allowance', () => {
-    expect(MAX_OUTPUT_TOKENS).toEqual({ thing: 700, receipt: 2500, label: 600, reading: 200 });
+    expect(MAX_OUTPUT_TOKENS).toEqual({
+      thing: 700,
+      receipt: 2500,
+      label: 600,
+      reading: 200,
+      room: 8000,
+    });
     expect(REASONING_ALLOWANCE).toEqual({
       none: 0,
       minimal: 512,
@@ -265,5 +273,48 @@ describe('the service invoice (step 5, Q12)', () => {
   it('a plain receipt line has no kind', () => {
     const r = ReceiptExtraction.parse({ lines: [{ description: c('Milk'), kind: c('part') }] });
     expect(r.lines[0]).toEqual({ description: c('Milk') });
+  });
+});
+
+describe('a room photo', () => {
+  const object = (name: string, kind = 'item') => ({
+    bbox: [0.1, 0.2, 0.3, 0.4],
+    kind,
+    name: c(name),
+    aliases: { en: ['keyword'] },
+  });
+
+  it('lists up to sixty objects, each with its box and kind', () => {
+    const many = Array.from({ length: 60 }, (_, i) => object(`Object ${i}`));
+    expect(RoomExtraction.safeParse({ objects: many }).success).toBe(true);
+    expect(EXTRACTION_SCHEMAS.room).toBe(RoomExtraction);
+    const parsed = parseLenient(RoomExtraction, {
+      objects: [...many, object('One too many')],
+    });
+    expect(parsed?.value.objects).toHaveLength(60);
+    expect(parsed?.dropped).toContain('objects.60');
+  });
+
+  it('drops an object whose kind or box is missing, and keeps the rest', () => {
+    const parsed = parseLenient(RoomExtraction, {
+      objects: [
+        object('Desk lamp'),
+        { ...object('Mystery'), kind: 'person' },
+        { name: c('No box'), kind: 'item', aliases: {} },
+      ],
+    });
+    expect(parsed?.value.objects.map((o) => o.name.value)).toEqual(['Desk lamp']);
+    expect(parsed?.dropped).toEqual(['objects.1', 'objects.2']);
+  });
+
+  it('knows storage furniture from other furniture', () => {
+    for (const kind of ['item', 'furniture', 'storage']) {
+      expect(RoomExtraction.safeParse({ objects: [object('X', kind)] }).success).toBe(true);
+    }
+  });
+
+  it('merges by index groups', () => {
+    expect(RoomMerge.safeParse({ groups: [[0, 2], [1]] }).success).toBe(true);
+    expect(RoomMerge.safeParse({ groups: [[-1]] }).success).toBe(false);
   });
 });

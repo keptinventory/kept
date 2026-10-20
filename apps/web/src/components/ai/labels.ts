@@ -33,6 +33,10 @@ export function useTaskLabel(): (task: LedgerTask) => string {
         return t`Test connection`;
       case 'enrich_aliases':
         return t`Aliases for imported things`;
+      case 'extract_room':
+        return t`Room photo`;
+      case 'extract_room_merge':
+        return t`Room photos merged`;
     }
   };
 }
@@ -51,6 +55,10 @@ export function useActionLabel(): (task: LedgerTask) => string {
         return t`Each label or nameplate photo`;
       case 'extract_reading':
         return t`Each meter reading`;
+      case 'extract_room':
+        return t`Each room photo`;
+      case 'extract_room_merge':
+        return t`Each room capture of several photos`;
       case 'assistant_turn':
         return t`Each assistant question`;
       case 'embed_query':

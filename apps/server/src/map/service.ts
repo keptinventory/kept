@@ -4,6 +4,8 @@ import {
   carryOf,
   cmToM,
   firstOverlap,
+  footprintOf,
+  guessModel,
   hangRange,
   isMapModel,
   isWallModel,
@@ -11,7 +13,11 @@ import {
   MAP_ROOM_KINDS,
   MAP_SURFACES,
   type MapModelKey,
+  type MapRect,
+  mToCm,
   offWall,
+  placeInRoom,
+  shapeOnAdd,
 } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
@@ -20,7 +26,15 @@ import { audited } from '../audit/audited.js';
 import type { Scope, Tx } from '../db/scope.js';
 import { AppError, invalid } from '../http/errors.js';
 import { requireCan, requireMembership } from '../locations/access.js';
-import { mapTree, NODE_COLUMNS, type NodeRow, nodeRows, placeRows, versionOf } from './view.js';
+import {
+  mapTree,
+  NODE_COLUMNS,
+  type NodeRow,
+  nodeRows,
+  placeRows,
+  thingRows,
+  versionOf,
+} from './view.js';
 
 // PUT /api/v1/locations/:id/layout (1.x, D237): one arrange session, the whole layout at once.
 //
@@ -289,6 +303,160 @@ function checkWall(
   }
 }
 
+/** Puts back rows Kept placed (a save that didn't know them), as they were. */
+async function insertPlaced(
+  client: pg.ClientBase,
+  locationId: string,
+  rows: readonly NodeRow[],
+): Promise<NodeRow[]> {
+  const { rows: out } = await client.query<NodeRow>(
+    `INSERT INTO public.map_nodes (location_id, place_id, thing_id, x_cm, z_cm, rot, model,
+                                   placed_by_kept, created_at, created_by)
+     SELECT $1, r.place_id, r.thing_id, r.x, r.z, r.rot, r.model, true, r.created_at,
+            kept.current_user_id()
+       FROM jsonb_to_recordset($2::jsonb)
+         AS r(place_id uuid, thing_id uuid, x int, z int, rot int, model text,
+              created_at timestamptz)
+     RETURNING ${NODE_COLUMNS}`,
+    [
+      locationId,
+      JSON.stringify(
+        rows.map((r) => ({
+          place_id: r.place_id,
+          thing_id: r.thing_id,
+          x: r.x,
+          z: r.z,
+          rot: r.rot,
+          model: r.model,
+          created_at: r.created_at,
+        })),
+      ),
+    ],
+  );
+  return out;
+}
+
+// POST /api/v1/locations/:id/layout/nodes (#194): Kept puts things on the map by itself (a room
+// photo's accepted things). Each named thing (or place) that stands in a room the map has a
+// rectangle for, and isn't on the map yet, gets a node: the shape asked for, else the one its
+// type and name give (shapeOnAdd, as the map's "Put on the map"), on free floor in a row from the
+// room's corner (placeInRoom), clear of what already stands there. The rows are flagged
+// `placed_by_kept`: they don't move the layout's version, so someone arranging meanwhile isn't
+// told to load it again, and their save keeps them (putLayout); the next arrange shows them to
+// nudge. Anything else named is skipped, not refused: the call is a convenience, never a reason
+// for an accept to fail. Audited `map.place` per thing put on the map.
+
+export const AddNodesBody = z.object({
+  nodes: z
+    .array(z.object({ id: z.uuid(), model: z.string().max(40).optional() }))
+    .min(1)
+    .max(MAP_LIMITS.nodes),
+});
+export type AddNodesBody = z.infer<typeof AddNodesBody>;
+
+export async function addNodes(
+  c: Ctx,
+  locationId: string,
+  body: AddNodesBody,
+): Promise<{ added: string[]; version: string | null }> {
+  const me = await requireMembership(c.client, locationId);
+  requireCan(me.role, 'things.edit');
+  await lockLayout(c.client, locationId);
+  const before = await nodeRows(c.client, locationId);
+  const tree = mapTree(await placeRows(c.client, locationId));
+  const things = new Map((await thingRows(c.client, locationId)).map((t) => [t.id, t]));
+  const roomOfThing = (id: string): string | null => {
+    const seen = new Set<string>();
+    let cur = things.get(id);
+    while (cur && !seen.has(cur.id)) {
+      seen.add(cur.id);
+      if (cur.place_id) return tree.roomOfPlace(cur.place_id);
+      cur = cur.container_id ? things.get(cur.container_id) : undefined;
+    }
+    return null;
+  };
+  const roomOf = (id: string): string | null =>
+    tree.places.has(id) ? tree.roomOfPlace(id) : roomOfThing(id);
+  const onMap = new Map(before.map((r) => [(r.place_id ?? r.thing_id) as string, r]));
+  const roomRect = (id: string) => {
+    const r = onMap.get(id);
+    return r && r.w !== null && r.d !== null ? { w: cmToM(r.w), d: cmToM(r.d) } : null;
+  };
+  // What already stands on each room's floor.
+  const taken = new Map<string, MapRect[]>();
+  for (const r of before) {
+    if (r.w !== null || r.host_id) continue;
+    const id = (r.place_id ?? r.thing_id) as string;
+    const room = roomOf(id);
+    if (!room || !r.model || !isMapModel(r.model)) continue;
+    const f = footprintOf(r.model, r.rot);
+    taken.set(room, [...(taken.get(room) ?? []), { x: cmToM(r.x), z: cmToM(r.z), ...f }]);
+  }
+  const wanted = new Map<
+    string,
+    { id: string; model: MapModelKey; subject: 'place' | 'thing' }[]
+  >();
+  for (const n of body.nodes) {
+    const id = n.id.toLowerCase();
+    if (onMap.has(id)) continue;
+    const place = tree.places.get(id);
+    const thing = things.get(id);
+    if (!place && !thing) continue;
+    if (place && (place.is_unplaced || tree.rooms.has(id))) continue;
+    const room = roomOf(id);
+    if (!room || !roomRect(room)) continue;
+    const model =
+      n.model && isMapModel(n.model)
+        ? n.model
+        : thing
+          ? shapeOnAdd({
+              name: thing.name,
+              typeKey: thing.type_key,
+              typeName: thing.type_name,
+              isContainer: thing.is_container,
+            }).model
+          : guessModel({ name: place?.name ?? null, subject: 'place', kindKey: place?.kind_key });
+    wanted.set(room, [
+      ...(wanted.get(room) ?? []),
+      { id, model, subject: place ? 'place' : 'thing' },
+    ]);
+  }
+  const rows: { id: string; s: 'place' | 'thing'; x: number; z: number; model: string }[] = [];
+  for (const [room, list] of wanted) {
+    const spots = placeInRoom(
+      roomRect(room) as { w: number; d: number },
+      taken.get(room) ?? [],
+      list.map((x) => footprintOf(x.model, 0)),
+    );
+    list.forEach((x, i) => {
+      const at = spots[i];
+      if (at) rows.push({ id: x.id, s: x.subject, x: mToCm(at.x), z: mToCm(at.z), model: x.model });
+    });
+  }
+  if (rows.length > 0) {
+    await c.client.query(
+      `INSERT INTO public.map_nodes (location_id, place_id, thing_id, x_cm, z_cm, rot, model,
+                                     placed_by_kept, created_by)
+       SELECT $1, CASE WHEN r.s = 'place' THEN r.id END, CASE WHEN r.s = 'thing' THEN r.id END,
+              r.x, r.z, 0, r.model, true, kept.current_user_id()
+         FROM jsonb_to_recordset($2::jsonb) AS r(id uuid, s text, x int, z int, model text)`,
+      [locationId, JSON.stringify(rows)],
+    );
+    for (const r of rows) {
+      await audited(c.tx, {
+        locationId,
+        actor: actorOf(c.scope),
+        action: 'map.place',
+        entity: { type: r.s, id: r.id },
+        after: { x: r.x, z: r.z, model: r.model },
+        ...(r.s === 'thing' ? { rootThingId: r.id, subjects: [r.id] } : {}),
+        requestId: c.requestId,
+      });
+    }
+  }
+  return { added: rows.map((r) => r.id), version: versionOf(before) };
+}
+
 /** Ten minutes (the arrange session's undo, D237). */
 export const ARRANGE_UNDO_MS = 10 * 60 * 1000;
 
@@ -310,7 +478,17 @@ export async function putLayout(
     );
   }
   const image = await checkedImage(c.client, locationId, body);
-  const after = await writeImage(c.client, locationId, image);
+  // Things Kept put on the map since this session began, and that it doesn't name, stay.
+  const since = body.version ? new Date(body.version) : null;
+  const named = new Set(image.map((r) => r.id));
+  const kept = before.filter(
+    (r) =>
+      r.placed_by_kept &&
+      (since === null || r.created_at > since) &&
+      !named.has((r.place_id ?? r.thing_id) as string),
+  );
+  let after = await writeImage(c.client, locationId, image);
+  if (kept.length > 0) after = [...after, ...(await insertPlaced(c.client, locationId, kept))];
   await audited(c.tx, {
     locationId,
     actor: actorOf(c.scope),
