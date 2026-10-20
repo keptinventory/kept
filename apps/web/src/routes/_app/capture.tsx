@@ -5,6 +5,8 @@
  *
  * - `?into=<thing id>`: capture into that box ("Capture into Box 3" from a scan);
  * - `?place=<place id>`: "Capture here" from a place;
+ * - `?mode=room`: ROOM mode, photos of a whole room (#194: "Fill from photos" on a place,
+ *   "Photograph this room" on the map's room card), usually with `?place=`;
  * - `?label=<thing id>`: LABEL mode on that thing ("read its registration card" from a
  *   vehicle's Documents tab); `captureLabelSearch()` in components/capture/links.ts builds it;
  * - `?shared=<id>` / `?share=<problem>`: a share into Kept (D140), shown as the
@@ -28,6 +30,7 @@ type CaptureSearch = {
   into?: string;
   place?: string;
   label?: string;
+  mode?: 'room';
 };
 
 const PROBLEMS: readonly ShareProblem[] = ['unavailable', 'failed', 'empty'];
@@ -45,6 +48,7 @@ export const Route = createFileRoute('/_app/capture')({
       ...(into ? { into } : {}),
       ...(place ? { place } : {}),
       ...(label ? { label } : {}),
+      ...(s.mode === 'room' ? { mode: 'room' as const } : {}),
     };
   },
   component: CapturePage,
@@ -52,7 +56,7 @@ export const Route = createFileRoute('/_app/capture')({
 
 function CapturePage() {
   const { t } = useLingui();
-  const { shared, share, into, place, label } = Route.useSearch();
+  const { shared, share, into, place, label, mode } = Route.useSearch();
   const navigate = useNavigate();
   const router = useRouter();
   const me = useMe();
@@ -98,6 +102,7 @@ function CapturePage() {
       {...(into ? { into } : {})}
       {...(place ? { placeId: place } : {})}
       {...(label ? { labelFor: label } : {})}
+      {...(mode ? { startMode: mode } : {})}
       onExit={exit}
       onOpen={open}
       // One decoder for capture and Scan: native where it reads QR, else the lazy wasm.
@@ -121,6 +126,7 @@ function CapturePage() {
                         ...(into ? { into } : {}),
                         ...(place ? { place } : {}),
                         ...(label ? { label } : {}),
+                        ...(mode ? { mode } : {}),
                       },
                       replace: true,
                     })

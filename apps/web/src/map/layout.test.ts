@@ -235,6 +235,17 @@ describe('planOf (auto layout, M2)', () => {
     });
   });
 
+  it('marks what Kept placed by itself from room photos, for Arrange to list', () => {
+    const v = view();
+    const desk = v.nodes[2];
+    if (desk) {
+      desk.layout = { x: 100, z: 100, rot: 0, model: 'desk', hostId: null, placedByKept: true };
+    }
+    const p = planOf(v, NAMES);
+    expect(p.items.find((i) => i.id === DESK)?.placedByKept).toBe(true);
+    expect(p.items.find((i) => i.id === SHELF)?.placedByKept).toBeUndefined();
+  });
+
   it('drops a host that is gone, can’t hold it or makes a loop', () => {
     const v = view();
     const [shelf, box, desk] = v.nodes;

@@ -7,6 +7,8 @@
  *   with the paused banner under it where AI is paused ("Photos still save; naming waits", D206).
  * - READING mode reads a meter, so its chip names one (./reading-target.tsx): only things with a
  *   meter, since the server refuses a READING into a plain place.
+ * - ROOM mode (#194) gathers 1–5 photos of one room in a tray (./room-tray.tsx) and sends them
+ *   as one capture, with the Kept labels read in them on the phone (camera/still-codes.ts).
  * - The mode strip picks the photo policy (camera/image.ts) and the shutter's name.
  * - Every capture, from any source, is one queued `create_thing` (./enqueue.ts), shown at once
  *   in its place as "ID pending"; the sync engine sends it when online.
@@ -18,7 +20,7 @@
  * `getUserMedia`, a fixed position) and the route passes the real ones.
  */
 import type { CaptureMode, SnapLocation, SnapPlace, SnapThing } from '@kept/shared';
-import { newId } from '@kept/shared';
+import { newId, ROOM_LIMITS } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -46,6 +48,7 @@ import {
 } from '@/camera/image';
 import { type Detect, nativeDetect, watchForLabels } from '@/camera/label-recogniser';
 import { type CameraEnv, type CameraProblem, cameraEnv, openCamera } from '@/camera/session';
+import { keptCodesIn } from '@/camera/still-codes';
 import { PausedBanner } from '@/components/ai/paused-banner';
 import { tourLedger } from '@/components/hints/tour-ledger';
 import { hintSlot } from '@/components/hints/use-hint';
@@ -61,8 +64,16 @@ import { toast } from '@/components/ui/toast';
 import { useFormat } from '@/lib/format';
 import type { OfflineStore, SharedInto } from '@/offline/store';
 import { useHoldUpdates } from '@/pwa/register';
+import { TRY } from '@/try/flag';
 import { Counter } from './counter';
-import { enqueueCapture, enqueueFiles, modeForFile, type Queued, undoBatch } from './enqueue';
+import {
+  enqueueCapture,
+  enqueueFiles,
+  enqueueRoom,
+  modeForFile,
+  type Queued,
+  undoBatch,
+} from './enqueue';
 import { FileFallback } from './file-fallback';
 import { FilePick, GalleryImport, SideButton } from './gallery-import';
 import { ModeStrip, rememberMode, storedMode, swipeMode } from './mode-strip';
@@ -72,6 +83,8 @@ import { PlaceChip, PlaceSheet, type SuggestState, useTargetPath } from './place
 import { ReadingChip, ReadingSheet, type ReadingTarget, ReadingValueField } from './reading-target';
 import { type Recognised, RecognisedLabel } from './recognised';
 import { RoomGrid } from './room-grid';
+import { type RoomBlock, type RoomShot, RoomTray } from './room-tray';
+import { sampleRoomPhoto } from './sample-room';
 import type { SharedMode } from './shared-sheet';
 import { Shutter, useShutterLabel } from './shutter';
 import { CaptureSummary } from './summary';
@@ -99,6 +112,8 @@ export type CaptureScreenProps = {
    * reads it (a vehicle's registration card becomes a suggested document).
    */
   labelFor?: string;
+  /** `?mode=room`: start in ROOM mode. */
+  startMode?: CaptureMode;
   onExit: () => void;
   onOpen: (target: OpenTarget) => void;
   /** After each enqueue: the sync engine's kick. */
@@ -113,6 +128,8 @@ export type CaptureScreenProps = {
   detect?: Detect | null;
   decode?: Decode;
   iphone?: boolean;
+  /** The Kept codes in a room's photos (camera/still-codes.ts by default). */
+  readCodes?: (photos: Blob[]) => Promise<string[]>;
   /** The capture screen's share slot: `onKeep` for "Shared into Kept". */
   renderShare?: (onKeep: (share: SharedInto, mode: SharedMode) => Promise<void>) => ReactNode;
 };
@@ -167,6 +184,7 @@ export function CaptureScreen({
   into,
   placeId,
   labelFor,
+  startMode,
   onExit,
   onOpen,
   onQueued,
@@ -177,6 +195,7 @@ export function CaptureScreen({
   detect = nativeDetect(),
   decode = decodeWithBitmap,
   iphone = false,
+  readCodes = keptCodesIn,
   renderShare,
 }: CaptureScreenProps) {
   const { t } = useLingui();
@@ -413,7 +432,9 @@ export function CaptureScreen({
   }, [code, store, placesOf, targetPath, world, placeName]);
 
   // ----- the session ---------------------------------------------------------------------------
-  const [mode, setModeState] = useState<CaptureMode>(() => (labelFor ? 'label' : storedMode()));
+  const [mode, setModeState] = useState<CaptureMode>(() =>
+    labelFor ? 'label' : (startMode ?? storedMode()),
+  );
   /** `?label=`: the thing LABEL shots go on, once read from the phone's copy. */
   const [labelThing, setLabelThing] = useState<SnapThing | null>(null);
   /** READING's meter: chosen in its sheet, kept for the session (offline too). */
@@ -436,6 +457,9 @@ export function CaptureScreen({
     onQueued?.();
   }, [batchId, onQueued]);
   const [shots, setShots] = useState<Shot[]>([]);
+  /** ROOM: the photos of the room being taken, on this phone until Send. */
+  const [roomShots, setRoomShots] = useState<(RoomShot & { image: CapturedImage })[]>([]);
+  const [sendingRoom, setSendingRoom] = useState(false);
   const [armed, setArmed] = useState(false);
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState<string | null>(null);
@@ -476,6 +500,41 @@ export function CaptureScreen({
     queryFn: () => captureApi.aiStatus(aiLocation),
     enabled: aiLocation !== null,
   });
+  // ROOM: why a room can't be read here. AI capture off, no provider that reads photos (the
+  // status says so online), the budget used up; and a room or a box must be chosen.
+  const roomStatus = useQuery({
+    queryKey: captureKeys.ai.status(loc?.id ?? null),
+    queryFn: () => captureApi.aiStatus(loc?.id ?? null),
+    enabled: mode === 'room' && online && !!loc,
+  });
+  const unplacedTarget =
+    !!target &&
+    !target.containerId &&
+    (target.placeId === null ||
+      target.placeId === loc?.unplacedPlaceId ||
+      placesOf(target.locationId).some((p) => p.id === target.placeId && p.isUnplaced));
+  // Try Kept (D246): no AI runs there; every room photo gives the same sample results.
+  const roomBlock: RoomBlock =
+    mode !== 'room'
+      ? null
+      : TRY
+        ? unplacedTarget
+          ? { kind: 'where' }
+          : null
+        : !aiOn
+          ? roomStatus.data && !roomStatus.data.resolved
+            ? { kind: 'no_provider' }
+            : { kind: 'off', location: loc?.name ?? '' }
+          : roomStatus.data?.pausedUntil && roomStatus.data.reason !== 'manual'
+            ? {
+                kind: 'paused',
+                until: Number.isFinite(Date.parse(roomStatus.data.pausedUntil))
+                  ? roomStatus.data.pausedUntil
+                  : null,
+              }
+            : unplacedTarget
+              ? { kind: 'where' }
+              : null;
   const kind: 'name' | 'note' = mode === 'receipt' || mode === 'reading' ? 'note' : 'name';
 
   /** The draft "+ photo" adds to: the last thing (or the first page of the last receipt). */
@@ -613,6 +672,13 @@ export function CaptureScreen({
       setReadingSheet(true);
       return;
     }
+    if (mode === 'room') {
+      later(async () => {
+        const image = await grabFrame(v, 'room').catch(() => null);
+        if (image) addRoomPhoto(image);
+      });
+      return;
+    }
     const value = mode === 'reading' ? takeReadingValue() : '';
     if (value === null) return;
     const m = mode;
@@ -660,6 +726,15 @@ export function CaptureScreen({
   const takeFiles = (files: File[], fromCamera: boolean) => {
     if (!target) return;
     const m: CaptureMode = mode;
+    if (m === 'room') {
+      later(async () => {
+        for (const f of files) {
+          if (f.type === 'application/pdf') continue;
+          addRoomPhoto(await fromFile(f, 'room', decode));
+        }
+      });
+      return;
+    }
     if (m === 'reading' && !reading) {
       setReadingSheet(true);
       return;
@@ -679,6 +754,74 @@ export function CaptureScreen({
       }
     });
     setArmed(false);
+  };
+
+  /** ROOM: a photo into the tray, at most ROOM_LIMITS.photos. */
+  const addRoomPhoto = (image: CapturedImage) => {
+    setRoomShots((list) => {
+      if (list.length >= ROOM_LIMITS.photos) {
+        toast({
+          title: t`Five photos at most. Send these, then take the next wall.`,
+          tone: 'danger',
+        });
+        return list;
+      }
+      const b = image.display ?? image.original;
+      let thumb: string | null = null;
+      if (b.type.startsWith('image/') && typeof URL.createObjectURL === 'function') {
+        try {
+          thumb = URL.createObjectURL(b);
+          thumbs.current.push(thumb);
+        } catch {
+          // A thumbnail is a nicety.
+        }
+      }
+      return [...list, { id: newId(), thumb, image }];
+    });
+    setAnnounce((n) => n + 1);
+  };
+
+  /** ROOM: the tray as one capture, with the Kept labels read in its photos. */
+  const sendRoom = () => {
+    if (!target || roomShots.length === 0 || roomBlock) return;
+    const photos = roomShots;
+    setSendingRoom(true);
+    later(async () => {
+      try {
+        const codes = await readCodes(photos.map((p) => p.image.original)).catch(() => []);
+        const q = await enqueueRoom(store, {
+          target,
+          batchId,
+          images: photos.map((p) => p.image),
+          codes,
+        });
+        setShots((s) => [
+          ...s,
+          {
+            id: q.id,
+            idempotencyKey: q.idempotencyKey,
+            mode: 'room',
+            original: q.photos[0] ?? null,
+            display: null,
+            thumb: photos[0]?.thumb ?? null,
+            name: null,
+            added: false,
+            target,
+          },
+        ]);
+        setRoomShots([]);
+        rememberTarget(target);
+        noteQueued();
+        void refreshCounts();
+        toast({
+          title: t`Room sent`,
+          description: t`Kept lists what is in it in your Inbox.`,
+          tone: 'ok',
+        });
+      } finally {
+        setSendingRoom(false);
+      }
+    });
   };
 
   /** "Shared into Kept" (T23's sheet): one capture per file, into the chip's place. */
@@ -990,19 +1133,38 @@ export function CaptureScreen({
           error={readingError}
         />
       ) : null}
-      <NameField
-        value={name}
-        onChange={(v) => {
-          setName(v);
-          if (!v.trim()) picked.current = null;
-          if (nameError) setNameError(null);
-        }}
-        onSubmit={submitName}
-        kind={kind}
-        aiOn={aiOn}
-        error={nameError}
-      />
-      {kind === 'name' && online && target && !name.trim() ? (
+      {mode === 'room' ? (
+        <RoomTray
+          shots={roomShots}
+          onRemove={(id) => setRoomShots((list) => list.filter((x) => x.id !== id))}
+          onSend={sendRoom}
+          sending={sendingRoom}
+          block={roomBlock}
+          provider={online && !TRY ? (roomStatus.data?.providerKind ?? null) : null}
+          {...(TRY
+            ? {
+                onSample: () =>
+                  later(async () =>
+                    addRoomPhoto(await fromFile(await sampleRoomPhoto(), 'room', decode)),
+                  ),
+              }
+            : {})}
+        />
+      ) : (
+        <NameField
+          value={name}
+          onChange={(v) => {
+            setName(v);
+            if (!v.trim()) picked.current = null;
+            if (nameError) setNameError(null);
+          }}
+          onSubmit={submitName}
+          kind={kind}
+          aiOn={aiOn}
+          error={nameError}
+        />
+      )}
+      {mode !== 'room' && kind === 'name' && online && target && !name.trim() ? (
         <FromTemplate
           tone="dark"
           className="mx-3 mt-2"
@@ -1034,7 +1196,11 @@ export function CaptureScreen({
             label={shutterLabel(mode, armed ? addTo : null)}
             onPress={shoot}
             isDisabled={
-              cam.state !== 'live' || !frameReady || !target || (mode === 'reading' && !reading)
+              cam.state !== 'live' ||
+              !frameReady ||
+              !target ||
+              (mode === 'reading' && !reading) ||
+              (mode === 'room' && (roomBlock !== null || roomShots.length >= ROOM_LIMITS.photos))
             }
           />
         )}
@@ -1042,7 +1208,7 @@ export function CaptureScreen({
           armed={armed}
           onChange={setArmed}
           receipt={mode === 'receipt'}
-          available={addTo !== null && mode !== 'reading'}
+          available={addTo !== null && mode !== 'reading' && mode !== 'room'}
         />
       </div>
 

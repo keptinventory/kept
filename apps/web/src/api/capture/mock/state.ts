@@ -137,6 +137,8 @@ export const CAPTURE_IDS = {
     receipt: cid(16),
     syncDrop: cid(17),
     arDraft: cid(18),
+    // Alfred's room photos of Home's living room, still being read (#194).
+    room: cid(19),
     // Saturday's capture on Garage › Shelves.
     driver: cid(131),
     cord: cid(132),
@@ -445,6 +447,25 @@ export function captureFixtures(meId: string): CaptureState {
           total: '42.50',
           lines: [{ index: 0, description: 'Drill bits', quantity: '1', unitPrice: '42.50' }],
           flagged: false,
+        },
+      }),
+      item(I.inbox.room, 'room', L.home, {
+        createdById: I.alfred,
+        createdByName: 'Alfred',
+        room: {
+          id: cid(20),
+          status: 'reading',
+          target: { kind: 'place', id: P.livingRoom, name: 'Living room' },
+          progress: { done: 1, total: 3 },
+          photos: [
+            { attachmentId: cid(991), thumbUrl: null, status: 'read', objects: 0, more: false },
+            { attachmentId: cid(992), thumbUrl: null, status: 'waiting', objects: 0, more: false },
+            { attachmentId: cid(993), thumbUrl: null, status: 'waiting', objects: 0, more: false },
+          ],
+          drafts: { made: 0, waiting: 0, failed: 0 },
+          places: [],
+          already: [],
+          keepPhotos: false,
         },
       }),
       item(I.inbox.duplicate, 'duplicate', L.home, {

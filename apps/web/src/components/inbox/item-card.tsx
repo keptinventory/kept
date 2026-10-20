@@ -35,6 +35,7 @@ import { useFailureText, useFieldLabels } from './labels';
 import { OverflowActions } from './overflow-actions';
 import { ReadingReview } from './reading-review';
 import { ReceiptReview } from './receipt-review';
+import { RoomReview } from './room-review';
 import { type Blocked, BlockedReason, ItemShell, useItemKeys } from './shell';
 import { type Decision, SuggestedField } from './suggested-field';
 import { SyncDropItem } from './sync-drop-item';
@@ -65,6 +66,8 @@ export function ItemCard(props: ItemProps) {
       return <ClaimItem {...props} />;
     case 'sync_drop':
       return <SyncDropItem {...props} />;
+    case 'room':
+      return <RoomReview {...props} />;
     default:
       return null;
   }

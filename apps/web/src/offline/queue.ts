@@ -80,7 +80,10 @@ export function nextBatch(
  */
 export function fileClassFor(entry: Pick<QueueEntry, 'op' | 'payload'>): FileClass {
   const p = (entry.payload ?? {}) as { mode?: unknown };
-  if (entry.op === 'create_thing') return p.mode === 'thing' ? 'photo' : 'evidence';
+  // THING and ROOM photos are shrunk on the phone; the evidence modes keep the original.
+  if (entry.op === 'create_thing') {
+    return p.mode === 'thing' || p.mode === 'room' ? 'photo' : 'evidence';
+  }
   if (entry.op === 'log_reading') return 'evidence';
   return 'photo';
 }

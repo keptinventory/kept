@@ -225,6 +225,17 @@ export const captureApi = {
   /** Undoable (D150): the draft's trash, in X-Kept-Audit-Event and as `undo`. */
   inboxDiscard: (id: string, rowVersion: number) =>
     written.post<InboxActionResult>(p.inboxDiscard(id), {}, ifMatch(rowVersion)),
+  // A room capture's card (#194).
+  roomPlaces: (id: string, indexes: number[], rowVersion: number) =>
+    api.post<{ placeIds: string[] }>(p.inboxRoomPlaces(id), { indexes }, ifMatch(rowVersion)),
+  roomSeen: (id: string, thingIds: string[], rowVersion: number) =>
+    api.post<Record<string, never>>(p.inboxRoomSeen(id), { thingIds }, ifMatch(rowVersion)),
+  roomDone: (id: string, rowVersion: number) =>
+    api.post<{ photosKept: boolean }>(p.inboxRoomDone(id), {}, ifMatch(rowVersion)),
+  roomDiscard: (id: string, rowVersion: number) =>
+    api.post<{ photosKept: boolean }>(p.inboxRoomDiscard(id), {}, ifMatch(rowVersion)),
+  roomRetry: (id: string, rowVersion: number) =>
+    api.post<Record<string, never>>(p.inboxRoomRetry(id), {}, ifMatch(rowVersion)),
 
   // labels
   createLabelBatch: (body: CreateLabelBatchBody) =>

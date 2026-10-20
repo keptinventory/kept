@@ -8,6 +8,7 @@ import { usePrefs } from '@/lib/prefs';
 
 /** The chips, in the inbox's order (D191: a zero-count chip is hidden). */
 export const KIND_ORDER: readonly InboxKind[] = [
+  'room',
   'draft',
   'receipt',
   'reading',
@@ -27,6 +28,7 @@ export function useKindLabels(): Record<InboxKind, { chip: string; pill: string 
     duplicate: { chip: t`Duplicates`, pill: t`Likely duplicate` },
     label_claim: { chip: t`Label claims`, pill: t`Label already claimed` },
     sync_drop: { chip: t`Couldn't sync`, pill: t`Couldn't sync` },
+    room: { chip: t`Rooms`, pill: t`Room photos` },
   };
 }
 

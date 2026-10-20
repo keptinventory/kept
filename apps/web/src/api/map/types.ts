@@ -22,6 +22,9 @@ export type MapNodeLayout = {
   /** A thing on a wall (#138): how high its middle hangs, in centimetres; null when it stands.
    * Missing from a map read before #138. */
   height?: number | null;
+  /** Kept put it here by itself (a room photo's accepted thing, #194): the next arrange shows it
+   * to nudge. Optional: older servers and the demo leave it out. */
+  placedByKept?: boolean;
 };
 
 export type MapLevelView = { id: string | null; name: string | null };

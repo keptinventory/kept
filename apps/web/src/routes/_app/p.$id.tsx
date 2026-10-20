@@ -21,11 +21,13 @@ import { inventoryApi, usePlace } from '@/api/inventory/queries';
 import type { BuiltinPlaceKind, PlaceView } from '@/api/inventory/types';
 import { useLocation } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
+import { captureRoomSearch } from '@/components/capture/links';
 import { OwnCodesSection } from '@/components/codes/own-codes';
 import { SubjectPaperwork } from '@/components/documents/subject-paperwork';
 import { useOfferUndo } from '@/components/history/undo';
 import {
   BoxIcon,
+  CameraIcon,
   ChevronEndIcon,
   ChevronStartIcon,
   DocumentIcon,
@@ -257,6 +259,20 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
           {...(place.isUnplaced ? {} : { placeParentId: place.id })}
           hereName={name}
         />
+      ) : null}
+      {canEdit && !place.isUnplaced ? (
+        // #194: photos of this room, every object in them listed by AI into the inbox.
+        <div>
+          <LinkButton
+            size="small"
+            variant="secondary"
+            to="/capture"
+            search={captureRoomSearch(place.id)}
+          >
+            <CameraIcon className="size-4" />
+            <Trans>Fill from photos</Trans>
+          </LinkButton>
+        </div>
       ) : null}
 
       {place.isUnplaced && canEdit && place.counts.things > 0 ? (

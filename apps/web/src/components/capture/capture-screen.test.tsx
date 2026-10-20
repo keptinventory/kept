@@ -149,7 +149,7 @@ describe('the capture screen', () => {
     const radios = within(strip).getAllByRole('radio');
     expect(
       radios.map((r) => r.getAttribute('aria-label') ?? r.closest('label')?.textContent),
-    ).toEqual(['Thing', 'Receipt', 'Label', 'Reading']);
+    ).toEqual(['Thing', 'Receipt', 'Label', 'Reading', 'Room']);
     expect(radios[0]).toBeChecked();
     expect(await shutter()).toHaveAccessibleName('Take photo: new thing');
     await user.click(radios[0] as HTMLElement);
@@ -418,6 +418,94 @@ describe('the /capture route', () => {
     // Under the place chip, above the counter.
     const chip = screen.getByRole('button', { name: /Capturing into/ });
     expect(chip.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  describe('ROOM', () => {
+    const SHELF = '01926f00-0000-7000-8000-0000000c0012';
+    const status = (over: Record<string, unknown> = {}) =>
+      vi.stubGlobal('fetch', async (input: RequestInfo | URL) =>
+        String(input).includes('/api/v1/ai/status')
+          ? Response.json({
+              resolved: true,
+              source: 'account',
+              providerKind: 'groq',
+              model: 'qwen/qwen3.8-27b',
+              pausedUntil: null,
+              reason: null,
+              pausedBy: null,
+              waitingProvider: null,
+              capPercent: null,
+              canResume: false,
+              canManage: false,
+              manager: null,
+              modelMissing: false,
+              ...over,
+            })
+          : new Response('{}', { status: 404 }),
+      );
+    const aiHome = () =>
+      world((p) => ({
+        ...p,
+        locations: p.locations.map((l) =>
+          l.id === HOME ? { ...l, effectiveModules: ['ai_capture'] } : l,
+        ),
+      }));
+
+    it('gathers photos in a tray, shows what reading them costs, and sends them as one capture', async () => {
+      status();
+      const readCodes = vi.fn(async () => ['K7D2QX']);
+      const { user, store } = await renderCapture({
+        store: await aiHome(),
+        placeId: SHELF,
+        startMode: 'room',
+        readCodes,
+      });
+      expect(await shutter()).toHaveAccessibleName('Take photo: room');
+      expect(
+        await screen.findByText('Stand in the doorway; one photo per wall.'),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole('textbox', { name: /Name/ })).toBeNull();
+      await user.click(await shutter());
+      await user.click(await shutter());
+      const tray = await screen.findByRole('list', { name: 'Photos of this room' });
+      await waitFor(() => expect(within(tray).getAllByRole('listitem')).toHaveLength(2));
+      // 2 × (Groq's 2,048 a photo + the prompt + the answer) + one merge.
+      expect(
+        await screen.findByText(/About 2 photos · up to ~2[\d,]+ tokens · Groq/),
+      ).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Remove photo 2' }));
+      await waitFor(() => expect(within(tray).getAllByRole('listitem')).toHaveLength(1));
+      expect(await store.pending()).toHaveLength(0);
+      await user.click(screen.getByRole('button', { name: 'Send 1 photo' }));
+      await waitFor(async () => expect(await store.pending()).toHaveLength(1));
+      const [entry] = await store.pending();
+      expect(entry?.payload).toMatchObject({
+        mode: 'room',
+        target: { placeId: SHELF },
+        codes: ['K7D2QX'],
+        files: [{ role: 'photo' }],
+      });
+      expect(readCodes).toHaveBeenCalledTimes(1);
+      expect(await screen.findByText('1 captured')).toBeInTheDocument();
+    });
+
+    it('says why a room can’t be read here, and keeps the shutter off', async () => {
+      await renderCapture({ placeId: SHELF, startMode: 'room' });
+      expect(await screen.findByText(/AI capture is off in/)).toBeInTheDocument();
+      expect(await shutter()).toBeDisabled();
+    });
+
+    it('names a missing provider, and asks for a room rather than Unplaced', async () => {
+      status({ resolved: false, providerKind: null });
+      await renderCapture({ startMode: 'room' });
+      expect(await screen.findByText(/AI capture is off in/)).toBeInTheDocument();
+      status();
+      const r = await renderCapture({ store: await aiHome(), startMode: 'room' });
+      expect(
+        await screen.findByText('Choose the room or the box these photos are of, above.'),
+      ).toBeInTheDocument();
+      r.unmount();
+    });
   });
 
   /** The Garage, with the Corolla and its odometer, from the phone's copy. */

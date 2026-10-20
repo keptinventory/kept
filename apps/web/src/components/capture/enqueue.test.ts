@@ -11,6 +11,7 @@ import {
   captureKey,
   enqueueCapture,
   enqueueFiles,
+  enqueueRoom,
   keepShared,
   modeForFile,
   undoBatch,
@@ -22,6 +23,51 @@ const HOME = '01926f00-0000-7000-8000-00000000b002';
 const SHELF = '01926f00-0000-7000-8000-0000000c0012';
 const BATCH = '01926f00-0000-7000-8000-000000300001';
 const jpeg = () => new Blob(['jpeg'], { type: 'image/jpeg' });
+
+describe('enqueueRoom', () => {
+  it('queues one ROOM create_thing with every photo and the codes read, and shows no thing', async () => {
+    const store = new MemoryStore();
+    await store.applySnapshot(firstPage());
+    const image = { original: jpeg(), display: null, previewUnavailable: false };
+    const q = await enqueueRoom(store, {
+      target: { locationId: HOME, placeId: SHELF, containerId: null },
+      batchId: BATCH,
+      images: [image, { ...image, original: new Blob(['jpeg 2'], { type: 'image/jpeg' }) }],
+      codes: ['K7D2QX'],
+    });
+    const [entry] = await store.pending();
+    expect(entry?.idempotencyKey).toBe(captureKey(q.id));
+    const payload = entry?.payload as Record<string, unknown>;
+    expect(parseOpPayload('create_thing', payload).success).toBe(true);
+    expect(payload).toMatchObject({
+      id: q.id,
+      mode: 'room',
+      target: { placeId: SHELF },
+      batchId: BATCH,
+      codes: ['K7D2QX'],
+    });
+    expect((payload.files as unknown[]).map((f) => (f as { role: string }).role)).toEqual([
+      'photo',
+      'photo',
+    ]);
+    expect(entry ? fileClassFor(entry) : null).toBe('photo');
+    expect(q.photos).toHaveLength(2);
+    // A room capture is its photos: nothing appears in the place until Kept lists it.
+    expect(await store.contentsOf({ placeId: SHELF })).toEqual([]);
+  });
+
+  it('sends no codes when none were read', async () => {
+    const store = new MemoryStore();
+    await enqueueRoom(store, {
+      target: { locationId: HOME, placeId: SHELF, containerId: null },
+      batchId: BATCH,
+      images: [{ original: jpeg(), display: null, previewUnavailable: false }],
+      codes: [],
+    });
+    const [entry] = await store.pending();
+    expect(entry?.payload).not.toHaveProperty('codes');
+  });
+});
 
 describe('enqueueCapture', () => {
   it('queues one create_thing with its files, and the thing shows at once as "ID pending"', async () => {
@@ -227,6 +273,7 @@ describe('the place chip and the mode strip', () => {
     expect(swipeMode('thing', -80, false)).toBe('receipt');
     expect(swipeMode('thing', 80, true)).toBe('receipt');
     expect(swipeMode('thing', 80, false)).toBe('thing');
-    expect(swipeMode('reading', -80, false)).toBe('reading');
+    expect(swipeMode('reading', -80, false)).toBe('room');
+    expect(swipeMode('room', -80, false)).toBe('room');
   });
 });

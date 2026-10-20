@@ -21,6 +21,7 @@ import type { MockState } from '../../mock/fixtures';
 import { err, type MockRoute, route, sessionGate } from '../../mock/kit';
 import { capturePaths as p } from '../paths';
 import { allocateCode } from './capture';
+import { makeRoom } from './room';
 
 /** "Suggest where I am" radius when a location sets none (D153). */
 const SUGGEST_RADIUS_M = 150;
@@ -149,6 +150,23 @@ export function syncRoutes(state: MockState): MockRoute[] {
         };
         // "+ photo" adds files to a thing (or pages to a receipt) that exists already; a receipt
         // or a reading opens a draft purchase or reading, not a thing (as POST /captures does).
+        if (b.mode === 'room') {
+          const r = payload as { batchId: string; files: unknown[] };
+          const unplacedRoom =
+            !b.target.containerId &&
+            (!b.target.placeId ||
+              inv().places.some((x) => x.id === b.target.placeId && x.isUnplaced));
+          if (unplacedRoom) return drop('invalid');
+          makeRoom(state, {
+            id: b.id,
+            locationId: item.locationId,
+            batchId: r.batchId,
+            placeId: b.target.placeId ?? null,
+            containerId: b.target.containerId ?? null,
+            photos: Math.max(1, r.files.length),
+          });
+          return { ...base, outcome: 'applied' };
+        }
         if (b.attachToThingId) {
           const target = liveThing(inv(), b.attachToThingId);
           if (!target) return drop('target_missing');

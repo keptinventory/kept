@@ -98,7 +98,11 @@ export function useTourStepCopy(): Record<string, HintCopy> {
 
     'capture.mode': e(
       t`What you're capturing`,
-      t`Thing, receipt, label or reading. Pick one before the photo.`,
+      t`Thing, receipt, label, reading or room. Pick one before the photo.`,
+    ),
+    'capture.room': e(
+      t`A whole room`,
+      t`Up to five photos of a room. AI lists what's in them as drafts, skipping what Kept already has.`,
     ),
     'capture.shutter': e(
       t`Take the photo`,

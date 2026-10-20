@@ -46,6 +46,7 @@ describe('TOURS', () => {
 
 describe('tour gating', () => {
   const EVERYTHING: ModuleId[] = [
+    'ai_capture',
     'labels',
     'moving',
     'lending',

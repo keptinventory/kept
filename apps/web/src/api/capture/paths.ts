@@ -41,6 +41,11 @@ export const capturePaths = {
   inboxRestore: (id: string) => `${V1}/inbox/${seg(id)}/restore`,
   inboxDismiss: (id: string) => `${V1}/inbox/${seg(id)}/dismiss`,
   inboxDiscard: (id: string) => `${V1}/inbox/${seg(id)}/discard`,
+  inboxRoomPlaces: (id: string) => `${V1}/inbox/${seg(id)}/room/places`,
+  inboxRoomSeen: (id: string) => `${V1}/inbox/${seg(id)}/room/seen`,
+  inboxRoomDone: (id: string) => `${V1}/inbox/${seg(id)}/room/done`,
+  inboxRoomDiscard: (id: string) => `${V1}/inbox/${seg(id)}/room/discard`,
+  inboxRoomRetry: (id: string) => `${V1}/inbox/${seg(id)}/room/retry`,
 
   // ----- labels -----------
   labelBatches: `${V1}/labels/batches`,
@@ -120,6 +125,11 @@ export const CAPTURE_METHODS: Record<keyof typeof capturePaths, readonly Method[
   inboxRestore: ['POST'],
   inboxDismiss: ['POST'],
   inboxDiscard: ['POST'],
+  inboxRoomPlaces: ['POST'],
+  inboxRoomSeen: ['POST'],
+  inboxRoomDone: ['POST'],
+  inboxRoomDiscard: ['POST'],
+  inboxRoomRetry: ['POST'],
   labelBatches: ['GET', 'POST'],
   labelBatch: ['GET'],
   labelBatchPrinted: ['POST'],

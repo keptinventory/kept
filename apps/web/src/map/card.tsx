@@ -22,6 +22,7 @@ import { Link } from '@tanstack/react-router';
 import { type ReactNode, useMemo, useState } from 'react';
 import { usePlace, useThing } from '@/api/inventory/queries';
 import type { MapAttention, MapAttentionKind, MapThingView, MapView } from '@/api/map/types';
+import { captureRoomSearch } from '@/components/capture/links';
 import { ThingCount } from '@/components/counts';
 import { useValueWords } from '@/components/history/labels';
 import { CameraIcon } from '@/components/icons';
@@ -386,6 +387,12 @@ export function MapCard(p: CardProps) {
               <Trans>Open the place</Trans>
             </Link>
           )}
+          {view.canArrange && !p.arranging ? (
+            // #194: photos of the room, every object in them listed by AI into the inbox.
+            <Link to="/capture" search={captureRoomSearch(r.id)} className="kmap-btn">
+              <Trans>Photograph this room</Trans>
+            </Link>
+          ) : null}
         </div>
         {p.arranging ? (
           <>

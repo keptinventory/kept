@@ -89,6 +89,8 @@ export type CreateCaptureBody = {
   templateId?: string;
   /** A scanned blank label to claim for the new container (D43). */
   claimCode?: string;
+  /** ROOM: the Kept labels the phone read in the photos (upper case). */
+  codes?: string[];
 };
 
 /** 201 from POST /api/v1/captures. `undo` is added by T20 (`thing.capture`). */
@@ -98,6 +100,8 @@ export type CaptureResult = {
   extraction?: { id: string; status: ExtractionState };
   inboxItemId?: string;
   undo?: UndoRef;
+  /** ROOM: the room capture made; its photos read (`reading`) or waiting for AI capture (`off`). */
+  room?: { id: string; photos: number; status: 'reading' | 'off' };
 };
 
 /** GET /api/v1/captures/batches?locationId&mine&cursor: recent batches (inbox grouping). */
@@ -268,6 +272,42 @@ export type InboxItem = {
     entity?: { type: string; id: string; name: string };
     by?: ActorRef;
   };
+  /** A room capture's card (#194): its drafts are the batch's draft items under it. */
+  room?: InboxRoom;
+};
+
+/** The Room card (#194). */
+export type InboxRoom = {
+  id: string;
+  status: 'reading' | 'merging' | 'ready' | 'failed' | 'off';
+  target: { kind: 'place' | 'container'; id: string; name: string };
+  /** Photos whose reading has ended, of all of them. */
+  progress: { done: number; total: number };
+  /** A photo waits for the AI budget until then (the cap's reason). */
+  pausedUntil?: string;
+  pausedReason?: string;
+  photos: {
+    attachmentId: string;
+    thumbUrl: string | null;
+    status: 'waiting' | 'read' | 'failed' | 'off' | 'missing';
+    objects: number;
+    /** It showed more than one photo can list. */
+    more: boolean;
+  }[];
+  merged?: 'model' | 'names' | 'none';
+  drafts: { made: number; waiting: number; failed: number };
+  /** Storage furniture proposed as places in the room; `placeId` once added. */
+  places: { index: number; name: string; photo: number; placeId: string | null }[];
+  /** Things already in Kept, and whether they were marked seen from the card. */
+  already: {
+    thingId: string;
+    name: string;
+    matchedBy: 'code' | 'brand_model' | 'name_type';
+    seen: boolean;
+    thumbUrl: string | null;
+  }[];
+  /** The location keeps room photos after review; otherwise Done deletes them. */
+  keepPhotos: boolean;
 };
 
 export type InboxCounts = {
