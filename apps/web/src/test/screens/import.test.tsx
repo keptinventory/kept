@@ -251,8 +251,9 @@ describe('a Homebox spreadsheet export', () => {
 
     expect(await findHeading('A few choices')).toBeInTheDocument();
     const archived = screen.getByRole('radiogroup', { name: 'Archived items' });
-    expect(within(archived).getByRole('radio', { name: /Thrown away/ })).toBeChecked();
-    await user.click(within(archived).getByRole('radio', { name: /Archived in Homebox/ }));
+    expect(within(archived).getByRole('radio', { name: /^Archived/ })).toBeChecked();
+    expect(within(archived).queryByRole('radio', { name: /Thrown away/ })).toBeNull();
+    await user.click(within(archived).getByRole('radio', { name: /^In use/ }));
     await user.click(screen.getByRole('button', { name: 'Check the import' }));
 
     expect(await findHeading('What the import will do')).toBeInTheDocument();
@@ -260,7 +261,7 @@ describe('a Homebox spreadsheet export', () => {
     expect(body.choices).toMatchObject({
       placeSeparator: '/',
       dateFormat: 'YYYY-MM-DD',
-      homebox: { archived: 'tag' },
+      homebox: { archived: 'in_use' },
     });
     expect(body.mapping).toMatchObject({ 'HB.name': 'name', 'HB.location': 'place_path' });
     expect(Object.keys(body.mapping)).not.toContain('HB.asset_id');

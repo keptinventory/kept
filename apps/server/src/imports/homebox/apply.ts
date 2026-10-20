@@ -194,15 +194,17 @@ async function applyThing(c: ApplyCtx, op: ThingOp): Promise<string> {
     const purchaseId = rows[0]?.purchase_id;
     if (purchaseId) await remember(c, op.purchase.key, 'purchase', purchaseId);
   }
-  if (op.sold) {
+  if (op.sold || op.archived) {
     const { rows } = await c.client.query<{ row_version: number }>(
       'SELECT row_version FROM public.things WHERE id = $1',
       [thingId],
     );
-    await setLifecycle(ctx, thingId, rows[0]?.row_version ?? 1, {
-      lifecycle: 'sold',
-      ...op.sold,
-    });
+    await setLifecycle(
+      ctx,
+      thingId,
+      rows[0]?.row_version ?? 1,
+      op.sold ? { lifecycle: 'sold', ...op.sold } : { lifecycle: 'archived' },
+    );
   }
   await codes(c, op.codes, { thingId });
   await remember(c, op.key, 'thing', thingId);

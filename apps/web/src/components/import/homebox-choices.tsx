@@ -39,7 +39,7 @@ export function initialChoices(
 ): HomeboxChoices {
   const byName = new Map(keptTypes.map((y) => [fold(y.name), y.id]));
   return {
-    archived: 'skip',
+    archived: 'archived',
     currency,
     quantityRounding: 'keep_note',
     fields: Object.fromEntries((hints?.fields ?? []).map((f) => [f.name, 'add_to_type' as const])),
@@ -135,8 +135,9 @@ export function HomeboxChoicesStep({
         value={choices.archived}
         onChange={(archived) => set({ archived })}
         options={[
+          { id: 'archived', label: t`Archived` },
+          { id: 'in_use', label: t`In use` },
           { id: 'skip', label: t`Leave out` },
-          { id: 'tag', label: t`Import, tagged "Archived in Homebox"` },
         ]}
       />
 

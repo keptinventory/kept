@@ -360,19 +360,19 @@ describe('both fixtures, counted', () => {
     await start(owner, id);
     await runHomeboxImport(jobDeps(), scopeOf(owner), id);
     expect(await statusOf(id)).toMatchObject({ status: 'done', error: null });
-    return { report, counts: await countsOf(loc, id, report) };
+    return { report, counts: await countsOf(loc, id, report), locationId: loc.id };
   }
 
   it(
     'imports Home (homebox-0.26.2-home.zip) with exact counts',
     async () => {
-      const { report, counts } = await importInto('home', homeZip, { archived: 'tag' });
-      // Nine items (Old phone archived, imported with the tag, ended sold); four places (the
+      const { report, counts } = await importInto('home', homeZip, { archived: 'archived' });
+      // Nine items (Old phone, archived and sold, ends sold); four places (the
       // seeded eight skipped); 13 entities × (asset ID + UUID).
       expect(counts).toEqual({
         things: 9,
         places: 4,
-        tagsOnThings: 6,
+        tagsOnThings: 5,
         customValues: 6,
         files: 6,
         links: 1,
@@ -434,12 +434,12 @@ describe('both fixtures, counted', () => {
       const { counts } = await importInto(
         'home-0.27.0',
         await homeboxFixture('homebox-0.27.0-home.zip'),
-        { archived: 'tag' },
+        { archived: 'archived' },
       );
       expect(counts).toEqual({
         things: 9,
         places: 4,
-        tagsOnThings: 6,
+        tagsOnThings: 5,
         customValues: 6,
         files: 6,
         links: 0,
@@ -470,11 +470,22 @@ describe('both fixtures, counted', () => {
   it(
     'imports a Homebox v0.10.3 collection upgraded to v0.27.0 (homebox-0.27.0-upgraded.zip)',
     async () => {
-      const { counts } = await importInto(
+      const { counts, locationId } = await importInto(
         'upgraded',
         await homeboxFixture('homebox-0.27.0-upgraded.zip'),
-        { archived: 'tag' },
+        { archived: 'archived' },
       );
+      // Archived in Homebox comes in archived; the archived one that was sold ends sold.
+      const lifecycles = await own<{ name: string; lifecycle: string }>(
+        db,
+        `SELECT name, lifecycle FROM public.things
+          WHERE location_id = $1 AND name IN ('Spare router', 'Old laptop') ORDER BY name`,
+        [locationId],
+      );
+      expect(lifecycles).toEqual([
+        { name: 'Old laptop', lifecycle: 'sold' },
+        { name: 'Spare router', lifecycle: 'archived' },
+      ]);
       // Six items, the sold one ended sold; Garage, Shelf A and Study (the eight starter rooms
       // v0.27.0 added on its first start are skipped); nine entities × (asset ID + UUID).
       expect(counts).toMatchObject({

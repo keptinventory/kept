@@ -217,7 +217,7 @@ export function ImportStepper({
     );
 
   const onParsed = (file: { name: string }, parsed: ParsedCsv) => {
-    // A Homebox spreadsheet gets the Homebox preset: its own mapping, and archived items end.
+    // A Homebox spreadsheet gets the Homebox preset: its own mapping; archived items stay archived.
     const homebox = isHomeboxCsv(parsed.columns);
     const mapping = homebox ? homeboxMapping(parsed.columns) : suggestMapping(parsed.columns);
     const valuesOf = (field: MappableField) => {
@@ -236,7 +236,7 @@ export function ImportStepper({
         dateFormat: dateCandidates[0] ?? 'YYYY-MM-DD',
         defaultTarget: { unplaced: true },
         typeByName: true,
-        ...(homebox ? { homebox: { archived: 'ended' as const } } : {}),
+        ...(homebox ? { homebox: { archived: 'archived' as const } } : {}),
       },
     });
     setShowProblems(false);

@@ -9,7 +9,9 @@ import { homeboxAssetId } from './scan.js';
 
 /**
  * What the person decides before a Homebox dry run can run (D146).
- * - `archived`: skip archived items, or import them with the tag "Archived in Homebox";
+ * - `archived`: an archived item comes in archived (Kept's own `archived` lifecycle; a sold one
+ *   ends sold), in use, or is left out. A run saved with the older `tag` choice is asked its
+ *   choices again;
  * - `currency`: the collection's currency (the ZIP has none; prefilled from the connection, else
  *   the target location's);
  * - `quantityRounding`: one value today: where D10 forces 1, the original stays in the notes;
@@ -20,7 +22,7 @@ import { homeboxAssetId } from './scan.js';
  *   and unused (the default), or imported like the rest.
  */
 export const HomeboxChoices = z.strictObject({
-  archived: z.enum(['skip', 'tag']),
+  archived: z.enum(['archived', 'in_use', 'skip']),
   currency: z.string().regex(/^[A-Z]{3}$/),
   quantityRounding: z.enum(['keep_note']),
   fields: z.record(z.string().min(1).max(255), z.enum(['add_to_type', 'notes'])),
@@ -114,12 +116,12 @@ export type HomeboxIssueCode = (typeof HB_ISSUE_CODES)[number];
 // ---------------------------------------------------------------------------------------------
 
 /**
- * What a Homebox spreadsheet's preset decides on the CSV import: archived items (not sold) end
- * as thrown away (`ended`, the lifecycle that keeps them out of the lists, as Homebox's archive
- * does), stay in use with the tag "Archived in Homebox" (`tag`), or are left out (`skip`).
+ * What a Homebox spreadsheet's preset decides on the CSV import, as the ZIP import does: an
+ * archived item comes in archived (`archived`; a sold one ends sold), in use (`in_use`), or is
+ * left out (`skip`).
  */
 export const HomeboxCsvChoices = z.strictObject({
-  archived: z.enum(['ended', 'tag', 'skip']),
+  archived: z.enum(['archived', 'in_use', 'skip']),
 });
 export type HomeboxCsvChoices = z.infer<typeof HomeboxCsvChoices>;
 

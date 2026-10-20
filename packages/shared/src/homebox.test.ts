@@ -31,6 +31,14 @@ describe('HomeboxChoices (D146)', () => {
     ).toEqual({ typeId: TYPE });
   });
 
+  it('archives archived items, keeps them in use, or leaves them out; the older tag is gone', () => {
+    for (const archived of ['archived', 'in_use', 'skip'] as const) {
+      expect(HomeboxChoices.parse({ ...choices, archived }).archived).toBe(archived);
+    }
+    expect(HomeboxChoices.safeParse({ ...choices, archived: 'tag' }).success).toBe(false);
+    expect(HomeboxChoices.safeParse({ ...choices, archived: 'gone' }).success).toBe(false);
+  });
+
   it('refuses an unknown key, a lower-case currency and a type given both ways', () => {
     expect(HomeboxChoices.safeParse({ ...choices, extra: 1 }).success).toBe(false);
     expect(HomeboxChoices.safeParse({ ...choices, currency: 'usd' }).success).toBe(false);
@@ -156,11 +164,12 @@ describe('a Homebox spreadsheet export', () => {
   });
 
   it('takes one choice, what happens to archived items', () => {
-    for (const archived of ['ended', 'tag', 'skip'] as const) {
+    for (const archived of ['archived', 'in_use', 'skip'] as const) {
       expect(HomeboxCsvChoices.parse({ archived })).toEqual({ archived });
     }
-    expect(HomeboxCsvChoices.safeParse({ archived: 'gone' }).success).toBe(false);
-    expect(HomeboxCsvChoices.safeParse({ archived: 'ended', extra: 1 }).success).toBe(false);
+    expect(HomeboxCsvChoices.safeParse({ archived: 'ended' }).success).toBe(false);
+    expect(HomeboxCsvChoices.safeParse({ archived: 'tag' }).success).toBe(false);
+    expect(HomeboxCsvChoices.safeParse({ archived: 'archived', extra: 1 }).success).toBe(false);
   });
 
   it('has an issue for the location rows a v0.26+ spreadsheet lists', () => {

@@ -86,7 +86,9 @@ describe('a Homebox export', () => {
       'Create "Kitchen gear"',
     );
     expect(screen.getByText('3 items are marked insured.')).toBeInTheDocument();
-    await user.click(screen.getByRole('radio', { name: 'Import, tagged "Archived in Homebox"' }));
+    // Archived items come in archived unless you say otherwise.
+    expect(screen.getByRole('radio', { name: 'Archived' })).toBeChecked();
+    await user.click(screen.getByRole('radio', { name: 'In use' }));
     await user.click(screen.getByRole('button', { name: 'Check the import' }));
 
     expect(await findHeading('What the import will do')).toBeInTheDocument();
@@ -94,7 +96,7 @@ describe('a Homebox export', () => {
     expect(choices?.headers['if-match']).toBeDefined();
     expect(choices?.body).toMatchObject({
       choices: {
-        archived: 'tag',
+        archived: 'in_use',
         currency: 'USD',
         insured: 'field',
         seeded: 'skip_unused',

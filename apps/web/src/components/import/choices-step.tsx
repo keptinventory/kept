@@ -192,17 +192,17 @@ export function ChoicesStep({
           onChange={(archived) => set({ homebox: { archived } })}
           options={[
             {
-              id: 'ended',
-              title: <Trans>Thrown away, no longer in use</Trans>,
+              id: 'archived',
+              title: <Trans>Archived</Trans>,
               body: (
                 <Trans>
-                  Out of the lists, as in Homebox's archive. One with a sale ends sold instead.
+                  Still yours, put away, as in Homebox's archive. One with a sale ends sold instead.
                 </Trans>
               ),
             },
             {
-              id: 'tag',
-              title: <Trans>In use, tagged "Archived in Homebox"</Trans>,
+              id: 'in_use',
+              title: <Trans>In use</Trans>,
               body: <Trans>One with a sale still ends sold.</Trans>,
             },
             {

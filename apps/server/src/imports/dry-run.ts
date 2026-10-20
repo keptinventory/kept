@@ -36,7 +36,6 @@ import {
   rowHash,
   splitList,
 } from './csv.js';
-import { ARCHIVED_TAG } from './homebox/plan.js';
 
 // The row mapper. The dry run and the job run the
 // same planRow() over the same Lookups: the dry run writes nothing and remembers what it would
@@ -55,7 +54,7 @@ import { ARCHIVED_TAG } from './homebox/plan.js';
 // HB_CSV_PRESET_COLUMNS names, by header, as the Homebox ZIP import maps the same values
 // (homebox/plan.ts): the asset ID and the item's UUID (from HB.url) become `homebox` legacy codes,
 // so an old printed label opens the thing; a sale ends the thing sold, with its date, buyer,
-// notes and price; an archived item ends thrown away, is tagged "Archived in Homebox" or is left
+// notes and price; an archived item comes in archived (Kept's own lifecycle), in use, or is left
 // out, by the choice; a warranty's end or a lifetime warranty becomes a warranty from the
 // purchase date where the warranties module is on (else its text stays in the notes); warranty
 // details and "insured" go in the notes; a 0 price is no price (Homebox writes 0 when none is
@@ -107,14 +106,14 @@ export type PlannedThing = {
   ownCodes: string[];
   /** The Homebox preset's codes (asset ID, item UUID), stored with source `homebox`. */
   homeboxCodes: string[];
-  /** The Homebox preset: the thing ends sold, or (archived) thrown away, once it is made. */
+  /** The Homebox preset: the thing ends sold, or is archived, once it is made. */
   ended: HomeboxEnded | null;
   /** The Homebox preset: a manufacturer's warranty from the purchase date. */
   warranty: { startsOn: string; endsOn?: string; lifetime?: true } | null;
 };
 
 export type HomeboxEnded = {
-  lifecycle: 'sold' | 'disposed';
+  lifecycle: 'sold' | 'archived';
   endedOn?: string;
   endedTo?: string;
   endedNotes?: string;
@@ -824,11 +823,6 @@ export async function planRow(
       if (!tags.some((x) => ('id' in x ? x.id : normalize(x.create)) === key)) tags.push(ref);
     }
   }
-  if (archived && hb?.archived === 'tag') {
-    const ref = refOf(lookups.tags, ARCHIVED_TAG);
-    const key = 'id' in ref ? ref.id : normalize(ref.create);
-    if (!tags.some((x) => ('id' in x ? x.id : normalize(x.create)) === key)) tags.push(ref);
-  }
 
   const aliases: Record<string, string[]> = {};
   for (const c of cellsOf(run, row, 'aliases')) {
@@ -1073,7 +1067,7 @@ export async function planRow(
     if (details) extra.push(`Warranty: ${details}`);
     if (parseBoolean(hbGet('HB.insured')) === true) extra.push('Insured: yes');
 
-    // A sale ends it sold; an archived item ends thrown away when so chosen.
+    // A sale ends it sold; an archived item is archived when so chosen.
     const soldDateColumn = hbGet('HB.sold_time') ? 'HB.sold_time' : 'HB.sold_date';
     const soldOnRaw = hbGet(soldDateColumn);
     const soldTo = hbGet('HB.sold_to');
@@ -1124,7 +1118,7 @@ export async function planRow(
         }
       }
       ended = sold;
-    } else if (archived && hb.archived === 'ended') ended = { lifecycle: 'disposed' };
+    } else if (archived && hb.archived === 'archived') ended = { lifecycle: 'archived' };
 
     for (const c of homeboxCodesOf(run, row)) {
       if (

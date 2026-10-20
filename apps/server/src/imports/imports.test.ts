@@ -716,9 +716,9 @@ describe('a Homebox spreadsheet export (the Homebox preset)', () => {
   };
   const mappingOf = (columns: string[]) =>
     Object.fromEntries(columns.filter((c) => MAP[c]).map((c) => [c, MAP[c] as string]));
-  const hbChoices = (archived: 'ended' | 'tag' | 'skip') =>
+  const hbChoices = (archived: 'archived' | 'in_use' | 'skip') =>
     choices({ placeSeparator: '/', dateFormat: 'YYYY-MM-DD', homebox: { archived } });
-  const importHomebox = (loc: Loc, file: typeof OLD, archived: 'ended' | 'tag' | 'skip') =>
+  const importHomebox = (loc: Loc, file: typeof OLD, archived: 'archived' | 'in_use' | 'skip') =>
     importRows(ann, loc, file.rows, {
       columns: file.columns,
       mapping: mappingOf(file.columns),
@@ -771,7 +771,7 @@ describe('a Homebox spreadsheet export (the Homebox preset)', () => {
 
   beforeAll(async () => {
     old = await createLocation(t, db, ann, 'household', 'From Homebox v0.10.3');
-    ({ run: oldRun, report: oldReport } = await importHomebox(old, OLD, 'ended'));
+    ({ run: oldRun, report: oldReport } = await importHomebox(old, OLD, 'archived'));
     things = await endedIn(old);
   }, LONG);
 
@@ -781,7 +781,7 @@ describe('a Homebox spreadsheet export (the Homebox preset)', () => {
     expect(oldReport.rows.map((r) => r.status)).toEqual(['ok', 'ok', 'ok', 'ok', 'ok', 'ok']);
   });
 
-  it('ends a sold item sold, with its date, buyer, notes and price, and an archived one thrown away', () => {
+  it('ends a sold item sold, with its date, buyer, notes and price, and archives an archived one', () => {
     expect(byName(things, 'Old laptop')).toMatchObject({
       lifecycle: 'sold',
       ended_on: '2024-05-20',
@@ -791,7 +791,7 @@ describe('a Homebox spreadsheet export (the Homebox preset)', () => {
       ended_currency: 'EGP',
     });
     expect(byName(things, 'Spare router')).toMatchObject({
-      lifecycle: 'disposed',
+      lifecycle: 'archived',
       tags: ['Electronics'],
     });
     expect(byName(things, 'Cordless drill')).toMatchObject({ lifecycle: 'in_use' });
@@ -825,18 +825,18 @@ describe('a Homebox spreadsheet export (the Homebox preset)', () => {
   });
 
   it(
-    'keeps archived items in use with a tag, or leaves them out, as chosen',
+    'keeps archived items in use, or leaves them out, as chosen',
     async () => {
-      const tagged = await createLocation(t, db, ann, 'household', 'Homebox, archived tagged');
-      await importHomebox(tagged, OLD, 'tag');
-      const rows = await endedIn(tagged);
+      const kept = await createLocation(t, db, ann, 'household', 'Homebox, archived in use');
+      await importHomebox(kept, OLD, 'in_use');
+      const rows = await endedIn(kept);
       expect(byName(rows, 'Spare router')).toMatchObject({
         lifecycle: 'in_use',
-        tags: ['Archived in Homebox', 'Electronics'],
+        tags: ['Electronics'],
       });
       expect(byName(rows, 'Old laptop')).toMatchObject({
         lifecycle: 'sold',
-        tags: ['Archived in Homebox', 'Electronics'],
+        tags: ['Electronics'],
       });
 
       const left = await createLocation(t, db, ann, 'household', 'Homebox, archived left out');
@@ -853,7 +853,7 @@ describe('a Homebox spreadsheet export (the Homebox preset)', () => {
     'reads a v0.27.0 spreadsheet: its location rows left out, the item UUID an old link opens',
     async () => {
       const loc = await createLocation(t, db, ann, 'household', 'From Homebox v0.27.0');
-      const { report } = await importHomebox(loc, NEW, 'ended');
+      const { report } = await importHomebox(loc, NEW, 'archived');
       const skipped = report.rows.filter((r) => r.status === 'skipped');
       expect(skipped).toHaveLength(11);
       expect(new Set(skipped.map((r) => r.issues[0]?.code))).toEqual(new Set(['hb_location_row']));
@@ -886,7 +886,7 @@ describe('a Homebox spreadsheet export (the Homebox preset)', () => {
     'keeps a warranty and a sale price as text where those modules are off',
     async () => {
       const shedHb = await createLocation(t, db, ann, 'essentials', 'Homebox shed');
-      const { report } = await importHomebox(shedHb, OLD, 'ended');
+      const { report } = await importHomebox(shedHb, OLD, 'archived');
       const rows = await endedIn(shedHb);
       expect(await warrantiesIn(shedHb)).toEqual([]);
       expect(byName(rows, 'Old laptop')).toMatchObject({ lifecycle: 'sold', ended_price: null });
@@ -901,13 +901,13 @@ describe('a Homebox spreadsheet export (the Homebox preset)', () => {
 
   it('refuses the preset for headers that are not Homebox’s, and a preset column mapped', async () => {
     const plain = await create(ann, home, [row({ Name: 'Kettle' })], {
-      choices: choices({ homebox: { archived: 'ended' } }),
+      choices: choices({ homebox: { archived: 'archived' } }),
     });
     expect(plain.statusCode, plain.body).toBe(400);
     const mapped = await create(ann, home, OLD.rows, {
       columns: OLD.columns,
       mapping: { ...mappingOf(OLD.columns), 'HB.asset_id': 'legacy_code' },
-      choices: hbChoices('ended'),
+      choices: hbChoices('archived'),
     });
     expect(mapped.statusCode, mapped.body).toBe(400);
     expect(mapped.json()).toMatchObject({ hint: expect.stringContaining('HB.asset_id') });
