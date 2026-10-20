@@ -1,15 +1,15 @@
 /**
- * The guided tour against the real server (D242), on its own seeded `tour` instance
- * (e2e/instances.ts): one person per project, because where the tour stopped is remembered per
- * person on the server.
+ * Help's Tours against the real server, on its own seeded `tour` instance (e2e/instances.ts):
+ * one person per project, because a finished tour is remembered per person on the server.
  *
- * 1. Help → Show me around walks every stop in order, each pointing at its control
+ * 1. Help → Tours → Basics walks every step in order, each pointing at its control
  *    (`data-tour`), the start of that control in view and clear of the popover (on a phone, a
- *    sheet docked above the tab bar, or at the top on Capture), and finishes on Help.
+ *    sheet docked above the tab bar), and the row then says Done.
  * 2. In Arabic the popover stays on screen and counts in Eastern digits.
  * 3. A tap outside the highlight reaches the page: it follows the link, and the tour ends there.
- * 4. Closed part-way, it resumes at the same stop after a reload (the server's hints), and Start
- *    over goes back to Home.
+ * 4. Show me on an empty location starts Things & places there: it makes one sample thing, and
+ *    Discard at the end puts exactly that in the Trash.
+ * 5. The 3D map tour points at the map's own controls (WebGL runs in Chromium here, not jsdom).
  *
  * No real device is touched: before any page script, getUserMedia and getDisplayMedia reject
  * with NotAllowedError, SpeechRecognition is gone and geolocation refuses (Capture opens with the
@@ -133,36 +133,40 @@ async function stopOf(page: Page) {
   });
 }
 
-/** The walk this project's person gets (components/hints/tour.ts GUIDED_SECTIONS). */
-const WALK = (layout: 'phone' | 'desktop') => [
-  { title: 'Home', anchor: 'home-needs', path: /\/$/ },
-  { title: 'Capture', anchor: 'capture-shutter', path: /\/capture$/ },
-  { title: 'Inbox', anchor: 'inbox-whose', path: /\/inbox$/ },
-  { title: 'Location', anchor: 'location-layout', path: /\/loc\/[^/]+$/ },
+/** Basics for this project's person (components/hints/tours.ts). */
+const BASICS = (layout: 'phone' | 'desktop') => [
+  { title: 'Needs you', anchor: 'home-needs', path: /\/$/ },
+  { title: 'Your locations', anchor: 'home-locations', path: /\/$/ },
+  { title: 'Scan', anchor: 'scan-button', path: /\/$/ },
   { title: 'Search', anchor: 'search-field', path: /\/search$/ },
-  { title: 'Labels', anchor: 'labels-print', path: /\/labels/ },
   layout === 'phone'
     ? { title: 'More', anchor: 'more-entries', path: /\/more$/ }
-    : // A desktop points at the sidebar where it is: still on Labels.
-      { title: 'Everything else', anchor: 'nav-entries', path: /\/labels/ },
-  { title: 'Notifications', anchor: 'settings-notifications', path: /\/settings$/ },
-  { title: "That's the tour", anchor: 'help-tour', path: /\/help$/ },
+    : // A desktop points at the sidebar where it is: still on Search.
+      { title: 'Everything else', anchor: 'nav-entries', path: /\/search$/ },
+  { title: 'Tours', anchor: 'help-tours', path: /\/help$/ },
 ];
 
-/** Start (or Resume, or Start over) from Help's "Show me around" row. */
-async function fromHelp(page: Page, button: string) {
+/** A tour's row on Help. */
+const tourRow = (page: Page, id: string) => page.locator(`[data-tour-row="${id}"]`);
+
+/** Start or replay a tour from its row on Help. */
+async function fromHelp(page: Page, id: string, button = 'Start') {
   await page.goto('/help');
-  const row = page.locator('[data-tour="help-tour"]');
-  await row.getByRole('button', { name: button, exact: true }).click();
+  await tourRow(page, id).getByRole('button', { name: button, exact: true }).click();
   await expect(popover(page)).toBeVisible();
 }
 
-test('walks every stop, each pointing at its control, and finishes on Help', async ({
+const next = (page: Page, last: boolean) =>
+  popover(page)
+    .getByRole('button', { name: last ? 'Done' : 'Next', exact: true })
+    .click();
+
+test('Basics walks every step, each pointing at its control, and then says Done', async ({
   browser,
 }) => {
   const { context, page } = await person(browser);
-  const walk = WALK(project());
-  await fromHelp(page, 'Start');
+  const walk = BASICS(project());
+  await fromHelp(page, 'basics');
   for (const [k, leg] of walk.entries()) {
     await expect(popover(page).locator('.driver-popover-title')).toHaveText(leg.title);
     await expect(popover(page)).toContainText(`${k + 1} of ${walk.length}`);
@@ -191,23 +195,20 @@ test('walks every stop, each pointing at its control, and finishes on Help', asy
       s.target.right > s.popover.left;
     expect(under, `${leg.title}: target's top under the popover`).toBe(false);
     if (k > 0) await expect(popover(page).getByRole('button', { name: 'Back' })).toBeVisible();
-    await popover(page)
-      .getByRole('button', { name: k === walk.length - 1 ? 'Done' : 'Next', exact: true })
-      .click();
+    await next(page, k === walk.length - 1);
   }
   await expect(popover(page)).toHaveCount(0);
-  await expect(page.locator('[data-tour="help-tour"]')).toContainText(
-    'Seen it all. Replay it any time.',
-  );
+  await expect(tourRow(page, 'basics')).toContainText('Done');
+  await expect(tourRow(page, 'basics').getByRole('button', { name: 'Replay' })).toBeVisible();
   await context.close();
 });
 
 test('stays on screen in Arabic, counting in its digits', async ({ browser }) => {
   const { context, page } = await person(browser, 'ar');
   await page.goto('/help');
-  await page.locator('[data-tour="help-tour"]').getByRole('button', { name: 'ابدأ' }).click();
-  await expect(popover(page).locator('.driver-popover-title')).toHaveText('الرئيسية');
-  await expect(popover(page)).toContainText('١ من ٩');
+  await tourRow(page, 'basics').getByRole('button').click();
+  await expect(popover(page).locator('.driver-popover-title')).toHaveText('ما يحتاج إليك');
+  await expect(popover(page)).toContainText('١ من ٦');
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   const s = await stopOf(page);
   expect(s.popover?.left ?? -1).toBeGreaterThanOrEqual(0);
@@ -219,8 +220,8 @@ test('stays on screen in Arabic, counting in its digits', async ({ browser }) =>
 
 test('lets a tap outside the highlight through to the page', async ({ browser }) => {
   const { context, page } = await person(browser);
-  await fromHelp(page, 'Start');
-  await expect(popover(page).locator('.driver-popover-title')).toHaveText('Home');
+  await fromHelp(page, 'basics', 'Replay');
+  await expect(popover(page).locator('.driver-popover-title')).toHaveText('Needs you');
   // Outside the highlight: the tab bar's Search on a phone, the sidebar's Activity on a desktop.
   const [name, url] = project() === 'phone' ? ['Search', /\/search$/] : ['Activity', /\/activity$/];
   await page
@@ -233,30 +234,85 @@ test('lets a tap outside the highlight through to the page', async ({ browser })
   await context.close();
 });
 
-test('resumes where it stopped after a reload, or starts over', async ({ browser }) => {
+test('Show me on an empty location makes one sample, and Discard trashes only that', async ({
+  browser,
+}) => {
   const { context, page } = await person(browser);
-  // The last two runs ended on Home before passing it: nothing to resume yet.
-  await fromHelp(page, 'Start');
-  for (const title of ['Home', 'Capture']) {
-    await expect(popover(page).locator('.driver-popover-title')).toHaveText(title);
-    await popover(page).getByRole('button', { name: 'Next', exact: true }).click();
-  }
-  await expect(popover(page).locator('.driver-popover-title')).toHaveText('Inbox');
-  await popover(page).getByRole('button', { name: 'Close' }).click();
-  await expect(popover(page)).toHaveCount(0);
-  // The server has it: a fresh load of Help still knows.
   await page.goto('/help');
-  await page.reload();
-  await expect(page.locator('[data-tour="help-tour"]')).toContainText('Stopped at Inbox.');
-  await page.locator('[data-tour="help-tour"]').getByRole('button', { name: 'Resume' }).click();
-  await expect(popover(page).locator('.driver-popover-title')).toHaveText('Inbox');
-  await expect(popover(page)).toContainText('3 of 9');
-  await expect(page).toHaveURL(/\/inbox$/);
-  await page.keyboard.press('Escape');
+  // An empty location of this run's own, through the app's own endpoint, removed at the end.
+  const name = `Tour shed ${project()}`;
+  const made = await page.evaluate(async (n) => {
+    const res = await fetch('/api/v1/locations', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({
+        name: n,
+        kind: 'garage',
+        rooms: [],
+        preset: 'essentials',
+        timezone: 'Africa/Cairo',
+        currency: 'EGP',
+      }),
+    });
+    return { status: res.status, body: (await res.json()) as { id: string } };
+  }, name);
+  expect(made.status, JSON.stringify(made.body)).toBe(201);
+  const locationId = made.body.id;
+  try {
+    await page.goto(`/loc/${locationId}`);
+    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();
+    await page.getByRole('button', { name: 'Show me', exact: true }).click();
+    const seen: string[] = [];
+    for (let k = 0; k < 5; k++) {
+      await expect(popover(page)).toBeVisible();
+      const title = (await popover(page).locator('.driver-popover-title').textContent()) ?? '';
+      seen.push(title);
+      const last = /(\d+) of \1/.test((await stopOf(page)).progress);
+      await next(page, last);
+      if (last) break;
+    }
+    expect(seen).toEqual(['Add here', "What's here", 'Where it is', 'Actions', 'Its sections']);
+    const keep = page.getByRole('dialog', { name: 'Keep what you added?' });
+    await expect(keep).toContainText('1 item');
+    await keep.getByRole('button', { name: 'Discard', exact: true }).click();
+    await expect(keep).toHaveCount(0);
+    // The sample is in the Trash, and nothing else of this location is.
+    await page.goto('/trash');
+    await expect(page.getByText('Sample: Cordless drill')).toHaveCount(1);
+  } finally {
+    await page.evaluate(
+      (id) =>
+        fetch(`/api/v1/locations/${id}`, {
+          method: 'DELETE',
+          headers: { accept: 'application/json' },
+        }),
+      locationId,
+    );
+    await context.close();
+  }
+});
+
+test('The 3D map tour points at the map’s own controls', async ({ browser }) => {
+  const { context, page } = await person(browser);
+  await fromHelp(page, 'map');
+  const anchors: string[] = [];
+  for (let k = 0; k < 6; k++) {
+    await expect(popover(page)).toBeVisible();
+    await expect.poll(async () => (await stopOf(page)).anchor).not.toBeNull();
+    const s = await stopOf(page);
+    anchors.push(s.anchor ?? '');
+    const last = /(\d+) of \1/.test(s.progress);
+    await next(page, last);
+    if (last) break;
+  }
+  // Floors shows only for a location with more than one: the rest always.
+  expect(anchors.filter((a) => a !== 'map-floors')).toEqual([
+    'location-layout',
+    'map-view',
+    'map-pins',
+    'map-arrange',
+  ]);
+  await expect(page).toHaveURL(/view=map/);
   await expect(popover(page)).toHaveCount(0);
-  await fromHelp(page, 'Start over');
-  await expect(popover(page).locator('.driver-popover-title')).toHaveText('Home');
-  await expect(popover(page)).toContainText('1 of 9');
-  await page.keyboard.press('Escape');
   await context.close();
 });

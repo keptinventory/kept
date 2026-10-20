@@ -39,6 +39,7 @@ export function ClaimsSection() {
             variant="secondary"
             isDisabled={!!blocked}
             onPress={() => setOpen('new')}
+            data-tour="thing-claim"
           >
             <Trans>New claim</Trans>
           </Button>

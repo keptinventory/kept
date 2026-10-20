@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { HINT_KEYS, isHintKey, TOUR_SECTION_IDS, tourProgressKey } from './hints.js';
+import {
+  HINT_KEYS,
+  isHintKey,
+  isTourId,
+  TOUR_IDS,
+  TOUR_SECTION_IDS,
+  tourKey,
+  tourProgressKey,
+} from './hints.js';
 
 describe('HINT_KEYS (D138)', () => {
   it('fit the user_hints key CHECK', () => {
@@ -13,7 +21,16 @@ describe('HINT_KEYS (D138)', () => {
     expect(isHintKey('nope')).toBe(false);
   });
 
-  it('hold one progress key per tour section (D242)', () => {
+  it('hold one key per tour', () => {
+    for (const id of TOUR_IDS) expect(isHintKey(tourKey(id))).toBe(true);
+    expect(tourKey('import-export')).toBe('help.tours.import-export');
+    expect(isHintKey('help.tours.nope')).toBe(false);
+    expect(isTourId('vehicles')).toBe(true);
+    expect(isTourId('home')).toBe(false);
+  });
+
+  it('still accept the older walk’s keys', () => {
+    expect(isHintKey('help.tour_seen')).toBe(true);
     for (const id of TOUR_SECTION_IDS) expect(isHintKey(tourProgressKey(id))).toBe(true);
     expect(isHintKey('help.tour.vehicles')).toBe(false);
   });

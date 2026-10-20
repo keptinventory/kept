@@ -67,7 +67,9 @@ export function UploadStep({
 
   return (
     <div className="grid gap-5">
-      <SourceStep value="csv" onChange={(source) => source !== 'csv' && onSource(source)} />
+      <div data-tour="import-source">
+        <SourceStep value="csv" onChange={(source) => source !== 'csv' && onSource(source)} />
+      </div>
 
       <Combobox
         label={t`Import into`}
@@ -80,6 +82,7 @@ export function UploadStep({
       />
 
       <DropZone
+        data-tour="import-file"
         getDropOperation={(types) =>
           CSV_TYPES.some((type) => types.has(type)) || types.has('text/comma-separated-values')
             ? 'copy'

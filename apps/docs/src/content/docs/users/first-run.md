@@ -126,20 +126,37 @@ holds at most 20 of them.
 - **Theme**: **System** (follows the device's light or dark setting), **Light** or **Dark**.
 - **Content width**: **Centered** or **Full width**, on screens 768 px and wider.
 
-## 7. Take the tour
+## 7. Take a tour
 
-**Help → Show me around** makes nine short stops: Home, Capture, the Inbox, a location's
-**List / Grid / Map** switch, Search, Labels, everything else (**More** on a phone, the sidebar on
-a computer), **Settings → Notifications**, and back to Help. Stops you don't have are left out: a
-viewer has no Capture or Inbox, and Labels shows only while its module is on.
+**Help → Tours** lists short walkthroughs, three to six steps each, on the real screens:
+
+| Tour | What it shows |
+|---|---|
+| Basics | Home, your locations, Scan, Search, and where everything else is |
+| Things & places | adding to a location, what's in it, and a thing's page |
+| The 3D map | the List / Grid / Map switch, 3D or plan, pins, floors and Arrange |
+| Capture & Inbox | picking what you capture, the shutter, and reviewing what Kept read |
+| Search & labels | the search field, saved views, printing labels and Scan |
+| Moving | starting a move, its boxes, and where they are |
+| Lending | what's lent out, Mark returned, and Lend on a thing |
+| Schedules & reminders | a new schedule, what's due, Complete, and how reminders reach you |
+| Paperwork & warranties | the paperwork library, what's expiring, adding a file, claims |
+| Vehicles & fuel | the vehicles list, logging a reading or a service, and fuel |
+| Import & export | where an import comes from, the file, and exporting |
+| Settings & sharing | notifications, your locations, inviting people, what to track |
+
+Only the tours you have are listed: a module's tour shows while it's on in one of your
+locations, and a viewer gets no steps that change anything. Each section's page also has a small
+**Show me** beside its title that starts its tour right there.
 
 - **Next** moves on, **Back** goes back, the arrow keys do both, and **Esc** or **×** closes it.
-- The page still works while it runs: tap anything outside the highlight. Going somewhere the
-  tour didn't open closes it.
-- Closed part-way, Help says where it stopped and offers **Resume** or **Start over**. Where you
-  stopped is saved to your account, so another device picks up there too.
-- It never starts by itself. If it added anything (a photo taken at Capture, say), you choose at
-  the end to keep it or discard it.
+- The page still works while a tour runs: tap anything outside the highlight. Going somewhere
+  the tour didn't open closes it.
+- A finished tour says **Done** on Help, on every device. Any tour replays from the top.
+- A tour that needs something to show and finds nothing makes one clearly named sample, such as
+  "Sample: Cordless drill". At the end you choose to keep it or discard it; it never touches
+  what you already have.
+- Tours never start by themselves.
 
 A few one-time hints also appear the first time you use Capture, Scan, the Inbox's suggested
 values or Labels.

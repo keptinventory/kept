@@ -43,7 +43,10 @@ export function PaperworkSection() {
     >
       <WarrantiesBlock />
       {can('attachments.add') ? (
-        <div className="grid items-end gap-2 rounded-[10px] border border-line bg-surface p-3 md:grid-cols-[minmax(0,16rem)_auto]">
+        <div
+          data-tour="thing-paperwork-add"
+          className="grid items-end gap-2 rounded-[10px] border border-line bg-surface p-3 md:grid-cols-[minmax(0,16rem)_auto]"
+        >
           <Combobox
             label={t`Add as`}
             items={ATTACHMENT_ROLES.map((r) => ({ id: r, label: roles[r] }))}

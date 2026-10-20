@@ -105,7 +105,7 @@ function TrackForm({ location }: { location: LocationDetail }) {
       <PresetPicker value={preset} onChange={choosePreset} label={t`Preset for ${name}`} />
 
       <Section title={<Trans>Fine-tune</Trans>}>
-        <List>
+        <List data-tour="location-track">
           {TUNABLE.map((id) => {
             if (MODULES[id].soon) {
               // Not built yet (1.x): listed so the plan is visible, never switchable.

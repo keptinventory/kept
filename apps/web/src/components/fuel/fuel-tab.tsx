@@ -115,7 +115,7 @@ export function VehicleFuel() {
   const accountId = useLocationAccountId(location);
   if (!moduleOn('fuel')) return <ModuleOff what={<Trans>Fuel & charging</Trans>} />;
   return (
-    <div className="grid min-w-0 gap-4">
+    <div className="grid min-w-0 gap-4" data-tour="vehicle-fuel">
       <FuelSummaryCard onLogFuel={() => setLogging(true)} />
       <Trends thingId={thing.id} />
       <FillsList accountId={accountId} label={t`Fills and charges`} />

@@ -149,7 +149,7 @@ function NewLocation() {
       </div>
 
       {step === 1 ? (
-        <div className="grid gap-5" data-tour="new-location-name">
+        <div className="grid gap-5">
           <h2 className="m-0 font-semibold text-[22px] leading-tight">
             <Trans>What's this place called?</Trans>
           </h2>

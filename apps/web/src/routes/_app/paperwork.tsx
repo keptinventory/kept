@@ -128,14 +128,15 @@ function PaperworkPage() {
     <Page
       title={t`Paperwork`}
       wide
+      tour="paperwork"
       actions={
-        <LinkButton to="/expiring" size="small" variant="secondary">
+        <LinkButton to="/expiring" size="small" variant="secondary" data-tour="paperwork-expiring">
           <ClockIcon className="size-4" />
           <Trans>Expiring</Trans>
         </LinkButton>
       }
     >
-      <div>
+      <div data-tour="paperwork-list">
         <ListSurface<PaperworkRow>
           label={t`Paperwork`}
           search={{

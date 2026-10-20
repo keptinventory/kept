@@ -1,23 +1,19 @@
 /**
- * Help (D138, D139): "Show me around" (the guided tour, replayable,
- * resumable where it stopped (D242), never started on launch), bringing back the Get-started
- * checklist, installing Kept on a phone, sharing into Kept from other apps per platform (iPhone
- * has no share target), logging the odometer from an iPhone Shortcut with a token (step 6 T21,
- * D63), and the diagnostics page.
+ * Help: Tours (Basics and one per section, replayable, never started on launch), bringing back
+ * the Get-started checklist, installing Kept on a phone, sharing into Kept from other apps per
+ * platform (iPhone has no share target), logging the odometer from an iPhone Shortcut with a
+ * token, and the diagnostics page.
  */
-import { Trans, useLingui } from '@lingui/react/macro';
+import { type TourId, tourKey } from '@kept/shared';
+import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { createFileRoute } from '@tanstack/react-router';
 import { type ReactNode, useRef, useState } from 'react';
 import { useHome } from '@/api/inventory/queries';
 import { useLocations } from '@/api/queries';
 import { ShortcutRecipeSheet } from '@/components/connections/shortcut-recipe';
-import { useGuidedTourCopy } from '@/components/hints/hint-copy';
-import {
-  availableSections,
-  passedSections,
-  tourProgress,
-  useGuidedTour,
-} from '@/components/hints/tour';
+import { useTourTitles } from '@/components/hints/hint-copy';
+import { tourRequests, useRunningTour } from '@/components/hints/tour-request';
+import { availableTours } from '@/components/hints/tours';
 import { useHints } from '@/components/hints/use-hint';
 import { useChecklistDismissed } from '@/components/home/checklist';
 import { InstallSheet } from '@/components/home/install-sheet';
@@ -33,7 +29,6 @@ import {
 import { IconTile, LinkButton, List, Page, Row, Section } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/toast';
-import { useMediaQuery, WIDE } from '@/lib/media';
 
 export const Route = createFileRoute('/_app/help')({ component: HelpPage });
 
@@ -43,9 +38,10 @@ function HelpPage() {
   const [recipe, setRecipe] = useState(false);
   return (
     <Page title={t`Help`}>
-      <Section title={<Trans>Find your way around</Trans>}>
+      <ToursSection />
+
+      <Section title={<Trans>Get started</Trans>}>
         <List>
-          <TourRow />
           <ChecklistRow />
         </List>
       </Section>
@@ -147,79 +143,69 @@ function HelpPage() {
 }
 
 /**
- * "Show me around" (D242): Start the first time and after a finished tour; Resume and Start over
- * once a tour stopped part-way, naming the section it stopped at. Where it stopped is the
- * server's (`help.tour.<section>` hints), so every device agrees.
+ * Tours: Basics, and one short tour per section the person has (tours.ts). A finished tour
+ * says Done (its `help.tours.<tour>` hint, so every device agrees); any tour replays.
  */
-function TourRow() {
-  const tour = useGuidedTour();
-  const copy = useGuidedTourCopy();
+function ToursSection() {
+  const titles = useTourTitles();
   const hints = useHints(false);
   const locations = useLocations();
-  const wide = useMediaQuery(WIDE);
-  const startRef = useRef<HTMLButtonElement>(null);
-  const resumeRef = useRef<HTMLButtonElement>(null);
-  const progress = tourProgress(
-    availableSections(locations.data ?? []),
-    passedSections(hints.data?.hints),
-  );
-  const stoppedAt =
-    progress.state === 'stopped'
-      ? copy[progress.sectionId === 'more' && wide ? 'more-wide' : progress.sectionId]?.title
-      : undefined;
+  const running = useRunningTour();
+  const tours = availableTours(locations.data ?? []);
+  const done = (id: TourId) =>
+    !!hints.data?.hints.find((h) => h.key === tourKey(id) && h.dismissedAt);
   return (
-    <li data-tour="help-tour">
+    <Section title={<Trans>Tours</Trans>}>
+      <List data-tour="help-tours">
+        {tours.map(({ tour, steps }) => (
+          <TourRow
+            key={tour.id}
+            id={tour.id}
+            title={titles[tour.id]}
+            steps={steps.length}
+            done={done(tour.id)}
+            disabled={running !== null}
+          />
+        ))}
+      </List>
+    </Section>
+  );
+}
+
+function TourRow({
+  id,
+  title,
+  steps,
+  done,
+  disabled,
+}: {
+  id: TourId;
+  title: string;
+  steps: number;
+  done: boolean;
+  disabled: boolean;
+}) {
+  const ref = useRef<HTMLButtonElement>(null);
+  return (
+    <li data-tour-row={id}>
       <Row
-        leading={
-          <IconTile>
-            <QuestionIcon />
-          </IconTile>
-        }
-        title={<Trans>Show me around</Trans>}
+        leading={<IconTile>{done ? <CheckCircleIcon /> : <QuestionIcon />}</IconTile>}
+        title={title}
         subtitle={
-          progress.state === 'stopped' && stoppedAt ? (
-            <Trans>Stopped at {stoppedAt}.</Trans>
-          ) : progress.state === 'finished' ? (
-            <Trans>Seen it all. Replay it any time.</Trans>
-          ) : (
-            <Trans>
-              A short walk from Home to Help. Close it any time; it picks up where you stopped.
-            </Trans>
-          )
+          done ? <Trans>Done</Trans> : <Plural value={steps} one="# step" other="# steps" />
         }
         trailing={
-          progress.state === 'stopped' ? null : (
-            <Button
-              ref={startRef}
-              size="small"
-              variant="primary"
-              onPress={() => void tour.start({ returnFocus: startRef.current })}
-            >
-              <Trans>Start</Trans>
-            </Button>
-          )
+          <Button
+            ref={ref}
+            size="small"
+            variant={done ? 'secondary' : 'primary'}
+            isDisabled={disabled}
+            onPress={() => tourRequests.request({ id, returnFocus: ref.current })}
+          >
+            {done ? <Trans>Replay</Trans> : <Trans>Start</Trans>}
+          </Button>
         }
-      >
-        {progress.state === 'stopped' ? (
-          <div className="mt-1.5 flex flex-wrap gap-2">
-            <Button
-              ref={resumeRef}
-              size="small"
-              variant="primary"
-              onPress={() => void tour.start({ from: 'resume', returnFocus: resumeRef.current })}
-            >
-              <Trans>Resume</Trans>
-            </Button>
-            <Button
-              size="small"
-              variant="secondary"
-              onPress={() => void tour.start({ returnFocus: resumeRef.current })}
-            >
-              <Trans>Start over</Trans>
-            </Button>
-          </div>
-        ) : null}
-      </Row>
+      />
     </li>
   );
 }

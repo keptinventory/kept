@@ -91,7 +91,7 @@ function Counts({ move }: { move: Move }) {
   const states = useBoxStateLabels();
   const f = useFormat();
   return (
-    <dl className="m-0 grid grid-cols-3 gap-2">
+    <dl className="m-0 grid grid-cols-3 gap-2" data-tour="move-counts">
       {BOX_STATES.map((s) => (
         <div
           key={s}
@@ -373,7 +373,13 @@ function BoardView({ board }: { board: Board }) {
   const asOf = board.asOf ? f.dateTime(board.asOf) : '';
 
   return (
-    <Page title={<bdi>{move.name}</bdi>} back="/moving" eyebrow={route} wide>
+    <Page
+      title={<bdi>{move.name}</bdi>}
+      back="/moving"
+      eyebrow={route}
+      wide
+      tour={{ id: 'moving', context: { move: move.id } }}
+    >
       <div className="grid gap-4">
         <p className="m-0 text-small text-ink-2 md:hidden">{route}</p>
         {board.from === 'phone' ? (
@@ -390,7 +396,7 @@ function BoardView({ board }: { board: Board }) {
         ) : null}
         <Counts move={move} />
         {canWrite && move.status === 'active' ? (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2" data-tour="move-actions">
             <Button onPress={() => void navigate({ to: '/scan', search: { unpack: move.id } })}>
               <QrIcon className="size-4" />
               <Trans>Scan to unpack</Trans>

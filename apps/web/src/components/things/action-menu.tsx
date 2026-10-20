@@ -364,7 +364,7 @@ export function ActionMenu({
   if (wide)
     return (
       <MenuTrigger isOpen={isOpen} onOpenChange={onOpenChange}>
-        <Button variant="secondary" aria-label={t`More actions`}>
+        <Button variant="secondary" aria-label={t`More actions`} data-tour="thing-actions">
           <MenuIcon className="size-5" />
           <Trans>Actions</Trans>
         </Button>
@@ -383,6 +383,7 @@ export function ActionMenu({
         variant="ghost"
         size="icon"
         aria-label={t`Actions`}
+        data-tour="thing-actions"
         onPress={() => onOpenChange(true)}
       >
         <MenuIcon />

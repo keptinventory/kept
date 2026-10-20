@@ -215,9 +215,15 @@ export function MovesScreen() {
     <Page
       title={t`Moving`}
       wide
+      tour="moving"
       actions={
         writable.length ? (
-          <Button size="small" isDisabled={!online} onPress={() => setStarting(true)}>
+          <Button
+            size="small"
+            isDisabled={!online}
+            onPress={() => setStarting(true)}
+            data-tour="moving-start"
+          >
             <PlusIcon className="size-4" />
             <Trans>Start a move</Trans>
           </Button>
@@ -229,51 +235,53 @@ export function MovesScreen() {
           <Trans>Offline: these are the moves this phone has opened.</Trans>
         </Notice>
       ) : null}
-      <ListSurface<MoveRow>
-        label={t`Moves`}
-        search={{ label: t`Search moves`, placeholder: t`Name or location` }}
-        filters={filters}
-        surface="moves"
-        sorts={[
-          { value: 'when', label: t`Started`, kind: 'date' },
-          { value: 'name', label: t`Name` },
-        ]}
-        groups={[
-          { value: 'none', label: t`None` },
-          { value: 'status', label: t`Status`, short: t`by status` },
-          ...(all.length > 1
-            ? [{ value: 'location', label: t`Location`, short: t`by location` }]
-            : []),
-        ]}
-        query={ordered}
-        getKey={(m) => m.id}
-        groupOf={(m, by) =>
-          by === 'location'
-            ? { key: m.locationId, label: <bdi>{names.get(m.locationId) ?? ''}</bdi> }
-            : by === 'status'
-              ? { key: m.status, label: statuses[m.status] }
-              : null
-        }
-        renderRow={(m) => <MoveRowView move={m} />}
-        empty={
-          <EmptyState
-            icon={<TruckIcon />}
-            title={<Trans>No moves yet</Trans>}
-            action={
-              writable.length && online ? (
-                <Button onPress={() => setStarting(true)}>
-                  <Trans>Start a move</Trans>
-                </Button>
-              ) : undefined
-            }
-          >
-            <Trans>
-              Moving house? Pack into numbered boxes, print a label and a contents sheet for each,
-              and scan a box at the other end to unpack it into its room.
-            </Trans>
-          </EmptyState>
-        }
-      />
+      <div data-tour="moving-list">
+        <ListSurface<MoveRow>
+          label={t`Moves`}
+          search={{ label: t`Search moves`, placeholder: t`Name or location` }}
+          filters={filters}
+          surface="moves"
+          sorts={[
+            { value: 'when', label: t`Started`, kind: 'date' },
+            { value: 'name', label: t`Name` },
+          ]}
+          groups={[
+            { value: 'none', label: t`None` },
+            { value: 'status', label: t`Status`, short: t`by status` },
+            ...(all.length > 1
+              ? [{ value: 'location', label: t`Location`, short: t`by location` }]
+              : []),
+          ]}
+          query={ordered}
+          getKey={(m) => m.id}
+          groupOf={(m, by) =>
+            by === 'location'
+              ? { key: m.locationId, label: <bdi>{names.get(m.locationId) ?? ''}</bdi> }
+              : by === 'status'
+                ? { key: m.status, label: statuses[m.status] }
+                : null
+          }
+          renderRow={(m) => <MoveRowView move={m} />}
+          empty={
+            <EmptyState
+              icon={<TruckIcon />}
+              title={<Trans>No moves yet</Trans>}
+              action={
+                writable.length && online ? (
+                  <Button onPress={() => setStarting(true)}>
+                    <Trans>Start a move</Trans>
+                  </Button>
+                ) : undefined
+              }
+            >
+              <Trans>
+                Moving house? Pack into numbered boxes, print a label and a contents sheet for each,
+                and scan a box at the other end to unpack it into its room.
+              </Trans>
+            </EmptyState>
+          }
+        />
+      </div>
       <StartMoveSheet
         isOpen={starting}
         onClose={() => setStarting(false)}

@@ -31,6 +31,7 @@ import { setAssistantFloating, useAssistantUi } from '@/assistant/store';
 import { AppMark, BrandLockup } from '@/components/brand';
 import { SoonBadge } from '@/components/coming-later';
 import { HintsProvider } from '@/components/hints/hints-provider';
+import { TourHostMount } from '@/components/hints/show-me';
 import {
   ActivityIcon,
   BellIcon,
@@ -638,6 +639,7 @@ export function MainShell({
           <PullToRefresh target={main} />
           <TabBar />
           <PaletteHost />
+          <TourHostMount />
         </div>
       </HintsProvider>
     </OfflineProvider>

@@ -220,7 +220,11 @@ export function VehiclesList() {
             action={
               addTo ? (
                 <div className="grid justify-items-center gap-2">
-                  <Button onPress={() => setAdding(true)} isDisabled={!online}>
+                  <Button
+                    onPress={() => setAdding(true)}
+                    isDisabled={!online}
+                    data-tour="vehicles-add"
+                  >
                     <Trans>Add a vehicle</Trans>
                   </Button>
                   <Link

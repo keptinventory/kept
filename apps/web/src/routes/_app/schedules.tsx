@@ -152,12 +152,14 @@ function SchedulesPage() {
     <Page
       title={t`Schedules`}
       wide
+      tour="schedules"
       actions={
         canAdd ? (
           <Button
             size="small"
             isDisabled={!online}
             onPress={() => setOpen({ action: 'new', schedule: null })}
+            data-tour="schedules-new"
           >
             <PlusIcon className="size-4" />
             <Trans>New schedule</Trans>
@@ -191,7 +193,7 @@ function SchedulesPage() {
               </Trans>
             </p>
           ) : null}
-          <div>
+          <div data-tour="schedules-list">
             <ListSurface<Schedule>
               label={t`Schedules`}
               search={{ label: t`Search schedules`, placeholder: t`Search by name or thing` }}

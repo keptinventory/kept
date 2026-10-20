@@ -60,6 +60,7 @@ export function ModeStrip({
     <RadioGroup
       ref={strip}
       aria-label={t`Capture mode`}
+      data-tour="capture-mode"
       orientation="horizontal"
       value={value}
       onChange={(v) => onChange(v as CaptureMode)}
