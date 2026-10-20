@@ -228,6 +228,8 @@ const KEPT_MIMES = new Set([
   'image/gif',
   'application/pdf',
 ]);
+/** Declared types that say nothing: the bytes are sniffed in the job instead. */
+const UNTYPED = new Set(['', 'application/octet-stream']);
 /** CSS's basic colour keywords, for a tag colour written as a name (Homebox stores any text). */
 const NAMED_COLOURS: Record<string, string> = {
   black: '#000000',
@@ -1290,7 +1292,9 @@ function attachmentProblem(
 ): ImportIssueCode | null {
   if (!data.files.has(a.id)) return 'file_missing';
   const mime = a.mime_type.split(';')[0]?.trim().toLowerCase() ?? '';
-  if (!KEPT_MIMES.has(mime)) return 'file_type_refused';
+  // A file Homebox never typed (attachments made before it recorded types come out of an
+  // upgrade as application/octet-stream) goes to the job, whose sniff decides.
+  if (!KEPT_MIMES.has(mime) && !UNTYPED.has(mime)) return 'file_type_refused';
   if ((data.files.get(a.id) ?? 0) > maxFileBytes) return 'file_too_large';
   return null;
 }

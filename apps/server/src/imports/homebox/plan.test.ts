@@ -25,9 +25,9 @@ let files: TestFiles;
 let home: HomeboxData;
 let family: HomeboxData;
 
-async function read(name: 'home' | 'family'): Promise<HomeboxData> {
+async function read(name: 'home' | 'family' | string): Promise<HomeboxData> {
   const runId = newId();
-  const file = path.join(FIXTURES, `homebox-0.26.2-${name}.zip`);
+  const file = path.join(FIXTURES, name.endsWith('.zip') ? name : `homebox-0.26.2-${name}.zip`);
   const { stat } = await import('node:fs/promises');
   const bytes = (await stat(file)).size;
   await files.blobs.put(importArchiveKey(runId), file, { contentType: 'application/zip', bytes });
@@ -279,6 +279,18 @@ describe('planHomebox over Home', () => {
     // "Keep in notes" for one field.
     const noted = planHomebox(home, choices(home, { fields: { Colour: 'notes' } }), lookups());
     expect(thing(noted.ops, 'Espresso machine').notes).toContain('Colour: Brushed steel');
+  });
+
+  it('sends a file Homebox typed application/octet-stream to the job, which sniffs it', async () => {
+    // Attachments made before Homebox recorded file types come out of the upgrade untyped.
+    const upgraded = await read('homebox-0.27.0-upgraded.zip');
+    const plan = planHomebox(upgraded, choices(upgraded), lookups());
+    expect(plan.report.rows.flatMap((r) => r.issues.map((i) => i.code))).not.toContain(
+      'file_type_refused',
+    );
+    expect(plan.ops).toContainEqual(
+      expect.objectContaining({ op: 'attachment', title: 'drill.png', role: 'photo', sort: 0 }),
+    );
   });
 
   it('refuses the .docx and the text file by name, keeps the link, skips thumbnails', () => {

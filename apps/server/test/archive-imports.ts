@@ -17,6 +17,9 @@ const HOMEBOX = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixture
 export const homeboxZip = (name: 'home' | 'family') =>
   readFile(path.join(HOMEBOX, `homebox-0.26.2-${name}.zip`));
 
+/** Another committed Homebox fixture by its file name (test/fixtures/homebox/README.md). */
+export const homeboxFixture = (file: string) => readFile(path.join(HOMEBOX, file));
+
 type As = { cookie: string };
 
 /** POST /api/v1/imports/archive for `bytes`. */

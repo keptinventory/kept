@@ -38,3 +38,23 @@ Not covered:
   and a template's `numberValue` is dropped on save);
 - an entity with asset ID 0: the script ran Homebox's "Ensure asset IDs" action, so every row
   has one.
+
+## Homebox v0.27.0 and older Homebox
+
+Made on 2026-10-21 with `ghcr.io/hay-kot/homebox:v0.10.3` and `ghcr.io/sysadminsmedia/homebox:0.27.0`
+(commit bae3fb4e), SQLite, the images' default storage. Invented data, made by Bruce; the instances were
+thrown away afterwards.
+
+| File | What it is |
+|---|---|
+| `homebox-0.10.3-items.tsv` | v0.10.3's **Export Inventory** (`GET /api/v1/items/export`): tab-separated, `HB.labels`, `HB.purchase_time`/`HB.sold_time`, no `HB.url`, `0` for an unset price |
+| `homebox-0.27.0-upgraded.zip` | that v0.10.3 data folder, copied and started under v0.27.0 (`HBOX_AUTH_API_KEY_PEPPER` set): every migration ran in one start; then **Collection settings → Export** |
+| `homebox-0.27.0-upgraded-entities.csv` | the same upgraded collection's CSV (`GET /api/v1/entities/export`): `HB.purchase_date`/`HB.sold_date`, `HB.parent_import_ref`, a relative `HB.url` (`/item/<uuid>`), and one row per location (`/location/<uuid>`) |
+| `homebox-0.27.0-home.zip` | `homebox-0.26.2-home.zip` restored into a fresh v0.27.0 (`POST /api/v1/group/import`) and exported again. v0.27.0 refuses to restore a link attachment, so the copy restored had its one link (Manufacturer page) removed |
+
+The v0.10.3 collection: Garage › Shelf A and Study; Cordless drill (purchase, dated warranty, custom field
+Colour, a photo, one maintenance entry), Toolbox holding Drill bits (12), HD webcam (lifetime warranty,
+insured), Old laptop (archived, sold to "A neighbour"), Spare router (archived). The photo was uploaded before
+Homebox recorded file types, so the upgraded export lists it as `application/octet-stream`. v0.27.0's first start
+also added its eight starter rooms (Living Room, Garage, …) and numbered the locations' asset IDs after the items'.
+

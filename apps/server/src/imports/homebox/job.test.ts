@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../../test/app.js';
-import { homeboxZip, uploadArchive } from '../../../test/archive-imports.js';
+import { homeboxFixture, homeboxZip, uploadArchive } from '../../../test/archive-imports.js';
 import { type TestDb, testDb } from '../../../test/db.js';
 import { type TestFiles, testFiles } from '../../../test/files.js';
 import {
@@ -422,6 +422,74 @@ describe('both fixtures, counted', () => {
         dropped: { hb_seeded_skipped: 14, hb_quantity_zero: 1 },
       });
       expect(report.summary).toMatchObject({ things: 3, places: 2, legacyCodes: 10 });
+    },
+    LONG,
+  );
+
+  it(
+    'imports Home re-exported by Homebox v0.27.0 (homebox-0.27.0-home.zip) with the same counts',
+    async () => {
+      // The same collection restored into v0.27.0 and exported again; v0.27.0 can't restore a
+      // link attachment, so this copy has none.
+      const { counts } = await importInto(
+        'home-0.27.0',
+        await homeboxFixture('homebox-0.27.0-home.zip'),
+        { archived: 'tag' },
+      );
+      expect(counts).toEqual({
+        things: 9,
+        places: 4,
+        tagsOnThings: 6,
+        customValues: 6,
+        files: 6,
+        links: 0,
+        legacyCodes: 26,
+        warranties: 2,
+        services: 1,
+        schedules: 1,
+        purchases: 3,
+        sold: 1,
+        failedSteps: [],
+        dropped: {
+          hb_notifier_skipped: 1,
+          hb_seeded_skipped: 14,
+          hb_quantity_zero: 7,
+          hb_time_default: 2,
+          hb_number_integer: 1,
+          hb_location_in_item: 1,
+          hb_quantity_rounded: 1,
+          hb_icon_dropped: 1,
+          file_type_refused: 2,
+          hb_template_partial: 1,
+        },
+      });
+    },
+    LONG,
+  );
+
+  it(
+    'imports a Homebox v0.10.3 collection upgraded to v0.27.0 (homebox-0.27.0-upgraded.zip)',
+    async () => {
+      const { counts } = await importInto(
+        'upgraded',
+        await homeboxFixture('homebox-0.27.0-upgraded.zip'),
+        { archived: 'tag' },
+      );
+      // Six items, the sold one ended sold; Garage, Shelf A and Study (the eight starter rooms
+      // v0.27.0 added on its first start are skipped); nine entities × (asset ID + UUID).
+      expect(counts).toMatchObject({
+        things: 6,
+        places: 3,
+        files: 1,
+        legacyCodes: 18,
+        warranties: 2,
+        services: 1,
+        purchases: 2,
+        sold: 1,
+        failedSteps: [],
+        // The photo, typed application/octet-stream by the upgrade, is sniffed and kept.
+        dropped: { hb_seeded_skipped: 14 },
+      });
     },
     LONG,
   );
