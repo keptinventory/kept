@@ -22450,8 +22450,8 @@ msgid "Couldn’t save the map"
 msgstr "Die Karte konnte nicht gespeichert werden"
 
 #: src/map/map-view.tsx
-msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box. Drag a room’s amber corner to resize it."
-msgstr "Ziehen Sie etwas, um es zu verschieben. Kleine Dinge lassen sich auf eine Arbeitsfläche, einen Schreibtisch, ein Regal oder eine Kiste legen. Ziehen Sie die bernsteinfarbene Ecke eines Raums, um ihn zu vergrößern oder zu verkleinern."
+msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. Drag a room’s amber corner to resize it."
+msgstr "Ziehen Sie etwas, um es zu verschieben. Kleine Dinge lassen sich auf eine Arbeitsfläche, einen Schreibtisch, ein Regal oder eine Kiste legen; Dinge für die Wand kommen an die nächste Wand. Ziehen Sie die bernsteinfarbene Ecke eines Raums, um ihn zu vergrößern oder zu verkleinern."
 
 #: src/map/map-view.tsx
 msgid "Drag on empty ground to draw a new room on this floor."
@@ -24629,3 +24629,51 @@ msgstr "{name} kommt in {where}"
 #: src/components/moving/box-screen.tsx
 msgid "It has already synced. Choose the room again."
 msgstr "Das ist schon synchronisiert. Wähl den Raum noch einmal."
+
+#: src/map/labels.ts
+msgid "Wall TV"
+msgstr "Wandfernseher"
+
+#: src/map/labels.ts
+msgid "Wall shelf"
+msgstr "Wandregal"
+
+#: src/map/labels.ts
+msgid "Wall cabinet"
+msgstr "Hängeschrank"
+
+#: src/map/labels.ts
+msgid "Picture or mirror"
+msgstr "Bild oder Spiegel"
+
+#: src/map/labels.ts
+msgid "Wall clock"
+msgstr "Wanduhr"
+
+#: src/map/labels.ts
+msgid "Hooks"
+msgstr "Haken"
+
+#: src/map/labels.ts
+msgid "On the wall"
+msgstr "An der Wand"
+
+#: src/map/height.tsx
+msgid "Height"
+msgstr "Höhe"
+
+#: src/map/height.tsx
+msgid "Lower"
+msgstr "Tiefer"
+
+#: src/map/height.tsx
+msgid "Higher"
+msgstr "Höher"
+
+#: src/map/height.tsx
+msgid "From the floor to its middle"
+msgstr "Vom Boden bis zur Mitte"
+
+#: src/map/card.tsx
+msgid "On the wall, {hangs} m up"
+msgstr "An der Wand, {hangs} m hoch"

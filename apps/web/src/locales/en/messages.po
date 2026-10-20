@@ -22450,8 +22450,8 @@ msgid "Couldn’t save the map"
 msgstr "Couldn’t save the map"
 
 #: src/map/map-view.tsx
-msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box. Drag a room’s amber corner to resize it."
-msgstr "Drag anything to move it. Drop small things on a counter, desk, shelf or box. Drag a room’s amber corner to resize it."
+msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. Drag a room’s amber corner to resize it."
+msgstr "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. Drag a room’s amber corner to resize it."
 
 #: src/map/map-view.tsx
 msgid "Drag on empty ground to draw a new room on this floor."
@@ -24629,3 +24629,51 @@ msgstr "{name} goes to {where}"
 #: src/components/moving/box-screen.tsx
 msgid "It has already synced. Choose the room again."
 msgstr "It has already synced. Choose the room again."
+
+#: src/map/labels.ts
+msgid "Wall TV"
+msgstr "Wall TV"
+
+#: src/map/labels.ts
+msgid "Wall shelf"
+msgstr "Wall shelf"
+
+#: src/map/labels.ts
+msgid "Wall cabinet"
+msgstr "Wall cabinet"
+
+#: src/map/labels.ts
+msgid "Picture or mirror"
+msgstr "Picture or mirror"
+
+#: src/map/labels.ts
+msgid "Wall clock"
+msgstr "Wall clock"
+
+#: src/map/labels.ts
+msgid "Hooks"
+msgstr "Hooks"
+
+#: src/map/labels.ts
+msgid "On the wall"
+msgstr "On the wall"
+
+#: src/map/height.tsx
+msgid "Height"
+msgstr "Height"
+
+#: src/map/height.tsx
+msgid "Lower"
+msgstr "Lower"
+
+#: src/map/height.tsx
+msgid "Higher"
+msgstr "Higher"
+
+#: src/map/height.tsx
+msgid "From the floor to its middle"
+msgstr "From the floor to its middle"
+
+#: src/map/card.tsx
+msgid "On the wall, {hangs} m up"
+msgstr "On the wall, {hangs} m up"

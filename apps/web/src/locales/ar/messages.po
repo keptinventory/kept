@@ -22450,8 +22450,8 @@ msgid "Couldn’t save the map"
 msgstr "تعذّر حفظ الخريطة"
 
 #: src/map/map-view.tsx
-msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box. Drag a room’s amber corner to resize it."
-msgstr "اسحب أي شيء لنقله. ضع الأشياء الصغيرة على سطح أو مكتب أو رف أو صندوق. اسحب الزاوية الكهرمانية للغرفة لتغيير حجمها."
+msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. Drag a room’s amber corner to resize it."
+msgstr "اسحب أي شيء لنقله. ضع الأشياء الصغيرة على سطح أو مكتب أو رف أو صندوق، وأشياء الحائط تُعلَّق على أقرب حائط. اسحب الزاوية الكهرمانية للغرفة لتغيير حجمها."
 
 #: src/map/map-view.tsx
 msgid "Drag on empty ground to draw a new room on this floor."
@@ -24629,3 +24629,51 @@ msgstr "{name} يذهب إلى {where}"
 #: src/components/moving/box-screen.tsx
 msgid "It has already synced. Choose the room again."
 msgstr "تمت مزامنته بالفعل. اختر الغرفة من جديد."
+
+#: src/map/labels.ts
+msgid "Wall TV"
+msgstr "تلفزيون حائط"
+
+#: src/map/labels.ts
+msgid "Wall shelf"
+msgstr "رف حائط"
+
+#: src/map/labels.ts
+msgid "Wall cabinet"
+msgstr "خزانة حائط"
+
+#: src/map/labels.ts
+msgid "Picture or mirror"
+msgstr "لوحة أو مرآة"
+
+#: src/map/labels.ts
+msgid "Wall clock"
+msgstr "ساعة حائط"
+
+#: src/map/labels.ts
+msgid "Hooks"
+msgstr "علّاقات"
+
+#: src/map/labels.ts
+msgid "On the wall"
+msgstr "على الحائط"
+
+#: src/map/height.tsx
+msgid "Height"
+msgstr "الارتفاع"
+
+#: src/map/height.tsx
+msgid "Lower"
+msgstr "أخفض"
+
+#: src/map/height.tsx
+msgid "Higher"
+msgstr "أعلى"
+
+#: src/map/height.tsx
+msgid "From the floor to its middle"
+msgstr "من الأرض إلى منتصفه"
+
+#: src/map/card.tsx
+msgid "On the wall, {hangs} m up"
+msgstr "على الحائط، على ارتفاع {hangs} م"

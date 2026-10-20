@@ -1,0 +1,2 @@
+ALTER TABLE "map_nodes" ADD COLUMN "height_cm" integer;--> statement-breakpoint
+ALTER TABLE "map_nodes" ADD CONSTRAINT "map_nodes_height_chk" CHECK (height_cm IS NULL OR (height_cm BETWEEN 0 AND 300 AND w_cm IS NULL AND host_id IS NULL));

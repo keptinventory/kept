@@ -117,6 +117,7 @@ function cardProps(plan: Plan, it: Item, arranging: boolean, over: Record<string
     onPutOn: vi.fn(),
     onTakeOff: vi.fn(),
     onAddOn: vi.fn(),
+    onHeight: vi.fn(),
     ...over,
   };
 }

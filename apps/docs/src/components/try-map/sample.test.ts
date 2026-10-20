@@ -1,8 +1,19 @@
-import { canCarry, footprintOf, isMapModel, type MapModelKey, rectsOverlap } from '@kept/shared';
+import {
+  canCarry,
+  footprintOf,
+  isMapModel,
+  type MapModelKey,
+  rectsOverlap,
+  seatHeight,
+  wallOfTurn,
+} from '@kept/shared';
 import { describe, expect, it } from 'vitest';
 import {
   addableOn,
+  baseOf,
+  bodyOf,
   centreOf,
+  fp,
   holdersFor,
   planOf,
   putOn,
@@ -106,6 +117,48 @@ describe('the Try the map sample home (D241)', () => {
     expect(addableOn(plan.items, monitor).map((c) => c.id)).toContain(webcam.id);
     expect(putOn(plan.items, webcam, monitor)).toBe(true);
     expect(webcam.on).toBe(monitor.id);
+  });
+
+  it('hangs a TV over the TV stand, a cactus on a wall shelf and a drill on the tool wall (#138)', () => {
+    const plan = planOf(en.view, { noFloor: 'Not on a floor', location: en.location });
+    const byName = (name: string) => {
+      const it = plan.items.find((i) => i.name === name);
+      if (!it) throw new Error(`no ${name}`);
+      return it;
+    };
+    const tv = byName('Samsung TV');
+    const stand = byName('TV stand');
+    expect(tv.model).toBe('wall_tv');
+    expect(tv.hang).toBe(1.2);
+    expect(wallOfTurn(tv.rot)).toBe('-z');
+    // Over the stand, both drawn: the TV's middle over the stand's, its bottom above the stand.
+    expect(centreOf(tv).x).toBeCloseTo(centreOf(stand).x, 1);
+    expect(rectsOverlap({ ...tv, ...fp(tv) }, { ...stand, ...fp(stand) })).toBe(true);
+    expect(baseOf(plan.items, tv)).toBeGreaterThan(seatHeight('tv_stand'));
+
+    const shelf = byName('Floating shelf');
+    const cactus = byName('Small cactus');
+    expect(shelf.hang).toBe(1.5);
+    expect(cactus.on).toBe(shelf.id);
+    expect(baseOf(plan.items, cactus)).toBeCloseTo(1.52);
+
+    const board = plan.items.find((i) => i.model === 'tool_wall');
+    const drill = byName('Bosch drill');
+    expect(board?.hang).toBe(1.3);
+    expect(drill.on).toBe(board?.id);
+    // Put on… takes it back to the bench; Add on it on the board lists it again.
+    takeOff(plan.items, plan.rooms, drill);
+    expect(holdersFor(plan.items, drill).map((h) => h.model)).toEqual(
+      expect.arrayContaining(['tool_wall', 'workbench']),
+    );
+    expect(addableOn(plan.items, board ?? drill).map((c) => c.id)).toContain(drill.id);
+    expect(putOn(plan.items, drill, board ?? drill)).toBe(true);
+
+    // What Done would save keeps each height.
+    const saved = new Map(bodyOf(plan, null).nodes.map((n) => [n.id, n.height]));
+    expect(saved.get(tv.id)).toBe(120);
+    expect(saved.get(shelf.id)).toBe(150);
+    expect(saved.get(stand.id)).toBeNull();
   });
 
   it('offers only loose things as not on the map yet, never what is in a box or cabinet', () => {

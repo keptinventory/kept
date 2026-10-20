@@ -140,6 +140,19 @@ beforeAll(async () => {
     },
   });
   expect(attach.statusCode, attach.body).toBe(201);
+  // The map (D237, #138): the shelf as a room, the safe hung on its back wall at 1.75 m.
+  await own(
+    db,
+    `INSERT INTO public.map_nodes (location_id, place_id, x_cm, z_cm, w_cm, d_cm, room_kind, surface)
+     VALUES ($1, $2, 0, 0, 400, 300, 'room', 'wood')`,
+    [home.id, shelf],
+  );
+  await own(
+    db,
+    `INSERT INTO public.map_nodes (location_id, thing_id, x_cm, z_cm, rot, model, height_cm)
+     VALUES ($1, $2, 120, 10, 0, 'wall_cabinet', 175)`,
+    [home.id, safe.id],
+  );
 });
 
 afterAll(async () => {
@@ -261,6 +274,14 @@ describe('a Kept export imported on the server it came from (plan T14)', () => {
     expect(things.map((x) => x.name)).toEqual(['Drill', 'Passports', 'Safe']);
     expect(things.find((x) => x.id === passports)?.container_id).toBe(safe);
     expect(things.find((x) => x.id === safe)?.place_id).toBe(map.get(shelf));
+    // The map travels too, a thing on a wall at its height (#138).
+    const nodes = await own<{ thing_id: string | null; model: string | null; height_cm: number }>(
+      db,
+      `SELECT thing_id, model, height_cm FROM public.map_nodes
+        WHERE location_id = $1 AND thing_id IS NOT NULL`,
+      [target.id],
+    );
+    expect(nodes).toEqual([{ thing_id: safe, model: 'wall_cabinet', height_cm: 175 }]);
     expect(new Set(things.map((x) => x.created_via))).toEqual(new Set(['import']));
 
     // Same server: every code is taken, so each thing has a new one and its old one as `kept`.

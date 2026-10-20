@@ -6,31 +6,45 @@
  * Auto layout (M2): rooms nobody arranged go side by side in the tree's order, to the right of
  * the arranged ones, wrapping to a new row past ROW_WIDTH; what stands in a room goes in rows
  * from its corner, around anything arranged there. A room nobody arranged is sized to fit.
+ *
+ * Walls (#138): a thing whose shape hangs on a wall is always on one, flat against the wall at
+ * its back (its turn says which), at `hang` metres (its middle's height). Dragged, it goes to the
+ * wall nearest the pointer; a room resized, it stays on its wall. An older map's wall thing, with
+ * no height, goes on its nearest wall at the height its shape starts at.
  */
 import {
   canCarry,
   capacityOf,
   carryOf,
+  clampHang,
   cmToM,
   fitsOn,
   footprintOf,
   guessModel,
   isMapModel,
+  isWallModel,
   levelShort,
   MAP_LIMITS,
   type MapModelKey,
   type MapRect,
   type MapRoomKind,
   type MapSurface,
+  type MapWall,
   mapModel,
   mToCm,
+  nearestWall,
   ROOM_KIND_SURFACE,
   rectsOverlap,
   type ShapeFrom,
+  seatFor,
   shapeOnAdd,
   snapStep,
   turnOffset,
+  turnOfWall,
   unturnOffset,
+  WALL_T,
+  wallOfTurn,
+  wallSpot,
 } from '@kept/shared';
 import type {
   LayoutBody,
@@ -77,6 +91,8 @@ export type Item = {
   rot: number;
   /** The item it stands on. */
   on: string | null;
+  /** #138: on a wall, how high its middle hangs (metres); unset for everything standing. */
+  hang?: number;
   /** Kept's nearest room or node above it. */
   parentId: string;
   isContainer: boolean;
@@ -252,6 +268,20 @@ export function planOf(view: MapView, names: PlanNames): Plan {
       rooms.push(roomOf(r, level.key, rect, kind, ROOM_KIND_SURFACE[kind]));
     }
   }
+  // #138: wall things on their walls, now that every room has its size.
+  const roomById = new Map(rooms.map((r) => [r.id, r]));
+  for (const it of items) {
+    const r = roomById.get(it.roomId);
+    if (!r || !isWallModel(it.model)) continue;
+    it.on = null;
+    if (it.hang === undefined) hangOn(items, it, r);
+    else {
+      const bx = it.x;
+      const bz = it.z;
+      clampIn(it, r);
+      moveStackBy(items, it, it.x - bx, it.z - bz);
+    }
+  }
   return { levels, rooms, items };
 }
 
@@ -284,7 +314,11 @@ function roomOf(
 }
 
 function itemOf(n: MapNodeView, model: MapModelKey, x: number, z: number): Item {
+  const height = n.layout?.height;
   return {
+    ...(typeof height === 'number' && isWallModel(model)
+      ? { hang: clampHang(model, cmToM(height)) }
+      : {}),
     id: n.id,
     subject: n.subject,
     roomId: n.roomId,
@@ -308,8 +342,14 @@ function itemOf(n: MapNodeView, model: MapModelKey, x: number, z: number): Item 
 
 export const snap = (v: number, s: number) => Math.round(v / s) * s;
 
-/** Keeps a thing inside its room's walls. */
+/** Keeps a thing inside its room's walls; a thing on a wall stays on its wall (#138). */
 export function clampIn(it: Item, r: Pick<Room, 'w' | 'd'>): void {
+  if (it.hang !== undefined) {
+    const at = wallSpot(r, it.model, wallOfTurn(it.rot), alongOf(it));
+    it.x = at.x;
+    it.z = at.z;
+    return;
+  }
   const f = fp(it);
   it.x = Math.min(Math.max(0.12, it.x), Math.max(0.12, r.w - f.w - 0.08));
   it.z = Math.min(Math.max(0.12, it.z), Math.max(0.12, r.d - f.d - 0.08));
@@ -331,6 +371,18 @@ export function standingOn(items: readonly Item[], id: string): string[] {
   };
   walk(id);
   return out;
+}
+
+/** Moves what stands on a thing by as much as the thing moved (the thing itself already did). */
+function moveStackBy(items: readonly Item[], it: Item, dx: number, dz: number): void {
+  if (!dx && !dz) return;
+  for (const id of standingOn(items, it.id)) {
+    const t = items.find((i) => i.id === id);
+    if (t) {
+      t.x += dx;
+      t.z += dz;
+    }
+  }
 }
 
 /** Moves a thing and everything on it. */
@@ -374,18 +426,19 @@ function turnStack(items: readonly Item[], it: Item, quarters: number): void {
   }
 }
 
-/** Whether a thing is clipped to a screen's edge or held by an arm: it sits where its holder says
- * and turns only with it. */
+/** Whether a thing is clipped to a screen's edge, held by an arm or hung from hooks (#138): it
+ * sits where its holder says and turns only with it. */
 export function seated(items: readonly Item[], it: Item): boolean {
   const host = it.on ? items.find((i) => i.id === it.on) : undefined;
   const how = host ? carryOf(host.model) : null;
-  return how === 'edge' || how === 'arm';
+  return how === 'edge' || how === 'arm' || how === 'hook';
 }
 
 /** A quarter turn about its middle, carrying what stands on it (side by side stays side by side).
- * Something seated on an edge or an arm turns with its holder, not by itself. */
+ * Something seated on an edge or an arm turns with its holder, not by itself; a thing on a wall
+ * faces into the room, so it doesn't turn at all (#138). */
 export function turn(items: readonly Item[], rooms: readonly Room[], it: Item): void {
-  if (seated(items, it)) return;
+  if (seated(items, it) || it.hang !== undefined) return;
   turnStack(items, it, 1);
   const room = rooms.find((r) => r.id === it.roomId);
   if (!it.on && room) {
@@ -448,11 +501,18 @@ export function facingAz(rot: number): number {
 const SIDE_GAP = 0.02;
 
 /** Where on a holder a thing's middle goes: `along` metres across it from its middle and, on a
- * top, `depth` metres towards its front; on a screen's edge line, or in front of an arm. */
-export function spotOn(host: Item, along: number, depth = 0): { x: number; z: number } {
+ * top, `depth` metres towards its front; on a screen's edge line, in front of an arm, or hung in
+ * front of hooks (#138: out from the hook line by half the thing's own depth). */
+export function spotOn(
+  host: Item,
+  along: number,
+  depth = 0,
+  child?: Pick<Item, 'model'>,
+): { x: number; z: number } {
   const m = mapModel(host.model).mount;
   const c = centreOf(host);
-  const o = turnOffset(along, m ? m.z : depth, host.rot);
+  const out = m?.on === 'hook' && child ? mapModel(child.model).d / 2 : 0;
+  const o = turnOffset(along, m ? m.z + out : depth, host.rot);
   return { x: c.x + o.x, z: c.z + o.z };
 }
 
@@ -503,16 +563,17 @@ export function freeSpot(
     return { ...at, hw: (turned ? om.d : om.w) / 2, hd: (turned ? om.w : om.d) / 2 };
   });
   const g = SIDE_GAP / 2;
+  // On an edge or hooks everything is in one row: only how far across counts.
+  const row = m.mount?.on === 'edge' || m.mount?.on === 'hook';
   const fits = (x: number, z: number) =>
     taken.every(
       (t) =>
         x + hw + g <= t.x - t.hw ||
         x - hw - g >= t.x + t.hw ||
-        z + hd + g <= t.z - t.hd ||
-        z - hd - g >= t.z + t.hd,
+        (!row && (z + hd + g <= t.z - t.hd || z - hd - g >= t.z + t.hd)),
     );
   const xr = Math.max(0, m.w / 2 - hw);
-  const zr = m.mount?.on === 'edge' ? 0 : Math.max(0, m.d / 2 - hd);
+  const zr = row ? 0 : Math.max(0, m.d / 2 - hd);
   const x0 = Math.min(xr, Math.max(-xr, near));
   const steps = (r: number, from: number) => {
     const out = [from];
@@ -569,7 +630,8 @@ export function putOn(items: readonly Item[], it: Item, host: Item, along?: numb
   if (at === null) return false;
   turnStack(items, it, (host.rot - it.rot) / 90);
   it.on = host.id;
-  centreAt(items, it, spotOn(host, at.along, at.depth));
+  delete it.hang;
+  centreAt(items, it, spotOn(host, at.along, at.depth, it));
   return true;
 }
 
@@ -664,7 +726,8 @@ export function dropOn(
   const hc = centreOf(host);
   const local = unturnOffset(c.x - hc.x, c.z - hc.z, host.rot);
   const how = carryOf(host.model);
-  if (how === 'arm' || how === 'edge') {
+  delete it.hang;
+  if (how === 'arm' || how === 'edge' || how === 'hook') {
     const a = how === 'arm' ? freeAlong(items, host, it, local.x) : local.x;
     if (a === null) return;
     const m = mapModel(host.model);
@@ -672,7 +735,7 @@ export function dropOn(
     const along = how === 'arm' ? a : Math.min(room, Math.max(-room, free ? a : snap(a, 0.01)));
     turnStack(items, it, (host.rot - it.rot) / 90);
     it.on = host.id;
-    centreAt(items, it, spotOn(host, Math.round(along * 100) / 100));
+    centreAt(items, it, spotOn(host, Math.round(along * 100) / 100, 0, it));
     return;
   }
   const step = free ? 0.01 : snapStep(it.model);
@@ -719,7 +782,8 @@ export function thingItem(x: MapThingView, room: Room, chosen: MapModelKey | nul
     auto: false,
     ...(from === 'chosen' ? {} : { shapeFrom: from }),
   };
-  clampIn(it, room);
+  if (isWallModel(model)) hangOn([it], it, room);
+  else clampIn(it, room);
   return it;
 }
 
@@ -775,6 +839,12 @@ export function hostAt(
     const q = { x: p.x - r.x, z: p.z - r.z };
     const f = fp(h);
     if (q.x >= h.x && q.x <= h.x + f.w && q.z >= h.z && q.z <= h.z + f.d) return true;
+    // #138: a wall holder is high up and shallow; just in front of it counts.
+    if (h.hang !== undefined) {
+      const local = unturnOffset(q.x - centreOf(h).x, q.z - centreOf(h).z, h.rot);
+      const m = mapModel(h.model);
+      return Math.abs(local.x) <= m.w / 2 && local.z >= -m.d / 2 && local.z <= m.d / 2 + WALL_REACH;
+    }
     const m = mapModel(h.model).mount;
     if (m?.on !== 'arm') return false;
     const c = fp({ model: it.model, rot: h.rot });
@@ -830,8 +900,104 @@ export function bodyOf(plan: Plan, version: string | null): LayoutBody {
     rot: i.rot,
     model: i.model,
     hostId: i.on,
+    height: i.hang === undefined ? null : mToCm(i.hang),
   }));
   return { version, rooms, nodes };
+}
+
+// ---- Walls (#138) ------------------------------------------------------------------------------
+
+/** How far in front of a wall holder a dragged thing still lands on it (metres). */
+export const WALL_REACH = 0.4;
+
+/** How far along its wall a thing on a wall is: the start of its footprint. */
+function alongOf(it: Pick<Item, 'x' | 'z' | 'rot'>): number {
+  const w = wallOfTurn(it.rot);
+  return w === '-z' || w === '+z' ? it.x : it.z;
+}
+
+/**
+ * Hangs a wall thing (and what is on it) on the wall of `room` nearest `p` (its middle, in the
+ * room; by default where it is): turned to face into the room, flat against the wall, its
+ * middle along the wall by its own step from the wall's start (to the centimetre when `free`),
+ * at its height, or its shape's starting height. Map only, like everything else here.
+ */
+export function hangOn(
+  items: readonly Item[],
+  it: Item,
+  room: Pick<Room, 'w' | 'd'>,
+  p: { x: number; z: number } = centreOf(it),
+  free = false,
+): void {
+  const wall = nearestWall(room, p);
+  turnStack(items, it, (turnOfWall(wall) - it.rot) / 90);
+  it.on = null;
+  it.hang = clampHang(it.model, it.hang ?? mapModel(it.model).wall ?? 1.5);
+  const half = mapModel(it.model).w / 2;
+  const along = (wall === '-z' || wall === '+z' ? p.x : p.z) - half;
+  const step = free ? 0.01 : snapStep(it.model);
+  const at = wallSpot(room, it.model, wall, WALL_T + snap(along - WALL_T, step));
+  moveBy(items, it, at.x - it.x, at.z - it.z);
+}
+
+/**
+ * A new shape for a thing (D249): a wall shape hangs it on its nearest wall at that shape's
+ * starting height (#138), any other stands it on the floor where it is (or leaves it on its
+ * holder); what it can no longer carry, or more than it holds, goes on the floor (#137).
+ */
+export function reshape(
+  items: readonly Item[],
+  rooms: readonly Room[],
+  it: Item,
+  model: MapModelKey,
+): void {
+  const room = rooms.find((r) => r.id === it.roomId);
+  if (!room) return;
+  it.model = model;
+  delete it.shapeFrom;
+  delete it.hang;
+  if (isWallModel(model)) hangOn(items, it, room);
+  else if (!it.on) clampIn(it, room);
+  let n = 0;
+  for (const c of items.filter((x) => x.on === it.id)) {
+    if (canCarry(model, c.model) && ++n <= capacityOf(model)) continue;
+    takeOff(items, rooms, c);
+  }
+}
+
+/** Height (#138): where a wall thing's middle hangs, between the floor and the wall's top. */
+export function setHang(it: Item, h: number): void {
+  if (!isWallModel(it.model) || !Number.isFinite(h)) return;
+  it.hang = clampHang(it.model, h);
+}
+
+/** How high a thing's base is above its room's floor: what it hangs or stands on, all the way
+ * down (#138: a plant on a wall shelf, a drill on a tool wall, a webcam on a wall TV). */
+export function baseOf(items: readonly Item[], it: Item): number {
+  const seen = new Set<string>();
+  let y = 0;
+  let cur = it;
+  for (;;) {
+    seen.add(cur.id);
+    const host = cur.on ? items.find((i) => i.id === cur.on) : undefined;
+    if (!host || seen.has(host.id)) break;
+    y += seatFor(host.model, cur.model);
+    cur = host;
+  }
+  if (cur.hang !== undefined) y += cur.hang - (mapModel(cur.model).h ?? 0.3) / 2;
+  return y;
+}
+
+/** The top of the highest thing hung on each wall of a room, for how tall each wall stands. */
+export function wallTops(items: readonly Item[], roomId: string): Map<MapWall, number> {
+  const out = new Map<MapWall, number>();
+  for (const it of items) {
+    if (it.roomId !== roomId || it.hang === undefined) continue;
+    const w = wallOfTurn(it.rot);
+    const top = it.hang + (mapModel(it.model).h ?? 0.3) / 2;
+    out.set(w, Math.max(out.get(w) ?? 0, top));
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------------------------------

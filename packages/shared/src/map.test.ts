@@ -11,19 +11,30 @@ import {
   fitsOn,
   footprintOf,
   guessModel,
+  HANG_TOP,
+  hangRange,
   isMapModel,
+  isWallModel,
   levelShort,
   MAP_MODEL_KEYS,
   MAP_MODELS,
   MAP_ROOM_KINDS,
   mapModel,
   mToCm,
+  nearestWall,
+  offWall,
   ROOM_KIND_SURFACE,
   rectsOverlap,
+  seatFor,
   seatHeight,
   snapStep,
   turnOffset,
+  turnOfWall,
   unturnOffset,
+  WALL_MODELS,
+  WALL_T,
+  wallOfTurn,
+  wallSpot,
 } from './map.js';
 
 describe('the map catalogue (D237)', () => {
@@ -228,5 +239,135 @@ describe('centimetres', () => {
   it('round to whole centimetres', () => {
     expect(mToCm(1.234)).toBe(123);
     expect(mToCm(0.005)).toBe(1);
+  });
+});
+
+describe('things on a wall (#138)', () => {
+  const room = { w: 4, d: 3 };
+
+  it('has the wall shapes, at real sizes, each with where its middle hangs', () => {
+    expect([...WALL_MODELS].sort()).toEqual(
+      ['clock', 'hooks', 'picture', 'tool_wall', 'wall_cabinet', 'wall_shelf', 'wall_tv'].sort(),
+    );
+    for (const k of WALL_MODELS) {
+      const m = mapModel(k);
+      expect(isWallModel(k), k).toBe(true);
+      expect(m.h, k).toBeGreaterThan(0);
+      // Shallow: a wall thing stands out from its wall, never into the room.
+      expect(m.d, k).toBeLessThanOrEqual(0.4);
+      const r = hangRange(k);
+      expect(m.wall, k).toBeGreaterThanOrEqual(r.min);
+      expect(m.wall, k).toBeLessThanOrEqual(r.max);
+    }
+    // A 55-inch TV, a floating shelf, a kitchen wall cabinet.
+    expect(mapModel('wall_tv')).toMatchObject({ w: 1.23, h: 0.71 });
+    expect(mapModel('wall_cabinet')).toMatchObject({ w: 0.8, d: 0.35, h: 0.7 });
+    for (const k of ['tv', 'tv_stand', 'bookshelf', 'desk', 'item'] as const)
+      expect(isWallModel(k), k).toBe(false);
+  });
+
+  it('starts a TV at eye level, a shelf and a picture at 1.5 m, a clock at 1.8 m', () => {
+    expect(mapModel('wall_tv').wall).toBe(1.2);
+    expect(mapModel('wall_shelf').wall).toBe(1.5);
+    expect(mapModel('picture').wall).toBe(1.5);
+    expect(mapModel('clock').wall).toBe(1.8);
+    // A wall TV hangs clear above a TV stand.
+    const tv = mapModel('wall_tv');
+    expect((tv.wall ?? 0) - (tv.h ?? 0) / 2).toBeGreaterThan(seatHeight('tv_stand') + 0.1);
+  });
+
+  it('keeps a thing between the floor and the top of the wall', () => {
+    const r = hangRange('wall_tv');
+    expect(r.min).toBeCloseTo(0.355);
+    expect(r.max).toBeCloseTo(HANG_TOP - 0.355);
+    expect(hangRange('clock').min).toBeCloseTo(0.15);
+  });
+
+  it('turns a thing on a wall to face into the room, its back to the wall', () => {
+    expect(wallOfTurn(0)).toBe('-z');
+    expect(wallOfTurn(90)).toBe('+x');
+    expect(wallOfTurn(180)).toBe('+z');
+    expect(wallOfTurn(270)).toBe('-x');
+    expect(wallOfTurn(-90)).toBe('-x');
+    expect(wallOfTurn(450)).toBe('+x');
+    for (const w of ['-z', '+x', '+z', '-x'] as const) {
+      expect(wallOfTurn(turnOfWall(w))).toBe(w);
+      // Its front (+z in its own frame) points away from the wall.
+      const front = turnOffset(0, 1, turnOfWall(w));
+      const axis = w[1] === 'x' ? front.x : front.z;
+      expect(Math.sign(axis)).toBe(w[0] === '-' ? 1 : -1);
+    }
+  });
+
+  it('finds the nearest wall to a point in the room', () => {
+    expect(nearestWall(room, { x: 2, z: 0.2 })).toBe('-z');
+    expect(nearestWall(room, { x: 2, z: 2.9 })).toBe('+z');
+    expect(nearestWall(room, { x: 0.3, z: 1.5 })).toBe('-x');
+    expect(nearestWall(room, { x: 3.8, z: 1.5 })).toBe('+x');
+    // Outside the room, the wall it is beyond.
+    expect(nearestWall(room, { x: 2, z: -1 })).toBe('-z');
+    expect(nearestWall(room, { x: 9, z: 1 })).toBe('+x');
+  });
+
+  it('puts a thing flat against its wall, inside the walls at its ends', () => {
+    const w = mapModel('wall_tv').w;
+    const d = mapModel('wall_tv').d;
+    expect(wallSpot(room, 'wall_tv', '-z', 1)).toEqual({ x: 1, z: WALL_T });
+    expect(wallSpot(room, 'wall_tv', '+z', 1).z).toBeCloseTo(room.d - WALL_T - d);
+    // Along a wall of the room's depth, its width runs along z once turned.
+    expect(wallSpot(room, 'wall_tv', '-x', 1)).toEqual({ x: WALL_T, z: 1 });
+    expect(wallSpot(room, 'wall_tv', '+x', 1).x).toBeCloseTo(room.w - WALL_T - d);
+    // Never past the wall's ends.
+    expect(wallSpot(room, 'wall_tv', '-z', -5).x).toBe(WALL_T);
+    expect(wallSpot(room, 'wall_tv', '-z', 99).x).toBeCloseTo(room.w - WALL_T - w);
+    expect(wallSpot(room, 'wall_tv', '-x', 99).z).toBeCloseTo(room.d - WALL_T - w);
+    // A wall shorter than the thing: from its start.
+    expect(wallSpot({ w: 1, d: 1 }, 'wall_tv', '-z', 0.5).x).toBe(WALL_T);
+  });
+
+  it('measures how far a thing is from the wall at its back', () => {
+    const at = wallSpot(room, 'picture', '+x', 1.2);
+    expect(offWall(room, 'picture', { ...at, rot: 90 })).toBeCloseTo(0);
+    // Turned away from that wall, it is off it.
+    expect(offWall(room, 'picture', { ...at, rot: 270 })).toBeGreaterThan(3);
+    expect(offWall(room, 'picture', { x: at.x - 0.5, z: at.z, rot: 90 })).toBeCloseTo(0.5);
+  });
+
+  it('never stands a wall thing on something, nor hangs one on a hook', () => {
+    for (const k of WALL_MODELS) {
+      expect(canStandOn(k), k).toBe(false);
+      expect(canBeCarried(k), k).toBe(false);
+      for (const host of ['desk', 'wall_shelf', 'tool_wall', 'hooks', 'wall_tv'] as const)
+        expect(canCarry(host, k), `${k} on ${host}`).toBe(false);
+    }
+  });
+
+  it('carries small things on a wall shelf and hangs tools and bags on a tool wall or hooks', () => {
+    expect(carryOf('wall_shelf')).toBe('top');
+    expect(carryOf('tool_wall')).toBe('hook');
+    expect(carryOf('hooks')).toBe('hook');
+    expect(carryOf('wall_tv')).toBe('edge');
+    expect(carryOf('picture')).toBeNull();
+    expect(carryOf('clock')).toBeNull();
+    expect(fitsOn('wall_shelf', 'succulent')).toBe(true);
+    expect(fitsOn('wall_shelf', 'plant')).toBe(false);
+    for (const k of ['drill', 'headphones', 'item', 'watering_can'] as const) {
+      expect(canCarry('tool_wall', k), k).toBe(true);
+      expect(fitsOn('hooks', k), k).toBe(true);
+    }
+    // Holders themselves, and big things, don't hang on a hook.
+    for (const k of ['laptop', 'monitor_arm', 'box', 'boombox', 'sofa', 'bike'] as const)
+      expect(canCarry('tool_wall', k), k).toBe(false);
+    expect(capacityOf('tool_wall')).toBe(Number.POSITIVE_INFINITY);
+  });
+
+  it('hangs a thing from a hook by its top, and stands one on a shelf on its base', () => {
+    const peg = mapModel('tool_wall').mount;
+    expect(peg?.on).toBe('hook');
+    const line = peg?.h ?? 0;
+    expect(seatFor('tool_wall', 'drill') + (mapModel('drill').h ?? 0)).toBeCloseTo(line);
+    expect(seatFor('hooks', 'item')).toBeGreaterThanOrEqual(0);
+    expect(seatFor('wall_shelf', 'succulent')).toBe(seatHeight('wall_shelf'));
+    expect(seatFor('desk', 'laptop')).toBe(0.74);
   });
 });

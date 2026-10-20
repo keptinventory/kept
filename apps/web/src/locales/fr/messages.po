@@ -22450,8 +22450,8 @@ msgid "Couldn’t save the map"
 msgstr "Impossible d’enregistrer la carte"
 
 #: src/map/map-view.tsx
-msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box. Drag a room’s amber corner to resize it."
-msgstr "Faites glisser un élément pour le déplacer. Posez les petits objets sur un plan de travail, un bureau, une étagère ou une boîte. Faites glisser le coin ambré d’une pièce pour la redimensionner."
+msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. Drag a room’s amber corner to resize it."
+msgstr "Faites glisser un élément pour le déplacer. Posez les petits objets sur un plan de travail, un bureau, une étagère ou une boîte ; les objets muraux vont sur le mur le plus proche. Faites glisser le coin ambré d’une pièce pour la redimensionner."
 
 #: src/map/map-view.tsx
 msgid "Drag on empty ground to draw a new room on this floor."
@@ -24629,3 +24629,51 @@ msgstr "{name} va dans {where}"
 #: src/components/moving/box-screen.tsx
 msgid "It has already synced. Choose the room again."
 msgstr "C’est déjà synchronisé. Choisissez de nouveau la pièce."
+
+#: src/map/labels.ts
+msgid "Wall TV"
+msgstr "Télé murale"
+
+#: src/map/labels.ts
+msgid "Wall shelf"
+msgstr "Étagère murale"
+
+#: src/map/labels.ts
+msgid "Wall cabinet"
+msgstr "Meuble haut"
+
+#: src/map/labels.ts
+msgid "Picture or mirror"
+msgstr "Tableau ou miroir"
+
+#: src/map/labels.ts
+msgid "Wall clock"
+msgstr "Horloge murale"
+
+#: src/map/labels.ts
+msgid "Hooks"
+msgstr "Patères"
+
+#: src/map/labels.ts
+msgid "On the wall"
+msgstr "Au mur"
+
+#: src/map/height.tsx
+msgid "Height"
+msgstr "Hauteur"
+
+#: src/map/height.tsx
+msgid "Lower"
+msgstr "Plus bas"
+
+#: src/map/height.tsx
+msgid "Higher"
+msgstr "Plus haut"
+
+#: src/map/height.tsx
+msgid "From the floor to its middle"
+msgstr "Du sol à son milieu"
+
+#: src/map/card.tsx
+msgid "On the wall, {hangs} m up"
+msgstr "Au mur, à {hangs} m du sol"

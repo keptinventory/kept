@@ -6,7 +6,7 @@ import type { MapModelKey } from '@kept/shared';
 
 export const THUMB_CELL = 88;
 export const THUMB_COLS = 8;
-export const THUMB_ROWS = 10;
+export const THUMB_ROWS = 11;
 
 /** Each shape's cell, row by row. */
 export const THUMB_CELLS: Readonly<Record<MapModelKey, number>> = {
@@ -79,12 +79,18 @@ export const THUMB_CELLS: Readonly<Record<MapModelKey, number>> = {
   washer: 66,
   workbench: 67,
   tool_wall: 68,
-  car: 69,
-  bike: 70,
-  water_tank: 71,
-  dish: 72,
-  stairs: 73,
-  stairwell: 74,
-  zone: 75,
-  item: 76,
+  wall_tv: 69,
+  wall_shelf: 70,
+  wall_cabinet: 71,
+  picture: 72,
+  clock: 73,
+  hooks: 74,
+  car: 75,
+  bike: 76,
+  water_tank: 77,
+  dish: 78,
+  stairs: 79,
+  stairwell: 80,
+  zone: 81,
+  item: 82,
 };

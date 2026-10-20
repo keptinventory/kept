@@ -12,9 +12,9 @@
  */
 import {
   canBeCarried,
-  canCarry,
   capacityOf,
   carryOf,
+  hangRange,
   levelShort,
   MAP_MODEL_KEYS,
   MAP_ROOM_KINDS,
@@ -48,7 +48,6 @@ import {
   addableOn,
   allUnder,
   childrenOn,
-  clampIn,
   contentsOf,
   countIn,
   flagsOf,
@@ -59,8 +58,10 @@ import {
   planOf,
   putOn,
   type Room,
+  reshape,
   roomOn,
   seated,
+  setHang,
   takeOff,
   thingItem,
 } from '../../../../web/src/map/layout';
@@ -84,6 +85,8 @@ import {
 } from './strings';
 
 const QUALITY_KEY = 'kept.map.quality';
+/** The Height field's step, in metres (apps/web/src/map/height.tsx). */
+const HEIGHT_STEP = 0.05;
 const KINDS = ['low', 'lent', 'due'] as const;
 
 const esc = (s: unknown) =>
@@ -233,6 +236,23 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
   const install = `<a class="kmap-btn" href="${esc(installHref)}">${esc(w.install)}</a>`;
   const head = (title: string, meta: string) =>
     `<div class="kmap-peek"><div class="kd-col"><h2>${esc(title)}</h2><div class="kmap-meta">${meta}</div></div><button type="button" class="kmap-x" data-act="close" data-k="close" aria-label="${esc(w.close)}">×</button></div>`;
+  /** #138: Height, as the app's (apps/web/src/map/height.tsx): − and + by 5 cm, arrow keys, or a
+   * typed height, kept to where the thing can hang. */
+  const heightField = (it: Item) => {
+    if (it.hang === undefined) return '';
+    const r = hangRange(it.model);
+    const lowest = it.hang <= Math.ceil(r.min / HEIGHT_STEP - 1e-9) * HEIGHT_STEP + 1e-9;
+    const highest = it.hang >= Math.floor(r.max / HEIGHT_STEP + 1e-9) * HEIGHT_STEP - 1e-9;
+    return `<div class="kmap-height">
+      <label class="kmap-sub" for="kd-height">${esc(w.height.label)}</label>
+      <div class="kmap-height-row" role="group" aria-label="${esc(w.height.label)}">
+        <button type="button" data-act="height" data-arg="-1" data-k="height:-" aria-label="${esc(w.height.lower)}"${lowest ? ' disabled' : ''}>−</button>
+        <input id="kd-height" class="kmap-input" inputmode="decimal" autocomplete="off" data-input="height" data-k="height" data-id="${esc(it.id)}" value="${esc(w.height.value(f.num(it.hang)))}" aria-describedby="kd-height-help">
+        <button type="button" data-act="height" data-arg="1" data-k="height:+" aria-label="${esc(w.height.higher)}"${highest ? ' disabled' : ''}>+</button>
+      </div>
+      <span id="kd-height-help" class="kmap-height-help">${esc(w.height.help)}</span>
+    </div>`;
+  };
   const btn = (act: string, label: string, cls = '', arg = '') =>
     `<button type="button" class="kmap-btn${cls ? ` ${cls}` : ''}" data-act="${act}"${arg ? ` data-arg="${esc(arg)}"` : ''} data-k="${esc(`${act}:${arg}`)}">${esc(label)}</button>`;
 
@@ -362,7 +382,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       ${detail ? '' : btn('detail', w.details)}
       ${es.arranging && canBeCarried(it.model) && (it.on || holdersFor(plan.items, it).length) ? btn('puton', w.put.putOn, '', it.id).replace('<button ', '<button aria-haspopup="dialog" ') : ''}
       ${es.arranging && carryOf(it.model) ? btn('addon', w.put.addOn, '', it.id).replace('<button ', '<button aria-haspopup="dialog" ') : ''}
-      ${es.arranging && !seated(plan.items, it) ? btn('turn', w.turn, '', it.id) : ''}
+      ${es.arranging && !seated(plan.items, it) && it.hang === undefined ? btn('turn', w.turn, '', it.id) : ''}
       ${es.arranging && !it.auto ? btn('remove', w.takeOff, '', it.id) : ''}
       ${detail ? btn('less', w.less, 'ghost') : ''}
     </div>`;
@@ -381,7 +401,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
           it.shapeFrom === 'guess' ? w.pickShape : w.change,
           it.shapeFrom === 'guess' ? 'primary' : '',
           it.id,
-        ).replace('<button ', '<button aria-haspopup="dialog" ')}</div>`
+        ).replace('<button ', '<button aria-haspopup="dialog" ')}</div>${heightField(it)}`
       : '';
     if (!detail) {
       return `<aside data-map-obstacle class="kmap-panel" aria-live="polite">${headEl}${statusRows(own)}${insideLine}${buttons}${shape}</aside>`;
@@ -407,6 +427,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
         <div class="kd-col kd-small">
           <span>${esc(pick(MODEL_NAMES[it.model]))}${n !== null ? ` · ${esc(w.thingsInside(n, f.num(n)))}` : ''}</span>
           <span class="kd-wrap">${esc(meta)}</span>
+          ${it.hang === undefined ? '' : `<span>${esc(w.height.onWall(f.num(it.hang)))}</span>`}
         </div>
       </div>
       ${statusRows(own)}
@@ -597,18 +618,10 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
   function setShape(id: string, model: MapModelKey) {
     mutate((p) => {
       const it = p.items.find((i) => i.id === id);
-      const room = p.rooms.find((r) => r.id === it?.roomId);
-      if (!it || !room) return;
-      it.model = model;
-      delete it.shapeFrom;
+      if (!it) return;
       chosen.set(id, model);
-      if (!it.on) clampIn(it, room);
-      // What it can no longer carry, or more than it holds, goes back on the floor (#137).
-      let n = 0;
-      for (const c of p.items.filter((x) => x.on === id)) {
-        if (canCarry(model, c.model) && ++n <= capacityOf(model)) continue;
-        takeOff(p.items, p.rooms, c);
-      }
+      // A wall shape hangs it (#138); what it can no longer carry goes on the floor (#137).
+      reshape(p.items, p.rooms, it, model);
     });
     engine?.select({ type: 'item', id });
   }
@@ -775,6 +788,18 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       engine?.select({ type: 'item', id });
     });
     dlg.querySelector<HTMLElement>('[role="option"][tabindex="0"]')?.focus();
+  }
+
+  /** #138: Height, by a step (±1) or to a typed height, in metres. */
+  function setHeight(id: string, to: { by?: number; at?: number }) {
+    mutate((p) => {
+      const it = p.items.find((i) => i.id === id);
+      if (!it || it.hang === undefined) return;
+      const next =
+        to.at ?? Math.round((it.hang + (to.by ?? 0) * HEIGHT_STEP) / HEIGHT_STEP) * HEIGHT_STEP;
+      setHang(it, next);
+    });
+    engine?.select({ type: 'item', id });
   }
 
   function removeItem(id: string) {
@@ -1077,6 +1102,9 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
         return render();
       case 'turn':
         return e.turnItem(arg);
+      case 'height':
+        if (sel?.type === 'item') setHeight(sel.id, { by: Number(arg) });
+        return;
       case 'remove':
         return removeItem(arg);
       case 'shapes':
@@ -1100,6 +1128,32 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
         return showOnMap({ type: 'item', id: arg });
     }
   };
+  /** A typed height, in either language's digits, with a comma or the Arabic decimal mark. */
+  const typedHeight = (text: string): number | null => {
+    const latin = text
+      .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+      .replace(/[٫,]/g, '.');
+    const m = /\d+(\.\d+)?/.exec(latin);
+    return m ? Number(m[0]) : null;
+  };
+  const onHeightKey = (ev: KeyboardEvent) => {
+    const el = ev.target as HTMLInputElement;
+    if (el.dataset?.input !== 'height' || !el.dataset.id) return;
+    if (ev.key === 'ArrowUp' || ev.key === 'ArrowDown') {
+      ev.preventDefault();
+      setHeight(el.dataset.id, { by: ev.key === 'ArrowUp' ? 1 : -1 });
+    } else if (ev.key === 'Enter') {
+      ev.preventDefault();
+      el.blur();
+    }
+  };
+  const onChange = (ev: Event) => {
+    const el = ev.target as HTMLInputElement;
+    if (el.dataset?.input !== 'height' || !el.dataset.id) return;
+    const at = typedHeight(el.value);
+    if (at === null) render();
+    else setHeight(el.dataset.id, { at });
+  };
   const onInput = (ev: Event) => {
     const el = ev.target as HTMLInputElement;
     if (el.dataset.input === 'filter') filter = el.value;
@@ -1121,6 +1175,8 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
   };
   root.addEventListener('click', onClick);
   root.addEventListener('input', onInput);
+  root.addEventListener('change', onChange);
+  root.addEventListener('keydown', onHeightKey);
   addEventListener('keydown', onKey);
 
   // The controls are drawn before the engine is made, so its first fit leaves them clear.
@@ -1194,6 +1250,8 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
   return () => {
     root.removeEventListener('click', onClick);
     root.removeEventListener('input', onInput);
+    root.removeEventListener('change', onChange);
+    root.removeEventListener('keydown', onHeightKey);
     removeEventListener('keydown', onKey);
     engine?.dispose();
     style.remove();

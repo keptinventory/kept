@@ -10,8 +10,6 @@
  * moves anything dragged into another room there in Kept first), Cancel throws it away.
  */
 import {
-  canCarry,
-  capacityOf,
   isMapModel,
   type MapModelKey,
   type MapRoomKind,
@@ -43,7 +41,6 @@ import {
 import { modelStats } from './engine/models';
 import {
   bodyOf,
-  clampIn,
   contentsOf,
   countIn,
   flagsOf,
@@ -51,6 +48,8 @@ import {
   planOf,
   putOn,
   type Room,
+  reshape,
+  setHang,
   takeOff,
   thingItem,
 } from './layout';
@@ -350,18 +349,10 @@ function MapBody({ data, locationId, name }: { data: MapData; locationId: string
   function setShape(id: string, model: MapModelKey) {
     mutate((p) => {
       const it = p.items.find((i) => i.id === id);
-      const room = p.rooms.find((r) => r.id === it?.roomId);
-      if (!it || !room) return;
-      it.model = model;
-      delete it.shapeFrom;
+      if (!it) return;
       chosen.current.set(id, model);
-      if (!it.on) clampIn(it, room);
-      // What it can no longer carry, or more than it holds, goes back on the floor (#137).
-      let n = 0;
-      for (const c of p.items.filter((x) => x.on === id)) {
-        if (canCarry(model, c.model) && ++n <= capacityOf(model)) continue;
-        takeOff(p.items, p.rooms, c);
-      }
+      // A wall shape hangs it (#138); what it can no longer carry goes on the floor (#137).
+      reshape(p.items, p.rooms, it, model);
     });
     engineRef.current?.select({ type: 'item', id });
   }
@@ -388,6 +379,15 @@ function MapBody({ data, locationId, name }: { data: MapData; locationId: string
   function addOnIt(hostId: string, ids: string[]) {
     mutate((p) => addOn(p, data, hostId, ids, chosenShape));
     engineRef.current?.select({ type: 'item', id: hostId });
+  }
+
+  /** #138: Height. Map only, like the rest of the session. */
+  function setHeight(id: string, h: number) {
+    mutate((p) => {
+      const it = p.items.find((i) => i.id === id);
+      if (it) setHang(it, h);
+    });
+    engineRef.current?.select({ type: 'item', id });
   }
 
   function removeItem(id: string) {
@@ -583,7 +583,7 @@ function MapBody({ data, locationId, name }: { data: MapData; locationId: string
     due: { long: t`Due soon`, short: t`Due` },
   };
   const hints: Record<Tool | 'overlap', string> = {
-    move: t`Drag anything to move it. Drop small things on a counter, desk, shelf or box. Drag a room’s amber corner to resize it.`,
+    move: t`Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. Drag a room’s amber corner to resize it.`,
     room: t`Drag on empty ground to draw a new room on this floor.`,
     overlap: t`Rooms can’t overlap. Draw on empty ground.`,
   };
@@ -851,6 +851,7 @@ function MapBody({ data, locationId, name }: { data: MapData; locationId: string
             onPutOn={putThingOn}
             onTakeOff={takeThingOff}
             onAddOn={addOnIt}
+            onHeight={setHeight}
             chosenShape={chosenShape}
           />
         ) : null}

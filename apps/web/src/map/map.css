@@ -579,6 +579,51 @@ fieldset.kmap-floors {
   flex: 1 1 12rem;
   overflow-wrap: anywhere;
 }
+/* Height (#138): a thing on a wall's card. The − and + are 44 px on a phone; the value never
+   cut short. */
+.kmap-height {
+  display: grid;
+  gap: 6px;
+}
+.kmap-height-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.kmap-height-row .kmap-input {
+  inline-size: 7.5rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.kmap-height-row button {
+  font: 600 18px / 1 var(--sans);
+  inline-size: 40px;
+  block-size: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.kmap-height-row button[data-disabled] {
+  color: var(--ink-3);
+  cursor: default;
+}
+.kmap-height-row button[data-focus-visible],
+.kmap-height-row .kmap-input:focus-visible {
+  outline: 2px solid var(--info);
+  outline-offset: 1px;
+}
+@media (pointer: coarse) {
+  .kmap-height-row button {
+    inline-size: 44px;
+    block-size: 44px;
+  }
+}
+.kmap-height-help {
+  font: 400 12.5px / 1.35 var(--sans);
+  color: var(--ink-3);
+}
 .kshape-thumb {
   display: block;
   flex: none;

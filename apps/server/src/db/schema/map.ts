@@ -51,6 +51,9 @@ export const mapNodes = pgTable(
     /** The place or thing this one stands on (a counter, a shelf, a box); the map's own fact,
      * not where Kept says it is. */
     hostId: uuid('host_id'),
+    /** A thing on a wall (#138): how high its middle hangs, in centimetres above the floor. Which
+     * wall is its turn's (it faces into the room); null for everything standing. */
+    height: integer('height_cm'),
     createdBy: uuid('created_by'),
     createdAt: tstz('created_at').notNull().defaultNow(),
   },
@@ -66,6 +69,10 @@ export const mapNodes = pgTable(
     ),
     check('map_nodes_model_chk', sql`model IS NULL OR model ~ '^[a-z][a-z0-9_]{0,39}$'`),
     check('map_nodes_room_chk', sql`(room_kind IS NULL AND surface IS NULL) OR w_cm IS NOT NULL`),
+    check(
+      'map_nodes_height_chk',
+      sql`height_cm IS NULL OR (height_cm BETWEEN 0 AND 300 AND w_cm IS NULL AND host_id IS NULL)`,
+    ),
     check(
       'map_nodes_not_own_host_chk',
       sql`host_id IS NULL OR host_id <> coalesce(place_id, thing_id)`,
