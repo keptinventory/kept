@@ -1,12 +1,10 @@
 ---
 title: Triage
-description: How issues and pull requests reach Kept, which checks run on a pull request, and what the go-public plan adds.
+description: How issues and pull requests reach Kept, which checks run on a pull request, and what is planned.
 ---
 
 Kept's repository went public on 2026-10-07. This page has two parts: what is in the repository
-today, and what the
-[go-public plan](https://github.com/keptinventory/kept/blob/main/docs/release/go-public-plan.md)
-intends. Anything in the second part is a plan, not a setting that exists yet.
+today, and what is planned. Anything in the second part is a plan, not a setting that exists yet.
 
 ## Issues
 
@@ -76,10 +74,8 @@ What a hosted runner can't do (the database tests, the leak test, e2e, the image
 full local gate only, so a reviewer should expect the contributor's `ci-local` result in the
 description, or run it themselves before merging.
 
-## What the go-public plan adds
+## What is planned
 
-From the [go-public plan](https://github.com/keptinventory/kept/blob/main/docs/release/go-public-plan.md),
-§4 and §5, and the [go-public audit](https://github.com/keptinventory/kept/blob/main/docs/release/go-public-audit.md).
 None of this exists yet:
 
 - **Issue forms** for bug, feature and question, with questions sent to GitHub Discussions; a

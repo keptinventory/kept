@@ -2,7 +2,7 @@
 // The web app's catalogues must hold every message in the source. A production build compiles
 // only what apps/web/src/locales/<locale>/messages.po hold, and the Lingui macro strips the source
 // text, so a message missing from them renders as its hashed id (a string like "x3Fk9a"), not as
-// English (this happened to every step-2 screen once; docs/plans/step-1-carryover.md).
+// English (this happened to every step-2 screen once).
 //
 // This runs Lingui's own extractor over apps/web/src (the same config `pnpm --filter @kept/web
 // i18n:extract` uses) in memory, writes nothing, and fails (exit 1) when an extracted message is

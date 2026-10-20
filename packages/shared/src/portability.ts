@@ -7,7 +7,7 @@
 /**
  * Archives (D157, §3.1b; plan Q18). Counted on the bytes actually inflated, not on the headers.
  * The 100 : 1 ratio is judged only once an entry has inflated more than `ratioFloorBytes`
- * (spike Z1, docs/spikes/2026-09-30-step7-archive.md): an empty JSON array or a run of spaces in
+ * (spike Z1): an empty JSON array or a run of spaces in
  * a CSV is normal. `archiveBytes` is the upload cap for the compressed file.
  */
 export const ZIP_LIMITS = Object.freeze({
@@ -271,7 +271,7 @@ export const EXPORT_LIMITS = Object.freeze({ perHour: 5, runningPerLocation: 1, 
 export const PASSPHRASE_MIN = 12;
 
 /**
- * The passphrase KDF (D68; spike P1, docs/spikes/2026-09-30-step7-passphrase.md): scrypt at
+ * The passphrase KDF (D68; spike P1): scrypt at
  * 2^16 (64 MiB). The V5 run on a 2 GB, 2-vCPU VM may lower N to 2^15; every export records its
  * own parameters, so a changed default never breaks an old export.
  */

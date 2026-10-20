@@ -47,7 +47,7 @@ test-results/
 blob-report/
 playwright/.cache/
 
-# Environment and secrets: never commit; .env.example documents the contract (engineering spec 7.11)
+# Environment and secrets: never commit; .env.example documents the contract
 .env
 .env.*
 !.env.example
@@ -89,3 +89,15 @@ tmp/
 # A developer's own private terms for scripts/check-no-local-paths.mjs (host names, domains,
 # project names that must never be published): local only, by design
 .private-terms
+
+# Build notes, specs and research stay with the maintainer, outside the repo. The repo keeps
+# docs/releases, docs/runbooks and docs/assets.
+/docs/plans/
+/docs/spikes/
+/docs/research/
+/docs/specs/
+/docs/design/
+/docs/audits/
+/docs/evals/
+/docs/perf/
+/docs/release/

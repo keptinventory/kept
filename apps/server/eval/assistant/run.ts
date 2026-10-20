@@ -16,9 +16,9 @@
  * (src/ai/mock-script.ts) and its embedder the concept lexicon, so CI checks the loop and the
  * scoring with no network. A real run reads its key from `KEPT_EVAL_API_KEY` only (never an
  * argument or a file, never printed) and is the maintainer's step; its report is dated under
- * docs/evals: numbers and case ids only (score.ts).
+ * .tmp/evals (git-ignored): numbers and case ids only (score.ts).
  */
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
@@ -309,10 +309,9 @@ export async function main(argv: string[], print = (l: string) => console.log(l)
         `${date.toISOString().slice(0, 10)}-assistant-${mock ? 'mock' : provider.kind}-${provider.chat}`
           .toLowerCase()
           .replace(/[^a-z0-9.-]+/g, '-');
-      const out = path.join(
-        values.out ? path.resolve(values.out) : path.join(REPO_ROOT, 'docs/evals'),
-        `${slug}.md`,
-      );
+      const outDir = values.out ? path.resolve(values.out) : path.join(REPO_ROOT, '.tmp/evals');
+      mkdirSync(outDir, { recursive: true });
+      const out = path.join(outDir, `${slug}.md`);
       writeFileSync(
         out,
         renderAssistantReport(e, {

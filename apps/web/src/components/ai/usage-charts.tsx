@@ -4,7 +4,7 @@
  * assistant, search, tests); and tokens by task, model, person, location or account as bars. Each
  * has a table alternative behind "Show as a table" (§4), in the reader's digits. Days run with the
  * reading direction: right to gutter in Arabic. The day chart's `<svg>` is `direction: ltr` and
- * draws RTL by geometry (the V38 rule, docs/spikes/2026-09-30-step5-charts.md).
+ * draws RTL by geometry (the V38 rule).
  */
 import type { BudgetTask, LedgerTask } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';

@@ -4,8 +4,7 @@ description: How Kept's images and chart are signed with a cosign key, where the
 ---
 
 Kept's release images and Helm chart are signed with **cosign, using a key pair the maintainer
-holds** (key-based, decision D187 in the
-[product design's decision log](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-product-design.md)).
+holds** (key-based, decision D187).
 Users check a signature with the public half, `cosign.pub`; [verifying a release](/admin/verify-release/)
 is their side of this page.
 
@@ -76,9 +75,8 @@ records it in the public log. Two reasons it isn't used yet:
 
 - D187 chose key-based signing because releases were cut from the laptop, which has no CI
   identity to sign with.
-- Keyless signing records the signer in the public transparency log, which the
-  [step-8 plan](https://github.com/keptinventory/kept/blob/main/docs/plans/2026-10-06-step-8-operations.md)
-  (its Q14) keeps off while the repository is private.
+- Keyless signing records the signer in the public transparency log, which step 8 (its Q14)
+  keeps off while the repository is private.
 
 Releases now run in GitHub Actions, which does have a CI identity, but no decision has moved Kept
 to keyless signing; it stays key-based until one does.
@@ -93,5 +91,3 @@ It needs no real key. See [releasing](/maintainers/releasing/#the-dry-run).
 
 - [`scripts/release/sign.sh`](https://github.com/keptinventory/kept/blob/main/scripts/release/sign.sh)
 - [`.github/workflows/release.yml`](https://github.com/keptinventory/kept/blob/main/.github/workflows/release.yml)
-- [Spike R2, the release pipeline](https://github.com/keptinventory/kept/blob/main/docs/spikes/2026-10-06-step8-release.md):
-  the measured signing order and the cosign 3 transparency-log findings.

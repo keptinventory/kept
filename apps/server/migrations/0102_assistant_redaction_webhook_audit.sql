@@ -1,5 +1,5 @@
 -- Custom SQL migration file, put your code below! --
--- The step-6 security review's schema items S1–S3 (docs/audits/security-step6-2026-10-06.md; S4 is
+-- The step-6 security review's schema items S1–S3 (S4 is
 -- 0099, S5 is the webhook fan-out's query in src/webhooks/fanout.ts):
 --   S1. kept.redact_assistant_in() (0073) also blanks the args, before, refs and result of every
 --       proposal the user has in the location, any status, not only cancels the open ones (the

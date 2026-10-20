@@ -94,7 +94,7 @@ RUN --mount=type=bind,source=docker/prune-optional-peers.mjs,target=/tmp/prune-o
     node /tmp/prune-optional-peers.mjs /src >/tmp/pruned.json
 
 # ---------------------------------------------------------------------------------------------
-# restic (step 8, D64; spike R1, docs/spikes/2026-10-06-step8-restic.md): 0.19.1, read from
+# restic (step 8, D64): 0.19.1, read from
 # github.com/restic/restic/releases (2026-10-06). The SHA-256s are the release's own SHA256SUMS,
 # whose signature verified against restic's key CF8F 18F2 8445 7597 3F79 D4E1 91A6 868B D3F7 A907
 # (restic.net/gpg-key-alex.asc). One stage per architecture, each with its literal checksum;

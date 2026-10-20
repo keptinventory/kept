@@ -1,6 +1,6 @@
 /**
  * Kept's stored messages and tool specs ↔ the AI SDK's `ModelMessage[]` and `ToolSet` (step-6
- * plan T8; spike S6.3 recorded the part shapes, docs/spikes/2026-09-30-step6-tool-calling.md).
+ * plan T8; spike S6.3 recorded the part shapes).
  *
  * - A tool (`ToolSpec`) is a description and a JSON Schema with Kept's own `validate` (the SDK
  *   checks nothing for a bare `jsonSchema()`, S6.3 finding 2). call.ts's `toToolSet` turns it into

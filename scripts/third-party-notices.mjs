@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// THIRD-PARTY-NOTICES.txt (D151; step-8 plan T15; spike R3, docs/spikes/2026-10-06-step8-image.md).
+// THIRD-PARTY-NOTICES.txt (D151; step-8 plan T15).
 //
 // Run by the Dockerfile's `notices` stage, once per architecture, against the image's own pruned
 // node_modules: `pnpm licenses list` on a laptop names the laptop's platform binaries and the

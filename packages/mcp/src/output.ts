@@ -12,7 +12,7 @@
  *   then removes whole fields from a single oversized item. It never cuts a string.
  *
  * The 8 KB is the tool's own JSON, not the MCP response: JSON-in-JSON escaping and
- * `structuredContent` add to the wire (docs/spikes/2026-09-30-step6-mcp-sdk.md, finding 4).
+ * `structuredContent` add to the wire (spike S6.1, finding 4).
  */
 
 import { z } from 'zod';

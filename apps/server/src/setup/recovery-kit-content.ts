@@ -127,7 +127,7 @@ function resticAloneLines(half: KitBackupHalf): string[] {
     ...b.environment.map(([name, value]) => `export ${name}=${shellQuote(value)}`),
   ];
   // restic's SFTP backend runs ssh: the key and the pinned host key go in as ssh arguments
-  // (docs/spikes/2026-10-06-step8-restic.md, "Host key pinning").
+  // (spike R1, "Host key pinning").
   const sftp = b.sftp
     ? ` -o sftp.args=${shellQuote('-i kept-backup-key -o IdentitiesOnly=yes -o UserKnownHostsFile=kept-known-hosts -o StrictHostKeyChecking=yes')}`
     : '';

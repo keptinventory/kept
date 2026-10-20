@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# The release (step 8 T17; D87, D186, D187, L100–L104; spike R2,
-# docs/spikes/2026-10-06-step8-release.md). GitHub Actions runs it on a pushed release tag
+# The release (step 8 T17; D87, D186, D187, L100–L104). GitHub Actions runs it on a pushed release tag
 # (.github/workflows/release.yml, `--ci`); from the laptop it is the fallback.
 #
 #   bash scripts/release.sh <X.Y.Z[-pre]> --run-gate      run ci-local in a clean worktree of HEAD

@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put your code below! --
--- Step 6 T14's queued schema for the embeddings backfill, and the step-6 security review's S4
--- (docs/audits/security-step6-2026-10-06.md). Above, in 0098, drizzle's part:
+-- Step 6 T14's queued schema for the embeddings backfill, and the step-6 security review's S4.
+-- Above, in 0098, drizzle's part:
 -- embedding_state.paused_until. Below:
 --   1. kept.embedding_mark() also records when a pause ends (paused_until: a cap's reset or a
 --      provider's wait; NULL for a pause with no end, such as a manual one, which ai_resume can

@@ -4,7 +4,7 @@ Thank you for wanting to help. Kept is a self-hosted inventory that households t
 records for years, so most of the rules below are about not losing or leaking anyone's data.
 
 The project is maintainer-led. For anything larger than a fix, open a discussion or an issue first,
-so the work fits the design in [`docs/specs/`](docs/specs/) before you write it. The docs site's
+so the work fits Kept's design before you write it. The docs site's
 Developers section goes deeper than this page; this page is what you need to send a pull request.
 
 On the docs site:
@@ -108,7 +108,7 @@ Then Settings → Diagnostics → "Run the checks" → "Copy report" says what t
 | `charts/kept` | The Helm chart. |
 | `docker/` | The image's healthcheck, the Postgres init scripts (development and production), the Caddyfile. |
 | `scripts/` | The CI gate (`ci-local.sh`), the repository checks, the release scripts. |
-| `docs/` | The specs, build plans, spikes, runbooks and release records. |
+| `docs/` | The runbooks, the release records and the repository's images (`docs/assets`). |
 
 ## Tests
 

@@ -6,7 +6,7 @@
  *   pnpm --filter @kept/server bench:pi               the gate: a Postgres container of its own
  *                                                     on 5462 (--cpus 1, --memory 1g) and node
  *                                                     with a 512 MB heap
- *   pnpm --filter @kept/server bench:pi-speed         a slower-core proxy (docs/perf): the
+ *   pnpm --filter @kept/server bench:pi-speed         a slower-core proxy: the
  *                                                     container at --cpus 0.3, and node on the
  *                                                     efficiency cores (macOS `taskpolicy -b`)
  *

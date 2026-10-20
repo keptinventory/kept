@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # The laptop tools the chart check and the release use, each pinned to one version and, when it is
-# fetched, to its published SHA-256 (step-8 spikes H1 and R2: docs/spikes/2026-10-06-step8-helm.md,
-# docs/spikes/2026-10-06-step8-release.md). They are laptop tools, never shipped in the image.
+# fetched, to its published SHA-256. They are laptop tools, never shipped in the image.
 #
 #   bash scripts/tools.sh path <tool>          print the binary's path, or exit 1 (nothing fetched)
 #   bash scripts/tools.sh fetch <tool>...      download the pinned build into .tmp/tools/ and verify it
@@ -23,7 +22,7 @@ COSIGN_VERSION=v3.1.3
 
 # The checksums, from each release's own checksum file (helm: get.helm.sh/<file>.sha256sum;
 # kubeconform: the release's CHECKSUMS; cosign: the release's cosign_checksums.txt), read
-# 2026-10-06 and checked against the downloads in the spikes.
+# 2026-10-06 and checked against the downloads.
 tool_sha256() {
   case "$1-$2" in
     helm-darwin-arm64) echo d3870437e1e95b67f8edbde964156c84a26503f560821d40c542441658934fba ;;

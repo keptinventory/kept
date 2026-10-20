@@ -19,7 +19,7 @@ function stub(routes: Record<string, [number, unknown]>) {
 }
 
 describe('listModels: Groq (top-level input_modalities)', () => {
-  // Recorded shapes from the spike's listing (docs/spikes/code/step3/server/models-groq-2026-09-26.json).
+  // Recorded shapes from Groq's model listing on 2026-09-26.
   const body = {
     object: 'list',
     data: [

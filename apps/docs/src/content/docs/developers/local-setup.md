@@ -91,7 +91,7 @@ The `households` scenario creates the sample cast and their households: people, 
 with photos, purchases and history, warranties, loans, documents, and the Garage's car with six
 months of readings, fills and services. The accounts' shared password is in the README's
 "Development" section. The other scenario, `bench`, is the 10,000-thing load fixture for
-[the RLS benchmark](https://github.com/keptinventory/kept/blob/main/docs/perf/2026-09-26-rls-bench.md).
+[the RLS benchmark](https://github.com/keptinventory/kept/blob/main/apps/server/bench/rls.bench.ts).
 The seed refuses to run with `NODE_ENV=production`.
 
 ## 6. Run it

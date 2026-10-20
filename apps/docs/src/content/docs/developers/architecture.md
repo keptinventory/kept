@@ -8,8 +8,6 @@ API, runs the background jobs, and carries the `kept` command line. What a proce
 `KEPT_ROLE`. Everything a person owns lives in Postgres, except file bytes, which live on the
 server's disk or in an S3 bucket.
 
-The design this page summarises is the engineering spec's §7 Foundations
-([engineering spec](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-engineering-spec.md)).
 Where this page and the code disagree, the code is right; please open an issue.
 
 ## The processes and what they talk to

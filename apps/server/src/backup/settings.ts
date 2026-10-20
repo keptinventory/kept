@@ -210,8 +210,8 @@ const present = (raw: RawEnv, name: string) => {
 };
 
 /**
- * `sftp:user@host:/path` (port 22) or `sftp://user@host:port//path` (R1,
- * docs/spikes/2026-10-06-step8-restic.md), for the view. Null when it is neither.
+ * `sftp:user@host:/path` (port 22) or `sftp://user@host:port//path` (R1), for the view. Null when
+ * it is neither.
  */
 export function parseSftpLocation(
   location: string,

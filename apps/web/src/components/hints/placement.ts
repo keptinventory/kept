@@ -1,6 +1,6 @@
 /**
  * Where a hint's beacon and popover sit, said logically and turned into driver.js's physical
- * sides (spike V18, docs/spikes/2026-09-26-step3-driver-hints.md). driver.js positions with
+ * sides (spike V18). driver.js positions with
  * physical sides and alignments: `align: 'end'` is always the right edge, and `side: 'left'` is
  * always the left. In Arabic the start is the right, so `start ↔ end` and `left ↔ right` swap.
  * With the swap, an RTL hint is the exact mirror of the LTR one (measured in the spike).

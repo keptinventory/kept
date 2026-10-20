@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put your code below! --
--- Step 4's carried-over perf fix (docs/plans/step-4-carryover.md "Home's agenda counts";
--- docs/perf/2026-09-30-step4.md): the agenda view decides each location's module state once.
+-- Step 4's carried-over perf fix ("Home's agenda counts"): the agenda view decides each
+-- location's module state once.
 -- 0066's view called kept.module_on() in every branch's filter, once per source row (43 of the
 -- 97 ms a read took among 2,000 warranties): the function has SET search_path, so Postgres
 -- never inlines it. Here the `loc` CTE, which every branch already joins (and which is

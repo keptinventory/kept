@@ -38,7 +38,7 @@ import {
 } from './restic.js';
 
 // The real restic (step-8 plan T5; D64): the pinned binary as a child process, never a library.
-// What R1 recorded (docs/spikes/2026-10-06-step8-restic.md) and this follows:
+// What R1 recorded and this follows:
 // - `--json` on every command; messages parsed with json.ts's schemas;
 // - the repository location, its password and its storage credentials go **only** in the
 //   child's environment (RESTIC_REPOSITORY, RESTIC_PASSWORD, AWS_*), never argv: `ps` shows argv

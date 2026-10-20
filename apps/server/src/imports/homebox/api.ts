@@ -1,13 +1,13 @@
 /**
- * The optional Homebox connection (D146; step-7 plan T11; spike H3,
- * docs/spikes/2026-09-30-step7-homebox.md). A Homebox export ZIP holds no version, no currency and
+ * The optional Homebox connection (D146; step-7 plan T11; spike H3). A Homebox export ZIP holds
+ * no version, no currency and
  * no members; a connection to the old server reads those three and nothing else. It is only ever
  * a prefill: the import itself reads the ZIP.
  *
  * The calls, exactly as H3 recorded them against v0.26.2 (unchanged in v0.27.0-rc.1):
  * - `GET /api/v1/status`, no auth → `build.version` ("v0.26.2");
  * - with a password, `POST /api/v1/users/login {username, password, stayLoggedIn: false}` once,
- *   for a session token (the spike's client, docs/spikes/code/step7/hb_client.py `login()`);
+ *   for a session token;
  * - `GET /api/v1/groups/all` → every collection the key's owner is in, `[{id, name, currency}]`;
  * - `GET /api/v1/groups/members` with `X-Tenant: <collection id>` → `[{id, name, email}]`, no
  *   roles (the report prefills each email and asks for a role, default member).

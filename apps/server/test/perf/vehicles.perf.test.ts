@@ -38,7 +38,7 @@ import { timed } from './timing.js';
 // The checks, and their limits (plan T25; engineering spec §3.1):
 // - `agenda_items` with step 5's branches: Home (GET /api/v1/home) and the agenda's first page
 //   (GET /api/v1/agenda) no slower than step 4's recorded figures by more than 20%. Step 4's
-//   figures (docs/perf/2026-09-30-step4.md, .tmp/perf/step4.json at 14:31 on 2026-09-30, after
+//   figures (.tmp/perf/step4.json at 14:31 on 2026-09-30, after
 //   0071): Home p95 92.0 ms, the agenda's first page p95 122.1 ms. So 110.4 ms and 146.5 ms.
 //   Measured before the vehicles are added too, on the same rows in the same run, and recorded:
 //   the ratio is the fairer comparison on a loaded machine; the gate is the recorded figure.

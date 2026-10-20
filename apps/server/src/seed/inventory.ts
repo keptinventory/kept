@@ -1,8 +1,8 @@
 import type { LinkKind } from '@kept/shared';
 import type { PersonKey } from './cast.js';
 
-// What the households hold (task 23; D152, D185): the screens board's sample inventory
-// (docs/design/screens/*.html) and the web mock's (apps/web/src/api/inventory/mock/fixtures.ts),
+// What the households hold (task 23; D152, D185): the screens board's sample inventory and the
+// web mock's (apps/web/src/api/inventory/mock/fixtures.ts),
 // made through the real routes by seed/stock.ts. Names are the natural keys the seed looks
 // things up by on a second run, so each is unique within its location (and a place's within
 // its parent).

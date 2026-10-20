@@ -6,8 +6,7 @@ description: Kept's database roles, how a request sets its scope, the shapes the
 Kept's tenancy is enforced by Postgres, not only by the application. Every request runs as a role
 that cannot bypass row-level security, inside a transaction that names its user, and every table
 has policies that read that name. A query that forgot to filter, or ran without a scope, returns
-nothing. The design is the engineering spec's §1.1, §7.1, §7.2 and §7.14
-([engineering spec](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-engineering-spec.md)).
+nothing.
 
 ## The roles
 
@@ -147,8 +146,8 @@ Full-text `@@`, trigram `%`, `ILIKE` and JSON containment aren't leakproof, so u
 Postgres won't use them as an index condition, and a search scans every visible row. Kept routes
 such matches through definer doors (`kept.search_thing_ids()`, migration 0030). Check any new
 query over a large table with `EXPLAIN` **as `kept_app`**, never as the owner, which shows a plan
-the app never gets. The measurements are in
-[the RLS benchmark](https://github.com/keptinventory/kept/blob/main/docs/perf/2026-09-26-rls-bench.md).
+the app never gets. [The RLS benchmark](https://github.com/keptinventory/kept/blob/main/apps/server/bench/rls.bench.ts)
+measures it at 10,000 things.
 :::
 
 ## The leak test

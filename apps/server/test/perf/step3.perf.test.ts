@@ -30,7 +30,7 @@ import { calibration, under } from './limits.js';
 // (`pnpm --filter @kept/server bench -- --snapshot-only`), which the same ci-local step runs.
 //
 // None of these has a target in engineering spec §3.1. The limits below are PROVISIONAL, set by
-// T32 part B from the figures in docs/perf/2026-09-30-step3.md (M1 Pro, load 5–7), with margin,
+// T32 part B from the figures measured on 2026-09-30 (M1 Pro, load 5–7), with margin,
 // so that a real regression fails and ordinary machine noise doesn't: the batch's p95 was
 // 855–1,089 ms (limit 1.5 s), the inbox page's 19–20 ms (limit 100 ms, well under §3.1's page
 // p95 of 300 ms), and a 200-row import chunk 2.9–3.5 s, about 63–68 rows a second (limit 10 s).

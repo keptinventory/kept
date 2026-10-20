@@ -10,7 +10,7 @@ import type pg from 'pg';
 import { z } from 'zod';
 import { guardedFetch } from '../net/ssrf.js';
 
-// The opt-in update check (D65; step-8 plan T11, Q16; docs/spikes/2026-10-06-step8-updates.md).
+// The opt-in update check (D65; step-8 plan T11, Q16).
 //
 // Off by default. When an instance admin turns it on (or KEPT_UPDATE_CHECK=true locks it on), the
 // daily `update-check` job, or "Check now", asks GitHub one question: what is the latest release

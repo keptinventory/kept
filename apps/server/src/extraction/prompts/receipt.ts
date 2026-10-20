@@ -6,8 +6,8 @@
  *
  * **receipt-v2** (T11, 2026-09-29) was written for T10's finding that receipt-v1, on Groq
  * `qwen/qwen3.8-27b`, left out the date and the currency of a plainly printed receipt. It is
- * short, in the shape of the spike's prompt that once read them. The evaluation
- * (docs/evals/2026-09-29-groq-qwen-qwen3.8-27b.md) did **not** prove it better: on the three
+ * short, in the shape of the spike's prompt that once read them. The 2026-09-29 evaluation did
+ * **not** prove it better: on the three
  * synthetic receipts v1 got 13/18 fields right and v2 12/18; the currency was left out 5 times in
  * 6 and the date 3 times in 6 across both, so the cause looks like the model or its structured
  * output rather than the wording. v1 therefore stays in use; v2 stays selectable for the next run.
@@ -30,7 +30,7 @@ export function receiptPrompt(
 
 /**
  * receipt-v2 (T11, 2026-09-29): see the file header. Short, in the shape of the spike's prompt
- * that read this receipt's date and currency (docs/spikes/2026-09-26-step3-ai-sdk.md §2), with
+ * that read this receipt's date and currency, with
  * the rules every mode keeps (common.ts: data never instructions, no IDs or URLs, a confidence
  * per field, no placeholders) said once, in the same few words.
  */

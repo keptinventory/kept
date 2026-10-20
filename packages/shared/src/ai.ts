@@ -28,7 +28,7 @@ export const DEFAULT_REASONING: ReasoningLevel = 'low';
 /**
  * Key prefixes, most specific first (D202): `sk-ant-` and `sk-or-` are also `sk-` prefixes, so
  * OpenAI's bare `sk-` comes last. The OpenRouter (`sk-or-`) and Groq (`gsk_`) prefixes are the
- * ones seen on real keys in the spike (docs/spikes/2026-09-26-step3-ai-sdk.md §6); neither
+ * ones seen on real keys in the spike; neither
  * provider's API reference states them, so a key that doesn't match is simply not preselected.
  */
 const KEY_PREFIXES: readonly (readonly [string, ProviderKind])[] = [
@@ -75,7 +75,7 @@ export type DefaultModels = {
  *   `claude-haiku-4-5` is cheaper but is due to retire no sooner than 2026-10-15, weeks away.
  * - google: `gemini-3.8-flash`, which the docs recommend for new projects;
  *   `gemini-embedding-001` is the stable embeddings model.
- * - groq (D202; from Groq's model listing, docs/spikes/2026-09-26-step3-ai-sdk.md §7):
+ * - groq (D202; from Groq's model listing on 2026-09-26):
  *   `qwen/qwen3.8-27b` is its only vision model and passed structured output with an image;
  *   `openai/gpt-oss-120b` for the assistant. Groq lists no embeddings model.
  * - openrouter (D202, same source): `openai/gpt-6-luna`, the cheapest current major with
@@ -229,7 +229,7 @@ function googleTokens(w: number, h: number): number {
 }
 
 /** Groq: a flat 2048 tokens per image (its vision docs), which the spike's rate-limit headers
- * matched (docs/spikes/2026-09-26-step3-ai-sdk.md §4). */
+ * matched. */
 const GROQ_IMAGE_TOKENS = 2048;
 
 /**
@@ -277,7 +277,7 @@ export const RECOMMENDED = Object.freeze({
 /**
  * The recommended model's price, as Groq's own model listing gave it on 2026-09-26: USD per
  * token 0.0000008 prompt, 0.000004 completion, 0.0000004 cached input
- * (docs/spikes/code/step3/server/models-groq-2026-09-26.json, `pricing`), per million tokens.
+ * (the listing's `pricing`), per million tokens.
  * REFERENCE_FIGURES' costs were worked out from it (ai.test.ts checks they agree). Saved as a
  * `provider_listing` price, with the listing's date (the recording has the day only), when an
  * instance admin connects the recommended model and no price is set, so its cost shows from the
@@ -374,7 +374,7 @@ export type ReferenceFigure = {
 /**
  * "What uses AI in Kept" before a scope has five calls of a task (D206, §3.5): one call's tokens
  * and cost as measured on Groq `qwen/qwen3.8-27b` on 2026-09-26, costed from Groq's listed prices
- * that day. Copied from docs/spikes/2026-09-26-step3-ai-sdk.md §2 (the first run of each case;
+ * that day. Copied from the step-3 AI SDK spike's runs (the first run of each case;
  * the THING row is the nameplate in THING mode), never estimated. Synthetic images: the
  * evaluation set (V1, V3) replaces them.
  */

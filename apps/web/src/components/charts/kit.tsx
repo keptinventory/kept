@@ -2,7 +2,7 @@
  * What the vehicle charts share (plan T18; D133, V38): the reading direction, one tab stop per
  * chart with the arrow keys moving between its marks (a roving `tabIndex`), and the tooltip.
  *
- * Rules from the step-5 chart spike (docs/spikes/2026-09-30-step5-charts.md):
+ * Rules from the step-5 chart spike:
  * - a chart's `<svg>` is `direction: ltr`, and RTL is drawn by geometry (the time scale's range
  *   reversed, the value axis on the right): inherited `rtl` flips SVG `text-anchor`;
  * - the arrow keys move the way they point on screen, so in Arabic ← is later in time;

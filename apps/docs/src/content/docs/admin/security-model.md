@@ -3,11 +3,9 @@ title: Security model
 description: What an operator should know about how Kept keeps households apart, seals secrets, signs people in, and what leaves the server.
 ---
 
-This page is the operator's summary. The full threat model is in the
-[product design, §13](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-product-design.md),
-and the mechanisms are in the
-[engineering spec](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-engineering-spec.md)
-(§7.1–§7.3 and §7.10 for the database, keys and sign-in; §3.1b and §3.2 for limits).
+This page is the operator's summary of Kept's threat model and the mechanisms behind it. The
+developer pages go deeper: [row-level security](/developers/rls/), [sign-in](/developers/auth/)
+and [the architecture](/developers/architecture/).
 
 ## Households are kept apart by the database
 

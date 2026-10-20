@@ -314,7 +314,7 @@ export default defineConfig({
     babel({ presets: [linguiTransformerBabelPreset({ linguiConfig }, { configPath })] }),
     tailwindcss(),
     ...(TRY ? [tryHtml()] : []),
-    // The service worker (plan T23; spike docs/spikes/2026-09-26-step3-serwist.md): src/sw.ts is
+    // The service worker (plan T23): src/sw.ts is
     // built to dist/sw.js with the precache manifest injected. The precache is the shell, the
     // fonts Kept renders (Latin and Arabic), the icons and the scanner's wasm, so capture and scan
     // work offline (D101). Never /api or /f: authenticated responses stay out of the Cache API

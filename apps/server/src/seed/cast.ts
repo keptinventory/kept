@@ -1,4 +1,4 @@
-// The seed's people and places (D152, D185): the cast of the screens board (docs/design/screens),
+// The seed's people and places (D152, D185): the cast of the screens board,
 // the same Cairo household in October 2026. Ibrahim owns Home and runs this Kept; his brother Bruce
 // is an admin; Alfred is a member; Louis is house-sitting as a member for a few weeks; Talia is a
 // viewer; Peter, Alfred's son, has a managed account. Murdock, Ibrahim's other brother, stays a

@@ -7,9 +7,7 @@ The schema lives in two places that must agree: the Drizzle table definitions in
 [`apps/server/src/db/schema/`](https://github.com/keptinventory/kept/tree/main/apps/server/src/db/schema)
 and the SQL files in
 [`apps/server/migrations/`](https://github.com/keptinventory/kept/tree/main/apps/server/migrations).
-The rules are the engineering spec's §7.12
-([engineering spec](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-engineering-spec.md))
-and the "Migrations are additive" section of
+The rules are below and in the "Migrations are additive" section of
 [CONTRIBUTING.md](https://github.com/keptinventory/kept/blob/main/CONTRIBUTING.md).
 
 ## Two kinds of migration

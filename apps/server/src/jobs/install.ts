@@ -98,7 +98,7 @@ export async function installPgBoss(client: pg.ClientBase): Promise<void> {
     if (version < target) {
       // Untested until pg-boss ships its next schema version. getMigrationPlans() inlines the
       // async index builds after its COMMIT; if one of them is `CONCURRENTLY`, it can't share a
-      // simple-query batch, and this needs splitting. See docs/spikes/2026-09-26-s1.md.
+      // simple-query batch, and this needs splitting (spike S1).
       await client.query(getMigrationPlans(PGBOSS_SCHEMA, version));
     }
   }

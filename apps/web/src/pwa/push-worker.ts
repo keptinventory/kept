@@ -1,6 +1,6 @@
 /**
- * The service worker's half of web push (plan T24; D30, D139; spike
- * docs/spikes/2026-09-30-step4-push.md). src/sw.ts wires these to its `push` and
+ * The service worker's half of web push (plan T24; D30, D139). src/sw.ts wires these to its
+ * `push` and
  * `notificationclick` events; they take the worker's parts as arguments so a unit test can hand
  * them stubs (nothing clicks a notification from the DevTools protocol, so the tap's URL logic is
  * tested here and the real tap is a device check).

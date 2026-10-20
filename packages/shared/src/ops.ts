@@ -276,7 +276,7 @@ export type BucketVersioning = 'on' | 'off' | 'unknown' | 'not_applicable';
 export type DiskUsage = { usedRatio: number; freeBytes: number };
 
 /**
- * Why the last update check has no answer (docs/spikes/2026-10-06-step8-updates.md):
+ * Why the last update check has no answer:
  * - `unreachable`: no answer (network, timeout, a redirect, a 5xx, an unsupported API version);
  * - `not_found`: GitHub's 404, which a private repository, one with no release and a missing one
  *   all give alike (while Kept's repository is private, every official image gets this);
@@ -456,7 +456,7 @@ export function compareSemver(a: string | Semver, b: string | Semver): -1 | 0 | 
 
 /**
  * The app lock (D181, plan Q22). `pbkdf2Iterations`: T0b's L1 count, about 288 ms in Chromium on
- * the laptop (docs/spikes/2026-10-06-step8-app-lock.md); the count is stored with each PIN-wrapped
+ * the laptop; the count is stored with each PIN-wrapped
  * key, so it can be lowered for new wraps if a slower phone unlocks in over about a second.
  * OWASP's 600,000 for PBKDF2-HMAC-SHA256 is the floor.
  */

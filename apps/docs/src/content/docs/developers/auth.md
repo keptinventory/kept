@@ -4,10 +4,7 @@ description: How people sign in, how sessions and second factors work, the same-
 ---
 
 Kept uses Better Auth for sign-in, on its own database login
-(`kept_auth`) with its tables in schema `auth`, and adds its own rules around it. The design is
-the engineering spec's §7.10 and §7.14
-([engineering spec](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-engineering-spec.md));
-the code is in
+(`kept_auth`) with its tables in schema `auth`, and adds its own rules around it. The code is in
 [`apps/server/src/auth`](https://github.com/keptinventory/kept/tree/main/apps/server/src/auth),
 mounted at `/api/v1/auth/*`.
 
@@ -19,7 +16,7 @@ mounted at `/api/v1/auth/*`.
 | Magic link | `magicLink` plugin, 15 minutes | Signs in existing accounts only. Consumed by Kept's `POST /api/v1/auth/magic-link/verify`, never by a GET a mail scanner could follow; only a hash of the token is stored |
 | Passkey | `@better-auth/passkey`, relying party = the public URL's host | A passkey with user verification counts as two factors |
 | Managed account | `username` plugin | A username and password, no real email (below) |
-| OIDC | `genericOAuth`, when `KEPT_OIDC_ISSUER` is set and boot-time discovery worked | The account key is `sub`, never the email; linking is explicit only. Spike: [step 6 OIDC](https://github.com/keptinventory/kept/blob/main/docs/spikes/2026-09-30-step6-oidc.md) |
+| OIDC | `genericOAuth`, when `KEPT_OIDC_ISSUER` is set and boot-time discovery worked | The account key is `sub`, never the email; linking is explicit only |
 | Google | Better Auth's `socialProviders.google`, when `KEPT_GOOGLE_CLIENT_ID` and `_SECRET` are set | OIDC's rules (`auth/oidc.ts` `externalIdentityPolicy`, `keptOidc`), never autoprovision; `prompt=select_account`; Google's tokens are dropped (`auth/google.ts`) |
 
 Sign-up isn't open by default. People join through Kept's own `POST /api/v1/auth/sign-up`, which
@@ -117,14 +114,12 @@ through the SSRF guard), no dynamic client registration. Access tokens are JWTs 
 `<public URL>/mcp`, an hour long, and are accepted at `/mcp` only; the grant row holds the scopes
 (`kept:read`, `kept:write`) and locations the person chose on the consent page, and is checked on
 every call. The discovery documents are at `/.well-known/oauth-authorization-server` and
-`/.well-known/oauth-protected-resource`. Spike:
-[step 6 OAuth with CIMD](https://github.com/keptinventory/kept/blob/main/docs/spikes/2026-09-30-step6-oauth-cimd.md).
+`/.well-known/oauth-protected-resource`.
 The tools themselves are on [MCP](/developers/mcp/).
 
 ## Roles in a location
 
-A membership's role is `owner`, `admin`, `member` or `viewer`. The full matrix, transcribed from
-the product design's §7.1, is `MATRIX` in
+A membership's role is `owner`, `admin`, `member` or `viewer`. The full matrix is `MATRIX` in
 [`packages/shared/src/roles.ts`](https://github.com/keptinventory/kept/blob/main/packages/shared/src/roles.ts),
 and `can(role, action, ctx)` answers it: members add, edit and move things; admins manage
 members, registries, webhooks and settings; only the owner sets secret-field policies, requires

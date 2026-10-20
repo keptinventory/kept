@@ -17,7 +17,7 @@ import { AUTH_BASE_PATH } from './auth.js';
 import { isUndeliverableEmail } from './emails.js';
 
 // Generic OIDC sign-in (step-6 plan T16; D127, D128, D176, D190, V32; engineering spec §7.14;
-// spike S6.7, docs/spikes/2026-09-30-step6-oidc.md, whose cases the tests repeat).
+// spike S6.7, whose cases the tests repeat).
 //
 // Better Auth's `genericOAuth` does the protocol. Stock, it auto-links a verified email to an
 // existing account, signs up anyone, accepts `.invalid` addresses and fetches outside the SSRF

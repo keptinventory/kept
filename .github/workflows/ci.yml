@@ -21,8 +21,8 @@
 # Every job is gated on `github.event.repository.private == false`: on a private repository
 # Actions minutes are billed, and nothing here runs.
 #
-# Every action is pinned by commit SHA with its tag in a comment (spike W1,
-# docs/spikes/2026-10-06-step8-workflows.md); Renovate keeps both current once it is enabled.
+# Every action is pinned by commit SHA with its tag in a comment; Renovate keeps both current once
+# it is enabled.
 name: ci
 
 on:

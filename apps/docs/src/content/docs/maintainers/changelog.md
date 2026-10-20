@@ -67,7 +67,7 @@ git commit -m "chore(release): X.Y.Z" -- CHANGELOG.md
 ```
 
 The `chore` subject keeps that commit out of the next changelog. Read the section before
-committing: the go-public plan has each release's section generated, then trimmed by hand.
+committing: each release's section is generated, then trimmed by hand.
 
 `scripts/release.sh` (stage 2) then uses the committed section when `CHANGELOG.md` already has one
 for this version, and generates it from the commits since the last `v*` tag when it doesn't.

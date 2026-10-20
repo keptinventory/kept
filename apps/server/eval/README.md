@@ -10,7 +10,7 @@ product's open assumptions are settled on evidence (product design §19):
 - and whether the receipt's paper outline is good enough to turn the crop on (plan Q11;
   `ExtractionJobDeps.cropToPaper` is off until it is).
 
-Reports are dated and committed under [`docs/evals/`](../../../docs/evals/).
+Reports are dated and written under `.tmp/evals/`, which Git ignores; they are not committed.
 
 ## What it runs
 
@@ -54,7 +54,7 @@ prints `skipped: no evaluation folder` and exits 0. The normal test run only run
 | `--price in,out[,cached]` | Groq's listing for `qwen/qwen3.8-27b` | USD per million tokens; unknown otherwise (cost reported unknown) |
 | `--temperature` | none | **an experiment**: the worker sends no temperature; the report says when it was set |
 | `--wire` | `receipt-required` | the wire schema variant (`src/ai/wire.ts`): `receipt-required`, the worker's, requires a receipt's date and currency and gives dates a `YYYY-MM-DD` pattern; `simple` requires only the lines; the report says when it isn't the worker's |
-| `--out` | `docs/evals` | a second run the same day gets `-2`, `-3`… |
+| `--out` | `.tmp/evals` | a second run the same day gets `-2`, `-3`… |
 | `--no-report`, `--details <file>` | | `--details` writes the raw answers locally, for debugging; keep it out of Git |
 
 **Groq's limits on the development key** (2026-09): 8,000 tokens a minute in total (an image
@@ -171,7 +171,7 @@ pnpm eval:assistant
 pnpm eval:search
 
 # A real provider: the key from KEPT_EVAL_API_KEY only, never an argument; a dated report under
-# docs/evals (numbers and case ids only). At least 5 s between cases.
+# .tmp/evals (numbers and case ids only). At least 5 s between cases.
 ( set -a; . ./.env; set +a; KEPT_EVAL_API_KEY="$<YOUR_KEY_VARIABLE>" \
     pnpm eval:assistant --provider openai --model <chat model> --embed-model <embeddings model> )
 ( set -a; . ./.env; set +a; KEPT_EVAL_API_KEY="$<YOUR_KEY_VARIABLE>" \

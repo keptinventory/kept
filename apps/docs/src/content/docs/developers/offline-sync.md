@@ -6,13 +6,10 @@ description: What the phone keeps offline, how queued changes reach the server, 
 Kept is not a two-way sync app. The phone holds a **read-only copy** of the places and things you
 can see, and a **queue** of a few kinds of change it can make without signal: capture, move, a
 meter reading, claiming a label, marking something seen or not here, a new area, a box check.
-Everything else needs a connection. Full two-way offline sync was rejected in
-[D17](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-product-design.md)
-as permanent complexity in every table and endpoint.
+Everything else needs a connection. Full two-way offline sync was rejected (D17) as permanent
+complexity in every table and endpoint.
 
-The contracts are in the engineering spec:
-[§2.2 offline snapshot, §2.3 queue item](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-engineering-spec.md)
-and §7.4 sync protocol. The wire types live once, in
+The wire types (the offline snapshot, the queue item and the sync protocol) live once, in
 [`packages/shared/src/sync.ts`](https://github.com/keptinventory/kept/blob/main/packages/shared/src/sync.ts),
 and both sides parse with them.
 
@@ -33,8 +30,7 @@ and both sides parse with them.
 ## What the service worker caches
 
 The service worker is built with [Serwist](https://serwist.pages.dev/) by `@serwist/vite`
-(chosen in D101; proven in the
-[step-3 Serwist spike](https://github.com/keptinventory/kept/blob/main/docs/spikes/2026-09-26-step3-serwist.md)).
+(chosen in D101).
 `apps/web/vite.config.ts` builds `src/sw.ts` to `dist/sw.js` with the precache manifest injected.
 
 - **Precached:** the shell (`index.html`, JS, CSS), the fonts Kept renders, the icons and the
@@ -97,8 +93,7 @@ pass.
 
 ## The queue and how it replays
 
-A queue item ([§2.3](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-engineering-spec.md))
-carries `clientVersion`, `payloadVersion`, a client-made UUIDv7 `clientId`, an `idempotencyKey`,
+A queue item carries `clientVersion`, `payloadVersion`, a client-made UUIDv7 `clientId`, an `idempotencyKey`,
 the `op`, `takenAt` (device time), `locationId`, an optional `dependsOn` list and the `payload`.
 The op kinds are `OP_KINDS`: `create_thing`, `move`, `log_reading`, `claim_label`, `mark_seen`,
 `not_here`, `create_area`, `box_check`.
@@ -174,8 +169,7 @@ with the same keys, backing off from 5 s to 5 minutes.
 
 ## Conflicts
 
-Queue ops skip the `row_version` check that online edits use. Instead,
-[D35](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-product-design.md):
+Queue ops skip the `row_version` check that online edits use. Instead (D35):
 **the latest change wins, visibly**. Ops apply in the order the server receives them and both show
 in history. An op on something trashed or missing meanwhile is dropped with a notice ("the drill
 was trashed by Alfred") and opens an inbox `sync_drop` item from which it can be restored. No merge

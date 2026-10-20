@@ -7,7 +7,7 @@ import { ResticError, type ResticRepo } from './restic.js';
 import { ResticCli } from './run.js';
 
 // The real wrapper's own promises (step-8 plan T5), against stand-in restic scripts that print
-// what restic 0.19.1 printed in the R1 spike (docs/spikes/2026-10-06-step8-restic.md): exit codes,
+// what restic 0.19.1 printed in the R1 spike: exit codes,
 // `exit_error` on stderr after plain-text warnings, summaries with zero fields left out, exit 3
 // with a snapshot written, an endpoint that never answers. The real binary runs the shared
 // contract in restic.contract.test.ts under KEPT_TEST_RESTIC=1.

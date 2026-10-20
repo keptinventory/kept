@@ -1,8 +1,0 @@
-{
-  "name": "kept-spike-o1-sentry",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "@sentry/node": "11.4.0"
-  }
-}

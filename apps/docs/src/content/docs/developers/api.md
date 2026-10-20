@@ -4,9 +4,7 @@ description: The rules every Kept HTTP route follows, from URLs and errors to pa
 ---
 
 The web app, the phone's offline queue, scripts and MCP tools all use the same HTTP API. Its
-conventions are the engineering spec's §7.7
-([engineering spec](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-engineering-spec.md)),
-built in [`apps/server/src/http/conventions.ts`](https://github.com/keptinventory/kept/blob/main/apps/server/src/http/conventions.ts),
+conventions are built in [`apps/server/src/http/conventions.ts`](https://github.com/keptinventory/kept/blob/main/apps/server/src/http/conventions.ts),
 [`write.ts`](https://github.com/keptinventory/kept/blob/main/apps/server/src/http/write.ts) and
 [`errors.ts`](https://github.com/keptinventory/kept/blob/main/apps/server/src/http/errors.ts).
 Every route is listed in the [API reference](/api/).

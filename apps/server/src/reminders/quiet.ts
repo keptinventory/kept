@@ -1,5 +1,5 @@
-// Quiet hours and wall-clock times (plan T14; D29, D122; spike V21, docs/spikes/2026-09-30-
-// step4-dst.md). A person's quiet hours and digest time are wall-clock times in their own zone;
+// Quiet hours and wall-clock times (plan T14; D29, D122; spike V21). A person's quiet hours and
+// digest time are wall-clock times in their own zone;
 // an overdue item that falls inside their quiet hours waits for the end (Q9). Turning a wall time
 // into an instant follows Postgres, so the server never has two readings of one time:
 // - a time that doesn't exist (the spring gap, 00:30 on 24 April 2026 in Cairo) is pushed

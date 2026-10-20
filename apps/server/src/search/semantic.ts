@@ -61,7 +61,7 @@ export type SemanticPrep = (
  * Cosine distance past which a vector match isn't a match (an exact scan always answers its 50
  * nearest, related or not). **Inferred, not measured:** text-embedding-3-small and
  * gemini-embedding-001 put unrelated short texts at about 0.75–0.9 and related ones under 0.6;
- * T17's `eval:search` on a real key is what settles it (docs/evals).
+ * T17's `eval:search` on a real key is what settles it.
  */
 export const SEMANTIC_MAX_DISTANCE = 0.65;
 

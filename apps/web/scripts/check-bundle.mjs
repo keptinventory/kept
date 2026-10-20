@@ -4,7 +4,7 @@
 // the recorded baseline. Everything else is code-split per route, so the entry chunk is what
 // every first visit pays for; an icon library imported by accident shows up here first.
 //
-// It also checks the service worker's precache (plan T23; spike docs/spikes/2026-09-26-step3-serwist.md):
+// It also checks the service worker's precache (plan T23):
 // everything a phone downloads on install, under PRECACHE_BUDGET without the scanner's wasm, the
 // wasm on its own under WASM_BUDGET, index.html precached at its current content, and nothing
 // authenticated, no icon chunk (per-icon or the DynamicIcon map) and no Lingui catalogue in it:

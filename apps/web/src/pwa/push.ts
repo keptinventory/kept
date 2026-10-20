@@ -1,6 +1,6 @@
 /**
- * Push on this device, the page's half (plan T25; D30, D139, D193; spike
- * docs/spikes/2026-09-30-step4-push.md). The worker's half is ./push-worker.ts.
+ * Push on this device, the page's half (plan T25; D30, D139, D193). The worker's half is
+ * ./push-worker.ts.
  *
  * - **Where push can work** (`pushBlocker`): a secure context (plain HTTP: "Push needs HTTPS",
  *   D193), the server's VAPID key (`push.available`), a browser with service workers, the Push API

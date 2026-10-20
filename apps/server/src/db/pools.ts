@@ -61,7 +61,7 @@ export function reportConnectionLoss(
  * Every runtime connection runs with JIT compilation off. Kept's queries are short and many; the
  * planner's cost for a few of them (Home's facts over 10,000 things, a reader of agenda_items)
  * passes jit_above_cost, and compiling took 0.3–3 s a request, far more than the queries
- * themselves (docs/perf/2026-10-06-step5.md, 0100). A session setting: no role or server change.
+ * themselves (step-5 perf, 0100). A session setting: no role or server change.
  */
 export const CONNECTION_OPTIONS = '-c jit=off';
 

@@ -5,10 +5,8 @@ description: How Kept's tests are organised, how the server's test databases are
 
 Kept's gate is local: **`bash scripts/ci-local.sh` is the CI**. The hosted workflow runs only the
 half a runner can do without a database. Tests use [Vitest](https://vitest.dev/) everywhere,
-Testing Library in the web app, and Playwright for end to end. The rules are in the engineering
-spec
-[§7.12](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-engineering-spec.md)
-and in [CONTRIBUTING.md](https://github.com/keptinventory/kept/blob/main/CONTRIBUTING.md).
+Testing Library in the web app, and Playwright for end to end. The rules are on this page and in
+[CONTRIBUTING.md](https://github.com/keptinventory/kept/blob/main/CONTRIBUTING.md).
 
 ## Vitest projects
 
@@ -110,7 +108,6 @@ camera.
 `pnpm bench:rls` benchmarks row-level security at 10,000 things (`apps/server/bench/`).
 `apps/server/test/perf/` holds timed checks (a 50-op sync batch, the inbox at 500 open items,
 the vehicle and later screens), run only by `vitest.perf.config.ts`, never by `pnpm test`.
-Results are recorded in [`docs/perf/`](https://github.com/keptinventory/kept/tree/main/docs/perf).
 Numbers taken on a busy machine are not evidence.
 
 ## The gate: `scripts/ci-local.sh`

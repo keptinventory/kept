@@ -83,16 +83,6 @@ export const PRIVATE_IPV4_ALLOWED = new Map([
   ['compose.yaml', "Kept's own Compose network"],
   ['apps/docs/src/content/docs/install/https.md', "Kept's own Compose network"],
   ['apps/docs/src/content/docs/install/reverse-proxy.md', 'an example proxy address'],
-  ['docs/design/kept-screens.html', 'sample data on the design board'],
-  ['docs/design/screens/02-browse-things.html', 'sample data on the design board'],
-  ['docs/design/screens/08-portability.html', 'sample data on the design board'],
-  ['docs/plans/2026-09-26-step-3-capture.md', 'quotes a test value'],
-  ['docs/plans/2026-09-30-step-4-household.md', 'quotes a test value'],
-  ['docs/plans/2026-09-30-step-6-assistant-mcp.md', 'quotes a test value'],
-  ['docs/spikes/2026-09-30-step6-oauth-cimd.md', "quotes the spike's test value"],
-  ['docs/spikes/code/step6/oauth/run.ts', 'spike test code'],
-  ['docs/spikes/code/step6/oauth/results.json', 'spike test output'],
-  ['docs/release/go-public-audit.md', 'quotes the example values it checked'],
 ]);
 
 export function privateIpv4Allowed(file) {

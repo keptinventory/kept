@@ -1,5 +1,5 @@
 /**
- * The Cairo household from the screens board (docs/design/screens/06-people-types.html): Ibrahim
+ * The Cairo household from the screens board: Ibrahim
  * owns Home; his brother Bruce is an admin; Alfred is a member; Louis is house-sitting as a member
  * until 31 Oct; Peter, Alfred's son, has a managed account; Talia is a viewer. Shared by tests
  * and the demo mode. Every scenario is a fresh object, so a test can mutate it freely.
