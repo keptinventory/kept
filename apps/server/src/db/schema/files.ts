@@ -147,6 +147,12 @@ export const attachments = pgTable(
     conditionRoomId: uuid('condition_room_id'),
     role: attachmentRole.col().notNull(),
     sort: integer('sort').notNull().default(0),
+    /**
+     * A room photo (#194) whose Room card is still open: only the location's members and up
+     * (who review it) read it, and it is no thing's cover. Done with "Keep room photos" makes it
+     * an ordinary photo; it never goes back under review (the custom migration's guard).
+     */
+    inReview: boolean('in_review').notNull().default(false),
     createdBy: uuid('created_by').notNull(),
     ...mutable(),
   },

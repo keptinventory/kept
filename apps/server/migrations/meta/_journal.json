@@ -1023,6 +1023,20 @@
       "when": 1792521391865,
       "tag": "0145_scan_sessions_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 146,
+      "version": "7",
+      "when": 1792522788087,
+      "tag": "0146_room_photos_in_review",
+      "breakpoints": true
+    },
+    {
+      "idx": 147,
+      "version": "7",
+      "when": 1792522790193,
+      "tag": "0147_room_photos_in_review_rls",
+      "breakpoints": true
     }
   ]
 }

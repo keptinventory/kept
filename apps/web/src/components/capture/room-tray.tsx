@@ -2,7 +2,8 @@
  * ROOM mode's tray (#194): the photos of one room, taken or picked one at a time (1–5), kept on
  * the phone until Send. Above them the tip ("Stand in the doorway; one photo per wall."), below
  * them what reading them will cost at most ("About 3 photos · up to ~31,000 tokens · Groq", from
- * the location's AI status; offline, the photo count only) and Send, which queues the room as one
+ * the location's AI status; offline, the photo count only; in Try Kept, where no AI runs, "3 photos
+ * · No AI runs in this demo") and Send, which queues the room as one
  * capture. When the room can't be read here, the tray says why instead and Send stays off:
  * AI capture is off in the location, no provider reads photos, or the AI budget is used up.
  */
@@ -54,11 +55,14 @@ export function RoomTray({
   const estimate = provider
     ? roomEstimate({ kind: provider, photos: shots.map(() => SENT) })
     : null;
-  const line = [
-    plural(n, { one: 'About # photo', other: 'About # photos' }),
-    ...(estimate && n > 0 ? [t`up to ~${fmt.num(estimate.tokens)} tokens`] : []),
-    ...(provider ? [providerName(provider)] : []),
-  ].join(fmt.sep);
+  // Try Kept (the sample photo is offered only there) reads nothing: no cost to show.
+  const line = onSample
+    ? [plural(n, { one: '# photo', other: '# photos' }), t`No AI runs in this demo`].join(fmt.sep)
+    : [
+        plural(n, { one: 'About # photo', other: 'About # photos' }),
+        ...(estimate && n > 0 ? [t`up to ~${fmt.num(estimate.tokens)} tokens`] : []),
+        ...(provider ? [providerName(provider)] : []),
+      ].join(fmt.sep);
 
   return (
     <section

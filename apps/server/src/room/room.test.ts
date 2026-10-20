@@ -670,6 +670,147 @@ describe('the Room card', () => {
     // A viewer has no inbox: the item is as missing as a random id.
     expect((await act(talia, card, 'done')).statusCode).toBe(404);
   });
+
+  describe('photos under review', () => {
+    // While the Room card is open, its photos are its reviewers' (members and up) only: a viewer
+    // finds them on no page, no file URL, no search, no share link and no phone copy. Done with
+    // the location keeping room photos makes them ordinary photos, seen by everyone.
+    type Seen = {
+      place: string[];
+      file: number;
+      thumb: string | null;
+      snapshotCover: string | null;
+    };
+    const seenBy = async (
+      as: Person,
+      box: string,
+      photo: { attachmentId: string; fileId: string },
+    ): Promise<Seen> => {
+      const place = ok(await call(t, `/api/v1/places/${study}`, { as })) as unknown as {
+        attachments: { id: string }[];
+      };
+      const file = await call(t, `/api/v1/files/${photo.fileId}/url`, {
+        as,
+        body: { variant: 'thumb' },
+      });
+      const found = ok(
+        await call(t, `/api/v1/search?q=${encodeURIComponent('Hobby crate')}`, { as }),
+      ) as unknown as { things: { items: { id: string; thumbUrl: string | null }[] } };
+      let cover: string | null = null;
+      let cursor: string | undefined;
+      for (let i = 0; i < 20; i++) {
+        const page = ok(
+          await call(
+            t,
+            `/api/v1/sync/snapshot${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`,
+            { as },
+          ),
+        ) as unknown as {
+          changes: { things: { id: string; coverFileId: string | null }[] };
+          nextCursor: string;
+          complete: boolean;
+        };
+        const row = page.changes.things.find((x) => x.id === box);
+        if (row) cover = row.coverFileId;
+        if (page.complete) break;
+        cursor = page.nextCursor;
+      }
+      return {
+        place: place.attachments.map((a) => a.id),
+        file: file.statusCode,
+        thumb: found.things.items.find((x) => x.id === box)?.thumbUrl ?? null,
+        snapshotCover: cover,
+      };
+    };
+
+    async function shareBox(box: string) {
+      const res = await call(t, `/api/v1/locations/${home.id}/share-links`, {
+        as: ibrahim,
+        body: { thingId: box },
+      });
+      expect(res.statusCode, res.body).toBe(201);
+      const token = new URL((res.json() as { url: string }).url).pathname.slice('/s/'.length);
+      return async () => {
+        const page = await t.app.inject({ method: 'GET', url: `/api/v1/shared/${token}` });
+        expect(page.statusCode, page.body).toBe(200);
+        return (page.json() as { thing: { photo: unknown } | null }).thing?.photo ?? null;
+      };
+    }
+
+    /** A room capture of the Study (one photo) and one of a box (one photo), both read. */
+    async function twoRooms() {
+      const box = await seedThing('Hobby crate');
+      const room = await roomOf([[obj('Desk fan', [0.1, 0.1, 0.2, 0.3])]]);
+      const inBox = await roomOf([[obj('Glue gun', [0.1, 0.1, 0.2, 0.3])]], {
+        target: { containerId: box },
+      });
+      const fileOf = async (attachmentId: string) =>
+        (
+          await own<{ file_id: string }>(
+            db,
+            'SELECT file_id FROM public.attachments WHERE id = $1',
+            [attachmentId],
+          )
+        )[0]?.file_id as string;
+      const placePhoto = room.row?.attachment_ids[0] as string;
+      const boxPhoto = inBox.row?.attachment_ids[0] as string;
+      return {
+        box,
+        room,
+        inBox,
+        placePhoto: { attachmentId: placePhoto, fileId: await fileOf(placePhoto) },
+        boxPhoto: { attachmentId: boxPhoto, fileId: await fileOf(boxPhoto) },
+      };
+    }
+
+    it('are hidden from a viewer and shown to the members who review them', async () => {
+      const r = await twoRooms();
+      const shared = await shareBox(r.box);
+
+      const viewer = await seenBy(talia, r.box, r.placePhoto);
+      expect(viewer.place).not.toContain(r.placePhoto.attachmentId);
+      expect(viewer.file).toBe(404);
+      expect(viewer.thumb).toBeNull();
+      expect(viewer.snapshotCover).toBeNull();
+      expect((await seenBy(talia, r.box, r.boxPhoto)).file).toBe(404);
+      // Nor on the box's share link, whoever opens it.
+      expect(await shared()).toBeNull();
+
+      for (const member of [louis, ibrahim]) {
+        const seen = await seenBy(member, r.box, r.placePhoto);
+        expect(seen.place).toContain(r.placePhoto.attachmentId);
+        expect(seen.file).toBe(200);
+        expect(seen.thumb).not.toBeNull();
+        expect((await seenBy(member, r.box, r.boxPhoto)).file).toBe(200);
+      }
+
+      // Closing the cards without keeping them deletes them, as before.
+      ok(await act(louis, await cardOf(r.room.id), 'discard'));
+      ok(await act(louis, await cardOf(r.inBox.id), 'discard'));
+    });
+
+    it('become ordinary photos on Done where the location keeps room photos', async () => {
+      await own(db, 'UPDATE public.locations SET keep_room_photos = true WHERE id = $1', [home.id]);
+      try {
+        const r = await twoRooms();
+        const shared = await shareBox(r.box);
+        ok(await act(louis, await cardOf(r.room.id), 'done'));
+        ok(await act(louis, await cardOf(r.inBox.id), 'done'));
+
+        const viewer = await seenBy(talia, r.box, r.placePhoto);
+        expect(viewer.place).toContain(r.placePhoto.attachmentId);
+        expect(viewer.file).toBe(200);
+        expect(viewer.thumb).not.toBeNull();
+        expect(viewer.snapshotCover).toBe(r.boxPhoto.fileId);
+        expect((await seenBy(talia, r.box, r.boxPhoto)).file).toBe(200);
+        expect(await shared()).not.toBeNull();
+      } finally {
+        await own(db, 'UPDATE public.locations SET keep_room_photos = false WHERE id = $1', [
+          home.id,
+        ]);
+      }
+    });
+  });
 });
 
 describe('accepted room drafts on the map', () => {

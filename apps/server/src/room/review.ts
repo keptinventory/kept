@@ -8,8 +8,9 @@
  * - seen {thingIds}: things already in Kept are marked seen (`things.mark-seen`, audited
  *   `thing.seen`). Only things the card lists.
  * - done: the card is closed (`accepted`), and the full photos are deleted (audited
- *   `attachment.delete`), unless the location keeps room photos: then they stay on the place. The
- *   drafts' own pictures are theirs and stay.
+ *   `attachment.delete`), unless the location keeps room photos: then they stay on the place as
+ *   ordinary photos, no longer under review, so viewers see them too. The drafts' own pictures
+ *   are theirs and stay.
  * - discard: the card is closed (`discarded`) and the full photos are deleted, kept or not: the
  *   person asked for them to go.
  * - retry: a capture none of whose photos could be read (`failed`), or that waited for AI capture
@@ -138,7 +139,14 @@ export async function closeRoom(
     [room.location_id],
   );
   const keep = how === 'done' && rows[0]?.keep === true;
-  if (!keep) await deletePhotos(ctx, room);
+  if (keep) {
+    await ctx.client.query(
+      'UPDATE public.attachments SET in_review = false WHERE id = ANY ($1::uuid[]) AND in_review',
+      [room.attachment_ids],
+    );
+  } else {
+    await deletePhotos(ctx, room);
+  }
   await resolveItem(ctx, item, how === 'done' ? 'accepted' : 'discarded');
   return { photosKept: keep };
 }

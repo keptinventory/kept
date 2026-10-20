@@ -83,13 +83,17 @@ call shows in **AI usage** as **Room photo** or **Room photos merged**.
   and camera data removed, and the fixed instructions.
 - **The full room photos are deleted when you close the room card** (Done or Discard). Each
   draft keeps only its own cut-out picture.
+- **While the room card is open, its photos are private to the people who review it**: owners,
+  admins and members of the location. Viewers don't see them on the room's or the box's page, in
+  search or on their phone, and neither does a read-only API token, a read-only MCP connection or
+  a share link. While it is under review, a room photo is never a box's cover photo.
 - To keep the full photos instead, an owner or admin turns on **Keep room photos after review** in
-  **Location settings → General**. They then stay on the room's page after Done.
-- While a room is being reviewed, its photos are on the room's page, visible to everyone who
-  sees the location.
+  **Location settings → General**. After **Done** they stay on the room's page as ordinary photos,
+  visible to everyone who sees the location.
 
 ## In Try Kept
 
 [Try Kept](/try/kept/) has no camera and runs no AI: Room mode offers **Use a sample room photo**,
 an illustrated room, and every room photo gives the same sample results, so you can see the Room
-card, the drafts and the furniture without a provider.
+card, the drafts and the furniture without a provider. The tray says "No AI runs in this demo"
+where a real install shows the cost.

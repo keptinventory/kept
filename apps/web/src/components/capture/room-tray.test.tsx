@@ -54,4 +54,40 @@ describe('the room tray', () => {
     expect(onSample).toHaveBeenCalled();
     expectLogicalOnly(document.body);
   });
+
+  it('says plainly that no AI runs in Try Kept, instead of a cost', async () => {
+    const tray = (n: number) => (
+      <RoomTray
+        shots={shots(n)}
+        onRemove={vi.fn()}
+        onSend={vi.fn()}
+        sending={false}
+        block={null}
+        provider={null}
+        onSample={vi.fn()}
+      />
+    );
+    const one = await renderUI(tray(1));
+    expect(screen.getByText('1 photo · No AI runs in this demo')).toBeInTheDocument();
+    expect(screen.queryByText(/About 1 photo/)).toBeNull();
+    one.unmount();
+    await renderUI(tray(2), { locale: 'ar' });
+    expect(
+      screen.getByText(/^صورتان.+لا يعمل الذكاء الاصطناعي في هذا العرض التجريبي$/),
+    ).toBeInTheDocument();
+  });
+
+  it('counts the photos only while the cost is unknown (offline)', async () => {
+    await renderUI(
+      <RoomTray
+        shots={shots(2)}
+        onRemove={vi.fn()}
+        onSend={vi.fn()}
+        sending={false}
+        block={null}
+        provider={null}
+      />,
+    );
+    expect(screen.getByText('About 2 photos')).toBeInTheDocument();
+  });
 });
