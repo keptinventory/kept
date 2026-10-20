@@ -1204,12 +1204,17 @@ export function CaptureScreen({
             }
           />
         )}
-        <PhotoToThis
-          armed={armed}
-          onChange={setArmed}
-          receipt={mode === 'receipt'}
-          available={addTo !== null && mode !== 'reading' && mode !== 'room'}
-        />
+        {mode === 'room' ? (
+          // A room's photos are one capture: nothing to add a photo to.
+          <span />
+        ) : (
+          <PhotoToThis
+            armed={armed}
+            onChange={setArmed}
+            receipt={mode === 'receipt'}
+            available={addTo !== null && mode !== 'reading'}
+          />
+        )}
       </div>
 
       {world && readingSheet ? (
