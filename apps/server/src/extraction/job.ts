@@ -34,7 +34,7 @@
  */
 import { mkdtemp, rm } from 'node:fs/promises';
 import path from 'node:path';
-import { type CaptureMode, can, type Role } from '@kept/shared';
+import { type CaptureMode, can, type Role, type RoomExtraction } from '@kept/shared';
 import type pg from 'pg';
 import sharp from 'sharp';
 import { FOREVER } from '../ai/breaker.js';
@@ -51,6 +51,8 @@ import { lockBlobKeys } from '../files/blob-locks.js';
 import { defineJob, type JobDefinition, type JobMeta } from '../jobs/boss.js';
 import { JOB_POLICIES } from '../jobs/policies.js';
 import type { SystemJobDeps } from '../jobs/system.js';
+import { finishRoom } from '../room/finish.js';
+import { checkRoom } from '../room/objects.js';
 import { derivativeKey, type FileStorage, originalKey } from '../storage/blob-store.js';
 import { LIMIT_INPUT_PIXELS, VARIANT_SIZES } from '../storage/derivatives.js';
 import { type ApplyResult, apply, type ExtractionRow } from './apply.js';
@@ -86,6 +88,8 @@ export type RunOutcome =
   | { status: 'skipped'; why: 'missing' | 'not_runnable' }
   | { status: 'no_provider' }
   | { status: 'succeeded'; callId: string; result: ApplyResult; checked: Checked }
+  /** A room photo read: its objects wait for the capture's other photos (room/finish.ts). */
+  | { status: 'read'; callId: string; objects: number }
   | { status: 'paused_budget' | 'waiting_provider'; until: Date; reason: string; resent: boolean }
   | { status: 'failed'; reason: string };
 
@@ -433,8 +437,38 @@ async function cropToPaper(
   }
 }
 
-/** One run of the job for `extractionId`, in `scope`. */
+/**
+ * One run of the job for `extractionId`, in `scope`. A room photo's run that ended (read, failed
+ * for good, or with no provider) then tries to finish its room capture: the last photo to end
+ * does (room/finish.ts).
+ */
 export async function runExtraction(
+  deps: ExtractionJobDeps,
+  scope: Scope,
+  extractionId: string,
+  job?: JobMeta,
+): Promise<RunOutcome> {
+  const outcome = await runOne(deps, scope, extractionId, job);
+  if (['read', 'failed', 'no_provider'].includes(outcome.status)) {
+    const room = await withScope(deps.pools.app, scope, async (_tx, client) => {
+      const { rows } = await client.query<{ room_capture_id: string | null }>(
+        'SELECT room_capture_id FROM public.extractions WHERE id = $1',
+        [extractionId],
+      );
+      return rows[0]?.room_capture_id ?? null;
+    });
+    if (room) {
+      try {
+        await finishRoom(deps, scope, room, job);
+      } catch (e) {
+        deps.log.error({ err: e, roomCaptureId: room }, 'room capture could not be finished');
+      }
+    }
+  }
+  return outcome;
+}
+
+async function runOne(
   deps: ExtractionJobDeps,
   scope: Scope,
   extractionId: string,
@@ -540,6 +574,31 @@ export async function runExtraction(
   }
 
   const ok = result;
+  if (mode === 'room') {
+    const read = checkRoom(ok.value.value as RoomExtraction, claimed.checkCtx, ok.value.dropped);
+    const stored = await withScope(deps.pools.app, scope, async (_tx, client) => {
+      const { rows } = await client.query<{ status: string }>(
+        'SELECT status FROM public.extractions WHERE id = $1 FOR UPDATE',
+        [ex.id],
+      );
+      if (rows[0]?.status !== 'running') return false;
+      return setStatus(client, ex.id, {
+        status: 'succeeded',
+        callId: ok.callId,
+        result: {
+          mode,
+          promptVersion: PROMPT_VERSIONS.room,
+          attachmentIds: sent.attachmentIds,
+          objects: read.objects,
+          more: read.more,
+          ...(read.skipped > 0 ? { skipped: read.skipped } : {}),
+          dropped: ok.value.dropped,
+        },
+      });
+    });
+    if (!stored) return { status: 'skipped', why: 'not_runnable' };
+    return { status: 'read', callId: ok.callId, objects: read.objects.length };
+  }
   const done = await withScope(deps.pools.app, scope, async (tx, client) => {
     // A re-run may have superseded this attempt while the model was reading.
     const { rows } = await client.query<{ status: string }>(
@@ -550,7 +609,7 @@ export async function runExtraction(
     const value = ok.value.value as { objects?: unknown[] };
     const objects = many && Array.isArray(value.objects) ? value.objects : null;
     const checked = check(
-      mode,
+      mode as Exclude<CaptureMode, 'room'>,
       (objects ? { objects: objects.slice(0, 1) } : value) as never,
       ok.value.dropped,
       claimed.checkCtx,

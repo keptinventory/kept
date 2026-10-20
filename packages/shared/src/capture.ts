@@ -4,8 +4,9 @@
  * zod schemas and the web read these lists.
  */
 
-/** The camera's mode strip, THING · RECEIPT · LABEL · READING (D34). */
-export const CAPTURE_MODES = ['thing', 'receipt', 'label', 'reading'] as const;
+/** The camera's mode strip, THING · RECEIPT · LABEL · READING · ROOM (D34; ROOM: several
+ * photos of one room, every object in them listed by AI). */
+export const CAPTURE_MODES = ['thing', 'receipt', 'label', 'reading', 'room'] as const;
 export type CaptureMode = (typeof CAPTURE_MODES)[number];
 
 export type PhotoPolicy =
@@ -22,7 +23,20 @@ export const PHOTO_POLICY: Readonly<Record<CaptureMode, PhotoPolicy>> = Object.f
   receipt: { keepOriginal: true, displayTo: 2048 },
   label: { keepOriginal: true, displayTo: 2048 },
   reading: { keepOriginal: true, displayTo: 2048 },
+  room: { shrinkTo: 2048, keepOriginal: false },
 });
+
+/** A room capture: at most this many photos, objects read from each photo, and Kept codes the
+ * phone read in them. */
+export const ROOM_LIMITS = Object.freeze({ photos: 5, objects: 60, codes: 60 });
+
+/**
+ * `room_captures.status`: `reading` while its photos are read, `merging` while the last one's job
+ * merges them into drafts, `ready` with the result, `failed` when no photo could be read, `off`
+ * when AI capture was off for it (the photos wait on the place).
+ */
+export const ROOM_CAPTURE_STATUSES = ['reading', 'merging', 'ready', 'failed', 'off'] as const;
+export type RoomCaptureStatus = (typeof ROOM_CAPTURE_STATUSES)[number];
 
 /** `inbox_items.kind`. */
 export const INBOX_KINDS = [
@@ -33,6 +47,7 @@ export const INBOX_KINDS = [
   'duplicate',
   'receipt',
   'sync_drop',
+  'room',
 ] as const;
 export type InboxKind = (typeof INBOX_KINDS)[number];
 

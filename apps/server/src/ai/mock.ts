@@ -3,7 +3,8 @@
  * production by config/env.ts). A `MockLanguageModelV4` from `ai/test` (both V3 and V4
  * are accepted; T8 uses V4) that answers deterministically:
  * - by the SHA-256 of the first image part (the first 12 hex characters), from an answers map
- *   (T11's `test/fixtures/eval/mock-answers.json` via `loadMockAnswers`);
+ *   (T11's `test/fixtures/eval/mock-answers.json` via `loadMockAnswers`); a call with no image
+ *   (a room capture's merge) by its structured-output name in the same map;
  * - otherwise with a schema-valid answer for the mode named by the structured-output name
  *   (`kept_receipt` …, wire.ts), or "red" for a plain-text question (the Test call);
  * - an assistant step (tools offered) whose question a script knows (mock-script.ts)
@@ -62,6 +63,40 @@ export const DEFAULT_MOCK_OUTPUTS: Record<string, unknown> = {
   },
   kept_label: { brand: c('Mock'), model: c('M-1'), serial: c('SN123456') },
   kept_reading: { value: c(52340), unit: c('km'), display: 'digital' },
+  // A room photo: a few invented objects of each kind, boxes spread over the photo.
+  kept_room: {
+    objects: [
+      {
+        bbox: [0.05, 0.3, 0.35, 0.6],
+        kind: 'storage',
+        name: c('Bookcase'),
+        type_hint: c('furniture'),
+        aliases: { en: ['shelves', 'books'] },
+      },
+      {
+        bbox: [0.45, 0.55, 0.3, 0.3],
+        kind: 'furniture',
+        name: c('Armchair'),
+        type_hint: c('furniture'),
+        aliases: { en: ['chair', 'seat'] },
+      },
+      {
+        bbox: [0.8, 0.35, 0.12, 0.25],
+        kind: 'item',
+        name: c('Floor lamp'),
+        type_hint: c('lamp'),
+        aliases: { en: ['light', 'standing lamp'] },
+      },
+      {
+        bbox: [0.5, 0.4, 0.12, 0.1],
+        kind: 'item',
+        name: c('Desk fan'),
+        type_hint: c('appliance'),
+        aliases: { en: ['fan', 'cooling'] },
+      },
+    ],
+  },
+  kept_room_merge: { groups: [] },
   kept_test: { colour: 'red' },
   // Alias enrichment's batch answer, schema-valid and empty (enrich/prompt.ts).
   kept_aliases: { items: [] },
@@ -133,7 +168,10 @@ export function createMockModel(
         };
       }
       const image = firstImage(options);
-      const answer: MockAnswer = (image && answers[mockKey(image)]) || {};
+      const format = options.responseFormat;
+      const name = format?.type === 'json' ? format.name : undefined;
+      const answer: MockAnswer =
+        (image ? answers[mockKey(image)] : name ? answers[name] : undefined) || {};
       if (answer.delayMs) await sleep(answer.delayMs, options.abortSignal);
       if (answer.error) {
         throw new APICallError({
@@ -146,8 +184,6 @@ export function createMockModel(
           isRetryable: answer.error.status === 429 || answer.error.status >= 500,
         });
       }
-      const format = options.responseFormat;
-      const name = format?.type === 'json' ? format.name : undefined;
       const output = answer.output ?? (name ? DEFAULT_MOCK_OUTPUTS[name] : undefined);
       const text = answer.text ?? (output !== undefined ? JSON.stringify(output) : 'red');
       const u = answer.usage ?? {};

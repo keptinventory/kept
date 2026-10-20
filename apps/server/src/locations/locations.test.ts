@@ -224,6 +224,15 @@ describe('PATCH /api/v1/locations/:id', () => {
     });
   });
 
+  it('keeps room photos after review when an admin says so, and only then', async () => {
+    const before = await patch(admin, { name: home.name }, home.rowVersion);
+    expect(before.json()).toMatchObject({ keepRoomPhotos: false });
+    expect((await patch(member, { keepRoomPhotos: true }, 2)).statusCode).toBe(403);
+    const res = await patch(admin, { keepRoomPhotos: true }, 2);
+    expect(res.statusCode, res.body).toBe(200);
+    expect(res.json()).toMatchObject({ keepRoomPhotos: true });
+  });
+
   it('needs If-Match (428), refuses a stale version (412), and a member (403)', async () => {
     expect((await patch(admin, { name: 'x' })).statusCode).toBe(428);
     await patch(admin, { name: 'first' }, home.rowVersion);

@@ -129,6 +129,8 @@ export const CreateThingPayload = z.strictObject({
   templateId: uuid.optional(),
   /** A blank label scanned during capture (D43); the server claims it (D112). */
   claimCode: shortCode.optional(),
+  /** ROOM: the Kept labels the phone read in the photos, so those things are known exactly. */
+  codes: z.array(shortCode).max(60).optional(),
 });
 
 export const MovePayload = z.strictObject({

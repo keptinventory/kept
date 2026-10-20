@@ -90,6 +90,7 @@ type MapJson = {
       model: string | null;
       hostId: string | null;
       height: number | null;
+      placedByKept?: boolean;
     } | null;
   }[];
   things: {
@@ -297,6 +298,7 @@ describe('PUT /api/v1/locations/:id/layout', () => {
       model: 'laptop',
       hostId: ids.box,
       height: null,
+      placedByKept: false,
     });
     expect(map.nodes.find((n) => n.id === ids.box)?.layout?.rot).toBe(90);
   });
@@ -562,6 +564,74 @@ describe('things on a wall (#138)', () => {
     await expect(insert(301)).rejects.toThrow(/map_nodes_height_chk/);
     await expect(insert(120, ids.box)).rejects.toThrow(/map_nodes_height_chk/);
     await insert(120);
+  });
+});
+
+describe('Kept putting things on the map (#194)', () => {
+  const addNodes = (as: Person, nodes: unknown[], loc: Loc = home) =>
+    call(t, `/api/v1/locations/${loc.id}/layout/nodes`, { as, body: { nodes } });
+
+  // catalogue: POST /api/v1/locations/:id/layout/nodes
+  it('puts a thing on free floor in a drawn room, with its shape, and leaves the version alone', async () => {
+    const before = await json<MapJson>(getMap(max));
+    await json(putLayout(max, fullLayout(before.version)));
+    const arranged = await json<MapJson>(getMap(max));
+    const lamp = await thingOf(home, 'Floor lamp', { placeId: ids.living });
+    const out = await json<{ added: string[]; version: string | null }>(
+      addNodes(max, [{ id: lamp }, { id: ids.batteries }, { id: ids.drill }]),
+    );
+    // The batteries are in a box that is on the map: they go on the box's node. The drill is on
+    // a shelf the map draws: it isn't on the floor. Both are already shown; only the lamp moves.
+    expect(out.added).toContain(lamp);
+    expect(out.version).toBe(arranged.version);
+    const after = await json<MapJson>(getMap(max));
+    expect(after.version).toBe(arranged.version);
+    const node = after.nodes.find((n) => n.id === lamp);
+    expect(node?.layout).toMatchObject({ rot: 0, hostId: null, placedByKept: true });
+    expect(node?.layout?.model).toBe('lamp');
+    // Clear of the shelf at the corner (15, 15) and inside the room.
+    const shelfNode = after.nodes.find((n) => n.id === ids.shelf);
+    expect(shelfNode?.layout).toMatchObject({ x: 15, z: 15 });
+    expect((node?.layout?.x ?? 0) + (node?.layout?.z ?? 0)).toBeGreaterThan(30);
+    expect((await eventsOf(db, home.id, lamp)).map((e) => e.action)).toContain('map.place');
+    // Once there, asking again adds nothing.
+    expect((await json<{ added: string[] }>(addNodes(max, [{ id: lamp }]))).added).toEqual([]);
+  });
+
+  it('skips a room the map lays out by itself, and is no viewer’s', async () => {
+    const lamp = await thingOf(home, 'Desk lamp', { placeId: ids.garage });
+    expect((await json<{ added: string[] }>(addNodes(max, [{ id: lamp }]))).added).toEqual([]);
+    expect((await addNodes(vic, [{ id: lamp }])).statusCode).toBe(403);
+    expect((await addNodes(bob, [{ id: lamp }])).statusCode).toBe(404);
+  });
+
+  it('keeps what Kept placed through an arrange that began before, and hands it over after', async () => {
+    const before = await json<MapJson>(getMap(max));
+    await json(putLayout(max, fullLayout(before.version)));
+    const session = await json<MapJson>(getMap(max));
+    const plant = await thingOf(home, 'Tall plant', { placeId: ids.living });
+    await json(addNodes(ola, [{ id: plant }]));
+    // max saves the arrangement he started before the plant was placed: no 409, and it stays.
+    await json(putLayout(max, fullLayout(session.version)));
+    let map = await json<MapJson>(getMap(max));
+    expect(map.nodes.find((n) => n.id === plant)?.layout).toMatchObject({ placedByKept: true });
+    // The next arrange names it: it is the person's now.
+    const p = map.nodes.find((n) => n.id === plant)?.layout;
+    const body = fullLayout(map.version);
+    body.nodes.push({
+      id: plant,
+      x: p?.x ?? 0,
+      z: p?.z ?? 0,
+      rot: 0,
+      model: 'plant',
+      hostId: null,
+    });
+    await json(putLayout(max, body));
+    map = await json<MapJson>(getMap(max));
+    expect(map.nodes.find((n) => n.id === plant)?.layout).toMatchObject({
+      model: 'plant',
+      placedByKept: false,
+    });
   });
 });
 

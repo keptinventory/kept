@@ -67,6 +67,8 @@ const PatchBody = z
     languages: z.array(z.string().regex(/^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8}){0,3}$/)).max(10),
     moneyVisibleToViewers: z.boolean(),
     longUnseenMonths: z.number().int().min(1).max(120),
+    /** Room photos stay on their place after review (#194). */
+    keepRoomPhotos: z.boolean(),
     /** Owner only. Turning it on needs a second factor in this session. */
     require2fa: z.boolean(),
     /** Owner only (D165): a current member, or null to clear. */
@@ -258,6 +260,7 @@ export async function locationRoutes(
           languages: 'languages',
           moneyVisibleToViewers: 'money_visible_to_viewers',
           longUnseenMonths: 'long_unseen_months',
+          keepRoomPhotos: 'keep_room_photos',
         };
         const sets: string[] = [];
         const values: unknown[] = [id];

@@ -21,6 +21,7 @@ import { METER_VALUE } from '../meters/check.js';
 import { attachProof } from '../meters/proofs.js';
 import { createReading } from '../meters/service.js';
 import { unplacedOf } from '../places/view.js';
+import { captureRoom, checkRoomInput } from '../room/capture.js';
 import { applyTemplate } from '../templates/service.js';
 import { type Ctx, insertThing, requireRole, targetOf, writableThing } from '../things/service.js';
 import { rowsOf, type ThingRow } from '../things/view.js';
@@ -79,6 +80,7 @@ export const ROLE_BY_MODE: Readonly<Record<CaptureMode, AttachmentRole>> = Objec
   receipt: 'receipt',
   label: 'photo',
   reading: 'proof',
+  room: 'photo',
 });
 
 /** A capture's file on the wire: the op requires `role`, the online route lets it default. */
@@ -116,6 +118,8 @@ export type CaptureResult = {
   inboxItemId?: string;
   /** The Undo toast's event (D150): only a new thing's capture is undoable. */
   undo?: { eventId: string; until: string };
+  /** ROOM: the room capture made, its photos' reading under way (`reading`) or not (`off`). */
+  room?: { id: string; photos: number; status: 'reading' | 'off' };
 };
 
 const actor = (userId: string) => ({ type: 'user' as const, id: userId });
@@ -218,7 +222,7 @@ export async function dedupedFileIds(
   return [...new Set(out)];
 }
 
-type Subject = { thingId: string } | { purchaseId: string };
+type Subject = { thingId: string } | { purchaseId: string } | { placeId: string };
 
 /** Inserts one attachment per file, after the subject's existing ones; the first may take a
  * given id. Answers the attachment ids in file order. */
@@ -232,21 +236,23 @@ export async function attachFiles(
 ): Promise<string[]> {
   const thingId = 'thingId' in subject ? subject.thingId : null;
   const purchaseId = 'purchaseId' in subject ? subject.purchaseId : null;
+  const placeId = 'placeId' in subject ? subject.placeId : null;
   const { rows: after } = await client.query<{ next: number }>(
     `SELECT coalesce(max(a.sort) + 1, 0)::int AS next FROM public.attachments a
       WHERE ($1::uuid IS NOT NULL AND a.thing_id = $1::uuid)
-         OR ($2::uuid IS NOT NULL AND a.purchase_id = $2::uuid)`,
-    [thingId, purchaseId],
+         OR ($2::uuid IS NOT NULL AND a.purchase_id = $2::uuid)
+         OR ($3::uuid IS NOT NULL AND a.place_id = $3::uuid)`,
+    [thingId, purchaseId, placeId],
   );
   const start = after[0]?.next ?? 0;
   const ids: string[] = [];
   for (const [i, fileId] of fileIds.entries()) {
     const id = i === 0 && firstId ? firstId : newId();
     await client.query(
-      `INSERT INTO public.attachments (id, location_id, file_id, thing_id, purchase_id, role, sort,
-                                       created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, kept.current_user_id())`,
-      [id, locationId, fileId, thingId, purchaseId, role, start + i],
+      `INSERT INTO public.attachments (id, location_id, file_id, thing_id, purchase_id, place_id,
+                                       role, sort, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, kept.current_user_id())`,
+      [id, locationId, fileId, thingId, purchaseId, placeId, role, start + i],
     );
     ids.push(id);
   }
@@ -260,13 +266,17 @@ type ExtractionTarget = {
   thingId?: string;
   purchaseId?: string;
   meterId?: string;
+  /** ROOM: the room capture the photo is one of. */
+  roomCaptureId?: string;
+  /** A photo read again: its next attempt (1 by default). */
+  attempt?: number;
 };
 
 /**
  * A queued extraction and its `extract` job, on this transaction (D94). With no provider yet
  * (`waiting`), the row waits as `waiting_provider` / `no_provider` and no job is sent.
  */
-async function queueExtraction(
+export async function queueExtraction(
   ctx: Ctx,
   t: ExtractionTarget,
   ai: 'on' | 'waiting',
@@ -276,8 +286,9 @@ async function queueExtraction(
   const status = ai === 'on' ? 'queued' : 'waiting_provider';
   await ctx.client.query(
     `INSERT INTO public.extractions (id, location_id, attachment_id, thing_id, purchase_id,
-                                     meter_id, mode, requested_by, status, status_reason)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, kept.current_user_id(), $8, $9)`,
+                                     meter_id, room_capture_id, mode, requested_by, status,
+                                     status_reason, attempt)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, kept.current_user_id(), $9, $10, $11)`,
     [
       id,
       t.locationId,
@@ -285,9 +296,11 @@ async function queueExtraction(
       t.thingId ?? null,
       t.purchaseId ?? null,
       t.meterId ?? null,
+      t.roomCaptureId ?? null,
       t.mode,
       status,
       ai === 'on' ? null : NO_PROVIDER,
+      t.attempt ?? 1,
     ],
   );
   if (ai === 'on') {
@@ -323,9 +336,10 @@ export async function resendOwnWaiting(
 
 export type InboxInsert = {
   locationId: string;
-  kind: 'draft' | 'receipt' | 'reading';
+  kind: 'draft' | 'receipt' | 'reading' | 'room';
   thingId?: string;
   purchaseId?: string;
+  roomCaptureId?: string;
   extractionId?: string;
   batchId: string;
   payload?: Record<string, unknown>;
@@ -338,9 +352,9 @@ export async function openInboxItem(
   item: InboxInsert,
 ): Promise<string | null> {
   const { rows } = await client.query<{ id: string }>(
-    `INSERT INTO public.inbox_items (id, location_id, kind, thing_id, purchase_id, extraction_id,
-                                     batch_id, created_by, payload)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, kept.current_user_id(), $8)
+    `INSERT INTO public.inbox_items (id, location_id, kind, thing_id, purchase_id, room_capture_id,
+                                     extraction_id, batch_id, created_by, payload)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, kept.current_user_id(), $9)
      ON CONFLICT DO NOTHING RETURNING id`,
     [
       newId(),
@@ -348,6 +362,7 @@ export async function openInboxItem(
       item.kind,
       item.thingId ?? null,
       item.purchaseId ?? null,
+      item.roomCaptureId ?? null,
       item.extractionId ?? null,
       item.batchId,
       JSON.stringify(item.payload ?? {}),
@@ -405,6 +420,8 @@ export async function capture(
     throw invalid('readingValue is for reading captures.');
   }
   if (input.meterId && input.mode !== 'reading') throw invalid('meterId is for readings.');
+  if (input.codes && input.mode !== 'room') throw invalid('codes are for room captures.');
+  if (input.mode === 'room') checkRoomInput(input, fileIds.length);
   await requireUsableFiles(client, locationId, fileIds);
 
   // 3. Where: the location's Unplaced area (D118), a place, or a container the caller can see.
@@ -417,6 +434,8 @@ export async function capture(
   const base = { mode: input.mode, batch_id: batchId, file_ids: fileIds };
 
   switch (input.mode) {
+    case 'room':
+      return captureRoom(ctx, input, { id, locationId, batchId, fileIds, ai, base, target });
     case 'receipt':
       return captureReceipt(ctx, input, { id, locationId, batchId, fileIds, ai, base });
     case 'reading':
@@ -530,7 +549,7 @@ export async function capture(
   return result;
 }
 
-type Common = {
+export type Common = {
   id: string;
   locationId: string;
   batchId: string;

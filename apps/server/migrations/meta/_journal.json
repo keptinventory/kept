@@ -995,6 +995,20 @@
       "when": 1792488057690,
       "tag": "0141_map_node_height_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 142,
+      "version": "7",
+      "when": 1792516454624,
+      "tag": "0142_room_photos",
+      "breakpoints": true
+    },
+    {
+      "idx": 143,
+      "version": "7",
+      "when": 1792516459601,
+      "tag": "0143_room_photos_rls",
+      "breakpoints": true
     }
   ]
 }

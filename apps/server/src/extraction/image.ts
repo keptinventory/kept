@@ -139,7 +139,7 @@ export async function partsFor(
     }
     let img: ImageInput | null = null;
     let fromDisplay = false;
-    if (mode === 'thing') {
+    if (mode === 'thing' || mode === 'room') {
       img = await display(deps.blobs, f);
       fromDisplay = img !== null;
       if (!img) {

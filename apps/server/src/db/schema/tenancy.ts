@@ -111,6 +111,8 @@ export const locations = pgTable(
     moneyVisibleToViewers: boolean('money_visible_to_viewers').notNull().default(false),
     require2fa: boolean('require_2fa').notNull().default(false),
     longUnseenMonths: integer('long_unseen_months').notNull().default(12),
+    /** Room photos stay on their place after review; by default they are deleted then. */
+    keepRoomPhotos: boolean('keep_room_photos').notNull().default(false),
     successorUserId: uuid('successor_user_id').references(() => user.id, {
       onDelete: 'set null',
     }),

@@ -80,6 +80,20 @@ describe('op payloads (v1)', () => {
   const bad = (op: (typeof OP_KINDS)[number], payload: unknown) =>
     expect(parseOpPayload(op, payload).success, JSON.stringify(payload)).toBe(false);
 
+  it('create_thing: a room capture carries the Kept codes read in its photos', () => {
+    const base = {
+      id: id(),
+      mode: 'room',
+      batchId: id(),
+      target: { placeId: id() },
+      files: [1, 2, 3].map(() => ({ fileId: id(), role: 'photo' })),
+    };
+    ok('create_thing', base);
+    ok('create_thing', { ...base, codes: ['K7D2QX', 'AB1100'] });
+    bad('create_thing', { ...base, codes: ['nope'] });
+    bad('create_thing', { ...base, codes: Array.from({ length: 61 }, () => 'K7D2QX') });
+  });
+
   it('create_thing: one of three targets, files, and optional fields', () => {
     const base = {
       id: id(),

@@ -74,6 +74,31 @@ export const ThingManyExtraction = z.object({
 });
 export type ThingManyExtraction = z.infer<typeof ThingManyExtraction>;
 
+/** Every object a person would keep track of in a room photo: what it is to the room. `storage`
+ * is furniture that holds things (a shelf, a cabinet, a wardrobe, a chest of drawers), which
+ * becomes a place in the room; `furniture` is any other (a sofa, a bed, a table). */
+export const ROOM_OBJECT_KINDS = ['item', 'furniture', 'storage'] as const;
+export type RoomObjectKind = (typeof ROOM_OBJECT_KINDS)[number];
+
+export const RoomObject = ThingObject.extend({ bbox, kind: z.enum(ROOM_OBJECT_KINDS) });
+
+/** ROOM: every object in one photo of a room, each with its box (at most ROOM_LIMITS.objects). */
+export const RoomExtraction = z.object({
+  objects: z.array(RoomObject).max(60),
+  /** The photo had more objects than the list could hold. */
+  more: z.boolean().optional(),
+});
+export type RoomExtraction = z.output<typeof RoomExtraction>;
+
+/** The merge across a room capture's photos: groups of object indexes that are the same object. */
+export const RoomMerge = z.object({
+  groups: z.array(z.array(z.number().int().min(0).max(299)).min(1).max(5)).max(300),
+});
+export type RoomMerge = z.output<typeof RoomMerge>;
+
+/** The merge call's JSON allowance. */
+export const ROOM_MERGE_MAX_OUTPUT = 1500;
+
 const ReceiptLine = z.object({
   description: conf(text(300)),
   quantity: conf(count).optional(),
@@ -138,6 +163,7 @@ export const EXTRACTION_SCHEMAS = Object.freeze({
   receipt: ReceiptExtraction,
   label: LabelExtraction,
   reading: ReadingExtraction,
+  room: RoomExtraction,
 } satisfies Record<CaptureMode, z.ZodType>);
 
 export type ThingExtraction = z.output<typeof ThingExtraction>;
@@ -189,6 +215,7 @@ export const MAX_OUTPUT_TOKENS: Readonly<Record<CaptureMode, number>> = Object.f
   receipt: 2500,
   label: 600,
   reading: 200,
+  room: 8000,
 });
 
 /** Reasoning tokens billed against `maxOutputTokens`. */

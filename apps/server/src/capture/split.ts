@@ -7,6 +7,7 @@ import type { ImageInput } from '../ai/call.js';
 import type { Pools } from '../db/pools.js';
 import { type Scope, withScope } from '../db/scope.js';
 import type { ThingFields } from '../extraction/checks.js';
+import { openDuplicate } from '../extraction/duplicates.js';
 import { ingestFile } from '../files/ingest.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { ImageLimiter } from '../storage/derivatives.js';
@@ -152,6 +153,13 @@ export async function splitDrafts(
             thingId,
             batchId,
           });
+          // Each drafted object gets the duplicate check the photo's first one gets (job.ts).
+          await openDuplicate(
+            client,
+            { id: thingId, locationId: ex.location_id, batchId },
+            ex.id,
+            extra.fields.serial?.value ?? null,
+          );
           return thingId;
         });
         made.push(id);

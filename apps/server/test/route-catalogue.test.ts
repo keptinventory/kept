@@ -43,6 +43,8 @@ const ALLOWLIST: Record<string, string> = {
     'read-only: signs a five-minute URL for a file the caller may already see (Q16, D157) and changes nothing; the upload, attachments and "delete original" are audited',
   'POST /api/v1/me/email-change':
     'only mails the old address a confirmation link; the change itself is audited when it completes (POST /api/v1/auth/email-change/confirm, account.email_change)',
+  'POST /api/v1/inbox/:id/room/retry':
+    "reads a room capture's photos again when none could be read (#194): new extraction attempts, the old ones superseded, as the capture's own reading was; it changes nothing in the inventory, and what the reading then makes is audited (thing.capture for each draft)",
   'POST /api/v1/scan/resolve':
     'read-only: answers what a scanned code is (open, claim, not in your Kept, legacy, barcode, not Kept, D137) and changes nothing, not even last_seen_at (D40); the phone marks seen with the audited POST /api/v1/things/:id/seen',
   'POST /api/v1/me/channels/:id/test':

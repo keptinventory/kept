@@ -51,6 +51,10 @@ const CaptureResultSchema = z.object({
   thing: ThingRowSchema.optional(),
   purchaseId: z.uuid().optional(),
   extraction: z.object({ id: z.uuid(), status: z.enum(['queued', 'waiting_provider']) }).optional(),
+  /** ROOM: the room capture made. */
+  room: z
+    .object({ id: z.uuid(), photos: z.number(), status: z.enum(['reading', 'off']) })
+    .optional(),
   inboxItemId: z.uuid().optional(),
   undo: z.object({ eventId: z.uuid(), until: z.string() }).optional(),
 });

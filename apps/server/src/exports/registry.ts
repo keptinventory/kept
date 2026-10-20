@@ -65,6 +65,8 @@ export const OMIT_REASONS: Readonly<Record<string, string>> = Object.freeze({
   finished_by:
     'a user of this server; the importer finishes the report as the importing person (D238)',
   state_by: "a user of this server; a box's state comes in as the importing person's (D251)",
+  placed_by_kept:
+    "this server's hint for its next arrange; an imported map is as it was arranged (#194)",
 });
 
 export type EntityDef = Readonly<{
@@ -96,7 +98,7 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
     scope: 'self',
     key: ['id'],
     fields:
-      'id:uuid kind:text name:text timezone:text currency:text languages:texts address:json latitude:float longitude:float suggest_radius_m:int preset:text money_visible_to_viewers:bool require_2fa:bool long_unseen_months:int created_at:ts updated_at:ts',
+      'id:uuid kind:text name:text timezone:text currency:text languages:texts address:json latitude:float longitude:float suggest_radius_m:int preset:text money_visible_to_viewers:bool require_2fa:bool long_unseen_months:int keep_room_photos:bool created_at:ts updated_at:ts',
     omit: 'owner_account_id successor_user_id deleted_at purge_after row_version change_seq',
   },
   {
@@ -309,7 +311,7 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
     key: ['id'],
     fields:
       'id:uuid place_id:uuid thing_id:uuid x_cm:int z_cm:int w_cm:int d_cm:int rot:int model:text room_kind:text surface:text host_id:uuid height_cm:int created_at:ts',
-    omit: 'location_id created_by',
+    omit: 'location_id created_by placed_by_kept',
     thingRefs: ['x.thing_id'],
   },
   {
@@ -604,6 +606,7 @@ export const NOT_EXPORTED: Readonly<Record<string, string>> = Object.freeze({
   import_runs: "this server's bookkeeping",
   import_source_ids: "this server's bookkeeping",
   extractions: 'derived from the attachments by AI',
+  room_captures: 'AI work on room photos waiting for review; the photos travel with their place',
   file_derivatives: 'derived: thumbnails are re-made from the originals',
   file_text: 'derived: text read from the PDFs',
   inbox_items: 'open decisions, re-made by the importer',

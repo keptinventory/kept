@@ -33,6 +33,7 @@ import { createDocument } from '../paperwork/documents.js';
 import { restorePlace } from '../places/service.js';
 import { updatePurchase } from '../purchases/service.js';
 import { type PatchBody, purchaseRow } from '../purchases/view.js';
+import { placeAccepted } from '../room/map.js';
 import { enqueueReindex } from '../search/jobs.js';
 import { gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
@@ -326,6 +327,8 @@ export async function accept(ctx: Ctx, id: string, expected: number, body: Accep
     reviewState: 'confirmed',
     fieldStatus: status,
   });
+  // A room photo's draft goes on the map where its room is drawn (room/map.ts).
+  await placeAccepted(ctx, [thing.id]);
   if (accepted.includes('document')) {
     await acceptDocument(ctx, thing, byField.get('document') as Suggestion);
   }

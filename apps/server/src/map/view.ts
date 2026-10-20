@@ -42,6 +42,9 @@ const NodeLayout = z.object({
   hostId: z.uuid().nullable(),
   /** A thing on a wall (#138): how high its middle hangs, in centimetres; null when it stands. */
   height: z.number().int().nullable(),
+  /** Kept put it here by itself (a room photo's accepted thing): the next arrange shows it to
+   * nudge, and saving that arrange makes it the person's. */
+  placedByKept: z.boolean(),
 });
 
 export const MapViewSchema = z.object({
@@ -117,6 +120,8 @@ type PlaceRow = {
   short_code: string | null;
 };
 
+export type MapThingRow = ThingRow;
+
 type ThingRow = {
   id: string;
   name: string | null;
@@ -144,16 +149,26 @@ export type NodeRow = {
   surface: (typeof MAP_SURFACES)[number] | null;
   host_id: string | null;
   height: number | null;
+  /** Put there by Kept (a room photo's accepted thing), not by someone arranging. */
+  placed_by_kept: boolean;
   created_at: Date;
 };
 
 export const NODE_COLUMNS =
-  'id, place_id, thing_id, x_cm AS x, z_cm AS z, w_cm AS w, d_cm AS d, rot, model, room_kind, surface, host_id, height_cm AS height, created_at';
+  'id, place_id, thing_id, x_cm AS x, z_cm AS z, w_cm AS w, d_cm AS d, rot, model, room_kind, surface, host_id, height_cm AS height, placed_by_kept, created_at';
 
-/** The layout's version: the newest row's stamp (an arrange session writes all its rows at once). */
-export function versionOf(rows: readonly Pick<NodeRow, 'created_at'>[]): string | null {
+/** The layout's version: the newest row's stamp (an arrange session writes all its rows at once).
+ * A row Kept placed by itself isn't an arrangement: it never moves the version, so nobody
+ * arranging at the time is told someone else arranged (service.ts keeps such rows through a save
+ * that didn't know them). */
+export function versionOf(
+  rows: readonly (Pick<NodeRow, 'created_at'> & { placed_by_kept?: boolean })[],
+): string | null {
   let newest: Date | null = null;
-  for (const r of rows) if (!newest || r.created_at > newest) newest = r.created_at;
+  for (const r of rows) {
+    if (r.placed_by_kept) continue;
+    if (!newest || r.created_at > newest) newest = r.created_at;
+  }
   return newest ? newest.toISOString() : null;
 }
 
@@ -213,7 +228,7 @@ export async function placeRows(client: pg.ClientBase, locationId: string): Prom
 }
 
 /** The location's live things in use, the ones on the map and the containers first. */
-async function thingRows(client: pg.ClientBase, locationId: string): Promise<ThingRow[]> {
+export async function thingRows(client: pg.ClientBase, locationId: string): Promise<ThingRow[]> {
   const { rows } = await client.query<ThingRow>(
     `SELECT t.id, t.name, t.place_id, t.container_id, t.quantity::text AS quantity,
             coalesce(ty.builtin_key,
@@ -421,7 +436,15 @@ export async function mapView(tx: Tx, client: pg.ClientBase, locationId: string)
   const nodeLayout = (id: string) => {
     const n = layoutOf.get(id);
     return n && n.w === null
-      ? { x: n.x, z: n.z, rot: n.rot, model: n.model, hostId: n.host_id, height: n.height }
+      ? {
+          x: n.x,
+          z: n.z,
+          rot: n.rot,
+          model: n.model,
+          hostId: n.host_id,
+          height: n.height,
+          placedByKept: n.placed_by_kept,
+        }
       : null;
   };
 
