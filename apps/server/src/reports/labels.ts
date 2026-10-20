@@ -69,6 +69,7 @@ const EN: Words = {
   withTrashed: 'Includes things in the trash',
   condition: { new: 'New', good: 'Good', fair: 'Fair', poor: 'Poor', broken: 'Broken' },
   lifecycle: {
+    archived: 'Archived',
     sold: 'Sold',
     given_away: 'Given away',
     lost: 'Lost',
@@ -124,6 +125,7 @@ const AR: Words = {
   withTrashed: 'يشمل الأشياء التي في المهملات',
   condition: { new: 'جديد', good: 'جيد', fair: 'مقبول', poor: 'سيئ', broken: 'معطوب' },
   lifecycle: {
+    archived: 'مؤرشف',
     sold: 'بِيع',
     given_away: 'أُهدي',
     lost: 'مفقود',

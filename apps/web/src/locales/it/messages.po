@@ -25762,3 +25762,67 @@ msgstr "Fai il tour"
 #: src/routes/_app/help.tsx
 msgid "The tour"
 msgstr "Il tour"
+
+#: src/components/import/labels.ts
+msgid "A Homebox location, not an item, so it's skipped: places come from the items' location column."
+msgstr "Un luogo di Homebox, non un articolo, quindi saltato: i luoghi vengono dalla colonna del luogo degli articoli."
+
+#: src/components/import/labels.ts
+msgid "It has no manifest.json, so it isn't an export from Homebox v0.26.1 or newer. A Homebox older than v0.26 can't make one: update a copy of it to v0.27.0 and export again, or import its spreadsheet (CSV) export instead."
+msgstr "Non ha un manifest.json, quindi non è un'esportazione di Homebox v0.26.1 o successivo. Un Homebox precedente alla v0.26 non può crearla: aggiornane una copia alla v0.27.0 ed esporta di nuovo, oppure importa invece la sua esportazione in foglio di calcolo (CSV)."
+
+#: src/components/import/archive-step.tsx
+msgid "A Homebox older than v0.26 makes a spreadsheet instead of an export ZIP. Import it as a spreadsheet: names, places, tags, purchases, warranties, sales and old labels come across. For photos, files and maintenance too, update a copy of Homebox to v0.26.1 or newer (v0.27.0 recommended) and export the ZIP."
+msgstr "Un Homebox precedente alla v0.26 crea un foglio di calcolo invece di uno ZIP di esportazione. Importalo come foglio di calcolo: nomi, luoghi, tag, acquisti, garanzie, vendite e vecchie etichette arrivano. Per foto, file e manutenzione, aggiorna una copia di Homebox alla v0.26.1 o successiva (consigliata la v0.27.0) ed esporta lo ZIP."
+
+#: src/components/import/choices-step.tsx
+msgid "Archived items aren't imported, sold ones included."
+msgstr "Gli articoli archiviati non vengono importati, venduti compresi."
+
+#: src/components/import/mapping-step.tsx
+msgid "Coming from an older Homebox"
+msgstr "Arrivare da un Homebox precedente"
+
+#: src/components/import/source-step.tsx
+msgid "Homebox v0.26.1 or newer (v0.27.0 recommended): Collection settings → Export. Older than v0.26: import its spreadsheet export, or update a copy of Homebox first."
+msgstr "Homebox v0.26.1 o successivo (consigliata la v0.27.0): Impostazioni della collezione → Esporta. Precedente alla v0.26: importa la sua esportazione in foglio di calcolo, oppure aggiorna prima una copia di Homebox."
+
+#: src/components/import/mapping-step.tsx
+msgid "Import a Homebox export instead"
+msgstr "Importa invece un'esportazione di Homebox"
+
+#: src/components/import/archive-step.tsx
+msgid "Import it as a spreadsheet"
+msgstr "Importalo come foglio di calcolo"
+
+#: src/components/import/mapping-step.tsx
+msgid "Kept reads its asset IDs, so old Homebox labels still scan, and its archived and sold items, warranties and insured column. A spreadsheet can't carry photos, files, maintenance or items inside items: for those, update a copy of Homebox to v0.26.1 or newer (v0.27.0 recommended) and import its export ZIP."
+msgstr "Kept legge i suoi ID inventario, così le vecchie etichette di Homebox si scansionano ancora, e anche gli articoli archiviati e venduti, le garanzie e la colonna assicurato. Un foglio di calcolo non può portare foto, file, manutenzione o articoli dentro articoli: per quelli, aggiorna una copia di Homebox alla v0.26.1 o successiva (consigliata la v0.27.0) e importa il suo ZIP di esportazione."
+
+#: src/components/import/choices-step.tsx
+msgid "One with a sale still ends sold."
+msgstr "Uno con una vendita termina comunque come venduto."
+
+#: src/components/import/mapping-step.tsx
+msgid "Read by the Homebox preset"
+msgstr "Letto dalla preimpostazione Homebox"
+
+#: src/components/import/archive-step.tsx
+msgid "Restart Homebox and export again: v0.26 exports once each time it starts. v0.27.0 doesn't have this limit."
+msgstr "Riavvia Homebox ed esporta di nuovo: la v0.26 esporta una sola volta a ogni avvio. La v0.27.0 non ha questo limite."
+
+#: src/components/import/mapping-step.tsx
+msgid "This is Homebox's spreadsheet export"
+msgstr "Questa è l'esportazione in foglio di calcolo di Homebox"
+
+#: src/components/things/labels.ts
+msgid "Archived"
+msgstr "Archiviato"
+
+#: src/components/things/action-menu.tsx
+msgid "Unarchive"
+msgstr "Togli dall'archivio"
+
+#: src/components/import/choices-step.tsx
+msgid "Still yours, put away, as in Homebox's archive. One with a sale ends sold instead."
+msgstr "Ancora tuo, messo via, come nell'archivio di Homebox. Uno con una vendita termina invece come venduto."

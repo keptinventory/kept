@@ -800,6 +800,39 @@ describe('lifecycle, seen and not here', () => {
     expect(found.derivedState).toEqual([]);
   });
 
+  it('archives a thing: still yours, put away, its own state; unarchive brings it back, both undoable', async () => {
+    const lamp = await createThing(t, ann, home, { name: 'Desk lamp' });
+    const archived = ok(
+      await call(t, `/api/v1/things/${lamp.id}/lifecycle`, {
+        as: ann,
+        headers: { 'if-match': String(lamp.rowVersion) },
+        body: { lifecycle: 'archived' },
+      }),
+    );
+    expect(archived.lifecycle).toBe('archived');
+    // Not in use, so it counts as ended in lists and reminders; its own value otherwise.
+    expect(archived.derivedState).toEqual(['ended']);
+    const only = ok(await get(ann, `/api/v1/things?locationId=${home.id}&state=archived&limit=50`));
+    expect((only.items as { id: string }[]).map((x) => x.id)).toEqual([lamp.id]);
+    const byLifecycle = ok(
+      await get(ann, `/api/v1/things?locationId=${home.id}&lifecycle=archived&limit=50`),
+    );
+    expect((byLifecycle.items as { id: string }[]).map((x) => x.id)).toEqual([lamp.id]);
+    const events = await eventsOf(db, home.id, lamp.id);
+    expect(events.at(-1)?.action).toBe('thing.lifecycle');
+    expect(events.at(-1)?.undoable_until).not.toBeNull();
+
+    const back = ok(
+      await call(t, `/api/v1/things/${lamp.id}/lifecycle`, {
+        as: ann,
+        headers: { 'if-match': String(archived.rowVersion) },
+        body: { lifecycle: 'in_use' },
+      }),
+    );
+    expect(back.lifecycle).toBe('in_use');
+    expect(back.derivedState).toEqual([]);
+  });
+
   it('refuses half a price, and a price where money is off', async () => {
     const made = await createThing(t, ann, home, { name: 'Sofa' });
     const half = await call(t, `/api/v1/things/${made.id}/lifecycle`, {

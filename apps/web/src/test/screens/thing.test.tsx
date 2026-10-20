@@ -195,6 +195,31 @@ describe('the action menu', () => {
     );
   });
 
+  it('Archive puts it away in one tap, with Undo; the Archived badge has Unarchive', async () => {
+    const { user, mock } = await renderApp(`/t/${T.drill}`);
+    await findHeading('Bosch drill, 18 V');
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Archive' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', p.thingLifecycle(T.drill))).toMatchObject({
+        body: { lifecycle: 'archived' },
+        headers: { 'if-match': '1' },
+      }),
+    );
+    expect(await screen.findByRole('button', { name: 'Undo' })).toBeInTheDocument();
+    // The header's badge says Archived, beside its one-tap way back.
+    expect((await screen.findAllByText('Archived')).length).toBeGreaterThan(0);
+    await user.click(await screen.findByRole('button', { name: 'Unarchive' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', p.thingLifecycle(T.drill))?.body).toEqual({
+        lifecycle: 'in_use',
+      }),
+    );
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Unarchive' })).toBeNull());
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+    expect(await screen.findByRole('menuitem', { name: 'Archive' })).toBeInTheDocument();
+  });
+
   it('Re-type names the values that will be archived', async () => {
     const { user, mock } = await renderApp(`/t/${T.drill}`);
     await findHeading('Bosch drill, 18 V');

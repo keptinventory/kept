@@ -622,6 +622,9 @@ export type ImportChoices = {
   currency?: string;
   defaultTarget: { placeId: string } | { unplaced: true };
   typeByName: boolean;
+  /** The Homebox preset, for a Homebox spreadsheet export (isHomeboxCsv): what happens to an
+   * archived item (not sold): archived in Kept, in use, or left out. */
+  homebox?: { archived: 'archived' | 'in_use' | 'skip' };
 };
 
 /** POST /api/v1/imports/csv (≤ 10,000 rows, body ≤ 8 MB). */

@@ -1,0 +1,7 @@
+HB.import_ref	HB.location	HB.labels	HB.asset_id	HB.archived	HB.name	HB.quantity	HB.description	HB.insured	HB.notes	HB.purchase_price	HB.purchase_from	HB.purchase_time	HB.manufacturer	HB.model_number	HB.serial_number	HB.lifetime_warranty	HB.warranty_expires	HB.warranty_details	HB.sold_to	HB.sold_price	HB.sold_time	HB.sold_notes	HB.field.Colour
+	Garage / Shelf A	Tools	000-001	false	Cordless drill	1		false		89.5	Hardware Hub	2023-03-14	Makita	DF333D	SN-4417	false	2026-03-14	Two years, keep the box		0			Teal
+	Garage	Tools	000-002	false	Toolbox	1		false		0						false				0			
+	Garage	Tools	000-003	false	Drill bits	12		false		0						false				0			
+	Study	Electronics	000-004	false	HD webcam	1		true		45		2022-11-02	Logi			true				0			
+	Study	Electronics	000-005	true	Old laptop	1		false		0						false			A neighbour	150	2024-05-20	With its charger	
+	Study	Electronics	000-006	true	Spare router	1	Kept as a spare	false		0						false				0			

@@ -122,7 +122,9 @@ export function placesRoutes(state: MockState): MockRoute[] {
       found = narrow(found, query, 'type', (t, v) => t.type?.id === v);
       found = narrow(found, query, 'tag', (t, v) => t.tags.some((g) => g.id === v));
       found = narrow(found, query, 'state', (t, v) =>
-        derivedStateOf(t, inv()).includes(v as DerivedState),
+        v === 'archived'
+          ? t.lifecycle === 'archived'
+          : derivedStateOf(t, inv()).includes(v as DerivedState),
       );
       found = narrow(found, query, 'brand', (t, v) => t.brand?.id === v);
       found = narrow(found, query, 'belongsTo', (t, v) => t.belongsTo?.id === v);

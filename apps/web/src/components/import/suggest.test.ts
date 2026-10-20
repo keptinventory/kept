@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import {
   dateFormatsFor,
   fieldFromHeader,
+  homeboxMapping,
   normaliseHeader,
   separatorFor,
   suggestMapping,
@@ -74,5 +75,72 @@ describe('values', () => {
     expect(separatorFor(['Garage / Shelf A', 'Kitchen/Drawer'])).toBe('/');
     expect(separatorFor(['المطبخ > الرف'])).toBe('>');
     expect(separatorFor(['Garage'])).toBe('>');
+  });
+});
+
+describe("a Homebox spreadsheet's mapping", () => {
+  it('maps every column Homebox writes, from v0.10.3 to v0.27.0, and leaves the preset its own', () => {
+    const columns = [
+      'HB.import_ref',
+      'HB.parent_import_ref',
+      'HB.url',
+      'HB.location',
+      'HB.labels',
+      'HB.tags',
+      'HB.asset_id',
+      'HB.archived',
+      'HB.name',
+      'HB.quantity',
+      'HB.description',
+      'HB.insured',
+      'HB.notes',
+      'HB.purchase_price',
+      'HB.purchase_from',
+      'HB.purchase_time',
+      'HB.purchase_date',
+      'HB.manufacturer',
+      'HB.model_number',
+      'HB.serial_number',
+      'HB.lifetime_warranty',
+      'HB.warranty_expires',
+      'HB.warranty_details',
+      'HB.sold_to',
+      'HB.sold_price',
+      'HB.sold_time',
+      'HB.sold_date',
+      'HB.sold_notes',
+      'HB.field.Colour',
+    ];
+    expect(homeboxMapping(columns)).toEqual({
+      'HB.import_ref': 'source_id',
+      'HB.parent_import_ref': 'ignore',
+      'HB.url': 'ignore',
+      'HB.location': 'place_path',
+      'HB.labels': 'tags',
+      'HB.tags': 'tags',
+      'HB.asset_id': 'ignore',
+      'HB.archived': 'ignore',
+      'HB.name': 'name',
+      'HB.quantity': 'quantity',
+      'HB.description': 'notes',
+      'HB.insured': 'ignore',
+      'HB.notes': 'notes',
+      'HB.purchase_price': 'price',
+      'HB.purchase_from': 'vendor',
+      'HB.purchase_time': 'purchased_on',
+      'HB.purchase_date': 'purchased_on',
+      'HB.manufacturer': 'brand',
+      'HB.model_number': 'model',
+      'HB.serial_number': 'serial',
+      'HB.lifetime_warranty': 'ignore',
+      'HB.warranty_expires': 'ignore',
+      'HB.warranty_details': 'ignore',
+      'HB.sold_to': 'ignore',
+      'HB.sold_price': 'ignore',
+      'HB.sold_time': 'ignore',
+      'HB.sold_date': 'ignore',
+      'HB.sold_notes': 'ignore',
+      'HB.field.Colour': 'ignore',
+    });
   });
 });

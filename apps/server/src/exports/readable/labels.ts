@@ -84,6 +84,7 @@ const EN: Omit<ReadableWords, 'thingCount' | 'unplaced' | 'trashed' | 'serial' |
   },
   conditions: { new: 'New', good: 'Good', fair: 'Fair', poor: 'Poor', broken: 'Broken' },
   lifecycles: {
+    archived: 'Archived',
     sold: 'Sold',
     given_away: 'Given away',
     lost: 'Lost',
@@ -134,6 +135,7 @@ const AR: typeof EN = {
   },
   conditions: { new: 'جديد', good: 'جيد', fair: 'مقبول', poor: 'سيئ', broken: 'معطوب' },
   lifecycles: {
+    archived: 'مؤرشف',
     sold: 'بِيع',
     given_away: 'أُهدي',
     lost: 'مفقود',

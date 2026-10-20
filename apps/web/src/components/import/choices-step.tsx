@@ -2,7 +2,8 @@
  * Choices (T18's `choices`): how place paths are split and whether missing places
  * are made, the date format (guessed from the file), the prices' currency when there's no currency
  * column, where a row without a place goes, and whether the type column is matched to types by
- * name. A choice that no mapped column needs isn't shown.
+ * name. A choice that no mapped column needs isn't shown. A Homebox spreadsheet export also asks
+ * what happens to its archived items.
  */
 import { DATE_FORMATS, type DateFormat, type MappableField } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -10,7 +11,7 @@ import type { ImportChoices } from '@/api/capture/types';
 import { useCurrencies, usePlaces } from '@/api/inventory/queries';
 import { Combobox } from '@/components/ui/combobox';
 import { Description } from '@/components/ui/field';
-import { Segmented } from '@/components/ui/segmented';
+import { ChoiceCards, Segmented } from '@/components/ui/segmented';
 import { Select, SelectItem } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 
@@ -182,6 +183,35 @@ export function ChoicesStep({
             </span>
           </span>
         </Switch>
+      ) : null}
+
+      {choices.homebox ? (
+        <ChoiceCards<NonNullable<ImportChoices['homebox']>['archived']>
+          label={t`Archived items`}
+          value={choices.homebox.archived}
+          onChange={(archived) => set({ homebox: { archived } })}
+          options={[
+            {
+              id: 'archived',
+              title: <Trans>Archived</Trans>,
+              body: (
+                <Trans>
+                  Still yours, put away, as in Homebox's archive. One with a sale ends sold instead.
+                </Trans>
+              ),
+            },
+            {
+              id: 'in_use',
+              title: <Trans>In use</Trans>,
+              body: <Trans>One with a sale still ends sold.</Trans>,
+            },
+            {
+              id: 'skip',
+              title: <Trans>Leave out</Trans>,
+              body: <Trans>Archived items aren't imported, sold ones included.</Trans>,
+            },
+          ]}
+        />
       ) : null}
     </div>
   );

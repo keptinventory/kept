@@ -23,7 +23,15 @@ import { useParseProblemText } from './labels';
 import { type ParsedCsv, ParseError, parseCsvFile } from './parse';
 import { SourceStep } from './source-step';
 
-const CSV_TYPES = ['text/csv', 'text/plain', 'application/vnd.ms-excel', '.csv'];
+/** CSV, and the TSV Homebox v0.10.3 and v0.11.0 export (papaparse finds the tab itself). */
+export const CSV_TYPES = [
+  'text/csv',
+  'text/plain',
+  'application/vnd.ms-excel',
+  'text/tab-separated-values',
+  '.csv',
+  '.tsv',
+];
 
 /** A running import that hasn't moved for IMPORT_STALE_MINUTES has lost its job (resumable). */
 export const isStale = (run: Pick<ImportRun, 'status' | 'updatedAt'>, now = Date.now()) =>

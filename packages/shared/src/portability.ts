@@ -22,7 +22,9 @@ export const ZIP_LIMITS = Object.freeze({
  * `archive_too_large`, and translated by the web. `unsupported_version` is a manifest newer
  * than this server reads. `encrypted`: an entry with a ZIP password, which Kept
  * can't read (a Kept export's secrets are encrypted inside its data, never with ZIP
- * encryption). `entry_too_large`: a JSON entry or an NDJSON line over the reader's cap. */
+ * encryption). `entry_too_large`: a JSON entry or an NDJSON line over the reader's cap.
+ * `no_manifest`: a Homebox upload with no `manifest.json`, which every export from Homebox
+ * v0.26 on has: an older Homebox's file, or not an export at all. */
 export const ARCHIVE_REFUSALS = [
   'too_many_entries',
   'too_large',
@@ -34,6 +36,7 @@ export const ARCHIVE_REFUSALS = [
   'unsupported_version',
   'encrypted',
   'entry_too_large',
+  'no_manifest',
 ] as const;
 export type ArchiveRefusal = (typeof ARCHIVE_REFUSALS)[number];
 
@@ -52,12 +55,13 @@ export type ArchiveIssueCode = (typeof ARCHIVE_ISSUE_CODES)[number];
  * Version 2 (1.5, D238) adds the condition reports (`condition-reports`,
  * `condition-report-rooms`, and their photos as attachments). Version 3 (1.6, D237) adds the
  * location map's layout (`map-nodes`). Version 4 (1.x, D251) adds the moves of Moving mode
- * (`moves`, `move-boxes`: each box's number, state and room). A reader refuses a newer version
+ * (`moves`, `move-boxes`: each box's number, state and room). Version 5 (1.13) adds the
+ * `archived` lifecycle, which an older server's things table refuses. A reader refuses a newer version
  * ("This export is from a newer Kept") and reads every older one: an entity or a field an older
  * export doesn't have is simply absent.
  */
 export const EXPORT_FORMAT = 'kept-export';
-export const EXPORT_VERSION = 4;
+export const EXPORT_VERSION = 5;
 
 /**
  * The data files of a Kept export (`data/<entity>.ndjson`), in the order they are written and

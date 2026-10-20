@@ -4,7 +4,13 @@
  * which separator the place paths use. Guesses only fill the form: the person changes any of them,
  * and the server's dry run checks every cell again.
  */
-import { DATE_FORMATS, type DateFormat, type MappableField, parseCsvDate } from '@kept/shared';
+import {
+  DATE_FORMATS,
+  type DateFormat,
+  HB_CSV_PRESET_COLUMNS,
+  type MappableField,
+  parseCsvDate,
+} from '@kept/shared';
 
 /** Fields at most one column can map to; every other field takes several (the server's MULTI). */
 export const MULTI_FIELDS: ReadonlySet<string> = new Set([
@@ -347,6 +353,40 @@ export function suggestMapping(columns: readonly string[]): Record<string, Mappa
   }
   return out;
 }
+
+/** Homebox's own headers, every version's spelling (`HB.labels` became `HB.tags` in v0.23,
+ * `HB.purchase_time` became `HB.purchase_date` in v0.26). */
+const HOMEBOX_FIELDS: Readonly<Record<string, MappableField>> = {
+  'HB.import_ref': 'source_id',
+  'HB.location': 'place_path',
+  'HB.labels': 'tags',
+  'HB.tags': 'tags',
+  'HB.name': 'name',
+  'HB.quantity': 'quantity',
+  'HB.description': 'notes',
+  'HB.notes': 'notes',
+  'HB.purchase_price': 'price',
+  'HB.purchase_from': 'vendor',
+  'HB.purchase_time': 'purchased_on',
+  'HB.purchase_date': 'purchased_on',
+  'HB.manufacturer': 'brand',
+  'HB.model_number': 'model',
+  'HB.serial_number': 'serial',
+};
+
+/**
+ * A Homebox spreadsheet's mapping (shared isHomeboxCsv): its known headers to their fields, the
+ * columns the server's Homebox preset reads itself (HB_CSV_PRESET_COLUMNS) left unmapped, and
+ * anything else (custom fields, `HB.parent_import_ref`) not imported unless the person maps it.
+ */
+export function homeboxMapping(columns: readonly string[]): Record<string, MappableField> {
+  const out: Record<string, MappableField> = {};
+  for (const column of columns) out[column] = HOMEBOX_FIELDS[column] ?? 'ignore';
+  return out;
+}
+
+/** The columns the Homebox preset reads, so the mapping shows them as its own. */
+export const HOMEBOX_PRESET: ReadonlySet<string> = new Set(HB_CSV_PRESET_COLUMNS);
 
 /**
  * The date formats that read the most sampled dates (all of them, in a clean file), in

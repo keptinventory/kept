@@ -1037,6 +1037,13 @@
       "when": 1792522790193,
       "tag": "0147_room_photos_in_review_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 148,
+      "version": "7",
+      "when": 1792538558897,
+      "tag": "0148_archived_lifecycle",
+      "breakpoints": true
     }
   ]
 }

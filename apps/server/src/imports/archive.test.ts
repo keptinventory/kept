@@ -298,11 +298,28 @@ describe('POST /api/v1/imports/:id/inspect', () => {
     expect((await inspect(ibrahim, id)).json()).toMatchObject({ reason: 'symlink' });
   });
 
-  it('refuses a ZIP that is no Homebox export (no manifest), with no reason', async () => {
+  it('refuses a ZIP with no manifest.json as no_manifest: no Homebox export, or an older one', async () => {
+    // What a Homebox before v0.26 leaves you with: its spreadsheet export, or its data folder.
     const id = await uploadArchive(
       t,
       ibrahim,
-      forgeZip([{ name: 'hello.txt', data: Buffer.from('hi') }]),
+      forgeZip([{ name: 'homebox-items.csv', data: Buffer.from('HB.name\nKettle\n') }]),
+    );
+    const res = await inspect(ibrahim, id);
+    expect(res.statusCode, res.body).toBe(400);
+    expect(res.json()).toMatchObject({ code: 'archive_invalid', reason: 'no_manifest' });
+    expect(await runOf(ibrahim, id)).toMatchObject({
+      status: 'failed',
+      error: 'archive_invalid',
+      reason: 'no_manifest',
+    });
+  });
+
+  it('refuses a ZIP whose manifest is not a Homebox one, with no reason', async () => {
+    const id = await uploadArchive(
+      t,
+      ibrahim,
+      forgeZip([{ name: 'manifest.json', data: Buffer.from('{"format":"something-else"}') }]),
     );
     const res = await inspect(ibrahim, id);
     expect(res.statusCode, res.body).toBe(400);

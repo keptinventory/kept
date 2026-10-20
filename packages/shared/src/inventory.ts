@@ -4,9 +4,12 @@
  * so a value is added in one place.
  */
 
-/** The stored lifecycle (D119, D158). Lent, borrowed and in repair are derived, not stored. */
+/** The stored lifecycle (D119, D158). Lent, borrowed and in repair are derived, not stored.
+ * `archived`: still yours, put away. Like the ways a thing ends it is out of use (lists,
+ * reminders), but nothing happened to it, and Unarchive brings it back into use. */
 export const LIFECYCLES = [
   'in_use',
+  'archived',
   'sold',
   'given_away',
   'lost',
@@ -17,7 +20,7 @@ export const LIFECYCLES = [
 ] as const;
 export type Lifecycle = (typeof LIFECYCLES)[number];
 
-/** Every lifecycle that ends a thing's active life: all but `in_use`. */
+/** Every lifecycle that ends a thing's active life: all but `in_use` (`archived` included). */
 export const ENDED = LIFECYCLES.filter(
   (l): l is Exclude<Lifecycle, 'in_use'> => l !== 'in_use',
 ) as readonly Exclude<Lifecycle, 'in_use'>[];

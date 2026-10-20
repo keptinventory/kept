@@ -46,9 +46,10 @@ export type ActorRef = { displayName: string };
 
 // ----- domain values (mirror @kept/shared inventory.ts) ----------------------------------------
 
-/** D119, D158. `ENDED` is every value except `in_use`. */
+/** D119, D158. `ENDED` is every value except `in_use`; `archived` is put away, still yours. */
 export type Lifecycle =
   | 'in_use'
+  | 'archived'
   | 'sold'
   | 'given_away'
   | 'lost'
@@ -709,7 +710,7 @@ export type ThingListParams = {
   brandId?: Many;
   /** Things bought from this vendor, through their purchase line (the vendor page). */
   vendorId?: string;
-  state?: Many<DerivedState>;
+  state?: Many<DerivedState | 'archived'>;
   /** Which of the filters above are "is none of" (D205). */
   not?: ('locationId' | 'typeId' | 'tagId' | 'belongsToId' | 'brandId' | 'state')[];
   lifecycle?: Lifecycle;
@@ -1097,7 +1098,12 @@ export type SearchKind = 'things' | 'places' | 'people' | 'vendors' | 'documents
  * 20), so each attention count opens its list: readings to review, not seen for
  * `long_unseen_months`, and things in an Unplaced area.
  */
-export type SearchStateFilter = DerivedState | 'to_review' | 'long_unseen' | 'unplaced';
+export type SearchStateFilter =
+  | DerivedState
+  | 'archived'
+  | 'to_review'
+  | 'long_unseen'
+  | 'unplaced';
 
 /** GET /api/v1/search query. */
 export type SearchParams = {

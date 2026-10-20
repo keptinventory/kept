@@ -71,9 +71,11 @@ locations, and everyone has a private Personal location. See
 
 ## Can I move from Homebox?
 
-Yes, from Homebox v0.26 or newer: import its export ZIP, check what will happen, then import.
-Photos, receipts, warranties, maintenance and tags come over, and old Homebox labels still scan.
-See [import and export](/users/import-export/#a-homebox-export).
+Yes. From Homebox v0.26.1 or newer (v0.27.0 recommended), import its export ZIP, check what will
+happen, then import. Photos, receipts, warranties, maintenance and tags come over, and old Homebox
+labels still scan. See [import and export](/users/import-export/#a-homebox-export). An older
+Homebox has no export ZIP: update a copy of it first, or import its spreadsheet. See
+[coming from an older Homebox](/users/import-export/#coming-from-an-older-homebox).
 
 ## How do I back it up?
 

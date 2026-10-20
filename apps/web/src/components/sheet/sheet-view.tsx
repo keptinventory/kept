@@ -648,7 +648,7 @@ export default function SheetView({ location }: { location: LocationDetail }) {
     ...(unplaced ? [f.unplaced(unplaced.thingCount ?? 0)] : []),
     f.type(),
     f.tag(),
-    f.state(['uncertain', 'draft', 'ended']),
+    f.state(['uncertain', 'draft', 'ended', 'archived']),
     f.brand(),
     f.belongsTo(),
     ...(access.can('location.export-import') ? [f.importRun(location.id)] : []),

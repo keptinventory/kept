@@ -175,7 +175,8 @@ export const ListQuery = z.object({
   belongsToId: manyOf(z.uuid()).optional(),
   brandId: manyOf(z.uuid()).optional(),
   vendorId: z.uuid().optional(),
-  state: manyOf(z.enum(DERIVED_STATES)).optional(),
+  /** A derived state, or `archived` (put away: one of the ended things, on its own). */
+  state: manyOf(z.enum([...DERIVED_STATES, 'archived'])).optional(),
   not: notOf(THING_LIST_FILTERS).optional(),
   lifecycle: z.enum(LIFECYCLES).optional(),
   /** The things an import run brought in (its import_source_ids): "See what was imported".

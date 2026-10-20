@@ -25,9 +25,9 @@ let files: TestFiles;
 let home: HomeboxData;
 let family: HomeboxData;
 
-async function read(name: 'home' | 'family'): Promise<HomeboxData> {
+async function read(name: 'home' | 'family' | string): Promise<HomeboxData> {
   const runId = newId();
-  const file = path.join(FIXTURES, `homebox-0.26.2-${name}.zip`);
+  const file = path.join(FIXTURES, name.endsWith('.zip') ? name : `homebox-0.26.2-${name}.zip`);
   const { stat } = await import('node:fs/promises');
   const bytes = (await stat(file)).size;
   await files.blobs.put(importArchiveKey(runId), file, { contentType: 'application/zip', bytes });
@@ -192,7 +192,7 @@ describe('planHomebox over Home', () => {
   });
 
   it('maps the lifetime warranty, the dated one, the purchase and the sale', () => {
-    const plan = planHomebox(home, choices(home, { archived: 'tag' }), lookups());
+    const plan = planHomebox(home, choices(home, { archived: 'in_use' }), lookups());
     const warranties = plan.ops.filter((o) => o.op === 'warranty');
     expect(warranties).toEqual(
       expect.arrayContaining([
@@ -226,8 +226,8 @@ describe('planHomebox over Home', () => {
       endedPrice: '40',
       endedCurrency: 'SAR',
     });
-    expect(phone.tags).toContainEqual({ key: 'tag:archived' });
-    expect(plan.ops).toContainEqual(expect.objectContaining({ op: 'tag', key: 'tag:archived' }));
+    // Sold wins: it ends sold, not archived.
+    expect(phone.archived).toBe(false);
   });
 
   it('skips the archived item by default', () => {
@@ -279,6 +279,38 @@ describe('planHomebox over Home', () => {
     // "Keep in notes" for one field.
     const noted = planHomebox(home, choices(home, { fields: { Colour: 'notes' } }), lookups());
     expect(thing(noted.ops, 'Espresso machine').notes).toContain('Colour: Brushed steel');
+  });
+
+  it('archives an archived item, a sold one ends sold; In use and Leave out as chosen; no tag', async () => {
+    const upgraded = await read('homebox-0.27.0-upgraded.zip');
+    const archivedPlan = planHomebox(
+      upgraded,
+      choices(upgraded, { archived: 'archived' }),
+      lookups(),
+    );
+    expect(thing(archivedPlan.ops, 'Spare router')).toMatchObject({ archived: true, sold: null });
+    expect(thing(archivedPlan.ops, 'Old laptop')).toMatchObject({ archived: false });
+    expect(thing(archivedPlan.ops, 'Old laptop').sold).not.toBeNull();
+    expect(archivedPlan.ops.some((o) => o.op === 'tag' && o.key === 'tag:archived')).toBe(false);
+    const inUse = planHomebox(upgraded, choices(upgraded, { archived: 'in_use' }), lookups());
+    expect(thing(inUse.ops, 'Spare router')).toMatchObject({
+      archived: false,
+      tags: [expect.anything()],
+    });
+    const left = planHomebox(upgraded, choices(upgraded, { archived: 'skip' }), lookups());
+    expect(left.ops.some((o) => o.op === 'thing' && o.name === 'Spare router')).toBe(false);
+  });
+
+  it('sends a file Homebox typed application/octet-stream to the job, which sniffs it', async () => {
+    // Attachments made before Homebox recorded file types come out of the upgrade untyped.
+    const upgraded = await read('homebox-0.27.0-upgraded.zip');
+    const plan = planHomebox(upgraded, choices(upgraded), lookups());
+    expect(plan.report.rows.flatMap((r) => r.issues.map((i) => i.code))).not.toContain(
+      'file_type_refused',
+    );
+    expect(plan.ops).toContainEqual(
+      expect.objectContaining({ op: 'attachment', title: 'drill.png', role: 'photo', sort: 0 }),
+    );
   });
 
   it('refuses the .docx and the text file by name, keeps the link, skips thumbnails', () => {

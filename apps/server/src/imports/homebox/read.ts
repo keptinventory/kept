@@ -1,6 +1,6 @@
 import { HB_SEEDED_PLACES, HB_SEEDED_TAGS } from '@kept/shared';
 import { z } from 'zod';
-import { ArchiveError } from '../../portability/zip/limits.js';
+import { ArchiveContentError, ArchiveError } from '../../portability/zip/limits.js';
 import {
   expectNames,
   type OpenArchive,
@@ -82,12 +82,21 @@ export function openHomebox(blobs: BlobStore, key: string, bytes: number): Promi
   return openArchive(blobs, key, bytes, { expect: HOMEBOX_ENTRIES });
 }
 
-/** The manifest: ArchiveContentError when missing or unreadable, ArchiveError
- * `unsupported_version` for a schema version this reader hasn't seen. */
+/** The manifest: ArchiveError `no_manifest` when there is none (a Homebox older than v0.26
+ * makes no export, so its files have none), ArchiveContentError when it is unreadable, and
+ * ArchiveError `unsupported_version` for a schema version this reader hasn't seen. */
 export async function readManifest(archive: OpenArchive): Promise<Manifest> {
-  // A missing or unreadable manifest is ArchiveContentError: not a Homebox export Kept can read
+  // An unreadable manifest is ArchiveContentError: not a Homebox export Kept can read
   // (archive_invalid with no rule broken, imports/archive.ts).
-  const manifest = await archive.json('manifest.json', Manifest);
+  let manifest: Manifest;
+  try {
+    manifest = await archive.json('manifest.json', Manifest);
+  } catch (err) {
+    if (err instanceof ArchiveContentError && err.problem === 'missing') {
+      throw new ArchiveError('no_manifest');
+    }
+    throw err;
+  }
   if (!HB_SCHEMA_VERSIONS.includes(manifest.schemaVersion)) {
     throw new ArchiveError('unsupported_version', `schemaVersion ${manifest.schemaVersion}`);
   }

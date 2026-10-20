@@ -113,8 +113,12 @@ tracks: **Details**, **Paperwork and warranties**, **Value**, **Meters**, **Loan
   Kept shows both values and asks: **Keep mine**, **Keep theirs** or **Edit**. Fields only one of
   you changed merge without asking.
 - **Actions** has Move, Lend, Label, Split, Duplicate, Save as template, Mark seen, Not here,
-  Change lifecycle (sold, given away, thrown out), Re-type, Convert to a room or spot, and Move to
-  Trash.
+  Change lifecycle (sold, given away, thrown out), Archive, Re-type, Convert to a room or spot,
+  and Move to Trash.
+- **Archive** is for a thing that's still yours but put away: the winter tyres, the old phone in
+  a drawer. Like a sold thing it leaves the lists of things in use and stops its reminders, and
+  its page shows **Archived** with **Unarchive** beside it, one tap back into use. Filter lists
+  and search by **Archived** to find them. Both can be undone.
 - **History** lists every change with who made it; most changes can be undone from there or from
   the toast that follows them. **Activity** in the menu is the same across your locations.
   Each change is one sentence: "Put Galaxy S23 on the map in Office", "Captured Bosch drill, 18 V

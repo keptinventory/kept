@@ -92,7 +92,9 @@ export function sheetRoutes(state: MockState): MockRoute[] {
       rows = narrow(rows, query, 'belongsToId', (t, v) => t.belongsTo?.id === v);
       rows = narrow(rows, query, 'brandId', (t, v) => t.brand?.id === v);
       rows = narrow(rows, query, 'state', (t, v) =>
-        derivedStateOf(t, inv()).includes(v as 'draft'),
+        v === 'archived'
+          ? t.lifecycle === 'archived'
+          : derivedStateOf(t, inv()).includes(v as 'draft'),
       );
       if (f('q'))
         rows = rows.filter((t) =>

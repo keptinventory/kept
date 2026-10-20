@@ -1,6 +1,7 @@
 import {
   CSV_LIMITS,
   DATE_FORMATS,
+  HomeboxCsvChoices,
   IMPORT_ISSUE_CODES,
   IMPORT_STALE_MINUTES,
   isMappable,
@@ -32,7 +33,7 @@ import {
   runSourceOf,
 } from './archive.js';
 import type { ArchiveRunRow } from './archive-types.js';
-import { BODY_LIMIT, CreateImportBody, mappingProblem } from './csv.js';
+import { BODY_LIMIT, CreateImportBody, homeboxProblem, mappingProblem } from './csv.js';
 import { type DryRunReport, dryRun } from './dry-run.js';
 import { type RunRow, readRun, runInputOf } from './job.js';
 
@@ -119,6 +120,7 @@ const ImportRunView = z.object({
       z.object({ unplaced: z.literal(true) }),
     ]),
     typeByName: z.boolean(),
+    homebox: HomeboxCsvChoices.optional(),
   }),
   progress: z.number().int(),
   total: z.number().int().nullable(),
@@ -196,7 +198,9 @@ async function reread(client: pg.ClientBase, id: string): Promise<RunRow> {
 async function createRun(c: Ctx, body: CreateImportBody): Promise<ImportRunView> {
   const locationId = body.locationId.toLowerCase();
   await requireRole(c.client, locationId, 'location.export-import');
-  const problem = mappingProblem(body.columns, body.mapping);
+  const problem =
+    mappingProblem(body.columns, body.mapping) ??
+    homeboxProblem(body.columns, body.mapping, body.choices);
   if (problem) throw invalid(problem);
   if (body.choices.currency) {
     await requireCurrencies(c.client, [body.choices.currency], 'body.choices.currency');

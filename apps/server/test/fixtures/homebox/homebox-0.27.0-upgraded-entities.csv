@@ -1,0 +1,18 @@
+HB.purchase_date,HB.warranty_expires,HB.sold_date,HB.import_ref,HB.parent_import_ref,HB.url,HB.name,HB.description,HB.notes,HB.purchase_from,HB.manufacturer,HB.model_number,HB.serial_number,HB.warranty_details,HB.sold_to,HB.sold_notes,HB.location,HB.tags,HB.asset_id,HB.quantity,HB.purchase_price,HB.sold_price,HB.archived,HB.insured,HB.lifetime_warranty,HB.field.Colour
+,,,,,/item/00879423-ec11-47a3-962b-c4ade4beb060,Spare router,Kept as a spare,,,,,,,,,Study,Electronics,000-006,1,0,0,true,false,false,
+,,,,,/item/32b8d557-d4e7-475b-8eb4-12dca0cec07d,Toolbox,,,,,,,,,,Garage,Tools,000-002,1,0,0,false,false,false,
+2022-11-02,,,,,/item/5aed4576-dfd7-40f0-bdee-9541f3d20cf6,HD webcam,,,,Logi,,,,,,Study,Electronics,000-004,1,45,0,false,true,true,
+2023-03-14,2026-03-14,,,,/item/5af0d9a2-bbb4-44ea-8cd0-acea90d00025,Cordless drill,,Two batteries,Hardware Hub,Makita,DF333D,SN-4417,"Two years, keep the box",,,Garage / Shelf A,Tools,000-001,1,89.5,0,false,false,false,Teal
+,,2024-05-20,,,/item/85a00100-5600-4387-b928-041935ce423d,Old laptop,,,,,,,,A neighbour,With its charger,Study,Electronics,000-005,1,0,150,true,false,false,
+,,,,,/item/957cc6c6-311e-488a-9eef-0379aa489b8a,Drill bits,,,,,,,,,,Garage,Tools,000-003,12,0,0,false,false,false,
+,,,,,/location/20e4dd12-ad3a-49b7-8c16-f6995d6c4f17,Basement,,,,,,,,,,,,000-014,1,0,0,false,false,false,
+,,,,,/location/413ad548-9c5b-4f5a-8a11-645f086d4d4b,Garage,,,,,,,,,,,,000-008,1,0,0,false,false,false,
+,,,,,/location/52efe860-5e90-4940-be51-10f37df7d529,Bedroom,,,,,,,,,,,,000-010,1,0,0,false,false,false,
+,,,,,/location/6db07cec-2bec-4127-b063-742d8af36b4f,Attic,,,,,,,,,,,,000-013,1,0,0,false,false,false,
+,,,,,/location/7849b090-9296-416f-9a3c-7a88e3490746,Office,,,,,,,,,,,,000-012,1,0,0,false,false,false,
+,,,,,/location/8073bdf4-24bf-491b-885c-0ffefeeb37de,Living Room,,,,,,,,,,,,000-007,1,0,0,false,false,false,
+,,,,,/location/a38f79ec-cb4c-46c2-b2bc-97b9b24829e0,Shelf A,,,,,,,,,,Garage,,000-016,1,0,0,false,false,false,
+,,,,,/location/a560c5de-259d-4be3-8232-ccd0e4fb0732,Bathroom,,,,,,,,,,,,000-011,1,0,0,false,false,false,
+,,,,,/location/c8f3c459-2c94-45c6-9656-ea5c2907c67e,Garage,,,,,,,,,,,,000-015,1,0,0,false,false,false,
+,,,,,/location/d81c8546-7d6c-4aa6-9595-8af70a525b38,Kitchen,,,,,,,,,,,,000-009,1,0,0,false,false,false,
+,,,,,/location/e4854d8d-5f5b-4524-9983-e2ac5f79ea7f,Study,,,,,,,,,,,,000-017,1,0,0,false,false,false,

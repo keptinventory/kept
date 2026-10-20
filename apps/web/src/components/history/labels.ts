@@ -625,6 +625,7 @@ export function useValueWords() {
   const { t } = useLingui();
   const words: Record<string, string> = {
     in_use: t`In use`,
+    archived: t`Archived`,
     sold: t`Sold`,
     given_away: t`Given away`,
     lost: t`Lost`,

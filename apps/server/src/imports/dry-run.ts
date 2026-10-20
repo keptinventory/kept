@@ -4,12 +4,15 @@ import {
   builtinTypeName,
   CONDITIONS,
   type Condition,
+  hbCsvLink,
+  homeboxAssetId,
   type ImportIssue,
   type ImportIssueCode,
   type ImportIssueParams,
   type MappableField,
   mapCurrencyMark,
   normalize,
+  parseCsvDate,
   splitPlacePath,
 } from '@kept/shared';
 import type pg from 'pg';
@@ -46,6 +49,16 @@ import {
 //   "<column>: <value>", with an issue saying why;
 // - `skipped`: no name, or already imported (its source id is taken, by an earlier run or an
 //   earlier row of the same file).
+//
+// The Homebox preset (`choices.homebox`, a Homebox spreadsheet export) also reads the columns
+// HB_CSV_PRESET_COLUMNS names, by header, as the Homebox ZIP import maps the same values
+// (homebox/plan.ts): the asset ID and the item's UUID (from HB.url) become `homebox` legacy codes,
+// so an old printed label opens the thing; a sale ends the thing sold, with its date, buyer,
+// notes and price; an archived item comes in archived (Kept's own lifecycle), in use, or is left
+// out, by the choice; a warranty's end or a lifetime warranty becomes a warranty from the
+// purchase date where the warranties module is on (else its text stays in the notes); warranty
+// details and "insured" go in the notes; a 0 price is no price (Homebox writes 0 when none is
+// set); a location row (v0.26 on lists them) is left out.
 //
 // Lookups are read under the importer's own row-level security, and only with equality on
 // indexed columns, or all of a location's (or an account's) rows at once, never with a
@@ -91,6 +104,21 @@ export type PlannedThing = {
   legacyCodes: string[];
   /** Own codes (D208), each checked against the location's format rule. */
   ownCodes: string[];
+  /** The Homebox preset's codes (asset ID, item UUID), stored with source `homebox`. */
+  homeboxCodes: string[];
+  /** The Homebox preset: the thing ends sold, or is archived, once it is made. */
+  ended: HomeboxEnded | null;
+  /** The Homebox preset: a manufacturer's warranty from the purchase date. */
+  warranty: { startsOn: string; endsOn?: string; lifetime?: true } | null;
+};
+
+export type HomeboxEnded = {
+  lifecycle: 'sold' | 'archived';
+  endedOn?: string;
+  endedTo?: string;
+  endedNotes?: string;
+  endedPrice?: string;
+  endedCurrency?: string;
 };
 
 export type PlannedRow = {
@@ -175,6 +203,8 @@ export class Lookups {
     readonly showMoney: boolean,
     readonly defaultPlaceId: string,
     readonly currencies: ReadonlySet<string>,
+    /** The location's modules (a warranty needs `warranties`). */
+    readonly modules: ReadonlySet<string> = new Set(),
   ) {}
 
   begin(): void {
@@ -326,6 +356,7 @@ export async function loadLookups(
     gate.showMoney,
     defaultPlaceId,
     new Set(currencyRows.map((r) => r.code.trim())),
+    gate.modules,
   );
 
   const { rows: placeRows } = await client.query<{
@@ -364,7 +395,11 @@ export async function loadLookups(
   );
   for (const r of taken) lookups.sourceIds.set(r.source_id, 0);
   const own = rows.flatMap((r) => codesOf(run, r.row, 'own_code'));
-  const codes = [...rows.flatMap((r) => codesOf(run, r.row)), ...own];
+  const codes = [
+    ...rows.flatMap((r) => codesOf(run, r.row)),
+    ...rows.flatMap((r) => homeboxCodesOf(run, r.row).map((c) => c.code)),
+    ...own,
+  ];
   if (own.length > 0) {
     const { rows: ruleRows } = await client.query<{
       rule_pattern: string | null;
@@ -445,6 +480,32 @@ function codesOf(
   return cellsOf(run, row, field)
     .map((c) => legacyCodeOf(c.value))
     .filter((c) => c.length > 0 && c.length <= CODE_MAX);
+}
+
+/** A Homebox preset column's cell, by header ('' when the file has no such column). */
+function hbCell(run: RunInput, row: readonly string[], column: string): string {
+  const i = run.columns.indexOf(column);
+  return i < 0 ? '' : cell(row[i]);
+}
+
+/** The Homebox preset's codes for a row: its asset ID (`000-001`) and its item's UUID, as
+ * stored (legacyCodeOf), each with the column it came from. */
+function homeboxCodesOf(
+  run: RunInput,
+  row: readonly string[],
+): { column: string; value: string; code: string }[] {
+  if (!run.choices.homebox) return [];
+  const out: { column: string; value: string; code: string }[] = [];
+  const asset = hbCell(run, row, 'HB.asset_id');
+  const assetId = asset ? homeboxAssetId(asset) : null;
+  if (assetId && assetId !== '000-000') {
+    out.push({ column: 'HB.asset_id', value: asset, code: legacyCodeOf(assetId) });
+  }
+  const link = hbCsvLink(hbCell(run, row, 'HB.url'));
+  if (link?.kind === 'item') {
+    out.push({ column: 'HB.url', value: link.uuid, code: legacyCodeOf(link.uuid) });
+  }
+  return out;
 }
 
 /** The language an alias is filed under: Arabic script → `ar`, otherwise the location's first
@@ -608,6 +669,21 @@ export async function planRow(
       { max: LIMITS.name },
     );
   }
+  // The Homebox preset: a location row is left out, and an archived item when so chosen.
+  const hb = run.choices.homebox;
+  const hbGet = (column: string) => hbCell(run, row, column);
+  if (hb && hbCsvLink(hbGet('HB.url'))?.kind === 'location') {
+    return skip(
+      'HB.url',
+      'hb_location_row',
+      'A Homebox location, not an item: places come from the location column.',
+    );
+  }
+  const archived = !!hb && parseBoolean(hbGet('HB.archived')) === true;
+  if (archived && hb?.archived === 'skip') {
+    return skip('HB.archived', 'hb_archived_skipped', 'Archived in Homebox, left out.');
+  }
+
   const takenBy = lookups.sourceIds.get(source.id);
   if (takenBy !== undefined) {
     return takenBy === 0
@@ -770,7 +846,10 @@ export async function planRow(
 
   // Money: one purchase line per row (D115), when the money module shows.
   let purchase: PlannedThing['purchase'] = null;
-  const priceCell = first('price');
+  const priceFirst = first('price');
+  const pricedAt = priceFirst ? parsePrice(priceFirst.value) : null;
+  // Homebox writes 0 for a price that was never set.
+  const priceCell = hb && pricedAt !== null && Number(pricedAt) === 0 ? undefined : priceFirst;
   const dateCell = first('purchased_on');
   const vendorCell = first('vendor');
   const currencyCell = first('currency');
@@ -952,8 +1031,110 @@ export async function planRow(
     } else ownCodes.push(code);
   }
 
-  // Notes last: the mapped notes, then what was kept as text.
+  // The Homebox preset's warranty, sale, codes and notes lines.
+  const extra: string[] = [];
+  let warranty: PlannedThing['warranty'] = null;
+  let ended: HomeboxEnded | null = null;
+  const homeboxCodes: string[] = [];
+  if (hb) {
+    const lifetime = parseBoolean(hbGet('HB.lifetime_warranty')) === true;
+    const expiresRaw = hbGet('HB.warranty_expires');
+    if (lifetime || expiresRaw) {
+      const expires = expiresRaw ? parseCsvDate(expiresRaw, 'YYYY-MM-DD') : null;
+      const bought = dateCell ? parseDate(dateCell.value, run.choices.dateFormat) : null;
+      const can =
+        lookups.modules.has('warranties') &&
+        quantity === 1 &&
+        bought !== null &&
+        bought <= lookups.today &&
+        (lifetime || (expires !== null && expires >= bought));
+      if (can && bought) {
+        warranty = lifetime
+          ? { startsOn: bought, lifetime: true }
+          : { startsOn: bought, endsOn: expires as string };
+      } else {
+        const column = lifetime ? 'HB.lifetime_warranty' : 'HB.warranty_expires';
+        asText(
+          ctx,
+          column,
+          hbGet(column),
+          'hb_needs_module',
+          "Kept can't hold this warranty here; its text is kept in the thing's notes.",
+        );
+      }
+    }
+    const details = hbGet('HB.warranty_details');
+    if (details) extra.push(`Warranty: ${details}`);
+    if (parseBoolean(hbGet('HB.insured')) === true) extra.push('Insured: yes');
+
+    // A sale ends it sold; an archived item is archived when so chosen.
+    const soldDateColumn = hbGet('HB.sold_time') ? 'HB.sold_time' : 'HB.sold_date';
+    const soldOnRaw = hbGet(soldDateColumn);
+    const soldTo = hbGet('HB.sold_to');
+    const soldPriceRaw = hbGet('HB.sold_price');
+    const soldPrice = soldPriceRaw ? parsePrice(soldPriceRaw) : null;
+    const soldPriced = soldPrice !== null && Number(soldPrice) > 0;
+    if (soldOnRaw || soldTo || soldPriced) {
+      const sold: HomeboxEnded = { lifecycle: 'sold' };
+      const soldOn = soldOnRaw ? parseCsvDate(soldOnRaw, 'YYYY-MM-DD') : null;
+      if (soldOn && soldOn <= lookups.today) sold.endedOn = soldOn;
+      else if (soldOn) {
+        asText(ctx, soldDateColumn, soldOnRaw, 'future_date', 'The date is in the future.');
+      } else if (soldOnRaw) {
+        asText(ctx, soldDateColumn, soldOnRaw, 'not_date', 'Not a date as YYYY-MM-DD.', {
+          format: 'YYYY-MM-DD',
+        });
+      }
+      if (soldTo.length > 200) {
+        asText(ctx, 'HB.sold_to', soldTo, 'too_long', 'Longer than 200 characters.', {
+          max: 200,
+        });
+      } else if (soldTo) sold.endedTo = soldTo;
+      const soldNotes = hbGet('HB.sold_notes');
+      if (soldNotes) sold.endedNotes = soldNotes.slice(0, NOTES_MAX);
+      if (soldPriced && soldPrice) {
+        if (!lookups.showMoney) {
+          asText(
+            ctx,
+            'HB.sold_price',
+            soldPriceRaw,
+            'money_off',
+            'Money is turned off for this location; kept as text.',
+          );
+        } else {
+          const cur = currency();
+          if (cur) {
+            sold.endedPrice = soldPrice;
+            sold.endedCurrency = cur;
+          } else {
+            asText(
+              ctx,
+              'HB.sold_price',
+              soldPriceRaw,
+              'not_currency',
+              'Not an enabled currency; the price is kept as text.',
+            );
+          }
+        }
+      }
+      ended = sold;
+    } else if (archived && hb.archived === 'archived') ended = { lifecycle: 'archived' };
+
+    for (const c of homeboxCodesOf(run, row)) {
+      if (
+        lookups.codes.has(c.code) ||
+        legacyCodes.includes(c.code) ||
+        ownCodes.includes(c.code) ||
+        homeboxCodes.includes(c.code)
+      ) {
+        ctx.issues.push(issue(c.column, 'code_taken', 'This code is already on something else.'));
+      } else homeboxCodes.push(c.code);
+    }
+  }
+
+  // Notes last: the mapped notes, the preset's lines, then what was kept as text.
   const notesParts = cellsOf(run, row, 'notes').map((c) => c.value);
+  notesParts.push(...extra);
   const order = (column: string) => run.columns.indexOf(column);
   notesParts.push(
     ...ctx.text
@@ -976,7 +1157,9 @@ export async function planRow(
 
   lookups.rememberSourceId(source.id, rowNo);
   if (mode === 'plan') {
-    for (const code of [...legacyCodes, ...ownCodes]) lookups.rememberCode(code, PLACEHOLDER);
+    for (const code of [...legacyCodes, ...ownCodes, ...homeboxCodes]) {
+      lookups.rememberCode(code, PLACEHOLDER);
+    }
     if (brand && 'create' in brand) lookups.rememberBrand(brand.create, lookups.placeholder());
     for (const t of tags) if ('create' in t) lookups.rememberTag(t.create, lookups.placeholder());
     const v = purchase?.vendor;
@@ -1007,6 +1190,9 @@ export async function planRow(
       purchase,
       legacyCodes,
       ownCodes,
+      homeboxCodes,
+      ended,
+      warranty,
     },
   };
 }
@@ -1038,7 +1224,10 @@ export async function dryRun(
     if (planned.status === 'text') report.summary.asText += 1;
     report.summary.things += 1;
     if (planned.thing.purchase) report.summary.purchases += 1;
-    report.summary.legacyCodes += planned.thing.legacyCodes.length + planned.thing.ownCodes.length;
+    report.summary.legacyCodes +=
+      planned.thing.legacyCodes.length +
+      planned.thing.ownCodes.length +
+      planned.thing.homeboxCodes.length;
     if ('create' in planned.thing.target)
       report.summary.places += planned.thing.target.create.length;
   }

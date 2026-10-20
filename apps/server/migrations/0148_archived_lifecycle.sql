@@ -1,0 +1,2 @@
+ALTER TABLE "things" DROP CONSTRAINT "things_lifecycle_chk";--> statement-breakpoint
+ALTER TABLE "things" ADD CONSTRAINT "things_lifecycle_chk" CHECK ("lifecycle" IN ('in_use', 'archived', 'sold', 'given_away', 'lost', 'disposed', 'stolen', 'destroyed', 'returned_to_owner'));

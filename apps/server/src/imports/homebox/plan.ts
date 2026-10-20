@@ -53,7 +53,8 @@ import {
 // - `insured` → a yes/no "Insured" field on the type, per the `insured` choice;
 // - quantity 0 → 1 (`hb_quantity_zero`); fractional kept (D183) unless the type counts one by
 //   one (serialized, metered: `hb_quantity_rounded`, the original in the notes);
-// - archived → skipped (`hb_archived_skipped`) or tagged "Archived in Homebox";
+// - archived → Kept's `archived` lifecycle (a sold one ends sold), in use, or skipped
+//   (`hb_archived_skipped`), by the `archived` choice;
 // - Homebox's seeded places and tags, empty and unused, skipped by default (`hb_seeded_skipped`);
 // - attachments: photo (the primary first), manual, warranty → the warranty's document, receipt
 //   → the purchase's receipt, attachment → document; thumbnails skipped; links → link
@@ -131,6 +132,9 @@ export type ThingOp = {
     endedTo?: string;
     endedNotes?: string;
   } | null;
+  /** Archived in Homebox and chosen to stay so: the thing's lifecycle becomes `archived`
+   * (never with `sold`: a sale ends it sold). */
+  archived: boolean;
   codes: string[];
 };
 
@@ -228,6 +232,8 @@ const KEPT_MIMES = new Set([
   'image/gif',
   'application/pdf',
 ]);
+/** Declared types that say nothing: the bytes are sniffed in the job instead. */
+const UNTYPED = new Set(['', 'application/octet-stream']);
 /** CSS's basic colour keywords, for a tag colour written as a name (Homebox stores any text). */
 const NAMED_COLOURS: Record<string, string> = {
   black: '#000000',
@@ -249,7 +255,6 @@ const NAMED_COLOURS: Record<string, string> = {
   aqua: '#00FFFF',
   orange: '#FFA500',
 };
-export const ARCHIVED_TAG = 'Archived in Homebox';
 const INSURED_LABEL = 'Insured';
 
 const MESSAGES: Partial<Record<ImportIssueCode, string>> = {
@@ -658,7 +663,6 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
     tagsOfEntity.set(te.entity_id, list);
   }
   const usedTags = new Set<string>();
-  let archivedTagUsed = false;
 
   // --- places -----------------------------------------------------------------------------------
   const placeIdOfKey = new Map<string, string>(); // planned place key → existing id when matched
@@ -808,7 +812,7 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
       quantity = 1;
     }
 
-    // Tags, flattened; "Archived in Homebox" when chosen.
+    // Tags, flattened.
     const tagIds = new Set<string>();
     for (const t of tagsOfEntity.get(e.id) ?? []) for (const a of withAncestors(t)) tagIds.add(a);
     const tags: Ref[] = [];
@@ -821,10 +825,6 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
       }
       tags.push(tagRef);
       usedTags.add(t);
-    }
-    if (e.archived && choices.archived === 'tag') {
-      tags.push({ key: 'tag:archived' });
-      archivedTagUsed = true;
     }
 
     // Custom fields, and insured.
@@ -1025,6 +1025,7 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
       custom,
       purchase,
       sold,
+      archived: e.archived && choices.archived === 'archived' && sold === null,
       codes,
     });
     summary.things += 1;
@@ -1233,15 +1234,6 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
     ops.tags.push(op);
     if ('create' in op.target) summary.tags += 1;
   }
-  if (archivedTagUsed && !done('tag:archived')) {
-    const existing = look.tags.get(normalize(ARCHIVED_TAG));
-    ops.tags.push({
-      op: 'tag',
-      key: 'tag:archived',
-      target: existing ? { id: existing } : { create: { name: ARCHIVED_TAG, colour: null } },
-    });
-    if (!existing) summary.tags += 1;
-  }
 
   summary.skipped = [...report.rows.values()].filter(
     (r) => r.status === 'skipped' && r.ref.kind === 'entity' && data.entities.has(r.ref.id),
@@ -1290,7 +1282,9 @@ function attachmentProblem(
 ): ImportIssueCode | null {
   if (!data.files.has(a.id)) return 'file_missing';
   const mime = a.mime_type.split(';')[0]?.trim().toLowerCase() ?? '';
-  if (!KEPT_MIMES.has(mime)) return 'file_type_refused';
+  // A file Homebox never typed (attachments made before it recorded types come out of an
+  // upgrade as application/octet-stream) goes to the job, whose sniff decides.
+  if (!KEPT_MIMES.has(mime) && !UNTYPED.has(mime)) return 'file_type_refused';
   if ((data.files.get(a.id) ?? 0) > maxFileBytes) return 'file_too_large';
   return null;
 }
