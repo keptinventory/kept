@@ -257,9 +257,11 @@ jobs:
           node-version-file: .nvmrc
       - run: bash scripts/ci-local.sh --only images
 
+  # arm64 builds on the nightly run and by hand only: PRs rarely break just one CPU type, it is the
+  # slowest job, and every release builds and signs both (release.yml).
   images-arm64:
     needs: changes
-    if: ${{ !cancelled() && github.event.repository.private == false && needs.changes.outputs.heavy != 'false' }}
+    if: ${{ !cancelled() && github.event.repository.private == false && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 45
     steps:
