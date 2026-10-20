@@ -263,8 +263,15 @@ function MapBody({
     };
   }, []);
 
+  // What the engine starts from when it is made, a frame after this mount: the latest of each.
+  const startWith = useRef({ plan: serverPlan, quality, pins, shadows });
+  startWith.current = { plan: serverPlan, quality, pins, shadows };
+
   // The engine: made once, fed new plans after a save or a reload; it reads its other inputs
-  // through refs and setters.
+  // through refs and setters. It is made after the map's controls have painted, not in the commit
+  // that adds them: starting WebGL (its shaders, its lighting, its first frame) takes seconds on
+  // a device drawing without a GPU, and meanwhile the page couldn't paint — the controls, or a
+  // tour's step pointing at them, waited behind it.
   // biome-ignore lint/correctness/useExhaustiveDependencies: made once per mount
   useEffect(() => {
     const stage = stageRef.current;
@@ -272,63 +279,78 @@ function MapBody({
     const labels = labelsRef.current;
     const tip = tipRef.current;
     if (!stage || !canvas || !labels || !tip) return;
-    let engine: MapEngine;
-    try {
-      engine = new MapEngine({
-        stage,
-        canvas,
-        labels,
-        tip,
-        plan: clone(serverPlan),
-        quality,
-        levelKey: startLevel,
-        info: {
-          countIn: (it) => countIn(contentsRef.current, it),
-          flags: (id) => flagsOf(contentsRef.current, id),
-          preview: (it) =>
-            (contentsRef.current.under.get(it.id) ?? []).slice(0, 2).map((x) => ({
-              name: x.name,
-              quantity: x.quantity,
-            })),
-          insideCount: (it) => (contentsRef.current.under.get(it.id) ?? []).length,
-          text: words,
-        },
-        events: {
-          onState: (s) => {
-            // A new selection starts as the strip.
-            const key = s.selected ? `${s.selected.type}:${s.selected.id}` : '';
-            if (key !== selKey.current) {
-              selKey.current = key;
-              setDetail(false);
-              setInner(null);
-            }
-            setEs(s);
+    let engine: MapEngine | null = null;
+    const make = () => {
+      const start = startWith.current;
+      let made: MapEngine;
+      try {
+        made = new MapEngine({
+          stage,
+          canvas,
+          labels,
+          tip,
+          plan: clone(start.plan),
+          quality: start.quality,
+          levelKey: startLevel,
+          info: {
+            countIn: (it) => countIn(contentsRef.current, it),
+            flags: (id) => flagsOf(contentsRef.current, id),
+            preview: (it) =>
+              (contentsRef.current.under.get(it.id) ?? []).slice(0, 2).map((x) => ({
+                name: x.name,
+                quantity: x.quantity,
+              })),
+            insideCount: (it) => (contentsRef.current.under.get(it.id) ?? []).length,
+            text: words,
           },
-          onChange: () => {
-            setDirty(true);
-            setPlanState(clone(engine.plan));
+          events: {
+            onState: (s) => {
+              // A new selection starts as the strip.
+              const key = s.selected ? `${s.selected.type}:${s.selected.id}` : '';
+              if (key !== selKey.current) {
+                selKey.current = key;
+                setDetail(false);
+                setInner(null);
+              }
+              setEs(s);
+            },
+            onChange: () => {
+              setDirty(true);
+              setPlanState(clone(made.plan));
+            },
+            onDrawRoom: (rect, levelKey) => void drawRoom(rect, levelKey),
+            onHint: setHint,
+            ...(debug ? { onStats: setStats } : {}),
           },
-          onDrawRoom: (rect, levelKey) => void drawRoom(rect, levelKey),
-          onHint: setHint,
-          ...(debug ? { onStats: setStats } : {}),
-        },
-      });
-    } catch (e) {
-      console.warn(e);
-      setGlError(true);
-      return;
-    }
-    engineRef.current = engine;
-    // A place's page: into its room at once, the place (or what holds it) or the room selected.
-    const at = scope?.at;
-    if (at && at.at !== 'off' && at.at !== 'floor') {
-      engine.drill(at.roomId, false);
-      const item = at.at === 'node' ? at.nodeId : at.at === 'inside' ? at.holderId : null;
-      engine.select(item ? { type: 'item', id: item } : { type: 'room', id: at.roomId });
-    }
-    setEs(engine.state);
+        });
+      } catch (e) {
+        console.warn(e);
+        setGlError(true);
+        return;
+      }
+      engine = made;
+      engineRef.current = made;
+      // Pins and shadows changed before it was made.
+      made.setPins(start.pins);
+      if (!start.shadows) made.setShadows(false);
+      // A place's page: into its room at once, the place (or what holds it) or the room selected.
+      const at = scope?.at;
+      if (at && at.at !== 'off' && at.at !== 'floor') {
+        made.drill(at.roomId, false);
+        const item = at.at === 'node' ? at.nodeId : at.at === 'inside' ? at.holderId : null;
+        made.select(item ? { type: 'item', id: item } : { type: 'room', id: at.roomId });
+      }
+      setEs(made.state);
+    };
+    // A frame callback runs before that frame paints; a task queued from it runs after.
+    let timer: number | undefined;
+    const frame = requestAnimationFrame(() => {
+      timer = window.setTimeout(make, 0);
+    });
     return () => {
-      engine.dispose();
+      cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+      engine?.dispose();
       engineRef.current = null;
     };
   }, []);

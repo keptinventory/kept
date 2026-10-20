@@ -190,6 +190,13 @@ type Run = {
 // One run at a time, whichever Help row or Show me started it.
 let current: Run | null = null;
 
+/**
+ * driver.js, once its chunk has loaded. Every later step uses it at once: a fresh `import()` of a
+ * loaded chunk still settles on a later turn, which waited behind a busy page (the map starting
+ * WebGL) for seconds after the step's anchor was there.
+ */
+let driverKit: typeof import('./driver-kit') | null = null;
+
 /** Drop the per-step watchers: their popover and target are gone on every move. */
 function clearStepWatchers(run: Run): void {
   run.stepObserver?.disconnect();
@@ -441,7 +448,8 @@ export function useTour() {
     const position = i + 1 - before;
     const total = run.steps.length - run.skipped.size;
     const isLast = forwardTo(run, i) >= run.steps.length;
-    const kit = await import('./driver-kit');
+    driverKit ??= await import('./driver-kit');
+    const kit = driverKit;
     if (!live()) return 'ended';
     destroyHighlight(run);
     run.atLast = isLast;
