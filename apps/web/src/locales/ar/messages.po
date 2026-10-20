@@ -25795,10 +25795,6 @@ msgstr "استورد تصديرًا من Homebox بدلًا من ذلك"
 msgid "Import it as a spreadsheet"
 msgstr "استورده كجدول بيانات"
 
-#: src/components/import/choices-step.tsx
-msgid "In use, tagged \"Archived in Homebox\""
-msgstr "قيد الاستخدام، بوسم «مؤرشف في Homebox»"
-
 #: src/components/import/mapping-step.tsx
 msgid "Kept reads its asset IDs, so old Homebox labels still scan, and its archived and sold items, warranties and insured column. A spreadsheet can't carry photos, files, maintenance or items inside items: for those, update a copy of Homebox to v0.26.1 or newer (v0.27.0 recommended) and import its export ZIP."
 msgstr "يقرأ Kept أرقام الأصول فيه، فتبقى ملصقات Homebox القديمة قابلة للمسح، ويقرأ أيضًا العناصر المؤرشفة والمَبيعة والضمانات وعمود التأمين. لا يحمل جدول البيانات الصور ولا الملفات ولا الصيانة ولا العناصر داخل العناصر: لنقلها، حدّث نسخة من Homebox إلى v0.26.1 أو أحدث (يُنصح بـ v0.27.0) واستورد ملف ZIP للتصدير."
@@ -25806,10 +25802,6 @@ msgstr "يقرأ Kept أرقام الأصول فيه، فتبقى ملصقات H
 #: src/components/import/choices-step.tsx
 msgid "One with a sale still ends sold."
 msgstr "أما المَبيع منها فيُسجَّل مَبيعًا."
-
-#: src/components/import/choices-step.tsx
-msgid "Out of the lists, as in Homebox's archive. One with a sale ends sold instead."
-msgstr "خارج القوائم، كما في أرشيف Homebox. أما المَبيع منها فيُسجَّل مَبيعًا."
 
 #: src/components/import/mapping-step.tsx
 msgid "Read by the Homebox preset"
@@ -25823,6 +25815,14 @@ msgstr "أعد تشغيل Homebox وصدّر من جديد: الإصدار v0.26
 msgid "This is Homebox's spreadsheet export"
 msgstr "هذا تصدير جدول البيانات من Homebox"
 
+#: src/components/things/labels.ts
+msgid "Archived"
+msgstr "مؤرشف"
+
+#: src/components/things/action-menu.tsx
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
 #: src/components/import/choices-step.tsx
-msgid "Thrown away, no longer in use"
-msgstr "رُمي، لم يعد قيد الاستخدام"
+msgid "Still yours, put away, as in Homebox's archive. One with a sale ends sold instead."
+msgstr "ما زال لك، لكنه مُخزَّن جانبًا، كما في أرشيف Homebox. أما المَبيع منها فيُسجَّل مَبيعًا."

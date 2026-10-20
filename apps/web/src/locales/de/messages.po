@@ -25795,10 +25795,6 @@ msgstr "Stattdessen einen Homebox-Export importieren"
 msgid "Import it as a spreadsheet"
 msgstr "Als Tabelle importieren"
 
-#: src/components/import/choices-step.tsx
-msgid "In use, tagged \"Archived in Homebox\""
-msgstr "In Gebrauch, mit dem Tag „In Homebox archiviert“"
-
 #: src/components/import/mapping-step.tsx
 msgid "Kept reads its asset IDs, so old Homebox labels still scan, and its archived and sold items, warranties and insured column. A spreadsheet can't carry photos, files, maintenance or items inside items: for those, update a copy of Homebox to v0.26.1 or newer (v0.27.0 recommended) and import its export ZIP."
 msgstr "Kept liest seine Asset-IDs, damit alte Homebox-Etiketten weiter scannen, sowie archivierte und verkaufte Artikel, Garantien und die Spalte „versichert“. Eine Tabelle kann keine Fotos, Dateien, Wartung oder Artikel in Artikeln tragen: Dafür aktualisiere eine Kopie von Homebox auf v0.26.1 oder neuer (v0.27.0 empfohlen) und importiere ihr Export-ZIP."
@@ -25806,10 +25802,6 @@ msgstr "Kept liest seine Asset-IDs, damit alte Homebox-Etiketten weiter scannen,
 #: src/components/import/choices-step.tsx
 msgid "One with a sale still ends sold."
 msgstr "Einer mit Verkauf endet trotzdem als verkauft."
-
-#: src/components/import/choices-step.tsx
-msgid "Out of the lists, as in Homebox's archive. One with a sale ends sold instead."
-msgstr "Aus den Listen, wie im Archiv von Homebox. Einer mit Verkauf endet stattdessen als verkauft."
 
 #: src/components/import/mapping-step.tsx
 msgid "Read by the Homebox preset"
@@ -25823,6 +25815,14 @@ msgstr "Starte Homebox neu und exportiere erneut: v0.26 exportiert nur einmal pr
 msgid "This is Homebox's spreadsheet export"
 msgstr "Das ist der Tabellen-Export von Homebox"
 
+#: src/components/things/labels.ts
+msgid "Archived"
+msgstr "Archiviert"
+
+#: src/components/things/action-menu.tsx
+msgid "Unarchive"
+msgstr "Aus dem Archiv holen"
+
 #: src/components/import/choices-step.tsx
-msgid "Thrown away, no longer in use"
-msgstr "Weggeworfen, nicht mehr in Gebrauch"
+msgid "Still yours, put away, as in Homebox's archive. One with a sale ends sold instead."
+msgstr "Gehört dir weiter, nur weggeräumt, wie im Archiv von Homebox. Einer mit Verkauf endet stattdessen als verkauft."
