@@ -250,6 +250,24 @@ describe('section anchors', () => {
     await expect(shown).resolves.toBe(late);
     late.remove();
   });
+
+  it('leaves no timer behind once the anchor turns up', async () => {
+    // The fallback timer outlived the wait, then read `document` after a test file had torn the page
+    // down ("document is not defined" as an unhandled error in CI).
+    const cleared = vi.spyOn(window, 'clearTimeout');
+    const set = vi.spyOn(window, 'setTimeout');
+    const late = document.createElement('div');
+    late.setAttribute('data-tour', 'late-anchor-2');
+    const shown = waitForSectionAnchor(['late-anchor-2'], 60_000);
+    document.body.appendChild(late);
+    await expect(shown).resolves.toBe(late);
+    const fallback = set.mock.results.find((_, i) => set.mock.calls[i]?.[1] === 60_000)?.value;
+    expect(fallback).toBeDefined();
+    expect(cleared).toHaveBeenCalledWith(fallback);
+    late.remove();
+    set.mockRestore();
+    cleared.mockRestore();
+  });
 });
 
 describe('tourDeleter', () => {
