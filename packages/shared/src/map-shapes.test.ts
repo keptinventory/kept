@@ -356,6 +356,51 @@ describe('suggestShapes: headsets, earbuds, speakers in sizes and monitor arms',
   });
 });
 
+describe('suggestShapes: a notebook is a laptop, notebooks and paper ones are not sure', () => {
+  it.each([
+    'Notebook',
+    'Gaming notebook',
+    'Notebook computer',
+    'Notebook computers',
+    'Lenovo notebook',
+  ])('%s is a laptop, by itself', (name) => {
+    expect(first({ name })).toBe('laptop');
+    expect(sure({ name })).toBe(true);
+  });
+
+  it.each(['Notebooks', 'Gaming notebooks', 'Notebooks für die Schule'])(
+    '%s suggests the laptop but asks',
+    (name) => {
+      const s = suggestShapes({ name });
+      expect(s.shapes[0]?.model).toBe('laptop');
+      expect(s.shapes[0]?.score).toBeLessThan(0.9);
+      expect(s.confident).toBe(false);
+    },
+  );
+
+  it.each([
+    'Spiral notebook',
+    'Paper notebooks',
+    'A5 notebook, dotted',
+    'Notebook à spirale',
+    'Notebook papier',
+    'Notebook kariert',
+    'Notebook a righe',
+    'notebook ورقي',
+  ])('%s is stationery: a small thing, not a laptop', (name) => {
+    const s = suggestShapes({ name });
+    expect(s.shapes.map((x) => x.model)).not.toContain('laptop');
+    expect(s.shapes[0]).toMatchObject({ model: 'item', from: 'guess' });
+    expect(s.confident).toBe(false);
+  });
+
+  it('keeps the laptop for a computer type, but not by itself for notebooks', () => {
+    expect(first({ name: 'Notebooks', typeKey: 'computer' })).toBe('laptop');
+    expect(sure({ name: 'Notebooks', typeKey: 'computer' })).toBe(false);
+    expect(shapeOnAdd({ name: 'Spiral notebook' })).toEqual({ model: 'item', from: 'guess' });
+  });
+});
+
 describe('suggestShapes: things with no shape of their own', () => {
   it.each(['Thermostat', 'Raspberry Pi', 'Ladegerät', 'Video doorbell', 'كاشف دخان'])(
     '%s gets the small device, suggested but not given by itself',

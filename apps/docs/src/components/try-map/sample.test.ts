@@ -8,6 +8,7 @@ import {
   putOn,
   takeOff,
 } from '../../../../web/src/map/layout';
+import { offMapIn } from '../../../../web/src/map/list';
 import { sampleHome } from './sample';
 import { MODEL_NAMES } from './strings';
 
@@ -105,6 +106,21 @@ describe('the Try the map sample home (D241)', () => {
     expect(addableOn(plan.items, monitor).map((c) => c.id)).toContain(webcam.id);
     expect(putOn(plan.items, webcam, monitor)).toBe(true);
     expect(webcam.on).toBe(monitor.id);
+  });
+
+  it('offers only loose things as not on the map yet, never what is in a box or cabinet', () => {
+    const plan = planOf(en.view, { noFloor: 'Not on a floor', location: en.location });
+    const inside = en.view.things.filter((t) => en.view.nodes.some((n) => n.id === t.parentId));
+    expect(inside.length).toBeGreaterThan(0);
+    // Everything loose in the sample is on the map, so nothing is offered at first.
+    for (const r of plan.rooms) expect(offMapIn(plan, en.view, r.id)).toEqual([]);
+    // A box taken off the map is offered again; what is in it goes with it, not on its own.
+    const box = plan.items.find(
+      (i) => i.isContainer && inside.some((t) => t.parentId === i.id) && i.parentId === i.roomId,
+    );
+    if (!box) throw new Error('no box with contents');
+    plan.items.splice(plan.items.indexOf(box), 1);
+    expect(offMapIn(plan, en.view, box.roomId).map((t) => t.id)).toEqual([box.id]);
   });
 
   it('pins what is low, lent out and due, on things that exist, with dates from today', () => {

@@ -1685,7 +1685,58 @@ const PHRASES: readonly Phrase[] = MAP_MODEL_KEYS.flatMap((model) =>
   SHAPE_WORDS[model].map((w) => ({ model, terms: words(w) })).filter((p) => p.terms.length > 0),
 );
 
-type Hit = { model: MapModelKey; start: number; end: number; exact: boolean };
+type Hit = { model: MapModelKey; start: number; end: number; exact: boolean; terms: string[] };
+
+/**
+ * Words whose plural doesn't say the same thing as the word, so a plural only suggests the shape:
+ * "Notebook" is a laptop, "Notebooks" as often a pile of paper ones (and in German and Italian,
+ * laptops), so it is asked about, not given.
+ */
+const SINGULAR_ONLY: ReadonlySet<string> = new Set(['notebook'].flatMap(words));
+
+/**
+ * Words that make a word name something else entirely: a "Spiral notebook", an "A5 notebook" or
+ * a "Notebook a righe" is stationery, not a laptop, so it falls back to a small thing (there is no
+ * book shape). Whole words only, in Kept's five languages; "Notebook computer" and "Gaming
+ * notebook" stay laptops.
+ */
+const NOT_THE_SHAPE: readonly { model: MapModelKey; term: string; words: ReadonlySet<string> }[] = [
+  {
+    model: 'laptop',
+    term: 'notebook',
+    words: new Set(
+      [
+        'paper',
+        'spiral',
+        'lined',
+        'ruled',
+        'dotted',
+        'squared',
+        'sketch',
+        'exercise',
+        'composition',
+        'moleskine',
+        'stationery',
+        'a4',
+        'a5',
+        'a6',
+        'papier',
+        'spirale',
+        'ligné',
+        'quadrillé',
+        'liniert',
+        'kariert',
+        'carta',
+        'righe',
+        'quadretti',
+        'ورق',
+        'ورقي',
+        'حلزوني',
+        'مسطر',
+      ].flatMap(words),
+    ),
+  },
+];
 
 /** The shapes a name's words point at: phrases inside a longer matched phrase are dropped. */
 function hitsIn(ws: readonly string[]): Hit[] {
@@ -1702,8 +1753,11 @@ function hitsIn(ws: readonly string[]): Hit[] {
           break;
         }
         if (m === 1) exact = false;
+        if (m === 2 && ws[i + j] !== p.terms[j] && SINGULAR_ONLY.has(p.terms[j] as string)) {
+          exact = false;
+        }
       }
-      if (ok) hits.push({ model: p.model, start: i, end: i + n, exact });
+      if (ok) hits.push({ model: p.model, start: i, end: i + n, exact, terms: p.terms });
     }
   }
   return hits.filter(
@@ -1810,12 +1864,22 @@ const OWN_ACCESSORIES: Partial<Record<MapModelKey, ReadonlySet<string>>> = {
 };
 
 /** Each shape a text points at, with a score: 0.9 for whole words (0.95 for a phrase of two or
- * more), 0.6 for the end of a compound; seven tenths of that for what an accessory is for. */
+ * more), 0.6 for the end of a compound or a SINGULAR_ONLY word's plural; seven tenths of that for
+ * what an accessory is for. NOT_THE_SHAPE's words take a shape away. */
 function nameScores(text: string | null | undefined): Map<MapModelKey, number> {
   const out = new Map<MapModelKey, number>();
   if (!text) return out;
   const ws = words(text);
-  const hits = hitsIn(ws);
+  const hits = hitsIn(ws).filter(
+    (h) =>
+      !NOT_THE_SHAPE.some(
+        (r) =>
+          r.model === h.model &&
+          h.terms.length === 1 &&
+          h.terms[0] === r.term &&
+          ws.some((w) => r.words.has(w)),
+      ),
+  );
   const inPhrase = (i: number) =>
     hits.some((h) => h.end - h.start > 1 && h.start <= i && i < h.end);
   const acc = ws.map((w, i) => ACCESSORIES.has(w) && !inPhrase(i));

@@ -41,7 +41,7 @@ import {
   type Room,
   seated,
 } from './layout';
-import { type ChosenShape, matches, whereOf } from './list';
+import { type ChosenShape, matches, offMapIn, whereOf } from './list';
 import { AddOnSheet, PutOnSheet } from './put-on';
 import { ShapeField, shapeInputOf } from './shapes';
 
@@ -338,9 +338,7 @@ export function MapCard(p: CardProps) {
     const inside = plan.items.filter((i) => i.roomId === r.id);
     const things = allUnder(contents, r.id).length;
     const full = p.detail || p.arranging;
-    const nodeIds = new Set(plan.items.map((i) => i.id));
-    const addable = view.things
-      .filter((x) => !nodeIds.has(x.id) && whereOf(plan, view, x.id).roomId === r.id)
+    const addable = offMapIn(plan, view, r.id)
       .filter((x) => matches(adding, x.name, x.shortCode))
       .slice(0, 30);
     const w = f.num(Math.round(r.w * 10) / 10);

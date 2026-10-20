@@ -64,7 +64,7 @@ import {
   takeOff,
   thingItem,
 } from '../../../../web/src/map/layout';
-import { addOn, matches, offMapFor, whereOf } from '../../../../web/src/map/list';
+import { addOn, matches, offMapFor, offMapIn, whereOf } from '../../../../web/src/map/list';
 // Inline, not imported as stylesheets: Astro would link those from every page of the site.
 import mapCss from '../../../../web/src/map/map.css?inline';
 // D249: the shape picker's pictures, the app's own sprite (fetched when the picker first opens).
@@ -288,9 +288,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       ].join('');
       let body = `<div class="kmap-row">${es.focused === r.id ? '' : btn('drill', w.open, 'primary', r.id)}${full ? '' : btn('detail', w.whatsHere(f.num(inside.length)))}</div>`;
       if (es.arranging) {
-        const nodeIds = new Set(plan.items.map((i) => i.id));
-        const addable = view.things
-          .filter((x) => !nodeIds.has(x.id) && whereOf(plan, view, x.id).roomId === r.id)
+        const addable = offMapIn(plan, view, r.id)
           .filter((x) => matches(adding, x.name, x.shortCode))
           .slice(0, 30);
         body += `<div class="kmap-sub">${esc(w.kind)}</div>
