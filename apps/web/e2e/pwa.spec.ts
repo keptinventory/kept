@@ -1,5 +1,5 @@
 /**
- * The PWA shell against the built app and the real server (plan T23): the service worker
+ * The PWA shell against the built app and the real server: the service worker
  * installs, the shell reloads offline, nothing authenticated is cached (D181), the manifest is
  * served as one, a share-target POST is handed to the page (D140), the catalogue in use is kept
  * for offline, and no page load breaks the CSP. Reads only: it never sets the instance up, so it
@@ -30,7 +30,7 @@ test.afterEach(async ({ page }) => {
 async function controlled(page: Page) {
   await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
   await expect
-    // A bare poll inherits 10 s; a loaded machine can stall past it (step 4).
+    // A bare poll inherits 10 s; a loaded machine can stall past it.
     .poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null), {
       timeout: 30_000,
     })
@@ -164,7 +164,7 @@ test('the language in use is kept on the first visit, and the shell opens in it 
           const c = await caches.open('kept-locales');
           return (await c.keys()).map((r) => new URL(r.url).pathname);
         }),
-      // A bare poll inherits 10 s; a loaded machine can stall past it (step 4).
+      // A bare poll inherits 10 s; a loaded machine can stall past it.
       { timeout: 30_000 },
     )
     .toEqual([expect.stringMatching(/^\/assets\/locales\/messages-/)]);

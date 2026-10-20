@@ -1,12 +1,12 @@
-// Renders the synthetic evaluation photos in this directory (step 3, T11; V1, V2, V3). The JPEGs
+// Renders the synthetic evaluation photos in this directory. The JPEGs
 // are committed, and cases.json beside them holds each one's mode and expected values. Run this
 // only to change them (the fonts are the Mac's, so another machine renders different bytes):
 //
 //   node apps/server/test/fixtures/eval/generate.mjs
 //
 // Every photo is drawn here from SVG: nothing is downloaded, and nothing is a real document. The
-// receipt-en, label-nameplate and reading-odometer drawings are the step-3 spike's, so the
-// harness's numbers compare with the spike's. sharp writes no EXIF unless asked, so the files carry no metadata.
+// receipt-en, label-nameplate and reading-odometer drawings are the first trial run's, so the
+// harness's numbers compare with that run's. sharp writes no EXIF unless asked, so the files carry no metadata.
 //
 // These are a smoke set. V1 and V3 are proven only by the maintainer's real photos (README.md).
 
@@ -123,7 +123,7 @@ const registration = `<svg xmlns="http://www.w3.org/2000/svg" width="1000" heigh
 <text x="920" y="560" font-size="20" text-anchor="end">وحدة المرور: القاهرة</text>
 </g></svg>`;
 
-// --- A seven-segment odometer (V1) --------------------------------------------------------------
+// --- A seven-segment odometer -------------------------------------------------------------------
 
 const SEG = {
   a: '6,2 34,2 30,8 10,8',
@@ -199,7 +199,7 @@ const mug = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800">
 <ellipse cx="380" cy="260" rx="132" ry="18" fill="#3a1a12"/>
 </svg>`;
 
-// A shelf with three objects, for multi-item boxes (V2, 1.x): measured only.
+// A shelf with three objects, for multi-item boxes (1.x): measured only.
 // Boxes (x, y, w, h in px of 1200×800): mug 150,400,190,160 · book 450,250,90,310 · plant 680,250,200,310.
 const shelf = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
 <rect width="100%" height="100%" fill="#dfe6ea"/>

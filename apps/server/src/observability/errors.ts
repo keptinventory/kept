@@ -1,6 +1,6 @@
 import { pgErrorOf } from '../http/errors.js';
 
-// Optional error reporting (D84; step-8 plan T14):
+// Optional error reporting (D84):
 // with KEPT_ERROR_DSN (any Sentry-compatible DSN) a request that fails with a 5xx is reported.
 // Unset, nothing is loaded and nothing leaves the server; there is no telemetry of any kind.
 //

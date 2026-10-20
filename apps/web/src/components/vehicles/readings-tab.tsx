@@ -1,8 +1,8 @@
 /**
- * A vehicle's Readings tab (plan T18; D26, D27, D52, D195): Log a reading; the odometer proof
+ * A vehicle's Readings tab (D26, D27, D52, D195): Log a reading; the odometer proof
  * strip; the readings over time with the usage estimate dashed to the next threshold, and "Show as
  * table"; then the readings list (the `readings` surface: date, source, state). A reading made by
- * a fill or a service says so and opens its owner, where it is changed (Q11).
+ * a fill or a service says so and opens its owner, where it is changed.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';

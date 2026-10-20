@@ -1,5 +1,5 @@
 /**
- * The diagnostics panel (Settings → Me → This device; D188, L87, L96; plan T23). Opt-in: nothing
+ * The diagnostics panel (Settings → Me → This device; D188). Opt-in: nothing
  * runs until "Run the checks", because the camera check asks for permission. Each check shows ✓
  * or ✗ with its facts, and "Copy report" copies them as text, for the device checklist.
  */

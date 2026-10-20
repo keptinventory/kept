@@ -28,7 +28,7 @@ import {
 import { findRef, locationOfRef, targetIn, thingIn, typeNamed } from '../resolve.js';
 import type { Handler, HandlerResult, Op } from '../types.js';
 
-// The read tools (§2.5, D63): each one calls the operation its route calls (search, the thing
+// The read tools (D63): each one calls the operation its route calls (search, the thing
 // view, the contents lists, history, attachments), as the caller, and shapes the answer.
 
 const namesOf = (op: Op) => new Map(op.locations.map((l) => [l.id, l.name]));

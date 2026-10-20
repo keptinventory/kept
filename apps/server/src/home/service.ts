@@ -8,7 +8,7 @@ import type { Tx } from '../db/scope.js';
 import { LIVE_SUBJECT } from '../inbox/view.js';
 import { switchedOn } from '../locations/views.js';
 
-// Home (T22; D138, D185, D191, D193; screens spec §5 Home and §8): the Get-started checklist,
+// Home (D138, D185, D191, D193): the Get-started checklist,
 // the attention panel's rows, the sidebar's counts and the location cards, all computed from
 // data on every read, and the per-person hints behind them.
 //
@@ -18,15 +18,15 @@ import { switchedOn } from '../locations/views.js';
 // The checklist (D138), in the web's order:
 // - locationCreated: she owns a non-personal location, or is a member of one (a member who
 //   joined someone's home has one; the web words it "Joined Home").
-// - threeThings: at least 3 non-deleted things she created herself (plan Q22).
+// - threeThings: at least 3 non-deleted things she created herself.
 // - labelPrinted: a printed short ID in a location she can see (false until step 3 prints).
 //   Left out when Labels is switched off in every location she has: the step would lead
-//   nowhere (screens §3, and D138's "only for enabled modules").
+//   nowhere (and D138's "only for enabled modules").
 // - invited: a non-personal location she owns or administers has another member, or an invite
 //   still pending. Left out, with aiConnected, for an invited member: someone who is owner or
-//   admin of no non-personal location (screens §5 Home).
-// - aiConnected (step 3, T22): done when an AI provider resolves (`kept.ai_provider_resolved`,
-//   plan Q5's cascade) in any location she owns or administers, her Personal one included.
+//   admin of no non-personal location.
+// - aiConnected: done when an AI provider resolves (`kept.ai_provider_resolved`,
+//   the provider cascade) in any location she owns or administers, her Personal one included.
 //   Shown only to someone who administers a non-personal location, and only where AI is on
 //   offer there (D191): a preset other than Essentials with AI capture or the assistant switched
 //   on; or, on Essentials, once a provider is connected or she opened AI settings (the
@@ -35,30 +35,30 @@ import { switchedOn } from '../locations/views.js';
 // "Put Kept on HTTPS" is never here: the server can't see the scheme behind a proxy, so the web
 // adds it over http (D193).
 //
-// The attention rows (§8 order) use the same conditions as search's `state` filter
+// The attention rows (order) use the same conditions as search's `state` filter
 // (search/query.ts STATE_SQL), so a count and the list it opens agree; the home test checks
-// that against the search route. The exception is "to review" (step 3, T22): it also counts the
+// that against the search route. The exception is "to review": it also counts the
 // open inbox items of her writable locations, "Mine" and everyone's (inbox_items' policy shows
 // members and above only; an item whose subject is in the trash is hidden, as in the inbox), and
 // a reading that waits in the inbox as an item is counted there, not again as a reading. The
 // web opens the inbox from the row when `counts.inbox` > 0, and search's `to_review` otherwise.
 //
-// Step 4 (T13; screens §5 and §8 order: to review · overdue · due · expiring · lent out ·
+// Step 4 (Home's attention order: to review · overdue · due · expiring · lent out ·
 // borrowed in · uncertain · long unseen · Unplaced): `overdue`, `due` and `expiring` are
 // GET /agenda's counts (agenda/query.ts, the same rows), and `agendaBySource` splits each by
 // source, so the web opens Schedules when every item of a row is a schedule and Expiring
 // otherwise. `lentOut` and `borrowedIn` are the open loans on live things in the locations with
 // Lending on, out and in (GET /loans?state=open's `counts.out` and `counts.in`).
 //
-// Step 7 (T17; screens §8 order: last): `lowStock`, the live things in use below their "keep at
-// least" (quantity < minimum, plan Q19) in the locations with Consumables on, as GET
+// Step 7 (last in the attention order): `lowStock`, the live things in use below their "keep at
+// least" (quantity < minimum) in the locations with Consumables on, as GET
 // /consumables?state=low lists them.
 //
-// `counts` (step 3): `inbox`, the same open items, for the sidebar's Inbox badge; and
-// `unprintedLabels`, the things whose code was never printed (Q28, as GET /labels/summary counts
+// `counts`: `inbox`, the same open items, for the sidebar's Inbox badge; and
+// `unprintedLabels`, the things whose code was never printed (as GET /labels/summary counts
 // them) in the locations where Labels is switched on.
 //
-// `meteredThings` (step 5, T13; screens §6 Quick log): the things in use with a meter, in the
+// `meteredThings`: the things in use with a meter, in the
 // locations where she may log a reading (members and above), so Home shows "Log a reading" only
 // when she has one to log.
 
@@ -72,7 +72,7 @@ export const CHECKLIST_KEYS = [
 ] as const;
 export type ChecklistKey = (typeof CHECKLIST_KEYS)[number];
 
-/** The hint the web posts when Kept runs installed (screens §8). */
+/** The hint the web posts when Kept runs installed. */
 export const INSTALLED_HINT = 'installed_standalone';
 /** The hint that holds the checklist's dismissal (D138), shared by every device. */
 export const CHECKLIST_HINT = 'checklist';
@@ -103,7 +103,7 @@ export const HomeResponse = z.object({
   locations: z.array(
     z.object({ id: z.uuid(), thingCount: z.number().int(), unplacedCount: z.number().int() }),
   ),
-  /** Step 5 (T13; screens §6 Quick log): the things in use with a meter she can log a reading
+  /** The things in use with a meter she can log a reading
    * on (`logs.add`: members and above), so Home offers "Log a reading" only when there is one. */
   meteredThings: z.number().int(),
 });

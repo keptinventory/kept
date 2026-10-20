@@ -1,5 +1,5 @@
 /**
- * Recording an incident (D158, plan T26, screens §5 "Incidents and claims"): its kind, the day it
+ * Recording an incident (D158): its kind, the day it
  * happened, the police and insurer references and notes. Three ways in:
  *
  * - **New incident** on /incidents: the location (one you manage), then the fields;
@@ -7,11 +7,11 @@
  * - **Add to incident** from a location's selection (multi-select things → "Add to incident"):
  *   an incident of that location, or a new one, and "Mark these stolen" (destroyed, lost), which
  *   ends the chosen things with it. Adding is undoable (`incident.things`); a new incident is a
- *   create, which isn't (§7.7).
+ *   create, which isn't.
  *
  * Owners and admins only (`incidents.manage`); the callers hide the way in for anyone else.
  * Online only (the step-4 offline matrix has no incident write): offline, Save is off with
- * "Needs a connection" (screens §3).
+ * "Needs a connection".
  */
 import { can, INCIDENT_KINDS, type IncidentKind } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
@@ -42,7 +42,7 @@ import { useOnline } from '@/lib/online';
 import { cn } from '@/lib/utils';
 import { lifecycleFor, useIncidentKindLabels, useIncidentName, useMarkLabels } from './labels';
 
-/** Notes and references keep to the server's lengths (the incident's CHECKs, T4). */
+/** Notes and references keep to the server's lengths (the incident's CHECKs). */
 const NOTES_MAX = 2000;
 const REFERENCE_MAX = 200;
 

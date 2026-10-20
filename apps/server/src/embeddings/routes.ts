@@ -12,7 +12,7 @@ import { EMBED_BACKFILL_JOB } from './backfill.js';
 import { writeSource } from './provider.js';
 import { EmbeddingsStatusSchema, embeddingsStatus } from './status.js';
 
-// The embeddings source switch (D207; step-6 plan T14), for instance admins, registered by
+// The embeddings source switch (D207), for instance admins, registered by
 // ai/routes.ts (AI's routes are added there, never in http/routes.ts):
 //
 // GET /api/v1/admin/embeddings → EmbeddingsStatus (status.ts; also in GET /admin/status)

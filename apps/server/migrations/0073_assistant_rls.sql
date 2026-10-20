@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put your code below! --
--- Step 6, task 5: the assistant's private threads, turns, messages, tool results and proposals
--- (engineering spec §1.8, §3.3, §7.13; D22, D23, D123, D164, D179; plan Q3, Q11, Q17, Q21).
+-- The assistant's private threads, turns, messages, tool results and proposals
+-- (D22, D23, D123, D164, D179).
 -- Above, in 0072, drizzle's part (src/db/schema/assistant.ts): the five tables, each child
 -- keyed to its thread through (user_id, thread_id), one live turn per thread
 -- (assistant_turns_one_live_uq), and proposals' location key. Below:
@@ -9,15 +9,15 @@
 --      only way in is kept.prune_assistant(). Messages and tool results are append-only (no
 --      UPDATE grant: redaction is a definer); a tool result's location is one the user sees; a
 --      proposal's location one they may write, so a viewer never holds one (D123).
---   2. Retention (D23, §3.3, Q17): `instance_settings.assistant_thread_days` (90 by default,
+--   2. Retention (D23): `instance_settings.assistant_thread_days` (90 by default,
 --      clamped to 7–365) sets a thread's expires_at when it is made and again at each new turn
 --      (kept.assistant_expiry()). kept.prune_assistant(now) deletes threads past it (their turns,
 --      messages, results and proposals cascade) and marks open proposals past their 10 minutes
 --      expired.
---   3. The search text (Q17): the thread's title and the person's own questions and the
+--   3. The search text: the thread's title and the person's own questions and the
 --      assistant's answers, never tool results, kept by triggers (kept.assistant_thread_tsv()),
 --      so kept_app never writes it.
---   4. Redaction (D164, Q11): kept.redact_assistant_for(user, location) blanks the user's tool
+--   4. Redaction (D164): kept.redact_assistant_for(user, location) blanks the user's tool
 --      results from that location, replaces each tool_result part holding one with
 --      {"type":"redacted","reason":"access_ended"} (the rest of that message stays), replaces
 --      every assistant answer citing the location with that part alone, cancels the user's open

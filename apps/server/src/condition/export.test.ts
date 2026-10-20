@@ -28,7 +28,7 @@ import { exportKey, importArchiveKey } from '../storage/blob-store.js';
 // import job). Both reports come back as they were: kind, day, notes, rooms, conditions, notes,
 // the photos byte for byte with the times Kept received them, and the finished one finished at
 // the same time and still locked. Who added a photo and who finished the report is Nora, as every
-// imported row's maker is the importing person (Q11); the history keeps the old names.
+// imported row's maker is the importing person; the history keeps the old names.
 
 vi.setConfig({ testTimeout: 300_000, hookTimeout: 300_000 });
 

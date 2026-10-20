@@ -1,14 +1,14 @@
 /**
- * Expiring documents on a location or a place (plan T23; D155, D172, Q31): "Add expiring
+ * Expiring documents on a location or a place (D155, D172): "Add expiring
  * document" (a lease, the home insurance, an inspection: its kind, a title, the day it runs out
  * and how many days before to remind), and Renew, which makes a new term and keeps the old one in
  * the history (D172), with Undo for 10 seconds (D150).
  *
  * Both are online only (the step-4 offline matrix has no document write): offline the Save button
- * is off with "Needs a connection" (screens §3). A date is picked on Kept's own calendar, never
+ * is off with "Needs a connection". A date is picked on Kept's own calendar, never
  * the OS picker, and a number accepts Arabic digits.
  *
- * Step 5 (plan T22, Q5): with `costs`, both sheets also ask for the issue date and the cost (a
+ * With `costs`, both sheets also ask for the issue date and the cost (a
  * vehicle's licence or insurance, which count on its Costs tab); the cost only where the reader
  * sees money in the location, in its currency by default.
  */
@@ -150,7 +150,7 @@ export function AddDocumentSheet({
   subject: SubjectInput;
   /** The location's or place's name, for the title. */
   subjectName: string;
-  /** Step 5: ask for the issue date and the cost too (a vehicle's documents). */
+  /** Ask for the issue date and the cost too (a vehicle's documents). */
   costs?: DocumentCosts;
   /** The kind the sheet starts on (insurance unless said). */
   defaultKind?: DocumentKind;
@@ -337,7 +337,7 @@ export function RenewSheet({
   /** The document to renew; null keeps the sheet closed. */
   target: RenewTarget | null;
   onClose: () => void;
-  /** Step 5: the new term's issue date and cost too (a vehicle's documents). */
+  /** The new term's issue date and cost too (a vehicle's documents). */
   costs?: DocumentCosts;
 }) {
   const { t } = useLingui();

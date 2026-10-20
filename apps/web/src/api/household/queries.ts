@@ -3,11 +3,11 @@
  * ./paths.ts. Keys are factories under one prefix per area (`householdKeys.loans.*`,
  * `householdKeys.schedules.*`, …) so a mutation invalidates by prefix; every record that shows on
  * the thing page also sits under `householdKeys.thing(id)`, so one invalidation refreshes the
- * page's sections. Lists follow the list standard (L88): `useInfiniteQuery` over `next_cursor`.
+ * page's sections. Lists follow the list standard: `useInfiniteQuery` over `next_cursor`.
  *
  * Writes are fetchers on `householdApi` for the screens to wrap in `useMutation`. An undoable
  * write (plan Phase B's "undoable" rows, D150) goes through `written`/`requestWritten`, so its
- * result carries `auditEvents` for the Undo toast; creates are not undoable (§7.7). The undo
+ * result carries `auditEvents` for the Undo toast; creates are not undoable. The undo
  * route itself is step 2's (`inventoryApi.undo`).
  */
 import { isErrorCode } from '@kept/shared';
@@ -186,7 +186,7 @@ const delWritten = (path: string, rowVersion?: number) =>
 // ----- fetchers --------------------------------------------------------------------------------
 
 export const householdApi = {
-  // money (T8)
+  // money
   fxRates: (accountId: string, params: FxRatesParams = {}) =>
     api.get<FxRatesResponse>(p.fxRates(accountId) + qs(params)),
   /** Undoable (the previous rate back, or deleted). Replacing an existing rate needs If-Match. */
@@ -205,7 +205,7 @@ export const householdApi = {
     written.patch<Valuation>(p.valuation(id), body, ifMatch(rowVersion)),
   deleteValuation: (id: string, rowVersion: number) => delWritten(p.valuation(id), rowVersion),
 
-  // warranties, claims and brand logos (T9)
+  // warranties, claims and brand logos
   warranties: (thingId: string) => api.get<WarrantiesResponse>(p.thingWarranties(thingId)),
   warrantyDefaults: (thingId: string) =>
     api.get<WarrantyDefaults>(p.thingWarrantyDefaults(thingId)),
@@ -243,7 +243,7 @@ export const householdApi = {
   },
   deleteBrandLogo: (brandId: string) => api.del(p.brandLogo(brandId)),
 
-  // lending and borrowing (T10)
+  // lending and borrowing
   lend: (thingId: string, body: LendBody) => api.post<LendResult>(p.thingLend(thingId), body),
   borrow: (locationId: string, body: BorrowBody) =>
     api.post<BorrowResult>(p.locationBorrow(locationId), body),
@@ -260,7 +260,7 @@ export const householdApi = {
   addLoanAttachment: (loanId: string, body: CreateLoanAttachmentBody) =>
     api.post<unknown>(p.loanAttachments(loanId), body),
 
-  // schedules and service records (T11)
+  // schedules and service records
   schedules: (params: SchedulesParams = {}) => api.get<SchedulesPage>(p.schedules + qs(params)),
   thingSchedules: (thingId: string) => api.get<SubjectSchedulesResponse>(p.thingSchedules(thingId)),
   placeSchedules: (placeId: string) => api.get<SubjectSchedulesResponse>(p.placeSchedules(placeId)),
@@ -288,7 +288,7 @@ export const householdApi = {
   deleteServiceRecord: (id: string, rowVersion: number) =>
     delWritten(p.serviceRecord(id), rowVersion),
 
-  // the paperwork library and expiring documents (T12)
+  // the paperwork library and expiring documents
   paperwork: (params: PaperworkParams = {}) =>
     api.get<Page<PaperworkRow>>(p.paperwork + qs(params)),
   documents: (params: DocumentsParams = {}) =>
@@ -309,14 +309,14 @@ export const householdApi = {
   renewDocument: (id: string, body: RenewDocumentBody, rowVersion: number) =>
     written.post<RenewDocumentResult>(p.documentRenew(id), body, ifMatch(rowVersion)),
 
-  // the agenda (T13)
+  // the agenda
   agenda: (params: AgendaParams = {}) => {
     const { sourceType, ...rest } = params;
     const types = sourceType === undefined ? undefined : [sourceType].flat().join(',');
     return api.get<AgendaPage>(p.agenda + qs({ ...rest, sourceType: types }));
   },
 
-  // channels and preferences (T15)
+  // channels and preferences
   notificationSettings: () => api.get<NotificationSettings>(p.notificationSettings),
   putNotificationSettings: (body: PutNotificationSettingsBody) =>
     api.put<NotificationSettings>(p.notificationSettings, body),
@@ -333,7 +333,7 @@ export const householdApi = {
   deletePushSubscription: (id: string) => api.del(p.pushSubscription(id)),
   testPushSubscription: (id: string) => api.post<ChannelTestResult>(p.pushSubscriptionTest(id)),
 
-  // the notification centre (T16)
+  // the notification centre
   notifications: (params: NotificationsParams = {}) =>
     api.get<NotificationsPage>(
       p.notifications +
@@ -343,12 +343,12 @@ export const householdApi = {
   readNotifications: (body: ReadNotificationsBody) =>
     api.post<NotificationCount>(p.notificationsRead, body),
 
-  // the calendar feed (T17)
+  // the calendar feed
   calendarFeeds: () => api.get<CalendarFeedsResponse>(p.calendarFeeds),
   createCalendarFeed: () => api.post<CreatedCalendarFeed>(p.calendarFeeds),
   revokeCalendarFeed: (id: string) => api.del(p.calendarFeed(id)),
 
-  // incidents, the insurance report and claim packs (T18)
+  // incidents, the insurance report and claim packs
   incidents: (params: IncidentsParams = {}) => api.get<Page<IncidentRow>>(p.incidents + qs(params)),
   incident: (id: string) => api.get<Incident>(p.incident(id)),
   createIncident: (locationId: string, body: CreateIncidentBody) =>
@@ -520,7 +520,7 @@ export const useNotifications = (params: NotificationsParams = {}) =>
     initialPageParam: undefined as string | undefined,
     getNextPageParam: nextCursor,
   });
-/** How often the shell's counts are read again while the app is open and visible (T24). */
+/** How often the shell's counts are read again while the app is open and visible. */
 export const COUNTS_POLL_MS = 60_000;
 
 /**

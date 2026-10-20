@@ -1,5 +1,5 @@
 /**
- * Where something is: the location, then each place and container down to it (screens §5). Every
+ * Where something is: the location, then each place and container down to it. Every
  * step is a link by id, so a move never breaks it; the current page is the last step, not a
  * link. A place step links to its short address when the location's place tree has it (D208;
  * PathStep carries no short ID); a container step keeps its id, which the thing page replaces.

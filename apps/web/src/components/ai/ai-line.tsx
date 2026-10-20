@@ -1,12 +1,12 @@
 /**
- * The AI line (D206, screens §5 Inbox): on anything AI filled, what read it and what it cost, in
+ * The AI line (D206): on anything AI filled, what read it and what it cost, in
  * one short line: "AI · Groq · 1.6K tokens · ≈ $0.004 · paid by you". The full model id, the
  * exact tokens and cost, and who paid are in the call's detail (CallDetailSheet), which tapping
  * the line opens where the server names the ledger row (`call.id`). The cost shows "≈" with one
  * significant figure below 0.01; "cost unknown" when no price was known; nothing where the money
  * gate hid it (the server leaves `cost` out). "paid by you" when the viewer's own key or account
- * paid (`paidBy.mine`). A failed read says why instead. Used by the inbox (T27), the thing
- * header's extraction status and the capture screen (T25). It was "Read by qwen/qwen3.8-27b
+ * paid (`paidBy.mine`). A failed read says why instead. Used by the inbox, the thing
+ * header's extraction status and the capture screen. It was "Read by qwen/qwen3.8-27b
  * (Groq) · 1,640 tokens · cost unknown · paid by Personal", dotted-underlined and wrapping over
  * two lines on an iPhone.
  */
@@ -72,7 +72,7 @@ export function AiLine({ call, className }: { call: AiCallSummary; className?: s
   const payerText = call.paidBy.mine ? (
     <Trans>paid by you</Trans>
   ) : call.paidBy.scope === 'instance' ? (
-    // The instance key's label is '' (T9): it is this server's.
+    // The instance key's label is '': it is this server's.
     <Trans>paid by this server</Trans>
   ) : (
     <Trans>
@@ -113,7 +113,7 @@ export function AiLine({ call, className }: { call: AiCallSummary; className?: s
       </Fragment>
     ))
   ) : (
-    // A failed read says why in words (§8a): "Couldn't read this photo · the provider timed out".
+    // A failed read says why in words: "Couldn't read this photo · the provider timed out".
     <>
       <Trans>Couldn't read this photo · {why(call.outcome, call.errorCode)}</Trans>
       {chevron}

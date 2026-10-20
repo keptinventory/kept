@@ -1,7 +1,7 @@
 import type { Scope } from '../db/scope.js';
 import type { AuditActor } from './audited.js';
 
-// Who an audit event names (engineering spec §7.5; step-6 plan T9, T10; step-1 carry-over). A
+// Who an audit event names. A
 // request or tool call made with a personal token or an OAuth grant acts as the token, not as
 // its creator: the event is `{type: 'token', id}`, which "Recent changes by connections" lists
 // and its creator can undo (D58, D124). kept_app's audit policy pins both (0070): a token-scoped

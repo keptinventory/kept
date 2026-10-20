@@ -1,12 +1,12 @@
 /**
- * Open or update a claim (D54, D195; screens §5 "A claim prefills the longest active warranty").
+ * Open or update a claim (D54, D195).
  * A new claim starts on the warranty that covers longest, with the brand's claim page and phone
  * and the warranty's claim contact to hand; the vendor comes from the account's list or is typed
  * new (D11). Updating moves the status along `CLAIM_TRANSITIONS` (a closed claim reopens only
- * through Undo, Q18) and records the cost and "what it would have cost", which is what "Warranty
+ * through Undo) and records the cost and "what it would have cost", which is what "Warranty
  * saved you" shows; both amounts only where money shows (the money gate).
  *
- * An update and a removal are undoable (the Undo toast); opening a claim isn't (§7.7).
+ * An update and a removal are undoable (the Undo toast); opening a claim isn't.
  */
 import { CLAIM_TRANSITIONS, type ClaimStatus } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';

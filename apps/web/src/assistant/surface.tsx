@@ -1,6 +1,6 @@
 /**
  * The assistant as it opens (./host.tsx loads this on demand): the docked panel from 768 px, the
- * bottom sheet below (D24, screens §1). One store (./store.ts) behind both, so a thread and a
+ * bottom sheet below (D24). One store (./store.ts) behind both, so a thread and a
  * half-typed question carry over when the window crosses the line.
  */
 import { useMediaQuery, WIDE } from '@/lib/media';

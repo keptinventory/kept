@@ -13,7 +13,7 @@ import { postWebhook, type WebhookFetch } from '../notify/webhook.js';
 import { auditEventIdOf, occurrenceIdOf, runWebhookFanout, WEBHOOK_EVENT_OF } from './fanout.js';
 import { webhookAad } from './service.js';
 
-// Location webhooks' jobs (D63, D110, D180; engineering spec §2.6, §3.1b; step-6 plan T15),
+// Location webhooks' jobs (D63, D110, D180),
 // aggregated by jobs/step6.ts. Both run as kept_system:
 // - `webhook-fanout` {auditEventId}: sent by audited() in the write's transaction (fanout.ts),
 //   or {occurrenceId}: sent by the reminder scan for `reminder.due`; one delivery row per active
@@ -24,7 +24,7 @@ import { webhookAad } from './service.js';
 //
 // What is sent is read from the database, never from the job's data (jobs/boss.ts): the
 // delivery row, the hook (through kept.webhook_secret(), which also hands over its sealed secret)
-// and the audit event the delivery's id names. The payload is §2.6's: ids, the event, when, the
+// and the audit event the delivery's id names. The payload is the webhook envelope: ids, the event, when, the
 // actor and the changed fields' names. Never a value, a name or a note (D110): a receiver fetches
 // the thing with its own token.
 //
@@ -73,7 +73,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const ACTOR_TYPES = new Set(['user', 'token', 'system']);
 
-/** The §2.6 payload for a delivery: from its audit event, or a ping's. Null when the event is
+/** The payload for a delivery: from its audit event, or a ping's. Null when the event is
  * gone (pruned) or isn't a webhook event. */
 async function payloadOf(client: pg.ClientBase, d: DeliveryRow): Promise<WebhookPayload | null> {
   if (d.event === 'ping') {
@@ -253,7 +253,7 @@ export async function runWebhookDelivery(
     }
     return null;
   });
-  // The instance admins hear once a hook starts failing (step 6): one alert per hook, no URL or
+  // The instance admins hear once a hook starts failing: one alert per hook, no URL or
   // location name in it (tenant data), resolved when it delivers again.
   if (marked && deps.alerts) {
     const key = `webhook_failing:${d.webhook_id}`;

@@ -1,9 +1,9 @@
 /**
- * What AI is doing with a thing's photo, on the thing's header (D19, D206, screens §5 Capture and
- * Thing detail): "Naming…" while it runs, "Waiting: AI paused until 1 Oct" while a cap holds it,
+ * What AI is doing with a thing's photo, on the thing's header (D19, D206):
+ * "Naming…" while it runs, "Waiting: AI paused until 1 Oct" while a cap holds it,
  * "Waiting for Groq · about 20 s" while the provider paces it, why it failed, and, once it read
  * the photo, the AI line (what read it, the tokens, ≈ cost and who paid). Writers get "Re-run
- * extraction" (explicit only, D19, L58): never automatic.
+ * extraction" (explicit only, D19): never automatic.
  *
  * Nothing shows for a thing AI never touched.
  */

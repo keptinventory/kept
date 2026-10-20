@@ -1,5 +1,5 @@
 /**
- * Readings logged on this phone that haven't synced yet (Q18): shown on their meter as "52,340
+ * Readings logged on this phone that haven't synced yet: shown on their meter as "52,340
  * km, 2 Oct, waiting to sync", beside the snapshot's latest. Read from the offline queue each
  * time the card shows, and again every few seconds while there are some (the sync engine sends
  * them as soon as it can).

@@ -1,7 +1,7 @@
 /**
- * LABEL mode (engineering spec §2.1; D19, D175): a nameplate, a rating label or a vehicle
+ * LABEL mode (D19, D175): a nameplate, a rating label or a vehicle
  * document. Brand and model fill in the thing when confident; a serial, VIN, plate and dates wait
- * for review. The spike (2026-09-26) saw the serial copied into `vin`; checks.ts drops a VIN that
+ * for review. A trial run (2026-09-26) saw the serial copied into `vin`; checks.ts drops a VIN that
  * fails its checksum, and the prompt says not to.
  */
 import { type BuiltPrompt, type PromptContext, systemPrompt } from './common.js';

@@ -14,7 +14,7 @@ import {
 } from '../../test/tenancy.js';
 import { type Scope, withScope, withSystem } from './scope.js';
 
-// Task 10: fail-closed row-level security (engineering spec §7.1, §7.2, §7.14; D178, D190).
+// fail-closed row-level security (D178, D190).
 // Everything here runs as kept_app (or kept_system) through withScope()/withSystem().
 
 const db = await testDb();
@@ -997,7 +997,7 @@ describe('kept_system', () => {
     expect(await count('memberships')).toBe(2);
     expect(await count('owner_accounts')).toBe(2);
     expect(await count('user_profiles')).toBe(2);
-    // Since 0053 (step-4 T6) the reminder scan reads every location's agenda: locations and
+    // Since 0053 the reminder scan reads every location's agenda: locations and
     // places among them, SELECT only (test/leak.test.ts SYSTEM_READ_TABLES). Nothing it doesn't
     // need: invites, audit subjects, files.
     expect(await count('places')).toBe(2);

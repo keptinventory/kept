@@ -51,14 +51,14 @@ export type AuthMail = {
 };
 
 export type AuthDeps = {
-  /** A pool logged in as kept_auth (KEPT_AUTH_DATABASE_URL); DML on `auth.*` only (§7.1). */
+  /** A pool logged in as kept_auth (KEPT_AUTH_DATABASE_URL); DML on `auth.*` only. */
   pool: pg.Pool;
   env: Pick<Env, 'KEPT_AUTH_SECRET' | 'KEPT_PUBLIC_URL'>;
   mail: AuthMail;
   /** Defaults to on. Better Auth enables it only when NODE_ENV=production otherwise. */
   rateLimitEnabled?: boolean;
   /** Runs after a user row is committed (Better Auth's `databaseHooks.user.create.after`):
-   * `ensureAccount()` (task 18). `headers` are the creating request's, when there was one.
+   * `ensureAccount()`. `headers` are the creating request's, when there was one.
    * A failure is reported to `onBackgroundError`, never to the sign-up: the per-request check
    * and the repair job finish the account later. */
   onUserCreated?: (
@@ -74,13 +74,13 @@ export type AuthDeps = {
   /** D197: a claim ends every token of the claimed account; main.ts runs
    * kept.revoke_user_tokens() on kept_system. Absent: tokens are left alone. */
   revokeTokensOnClaim?: (userId: string) => Promise<void>;
-  /** Step 6 (T16): generic OIDC sign-in, when KEPT_OIDC_ISSUER is set and boot-time discovery
+  /** Generic OIDC sign-in, when KEPT_OIDC_ISSUER is set and boot-time discovery
    * worked (auth/oidc.ts bootOidc). Absent: no OIDC provider at all. */
   oidc?: AuthOidc | null;
   /** 1.2 (D226): Google sign-in, when KEPT_GOOGLE_CLIENT_ID and _SECRET are set, with the invite
    * doors its first sign-in claims (auth/google.ts). Absent: no Google. */
   google?: (GoogleConfig & { invites: OidcInvites }) | null;
-  /** Step 6 (T12): Kept as the OAuth server for MCP connectors (oauth/plugin.ts). Absent: on
+  /** Kept as the OAuth server for MCP connectors (oauth/plugin.ts). Absent: on
    * with an https public URL, off otherwise; null: off. Off, `/mcp` takes personal tokens only. */
   oauth?: OAuthServerOptions | null;
 };
@@ -94,7 +94,7 @@ export const SESSION_HOURS_HTTP = 12;
 export const MAGIC_LINK_SECONDS = 15 * 60;
 
 /** Every endpoint of Better Auth's admin plugin. Kept keeps the plugin for its server-side ban
- * and session calls; its instance admin is `instance_admins` with Kept's own routes (task 23),
+ * and session calls; its instance admin is `instance_admins` with Kept's own routes,
  * so none of these is served over HTTP. Impersonation contradicts D164, and the session list
  * would hand out session tokens (security review M6). */
 export const ADMIN_PLUGIN_PATHS = [
@@ -135,12 +135,12 @@ export const DISABLED_AUTH_PATHS = [
   '/sign-up/email',
   // Says which usernames exist (managed accounts' sign-in names, D47).
   '/is-username-available',
-  // Step 6 (T12, spike S6.2 §6): the jwt plugin's session JWT, a token a page script could read
+  // The jwt plugin's session JWT, a token a page script could read
   // (M6). OAuth's own token endpoint is /oauth2/token and stays.
   '/token',
   // Step 6 (security review T25, M1): the OAuth provider's client and consent management, for any
   // signed-in person. It would register a client with any redirect URI and name (DCR by another
-  // door, Q8; a consent page naming "Claude" for someone else's app, D179). Connectors come in
+  // door; a consent page naming "Claude" for someone else's app, D179). Connectors come in
   // through CIMD only; a person's grants are Kept's own Connections routes.
   '/oauth2/create-client',
   '/oauth2/get-client',
@@ -178,9 +178,9 @@ export function linkUrl(publicUrl: string, page: string, token: string): string 
 }
 
 /**
- * The Better Auth instance (spikes S1–S3). Runs on its own kept_auth login with its tables in
+ * The Better Auth instance. Runs on its own kept_auth login with its tables in
  * schema `auth`, and issues UUIDv7 ids. Kept's own addition is the kept-security plugin: the
- * two-factor gate and the account + IP sign-in delays (spike S2).
+ * two-factor gate and the account + IP sign-in delays.
  *
  * `auth.handler` must only ever see requests whose headers came from `authRequestHeaders()`
  * (auth/client-ip.ts): that is where the client address is decided, from the socket and
@@ -190,7 +190,7 @@ export function createAuth(deps: AuthDeps) {
   const { pool, env, mail } = deps;
   const publicUrl = new URL(env.KEPT_PUBLIC_URL);
   const https = publicUrl.protocol === 'https:';
-  // Step 6 (T12, D125): OAuth connectors are on by themselves with an https public URL, their
+  // Step 6 (D125): OAuth connectors are on by themselves with an https public URL, their
   // client metadata fetched through the SSRF guard; `deps.oauth` overrides (tests, null = off).
   const oauth =
     deps.oauth !== undefined
@@ -248,7 +248,7 @@ export function createAuth(deps: AuthDeps) {
       },
     },
     verification: { storeIdentifier: { hash: hashVerificationIdentifier } },
-    // D176 (step 6, T16): an external identity is linked only explicitly, never on a matching
+    // D176: an external identity is linked only explicitly, never on a matching
     // email, and a sign-in never writes the IdP's tokens back (auth/oidc.ts).
     account: ACCOUNT_OPTIONS,
     // The provisioning gate for OIDC and Google: verified, deliverable email; a new user only by
@@ -316,12 +316,12 @@ export function createAuth(deps: AuthDeps) {
     },
     rateLimit: {
       enabled: deps.rateLimitEnabled ?? true,
-      // Shared by every replica through auth.rate_limit (V32). Keyed on IP + path.
+      // Shared by every replica through auth.rate_limit. Keyed on IP + path.
       storage: 'database',
       window: 60,
       max: 100,
       customRules: {
-        // Engineering spec §3.2: sign-in attempts 5/min per IP.
+        // Sign-in attempts 5/min per IP.
         '/sign-in/*': { window: 60, max: 5 },
       },
     },
@@ -340,7 +340,7 @@ export function createAuth(deps: AuthDeps) {
         origin: publicUrl.origin,
         authentication: {
           // Better Auth verifies with requireUserVerification: false; record whether UV
-          // happened so a passkey with UV can count as two factors (§7.14).
+          // happened so a passkey with UV can count as two factors.
           afterVerification: ({ ctx, verification }) => {
             rememberPasskeyVerification(ctx.context, verification.authenticationInfo.userVerified);
           },
@@ -372,12 +372,12 @@ export function createAuth(deps: AuthDeps) {
       }),
       username(),
       admin(),
-      // Step 6 (T16, spike S6.7): generic OIDC, its endpoints from boot-time discovery through
+      // Generic OIDC, its endpoints from boot-time discovery through
       // the SSRF guard.
       ...(deps.oidc ? [genericOAuth({ config: [deps.oidc.provider] })] : []),
       // Link and unlink freshness and the invite in the OAuth state, for OIDC and Google alike.
       ...(external ? [keptOidc({ findInvite: external.find })] : []),
-      // Step 6 (T12): the OAuth provider for MCP connectors, with CIMD (oauth/plugin.ts).
+      // The OAuth provider for MCP connectors, with CIMD (oauth/plugin.ts).
       ...(oauth ? oauthPlugins(oauth) : []),
       keptSecurity({
         pool,

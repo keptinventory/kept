@@ -5,7 +5,7 @@ import { ownerTx, seedTenant, seedUser, type Tenant } from '../../test/tenancy.j
 import type { Mail } from '../mail/mailer.js';
 import { lastMonth, runAiSummary } from './summary.js';
 
-// The AI monthly summary (product design §8a; §7.15 `ai.monthly_summary`; Q35; 0059): last
+// The AI monthly summary (`ai.monthly_summary`; 0059): last
 // month's calls, tokens and cost for whoever paid, in the centre and by mail, once, and not at
 // all for someone who turned it off.
 

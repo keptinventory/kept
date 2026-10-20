@@ -1,5 +1,5 @@
 /**
- * The lazy door to the offline store (plan T24, T23's bundle budget). Nothing here imports Dexie:
+ * The lazy door to the offline store (T23's bundle budget). Nothing here imports Dexie:
  * the store, the engine and the thumbnail cache arrive with one dynamic import when a signed-in
  * frame first needs them, so the entry chunk stays within the step-2 budget + 15 KB.
  *

@@ -1,12 +1,12 @@
 /**
- * Add or edit a field of a type or a place kind (screens §5 Type editor, §7 "Type field"; D92,
+ * Add or edit a field of a type or a place kind (D92,
  * D160, D172, D177). A bottom sheet on phones with an explicit Save.
  *
  * - The key is made from the label until you edit it, and must be unique within the type, its
  *   ancestors, its groups and its descendants: checked here against what the editor knows, and
  *   by the server, whose 409 lands on the key field ("field redefinition", D92).
  * - Kind, repeatable and secret are set at creation only; converting a kind or a field to or
- *   from secret is step 7's "convert with preview" (Q3).
+ *   from secret is step 7's "convert with preview".
  * - Secret is offered to the account owner only, on a text field (D177).
  * - "Required" applies to new edits only (D172): things saved before aren't flagged.
  */

@@ -6,10 +6,10 @@ import { PEOPLE, type PersonKey } from './cast.js';
 import { type Client, expectStatus, type Json, SeedError } from './client.js';
 import { photoJpeg, sha256Hex } from './photos.js';
 
-// What the households did with their things (step-4 plan T30's carry-over, step-5 plan T16; D152,
+// What the households did with their things (D152,
 // D185), after seed/stock.ts has made the things: warranties, a claim, valuations, loans,
-// schedules, expiring documents, an incident and the account's exchange rates (step 4); and the
-// vehicles (step 5): the Corolla's six months of fills (a partial, one after a missed fill-up),
+// schedules, expiring documents, an incident and the account's exchange rates; and the
+// vehicles: the Corolla's six months of fills (a partial, one after a missed fill-up),
 // its starter schedules, two services (an oil change completing "Oil change", and front brake
 // pads), a vehicle licence due in 23 days with its renewal cost and an insurance document, and
 // proof photos on two of its readings; Alfred's Hyundai in بيت العائلة with Arabic entries and an
@@ -239,7 +239,7 @@ export async function stockRecords(ctx: RecordsContext): Promise<void> {
     [home],
   );
 
-  // --- exchange rates (step 4, D76): the account's own, for converted totals -------------------
+  // --- exchange rates (D76): the account's own, for converted totals ---------------------------
   const rates = await read<{ from_ccy: string; to_ccy: string }>(
     'ibrahim',
     'SELECT from_ccy, to_ccy FROM public.fx_rates WHERE owner_account_id = $1',
@@ -261,7 +261,7 @@ export async function stockRecords(ctx: RecordsContext): Promise<void> {
     ctx.made();
   }
 
-  // --- warranties, a claim and valuations (step 4) ------------------------------------------------
+  // --- warranties, a claim and valuations ---------------------------------------------------------
   type WarrantySpec = {
     who: PersonKey;
     location: string;
@@ -352,7 +352,7 @@ export async function stockRecords(ctx: RecordsContext): Promise<void> {
     warrantyIds.set(w.thing, id);
   }
 
-  // The TV is in repair under its warranty, at the service centre (screens §5's claim card).
+  // The TV is in repair under its warranty, at the service centre (it shows on the claim card).
   const tv = await mustThing('ibrahim', home, 'Samsung TV, 55″');
   const [claim] = await read<{ id: string }>(
     'ibrahim',
@@ -422,7 +422,7 @@ export async function stockRecords(ctx: RecordsContext): Promise<void> {
     ctx.made();
   }
 
-  // --- loans (step 4, D56, D57): the drill with Murdock, and Catan overdue ------------------------
+  // --- loans (D56, D57): the drill with Murdock, and Catan overdue --------------------------------
   for (const l of [
     {
       who: 'ibrahim',
@@ -463,7 +463,7 @@ export async function stockRecords(ctx: RecordsContext): Promise<void> {
     ctx.made();
   }
 
-  // --- schedules (step 4, D29, D146) ------------------------------------------------------------
+  // --- schedules (D29, D146) --------------------------------------------------------------------
   type ScheduleSpec = {
     who: PersonKey;
     location: string;
@@ -528,7 +528,7 @@ export async function stockRecords(ctx: RecordsContext): Promise<void> {
     ctx.made();
   }
 
-  // --- documents (step 4, D155; step 5's issue dates and costs) ---------------------------------
+  // --- documents (D155; step 5's issue dates and costs) -----------------------------------------
   type DocumentSpec = {
     who: PersonKey;
     location: string;
@@ -573,7 +573,7 @@ export async function stockRecords(ctx: RecordsContext): Promise<void> {
     },
   ];
 
-  // --- an incident (step 4, D158): water in the bathroom took the hair dryer ---------------------
+  // --- an incident (D158): water in the bathroom took the hair dryer -----------------------------
   const dryer = await mustThing('ibrahim', home, 'Hair dryer');
   const [incident] = await read<{ id: string }>(
     'ibrahim',
@@ -598,7 +598,7 @@ export async function stockRecords(ctx: RecordsContext): Promise<void> {
     ctx.made();
   }
 
-  // --- vehicles (step 5) ----------------------------------------------------------------------------
+  // --- vehicles -------------------------------------------------------------------------------------
   await turnOn('ibrahim', garage, 'fuel');
   await turnOn('alfred', family, 'fuel');
 
@@ -619,7 +619,7 @@ export async function stockRecords(ctx: RecordsContext): Promise<void> {
     }),
   });
 
-  // Starter schedules, asked for once from the empty Schedules tab (Q25).
+  // Starter schedules, asked for once from the empty Schedules tab.
   const [starter] = await read<{ id: string }>(
     'ibrahim',
     `SELECT id FROM public.schedules WHERE thing_id = $1 AND name = 'Oil change' LIMIT 1`,

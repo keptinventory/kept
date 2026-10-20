@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { toErrorReply } from './errors.js';
 import { assertHttps, isHttps, requireHttps } from './https-only.js';
 
-// D181 (step-8 plan T2): no secret over plain HTTP. The scheme comes from KEPT_PUBLIC_URL only.
+// D181: no secret over plain HTTP. The scheme comes from KEPT_PUBLIC_URL only.
 
 async function appFor(publicUrl: string) {
   const app = Fastify();

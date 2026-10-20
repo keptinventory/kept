@@ -6,7 +6,7 @@ import { PGBOSS_SCHEMA } from './install.js';
 import { type JobPolicy, queueOptions } from './policies.js';
 
 export type BossOptions = {
-  /** A `kept_system` login (KEPT_SYSTEM_DATABASE_URL). Never the owner (§7.1, §7.14). */
+  /** A `kept_system` login (KEPT_SYSTEM_DATABASE_URL). Never the owner. */
   connectionString: string;
   application_name?: string;
   /** Pool size for pg-boss's own pool. */
@@ -17,7 +17,7 @@ export type BossOptions = {
 };
 
 /**
- * pg-boss running as kept_system with its own migrations off (§7.14, D190). The schema is
+ * pg-boss running as kept_system with its own migrations off (D190). The schema is
  * installed by `kept migrate` (jobs/install.ts); `start()` only checks the version matches.
  * `reindex` is off because kept_system doesn't own the job indexes; rebuilding them is an
  * operator task (`getReindexCommands()`), not something the serving role can do.
@@ -75,10 +75,10 @@ export function sendInTx(
 }
 
 // ---------------------------------------------------------------------------------------------
-// The job registry (task 24; D166, engineering spec §3.1b, §7.1).
+// The job registry (D166).
 //
 // Every job type is declared with defineJob(): its name, its kind, an optional schedule, and its
-// policy (jobs/policies.ts). The kind says whose rights the handler has (§7.1):
+// policy (jobs/policies.ts). The kind says whose rights the handler has:
 // - `system`: cross-tenant work as kept_system. The handler gets the job's data and nothing
 //   else; it reaches the database through withSystem() on the system pool (or the auth pool for
 //   schema auth), never kept_app. Only a system job may be scheduled: a schedule has no user.
@@ -106,7 +106,7 @@ export type TenantJobContext = {
   tx: Tx;
   client: pg.PoolClient;
   /** pg-boss's own facts about this run (absent when a test calls runJob() without them): the
-   * job id (a ledger row's request id, T10) and how many retries are spent and allowed. */
+   * job id (a ledger row's request id) and how many retries are spent and allowed. */
   job?: JobMeta;
 };
 

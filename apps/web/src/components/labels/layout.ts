@@ -1,5 +1,5 @@
 /**
- * Where each label goes and how big its parts are (plan T28; D44, D134, D175, D185). Pure, so the
+ * Where each label goes and how big its parts are (D44, D134, D175, D185). Pure, so the
  * print sheet (sheet.tsx), the builder's preview and the phone PNG (png.ts) share one geometry
  * and the tests can pin it per stock.
  *
@@ -69,7 +69,7 @@ export type CellMetrics = {
   code: number;
   name: number;
   path: number;
-  /** A compact stock prints only the QR and the code (Q29). */
+  /** A compact stock prints only the QR and the code. */
   compact: boolean;
 };
 
@@ -77,7 +77,7 @@ export type CellMetrics = {
 const CODE_EM = 7 * 0.66;
 
 /**
- * The parts of one label, scaled from the board's 40 × 30 mm label (D134: QR, the code large in
+ * The parts of one label, scaled from the designs' 40 × 30 mm label (D134: QR, the code large in
  * mono, the name, the place). The code never wraps: it shrinks to fit the text column.
  */
 export function cellMetrics(stock: LabelStock): CellMetrics {

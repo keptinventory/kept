@@ -1,9 +1,9 @@
 /**
  * Where a hint's beacon and popover sit, said logically and turned into driver.js's physical
- * sides (spike V18). driver.js positions with
+ * sides. driver.js positions with
  * physical sides and alignments: `align: 'end'` is always the right edge, and `side: 'left'` is
  * always the left. In Arabic the start is the right, so `start ↔ end` and `left ↔ right` swap.
- * With the swap, an RTL hint is the exact mirror of the LTR one (measured in the spike).
+ * With the swap, an RTL hint is the exact mirror of the LTR one (measured in the browser).
  */
 
 /** A side of the target, in reading terms: `start` is the left in English, the right in Arabic. */
@@ -27,9 +27,9 @@ export function physicalAlign(align: LogicalAlign, rtl: boolean): PhysicalAlign 
 }
 
 /**
- * The default placement: the beacon on the target's top edge at its logical end (spike V18), and
+ * The default placement: the beacon on the target's top edge at its logical end, and
  * the popover below the beacon, aligned to its logical end so it opens back over the target
- * rather than off the screen's edge (the spike's `start` did that, checked in the browser).
+ * rather than off the screen's edge (a `start` placement did that, checked in the browser).
  */
 export const DEFAULT_BEACON = { side: 'top', align: 'end' } as const;
 export const DEFAULT_POPOVER = { side: 'bottom', align: 'end' } as const;

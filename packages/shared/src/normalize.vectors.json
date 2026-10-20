@@ -108,13 +108,13 @@
     "in": "ورق",
     "normalized": "ورق",
     "stripped": "ورق",
-    "note": "و alone is never stripped (Q20)"
+    "note": "و alone is never stripped"
   },
   {
     "in": "بيت",
     "normalized": "بيت",
     "stripped": "بيت",
-    "note": "ب alone is never stripped (Q20)"
+    "note": "ب alone is never stripped"
   },
   { "in": "فرن", "normalized": "فرن", "stripped": "فرن" },
   { "in": "كلام", "normalized": "كلام", "stripped": "كلام" },
@@ -127,7 +127,7 @@
     "in": "آلات",
     "normalized": "الات",
     "stripped": "ات",
-    "note": "known false positive; recall holds because both forms are indexed (Q20)"
+    "note": "known false positive; recall holds because both forms are indexed"
   },
   { "in": "كابل HDMI", "normalized": "كابل hdmi", "stripped": "كابل hdmi", "note": "seed (V20)" },
   {

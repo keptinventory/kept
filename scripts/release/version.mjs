@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Release versions and image tags (step 8 T17; D186, D187, plan Q14).
+// Release versions and image tags (step 8 T17; D186, D187).
 //
 //   node scripts/release/version.mjs check <version> [existing v-tags...]   exit 1 unless newer
 //   node scripts/release/version.mjs tags <version> [existing v-tags...]    the image tags, one a line
@@ -10,7 +10,7 @@
 // A version is semver 2.0 without build metadata (an image tag can't hold `+`). The image always
 // gets `X.Y.Z`; `X.Y` and `X` only when this is a final release and the newest of that line, so a
 // patch to an old line never moves the newer line's tags. A prerelease gets its exact tag only,
-// so a release candidate never moves a floating tag. Never `latest` (Q14).
+// so a release candidate never moves a floating tag. Never `latest`.
 
 import { pathToFileURL } from 'node:url';
 

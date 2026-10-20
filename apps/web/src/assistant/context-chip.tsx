@@ -1,5 +1,5 @@
 /**
- * The context chip (D24; screens §5 "Assistant" and §8, frames 04 · 4 and 04 · 6): the page the
+ * The context chip (D24; frames 04 · 4 and 04 · 6): the page the
  * assistant knows about, with × to remove it, so the next question goes with `context: none`.
  * In the phone sheet's header and at the top of the docked panel ("About Garage").
  */

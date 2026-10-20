@@ -1,8 +1,8 @@
 /**
- * A person's contact card (D177, Q5): phone, email and notes. The server answers 404 unless you
+ * A person's contact card (D177): phone, email and notes. The server answers 404 unless you
  * are an admin of every location that uses the person (or of any, when none does), so the card
  * shows only when the server returns it; it is never "hidden" with a placeholder. Contact fields
- * are audited as secret, so history says "changed" and never the value. Not offline (§4).
+ * are audited as secret, so history says "changed" and never the value. Not offline.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

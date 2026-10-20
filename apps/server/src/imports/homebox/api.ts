@@ -1,5 +1,5 @@
 /**
- * The optional Homebox connection (D146; step-7 plan T11; spike H3). A Homebox export ZIP holds
+ * The optional Homebox connection (D146). A Homebox export ZIP holds
  * no version, no currency and
  * no members; a connection to the old server reads those three and nothing else. It is only ever
  * a prefill: the import itself reads the ZIP.
@@ -15,8 +15,8 @@
  * not called: `/groups/all` already carries each collection's currency (H3), in the same shape.
  *
  * - **Through the SSRF guard** (net/ssrf.ts `guardedFetch`): redirects refused, private addresses
- *   refused unless `instance_settings.ssrf_allow_private` (a Homebox on the LAN is the usual case,
- *   step-3 Q9; the 400 `private_address` hint names the admin's switch).
+ *   refused unless `instance_settings.ssrf_allow_private` (a Homebox on the LAN is the usual case;
+ *   the 400 `private_address` hint names the admin's switch).
  * - **10 s for the whole connection**, answers read up to 1 MiB each.
  * - **The key, password and token are never stored, logged or audited** (D146). The route runs
  *   with no transaction open during the calls, and outside the Idempotency-Key store (which would
@@ -41,7 +41,7 @@ import type { InventoryDeps } from '../../http/routes.js';
 import { guardedFetch, PrivateAddressError } from '../../net/ssrf.js';
 import { requireRole } from '../../things/service.js';
 
-/** The whole connection's time limit (plan T11). */
+/** The whole connection's time limit. */
 export const CONNECT_TIMEOUT_MS = 10_000;
 /** The most of one answer read; Homebox's are a few KiB. */
 export const MAX_ANSWER_BYTES = 1 << 20;
@@ -288,7 +288,7 @@ async function connectableRun(
   return run;
 }
 
-/** POST /api/v1/imports/:id/homebox-connect (T11). Registered by imports/archive.ts. */
+/** POST /api/v1/imports/:id/homebox-connect. Registered by imports/archive.ts. */
 export async function homeboxConnectRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools } = deps;
   app.post(
@@ -315,7 +315,7 @@ export async function homeboxConnectRoutes(app: KeptApp, deps: InventoryDeps): P
           id,
           connection.version,
         ]);
-        // A run with no target yet is its creator's: the event is their account's (§7.13).
+        // A run with no target yet is its creator's: the event is their account's.
         const owner = locked.location_id
           ? undefined
           : ((

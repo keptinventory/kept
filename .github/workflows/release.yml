@@ -18,7 +18,7 @@
 #              (`imagetools create`: no layer is rebuilt, so the published manifests are the
 #              smoked ones), signs it, tags X.Y.Z (X.Y, X), pushes the chart and writes the
 #              record; then the GitHub release.
-# Nothing is tagged before both architectures passed and the signature verified (L101): the build
+# Nothing is tagged before both architectures passed and the signature verified: the build
 # jobs push by digest only.
 #
 # The layer cache is a registry cache per architecture in GHCR (`kept-cache:buildcache-<arch>`,
@@ -27,7 +27,7 @@
 #
 # Signing is key-based (D187): the cosign key and its password are repository secrets
 # COSIGN_PRIVATE_KEY and COSIGN_PASSWORD (runbook W1), used by the publish job only. While the
-# repository is private no signature goes to the public transparency log (plan Q14); once it is
+# repository is private no signature goes to the public transparency log; once it is
 # public, the run signs into it (KEPT_RELEASE_TLOG=1) and the release notes say so. Pushes use
 # GITHUB_TOKEN (packages: write).
 #
@@ -37,7 +37,7 @@
 # secrets and cosign.pub, the run signs as above. Anything in between (one secret, or the secrets
 # without cosign.pub) is a half-done setup and fails the preflight rather than ship unsigned.
 #
-# Every action is pinned by commit SHA with its tag in a comment (spike W1).
+# Every action is pinned by commit SHA with its tag in a comment.
 name: release
 
 on:

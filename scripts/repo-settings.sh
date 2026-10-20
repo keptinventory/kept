@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Kept's GitHub repository settings, as code (go-public plan §5; audit 5.9, 5.11, 5.12, 5.15).
+# Kept's GitHub repository settings, as code (audit 5.9, 5.11, 5.12, 5.15).
 # Idempotent: it reads every setting first and writes only what differs. The runbook
 # (docs/runbooks/repo-settings.md) says what each setting is for and when to run this.
 #

@@ -1,10 +1,10 @@
 import type { Pools } from '../db/pools.js';
 import { withSystem } from '../db/scope.js';
 
-// The step-1 maintenance jobs (task 24): each is one call to a kept_system door (migrations
+// The step-1 maintenance jobs: each is one call to a kept_system door (migrations
 // 0005 and 0011), so kept_system never needs DDL or rights in schema auth.
 
-/** Monthly audit partitions made ahead of time (§7.13): this month and the next three. */
+/** Monthly audit partitions made ahead of time: this month and the next three. */
 export const AUDIT_MONTHS_AHEAD = 3;
 
 /** `audit-partitions`: returns how many partitions it created (usually 0; 1 at a month's turn).
@@ -23,7 +23,7 @@ export async function ensureAuditPartitions(pools: Pick<Pools, 'system'>): Promi
 export type Pruned = Record<string, number>;
 
 /** `prune-stale-rows`: expired sign-in limiter rows, the second-factor flags of expired
- * sessions, and idempotency keys past 30 days (§3.3). Returns the count removed per table. */
+ * sessions, and idempotency keys past 30 days. Returns the count removed per table. */
 export async function pruneStaleRows(pools: Pick<Pools, 'system'>): Promise<Pruned> {
   return withSystem(pools.system, async (_tx, client) => {
     const { rows } = await client.query<{ what: string; removed: string }>(
@@ -33,7 +33,7 @@ export async function pruneStaleRows(pools: Pick<Pools, 'system'>): Promise<Prun
   });
 }
 
-/** The AI call ledger's retention (engineering spec §3.3, §3.5): `instance_settings`
+/** The AI call ledger's retention: `instance_settings`
  * `ai_ledger_months`, 3–60 months, 13 when unset or out of range. */
 export const AI_LEDGER_MONTHS = { default: 13, min: 3, max: 60 } as const;
 export const LLM_MONTHS_AHEAD = 3;
@@ -46,7 +46,7 @@ export type AiMaintenance = {
 };
 
 /**
- * `ai-maintenance` (daily; step-3 T6, migration 0040): the AI call ledger's partitions made ahead
+ * `ai-maintenance` (daily; migration 0040): the AI call ledger's partitions made ahead
  * (this month and the next three), partitions older than the retention summed into
  * ai_usage_months and dropped (which also runs daily: a month's partition goes on the first run
  * after it passes the retention), and the pacing counters pruned (minute windows past 2 hours,

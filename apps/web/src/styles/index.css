@@ -19,7 +19,7 @@
 @custom-variant rail (&:where([data-sidebar="collapsed"] *));
 
 /*
- * Tailwind names for the board's tokens. The tokens stay the source (tokens.css); these only
+ * Tailwind names for the designs' tokens. The tokens stay the source (tokens.css); these only
  * expose them as utilities: bg-surface, text-ink-2, border-line, bg-amber, text-amber-ink, ...
  */
 @theme inline {
@@ -114,7 +114,7 @@
     direction: inherit;
   }
   /*
-   * 44 × 44 px touch targets (engineering spec §4) without redrawing the kit: the screens kit
+   * 44 × 44 px touch targets without redrawing the kit: the screens kit
    * draws buttons at 40 and 32 px and chips and tabs at 36. On a touch screen every control's hit
    * area grows around its centre to at least 44 px each way, through a transparent ::after (the
    * pseudo-element is part of the control, so a tap on it is a tap on the control). In the base

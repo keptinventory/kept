@@ -1,6 +1,6 @@
 import { createHmac } from 'node:crypto';
 
-// The ids a Kept import gives what it makes (step-7 plan T14, Q8, Q9).
+// The ids a Kept import gives what it makes.
 //
 // Every id in an export is the exporting server's; nothing from an archive is used as an id here
 // (D157). Each one becomes a new UUIDv7, derived from the run and the old id:

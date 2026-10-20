@@ -1,7 +1,7 @@
 import type { BackupTargetKind, RecoveryKitFormat } from '@kept/shared';
 import type { KeyMaterial } from '../config/env.js';
 
-// The recovery kit's content (D66, D165, D182; step-8 plan T9, Q15): everything a burned server
+// The recovery kit's content (D66, D165, D182): everything a burned server
 // needs to come back from its backup, as plain text (UTF-8, under 200 lines) or a print-styled
 // HTML page made from the same lines (no script, no remote resource). Built in memory for the one
 // response or the one file that asks for it; never logged, never stored, never in an error.
@@ -127,7 +127,7 @@ function resticAloneLines(half: KitBackupHalf): string[] {
     ...b.environment.map(([name, value]) => `export ${name}=${shellQuote(value)}`),
   ];
   // restic's SFTP backend runs ssh: the key and the pinned host key go in as ssh arguments
-  // (spike R1, "Host key pinning").
+  // ("Host key pinning").
   const sftp = b.sftp
     ? ` -o sftp.args=${shellQuote('-i kept-backup-key -o IdentitiesOnly=yes -o UserKnownHostsFile=kept-known-hosts -o StrictHostKeyChecking=yes')}`
     : '';

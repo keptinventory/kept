@@ -4,7 +4,7 @@ import { limiterKey } from '../auth/sign-in-limiter.js';
 import { isCrockford, normaliseCrockford, randomCrockford } from '../crypto/crockford.js';
 import { withSystem } from '../db/scope.js';
 
-// The first-run setup code (D32, D190, D193; engineering spec §7.10, §7.14; screens §8).
+// The first-run setup code (D32, D190, D193).
 //
 // Until the instance has an instance admin, creating the first account needs a 6-character
 // Crockford code that only someone with the server's logs can read. The web process makes it at

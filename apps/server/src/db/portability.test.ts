@@ -15,7 +15,7 @@ import { withScope, withSystem } from './scope.js';
 
 // Step-7 T4 (0079, 0080): export runs for Kept exports beside step 4's claim packs, archive
 // import runs with no target yet, Homebox source ids, and the pruning of abandoned runs
-// (engineering spec §1.10, §3.3, §7.1; D68, D146, D180; plan Q2, Q7, Q14, Q18).
+// (D68, D146, D180).
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });

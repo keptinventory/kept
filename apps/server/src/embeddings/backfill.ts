@@ -18,7 +18,7 @@ import {
   vectorLiteral,
 } from './provider.js';
 
-// The embeddings backfill (D200, D206, D207; step-6 plan T14), aggregated by jobs/step6.ts:
+// The embeddings backfill (D200, D206, D207), aggregated by jobs/step6.ts:
 // `embed-backfill`, a system job hourly at :30 UTC and on demand (the admin's source switch sends
 // it, routes.ts), as kept_system.
 //

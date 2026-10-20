@@ -20,7 +20,7 @@ import {
 import { seedReference } from './seed-reference.js';
 
 // Advisory lock key, so concurrent `kept migrate` invocations (or a migrate racing a boot-time
-// caller) serialise instead of racing drizzle's own migration bookkeeping (§7.12).
+// caller) serialise instead of racing drizzle's own migration bookkeeping.
 const LOCK_KEY = 0x6b657074; // 'kept'
 const LOCK_POLL_MS = 250;
 
@@ -39,7 +39,7 @@ export class MigrateError extends Error {
 }
 
 /**
- * The pre-upgrade snapshot (step-8 plan T8, Q8): a database-only backup before `kept migrate`
+ * The pre-upgrade snapshot: a database-only backup before `kept migrate`
  * changes a populated database. `client` is the migrator's own owner connection (it holds the
  * advisory lock). Resolves `taken`, or `no_target` when no backup is configured (no target, or
  * no password: a loud line and a status-page note, never a refusal, as a first install has no
@@ -57,7 +57,7 @@ export type RunMigrationsOptions = {
   /** The migrations folder (tests: a copy with the journal cut short). Default the image's. */
   folder?: string;
   /**
-   * Step 8 (T8, Q9): the image migrating. Given, the downgrade guard runs before anything is
+   * The image migrating. Given, the downgrade guard runs before anything is
    * applied (one-version rollback allowed, more refused with `downgrade_refused`), and the
    * release is recorded in release_history afterwards (a `0.0.0-dev` build isn't).
    */
@@ -126,7 +126,7 @@ export async function runMigrations(
       recorded: false,
     };
 
-    // The downgrade guard (Q9), before anything changes.
+    // The downgrade guard, before anything changes.
     if (opts.release && level.unknown.length > 0) {
       const decision = decideRelease({
         imageVersion: opts.release.version,
@@ -155,7 +155,7 @@ export async function runMigrations(
       }
     }
 
-    // The pre-upgrade snapshot (Q8): only a populated database with something pending.
+    // The pre-upgrade snapshot: only a populated database with something pending.
     if (level.populated && level.pending.length > 0) {
       if (!opts.snapshot) {
         outcome.snapshot = 'skipped';
@@ -200,7 +200,7 @@ export async function runMigrations(
     await installPgBoss(client);
     // Reference rows (currencies, the built-in type library): upserted every run, idempotent.
     await seedReference(client);
-    // Release history (Q9): after a successful migration, never for a development build.
+    // Release history: after a successful migration, never for a development build.
     if (opts.release) outcome.recorded = await recordRelease(client, opts.release, folder);
     return outcome;
   } catch (err) {

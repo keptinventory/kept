@@ -1,4 +1,4 @@
-// Regenerates the tiny upload fixtures in this directory (step 2, T2; D117, D157). The files are
+// Regenerates the tiny upload fixtures in this directory (D117, D157). The files are
 // committed; run this only to change them:
 //
 //   node apps/server/test/fixtures/files/generate.mjs
@@ -60,7 +60,7 @@ await out('doc.pdf', pdf);
 // HTML renamed to .jpg: the declared type and the name must not matter (D157).
 await out('fake.jpg', '<!doctype html><html><body><script>alert(1)</script></body></html>\n');
 
-// SVG is refused as an attachment in step 2 (Q9).
+// SVG is refused as an attachment in step 2.
 await out(
   'drawing.svg',
   '<svg xmlns="http://www.w3.org/2000/svg" width="8" height="4"><title>Box</title><rect width="8" height="4"/></svg>\n',

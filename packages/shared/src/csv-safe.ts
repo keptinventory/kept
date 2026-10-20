@@ -1,5 +1,5 @@
 /**
- * Safe CSV (D169; step-7 plan T1, Q12, Q13): the one cell writer every CSV Kept produces goes
+ * Safe CSV (D169): the one cell writer every CSV Kept produces goes
  * through: the list export, the readable copy of an export, the AI call ledger. UTF-8 with a BOM
  * so Excel reads Arabic, CRLF line ends, and a cell a spreadsheet would run as a formula made
  * inert with a leading `'`.

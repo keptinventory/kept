@@ -1,7 +1,7 @@
 /**
- * Words for the backups' codes (step-8 T21; screens §8): a run's kind and state, why a run failed
+ * Words for the backups' codes: a run's kind and state, why a run failed
  * or needs a look, and why Test couldn't open the repository. A screen shows these, never the
- * code itself ("A warning run explains itself in words, never a code", frame 106). Sizes read in
+ * code itself ("A warning run explains itself in words, never a code"). Sizes read in
  * the person's language and digits.
  */
 import type { BackupRun, BackupRunKind, BackupRunState, ResticErrorReason } from '@kept/shared';

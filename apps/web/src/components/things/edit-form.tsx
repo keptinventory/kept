@@ -1,5 +1,5 @@
 /**
- * Edit in place (screens §5: an explicit Edit opens the fields; Save or Cancel) with D156's
+ * Edit in place (an explicit Edit opens the fields; Save or Cancel) with D156's
  * field-level conflicts. Save sends only what changed, with `If-Match` of the version the edit
  * started from. On a 412 the editor reads the latest version and runs a three-way merge
  * (lib/three-way.ts) of where the edit started, the form, and the latest:
@@ -225,7 +225,7 @@ export function EditForm({ editor }: { editor: ThingEditor }) {
     autoFocus: editor.focusField === path,
     ...(err(path) ? { errorMessage: err(path), isInvalid: true } : {}),
   });
-  // D10 (Q11): serialized or metered types, or a thing with a meter, are always one.
+  // D10: serialized or metered types, or a thing with a meter, are always one.
   const quantityForced =
     caps.includes('serialized') || caps.includes('metered') || thing.meters.length > 0;
 

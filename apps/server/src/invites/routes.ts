@@ -20,7 +20,7 @@ import {
   newInviteToken,
 } from './token.js';
 
-// Invites (task 20; D33, D46, D48, D180, D181, D193; screens §5 Invite, Accept invite).
+// Invites (D33, D46, D48, D180, D181, D193; Accept invite).
 
 /** Pending (unaccepted, unexpired) invites a location may have at once (review M9). */
 export const MAX_PENDING_INVITES = 50;
@@ -30,7 +30,7 @@ export const MAX_PENDING_INVITES = 50;
 //   copy, share or show;
 // - an email invite: the link is mailed to that address and is *not* in the response. That is
 //   what lets holding the token prove the mailbox: accepting marks the address verified, and
-//   kept.accept_invite() then binds the invite to it (§7.10). The mail is a job enqueued in the
+//   kept.accept_invite() then binds the invite to it. The mail is a job enqueued in the
 //   create transaction, and the job makes the token (invites/mail-job.ts).
 // Previews and acceptance never say why an invite doesn't work: unknown, used, expired, revoked,
 // or its creator no longer an admin are all 404 `invite_invalid` (a 410 would confirm that a

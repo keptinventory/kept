@@ -17,7 +17,7 @@ import { createWarranty } from '../../warranties/service.js';
 import type { HbLookups } from './lookups.js';
 import type { HbOp, NameRef, Ref, ThingOp } from './plan.js';
 
-// Applying one planned Homebox step (step-7 plan T10) through the step-2 services, as a request
+// Applying one planned Homebox step through the step-2 services, as a request
 // would: each writes its own audit row as the importing person, and `created_via = 'import'` on
 // things. Every step remembers what it made in import_source_ids (source `homebox`) under its
 // key, in the same transaction, so a resumed or re-run import never makes it twice. The job
@@ -30,7 +30,7 @@ export type ApplyCtx = {
   requestId: string;
   runId: string;
   locationId: string;
-  /** manifest.groupId: the legacy codes' collection (plan Q4). */
+  /** manifest.groupId: the legacy codes' collection. */
   collection: string;
   look: HbLookups;
   files: FileStorage | null;

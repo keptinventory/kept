@@ -1,5 +1,5 @@
 // The evaluation harness's scoring maths, and a whole run on the synthetic fixtures with the mock
-// provider (plan T11: "score.test.ts runs the harness on the synthetic fixtures with the mock
+// provider ("score.test.ts runs the harness on the synthetic fixtures with the mock
 // provider and asserts the scoring maths"). No network: the provider is the mock.
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -283,7 +283,7 @@ describe('a mock run on the synthetic fixtures', () => {
     expect(stats.date).toMatchObject({ n: 3, correct: 2, tp: 2, fp: 1, fn: 1, falseAccepts: 1 });
     expect(stats.currency).toMatchObject({ n: 3, correct: 2, falseAccepts: 1 });
     expect(stats.warranty_terms_printed).toMatchObject({ n: 3, correct: 3, droppedByChecks: 1 });
-    // A reading's confident nonsense (the spike's 0.04340057 at 0.98) is a false accept.
+    // A reading's confident nonsense (0.04340057 at 0.98, seen in a trial run) is a false accept.
     const reading = Object.fromEntries(
       fieldStats([by('reading-odometer')]).map((s) => [s.field, s]),
     );
@@ -291,7 +291,7 @@ describe('a mock run on the synthetic fixtures', () => {
 
     // The paper outlines: T10's wrong one cuts the paper; a full frame isn't cropped.
     expect(receipts.map((r) => r.crop?.verdict)).toEqual(['cuts_paper', 'no_crop', 'good']);
-    // V2: two of three shelf objects boxed.
+    // Two of three shelf objects boxed.
     expect(by('multi-shelf').multi).toMatchObject({
       expected: 3,
       predicted: 4,

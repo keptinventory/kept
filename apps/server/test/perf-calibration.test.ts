@@ -18,7 +18,7 @@ const times = (k: ComponentMs | number, ref = REF): ComponentMs =>
     ? { cpu: ref.cpu * k, db: ref.db * k, vector: ref.vector * k }
     : { cpu: ref.cpu * k.cpu, db: ref.db * k.db, vector: ref.vector * k.vector };
 
-// The nightly figures the issue is about (semantic search's p95 under §3.1's 300 ms): the fast
+// The nightly figures the issue is about (semantic search's p95 under its 300 ms): the fast
 // runner on Oct 12 and a slow one on Oct 17, the same code. On the slow night the snapshot bench,
 // which no limit here scales, ran its full snapshot at p50 523.6 ms against 311.5 ms: 1.68×. That
 // stands in for the slow runner's reference work.

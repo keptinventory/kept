@@ -1,6 +1,6 @@
 /**
- * Pacing from the provider's own rate-limit headers (D206; engineering spec §3.5, §7.15 "The
- * pacer"; spike 2026-09-26 §4). After every call the headers are stored; before the next one,
+ * Pacing from the provider's own rate-limit headers (D206).
+ * After every call the headers are stored; before the next one,
  * when the provider's remaining tokens are below the call's estimate and the reset is still
  * ahead, the call waits: in the job for up to 10 s, otherwise by holding the work until the
  * reset (`waiting_provider`, no attempt spent).
@@ -8,11 +8,11 @@
  * Header names, each read from the provider's own API reference:
  * - Groq and OpenAI: `x-ratelimit-limit-tokens`, `x-ratelimit-remaining-tokens`, and
  *   `x-ratelimit-reset-tokens` as a Go-style duration (`21.037s`, `1m26.4s`, `6m0s`). Groq's
- *   values are the spike's recorded ones; OpenAI's rate-limits guide lists the same three.
+ *   values are the ones recorded from real calls; OpenAI's rate-limits guide lists the same three.
  * - Anthropic: `anthropic-ratelimit-tokens-limit`, `-remaining` (rounded to the nearest
  *   thousand) and `-reset` (RFC 3339), from platform.claude.com/docs/en/api/rate-limits.
  * - Google, OpenRouter and OpenAI-compatible servers: none documented (OpenRouter sent none in
- *   the spike), so `readLimits` returns null and Kept's budgets and the breaker pace them.
+ *   a trial run), so `readLimits` returns null and Kept's budgets and the breaker pace them.
  */
 import type { ProviderKind } from '@kept/shared';
 
@@ -104,7 +104,7 @@ export function readLimits(
   return { limitTokens: limit, remainingTokens: remaining, resetAt };
 }
 
-/** The longest the job sleeps in place; anything longer holds the work (§7.15). */
+/** The longest the job sleeps in place; anything longer holds the work. */
 export const MAX_INLINE_WAIT_MS = 10_000;
 
 export type PaceDecision =

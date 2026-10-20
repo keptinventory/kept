@@ -1,6 +1,6 @@
 /**
  * The words of every first-use hint and of the full guided tour (D138), in one place. driver.js
- * writes them with `innerHTML` (spike V18), so they are Kept's own translated constants only:
+ * writes them with `innerHTML`, so they are Kept's own translated constants only:
  * no name, place or anything a person typed ever goes into a hint. A caller names the hint by
  * its key; it can't pass text.
  */

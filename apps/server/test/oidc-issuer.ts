@@ -3,7 +3,7 @@ import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { exportJWK, generateKeyPair, type JWK, SignJWT } from 'jose';
 
-// A fake OpenID provider on 127.0.0.1 for the OIDC tests (step-6 T16; spike S6.7 recommended an
+// A fake OpenID provider on 127.0.0.1 for the OIDC tests (an early trial recommended an
 // in-process stub over its 416 MB container). It serves discovery, a JWKS, an authorize endpoint
 // that logs in whoever the test named last (`login(sub, claims)`) and redirects back with a code,
 // and a token endpoint that checks the client and PKCE (S256) and answers an RS256 id_token with

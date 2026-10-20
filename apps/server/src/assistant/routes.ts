@@ -18,9 +18,9 @@ import {
   turnView,
 } from './threads.js';
 
-// The assistant's routes (step-6 plan T13; D22–D24, D123, D164, D166, D179; Q2, Q5). Threads are
+// The assistant's routes (D22–D24, D123, D164, D166, D179). Threads are
 // the caller's own, private even from admins and the instance admin (D23): someone else's is a
-// 404. There is no streaming (Q2): POST …/turns answers 202 with the turn's id, and the web polls
+// 404. There is no streaming: POST …/turns answers 202 with the turn's id, and the web polls
 // GET /assistant/turns/:id every second while it is live.
 //
 // Audit (D188): threads, turns and the private messages in them are not audit subjects (D23); a

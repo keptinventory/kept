@@ -1,13 +1,13 @@
 /**
- * Converting a custom field (step-2 Q3, D172, D177; step-7 plan T1, T18, T24): to or from secret,
+ * Converting a custom field (D172, D177): to or from secret,
  * or to another kind, always through a preview. Only the account owner converts, for every
- * location that uses the type (plan Q20); a value that can't become the new kind goes to the
+ * location that uses the type; a value that can't become the new kind goes to the
  * thing's notes as "<label>: <value>".
  */
 import type { FieldKind } from './inventory.js';
 
 /** Which kind each kind may become. `money`, `person`, `vendor` and `file` become nothing: 400
- * `field_convert_blocked`. Secret is a flag on a text field, not a kind (Q3): see
+ * `field_convert_blocked`. Secret is a flag on a text field, not a kind: see
  * `canConvertSecret`. */
 export const CONVERSIONS: Readonly<Record<FieldKind, readonly FieldKind[]>> = Object.freeze({
   text: ['number', 'date', 'url', 'select'],
@@ -55,5 +55,5 @@ export type ConvertPreview = {
   total: number;
 };
 
-/** POST /type-fields/:id/convert. Not undoable (a secret-class change, screens §8). */
+/** POST /type-fields/:id/convert. Not undoable (a secret-class change). */
 export type ConvertResult = { converted: number; toNotes: number };

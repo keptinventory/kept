@@ -1,5 +1,5 @@
 /**
- * First-use hints (D138; plan T31; spike V18) with the real driver.js: shown once per person
+ * First-use hints (D138) with the real driver.js: shown once per person
  * (the server's `seen` is written when it shows, so a second render doesn't show it), skipped
  * for a module that's off, "Got it" records `dismissed` and puts focus back, one at a time.
  * The RTL placement is driver-kit.test.ts's.

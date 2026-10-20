@@ -1,9 +1,9 @@
-// The image trim (step-8 plan T15): drop what
+// The image trim: drop what
 // better-auth's *optional* peers drag into the production install.
 //
 // pnpm links an optional peer whenever the workspace has it (vitest, drizzle-kit), and none of
 // resolvePeersFromWorkspaceRoot: false, dedupePeerDependents: false, an override to '-', or a
-// packageExtensions narrowing changed that in the lockfile (pnpm 11.23.0; see the spike note).
+// packageExtensions narrowing changed that in the lockfile (pnpm 11.23.0).
 // So the Dockerfile's prod-deps stage prunes right after `pnpm install --prod`: walk the pnpm
 // virtual store from the shipped packages' own node_modules, refuse to follow better-auth →
 // {vitest, drizzle-kit}, and delete every store entry the walk never reached, plus the symlinks

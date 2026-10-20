@@ -1,5 +1,5 @@
 /**
- * An old label opened in Kept (D146; plan T20): a Homebox label's `/a/<assetId>`, `/item/<uuid>`
+ * An old label opened in Kept (D146): a Homebox label's `/a/<assetId>`, `/item/<uuid>`
  * or `/location/<uuid>`, when the old Homebox hostname is pointed at Kept. It resolves the label's
  * whole URL exactly as the scanner reads one (components/scan/label-link.tsx): the phone's copy
  * first, so it opens offline, then `POST /scan/resolve`. One match opens it; an asset ID on things

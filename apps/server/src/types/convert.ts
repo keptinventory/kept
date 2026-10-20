@@ -22,8 +22,8 @@ import { aadOf, requireRecoveryKit } from '../secrets/service.js';
 import { FIELD_COLUMNS, type FieldRow } from './graph.js';
 import { typeConflict } from './service.js';
 
-// Converting a field (step-7 plan T18; step-2 Q3, D172, D177, D193; plan Q20; engineering spec
-// §7.13): to or from secret, or to another kind, always previewed first. The work is the three
+// Converting a field (D172, D177, D193):
+// to or from secret, or to another kind, always previewed first. The work is the three
 // owner-only doors of 0085 around the app's keyring, which SQL doesn't hold:
 //
 // - preview: kept.field_conversion_preview(), per location of the account, how many things and
@@ -43,7 +43,7 @@ import { typeConflict } from './service.js';
 // (409 `module_off`); back to plain needs the caller to be allowed to reveal every value (a
 // field policy can narrow that, 403), since making it plain shows them to every member. A kind
 // the field can't take is 400 `field_convert_blocked`. Audited `type.field_convert` with counts
-// only, and not undoable (a secret-class change, screens §8).
+// only, and not undoable (a secret-class change).
 //
 // A kind change follows the door's rules (kept.field_value_converts) value for value, so the
 // result is what the preview said: a value that doesn't fit goes to the thing's notes as
@@ -366,7 +366,7 @@ export async function convertField(
       at + PAGE >= rows.length,
     ]);
   }
-  // A value sent to the notes changes what the thing is embedded from (step-6 T14).
+  // A value sent to the notes changes what the thing is embedded from.
   for (const thingId of toNotes) await enqueueEmbed(ctx.jobs, client, thingId);
 
   const result: ConvertResult = {

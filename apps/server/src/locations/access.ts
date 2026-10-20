@@ -2,10 +2,10 @@ import { type Action, can, type Role } from '@kept/shared';
 import type pg from 'pg';
 import { forbidden, notFound } from '../http/errors.js';
 
-// Who the caller is in a location (task 19). Read under the caller's own policies: a location
+// Who the caller is in a location. Read under the caller's own policies: a location
 // they can't see (not a member, expired, deleted, or require_2fa without a second factor) has no
-// membership row for them here, and is a 404 like any row they can't see (§7.7). A location they
-// can see but may not change answers 403 from can() (product design §7.1).
+// membership row for them here, and is a 404 like any row they can't see. A location they
+// can see but may not change answers 403 from can().
 
 export type CallerMembership = {
   membershipId: string;
@@ -37,7 +37,7 @@ export async function requireMembership(
   return found;
 }
 
-/** 403 unless `role` may do `action` (§7.1). */
+/** 403 unless `role` may do `action`. */
 export function requireCan(role: Role, action: Action, hint?: string): void {
   if (!can(role, action)) throw forbidden(hint);
 }

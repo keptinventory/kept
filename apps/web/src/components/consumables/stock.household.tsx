@@ -1,6 +1,6 @@
 /**
  * Consumables' sheet and the thing page's "Keep at least" (D14, D150, D172, D183; screens "Other
- * screens"; frames 08 "Consumables" and "Adjust"; step-7 plan T23). Loaded on demand (its own
+ * screens"; frames 08 "Consumables" and "Adjust"). Loaded on demand (its own
  * chunk in assets/household/, vite.config.ts): both read and write the server.
  *
  * - **Adjust** (`AdjustSheet`): −, + and the count, which takes ٠–٩ and ٫ as well as 0–9 (D172)
@@ -10,10 +10,10 @@
  *   they recorded (D150). The thing and its rule are read fresh when the sheet opens: a list row
  *   carries neither version.
  * - **Keep at least** (`KeepAtLeastSection`): on a consumable thing's page where the module is
- *   on, its minimum and whether it's low (fewer than the minimum, plan Q19), with Adjust for
+ *   on, its minimum and whether it's low (fewer than the minimum), with Adjust for
  *   members and above (`things.edit`).
  *
- * Offline, Adjust is disabled with "Needs a connection" (screens §3).
+ * Offline, Adjust is disabled with "Needs a connection".
  */
 import { STOCK_MIN_MAX } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
@@ -276,7 +276,7 @@ export function StockLine({ quantity, min }: { quantity: number; min: number | n
 }
 
 /**
- * The thing page's "Keep at least" (T23): only on a consumable type (inherited counts) where the
+ * The thing page's "Keep at least": only on a consumable type (inherited counts) where the
  * module is on. Members and above adjust it; others see it. Rendered only for a thing with a type
  * (./lazy.tsx), so its type can be read.
  */

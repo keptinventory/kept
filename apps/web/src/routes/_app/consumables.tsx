@@ -1,5 +1,5 @@
 /**
- * Consumables (plan T23; D14, screens "Other screens"): what's running low in a location, low
+ * Consumables (D14, screens "Other screens"): what's running low in a location, low
  * first, with Adjust (components/consumables/stock-list.tsx). Its chunk loads on demand from
  * assets/household/ (vite.config.ts): the list reads the server.
  */

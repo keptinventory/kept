@@ -11,9 +11,9 @@ import {
   shortTitle,
 } from './words.js';
 
-// L113: every reminder text names the thing (or place), its path, the location and the local
+// Every reminder text names the thing (or place), its path, the location and the local
 // date, in every language (D204): the immediate mail, the digest, and the push payload, for each
-// source and each kind it produces (plan Q7). Money never appears (no field could carry it).
+// source and each kind it produces. Money never appears (no field could carry it).
 
 const PUBLIC_URL = 'https://kept.example.org';
 const ctx = { publicUrl: PUBLIC_URL };
@@ -42,7 +42,7 @@ function facts(locale: MailLocale, f: Partial<ReminderFacts>): ReminderFacts {
   };
 }
 
-/** Every source with every kind it produces (Q7). */
+/** Every source with every kind it produces. */
 const CASES = ACTIVE_SOURCE_TYPES.flatMap((sourceType) =>
   SOURCE_KINDS[sourceType].map((kind) => ({ sourceType, kind })),
 );

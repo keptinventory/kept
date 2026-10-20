@@ -10,7 +10,7 @@ import { renderAudit } from '../audit/render.js';
 import { withScope } from '../db/scope.js';
 
 // Task 12 through the front door: purchases with lines, their links to things, and money gating
-// (D13, D110, D115, D136, D168, D189; plan Q2), as the web contract has them
+// (D13, D110, D115, D136, D168, D189), as the web contract has them
 // (apps/web/src/api/inventory/types.ts, "currencies and purchases").
 //
 // The household: Bob owns "Bob home" and "Bob cabin" (household preset: money on) and "Bob shed"

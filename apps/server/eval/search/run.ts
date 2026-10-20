@@ -1,5 +1,5 @@
 /**
- * The search evaluation (step-6 plan T17, T14; D200, D207; Q14; S6.5).
+ * The search evaluation (D200, D207).
  *
  *   pnpm eval:search [--cases <file>] [--provider mock|openai|google|compatible
  *     --model <chat model> --embed-model <id> [--base-url <url>]] [--out <folder>] [--report]
@@ -9,7 +9,7 @@
  * only, then with meaning fused in (search/semantic.ts prepareSemantic(): the location's embeddings
  * model, the query embedded once per payer and model), on the `households` seed embedded by the
  * real backfill. Recall@10 and MRR per mode, and per kind of query (`words`, `meaning`). The local
- * model (D207) isn't built (S6.5): its column says so.
+ * model (D207) isn't built: its column says so.
  *
  * The mock by default (KEPT_AI_MOCK's concept embedder): CI checks the harness and the maths. A
  * real run reads its key from `KEPT_EVAL_API_KEY` only and is the maintainer's step; its report is

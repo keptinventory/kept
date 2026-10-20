@@ -1,8 +1,8 @@
 /**
- * The assistant button in the page header (screens §1: "the assistant button" on every screen,
+ * The assistant button in the page header ("the assistant button" on every screen,
  * beside the notification bell). It opens and closes the sheet (phone) or the docked panel (768 px
  * and up) through ./store.ts, as ⌘K's hand-off and ⌘J do. Offline it stays, disabled with the
- * reason (screens §3, frame 04 · 3: "Assistant, needs a connection"); with the AI assistant module
+ * reason (frame 04 · 3: "Assistant, needs a connection"); with the AI assistant module
  * off in every location you belong to it isn't shown (D191: the module switch turns it off).
  */
 import { useLingui } from '@lingui/react/macro';

@@ -30,7 +30,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE kept_owner IN SCHEMA kept
 CREATE SEQUENCE IF NOT EXISTS kept.change_seq;
 GRANT USAGE ON SEQUENCE kept.change_seq TO kept_app, kept_system;
 
--- Row bookkeeping for every mutable table (§1, §7.4). Cache columns are excluded by the caller.
+-- Row bookkeeping for every mutable table. Cache columns are excluded by the caller.
 CREATE FUNCTION kept.touch_row() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
   NEW.change_seq := nextval('kept.change_seq');

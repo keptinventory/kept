@@ -23,7 +23,7 @@ import {
   nextCursor,
 } from './views.js';
 
-// Locations (task 19; D46, D48, D149, D180, D190, D191; engineering spec §7.7). Every route runs
+// Locations (D46, D48, D149, D180, D190, D191). Every route runs
 // as the signed-in user in one kept_app transaction: RLS decides what exists for them (a 404
 // otherwise), can() what their role may do (a 403), and the write and its audit event commit
 // together.
@@ -31,7 +31,7 @@ import {
 // Security review of tasks 19–21: PATCH and the module switches lock the location row before
 // comparing If-Match, so of two racing edits one gets 412 (M2); a module switch bumps the
 // location's row_version, which is its If-Match (M2); module switches are the owners' and admins'
-// in the policies too (0010, I3). The lists are paginated (§7.7, M8): `limit` and `cursor`,
+// in the policies too (0010, I3). The lists are paginated (M8): `limit` and `cursor`,
 // answering `nextCursor`.
 
 const Name = z.string().trim().min(1).max(100);
@@ -47,7 +47,7 @@ const CreatableKind = z.enum(
 );
 
 const CreateBody = z.object({
-  /** A client-generated UUIDv7 (§7.7), for offline-first clients; the server makes one if absent. */
+  /** A client-generated UUIDv7, for offline-first clients; the server makes one if absent. */
   id: z.uuid().optional(),
   name: Name,
   kind: CreatableKind,
@@ -67,7 +67,7 @@ const PatchBody = z
     languages: z.array(z.string().regex(/^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8}){0,3}$/)).max(10),
     moneyVisibleToViewers: z.boolean(),
     longUnseenMonths: z.number().int().min(1).max(120),
-    /** Owner only (§7.14). Turning it on needs a second factor in this session. */
+    /** Owner only. Turning it on needs a second factor in this session. */
     require2fa: z.boolean(),
     /** Owner only (D165): a current member, or null to clear. */
     successorUserId: z.uuid().nullable(),
@@ -246,7 +246,7 @@ export async function locationRoutes(
         if (settings.timezone !== undefined) settings.timezone = requireZone(settings.timezone);
         if (settings.currency !== undefined) await requireCurrency(client, settings.currency);
         if (require2fa === true && !before.require2fa && !scope.mfa) {
-          // Otherwise the owner would hide the location from their own session (§7.14).
+          // Otherwise the owner would hide the location from their own session.
           throw new AppError('mfa_required', 403, 'Confirm your own second factor first.');
         }
 

@@ -1,6 +1,6 @@
 /**
  * A thing's derived state as a pill: always an icon, a word and a colour together, never colour
- * alone (screens §4, D134). Step 2 has uncertain, draft, ended and needs review; step 4 adds
+ * alone (D134). Step 2 has uncertain, draft, ended and needs review; step 4 adds
  * lent, borrowed and in repair (D119).
  */
 import { useLingui } from '@lingui/react/macro';

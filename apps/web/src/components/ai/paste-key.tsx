@@ -1,5 +1,5 @@
 /**
- * "Paste your key → Test" (D191, D202, D206; screens §5 AI settings §3). One box: the provider is
+ * "Paste your key → Test" (D191, D202, D206). One box: the provider is
  * read from the key's prefix (`detectKind`: an `sk-or-` key is OpenRouter, not OpenAI; `gsk_` is
  * Groq, which pre-selects the recommended model). A key Kept can't place opens Advanced to choose
  * the provider. Saving sends the key once and then runs Test: one real photo request and one
@@ -285,7 +285,7 @@ function Check({ ok, children }: { ok: boolean; children: ReactNode }) {
 
 /**
  * "✓ Photos ✓ Structured answers · Test used 2,700 tokens · ≈ USD 0.0022". The photo check's
- * `latencyMs` is 0 when no photo request was made (T9: paused, or refused before it was sent), so
+ * `latencyMs` is 0 when no photo request was made (paused, or refused before it was sent), so
  * that one reads "not sent", never "not read".
  */
 export function TestResultLine({ result }: { result: AiTestResult }) {

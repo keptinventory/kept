@@ -1,5 +1,5 @@
 /**
- * Settings → Connections (step-6 plan T21; D58, D63, D124, D179, screens §5): personal tokens and
+ * Settings → Connections (D58, D63, D124, D179): personal tokens and
  * connected apps on one list, a new token shown once with Copy and the client configs (URL and
  * header only, never an invented settings file) and gone from the page once closed, D179's
  * second step, the scope stopping at the role, revoke with an in-app confirm, recent changes by

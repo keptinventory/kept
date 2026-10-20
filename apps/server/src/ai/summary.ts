@@ -5,13 +5,13 @@ import { withSystem } from '../db/scope.js';
 import type { Mailer } from '../mail/mailer.js';
 import { aiSummaryChannels, insertNotice } from '../notify/notices.js';
 
-// The AI monthly summary (product design §8a: "AI in September: 312 calls, 0.8M tokens, ≈ USD
-// 1.12"; engineering spec §7.15 `ai.monthly_summary`, the 1st; plan Q35), never built in step 3.
+// The AI monthly summary ("AI in September: 312 calls, 0.8M tokens, ≈ USD
+// 1.12"; `ai.monthly_summary`, the 1st), never built in step 3.
 // The `ai-summary` job runs early on the 1st (UTC, as the ledger's months) and, for last month,
 // tells each person who paid for AI (an account owner for their account's key, or someone with a
 // key of their own) what it came to: kept.ai_month_summaries() (0059), totals only.
 //
-// - On by default; Settings → Me → Notifications turns it off (aiSummaryChannels, Q35): `inapp`
+// - On by default; Settings → Me → Notifications turns it off (aiSummaryChannels): `inapp`
 //   off silences it entirely, else it lands in the centre (`ai_summary`, its payload the month,
 //   calls and tokens: never money), and it is mailed while `email` is on too.
 // - Once per person and month: instance_settings `ai_summary` records who has had this month's,

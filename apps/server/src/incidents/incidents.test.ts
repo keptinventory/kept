@@ -21,7 +21,7 @@ import { reportJobs } from '../reports/jobs.js';
 import { exportKey } from '../storage/blob-store.js';
 import { incidentJobs } from './jobs.js';
 
-// Step 4, T18 (D158, D169, D180, D201; Q19–Q21): incidents, the insurance report and claim packs,
+// Step 4, T18 (D158, D169, D180, D201): incidents, the insurance report and claim packs,
 // through the front door. Reports are rendered for real (Typst in its child process) and read
 // back with poppler's pdftotext; claim packs are unzipped here (stored entries, no inflate).
 //

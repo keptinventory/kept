@@ -23,7 +23,7 @@ import type {
   ValuationView,
 } from './view.js';
 
-// Valuations (step-4 plan T8; D158, D110): dated values of a thing, the newest its current value
+// Valuations (D158, D110): dated values of a thing, the newest its current value
 // (the latest `valued_on`, then the latest made). Module `money` (the routes' config): with Money
 // off in the thing's location every route is 404 (a read) or 409 (a write) `module_off`.
 //
@@ -35,7 +35,7 @@ import type {
 //   location is.
 // - Audited on the thing's timeline (`rootThingId`), the value classed money (audit/classes.ts),
 //   so renderAudit() hides it from viewers. `valuation.update` and `valuation.delete` are
-//   undoable (undo.ts); a delete keeps the full row and its documents in the event (Q25).
+//   undoable (undo.ts); a delete keeps the full row and its documents in the event.
 
 export type ValCtx = {
   tx: Tx;

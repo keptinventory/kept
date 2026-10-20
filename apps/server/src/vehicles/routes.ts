@@ -16,7 +16,7 @@ import { costReport } from './costs.js';
 import { listVehicles } from './list.js';
 import { meterSeries } from './series.js';
 
-// Vehicles (step-5 plan T13; D26, D52, D188; screens §1, §8; Q2, Q5, Q8, Q22, Q24, Q25), in the
+// Vehicles (D26, D52, D188), in the
 // shapes of the web contract (apps/web/src/api/vehicles/{types,paths}.ts: VehicleRow,
 // VehiclesParams, CostReport, MeterSeries, StarterSchedulesBody, StarterSchedulesResult). Module
 // `vehicles`: the list reads every visible location with it on (so it declares none, as the

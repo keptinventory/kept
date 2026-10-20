@@ -1,6 +1,6 @@
 /**
  * Showing values: numbers, dates and amounts follow the reader's digits (D143); serials, IMEIs,
- * VINs, plates and codes are shown as printed (screens §8); user text is bidi-isolated.
+ * VINs, plates and codes are shown as printed; user text is bidi-isolated.
  */
 import { formatMoney } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
@@ -28,7 +28,7 @@ export const Bidi = ({ children }: { children: ReactNode }) => <bdi dir="auto">{
 
 /**
  * Codes and identifiers, shown as printed: monospace and never localised. `dir="auto"`, so a VIN
- * reads left to right and an Egyptian plate keeps its Arabic order (§8).
+ * reads left to right and an Egyptian plate keeps its Arabic order.
  */
 export const Printed = ({ children }: { children: ReactNode }) => (
   <bdi dir="auto" className="font-mono text-[14px] [overflow-wrap:anywhere]">
@@ -36,7 +36,7 @@ export const Printed = ({ children }: { children: ReactNode }) => (
   </bdi>
 );
 
-/** Keys whose text is an identifier printed on the thing (shown as printed, §8). */
+/** Keys whose text is an identifier printed on the thing (shown as printed). */
 const PRINTED_KEYS = new Set([
   'imei',
   'imei_2',

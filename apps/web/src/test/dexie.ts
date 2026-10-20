@@ -1,4 +1,4 @@
-/** A Dexie store on its own in-memory fake-indexeddb, for tests (plan T24). */
+/** A Dexie store on its own in-memory fake-indexeddb, for tests. */
 import { newId } from '@kept/shared';
 import { IDBFactory, IDBKeyRange } from 'fake-indexeddb';
 import { DexieStore } from '@/offline/dexie-store';

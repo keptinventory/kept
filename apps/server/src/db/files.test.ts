@@ -15,7 +15,7 @@ import {
 } from '../../test/tenancy.js';
 import { type Scope, withScope } from './scope.js';
 
-// Task 8: files, derivatives and attachments (engineering spec §1.5, §7.2, §7.13; D115, D117,
+// Files, derivatives and attachments (D115, D117,
 // D155, D177), plus saved views and hints (D42, D138). As kept_app unless noted.
 
 const db = await testDb();

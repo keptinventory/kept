@@ -14,7 +14,7 @@ import {
 import { withScope, withSystem } from './scope.js';
 
 // Step-4 T4 (0048, 0049): exchange rates, valuations, incidents and export runs under row-level
-// security, and the claim-pack doors (engineering spec §1.4, §1.10, §7.1; D158, D180; plan Q19).
+// security, and the claim-pack doors (D158, D180).
 // The AI money caps through exchange rates are in src/db/ai.test.ts.
 
 const db = await testDb();

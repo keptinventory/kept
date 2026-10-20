@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put your code below! --
--- Step 2, task 11: where a registry row is used, across the whole account (engineering spec
--- §7.9, §7.13; D11, D92, D123). The routes need it twice, and both reach past the caller's own
+-- Where a registry row is used, across the whole account (D11, D92, D123).
+-- The routes need it twice, and both reach past the caller's own
 -- locations:
 --   - DELETE of a brand, vendor, person or tag answers 409 `in_use` while a live thing (or, for a
 --     vendor, a purchase) uses it anywhere in the account. The foreign keys are ON DELETE SET
@@ -8,7 +8,7 @@
 --     one location could silently strip the brand off things in a location they can't see, with
 --     no audit row there.
 --   - Renaming a type, brand, person or tag leaves the search documents of the things using it
---     stale (§7.9) until kept.reindex_location() runs (T20). The route enqueues the `reindex` job
+--     stale until kept.reindex_location() runs. The route enqueues the `reindex` job
 --     for each location returned here, in its own transaction.
 -- Only the account's admins may ask (D123: they manage its registries), and the answer is
 -- location ids only, which go into job data and never into a response. A definer: things and

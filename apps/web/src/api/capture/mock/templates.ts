@@ -1,7 +1,7 @@
 /**
- * Mock handlers for templates and quick add (T19): account-level templates shared into chosen
+ * Mock handlers for templates and quick add: account-level templates shared into chosen
  * locations; members there can use them; editing needs admin of every location they're shared
- * with (Q17); payloads never carry money or secrets (D177).
+ * with; payloads never carry money or secrets (D177).
  */
 import { accessOf, liveThing, newId } from '../../inventory/mock/db';
 import type { MockState } from '../../mock/fixtures';

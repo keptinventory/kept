@@ -1,8 +1,8 @@
 /**
- * Settings → Export (plan T21; D68, D69, D149, D159): export a location you own or administer, or
+ * Settings → Export (D68, D69, D149, D159): export a location you own or administer, or
  * your own data, and the list of your exports with their downloads. `?sheet=me` opens "Export my
  * data" (Settings → Me links here); the list's search and filters are in the URL. Its chunk loads
- * on demand from assets/household/ (vite.config.ts): exports need a connection (screens §4).
+ * on demand from assets/household/ (vite.config.ts): exports need a connection.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';

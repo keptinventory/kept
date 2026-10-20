@@ -29,15 +29,15 @@ import {
   warrantyView,
 } from './view.js';
 
-// Warranties (step-4 plan T9; D53–D55, D195; Q26, Q27). Module `warranties` (the routes' config).
+// Warranties (D53–D55, D195). Module `warranties` (the routes' config).
 //
 // - Several per thing, by kind, the longest cover first (lifetime, then the latest last day); a
-//   term ends the day before its anniversary (`effective_ends_on`, L2). State: ended after its
+//   term ends the day before its anniversary (`effective_ends_on`). State: ended after its
 //   last day, expiring from `lead_days` before it (in the location's zone), active otherwise.
 // - The coverage bar (D195): bought (the purchase date, else the earliest start) → today →
 //   covered until (the longest cover among those not ended; @kept/shared coverage()).
-// - Written with `things.edit` (members and up). A thing with a warranty has quantity 1 (D10,
-//   Q26): 409 `quantity_not_one`, "Split it first".
+// - Written with `things.edit` (members and up). A thing with a warranty has quantity 1 (D10):
+//   409 `quantity_not_one`, "Split it first".
 // - Audited on the thing's timeline; `warranty.update` and `warranty.delete` are undoable
 //   (undo.ts). Deleting one leaves its claims without a warranty (the key is ON DELETE SET NULL);
 //   the event names them, so undo links them again.

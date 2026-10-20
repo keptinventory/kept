@@ -12,7 +12,7 @@ import { moveBoxOp } from './move-box.js';
 import { moveBoxRoomOp } from './move-box-room.js';
 import { notHere } from './not-here.js';
 
-/** One handler per op kind (plan T14). */
+/** One handler per op kind. */
 export const HANDLERS: { readonly [K in OpKind]: Handler<K> } = Object.freeze({
   create_thing: createThing,
   move,
@@ -29,7 +29,7 @@ export const HANDLERS: { readonly [K in OpKind]: Handler<K> } = Object.freeze({
 let registered = false;
 
 /**
- * The inbox's "Restore" (T15, D35) for every op kind: once the trashed target is back, the
+ * The inbox's "Restore" (D35) for every op kind: once the trashed target is back, the
  * dropped op runs again through its own handler, as the person restoring it, now. Its payload is
  * the one the drop stored (already upgraded to this build's version). Called when the routes are
  * registered; idempotent.

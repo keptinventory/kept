@@ -15,8 +15,8 @@ import {
 import { type Scope, withScope } from './scope.js';
 import { seedTypes } from './seed-reference.js';
 
-// Task 5: the type tree, place kinds and the account registries (engineering spec §1.3, §7.9,
-// §7.13; D11, D92, D123, D154, D177, D192; plan Q4, Q5), as kept_app unless noted.
+// The type tree, place kinds and the account registries (D11, D92, D123, D154, D177, D192),
+// as kept_app unless noted.
 
 const db = await testDb();
 const app = db.pools.app;

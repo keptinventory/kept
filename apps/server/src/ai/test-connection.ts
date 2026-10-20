@@ -1,10 +1,10 @@
 /**
- * "Test connection" (D188, D202, L50; plan T9's route calls this with no transaction open):
+ * "Test connection" (D188, D202; the AI settings route calls this with no transaction open):
  * two real calls through callModel, each a `connection_test` ledger row budgeted against the
  * provider's payer:
  * 1. vision: a 64×64 red square, "what colour is this square?", a one-word text answer;
  * 2. structured output: a text-only question answered as JSON against a one-field schema.
- * The spike's square cost ~1.3k tokens and ≈ USD 0.0011 on Groq. The result records whether
+ * In a trial run the square cost ~1.3k tokens and ≈ USD 0.0011 on Groq. The result records whether
  * each worked, so T9 can set `capabilities` and mark the model's `vision` (`visionSource:
  * 'test'`) where the listing didn't say.
  */

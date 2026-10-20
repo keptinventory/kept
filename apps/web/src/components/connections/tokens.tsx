@@ -1,7 +1,7 @@
 /**
- * Tokens and connected apps (screens §5 "Connections", D58, D63, D179, D180): the only place
- * tokens live. One list on the list standard (L88): search by name, filters for the location
- * (screens §5: "filtered by location"), the kind and whether it still works, grouped by kind so
+ * Tokens and connected apps (D58, D63, D179, D180): the only place
+ * tokens live. One list on the list standard: search by name, filters for the location
+ * ("filtered by location"), the kind and whether it still works, grouped by kind so
  * the connected apps (OAuth) sit apart from your personal tokens, and "Load more". Everything is
  * in the URL. `GET /tokens` takes only a cursor, so the narrowing is done here over the loaded
  * pages.

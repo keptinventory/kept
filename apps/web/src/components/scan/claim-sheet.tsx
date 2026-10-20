@@ -1,5 +1,5 @@
 /**
- * A blank label, claimed on its first scan (D43; plan T26, Q24; board frame 5a): "New box here"
+ * A blank label, claimed on its first scan (D43): "New box here"
  * (a name and a place) or "Attach to an existing thing" (search). Only for things and places in
  * the location the sheet was printed for.
  *

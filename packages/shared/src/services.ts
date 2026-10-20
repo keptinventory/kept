@@ -1,5 +1,5 @@
 /**
- * Service records, step 5's pure rules (screens §5 "Log a service", §7; step-5 plan T1, Q12, Q13):
+ * Service records, step 5's pure rules:
  * which schedules an invoice's lines complete, and whether the lines add up to the total.
  * Step 4's service records (apps/server/src/schedules/services.ts) own the rest.
  */
@@ -57,7 +57,7 @@ function holds(lineWords: readonly string[], word: string): boolean {
 }
 
 /**
- * The schedules an invoice's lines complete (Q13): a schedule matches when **one line** holds
+ * The schedules an invoice's lines complete: a schedule matches when **one line** holds
  * every significant word of its name. A name with no significant word never matches. It only
  * pre-ticks; the person decides. Ids in the schedules' order.
  */
@@ -78,7 +78,7 @@ export function matchSchedules(
 export type PricedLine = { quantity?: string | null; unitCost?: string | null };
 
 /**
- * Whether the lines add up to the total within ±1% (the Purchase rule, screens §7; the server's
+ * Whether the lines add up to the total within ±1% (the Purchase rule; the server's
  * purchases/view.ts `isFlagged`). Checked only when there is a total and every line has a cost;
  * otherwise `ok`. `sum` is the lines' sum (4 decimals at most) when every line has a cost, else
  * null: with the total omitted, it is the total to use.

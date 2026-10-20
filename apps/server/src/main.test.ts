@@ -10,7 +10,7 @@ import { loadEnv } from './config/env.js';
 import { createLogger } from './http/logger.js';
 import { startKept } from './main.js';
 
-// Task 16: KEPT_ROLE decides what the process runs (§7.11).
+// KEPT_ROLE decides what the process runs.
 
 const db = await testDb();
 let configDir: string;

@@ -9,20 +9,20 @@ import { scopedRead, scopedWrite } from '../http/write.js';
 import { auditMine } from '../notify/prefs.js';
 import { buildFeed, FEED_TOKEN, feedTokenHash, newFeedToken } from './feed.js';
 
-// The calendar feed (D142, D181; plan T17, Q23): a private, revocable iCal link to what's due.
+// The calendar feed (D142, D181): a private, revocable iCal link to what's due.
 //
 // GET    /api/v1/me/calendar-feeds      → {items: [{id, createdAt, lastFetchedAt, fetches, revokedAt}]}
 // POST   /api/v1/me/calendar-feeds      → 201 {id, url}: the URL (and its token) shown once;
 //                                         only the token's SHA-256 is stored. At most 3 live.
 // DELETE /api/v1/me/calendar-feeds/:id  → 204 (revoked; the row stays so the list says so)
 // GET    /cal/:token.ics (public)        → text/calendar. Unknown, revoked or a disabled user: 404,
-//                                         never saying which (Q23). 60 a minute per feed.
+//                                         never saying which. 60 a minute per feed.
 //
 // The public fetch has no session (`auth: 'none'`): kept.calendar_feed_user() (kept_system's
 // door, 0055) turns the token's hash into its user, counting the fetch, and the feed is built in
 // that user's own kept_app scope. The token is redacted from request logs (http/logger.ts, D181).
 
-/** Fetches a feed may take a minute (§3.2's share-link rate). */
+/** Fetches a feed may take a minute (the share-link rate). */
 export const FEED_FETCHES_PER_MINUTE = 60;
 
 const Params = z.object({ token: z.string().min(1).max(200) });

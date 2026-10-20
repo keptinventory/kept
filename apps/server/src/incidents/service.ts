@@ -21,22 +21,22 @@ import type { FileStorage } from '../storage/blob-store.js';
 import { readImage } from '../things/audit-image.js';
 import { rowsOf, type ThingRow } from '../things/view.js';
 
-// Incidents (D158, D169; engineering spec §1.4; step-4 plan T18): a burglary, fire, flood or loss
+// Incidents (D158, D169): a burglary, fire, flood or loss
 // grouping the things it touched, with its date, police and insurer references, notes and
 // documents; claims (D54) may belong to one. They belong to the Warranties & claims module
-// (product design §5: "incidents and claim packs"); the routes gate on it.
+// ("incidents and claim packs"); the routes gate on it.
 //
 // Who: anyone who sees the location reads its incidents; owners and admins create, change and
-// delete them (`incidents.manage`, §7.1; the policies of 0049 say the same). Every write runs as
+// delete them (`incidents.manage`; the policies of 0049 say the same). Every write runs as
 // the request's user under row-level security.
 //
 // - Creating one may end the listed things with a lifecycle (stolen, destroyed, lost: D158): each
 //   thing still in use gets its own `thing.lifecycle` event (undoable one by one, things/undo.ts)
-//   besides the incident's `incident.create` (a create: not undoable, §7.7).
+//   besides the incident's `incident.create` (a create: not undoable).
 // - PATCH writes `incident.update`, POST …/things `incident.things` (the thing list before and
 //   after), DELETE `incident.delete` with the full before-image (the row, its things, its
-//   documents and the claims under it): all three undoable for 7 days (D150, Q25; undo.ts).
-// - A hard delete (Q25): the incident's documents go with it (the attachments' foreign key), its
+//   documents and the claims under it): all three undoable for 7 days (D150; undo.ts).
+// - A hard delete: the incident's documents go with it (the attachments' foreign key), its
 //   claims and claim packs lose the link (SET NULL).
 
 export const MAX_INCIDENT_THINGS = 200;
@@ -259,7 +259,7 @@ export async function listIncidents(
     if (!parsed.success) throw invalid('The cursor is not valid; start again from the first page.');
     cursor = parsed.data;
   }
-  // The module is per location (§7.6): an incident in a location with Warranties & claims off
+  // The module is per location: an incident in a location with Warranties & claims off
   // is paused, not listed.
   const { rows: locs } = await client.query<{ id: string }>(
     `SELECT id FROM public.locations

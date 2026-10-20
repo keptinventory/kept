@@ -4,8 +4,8 @@ import path from 'node:path';
 import { describeBackupTarget, type ResolvedBackupTarget } from '../settings.js';
 import type { ResticRepo } from './restic.js';
 
-// A backup target → the restic repository in it (step-8 plan T5; R1's "Repository locations").
-// - A directory: `<dir>/restic`, beside the alpha's `runs/` and `blobs/` (plan Q2), which stay
+// A backup target → the restic repository in it (R1's "Repository locations").
+// - A directory: `<dir>/restic`, beside the alpha's `runs/` and `blobs/`, which stay
 //   until the operator removes them.
 // - S3: `s3:<endpoint>/<bucket>/<prefix>restic`, or for AWS itself the regional endpoint restic's
 //   docs give, `s3:s3.<region>.amazonaws.com/<bucket>/<prefix>restic` (restic expects path-style
@@ -19,7 +19,7 @@ import type { ResticRepo } from './restic.js';
 //   the known_hosts file holds only the pinned host key.
 // The ssh arguments are R1's: the pinned known_hosts only, strict checking, the key alone, batch
 // mode, and restic's own keep-alive advice for long uploads.
-// The target comes resolved from settings.ts (T10: the stored settings under the environment,
+// The target comes resolved from settings.ts (the stored settings under the environment,
 // secrets opened). `description` (logs, backup_runs.target) is settings.ts's
 // describeBackupTarget(): never a credential.
 

@@ -1,7 +1,7 @@
 /**
- * READING mode (engineering spec §2.1; D19, D112, D129): a meter's display. A reading is never
+ * READING mode (D19, D112, D129): a meter's display. A reading is never
  * applied: it always waits for review, because the model's confidence doesn't show when it is
- * wrong (spike 2026-09-26 finding 4: the same odometer read 0.04340057 and 52340, both at 0.98).
+ * wrong (the same odometer read 0.04340057 and 52340, both at 0.98).
  */
 import { type BuiltPrompt, type PromptContext, systemPrompt } from './common.js';
 

@@ -1,5 +1,5 @@
 /**
- * Account settings → Vendors (screens §5 Settings → Account; D11): the list standard, the add
+ * Account settings → Vendors (D11): the list standard, the add
  * box with the duplicate hint, and edit, merge and delete for the owner and admins.
  */
 import { createFileRoute } from '@tanstack/react-router';

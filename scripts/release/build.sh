@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 # Stage 3 of scripts/release.sh (sourced): build the platforms in $platforms from the commit and
-# push BY DIGEST, with no tag (L101), an SBOM and minimal provenance as BuildKit attestations
-# inside the index (spike R2). One run builds both (the laptop); the workflow builds one per
+# push BY DIGEST, with no tag, an SBOM and minimal provenance as BuildKit attestations
+# inside the index. One run builds both (the laptop); the workflow builds one per
 # runner (--arch) and release_merge joins the two digests into one index (--publish).
 # Sets index_digest and amd64_digest and/or arm64_digest.
 

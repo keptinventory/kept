@@ -8,7 +8,7 @@ import {
 } from './message-kit.js';
 import type { MailLocale } from './messages.js';
 
-// D180's configuration notices (step-6 plan T16; D204), in every language Kept mails in: every
+// D180's configuration notices (D204), in every language Kept mails in: every
 // active user hears when the instance's OIDC sign-in, its outgoing mail (host and sender) or its
 // default AI provider changes. Sent by the `transparency-notice` job (notices/transparency.ts),
 // once per change. They name the new setting and nothing secret: never a client secret, a key or

@@ -1,10 +1,10 @@
 /**
- * "Shared into Kept" (D140; engineering spec §2.7; plan T23, T25). Opens on
+ * "Shared into Kept" (D140). Opens on
  * `/capture?shared=<id>` with the files another app shared: RECEIPT by default for images and
  * PDFs, THING one tap away. The files wait in the offline store (pwa/share-target.ts) until they
  * are kept or discarded; closing the sheet leaves them there.
  *
- * `onKeep` turns the share into captures. It belongs to the capture pipeline (T25: target place,
+ * `onKeep` turns the share into captures. It belongs to the capture pipeline (target place,
  * the THING photo policy, the queue); until it is passed, the sheet offers Discard only.
  */
 import { Plural, Trans, useLingui } from '@lingui/react/macro';

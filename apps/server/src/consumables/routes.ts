@@ -17,7 +17,7 @@ import {
 } from './service.js';
 import { registerConsumablesUndo } from './undo.js';
 
-// Consumables (step-7 plan T17; D14, D183; Q19), module `consumables`, in the shapes of the web
+// Consumables (D14, D183), module `consumables`, in the shapes of the web
 // contract (apps/web/src/api/portability/{types,paths}.ts):
 //
 // GET    /api/v1/consumables?locationId*&state=low|all&placeId&cursor&limit

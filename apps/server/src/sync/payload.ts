@@ -17,8 +17,8 @@ import {
 } from '@kept/shared';
 import { AppError } from '../http/errors.js';
 
-// What `POST /api/v1/sync/ops` checks of an op before any handler runs (plan T14, Q2, Q3; D17,
-// D148; engineering spec §2.3, §7.4): the batch's payload versions, the ledger's key and hash, the
+// What `POST /api/v1/sync/ops` checks of an op before any handler runs (D17,
+// D148): the batch's payload versions, the ledger's key and hash, the
 // ops-only client-id window, and the payload itself.
 
 const DAY_MS = 86_400_000;
@@ -37,7 +37,7 @@ export const PAYLOAD_WINDOW: PayloadWindow = Object.freeze({
 });
 
 /**
- * The whole batch's refusal (Q3), or null: any op below the window is 409 `client_outdated`
+ * The whole batch's refusal, or null: any op below the window is 409 `client_outdated`
  * `{minPayloadVersion}` ("Update Kept to finish syncing"), any above it 409 `server_outdated`
  * ("Kept on the server is older than this app; ask your admin"). Nothing of a refused batch is
  * applied, and the phone keeps its queue. An old op wins over a new one in the same batch: the
@@ -85,8 +85,8 @@ export function parsedPayload<K extends OpKind>(
 export const LEDGER_KEY = /^[A-Za-z0-9_.:-]{8,200}$/;
 
 /**
- * A client-made UUIDv7 inside the ops-only window (Q2): up to 90 days old and 1 day ahead. The
- * online routes keep ±7 days (§7.7); a phone offline for weeks still syncs.
+ * A client-made UUIDv7 inside the ops-only window: up to 90 days old and 1 day ahead. The
+ * online routes keep ±7 days; a phone offline for weeks still syncs.
  */
 export function inOpsWindow(id: string, now: number = Date.now()): boolean {
   if (!isV7(id)) return false;
@@ -130,7 +130,7 @@ function canonical(value: unknown): string {
 /**
  * The op's `request_hash` in the ledger: what it asks for, as sent. The client version is left
  * out (an app update between two sends of one op is still the same op), and `dependsOn` counts as
- * a set. The phone re-sends an unanswered op unchanged (T24: a `sent` op is never upgraded), so a
+ * a set. The phone re-sends an unanswered op unchanged (a `sent` op is never upgraded), so a
  * replay hashes the same; a different body under the same key is `idempotency_mismatch`.
  */
 export function requestHash(item: QueueItem): string {

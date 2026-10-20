@@ -17,7 +17,7 @@ import { locations } from './tenancy.js';
 import { things } from './things.js';
 
 // Moving mode (1.x, D39 (5), D251). A move belongs to the location being packed (`location_id`,
-// the engineering spec's `from_location_id`), and may name the location it is going to
+// the data model's `from_location_id`), and may name the location it is going to
 // (`to_location_id`; null for a move within the same location). Its boxes are ordinary Kept
 // containers, each with a number in the move, the room it goes to and its state: packed, in
 // transit, unpacked. Unpacking moves the container, and with it everything inside, into its room

@@ -1,5 +1,5 @@
 /**
- * Semantic search (D200, D207; step-6 plan Q12–Q15). Things are embedded from a text built of
+ * Semantic search (D200, D207). Things are embedded from a text built of
  * what describes them, never secrets, serials, money or a file's raw text. `kept.embedding_text()`
  * in SQL is this function's twin and is checked against the same cases.
  */
@@ -8,21 +8,20 @@
 export const EMBEDDINGS_SOURCES = ['provider', 'local', 'off'] as const;
 export type EmbeddingsSource = (typeof EMBEDDINGS_SOURCES)[number];
 
-/** Reciprocal rank fusion's k (Q14): score = Σ 1 / (RRF_K + rank). */
+/** Reciprocal rank fusion's k: score = Σ 1 / (RRF_K + rank). */
 export const RRF_K = 60;
-/** The semantic side's candidates per query (Q14). */
+/** The semantic side's candidates per query. */
 export const SEMANTIC_LIMIT = 50;
 
 /**
- * The vector length Kept asks of every provider model that can shorten its vectors (spike S6.4
- * finding 2: 768 is the fastest exact scan, one shape for every model, and never 3,072). OpenAI
+ * The vector length Kept asks of every provider model that can shorten its vectors (768 is the fastest exact scan, one shape for every model, and never 3,072). OpenAI
  * takes it as `dimensions`, Google as `outputDimensionality`; an OpenAI-compatible server answers
  * its model's own length.
  */
 export const EMBED_DIMS = 768;
 
 /**
- * Why a search answered on keywords only (step-6 plan T14, §7.15), as GET /search's `semantic`
+ * Why a search answered on keywords only, as GET /search's `semantic`
  * says it: a cap paused the query's embedding (`paused`, until when), the provider asked to wait
  * (`waiting`), the server's embeddings are off (`off`), or no searched location has an embeddings
  * model (`keyword_only`). Absent or null: meaning was searched too.
@@ -44,7 +43,7 @@ export type EmbedTextInput = {
   notes?: string | null;
   /** Place names from the location down to the thing's container. */
   placePath?: readonly string[];
-  /** From the receipt's extraction: the vendor and the lines' descriptions, never an amount (Q12). */
+  /** From the receipt's extraction: the vendor and the lines' descriptions, never an amount. */
   receipt?: { vendor?: string | null; lines?: readonly { description?: string | null }[] } | null;
 };
 

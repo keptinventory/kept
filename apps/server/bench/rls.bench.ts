@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 /**
- * The RLS benchmark at 10,000 things (plan task 24; master plan risk #3, "RLS cost on a Pi").
+ * The RLS benchmark at 10,000 things ("RLS cost on a Pi").
  *
  *   pnpm --filter @kept/server bench                  unconstrained, the dev Postgres on 5452
  *   pnpm --filter @kept/server bench:pi               the gate: a Postgres container of its own
@@ -13,7 +13,7 @@
  * Options (after `--`): --things N (10000), --runs N (200), --warmup N (20), --write-runs N (30),
  * --pi-cpus N (implies --pi), --out <file.json>, --keep (leave the scratch database and
  * container), --db <name> (reuse a kept scratch database: no create or migrate; the seed finds
- * everything and adds nothing), --no-explain, --snapshot-only (only the sync snapshot, T12).
+ * everything and adds nothing), --no-explain, --snapshot-only (only the sync snapshot).
  *
  * What it does, in order:
  * 1. Creates its own scratch database (`kept_bench_<id>`, never the dev `kept`), migrates it as
@@ -38,9 +38,9 @@
  * warm-ups and 50 runs whatever --runs says. There is no bulk-tag route in step 2: the bulk tag
  * is 20 PATCHes, as a client makes it today.
  *
- * Budgets (engineering spec §3.1, plan T24; the Pi targets): page loads and search p95 < 300 ms,
+ * Budgets (the Pi targets): page loads and search p95 < 300 ms,
  * the thing page p95 < 200 ms, moving 200 things p95 < 1 s, and the offline snapshot of all
- * 10,000 things, every page of it, < 2 s (§3.1, D209; step-3 plan T12). The laptop gates of plan
+ * 10,000 things, every page of it, < 2 s (D209). The laptop gates of plan
  * T24 (and T12's 600 ms for the snapshot) are printed beside them for the unconstrained pass.
  */
 import { execFileSync } from 'node:child_process';
@@ -457,7 +457,7 @@ const BUDGET: Record<Kind, number | null> = {
   snapshot: 2000,
 };
 
-/** Plan T24's dev-laptop gates, by path. */
+/** The dev-laptop gates, by path. */
 const LAPTOP_GATE: Record<string, number> = {
   'search: hdmi': 100,
   'search: Arabic': 100,
@@ -732,7 +732,7 @@ async function main(): Promise<void> {
       writeFileSync(o.out, JSON.stringify(sofar, null, 2));
     };
 
-    // The offline snapshot (T12): the phone's first sync, every page at the default size, and a
+    // The offline snapshot: the phone's first sync, every page at the default size, and a
     // delta when nothing changed (one page). Fewer runs: a full pull is ten requests.
     const pullAll = async (who: Http) => {
       let ms = 0;

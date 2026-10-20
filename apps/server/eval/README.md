@@ -1,7 +1,7 @@
 # The extraction evaluation harness
 
 Measures how well an AI provider reads Kept's capture photos, per mode and per field, so the
-product's open assumptions are settled on evidence (product design §19):
+product's open assumptions are settled on evidence:
 
 - **V1**: vision models read seven-segment odometers reliably;
 - **V2**: providers return usable boxes for multi-item photos (1.x; measured only);
@@ -87,7 +87,7 @@ A folder of cases in either layout (both may be mixed):
 `mode` is `thing`, `receipt`, `label`, `reading`, or `multi` (the V2 probe). A reading case can
 give `"meter": {"kind": "distance", "unit": "km"}`, as the worker would.
 
-**Expected values** are the engineering spec's §2.1 shape without confidences. Only listed
+**Expected values** are the extraction shape (`packages/shared/src/extraction.ts`) without confidences. Only listed
 fields are scored.
 
 - `{"anyOf": ["Cordless drill", "Drill"]}` lists acceptable answers.

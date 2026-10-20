@@ -17,7 +17,7 @@ import {
   vectorLiteral,
 } from './provider.js';
 
-// `embed-thing` (D200, D206; step-6 plan T14), aggregated by jobs/step6.ts: a thing's embedding
+// `embed-thing` (D200, D206), aggregated by jobs/step6.ts: a thing's embedding
 // after a create or an edit that changes what it is embedded from. A tenant job sent in the
 // write's transaction (enqueueEmbed), debounced per thing, run in the editor's scope; `data` holds
 // only `{thingId}` and the handler re-reads everything under row-level security (jobs/boss.ts).

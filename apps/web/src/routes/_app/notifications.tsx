@@ -1,5 +1,5 @@
 /**
- * Notifications (plan T24; D39, frame "7 · Notification centre · phone · light"): grouped by
+ * Notifications (D39, frame "7 · Notification centre · phone · light"): grouped by
  * kind, each naming the thing, place, location and local date, with Complete, Snooze and Mark
  * returned inline; Mark all read; the filter strip (surface `notifications`: kind, location,
  * unread) and pull to refresh. Its chunk loads on demand from assets/household/ (vite.config.ts).

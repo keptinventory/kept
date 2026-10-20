@@ -13,10 +13,10 @@ import { invalid, notFound } from '../http/errors.js';
 import { enqueueReindex } from '../search/jobs.js';
 import { type Ctx, requireRole, splitThing, writableThing } from '../things/service.js';
 
-// The box check (plan T17; D10, D40, D45, D175; screens §6 and §8; Q25). Someone opens a box and
+// The box check (D10, D40, D45, D175). Someone opens a box and
 // counts what is directly inside it: nested boxes are one line each, checked as a unit, and what
 // is inside them keeps its own last-seen date (D45). The same service answers
-// `POST /api/v1/things/:id/box-check` and the `box_check` sync op (T14), in the caller's scoped
+// `POST /api/v1/things/:id/box-check` and the `box_check` sync op, in the caller's scoped
 // transaction. The web contract is apps/web/src/api/capture/types.ts `BoxCheckBody` /
 // `BoxCheckResult`.
 //
@@ -31,7 +31,7 @@ import { type Ctx, requireRole, splitThing, writableThing } from '../things/serv
 // move into it (a plain in-location move, D45) and are seen. They are stored as lines expected 0.
 //
 // One `box.check` audit event, as the caller, with every line's thing (and the split-off rows)
-// as subjects, undoable for 7 days (Q23): the undo restores each thing's seen date, "not here",
+// as subjects, undoable for 7 days: the undo restores each thing's seen date, "not here",
 // quantity and place, and trashes the split-off rows, as long as nothing changed them since.
 // splitThing writes its own `thing.split` / `thing.create` events, as a split from the thing's
 // page does, so each timeline says where the new row came from.
@@ -103,7 +103,7 @@ const stateOf = (r: Row): State => ({
 });
 
 export type BoxCheckOptions = {
-  /** `op` (T14) checked the client id against its own 90-day window (Q2). */
+  /** `op` checked the client id against its own 90-day window. */
   via: 'online' | 'op';
 };
 
@@ -307,7 +307,7 @@ export async function listBoxChecks(
 }
 
 // ---------------------------------------------------------------------------------------------
-// Undo (D150, Q23)
+// Undo (D150)
 // ---------------------------------------------------------------------------------------------
 
 type Diff = {

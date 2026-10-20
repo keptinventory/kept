@@ -2,7 +2,7 @@
  * A connected app (OAuth, D93, D125, D179): an app you allowed on Kept's consent page. Its name is
  * as the app calls itself, untrusted text (D179), so it is isolated and never a link. It shows what
  * it may do, where, when you allowed it and when it last called, with Revoke: Kept checks the
- * grant on every call, so the next call fails at once (step-6 plan Q7).
+ * grant on every call, so the next call fails at once.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { TokenRow } from '@/api/connections/types';

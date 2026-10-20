@@ -18,7 +18,7 @@ import {
 } from './service.js';
 import { MoveTarget } from './validate.js';
 
-// Moves (plan T15; D45, D118, D161, D177; engineering spec §6.1, §7.4, §7.5; plan Q13), in the
+// Moves (D45, D118, D161, D177), in the
 // shapes of the web contract (apps/web/src/api/inventory/types.ts: MovePreviewBody, MovePreview,
 // MoveBody, MoveResult, EmptyIntoBody):
 //
@@ -27,18 +27,18 @@ import { MoveTarget } from './validate.js';
 //   own container key and keeps its last-seen date (D45).
 // - Into another location it goes through kept.move_things() (0021, 0024), which moves the things
 //   with everything inside them, re-homes attachments, drops links that would cross locations,
-//   writes the sync tombstones in each source location (§7.4) and, across owner accounts, maps
+//   writes the sync tombstones in each source location and, across owner accounts, maps
 //   the registries (types with their chain, brands, tags, vendors, people by name only) and copies
-//   the purchase line with its receipts (Q13, D161). The definer writes no audit rows; this does.
+//   the purchase line with its receipts (D161). The definer writes no audit rows; this does.
 //
-// Audit (§7.5, D45): one `thing.move` per thing the caller moved, whose diff holds `location_id`
+// Audit (D45): one `thing.move` per thing the caller moved, whose diff holds `location_id`
 // (when it changed), `place_id`, `container_id` and `path` (the breadcrumb's names), with
 // `undoableUntil()` so things/undo.ts can put it back, and the thing plus everything inside it as
 // subjects, so the contents' timelines show "moved with Box 3" without an event of their own.
 // Across locations the same event is written in the source location too (renderAudit() shows it
 // without a diff to anyone who can't see the other end, D183). Links the move dropped are audited
 // as `thing.unlink` where they lived; registry rows it created in the target account get their
-// account-level `<entity>.create` rows (plan Q15), and each copied purchase a `purchase.create`
+// account-level `<entity>.create` rows, and each copied purchase a `purchase.create`
 // in the target location (no amounts in it).
 //
 // Refusals: an invisible thing, target or target location, or a target the caller can't write,
@@ -127,7 +127,7 @@ async function targetOf(client: pg.ClientBase, to: MoveTarget): Promise<Target> 
   };
 }
 
-/** A target location the caller can't change is as absent as one they can't see (plan T15). */
+/** A target location the caller can't change is as absent as one they can't see. */
 async function requireWritableTarget(client: pg.ClientBase, target: Target): Promise<void> {
   const me = await callerMembership(client, target.locationId);
   if (!me || !can(me.role, 'things.edit')) throw notFound();
@@ -370,7 +370,7 @@ const CODE_TAKEN_THERE =
 
 /**
  * 409 when something in `set` (the moved things and their contents) carries a code, own or
- * legacy, that the target location already has under any source (D208, §7.16: a location's codes
+ * legacy, that the target location already has under any source (D208; a location's codes
  * are unique whatever their source). Refused rather than dropped or renamed: a code is often a
  * printed label, and a move takes everything along (D161), so the person chooses which one
  * changes. The reply names the code and what holds it in the target location, which the caller
@@ -693,7 +693,7 @@ async function moveAndAudit(
   await auditedMany(ctx.tx, events);
 
   // Breadcrumbs and search documents under a moved container, and everything that changed
-  // location, are rebuilt by the reindex job (T20).
+  // location, are rebuilt by the reindex job.
   const containerMoved = moving.some((t) => (contents.get(t.id) ?? []).length > 0);
   const crossed = moving.some((t) => t.location_id !== target.locationId);
   if (containerMoved || crossed) {
@@ -763,7 +763,7 @@ export async function moveBackForUndo(
 /** POST /api/v1/things/move → {moved}. `expected` is the If-Match the client may send for a
  * one-thing move (security review #25): a stale one is 412; with several things it is a 400.
  * `opts.undoable: false` writes the move's rows without an undo window, for a caller that records
- * one undoable event of its own (the inbox's bulk "set place", T15). */
+ * one undoable event of its own (the inbox's bulk "set place"). */
 export async function moveThings(
   ctx: Ctx,
   body: MoveBody,

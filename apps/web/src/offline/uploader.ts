@@ -1,5 +1,5 @@
 /**
- * Uploads a queued op's files before the op is sent (plan T24; engineering spec §7.4; D34, D36,
+ * Uploads a queued op's files before the op is sent (D34, D36,
  * D117). One request per file, with the id the capture chose, so a retry after a dropped
  * connection is a replay the server answers with the same file (`PUT /files/:id`, idempotent on
  * id + SHA-256).

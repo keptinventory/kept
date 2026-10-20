@@ -20,7 +20,7 @@ export function signInWithPassword(identifier: string, password: string) {
     : api.post<SignInResult>(paths.auth.signInUsername, { username: id, password });
 }
 
-/** The generic OIDC provider's fixed id on the server (spike S6.7: the callback is `/callback/oidc`). */
+/** The generic OIDC provider's fixed id on the server (the callback is `/callback/oidc`). */
 export const OIDC_PROVIDER_ID = 'oidc';
 /** Google's (1.2, D226): the callback is `/callback/google`. */
 export const GOOGLE_PROVIDER_ID = 'google';
@@ -30,7 +30,7 @@ export type OutsideProvider = typeof OIDC_PROVIDER_ID | typeof GOOGLE_PROVIDER_I
 /**
  * Starts "Sign in with <name>" (step 6 T16, D127): the server answers the IdP's URL, which the page
  * then opens. Back from the IdP, Kept lands on `callbackURL`, or on `errorCallbackURL` with
- * `?error=<code>`. An invite's token travels in `additionalData` (the spike's invite path), so a
+ * `?error=<code>`. An invite's token travels in `additionalData` (the invite path a trial run settled on), so a
  * new person invited here can join with the IdP; Kept never links on email alone (D176).
  */
 export function startOidcSignIn(opts: {
@@ -73,7 +73,7 @@ export const listSignInMethods = () => api.get<SignInMethod[]>(paths.auth.listAc
 export const unlinkSignInMethod = (id: string) =>
   api.post<{ status: boolean }>(paths.auth.unlinkAccount, { accountId: id });
 
-/** The server mails a link to /auth/confirm#token=… (task 17); the fragment never reaches it. */
+/** The server mails a link to /auth/confirm#token=…; the fragment never reaches it. */
 export function requestMagicLink(email: string) {
   return api.post<{ status: boolean }>(paths.auth.signInMagicLink, { email: email.trim() });
 }

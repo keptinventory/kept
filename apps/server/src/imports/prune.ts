@@ -6,12 +6,12 @@ import { JOB_POLICIES } from '../jobs/policies.js';
 import type { SystemJobDeps } from '../jobs/system.js';
 import { type FileStorage, importArchiveKey } from '../storage/blob-store.js';
 
-// Pruning abandoned import runs (step-3 carry-over; step-7 plan T8, Q18), aggregated by
+// Pruning abandoned import runs, aggregated by
 // jobs/portability.ts. `prune-imports` runs daily as kept_system: for each run from
 // kept.stale_import_runs(now() - 7 days, 200) it deletes `i/<id>.zip` (importArchiveKey; a
 // missing blob is fine), then calls kept.clear_import_run(id), which clears the rows, the archive
 // columns, the inspection and any sealed key, and cancels a draft or checked run. A running run
-// is never listed. The archive of a finished run is deleted when its job ends (T10, T14); this
+// is never listed. The archive of a finished run is deleted when its job ends; this
 // catches what a crash, an abandoned upload or a refused archive left behind.
 
 /** Runs per door call. */

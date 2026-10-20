@@ -21,7 +21,7 @@ import {
   pendingInviteViews,
 } from './views.js';
 
-// Memberships (task 19; D46, D48, D180; screens §5 Members and roles).
+// Memberships (D46, D48, D180).
 // - Owners and admins manage members and viewers; only the owner manages admins (D48).
 // - An end date an admin sets is never later than their own (D46, D180).
 // - Nobody changes the owner's row; ownership moves only by transfer (a later, deliberate path).
@@ -34,7 +34,7 @@ import {
 //   transaction, each with a `member.recap` event.
 // - PATCH updates only the row version it read (If-Match), so of two racing edits one gets 412
 //   (review M2).
-// - GET is paginated (§7.7): `limit` and `cursor`, answering `nextCursor`. Pending invites (at
+// - GET is paginated: `limit` and `cursor`, answering `nextCursor`. Pending invites (at
 //   most 50, invites/routes.ts) come whole with every page.
 
 const Params = z.object({ id: z.uuid() });

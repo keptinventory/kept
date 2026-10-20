@@ -1,14 +1,14 @@
 /**
- * What every extraction prompt says (plan T10; engineering spec §2.1; lessons L51, L56; D179).
+ * What every extraction prompt says (D179).
  * Each mode's file adds its own rules and a `PROMPT_VERSION`, which the call ledger stores in
  * `llm_calls.prompt_version` (D206: the ledger never stores the prompt itself), so the call list
- * and the evaluation reports (T11) name the prompt that produced a result.
+ * and the evaluation reports name the prompt that produced a result.
  *
- * Prompt injection (L56, D179, §13): the photo and any document text are **data**. The rules say
+ * Prompt injection (D179): the photo and any document text are **data**. The rules say
  * so in the system prompt; document text (a PDF receipt's) goes in the user message between
  * markers, never in the system prompt; and nothing the model returns is ever executed: the code
  * checks (checks.ts) decide what is stored, every value is a field of a fixed schema, and IDs and
- * URLs are refused by the schema itself (L51).
+ * URLs are refused by the schema itself.
  */
 
 export type PromptContext = {

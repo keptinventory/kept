@@ -21,7 +21,7 @@ import { JOB_POLICIES, queueOptions } from '../jobs/policies.js';
 import { nightlyBackupTime } from '../jobs/system.js';
 import { configureBackupRoutes } from './backup-routes.js';
 
-// Step-8 plan T10: Admin → Backups through the front door, as the web calls it
+// Admin → Backups through the front door, as the web calls it
 // (apps/web/src/api/ops/{paths,types}.ts, mock/backup.ts). Instance admins only (404 for anyone
 // else); the PUT behind the recovery kit (D193) and https (D181); the environment's locks
 // (D186); the password never in a response, a log line, the audit or the idempotency store.
@@ -227,7 +227,7 @@ describe('GET and PUT /api/v1/admin/backup', () => {
       expect(logLines.join('')).not.toContain(secret);
     }
     expect(JSON.stringify(audit[0]?.diff)).toContain('s3SecretAccessKey');
-    // A kit downloaded before this change no longer holds the backup's credentials (T9).
+    // A kit downloaded before this change no longer holds the backup's credentials.
     const staleSince = await asOwner(
       db,
       async (c) =>

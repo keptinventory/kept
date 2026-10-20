@@ -8,15 +8,15 @@ import { gateFor } from '../serialize/gates.js';
 import { rowsOf, type ThingRow } from '../things/view.js';
 import { correctedValueSql } from './meters.js';
 
-// The Vehicles list (step-5 plan T13; D26, D52, D188; screens §1, §8; Q2, Q24): global across the
+// The Vehicles list (D26, D52, D188): global across the
 // caller's locations with Vehicles on. A vehicle is a live thing whose type reaches the built-in
-// Vehicle (`kept.is_vehicle_type`, Q2), read as the caller, so RLS decides what exists.
+// Vehicle (`kept.is_vehicle_type`), read as the caller, so RLS decides what exists.
 //
 // Each row: the thing (step 2's ThingRow), its odometer (first distance meter, else first meter)
-// with the latest accepted reading and the usage estimate (`kept.meter_estimate`, Q8), the next
+// with the latest accepted reading and the usage estimate (`kept.meter_estimate`), the next
 // schedule due from `agenda_items` (its date the estimated one when that comes first, labelled
 // `estimated`, D52), its documents that aren't `ok`, and its consumption when Fuel is on. Sold
-// and other ended vehicles show only when `f.state` asks (Q24): the agenda leaves them out, so
+// and other ended vehicles show only when `f.state` asks: the agenda leaves them out, so
 // they have nothing due.
 //
 // Filters (the `vehicles` surface): `q` (the name), `f.location`, `f.type`, `f.state` (default

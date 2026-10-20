@@ -1,5 +1,5 @@
 /**
- * "Printed OK?" after the print dialog (screens §6): yes records the print date on the batch's
+ * "Printed OK?" after the print dialog: yes records the print date on the batch's
  * codes (`POST …/printed`, which keeps the first date), so "Label everything unprinted" and
  * Home's "Print your first label" stop counting them; no leaves everything as it was, to print
  * again. The first confirmed print shows the `labels.first_print` hint once (D138; T31's hint

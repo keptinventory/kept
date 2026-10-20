@@ -1,5 +1,5 @@
 /**
- * What a scan says, before any lookup (engineering spec §2.4; D120, D137, D146). The phone's
+ * What a scan says, before any lookup (D120, D137, D146). The phone's
  * scanner, the capture camera and `POST /api/v1/scan/resolve` all start here, so every entry
  * point reads a label the same way.
  *

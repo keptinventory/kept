@@ -15,14 +15,14 @@ import { AppError, invalid } from '../http/errors.js';
 import { manyOf, notOf } from '../http/list-filters.js';
 import type { ResolvedFieldView } from './fields.js';
 
-// Request shapes and the checks the database would otherwise answer less helpfully (plan T14
-// validate.ts). The shapes are the web contract's (apps/web/src/api/inventory/types.ts).
+// Request shapes and the checks the database would otherwise answer less helpfully.
+// The shapes are the web contract's (apps/web/src/api/inventory/types.ts).
 //
 // - `custom` is validated against the type's resolved fields with @kept/shared's customSchema():
-//   unknown keys and secret keys are refused (secrets go through the secrets route, Q3). "Required"
+//   unknown keys and secret keys are refused (secrets go through the secrets route). "Required"
 //   applies to new edits only (D172): a request may leave a required field empty, but may not
 //   clear one it touches.
-// - Quantity (D10, §7.13, plan Q11) is checked against the resolved capabilities first, so the
+// - Quantity (D10) is checked against the resolved capabilities first, so the
 //   caller gets a 400 with a hint rather than the trigger's 409.
 
 const Text = (max: number) => z.string().trim().min(1).max(max);
@@ -83,7 +83,7 @@ export const CreateBody = z
     expiresOn: IsoDate.optional(),
     expiryLeadDays: z.number().int().min(0).max(3650).optional(),
     custom: Custom.optional(),
-    /** Quick add (T19): the template's payload is the base, and the fields sent here win. */
+    /** Quick add: the template's payload is the base, and the fields sent here win. */
     templateId: z.uuid().optional(),
     purchase: z
       .object({
@@ -178,10 +178,10 @@ export const ListQuery = z.object({
   state: manyOf(z.enum(DERIVED_STATES)).optional(),
   not: notOf(THING_LIST_FILTERS).optional(),
   lifecycle: z.enum(LIFECYCLES).optional(),
-  /** The things an import run brought in (its import_source_ids): "See what was imported"
-   * (step-7 T16). Owners and admins; for anyone else it matches nothing. */
+  /** The things an import run brought in (its import_source_ids): "See what was imported".
+   * Owners and admins; for anyone else it matches nothing. */
   importRunId: z.uuid().optional(),
-  /** `1`: only things that hold things (the container capability, or contents; T26). */
+  /** `1`: only things that hold things (the container capability, or contents). */
   container: z.enum(['0', '1']).optional(),
   /** `1`: only things whose type is consumable (D236: a service line's "From stock" picker). */
   consumable: z.enum(['0', '1']).optional(),
@@ -318,8 +318,8 @@ export async function checkCustomRefs(
 // ---------------------------------------------------------------------------------------------
 
 /**
- * D10 (plan Q11): quantity is 1 for anything serialized or metered (through inheritance) or with
- * a meter; 0 only for a consumable. Decimals are allowed (§7.13).
+ * D10: quantity is 1 for anything serialized or metered (through inheritance) or with
+ * a meter; 0 only for a consumable. Decimals are allowed.
  */
 export function checkQuantity(
   quantity: number,

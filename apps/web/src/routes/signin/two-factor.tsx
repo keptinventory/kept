@@ -1,5 +1,5 @@
 /**
- * The second-factor challenge (D176, spike S2). Reached after a password sign-in that answered
+ * The second-factor challenge (D176). Reached after a password sign-in that answered
  * `twoFactorRedirect`, or when a magic-link or passkey session is still pending (the server
  * answers 403 mfa_required until a factor is proven). An authenticator code, a backup code, or
  * a passkey with user verification all count; an emailed code never does.

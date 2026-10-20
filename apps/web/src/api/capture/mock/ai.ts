@@ -1,13 +1,13 @@
 /**
- * Mock handlers for AI settings, caps, prices, usage and the call ledger (T9, §7.15, D206).
+ * Mock handlers for AI settings, caps, prices, usage and the call ledger (D206).
  * Keys are write-only: a PUT stores the last four characters as `keyHint` and nothing else. The
  * first AI key anywhere needs the recovery kit (409 `recovery_kit_required`, D193). Home starts
  * paused until the 1st of next month at its money cap.
  *
- * Who may do what follows §7.15, approximated from the caller's roles: a location's owner writes
+ * Who may do what follows the server's AI rules, approximated from the caller's roles: a location's owner writes
  * its account's caps and resumes them; its admins read its cap; everyone reads their own calls.
  * Money follows the gate: a viewer's rows in a location that hides money carry no cost and
- * `moneyHidden: true`. The CSV export answers `text/csv` with the list's columns (T29a).
+ * `moneyHidden: true`. The CSV export answers `text/csv` with the list's columns.
  *
  * As T9's server does (apps/server/src/ai/api.ts): replacing a provider needs If-Match (428
  * without it, 412 when stale); a model listing the provider refuses or doesn't answer is 409
@@ -76,7 +76,7 @@ const NO_PROVIDER: AiStatus = {
   modelMissing: false,
 };
 
-/** "What uses AI in Kept", in the screens' order (§5 AI settings). */
+/** "What uses AI in Kept", in the AI settings screen's order. */
 const EXPLAIN_TASKS: LedgerTask[] = [
   'extract_thing',
   'extract_receipt',
@@ -165,7 +165,7 @@ function range(value: string | null): { min: number | null; max: number | null }
 const within = (n: number, r: { min: number | null; max: number | null }) =>
   (r.min === null || n >= r.min) && (r.max === null || n <= r.max);
 
-/** Input plus output; the output already includes reasoning (§7.15's cost note). */
+/** Input plus output; the output already includes reasoning (the cost note). */
 const totalTokens = (c: AiCall) => (c.tokens.input ?? 0) + (c.tokens.output ?? 0);
 
 /** Sums per currency, as canonical decimal strings. */
@@ -243,7 +243,7 @@ export function aiRoutes(state: MockState): MockRoute[] {
   const gated = <T>(fn: () => T) => sessionGate(state) ?? fn();
   const roleIn = (id: string) => state.locations.find((l) => l.id === id)?.role ?? null;
   const locationOf = (id: string) => state.locations.find((l) => l.id === id);
-  /** The caller owns this location, so they write its account's caps (§7.15). */
+  /** The caller owns this location, so they write its account's caps. */
   const ownsLocation = (id: string) => roleIn(id) === 'owner';
   /** Who can resume or fix AI in a location: its owner (the sample cast's Ibrahim). */
   const ownerName = (locationId: string) => {
@@ -312,7 +312,7 @@ export function aiRoutes(state: MockState): MockRoute[] {
     return resumed;
   };
 
-  /** The calls a scope may see (§7.15's visibility table), with money per the gate. */
+  /** The calls a scope may see (the visibility table), with money per the gate. */
   const callsIn = (scope: AiScope, locationId: string | null): AiCall[] | null => {
     const all = cap().calls;
     const gate = (c: AiCall): AiCall => {
@@ -351,7 +351,7 @@ export function aiRoutes(state: MockState): MockRoute[] {
     }
   };
 
-  /** The list's filters (§7.15), from the query string. */
+  /** The list's filters, from the query string. */
   const filtered = (calls: AiCall[], query: URLSearchParams): AiCall[] => {
     const not = new Set(query.getAll('not'));
     const any = (param: string, value: string | undefined) => {
@@ -728,7 +728,7 @@ export function aiRoutes(state: MockState): MockRoute[] {
       if (!found || !canEdit(found)) return notFound();
       const b = (body ?? {}) as ResumeAiBody;
       if (b.remove) {
-        // `kept.ai_resume` with remove: the row stays, its monthly limits cleared (T9).
+        // `kept.ai_resume` with remove: the row stays, its monthly limits cleared.
         delete found.monthlyCap;
         delete found.tokensPerMonth;
         found.percent = null;
@@ -837,7 +837,7 @@ export function aiRoutes(state: MockState): MockRoute[] {
         (x) => x.id === (body as { providerId?: string }).providerId,
       );
       if (!provider) return notFound();
-      // Groq and OpenRouter list USD per token; the server converts to per million (§7.15).
+      // Groq and OpenRouter list USD per token; the server converts to per million.
       // Fixture numbers for the screens, not the provider's list price.
       return {
         prices:
@@ -880,7 +880,7 @@ export function aiRoutes(state: MockState): MockRoute[] {
         const locationId = query.get('locationId');
         const visible = callsIn(scope, locationId);
         if (!visible) return notFound();
-        // Without `from`, the current month in UTC so far (T9), as caps count it (D188).
+        // Without `from`, the current month in UTC so far, as caps count it (D188).
         const nowIso = now();
         const d = new Date(nowIso);
         const from =
@@ -920,7 +920,7 @@ export function aiRoutes(state: MockState): MockRoute[] {
         const scope = scopeOf(query);
         const visible = callsIn(scope, query.get('locationId'));
         if (!visible) return notFound();
-        // The instance door has one order, newest first (T9): `dir` is not read there.
+        // The instance door has one order, newest first: `dir` is not read there.
         if (scope === 'instance') query.delete('dir');
         return paginate(filtered(visible, query), query, 20);
       }),

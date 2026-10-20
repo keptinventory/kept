@@ -14,7 +14,7 @@ import { placePath, placeRefOf, thingPath, thingRefOf } from '../output.js';
 import { brandNamed, locationOfRef, placeIn, targetIn, thingIn, typeNamed } from '../resolve.js';
 import type { Handler, Op } from '../types.js';
 
-// The write tools (§2.5, D58, D124). Each calls the route's own operation, which checks the
+// The write tools (D58, D124). Each calls the route's own operation, which checks the
 // role, the money gate and the row's version and writes the audit row. What a tool writes is
 // undoable for 7 days: the moves and edits already are; a tool's creates (things, places,
 // readings) pass `undoable` so they are too (undo/registry.ts has their handlers). The answer
@@ -246,7 +246,7 @@ export const updateThingTool: Handler<'update_thing'> = {
     }
     const expected = op.ifMatch ?? (await liveThing(op.client, id)).row_version;
     // The route's operation: secret keys in `custom` are refused (they have their own route,
-    // Q3, D116), a money value where the gate hides money is `module_off`, and a changed row
+    // D116), a money value where the gate hides money is `module_off`, and a changed row
     // since the proposal is 412 (D156).
     await updateThing(op, id, expected, body);
     return {

@@ -1,5 +1,5 @@
 /**
- * The location map's 3D engine (1.x, D237): the approved spike's imperative three.js scene,
+ * The location map's 3D engine (1.x, D237): the approved prototype's imperative three.js scene,
  * ported to a class the map's React component owns. React draws the controls, the card and the
  * lists; this draws the scene, its labels and the hover tip, and handles the pointer.
  *

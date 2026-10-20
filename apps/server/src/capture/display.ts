@@ -27,8 +27,8 @@ import {
 } from '../storage/derivatives.js';
 import { sniff } from '../storage/sniff.js';
 
-// PUT /api/v1/files/:fileId/display (plan T13 "phone derivatives"; D34, D36, D99, D117; step-2
-// Q17). The phone makes the display JPEG of an evidence photo (it decodes HEIC, the server can't:
+// PUT /api/v1/files/:fileId/display (D34, D36, D99, D117).
+// The phone makes the display JPEG of an evidence photo (it decodes HEIC, the server can't:
 // D99) and sends it here after the original (T24's uploader). The server makes the file's
 // display, thumb and share renditions from it, so a HEIC original becomes viewable; the original
 // itself is never touched (D117).
@@ -49,7 +49,7 @@ import { sniff } from '../storage/sniff.js';
 //    is audited (the hash and sizes, never content).
 //
 // kept_app may not UPDATE `files` (append-only, 0020), hence the definer. It works whether or not
-// the file is attached yet, so a capture op that filed the photo before its display arrived (T24)
+// the file is attached yet, so a capture op that filed the photo before its display arrived
 // still gets its preview; the phone leaves "preview unavailable" (D36) for any refusal.
 
 const SHA256 = /^[0-9a-f]{64}$/;

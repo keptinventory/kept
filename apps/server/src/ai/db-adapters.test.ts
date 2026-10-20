@@ -22,7 +22,7 @@ import { createMockEmbeddingModel, mockKey } from './mock.js';
 import type { ReserveRequest } from './ports.js';
 import { wireName, wireSchema } from './wire.js';
 
-// Step-3 T6: the DB adapters for the provider layer's ports, run through the scenarios
+// The DB adapters for the provider layer's ports, run through the scenarios
 // memory.test.ts runs against the in-memory ones (bucketsFor, the D206 caps, the default
 // budgets, a manual pause, the 80%/100% crossings, payer and key slots, clearAuth), then
 // callModel end to end on them: one ledger row per call, a held-back row when a cap refuses.
@@ -233,7 +233,7 @@ describe('DbBudgetGate (memory.test.ts "D206 caps")', () => {
     expect(
       await gate.reserve(req({ estimateCost: { amount: '0.02', currency: 'USD' } })),
     ).toMatchObject({ ok: false, reason: 'cap_money' });
-    // Reaching the cap paused it until the 1st (§7.15's state machine).
+    // Reaching the cap paused it until the 1st (the state machine).
     expect(await gate.reserve(req())).toMatchObject({
       ok: false,
       reason: 'cap_money',
@@ -623,7 +623,7 @@ describe('callModel on the DB adapters', () => {
     ]);
   });
 
-  // Step 6 (T8): the conversation never reaches the ledger (D206). A question, a tool argument, a
+  // The conversation never reaches the ledger (D206). A question, a tool argument, a
   // tool result and an embedding input each carry a marker; no llm_calls column holds any.
   it('a two-step tool turn and an embedding: four markers, none in any ledger column', async () => {
     const marks = ['QMARK8842', 'ARGMARK1196', 'RESMARK5521', 'EMBMARK7730'];

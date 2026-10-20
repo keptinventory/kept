@@ -2,8 +2,8 @@ import type { preHandlerAsyncHookHandler } from 'fastify';
 import { AppError } from './errors.js';
 
 // Plain HTTP (D181): over `http:` Kept refuses "secret reveal, export, token creation, admin
-// screens" that hand out or change a secret. Step 8 (plan T2) adds the one shared guard: the
-// recovery kit's download, changing backup settings and the restic test use it (T9, T10), and
+// screens" that hand out or change a secret. Step 8 adds the one shared guard: the
+// recovery kit's download, changing backup settings and the restic test use it, and
 // T24's review checks that secret reveal, export and token creation do too.
 //
 // The scheme is KEPT_PUBLIC_URL's, the server's own source of truth for its address, never a

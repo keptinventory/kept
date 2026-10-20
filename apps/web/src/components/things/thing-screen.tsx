@@ -1,12 +1,12 @@
 /**
- * Thing detail (screens §5, D76, D156, D195). Phone: one scrolling page with anchored section
+ * Thing detail (D76, D156, D195). Phone: one scrolling page with anchored section
  * chips. From `md` up: tabs, with the open tab in the URL (`?tab=`). A container opens on its
  * Contents, with Details as a tab. Sections in order: Contents (containers) · Overview ·
  * Paperwork and warranties · Value · Meters (when metered) · Loans · Claims · Links · Schedules ·
  * History; step 4's follow their modules (Money, Lending, Warranties, Schedules).
  *
  * A viewer sees the same layout in the same order with no action menu, no Edit, no Mark seen or
- * Not here: Copy link is the only action (screens §5, A viewer's thing detail).
+ * Not here: Copy link is the only action (A viewer's thing detail).
  */
 
 import type { ModuleId } from '@kept/shared';
@@ -79,9 +79,9 @@ export type ThingTab =
   | 'links'
   | 'schedules'
   | 'history'
-  // A vehicle's own tabs (step 5, components/vehicles/vehicle-tabs.tsx).
+  // A vehicle's own tabs (components/vehicles/vehicle-tabs.tsx).
   | VehicleTab;
-/** Screens §5's order: Overview · Paperwork and warranties · Value · Meters · Loans · Claims · Links · Schedules · History. */
+/** The tab order: Overview · Paperwork and warranties · Value · Meters · Loans · Claims · Links · Schedules · History. */
 export const THING_TABS: readonly ThingTab[] = [
   'contents',
   'overview',
@@ -172,7 +172,7 @@ export function ThingScreen({
   );
 }
 
-/** Step 4's sections follow their modules: off here, the tab isn't there (T20). */
+/** Step 4's sections follow their modules: off here, the tab isn't there. */
 const TAB_MODULE: Partial<Record<ThingTab, ModuleId>> = {
   value: 'money',
   loans: 'lending',
@@ -202,7 +202,7 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
   const [menuOpen, setMenuOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const vehicleActions = useVehicleActions();
-  // A vehicle (step 5): Overview · Readings · Services · Fuel · Schedules · Documents · Costs,
+  // A vehicle: Overview · Readings · Services · Fuel · Schedules · Documents · Costs,
   // then its Details and the rest (components/vehicles/vehicle-tabs.tsx).
   const asVehicle = useShowsAsVehicle(thing, location, moduleOn);
   const vehicleTitles = useVehicleTitles();
@@ -419,7 +419,7 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
           </Tabs>
         ) : (
           <>
-            {/* One row that scrolls sideways: wrapped, History sat alone on a second row (L1). */}
+            {/* One row that scrolls sideways: wrapped, History sat alone on a second row. */}
             <nav
               aria-label={t`Sections`}
               className="sticky top-14 z-10 -mx-3.5 flex gap-1.5 overflow-x-auto overscroll-x-contain bg-paper px-3.5 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"

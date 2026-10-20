@@ -12,7 +12,7 @@ import { typeCapabilities } from '../things/fields.js';
 import { liveThing, updateThing, writableThing } from '../things/service.js';
 import { rowsOf, type ThingRow } from '../things/view.js';
 
-// Consumables (step-7 plan T17; D14, D183; Q19). Every function runs in the request's scoped
+// Consumables (D14, D183). Every function runs in the request's scoped
 // kept_app transaction: row-level security decides what exists (a 404), the route's module gate
 // whether Consumables is on there (http/modules.ts: 404 `module_off` on a read, 409 on a write),
 // and can() who may write (`things.edit`: members and above; a viewer reads, a 403 on a write).
@@ -21,7 +21,7 @@ import { rowsOf, type ThingRow } from '../things/view.js';
 //   consumable through its chain (409 `not_consumable`; the table's trigger says the same).
 //   Setting, changing and removing it is audited `thing.stock_rule` on the thing, with the
 //   minimum before and after (`min_quantity`), undoable for 7 days (./undo.ts).
-// - Low is fewer than the minimum (`isLow`, Q19): with "keep at least 4", 4 left is fine. Only a
+// - Low is fewer than the minimum (`isLow`): with "keep at least 4", 4 left is fine. Only a
 //   live thing in use counts: an ended one (used up and thrown away, sold) isn't in the house.
 // - Adjust is a quantity edit through the thing's own update (things/service.ts updateThing), so
 //   it is the same `thing.update` with the same undo, version check and quantity rules (D10):
@@ -149,7 +149,7 @@ export type ListQuery = {
 type ListKey = [low: boolean, name: string, id: string];
 
 const ICU = 'COLLATE "und-x-icu"';
-/** A thing below its "keep at least" (plan Q19), over `stock_rules r JOIN things t`. */
+/** A thing below its "keep at least", over `stock_rules r JOIN things t`. */
 export const LOW = 't.quantity < r.min_quantity';
 const NAME = `lower(coalesce(t.name, '')) ${ICU}`;
 

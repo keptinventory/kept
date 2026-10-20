@@ -20,8 +20,8 @@ import { currencies } from './currencies.js';
 import { locations } from './tenancy.js';
 import { things } from './things.js';
 
-// Warranties and claims (step-4 plan T5; engineering spec §1.7, §7.13; D53–D55, D158, D195; plan
-// Q18, Q26). Row-level security, the vendor guard, the claim transitions, the quantity rule (D10)
+// Warranties and claims (D53–D55, D158, D195).
+// Row-level security, the vendor guard, the claim transitions, the quantity rule (D10)
 // and the thing's state bump are in the custom migration that follows (0051); see
 // src/db/household-records.test.ts.
 
@@ -30,7 +30,7 @@ const claimStatus = textEnum('status', CLAIM_STATUSES);
 
 /**
  * One warranty on a thing, by kind (D53): an end date, a term in months, or lifetime, exactly one.
- * `effective_ends_on` is the last day covered, inclusive (L2): the SQL twin of @kept/shared
+ * `effective_ends_on` is the last day covered, inclusive: the SQL twin of @kept/shared
  * `warrantyEnds()` (a term ends the day before the same day `term_months` later; Postgres'
  * `date + interval` clamps the month's end as `addMonthsClamped()` does). A thing with a warranty
  * has quantity 1 (D10, 0051).
@@ -85,8 +85,8 @@ export const warranties = pgTable(
 /**
  * A claim or repair (D54, D158, D195): `in_repair` makes the thing read "at <service centre>"
  * (the vendor), at most one at a time per thing. Status moves by `CLAIM_TRANSITIONS` (a trigger,
- * 0051); a closed claim reopens only through undo (Q18). `covered_amount` is "what it would have
- * cost" (Q18). The warranty and incident keys are ON DELETE SET NULL (col), in 0051.
+ * 0051); a closed claim reopens only through undo. `covered_amount` is "what it would have
+ * cost". The warranty and incident keys are ON DELETE SET NULL (col), in 0051.
  */
 export const claims = pgTable(
   'claims',

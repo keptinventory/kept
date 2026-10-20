@@ -25,9 +25,9 @@ import { fileUrl, serveToken } from './serve.js';
 import { declaredLength, tooManyUploads, UploadSlots, upload } from './upload.js';
 import { AttachmentSubjectSchema } from './views.js';
 
-// Files, attachments and the signed /f/<token> route (T17; D34, D36, D77, D117, D157, D162,
-// D177; engineering spec §3.4, §7.2; plan Q8, Q9, Q16, Q17). The web contract is
-// apps/web/src/api/inventory/{types,paths}.ts, "files and attachments (task 17)".
+// Files, attachments and the signed /f/<token> route (D34, D36, D77, D117, D157, D162,
+// D177). The web contract is
+// apps/web/src/api/inventory/{types,paths}.ts, "files and attachments".
 //
 // PUT    /api/v1/files/:fileId?locationId=&class=    raw body, X-Kept-Sha256 → 201|200 FileView
 // POST   /api/v1/files/:id/url[?thingId=] {variant}  → {url, expiresAt}
@@ -58,23 +58,23 @@ const FileViewSchema = z.object({
 });
 
 /** What POST /attachments may attach to. Step 4 adds each record's subject as its task opens it
- * (T12: an expiring document's files, `expiringDocumentId`). */
+ * (an expiring document's files, `expiringDocumentId`). */
 const Subject = z.union([
   z.strictObject({ thingId: Id }),
   z.strictObject({ placeId: Id }),
   z.strictObject({ purchaseId: Id }),
   z.strictObject({ meterReadingId: Id }),
   z.strictObject({ expiringDocumentId: Id }),
-  // T8, T9: a valuation's, a warranty's and a claim's documents.
+  // A valuation's, a warranty's and a claim's documents.
   z.strictObject({ valuationId: Id }),
   z.strictObject({ warrantyId: Id }),
   z.strictObject({ claimId: Id }),
-  // T10, T11: a loan's condition photos, a service record's invoice.
+  // A loan's condition photos, a service record's invoice.
   z.strictObject({ loanId: Id }),
   z.strictObject({ serviceRecordId: Id }),
-  // T18: an incident's documents (police report, insurer letters, photos of the damage).
+  // An incident's documents (police report, insurer letters, photos of the damage).
   z.strictObject({ incidentId: Id }),
-  // Step 5 (T11): a fill's pump receipt.
+  // A fill's pump receipt.
   z.strictObject({ fuelEntryId: Id }),
   // 1.x (D235): a condition report room's photo.
   z.strictObject({ conditionRoomId: Id }),
@@ -232,7 +232,7 @@ export async function fileRoutes(app: KeptApp, deps: InventoryDeps): Promise<voi
     // A wildcard, not `:token`: a token is longer than find-my-way's 100-character param limit.
     '/f/*',
     {
-      // Q16: this route never reads the session; the token's HMAC is its whole authorisation.
+      // This route never reads the session; the token's HMAC is its whole authorisation.
       config: { auth: 'none' },
       // A token is a five-minute bearer credential, and the whole path: requests here are not
       // logged below warn, and a URL that is logged is redacted (http/logger.ts; review #11).

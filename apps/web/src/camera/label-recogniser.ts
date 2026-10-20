@@ -1,5 +1,5 @@
 /**
- * Kept labels recognised in any capture mode (D137; plan T25): every 400 ms a downscaled copy of
+ * Kept labels recognised in any capture mode (D137): every 400 ms a downscaled copy of
  * the frame goes to the scanner, and a Kept code in view is reported, so the screen can offer
  * "Open Box 3" · "Capture into Box 3". It never reads a code aloud or fetches anything: the name
  * comes from the phone's snapshot.
@@ -13,7 +13,7 @@ import { parseScan } from '@kept/shared';
 export type Detected = { rawValue: string; format: string };
 export type Detect = (source: CanvasImageSource) => Promise<Detected[]>;
 
-/** The long edge of the frame the scanner sees (V12: 640 px is the slow-phone fallback). */
+/** The long edge of the frame the scanner sees (640 px is the slow-phone fallback). */
 export const RECOGNISE_MAX_SIDE = 640;
 export const RECOGNISE_EVERY_MS = 400;
 

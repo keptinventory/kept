@@ -55,7 +55,7 @@ describe('callModel: outcomes (D206 table)', () => {
     const r = await callModel(rt, readingRequest(img));
     expect(r.status).toBe('ok');
     if (r.status !== 'ok') return;
-    // parseLenient dropped the bad optional `unit` and kept the rest (L52).
+    // parseLenient dropped the bad optional `unit` and kept the rest.
     expect(r.value).toEqual({
       value: { value: { value: 52340, confidence: 0.98 } },
       dropped: ['unit'],
@@ -332,7 +332,7 @@ describe('callModel: the breaker and the pacer', () => {
       until: new Date(T0.getTime() + 30_000),
     });
     expect(held.status === 'paused' && held.callId).toBeFalsy();
-    expect(ledger.rows).toHaveLength(0); // a wait under 60 s is not a row (§3.5)
+    expect(ledger.rows).toHaveLength(0); // a wait under 60 s is not a row
     expect(calls).toBe(0);
 
     pacer.limits.set('prov-groq', {

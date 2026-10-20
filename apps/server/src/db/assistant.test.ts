@@ -15,8 +15,8 @@ import { expireMemberships } from '../locations/membership-jobs.js';
 import { type Scope, withScope, withSystem } from './scope.js';
 
 // Step-6 T5 (0072, 0073): the assistant's private threads, turns, messages, tool results and
-// proposals; retention; the search text; and redaction when access ends (engineering spec §1.8,
-// §3.3; D22, D23, D123, D164; plan Q11, Q17). Louis is a member of Ibrahim's Home and Garage.
+// proposals; retention; the search text; and redaction when access ends (D22, D23, D123, D164).
+// Louis is a member of Ibrahim's Home and Garage.
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });

@@ -140,7 +140,7 @@ describe('ErrorCode', () => {
       expect(isErrorCode(code)).toBe(true);
       expect(message).toMatch(/^[A-Z].+\.$/);
     }
-    // A reading that doesn't fit keeps step 4's `conflict` (plan T1: `reading_refused` reuses it).
+    // A reading that doesn't fit keeps step 4's `conflict` (`reading_refused` reuses it).
     expect(isErrorCode('reading_refused')).toBe(false);
   });
 

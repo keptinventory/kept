@@ -19,7 +19,7 @@ import {
 } from '../things/relocate.js';
 import { requireRole } from '../things/service.js';
 
-// Undoing captures (plan T13, T20; D150; screens §8 "Undo this batch", "Undo from the activity
+// Undoing captures (D150; "Undo from the activity
 // feed": a capture batch can be undone as a whole, and its unreviewed drafts go to the trash).
 //
 // - POST /api/v1/captures/batches/:batchId/undo trashes the caller's own drafts of that batch
@@ -27,7 +27,7 @@ import { requireRole } from '../things/service.js';
 //   since put things into is no longer just a capture). Other people's captures, named ones and
 //   reviewed ones stay. One `capture.batch_undo` event per location, undoable: undoing it
 //   (POST /audit/:eventId/undo) restores them.
-// - `thing.capture` is undoable too (Q23): the Undo toast after a capture trashes that thing,
+// - `thing.capture` is undoable too: the Undo toast after a capture trashes that thing,
 //   unless it has changed since (D124) or holds things now.
 // A batch nobody can see is a 404; one with nothing of the caller's to undo answers
 // `{trashed: []}` and writes nothing.
@@ -104,7 +104,7 @@ export async function undoCaptureBatch(ctx: Ctx, batchId: string): Promise<Batch
 // ---------------------------------------------------------------------------------------------
 
 /** Whatever comes back into a place or container that is itself gone goes to Unplaced (shared
- * with the inbox's bulk undo, T15). */
+ * with the inbox's bulk undo). */
 export async function rehomeOrphans(args: UndoArgs, ids: readonly string[]): Promise<void> {
   const { client, event } = args;
   const { rows: orphans } = await client.query<Orphan>(
@@ -159,7 +159,7 @@ async function undoBatchUndo(args: UndoArgs): Promise<void> {
   });
 }
 
-/** Undo of a capture (Q23): the thing it made goes to the trash, unless it changed since. */
+/** Undo of a capture: the thing it made goes to the trash, unless it changed since. */
 async function undoCapture(args: UndoArgs): Promise<void> {
   const { client, event } = args;
   const thingId = event.entityId;
@@ -177,7 +177,7 @@ async function undoCapture(args: UndoArgs): Promise<void> {
   if (now.deleted_at) throw undoConflict(['deleted_at']);
   if (now.holds) throw undoConflict(['contents']);
   // Anything written about the thing since, by anyone, except what AI filled in on the capture's
-  // behalf (thing.extract, T10), which goes with it.
+  // behalf (thing.extract), which goes with it.
   const { rows: later } = await client.query<{ n: number }>(
     `SELECT count(*)::int AS n FROM public.audit_events e
       WHERE e.location_id = $1 AND e.entity_type = 'thing' AND e.entity_id = $2

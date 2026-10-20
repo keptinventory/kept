@@ -29,12 +29,12 @@ import {
   unplacedOf,
 } from './view.js';
 
-// The writes of D160 (T13): create, edit and re-parent, trash with the contents choice (D45),
-// restore (D162), delete permanently, merge, convert to a container (Q14) and label (D120).
+// The writes of D160: create, edit and re-parent, trash with the contents choice (D45),
+// restore (D162), delete permanently, merge, convert to a container and label (D120).
 // Each runs in the request's scoped kept_app transaction (scopedWrite) and writes its own audit
 // row there; the definers (merge_places, convert_place_to_container) write none. Renaming or
 // re-parenting leaves the breadcrumbs and search documents under the place stale until
-// kept.reindex_location() runs, so those writes enqueue the `reindex` job (T20).
+// kept.reindex_location() runs, so those writes enqueue the `reindex` job.
 
 export type Ctx = {
   tx: Tx;
@@ -83,8 +83,7 @@ async function requireKind(client: pg.ClientBase, ownerAccountId: string, key: s
   return kind;
 }
 
-/** Whether `role` may merge or permanently delete places: owners and admins (§7.1 "Delete
- * permanently"; merging removes the source place for good). */
+/** Whether `role` may merge or permanently delete places: owners and admins (merging removes the source place for good). */
 function requireOwnerOrAdmin(role: Role): void {
   if (!can(role, 'things.delete-permanently')) {
     throw forbidden('Only owners and admins can do that.');
@@ -108,8 +107,8 @@ export async function createPlace(
   c: Ctx,
   locationId: string,
   body: CreatePlaceBody,
-  /** `op`: the `create_area` sync op (step-3 T14) checked the id against its own 90-day window.
-   * `undoable`: the create can be undone for 7 days (a tool's write, step-6 T9, D124): the place
+  /** `op`: the `create_area` sync op checked the id against its own 90-day window.
+   * `undoable`: the create can be undone for 7 days (a tool's write, D124): the place
    * goes to the trash unless something was put in it or it changed since. */
   opts: { via?: 'online' | 'op'; undoable?: boolean } = {},
 ): Promise<PlaceRow> {
@@ -191,7 +190,7 @@ const asFieldDef = (f: ResolvedField): FieldDef => ({
 /**
  * The place's `custom` after a patch, validated against its kind's fields (D160): only the
  * kind's live fields take values, each of its kind; a secret field is refused (its value goes
- * through the secrets route, Q3); a required field can't be cleared; and a money field can't be
+ * through the secrets route); a required field can't be cleared; and a money field can't be
  * written by someone the money gate hides it from.
  */
 function patchCustom(
@@ -656,7 +655,7 @@ export async function deletePlace(c: Ctx, id: string): Promise<void> {
     await c.client.query('DELETE FROM public.things WHERE id = ANY ($1::uuid[])', [thingIds]);
   }
   await c.client.query('DELETE FROM public.places WHERE id = ANY ($1::uuid[])', [sub]);
-  // Tombstones, so offline clients drop them too (§7.13, D156).
+  // Tombstones, so offline clients drop them too (D156).
   await c.client.query(
     `INSERT INTO public.sync_tombstones (location_id, entity_type, entity_id)
      SELECT $1, e.type, e.id
@@ -725,7 +724,7 @@ export async function mergePlace(
 }
 
 // ---------------------------------------------------------------------------------------------
-// Convert to a container (Q14: the same id)
+// Convert to a container (the same id)
 // ---------------------------------------------------------------------------------------------
 
 export const ConvertBody = z.object({ typeId: z.uuid().optional() }).optional();

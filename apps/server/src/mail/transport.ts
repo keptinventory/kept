@@ -3,7 +3,7 @@ import { logMailer, type Mail, type Mailer } from './mailer.js';
 import { mailLocale, messageFor } from './messages.js';
 import { renderMail } from './render.js';
 
-// The SMTP transport (D81, §7.11 KEPT_SMTP_URL): nodemailer, a connection per mail (mail is
+// The SMTP transport (D81, KEPT_SMTP_URL): nodemailer, a connection per mail (mail is
 // rare; nodemailer's own URL options, such as `?pool=true` or `tls.*`, pass through). Every mail
 // is rendered in the recipient's language (mail/messages.ts) as text and HTML (mail/render.tsx).
 // Without KEPT_SMTP_URL, mail is only logged as due (logMailer) and the admin status page says so.

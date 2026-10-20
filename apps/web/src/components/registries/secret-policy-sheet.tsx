@@ -2,7 +2,7 @@
  * A secret field's policy, per location (D116, D177): who may reveal it beyond the owner, and
  * whether the assistant may read it. Owner only: the editor shows the Policy button to the
  * account owner alone, and the server refuses anyone else. Converting a field to or from secret
- * is step 7's (Q3); this only widens or narrows who may reveal.
+ * is step 7's; this only widens or narrows who may reveal.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';

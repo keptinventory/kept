@@ -13,8 +13,8 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step-3 T7: label batches, the blank-label cap and claiming a blank label (D43, D44, D112,
-// D137, D172; engineering spec §2.4, §3.1b; plan Q24).
+// Label batches, the blank-label cap and claiming a blank label (D43, D44, D112,
+// D137, D172).
 
 const db = await testDb();
 

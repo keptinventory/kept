@@ -1,5 +1,5 @@
 /**
- * AI providers and keys (plan T9; D191, D193, D202, D206; engineering spec §7.3, §7.15):
+ * AI providers and keys (D191, D193, D202, D206):
  * listing the providers a caller manages, saving a key, removing one, and a provider's model
  * list. Keys are **write-only**: sealed with the keyring on the way in (AAD
  * `ai_providers|<id>|api_key`, db-keys.ts), kept_app can't read the ciphertext back (0040's column
@@ -9,9 +9,9 @@
  * Every base URL a person types goes through the SSRF guard twice: its host is checked when it is
  * saved, and every request to it goes through `guardedFetch` (net/ssrf.ts), which checks again at
  * connect time and refuses redirects. `instance_settings.ssrf_allow_private` lets a self-hosted
- * server reach Ollama on the LAN (Q9).
+ * server reach Ollama on the LAN.
  *
- * Loading a model list is not a model call (§8a): no tokens, no ledger row; a refresh is audited
+ * Loading a model list is not a model call: no tokens, no ledger row; a refresh is audited
  * as a settings action and rate-limited like "Test connection".
  */
 import { lookup as dnsLookup } from 'node:dns/promises';
@@ -314,7 +314,7 @@ export function lister(opts: { mock: boolean; fetch: typeof fetch }): Lister {
     opts.mock ? Promise.resolve(mockListing(target.kind)) : listModels(target, apiKey, opts.fetch);
 }
 
-/** A fetch for listing: the SSRF guard with the instance's setting (Q9). */
+/** A fetch for listing: the SSRF guard with the instance's setting. */
 export async function listingFetch(pools: Pick<Pools, 'app' | 'system'>): Promise<typeof fetch> {
   return guardedFetch({ allowPrivate: await allowPrivateAddresses(pools) });
 }

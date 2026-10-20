@@ -1,5 +1,5 @@
 /**
- * Me → Notifications (plan T25; D29, D30, D139, D142, frame "Settings · Me · phone · light"):
+ * Me → Notifications (D29, D30, D139, D142, frame "Settings · Me · phone · light"):
  * channels (email, push on this device, webhooks), what each location tells you and how, the
  * digest time and quiet hours, the calendar feed, and the AI monthly summary. Its chunk loads on
  * demand from assets/household/ (vite.config.ts).

@@ -13,7 +13,7 @@ import {
 } from '../../test/tenancy.js';
 import { type Scope, withScope } from './scope.js';
 
-// Task 8: the secret store (engineering spec §1.3, §7.3, §7.13; D116, D177). As kept_app.
+// The secret store (D116, D177). As kept_app.
 
 const db = await testDb();
 const app = db.pools.app;

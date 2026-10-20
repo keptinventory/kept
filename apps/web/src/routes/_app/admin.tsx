@@ -1,7 +1,7 @@
 /**
- * Instance admin (screens §5 Settings → Admin, D164): users, admins, settings, failed jobs,
- * alerts, the status page and backups (step 8). Only for instance admins; the server refuses everyone else anyway.
- * Step 8 (T21, D65): the update line, "Kept 1.3.0 is available", above every admin tab while the
+ * Instance admin (D164): users, admins, settings, failed jobs,
+ * alerts, the status page and backups. Only for instance admins; the server refuses everyone else anyway.
+ * Step 8 (D65): the update line, "Kept 1.3.0 is available", above every admin tab while the
  * opt-in check found a newer release.
  */
 import { Trans, useLingui } from '@lingui/react/macro';

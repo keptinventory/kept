@@ -52,7 +52,7 @@ import { rowsOf, type ThingRow, ThingRowSchema } from './view.js';
 //   thing's own location; another location is a move from the thing's page). A row that fails
 //   (gone, refused, 412 stale, 400 invalid) is reported with its code, conflicts and current
 //   version, and leaves the others saved: "rows without conflicts save; conflicted rows stay
-//   staged" (screens §6). `events` lists the undoable events the saved rows wrote, row by row in
+//   staged". `events` lists the undoable events the saved rows wrote, row by row in
 //   the request's order (each row's update before its move), for POST /api/v1/audit/undo (one
 //   Undo for the whole save, D150); X-Kept-Audit-Event carries them too, one per thing.
 //   It is set-based, as 200 rows written one by one took 3–4 s (about 26 statements a row): the
@@ -68,7 +68,7 @@ import { rowsOf, type ThingRow, ThingRowSchema } from './view.js';
 //   them too); one already trashed with a container earlier in the request is skipped. Each thing
 //   is its own `thing.trash` event, undone together through POST /api/v1/audit/undo.
 
-/** Edits per request: the server's page (§7.7). */
+/** Edits per request: the server's page. */
 export const BULK_MAX = 200;
 /** Rows a sheet reads per page by default (the web asks for 100). */
 const SHEET_PAGE = 100;
@@ -457,7 +457,7 @@ async function editOne(ctx: Ctx, id: string, rowVersion: number, set: Edit['set'
   }
 }
 
-/** A row that failed, as the answer reports it (screens §6). */
+/** A row that failed, as the answer reports it. */
 function failedRow(id: string, err: unknown): RowResult {
   const reply = toErrorReply(err);
   const b = reply.body as Record<string, unknown>;

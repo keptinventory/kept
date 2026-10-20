@@ -1,5 +1,5 @@
 /**
- * The vehicle history report (plan T15; D51, D201; Q16): a third kind on the report runs, read
+ * The vehicle history report (D51, D201): a third kind on the report runs, read
  * back through step 2's `GET /reports/:id` (api/inventory/mock/reports.ts `queueReportRun`), which
  * advances it to a download. Anyone who can see the vehicle may make one, viewers included, in a
  * location with Vehicles on; its total is the vehicle's readings, services and fills, plus the

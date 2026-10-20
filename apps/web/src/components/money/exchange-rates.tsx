@@ -1,5 +1,5 @@
 /**
- * Settings → Account → Exchange rates (D76, D136; plan T26, Q21–Q22): the rates entered for one
+ * Settings → Account → Exchange rates (D76, D136): the rates entered for one
  * owner account, per pair of currencies and the day each applies from, newest first within a
  * pair. Totals in several currencies (the insurance report, the AI caps) are converted only with
  * these, directly or through the inverse pair, never through a third currency and never

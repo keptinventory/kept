@@ -1,5 +1,5 @@
 /**
- * Account → Exchange rates (plan T26; D76, D136): the rates you entered, per pair and date, that
+ * Account → Exchange rates (D76, D136): the rates you entered, per pair and date, that
  * turn totals in several currencies into one. Kept never estimates a rate. Inside the Account
  * frame (settings.account.tsx), so no Page of its own; the tab loads on demand
  * (components/incidents/lazy.tsx).

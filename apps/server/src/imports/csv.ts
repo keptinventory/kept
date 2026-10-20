@@ -11,7 +11,7 @@ import {
 } from '@kept/shared';
 import { z } from 'zod';
 
-// CSV import, the request side and the cell parsers (D73; plan T18, Q18). The browser parses the
+// CSV import, the request side and the cell parsers (D73). The browser parses the
 // file (papaparse) and posts the rows as strings; the server trusts none of it: every cell is
 // read again here, by the same parsers for the dry run and the job (dry-run.ts, job.ts).
 //
@@ -180,7 +180,7 @@ export function splitList(value: string): string[] {
   return out;
 }
 
-/** How a legacy code is stored (§1.10: `upper(btrim())`), with Eastern digits folded, as a
+/** How a legacy code is stored (`upper(btrim())`), with Eastern digits folded, as a
  * scanner reads them. */
 export function legacyCodeOf(value: string): string {
   return foldDigits(value).normalize('NFC').trim().toUpperCase();

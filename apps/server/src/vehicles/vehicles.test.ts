@@ -21,7 +21,7 @@ import { addMonths } from './costs.js';
 // paths}.ts: VehicleRow, VehiclesParams, CostReport, MeterSeries, StarterSchedulesResult,
 // HomeResponseV5): the Vehicles list across the caller's locations with Vehicles on, a vehicle's
 // running costs per month and currency, a meter's series, starter schedules, and Home's count of
-// metered things. The Corolla is the web mock's (test/corolla.ts), with the board's numbers.
+// metered things. The Corolla is the web mock's (test/corolla.ts), with the designs' numbers.
 
 let db: TestDb;
 let t: TestApp;

@@ -1,5 +1,5 @@
 /**
- * A batch as print-styled sheets (plan T28; D44, D97, D185): one `<section>` per page at the
+ * A batch as print-styled sheets (D44, D97, D185): one `<section>` per page at the
  * stock's exact size, each label absolutely placed in millimetres from the page's top-left
  * corner. The print view installs one `@page` rule for the stock, so the browser's own dialog
  * prints it at 100 % with no margin, Arabic shaped by the browser.

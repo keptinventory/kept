@@ -1,5 +1,5 @@
 /**
- * Monthly caps and per-task budgets (plan T9; D19, D167, D206; engineering spec §3.5, §7.15):
+ * Monthly caps and per-task budgets (D19, D167, D206):
  * one `ai_budgets` row each, read under its SELECT policy and written only through the doors
  * (`kept.ai_cap_set`, `ai_cap_clear`, `ai_pause`, `ai_resume`), which check the caller and the
  * account-cap rule themselves (42501 → 404 for a scope you don't manage; P0001
@@ -122,7 +122,7 @@ const CAP_COLUMNS = `b.id, b.scope, b.owner_account_id, b.location_id, b.user_id
                           WHERE oa.id = b.owner_account_id)
     ELSE NULL END AS target_label`;
 
-/** The cap rows a scope shows, under ai_budgets' SELECT policy (§7.15 "Who reads"). */
+/** The cap rows a scope shows, under ai_budgets' SELECT policy. */
 export async function capRows(
   client: pg.ClientBase,
   who: Who,
@@ -189,7 +189,7 @@ type Usage = {
   not_counted: string[];
 };
 
-/** Whether the caller writes a cap row (§7.15 "Who writes"; kept.ai_budget_writable's rule). */
+/** Whether the caller writes a cap row (kept.ai_budget_writable's rule). */
 export function canEditCap(r: Pick<CapRow, 'scope' | 'owner_account_id' | 'user_id'>, who: Who) {
   switch (r.scope) {
     case 'instance':
@@ -292,7 +292,7 @@ export async function capViews(
   });
 }
 
-/** The cap AI setup suggests while a scope has none (§3.5): money in the price's currency when
+/** The cap AI setup suggests while a scope has none: money in the price's currency when
  * the scope's model has a price, else tokens. */
 export function suggestion(
   price: { currency: string } | null,

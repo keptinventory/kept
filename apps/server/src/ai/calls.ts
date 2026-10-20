@@ -1,11 +1,11 @@
 /**
- * The AI call list, a call's detail and its CSV (plan T9; L47, D205, D206, D211; engineering spec
- * §7.15 "The ledger" and "Routes"). Rows come from `llm_calls` under its SELECT policy (each
+ * The AI call list, a call's detail and its CSV (D205, D206, D211).
+ * Rows come from `llm_calls` under its SELECT policy (each
  * person their own calls, admins their locations', owners their account's), narrowed to the
  * scope asked for; an instance admin's `instance` scope reads `kept.ai_instance_calls`, which has
  * no location, thing, extraction, thread or attachments at all.
  *
- * The serializer (§7.15): the cost only where the caller may see money for the row (no location,
+ * The serializer: the cost only where the caller may see money for the row (no location,
  * the caller paid, or the location's money gate shows money), else `moneyHidden: true`; the
  * thread link only for the thread's owner (D23); names only where the caller can see them (D123).
  * Filters are the D205 strip's URL form: repeated values, `not` for "is none of", and `dir`.
@@ -360,7 +360,7 @@ export function filterSql(s: Sql, q: CallsQuery, tz: string, moneyLocations: str
   }
   if (q.cost) {
     // Only rows whose money the caller may see: a cost filter must not tell a viewer what a
-    // hidden call cost (§7.15, "only where money shows").
+    // hidden call cost ("only where money shows").
     const r = rangeOf(q.cost);
     s.where.push('c.cost_amount IS NOT NULL');
     if (r.min !== null) s.where.push(`c.cost_amount >= ${push(s, r.min)}::numeric`);
@@ -394,7 +394,7 @@ async function moneyLocationIds(tx: Tx, client: pg.ClientBase, scope: Scope): Pr
   return out;
 }
 
-/** The scope's own rows (§7.15's visibility table, narrowed to the scope asked for). */
+/** The scope's own rows (the visibility table, narrowed to the scope asked for). */
 async function scopeSql(
   s: Sql,
   client: pg.ClientBase,
@@ -673,7 +673,7 @@ export async function callDetail(
 }
 
 // ---------------------------------------------------------------------------------------------
-// CSV (§3.5: at most 100,000 rows; the list's columns; money columns only where money shows)
+// CSV (at most 100,000 rows; the list's columns; money columns only where money shows)
 // ---------------------------------------------------------------------------------------------
 
 export const CSV_MAX_ROWS = 100_000;

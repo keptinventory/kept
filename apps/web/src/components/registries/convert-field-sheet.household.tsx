@@ -1,6 +1,6 @@
 /**
- * Converting a type's field (D172, D177, D193; screens "Type editor"; frame 08 "Convert a field";
- * step-7 plan T24, Q20): **Make secret** or **Make plain** on a text field, or **Change kind**
+ * Converting a type's field (D172, D177, D193; screens "Type editor"; frame 08 "Convert a field"):
+ * **Make secret** or **Make plain** on a text field, or **Change kind**
  * to one `CONVERSIONS` allows. The account owner only, for every location that uses the type.
  * Loaded on demand (./convert-field-sheet.tsx): it reads and writes the server.
  *
@@ -10,7 +10,7 @@
  * that past history keeps only that the value changed and that exports already made still hold
  * it. Nothing here is undoable, so the field's name is typed to confirm. To secret needs the
  * recovery kit saved first (409 `recovery_kit_required`, D193): the sheet says so, with the
- * status page for an instance admin, as the first AI key does (step 3).
+ * status page for an instance admin, as the first AI key does.
  */
 import { CONVERSIONS, type ConvertFieldBody, type FieldKind } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';

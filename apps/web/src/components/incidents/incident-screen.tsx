@@ -1,9 +1,9 @@
 /**
- * One incident (D158, plan T26): what happened and when, the police and insurer references, the
+ * One incident (D158): what happened and when, the police and insurer references, the
  * notes and documents, the things it affected and the claims under it; then what the insurer asks
  * for: the insurance report for it and a claim pack.
  *
- * Owners and admins (`incidents.manage`) edit it, delete it (a hard delete with Undo, Q25), take
+ * Owners and admins (`incidents.manage`) edit it, delete it (a hard delete with Undo), take
  * a thing out of it (Undo), and "Mark these stolen" (destroyed, lost, by the kind): each thing
  * still in use ends with the incident's day, one undoable `thing.lifecycle` each, as when the
  * things were added with it. Things go in from a location's list: select them, Add to incident.

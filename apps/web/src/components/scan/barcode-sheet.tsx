@@ -1,5 +1,5 @@
 /**
- * A product barcode (D104, D126, D137 case 4; plan T26, Q22). When the server's lookup is on, one
+ * A product barcode (D104, D126, D137 case 4). When the server's lookup is on, one
  * `GET /barcodes/:code` names the product (Open Food Facts and its sister databases, with their
  * ODbL attribution shown); nothing about it is stored on the server, and no product image is ever
  * fetched. Found or not, "Add as a new thing" queues a THING capture with the barcode kept and the

@@ -32,16 +32,16 @@ import { stageKeptRun } from '../kept-export.js';
 import { peopleApp, person, recordingQueue } from '../people.js';
 import { ownerTx } from '../tenancy.js';
 
-// D69: "An export → import round-trip test runs in CI" (step-7 plan T14). Home, as the households
-// seed makes it, is exported by Ibrahim with its secrets (the real export job, T12), then
-// imported (the real import job, T14):
+// D69: "An export → import round-trip test runs in CI". Home, as the households
+// seed makes it, is exported by Ibrahim with its secrets (the real export job), then
+// imported (the real import job):
 // 1. on the same server, as a new location of Alfred's: every code is taken there, so each label
-//    is re-issued and its old code kept as a `kept` legacy code (Q9);
+//    is re-issued and its old code kept as a `kept` legacy code;
 // 2. on another server (a fresh database and blob store), by a new person: every code is free,
 //    so every label is kept as printed.
 // Each import is compared with Home through a canonical projection: every exported entity read
 // back by the export's own reader, ids replaced by the source ids they came from, creation and
-// update times and `created_via` left out (an import is the importing person's, Q11). Then: file
+// update times and `created_via` left out (an import is the importing person's). Then: file
 // bytes, secrets revealed, the history carried, old labels scanned, and a second run that makes
 // nothing.
 
@@ -224,7 +224,7 @@ function compare(
 }
 
 /** Location-scoped entities, without the location row (its name and settings are the target's)
- * and the codes (which differ on the same server, Q9). */
+ * and the codes (which differ on the same server). */
 const LOCATION_ROWS = (e: ExportEntity) =>
   entityDef(e)?.scope === 'location' && e !== 'codes' && e !== 'legacy-codes';
 

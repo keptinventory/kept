@@ -22,19 +22,19 @@ import {
   purchaseView,
 } from './view.js';
 
-// Purchases and their lines (T12; D13, D115, D136, D161, D168, D189; engineering spec §7.13;
-// plan Q2). Location rows under 0018's policies: anyone who sees the location reads them, writers
+// Purchases and their lines (D13, D115, D136, D161, D168, D189).
+// Location rows under 0018's policies: anyone who sees the location reads them, writers
 // write them. The routes check can() first, so a viewer gets 403 rather than the 404 a refused
 // policy would give; changing a purchase is `things.edit` (members and up).
 //
 // Money (D13, D110; plan "Money and secrets"):
 // - an amount in a request is read with parseAmount() (Eastern Arabic and Persian digits, `٫`,
-//   grouping; D172) and stored as received at full precision (Q2);
+//   grouping; D172) and stored as received at full precision;
 // - every amount needs a currency, one that is enabled (D168). None is ever picked for the caller:
 //   "$" is refused with a hint to choose USD or CAD (D189), and a purchase with amounts and no
 //   currency is a 400, not a silent location default;
 // - writing money the caller's gate hides (the money module is off there) is 409 `module_off`, as
-//   for things (T14). A member who can't see money edits the rest: an omitted price is kept.
+//   for things. A member who can't see money edits the rest: an omitted price is kept.
 // - audit rows class total, tax and unit_price as money (audit/classes.ts), so renderAudit()
 //   hides them from viewers.
 //
@@ -639,7 +639,7 @@ export async function deletePurchase(ctx: Ctx, id: string): Promise<void> {
   await refuseUsedElsewhere(client, id, null);
 
   // Its receipts go with it (the attachments cascade): someone else's only for those who may
-  // delete any attachment (§7.1), as DELETE /attachments/:id would decide.
+  // delete any attachment, as DELETE /attachments/:id would decide.
   const { rows: attachments } = await client.query<{
     id: string;
     file_id: string | null;

@@ -1,5 +1,5 @@
 /**
- * A vehicle's Overview (plan T18; the board's phone frame, screens §8; D26, D52, D188): a banner
+ * A vehicle's Overview (D26, D52, D188): a banner
  * when a document is coming due; the odometer card (the latest reading, how old it is and whose,
  * the usage, Log a reading); the schedules with their estimated dates and what the estimate rests
  * on; recent services; the fuel card (T21's); the documents; and the history report (T23's).

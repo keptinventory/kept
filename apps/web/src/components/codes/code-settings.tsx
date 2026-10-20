@@ -1,5 +1,5 @@
 /**
- * Location settings → General → "Your own codes" (D208, plan T17a; engineering spec §7.16):
+ * Location settings → General → "Your own codes" (D208):
  * automatic numbering (off by default: a prefix and a zero-padded counter, `GAR-0001`) and an
  * optional format rule (a pattern, a message in plain words, an example). Owners and admins only
  * (the page's gate). A form, so its choices keep their controls (D211): a switch, text fields and

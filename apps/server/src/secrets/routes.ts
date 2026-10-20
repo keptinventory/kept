@@ -25,7 +25,7 @@ import {
   subjectOf,
 } from './service.js';
 
-// Secret values, reveal and policies (plan T19), in the shapes of the web contract
+// Secret values, reveal and policies, in the shapes of the web contract
 // (apps/web/src/api/inventory/{types,paths}.ts, mock/things.ts and mock/registries.ts):
 //
 // PUT    /api/v1/{things|places}/:id/secrets/:fieldKey {value}       → 204  (things.edit;
@@ -38,7 +38,7 @@ import {
 // GET    /api/v1/locations/:locationId/secret-policies/:typeFieldId → SecretPolicy (owner)
 // PUT    /api/v1/locations/:locationId/secret-policies/:typeFieldId → SecretPolicy (owner)
 //
-// All of them belong to the `secrets` module (§7.6): off in the location, a read is 404 and a
+// All of them belong to the `secrets` module: off in the location, a read is 404 and a
 // write 409 `module_off`.
 //
 // The value routes run in their own scoped transaction, not scopedWrite(): an Idempotency-Key
@@ -125,7 +125,7 @@ export async function secretRoutes(app: KeptApp, deps: InventoryDeps): Promise<v
       `${base}/reveal`,
       {
         config,
-        // Never over plain HTTP (D181; step-8 T24): 403 `https_required`.
+        // Never over plain HTTP (D181): 403 `https_required`.
         preHandler: httpsOnly,
         schema: { params: SubjectParams, response: { 200: RevealSchema } },
       },

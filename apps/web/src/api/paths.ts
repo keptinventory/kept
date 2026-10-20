@@ -5,7 +5,7 @@
  * Where each one comes from:
  * - AUTH: Better Auth 1.7.6 endpoints (checked in node_modules/better-auth and
  *   @better-auth/passkey), mounted at /api/v1/auth by apps/server/src/auth/auth.ts.
- * - KEPT: step-1 plan tasks 17–26, checked against the routes the server registers
+ * - KEPT: Kept's own routes, checked against the routes the server registers
  *   (apps/server/src: each area's routes.ts, accounts/me.ts, auth/me.ts, auth/email-change.ts).
  */
 
@@ -20,7 +20,7 @@ export const paths = {
     signInMagicLink: `${AUTH}/sign-in/magic-link`,
     /**
      * Kept's `POST {token}` → `{mfaRequired}` (auth/http.ts). Better Auth's own GET with
-     * `?token=` answers 404: a GET never consumes the token (task 17, D176).
+     * `?token=` answers 404: a GET never consumes the token (D176).
      */
     magicLinkVerify: `${AUTH}/magic-link/verify`,
     signOut: `${AUTH}/sign-out`,
@@ -46,7 +46,7 @@ export const paths = {
      * Better Auth's social and generic-OAuth start (`api/routes/sign-in.mjs`): `{provider: 'oidc',
      * callbackURL, errorCallbackURL, disableRedirect, additionalData?}` → `{url, redirect}` at the
      * IdP; the callback then returns to `callbackURL`, or to `errorCallbackURL?error=<code>`
-     * (step 6 T16, spike S6.7).
+     * (step 6 T16).
      */
     signInSocial: `${AUTH}/sign-in/social`,
     /** D176, D226: link an outside sign-in to the signed-in account, from a fresh session. */
@@ -76,7 +76,7 @@ export const paths = {
     `${V1}/locations/${seg(id)}/members/${seg(membershipId)}`,
   locationModules: (id: string) => `${V1}/locations/${seg(id)}/modules`,
   locationInvites: (id: string) => `${V1}/locations/${seg(id)}/invites`,
-  /** Revoke a pending invite (screens §5 Members: "pending invites … Revoke"). */
+  /** Revoke a pending invite ("pending invites … Revoke"). */
   locationInvite: (id: string, inviteId: string) =>
     `${V1}/locations/${seg(id)}/invites/${seg(inviteId)}`,
   locationManagedAccounts: (id: string) => `${V1}/locations/${seg(id)}/managed-accounts`,
@@ -101,7 +101,7 @@ export const paths = {
      * T24 (the plan names no path); T14 confirms or renames it here.
      */
     embeddings: `${V1}/admin/embeddings`,
-    /** The instance cap's per-account override picker (T19): names only (D33). */
+    /** The instance cap's per-account override picker: names only (D33). */
     accounts: `${V1}/admin/accounts`,
   },
 } as const;

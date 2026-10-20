@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put your code below! --
--- Step 6, task 4: tokens as principals, OAuth grants and the token rate windows (engineering spec
--- §1.10, §3.2, §7.3, §7.13; D15, D60, D63, D179, D180, D190; plan Q6, Q7, Q19). Above, in 0069,
+-- Tokens as principals, OAuth grants and the token rate windows (D15, D60, D63, D179, D180, D190).
+-- Above, in 0069,
 -- drizzle's part: api_tokens, token_locations and token_rate_windows (src/db/schema/tokens.ts).
 -- Below:
 --   1. The token principal. withScope() sets `app.token_id` beside `app.user_id` (db/scope.ts);
@@ -23,16 +23,16 @@
 --      token_locations_member), never a location where they are a viewer for a write token (42501
 --      token_locations_role), and a require_2fa location only for a token made with a second
 --      factor (42501 token_locations_mfa). A token whose last location row goes is revoked
---      (§7.13; kept.token_last_location()).
---   4. The audit actor (step-1 carry-over): a token-scoped transaction writes `token` events
+--      (kept.token_last_location()).
+--   4. The audit actor: a token-scoped transaction writes `token` events
 --      pinned to its token, never `user` ones, and a user-scoped one never a `token` event.
 --   5. The doors: kept.token_verify() and kept.token_oauth_for() (before a scope exists: how a
 --      request gets one), kept.token_oauth_grant() (T12's consent step), kept.token_rate_hit()
---      (T10's limiter, Q19) and kept.revoke_tokens_for() (T10's membership routes, and the jobs).
---   6. Tokens die with access (D180, step-1 carry-over "membership expiry revokes tokens"): a
+--      (T10's limiter) and kept.revoke_tokens_for() (T10's membership routes, and the jobs).
+--   6. Tokens die with access (D180; membership expiry revokes tokens): a
 --      trigger on memberships, kept.membership_access_ended(), revokes on every path that ends a
 --      membership (expire-memberships, member removal, leaving) and on a role dropping to viewer
---      (a write token loses that location, Q6), in the same transaction. T5 and T7 extend it
+--      (a write token loses that location), in the same transaction. T5 and T7 extend it
 --      (assistant redaction, webhooks). A location's purge needs nothing: its rows cascade.
 --   7. kept.prune_stale_rows() (0055's, every clause kept) drops rate windows past 2 hours.
 -- test/leak.test.ts and src/db/migrate.test.ts list the functions; test/leak-assistant.ts fills
@@ -236,7 +236,7 @@ END $$;
 CREATE TRIGGER token_locations_guard BEFORE INSERT ON public.token_locations
   FOR EACH ROW EXECUTE FUNCTION kept.guard_token_location();
 --> statement-breakpoint
--- A token left with no location is revoked (§7.13): by its user ('user'), or because the
+-- A token left with no location is revoked: by its user ('user'), or because the
 -- location itself went ('membership_ended'). A token being deleted has no row to update.
 CREATE FUNCTION kept.token_last_location() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$
@@ -319,7 +319,7 @@ BEGIN
                       tok.expires_at;
 END $$;
 --> statement-breakpoint
--- An OAuth access token's grant (Q7): Better Auth verified the JWT (user and client); this is the
+-- An OAuth access token's grant: Better Auth verified the JWT (user and client); this is the
 -- scope and locations it may use, checked on every call so a revocation in Connections works at
 -- once. Before a scope exists, or for the scope's own user only.
 CREATE FUNCTION kept.token_oauth_for(p_user uuid, p_client text)
@@ -344,7 +344,7 @@ BEGIN
   RETURN QUERY SELECT tok.id, tok.scope, tok.created_with_mfa;
 END $$;
 --> statement-breakpoint
--- The consent step (T12): the signed-in user grants a client a scope in some of their locations.
+-- The consent step: the signed-in user grants a client a scope in some of their locations.
 -- One live grant per user and client, updated in place (its locations replaced); the location
 -- guard above applies to each. created_with_mfa is this session's second factor.
 CREATE FUNCTION kept.token_oauth_grant(p_user uuid, p_client text, p_scope text,
@@ -390,7 +390,7 @@ BEGIN
   RETURN tid;
 END $$;
 --> statement-breakpoint
--- The per-token limiter (Q19): one statement per request, counting this minute's reads or writes.
+-- The per-token limiter: one statement per request, counting this minute's reads or writes.
 -- A scoped caller counts only its own token (or, as the user, one of its own); before a scope
 -- exists, any token the request presented.
 CREATE FUNCTION kept.token_rate_hit(p_token uuid, p_kind text, p_limit integer)
@@ -421,7 +421,7 @@ BEGIN
 END $$;
 --> statement-breakpoint
 -- The work of revoking: a user's tokens whose only location is p_location are revoked; the others
--- lose that location. 'role_lost' (a role dropping to viewer) touches write tokens only (Q6).
+-- lose that location. 'role_lost' (a role dropping to viewer) touches write tokens only.
 -- Owner-only: called by kept.revoke_tokens_for() and the membership trigger.
 CREATE FUNCTION kept.revoke_tokens_in(p_user uuid, p_location uuid, p_reason text)
 RETURNS integer
@@ -530,7 +530,7 @@ BEGIN
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'inbox_items'; removed := n; RETURN NEXT;
 
-  -- 0055 (step 4, §3.3): the centre keeps 90 days; the reminder ledger a year.
+  -- 0055: the centre keeps 90 days; the reminder ledger a year.
   DELETE FROM public.notifications x WHERE x.created_at < now() - interval '90 days';
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'notifications'; removed := n; RETURN NEXT;
@@ -549,7 +549,7 @@ BEGIN
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'notification_digests'; removed := n; RETURN NEXT;
 
-  -- 0070 (step 6, Q19): a rate window is a minute; two hours is plenty for Retry-After.
+  -- 0070: a rate window is a minute; two hours is plenty for Retry-After.
   DELETE FROM public.token_rate_windows w WHERE w.minute < now() - interval '2 hours';
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'token_rate_windows'; removed := n; RETURN NEXT;

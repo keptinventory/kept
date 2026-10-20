@@ -1,10 +1,10 @@
 /**
- * Domain value lists for the core inventory (engineering spec §1 and §7.13, D183: text + CHECK,
+ * Domain value lists for the core inventory (D183: text + CHECK,
  * never Postgres enums). The database CHECKs, the zod schemas and the web pickers all read these,
  * so a value is added in one place.
  */
 
-/** The stored lifecycle (D119, D158, §7.13). Lent, borrowed and in repair are derived, not stored. */
+/** The stored lifecycle (D119, D158). Lent, borrowed and in repair are derived, not stored. */
 export const LIFECYCLES = [
   'in_use',
   'sold',
@@ -22,7 +22,7 @@ export const ENDED = LIFECYCLES.filter(
   (l): l is Exclude<Lifecycle, 'in_use'> => l !== 'in_use',
 ) as readonly Exclude<Lifecycle, 'in_use'>[];
 
-/** A thing's condition (Q10: not enumerated in the specs; localised in the UI). */
+/** A thing's condition (not enumerated in the specs; localised in the UI). */
 export const CONDITIONS = ['new', 'good', 'fair', 'poor', 'broken'] as const;
 export type Condition = (typeof CONDITIONS)[number];
 
@@ -37,7 +37,7 @@ export const LINK_KINDS = [
 ] as const;
 export type LinkKind = (typeof LINK_KINDS)[number];
 
-/** `attachments.role` (§1.5, plus `document` for anything else a thing carries). */
+/** `attachments.role` (plus `document` for anything else a thing carries). */
 export const ATTACHMENT_ROLES = [
   'photo',
   'receipt',
@@ -52,15 +52,15 @@ export const ATTACHMENT_ROLES = [
 ] as const;
 export type AttachmentRole = (typeof ATTACHMENT_ROLES)[number];
 
-/** `files.class` (§1.5; evidence is kept byte-identical, D117). */
+/** `files.class` (evidence is kept byte-identical, D117). */
 export const FILE_CLASSES = ['evidence', 'photo', 'document', 'video'] as const;
 export type FileClass = (typeof FILE_CLASSES)[number];
 
-/** `vendors.kind` (§1.4, D11). */
+/** `vendors.kind` (D11). */
 export const VENDOR_KINDS = ['store', 'online', 'service_centre', 'station', 'other'] as const;
 export type VendorKind = (typeof VENDOR_KINDS)[number];
 
-/** A custom field's kind. "Secret" is a flag on a text field, not a kind (Q3). */
+/** A custom field's kind. "Secret" is a flag on a text field, not a kind. */
 export const FIELD_KINDS = [
   'text',
   'number',
@@ -96,7 +96,7 @@ export type BuiltinPlaceKind = (typeof BUILTIN_PLACE_KINDS)[number];
 
 /**
  * Derived states shown next to the lifecycle (D119). Lent and borrowed come from an open loan
- * (its direction), in repair from a claim in repair (step 4).
+ * (its direction), in repair from a claim in repair.
  */
 export const DERIVED_STATES = [
   'uncertain',

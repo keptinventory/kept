@@ -1,7 +1,7 @@
 import type { BackupRun, BackupRunKind, BackupRunState, BackupStorageMode } from '@kept/shared';
 import type pg from 'pg';
 
-// `backup_runs` rows (step-8 plan T4) as the API shows them (@kept/shared BackupRun): Admin →
+// `backup_runs` rows as the API shows them (@kept/shared BackupRun): Admin →
 // Backups' list (admin/backup-routes.ts) and the status page (backup/status.ts). Instance admins
 // read them on kept_app (0091's app_admin_select); only kept_owner writes them (the worker's
 // backup login, the CLI, `kept migrate`). No column holds a credential (T4's checks).
@@ -71,11 +71,11 @@ export function backupRunOf(r: BackupRunRow): BackupRun {
 export const SNAPSHOT_KINDS: readonly BackupRunKind[] = ['nightly', 'manual', 'pre_upgrade'];
 
 /** SQL: a run that left a good snapshot behind. A `warning` counts unless it is the size
- * check's, whose snapshot is suspect (plan Q25). */
+ * check's, whose snapshot is suspect. */
 export const GOOD_RUN_SQL = `(status = 'ok' OR (status = 'warning'
   AND error IS DISTINCT FROM 'backup_suspicious_size'))`;
 
-/** A run holds the backup lock this long at most (the `backup` job's 4-hour expiry, §3.1b);
+/** A run holds the backup lock this long at most (the `backup` job's 4-hour expiry);
  * an older `running` row is a crashed run, not a running one. */
 export const RUNNING_FOR_AT_MOST_HOURS = 4;
 

@@ -9,7 +9,7 @@ import {
 import type pg from 'pg';
 
 // Reference data that `kept migrate` upserts after the migrations, as kept_owner inside the
-// migrate lock (engineering spec §7.9, §7.12; D136, D168). Idempotent: a second run changes
+// migrate lock (D136, D168). Idempotent: a second run changes
 // nothing. Never touches what an instance admin decides (`currencies.enabled`).
 
 const displayNames = new Intl.DisplayNames('en', { type: 'currency' });
@@ -88,7 +88,7 @@ function libraryOrder(library: readonly BuiltinType[]): BuiltinType[] {
 }
 
 /**
- * The built-in type library (D154, D192, §7.9), upserted by `builtin_key`; then each type's own
+ * The built-in type library (D154, D192), upserted by `builtin_key`; then each type's own
  * fields by (type, key); then the built-in place kinds. Names stay NULL (translated from the
  * keys); `search_names` holds the English and Arabic names for search. A built-in field that
  * left the library is archived, never deleted (values may still refer to it). Every write is

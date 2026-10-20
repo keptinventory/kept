@@ -16,15 +16,15 @@ import {
   webhookAllowsPrivate,
 } from './webhook.js';
 
-// The channels' own jobs (D30; plan T15), aggregated by jobs/household.ts.
+// The channels' own jobs (D30), aggregated by jobs/household.ts.
 //
-// `channel-webhook` sends one reminder to one webhook channel: the §2.6 envelope, signed, 10
+// `channel-webhook` sends one reminder to one webhook channel: the webhook envelope, signed, 10
 // attempts over about 24 hours (jobs/policies.ts shows the arithmetic). Its data names a
 // delivery, `{occurrenceId, userId, channelId}`; whether to send is read from the database
 // (jobs/boss.ts's rule): the delivery row must exist, the channel must be that person's webhook,
 // and the occurrence still open. A failure throws, so pg-boss tries again; the last failure
 // doesn't: it marks the channel `failing_since`, the delivery `failed`, and mails the person once
-// (a webhook's failure never fails the scan, which only queued it; L112).
+// (a webhook's failure never fails the scan, which only queued it).
 
 type Log = Pick<SystemJobDeps['log'], 'info' | 'error'>;
 

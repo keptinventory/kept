@@ -8,11 +8,11 @@ import {
 } from './message-kit.js';
 import type { MailLocale } from './messages.js';
 
-// Step 4's mail (plan T15; D29, D30, D46, D122, D204; L113), in every language Kept mails in:
+// Step 4's mail (D29, D30, D46, D122, D204), in every language Kept mails in:
 // a reminder sent at once, the day's digest, a membership that ended, a channel's test and a
 // webhook that stopped answering. The reminder wording itself is notify/words.ts, which the push
 // payload and the calendar feed share. Every reminder names the thing, its path, the location
-// and the local date (L113); none carries money or anyone's contact details.
+// and the local date; none carries money or anyone's contact details.
 
 const SETTINGS = '/settings/me/notifications';
 
@@ -204,7 +204,7 @@ const WORDS: Record<MailLocale, Words> = {
 
 /** The headline and the "where" line of one reminder, in `locale`. */
 // ---------------------------------------------------------------------------------------------
-// The AI monthly summary (product design §8a: "AI in September: 312 calls, 0.8M tokens, ≈ USD
+// The AI monthly summary ("AI in September: 312 calls, 0.8M tokens, ≈ USD
 // 1.12"), with the words the web's AI usage page uses for calls and tokens.
 // ---------------------------------------------------------------------------------------------
 

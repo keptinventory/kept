@@ -1,6 +1,6 @@
 /**
- * Loans on the person page (plan T22; D57, screens §5 "Person page: what they have, and what
- * belongs to them"): "Has from us" (open loans out to them) and "Lent to us" (open loans in from
+ * Loans on the person page (D57):
+ * "Has from us" (open loans out to them) and "Lent to us" (open loans in from
  * them), then the returned ones, before the page's "Belongs to" list. Only locations with Lending
  * on count (the server's rule); with nothing either way, the sections stay away.
  */

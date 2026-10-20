@@ -1,5 +1,5 @@
 /**
- * Small pieces the AI settings routes share (plan T9): who the caller is to AI, amounts and times
+ * Small pieces the AI settings routes share: who the caller is to AI, amounts and times
  * as the web contract spells them (apps/web/src/api/capture/types.ts "AI"), and the audit
  * placement of events that belong to an account or the instance rather than a location.
  */
@@ -10,7 +10,7 @@ import { FOREVER } from './breaker.js';
 
 export type Who = {
   userId: string;
-  /** The caller's own owner account (every person has one, §7.14). */
+  /** The caller's own owner account (every person has one). */
   accountId: string | null;
   instanceAdmin: boolean;
 };

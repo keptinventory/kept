@@ -13,7 +13,7 @@ import {
   toErrorReply,
 } from './errors.js';
 
-// Task 16: the error shape and the Postgres mapping (engineering spec §7.7, D81, D178).
+// The error shape and the Postgres mapping (D81, D178).
 
 const pg = (code: string, constraint?: string, message = 'boom') =>
   Object.assign(new Error(message), { code, severity: 'ERROR', constraint });
@@ -71,7 +71,7 @@ describe('toErrorReply()', () => {
     ['P0001', 'cap_above_account', 400, 'cap_above_account'],
     ['P0001', 'ai_cap_still_reached', 409, 'ai_cap_still_reached'],
     ['P0001', undefined, 500, 'internal'],
-    // Step 4 (T2): the T5 names with a code of their own.
+    // The T5 names with a code of their own.
     ['23514', 'warranties_quantity_one', 409, 'quantity_not_one'],
     ['23514', 'claims_transition', 409, 'invalid_transition'],
     ['23505', 'claims_one_repair_uq', 409, 'thing_in_repair'],
@@ -79,10 +79,10 @@ describe('toErrorReply()', () => {
     ['23514', 'things_move_open_loan', 409, 'open_loan'],
     ['23514', 'things_move_in_repair', 409, 'open_claim'],
     ['23514', 'calendar_feeds_cap', 409, 'conflict'],
-    // Step 5 (T2): one owner per reading (Q11).
+    // One owner per reading.
     ['23505', 'fuel_entries_reading_uq', 409, 'conflict'],
     ['23505', 'service_records_reading_uq', 409, 'conflict'],
-    // Step 7 (T2): Phase A's trigger names.
+    // Phase A's trigger names.
     ['23514', 'import_runs_target_fixed', 409, 'conflict'],
     ['23514', 'stock_rules_consumable', 409, 'not_consumable'],
   ])('maps SQLSTATE %s (%s) to %i %s, bare or wrapped', (code, constraint, status, errCode) => {

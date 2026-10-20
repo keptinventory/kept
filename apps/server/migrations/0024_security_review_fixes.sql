@@ -289,7 +289,7 @@ END $$;
 --   mapped type when that is secret; with no such field on a type of the target account, to an
 --   archived secret field made for it there, as history. Otherwise 23514
 --   things_move_secret_field. A value never keeps a foreign field.
--- - D156 (§7.4): tombstones in the source for its attachments, meters, readings, meter events
+-- - D156: tombstones in the source for its attachments, meters, readings, meter events
 --   and links (dropped or carried). Short IDs and tag rows have no uuid of their own: the
 --   thing's tombstone covers them.
 -- - Performance: the link and attachment scans are limited to the moved set.
@@ -529,7 +529,7 @@ BEGIN
      WHERE id = r.id;
   END LOOP;
 
-  -- Sync (§7.4): gone from each source location; no longer gone from the target.
+  -- Sync: gone from each source location; no longer gone from the target.
   INSERT INTO public.sync_tombstones (location_id, entity_type, entity_id)
   SELECT x.loc, 'thing', x.id FROM unnest(set_ids, set_locs) AS x(id, loc)
    WHERE x.loc <> p_to_location

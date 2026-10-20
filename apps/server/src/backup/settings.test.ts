@@ -14,7 +14,7 @@ import {
   type StoredBackupTarget,
 } from './settings.js';
 
-// Step-8 plan T10: the backup settings, sealed in instance_settings, overlaid by the environment.
+// The backup settings, sealed in instance_settings, overlaid by the environment.
 
 const master: MasterKey = { key: randomBytes(32), keyVersion: 1 };
 const ring: Keyring = new Map([[1, master.key]]);

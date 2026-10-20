@@ -1,5 +1,5 @@
 /**
- * The type editor (screens §5 Type editor, frame 06 · 5; D12, D92, D123, D154, D172, D177, D192),
+ * The type editor (frame 06 · 5; D12, D92, D123, D154, D172, D177, D192),
  * the right-hand side of Account → Types and the whole of /types/<id>. In order:
  *
  * 1. Identity: name and icon (the picker is lazy, ./icon-choice), and where it sits in the tree.
@@ -7,11 +7,11 @@
  * 3. Fields: inherited first with their source, its own, then its groups' (./field-list).
  * 4. Field groups: the built-in Device group is shown read-only (D192).
  *
- * A built-in is read-only until Customise, which copies it (and the built-ins below it, Q13b)
+ * A built-in is read-only until Customise, which copies it (and the built-ins below it)
  * into the account and moves the account's things onto the copy. Saving opens the impact preview
  * first (D92, D123). A cycle, a key defined twice and a stale version each get their own message.
  * Members and viewers see the same page read-only; only the owner sees secret-field controls,
- * and converts a field to or from secret or to another kind (step-7 T24, ./convert-field-sheet).
+ * and converts a field to or from secret or to another kind (./convert-field-sheet).
  */
 import { plural } from '@lingui/core/macro';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
@@ -659,7 +659,7 @@ function MergeTypeSheet({
     }
   }, [isOpen]);
   const options = types
-    // Never into a built-in original (the server answers 404, T11): into the account's own types.
+    // Never into a built-in original (the server answers 404): into the account's own types.
     .filter((x) => !x.isFieldGroup && x.id !== type.id && !below.has(x.id) && !isBuiltinOriginal(x))
     .map((x) => ({ id: x.id, label: typeName(x) }))
     .sort((a, b) => a.label.localeCompare(b.label));

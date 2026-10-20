@@ -1,4 +1,4 @@
-/** A service line's kind in words (@kept/shared SERVICE_LINE_KINDS; screens §5 Log a service). */
+/** A service line's kind in words (@kept/shared SERVICE_LINE_KINDS). */
 import type { ServiceLineKind } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
 

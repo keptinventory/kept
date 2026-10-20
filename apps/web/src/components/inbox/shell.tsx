@@ -1,7 +1,7 @@
 /**
  * What every inbox item shares: the frame (photo, title, pills, who and when), the keys it
  * answers (the list sends `a`, `e`, `m`, `t`, `y`, `n`, `l`, `g`, `d` to the current item), and
- * why its buttons may be off (offline: "Needs a connection", screens §3).
+ * why its buttons may be off (offline: "Needs a connection").
  */
 import type { InboxAction } from '@kept/shared';
 import { Trans } from '@lingui/react/macro';
@@ -144,7 +144,7 @@ export function ItemShell({
   );
 }
 
-/** The reason under a row of disabled buttons (never only a greyed-out button, screens §3). */
+/** The reason under a row of disabled buttons (never only a greyed-out button). */
 export function BlockedReason({ reason }: { reason: Blocked }) {
   if (!reason) return null;
   return <p className="m-0 w-full text-small text-ink-3">{reason}</p>;

@@ -1,5 +1,5 @@
 /**
- * Loans on the thing page (screens §5, D56, D57; frame "Bosch drill on the Loans tab"): the open
+ * Loans on the thing page (D56, D57; frame "Bosch drill on the Loans tab"): the open
  * loan as a panel (who, since when, when it's due, who recorded it, the note, where it returns
  * to, the condition photos) with **Mark returned** and, in More on a phone (buttons from `md`),
  * Copy a polite reminder, Change the due date and Remove; then the earlier loans. Kept never

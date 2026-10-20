@@ -1,6 +1,6 @@
 /**
  * A location's place tree: the flattening the move picker searches, and the "All places" outline
- * on the Location page, a way to jump to any depth in one tap (screens §1's locations tree).
+ * on the Location page, a way to jump to any depth in one tap (the locations tree).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';

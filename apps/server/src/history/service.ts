@@ -26,25 +26,25 @@ import { gateFor } from '../serialize/gates.js';
 import { arrangedIds, type NodeName } from './arrange.js';
 import { type Summary, summarise } from './summary.js';
 
-// History and the activity feed (T21; D76, D110, D150, D174, D183; engineering spec §7.2, §7.5).
+// History and the activity feed (D76, D110, D150, D174, D183).
 //
 // Every row is a stored audit event, read as the caller on kept_app, so the audit_events policy
-// decides what exists: events of the locations they can see, plus (Q15) the account-level
+// decides what exists: events of the locations they can see, plus the account-level
 // registry events of accounts they administer. Each goes through renderAudit() with the caller's
 // role, money toggle and Money module *in that event's location* (a viewer in one household and
 // an owner in another sees each row as that role), and their visible locations for D183. The
 // response is the web contract's HistoryEvent: the rendered event (snake_case), the actor's
 // display name, and a summary (history/summary.ts).
 //
-// - A thing's history is every event about it: its own (`entity_id`, which Q14 keeps across a
+// - A thing's history is every event about it: its own (`entity_id`, which is kept across a
 //   place/container conversion, so the place-era events stay on it), those rooted at it
 //   (`root_thing_id`: its attachments, meters, readings) and those that fanned out to it
 //   (`audit_event_subjects`: "moved with Box 3", D45).
 // - A place's history is the events about the place itself.
-// - A move across locations is written in both (T15), so a viewer who sees both would read it
+// - A move across locations is written in both, so a viewer who sees both would read it
 //   twice: the source's copy is left out whenever the destination's is visible too.
 
-/** Account-level events the activity feed shows (Q15): registry changes, which admins of any
+/** Account-level events the activity feed shows: registry changes, which admins of any
  * location of the account may read. The account owner's other account-level rows (sessions,
  * email changes) are theirs, not activity. */
 export const REGISTRY_ENTITIES = [
@@ -102,9 +102,9 @@ export const HistoryEventSchema = z.object({
     )
     .optional(),
   movedInFromElsewhere: z.literal(true).optional(),
-  /** A thing's history: an event of a thing merged into it (D36), "merged from <name>" (T15). */
+  /** A thing's history: an event of a thing merged into it (D36), "merged from <name>". */
   mergedFrom: z.object({ id: z.uuid(), name: z.string().nullable() }).optional(),
-  /** Step 6 (T18; D206, §7.15 "Elsewhere"): an AI call about the thing (`action: 'ai.call'`). */
+  /** Step 6 (D206): an AI call about the thing (`action: 'ai.call'`). */
   aiCall: CallSummary.extend({ task: z.enum(LEDGER_TASKS) }).optional(),
 });
 
@@ -129,7 +129,7 @@ export const HistoryQuery = z.object({
 });
 export type HistoryQuery = z.infer<typeof HistoryQuery>;
 
-/** A thing's history (step 6, T18): `changes` its audit events only, `ai` its AI calls only;
+/** A thing's history: `changes` its audit events only, `ai` its AI calls only;
  * both by default, newest first in one list. */
 export const ThingHistoryQuery = HistoryQuery.extend({
   kind: z.enum(['all', 'changes', 'ai']).default('all'),
@@ -570,7 +570,7 @@ const subjectThing = (e: EventRecord): string | null =>
   e.entity_type === 'thing' ? e.entity_id : e.root_thing_id;
 
 /**
- * The names of the tokens that made `events` (UI review steps 6–8, L3), by token id: the caller's
+ * The names of the tokens that made `events` (UI review steps 6–8), by token id: the caller's
  * own token by its name ("Claude Desktop"), another member's as "Louis (Claude Desktop)". Through
  * kept.token_actor_names (0105): tokens are their creator's alone under the policies, so the
  * history's actor join finds none; the door names only tokens seen acting in a location the
@@ -707,8 +707,8 @@ export async function thingHistory(
   );
   const thing = found[0];
   if (!thing) throw notFound();
-  // Things merged into this one (D36, plan Q16), however many times over: their events are its
-  // history too, each labelled "merged from <name>" (T15).
+  // Things merged into this one (D36), however many times over: their events are its
+  // history too, each labelled "merged from <name>".
   const { rows: merged } = await client.query<{ id: string; name: string | null }>(
     `WITH RECURSIVE m(id) AS (
        SELECT t.id FROM public.things t WHERE t.merged_into_id = $1
@@ -781,11 +781,11 @@ type AiCallRecord = CallRow & {
 };
 
 /**
- * Step 6 (T18; D206, §7.15 "Elsewhere"): the thing's AI calls merged into its history, newest
+ * Step 6 (D206): the thing's AI calls merged into its history, newest
  * first under the same (at, id) cursor. A call is the thing's when the ledger row names it
  * (`thing_id`: an embedding, an assistant step about it) or comes from an extraction of it, its
  * photos or its meters' proof. Read through llm_calls' own policy, so a person sees the calls
- * they made or paid for, and admins and owners their locations' (§7.15); the cost follows the
+ * they made or paid for, and admins and owners their locations'; the cost follows the
  * money gate unless the caller paid. Ledger rows never hold a prompt (D206), so none is shown.
  */
 async function withAiCalls(
@@ -952,7 +952,7 @@ export async function activity(
 }
 
 /**
- * GET /api/v1/connections/changes (step 6, T10; D58): the events `tokenIds` made, newest first,
+ * GET /api/v1/connections/changes (D58): the events `tokenIds` made, newest first,
  * rendered as any other history row. The caller passes only their own tokens' ids; the audit
  * policy still decides which events exist for them (a location they've left drops out).
  */

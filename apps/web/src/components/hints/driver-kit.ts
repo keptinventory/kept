@@ -1,8 +1,8 @@
 /**
- * driver.js 1.8.0 (D138; spike V18), wrapped. This module is loaded with `import()` on the first
+ * driver.js 1.8.0 (D138), wrapped. This module is loaded with `import()` on the first
  * hint or tour (use-hint.ts, tour.ts), so neither the library nor its CSS is in the entry bundle.
  *
- * What the wrapper adds to the library, each from the spike:
+ * What the wrapper adds to the library, each from the hints trial:
  * - **RTL:** driver.js places with physical sides; placement.ts swaps them in Arabic.
  * - **Focus after "Got it":** the beacon is removed, so focus would drop to <body>. It goes back
  *   to the hinted element (or the first control inside it).

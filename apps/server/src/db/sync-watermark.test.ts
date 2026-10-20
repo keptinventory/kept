@@ -5,7 +5,7 @@ import { testDb } from '../../test/db.js';
 import { ownerTx, pgError, seedTenant, type Tenant } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step-3 T4, plan Q1 (engineering spec §7.4): the snapshot's watermark. A cursor on change_seq
+// The snapshot's watermark. A cursor on change_seq
 // alone skips a transaction that took its sequence value early and committed late; a cursor on
 // change_xid from pg_snapshot_xmin never does. Two raw kept_app connections hold transactions
 // open while a third reads, as the snapshot route would.

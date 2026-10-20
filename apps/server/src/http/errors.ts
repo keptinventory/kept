@@ -11,7 +11,7 @@ import {
 } from '@kept/shared';
 import { ScopeError } from '../db/scope.js';
 
-// One error shape for every response: `{error, hint?, code}` (D81, engineering spec §7.7).
+// One error shape for every response: `{error, hint?, code}` (D81).
 // A 500 never carries a stack trace or the underlying message; the log gets a redacted copy
 // (safeErrorForLog), never query parameters or values (D81: no argument values in logs).
 
@@ -56,7 +56,7 @@ export class AppError extends Error {
   readonly code: ErrorCode;
   readonly status: number;
   readonly hint?: string;
-  /** Extra top-level fields for the body, e.g. `{conflicts}` on a 412 (§7.7, D156). */
+  /** Extra top-level fields for the body, e.g. `{conflicts}` on a 412 (D156). */
   readonly extra?: Readonly<Record<string, unknown>>;
 
   constructor(
@@ -138,9 +138,9 @@ const CONFLICT_HINTS: Record<string, string> = {
   type_fields_inherited_key: 'A field with that key is already defined along this type.',
   brands_name_uq: 'A brand with that name already exists.',
   tags_name_uq: 'A tag with that name already exists.',
-  // Step 2 (T13): converting a place that still has places inside it (0024).
+  // Converting a place that still has places inside it (0024).
   places_has_children: 'Move the places inside it elsewhere first.',
-  // Step 2 (T14): things (0016, 0018, 0024). The routes check most of these first with a 400.
+  // Things (0016, 0018, 0024). The routes check most of these first with a 400.
   things_quantity_one:
     'A serialized or metered thing, or one with a meter, has quantity 1; split it instead.',
   things_quantity_positive: 'Only a consumable can have quantity 0.',
@@ -164,13 +164,13 @@ const CONFLICT_HINTS: Record<string, string> = {
     'A secret value would lose its field; only the location owner may merge these.',
   types_merge_secret_policy:
     'The merge would change who may reveal a secret; only the location owner may merge these.',
-  // Step 3 (T7, 0042): labels and duplicate merges.
+  // Step 3 (0042): labels and duplicate merges.
   short_ids_blank_cap: 'This place already has 1,000 unclaimed blank labels; claim some first.',
   things_merge_meters: 'Both things have a meter; remove one before merging them.',
-  // Step 3 (T17a, 0046): own codes' numbering.
+  // Step 3 (0046): own codes' numbering.
   own_code_numbers_taken:
     'The next 10,000 numbers are all taken as codes here; change the prefix in the numbering.',
-  // Step 4 (plan T5): the names the T5 migration raises or declares. The ones with a code of
+  // The names the T5 migration raises or declares. The ones with a code of
   // their own are in CODED below.
   warranties_quantity_one: 'Split it first: a warranty covers one thing.',
   claims_transition:
@@ -184,7 +184,7 @@ const CONFLICT_HINTS: Record<string, string> = {
     'It was merged into another thing, so it can’t come back from the trash on its own. Undo the merge instead.',
   things_move_open_loan: 'It is on loan; mark it returned before moving it to another location.',
   things_move_in_repair: 'It is in repair; close the claim before moving it to another location.',
-  // Step 4 (plan T7): the caps its triggers enforce. The plan names no constraint for them; these
+  // The caps its triggers enforce. The plan names no constraint for them; these
   // are the names T2 proposes, and T7 raises them or renames them here.
   notification_channels_webhook_cap: 'You already have 5 webhooks; remove one first.',
   // 1.3 (D227): at most 3 ntfy and 3 Telegram channels a person.
@@ -198,14 +198,14 @@ const CONFLICT_HINTS: Record<string, string> = {
   move_boxes_pk: 'That box is already in this move.',
   move_boxes_number_uq: 'Another box just took that number; add the box again.',
   move_boxes_number_chk: 'A move holds at most 999 boxes.',
-  // Step 5 (plan T2): the unique names Phase A declares (T5, T6). One reading has one owner, a
-  // fill or a service (Q11); the API refuses first, these are the answer when one slips past.
+  // The unique names Phase A declares. One reading has one owner, a
+  // fill or a service; the API refuses first, these are the answer when one slips past.
   fuel_entries_reading_uq: 'That reading already belongs to another fuel entry.',
   service_records_reading_uq: 'That reading already belongs to another service.',
   // Step 5 (0063, 0065): the names Phase A's triggers raise.
   service_records_review_state: "This service is already logged; it can't go back to a draft.",
   fuel_entries_reading_thing: "A fill's odometer reading is one of its own vehicle's meter.",
-  // Step 7 (plan T4, T6): the names Phase A's triggers raise.
+  // The names Phase A's triggers raise.
   import_runs_target_fixed: "An import's location can't change once it is set.",
   stock_rules_consumable: 'Only things you run out of can have a minimum.',
   // Step 6 (Phase A, 0069–0070): tokens and OAuth grants. Their location guards refuse with
@@ -222,7 +222,7 @@ const CONFLICT_HINTS: Record<string, string> = {
   condition_report_rooms_place_uq: 'That place is already a room of this report.',
 };
 
-/** Step 4: constraints a request can hit that answer with a code of their own (plan T1's codes),
+/** Constraints a request can hit that answer with a code of their own,
  * 409 with the hint above, instead of the generic `conflict`. */
 const CODED: Record<string, ErrorCode> = {
   warranties_quantity_one: ErrorCode.quantity_not_one,
@@ -231,7 +231,7 @@ const CODED: Record<string, ErrorCode> = {
   loans_one_open_uq: ErrorCode.already_on_loan,
   things_move_open_loan: ErrorCode.open_loan,
   things_move_in_repair: ErrorCode.open_claim,
-  // Step 7 (plan T6).
+  // Step 7.
   stock_rules_consumable: ErrorCode.not_consumable,
   // Step 6 (0072).
   assistant_turns_one_live_uq: ErrorCode.turn_running,
@@ -257,9 +257,9 @@ function fromPg(pg: PgErrorLike): AppError | null {
   if (coded && (pg.code === '23514' || pg.code === '23505')) return new AppError(coded, 409, hint);
   switch (pg.code) {
     // An RLS refusal (or a missing grant) on a row the user can't see: indistinguishable from a
-    // missing row (§7.7). A visible read-only resource gets its 403 from can() before the write.
+    // missing row. A visible read-only resource gets its 403 from can() before the write.
     // kept.accept_invite() (0006) refuses every bad invite alike, by name: 404 `invite_invalid`,
-    // never 410, which would confirm that the token once existed (task 20).
+    // never 410, which would confirm that the token once existed.
     case '42501':
       return pg.constraint === 'invite_invalid'
         ? new AppError(
@@ -269,7 +269,7 @@ function fromPg(pg: PgErrorLike): AppError | null {
           )
         : notFound();
     // A client-supplied id that already exists, in this tenant or any other, is the same 404 as
-    // an id that exists nowhere (§7.7, D178). Any other unique index is a real conflict.
+    // an id that exists nowhere (D178). Any other unique index is a real conflict.
     case '23505':
       return isPrimaryKey(pg.constraint) ? notFound() : conflict(hint);
     case '23503':

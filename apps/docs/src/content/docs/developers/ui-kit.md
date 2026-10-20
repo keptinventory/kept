@@ -3,14 +3,13 @@ title: UI kit
 description: Kept's design tokens, type, brand and component primitives, and the rules every screen follows.
 ---
 
-The web app's look comes from a design board (tokens, type, the brand and the visual motif) and a
-screens board (every screen as a frame, with the component kit in both themes). The code copies
-them rather than reinterpreting them; the tokens below are the board's, and the rules on this page
-are what every screen follows.
+The web app's look comes from a set of design tokens (colour, type, the brand and the visual
+motif) and screen designs (every screen, with the component kit in both themes). The code copies
+them rather than reinterpreting them, and the rules on this page are what every screen follows.
 
 ## Tokens
 
-`apps/web/src/styles/tokens.css` holds the tokens (D131), copied verbatim from the design board:
+`apps/web/src/styles/tokens.css` holds the tokens (D131), copied verbatim from the design source:
 names, values and even hex case, so a value can be grepped across both. Biome skips the file for
 that reason. `apps/web/src/styles/index.css`
 exposes each one to Tailwind v4 through `@theme inline`, as `bg-surface`, `text-ink-2`,

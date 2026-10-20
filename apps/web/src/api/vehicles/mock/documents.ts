@@ -1,5 +1,5 @@
 /**
- * Vehicle documents (plan T12; Q5), on step 4's expiring documents: each gains its issue date and
+ * Vehicle documents, on step 4's expiring documents: each gains its issue date and
  * cost (the cost through the money gate), `GET /documents` gains `thingId` (a vehicle's Documents
  * tab, where a vehicle's documents count with Paperwork **or** Vehicles on), and the create, edit
  * and renew bodies gain `issuedOn`, `cost` and `currency`. Step 4's handlers answer first; this
@@ -96,7 +96,7 @@ export function documentRoutes(state: MockState): MockRoute[] {
       ensureVehiclesSeeded(state);
       const t = liveThing(state.inventory, thingId);
       if (!t || !accessOf(state).visible(t.locationId)) return notFound();
-      // A vehicle's documents with Paperwork or Vehicles on (step 4's Q5); anything else, Paperwork.
+      // A vehicle's documents with Paperwork or Vehicles on; anything else, Paperwork.
       const on =
         moduleOn(state, t.locationId, 'paperwork') ||
         (isVehicle(state, t) && moduleOn(state, t.locationId, 'vehicles'));

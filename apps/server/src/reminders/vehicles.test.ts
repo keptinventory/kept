@@ -9,9 +9,9 @@ import { REMINDER_WORDS } from '../notify/words.js';
 import { OCCURRENCE_COLUMNS, type OccurrenceRow, reminderItems } from './items.js';
 import { runScan, type ScanDeps } from './scan.js';
 
-// Step 5, T14: reminders for vehicles. The stale-reading nudge (0066's `reading_stale` branch)
-// through step 4's scan with no engine change (D52, D111, Q19); a reading crossing a unit
-// schedule's point; selling stops a thing's sources and keeps its history (§7.13); a service
+// Reminders for vehicles. The stale-reading nudge (0066's `reading_stale` branch)
+// through step 4's scan with no engine change (D52, D111); a reading crossing a unit
+// schedule's point; selling stops a thing's sources and keeps its history; a service
 // counts only once confirmed, and a draft confirmed after the occurrence opened completes it.
 
 const db = await testDb();
@@ -121,7 +121,7 @@ describe('the stale-reading nudge (D52, Q19)', () => {
     ]);
     expect(await notified(odometer)).toEqual([ibrahim.userId, bruce].sort());
 
-    // Its words name the meter, the thing, the location and the day it was last read (L113).
+    // Its words name the meter, the thing, the location and the day it was last read.
     const [item] = await withSystem(db.pools.system, async (_tx, c) => {
       const { rows } = await c.query<OccurrenceRow>(
         `SELECT ${OCCURRENCE_COLUMNS} FROM public.reminder_occurrences o WHERE o.source_id = $1`,
@@ -201,7 +201,7 @@ describe('the stale-reading nudge (D52, Q19)', () => {
   });
 
   it("Egypt's DST end doesn't move the day: 23:30 on 30 Oct 2025 in Cairo is still the 30th", async () => {
-    // Clocks went back from 00:00 to 23:00 on 30/31 Oct 2025 (UTC+3 → UTC+2, V21): 21:30Z is
+    // Clocks went back from 00:00 to 23:00 on 30/31 Oct 2025 (UTC+3 → UTC+2): 21:30Z is
     // 23:30 local on the 30th, where a fixed +3 would say 00:30 on the 31st.
     expect(await read(odometer, 40_000, { at: '2025-10-30T21:30:00Z' })).toBe('2025-10-30');
     await runScan(deps());

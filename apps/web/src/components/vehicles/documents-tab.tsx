@@ -1,15 +1,15 @@
 /**
- * A vehicle's Documents (plan T22; screens §8, the board's vehicle frames 67 and 68; D26, D52,
- * D155, D172; Q5): the vehicle's expiring documents (step 4's, `GET /documents?thingId`), each
+ * A vehicle's Documents (D26, D52,
+ * D155, D172): the vehicle's expiring documents (step 4's, `GET /documents?thingId`), each
  * with where its term stands ("Due in 23 days", "Valid", "Expired"), its dates, how early it
  * reminds, its files and its cost (money-gated), and Add and Renew through step 4's sheets with
- * the issue date and the cost (step 5). Until the vehicle has a registration card, a row says how
+ * the issue date and the cost. Until the vehicle has a registration card, a row says how
  * to get one in: read it in LABEL mode, which reads the VIN, the plate and the licence's expiry
  * and suggests the document in the Inbox.
  *
- * Controls follow screens §3: Add, Renew and Remove for those who may edit things
+ * Controls follow the role rules: Add, Renew and Remove for those who may edit things
  * (`things.edit`); a viewer reads, without the cost unless money shows to viewers. A vehicle's
- * documents count with Paperwork **or** Vehicles on (step 4's Q5); with both off, the section says
+ * documents count with Paperwork **or** Vehicles on; with both off, the section says
  * so. Offline the writes say "Needs a connection".
  *
  * Mounted by the vehicle page inside its ThingProvider.
@@ -54,7 +54,7 @@ import { toast } from '@/components/ui/toast';
 import { sep, useFormat } from '@/lib/format';
 import { useOnline } from '@/lib/online';
 
-/** Where a term stands, in the board's words: "Due in 23 days", "Valid", "Expired". */
+/** Where a term stands, in the designs' words: "Due in 23 days", "Valid", "Expired". */
 function TermPill({ doc, today }: { doc: ExpiringDocumentV5; today: string }) {
   const days = daysBetween(today, doc.expiresOn);
   return (

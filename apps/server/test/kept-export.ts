@@ -201,7 +201,7 @@ export async function forgeKeptExport(db: TestDb, opts: ForgeOptions): Promise<F
 
 /**
  * Puts an export where an uploaded archive goes (`i/<runId>.zip`) and makes its run, as the
- * archive upload (plan T8) leaves it: a Kept import of `userId`'s, targeting `locationId`, in
+ * archive upload leaves it: a Kept import of `userId`'s, targeting `locationId`, in
  * `status`.
  */
 export async function stageKeptRun(

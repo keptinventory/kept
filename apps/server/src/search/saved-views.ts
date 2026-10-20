@@ -19,7 +19,7 @@ import { AppError, forbidden, invalid, notFound } from '../http/errors.js';
 import { callerMembership, requireCan, requireMembership } from '../locations/access.js';
 import type { Gate } from '../serialize/gates.js';
 
-// Saved views (D42, D183, D205; screens spec §5 Search and "The filter strip"): a list's state
+// Saved views (D42, D183, D205): a list's state
 // saved by its maker, personal or shared with one location. Each view belongs to one list, its
 // `surface` (@kept/shared LIST_SURFACES), fixed when it is made; its query is that list's URL
 // state (SavedListQuery), checked against the filters the list offers (SURFACE_FILTER_KEYS).
@@ -80,7 +80,7 @@ export function checkQuery(
     if (!allowed.includes(key)) {
       throw invalid(`query.filters.${key}: not a filter of the ${surface} list.`);
     }
-    // `when`, and the AI call list's `at` (D206, T19): a preset or a date range.
+    // `when`, and the AI call list's `at` (D206): a preset or a date range.
     if ((key === 'when' || key === 'at') && values.some((v) => !isDateFilterValue(v))) {
       throw invalid(`query.filters.${key}: a preset or a range YYYY-MM-DD..YYYY-MM-DD.`);
     }

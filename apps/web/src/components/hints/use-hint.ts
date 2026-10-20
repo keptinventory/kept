@@ -1,5 +1,5 @@
 /**
- * One-time hints at first use (D138; plan T31; spike V18): a pulsing beacon on one element, and
+ * One-time hints at first use (D138): a pulsing beacon on one element, and
  * one sentence when it's opened.
  *
  *   const strip = useRef<HTMLDivElement>(null);

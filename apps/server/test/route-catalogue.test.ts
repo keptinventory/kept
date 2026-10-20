@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { type TestApp, testApp } from './app.js';
 import { testDb } from './db.js';
 
-// The route catalogue (D188; step-1 carry-over, T2). Every route that writes must leave an audit
+// The route catalogue (D188). Every route that writes must leave an audit
 // row, and a test must prove it. The app is built with every route module, each non-GET route is
 // collected as it is added (buildApp's onRoute), and each one must either:
 // - have a `// catalogue: <METHOD> <url>` marker in a test file, directly above (comment lines

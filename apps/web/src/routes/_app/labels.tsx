@@ -1,5 +1,5 @@
 /**
- * Labels (plan T28; D43, D44, D137, D175). Without a source it is the labels screen: "Print
+ * Labels (D43, D44, D137, D175). Without a source it is the labels screen: "Print
  * pending labels (N)" for this phone's offline captures, per location "Label everything
  * unprinted" and "Blank sheet", recent batches to reprint (a reprint uses the same codes, D45),
  * and the locations where Labels is off. With a source in the URL it is the batch builder:
@@ -131,7 +131,7 @@ function TurnOn({ location }: { location: LocationDetail }) {
   );
 }
 
-/** The module is off here (screens §3): say so, with "Turn on" for admins. */
+/** The module is off here: say so, with "Turn on" for admins. */
 function LabelsOff({ location }: { location: LocationDetail }) {
   const admin = isAdmin(location);
   return (

@@ -14,7 +14,7 @@ import {
 import { auditOf, call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { ownerTx } from '../../test/tenancy.js';
 
-// T17: attachments (§7.13; D115, D128, D155, D162, D177), through the front door, in the web
+// Attachments (D115, D128, D155, D162, D177), through the front door, in the web
 // contract's shapes (apps/web/src/api/inventory/types.ts AttachmentView).
 
 let db: TestDb;

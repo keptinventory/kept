@@ -12,14 +12,14 @@ import type { ReadableCopy } from '../nightly.js';
 import { markerOf, storedMarker, writeMarker } from './cache.js';
 import { placeFiles } from './sink.js';
 
-// The readable copy in every snapshot (D159; step-8 plan T6, Q10, Q11). Before restic runs, the
-// nightly snapshot (backup/nightly.ts, step 6) has this write KEPT_DATA_DIR/backup/readable/:
+// The readable copy in every snapshot (D159). Before restic runs, the
+// nightly snapshot (backup/nightly.ts) has this write KEPT_DATA_DIR/backup/readable/:
 //
 //   index.html                 every location: its name, kind, owner, counts, when it was written,
 //                              or why it isn't here tonight
 //   README.txt                 how to open it, with nothing but a browser
 //   <locationId>/index.html …  step 7's readable copy of that location (exports/readable/), as
-//                              its OWNER sees it (Q10): read on the kept_app pool in the owner's
+//                              its OWNER sees it: read on the kept_app pool in the owner's
 //                              scope, under row-level security, so money shows as the owner sees
 //                              it and a secret never does
 //   <locationId>/files/        the originals its pages link to (sink.ts: hard links with local

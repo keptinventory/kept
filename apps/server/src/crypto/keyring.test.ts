@@ -14,7 +14,7 @@ import {
   secretKeysOf,
 } from './keyring.js';
 
-// The keyring (plan Q19, §7.3): the current key with its version, and retired keys that still
+// The keyring: the current key with its version, and retired keys that still
 // open what they sealed, from the environment or from the config volume's secrets.json.
 
 const validEnv = {

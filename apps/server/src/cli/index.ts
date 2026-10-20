@@ -111,7 +111,7 @@ export function buildCli(): Command {
     )
     .action(async (opts: { skipSnapshot?: boolean; allowDowngrade?: boolean }) => {
       // The owner login; the keys only when given (the pre-upgrade snapshot opens the saved
-      // backup credentials with them, step-8 T8, Q8).
+      // backup credentials with them).
       const { ownerUrl } = loadMigrateEnv();
       const raw = process.env;
       const skip = opts.skipSnapshot === true || raw.KEPT_UPGRADE_SNAPSHOT === 'off';
@@ -260,7 +260,7 @@ export function buildCli(): Command {
       );
     });
 
-  // Step 8 (T5, T7; D64, D66): restic snapshots on demand, the list, verify, the restore drill
+  // Step 8 (D64, D66): restic snapshots on demand, the list, verify, the restore drill
   // and a stale lock's removal; the raw export; the restore.
   const backup = admin
     .command('backup')
@@ -297,7 +297,7 @@ export function buildCli(): Command {
       process.exitCode = await backupUnlockCommand(process.env, {}, (line) => console.log(line));
     });
 
-  // Step 8 (T6, D159): the readable copy every snapshot holds, on demand.
+  // Step 8 (D159): the readable copy every snapshot holds, on demand.
   admin
     .command('readable')
     .description("Write every location's readable copy (HTML, CSV, files) into a directory")
@@ -332,7 +332,7 @@ export function buildCli(): Command {
       );
     });
 
-  // Step 8 (T13, D186): switching file storage between local and S3, verified.
+  // Step 8 (D186): switching file storage between local and S3, verified.
   const storage = admin
     .command('storage')
     .description('Move file storage between local and S3 (copy, then verify)');

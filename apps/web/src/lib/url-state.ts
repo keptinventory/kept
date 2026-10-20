@@ -1,5 +1,5 @@
 /**
- * List state in the URL (the list standard, lessons L88): the search text `q`, one `f.<name>`
+ * List state in the URL (the list standard): the search text `q`, one `f.<name>`
  * per filter, `not` (the filters that are "is none of", D205), `saved` (the saved view it
  * was opened from, D205), `group`, `sort` and `dir` (the sort turned around, D211), `view`
  * (the layout, where the route declares one, D211) and `size` (a grid's tiles, #139). Every

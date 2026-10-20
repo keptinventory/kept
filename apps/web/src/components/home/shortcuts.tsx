@@ -1,7 +1,7 @@
 /**
  * Home's shortcuts (D240, the approved Home design): Capture, Scan a label, Log a reading and Add
- * a thing together. Log a reading shows only when something has a meter you can log on (screens
- * §6 Quick log, T19), so a first day has three.
+ * a thing together. Log a reading shows only when something has a meter you can log on,
+ * so a first day has three.
  *
  * A phone shows them as one row of tiles, icon over the words; a wide Home's side column shows
  * them two by two, icon beside the words, with Capture across the row when there are three.
@@ -39,7 +39,7 @@ export function Shortcuts({
   className,
 }: {
   locations: readonly LocationSummary[];
-  /** `/home`'s count of metered things you can log on (T13). */
+  /** `/home`'s count of metered things you can log on. */
   meteredThings: number | undefined;
   className?: string;
 }) {

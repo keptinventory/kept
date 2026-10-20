@@ -18,7 +18,7 @@ import {
   readStoredBackupSettings,
 } from './settings.js';
 
-// The operations watch (step-8 plan T10; D66, D144, D166): the hourly `ops-watch` system job.
+// The operations watch (D66, D144, D166): the hourly `ops-watch` system job.
 //   - disk_space_low: the data volume (local file storage) or a directory backup target at or
 //     over DISK_WARN_RATIO (85 %), one alert per volume (`disk_space_low:data`, `…:backup`);
 //   - backup_stale: a target is configured and no good backup for BACKUP_STALE_HOURS (36);

@@ -2,7 +2,7 @@ import type { ArchiveImporter } from '../archive-types.js';
 import { type KeptLoaded, keptReport, loadKept, totalOf } from './plan.js';
 import { inspectKept, openKeptArchive } from './read.js';
 
-// The Kept export's importer (D69; step-7 plan T8, T14), as imports/archive.ts dispatches to it
+// The Kept export's importer (D69), as imports/archive.ts dispatches to it
 // for a `kept_zip` run: the archive opened by exact names (read.ts), inspected from its manifest,
 // loaded (manifest, every row id, the codes and the history's dates) outside any transaction,
 // and dry-run against the run's target without writing (plan.ts). POST …/run sends

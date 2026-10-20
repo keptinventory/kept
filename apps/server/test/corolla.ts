@@ -5,7 +5,7 @@ import type { TestDb } from './db.js';
 import { call, type Person } from './people.js';
 import { own } from './things.js';
 
-// The Corolla of the web mock (apps/web/src/api/vehicles/mock/state.ts, the board's numbers), for
+// The Corolla of the web mock (apps/web/src/api/vehicles/mock/state.ts, the designs' numbers), for
 // the server's step-5 tests: 22 fills from the first instant of April to the first of October
 // 2026 in Cairo, a missed fill-up in May and a partial in August; two services; an insurance
 // document issued in May for 3,500 EGP. April to September cost 29,800 EGP (fuel 19,855.50,

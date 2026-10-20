@@ -4,13 +4,13 @@ import { JOB_POLICIES } from '../jobs/policies.js';
 import type { SystemJobDeps } from '../jobs/system.js';
 import { buildClaimPack, type ClaimPackJobData, purgeExpiredExports } from './claim-pack.js';
 
-// Claim packs' jobs (D158, D201; plan T18), aggregated by jobs/household.ts:
+// Claim packs' jobs (D158, D201), aggregated by jobs/household.ts:
 // - `claim-pack`, a tenant job sent by POST /api/v1/claim-packs in its transaction: the ZIP of
 //   the insurance report and the files, built in the creator's scope (the payload's user, taken
 //   from the sending transaction, never from `data`); `data` names the run, the reader's language
 //   and the day the report is as of. No retry (policies.ts): a failed run shows `failed`.
 // - `purge-exports`, hourly, kept_system: runs past their 7 days become `expired`, and their
-//   ZIPs are deleted (§3.3), claim packs and step 7's Kept exports alike; step 7 adds the sweep of
+//   ZIPs are deleted, claim packs and step 7's Kept exports alike; step 7 adds the sweep of
 //   an abandoned export's scratch directory (exports/purge.ts).
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

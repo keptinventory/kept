@@ -7,7 +7,7 @@ import { call, join, type Person, peopleApp, person } from '../../test/people.js
 import { createLocation, createThing, type Loc, ok, own, place } from '../../test/things.js';
 import { barcodeTransport } from './barcode.js';
 
-// T17: scan resolution and barcode lookup through the front door, in the web contract's shapes
+// Scan resolution and barcode lookup through the front door, in the web contract's shapes
 // (apps/web/src/api/capture/types.ts `ScanOutcome`, `BarcodeLookup`).
 
 let db: TestDb;

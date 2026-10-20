@@ -1,5 +1,5 @@
 /**
- * This device → Keep available offline (step-8 plan T23; D159, D181, Q21; board frame 110): one
+ * This device → Keep available offline (D159, D181): one
  * switch per location, only with the app lock on. Turning one on shows the warning and the size
  * from the server's estimate before anything downloads, then the progress; documents over
  * KEEP_OFFLINE.fileBytes are listed as too large; the device's total is capped at

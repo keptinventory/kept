@@ -10,7 +10,7 @@ import type pg from 'pg';
 import { z } from 'zod';
 import { guardedFetch } from '../net/ssrf.js';
 
-// The opt-in update check (D65; step-8 plan T11, Q16).
+// The opt-in update check (D65).
 //
 // Off by default. When an instance admin turns it on (or KEPT_UPDATE_CHECK=true locks it on), the
 // daily `update-check` job, or "Check now", asks GitHub one question: what is the latest release
@@ -30,7 +30,7 @@ export const UPDATE_CHECK_ENABLED_KEY = 'update_check_enabled';
 export const UPDATE_CHECK_STATE_KEY = 'update_check';
 
 export const GITHUB_API = 'https://api.github.com';
-/** The API version the spike pinned (2022-11-28 ends in March 2028; this one has no end yet). */
+/** The API version pinned (2022-11-28 ends in March 2028; this one has no end yet). */
 export const GITHUB_API_VERSION = '2026-03-10';
 /** The only headers sent. */
 export const UPDATE_CHECK_HEADERS = Object.freeze({
@@ -48,7 +48,7 @@ const OWNER = /^[A-Za-z0-9-]+$/;
 const REPO = /^[A-Za-z0-9._-]+$/;
 
 /**
- * The GitHub repository a source URL names, or null when it isn't one (spike U1's rule): `https:`
+ * The GitHub repository a source URL names, or null when it isn't one: `https:`
  * on exactly `github.com`; the first two path segments, a trailing `.git` and anything from an
  * `@` (`…/kept@abc123`) dropped, the rest of the path (`/tree/<rev>`) ignored; owner and repo
  * each from a strict character set, so nothing but those two values reaches the request URL.
@@ -140,7 +140,7 @@ function newerThan(running: string, release: Release): UpdateCheckState['latest'
 /**
  * Asks GitHub once. `/releases/latest` never returns a draft or a prerelease; a running
  * prerelease reads the newest ten releases instead and takes the highest version that isn't a
- * draft (plan T11: "prereleases only when the running version is one"). Never throws.
+ * draft ("prereleases only when the running version is one"). Never throws.
  */
 export async function checkForUpdate(opts: CheckOptions): Promise<UpdateCheckResult> {
   const repo = githubRepoOf(opts.sourceUrl);
@@ -246,7 +246,7 @@ export function updateCheckSwitch(env: UpdateCheckEnv, storedEnabled: boolean) {
   return { value: locked ? env.KEPT_UPDATE_CHECK === true : storedEnabled, locked };
 }
 
-/** The status page's `updates` (AdminOpsStatus, plan T10), from rows already kept. */
+/** The status page's `updates` (AdminOpsStatus), from rows already kept. */
 export async function readUpdateCheck(
   client: pg.ClientBase,
   env: UpdateCheckEnv,
@@ -299,7 +299,7 @@ const HOUR_MS = 3_600_000;
 /**
  * Whether the hourly job should ask now: never asked; or a day has passed and this is the
  * instance's hour; or two days have passed (the server was down at its hour). So it asks about
- * once a day, and a `rate_limited` answer waits for the next day (spike U1).
+ * once a day, and a `rate_limited` answer waits for the next day.
  */
 export function updateCheckDue(state: StoredState, hour: number, now: Date): boolean {
   if (!state.lastCheckedAt) return true;

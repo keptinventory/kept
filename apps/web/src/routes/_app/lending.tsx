@@ -1,5 +1,5 @@
 /**
- * Lending (plan T22; D56, D57, D119, screens §5): what you lent out and what you borrowed, in
+ * Lending (D56, D57, D119): what you lent out and what you borrowed, in
  * every location with Lending on, overdue first, with Mark returned and a reminder to copy.
  *
  * The list standard on the filter strip (D205, surface `lending`): search, location, direction,

@@ -6,7 +6,7 @@ import { BlobNotFoundError, type FileStorage } from '../storage/blob-store.js';
 import { contentDisposition } from '../storage/disposition.js';
 import { tokenHash } from './claim-pack.js';
 
-// GET /x/<token>: a claim pack's download link (D158, D180; Q19; engineering spec §5). No session
+// GET /x/<token>: a claim pack's download link (D158, D180). No session
 // is read: the token is the key. kept.export_download() (kept_system's door, 0049) refuses a
 // revoked, expired, unknown or unbuilt link and one whose creator no longer holds owner or admin
 // on the location (D180: every download re-checks the role), all alike, and counts the download.

@@ -11,7 +11,7 @@ import { placeThing, thingState } from './return.js';
 import { loanRecord } from './service.js';
 import { type LoanRecord, loanImage } from './view.js';
 
-// Undo for loans (plan T10; D150, D124; Q25). Each handler checks that what the event changed is
+// Undo for loans (D150, D124). Each handler checks that what the event changed is
 // still as the event left it (else 409 `undo_refused` `changed_since`, naming who), puts the
 // before-image back, and writes its own audit row.
 //

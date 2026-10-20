@@ -25,21 +25,21 @@ import {
   Manifest,
 } from './format.js';
 
-// Reading a Homebox export ZIP (D146; step-7 plan T9; spike H1) through the one safe archive
+// Reading a Homebox export ZIP (D146) through the one safe archive
 // reader (portability/zip/, D157). Only the expected names are ever opened: `manifest.json`, the
 // nine tables, and `attachments/<uuid>` (each attachment row's file, by its row id). Everything
 // else, `notifiers.json` included, is counted as ignored and never read.
 //
 // A household's tables are small, so they are loaded whole into maps keyed by UUID; the files
-// stay in the archive and are streamed one at a time by the job (T10). A row that doesn't match
+// stay in the archive and are streamed one at a time by the job. A row that doesn't match
 // its table's schema (format.ts) is left out and reported, never a crash; a manifest that can't
 // be read, or a schema version this reader hasn't seen, refuses the archive.
 //
-// The tree (T0, V25): an entity's parent is its `entity_children` column. Places are the
+// The tree: an entity's parent is its `entity_children` column. Places are the
 // entities whose type has `is_location`; the rest are things. v0.27's location override
 // (`entity_location_entities`, set only when the parent is an item) changes nothing here: in Kept
 // a thing inside a container is where its container is, so the container wins. The collection is
-// `manifest.groupId` (plan Q4: one ZIP, one collection; every row's group column equals it).
+// `manifest.groupId` (one ZIP, one collection; every row's group column equals it).
 
 /** Which entries a Homebox export may hold that Kept reads. */
 export const HOMEBOX_ENTRIES = expectNames(

@@ -20,8 +20,7 @@ import { withoutBidiControls } from '../http/untrusted.js';
 import { requireCan, requireMembership } from '../locations/access.js';
 import { hashTokenSecret } from './verify.js';
 
-// Personal tokens and connected apps, the person's own (step-6 plan T10; screens §5
-// "Connections"; D15, D60, D63, D179, D180, D190; engineering spec §3.2, §7.3, §7.13).
+// Personal tokens and connected apps, the person's own (D15, D60, D63, D179, D180, D190).
 //
 // api_tokens is user-level: its policies show a person only their own rows, and never to a
 // token (0070), so a token can't list, make or revoke tokens whatever the route catalogue says.
@@ -240,13 +239,13 @@ export async function tokenRow(
   return row as TokenRow;
 }
 
-/** The person's own account, which account-level events belong to (§7.13). */
+/** The person's own account, which account-level events belong to. */
 export async function ownAccount(tx: Tx): Promise<string> {
   const [row] = (
     await tx.execute<{ id: string | null }>(sql`SELECT kept.current_owner_account_id() AS id`)
   ).rows;
   if (!row?.id) {
-    // ensureAccount() makes it on the first signed-in request (task 18); a token only ever
+    // ensureAccount() makes it on the first signed-in request; a token only ever
     // exists for someone who has signed in.
     throw new AppError('internal', 500);
   }
@@ -437,9 +436,9 @@ export async function revokeToken(ctx: Ctx, id: string): Promise<Revoked> {
 }
 
 /**
- * After an OAuth grant is revoked (T12): the app's consent and any refresh or opaque access
+ * After an OAuth grant is revoked: the app's consent and any refresh or opaque access
  * tokens Better Auth stored for this person go, as kept_auth (Better Auth's tables, D93), so the
- * app must ask again. Its JWT access tokens aren't stored (spike S6.2 §3); they are refused at
+ * app must ask again. Its JWT access tokens aren't stored; they are refused at
  * `/mcp` because the grant row is revoked (kept.token_oauth_for, every call).
  */
 export async function forgetOAuthClient(

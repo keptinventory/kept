@@ -1,5 +1,5 @@
 /**
- * The reading's value and the check beside it (screens §7 "Reading", the board's "Log a reading"
+ * The reading's value and the check beside it (the designs' "Log a reading"
  * frame; D26, D52, D112). The field takes a decimal in Western or Eastern digits (`٥٣٠٠٠`, `٫`),
  * and the line under it says, while you type, how the value sits against the meter's latest
  * reading:
@@ -7,14 +7,14 @@
  * - **fits:** "Fits: 1,120 km since 51,220 km on 14 Sep, about 62 km a day."
  * - **a jump:** faster than the meter's daily limit: "That's 34,120 km in 18 days, about 1,900 km
  *   a day, over the limit of 1,500 km a day. Is it right?" The sheet then offers **It's right**,
- *   which sends `confirmJump` (Q9), and **Edit**.
+ *   which sends `confirmJump`, and **Edit**.
  * - **lower:** "25,340 km is lower than 51,220 km on 14 Sep. Readings can't go down…" with
  *   **Meter replaced**.
  *
  * This is a hint only: the server places the reading among all its neighbours, after the meter's
  * replacement offsets (meters/check.ts `placeReading`), and has the last word. The client knows
  * only the latest reading, not a custom `maxPerDay` (the thing view doesn't carry it), so the
- * limit here is §3.4's default for the meter's kind, the server's `dailyLimit()` without a custom
+ * limit here is the default for the meter's kind, the server's `dailyLimit()` without a custom
  * value. A reading taken before the latest one isn't checked here at all.
  */
 import { plural } from '@lingui/core/macro';
@@ -28,7 +28,7 @@ import { cn } from '@/lib/utils';
 
 const DAY_MS = 86_400_000;
 
-/** §3.4's daily limit for a meter's kind and unit (the server's `dailyLimit()` defaults), or
+/** The daily limit for a meter's kind and unit (the server's `dailyLimit()` defaults), or
  * null where none is known (a custom meter). */
 export function defaultDailyLimit(meter: { kind: string; unit: string }): number | null {
   if (meter.kind === 'hours') return 24;
@@ -77,7 +77,7 @@ export function checkReading(
   return { kind: 'fits', delta, since: latest, days, perDay };
 }
 
-/** The check in words, the board's sentences. */
+/** The check in words, the designs' sentences. */
 export function useReadingCheckText() {
   const { t } = useLingui();
   const f = useFormat();

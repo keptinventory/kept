@@ -1,6 +1,6 @@
 /**
  * Every step-3 server path the web app calls, in one place. Each comes from the route tables of
- * the step-3 plan's Phase B (tasks 9, 10 and 12–20) and the engineering spec §7.15, and lands in
+ * the server's capture and AI routes, and lands in
  * the matching `apps/server/src/<area>/routes.ts` (task 2's stubs). A path the server names
  * differently is fixed here and nowhere else. Task 32's contract check reads `CAPTURE_METHODS`
  * against the server's openapi.json, as step 2's does with `METHODS`.
@@ -14,21 +14,21 @@ const V1 = '/api/v1';
 const seg = (value: string) => encodeURIComponent(value);
 
 export const capturePaths = {
-  // ----- sync (T12, T14) -----
+  // ----- sync ----------------
   syncSnapshot: `${V1}/sync/snapshot`,
   syncOps: `${V1}/sync/ops`,
 
-  // ----- capture (T13) -----
+  // ----- capture -----------
   captures: `${V1}/captures`,
   captureBatches: `${V1}/captures/batches`,
   captureBatchUndo: (batchId: string) => `${V1}/captures/batches/${seg(batchId)}/undo`,
   fileDisplay: (fileId: string) => `${V1}/files/${seg(fileId)}/display`,
 
-  // ----- extraction (T10) -----
+  // ----- extraction -----------
   thingExtract: (id: string) => `${V1}/things/${seg(id)}/extract`,
   thingExtractions: (id: string) => `${V1}/things/${seg(id)}/extractions`,
 
-  // ----- inbox (T15) -----
+  // ----- inbox -----------
   inbox: `${V1}/inbox`,
   inboxBulk: `${V1}/inbox/bulk`,
   inboxAccept: (id: string) => `${V1}/inbox/${seg(id)}/accept`,
@@ -42,20 +42,20 @@ export const capturePaths = {
   inboxDismiss: (id: string) => `${V1}/inbox/${seg(id)}/dismiss`,
   inboxDiscard: (id: string) => `${V1}/inbox/${seg(id)}/discard`,
 
-  // ----- labels (T16) -----
+  // ----- labels -----------
   labelBatches: `${V1}/labels/batches`,
   labelBatch: (id: string) => `${V1}/labels/batches/${seg(id)}`,
   labelBatchPrinted: (id: string) => `${V1}/labels/batches/${seg(id)}/printed`,
   labelSummary: `${V1}/labels/summary`,
   codeClaim: (code: string) => `${V1}/codes/${seg(code)}/claim`,
 
-  // ----- scan, barcodes, box checks (T17) -----
+  // ----- scan, barcodes, box checks -----------
   scanResolve: `${V1}/scan/resolve`,
   barcode: (code: string) => `${V1}/barcodes/${seg(code)}`,
   thingBoxCheck: (id: string) => `${V1}/things/${seg(id)}/box-check`,
   thingBoxChecks: (id: string) => `${V1}/things/${seg(id)}/box-checks`,
 
-  // ----- CSV import (T18) -----
+  // ----- CSV import -----------
   importsCsv: `${V1}/imports/csv`,
   imports: `${V1}/imports`,
   importRun: (id: string) => `${V1}/imports/${seg(id)}`,
@@ -63,16 +63,16 @@ export const capturePaths = {
   importStart: (id: string) => `${V1}/imports/${seg(id)}/run`,
   importCancel: (id: string) => `${V1}/imports/${seg(id)}/cancel`,
 
-  // ----- templates (T19) -----
+  // ----- templates -----------
   templates: `${V1}/templates`,
   template: (id: string) => `${V1}/templates/${seg(id)}`,
   accountTemplates: (accountId: string) => `${V1}/accounts/${seg(accountId)}/templates`,
   thingSaveAsTemplate: (id: string) => `${V1}/things/${seg(id)}/save-as-template`,
 
-  // ----- undo (T20) -----
+  // ----- undo -----------
   thingUndoable: (id: string) => `${V1}/things/${seg(id)}/undoable`,
 
-  // ----- AI (T9, §7.15) -----
+  // ----- AI -----------------
   aiStatus: `${V1}/ai/status`,
   aiProviders: `${V1}/ai/providers`,
   /** PUT by scope (`instance`, `account`, `me`); DELETE by id. */
@@ -98,7 +98,7 @@ export const capturePaths = {
 
 type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
-/** The methods the web app uses on each path (the contract check, task 32). */
+/** The methods the web app uses on each path (the contract check). */
 export const CAPTURE_METHODS: Record<keyof typeof capturePaths, readonly Method[]> = {
   syncSnapshot: ['GET'],
   syncOps: ['POST'],

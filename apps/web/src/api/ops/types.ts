@@ -1,5 +1,5 @@
 /**
- * The step-8 contract the web codes against (plan T3), from the Phase B route tables verbatim.
+ * The step-8 contract the web codes against, from the Phase B route tables verbatim.
  * The shapes live once in @kept/shared (ops.ts), where the server parses its bodies with the same
  * schemas; this file re-exports them and adds what only the web has: the status response as the
  * page reads it once T10 lands, the runs list's parameters, and this device's own state (the app
@@ -46,7 +46,7 @@ export type {
  */
 export type OpsAdminStatus = Omit<AdminStatus, 'backup'> & AdminOpsStatus;
 
-/** What the status page reads (T21): OpsAdminStatus, whose step-8 fields a server sends only
+/** What the status page reads: OpsAdminStatus, whose step-8 fields a server sends only
  * when its database answered (`dbOk`). */
 export type StatusPageData = Omit<AdminStatus, 'backup'> & Partial<AdminOpsStatus>;
 
@@ -59,11 +59,11 @@ export type BackupRunsParams = {
   cursor?: string;
 };
 
-/** `GET/PATCH /api/v1/admin/settings` gains this (T11): "Check for new versions". */
+/** `GET/PATCH /api/v1/admin/settings` gains this: "Check for new versions". */
 export type UpdateCheckSetting = { updateCheck: Locked<boolean> };
 
 /**
- * This device (T23; D159, D181): the app lock and the locations kept offline. Kept in IndexedDB
+ * This device (D159, D181): the app lock and the locations kept offline. Kept in IndexedDB
  * on the device only, never sent to the server; the mock's fixture is what T23's screens start
  * from.
  */
@@ -72,7 +72,7 @@ export type DeviceState = {
     enabled: boolean;
     /** "Use Face ID or fingerprint": a passkey with user verification also unlocks the app. */
     passkey: boolean;
-    /** Whether the passkey's PRF output also unwraps the extras' key (plan Q22, L1). */
+    /** Whether the passkey's PRF output also unwraps the extras' key. */
     passkeyUnlocksExtras: boolean;
     lockedAt: string | null;
     failedTries: number;

@@ -1,6 +1,6 @@
 /**
- * Scan in the page header, on Home and Search only (screens §1: "Scan (on Home and Search)"). It
- * opens the scanner (plan T26). The page header (components/page.tsx) places it before the
+ * Scan in the page header, on Home and Search only. It
+ * opens the scanner. The page header (components/page.tsx) places it before the
  * page's own actions, so every screen gets it from the route, not by passing it in.
  *
  * The same slot carries "Carrying 3" on every page while the carrying tray holds something

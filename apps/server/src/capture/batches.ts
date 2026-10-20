@@ -4,8 +4,8 @@ import { invalid } from '../http/errors.js';
 import { pathSql } from '../search/query.js';
 import type { PathStep } from '../things/view.js';
 
-// GET /api/v1/captures/batches (plan T13): recent capture sessions, newest first, for the inbox's
-// grouping and "Undo this batch" (screens §5, §8). A batch is the live things one camera session
+// GET /api/v1/captures/batches: recent capture sessions, newest first, for the inbox's
+// grouping and "Undo this batch". A batch is the live things one camera session
 // (or gallery import, or share) made in one location: `things.capture_batch_id`. Read as the
 // caller, so only batches in locations they can see appear, and only their visible things count.
 //

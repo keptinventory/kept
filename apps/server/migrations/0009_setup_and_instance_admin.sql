@@ -1,6 +1,5 @@
 -- Custom SQL migration file, put your code below! --
--- First run and instance administration (tasks 22–23; D32, D164, D165, D180, D190, D193,
--- §7.10, §7.14).
+-- First run and instance administration (D32, D164, D165, D180, D190, D193).
 --
 -- The setup code's hash, the recovery-kit acknowledgement and `signup_open` are rows of
 -- instance_settings (key → jsonb), which kept_system already reads and writes (0006 system_all)
@@ -12,7 +11,7 @@
 --   policies don't show it; it gets counts, never locations or their contents.
 
 -- 1. Whether the instance has an instance admin, i.e. whether setup is done. kept_system asks it
---    at web boot (the setup code, §7.10) and for the anonymous setup routes.
+--    at web boot (the setup code) and for the anonymous setup routes.
 CREATE FUNCTION kept.instance_has_admin() RETURNS boolean
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, public AS $$
   SELECT EXISTS (SELECT 1 FROM public.instance_admins)
@@ -45,7 +44,7 @@ REVOKE EXECUTE ON FUNCTION kept.claim_first_instance_admin(uuid) FROM PUBLIC, ke
 GRANT EXECUTE ON FUNCTION kept.claim_first_instance_admin(uuid) TO kept_system;
 --> statement-breakpoint
 
--- 3. The instance admin's user list (task 23, GET /api/v1/admin/users): for the given users, the
+-- 3. The instance admin's user list (GET /api/v1/admin/users): for the given users, the
 --    profile's name, whether the account is managed or an instance admin, and how many live
 --    memberships of each role it holds. Only for an instance admin (42501 otherwise, a 404).
 --    Location names, ids and contents stay behind the ordinary policies.

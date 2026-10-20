@@ -21,8 +21,8 @@ import {
 import { id, mutable, textEnum, tstz } from './common.js';
 import { locations } from './tenancy.js';
 
-// Imports (step-3 plan T5; engineering spec §1.10, §7.13; D73, D146; plan Q18). CSV (step 3),
-// Homebox and Kept archives (step 7, 0079). Owners and admins only (§7.1): row-level security in
+// Imports (D73, D146). CSV,
+// Homebox and Kept archives (0079). Owners and admins only: row-level security in
 // 0038, and 0080 for an archive run with no target yet (its creator's alone).
 
 export { IMPORT_ENTITY_TYPES, IMPORT_SOURCES, IMPORT_STATUSES };
@@ -34,7 +34,7 @@ const entityType = textEnum('entity_type', IMPORT_ENTITY_TYPES);
 
 /**
  * One import: the mapping and choices, the rows as received (strings, cleared when done), the
- * dry run's report and how far the resumable job has got. An archive run (step 7) is uploaded
+ * dry run's report and how far the resumable job has got. An archive run is uploaded
  * and inspected before its target is chosen, so its location is null until
  * `kept.set_import_target()` sets it once (kept_app holds no grant on `location_id`). The
  * archive itself is the blob `i/<id>.zip`; a Kept export's passphrase-derived key is sealed under
@@ -62,7 +62,7 @@ export const importRuns = pgTable(
     archiveBytes: bigint('archive_bytes', { mode: 'number' }),
     archiveSha256: text('archive_sha256'),
     archiveReadyAt: tstz('archive_ready_at'),
-    /** The manifest summary inspection read (plan T8), never an entity's data. */
+    /** The manifest summary inspection read, never an entity's data. */
     inspect: jsonb('inspect'),
     secretsKeyCiphertext: jsonb('secrets_key_ciphertext'),
     keyVersion: integer('key_version'),
@@ -100,7 +100,7 @@ export const importRuns = pgTable(
   ],
 );
 
-/** What a source's own id became, so a re-run updates instead of duplicating (§7.13: unique per
+/** What a source's own id became, so a re-run updates instead of duplicating (unique per
  * location). Never updated. */
 export const importSourceIds = pgTable(
   'import_source_ids',

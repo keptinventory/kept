@@ -25,11 +25,11 @@ import { thumbKeysOf, thumbUrlOf } from '../search/service.js';
 import { customForView, type Gate, gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 
-// What the API shows of places (T13; D45, D118, D160): the shapes of the web contract
+// What the API shows of places (D45, D118, D160): the shapes of the web contract
 // (apps/web/src/api/inventory/types.ts: PlaceNode, PlaceView, PlaceContents, ThingRow), plus the
-// step-2 plan's T25 decisions: PathStep.isUnplaced and ThingRow.isContainer. Every read runs on
+// two decisions: PathStep.isUnplaced and ThingRow.isContainer. Every read runs on
 // the request's kept_app transaction, so row-level security decides what exists: a place in a
-// location the caller can't see is simply not found (404, §7.7).
+// location the caller can't see is simply not found (404).
 
 // ---------------------------------------------------------------------------------------------
 // Response schemas (the serialiser keeps exactly these fields)
@@ -40,7 +40,7 @@ export const PathStepSchema = z.object({
   name: z.string(),
   kind: z.enum(['place', 'container']),
   isUnplaced: z.boolean(),
-  /** The step's primary short ID, so a breadcrumb links by code (D208, T19). */
+  /** The step's primary short ID, so a breadcrumb links by code (D208). */
   shortCode: z.string().nullable().optional(),
 });
 export type PathStep = z.infer<typeof PathStepSchema>;
@@ -492,7 +492,7 @@ export async function placeView(
 }
 
 // ---------------------------------------------------------------------------------------------
-// Contents (screens §5: places first, then things)
+// Contents (places first, then things)
 // ---------------------------------------------------------------------------------------------
 
 export const CONTENTS_SORTS = ['name', 'updated', 'lastSeen'] as const;

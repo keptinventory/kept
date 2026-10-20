@@ -1,6 +1,6 @@
 /**
- * "Where your key lives" (D206, screens §5 AI settings §2), in words, with no location picker:
- * there are no per-location keys. And "Using" (§4): per task, the provider, the model and where
+ * "Where your key lives" (D206), in words, with no location picker:
+ * there are no per-location keys. And "Using": per task, the provider, the model and where
  * it comes from ("Photos and receipts: Groq · qwen/qwen3.8-27b · from your account"), or "Search:
  * keyword only (no embeddings model)".
  */
@@ -55,8 +55,8 @@ function UsingRow({ task, children }: { task: ReactNode; children: ReactNode }) 
 }
 
 /**
- * "Using", per task (screens §5 AI settings §4). Search follows the server's embeddings source
- * (step 6, D207): a local model on the server, off, or the provider's embeddings model.
+ * "Using", per task. Search follows the server's embeddings source
+ * (D207): a local model on the server, off, or the provider's embeddings model.
  */
 export function UsingLines({
   provider,

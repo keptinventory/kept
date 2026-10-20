@@ -14,7 +14,7 @@ import { LocalBlobStore } from '../storage/local.js';
 import { createUrlSigner } from '../storage/signed-url.js';
 import { runPurge, trashJobs } from './jobs.js';
 
-// Task 21: the `purge` system job end to end (D149, D161, D162; §3.3). Fixtures are written as
+// The `purge` system job end to end (D149, D161, D162). Fixtures are written as
 // kept_owner; the job runs as it does in the worker, on kept_system through the maintenance
 // doors of migration 0022, and deletes the blobs they hand back from a real local blob store.
 

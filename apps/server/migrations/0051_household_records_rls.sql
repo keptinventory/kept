@@ -1,32 +1,32 @@
 -- Custom SQL migration file, put your code below! --
--- Step 4, task 5: warranties, claims, loans, service records, typed attachments and the thing's
--- state bump (engineering spec §1.6, §1.7, §7.1, §7.13; D10, D26, D29, D53–D57, D113, D158,
--- D172, D177, D195; plan Q1, Q14–Q18, Q26). Above, in 0050, drizzle's part: warranties, claims,
+-- Warranties, claims, loans, service records, typed attachments and the thing's
+-- state bump (D10, D26, D29, D53–D57, D113, D158,
+-- D172, D177, D195). Above, in 0050, drizzle's part: warranties, claims,
 -- loans, service_records, service_lines (src/db/schema/{warranties,lending,services}.ts), the six
 -- new attachment subjects, brands.logo_file_id and things.state_version. Below:
 --   1. Row-level security: read wherever the thing (or place) is seen, written by its writers
 --      (members and above); a service record and its lines are its logger's to change, or any
---      admin's (§7.1 "Readings, services, fuel: add · edit or delete others'").
+--      admin's.
 --   2. The keys drizzle can't declare: ON DELETE SET NULL (col) for a claim's warranty and
 --      incident, a loan's return place and split source, a service's reading; a brand's logo.
 --   3. Guards: a claim's or service's vendor and a loan's person are of the location's account
---      (§7.13, as kept.guard_thing_refs() holds a thing's brand; 42501, a 404), and a claim's
+--      (as kept.guard_thing_refs() holds a thing's brand; 42501, a 404), and a claim's
 --      warranty is its own thing's (23514); a claim's status moves only as @kept/shared
 --      CLAIM_TRANSITIONS says (23514 claims_transition), except for kept_owner and the undo path
---      (Q18: the undo handler sets `app.undo` to 'on' for its own transaction, set_config(...,
+--      (the undo handler sets `app.undo` to 'on' for its own transaction, set_config(...,
 --      true)); D10: a thing with a warranty has quantity 1 (23514 warranties_quantity_one on the
 --      warranty, things_quantity_one on the thing).
 --   4. things.state_version, the 0047 pattern: it joins kept.touch_row's quiet columns, and
 --      kept.touch_thing_state() bumps it when a loan or claim starts, ends or changes whom the
 --      thing is with (its status, vendor, person, due date, return), only on a real change, so a
 --      move's cascade never fires it. The snapshot then resends the thing with its derived states.
---   5. kept.move_things() (Q17): a thing on loan or in repair stays in its location (23514
+--   5. kept.move_things(): a thing on loan or in repair stays in its location (23514
 --      things_move_open_loan, things_move_in_repair); one leaving drops its incidents (returned
 --      as dropped_incident_ids, so the return type changes and the function is made again), its
 --      claims' incident and its loans' return place; across accounts its loans' people and its
 --      claims' and services' vendors are mapped as its own registries are; the files of its new
 --      subjects are re-homed as its own are.
---   6. kept.person_use_locations() counts a loan (step-2 Q5, D177): contact details need admin
+--   6. kept.person_use_locations() counts a loan (D177): contact details need admin
 --      where the person has borrowed or lent too.
 -- test/leak.test.ts and src/db/migrate.test.ts list the functions; test/leak-household.ts fills
 -- the tables; src/db/household-records.test.ts tests them.
@@ -203,7 +203,7 @@ CREATE TRIGGER loans_guard_refs BEFORE INSERT OR UPDATE OF person_id ON public.l
   FOR EACH ROW EXECUTE FUNCTION kept.guard_household_refs();
 --> statement-breakpoint
 -- @kept/shared CLAIM_TRANSITIONS. The undo handler reopens a closed claim with `app.undo` = 'on'
--- in its own transaction (Q18); kept_owner's paths (seeds, the operator's CLI) keep theirs.
+-- in its own transaction; kept_owner's paths (seeds, the operator's CLI) keep theirs.
 CREATE FUNCTION kept.guard_claim_transition() RETURNS trigger
 LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
 BEGIN
@@ -220,7 +220,7 @@ CREATE TRIGGER claims_guard_transition BEFORE UPDATE OF status ON public.claims
   FOR EACH ROW WHEN (OLD.status IS DISTINCT FROM NEW.status)
   EXECUTE FUNCTION kept.guard_claim_transition();
 --> statement-breakpoint
--- D10 (step-2 Q11, plan Q26): a thing with a warranty record has quantity 1. Same signature, so
+-- D10: a thing with a warranty record has quantity 1. Same signature, so
 -- 0016's trigger keeps it.
 CREATE OR REPLACE FUNCTION kept.guard_thing_quantity() RETURNS trigger
 LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
@@ -394,7 +394,7 @@ BEGIN
   leaving := ARRAY(SELECT x.id FROM unnest(set_ids, set_locs) AS x(id, loc)
                     WHERE x.loc <> p_to_location);
 
-  -- 0051 (Q17): a thing out on loan (or borrowed in and not yet given back), or in repair, stays
+  -- 0051: a thing out on loan (or borrowed in and not yet given back), or in repair, stays
   -- in its location until that ends.
   IF EXISTS (SELECT 1 FROM public.loans o
               WHERE o.thing_id = ANY (leaving) AND o.returned_at IS NULL) THEN
@@ -611,7 +611,7 @@ BEGIN
      WHERE id = r.id;
   END LOOP;
 
-  -- Sync (§7.4): gone from each source location; no longer gone from the target.
+  -- Sync: gone from each source location; no longer gone from the target.
   INSERT INTO public.sync_tombstones (location_id, entity_type, entity_id)
   SELECT x.loc, 'thing', x.id FROM unnest(set_ids, set_locs) AS x(id, loc)
    WHERE x.loc <> p_to_location

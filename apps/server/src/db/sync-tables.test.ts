@@ -14,8 +14,8 @@ import {
 } from '../../test/tenancy.js';
 import { withScope, withSystem } from './scope.js';
 
-// Step-3 T4: the sync ledger, legacy codes, box checks, the cover cache and tombstones on
-// arrival (engineering spec §1.10, §2.3, §7.4, §7.13; D40, D146, D156, D175, D195).
+// The sync ledger, legacy codes, box checks, the cover cache and tombstones on
+// arrival (D40, D146, D156, D175, D195).
 
 const db = await testDb();
 

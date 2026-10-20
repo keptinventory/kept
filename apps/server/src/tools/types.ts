@@ -8,15 +8,15 @@ import type { JobQueue } from '../jobs/queue.js';
 import type { SemanticInput, SemanticPrep } from '../search/semantic.js';
 import type { FileStorage } from '../storage/blob-store.js';
 
-// The tool registry's types (step-6 plan T9, Q1). One registry serves the assistant (T13) and
-// MCP (T11): each handler calls the same operation its route calls, inside withScope, with the
+// The tool registry's types. One registry serves the assistant and
+// MCP: each handler calls the same operation its route calls, inside withScope, with the
 // same rules (can(), the module gate, the money gate, audited()).
 
 /**
  * Who calls a tool.
- * - The assistant (T13): the person themself, `scope: 'write'` (a proposal they confirmed runs as
+ * - The assistant: the person themself, `scope: 'write'` (a proposal they confirmed runs as
  *   them; their role decides the rest).
- * - MCP (T11): a token (T4, T10): `tokenId` and the token's `scope`. RLS reads `app.token_id`
+ * - MCP: a token: `tokenId` and the token's `scope`. RLS reads `app.token_id`
  *   beside `app.user_id` (principalScope(), context.ts), and its writes audit as the token. A
  *   read principal is never offered, and can never run, a write tool.
  */
@@ -49,11 +49,11 @@ export type ToolDeps = {
 export type ToolContext = {
   deps: ToolDeps;
   principal: ToolPrincipal;
-  /** The interface language of the question (Q22). Tool output itself is language-neutral. */
+  /** The interface language of the question. Tool output itself is language-neutral. */
   locale: string;
   requestId: string;
   via: ToolVia;
-  /** The row version a confirmed proposal was drawn against (T13: If-Match from
+  /** The row version a confirmed proposal was drawn against (If-Match from
    * `before.rowVersion`); a write tool on a versioned row refuses a changed row with
    * `precondition_failed`. Absent, the row's current version is used. */
   ifMatch?: number;
@@ -83,7 +83,7 @@ export type Op = {
   locations: ReachableLocation[];
   /** An internal link, with the deps' base URL. */
   link: (path: string) => string;
-  /** The query's vectors for a handler with `meaning` (T14); null: keywords only. */
+  /** The query's vectors for a handler with `meaning`; null: keywords only. */
   semantic: SemanticInput | null;
 };
 
@@ -104,14 +104,14 @@ export type HandlerResult<T> = {
 };
 
 export type Handler<N extends ToolName> = {
-  /** The can() action a principal's role needs in the location (§7.1). */
+  /** The can() action a principal's role needs in the location. */
   action: Action;
   /** Reads across every reachable location when no `location_id` is given. */
   global?: boolean;
   /** The location of the row the input addresses (a thing, a place), read as the caller; null
    * when it addresses none or the caller can't see it. */
   subjectLocation?: (client: pg.ClientBase, input: ToolInput<N>) => Promise<string | null>;
-  /** The text this call searches by meaning (search_things, where_is; T14): runTool embeds it
+  /** The text this call searches by meaning (search_things, where_is): runTool embeds it
    * before the call's transaction and hands the vectors over as `op.semantic`. */
   meaning?: (input: ToolInput<N>) => string | undefined;
   run: (op: Op, input: ToolInput<N>) => Promise<HandlerResult<ToolOutput<N>>>;

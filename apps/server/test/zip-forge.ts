@@ -1,6 +1,6 @@
 import { crc32, deflateRawSync } from 'node:zlib';
 
-// Hostile ZIPs made byte by byte in the tests (spike Z1's gen_hostile.py, in TypeScript), never
+// Hostile ZIPs made byte by byte in the tests, never
 // downloaded. A writer library refuses most of what these need (a `..` name, a duplicate, a
 // symlink's mode, a lying size, the encryption flag), so the records are written here: the
 // local header, the central directory and the end record of APPNOTE 4.3, nothing more.

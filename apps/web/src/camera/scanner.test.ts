@@ -1,5 +1,5 @@
 /**
- * The scanner's choices and loop (plan T26): the native detector only where it reads QR codes, the
+ * The scanner's choices and loop: the native detector only where it reads QR codes, the
  * wasm otherwise, "no scanner" when neither can start, and a loop that decodes about 8 frames a
  * second, never two at once, and stops for good when the decoder is unavailable. The decoders are
  * fakes here; scanner.decode.test.ts runs the real wasm on fixture images.

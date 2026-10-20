@@ -1,7 +1,7 @@
 /**
- * Household records (step 4): warranties and claims, loans, valuations, incidents, expiring
+ * Household records: warranties and claims, loans, valuations, incidents, expiring
  * documents, service lines, reports and exports, and the pure date and schedule rules their SQL
- * twins must agree with (engineering spec §1.4–§1.7, §7.13; product design D53–D57, D141, D158).
+ * twins must agree with (D53–D57, D141, D158).
  *
  * Every list here is a text column with a CHECK (D183, never a Postgres enum): the CHECK, the zod
  * schema and the web picker all read the list, so a value is added in one place. Dates are
@@ -27,7 +27,7 @@ export type ClaimStatus = (typeof CLAIM_STATUSES)[number];
 
 /**
  * The status changes a claim may make. A closed claim (resolved, rejected) reopens only through
- * undo (step-4 plan Q18), which the `claims_transition` trigger lets through.
+ * undo, which the `claims_transition` trigger lets through.
  */
 export const CLAIM_TRANSITIONS: Readonly<Record<ClaimStatus, readonly ClaimStatus[]>> =
   Object.freeze({
@@ -59,7 +59,7 @@ export type ValuationSource = (typeof VALUATION_SOURCES)[number];
 export const INCIDENT_KINDS = ['burglary', 'fire', 'flood', 'loss', 'other'] as const;
 export type IncidentKind = (typeof INCIDENT_KINDS)[number];
 
-/** `expiring_documents.kind` (§1.6, D155). `other` needs a title (Q31). */
+/** `expiring_documents.kind` (D155). `other` needs a title. */
 export const DOCUMENT_KINDS = [
   'registration',
   'insurance',
@@ -71,12 +71,12 @@ export const DOCUMENT_KINDS = [
 ] as const;
 export type DocumentKind = (typeof DOCUMENT_KINDS)[number];
 
-/** `service_lines.kind` (§1.6). */
+/** `service_lines.kind`. */
 export const SERVICE_LINE_KINDS = ['part', 'labour', 'fluid', 'other'] as const;
 export type ServiceLineKind = (typeof SERVICE_LINE_KINDS)[number];
 
 /** `report_runs.kind` (D201): the inventory report, step 4's insurance report, step 5's vehicle
- * history report (Q17), 1.x's condition report (D235) and a move's contents sheets (D251). */
+ * history report, 1.x's condition report (D235) and a move's contents sheets (D251). */
 export const REPORT_KINDS = [
   'inventory',
   'insurance',
@@ -95,15 +95,15 @@ export type ReportCadence = (typeof REPORT_CADENCES)[number];
 /** A PDF larger than this is not attached; the mail says to print it from Kept instead. */
 export const REPORT_MAIL_MAX_BYTES = 10 * 1024 * 1024;
 
-/** `export_runs.kind` (§1.10, D158): step 4's claim pack, and step 7's Kept export of one
- * location (`location`) or of the requester's Personal location with their own data (`me`, plan
- * Q14). The API's `scope` (portability.ts EXPORT_SCOPES) is the last two. */
+/** `export_runs.kind` (D158): step 4's claim pack, and step 7's Kept export of one
+ * location (`location`) or of the requester's Personal location with their own data (`me`).
+ * The API's `scope` (portability.ts EXPORT_SCOPES) is the last two. */
 export const EXPORT_RUN_KINDS = ['claim_pack', 'location', 'me'] as const;
 export type ExportRunKind = (typeof EXPORT_RUN_KINDS)[number];
 
 /** `export_runs.status`, as stored and as the API reports it: `expired` is set by the hourly
  * purge, and a `done` run already past its `expiresAt` is reported `expired` before the purge
- * reaches it. `cancelled`: stopped by its creator (step 7). */
+ * reaches it. `cancelled`: stopped by its creator. */
 export const EXPORT_RUN_STATUSES = [
   'queued',
   'running',
@@ -115,7 +115,7 @@ export const EXPORT_RUN_STATUSES = [
 export type ExportRunStatus = (typeof EXPORT_RUN_STATUSES)[number];
 
 /**
- * Bounds the CHECKs, the routes' zod schemas and the pickers share (step-4 plan T4–T7).
+ * Bounds the CHECKs, the routes' zod schemas and the pickers share.
  * Lead times are days (or a meter's units) before the due point.
  */
 export const HOUSEHOLD_LIMITS = Object.freeze({
@@ -131,7 +131,7 @@ export const HOUSEHOLD_LIMITS = Object.freeze({
   scheduleNameLength: 120,
   documentTitleLength: 120,
   serviceLineDescriptionLength: 300,
-  /** The claim pack's link lives this long at most (Q19: §3.3's export retention). */
+  /** The claim pack's link lives this long at most (the export retention). */
   claimPackLinkDays: 7,
 });
 
@@ -152,7 +152,7 @@ const isoOf = (y: number, m: number, d: number) => `${pad(y, 4)}-${pad(m)}-${pad
 const daysIn = (y: number, m: number) => new Date(Date.UTC(y, m, 0)).getUTCDate();
 
 /**
- * Add `months` (may be negative) and clamp the day to the month's end (Q27):
+ * Add `months` (may be negative) and clamp the day to the month's end:
  * `addMonthsClamped('2026-01-31', 1)` → `'2026-02-28'`. Postgres' `date + interval 'n months'`
  * does the same, so the SQL twins agree.
  */
@@ -183,7 +183,7 @@ export type WarrantyTerm = {
 };
 
 /**
- * The last day a warranty covers, inclusive (L2), or `'lifetime'`; null when it has neither an
+ * The last day a warranty covers, inclusive, or `'lifetime'`; null when it has neither an
  * end date nor a term. A term ends the day before the same day `termMonths` later: 24 months
  * from 2026-10-01 covers through 2028-09-30. The twin is `warranties.effective_ends_on`.
  */
@@ -251,7 +251,7 @@ export type ScheduleRule = {
   snoozedUntil?: string | null;
   snoozedUntilValue?: string | null;
   skipNext?: boolean;
-  /** Days before a date due point at which it becomes due (default 14, §3.4). */
+  /** Days before a date due point at which it becomes due (default 14). */
   leadDays?: number | null;
   /** Units before a unit due point at which it becomes due (default 10% of `everyUnits`). */
   leadUnits?: string | null;
@@ -279,20 +279,20 @@ const SEVERITY: Record<ScheduleState, number> = { upcoming: 0, due: 1, overdue: 
 
 /**
  * The next due point of a schedule, and its state on `today` (the location's local date) with the
- * meter's newest accepted reading `latestValue` (D29, D52, D162; plan Q2, Q28).
+ * meter's newest accepted reading `latestValue` (D29, D52, D162).
  *
- * - The date side is `anchorOn` plus `everyMonths` (clamped, Q27), or the one-off `dueOn`. It is
+ * - The date side is `anchorOn` plus `everyMonths` (clamped), or the one-off `dueOn`. It is
  *   due from `leadDays` before, and overdue from the day after.
  * - The unit side is `anchorValue` plus `everyUnits`. It is due once the reading reaches
  *   `dueValue - leadUnits`, and overdue once it passes `dueValue`. No reading yet: upcoming (no
- *   estimate in step 4, Q2).
+ *   estimate in step 4).
  * - "Whichever comes first": the more urgent side wins.
  * - `skipNext` moves an interval's due point one interval on (`anchor + 2 × interval`, counted
  *   from the anchor so month ends don't drift). A one-off has no interval to skip.
  * - A snooze replaces the whole due point: the date side becomes `snoozedUntil` and the unit side
  *   `snoozedUntilValue` (either may be absent), and neither has a lead, so a short snooze isn't
  *   due again at once (inferred: otherwise a snooze inside the lead would change nothing).
- * - Step 5's estimate (D52; step-5 plan T7, Q8): `at.eta(value)` answers the local date the meter
+ * - Step 5's estimate (D52): `at.eta(value)` answers the local date the meter
  *   is expected to reach `value` (the SQL's `kept.meter_eta`, the one implementation; null when
  *   unknown). The unit side's due-from reading gives `estimatedOn`; from that day an upcoming
  *   schedule is due by its unit side (an estimate never makes it overdue). `estimated` when that

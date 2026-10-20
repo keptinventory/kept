@@ -1,6 +1,6 @@
 /**
  * AI constants shared by the server's provider layer and the AI settings UI (D19, D83, D121,
- * D167, D191; lessons L42, L43, L49, L63; plan Q5–Q7). Pure data and arithmetic: no SDK here.
+ * D167, D191). Pure data and arithmetic: no SDK here.
  */
 
 /** The providers Kept talks to. `openrouter` and `groq` have their own kinds (D202): each has
@@ -20,7 +20,7 @@ export type ProviderKind = (typeof PROVIDER_KINDS)[number];
 export const AI_TASKS = ['extraction', 'assistant', 'embeddings'] as const;
 export type AiTask = (typeof AI_TASKS)[number];
 
-/** The per-provider reasoning setting (Q6). `none` is offered; `low` is the default. */
+/** The per-provider reasoning setting. `none` is offered; `low` is the default. */
 export const REASONING_LEVELS = ['none', 'minimal', 'low', 'medium', 'high'] as const;
 export type ReasoningLevel = (typeof REASONING_LEVELS)[number];
 export const DEFAULT_REASONING: ReasoningLevel = 'low';
@@ -28,7 +28,7 @@ export const DEFAULT_REASONING: ReasoningLevel = 'low';
 /**
  * Key prefixes, most specific first (D202): `sk-ant-` and `sk-or-` are also `sk-` prefixes, so
  * OpenAI's bare `sk-` comes last. The OpenRouter (`sk-or-`) and Groq (`gsk_`) prefixes are the
- * ones seen on real keys in the spike; neither
+ * ones seen on real keys; neither
  * provider's API reference states them, so a key that doesn't match is simply not preselected.
  */
 const KEY_PREFIXES: readonly (readonly [string, ProviderKind])[] = [
@@ -55,7 +55,7 @@ export type DefaultModels = {
   readonly models: Readonly<Record<AiTask, string | null>>;
   /**
    * The tasks whose default no Kept call has exercised yet, so AI settings can say "untested"
-   * (D206). Only Groq's extraction model was called (spike 2026-09-26); OpenRouter's key had no
+   * (D206). Only Groq's extraction model was called; OpenRouter's key had no
    * credit, and OpenAI, Anthropic and Google had no keys.
    */
   readonly untested: readonly AiTask[];
@@ -65,7 +65,7 @@ export type DefaultModels = {
  * Suggested models per provider and task, read from each provider's own model docs on
  * 2026-09-26 (developers.openai.com/api/docs/models and /models/all; platform.claude.com
  * models overview; ai.google.dev/gemini-api/docs/models). Model lists go stale: these are
- * only the prefilled suggestion, and an admin can type any model name (L49). Anthropic offers
+ * only the prefilled suggestion, and an admin can type any model name. Anthropic offers
  * no embeddings model; an OpenAI-compatible server (Ollama, LM Studio, OpenRouter) has no
  * default, so its admin names the model.
  *
@@ -79,7 +79,7 @@ export type DefaultModels = {
  *   `qwen/qwen3.8-27b` is its only vision model and passed structured output with an image;
  *   `openai/gpt-oss-120b` for the assistant. Groq lists no embeddings model.
  * - openrouter (D202, same source): `openai/gpt-6-luna`, the cheapest current major with
- *   structured outputs in its listing. Provisional: the spike's key had no credit, so no
+ *   structured outputs in its listing. Provisional: the test key had no credit, so no
  *   OpenRouter chat call has run yet. OpenRouter lists no embeddings model.
  */
 export const DEFAULT_MODELS: Readonly<Record<ProviderKind, DefaultModels>> = Object.freeze({
@@ -135,13 +135,13 @@ export type AiBudget = {
   readonly tokensPerMinute: number;
   readonly tokensPerDay: number;
   readonly tokensPerMonth: number;
-  /** No money cap until an admin sets one (Q7, D167). */
+  /** No money cap until an admin sets one (D167). */
   readonly moneyPerMonth: null;
-  /** Concurrent jobs per paying account (§3.2). */
+  /** Concurrent jobs per paying account. */
   readonly concurrency: number;
 };
 
-/** The budget that applies when no row exists, per paying account (Q7, D19). */
+/** The budget that applies when no row exists, per paying account (D19). */
 export const DEFAULT_BUDGETS: Readonly<{ extraction: AiBudget }> = Object.freeze({
   extraction: {
     tokensPerMinute: 60_000,
@@ -153,7 +153,7 @@ export const DEFAULT_BUDGETS: Readonly<{ extraction: AiBudget }> = Object.freeze
 });
 
 /**
- * The i18n key of each provider's "what happens to what you send" note in settings (D83, L63).
+ * The i18n key of each provider's "what happens to what you send" note in settings (D83).
  * The text lives in the web's catalogue; a key per kind keeps the server from shipping copy.
  */
 export const DATA_USE_NOTE_KEYS: Readonly<Record<ProviderKind, string>> = Object.freeze({
@@ -166,7 +166,7 @@ export const DATA_USE_NOTE_KEYS: Readonly<Record<ProviderKind, string>> = Object
 });
 
 /**
- * Text tokens, estimated high for pacing (L43): one token per 2.4 UTF-16 code units, for every
+ * Text tokens, estimated high for pacing: one token per 2.4 UTF-16 code units, for every
  * language. Arabic runs denser than English per character, so one ratio errs on the safe side
  * for both. The settlement after the call uses the provider's real usage.
  */
@@ -228,12 +228,12 @@ function googleTokens(w: number, h: number): number {
   return Math.ceil(w / unit) * Math.ceil(h / unit) * 258;
 }
 
-/** Groq: a flat 2048 tokens per image (its vision docs), which the spike's rate-limit headers
+/** Groq: a flat 2048 tokens per image (its vision docs), which real rate-limit headers
  * matched. */
 const GROQ_IMAGE_TOKENS = 2048;
 
 /**
- * Input tokens for one image of `w`×`h` pixels, as sent (L43: estimate high, settle on the
+ * Input tokens for one image of `w`×`h` pixels, as sent (estimate high, settle on the
  * provider's reported usage). An OpenAI-compatible server's tokenizer is unknown, so it takes
  * the highest of the three documented formulas; OpenRouter routes to any model, so it takes the
  * highest of every figure here.
@@ -265,8 +265,8 @@ export function estimateImageTokens(kind: ProviderKind, w: number, h: number): n
 
 /**
  * The recommended default (D206): pasting a Groq key pre-selects it, and the model picker marks
- * it "Recommended". The cheapest reliable result measured (spike 2026-09-26, synthetic images);
- * the evaluation set re-checks it (V37).
+ * it "Recommended". The cheapest reliable result measured (synthetic images);
+ * the evaluation set re-checks it.
  */
 export const RECOMMENDED = Object.freeze({
   kind: 'groq',
@@ -302,7 +302,7 @@ export const RECOMMENDED_PRICE = Object.freeze({
   listingFetchedAt: string;
 });
 
-/** `llm_calls.task` (engineering spec §7.15): what a call was for. */
+/** `llm_calls.task`: what a call was for. */
 export const LEDGER_TASKS = [
   'extract_thing',
   'extract_receipt',
@@ -313,12 +313,12 @@ export const LEDGER_TASKS = [
   'embed_thing',
   'embed_query',
   'connection_test',
-  // Step 7 (D69, plan Q21): search aliases proposed for imported things, opt-in after an import.
+  // Step 7 (D69): search aliases proposed for imported things, opt-in after an import.
   'enrich_aliases',
 ] as const;
 export type LedgerTask = (typeof LEDGER_TASKS)[number];
 
-/** `llm_calls.outcome` (D206, product design §8a). */
+/** `llm_calls.outcome` (D206). */
 export const LEDGER_OUTCOMES = [
   'ok',
   'refused',
@@ -331,7 +331,7 @@ export const LEDGER_OUTCOMES = [
 ] as const;
 export type LedgerOutcome = (typeof LEDGER_OUTCOMES)[number];
 
-/** `llm_calls.cost_source` (§7.15): where a call's cost came from. */
+/** `llm_calls.cost_source`: where a call's cost came from. */
 export const COST_SOURCES = [
   'provider',
   'price_table',
@@ -345,7 +345,7 @@ export type BudgetTask = AiTask | 'test';
 
 /** The budget a ledger task counts against: `llm_calls.budget_task`, the generated column. */
 export function budgetTaskOf(task: LedgerTask): BudgetTask {
-  // Alias enrichment counts against the extraction budget and caps (step-7 plan Q21).
+  // Alias enrichment counts against the extraction budget and caps.
   if (task.startsWith('extract_') || task === 'enrich_aliases') return 'extraction';
   if (task.startsWith('assistant_')) return 'assistant';
   if (task.startsWith('embed_')) return 'embeddings';
@@ -353,7 +353,7 @@ export function budgetTaskOf(task: LedgerTask): BudgetTask {
 }
 
 /**
- * Concurrent calls a key allows, by kind (§3.5): one at a time on Groq (spike 2026-09-26: an
+ * Concurrent calls a key allows, by kind: one at a time on Groq (an
  * 8,000 tokens-a-minute tier fits 2–3 photos a minute), two otherwise.
  */
 export const KIND_CONCURRENCY: Readonly<Partial<Record<ProviderKind, number>>> = Object.freeze({
@@ -372,11 +372,11 @@ export type ReferenceFigure = {
 };
 
 /**
- * "What uses AI in Kept" before a scope has five calls of a task (D206, §3.5): one call's tokens
+ * "What uses AI in Kept" before a scope has five calls of a task (D206): one call's tokens
  * and cost as measured on Groq `qwen/qwen3.8-27b` on 2026-09-26, costed from Groq's listed prices
- * that day. Copied from the step-3 AI SDK spike's runs (the first run of each case;
+ * that day. Copied from the first AI SDK trial runs (the first run of each case;
  * the THING row is the nameplate in THING mode), never estimated. Synthetic images: the
- * evaluation set (V1, V3) replaces them.
+ * evaluation set replaces them.
  */
 export const REFERENCE_FIGURES = Object.freeze({
   asOf: '2026-09-26',
@@ -400,7 +400,7 @@ export const REFERENCE_FIGURES = Object.freeze({
   tasks: Partial<Record<LedgerTask, ReferenceFigure>>;
 });
 
-/** §3.5: the token cap suggested when the model has no price (about 1,200 photos at ~2.5k). */
+/** The token cap suggested when the model has no price (about 1,200 photos at ~2.5k). */
 export const SUGGESTED_TOKENS_PER_MONTH = 3_000_000;
 const SUGGESTED_MIN_MONEY = 5;
 
@@ -409,7 +409,7 @@ export type SuggestedCap =
   | { tokensPerMonth: number };
 
 /**
- * The cap AI setup suggests (§3.5; no cap is set by default): in money, the larger of 5 and three
+ * The cap AI setup suggests (no cap is set by default): in money, the larger of 5 and three
  * times the projected month, in the price's currency, rounded up to a whole unit; without a
  * price (`currency` null), 3,000,000 tokens a month. `projectedMonth` is a canonical decimal
  * string, or null when there is no history yet.
@@ -427,10 +427,10 @@ export function suggestedCap(input: {
 }
 
 /**
- * The assistant's output per model step (step-6 plan T8; spike S6.3 measured 36–85 output tokens a
+ * The assistant's output per model step (a trial run measured 36–85 output tokens a
  * step on Groq, so these over-reserve by design): `maxTokens` is the answer's allowance, sent with
- * the reasoning allowance on top (`REASONING_ALLOWANCE`, Q6 of step 3); the expected figures feed
- * the provider's output window (V36).
+ * the reasoning allowance on top (`REASONING_ALLOWANCE`); the expected figures feed
+ * the provider's output window.
  */
 export const ASSISTANT_OUTPUT = Object.freeze({
   maxTokens: 1200,
@@ -438,6 +438,6 @@ export const ASSISTANT_OUTPUT = Object.freeze({
   expectedAnswer: 800,
 });
 
-/** The most values one embeddings request carries (spike S6.4 finding 4: fits OpenAI's 2,048 and
+/** The most values one embeddings request carries (fits OpenAI's 2,048 and
  * Google's 100 per call, so `embedMany` never splits a batch). */
 export const EMBED_BATCH_MAX = 64;

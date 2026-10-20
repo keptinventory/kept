@@ -1,5 +1,5 @@
 /**
- * The AI call list (L47, D205, D206; screens §5 AI usage §5): every call the scope may see, on the
+ * The AI call list (D205, D206): every call the scope may see, on the
  * filter strip, newest first, with the Display button's direction and "by day" grouping (D211), 20
  * a page. The instance's list has no direction switch: T9 reads it newest first only. A row says when, the task, the model, who and where, the tokens, images, ≈ cost and the
  * outcome; it opens the call's detail. Saved views live on the `ai-calls` surface. **Export CSV** downloads the filtered list: the same
@@ -193,7 +193,7 @@ export function CallList({ scope, locationId }: { scope: AiScope; locationId?: s
         label={t`AI calls`}
         search={{ label: t`Search AI calls`, placeholder: t`Model or request id` }}
         filters={filters}
-        // Saved views and pinned tabs, as every list has (D205; step-3 carry-over, T28).
+        // Saved views and pinned tabs, as every list has (D205).
         surface="ai-calls"
         {...(scope === 'instance'
           ? {}

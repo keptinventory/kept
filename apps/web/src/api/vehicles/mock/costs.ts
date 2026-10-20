@@ -1,5 +1,5 @@
 /**
- * A vehicle's running costs (plan T13; D26, D188; Q5, Q22), after the server's
+ * A vehicle's running costs (D26, D188), after the server's
  * `vehicles/costs.ts`: fuel is the fills' costs by their local month, service the confirmed
  * service records' totals by their date, fees the documents' costs by their issue date (renewals
  * included). Per currency, never added across currencies. The distance is the odometer's rise over

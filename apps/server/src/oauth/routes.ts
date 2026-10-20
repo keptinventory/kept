@@ -16,15 +16,15 @@ import {
 } from './consent.js';
 import { hasOAuthProvider } from './verify.js';
 
-// OAuth connectors (step-6 plan T12; D93, D125, V15; spike S6.2).
+// OAuth connectors (D93, D125).
 //
 // The discovery documents, at the root, where MCP clients look for them (the official client
-// never looks under `/api/v1/auth/`, S6.2 §2): RFC 8414's authorization-server metadata, bare and
+// never looks under `/api/v1/auth/`): RFC 8414's authorization-server metadata, bare and
 // with Better Auth's base path inserted (oauthProviderAuthServerMetadata, which answers both),
 // and RFC 9728's protected-resource metadata, bare and for `/mcp` (the mcp plugin answers those
 // itself when the root request is forwarded to Better Auth unchanged). The AS metadata
-// advertises `client_id_metadata_document_supported` and no registration endpoint (DCR off,
-// Q8). With OAuth off (no https public URL, D125) they stay JSON 404s, and http/web.ts keeps
+// advertises `client_id_metadata_document_supported` and no registration endpoint (DCR off).
+// With OAuth off (no https public URL, D125) they stay JSON 404s, and http/web.ts keeps
 // `/.well-known/` out of the SPA fallback.
 //
 // GET  /api/v1/oauth/consent?<the plugin's query> → {client: {name, uri}, requestedScopes,

@@ -38,19 +38,19 @@ import { EXPORTED_ENTITIES, entityDef, HISTORY_ENTITY } from './registry.js';
 import { readSecrets } from './secrets.js';
 import { type ExportJobData, optionsOf } from './service.js';
 
-// The `export` job (D68, D69, D159, D180; step-7 plan T12): one Kept export ZIP, built in its
+// The `export` job (D68, D69, D159, D180): one Kept export ZIP, built in its
 // creator's scope (the tenant job's, taken from the sending transaction; `data` names only the
-// run, never a passphrase or a key, Q7). One attempt, 2 hours (jobs/policies.ts).
+// run, never a passphrase or a key). One attempt, 2 hours (jobs/policies.ts).
 //
 // 1. Claims the run (kept.export_run_claim: queued → running). Anything else, or a creator who no
 //    longer owns or administers the location (D180), is skipped.
 // 2. Writes each entity to `KEPT_DATA_DIR/tmp/export-…/data/<entity>.ndjson`, read in keyset
 //    pages under row-level security (exports/data.ts), then the history, the AI call ledger,
 //    the secrets (encrypted with the passphrase's key, which the job opens from the run and the
-//    finishing door clears), "Export my data"'s me.json, and the readable copy (T13).
+//    finishing door clears), "Export my data"'s me.json, and the readable copy.
 // 3. Checks the free space (`statfs`: the originals' size × 1.1, else `no_space`), streams the
 //    whole into one ZIP (portability/zip/write.ts), puts it at `x/<id>.zip`, and finishes the run
-//    with its size and SHA-256 (seven days from now, §3.3).
+//    with its size and SHA-256 (seven days from now).
 //
 // Progress: a step per entity file, per 100 originals and per later stage. Cancel: the creator's
 // POST …/cancel finishes the run `cancelled`; the job sees it at its next check (each entity, each
@@ -288,7 +288,7 @@ export async function buildExport(
       await progress();
     }
 
-    // 2. The history (§3.3), rendered for the creator (D110).
+    // 2. The history, rendered for the creator (D110).
     if (options.history) {
       await checkpoint();
       const out = new Lines(path.join(work, EXPORT_PATHS.data(HISTORY_ENTITY)));
@@ -304,7 +304,7 @@ export async function buildExport(
       await progress();
     }
 
-    // 3. The AI call ledger (§7.15), and for "Export my data" the person's own.
+    // 3. The AI call ledger, and for "Export my data" the person's own.
     const extras: { name: string; file: string }[] = [];
     if (options.aiCalls) {
       await checkpoint();
@@ -357,7 +357,7 @@ export async function buildExport(
       }
     }
 
-    // 5. "Export my data" (Q14): the person's own settings, never a token or a session.
+    // 5. "Export my data": the person's own settings, never a token or a session.
     if (kind === 'me') {
       await checkpoint();
       const me = await inScope((_tx, c) => readMe(c));
@@ -366,7 +366,7 @@ export async function buildExport(
       extras.push({ name: EXPORT_PATHS.me, file: at });
     }
 
-    // 6. The readable copy (T13), linking to the originals beside it.
+    // 6. The readable copy, linking to the originals beside it.
     let readable: { included: boolean; pdf: ExportPdfOutcome; written: string[] } = {
       included: false,
       pdf: 'off',
@@ -544,7 +544,7 @@ async function fileRefs(
   });
 }
 
-/** `me.json` (Q14): the person's profile, preferences, hints and saved views. */
+/** `me.json`: the person's profile, preferences, hints and saved views. */
 async function readMe(client: pg.ClientBase): Promise<Record<string, unknown>> {
   const all = async (sql: string) => (await client.query(sql)).rows;
   const [profile] = await all(

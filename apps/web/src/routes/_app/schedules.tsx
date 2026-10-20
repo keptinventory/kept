@@ -1,5 +1,5 @@
 /**
- * Schedules (plan T21; D29, D39, D52, D162, screens §5): every schedule on things and places
+ * Schedules (D29, D39, D52, D162): every schedule on things and places
  * across your locations with Schedules on, next due first, with Complete, Snooze and Skip.
  *
  * The list standard on the filter strip (D205, surface `schedules`): search, location, state
@@ -7,7 +7,7 @@
  * button (D211) sorts by due (soonest first) or name and groups by location or by what it's for.
  * All of it is in the URL. Each row's due point is the server's (the agenda's), never recomputed
  * here. A new schedule is made here (choosing its thing or place) or from a thing's page. The
- * engineering spec's "Starter schedules" belong to vehicles (D52): not offered in step 4.
+ * "Starter schedules" belong to vehicles (D52): not offered in step 4.
  */
 import { SURFACE_FILTER_KEYS } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';

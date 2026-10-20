@@ -1,5 +1,5 @@
 /**
- * Download the recovery kit (D66, D182; step-8 T22, screens §8 and §10). "Download recovery kit"
+ * Download the recovery kit (D66, D182). "Download recovery kit"
  * opens the re-authentication sheet, which says what the kit holds and to keep it off this
  * server, and offers it as a text file or a printable page. The kit comes back as a Blob, saved
  * through a one-off object URL that is revoked straight after the download starts; it is never

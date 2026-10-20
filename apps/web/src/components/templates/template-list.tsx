@@ -1,5 +1,5 @@
 /**
- * Settings → Account → Templates (plan T30; D76, D177, Q17): the account's templates, list-standard
+ * Settings → Account → Templates (D76, D177): the account's templates, list-standard
  * (search in the URL), each with its type and the locations it's shared with. Owners and admins
  * add, edit and delete them; a template shared with a location you don't administer is left out
  * of this list, because editing needs admin of every location that uses it.

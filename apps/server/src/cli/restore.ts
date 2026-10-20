@@ -16,12 +16,12 @@ import {
 import { type BackupTarget, LocalDirTarget } from '../backup/target.js';
 import { cliBackupSettings } from './backup.js';
 
-// `kept admin restore <snapshot>` (step-8 plan T7; D66): into the EMPTY database
+// `kept admin restore <snapshot>` (D66): into the EMPTY database
 // KEPT_OWNER_DATABASE_URL names, and the file store KEPT_STORAGE names (backup/restore.ts).
 // <snapshot> is a restic snapshot id from `kept admin backup --list` (8 hex or more), or
-// `latest`. `--legacy <id>` restores one of the alpha's runs instead (plan Q1, for one
+// `latest`. `--legacy <id>` restores one of the alpha's runs instead (for one
 // release), from the configured target or from a run's directory (<dir>/runs/<id>) copied off a
-// dead server's disk. Kept restores and verifies; the swap is printed for the superuser (Q13).
+// dead server's disk. Kept restores and verifies; the swap is printed for the superuser.
 
 type Source = Record<string, string | undefined>;
 

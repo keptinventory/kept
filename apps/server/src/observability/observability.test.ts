@@ -7,7 +7,7 @@ import { promisify } from 'node:util';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { type TestDb, testDb } from '../../test/db.js';
 
-// Optional tracing and error reporting (D84; plan T14), each in a child process started the way
+// Optional tracing and error reporting (D84), each in a child process started the way
 // the image starts Kept: `--import …/observability/tracing.ts` first. A local stub stands in for
 // both the OTLP collector and the Sentry-compatible endpoint, so nothing reaches the internet,
 // and every byte they are sent is searched for what must never leave.
@@ -88,7 +88,7 @@ describe('with neither variable (the default)', () => {
     const result = await child({});
     expect(result).toMatchObject({ ready: 200, boom: 500, tracing: false, errors: false });
     // Only what better-auth loads itself: @opentelemetry/api (it asks for a tracer and falls
-    // back to a no-op, spike O1) and semantic-conventions (its dependency, constants only). No
+    // back to a no-op) and semantic-conventions (its dependency, constants only). No
     // SDK, exporter, instrumentation, @fastify/otel or Sentry module.
     const better = /@opentelemetry[/+](api|semantic-conventions)[@/]/;
     expect(result.loaded.filter((u) => !better.test(u))).toEqual([]);

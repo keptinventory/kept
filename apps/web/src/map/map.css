@@ -1,7 +1,7 @@
 /* biome-ignore-all lint/style/noDescendingSpecificity: each rule styles its own component; the
    rule compares selectors of unrelated components that never match the same element. */
 /*
- * The location map (1.x, D237), ported from the approved spike. Loaded with the map's chunk only.
+ * The location map (1.x, D237), ported from the approved prototype. Loaded with the map's chunk only.
  * The map itself is never mirrored (M9): positions on the canvas are the scene's, so the labels and
  * the hover tip are placed from the canvas's left edge; the controls around it use logical sides.
  */

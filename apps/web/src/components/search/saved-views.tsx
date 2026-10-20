@@ -1,5 +1,5 @@
 /**
- * The search page's saved searches (screens §5 Search, D183, D205), listed when nothing is being
+ * The search page's saved searches (D183, D205), listed when nothing is being
  * searched: a search and its filters kept under a name, for you only or shared with everyone in
  * one location. Saving, pinning and the default live on the filter strip's Views menu
  * (components/filters/views.tsx), as on every list; this list is the page's way in when idle.

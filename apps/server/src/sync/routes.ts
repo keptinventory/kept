@@ -9,7 +9,7 @@ import { FIRST_SYNC, signCursor, verifyCursor } from './cursor.js';
 import { syncOpsRoutes } from './ops.js';
 import { snapshotPage } from './snapshot.js';
 
-// Sync (plan T12, T14; engineering spec §2.2, §2.3, §7.4). Registered by http/routes.ts; add
+// Sync. Registered by http/routes.ts; add
 // routes here, never there.
 //
 // GET /api/v1/sync/snapshot?cursor&limit&typesHash → SnapshotPage (packages/shared/src/sync.ts).
@@ -104,13 +104,13 @@ const SnapshotResponse = z.object({
               kind: z.string(),
               unit: z.string(),
               label: z.string().nullable(),
-              // Step 5 (Q18): the latest accepted reading, offset-corrected. Additive.
+              // The latest accepted reading, offset-corrected. Additive.
               latest: z.object({ value: z.string(), takenAt: Iso }).optional(),
             }),
           )
           // Always sent; optional only as SnapThing is, whose phone-made rows have none.
           .optional(),
-        // Step 4 (T10; D119, Q34): lent, borrowed and in repair, and the open loan (a name and a
+        // Step 4 (D119): lent, borrowed and in repair, and the open loan (a name and a
         // due date only). Absent means none.
         derived: z.array(z.enum(['lent', 'borrowed', 'in_repair'])).optional(),
         loan: z
@@ -177,6 +177,6 @@ export async function syncRoutes(app: KeptApp, deps: InventoryDeps): Promise<voi
     },
   );
 
-  // POST /api/v1/sync/ops: the phone's queued changes (T14, ops.ts).
+  // POST /api/v1/sync/ops: the phone's queued changes (ops.ts).
   await syncOpsRoutes(app, deps);
 }

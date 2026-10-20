@@ -1,5 +1,5 @@
 /**
- * Where the ⌘K palette lives (screens §1: "⌘K opens the palette", desktop). This part is tiny and
+ * Where the ⌘K palette lives ("⌘K opens the palette", desktop). This part is tiny and
  * always mounted in the signed-in frame: it listens for ⌘K / Ctrl+K (and for `openPalette()`, which
  * the top bar's "Search or jump to…" button calls) and loads the palette itself only the first
  * time it's opened, so the entry chunk never carries it (D80). The palette's "Add a thing" closes

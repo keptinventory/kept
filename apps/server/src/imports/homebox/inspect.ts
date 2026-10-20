@@ -2,13 +2,13 @@ import { HB_FIELD_KIND, type HomeboxFieldKind } from '@kept/shared';
 import type { HomeboxInspect, HomeboxMappingHints } from '../archive-types.js';
 import { type HomeboxData, isLocation, seededUnused } from './read.js';
 
-// What POST /imports/:id/inspect answers for a Homebox export (plan T8, T19): the collection's id
+// What POST /imports/:id/inspect answers for a Homebox export: the collection's id
 // (the manifest's groupId), when it was exported, its counts, and the mapping hints the choices
 // step needs: the entity types things use (with how many), the custom fields by name (with their
 // kind and how many items carry them), how many items are insured, and the seeded places and
 // tags that are empty and unused. Names and counts only, never a value. The ZIP holds no
 // collection name, currency, members or Homebox version (H1): those come from the optional
-// connection (T11), or stay unknown.
+// connection, or stay unknown.
 
 export function inspectHomebox(data: HomeboxData, sourceVersion: string | null): HomeboxInspect {
   const entities = [...data.entities.values()];

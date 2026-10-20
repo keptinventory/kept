@@ -1,7 +1,7 @@
 import type { SwaggerTransform } from '@fastify/swagger';
 import { tokenAccessOf } from './access.js';
 
-// The OpenAPI document says which routes a personal token can call (step-6 plan T10; D60, D63):
+// The OpenAPI document says which routes a personal token can call (D60, D63):
 // a `bearerAuth` scheme, and `security: [{bearerAuth: []}]` on each route the token catalogue
 // (tokens/access.ts) opens. The web app's own calls use the session cookie, which isn't
 // described here; a route without `security` is for the signed-in app only.

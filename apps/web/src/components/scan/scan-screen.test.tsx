@@ -1,5 +1,5 @@
 /**
- * Scan, the carrying tray and the box check (plan T26's test list): every outcome online and its
+ * Scan, the carrying tray and the box check: every outcome online and its
  * offline variant, the same "Not in your Kept" for a server miss and for an offline miss checked
  * once online, the claim race naming the other box, the tray surviving a reload, the box check's
  * "found 2 of 3" split preview, "Type the code" by keyboard, and the code left to right in Arabic.

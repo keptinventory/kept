@@ -1,5 +1,5 @@
 /**
- * The CSV import stepper (T30; D73; screens §6): Arabic headers are mapped by themselves, the dry
+ * The CSV import stepper (D73): Arabic headers are mapped by themselves, the dry
  * run's reasons are translated from their codes, the report is paged, a 10,001-row file is refused
  * before anything is sent, a member sees only locations they own, and the server's 403, 409 and
  * 413 are explained. A stopped import resumes; a running one can be cancelled.

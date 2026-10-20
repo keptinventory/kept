@@ -1,5 +1,5 @@
 /**
- * Location settings → What to track (screens §5, D61, D113, D191). Preset cards describe
+ * Location settings → What to track (D61, D113, D191). Preset cards describe
  * outcomes; Fine-tune has one switch per module with its dependency shown; AI capture and the
  * assistant follow the provider with a per-location off switch. Before saving, the page lists
  * what turns on and off. Turning a module off hides it and never deletes data (D61).

@@ -4,7 +4,7 @@ import { type TestDb, testDb } from '../../test/db.js';
 import { auditOf, call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { ownerTx } from '../../test/tenancy.js';
 
-// Task 19: memberships (D46, D48, D180) through the front door.
+// Memberships (D46, D48, D180) through the front door.
 
 const DAY = 86_400_000;
 

@@ -5,7 +5,7 @@ import type { KeptApp } from '../http/app.js';
 import { notFound } from '../http/errors.js';
 import { requireScope } from './http.js';
 
-// The signed-in user's devices (task 17): every live session, and revoking one. Sessions are
+// The signed-in user's devices: every live session, and revoking one. Sessions are
 // Better Auth's rows in schema auth, so these read and write through kept_auth; the audit event
 // goes through kept_app like any other.
 
@@ -74,7 +74,7 @@ export async function meSessionRoutes(
         'DELETE FROM auth.session WHERE id = $1 AND user_id = $2',
         [req.params.id, scope.userId],
       );
-      // Someone else's session is as absent as one that never existed (§7.7).
+      // Someone else's session is as absent as one that never existed.
       if (!rowCount) throw notFound();
       await auditAccountEvent(pools.app, scope.userId, {
         action: 'session.revoke',

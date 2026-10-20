@@ -1,6 +1,6 @@
 /**
- * Expiring (plan T23; D141, D172, screens §5 "Expiring: things, documents and warranties by
- * date"): read from the one agenda (`GET /api/v1/agenda`, T13), so what it lists is what Home's
+ * Expiring (D141, D172):
+ * read from the one agenda (`GET /api/v1/agenda`), so what it lists is what Home's
  * rows count. By default it shows warranties (and their registration deadlines), expiring
  * documents and things that expire; Home's overdue and due rows open it with their state and,
  * when schedules or loans are among what they count, those sources too (`f.source`).

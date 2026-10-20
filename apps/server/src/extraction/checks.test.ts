@@ -11,7 +11,7 @@ import {
 } from './checks.js';
 import { PROMPT_VERSIONS, promptFor } from './prompts/index.js';
 
-// T10's code checks (engineering spec §2.1, L57) and the prompts' fixed rules.
+// T10's code checks and the prompts' fixed rules.
 
 const ctx: CheckContext = {
   timezone: 'Africa/Cairo',

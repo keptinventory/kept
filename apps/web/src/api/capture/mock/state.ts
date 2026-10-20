@@ -4,7 +4,7 @@
  * (api/inventory/mock), whose things and places it points at by id: inbox items and batches are
  * serialised from the live inventory, so a trashed or renamed thing shows up as it is now.
  *
- * What the fixtures hold (plan T3): an Arabic household (بيت العائلة) with its own capture batch
+ * What the fixtures hold: an Arabic household (بيت العائلة) with its own capture batch
  * and receipt; two capture batches; one inbox item of each kind; blank labels; and AI "paused
  * until" the 1st of next month in Home. Test and demo data only.
  *
@@ -109,9 +109,9 @@ export type CaptureState = {
   imports: ImportRun[];
   /** Account templates, with the account that owns them. */
   templates: (AccountTemplate & { accountId: string })[];
-  /** Per thing: its undoable events (T20). */
+  /** Per thing: its undoable events. */
   undoable: Record<string, UndoableEvent[]>;
-  /** `sync_ops` by idempotency key: a replay answers the stored result (T14). */
+  /** `sync_ops` by idempotency key: a replay answers the stored result. */
   syncOps: Record<string, SyncOpResult>;
   /** `instance_settings.barcode_lookup` (D126): off by default. */
   barcodeLookup: boolean;
@@ -137,7 +137,7 @@ export const CAPTURE_IDS = {
     receipt: cid(16),
     syncDrop: cid(17),
     arDraft: cid(18),
-    // Saturday's capture on Garage › Shelves (T27).
+    // Saturday's capture on Garage › Shelves.
     driver: cid(131),
     cord: cid(132),
     extinguisher: cid(133),
@@ -192,12 +192,12 @@ export const BLANK_CODES = ['B7NK4X', 'C3QM8R', 'D9TW2P'] as const;
 export const CLAIMED_CODE = 'F4HX7N';
 /**
  * Homebox asset IDs (D146): one on the drill in Garage, and one that two imported collections
- * both used, on Box 3 in Home and the HDMI cable in بيت العائلة (the collection picker, T26).
+ * both used, on Box 3 in Home and the HDMI cable in بيت العائلة (the collection picker).
  */
 export const HOMEBOX_ASSET = { unique: '000-014', ambiguous: '000-021' } as const;
 
 const ago = (hours: number) => new Date(Date.now() - hours * 3_600_000).toISOString();
-/** 00:00 UTC on the 1st of next month: when a monthly cap's pause ends (§7.15). */
+/** 00:00 UTC on the 1st of next month: when a monthly cap's pause ends. */
 export function firstOfNextMonth(from = new Date()): string {
   return new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth() + 1, 1)).toISOString();
 }
@@ -205,7 +205,7 @@ export function firstOfNextMonth(from = new Date()): string {
 /**
  * The demo as the docs site's screenshots show it (`?demo=…&showcase=1`, src/demo.ts): Home's
  * monthly AI cap is 37% used, not reached, so no screen shows "AI paused". The fixtures above keep
- * the pause on purpose (plan T3: the paused banner, `ai_paused` and the Resume flow are tested
+ * the pause on purpose (the paused banner, `ai_paused` and the Resume flow are tested
  * against it); only the demo installer calls this, never a test.
  *
  * It does what the fixtures would hold had the cap not been reached: each paused cap is active at
@@ -736,7 +736,7 @@ export function captureFixtures(meId: string): CaptureState {
         providerKind: 'openai_compatible',
         model: 'qwen2.5vl:7b',
         location: { id: L.personal, name: 'Personal' },
-        // The instance key's label is '' (T9); the web says "This server".
+        // The instance key's label is ''; the web says "This server".
         paidBy: { scope: 'instance', label: '', fellBack: true },
         tokens: { estimate: 2600, input: 1450, output: 220, reasoning: null, cached: null },
       }),

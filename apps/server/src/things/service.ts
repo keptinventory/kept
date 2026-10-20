@@ -58,11 +58,11 @@ import {
 } from './validate.js';
 import { linkViewOf, rowsOf, type ThingRow, type ThingView, viewOf } from './view.js';
 
-// Things core (plan T14; D10, D40, D45, D76, D92, D119, D120, D156, D158, D172, D183; engineering
-// spec §7.7, §7.13). Every function runs in the request's scoped kept_app transaction: RLS decides
+// Things core (D10, D40, D45, D76, D92, D119, D120, D156, D158, D172, D183).
+// Every function runs in the request's scoped kept_app transaction: RLS decides
 // what exists (a 404 otherwise), can() what the caller's role may do (a 403), and each write and
-// its audit rows commit together. Moves (T15), meters and readings (T16), files (T17) and secret
-// values (T19) have their own modules; this one leaves them seams:
+// its audit rows commit together. Moves, meters and readings, files and secret
+// values have their own modules; this one leaves them seams:
 // - `liveThing()`, `writableThing()` and `requireRole()` for any route addressed by a thing id;
 // - `targetOf()` resolves a MoveTarget within one location;
 // - `copyTags()`, `allocateShortId()` (places/short-id.ts) and `viewOf()`/`rowsOf()` (view.ts).
@@ -255,7 +255,7 @@ async function classesFor(
 }
 
 /** A thing whose name shows in other things' breadcrumbs and search documents: renaming it
- * leaves those stale until the location is reindexed (T20). */
+ * leaves those stale until the location is reindexed. */
 async function holdsThings(client: pg.ClientBase, thingId: string): Promise<boolean> {
   const { rows } = await client.query<{ holds: boolean }>(
     `SELECT EXISTS (SELECT 1 FROM public.things c WHERE c.container_id = $1) AS holds`,
@@ -296,9 +296,9 @@ export async function createThing(ctx: Ctx, body: CreateBody): Promise<ThingView
 
 /**
  * What step 3's other ways in add to a create, which the things route never sends. Capture
- * (capture/service.ts, T13): an unnamed draft (D18, D19: `name` null only while `review_state =
+ * (capture/service.ts): an unnamed draft (D18, D19: `name` null only while `review_state =
  * 'draft'`), the capture session's batch, the fields' provenance, and the one audit event the
- * capture writes in place of `thing.create`, undoable (Q23). CSV import (imports/job.ts, T18):
+ * capture writes in place of `thing.create`, undoable. CSV import (imports/job.ts):
  * `created_via`.
  */
 export type CaptureExtras = {
@@ -307,7 +307,7 @@ export type CaptureExtras = {
   createdVia?: 'app' | 'import';
   captureBatchId?: string;
   fieldStatus?: Record<string, unknown>;
-  /** The caller checked the client id already (a sync op's 90-day window, Q2). */
+  /** The caller checked the client id already (a sync op's 90-day window). */
   idChecked?: boolean;
   audit?: { action: AuditAction; after?: Record<string, unknown>; undoableUntil?: Date };
 };
@@ -471,7 +471,7 @@ export async function insertThing(
     ...(extras.audit?.undoableUntil ? { undoableUntil: extras.audit.undoableUntil } : {}),
   });
   if (meterEvent) await audited(tx, meterEvent);
-  // Its embedding (step-6 T14, D200): a named thing, in this transaction, debounced per thing. A
+  // Its embedding (D200): a named thing, in this transaction, debounced per thing. A
   // capture's draft waits for its review (the edit re-embeds it) or the hourly backfill.
   if (body.name !== null && !extras.draft) await enqueueEmbed(ctx.jobs, client, id);
   return id;
@@ -506,7 +506,7 @@ async function createDefaultMeter(
 // Update and re-type
 // ---------------------------------------------------------------------------------------------
 
-/** The fields a thing's embedding text is built from (kept.embedding_text, step-6 T14). */
+/** The fields a thing's embedding text is built from (kept.embedding_text). */
 const EMBED_FIELDS = ['name', 'aliases', 'brandId', 'model', 'notes'] as const;
 
 const COLUMN_OF: Partial<Record<keyof UpdateBody, string>> = {
@@ -570,7 +570,7 @@ function retypeCustom(
 }
 
 /**
- * What the inbox (T15) adds to an edit: the review's own columns, written in the same UPDATE and
+ * What the inbox adds to an edit: the review's own columns, written in the same UPDATE and
  * the same audit event (so undoing the event puts a draft back as a draft), and whether the
  * event is undoable on its own (a bulk action's per-thing events are not: its one bulk event is).
  */
@@ -692,7 +692,7 @@ export async function writeThingUpdate(
   if (before.name !== after.name && (await holdsThings(client, id))) {
     await enqueueReindex(ctx.jobs, client, thing.location_id);
   }
-  // A change to what it is embedded from (embedText's fields) re-embeds it (step-6 T14, D200);
+  // A change to what it is embedded from (embedText's fields) re-embeds it (D200);
   // a move or a renamed place leaves the vector stale for the hourly backfill.
   if (typeChanged || EMBED_FIELDS.some((k) => body[k] !== undefined)) {
     await enqueueEmbed(ctx.jobs, client, id);
@@ -1001,7 +1001,7 @@ const COPIED = `type_id, name, brand_id, model, barcode, colour, condition, note
                 provenance_notes, custom, archived_custom`;
 
 /** POST /api/v1/things/:id/duplicate → 201 ThingView: a new thing in the same place, with no
- * serial, no purchase link, its own short ID, in use, seen now (Q6: step 2's "template"). */
+ * serial, no purchase link, its own short ID, in use, seen now (step 2's "template"). */
 export async function duplicateThing(
   ctx: Ctx,
   id: string,
@@ -1060,7 +1060,7 @@ export async function duplicateThing(
 }
 
 /**
- * POST /api/v1/things/:id/split (D10, §1.4): part of the quantity becomes a new thing with its
+ * POST /api/v1/things/:id/split (D10): part of the quantity becomes a new thing with its
  * own history and short ID, `split_from_id` pointing back and the same purchase line. Refused for
  * anything counted one by one (serialized, metered, with a meter). `to` puts the new part
  * somewhere else in the same location; across locations, T15's move splits first.
@@ -1205,7 +1205,7 @@ export async function removeLink(ctx: Ctx, linkId: string): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Convert to a place (Q14: same id)
+// Convert to a place (same id)
 // ---------------------------------------------------------------------------------------------
 
 /** What a thing would lose by becoming a place: a place has none of these (security review #23;
@@ -1240,7 +1240,7 @@ async function conversionLosses(client: pg.ClientBase, id: string): Promise<stri
 }
 
 /**
- * POST /api/v1/things/:id/convert-to-place (If-Match) → {placeId} (Q14: the same id). The thing's
+ * POST /api/v1/things/:id/convert-to-place (If-Match) → {placeId} (the same id). The thing's
  * row is deleted, so this is for owners and admins (things.delete-permanently, security review
  * #23), and refused (409 `conflict`, `reason: 'discards'`, `discards: [...]`) while the thing
  * carries a record a place can't hold, unless the body says `discard: true`. Audited as
@@ -1390,7 +1390,7 @@ export async function thingListWhere(
                        WHERE g.thing_id = t.id AND g.tag_id = ANY (${ids}))`,
   );
   if (q.vendorId) {
-    // Through the purchase line (T28): purchases the caller can see.
+    // Through the purchase line: purchases the caller can see.
     where.push(`t.purchase_line_id IN (
       SELECT pl.id FROM public.purchase_lines pl JOIN public.purchases pu ON pu.id = pl.purchase_id
        WHERE pu.vendor_id = ${p(q.vendorId)}::uuid)`);
@@ -1407,7 +1407,7 @@ export async function thingListWhere(
     where.push(`'consumable' = ANY (kept.type_capabilities(t.type_id))`);
   }
   if (q.importRunId) {
-    // "See what was imported" (step-3 carry-over, step-7 T16): the things a run recorded in
+    // "See what was imported": the things a run recorded in
     // import_source_ids. That table is for owners and admins (0038): anyone else, and a run of
     // a location the caller can't administer, matches nothing.
     where.push(`t.id IN (SELECT s.entity_id FROM public.import_source_ids s

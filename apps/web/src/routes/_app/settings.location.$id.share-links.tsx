@@ -1,5 +1,5 @@
 /**
- * Location settings → Share links (1.5, D233; screens §5 Share links): the location's read-only
+ * Location settings → Share links (1.5, D233): the location's read-only
  * links, their state and views, Preview as recipient, and Revoke. Owners and admins only (the tab
  * is hidden for others and in Personal; the frame says so if they come by link). Its chunk loads
  * on demand (vite.config.ts); its error screen stays precached, so offline it says "Needs a

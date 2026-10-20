@@ -5,9 +5,9 @@ import { PassThrough, type Readable, Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import yazl from 'yazl';
 
-// The one archive writer (plan T7; spike Z1): an export, or anything else Kept hands out as a
+// The one archive writer: an export, or anything else Kept hands out as a
 // ZIP, streamed through yazl to a temp file the caller owns (KEPT_DATA_DIR/tmp), and then
-// `put()` into the BlobStore by the caller. The spike wrote 2 GiB in 29 MiB of RSS and 4.1 GiB
+// `put()` into the BlobStore by the caller. A trial run wrote 2 GiB in 29 MiB of RSS and 4.1 GiB
 // (ZIP64) in 41 MiB this way.
 //
 // - Names are the caller's fixed ones (`manifest.json`, `data/things.ndjson`,

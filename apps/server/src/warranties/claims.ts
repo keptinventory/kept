@@ -30,7 +30,7 @@ import {
   warrantyState,
 } from './view.js';
 
-// Claims and repairs (step-4 plan T9; D54, D158, D195; Q18). Module `warranties`.
+// Claims and repairs (D54, D158, D195). Module `warranties`.
 //
 // - Read wherever the thing is seen; the cost and covered amount through the caller's gate.
 // - Opened and changed with `schedules-claims.manage` (members and up). A service centre named by
@@ -40,7 +40,7 @@ import {
 //   in_repair), one claim at a time per thing: a second is 409 `thing_in_repair`.
 // - Status moves by @kept/shared CLAIM_TRANSITIONS, else 409 `invalid_transition`; closing
 //   (resolved, rejected) sets `closedOn`, today in the location's zone unless given. A closed
-//   claim reopens only through undo (Q18).
+//   claim reopens only through undo.
 // - Amounts are money: writing one (or the currency) where the gate hides money is 409
 //   `module_off`, as for purchases; each needs a currency (claims_money_chk).
 // - Audited on the thing's timeline: `claim.status` when the status changed, else `claim.update`;
@@ -167,7 +167,7 @@ export async function listClaims(
   return { items: await viewsOf(ctx, gate, rows) };
 }
 
-/** The longest active warranty and the brand's contacts (screens §5: a claim prefills the
+/** The longest active warranty and the brand's contacts (a claim prefills the
  * longest active warranty). */
 export async function claimPrefill(client: pg.ClientBase, thingId: string): Promise<ClaimPrefill> {
   const thing = await liveThing(client, thingId);

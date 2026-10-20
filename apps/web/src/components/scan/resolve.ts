@@ -1,12 +1,12 @@
 /**
- * What a scan means (D137's six outcomes, engineering spec §2.4; plan T26). Every way in (the
+ * What a scan means (D137's six outcomes). Every way in (the
  * scanner, "Type the code", a `/l/<code>` link, the box check's "Found something else") reads
  * through `resolveScan`:
  *
  * 1. `parseScan` classifies the text; the host of a Kept link is ignored (D120).
  * 2. **The phone first.** Each `LocalResolver` looks in the offline store in turn; the first
  *    answer wins. This is how a scan works offline, and it is instant online. The list is open:
- *    own codes and CSV old codes (D208, plan T17a) are one more resolver, `ownCodeResolver`,
+ *    own codes and CSV old codes (D208) are one more resolver, `ownCodeResolver`,
  *    which reads the text as typed.
  * 3. **Then the server**, when online: `POST /scan/resolve`. `not_in_your_kept` is the same
  *    answer for a missing, forbidden or retired code, and another household's blank.
@@ -39,7 +39,7 @@ export type LegacyCandidate = {
   id: string;
   name: string;
   locationName: string;
-  /** Carried by the phone's answers and the server's alike (T17). */
+  /** Carried by the phone's answers and the server's alike. */
   locationId?: string;
 };
 
@@ -169,7 +169,7 @@ async function fromLegacyHits(
 }
 
 /**
- * The household's own codes and a CSV import's old codes (D208, T18), and a Homebox asset ID
+ * The household's own codes and a CSV import's old codes (D208), and a Homebox asset ID
  * typed by hand, looked up as typed (upper case, Eastern digits folded: `storedCodeOf`), whatever
  * kind the text parsed as, after the short IDs: the server's order (scan/resolve.ts `anyLegacy`).
  */
@@ -328,7 +328,7 @@ export async function openSearch(
 /**
  * Opening a thing by its label marks it seen (D40): online, `POST /things/:id/seen` (audited);
  * offline, or when that call can't reach the server, a `mark_seen` op in the queue. A viewer
- * only looks (screens §5, "A viewer's thing detail": no Mark seen): nothing is sent or queued,
+ * only looks ("A viewer's thing detail": no Mark seen): nothing is sent or queued,
  * where it was a 403 online and a dropped change at the next sync offline.
  */
 export async function markSeen(

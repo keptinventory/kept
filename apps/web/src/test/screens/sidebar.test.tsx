@@ -170,11 +170,11 @@ describe('the rail', () => {
     media(TABLET);
     const { user } = await renderApp('/');
     await findHeading('Home');
-    // Labels shows once the locations say the module is on somewhere (screens §1), and the
-    // Inbox's count once Home's counts arrive (T22).
+    // Labels shows once the locations say the module is on somewhere, and the
+    // Inbox's count once Home's counts arrive.
     await within(mainNav()).findByRole('link', { name: 'Labels' });
     await within(mainNav()).findByRole('link', { name: /^Inbox \d+$/ });
-    // And the notifications' unread count (T24).
+    // And the notifications' unread count.
     await within(mainNav()).findByRole('link', { name: /^Notifications \d+$/ });
     const links = within(mainNav()).getAllByRole('link');
     expect(links.map((l) => l.textContent)).toEqual([
@@ -196,7 +196,7 @@ describe('the rail', () => {
     ]);
     const locations = screen.getByRole('navigation', { name: 'Locations' });
     expect(await within(locations).findByRole('link', { name: 'Garage' })).toBeInTheDocument();
-    // On the footer, the rail's last entry is a full 44 px target (UI review steps 6–8, L17).
+    // On the footer, the rail's last entry is a full 44 px target (UI review steps 6–8).
     expect(within(locations).getByRole('link', { name: 'New location' })).toHaveClass(
       'h-11',
       'min-h-11',
@@ -212,7 +212,7 @@ describe('the rail', () => {
     expect(tip).toHaveTextContent('Inbox');
     expect(inbox).toHaveAttribute('aria-describedby', tip.id);
 
-    // Vehicles is a page since step 5 (plan T3): a plain link with its name in the tooltip.
+    // Vehicles is a page since step 5: a plain link with its name in the tooltip.
     await user.tab();
     const vehicles = within(mainNav()).getByRole('link', { name: 'Vehicles' });
     expect(vehicles).toHaveFocus();
@@ -232,8 +232,8 @@ describe('the rail', () => {
     media(TABLET);
     const { user } = await renderApp('/');
     await findHeading('Home');
-    // Let the entries settle first: Labels arrives with the locations (screens §1), the Inbox's
-    // count with Home's counts (T22), the notifications' with their own (T24).
+    // Let the entries settle first: Labels arrives with the locations, the Inbox's
+    // count with Home's counts, the notifications' with their own.
     await within(mainNav()).findByRole('link', { name: 'Labels' });
     await within(mainNav()).findByRole('link', { name: /^Inbox \d+$/ });
     await within(mainNav()).findByRole('link', { name: /^Notifications \d+$/ });

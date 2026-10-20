@@ -9,7 +9,7 @@ import type { InventoryDeps } from '../../http/routes.js';
 import { ArchiveImportRunView, archiveRunView, readArchiveRun } from '../archive.js';
 import { PASSPHRASE_TRIES_PER_HOUR, PassphraseBody, unlockSecrets } from './secrets.js';
 
-// The Kept import's own route (step-7 plan T14, Q7), registered by imports/archive.ts:
+// The Kept import's own route, registered by imports/archive.ts:
 //
 // POST /api/v1/imports/:id/passphrase {passphrase} → ImportRun (`secrets.unlocked`)
 //   400 `passphrase_wrong` (checked by decrypting the export's secrets.json); 429 past 10 tries an

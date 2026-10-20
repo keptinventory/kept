@@ -11,7 +11,7 @@ import { insertThing } from '../things/service.js';
 import { rowsOf, type ThingRow, ThingRowSchema } from '../things/view.js';
 import { type ActionResult, type Ctx, openItem, resolveItem } from './service.js';
 
-// Receipts in the inbox (plan T15; D11, D19, D175 "link a receipt to an existing thing"; the J2
+// Receipts in the inbox (D11, D19, D175 "link a receipt to an existing thing"; the J2
 // order: the photo came first). The web contract is apps/web/src/api/capture/types.ts:
 // InboxCandidates, InboxReceiptBody.
 //
@@ -20,7 +20,7 @@ import { type ActionResult, type Ctx, openItem, resolveItem } from './service.js
 //   names first (`match: 'brand_model'`), then by how close their name is (`'name'`). Without
 //   `line`, the receipt's lines together; for any other kind of item, its thing's words. The text
 //   match goes through kept.search_thing_ids() (0030): `@@` and `%` aren't leakproof, so under
-//   the policy they would read every visible thing (§7.2); the door uses the indexes and applies
+//   the policy they would read every visible thing; the door uses the indexes and applies
 //   the caller's visibility itself, and the rows are then read by id through the policies.
 // POST /api/v1/inbox/:id/receipt (If-Match) → {}
 //   Confirms the draft purchase: the vendor (an existing one, or made inline, D11), the date, and

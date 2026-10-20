@@ -1,5 +1,5 @@
 /**
- * What the wrapper hands driver.js (spike V18): physical sides mirrored in Arabic, escaped text,
+ * What the wrapper hands driver.js: physical sides mirrored in Arabic, escaped text,
  * reduced motion honoured, and the tour's arrows following the reading direction.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';

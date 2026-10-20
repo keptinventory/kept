@@ -1,5 +1,5 @@
 /**
- * Mock handlers for Settings → Connections (step-6 plan T10, T12, T15; for T21–T23 to build on).
+ * Mock handlers for Settings → Connections (for T21–T23 to build on).
  * Tokens and grants are the caller's own; a viewer's token is read only, and a write token across
  * more than one location first answers D179's warning. A secret is in the create or rotate answer
  * only. Webhooks are for the location's owner and admins (`webhooks.manage`); their PATCH takes
@@ -272,7 +272,7 @@ export function connectionsMockRoutes(state: MockState): MockRoute[] {
       return { undoOf: c.id, eventId: newId() };
     }),
 
-    // ----- the instance's sign-in, connectors and embeddings (T22, T24) -----
+    // ----- the instance's sign-in, connectors and embeddings ----------------
     ...instanceMockRoutes(state),
   ];
 }

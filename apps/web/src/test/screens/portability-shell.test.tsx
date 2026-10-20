@@ -1,5 +1,5 @@
 /**
- * Step 7's frame (plan T3): Consumables in the navigation while the module is on in any location,
+ * Step 7's frame: Consumables in the navigation while the module is on in any location,
  * Export beside Import in Settings, and the step-7 routes answering (stubs until Phase C builds
  * them), the old Homebox label paths included.
  */

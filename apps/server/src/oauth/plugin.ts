@@ -4,19 +4,19 @@ import type { ClientMetadataResourceFetch } from '@better-auth/oauth-provider';
 import { OAUTH_SCOPES } from '@kept/shared';
 import { jwt } from 'better-auth/plugins/jwt';
 
-// Kept as an OAuth 2.1 authorization server for MCP connectors (step-6 plan T12; D93, D125, V15;
-// spike S6.2): Better Auth's `jwt()`, `mcp()` (which *is* its OAuth provider, bound to the
+// Kept as an OAuth 2.1 authorization server for MCP connectors (D93, D125):
+// Better Auth's `jwt()`, `mcp()` (which *is* its OAuth provider, bound to the
 // `/mcp` resource) and `cimd()` (Client ID Metadata Documents, the MCP 2026-07-28 profile).
 //
 // - On only with an https public URL (D63, D125: a connector needs one); http is allowed on a
 //   loopback host for local development and tests, as the mcp plugin itself allows.
-// - Dynamic Client Registration stays off (Q8; the MCP spec marks it deprecated). A client that
-//   connects only with DCR is the maintainer's decision (V15).
-// - Access tokens are JWTs for `<public URL>/mcp`, an hour long (Q7). Kept's grant row
+// - Dynamic Client Registration stays off (the MCP spec marks it deprecated). A client that
+//   connects only with DCR is the maintainer's decision.
+// - Access tokens are JWTs for `<public URL>/mcp`, an hour long. Kept's grant row
 //   (api_tokens, kind 'oauth') holds the scope and locations, checked on every call, so revoking
 //   in Connections works at once (oauth/verify.ts).
 // - The jwt plugin's own session JWT is switched off: no `set-auth-jwt` header, and its `/token`
-//   endpoint is in auth.ts's DISABLED_AUTH_PATHS (S6.2 §6).
+//   endpoint is in auth.ts's DISABLED_AUTH_PATHS.
 
 export const OAUTH_ACCESS_TOKEN_SECONDS = 3600;
 
@@ -66,7 +66,7 @@ export function oauthPlugins(opts: OAuthServerOptions) {
   ];
 }
 
-/** Admin → Status's connectors row (T22, D125): the MCP URL, and whether OAuth connectors can be
+/** Admin → Status's connectors row (D125): the MCP URL, and whether OAuth connectors can be
  * offered (an https public URL) or only personal tokens work. */
 export function connectorsStatus(publicUrl: string): {
   mcpUrl: string;

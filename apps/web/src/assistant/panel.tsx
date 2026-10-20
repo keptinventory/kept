@@ -1,5 +1,5 @@
 /**
- * The assistant docked beside the page, from 768 px (D24; screens §1, frame 04 · 6): a side panel
+ * The assistant docked beside the page, from 768 px (D24; frame 04 · 6): a side panel
  * at the inline end that stays open as you move between pages and knows the page you're on
  * ("About Garage", removable). Threads, a new thread, and Close. It's a complementary landmark,
  * not a modal: the page stays usable beside it. The icon rail's collapse doesn't hide it (D198).

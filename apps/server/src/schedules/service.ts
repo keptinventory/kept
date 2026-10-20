@@ -29,19 +29,19 @@ import {
   scheduleViewColumns,
 } from './view.js';
 
-// Schedules on things and places (plan T11; D29, D39, D52, D146, D162; Q2, Q9, Q28). Every
+// Schedules on things and places (D29, D39, D52, D146, D162). Every
 // function runs in the request's scoped kept_app transaction: RLS decides what exists (a 404
-// otherwise), the Schedules module whether the location has them (404 on a read, 409 on a write,
-// §7.6), and can() what the caller's role may do (`schedules-claims.manage`, a 403).
+// otherwise), the Schedules module whether the location has them (404 on a read, 409 on a write),
+// and can() what the caller's role may do (`schedules-claims.manage`, a 403).
 //
 // - A schedule is "every N months and/or every N units of the thing's meter, whichever first", or
 //   once on a date. Its anchor is kept in SQL (0053: kept.recompute_schedule_anchor()): the
 //   latest completing service, else the base it was made with (`anchorOn`/`anchorValue` here,
 //   `base_on`/`base_value` in the table). No request writes the anchor itself.
-// - Snooze replaces the due point until the next completion; skip moves it one interval on
-//   (Q28); completing clears both (the completion trigger, 0053).
+// - Snooze replaces the due point until the next completion; skip moves it one interval on;
+//   completing clears both (the completion trigger, 0053).
 // - `next` is SQL's (kept.schedule_next(), the agenda view's function), never computed here.
-// - Deletes are hard (Q25): the event holds the whole row, and undo puts it back with its id.
+// - Deletes are hard: the event holds the whole row, and undo puts it back with its id.
 
 export type Ctx = {
   tx: Tx;
@@ -55,7 +55,7 @@ export type Ctx = {
 const actor = (scope: Scope) => actorOf(scope);
 const MODULE: ModuleId = 'schedules';
 
-/** 404 `module_off` on a read, 409 on a write, where the location has `module` off (§7.6). */
+/** 404 `module_off` on a read, 409 on a write, where the location has `module` off. */
 export async function requireModule(
   ctx: Pick<Ctx, 'tx' | 'scope'>,
   locationId: string,
@@ -68,7 +68,7 @@ export async function requireModule(
   }
 }
 
-/** Today in the location's zone, `YYYY-MM-DD` (§7.13: "today" is the location's). */
+/** Today in the location's zone, `YYYY-MM-DD` ("today" is the location's). */
 export async function todayIn(client: pg.ClientBase, locationId: string): Promise<string> {
   const { rows } = await client.query<{ today: string }>(
     `SELECT (now() AT TIME ZONE l.timezone)::date::text AS today
@@ -199,7 +199,7 @@ export type RuleInput = {
 
 /**
  * A rule as the table's checks want it, said as a 400 with the field before the database does:
- * an interval in months or units, or a date (screens §7: `schedule_interval_required`); a unit
+ * an interval in months or units, or a date (`schedule_interval_required`); a unit
  * interval needs a meter of the thing itself; a date is only for a one-off.
  */
 async function checkRule(
@@ -275,8 +275,8 @@ const LIST_ROWS = `(
 
 /**
  * GET /api/v1/schedules: the Schedules screen, across every location the caller sees with the
- * module on (screens §1), overdue first, then due, then upcoming, soonest first, then the done
- * one-offs (D247). It reads the agenda view (plan Q24), so its rows and counts are the ones Home
+ * module on, overdue first, then due, then upcoming, soonest first, then the done
+ * one-offs (D247). It reads the agenda view, so its rows and counts are the ones Home
  * and the reminder scan see: an inactive schedule, a trashed or ended subject, or the module off
  * leaves it out.
  */
@@ -508,7 +508,7 @@ export async function updateSchedule(
   return scheduleView(client, id);
 }
 
-/** DELETE /api/v1/schedules/:id (If-Match) → 204. Hard (Q25); undoable (the row comes back). */
+/** DELETE /api/v1/schedules/:id (If-Match) → 204. Hard; undoable (the row comes back). */
 export async function deleteSchedule(ctx: Ctx, id: string, expected: number): Promise<void> {
   const before = await writableSchedule(ctx, id);
   await requireVersion(ctx.client, before, expected, []);
@@ -543,8 +543,8 @@ export type SnoozeInput = { untilDate: string } | { untilValue: string } | Recor
 
 /**
  * POST /api/v1/schedules/:id/snooze (If-Match) → Schedule: to a date, or to a reading (`{}` on a
- * unit schedule: +10% of the interval past the current due reading, screens §8). The snooze
- * replaces the due point until the next completion (Q28). Audited `schedule.snooze`, undoable.
+ * unit schedule: +10% of the interval past the current due reading). The snooze
+ * replaces the due point until the next completion. Audited `schedule.snooze`, undoable.
  */
 export async function snoozeSchedule(
   ctx: Ctx,
@@ -604,7 +604,7 @@ export async function unsnoozeSchedule(ctx: Ctx, id: string, expected: number): 
 
 /**
  * POST /api/v1/schedules/:id/skip (If-Match) → Schedule: "skip once" moves the next due point one
- * interval on without a service (Q28). A one-off has no interval to skip (400). Audited
+ * interval on without a service. A one-off has no interval to skip (400). Audited
  * `schedule.skip`, undoable.
  */
 export async function skipSchedule(ctx: Ctx, id: string, expected: number): Promise<Schedule> {

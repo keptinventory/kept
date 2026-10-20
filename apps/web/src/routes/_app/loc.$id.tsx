@@ -1,12 +1,12 @@
 /**
- * A location's page (screens §5 Location, frames 02 · 1–2): what it is, "Add here" (Thing · Box /
+ * A location's page (frames 02 · 1–2): what it is, "Add here" (Thing · Box /
  * container · Room or spot), the Unplaced area with Sort them, then its places and every thing in
- * it under the list standard, its Paperwork (D155, plan T23), and the settings links and Leave (D180). Personal has no Members,
+ * it under the list standard, its Paperwork (D155), and the settings links and Leave (D180). Personal has no Members,
  * Invite or Leave (D114). "Print inventory" (D201) sits under the location's name, with the
- * insurance report where money shows, Incidents for owners and admins (D158, T26), and Condition
+ * insurance report where money shows, Incidents for owners and admins (D158), and Condition
  * reports in any location but Personal (D235).
  *
- * Controls follow screens §3: what the role can't do is hidden (a viewer browses only).
+ * Controls follow the role rules: what the role can't do is hidden (a viewer browses only).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { createFileRoute, Link } from '@tanstack/react-router';
@@ -165,7 +165,7 @@ function LocationBody({ location }: { location: LocationDetail }) {
               <Trans>Print labels</Trans>
             </Link>
           ) : null}
-          {/* D158 (T26): the insurance report where money shows; incidents for their managers. */}
+          {/* D158: the insurance report where money shows; incidents for their managers. */}
           {access.money ? (
             <Link
               to="/reports/$kind"

@@ -1,5 +1,5 @@
 /**
- * A service invoice (step 5, T10; screens §5 "Log a service"; D19, D131, D136, D189; plan Q12):
+ * A service invoice (D19, D131, D136, D189):
  * RECEIPT's fields, and each line's kind (step 4's `service_lines.kind`: part, labour, fluid,
  * other). Not a capture mode: an invoice attached to a draft service record is read on the
  * RECEIPT path (ledger task `extract_receipt`, RECEIPT's output allowance, the wire schema of

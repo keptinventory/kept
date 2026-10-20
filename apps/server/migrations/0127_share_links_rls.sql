@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put your code below! --
--- 1.5, D233: read-only share links (D39 item 7, D72, D116, D180; engineering spec §1, §3.2,
--- §3.3), 0126's table.
+-- 1.5, D233: read-only share links (D39 item 7, D72, D116, D180),
+-- 0126's table.
 --   1. share_links: its location's owners and admins read, make and revoke them
 --      (share-links.create); never through a token, never in a Personal location (D114), never
 --      for a box or place of another location, at most 100 live ones a location

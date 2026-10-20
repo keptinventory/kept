@@ -1,7 +1,7 @@
 /**
- * The error screen of the notification routes (plan T24, T25), and of step 4's lists (T29). Their component chunks are loaded
+ * The error screen of the notification routes, and of step 4's lists. Their component chunks are loaded
  * on demand from assets/household/ (vite.config.ts): out of the precache, cached by the service
- * worker once used. Offline before that first load the chunk can't arrive, and the §3 reason says
+ * worker once used. Offline before that first load the chunk can't arrive, and the reason says
  * so: "Needs a connection". Any other error is the usual error state.
  */
 import { useLingui } from '@lingui/react/macro';

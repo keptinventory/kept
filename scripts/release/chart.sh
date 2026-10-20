@@ -1,9 +1,9 @@
 # shellcheck shell=bash
 # Stage 7 of scripts/release.sh (sourced): the chart as an OCI artifact beside the image (D87),
-# as version X.Y.Z with appVersion X.Y.Z (the chart's version is the release's, plan Q17: set here
+# as version X.Y.Z with appVersion X.Y.Z (the chart's version is the release's: set here
 # at package time; the committed Chart.yaml stays 0.0.0-dev and is never edited by a release),
 # and the image pinned by the signed digest, signed by its PUSHED digest
-# (re-packaging changes the digest: spike H1); an unsigned release (KEPT_RELEASE_UNSIGNED=1)
+# (re-packaging changes the digest); an unsigned release (KEPT_RELEASE_UNSIGNED=1)
 # pushes it unsigned. Sets chart_ref, chart_digest, chart_version.
 
 release_chart() {

@@ -20,9 +20,9 @@ import {
 
 // Step 5, T8 through the front door, as the web calls it (apps/web/src/api/vehicles/types.ts:
 // ThingMeterV5, UpdateMeterBodyV5, CreateReadingBodyV5, ReadingRow, ReadingsParams, ProofsPage):
-// "It's right" for a jump (Q9), proof photos on their reading (Q10, D195) and the proof strip,
-// owned readings (Q11), reading undo (D150), usage estimates (Q8) and the stale-reading nudge's
-// setting (Q19).
+// "It's right" for a jump, proof photos on their reading (D195) and the proof strip,
+// owned readings, reading undo (D150), usage estimates and the stale-reading nudge's
+// setting.
 
 let db: TestDb;
 let t: TestApp;
@@ -259,7 +259,7 @@ describe('owned readings (Q11)', () => {
 describe('proofs and the readings list', () => {
   it('lists the strip newest first: typed, synced and captured proofs on readings, and step 3 proofs on the thing', async () => {
     const car = await newCar();
-    // A step-3 proof, still on the thing (Q10).
+    // A step-3 proof, still on the thing.
     const old = await photo(ibrahim);
     await own(
       db,

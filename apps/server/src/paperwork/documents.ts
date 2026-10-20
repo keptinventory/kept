@@ -23,18 +23,18 @@ import {
   readDocumentRow,
 } from './view.js';
 
-// Expiring documents (plan T12; D39, D155, D172; engineering spec §1.6; plan Q5, Q25, Q31): a
+// Expiring documents (D39, D155, D172): a
 // registration, an insurance policy, a lease, on a thing, a place or the location itself, with
-// the date it runs out. The agenda (0053) turns each current one into a reminder (Paperwork's,
-// Q5). Renewing makes a new row and points the old one at it, so the old term stays (D172).
+// the date it runs out. The agenda (0053) turns each current one into a reminder (Paperwork's).
+// Renewing makes a new row and points the old one at it, so the old term stays (D172).
 //
 // Writers are those who may edit things (`things.edit`: members and above); the route gates the
 // Paperwork module (config.module). Every write is audited `document.<verb>` on entity
 // `expiring_document`, with the thing as the event's subject when the document is on one (its
 // history shows it, D45). Updates, deletes and renewals are undoable (undo.ts); a delete is hard
-// (Q25) and its event holds the whole row, its files and the renewals it ended.
+// and its event holds the whole row, its files and the renewals it ended.
 //
-// Step 5 (T12; D26, D52; Q5, step 4's Q5):
+// Step 5 (D26, D52):
 // - a document has an issue date and a cost (`issuedOn`, `cost` + `currency`): a renewal's cost
 //   counts in its issue month on the vehicle's Costs tab (vehicles/costs.ts). The cost is money:
 //   written only where the caller's gate shows it (409 `module_off`), in an enabled currency (the
@@ -60,7 +60,7 @@ const Currency = z
   .regex(/^[A-Za-z]{3}$/)
   .transform((c) => c.toUpperCase());
 
-/** Step 5's fields on a create, an edit and a renewal (Q5). */
+/** Step 5's fields on a create, an edit and a renewal. */
 const CostFields = {
   issuedOn: DateOnly.nullable().optional(),
   cost: Money.nullable().optional(),
@@ -113,12 +113,12 @@ export const DocumentsQuery = z.object({
   subjectId: z.uuid().optional(),
   state: z.enum(DOCUMENT_STATES).optional(),
   includeSuperseded: Flag,
-  /** Step 5 (T12): one thing's documents, a vehicle's Documents tab. */
+  /** One thing's documents, a vehicle's Documents tab. */
   thingId: z.uuid().optional(),
 });
 export type DocumentsQuery = z.infer<typeof DocumentsQuery>;
 
-/** Empty is none; `other` needs a title (Q31: "Building inspection" can't read as "Other"). */
+/** Empty is none; `other` needs a title ("Building inspection" can't read as "Other"). */
 function titleFor(kind: DocumentKind, title: string | null | undefined): string | null {
   const t = title?.trim() ? title.trim() : null;
   if (kind === 'other' && !t) throw invalid('Name a document of kind other (title).');
@@ -168,7 +168,7 @@ export const imageOf = (r: DocumentRow) => ({
 const thingOf = (r: { thing_id: string | null }) => (r.thing_id ? [r.thing_id] : []);
 
 /**
- * The module a document needs (step 4's Q5, step 5's T12): Paperwork, or, for a document on a
+ * The module a document needs: Paperwork, or, for a document on a
  * vehicle, Vehicles. 404 `module_off` to read, 409 to write; a location the caller can't see is a
  * plain 404 (gateFor).
  */
@@ -542,7 +542,7 @@ export async function renewDocument(
   await stale(client, old, expected, ['expiresOn']);
   if (old.superseded_by_id) throw conflict('This was already renewed; renew the current one.');
   const newIdValue = body.id ?? newId();
-  // The new term's own issue date and cost (Q5): what this renewal cost, counted in its month.
+  // The new term's own issue date and cost: what this renewal cost, counted in its month.
   const money = await costFor(
     tx,
     client,

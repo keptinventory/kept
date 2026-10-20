@@ -15,7 +15,7 @@ import {
 } from '../../test/things.js';
 import { AUDIT_EVENT_HEADER } from '../http/write.js';
 
-// T17: the box check (D10, D40, D175; screens §6, §8; Q25), through the front door in the web
+// The box check (D10, D40, D175), through the front door in the web
 // contract's shapes (apps/web/src/api/capture/types.ts `BoxCheckBody`, `BoxCheckResult`).
 
 let db: TestDb;

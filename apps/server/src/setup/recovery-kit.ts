@@ -50,13 +50,13 @@ export async function acknowledgeRecoveryKit(client: pg.ClientBase): Promise<{
   return { acknowledgedAt: at ?? new Date(), first: false };
 }
 
-// The kit's download and staleness (step-8 T9; screens §10: "when backups are configured, the
+// The kit's download and staleness ("when backups are configured, the
 // status page asks again"). Two more instance_settings keys, each a JSON ISO timestamp:
 // - `recovery_kit_downloaded_at`: the last download (web or `kept admin recovery-kit` with the
 //   database), which also counts as the acknowledgement when none exists;
 // - `recovery_kit_stale_since`: when something the kit holds last changed. Set by
 //   markRecoveryKitStale(): `kept admin rotate-key` (a new key, D182), and the backup settings'
-//   PUT (T10). The kit is stale while that is later than the last download.
+//   PUT. The kit is stale while that is later than the last download.
 
 /** The instance_settings key holding the last download's time. */
 export const RECOVERY_KIT_DOWNLOADED_KEY = 'recovery_kit_downloaded_at';

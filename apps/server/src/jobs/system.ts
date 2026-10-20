@@ -37,24 +37,24 @@ import { portabilityJobs } from './portability.js';
 import { step6Jobs } from './step6.js';
 
 export type SystemJobDeps = {
-  /** `app` (kept_app) for tenant jobs that commit their own steps as the sender (the report,
-   * T32); a worker passes all its pools. */
+  /** `app` (kept_app) for tenant jobs that commit their own steps as the sender (the report);
+   * a worker passes all its pools. */
   pools: Pick<Pools, 'system' | 'auth'> & Partial<Pick<Pools, 'app'>>;
   mailer: Mailer;
   /** KEPT_PUBLIC_URL, for the links mailed. */
   publicUrl: string;
   log: { info: (obj: object, msg: string) => void; error: (obj: object, msg: string) => void };
-  /** File storage, for jobs that delete blobs (the purge, T21). Omitted: they skip the work
+  /** File storage, for jobs that delete blobs (the purge). Omitted: they skip the work
    * that would leave blobs behind, and say so in the log. */
   files?: FileStorage | null;
-  /** The nightly backup (step 8, restic). Omitted, or with no target and password in the
+  /** The nightly backup (restic). Omitted, or with no target and password in the
    * settings: the job runs and does nothing, and the status page says "No backup configured". */
   backup?: BackupJobConfig | null;
-  /** Step 3's AI provider layer (ai/routes.ts createAiDeps), for the `extract` job (T10).
+  /** Step 3's AI provider layer (ai/routes.ts createAiDeps), for the `extract` job.
    * Omitted: every extraction it runs ends `no_provider`, and the capture stays a draft (D19). */
   ai?: AiDeps | null;
   /** Sends a tenant job on a handler's own scoped transaction (jobs/boss.ts sendTenantJob): a
-   * paused extraction sent again for when its pause ends (T10). The worker passes its pg-boss's. */
+   * paused extraction sent again for when its pause ends. The worker passes its pg-boss's. */
   sendTenant?: (
     client: pg.ClientBase,
     name: string,
@@ -62,8 +62,8 @@ export type SystemJobDeps = {
     options: { startAfter: Date },
   ) => Promise<void>;
   /** Sends a system job on a handler's own kept_system transaction (jobs/boss.ts sendInTx): the
-   * reminder scan's `reminder-deliver` jobs, in the transaction that writes the delivery (step 4,
-   * T14). The worker passes its pg-boss's. Omitted: deliveries are recorded and nothing sends. */
+   * reminder scan's `reminder-deliver` jobs, in the transaction that writes the delivery.
+   * The worker passes its pg-boss's. Omitted: deliveries are recorded and nothing sends. */
   send?: (
     client: pg.ClientBase,
     name: string,
@@ -75,9 +75,9 @@ export type SystemJobDeps = {
    * reminder scan makes no deliveries for it. Omitted: reminders reach the in-app centre only. */
   channels?: ChannelSenders | null;
   /** The keyring (crypto/keyring.ts), for jobs that open a sealed value: step 4's
-   * `channel-webhook` (a webhook channel's URL and secret, T15). Omitted: that job fails. */
+   * `channel-webhook` (a webhook channel's URL and secret). Omitted: that job fails. */
   secretKeys?: SecretKeys | null;
-  /** Step 8 (T11, D65): the opt-in update check's inputs, KEPT_SOURCE_URL and KEPT_UPDATE_CHECK.
+  /** Step 8 (D65): the opt-in update check's inputs, KEPT_SOURCE_URL and KEPT_UPDATE_CHECK.
    * Omitted: the `update-check` job never asks. */
   updates?: { sourceUrl: string | null; updateCheck: boolean | undefined } | null;
 };
@@ -141,7 +141,7 @@ export async function nightlyBackupTime(
 export function systemJobs(deps: SystemJobDeps): JobDefinition[] {
   return [
     defineJob({
-      // §7.14: auth users with no owner account (a failed or skipped sign-up hook) get one.
+      // Auth users with no owner account (a failed or skipped sign-up hook) get one.
       name: 'repair-orphans',
       kind: 'system',
       schedule: '17 * * * *',
@@ -172,7 +172,7 @@ export function systemJobs(deps: SystemJobDeps): JobDefinition[] {
       },
     }),
     defineJob({
-      // §7.13: next months' audit partitions, daily so a missed night or a long outage over a
+      // Next months' audit partitions, daily so a missed night or a long outage over a
       // month's turn is caught up well before the month starts.
       name: 'audit-partitions',
       kind: 'system',
@@ -184,7 +184,7 @@ export function systemJobs(deps: SystemJobDeps): JobDefinition[] {
       },
     }),
     defineJob({
-      // Rows nothing reads any more (step-1 carry-over; §3.3).
+      // Rows nothing reads any more.
       name: 'prune-stale-rows',
       kind: 'system',
       schedule: '35 3 * * *',
@@ -195,7 +195,7 @@ export function systemJobs(deps: SystemJobDeps): JobDefinition[] {
       },
     }),
     defineJob({
-      // D166, task 25: failed jobs rising, and audit rows in the default partition.
+      // D166: failed jobs rising, and audit rows in the default partition.
       name: 'check-admin-alerts',
       kind: 'system',
       schedule: '*/15 * * * *',
@@ -225,10 +225,10 @@ export function systemJobs(deps: SystemJobDeps): JobDefinition[] {
         await sendInviteMail(deps, data);
       },
     }),
-    // Step 2: files, search and trash (jobs/inventory.ts).
+    // Files, search and trash (jobs/inventory.ts).
     ...inventoryJobs(deps),
     defineJob({
-      // Step 3 (T6, D206): the AI call ledger's partitions ahead, partitions past the retention
+      // Step 3 (D206): the AI call ledger's partitions ahead, partitions past the retention
       // (instance setting ai_ledger_months, 13) rolled up into monthly totals and dropped, and the
       // pacing counters pruned. The ledger holds no prompt or reply, so nothing else to prune.
       name: 'ai-maintenance',
@@ -240,22 +240,22 @@ export function systemJobs(deps: SystemJobDeps): JobDefinition[] {
         deps.log.info(done, 'ai ledger maintained');
       },
     }),
-    // Step 3 (T9): AI cap and rejected-key notices, and the daily pause rollover.
+    // AI cap and rejected-key notices, and the daily pause rollover.
     ...aiJobs(deps),
-    // Step 3: extraction, CSV import and PDF text (jobs/capture.ts).
+    // Extraction, CSV import and PDF text (jobs/capture.ts).
     ...captureJobs(deps),
-    // Step 4: reminders, channels and claim packs (jobs/household.ts).
+    // Reminders, channels and claim packs (jobs/household.ts).
     ...householdJobs(deps),
-    // Step 7: exports, archive imports and their pruning, alias enrichment (jobs/portability.ts).
+    // Exports, archive imports and their pruning, alias enrichment (jobs/portability.ts).
     ...portabilityJobs(deps),
-    // Step 6: the assistant, embeddings and webhooks (jobs/step6.ts).
+    // The assistant, embeddings and webhooks (jobs/step6.ts).
     ...step6Jobs(deps),
-    // Step 8: the operations watch, the backup check and the update check (jobs/operations.ts).
+    // The operations watch, the backup check and the update check (jobs/operations.ts).
     ...operationsJobs(deps),
     defineJob({
-      // Step 8 (T5, D64): the restic snapshot, nightly at KEPT_BACKUP_TIME, and on demand with
+      // Step 8 (D64): the restic snapshot, nightly at KEPT_BACKUP_TIME, and on demand with
       // `{kind: 'manual'}` (Admin → Backups' "Back up now"). Scheduled whether or not backups
-      // are set up; without a target and a password it does nothing (plan Q6). The settings are
+      // are set up; without a target and a password it does nothing. The settings are
       // read at each run; the job's data never holds one.
       name: 'backup',
       kind: 'system',

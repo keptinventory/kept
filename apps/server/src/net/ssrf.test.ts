@@ -42,7 +42,7 @@ describe('isPrivateAddress', () => {
     ['fd12::1', true],
     ['fe80::1', true],
     ['::ffff:10.0.0.1', true],
-    // Spike S6.2 §7's gaps (step 6, the CIMD fetch).
+    // The gaps found in the CIMD fetch.
     ['192.88.99.1', true],
     ['2002:7f00:1::', true],
     ['2001:0:1::1', true],

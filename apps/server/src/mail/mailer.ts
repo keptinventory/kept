@@ -31,7 +31,7 @@ export type MailBody =
       place: string | null;
       attached: boolean;
     }
-  /** An email invite (D33): the link, only ever mailed (task 20). */
+  /** An email invite (D33): the link, only ever mailed. */
   | {
       kind: 'invite';
       to: string;
@@ -68,8 +68,8 @@ export type MailBody =
       /** The alert's latest figures (admin_alerts.payload). */
       details: Record<string, unknown>;
     }
-  // Step 4 (plan T15; mail/messages-notify.ts). A reminder sent at once (an overdue item, D29),
-  // naming the thing, its path, the location and the local date (L113).
+  // Step 4 (mail/messages-notify.ts). A reminder sent at once (an overdue item, D29),
+  // naming the thing, its path, the location and the local date.
   | { kind: 'reminder'; to: string; item: ReminderFacts }
   /** The day's digest (D122): every due and expiring item, all locations, each with its date.
    * `day` is the recipient's local date (YYYY-MM-DD). */
@@ -85,9 +85,9 @@ export type MailBody =
     }
   /** Settings → Me → Notifications → Test, on the email channel. */
   | { kind: 'channel-test'; to: string }
-  /** A webhook channel failed its last attempt (about a day of retries, §2.6). */
+  /** A webhook channel failed its last attempt (about a day of retries). */
   | { kind: 'channel-failing'; to: string; label: string | null; host: string | null }
-  /** Product design §8a: last month's AI for an account owner or a personal key's owner (the
+  /** Last month's AI for an account owner or a personal key's owner (the
    * `ai-summary` job, ai/summary.ts). `month` is YYYY-MM; `cost` per currency, decimal strings. */
   | {
       kind: 'ai-summary';
@@ -98,7 +98,7 @@ export type MailBody =
       cost: { currency: string; amount: string }[];
       unknownCostCalls: number;
     }
-  // Step 6 (T16, D180; mail/messages-transparency.ts): to every active user when the instance's
+  // Step 6 (D180; mail/messages-transparency.ts): to every active user when the instance's
   // OIDC sign-in (`name`: its new name; null: turned off), its outgoing mail (`sender`, the new
   // From address) or its default AI provider changes.
   | { kind: 'oidc-changed'; to: string; name: string | null }

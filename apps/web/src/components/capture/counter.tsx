@@ -1,7 +1,7 @@
 /**
  * "12 captured", and where the queue is: "Offline · 8 waiting to sync" (D17, D36). Each shutter
- * press is announced politely: "Captured. 8 waiting to sync" (screens §4); once the queue has
- * synced the live region empties, so it never keeps saying something that's no longer true (T28).
+ * press is announced politely: "Captured. 8 waiting to sync"; once the queue has
+ * synced the live region empties, so it never keeps saying something that's no longer true.
  */
 import { plural } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';

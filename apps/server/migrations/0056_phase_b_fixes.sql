@@ -1,9 +1,9 @@
 -- Custom SQL migration file, put your code below! --
--- Step 4, Phase B's schema gaps (the migration owner's, reported by T8, T10–T12, T14, T16, T18):
---   1. Exchange-rate history (T8): an account's admins write and read its account-level
+-- Step 4, Phase B's schema gaps (the migration owner's, reported by T8):
+--   1. Exchange-rate history: an account's admins write and read its account-level
 --      `fx_rate` events, as they already do for the registries and templates (0044), so an admin
 --      may set a rate, not only the owner.
---   2. Undo keeps who made a row (T10–T12, T18; D150, Q25). The undo route sets `app.undo` to the
+--   2. Undo keeps who made a row (D150). The undo route sets `app.undo` to the
 --      id of the event it undoes, for its own transaction (audit/undo.ts). While that event is
 --      undoable, not yet undone and in a location the caller writes:
 --      - kept.undo_creator(location, row) names who made the row the event deleted (its
@@ -15,15 +15,15 @@
 --        file, so kept.guard_attachment_file() lets the undo link it again even when the person
 --        undoing can't see the file (not theirs, and nothing else holds it);
 --      - the claims transition guard (0051) accepts that value as it accepted 'on'.
---   3. The orphan-file purge keeps a file an undoable event still holds (T10–T12): undo's window
+--   3. The orphan-file purge keeps a file an undoable event still holds: undo's window
 --      is 7 days, the purge's 1, so undoing a deleted document, loan, service record or warranty
 --      lost its files. Any `file_id` inside the diff of an event whose undo window is open keeps
 --      its file.
---   4. The reminder jobs (T14, T16): kept_system reads user_hidden_modules (who hid a module),
+--   4. The reminder jobs: kept_system reads user_hidden_modules (who hid a module),
 --      service_records and service_completions (a schedule reminder is done when a service
---      completes it), and inserts a user's email channel row (kind 'email' only, Q13) instead of
+--      completes it), and inserts a user's email channel row (kind 'email' only) instead of
 --      acting as that user.
---   5. Merged parts (T10; D172, Q14): a part lent and returned merges back into the row it came
+--   5. Merged parts (D172): a part lent and returned merges back into the row it came
 --      from with things.merged_into_id (a column grant now; kept.merge_things() already sets it),
 --      held to a live thing of the same location by kept.guard_thing_merge(); a merged part leaves
 --      the trash only by un-merging (undo clears merged_into_id in the same update; otherwise

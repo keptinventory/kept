@@ -15,8 +15,8 @@ import {
 } from '../../test/tenancy.js';
 import { type Scope, withScope } from './scope.js';
 
-// Task 9: the definer paths (engineering spec §6.1, §7.2, §7.4, §7.13; D45, D92, D115, D123,
-// D160, D161, D177; plan Q13, Q13b, Q14): moves, conversions, merges, customising types and
+// The definer paths (D45, D92, D115, D123,
+// D160, D161, D177): moves, conversions, merges, customising types and
 // their impact. Called as kept_app, the way the routes will.
 
 const db = await testDb();

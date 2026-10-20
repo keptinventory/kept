@@ -40,7 +40,7 @@
 #   6. tag X.Y.Z, and X.Y and X when this is the newest final release of that line, all from the
 #      signed digest; never `latest`; then verify by tag (release/sign.sh);
 #   7. package the chart as version X.Y.Z with appVersion X.Y.Z (the chart's version is always the
-#      release's, plan Q17; the committed Chart.yaml stays 0.0.0-dev) and the image pinned by digest,
+#      release's; the committed Chart.yaml stays 0.0.0-dev) and the image pinned by digest,
 #      push it beside the image as an OCI artifact, sign its pushed digest (release/chart.sh);
 #      with KEPT_RELEASE_UNSIGNED=1, stages 5–7 sign and verify nothing (everything else runs);
 #   8. record docs/releases/X.Y.Z.md: digests, tags, the chart, the verify commands
@@ -51,12 +51,12 @@
 #
 # Settings (environment):
 #   KEPT_RELEASE_REGISTRY    the image path; default ghcr.io/keptinventory/kept, INFERRED from the
-#                            Dockerfile's SOURCE default and to be confirmed (plan Q14); --registry
+#                            Dockerfile's SOURCE default and to be confirmed; --registry
 #   KEPT_RELEASE_CHART_REPO  where the chart goes; default <registry's parent>/charts
 #   KEPT_COSIGN_KEY          the private key file (a real run; never in the repository)
 #   COSIGN_PASSWORD          its password, read by cosign from the environment, never printed
 #   KEPT_RELEASE_TLOG=1      sign into Sigstore's public transparency log (once the repository is
-#                            public, Q14); default: no log (an empty signing config), and verifiers
+#                            public); default: no log (an empty signing config), and verifiers
 #                            pass --insecure-ignore-tlog
 #   KEPT_RELEASE_UNSIGNED=1  a real release with NO signature, while no cosign key exists yet: no key
 #                            needed, stages 5–7 sign and verify nothing, the record says it is
@@ -81,7 +81,7 @@ cd "$repo"
 source "$repo/scripts/tools.sh"
 
 DEFAULT_REGISTRY=ghcr.io/keptinventory/kept
-# Pins from spike R2 (Docker Hub, multi-arch index digests).
+# Pins (Docker Hub, multi-arch index digests).
 BUILDKIT_IMAGE=moby/buildkit:v0.33.1@sha256:cec9f139f45e93c5c69c60f8b07cfad9f43f4ef6b6a6cd917527fea5ff2e3dea
 REGISTRY_IMAGE=registry:3.1.2@sha256:ddf754342cfc8acc51a56d5d0ab6af06826461864460636d8bd5c546dab2a7b8
 
@@ -344,7 +344,7 @@ source_url=${source_url%.git}
 [[ $source_url == https://* ]] || die "the source URL '$source_url' is not https: set KEPT_RELEASE_SOURCE"
 
 # A real run refuses, before it builds anything, a version already published as an image or as a
-# chart (the chart's version is the release's, plan Q17; both are immutable; the chart stage checks
+# chart (the chart's version is the release's; both are immutable; the chart stage checks
 # again before its push). A registry that can't be read here (no package yet, or no login) counts
 # as "not published": the push then says which.
 if [[ -z $dry ]]; then

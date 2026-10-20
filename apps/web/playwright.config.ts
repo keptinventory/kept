@@ -1,5 +1,5 @@
 /**
- * End-to-end tests against the real server (plan task 28): the built server and web bundle, on
+ * End-to-end tests against the real server: the built server and web bundle, on
  * scratch databases migrated for the run (e2e/serve.mjs). Nothing is mocked.
  *
  *   pnpm --filter '@kept/server...' build && pnpm --filter @kept/web build
@@ -15,7 +15,7 @@
  * fresh instance, because first-run setup happens once per instance, and the sign-in tests on its
  * own seeded instance (e2e/instances.ts).
  *
- * Step 3 (T32): Chromium runs with a fake camera playing e2e/fixtures/camera-thing.y4m
+ * Chromium runs with a fake camera playing e2e/fixtures/camera-thing.y4m
  * (e2e/camera.ts), and step3.spec.ts runs on the `capture` instance, whose AI is the mock.
  * KEPT_E2E_INSTANCES=capture (a comma list of instance keys) starts only those servers: the full
  * list is nine, and under load they didn't all start within the old 120 s.

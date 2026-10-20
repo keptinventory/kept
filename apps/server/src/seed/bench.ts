@@ -7,7 +7,7 @@ import { expectStatus, type Json, SeedError } from './client.js';
 import { emptyReport, type SeedContext, type SeedReport, seedCast } from './households.js';
 import { BENCH_BRANDS, BENCH_TAGS, pick, prng, ROOM_NAMES, thingName } from './words.js';
 
-// `kept admin seed --scenario bench [--things N]` (task 23): the load fixture for task 24's RLS
+// `kept admin seed --scenario bench [--things N]`: the load fixture for task 24's RLS
 // benchmark (risk #3). Three locations of one owner, with a member and a viewer in each:
 //
 // | location  | things | containers | places (4 levels in the first) | photo attachments |
@@ -21,7 +21,7 @@ import { BENCH_BRANDS, BENCH_TAGS, pick, prng, ROOM_NAMES, thingName } from './w
 // Ten showcase things in Bench 10k (five cars with a purchase, readings and a photo, five
 // chargers linked to them) are the benchmark's thing page.
 //
-// How it is made, and why (plan T23; the step's rule: never bypass RLS):
+// How it is made, and why (the step's rule: never bypass RLS):
 // - Accounts, locations, memberships, registries, places and the showcase things go through the
 //   real routes, like the households scenario.
 // - The bulk (containers, things, tags, file rows and attachments) is inserted in batches of 1,000
@@ -57,7 +57,7 @@ export type BenchLocation = {
 
 export type BenchInfo = {
   locations: BenchLocation[];
-  /** The benchmark's three actors (T24). */
+  /** The benchmark's three actors. */
   actors: Record<'owner' | 'member' | 'viewer', { login: string; userId: string }>;
   /** Bench 10k's "Storage room": 200 things directly in it. */
   bigRoomId: string;

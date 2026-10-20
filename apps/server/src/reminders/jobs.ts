@@ -5,7 +5,7 @@ import { runDelivery } from './deliver.js';
 import { runDigests } from './digest.js';
 import { runScan } from './scan.js';
 
-// The reminder engine's jobs (D29, D111, D113; plan T14), aggregated by jobs/household.ts; the
+// The reminder engine's jobs (D29, D111, D113), aggregated by jobs/household.ts; the
 // names, schedules and policies (jobs/policies.ts) were fixed by T2.
 // - `reminder-scan`, every 15 minutes, kept_system: reads agenda_items for every location,
 //   writes each occurrence once and fans it out to notifications and deliveries (scan.ts).

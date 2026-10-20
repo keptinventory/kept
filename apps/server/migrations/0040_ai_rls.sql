@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put your code below! --
--- Step 3, task 6: AI providers, caps and budgets, pacing and the call ledger (engineering spec
--- §1.8, §3.3, §3.5, §7.13, §7.15; D19, D121, D167, D202, D206; plan Q5–Q8, Q31). Above, in
+-- AI providers, caps and budgets, pacing and the call ledger (D19, D121, D167, D202, D206).
+-- Above, in
 -- 0039, drizzle's part: ai_providers, ai_budgets, the counters, ai_breakers, ai_provider_limits,
 -- ai_model_prices, llm_calls (partitioned by hand) and ai_usage_months (src/db/schema/ai.ts), and
 -- the four new admin alert kinds. Below:
@@ -13,19 +13,19 @@
 --        an account's for its owner, a personal one for its person). The key is write-only:
 --        kept_app has SELECT on every column but key_ciphertext and key_version, so `SELECT *`
 --        and `SELECT key_ciphertext` are refused (42501). Only the doors hand a key out.
---      - ai_budgets: writers per scope (§7.15 "Who writes"); a location's admins read its row and
+--      - ai_budgets: writers per scope; a location's admins read its row and
 --        a person their own member row. The pause and the warnings change only through the doors.
 --      - The counters (ai_usage_windows, ai_cost_windows, ai_leases, ai_breakers,
 --        ai_provider_limits): no grant and no kept_app policy at all. Only the doors touch them.
 --      - ai_model_prices: every signed-in request reads them; written only by the price doors.
---      - llm_calls and ai_usage_months: SELECT only, by the §7.15 visibility rule. **No INSERT,
+--      - llm_calls and ai_usage_months: SELECT only, by the visibility rule. **No INSERT,
 --        UPDATE or DELETE for kept_app or kept_system**: rows are written by kept.ai_reserve and
 --        kept.ai_settle alone, so application code can't forge or mis-attribute a call.
 --   3. The doors. Each is SECURITY DEFINER, owned by kept_owner, checks its caller from
 --      app.user_id (kept_system, which has no user, only where marked SYS), and raises 42501 for
 --      anything the caller can't see. Money caps count only costs in their own currency: the
 --      account exchange rates (fx_rates) the spec converts through don't exist yet.
---      - Resolution (plan Q5): ai_provider_resolved, ai_provider_for (the only way to a key for
+--      - Resolution: ai_provider_resolved, ai_provider_for (the only way to a key for
 --        a call), ai_provider_secret ("Test connection" and the model list).
 --      - The gate: ai_reserve, ai_settle (the BudgetGate and Ledger ports, src/ai/db-gate.ts).
 --      - The pacer: ai_key_admit, ai_key_release, ai_breaker_state, ai_observe, ai_trip,
@@ -34,7 +34,7 @@
 --      - Caps and usage: ai_status, ai_cap_set, ai_cap_clear, ai_pause, ai_resume, ai_usage,
 --        ai_instance_calls.
 --      - Prices: ai_price_set, ai_price_remove, ai_recost_unknown (the ledger's only UPDATE).
---      - ai_ensure_brand (§7.8: a brand the model proposes, created with normalised dedupe).
+--      - ai_ensure_brand (a brand the model proposes, created with normalised dedupe).
 --      - SYS: ai_rollover, ai_rollup_and_drop, prune_ai_windows.
 -- test/leak.test.ts and src/db/migrate.test.ts list every function; test/leak-capture.ts fills
 -- every table, the ledger through kept.ai_settle.
@@ -300,7 +300,7 @@ LANGUAGE sql STABLE SET search_path = pg_catalog, public AS $$
          OR (p_ctx->>'location_id')::uuid IN (SELECT kept.visible_location_ids())), false)
 $$;
 --> statement-breakpoint
--- The buckets a call counts against (§7.15), sorted (the lock order).
+-- The buckets a call counts against, sorted (the lock order).
 CREATE FUNCTION kept.ai_buckets(p_ctx jsonb) RETURNS text[]
 LANGUAGE sql IMMUTABLE SET search_path = pg_catalog, public AS $$
   SELECT coalesce(array_agg(b ORDER BY b COLLATE "C"), '{}') FROM (
@@ -322,7 +322,7 @@ LANGUAGE sql IMMUTABLE SET search_path = pg_catalog, public AS $$
 $$;
 --> statement-breakpoint
 -- The cap and budget rows that govern a bucket. A per-task bucket with no row gets the default
--- budget the caller passes (`p_defaults`, DEFAULT_BUDGETS, Q7) as a row of its own, and an
+-- budget the caller passes (`p_defaults`, DEFAULT_BUDGETS) as a row of its own, and an
 -- account's instance allowance with no row of its own gets a copy of the default one: a pause
 -- needs a row to live on, and it must pause that account only. Both are marked set_by the nil
 -- uuid ("Kept"). The gate passes its defaults (at least '{}'); with p_defaults NULL nothing is
@@ -489,7 +489,7 @@ BEGIN
   RETURN new_id;
 END $$;
 --> statement-breakpoint
--- Who pays and with which key (plan Q5; ai/resolve.ts is the same order in TypeScript):
+-- Who pays and with which key (ai/resolve.ts is the same order in TypeScript):
 -- a Personal location: its owner's personal key, their account's, the instance's; any other
 -- location: its owner account's, then the instance's; no location: the person's own key, their
 -- account's, the instance's. Usable: not disabled, keyed (or openai_compatible with a base URL),
@@ -585,7 +585,7 @@ BEGIN
   RETURN QUERY SELECT * FROM kept.ai_cascade(p_location, uid, p_task);
 END $$;
 --> statement-breakpoint
--- One provider the caller manages, with its key, for "Test connection" and the model list (T9).
+-- One provider the caller manages, with its key, for "Test connection" and the model list.
 CREATE FUNCTION kept.ai_provider_secret(p_provider uuid, p_task text)
 RETURNS TABLE (kind text, base_url text, key_ciphertext jsonb, key_version integer, model text,
                scope text, owner_account_id uuid, user_id uuid, reasoning text,
@@ -609,7 +609,7 @@ END $$;
 -- kept.ai_reserve(ctx): ctx carries the resolved payer (paying_scope, paying_account_id,
 -- paying_user_id), the location and its owner account, the person (null: background),
 -- budget_task, estimate_tokens, estimate_cost {amount, currency} (null without a price), job_id,
--- `defaults` (DEFAULT_BUDGETS by task, Q7), `payer_slots` (2), and optionally `call`: the ledger
+-- `defaults` (DEFAULT_BUDGETS by task), `payer_slots` (2), and optionally `call`: the ledger
 -- fields of the call being held (kept.ai_insert_call's). In one statement, under advisory locks
 -- taken per bucket in sorted order (two reservations never deadlock):
 --   1. a paused row on any bucket refuses, with its reason;
@@ -982,7 +982,7 @@ BEGIN
   END IF;
 END $$;
 --> statement-breakpoint
--- A trip set directly (a caller that saw the provider refuse outside callModel, T9).
+-- A trip set directly (a caller that saw the provider refuse outside callModel).
 CREATE FUNCTION kept.ai_trip(p_provider uuid, p_until timestamptz, p_reason text) RETURNS void
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$
 BEGIN
@@ -996,7 +996,7 @@ BEGIN
 END $$;
 --> statement-breakpoint
 -- A replaced key clears a rejected-key (`auth`) trip; other trips run their course. For the
--- provider's manager (T9, on saving a new key).
+-- provider's manager (on saving a new key).
 CREATE FUNCTION kept.ai_clear_trip(p_provider uuid) RETURNS boolean
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$
 BEGIN
@@ -1010,7 +1010,7 @@ END $$;
 --> statement-breakpoint
 
 -- 3e. Caps, pauses and status -------------------------------------------------------------------
--- Whether the caller writes a cap row (§7.15 "Who writes").
+-- Whether the caller writes a cap row.
 CREATE FUNCTION kept.ai_budget_writable(r public.ai_budgets) RETURNS boolean
 LANGUAGE sql STABLE SET search_path = pg_catalog, public AS $$
   SELECT coalesce(kept.current_user_id() IS NOT NULL AND CASE
@@ -1023,7 +1023,7 @@ $$;
 REVOKE EXECUTE ON FUNCTION kept.ai_budget_writable(public.ai_budgets)
   FROM PUBLIC, kept_app, kept_system;
 --> statement-breakpoint
--- The status line (screens §5): who would pay, what pauses it (the first paused cap among the
+-- The status line: who would pay, what pauses it (the first paused cap among the
 -- call's buckets, its scope and a label), what the key is waiting for, the month's percent of
 -- the tightest cap, and whether the caller may resume or manage. Members and viewers read it;
 -- never any key material.
@@ -1124,7 +1124,7 @@ END $$;
 --> statement-breakpoint
 REVOKE EXECUTE ON FUNCTION kept.ai_cap_target(jsonb) FROM PUBLIC, kept_app, kept_system;
 --> statement-breakpoint
--- A cap or budget row, set by its writer (§7.15). p: the scope fields (kept.ai_cap_target's) and
+-- A cap or budget row, set by its writer. p: the scope fields (kept.ai_cap_target's) and
 -- tokensPerMinute, tokensPerDay, tokensPerMonth, monthlyCapAmount, capCurrency. A location's cap
 -- may not be above its account's in the same unit (P0001 `cap_above_account`). Upserts by scope.
 CREATE FUNCTION kept.ai_cap_set(p jsonb) RETURNS uuid
@@ -1176,7 +1176,7 @@ BEGIN
   RETURN true;
 END $$;
 --> statement-breakpoint
--- A manual pause (§7.15: until `infinity`), on the scope's row (made, with no limits, when it
+-- A manual pause (until `infinity`), on the scope's row (made, with no limits, when it
 -- has none). p: kept.ai_cap_target's scope fields.
 CREATE FUNCTION kept.ai_pause(p jsonb) RETURNS uuid
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$
@@ -1195,7 +1195,7 @@ BEGIN
   RETURN out_id;
 END $$;
 --> statement-breakpoint
--- "Resume now" (§7.15): for the cap's writers. p_raise: {remove: true} clears the monthly caps;
+-- "Resume now": for the cap's writers. p_raise: {remove: true} clears the monthly caps;
 -- {amount, currency} or {tokens} raises one. The pause is cleared only when usage is now under
 -- every cap the row names (else P0001 `ai_cap_still_reached`, nothing changed but the raise).
 -- Returns the paused_budget extractions under that scope, oldest first, for the route to re-send.
@@ -1254,7 +1254,7 @@ END $$;
 
 -- 3f. Usage and the instance's calls --------------------------------------------------------------
 -- Totals per group and currency over [p_from, p_to), from the ledger and, for months already
--- rolled up, ai_usage_months (§7.15). Scopes: `me` (the caller's own calls), `location` (its
+-- rolled up, ai_usage_months. Scopes: `me` (the caller's own calls), `location` (its
 -- admins), `account` (the caller's own: rows in its locations or paid by it), `instance`
 -- (instance admins: calls the instance key paid, never grouped by person or location). Groups:
 -- day · task · model · person · location · account. A location's name, or a person's, is given
@@ -1349,7 +1349,7 @@ BEGIN
      ORDER BY t.gkey, t.cur;
 END $$;
 --> statement-breakpoint
--- The instance key's calls, for instance admins (§7.15): no location, thing, extraction, thread
+-- The instance key's calls, for instance admins: no location, thing, extraction, thread
 -- or attachments. p_filters: task, model, outcome, accountId, from, to, limit (20; at most 200).
 -- p_cursor: the last row's `<at>|<id>`, as next_cursor gives it.
 CREATE FUNCTION kept.ai_instance_calls(p_filters jsonb, p_cursor text)
@@ -1433,7 +1433,7 @@ BEGIN
   RETURN FOUND;
 END $$;
 --> statement-breakpoint
--- Late costing (§7.15): this month's sent `unknown` rows of a model since p_since get the current
+-- Late costing: this month's sent `unknown` rows of a model since p_since get the current
 -- price (ai/cost.ts's arithmetic: uncached input, cached input, output less reasoning, reasoning,
 -- images; each term rounded half up to 6 places), are marked price_table_later, and their cost
 -- is added to the cost windows. The only UPDATE the ledger ever takes. Returns the rows costed.
@@ -1487,7 +1487,7 @@ BEGIN
 END $$;
 --> statement-breakpoint
 
--- 3h. Brands the model proposes (§7.8) -------------------------------------------------------------
+-- 3h. Brands the model proposes --------------------------------------------------------------------
 -- Found by the account's normalised name, or made. Members can't insert brands directly (admin
 -- accounts only), so this is the door; the caller must write in the location.
 CREATE FUNCTION kept.ai_ensure_brand(p_location uuid, p_name text) RETURNS uuid

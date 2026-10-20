@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 /**
- * Kept's service worker (plan T23; D101, D148, D181).
+ * Kept's service worker (D101, D148, D181).
  * Built by @serwist/vite (vite.config.ts) to dist/sw.js, with the precache manifest injected at
  * `self.__SW_MANIFEST`.
  *
@@ -19,7 +19,7 @@
  *   for that message itself when skipWaiting is off. `clientsClaim` takes the first visit.
  * - **Share into Kept** (D140): the manifest's POST /share is read here and handed to the page
  *   (pwa/share-target.ts).
- * - **Push** (D30, T24): a push shows the server's notification; a tap focuses an open Kept
+ * - **Push** (D30): a push shows the server's notification; a tap focuses an open Kept
  *   window and takes it to the notification's URL, or opens one (pwa/push-worker.ts).
  */
 import {

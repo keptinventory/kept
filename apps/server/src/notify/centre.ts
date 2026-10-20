@@ -21,8 +21,8 @@ import { scopedRead, scopedWrite } from '../http/write.js';
 import { type SubjectRef, SubjectRefSchema, subjectRefSql } from '../paperwork/view.js';
 import { COMPLETED_SINCE, READ_SINCE } from '../reminders/scan.js';
 
-// The notification centre (plan T16; D39; screens frame 7; the web contract's "the notification
-// centre (T16)" in apps/web/src/api/household/types.ts):
+// The notification centre (D39; screens frame 7; the web contract's "the notification
+// centre" in apps/web/src/api/household/types.ts):
 //
 // GET  /api/v1/notifications?unread&kind&locationId&cursor&limit → {items, unread, next_cursor}
 // GET  /api/v1/notifications/count → {unread}                      (the bell)
@@ -35,7 +35,7 @@ import { COMPLETED_SINCE, READ_SINCE } from '../reminders/scan.js';
 // since the last scan (so Mark returned and a re-read agree without waiting 15 minutes). Only an
 // open reminder has actions (the agenda's, agenda/view.ts WRITER_ACTIONS), and only a writer of
 // its location gets more than `open`; each
-// action is the source's own route (complete, snooze, return, renew), never duplicated here (Q32).
+// action is the source's own route (complete, snooze, return, renew), never duplicated here.
 // Marking read is the person's own bookkeeping: not audited (route catalogue ALLOWLIST).
 
 const AI_SCOPES = [
@@ -47,8 +47,8 @@ const AI_SCOPES = [
   'user',
 ] as const;
 
-/** What an `export_ready` notice is about: a claim pack or insurance report (step 4), or a Kept
- * export, of a location or of the person's own data (step 7: the export run's `kind`). */
+/** What an `export_ready` notice is about: a claim pack or insurance report, or a Kept
+ * export, of a location or of the person's own data (the export run's `kind`). */
 const EXPORT_READY_KINDS = ['claim_pack', 'insurance_report', 'location', 'me'] as const;
 
 export const NotificationSchema = z.object({

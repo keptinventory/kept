@@ -19,7 +19,7 @@ import {
 import { runVerify } from '../backup/verify.js';
 import { readableDepsOf } from './readable.js';
 
-// `kept admin backup [--list] [--accept-size]` (step-8 plan T5, T7): a restic snapshot, now, to
+// `kept admin backup [--list] [--accept-size]`: a restic snapshot, now, to
 // the configured repository, recorded and audited exactly like the nightly one (a `manual` run);
 // or the snapshots the repository holds, newest first, with the alpha's old runs listed apart
 // (`kept admin restore --legacy <id>` takes those, for one release). Below: verify, the drill
@@ -94,7 +94,7 @@ export async function backupCommand(
     return 0;
   }
   print(`Backing up to ${settings.description}…`);
-  // The readable copy (T6, D159) needs the kept_app login too; without it the snapshot holds
+  // The readable copy (D159) needs the kept_app login too; without it the snapshot holds
   // the database and the files only, and says so.
   const readable = readableDepsOf(env, source, {
     info: () => {},
@@ -142,7 +142,7 @@ export async function backupCommand(
 }
 
 // ---------------------------------------------------------------------------------------------
-// `kept admin backup verify | drill | unlock` (step-8 plan T7)
+// `kept admin backup verify | drill | unlock`
 
 /** `verify [--read-data <percent>] [--all-files]`: `restic check`, and with S3 storage the
  * newest manifest's files against the bucket (D144). Recorded as a `verify` run. */

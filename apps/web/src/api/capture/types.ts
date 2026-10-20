@@ -1,15 +1,14 @@
 /**
  * The step-3 web contract: every request and response the capture, inbox, AI, labels, scan,
- * import, template, undo and sync screens exchange with the server. Written from the route
- * tables of the step-3 plan's Phase B (tasks 9, 10 and 12–22) and the engineering spec §7.15
- * (D206), field for field. The server tasks implement the same shapes; a difference is fixed in
- * both, in the same commit (plan T3, T20).
+ * import, template, undo and sync screens exchange with the server. Written from the
+ * server's route tables (D206), field for field. The server tasks implement the same shapes; a difference is fixed in
+ * both, in the same commit.
  *
  * The sync protocol's types (queue items, results, snapshot rows) live in @kept/shared's sync.ts,
  * because the server parses them too. Step-2 shapes (`ThingRow`, `FileView`, `PathStep`, …) come
  * from ../inventory/types.ts.
  *
- * Conventions (engineering spec §7.7): camelCase JSON; lists are `{items, next_cursor}`; money is
+ * Conventions: camelCase JSON; lists are `{items, next_cursor}`; money is
  * a decimal string plus `currency`, **omitted** where the money gate hides it, with
  * `moneyHidden: true`; a versioned write sends `If-Match`.
  */
@@ -48,7 +47,7 @@ export type { Page };
 // ----- shared shapes ---------------------------------------------------------------------------
 
 /**
- * What an undoable write answers (D150, plan T20): the Undo toast calls
+ * What an undoable write answers (D150): the Undo toast calls
  * `POST /api/v1/audit/:eventId/undo` (inventoryPaths.undo) until `until`.
  */
 export type UndoRef = { eventId: string; until: string };
@@ -56,15 +55,15 @@ export type UndoRef = { eventId: string; until: string };
 /** Where a capture lands: a place, a container, or the location's Unplaced place (D118). */
 export type CaptureTarget = { placeId: string } | { containerId: string } | { unplaced: true };
 
-/** A money amount per currency: never converted without rates (D76, plan Q8). */
+/** A money amount per currency: never converted without rates (D76). */
 export type CurrencyAmount = { currency: string; amount: string };
 
-// ----- capture (T13) ---------------------------------------------------------------------------
+// ----- capture ---------------------------------------------------------------------------------
 
 /**
  * POST /api/v1/captures, with an `Idempotency-Key` header. The same fields as the `create_thing`
  * op (@kept/shared `CreateThingPayload`) plus `locationId`; the op and this route share one
- * service (T13).
+ * service.
  */
 export type CreateCaptureBody = {
   id: string;
@@ -79,7 +78,7 @@ export type CreateCaptureBody = {
   files: { fileId: string; role?: AttachmentRole }[];
   /** "+ photo to this thing" (D175). */
   attachToThingId?: string;
-  /** RECEIPT mode's "+ photo": another page of the receipt captured with this capture id (Q13). */
+  /** RECEIPT mode's "+ photo": another page of the receipt captured with this capture id. */
   pageOf?: string;
   /** RECEIPT and READING modes' "Note (optional)" (1–500 characters). */
   note?: string;
@@ -92,7 +91,7 @@ export type CreateCaptureBody = {
   claimCode?: string;
 };
 
-/** 201 from POST /api/v1/captures. `undo` is added by T20 (`thing.capture`, Q23). */
+/** 201 from POST /api/v1/captures. `undo` is added by T20 (`thing.capture`). */
 export type CaptureResult = {
   thing?: ThingRow;
   purchaseId?: string;
@@ -124,7 +123,7 @@ export type BatchUndoResult = { trashed: string[] };
 /** PUT /api/v1/files/:fileId/display (raw JPEG, `X-Kept-Sha256`) → the file with new derivatives. */
 export type DisplayUploadResult = FileView;
 
-// ----- extraction (T10) and the AI line (T29a, D206) -------------------------------------------
+// ----- extraction and the AI line (D206) -------------------------------------------------------
 
 /** `extractions.status`, with D206's `waiting_provider` (the provider's rate limit, not a cap). */
 export type ExtractionState = ExtractionStatus | 'waiting_provider';
@@ -132,13 +131,13 @@ export type ExtractionState = ExtractionStatus | 'waiting_provider';
 export type PayerScope = 'instance' | 'account' | 'user';
 
 /**
- * The ledger row behind an AI-filled draft (§7.15 "Elsewhere"), for the AI line: "Read by
+ * The ledger row behind an AI-filled draft, for the AI line: "Read by
  * qwen/qwen3.8-27b (Groq) · 2,502 tokens · ≈ USD 0.0039 · paid by Home". `cost` is omitted where
  * the money gate hides it.
  */
 export type AiCallSummary = {
   /**
-   * The ledger row (`llm_calls.id`), so tapping the AI line opens its detail (T29a). Absent only
+   * The ledger row (`llm_calls.id`), so tapping the AI line opens its detail. Absent only
    * where the caller can't see the row.
    */
   id?: string;
@@ -155,7 +154,7 @@ export type AiCallSummary = {
   errorCode?: string | null;
 };
 
-/** POST /api/v1/things/:id/extract: explicit re-extraction only (D19, L58). */
+/** POST /api/v1/things/:id/extract: explicit re-extraction only (D19). */
 export type ExtractBody = { attachmentId?: string; mode?: CaptureMode };
 /** 202. */
 export type ExtractResult = { extractionId: string };
@@ -176,14 +175,14 @@ export type ExtractionAttempt = {
 };
 export type ExtractionsResponse = { items: ExtractionAttempt[] };
 
-// ----- inbox (T15) -----------------------------------------------------------------------------
+// ----- inbox -----------------------------------------------------------------------------------
 
 export type FieldState = 'manual' | 'extracted' | 'confirmed';
 
 export type InboxPhoto = { fileId: string; thumbUrl: string | null };
 
 /**
- * A value AI read that waits for a decision (T10: a serial, a quantity above 1; from a label, a
+ * A value AI read that waits for a decision (a serial, a quantity above 1; from a label, a
  * VIN, plate, expiry or manufacture date). `value` is a string: `expires_on` and
  * `manufactured_on` a `YYYY-MM-DD` day, `quantity` a decimal string.
  */
@@ -281,7 +280,7 @@ export type InboxCounts = {
 export type InboxPage = Page<InboxItem> & { counts: InboxCounts };
 export type InboxParams = {
   /**
-   * The list standard's search (L88): the draft's name, a receipt's vendor as seen, a reading's
+   * The list standard's search: the draft's name, a receipt's vendor as seen, a reading's
    * meter, the batch's place (the shared normaliser, D42). The counts ignore it.
    */
   q?: string;
@@ -298,7 +297,7 @@ export type InboxParams = {
  * The suggested fields `accept` can write (T15's `suggestedEdit`, over T10's fields): the thing's
  * serial, quantity and expiry date, and VIN, plate and manufacture date as custom fields (name,
  * model and colour too, though T10 applies those itself), and an alias AI proposed in Arabic,
- * `alias_ar` (D214), which joins the thing's aliases. Step 5 (T10, Q15): a vehicle's card read in
+ * `alias_ar` (D214), which joins the thing's aliases. Step 5: a vehicle's card read in
  * LABEL mode suggests a `document` (`DocumentSuggestion`), which accepting makes the vehicle's
  * expiring document. Accepting any other field is 400 `validation` ("set on the thing's page");
  * rejecting one is fine.
@@ -352,7 +351,7 @@ export type InboxBulkResult = {
   undo?: UndoRef;
 };
 
-/** Why a thing is a candidate for a receipt line, best first (the J2 order, T15). */
+/** Why a thing is a candidate for a receipt line, best first (the J2 order). */
 export type CandidateMatch = 'brand_model' | 'name';
 /**
  * GET /api/v1/inbox/:id/candidates?line=<index>: things a receipt (or one of its lines) may be,
@@ -399,7 +398,7 @@ export type InboxActionResult = { item?: InboxItem; undo?: UndoRef };
 /** POST /api/v1/inbox/:id/restore (a sync drop): the re-applied op's outcome. */
 export type InboxRestoreResult = { outcome: 'applied' | 'needs_review' | 'dropped' };
 
-// ----- labels (T16) ----------------------------------------------------------------------------
+// ----- labels ----------------------------------------------------------------------------------
 
 export type LabelBatchKind = 'things' | 'places' | 'blank';
 
@@ -410,14 +409,14 @@ export type CreateLabelBatchBody = {
   kind: LabelBatchKind;
   thingIds?: string[];
   placeIds?: string[];
-  /** Every thing or container under the place (or the location) whose code was never printed (Q28). */
+  /** Every thing or container under the place (or the location) whose code was never printed. */
   unprinted?: { placeId?: string };
   blankCount?: number;
   /** A `LABEL_STOCKS` key (@kept/shared). */
   stock: string;
   startCell?: number;
   /**
-   * The builder's preview (T28, for T16): validate and answer what the batch would hold, with
+   * The builder's preview (for T16): validate and answer what the batch would hold, with
    * nothing saved and no blank code allocated. 200 `LabelBatchPreview`; the same errors as a
    * real create (403, 404, 409 `module_off`, 409 `blank_cap_reached`).
    */
@@ -450,7 +449,7 @@ export type LabelBatch = {
  * yet), `other` (visible but can't be labelled here: trashed, in another location, past the cap). */
 export type LabelExclusions = { pending: number; other: number };
 
-/** 201: things with a pending ID can't be in a batch; they are counted (screens §6). */
+/** 201: things with a pending ID can't be in a batch; they are counted. */
 export type CreateLabelBatchResult = {
   batch: LabelBatch;
   excluded: LabelExclusions;
@@ -458,7 +457,7 @@ export type CreateLabelBatchResult = {
 
 /**
  * A real (not dry-run) create that has nothing left to label answers 400 `validation` with
- * `excluded` beside the error (T16): what the preview showed was printed or went pending since.
+ * `excluded` beside the error: what the preview showed was printed or went pending since.
  */
 export type LabelBatchNothingDetails = { excluded: LabelExclusions };
 
@@ -492,14 +491,14 @@ export type LabelClaimedDetails = {
   claimedFor: { kind: 'thing' | 'place'; id: string; name: string };
 };
 
-// ----- scan, barcodes and box checks (T17) -----------------------------------------------------
+// ----- scan, barcodes and box checks -----------------------------------------------------------
 
 /** POST /api/v1/scan/resolve. `format` is the BarcodeDetector's name for what it read. */
 export type ScanResolveBody = { text: string; format?: string };
 
 /**
- * Five of the scan's six outcomes (D137, §2.4). The sixth, "Not on this phone", is decided on
- * the phone (T26). `not_in_your_kept` is identical for a missing, forbidden or retired code.
+ * Five of the scan's six outcomes (D137). The sixth, "Not on this phone", is decided on
+ * the phone. `not_in_your_kept` is identical for a missing, forbidden or retired code.
  */
 export type ScanOutcome =
   | { outcome: 'open'; target: { kind: 'thing' | 'place'; id: string; locationId: string } }
@@ -519,7 +518,7 @@ export type ScanOutcome =
   | { outcome: 'barcode'; barcode: { code: string; lookupEnabled: boolean } }
   | { outcome: 'not_kept'; text: string };
 
-/** GET /api/v1/barcodes/:code (D104, D126). Nothing is stored server-side (Q22). */
+/** GET /api/v1/barcodes/:code (D104, D126). Nothing is stored server-side. */
 export type BarcodeLookup =
   | { enabled: false }
   | {
@@ -554,7 +553,7 @@ export type BoxCheckSummary = {
   movedIn: number;
 };
 
-// ----- CSV import (T18) ------------------------------------------------------------------------
+// ----- CSV import ------------------------------------------------------------------------------
 
 export type ImportStatus = 'draft' | 'checked' | 'running' | 'done' | 'failed' | 'cancelled';
 
@@ -578,7 +577,7 @@ export type CreateImportBody = {
 };
 
 export type ImportRowStatus = 'ok' | 'text' | 'skipped';
-/** POST /api/v1/imports/:id/dry-run: "mapped, as text, skipped, why" (§5). */
+/** POST /api/v1/imports/:id/dry-run: "mapped, as text, skipped, why". */
 export type DryRunReport = {
   summary: {
     things: number;
@@ -615,7 +614,7 @@ export type ImportRun = {
   rowVersion: number;
 };
 
-// ----- templates and quick add (T19) -----------------------------------------------------------
+// ----- templates and quick add -----------------------------------------------------------------
 
 /** `templateSchema`: never money or secrets (D177). */
 export type TemplatePayload = {
@@ -664,20 +663,20 @@ export type UpdateTemplateBody = Partial<Omit<CreateTemplateBody, 'id'>>;
 /** POST /api/v1/things/:id/save-as-template. */
 export type SaveAsTemplateBody = { name: string; locationIds: string[] };
 
-// ----- undo (T20) ------------------------------------------------------------------------------
+// ----- undo ------------------------------------------------------------------------------------
 
 /** GET /api/v1/things/:id/undoable: the timeline's "Undo" for 7 days (D150). */
 export type UndoableEvent = { eventId: string; action: string; at: string; until: string };
 export type UndoableResponse = { items: UndoableEvent[] };
 
-/** 409 `undo_refused`'s extra fields: "Can't undo: Bruce changed the location since" (§5). */
+/** 409 `undo_refused`'s extra fields: "Can't undo: Bruce changed the location since". */
 export type UndoRefusedDetails = {
   reason: 'changed_since' | 'already_undone' | 'expired' | 'not_undoable';
   field?: string;
   changedBy?: ActorRef;
 };
 
-// ----- AI (T9, §7.15; D191, D202, D206) ---------------------------------------------------------
+// ----- AI (D191, D202, D206) --------------------------------------------------------------------
 
 export type ProviderScope = 'instance' | 'account' | 'me';
 
@@ -699,7 +698,7 @@ export type AiStatus = {
   canManage: boolean;
   /**
    * Who can resume or fix AI here (the cap's setter, the key's owner), for everyone else's
-   * "Ask Alfred to resume" and "AI isn't working here · ask Alfred" (§3, D206). Null when that
+   * "Ask Alfred to resume" and "AI isn't working here · ask Alfred" (D206). Null when that
    * is the caller, or nobody can.
    */
   manager: ActorRef | null;
@@ -745,7 +744,7 @@ export type PutAiProviderBody = {
   label?: string;
 };
 
-/** POST /api/v1/ai/providers/:id/test: one vision and one structured request (D188, L50). */
+/** POST /api/v1/ai/providers/:id/test: one vision and one structured request (D188). */
 export type AiTestResult = {
   vision: { ok: boolean; latencyMs: number; error?: string };
   structured: { ok: boolean; error?: string };
@@ -769,7 +768,7 @@ export type AiModelListing = {
 
 export type AiScope = 'me' | 'location' | 'account' | 'instance';
 
-/** GET /api/v1/ai/explain?scope&locationId: "What uses AI in Kept" (§7.15). */
+/** GET /api/v1/ai/explain?scope&locationId: "What uses AI in Kept". */
 export type AiExplain = {
   actions: {
     task: LedgerTask;
@@ -818,7 +817,7 @@ export type AiCap = {
   canEdit: boolean;
 };
 export type SuggestedAiCap = { monthlyCap?: Money; tokensPerMonth?: number };
-/** `suggested` is filled while no cap exists (§3.5). */
+/** `suggested` is filled while no cap exists. */
 export type AiCapsResponse = { caps: AiCap[]; suggested?: SuggestedAiCap };
 export type AiCapsParams = { scope: AiScope; locationId?: string };
 
@@ -845,7 +844,7 @@ export type PauseAiBody = {
   userId?: string;
 };
 
-/** A price version (versioned; nothing seeded, Q8). Rates per million tokens. */
+/** A price version (versioned; nothing seeded). Rates per million tokens. */
 export type AiPrice = {
   providerKind: ProviderKind;
   model: string;
@@ -909,7 +908,7 @@ export type AiUsageGroup = {
   outcomes: Partial<Record<LedgerOutcome, number>>;
   /**
    * Calls and tokens per budget task (extraction, assistant, embeddings, test), so the usage
-   * page can stack each day's bar by task (screens §5 AI usage). Sent with `groupBy=day`.
+   * page can stack each day's bar by task. Sent with `groupBy=day`.
    */
   tasks?: Partial<Record<BudgetTask, { calls: number; tokens: number }>>;
 };
@@ -924,7 +923,7 @@ export type AiUsage = {
   caps: AiCap[];
 };
 
-/** One row of the call list (§7.15). `threadId` only for its owner; `cost` per the gate. */
+/** One row of the call list. `threadId` only for its owner; `cost` per the gate. */
 export type AiCall = {
   id: string;
   at: string;
@@ -956,7 +955,7 @@ export type AiCall = {
 /** GET /api/v1/ai/calls/:id: one row, with the other attempts of the same request id. */
 export type AiCallDetail = AiCall & { attempts: AiCall[] };
 
-/** The call list's filters, in the D205 registry's URL form (§7.15). */
+/** The call list's filters, in the D205 registry's URL form. */
 export type AiCallParams = {
   scope: AiScope;
   locationId?: string;
@@ -980,7 +979,7 @@ export type AiCallParams = {
   hasImage?: boolean;
   /** Total tokens, `min..max` (either end may be empty), like a custom date range. */
   tokens?: string;
-  /** The cost, `min..max`, in `currency`; only where money shows (§7.15). */
+  /** The cost, `min..max`, in `currency`; only where money shows. */
   cost?: string;
   currency?: string;
   thing?: string | string[];
@@ -991,7 +990,7 @@ export type AiCallParams = {
   dir?: 'asc' | 'desc';
 };
 
-// ----- sync (T12, T14): the envelope; the rows are @kept/shared's -----------------------------
+// ----- sync: the envelope; the rows are @kept/shared's ----------------------------------------
 
 /** GET /api/v1/sync/snapshot?cursor&limit&typesHash. */
 export type SnapshotParams = { cursor?: string; limit?: number; typesHash?: string };

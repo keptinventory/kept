@@ -1,5 +1,5 @@
 /**
- * The batch builder (plan T28; D43, D137, D175; screens §6 "Label printing"): what is printing,
+ * The batch builder (D43, D137, D175): what is printing,
  * the stock, the start cell on a partly used sheet, then Print.
  *
  * What prints comes from where the person started: a selection of things, a place's own label,
@@ -51,7 +51,7 @@ export type BatchSource = {
 const SAMPLE: LabelCellContent = { code: '000000', url: '/l/000000', kind: 'blank' };
 
 /**
- * The server's 400 for a real batch with nothing left to label (T16): what it left out, or null
+ * The server's 400 for a real batch with nothing left to label: what it left out, or null
  * when the error is something else.
  */
 export function nothingToLabel(e: unknown): LabelExclusions | null {

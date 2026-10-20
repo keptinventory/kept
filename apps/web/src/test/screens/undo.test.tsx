@@ -1,6 +1,6 @@
 /**
- * The Undo toast (D150; plan T31): lifecycle changes, re-types and trash offer it now that the
- * server records them undoably (T20); it stays 10 s, is announced politely and never takes focus;
+ * The Undo toast (D150): lifecycle changes, re-types and trash offer it now that the
+ * server records them undoably; it stays 10 s, is announced politely and never takes focus;
  * a refusal says why in words, with "Open the thing"; offline it says Undo needs a connection.
  */
 import { screen, waitFor, within } from '@testing-library/react';

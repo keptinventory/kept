@@ -1,5 +1,5 @@
 /**
- * Step 5's vehicle journeys against the real server (plan T25), on the `households` seed with the
+ * Step 5's vehicle journeys against the real server, on the `households` seed with the
  * AI mock (the `vehicles` instance, e2e/instances.ts):
  *
  * 1. Offline reading: a car opened online; offline, Home → Log a reading → a value with a photo →
@@ -20,8 +20,8 @@
  * works on a car of its own, made through the API as the person would, so the phone and desktop
  * projects (which run at the same time on this one instance) never share a car's readings.
  *
- * Imperial units (mpg) aren't driven here: no route or screen sets a person's units yet (step-5
- * carry-over); components/fuel/fuel.test.tsx covers the mpg reading.
+ * Imperial units (mpg) aren't driven here: no route or screen sets a person's units yet;
+ * components/fuel/fuel.test.tsx covers the mpg reading.
  *
  *   KEPT_E2E_INSTANCES=vehicles pnpm --filter @kept/web exec playwright test step5.spec.ts
  */

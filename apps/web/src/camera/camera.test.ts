@@ -1,5 +1,5 @@
 /**
- * The device helpers behind capture (plan T25): the camera's failure names, the photo policy's
+ * The device helpers behind capture: the camera's failure names, the photo policy's
  * sizes, the on-device location suggestion (D153: never a request), and the label reader.
  */
 import type { SnapLocation } from '@kept/shared';

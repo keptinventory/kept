@@ -21,7 +21,7 @@ import {
   warrantyImage,
 } from './view.js';
 
-// Undo of warranties' and claims' changes (step-4 plan T9, Q18, Q25; D124, D150), registered by
+// Undo of warranties' and claims' changes (D124, D150), registered by
 // routes.ts:
 // - `warranty.update`, `claim.update`, `claim.status`: each field the event changed goes back, if
 //   it still holds the event's `after` (else 409 `changed_since`, naming who). A claim's status
@@ -186,7 +186,7 @@ async function undoClaimChange(args: UndoArgs): Promise<void> {
   const before = await claimRow(client, id);
   await refuseChanged(args, 'claim', claimImage(before));
   if (fields.some((f) => CLAIM_MONEY_FIELDS.includes(f))) await requireMoney(args);
-  // A status goes back past the transition guard only on this path (0051, Q18): for this
+  // A status goes back past the transition guard only on this path (0051): for this
   // transaction's statement, then off again.
   const status = fields.includes('status');
   if (status) await client.query(`SELECT set_config('app.undo', 'on', true)`);

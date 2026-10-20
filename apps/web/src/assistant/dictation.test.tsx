@@ -1,6 +1,6 @@
 /**
- * Dictation (D25, D213, V13) against a stubbed recogniser only: the real one is never started in
- * a test (agent rules; spike S6.6).
+ * Dictation (D25, D213) against a stubbed recogniser only: the real one is never started in
+ * a test (agent rules).
  */
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

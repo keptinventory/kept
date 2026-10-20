@@ -1,7 +1,7 @@
 /**
- * Mock handlers for money (T8): exchange rates per account, pair and date (D76), and dated
+ * Mock handlers for money: exchange rates per account, pair and date (D76), and dated
  * valuations with the thing's current value (D158). Rates are entered by hand and never
- * estimated (Q22); valuations are gated at serialisation, as purchases are.
+ * estimated; valuations are gated at serialisation, as purchases are.
  */
 import { liveThing, now, versionError } from '../../inventory/mock/db';
 import type { MockState } from '../../mock/fixtures';

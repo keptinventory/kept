@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 # Stage 4 of scripts/release.sh (sourced): pull each architecture in $smoke_arches by digest and
-# smoke it with the commit's own scripts/smoke-image.sh (L103), and check that /version reports
-# this version and commit (L100). Nothing is tagged yet. On the laptop both run here (arm64
+# smoke it with the commit's own scripts/smoke-image.sh, and check that /version reports
+# this version and commit. Nothing is tagged yet. On the laptop both run here (arm64
 # natively, amd64 under emulation); in the workflow each build job smokes its own architecture
 # natively (--arch). The smoke runs with SMOKE_SCOPE=release: the restic drill and the second
 # boot are ci-local's (its `images` step), before the tag.
@@ -18,7 +18,7 @@ release_verify() {
     cp "$KEPT_RELEASE_SMOKE_SCRIPT" "$smoke"
     warn "smoking with $KEPT_RELEASE_SMOKE_SCRIPT instead of the commit's scripts/smoke-image.sh"
   fi
-  # Until T15 makes the smoke's boot timeout overridable (spike R2), the exported copy honours it:
+  # Until T15 makes the smoke's boot timeout overridable, the exported copy honours it:
   # 60 s is too short for amd64 under emulation on a loaded laptop. The image is untouched.
   if grep -qx 'BOOT_TIMEOUT=60' "$smoke"; then
     sed -i.orig 's/^BOOT_TIMEOUT=60$/BOOT_TIMEOUT=${BOOT_TIMEOUT:-60}/' "$smoke"

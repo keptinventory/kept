@@ -1,5 +1,5 @@
 /**
- * A vehicle's Documents (plan T22): the Corolla's licence due in 23 days and its insurance valid,
+ * A vehicle's Documents: the Corolla's licence due in 23 days and its insurance valid,
  * with their issue dates and costs; the registration card's row until there is one; Add and Renew
  * with an issue date and a cost; the viewer (no writes, no cost); Arabic dates.
  */

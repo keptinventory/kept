@@ -13,16 +13,16 @@ import { invalid } from '../http/errors.js';
 import { type SubjectRef, subjectRefSql } from '../paperwork/view.js';
 import { type AgendaCounts, type AgendaItem, WRITER_ACTIONS } from './view.js';
 
-// The agenda (plan T13; Q7, Q24; engineering spec §7.13): every reminder source as one list,
-// read from public.agenda_items (0053), the view the reminder scan (T14), the Schedules screen's
-// `next` (T11) and Home's counts read too, so a count always equals the list it opens.
+// The agenda: every reminder source as one list,
+// read from public.agenda_items (0053), the view the reminder scan, the Schedules screen's
+// `next` and Home's counts read too, so a count always equals the list it opens.
 //
 // - The view decides what exists: security_invoker, so row-level security shows only the caller's
 //   locations, and its WHERE pauses a source whose module is off, whose subject is in the trash
-//   or ended, a superseded document, an inactive schedule and a returned loan (§7.6, D162).
+//   or ended, a superseded document, an inactive schedule and a returned loan (D162).
 // - "Today" is each location's own date (the view's `loc.today`), so a Cairo location at 23:30
 //   local on its due day still reads `due`.
-// - An ended warranty (`expired`) isn't actionable (Q7) and is left out of the lists and counts.
+// - An ended warranty (`expired`) isn't actionable and is left out of the lists and counts.
 // - Order: overdue, due, expiring, upcoming; then the due day (a reading-only due point last);
 //   then the key.
 // - `counts` are over everything the filters other than `state` and the cursor leave, so each

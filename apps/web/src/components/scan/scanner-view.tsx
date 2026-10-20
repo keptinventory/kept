@@ -1,5 +1,5 @@
 /**
- * The live scanner (plan T26; D101, D137; board frames 5a–5c, 7b): the back camera through
+ * The live scanner (D101, D137; 7b): the back camera through
  * `camera/session.ts` (the same camera stack as capture), a viewfinder, and the decode loop
  * (`camera/scanner.ts`). Each distinct read is reported once; the same code again is ignored for
  * a moment, so holding a label in view doesn't repeat the answer. While `paused` (an answer is
@@ -151,7 +151,7 @@ export function ScannerView({
   );
 }
 
-/** The four corners the label goes between (board frame 7b). */
+/** The four corners the label goes between. */
 function Viewfinder() {
   const corner = 'absolute size-9 border-[#F2EFE9]';
   return (

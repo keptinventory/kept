@@ -1,13 +1,13 @@
 /**
- * One loan in a list (plan T22; D56, D57, screens §5): the thing, who has it or whom it's from,
+ * One loan in a list (D56, D57): the thing, who has it or whom it's from,
  * since when, when it's due back, and an overdue badge; then Mark returned and, for a loan out,
  * "Copy a polite reminder" (D57: the text in the reader's language, copied to the clipboard;
  * **Kept never sends it**, nor messages anyone outside the household).
  *
- * Mark returned is one tap with Undo (step-4 Q32): a loan out goes back where it left from and a
- * split-off part merges back into its row (Q14); a borrowed thing goes back to its owner and
- * leaves the counts (Q15). Choosing another place, or keeping a part separate, is the thing
- * page's return sheet. Actions follow screens §3: hidden without `things.edit`, disabled offline;
+ * Mark returned is one tap with Undo: a loan out goes back where it left from and a
+ * split-off part merges back into its row; a borrowed thing goes back to its owner and
+ * leaves the counts. Choosing another place, or keeping a part separate, is the thing
+ * page's return sheet. Actions follow the role rules: hidden without `things.edit`, disabled offline;
  * on a phone the reminder folds into More, so the row keeps one line of controls.
  */
 import { Plural, Trans, useLingui } from '@lingui/react/macro';

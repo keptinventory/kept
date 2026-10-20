@@ -1,5 +1,5 @@
 /**
- * The app lock's keys (step-8 plan T23; D181, Q22; spike L1).
+ * The app lock's keys (D181).
  * WebCrypto only; nothing here touches IndexedDB, so the lock screen's chunk can load it alone.
  *
  * - **One random data key per device** (AES-GCM-256) encrypts what "keep this location available
@@ -11,11 +11,11 @@
  * - **The passkey** (Face ID, fingerprint) is a WebAuthn credential with user verification
  *   required. Where its authenticator gives a PRF secret, HKDF-SHA-256 of it wraps the same data
  *   key, so the passkey opens the extras too; without PRF it unlocks the app only, and the extras
- *   ask for the PIN (Q22). PRF is detected from `create()`'s `prf.enabled`, never from
+ *   ask for the PIN. PRF is detected from `create()`'s `prf.enabled`, never from
  *   `getClientCapabilities()` (finding 1); a secret that doesn't come back at creation is asked
  *   for with one `get()` (finding 2). The assertion is checked on this device only: the lock
  *   keeps out someone holding the phone, it isn't a sign-in (the session already exists).
- * - **What the PIN doesn't stop** (L1): someone who copies the browser's storage can try PINs
+ * - **What the PIN doesn't stop**: someone who copies the browser's storage can try PINs
  *   offline at PBKDF2's pace; the PRF path has no such gap. The settings page says so.
  */
 import { APP_LOCK } from '@kept/shared';

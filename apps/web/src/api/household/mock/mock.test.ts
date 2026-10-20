@@ -1,6 +1,6 @@
 /**
  * The step-4 mock answers the household contract through the real fetchers (../queries.ts), so
- * the parallel web tasks (T20–T28) start from something that behaves like the server: every path
+ * the parallel web tasks start from something that behaves like the server: every path
  * in ../paths.ts has a handler, the fixtures hold what the plan's T3 asks for, and the rules the
  * screens lean on (module off, a viewer's money, If-Match, undo, the agenda's counts) hold.
  */
@@ -70,7 +70,7 @@ describe('the household mock', () => {
       status: 'in_repair',
       vendor: { name: 'Samsung Service Centre', kind: 'service_centre' },
     });
-    // In repair: nothing is lent (screens §8), and a second repair is refused.
+    // In repair: nothing is lent, and a second repair is refused.
     expect((await fail(api.lend(T.tv, { person: { name: 'Murdock' } }))).code).toBe(
       'thing_in_repair',
     );
@@ -93,7 +93,7 @@ describe('the household mock', () => {
       api.updateClaim(claim.id, { status: 'open' }, resolved.body.rowVersion),
     );
     expect(reopen.code).toBe('invalid_transition');
-    // A closed claim reopens only through undo (Q18).
+    // A closed claim reopens only through undo.
     await undoApi.undo(resolved.auditEvents[0] ?? '');
     expect((await api.claims(T.tv)).items[0]?.status).toBe('in_repair');
   });

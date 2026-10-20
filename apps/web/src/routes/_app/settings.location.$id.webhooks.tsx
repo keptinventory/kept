@@ -1,5 +1,5 @@
 /**
- * Location settings → Webhooks (step-6 plan T23; D63, D110, D180, engineering spec §2.6): signed,
+ * Location settings → Webhooks (D63, D110, D180): signed,
  * value-free notices to another server when things change here, with their deliveries and a test
  * ping. Owners and admins only (the tab is hidden for others; the frame says so if they come by
  * link). Its chunk loads on demand from assets/household/ (vite.config.ts); its error screen stays

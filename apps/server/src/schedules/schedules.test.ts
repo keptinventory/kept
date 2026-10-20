@@ -19,7 +19,7 @@ import {
 // Task 11 through the front door, as the web calls it (apps/web/src/api/household/{types,paths}.ts,
 // components/schedules/*, components/services/log-service-sheet.tsx): schedules on things and
 // places, "every N units and/or M months, whichever first" or once (D29, D146), completion
-// through a service record that re-anchors (D162), snooze, skip (Q28), and service records as
+// through a service record that re-anchors (D162), snooze, skip, and service records as
 // core (D113), with readings refused at entry as the meters section refuses them (D112).
 
 let db: TestDb;
@@ -278,7 +278,7 @@ describe('the due point (D29, D146, D162; Q2, Q28)', () => {
       own(db, 'SELECT state FROM public.agenda_items WHERE source_id = $1', [s.id]);
     expect(await onAgenda()).toEqual([{ state: 'due' }]);
 
-    // A draft completing it (an invoice still being read) counts nowhere (Q12).
+    // A draft completing it (an invoice still being read) counts nowhere.
     const [draft] = await own<{ id: string }>(
       db,
       `INSERT INTO public.service_records (location_id, thing_id, serviced_on, logged_by,
@@ -438,7 +438,7 @@ describe('the due point (D29, D146, D162; Q2, Q28)', () => {
       anchorValue: '10000',
     });
     expect(s.next).toMatchObject({ dueValue: '20000', state: 'due' });
-    // {} on a unit schedule: +10% of the interval past the due reading (screens §8).
+    // {} on a unit schedule: +10% of the interval past the due reading.
     const snoozed = ok(await post(louis, `/api/v1/schedules/${s.id}/snooze`, {}, 1));
     expect(snoozed).toMatchObject({
       snoozedUntilValue: '21000',

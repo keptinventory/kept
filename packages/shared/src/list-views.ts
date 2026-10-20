@@ -12,7 +12,7 @@ export const LIST_SURFACES = [
   'things',
   'contents',
   'inbox',
-  // Step 4 (D205 on every new list), and the AI call list (step-3 carry-over).
+  // Step 4 (D205 on every new list), and the AI call list.
   'schedules',
   'lending',
   'paperwork',
@@ -20,7 +20,7 @@ export const LIST_SURFACES = [
   'notifications',
   'incidents',
   'ai-calls',
-  // Step 5: a vehicle's service records, the vehicles list, a vehicle's fills, a meter's readings.
+  // A vehicle's service records, the vehicles list, a vehicle's fills, a meter's readings.
   'services',
   'vehicles',
   'fuel',
@@ -42,7 +42,7 @@ export type ListSurface = (typeof LIST_SURFACES)[number];
  * - things (a person's, brand's or vendor's things): location, type, tag, state, brand, belongs to.
  * - contents (a location's, place's or container's contents): where (Unplaced), type, tag, state,
  *   brand, belongs to.
- * - inbox (screens §5, D175, D191): kind, location, and whose (`mine`: `everyone` for everyone's;
+ * - inbox (D175, D191): kind, location, and whose (`mine`: `everyone` for everyone's;
  *   absent is the default, Mine).
  * - schedules: location, state (upcoming, due, overdue), subject (thing or place), date (`when`).
  * - lending: location, direction (out, in), state (open, overdue, returned), person.
@@ -54,9 +54,9 @@ export type ListSurface = (typeof LIST_SURFACES)[number];
  * - ai-calls (D206; the web's AI_CALL_FILTERS in components/ai/call-filters.tsx): date (`at`),
  *   person, location, task, model, provider, outcome, paid by, has image, tokens, cost and its
  *   currency (money: MONEY_FILTER_KEYS), thing.
- * - services (a thing's service records, step 5): date (`when`), vendor, line kind (`kind`),
+ * - services (a thing's service records): date (`when`), vendor, line kind (`kind`),
  *   drafts (`draft`).
- * - vehicles (step 5, screens §1): location, type, state, reading (fresh, stale, unknown, none:
+ * - vehicles: location, type, state, reading (fresh, stale, unknown, none:
  *   `kept.meter_estimate().advice`), due (overdue, soon: from the agenda).
  * - fuel (a vehicle's fills and charges): date (`when`), unit, station (`vendor`), full or partial.
  * - readings (a meter's readings): date (`when`), source, state.

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { testAuth } from '../../test/auth.js';
 import { type TestDb, testDb } from '../../test/db.js';
 
-// Spike S1 (V33): Better Auth on the Drizzle adapter, in schema `auth`, logged in as kept_auth,
+// Better Auth on the Drizzle adapter, in schema `auth`, logged in as kept_auth,
 // issuing UUIDv7 ids.
 
 function uuidV7Millis(id: string): number {

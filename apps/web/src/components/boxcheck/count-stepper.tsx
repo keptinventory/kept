@@ -1,5 +1,5 @@
 /**
- * "Found 2 of 3" (D40, screens §6; board frame 3): how many of a quantity row are in the box. A
+ * "Found 2 of 3" (D40): how many of a quantity row are in the box. A
  * React Aria NumberField, so arrow keys, Page Up/Down and typing work, and the value is announced;
  * the − and + buttons are 44 px targets.
  */

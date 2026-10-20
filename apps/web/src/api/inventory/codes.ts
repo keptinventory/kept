@@ -1,5 +1,5 @@
 /**
- * Own codes (D208; engineering spec §7.16, plan T17a): the household's own identifiers on a thing
+ * Own codes (D208): the household's own identifiers on a thing
  * or a place (an existing asset sticker, `HOME-0042`), and a location's numbering and format
  * rule. The server is apps/server/src/codes/.
  *

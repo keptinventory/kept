@@ -1,8 +1,8 @@
 /**
- * The ready-made client configs under a new token (screens §5, T10): the MCP server's URL
+ * The ready-made client configs under a new token: the MCP server's URL
  * (`<public URL>/mcp`) and the bearer header, each with Copy. A client's own settings file is
  * shown only when the server sends one (`file`), because its shape has to come from that client's
- * documentation: the web never makes one up (step-6 plan T10; Phase 0's note on clientConfigs).
+ * documentation: the web never makes one up (Phase 0's note on clientConfigs).
  * A config that is just the URL and header again isn't repeated.
  */
 import { Trans, useLingui } from '@lingui/react/macro';

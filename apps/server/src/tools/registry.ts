@@ -43,7 +43,7 @@ import {
 } from './handlers/write.js';
 import type { Handler, HandlerTable } from './types.js';
 
-// The handlers, one per TOOL_DEFS entry whose service exists (step-6 plan T9, Q10). A contract
+// The handlers, one per TOOL_DEFS entry whose service exists. A contract
 // without a handler is never offered (`capabilities`, toolsFor()) and answers
 // `tool_unavailable`. Step 4's services exist, so its tools are here; step 5's join with their
 // services (log_service with schedules/services.ts, log_fuel with fuel/service.ts), step 7's

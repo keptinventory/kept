@@ -2,7 +2,7 @@ import type { Capability, FieldKind } from '@kept/shared';
 import type pg from 'pg';
 import type { ResolvedField } from './view.js';
 
-// An account's type tree in memory (T11; D92, D154, D192; plan Q4): the built-ins and the
+// An account's type tree in memory (D92, D154, D192): the built-ins and the
 // account's own types, with their own fields. Everything the type editor answers is resolved
 // from it: a type's fields along its chain and field groups, its capabilities, its descendants,
 // and whether a change would bring a field key in twice or put a type under itself. The
@@ -53,7 +53,7 @@ export const FIELD_COLUMNS = `f.id, f.owner_account_id, f.type_id, f.place_kind_
   f.kind, f.unit, f.options, f.repeatable, f.required, f.sort, f.secret, f.archived_at,
   f.row_version`;
 
-/** A key a change would define twice along a chain (D92, §7.13). */
+/** A key a change would define twice along a chain (D92). */
 export class Redefined extends Error {
   constructor(readonly key: string) {
     super(`field ${key} is defined twice`);
@@ -127,7 +127,7 @@ export class TypeGraph {
     return id ? this.types.get(id) : undefined;
   }
 
-  /** Set on built-ins and on an account's customised copies of them (Q13b). */
+  /** Set on built-ins and on an account's customised copies of them. */
   builtinKeyOf(t: TypeRow): string | null {
     return t.builtin_key ?? this.get(t.copied_from_id)?.builtin_key ?? null;
   }

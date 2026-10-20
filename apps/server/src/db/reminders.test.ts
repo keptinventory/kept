@@ -13,9 +13,9 @@ import {
 } from '../../test/tenancy.js';
 import { withScope, withSystem } from './scope.js';
 
-// Step-4 T7 (0054, 0055): the reminder ledger written exactly once (D111, §7.13), the user-scope
+// Step-4 T7 (0054, 0055): the reminder ledger written exactly once (D111), the user-scope
 // channels, devices, choices, centre and calendar links, their caps and the calendar feed's door
-// (D142, D181), and T19's two carry-over pieces (a moved code resends the thing it left; a past
+// (D142, D181), and two earlier gaps (a moved code resends the thing it left; a past
 // membership for location_revoked).
 
 const db = await testDb();

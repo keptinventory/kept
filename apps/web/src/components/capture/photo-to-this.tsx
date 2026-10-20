@@ -1,5 +1,5 @@
 /**
- * "+ photo to this thing" (D175; screens §5, §8): pressed, the next shot attaches to the draft
+ * "+ photo to this thing" (D175): pressed, the next shot attaches to the draft
  * just captured instead of making a new thing (a label shot then fills its brand, model and
  * serial). In RECEIPT mode it adds a page to the same receipt. One shot, then it lets go.
  */

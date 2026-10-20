@@ -2,7 +2,7 @@ import { readdir, rm, stat } from 'node:fs/promises';
 import path from 'node:path';
 import type { FileStorage } from '../storage/blob-store.js';
 
-// Step 7's part of step 4's hourly `purge-exports` (incidents/jobs.ts; plan T12): the run rows and
+// Step 7's part of step 4's hourly `purge-exports` (incidents/jobs.ts): the run rows and
 // their ZIPs are already purged by kept.purge_expired_exports() for every kind (claim packs and
 // Kept exports alike: `x/<id>.zip`, and a step-7 run its job abandoned fails and loses its sealed
 // key there). What a killed export job can leave behind is its scratch directory under

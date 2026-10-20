@@ -47,7 +47,7 @@ export function useMediaQuery(query: string): boolean {
 }
 
 /**
- * Kept was opened as the installed app (screens §8: "Install on your phone" completes in
+ * Kept was opened as the installed app ("Install on your phone" completes in
  * standalone display mode). iOS Safari also reports it as `navigator.standalone`.
  */
 export function isStandalone(): boolean {

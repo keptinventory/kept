@@ -1,17 +1,17 @@
 /**
- * The module registry (engineering spec §7.6; product design §5, D61, D75, D113, re-cut by D191).
+ * The module registry (D61, D75, D113, re-cut by D191).
  *
  * The core is always on and is not listed here. Each module is switched per location, through
  * its preset and then `location_modules` rows. Its effective state is
  * enabled ∧ dependencies met ∧ (a resolved AI provider, for the AI modules).
  *
- * - Insights is part of Money (§7.6, D113), not a module of its own.
+ * - Insights is part of Money (D113), not a module of its own.
  * - Vehicles is in Household (D191).
  * - AI capture and the AI assistant are in every preset: they follow the provider, and the
  *   module toggle can still turn them off (D191).
  *
  * `label` is the English preset-card wording (D191's outcome labels); the web app translates
- * it. Route tags, tools and built-in fields (§7.6) join each entry as the steps that build those
+ * it. Route tags, tools and built-in fields join each entry as the steps that build those
  * modules land. Reminder sources and nav entries joined in step 4.
  */
 
@@ -39,7 +39,7 @@ export const MODULE_IDS = [
 export type ModuleId = (typeof MODULE_IDS)[number];
 
 /**
- * The global views a module brings into the navigation (screens §1: an entry shows when its
+ * The global views a module brings into the navigation (an entry shows when its
  * module is on in any of your locations). Notifications, Activity and Trash are core.
  */
 export const MODULE_NAV = [
@@ -61,7 +61,7 @@ export type ModuleDef = {
   requiresProvider: boolean;
   /** The reminder sources that pause when the module is off (reminders.ts SOURCE_MODULE). */
   reminderSources: readonly SourceType[];
-  /** Its nav entries (screens §1); Insights is part of Money (§7.6). */
+  /** Its nav entries; Insights is part of Money. */
   nav: readonly ModuleNav[];
   /** Not built yet (1.x): shown as "Coming soon", in no preset, and never on. */
   soon: boolean;

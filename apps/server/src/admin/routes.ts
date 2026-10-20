@@ -44,10 +44,10 @@ import {
   signOutEverywhere,
 } from './account-ops.js';
 
-// Instance administration (task 23; D164, D165, D180, D190, §7.11, §7.14).
+// Instance administration (D164, D165, D180, D190).
 //
-// Every route here runs on kept_app like any other request, behind kept.is_instance_admin()
-// (§7.14): a preHandler refuses anyone else with 403, and the instance-scope policies refuse them
+// Every route here runs on kept_app like any other request, behind kept.is_instance_admin():
+// a preHandler refuses anyone else with 403, and the instance-scope policies refuse them
 // again underneath. What lives in schema auth (sessions, the ban flag, two-factor) is changed on
 // kept_auth, inside the kept_app transaction that audits it, so a refused audit changes nothing.
 // Every action on another person's account is mailed to them after commit (D180); the actor's
@@ -61,7 +61,7 @@ export type AdminDeps = {
   version: string;
   /** Whether mail goes out (KEPT_SMTP_URL); the status page says so when it doesn't. */
   mailConfigured: boolean;
-  /** Whether a backup target is set (T31c); the status page says loudly when it isn't. */
+  /** Whether a backup target is set; the status page says loudly when it isn't. */
   backupConfigured?: boolean;
   /** Failed-job administration (jobs/failed.ts); null where no pg-boss runs (bare tests). */
   jobs?: JobAdmin | null;
@@ -118,7 +118,7 @@ const AdminStatus = z.object({
   alerts: z.number().int(),
   recoveryKitAcknowledged: z.boolean(),
   mail: z.object({ configured: z.boolean() }),
-  /** Step 8 (T10, AdminOpsStatus): the release, backups, the recovery kit, disks, the update
+  /** Step 8 (AdminOpsStatus): the release, backups, the recovery kit, disks, the update
    * check, failed jobs and https (backup/status.ts). Absent when the database can't answer. */
   release: AdminOpsStatusShape.release.optional(),
   backup: AdminOpsStatusShape.backup.optional(),
@@ -127,9 +127,9 @@ const AdminStatus = z.object({
   updates: AdminOpsStatusShape.updates.optional(),
   jobs: AdminOpsStatusShape.jobs.optional(),
   https: AdminOpsStatusShape.https.optional(),
-  /** Step 6 (T22, D125): the MCP URL, and whether OAuth connectors can be offered (https). */
+  /** Step 6 (D125): the MCP URL, and whether OAuth connectors can be offered (https). */
   connectors: z.object({ mcpUrl: z.string(), oauth: z.enum(['available', 'needs_https']) }),
-  /** Step 4 (T14): the reminder scan's last pass (reminders/status.ts); null before the first. */
+  /** The reminder scan's last pass (reminders/status.ts); null before the first. */
   reminders: z
     .object({
       lastRunAt: z.string().nullable(),
@@ -138,7 +138,7 @@ const AdminStatus = z.object({
       durationMs: z.number().int(),
     })
     .nullable(),
-  /** Step 6 (T16): generic OIDC sign-in, as boot left it (auth/oidc.ts oidcStatus): the button's
+  /** Generic OIDC sign-in, as boot left it (auth/oidc.ts oidcStatus): the button's
    * name, the issuer, the callback URL to register at the IdP, and why discovery failed. */
   oidc: z
     .object({
@@ -151,14 +151,14 @@ const AdminStatus = z.object({
     .optional(),
   /** 1.2 (D226): Google sign-in, and the redirect URI to register with Google. */
   google: z.object({ configured: z.boolean(), callbackUrl: z.string().nullable() }).optional(),
-  /** Step 6 (T14, D207): semantic search's index and its source (embeddings/status.ts). */
+  /** Step 6 (D207): semantic search's index and its source (embeddings/status.ts). */
   embeddings: EmbeddingsStatusSchema.optional(),
 });
 
 const Locked = <T extends z.ZodType>(value: T) => z.object({ value, locked: z.boolean() });
-// Step 3 (T16, T17): barcode lookup (D104, D126; locked by KEPT_BARCODE_LOOKUP /
-// KEPT_BARCODE_CONTACT) and the former hostnames that redirect to the public URL (D120, Q32).
-// `ssrfAllowPrivate` (Q9, D83): whether a typed AI base URL (and every other user-supplied URL
+// Barcode lookup (D104, D126; locked by KEPT_BARCODE_LOOKUP /
+// KEPT_BARCODE_CONTACT) and the former hostnames that redirect to the public URL (D120).
+// `ssrfAllowPrivate` (D83): whether a typed AI base URL (and every other user-supplied URL
 // through net/ssrf.ts) may reach private addresses; off by default, for self-hosts only. No
 // environment variable sets it, so it is never locked.
 const Settings = z.object({
@@ -170,7 +170,7 @@ const Settings = z.object({
   /** 1.4 (D230): several things found in one THING photo, each its own draft. Off by default
    * until a provider's boxes are shown right (D129); no environment variable, never locked. */
   multiItem: z.boolean(),
-  /** Step 8 (T11, D65): "Check for new versions", off by default; KEPT_UPDATE_CHECK locks it. */
+  /** Step 8 (D65): "Check for new versions", off by default; KEPT_UPDATE_CHECK locks it. */
   updateCheck: Locked(z.boolean()),
 });
 const SettingsBody = z
@@ -334,7 +334,7 @@ export async function adminRoutes(app: KeptApp, deps: AdminDeps): Promise<void> 
       },
     );
 
-    // Accounts, for the AI instance cap's per-account override picker (step-3 carry-over, T19):
+    // Accounts, for the AI instance cap's per-account override picker:
     // an account's id, its owner's name and how many locations it owns (owner memberships, the
     // count Users shows), names only (D33: nothing about what is in them). `q` matches the owner's
     // name. owner_accounts is readable to kept_app only as one's own (0006), so the list is read
@@ -429,7 +429,7 @@ export async function adminRoutes(app: KeptApp, deps: AdminDeps): Promise<void> 
       (id) => signOutEverywhere(pools.auth, id),
     );
 
-    // Instance settings. The environment wins (§7.11): a value it sets comes back locked.
+    // Instance settings. The environment wins: a value it sets comes back locked.
     admin.get('/api/v1/admin/settings', { schema: { response: { 200: Settings } } }, async (req) =>
       scopedRead(pools, req, (tx) => readSettings(tx)),
     );
@@ -648,7 +648,7 @@ export async function adminRoutes(app: KeptApp, deps: AdminDeps): Promise<void> 
     jobAction('retry', 'admin.job_retry');
     jobAction('discard', 'admin.job_discard');
 
-    // Admin alerts (D166, task 25): open ones by default, newest activity first.
+    // Admin alerts (D166): open ones by default, newest activity first.
     admin.get(
       '/api/v1/admin/alerts',
       {
@@ -702,7 +702,7 @@ export async function adminRoutes(app: KeptApp, deps: AdminDeps): Promise<void> 
       },
     );
 
-    // The status page's summary (task 25): version, database, open alerts, the recovery kit
+    // The status page's summary: version, database, open alerts, the recovery kit
     // (D193) and whether mail goes out at all.
     admin.get(
       '/api/v1/admin/status',
@@ -762,7 +762,7 @@ export async function adminRoutes(app: KeptApp, deps: AdminDeps): Promise<void> 
     );
 
     // The recovery-kit acknowledgement (D193): asked for by the status page until given. With
-    // step 8 (T9) the state also says when the kit was last downloaded, and whether something it
+    // step 8 the state also says when the kit was last downloaded, and whether something it
     // holds changed since (`stale`); the download is admin/recovery-kit-routes.ts.
     const Kit = z.object({
       acknowledgedAt: z.string().nullable(),

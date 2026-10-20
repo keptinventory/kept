@@ -5,7 +5,7 @@ import { isUndeliverableEmail, MANAGED_EMAIL_DOMAIN } from '../auth/emails.js';
 import type { Pools } from '../db/pools.js';
 import { type Scope, type Tx, withScope } from '../db/scope.js';
 
-// ensureAccount() (task 18; D114, D190, §7.14): the second step of account creation. Better Auth
+// ensureAccount() (D114, D190): the second step of account creation. Better Auth
 // (kept_auth) creates the user; this makes the owner account, the Personal location with its
 // owner membership and Unplaced area, and the profile, all through kept.ensure_account()
 // (migration 0007) in one transaction. Idempotent and safe to race: the function takes a per-user
@@ -55,7 +55,7 @@ const EURO_REGIONS = new Set([
   'VA',
 ]);
 
-/** The Personal location's currency from the locale's region (task 18): EG → EGP, GB → GBP,
+/** The Personal location's currency from the locale's region: EG → EGP, GB → GBP,
  * CA → CAD, a euro region → EUR, anything else (or no region) → USD. */
 export function currencyForLocale(locale: string): string {
   let region: string | undefined;
@@ -182,7 +182,7 @@ export function ensureAccount(
 }
 
 /** ensureAccount's work for `userId` as kept_system, scoped to that user and audited as
- * `system`: for an account someone else created (a managed account, task 21, D114), whose own
+ * `system`: for an account someone else created (a managed account, D114), whose own
  * scope Kept never holds. */
 export function ensureAccountAsSystem(
   pools: Pick<Pools, 'system'>,
@@ -205,7 +205,7 @@ export type RepairResult = {
 };
 
 /**
- * The `repair-orphans` job (§7.14): every auth user older than the grace period with no owner
+ * The `repair-orphans` job: every auth user older than the grace period with no owner
  * account or no profile gets ensureAccount's work, one kept_system transaction per user (scoped
  * to that user, so kept.ensure_account() makes theirs and nothing else), audited as `system`.
  * kept_system reads only auth.user's id and created_at (migration 0007).

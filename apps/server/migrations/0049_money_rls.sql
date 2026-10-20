@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put your code below! --
--- Step 4, task 4: money records, incidents and export runs (engineering spec §1.4, §1.10, §7.1,
--- §7.13, §7.15; D76, D136, D158, D169, D180, D201; plan Q19–Q22). Above, in 0048, drizzle's
+-- Money records, incidents and export runs (D76, D136, D158, D169, D180, D201).
+-- Above, in 0048, drizzle's
 -- part: fx_rates, valuations, incidents, incident_things, export_runs and report_runs.kind
 -- (src/db/schema/money.ts, reports.ts). Below:
 --   1. Row-level security:
@@ -8,14 +8,14 @@
 --        admins (the brands expressions of 0014);
 --      - valuations are read where the thing is seen and written by its writers;
 --      - incidents and the things they touched are read where seen and written by owners and
---        admins (§7.1 "Incidents; claim packs");
+--        admins;
 --      - an export run is its creator's alone, while they still hold owner or admin on the
 --        location; kept_app changes only its link (token, expiry, revoked), the job moves the
 --        rest through the doors in 3.
 --   2. export_runs' incident key: ON DELETE SET NULL (incident_id), which drizzle can't declare.
 --      The run keeps its built pack; its scope is then empty (the CHECK allows at most one, the
 --      insert policy requires exactly one).
---   3. The export doors (D180, Q19):
+--   3. The export doors (D180):
 --      - kept.export_run_claim(), _progress(), _finish(): the claim-pack job's, which is a tenant
 --        job (jobs/queue.ts TENANT_REQUEST_QUEUES), so kept_app may call them for its own runs,
 --        and kept_system for any; the storage key is always the run's own (`x/<id>.zip`, the
@@ -27,8 +27,8 @@
 --      - kept.purge_expired_exports() (SYS): the `purge-exports` job's. A run past its seven days
 --        becomes `expired` (its link and key cleared; the keys come back for the job to delete
 --        after its commit); an expired run older than 90 days goes.
---   4. The AI money caps count other currencies through the account's exchange rates (step-3
---      carry-over; D76, §7.15): kept.fx_rate() is the SQL twin of @kept/shared money.ts
+--   4. The AI money caps count other currencies through the account's exchange rates (D76):
+--      kept.fx_rate() is the SQL twin of @kept/shared money.ts
 --      `convert` (the pair's newest rate on or before the day, else its inverse's, never
 --      chained, never estimated); kept.ai_spent() now sums a bucket's month in the cap's
 --      currency through the bucket's account's rates, leaving out a currency with no rate;
@@ -233,7 +233,7 @@ BEGIN
    WHERE x.id = p_id;
 END $$;
 --> statement-breakpoint
--- The public link, without a session (D180, Q19). Every refusal is the same 42501.
+-- The public link, without a session (D180). Every refusal is the same 42501.
 CREATE FUNCTION kept.export_download(p_token_hash text)
 RETURNS TABLE (storage_key text, bytes bigint, location_id uuid)
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$
@@ -257,7 +257,7 @@ BEGIN
   RETURN QUERY SELECT r.storage_key, r.bytes, r.location_id;
 END $$;
 --> statement-breakpoint
--- Seven days (§3.3 export retention): the run stays as history, its pack and link go. Returns the
+-- Seven days (export retention): the run stays as history, its pack and link go. Returns the
 -- keys whose blobs the job deletes after its commit.
 CREATE FUNCTION kept.purge_expired_exports(p_limit integer) RETURNS SETOF text
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$

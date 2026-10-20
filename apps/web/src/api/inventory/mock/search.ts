@@ -1,12 +1,11 @@
 /**
- * Mock handlers for search and saved views (task 20). Matching is word prefixes over
- * `@kept/shared`'s `searchVariants` (the JS twin of `kept.normalize` + `strip_prefixes`, D42 and
- * screens §8): each word is indexed and queried in both its normalised and its prefix-stripped
+ * Mock handlers for search and saved views. Matching is word prefixes over
+ * `@kept/shared`'s `searchVariants` (the JS twin of `kept.normalize` + `strip_prefixes`, D42): each word is indexed and queried in both its normalised and its prefix-stripped
  * form, as the server's tsvector and `tsQuery()` do. A 6-character Crockford query also looks up
  * short IDs. `containerThumbUrl` is the container's first photo (D195), as the server's lateral
  * join finds it. Saved views follow `saved-views.share` for sharing.
  *
- * Documents (T21) match `inventory.fileText` (a file's text by id) and follow the server's money
+ * Documents match `inventory.fileText` (a file's text by id) and follow the server's money
  * rule (search/documents.ts): where money is hidden, receipts and invoices are not results and
  * the others carry `moneyHidden` in place of a snippet.
  */
@@ -130,7 +129,7 @@ export function searchRoutes(state: MockState): MockRoute[] {
           if (priceMax && Number(unit) > Number(priceMax)) return false;
           return true;
         });
-      // Home's attention rows (task 29) share their predicates with /home.
+      // Home's attention rows share their predicates with /home.
       things = narrow(things, query, 'state', (t, v) => {
         const attention = attentionMatch(state, v as SearchStateFilter);
         return attention ? attention(t) : derivedStateOf(t, inv()).includes(v as 'draft');
@@ -169,7 +168,7 @@ export function searchRoutes(state: MockState): MockRoute[] {
         ...resultRow(inv(), t),
         ...(alias && !searchMatches(t.name ?? '', q) ? { matchedAlias: alias } : {}),
       }));
-      // Step 6 (T14): what only meaning found comes after the words' matches, marked as such.
+      // What only meaning found comes after the words' matches, marked as such.
       for (const id of meaningOnly(state, q)) {
         const t = things.find((x) => x.id === id);
         if (t && !rows.some((r) => r.id === id))
@@ -204,7 +203,7 @@ export function searchRoutes(state: MockState): MockRoute[] {
         .vendors.filter((x) => accounts.has(x.ownerAccountId) && q && searchMatches(x.name, q))
         .map((x) => ({ id: x.id, name: x.name, kind: x.kind, ownerAccountId: x.ownerAccountId }));
 
-      // Documents (T21): the attachments whose file's text matches, as the server's gates allow.
+      // Documents: the attachments whose file's text matches, as the server's gates allow.
       const showsMoney = (locationId: string) => {
         const loc = state.locations.find((l) => l.id === locationId);
         const role = loc?.role ?? 'viewer';

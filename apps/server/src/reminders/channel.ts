@@ -8,8 +8,8 @@ import {
 import type { AdminAlertKind } from '../db/schema/alerts.js';
 import type { StaleMeter } from '../notify/words.js';
 
-// The delivery interface between the reminder engine (plan T14: the scan, deliveries, digests)
-// and the channels (plan T15: email, web push, the webhook). The engine decides what goes to whom
+// The delivery interface between the reminder engine (the scan, deliveries, digests)
+// and the channels (email, web push, the webhook). The engine decides what goes to whom
 // and when, keeps the ledger (reminder_deliveries, notification_digests) and calls a sender; a
 // sender only turns a message into one email, push or webhook, in the recipient's language, and
 // says how it went. The engine never renders words and a sender never writes the ledger.
@@ -18,7 +18,7 @@ import type { StaleMeter } from '../notify/words.js';
 // `SystemJobDeps.channels` (jobs/system.ts). A channel with no sender is off on this instance
 // (no SMTP: no `email` sender), and the scan makes no deliveries for it.
 
-/** Where something is, in words: a thing, a place or the whole location (L113). */
+/** Where something is, in words: a thing, a place or the whole location. */
 export type ReminderSubject = {
   type: 'thing' | 'place' | 'location';
   id: string;
@@ -30,12 +30,12 @@ export type ReminderSubject = {
 };
 
 /**
- * One reminder, with everything a template needs to name it (L113): the thing (or place), its
+ * One reminder, with everything a template needs to name it: the thing (or place), its
  * path, the location and the local due date. Never money, contact details or secrets (D110).
  */
 export type ReminderItem = {
   occurrenceId: string;
-  /** The §7.13 key, `${sourceType}:${sourceId}:${kind}:${duePeriod}`: stable across re-sends,
+  /** The key, `${sourceType}:${sourceId}:${kind}:${duePeriod}`: stable across re-sends,
    * so the push sender can hash it into its `topic` (a re-send replaces rather than stacks). */
   key: string;
   sourceType: ActiveSourceType;
@@ -61,7 +61,7 @@ export type ReminderItem = {
   documentKind: string | null;
   /** A loan's direction: `out` (lent) or `in` (borrowed); else null. */
   loanDirection: 'out' | 'in' | null;
-  /** A stale-reading nudge's meter (step 5): its kind, label and the day it was last read. */
+  /** A stale-reading nudge's meter: its kind, label and the day it was last read. */
   meter?: StaleMeter | null;
   subject: ReminderSubject;
   location: { id: string; name: string; timezone: string };
@@ -125,7 +125,7 @@ export interface ChannelSender {
 /** The senders this instance has. A missing one means that channel is off here. */
 export type ChannelSenders = Partial<Record<ChannelKindBuilt, ChannelSender>>;
 
-/** The reminder sources built (Q3; step 5 added `reading_stale`, step 7 `stock`). */
+/** The reminder sources built (step 5 added `reading_stale`, step 7 `stock`). */
 export function isActiveSource(t: SourceType): t is ActiveSourceType {
   return (ACTIVE_SOURCE_TYPES as readonly SourceType[]).includes(t);
 }

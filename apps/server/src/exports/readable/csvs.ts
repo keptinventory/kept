@@ -5,7 +5,7 @@ import type pg from 'pg';
 import { type ReadContext, readEntity } from '../data.js';
 import { type EntityDef, fieldsOf } from '../registry.js';
 
-// The readable copy's spreadsheets (D159, D169; plan T13, Q12): UTF-8 with a BOM (so a
+// The readable copy's spreadsheets (D159, D169): UTF-8 with a BOM (so a
 // spreadsheet reads Arabic), CRLF line ends, every cell through @kept/shared's safeCsvCell() (a
 // leading `=`, `+`, `-`, `@`, tab or carriage return neutralised). things.csv and places.csv are
 // written for people (names, not ids); every other entity's CSV has the registry's fields, plus

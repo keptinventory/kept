@@ -1,5 +1,5 @@
-// The assistant's fixed sentences (step-6 plan Q23, screens §8): what the thread says when Kept,
-// not the model, answers. Stored as the answer's text in the question's interface language (Q22),
+// The assistant's fixed sentences: what the thread says when Kept,
+// not the model, answers. Stored as the answer's text in the question's interface language,
 // so the thread reads the same on every device. The location's name is the person's own text,
 // isolated with FSI…PDI so it reads correctly inside a right-to-left sentence (lib/bidi.ts's rule
 // on the web).
@@ -40,7 +40,7 @@ const NO_ANSWER: Record<WordsLocale, string> = {
   it: 'Non sono riuscito a completare la risposta. Chiedi di nuovo, magari in modo più preciso.',
 };
 
-/** Screens §8: a viewer asked for a change, and the model tried one anyway. */
+/** A viewer asked for a change, and the model tried one anyway. */
 export function viewerRefusal(locale: string, locationName: string | null): string {
   const w = wordsLocale(locale);
   return locationName ? VIEWER[w](locationName) : NO_CHANGES[w];

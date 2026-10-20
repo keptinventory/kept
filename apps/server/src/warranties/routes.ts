@@ -32,7 +32,7 @@ import {
   WarrantySchema,
 } from './view.js';
 
-// Warranties and claims (step-4 plan T9; D53–D55, D158, D195; Q18, Q26, Q27). Shapes:
+// Warranties and claims (D53–D55, D158, D195). Shapes:
 // apps/web/src/api/household/types.ts, "warranties and claims". Module `warranties` throughout.
 //
 // GET    /api/v1/things/:id/warranties          → {items, coverage}

@@ -1,5 +1,5 @@
 /**
- * The start cell on a partly used sheet (D175; screens §6), which is also the layout preview:
+ * The start cell on a partly used sheet (D175), which is also the layout preview:
  * the sheet's grid in its own proportions, the cells before the start hatched as used, the start
  * outlined, and the codes in the cells they will print into. Every cell is a radio, so a tap or
  * the arrow keys choose where printing starts.

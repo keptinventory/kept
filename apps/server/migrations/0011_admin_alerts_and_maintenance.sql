@@ -14,7 +14,7 @@ CREATE TABLE "admin_alerts" (
 	CONSTRAINT "admin_alerts_seen_chk" CHECK (last_at >= first_at)
 );
 --> statement-breakpoint
--- Jobs, admin alerts and mail (tasks 24–25; D46, D166, D180, D185, §3.3, §7.1, §7.13).
+-- Jobs, admin alerts and mail (D46, D166, D180, D185).
 -- The table above (drizzle-kit) is admin_alerts. Below, by hand: its policies, and the doors the
 -- step-1 system jobs and the mail transport need. Each door is SECURITY DEFINER, does one thing
 -- and is kept_system's alone, so kept_system gains no table privilege in schema auth and no
@@ -37,12 +37,12 @@ REVOKE INSERT, UPDATE, DELETE ON public.admin_alerts FROM kept_app;
 CREATE POLICY system_all ON public.admin_alerts FOR ALL TO kept_system USING (true) WITH CHECK (true);
 --> statement-breakpoint
 
--- 2. The nightly prune (task 24): rows nothing reads any more.
+-- 2. The nightly prune: rows nothing reads any more.
 --    - auth.sign_in_failures whose window and last failure are both older than the longest
 --      window any limiter uses (24 h, the sign-up-existing notice) plus an hour;
 --    - auth.session_mfa of expired sessions (they go by cascade only when Better Auth deletes the
 --      session, which it does only for a session it sees again);
---    - idempotency_keys older than 30 days (§3.3).
+--    - idempotency_keys older than 30 days.
 --    Returns what it removed, by table, for the job's log line.
 CREATE FUNCTION kept.prune_stale_rows()
 RETURNS TABLE (what text, removed bigint)
@@ -70,7 +70,7 @@ REVOKE EXECUTE ON FUNCTION kept.prune_stale_rows() FROM PUBLIC, kept_app;
 GRANT EXECUTE ON FUNCTION kept.prune_stale_rows() TO kept_system;
 --> statement-breakpoint
 
--- 3. The default-partition alert (task 25): whether audit_events_default holds rows, and their
+-- 3. The default-partition alert: whether audit_events_default holds rows, and their
 --    span. The partition is locked to kept_owner (0005), so kept_system asks here. Moving the
 --    rows out stays a hand job for the operator, as kept_owner.
 CREATE FUNCTION kept.audit_default_partition_rows()

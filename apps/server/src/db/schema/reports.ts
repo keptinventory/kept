@@ -17,7 +17,7 @@ import { user } from './auth.js';
 import { id, textEnum, tstz } from './common.js';
 import { locations, ownerAccounts } from './tenancy.js';
 
-// Generated reports (D201; step-2 plan T32). One row per request for an inventory PDF: who asked,
+// Generated reports (D201). One row per request for an inventory PDF: who asked,
 // what it covers, and how far the `report` job has got. The PDF itself is a blob keyed by the
 // run's id alone (`r/<id>.pdf`, storage/blob-store.ts); both go 24 hours after the request
 // (kept.purge_expired_reports(), the hourly `purge-reports` job). Row-level security, the grants
@@ -25,7 +25,7 @@ import { locations, ownerAccounts } from './tenancy.js';
 
 export const REPORT_STATUSES = ['queued', 'running', 'done', 'failed'] as const;
 const status = textEnum('status', REPORT_STATUSES);
-// The insurance report (step 4, D158) is a second template on the same engine.
+// The insurance report (D158) is a second template on the same engine.
 const kind = textEnum('kind', REPORT_KINDS);
 
 /**
@@ -44,7 +44,7 @@ export const reportRuns = pgTable(
       onDelete: 'cascade',
     }),
     locationIds: uuid('location_ids').array().notNull(),
-    /** Step 5 (Q17): the vehicle of a `vehicle_history` run, in its location (the key is in
+    /** The vehicle of a `vehicle_history` run, in its location (the key is in
      * 0065, with the trigger that keeps location_ids with it when the thing moves). */
     thingId: uuid('thing_id'),
     kind: kind.col().notNull().default('inventory'),

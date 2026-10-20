@@ -1,21 +1,21 @@
 /**
  * Admin → Settings: the instance settings of GET/PUT /api/v1/admin/settings (admin/routes.ts).
  * Each saves on its own; a value the server's environment sets shows locked, and the server
- * refuses to change it (§7.11: the environment wins).
+ * refuses to change it (the environment wins).
  *
- * - Sign-up (task 23; KEPT_SIGNUP_OPEN).
- * - Barcode lookup (T17; D104, D126; KEPT_BARCODE_LOOKUP): off by default. When on, a product
+ * - Sign-up (KEPT_SIGNUP_OPEN).
+ * - Barcode lookup (D104, D126; KEPT_BARCODE_LOOKUP): off by default. When on, a product
  *   barcode Kept doesn't know is looked up in Open Food Facts, Open Products Facts and Open Beauty
  *   Facts; only the barcode is sent. The contact (KEPT_BARCODE_CONTACT) is the email the lookups
  *   name in their User-Agent, as those databases ask.
- * - Former addresses (T16; D120, Q32): an instance's old host names, whose requests are sent to
+ * - Former addresses (D120): an instance's old host names, whose requests are sent to
  *   the public URL, so labels printed under an old address keep working. At most 10; never the
  *   public URL's own host.
- * - Private addresses (Q9, D83; `instance_settings.ssrf_allow_private`): off by default. When on,
+ * - Private addresses (D83; `instance_settings.ssrf_allow_private`): off by default. When on,
  *   an OpenAI-compatible AI provider's base URL may be on the server's own network (a model run
  *   at home). The warning says what that opens: anyone who may add a provider can have the server
  *   call machines on its network. No environment variable sets it, so it is never locked.
- * - Check for new versions (step 8 T11, T21; D65; KEPT_UPDATE_CHECK): off by default. When on, the
+ * - Check for new versions (step 8 T11; D65; KEPT_UPDATE_CHECK): off by default. When on, the
  *   server asks GitHub once a day for the newest release of its source repository, sending
  *   nothing but the request; Admin → Status shows the answer. Nothing is downloaded or installed.
  */

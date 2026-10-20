@@ -12,7 +12,7 @@ import { locationModules, locations } from '../db/schema/index.js';
 import { type Scope, type Tx, withScope } from '../db/scope.js';
 import { AppError, notFound, unauthenticated } from './errors.js';
 
-// Module gating (engineering spec §7.6). A route declares `config: { module: 'vehicles' }`; this
+// Module gating. A route declares `config: { module: 'vehicles' }`; this
 // preHandler resolves the target location and refuses the request when that module is off
 // there: 404 `module_off` for a read, 409 `module_off` for a write. A location the user can't
 // see is a plain 404 `not_found`, so gating never tells an outsider which modules a location has.
@@ -27,7 +27,7 @@ declare module 'fastify' {
     moduleLocation?: (req: FastifyRequest) => string | null | Promise<string | null>;
   }
   interface FastifyRequest {
-    /** The signed-in user's scope, set by the session preHandler (task 17); null when none. */
+    /** The signed-in user's scope, set by the session preHandler; null when none. */
     scope: Scope | null;
   }
 }
@@ -115,7 +115,7 @@ export type ProviderResolver = (tx: Tx, locationId: string) => Promise<boolean>;
 
 const noProvider: ProviderResolver = async () => false;
 
-/** Step 3 (T9, D191): a provider resolves for the caller in the location (plan Q5's cascade,
+/** Step 3 (D191): a provider resolves for the caller in the location (the provider cascade,
  * `kept.ai_provider_resolved`): AI capture and the assistant follow it in any preset. */
 export const dbProviderResolved: ProviderResolver = async (tx, locationId) => {
   const { rows } = await tx.execute<{ ok: boolean }>(

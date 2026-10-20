@@ -7,10 +7,10 @@ import { loadHomeboxLookups } from './lookups.js';
 import { planHomebox } from './plan.js';
 import { type HomeboxData, openHomebox, readHomebox } from './read.js';
 
-// The Homebox export's importer (D146; step-7 plan T8, T9, T10), as imports/archive.ts dispatches
+// The Homebox export's importer (D146), as imports/archive.ts dispatches
 // to it for a `homebox_zip` run: inspect reads the manifest and counts, the dry run plans the
-// whole archive against the target and writes nothing but the report (only rows with issues,
-// Q27), and the job is `import-homebox` (job.ts).
+// whole archive against the target and writes nothing but the report (only rows with issues),
+// and the job is `import-homebox` (job.ts).
 
 /** Files the target takes when the run's request has no storage (it then can't import). */
 const NO_STORAGE_MAX = 25 * 1024 * 1024;

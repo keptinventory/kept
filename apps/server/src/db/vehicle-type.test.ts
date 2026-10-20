@@ -5,7 +5,7 @@ import { testDb } from '../../test/db.js';
 import { ownerTx, seedTenant, type Tenant } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step 5, task 7 (0066): kept.is_vehicle_type() (plan Q2): a type is a vehicle's when it reaches
+// Step 5, task 7 (0066): kept.is_vehicle_type(): a type is a vehicle's when it reaches
 // the built-in `vehicle` through parent_id or copied_from_id.
 
 const db = await testDb();

@@ -27,7 +27,7 @@ import { LocalBlobStore } from './local.js';
 import { contentDisposition, S3BlobStore, type S3BlobStoreOptions } from './s3.js';
 import { createUrlSigner } from './signed-url.js';
 
-// T18: the S3 driver (Q18). Two halves:
+// The S3 driver. Two halves:
 // - unit tests with the client's `send` stubbed, for the requests the driver builds, plus
 //   presigning, which is offline;
 // - the shared BlobStore contract and real presigned fetches against RustFS

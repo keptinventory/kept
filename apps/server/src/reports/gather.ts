@@ -18,8 +18,8 @@ import type { ReportLocale } from './labels.js';
 //   condition), never `custom`, so neither secret_values nor a custom field reaches it.
 // - Drafts (captures not yet confirmed) are left out; ended and trashed things only on request.
 
-/** A report's size limit: past it the run fails with `too_many_things` (filter it instead). The
- * spike rendered 500 things in about 2 s and 280 MB; four times that still fits the budget. */
+/** A report's size limit: past it the run fails with `too_many_things` (filter it instead). A
+ * trial run rendered 500 things in about 2 s and 280 MB; four times that still fits the budget. */
 export const MAX_THINGS = 2000;
 
 export class TooManyThingsError extends Error {
@@ -33,7 +33,7 @@ export type ReportFilters = {
   placeIds: string[];
   typeIds: string[];
   tagIds: string[];
-  /** Exactly these things (a printed list, step-7 T16). Runs made before it have none. */
+  /** Exactly these things (a printed list). Runs made before it have none. */
   thingIds?: string[];
   includeEnded: boolean;
   includeTrashed: boolean;
@@ -333,7 +333,7 @@ export async function gather(
 
 /**
  * A page of one location's things as a report reads them, with no MAX_THINGS cap: the readable
- * copy of an export (exports/readable/, step-7 T13) reads every thing this way, in pages, in the
+ * copy of an export (exports/readable/) reads every thing this way, in pages, in the
  * requester's scope. `showMoney` is the requester's gate there; the report path keeps its cap.
  */
 export async function readThingsPage(

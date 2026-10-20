@@ -1,6 +1,6 @@
 /**
- * The assistant on a phone (D24; screens §1 and §5, frames 04 · 4 and 04 · 5): a tall bottom
- * sheet over the page it came from, with the page's context chip in its header (§8), Threads, a
+ * The assistant on a phone (D24; frames 04 · 4 and 04 · 5): a tall bottom
+ * sheet over the page it came from, with the page's context chip in its header, Threads, a
  * new thread, and Close. Back closes it first (components/ui/close-on-back.tsx); following a link
  * in an answer closes it, so the page shows.
  */

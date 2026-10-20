@@ -1,9 +1,9 @@
 /**
- * The name under the viewfinder (D194; screens §5). With AI capture off in the target location
+ * The name under the viewfinder (D194). With AI capture off in the target location
  * nothing will name a photo, so it is the primary input, labelled "Name"; with AI on it is
  * "Name (optional)" and an unnamed draft shows "Naming…" until extraction finishes. RECEIPT and
  * READING modes take a note instead. OS keyboard dictation works in it, and so does the in-app
- * mic where the browser has a recogniser (D25, step 6: assistant/dictation.ts, the composer's).
+ * mic where the browser has a recogniser (D25; assistant/dictation.ts, the composer's).
  *
  * Enter with a name and no photo saves the thing by name alone (D19: a photo or a name).
  */

@@ -34,7 +34,7 @@ import {
   splitList,
 } from './csv.js';
 
-// The row mapper (plan T18; §5 "mapped, as text, skipped, why"). The dry run and the job run the
+// The row mapper. The dry run and the job run the
 // same planRow() over the same Lookups: the dry run writes nothing and remembers what it would
 // create under placeholder ids, so a later row sees the places, brands and codes an earlier row
 // would make; the job remembers the real ids as it creates them (job.ts).
@@ -49,7 +49,7 @@ import {
 //
 // Lookups are read under the importer's own row-level security, and only with equality on
 // indexed columns, or all of a location's (or an account's) rows at once, never with a
-// non-leakproof operator over a large table (engineering spec §7.2).
+// non-leakproof operator over a large table.
 
 /** A reason on a row: a stable code for the web to translate, with the English as a fallback. */
 export type Issue = ImportIssue;
@@ -89,7 +89,7 @@ export type PlannedThing = {
   target: PlannedTarget;
   purchase: { purchasedOn: string; currency: string; price: string; vendor: Ref | null } | null;
   legacyCodes: string[];
-  /** Own codes (D208, T17a), each checked against the location's format rule. */
+  /** Own codes (D208), each checked against the location's format rule. */
   ownCodes: string[];
 };
 
@@ -159,7 +159,7 @@ export class Lookups {
   readonly sourceIds = new Map<string, number>();
   /** Legacy codes taken in the location (any source: csv, homebox, own), and what they name. */
   readonly codes = new Map<string, string>();
-  /** The location's format rule for own codes (T17a), and its verdict on each own code the
+  /** The location's format rule for own codes, and its verdict on each own code the
    * rows name, checked in one timed batch (codes/format-rule.ts). */
   rule: FormatRule | null = null;
   readonly ruleVerdicts = new Map<string, CodeCheck>();
@@ -933,7 +933,7 @@ export async function planRow(
       ctx.issues.push(issue(c.column, 'code_taken', 'This code is already on something else.'));
     } else legacyCodes.push(code);
   }
-  // Own codes (D208, T17a): the same, and the location's format rule; a code it refuses is kept
+  // Own codes (D208): the same, and the location's format rule; a code it refuses is kept
   // as text, with the owner's message.
   const ownCodes: string[] = [];
   for (const c of cellsOf(run, row, 'own_code')) {
@@ -1015,7 +1015,7 @@ export async function planRow(
 // The dry run
 // ---------------------------------------------------------------------------------------------
 
-/** Maps every row without writing, and reports "mapped, as text, skipped, why" (§5). */
+/** Maps every row without writing, and reports "mapped, as text, skipped, why". */
 export async function dryRun(
   tx: Tx,
   client: pg.ClientBase,

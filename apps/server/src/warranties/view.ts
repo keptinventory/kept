@@ -15,7 +15,7 @@ import type { AttachmentView } from '../files/views.js';
 import { DocumentSchema, type GatedMoney, GatedMoneySchema } from '../money/view.js';
 import type { Gate } from '../serialize/gates.js';
 
-// Warranties and claims on the wire (step-4 plan T9; D53–D55, D158, D195; Q18, Q26, Q27): the web
+// Warranties and claims on the wire (D53–D55, D158, D195): the web
 // contract's shapes (apps/web/src/api/household/types.ts, "warranties and claims"), the request
 // bodies, and the rows they are made from.
 //
@@ -307,7 +307,7 @@ export type ClaimPrefill = z.infer<typeof ClaimPrefillSchema>;
 
 export type WarrantyState = 'active' | 'expiring' | 'ended';
 
-/** Ended after its last day; expiring from `lead_days` before it (L2: end dates inclusive). */
+/** Ended after its last day; expiring from `lead_days` before it (end dates inclusive). */
 export function warrantyState(w: WarrantyRow, today: string): WarrantyState {
   const ends = warrantyEnds({
     startsOn: w.starts_on,
@@ -362,7 +362,7 @@ function gated(gate: Gate, amount: string | null, currency: string | null): Gate
   return { amount: canonicalAmount(amount) as string, currency };
 }
 
-/** D195, Q18: "Warranty saved you <amount>": what it would have cost, when the claim resolved at
+/** D195: "Warranty saved you <amount>": what it would have cost, when the claim resolved at
  * no cost. */
 function savedYouOf(c: ClaimRow, gate: Gate): GatedMoney | null {
   if (!gate.showMoney || c.status !== 'resolved' || c.covered_amount === null) return null;

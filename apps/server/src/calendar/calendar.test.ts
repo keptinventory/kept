@@ -9,7 +9,7 @@ import { createLocation, type Loc, own } from '../../test/things.js';
 import { createLogger } from '../http/logger.js';
 import { FEED_FETCHES_PER_MINUTE } from './routes.js';
 
-// The calendar feed through the front door (plan T17; D142, D181, Q23): a link shown once and
+// The calendar feed through the front door (D142, D181): a link shown once and
 // stored as a hash, at most 3 live, revocable; the public .ics in the owner's own scope, with the
 // kinds they get and nothing hidden; 404 for anything wrong; 60 fetches a minute; the token never
 // in a log line.
@@ -187,7 +187,7 @@ describe('GET /cal/:token.ics', () => {
       return (body.match(/BEGIN:VEVENT/g) ?? []).length;
     };
     expect(await count(bruce)).toBe(1);
-    // A viewer gets no reminder kinds by default (Q8).
+    // A viewer gets no reminder kinds by default.
     expect(await count(talia)).toBe(0);
 
     // Every channel off for thing expiries: gone.

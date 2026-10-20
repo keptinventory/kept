@@ -1,12 +1,12 @@
 // @vitest-environment node
 /**
- * The real decoder on fixture images (plan T26): `barcode-detector`'s ponyfill with the installed
+ * The real decoder on fixture images: `barcode-detector`'s ponyfill with the installed
  * zxing-wasm reader, run in Node. The images are drawn here, pixel by pixel: a QR code with `uqr`
  * (the same encoder the label sheets use) and an EAN-13 from its published module tables, so the
  * test needs no image files and no canvas.
  *
  * It also pins the pair: the ponyfill bundles zxing-wasm's JS glue, and the wasm we self-host must
- * be the build that glue was made for (the spike's second correction). A bump of one without the
+ * be the build that glue was made for (found when testing the scanner). A bump of one without the
  * other fails here, not on a phone.
  *
  * Node has no `ImageData` or `DOMRectReadOnly`; minimal stand-ins are enough for the ponyfill,

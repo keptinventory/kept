@@ -1,6 +1,6 @@
 /**
  * Tokens in the URL fragment (D181): `#token=abc` (magic links) or a bare `#abc` (invites,
- * screens §2 `/invite#<token>`). The fragment is never sent to the server.
+ * `/invite#<token>`). The fragment is never sent to the server.
  */
 export function tokenFromHash(hash: string): string | null {
   const raw = hash.startsWith('#') ? hash.slice(1) : hash;

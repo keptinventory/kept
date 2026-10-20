@@ -2,7 +2,7 @@ import type { DropReason, OpKind, OpPayload, SyncOpResult } from '@kept/shared';
 import type pg from 'pg';
 import type { Ctx } from '../../things/service.js';
 
-// What every op handler shares (plan T14). A handler calls the service that owns the change
+// What every op handler shares. A handler calls the service that owns the change
 // (capture, moves, readings, labels, places, box checks) in the op's own scoped transaction; none
 // re-implements a domain rule. Before calling it, a handler looks at what the op points at, so a
 // change to something trashed in the meantime is answered as D35 asks ("the drill was trashed by
@@ -57,7 +57,7 @@ const MISSING: Presence = { state: 'missing', name: '', locationId: null, trashe
 
 /**
  * Whether a thing or place the op points at is live, in the trash, or out of sight (missing, or
- * in a location the caller doesn't see: the same answer, §7.7).
+ * in a location the caller doesn't see: the same answer).
  */
 export async function presenceOf(
   client: pg.ClientBase,

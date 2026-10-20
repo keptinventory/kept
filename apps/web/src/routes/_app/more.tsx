@@ -1,4 +1,4 @@
-/** More (phone): screens §1's list. The desktop has the same entries in the sidebar. */
+/** More (phone): the navigation list. The desktop has the same entries in the sidebar. */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useLocations } from '@/api/queries';

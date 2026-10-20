@@ -17,7 +17,7 @@ import {
 } from './push.js';
 import type { VapidDetails } from './vapid.js';
 
-// Web push (plan T15; L112, Q12) against a local HTTPS receiver standing in for a push service:
+// Web push against a local HTTPS receiver standing in for a push service:
 // what web-push sends, the private-address refusal that ignores ssrf_allow_private, and what
 // 404, 410 and 5xx do to a subscription. Nothing leaves the machine.
 

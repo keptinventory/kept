@@ -1,7 +1,7 @@
 /**
- * Scoring for the extraction evaluation (plan T11; V1, V2, V3, V37; D19, D129). Pure: no I/O.
+ * Scoring for the extraction evaluation (D19, D129). Pure: no I/O.
  *
- * A case's expected values are the §2.1 shape without confidences. `{"anyOf": [...]}` lists the
+ * A case's expected values are the extraction shape without confidences. `{"anyOf": [...]}` lists the
  * acceptable answers; `null` means the field must be left out; a field not listed isn't scored.
  * Each field is compared by its kind:
  * - text: equal after `normalize()` (D42: case, Arabic letter forms and Arabic-Indic digits
@@ -470,7 +470,7 @@ export function scoreFields(
   return out;
 }
 
-// --- The paper outline (Q11) -------------------------------------------------------------------
+// --- The paper outline -------------------------------------------------------------------------
 
 export type CropVerdict = 'missing' | 'no_crop' | 'good' | 'loose' | 'cuts_paper';
 
@@ -507,7 +507,7 @@ export function fromLongSide(b: Bbox, width: number, height: number): Bbox {
   ];
 }
 
-// --- Multi-item boxes (V2) -----------------------------------------------------------------------
+// --- Multi-item boxes ----------------------------------------------------------------------------
 
 export type MultiObject = { name: string; bbox: Bbox; confidence?: number };
 

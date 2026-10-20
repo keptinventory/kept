@@ -1,13 +1,13 @@
 /**
- * Thing detail, create and edit (plan task 26; screens §5 Thing detail and A viewer's thing
- * detail). The screen is components/things/thing-screen.tsx. The URL carries the open tab
+ * Thing detail, create and edit, for
+ * everyone from owner to viewer. The screen is components/things/thing-screen.tsx. The URL carries the open tab
  * (`?tab=`), an open sheet (`?sheet=move`), and a container's contents list state (the list
  * standard's `q`, `f.*`, `group`, `sort`, plus `view=photos`, D195), so every state can be linked.
  *
- * `$id` is the short ID (`/t/2HX9RB`, typed any way: `/t/2hx-9rb`) or the UUID (D208, T17a;
- * lib/address.ts). A UUID address, or a code typed another way, is replaced in place by the short
+ * `$id` is the short ID (`/t/2HX9RB`, typed any way: `/t/2hx-9rb`) or the UUID (D208; lib/address.ts).
+ * A UUID address, or a code typed another way, is replaced in place by the short
  * ID once the thing has one; a thing created offline keeps its UUID address until it syncs.
- * Offline, or when the server can't be reached, the page is the phone's copy (T28).
+ * Offline, or when the server can't be reached, the page is the phone's copy.
  *
  * The schema is written out here rather than imported from the screen, because a route's
  * `validateSearch` is not code-split: it stays in the entry chunk (D80).
@@ -35,7 +35,7 @@ const oneOf = <T extends string>(values: readonly [T, ...T[]]) =>
   z.optional(z.catch(z.optional(z.enum(values)), undefined));
 
 export const Route = createFileRoute('/_app/t/$id')({
-  // A vehicle's lists (step 5): its readings, fills and services keep their filters here too.
+  // A vehicle's lists: its readings, fills and services keep their filters here too.
   validateSearch: listSearch([...new Set([...CONTENTS_FILTERS, 'role', ...VEHICLE_FILTERS])], {
     view: oneOf(['list', 'photos']),
     tab: oneOf([
@@ -49,7 +49,7 @@ export const Route = createFileRoute('/_app/t/$id')({
       'links',
       'schedules',
       'history',
-      // A vehicle's tabs (step 5, screens §8): Overview · Readings · Services · Fuel · Schedules
+      // A vehicle's tabs: Overview · Readings · Services · Fuel · Schedules
       // · Documents · Costs, then its Details and the thing's other sections.
       'readings',
       'services',
@@ -97,7 +97,7 @@ function Thing({ id, param }: { id: string; param: string }) {
   const search = Route.useSearch() as { tab?: ThingTab; sheet?: SheetName };
   const thing = useThing(id);
   useCanonicalAddress('thing', param, thing.data);
-  // Offline, or the server out of reach: the phone's copy, "as of last sync" (T28).
+  // Offline, or the server out of reach: the phone's copy, "as of last sync".
   const offline = useOfflinePage(thing);
   if (offline) return <OfflineThingPage id={id} />;
   return <ThingScreen id={id} tab={search.tab} sheet={search.sheet} />;

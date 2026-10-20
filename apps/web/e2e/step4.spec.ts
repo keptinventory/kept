@@ -1,5 +1,5 @@
 /**
- * Step 4's household journeys against the real server (plan T30, finished in step 5's T25), on the
+ * Step 4's household journeys against the real server (finished in step 5's T25), on the
  * `households` seed (the `household` instance, e2e/instances.ts), whose step-4 records (seed/
  * records.ts) the tests use where it has them. The plan's numbers:
  *
@@ -710,7 +710,7 @@ test('warranties: the TV\'s two warranties with their coverage bars; its claim i
   await axe(page, 'TV, paperwork and warranties');
 
   // The seed's claim has it in repair at Samsung Service Centre: the header says where it is, and
-  // Lend is gone from its actions (screens §8: what doesn't apply is hidden).
+  // Lend is gone from its actions (what doesn't apply is hidden).
   await expect(page.getByText(/^At Samsung Service Centre/).first()).toBeVisible();
   await page.getByRole('button', { name: 'More actions' }).click();
   await expect(page.getByRole('menuitem', { name: 'Move to Trash' })).toBeVisible();
@@ -854,11 +854,11 @@ test('lending off in Garage: "Off in this location" on Lend, the overdue loan re
   // The footer's Close (the sheet's corner × is named Close too).
   await sheet.getByRole('button', { name: 'Close', exact: true }).first().click();
 
-  // The reminder stops: the scan cancels the open occurrence of a module that is off (§7.13).
+  // The reminder stops: the scan cancels the open occurrence of a module that is off.
   expect(scanNow().closed.cancelled).toBeGreaterThan(0);
 
   // The nav entry stays while Lending is on in another of Ibrahim's locations (Home), and goes
-  // when it is off in every one of them (screens §1). The others are switched through the API.
+  // when it is off in every one of them. The others are switched through the API.
   await expect(shownNav.first()).toBeVisible();
   const { locations } = await api(page).get<{ locations: LocationRow[] }>('/api/v1/locations');
   const others = locations.filter(
@@ -882,7 +882,7 @@ test('lending off in Garage: "Off in this location" on Lend, the overdue loan re
   await page.goto('/');
   await expect(shownNav.first()).toBeVisible();
 
-  // Back on in the Garage: the same reminder reopens, once, and nothing floods (§7.6).
+  // Back on in the Garage: the same reminder reopens, once, and nothing floods.
   await track(true);
   const again = scanNow();
   expect(again.reopened).toBeGreaterThan(0);
@@ -933,7 +933,7 @@ test("Talia, a viewer: the TV's warranties and claims, and Catan's loan, with no
   await noActions(['More actions', 'Mark returned', 'More', 'Lend']);
   await axe(page, 'Catan as a viewer, loans');
 
-  // Me → Notifications: in Home, where she is a viewer, only Membership (Q8); since D239 the
+  // Me → Notifications: in Home, where she is a viewer, only Membership; since D239 the
   // other kinds stay listed with the reason instead of a switch.
   await page.goto('/settings/me/notifications');
   await chooseWhere(page, 'Home');
@@ -1017,7 +1017,7 @@ test('email and push: Louis turns on warranties by email, the digest reaches Mai
   const alarm = await thingNamed(page, home.id, 'Smoke alarm');
 
   // Settings → Me → Notifications: warranties in Home, in Kept and by email (a member's default is
-  // off, Q8), and the digest at 23:30, after the worker's own passes have run for the day.
+  // off), and the digest at 23:30, after the worker's own passes have run for the day.
   await page.goto('/settings/me/notifications');
   await expect(page.getByRole('heading', { name: 'Notifications', level: 1 })).toBeVisible();
   await axe(page, 'Notifications settings (Louis)');
@@ -1100,8 +1100,8 @@ test('email and push: Louis turns on warranties by email, the digest reaches Mai
 
   // Push. This instance runs on plain http://localhost with no SMTP sender address, so the server
   // has no VAPID subject and Settings offers no Enable (env.ts vapidSubject; pwa/push.ts
-  // pushBlocker); Chromium in Playwright has no push service to subscribe to anyway (the spike).
-  // What can run: a push delivered to the registered worker over CDP, as the spike did, which
+  // pushBlocker); Chromium in Playwright has no push service to subscribe to anyway.
+  // What can run: a push delivered to the registered worker over CDP, which
   // must show its notification with the payload's words and link.
   const settings = await api(page).get<NotificationSettingsBody>(
     '/api/v1/me/notification-settings',

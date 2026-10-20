@@ -5,7 +5,7 @@
  * lifetime: exactly one. The registration flag and its deadline, and the documents: picked here
  * for a new warranty and uploaded once it's saved, uploaded at once on an existing one.
  *
- * Editing and removing are undoable (the Undo toast, D150, plan Q25); adding isn't (§7.7).
+ * Editing and removing are undoable (the Undo toast, D150); adding isn't.
  */
 import { WARRANTY_KINDS, type WarrantyKind } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';

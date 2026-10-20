@@ -7,8 +7,8 @@ import { type TestDb, testDb } from '../../test/db.js';
 import { call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { ownerTx } from '../../test/tenancy.js';
 
-// Task 21: history and the activity feed through the front door (D76, D110, D150, D174, D183;
-// engineering spec §7.5). Events are written as kept_owner in the stored shape audited() gives
+// History and the activity feed through the front door (D76, D110, D150, D174, D183).
+// Events are written as kept_owner in the stored shape audited() gives
 // them (the real writes and their audit rows are each area's own tests); every read goes through
 // the app on kept_app, so the audit_events policy decides what exists and renderAudit() what
 // each field shows, for the caller's role in that event's location.

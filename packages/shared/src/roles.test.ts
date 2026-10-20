@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ACTIONS, type Action, can, MATRIX, QUALIFIERS, ROLES, type Role } from './roles.js';
 
 /**
- * The role matrix (product design §7.1), the table roles.ts implements. A change to who may do
+ * The role matrix, the table roles.ts implements. A change to who may do
  * what changes this table and roles.ts together.
  */
 const SPEC_7_1 = `| Action | Owner | Admin | Member | Viewer |
@@ -73,7 +73,7 @@ const R = (owner: boolean, admin: boolean, member: boolean, viewer: boolean) => 
 });
 
 /**
- * How each §7.1 row reads as actions. Plain rows are read straight off the fixture; rows whose
+ * How each role-matrix row reads as actions. Plain rows are read straight off the fixture; rows whose
  * cells qualify a verb ("create", "add, edit own", "own, read-only", "owner only") are split,
  * and their expected cells are spelled out by hand next to the cell text they come from.
  */

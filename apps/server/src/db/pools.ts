@@ -1,6 +1,6 @@
 import pg from 'pg';
 
-// One pg Pool per runtime login (engineering spec §7.1). kept_owner never gets a pool in the
+// One pg Pool per runtime login. kept_owner never gets a pool in the
 // serving process: it is used only by `kept migrate` and `kept admin`.
 
 export type Pools = {

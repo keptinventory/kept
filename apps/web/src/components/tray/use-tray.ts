@@ -1,5 +1,5 @@
 /**
- * The carrying tray's state (D175, screens §6): the thing ids picked up, in order, kept in the
+ * The carrying tray's state (D175): the thing ids picked up, in order, kept in the
  * phone's store (`tray: 'thingId, addedAt'` in Dexie), so it survives a reload and works offline.
  * Every change goes through here, so every screen showing "Carrying 3" (the header chip, the
  * scanner, the tray sheet) updates together.

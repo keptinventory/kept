@@ -1,5 +1,5 @@
 /**
- * Label geometry (plan T28): where each label lands per stock, the start cell on a part-used
+ * Label geometry: where each label lands per stock, the start cell on a part-used
  * sheet, how many pages a batch takes, the `@page` rule, and that the code always fits its column.
  */
 import { LABEL_STOCKS, labelStock } from '@kept/shared';

@@ -1,6 +1,6 @@
 /**
- * What the thing page's step-4 sections share (T20): after a write, refresh everything that may
- * show it (the sections, the lists, Home's rows, the thing's own header chips), and the §3 reason
+ * What the thing page's step-4 sections share: after a write, refresh everything that may
+ * show it (the sections, the lists, Home's rows, the thing's own header chips), and the reason
  * a write is disabled offline ("Needs a connection").
  */
 import { useLingui } from '@lingui/react/macro';
@@ -17,11 +17,11 @@ export function useHouseholdDone() {
   }, [invalidate, refresh]);
 }
 
-/** Null when online; otherwise the reason every write here is disabled (screens §3). */
+/** Null when online; otherwise the reason every write here is disabled. */
 export function useBlocked(): string | null {
   const { t } = useLingui();
   return useOnline() ? null : t`Needs a connection`;
 }
 
-/** Today in the thing's location (dates are the location's calendar days, §7.13). */
+/** Today in the thing's location (dates are the location's calendar days). */
 export const todayIn = (timeZone: string | undefined): string => dayIn(timeZone);

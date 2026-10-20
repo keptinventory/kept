@@ -1,5 +1,5 @@
 /**
- * A claim pack (D158, D180; plan T26 and Q19, `/reports/claim-pack`): a ZIP with the insurance
+ * A claim pack (D158, D180; `/reports/claim-pack`): a ZIP with the insurance
  * report and every receipt, invoice, photo and serial for an incident (`?incident=`) or a
  * selection of things in a location (`?loc=&things=a,b`), shared by an expiring download link.
  *

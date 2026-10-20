@@ -45,14 +45,14 @@ import { revokeTokensOnClaim } from './tokens/service.js';
 import { tokenHashKey } from './tokens/verify.js';
 import { setWebhookFanout } from './webhooks/fanout.js';
 
-// The server process (engineering spec §7.11, D81): one image, `KEPT_ROLE` = web · worker · all.
+// The server process (D81): one image, `KEPT_ROLE` = web · worker · all.
 //
 // Migrations are not run here: the one-shot `kept migrate` job does that, as kept_owner, before
-// the serving process starts (§7.12, §7.14). This process holds the owner login only when a
-// backup target is set (T31c): the nightly backup dumps as kept_owner, on its own connection per
+// the serving process starts. This process holds the owner login only when a
+// backup target is set: the nightly backup dumps as kept_owner, on its own connection per
 // run, never in a pool and never for a request.
 
-/** The port when KEPT_PORT doesn't say (step-1 carry-over, step-8 T13). */
+/** The port when KEPT_PORT doesn't say. */
 export const PORT = 8080;
 
 /** Where the built web bundle sits relative to this package, in the repo and in the image
@@ -79,7 +79,7 @@ export type StartOptions = {
   /**
    * The most connections each database pool, and pg-boss's own, may open (default 10 each).
    * The e2e run starts nine servers on one Postgres (apps/web/e2e/serve.mjs) and passes 3: at
-   * the defaults, pg-boss alone held 88 of max_connections' 100 with every server idle (T32).
+   * the defaults, pg-boss alone held 88 of max_connections' 100 with every server idle.
    */
   poolMax?: number;
 };
@@ -127,11 +127,11 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
   };
 
   try {
-    // Step 8 (T8, Q9): the downgrade guard, before anything runs on the database. A database
+    // The downgrade guard, before anything runs on the database. A database
     // more than one recorded release ahead stops the start (downgrade_refused) unless
     // KEPT_ALLOW_DOWNGRADE=1; one release ahead logs the rollback; this release's last_booted_at
     // is stamped.
-    // The first contact with the database waits for it (db/boot-retry.ts, T24): a Postgres that
+    // The first contact with the database waits for it (db/boot-retry.ts): a Postgres that
     // is still starting or too loaded to connect in time is retried for about two minutes.
     await retryAtBoot(
       'release guard',
@@ -148,7 +148,7 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
     // A worker runs the jobs; a web-only process still needs an instance to send from (requests
     // enqueue inside their own transaction, jobs/queue.ts), without maintenance or cron. Task 24
     // completes the registry.
-    // pg-boss gives up on a connection after 10 s; under load that ended the start (T24). A
+    // pg-boss gives up on a connection after 10 s; under load that ended the start. A
     // failed start is stopped and a fresh instance tried again, as the release guard is.
     boss = await retryAtBoot(
       'job queue',
@@ -171,21 +171,21 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
       },
       { log: logger },
     );
-    // Step 6 (T14, D207): KEPT_EMBEDDINGS becomes the stored source; the admin's switch changes it
+    // Step 6 (D207): KEPT_EMBEDDINGS becomes the stored source; the admin's switch changes it
     // until the next boot.
     await mirrorEmbeddingsSource(pools, env.KEPT_EMBEDDINGS);
-    // Step 6 (T15, Q18): audited() sends a write's webhook fan-out on the write's transaction.
+    // audited() sends a write's webhook fan-out on the write's transaction.
     setWebhookFanout(bossQueue(boss).send);
     const mailer = mail.mailer;
-    // File storage (T17, T18): the blob store KEPT_STORAGE names (the S3 bucket is created when
+    // File storage: the blob store KEPT_STORAGE names (the S3 bucket is created when
     // missing, so a bad store fails the start), the /f/<token> signer, and the upload limits. The
-    // web serves files with it; the worker's purge deletes blobs with it (T21), and without it
+    // web serves files with it; the worker's purge deletes blobs with it, and without it
     // would skip purging deleted locations and unattached files.
     const files = await createFileStorage(env);
-    // The AI provider layer on the database (ai/runtime.ts): the extraction job's (T10) and the
+    // The AI provider layer on the database (ai/runtime.ts): the extraction job's and the
     // AI routes'. KEPT_AI_MOCK answers every model call from the mock (refused in production).
     const secretKeys = secretKeysOf(env);
-    // Its hooks queue the cap and rejected-key notices (ai/notices.ts, T9).
+    // Its hooks queue the cap and rejected-key notices (ai/notices.ts).
     const ai = createAiDeps({
       pools,
       keyring: () => secretKeys.get().keyring,
@@ -194,7 +194,7 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
       ...(opts.aiMockAnswersFile ? { mockAnswersFile: opts.aiMockAnswersFile } : {}),
       ...aiNoticeHooks(pools, bossQueue(boss), logger),
     });
-    // Web push's VAPID keys (step 4, T15, Q11): the environment's, else the stored pair, else a
+    // Web push's VAPID keys: the environment's, else the stored pair, else a
     // new one made under an advisory lock. The web makes it at boot; a worker on first send.
     const push = createPushSource(pools.system, env, () => secretKeys.get(), logger);
     if (works) {
@@ -210,11 +210,11 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
           sendTenant: async (client, name, data, options) => {
             await sendTenantJob(boss as PgBoss, client, name, data, options);
           },
-          // Step 4 (T14): the reminder scan's deliveries, sent in the transaction that writes them.
+          // The reminder scan's deliveries, sent in the transaction that writes them.
           send: async (client, name, data, options) => {
             await sendInTx(boss as PgBoss, client, name, data, options ?? {});
           },
-          // Step 4 (T15): the email, web-push and webhook senders; email only when mail goes out.
+          // The email, web-push and webhook senders; email only when mail goes out.
           channels: createChannelSenders({
             pools,
             mailer: mail.configured ? mailer : null,
@@ -227,9 +227,9 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
             },
           }),
           secretKeys,
-          // Step 8 (T11, D65): the opt-in update check asks about KEPT_SOURCE_URL's repository.
+          // Step 8 (D65): the opt-in update check asks about KEPT_SOURCE_URL's repository.
           updates: { sourceUrl: env.KEPT_SOURCE_URL ?? null, updateCheck: env.KEPT_UPDATE_CHECK },
-          // Step 8 (T5): restic snapshots; the settings are read at each run, over process.env.
+          // Restic snapshots; the settings are read at each run, over process.env.
           backup: {
             // KEPT_BACKUP_TIME if set, else the time saved in Admin → Backups (a save later
             // reschedules at once, admin/backup-routes.ts).
@@ -259,7 +259,7 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
         }),
         { pools },
       );
-      // Step 8 (T13): a worker-only process serves no /readyz; its liveness is a heartbeat file
+      // A worker-only process serves no /readyz; its liveness is a heartbeat file
       // the image's healthcheck reads (jobs/liveness.ts, docker/healthcheck.mjs).
       if (env.KEPT_ROLE === 'worker') {
         stopHeartbeat = startWorkerHeartbeat(boss, {
@@ -268,17 +268,17 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
       }
     }
     if (serves) {
-      // The first-run setup code (§7.10, §7.14): made as kept_system under an advisory lock,
+      // The first-run setup code: made as kept_system under an advisory lock,
       // before listening, and printed only by the process that stored it.
       const code = await ensureSetupCode(pools.system, { preset: env.KEPT_SETUP_CODE });
       if (code) (opts.print ?? ((line) => process.stdout.write(`${line}\n`)))(setupCodeLine(code));
-      // The VAPID pair exists before anyone subscribes (T15). Push trouble never stops the web.
+      // The VAPID pair exists before anyone subscribes. Push trouble never stops the web.
       await push().catch((err: unknown) => logger.error({ err }, 'web push keys unavailable'));
       const webRoot = opts.webRoot === undefined ? DEFAULT_WEB_ROOT : opts.webRoot;
       const web = webRoot ? await loadWebBundle(webRoot) : null;
-      // ensureAccount() from the sign-up hook and, cached, on every signed-in request (task 18).
+      // ensureAccount() from the sign-up hook and, cached, on every signed-in request.
       const accounts = accountEnsurer(pools);
-      // Step 6 (T16, Q16): generic OIDC, discovered once at boot through the SSRF guard. A failed
+      // Generic OIDC, discovered once at boot through the SSRF guard. A failed
       // discovery leaves it off until a restart; Admin → Status says why (auth/oidc.ts).
       const oidc = await bootOidc({
         env,
@@ -289,7 +289,7 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
       // 1.2 (D226): Google sign-in, from the environment; nothing to discover.
       const google = googleConfigOf(env);
       setGoogleStatus(google, env.KEPT_PUBLIC_URL);
-      // D180 (T16, Q16, Q24): a changed OIDC or SMTP configuration is told to every active user,
+      // D180: a changed OIDC or SMTP configuration is told to every active user,
       // once, whichever replica boots first (notices/transparency.ts).
       await checkConfigNotices({
         pools,
@@ -312,7 +312,7 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
         onBackgroundError: (err, what) =>
           logger.error({ err, what }, 'auth background task failed'),
       });
-      // Step 8 (T10): Admin → Backups' Test and snapshot list reach restic through this engine;
+      // Admin → Backups' Test and snapshot list reach restic through this engine;
       // the settings' locks are read from process.env (backup/settings.ts).
       configureBackupRoutes({
         engine: {

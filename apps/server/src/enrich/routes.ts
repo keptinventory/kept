@@ -16,14 +16,14 @@ import { gateFor } from '../serialize/gates.js';
 import { estimateRun, pendingThings } from './estimate.js';
 import { ENRICH_JOB, type EnrichState, readEnrichRun, roleIn, writeEnrichState } from './job.js';
 
-// Step 7: alias enrichment after an import (D41, D69, D206, D214; plan T15, Q21), in the shapes
+// Alias enrichment after an import (D41, D69, D206, D214), in the shapes
 // of apps/web/src/api/portability/types.ts (`EnrichEstimate`, `EnrichStarted`):
 //
 // GET  /api/v1/imports/:id/enrich/estimate → EnrichEstimate: the token cost shown first (D69)
 // POST /api/v1/imports/:id/enrich          → 202 {jobId}; audited `import.enrich`
 //
 // Who: the run's location's owners and admins (import runs are theirs alone, 0038/0080: anyone
-// else gets 404), with AI capture effective for them there (step 3); otherwise 400
+// else gets 404), with AI capture effective for them there; otherwise 400
 // `ai_unavailable`, and the web makes no offer. Only a `done` run (409 before). The things are
 // the run's that have no alias in the location's languages (estimate.ts). The cost is left out
 // without a price, or where the money gate hides money (and the caller isn't the payer).
@@ -139,7 +139,7 @@ export function enrichBusy(state: EnrichState | null, now = Date.now()): boolean
   return now - Date.parse(state.updatedAt) < STALE_MINUTES * 60_000;
 }
 
-/** GET …/enrich/estimate and POST …/enrich (T15). Registered by http/routes.ts. */
+/** GET …/enrich/estimate and POST …/enrich. Registered by http/routes.ts. */
 export async function enrichRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools } = deps;
 

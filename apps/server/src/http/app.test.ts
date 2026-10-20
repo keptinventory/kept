@@ -15,7 +15,7 @@ import { buildApp, type KeptApp, OPENAPI_PATH } from './app.js';
 import { AppError } from './errors.js';
 import { createLogger, redactUrl } from './logger.js';
 
-// Task 16: the HTTP skeleton, exercised through app.inject().
+// The HTTP skeleton, exercised through app.inject().
 
 const db = await testDb();
 const pools = db.pools as Pools;
@@ -115,7 +115,7 @@ describe('buildApp()', () => {
     expect(res.headers['strict-transport-security']).toBeUndefined();
   });
 
-  // Step 3 (T2; T0's scanner spike): the zxing wasm needs 'wasm-unsafe-eval' in script-src, the
+  // Step 3 (the scanner trial): the zxing wasm needs 'wasm-unsafe-eval' in script-src, the
   // service worker needs worker-src, camera frames and phone-made labels are blob: images, and
   // the manifest is our own.
   it('lets the service worker, the scanner and camera blobs run, and nothing more', async () => {
@@ -130,7 +130,7 @@ describe('buildApp()', () => {
     expect(csp.get('default-src')).toEqual(["'self'"]);
   });
 
-  // Step 6 (T2): the assistant needs no fetch beyond Kept's own API, and dictation is the
+  // The assistant needs no fetch beyond Kept's own API, and dictation is the
   // browser's own recogniser, not a page fetch. connect-src stays default-src's 'self'; nobody
   // widens it for the assistant (no remote images, no model endpoints from the page, D179).
   it("keeps fetches to Kept's own origin: connect-src falls back to default-src 'self'", async () => {
@@ -273,7 +273,7 @@ describe('buildApp()', () => {
   });
 });
 
-// Step 3 (T2, Q26): the web app's share target is handled by the service worker. A share that
+// The web app's share target is handled by the service worker. A share that
 // reaches the server (the worker isn't active yet) is sent back to the capture screen with an
 // explanation, before its body is read, and nothing of it is kept.
 describe('POST /share', () => {
@@ -332,7 +332,7 @@ describe('redactUrl()', () => {
     ['/a?invite_token=x&b=2', '/a?invite_token=[redacted]&b=2'],
     ['/a?code=123456', '/a?code=[redacted]'],
     ['/a?page=2', '/a?page=2'],
-    // Invite tokens in the path (task 20): the preview and accept routes.
+    // Invite tokens in the path: the preview and accept routes.
     ['/api/v1/invites/abcDEF_-123', '/api/v1/invites/[redacted]'],
     ['/api/v1/invites/abc/accept?x=1', '/api/v1/invites/[redacted]/accept?x=1'],
     ['/api/v1/locations/1/invites/2', '/api/v1/locations/1/invites/2'],
@@ -340,7 +340,7 @@ describe('redactUrl()', () => {
     ['/f/abc.DEF_-1', '/f/[redacted]'],
     ['/f/abc.def?x=1', '/f/[redacted]?x=1'],
     ['/fa/b', '/fa/b'],
-    // A claim pack's download link (step 4, T18).
+    // A claim pack's download link.
     ['/x/Zm9vYmFyYmF6cXV4MTIzNDU2', '/x/[redacted]'],
     ['/cal/Zm9vYmFyYmF6cXV4MTIzNDU2.ics', '/cal/[redacted]'],
     ['/xa/b', '/xa/b'],

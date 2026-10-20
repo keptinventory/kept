@@ -1,5 +1,5 @@
 /**
- * "Install on your phone" help (D139, screens §8, frame 01 · Install Kept): the steps for this
+ * "Install on your phone" help (D139, frame 01 · Install Kept): the steps for this
  * device's browser, iPhone first on an iPhone. iPhone and iPad have no install prompt, so they
  * get Share → Add to Home Screen; Android and desktop browsers have their own. The checklist
  * step ticks itself the first time Kept opens as the installed app (checklist.tsx).

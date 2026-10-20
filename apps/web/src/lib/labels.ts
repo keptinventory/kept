@@ -1,6 +1,6 @@
 /**
  * Translated names for roles, location kinds, modules and presets, plus the location templates
- * (screens §8) and the timezone/currency guess the new-location wizard shows (D194).
+ * and the timezone/currency guess the new-location wizard shows (D194).
  */
 import type { ModuleId, Preset, Role } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
@@ -61,7 +61,7 @@ export function useKindLabels(): Record<LocationKind, string> {
   };
 }
 
-/** Screens §8's templates. House adds a second floor, a hallway and a storage room. */
+/** The place templates. House adds a second floor, a hallway and a storage room. */
 export function useTemplateRooms(): Record<Exclude<LocationKind, 'personal'>, string[]> {
   const { t } = useLingui();
   const apartment = [
@@ -155,7 +155,7 @@ const EUROZONE = new Set([
 ]);
 
 /**
- * The same guess the server makes for Personal (task 18): ar-EG → EGP, en-GB → GBP, en-CA and
+ * The same guess the server makes for Personal: ar-EG → EGP, en-GB → GBP, en-CA and
  * fr-CA → CAD, a eurozone region → EUR, otherwise USD. Only the enabled currencies (D168).
  */
 export function currencyForLocale(tag: string): string {
@@ -178,7 +178,7 @@ export function initialOf(name: string): string {
 
 /**
  * A location's display name. Personal is created by the server with the English name
- * "Personal" (task 18); it's a system location, so it's shown in the reader's language.
+ * "Personal"; it's a system location, so it's shown in the reader's language.
  */
 export function useLocationName() {
   const { t } = useLingui();

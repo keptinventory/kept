@@ -1,7 +1,7 @@
 /**
- * A stub for the Web Speech API's recogniser (spike S6.6's `installStub()`, as a class). Tests of
+ * A stub for the Web Speech API's recogniser. Tests of
  * dictation install it as `window.SpeechRecognition`; nothing automated ever starts a real
- * recogniser, which opens the real microphone even with fake-media flags (agent rules, S6.6).
+ * recogniser, which opens the real microphone even with fake-media flags (agent rules).
  * It follows the API's event names and the `results[i].isFinal` / `[0].transcript` shape.
  */
 import { vi } from 'vitest';

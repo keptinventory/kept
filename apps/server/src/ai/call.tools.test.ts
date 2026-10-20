@@ -1,4 +1,4 @@
-// callModel with tools and a conversation (step-6 plan T8): one provider request per call, every
+// callModel with tools and a conversation: one provider request per call, every
 // step one ledger row, and nothing of the conversation in the ledger or the logs (D206).
 import type { LanguageModelV4CallOptions, LanguageModelV4GenerateResult } from '@ai-sdk/provider';
 import { TOOL_DEFS } from '@kept/mcp';

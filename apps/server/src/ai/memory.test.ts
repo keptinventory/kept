@@ -98,7 +98,7 @@ describe('InMemoryBudgetGate (D206 caps)', () => {
     expect(
       await gate.reserve(req({ estimateCost: { amount: '0.02', currency: 'USD' } })),
     ).toMatchObject({ ok: false, reason: 'cap_money' });
-    // Reaching the cap paused it until the 1st (§7.15's state machine).
+    // Reaching the cap paused it until the 1st (the state machine).
     expect(await gate.reserve(req())).toMatchObject({
       ok: false,
       reason: 'cap_money',

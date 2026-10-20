@@ -1,21 +1,20 @@
 -- Custom SQL migration file, put your code below! --
--- Step 7, task 4: export runs, archive imports, source ids and abandoned runs (engineering spec
--- §1.10, §3.1b, §3.3, §7.1, §7.2; D68, D146, D157, D180; step-7 plan Q2, Q6, Q7, Q8, Q14, Q17,
--- Q18). Above, in 0079, drizzle's part: step 4's export_runs gains step 7's kinds (`location`,
+-- Export runs, archive imports, source ids and abandoned runs (D68, D146, D157, D180).
+-- Above, in 0079, drizzle's part: step 4's export_runs gains step 7's kinds (`location`,
 -- `me`), `cancelled`, its options, start, SHA-256 and sealed key; import_runs gains the archive
 -- columns, the sealed key and a null location while a draft; import_source_ids gains `homebox`
 -- and the wider entity list (src/db/schema/money.ts, imports.ts). Below:
 --   1. export_runs, still its creator's alone while they hold owner or admin (0049, D180):
 --      - a new run names exactly one incident or thing list for a claim pack, and none for a
---        Kept export; `me` is the requester's own Personal location (Q14);
+--        Kept export; `me` is the requester's own Personal location;
 --      - "Include secrets" is the owner's (D68): a run with it (and its sealed key) is inserted
---        only by the location's owner. The key is sealed by the route (Q7) and only ever cleared,
+--        only by the location's owner. The key is sealed by the route and only ever cleared,
 --        by the doors below: kept_app holds no grant on it.
 --   2. The export doors, step 4's, widened rather than duplicated:
 --      - kept.export_run_claim() also records when the job began;
 --      - kept.export_run_finish() also takes the archive's SHA-256, accepts `cancelled` (the
 --        creator's POST /exports/:id/cancel; the job's next door call then fails and it stops),
---        starts a done run's seven days when it is ready (§3.3), and clears the sealed key
+--        starts a done run's seven days when it is ready, and clears the sealed key
 --        whatever the outcome;
 --      - kept.purge_expired_exports() also fails a step-7 run its job abandoned (queued or
 --        running three hours after it began: the job expires at two) and clears its key.
@@ -23,7 +22,7 @@
 --      failed on inspection, or pruned); kept.set_import_target() sets the target once (kept_app
 --      holds no grant on location_id: 23514 import_runs_target_fixed for a second time). The
 --      archive columns and the sealed key take column grants; the key is cleared by the job.
---   4. Abandoned runs (step-3 carry-over, Q18): kept.stale_import_runs() and
+--   4. Abandoned runs: kept.stale_import_runs() and
 --      kept.clear_import_run(), the `prune-imports` job's (kept_system), which deletes the
 --      archive blob `i/<id>.zip` between the two.
 --   5. Access ends (D180): when someone stops administering a location, their unfinished
@@ -72,7 +71,7 @@ END $$;
 --> statement-breakpoint
 DROP FUNCTION kept.export_run_finish(uuid, bigint, text, text);
 --> statement-breakpoint
--- Done: the archive is at the run's own key, with its size and (step 7) SHA-256, kept seven days
+-- Done: the archive is at the run's own key, with its size and SHA-256, kept seven days
 -- from now. Failed: a short code (the CHECK), and no key. Cancelled: by its creator, queued or
 -- running. The sealed key goes in every case.
 CREATE FUNCTION kept.export_run_finish(p_id uuid, p_bytes bigint, p_status text, p_error text,
@@ -104,7 +103,7 @@ BEGIN
    WHERE x.id = p_id;
 END $$;
 --> statement-breakpoint
--- Seven days (§3.3 export retention): the run stays as history, its archive and link go. Returns
+-- Seven days (export retention): the run stays as history, its archive and link go. Returns
 -- the keys whose blobs the job deletes after its commit. A step-7 run whose job died (queued or
 -- running three hours after it began; the job expires at two, jobs/policies.ts) fails, and no
 -- sealed key outlives its run.
@@ -170,9 +169,9 @@ GRANT UPDATE (source_version, archive_bytes, archive_sha256, archive_ready_at, i
               secrets_key_ciphertext, key_version)
   ON public.import_runs TO kept_app;
 --> statement-breakpoint
--- The target, once (screens §6, plan T8): only the run's creator, only while it is a draft with
+-- The target, once: only the run's creator, only while it is a draft with
 -- none, and only a location they administer. The route creates a new location first, in the
--- same transaction, when that is the choice (a Kept export always lands in a new one, Q8).
+-- same transaction, when that is the choice (a Kept export always lands in a new one).
 CREATE FUNCTION kept.set_import_target(p_run uuid, p_location uuid) RETURNS void
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$
 DECLARE

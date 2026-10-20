@@ -1,5 +1,5 @@
 /**
- * "Keep this location available offline" on the device (step-8 plan T23; D159, D181, Q21, Q22):
+ * "Keep this location available offline" on the device (D159, D181):
  * fetch a location's extras (GET /api/v1/sync/extras, server sync/extras.ts), encrypt them under
  * the app lock's data key (offline/lock.ts) and keep them in IndexedDB (offline/db.ts v4).
  * Loaded lazily with Dexie; nothing of it is in the entry chunk.

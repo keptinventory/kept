@@ -1,5 +1,5 @@
-// Every job type's policy (D166, engineering spec §3.1b): how many attempts, how long one may
-// run, and how long to wait between them. The §3.1b table names the later steps' jobs
+// Every job type's policy (D166): how many attempts, how long one may
+// run, and how long to wait between them. The policy table names the later steps' jobs
 // (extraction, reminders, import/export, webhooks, backup); step 1's are set here in the same
 // spirit: maintenance retries a couple of times with backoff, mail a few more because an SMTP
 // server is often briefly away, and nothing runs for long. A job that exhausts its retries lands
@@ -35,31 +35,31 @@ export const JOB_POLICIES = {
     retryBackoff: false,
     expireInSeconds: 120,
   },
-  // Step 2 (T20): rebuilds search and path caches for a location, sent by requests (a type
+  // Rebuilds search and path caches for a location, sent by requests (a type
   // rename, a registry merge) and by `kept admin`; large locations take a while.
   reindex: { ...MAINTENANCE, expireInSeconds: 900 },
-  // Step 2 (T21): empties the trash and purges deleted locations and unattached files, daily;
+  // Empties the trash and purges deleted locations and unattached files, daily;
   // a big backlog takes a while, and the next day's run carries on where it stopped.
   purge: { ...MAINTENANCE, expireInSeconds: 1800 },
   'notify-owner-new-member': MAIL,
   'send-invite-mail': MAIL,
-  // Step 3 (§3.1b; plan T2). Extraction: two retries for a provider's brief outage, and 90 s,
+  // Step 3. Extraction: two retries for a provider's brief outage, and 90 s,
   // enough for one model call (callModel's own timeout is shorter) but short enough that a hung
   // provider frees the slot.
   extract: { retryLimit: 2, retryDelay: 20, retryBackoff: true, expireInSeconds: 90 },
-  // A CSV import is resumable (Q18): a failure is shown and resumed by the person, never retried
+  // A CSV import is resumable: a failure is shown and resumed by the person, never retried
   // behind their back; 10,000 rows take a while.
   'import-csv': { retryLimit: 0, retryDelay: 0, retryBackoff: false, expireInSeconds: 7200 },
-  // PDF text runs in a limited child process with a 20 s limit (Q19); one retry.
+  // PDF text runs in a limited child process with a 20 s limit; one retry.
   'pdf-text': { retryLimit: 1, retryDelay: 30, retryBackoff: true, expireInSeconds: 60 },
-  // Daily: llm_calls partitions ahead, old partitions rolled up and dropped, counters pruned (T6).
+  // Daily: llm_calls partitions ahead, old partitions rolled up and dropped, counters pruned.
   'ai-maintenance': MAINTENANCE,
-  // Step 3 (T9, D206): a cap crossed 80% or 100%, or the instance key was rejected; mail, so
+  // Step 3 (D206): a cap crossed 80% or 100%, or the instance key was rejected; mail, so
   // retried like mail (5 attempts).
   'ai-notice': MAIL,
   // Daily at 00:05 UTC: ended day and month pauses are cleared (3 attempts).
   'ai-rollover': MAINTENANCE,
-  // Step 2 (T32, D201): one inventory report, rendered in a child process limited to 60 s
+  // Step 2 (D201): one inventory report, rendered in a child process limited to 60 s
   // (reports/render/render.ts); gathering and thumbnails come first. Never retried behind the
   // person's back: the run shows `failed` with its reason and they ask again.
   report: { retryLimit: 0, retryDelay: 0, retryBackoff: false, expireInSeconds: 180 },
@@ -67,17 +67,17 @@ export const JOB_POLICIES = {
   'purge-reports': { ...MAINTENANCE, expireInSeconds: 600 },
   // 1.3 (D228): hourly, the scheduled reports due; each run is its own `report` job.
   'report-schedules': { ...MAINTENANCE, expireInSeconds: 600 },
-  // Step 3, alpha safety (T31c; §3.1b "backup: 2 attempts, 4 h"): the nightly backup. One retry
+  // Step 3, alpha safety: the nightly backup. One retry
   // after 15 minutes (a target briefly away); each attempt is audited and recorded.
   backup: { retryLimit: 1, retryDelay: 900, retryBackoff: false, expireInSeconds: 14_400 },
-  // Step 4 (plan T2; §3.1b "reminders scan: 5 attempts, 60 s"): every 15 minutes, writing each
+  // Every 15 minutes, writing each
   // occurrence exactly once, so a retry or the next run simply carries on.
   'reminder-scan': { retryLimit: 4, retryDelay: 30, retryBackoff: true, expireInSeconds: 60 },
   // One delivery per job (an email or a push): retried like mail.
   'reminder-deliver': MAIL,
   // Every 15 minutes: the digests whose local time has come.
   'reminder-digest': { retryLimit: 2, retryDelay: 60, retryBackoff: true, expireInSeconds: 120 },
-  // §3.1b, §2.6: a webhook is tried 10 times over about 24 hours. pg-boss 12.34.0 (dist/plans.js,
+  // A webhook is tried 10 times over about 24 hours. pg-boss 12.34.0 (dist/plans.js,
   // failJobsBody) schedules the retry after a failure at retry_count c (0 for the first attempt)
   // `retryDelay × (2^(c+1)/2) × (1 + random())` seconds later, i.e. d·2^c·(1+U), U in [0, 1).
   // Nine retries (c = 0…8) wait d·(2^9 − 1)·(1+U) = 511·d·(1+U) in all: 511·d to 1022·d, on
@@ -87,20 +87,20 @@ export const JOB_POLICIES = {
   // D158, D201: a claim pack, like a report: never retried behind the person's back (the run
   // shows `failed`); zipping the report and every file takes a while.
   'claim-pack': { retryLimit: 0, retryDelay: 0, retryBackoff: false, expireInSeconds: 1800 },
-  // Hourly: export runs past their expiry, and their blobs (§3.3).
+  // Hourly: export runs past their expiry, and their blobs.
   'purge-exports': MAINTENANCE,
-  // Step 7 (plan T2; §3.1b "import/export: 1 attempt, 2 h, resumable"): a location export and
+  // A location export and
   // the two archive imports. Never retried behind the person's back: a failed run shows `failed`,
   // and an import is resumed by the person (its source ids make a re-run safe).
   export: { retryLimit: 0, retryDelay: 0, retryBackoff: false, expireInSeconds: 7200 },
   'import-homebox': { retryLimit: 0, retryDelay: 0, retryBackoff: false, expireInSeconds: 7200 },
   'import-kept': { retryLimit: 0, retryDelay: 0, retryBackoff: false, expireInSeconds: 7200 },
-  // Alias enrichment after an import (T15): model calls like extraction's, so its policy.
+  // Alias enrichment after an import: model calls like extraction's, so its policy.
   'enrich-aliases': { retryLimit: 2, retryDelay: 20, retryBackoff: true, expireInSeconds: 90 },
-  // Daily: abandoned import runs and their archives, after 7 days (T8, plan Q18).
+  // Daily: abandoned import runs and their archives, after 7 days.
   'prune-imports': MAINTENANCE,
-  // Step 6 (plan T2). An assistant turn: one retry, resuming after the last stored step so a
-  // paid call is never repeated (T13); 200 s covers the turn's 180 s bound (TURN_LIMITS).
+  // Step 6. An assistant turn: one retry, resuming after the last stored step so a
+  // paid call is never repeated; 200 s covers the turn's 180 s bound (TURN_LIMITS).
   'assistant-turn': { retryLimit: 1, retryDelay: 5, retryBackoff: false, expireInSeconds: 200 },
   // A thing's embedding: one provider request, like an extraction's.
   'embed-thing': { retryLimit: 3, retryDelay: 30, retryBackoff: true, expireInSeconds: 90 },
@@ -108,11 +108,11 @@ export const JOB_POLICIES = {
   'embed-backfill': { retryLimit: 3, retryDelay: 60, retryBackoff: true, expireInSeconds: 3600 },
   // A write's fan-out to the location's webhooks: rows and jobs only, no HTTP.
   'webhook-fanout': { retryLimit: 2, retryDelay: 10, retryBackoff: true, expireInSeconds: 60 },
-  // §3.1b, §2.6: one delivery, 10 attempts over about 24 hours, as step 4's channel webhook.
+  // One delivery, 10 attempts over about 24 hours, as step 4's channel webhook.
   'webhook-deliver': { retryLimit: 9, retryDelay: 113, retryBackoff: true, expireInSeconds: 60 },
-  // Daily: expired threads and proposals (D23, D22; kept.prune_assistant, T5, T13).
+  // Daily: expired threads and proposals (D23, D22; kept.prune_assistant).
   'assistant-maintenance': MAINTENANCE,
-  // D180 (T16): mails every active user about one configuration change. Never retried: a retry
+  // D180: mails every active user about one configuration change. Never retried: a retry
   // would mail everyone already told a second time (one failed address is logged, not thrown).
   'transparency-notice': {
     retryLimit: 0,
@@ -120,15 +120,15 @@ export const JOB_POLICIES = {
     retryBackoff: false,
     expireInSeconds: 900,
   },
-  // Step 8 (plan T2). Hourly: disk space, a stale backup, bucket versioning and the drill's nudge
-  // (backup/watch.ts, T10). Runs again within the hour, so maintenance's few retries.
+  // Step 8. Hourly: disk space, a stale backup, bucket versioning and the drill's nudge
+  // (backup/watch.ts). Runs again within the hour, so maintenance's few retries.
   'ops-watch': MAINTENANCE,
   // Hourly, opt-in (D65): about once a day, at this instance's hour, one request to GitHub's
-  // latest-release endpoint (updates/check.ts, T11); off, it reads one row and stops. Never
+  // latest-release endpoint (updates/check.ts); off, it reads one row and stops. Never
   // retried: a failure (a rate limit included) waits for the next day.
   'update-check': { retryLimit: 0, retryDelay: 0, retryBackoff: false, expireInSeconds: 60 },
-  // Weekly: `restic check` and, with S3 file storage, the manifest against the bucket (T7). Long
-  // like the backup itself (§3.1b "backup: 2 attempts, 4 h").
+  // Weekly: `restic check` and, with S3 file storage, the manifest against the bucket. Long
+  // like the backup itself.
   'backup-verify': { retryLimit: 1, retryDelay: 900, retryBackoff: false, expireInSeconds: 14_400 },
   // 1.4 (D231): every 10 minutes, each mailbox's new mail (mailin/poll.ts). Never retried: the
   // next run is 10 minutes away, and a mailbox's mark keeps what it already read.

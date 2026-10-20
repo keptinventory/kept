@@ -1,5 +1,5 @@
 /**
- * The assistant (step-6 plan T19, T20; D22–D25, D123, D179, D206, D213; screens §5 and §8), on
+ * The assistant (D22–D25, D123, D179, D206, D213), on
  * the mock (api/assistant/mock): the sheet and the docked panel, threads, the context chip, the
  * composer's states, dictation with a stubbed recogniser only (never the real microphone), the
  * palette's hand-off (search.test.tsx), and the confirmation card drawn from the proposal.

@@ -3,7 +3,7 @@ import { safeName } from './claim-pack.js';
 import { expiredPage, langOf, packDay } from './download.js';
 import { convertedTotal, missingRates } from './report.js';
 
-// Step 4, T18: the claim pack's and the insurance report's pure parts.
+// The claim pack's and the insurance report's pure parts.
 
 describe('langOf() (the expired page, engineering spec §5)', () => {
   it.each([

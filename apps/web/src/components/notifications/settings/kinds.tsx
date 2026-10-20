@@ -1,7 +1,7 @@
 /**
- * What reaches you, and how (plan T25; D29, D113, D227, D232; 1.5.x D239): one table for every
+ * What reaches you, and how (D29, D113, D227, D232; 1.5.x D239): one table for every
  * location. Rows are the kinds, grouped (due dates, lending, stock, people, AI); columns are the
- * channels you have: In Kept (the notification centre; off silences the kind entirely, Q10),
+ * channels you have: In Kept (the notification centre; off silences the kind entirely),
  * Email, Push, and one column per kind of channel you added (webhook, ntfy, Telegram, Apprise:
  * every channel of that kind follows its column). A notice (membership, AI caps, the AI monthly
  * summary) only lands in Kept and goes by email, so its other cells are empty.
@@ -9,7 +9,7 @@
  * Above the table, the location picker: **All locations** edits your choices for every location,
  * those you add later too; one location shows what it gets, dots the cells set for it alone (they
  * differ from all locations) and offers "Reset this location to all locations". There, a kind
- * whose module is off is shown paused (D113), a viewer sees only Membership (Q8), and the AI
+ * whose module is off is shown paused (D113), a viewer sees only Membership, and the AI
  * summary says it's account-wide. A change stores only what differs from the layer below.
  *
  * On a phone each kind is a row with its channels as labelled switches beneath it, never a wide
@@ -196,7 +196,7 @@ export function KindsByLocation({ settings }: { settings: NotificationSettings }
     const what = kindLabels[row.kind];
     const how = header(c);
     const here = current !== null && (pref.set ?? []).includes(c);
-    // In Kept off silences the kind entirely (Q10): the others wait for it.
+    // In Kept off silences the kind entirely: the others wait for it.
     const silenced = c !== 'inapp' && !pref.inapp;
     const label = here
       ? t`${what} by ${how} in ${where}, set for this location only`

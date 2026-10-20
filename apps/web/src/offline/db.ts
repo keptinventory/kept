@@ -1,10 +1,10 @@
 /**
- * The phone's IndexedDB database (plan T24; engineering spec §2.2; D17, D36, D101, D181), in
+ * The phone's IndexedDB database (D17, D36, D101, D181), in
  * Dexie. One database per user (`kept-<userId>`), so a second account on the same device can't
  * read the first one's copy; sign-out and any 401 delete it whole (wipe.ts).
  *
  * This module imports Dexie, so only the lazy offline chunk may import it (open.ts): the entry
- * chunk never pays for IndexedDB code (the step-3 bundle budget, plan T23).
+ * chunk never pays for IndexedDB code (the step-3 bundle budget).
  *
  * **Bytes, not Blobs.** Captured files and thumbnails are stored as an `ArrayBuffer` plus their
  * MIME type, and rebuilt into a `Blob` on the way out. Blobs in IndexedDB have a history of
@@ -60,7 +60,7 @@ export const V3_STORES = {
 };
 
 /**
- * v4 (step 8, T23): the app lock and "keep this location available offline" (D159, D181). New
+ * v4: the app lock and "keep this location available offline" (D159, D181). New
  * tables only; nothing moves.
  * - `lock`: one row, `device`: the PIN-wrapped data key and the passkey (offline/lock.ts).
  * - `extras`: a kept thing's money, sealed under the data key (SyncExtra as JSON).
@@ -109,11 +109,11 @@ export type MetaKey =
   | 'asOf'
   /** The types hash last received, sent back as `typesHash`. */
   | 'typesHash'
-  /** The server said only part of the Kept fits on this phone (Q30). */
+  /** The server said only part of the Kept fits on this phone. */
   | 'truncated'
   /** The payload window the server reported on its last snapshot page (D148). */
   | 'serverPayloadWindow'
-  /** `navigator.storage.persist()`'s answer, once asked (V11): true, false, or absent. */
+  /** `navigator.storage.persist()`'s answer, once asked: true, false, or absent. */
   | 'persisted'
   /** Things whose short ID was allocated at sync and not yet printed: "Print pending labels (N)". */
   | 'printPending'

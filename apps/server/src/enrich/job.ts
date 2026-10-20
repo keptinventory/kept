@@ -1,5 +1,5 @@
 /**
- * The `enrich-aliases` tenant job (D41, D69, D214; step-7 plan T15, Q21; spike E1). Sent by
+ * The `enrich-aliases` tenant job (D41, D69, D214). Sent by
  * POST /api/v1/imports/:id/enrich in the requester's scope, with `{runId, jobId}` only; each run
  * of the job is **one batch, one model call** (its policy is extraction's: 90 s, two retries),
  * and it sends itself again for the next batch with the id it stopped after. The run's state is
@@ -15,7 +15,7 @@
  * 2. **The call** through callModel (ai/call.ts) with the ledger task `enrich_aliases`: the
  *    reservation, pacing, caps, one ledger row. No transaction open (D166).
  * 3. **The outcome**, in one transaction:
- *    - ok → per answered index (never an id, L51): prompt.ts's checks, checks.ts `cleanAliases`
+ *    - ok → per answered index (never an id): prompt.ts's checks, checks.ts `cleanAliases`
  *      and D214's `scriptAliases`; Latin-script aliases written where the thing still has none
  *      in that language (auto-accepted, D19), audited `thing.enrich`; the one alias of another
  *      script waits in the inbox as the thing's `alias_<lang>` suggestion (D214). Then the next
@@ -438,7 +438,7 @@ export function enrichJobs(deps: SystemJobDeps): JobDefinition[] {
         if (!app) throw new Error('enrich-aliases: the worker has no kept_app pool');
         const send = deps.sendTenant;
         // runJob() holds this scoped transaction open, unused, while each step commits on its
-        // own connection; the model call may take up to 80 s (§3.5).
+        // own connection; the model call may take up to 80 s.
         await client.query(`SET LOCAL idle_in_transaction_session_timeout = '180s'`);
         const outcome = await runEnrichBatch(
           {

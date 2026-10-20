@@ -15,7 +15,7 @@ import { scheduleRow } from './service.js';
 import { type ServiceImage, serviceImage, serviceRow, stockRecordOf } from './services.js';
 import { type ScheduleRow, scheduleImage } from './view.js';
 
-// Undo for schedules and service records (plan T11; D150, D124; Q25, Q28). Each handler checks
+// Undo for schedules and service records (D150, D124). Each handler checks
 // that what the event changed is still as the event left it (else 409 `undo_refused`
 // `changed_since`, naming who), puts the before-image back, and writes its own audit row.
 //
@@ -119,7 +119,7 @@ async function undoScheduleFields(args: UndoArgs): Promise<void> {
   });
 }
 
-/** Completions put back; then the snooze and skip a new completion clears (0053, Q28). */
+/** Completions put back; then the snooze and skip a new completion clears (0053). */
 async function recomplete(
   client: pg.ClientBase,
   locationId: string,

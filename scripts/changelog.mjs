@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// CHANGELOG.md from conventional commits (step 8 T17, plan Q12): the laptop release's changelog
+// CHANGELOG.md from conventional commits (step 8 T17): the laptop release's changelog
 // until release-please runs on GitHub (D187), which then starts from this file.
 //
 //   node scripts/changelog.mjs --version X.Y.Z [--from <ref>] [--to <ref>] [--date YYYY-MM-DD]

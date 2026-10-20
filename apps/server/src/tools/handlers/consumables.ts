@@ -5,7 +5,7 @@ import { locationOfRef, thingIn } from '../resolve.js';
 import type { Handler, Op } from '../types.js';
 import { writeResult } from './write.js';
 
-// Step 7's tool (§2.5, D124; plan T17): `adjust_stock` calls the Adjust route's own operation
+// Step 7's tool (D124): `adjust_stock` calls the Adjust route's own operation
 // (consumables/service.ts adjustStock), so a change by the assistant or MCP meets the same rules:
 // `things.edit`, the Consumables module (runTool's gate, the contract's `module`), the thing's
 // version (D156) and quantity rules (D10: never below 0, D183). It is the thing's own

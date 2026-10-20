@@ -1,5 +1,5 @@
 /**
- * The AI call list's filters (D205, D206; screens §5 AI usage §5): date, person, location, task,
+ * The AI call list's filters (D205, D206): date, person, location, task,
  * model, provider, outcome, paid by, has image, tokens, cost (only where money shows) and thing.
  * Each is a FilterDef the filter strip renders like any other list's; `aiCallParams` turns the
  * strip's URL state into `GET /ai/calls` (and its CSV export) parameters, one mapping for both.
@@ -54,7 +54,7 @@ export const AI_CALL_FILTERS = [
 const range = (min: string | undefined, max: string | undefined) =>
   min || max ? `${min ?? ''}..${max ?? ''}` : undefined;
 
-/** The list's URL state as `GET /ai/calls` parameters (§7.15), for the list and the CSV alike. */
+/** The list's URL state as `GET /ai/calls` parameters, for the list and the CSV alike. */
 export function aiCallParams(
   list: ListState,
   scope: AiScope,
@@ -84,7 +84,7 @@ export function aiCallParams(
     ...(tokens ? { tokens } : {}),
     ...(cost ? { cost } : {}),
     ...(cost && currency ? { currency } : {}),
-    // The instance's calls come newest first only (T9: the door has one order).
+    // The instance's calls come newest first only (the door has one order).
     ...(list.dir === 'asc' && scope !== 'instance' ? { dir: 'asc' as const } : {}),
   };
 }
@@ -102,7 +102,7 @@ export function useAiCallFilters(scope: AiScope, locationId: string | undefined)
     from: 'load' as const,
     queryKey: ['ai', 'filters', by, scope, locationId ?? null],
     load: async () => {
-      // Usage defaults to this UTC month (T9); the list reaches back as far as the ledger keeps
+      // Usage defaults to this UTC month; the list reaches back as far as the ledger keeps
       // rows (13 months), so the options do too.
       const now = new Date();
       const usage = await captureApi.aiUsage({

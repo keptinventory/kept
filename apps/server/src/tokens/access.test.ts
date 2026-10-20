@@ -3,7 +3,7 @@ import { type TestApp, testApp } from '../../test/app.js';
 import { testDb } from '../../test/db.js';
 import { NEVER_FOR_TOKENS, TOKEN_ROUTES, tokenAccessOf } from './access.js';
 
-// The token column of the route catalogue (plan T10, Q20): every entry names a real route, none
+// The token column of the route catalogue: every entry names a real route, none
 // is on the "never" list, and the user-level surfaces (the person's settings and profile, AI
 // providers and keys, tokens and OAuth grants, the assistant) stay closed to tokens.
 

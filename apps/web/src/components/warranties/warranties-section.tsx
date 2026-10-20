@@ -1,8 +1,8 @@
 /**
- * Warranties on the thing page (screens §5 "Paperwork and warranties", D53, D195): the longest
+ * Warranties on the thing page (D53, D195): the longest
  * cover first (the server's order), each active one with its coverage bar, the one that covers
- * longest marked. A warranty covers one thing, so a quantity above 1 is split first (D10, Q26).
- * The Warranties module off: "Off in this location" (screens §3); a viewer only reads.
+ * longest marked. A warranty covers one thing, so a quantity above 1 is split first (D10).
+ * The Warranties module off: "Off in this location"; a viewer only reads.
  */
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';

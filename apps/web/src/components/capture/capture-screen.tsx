@@ -1,12 +1,12 @@
 /**
- * The capture session (D18, D34, D140, D153, D175, D194–D196; screens §5 "Capture", §8; plan
- * T25). A focused task: on the phone it covers the tab bar with its own chrome (screens §8), dark
- * in every theme (board frames 1–3).
+ * The capture session (D18, D34, D140, D153, D175, D194–D196).
+ * A focused task: on the phone it covers the tab bar with its own chrome, dark
+ * in every theme.
  *
  * - The camera stays open; the counter reads "12 captured"; the place chip is pinned at the top,
  *   with the paused banner under it where AI is paused ("Photos still save; naming waits", D206).
  * - READING mode reads a meter, so its chip names one (./reading-target.tsx): only things with a
- *   meter, since the server refuses a READING into a plain place (T13).
+ *   meter, since the server refuses a READING into a plain place.
  * - The mode strip picks the photo policy (camera/image.ts) and the shutter's name.
  * - Every capture, from any source, is one queued `create_thing` (./enqueue.ts), shown at once
  *   in its place as "ID pending"; the sync engine sends it when online.
@@ -94,14 +94,14 @@ export type CaptureScreenProps = {
   /** A place to capture into (`?place=`, "Capture here"). */
   placeId?: string;
   /**
-   * `?label=<thing id>` (step 5, T22's "read its registration card"): start in LABEL mode, and
+   * `?label=<thing id>` (T22's "read its registration card"): start in LABEL mode, and
    * every LABEL shot goes on that thing (`attachToThingId`), in its location, where the server
    * reads it (a vehicle's registration card becomes a suggested document).
    */
   labelFor?: string;
   onExit: () => void;
   onOpen: (target: OpenTarget) => void;
-  /** After each enqueue: the sync engine's kick (T24). */
+  /** After each enqueue: the sync engine's kick. */
   onQueued?: () => void;
   /** Re-read the snapshot when this fires (the sync engine's status). */
   subscribe?: (fn: () => void) => () => void;
@@ -113,7 +113,7 @@ export type CaptureScreenProps = {
   detect?: Detect | null;
   decode?: Decode;
   iphone?: boolean;
-  /** The capture screen's share slot: `onKeep` for "Shared into Kept" (T23). */
+  /** The capture screen's share slot: `onKeep` for "Shared into Kept". */
   renderShare?: (onKeep: (share: SharedInto, mode: SharedMode) => Promise<void>) => ReactNode;
 };
 
@@ -213,7 +213,7 @@ export function CaptureScreen({
   const [suggest, setSuggest] = useState<SuggestState>(() =>
     !geo ? 'unavailable' : suggestWhereOn() ? 'finding' : 'off',
   );
-  // "Suggest where I am" is the person's (/me, T19): this device's copy follows the server's, so
+  // "Suggest where I am" is the person's (/me): this device's copy follows the server's, so
   // turning it off on one phone turns it off on the others.
   const qc = useQueryClient();
   // Read from the signed-in frame's copy, never fetched here: capture sends nothing it needn't.
@@ -333,7 +333,7 @@ export function CaptureScreen({
   }, [camera, phase, asked]);
   // The shutter waits for the first frame: a press between the stream opening and its first
   // frame would grab nothing, and the capture would be lost without a word (found by the e2e's
-  // keyboard walk under load, T32).
+  // keyboard walk under load).
   const [frameReady, setFrameReady] = useState(false);
   useEffect(() => {
     const v = video.current;
@@ -419,7 +419,7 @@ export function CaptureScreen({
   /** READING's meter: chosen in its sheet, kept for the session (offline too). */
   const [reading, setReading] = useState<ReadingTarget | null>(null);
   const [readingSheet, setReadingSheet] = useState(false);
-  /** READING's typed value (T19): with one, the shot is a `log_reading` with its photo as proof. */
+  /** READING's typed value: with one, the shot is a `log_reading` with its photo as proof. */
   const [readingValue, setReadingValue] = useState('');
   const [readingError, setReadingError] = useState<string | null>(null);
   const setMode = (m: CaptureMode) => {
@@ -439,7 +439,7 @@ export function CaptureScreen({
   const [armed, setArmed] = useState(false);
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState<string | null>(null);
-  /** Quick add (plan T30): the template the next capture starts from. */
+  /** Quick add: the template the next capture starts from. */
   const picked = useRef<string | null>(null);
   const [announce, setAnnounce] = useState(0);
   const [waiting, setWaiting] = useState(0);
@@ -534,8 +534,8 @@ export function CaptureScreen({
     void refreshCounts();
   };
 
-  /** READING: the photo is proof on the metered thing, with the meter named (T13). With a typed
-   * value (T19) it's a `log_reading` instead, the photo its proof, online or offline. */
+  /** READING: the photo is proof on the metered thing, with the meter named. With a typed
+   * value it's a `log_reading` instead, the photo its proof, online or offline. */
   const recordReading = async (image: CapturedImage | null, typed: string, value = '') => {
     if (!reading) return;
     if (value) {
@@ -655,7 +655,7 @@ export function CaptureScreen({
   /**
    * Files from the system camera or the gallery, in the mode the strip shows when they are
    * picked: Gallery in THING makes a THING draft per photo (D140), in RECEIPT a receipt per file
-   * (iPhone's way in for a saved receipt, V9). A PDF is a receipt whatever the mode.
+   * (iPhone's way in for a saved receipt). A PDF is a receipt whatever the mode.
    */
   const takeFiles = (files: File[], fromCamera: boolean) => {
     if (!target) return;
@@ -706,7 +706,7 @@ export function CaptureScreen({
   const toSummary = () => (shots.length ? setPhase('summary') : onExit());
 
   /**
-   * Done: the batch stays undoable from a 10-second toast (D150, plan T31), the same undo as the
+   * Done: the batch stays undoable from a 10-second toast (D150), the same undo as the
    * summary's "Undo this batch": captures still queued leave the phone, synced drafts go to the
    * trash (`undoBatch`). Offline, the synced part says it needs a connection.
    */

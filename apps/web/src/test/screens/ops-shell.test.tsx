@@ -1,5 +1,5 @@
 /**
- * Step 8's frame (plan T3): Backups beside Status in the instance admin's tabs, and the two
+ * Step 8's frame: Backups beside Status in the instance admin's tabs, and the two
  * step-8 routes answering.
  */
 import { screen } from '@testing-library/react';

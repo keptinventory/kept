@@ -1,5 +1,5 @@
 /**
- * Service drafts from an invoice (plan T9, Q12), after the server's `services/`: attaching an
+ * Service drafts from an invoice, after the server's `services/`: attaching an
  * invoice makes a draft service record and, where AI resolves for the location, a read of it whose
  * vendor, date, total, currency and lines come back as suggestions (never applied). Confirm runs
  * step 4's create rules on the draft. Drafts count nowhere and list first on the Services tab.

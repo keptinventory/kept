@@ -1,6 +1,6 @@
 /**
  * What the location map draws without downloading anything (1.x, D237; ported from the approved
- * spike): floor surfaces and fabric and wood grain painted on a canvas, the materials, and the
+ * prototype): floor surfaces and fabric and wood grain painted on a canvas, the materials, and the
  * drawn models (appliances and pieces the free library doesn't have, and the stand-ins used when
  * detailed models are off). Sizes are metres; a model is built in a group with its corner at the
  * origin, width along x and depth along z.

@@ -1,14 +1,14 @@
 import type { SpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { setActiveTracing } from './state.js';
 
-// Optional OpenTelemetry tracing (D84; step-8 plan T14). Off by default: with
+// Optional OpenTelemetry tracing (D84). Off by default: with
 // OTEL_EXPORTER_OTLP_ENDPOINT unset this module loads no
 // OpenTelemetry package at all and sends nothing anywhere.
 //
-// It must run before fastify and pg are first loaded, or their spans are missing (the spike's
-// variant A), so it is a preload, not an import in main.ts:
+// It must run before fastify and pg are first loaded, or their spans are missing (as a trial run
+// showed), so it is a preload, not an import in main.ts:
 //   node --import <server>/dist/observability/tracing.js <server>/dist/main.js
-// (the image's ENTRYPOINT and ci-local's prod-boot pass it; T15/T25). Set, it traces incoming HTTP
+// (the image's ENTRYPOINT and ci-local's prod-boot pass it). Set, it traces incoming HTTP
 // requests, Fastify's routes and Postgres queries (statements only: instrumentation-pg records no
 // parameter values unless asked), and exports them over OTLP/protobuf to the operator's own
 // collector, which the standard OTEL_* variables configure. Query strings are withheld from every

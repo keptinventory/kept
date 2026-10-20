@@ -1,5 +1,5 @@
 /**
- * Account settings → Types (screens §5 Type editor, frame 06 · 5): the tree on the left, the
+ * Account settings → Types (frame 06 · 5): the tree on the left, the
  * selected type on the right (`?type=`). On a phone the tree is the page, and choosing a type
  * shows its editor with a way back to the tree.
  */

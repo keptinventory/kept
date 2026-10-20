@@ -1,4 +1,4 @@
-// The search evaluation in CI (step-6 plan T17, T14): recall@k and MRR on hand-made rankings, and
+// The search evaluation in CI: recall@k and MRR on hand-made rankings, and
 // the harness on the mock (KEPT_AI_MOCK's concept embedder) over the households seed, keyword-only
 // against meaning fused in. Never a real provider.
 import { beforeAll, describe, expect, it, vi } from 'vitest';

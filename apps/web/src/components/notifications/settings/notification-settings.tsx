@@ -1,5 +1,5 @@
 /**
- * Me → Notifications (plan T25; D29, D30, D139, D142, D206, D239; screens §5 Settings; frame
+ * Me → Notifications (D29, D30, D139, D142, D206, D239; frame
  * "Settings · Me · phone · light", the notifications part): the channels (email, push on this
  * device and the others, webhooks, ntfy, Telegram, Apprise), what reaches you and how (one table,
  * all locations or one, the AI monthly summary in it), the digest time and quiet hours (in your

@@ -22,7 +22,7 @@ import {
 } from '../serialize/subject.js';
 import type { FileStorage } from '../storage/blob-store.js';
 
-// The shapes of schedules and service records (plan T11), in the web contract's words
+// The shapes of schedules and service records, in the web contract's words
 // (apps/web/src/api/household/types.ts: SubjectRef, Schedule, ServiceRecord). Everything is read
 // as the caller on kept_app, so RLS decides what exists. A schedule's `next` comes from SQL
 // (kept.schedule_next(), the function the agenda view calls; never recomputed here), so a list,
@@ -327,7 +327,7 @@ export type ServiceRecord = {
   invoices: AttachmentView[];
   loggedBy: { displayName: string };
   rowVersion: number;
-  /** Step 5 (Q12): a draft (an invoice read by AI) counts nowhere until it is confirmed. */
+  /** A draft (an invoice read by AI) counts nowhere until it is confirmed. */
   reviewState: 'draft' | 'confirmed';
   /** `total_mismatch`: the priced lines and the total disagree by more than 1% (reconcileTotal);
    * `currency_unclear`: the invoice's currency mark maps to no enabled code (a bare `$`, D189),
@@ -339,7 +339,7 @@ export type ServiceRecord = {
   extraction?: { id: string; status: string; statusReason?: string; pausedUntil?: string };
 };
 
-/** A suggestion read from a draft's invoice (step 5, T9/T10; web `ServiceSuggestion`). Money in
+/** A suggestion read from a draft's invoice (web `ServiceSuggestion`). Money in
  * one (the total, the currency, a line's unit cost) is withheld where the gate hides money. */
 export type ServiceSuggestion = {
   field: 'line' | 'vendor' | 'servicedOn' | 'total' | 'currency';
@@ -579,7 +579,7 @@ type DraftRead = {
 };
 
 /**
- * Each draft's latest invoice read (step 5, T9/T10): its status, and the suggestions and flags a
+ * Each draft's latest invoice read: its status, and the suggestions and flags a
  * succeeded run left in `extractions.result` (extraction/apply.ts). A superseded attempt is
  * never the latest one shown.
  */

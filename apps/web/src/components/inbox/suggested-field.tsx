@@ -1,7 +1,7 @@
 /**
  * A value AI read that waits for a person (D18, D19; T10's suggestions): a serial, a quantity
  * above 1, and from a label a VIN, plate, expiry or manufacture date. Marked three ways, never by
- * colour alone (screens §4): an icon, the word "Suggested", and violet. Confirm (`y`) or reject
+ * colour alone: an icon, the word "Suggested", and violet. Confirm (`y`) or reject
  * (`n`); the choice is sent with the item's Accept, so nothing is written until then.
  *
  * Accept writes only the fields T15 can (`canAcceptSuggestion`); any other suggestion offers
@@ -54,7 +54,7 @@ export function useSuggestedValue() {
   const kinds = useDocumentKindLabels();
   return (s: Pick<Suggestion, 'field' | 'value'>) => {
     const v = s.value;
-    // Step 5 (T22): a vehicle's card, "Licence · expires Fri 6 Nov 2026".
+    // A vehicle's card, "Licence · expires Fri 6 Nov 2026".
     if (s.field === 'document' && isDocumentSuggestion(v)) {
       const day = fmt.longDay(`${v.expiresOn}T12:00:00`);
       return (

@@ -1,13 +1,13 @@
 -- Custom SQL migration file, put your code below! --
--- Step 7, task 6: stock rules and field conversion (engineering spec §1.6, §7.13; D14, D172,
--- D177; step-7 plan Q19, Q20). Above, in 0084, drizzle's part: stock_rules
+-- Stock rules and field conversion (D14, D172,
+-- D177). Above, in 0084, drizzle's part: stock_rules
 -- (src/db/schema/consumables.ts). Below:
 --   1. stock_rules under row-level security: read where the thing is seen, written by its
 --      location's writers (things.edit: owners, admins and members), only on a thing whose type is
 --      consumable through its chain (23514 stock_rules_consumable); an undo puts the creator back
 --      (kept.undo_keep_creator(), 0056).
---   2. Field conversion (D172, D177; §7.13 "converting a field to secret moves its values and
---      scrubs custom, search_tsv and past audit diffs"). Sealing needs the keyring, which SQL
+--   2. Field conversion (D172, D177).
+--      Sealing needs the keyring, which SQL
 --      doesn't hold, so the app works between three doors, all the field's account owner's alone
 --      (kept.current_owner_account_id(); an admin is refused, 42501; a built-in field is
 --      customised first):

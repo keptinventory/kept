@@ -1,5 +1,5 @@
 /**
- * The evaluation report (plan T11; L61 "dated results"): `.tmp/evals/<date>-<provider>-<model>.md`.
+ * The evaluation report (L61 "dated results"): `.tmp/evals/<date>-<provider>-<model>.md`.
  *
  * **Numbers and case ids only.** No extracted text, no expected values, no case notes and no
  * images: the maintainer's receipts and registration cards are personal, and the report is

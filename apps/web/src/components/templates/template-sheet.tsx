@@ -1,12 +1,11 @@
 /**
- * The template sheet (plan T30; D76, D177; T19's `templateSchema`): a name, a type, the details a
+ * The template sheet (D76, D177; T19's `templateSchema`): a name, a type, the details a
  * new thing starts with (brand, model, colour, quantity, notes, and the type's own fields), and
  * the locations it is shared with. Never money or secrets: the type's money and secret fields
  * aren't offered, and the payload has no key for them.
  *
  * A new template is POST /accounts/:accountId/templates; an existing one is PATCH /templates/:id
- * with If-Match. Only locations you administer can be chosen (editing needs admin of every one,
- * Q17).
+ * with If-Match. Only locations you administer can be chosen (editing needs admin of every one).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -111,7 +110,7 @@ function TemplateForm({
   const [errors, setErrors] = useState<{ name?: string; locations?: string }>({});
   const set = (patch: Partial<Draft>) => setD((prev) => ({ ...prev, ...patch }));
 
-  // Shared only with locations of this account you administer (the policy, Q17).
+  // Shared only with locations of this account you administer (the policy).
   const shareable = (locations.data ?? []).filter(
     (l) => l.ownerAccountId === accountId && (l.role === 'owner' || l.role === 'admin'),
   );

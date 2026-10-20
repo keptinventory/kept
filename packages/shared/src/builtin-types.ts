@@ -1,8 +1,8 @@
 /**
- * The built-in type library (D154, with D192's Device field group; engineering spec §7.9).
+ * The built-in type library (D154, with D192's Device field group).
  * Read-only templates: `kept migrate` upserts them by `key` (`types.builtin_key`, stable), and
  * "Customise" copies one into an account (D92). Capabilities and fields are inherited down the
- * tree; a field group (Q4) is a built-in with `isFieldGroup`, referenced from `groups` and resolved
+ * tree; a field group is a built-in with `isFieldGroup`, referenced from `groups` and resolved
  * alongside inheritance. No field key may be redefined anywhere along a type's chain or groups.
  *
  * Icons are `lucide:<name>` or `tabler:<name>` (D98), each checked against lucide-react 1.48.0 and
@@ -21,7 +21,7 @@ export type FieldDef = {
   readonly unit?: string;
   /** The choices of a select or multi_select. */
   readonly options?: readonly string[];
-  /** Stored in the encrypted secrets store, never in `custom` (Q3, D154). */
+  /** Stored in the encrypted secrets store, never in `custom` (D154). */
   readonly secret?: boolean;
   /** Holds a list of values (D192: Wi-Fi and Ethernet MAC addresses). */
   readonly repeatable?: boolean;
@@ -39,7 +39,7 @@ export type BuiltinType = {
   readonly defaultMeter?: DefaultMeter | null;
   /** Field groups (keys of `isFieldGroup` entries) whose fields this type carries. */
   readonly groups?: readonly string[];
-  /** A field group, not a type a thing can have (Q4). */
+  /** A field group, not a type a thing can have. */
   readonly isFieldGroup?: boolean;
   readonly names: Names;
   readonly fields: readonly FieldDef[];

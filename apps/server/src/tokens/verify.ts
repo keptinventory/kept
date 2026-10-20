@@ -14,8 +14,8 @@ import { AppError } from '../http/errors.js';
 import { tokenAccessOf } from './access.js';
 import { hitTokenRate } from './rate.js';
 
-// A personal token on a request (step-6 plan T10; D15, D60, D63, D180; engineering spec §3.2,
-// §7.3). `Authorization: Bearer kpt_<lookup>_<secret>`:
+// A personal token on a request (D15, D60, D63, D180).
+// `Authorization: Bearer kpt_<lookup>_<secret>`:
 //   parseToken → HMAC of the secret → kept.token_verify (by lookup, before any scope exists) →
 //   the request's scope {userId, mfa: created_with_mfa, tokenId}.
 // withScope() then sets `app.token_id`, and RLS reaches only the token's locations, with nothing
@@ -24,8 +24,8 @@ import { hitTokenRate } from './rate.js';
 // A bearer request ignores cookies: its scope is the token's, never the browser session's, so it
 // needs no CSRF check (auth/http.ts csrfHook skips it; a page on another site can't set the
 // header without a CORS preflight Kept never answers). Only personal tokens are accepted on
-// `/api/v1`: an OAuth access token is bound to the MCP resource (`aud` = `<public URL>/mcp`,
-// Q7) and is verified at `/mcp` alone (mcp/auth.ts).
+// `/api/v1`: an OAuth access token is bound to the MCP resource (`aud` = `<public URL>/mcp`)
+// and is verified at `/mcp` alone (mcp/auth.ts).
 
 export type TokenPrincipal = {
   tokenId: string;
@@ -43,7 +43,7 @@ declare module 'fastify' {
   }
 }
 
-/** The key a token secret's HMAC is made with: KEPT_AUTH_SECRET's HKDF sibling (plan T4). */
+/** The key a token secret's HMAC is made with: KEPT_AUTH_SECRET's HKDF sibling. */
 export function tokenHashKey(authSecret: Buffer): Buffer {
   return Buffer.from(hkdfSync('sha256', authSecret, 'kept-tokens', 'token-hash', 32));
 }
@@ -120,11 +120,11 @@ export type BearerHookOptions = {
 /**
  * The onRequest hook, before the session hook: a request with `Authorization: Bearer …` gets its
  * scope from the token, or is refused.
- * - 401 `token_revoked` for a token that doesn't verify (with the hint of §5), `unauthenticated`
+ * - 401 `token_revoked` for a token that doesn't verify (with a hint), `unauthenticated`
  *   for any other bearer value;
  * - 403 `token_scope` on a route its catalogue entry doesn't open to tokens (tokens/access.ts),
  *   or a read token on a write route;
- * - 429 `rate_limited` past the token's reads or writes this minute (§3.2, Q19).
+ * - 429 `rate_limited` past the token's reads or writes this minute.
  */
 export function bearerHook(opts: BearerHookOptions) {
   return async function resolveBearer(req: FastifyRequest, reply: FastifyReply) {

@@ -6,7 +6,7 @@ import { AUTH_BASE_PATH, type Auth } from '../auth/auth.js';
 import { MCP_SCOPES, type McpExtra, type OAuthAccessVerifier } from '../mcp/auth.js';
 import { resourceOf } from './plugin.js';
 
-// An OAuth access token at `/mcp` (step-6 plan T12, Q7; spike S6.2 §3, path B). Better Auth signed
+// An OAuth access token at `/mcp` (path B). Better Auth signed
 // it (a JWT, EdDSA, its own JWKS read in-process: no HTTP call to Kept's own public `/jwks`), for
 // this resource (`aud` = `<public URL>/mcp`) and issuer (`<public URL>/api/v1/auth`, which the
 // jwt plugin's session JWT doesn't have). Then Kept's grant: kept.token_oauth_for(sub, client)

@@ -1,5 +1,5 @@
 -- Custom SQL migration file, put your code below! --
--- Step 2, task 24: the RLS benchmark at 10,000 things (master plan risk #3). Text search found
+-- The RLS benchmark at 10,000 things. Text search found
 -- through its indexes again.
 --
 -- Why: row-level security puts a location's policy qual ahead of every qual a query adds, and a

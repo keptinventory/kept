@@ -1,7 +1,7 @@
 /**
- * The type tree (screens §5 Type editor, frame 06 · 5): an account's types, parents before
+ * The type tree (frame 06 · 5): an account's types, parents before
  * children, indented by depth; the field groups (D192) after them. A built-in the account has
- * customised shows as its copy (Q13b). The search box narrows the tree to matching types and
+ * customised shows as its copy. The search box narrows the tree to matching types and
  * their ancestors, and lives in the URL (`q`, the list standard). Each row is a link, so the
  * selected type is linkable and Back returns to it.
  */

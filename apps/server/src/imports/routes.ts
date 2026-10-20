@@ -36,7 +36,7 @@ import { BODY_LIMIT, CreateImportBody, mappingProblem } from './csv.js';
 import { type DryRunReport, dryRun } from './dry-run.js';
 import { type RunRow, readRun, runInputOf } from './job.js';
 
-// CSV import (D73; plan T18, Q18; engineering spec §1.10, §5, §7.13), in the shapes of the web
+// CSV import (D73), in the shapes of the web
 // contract (apps/web/src/api/capture/{paths,types}.ts, `ImportRun`, `DryRunReport`):
 //
 // POST /api/v1/imports/csv                {id?, locationId, columns, rows (≤ 10,000; 413 past it),
@@ -47,7 +47,7 @@ import { type RunRow, readRun, runInputOf } from './job.js';
 // GET  /api/v1/imports?locationId&limit&cursor                → {items: ImportRun[], next_cursor}
 // POST /api/v1/imports/:id/cancel                                         → ImportRun (cancelled)
 //
-// Owners and admins only (`location.export-import`, §7.1): a member of the location gets 403, and
+// Owners and admins only (`location.export-import`): a member of the location gets 403, and
 // a run is invisible (404) to anyone who isn't an owner or admin of its location (0038's policies).
 // The rows are kept on the run (the header row first) until it is done or cancelled.
 //
@@ -56,7 +56,7 @@ import { type RunRow, readRun, runInputOf } from './job.js';
 // where it stopped; so is a `running` run whose job died (no progress for STALE_MINUTES).
 // Cancelling stops the job at its next chunk and clears the rows; a done run stays done.
 //
-// Step 7 (plan T8): the same routes serve archive runs (a Homebox or Kept export), whose view,
+// The same routes serve archive runs (a Homebox or Kept export), whose view,
 // dry run, run and cancel are imports/archive.ts's; each route dispatches on the run's source.
 
 /** A `running` run whose row hasn't moved for this long has lost its job, and may be resumed. */
@@ -352,7 +352,7 @@ async function listRuns(
 // Routes
 // ---------------------------------------------------------------------------------------------
 
-/** CSV import: mapping, dry run and the import job (T18; D73). Registered by http/routes.ts. */
+/** CSV import: mapping, dry run and the import job (D73). Registered by http/routes.ts. */
 export async function importRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools } = deps;
   /** Whether `id` is an archive run the caller can see (its routes are archive.ts's). */

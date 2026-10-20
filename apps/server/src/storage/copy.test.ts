@@ -19,7 +19,7 @@ import { LocalBlobStore } from './local.js';
 import { S3BlobStore } from './s3.js';
 import { createUrlSigner } from './signed-url.js';
 
-// Switching file storage (D186; plan T13): every referenced blob copied with its hash checked,
+// Switching file storage (D186): every referenced blob copied with its hash checked,
 // resumable, a wrong destination object copied over, and the CLI from local to RustFS and back.
 
 const sha = (b: Buffer) => createHash('sha256').update(b).digest('hex');

@@ -12,12 +12,12 @@ import {
 import { forbidden } from '../http/errors.js';
 import type { FileStorage } from '../storage/blob-store.js';
 
-// The documents of a step-4 record (T8, T9): a valuation's appraisal, a warranty's card, a claim's
-// paperwork. They are ordinary attachments on the record's own subject column (§7.13), read and
+// The documents of a step-4 record: a valuation's appraisal, a warranty's card, a claim's
+// paperwork. They are ordinary attachments on the record's own subject column, read and
 // written through POST /api/v1/attachments; the record's view lists them, and deleting the record
 // deletes them (the foreign key cascades), each audited, as a purchase's receipts are
 // (purchases/service.ts). The delete's audit event keeps their images, so its undo can put them
-// back (plan Q25).
+// back.
 
 export type DocColumn = 'valuation_id' | 'warranty_id' | 'claim_id';
 
@@ -73,7 +73,7 @@ async function docRows(client: pg.ClientBase, column: DocColumn, id: string): Pr
 
 /**
  * Before a record is deleted: its documents, refusing (403) when someone else added one and the
- * caller may not delete what others attached (§7.1 `attachments.delete-any`), as DELETE
+ * caller may not delete what others attached (`attachments.delete-any`), as DELETE
  * /attachments/:id would.
  */
 export async function documentsToDelete(

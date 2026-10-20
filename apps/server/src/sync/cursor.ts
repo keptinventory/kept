@@ -1,7 +1,7 @@
 import { createHmac, hkdfSync, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 
-// The snapshot cursor (plan T12; engineering spec §7.4; plan Q1). Opaque to the phone:
+// The snapshot cursor. Opaque to the phone:
 //
 //   base64url(JSON CursorState) + "." + base64url(HMAC-SHA256(that first part))
 //
@@ -18,7 +18,7 @@ import { z } from 'zod';
 // - `p` is the pass in progress: its horizon `x` (pg_snapshot_xmin at the pass's first page),
 //   the locations it reads with the watermark each started from (`l`, fixed for the pass), where
 //   the last page stopped (`a`), and the truncation cut (`c`) when the person has more things
-//   than the phone keeps (Q30).
+//   than the phone keeps.
 // - `revokedLocationIds` is every location in `w` or `p.l` that isn't visible any more.
 
 /** The tables a pass reads, in this order. */

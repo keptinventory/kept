@@ -10,7 +10,7 @@ import { type SeedReport, seedHouseholds } from './households.js';
 
 // The seed scenarios (D152, D185): development data made through the service layer, reused by
 // the tests (and the e2e tests and screenshots).
-// - `households`: the board's cast and what their households hold (tasks 26 and 23).
+// - `households`: the designs' cast and what their households hold (tasks 26 and 23).
 // - `bench`: the RLS benchmark's load fixture, 10,000 things (task 23, for task 24).
 // Later steps add their own (vehicles, loans, warranties, expiring things, all five currencies:
 // D152).

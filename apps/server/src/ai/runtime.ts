@@ -1,5 +1,5 @@
 /**
- * The provider layer wired to the database (step-3 T10, on T6's adapters and T8's ports): one
+ * The provider layer wired to the database (on T6's adapters and T8's ports): one
  * `AiRuntime` per scope, built from the `kept.ai_*` doors.
  *
  * - `keys`: DbKeyStore (`kept.ai_provider_for`, the keyring's `open()`), so a key lives only in
@@ -11,9 +11,9 @@
  *   kept_system for background work (`scope` null), never around a model call (D166).
  * - `fetch`: the SSRF guard (net/ssrf.ts) for every provider. Named providers' hosts are public,
  *   so the guard only ever refuses a user-typed `openai_compatible` base URL that points inside
- *   the network, unless the instance setting `ssrf_allow_private` is true (Q9).
+ *   the network, unless the instance setting `ssrf_allow_private` is true.
  * - `KEPT_AI_MOCK=1` (config/env.ts refuses it in production): every model is the mock, answering
- *   from `test/fixtures/eval/mock-answers.json` (T11) when it exists, else per-mode defaults.
+ *   from `test/fixtures/eval/mock-answers.json` when it exists, else per-mode defaults.
  */
 import path from 'node:path';
 import type { Pools } from '../db/pools.js';
@@ -29,7 +29,7 @@ import { doorRunner } from './db-run.js';
 import { loadMockAnswers, type MockAnswers } from './mock.js';
 import type { Crossed, Pacer } from './ports.js';
 
-/** The instance setting that lets `openai_compatible` base URLs reach private addresses (Q9). */
+/** The instance setting that lets `openai_compatible` base URLs reach private addresses. */
 export const SSRF_ALLOW_PRIVATE_KEY = 'ssrf_allow_private';
 
 /** Where the mock's answers live (T11's fixtures). */

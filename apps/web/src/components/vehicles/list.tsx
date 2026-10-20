@@ -1,15 +1,15 @@
 /**
- * The Vehicles list (plan T17; screens §1, §8; D52, D188, D205, D211, D212): every car,
+ * The Vehicles list (D52, D188, D205, D211, D212): every car,
  * motorbike and generator in the locations with Vehicles on, each with its odometer and how old
  * the reading is, what's due next, a document coming due and, with Fuel & charging on, its
  * consumption.
  *
- * The list standard on the `vehicles` surface: search, location, type, state (in use by default,
- * Q24), reading (fresh, stale, unknown, none) and due (overdue, soon), with saved views; the
+ * The list standard on the `vehicles` surface: search, location, type, state (in use by default),
+ * reading (fresh, stale, unknown, none) and due (overdue, soon), with saved views; the
  * Display button sorts by name, last reading, next due or location and groups by location or type.
  * The server filters and sorts (`GET /vehicles`), so the URL's state goes to it as it is.
  *
- * Offline: the list isn't in the phone's snapshot, so it says "Needs a connection" (screens §4).
+ * Offline: the list isn't in the phone's snapshot, so it says "Needs a connection".
  */
 import { ADVICE_DAYS, LIFECYCLES, UNKNOWN_DAYS } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';

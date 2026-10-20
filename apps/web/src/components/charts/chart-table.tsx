@@ -1,5 +1,5 @@
 /**
- * "Show as table" under a chart (plan T18; D133): the same numbers as the marks' tooltips, as a
+ * "Show as table" under a chart (D133): the same numbers as the marks' tooltips, as a
  * plain table a screen reader and a phone can read. A disclosure, closed by default.
  */
 import { Trans } from '@lingui/react/macro';

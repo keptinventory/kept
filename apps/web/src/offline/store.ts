@@ -1,11 +1,11 @@
 /**
  * The phone's offline store: the seam between the screens that work offline (capture, scan, the
- * carrying tray, box check, the inbox's offline view: plan T25–T27) and the Dexie database that
- * holds it (T24). Screens code against `OfflineStore` only. `MemoryStore` implements it in memory
+ * carrying tray, box check, the inbox's offline view) and the Dexie database that
+ * holds it. Screens code against `OfflineStore` only. `MemoryStore` implements it in memory
  * for tests and the mock (demo) mode; T24's Dexie store passes the same contract suite
  * (store.test.ts, `storeContract`).
  *
- * What it holds (engineering spec §2.2; D36, D159, D181): the read-only snapshot (locations,
+ * What it holds (D36, D159, D181): the read-only snapshot (locations,
  * places, things, codes, legacy codes: never secrets, money, documents or contact details), the
  * capture queue with its blobs, the carrying tray and the sync notices. It is wiped on sign-out
  * and on any 401.
@@ -43,7 +43,7 @@ export type QueueState =
 
 /** A queued op, as the store keeps it: the item, its order and its state. */
 export type QueueEntry = QueueItem & {
-  /** Queue order: ops are sent in this order (§7.4). */
+  /** Queue order: ops are sent in this order. */
   seq: number;
   state: QueueState;
   /** The server's answer, once there is one. */
@@ -78,7 +78,7 @@ export type SyncNotice = {
 
 /** What a code is on this phone, from the snapshot's codes. */
 /**
- * Files shared into Kept from another app (D140, plan T23): the service worker receives the
+ * Files shared into Kept from another app (D140): the service worker receives the
  * share target's POST and hands it to the page, which keeps it here until the person chooses
  * RECEIPT or THING on the capture screen's "Shared into Kept" sheet (or discards it). Kept in the
  * signed-in person's store because the service worker can't know whose store to open.
@@ -97,7 +97,7 @@ export type SharedInto = {
 export type CodeHit = { kind: 'thing' | 'place' | 'blank'; id?: string; locationId: string };
 export type LegacyHit = { locationId: string; thingId?: string; placeId?: string };
 /** Where a legacy code came from: a Homebox import, a CSV import, the household's own (D208), or
- * a Kept import that re-issued a printed short ID because it was taken here (`kept`, step-7 Q9). */
+ * a Kept import that re-issued a printed short ID because it was taken here (`kept`). */
 export type LegacySource = 'homebox' | 'csv' | 'own' | 'kept';
 
 export interface OfflineStore {
@@ -114,7 +114,7 @@ export interface OfflineStore {
   /** The live things with a meter in these locations (READING's targets, offline too). */
   metered(locationIds: readonly string[]): Promise<SnapThing[]>;
   /** A short ID: the codes, then a thing's own, then a `kept` legacy code (a label re-issued by
-   * a Kept import still opens its thing, offline too; step-7 T20). */
+   * a Kept import still opens its thing, offline too). */
   byCode(code: string): Promise<CodeHit | undefined>;
   byLegacy(source: LegacySource, code: string): Promise<LegacyHit[]>;
   /**
@@ -135,7 +135,7 @@ export interface OfflineStore {
   pending(): Promise<QueueEntry[]>;
   counts(): Promise<{ waiting: number; uploading: number; needsAttention: number }>;
   /**
-   * Takes back ops the server has never seen (capture's "Undo this batch", plan T25): those
+   * Takes back ops the server has never seen (capture's "Undo this batch"): those
    * still `pending` or `blocked` leave the queue with their files. Ops that are `uploading`,
    * `sent` or answered stay; the server undoes those. Answers the idempotency keys removed.
    */
@@ -376,7 +376,7 @@ export class MemoryStore implements OfflineStore {
   async notices() {
     return [...this.noticeList];
   }
-  /** As `SyncStore.addNotice` (Dexie): the scanner keeps "Not on this phone" scans here (T26). */
+  /** As `SyncStore.addNotice` (Dexie): the scanner keeps "Not on this phone" scans here. */
   async addNotice(notice: Omit<SyncNotice, 'id' | 'at'>) {
     const id = Math.max(0, ...this.noticeList.map((n) => n.id)) + 1;
     this.noticeList.push({ ...notice, id, at: new Date().toISOString() });
@@ -488,7 +488,7 @@ export function applyOptimistic(rows: Map<string, SnapThing>, e: QueueEntry) {
   const { op, locationId } = e;
   const p = e.payload as Record<string, unknown>;
   // Only THING and LABEL captures make a thing; "+ photo" adds to one that exists, and a receipt
-  // or a reading opens a draft purchase or reading instead (plan T13, T25).
+  // or a reading opens a draft purchase or reading instead.
   const makesThing =
     (p.mode === 'thing' || p.mode === 'label') &&
     p.attachToThingId === undefined &&

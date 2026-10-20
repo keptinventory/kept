@@ -1,7 +1,7 @@
 /**
  * Step 7's API contract (portability): archive imports (Homebox and Kept exports), the Kept
  * export, alias enrichment after an import, consumables and field conversion. Written from the
- * route tables of the step-7 plan's Phase B (tasks 8, 9, 11, 12, 14, 15, 17 and 18); the server's
+ * server's route tables; the server's
  * routes land in `apps/server/src/{imports/archive,exports,enrich,consumables,types}/…`.
  *
  * Conventions as steps 2–4: camelCase JSON; lists are `{items, next_cursor}`; a PATCH and every
@@ -32,7 +32,7 @@ import type { LocationKind } from '../types';
 
 export type { ConvertFieldBody, ConvertPreview, ConvertResult, HomeboxChoices };
 
-// ----- archive imports (T8, T9, T11, T14) --------------------------------------------------------
+// ----- archive imports ---------------------------------------------------------------------------
 
 /** POST /api/v1/imports/archive: the archive is declared first, then uploaded. `bytes` over
  * ZIP_LIMITS.archiveBytes is 413 `archive_too_large` before anything is stored. */
@@ -46,7 +46,7 @@ export type CreateArchiveImportBody = {
 
 /**
  * An archive import run: step 3's `ImportRun` for a Homebox or Kept export. It starts as a `draft`
- * with no location (read before the person picks where it goes, screens §6); the upload sets
+ * with no location (read before the person picks where it goes); the upload sets
  * `archiveReadyAt`, inspect sets `inspect`, the target sets `locationId`. GET /imports/:id,
  * GET /imports, /dry-run, /run and /cancel are step 3's routes, which serve these runs too.
  */
@@ -92,7 +92,7 @@ export type HomeboxCollectionCounts = {
 };
 
 /**
- * What the Homebox choices step needs to offer (screens §6 "dry-run choices", D146; plan T19):
+ * What the Homebox choices step needs to offer (D146):
  * the collection's entity types with how many items use each, its custom fields by name with
  * their Homebox kind and how many items carry them, how many items are insured, and the seeded
  * places and tags that are empty and unused (what `seeded: 'skip_unused'` leaves out). Read from
@@ -112,7 +112,7 @@ export type ArchiveInspect =
   | {
       source: 'homebox_zip';
       sourceVersion: string | null;
-      /** One ZIP holds exactly one collection (spike H1); its id is the manifest's `groupId`. */
+      /** One ZIP holds exactly one collection; its id is the manifest's `groupId`. */
       collections: {
         id?: string;
         name?: string;
@@ -132,14 +132,14 @@ export type ArchiveInspect =
         keptVersion: string;
         counts: Record<string, number>;
         includesSecrets: boolean;
-        /** Names and roles only (plan Q23): people to invite. */
+        /** Names and roles only: people to invite. */
         members: { name: string; role: Role }[];
       };
     };
 
 /** POST /api/v1/imports/:id/target. An existing location (Homebox only, one the caller
  * administers) or a new one, created in the caller's account. A Kept export takes only a new
- * location (plan Q8). */
+ * location. */
 export type ImportTargetBody =
   | { locationId: string }
   | {
@@ -161,7 +161,7 @@ export type HomeboxConnectBody =
   | { baseUrl: string; apiKey: string }
   | { baseUrl: string; username: string; password: string };
 
-/** What the connection read (spike H3): the version, each collection's currency (upper case),
+/** What the connection read: the version, each collection's currency (upper case),
  * and the members with their emails (Homebox has no roles; the report asks for one). */
 export type HomeboxConnection = {
   version: string;
@@ -175,7 +175,7 @@ export type ImportPassphraseBody = { passphrase: string };
 
 export type ArchiveRowStatus = 'ok' | 'text' | 'skipped';
 
-/** One row of an archive dry run: only rows with issues are kept (plan Q27). */
+/** One row of an archive dry run: only rows with issues are kept. */
 export type ArchiveReportRow = {
   status: ArchiveRowStatus;
   ref: ImportIssueRef;
@@ -206,7 +206,7 @@ export type KeptDryRunSummary = {
   things: number;
   attachments: number;
   files: number;
-  /** Printed labels kept as they are, and those re-issued with the old code kept (plan Q9). */
+  /** Printed labels kept as they are, and those re-issued with the old code kept. */
   codesAdopted: number;
   codesReissued: number;
   /** History events carried (within the 2-year retention), and those too old to carry. */
@@ -216,7 +216,7 @@ export type KeptDryRunSummary = {
   secrets: number;
   skipped: number;
   asText: number;
-  /** People to invite (names and roles, Q23). */
+  /** People to invite (names and roles). */
   members: { name: string; role: Role }[];
 };
 
@@ -225,7 +225,7 @@ export type ArchiveDryRunReport =
   | { source: 'homebox_zip'; summary: HomeboxDryRunSummary; rows: ArchiveReportRow[] }
   | { source: 'kept_zip'; summary: KeptDryRunSummary; rows: ArchiveReportRow[] };
 
-// ----- alias enrichment after an import (T15) ----------------------------------------------------
+// ----- alias enrichment after an import ----------------------------------------------------------
 
 /** GET /api/v1/imports/:id/enrich/estimate: the token cost shown before anything runs (D69).
  * `cost` is left out without a price, or for a reader whose money is hidden. */
@@ -242,7 +242,7 @@ export type EnrichEstimate = {
 /** POST /api/v1/imports/:id/enrich → 202. */
 export type EnrichStarted = { jobId: string };
 
-// ----- the Kept export (T12) ---------------------------------------------------------------------
+// ----- the Kept export ---------------------------------------------------------------------------
 
 /** What an export holds besides the data: history, AI calls, the readable copy and its PDF,
  * ended and trashed things; the readable copy's language and digits. */
@@ -298,7 +298,7 @@ export type ExportRun = {
 export type ExportsParams = { locationId?: string; cursor?: string };
 export type ExportsPage = { items: ExportRun[]; next_cursor: string | null };
 
-// ----- consumables (T17) -------------------------------------------------------------------------
+// ----- consumables -------------------------------------------------------------------------------
 
 /** GET /api/v1/consumables?locationId&state&placeId&cursor&limit (module `consumables`). */
 export type ConsumablesParams = {
@@ -309,7 +309,7 @@ export type ConsumablesParams = {
   limit?: number;
 };
 
-/** Low first, then by name. `low` is quantity < minQuantity (isLow, plan Q19). */
+/** Low first, then by name. `low` is quantity < minQuantity (isLow). */
 export type ConsumableRow = { thing: ThingRow; minQuantity: number; low: boolean };
 export type ConsumablesPage = { items: ConsumableRow[]; next_cursor: string | null };
 

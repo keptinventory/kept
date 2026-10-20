@@ -1,7 +1,7 @@
 -- Custom SQL migration file, put your code below! --
 -- D236 (builds D170): a service line can use stock from a consumable. Above, in 0128, drizzle's
--- part: service_lines.consumable_thing_id and consumed_quantity (the engineering spec's §1.6
--- columns), its index and check (src/db/schema/services.ts). Below:
+-- part: service_lines.consumable_thing_id and consumed_quantity (the
+-- data model's columns), its index and check (src/db/schema/services.ts). Below:
 --   1. The key drizzle can't declare: the line's consumable is of the line's own location
 --      (D183's composite keys), ON UPDATE CASCADE so it follows a move, ON DELETE SET NULL
 --      (consumable_thing_id) so purging the consumable keeps the line and its words.

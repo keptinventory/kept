@@ -7,13 +7,13 @@ import { isResolved, loadBackupSettings } from './settings.js';
 import { runVerify } from './verify.js';
 import { runOpsWatch } from './watch.js';
 
-// Step 8's backup-side system jobs (plan T2), gathered by jobs/operations.ts. Stubs that do
+// Step 8's backup-side system jobs, gathered by jobs/operations.ts. Stubs that do
 // nothing until their tasks fill them in, so scheduling them now changes no behaviour:
-// - `ops-watch`, hourly (T10, backup/watch.ts): statfs of KEPT_DATA_DIR and a directory target
+// - `ops-watch`, hourly (backup/watch.ts): statfs of KEPT_DATA_DIR and a directory target
 //   (`disk_space_low` at DISK_WARN_RATIO), `backup_stale` after BACKUP_STALE_HOURS,
 //   `bucket_versioning_off` (daily), `restore_drill_due` after DRILL_DUE_DAYS; each resolved when
 //   it clears; writes `disk_status` into instance_settings.
-// - `backup-verify`, weekly (T7, backup/verify.ts): `restic check`, and with S3 file storage the
+// - `backup-verify`, weekly (backup/verify.ts): `restic check`, and with S3 file storage the
 //   manifest's hashes against the bucket (D144); records a `verify` run.
 // Neither job's data ever holds a password or a credential: the settings are read when it runs.
 

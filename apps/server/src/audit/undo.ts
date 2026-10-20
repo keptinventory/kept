@@ -14,7 +14,7 @@ import type { FileStorage } from '../storage/blob-store.js';
 import { actorOf } from './actor.js';
 import { type AuditEventInput, type AuditResult, audited } from './audited.js';
 
-// Undo (D58, D124, D150; engineering spec §7.5; T27 decision): POST /api/v1/audit/:eventId/undo
+// Undo (D58, D124, D150; T27 decision): POST /api/v1/audit/:eventId/undo
 // reverses one audited change, while its `undoable_until` (at most 7 days) hasn't passed;
 // POST /api/v1/audit/undo {eventIds (≤ 400)} reverses several together, all or none (D250).
 //
@@ -37,9 +37,9 @@ import { type AuditEventInput, type AuditResult, audited } from './audited.js';
 // same location). Everything runs in one transaction with the route's read of the event, which is
 // locked against a racing second undo by `pg_advisory_xact_lock`.
 
-// Every refusal is 409 `undo_refused` (T20; the web's UndoRefusedDetails) with a `reason`:
+// Every refusal is 409 `undo_refused` (the web's UndoRefusedDetails) with a `reason`:
 // - `not_undoable`: no handler for the action, an event written without a window (an undo
-//   itself: there is no redo), or a diff holding a secret-class field (screens §8);
+//   itself: there is no redo), or a diff holding a secret-class field;
 // - `expired`: its 7 days have passed;
 // - `already_undone`: an undo of it exists;
 // - `changed_since`: the handler found something changed since, with `field` (the first),
@@ -90,8 +90,8 @@ export type UndoArgs = {
 export type UndoHandler = (args: UndoArgs) => Promise<void>;
 
 /**
- * An account-level event (no location, §7.13): a change to an account's own records, such as an
- * exchange rate (step 4, T8). Undone by the account's owners and admins only: nobody else can
+ * An account-level event (no location): a change to an account's own records, such as an
+ * exchange rate. Undone by the account's owners and admins only: nobody else can
  * write such a change in the first place.
  */
 export type AccountUndoableEvent = Omit<UndoableEvent, 'locationId' | 'ownerAccountId'> & {
@@ -185,7 +185,7 @@ function asRefusal(err: unknown): unknown {
   });
 }
 
-/** Whether a stored diff holds a secret-class field: never undoable (screens §8). */
+/** Whether a stored diff holds a secret-class field: never undoable. */
 export const holdsSecret = (diff: UndoableEvent['diff'] | null | undefined): boolean =>
   Object.values(diff ?? {}).some((c) => c.class === 'secret');
 
@@ -257,7 +257,7 @@ const UndoTogetherBody = z.strictObject({
 });
 
 /**
- * Whether the caller made the event: as themself, or (step 6, D58) through one of their own
+ * Whether the caller made the event: as themself, or (D58) through one of their own
  * tokens, which "Recent changes by connections" offers them to undo. A token's own request
  * counts only that token's events.
  */
@@ -299,7 +299,7 @@ export async function undoEvent(
   if (!e.location_id) return undoAccountEvent(tx, client, scope, e, requestId, deps);
   const { role } = await requireMembership(client, e.location_id);
   const mine = await madeByCaller(client, scope, e);
-  // A connection undoes only what it did itself (step-6 plan T10), whatever its creator's role.
+  // A connection undoes only what it did itself, whatever its creator's role.
   if (scope.tokenId && !mine) {
     throw forbidden('A connection can undo only its own changes.');
   }
@@ -368,7 +368,7 @@ export async function undoEvent(
 }
 
 /**
- * An account-level event's undo (step 4, T8: exchange rates). Only actions registered with
+ * An account-level event's undo (exchange rates). Only actions registered with
  * registerAccountUndo() have one; any other account-level event (a registry's) stays a 404 here,
  * as before. The caller must be an owner or admin of the account; the checks after that are the
  * location path's.

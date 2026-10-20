@@ -1,5 +1,5 @@
 /**
- * One agenda item as the Expiring screen shows it (plan T13, T23; D141, Q7): what it is (a
+ * One agenda item as the Expiring screen shows it (D141): what it is (a
  * warranty, a document, a thing that expires, and when Home's rows open it, a schedule or a loan),
  * what it's on, the day it's due or runs out, and where it stands. A document's Renew is here
  * (D172); a schedule's Complete and a loan's Mark returned live on their own screens, so those rows
@@ -90,7 +90,7 @@ function useItemTitle(): (item: AgendaItem) => string {
       const provider = isolate(item.title);
       return t`${provider} warranty`;
     }
-    // A stale reading arrives as its meter's label, or none (step 5).
+    // A stale reading arrives as its meter's label, or none.
     if (item.sourceType === 'reading_stale') return item.title || t`Reading needed`;
     return item.title;
   };

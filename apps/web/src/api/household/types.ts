@@ -1,19 +1,19 @@
 /**
  * The step-4 web contract: every request and response the money, warranty, lending, schedule,
  * paperwork, agenda, notification, calendar and incident screens exchange with the server.
- * Written from the route tables of the step-4 plan's Phase B (tasks 8–18), field for field. The
+ * Written from the server's route tables, field for field. The
  * server tasks implement the same shapes in each area's `view.ts`; a difference is fixed in both,
- * in the same commit (plan T3).
+ * in the same commit.
  *
  * Where the plan names a response without spelling it out (`IncidentRow`, `Incident`, the claim
  * pack's run, a calendar feed, the body of a PATCH), the shape here is T3's proposal, marked
  * "(proposed)"; the server task adopts it or fixes both sides.
  *
  * Value lists (warranty kinds, claim statuses, source types, channel kinds, …) come from
- * @kept/shared (household.ts, reminders.ts, plan T1), because the server checks them too. Step-2
+ * @kept/shared (household.ts, reminders.ts), because the server checks them too. Step-2
  * shapes (`ThingRow`, `AttachmentView`, `Brand`, …) come from ../inventory/types.ts.
  *
- * Conventions (engineering spec §7.7): camelCase JSON; lists are `{items, next_cursor}`, 20 a page
+ * Conventions: camelCase JSON; lists are `{items, next_cursor}`, 20 a page
  * and 200 at most; money is a canonical decimal string plus `currency`, **omitted** where the
  * money gate hides it, with `moneyHidden: true`; a versioned write sends `If-Match`; an undoable
  * write names its audit event in `X-Kept-Audit-Event` (D150).
@@ -81,7 +81,7 @@ export type SubjectInput = { thingId: string } | { placeId: string } | { locatio
 /** An existing registry row, or a new one created inline by name (D11). */
 export type ByIdOrName = { id: string } | { name: string };
 
-// ----- money: exchange rates and valuations (T8) -----------------------------------------------
+// ----- money: exchange rates and valuations ----------------------------------------------------
 
 /** One rate, per account, per pair and date (D76). `rate` is a decimal string, > 0. */
 export type FxRate = {
@@ -124,10 +124,10 @@ export type CreateValuationBody = {
 /** PATCH /api/v1/valuations/:id (proposed: the create's fields, each optional). */
 export type UpdateValuationBody = Partial<Omit<CreateValuationBody, 'id'>>;
 
-/** The thing view's `currentValue` (T8; D158), declared with the view in ../inventory/types.ts. */
+/** The thing view's `currentValue` (D158), declared with the view in ../inventory/types.ts. */
 export type CurrentValue = ThingCurrentValue;
 
-// ----- warranties and claims (T9) --------------------------------------------------------------
+// ----- warranties and claims -------------------------------------------------------------------
 
 export type WarrantyState = 'active' | 'expiring' | 'ended';
 
@@ -140,7 +140,7 @@ export type Warranty = {
   endsOn: string | null;
   termMonths: number | null;
   lifetime: boolean;
-  /** The last covered day (a term ends the day before its anniversary, L2), or null for lifetime. */
+  /** The last covered day (a term ends the day before its anniversary), or null for lifetime. */
   effectiveEndsOn: string | null;
   leadDays: number;
   claimContact: string | null;
@@ -203,11 +203,11 @@ export type Claim = {
   vendor: { id: string; name: string; kind: VendorKind } | null;
   status: ClaimStatus;
   cost: GatedMoney | null;
-  /** "What it would have cost" (Q18). */
+  /** "What it would have cost". */
   coveredAmount: GatedMoney | null;
   notes: string | null;
   closedOn: string | null;
-  /** `coveredAmount` when the claim resolved at no cost (D195, Q18). */
+  /** `coveredAmount` when the claim resolved at no cost (D195). */
   savedYou: GatedMoney | null;
   documents: AttachmentRef[];
   rowVersion: number;
@@ -245,8 +245,8 @@ export type UpdateClaimBody = {
 };
 
 /**
- * PUT /api/v1/brands/:id/logo (the image as the body) → the PNG Kept keeps of it (step-2 Q9,
- * Q33). GET on the same path is that PNG, 404 when the brand has none; DELETE → 204.
+ * PUT /api/v1/brands/:id/logo (the image as the body) → the PNG Kept keeps of it.
+ * GET on the same path is that PNG, 404 when the brand has none; DELETE → 204.
  */
 export type BrandLogo = {
   brandId: string;
@@ -256,7 +256,7 @@ export type BrandLogo = {
   updatedAt: string;
 };
 
-// ----- lending and borrowing (T10) -------------------------------------------------------------
+// ----- lending and borrowing -------------------------------------------------------------------
 
 export type Loan = {
   id: string;
@@ -311,7 +311,7 @@ export type BorrowResult = { loan: Loan; thing: ThingRow };
 export type ReturnBody = {
   returnedAt?: string;
   to?: 'previous' | { placeId: string } | { containerId: string };
-  /** Default true: a split-off part merges back into the row it came from (D172, Q14). */
+  /** Default true: a split-off part merges back into the row it came from (D172). */
   mergeBack?: boolean;
   notes?: string;
 };
@@ -325,7 +325,7 @@ export type UpdateLoanBody = {
 };
 
 export type LoanState = 'open' | 'overdue' | 'returned';
-/** GET /api/v1/loans (the Lending screen; global with a location filter, screens §1). */
+/** GET /api/v1/loans (the Lending screen; global with a location filter). */
 export type LoansParams = {
   direction?: LoanDirection;
   state?: LoanState;
@@ -353,7 +353,7 @@ export type CreateLoanAttachmentBody = {
   role: 'condition_out' | 'condition_in';
 };
 
-// ----- schedules and service records (T11) -----------------------------------------------------
+// ----- schedules and service records -----------------------------------------------------------
 
 export type ScheduleBasis = 'months' | 'units' | 'both' | 'once';
 export type { ScheduleState };
@@ -375,7 +375,7 @@ export type Schedule = {
   leadUnits: string | null;
   anchorOn: string;
   anchorValue: string | null;
-  /** Read from the agenda, never recomputed in the client (T11). */
+  /** Read from the agenda, never recomputed in the client. */
   next: {
     dueOn: string | null;
     dueValue: string | null;
@@ -501,7 +501,7 @@ export type CreateServiceRecordBody = {
 /** PATCH /api/v1/service-records/:id (proposed: the create's fields bar the subject). */
 export type UpdateServiceRecordBody = Partial<Omit<CreateServiceRecordBody, 'id' | 'subject'>>;
 
-// ----- the paperwork library and expiring documents (T12) --------------------------------------
+// ----- the paperwork library and expiring documents --------------------------------------------
 
 export type DocumentState = 'ok' | 'expiring' | 'expired';
 
@@ -510,7 +510,7 @@ export type ExpiringDocument = {
   locationId: string;
   subject: SubjectRef;
   kind: DocumentKind;
-  /** Required for `other` (Q31). */
+  /** Required for `other`. */
   title: string | null;
   expiresOn: string;
   leadDays: number;
@@ -527,7 +527,7 @@ export type PaperworkRow = {
   attachment: AttachmentRef;
   subject: SubjectRef;
   expiring?: { id: string; kind: DocumentKind; expiresOn: string; state: DocumentState };
-  /** A matching line of the file's text; a receipt's needs the money gate (step-3 Q19). */
+  /** A matching line of the file's text; a receipt's needs the money gate. */
   snippet?: string;
 };
 export type PaperworkParams = {
@@ -570,7 +570,7 @@ export type UpdateDocumentBody = {
 export type RenewDocumentBody = { id?: string; expiresOn: string; leadDays?: number };
 export type RenewDocumentResult = { renewed: ExpiringDocument; previous: ExpiringDocument };
 
-// ----- the agenda (T13) -------------------------------------------------------------------------
+// ----- the agenda -------------------------------------------------------------------------------
 
 export type AgendaAction = 'complete' | 'snooze' | 'mark_returned' | 'renew' | 'open';
 
@@ -604,7 +604,7 @@ export type AgendaPage = Page<AgendaItem> & {
   counts: { overdue: number; due: number; expiring: number };
 };
 
-// ----- channels and preferences (T15) ----------------------------------------------------------
+// ----- channels and preferences ----------------------------------------------------------------
 
 export type Channel = {
   id: string;
@@ -626,7 +626,7 @@ export type Channel = {
 
 /**
  * One kind in one location, or for all locations (D239): per channel as it is decided there, and
- * whether every value is still Kept's default (Q8, Q10).
+ * whether every value is still Kept's default.
  */
 export type KindPreference = {
   inapp: boolean;
@@ -643,10 +643,10 @@ export type KindPreference = {
   set?: PreferenceChannel[];
 };
 
-/** GET /api/v1/me/notification-settings. Viewers' locations list only `membership` (Q8). */
+/** GET /api/v1/me/notification-settings. Viewers' locations list only `membership`. */
 export type NotificationSettings = {
   timezone: string;
-  /** HH:MM in `timezone` (default 08:00, Q9). */
+  /** HH:MM in `timezone` (default 08:00). */
   digestTime: string;
   quietFrom: string | null;
   quietTo: string | null;
@@ -678,7 +678,7 @@ export type PutNotificationSettingsBody = {
  * a location: all locations, else the default) deletes the row. `locationId` null: all locations.
  */
 export type PutPreferencesBody = {
-  /** At most 200. `locationId` null is all locations (D239); `ai_summary` takes only that (Q35). */
+  /** At most 200. `locationId` null is all locations (D239); `ai_summary` takes only that. */
   items: Array<{
     locationId: string | null;
     kind: NotifyKind;
@@ -704,7 +704,7 @@ export type CreatePushSubscriptionBody = {
   label?: string;
 };
 
-// ----- the notification centre (T16) -----------------------------------------------------------
+// ----- the notification centre -----------------------------------------------------------------
 
 export type Notification = {
   id: string;
@@ -728,7 +728,7 @@ export type Notification = {
   aiCap?: { scope: AiScope; level: 80 | 100; month: string };
   exportReady?: {
     runId: string;
-    /** A claim pack or insurance report (step 4), or a Kept export: a location's, or `me`. */
+    /** A claim pack or insurance report, or a Kept export: a location's, or `me`. */
     kind: 'claim_pack' | 'insurance_report' | 'location' | 'me';
   };
 };
@@ -745,7 +745,7 @@ export type NotificationCount = { unread: number };
 /** POST /api/v1/notifications/read: some (at most 200), or all. */
 export type ReadNotificationsBody = { ids: string[] } | { all: true };
 
-// ----- the calendar feed (T17) -----------------------------------------------------------------
+// ----- the calendar feed -----------------------------------------------------------------------
 
 export type CalendarFeed = {
   id: string;
@@ -759,7 +759,7 @@ export type CalendarFeedsResponse = { items: CalendarFeed[] };
 /** POST /api/v1/me/calendar-feeds → 201: the URL, shown **once**. At most 3 live. */
 export type CreatedCalendarFeed = { id: string; url: string };
 
-// ----- incidents, the insurance report and claim packs (T18) -----------------------------------
+// ----- incidents, the insurance report and claim packs -----------------------------------------
 
 export type IncidentLifecycle = 'stolen' | 'destroyed' | 'lost';
 
@@ -814,9 +814,9 @@ export type IncidentThingsBody = {
 /** POST /api/v1/reports/insurance → 202 (as the inventory report, 5 an hour). */
 export type InsuranceReportBody = {
   scope: { locationId: string } | { incidentId: string };
-  /** YYYY-MM-DD; default today (Q20). */
+  /** YYYY-MM-DD; default today. */
   asOf?: string;
-  /** Needs a rate for every pair, else 409 `rate_missing` with `missing` (Q21). */
+  /** Needs a rate for every pair, else 409 `rate_missing` with `missing`. */
   reportCurrency?: string;
   include?: { photos?: boolean };
   locale?: 'en' | 'ar' | 'fr' | 'de' | 'it';

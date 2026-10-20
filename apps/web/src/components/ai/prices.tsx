@@ -1,9 +1,9 @@
 /**
- * The price table (D167, D206; screens §5 AI settings and Admin → AI). Versioned: saving a price
+ * The price table (D167, D206). Versioned: saving a price
  * adds a version and never rewrites a call already costed; "Stop pricing" means "no price from
  * now" (calls then have cost unknown). Rates are per million tokens: input, output, reasoning
  * (defaults to output) and cached input (defaults to input), plus a per-image rate for providers
- * that bill images apart. Nothing is seeded (Q8); the recommended model is priced from Groq's
+ * that bill images apart. Nothing is seeded; the recommended model is priced from Groq's
  * listing when an instance admin connects it, and NoPriceNotice offers it in one tap.
  *
  * `mode="read"` for owners (AI settings, Advanced); `mode="edit"` for instance admins, with the
@@ -63,7 +63,7 @@ function PriceSheet({ draft, onClose }: { draft: Draft; onClose: () => void }) {
           ? { cachedInputPerMtok: body.cachedInputPerMtok?.trim() }
           : {}),
         ...(decimal(body.perImage) ? { perImage: body.perImage?.trim() } : {}),
-        // A price from the provider's listing says when it was listed (T9: source provider_listing).
+        // A price from the provider's listing says when it was listed (source provider_listing).
         ...(d.listingFetchedAt ? { listingFetchedAt: d.listingFetchedAt } : {}),
       };
       return captureApi.addAiPrice(clean);

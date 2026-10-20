@@ -1,5 +1,5 @@
 /**
- * A meter's readings over time (plan T18; D52, D133, V38): the readings as a line, the usage
+ * A meter's readings over time (D52, D133): the readings as a line, the usage
  * estimate dashed from the latest reading to the next threshold, and each schedule's threshold as
  * a faint rule with its name. Loaded on demand with the Readings tab (./lazy.tsx); the RTL,
  * keyboard and tooltip rules are in ./kit.tsx.
@@ -59,7 +59,7 @@ function Chart({
   const times = points.map((p) => new Date(p.at).getTime());
   const first = Math.min(...times);
   const last = Math.max(...times);
-  // A little room either side, so the first point doesn't sit on the value axis (the spike's note).
+  // A little room either side, so the first point doesn't sit on the value axis.
   const pad = Math.max(DAY, (last - first) * 0.03);
   const x = scaleUtc<number>({
     domain: [new Date(first - pad), new Date(last + pad)],

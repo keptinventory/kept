@@ -1,4 +1,4 @@
-// The report renderer's child process (D201; spike V34): Typst, through the napi addon
+// The report renderer's child process (D201): Typst, through the napi addon
 // @myriaddreamin/typst-ts-node-compiler, run in a process of its own so that its memory (outside
 // V8, so no heap limit reaches it) is bounded by the parent's watch and handed back when it exits
 // (render.ts). Plain JavaScript on purpose: it is forked as it is, from src/ in tests and from

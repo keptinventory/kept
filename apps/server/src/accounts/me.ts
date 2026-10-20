@@ -8,10 +8,10 @@ import { Iso, LocationKind, RoleSchema } from '../locations/views.js';
 import { auditMine } from '../notify/prefs.js';
 import { RECOVERY_KIT_KEY } from '../setup/recovery-kit.js';
 
-// GET /api/v1/me (carry-over from task 17; the web shell's first query): who is signed in, their
+// GET /api/v1/me (the web shell's first query): who is signed in, their
 // display preferences, whether they are an instance admin, and the locations they belong to.
 //
-// PATCH /api/v1/me {suggestLocation} (step-3 carry-over, T19): "Suggest where I am" (the phone's
+// PATCH /api/v1/me {suggestLocation}: "Suggest where I am" (the phone's
 // location suggestion) is the person's, across devices, in user_profiles.suggest_location.
 // Audited `me.preferences` on the person's own account. → 200 {suggestLocation}.
 //

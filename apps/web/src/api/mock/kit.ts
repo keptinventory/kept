@@ -36,7 +36,7 @@ export type AreaRoutes = (state: MockState) => MockRoute[];
 
 export const reply = (status: number, body?: unknown) => new MockReply(status, body);
 
-/** Kept's error shape (§7.7), with any extra top-level fields (`conflicts`, `counts`, …). */
+/** Kept's error shape, with any extra top-level fields (`conflicts`, `counts`, …). */
 export const err = (
   status: number,
   code: string,

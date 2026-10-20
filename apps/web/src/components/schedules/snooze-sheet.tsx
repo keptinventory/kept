@@ -1,5 +1,5 @@
 /**
- * Snooze (plan T21; screens §8, step-4 Q28): move a schedule's due point to a date, or, when it
+ * Snooze: move a schedule's due point to a date, or, when it
  * counts on a meter, to a reading, which defaults to the due reading plus 10% of the interval
  * (1,000 km on a 10,000 km schedule). A snooze replaces the due point until the schedule is
  * completed; Unsnooze (the row's action) takes it back. Undoable.

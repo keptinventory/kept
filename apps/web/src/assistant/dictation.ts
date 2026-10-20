@@ -1,19 +1,19 @@
 /**
- * Browser dictation (D25, D213, V13; spike S6.6): the
+ * Browser dictation (D25, D213): the
  * mic in the assistant's composer and in Capture's name field. It uses the browser's own
  * recogniser (`SpeechRecognition`, or `webkitSpeechRecognition` in Safari), so Kept sends nothing
  * to any server; the browser may use its own speech service.
  *
  * - The mic shows only where the API exists (finding 1).
  * - `lang` is the bare interface language (`en`, `ar`, …), which Chromium keeps as given (finding
- *   2); whether a bare `ar` is recognised is a device check (V13).
+ *   2); whether a bare `ar` is recognised is a device check.
  * - Interim text shows in the field as it's heard, after what was already typed; the final text
  *   stays. Listening goes on until the person taps again or stops speaking, so a spoken list
  *   ("a drill, a ladder and two paint cans") arrives whole (D213).
  * - A denied microphone (`not-allowed`, then `end`) is said once and hides the mic for the rest of
  *   the session (finding 4).
  * - `start()` runs only when the person taps the mic. Tests replace the recogniser with a stub
- *   (`window.SpeechRecognition`); nothing automated ever starts a real one (agent rules, S6.6).
+ *   (`window.SpeechRecognition`); nothing automated ever starts a real one (agent rules).
  *
  * The diagnostics probe (pwa/probes.ts) reads `dictationSupport()` and `lastDictationError()`.
  */

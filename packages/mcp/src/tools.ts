@@ -1,18 +1,18 @@
 /**
- * The tool set (D22, D63, D124, D172, D213; engineering spec §2.5). One registry serves the
+ * The tool set (D22, D63, D124, D172, D213). One registry serves the
  * assistant and MCP: this file holds each tool's contract, `apps/server/src/tools/` its handler.
  *
  * - `scope`: a `read` tool is offered to every principal; a `write` tool only where the principal
  *   may write (a write token, a member or better, D123).
  * - `module`: the tool is offered in a location only while that module is effective there
  *   (D113); `null` is the core.
- * - `since`: the step whose service backs the tool (step-6 plan Q10), or `1.x` for a tool added
+ * - `since`: the step whose service backs the tool, or `1.x` for a tool added
  *   after the plan (Moving mode's, D251). The contract lands now; the handler lands with that
  *   step, and `capabilities` never lists a tool without one.
  * - `doors`: who is offered the tool, MCP and the assistant (D22) unless it says otherwise. The
  *   moving tools are MCP's only: the assistant's confirmation card has no rows for them, and every
  *   assistant request carries every tool it may call (its free-tier budget, D124's amendment).
- * - `input` is what the model or the MCP client sends (snake_case, §2.5). Ids are UUIDs or
+ * - `input` is what the model or the MCP client sends (snake_case). Ids are UUIDs or
  *   6-character short IDs (`idOrCode`), read through `normaliseInputCode`. `location_id` is
  *   optional where the principal has one location (D179).
  * - `output` is the shape of the envelope's `data` (output.ts). Every user-written string sits
@@ -47,7 +47,7 @@ import { z } from 'zod';
 export const TOOL_SCOPES = ['read', 'write'] as const;
 export type ToolScope = (typeof TOOL_SCOPES)[number];
 
-/** The steps whose services back a tool (Q10), and `1.x` for one added since. */
+/** The steps whose services back a tool, and `1.x` for one added since. */
 export const TOOL_SINCE = [4, 5, 6, 7, '1.x'] as const;
 export type ToolSince = (typeof TOOL_SINCE)[number];
 
@@ -275,7 +275,7 @@ export const addThingItem = z.object({
 });
 
 export const TOOL_DEFS = Object.freeze({
-  // --- read, core (step 6) -------------------------------------------------------------------
+  // --- read, core ----------------------------------------------------------------------------
   capabilities: tool({
     name: 'capabilities',
     title: 'What can I do here?',
@@ -467,7 +467,7 @@ export const TOOL_DEFS = Object.freeze({
     ),
   }),
 
-  // --- read, modules (step 4) ----------------------------------------------------------------
+  // --- read, modules -------------------------------------------------------------------------
   upcoming: tool({
     name: 'upcoming',
     title: 'What is coming up?',
@@ -498,7 +498,7 @@ export const TOOL_DEFS = Object.freeze({
     ),
   }),
 
-  // --- write, core (step 6) ------------------------------------------------------------------
+  // --- write, core ---------------------------------------------------------------------------
   add_thing: tool({
     name: 'add_thing',
     title: 'Add things',
@@ -664,7 +664,7 @@ export const TOOL_DEFS = Object.freeze({
     }),
   }),
 
-  // --- write, lending (step 4) ---------------------------------------------------------------
+  // --- write, lending ------------------------------------------------------------------------
   lend_thing: tool({
     name: 'lend_thing',
     title: 'Lend',
@@ -715,7 +715,7 @@ export const TOOL_DEFS = Object.freeze({
     output: writeResult.extend({ thing: thingRef, loan_id: uuid }),
   }),
 
-  // --- write, schedules (step 4) -------------------------------------------------------------
+  // --- write, schedules ----------------------------------------------------------------------
   complete_schedule: tool({
     name: 'complete_schedule',
     title: 'Done',
@@ -747,7 +747,7 @@ export const TOOL_DEFS = Object.freeze({
     output: writeResult.extend({ schedule_id: uuid }),
   }),
 
-  // --- write, warranties (step 4) ------------------------------------------------------------
+  // --- write, warranties ---------------------------------------------------------------------
   add_warranty: tool({
     name: 'add_warranty',
     title: 'Add a warranty',
@@ -797,7 +797,7 @@ export const TOOL_DEFS = Object.freeze({
     output: writeResult.extend({ claim_id: uuid, status: z.enum(CLAIM_STATUSES) }),
   }),
 
-  // --- write, services and fuel (step 5) -----------------------------------------------------
+  // --- write, services and fuel --------------------------------------------------------------
   log_service: tool({
     name: 'log_service',
     title: 'Log a service',
@@ -865,7 +865,7 @@ export const TOOL_DEFS = Object.freeze({
     output: writeResult.extend({ fill_id: uuid }),
   }),
 
-  // --- write, consumables (step 7) -----------------------------------------------------------
+  // --- write, consumables --------------------------------------------------------------------
   adjust_stock: tool({
     name: 'adjust_stock',
     title: 'Adjust stock',

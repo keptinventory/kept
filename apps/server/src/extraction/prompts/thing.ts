@@ -1,8 +1,7 @@
 /**
- * THING mode (engineering spec §2.1; D19, D20, D41): what one object in the photo is. Name, brand,
+ * THING mode (D19, D20, D41): what one object in the photo is. Name, brand,
  * model, type and colour are filled in without asking when confident (apply.ts); a serial and a
- * quantity above 1 wait for review. Printed model codes and serials belong to LABEL mode (spike
- * 2026-09-26 finding 5: THING mode left out a clearly printed model and serial).
+ * quantity above 1 wait for review. Printed model codes and serials belong to LABEL mode (THING mode left out a clearly printed model and serial).
  */
 import { type BuiltPrompt, languageList, type PromptContext, systemPrompt } from './common.js';
 

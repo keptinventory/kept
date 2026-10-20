@@ -12,14 +12,14 @@ import {
 import type { Pools } from '../db/pools.js';
 import { guardedFetch, PrivateAddressError } from '../net/ssrf.js';
 
-// The personal webhook channel (D30, D110, §2.6; step-4 plan T15, Q6).
+// The personal webhook channel (D30, D110).
 //
 // A person's own notification channel, not a location webhook (those are step 6 and reuse this
 // file's signer): one POST of JSON per reminder, event `reminder.due`, carrying ids, the kind, the
 // due date and a deep link only. No names, no values, no notes (D110): the receiver asks Kept for
 // more with the person's own access, if it can.
 //
-// - The URL and the signing secret are sealed together (§7.3: `notification_channels|<id>|config`);
+// - The URL and the signing secret are sealed together (`notification_channels|<id>|config`);
 //   kept_app can't SELECT the ciphertext, only this file opens it, as kept_system.
 // - Sent through guardedFetch(): private addresses refused unless the instance's
 //   `ssrf_allow_private` allows them (a receiver on the LAN, e.g. Home Assistant), every redirect
@@ -86,7 +86,7 @@ export function verifyWebhook(
   return a.length === b.length && a.length > 0 && timingSafeEqual(a, b);
 }
 
-/** The §2.6 envelope. */
+/** The envelope. */
 export type WebhookEnvelope = {
   id: string;
   event: 'reminder.due' | 'channel.test';
@@ -155,7 +155,7 @@ export type WebhookFetch = (allowPrivate: boolean) => typeof fetch;
 const WEBHOOK_TIMEOUT_MS = 10_000;
 
 /** POSTs one envelope, signed. Never throws. Step 6's location webhooks (webhooks/deliver.ts)
- * send their §2.6 payload through it too: anything with an `id` and an `event`. */
+ * send their webhook payload through it too: anything with an `id` and an `event`. */
 export async function postWebhook(
   config: WebhookConfig,
   envelope: Pick<WebhookEnvelope, 'id'> & { event: string },

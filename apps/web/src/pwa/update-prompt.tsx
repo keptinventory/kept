@@ -1,5 +1,5 @@
 /**
- * "A new version is ready · Reload" (D148; plan T23). Rendered once near the root. While a new
+ * "A new version is ready · Reload" (D148). Rendered once near the root. While a new
  * worker waits it asks the update gates (register.ts) every few seconds, and shows the toast
  * only when nothing is uploading and no capture is open. The toast stays until the person acts;
  * Reload checks the gates again, so a capture started in between still wins.

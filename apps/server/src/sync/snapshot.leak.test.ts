@@ -8,12 +8,12 @@ import { withScope } from '../db/scope.js';
 import { type CursorState, FIRST_SYNC } from './cursor.js';
 import { snapshotPage } from './snapshot.js';
 
-// The snapshot's leak test (plan T12; engineering spec §7.2; D36, D159, D178). Two tenants,
+// The snapshot's leak test (D36, D159, D178). Two tenants,
 // filled as the schema-wide leak test fills them (test/leak.test.ts fillTenant: step 2's and
 // step 3's fixture rows), plus a tombstone of every kind the phone is sent. Tenant A's owner and
 // a viewer of A pull A's snapshot on kept_app, in full and as a delta from the oldest watermark
 // (which reads every tombstone), and nothing of B's may be in it: no id, no name, no code. And
-// nothing of money, secrets, documents, notes or contact details for anyone (D36, D159, Q21).
+// nothing of money, secrets, documents, notes or contact details for anyone (D36, D159).
 
 const db = await testDb();
 

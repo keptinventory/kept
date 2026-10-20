@@ -1,13 +1,12 @@
 /**
- * "Needs you" (screens §5 Home and §8; D185, D240): one row of count tiles, each opening the list
+ * "Needs you" (D185, D240): one row of count tiles, each opening the list
  * it counts, filtered in the URL (`f.<key>`).
  *
  * D240 (the approved Home design) replaced the row-per-kind panel with tiles that never move:
  *
  * - **Six fixed tiles:** overdue · due · expiring · lent out · uncertain · low stock. A zero shows
  *   muted and dashed, so a tile never jumps when its count changes. A tile whose module is off in
- *   every location (Lending, Consumables) is not shown: there is nothing it could count (§3,
- *   "not applicable means hidden").
+ *   every location (Lending, Consumables) is not shown: there is nothing it could count ("not applicable means hidden").
  * - **Borrowed in and long unseen** join after the six, only while they have a count, so the six
  *   keep their places.
  * - **To review** left for Recent activity's "Photos to review" strip, and **Unplaced** for each
@@ -15,7 +14,7 @@
  * - **On a wide Home** each tile names its most urgent item (`/home/overview`'s `top`): the
  *   earliest due, the most overdue loan, the lowest stock.
  *
- * Counts and links are step 4's (T13, T27): overdue, due and expiring come from the one agenda
+ * Counts and links are step 4's: overdue, due and expiring come from the one agenda
  * (`/home`'s counts and `agendaBySource`), so a tile's count is what the list it opens shows:
  * overdue and due open Schedules when every item is a schedule, otherwise Expiring with that
  * state (and the sources among them); expiring opens Expiring. Lent out and borrowed in are the
@@ -35,7 +34,7 @@ import { useLocationName } from '@/lib/labels';
 import { cn } from '@/lib/utils';
 import { HomeSection } from './section';
 
-/** Screens §8's order. Keys without a registered row are simply not shown yet. */
+/** The attention order. Keys without a registered row are simply not shown yet. */
 export const ATTENTION_ORDER = [
   'toReview',
   'overdue',
@@ -70,7 +69,7 @@ const NONE: AgendaCounts = { overdue: 0, due: 0, expiring: 0 };
  * Where an overdue or due row goes (T13's rule): Schedules when every item is a schedule;
  * Expiring with the state when every item is one of its own sources; otherwise Expiring with the
  * state and the sources among them, so the list holds exactly what the row counts (stale
- * readings, step 5, are due only).
+ * readings, are due only).
  */
 export function stateLink(
   state: 'overdue' | 'due',
@@ -89,7 +88,7 @@ export function stateLink(
   return { to: '/expiring', search: { 'f.state': state, 'f.source': sources } };
 }
 
-/** What `/home` says of step 4 (T13): the counts, and each agenda row's by source. */
+/** What `/home` says of step 4: the counts, and each agenda row's by source. */
 export type HouseholdHome = Pick<HomeResponse, 'attention' | 'agendaBySource'>;
 
 /**
@@ -141,7 +140,7 @@ export function useHouseholdAttention(home?: HouseholdHome): {
   const s: AgendaCounts = schedules.data?.pages[0]?.counts ?? NONE;
   const r: AgendaCounts = readings.data?.pages[0]?.counts ?? NONE;
   const l = loans.data?.pages[0]?.counts ?? { out: 0, in: 0, overdue: 0 };
-  // Loans are only ever overdue (Q7): what the agenda counts beyond schedules and its own sources.
+  // Loans are only ever overdue: what the agenda counts beyond schedules and its own sources.
   const loanOverdue = Math.max(0, Math.min(l.overdue, a.overdue - s.overdue));
   return {
     counts: {
@@ -173,7 +172,7 @@ export function attentionCounts(a: HomeResponse['attention']): AttentionCounts {
 
 type Tile = OverviewTile;
 
-/** The six that always show (where their module is on somewhere), in §8's order. */
+/** The six that always show (where their module is on somewhere), in the attention order. */
 export const FIXED_TILES: readonly Tile[] = [
   'overdue',
   'due',

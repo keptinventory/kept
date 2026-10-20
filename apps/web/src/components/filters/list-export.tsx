@@ -1,8 +1,8 @@
 /**
- * "Export" for a things list (D169, step-7 T16): Export view (CSV) and Print, from
+ * "Export" for a things list (D169): Export view (CSV) and Print, from
  * ./list-export.household.tsx, loaded on demand (its own chunk, cached by the service worker on
  * first use, never precached; vite.config.ts). While it loads nothing shows; offline before its
- * first load, a disabled button says "Needs a connection" (screens §3).
+ * first load, a disabled button says "Needs a connection".
  *
  *   <ListExport params={thingsParams} />
  */

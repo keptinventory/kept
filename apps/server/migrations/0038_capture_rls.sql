@@ -1,27 +1,27 @@
 -- Custom SQL migration file, put your code below! --
--- Step 3, task 5: capture records (engineering spec §1.5, §1.8, §1.10, §7.2, §7.8, §7.13; D18,
--- D36, D73, D76, D77, D177; plan Q10, Q14, Q15, Q17, Q18). Above, in 0037, drizzle's part:
+-- Capture records (D18,
+-- D36, D73, D76, D77, D177). Above, in 0037, drizzle's part:
 -- extractions, inbox_items, templates, template_locations, file_text, import_runs and
 -- import_source_ids (src/db/schema/capture.ts, imports.ts), attachments' UNIQUE (location_id, id)
 -- and draft purchases without a date. Below:
 --   1. Row-level security on every new table (owner_all, kept_app policies on USING and WITH
 --      CHECK, UPDATE only through column grants), and touch_row on the mutable ones:
 --      - extractions: read if visible, queued and updated by writers (requested_by = me).
---      - inbox_items: members and above only (writable locations, screens §5); created_by = me.
+--      - inbox_items: members and above only (writable locations); created_by = me.
 --        No DELETE: an item goes with its subject, or is resolved and pruned.
 --      - templates: an account's admins manage them; members use one shared with their location.
---        Editing or deleting needs admin of every location it is shared with (D177, Q17).
+--        Editing or deleting needs admin of every location it is shared with (D177).
 --      - template_locations: admins of the location share and unshare; guarded to the
 --        template's own account.
---      - file_text: follows its file (§7.2); written by writers, never updated.
---      - import_runs, import_source_ids: owners and admins only (§7.1).
+--      - file_text: follows its file; written by writers, never updated.
+--      - import_runs, import_source_ids: owners and admins only.
 --   2. The guards: a template's location and type belong to its account (or the type is built in).
---   3. kept.prune_stale_rows() also removes inbox items resolved more than 90 days ago (Q15).
+--   3. kept.prune_stale_rows() also removes inbox items resolved more than 90 days ago.
 --   4. kept.search_file_ids(): document search on file_text's GIN index. `@@` is not leakproof,
---      so under the policy the index is never used (engineering spec §7.2, the RLS benchmark);
+--      so under the policy the index is never used (the RLS benchmark);
 --      the door runs the match as kept_owner and applies the caller's file visibility itself.
 --      It returns file ids only; the route reads the rows through the policies and never shows a
---      receipt's text to someone without the money gate (T21).
+--      receipt's text to someone without the money gate.
 -- test/leak.test.ts and src/db/migrate.test.ts list the functions; test/leak-capture.ts fills the
 -- tables.
 

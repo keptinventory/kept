@@ -3,7 +3,7 @@ import path from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import type { FileStorage } from '../../storage/blob-store.js';
 
-// The readable copy's thumbnails (plan T13): each thing's first photo, as its 400 px thumbnail
+// The readable copy's thumbnails: each thing's first photo, as its 400 px thumbnail
 // derivative (storage/derivatives.ts), copied byte for byte to `thumbs/<fileId>.jpg`. The name is
 // the file's id, never anything a person typed. A missing derivative (an image still being
 // processed) leaves the thing without a thumbnail; the copy doesn't fail for it.

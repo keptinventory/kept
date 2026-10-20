@@ -19,7 +19,7 @@ import {
   renderRecoveryKit,
 } from '../setup/recovery-kit-content.js';
 
-// The recovery kit's download from the web (D66, D165, D182; step-8 plan T9, screens §8):
+// The recovery kit's download from the web (D66, D165, D182):
 //
 // POST /api/v1/admin/recovery-kit/download {password?, format} → the kit as an attachment
 //

@@ -12,19 +12,19 @@ import {
 } from '../crypto/envelope.js';
 import { withSystem } from '../db/scope.js';
 
-// The VAPID keys web push signs with (D81, D139; step-4 plan T15, Q11).
+// The VAPID keys web push signs with (D81, D139).
 //
 // - `KEPT_VAPID_PUBLIC_KEY` + `KEPT_VAPID_PRIVATE_KEY` win when set (both or neither: loadEnv).
 // - Otherwise the pair lives in instance_settings under `vapid`: `{publicKey, privateKeySealed}`,
-//   the private key sealed with the envelope key (§7.3, AAD `instance_settings|vapid|private_key`),
+//   the private key sealed with the envelope key (AAD `instance_settings|vapid|private_key`),
 //   so a database dump alone doesn't hold it and `kept admin rotate-key` re-wraps it
 //   (secrets/rotate.ts SEALED_SETTINGS). kept_app never reads that key (0055's policy).
 // - The web process makes the pair at boot as kept_system, under an advisory lock, so two
-//   replicas starting together agree on one pair (the setup code's pattern, §7.14). A worker
+//   replicas starting together agree on one pair (the setup code's pattern). A worker
 //   reads it the same way the first time it sends a push.
 // - If the stored private key can't be opened (the key it was sealed with is gone), a new pair
 //   replaces it and every push subscription is dropped: they were made for the old public key,
-//   and phones subscribe again (Q11: losing the keys only means that).
+//   and phones subscribe again (losing the keys only means that).
 //
 // The private key never reaches a log: it lives in the returned object only, and loggers see
 // the keys' holder (PushSetup) through toJSON(), which leaves it out.

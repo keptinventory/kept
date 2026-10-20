@@ -1,7 +1,7 @@
 /**
- * Settings → Me (screens §5 Settings): who you are, how Kept looks on this device, how Kept
- * reaches you (Notifications, step 4), Export my data (step-7 T21, on the Export page), and Security: two-factor and sessions and devices (task
- * 17's device list, with revoke), and This device (step-8 T23: the app lock, keep offline).
+ * Settings → Me: who you are, how Kept looks on this device, how Kept
+ * reaches you (Notifications), Export my data (on the Export page), and Security: two-factor and sessions and devices (task
+ * 17's device list, with revoke), and This device (the app lock, keep offline).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -178,7 +178,7 @@ function MePage() {
               </LinkButton>
             )}
           </li>
-          {/* Step 8 (T23; D159, D181): the app lock and the locations kept offline. */}
+          {/* Step 8 (D159, D181): the app lock and the locations kept offline. */}
           <li>
             <Row
               leading={

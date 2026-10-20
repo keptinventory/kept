@@ -31,14 +31,14 @@ import type {
   UpdateTypeBody,
 } from './view.js';
 
-// Types and their fields (T11; D92, D123, D154, D172, D177, D192; engineering spec §7.9,
-// §7.13; plan Q3, Q4, Q13b). Built-ins are read-only templates: editing one answers 409
+// Types and their fields (D92, D123, D154, D172, D177, D192).
+// Built-ins are read-only templates: editing one answers 409
 // `reason: 'builtin'` and the client offers Customise, which copies it (and its built-in
 // subtree) into the account through kept.customise_type(). An account's types are managed by
 // its owners and admins (`registries-types.manage`), in every location of the account, including
 // ones they can't see: merging and customising go through the definers (0021, 0024), and a
 // preview counts hidden locations without naming them (kept.type_impact). Every write is an
-// account-level audit row (Q15).
+// account-level audit row.
 
 export type ConflictReason = 'cycle' | 'field_redefined' | 'builtin' | 'in_use';
 

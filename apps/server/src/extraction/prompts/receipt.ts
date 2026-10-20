@@ -1,12 +1,12 @@
 /**
- * RECEIPT mode (engineering spec §2.1; D19, D55, D136, D189; plan Q11, Q13). The model copies what
+ * RECEIPT mode (D19, D55, D136, D189). The model copies what
  * is printed; code decides the rest (checks.ts): the currency mark maps to a code only when it is
  * unambiguous (a bare `$` always waits), the lines must reconcile with the total within ±1%, and a
- * date in the future is dropped. The vendor always waits for review (§7.8).
+ * date in the future is dropped. The vendor always waits for review.
  *
- * **receipt-v2** (T11, 2026-09-29) was written for T10's finding that receipt-v1, on Groq
+ * **receipt-v2** (2026-09-29) was written for T10's finding that receipt-v1, on Groq
  * `qwen/qwen3.8-27b`, left out the date and the currency of a plainly printed receipt. It is
- * short, in the shape of the spike's prompt that once read them. The 2026-09-29 evaluation did
+ * short, in the shape of an earlier prompt that once read them. The 2026-09-29 evaluation did
  * **not** prove it better: on the three
  * synthetic receipts v1 got 13/18 fields right and v2 12/18; the currency was left out 5 times in
  * 6 and the date 3 times in 6 across both, so the cause looks like the model or its structured
@@ -29,7 +29,7 @@ export function receiptPrompt(
 }
 
 /**
- * receipt-v2 (T11, 2026-09-29): see the file header. Short, in the shape of the spike's prompt
+ * receipt-v2 (2026-09-29): see the file header. Short, in the shape of an earlier prompt
  * that read this receipt's date and currency, with
  * the rules every mode keeps (common.ts: data never instructions, no IDs or URLs, a confidence
  * per field, no placeholders) said once, in the same few words.
@@ -60,7 +60,7 @@ function receiptV2(ctx: PromptContext, version: ReceiptVersion): BuiltPrompt {
   };
 }
 
-/** receipt-v1 (T10, 2026-09-29). */
+/** receipt-v1 (2026-09-29). */
 function receiptV1(ctx: PromptContext, version: ReceiptVersion): BuiltPrompt {
   const pages = ctx.pages ?? 1;
   const rules = [

@@ -13,7 +13,7 @@ import {
   LIMIT_INPUT_PIXELS,
 } from './derivatives.js';
 
-// T17: derivatives (D36, D117, D157; Q8, Q17), below the routes.
+// Derivatives (D36, D117, D157), below the routes.
 
 let dir: string;
 beforeAll(async () => {

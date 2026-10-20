@@ -1,6 +1,6 @@
 /**
  * `/location/<uuid>`, a Homebox location's label: opened in Kept when the old Homebox hostname
- * points here (D146; plan T20). The page is components/legacy/legacy-resolve.tsx, one per label
+ * points here (D146). The page is components/legacy/legacy-resolve.tsx, one per label
  * (keyed).
  */
 import { createFileRoute } from '@tanstack/react-router';

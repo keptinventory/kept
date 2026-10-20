@@ -36,7 +36,7 @@ import {
   webhookChannel,
 } from './webhook.js';
 
-// A person's channels (D30, D139; plan T7, T15, Q13): one email channel (made lazily; managed
+// A person's channels (D30, D139): one email channel (made lazily; managed
 // accounts never get one), one web-push channel whose devices are push_subscriptions, up to
 // five webhooks, and up to three ntfy and three Telegram channels (1.3, D227). kept_app reads every column but a webhook's sealed config; this file never
 // selects `*` from notification_channels.
@@ -155,7 +155,7 @@ export async function mailIdentity(
 }
 
 /**
- * The caller's email channel, made the first time it's needed (Q13). A managed account never
+ * The caller's email channel, made the first time it's needed. A managed account never
  * gets one: it has no mailbox (`…@managed.invalid`, D197). Verified once the address is.
  */
 export async function ensureEmailChannel(client: pg.ClientBase, who: MailIdentity): Promise<void> {

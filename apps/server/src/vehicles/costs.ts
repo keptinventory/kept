@@ -5,12 +5,12 @@ import type { Ctx } from '../schedules/service.js';
 import { gateFor } from '../serialize/gates.js';
 import { correctedSeries, liveThingOf, monthBounds, odometerOf } from './meters.js';
 
-// A vehicle's running costs (step-5 plan T13; D26, D76, D188; Q5, Q22), the Costs tab:
+// A vehicle's running costs (D26, D76, D188), the Costs tab:
 // - fuel: the fills' costs, by the month they were taken in the location's zone;
 // - service: confirmed service records' totals, by the day they were done (a draft counts
-//   nowhere, Q12);
-// - fees: documents' costs, current and superseded, by their issue date (none without one, Q5).
-// Per currency, never added across currencies (Q22), and never converted: step 4's exchange
+//   nowhere);
+// - fees: documents' costs, current and superseded, by their issue date (none without one).
+// Per currency, never added across currencies, and never converted: step 4's exchange
 // rates exist, but the contract has no report currency yet, so none is asked for.
 //
 // The current month is "so far" (D188): shown, never totalled, averaged or divided by distance.

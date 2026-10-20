@@ -2,10 +2,10 @@ import type pg from 'pg';
 import type { Auth } from './auth.js';
 
 /**
- * A signed-in session as Kept's own routes see it (spike S2).
+ * A signed-in session as Kept's own routes see it.
  * - `mfa`: a second factor was proven in this session (TOTP, a backup code, or a passkey with
  *   user verification; never an emailed OTP). It becomes `app.mfa` in `withScope()`, and `require_2fa` locations stay
- *   hidden while it is false (§7.14, D190), including for users who never enrolled.
+ *   hidden while it is false (D190), including for users who never enrolled.
  * - `mfaPending`: the user has two-factor enabled but this session hasn't proven it; such a
  *   session is refused everywhere except finishing or abandoning sign-in (D176).
  * - `deletionPending`: the account asked to be deleted and is in its 30 days' grace (D225): the

@@ -10,8 +10,8 @@ import { withoutBidiControls } from '../http/untrusted.js';
 import { requireMembership } from '../locations/access.js';
 import { ownAccount } from '../tokens/service.js';
 
-// The consent step (step-6 plan T12; D179, D180; spike S6.2 §5). Better Auth's authorize sends
-// the browser to Kept's `/oauth/consent?<signed query>`; that page (T22) asks for the scope
+// The consent step (D179, D180). Better Auth's authorize sends
+// the browser to Kept's `/oauth/consent?<signed query>`; that page asks for the scope
 // (read, or read and change) and the locations (one by default), then posts here. One request:
 // kept.token_oauth_grant() writes the `oauth` grant row (as the consenting user, no token), and
 // Better Auth's own consent endpoint, given the same signed query and the narrowed scope,

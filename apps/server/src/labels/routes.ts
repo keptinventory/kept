@@ -26,11 +26,11 @@ import {
   SummarySchema,
 } from './service.js';
 
-// Labels (plan T16; D43, D44, D45, D120, D137, D172, D175; engineering spec §2.4; Q24, Q28, Q32).
-// The web contract is apps/web/src/api/capture/{paths,types}.ts "labels (T16)".
+// Labels (D43, D44, D45, D120, D137, D172, D175).
+// The web contract is apps/web/src/api/capture/{paths,types}.ts "labels".
 //
 // POST /api/v1/labels/batches                   → 201 {batch: LabelBatch, excluded: {pending, other}};
-//                                                 with `dryRun`, 200 {labels, blank, excluded} (T28)
+//                                                 with `dryRun`, 200 {labels, blank, excluded}
 // GET  /api/v1/labels/batches/:id               → LabelBatch (a reprint is the same codes, D45)
 // GET  /api/v1/labels/batches?locationId&cursor → {items: LabelBatch[], next_cursor}
 // POST /api/v1/labels/batches/:id/printed       → LabelBatch ("Printed OK?")
@@ -38,14 +38,14 @@ import {
 //                                                 409 label_claimed {claimedFor: {kind, id, name}}
 // GET  /api/v1/labels/summary?locationId        → {unprinted, blankUnclaimed}
 //
-// Module `labels` (§7.6): the writes and a batch by id are gated on their location (a write in a
+// Module `labels`: the writes and a batch by id are gated on their location (a write in a
 // location with labels off is 409 `module_off`, a read 404). The list and the summary take the
 // location from the query when given (404 `module_off` when labels are off there); without one
 // they cover every visible location. Writes need `labels.use` (owners, admins, members).
 //
 // A claim of anything that isn't a blank of the caller's own writable location (missing, retired,
 // another household's, a viewer's) is the same 404 a random code gets: the module gate and the
-// claim both answer a code the caller can't see as not found (D137, §2.4).
+// claim both answer a code the caller can't see as not found (D137).
 //
 // The former-hostname redirect (former-hosts.ts) is an onRequest hook on the whole app.
 
@@ -73,7 +73,7 @@ function batchLocation(pools: Pick<Pools, 'app'>) {
 }
 
 /** The location of a code the caller can see, for the module gate; anything else resolves to
- * nothing, the same 404 as a random code. A claim must be in the code's location anyway (Q24). */
+ * nothing, the same 404 as a random code. A claim must be in the code's location anyway. */
 function codeLocation(pools: Pick<Pools, 'app'>) {
   return async (req: FastifyRequest): Promise<string | null> => {
     const raw = (req.params as { code?: unknown }).code;
@@ -114,7 +114,7 @@ export async function labelRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
     files: deps.files,
   });
 
-  // Former hostnames (D120, Q32).
+  // Former hostnames (D120).
   app.addHook('onRequest', formerHostHook(pools.system, publicUrl));
 
   app.post(

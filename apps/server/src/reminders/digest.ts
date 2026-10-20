@@ -6,7 +6,7 @@ import type { DeliverDeps } from './deliver.js';
 import { OCCURRENCE_COLUMNS, type OccurrenceRow, reminderItems } from './items.js';
 import { loadUsers } from './recipients.js';
 
-// `reminder-digest` (every 15 minutes, kept_system; plan T14; D29, D122; Q9; spike V21): each
+// `reminder-digest` (every 15 minutes, kept_system; D29, D122): each
 // person's daily digest, once their own clock has reached their digest time (08:00 unless they
 // chose, in user_profiles.timezone). One message per channel listing every item waiting for it,
 // across all their locations, each with its location's own due date.

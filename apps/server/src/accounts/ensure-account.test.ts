@@ -18,7 +18,7 @@ import {
   TIMEZONE_HEADER,
 } from './ensure-account.js';
 
-// Task 18: ensureAccount() (D114, D190, D191, §7.14) and the repair-orphans job.
+// ensureAccount() (D114, D190, D191) and the repair-orphans job.
 
 let db: TestDb;
 

@@ -1,6 +1,6 @@
 /**
  * The vehicles list, a vehicle's meters with their estimates, the meter's settings, Home's count
- * of metered things, and starter schedules (plan T13, T8), after the server's `vehicles/` and
+ * of metered things, and starter schedules, after the server's `vehicles/` and
  * `meters/`. The step-2 routes this extends (`GET /things/:id`, `GET /home`) are answered by step
  * 2's handler first; this adds step 5's fields to what it returns.
  */
@@ -72,7 +72,7 @@ export function original(routes: MockRoute[], method: string, template: string) 
   return found.handler;
 }
 
-/** A meter as GET /things/:id answers it in step 5: its estimate and nudge interval (T8). */
+/** A meter as GET /things/:id answers it in step 5: its estimate and nudge interval. */
 export function meterV5(state: MockState, m: StoredThing['meters'][number]): ThingMeterV5 {
   const nudge = vehiclesOf(state).nudgeDays;
   return {
@@ -82,7 +82,7 @@ export function meterV5(state: MockState, m: StoredThing['meters'][number]): Thi
   };
 }
 
-/** A schedule with its estimated due date (T7): a unit side's date from the usage estimate. */
+/** A schedule with its estimated due date: a unit side's date from the usage estimate. */
 export function scheduleEstimate(state: MockState, s: Schedule) {
   const lead = s.leadUnits ?? (s.everyUnits ? String(Number(s.everyUnits) / 10) : '0');
   const estimatedOn =
@@ -185,7 +185,7 @@ export function vehicleListRoutes(state: MockState): MockRoute[] {
   const getHome = original(step2Home, 'GET', inventoryPaths.home);
 
   return [
-    // GET /api/v1/vehicles (T13): global across the caller's locations with Vehicles on.
+    // GET /api/v1/vehicles: global across the caller's locations with Vehicles on.
     route('GET', p.vehicles, ({ query }) => {
       const gate = sessionGate(state);
       if (gate) return gate;
@@ -245,7 +245,7 @@ export function vehicleListRoutes(state: MockState): MockRoute[] {
       return paginate(rows, query);
     }),
 
-    // GET /api/v1/things/:id: each meter gains its estimate and nudge interval (T8).
+    // GET /api/v1/things/:id: each meter gains its estimate and nudge interval.
     route('GET', inventoryPaths.thing(':id'), async (req) => {
       const out = await getThing(req);
       if (out instanceof MockReply || !vehiclesOf(state).seeded) return out;
@@ -254,7 +254,7 @@ export function vehicleListRoutes(state: MockState): MockRoute[] {
       return t ? { ...view, meters: t.meters.map((m) => meterV5(state, m)) } : view;
     }),
 
-    // PATCH /api/v1/meters/:id (If-Match): the label, the daily limit and the nudge (Q19).
+    // PATCH /api/v1/meters/:id (If-Match): the label, the daily limit and the nudge.
     route('PATCH', inventoryPaths.meter(':id'), ({ params, body, headers }) => {
       const t = thingOfMeter(state, params.id ?? '');
       if (!t || !accessOf(state).visible(t.locationId)) return notFound();
@@ -280,7 +280,7 @@ export function vehicleListRoutes(state: MockState): MockRoute[] {
       return meterV5(state, m);
     }),
 
-    // GET /api/v1/home: how many metered things you can log a reading on (T13).
+    // GET /api/v1/home: how many metered things you can log a reading on.
     route('GET', inventoryPaths.home, async (req) => {
       const out = await getHome(req);
       if (out instanceof MockReply || !vehiclesOf(state).seeded) return out;
@@ -295,7 +295,7 @@ export function vehicleListRoutes(state: MockState): MockRoute[] {
       return { ...(out as HomeResponse), meteredThings };
     }),
 
-    // POST /api/v1/things/:id/starter-schedules (T13): the four, or `keys`; names it has skipped.
+    // POST /api/v1/things/:id/starter-schedules: the four, or `keys`; names it has skipped.
     route('POST', p.thingStarterSchedules(':id'), ({ params, body }) => {
       ensureVehiclesSeeded(state);
       const g = thingGate(state, params.id, 'vehicles', 'write');

@@ -1,7 +1,7 @@
 -- Custom SQL migration file, put your code below! --
--- Tasks 19–20: leaving a location, and the invite page's preview (D33, D46, D180, §7.10).
+-- Leaving a location, and the invite page's preview (D33, D46, D180).
 
--- 1. Leaving (task 19). kept_app's app_delete policy on memberships (0006) lets owners and admins
+-- 1. Leaving. kept_app's app_delete policy on memberships (0006) lets owners and admins
 --    remove others; a member or viewer could not remove their own row, so "Leave this location"
 --    had no path. This policy adds exactly that: the signed-in user's own membership, never an
 --    `owner` row (the owner can't leave; the route answers `last_owner`). A DELETE also needs the
@@ -12,14 +12,14 @@ CREATE POLICY app_delete_own ON public.memberships FOR DELETE TO kept_app
   USING (user_id = (SELECT kept.current_user_id()) AND role <> 'owner');
 --> statement-breakpoint
 
--- 2. The invite page (task 20). 0006's preview returned the location's name, the role and the
+-- 2. The invite page. 0006's preview returned the location's name, the role and the
 --    inviter; the page also shows the location's kind, when the invite and the membership end,
---    and whether the location requires two-factor (screens §5 Accept invite). Two answers need
+--    and whether the location requires two-factor. Two answers need
 --    the caller's scope, and are false/NULL without one:
 --    - `email_matches`: the invite is bound to an address and it is the signed-in user's own
 --      (case-insensitive). The accept route uses it to mark that address verified: an email
 --      invite's link is only ever mailed (never shown to its creator), so holding the token
---      proves the mailbox (task 20; recorded in the commit body).
+--      proves the mailbox (recorded in the commit body).
 --    - `member_location_id`: the location's id, only when the caller can already see it (they
 --      are a member), so the page can open it instead of offering to join. Never for anyone else.
 --    `email_bound` says an address is required without saying which. The membership end date is
@@ -58,7 +58,7 @@ REVOKE EXECUTE ON FUNCTION kept.invite_preview(text) FROM PUBLIC, kept_system;
 GRANT EXECUTE ON FUNCTION kept.invite_preview(text) TO kept_app;
 --> statement-breakpoint
 
--- 3. Signing up with an invite (task 20; D33, D127): while sign-up is closed, an invite is the
+-- 3. Signing up with an invite (D33, D127): while sign-up is closed, an invite is the
 --    only way to create an account, and an email invite only for its own address. Before the
 --    account exists there is no scope to compare with, so this answers the one question the
 --    sign-up route needs: would this invite take this address? True for a live invite that is

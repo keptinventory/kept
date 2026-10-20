@@ -9,7 +9,7 @@ import { pdfTextJobs } from '../files/pdf-text.js';
 import { runJob } from '../jobs/boss.js';
 import { snippetOf } from './documents.js';
 
-// T21 (Q19; D77; engineering spec §7.2): the `documents` group of GET /api/v1/search, over the
+// T21 (D77): the `documents` group of GET /api/v1/search, over the
 // text the pdf-text job read from real uploads.
 //
 // Ann owns Home (Household: money on). In Home Bob is a member and Vic a viewer; viewers don't

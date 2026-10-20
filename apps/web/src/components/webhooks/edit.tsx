@@ -1,5 +1,5 @@
 /**
- * Add or change a location's webhook (D63, D110, engineering spec §2.6): the receiving URL and
+ * Add or change a location's webhook (D63, D110): the receiving URL and
  * which events to send, as a checkbox list. The server checks the URL against private addresses
  * when it's saved (D83). A new webhook's signing secret, like a rotated one, is shown **once**
  * with Copy and a snippet that checks a delivery's `Kept-Signature` with it; it lives in this

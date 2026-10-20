@@ -29,8 +29,7 @@ import { locations } from './tenancy.js';
 
 export { CREATED_VIA, REVIEW_STATES } from './common.js';
 
-// Things, short IDs, links and tag assignments (engineering spec §1.3, amended by §7.9 and
-// §7.13; D10, D45, D76, D112, D119, D120, D158, D160, D183). Row-level security, the guards,
+// Things, short IDs, links and tag assignments (D10, D45, D76, D112, D119, D120, D158, D160, D183). Row-level security, the guards,
 // the search and path caches and the expression indexes are in the custom migration that follows
 // (0016); see src/db/things.test.ts.
 
@@ -45,7 +44,7 @@ const createdVia = textEnum('created_via', CREATED_VIA);
 /**
  * A thing sits in exactly one place or one container (another thing), always in its own
  * location (composite foreign keys, ON UPDATE CASCADE: a cross-location move carries its
- * contents). Cache columns (§7.9, D183): `place_path` and `search_tsv` bump nothing,
+ * contents). Cache columns (D183): `place_path` and `search_tsv` bump nothing,
  * `last_seen_at` bumps change_seq only (kept.touch_row('place_path,search_tsv','last_seen_at')).
  * Money (`ended_price`) never enters `search_tsv` or `place_path`.
  */
@@ -96,7 +95,7 @@ export const things = pgTable(
     fieldStatus: jsonb('field_status').notNull().default(sql`'{}'::jsonb`),
     reviewState: reviewState.col().notNull().default('confirmed'),
     createdVia: createdVia.col().notNull().default('app'),
-    /** Who created it (plan Q22); not a foreign key: history outlives the user. */
+    /** Who created it; not a foreign key: history outlives the user. */
     createdBy: uuid('created_by'),
     splitFromId: uuid('split_from_id').references((): AnyPgColumn => things.id, {
       onDelete: 'set null',
@@ -107,10 +106,10 @@ export const things = pgTable(
     searchTsv: tsvector('search_tsv'),
     deletedAt: tstz('deleted_at'),
     trashBatchId: uuid('trash_batch_id'),
-    /** The capture session it came from (step 3, T13): the inbox groups by it and batch undo
+    /** The capture session it came from: the inbox groups by it and batch undo
      * trashes it. Set at insert only. */
     captureBatchId: uuid('capture_batch_id'),
-    /** The survivor this thing was merged into (D36, plan Q16); set only by kept.merge_things(),
+    /** The survivor this thing was merged into (D36); set only by kept.merge_things(),
      * alongside `deleted_at`. */
     mergedIntoId: uuid('merged_into_id').references((): AnyPgColumn => things.id, {
       onDelete: 'set null',
@@ -203,7 +202,7 @@ export const things = pgTable(
     index('things_capture_batch_idx')
       .on(t.createdBy, t.captureBatchId)
       .where(sql`deleted_at IS NULL`),
-    // A survivor's history reads the things merged into it (T15).
+    // A survivor's history reads the things merged into it.
     index('things_merged_into_idx').on(t.mergedIntoId).where(sql`merged_into_id IS NOT NULL`),
     index('things_sync_idx').on(t.locationId, t.changeXid),
   ],
@@ -213,7 +212,7 @@ export const SHORT_ID_STATES = ['blank', 'assigned', 'retired'] as const;
 const shortIdState = textEnum('state', SHORT_ID_STATES);
 
 /**
- * Permanent short IDs (D45, D112, D120, §7.13): six Crockford base32 characters, unique across
+ * Permanent short IDs (D45, D112, D120): six Crockford base32 characters, unique across
  * the instance and never deleted or reissued. A code whose thing or place is purged becomes a
  * `retired` tombstone that keeps its `location_id` (no foreign key to locations: it outlives a
  * purged location). The (location_id, thing_id|place_id) foreign keys are `ON DELETE SET NULL
@@ -292,7 +291,7 @@ export const thingLinks = pgTable(
   ],
 );
 
-/** A thing's tags (D76). Inserted and deleted, never edited; `change_seq` for sync (§7.4). */
+/** A thing's tags (D76). Inserted and deleted, never edited; `change_seq` for sync. */
 export const thingTags = pgTable(
   'thing_tags',
   {

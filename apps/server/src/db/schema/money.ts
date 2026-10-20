@@ -28,8 +28,8 @@ import { currencies } from './currencies.js';
 import { locations, ownerAccounts } from './tenancy.js';
 import { things } from './things.js';
 
-// Money records, incidents and export runs (step-4 plan T4; engineering spec §1.4, §1.10, §7.13;
-// D14, D76, D136, D158, D169, D180, D201; plan Q19–Q22). Row-level security, the grants, the
+// Money records, incidents and export runs (D14, D76, D136, D158, D169, D180, D201).
+// Row-level security, the grants, the
 // export-run doors and the AI money caps counted through exchange rates are in the custom
 // migration that follows (0049); see src/db/money.test.ts.
 //
@@ -164,8 +164,8 @@ export const incidentThings = pgTable(
 );
 
 /**
- * An export built by a job and fetched through an expiring link (§1.10, D158, D180; Q19): a
- * claim pack (step 4), or step 7's Kept export of a location or of "my data" (`me`, the
+ * An export built by a job and fetched through an expiring link (D158, D180): a
+ * claim pack, or step 7's Kept export of a location or of "my data" (`me`, the
  * requester's Personal location; 0079–0080). The file is a blob keyed by the run (`x/<id>.zip`,
  * the CHECK below),
  * not a `files` row, so it is never readable through an attachment (D177). Its link is

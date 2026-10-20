@@ -1,17 +1,17 @@
 /**
- * Search results (screens §5 Search, frames 04 · 1 and 04 · 10; D42, D195): grouped by kind
+ * Search results (frames 04 · 1 and 04 · 10; D42, D195): grouped by kind
  * (things, places, people, vendors, documents), and things by location within their group, best
- * match first. Documents are the attachments whose text matches (T21, components/search/
- * documents.tsx); offline, their group says they need a connection (§8).
+ * match first. Documents are the attachments whose text matches (components/search/
+ * documents.tsx); offline, their group says they need a connection.
  *
  * A thing shows its type or photo, its name with the words that matched marked, "matched:
- * <alias>" when only an alias matched (screens §8), its ID chip and states, and where it is:
+ * <alias>" when only an alias matched, its ID chip and states, and where it is:
  * its **container's photo** beside the full path (D195). Things page with "Load more" under the
  * list standard; the smaller groups show their first five and a "Show all".
  *
- * With nothing matched: "No match for 'hmdi'" and the server's did-you-mean (§5).
+ * With nothing matched: "No match for 'hmdi'" and the server's did-you-mean.
  *
- * Step 6 (T24, D200): a thing found only by meaning says "matched by meaning", and when the server
+ * Step 6 (D200): a thing found only by meaning says "matched by meaning", and when the server
  * searched by words only, a quiet note says why (./semantic-note.tsx).
  *
  * Offline (or when the server can't be reached), the Things group searches the phone's copy

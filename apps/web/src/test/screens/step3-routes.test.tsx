@@ -1,5 +1,5 @@
 /**
- * Step 3's route stubs (plan T3): every screen the Phase C tasks fill in exists now, looks
+ * Step 3's route stubs: every screen the Phase C tasks fill in exists now, looks
  * finished, and is reachable from the navigation: Scan in the header on Home and Search, Labels
  * and Help in the sidebar and on More, AI and Import in Settings, Templates in Account, AI in
  * Admin. The print view has no app shell.

@@ -6,8 +6,8 @@ import { places } from './places.js';
 import { locations } from './tenancy.js';
 import { things } from './things.js';
 
-// Read-only share links (1.5, D39 item 7, D72, D116, D180, D233; engineering spec §1
-// `share_links`, §3.2, §3.3): a box (a thing), a place or a filtered list of a location, as an
+// Read-only share links (1.5, D39 item 7, D72, D116, D180, D233;
+// `share_links`): a box (a thing), a place or a filtered list of a location, as an
 // expiring link that opens with no account. Only the token's SHA-256 is stored, and kept_app
 // can't read even that back. The public page reads through kept.share_link_open() (kept_system,
 // by the token's hash), which returns the D116 whitelist and nothing else; the creator must still

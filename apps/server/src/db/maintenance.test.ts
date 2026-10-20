@@ -13,8 +13,8 @@ import {
 } from '../../test/tenancy.js';
 import { withScope, withSystem } from './scope.js';
 
-// Task 10: kept_system's maintenance doors (engineering spec §3.3, §7.4, §7.9; D149, D161, D162;
-// plan Q12): reindexing a location, and purging the trash, deleted locations and orphan files.
+// kept_system's maintenance doors (D149, D161, D162):
+// reindexing a location, and purging the trash, deleted locations and orphan files.
 
 const db = await testDb();
 

@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put your code below! --
 -- Triggers for the tenancy schema (0003): row bookkeeping, audit partitions, the owner
--- membership invariant, and the place tree's rules (engineering spec §7.4, §7.13).
+-- membership invariant, and the place tree's rules.
 -- Functions here are trigger or maintenance functions: nobody but kept_owner executes them
 -- directly, so the default EXECUTE grant to kept_app/kept_system (0000) is taken back. A
 -- trigger function needs no EXECUTE grant for the role whose statement fires it. The one
@@ -33,11 +33,11 @@ CREATE TRIGGER touch_row BEFORE INSERT OR UPDATE ON public.sync_tombstones
   FOR EACH ROW EXECUTE FUNCTION kept.touch_row();
 --> statement-breakpoint
 
--- 2. audit_events partitions (§7.13: monthly). A partition is a table of its own: queried
+-- 2. audit_events partitions (monthly). A partition is a table of its own: queried
 --    directly it would not apply audit_events' policies, and kept_owner's default privileges
 --    (0000) would hand kept_app/kept_system DML on it. So every partition loses those grants
 --    and gets RLS forced with only the owner policy; rows are reached through audit_events.
---    Later months are created by a maintenance job (task 24) through ensure_audit_partitions().
+--    Later months are created by a maintenance job through ensure_audit_partitions().
 CREATE FUNCTION kept.create_audit_partition(month date) RETURNS void
 LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
 DECLARE
@@ -69,7 +69,7 @@ END $$;
 REVOKE EXECUTE ON FUNCTION kept.create_audit_partition(date), kept.lock_partition(text)
   FROM PUBLIC, kept_app, kept_system;
 --> statement-breakpoint
--- The maintenance job's door (task 24): kept_system can't create tables, so this definer does it
+-- The maintenance job's door: kept_system can't create tables, so this definer does it
 -- for the current month and `months_ahead` more (UTC months), and nothing else. A month whose
 -- rows already fell into audit_events_default can't get its partition (Postgres refuses to
 -- attach a range the default already holds); that is refused here by name, so the failed job
@@ -115,7 +115,7 @@ SELECT kept.lock_partition('audit_events_default');
 SELECT kept.ensure_audit_partitions(3);
 --> statement-breakpoint
 
--- Undo fields (engineering spec §7.5, D58, D150), whoever writes the row: an event is undoable
+-- Undo fields (D58, D150), whoever writes the row: an event is undoable
 -- for at most 7 days, and an undo points at an event of the same location (or, account-level,
 -- the same account) that is still undoable. Invoker: kept_app's own policies decide which events
 -- `undo_of` can name, so it can't point into a location it can't see. Which actor may undo what
@@ -147,10 +147,10 @@ CREATE TRIGGER audit_events_guard BEFORE INSERT ON public.audit_events
   FOR EACH ROW EXECUTE FUNCTION kept.guard_audit_event();
 --> statement-breakpoint
 
--- 3. Ownership consistency (§7.13): at commit, every location has exactly one `owner`
+-- 3. Ownership consistency: at commit, every location has exactly one `owner`
 --    membership, held by the user of its owner account; a Personal location has no other
---    member (§1.2). Deferred, so ensureAccount() can insert the location and then its owner
---    membership in one transaction (§7.14). SECURITY DEFINER: the check must see every
+--    member. Deferred, so ensureAccount() can insert the location and then its owner
+--    membership in one transaction. SECURITY DEFINER: the check must see every
 --    membership, not the ones the caller's policies show it.
 CREATE FUNCTION kept.check_location_owner() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$
@@ -216,7 +216,7 @@ CREATE CONSTRAINT TRIGGER owner_accounts_location_owner
   FOR EACH ROW EXECUTE FUNCTION kept.check_location_owner();
 --> statement-breakpoint
 
--- 4. The place tree (§7.13, D45, D118). A place can't sit under itself or its descendants;
+-- 4. The place tree (D45, D118). A place can't sit under itself or its descendants;
 --    the composite foreign key already keeps a parent in the same location. Re-parenting takes
 --    a per-location transaction lock, so two concurrent moves can't close a loop between them.
 --    Invoker, and confined to NEW's own location: a parent elsewhere is left to the foreign key

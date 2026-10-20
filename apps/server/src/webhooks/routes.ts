@@ -20,7 +20,7 @@ import {
   updateWebhook,
 } from './service.js';
 
-// Location webhooks (step-6 plan T15; engineering spec §2.6; D63, D110, D180). The web's
+// Location webhooks (D63, D110, D180). The web's
 // contract is apps/web/src/api/connections/{paths,types}.ts and its mock.
 //
 // GET    /api/v1/locations/:id/webhooks          → {items: WebhookRow[]} (never a secret)
@@ -31,11 +31,11 @@ import {
 // DELETE /api/v1/webhooks/:id                    → 204
 // GET    /api/v1/webhooks/:id/deliveries?cursor  → {items, next_cursor} (the last 30 days)
 //
-// `webhooks.manage` (owner and admin) on every route; closed to tokens (Q20: no catalogue
+// `webhooks.manage` (owner and admin) on every route; closed to tokens (no catalogue
 // `tokens` entry). A location the caller can't see is a 404, one they see but don't administer
 // a 403 (service.ts).
 
-/** Test pings a person may send a minute, every hook together (plan T15). */
+/** Test pings a person may send a minute, every hook together. */
 export const TESTS_PER_MINUTE = 6;
 
 const Iso = z.iso.datetime({ offset: true });

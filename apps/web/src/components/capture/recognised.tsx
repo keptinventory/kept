@@ -1,8 +1,8 @@
 /**
- * A Kept label in view, in any mode (D137; screens board frame 2): "Open Box 3" · "Capture into
+ * A Kept label in view, in any mode (D137): "Open Box 3" · "Capture into
  * Box 3", named from the phone's snapshot, so it works offline. A label for something not on
  * this phone is "a box" and can only be opened (the server answers, D137's six outcomes); a
- * blank label is opened to be claimed (T26). The shutter keeps working underneath.
+ * blank label is opened to be claimed. The shutter keeps working underneath.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Button } from 'react-aria-components';

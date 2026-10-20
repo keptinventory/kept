@@ -1,5 +1,5 @@
 /**
- * A vehicle's latest service records (plan T18): the Overview's "Recent services" card (the
+ * A vehicle's latest service records: the Overview's "Recent services" card (the
  * Services tab is T20's, ./services-tab.tsx). Each line: what was
  * done, the day, the odometer and the vendor, the schedules it completed and the total (money
  * through the gate, D13).

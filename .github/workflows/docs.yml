@@ -1,4 +1,4 @@
-# The docs site (D199, plan T18/T20). INERT until the repository is public: every job is gated on
+# The docs site (D199). INERT until the repository is public: every job is gated on
 # `github.event.repository.private == false`. Once public, a pull request and a push to main build
 # the site (the link check fails a broken link); only a release tag deploys it to GitHub Pages, so
 # the site always describes the latest release, never unreleased work on main. A final release
@@ -13,7 +13,7 @@
 # as KEPT_DOCS_SITE and KEPT_DOCS_BASE (apps/docs/astro.config.mjs), so pull requests build the
 # same links as main.
 # Pages must be enabled with "GitHub Actions" as its source (a maintainer step on the 1.0
-# checklist). Actions pinned by commit SHA (spike W1).
+# checklist). Actions pinned by commit SHA.
 name: docs
 
 on:

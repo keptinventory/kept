@@ -14,15 +14,15 @@ import {
 import { type ResolvedFieldView, resolvedFields, typeCapabilities } from '../things/fields.js';
 import { Aliases, checkCustom, checkQuantity, fitsField } from '../things/validate.js';
 
-// Account templates shared per location, and quick add (plan T19; D6, D76, D123, D177; Q17).
-// The web contract is apps/web/src/api/capture/types.ts "templates and quick add (T19)".
+// Account templates shared per location, and quick add (D6, D76, D123, D177).
+// The web contract is apps/web/src/api/capture/types.ts "templates and quick add".
 //
 // A template lives on the owner account and is shared into chosen locations of it
 // (`template_locations`). Members and above of those locations use it (GET /templates?locationId,
 // quick add); changing or deleting it needs admin of **every** location it is shared with (0038's
-// policies; Q17), and creating one `registries-types.manage` in the account plus admin of each
+// policies), and creating one `registries-types.manage` in the account plus admin of each
 // location it is shared into. A template the caller can see but not change is a 403; one they
-// can't see, a 404 (§7.7).
+// can't see, a 404.
 //
 // The payload (`templateSchema`) never carries money or secrets (D177): it has no price key, and
 // `custom` holds only the type's live text, number, url, select and boolean fields that are not
@@ -35,7 +35,7 @@ import { Aliases, checkCustom, checkQuantity, fitsField } from '../things/valida
 // (a deleted brand or tag, a field the chosen type lacks, a quantity its capabilities refuse) are
 // dropped rather than failing the create.
 //
-// Audit: account-level rows (`template.create`, `template.update`, `template.delete`; Q15).
+// Audit: account-level rows (`template.create`, `template.update`, `template.delete`).
 
 /** Field kinds a template may hold a value of (D177: never money or secrets). */
 const TEMPLATE_KINDS = new Set(['text', 'number', 'url', 'select', 'boolean']);

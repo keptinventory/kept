@@ -1,6 +1,6 @@
 /**
- * The assistant's contracts (D22, D23, D24, D123, D164, D179, D213; step-6 plan Q2–Q5, Q11, Q17,
- * Q21). The server stores and the web renders these shapes; the ledger never holds any of them
+ * The assistant's contracts (D22, D23, D24, D123, D164, D179, D213).
+ * The server stores and the web renders these shapes; the ledger never holds any of them
  * (D206).
  */
 
@@ -20,8 +20,8 @@ export const MESSAGE_ROLES = ['user', 'assistant', 'tool'] as const;
 export type MessageRole = (typeof MESSAGE_ROLES)[number];
 
 /**
- * A message part. `reasoning` is the model's own reasoning as the provider returned it (spike
- * S6.3, finding 4): kept in the private thread so the next request can send it back, never
+ * A message part. `reasoning` is the model's own reasoning as the provider returned it (finding 4):
+ * kept in the private thread so the next request can send it back, never
  * shown and never in the ledger. `redacted` replaces what a person may no longer see (D164); it
  * names no location.
  */
@@ -52,7 +52,7 @@ export type ThreadMessage = {
   step: number;
 };
 
-/** The loop's bounds (Q4, Q21): Kept runs the loop, one provider request per step. */
+/** The loop's bounds: Kept runs the loop, one provider request per step. */
 export const TURN_LIMITS = Object.freeze({
   maxSteps: 6,
   maxToolCallsPerStep: 4,
@@ -82,7 +82,7 @@ export function isLiveTurn(status: TurnStatus): boolean {
   return (LIVE_TURN_STATUSES as readonly TurnStatus[]).includes(status);
 }
 
-/** A write proposal lives 10 minutes (D22, §3.4). */
+/** A write proposal lives 10 minutes (D22). */
 export const PROPOSAL_TTL_MS = 600_000;
 export const PROPOSAL_STATUS = [
   'open',
@@ -128,7 +128,7 @@ export type ProposalRef = {
   path: string[];
 };
 
-/** Threads are private and deleted after this many days without a new turn (D23, §3.3). */
+/** Threads are private and deleted after this many days without a new turn (D23). */
 export const THREAD_RETENTION_DAYS = 90;
 
 /**

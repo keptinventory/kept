@@ -1,4 +1,4 @@
--- Step 2 cleanup (T17 and T21 backlog; engineering spec §7.13; D161, D162):
+-- Step 2 cleanup (T17 and T21 backlog; D161, D162):
 --   1. A thing's history reads the events rooted at it (`root_thing_id`: its attachments,
 --      meters, readings) newest first. Partial, as most events have no root thing. Created on
 --      the partitioned parent, so Postgres builds it on every partition, the default one

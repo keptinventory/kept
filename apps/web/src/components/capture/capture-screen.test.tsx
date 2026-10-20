@@ -1,5 +1,5 @@
 /**
- * The capture screen (plan T25's test list): the mode strip's keyboard and radio semantics, Name
+ * The capture screen: the mode strip's keyboard and radio semantics, Name
  * as the primary input with AI off, the room grid on a new home, one queue entry per shutter
  * press, "+ photo" → attachToThingId, RTL, a refused camera → the file picker, and the location
  * suggestion made on the device without a request. The camera, the frame grab and the position

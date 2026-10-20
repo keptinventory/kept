@@ -11,20 +11,20 @@ import { findPlace, placeKindOf } from '../places/view.js';
 import { gateFor } from '../serialize/gates.js';
 import { resolvedFields } from '../things/fields.js';
 
-// Secret values, reveal and policies (plan T19; D13, D110, D116, D175, D177, D182, D193;
-// engineering spec §7.3, §7.13; screens §8). Every function runs in the request's scoped kept_app
+// Secret values, reveal and policies (D13, D110, D116, D175, D177, D182, D193).
+// Every function runs in the request's scoped kept_app
 // transaction, so each write commits with its audit row.
 //
 // - A value lives only in `secret_values`, sealed with envelope encryption. Its AAD binds it to
 //   its own row and field, `secret_values|<row id>|<field key>`, so a ciphertext copied onto
 //   another row or field fails to open instead of showing its value there.
-// - Writing needs `things.edit` (members and up) and the recovery kit acknowledged (D193, plan
-//   Q24). The row is inserted without RETURNING: under the default policy a member may write a
+// - Writing needs `things.edit` (members and up) and the recovery kit acknowledged (D193).
+//   The row is inserted without RETURNING: under the default policy a member may write a
 //   value they can't read back, and the supersede trigger (0020) ends the old one for them.
 // - Revealing selects the row under its RLS policy (kept.can_reveal_secret: owner and admin by
 //   default, widened per field and location by roles or named people). A value that isn't set
 //   and one the caller may not reveal are the same 404. A viewer reveals only what a policy
-//   names them for (screens §8, "a secret's Reveal only if that field's policy names the
+//   names them for ("a secret's Reveal only if that field's policy names the
 //   viewer").
 // - The audit never holds a value (D110): a set or clear is `{changed: true}` under the field's
 //   key; a reveal or a copy names the value's row (`secret_value`), whose field it is.
@@ -43,7 +43,7 @@ export type Subject = {
 };
 
 const AAD_TABLE = 'secret_values';
-/** How long a revealed value stays on screen (D175, screens §8). */
+/** How long a revealed value stays on screen (D175). */
 export const REVEAL_SECONDS = 30;
 /** The longest value accepted: a recovery code or a key file's contents, not a document. */
 export const MAX_SECRET_CHARS = 4096;
@@ -114,7 +114,7 @@ async function requireSecretsModule(ctx: Ctx, s: Subject): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------------------------
-// The recovery-kit gate (D193, plan Q24)
+// The recovery-kit gate (D193)
 // ---------------------------------------------------------------------------------------------
 
 const ADMIN_KIT_HINT =
@@ -239,7 +239,7 @@ async function revealableRow(ctx: Ctx, s: Subject): Promise<ValueRow> {
     [s.id, s.field.key],
   );
   const row = rows[0];
-  // Not set and not permitted look alike (the web mock's rule, plan T19).
+  // Not set and not permitted look alike (the web mock's rule).
   if (!row) throw notFound();
   return row;
 }
@@ -272,7 +272,7 @@ export async function revealSecret(ctx: Ctx, keys: SecretKeys, s: Subject): Prom
   return { value, revealedUntil: new Date(Date.now() + REVEAL_SECONDS * 1000).toISOString() };
 }
 
-/** POST …/copied: the web copied a revealed value to the clipboard (screens §8). Audited only
+/** POST …/copied: the web copied a revealed value to the clipboard. Audited only
  * for who may reveal it. */
 export async function secretCopied(ctx: Ctx, s: Subject): Promise<void> {
   const row = await revealableRow(ctx, s);

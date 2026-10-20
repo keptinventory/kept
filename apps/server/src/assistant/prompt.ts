@@ -3,7 +3,7 @@ import type { AssistantContext, Role } from '@kept/shared';
 import { z } from 'zod';
 import type { ToolSpec } from '../ai/convert.js';
 
-// The assistant's instructions and tool specs (step-6 plan T13; D22, D24, D123, D179, L56, L59).
+// The assistant's instructions and tool specs (D22, D24, D123, D179).
 // Versioned: `PROMPT_VERSION` is stored in each ledger row's `prompt_version`, never the text.
 
 export const PROMPT_VERSION = 'assistant-1';
@@ -26,7 +26,7 @@ export type PromptInput = {
   writes: boolean;
 };
 
-/** The language the answer is written in: the question's interface language (Q22). */
+/** The language the answer is written in: the question's interface language. */
 export function languageOf(locale: string): string {
   return LANGUAGES[locale.slice(0, 2).toLowerCase()] ?? 'English';
 }
@@ -92,7 +92,7 @@ export function compactSchema(v: unknown): unknown {
 }
 
 /** The model's tool for one TOOL_DEFS entry: its description, its input as JSON Schema (compact),
- * and the same zod input as the validator (spike S6.3 finding 2; runTool validates again). */
+ * and the same zod input as the validator (runTool validates again). */
 export function toolSpecOf(name: ToolName, opts: { oneLocation?: boolean } = {}): ToolSpec {
   const def = TOOL_DEFS[name];
   const schema = compactSchema(z.toJSONSchema(def.input, { io: 'input' })) as {

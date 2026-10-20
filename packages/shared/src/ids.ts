@@ -19,7 +19,7 @@ export function idTimestamp(id: string): number {
 }
 
 /**
- * True when `id` is a UUIDv7 stamped within ± `days` of `now` (§7.7: client-supplied ids are
+ * True when `id` is a UUIDv7 stamped within ± `days` of `now` (client-supplied ids are
  * accepted only inside a 7-day window either side). The edges count as inside.
  */
 export function withinWindow(id: string, now: number = Date.now(), days = 7): boolean {

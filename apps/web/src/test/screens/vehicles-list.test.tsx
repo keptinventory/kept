@@ -1,5 +1,5 @@
 /**
- * The Vehicles list (step-5 plan T17; screens §1, §8; D52, D188, D205): the in-use vehicles of
+ * The Vehicles list (D52, D188, D205): the in-use vehicles of
  * every location with the module on, each with its odometer and how old the reading is, what's
  * due next and its documents; the sold motorbike only under State: Sold; the stale and unknown
  * readings; Arabic digits and direction; the keyboard; offline.
@@ -34,7 +34,7 @@ describe('the Vehicles list', () => {
     expect(names).toContain('Toyota Corolla');
     expect(names).toContain('هيونداي إلنترا');
     expect(names).toContain('مولد الكهرباء');
-    // The sold motorbike waits for State: Sold (Q24).
+    // The sold motorbike waits for State: Sold.
     expect(names).not.toContain('Honda CB500');
 
     const corolla = row('Toyota Corolla');

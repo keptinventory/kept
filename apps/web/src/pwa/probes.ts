@@ -1,11 +1,11 @@
 /**
- * The on-device diagnostics probes (D188, L87, L96; plan T23; the device checklist). Each probe
+ * The on-device diagnostics probes (D188; the device checklist). Each probe
  * answers ok / not ok / for information,
  * with technical facts (`key=value`) that go into the copied report as they are. Nothing is
  * sent anywhere; the report is text the person copies.
  *
  * The camera probe asks for permission, which is why the panel only runs on "Run the checks".
- * The dictation probe (V13, spike S6.6) only looks: whether the browser has a recogniser, the
+ * The dictation probe only looks: whether the browser has a recogniser, the
  * language it would be given, and the last error a mic tap met. It never starts listening; that
  * happens only when the person taps a mic.
  */
@@ -87,7 +87,7 @@ const probes: Record<ProbeKey, Probe> = {
     const persisted = await s.persisted();
     const est = await s.estimate?.();
     return {
-      // Not persisted is the normal state before the first capture asks (V11).
+      // Not persisted is the normal state before the first capture asks.
       status: persisted ? 'ok' : 'info',
       facts: [`persisted=${persisted}`, `usage=${mb(est?.usage)}`, `quota=${mb(est?.quota)}`],
     };
@@ -127,7 +127,7 @@ const probes: Record<ProbeKey, Probe> = {
       }
     ).BarcodeDetector;
     // No native detector is expected on iPhone: the scanner uses its wasm instead (D101), so
-    // that is what gets tried: a QR decoded twice, with timings (T26; V12).
+    // that is what gets tried: a QR decoded twice, with timings.
     const formats = Detector ? await Detector.getSupportedFormats() : [];
     if (formats.includes('qr_code'))
       return { status: 'ok', facts: ['native=yes', `formats=${formats.join(',')}`] };

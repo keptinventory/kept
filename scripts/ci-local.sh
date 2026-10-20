@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Kept's CI gate (engineering spec §7.12; D151, D173, D187). This script IS the gate; the hosted
+# Kept's CI gate (D151, D173, D187). This script IS the gate; the hosted
 # `ci` workflow runs only its --fast half and the checks a runner can do without a database.
-# Every step gates on its exit code, never on a printed summary (L89), and the run stops at the
+# Every step gates on its exit code, never on a printed summary, and the run stops at the
 # first failure.
 #
 # Usage:
@@ -17,8 +17,7 @@
 # prod-boot eval portability backup perf e2e images release-dry-run
 # (`pnpm lint` already runs scripts/check-logical-css.mjs and scripts/check-i18n.mjs, the web
 # catalogues holding every source message, through Lingui's API in memory. `catalogues` runs the
-# real `lingui extract` CLI into a scratch copy and fails on a new msgid or an empty translation:
-# the step-1 carry-over "catalogue extraction has no gate".)
+# real `lingui extract` CLI into a scratch copy and fails on a new msgid or an empty translation.)
 #
 # `eval` runs the extraction, assistant and search evaluations on the mock provider (the
 # committed synthetic set, the `households` seed), always; a real extraction run only when
@@ -28,8 +27,8 @@
 # apps/server/test/perf (a 50-op sync batch, the inbox at 500 open items); run it on a quiet
 # machine, its numbers are meaningless under load.
 #
-# `portability` (step 7) runs the export → import round trip, the export's byte search for
-# another tenant and the hostile archives on their own; `backup` (step 8) runs the snapshot →
+# `portability` runs the export → import round trip, the export's byte search for
+# another tenant and the hostile archives on their own; `backup` runs the snapshot →
 # restore round trip, the readable copy and the restic contract, on the in-memory fake restic
 # unless KEPT_TEST_RESTIC=1 (then the real binary: KEPT_RESTIC_BIN, else `restic` on PATH; the
 # image pins 0.19.1). Both are also in `test`; their own steps say which half of the gate failed.
@@ -51,8 +50,8 @@ FAST_STEPS=(lint catalogues typecheck unit eval)
 DEV_COMPOSE=(docker compose -f compose.dev.yaml)
 SUPERUSER_PSQL=("${DEV_COMPOSE[@]}" exec -T db psql -U postgres -d postgres -v ON_ERROR_STOP=1 -qAt)
 DEV_DB_HOST=localhost:5452
-BOOT_PORT=8080 # main.ts listens on 8080 (plan, task 16)
-BOOT_TIMEOUT=20 # seconds to /readyz 200 (L90)
+BOOT_PORT=8080 # main.ts listens on 8080 (plan)
+BOOT_TIMEOUT=20 # seconds to /readyz 200
 
 # The header comment above, whatever its length.
 usage() { awk 'NR > 1 && /^#/ { sub(/^# ?/, ""); print; next } NR > 1 { exit }' "$0"; }
@@ -167,7 +166,7 @@ step_install() { pnpm install --frozen-lockfile; }
 
 step_lint() { pnpm lint; }
 
-# Step 3 (T32): `lingui extract` into a scratch copy of the catalogues; a new msgid, or an empty
+# `lingui extract` into a scratch copy of the catalogues; a new msgid, or an empty
 # translation in ar, fr, de or it, fails (scripts/check-i18n-extract.mjs).
 step_catalogues() { node scripts/check-i18n-extract.mjs; }
 
@@ -176,7 +175,7 @@ step_typecheck() { pnpm typecheck; }
 # Every vitest project except the server's, whose global setup needs the dev database.
 step_unit() { pnpm exec vitest run --project '!@kept/server'; }
 
-# The `s3` profile adds RustFS on 9452 for the S3 driver's tests (T18).
+# The `s3` profile adds RustFS on 9452 for the S3 driver's tests.
 step_compose() {
   ensure_docker_config
   "${DEV_COMPOSE[@]}" --profile s3 up -d --wait
@@ -271,9 +270,9 @@ step_helm() {
 }
 
 # Builds @kept/shared and the server, migrates a fresh scratch database, then starts dist/main.js
-# the way production does (NODE_ENV=production, OTel at a dead collector, L90) and requires
+# the way production does (NODE_ENV=production, OTel at a dead collector) and requires
 # /readyz 200 within BOOT_TIMEOUT seconds. A process that exits first fails the step, with its log.
-# Step 4 (T30, Q11): the web makes web push's VAPID pair at boot, a second boot keeps it, and the
+# The web makes web push's VAPID pair at boot, a second boot keeps it, and the
 # private key (opened from the database as the server opens it) appears in neither boot's log.
 #
 # In the workspace @kept/shared exports its TypeScript source by default (tsx, vitest, vite and
@@ -311,7 +310,7 @@ step_prod-boot() {
 
   # A clean environment: nothing from the developer's shell (KEPT_*, NODE_OPTIONS) leaks in.
   # "${clean_env[@]}" NAME=value… <command> runs a command in it.
-  # Step 4 (T30, Q11): KEPT_VAPID_SUBJECT gives push a subject (the public URL is plain http),
+  # KEPT_VAPID_SUBJECT gives push a subject (the public URL is plain http),
   # so the web makes web push's VAPID pair at boot.
   local clean_env=(
     env -i PATH="$PATH" HOME="$HOME" TZ=UTC
@@ -328,7 +327,7 @@ step_prod-boot() {
   )
   local main=(node --conditions=kept-dist apps/server/dist/main.js)
 
-  # Step 3 (T2, T32): the mock AI provider is refused in production. The same boot with
+  # The mock AI provider is refused in production. The same boot with
   # KEPT_AI_MOCK=1 must exit non-zero, naming the variable, before anything listens.
   local mock_rc=0
   "${clean_env[@]}" KEPT_AI_MOCK=1 "${main[@]}" >"$tmp/mock.log" 2>&1 || mock_rc=$?
@@ -382,7 +381,7 @@ step_prod-boot() {
 
   boot_until_ready "$tmp/server.log"
 
-  # Step 4 (T30, Q11): the web made the VAPID pair at boot; a second boot keeps it (generated
+  # The web made the VAPID pair at boot; a second boot keeps it (generated
   # once); and the private key, opened from the database as the server opens it, is in neither
   # boot's log. It is written to a file in the step's temp dir, never printed.
   local first second
@@ -432,13 +431,13 @@ step_prod-boot() {
 
 # The evaluations on the mock provider, always, and no report written (a real provider is the
 # maintainer's run, never CI's):
-# - extraction (step-3 T11, T32): the committed synthetic set (apps/server/test/fixtures/eval and
+# - extraction: the committed synthetic set (apps/server/test/fixtures/eval and
 #   its mock answers). A run that skips (no folder) or sends nothing fails: exit 0 alone could be
-#   a skip (L89). A real provider runs only with KEPT_EVAL_DIR set and never in CI; its report
+#   a skip. A real provider runs only with KEPT_EVAL_DIR set and never in CI; its report
 #   goes to .tmp/evals.
-# - assistant (step-6 T17): every case through the real loop on a scratch `households` database;
+# - assistant: every case through the real loop on a scratch `households` database;
 #   on the mock any failed case exits 1, and the step also requires its "N/N passed" line.
-# - search (step-6 T17, T14): keyword and meaning-fused recall@10 and MRR on the same seed. The
+# - search: keyword and meaning-fused recall@10 and MRR on the same seed. The
 #   runner exits 0 whatever the numbers, so the step requires both lines over at least one query,
 #   and meaning fused in never finding less than keywords alone on the mock's concept embedder.
 step_eval() {
@@ -535,7 +534,7 @@ step_backup() {
     src/backup/restic/restic.contract.test.ts)
 }
 
-# Step 3's performance checks (plan T32; §3.1): the offline snapshot of 10,000 things, every
+# Step 3's performance checks: the offline snapshot of 10,000 things, every
 # page, through the RLS bench (its own scratch database; exits 1 over budget), then
 # apps/server/test/perf (a 50-op sync batch's p95, the inbox's first page at 500 open items).
 # Results: .tmp/perf/. Numbers taken under load are not evidence; run it on a quiet machine.
@@ -557,13 +556,13 @@ uses_installed_chrome() {
   esac
 }
 
-# Playwright against the real server (task 28; apps/web/playwright.config.ts): builds the server
+# Playwright against the real server (apps/web/playwright.config.ts): builds the server
 # (with @kept/shared) and the web bundle, installs Playwright's Chromium only when the installed
 # Google Chrome isn't used (a no-op once installed), then runs the suite. apps/web/e2e/serve.mjs
 # starts one server per instance on its own scratch database on the dev Postgres (ports
 # 8181-8187) and drops it afterwards.
 #
-# Step 3 (T32): Chromium runs with the fake camera (playwright.config.ts passes e2e/camera.ts's
+# Chromium runs with the fake camera (playwright.config.ts passes e2e/camera.ts's
 # fakeCameraArgs(): `--use-fake-ui-for-media-stream --use-fake-device-for-media-stream
 # --use-file-for-fake-video-capture=<y4m>`, the y4m files in apps/web/e2e/fixtures, generated by
 # e2e/fixtures/make-y4m.mjs), and step3.spec.ts runs on its own `households` instance with
@@ -571,7 +570,7 @@ uses_installed_chrome() {
 # to make a second release, so it runs after the rest, alone, with KEPT_E2E_UPDATE=1 and only
 # the capture instance started.
 #
-# Step 4 (T30): e2e/step4.spec.ts runs on its own seeded `household` instance. Every instance runs
+# e2e/step4.spec.ts runs on its own seeded `household` instance. Every instance runs
 # with KEPT_ROLE=all, so its worker runs the reminder scan, the digest and the claim-pack job; the
 # spec also runs one scan pass itself rather than waiting up to 15 minutes for the schedule.
 step_e2e() {
@@ -638,8 +637,8 @@ step_e2e-update() {
 }
 
 # SKIPPED until task 29 adds the Dockerfile. Once it exists, both
-# platforms must build, and the natively built arm64 image must pass scripts/smoke-image.sh
-# (L103); a Dockerfile without that script fails rather than passing unsmoked.
+# platforms must build, and the natively built arm64 image must pass scripts/smoke-image.sh;
+# a Dockerfile without that script fails rather than passing unsmoked.
 step_images() {
   if [[ ! -f Dockerfile ]]; then
     skip "not built yet: task 29: no Dockerfile"

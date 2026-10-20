@@ -18,7 +18,7 @@ import { openRelayConfig, TELEGRAM_API } from './relay.js';
 import { fixedPushSource } from './vapid.js';
 import { openWebhookConfig, verifyWebhook } from './webhook.js';
 
-// Settings → Me → Notifications through the front door (plan T15): the settings and their
+// Settings → Me → Notifications through the front door: the settings and their
 // defaults, preferences stored only where they differ from the default, webhook channels (the
 // secret shown once, the URL never again, sealed at rest), push subscriptions, and test sends.
 // Pushes and webhooks go to local receivers; mail is captured.

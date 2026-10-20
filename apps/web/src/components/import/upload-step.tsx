@@ -1,6 +1,6 @@
 /**
- * The import stepper's first step (screens §6; plan T30 steps 1–3): the source (CSV here; a
- * Homebox or Kept export moves to the archive flow, step-7 T19), the location to import into (only those you own or administer),
+ * The import stepper's first step: the source (CSV here; a
+ * Homebox or Kept export moves to the archive flow), the location to import into (only those you own or administer),
  * and the file, read here on the phone or desktop. The location's recent imports are listed under
  * it, so an import that stopped can be opened and resumed.
  */
@@ -42,7 +42,7 @@ export function UploadStep({
   locationId: string;
   onLocation: (id: string) => void;
   onParsed: (file: { name: string }, parsed: ParsedCsv) => void;
-  /** A Homebox or Kept export chosen as the source instead (the archive flow, T19). */
+  /** A Homebox or Kept export chosen as the source instead (the archive flow). */
   onSource: (source: ArchiveSource) => void;
 }) {
   const { t } = useLingui();

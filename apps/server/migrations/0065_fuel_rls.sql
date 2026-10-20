@@ -1,13 +1,13 @@
 -- Custom SQL migration file, put your code below! --
--- Step 5, task 6: fuel, document costs and the vehicle report's thing (engineering spec §1.6,
--- §7.1, §7.13; D11, D26, D28, D51, D150, D170, D201; plan Q5, Q11, Q14, Q17). Above, in 0064,
+-- Fuel, document costs and the vehicle report's thing (D11, D26, D28, D51, D150, D170, D201).
+-- Above, in 0064,
 -- drizzle's part: fuel_entries (src/db/schema/fuel.ts), attachments.fuel_entry_id (a pump
 -- receipt) in attachments_one_subject_chk, expiring_documents.issued_on/cost/currency, and
 -- report_runs.thing_id with 'vehicle_history' in report_runs_kind_chk. Below:
 --   1. Row-level security on fuel_entries, as step 4's service records (0051): read wherever the
 --      thing is seen; logged by its writer; changed or removed by whoever logged it, or an admin
---      (§7.1 "Readings, services, fuel": logs.edit-own vs logs.edit-delete-others). A real
---      DELETE, undoable through the audit (Q14): the undo puts the logger back (0056's
+--      (logs.edit-own vs logs.edit-delete-others). A real
+--      DELETE, undoable through the audit: the undo puts the logger back (0056's
 --      kept.undo_keep_creator(), now naming fuel_entries' logged_by) and the insert policy accepts
 --      them. No kept_system policy: no job reads fills (the vehicle report runs as its requester).
 --   2. The keys drizzle can't declare: a fill's reading, ON DELETE SET NULL (meter_reading_id);
@@ -242,7 +242,7 @@ BEGIN
   leaving := ARRAY(SELECT x.id FROM unnest(set_ids, set_locs) AS x(id, loc)
                     WHERE x.loc <> p_to_location);
 
-  -- 0051 (Q17): a thing out on loan (or borrowed in and not yet given back), or in repair, stays
+  -- 0051: a thing out on loan (or borrowed in and not yet given back), or in repair, stays
   -- in its location until that ends.
   IF EXISTS (SELECT 1 FROM public.loans o
               WHERE o.thing_id = ANY (leaving) AND o.returned_at IS NULL) THEN
@@ -469,7 +469,7 @@ BEGIN
      WHERE id = r.id;
   END LOOP;
 
-  -- Sync (§7.4): gone from each source location; no longer gone from the target.
+  -- Sync: gone from each source location; no longer gone from the target.
   INSERT INTO public.sync_tombstones (location_id, entity_type, entity_id)
   SELECT x.loc, 'thing', x.id FROM unnest(set_ids, set_locs) AS x(id, loc)
    WHERE x.loc <> p_to_location

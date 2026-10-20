@@ -1,5 +1,5 @@
 /**
- * After an archive import, the offer to add search words with AI (plan T19 step 8; T15; D41, D69,
+ * After an archive import, the offer to add search words with AI (D41, D69,
  * D206): the estimate first ("About 40,000 tokens · ≈ USD 0.03 · paid by Home", or "cost unknown"
  * when the model has no price), and nothing runs until the person asks: off by default. The money
  * is left out where the server hid it. With no AI here (the estimate refused), there is no offer.

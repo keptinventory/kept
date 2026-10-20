@@ -10,7 +10,7 @@ import { LocalBlobStore } from '../storage/local.js';
 import { createUrlSigner } from '../storage/signed-url.js';
 
 // `kept admin storage copy --to s3|local [--dry-run]` and `kept admin storage verify --store
-// s3|local` (D186; step-8 plan T13; storage/copy.ts). The source of a copy is the store
+// s3|local` (D186; storage/copy.ts). The source of a copy is the store
 // KEPT_STORAGE names now; the destination is the other one, from its own variables
 // (KEPT_DATA_DIR for local, KEPT_S3_* for S3). The switch itself is the operator's:
 //   1. `kept admin storage copy --to s3` while Kept runs;

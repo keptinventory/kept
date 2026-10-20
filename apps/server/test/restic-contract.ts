@@ -4,7 +4,7 @@ import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { type Restic, ResticError, type ResticRepo } from '../src/backup/restic/restic.js';
 
-// What every Restic implementation promises (src/backup/restic/restic.ts; step-8 plan T2): the
+// What every Restic implementation promises (src/backup/restic/restic.ts): the
 // in-memory fake in backup/restic/restic.contract.test.ts, and T5's real wrapper there too under
 // KEPT_TEST_RESTIC=1. What only one does (the fake's test hooks, the real one's argv and exit
 // codes) stays in that one's tests.

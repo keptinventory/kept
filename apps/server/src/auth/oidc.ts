@@ -16,13 +16,12 @@ import { PrivateAddressError } from '../net/ssrf.js';
 import { AUTH_BASE_PATH } from './auth.js';
 import { isUndeliverableEmail } from './emails.js';
 
-// Generic OIDC sign-in (step-6 plan T16; D127, D128, D176, D190, V32; engineering spec §7.14;
-// spike S6.7, whose cases the tests repeat).
+// Generic OIDC sign-in (D127, D128, D176, D190; whose cases the tests repeat).
 //
 // Better Auth's `genericOAuth` does the protocol. Stock, it auto-links a verified email to an
 // existing account, signs up anyone, accepts `.invalid` addresses and fetches outside the SSRF
-// guard (the spike reproduced each). Kept's rules on top:
-// - Configuration comes from the environment, read at boot (plan Q16): KEPT_OIDC_ISSUER and the
+// guard (each reproduced in a trial run). Kept's rules on top:
+// - Configuration comes from the environment, read at boot: KEPT_OIDC_ISSUER and the
 //   rest (config/env.ts). Discovery runs at boot through guardedFetch (D128); the provider gets
 //   explicit endpoints, never `discoveryUrl`/`tokenUrl`/`userInfoUrl` (each would make Better Auth
 //   fetch with the global fetch), and `getToken`/`getUserInfo` go through the same guarded fetch.
@@ -36,7 +35,7 @@ import { isUndeliverableEmail } from './emails.js';
 //   or for an allowed domain or group (autoprovision, D127). Never Google or Apple.
 // - The IdP's tokens are not kept (Kept calls nothing at the IdP after sign-in).
 // - Kept's session_mfa gate applies unchanged: an OIDC session of a user with TOTP is pending
-//   until TOTP is proven in it (V32). The callback rotates the request's previous session
+//   until TOTP is proven in it. The callback rotates the request's previous session
 //   (auth/security.ts SIGN_IN_SESSION_PATHS).
 // If discovery fails at boot, OIDC stays off until a restart and Admin → Status says why.
 
@@ -128,7 +127,7 @@ export class OidcDiscoveryError extends Error {
 }
 
 /** OpenID Connect Discovery 1.0 §4: `<issuer>/.well-known/openid-configuration`, whose `issuer`
- * must equal the configured one exactly (§4.3). */
+ * must equal the configured one exactly. */
 export async function discoverOidc(
   issuer: string,
   fetchImpl: typeof fetch,
@@ -364,7 +363,7 @@ export function keptOidc(opts: { findInvite: OidcInvites['find'] }): BetterAuthP
           // D176: linking needs a session created less than `session.freshAge` ago. Not Better
           // Auth's `freshSessionMiddleware` as the handler: a before-hook that returns a value
           // short-circuits the endpoint, and that middleware returns `{session}`, which then
-          // became the response body, token included (spike S6.7's first run).
+          // became the response body, token included (seen in a trial run).
           // D226: unlinking one too, so a borrowed session can't strip a way in either. Better
           // Auth's own fresh-session check covers /unlink-account as well; this one answers both
           // with the same SESSION_NOT_FRESH, which the web turns into "Sign in again".
@@ -440,7 +439,7 @@ export type AuthOidc = {
 };
 
 // ---------------------------------------------------------------------------------------------
-// Boot (plan Q16): discovery with a short retry; on failure, OIDC is off and the status says why
+// Boot: discovery with a short retry; on failure, OIDC is off and the status says why
 // ---------------------------------------------------------------------------------------------
 
 /** Admin → Status's OIDC row, and the sign-in page's button (GET /api/v1/setup). */

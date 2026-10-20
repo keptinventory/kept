@@ -1,5 +1,5 @@
 /**
- * Numbers and dates in the person's language and digits (D143, screens §8). Short IDs, codes,
+ * Numbers and dates in the person's language and digits (D143). Short IDs, codes,
  * usernames and URLs are never passed through here: they stay as printed, Western and LTR.
  */
 import { i18n, type Messages } from '@lingui/core';
@@ -8,7 +8,7 @@ import { formatLocale, usePrefs } from './prefs';
 
 /**
  * The separator between the parts of a line ("Warranties · 2", "Samsung TV · Home"). In Arabic it
- * is the Arabic comma, as the design board's own Arabic uses it ("مثقاب بوش، ١٨ فولت"): the kit's
+ * is the Arabic comma, as the designs' own Arabic uses it ("مثقاب بوش، ١٨ فولت"): the kit's
  * "·" beside an Eastern digit reads as the zero "٠" ("· ٢" as ٢٠; UI step-4 review L1). The comma
  * binds to the part before it, so a line never starts with it. `keep`: the part before keeps the
  * separator in the other languages too (a no-break space before the dot).

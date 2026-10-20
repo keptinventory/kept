@@ -5,12 +5,12 @@ import type { KitBackupHalf } from '../setup/recovery-kit-content.js';
 import { knownHostsLine, repositoryLocation } from './restic/repo.js';
 import { isResolved, loadBackupSettings } from './settings.js';
 
-// The recovery kit's backup half (step-8 plan T9): the effective backup settings (settings.ts:
+// The recovery kit's backup half: the effective backup settings (settings.ts:
 // the sealed `backup` row under the environment's locks, secrets opened with the keyring) as the
 // restic repository (restic/repo.ts's location, R1's table), its password and its storage
 // credentials, for the web download and `kept admin recovery-kit` alike.
 //
-// - no target, or a target without a password (no password, no backup: plan Q6) → `none`;
+// - no target, or a target without a password (no password, no backup) → `none`;
 // - saved credentials this keyring can't open → `unavailable`, never a half-made kit;
 // - S3: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_DEFAULT_REGION, the variables restic
 //   reads (R1); SFTP: the private key and the pinned host key as a known_hosts line, from the

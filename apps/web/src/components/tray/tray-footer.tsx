@@ -1,6 +1,6 @@
 /**
- * The carrying tray's own footer (screens §8: a focused task replaces the tab bar with its own
- * footer; board frame 7b): "Carrying 3" opens the tray, "Choose a place" skips the scan. Shown on
+ * The carrying tray's own footer (a focused task replaces the tab bar with its own
+ * footer): "Carrying 3" opens the tray, "Choose a place" skips the scan. Shown on
  * the scanner while it is looking for a destination, and as a chip in page headers (the Scan
  * button's slot) whenever something is being carried.
  */

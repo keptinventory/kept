@@ -9,11 +9,11 @@ import { forbidden, notFound } from '../http/errors.js';
 import type { JobQueue } from '../jobs/queue.js';
 import { enqueueReindex } from '../search/jobs.js';
 
-// Who the caller is in an owner account (T11; D11, D123, plan Q21). An account's registries
+// Who the caller is in an owner account (D11, D123). An account's registries
 // (types, place kinds, brands, vendors, people, tags) are reached through the locations of it the
 // caller can see; their role in the account is their highest role across those. An account they
-// can see nothing of is a 404, like any row they can't see (§7.7); a visible account their role
-// can't change is a 403 from can() (product design §7.1): managing needs owner or admin
+// can see nothing of is a 404, like any row they can't see; a visible account their role
+// can't change is a 403 from can(): managing needs owner or admin
 // somewhere in the account (`registries-types.manage`), inline creation of people, vendors and
 // tags a member (`people-vendors.create-inline`, `tags.create`).
 
@@ -64,7 +64,7 @@ export type WriteCtx = {
 
 export const MANAGE_HINT = 'Only owners and admins manage types and registries.';
 
-/** The account-level audit row of a registry write (plan Q15: readable by the account's admins). */
+/** The account-level audit row of a registry write (readable by the account's admins). */
 export async function auditRegistry(
   tx: Tx,
   event: {
@@ -126,7 +126,7 @@ export async function locationsUsing(
   return rows.map((r) => r.id);
 }
 
-/** A rename leaves the search documents of the things using the row stale: reindex (T20). */
+/** A rename leaves the search documents of the things using the row stale: reindex. */
 export async function reindexUses(
   jobs: JobQueue | null,
   client: pg.ClientBase,

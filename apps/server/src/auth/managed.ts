@@ -6,7 +6,7 @@ import type { Auth } from './auth.js';
 import { MANAGED_EMAIL_DOMAIN, managedEmail } from './emails.js';
 import { clearSignInFailures, limiterKey, reserveSignInAttempt } from './sign-in-limiter.js';
 
-// Spike S3 (V14): managed accounts (D47, D114, D164). A managed account has a username and a
+// Managed accounts (D47, D114, D164). A managed account has a username and a
 // password and no real email: Better Auth requires one, so it gets `<uuid>@managed.invalid`,
 // which is never shown or mailed. The admin never learns the password: a reset hands the admin a
 // one-time code for the person, who sets their own new password with it (D164).
@@ -48,7 +48,7 @@ export async function createManagedUser(
 ): Promise<{ userId: string; email: string; username: string }> {
   const email = managedEmail();
   // A server-side call with no headers: the admin plugin's createUser then needs no admin
-  // session. Kept checks who may create managed accounts itself (task 21). The username plugin's
+  // session. Kept checks who may create managed accounts itself. The username plugin's
   // create hook validates and lower-cases the username and rejects duplicates.
   const { user } = await auth.api.createUser({
     body: {

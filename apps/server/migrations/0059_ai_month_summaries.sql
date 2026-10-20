@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put your code below! --
--- The AI monthly summary (product design §8a "A monthly summary for account owners"; engineering
--- spec §7.15 `ai.monthly_summary`, the 1st; plan Q35), never built in step 3: the `ai-summary` job
+-- The AI monthly summary
+-- (`ai.monthly_summary`, the 1st), never built in step 3: the `ai-summary` job
 -- (src/ai/summary.ts) tells each account owner, and each person paying with a key of their own,
 -- what AI did for them last month. kept_system holds no grant on the call ledger (0040), so this
 -- is its door: per person, the month's sent calls they paid for (their account's key, or their

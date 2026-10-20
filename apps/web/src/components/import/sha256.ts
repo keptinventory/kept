@@ -1,5 +1,5 @@
 /**
- * An archive's SHA-256, read in chunks (plan T19 step 2). `crypto.subtle.digest` takes the whole
+ * An archive's SHA-256, read in chunks. `crypto.subtle.digest` takes the whole
  * input at once, so a 5 GB archive would have to sit in memory; this is the same function
  * (FIPS 180-4), fed 4 MiB at a time. It runs in a worker (sha256.worker.ts) so the page stays
  * responsive; the server compares the result with the bytes it stored (`X-Kept-Sha256`).

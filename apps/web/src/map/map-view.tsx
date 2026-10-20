@@ -3,7 +3,7 @@
  * (M11). Loaded on demand with three.js and its models (vite.config.ts), never precached: the map
  * needs a connection (M10 stays out).
  *
- * The scene is MapEngine's (engine/engine.ts, the approved spike's engine); this component draws
+ * The scene is MapEngine's (engine/engine.ts, the approved prototype's engine); this component draws
  * the controls around it (the breadcrumb, 3D or plan, Arrange, the pin chips, the floor buttons
  * like a lift, zoom, turn and home), the card, "Places on this level" for screen readers (M9), and
  * "What's in …" below. Arrange edits a copy of the plan; Done saves the session in one PUT (and

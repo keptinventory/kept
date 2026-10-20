@@ -22,7 +22,7 @@ import type { FileClass } from './views.js';
 
 export { imagesBusy, UPLOAD_RETRY_AFTER, type UploadResult } from './ingest.js';
 
-// PUT /api/v1/files/:fileId?locationId=&class= (plan T17; D36, D117, D157, D177; §3.4).
+// PUT /api/v1/files/:fileId?locationId=&class= (D36, D117, D157, D177).
 //
 // The body is the file itself, raw (no multipart, which is step 3's share-in). In order:
 // 1. who: a member or above in the location (`attachments.add`), and a client UUIDv7 id;
@@ -42,7 +42,7 @@ export { imagesBusy, UPLOAD_RETRY_AFTER, type UploadResult } from './ingest.js';
 // 8. one short transaction: under the keys' advisory locks (blob-locks.ts), a check that the
 //    original is still there (a failed upload's clean-up may have removed it: then everything is
 //    stored again), the file row, each derivative row, and the `file.upload` audit event (no
-//    content, no name), and for a PDF the `pdf-text` job (files/pdf-text.ts, T21), so the job
+//    content, no name), and for a PDF the `pdf-text` job (files/pdf-text.ts), so the job
 //    exists only if the file does. A failure deletes the blobs no row names
 //    (deleteUnreferencedBlobs), so a racing upload of the same id keeps what it stored.
 // The route allows a person three uploads at a time (UploadSlots; 429 with Retry-After).
@@ -50,7 +50,7 @@ export { imagesBusy, UPLOAD_RETRY_AFTER, type UploadResult } from './ingest.js';
 // Idempotency-Key is not used here: the file id is the upload's replay key (D36), and the body
 // is a stream, not JSON to hash.
 //
-// Steps 4 (the sniff) to 8 are ingestFile() (files/ingest.ts, step-7 plan T2), which the archive
+// Steps 4 (the sniff) to 8 are ingestFile() (files/ingest.ts), which the archive
 // importers call too; this file keeps the request's part: headers, the size, the checksum, the
 // upload slots.
 

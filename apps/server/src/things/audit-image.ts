@@ -1,7 +1,7 @@
 import type pg from 'pg';
 import type { FieldClass } from '../audit/classes.js';
 
-// A thing as its audit diff sees it (engineering spec §7.5; D110, D183; plan "custom-field
+// A thing as its audit diff sees it (D110, D183; plan "custom-field
 // audit"). audited() diffs two images field by field, so `custom` and `archived_custom` are
 // flattened into one entry per key (`custom.<key>`, `archived_custom.<key>`): a single nested
 // `custom` entry would carry a money value under a plain class, past renderAudit(). The field

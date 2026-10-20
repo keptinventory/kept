@@ -1,12 +1,12 @@
 /**
- * "Print inventory" (D201, task 32; screens §10): a button that opens a sheet of what to put in
+ * "Print inventory" (D201): a button that opens a sheet of what to put in
  * the report — places, types and tags (all of each unless some are chosen), ended things, things
  * in the Trash, QR codes — then makes the PDF on the server and follows it to Download
  * (./progress.tsx). On the location page it covers that location; on Settings → Account, the
  * account's locations you can see.
  *
  * Anyone who can see a location may make one, viewers too; what money it shows is the server's
- * decision (the same gates as the app). Offline the button is disabled and says why (screens §3).
+ * decision (the same gates as the app). Offline the button is disabled and says why.
  *
  * 1.3 (D228): "Email it to me" also mails the PDF when it's done, and for a location "Send it
  * again" keeps a weekly or monthly schedule of the whole location (Settings → Me → Notifications

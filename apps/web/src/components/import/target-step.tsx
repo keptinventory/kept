@@ -1,5 +1,5 @@
 /**
- * Where an archive goes (plan T19 step 5; T8, Q8): a new location, made in your account with its
+ * Where an archive goes: a new location, made in your account with its
  * own Unplaced area, its name prefilled from the Homebox collection or the exported location; or,
  * for a Homebox export only, a location you own or administer (things already there stay; a
  * re-run adds only what's new). A Kept export always comes in as a new location: it has no safe

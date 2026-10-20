@@ -5,7 +5,7 @@ import { JOB_POLICIES } from '../jobs/policies.js';
 import type { SystemJobDeps } from '../jobs/system.js';
 import { type CheckOptions, runScheduledUpdateCheck } from './check.js';
 
-// The opt-in update check (D65; step-8 plan T11), gathered by jobs/operations.ts. Hourly, and
+// The opt-in update check (D65), gathered by jobs/operations.ts. Hourly, and
 // nothing at all while "Check for new versions" is off (the default). When it is on, the job
 // asks GitHub about once a day, at an hour of the day picked at random for this instance and
 // kept in instance_settings.update_check, so instances don't all ask together (updates/check.ts

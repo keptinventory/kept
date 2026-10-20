@@ -1,10 +1,10 @@
 /**
- * Operations (step 8; D64–D66, D84, D144, D159, D165, D166, D181, D182, D186, D193; engineering
- * spec §1.10, §7.11): the backup settings and their runs, the admin status page's step-8 fields,
+ * Operations (D64–D66, D84, D144, D159, D165, D166, D181, D182, D186, D193):
+ * the backup settings and their runs, the admin status page's step-8 fields,
  * the update check, semver, and the app lock's and "keep this location available offline" limits.
  * The server's routes parse with these schemas and the web types its mock and screens with them.
  *
- * Secrets are write-only (plan T1): the restic password, an S3 secret key and an SFTP private key
+ * Secrets are write-only: the restic password, an S3 secret key and an SFTP private key
  * are accepted on write and never sent back; a read carries `…Set` booleans instead.
  */
 
@@ -12,21 +12,21 @@ import { z } from 'zod';
 import type { AttachmentRole } from './inventory.js';
 
 // ---------------------------------------------------------------------------------------------
-// Backup settings (D64, D66, D186; plan Q3, Q6, Q7)
+// Backup settings (D64, D66, D186)
 
-/** Where the restic repository lives (plan Q3): a directory (a NAS mount or another disk), an
+/** Where the restic repository lives: a directory (a NAS mount or another disk), an
  * S3-compatible bucket (AWS, and B2's and R2's S3 endpoints) or SFTP with a pinned host key. */
 export const BACKUP_TARGET_KINDS = ['dir', 's3', 'sftp'] as const;
 export type BackupTargetKind = (typeof BACKUP_TARGET_KINDS)[number];
 
 /** The retention D66 names: 7 daily, 4 weekly, 6 monthly. `pre_upgrade` snapshots keep their
- * last 3 separately (plan Q7). */
+ * last 3 separately. */
 export const BACKUP_KEEP_DEFAULT = Object.freeze({ daily: 7, weekly: 4, monthly: 6 });
 export const BACKUP_KEEP_PRE_UPGRADE = 3;
 /** Bounds for each retention count. */
 export const BACKUP_KEEP_MAX = Object.freeze({ daily: 366, weekly: 260, monthly: 120 });
 
-/** At least 12 characters, no composition rules (plan Q6, step 7's passphrase rule). No
+/** At least 12 characters, no composition rules (step 7's passphrase rule). No
  * password, no backup: Kept never writes an unencrypted backup. */
 export const BACKUP_PASSWORD_MIN = 12;
 export const BACKUP_PASSWORD_MAX = 1024;
@@ -99,7 +99,7 @@ const sftpTarget = z
         message: 'an OpenSSH private key',
       })
       .optional(),
-    /** The server's host key, pinned: the only key the known_hosts file holds (plan T5). */
+    /** The server's host key, pinned: the only key the known_hosts file holds. */
     hostKey: z.string().trim().regex(SSH_HOST_KEY, { message: 'a host key: <type> <base64>' }),
   })
   .strict();
@@ -117,8 +117,8 @@ export const BackupKeep = z
 export type BackupKeep = z.infer<typeof BackupKeep>;
 
 /**
- * `PUT /api/v1/admin/backup` (plan T10), with `If-Match`. `password` is write-only: absent keeps
- * the stored one; a new target without any password stays "not configured" (plan Q6). A field the
+ * `PUT /api/v1/admin/backup`, with `If-Match`. `password` is write-only: absent keeps
+ * the stored one; a new target without any password stays "not configured". A field the
  * environment locks may be sent unchanged; a changed one is 400 `setting_locked`.
  */
 export const BackupSettingsInput = z
@@ -136,7 +136,7 @@ export const BackupSettingsInput = z
   .strict();
 export type BackupSettingsInput = z.infer<typeof BackupSettingsInput>;
 
-/** A setting with whether the environment fixes it (D186, §7.11: the environment wins). */
+/** A setting with whether the environment fixes it (D186; the environment wins). */
 export type Locked<T> = { value: T; locked: boolean };
 
 /** A target as read back: every write-only field replaced by whether it is set. */
@@ -163,7 +163,7 @@ export type BackupTargetView =
     };
 
 /**
- * `GET /api/v1/admin/backup` (plan T10). `configured`: a target and a password are both set (no
+ * `GET /api/v1/admin/backup`. `configured`: a target and a password are both set (no
  * password, no backup). The target locks as a whole: any `KEPT_BACKUP_DIR`, `KEPT_BACKUP_S3_*` or
  * `KEPT_BACKUP_SFTP*` variable fixes it. `version` is the `If-Match` value for the PUT.
  */
@@ -177,13 +177,13 @@ export type BackupSettingsView = {
 };
 
 // ---------------------------------------------------------------------------------------------
-// Backup runs and snapshots (engineering spec §1.10; plan T4, T5, T7)
+// Backup runs and snapshots
 
-/** `backup_runs.kind` (T4). */
+/** `backup_runs.kind`. */
 export const BACKUP_RUN_KINDS = ['nightly', 'manual', 'pre_upgrade', 'drill', 'verify'] as const;
 export type BackupRunKind = (typeof BACKUP_RUN_KINDS)[number];
 
-/** `backup_runs.status` (T4). `warning`: the snapshot was taken but something needs a look (a
+/** `backup_runs.status`. `warning`: the snapshot was taken but something needs a look (a
  * suspiciously small dump, whose retention was skipped; a location left out of the readable
  * copy). */
 export const BACKUP_RUN_STATES = ['running', 'ok', 'warning', 'failed'] as const;
@@ -193,7 +193,7 @@ export const BACKUP_STORAGE_MODES = ['local', 's3'] as const;
 export type BackupStorageMode = (typeof BACKUP_STORAGE_MODES)[number];
 
 /**
- * Why a restic command failed (plan T2's `ResticError.reason`). Also `backup_runs.error` for a
+ * Why a restic command failed (`ResticError.reason`). Also `backup_runs.error` for a
  * failed run and `BackupTestResult.error`. `partial`: some files could not be read.
  */
 export const RESTIC_ERROR_REASONS = [
@@ -207,7 +207,7 @@ export const RESTIC_ERROR_REASONS = [
 export type ResticErrorReason = (typeof RESTIC_ERROR_REASONS)[number];
 
 /**
- * One `backup_runs` row in camelCase (T4). Never a credential: `target` is a description
+ * One `backup_runs` row in camelCase. Never a credential: `target` is a description
  * ("S3 bucket kept-backups at s3.example.org"), `error` a code (`^[a-z_]{1,48}$`), `detail` counts
  * and a digests summary only. Bytes are numbers (well under 2^53).
  */
@@ -241,10 +241,10 @@ export type BackupRun = {
   detail: Record<string, unknown>;
 };
 
-/** `GET /api/v1/admin/backup/runs?kind&status&q&cursor` (plan T10). */
+/** `GET /api/v1/admin/backup/runs?kind&status&q&cursor`. */
 export type BackupRunsPage = { items: BackupRun[]; next_cursor: string | null };
 
-/** One restic snapshot, read-only in the UI (plan Q4). `kind` from its tags, null for a snapshot
+/** One restic snapshot, read-only in the UI. `kind` from its tags, null for a snapshot
  * Kept didn't tag; `version` from its `v<version>` tag. */
 export type BackupSnapshot = {
   id: string;
@@ -254,10 +254,10 @@ export type BackupSnapshot = {
   tags: string[];
 };
 
-/** `GET /api/v1/admin/backup/snapshots` (plan T10): from `restic snapshots`, cached 5 minutes. */
+/** `GET /api/v1/admin/backup/snapshots`: from `restic snapshots`, cached 5 minutes. */
 export type BackupSnapshotsPage = { items: BackupSnapshot[]; cachedAt: string };
 
-/** `POST /api/v1/admin/backup/test` `{init?}` (plan T10). */
+/** `POST /api/v1/admin/backup/test` `{init?}`. */
 export const BackupTestInput = z.object({ init: z.boolean().optional() }).strict();
 export type BackupTestInput = z.infer<typeof BackupTestInput>;
 export type BackupTestResult = { ok: boolean; initialised: boolean; error?: ResticErrorReason };
@@ -270,7 +270,7 @@ export const DRILL_DUE_DAYS = 30;
 export const DISK_WARN_RATIO = 0.85;
 
 // ---------------------------------------------------------------------------------------------
-// The status page's step-8 fields (D66, D166, §14; plan T10)
+// The status page's step-8 fields (D66, D166)
 
 export type BucketVersioning = 'on' | 'off' | 'unknown' | 'not_applicable';
 export type DiskUsage = { usedRatio: number; freeBytes: number };
@@ -295,7 +295,7 @@ export const UPDATE_CHECK_ERRORS = [
 ] as const;
 export type UpdateCheckError = (typeof UPDATE_CHECK_ERRORS)[number];
 
-/** The opt-in update check (D65; plan T11), stored in `instance_settings.update_check`. Off by
+/** The opt-in update check (D65), stored in `instance_settings.update_check`. Off by
  * default; `locked` when KEPT_UPDATE_CHECK sets it. Nothing is ever downloaded or installed.
  * `latest` is a release **newer than the running version** ("Kept X is available"), null when
  * this one is current or the check failed; `url` is the release page GitHub's API returned. */
@@ -308,7 +308,7 @@ export type UpdateCheckState = {
 };
 
 /**
- * The fields step 8 adds to (or replaces in) `GET /api/v1/admin/status` (plan T10). The full
+ * The fields step 8 adds to (or replaces in) `GET /api/v1/admin/status`. The full
  * response is the existing status (version, dbOk, alerts, mail, reminders, oidc, connectors,
  * embeddings) with these; `backup` replaces the alpha's `{configured, last, lastOk}`. Every field
  * comes from rows already kept, never a restic call in the request.
@@ -320,11 +320,11 @@ export type AdminOpsStatus = {
     sourceUrl: string | null;
     /** The journal tag the database is migrated to. */
     lastMigration: string | null;
-    /** Set while this image runs a database one release ahead (plan Q9). */
+    /** Set while this image runs a database one release ahead. */
     rolledBackFrom: string | null;
   };
   backup: {
-    /** A target and a password (plan Q6). */
+    /** A target and a password. */
     configured: boolean;
     /** The environment fixes the target (D186). */
     locked: boolean;
@@ -343,13 +343,13 @@ export type AdminOpsStatus = {
     lastDrillAt: string | null;
     drillDue: boolean;
     lastVerifyAt: string | null;
-    /** "Upgraded from X to Y without a snapshot", until the next good backup (plan T8). */
+    /** "Upgraded from X to Y without a snapshot", until the next good backup. */
     upgradeWithoutSnapshot: { fromVersion: string; toVersion: string; at: string } | null;
   };
   recoveryKit: {
     acknowledgedAt: string | null;
     downloadedAt: string | null;
-    /** The backup settings or the key version changed after the last download (plan T9). */
+    /** The backup settings or the key version changed after the last download. */
     stale: boolean;
   };
   disk: { data: DiskUsage | null; backup: DiskUsage | null };
@@ -361,7 +361,7 @@ export type AdminOpsStatus = {
 };
 
 // ---------------------------------------------------------------------------------------------
-// The recovery kit download (D182; plan T9)
+// The recovery kit download (D182)
 
 export const RECOVERY_KIT_FORMATS = ['text', 'html'] as const;
 export type RecoveryKitFormat = (typeof RECOVERY_KIT_FORMATS)[number];
@@ -422,7 +422,7 @@ export function parseSemver(value: string): Semver | null {
   };
 }
 
-/** Semver 2.0.0 precedence (§11): -1, 0 or 1. Build metadata is ignored. Throws on a value that
+/** Semver 2.0.0 precedence: -1, 0 or 1. Build metadata is ignored. Throws on a value that
  * isn't a version, so a caller never compares garbage silently. */
 export function compareSemver(a: string | Semver, b: string | Semver): -1 | 0 | 1 {
   const x = typeof a === 'string' ? parseSemver(a) : a;
@@ -452,10 +452,10 @@ export function compareSemver(a: string | Semver, b: string | Semver): -1 | 0 | 
 }
 
 // ---------------------------------------------------------------------------------------------
-// This device: the app lock and "keep this location available offline" (D159, D181; Q21, Q22)
+// This device: the app lock and "keep this location available offline" (D159, D181)
 
 /**
- * The app lock (D181, plan Q22). `pbkdf2Iterations`: T0b's L1 count, about 288 ms in Chromium on
+ * The app lock (D181). `pbkdf2Iterations`: T0b's L1 count, about 288 ms in Chromium on
  * the laptop; the count is stored with each PIN-wrapped
  * key, so it can be lowered for new wraps if a slower phone unlocks in over about a second.
  * OWASP's 600,000 for PBKDF2-HMAC-SHA256 is the floor.
@@ -468,14 +468,14 @@ export const APP_LOCK = Object.freeze({
   pbkdf2Iterations: 2_850_000,
 });
 
-/** Keep-offline limits (plan Q21): documents only, 25 MB a file, 250 MB a device. */
+/** Keep-offline limits: documents only, 25 MB a file, 250 MB a device. */
 export const KEEP_OFFLINE = Object.freeze({
   deviceBytes: 250 * 1024 ** 2,
   fileBytes: 25 * 1024 ** 2,
 });
 
 /** The attachment roles a kept location carries to the device: documents, never photos (the
- * snapshot already has thumbnails) (plan Q21, T12). */
+ * snapshot already has thumbnails). */
 export const KEEP_OFFLINE_ROLES = [
   'receipt',
   'invoice',
@@ -486,7 +486,7 @@ export const KEEP_OFFLINE_ROLES = [
 ] as const satisfies readonly AttachmentRole[];
 export type KeepOfflineRole = (typeof KEEP_OFFLINE_ROLES)[number];
 
-/** Rows per `GET /api/v1/sync/extras` page (plan T12). */
+/** Rows per `GET /api/v1/sync/extras` page. */
 export const SYNC_EXTRAS_PAGE = 500;
 
 /** Amounts are decimal strings, as everywhere (AMOUNT_STRING); currencies ISO 4217. */
@@ -510,7 +510,7 @@ export type SyncExtra = {
   documents: SyncExtraDocument[];
 };
 
-/** `GET /api/v1/sync/extras?locationId&cursor` (plan T12). */
+/** `GET /api/v1/sync/extras?locationId&cursor`. */
 export type SyncExtrasPage = { items: SyncExtra[]; next_cursor: string | null; totalBytes: number };
 
 /** `GET /api/v1/sync/extras?locationId&estimate=1`: what keeping it offline would take. */

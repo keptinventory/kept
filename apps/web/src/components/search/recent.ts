@@ -1,5 +1,5 @@
 /**
- * Recent searches (screens §5 Search): the last few queries, kept on this device only, per user
+ * Recent searches: the last few queries, kept on this device only, per user
  * id, so a shared browser never shows one person's searches to another. Two queries that
  * normalise the same (`الكابل` and `الكابل ` or `HDMI` and `hdmi`) are one entry, the newest
  * spelling kept. Storage can be missing or full (private windows): then nothing is remembered.

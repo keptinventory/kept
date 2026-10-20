@@ -36,8 +36,8 @@ import {
 } from '../../test/things.js';
 import { AUDIT_EVENT_HEADER, REPLAYED_HEADER } from '../http/write.js';
 
-// T13: the online capture path, the phone's display image and batch undo, through the front door
-// in the web contract's shapes (apps/web/src/api/capture/types.ts "capture (T13)").
+// The online capture path, the phone's display image and batch undo, through the front door
+// in the web contract's shapes (apps/web/src/api/capture/types.ts "capture").
 
 let db: TestDb;
 let t: TestApp;
@@ -208,7 +208,7 @@ describe('POST /api/v1/captures', () => {
     );
     expect(atts).toEqual([{ file_id: fileId, role: 'photo' }]);
 
-    // One event, thing.capture (not thing.create), undoable, and named in the header (§7.7).
+    // One event, thing.capture (not thing.create), undoable, and named in the header.
     const events = await auditOf(db, home.id);
     expect(events.filter((e) => e.action === 'thing.create')).toHaveLength(0);
     const captures = await own<{ id: string; actor_id: string; undoable_until: Date | null }>(
@@ -455,7 +455,7 @@ describe('POST /api/v1/captures', () => {
     sent.length = 0;
     const named = ok(await capture(ibrahim, body(studio, { name: 'Easel' })), 201);
     expect(named.extraction).toBeUndefined();
-    // Only its embedding is queued (step-6 T14), no extraction.
+    // Only its embedding is queued, no extraction.
     expect(sent.map((j) => j.name)).toEqual(['embed-thing']);
   });
 });

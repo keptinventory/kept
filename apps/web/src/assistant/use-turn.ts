@@ -1,5 +1,5 @@
 /**
- * A conversation with the assistant (D22, D23; step-6 plan Q2): the thread as the server holds
+ * A conversation with the assistant (D22, D23): the thread as the server holds
  * it, plus the turn in flight, polled every second (no token streaming) until it ends, when the
  * thread is read again. Asking without a thread starts one, with the page's context, and shows it
  * (./store.ts). One turn at a time per thread (409 `turn_running`).

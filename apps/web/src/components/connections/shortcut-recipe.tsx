@@ -1,13 +1,13 @@
 /**
- * Help → "Log your odometer from an iPhone Shortcut" (D63, master plan 9.5, step-6 plan T21): a
+ * Help → "Log your odometer from an iPhone Shortcut" (D63): a
  * Shortcut that asks for the odometer and sends it to Kept's public API with a token. Written
  * from the real route, `POST /api/v1/meters/:id/readings` with `{value, takenAt}` (apps/server
  * meters/routes.ts: `value` a decimal string, `takenAt` an ISO date-time with its offset), and
- * the bearer header personal tokens use (T10). Picking a car fills in its meter's address, so
+ * the bearer header personal tokens use. Picking a car fills in its meter's address, so
  * nobody has to find a meter's id.
  *
  * The Shortcuts actions are named as Apple's Shortcuts app names them; that the recipe runs on a
- * real iPhone is on step 6's device checklist (maintainer check pending). The token stays on the
+ * real iPhone is on the device checklist. The token stays on the
  * phone, inside the Shortcut: the recipe says so.
  */
 import { Trans, useLingui } from '@lingui/react/macro';

@@ -1,5 +1,5 @@
 /**
- * "What's in <location>" under the map (1.x, D237; the spike's list): a summary, a search, a
+ * "What's in <location>" under the map (1.x, D237; the prototype's list): a summary, a search, a
  * floor filter, By room or Needs attention, and Show more per card, all in the address. Picking a
  * row shows it on the map.
  */

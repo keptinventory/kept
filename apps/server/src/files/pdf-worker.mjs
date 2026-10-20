@@ -1,4 +1,4 @@
-// The PDF text reader's child process (plan T21, Q19; D77, D157; engineering spec §3.1b). A PDF
+// The PDF text reader's child process (D77, D157). A PDF
 // is a hostile file until proven otherwise, so its parse runs here, in a process of its own that
 // the parent (pdf-text.ts) kills past 20 s of wall-clock time or 256 MB of resident memory; it
 // starts this file with `--max-old-space-size=256` and an empty environment. Plain JavaScript on

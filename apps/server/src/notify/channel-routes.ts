@@ -39,8 +39,8 @@ import {
   updateTiming,
 } from './prefs.js';
 
-// Channels, push subscriptions and preferences (step-4 plan T15; D29, D30, D122, D139; Q8–Q13,
-// Q35). The web's contract is apps/web/src/api/household/{types,paths}.ts (NotificationSettings,
+// Channels, push subscriptions and preferences (D29, D30, D122, D139).
+// The web's contract is apps/web/src/api/household/{types,paths}.ts (NotificationSettings,
 // Channel, …) and its mock (mock/notify.ts).
 //
 // GET    /api/v1/me/notification-settings        → NotificationSettings
@@ -63,7 +63,7 @@ import {
 // is synchronous (the person waits for the answer) and limited to TESTS_PER_HOUR, every channel
 // together.
 
-/** Test sends a person may make an hour, every channel together (plan T15). */
+/** Test sends a person may make an hour, every channel together. */
 export const TESTS_PER_HOUR = 5;
 
 const TIME = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'HH:MM');

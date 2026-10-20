@@ -1,8 +1,8 @@
 /**
- * The DB-backed price lookup for callModel (call.ts `PriceLookup`; step-3 T6): the
+ * The DB-backed price lookup for callModel (call.ts `PriceLookup`): the
  * `ai_model_prices` version in effect at `at` for a provider kind and model, read through the
  * table's policy (every signed-in request reads it). No version: null, and the call's cost is
- * "unknown" (Q8), never guessed.
+ * "unknown", never guessed.
  */
 import type { ProviderKind } from '@kept/shared';
 import type { PriceLookup } from './call.js';

@@ -1,5 +1,5 @@
 /**
- * The export screens' shared words and helpers (plan T21): an export's state as a pill, why one
+ * The export screens' shared words and helpers: an export's state as a pill, why one
  * failed, whether a ready one has expired (the server keeps `done`; the web reads `expiresAt`),
  * the request errors in the reader's words, and the download itself: a fresh 5-minute link asked
  * for on each click (`GET /exports/:id`, the role checked again, D180), followed at once and never

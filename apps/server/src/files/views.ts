@@ -5,9 +5,9 @@ import type { FileStorage } from '../storage/blob-store.js';
 import { SIGNED_URL_TTL_SECONDS } from '../storage/signed-url.js';
 
 // The file and attachment shapes of the web contract (apps/web/src/api/inventory/types.ts,
-// "files and attachments (task 17)"). Rows are read as the request's user, so whatever reaches a
-// view already passed files' and attachments' policies (§7.2, D177). URLs are short-lived and
-// signed (Q16): `/f/<token>` on local storage, presigned on S3.
+// "files and attachments"). Rows are read as the request's user, so whatever reaches a
+// view already passed files' and attachments' policies (D177). URLs are short-lived and
+// signed: `/f/<token>` on local storage, presigned on S3.
 
 export type { FileClass };
 
@@ -38,7 +38,7 @@ export type FileView = {
 /**
  * What an attachment hangs on: one of these columns, or none (the location itself, D155). Step 4
  * adds a warranty's, claim's, loan's, incident's, valuation's, service record's and expiring
- * document's (migrations 0050, 0052; §7.13). Every list, view and write reads this one table, so
+ * document's (migrations 0050, 0052). Every list, view and write reads this one table, so
  * an attachment on a step-4 record is never mistaken for one on the location.
  */
 export const SUBJECT_COLUMNS = [
@@ -53,7 +53,7 @@ export const SUBJECT_COLUMNS = [
   ['valuation_id', 'valuationId'],
   ['service_record_id', 'serviceRecordId'],
   ['expiring_document_id', 'expiringDocumentId'],
-  // Step 5 (T11): a fill's pump receipt.
+  // A fill's pump receipt.
   ['fuel_entry_id', 'fuelEntryId'],
   // 1.x (D235): a condition report room's photo.
   ['condition_room_id', 'conditionRoomId'],

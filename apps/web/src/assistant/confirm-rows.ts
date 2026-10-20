@@ -1,6 +1,6 @@
 /**
- * A confirmation card's rows, drawn from each proposal's `args`, `before` and `refs` (D22, D179;
- * screens §5 "Confirmation card"). Never from model text: the verb and every field label are
+ * A confirmation card's rows, drawn from each proposal's `args`, `before` and `refs` (D22, D179).
+ * Never from model text: the verb and every field label are
  * Kept's own words (./confirm-card.tsx translates the keys here), and each value is the
  * argument the tool will run with, or the target's value when it was proposed. Ids are named
  * through `refs`, which the server looked up when it stored the proposal; values that came from

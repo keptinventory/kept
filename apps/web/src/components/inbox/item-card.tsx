@@ -1,5 +1,5 @@
 /**
- * One inbox item (screens §5 "Inbox", D18, D19, D36): the card for its kind. A draft shows its
+ * One inbox item (D18, D19, D36): the card for its kind. A draft shows its
  * photo and what AI filled in and accepted, the values that wait as Suggested (confirm `y` or
  * reject `n`), where naming is ("Naming…", "Waiting: AI paused until 1 Oct", "Waiting for Groq",
  * "Couldn't read this photo · Retry · Fill in by hand"), and the AI line. Accept (`a`), Edit

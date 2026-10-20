@@ -14,12 +14,12 @@ import { codesFree } from './codes.js';
 import { originalsOf } from './files.js';
 import { inspectKept, readManifest } from './read.js';
 
-// The Kept import's dry run (step-7 plan T14, Q27): it reads the whole archive and writes
+// The Kept import's dry run: it reads the whole archive and writes
 // nothing. It reports what the import would make (places, things, attachments, files), which
 // printed labels keep their code and which are re-issued (codesFree(): free or taken on this
 // server, the one thing the adopt door would tell), the people to invite, the secrets the export
 // holds (imported only with the passphrase), and how much history is within the two-year
-// retention. Only rows with an issue are listed (Q27).
+// retention. Only rows with an issue are listed.
 //
 // The same scan gives the job its `Known` ids: every row id the archive holds, so a reference to
 // a row the export left out (an ended thing, a trashed place) becomes nothing instead of a
@@ -141,7 +141,7 @@ export function totalOf(scan: Scan): number {
   return total;
 }
 
-/** What a dry run reads from the archive, outside any transaction (plan T8's `load`). */
+/** What a dry run reads from the archive, outside any transaction (`load`). */
 export type KeptLoaded = {
   manifest: ExportManifest;
   scan: Scan;
@@ -156,7 +156,7 @@ export async function loadKept(archive: OpenArchive): Promise<KeptLoaded> {
 }
 
 /**
- * POST /imports/:id/dry-run for a Kept export (plan T8 dispatches here): the report, writing
+ * POST /imports/:id/dry-run for a Kept export (dispatched here): the report, writing
  * nothing. `locationId` is the run's target, where the code probe tries the codes.
  */
 export async function keptReport(

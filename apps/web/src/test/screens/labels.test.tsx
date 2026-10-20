@@ -1,5 +1,5 @@
 /**
- * The labels screens (plan T28; D43, D44, D137, D175, D185; screens §6): the labels screen, the
+ * The labels screens (D43, D44, D137, D175, D185): the labels screen, the
  * batch builder with its stock and start cell, the print view's sheets, "Printed OK?" with the
  * first-print hint, Arabic names on labels, codes kept left to right, and a location with the
  * module off.

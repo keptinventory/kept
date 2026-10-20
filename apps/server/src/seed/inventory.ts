@@ -1,13 +1,13 @@
 import type { LinkKind } from '@kept/shared';
 import type { PersonKey } from './cast.js';
 
-// What the households hold (task 23; D152, D185): the screens board's sample inventory and the
+// What the households hold (D152, D185): the screen designs' sample inventory and the
 // web mock's (apps/web/src/api/inventory/mock/fixtures.ts),
 // made through the real routes by seed/stock.ts. Names are the natural keys the seed looks
 // things up by on a second run, so each is unique within its location (and a place's within
 // its parent).
 //
-// Short IDs are the board's where it shows one: the HDMI cable 7KQ‑4MZ in the Cable box 3CB‑8WN,
+// Short IDs are the designs' where it shows one: the HDMI cable 7KQ‑4MZ in the Cable box 3CB‑8WN,
 // the Samsung TV 5MT‑0QD, the Wi‑Fi router 9RT‑2FK, the Bosch drill 2HX‑9RB, the Corolla 4VC‑7HD.
 // The board reuses a few codes for two things; the seed keeps each code for one of them.
 //
@@ -202,8 +202,8 @@ const HOME: LocationStock = {
   location: 'Home',
   owner: 'ibrahim',
   modules: ['secrets'],
-  // The Apartment and House templates (screens §8): living room, kitchen, two bedrooms, a
-  // bathroom and a balcony, then a hallway and a storage room; with the board's office.
+  // The Apartment and House templates: living room, kitchen, two bedrooms, a
+  // bathroom and a balcony, then a hallway and a storage room; with the designs' office.
   places: [
     {
       name: 'Living room',
@@ -478,7 +478,7 @@ const HOME: LocationStock = {
       tags: ['winter'],
       notHere: true,
     },
-    // Storage room: the Ramadan box and the toolbox, as on the label sheet (screens 03).
+    // Storage room: the Ramadan box and the toolbox, as on the label sheet.
     {
       key: 'ramadanBox',
       name: 'Ramadan decorations box',
@@ -535,7 +535,7 @@ const HOME: LocationStock = {
 const GARAGE: LocationStock = {
   location: 'Garage',
   owner: 'ibrahim',
-  // The Garage template (screens §8: tool wall, shelves, floor), named as on the board.
+  // The Garage template (tool wall, shelves, floor), named as on the board.
   places: [
     { name: 'Tool wall', kind: 'zone' },
     { name: 'Shelf A', kind: 'zone', code: '7SH2AA' },

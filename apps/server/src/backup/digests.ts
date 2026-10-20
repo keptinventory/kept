@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import type pg from 'pg';
 
-// Per-table data digests (step-8 plan T5, L78: a restore is verified by its data, not by row
+// Per-table data digests (a restore is verified by its data, not by row
 // counts). For each table kept_owner owns, a SHA-256 over its rows in primary-key order:
 //   digest = SHA-256( SHA-256(row₁ as text) ‖ SHA-256(row₂ as text) ‖ … )
 // The database hashes each row (`sha256(convert_to(t::text, 'UTF8'))`), so only 32 bytes a row

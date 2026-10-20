@@ -1,6 +1,6 @@
 {
   "set": "assistant-households-2026-10",
-  "about": "The assistant evaluation (step-6 plan T17; D22, D24, D123, D164, D179) on the households seed. Each case: who asks, in which interface language, from which page, and what a right answer does. `mock` is the scripted model the KEPT_AI_MOCK provider plays for that question (src/ai/mock-script.ts), so CI runs the real loop and scoring with no network; a real provider ignores it. Names are the seed's (src/seed/inventory.ts) and the fixtures' below.",
+  "about": "The assistant evaluation (D22, D24, D123, D164, D179) on the households seed. Each case: who asks, in which interface language, from which page, and what a right answer does. `mock` is the scripted model the KEPT_AI_MOCK provider plays for that question (src/ai/mock-script.ts), so CI runs the real loop and scoring with no network; a real provider ignores it. Names are the seed's (src/seed/inventory.ts) and the fixtures' below.",
   "fixtures": [
     {
       "location": "Home",

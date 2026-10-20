@@ -1,5 +1,5 @@
 /**
- * Your exports (plan T21; §3.3, D180; engineering spec §5 "Export ready / expired"): newest first,
+ * Your exports (D180): newest first,
  * as a list-standard list (search by location, State and Location filters, pages, in the URL).
  * A running export shows how far it got and Cancel; a ready one its size, until when, and
  * Download, which asks for a fresh 5-minute link each time (the role checked again); past its

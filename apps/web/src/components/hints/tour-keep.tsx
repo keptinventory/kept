@@ -1,5 +1,5 @@
 /**
- * Keep/Discard at the end of the guided tour (spec §"Tour-data ledger", decision 3). The tour
+ * Keep/Discard at the end of the guided tour (the tour-data ledger). The tour
  * engine shows it only when the ledger is non-empty — an empty `ids` renders nothing. Keep
  * (and dismissing, the safe default) leaves everything; Discard deletes exactly `ids`,
  * newest first, through the engine's deleter (the normal Trash-move mutations, so trashed

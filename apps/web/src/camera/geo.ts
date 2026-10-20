@@ -1,11 +1,11 @@
 /**
- * "Suggest where I am" (D153; plan T25; V30). Opening capture compares the phone's position with
+ * "Suggest where I am" (D153). Opening capture compares the phone's position with
  * the coordinates of the person's locations **on the device**: within a location's radius
  * (`suggestRadiusM`, 150 m by default), that location is suggested. The position is never sent,
  * stored or logged: this module has no network access and keeps nothing but the on/off choice.
  *
  * The permission prompt appears only when the person turns suggestions on (D153). The on/off
- * choice is the person's, on the server (`/me`'s `profile.suggestLocation`, PATCH /me; T19); this
+ * choice is the person's, on the server (`/me`'s `profile.suggestLocation`, PATCH /me); this
  * device keeps a copy so capture knows it offline, and adopts the server's when /me loads.
  */
 import type { SnapLocation } from '@kept/shared';

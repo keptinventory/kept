@@ -24,8 +24,8 @@ import { id, mutable, textEnum, tstz } from './common.js';
 import { currencies } from './currencies.js';
 import { locations, ownerAccounts } from './tenancy.js';
 
-// AI providers, caps and budgets, pacing and the call ledger (step-3 plan T6; engineering spec
-// §1.8, §3.3, §3.5, §7.13, §7.15; D19, D121, D167, D202, D206; plan Q5–Q8, Q31). Row-level
+// AI providers, caps and budgets, pacing and the call ledger (D19, D121, D167, D202, D206).
+// Row-level
 // security, the partitions, the column privileges and every `kept.ai_*` door are in the custom
 // migration that follows (0040); see src/db/ai.test.ts and src/ai/db-*.ts.
 
@@ -80,7 +80,7 @@ export const aiProviders = pgTable(
     keyHint: text('key_hint'),
     /** `{vision, chat, embeddings}`: the model per task (D19). */
     models: jsonb('models').notNull().default(sql`'{}'::jsonb`),
-    /** `{vision, structured, testedAt, model}` from "Test connection" (T9). */
+    /** `{vision, structured, testedAt, model}` from "Test connection". */
     capabilities: jsonb('capabilities').notNull().default(sql`'{}'::jsonb`),
     reasoning: text('reasoning').notNull().default('low'),
     disabledAt: tstz('disabled_at'),
@@ -130,7 +130,7 @@ const budgetScope = textEnum('scope', BUDGET_SCOPES);
 const budgetTask = textEnum('task', BUDGET_TASKS);
 const pauseReason = textEnum('paused_reason', PAUSE_REASONS);
 
-/** The per-task budgets (D19) and the monthly caps (D167, D206) in one table (§7.15). The pause
+/** The per-task budgets (D19) and the monthly caps (D167, D206) in one table. The pause
  * and the warnings change only through the `kept.ai_*` doors. */
 export const aiBudgets = pgTable(
   'ai_budgets',
@@ -195,7 +195,7 @@ export const aiBudgets = pgTable(
 export const WINDOW_KINDS = ['minute', 'day', 'month'] as const;
 const windowKind = textEnum('window_kind', WINDOW_KINDS);
 
-/** Tokens and calls per bucket (§7.15's bucket strings) and window. */
+/** Tokens and calls per bucket (the bucket strings) and window. */
 export const aiUsageWindows = pgTable(
   'ai_usage_windows',
   {
@@ -226,7 +226,7 @@ export const aiCostWindows = pgTable(
   ],
 );
 
-/** Concurrency slots: `payer:<scope>:<id>` (2) and `key:<provider_id>` (the kind's, §3.5). */
+/** Concurrency slots: `payer:<scope>:<id>` (2) and `key:<provider_id>` (the kind's). */
 export const aiLeases = pgTable(
   'ai_leases',
   {
@@ -243,7 +243,7 @@ export const aiLeases = pgTable(
 
 const breakerReason = textEnum('reason', BREAKER_REASONS);
 
-/** A key's circuit breaker (L45; ai/breaker.ts is the state machine, this its store). */
+/** A key's circuit breaker (ai/breaker.ts is the state machine, this its store). */
 export const aiBreakers = pgTable(
   'ai_breakers',
   {
@@ -275,7 +275,7 @@ export const aiProviderLimits = pgTable('ai_provider_limits', {
   remainingTokens: integer('remaining_tokens'),
   resetAt: tstz('reset_at'),
   /** An output-token (OTPM) limit a provider's 429 named, and this minute's output against it
-   * (ai/pacing.ts; step-3 T9, 0045). No provider reports it in a header. */
+   * (ai/pacing.ts; 0045). No provider reports it in a header. */
   outputLimitTokens: integer('output_limit_tokens'),
   outputUsed: integer('output_used').notNull().default(0),
   outputWindowStart: tstz('output_window_start'),
@@ -289,7 +289,7 @@ const priceSource = textEnum('source', PRICE_SOURCES);
 
 /** Versioned prices per provider kind and model (D167, D206): rows are added, never edited but
  * for `superseded_at`, and only through `kept.ai_price_set` / `kept.ai_price_remove`. Nothing
- * is seeded (Q8). */
+ * is seeded. */
 export const aiModelPrices = pgTable(
   'ai_model_prices',
   {
@@ -345,8 +345,8 @@ const costSource = textEnum('cost_source', COST_SOURCES);
 const payingScope = textEnum('paying_scope', PAYER_SCOPES);
 
 /**
- * The AI call ledger (§7.15, D206, L47): one row per call attempt, Kept's held-back ones too.
- * Partitioned by RANGE (`at`), monthly (§7.13): the generated CREATE TABLE in 0039 was edited to
+ * The AI call ledger (D206): one row per call attempt, Kept's held-back ones too.
+ * Partitioned by RANGE (`at`), monthly: the generated CREATE TABLE in 0039 was edited to
  * add `PARTITION BY RANGE ("at")`, hence `at` in the primary key; the partitions are made by
  * `kept.ensure_llm_partitions()`. Append-only (no row_version), no foreign keys (it outlives what
  * it describes), written only by `kept.ai_reserve` / `kept.ai_settle`. **Nothing here can hold a
@@ -383,7 +383,7 @@ export const llmCalls = pgTable(
     outputTokens: integer('output_tokens'),
     reasoningTokens: integer('reasoning_tokens'),
     cachedInputTokens: integer('cached_input_tokens'),
-    /** The provider reported no token counts (Google's embeddings, spike S6.4 finding 5):
+    /** The provider reported no token counts (Google's embeddings):
      * `input_tokens` is Kept's estimate, and the cost is priced from it (0093). */
     usageEstimated: boolean('usage_estimated').notNull().default(false),
     imageCount: smallint('image_count').notNull().default(0),
@@ -444,7 +444,7 @@ export const llmCalls = pgTable(
   ],
 );
 
-/** Monthly totals kept 5 years (§3.3), written by `kept.ai_rollup_and_drop` before a ledger
+/** Monthly totals kept 5 years, written by `kept.ai_rollup_and_drop` before a ledger
  * partition goes; read through `kept.ai_usage` with the ledger's visibility. */
 export const aiUsageMonths = pgTable(
   'ai_usage_months',

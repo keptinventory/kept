@@ -1,10 +1,10 @@
 /**
- * Admin → Status's sign-in and connector rows (step-6 plan T22; D63, D125, D127, spike S6.7):
+ * Admin → Status's sign-in and connector rows (D63, D125, D127):
  * - OIDC: configured or not, its name and issuer, the callback URL to register at the provider,
  *   and why boot-time discovery failed (OIDC is then off until Kept restarts);
  * - the MCP endpoint's URL, and whether OAuth connectors are available or need an https public
  *   URL (D125); personal tokens work either way.
- * OIDC is configured by environment only (step-6 plan Q16): there is nothing to edit here.
+ * OIDC is configured by environment only: there is nothing to edit here.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
@@ -35,7 +35,7 @@ function UrlValue({ url, copy }: { url: string; copy: string }) {
   );
 }
 
-/** Why discovery failed at boot, in words (the reason codes the spike proposed for T16). */
+/** Why discovery failed at boot, in words (the server's reason codes). */
 function useOidcErrorWords() {
   const { t } = useLingui();
   return (code: string) => {

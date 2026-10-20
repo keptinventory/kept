@@ -3,7 +3,7 @@ import { readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type pg from 'pg';
 
-// Unchanged locations are not rewritten (step-8 plan T6): each location's readable copy carries a
+// Unchanged locations are not rewritten: each location's readable copy carries a
 // marker, `.kept-readable.json`, of what it was written from. When tonight's marker is the same,
 // the tree is left exactly as it is, so restic sees no changed file (and the PDF isn't rendered
 // again). The marker is:

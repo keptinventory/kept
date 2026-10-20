@@ -1,5 +1,5 @@
 /**
- * The AI system jobs of plan T9 (D166, D188, D206): `ai-notice` (a cap crossed 80% or 100%, or
+ * The AI system jobs (D166, D188, D206): `ai-notice` (a cap crossed 80% or 100%, or
  * the instance key was rejected; sent by the runtime's hooks, ai/notices.ts) and `ai-rollover`
  * (00:05 UTC daily: day and month pauses that have ended are cleared), and step 4's `ai-summary`
  * (00:20 UTC on the 1st: last month's summary, ai/summary.ts). Spread into systemJobs() beside

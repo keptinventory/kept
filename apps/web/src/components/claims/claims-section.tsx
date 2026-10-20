@@ -1,8 +1,8 @@
 /**
- * Claims on the thing page (D54, D195; screens §5): one card per claim, newest first, with its
+ * Claims on the thing page (D54, D195): one card per claim, newest first, with its
  * status stepper (opened → in repair → resolved or rejected), where it is, the warranty it uses,
  * the reference, and the cost behind the money gate. A claim resolved at no cost says "Warranty
- * saved you <amount>" when the covered amount is set, otherwise "Covered by the warranty" (Q18).
+ * saved you <amount>" when the covered amount is set, otherwise "Covered by the warranty".
  * New and Update open the claim sheet; a claim in repair makes the thing read "at <vendor>".
  */
 import { Trans, useLingui } from '@lingui/react/macro';

@@ -1,5 +1,5 @@
 /**
- * An archive's upload (plan T19 step 2; D157, §3.1b, Q18): the person picks the `.zip` their old
+ * An archive's upload (D157): the person picks the `.zip` their old
  * Homebox or Kept made; a file over 5 GB is refused here, before anything is sent. The SHA-256 is
  * computed on the device first (in a worker, sha256.ts), then the run is declared
  * (`POST /imports/archive`) and the file sent in one `PUT …/archive` with a progress bar

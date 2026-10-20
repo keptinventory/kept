@@ -1,5 +1,5 @@
 /**
- * The search evaluation's cases (step-6 plan T17, T14; D200, D207): test/fixtures/semantic/
+ * The search evaluation's cases (D200, D207): test/fixtures/semantic/
  * search-cases.json, or a file of the same shape with the maintainer's own phrasings. Each case is a
  * query asked as one of the seed's people, and the things (by the seed's names) a right answer
  * holds. `words` cases are found by their words, `meaning` cases by what they are.

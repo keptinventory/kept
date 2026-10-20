@@ -1,5 +1,5 @@
 /**
- * Delete a location (D149; plan T21): the owner's sheet, and the first web caller of
+ * Delete a location (D149): the owner's sheet, and the first web caller of
  * `deleteLocation`. Export first (optional), then the location's name typed exactly, then the
  * 30-day grace: the location stays restorable for 30 days, then it's gone with its files. Personal
  * can't be deleted (the server answers 409), so it has no sheet.

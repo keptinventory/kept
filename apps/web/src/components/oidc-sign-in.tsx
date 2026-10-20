@@ -1,5 +1,5 @@
 /**
- * "Sign in with <name>" (step 6 T16/T22; D127, D176, spike S6.7): shown only when the server says
+ * "Sign in with <name>" (step 6 T16/T22; D127, D176): shown only when the server says
  * a generic OIDC provider is configured (`GET /setup`'s `oidc`), and "Sign in with Google" when
  * Google is (`google`, 1.2, D226). It reaches only an account that
  * is already linked to that sign-in, or an invited person (the invite's token travels with it);
@@ -82,7 +82,7 @@ export function OidcSignInButton({
 }
 
 /**
- * What a failed OIDC sign-in's `?error=` means (the codes the spike found Kept's rules and Better
+ * What a failed OIDC sign-in's `?error=` means (the codes Kept's rules and Better
  * Auth answer with), in words; "account not linked" explains invites (D127).
  */
 export function OidcError({ code, name }: { code: string; name: string | null }) {

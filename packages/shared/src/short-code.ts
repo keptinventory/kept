@@ -1,5 +1,5 @@
 /**
- * Short IDs (D120, D45, engineering spec §7.13): 6 characters of Crockford base32, allocated by
+ * Short IDs (D120, D45): 6 characters of Crockford base32, allocated by
  * the server, permanent and never reissued. 32⁶ ≈ 1.07 billion codes. The alphabet leaves out
  * I, L, O and U, so a printed label can't be misread; typed input is folded back onto it.
  */
@@ -53,7 +53,7 @@ export function normaliseInputCode(input: string): string {
 }
 
 /**
- * A legacy or own code as it is stored and compared (engineering spec §1.10, §7.16; D146, D208):
+ * A legacy or own code as it is stored and compared (D146, D208):
  * Eastern Arabic (٠–٩) and Persian (۰–۹) digits as Western ones, composed (NFC), trimmed, upper
  * case. Unlike a short ID, nothing else is folded: `BOLT-01` stays `BOLT-01`. The server's
  * `legacyCodeOf` (apps/server/src/imports/csv.ts) is the same.

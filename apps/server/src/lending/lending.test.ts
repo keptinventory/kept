@@ -18,9 +18,9 @@ import {
 
 // Task 10 through the front door, as the web calls it (apps/web/src/api/household/{types,paths}.ts,
 // components/lending/*): lending out and borrowing in (D56, D57), one open loan per thing, a
-// partial lend that splits and merges back on return (D10, D172, Q14), a borrowed thing that goes
-// back to its owner (Q15), condition photos, the derived states lent and borrowed everywhere
-// (thing, search, the offline snapshot, D119, Q34), and undo (D150).
+// partial lend that splits and merges back on return (D10, D172), a borrowed thing that goes
+// back to its owner, condition photos, the derived states lent and borrowed everywhere
+// (thing, search, the offline snapshot, D119), and undo (D150).
 
 let db: TestDb;
 let t: TestApp;

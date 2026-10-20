@@ -3,7 +3,7 @@ import type pg from 'pg';
 import type { Pools } from '../db/pools.js';
 import { type Tx, withSystem } from '../db/scope.js';
 
-// Where webhook events come from (step-6 plan Q18, T15; engineering spec §2.6; D63, D110, D172).
+// Where webhook events come from (D63, D110, D172).
 //
 // audited() already sees every write. For an event whose action maps to a webhook event, it asks
 // whether the location has an active hook taking that event (kept.webhooks_listening(), a yes or

@@ -10,7 +10,7 @@ import { ownerTx } from '../../test/tenancy.js';
 // Task 21 through the front door: trashing, restoring and deleting things, and the trash list,
 // as the web calls them (apps/web/src/api/inventory/{types,paths}.ts, mock/trash.ts). Fixtures
 // are seeded as kept_owner; every request goes through the app as a signed-in user on kept_app,
-// so row-level security and can() decide (screens §5: restore for members and above, delete
+// so row-level security and can() decide (restore for members and above, delete
 // permanently for admins and above).
 
 let db: TestDb;

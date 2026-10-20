@@ -1,5 +1,5 @@
 /**
- * Hashes an import archive off the main thread (plan T19 step 2): receives the File, answers
+ * Hashes an import archive off the main thread: receives the File, answers
  * with progress and then the SHA-256 (sha256.ts). A module worker from Kept's own origin, like
  * csv.worker.ts (the CSP's `worker-src 'self'`); built into assets/household/ (vite.config.ts).
  */

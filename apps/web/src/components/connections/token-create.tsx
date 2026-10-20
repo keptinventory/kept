@@ -1,11 +1,11 @@
 /**
- * New token (screens §5 "Connections", D15, D60, D63, D179, D180): a name, what it may do (read,
+ * New token (D15, D60, D63, D179, D180): a name, what it may do (read,
  * or read and change; never delete), its locations (one pre-selected, D179), and an optional
  * expiry on Kept's calendar. A write token over locations whose member lists differ is a second
  * step: the server answers D179's warning and the sheet asks again before sending
  * `confirmCrossLocation`.
  *
- * The token is then shown **once**, with Copy and Share and the ready-made client configs (T10).
+ * The token is then shown **once**, with Copy and Share and the ready-made client configs.
  * It lives in this sheet's state only, never in the query cache, and is gone from the page the
  * moment the sheet closes (`onOpenChange(false)` drops it; the sheet's content unmounts).
  *

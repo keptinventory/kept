@@ -13,8 +13,8 @@ import {
 } from '../../test/tenancy.js';
 import { withScope, withSystem } from './scope.js';
 
-// Step-3 T6: AI providers, caps, pacing doors and the partitioned call ledger (engineering spec
-// §3.5, §7.15; D121, D167, D206; plan Q5–Q8). Ibrahim owns an account with a Personal location
+// AI providers, caps, pacing doors and the partitioned call ledger (D121, D167, D206).
+// Ibrahim owns an account with a Personal location
 // and a shared home; Alfred is a member there, Bruce a viewer, Louis an admin. Talia is another
 // household; Peter is an instance admin.
 
@@ -530,7 +530,7 @@ describe('the gate: reserve and settle (§7.15)', () => {
     expect(await reserve(ibrahim.userId, egp)).toMatchObject({ ok: false, reason: 'cap_money' });
   });
 
-  // Step-4 T4 (0049): the step-3 plan's "counted through an exchange-rate row" case.
+  // Step-4 T4 (0049): the "counted through an exchange-rate row" case.
   it("a USD cap counts an EGP cost through the account's USD→EGP rate, and names what it can't", async () => {
     await own(
       `INSERT INTO public.fx_rates (owner_account_id, from_ccy, to_ccy, rate, valid_from, created_by)

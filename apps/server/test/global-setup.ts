@@ -22,7 +22,7 @@ async function withSuperuser<T>(fn: (client: pg.Client) => Promise<T>): Promise<
   }
 }
 
-// Runs once, in the main process, before any worker is spawned (§7.12). TZ is set per project
+// Runs once, in the main process, before any worker is spawned. TZ is set per project
 // with `test.env`, not here.
 export async function setup(project: TestProject): Promise<() => Promise<void>> {
   const runId = newRunId();

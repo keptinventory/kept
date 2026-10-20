@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { type TestApp, testApp } from '../../test/app.js';
 import { testDb } from '../../test/db.js';
 
-// Step 4 (plan T2): the public token routes exist from the start, need no session, and answer
+// The public token routes exist from the start, need no session, and answer
 // JSON 404 for any token until T17 (the calendar feed) builds its own. They must never fall
 // through to the SPA's index.html, nor ask for a sign-in. T18 built claim packs: an unknown
 // `/x/` token is the 410 "This link has expired" page (incidents/incidents.test.ts covers it).

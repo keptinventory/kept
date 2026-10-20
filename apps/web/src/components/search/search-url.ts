@@ -6,7 +6,7 @@
 import { listSearch } from '@/lib/url-state';
 
 /**
- * The search filters, as `f.<name>` URL keys (screens §5 Search). The price bounds and their
+ * The search filters, as `f.<name>` URL keys. The price bounds and their
  * currency (`priceMin`, `priceMax`, `currency`) are offered only to people who can see money.
  */
 export const SEARCH_FILTERS = [

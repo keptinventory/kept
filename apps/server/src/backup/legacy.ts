@@ -1,7 +1,7 @@
 import type { ResolvedBackupTarget } from './settings.js';
 import { type BackupTarget, LocalDirTarget, S3Target } from './target.js';
 
-// The alpha's backups (T31c, D207), read-only (step-8 plan T5, Q1, Q2). The alpha wrote
+// The alpha's backups (D207), read-only. The alpha wrote
 // `runs/<id>/{db.dump,manifest.json}` and `blobs/<key>` straight into a directory or an S3 prefix;
 // restic's repository now lives in `restic/` beside them. Nothing writes that layout any more:
 // it stays listable and restorable with `kept admin restore --legacy <id>` for one release, and

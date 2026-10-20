@@ -1,6 +1,6 @@
 /**
  * The step-6 assistant mock answers its contract through the real fetchers (./queries.ts), so T19
- * and T20 start from something that behaves like the server (plan T3): every path in ./paths.ts
+ * and T20 start from something that behaves like the server: every path in ./paths.ts
  * has a handler, the answers carry exactly the contract's fields, and the fixtures hold what T3
  * asks for.
  */

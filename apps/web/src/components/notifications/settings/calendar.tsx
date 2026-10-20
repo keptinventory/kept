@@ -1,5 +1,5 @@
 /**
- * The calendar feed (plan T25; D142, D181; step-4 Q23): a private iCal link of what's due and
+ * The calendar feed (D142, D181): a private iCal link of what's due and
  * what runs out, a month back and 13 months ahead, titles and dates only, never money. Create a
  * link and it's shown **once**, with Copy; the list says when each was last fetched; Revoke ends
  * one for good. At most 3 live. Google Calendar fetches a feed from Google's servers, so there it

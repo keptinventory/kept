@@ -1,8 +1,8 @@
 /**
- * Every capture takes the same path (plan T25 "Every capture"; D17, D34, D140, D175): one
+ * Every capture takes the same path (D17, D34, D140, D175): one
  * `create_thing` op in the phone's queue, with its files, whether it came from the shutter, the
  * system camera, the gallery or a share. The store shows it at once where it was captured ("ID
- * pending", D112), and the sync engine (T24) uploads the files and sends the op when online.
+ * pending", D112), and the sync engine uploads the files and sends the op when online.
  *
  * - `clientId` is a fresh UUIDv7 and doubles as the thing's id; `idempotencyKey = 'cap:' + id`.
  * - One `batchId` per camera session (or per gallery import or share): the inbox groups by it,
@@ -38,10 +38,10 @@ export type CaptureInput = {
   /** RECEIPT and READING: the note. */
   note?: string;
   attachToThingId?: string;
-  /** READING: the meter read (T13: on `attachToThingId`, the thing that has it). */
+  /** READING: the meter read (on `attachToThingId`, the thing that has it). */
   meterId?: string;
   pageOf?: string;
-  /** Quick add (T19, T30): the template the thing starts from; what was typed wins. */
+  /** Quick add: the template the thing starts from; what was typed wins. */
   templateId?: string;
   /** Idempotency keys of queued ops this one needs (the capture it adds to). */
   dependsOn?: string[];
@@ -84,7 +84,7 @@ export async function enqueueCapture(
             role: ROLE_BY_MODE[input.mode],
             ...(blobs.display ? { displayFileId: blobs.display.id } : {}),
             // Bytes the location already holds make no new file on upload (D177): the server
-            // takes the existing one by this hash (T14).
+            // takes the existing one by this hash.
             sha256: blobs.original.sha256,
           },
         ]
@@ -163,7 +163,7 @@ export function keepShared(
 export type BatchUndo = { unqueued: number; sentToServer: number };
 
 /**
- * "Undo this batch" (screens §8): captures the server has never seen leave the phone's queue;
+ * "Undo this batch": captures the server has never seen leave the phone's queue;
  * the rest are undone by `captures/batches/:id/undo` (unreviewed drafts go to the trash).
  */
 export async function undoBatch(

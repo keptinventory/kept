@@ -1,5 +1,5 @@
 /**
- * The service worker's half of web push (plan T24; D30, D139). src/sw.ts wires these to its
+ * The service worker's half of web push (D30, D139). src/sw.ts wires these to its
  * `push` and
  * `notificationclick` events; they take the worker's parts as arguments so a unit test can hand
  * them stubs (nothing clicks a notification from the DevTools protocol, so the tap's URL logic is
@@ -14,7 +14,7 @@
  *   notification centre.
  */
 
-/** What the server sends in a push (T15). */
+/** What the server sends in a push. */
 export type PushPayload = { title: string; body?: string; url?: string; tag?: string };
 
 /** Where a notification opens when its URL is missing or not Kept's own. */

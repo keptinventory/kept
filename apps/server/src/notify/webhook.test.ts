@@ -16,7 +16,7 @@ import {
   type WebhookEnvelope,
 } from './webhook.js';
 
-// The personal webhook channel (plan T15, Q6; D30, D110, §2.6): the signature verifies with the
+// The personal webhook channel (D30, D110): the signature verifies with the
 // channel's secret, redirects and private addresses are refused, the envelope holds ids and no
 // names, and the `channel-webhook` job's last failure marks the channel failing (once) without
 // failing anything else. Every request goes to a local receiver.

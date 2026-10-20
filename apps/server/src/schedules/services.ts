@@ -35,23 +35,23 @@ import {
   serviceRecordsOf,
 } from './view.js';
 
-// Service records (plan T11, Q1; D26, D29, D112, D113, D162): work done on a thing or a place,
+// Service records (D26, D29, D112, D113, D162): work done on a thing or a place,
 // with its reading, vendor, total and lines, and the schedules it completes. Core: any member
 // logs one (`logs.add`), changes their own (`logs.edit-own`) and an admin anyone's
-// (`logs.edit-delete-others`, product design §7.1); only `completes` needs Schedules on.
+// (`logs.edit-delete-others`); only `completes` needs Schedules on.
 //
 // - The reading goes through the meters' own entry (meters/service.ts createReading), taken at
-//   noon of the service day in the location's zone (§7.13) unless the request says when, so a
+//   noon of the service day in the location's zone unless the request says when, so a
 //   reading that runs backwards is refused at entry exactly as the meters section refuses it:
 //   409 `conflict` with `reason` (`lower_than_previous` | `higher_than_next`) and the neighbour
-//   it collides with (`previous` | `next`: {value, takenAt}) (D112, screens §5).
+//   it collides with (`previous` | `next`: {value, takenAt}) (D112).
 // - A completion re-anchors its schedules (0053's triggers); removing or re-dating the service
 //   puts the anchor back (D162).
 // - Money (the total, a line's cost) is written only by someone whose gate shows money: 409
 //   `module_off` otherwise. Priced lines without a total make one (their sum).
 // - Completing is undoable (the record and its new reading go; the schedules' snooze and skip
 //   come back); so are an edit and a delete (the row, its lines, completions and files return).
-// - Step 5 (T9, Q12): a draft (an invoice being read by AI, services/drafts.ts) counts nowhere and
+// - Step 5: a draft (an invoice being read by AI, services/drafts.ts) counts nowhere and
 //   is finished by confirmService(), which applies the create rules above to the draft's own row:
 //   the reading, the lines, the money, the vendor and `completes`. A draft isn't edited (409
 //   `service_draft`); its logger, or an admin, deletes it, with its read, at any time.
@@ -398,7 +398,7 @@ async function insertCompletions(
   }
 }
 
-/** Noon of `day` in the location's zone, as an ISO time (§7.13: a service's reading). */
+/** Noon of `day` in the location's zone, as an ISO time (a service's reading). */
 export async function noonOf(
   client: pg.ClientBase,
   locationId: string,
@@ -513,7 +513,7 @@ export async function createService(
     actor: actor(ctx),
     action: opts.action ?? 'service_record.create',
     entity: { type: 'service_record', id },
-    // What the completion cleared (Q28), and whether the reading is this record's own: undo puts
+    // What the completion cleared, and whether the reading is this record's own: undo puts
     // the one back and removes the other.
     before: cleared.length > 0 ? { cleared_schedules: cleared } : null,
     after: { ...after, reading_created: readingId !== null },
@@ -587,7 +587,7 @@ export async function completeSchedule(
 }
 
 // ---------------------------------------------------------------------------------------------
-// Confirm a draft (step 5, T9)
+// Confirm a draft
 // ---------------------------------------------------------------------------------------------
 
 /** 409 `service_draft`: a draft is finished (confirmed) before it is changed or used. */
@@ -685,7 +685,7 @@ export async function confirmService(
     actor: actor(ctx),
     action: 'service_record.confirm',
     entity: { type: 'service_record', id },
-    // What the completion cleared (Q28) and whether the reading is the confirm's own: undo puts
+    // What the completion cleared and whether the reading is the confirm's own: undo puts
     // the one back and removes the other, and the record is a draft again.
     before: {
       ...before,
@@ -771,7 +771,7 @@ export async function updateService(
       [row.meter_reading_id],
     );
     if (readingId && current[0]?.meter_id === body.reading.meterId.toLowerCase()) {
-      // The service owns its reading (Q11): changed here, through its owner.
+      // The service owns its reading: changed here, through its owner.
       await updateReading(ctx, readingId, { value: body.reading.value }, null, { owned: 'allow' });
     } else {
       const made = await createReading(ctx, body.reading.meterId.toLowerCase(), {
@@ -841,7 +841,7 @@ type AttachmentImage = {
 };
 
 /**
- * DELETE /api/v1/service-records/:id (If-Match) → 204. Hard (Q25): its lines, completions (the
+ * DELETE /api/v1/service-records/:id (If-Match) → 204. Hard: its lines, completions (the
  * anchors fall back, D162) and files go with it; its reading stays on the meter. Undoable: the
  * event holds all of it.
  */
@@ -857,7 +857,7 @@ export async function deleteService(ctx: Ctx, id: string, expected: number): Pro
   );
   const draft = row.review_state === 'draft';
   // Removing an invoice where money is hidden would erase what the caller can't see; a draft's
-  // own logger attached its invoice, and drops it (with its read) at any time (Q12).
+  // own logger attached its invoice, and drops it (with its read) at any time.
   const ownDraft = draft && row.logged_by === ctx.scope.userId;
   if (
     !ownDraft &&
@@ -888,7 +888,7 @@ export async function deleteService(ctx: Ctx, id: string, expected: number): Pro
 // Lists
 // ---------------------------------------------------------------------------------------------
 
-/** GET /api/v1/{things|places}/:id/service-records: the `services` surface's filters (step 5). */
+/** GET /api/v1/{things|places}/:id/service-records: the `services` surface's filters. */
 export type ServiceListQuery = {
   limit: number;
   cursor?: string | undefined;

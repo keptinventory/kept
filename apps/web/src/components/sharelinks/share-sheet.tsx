@@ -1,6 +1,6 @@
 /**
  * Share a read-only link (1.5, D233; D39 item 7, D116): a box, a place or a search's list, for
- * someone with no account. Pick how long it works (30 days by default, a year at most, §3.3); a
+ * someone with no account. Pick how long it works (30 days by default, a year at most); a
  * list also takes the name its page shows. The link is shown **once**, with Copy; only its hash
  * is kept, so it is gone when the sheet closes. Owners and admins only, never in Personal (the
  * callers hide it otherwise).

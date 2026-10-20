@@ -10,7 +10,7 @@ import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 import { checkForUpdate, readUpdateCheck, storeUpdateCheck, updateCheckEnabled } from './check.js';
 
-// "Check now" for the opt-in update check (D65; step-8 plan T11): `POST /api/v1/admin/updates/
+// "Check now" for the opt-in update check (D65): `POST /api/v1/admin/updates/
 // check`, instance admins only (404 for anyone else, as Admin → Backups). One request to GitHub,
 // exactly as the daily job makes it (updates/check.ts), and only while "Check for new versions"
 // is on: an admin who hasn't turned it on has not agreed to Kept asking anything (409

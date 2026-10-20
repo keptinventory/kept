@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The catalogue-extraction gate (step-1 carry-over "Catalogue extraction has no gate", closed for
+// The catalogue-extraction gate (closed for
 // good in step-3 T32): runs the real `lingui extract` CLI, with the web app's own config, into a
 // scratch copy of the catalogues under .tmp/, and fails (exit 1) when
 //   - the extract adds a message id the committed catalogues don't hold (a string was added to

@@ -1,6 +1,6 @@
 /**
- * A vehicle's Schedules tab (plan T18; D52, D188): step 4's schedules section for the thing, each
- * unit schedule with its estimated date ("estimated ~14 Nov", from the meter's series, T7), what
+ * A vehicle's Schedules tab (D52, D188): step 4's schedules section for the thing, each
+ * unit schedule with its estimated date ("estimated ~14 Nov", from the meter's series), what
  * the estimates rest on, and, when nothing is scheduled, the starter schedules.
  */
 import { useThingCtx } from '@/components/things/context';

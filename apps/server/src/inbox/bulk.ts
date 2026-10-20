@@ -16,7 +16,7 @@ import { requireRole, updateThing, writableThing } from '../things/service.js';
 import { MoveTarget, type UpdateBody } from '../things/validate.js';
 import { type Ctx, openItem, resolveItem } from './service.js';
 
-// Bulk review (plan T15; D36 "inbox bulk actions", D150; screens §5 the bulk bar):
+// Bulk review (D36 "inbox bulk actions", D150; the bulk bar):
 // POST /api/v1/inbox/bulk {ids (≤ 200), action, typeId?, to?, tagIds?} → {results, undo?}
 //
 // - `accept_names`: drafts that have a name become confirmed (their AI fields confirmed too), and

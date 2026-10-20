@@ -1,8 +1,8 @@
 /**
  * The helpers every step-4 mock area shares: seeding, access and module gates, the money gate,
  * subjects and people as the server serialises them, each record's view (computed state and all),
- * and the agenda every list and count reads (plan Q24: one agenda, computed, never stored).
- * Test and demo data only; the rules follow the step-4 plan's Phase B and the server's twins in
+ * and the agenda every list and count reads (one agenda, computed, never stored).
+ * Test and demo data only; the rules follow the server's routes and their twins in
  * @kept/shared (warrantyEnds, coverage, scheduleNext, duePeriod).
  */
 import {
@@ -112,7 +112,7 @@ export function moduleOn(state: MockState, locationId: string, module: ModuleId)
 }
 
 /**
- * A module's gate on one location's record (screens §3): invisible → 404; module off → 404 on a
+ * A module's gate on one location's record: invisible → 404; module off → 404 on a
  * read (the record isn't there) and 409 `module_off` on a write; a viewer's write → 403.
  */
 export function gateFor(
@@ -143,7 +143,7 @@ export function listLocations(state: MockState, module: ModuleId | null): Set<st
 
 // ----- dates ------------------------------------------------------------------------------------
 
-/** "Today" in the location's zone: it decides due and overdue (§7.13, D122). */
+/** "Today" in the location's zone: it decides due and overdue (D122). */
 export const todayIn = (state: MockState, locationId: string): string =>
   localDate(locOf(state, locationId)?.timezone ?? 'UTC');
 
@@ -295,7 +295,7 @@ export function step4ViewOf(
   return out;
 }
 
-/** An attachment on a warranty, a claim or a loan (the §7.13 subjects), filed on its record. */
+/** An attachment on a warranty, a claim or a loan, filed on its record. */
 function attachStep4(state: MockState, a: AttachmentView): boolean {
   const { locationId: _l, ...plain } = a as AttachmentView & { locationId?: string };
   const subject = plain.subject;
@@ -314,13 +314,13 @@ function attachStep4(state: MockState, a: AttachmentView): boolean {
     (plain.role === 'condition_in' ? l?.conditionIn : l?.conditionOut)?.push(plain);
     return !!l;
   }
-  // An expiring document's file (T12): the lease's PDF, the policy's scan.
+  // An expiring document's file: the lease's PDF, the policy's scan.
   if ('expiringDocumentId' in subject) {
     const d = hh(state).documents.find((x) => x.id === subject.expiringDocumentId);
     d?.documents.push(plain);
     return !!d;
   }
-  // An incident's document (T18): the police report, the insurer's letter.
+  // An incident's document: the police report, the insurer's letter.
   if ('incidentId' in subject) {
     const i = hh(state).incidents.find((x) => x.id === subject.incidentId);
     i?.documents.push(plain);
@@ -347,7 +347,7 @@ function detachStep4(state: MockState, a: AttachmentView): boolean {
 
 /**
  * Puts step 4 into step 2's rows and views (`rowOf`, `viewOf`) and its attachment route, once per
- * mock state: from here on every thing everywhere carries lent, borrowed and in repair (T20).
+ * mock state: from here on every thing everywhere carries lent, borrowed and in repair.
  */
 export function installStep4(state: MockState): void {
   if (state.inventory.step4) return;
@@ -564,7 +564,7 @@ export function documentView(state: MockState, d: StoredDocument): ExpiringDocum
   return { ...own, subject: subject.ref, state: docState, history };
 }
 
-// ----- the agenda (T13; plan Q7, Q24) ------------------------------------------------------------
+// ----- the agenda --------------------------------------------------------------------------------
 
 type Draft = Omit<AgendaItem, 'key' | 'actions'> & { actions: AgendaAction[] };
 
@@ -575,10 +575,10 @@ function keyed(d: Draft): AgendaItem {
 }
 
 /**
- * Every reminder source as agenda rows (screens §5, Q7): schedules due and overdue; warranties
+ * Every reminder source as agenda rows: schedules due and overdue; warranties
  * expiring (an ended one isn't actionable); a registration deadline due; documents and thing
  * expiries expiring and overdue; loans overdue. Paused sources (module off, trashed subject,
- * ended thing) are left out, as the view's WHERE does (§7.6, D162). Upcoming rows are included:
+ * ended thing) are left out, as the view's WHERE does (D162). Upcoming rows are included:
  * the lists show them; the scan reads only due, overdue and expiring.
  */
 export function agendaItems(state: MockState): AgendaItem[] {
@@ -738,7 +738,7 @@ export function agendaItems(state: MockState): AgendaItem[] {
 // ----- notifications -----------------------------------------------------------------------------
 
 /**
- * A notification as the centre shows it (T16): a reminder's state and actions come from its
+ * A notification as the centre shows it: a reminder's state and actions come from its
  * source now (a returned loan is `done` with no actions; a renewed document `superseded`), and its
  * subject is re-read so a renamed thing shows its new name.
  */

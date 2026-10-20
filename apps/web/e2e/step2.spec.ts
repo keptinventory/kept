@@ -1,5 +1,5 @@
 /**
- * Step 2's flows against the real server (plan task 30), on the `households` seed
+ * Step 2's flows against the real server, on the `households` seed
  * (`kept admin seed --scenario households`, apps/server/src/seed): browse Home down to the Cable
  * box and the HDMI cable in it, search in English and Arabic, edit with a field-level conflict
  * from a second browser (D156), move, trash and restore with Undo, see it in Activity, and a
@@ -7,7 +7,7 @@
  * 375×780, desktop 1280×800), each on its own seeded instance (e2e/instances.ts), in order: the
  * later tests read what the earlier ones did.
  *
- * Also the contract check (plan T30): every path the web calls (src/api/inventory/paths.ts) is
+ * Also the contract check: every path the web calls (src/api/inventory/paths.ts) is
  * in the server's /api/v1/openapi.json with the methods the web uses.
  */
 import { type Browser, type BrowserContext, expect, type Page, test } from '@playwright/test';
@@ -127,7 +127,7 @@ test('browse Home down to the Cable box and the HDMI cable; search in English an
   await expect(heading(page, 'Desk drawer')).toBeVisible();
   await visible(page, 'link', /^Cable box\b/).click();
   await expect(heading(page, 'Cable box')).toBeVisible();
-  // A container opens on its contents (T25).
+  // A container opens on its contents.
   await visible(page, 'link', new RegExp(CABLE)).click();
   await expect(heading(page, CABLE)).toBeVisible();
   // Its short ID chip (D120) and its path, ending in the box.
@@ -209,7 +209,7 @@ test('move it, trash it, restore it; Activity shows it and filters by person (D2
         row = await (await page.request.get(`/api/v1/things/${id}`)).json();
         return row?.path?.at(-1)?.name;
       },
-      // A bare poll inherits 10 s; a loaded machine's Postgres can stall past it (step 4).
+      // A bare poll inherits 10 s; a loaded machine's Postgres can stall past it.
       { timeout: 30_000 },
     )
     .toBe('Cable box');
@@ -304,7 +304,7 @@ test('a viewer sees no money and no edit actions (D13, D110)', async ({ page }) 
   // The purchase is there, its price is not (the seed paid EGP 150 each).
   await expect(page.getByText('Not shown to viewers here')).toBeVisible();
   await expect(page.getByText(/150/)).toHaveCount(0);
-  // Copy link only (screens §5, a viewer's thing detail): the phone shows it as the one button;
+  // Copy link only (a viewer's thing detail): the phone shows it as the one button;
   // on desktop the Actions menu holds nothing else.
   const actions = page
     .getByRole('button', { name: /^(Actions|More actions)$/ })

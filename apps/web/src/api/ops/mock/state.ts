@@ -4,7 +4,7 @@
  * MockState (a WeakMap), not in it, so the shared fixtures don't change; `ops(state)` seeds it on
  * first use, with the `s3` scenario.
  *
- * Fixtures (step-8 plan T3):
+ * Fixtures:
  * - `s3` (the default): an S3-compatible backup with 9 runs, one `warning` (a suspiciously small
  *   dump, `backup_suspicious_size`) and one `failed` (`unreachable`); S3 file storage with bucket
  *   versioning off; the drill 41 days old; the data disk at 88 %; Kept 1.3.0 available; a recovery

@@ -14,8 +14,8 @@ export function pgBossSchemaVersion(): number {
   return version;
 }
 
-// §7.14, D190: kept_app may only *send* jobs (inside its own request transaction); kept_system
-// runs the workers and maintenance. Found by running send()/work() under each role (spike S1):
+// D190: kept_app may only *send* jobs (inside its own request transaction); kept_system
+// runs the workers and maintenance. Found by running send()/work() under each role:
 // - send() as kept_app inserts into pgboss.job (routed to pgboss.job_common) and reads
 //   pgboss.queue in the same INSERT … SELECT, calling pgboss.job_now().
 // - kept_system needs DML on every pg-boss table (queue cache, fetch, complete, maintenance,
@@ -74,7 +74,7 @@ GRANT SELECT ON ${PGBOSS_SCHEMA}.queue TO kept_app;
 `;
 
 /**
- * Installs or upgrades pg-boss's schema as kept_owner (§7.14), using pg-boss's own exported SQL,
+ * Installs or upgrades pg-boss's schema as kept_owner, using pg-boss's own exported SQL,
  * then (re)applies Kept's grants. Runs from `runMigrations`, inside Kept's advisory lock; the
  * plans also take pg-boss's own advisory lock. The runtime instances start with `migrate: false`.
  */
@@ -98,7 +98,7 @@ export async function installPgBoss(client: pg.ClientBase): Promise<void> {
     if (version < target) {
       // Untested until pg-boss ships its next schema version. getMigrationPlans() inlines the
       // async index builds after its COMMIT; if one of them is `CONCURRENTLY`, it can't share a
-      // simple-query batch, and this needs splitting (spike S1).
+      // simple-query batch, and this needs splitting.
       await client.query(getMigrationPlans(PGBOSS_SCHEMA, version));
     }
   }

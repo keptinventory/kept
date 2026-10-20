@@ -1,12 +1,12 @@
 /**
  * The inbox's words: kinds (the chips and each item's pill), suggested fields, why an extraction
- * failed, and why a sync op was dropped. Screens §5 "Inbox", engineering spec §5.
+ * failed, and why a sync op was dropped.
  */
 import { aliasSuggestionLanguage, type DropReason, type InboxKind } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
 import { usePrefs } from '@/lib/prefs';
 
-/** The chips, in the order the design board lists them (D191: a zero-count chip is hidden). */
+/** The chips, in the inbox's order (D191: a zero-count chip is hidden). */
 export const KIND_ORDER: readonly InboxKind[] = [
   'draft',
   'receipt',
@@ -74,7 +74,7 @@ function languageName(lang: string, locale: string): string {
   }
 }
 
-/** Why the provider couldn't read a photo, in words (`extractions.status_reason`, §7.15). */
+/** Why the provider couldn't read a photo, in words (`extractions.status_reason`). */
 export function useFailureText(): (reason: string | undefined) => string {
   const { t } = useLingui();
   return (reason) => {

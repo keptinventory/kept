@@ -1,5 +1,5 @@
 /**
- * Envelope encryption for secrets at rest (engineering spec §7.3, D182).
+ * Envelope encryption for secrets at rest (D182).
  *
  * Each value gets its own random 32-byte data key (DEK). The DEK encrypts the value with
  * AES-256-GCM; the master key (KEPT_SECRET_KEY) encrypts the DEK, also with AES-256-GCM. Both
@@ -112,7 +112,7 @@ export function open(keyring: Keyring, sealed: Sealed, aad: Aad): Buffer {
 }
 
 /**
- * Re-wraps the data key under `next` (key rotation, §7.3). The content IV, ciphertext and tag
+ * Re-wraps the data key under `next` (key rotation). The content IV, ciphertext and tag
  * are unchanged; only `kv` and `dek` move. `aad` is needed because the DEK is bound to its row.
  */
 export function rewrap(sealed: Sealed, keyring: Keyring, next: MasterKey, aad: Aad): Sealed {

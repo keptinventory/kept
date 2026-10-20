@@ -13,7 +13,7 @@ import { seedHousehold, THINGS } from './household.js';
 import { calibration, under } from './limits.js';
 import { stats, timed } from './timing.js';
 
-// Step 4's performance checks (plan T30 "Perf", full mode only: scripts/ci-local.sh `perf`, and
+// Step 4's performance checks (full mode only: scripts/ci-local.sh `perf`, and
 // `pnpm --filter @kept/server exec vitest run --config vitest.perf.config.ts`). The normal test
 // run leaves test/perf out (vitest.config.ts).
 //
@@ -45,7 +45,7 @@ import { stats, timed } from './timing.js';
 //   10 warm-ups, then 100 timed.
 //
 // The requests go through the app in-process (fastify inject): server time, no network, as the
-// §3.1 targets are stated.
+// performance targets are stated.
 //
 // LIMITS, from the step-4 figures of 2026-09-30 (M1 Pro, load 3–12 from other agents' runs):
 // - Home: the plan's provisional p95 < 150 ms, kept. First measured at p95 232–295 ms: homeOf

@@ -19,7 +19,7 @@ import { ownerTx } from '../../test/tenancy.js';
 import { originalKey } from '../storage/blob-store.js';
 
 // T17 through the front door: PUT /api/v1/files/:fileId, as the web sends it (a raw body with
-// X-Kept-Sha256; apps/web/src/api/inventory/mock/files.ts). D36, D117, D157, D177; §3.4.
+// X-Kept-Sha256; apps/web/src/api/inventory/mock/files.ts). D36, D117, D157, D177.
 
 let db: TestDb;
 let t: TestApp;
@@ -157,7 +157,7 @@ describe('PUT /api/v1/files/:fileId', () => {
     const sizes = Object.fromEntries(
       (await derivativesOf(view.id)).map((d) => [d.variant, [d.width, d.height]]),
     );
-    // Fit inside 2048 / 1200 / 400 on the long side (§3.4), never enlarged.
+    // Fit inside 2048 / 1200 / 400 on the long side, never enlarged.
     expect(sizes).toEqual({ display: [2048, 683], share: [1200, 400], thumb: [400, 133] });
   });
 

@@ -12,7 +12,7 @@ import { JOB_POLICIES } from '../jobs/policies.js';
 import type { SystemJobDeps } from '../jobs/system.js';
 import type { Mail, Mailer } from '../mail/mailer.js';
 
-// D180's configuration notices (step-6 plan T16, Q16, Q24): every active user is told when the
+// D180's configuration notices: every active user is told when the
 // instance's OIDC or Google sign-in (D226), its outgoing mail, or its default AI provider changes.
 //
 // - OIDC and SMTP are configured by the environment, so they can only change across a restart.
@@ -138,7 +138,7 @@ async function checkOne(
   });
 }
 
-/** The boot check (plan Q16, Q24). Returns the audit events of the changes it found. */
+/** The boot check. Returns the audit events of the changes it found. */
 export async function checkConfigNotices(deps: ConfigNoticeDeps): Promise<string[]> {
   const out: string[] = [];
   const oidc = oidcFacts(deps.oidc);

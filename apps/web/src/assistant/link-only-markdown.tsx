@@ -1,5 +1,5 @@
 /**
- * The assistant's answers, rendered (D179, screens §5 "Replies"): a deliberately tiny renderer for
+ * The assistant's answers, rendered (D179): a deliberately tiny renderer for
  * paragraphs, bulleted and numbered lists, bold, and Kept's own links (`kept:thing/<id>` and
  * `kept:place/<id>`, which the server's prompt asks for and checks). Nothing else is markup: any
  * other link, any image, any HTML and anything that looks like a confirmation card is shown as the

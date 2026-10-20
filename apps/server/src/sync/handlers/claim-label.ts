@@ -2,15 +2,15 @@ import { locationModuleSet } from '../../http/modules.js';
 import { claimableCode, claimLabel, openLabelClaimItem } from '../../labels/claim.js';
 import { type Handler, requireLive, targetRef } from './common.js';
 
-// `claim_label` → the label claim (T16, labels/claim.ts), which kept.claim_blank_code() decides.
+// `claim_label` → the label claim (labels/claim.ts), which kept.claim_blank_code() decides.
 // Claims are server-authoritative (D112): the first to arrive wins, whatever the phones' clocks.
 // - claimed: `applied`, the code on the thing or place it went to (`entity.shortCode`);
 // - claimed first on another phone: `needs_review` / `already_claimed` with an inbox
-//   `label_claim` item ("This label was claimed on another phone for 'Camping box'", screens §5).
+//   `label_claim` item ("This label was claimed on another phone for 'Camping box'").
 //   A new box made for the claim stays, with its own (pending, unprinted) code: the phone clears
 //   the claimed code from it;
 // - a code that can't be claimed here (missing, retired, another location's or household's, or
-//   labels off in the location): `target_missing`, exactly as for a random code (§2.4);
+//   labels off in the location): `target_missing`, exactly as for a random code;
 // - the thing, place or parent of a new box trashed meanwhile: dropped with who trashed it (D35).
 
 export const claimLabelOp: Handler<'claim_label'> = async (ctx, { locationId, payload }) => {

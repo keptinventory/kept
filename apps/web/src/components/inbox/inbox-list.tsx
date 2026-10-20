@@ -1,5 +1,5 @@
 /**
- * The inbox list (screens §5 "Inbox", D18, D36, D175, D191, D205): what needs a person, global
+ * The inbox list (D18, D36, D175, D191, D205): what needs a person, global
  * across the locations you can change, on the list standard (ListSurface: search, the location
  * filter, saved views on the `inbox` surface, cursor pagination, all in the URL).
  *
@@ -13,7 +13,7 @@
  *   rest go to the current item.
  * - **Offline:** what's loaded stays readable; every action says "Needs a connection". Drafts
  *   captured on this phone and not yet synced are listed read-only, "On this phone · waiting to
- *   sync" (screens §8).
+ *   sync".
  * - **AI paused** in a location: its banner on top (D206). Waiting for the provider has no
  *   banner; the draft's own line says it.
  */
@@ -62,7 +62,7 @@ export type LocalQueue = Pick<OfflineStore, 'pending'>;
  * Focuses item `id` on the next frame (`j`/`k`), unless a key pressed before that frame has put
  * focus in a field: `j` then `e` within one frame (a fast typist, or a busy phone) opens the
  * edit form, whose Name field takes focus, and the frame must not take it back (found by the
- * e2e's keyboard walk under load, T32).
+ * e2e's keyboard walk under load).
  */
 export function focusInboxItem(id: string): number {
   return requestAnimationFrame(() => {
@@ -725,7 +725,7 @@ function ShortcutsButton() {
   );
 }
 
-/** Captures on this phone the server hasn't had yet: readable, not reviewable (screens §8). */
+/** Captures on this phone the server hasn't had yet: readable, not reviewable. */
 function LocalDrafts({ local }: { local: LocalQueue }) {
   const { t } = useLingui();
   const pending = useQuery({

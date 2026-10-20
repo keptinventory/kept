@@ -1,12 +1,12 @@
 /**
- * The box check (D40, D175; screens §6, §8; plan T26, Q25; board frame 3). A focused task with its
+ * The box check (D40, D175). A focused task with its
  * own footer: tick what is in the box, count what is short, add what turned up from elsewhere, and
  * finish. Unticked things become *not here*; "found 2 of 3" splits the row (D10); things found
  * here from elsewhere move in; everything checked is marked seen.
  *
  * Online it is `POST /things/:id/box-check`, one undoable event (D150). Offline, or when that call
  * can't reach the server, it is one `box_check` op in the queue. Either way the summary offers
- * Undo. Service-worker updates wait while it is open (T23).
+ * Undo. Service-worker updates wait while it is open.
  */
 import { newId, type Role } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
@@ -359,7 +359,7 @@ export function BoxCheckScreen({
 }
 
 /**
- * "Found something else" (screens §6): scan its label or search for it; it moves into the box
+ * "Found something else": scan its label or search for it; it moves into the box
  * when the check is done. Only things in this box's location (a move across locations has its
  * own warning, D45).
  */

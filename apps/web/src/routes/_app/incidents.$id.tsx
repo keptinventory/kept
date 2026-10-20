@@ -1,5 +1,5 @@
 /**
- * One incident (plan T26; D158): its references, documents, the things it affected and their
+ * One incident (D158): its references, documents, the things it affected and their
  * claims, "Mark these stolen", the insurance report and a claim pack for it. Loads on demand
  * (components/incidents/lazy.tsx).
  */

@@ -15,7 +15,7 @@ import { id, mutable, textEnum, tstz } from './common.js';
 import { locations } from './tenancy.js';
 import { shortIds } from './things.js';
 
-// Label batches (step-3 plan T7; D44, D97, D137, D175, D185). One print job: which codes, on
+// Label batches (D44, D97, D137, D175, D185). One print job: which codes, on
 // which stock, from which cell. Row-level security, the blank-label cap, blank claims and
 // duplicate merges are in the custom migration that follows (0042); see src/db/labels.test.ts
 // and src/db/merge-things.test.ts.

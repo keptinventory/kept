@@ -15,7 +15,7 @@ import { seedHousehold } from './household.js';
 import { calibration, under } from './limits.js';
 import { timed } from './timing.js';
 
-// Step 5's performance checks (plan T25 "Perf", full mode only: scripts/ci-local.sh `perf`, and
+// Step 5's performance checks (full mode only: scripts/ci-local.sh `perf`, and
 // `pnpm --filter @kept/server exec vitest run --config vitest.perf.config.ts`).
 //
 // The fixture: step 4's household (test/perf/household.ts: 10,000 things, 2,000 warranties, 500
@@ -30,12 +30,12 @@ import { timed } from './timing.js';
 //   services (each with its own `service` reading and two lines), 5 insurance renewals with a
 //   cost, and its four starter schedules;
 // - a compressor in Home (no type, so not a vehicle) with 3 meters (hours, distance and a custom
-//   counter), each with 12 readings: the thing page with 3 meters (plan T8: one
+//   counter), each with 12 readings: the thing page with 3 meters (one
 //   `kept.meter_estimate` per meter).
 // The cars, schedules and meters go through the front door; the readings, fills and services are
 // bulk-inserted as kept_owner with every trigger firing, then ANALYZEd.
 //
-// The checks, and their limits (plan T25; engineering spec §3.1):
+// The checks, and their limits:
 // - `agenda_items` with step 5's branches: Home (GET /api/v1/home) and the agenda's first page
 //   (GET /api/v1/agenda) no slower than step 4's recorded figures by more than 20%. Step 4's
 //   figures (.tmp/perf/step4.json at 14:31 on 2026-09-30, after
@@ -49,9 +49,9 @@ import { timed } from './timing.js';
 // - The vehicles list, all 50 in one page: p95 < 200 ms.
 // - The Corolla's running costs over the last 60 months (600 fills, 60 services): p95 < 200 ms.
 // - Its fuel summary over 600 fills: p95 < 100 ms.
-// - The compressor's thing page (GET /api/v1/things/:id) with 3 meters: p95 < 200 ms (§3.1).
+// - The compressor's thing page (GET /api/v1/things/:id) with 3 meters: p95 < 200 ms.
 // - Insights (1.x, D234: GET /api/v1/insights) over every location, after a valuation on each of
-//   Home's things and 1,000 purchases are added: p95 < 300 ms (§3.1's search target).
+//   Home's things and 1,000 purchases are added: p95 < 300 ms (the search target).
 // - The Corolla's history report over the five years, with costs and fuel: the `report` job
 //   renders it (Typst in its child process, killed past RENDER_MEMORY_MB, render/render.ts).
 //   Passing means it rendered under that limit; its time and size are recorded.
@@ -68,7 +68,7 @@ const LIMITS = {
   fuelSummaryP95Ms: 100,
   thingPageP95Ms: 200,
   // 1.x (D234): Insights over every location, with a valuation on each of Home's 10,000 things
-  // and 1,000 purchases: the search target (§3.1).
+  // and 1,000 purchases: the search target.
   insightsP95Ms: 300,
 };
 const CARS_IN_HOME = 49;

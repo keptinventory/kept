@@ -1,6 +1,6 @@
 import { RESTIC_ERROR_REASONS, type ResticErrorReason } from '@kept/shared';
 
-// The restic seam (step-8 plan T2; D64). restic is a child process, never a library: T5's run.ts
+// The restic seam (D64). restic is a child process, never a library: T5's run.ts
 // spawns the pinned binary with `--json` and maps its messages (json.ts, from T0a's R1 note) and
 // exit codes onto these types. Everything else (the nightly job, restore, the drill, verify, the
 // pre-upgrade snapshot) is written against this interface, so T6, T7 and T8 run on fake.ts before
@@ -20,7 +20,7 @@ export { RESTIC_ERROR_REASONS, type ResticErrorReason };
 /** A repository and how to open it. */
 export type ResticRepo = Readonly<{
   /** restic's repository location (`RESTIC_REPOSITORY`): a path, `s3:…` or `sftp:…`; the
-   * syntax per target is R1's and repo.ts's (T5). Holds no credential. */
+   * syntax per target is R1's and repo.ts's. Holds no credential. */
   location: string;
   /** The child's environment: the password and the storage credentials (and, for SFTP, the
    * options naming the key and known_hosts files). Never logged, never in argv. */
@@ -39,7 +39,7 @@ export type ResticBackupOptions = {
   paths: readonly string[];
   /** The directory restic runs in (the child's cwd), for relative `paths`. */
   cwd?: string;
-  /** `kept`, the run's kind, `v<version>` (plan T5). */
+  /** `kept`, the run's kind, `v<version>`. */
   tags: readonly string[];
   /** Paths (or prefixes) to leave out, absolute or as stored in the snapshot: `tmp/`, `.cache/`. */
   exclude?: readonly string[];
@@ -72,7 +72,7 @@ export type ResticKeepPolicy = {
   daily?: number;
   weekly?: number;
   monthly?: number;
-  /** Keep the newest N regardless of time (pre-upgrade snapshots: 3, plan Q7). */
+  /** Keep the newest N regardless of time (pre-upgrade snapshots: 3). */
   last?: number;
 };
 
@@ -105,7 +105,7 @@ export type ResticRestoreOptions = {
 export type ResticRestoreResult = { filesRestored: number; bytesRestored: number };
 
 export type ResticCheckOptions = {
-  /** `restic check --read-data-subset`, e.g. `5%` (plan T7). */
+  /** `restic check --read-data-subset`, e.g. `5%`. */
   readDataSubset?: string;
 };
 
@@ -165,7 +165,7 @@ export class ResticError extends Error {
 }
 
 /** `text` with every value of the repository's environment (its password and credentials)
- * replaced, for anything that may reach an error or a log (plan T5: stderr is scrubbed). */
+ * replaced, for anything that may reach an error or a log (stderr is scrubbed). */
 export function scrubSecrets(text: string, repo: Pick<ResticRepo, 'env'>): string {
   let out = text;
   const secrets = Object.values(repo.env)

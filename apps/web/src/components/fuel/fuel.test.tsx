@@ -1,5 +1,5 @@
 /**
- * Fuel and charging (plan T21): the summary with the board's Corolla numbers, imperial units as
+ * Fuel and charging: the summary with the designs' Corolla numbers, imperial units as
  * mpg, `whyNone` in words for each reason, Log fuel full and partial (the request body, the
  * Idempotency-Key, a backwards odometer refused with the neighbour), the list's filter in the URL,
  * the viewer (litres and consumption, no money, no Log fuel), Fuel off, offline, and Arabic.

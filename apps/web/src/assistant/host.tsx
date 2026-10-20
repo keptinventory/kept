@@ -1,5 +1,5 @@
 /**
- * Where the assistant lives (D24, screens §1): always mounted in the signed-in frame, beside the
+ * Where the assistant lives (D24): always mounted in the signed-in frame, beside the
  * page, so the docked panel survives route changes. This part is tiny and in the entry chunk: it
  * listens for ⌘J / Ctrl+J and loads the sheet or panel (./surface.tsx, on demand from
  * assets/household/, vite.config.ts) only once the assistant is first opened. The assistant needs

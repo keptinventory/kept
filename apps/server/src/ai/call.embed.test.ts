@@ -1,4 +1,4 @@
-// The embedding door (step-6 plan T8 step 6; spike S6.4): one request, one ledger row, retries
+// The embedding door: one request, one ledger row, retries
 // off, and neither the values nor the vectors in the ledger or the logs (D206).
 import { APICallError } from 'ai';
 import { MockEmbeddingModelV4 } from 'ai/test';

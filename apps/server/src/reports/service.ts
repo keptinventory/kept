@@ -48,7 +48,7 @@ import { gatherVehicle, type VehicleReportOptions } from './vehicle/gather.js';
 import { buildVehicleView } from './vehicle/view.js';
 import { buildView } from './view.js';
 
-// The inventory report (D201; step-2 plan T32).
+// The inventory report (D201).
 //
 // POST /api/v1/reports/inventory records a run (report_runs, migration 0032), audits it as
 // `report.generate` in every location it covers, and sends the `report` tenant job in the same
@@ -65,7 +65,7 @@ import { buildView } from './view.js';
 // alone: anyone else's id, or one whose location they can no longer see, is a 404 (RLS, 0032).
 // Each user may start RATE_LIMIT runs an hour.
 //
-// The insurance report (D158, step-4 T18) is a second kind on the same runs, job and engine:
+// The insurance report (D158) is a second kind on the same runs, job and engine:
 // POST /api/v1/reports/insurance records a run with `kind = 'insurance'` for one location (a
 // location report, or an incident's), its options in `options` (InsuranceOptions), and the job
 // renders template/insurance.typ from incidents/report.ts's gather and view. Who: owners and
@@ -73,7 +73,7 @@ import { buildView } from './view.js';
 // and above, viewers where the location allows it, D13): the report is mostly money, so a reader
 // whose gate hides it is refused (403) rather than handed a report of blanks.
 //
-// The vehicle history report (D51, step-5 T15, Q16) is the third kind: POST
+// The vehicle history report (D51) is the third kind: POST
 // /api/v1/reports/vehicle-history records a run with `kind = 'vehicle_history'` and its
 // `thing_id`, in the vehicle's location, with VehicleReportOptions; the job renders
 // template/vehicle.typ from reports/vehicle/{gather,view}.ts. Who: anyone who can see the vehicle,
@@ -115,7 +115,7 @@ export const InventoryReportBody = z
         typeIds: z.array(z.uuid()).max(100).optional(),
         tagIds: z.array(z.uuid()).max(100).optional(),
         /** Exactly these things: "Print" on a list prints the list you're looking at (D169,
-         * D201; step-7 T16). The other filters still apply. */
+         * D201). The other filters still apply. */
         thingIds: z.array(z.uuid()).max(MAX_THINGS).optional(),
         includeEnded: z.boolean().optional(),
         includeTrashed: z.boolean().optional(),
@@ -336,7 +336,7 @@ export async function createInventoryRun(
 }
 
 // ---------------------------------------------------------------------------------------------
-// POST /api/v1/reports/insurance (D158, step-4 T18)
+// POST /api/v1/reports/insurance (D158)
 // ---------------------------------------------------------------------------------------------
 
 const Day = z.iso.date();
@@ -347,9 +347,9 @@ export const InsuranceReportBody = z
       z.object({ locationId: z.uuid() }).strict(),
       z.object({ incidentId: z.uuid() }).strict(),
     ]),
-    /** Default: today in the requester's time zone (Q20). */
+    /** Default: today in the requester's time zone. */
     asOf: Day.optional(),
-    /** A converted total beside the per-currency ones; needs a rate for every pair (Q21). */
+    /** A converted total beside the per-currency ones; needs a rate for every pair. */
     reportCurrency: z
       .string()
       .regex(/^[A-Z]{3}$/)
@@ -456,7 +456,7 @@ export async function createInsuranceRun(
   await requireInsuranceReader(tx, client, scope, at);
   const options = await insuranceOptionsOf(client, at, body);
   if (options.reportCurrency) {
-    // Q21: a converted total only when every currency has a rate on or before asOf; refused
+    // A converted total only when every currency has a rate on or before asOf; refused
     // with the missing pairs now, so nobody waits for a report without the total they asked for.
     const g = await gatherInsurance(tx, client, scope, { ...options, include: { photos: false } });
     const missing = missingRates(totalsOf(g.things), options.reportCurrency, options.asOf, g.rates);
@@ -500,7 +500,7 @@ export async function createInsuranceRun(
 }
 
 // ---------------------------------------------------------------------------------------------
-// POST /api/v1/reports/vehicle-history (D51, step-5 T15)
+// POST /api/v1/reports/vehicle-history (D51)
 // ---------------------------------------------------------------------------------------------
 
 export const VehicleHistoryReportBody = z
@@ -926,7 +926,7 @@ async function prepareInventory(
 }
 
 /** The inventory report of `locationIds`, ready for renderPrepared(): a report run's, and the
- * inventory PDF in an export's readable copy (exports/readable/, step-7 T13). Throws
+ * inventory PDF in an export's readable copy (exports/readable/). Throws
  * TooManyThingsError past MAX_THINGS. */
 export async function prepareInventoryReport(
   tx: Tx,
@@ -1063,7 +1063,7 @@ export async function renderPrepared(
   await mkdir(path.join(dir, 'thumbs'), { recursive: true });
   await mkdir(path.join(dir, 'qr'), { recursive: true });
   // Thumbnails: the thumbnail derivative (400 px JPEG), made smaller and always JPEG with sharp
-  // (spike: WebP or PNG would go into the PDF as raw pixels, 25 times the size).
+  // (WebP or PNG would go into the PDF as raw pixels, 25 times the size).
   const withPhoto = new Set<string>();
   const withQr = new Set<string>();
   let done = 0;

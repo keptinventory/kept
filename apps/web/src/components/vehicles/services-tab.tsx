@@ -1,5 +1,5 @@
 /**
- * A vehicle's Services tab (plan T20; screens §5, §8; the board's frame 68; Q12): its service
+ * A vehicle's Services tab: its service
  * records on the `services` surface (date, vendor, line kind, drafts), drafts first. A draft (an
  * invoice attached, not yet saved) says so, with **Finish logging**, which opens Log a service on
  * it, and **Discard draft** (step 4's DELETE; a draft isn't undoable, so it asks first). **Log a

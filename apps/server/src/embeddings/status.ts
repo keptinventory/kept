@@ -5,7 +5,7 @@ import { localEmbeddingsInstalled } from '../config/env.js';
 import type { Pools } from '../db/pools.js';
 import { storedSource } from './provider.js';
 
-// Admin → Status → Embeddings (D207; step-6 plan T14, T24), the web's EmbeddingsStatus
+// Admin → Status → Embeddings (D207), the web's EmbeddingsStatus
 // (apps/web/src/api/types.ts): the source, how much is indexed, and whether the local model can be
 // offered. Read through `kept.embedding_status_instance()` as an instance admin: counts per source
 // and model only, never a location's name.
@@ -16,7 +16,7 @@ import { storedSource } from './provider.js';
 // - `paused`: the index is paused when every location the backfill marked is, and the earliest
 //   end among them is a cap's (embedding_state.paused_until, 0099): that end and its reason. A
 //   provider's wait or a failure isn't a pause the person can act on, so it shows as none.
-// - `local`: the on-server model isn't built in 1.0 (S6.5): available only where its runtime is
+// - `local`: the on-server model isn't built in 1.0: available only where its runtime is
 //   installed, which no Kept build does yet.
 
 export const EmbeddingsStatusSchema = z.object({

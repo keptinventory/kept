@@ -1,8 +1,8 @@
 /**
- * One AI call, in plain words (D206, screens §5 AI usage): every field the ledger recorded, the
+ * One AI call, in plain words (D206): every field the ledger recorded, the
  * other attempts of the same request, and a link to the thing it served. Opened from a row of the
  * call list and from the AI line. Nothing here was ever a prompt, a reply or an image: the ledger
- * doesn't keep them (§8a).
+ * doesn't keep them.
  *
  *   <CallDetailSheet callId={id} onClose={() => setId(null)} />
  */

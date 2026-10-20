@@ -1,6 +1,6 @@
 /**
- * Mock handlers for incidents, the insurance report and claim packs (T18; D158, D169, D201;
- * Q19–Q21). An incident groups things and can end them (stolen, destroyed, lost); the insurance
+ * Mock handlers for incidents, the insurance report and claim packs (D158, D169, D201).
+ * An incident groups things and can end them (stolen, destroyed, lost); the insurance
  * report is queued like the inventory report (its run is step 2's `GET /reports/:id`); a report
  * currency needs a rate for every pair or it's refused with the missing pairs (never estimated);
  * a claim pack needs the "this includes prices and documents" acknowledgement, and its download
@@ -222,7 +222,7 @@ export function incidentsRoutes(state: MockState): MockRoute[] {
       if ('incidentId' in b.scope && !manages(locationId))
         return err(403, 'forbidden', "You don't have permission.");
       if (b.reportCurrency) {
-        // Every currency the scope's prices use needs a rate on or before asOf (Q21).
+        // Every currency the scope's prices use needs a rate on or before asOf.
         const accountId = locOf(state, locationId)?.ownerAccountId;
         const rates = h().fxRates.filter((r) => r.accountId === accountId);
         const asOf = b.asOf ?? new Date().toISOString().slice(0, 10);
@@ -240,7 +240,7 @@ export function incidentsRoutes(state: MockState): MockRoute[] {
             missing,
           });
       }
-      // Read back through step 2's GET /reports/:id, as the server's run is (T18).
+      // Read back through step 2's GET /reports/:id, as the server's run is.
       const incident =
         'incidentId' in b.scope
           ? h().incidents.find((x) => x.id === (b.scope as { incidentId: string }).incidentId)
@@ -251,7 +251,7 @@ export function incidentsRoutes(state: MockState): MockRoute[] {
       return reply(202, queueReportRun(state, { locationId }, count));
     }),
     route('GET', p.reportsInsuranceCsv, ({ query }) => {
-      // A location's things, or an incident's (whatever their lifecycle now, Q20).
+      // A location's things, or an incident's (whatever their lifecycle now).
       const incident = h().incidents.find((x) => x.id === query.get('incidentId'));
       const locationId = incident?.locationId ?? query.get('locationId');
       if (!locationId || !locOf(state, locationId)) return notFound();

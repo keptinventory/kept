@@ -15,7 +15,7 @@ import {
 } from '../../test/things.js';
 import { undoableActions } from '../audit/undo.js';
 
-// T20 (D150, D124; plan Q23) through the front door: the actions step 3 adds to the undo route
+// T20 (D150, D124) through the front door: the actions step 3 adds to the undo route
 // (place.trash; the web's lifecycle and trash toasts, whose events step 2 already writes), every
 // refusal's `reason`, who may undo whose change, GET /api/v1/things/:id/undoable, and that
 // another household reaches none of it. thing.extract and purchase.extract are undone end to

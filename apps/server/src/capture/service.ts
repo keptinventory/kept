@@ -25,28 +25,28 @@ import { applyTemplate } from '../templates/service.js';
 import { type Ctx, insertThing, requireRole, targetOf, writableThing } from '../things/service.js';
 import { rowsOf, type ThingRow } from '../things/view.js';
 
-// The capture service (plan T13; D17, D18, D19, D34, D36, D117, D140, D175; engineering spec
-// §7.8; Q10, Q13, Q14, Q23). The one implementation behind `POST /api/v1/captures` and the sync
-// op `create_thing` (T14): both call capture() in the caller's scoped transaction.
+// The capture service (D17, D18, D19, D34, D36, D117, D140, D175).
+// The one implementation behind `POST /api/v1/captures` and the sync
+// op `create_thing`: both call capture() in the caller's scoped transaction.
 //
 // What a capture makes, by mode (T25's contract: only THING and LABEL without attachToThingId or
 // pageOf make a thing):
 // - THING, LABEL: a thing, named and `confirmed` when a name came with it, else an unnamed
-//   `draft` with an inbox `draft` item (Q14). Its short ID is allocated now, at sync (D112), with
+//   `draft` with an inbox `draft` item. Its short ID is allocated now, at sync (D112), with
 //   the type's default meter (createThing's path). The files are its `photo` attachments.
 //   "+ photo to this thing" (`attachToThingId`, D175) adds the files to that thing instead, and in
 //   LABEL mode queues a label extraction on it.
-// - RECEIPT: a draft purchase (`purchased_on` null, `review_state='draft'`, Q10) whose id is the
+// - RECEIPT: a draft purchase (`purchased_on` null, `review_state='draft'`) whose id is the
 //   capture's id, the files as its `receipt` pages, and an inbox `receipt` item. With
 //   `attachToThingId`, the receipt joins the purchase of that thing's purchase line when it has
 //   one; otherwise the new draft purchase gets one line, and the thing is linked to it. `pageOf`
-//   (a later page, screens §8 "Receipt pages") adds pages to the receipt that capture made: the
+//   (a later page) adds pages to the receipt that capture made: the
 //   first page's attachment carries that capture's id, so the page finds it again.
 // - READING: the thing whose meter was read (`attachToThingId`, the meter's thing for `meterId`,
 //   or the target container), which must have exactly one meter unless `meterId` names one. A
 //   typed `readingValue` (online only, AI off) goes through the meters service with source
-//   `photo`, and the files are that reading's `proof` attachments (step 5, Q10). Otherwise they
-//   are the thing's `proof` attachments while AI reads it (T10, never applied, D19), or, with no
+//   `photo`, and the files are that reading's `proof` attachments. Otherwise they
+//   are the thing's `proof` attachments while AI reads it (never applied, D19), or, with no
 //   AI, an inbox `reading` item asks for the value.
 //
 // Files: each must be one the caller uploaded to this location, or one already attached there
@@ -54,14 +54,14 @@ import { rowsOf, type ThingRow } from '../things/view.js';
 // Uploading bytes the location already holds makes no new file: the upload answers the existing
 // one (`deduplicatedFrom`, D177), so a queued capture names an id that never became a file. With
 // the original's `sha256`, that id is looked up by hash among the location's files the caller can
-// see, and the capture takes the existing file (plan T14). The role is the mode's (ROLE_BY_MODE);
+// see, and the capture takes the existing file. The role is the mode's (ROLE_BY_MODE);
 // a different role is refused. `displayFileId` is the phone's own bookkeeping (its display copy
-// goes to PUT /files/<original>/display before the op, T24) and is ignored here.
+// goes to PUT /files/<original>/display before the op) and is ignored here.
 //
 // AI: when the location's `ai_capture` module is effective (a provider resolves, http/modules.ts)
 // and the caller may `ai.capture`, an `extractions` row is queued and the `extract` tenant job is
 // sent on this same transaction (D94): a rolled-back capture leaves no job. A receipt's job waits
-// 20 s, one per purchase, so later pages arrive first (Q13). T10 runs it. Nothing here calls AI.
+// 20 s, one per purchase, so later pages arrive first. T10 runs it. Nothing here calls AI.
 // When the module is on but no provider resolves yet, the row is written `waiting_provider` with
 // the reason `no_provider` and no job: it waits in the inbox ("Waiting for an AI provider") and is
 // sent when a provider is connected (ai/api.ts on a key's save or test; the capturer's own next
@@ -69,7 +69,7 @@ import { rowsOf, type ThingRow } from '../things/view.js';
 // iPhone, 2026-09-29): no row was written, so connecting a key found nothing to do.
 //
 // Audit: one event, as the caller. A new thing's is `thing.capture` in place of `thing.create`,
-// undoable for 7 days (Q23: undoing it trashes the capture); photos added to a thing are
+// undoable for 7 days (undoing it trashes the capture); photos added to a thing are
 // `thing.capture` too, not undoable; a receipt is `purchase.capture`. A typed reading also writes
 // the meters service's own `reading.create`.
 
@@ -104,8 +104,8 @@ export const CaptureBody = CreateThingPayload.extend({
 export type CaptureInput = z.infer<typeof CaptureBody>;
 
 export type CaptureOptions = {
-  /** `op` (T14) has checked the client id against its own 90-day window (Q2); `online` checks
-   * it here (±7 days, §7.7). */
+  /** `op` has checked the client id against its own 90-day window; `online` checks
+   * it here (±7 days). */
   via: 'online' | 'op';
 };
 
@@ -114,7 +114,7 @@ export type CaptureResult = {
   purchaseId?: string;
   extraction?: { id: string; status: 'queued' | 'waiting_provider' };
   inboxItemId?: string;
-  /** The Undo toast's event (D150, T20): only a new thing's capture is undoable. */
+  /** The Undo toast's event (D150): only a new thing's capture is undoable. */
   undo?: { eventId: string; until: string };
 };
 
@@ -389,7 +389,7 @@ export async function capture(
   filesOf(input);
   const fileIds = await dedupedFileIds(client, locationId, input.files);
   const name = input.name?.trim() || null;
-  // Quick add (T19): a new thing from a template may come with neither; its name is the template's.
+  // Quick add: a new thing from a template may come with neither; its name is the template's.
   const fromTemplate = !!input.templateId && !input.attachToThingId;
   if (fileIds.length === 0 && !name && !fromTemplate) {
     throw invalid('A capture needs a photo or a name.');
@@ -462,7 +462,7 @@ export async function capture(
   }
 
   // 5. A new thing (createThing's path: short ID now, D112; the default meter; created_by).
-  // Quick add (T19): a template shared with this location is the base, and what was sent wins;
+  // Quick add: a template shared with this location is the base, and what was sent wins;
   // a capture with no name takes the template's (templates/service.ts applyTemplate).
   const sent = {
     name,
@@ -512,8 +512,8 @@ export async function capture(
       ai,
     );
   }
-  // Q14: an unnamed draft waits in the inbox ("unnamed photo to finish later", §4.18); a named
-  // capture doesn't, unless AI later leaves suggestions (T10).
+  // An unnamed draft waits in the inbox ("unnamed photo to finish later"); a named
+  // capture doesn't, unless AI later leaves suggestions.
   if (named === null) {
     const item = await openInboxItem(client, {
       locationId,
@@ -540,7 +540,7 @@ type Common = {
   base: Record<string, unknown>;
 };
 
-/** RECEIPT: a draft purchase with the pages, or more pages of one (Q10, Q13; screens §8). */
+/** RECEIPT: a draft purchase with the pages, or more pages of one. */
 async function captureReceipt(ctx: Ctx, input: CaptureInput, c: Common): Promise<CaptureResult> {
   const { client, tx, scope } = ctx;
   const note = input.note ?? null;
@@ -564,7 +564,7 @@ async function captureReceipt(ctx: Ctx, input: CaptureInput, c: Common): Promise
       after: { ...c.base, capture_id: c.id, page_of: input.pageOf.toLowerCase(), pages },
       requestId: ctx.requestId,
     });
-    // Pages added after the extraction ran are re-extracted on request (Q13).
+    // Pages added after the extraction ran are re-extracted on request.
     result.purchaseId = purchaseId;
     return result;
   }
@@ -594,7 +594,7 @@ async function captureReceipt(ctx: Ctx, input: CaptureInput, c: Common): Promise
       [purchaseId, c.locationId, note],
     );
     if (thingId) {
-      // A new draft line waits for the receipt's lines (T10, T15), with the thing on it.
+      // A new draft line waits for the receipt's lines, with the thing on it.
       const lineId = newId();
       const { rows } = await client.query<{ name: string | null }>(
         'SELECT name FROM public.things WHERE id = $1',
@@ -632,7 +632,7 @@ async function captureReceipt(ctx: Ctx, input: CaptureInput, c: Common): Promise
   result.purchaseId = purchaseId;
   const first = pages[0];
   if (c.ai !== 'off' && first) {
-    // One extraction per purchase, keyed to its first page, 20 s after the last send (Q13).
+    // One extraction per purchase, keyed to its first page, 20 s after the last send.
     const dedupe: SendDedupe = {
       singletonKey: `extract:receipt:${purchaseId}`,
       singletonSeconds: 20,
@@ -693,7 +693,7 @@ async function captureReading(
     );
   }
   // Typed at capture (AI off): the meters service checks it against its neighbours (D112), and
-  // the photos prove that reading (step 5, Q10, D195: on the reading, not the thing). Otherwise
+  // the photos prove that reading (D195: on the reading, not the thing). Otherwise
   // they wait on the thing until a reading exists (AI's, or the inbox's).
   let readingId: string | null = null;
   const attachments: string[] = [];
@@ -743,7 +743,7 @@ async function captureReading(
       'on',
     );
   } else if (!readingId) {
-    // No AI and no value: the inbox asks for it, with the photo (§5).
+    // No AI and no value: the inbox asks for it, with the photo.
     const item = await openInboxItem(client, {
       locationId: c.locationId,
       kind: 'reading',

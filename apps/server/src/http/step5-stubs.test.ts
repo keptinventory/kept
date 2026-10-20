@@ -4,7 +4,7 @@ import { serviceDraftRoutes } from '../services/routes.js';
 import { vehicleRoutes } from '../vehicles/routes.js';
 import { INVENTORY_ROUTE_MODULES } from './routes.js';
 
-// Step 5 (plan T2): the route modules the Phase-B tasks fill in (T9 service drafts, T11 fuel,
+// The route modules the Phase-B tasks fill in (T9 service drafts, T11 fuel,
 // T13 vehicles) are registered from the start, so no task edits http/routes.ts. Each adds its
 // route table's routes; the route catalogue (test/route-catalogue.test.ts) checks their writes.
 

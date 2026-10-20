@@ -77,7 +77,7 @@ export function useSearchGroup(params: SearchParams, kind: SearchParams['kind'],
   });
 }
 
-/** The ⌘K palette's query (screens §5: debounced 150 ms, things only, 8 of them). */
+/** The ⌘K palette's query (debounced 150 ms, things only, 8 of them). */
 export function usePaletteSearch(q: string) {
   const params: SearchParams = { q, kind: 'things', limit: 8 };
   return useQuery({

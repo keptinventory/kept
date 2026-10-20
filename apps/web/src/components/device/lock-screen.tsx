@@ -1,5 +1,5 @@
 /**
- * The lock screen (step-8 plan T23; D181; board frame 111). It covers everything, online and
+ * The lock screen (D181). It covers everything, online and
  * offline, until the PIN or the passkey unlocks the app. Its chunk is precached (it isn't in
  * vite.config.ts's on-demand lists), so a cold start with no connection still opens it.
  *

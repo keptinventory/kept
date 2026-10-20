@@ -4,14 +4,14 @@ import { z } from 'zod';
 import { legacyCodeOf } from '../imports/csv.js';
 import { callerMembership } from '../locations/access.js';
 
-// What a scan means (plan T17; D120, D137, D146, D208; engineering spec §2.4). The web contract is
+// What a scan means (D120, D137, D146, D208). The web contract is
 // apps/web/src/api/capture/types.ts `ScanOutcome`; the phone answers from its snapshot first and
 // asks here online (apps/web/src/components/scan/resolve.ts).
 //
 // `parseScan()` (@kept/shared) classifies the text, then one resolver per kind answers:
 // - `kept` (a short ID, any host, D120): a live thing or place the caller sees → `open`; a blank
 //   in a location where the caller may use labels → `claim`; else the code as a `kept` legacy
-//   code, an imported export's label re-issued here (step-7 plan T14, Q9);
+//   code, an imported export's label re-issued here;
 // - `homebox` (`/a/<assetId>`, `/item/<uuid>`, `/location/<uuid>`, D146): the Homebox legacy
 //   codes the caller sees: one live target → `open`, several (an asset ID repeats per collection)
 //   → `legacy_ambiguous` with the candidates, each with its location (so the phone can queue
@@ -19,8 +19,8 @@ import { callerMembership } from '../locations/access.js';
 // - `barcode`: `barcode` with whether lookup is on (the lookup is its own call);
 // - `other`: `not_kept` with the text (D137: "Not a Kept label", nothing hidden).
 // Before a miss is answered, the text as typed is looked up among every legacy code the caller
-// sees (a CSV import's old codes, T18; a Homebox asset ID typed by hand; own codes later, D208 /
-// plan T17a, which are `legacy_codes` rows with `source = 'own'` and so resolve here unchanged).
+// sees (a CSV import's old codes; a Homebox asset ID typed by hand; own codes later, D208,
+// which are `legacy_codes` rows with `source = 'own'` and so resolve here unchanged).
 // A short ID always wins over a legacy code of the same text.
 //
 // A miss is `not_in_your_kept`, identical for a missing, retired or trashed code, another
@@ -30,8 +30,7 @@ import { callerMembership } from '../locations/access.js';
 // opening (D40), or queues `mark_seen`.
 //
 // Every query is an equality on an indexed key (short_ids' primary key, legacy_codes(source,
-// code) and its primary key), which PostgreSQL treats as leakproof, so RLS keeps the index
-// (§7.2).
+// code) and its primary key), which PostgreSQL treats as leakproof, so RLS keeps the index.
 
 export const ResolveScanBody = z.object({
   text: z.string().max(2048),
@@ -182,7 +181,7 @@ const RESOLVERS: {
   ) => Promise<ScanOutcome>;
 } = {
   // A Kept label whose code was taken on this server when its export was imported here: the old
-  // code is a `kept` legacy code on the thing it was moved to (step-7 plan T14, Q9).
+  // code is a `kept` legacy code on the thing it was moved to.
   kept: async (client, scan, text) =>
     (await byShortCode(client, scan.code)) ??
     (await byLegacy(client, scan.code, ['kept'])) ??

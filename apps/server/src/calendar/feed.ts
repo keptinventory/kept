@@ -14,12 +14,12 @@ import { effectivePreference, myPreferences, storedMap } from '../notify/prefs.j
 import { REMINDER_WORDS, type ReminderFacts, shortTitle } from '../notify/words.js';
 import { type AllDayEvent, writeCalendar } from './ical.js';
 
-// The calendar feed's content (D142, D110, D116; plan T17, Q23). Built in the feed owner's own
+// The calendar feed's content (D142, D110, D116). Built in the feed owner's own
 // scope (kept_app, row-level security as for their requests), from the one agenda
 // (public.agenda_items) the scan, Home and the lists read:
 // - states upcoming, due, overdue and expiring, a month back to 13 months ahead, in each
 //   location's own calendar;
-// - only the kinds the person gets on some channel (their choice, else the default: Q23), and
+// - only the kinds the person gets on some channel (their choice, else the default), and
 //   none from a module they hid;
 // - one all-day event per item, named as a reminder is (notify/words.ts), with the path and
 //   location and a deep link; no money, secrets, notes or anyone's contact details;
@@ -102,7 +102,7 @@ export async function buildFeed(
   );
   const words = REMINDER_WORDS[mailLocale(profile[0]?.locale)];
   const prefs = storedMap(await myPreferences(client));
-  /** On some channel: chosen there, else for all locations, else the default (Q23, D239). */
+  /** On some channel: chosen there, else for all locations, else the default (D239). */
   const wanted = (r: Row) =>
     PREFERENCE_CHANNELS.some((channel) =>
       effectivePreference(prefs, {

@@ -1,5 +1,5 @@
 /**
- * Home (screens §5 Home, §8, §9; frame 01 · Home; D240, the approved Home design): what needs
+ * Home (frame 01 · Home; D240, the approved Home design): what needs
  * you, then where things are.
  *
  * In order: the date; Get started as one line (D138, computed by the server); the AI-paused and
@@ -15,7 +15,7 @@
  * First run (only the Personal location): the welcome with "Create your first home" and the steps
  * after it, the Personal card, the shortcuts that already work and an empty Recent that says what
  * will show there; no checklist, since its first step would repeat the main button, and no Needs
- * you or Insights until there is something to count (§8).
+ * you or Insights until there is something to count.
  *
  * Reads: `/home` (the shell's, shared), `/home/overview` (Home's own), the activity feed, and the
  * inbox's first four items only while some wait.

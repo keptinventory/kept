@@ -1,4 +1,4 @@
-/** A tray glyph (the board's `a2-tray` symbol), kept apart so the header chip stays light. */
+/** A tray glyph (the designs' `a2-tray` symbol), kept apart so the header chip stays light. */
 export function TrayIcon(props: { className?: string }) {
   return (
     <svg

@@ -1,5 +1,5 @@
 /**
- * Step 4's frame (plan T3; screens §1): Schedules, Lending and Paperwork in the navigation while
+ * Step 4's frame: Schedules, Lending and Paperwork in the navigation while
  * their module is on in any location, Notifications for everyone, the header's bell with the
  * unread count, and the step-4 routes answering (stubs until Phase C builds them).
  */
@@ -19,7 +19,7 @@ describe('the step-4 navigation', () => {
       ['Schedules', '/schedules'],
       ['Lending', '/lending'],
       ['Paperwork', '/paperwork'],
-      // With its unread count after the name (D198, T24).
+      // With its unread count after the name (D198).
       [/^Notifications\b/, '/notifications'],
     ] as const)
       expect(await main.findByRole('link', { name })).toHaveAttribute('href', href);

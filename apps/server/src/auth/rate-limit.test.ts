@@ -7,7 +7,7 @@ import { AUTH_BASE_PATH } from './auth.js';
 import { authRequestHeaders } from './client-ip.js';
 import { delayAfter, FREE_FAILURES, MAX_DELAY_SECONDS, MAX_FAILURES } from './sign-in-limiter.js';
 
-// Spike S2 (V32): a database-backed rate limiter shared by two processes. Two Better Auth
+// A database-backed rate limiter shared by two processes. Two Better Auth
 // instances on one database stand in for two replicas.
 
 const PASSWORD = 'correct horse battery';

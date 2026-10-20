@@ -1,7 +1,7 @@
 import type { Condition, Lifecycle } from '@kept/shared';
 import { wordsFor } from '../../reports/labels.js';
 
-// The readable copy's words (D159; plan T13, Q12). Like the inventory report it carries (D201),
+// The readable copy's words (D159). Like the inventory report it carries (D201),
 // it is written in English or Arabic: an export asked for in another language reads in English.
 // The Arabic follows the report's (reports/labels.ts), which follows the web catalogue.
 

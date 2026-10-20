@@ -56,7 +56,7 @@ import { registerInventoryRoutes } from './routes.js';
 import { shareGuard, shareRoutes } from './share.js';
 import { spaFallback, type WebBundle, webRoutes } from './web.js';
 
-// The HTTP skeleton (engineering spec §7.6, §7.7; D81, D147, D181).
+// The HTTP skeleton (D81, D147, D181).
 //
 // buildApp() assembles everything that is the same for every route: the zod type provider,
 // request ids, security headers, the one error shape, module gating, health and the OpenAPI
@@ -97,7 +97,7 @@ export type AppOptions = {
   auth?: Auth | null;
   /** Outgoing mail for Kept's own flows (email change). Defaults to logging that it is due. */
   mailer?: Mailer;
-  /** Called for every request that got a scope: ensureAccount's cached check (task 18). */
+  /** Called for every request that got a scope: ensureAccount's cached check. */
   onScope?: SessionHookOptions['onScope'];
   /** Where requests enqueue jobs inside their own transaction (jobs/queue.ts). Without one, a
    * job a route would send is logged as not sent (tests of routes that don't need it). */
@@ -107,11 +107,11 @@ export type AppOptions = {
   /** Whether mail goes out (KEPT_SMTP_URL set), for the admin status page. Default false. */
   mailConfigured?: boolean;
   /** Whether a backup target is set (KEPT_BACKUP_DIR or KEPT_BACKUP_S3_BUCKET), for the status
-   * page's backup line (T31c). Default false. */
+   * page's backup line. Default false. */
   backupConfigured?: boolean;
   /** Whether anyone may sign up without an invite. Defaults to KEPT_SIGNUP_OPEN when it is set,
    * else instance_settings `signup_open` (accounts/sign-up.ts readSignupOpen), which instance
-   * admins set through PUT /api/v1/admin/settings (task 23). */
+   * admins set through PUT /api/v1/admin/settings. */
   isSignupOpen?: () => Promise<boolean>;
   /** File storage for step 2's file routes (storage/). Omit for an app that serves no files. */
   files?: FileStorage | null;
@@ -127,9 +127,9 @@ export type AppOptions = {
   /** Called for every route as it is added, before any other hook (the route-catalogue test). */
   onRoute?: (route: RouteOptions) => void;
   /** The key personal tokens' secrets are HMAC'd with (tokens/verify.ts tokenHashKey of
-   * KEPT_AUTH_SECRET, step 6); omit for a key of the app's own (tests). */
+   * KEPT_AUTH_SECRET); omit for a key of the app's own (tests). */
   tokenKey?: Buffer | null;
-  /** Step 4 (T15): web push's setup (notify/vapid.ts createPushSource), and in tests how a push
+  /** Web push's setup (notify/vapid.ts createPushSource), and in tests how a push
    * or a webhook leaves the process. Omitted: push reports unavailable. */
   notify?: Pick<NotifyDeps, 'push' | 'transport' | 'appriseUrl'> | null;
 };
@@ -187,7 +187,7 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
     app.addHook('onRoute', (route) => onRoute(route as RouteOptions));
   }
 
-  // Step 8 (T14, D84): optional tracing's route spans, first, when the preload started it; and
+  // Step 8 (D84): optional tracing's route spans, first, when the preload started it; and
   // optional error reporting, loaded only with KEPT_ERROR_DSN. Both off by default.
   const tracing = activeTracing();
   if (tracing) await app.register(tracing.fastifyPlugin());
@@ -219,7 +219,7 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
   // A cookie-bearing write from another site is refused before anything else (auth/http.ts).
   app.addHook('onRequest', csrfHook(opts.env.KEPT_PUBLIC_URL));
 
-  // A personal token (`Authorization: Bearer kpt_…`, step 6): its scope, or 401/403/429, before
+  // A personal token (`Authorization: Bearer kpt_…`): its scope, or 401/403/429, before
   // the session hook, which then leaves the request alone (tokens/verify.ts).
   const tokenKey = opts.tokenKey ?? randomBytes(32);
   app.addHook('onRequest', bearerHook({ pools: opts.pools, key: tokenKey, authMode }));
@@ -240,13 +240,13 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
 
   const filesFrom = await fileOrigin(opts.files ?? null, opts.env.KEPT_PUBLIC_URL);
   await app.register(helmet, {
-    // CSP `self`: fonts and icons ship in the image (D188, L77); no framing anywhere (D181).
+    // CSP `self`: fonts and icons ship in the image (D188); no framing anywhere (D181).
     contentSecurityPolicy: {
       useDefaults: false,
       directives: {
         defaultSrc: ["'self'"],
         // The barcode scanner's zxing wasm is compiled by WebAssembly.instantiateStreaming, which
-        // needs 'wasm-unsafe-eval' (and only that: no 'unsafe-eval', T0's scanner spike). With the
+        // needs 'wasm-unsafe-eval' (and only that: no 'unsafe-eval', as the scanner trial showed). With the
         // web bundle, index.html's inline pre-paint script is allowed by hash only.
         scriptSrc: ["'self'", "'wasm-unsafe-eval'", ...(opts.web?.scriptHashes ?? [])],
         // Stylesheets from 'self', and React Aria's two static injected <style> elements by hash
@@ -254,7 +254,7 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
         styleSrc: ["'self'", ...LIBRARY_STYLE_HASHES],
         // The service worker (/sw.js, D181).
         workerSrc: ["'self'"],
-        // Camera frames, phone-made thumbnails and label PNGs are blob: URLs (T25, T28); files
+        // Camera frames, phone-made thumbnails and label PNGs are blob: URLs; files
         // on S3 come from the store's own origin (presigned, D157).
         imgSrc: ["'self'", 'blob:', ...(filesFrom ? [filesFrom] : [])],
         mediaSrc: ["'self'", 'blob:', ...(filesFrom ? [filesFrom] : [])],

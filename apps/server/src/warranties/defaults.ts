@@ -1,7 +1,7 @@
 import type pg from 'pg';
 import type { WarrantyDefaults } from './view.js';
 
-// A new warranty's defaults (step-4 plan T9; D55, D92): the term from the thing's brand, else
+// A new warranty's defaults (D55, D92): the term from the thing's brand, else
 // from the nearest type up its chain that has one, and the start from its purchase date. Never an
 // AI guess. A default of 0 months ("no warranty") counts as none, as the web's mock reads it.
 

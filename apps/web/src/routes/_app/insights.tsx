@@ -1,5 +1,5 @@
 /**
- * Insights (1.x, D234; screens §1, §2 `/insights`): spending, value, vehicle costs and warranty
+ * Insights (1.x, D234; `/insights`): spending, value, vehicle costs and warranty
  * coverage across your locations with Money on (components/insights/insights-screen.tsx). The
  * location chip is `f.location`, named here: the definition is precached, the screen isn't. Its
  * chunk loads on demand from assets/household/ (vite.config.ts): it reads the server, and its

@@ -1,11 +1,11 @@
 /**
  * Types, place kinds and the account registries (brands, vendors, people, tags) as fetchers and
- * hooks, for Account settings and the registry pages (task 28). The shared fetchers live in
+ * hooks, for Account settings and the registry pages. The shared fetchers live in
  * api/inventory/queries.ts; the writes and the few reads it lacks are here, beside the screens
  * that use them, so parallel web tasks never edit the same file.
  *
  * Which account: `/api/v1/accounts` lists the accounts you can see. Your role in one is your
- * highest role across its locations (Q21): owner of your own account; admin where
+ * highest role across its locations: owner of your own account; admin where
  * `canManage`; otherwise member or viewer from your location roles there.
  */
 import {
@@ -106,7 +106,7 @@ export const registryKeys = {
 
 // ----- accounts and roles ----------------------------------------------------------------------
 
-/** Your role in an account: the highest across its locations you can see (Q21). */
+/** Your role in an account: the highest across its locations you can see. */
 export function roleInAccount(
   account: AccountSummary | undefined,
   locations: readonly LocationSummary[],
@@ -184,7 +184,7 @@ export function switchableAccounts(scope: AccountScope): AccountSummary[] {
 
 /**
  * An account's types, with each built-in hidden where the account has customised it: the copy
- * stands in its place in the tree (Q13b), so the tree never shows both.
+ * stands in its place in the tree, so the tree never shows both.
  */
 export function useAccountTypes(accountId: string) {
   const q = useTypes(accountId);

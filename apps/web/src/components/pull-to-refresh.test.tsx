@@ -154,7 +154,7 @@ describe('the pull gesture', () => {
   it('pulls on the scrolling screens of D212 only', () => {
     for (const p of ['/', '/search', '/inbox', '/loc/x', '/p/x', '/t/AB3DEF', '/activity'])
       expect(pullsOn(p)).toBe(true);
-    // Step 4 (plan T27).
+    // Step 4.
     for (const p of [
       '/schedules',
       '/lending',
@@ -163,7 +163,7 @@ describe('the pull gesture', () => {
       '/notifications',
       '/incidents',
       '/incidents/x',
-      // Step 5 (plan T3).
+      // Step 5.
       '/vehicles',
     ])
       expect(pullsOn(p)).toBe(true);
@@ -217,7 +217,7 @@ describe('pull to refresh on a phone screen', () => {
     cleared.mockRestore();
   });
 
-  // D212 on step 4's screens (plan T27): the same pull, the same "Updated", no tap lost.
+  // D212 on step 4's screens: the same pull, the same "Updated", no tap lost.
   it.each(['/paperwork', '/expiring', '/notifications', '/incidents'])(
     'refetches what %s shows and says "Updated"',
     async (path) => {

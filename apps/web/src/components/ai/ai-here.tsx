@@ -1,5 +1,5 @@
 /**
- * Location settings → "AI here" (D206, screens §5 Settings → Location): beside the AI capture and
+ * Location settings → "AI here" (D206): beside the AI capture and
  * assistant switch, who pays for AI in this location, its monthly cap inside the account's (the
  * owner sets it; its admins read it), and a link to its usage. There is no per-location key.
  */

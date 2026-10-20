@@ -1,5 +1,5 @@
 /**
- * Recent changes by connections (D58, D124, screens §5): what your tokens and connected apps
+ * Recent changes by connections (D58, D124): what your tokens and connected apps
  * changed, newest first, each with Undo while the server says it can be undone (7 days). When an
  * undo is refused, the reason stays on the row in words ("Can't undo: Alfred changed Name since"),
  * with "Open the thing" when something changed since.

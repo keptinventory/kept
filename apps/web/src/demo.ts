@@ -113,7 +113,7 @@ function localStorageLang(): string | null {
   }
 }
 
-/** The same household as the Arabic frames on the screens board. Data, so not in the catalog. */
+/** The same household as the Arabic screen designs. Data, so not in the catalog. */
 const AR: Record<string, string> = {
   Home: 'المنزل',
   Garage: 'المرآب',

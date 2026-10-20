@@ -1,5 +1,5 @@
 /**
- * Every step-6 assistant path the web app calls, from the step-6 plan's T13 route table, landing
+ * Every step-6 assistant path the web app calls, from the assistant route table, landing
  * in `apps/server/src/assistant/routes.ts` (T2's stub). A path the server names differently is
  * fixed here and nowhere else. T26's contract check reads `ASSISTANT_METHODS` against the
  * server's openapi.json, as earlier steps do with theirs. The AI status line the composer shows

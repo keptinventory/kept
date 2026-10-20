@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# The Helm chart's check (step 8 T16; ci-local's `helm` step; spike H1).
+# The Helm chart's check (step 8 T16; ci-local's `helm` step).
 #
 #   bash scripts/check-helm.sh             the checkout's chart version, lint, golden renders,
 #                                          kubeconform, image pins, refusals
 #   bash scripts/check-helm.sh --update    rewrite the golden renders from the current chart
 #
 # 0. Chart.yaml's version and appVersion are both 0.0.0-dev: the release sets both to Kept's
-#    version at package time (scripts/release/chart.sh, plan Q17), so a hand bump is a mistake;
+#    version at package time (scripts/release/chart.sh), so a hand bump is a mistake;
 # 1. `helm lint` with each value set in charts/kept/ci/;
 # 2. `helm template` of each set (and an upgrade render of backup-dir, which schedules the migrate
 #    Job beside the pod holding the volumes) compared with charts/kept/ci/golden/;

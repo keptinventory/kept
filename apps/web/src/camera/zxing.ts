@@ -6,7 +6,7 @@
  * offline and nothing is fetched from a CDN.
  *
  * `prepareZXingModule` must come from the ponyfill: it bundles its own copy of zxing-wasm's reader,
- * and the one in `zxing-wasm/reader` would configure a second, unused module (the spike's third
+ * and the one in `zxing-wasm/reader` would configure a second, unused module (the scanner trial's third
  * correction). Without `locateFile` the ponyfill fetches the wasm from jsDelivr.
  */
 import { BarcodeDetector, type BarcodeFormat, prepareZXingModule } from 'barcode-detector/ponyfill';

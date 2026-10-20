@@ -15,8 +15,7 @@ import { withScope } from './scope.js';
 
 // Step-4 T5 (0050, 0051): warranties, claims, loans and service records under row-level security,
 // their guards, the thing's state bump, moves across locations and accounts, and a loan counting
-// as a use of its person (engineering spec §1.6, §1.7, §7.13; D10, D53–D57, D172, D177; plan Q1,
-// Q14–Q18, Q26).
+// as a use of its person (D10, D53–D57, D172, D177).
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });

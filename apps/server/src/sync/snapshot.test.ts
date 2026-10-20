@@ -9,7 +9,7 @@ import { withScope } from '../db/scope.js';
 import { type CursorState, FIRST_SYNC, signCursor, syncCursorKey } from './cursor.js';
 import { snapshotPage } from './snapshot.js';
 
-// Plan T12 through the front door: GET /api/v1/sync/snapshot as the web's sync engine calls it
+// The snapshot through the front door: GET /api/v1/sync/snapshot as the web's sync engine calls it
 // (apps/web/src/offline/snapshot.ts): the first sync with no cursor, then each page's
 // nextCursor until `complete`, then deltas from the last one. Fixtures are written as
 // kept_owner; every read is the signed-in person's, on kept_app under row-level security.
@@ -341,7 +341,7 @@ describe('the first sync', () => {
 });
 
 describe('deltas', () => {
-  // Step-3 carry-over (T19): no code tombstone. The phone applies removals after changes, so a
+  // No code tombstone. The phone applies removals after changes, so a
   // tombstone for a code that moved would delete it from its new thing. A moved code instead
   // bumps the thing it left (kept.touch_code_move(), state_version, 0055) and its own row
   // changes: the delta carries both.

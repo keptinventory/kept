@@ -1,5 +1,5 @@
 /**
- * When the camera can't open (screens §4, §5 "HTTP or camera denied"; D31): the reason in plain
+ * When the camera can't open (D31): the reason in plain
  * words, how to allow it where that's the problem, and the file picker, which always works: the
  * phone's own camera app, or photos already taken. Captures still go into the queue as usual.
  */

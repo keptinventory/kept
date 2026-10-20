@@ -1,5 +1,5 @@
 /**
- * The impact preview (D92, D123; screens §5 Type editor): before a type change or a merge is
+ * The impact preview (D92, D123): before a type change or a merge is
  * saved, what it touches. Things per location you can see; locations you can't see as a count
  * only; the descendant types that inherit the change; and the fields whose values will be
  * archived (kept, never deleted). `POST /types/:id/preview` is read-only.

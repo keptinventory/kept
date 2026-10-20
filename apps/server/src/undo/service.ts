@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { undoableActions } from '../audit/undo.js';
 import { notFound } from '../http/errors.js';
 
-// GET /api/v1/things/:id/undoable (T20; D150): the events on a thing's timeline that still offer
+// GET /api/v1/things/:id/undoable (D150): the events on a thing's timeline that still offer
 // "Undo", for 7 days. The web's contract is apps/web/src/api/capture/types.ts UndoableResponse.
 //
 // An event is listed when all of these hold, read as the caller on kept_app (the audit_events
@@ -12,8 +12,8 @@ import { notFound } from '../http/errors.js';
 //   to it (`audit_event_subjects`: "moved with Box 3", a capture batch, a box check), as the
 //   thing's history reads them (history/service.ts);
 // - its action has an undo handler, its window is open, it has no undo yet, it is not itself an
-//   undo, and its diff holds no secret-class field (plan T20);
-// - the caller may undo it: it was theirs, or they are an owner or admin of its location (Q23),
+//   undo, and its diff holds no secret-class field;
+// - the caller may undo it: it was theirs, or they are an owner or admin of its location,
 //   and a viewer never.
 // Whether the undo would still go through (nothing changed since) is the undo route's to say:
 // the list is what the timeline offers, not a promise. A move across locations is written in

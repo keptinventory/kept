@@ -24,8 +24,8 @@ import {
   UpdateTokenBody,
 } from './service.js';
 
-// Personal tokens, connected apps and "Recent changes by connections" (step-6 plan T10; screens
-// §5; D58, D63, D179, D180). The web contract is apps/web/src/api/connections/types.ts.
+// Personal tokens, connected apps and "Recent changes by connections" (D58, D63, D179, D180).
+// The web contract is apps/web/src/api/connections/types.ts.
 //
 // GET    /api/v1/tokens?cursor&limit&kind      → {items: [TokenRow], next_cursor}
 // POST   /api/v1/tokens                        {name, scope, locationIds, expiresAt?,
@@ -34,7 +34,7 @@ import {
 //                                              | 200 {warning: 'cross_location_write'} (D179)
 // PATCH  /api/v1/tokens/:id (If-Match)         {name} → TokenRow
 // DELETE /api/v1/tokens/:id                    → 204 (revoked_reason 'user'); an OAuth app's
-//                                                consent and refresh tokens go too (T12)
+//                                                consent and refresh tokens go too
 // GET    /api/v1/connections/changes?cursor&tokenId → {items: [ConnectionChange], next_cursor}
 //
 // None is open to a token (tokens/access.ts): a token never manages tokens (D180), and RLS
@@ -58,7 +58,7 @@ export async function tokenRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
   app.post(
     '/api/v1/tokens',
     {
-      // Never over plain HTTP (D181; step-8 T24): 403 `https_required`.
+      // Never over plain HTTP (D181): 403 `https_required`.
       preHandler: requireHttps(publicUrl),
       schema: {
         body: CreateTokenBody,

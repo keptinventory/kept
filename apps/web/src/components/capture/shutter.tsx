@@ -1,6 +1,6 @@
 /**
- * The shutter. Its name says what the next press does, so a screen reader hears the mode
- * (screens §4): "Take photo: new thing", "Take photo: receipt", "Take photo: add to Drill".
+ * The shutter. Its name says what the next press does, so a screen reader hears the mode:
+ * "Take photo: new thing", "Take photo: receipt", "Take photo: add to Drill".
  */
 import type { CaptureMode } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';

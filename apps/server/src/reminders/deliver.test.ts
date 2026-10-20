@@ -22,11 +22,11 @@ import { runDelivery } from './deliver.js';
 import { runDigests } from './digest.js';
 import { runScan } from './scan.js';
 
-// Plan T14: `reminder-deliver` sends one queued delivery once (a duplicate job does nothing, a
+// `reminder-deliver` sends one queued delivery once (a duplicate job does nothing, a
 // failure is retried, a closed occurrence or a departed member is skipped), and `reminder-digest`
 // sends each person's digest once per local day and channel at their own digest time (D29, D122;
-// spike V21's Cairo transitions, computed here, not typed in). What the senders get names the
-// thing, its path, the location and the local date (L113); the words themselves are T15's
+// Cairo's DST transitions, computed here, not typed in). What the senders get names the
+// thing, its path, the location and the local date; the words themselves are T15's
 // (notify/words.ts, tested in five languages there).
 
 const db = await testDb();

@@ -1,10 +1,10 @@
 /**
- * Vehicles (product design D26, D52, D188; engineering spec §3.4; step-5 plan T1, Q2, Q5, Q8, Q19,
- * Q25): what counts as a vehicle, the cost categories, the starter schedules, the usage estimate's
+ * Vehicles (D26, D52, D188):
+ * what counts as a vehicle, the cost categories, the starter schedules, the usage estimate's
  * inputs, and the distance driven over a period.
  *
- * The estimate itself has one implementation, in SQL (`kept.meter_estimate`, `kept.meter_eta`,
- * plan T7, Q8), used by the API, the vehicles list, the report and the reminder scan; the constants
+ * The estimate itself has one implementation, in SQL (`kept.meter_estimate`, `kept.meter_eta`),
+ * used by the API, the vehicles list, the report and the reminder scan; the constants
  * here are its inputs (and the web mock's), so a change is made in both places at once.
  */
 
@@ -13,18 +13,18 @@ import { milli, milliOut } from './fuel.js';
 /**
  * The built-in type every vehicle reaches (`types.builtin_key`, builtin-types.ts): a thing is a
  * vehicle when its type's chain reaches it through `parent_id` or `copied_from_id`
- * (`kept.is_vehicle_type`, Q2), so cars, motorbikes, bicycles and generators, and custom types
+ * (`kept.is_vehicle_type`), so cars, motorbikes, bicycles and generators, and custom types
  * under Vehicle.
  */
 export const VEHICLE_TYPE_KEY = 'vehicle';
 
-/** A vehicle's running costs by category (the board's Fuel · Service & parts · Fees & insurance;
- * D26, Q5): fills' costs, confirmed services' totals, and documents' costs by their issue date. */
+/** A vehicle's running costs by category (the designs' Fuel · Service & parts · Fees & insurance;
+ * D26): fills' costs, confirmed services' totals, and documents' costs by their issue date. */
 export const COST_CATEGORIES = ['fuel', 'service', 'fees'] as const;
 export type CostCategory = (typeof COST_CATEGORIES)[number];
 
 // ---------------------------------------------------------------------------------------------
-// The usage estimate (D52, D188; screens §8; Q8)
+// The usage estimate (D52, D188)
 // ---------------------------------------------------------------------------------------------
 
 /** The rate is the accepted readings' rise over this many days before the latest reading. */
@@ -35,7 +35,7 @@ export const MIN_SPAN_DAYS = 7;
 export const ADVICE_DAYS = 30;
 /** A reading this old makes the estimate "unknown — reading needed": estimated dates disappear. */
 export const UNKNOWN_DAYS = 60;
-/** The stale-reading nudge's default interval (`meters.nudge_days`, §3.4, Q19): 7–365, or none. */
+/** The stale-reading nudge's default interval (`meters.nudge_days`): 7–365, or none. */
 export const NUDGE_DAYS_DEFAULT = 30;
 export const NUDGE_DAYS_MIN = 7;
 export const NUDGE_DAYS_MAX = 365;
@@ -53,7 +53,7 @@ export function readingAdvice(ageDays: number | null): ReadingAdvice {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Starter schedules (D52, engineering spec §3.4: "editable defaults, not manufacturer advice")
+// Starter schedules (D52; "editable defaults, not manufacturer advice")
 // ---------------------------------------------------------------------------------------------
 
 export const STARTER_KEYS = ['oil_change', 'tyre_rotation', 'brake_fluid', 'air_filter'] as const;
@@ -68,7 +68,7 @@ export type StarterSchedule = {
   everyKm: string | null;
 };
 
-/** The four starter schedules, whichever comes first. Never created automatically (Q25). */
+/** The four starter schedules, whichever comes first. Never created automatically. */
 export const STARTER_SCHEDULES: readonly StarterSchedule[] = Object.freeze([
   { key: 'oil_change', name: 'Oil change', everyMonths: 12, everyKm: '10000' },
   { key: 'tyre_rotation', name: 'Tyre rotation', everyMonths: 12, everyKm: '10000' },
@@ -77,7 +77,7 @@ export const STARTER_SCHEDULES: readonly StarterSchedule[] = Object.freeze([
 ]);
 
 /**
- * A starter schedule's interval on a meter in `meterUnit` (Q25): the distance applies only to a
+ * A starter schedule's interval on a meter in `meterUnit`: the distance applies only to a
  * distance meter in km; on miles, or with no distance meter, the months alone (no rounded
  * conversion presented as advice).
  */

@@ -1,5 +1,5 @@
 /**
- * The map's card (1.x, D237; the spike's compact card): a short strip first (name, where, short
+ * The map's card (1.x, D237; the prototype's compact card): a short strip first (name, where, short
  * ID, anything due), Details for the label and the facts, Inside for what's in it. A thing picked
  * from Inside shows its own card. Everything links to Kept's real place and thing pages. While
  * arranging, the card also turns a thing, changes its shape, takes it off the map, and sets a

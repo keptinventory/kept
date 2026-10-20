@@ -27,7 +27,7 @@ import {
 } from './oidc.js';
 import { resolveSession } from './session.js';
 
-// Generic OIDC sign-in (step-6 plan T16; D127, D128, D176, V32), repeating spike S6.7's cases
+// Generic OIDC sign-in (D127, D128, D176), repeating the cases an early trial found
 // against an in-process fake provider on 127.0.0.1 (test/oidc-issuer.ts): sign-in reaches only an
 // explicitly linked account (never on email), linking needs a fresh session and the same email,
 // only provider-verified and deliverable emails pass, new users come only by invite or an allowed

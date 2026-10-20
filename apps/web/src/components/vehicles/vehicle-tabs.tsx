@@ -1,5 +1,5 @@
 /**
- * A vehicle's tabs on its thing page (plan T18; screens §5, §8): Overview · Readings · Services ·
+ * A vehicle's tabs on its thing page: Overview · Readings · Services ·
  * Fuel · Schedules · Documents · Costs, as `?tab=` from `md` up and as one scrolling page with
  * pinned section chips on a phone (thing-screen.tsx draws both). After them come the vehicle's
  * Details (the type's fields and Edit) and the thing's other sections (Paperwork, Value, Loans,
@@ -115,7 +115,7 @@ export function vehiclePanel(tab: Key): ReactNode {
   }
 }
 
-/** The vehicle's own items in the thing's action menu: the history report (T23). */
+/** The vehicle's own items in the thing's action menu: the history report. */
 export function useVehicleActions() {
   const { t } = useLingui();
   return [{ id: 'history-report', label: t`History report`, icon: <DocumentIcon /> }];

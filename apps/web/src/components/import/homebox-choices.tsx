@@ -1,6 +1,6 @@
 /**
- * A Homebox import's choices before the check (screens §6 "dry-run choices", D146; plan T19 step
- * 6, Q3, Q16, Q25): the currency (the ZIP has none: the connection's, else the target's; another
+ * A Homebox import's choices before the check (D146):
+ * the currency (the ZIP has none: the connection's, else the target's; another
  * enabled one relabels the amounts, it doesn't convert them), archived items, the "Insured"
  * field, Homebox's empty starter places and tags, each Homebox type mapped to a Kept type or
  * created, and each custom field added to its type or kept in the notes. Saved on the run with
@@ -31,7 +31,7 @@ type KeptType = { id: string; name: string };
 
 /** The choices first offered: the connection's currency when it's enabled here, else the
  * target's; each type matched to a Kept type of the same name, else created; every field added
- * to its type (Q16); archived items left out; the Insured field; empty starter rows left out. */
+ * to its type; archived items left out; the Insured field; empty starter rows left out. */
 export function initialChoices(
   hints: HomeboxMappingHints | undefined,
   keptTypes: readonly KeptType[],

@@ -7,11 +7,11 @@ import { call, join, type Person, peopleApp, person } from '../../test/people.js
 import { createLocation, createThing, type Json, type Loc, ok, own } from '../../test/things.js';
 import { cimdFetch } from './cimd-fetch.js';
 
-// T12: OAuth connectors with Client ID Metadata Documents, end to end through the app: authorize
+// OAuth connectors with Client ID Metadata Documents, end to end through the app: authorize
 // (as Louis, signed in) → Kept's consent (read, Home only) → the token endpoint with PKCE → `/mcp`
 // with the JWT → revoke in Connections. The client's metadata document is served by an in-memory
 // transport for one allowed URL (isMetadataDocumentUrlAllowed): a fixture can't pass the real
-// SSRF guard on a laptop, which only reaches loopback (spike S6.2's caveat); the guard's refusals
+// SSRF guard on a laptop, which only reaches loopback; the guard's refusals
 // are tested on the real transport below.
 
 const CLIENT_ID = 'https://client.example/oauth/kept-client.json';
@@ -172,7 +172,7 @@ describe('OAuth connectors', () => {
     });
     expect(prm.statusCode).toBe(200);
     expect(prm.json()).toMatchObject({ resource: `${t.publicUrl}/mcp` });
-    // Dynamic Client Registration is off (Q8), and the jwt plugin's session JWT isn't served.
+    // Dynamic Client Registration is off, and the jwt plugin's session JWT isn't served.
     const dcr = await call(t, '/api/v1/auth/oauth2/register', {
       body: { redirect_uris: [REDIRECT], client_name: 'Talia’s app' },
     });
@@ -180,9 +180,9 @@ describe('OAuth connectors', () => {
     expect((await call(t, '/api/v1/auth/token', { as: louis })).statusCode).toBe(404);
   });
 
-  // Security review step 6 (T25, M1): the provider's session-authenticated client management
+  // Security review step 6 (M1): the provider's session-authenticated client management
   // would let any signed-in person register a client with any redirect URI and name, DCR by
-  // another door (Q8, D179). None of it is served.
+  // another door (D179). None of it is served.
   it('serves none of the provider’s client or consent management to a signed-in person', async () => {
     const made = await call(t, '/api/v1/auth/oauth2/create-client', {
       as: louis,

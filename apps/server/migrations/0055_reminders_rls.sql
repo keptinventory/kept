@@ -1,11 +1,11 @@
 -- Custom SQL migration file, put your code below! --
--- Step 4, task 7: reminder occurrences and deliveries, notifications, channels, push
--- subscriptions, preferences and calendar feeds (engineering spec §1.9, §3.3, §7.1, §7.3, §7.13;
--- D29, D30, D39, D111, D122, D142, D166, D181; plan Q10–Q13, Q23, Q30, Q35). Above, in 0054,
+-- Reminder occurrences and deliveries, notifications, channels, push
+-- subscriptions, preferences and calendar feeds (D29, D30, D39, D111, D122, D142, D166, D181).
+-- Above, in 0054,
 -- drizzle's part: the eight tables (src/db/schema/{reminders,notify}.ts) and admin_alerts' kind
 -- `reminders_not_scanned`. Below:
---   1. Row-level security. The ledger (occurrences, deliveries, digests) is the reminder jobs'
---      (T14): kept_system writes it, each policy commented with its job; kept_app reads its own
+--   1. Row-level security. The ledger (occurrences, deliveries, digests) is the reminder jobs':
+--      kept_system writes it, each policy commented with its job; kept_app reads its own
 --      share (occurrences where it sees the location, its own deliveries and digests). Channels,
 --      push subscriptions, preferences, notifications and calendar feeds are their user's own:
 --      invisible to every other user, even of the same location. A notification of a location
@@ -15,14 +15,14 @@
 --      calendar links per user (23514 calendar_feeds_cap), each under a per-user advisory lock.
 --   3. kept.calendar_feed_user(token hash) (SYS): the public `/cal/<token>` fetch's door. The
 --      feed's user when it is unrevoked and the user isn't banned (Better Auth's `banned`), else
---      NULL (a 404 alike for all); it counts the fetch and records when, at most once a minute
---      (L35). The feed is then built in that user's scope (T17).
---   4. The VAPID key (Q11) lives in instance_settings under `vapid`: no kept_app policy reaches
+--      NULL (a 404 alike for all); it counts the fetch and records when, at most once a minute.
+--      The feed is then built in that user's scope.
+--   4. The VAPID key lives in instance_settings under `vapid`: no kept_app policy reaches
 --      that key, instance admin or not (kept_system's system_all does).
---   5. kept.prune_stale_rows() (§3.3), every earlier clause kept, plus: notifications after 90
+--   5. kept.prune_stale_rows(), every earlier clause kept, plus: notifications after 90
 --      days; deliveries after a year; closed occurrences after a year once no delivery is left;
 --      digests after a year.
---   6. Step-3 carry-over (T19, routed here):
+--   6. Two earlier gaps, closed here:
 --      - a short ID moved from one thing to another (a merge, a relabel) bumps the thing it left
 --        (things.state_version, 0051), so the snapshot resends it with its own primary code and
 --        the phone stops showing the moved code on it. Not a `code` tombstone, as the plan had
@@ -134,7 +134,7 @@ END $$;
 --> statement-breakpoint
 
 -- Notifications: the user's own, while they see its location; they mark them read. Written by
--- the scan and the notice jobs (membership, AI caps, exports: Q30).
+-- the scan and the notice jobs (membership, AI caps, exports).
 CREATE POLICY app_select ON public.notifications FOR SELECT TO kept_app
   USING (user_id = (SELECT kept.current_user_id())
          AND (location_id IS NULL OR location_id IN (SELECT kept.visible_location_ids())));
@@ -376,7 +376,7 @@ BEGIN
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'inbox_items'; removed := n; RETURN NEXT;
 
-  -- 0055 (step 4, §3.3): the centre keeps 90 days; the reminder ledger a year.
+  -- 0055: the centre keeps 90 days; the reminder ledger a year.
   DELETE FROM public.notifications x WHERE x.created_at < now() - interval '90 days';
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'notifications'; removed := n; RETURN NEXT;
@@ -398,7 +398,7 @@ END $$;
 
 --> statement-breakpoint
 
--- 6. Step-3 carry-over (T19) ---------------------------------------------------------------------------
+-- 6. Two earlier gaps ----------------------------------------------------------------------------------
 -- A code that moved to another target bumps the thing it left, so the phone resends it.
 CREATE FUNCTION kept.touch_code_move() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$

@@ -1,5 +1,5 @@
 /**
- * The print view's frame (plan T28): signed in like the app (lib/signed-in-gate.ts), but
+ * The print view's frame: signed in like the app (lib/signed-in-gate.ts), but
  * **without** the app shell, so a label sheet prints edge to edge with nothing around it. Paper
  * is white whatever the theme; the screen keeps the app's background around the sheets.
  */

@@ -144,7 +144,7 @@ describe('scheduleNext() (D29, D162; Q2, Q28)', () => {
     },
     object,
   ];
-  // Step 5's estimate (T7): 60,000 is the oil change's due point; its due-from reading is 59,000.
+  // Step 5's estimate: 60,000 is the oil change's due point; its due-from reading is 59,000.
   const eta = (dates: Record<string, string>) => (value: string) => dates[value] ?? null;
   const cases: Case[] = [
     [
@@ -247,7 +247,7 @@ describe('scheduleNext() (D29, D162; Q2, Q28)', () => {
       { today: '2026-10-11' },
       { dueOn: '2026-10-10', state: 'overdue' },
     ],
-    // Units only (Q2: no estimate).
+    // Units only (no estimate).
     [
       'units: no reading yet',
       oil,

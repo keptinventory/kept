@@ -1,5 +1,5 @@
 /**
- * The AI screens' words (D206, product design §8a): ledger tasks, outcomes and error codes in
+ * The AI screens' words (D206): ledger tasks, outcomes and error codes in
  * plain language, and money as the ledger shows it. One place, so the usage page, the call list,
  * the call's detail, the AI line and "What uses AI" say the same thing the same way.
  */
@@ -37,7 +37,7 @@ export function useTaskLabel(): (task: LedgerTask) => string {
   };
 }
 
-/** "What uses AI in Kept"'s action names (screens §5): per action, not per call. */
+/** "What uses AI in Kept"'s action names: per action, not per call. */
 export function useActionLabel(): (task: LedgerTask) => string {
   const { t } = useLingui();
   const task = useTaskLabel();
@@ -64,7 +64,7 @@ export function useActionLabel(): (task: LedgerTask) => string {
   };
 }
 
-/** `llm_calls.outcome` in words (screens §5 AI usage). */
+/** `llm_calls.outcome` in words. */
 export function useOutcomeLabel(): (outcome: LedgerOutcome) => string {
   const { t } = useLingui();
   return (o) => {

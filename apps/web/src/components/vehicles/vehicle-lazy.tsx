@@ -2,8 +2,8 @@
  * A vehicle's tabs, loaded on demand from ./vehicle-sections.tsx (its own chunk in
  * assets/household/, cached by the service worker on first use): they all read the server (costs,
  * the meter's series and proofs, fills, documents), so none of it could work offline before its
- * first load. While a part loads, a skeleton; when it can't load, the §3 reason, "Needs a
- * connection". The thing page itself, and Log a reading, stay offline (T19).
+ * first load. While a part loads, a skeleton; when it can't load, the reason, "Needs a
+ * connection". The thing page itself, and Log a reading, stay offline.
  */
 import { useLingui } from '@lingui/react/macro';
 import { type ComponentType, lazy, Suspense } from 'react';
@@ -39,5 +39,5 @@ export const VehicleFuelPart = part((m) => m.VehicleFuel);
 export const VehicleSchedulesPart = part((m) => m.VehicleSchedules);
 export const VehicleDocumentsPart = part((m) => m.VehicleDocuments);
 export const VehicleCostsPart = part((m) => m.VehicleCosts);
-/** The history report sheet (T23), from the action menu; a sheet renders nothing until opened. */
+/** The history report sheet, from the action menu; a sheet renders nothing until opened. */
 export const VehicleReportSheetPart = part((m) => m.VehicleReportSheet, true);

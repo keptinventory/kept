@@ -2,7 +2,7 @@ import type { ExportHistoryEvent } from '@kept/shared';
 import type pg from 'pg';
 import { type IdMap, isUuid } from './ids.js';
 
-// Carried history on a Kept import (engineering spec §3.3; step-7 plan T14, Q10). The export's
+// Carried history on a Kept import. The export's
 // `data/history.ndjson` holds the location's audit events as its exporter saw them (D110: a
 // secret only `{changed: true}`, money per their gate). After every row is in, the job sends them
 // in batches through kept.import_history() (0083), which writes them as `actor_type = 'import'`

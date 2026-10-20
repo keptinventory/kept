@@ -1,5 +1,5 @@
 /**
- * Reports (plan T26; D158, D201, screens §2 `/reports/<kind>`): `insurance` (the insurance
+ * Reports (D158, D201; `/reports/<kind>`): `insurance` (the insurance
  * report, PDF and CSV, for a location or an incident) and `claim-pack` (a ZIP behind an expiring
  * download link). Other kinds (vehicle history) arrive with their steps.
  *

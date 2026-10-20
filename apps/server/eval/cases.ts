@@ -1,5 +1,5 @@
 /**
- * The evaluation cases in a folder (plan T11). Two layouts, and a folder may use both:
+ * The evaluation cases in a folder. Two layouts, and a folder may use both:
  *
  * 1. **A manifest**, `cases.json` at the folder's top: `{"cases": [{id, file, mode, languages,
  *    locationCurrency?, meter?, notes?, regressions?, expected}]}`, with each `file` relative to

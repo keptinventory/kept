@@ -1,5 +1,5 @@
 /**
- * The notification centre's groups (plan T24; frame "7 · Notification centre · phone · light"):
+ * The notification centre's groups (frame "7 · Notification centre · phone · light"):
  * what's due and coming up (schedules and warranty-registration deadlines), Lending (overdue
  * loans), Expiring (warranties, documents, things that expire), then the notices: your
  * locations' members, AI, and downloads that are ready. They are the `kind` filter's values on

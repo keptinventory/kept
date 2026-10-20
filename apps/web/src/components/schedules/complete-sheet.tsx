@@ -1,13 +1,13 @@
 /**
- * Complete (plan T21; D29, screens §5): one sheet from the Schedules list, the thing page and the
- * notification centre (step-4 Q32). Completing records a service that completes the schedule and
+ * Complete (D29): one sheet from the Schedules list, the thing page and the
+ * notification centre. Completing records a service that completes the schedule and
  * restarts its count: the date (today by default, never in the future), a reading when the
  * schedule counts on a meter (checked against its neighbours, D112), the vendor, the total with
  * its currency (only where money shows), and notes. "Add line items or an invoice" hands over to
  * Log a service with the schedule ticked.
  *
  * Undoable: the Undo toast deletes the record (and its reading) and the schedule's count falls
- * back (T11). Needs a connection: it may carry money (screens §4).
+ * back. Needs a connection: it may carry money.
  *
  *   <CompleteSheet schedule={s} onClose={() => setOpen(null)} onMore={(s) => openLogService(s)} />
  */

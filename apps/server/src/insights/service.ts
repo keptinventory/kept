@@ -2,7 +2,7 @@ import type pg from 'pg';
 import type { Scope, Tx } from '../db/scope.js';
 import { type Gate, gateFor } from '../serialize/gates.js';
 
-// Insights (1.x, D234; builds D39 item 8, D54, D113, D158; screens §1): what was spent on things
+// Insights (1.x, D234; builds D39 item 8, D54, D113, D158): what was spent on things
 // each year, what they are worth per place and per location, what the vehicles cost month by
 // month, and how much is under warranty. One read, global across the caller's locations with Money
 // on (Insights is part of Money, D113), narrowed by `f.location` (the location chip, D174).
@@ -15,7 +15,7 @@ import { type Gate, gateFor } from '../serialize/gates.js';
 //   amount exists (unpriced purchases, valued things) count only where money shows. Each section
 //   names the locations it left out (`hiddenIn`), and a per-location or per-vehicle row whose
 //   amounts are withheld carries `moneyHidden: true`, whether or not there was an amount.
-// - Per currency, never added across currencies and never converted (D76, Q22): the account's
+// - Per currency, never added across currencies and never converted (D76): the account's
 //   exchange rates convert only in the insurance report, which asks for a report currency.
 // - The current year and month are "so far" (D188): returned apart, never in the full periods.
 // - Vehicles only where Vehicles is on, warranties only where Warranties & claims is on (D113).
@@ -531,7 +531,7 @@ async function vehicles(
 // ---------------------------------------------------------------------------------------------
 // Warranty coverage: each live thing in use (not a draft), by the warranty that covers it longest
 // (D53), as the thing's coverage bar reads it (@kept/shared coverage(), D195: one that starts later
-// still counts), on the location's own date (L2: ends inclusive). Covered; expiring (that cover is
+// still counts), on the location's own date (ends inclusive). Covered; expiring (that cover is
 // within its lead days, as the agenda says, 0053); cover ended (it had warranties, all ended); no
 // warranty. Repairs (D54): claims resolved this year so
 // far and last year, with what they cost and what the warranty covered where money shows.

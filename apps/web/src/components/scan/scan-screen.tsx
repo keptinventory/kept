@@ -1,5 +1,5 @@
 /**
- * Scan (D137, D175; screens §5, §6, §8; plan T26; board frames 5a–5c, 7a–7c). A focused task: on
+ * Scan (D137, D175; 7a–7c). A focused task: on
  * the phone it covers the tab bar with its own chrome, dark in every theme like the capture camera.
  *
  * - Point the camera at a label or a barcode; each read is resolved (./resolve.ts): the phone
@@ -12,7 +12,7 @@
  *   the unpack panel (components/moving/unpack-answer.tsx): choose its room, Unpack, next box.
  * - A code read offline that the phone doesn't know is kept, and checked here once online.
  *
- * Service-worker updates wait while it is open (T23). The device (camera, decoder, connection) is
+ * Service-worker updates wait while it is open. The device (camera, decoder, connection) is
  * injectable for tests.
  */
 import { plural } from '@lingui/core/macro';
@@ -63,7 +63,7 @@ export type ScanScreenProps = {
   onExit: () => void;
   /** Go to what a scan opened (the route navigates; marking seen is done here). Settles when the navigation does, so the caller can close up after it commits. */
   onOpen: (target: ScanTarget) => void | Promise<void>;
-  /** After an op was queued: the sync engine's kick (T24). */
+  /** After an op was queued: the sync engine's kick. */
   onQueued?: () => void;
   // ----- the device, injectable -----
   online?: boolean;
@@ -408,7 +408,7 @@ export function ScanScreen({
 }
 
 /**
- * Tray mode's answer (board frame 7b): a place or a box → "Put the 3 things you're carrying here?"
+ * Tray mode's answer: a place or a box → "Put the 3 things you're carrying here?"
  * · Move 3 here; a thing → Pick it up.
  */
 function TrayAnswer({

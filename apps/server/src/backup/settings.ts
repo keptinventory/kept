@@ -21,7 +21,7 @@ import {
 import { AppError, invalid } from '../http/errors.js';
 import { BACKUP_SETTINGS_KEY } from '../secrets/rotate.js';
 
-// The backup settings (step-8 plan T10, Q6; D64, D186; engineering spec §7.11): where the restic
+// The backup settings (D64, D186): where the restic
 // repository lives, its password, when the nightly run starts and how many snapshots it keeps.
 //
 // Two sources, and the environment wins:
@@ -31,11 +31,11 @@ import { BACKUP_SETTINGS_KEY } from '../secrets/rotate.js';
 //   secrets/rotate.ts SEALED_SETTINGS;
 // - the raw environment: `KEPT_BACKUP_DIR` / `KEPT_BACKUP_S3_*` / `KEPT_BACKUP_SFTP*` lock the
 //   target as a whole, `KEPT_BACKUP_PASSWORD` the password, `KEPT_BACKUP_TIME` and
-//   `KEPT_BACKUP_KEEP_*` (or the alpha's `KEPT_BACKUP_KEEP`, read as the daily count, plan Q7)
+//   `KEPT_BACKUP_KEEP_*` (or the alpha's `KEPT_BACKUP_KEEP`, read as the daily count)
 //   each their own field. loadEnv() fills defaults in, so whether the operator set a variable is
 //   read from the raw environment, never from the parsed one.
 //
-// No password, no backup (plan Q6): a target without a password is "not configured", and
+// No password, no backup: a target without a password is "not configured", and
 // nothing runs. Nothing here logs or returns a secret: the view carries `…Set` booleans.
 
 /** KEPT_BACKUP_TIME's default (config/env.ts; jobs/system.ts DEFAULT_BACKUP_TIME). */
@@ -45,7 +45,7 @@ export const DEFAULT_BACKUP_TIME_UTC = '02:30';
 export const BACKUP_SECRET_FIELDS = ['password', 's3SecretAccessKey', 'sftpPrivateKey'] as const;
 export type BackupSecretField = (typeof BACKUP_SECRET_FIELDS)[number];
 
-/** `instance_settings|backup|<field>` (plan T4). */
+/** `instance_settings|backup|<field>`. */
 export function backupAad(field: BackupSecretField): Aad {
   return { table: 'instance_settings', rowId: BACKUP_SETTINGS_KEY, fieldKey: field };
 }
@@ -78,7 +78,7 @@ export type StoredBackupSettings = {
   password?: Sealed;
   s3SecretAccessKey?: Sealed;
   sftpPrivateKey?: Sealed;
-  /** When anything in it last changed: the recovery kit is stale after this (plan T9). */
+  /** When anything in it last changed: the recovery kit is stale after this. */
   changedAt?: string;
 };
 

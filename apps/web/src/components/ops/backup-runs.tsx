@@ -1,6 +1,6 @@
 /**
- * Admin → Backups' runs (plan T21, frame 106): every backup, pre-upgrade snapshot, drill and
- * repository check, newest first, on the list standard (L88): search (an error or the target),
+ * Admin → Backups' runs: every backup, pre-upgrade snapshot, drill and
+ * repository check, newest first, on the list standard: search (an error or the target),
  * kind and status filters, grouped by day, "Load more" pages, all held in the URL. A run that
  * failed or needs a look explains itself in words (ops-words.ts), never a code.
  */

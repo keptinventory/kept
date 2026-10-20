@@ -1,9 +1,9 @@
 /**
- * The fuel summary card (plan T21; the board's vehicle frames 67 and 68; D28, Q6, Q7, Q22): the
+ * The fuel summary card (D28): the
  * consumption over the last full fills in the reader's units ("7.3 L/100 km · last 5 full fills"),
  * the fuel cost per distance ("EGP 1.75/km · fuel only"), the monthly average ("≈ EGP 3,300 · a
  * month") and the latest fill ("40.0 L · 27 Sep · EGP 960"). Money is per currency, never added
- * across currencies (Q22), and only when the response has it: a viewer without money sees the
+ * across currencies, and only when the response has it: a viewer without money sees the
  * litres and the consumption, and "Hidden in this location" for the rest. With no consumption,
  * the reason is said in words (`whyNone`).
  *
@@ -25,7 +25,7 @@ import { sep, useFormat } from '@/lib/format';
 import { useOnline } from '@/lib/online';
 import { FuelIcon, useConsumptionText, useFuelAmount, useWhyNoneText } from './labels';
 
-/** One figure and what it covers, as the board's quad draws it. */
+/** One figure and what it covers, as the designs' quad draws it. */
 function Fact({ value, caption }: { value: ReactNode; caption: ReactNode }) {
   return (
     <div className="grid min-w-0 content-start gap-0.5">

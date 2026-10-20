@@ -1,7 +1,7 @@
 /**
  * The assistant's body, the same in the phone's sheet, the desktop's docked panel and the
  * `/assistant/<thread>` page: the thread (./thread.tsx) scrolling above the composer
- * (./composer.tsx). It works out why asking isn't possible right now (screens §3, D206, D191),
+ * (./composer.tsx). It works out why asking isn't possible right now (D206, D191),
  * carries the page's context with each question (D24), and says the viewer's line (D123).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -79,7 +79,7 @@ export function Conversation({
     !!ask.variables && JSON.stringify(ask.variables.context) === JSON.stringify(context);
   // Asked from a page with no location, the status can't know whose AI would answer, so Send
   // was on: the refusal says why under the field, and Send waits until the question changes
-  // (UI review steps 6–8, L1).
+  // (UI review steps 6–8).
   let held = false;
   let refusal: ReactNode = null;
   if (refused && isApiError(refused)) {

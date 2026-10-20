@@ -1,8 +1,8 @@
 /**
- * Value on the thing page (screens §5, D158): the current value (the latest valuation) with its
+ * Value on the thing page (D158): the current value (the latest valuation) with its
  * date and source, what it was bought for, and the valuations with their sheet. The whole section
  * sits behind the money gate: where money is hidden from you it says "Hidden in this location"
- * and nothing else (T20). Deleting a valuation is undoable (plan Q25); a new one isn't (§7.7).
+ * and nothing else. Deleting a valuation is undoable; a new one isn't.
  */
 import { AmountError, parseAmount, VALUATION_SOURCES, type ValuationSource } from '@kept/shared';
 import { plural } from '@lingui/core/macro';

@@ -4,14 +4,14 @@ import type { Scope, Tx } from '../db/scope.js';
 import { notFound } from '../http/errors.js';
 import { locationModuleSet } from '../http/modules.js';
 
-// Response gates (step 2; D13, D110, D116, D157; engineering spec §7.5, §7.13). Money and secret
+// Response gates (D13, D110, D116, D157). Money and secret
 // values leave the server only through here:
 // - money needs the `money` module on in the row's location AND can(role, 'money.view',
 //   {moneyVisibleToViewers}): a viewer sees it only when the location allows it;
 // - secrets need the `secrets` module, and then the field's own policy (mayRevealSecret).
 //
 // Withheld money is left out of the response, never sent as null, and the object that held it
-// carries `moneyHidden: true` (the web contract, T26). The marker is set whether or not there was
+// carries `moneyHidden: true` (the web contract). The marker is set whether or not there was
 // a value, so its absence can't tell a viewer that nothing was paid.
 //
 // A route gets one Gate per location per request: gateFor() caches it on the request's Scope
@@ -56,7 +56,7 @@ const cache = new WeakMap<Scope, Map<string, Promise<Gate>>>();
 
 async function loadGate(tx: Tx, locationId: string): Promise<Gate> {
   // Read under the caller's own policies: a location they can't see has no membership row for
-  // them here, and is a 404 like any row they can't see (§7.7).
+  // them here, and is a 404 like any row they can't see.
   const { rows } = await tx.execute<{ role: Role; money_visible_to_viewers: boolean }>(sql`
     SELECT m.role, l.money_visible_to_viewers
       FROM public.memberships m
@@ -186,7 +186,7 @@ export type GatedField = { key: string; kind: FieldKind; secret?: boolean | null
 
 /**
  * The custom values a viewer may see: money-kind values only when the gate shows money, secret
- * fields never (their values live in secret_values, Q3; this drops a stray key too), and keys
+ * fields never (their values live in secret_values; this drops a stray key too), and keys
  * with no field definition never (fail closed: pass the definitions of every key to show,
  * archived fields included).
  */

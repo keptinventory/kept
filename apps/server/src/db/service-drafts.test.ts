@@ -12,8 +12,8 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step 5, task 5 (0062, 0063): service drafts for invoices read by AI (screens §5; plan Q11,
-// Q12). A draft is seen by the location's members, counts nowhere until confirmed, and is
+// Step 5, task 5 (0062, 0063): service drafts for invoices read by AI.
+// A draft is seen by the location's members, counts nowhere until confirmed, and is
 // confirmed one way; the extraction reading its invoice points at it.
 
 const db = await testDb();

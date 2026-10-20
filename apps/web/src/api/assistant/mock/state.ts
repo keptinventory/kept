@@ -1,5 +1,5 @@
 /**
- * The assistant's mock state (step-6 plan T3), kept beside the scenario in a WeakMap so no other
+ * The assistant's mock state, kept beside the scenario in a WeakMap so no other
  * area's state type changes. The fixtures, with the sample cast:
  * - Ibrahim's threads: a finished turn in Home that found the HDMI cable and the cable box, citing
  *   both; a thread with a turn still running (Garage); an Arabic thread about بيت العائلة;
@@ -10,7 +10,7 @@
  * - a spoken list in Garage (D213): one open `add_thing` proposal with three items, the third in
  *   a place that doesn't exist yet ("Shelf C", proposed in the same card).
  * Home's AI is paused in step 3's mock (`capture.aiStatus`), so a new question there is refused
- * with `ai_paused`, as the server does (§7.15).
+ * with `ai_paused`, as the server does.
  */
 import type { Proposal, ThreadMessage, TurnStatus } from '@kept/shared';
 import { INV_IDS } from '../../inventory/mock/fixtures';

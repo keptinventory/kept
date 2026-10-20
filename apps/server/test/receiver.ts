@@ -6,10 +6,10 @@ import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-// A local stand-in for the outside world (step 4, T15): a push service or a webhook receiver on
+// A local stand-in for the outside world: a push service or a webhook receiver on
 // 127.0.0.1 that records what it gets and answers what the test says. Nothing a test sends ever
 // leaves the machine. HTTPS uses a throwaway self-signed certificate made with openssl (as the
-// push spike did), trusted only by the agent a test builds.
+// push trial did), trusted only by the agent a test builds.
 
 export type Received = {
   method: string;

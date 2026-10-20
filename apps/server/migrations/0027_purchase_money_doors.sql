@@ -1,5 +1,5 @@
 -- Custom SQL migration file, put your code below! --
--- Step 2, task 12: currencies and purchases (engineering spec §3.4, §7.13; D115, D136, D161,
+-- Currencies and purchases (D115, D136, D161,
 -- D168). Three things the routes need that reach past the caller's own locations, and one
 -- backlog item:
 --   1. Which currencies a location uses as its default (D168: those stay on). An instance admin

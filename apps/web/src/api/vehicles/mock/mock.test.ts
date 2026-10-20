@@ -1,7 +1,7 @@
 /**
  * The step-5 mock answers the vehicles contract through the real fetchers (../queries.ts), so the
- * parallel web tasks (T17–T23) start from something that behaves like the server: every path in
- * ../paths.ts has a handler, the fixtures hold the plan T3 asks for (the board's Corolla numbers
+ * parallel web tasks start from something that behaves like the server: every path in
+ * ../paths.ts has a handler, the fixtures hold the vehicle data (the designs' Corolla numbers
  * among them), and the rules the screens lean on hold (money behind the gate, a reading a fill
  * owns, a backwards odometer, module off, undo).
  */
@@ -81,7 +81,7 @@ describe('the vehicles mock', () => {
     ]);
     expect(corolla?.nextDue).toMatchObject({ name: 'Oil & filter', estimated: true });
     expect(corolla?.fuel).toEqual({ perHundred: '7.3', unit: 'L', distanceUnit: 'km' });
-    // The sold motorbike only under its state (Q24).
+    // The sold motorbike only under its state.
     const sold = await api.vehicles({ 'f.state': 'sold' });
     expect(sold.items.map((r) => r.thing.id)).toEqual([V.thing.motorbike]);
     // Vehicles off in the Garage: the Corolla leaves the list.
@@ -215,7 +215,7 @@ describe('the vehicles mock', () => {
       vendor: { name: 'New Cairo Station' },
     });
     expect(ok.body.undo.eventId).toBe(ok.auditEvents[0]);
-    // Its reading belongs to the fill (Q11).
+    // Its reading belongs to the fill.
     const owned = await fail(thingApi.updateReading(ok.body.reading?.id ?? '', { value: '52601' }));
     expect(owned.code).toBe('reading_owned');
     await undoApi.undo(ok.body.undo.eventId);

@@ -1,5 +1,5 @@
 /**
- * The ⌘K command palette (screens §5 Search, frame 04 · 2; D24, D42): search as you type, jump to
+ * The ⌘K command palette (frame 04 · 2; D24, D42): search as you type, jump to
  * a location or place, and a few actions, all by keyboard. The frame is React Aria's modal Dialog
  * (focus trapped, Escape closes, focus returns to where it was). Inside is an ARIA 1.2 combobox
  * with an always-open listbox: the input keeps focus, ↑↓ move the active option

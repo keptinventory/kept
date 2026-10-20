@@ -26,13 +26,13 @@ import {
 import { prepareSemantic } from './semantic.js';
 import { search } from './service.js';
 
-// Search, saved views and the ⌘K palette's backend (T20; D42, D174, D195; engineering spec
-// §7.9; screens spec §5 Search and §8). The palette is the same route with `kind=things` and a
+// Search, saved views and the ⌘K palette's backend (D42, D174, D195).
+// The palette is the same route with `kind=things` and a
 // small `limit` (apps/web/src/components/search/api.ts).
 //
 // GET /api/v1/search?q&locationId*&placeId*&typeId*&tagId*&state*&not*&kind&priceMin&priceMax
 //   &currency&limit&cursor → {things: {items, next_cursor}, places, people, vendors,
-//   documents: {items}, didYouMean, asOf}. `documents` (T21): attachments whose file's text
+//   documents: {items}, didYouMean, asOf}. `documents`: attachments whose file's text
 //   matches; a `snippet` only where the caller sees money, else `moneyHidden: true`. `*`: repeatable, "is any of"; `not` names those that are "is none of" (D205,
 //   http/list-filters.ts).
 // GET /api/v1/saved-views?surface&limit&cursor → {views, next_cursor, prefs} (≤100 a page; prefs
@@ -74,7 +74,7 @@ const ThingRow = z.object({
   lastSeenAt: Iso.nullable(),
   isContainer: z.boolean(),
   matchedAlias: z.string().optional(),
-  /** Found by meaning alone (step-6 T14). */
+  /** Found by meaning alone. */
   matchedBy: z.literal('meaning').optional(),
 });
 
@@ -118,7 +118,7 @@ const SearchResponse = z.object({
   }),
   didYouMean: z.array(z.string()),
   asOf: Iso,
-  /** Why things were found by keywords only (step-6 T14, §7.15); null: meaning searched too. */
+  /** Why things were found by keywords only; null: meaning searched too. */
   semantic: z
     .object({ state: z.enum(SEMANTIC_STATES), until: Iso.optional() })
     .nullable()
@@ -134,7 +134,7 @@ export async function searchRoutes(app: KeptApp, deps: InventoryDeps): Promise<v
     '/api/v1/search',
     { schema: { querystring: SearchQuery, response: { 200: SearchResponse } } },
     async (req) => {
-      // The query's embedding first, outside the search's transaction (D166; step-6 T14).
+      // The query's embedding first, outside the search's transaction (D166).
       const q = req.query;
       const semantic =
         !q.cursor && (!q.kind || q.kind === 'things')

@@ -13,8 +13,8 @@ import {
 } from '../../test/tenancy.js';
 import { type Scope, withScope, withSystem } from './scope.js';
 
-// Step-6 T6 (0075, 0076): semantic search's storage and doors (D200, D207; plan Q12–Q15; spike
-// S6.4). Vectors here are 3-dimensional; the model key is what the doors match on.
+// Step-6 T6 (0075, 0076): semantic search's storage and doors (D200, D207).
+// Vectors here are 3-dimensional; the model key is what the doors match on.
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });

@@ -19,8 +19,7 @@ import { migrationsFolder } from './migrate.js';
 import { type Scope, withScope } from './scope.js';
 
 // Step 5, task 4 (0060, 0061): the stale-reading nudge's interval, readings that reach the
-// offline snapshot, and step 3's proof photos moved onto their reading (D27, D52, D195; plan Q10,
-// Q18, Q19).
+// offline snapshot, and step 3's proof photos moved onto their reading (D27, D52, D195).
 
 const db = await testDb();
 const app = db.pools.app;

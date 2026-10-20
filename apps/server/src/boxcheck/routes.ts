@@ -12,8 +12,8 @@ import {
   registerBoxCheckUndo,
 } from './service.js';
 
-// The box check (plan T17; D40, D175; screens §6, §8; Q25). boxcheck/service.ts has the rules;
-// the `box_check` sync op (T14) calls the same boxCheck().
+// The box check (D40, D175). boxcheck/service.ts has the rules;
+// the `box_check` sync op calls the same boxCheck().
 //
 // POST /api/v1/things/:id/box-check {id, lines, foundElsewhereIds?}
 //      → {boxCheckId, seen, notHere, split, movedIn, undo} (X-Kept-Audit-Event: the undo)

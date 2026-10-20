@@ -1,9 +1,9 @@
 /**
  * `/l/<code>` opened by the phone's own camera, a printed link, or the capture camera's "Open"
- * (plan T26; D120, D137; V6, V7). Signed in, it resolves the code exactly as the scanner does:
+ * (D120, D137). Signed in, it resolves the code exactly as the scanner does:
  * something you can see opens at once (and is marked seen, D40), in place of this page in the
  * history; anything else answers here, on the page. The URL carries only the code, never data.
- * An old Homebox label (`/a/…`, `/item/…`, `/location/…`, step-7 T20) is resolved the same way
+ * An old Homebox label (`/a/…`, `/item/…`, `/location/…`) is resolved the same way
  * from its whole URL (components/legacy/legacy-resolve.tsx).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -29,7 +29,7 @@ export function LabelLink({
   text = code,
   title,
 }: {
-  /** The Kept code on the label; null for an old label read from its whole URL (step-7 T20). */
+  /** The Kept code on the label; null for an old label read from its whole URL. */
   code: string | null;
   /** What is resolved: the code, or an old label's URL (`https://…/a/000-001`). */
   text?: string | null;

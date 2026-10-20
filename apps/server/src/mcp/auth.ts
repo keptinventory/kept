@@ -9,11 +9,11 @@ import type pg from 'pg';
 import { verifyPersonalToken } from '../tokens/verify.js';
 import type { ToolPrincipal } from '../tools/types.js';
 
-// Who is calling `/mcp` (step-6 plan T11, T12; D63, D180). One verifier for both kinds of bearer:
-// - a personal token (`kpt_…`, T10): kept.token_verify, as on `/api/v1`;
-// - an OAuth access token (T12): a JWT Better Auth signed for this resource, whose grant row
+// Who is calling `/mcp` (D63, D180). One verifier for both kinds of bearer:
+// - a personal token (`kpt_…`): kept.token_verify, as on `/api/v1`;
+// - an OAuth access token: a JWT Better Auth signed for this resource, whose grant row
 //   (kept.token_oauth_for) gives the scope and locations, read on every call so revoking it in
-//   Connections works at once (Q7).
+//   Connections works at once.
 // Either becomes the SDK's AuthInfo, whose `extra` carries Kept's principal for the factory.
 // `expiresAt` is always set (the SDK's bearer helper refuses a token without one): a personal
 // token without an expiry gets five minutes from this request.
@@ -34,7 +34,7 @@ export type McpExtra = {
   kind: 'personal' | 'oauth';
 };
 
-/** Verifies an OAuth access token (T12); null when OAuth is off or the token isn't one. */
+/** Verifies an OAuth access token; null when OAuth is off or the token isn't one. */
 export type OAuthAccessVerifier = (token: string) => Promise<AuthInfo>;
 
 export type McpVerifierOptions = {

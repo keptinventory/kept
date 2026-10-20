@@ -1,11 +1,11 @@
 /**
- * The person, vendor and brand pages (screens §2 `/people/<id>` · `/vendors/<id>` · `/brands/<id>`;
- * §5 "Person page: what belongs to them", D57). Who or what it is, its details (a brand's support
+ * The person, vendor and brand pages (`/people/<id>` · `/vendors/<id>` · `/brands/<id>`;
+ * D57). Who or what it is, its details (a brand's support
  * line and claim page, a vendor's address), a person's contact card when the server returns it
  * (D177), and the things that point at it: the list standard, global across your locations with a
  * location chip (D174), all in the URL.
  *
- * A person's page lists their loans first (step 4, D57: "Has from us", "Lent to us", then the
+ * A person's page lists their loans first (D57: "Has from us", "Lent to us", then the
  * returned ones), then what belongs to them.
  */
 import { Trans, useLingui } from '@lingui/react/macro';

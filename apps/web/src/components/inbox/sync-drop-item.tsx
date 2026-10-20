@@ -1,5 +1,5 @@
 /**
- * A change made offline that couldn't apply (D35, engineering spec §5): "1 change couldn't apply:
+ * A change made offline that couldn't apply (D35): "1 change couldn't apply:
  * Hallway closet was trashed by Alfred". Restore puts back what was trashed and applies the
  * change again; Dismiss (`d`) accepts the drop. Never silent.
  */

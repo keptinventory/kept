@@ -1,5 +1,5 @@
 /**
- * The dangling announcer node (step-3 e2e, step-4 plan T28): React Aria's live announcer names a
+ * The dangling announcer node (step-3 e2e): React Aria's live announcer names a
  * pending button by id for 7 s; once the button is gone the node is an image without a name
  * (axe `role-img-alt`). The guard removes it as soon as its label is gone, and leaves the rest.
  */

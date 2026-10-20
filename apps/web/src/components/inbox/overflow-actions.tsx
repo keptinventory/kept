@@ -2,7 +2,7 @@
  * An inbox item's secondary actions (found on an iPhone: Accept, Edit, Move and
  * Set type filled a row and Discard wrapped alone). From `md` up they are buttons in the item's
  * one row; on a phone they fold into **More**, a bottom sheet holding a React Aria Menu (arrow
- * keys move, Enter chooses, Escape closes; screens §5, the thing's action menu does the same).
+ * keys move, Enter chooses, Escape closes; the thing's action menu does the same).
  * Either way the item's keys (`m`, `t`, `d`, …, shell.tsx) still run them directly, so no second
  * row of controls (D211's rule) and no lost shortcut.
  */

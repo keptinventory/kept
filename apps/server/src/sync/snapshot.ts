@@ -30,8 +30,8 @@ import {
   type Watermarks,
 } from './cursor.js';
 
-// The offline snapshot (plan T12; engineering spec §2.2, §7.4; D17, D36, D156, D159; plan Q1,
-// Q21, Q30). One page of `GET /api/v1/sync/snapshot`, read as the signed-in person on kept_app,
+// The offline snapshot (D17, D36, D156, D159).
+// One page of `GET /api/v1/sync/snapshot`, read as the signed-in person on kept_app,
 // so row-level security decides what is visible: nothing here filters by membership itself.
 //
 // A pass reads, per table in the order places → things → codes → legacy codes → tombstones, the
@@ -43,7 +43,7 @@ import {
 // reads it in full and leaves out the trash and the tombstones, which a phone starting empty has
 // no use for.
 //
-// Never here (D36, D159, Q21): money, secrets, documents, notes, custom fields, contact details.
+// Never here (D36, D159): money, secrets, documents, notes, custom fields, contact details.
 // The rows below carry no such column; the snapshot's tests search the whole response for them.
 //
 // A thing carries its meters (id, kind, unit, label, and from step 5 the latest reading's value
@@ -55,7 +55,7 @@ export type SnapshotOptions = {
   limit: number;
   /** The types hash the phone holds; the items come only when it differs. */
   typesHash?: string | undefined;
-  /** Live things per person (Q30); a test lowers it. */
+  /** Live things per person; a test lowers it. */
   thingCap?: number;
 };
 
@@ -117,7 +117,7 @@ async function visibleLocations(client: pg.ClientBase): Promise<SnapLocation[]> 
       timezone: r.timezone,
       languages: r.languages,
       role: r.role,
-      // As the location API computes it (locations/views.ts): step 3 (T9, D191), the AI
+      // As the location API computes it (locations/views.ts): step 3 (D191), the AI
       // modules follow a provider that resolves for the caller in the location.
       effectiveModules: [
         ...effectiveModules(enabled, { providerResolved: r.provider_resolved === true }),
@@ -171,7 +171,7 @@ async function startPass(
   const l: Watermarks = {};
   for (const id of visible) l[id] = w[id] ?? FROM_START;
   const pass: Pass = { x: rows[0]?.x as string, l, a: null };
-  // Past the cap, the most recently seen are kept (Q30). Counted under the person's policies.
+  // Past the cap, the most recently seen are kept. Counted under the person's policies.
   const count = await client.query<{ n: number }>(
     'SELECT count(*)::int AS n FROM public.things WHERE deleted_at IS NULL',
   );
@@ -371,7 +371,7 @@ async function readThings(ctx: PageContext, q: Slice): Promise<Read> {
   // Their meters, under the policies, oldest first (as the thing page lists them).
   const meters = new Map<string, SnapMeter[]>();
   if (rows.length > 0) {
-    // Step 5 (Q18): each meter's latest accepted reading, offset-corrected by the replacement in
+    // Each meter's latest accepted reading, offset-corrected by the replacement in
     // force when it was taken (as kept.meter_estimate() reads it), for offline "Log a reading".
     // A reading bumps its thing's meter_version (0061), so a delta resends it.
     const found = await client.query<
@@ -404,7 +404,7 @@ async function readThings(ctx: PageContext, q: Slice): Promise<Read> {
     }
   }
   for (const r of rows) {
-    // Step 4 (D119, Q34): lent, borrowed and in repair, and the open loan, for the offline path.
+    // Step 4 (D119): lent, borrowed and in repair, and the open loan, for the offline path.
     const derived: NonNullable<SnapThing['derived']> = [];
     if (r.loan_direction === 'out') derived.push('lent');
     if (r.loan_direction === 'in') derived.push('borrowed');
@@ -535,7 +535,7 @@ async function readTombstones({ client, out }: PageContext, q: Slice): Promise<R
     w.values,
   );
   for (const r of rows) {
-    // A code's or legacy code's tombstone carries its text key (0046, T17a): the short ID, or
+    // A code's or legacy code's tombstone carries its text key (0046): the short ID, or
     // legacyCodeKey(); its entity_id is only that key's hash.
     out.removed.push({
       locationId: r.location_id,

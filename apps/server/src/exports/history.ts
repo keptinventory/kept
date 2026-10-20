@@ -4,7 +4,7 @@ import { type AuditEventRow, type AuditViewer, renderAudit } from '../audit/rend
 import type { Scope, Tx } from '../db/scope.js';
 import { gateFor } from '../serialize/gates.js';
 
-// The location's history in an export (§3.3: audit events "included in exports"; plan T12, Q10):
+// The location's history in an export (audit events "included in exports"):
 // every event of the location the requester can read, rendered through renderAudit() for them,
 // so a secret is only `{changed: true}` and money follows their gate (D110). No custom-field
 // labels are added (a label isn't part of a stored change, and the importer writes the changes

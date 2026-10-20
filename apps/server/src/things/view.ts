@@ -37,9 +37,9 @@ import type { FileStorage } from '../storage/blob-store.js';
 import { moneyShaped } from './audit-image.js';
 import { type ResolvedFieldView, resolvedFields } from './fields.js';
 
-// The one thing serialiser (plan T14 view.ts): `ThingRow` for every list, and `ThingView` for the
-// detail screen, in the shapes of the web contract (apps/web/src/api/inventory/types.ts). Moves
-// (T15), trash and history (T21) and the seed (T23) import it.
+// The one thing serialiser: `ThingRow` for every list, and `ThingView` for the
+// detail screen, in the shapes of the web contract (apps/web/src/api/inventory/types.ts). Moves,
+// trash and history and the seed import it.
 //
 // Everything is read as the caller on kept_app, so RLS decides what exists. Money leaves only
 // through the thing's location gate (serialize/gates.ts): a withheld field is left out, never
@@ -56,7 +56,7 @@ export type PathStep = {
   name: string;
   kind: 'place' | 'container';
   isUnplaced: boolean;
-  /** The step's primary short ID, so a breadcrumb links by code (D208, T19); absent where a
+  /** The step's primary short ID, so a breadcrumb links by code (D208); absent where a
    * path is built without it (a capture batch's). */
   shortCode?: string | null;
 };
@@ -122,9 +122,9 @@ export type RowRecord = {
   thumb_file_id: string | null;
   container_thumb_file_id: string | null;
   is_container: boolean;
-  /** Step 4 (search/query.ts householdStateSql): a claim is in repair (T9). */
+  /** Step 4 (search/query.ts householdStateSql): a claim is in repair. */
   in_repair: boolean;
-  /** T10: the open loan's direction (householdStateSql). */
+  /** The open loan's direction (householdStateSql). */
   loan_direction: 'out' | 'in' | null;
 };
 
@@ -273,9 +273,9 @@ export type ThingView = ThingRow & {
     needsReview: number;
     /** For PATCH /api/v1/meters/:id (If-Match), T16. */
     rowVersion: number;
-    /** Step 5 (T8, Q8): the usage estimate, kept.meter_estimate(). */
+    /** The usage estimate, kept.meter_estimate(). */
     estimate: Estimate;
-    /** Step 5 (Q19): the stale-reading nudge's days, or null for none. */
+    /** The stale-reading nudge's days, or null for none. */
     nudgeDays: number | null;
   }[];
   links: { id: string; kind: LinkKind; direction: 'from' | 'to'; thing: ThingRow }[];
@@ -286,7 +286,7 @@ export type ThingView = ThingRow & {
   /** Step 4, T9 (D54): the claim in repair, "at <vendor>"; null when none is. */
   repairAt: { vendorName: string | null } | null;
   /** Step 4, T10 (D57): the open loan, "with Murdock since 3 Oct · due 17 Oct" (the web words it);
-   * a person's name only, never a contact detail (Q34). Null when it isn't on loan. */
+   * a person's name only, never a contact detail. Null when it isn't on loan. */
   loanLine: ThingLoanLine | null;
   rowVersion: number;
   createdAt: string;
@@ -443,7 +443,7 @@ export async function viewOf(
   };
 }
 
-/** Where a thing in repair is: its claim's vendor (D54, screens §8 "at <service centre>"). */
+/** Where a thing in repair is: its claim's vendor (D54). */
 async function repairAtOf(
   client: pg.ClientBase,
   thingId: string,
@@ -465,7 +465,7 @@ export type ThingLoanLine = {
 };
 
 /** The thing's open loan (D57): whom it is with, since when, and when it is due, overdue on the
- * location's own date (§7.13). */
+ * location's own date. */
 async function loanLineOf(client: pg.ClientBase, thingId: string): Promise<ThingLoanLine | null> {
   const { rows } = await client.query<{
     direction: LoanDirection;

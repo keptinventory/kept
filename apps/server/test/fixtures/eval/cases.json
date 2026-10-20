@@ -1,7 +1,7 @@
 {
   "set": "synthetic-2026-09-29",
   "synthetic": true,
-  "about": "Synthetic photos rendered by generate.mjs. Expected values follow the engineering spec's §2.1 shapes without confidences. {\"anyOf\": [...]} lists acceptable answers; null means the field must be left out; a field not listed is not scored. Aliases pass when at least one expected alias per language is returned.",
+  "about": "Synthetic photos rendered by generate.mjs. Expected values follow the extraction shapes without confidences. {\"anyOf\": [...]} lists acceptable answers; null means the field must be left out; a field not listed is not scored. Aliases pass when at least one expected alias per language is returned.",
   "cases": [
     {
       "id": "receipt-en",
@@ -58,7 +58,7 @@
       "mode": "receipt",
       "languages": ["en"],
       "locationCurrency": "USD",
-      "notes": "A receipt lying on a table, occupying x 0.30-0.70 and y 0.10-0.90 of the photo, for the paper-crop outline (Q11). A bare $ must stay ambiguous (D189). Warranty terms are printed (D55).",
+      "notes": "A receipt lying on a table, occupying x 0.30-0.70 and y 0.10-0.90 of the photo, for the paper-crop outline. A bare $ must stay ambiguous (D189). Warranty terms are printed (D55).",
       "expected": {
         "vendor": { "name": "SUNRISE HARDWARE" },
         "date": "2026-09-20",

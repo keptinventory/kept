@@ -1,6 +1,6 @@
 /**
  * The app lock's row and the keep-offline tables, for the lock (components/device/app-lock.tsx)
- * and This device (step-8 plan T23; D159, D181, D210). Loaded lazily (it brings Dexie); the chunk
+ * and This device (D159, D181, D210). Loaded lazily (it brings Dexie); the chunk
  * is precached, so a cold start offline can still ask for the PIN.
  *
  * One database connection per person, kept for the tab: the same `kept-<userId>` database the

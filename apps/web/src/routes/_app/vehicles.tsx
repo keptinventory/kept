@@ -1,5 +1,5 @@
 /**
- * Vehicles (step-5 plan T17; screens §1, §8): every car, motorbike and generator in the locations
+ * Vehicles: every car, motorbike and generator in the locations
  * with the module on, with its odometer, what's due next and its documents
  * (components/vehicles/list.tsx). A vehicle's tabs live on `/t/$id` as `?tab=`. Its search is the
  * `vehicles` surface's list state (filters, sort, saved views). Its chunk loads on demand from

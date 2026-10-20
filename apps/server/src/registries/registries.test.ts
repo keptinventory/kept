@@ -231,7 +231,7 @@ describe('brands', () => {
       name: { before: 'Braun', after: 'Braun GmbH' },
       support_phone: { before: null, after: '+49 1' },
     });
-    // Adam can't see the cabin, but its things name the brand too (T20, 0026).
+    // Adam can't see the cabin, but its things name the brand too (0026).
     const reindexed = sent
       .filter((j) => j.name === 'reindex')
       .map((j) => (j.data as { locationId: string }).locationId);
@@ -598,7 +598,7 @@ describe('a person’s contact details (D177)', () => {
 
   // catalogue: PUT /api/v1/people/:id/contact
   it('an admin of every location that uses them reads and writes them, audited as secret', async () => {
-    // Used nowhere yet: any admin of the account may see them (Q5).
+    // Used nowhere yet: any admin of the account may see them.
     const empty = await call(t, `/api/v1/people/${ibrahim}/contact`, { as: adam });
     expect(empty.statusCode, empty.body).toBe(200);
     expect(empty.json()).toEqual({ phone: null, email: null, notes: null });

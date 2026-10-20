@@ -1,8 +1,8 @@
 /**
- * The inbox (screens §5 "Inbox"; D18, D36, D175, D191): where captured drafts, receipts, readings
+ * The inbox (D18, D36, D175, D191): where captured drafts, receipts, readings
  * that don't fit, duplicates, lost label claims and dropped offline changes wait for a person.
  * The list, its keys and its states are components/inbox/inbox-list.tsx; the URL holds the
- * search and the filters (`f.kind`, `f.location`, `f.mine=everyone`), as every list does (L88).
+ * search and the filters (`f.kind`, `f.location`, `f.mine=everyone`), as every list does.
  */
 import { useLingui } from '@lingui/react/macro';
 import { createFileRoute } from '@tanstack/react-router';

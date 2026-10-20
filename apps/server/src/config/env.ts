@@ -38,7 +38,7 @@ const KEPT_LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'si
 
 const postgresUrl = () => z.url({ protocol: /^postgres(ql)?$/ });
 
-// Step 4 (T2, plan Q11): VAPID keys as web-push reads them (web-push 3.6.7
+// VAPID keys as web-push reads them (web-push 3.6.7
 // src/vapid-helper.js): unpadded base64url, the public key an uncompressed P-256 point of 65
 // bytes, the private key 32 bytes; the subject an `https:` URL or a `mailto:` address.
 const B64URL = /^[A-Za-z0-9_-]+$/;
@@ -64,7 +64,7 @@ const vapidSubjectUrl = () =>
       { message: 'an https: URL or a mailto: address' },
     );
 const httpUrl = () => z.url({ protocol: /^https?$/ });
-// Step 6 (T2, S6.7): comma-separated lists, empty items dropped; empty or unset is [].
+// comma-separated lists, empty items dropped; empty or unset is [].
 const csvList = () =>
   z
     .string()
@@ -78,10 +78,10 @@ const csvList = () =>
 
 /** Step 6 (D207): where vectors come from. `local` needs the local model's runtime installed. */
 export const KEPT_EMBEDDINGS_SOURCES = ['provider', 'local', 'off'] as const;
-/** The package `local` needs (spike S6.5). Not installed in 1.0: `local` is refused at boot. */
+/** The package `local` needs. Not installed in 1.0: `local` is refused at boot. */
 export const LOCAL_EMBEDDINGS_PACKAGE = '@huggingface/transformers';
 
-// §7.11: the environment contract. Required variables have no `.optional()`/`.default()`.
+// The environment contract. Required variables have no `.optional()`/`.default()`.
 // An empty string counts as unset (see `withoutEmpty`), so `KEPT_X=` in a compose file behaves
 // like leaving the line out.
 const schema = z.object({
@@ -105,7 +105,7 @@ const schema = z.object({
     .string()
     .optional()
     .describe('generated on first boot if unset (D193); set both or neither; see §7.3'),
-  // The keyring (§7.3, plan Q19). With generated keys the config volume's secrets.json holds
+  // The keyring. With generated keys the config volume's secrets.json holds
   // both, under the same names; these two apply only beside an operator-set KEPT_SECRET_KEY.
   KEPT_SECRET_KEY_VERSION: z
     .string()
@@ -146,8 +146,8 @@ const schema = z.object({
       message: '6 Crockford base32 characters (0-9, A-Z without I, L, O, U)',
     })
     .describe('generated; app stores may preset it (D107); 6 Crockford base32 characters'),
-  // §7.11's precedence rule (environment over instance_settings) needs a variable for each
-  // setting it locks; `signup_open` is the first (task 23). Unset: the admin setting decides.
+  // The precedence rule (environment over instance_settings) needs a variable for each
+  // setting it locks; `signup_open` is the first. Unset: the admin setting decides.
   KEPT_SIGNUP_OPEN: z
     .enum(['true', 'false'])
     .optional()
@@ -160,7 +160,7 @@ const schema = z.object({
     .default('/config')
     .describe('config volume; holds only the generated secret keys'),
   KEPT_DATA_DIR: z.string().default('/data').describe('data volume; local file storage'),
-  // Step 2 (§3.4, Q23): the upload limit, and how many images are resized at once (Q17).
+  // The upload limit, and how many images are resized at once.
   KEPT_MAX_FILE_MB: z.coerce
     .number()
     .int()
@@ -175,7 +175,7 @@ const schema = z.object({
     .max(32)
     .optional()
     .describe('images resized at once, process-wide; default 1 with under 3 GB of RAM, else 2'),
-  // Only read when KEPT_STORAGE=s3; then the bucket and both credentials are required (Q18).
+  // Only read when KEPT_STORAGE=s3; then the bucket and both credentials are required.
   KEPT_S3_ENDPOINT: httpUrl()
     .optional()
     .describe('S3 endpoint URL; empty for AWS itself (e.g. `http://rustfs:9000`)'),
@@ -218,7 +218,7 @@ const schema = z.object({
     .string()
     .optional()
     .describe('optional bearer token required to read `/metrics`'),
-  // Step 8 (T14, D84): optional tracing and error reporting, both off unless set. No telemetry.
+  // Step 8 (D84): optional tracing and error reporting, both off unless set. No telemetry.
   OTEL_EXPORTER_OTLP_ENDPOINT: httpUrl()
     .optional()
     .describe(
@@ -229,7 +229,7 @@ const schema = z.object({
     .describe(
       'optional; a Sentry-compatible DSN: a request that fails with a 5xx is reported with its request id, route and stack, never a body, header, message or user; unset, nothing is sent (D84)',
     ),
-  // Step 3 (T2). The mock provider answers every AI call from fixtures (CI, e2e, dev); a
+  // Step 3. The mock provider answers every AI call from fixtures (CI, e2e, dev); a
   // production boot refuses it (loadEnv), so a real instance never serves invented extractions.
   KEPT_AI_MOCK: z
     .enum(['0', '1'])
@@ -257,7 +257,7 @@ const schema = z.object({
     .describe(
       'the extraction evaluation only (`pnpm eval:extraction`): the folder of labelled photos',
     ),
-  // Step 3, alpha safety (D207, plan T31c): the nightly backup. One target, a directory or an S3
+  // Step 3, alpha safety (D207): the nightly backup. One target, a directory or an S3
   // bucket; unset, nothing is backed up and the admin status page says so. The job runs as
   // kept_owner, so a worker with a target also needs KEPT_OWNER_DATABASE_URL (checkBackupEnv).
   KEPT_BACKUP_DIR: z
@@ -308,8 +308,8 @@ const schema = z.object({
     .regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, { message: 'HH:MM, 24-hour, UTC' })
     .default('02:30')
     .describe('when the nightly backup starts, `HH:MM` in UTC'),
-  // Step 8 (plan T2; D64, D66, D186; Q5–Q9): restic. The targets above name the restic
-  // repository now (a `restic/` directory or prefix inside them, Q2); SFTP is the third target.
+  // Step 8 (D64, D66, D186): restic. The targets above name the restic
+  // repository now (a `restic/` directory or prefix inside them); SFTP is the third target.
   // Each variable set here locks its field in Admin → Backups. Never logged: the password.
   KEPT_BACKUP_PASSWORD: z
     .string()
@@ -379,7 +379,7 @@ const schema = z.object({
     .describe(
       '`auto` · `off`: whether `kept migrate` takes a database snapshot before migrating a populated database (plan Q8)',
     ),
-  // Step 4 (T2, plan Q11): web push. Unset, Kept generates a pair at first run and keeps it in
+  // Web push. Unset, Kept generates a pair at first run and keeps it in
   // instance_settings, the private key sealed; set, these override it.
   KEPT_VAPID_PUBLIC_KEY: b64urlBytes(65, 'the VAPID public key')
     .optional()
@@ -392,7 +392,7 @@ const schema = z.object({
     .describe(
       'web push: who push services contact, an `https:` URL or `mailto:` address; default `KEPT_PUBLIC_URL` when https, else `mailto:` the `KEPT_SMTP_FROM` address, else push is unavailable',
     ),
-  // Step 6 (T2, D207): semantic search's source. `provider` embeds with each location's resolved
+  // Step 6 (D207): semantic search's source. `provider` embeds with each location's resolved
   // AI provider (keyword-only where none has an embeddings model); `off` is keyword search only;
   // `local` is a model on this server and is refused unless its runtime is installed.
   KEPT_EMBEDDINGS: z
@@ -407,8 +407,8 @@ const schema = z.object({
     .describe(
       "the local embedding model's files, only read when `KEPT_EMBEDDINGS=local`; default `<KEPT_DATA_DIR>/models`",
     ),
-  // Step 6 (T2, spike S6.7, plan Q16): generic OIDC sign-in, configured here and read at boot.
-  // Unset issuer: no OIDC. Discovery goes through the SSRF guard (T16).
+  // Generic OIDC sign-in, configured here and read at boot.
+  // Unset issuer: no OIDC. Discovery goes through the SSRF guard.
   KEPT_OIDC_ISSUER: httpUrl()
     .optional()
     .describe(
@@ -489,7 +489,7 @@ export function backupTargetSet(
 }
 
 /**
- * Retention (D66, plan Q7): `KEPT_BACKUP_KEEP_*`, else 7/4/6. The alpha's `KEPT_BACKUP_KEEP` (a
+ * Retention (D66): `KEPT_BACKUP_KEEP_*`, else 7/4/6. The alpha's `KEPT_BACKUP_KEEP` (a
  * count of runs) is read as the daily count for one release; loadEnv() logs it as deprecated.
  */
 export function backupKeepOf(
@@ -508,7 +508,7 @@ export function backupKeepOf(
   };
 }
 
-/** restic's cache (plan Q5): KEPT_RESTIC_CACHE_DIR, else `<KEPT_DATA_DIR>/.cache/restic`, which
+/** restic's cache: KEPT_RESTIC_CACHE_DIR, else `<KEPT_DATA_DIR>/.cache/restic`, which
  * the backup leaves out. */
 export function resticCacheDir(
   env: Pick<EnvSchema, 'KEPT_RESTIC_CACHE_DIR' | 'KEPT_DATA_DIR'>,
@@ -517,7 +517,7 @@ export function resticCacheDir(
 }
 
 /**
- * The backup settings' own rules (T31c): one target, not both; a bucket with both credentials;
+ * The backup settings' own rules: one target, not both; a bucket with both credentials;
  * a directory that is absolute and outside the data volume (a backup inside it is lost with it,
  * and its tmp/ is swept at boot). `needsOwner`: this process runs the nightly job, which dumps as
  * kept_owner, so the owner login must be here too; otherwise backups would silently never run.
@@ -568,7 +568,7 @@ export function checkBackupEnv(
 export type EnvSchema = z.infer<typeof schema>;
 
 /**
- * The master keys for secrets at rest (§7.3, plan Q19): the current one, which seals, and the
+ * The master keys for secrets at rest: the current one, which seals, and the
  * retired ones, which still open what they sealed (values not yet re-wrapped, old backups).
  */
 export type SecretKeyring = Readonly<{
@@ -608,7 +608,7 @@ export type Env = Readonly<
     KEPT_S3_SECRET_ACCESS_KEY: string | undefined;
     /** Non-enumerable, like the keys. */
     KEPT_BACKUP_S3_SECRET_ACCESS_KEY: string | undefined;
-    /** Non-enumerable, like the keys (step 8). */
+    /** Non-enumerable, like the keys. */
     KEPT_BACKUP_PASSWORD: string | undefined;
     /** Non-enumerable, like the keys. Set exactly when KEPT_VAPID_PUBLIC_KEY is. */
     KEPT_VAPID_PRIVATE_KEY: string | undefined;
@@ -620,7 +620,7 @@ export type Env = Readonly<
 >;
 
 /**
- * The VAPID subject web push signs with (step-4 plan T2, Q11): KEPT_VAPID_SUBJECT; else
+ * The VAPID subject web push signs with: KEPT_VAPID_SUBJECT; else
  * KEPT_PUBLIC_URL when it is https (and not localhost, which Apple's push service refuses, as
  * web-push warns); else `mailto:` the KEPT_SMTP_FROM address. Null: push reports "unavailable".
  */
@@ -643,7 +643,7 @@ export type HostInfo = { arch: string; totalMemBytes: number };
 
 const SMALL_HOST_BYTES = 3 * 1024 ** 3;
 
-/** Q17, D209: one image at a time on a small host (the 2 GB floor), two anywhere else. */
+/** D209: one image at a time on a small host (the 2 GB floor), two anywhere else. */
 export function defaultImageConcurrency(totalMemBytes: number): number {
   return totalMemBytes < SMALL_HOST_BYTES ? 1 : 2;
 }
@@ -888,7 +888,7 @@ async function resolveKeys(
   const secretKey = env.KEPT_SECRET_KEY && decodeKey(env.KEPT_SECRET_KEY, 'KEPT_SECRET_KEY');
   const authSecret = env.KEPT_AUTH_SECRET && decodeKey(env.KEPT_AUTH_SECRET, 'KEPT_AUTH_SECRET');
 
-  // Both supplied: used as given, nothing written (§7.3, §7.11).
+  // Both supplied: used as given, nothing written.
   if (env.KEPT_SECRET_KEY && env.KEPT_AUTH_SECRET && secretKey && authSecret) {
     return resolved(
       {
@@ -978,7 +978,7 @@ export async function loadEnv(
     );
   }
 
-  // Step 6 (S6.7): an OIDC issuer needs its client id.
+  // An OIDC issuer needs its client id.
   if (env.KEPT_OIDC_ISSUER && !env.KEPT_OIDC_CLIENT_ID) {
     throw new EnvError('KEPT_OIDC_ISSUER is set without KEPT_OIDC_CLIENT_ID', 'oidc_incomplete');
   }
@@ -991,7 +991,7 @@ export async function loadEnv(
     );
   }
 
-  // Step 4 (Q11): the VAPID pair overrides the generated one only whole.
+  // The VAPID pair overrides the generated one only whole.
   if (Boolean(env.KEPT_VAPID_PUBLIC_KEY) !== Boolean(vapidPrivateKey)) {
     const missing = env.KEPT_VAPID_PUBLIC_KEY ? 'KEPT_VAPID_PRIVATE_KEY' : 'KEPT_VAPID_PUBLIC_KEY';
     throw new EnvError(
@@ -1000,9 +1000,9 @@ export async function loadEnv(
     );
   }
 
-  // The nightly backup's target (T31c); the owner login is needed where the job runs.
+  // The nightly backup's target; the owner login is needed where the job runs.
   checkBackupEnv(parsed.data, env.KEPT_ROLE !== 'web');
-  // Step 8 (plan Q7): the alpha's count is read as the daily count for one release.
+  // The alpha's count is read as the daily count for one release.
   if (withoutEmpty(source).KEPT_BACKUP_KEEP !== undefined) {
     opts.logger?.(
       'kept: KEPT_BACKUP_KEEP is deprecated and read as KEPT_BACKUP_KEEP_DAILY; set KEPT_BACKUP_KEEP_DAILY, _WEEKLY and _MONTHLY instead',
@@ -1029,7 +1029,7 @@ export async function loadEnv(
     );
   }
 
-  // Step 3: invented extractions must never reach a real instance.
+  // Invented extractions must never reach a real instance.
   if (source.NODE_ENV === 'production' && env.KEPT_AI_MOCK) {
     throw new EnvError(
       'KEPT_AI_MOCK=1 is for tests and development; unset it when NODE_ENV=production',
@@ -1130,7 +1130,7 @@ export type KeyMaterial = {
 };
 
 /**
- * The key material as the running server would use it (§7.3, D193), for the recovery kit and
+ * The key material as the running server would use it (D193), for the recovery kit and
  * rotation: the environment variables when both keys are set, else the config volume's
  * secrets.json. Unlike loadEnv() it never generates keys: a kit of freshly made keys would
  * restore nothing. Every key is validated, the retired ones too.

@@ -1,6 +1,6 @@
 /**
- * What a failed model call means (D206's outcome table, plan T8 step 5) and what of it may be
- * logged. **Never log an `APICallError` whole** (spike): `requestBodyValues` is the whole
+ * What a failed model call means (D206's outcome table) and what of it may be
+ * logged. **Never log an `APICallError` whole**: `requestBodyValues` is the whole
  * request body, the prompt and the base64 image, and `responseBody` can echo the request or an
  * account id. The ledger stores none of it; pino gets the status, retryability, the rate-limit
  * headers and a trimmed, scrubbed message.
@@ -30,7 +30,7 @@ export type Classified = {
  * OpenAI's 429 codes (`insufficient_quota` type; `credit_balance_exhausted`,
  * `*_spend_limit_exceeded`, `organization_usage_limit_exceeded`), Anthropic's spend cap
  * (`enforced_spend_limit_reached`) and its self-set limit (400, "reached your specified …
- * usage limits"), and OpenRouter's key credit limit (403 "Key limit exceeded", spike §2).
+ * usage limits"), and OpenRouter's key credit limit (403 "Key limit exceeded").
  */
 const QUOTA =
   /insufficient_quota|credit_balance_exhausted|spend_limit_exceeded|usage_limit_exceeded|enforced_spend_limit_reached|reached your specified (?:workspace )?api usage limits|key limit exceeded/i;
@@ -130,7 +130,7 @@ export function classifyError(e: unknown, now: Date): Classified {
       };
     }
     if (status < 400) {
-      // An error inside an HTTP 200 (OpenRouter, spike finding 7): retryable.
+      // An error inside an HTTP 200 (OpenRouter): retryable.
       return {
         outcome: 'provider_error',
         errorCode: 'error_in_200',

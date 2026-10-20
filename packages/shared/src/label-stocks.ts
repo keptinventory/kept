@@ -1,5 +1,5 @@
 /**
- * Label stock (D44, D97, D175, D185; plan Q29). Labels are print-styled HTML with `@page` sizes,
+ * Label stock (D44, D97, D175, D185). Labels are print-styled HTML with `@page` sizes,
  * one sheet per stock, and PNGs made on the phone. All sizes are millimetres; x and y are from
  * the page's physical top-left corner, whatever the reading direction, because the sheet is.
  *

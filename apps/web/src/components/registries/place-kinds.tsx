@@ -1,6 +1,6 @@
 /**
- * Account settings → Place kinds (D33, D160; screens §5 "Place kinds reuse the same field
- * editor"). The built-in floor, room, spot and closet, and the account's own kinds (a shelf, a
+ * Account settings → Place kinds (D33, D160).
+ * The built-in floor, room, spot and closet, and the account's own kinds (a shelf, a
  * bay), each with fields a place of that kind can carry: a filter size, dimensions.
  *
  * A list (the list standard, `?q=`) and the selected kind (`?kind=`), edited with the same field

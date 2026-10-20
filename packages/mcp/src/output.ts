@@ -1,5 +1,5 @@
 /**
- * The tool output contract (D63, D179, L70; engineering spec §2.5).
+ * The tool output contract (D63, D179).
  *
  * - Every tool answers an `Envelope`: `{data, as_of, next_cursor?}`, or `{error, hint}`.
  * - Every user-written string (names, notes, aliases, place names, descriptions) sits under an
@@ -12,7 +12,7 @@
  *   then removes whole fields from a single oversized item. It never cuts a string.
  *
  * The 8 KB is the tool's own JSON, not the MCP response: JSON-in-JSON escaping and
- * `structuredContent` add to the wire (spike S6.1, finding 4).
+ * `structuredContent` add to the wire (finding 4).
  */
 
 import { z } from 'zod';

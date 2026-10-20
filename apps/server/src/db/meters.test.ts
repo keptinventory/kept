@@ -12,7 +12,7 @@ import {
 } from '../../test/tenancy.js';
 import { type Scope, withScope } from './scope.js';
 
-// Task 7: core meters, readings and events (engineering spec §1.6, §7.13; D10, D52, D113).
+// Core meters, readings and events (D10, D52, D113).
 
 const db = await testDb();
 const app = db.pools.app;

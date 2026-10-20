@@ -1,11 +1,11 @@
 /**
- * A vehicle in words (plan T17, T18; D52, D188): the odometer's latest reading and how old it is,
+ * A vehicle in words (D52, D188): the odometer's latest reading and how old it is,
  * the usage estimate, what's due next ("estimated ~14 Nov" when the date comes from the usage,
  * never for a meter whose reading is too old to trust), and a document coming due. Shared by the
  * Vehicles list and the vehicle page, so both say the same thing the same way.
  *
  * Digits (D143): readings, dates and counts follow the reader's setting through `useFormat`.
- * Estimates: `advice` is the server's (`kept.meter_estimate`, T7): `stale` at 30 days, `unknown`
+ * Estimates: `advice` is the server's (`kept.meter_estimate`): `stale` at 30 days, `unknown`
  * at 60, when the estimate is no longer used and the screens say "unknown — reading needed".
  */
 import type { DocumentKind, ReadingAdvice } from '@kept/shared';
@@ -51,7 +51,7 @@ export function ReadAgo({ ageDays }: { ageDays: number | null }) {
   return <Plural value={ageDays} one="read # day ago" other="read # days ago" />;
 }
 
-/** "from a photo by Alfred", "typed by Alfred", "from a fill by Alfred" (D27, the board's words). */
+/** "from a photo by Alfred", "typed by Alfred", "from a fill by Alfred" (D27, the designs' words). */
 export function ReadingSourceText({ source, by }: { source: ReadingSource; by: ActorRef }) {
   const name = <bdi>{by.displayName}</bdi>;
   switch (source) {

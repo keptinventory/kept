@@ -1,6 +1,6 @@
 /**
- * Fuel and charging (plan T11; D28, D170; Q3, Q6, Q7, Q22), after the server's `fuel/`: fills and
- * charges on a vehicle, each with its odometer reading (source `fuel`, owned by the fill, Q11), the
+ * Fuel and charging (D28, D170), after the server's `fuel/`: fills and
+ * charges on a vehicle, each with its odometer reading (source `fuel`, owned by the fill), the
  * station as a vendor, the pump receipt, and the summary from @kept/shared's `consumption()`,
  * `pricePerUnit()` and `perDistance()`. Module `fuel` (which needs `vehicles`); money through the
  * gate; undoable writes.
@@ -290,7 +290,7 @@ export function fuelRoutes(state: MockState): MockRoute[] {
         return err(409, 'module_off', 'This module is off in this location.');
       const before = { ...fill };
       if (b.reading) {
-        // A changed odometer re-places its reading (T11).
+        // A changed odometer re-places its reading.
         const old = fill.readingId;
         removeReading(old);
         const meter = mainMeter(g.thing);

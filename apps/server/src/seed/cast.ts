@@ -1,4 +1,4 @@
-// The seed's people and places (D152, D185): the cast of the screens board,
+// The seed's people and places (D152, D185): the cast of the screen designs,
 // the same Cairo household in October 2026. Ibrahim owns Home and runs this Kept; his brother Bruce
 // is an admin; Alfred is a member; Louis is house-sitting as a member for a few weeks; Talia is a
 // viewer; Peter, Alfred's son, has a managed account. Murdock, Ibrahim's other brother, stays a
@@ -9,7 +9,7 @@
 // "asks everyone for two-factor" on the board; the seed leaves require_2fa off, so every account
 // signs in with its password alone in development.
 //
-// Step 2 (task 23) adds a Garage location of Ibrahim's, as on the board, and fills every household
+// Step 2 adds a Garage location of Ibrahim's, as on the board, and fills every household
 // with places and things (seed/stock.ts, seed/inventory.ts).
 
 /** Every seeded account's password: development only (the seed refuses NODE_ENV=production). */
@@ -84,7 +84,7 @@ export const HOUSEHOLDS: Household[] = [
     ],
     managed: [{ who: 'peter', role: 'member', createdBy: 'ibrahim' }],
   },
-  // The board's second location of Ibrahim's: the car, the tools and the shelves (screens 02, 05).
+  // Ibrahim's second location in the designs: the car, the tools and the shelves.
   {
     name: 'Garage',
     kind: 'garage',

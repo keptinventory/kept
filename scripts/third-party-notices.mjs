@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// THIRD-PARTY-NOTICES.txt (D151; step-8 plan T15).
+// THIRD-PARTY-NOTICES.txt (D151).
 //
 // Run by the Dockerfile's `notices` stage, once per architecture, against the image's own pruned
 // node_modules: `pnpm licenses list` on a laptop names the laptop's platform binaries and the
-// tooling the prune removes, so it is the wrong list (spike R3). The file names every npm package
+// tooling the prune removes, so it is the wrong list. The file names every npm package
 // the image ships with its licence and the licence's full text (the package's own LICENSE/NOTICE
 // files; for a package that ships none, the standard text of the licence its package.json names),
 // then Node.js, restic and the Debian packages with theirs. The build copies it to
-// /app/THIRD-PARTY-NOTICES.txt; the release attaches it (T17).
+// /app/THIRD-PARTY-NOTICES.txt; the release attaches it.
 //
 // It is also the image's licence scan: a shipped package whose licence is off the runtime
 // allowlist in scripts/check-licences.mjs (D151, D187) fails the build, with the same rules and
@@ -298,7 +298,7 @@ export function render(opts) {
   return out.join('\n');
 }
 
-/** The packages whose licence asks more than a notice (spike R3), and the one with no file. */
+/** The packages whose licence asks more than a notice, and the one with no file. */
 export function specialNotes(packages) {
   const notes = [];
   for (const p of packages) {

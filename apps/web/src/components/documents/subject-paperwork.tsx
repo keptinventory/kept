@@ -1,10 +1,10 @@
 /**
- * The Paperwork section of a location's or a place's page (plan T23; D155, D172, screens §5
- * "Place fields and the location's paperwork"): the documents that belong to the whole home or a
+ * The Paperwork section of a location's or a place's page (D155, D172):
+ * the documents that belong to the whole home or a
  * room (the lease, the deed, the home insurance, the manual of a built-in oven), and the ones
  * that run out, each with Renew, which keeps the old term (D172).
  *
- * Controls follow screens §3: "Add document" for members and above (`attachments.add`), "Add
+ * Controls follow the role rules: "Add document" for members and above (`attachments.add`), "Add
  * expiring document", Renew and Remove for those who may edit things (`things.edit`); a viewer
  * reads. Offline, adding says "Needs a connection". The section shows only while Paperwork is on
  * in the location: off, the documents rest with the module (D162). A place's section also shows

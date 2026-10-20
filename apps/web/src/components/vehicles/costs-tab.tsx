@@ -1,11 +1,11 @@
 /**
- * A vehicle's Costs tab (plan T18; the board's desktop frame; D26, D188, Q5, Q22): the last six
+ * A vehicle's Costs tab (D26, D188): the last six
  * full months as stacked bars by category (fuel · service and parts · fees and insurance), with a
  * direct label on each month a service was done; the totals, the cost per km over the distance
  * the readings give, the fuel's monthly average; and the current month "so far", outside the bars
  * and never compared with a full month (D188). "Show as table" gives the same numbers.
  *
- * Money is per currency, never converted or added across currencies (Q22): with several, a switch
+ * Money is per currency, never converted or added across currencies: with several, a switch
  * picks the chart's. Without money (a viewer where it's hidden), the distance alone and the notice.
  */
 import { type CostCategory, perDistance } from '@kept/shared';
@@ -228,7 +228,7 @@ function Costs({ report }: { report: CostReport }) {
   );
 }
 
-/** The fuel tile's second line: the consumption, when the fuel summary has one (T11). */
+/** The fuel tile's second line: the consumption, when the fuel summary has one. */
 function FuelLine() {
   const consumption = useConsumption();
   const { thing } = useThingCtx();

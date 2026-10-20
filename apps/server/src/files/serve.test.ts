@@ -21,7 +21,7 @@ import { createLogger } from '../http/logger.js';
 import { originalKey } from '../storage/blob-store.js';
 import { createUrlSigner } from '../storage/signed-url.js';
 
-// T17: serving files (D117, D157; plan Q16). Signed URLs from POST /api/v1/files/:id/url, bytes
+// Serving files (D117, D157). Signed URLs from POST /api/v1/files/:id/url, bytes
 // from GET /f/:token, which reads no session and marks every response as inert.
 
 let db: TestDb;

@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { beat, lastPoll } from './liveness.js';
 
-// The worker's liveness signal (step-1 carry-over; plan T13) and the image's healthcheck script
+// The worker's liveness signal and the image's healthcheck script
 // that reads it (docker/healthcheck.mjs), run as the HEALTHCHECK runs it.
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
