@@ -35,7 +35,7 @@ const namesOf = (op: Op) => new Map(op.locations.map((l) => [l.id, l.name]));
 
 /** Pages over an operation's keyset pages: `c` the operation's cursor, `o` how many of that page
  * were answered already (fit() shortened it). */
-function paged<T>(
+export function paged<T>(
   cursor: string | undefined,
   run: (opCursor: string | undefined) => Promise<{ items: T[]; next: string | null }>,
 ) {

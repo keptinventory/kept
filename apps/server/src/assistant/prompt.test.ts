@@ -3,8 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { compactSchema, toolSpecOf } from './prompt.js';
 
 const NAMES = Object.keys(TOOL_DEFS) as ToolName[];
+/** The tools the assistant may be offered (the moving tools are MCP's only). */
+const ASSISTANT = NAMES.filter((n) => TOOL_DEFS[n].doors.includes('assistant'));
 const sizeOf = (opts: { oneLocation?: boolean } = {}) =>
-  JSON.stringify(NAMES.map((n) => toolSpecOf(n, opts).inputSchema)).length;
+  JSON.stringify(ASSISTANT.map((n) => toolSpecOf(n, opts).inputSchema)).length;
 
 describe('the tools as the model sees them', () => {
   it('leave out $schema and long patterns, and keep formats and short patterns', () => {

@@ -73,6 +73,12 @@ last wins.
 Starting a move, adding a box, choosing a box's room, the contents sheets and marking the move
 done need a connection.
 
+## From a connected app
+
+An app connected with **Read and change** (ChatGPT, Claude: [connect an app](/users/mcp-clients/))
+can start a move, add boxes, pack them, mark them in transit and unpack them, with the same rules
+and Undo as here. A read-only connection lists moves and boxes, and which ones are still missing.
+
 ## Who can do what
 
 | | Viewer | Member | Admin and owner |

@@ -14,7 +14,10 @@ import {
 const defs = Object.entries(TOOL_DEFS) as [string, ToolDef][];
 
 /** The table in the step-6 plan, task 1 step 1. */
-const TABLE: Record<string, [scope: 'read' | 'write', module: string | null, since: number]> = {
+const TABLE: Record<
+  string,
+  [scope: 'read' | 'write', module: string | null, since: number | '1.x']
+> = {
   capabilities: ['read', null, 6],
   list_locations: ['read', null, 6],
   search_things: ['read', null, 6],
@@ -42,13 +45,55 @@ const TABLE: Record<string, [scope: 'read' | 'write', module: string | null, sin
   log_service: ['write', null, 5],
   log_fuel: ['write', 'fuel', 5],
   adjust_stock: ['write', 'consumables', 7],
+  // Moving mode (1.x, D251), MCP only.
+  list_moves: ['read', 'moving', '1.x'],
+  get_move: ['read', 'moving', '1.x'],
+  start_move: ['write', 'moving', '1.x'],
+  add_box: ['write', 'moving', '1.x'],
+  pack_into_box: ['write', 'moving', '1.x'],
+  set_box_status: ['write', 'moving', '1.x'],
+  unpack_box: ['write', 'moving', '1.x'],
 };
+
+const MCP_ONLY = [
+  'list_moves',
+  'get_move',
+  'start_move',
+  'add_box',
+  'pack_into_box',
+  'set_box_status',
+  'unpack_box',
+];
 
 describe('TOOL_DEFS', () => {
   it('is exactly the plan’s table: scope, module and step', () => {
     expect(Object.keys(TOOL_DEFS).sort()).toEqual(Object.keys(TABLE).sort());
     for (const [name, d] of defs) expect([d.scope, d.module, d.since]).toEqual(TABLE[name]);
-    expect(TOOL_NAMES).toHaveLength(27);
+    expect(TOOL_NAMES).toHaveLength(34);
+  });
+
+  it('offers every tool at both doors but Moving mode’s, which only MCP is offered', () => {
+    for (const [name, d] of defs) {
+      expect([...d.doors].sort(), name).toEqual(
+        MCP_ONLY.includes(name) ? ['mcp'] : ['assistant', 'mcp'],
+      );
+      expect(Object.isFrozen(d.doors)).toBe(true);
+    }
+  });
+
+  it('moving: a box status is packed or in transit (unpacking is unpack_box), or a room', () => {
+    const input = TOOL_DEFS.set_box_status.input;
+    const base = { move_id: '0192a1b2-0000-7000-8000-000000000001', box_id: 'K7D2QX' };
+    expect(input.safeParse({ ...base, state: 'in_transit' }).success).toBe(true);
+    expect(input.safeParse({ ...base, destination_place_id: 'H4M9TR' }).success).toBe(true);
+    expect(input.safeParse({ ...base, state: 'unpacked' }).success).toBe(false);
+    expect(input.safeParse(base).success).toBe(false);
+    const pack = TOOL_DEFS.pack_into_box.input;
+    expect(pack.safeParse({ ...base, thing_ids: [] }).success).toBe(false);
+    expect(pack.safeParse({ ...base, thing_ids: Array(21).fill('K7D2QX') }).success).toBe(false);
+    expect(TOOL_DEFS.get_move.output.shape.items.element.shape.untrusted.shape).toHaveProperty(
+      'name',
+    );
   });
 
   it('has no tool that trashes, deletes, merges, transfers, reveals, uploads or runs SQL', () => {

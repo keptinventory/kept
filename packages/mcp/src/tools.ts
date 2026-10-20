@@ -6,8 +6,12 @@
  *   may write (a write token, a member or better, D123).
  * - `module`: the tool is offered in a location only while that module is effective there
  *   (D113); `null` is the core.
- * - `since`: the step whose service backs the tool (step-6 plan Q10). The contract lands now; the
- *   handler lands with that step, and `capabilities` never lists a tool without one.
+ * - `since`: the step whose service backs the tool (step-6 plan Q10), or `1.x` for a tool added
+ *   after the plan (Moving mode's, D251). The contract lands now; the handler lands with that
+ *   step, and `capabilities` never lists a tool without one.
+ * - `doors`: who is offered the tool, MCP and the assistant (D22) unless it says otherwise. The
+ *   moving tools are MCP's only: the assistant's confirmation card has no rows for them, and every
+ *   assistant request carries every tool it may call (its free-tier budget, D124's amendment).
  * - `input` is what the model or the MCP client sends (snake_case, §2.5). Ids are UUIDs or
  *   6-character short IDs (`idOrCode`), read through `normaliseInputCode`. `location_id` is
  *   optional where the principal has one location (D179).
@@ -22,13 +26,17 @@
 
 import {
   ATTACHMENT_ROLES,
+  BOX_STATES,
   BUILTIN_PLACE_KINDS,
   CLAIM_STATUSES,
   CONDITIONS,
   DERIVED_STATES,
   isShortCode,
   LIFECYCLES,
+  MAX_BOX_PREFIX,
+  MAX_MOVE_NAME,
   MODULE_IDS,
+  MOVE_STATUSES,
   type ModuleId,
   normaliseInputCode,
   ROLES,
@@ -39,9 +47,13 @@ import { z } from 'zod';
 export const TOOL_SCOPES = ['read', 'write'] as const;
 export type ToolScope = (typeof TOOL_SCOPES)[number];
 
-/** The steps whose services back a tool (Q10). */
-export const TOOL_SINCE = [4, 5, 6, 7] as const;
+/** The steps whose services back a tool (Q10), and `1.x` for one added since. */
+export const TOOL_SINCE = [4, 5, 6, 7, '1.x'] as const;
 export type ToolSince = (typeof TOOL_SINCE)[number];
+
+/** Who may be offered a tool: an MCP client, and the in-app assistant (D22, D63). */
+export const TOOL_DOORS = ['mcp', 'assistant'] as const;
+export type ToolDoor = (typeof TOOL_DOORS)[number];
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -161,17 +173,23 @@ export type ToolDef<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.Zod
   scope: ToolScope;
   module: ModuleId | null;
   since: ToolSince;
+  /** Who is offered it: both unless the entry names fewer. */
+  doors: readonly ToolDoor[];
   input: I;
   output: O;
   annotations: ToolAnnotations;
 };
 
 const tool = <I extends z.ZodType, O extends z.ZodType>(
-  d: Omit<ToolDef<I, O>, 'annotations'> & { idempotent?: boolean },
+  d: Omit<ToolDef<I, O>, 'annotations' | 'doors'> & {
+    idempotent?: boolean;
+    doors?: readonly ToolDoor[];
+  },
 ): ToolDef<I, O> => {
-  const { idempotent, ...rest } = d;
+  const { idempotent, doors, ...rest } = d;
   return Object.freeze({
     ...rest,
+    doors: Object.freeze([...(doors ?? TOOL_DOORS)]),
     annotations: Object.freeze({
       readOnlyHint: d.scope === 'read',
       destructiveHint: false as const,
@@ -180,6 +198,61 @@ const tool = <I extends z.ZodType, O extends z.ZodType>(
     }),
   });
 };
+
+// --- Moving mode (1.x, D251) ------------------------------------------------------------------
+
+const boxCounts = z.object({
+  packed: z.number().int(),
+  in_transit: z.number().int(),
+  unpacked: z.number().int(),
+  total: z.number().int(),
+});
+
+/** A move as the moving tools cite it. Its name and its destination's name are people's words. */
+const moveRef = z.object({
+  id: uuid,
+  location_id: uuid.describe('The location being packed'),
+  to_location_id: uuid
+    .nullable()
+    .describe('The location the boxes go to; null: rooms of the same location'),
+  status: z.enum(MOVE_STATUSES),
+  created_at: z.string(),
+  finished_at: z.string().nullable(),
+  counts: boxCounts.describe('Boxes by state'),
+  url: z.string().describe('The move’s board in Kept'),
+  untrusted: z.object({
+    name: z.string(),
+    /** Null when it stays in one location, or you can't see the other one. */
+    to_location: z.string().nullable(),
+  }),
+});
+
+/** One box of a move: a container (a thing) with its number and where it is in the move. */
+const moveBox = z.object({
+  box_id: uuid.describe('The box’s container (a thing): pack into it, move it, open it'),
+  short_code: z.string().nullable().describe('The short ID on its label'),
+  number: z.number().int(),
+  state: z.enum(BOX_STATES),
+  state_at: z.string(),
+  visible: z
+    .boolean()
+    .describe('False when it was unpacked into a location you can’t see: then no name or place'),
+  location_id: uuid.nullable(),
+  contents: z.number().int().describe('Things directly inside it'),
+  destination: z
+    .object({ place_id: uuid, location_id: uuid, untrusted: z.object({ name: z.string() }) })
+    .nullable()
+    .describe('The room it goes to, when one was chosen'),
+  url: z.string().describe('The box in Kept'),
+  untrusted: z.object({
+    name: z.string().nullable(),
+    /** Where it is now: places down to its own ("Kitchen › Shelf"). */
+    where: z.string().nullable(),
+  }),
+});
+
+const moveId = uuid.describe('The move (list_moves lists them)');
+const boxId = idOrCode.describe('The box: its id, or the short ID on its label');
 
 /** One item of `add_thing` (D213: a spoken list is one call with several items). */
 export const addThingItem = z.object({
@@ -809,6 +882,154 @@ export const TOOL_DEFS = Object.freeze({
         .refine((n) => n !== 0, { message: 'not zero' }),
     }),
     output: writeResult.extend({ thing: thingRef, quantity: z.number() }),
+  }),
+
+  // --- Moving mode (1.x, D251), MCP only ---------------------------------------------------------
+  list_moves: tool({
+    name: 'list_moves',
+    title: 'Moves',
+    description:
+      'Which moves are there? Lists them, open ones first, with how many boxes are packed, in transit and unpacked.',
+    scope: 'read',
+    module: 'moving',
+    since: '1.x',
+    doors: ['mcp'],
+    input: z.object({
+      location_id: locationId,
+      status: z.enum(MOVE_STATUSES).optional().describe('active (still open) or done'),
+      cursor,
+      limit,
+    }),
+    output: list(moveRef),
+  }),
+  get_move: tool({
+    name: 'get_move',
+    title: 'A move',
+    description:
+      'Where is each box of this move? Its boxes in number order with their state and room, and the numbers still missing (not unpacked).',
+    scope: 'read',
+    module: 'moving',
+    since: '1.x',
+    doors: ['mcp'],
+    input: z.object({ location_id: locationId, move_id: moveId, cursor, limit }),
+    output: z.object({
+      move: moveRef,
+      items: z.array(moveBox),
+      missing: z.array(z.number().int()).describe('Numbers of the boxes not unpacked yet'),
+    }),
+  }),
+  start_move: tool({
+    name: 'start_move',
+    title: 'Start a move',
+    description:
+      'Start a move: name it, and give the location the boxes go to when it is another one.',
+    scope: 'write',
+    module: 'moving',
+    since: '1.x',
+    doors: ['mcp'],
+    input: z.object({
+      location_id: locationId.describe('The location being packed'),
+      name: shortText(MAX_MOVE_NAME),
+      to_location_id: uuid
+        .optional()
+        .describe('Where the boxes go; leave it out when they stay in this location'),
+    }),
+    output: writeResult.extend({ move: moveRef }),
+  }),
+  add_box: tool({
+    name: 'add_box',
+    title: 'Add a box',
+    description:
+      'Add the next numbered box to a move: a new box ("Box 4"), or a container that exists. Optionally the room it goes to.',
+    scope: 'write',
+    module: 'moving',
+    since: '1.x',
+    doors: ['mcp'],
+    input: z.object({
+      location_id: locationId,
+      move_id: moveId,
+      container_id: idOrCode
+        .optional()
+        .describe('A container that exists, to number as a box; leave it out for a new box'),
+      prefix: z
+        .string()
+        .trim()
+        .min(1)
+        .max(MAX_BOX_PREFIX)
+        .optional()
+        .describe('A new box’s word before its number, in the person’s language: "Box" unless set'),
+      place_id: idOrCode
+        .optional()
+        .describe('Where a new box is being packed; the Unplaced area when left out'),
+      destination_place_id: idOrCode
+        .optional()
+        .describe('The room it goes to, in the location the move goes to'),
+    }),
+    output: writeResult.extend({ box: moveBox }),
+  }),
+  pack_into_box: tool({
+    name: 'pack_into_box',
+    title: 'Pack',
+    description:
+      'Pack things into a box of a move: they move into it, as an ordinary move (each can be undone).',
+    scope: 'write',
+    module: 'moving',
+    since: '1.x',
+    doors: ['mcp'],
+    input: z.object({
+      location_id: locationId,
+      move_id: moveId,
+      box_id: boxId,
+      thing_ids: z.array(idOrCode).min(1).max(20),
+    }),
+    output: writeResult.extend({
+      audit_event_ids: z.array(uuid),
+      box: moveBox,
+      things: z.array(thingRef),
+    }),
+  }),
+  set_box_status: tool({
+    name: 'set_box_status',
+    title: 'Box status',
+    description:
+      'Mark a box packed or in transit, or choose the room it goes to. To unpack it, call unpack_box.',
+    scope: 'write',
+    module: 'moving',
+    since: '1.x',
+    doors: ['mcp'],
+    idempotent: true,
+    input: z
+      .object({
+        location_id: locationId,
+        move_id: moveId,
+        box_id: boxId,
+        state: z.enum(['packed', 'in_transit']).optional(),
+        destination_place_id: idOrCode
+          .optional()
+          .describe('The room it goes to, in the location the move goes to'),
+      })
+      .refine((b) => b.state !== undefined || b.destination_place_id !== undefined, {
+        message: 'a state or a room',
+        path: ['state'],
+      }),
+    output: writeResult.extend({ box: moveBox, changed: z.boolean() }),
+  }),
+  unpack_box: tool({
+    name: 'unpack_box',
+    title: 'Unpack',
+    description:
+      'Unpack a box into a room: the box and everything in it move there, and it is marked unpacked.',
+    scope: 'write',
+    module: 'moving',
+    since: '1.x',
+    doors: ['mcp'],
+    input: z.object({
+      location_id: locationId,
+      move_id: moveId,
+      box_id: boxId,
+      place_id: idOrCode.optional().describe('The room; the one chosen for the box when left out'),
+    }),
+    output: writeResult.extend({ box: moveBox, changed: z.boolean() }),
   }),
 });
 

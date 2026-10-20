@@ -62,6 +62,8 @@ import { type Ctx, insertThing, liveThing } from '../things/service.js';
 // POST   /api/v1/moves/:id/boxes/:containerId/unpack             → MoveBox
 // DELETE /api/v1/moves/:id/boxes/:containerId                    → 204
 // GET    /api/v1/move-boxes/:containerId                         → MoveBox & {move} (open moves first)
+//
+// The MCP tools (tools/handlers/moving.ts) call these same functions, packIntoBox() included.
 
 const Name = z.string().trim().min(1).max(MAX_MOVE_NAME);
 const State = z.enum(BOX_STATES);
@@ -825,6 +827,30 @@ export async function unpackBox(
     undoableUntil: undoableUntil(),
   });
   return { box: boxView(after), changed: true };
+}
+
+/**
+ * Packing for the MCP tool `pack_into_box`: the things move into the box's container as the
+ * web's packing moves them (the ordinary move, D45: its checks, its `thing.move` rows, each
+ * undoable), once the box is one of this open move's and the caller may pack. A box can't go
+ * into itself.
+ */
+export async function packIntoBox(
+  ctx: WriteCtx,
+  moveId: string,
+  containerId: string,
+  thingIds: readonly string[],
+): Promise<{ box: MoveBoxView; moved: string[] }> {
+  const { box } = await writableBox(ctx, moveId, containerId);
+  if (thingIds.some((id) => id.toLowerCase() === box.container_id)) {
+    throw invalid('A box can’t be packed into itself.');
+  }
+  const { moved } = await moveThings(ctx, {
+    thingIds: [...thingIds],
+    to: { containerId: box.container_id },
+  });
+  const after = (await findBox(ctx.client, box.move_id, box.container_id)) as BoxRecord;
+  return { box: boxView(after), moved };
 }
 
 export async function removeBox(ctx: WriteCtx, moveId: string, containerId: string) {

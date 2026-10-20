@@ -148,6 +148,15 @@ higher. The part of Kept a tool needs is the name under **What to track**.
 | `log_service` | change | | Record a service: date, who did it, total, lines (each may use stock from a consumable), and the schedules it completes. |
 | `log_fuel` | change | Fuel | Record a fill-up: amount, unit, cost, whether full, and the odometer. |
 | `adjust_stock` | change | Things you run out of | Add to or take from a consumable's stock. |
+| `list_moves` | read | Moving house | Which moves there are, with how many boxes are packed, in transit and unpacked. |
+| `get_move` | read | Moving house | Where each box of a move is, and which numbers are still missing. |
+| `start_move` | change | Moving house | Start a move, to another location or between rooms of this one. |
+| `add_box` | change | Moving house | Add the next numbered box: a new one, or a container you have. |
+| `pack_into_box` | change | Moving house | Pack things into a box. |
+| `set_box_status` | change | Moving house | Mark a box packed or in transit, or choose its room. |
+| `unpack_box` | change | Moving house | Unpack a box into a room; everything in it goes with it. |
+
+The moving tools are for connected apps only; the assistant in Kept doesn't use them.
 
 Every tool that takes an id also takes a 6-character short ID such as `K7D2QX`. The full
 contracts are in
