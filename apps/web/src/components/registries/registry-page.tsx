@@ -243,7 +243,7 @@ function Things({
           ...((locations.data?.length ?? 0) > 1 ? [f.location()] : []),
           f.type(),
           f.tag(),
-          f.state(['uncertain', 'draft', 'ended']),
+          f.state(['uncertain', 'draft', 'ended', 'archived']),
           ...(kind === 'brands' ? [] : [f.brand()]),
           ...(kind === 'people' ? [] : [f.belongsTo()]),
         ]}

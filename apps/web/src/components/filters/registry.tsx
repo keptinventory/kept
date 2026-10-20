@@ -133,6 +133,7 @@ export function useFilterRegistry() {
     uncertain: t`Not sure where`,
     draft: t`Draft`,
     ended: t`Ended`,
+    archived: t`Archived`,
     to_review: t`Readings to review`,
     long_unseen: t`Not seen for a long time`,
     unplaced: t`Waiting for a place`,

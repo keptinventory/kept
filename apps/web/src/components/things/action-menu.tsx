@@ -1,6 +1,7 @@
 /**
  * The thing's actions: Move · Lend or Mark returned · Pick up (the carrying tray, D175) · Box check
  * (containers, D40) · Label · Split · Duplicate · Save as template (D76) · Mark seen · Not here · Change lifecycle ·
+ * Archive or Unarchive ·
  * Re-type · Convert to place (containers) · Share a read-only link (containers, owners and admins,
  * never in Personal; 1.5, D233) · Trash, plus Copy link. On a phone
  * they open as a bottom sheet; from `md` up, as a menu. Both are a React Aria Menu: arrow keys
@@ -23,6 +24,7 @@ import { inventoryApi } from '@/api/inventory/queries';
 import { thingApi } from '@/api/inventory/thing-api';
 import type { ConversionLoss, ConvertToPlaceConflict } from '@/api/inventory/types';
 import {
+  ArchiveIcon,
   CheckCircleIcon,
   CopyIcon,
   EndedIcon,
@@ -44,6 +46,7 @@ import { useConfirm } from '@/components/ui/confirm';
 import { toast } from '@/components/ui/toast';
 import { addressOf } from '@/lib/address';
 import { cn } from '@/lib/utils';
+import { useSetArchived } from './archive';
 import { useThingCtx } from './context';
 import { Sheet } from './sheet';
 import { useTrashThing } from './trash';
@@ -140,6 +143,11 @@ function useItems(extra: Item[] = []): Item[] {
       icon: <EndedIcon />,
       separatorBefore: true,
     });
+    // Put away, still yours: one tap, and one tap back (the lifecycle `archived`).
+    if (thing.lifecycle === 'in_use')
+      items.push({ id: 'archive', label: t`Archive`, icon: <ArchiveIcon /> });
+    else if (thing.lifecycle === 'archived')
+      items.push({ id: 'unarchive', label: t`Unarchive`, icon: <ArchiveIcon /> });
     items.push({ id: 'retype', label: t`Re-type`, icon: <PencilIcon /> });
     // The thing's row goes away: owners and admins only (security review #23).
     if (thing.isContainer && can('things.delete-permanently'))
@@ -192,6 +200,7 @@ export function useRunAction(openSheet: (s: SheetName) => void) {
   const copyLink = useCopyLink();
   const trashThing = useTrashThing(openSheet);
   const scanStore = useScanStore();
+  const setArchived = useSetArchived();
   const losses: Record<ConversionLoss, string> = {
     brand: t`brand`,
     ended: t`end details`,
@@ -219,6 +228,10 @@ export function useRunAction(openSheet: (s: SheetName) => void) {
           return;
         case 'copy-link':
           await copyLink();
+          return;
+        case 'archive':
+        case 'unarchive':
+          await setArchived(id === 'archive');
           return;
         case 'pickup': {
           if (!scanStore) return;

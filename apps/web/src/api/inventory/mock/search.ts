@@ -132,6 +132,7 @@ export function searchRoutes(state: MockState): MockRoute[] {
       // Home's attention rows share their predicates with /home.
       things = narrow(things, query, 'state', (t, v) => {
         const attention = attentionMatch(state, v as SearchStateFilter);
+        if (v === 'archived') return t.lifecycle === 'archived';
         return attention ? attention(t) : derivedStateOf(t, inv()).includes(v as 'draft');
       });
       things = narrow(

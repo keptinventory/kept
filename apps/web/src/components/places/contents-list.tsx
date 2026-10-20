@@ -301,7 +301,7 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
       : []),
     f.type(),
     f.tag(),
-    f.state(['uncertain', 'draft', 'ended']),
+    f.state(['uncertain', 'draft', 'ended', 'archived']),
     f.brand(),
     f.belongsTo(),
     ...(canImport ? [f.importRun(parent.locationId)] : []),

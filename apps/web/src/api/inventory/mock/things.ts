@@ -184,7 +184,9 @@ export function thingsRoutes(state: MockState): MockRoute[] {
             ?.resolvedCapabilities.includes('consumable'),
         );
       rows = narrow(rows, query, 'state', (t, v) =>
-        derivedStateOf(t, inv()).includes(v as 'draft'),
+        v === 'archived'
+          ? t.lifecycle === 'archived'
+          : derivedStateOf(t, inv()).includes(v as 'draft'),
       );
       if (f('q'))
         rows = rows.filter((t) =>

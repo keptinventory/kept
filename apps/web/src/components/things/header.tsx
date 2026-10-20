@@ -16,10 +16,12 @@ import { Pill } from '@/components/page';
 import { usePlaceName } from '@/components/places/labels';
 import { StatusPill } from '@/components/status-pill';
 import { TypeIcon } from '@/components/type-icon';
+import { Button } from '@/components/ui/button';
 import { addressOf, locationAddress } from '@/lib/address';
 import { sep, useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
 import { cn } from '@/lib/utils';
+import { useSetArchived } from './archive';
 import { useThingCtx } from './context';
 import { useFresh } from './fresh';
 import { useLifecycleLabels } from './labels';
@@ -85,6 +87,7 @@ export function ThingHeader() {
   const typeName = useTypeName();
   const fresh = useFresh(thing.id);
   const loanText = useLoanText();
+  const setArchived = useSetArchived();
   return (
     <div className="grid gap-4 md:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] md:items-start">
       <PhotoCarousel />
@@ -102,7 +105,15 @@ export function ThingHeader() {
         />
         <div className="flex flex-wrap gap-1.5">
           {thing.derivedState.map((s) =>
-            s === 'ended' ? (
+            s === 'ended' && thing.lifecycle === 'archived' && can('things.edit') ? (
+              // Put away: the badge, and the one tap that brings it back into use.
+              <span key={s} className="inline-flex items-center gap-1.5">
+                <StatusPill state="ended" label={lifecycle.archived} />
+                <Button size="small" variant="secondary" onPress={() => void setArchived(false)}>
+                  <Trans>Unarchive</Trans>
+                </Button>
+              </span>
+            ) : s === 'ended' ? (
               <StatusPill key={s} state="ended" label={lifecycle[thing.lifecycle]} />
             ) : (s === 'lent' || s === 'borrowed') && thing.loanLine ? (
               // "With Murdock since 3 Oct · due 17 Oct" (D57): the loan in the path, everywhere.

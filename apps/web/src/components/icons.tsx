@@ -455,6 +455,14 @@ export const EndedIcon = (p: IconProps) => (
   </Svg>
 );
 
+/** Archived (put away, still yours): a box with its lid on. */
+export const ArchiveIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3" y="4" width="18" height="5" rx="1" />
+    <path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4" />
+  </Svg>
+);
+
 /** The source code link (D147) in the sidebar rail: angle brackets. */
 export const CodeIcon = (p: IconProps) => (
   <Svg {...p}>

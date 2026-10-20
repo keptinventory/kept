@@ -53,7 +53,7 @@ function SearchPage() {
     f.place(isNot(list, 'location') ? [] : locations),
     f.type(),
     f.tag(),
-    f.state(['uncertain', 'draft', 'ended', 'to_review', 'long_unseen', 'unplaced']),
+    f.state(['uncertain', 'draft', 'ended', 'archived', 'to_review', 'long_unseen', 'unplaced']),
     ...(showPrice ? [f.price()] : []),
   ];
 
