@@ -8,13 +8,14 @@ today, and what is planned. Anything in the second part is a plan, not a setting
 
 ## Issues
 
-Two templates live in
+Three templates live in
 [`.github/ISSUE_TEMPLATE/`](https://github.com/keptinventory/kept/tree/main/.github/ISSUE_TEMPLATE):
 
 | Template | Label it applies | What it asks for |
 |---|---|---|
 | **Bug report** (`bug_report.md`) | `bug` | what happened, what was expected, how to reproduce; the Kept version (from `/version`), how it runs (Compose, Helm) and on what machine, the browser or phone and whether Kept is installed, the language; the relevant `docker compose logs kept` lines with private details removed |
 | **Idea** (`feature_request.md`) | `idea` | the situation rather than the solution, what gets in the way today, and what the person would like |
+| **Shape request** (`shape-request.yml`, an issue form) | `area: map`, `shape request` | a shape the location map lacks: what it is, its size and a photo or link (required), what people call it in any of Kept's languages, and where it goes; the shape picker's **Missing a shape? Request it** opens it |
 
 The bug template opens with a reminder that a security problem is not an issue. When one arrives
 as an issue anyway, don't discuss it there: point the reporter at private vulnerability reporting
@@ -24,7 +25,8 @@ The [troubleshooting](/admin/troubleshooting/) page lists the known configuratio
 their fixes; a report that matches one can be answered with a link. No written triage procedure
 exists beyond the templates.
 
-There is no labels configuration in the repository: `bug` and `idea` come from the templates, and
+There is no labels configuration in the repository: `bug`, `idea`, `area: map` and `shape request`
+come from the templates and are created on GitHub by hand, and
 Renovate's pull requests carry `dependencies` (`renovate.json`) once Renovate is enabled.
 
 ## Pull requests

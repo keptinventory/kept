@@ -795,6 +795,10 @@ describe('suggestShapes: homelab gear and server racks (#171)', () => {
     expect(w.de).toContain('usv');
     expect(w.it).toContain('gruppo di continuità');
     expect(w.ar.length).toBeGreaterThan(0);
+    // As written: English "television", French "télévision".
+    expect(shapeWordsByLang('tv').en).toContain('television');
+    expect(shapeWordsByLang('tv').fr).not.toContain('television');
+    expect(shapeWordsByLang('tv').fr).toContain('télévision');
     for (const k of HOMELAB)
       for (const lang of ['en', 'ar', 'fr', 'de', 'it'] as const)
         expect(shapeWordsByLang(k)[lang].length, `${k} ${lang}`).toBeGreaterThan(0);

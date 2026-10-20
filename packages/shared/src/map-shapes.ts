@@ -2534,14 +2534,17 @@ const FOLDED_WORDS: ReadonlyMap<MapModelKey, readonly { text: string; langs: Sha
     ]),
   );
 
-/** A shape's words as written, by language (the docs' shape library, #171). A word two languages
- * share ("moto") is listed under both. */
+/** A shape's words as written, by language (the docs' shape library, #171): Arabic by its
+ * script, French, German and Italian as SHAPE_WORD_LANGS lists them (a word two of them share,
+ * "moto", under both), anything else English. Unlike search, the word as written decides:
+ * "television" is English even though French "télévision" folds to it. */
 export function shapeWordsByLang(model: MapModelKey): Record<ShapeLang, string[]> {
   const out: Record<ShapeLang, string[]> = { en: [], ar: [], fr: [], de: [], it: [] };
-  const folded = FOLDED_WORDS.get(model) ?? [];
-  SHAPE_WORDS[model].forEach((w, i) => {
-    for (const lang of folded[i]?.langs ?? []) if (!out[lang].includes(w)) out[lang].push(w);
-  });
+  for (const w of SHAPE_WORDS[model]) {
+    const listed = (['fr', 'de', 'it'] as const).filter((l) => SHAPE_WORD_LANGS[l].includes(w));
+    const langs: ShapeLang[] = ARABIC.test(w) ? ['ar'] : listed.length ? listed : ['en'];
+    for (const lang of langs) if (!out[lang].includes(w)) out[lang].push(w);
+  }
   return out;
 }
 

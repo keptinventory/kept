@@ -633,12 +633,22 @@ fieldset.kmap-floors {
   background-color: light-dark(var(--sunken), #77726a);
 }
 /* The picker (#130): the search, then the shapes in the rows that are left; only the shapes
-   scroll, so on a phone they stay between the search and the keyboard. */
+   scroll, so on a phone they stay between the search and the keyboard. Under them, the line that
+   asks for a missing shape (#171). */
 .kshape {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 12px;
   min-height: 0;
+}
+.kshape-more {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.kshape-more a {
+  color: inherit;
+  text-decoration: underline;
 }
 .kshape-list {
   display: grid;

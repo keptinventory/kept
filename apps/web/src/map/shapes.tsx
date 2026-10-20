@@ -7,7 +7,8 @@
  * are one sprite (thumbs/shapes.webp, scripts/render-map-thumbs.mjs), fetched the first time the
  * picker opens. One listbox, so arrow keys, Home and End move through it and a screen reader
  * hears each shape's name. On a phone the sheet stays above the keyboard and only the shapes
- * scroll (Sheet's `fitKeyboard`).
+ * scroll (Sheet's `fitKeyboard`). Under the shapes, "Missing a shape? Request it" opens the GitHub
+ * form for asking for one (#171), and the docs' shape library lists them all.
  */
 import {
   MAP_MODEL_KEYS,
@@ -36,6 +37,12 @@ import { useModelNames, useShapeGroupNames } from './labels';
 import type { Item } from './layout';
 import spriteUrl from './thumbs/shapes.webp?url';
 import { THUMB_CELLS, THUMB_COLS } from './thumbs/sprite';
+
+/** The GitHub issue form that asks for a new shape (.github/ISSUE_TEMPLATE/shape-request.yml). */
+export const SHAPE_REQUEST_URL =
+  'https://github.com/keptinventory/kept/issues/new?template=shape-request.yml';
+/** Every shape with its picture, size and words, on the docs site (apps/docs, users/map-shapes). */
+export const SHAPE_LIBRARY_URL = 'https://keptinventory.info/users/map-shapes/';
 
 /** The search's language: the reader's, by its first subtag ("fr-CA" is French). */
 const shapeLang = (locale: string): ShapeLang => {
@@ -224,6 +231,19 @@ export function ShapePicker({
                 )),
               ]}
         </ListBox>
+        <p className="kshape-more">
+          <Trans>
+            Missing a shape?{' '}
+            <a href={SHAPE_REQUEST_URL} target="_blank" rel="noopener noreferrer">
+              Request it
+            </a>
+            , or browse the{' '}
+            <a href={SHAPE_LIBRARY_URL} target="_blank" rel="noopener noreferrer">
+              shape library
+            </a>
+            .
+          </Trans>
+        </p>
       </div>
     </Sheet>
   );

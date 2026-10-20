@@ -1,8 +1,11 @@
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { MAP_MODEL_KEYS, mapModel, type ShapeInput } from '@kept/shared';
 import { act, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { expectLogicalOnly, renderUI } from '@/test/render';
-import { ShapeField, ShapePicker } from './shapes';
+import { SHAPE_LIBRARY_URL, SHAPE_REQUEST_URL, ShapeField, ShapePicker } from './shapes';
 import { THUMB_CELLS, THUMB_HEIGHTS_CM } from './thumbs/sprite';
 
 const tv: ShapeInput = {
@@ -222,6 +225,27 @@ describe('ShapePicker', () => {
       .getAllByRole('option')
       .map((o) => o.textContent);
     expect(names[0]).toBe('Webcam');
+  });
+
+  it('links to the shape request form and the shape library, in a new tab', async () => {
+    await picker();
+    const request = screen.getByRole('link', { name: 'Request it' });
+    expect(request).toHaveAttribute('href', SHAPE_REQUEST_URL);
+    expect(request).toHaveAttribute('target', '_blank');
+    expect(request.getAttribute('rel')).toContain('noopener');
+    expect(request.closest('p')?.textContent).toMatch(/^Missing a shape\? Request it/);
+    expect(screen.getByRole('link', { name: 'shape library' })).toHaveAttribute(
+      'href',
+      SHAPE_LIBRARY_URL,
+    );
+  });
+
+  it('points at a form and a page that exist', () => {
+    const repo = join(dirname(fileURLToPath(import.meta.url)), '../../../..');
+    const form = new URL(SHAPE_REQUEST_URL).searchParams.get('template') as string;
+    expect(existsSync(join(repo, '.github/ISSUE_TEMPLATE', form)), form).toBe(true);
+    const page = new URL(SHAPE_LIBRARY_URL).pathname.replace(/^\/|\/$/g, '');
+    expect(existsSync(join(repo, 'apps/docs/src/content/docs', `${page}.mdx`)), page).toBe(true);
   });
 
   it('reads in Arabic, right to left, with logical sides only', async () => {

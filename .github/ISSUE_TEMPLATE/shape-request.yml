@@ -1,0 +1,45 @@
+name: Shape request
+description: A shape the location map doesn't have yet
+title: "Shape: "
+labels: ["area: map", "shape request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check the [shape library](https://keptinventory.info/users/map-shapes/) first: every shape
+        is there with its picture, its size and the words that find it. One shape per request.
+  - type: input
+    id: what
+    attributes:
+      label: What it is
+      description: The kind of thing, not a brand or model.
+      placeholder: "Label printer"
+    validations:
+      required: true
+  - type: input
+    id: size
+    attributes:
+      label: Its size
+      description: Width × depth × height, in centimetres or inches. A typical one is fine.
+      placeholder: "18 × 22 × 15 cm"
+    validations:
+      required: true
+  - type: textarea
+    id: picture
+    attributes:
+      label: A photo or a link
+      description: Drop a photo here, or link a product page that shows it.
+    validations:
+      required: true
+  - type: textarea
+    id: words
+    attributes:
+      label: What people call it
+      description: Other names a search should find it by, in any language Kept speaks (English, Arabic, French, German, Italian).
+      placeholder: "label maker, Beschriftungsgerät, étiqueteuse"
+  - type: input
+    id: where
+    attributes:
+      label: Where it goes
+      description: On the floor, on a desk or shelf, or on a wall.
+      placeholder: "On a desk"
