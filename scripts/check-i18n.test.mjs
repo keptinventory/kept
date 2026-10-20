@@ -41,6 +41,15 @@ describe('compareCatalogues', () => {
     // An obsolete entry is not "untranslated" either.
     expect(r.untranslated.ar).toBe(0);
   });
+
+  it('names the obsolete entries per locale, for --list-obsolete', () => {
+    const r = compareCatalogues(extracted('a'), {
+      en: { a: 'A', gone: 'G', old: 'O' },
+      ar: { a: 'أ', gone: 'ج' },
+    });
+    expect(r.obsoleteIds).toEqual({ en: ['gone', 'old'], ar: ['gone'] });
+    expect(r.obsolete).toEqual({ en: 2, ar: 1 });
+  });
 });
 
 describe('the launch languages (D204)', () => {

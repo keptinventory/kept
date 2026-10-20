@@ -110,11 +110,6 @@ msgstr "{0, plural, =0 {بلا حقول} zero {بلا حقول} one {حقل وا
 msgid "{0, plural, one {# capture} other {# captures}}"
 msgstr "{0, plural, zero {لا التقاطات} one {التقاط واحد} two {التقاطان} few {# التقاطات} many {# التقاطًا} other {# التقاط}}"
 
-#. placeholder {0}: status.counts.needsAttention
-#: src/components/sync-status.tsx
-msgid "{0, plural, one {# change needs a look} other {# changes need a look}}"
-msgstr "{0, plural, zero {لا تغييرات تحتاج إلى مراجعة} one {تغيير واحد يحتاج إلى مراجعة} two {تغييران يحتاجان إلى مراجعة} few {# تغييرات تحتاج إلى مراجعة} many {# تغييرًا يحتاج إلى مراجعة} other {# تغيير يحتاج إلى مراجعة}}"
-
 #. placeholder {0}: chosen.length
 #: src/components/filters/strip.tsx
 msgid "{0, plural, one {# chosen} other {# chosen}}"
@@ -232,11 +227,6 @@ msgstr "{0, plural, zero {نُقل # شيء إلى {where}} one {نُقل شيء
 msgid "{0, plural, one {Name # unnamed photo} other {Name # unnamed photos}}"
 msgstr "{0, plural, zero {لا صور بلا اسم} one {سمِّ الصورة التي بلا اسم} two {سمِّ الصورتين اللتين بلا اسم} few {سمِّ # صور بلا اسم} many {سمِّ # صورة بلا اسم} other {سمِّ # صورة بلا اسم}}"
 
-#. placeholder {0}: open.length
-#: src/components/home/checklist.tsx
-msgid "{0, plural, one {One more step and Kept is set up.} other {# more steps and Kept is set up.}}"
-msgstr "{0, plural, zero {اكتمل إعداد Kept.} one {خطوة واحدة أخرى ويكتمل إعداد Kept.} two {خطوتان أخريان ويكتمل إعداد Kept.} few {# خطوات أخرى ويكتمل إعداد Kept.} many {# خطوة أخرى ويكتمل إعداد Kept.} other {# خطوة أخرى ويكتمل إعداد Kept.}}"
-
 #. placeholder {0}: alert.count
 #: src/routes/_app/admin.alerts.tsx
 msgid "{0, plural, one {raised once} other {raised # times}}"
@@ -346,10 +336,6 @@ msgstr "حساب {0}"
 #: src/routes/_app/admin.status.tsx
 msgid "{alerts} open"
 msgstr "{alerts} مفتوحة"
-
-#: src/routes/_app/admin.status.tsx
-msgid "{at} · {size}"
-msgstr "{at} · {size}"
 
 #: src/routes/_app/settings.index.tsx
 msgid "{browser} on {where}"
@@ -473,25 +459,9 @@ msgstr "{n, plural, zero {لا أحد} one {شخص واحد} two {شخصان} fe
 msgid "{n, plural, one {# reading needs a look} other {# readings need a look}}"
 msgstr "{n, plural, zero {لا قراءات تحتاج إلى نظرة} one {قراءة واحدة تحتاج إلى نظرة} two {قراءتان تحتاجان إلى نظرة} few {# قراءات تحتاج إلى نظرة} many {# قراءة تحتاج إلى نظرة} other {# قراءة تحتاج إلى نظرة}}"
 
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# item needs a look} other {# items need a look}}"
-msgstr "{n, plural, zero {لا عناصر تحتاج إلى نظرة} one {عنصر واحد يحتاج إلى نظرة} two {عنصران يحتاجان إلى نظرة} few {# عناصر تحتاج إلى نظرة} many {# عنصرًا يحتاج إلى نظرة} other {# عنصر يحتاج إلى نظرة}}"
-
 #: src/components/inbox/bulk-bar.tsx
 msgid "{n, plural, one {# selected} other {# selected}}"
 msgstr "{n, plural, zero {لم يُحدَّد شيء} one {محدّد واحد} two {محدّدان} few {# محدّدة} many {# محدّدًا} other {# محدّد}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# thing isn't where it should be} other {# things aren't where they should be}}"
-msgstr "{n, plural, zero {كل الأشياء في أماكنها} one {شيء واحد ليس في مكانه} two {شيئان ليسا في مكانهما} few {# أشياء ليست في أماكنها} many {# شيئًا ليست في أماكنها} other {# شيء ليست في أماكنها}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# thing not seen for a long time} other {# things not seen for a long time}}"
-msgstr "{n, plural, zero {لا أشياء غابت طويلًا} one {شيء واحد لم يُرَ منذ مدة طويلة} two {شيئان لم يُريا منذ مدة طويلة} few {# أشياء لم تُرَ منذ مدة طويلة} many {# شيئًا لم تُرَ منذ مدة طويلة} other {# شيء لم تُرَ منذ مدة طويلة}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# thing waiting for a place} other {# things waiting for a place}}"
-msgstr "{n, plural, zero {لا أشياء تنتظر مكانًا} one {شيء واحد ينتظر مكانًا} two {شيئان ينتظران مكانًا} few {# أشياء تنتظر مكانًا} many {# شيئًا تنتظر مكانًا} other {# شيء تنتظر مكانًا}}"
 
 #: src/components/counts.tsx
 msgid "{n, plural, one {# thing} other {# things}}"
@@ -658,10 +628,6 @@ msgstr "إيصال {vendor}"
 #: src/components/capture/summary.tsx
 msgid "{waiting, plural, one {# waiting to sync} other {# waiting to sync}}"
 msgstr "{waiting, plural, zero {لا شيء بانتظار المزامنة} one {واحد بانتظار المزامنة} two {اثنان بانتظار المزامنة} few {# بانتظار المزامنة} many {# بانتظار المزامنة} other {# بانتظار المزامنة}}"
-
-#: src/components/sync-status.tsx
-msgid "{waiting, plural, one {Offline: # capture waiting} other {Offline: # captures waiting}}"
-msgstr "{waiting, plural, zero {دون اتصال: لا التقاطات بالانتظار} one {دون اتصال: التقاط واحد بالانتظار} two {دون اتصال: التقاطان بالانتظار} few {دون اتصال: # التقاطات بالانتظار} many {دون اتصال: # التقاطًا بالانتظار} other {دون اتصال: # التقاط بالانتظار}}"
 
 #: src/components/capture/summary.tsx
 msgid "{waiting, plural, one {Open to finish syncing (#).} other {Open to finish syncing (#).}}"
@@ -962,10 +928,6 @@ msgstr "لا يتجاوز التقرير {max} شيء. اختر بعض الأم�
 #: src/routes/_app/p.$id.tsx
 msgid "A short code for the printed label on the shelf or door"
 msgstr "رمز قصير للملصق المطبوع على الرف أو الباب"
-
-#: src/routes/_app/help.tsx
-msgid "A short look at Home, Capture, Inbox and Search. Replay it any time."
-msgstr "جولة قصيرة على الرئيسية والالتقاط والوارد والبحث. أعِدها متى شئت."
 
 #: src/components/registries/registry-list.tsx
 msgid "A similar name was already here. An admin can merge them if they're the same."
@@ -1314,10 +1276,6 @@ msgstr "الالتقاط بالذكاء الاصطناعي والمساعد"
 msgid "AI capture and the assistant come on in any preset once an AI provider is connected."
 msgstr "يعمل الالتقاط بالذكاء الاصطناعي والمساعد في أي باقة بمجرد ربط مزوّد ذكاء اصطناعي."
 
-#: src/routes/_app/admin.ai.tsx
-msgid "AI for this server"
-msgstr "الذكاء الاصطناعي لهذا الخادم"
-
 #: src/routes/_app/settings.location.$id.track.tsx
 msgid "AI in this location"
 msgstr "الذكاء الاصطناعي في هذا الموقع"
@@ -1338,11 +1296,6 @@ msgstr "الذكاء الاصطناعي لا يعمل هنا · اسأل مشر�
 #: src/components/capture/capture-screen.tsx
 msgid "AI paused"
 msgstr "الذكاء الاصطناعي متوقف"
-
-#. placeholder {0}: fmt.day(ai.data.pausedUntil)
-#: src/components/capture/capture-screen.tsx
-msgid "AI paused until {0}"
-msgstr "الذكاء الاصطناعي متوقف حتى {0}"
 
 #: src/components/ai/paused-banner.tsx
 msgid "AI paused until {when}"
@@ -1589,17 +1542,9 @@ msgstr "العودة إلى تسجيل الدخول"
 msgid "Background work is keeping up. A job that fails every retry shows up here."
 msgstr "الأعمال في الخلفية تسير كما ينبغي. تظهر هنا أي مهمة تفشل في كل محاولاتها."
 
-#: src/routes/_app/admin.status.tsx
-msgid "Backup"
-msgstr "النسخ الاحتياطي"
-
 #: src/routes/signin/two-factor.tsx
 msgid "Backup code"
 msgstr "رمز احتياطي"
-
-#: src/routes/_app/admin.status.tsx
-msgid "Backups are on the same disk as the data"
-msgstr "النسخ الاحتياطية على نفس القرص الذي عليه البيانات"
 
 #: src/lib/labels.ts
 msgid "Balcony"
@@ -1741,10 +1686,6 @@ msgstr "تُضاف العلامات التجارية هنا، أو أثناء إ
 msgid "Bring it back"
 msgstr "أعِدها"
 
-#: src/routes/_app/settings.import.tsx
-msgid "Bring in a spreadsheet"
-msgstr "أدخِل جدول بيانات"
-
 #: src/routes/gallery.tsx
 msgid "British pound"
 msgstr "جنيه إسترليني"
@@ -1775,10 +1716,6 @@ msgstr "مدمج · للقراءة فقط · حقوله مذكورة أعلاه"
 #: src/components/registries/type-editor.tsx
 msgid "Built in · read-only until you customise it"
 msgstr "مدمج · للقراءة فقط حتى تخصّصه"
-
-#: src/pwa/diagnostics.tsx
-msgid "Built-in barcode reader"
-msgstr "قارئ الباركود المدمج"
 
 #: src/components/registries/type-editor.tsx
 msgid "Built-in field group · read-only"
@@ -1820,11 +1757,6 @@ msgstr "حسب النوع"
 #: src/routes/gallery.tsx
 msgid "Cables"
 msgstr "الكابلات"
-
-#: src/routes/_app/admin.ai.usage.tsx
-#: src/routes/_app/settings.ai.usage.tsx
-msgid "Calls, tokens and cost by day, task and person, with every call listed."
-msgstr "الطلبات والرموز والتكلفة حسب اليوم والمهمة والشخص، مع قائمة بكل طلب."
 
 #: src/components/things/overview.tsx
 msgid "Came from"
@@ -1960,10 +1892,6 @@ msgstr "التُقط في <0>{locationName}</0>، بلا مكان بعد"
 msgid "Captured."
 msgstr "تم الالتقاط."
 
-#: src/components/sync-status.tsx
-msgid "Captured. {waiting} waiting to sync"
-msgstr "تم الالتقاط. {waiting} بانتظار المزامنة"
-
 #: src/offline/provider.tsx
 msgid "Captures from another account are on this phone"
 msgstr "التقاطات من حساب آخر موجودة على هذا الهاتف"
@@ -1971,10 +1899,6 @@ msgstr "التقاطات من حساب آخر موجودة على هذا اله�
 #: src/components/capture/capture-screen.tsx
 msgid "Captures that haven't synced are deleted from this phone. Synced drafts from this batch go to the trash."
 msgstr "تُحذف من هذا الهاتف الالتقاطات التي لم تُزامَن بعد. وتذهب المسودات المُزامَنة من هذه الدفعة إلى سلة المهملات."
-
-#: src/components/hints/hint-copy.ts
-msgid "Captures that need a decision wait here: a name to check, a receipt to link, a possible duplicate."
-msgstr "هنا تنتظر الالتقاطات التي تحتاج إلى قرار: اسم للتحقق منه، أو إيصال لربطه، أو تكرار محتمل."
 
 #: src/components/capture/place-chip.tsx
 msgid "Capturing into {path}. Change place"
@@ -2076,10 +2000,6 @@ msgstr "افحص الكاميرا والعمل دون اتصال والتخزي�
 msgid "Check this device"
 msgstr "افحص هذا الجهاز"
 
-#: src/routes/_app/box-check.$id.tsx
-msgid "Check what's in a box"
-msgstr "تحقّق مما في الصندوق"
-
 #: src/routes/signin/index.tsx
 msgid "Check your email"
 msgstr "تفقّد بريدك الإلكتروني"
@@ -2146,10 +2066,6 @@ msgstr "اختر المتجر."
 #: src/components/inbox/receipt-review.tsx
 msgid "Choose the thing each linked line is."
 msgstr "اختر الغرض لكل سطر مربوط."
-
-#: src/components/places/contents-list.tsx
-msgid "Choose things to move"
-msgstr "اختر أشياء لنقلها"
 
 #: src/routes/_app/p.$id.tsx
 msgid "Choose what happens to what's inside"
@@ -2311,10 +2227,6 @@ msgstr "أكّد الخطوة الثانية للمتابعة."
 #: src/components/history/labels.ts
 msgid "Confirmed"
 msgstr "مؤكَّد"
-
-#: src/routes/_app/settings.ai.tsx
-msgid "Connect AI to name your photos"
-msgstr "اربط الذكاء الاصطناعي ليسمّي صورك"
 
 #: src/components/home/checklist.tsx
 msgid "Connect an AI provider"
@@ -3394,10 +3306,6 @@ msgstr "ابحث عن نوع"
 msgid "Find a value"
 msgstr "ابحث عن قيمة"
 
-#: src/components/hints/hint-copy.ts
-msgid "Find anything by its name, its place, or what else it's called. On a phone it also works offline."
-msgstr "اعثر على أي شيء باسمه أو مكانه أو بأسمائه الأخرى. على الهاتف يعمل البحث دون اتصال أيضًا."
-
 #: src/routes/_app/search.tsx
 msgid "Find anything you've kept"
 msgstr "اعثر على أي شيء احتفظت به"
@@ -3405,10 +3313,6 @@ msgstr "اعثر على أي شيء احتفظت به"
 #: src/routes/_app/help.tsx
 msgid "Find your way around"
 msgstr "تعرّف على التطبيق"
-
-#: src/routes/_app/help.tsx
-msgid "Find your way around Kept"
-msgstr "تعرّف على Kept"
 
 #: src/lib/labels.ts
 msgid "Finding things: rooms, boxes, labels and search."
@@ -3575,10 +3479,6 @@ msgstr "عام"
 msgid "Get started"
 msgstr "خطوات البدء"
 
-#: src/routes/_app/index.tsx
-msgid "Get started hidden"
-msgstr "أُخفيت خطوات البدء"
-
 #: src/routes/_app/help.tsx
 msgid "Get-started checklist"
 msgstr "قائمة خطوات البدء"
@@ -3723,10 +3623,6 @@ msgstr "هل حفظت حقيبة الاسترداد؟"
 msgid "Help"
 msgstr "المساعدة"
 
-#: src/routes/_app/help.tsx
-msgid "Help will show you around the app, explain how to install Kept on your phone, and restore the Get-started checklist."
-msgstr "ستأخذك المساعدة في جولة داخل التطبيق، وتشرح كيف تثبّت Kept على هاتفك، وتعيد قائمة البدء."
-
 #: src/components/history/timeline.tsx
 msgid "hidden"
 msgstr "مخفي"
@@ -3738,10 +3634,6 @@ msgstr "مخفي"
 #: src/routes/_app/help.tsx
 msgid "Hidden from Home."
 msgstr "مخفية من الرئيسية."
-
-#: src/components/home/checklist.tsx
-msgid "Hide Get started"
-msgstr "إخفاء خطوات البدء"
 
 #: src/components/things/secrets.tsx
 msgid "Hide now"
@@ -3895,10 +3787,6 @@ msgstr "إن فقدت هاتفك، يُدخلك كل رمز من هذه الرم
 #: src/routes/_app/settings.import.tsx
 msgid "Import"
 msgstr "الاستيراد"
-
-#: src/routes/_app/settings.import.tsx
-msgid "Import things from a CSV file: match its columns, check a dry run, then import."
-msgstr "استورد الأشياء من ملف CSV: طابِق أعمدته، وراجع تجربة دون حفظ، ثم استورد."
 
 #: src/components/search/palette.tsx
 msgid "In {addToName}"
@@ -4168,10 +4056,6 @@ msgstr "يُحتفظ به {hours} ساعة."
 msgid "It's pending until it syncs. If another phone claimed it first, you'll be told."
 msgstr "يبقى معلقًا حتى المزامنة. إن خصّصه هاتف آخر قبلك فستُبلَّغ."
 
-#: src/routes/setup.tsx
-msgid "It's printed once, on the first start. Other installs: the logs page of your host or app store."
-msgstr "يُطبع مرة واحدة عند أول تشغيل. في طرق التثبيت الأخرى: صفحة السجلات لدى مزوّد الاستضافة أو متجر التطبيقات."
-
 #: src/components/registries/type-editor.tsx
 msgid "Its fields show on every type that uses the group."
 msgstr "تظهر حقولها في كل نوع يستخدم المجموعة."
@@ -4275,10 +4159,6 @@ msgstr "اجعل الاسم أقل من ٢٠٠ حرف."
 msgid "Keep the phone number to 40 characters."
 msgstr "اجعل رقم الهاتف ٤٠ رمزًا على الأكثر."
 
-#: src/routes/_app/admin.status.tsx
-msgid "Keep the secret key somewhere else"
-msgstr "احفظ المفتاح السري في مكان آخر"
-
 #: src/components/registries/field-sheet.tsx
 msgid "Keep the unit short, like cm or W."
 msgstr "اجعل الوحدة قصيرة، مثل cm أو W."
@@ -4320,10 +4200,6 @@ msgstr "لا يستطيع Kept استخدام الكاميرا"
 #: src/routes/_app/settings.two-factor.tsx
 msgid "Kept emails you a sign-in link; opening it confirms the address. Opening it also removes this account's password, passkeys and other sessions, so nobody who set them up before you keeps a way in. Two-factor needs a password, so afterwards set a new one with “Forgot your password?” on the sign-in page, then come back here."
 msgstr "يرسل لك Kept رابط دخول بالبريد، وفتحه يؤكد العنوان. وفتحه أيضًا يزيل كلمة مرور هذا الحساب ومفاتيح المرور والجلسات الأخرى، فلا يبقى لمن أعدّها قبلك طريق للدخول. التحقق بخطوتين يحتاج إلى كلمة مرور، فعيّن بعدها كلمة جديدة من «نسيت كلمة المرور؟» في صفحة الدخول، ثم عُد إلى هنا."
-
-#: src/routes/_app/admin.status.tsx
-msgid "Kept encrypts secret fields, AI keys and the backup password with KEPT_SECRET_KEY. If this server and its key are lost together, a backup still restores your things, but not those. Print the recovery kit with <0>kept admin recovery-kit</0> and keep it away from this server. Kept asks for this before the first secret, AI key or backup."
-msgstr "يشفّر Kept الحقول السرية ومفاتيح الذكاء الاصطناعي وكلمة مرور النسخ الاحتياطي بالمفتاح KEPT_SECRET_KEY. إن فُقد هذا الخادم ومفتاحه معًا، تستعيد النسخة الاحتياطية أشياءك لكن ليس تلك. اطبع حقيبة الاسترداد بالأمر <0>kept admin recovery-kit</0> واحفظها بعيدًا عن هذا الخادم. سيطلب Kept ذلك قبل أول قيمة سرية أو مفتاح ذكاء اصطناعي أو نسخة احتياطية."
 
 #: src/components/things/overview.tsx
 msgid "Kept from an earlier type. They're not lost; re-type back to use them again."
@@ -4529,10 +4405,6 @@ msgstr "آخر يوم"
 #: src/components/capture/place-chip.tsx
 msgid "Last place · tap to change"
 msgstr "آخر مكان · المس للتغيير"
-
-#: src/routes/_app/admin.status.tsx
-msgid "Last run failed"
-msgstr "فشل آخر تشغيل"
 
 #: src/components/capture/capture-screen.tsx
 msgid "Last saved: {lastName} · ID pending"
@@ -5607,10 +5479,6 @@ msgstr "لا يوجد أي من مواقعك بالقرب منك."
 msgid "None open"
 msgstr "لا شيء مفتوح"
 
-#: src/routes/_app/admin.status.tsx
-msgid "None yet"
-msgstr "لا شيء بعد"
-
 #: src/components/inbox/duplicate-review.tsx
 msgid "Not a duplicate · keep both"
 msgstr "ليس مكررًا · إبقاء الاثنين"
@@ -5693,10 +5561,6 @@ msgstr "لا يظهر للمشاهدين هنا"
 msgid "Not sure where"
 msgstr "المكان غير مؤكد"
 
-#: src/routes/_app/admin.status.tsx
-msgid "Not yet"
-msgstr "ليس بعد"
-
 #: src/components/history/labels.ts
 msgid "Note"
 msgstr "ملاحظة"
@@ -5776,10 +5640,6 @@ msgstr "لا شيء على هذا الهاتف يطابق «<0>{q}</0>»"
 #: src/components/capture/capture-screen.tsx
 msgid "Nothing on this phone yet. Open Kept once while online to bring your places."
 msgstr "لا شيء على هذا الهاتف بعد. افتح Kept مرة وأنت متصل لجلب أماكنك."
-
-#: src/routes/_app/admin.status.tsx
-msgid "Nothing on this server is backed up. Set <0>KEPT_BACKUP_DIR</0> (a folder on another disk) or <1>KEPT_BACKUP_S3_BUCKET</1>, with <2>KEPT_OWNER_DATABASE_URL</2>, and restart Kept. The backup-restore runbook has the steps."
-msgstr "لا يُنسخ أي شيء على هذا الخادم احتياطيًا. اضبط <0>KEPT_BACKUP_DIR</0> (مجلد على قرص آخر) أو <1>KEPT_BACKUP_S3_BUCKET</1>، مع <2>KEPT_OWNER_DATABASE_URL</2>، وأعد تشغيل Kept. الخطوات في دليل النسخ الاحتياطي والاستعادة."
 
 #: src/components/things/overview.tsx
 msgid "Nothing recorded yet."
@@ -6157,10 +6017,6 @@ msgstr "اختياري: من دونه ينتظر في صندوق الوارد ل
 msgid "or"
 msgstr "أو"
 
-#: src/routes/_app/index.tsx
-msgid "Or"
-msgstr "أو"
-
 #: src/components/home/checklist.tsx
 msgid "Or reach Kept through Tailscale and turn on HTTPS for your tailnet; the address ends in <0>.ts.net</0>."
 msgstr "أو اصل إلى Kept عبر Tailscale وفعّل HTTPS لشبكتك، وسينتهي العنوان بـ<0>.ts.net</0>."
@@ -6324,10 +6180,6 @@ msgstr "صورة"
 msgid "Photo {0} of {1}"
 msgstr "الصورة {0} من {1}"
 
-#: src/components/hints/hint-copy.ts
-msgid "Photograph things, receipts, labels and meter readings, one after another. It works without a connection too."
-msgstr "صوّر الأشياء والإيصالات والملصقات وقراءات العدادات واحدًا تلو الآخر. يعمل دون اتصال أيضًا."
-
 #: src/components/places/contents-list.tsx
 msgid "photos"
 msgstr "الصور"
@@ -6442,11 +6294,6 @@ msgstr "وجّه الكاميرا إلى ملصق Kept أو إلى الرمز ا
 msgid "Point at the label of the place or box they go in."
 msgstr "وجّه الكاميرا إلى ملصق المكان أو الصندوق الذي ستضعها فيه."
 
-#: src/routes/_app/l.$code.tsx
-#: src/routes/_app/scan.tsx
-msgid "Point the camera at a Kept label to open what it's on, or at a product's barcode to add it."
-msgstr "وجّه الكاميرا إلى ملصق Kept لتفتح ما هو ملصق عليه، أو إلى باركود منتج لتضيفه."
-
 #: src/components/registries/field-list.tsx
 msgid "Policy"
 msgstr "السياسة"
@@ -6529,19 +6376,9 @@ msgstr "اطبع مرة أخرى"
 msgid "Print inventory"
 msgstr "اطبع الجرد"
 
-#: src/routes/_app/labels.tsx
-#: src/routes/_print/labels.$batchId.tsx
-msgid "Print labels for your boxes"
-msgstr "اطبع ملصقات لصناديقك"
-
 #: src/pwa/diagnostics.tsx
 msgid "Print page sizes"
 msgstr "مقاسات صفحات الطباعة"
-
-#: src/routes/_app/labels.tsx
-#: src/routes/_print/labels.$batchId.tsx
-msgid "Print sheets of labels for things and places, or blank labels to stick on boxes now and name later."
-msgstr "اطبع أوراق ملصقات للأشياء والأماكن، أو ملصقات فارغة تلصقها على الصناديق الآن وتسمّيها لاحقًا."
 
 #: src/components/home/checklist.tsx
 msgid "Print your first label"
@@ -6550,10 +6387,6 @@ msgstr "اطبع أول ملصق لك"
 #: src/components/home/checklist.tsx
 msgid "Printed a label"
 msgstr "طبعت ملصقًا"
-
-#: src/routes/_app/p.$id.tsx
-msgid "Printing arrives in a later step."
-msgstr "الطباعة تأتي في مرحلة لاحقة."
 
 #: src/components/scan/barcode-sheet.tsx
 msgid "Product barcode"
@@ -6647,10 +6480,6 @@ msgstr "أُعيدت إلى قائمة الانتظار"
 #: src/components/things/action-menu.tsx
 msgid "Re-type"
 msgstr "تغيير النوع"
-
-#: src/components/ai/ai-line.tsx
-msgid "Read by <0>{model}</0> ({provider}) · {tokens} tokens"
-msgstr "قرأه <0>{model}</0> ({provider}) · {tokens} رمزًا"
 
 #: src/components/inbox/labels.ts
 #: src/components/inbox/reading-review.tsx
@@ -6977,10 +6806,6 @@ msgstr "استعادة «{entity}»"
 msgid "Restore {name}"
 msgstr "استعادة «{name}»"
 
-#: src/components/places/trash-contents-dialog.tsx
-msgid "Restored"
-msgstr "تمت الاستعادة"
-
 #: src/components/history/labels.ts
 #: src/routes/_app/trash.tsx
 msgid "Restored {name}"
@@ -7138,10 +6963,6 @@ msgstr "حفظ التغييرات"
 #: src/components/registries/type-editor.tsx
 msgid "Save changes to {name}?"
 msgstr "حفظ التغييرات على «{name}»؟"
-
-#: src/routes/_app/settings.account.templates.tsx
-msgid "Save the details you type again and again, and share them with your locations."
-msgstr "احفظ التفاصيل التي تكتبها مرة بعد مرة، وشاركها مع مواقعك."
 
 #: src/components/filters/views.tsx
 msgid "Save view"
@@ -7468,15 +7289,6 @@ msgstr "اتصال آمن (HTTPS)"
 msgid "Security"
 msgstr "الأمان"
 
-#: src/routes/_app/admin.ai.usage.tsx
-#: src/routes/_app/settings.ai.usage.tsx
-msgid "See what AI has cost"
-msgstr "اعرف كم كلّف الذكاء الاصطناعي"
-
-#: src/routes/_app/settings.ai.tsx
-msgid "See what uses AI in Kept and what it costs, paste a key and test it, and set a monthly limit."
-msgstr "اعرف ما الذي يستخدم الذكاء الاصطناعي في Kept وكم يكلّف، والصق مفتاحًا واختبره، وحدّد حدًا شهريًا."
-
 #. placeholder {0}: fmt.relative(thing.lastSeenAt)
 #: src/components/things/header.tsx
 msgid "Seen {0}"
@@ -7709,10 +7521,6 @@ msgstr "عرض الكل"
 #: src/components/filters/panel.tsx
 msgid "Show everything"
 msgstr "عرض الكل"
-
-#: src/components/home/checklist.tsx
-msgid "Show Get started"
-msgstr "إظهار خطوات البدء"
 
 #: src/routes/_app/help.tsx
 msgid "Show me around"
@@ -7960,10 +7768,6 @@ msgstr "ابدأ"
 #: src/components/home/checklist.tsx
 msgid "Start Kept's Compose file with the <0>https</0> profile. It adds a reverse proxy that gets a certificate for your domain."
 msgstr "شغّل ملف Compose الخاص بـKept مع الملف التعريفي <0>https</0>. يضيف وكيلًا عكسيًا يحصل على شهادة لنطاقك."
-
-#: src/routes/_app/settings.account.templates.tsx
-msgid "Start new things from a template"
-msgstr "ابدأ أشياء جديدة من قالب"
 
 #: src/components/filters/registry.tsx
 msgid "State"
@@ -8319,29 +8123,9 @@ msgstr "أول الأشياء في <0>{home}</0> توضع حيث تختار. ي�
 msgid "The inbox is for members"
 msgstr "الوارد للأعضاء"
 
-#: src/routes/_app/admin.ai.tsx
-msgid "The instance key, limits for every account, and the price table."
-msgstr "مفتاح الخادم، وحدود كل حساب، وجدول الأسعار."
-
 #: src/components/registries/field-sheet.tsx
 msgid "The key and kind stay as they are. Changing a kind comes with a preview, later."
 msgstr "يبقى المفتاح والنوع كما هما. تغيير النوع سيأتي مع معاينة لاحقًا."
-
-#: src/routes/_app/admin.status.tsx
-msgid "The last backup failed"
-msgstr "فشل آخر نسخ احتياطي"
-
-#: src/routes/_app/admin.status.tsx
-msgid "The last backup is old"
-msgstr "آخر نسخة احتياطية قديمة"
-
-#: src/routes/_app/admin.status.tsx
-msgid "The last good backup is from {lastGood}."
-msgstr "آخر نسخة احتياطية سليمة من {lastGood}."
-
-#: src/routes/_app/admin.status.tsx
-msgid "The last good backup is from {lastGood}. Check that Kept's worker is running."
-msgstr "آخر نسخة احتياطية سليمة من {lastGood}. تحقّق من أن عامل Kept يعمل."
 
 #: src/components/inbox/receipt-review.tsx
 msgid "The lines don't add up to the total (more than 1% apart). Check them."
@@ -8471,10 +8255,6 @@ msgstr "ثم اضبط KEPT_PUBLIC_URL على عنوان https وأعد تشغي�
 msgid "There are {0}. The ones you take off get their own row, keeping the same purchase."
 msgstr "العدد {0}. ما تفصله يحصل على صف خاص به، مع بيانات الشراء نفسها."
 
-#: src/routes/_app/admin.status.tsx
-msgid "There is no good backup yet."
-msgstr "لا توجد نسخة احتياطية سليمة بعد."
-
 #: src/components/registries/place-kinds.tsx
 msgid "There's already a kind with that name."
 msgstr "يوجد بالفعل نوع مكان بهذا الاسم."
@@ -8536,10 +8316,6 @@ msgstr "أشياء التُقطت بلا مكان بعد"
 #: src/components/search/results.tsx
 msgid "Things found"
 msgstr "الأشياء التي عُثر عليها"
-
-#: src/components/places/contents-list.tsx
-msgid "Things here"
-msgstr "الأشياء هنا"
 
 #: src/components/inbox/receipt-review.tsx
 msgid "Things in the same location, by brand and model or by name."
@@ -8604,11 +8380,6 @@ msgstr "تغيّر هذا منذ فتحته. أعد التحميل وحاول م
 #: src/components/scan/outcome-sheet.tsx
 msgid "This code isn't one of Kept's labels. It says:"
 msgstr "هذا الرمز ليس من ملصقات Kept. مكتوب فيه:"
-
-#. placeholder {0}: thing.name ?? ''
-#: src/components/things/label-sheet.tsx
-msgid "This code stays with {0} for good, so a reprinted label still finds it. Printing label sheets comes with scanning, in a later step."
-msgstr "يبقى هذا الرمز مع «{0}» دائمًا، لذا يظل الملصق المُعاد طبعه يجده. طباعة أوراق الملصقات تأتي مع المسح، في مرحلة لاحقة."
 
 #: src/routes/_app/settings.index.tsx
 msgid "This device"
@@ -8715,10 +8486,6 @@ msgstr "لا توجد مساحة كافية لـ Kept على هذا الهاتف
 msgid "This phone may be out of space."
 msgstr "ربما امتلأت مساحة هذا الهاتف."
 
-#: src/routes/_app/p.$id.tsx
-msgid "This place has a label ID; printing arrives in a later step"
-msgstr "لهذا المكان معرّف ملصق، والطباعة تأتي في مرحلة لاحقة"
-
 #: src/routes/signin/two-factor.tsx
 msgid "This sign-in timed out. Start again from the sign-in page."
 msgstr "انتهت مهلة هذا الدخول. ابدأ من جديد من صفحة تسجيل الدخول."
@@ -8747,10 +8514,6 @@ msgstr "رُمي"
 msgid "Ticked"
 msgstr "مؤشَّر عليها"
 
-#: src/routes/_app/box-check.$id.tsx
-msgid "Tick off what you find, count what's short, and Kept marks the rest not here."
-msgstr "علّم على ما تجده، واحسب ما ينقص، وسيعلّم Kept الباقي بأنه غير موجود هنا."
-
 #: src/routes/_app/search.tsx
 msgid "Tips"
 msgstr "نصائح"
@@ -8767,10 +8530,6 @@ msgstr "للعودة، يجب أن يدعوك أحد في «{name}» من جدي
 #: src/components/inbox/inbox-list.tsx
 msgid "To confirm: {list}"
 msgstr "للتأكيد: {list}"
-
-#: src/components/home/attention.tsx
-msgid "To review"
-msgstr "للمراجعة"
 
 #: src/components/filters/panel.tsx
 #: src/components/inbox/inbox-list.tsx
@@ -9455,10 +9214,6 @@ msgstr "ما كان يغيّره لم يعد موجودًا."
 msgid "What it shows stays."
 msgstr "أما ما يعرضه فيبقى."
 
-#: src/components/hints/hint-copy.ts
-msgid "What needs you comes first, then your locations and what's in them."
-msgstr "أولًا ما يحتاج إليك، ثم مواقعك وما فيها."
-
 #: src/routes/_app/locations.new.tsx
 msgid "What should {displayName} track?"
 msgstr "ما الذي يتابعه «{displayName}»؟"
@@ -9772,10 +9527,6 @@ msgstr "كلمة مرورك الجديدة تعمل الآن. خرجت كل ال
 #: src/components/registries/place-kinds.tsx
 msgid "Your own"
 msgstr "الخاصة بك"
-
-#: src/routes/_app/settings.me.ai.tsx
-msgid "Your own AI key"
-msgstr "مفتاحك الخاص للذكاء الاصطناعي"
 
 #: src/components/change-email.tsx
 #: src/routes/_app/settings.two-factor.tsx
@@ -11087,10 +10838,6 @@ msgstr "استهلك الاختبار {0} رمز مع <0>{1}</0>"
 msgid "Tests"
 msgstr "الاختبارات"
 
-#: src/components/ai/paste-key.tsx
-msgid "That address is on a private network. An instance admin can allow private addresses for a self-hosted server."
-msgstr "هذا العنوان على شبكة خاصة. يمكن لمشرف الخادم السماح بالعناوين الخاصة لخادم مستضاف ذاتيًا."
-
 #: src/components/ai/caps.tsx
 msgid "That currency isn't turned on. An instance admin can add it."
 msgstr "هذه العملة غير مفعّلة. يمكن لمشرف الخادم إضافتها."
@@ -11491,10 +11238,6 @@ msgstr "وهو أيضًا وجهة الصف حين لا يُنشأ مكانه."
 msgid "An import takes at most {limit} rows. Split the file and import each part."
 msgstr "يقبل الاستيراد {limit} صف على الأكثر. قسّم الملف واستورد كل جزء."
 
-#: src/components/import/upload-step.tsx
-msgid "Any spreadsheet saved as CSV: one thing per row, with a header row naming the columns."
-msgstr "أي جدول بيانات محفوظ بصيغة CSV: شيء واحد في كل صف، مع صف عناوين يسمّي الأعمدة."
-
 #: src/components/import/mapping-step.tsx
 msgid "As the type's field is written in Settings → Account → Types, like warranty_months."
 msgstr "كما يُكتب حقل النوع في الإعدادات ← الحساب ← الأنواع، مثل warranty_months."
@@ -11555,10 +11298,6 @@ msgstr "العمود {n}"
 #: src/components/import/mapping-step.tsx
 msgid "Columns"
 msgstr "الأعمدة"
-
-#: src/components/import/upload-step.tsx
-msgid "Coming in a later version."
-msgstr "قادم في إصدار لاحق."
 
 #: src/components/import/choices-step.tsx
 msgid "Dates are written as"
@@ -11948,10 +11687,6 @@ msgstr "مستنتَج من التواريخ في الملف."
 msgid "You can leave this page; the import carries on, and Settings → Import shows how far it got."
 msgstr "يمكنك مغادرة هذه الصفحة؛ يستمر الاستيراد، وتعرض الإعدادات ← الاستيراد إلى أين وصل."
 
-#: src/components/import/labels.ts
-msgid "Your own code (an old label)"
-msgstr "رمزك الخاص (ملصق قديم)"
-
 #. placeholder {0}: x.locations.length
 #: src/components/templates/template-list.tsx
 msgid "{0, plural, one {Shared with 1 location} other {Shared with # locations}}"
@@ -11960,10 +11695,6 @@ msgstr "{0, plural, zero {غير مشارك مع أي موقع} one {مشارك 
 #: src/components/templates/template-sheet.tsx
 msgid "Also the new thing's name, until you type one."
 msgstr "وهو أيضًا اسم الشيء الجديد إلى أن تكتب اسمًا."
-
-#: src/components/templates/template-sheet.tsx
-msgid "At most 120 characters."
-msgstr "١٢٠ حرفًا على الأكثر."
 
 #: src/components/templates/template-list.tsx
 msgid "Couldn't delete it"
@@ -12546,10 +12277,6 @@ msgid "Finding things with a meter…"
 msgstr "جارٍ البحث عن الأغراض التي لها عدّاد…"
 
 #: src/components/capture/reading-target.tsx
-msgid "Kept checks online which things have a meter. The one chosen before still works offline."
-msgstr "يتحقق Kept عبر الإنترنت من الأغراض التي لها عدّاد. ما اخترته قبلًا يظل يعمل دون اتصال."
-
-#: src/components/capture/reading-target.tsx
 msgid "Nothing here has a meter yet"
 msgstr "لا شيء هنا له عدّاد بعد"
 
@@ -12808,25 +12535,9 @@ msgstr "{unread, plural, zero {لا إشعارات غير مقروءة} one {إ�
 msgid "A report of your things with their prices, values and receipts, and a pack of the originals to send with a claim."
 msgstr "تقرير بأغراضك وأسعارها وقيمها وإيصالاتها، وملف بالأصول تُرسله مع المطالبة."
 
-#: src/routes/_app/paperwork.tsx
-msgid "All your paperwork in one place"
-msgstr "كل أوراقك في مكان واحد"
-
-#: src/routes/_app/settings.me.notifications.tsx
-msgid "Choose what each location tells you, by email or on this device, when the daily digest comes, and when Kept stays quiet."
-msgstr "اختر ما يخبرك به كل موقع، بالبريد أو على هذا الجهاز، وموعد الملخص اليومي، ومتى يلتزم Kept الهدوء."
-
 #: src/routes/_app/reports.$kind.tsx
 msgid "Claim pack"
 msgstr "ملف المطالبة"
-
-#: src/routes/_app/settings.account.exchange-rates.tsx
-msgid "Enter a rate for a pair of currencies and the date it applies from. Totals are converted only with a rate you entered, never an estimate."
-msgstr "أدخل سعر الصرف لزوج من العملات والتاريخ الذي يسري منه. لا تُحوَّل المجاميع إلا بسعر أدخلته أنت، ولا تُقدَّر أبدًا."
-
-#: src/routes/_app/notifications.tsx
-msgid "Everything Kept told you"
-msgstr "كل ما أخبرك به Kept"
 
 #: src/routes/_app/settings.account.tsx
 msgid "Exchange rates"
@@ -12852,15 +12563,6 @@ msgstr "الحوادث"
 msgid "Insurance report"
 msgstr "تقرير التأمين"
 
-#: src/routes/_app/paperwork.tsx
-msgid "Receipts, manuals, warranties, leases and policies from every location, found by a word inside them."
-msgstr "الإيصالات والأدلة والضمانات وعقود الإيجار ووثائق التأمين من كل المواقع، تجدها بكلمة من داخلها."
-
-#: src/routes/_app/incidents.$id.tsx
-#: src/routes/_app/incidents.tsx
-msgid "Record a burglary, fire, flood or loss, mark what it took, and get what your insurer asks for."
-msgstr "سجّل سرقة أو حريقًا أو فيضانًا أو فقدانًا، وحدّد ما ذهب فيه، واحصل على ما تطلبه شركة التأمين."
-
 #: src/routes/_app/settings.index.tsx
 msgid "Reminders and alerts"
 msgstr "التذكيرات والتنبيهات"
@@ -12873,46 +12575,9 @@ msgstr "تذكيرات حان موعدها، وإعارات تأخرت، وأخ�
 msgid "Report"
 msgstr "تقرير"
 
-#: src/routes/_app/schedules.tsx
-msgid "Services and checks for your things and places, every few months or every so many kilometres or hours, with a reminder before each one is due."
-msgstr "صيانة وفحوص لأغراضك وأماكنك، كل بضعة أشهر أو كل عدد من الكيلومترات أو الساعات، مع تذكير قبل موعد كل منها."
-
-#: src/routes/_app/expiring.tsx
-msgid "Warranties, documents and things that expire, soonest first."
-msgstr "الضمانات والمستندات والأغراض التي تنتهي صلاحيتها، الأقرب أولًا."
-
-#: src/routes/_app/settings.index.tsx
-msgid "What each location tells you, by email or on this device."
-msgstr "ما يخبرك به كل موقع، بالبريد أو على هذا الجهاز."
-
-#: src/routes/_app/schedules.tsx
-msgid "What needs doing, and when"
-msgstr "ما يلزم فعله، ومتى"
-
-#: src/routes/_app/expiring.tsx
-msgid "What runs out soon"
-msgstr "ما ينتهي قريبًا"
-
-#: src/routes/_app/lending.tsx
-msgid "What you lent and to whom, what you borrowed and from whom, and when each is due back."
-msgstr "ما أعرته ولمن، وما استعرته وممن، وموعد إعادة كل منها."
-
 #: src/routes/_app/reports.$kind.tsx
 msgid "What your insurer asks for"
 msgstr "ما تطلبه شركة التأمين"
-
-#: src/routes/_app/incidents.$id.tsx
-#: src/routes/_app/incidents.tsx
-msgid "When something goes wrong"
-msgstr "حين يحدث مكروه"
-
-#: src/routes/_app/lending.tsx
-msgid "Who has what"
-msgstr "من معه ماذا"
-
-#: src/routes/_app/settings.account.exchange-rates.tsx
-msgid "Your exchange rates"
-msgstr "أسعار الصرف لديك"
 
 #: src/components/reports/progress.tsx
 msgid "Open PDF"
@@ -13017,14 +12682,6 @@ msgstr "{months, plural, zero {كل {every} أو كل شهر} one {كل {every} 
 #: src/components/schedules/labels.tsx
 msgid "{n, plural, one {In # day} other {In # days}}"
 msgstr "{n, plural, zero {اليوم} one {بعد يوم واحد} two {بعد يومين} few {بعد # أيام} many {بعد # يومًا} other {بعد # يوم}}"
-
-#: src/components/lending/loan-row.tsx
-msgid "{name} is back"
-msgstr "عاد {name}"
-
-#: src/components/lending/loan-row.tsx
-msgid "{name} went back to {person}"
-msgstr "أُعيد {name} إلى {person}"
 
 #: src/components/lending/loan-row.tsx
 msgid "{since} to {back} · returned"
@@ -13311,10 +12968,6 @@ msgstr "الإعارات المنتهية مع {name}"
 #: src/components/services/log-service-sheet.tsx
 msgid "Log a service"
 msgstr "سجّل صيانة"
-
-#: src/components/lending/loan-row.tsx
-msgid "Mark {name} returned"
-msgstr "سجّل إعادة {name}"
 
 #: src/components/lending/loan-row.tsx
 msgid "Mark returned"
@@ -13629,26 +13282,6 @@ msgstr "ما أعارنا إياه {name}"
 #: src/components/documents/subject-paperwork.tsx
 msgid "{earlier, plural, one {# earlier term} other {# earlier terms}}"
 msgstr "{earlier, plural, zero {لا مدد سابقة} one {مدة سابقة واحدة} two {مدتان سابقتان} few {# مدد سابقة} many {# مدة سابقة} other {# مدة سابقة}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# is due soon} other {# are due soon}}"
-msgstr "{n, plural, zero {لا شيء مستحق قريبًا} one {واحد مستحق قريبًا} two {اثنان مستحقان قريبًا} few {# مستحقة قريبًا} many {# مستحقًا قريبًا} other {# مستحق قريبًا}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# is past its date} other {# are past their date}}"
-msgstr "{n, plural, zero {لا شيء فات موعده} one {واحد فات موعده} two {اثنان فات موعدهما} few {# فات موعدها} many {# فات موعدها} other {# فات موعدها}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# runs out soon} other {# run out soon}}"
-msgstr "{n, plural, zero {لا شيء ينتهي قريبًا} one {واحد ينتهي قريبًا} two {اثنان ينتهيان قريبًا} few {# تنتهي قريبًا} many {# تنتهي قريبًا} other {# تنتهي قريبًا}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# thing is with someone} other {# things are with someone}}"
-msgstr "{n, plural, zero {لا أشياء عند أحد} one {شيء واحد عند أحد} two {شيئان عند أحد} few {# أشياء عند آخرين} many {# شيئًا عند آخرين} other {# شيء عند آخرين}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# thing to give back} other {# things to give back}}"
-msgstr "{n, plural, zero {لا أشياء لإعادتها} one {شيء واحد لإعادته} two {شيئان لإعادتهما} few {# أشياء لإعادتها} many {# شيئًا لإعادتها} other {# شيء لإعادتها}}"
 
 #. placeholder {0}: f.num(i + 1)
 #: src/components/documents/subject-paperwork.tsx
@@ -14125,10 +13758,6 @@ msgstr "غيّر موعد الإرجاع"
 #: src/components/lending/return-sheet.tsx
 msgid "Choose where it goes."
 msgstr "اختر أين يوضع."
-
-#: src/components/claims/claims-section.tsx
-msgid "Claim · {status}"
-msgstr "مطالبة · {status}"
 
 #: src/components/warranties/warranty-sheet.tsx
 msgid "Claim contact"
@@ -14827,10 +14456,6 @@ msgstr "{MAX_WEBHOOK_CHANNELS, plural, zero {ليس لديك خطافات ويب
 msgid "{unreadText} unread"
 msgstr "{unreadText} غير مقروء"
 
-#: src/components/notifications/settings/kinds.tsx
-msgid "{what} by {how} in {name}"
-msgstr "{what} عبر {how} في {name}"
-
 #: src/components/notifications/notification-row.tsx
 msgid "{who} joined {where}"
 msgstr "انضم {who} إلى {where}"
@@ -14854,10 +14479,6 @@ msgstr "إضافة خطاف ويب"
 #: src/components/notifications/settings/kinds.tsx
 msgid "AI monthly summary"
 msgstr "ملخص الذكاء الاصطناعي الشهري"
-
-#: src/components/notifications/settings/notification-settings.tsx
-msgid "AI monthly summary by email"
-msgstr "ملخص الذكاء الاصطناعي الشهري بالبريد"
 
 #: src/components/notifications/notification-row.tsx
 msgid "AI reached this month's cap"
@@ -15324,10 +14945,6 @@ msgstr "خطاف ويب"
 #: src/components/notifications/settings/channels.tsx
 msgid "Webhooks"
 msgstr "خطافات الويب"
-
-#: src/components/notifications/settings/notification-settings.tsx
-msgid "What each location tells you"
-msgstr "ما يخبرك به كل موقع"
 
 #: src/components/notifications/settings/notification-settings.tsx
 msgid "What's coming up arrives together, once a day."
@@ -15926,26 +15543,6 @@ msgstr "المستهلكات"
 msgid "Export"
 msgstr "التصدير"
 
-#: src/routes/_app/settings.export.tsx
-msgid "Export a location as one file: everything in it, the original photos and documents, and a copy you can read without Kept."
-msgstr "صدِّر موقعًا في ملف واحد: كل ما فيه، والصور والمستندات الأصلية، ونسخة تقرؤها دون Kept."
-
-#: src/components/legacy/legacy-resolve.tsx
-msgid "Homebox labels keep working"
-msgstr "ملصقات Homebox تبقى صالحة"
-
-#: src/routes/_app/consumables.tsx
-msgid "Keep at least a few of each, see what's running low, and adjust the count."
-msgstr "احتفظ بعدد أدنى من كل شيء، واعرف ما يوشك أن ينفد، وعدّل الكمية."
-
-#: src/components/legacy/legacy-resolve.tsx
-msgid "Once your Homebox export is imported, its printed labels open the same things here."
-msgstr "بعد استيراد تصدير Homebox، تفتح ملصقاته المطبوعة الأشياء نفسها هنا."
-
-#: src/routes/_app/settings.export.tsx
-msgid "Take your things with you"
-msgstr "خذ أشياءك معك"
-
 #: src/components/registries/brand-logo.household.tsx
 msgid "Logo of {name}"
 msgstr "شعار {name}"
@@ -15993,19 +15590,6 @@ msgstr "اسأل أين يوجد شيء ما أو ما الذي حان موعد�
 #: src/routes/oauth/consent.tsx
 msgid "Connect other apps"
 msgstr "اربط تطبيقات أخرى"
-
-#: src/routes/_app/settings.connections.tsx
-#: src/routes/oauth/consent.tsx
-msgid "Tokens and connected apps let AI apps like Claude find and add your things. Every change they make is listed here, with undo."
-msgstr "تتيح رموز الوصول والتطبيقات المتصلة لتطبيقات الذكاء الاصطناعي مثل Claude العثور على أشيائك وإضافتها. كل تغيير تجريه يُدرج هنا مع إمكانية التراجع عنه."
-
-#: src/routes/_app/settings.location.$id.webhooks.tsx
-msgid "Tell another server what changed"
-msgstr "أخبر خادمًا آخر بما تغيّر"
-
-#: src/routes/_app/settings.location.$id.webhooks.tsx
-msgid "A signed message to your own server when a thing is added, moved or changed here. It carries ids, never names or values."
-msgstr "رسالة موقّعة إلى خادمك عند إضافة شيء هنا أو نقله أو تغييره. تحمل المعرّفات فقط، ولا تحمل أبدًا أسماء أو قيمًا."
 
 #: src/routes/oauth/consent.tsx
 msgid "Connect an app"
@@ -17116,10 +16700,6 @@ msgstr "تعديل"
 #: src/components/home/attention.tsx
 msgid "Low stock"
 msgstr "مخزون منخفض"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# running low} other {# running low}}"
-msgstr "{n, plural, zero {لا شيء ينفد} one {شيء واحد ينفد} two {شيئان ينفدان} few {# أشياء تنفد} many {# شيئًا ينفد} other {# شيء ينفد}}"
 
 #: src/components/consumables/stock.household.tsx
 #: src/components/history/labels.ts
@@ -18291,10 +17871,6 @@ msgstr "{name}، {unit}"
 msgid "A car, a motorbike or a generator: Kept keeps its odometer, what's due, fuel and running costs."
 msgstr "سيارة أو دراجة نارية أو مولّد: يحفظ Kept عدّاده وما يحين موعده والوقود وتكاليف التشغيل."
 
-#: src/components/vehicles/overview.tsx
-msgid "A fresh one keeps ~{next} honest; Kept nudges you at {nudge} days."
-msgstr "قراءة جديدة تُبقي ~{next} دقيقًا؛ يذكّرك Kept بعد {nudge} يومًا."
-
 #: src/components/vehicles/readings-tab.tsx
 msgid "Accepted"
 msgstr "مقبولة"
@@ -18407,10 +17983,6 @@ msgstr "Home Assistant"
 #: src/components/vehicles/starter-schedules.tsx
 msgid "It has those already"
 msgstr "لديها هذه المواعيد بالفعل"
-
-#: src/components/vehicles/overview.tsx
-msgid "Kept nudges you at {nudge} days."
-msgstr "يذكّرك Kept بعد {nudge} يومًا."
 
 #: src/components/vehicles/list.tsx
 msgid "Last reading"
@@ -19930,17 +19502,9 @@ msgstr "كل المحادثات"
 msgid "Backups"
 msgstr "النسخ الاحتياطي"
 
-#: src/routes/_app/admin.backups.tsx
-msgid "Back up every night to another disk, an S3 bucket or an SFTP server, encrypted with a password only you hold, and see each run and snapshot here."
-msgstr "انسخ احتياطيًا كل ليلة إلى قرص آخر أو حاوية S3 أو خادم SFTP، مشفّرًا بكلمة مرور لا يملكها غيرك، وتابع هنا كل تشغيل وكل لقطة."
-
 #: src/routes/_app/settings.device.tsx
 msgid "Lock Kept on this device"
 msgstr "اقفل Kept على هذا الجهاز"
-
-#: src/routes/_app/settings.device.tsx
-msgid "Ask for a PIN or your face or fingerprint when Kept opens, and keep a location's prices and documents on this phone for when you're offline."
-msgstr "اطلب رمز PIN أو وجهك أو بصمتك عند فتح Kept، واحتفظ بأسعار موقع ومستنداته على هذا الهاتف لتجدها دون اتصال."
 
 #: src/components/history/labels.ts
 msgid "Issued on"
@@ -21009,10 +20573,6 @@ msgstr "لا يستطيع Kept الوصول إلى هذا العنوان. تحق
 msgid "You have no AI of your own to answer here. Ask from a location's page, where its AI answers."
 msgstr "ليس لديك ذكاء اصطناعي خاص بك ليجيب هنا. اسأل من صفحة أحد المواقع، حيث يجيب ذكاؤه الاصطناعي."
 
-#: src/components/app-shell.tsx
-msgid "Third-party notices"
-msgstr "إشعارات الأطراف الثالثة"
-
 #: src/components/history/labels.ts
 msgid "Webhook added"
 msgstr "أُضيف خطاف ويب"
@@ -21206,18 +20766,6 @@ msgstr "تستخدم هذه العملة افتراضيًا للمبالغ ال�
 msgid "Back to {0}"
 msgstr "رجوع إلى {0}"
 
-#: src/components/hints/hint-copy.ts
-msgid "Your locations and everything else: vehicles, paperwork, settings and help."
-msgstr "مواقعك وكل شيء آخر: المركبات والأوراق والإعدادات والمساعدة."
-
-#: src/components/hints/hint-copy.ts
-msgid "Print QR labels for boxes and shelves. Scan one and its place opens."
-msgstr "اطبع ملصقات QR للصناديق والأرفف. امسح واحدًا وسيُفتح مكانه."
-
-#: src/components/hints/hint-copy.ts
-msgid "Locations, members, AI providers and backups live here."
-msgstr "المواقع والأعضاء ومزودو الذكاء الاصطناعي والنسخ الاحتياطية هنا."
-
 #. placeholder {0}: ids.length
 #: src/components/hints/tour-keep.tsx
 msgid "{0, plural, one {The tour added # item to your library.} other {The tour added # items to your library.}}"
@@ -21226,14 +20774,6 @@ msgstr "{0, plural, zero {لم تضف الجولة أي عنصر إلى مكتب
 #: src/components/hints/tour-keep.tsx
 msgid "{failures, plural, one {# added item couldn't be removed. Check your connection and try Discard again, or Keep it.} other {# added items couldn't be removed. Check your connection and try Discard again, or Keep them.}}"
 msgstr "{failures, plural, zero {تعذرت إزالة العناصر المضافة. تحقق من اتصالك وحاول التجاهل مجددًا، أو أبق عليها.} one {تعذرت إزالة العنصر المضاف. تحقق من اتصالك وحاول التجاهل مجددًا، أو أبق عليه.} two {تعذرت إزالة العنصرين المضافين. تحقق من اتصالك وحاول التجاهل مجددًا، أو أبق عليهما.} few {تعذرت إزالة # عناصر مضافة. تحقق من اتصالك وحاول التجاهل مجددًا، أو أبق عليها.} many {تعذرت إزالة # عنصرًا مضافًا. تحقق من اتصالك وحاول التجاهل مجددًا، أو أبق عليها.} other {تعذرت إزالة # عنصر مضاف. تحقق من اتصالك وحاول التجاهل مجددًا، أو أبق عليها.}}"
-
-#: src/components/hints/hint-copy.ts
-msgid "Every addition, move and edit, newest first. Search it when you want history."
-msgstr "كل إضافة ونقل وتعديل، الأحدث أولًا. ابحث فيه عندما تريد السجل."
-
-#: src/routes/_app/help.tsx
-msgid "Every section, one small thing in each, then keep or discard what you added. Replay it any time."
-msgstr "كل قسم، وشيء صغير في كل واحد، ثم أبق ما أضفت أو تجاهله. أعدها في أي وقت."
 
 #: src/components/hints/tour-keep.tsx
 msgid "Keep leaves everything where it is. Discard moves only what the tour added to Trash, where it waits 30 days before it's gone for good. Your activity history stays either way."
@@ -21244,68 +20784,8 @@ msgid "Keep what you added?"
 msgstr "الاحتفاظ بما أضفته؟"
 
 #: src/components/hints/hint-copy.ts
-msgid "Locations, members, AI and backups live here. Nothing changes unless you change it."
-msgstr "المواقع والأعضاء والذكاء الاصطناعي والنسخ الاحتياطية هنا. لا يتغير شيء ما لم تغيّره."
-
-#: src/components/hints/hint-copy.ts
 msgid "Name it and create it. At the end you keep it, or discard it."
 msgstr "سمّه وأنشئه. في النهاية تُبقيه أو تتجاهله."
-
-#: src/components/hints/hint-copy.ts
-msgid "What has no label yet is listed here. Print a sheet whenever you want to stick some on."
-msgstr "ما ليس له ملصق بعد مُدرج هنا. اطبع ورقة متى أردت لصق بعضها."
-
-#: src/components/hints/hint-copy.ts
-msgid "Every document, with the ones running out first."
-msgstr "كل الوثائق، وأولها ما يوشك على الانتهاء."
-
-#: src/components/hints/hint-copy.ts
-msgid "What's lent out, who has it, and what's overdue."
-msgstr "ما هو مُعار، ومن لديه، وما تأخّر."
-
-#: src/components/hints/hint-copy.ts
-msgid "What's due, soonest first. New schedules start here too."
-msgstr "ما يستحق، الأقرب أولًا. ومن هنا تبدأ المواعيد الجديدة أيضًا."
-
-#: src/components/hints/hint-copy.ts
-msgid "Each vehicle shows its odometer, what's due next and its documents."
-msgstr "كل مركبة تعرض عدّادها وما يستحق بعد ذلك ووثائقها."
-
-#: src/components/hints/hint-copy.ts
-msgid "What runs low, with how much is left."
-msgstr "ما يوشك على النفاد، ومقدار ما تبقّى."
-
-#: src/components/hints/hint-copy.ts
-msgid "Your photo waits here. Check what Kept suggests and accept it: accepting files it into its place."
-msgstr "صورتك تنتظر هنا. راجع ما يقترحه Kept واقبله: القبول يضعه في مكانه."
-
-#: src/components/hints/hint-copy.ts
-msgid "Reminders land here, newest first. What you're told about is in Settings."
-msgstr "تصل التذكيرات إلى هنا، الأحدث أولًا. وما يُبلَّغ لك يُضبط في الإعدادات."
-
-#: src/components/hints/hint-copy.ts
-msgid "Take a photo of one thing, or pick one from your gallery, then tap Next. It waits in your Inbox."
-msgstr "التقط صورة لشيء واحد، أو اختر صورة من معرضك، ثم اضغط «التالي». ستنتظرك في الوارد."
-
-#: src/components/hints/hint-copy.ts
-msgid "That's every section. If the tour added anything, you choose to keep it or discard it."
-msgstr "هذه كل الأقسام. إن أضافت الجولة شيئًا، فلك أن تحتفظ به أو تتجاهله."
-
-#: src/components/hints/hint-copy.ts
-msgid "A location's places, and how much each holds. Open any of them after the tour."
-msgstr "أماكن الموقع، وكم يحوي كل منها. افتح أيًّا منها بعد الجولة."
-
-#: src/components/hints/hint-copy.ts
-msgid "Trashed things wait here for 30 days, each with Restore."
-msgstr "تنتظر الأشياء المحذوفة هنا 30 يومًا، ولكل منها «استعادة»."
-
-#: src/components/hints/hint-copy.ts
-msgid "Type part of a thing's name above. Each result shows where it is."
-msgstr "اكتب جزءًا من اسم شيء في الأعلى. كل نتيجة تبيّن مكانه."
-
-#: src/components/hints/hint-copy.ts
-msgid "What needs you is at the top, your locations below it. Next takes you into one."
-msgstr "ما يحتاجك في الأعلى، ومواقعك تحته. «التالي» يأخذك إلى أحدها."
 
 #: src/components/connections/words.tsx
 msgid "Ended: the account was reclaimed"
@@ -22652,10 +22132,6 @@ msgstr "إزالة من الخريطة"
 #: src/map/card.tsx
 msgid "Less"
 msgstr "أقل"
-
-#: src/map/card.tsx
-msgid "Shape"
-msgstr "الشكل"
 
 #: src/map/card.tsx
 msgid "{n, plural, one {# thing inside} other {# things inside}}"
@@ -24553,14 +24029,6 @@ msgstr "ابحث عن شيء لإضافته"
 #: src/map/put-on.tsx
 msgid "Things to add on it"
 msgstr "أشياء توضع عليه"
-
-#: src/map/put-on.tsx
-msgid "No monitor in {roomName} is free. Put one on the map first."
-msgstr "لا توجد شاشة متاحة في {roomName}. ضع واحدة على الخريطة أولًا."
-
-#: src/map/put-on.tsx
-msgid "Everything small in {roomName} is on something, or not on the map yet."
-msgstr "كل شيء صغير في {roomName} موضوع على شيء، أو ليس على الخريطة بعد."
 
 #: src/map/put-on.tsx
 msgid "{n, plural, one {Put # on it} other {Put # on it}}"
