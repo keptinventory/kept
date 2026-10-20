@@ -24957,3 +24957,291 @@ msgstr "Your moves"
 #: src/components/hints/hint-copy.ts
 msgid "Yours or everyone's"
 msgstr "Yours or everyone's"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Fill from photos"
+msgstr "Fill from photos"
+
+#: src/components/capture/room-tray.tsx
+#: src/components/inbox/labels.ts
+#: src/components/inbox/room-review.tsx
+#: src/routes/_app/settings.location.$id.general.tsx
+msgid "Room photos"
+msgstr "Room photos"
+
+#: src/routes/_app/settings.location.$id.general.tsx
+msgid "Keep room photos after review"
+msgstr "Keep room photos after review"
+
+#: src/routes/_app/settings.location.$id.general.tsx
+msgid "When you photograph a room, Kept cuts a picture for each thing it finds. Once you close the room in the inbox, the full photos are deleted, unless this is on: then they stay on the room's page."
+msgstr "When you photograph a room, Kept cuts a picture for each thing it finds. Once you close the room in the inbox, the full photos are deleted, unless this is on: then they stay on the room's page."
+
+#: src/map/card.tsx
+msgid "Photograph this room"
+msgstr "Photograph this room"
+
+#: src/map/map-view.tsx
+msgid "Placed by Kept from room photos: move them where they stand."
+msgstr "Placed by Kept from room photos: move them where they stand."
+
+#: src/components/inbox/inbox-list.tsx
+#: src/components/inbox/room-review.tsx
+msgid "Photos of {name}"
+msgstr "Photos of {name}"
+
+#: src/components/inbox/room-review.tsx
+msgid "{objects, plural, one {Photo {photo}: # thing} other {Photo {photo}: # things}}"
+msgstr "{objects, plural, one {Photo {photo}: # thing} other {Photo {photo}: # things}}"
+
+#: src/components/inbox/room-review.tsx
+msgid "Close this room?"
+msgstr "Close this room?"
+
+#: src/components/inbox/room-review.tsx
+msgid "The photos stay on {0}. The drafts and their pictures stay in the inbox."
+msgstr "The photos stay on {0}. The drafts and their pictures stay in the inbox."
+
+#: src/components/inbox/room-review.tsx
+msgid "The full photos are deleted. The drafts and their own pictures stay in the inbox."
+msgstr "The full photos are deleted. The drafts and their own pictures stay in the inbox."
+
+#: src/components/inbox/room-review.tsx
+msgid "Room closed"
+msgstr "Room closed"
+
+#: src/components/inbox/room-review.tsx
+msgid "Discard these photos?"
+msgstr "Discard these photos?"
+
+#: src/components/inbox/room-review.tsx
+msgid "The photos are deleted. Drafts already made stay in the inbox."
+msgstr "The photos are deleted. Drafts already made stay in the inbox."
+
+#: src/components/inbox/room-review.tsx
+msgid "Photos discarded"
+msgstr "Photos discarded"
+
+#: src/components/inbox/room-review.tsx
+msgid "Reading the photos again"
+msgstr "Reading the photos again"
+
+#: src/components/inbox/room-review.tsx
+msgid "{0, plural, one {Added # place} other {Added # places}}"
+msgstr "{0, plural, one {Added # place} other {Added # places}}"
+
+#: src/components/inbox/room-review.tsx
+msgid "{0, plural, one {Marked # thing seen} other {Marked # things seen}}"
+msgstr "{0, plural, one {Marked # thing seen} other {Marked # things seen}}"
+
+#: src/components/inbox/room-review.tsx
+msgid "Photos of <0>{name}</0>"
+msgstr "Photos of <0>{name}</0>"
+
+#: src/components/inbox/room-review.tsx
+msgid "Couldn't read"
+msgstr "Couldn't read"
+
+#: src/components/inbox/room-review.tsx
+msgid "AI capture is off"
+msgstr "AI capture is off"
+
+#: src/components/inbox/room-review.tsx
+msgid "Waiting for the AI budget until {0}."
+msgstr "Waiting for the AI budget until {0}."
+
+#: src/components/inbox/room-review.tsx
+msgid "Listing what is in the photos…"
+msgstr "Listing what is in the photos…"
+
+#: src/components/inbox/room-review.tsx
+msgid "Reading photo {0} of {1}…"
+msgstr "Reading photo {0} of {1}…"
+
+#: src/components/inbox/room-review.tsx
+msgid "Kept couldn't read these photos. Retry, or take them again."
+msgstr "Kept couldn't read these photos. Retry, or take them again."
+
+#: src/components/inbox/room-review.tsx
+msgid "AI capture is off here, so nothing was listed. The photos wait on <0>{name}</0>."
+msgstr "AI capture is off here, so nothing was listed. The photos wait on <0>{name}</0>."
+
+#: src/components/inbox/room-review.tsx
+msgid "Nothing found in these photos."
+msgstr "Nothing found in these photos."
+
+#: src/components/inbox/room-review.tsx
+msgid "This photo had more; take a closer one."
+msgstr "This photo had more; take a closer one."
+
+#: src/components/inbox/room-review.tsx
+msgid "Couldn't read photo {0}"
+msgstr "Couldn't read photo {0}"
+
+#: src/components/inbox/room-review.tsx
+msgid "Photo {0}: not read"
+msgstr "Photo {0}: not read"
+
+#: src/components/inbox/room-review.tsx
+msgid "Photo {0} was removed"
+msgstr "Photo {0} was removed"
+
+#: src/components/inbox/room-review.tsx
+msgid "Photo {0}: reading…"
+msgstr "Photo {0}: reading…"
+
+#: src/components/inbox/room-review.tsx
+msgid "Furniture that holds things"
+msgstr "Furniture that holds things"
+
+#: src/components/inbox/room-review.tsx
+msgid "Add them as places in <0>{name}</0>, so things can go in them."
+msgstr "Add them as places in <0>{name}</0>, so things can go in them."
+
+#: src/components/inbox/room-review.tsx
+msgid "Add as a place"
+msgstr "Add as a place"
+
+#: src/components/inbox/room-review.tsx
+msgid "{0, plural, one {Add # place} other {Add all # places}}"
+msgstr "{0, plural, one {Add # place} other {Add all # places}}"
+
+#: src/components/inbox/room-review.tsx
+msgid "Seen"
+msgstr "Seen"
+
+#: src/components/inbox/room-review.tsx
+msgid "Its label is in the photos"
+msgstr "Its label is in the photos"
+
+#: src/components/inbox/room-review.tsx
+msgid "Same brand and model"
+msgstr "Same brand and model"
+
+#: src/components/inbox/room-review.tsx
+msgid "Same name"
+msgstr "Same name"
+
+#: src/components/inbox/room-review.tsx
+msgid "{0, plural, one {Mark # seen} other {Mark # seen}}"
+msgstr "{0, plural, one {Mark # seen} other {Mark # seen}}"
+
+#: src/components/inbox/room-review.tsx
+msgid "{0, plural, one {# new thing to review below} other {# new things to review below}}"
+msgstr "{0, plural, one {# new thing to review below} other {# new things to review below}}"
+
+#: src/components/inbox/room-review.tsx
+msgid "{0, plural, one {# already in Kept} other {# already in Kept}}"
+msgstr "{0, plural, one {# already in Kept} other {# already in Kept}}"
+
+#: src/components/inbox/room-review.tsx
+msgid "{0, plural, one {# piece of furniture to add as a place} other {# pieces of furniture to add as places}}"
+msgstr "{0, plural, one {# piece of furniture to add as a place} other {# pieces of furniture to add as places}}"
+
+#: src/components/history/labels.ts
+msgid "Photographed {name} for Kept to list what is in it"
+msgstr "Photographed {name} for Kept to list what is in it"
+
+#: src/components/hints/hint-copy.ts
+msgid "Thing, receipt, label, reading or room. Pick one before the photo."
+msgstr "Thing, receipt, label, reading or room. Pick one before the photo."
+
+#: src/components/hints/hint-copy.ts
+msgid "A whole room"
+msgstr "A whole room"
+
+#: src/components/hints/hint-copy.ts
+msgid "Up to five photos of a room. AI lists what's in them as drafts, skipping what Kept already has."
+msgstr "Up to five photos of a room. AI lists what's in them as drafts, skipping what Kept already has."
+
+#: src/components/capture/capture-screen.tsx
+msgid "Five photos at most. Send these, then take the next wall."
+msgstr "Five photos at most. Send these, then take the next wall."
+
+#: src/components/capture/capture-screen.tsx
+msgid "Room sent"
+msgstr "Room sent"
+
+#: src/components/capture/capture-screen.tsx
+msgid "Kept lists what is in it in your Inbox."
+msgstr "Kept lists what is in it in your Inbox."
+
+#: src/components/capture/room-tray.tsx
+msgid "{n, plural, one {About # photo} other {About # photos}}"
+msgstr "{n, plural, one {About # photo} other {About # photos}}"
+
+#: src/components/capture/room-tray.tsx
+msgid "up to ~{0} tokens"
+msgstr "up to ~{0} tokens"
+
+#: src/components/capture/room-tray.tsx
+msgid "AI capture is off in <0>{0}</0>. An owner or admin can turn it on."
+msgstr "AI capture is off in <0>{0}</0>. An owner or admin can turn it on."
+
+#: src/components/capture/room-tray.tsx
+msgid "Choose the room or the box these photos are of, above."
+msgstr "Choose the room or the box these photos are of, above."
+
+#: src/components/capture/room-tray.tsx
+msgid "No AI provider that reads photos is set up. Ask your instance admin."
+msgstr "No AI provider that reads photos is set up. Ask your instance admin."
+
+#: src/components/capture/room-tray.tsx
+msgid "Paused: the AI budget is used up until {0}."
+msgstr "Paused: the AI budget is used up until {0}."
+
+#: src/components/capture/room-tray.tsx
+msgid "Paused: the AI budget is used up."
+msgstr "Paused: the AI budget is used up."
+
+#: src/components/capture/room-tray.tsx
+msgid "Stand in the doorway; one photo per wall."
+msgstr "Stand in the doorway; one photo per wall."
+
+#: src/components/capture/room-tray.tsx
+msgid "Photos of this room"
+msgstr "Photos of this room"
+
+#: src/components/capture/room-tray.tsx
+msgid "Remove photo {0}"
+msgstr "Remove photo {0}"
+
+#: src/components/capture/room-tray.tsx
+msgid "In Try Kept no AI runs: every room photo gives the same sample results."
+msgstr "In Try Kept no AI runs: every room photo gives the same sample results."
+
+#: src/components/capture/room-tray.tsx
+msgid "Use a sample room photo"
+msgstr "Use a sample room photo"
+
+#: src/components/capture/room-tray.tsx
+msgid "Take up to {0} photos of the room."
+msgstr "Take up to {0} photos of the room."
+
+#: src/components/capture/room-tray.tsx
+msgid "{n, plural, one {# photo} other {# photos}}"
+msgstr "{n, plural, one {# photo} other {# photos}}"
+
+#: src/components/capture/room-tray.tsx
+msgid "{n, plural, one {Send # photo} other {Send # photos}}"
+msgstr "{n, plural, one {Send # photo} other {Send # photos}}"
+
+#: src/components/capture/shutter.tsx
+msgid "Take photo: room"
+msgstr "Take photo: room"
+
+#: src/components/ai/labels.ts
+msgid "Room photo"
+msgstr "Room photo"
+
+#: src/components/ai/labels.ts
+msgid "Room photos merged"
+msgstr "Room photos merged"
+
+#: src/components/ai/labels.ts
+msgid "Each room photo"
+msgstr "Each room photo"
+
+#: src/components/ai/labels.ts
+msgid "Each room capture of several photos"
+msgstr "Each room capture of several photos"
