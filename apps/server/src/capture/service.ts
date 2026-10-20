@@ -225,15 +225,17 @@ export async function dedupedFileIds(
 type Subject = { thingId: string } | { purchaseId: string } | { placeId: string };
 
 /** Inserts one attachment per file, after the subject's existing ones; the first may take a
- * given id. Answers the attachment ids in file order. */
+ * given id, and a room capture's go under review (`inReview`). Answers the attachment ids in
+ * file order. */
 export async function attachFiles(
   client: pg.ClientBase,
   locationId: string,
   subject: Subject,
   role: AttachmentRole,
   fileIds: readonly string[],
-  firstId?: string,
+  opts: { firstId?: string; inReview?: boolean } = {},
 ): Promise<string[]> {
+  const { firstId, inReview = false } = opts;
   const thingId = 'thingId' in subject ? subject.thingId : null;
   const purchaseId = 'purchaseId' in subject ? subject.purchaseId : null;
   const placeId = 'placeId' in subject ? subject.placeId : null;
@@ -250,9 +252,9 @@ export async function attachFiles(
     const id = i === 0 && firstId ? firstId : newId();
     await client.query(
       `INSERT INTO public.attachments (id, location_id, file_id, thing_id, purchase_id, place_id,
-                                       role, sort, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, kept.current_user_id())`,
-      [id, locationId, fileId, thingId, purchaseId, placeId, role, start + i],
+                                       role, sort, in_review, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, kept.current_user_id())`,
+      [id, locationId, fileId, thingId, purchaseId, placeId, role, start + i, inReview],
     );
     ids.push(id);
   }
@@ -631,7 +633,9 @@ async function captureReceipt(ctx: Ctx, input: CaptureInput, c: Common): Promise
     }
   }
   // The first page's attachment takes the capture's id, so a later page (`pageOf`) finds it.
-  const pages = await attachFiles(client, c.locationId, { purchaseId }, 'receipt', c.fileIds, c.id);
+  const pages = await attachFiles(client, c.locationId, { purchaseId }, 'receipt', c.fileIds, {
+    firstId: c.id,
+  });
   await audited(tx, {
     locationId: c.locationId,
     actor: actor(scope.userId),

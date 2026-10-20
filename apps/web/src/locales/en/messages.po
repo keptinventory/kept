@@ -25665,3 +25665,7 @@ msgstr "Finish shows what was found and what's missing. Missing things stay as t
 #: src/components/hints/hint-copy.ts
 msgid "Scanning"
 msgstr "Scanning"
+
+#: src/components/capture/room-tray.tsx
+msgid "No AI runs in this demo"
+msgstr "No AI runs in this demo"

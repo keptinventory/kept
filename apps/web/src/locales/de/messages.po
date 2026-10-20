@@ -25665,3 +25665,7 @@ msgstr "Abschließen zeigt, was gefunden wurde und was fehlt. Fehlende Sachen bl
 #: src/components/hints/hint-copy.ts
 msgid "Scanning"
 msgstr "Scannen"
+
+#: src/components/capture/room-tray.tsx
+msgid "No AI runs in this demo"
+msgstr "In dieser Demo läuft keine KI"

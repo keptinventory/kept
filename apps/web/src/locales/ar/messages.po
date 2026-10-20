@@ -25665,3 +25665,7 @@ msgstr "إنهاء يُظهر ما وُجد وما ينقص. تبقى الأشي
 #: src/components/hints/hint-copy.ts
 msgid "Scanning"
 msgstr "المسح"
+
+#: src/components/capture/room-tray.tsx
+msgid "No AI runs in this demo"
+msgstr "لا يعمل الذكاء الاصطناعي في هذا العرض التجريبي"

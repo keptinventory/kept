@@ -25665,3 +25665,7 @@ msgstr "Concludi mostra cosa è stato trovato e cosa manca. Gli oggetti mancanti
 #: src/components/hints/hint-copy.ts
 msgid "Scanning"
 msgstr "Scansione"
+
+#: src/components/capture/room-tray.tsx
+msgid "No AI runs in this demo"
+msgstr "In questa demo non gira alcuna IA"

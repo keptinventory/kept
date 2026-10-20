@@ -67,6 +67,8 @@ export const OMIT_REASONS: Readonly<Record<string, string>> = Object.freeze({
   state_by: "a user of this server; a box's state comes in as the importing person's (D251)",
   placed_by_kept:
     "this server's hint for its next arrange; an imported map is as it was arranged (#194)",
+  in_review:
+    "this server's Room card state; the card isn't exported, its photos travel as their place's (#194)",
 });
 
 export type EntityDef = Readonly<{
@@ -244,7 +246,7 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
     key: ['id'],
     fields:
       'id:uuid file_id:uuid url:text thing_id:uuid place_id:uuid purchase_id:uuid meter_reading_id:uuid role:text sort:int created_at:ts updated_at:ts warranty_id:uuid claim_id:uuid loan_id:uuid incident_id:uuid valuation_id:uuid service_record_id:uuid expiring_document_id:uuid fuel_entry_id:uuid condition_room_id:uuid',
-    omit: 'location_id created_by row_version change_seq',
+    omit: 'location_id created_by row_version change_seq in_review',
     thingRefs: ['x.thing_id'],
   },
   {

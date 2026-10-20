@@ -104,12 +104,31 @@ export async function fillCapture(c: pg.ClientBase, t: Tenant, label: string): P
      VALUES ($1, 'draft', $2, $3, $4)`,
     [t.locationId, thing, extraction, t.userId],
   );
-  // Room photos (#194): a room capture of the box with its photo's extraction and its card.
+  // Room photos (#194): a room capture of the box with its photo's extraction and its card. The
+  // photo is a file of its own, under review while the card is open.
+  const roomFile = newId();
+  await c.query(
+    `INSERT INTO public.files (id, location_id, storage_key, sha256, bytes, mime, class,
+                               derivative_state, created_by)
+     VALUES ($1, $2, $3, $4, 10, 'image/jpeg', 'photo', 'ready', $5)`,
+    [
+      roomFile,
+      t.locationId,
+      `f/${t.locationId}/${roomFile}`,
+      createHash('sha256').update(`${label} room photo`).digest('hex'),
+      t.userId,
+    ],
+  );
+  await c.query(
+    `INSERT INTO public.file_derivatives (file_id, variant, location_id, storage_key, width,
+                                          height, bytes)
+     VALUES ($1, 'thumb', $2, $3, 10, 10, 5)`,
+    [roomFile, t.locationId, `d/${roomFile}/thumb.jpg`],
+  );
   const roomPhoto = await one(
-    `INSERT INTO public.attachments (location_id, file_id, thing_id, role, created_by)
-     SELECT location_id, file_id, $2, 'photo', created_by FROM public.attachments WHERE id = $1
-     RETURNING id`,
-    [photo, box],
+    `INSERT INTO public.attachments (location_id, file_id, thing_id, role, in_review, created_by)
+     VALUES ($1, $2, $3, 'photo', true, $4) RETURNING id`,
+    [t.locationId, roomFile, box, t.userId],
   );
   const room = newId();
   await c.query(

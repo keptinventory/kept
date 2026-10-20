@@ -2,8 +2,10 @@
  * A Room capture (#194): 1–5 photos of a room, a cupboard or a shelf, into a place or a container.
  *
  * - The photos become the target's own `photo` attachments, in the order taken, listed on a new
- *   `room_captures` row whose id is the capture's. They stay there while the room is reviewed;
- *   closing the Room card deletes them unless the location keeps room photos (review.ts).
+ *   `room_captures` row whose id is the capture's. They stay there while the room is reviewed,
+ *   under review (`attachments.in_review`): only the location's members and up see them, and
+ *   none is a cover. Closing the Room card deletes them unless the location keeps room photos;
+ *   then they become ordinary photos (review.ts).
  * - With AI capture on (or waiting for a provider), each photo gets its own `room` extraction
  *   (extraction/job.ts reads it); the last one to finish merges them (finish.ts). With it off, the
  *   row is `off`: the photos wait on the place and the card says why.
@@ -55,7 +57,9 @@ export async function captureRoom(
   const subject = c.target.containerId
     ? { thingId: c.target.containerId }
     : { placeId: c.target.placeId as string };
-  const photos = await attachFiles(client, c.locationId, subject, 'photo', c.fileIds);
+  const photos = await attachFiles(client, c.locationId, subject, 'photo', c.fileIds, {
+    inReview: true,
+  });
   const status = c.ai === 'off' ? 'off' : 'reading';
   await client.query(
     `INSERT INTO public.room_captures (id, location_id, place_id, container_id, batch_id, status,

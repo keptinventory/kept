@@ -1658,6 +1658,91 @@ for (const actor of ACTORS) {
   });
 }
 
+// Room photos under review (#194): while a Room card is open its photos are its reviewers' only,
+// the location's members and up (kept.writable_location_ids()). A viewer, and a read token even
+// of the owner, reads neither the attachment nor its file, and no thing's cover is one of them.
+describe('request path (kept_app): room photos under review', () => {
+  const inReview = async () =>
+    (
+      await asOwner(db, (c) =>
+        c.query<{ id: string; file_id: string; thing_id: string }>(
+          `SELECT id, file_id, thing_id FROM public.attachments
+            WHERE location_id = $1 AND in_review`,
+          [b.locationId],
+        ),
+      )
+    ).rows;
+  const reads = (scope: Scope, photo: { id: string; file_id: string }) =>
+    withScope(db.pools.app, scope, async (_tx, c) => ({
+      attachment: (await c.query('SELECT 1 FROM public.attachments WHERE id = $1', [photo.id]))
+        .rowCount,
+      file: (await c.query('SELECT 1 FROM public.files WHERE id = $1', [photo.file_id])).rowCount,
+      thumb: (
+        await c.query('SELECT 1 FROM public.file_derivatives WHERE file_id = $1', [photo.file_id])
+      ).rowCount,
+    }));
+  const readToken = async () =>
+    (
+      await asOwner(db, (c) =>
+        c.query<{ id: string }>(
+          `SELECT id FROM public.api_tokens WHERE user_id = $1 AND kind = 'personal'
+              AND scope = 'read'`,
+          [b.userId],
+        ),
+      )
+    ).rows[0]?.id as string;
+
+  it('has a photo under review to aim at, which is no cover', async () => {
+    const photos = await inReview();
+    expect(photos).toHaveLength(1);
+    const [photo] = photos;
+    const { rows } = await asOwner(db, (c) =>
+      c.query<{ cover_file_id: string | null }>(
+        'SELECT cover_file_id FROM public.things WHERE id = $1',
+        [photo?.thing_id],
+      ),
+    );
+    expect(rows[0]?.cover_file_id ?? null).not.toBe(photo?.file_id);
+  });
+
+  it('is read by the location’s owner, and by no viewer or read token', async () => {
+    const [photo] = await inReview();
+    if (!photo) throw new Error('no photo under review');
+    expect(await reads({ userId: b.userId, mfa: true }, photo)).toEqual({
+      attachment: 1,
+      file: 1,
+      thumb: 1,
+    });
+    expect(await reads({ userId: viewerOfB, mfa: true }, photo)).toEqual({
+      attachment: 0,
+      file: 0,
+      thumb: 0,
+    });
+    // A read token finds no photo under review. The file itself stays its uploader's, as every
+    // upload is (0020): here the owner's own token reads the file the owner took.
+    expect(await reads({ userId: b.userId, mfa: true, tokenId: await readToken() }, photo)).toEqual(
+      { attachment: 0, file: 1, thumb: 1 },
+    );
+  });
+
+  it('puts no ordinary photo under review', async () => {
+    const { rows } = await asOwner(db, (c) =>
+      c.query<{ id: string }>(
+        `SELECT id FROM public.attachments WHERE location_id = $1 AND NOT in_review LIMIT 1`,
+        [b.locationId],
+      ),
+    );
+    const id = rows[0]?.id;
+    expect(id).toBeDefined();
+    const code = await sqlstate(
+      withScope(db.pools.app, { userId: b.userId, mfa: true }, (_tx, c) =>
+        c.query('UPDATE public.attachments SET in_review = true WHERE id = $1', [id]),
+      ),
+    );
+    expect(code).toBe('42501');
+  });
+});
+
 // The definer doors (security review I5): each one, called by every actor with the victim's own
 // ids, refuses (42501) or answers nothing. A viewer may read what the thing shows them, but never
 // an original (D117), a secret, or a write.

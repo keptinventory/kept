@@ -25665,3 +25665,7 @@ msgstr "Terminer montre ce qui a été trouvé et ce qui manque. Les objets manq
 #: src/components/hints/hint-copy.ts
 msgid "Scanning"
 msgstr "Scan"
+
+#: src/components/capture/room-tray.tsx
+msgid "No AI runs in this demo"
+msgstr "Aucune IA ne tourne dans cette démo"
