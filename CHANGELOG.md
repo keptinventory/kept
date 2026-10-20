@@ -3,6 +3,17 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.11.0 (2026-10-20)
+
+### Features
+
+- **web:** Tours, a short walkthrough for every section (#193) (163fadf)
+- **map:** a place's page has Map: a floor or a room on its own (#192) (69bb699)
+
+### Documentation
+
+- **release:** the 1.10.8 record (#187) (49d55c4)
+
 ## 1.10.8 (2026-10-20)
 
 ### Documentation
