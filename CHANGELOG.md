@@ -3,6 +3,13 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.10.8 (2026-10-20)
+
+### Documentation
+
+- **readme:** what's next, from the roadmap (#180) (6a6f9b9)
+- **release:** the 1.10.7 record (#179) (4d33710)
+
 ## 1.10.7 (2026-10-20)
 
 ### Fixes
