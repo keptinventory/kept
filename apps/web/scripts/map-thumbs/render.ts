@@ -2,7 +2,9 @@
  * Renders every map shape once (D249), the way the map draws it: its Poly Haven model where it
  * has one, else Kept's drawn model, on a transparent background at the map's isometric angle.
  * scripts/render-map-thumbs.mjs opens this page in headless Chromium and packs the result into
- * src/map/thumbs/shapes.webp. Dev only; never part of the app.
+ * src/map/thumbs/shapes.webp. It also measures each one's height as drawn, for the docs' shape
+ * library (a drawn shape's catalogue entry often has no height of its own). Dev only; never part
+ * of the app.
  */
 import { MAP_MODEL_KEYS, type MapModelKey, mapModel } from '@kept/shared';
 import * as THREE from 'three';
@@ -13,6 +15,7 @@ import { loadModel, readyModel } from '../../src/map/engine/models';
 declare global {
   interface Window {
     thumbs?: Record<string, string>;
+    heights?: Record<string, number>;
     thumbsError?: string;
   }
 }
@@ -69,10 +72,12 @@ async function modelOf(key: MapModelKey): Promise<THREE.Group> {
   return g;
 }
 
-function shoot(g: THREE.Group): string {
+/** The shape's picture, and its height as drawn in centimetres. */
+function shoot(g: THREE.Group): { url: string; cm: number } {
   scene.add(g);
   g.updateMatrixWorld(true);
   const box = new THREE.Box3().setFromObject(g);
+  const cm = Math.round((box.max.y - Math.max(0, box.min.y)) * 1000) / 10;
   const centre = box.getCenter(new THREE.Vector3());
   const radius = box.getSize(new THREE.Vector3()).length() / 2 || 0.5;
   const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, radius * 8 + 10);
@@ -97,13 +102,19 @@ function shoot(g: THREE.Group): string {
   renderer.render(scene, cam);
   const url = canvas.toDataURL('image/png');
   scene.remove(g);
-  return url;
+  return { url, cm };
 }
 
 (async () => {
   try {
     const out: Record<string, string> = {};
-    for (const key of MAP_MODEL_KEYS) out[key] = shoot(await modelOf(key));
+    const heights: Record<string, number> = {};
+    for (const key of MAP_MODEL_KEYS) {
+      const shot = shoot(await modelOf(key));
+      out[key] = shot.url;
+      heights[key] = shot.cm;
+    }
+    window.heights = heights;
     window.thumbs = out;
   } catch (e) {
     window.thumbsError = String(e);

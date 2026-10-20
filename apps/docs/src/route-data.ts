@@ -20,7 +20,7 @@
  *   Arabic landing page at 94 instead of 95–97 (2026-10-15), with a layout shift as it swaps in.
  * - on the integrations page, the table of contents: the page's headings are drawn by a component
  *   from src/data/integrations.ts, which Starlight can't see, so its groups are added here from the
- *   same data.
+ *   same data. The shape library (`users/map-shapes`) the same way, from its groups.
  *
  * Search engines (2026-10-16 audit, measured over dist/ before and after):
  *
@@ -42,6 +42,7 @@
  */
 import { defineRouteMiddleware } from '@astrojs/starlight/route-data';
 import arabic400 from '@fontsource/ibm-plex-sans-arabic/files/ibm-plex-sans-arabic-arabic-400-normal.woff2?url';
+import { shapeLibrary } from './components/shapes/library';
 import { integrationGroups } from './data/integrations';
 
 const CARD = { width: 1200, height: 630 };
@@ -161,6 +162,17 @@ export const onRequest = defineRouteMiddleware((context) => {
         depth: 2,
         slug: group.id,
         text: ar ? group.ar : group.en,
+        children: [],
+      })),
+    );
+  }
+
+  if (route.toc && route.id === 'users/map-shapes') {
+    route.toc.items.push(
+      ...shapeLibrary().map((group) => ({
+        depth: 2,
+        slug: group.id,
+        text: group.label,
         children: [],
       })),
     );

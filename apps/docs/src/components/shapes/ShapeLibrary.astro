@@ -1,0 +1,227 @@
+---
+/**
+ * The shape library's body (`/users/map-shapes/`, #171): per group an h2 (its id is the anchor the
+ * table of contents links to; src/route-data.ts adds them from the same data), and per shape its
+ * picture, its name, its key, its size and the words that find it in each language. Built from
+ * the catalogue (library.ts). Plain HTML: everything is in the page, and the filter above it is
+ * a small script that only hides cards; without it every shape shows.
+ */
+import spriteUrl from '../../../../web/src/map/thumbs/shapes.webp?url';
+import { THUMB_COLS } from '../../../../web/src/map/thumbs/sprite';
+import { shapeLibrary } from './library';
+
+const groups = shapeLibrary();
+const count = groups.reduce((n, g) => n + g.shapes.length, 0);
+const SIZE = 64;
+/** What the filter compares: lower case, no accents. */
+const fold = (s: string) => s.toLowerCase().normalize('NFKD').replace(/\p{M}/gu, '');
+const request = 'https://github.com/keptinventory/kept/issues/new?template=shape-request.yml';
+---
+
+<div class="kd-shapes not-content" data-shapes>
+  <label class="kd-shapes-find">
+    <span>Find a shape</span>
+    <input type="search" placeholder="rack, Kühlschrank, ثلاجة…" data-find autocomplete="off" />
+  </label>
+  <p class="kd-shapes-count" data-count aria-live="polite">{count} shapes</p>
+  <p class="kd-shapes-none" data-none hidden>
+    No shape matches. <a href={request}>Request it</a>.
+  </p>
+  {
+    groups.map((group) => (
+      <section data-group>
+        <h2 id={group.id}>{group.label}</h2>
+        <ul>
+          {group.shapes.map((s) => (
+            <li
+              id={`shape-${s.key}`}
+              data-search={fold(
+                [s.name, s.key.replaceAll('_', ' '), ...s.words.flatMap((w) => w.words)].join(' '),
+              )}
+            >
+              <span
+                class="kd-shape-pic"
+                aria-hidden="true"
+                style={`background-image:url(${spriteUrl});background-size:${THUMB_COLS * SIZE}px auto;background-position:${-(s.cell % THUMB_COLS) * SIZE}px ${-Math.floor(s.cell / THUMB_COLS) * SIZE}px`}
+              />
+              <div>
+                <h3>{s.name}</h3>
+                <p class="kd-shape-meta">
+                  <span>{s.sizeText}</span>
+                  <code>{s.key}</code>
+                </p>
+                <dl>
+                  {s.words.map((w) => (
+                    <div>
+                      <dt>{w.label}</dt>
+                      <dd lang={w.lang} dir={w.lang === 'ar' ? 'rtl' : 'ltr'}>
+                        {w.words.join(w.lang === 'ar' ? '، ' : ', ')}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</div>
+
+<script>
+  const fold = (s: string) =>
+    s
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/\p{M}/gu, '')
+      .trim();
+  for (const root of document.querySelectorAll<HTMLElement>('[data-shapes]')) {
+    const input = root.querySelector<HTMLInputElement>('[data-find]');
+    const count = root.querySelector<HTMLElement>('[data-count]');
+    const none = root.querySelector<HTMLElement>('[data-none]');
+    const all = root.querySelectorAll<HTMLElement>('li[data-search]').length;
+    input?.addEventListener('input', () => {
+      const q = fold(input.value);
+      let shown = 0;
+      for (const group of root.querySelectorAll<HTMLElement>('[data-group]')) {
+        let here = 0;
+        for (const li of group.querySelectorAll<HTMLElement>('li[data-search]')) {
+          const hit = !q || (li.dataset.search ?? '').includes(q);
+          li.hidden = !hit;
+          if (hit) here++;
+        }
+        group.hidden = here === 0;
+        shown += here;
+      }
+      if (count) count.textContent = q ? `${shown} of ${all} shapes` : `${all} shapes`;
+      if (none) none.hidden = shown > 0;
+    });
+  }
+</script>
+
+<style>
+  .kd-shapes {
+    display: grid;
+    gap: 1.75rem;
+  }
+  .kd-shapes-find {
+    display: grid;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .kd-shapes-find input {
+    inline-size: 100%;
+    max-inline-size: 28rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 400;
+    font-size: 1rem;
+  }
+  .kd-shapes-count,
+  .kd-shapes-none {
+    margin: -1rem 0 0;
+    font-size: 0.875rem;
+    color: var(--ink-3);
+  }
+  .kd-shapes-none a {
+    color: var(--amber-text);
+    font-weight: 600;
+  }
+  section {
+    display: grid;
+    gap: 0.75rem;
+  }
+  section[hidden],
+  li[hidden] {
+    display: none;
+  }
+  h2 {
+    margin: 0;
+    font-size: var(--sl-text-h2);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    scroll-margin-block-start: calc(var(--sl-nav-height) + 1rem);
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: 0.75rem;
+  }
+  li {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 0.875rem;
+    padding: 0.875rem;
+    border: 1px solid var(--line);
+    border-radius: var(--kd-radius);
+    background: var(--surface);
+    scroll-margin-block-start: calc(var(--sl-nav-height) + 1rem);
+  }
+  .kd-shape-pic {
+    display: block;
+    inline-size: 64px;
+    block-size: 64px;
+    border-radius: 8px;
+    background-repeat: no-repeat;
+    /* The app's picker plate: dark gadgets stay visible in the dark theme. */
+    background-color: light-dark(var(--sunken), #77726a);
+  }
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .kd-shape-meta {
+    margin: 0.125rem 0 0.375rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--ink-2);
+  }
+  .kd-shape-meta code {
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    color: var(--ink-3);
+  }
+  dl {
+    margin: 0;
+    display: grid;
+    gap: 0.25rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+  dl div {
+    display: grid;
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+  dt {
+    color: var(--ink-3);
+  }
+  dd {
+    margin: 0;
+    color: var(--ink-2);
+    overflow-wrap: anywhere;
+  }
+  dd[lang='ar'] {
+    font-family: var(--arabic);
+    text-align: start;
+  }
+</style>

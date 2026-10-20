@@ -25669,3 +25669,47 @@ msgstr "Scansione"
 #: src/components/capture/room-tray.tsx
 msgid "No AI runs in this demo"
 msgstr "In questa demo non gira alcuna IA"
+
+#: src/map/labels.ts
+msgid "Mini PC"
+msgstr "Mini PC"
+
+#: src/map/labels.ts
+msgid "NAS"
+msgstr "NAS"
+
+#: src/map/labels.ts
+msgid "Raspberry Pi or SBC"
+msgstr "Raspberry Pi o computer a scheda singola"
+
+#: src/map/labels.ts
+msgid "Network switch"
+msgstr "Switch di rete"
+
+#: src/map/labels.ts
+msgid "Patch panel"
+msgstr "Pannello patch"
+
+#: src/map/labels.ts
+msgid "UPS"
+msgstr "Gruppo di continuità"
+
+#: src/map/labels.ts
+msgid "Server rack 24U"
+msgstr "Armadio rack 24U"
+
+#: src/map/labels.ts
+msgid "Server rack 42U"
+msgstr "Armadio rack 42U"
+
+#: src/map/labels.ts
+msgid "Wall rack 6U"
+msgstr "Armadio rack a muro 6U"
+
+#: src/map/labels.ts
+msgid "Wall rack 12U"
+msgstr "Armadio rack a muro 12U"
+
+#: src/map/shapes.tsx
+msgid "Missing a shape? <0>Request it</0>, or browse the <1>shape library</1>."
+msgstr "Manca una forma? <0>Richiedila</0>, oppure sfoglia la <1>libreria delle forme</1>."
