@@ -81,6 +81,8 @@ export type CardProps = {
   onHeight: (id: string, h: number) => void;
   /** #152: the shape a thing not on the map would get back, for Add on it. */
   chosenShape?: ChosenShape;
+  /** The place whose page the map is on (#190): its own card doesn't link back to that page. */
+  here?: string | null;
 };
 
 function Dots({ flags }: { flags: MapAttentionKind[] }) {
@@ -379,9 +381,11 @@ export function MapCard(p: CardProps) {
               <Trans>What’s here · {inside.length}</Trans>
             </button>
           )}
-          <Link to="/p/$id" params={{ id: r.id }} className="kmap-btn">
-            <Trans>Open the place</Trans>
-          </Link>
+          {p.here === r.id ? null : (
+            <Link to="/p/$id" params={{ id: r.id }} className="kmap-btn">
+              <Trans>Open the place</Trans>
+            </Link>
+          )}
         </div>
         {p.arranging ? (
           <>
@@ -674,9 +678,11 @@ export function MapCard(p: CardProps) {
       {shape}
       <IdBlock code={it.shortCode} place={it.subject === 'place' || it.isContainer} />
       {it.subject === 'thing' ? <ThingFacts id={it.id} /> : null}
-      <div className="kmap-row kmap-open">
-        <OpenLink id={it.id} subject={it.subject} />
-      </div>
+      {it.subject === 'place' && p.here === it.id ? null : (
+        <div className="kmap-row kmap-open">
+          <OpenLink id={it.id} subject={it.subject} />
+        </div>
+      )}
       {onIt.length ? (
         <>
           <div className="kmap-sub">

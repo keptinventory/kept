@@ -2,10 +2,11 @@
  * A place's page has List · Grid · Map like its location's (#190), and its map opens on the
  * place: a floor on that floor, a room focused, a drawn place selected in its room, a place that
  * isn't drawn on its room with a note, and a place the map doesn't have explained with a link to
- * the location's map. The 3D engine is a stand-in here (jsdom draws no WebGL): what the page asks
- * of it is what is checked.
+ * the location's map. Any map paints its controls before the 3D engine starts, a frame later.
+ * The 3D engine is a stand-in here (jsdom draws no WebGL): what the page asks of it is what is
+ * checked.
  */
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { mockMapView } from '@/api/map/mock';
@@ -301,5 +302,29 @@ describe("a place's map", () => {
     await findHeading('Kitchen');
     await screen.findByRole('region', { name: 'Map of Home' });
     expect(screen.queryByRole('button', { name: 'Arrange' })).not.toBeInTheDocument();
+  });
+});
+
+describe('the map starting', () => {
+  it('paints its controls first, and starts the 3D engine after that frame', async () => {
+    const frames: FrameRequestCallback[] = [];
+    const raf = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      frames.push(cb);
+      return frames.length;
+    });
+    try {
+      await renderApp(`/loc/${IDS.home}?view=map`);
+      await findHeading('Home');
+      expect(await screen.findByRole('group', { name: 'View' })).toBeInTheDocument();
+      // No frame yet: the controls are on the page, and the engine waits for them to paint.
+      expect(engines).toHaveLength(0);
+      act(() => {
+        for (const cb of frames.splice(0)) cb(performance.now());
+      });
+      await engine();
+      expect(engines).toHaveLength(1);
+    } finally {
+      raf.mockRestore();
+    }
   });
 });
