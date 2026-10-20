@@ -4,118 +4,166 @@
  * missing, forbidden or retired code and for another household's blank (D137). Opening doesn't
  * mark anything seen: the client calls `POST /things/:id/seen` afterwards (D40).
  */
-import { parseScan } from '@kept/shared';
+import { parseScan, SCAN_SESSION_LIMITS } from '@kept/shared';
 import { storedCode } from '../../inventory/mock/codes';
 import { accessOf, liveThing, newId, now } from '../../inventory/mock/db';
 import type { MockState } from '../../mock/fixtures';
 import { err, forbidden, type MockRoute, notFound, route, sessionGate } from '../../mock/kit';
 import { capturePaths as p } from '../paths';
-import type { BoxCheckBody, BoxCheckResult, ScanOutcome, ScanResolveBody } from '../types';
+import type {
+  BoxCheckBody,
+  BoxCheckResult,
+  ScanOutcome,
+  ScanResolveBatchBody,
+  ScanResolveBody,
+} from '../types';
 
 export function scanRoutes(state: MockState): MockRoute[] {
   const inv = () => state.inventory;
   const cap = () => state.capture;
   const access = () => accessOf(state);
 
+  const resolveOne = (b: ScanResolveBody): ScanOutcome => {
+    const scan = parseScan(b.text, b.format);
+    const miss: ScanOutcome = { outcome: 'not_in_your_kept' };
+    // As the server does before a miss: the text as typed among the CSV and own codes (T18,
+    // D208), which resolve whatever the scan's kind. A short ID wins over a code of the same text.
+    const typed = storedCode(b.text);
+    const anyLegacy = (): ScanOutcome | null => {
+      const hits = cap().legacyCodes.filter(
+        (c) => c.source !== 'homebox' && c.code === typed && access().visible(c.locationId),
+      );
+      const live = hits.filter((h) =>
+        h.target.kind === 'thing'
+          ? !!liveThing(inv(), h.target.id)
+          : inv().places.some((x) => x.id === h.target.id && !x.deletedAt),
+      );
+      const [only] = live;
+      return live.length === 1 && only
+        ? { outcome: 'open', target: { ...only.target, locationId: only.locationId } }
+        : null;
+    };
+    if (scan.kind !== 'homebox') {
+      const shortHit =
+        scan.kind === 'kept' &&
+        (inv().things.some((x) => x.shortCode === scan.code && !x.deletedAt) ||
+          inv().places.some((x) => x.shortCode === scan.code && !x.deletedAt) ||
+          cap().codes.some((c) => c.code === scan.code));
+      const legacy = shortHit ? null : anyLegacy();
+      if (legacy) return legacy;
+    }
+    switch (scan.kind) {
+      case 'kept': {
+        const t = inv().things.find((x) => x.shortCode === scan.code && !x.deletedAt);
+        if (t && access().visible(t.locationId))
+          return {
+            outcome: 'open',
+            target: { kind: 'thing', id: t.id, locationId: t.locationId },
+          };
+        const pl = inv().places.find((x) => x.shortCode === scan.code && !x.deletedAt);
+        if (pl && access().visible(pl.locationId))
+          return {
+            outcome: 'open',
+            target: { kind: 'place', id: pl.id, locationId: pl.locationId },
+          };
+        const code = cap().codes.find((c) => c.code === scan.code);
+        if (code?.state === 'blank' && access().canWrite(code.locationId))
+          return { outcome: 'claim', locationId: code.locationId };
+        if (code?.state === 'assigned' && code.target && access().visible(code.locationId))
+          return {
+            outcome: 'open',
+            target: { kind: code.target.kind, id: code.target.id, locationId: code.locationId },
+          };
+        return miss;
+      }
+      case 'homebox': {
+        // D146: one visible match opens; the same asset ID in two collections asks which.
+        const value = scan.assetId ?? scan.uuid;
+        const hits = cap().legacyCodes.filter(
+          (c) => c.source === 'homebox' && c.code === value && access().visible(c.locationId),
+        );
+        const live = hits.flatMap((h) => {
+          const loc = state.locations.find((l) => l.id === h.locationId);
+          if (h.target.kind === 'thing') {
+            const t = liveThing(inv(), h.target.id);
+            return t ? [{ h, name: t.name ?? '', locationName: loc?.name ?? '' }] : [];
+          }
+          const pl = inv().places.find((x) => x.id === h.target.id && !x.deletedAt);
+          return pl ? [{ h, name: pl.name, locationName: loc?.name ?? '' }] : [];
+        });
+        const [only] = live;
+        if (live.length === 1 && only)
+          return {
+            outcome: 'open',
+            target: { ...only.h.target, locationId: only.h.locationId },
+          };
+        if (live.length > 1)
+          return {
+            outcome: 'legacy_ambiguous',
+            candidates: live.map((x) => ({
+              locationName: x.locationName,
+              locationId: x.h.locationId,
+              name: x.name,
+              kind: x.h.target.kind,
+              id: x.h.target.id,
+            })),
+          };
+        return miss;
+      }
+      case 'barcode': {
+        // A barcode stored on things you can see opens the one, or asks which.
+        const on = inv().things.filter(
+          (x) => x.barcode === scan.code && !x.deletedAt && access().visible(x.locationId),
+        );
+        const [one] = on;
+        if (on.length === 1 && one)
+          return {
+            outcome: 'open',
+            target: { kind: 'thing', id: one.id, locationId: one.locationId },
+          };
+        if (on.length > 1)
+          return {
+            outcome: 'legacy_ambiguous',
+            candidates: on.map((x) => ({
+              locationName: state.locations.find((l) => l.id === x.locationId)?.name ?? '',
+              locationId: x.locationId,
+              name: x.name ?? '',
+              kind: 'thing' as const,
+              id: x.id,
+            })),
+          };
+        return {
+          outcome: 'barcode',
+          barcode: { code: scan.code, lookupEnabled: cap().barcodeLookup },
+        };
+      }
+      default:
+        return { outcome: 'not_kept', text: scan.text };
+    }
+  };
+
   return [
     route('POST', p.scanResolve, ({ body }): unknown => {
       const gate = sessionGate(state);
       if (gate) return gate;
-      const b = body as ScanResolveBody;
-      const scan = parseScan(b.text, b.format);
-      const miss: ScanOutcome = { outcome: 'not_in_your_kept' };
-      // As the server does before a miss: the text as typed among the CSV and own codes (T18,
-      // D208), which resolve whatever the scan's kind. A short ID wins over a code of the same text.
-      const typed = storedCode(b.text);
-      const anyLegacy = (): ScanOutcome | null => {
-        const hits = cap().legacyCodes.filter(
-          (c) => c.source !== 'homebox' && c.code === typed && access().visible(c.locationId),
-        );
-        const live = hits.filter((h) =>
-          h.target.kind === 'thing'
-            ? !!liveThing(inv(), h.target.id)
-            : inv().places.some((x) => x.id === h.target.id && !x.deletedAt),
-        );
-        const [only] = live;
-        return live.length === 1 && only
-          ? { outcome: 'open', target: { ...only.target, locationId: only.locationId } }
-          : null;
-      };
-      if (scan.kind !== 'homebox') {
-        const shortHit =
-          scan.kind === 'kept' &&
-          (inv().things.some((x) => x.shortCode === scan.code && !x.deletedAt) ||
-            inv().places.some((x) => x.shortCode === scan.code && !x.deletedAt) ||
-            cap().codes.some((c) => c.code === scan.code));
-        const legacy = shortHit ? null : anyLegacy();
-        if (legacy) return legacy;
-      }
-      switch (scan.kind) {
-        case 'kept': {
-          const t = inv().things.find((x) => x.shortCode === scan.code && !x.deletedAt);
-          if (t && access().visible(t.locationId))
-            return {
-              outcome: 'open',
-              target: { kind: 'thing', id: t.id, locationId: t.locationId },
-            };
-          const pl = inv().places.find((x) => x.shortCode === scan.code && !x.deletedAt);
-          if (pl && access().visible(pl.locationId))
-            return {
-              outcome: 'open',
-              target: { kind: 'place', id: pl.id, locationId: pl.locationId },
-            };
-          const code = cap().codes.find((c) => c.code === scan.code);
-          if (code?.state === 'blank' && access().canWrite(code.locationId))
-            return { outcome: 'claim', locationId: code.locationId };
-          if (code?.state === 'assigned' && code.target && access().visible(code.locationId))
-            return {
-              outcome: 'open',
-              target: { kind: code.target.kind, id: code.target.id, locationId: code.locationId },
-            };
-          return miss;
-        }
-        case 'homebox': {
-          // D146: one visible match opens; the same asset ID in two collections asks which.
-          const value = scan.assetId ?? scan.uuid;
-          const hits = cap().legacyCodes.filter(
-            (c) => c.source === 'homebox' && c.code === value && access().visible(c.locationId),
-          );
-          const live = hits.flatMap((h) => {
-            const loc = state.locations.find((l) => l.id === h.locationId);
-            if (h.target.kind === 'thing') {
-              const t = liveThing(inv(), h.target.id);
-              return t ? [{ h, name: t.name ?? '', locationName: loc?.name ?? '' }] : [];
-            }
-            const pl = inv().places.find((x) => x.id === h.target.id && !x.deletedAt);
-            return pl ? [{ h, name: pl.name, locationName: loc?.name ?? '' }] : [];
-          });
-          const [only] = live;
-          if (live.length === 1 && only)
-            return {
-              outcome: 'open',
-              target: { ...only.h.target, locationId: only.h.locationId },
-            };
-          if (live.length > 1)
-            return {
-              outcome: 'legacy_ambiguous',
-              candidates: live.map((x) => ({
-                locationName: x.locationName,
-                locationId: x.h.locationId,
-                name: x.name,
-                kind: x.h.target.kind,
-                id: x.h.target.id,
-              })),
-            };
-          return miss;
-        }
-        case 'barcode':
-          return {
-            outcome: 'barcode',
-            barcode: { code: scan.code, lookupEnabled: cap().barcodeLookup },
-          };
-        default:
-          return { outcome: 'not_kept', text: scan.text };
-      }
+      return resolveOne(body as ScanResolveBody);
+    }),
+
+    // A scan session's reads the phone didn't know (#168): each as one resolve, in order.
+    route('POST', p.scanResolveBatch, ({ body }): unknown => {
+      const gate = sessionGate(state);
+      if (gate) return gate;
+      const items = (body as ScanResolveBatchBody).items ?? [];
+      if (items.length === 0 || items.length > SCAN_SESSION_LIMITS.resolveBatch)
+        return err(400, 'validation', 'Send 1 to 100 codes.');
+      return { results: items.map(resolveOne) };
+    }),
+
+    route('GET', p.scanSession(':id'), ({ params }) => {
+      const gate = sessionGate(state);
+      if (gate) return gate;
+      const saved = cap().scanSessions?.[params.id ?? ''];
+      return saved ?? notFound();
     }),
 
     route('GET', p.barcode(':code'), ({ params }) => {

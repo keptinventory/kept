@@ -10,9 +10,10 @@
 import { useLingui } from '@lingui/react/macro';
 import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { openSearch, type ScanTarget } from '@/components/scan/resolve';
 import { ScanScreen } from '@/components/scan/scan-screen';
+import { useSessionPersist } from '@/components/scan/session/use-persist';
 import { useKick, useScanStore } from '@/components/scan/use-scan-store';
 
 export const Route = createFileRoute('/_app/scan')({
@@ -32,6 +33,15 @@ function ScanPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const router = useRouter();
+  const persist = useSessionPersist(store);
+  const [sessionOpen, setSessionOpen] = useState(false);
+  useEffect(() => {
+    if (!store) return;
+    void persist
+      .load()
+      .then((s) => setSessionOpen(!!s))
+      .catch(() => {});
+  }, [store, persist]);
   const exit = useCallback(() => {
     if (router.history.canGoBack()) router.history.back();
     else void navigate({ to: '/' });
@@ -65,6 +75,8 @@ function ScanPage() {
       onExit={exit}
       onOpen={open}
       onQueued={kick}
+      onSession={() => void navigate({ to: '/scan-session' })}
+      sessionOpen={sessionOpen}
     />
   );
 }

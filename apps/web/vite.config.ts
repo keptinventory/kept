@@ -106,6 +106,8 @@ const HOUSEHOLD_ROUTES = [
   '/src/routes/_app/assistant.$threadId.tsx?tsr-split=component',
   '/src/routes/_app/settings.connections.tsx?tsr-split=component',
   '/src/routes/_app/settings.location.$id.webhooks.tsx?tsr-split=component',
+  // 1.12 (#168): a scan session, cached on first use; offline before that, "Needs a connection".
+  '/src/routes/_app/scan-session.tsx?tsr-split=component',
   // 1.5 (D233): a share link's public page needs the server; its error screen stays precached.
   '/src/routes/s.$token.tsx?tsr-split=component',
   // Settings, admin, imports and history need a connection, so they come on demand
@@ -189,6 +191,7 @@ const COMPONENT_ONLY_ROUTES = new Set<string>([
   '/_app/trash',
   '/_app/vehicles',
   '/_app/insights',
+  '/_app/scan-session',
 ]);
 /**
  * On-demand chunks named by their entry module: driver.js behind the hints and the tour
@@ -369,7 +372,9 @@ export default defineConfig({
       },
     },
   },
-  // The import's CSV worker (components/import/parse.ts) is on demand like the import itself.
+  // The import's CSV worker (components/import/parse.ts) is on demand like the import itself, and
+  // so is the scan sessions' decoder (camera/scan.worker.ts, #168): cached on first use; where it
+  // can't load (offline before its first use), the scanner decodes on the main thread.
   worker: {
     rolldownOptions: {
       output: {

@@ -106,6 +106,8 @@ export function madeIds(op: OpKind, payload: unknown): string[] {
     case 'create_area':
     case 'box_check':
       return [p.id as string];
+    case 'scan_session_lines':
+      return [(p.session as { id: string }).id];
     case 'claim_label': {
       const target = p.target as { newContainer?: { id: string } };
       return target.newContainer ? [target.newContainer.id] : [];

@@ -116,7 +116,7 @@ export type DerivedState = (typeof DERIVED_STATES)[number];
 export const ACTIVITY_KINDS = {
   added: ['thing.create', 'thing.capture', 'place.create'],
   moved: ['thing.move', 'place.move'],
-  checked: ['box.check', 'thing.seen', 'thing.not_here'],
+  checked: ['box.check', 'scan.session', 'thing.seen', 'thing.not_here'],
 } as const;
 export type ActivityKind = keyof typeof ACTIVITY_KINDS;
 export const ACTIVITY_KIND_IDS = [

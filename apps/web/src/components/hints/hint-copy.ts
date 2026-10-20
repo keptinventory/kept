@@ -114,6 +114,23 @@ export function useTourStepCopy(): Record<string, HintCopy> {
     ),
     'capture.review': e(t`Review`, t`Check what Kept read, fix anything wrong, then tap Accept.`),
 
+    'scanning.start': e(
+      t`Scan many at once`,
+      t`Tap Scan, then Start a session to count, pack or move many labels in one walk.`,
+    ),
+    'scanning.modes': e(
+      t`Count, pack or move`,
+      t`Count checks what's there. Pack into and Move to put everything you scan in one box or place.`,
+    ),
+    'scanning.target': e(
+      t`Where`,
+      t`Pick a place, or scan its label. A box counts its contents; a room the places inside it.`,
+    ),
+    'scanning.finish': e(
+      t`Nothing changes until you finish`,
+      t`Finish shows what was found and what's missing. Missing things stay as they are unless you choose.`,
+    ),
+
     'search.field': e(
       t`Search`,
       t`Type part of a name, a brand, a serial or a short ID. Filters narrow it down.`,
@@ -207,6 +224,7 @@ export function useTourTitles(): Record<TourId, string> {
     things: t`Things & places`,
     map: t`The 3D map`,
     capture: t`Capture & Inbox`,
+    scanning: t`Scanning`,
     search: t`Search & labels`,
     moving: t`Moving`,
     lending: t`Lending`,

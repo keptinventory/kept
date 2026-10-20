@@ -25245,3 +25245,423 @@ msgstr "Ogni foto di stanza"
 #: src/components/ai/labels.ts
 msgid "Each room capture of several photos"
 msgstr "Ogni acquisizione di stanza con più foto"
+
+msgid "Count here"
+msgstr "Conta qui"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Scan every label in {name} in one walk"
+msgstr "Scansiona ogni etichetta in {name} in un solo giro"
+
+#: src/map/card.tsx
+msgid "Count this room"
+msgstr "Conta questa stanza"
+
+#: src/components/things/action-menu.tsx
+msgid "Count this box"
+msgstr "Conta questa scatola"
+
+#: src/components/things/action-menu.tsx
+msgid "Pack into this box"
+msgstr "Riempi questa scatola"
+
+#: src/components/scan/scan-screen.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "Resume session"
+msgstr "Riprendi la sessione"
+
+#: src/components/scan/scan-screen.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "Start a session"
+msgstr "Avvia una sessione"
+
+#: src/components/scan/session/camera.tsx
+msgid "The camera isn't available"
+msgstr "La fotocamera non è disponibile"
+
+#: src/components/scan/session/camera.tsx
+msgid "Type codes, or use a USB or Bluetooth barcode scanner."
+msgstr "Digita i codici o usa un lettore di codici a barre USB o Bluetooth."
+
+#: src/components/scan/session/camera.tsx
+msgid "Torch off"
+msgstr "Spegni la torcia"
+
+#: src/components/scan/session/camera.tsx
+msgid "Torch"
+msgstr "Torcia"
+
+#: src/components/scan/session/camera.tsx
+msgid "The camera is off in this demo. Play a recorded walk past the sample labels."
+msgstr "La fotocamera è spenta in questa demo. Avvia un giro registrato tra le etichette di esempio."
+
+#: src/components/scan/session/camera.tsx
+msgid "Stop the walk"
+msgstr "Ferma il giro"
+
+#: src/components/scan/session/camera.tsx
+msgid "Play a sample walk"
+msgstr "Avvia un giro di esempio"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "This phone couldn't keep the session. Keep the screen open."
+msgstr "Questo telefono non è riuscito a conservare la sessione. Tieni lo schermo aperto."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Scan a box's label"
+msgstr "Scansiona l'etichetta di una scatola"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Scan a place or a box"
+msgstr "Scansiona un luogo o una scatola"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "This session is full: finish it, then start another."
+msgstr "Questa sessione è piena: concludila, poi avviane un'altra."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "That's a place's label. Count it from its own page."
+msgstr "È l'etichetta di un luogo. Contalo dalla sua pagina."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "A room can't be moved; scan things or boxes"
+msgstr "Una stanza non si può spostare; scansiona oggetti o scatole"
+
+#: src/components/scan/session/session-screen.tsx
+#: src/components/scan/session/summary.tsx
+msgid "{found} of {all}"
+msgstr "{found} su {all}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Opening the session"
+msgstr "Apertura della sessione"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Scan session"
+msgstr "Sessione di scansione"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "A count of <0>{0}</0> is open on this phone."
+msgstr "Un conteggio di <0>{0}</0> è aperto su questo telefono."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "A session is open on this phone."
+msgstr "Una sessione è aperta su questo telefono."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "{0, plural, one {# label read so far.} other {# labels read so far.}}"
+msgstr "{0, plural, one {# etichetta letta finora.} other {# etichette lette finora.}}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Discard this session?"
+msgstr "Scartare questa sessione?"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "What it read is not saved."
+msgstr "Ciò che ha letto non viene salvato."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Discard it and start another"
+msgstr "Scartala e avviane un'altra"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Summary"
+msgstr "Riepilogo"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Count {0}"
+msgstr "Conta {0}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Pack into boxes"
+msgstr "Riempi le scatole"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Move to {0}"
+msgstr "Sposta in {0}"
+
+#: src/components/scan/session/session-screen.tsx
+#: src/components/scan/session/summary.tsx
+msgid "You're a viewer: nothing is saved"
+msgstr "Sei un visualizzatore: non viene salvato nulla"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Scan the next box"
+msgstr "Scansiona la scatola successiva"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Scan where things go next"
+msgstr "Scansiona dove vanno ora gli oggetti"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Going into {0}"
+msgstr "Va in {0}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Now moving to {0}"
+msgstr "Ora verso {0}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Nearly full: a session holds 5,000 labels."
+msgstr "Quasi piena: una sessione contiene 5.000 etichette."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Last reads"
+msgstr "Ultime letture"
+
+#: src/components/scan/session/session-screen.tsx
+#: src/components/scan/session/summary.tsx
+msgid "in <0>{where}</0>"
+msgstr "in <0>{where}</0>"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "View only here"
+msgstr "Solo visualizzazione qui"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Undo last read"
+msgstr "Annulla l'ultima lettura"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Pause"
+msgstr "Pausa"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "All of {0}"
+msgstr "Tutto {0}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Count"
+msgstr "Conta"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Walk a place or a box: what you scan is seen; the summary shows what's missing."
+msgstr "Percorri un luogo o una scatola: ciò che scansioni risulta visto; il riepilogo mostra cosa manca."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Check a place or a box: see what's there and what's missing. Viewers' counts aren't saved."
+msgstr "Controlla un luogo o una scatola: vedi cosa c'è e cosa manca. I conteggi dei visualizzatori non vengono salvati."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Pack into"
+msgstr "Riempi"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Everything you scan goes into a box. Tap Target, then scan the next box."
+msgstr "Tutto ciò che scansioni va in una scatola. Tocca Destinazione, poi scansiona la scatola successiva."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Move to"
+msgstr "Sposta in"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Everything you scan moves to a place or a box."
+msgstr "Tutto ciò che scansioni va in un luogo o in una scatola."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "What to do"
+msgstr "Cosa fare"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Counting <0>{0}</0>"
+msgstr "Conteggio di <0>{0}</0>"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Packing into <0>{0}</0>"
+msgstr "Riempimento di <0>{0}</0>"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Moving to <0>{0}</0>"
+msgstr "Spostamento in <0>{0}</0>"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "What to count"
+msgstr "Cosa contare"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Where things go"
+msgstr "Dove vanno gli oggetti"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Scan the box's label"
+msgstr "Scansiona l'etichetta della scatola"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Include the places inside it"
+msgstr "Includi i luoghi al suo interno"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "A box you scan counts what's inside it"
+msgstr "Una scatola scansionata conta ciò che contiene"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Nothing changes until you finish: the summary shows what was found, what's missing and what's elsewhere, and you choose what to save."
+msgstr "Nulla cambia finché non concludi: il riepilogo mostra cosa è stato trovato, cosa manca e cosa è altrove, e scegli tu cosa salvare."
+
+#: src/components/scan/session/summary.tsx
+msgid "Waiting to save. It will save when you're online."
+msgstr "In attesa di salvataggio. Verrà salvato quando sarai online."
+
+#: src/components/scan/session/summary.tsx
+msgid "Couldn't save your count of <0>{name}</0>: you can no longer edit there."
+msgstr "Impossibile salvare il conteggio di <0>{name}</0>: non puoi più modificare lì."
+
+#: src/components/scan/session/summary.tsx
+msgid "Couldn't save this session: you can no longer edit there."
+msgstr "Impossibile salvare questa sessione: non puoi più modificare lì."
+
+#: src/components/scan/session/summary.tsx
+msgid "Couldn't save this session. What it read is still on this phone."
+msgstr "Impossibile salvare questa sessione. Ciò che ha letto è ancora su questo telefono."
+
+#: src/components/scan/session/summary.tsx
+msgid "Undone."
+msgstr "Annullato."
+
+#: src/components/scan/session/summary.tsx
+msgid "Couldn't undo: something it changed has changed since."
+msgstr "Impossibile annullare: qualcosa che ha modificato è cambiato da allora."
+
+#: src/components/scan/session/summary.tsx
+msgid "Undo the whole session"
+msgstr "Annulla l'intera sessione"
+
+#: src/components/scan/session/summary.tsx
+msgid "Find in this summary"
+msgstr "Cerca in questo riepilogo"
+
+#: src/components/scan/session/summary.tsx
+msgid "Found ({0})"
+msgstr "Trovati ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Missing ({0})"
+msgstr "Mancanti ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Mark not here"
+msgstr "Segna non è qui"
+
+#: src/components/scan/session/summary.tsx
+msgid "Mark all not here"
+msgstr "Segna tutti non è qui"
+
+#: src/components/scan/session/summary.tsx
+msgid "No label ({0})"
+msgstr "Senza etichetta ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Found elsewhere ({0})"
+msgstr "Trovati altrove ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Move all here"
+msgstr "Sposta tutti qui"
+
+#: src/components/scan/session/summary.tsx
+msgid "In another location ({0})"
+msgstr "In un'altra sede ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "View only ({0})"
+msgstr "Solo visualizzazione ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Unmatched ({0})"
+msgstr "Non abbinati ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Blank labels can be claimed from Scan, one at a time."
+msgstr "Le etichette vuote si possono assegnare da Scansiona, una alla volta."
+
+#: src/components/scan/session/summary.tsx
+msgid "Not in your Kept ({0})"
+msgstr "Non nel tuo Kept ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Check later ({0})"
+msgstr "Da controllare dopo ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Couldn't save on this phone. Try again."
+msgstr "Impossibile salvare su questo telefono. Riprova."
+
+#: src/components/scan/session/summary.tsx
+msgid "Back to scanning"
+msgstr "Torna alla scansione"
+
+#: src/components/scan/session/summary.tsx
+msgid "Show more"
+msgstr "Mostra altro"
+
+#: src/components/scan/session/summary.tsx
+msgid "Saved."
+msgstr "Salvato."
+
+#: src/components/scan/session/summary.tsx
+msgid "Seen: {seen}. Not here: {notHere}. Moved here: {moved}."
+msgstr "Visti: {seen}. Non qui: {notHere}. Spostati qui: {moved}."
+
+#: src/components/scan/session/summary.tsx
+msgid "Moved: {moved}."
+msgstr "Spostati: {moved}."
+
+#: src/components/scan/session/summary.tsx
+msgid "Left out: {skipped} (trashed or no longer yours to change since)."
+msgstr "Esclusi: {skipped} (nel cestino o non più modificabili da te nel frattempo)."
+
+#: src/components/moving/move-screen.tsx
+msgid "Pack boxes"
+msgstr "Riempi le scatole"
+
+#: src/components/history/labels.ts
+msgid "Counted {name}: {found} of {expected}"
+msgstr "Contato {name}: {found} su {expected}"
+
+#: src/components/history/labels.ts
+msgid "Counted {name}: {found}"
+msgstr "Contato {name}: {found}"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Packed # thing into {name}} other {Packed # things into {name}}}"
+msgstr "{count, plural, one {# oggetto messo in {name}} other {# oggetti messi in {name}}}"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Packed # thing into boxes} other {Packed # things into boxes}}"
+msgstr "{count, plural, one {# oggetto messo nelle scatole} other {# oggetti messi nelle scatole}}"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Moved # thing to {name}} other {Moved # things to {name}}}"
+msgstr "{count, plural, one {# oggetto spostato in {name}} other {# oggetti spostati in {name}}}"
+
+#: src/components/hints/hint-copy.ts
+msgid "Scan many at once"
+msgstr "Scansiona tanti in una volta"
+
+#: src/components/hints/hint-copy.ts
+msgid "Tap Scan, then Start a session to count, pack or move many labels in one walk."
+msgstr "Tocca Scansiona, poi Avvia una sessione per contare, riempire o spostare molte etichette in un solo giro."
+
+#: src/components/hints/hint-copy.ts
+msgid "Count, pack or move"
+msgstr "Conta, riempi o sposta"
+
+#: src/components/hints/hint-copy.ts
+msgid "Count checks what's there. Pack into and Move to put everything you scan in one box or place."
+msgstr "Conta verifica cosa c'è. Riempi e Sposta in mettono tutto ciò che scansioni in una scatola o in un luogo."
+
+#: src/components/hints/hint-copy.ts
+msgid "Pick a place, or scan its label. A box counts its contents; a room the places inside it."
+msgstr "Scegli un luogo o scansiona la sua etichetta. Una scatola conta il suo contenuto; una stanza i luoghi al suo interno."
+
+#: src/components/hints/hint-copy.ts
+msgid "Nothing changes until you finish"
+msgstr "Nulla cambia finché non concludi"
+
+#: src/components/hints/hint-copy.ts
+msgid "Finish shows what was found and what's missing. Missing things stay as they are unless you choose."
+msgstr "Concludi mostra cosa è stato trovato e cosa manca. Gli oggetti mancanti restano come sono, a meno che tu non scelga."
+
+#: src/components/hints/hint-copy.ts
+msgid "Scanning"
+msgstr "Scansione"

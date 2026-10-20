@@ -10,6 +10,7 @@ import {
   PAYLOAD_VERSION,
   parseOpPayload,
   payloadVersionStatus,
+  type ScanSessionLine,
   type SnapshotPage,
   type SyncOpResult,
   type SyncOpsRequest,
@@ -20,6 +21,7 @@ import { contentsTemplate } from '../../inventory/mock/places';
 import type { MockState } from '../../mock/fixtures';
 import { err, type MockRoute, route, sessionGate } from '../../mock/kit';
 import { capturePaths as p } from '../paths';
+import type { ScanSessionView } from '../types';
 import { allocateCode } from './capture';
 import { makeRoom } from './room';
 
@@ -92,6 +94,7 @@ export function syncRoutes(state: MockState): MockRoute[] {
             lastSeenAt: t.lastSeenAt,
             coverFileId: t.photos[0]?.file?.id ?? null,
             isContainer: t.isContainer,
+            ...(t.barcode ? { barcode: t.barcode } : {}),
             meters: t.meters.map((m) => ({
               id: m.id,
               kind: m.kind,
@@ -259,6 +262,65 @@ export function syncRoutes(state: MockState): MockRoute[] {
           t.locationUncertain = false;
         } else t.locationUncertain = true;
         return { ...base, outcome: 'applied', entity: { type: 'thing', id: t.id } };
+      }
+      // 1.12: a scan session's lines are kept; its finish applies them, as the server does.
+      case 'scan_session_lines': {
+        const b = payload as {
+          session: { id: string; mode: string };
+          lines: ScanSessionLine[];
+        };
+        cap().scanLines ??= {};
+        const held = cap().scanLines?.[b.session.id] ?? {
+          mode: b.session.mode,
+          locationId: item.locationId,
+          lines: [],
+        };
+        held.lines.push(...b.lines);
+        (cap().scanLines as Record<string, typeof held>)[b.session.id] = held;
+        return { ...base, outcome: 'applied', entity: { type: 'scan_session', id: b.session.id } };
+      }
+      case 'scan_session_finish': {
+        const b = payload as { sessionId: string; expected?: number };
+        const held = cap().scanLines?.[b.sessionId];
+        if (!held) return drop('target_missing');
+        let seen = 0;
+        let notHere = 0;
+        let moved = 0;
+        let skipped = 0;
+        for (const l of held.lines) {
+          const t = liveThing(inv(), l.thingId);
+          if (!t) {
+            skipped += 1;
+            continue;
+          }
+          if (l.action === 'move' && l.to) {
+            t.placeId = 'placeId' in l.to ? l.to.placeId : null;
+            t.containerId = 'containerId' in l.to ? l.to.containerId : null;
+            t.lastSeenAt = now();
+            moved += 1;
+          } else if (l.action === 'seen') {
+            t.lastSeenAt = l.readAt;
+            t.locationUncertain = false;
+            seen += 1;
+          } else {
+            t.locationUncertain = true;
+            notHere += 1;
+          }
+        }
+        cap().scanSessions ??= {};
+        (cap().scanSessions as Record<string, ScanSessionView>)[b.sessionId] = {
+          id: b.sessionId,
+          mode: held.mode as ScanSessionView['mode'],
+          locationId: held.locationId,
+          startedAt: now(),
+          finishedAt: now(),
+          expected: b.expected ?? null,
+          seen,
+          notHere,
+          moved,
+          skipped,
+        };
+        return { ...base, outcome: 'applied', entity: { type: 'scan_session', id: b.sessionId } };
       }
       default:
         return { ...base, outcome: 'applied' };

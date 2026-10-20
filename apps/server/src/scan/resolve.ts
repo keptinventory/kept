@@ -1,4 +1,4 @@
-import { can, parseScan, type ScanResult } from '@kept/shared';
+import { can, parseScan, SCAN_SESSION_LIMITS, type ScanResult } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
 import { legacyCodeOf } from '../imports/csv.js';
@@ -16,7 +16,8 @@ import { callerMembership } from '../locations/access.js';
 //   codes the caller sees: one live target → `open`, several (an asset ID repeats per collection)
 //   → `legacy_ambiguous` with the candidates, each with its location (so the phone can queue
 //   `mark_seen` for a pick offline);
-// - `barcode`: `barcode` with whether lookup is on (the lookup is its own call);
+// - `barcode`: the things that carry it as their barcode, one → `open`, several →
+//   `legacy_ambiguous`; else `barcode` with whether lookup is on (the lookup is its own call);
 // - `other`: `not_kept` with the text (D137: "Not a Kept label", nothing hidden).
 // Before a miss is answered, the text as typed is looked up among every legacy code the caller
 // sees (a CSV import's old codes; a Homebox asset ID typed by hand; own codes later, D208,
@@ -164,6 +165,46 @@ async function byLegacy(
   };
 }
 
+/**
+ * A product barcode stored on things the caller sees: one opens it, several ask which. The
+ * stored text is compared as it is (a thing's barcode is what was scanned or typed for it).
+ */
+async function byBarcode(client: pg.ClientBase, code: string): Promise<ScanOutcome | null> {
+  if (!code || code.length > 64) return null;
+  const { rows } = await client.query<{
+    id: string;
+    location_id: string;
+    location_name: string | null;
+    name: string | null;
+  }>(
+    `SELECT t.id, t.location_id, l.name AS location_name, t.name
+       FROM public.things t
+       JOIN public.locations l ON l.id = t.location_id
+      WHERE t.barcode = $1 AND t.deleted_at IS NULL
+      ORDER BY l.name, t.name, t.id
+      LIMIT 50`,
+    [code],
+  );
+  const [only] = rows;
+  if (!only) return null;
+  if (rows.length === 1) {
+    return {
+      outcome: 'open',
+      target: { kind: 'thing', id: only.id, locationId: only.location_id },
+    };
+  }
+  return {
+    outcome: 'legacy_ambiguous',
+    candidates: rows.map((r) => ({
+      locationName: r.location_name ?? '',
+      locationId: r.location_id,
+      name: r.name ?? '',
+      kind: 'thing' as const,
+      id: r.id,
+    })),
+  };
+}
+
 /** The legacy codes a scan's text may be, as typed (every source). */
 const anyLegacy = (client: pg.ClientBase, text: string) =>
   byLegacy(client, legacyCodeOf(text), null);
@@ -190,13 +231,31 @@ const RESOLVERS: {
   homebox: async (client, scan) =>
     (await byLegacy(client, legacyCodeOf(scan.assetId ?? scan.uuid ?? ''), ['homebox'])) ?? MISS,
   barcode: async (client, scan, text, deps) =>
-    (await anyLegacy(client, text)) ?? {
+    (await anyLegacy(client, text)) ??
+    (await byBarcode(client, scan.code)) ?? {
       outcome: 'barcode',
       barcode: { code: scan.code, lookupEnabled: await deps.lookupEnabled() },
     },
   other: async (client, scan, text) =>
     (await anyLegacy(client, text)) ?? { outcome: 'not_kept', text: scan.text },
 };
+
+export const ResolveScanBatchBody = z.object({
+  items: z.array(ResolveScanBody).min(1).max(SCAN_SESSION_LIMITS.resolveBatch),
+});
+
+/** POST /api/v1/scan/resolve-batch, as the caller: each item as `resolveScan`, in order. */
+export async function resolveScanBatch(
+  client: pg.ClientBase,
+  body: z.infer<typeof ResolveScanBatchBody>,
+  deps: ResolveDeps,
+): Promise<{ results: ScanOutcome[] }> {
+  let lookup: Promise<boolean> | null = null;
+  const once: ResolveDeps = { lookupEnabled: () => (lookup ??= deps.lookupEnabled()) };
+  const results: ScanOutcome[] = [];
+  for (const item of body.items) results.push(await resolveScan(client, item, once));
+  return { results };
+}
 
 /** POST /api/v1/scan/resolve, as the caller. */
 export async function resolveScan(

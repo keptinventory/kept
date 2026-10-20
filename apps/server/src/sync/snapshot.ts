@@ -321,6 +321,7 @@ type ThingRow = {
   location_uncertain: boolean;
   last_seen_at: Date;
   cover_file_id: string | null;
+  barcode: string | null;
   deleted: boolean;
   loan_direction: LoanDirection | null;
   loan_person: string | null;
@@ -339,7 +340,7 @@ async function readThings(ctx: PageContext, q: Slice): Promise<Read> {
   const { rows } = await client.query<ThingRow>(
     `SELECT t.id, t.location_id, s.code AS short_code, t.name, t.type_id, t.place_id,
             t.container_id, t.quantity::text AS quantity, t.aliases, t.lifecycle, t.review_state,
-            t.location_uncertain, t.last_seen_at, t.cover_file_id,
+            t.location_uncertain, t.last_seen_at, t.cover_file_id, t.barcode,
             t.deleted_at IS NOT NULL AS deleted,
             ln.direction AS loan_direction, ln.person AS loan_person, ln.due_on AS loan_due_on,
             EXISTS (SELECT 1 FROM public.claims k
@@ -426,6 +427,8 @@ async function readThings(ctx: PageContext, q: Slice): Promise<Read> {
       coverFileId: r.cover_file_id,
       isContainer: holders.has(r.id) || (r.type_id !== null && ctx.containerTypes.has(r.type_id)),
       meters: meters.get(r.id) ?? [],
+      // 1.12: a scan session matches product barcodes against its expected list offline.
+      ...(r.barcode ? { barcode: r.barcode } : {}),
       ...(derived.length > 0 ? { derived } : {}),
       ...(r.loan_direction
         ? {

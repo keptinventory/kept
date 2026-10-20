@@ -11,6 +11,7 @@ import { move } from './move.js';
 import { moveBoxOp } from './move-box.js';
 import { moveBoxRoomOp } from './move-box-room.js';
 import { notHere } from './not-here.js';
+import { scanSessionFinishOp, scanSessionLinesOp } from './scan-session.js';
 
 /** One handler per op kind. */
 export const HANDLERS: { readonly [K in OpKind]: Handler<K> } = Object.freeze({
@@ -24,6 +25,8 @@ export const HANDLERS: { readonly [K in OpKind]: Handler<K> } = Object.freeze({
   box_check: boxCheckOp,
   move_box: moveBoxOp,
   move_box_room: moveBoxRoomOp,
+  scan_session_lines: scanSessionLinesOp,
+  scan_session_finish: scanSessionFinishOp,
 });
 
 let registered = false;

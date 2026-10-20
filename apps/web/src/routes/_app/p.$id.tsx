@@ -293,6 +293,18 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
 
       <PlaceFields place={place} canEdit={canEdit} />
 
+      {/* Scan sessions (#168): every label here in one walk. A viewer's count is a check. */}
+      <List>
+        <ActionRow
+          icon={<QrIcon />}
+          title={<Trans>Count here</Trans>}
+          subtitle={<Trans>Scan every label in {name} in one walk</Trans>}
+          onPress={() =>
+            void navigate({ to: '/scan-session', search: { mode: 'count', place: place.id } })
+          }
+        />
+      </List>
+
       {place.isUnplaced ? null : (
         <OwnCodesSection kind="place" id={place.id} locationId={location.id} canEdit={canEdit} />
       )}

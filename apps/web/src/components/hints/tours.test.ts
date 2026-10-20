@@ -70,6 +70,7 @@ describe('tour gating', () => {
       'things',
       'map',
       'capture',
+      'scanning',
       'search',
       'import-export',
       'settings',

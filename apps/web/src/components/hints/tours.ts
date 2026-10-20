@@ -12,6 +12,7 @@
  *   gets it. `modules` gates a step on any of these being on in one of the person's locations
  *   (the sidebar's rule); a tour's own `modules` gates all its steps.
  * - No step opens /scan: the camera starts there. Scan steps point at the header's Scan.
+ *   /scan-session opens on its setup, with no camera, so the Scanning tour stands there.
  *
  * Every anchor here must exist in its route's source: tour-anchors.test.ts reads them.
  */
@@ -133,6 +134,17 @@ export const TOURS: readonly Tour[] = [
       },
       { id: 'whose', to: '/inbox', anchors: ['inbox-whose'], writes: true },
       { id: 'review', to: '/inbox', anchors: ['inbox-items'], writes: true },
+    ],
+  },
+  {
+    // Scan sessions (#168). The session screen opens on its setup, never the camera, so its steps
+    // stand there; the camera only starts on Start or "Scan its label".
+    id: 'scanning',
+    steps: [
+      { id: 'start', to: '/', anchors: ['scan-button'] },
+      { id: 'modes', to: '/scan-session', anchors: ['session-modes'] },
+      { id: 'target', to: '/scan-session', anchors: ['session-target'] },
+      { id: 'finish', to: '/scan-session', anchors: ['session-finish'] },
     ],
   },
   {

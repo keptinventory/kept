@@ -535,6 +535,24 @@ export type LabelClaimedDetails = {
 
 /** POST /api/v1/scan/resolve. `format` is the BarcodeDetector's name for what it read. */
 export type ScanResolveBody = { text: string; format?: string };
+/** POST /api/v1/scan/resolve-batch: up to 100 codes a scan session read; answers in order. */
+export type ScanResolveBatchBody = { items: ScanResolveBody[] };
+export type ScanResolveBatchResult = { results: ScanOutcome[] };
+
+/** GET /api/v1/scan-sessions/:id: a saved scan session's totals, and its Undo while it lasts. */
+export type ScanSessionView = {
+  id: string;
+  mode: 'count' | 'pack' | 'move';
+  locationId: string;
+  startedAt: string;
+  finishedAt: string | null;
+  expected: number | null;
+  seen: number;
+  notHere: number;
+  moved: number;
+  skipped: number;
+  undo?: { eventId: string; until: string };
+};
 
 /**
  * Five of the scan's six outcomes (D137). The sixth, "Not on this phone", is decided on

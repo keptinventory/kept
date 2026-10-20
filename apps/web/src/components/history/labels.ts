@@ -18,6 +18,7 @@ import {
 import { useFieldLabel as useTypeFieldLabel } from '@/components/things/names';
 import { useWarrantyKindLabels } from '@/components/warranties/labels';
 import { isolate } from '@/lib/bidi';
+import { useFormat } from '@/lib/format';
 import { useModelNames, useRoomKindNames, useSurfaceNames } from '@/map/labels';
 
 /** "custom.insured_value" → "Insured value"; "safe_code" → "Safe code". */
@@ -178,6 +179,7 @@ export { FSI, PDI, plainText } from '@/lib/bidi';
  */
 export function useSummary() {
   const { t } = useLingui();
+  const fmt = useFormat();
   const words = useValueWords();
   const nouns = useNouns();
   /** What a stock use was for: its name, or the server's noun when the reader can't see it. */
@@ -198,7 +200,8 @@ export function useSummary() {
     }
     const service = serviceName(p.service);
     const count = Number(p.count ?? 0);
-    return sentences({ name, service, count })[key]();
+    const expected = p.expected ? fmt.num(Number(p.expected)) : '';
+    return sentences({ name, service, count, expected })[key]();
   };
 
   /** Every key's sentence, built lazily: only the one asked for is translated. */
@@ -206,6 +209,7 @@ export function useSummary() {
     name,
     service,
     count,
+    expected,
   }: Vars): Record<Exclude<SummaryKey, 'event' | 'thing.lifecycle'>, () => string> {
     return {
       'thing.create': () => t`Added ${name}`,
@@ -409,6 +413,21 @@ export function useSummary() {
       'thing.merge': () => t`Merged a duplicate into ${name}`,
       'place.arrange': () => t`Arranged the map`,
       'box.check': () => t`Checked what is in ${name}`,
+      'scan.session': () => {
+        const found = fmt.num(count);
+        return expected
+          ? t`Counted ${name}: ${found} of ${expected}`
+          : t`Counted ${name}: ${found}`;
+      },
+      'scan.session.pack': () =>
+        plural(count, {
+          one: `Packed # thing into ${name}`,
+          other: `Packed # things into ${name}`,
+        }),
+      'scan.session.pack.many': () =>
+        plural(count, { one: 'Packed # thing into boxes', other: 'Packed # things into boxes' }),
+      'scan.session.move': () =>
+        plural(count, { one: `Moved # thing to ${name}`, other: `Moved # things to ${name}` }),
       'label.claim': () => t`Gave ${name} a label`,
       'location.own_codes': () => t`Changed how ${name} numbers its codes`,
       'location.transfer_ownership': () => t`Handed ${name} to a new owner`,
@@ -530,7 +549,7 @@ export function useSummary() {
   }
 }
 
-type Vars = { name: string; service: string; count: number };
+type Vars = { name: string; service: string; count: number; expected: string };
 
 const KEYS: ReadonlySet<string> = new Set(SUMMARY_KEYS);
 const isSummaryKey = (key: string): key is SummaryKey => KEYS.has(key);

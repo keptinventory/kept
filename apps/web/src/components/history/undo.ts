@@ -53,6 +53,7 @@ export const UNDOABLE_ACTIONS: ReadonlySet<string> = new Set([
   'thing.extract',
   'purchase.extract',
   'box.check',
+  'scan.session',
   'inbox.bulk',
   // T17a (D208): own codes added, changed or removed (codes/undo.ts).
   'thing.codes',

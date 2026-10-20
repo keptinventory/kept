@@ -89,3 +89,9 @@ export function InsightsRouteError(props: ErrorComponentProps) {
   const { t } = useLingui();
   return <OnDemandError {...props} title={t`Insights`} />;
 }
+
+/** A scan session (#168): on demand, cached once used; offline before that it needs a connection. */
+export function ScanSessionRouteError(props: ErrorComponentProps) {
+  const { t } = useLingui();
+  return <OnDemandError {...props} title={t`Scan session`} />;
+}

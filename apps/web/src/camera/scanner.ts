@@ -15,7 +15,7 @@
  *   without `'wasm-unsafe-eval'`, or a chunk that isn't cached) is `ScannerUnavailable`, and the
  *   screen leads with "Type the code".
  */
-import type { Detect, Detected } from './label-recogniser';
+import type { Box, Detect, Detected } from './label-recogniser';
 
 /** What the scanner reads (BarcodeDetector format names). */
 export const SCAN_FORMATS = ['qr_code', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] as const;
@@ -36,7 +36,8 @@ export class ScannerUnavailable extends Error {
   }
 }
 
-type NativeDetector = { detect: (source: CanvasImageSource) => Promise<Detected[]> };
+type NativeDetected = { rawValue: string; format: string; boundingBox?: Box };
+type NativeDetector = { detect: (source: CanvasImageSource) => Promise<NativeDetected[]> };
 type NativeCtor = {
   new (opts: { formats: string[] }): NativeDetector;
   getSupportedFormats?: () => Promise<string[]>;
@@ -53,7 +54,14 @@ export async function nativeScanner(
     if (!supported.includes('qr_code')) return null;
     const detector = new Ctor({ formats: SCAN_FORMATS.filter((f) => supported.includes(f)) });
     return async (source) =>
-      (await detector.detect(source)).map((d) => ({ rawValue: d.rawValue, format: d.format }));
+      (await detector.detect(source)).map((d) => {
+        const r = d.boundingBox;
+        return {
+          rawValue: d.rawValue,
+          format: d.format,
+          ...(r ? { box: { x: r.x, y: r.y, width: r.width, height: r.height } } : {}),
+        };
+      });
   } catch {
     return null;
   }
@@ -115,17 +123,46 @@ type FrameVideo = HTMLVideoElement & {
   cancelVideoFrameCallback?: (handle: number) => void;
 };
 
+/**
+ * Decodes a video frame somewhere other than the main thread (camera/worker-detect.ts): the
+ * frame downscaled to `size`, its boxes in pixels of that size. Throws `ScannerUnavailable` when
+ * no decoder can start there; anything else it throws means "decode on the main thread instead".
+ */
+export type FrameDecoder = (
+  video: HTMLVideoElement,
+  size: { width: number; height: number },
+) => Promise<Detected[]>;
+
 export type ScanLoopOptions = {
   fps?: number;
   maxSide?: number;
+  /** Decode off the main thread; when it breaks, the loop decodes with `detect` from then on. */
+  decoder?: FrameDecoder | null;
   /** The decoder couldn't start: the loop has stopped. */
   onUnavailable?: (e: ScannerUnavailable) => void;
   now?: () => number;
 };
 
+/** Each code's box as fractions of a `width` × `height` frame. */
+const fractions = (found: Detected[], width: number, height: number): Detected[] =>
+  found.map((d) =>
+    d.box
+      ? {
+          ...d,
+          box: {
+            x: d.box.x / width,
+            y: d.box.y / height,
+            width: d.box.width / width,
+            height: d.box.height / height,
+          },
+        }
+      : d,
+  );
+
 /**
  * Decodes what `video` shows, about `fps` times a second, and reports every frame that read
- * something. Answers a stop function. The frame's canvas is created with `willReadFrequently`,
+ * something: every code in it, each with its box as fractions of the frame where the decoder
+ * gave one. Answers a stop function. The frame's canvas is created with `willReadFrequently`,
  * because the ponyfill reads its pixels back on every decode (Chromium warns about it).
  */
 export function startScanLoop(
@@ -137,11 +174,20 @@ export function startScanLoop(
     maxSide = SCAN_MAX_SIDE,
     onUnavailable,
     now = () => performance.now(),
+    decoder = null,
   }: ScanLoopOptions = {},
 ): () => void {
   const v = video as FrameVideo;
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  let offThread = decoder;
+  let canvas: HTMLCanvasElement | null = null;
+  let ctx: CanvasRenderingContext2D | null = null;
+  const onMainThread = () => {
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      ctx = canvas.getContext('2d', { willReadFrequently: true });
+    }
+    return { canvas, ctx };
+  };
   const every = 1000 / fps;
   let stopped = false;
   let busy = false;
@@ -155,17 +201,33 @@ export function startScanLoop(
       ? (v.requestVideoFrameCallback?.(tick) ?? null)
       : requestAnimationFrame(() => tick());
   };
+  const read = async (width: number, height: number): Promise<Detected[]> => {
+    if (offThread) {
+      try {
+        return await offThread(v, { width, height });
+      } catch (e) {
+        if (e instanceof ScannerUnavailable) throw e;
+        // The worker broke: the main thread decodes from now on.
+        offThread = null;
+      }
+    }
+    const main = onMainThread();
+    if (!main.ctx) return [];
+    main.canvas.width = width;
+    main.canvas.height = height;
+    main.ctx.drawImage(v, 0, 0, width, height);
+    return detect(main.canvas);
+  };
   const decode = async () => {
     const w = v.videoWidth;
     const h = v.videoHeight;
-    if (!ctx || !w || !h) return;
+    if (!w || !h) return;
     const k = Math.min(1, maxSide / Math.max(w, h));
-    canvas.width = Math.round(w * k);
-    canvas.height = Math.round(h * k);
-    ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
+    const width = Math.round(w * k);
+    const height = Math.round(h * k);
     try {
-      const found = await detect(canvas);
-      if (!stopped && found.length > 0) onRead(found);
+      const found = await read(width, height);
+      if (!stopped && found.length > 0) onRead(fractions(found, width, height));
     } catch (e) {
       if (e instanceof ScannerUnavailable) {
         stopped = true;

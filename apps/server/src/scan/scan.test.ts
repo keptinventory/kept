@@ -234,6 +234,91 @@ describe('POST /api/v1/scan/resolve', () => {
     });
     expect((await call(t, '/api/v1/scan/resolve', { body: { text: 'x' } })).statusCode).toBe(401);
   });
+
+  it('opens the thing a product barcode is stored on; two such things ask which', async () => {
+    await setting('barcode_lookup', false);
+    const kettle = await createThing(t, ibrahim, home, {
+      name: 'Kettle',
+      barcode: '9780201379624',
+    });
+    expect(ok(await resolve(talia, '9780201379624', 'ean_13'))).toEqual({
+      outcome: 'open',
+      target: { kind: 'thing', id: kettle.id, locationId: home.id },
+    });
+    const spare = await createThing(t, ibrahim, cottage, {
+      name: 'Spare kettle',
+      barcode: '5901234123457',
+    });
+    const first = await createThing(t, ibrahim, home, {
+      name: 'Kettle (kitchen)',
+      barcode: '5901234123457',
+    });
+    const both = ok(await resolve(ibrahim, '5901234123457', 'ean_13'));
+    expect(both.outcome).toBe('legacy_ambiguous');
+    expect((both.candidates as { id: string }[]).map((c) => c.id).sort()).toEqual(
+      [spare.id, first.id].sort(),
+    );
+    expect(both.candidates).toContainEqual({
+      locationName: 'Cottage',
+      locationId: cottage.id,
+      name: 'Spare kettle',
+      kind: 'thing',
+      id: spare.id,
+    });
+    // Talia sees Home only: one match, which opens.
+    expect(ok(await resolve(talia, '5901234123457', 'ean_13'))).toMatchObject({
+      outcome: 'open',
+      target: { id: first.id },
+    });
+  });
+
+  it("names a barcode as a product when it is only on a trashed thing or one you can't see", async () => {
+    await setting('barcode_lookup', false);
+    const gone = await createThing(t, ibrahim, home, {
+      name: 'Old toaster',
+      barcode: '4006381333931',
+    });
+    expect(
+      (await call(t, `/api/v1/things/${gone.id}/trash`, { as: ibrahim, body: {} })).statusCode,
+    ).toBeLessThan(300);
+    await createThing(t, bruce, garage, { name: 'Bruce’s drill', barcode: '4006381333931' });
+    expect(ok(await resolve(ibrahim, '4006381333931', 'ean_13'))).toEqual({
+      outcome: 'barcode',
+      barcode: { code: '4006381333931', lookupEnabled: false },
+    });
+  });
+});
+
+describe('POST /api/v1/scan/resolve-batch', () => {
+  const batch = (as: Person, items: { text: string; format?: string }[]) =>
+    call(t, '/api/v1/scan/resolve-batch', { as, body: { items } });
+
+  it('answers each code in order, as one resolve would', async () => {
+    await setting('barcode_lookup', false);
+    const lamp = await createThing(t, ibrahim, home, { name: 'Lamp' });
+    const body = ok(
+      await batch(talia, [
+        { text: `https://kept.example/l/${lamp.shortCode}`, format: 'qr_code' },
+        { text: '5000112637922X' },
+        { text: '0000000000000', format: 'ean_13' },
+      ]),
+    );
+    expect(body.results).toEqual([
+      { outcome: 'open', target: { kind: 'thing', id: lamp.id, locationId: home.id } },
+      { outcome: 'not_kept', text: '5000112637922X' },
+      { outcome: 'barcode', barcode: { code: '0000000000000', lookupEnabled: false } },
+    ]);
+  });
+
+  it('takes at most 100 codes, and needs a session', async () => {
+    const many = Array.from({ length: 101 }, (_, i) => ({ text: `X${i}` }));
+    expect((await batch(ibrahim, many)).statusCode).toBe(400);
+    expect((await batch(ibrahim, [])).statusCode).toBe(400);
+    expect(
+      (await call(t, '/api/v1/scan/resolve-batch', { body: { items: [{ text: 'x' }] } }))
+        .statusCode,
+    ).toBe(401);
+  });
 });
 
 describe('GET /api/v1/barcodes/:code', () => {

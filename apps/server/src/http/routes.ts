@@ -52,6 +52,7 @@ import { scheduleRoutes } from '../schedules/routes.js';
 import { searchRoutes } from '../search/routes.js';
 import { secretRoutes } from '../secrets/routes.js';
 import { serviceDraftRoutes } from '../services/routes.js';
+import { scanSessionRoutes } from '../sessions/routes.js';
 import { shareLinkRoutes } from '../sharelinks/routes.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { syncExtrasRoutes } from '../sync/extras.js';
@@ -195,6 +196,8 @@ export const INVENTORY_ROUTE_MODULES = [
   mapRoutes,
   // 1.x (D251): moving mode, its moves and their boxes.
   movingRoutes,
+  // 1.12 (#168): scan sessions, saved by their sync ops; read back here.
+  scanSessionRoutes,
 ] as const satisfies readonly ((app: KeptApp, deps: InventoryDeps) => Promise<void>)[];
 
 export async function registerInventoryRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {

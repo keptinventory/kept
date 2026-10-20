@@ -59,6 +59,19 @@ export async function fillCapture(c: pg.ClientBase, t: Tenant, label: string): P
      VALUES ($1, $2, $3, 1, 1)`,
     [check, t.locationId, inside],
   );
+  // A scan session (1.12): a count of the box, its one line.
+  const session = newId();
+  await c.query(
+    `INSERT INTO public.scan_sessions (id, location_id, mode, target_container_id, started_by,
+                                       started_at)
+     VALUES ($1, $2, 'count', $3, $4, now())`,
+    [session, t.locationId, box, t.userId],
+  );
+  await c.query(
+    `INSERT INTO public.scan_session_lines (session_id, location_id, thing_id, read_at, action)
+     VALUES ($1, $2, $3, now(), 'seen')`,
+    [session, t.locationId, inside],
+  );
   await c.query(
     `INSERT INTO public.sync_ops (user_id, idempotency_key, client_id, location_id, op,
                                   payload_version, client_version, taken_at, request_hash, outcome)
