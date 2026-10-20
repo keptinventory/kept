@@ -3,6 +3,21 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.12.0 (2026-10-20)
+
+### Features
+
+- **scan:** scan sessions: count, pack into and move to, many labels in one walk (#202) (468b64a)
+- Room photos: fill a room from 1–5 photos (#201) (d233633)
+
+### Fixes
+
+- **room:** room photos stay private until reviewed; the demo says no AI runs (#203) (1f9e7e4)
+
+### Documentation
+
+- **release:** the 1.11.1 record (#200) (f3605db)
+
 ## 1.11.1 (2026-10-20)
 
 ### Fixes
