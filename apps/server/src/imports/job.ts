@@ -10,7 +10,8 @@ import type { SystemJobDeps } from '../jobs/system.js';
 import { createPlace } from '../places/service.js';
 import { createItem } from '../registries/service.js';
 import type { RegistryKind } from '../registries/view.js';
-import { insertThing } from '../things/service.js';
+import { insertThing, setLifecycle } from '../things/service.js';
+import { createWarranty } from '../warranties/service.js';
 import type { ImportChoices } from './csv.js';
 import {
   type Lookups,
@@ -33,7 +34,9 @@ import {
 //   purchase (insertThing, `created_via = 'import'`), each writing its own audit row;
 // - each row is remembered in import_source_ids (its `source_id` cell, or the SHA-256 of the row),
 //   so a re-run, or a resumed run, never makes it twice; its legacy codes go to legacy_codes
-//   (source `csv`);
+//   (source `csv`; the Homebox preset's asset IDs and item UUIDs, source `homebox`), and the
+//   preset's warranty and lifecycle are written after the thing (the warranty first: an ended
+//   thing still takes one);
 // - a row that fails anyway (something changed since the dry run) is rolled back to its
 //   savepoint and reported, and the chunk goes on;
 // - `progress` moves with the chunk, and one `import.run` audit event (as the person, with the
@@ -217,6 +220,33 @@ async function applyRow(c: ChunkCtx, runId: string, planned: PlannedRow): Promis
     );
     c.lookups.rememberCode(code, thingId);
   }
+  for (const code of t.homeboxCodes) {
+    // An old Homebox label resolves these (scan/resolve.ts); the CSV names no collection.
+    await c.client.query(
+      `INSERT INTO public.legacy_codes (location_id, source, source_collection, code, thing_id)
+       VALUES ($1, 'homebox', '', $2, $3)`,
+      [c.locationId, code, thingId],
+    );
+    c.lookups.rememberCode(code, thingId);
+  }
+  const ctx = {
+    tx: c.tx,
+    client: c.client,
+    scope: c.scope,
+    requestId: c.requestId,
+    jobs: null,
+    files: null,
+  };
+  if (t.warranty) {
+    await createWarranty(ctx, thingId, { kind: 'manufacturer', ...t.warranty });
+  }
+  if (t.ended) {
+    const { rows } = await c.client.query<{ row_version: number }>(
+      'SELECT row_version FROM public.things WHERE id = $1',
+      [thingId],
+    );
+    await setLifecycle(ctx, thingId, rows[0]?.row_version ?? 1, t.ended);
+  }
   await c.client.query(
     `INSERT INTO public.import_source_ids (location_id, source, source_id, entity_type, entity_id,
                                            run_id)
@@ -227,7 +257,7 @@ async function applyRow(c: ChunkCtx, runId: string, planned: PlannedRow): Promis
     thingId,
     places,
     purchase: !!t.purchase,
-    codes: t.legacyCodes.length + t.ownCodes.length,
+    codes: t.legacyCodes.length + t.ownCodes.length + t.homeboxCodes.length,
   };
 }
 

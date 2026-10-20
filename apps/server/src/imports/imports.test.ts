@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { IMPORT_ISSUE_CODES, newId } from '@kept/shared';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
@@ -653,5 +656,260 @@ describe('own codes (T17a, D208)', () => {
     const again = await importRows(ann, home, [['Rake', 'H-101']], { columns, mapping });
     expect(again.report.rows[0]?.issues.map((i) => i.code)).toEqual(['code_taken']);
     await own(db, 'DELETE FROM public.own_code_settings WHERE location_id = $1', [home.id]);
+  });
+});
+
+describe('a Homebox spreadsheet export (the Homebox preset)', () => {
+  const FIXTURES = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../../test/fixtures/homebox',
+  );
+  /** A small CSV/TSV reader for the committed exports: quoted cells, doubled quotes. */
+  function table(file: string, sep: string): { columns: string[]; rows: string[][] } {
+    const text = readFileSync(path.join(FIXTURES, file), 'utf8');
+    const out: string[][] = [];
+    let rowCells: string[] = [];
+    let value = '';
+    let quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i] as string;
+      if (quoted) {
+        if (ch === '"' && text[i + 1] === '"') {
+          value += '"';
+          i++;
+        } else if (ch === '"') quoted = false;
+        else value += ch;
+      } else if (ch === '"') quoted = true;
+      else if (ch === sep) {
+        rowCells.push(value);
+        value = '';
+      } else if (ch === '\n') {
+        rowCells.push(value);
+        out.push(rowCells);
+        rowCells = [];
+        value = '';
+      } else value += ch;
+    }
+    const [columns = [], ...rows] = out;
+    return { columns, rows };
+  }
+  const OLD = table('homebox-0.10.3-items.tsv', '\t');
+  const NEW = table('homebox-0.27.0-upgraded-entities.csv', ',');
+  /** What the web maps a Homebox spreadsheet to: its guesses, with the preset's columns left
+   * to the preset. */
+  const MAP: Record<string, string> = {
+    'HB.import_ref': 'source_id',
+    'HB.location': 'place_path',
+    'HB.labels': 'tags',
+    'HB.tags': 'tags',
+    'HB.name': 'name',
+    'HB.quantity': 'quantity',
+    'HB.description': 'notes',
+    'HB.notes': 'notes',
+    'HB.purchase_price': 'price',
+    'HB.purchase_from': 'vendor',
+    'HB.purchase_time': 'purchased_on',
+    'HB.purchase_date': 'purchased_on',
+    'HB.manufacturer': 'brand',
+    'HB.model_number': 'model',
+    'HB.serial_number': 'serial',
+  };
+  const mappingOf = (columns: string[]) =>
+    Object.fromEntries(columns.filter((c) => MAP[c]).map((c) => [c, MAP[c] as string]));
+  const hbChoices = (archived: 'ended' | 'tag' | 'skip') =>
+    choices({ placeSeparator: '/', dateFormat: 'YYYY-MM-DD', homebox: { archived } });
+  const importHomebox = (loc: Loc, file: typeof OLD, archived: 'ended' | 'tag' | 'skip') =>
+    importRows(ann, loc, file.rows, {
+      columns: file.columns,
+      mapping: mappingOf(file.columns),
+      choices: hbChoices(archived),
+    });
+
+  type Ended = {
+    name: string;
+    lifecycle: string;
+    ended_on: string | null;
+    ended_to: string | null;
+    ended_notes: string | null;
+    ended_price: string | null;
+    ended_currency: string | null;
+    notes: string | null;
+    tags: string[];
+  };
+  const endedIn = (loc: Loc) =>
+    own<Ended>(
+      db,
+      `SELECT t.name, t.lifecycle, t.ended_on::text, t.ended_to, t.ended_notes,
+              t.ended_price::text, t.ended_currency::text, t.notes,
+              coalesce((SELECT array_agg(g.name ORDER BY g.name) FROM public.thing_tags tt
+                          JOIN public.tags g ON g.id = tt.tag_id WHERE tt.thing_id = t.id), '{}')
+                AS tags
+         FROM public.things t WHERE t.location_id = $1 ORDER BY t.name`,
+      [loc.id],
+    );
+  const byName = (rows: Ended[], name: string) => rows.find((r) => r.name === name);
+  const warrantiesIn = (loc: Loc) =>
+    own<{ name: string; starts_on: string; ends_on: string | null; lifetime: boolean }>(
+      db,
+      `SELECT t.name, w.starts_on::text, w.ends_on::text, w.lifetime FROM public.warranties w
+         JOIN public.things t ON t.id = w.thing_id WHERE w.location_id = $1 ORDER BY t.name`,
+      [loc.id],
+    );
+  const codesIn = (loc: Loc) =>
+    own<{ source: string; code: string; name: string }>(
+      db,
+      `SELECT c.source, c.code, t.name FROM public.legacy_codes c
+         JOIN public.things t ON t.id = c.thing_id WHERE c.location_id = $1
+        ORDER BY c.source, c.code`,
+      [loc.id],
+    );
+
+  let old: Loc;
+  let oldReport: Report;
+  let oldRun: Run;
+  let things: Ended[];
+
+  beforeAll(async () => {
+    old = await createLocation(t, db, ann, 'household', 'From Homebox v0.10.3');
+    ({ run: oldRun, report: oldReport } = await importHomebox(old, OLD, 'ended'));
+    things = await endedIn(old);
+  }, LONG);
+
+  it('imports every v0.10.3 item, and a 0 price is no price', () => {
+    expect(oldRun).toMatchObject({ status: 'done', error: null });
+    expect(oldReport.summary).toMatchObject({ things: 6, purchases: 2, skipped: 0, asText: 0 });
+    expect(oldReport.rows.map((r) => r.status)).toEqual(['ok', 'ok', 'ok', 'ok', 'ok', 'ok']);
+  });
+
+  it('ends a sold item sold, with its date, buyer, notes and price, and an archived one thrown away', () => {
+    expect(byName(things, 'Old laptop')).toMatchObject({
+      lifecycle: 'sold',
+      ended_on: '2024-05-20',
+      ended_to: 'A neighbour',
+      ended_notes: 'With its charger',
+      ended_price: '150.0000',
+      ended_currency: 'EGP',
+    });
+    expect(byName(things, 'Spare router')).toMatchObject({
+      lifecycle: 'disposed',
+      tags: ['Electronics'],
+    });
+    expect(byName(things, 'Cordless drill')).toMatchObject({ lifecycle: 'in_use' });
+  });
+
+  it('makes the dated and the lifetime warranty from the purchase date, details and insured in the notes', async () => {
+    expect(await warrantiesIn(old)).toEqual([
+      { name: 'Cordless drill', starts_on: '2023-03-14', ends_on: '2026-03-14', lifetime: false },
+      { name: 'HD webcam', starts_on: '2022-11-02', ends_on: null, lifetime: true },
+    ]);
+    expect(byName(things, 'Cordless drill')?.notes).toBe('Warranty: Two years, keep the box');
+    expect(byName(things, 'HD webcam')?.notes).toBe('Insured: yes');
+  });
+
+  it('stores the asset IDs as Homebox codes, so an old printed label opens the thing', async () => {
+    expect(await codesIn(old)).toEqual([
+      { source: 'homebox', code: '000-001', name: 'Cordless drill' },
+      { source: 'homebox', code: '000-002', name: 'Toolbox' },
+      { source: 'homebox', code: '000-003', name: 'Drill bits' },
+      { source: 'homebox', code: '000-004', name: 'HD webcam' },
+      { source: 'homebox', code: '000-005', name: 'Old laptop' },
+      { source: 'homebox', code: '000-006', name: 'Spare router' },
+    ]);
+    const res = ok(
+      await call(t, '/api/v1/scan/resolve', {
+        as: ann,
+        body: { text: 'https://homebox.example/a/000-001' },
+      }),
+    );
+    expect(res).toMatchObject({ outcome: 'open', target: { kind: 'thing', locationId: old.id } });
+  });
+
+  it(
+    'keeps archived items in use with a tag, or leaves them out, as chosen',
+    async () => {
+      const tagged = await createLocation(t, db, ann, 'household', 'Homebox, archived tagged');
+      await importHomebox(tagged, OLD, 'tag');
+      const rows = await endedIn(tagged);
+      expect(byName(rows, 'Spare router')).toMatchObject({
+        lifecycle: 'in_use',
+        tags: ['Archived in Homebox', 'Electronics'],
+      });
+      expect(byName(rows, 'Old laptop')).toMatchObject({
+        lifecycle: 'sold',
+        tags: ['Archived in Homebox', 'Electronics'],
+      });
+
+      const left = await createLocation(t, db, ann, 'household', 'Homebox, archived left out');
+      const { report } = await importHomebox(left, OLD, 'skip');
+      expect(report.summary).toMatchObject({ things: 4, skipped: 2 });
+      expect(
+        report.rows.filter((r) => r.status === 'skipped').map((r) => r.issues[0]?.code),
+      ).toEqual(['hb_archived_skipped', 'hb_archived_skipped']);
+    },
+    LONG,
+  );
+
+  it(
+    'reads a v0.27.0 spreadsheet: its location rows left out, the item UUID an old link opens',
+    async () => {
+      const loc = await createLocation(t, db, ann, 'household', 'From Homebox v0.27.0');
+      const { report } = await importHomebox(loc, NEW, 'ended');
+      const skipped = report.rows.filter((r) => r.status === 'skipped');
+      expect(skipped).toHaveLength(11);
+      expect(new Set(skipped.map((r) => r.issues[0]?.code))).toEqual(new Set(['hb_location_row']));
+      expect(report.summary).toMatchObject({ things: 6 });
+      const rows = await endedIn(loc);
+      expect(byName(rows, 'Old laptop')).toMatchObject({
+        lifecycle: 'sold',
+        ended_on: '2024-05-20',
+      });
+      expect(byName(rows, 'Cordless drill')?.notes).toBe(
+        'Two batteries\nWarranty: Two years, keep the box',
+      );
+      const codes = await codesIn(loc);
+      expect(codes.filter((c) => c.name === 'Cordless drill')).toEqual([
+        { source: 'homebox', code: '000-001', name: 'Cordless drill' },
+        { source: 'homebox', code: '5AF0D9A2-BBB4-44EA-8CD0-ACEA90D00025', name: 'Cordless drill' },
+      ]);
+      const res = ok(
+        await call(t, '/api/v1/scan/resolve', {
+          as: ann,
+          body: { text: 'https://homebox.example/item/5af0d9a2-bbb4-44ea-8cd0-acea90d00025' },
+        }),
+      );
+      expect(res).toMatchObject({ outcome: 'open', target: { kind: 'thing', locationId: loc.id } });
+    },
+    LONG,
+  );
+
+  it(
+    'keeps a warranty and a sale price as text where those modules are off',
+    async () => {
+      const shedHb = await createLocation(t, db, ann, 'essentials', 'Homebox shed');
+      const { report } = await importHomebox(shedHb, OLD, 'ended');
+      const rows = await endedIn(shedHb);
+      expect(await warrantiesIn(shedHb)).toEqual([]);
+      expect(byName(rows, 'Old laptop')).toMatchObject({ lifecycle: 'sold', ended_price: null });
+      expect(byName(rows, 'Old laptop')?.notes).toContain('HB.sold_price: 150');
+      expect(byName(rows, 'Cordless drill')?.notes).toContain('HB.warranty_expires: 2026-03-14');
+      const codes = report.rows.flatMap((r) => r.issues.map((i) => i.code));
+      expect(codes).toContain('hb_needs_module');
+      expect(codes).toContain('money_off');
+    },
+    LONG,
+  );
+
+  it('refuses the preset for headers that are not Homebox’s, and a preset column mapped', async () => {
+    const plain = await create(ann, home, [row({ Name: 'Kettle' })], {
+      choices: choices({ homebox: { archived: 'ended' } }),
+    });
+    expect(plain.statusCode, plain.body).toBe(400);
+    const mapped = await create(ann, home, OLD.rows, {
+      columns: OLD.columns,
+      mapping: { ...mappingOf(OLD.columns), 'HB.asset_id': 'legacy_code' },
+      choices: hbChoices('ended'),
+    });
+    expect(mapped.statusCode, mapped.body).toBe(400);
+    expect(mapped.json()).toMatchObject({ hint: expect.stringContaining('HB.asset_id') });
   });
 });

@@ -3,6 +3,9 @@ import {
   CSV_LIMITS,
   DATE_FORMATS,
   type DateFormat,
+  HB_CSV_PRESET_COLUMNS,
+  HomeboxCsvChoices,
+  isHomeboxCsv,
   isMappable,
   MAPPABLE,
   type MappableField,
@@ -60,6 +63,9 @@ export const ImportChoices = z.strictObject({
   /** Match the `type` column to the account's and Kept's types by name, in any of the five
    * languages. Off: the column's value is kept in the notes as text. */
   typeByName: z.boolean(),
+  /** The Homebox preset, for a Homebox spreadsheet export (isHomeboxCsv): its asset IDs and item
+   * links become Homebox codes, sold and archived items end, warranties are made (dry-run.ts). */
+  homebox: HomeboxCsvChoices.optional(),
 });
 export type ImportChoices = z.infer<typeof ImportChoices>;
 
@@ -104,6 +110,25 @@ export function mappingProblem(
     }
   }
   return null;
+}
+
+/**
+ * The Homebox preset checked against the file: its headers must be Homebox's, and the columns it
+ * reads itself must not also be mapped. Returns the problem as a hint, or null.
+ */
+export function homeboxProblem(
+  columns: readonly string[],
+  mapping: Readonly<Record<string, string>>,
+  choices: ImportChoices,
+): string | null {
+  if (!choices.homebox) return null;
+  if (!isHomeboxCsv(columns)) {
+    return "Check body.choices.homebox: these headers aren't a Homebox export's (HB.name, HB.location).";
+  }
+  const taken = HB_CSV_PRESET_COLUMNS.find((c) => mapping[c] && mapping[c] !== 'ignore');
+  return taken
+    ? `Check body.mapping: ${taken} is read by the Homebox preset; leave it unmapped.`
+    : null;
 }
 
 // ---------------------------------------------------------------------------------------------
