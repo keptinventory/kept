@@ -2,6 +2,7 @@
   "name": "@kept/docs",
   "version": "0.0.0",
   "private": true,
+  "license": "AGPL-3.0-only",
   "type": "module",
   "description": "Kept's documentation site (Starlight, D102, D199): built to static files in dist/, published to GitHub Pages at https://keptinventory.info/.",
   "scripts": {
