@@ -136,6 +136,12 @@ const serveAll = (list: Served[]) => ({
 
 export default defineConfig({
   testDir: './e2e',
+  // KEPT_E2E_IGNORE (a comma list of spec files) leaves those files out. CI runs e2e/audit.spec.ts
+  // as a job of its own and shards the rest without it (scripts/ci-local.sh's e2e step).
+  testIgnore: (process.env.KEPT_E2E_IGNORE ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
   outputDir: '../../.tmp/e2e/results',
   fullyParallel: false,
   forbidOnly: true,

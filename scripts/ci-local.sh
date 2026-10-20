@@ -607,14 +607,25 @@ step_e2e() {
     echo "e2e: playwright.config.ts doesn't launch Chromium with fakeCameraArgs()" >&2
     return 1
   }
-  # On CI each matrix shard runs a slice (CI_E2E_SHARD=k/n); locally the whole suite.
-  if [[ -n ${CI_E2E_SHARD:-} ]]; then
-    pnpm --filter @kept/web exec playwright test --shard "$CI_E2E_SHARD"
-  else
-    pnpm --filter @kept/web exec playwright test
-    KEPT_E2E_UPDATE=1 KEPT_E2E_INSTANCES=capture \
-      pnpm --filter @kept/web exec playwright test step3-update.spec.ts --project phone
-  fi
+  # On CI each e2e-shard job runs a part (CI_E2E_SHARD). `audit` is e2e/audit.spec.ts alone, on
+  # its two instances: its axe crawls run serially, about four minutes a project, and made
+  # whichever --shard slice held them the slowest job. `k/n` is Playwright's k-th of n slices of
+  # everything else. Locally the whole suite.
+  case ${CI_E2E_SHARD:-} in
+    '')
+      pnpm --filter @kept/web exec playwright test
+      KEPT_E2E_UPDATE=1 KEPT_E2E_INSTANCES=capture \
+        pnpm --filter @kept/web exec playwright test step3-update.spec.ts --project phone
+      ;;
+    audit)
+      KEPT_E2E_INSTANCES=auditPhone,auditDesktop \
+        pnpm --filter @kept/web exec playwright test audit.spec.ts
+      ;;
+    *)
+      KEPT_E2E_IGNORE=audit.spec.ts \
+        pnpm --filter @kept/web exec playwright test --shard "$CI_E2E_SHARD"
+      ;;
+  esac
 }
 
 # The step-3 update migration spec on its own (CI's e2e-update job; the sharded e2e job skips

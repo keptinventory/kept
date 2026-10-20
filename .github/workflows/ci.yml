@@ -6,7 +6,8 @@
 #   db-test        the server's tests on the dev Postgres (pgvector) and RustFS
 #   db-ops         migration drift, a production boot, portability and backup
 #   db             the required check: green exactly when both halves are
-#   e2e-shard      Playwright against the built server in four shards, on scratch databases
+#   e2e-shard      Playwright against the built server in three shards and the audit spec on its
+#                  own, on scratch databases
 #   e2e-update     the step-3 update migration spec on its own, so it runs exactly once
 #   e2e            the required check: green exactly when every shard and the update spec are
 #   images-amd64,  the image built natively on each architecture's runner and smoked in full
@@ -183,9 +184,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        # Three slices by Playwright's --shard, and e2e/audit.spec.ts as a fourth job of its own:
+        # its serial axe crawls (about four minutes a project) made whichever slice held them the
+        # slowest job by two to four minutes. scripts/ci-local.sh's e2e step reads CI_E2E_SHARD.
+        shard: ['1', '2', '3', audit]
     env:
-      CI_E2E_SHARD: ${{ matrix.shard }}/4
+      CI_E2E_SHARD: ${{ matrix.shard == 'audit' && 'audit' || format('{0}/3', matrix.shard) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
