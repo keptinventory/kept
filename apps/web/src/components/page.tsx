@@ -69,7 +69,7 @@ export function Page({
   tour,
 }: {
   title: ReactNode;
-  /** The section's tour: a quiet Show me beside the title starts it here (Help → Tours). */
+  /** The section's chapter of the tour: a quiet Show me beside the title starts it here. */
   tour?: PageTour;
   /** Where the back arrow goes. Phones show it; the desktop has the sidebar. */
   back?: LinkProps['to'] | { to: LinkProps['to']; params?: Record<string, string> };

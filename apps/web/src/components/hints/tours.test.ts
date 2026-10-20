@@ -1,7 +1,8 @@
 // @vitest-environment node
 /**
- * Which tours and steps a person gets (the sidebar's module rule, viewers never get a step that
- * changes something), the shape every tour keeps, and how a step's subject is found or, for a
+ * The one tour's chapters (each a tour here), where Continue the tour picks up, which chapters
+ * and steps a person gets (the sidebar's module rule, viewers never get a step that changes
+ * something), the shape every tour keeps, and how a step's subject is found or, for a
  * thing or a move, made once as a sample and put in the ledger.
  */
 import { type ModuleId, TOUR_IDS } from '@kept/shared';
@@ -9,7 +10,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { LocationDetail } from '@/api/types';
 import { tourLedger } from './tour-ledger';
 import { resolveSubject, type SubjectDeps, tourLocation } from './tour-subjects';
-import { availableTours, gatingOf, stepsFor, TOURS, tourById } from './tours';
+import { availableTours, gatingOf, resumeAt, stepsFor, TOURS, tourById } from './tours';
 
 const loc = (
   id: string,
@@ -108,6 +109,29 @@ describe('tour gating', () => {
   it('gives a viewer here and a member there the writing steps', () => {
     const mixed = [loc('a', 'viewer'), loc('b', 'member')];
     expect(ids(mixed)).toContain('capture');
+  });
+});
+
+describe('resumeAt', () => {
+  const chapters = availableTours([loc('a', 'owner')]);
+  const finished =
+    (...ids: string[]) =>
+    (id: string) =>
+      ids.includes(id);
+
+  it('starts at the first chapter when none is done, or when all are', () => {
+    expect(resumeAt(chapters, finished())).toBe('basics');
+    expect(resumeAt(chapters, finished(...chapters.map((c) => c.tour.id)))).toBe('basics');
+  });
+
+  it('picks up at the first chapter not done, in the tour’s order', () => {
+    expect(resumeAt(chapters, finished('basics', 'things'))).toBe('map');
+    // One finished out of order doesn't skip the ones before it.
+    expect(resumeAt(chapters, finished('basics', 'scanning'))).toBe('things');
+  });
+
+  it('has nowhere to start without chapters', () => {
+    expect(resumeAt([], finished())).toBeNull();
   });
 });
 

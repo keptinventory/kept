@@ -25713,3 +25713,52 @@ msgstr "خزانة شبكة حائط ١٢ وحدة"
 #: src/map/shapes.tsx
 msgid "Missing a shape? <0>Request it</0>, or browse the <1>shape library</1>."
 msgstr "ينقصك شكل؟ <0>اطلبه</0>، أو تصفّح <1>مكتبة الأشكال</1>."
+
+#: src/routes/_app/help.tsx
+msgid "{count, plural, one {# chapter} other {# chapters}}"
+msgstr "{count, plural, zero {لا فصول} one {فصل واحد} two {فصلان} few {# فصول} many {# فصلًا} other {# فصل}}"
+
+#: src/components/hints/hint-copy.ts
+msgid "Chapter {c} of {n}"
+msgstr "الفصل {c} من {n}"
+
+#: src/components/hints/hint-copy.ts
+msgid "step {done} of {total}"
+msgstr "الخطوة {done} من {total}"
+
+#: src/routes/_app/help.tsx
+msgid "Chapters done: {doneCount} of {total}"
+msgstr "الفصول المنجزة: {doneCount} من {total}"
+
+#: src/routes/_app/help.tsx
+msgid "Continue the tour"
+msgstr "تابِع الجولة"
+
+#: src/components/hints/hint-copy.ts
+msgid "Next: {chapter}"
+msgstr "التالي: {chapter}"
+
+#: src/routes/_app/help.tsx
+msgid "One after another, on the real screens. Stop any time."
+msgstr "فصلًا بعد فصل، على الشاشات الحقيقية. توقّف متى شئت."
+
+#: src/components/hints/hint-copy.ts
+msgid "One chapter per section. Start at any of them here, or tap Show me on its page."
+msgstr "فصل لكل قسم. ابدأ من أيٍّ منها هنا، أو اضغط أرِني في صفحته."
+
+#: src/routes/_app/help.tsx
+msgid "Start here"
+msgstr "ابدأ من هنا"
+
+#: src/components/hints/hint-copy.ts
+msgid "Stop here"
+msgstr "توقّف هنا"
+
+#: src/routes/_app/help.tsx
+msgid "Take the tour"
+msgstr "ابدأ الجولة"
+
+#: src/components/hints/hint-copy.ts
+#: src/routes/_app/help.tsx
+msgid "The tour"
+msgstr "الجولة"

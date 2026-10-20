@@ -25713,3 +25713,52 @@ msgstr "Wandverteiler 12 HE"
 #: src/map/shapes.tsx
 msgid "Missing a shape? <0>Request it</0>, or browse the <1>shape library</1>."
 msgstr "Fehlt eine Form? <0>Fordere sie an</0> oder sieh dir die <1>Formenbibliothek</1> an."
+
+#: src/routes/_app/help.tsx
+msgid "{count, plural, one {# chapter} other {# chapters}}"
+msgstr "{count, plural, one {# Kapitel} other {# Kapitel}}"
+
+#: src/components/hints/hint-copy.ts
+msgid "Chapter {c} of {n}"
+msgstr "Kapitel {c} von {n}"
+
+#: src/components/hints/hint-copy.ts
+msgid "step {done} of {total}"
+msgstr "Schritt {done} von {total}"
+
+#: src/routes/_app/help.tsx
+msgid "Chapters done: {doneCount} of {total}"
+msgstr "Erledigte Kapitel: {doneCount} von {total}"
+
+#: src/routes/_app/help.tsx
+msgid "Continue the tour"
+msgstr "Tour fortsetzen"
+
+#: src/components/hints/hint-copy.ts
+msgid "Next: {chapter}"
+msgstr "Als Nächstes: {chapter}"
+
+#: src/routes/_app/help.tsx
+msgid "One after another, on the real screens. Stop any time."
+msgstr "Ein Kapitel nach dem anderen, auf den echten Bildschirmen. Hör jederzeit auf."
+
+#: src/components/hints/hint-copy.ts
+msgid "One chapter per section. Start at any of them here, or tap Show me on its page."
+msgstr "Ein Kapitel pro Bereich. Beginne hier bei jedem davon oder tippe auf seiner Seite auf Zeig es mir."
+
+#: src/routes/_app/help.tsx
+msgid "Start here"
+msgstr "Hier starten"
+
+#: src/components/hints/hint-copy.ts
+msgid "Stop here"
+msgstr "Hier aufhören"
+
+#: src/routes/_app/help.tsx
+msgid "Take the tour"
+msgstr "Tour starten"
+
+#: src/components/hints/hint-copy.ts
+#: src/routes/_app/help.tsx
+msgid "The tour"
+msgstr "Die Tour"

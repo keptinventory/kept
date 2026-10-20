@@ -1,8 +1,10 @@
 /**
- * Help: Tours (Basics and one per section, replayable, never started on launch), bringing back
+ * Help: the tour, in chapters (Basics and one per section; Take the tour, Continue the tour at
+ * the first chapter not done, or Start here on any chapter; never started on launch), bringing back
  * the Get-started checklist, installing Kept on a phone, sharing into Kept from other apps per
  * platform (iPhone has no share target), logging the odometer from an iPhone Shortcut with a
- * token, and the diagnostics page.
+ * token, and the diagnostics page. It uses the list pages' width (Page `wide`): rows and lists
+ * fill under Full width, running text keeps its readable measure (styles/index.css).
  */
 import { type TourId, tourKey } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
@@ -13,7 +15,7 @@ import { useLocations } from '@/api/queries';
 import { ShortcutRecipeSheet } from '@/components/connections/shortcut-recipe';
 import { useTourTitles } from '@/components/hints/hint-copy';
 import { tourRequests, useRunningTour } from '@/components/hints/tour-request';
-import { availableTours } from '@/components/hints/tours';
+import { type AvailableTour, availableTours, resumeAt } from '@/components/hints/tours';
 import { useHints } from '@/components/hints/use-hint';
 import { useChecklistDismissed } from '@/components/home/checklist';
 import { InstallSheet } from '@/components/home/install-sheet';
@@ -29,6 +31,7 @@ import {
 import { IconTile, LinkButton, List, Page, Row, Section } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/toast';
+import { useFormat } from '@/lib/format';
 
 export const Route = createFileRoute('/_app/help')({ component: HelpPage });
 
@@ -37,7 +40,7 @@ function HelpPage() {
   const [install, setInstall] = useState(false);
   const [recipe, setRecipe] = useState(false);
   return (
-    <Page title={t`Help`}>
+    <Page title={t`Help`} wide>
       <ToursSection />
 
       <Section title={<Trans>Get started</Trans>}>
@@ -143,27 +146,65 @@ function HelpPage() {
 }
 
 /**
- * Tours: Basics, and one short tour per section the person has (tours.ts). A finished tour
- * says Done (its `help.tours.<tour>` hint, so every device agrees); any tour replays.
+ * The tour: Basics, and one short chapter per section the person has (tours.ts), walked one after
+ * another. A finished chapter says Done (its `help.tours.<chapter>` hint, so every device agrees);
+ * Continue the tour picks up at the first chapter not done, and any chapter starts from its row.
  */
 function ToursSection() {
-  const titles = useTourTitles();
+  const { t } = useLingui();
+  const f = useFormat();
   const hints = useHints(false);
   const locations = useLocations();
   const running = useRunningTour();
-  const tours = availableTours(locations.data ?? []);
+  const ref = useRef<HTMLButtonElement>(null);
+  const chapters = availableTours(locations.data ?? []);
   const done = (id: TourId) =>
     !!hints.data?.hints.find((h) => h.key === tourKey(id) && h.dismissedAt);
+  const count = chapters.length;
+  const finished = chapters.filter((c) => done(c.tour.id)).length;
+  const from = resumeAt(chapters, done);
+  const midway = finished > 0 && finished < chapters.length;
+  const doneCount = f.num(finished);
+  const total = f.num(chapters.length);
   return (
-    <Section title={<Trans>Tours</Trans>}>
+    <Section title={<Trans>The tour</Trans>}>
       <List data-tour="help-tours">
-        {tours.map(({ tour, steps }) => (
-          <TourRow
-            key={tour.id}
-            id={tour.id}
-            title={titles[tour.id]}
-            steps={steps.length}
-            done={done(tour.id)}
+        <li>
+          <Row
+            leading={
+              <IconTile>
+                <QuestionIcon />
+              </IconTile>
+            }
+            title={<Plural value={count} one="# chapter" other="# chapters" />}
+            subtitle={
+              finished === 0 ? (
+                <Trans>One after another, on the real screens. Stop any time.</Trans>
+              ) : (
+                t`Chapters done: ${doneCount} of ${total}`
+              )
+            }
+            trailing={
+              from ? (
+                <Button
+                  ref={ref}
+                  size="small"
+                  variant="primary"
+                  isDisabled={running !== null}
+                  onPress={() => tourRequests.request({ id: from, returnFocus: ref.current })}
+                >
+                  {midway ? <Trans>Continue the tour</Trans> : <Trans>Take the tour</Trans>}
+                </Button>
+              ) : null
+            }
+          />
+        </li>
+        {chapters.map((chapter, k) => (
+          <ChapterRow
+            key={chapter.tour.id}
+            chapter={chapter}
+            number={k + 1}
+            done={done(chapter.tour.id)}
             disabled={running !== null}
           />
         ))}
@@ -172,25 +213,35 @@ function ToursSection() {
   );
 }
 
-function TourRow({
-  id,
-  title,
-  steps,
+function ChapterRow({
+  chapter,
+  number,
   done,
   disabled,
 }: {
-  id: TourId;
-  title: string;
-  steps: number;
+  chapter: AvailableTour;
+  number: number;
   done: boolean;
   disabled: boolean;
 }) {
+  const titles = useTourTitles();
+  const f = useFormat();
   const ref = useRef<HTMLButtonElement>(null);
+  const id = chapter.tour.id;
+  const steps = chapter.steps.length;
   return (
     <li data-tour-row={id}>
       <Row
-        leading={<IconTile>{done ? <CheckCircleIcon /> : <QuestionIcon />}</IconTile>}
-        title={title}
+        leading={
+          <IconTile>
+            {done ? (
+              <CheckCircleIcon />
+            ) : (
+              <span className="font-semibold text-[15px]">{f.num(number)}</span>
+            )}
+          </IconTile>
+        }
+        title={titles[id]}
         subtitle={
           done ? <Trans>Done</Trans> : <Plural value={steps} one="# step" other="# steps" />
         }
@@ -198,11 +249,11 @@ function TourRow({
           <Button
             ref={ref}
             size="small"
-            variant={done ? 'secondary' : 'primary'}
+            variant="secondary"
             isDisabled={disabled}
             onPress={() => tourRequests.request({ id, returnFocus: ref.current })}
           >
-            {done ? <Trans>Replay</Trans> : <Trans>Start</Trans>}
+            <Trans>Start here</Trans>
           </Button>
         }
       />

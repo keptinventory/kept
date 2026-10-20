@@ -1,15 +1,18 @@
 /**
- * Help's Tours against the real server, on its own seeded `tour` instance (e2e/instances.ts):
- * one person per project, because a finished tour is remembered per person on the server.
+ * Help's tour, in chapters, against the real server, on its own seeded `tour` instance
+ * (e2e/instances.ts): one person per project, because a finished chapter is remembered per person
+ * on the server. The tests run in order and build on each other's progress.
  *
- * 1. Help → Tours → Basics walks every step in order, each pointing at its control
- *    (`data-tour`), the start of that control in view and clear of the popover (on a phone, a
- *    sheet docked above the tab bar), and the row then says Done.
+ * 1. Help → Basics walks every step in order, each pointing at its control (`data-tour`), the
+ *    start of that control in view and clear of the popover (on a phone, a sheet docked above the
+ *    tab bar); its last step names the next chapter, Stop here ends there, and the row says Done.
  * 2. In Arabic the popover stays on screen and counts in Eastern digits.
- * 3. A tap outside the highlight reaches the page: it follows the link, and the tour ends there.
- * 4. Show me on an empty location starts Things & places there: it makes one sample thing, and
+ * 3. Start here on a middle chapter, and Continue at its end goes straight into the next one.
+ * 4. Stop here, then Continue the tour picks up at the first chapter not done.
+ * 5. A tap outside the highlight reaches the page: it follows the link, and the tour ends there.
+ * 6. Show me on an empty location starts Things & places there: it makes one sample thing, and
  *    Discard at the end puts exactly that in the Trash.
- * 5. The 3D map tour points at the map's own controls (WebGL runs in Chromium here, not jsdom).
+ * 7. The 3D map chapter points at the map's own controls (WebGL runs in Chromium here, not jsdom).
  *
  * No real device is touched: before any page script, getUserMedia and getDisplayMedia reject
  * with NotAllowedError, SpeechRecognition is gone and geolocation refuses (Capture opens with the
@@ -143,22 +146,68 @@ const BASICS = (layout: 'phone' | 'desktop') => [
     ? { title: 'More', anchor: 'more-entries', path: /\/more$/ }
     : // A desktop points at the sidebar where it is: still on Search.
       { title: 'Everything else', anchor: 'nav-entries', path: /\/search$/ },
-  { title: 'Tours', anchor: 'help-tours', path: /\/help$/ },
+  { title: 'The tour', anchor: 'help-tours', path: /\/help$/ },
 ];
 
-/** A tour's row on Help. */
+/** Each chapter's name (components/hints/hint-copy.ts useTourTitles). */
+const TITLES: Record<string, string> = {
+  basics: 'Basics',
+  things: 'Things & places',
+  map: 'The 3D map',
+  capture: 'Capture & Inbox',
+  scanning: 'Scanning',
+  search: 'Search & labels',
+  moving: 'Moving',
+  lending: 'Lending',
+  schedules: 'Schedules & reminders',
+  paperwork: 'Paperwork & warranties',
+  vehicles: 'Vehicles & fuel',
+  'import-export': 'Import & export',
+  settings: 'Settings & sharing',
+};
+
+/** A chapter's row on Help. */
 const tourRow = (page: Page, id: string) => page.locator(`[data-tour-row="${id}"]`);
 
-/** Start or replay a tour from its row on Help. */
-async function fromHelp(page: Page, id: string, button = 'Start') {
+/** The chapters Help lists for this person, in the tour's order. */
+async function chaptersOn(page: Page): Promise<string[]> {
   await page.goto('/help');
-  await tourRow(page, id).getByRole('button', { name: button, exact: true }).click();
+  await expect(tourRow(page, 'basics')).toBeVisible();
+  return page
+    .locator('[data-tour-row]')
+    .evaluateAll((rows) => rows.map((r) => r.getAttribute('data-tour-row') ?? ''));
+}
+
+/** Start a chapter from its row on Help. */
+async function fromHelp(page: Page, id: string) {
+  await page.goto('/help');
+  await tourRow(page, id).getByRole('button', { name: 'Start here', exact: true }).click();
   await expect(popover(page)).toBeVisible();
 }
 
+/** The popover's progress line: "Chapter 3 of 12 · step 2 of 5". */
+const progressOf = (page: Page) => popover(page).locator('.driver-popover-progress-text');
+
+/** The chapter's last step is on screen ("step 5 of 5"). */
+const atChapterEnd = async (page: Page) => /step (\d+) of \1$/.test((await stopOf(page)).progress);
+
+/** Next, then wait for the step after it: the progress line changes. */
+async function nextStep(page: Page) {
+  const before = (await stopOf(page)).progress;
+  await popover(page).getByRole('button', { name: 'Next', exact: true }).click();
+  await expect(progressOf(page)).not.toHaveText(before);
+}
+
+/** Next to the chapter's last step. */
+async function toChapterEnd(page: Page) {
+  for (let k = 0; k < 6 && !(await atChapterEnd(page)); k++) await nextStep(page);
+  expect(await atChapterEnd(page)).toBe(true);
+}
+
+/** Next, or at a chapter's last step Stop here: the run ends with that chapter. */
 const next = (page: Page, last: boolean) =>
   popover(page)
-    .getByRole('button', { name: last ? 'Done' : 'Next', exact: true })
+    .getByRole('button', { name: last ? 'Stop here' : 'Next', exact: true })
     .click();
 
 test('Basics walks every step, each pointing at its control, and then says Done', async ({
@@ -166,10 +215,14 @@ test('Basics walks every step, each pointing at its control, and then says Done'
 }) => {
   const { context, page } = await person(browser);
   const walk = BASICS(project());
+  const chapters = await chaptersOn(page);
+  await expect(page.getByRole('button', { name: 'Take the tour', exact: true })).toBeVisible();
   await fromHelp(page, 'basics');
   for (const [k, leg] of walk.entries()) {
     await expect(popover(page).locator('.driver-popover-title')).toHaveText(leg.title);
-    await expect(popover(page)).toContainText(`${k + 1} of ${walk.length}`);
+    await expect(progressOf(page)).toHaveText(
+      `Chapter 1 of ${chapters.length} · step ${k + 1} of ${walk.length}`,
+    );
     await expect(page).toHaveURL(leg.path);
     // Let driver.js and the sheet's scroll settle before measuring.
     await expect
@@ -195,11 +248,17 @@ test('Basics walks every step, each pointing at its control, and then says Done'
       s.target.right > s.popover.left;
     expect(under, `${leg.title}: target's top under the popover`).toBe(false);
     if (k > 0) await expect(popover(page).getByRole('button', { name: 'Back' })).toBeVisible();
+    if (k === walk.length - 1) {
+      // The chapter's end names the next one, with Continue beside Stop here.
+      await expect(popover(page)).toContainText(`Next: ${TITLES[chapters[1] ?? '']}`);
+      await expect(popover(page).getByRole('button', { name: 'Continue' })).toBeVisible();
+    }
     await next(page, k === walk.length - 1);
   }
   await expect(popover(page)).toHaveCount(0);
   await expect(tourRow(page, 'basics')).toContainText('Done');
-  await expect(tourRow(page, 'basics').getByRole('button', { name: 'Replay' })).toBeVisible();
+  await expect(tourRow(page, 'basics').getByRole('button', { name: 'Start here' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continue the tour', exact: true })).toBeVisible();
   await context.close();
 });
 
@@ -218,9 +277,68 @@ test('stays on screen in Arabic, counting in its digits', async ({ browser }) =>
   await context.close();
 });
 
+test('Start here on a middle chapter, and Continue at its end goes into the next', async ({
+  browser,
+}) => {
+  const { context, page } = await person(browser);
+  const chapters = await chaptersOn(page);
+  const at = chapters.indexOf('search');
+  expect(at, chapters.join()).toBeGreaterThan(0);
+  const after = chapters[at + 1];
+  expect(after, chapters.join()).toBeTruthy();
+  await fromHelp(page, 'search');
+  await expect(progressOf(page)).toContainText(
+    `Chapter ${at + 1} of ${chapters.length} · step 1 of`,
+  );
+  // Back is a tap on its own button, not on Next's touch area beside it (a phone's sheet).
+  await nextStep(page);
+  await expect(progressOf(page)).toContainText('step 2 of');
+  await popover(page).getByRole('button', { name: 'Back', exact: true }).click();
+  await expect(progressOf(page)).toContainText('step 1 of');
+  await toChapterEnd(page);
+  await expect(popover(page)).toContainText(`Next: ${TITLES[after ?? '']}`);
+  await popover(page).getByRole('button', { name: 'Continue', exact: true }).click();
+  await expect(progressOf(page)).toContainText(
+    `Chapter ${at + 2} of ${chapters.length} · step 1 of`,
+  );
+  // The first step of a chapter has nothing before it in the chapter.
+  await expect(popover(page).getByRole('button', { name: 'Back' })).toHaveCount(0);
+  // Closed part-way: the chapter it finished is done, the one it was in isn't.
+  await page.keyboard.press('Escape');
+  await expect(popover(page)).toHaveCount(0);
+  await page.goto('/help');
+  await expect(tourRow(page, 'search')).toContainText('Done');
+  await expect(tourRow(page, after ?? '')).not.toContainText('Done');
+  await context.close();
+});
+
+test('Stop here, then Continue the tour picks up at the first chapter not done', async ({
+  browser,
+}) => {
+  const { context, page } = await person(browser);
+  const chapters = await chaptersOn(page);
+  // Basics and Search & labels are done (the tests before): Things & places is next.
+  expect(chapters[1]).toBe('things');
+  await page.getByRole('button', { name: 'Continue the tour', exact: true }).click();
+  await expect(popover(page).locator('.driver-popover-title')).toHaveText('Add here');
+  await expect(progressOf(page)).toContainText(`Chapter 2 of ${chapters.length} · step 1 of`);
+  await toChapterEnd(page);
+  await expect(popover(page)).toContainText(`Next: ${TITLES[chapters[2] ?? '']}`);
+  await next(page, true);
+  await expect(popover(page)).toHaveCount(0);
+  await page.goto('/help');
+  await expect(tourRow(page, 'things')).toContainText('Done');
+  await page.getByRole('button', { name: 'Continue the tour', exact: true }).click();
+  await expect(popover(page).locator('.driver-popover-title')).toHaveText('List, Grid or Map');
+  await expect(progressOf(page)).toContainText(`Chapter 3 of ${chapters.length} · step 1 of`);
+  await page.keyboard.press('Escape');
+  await expect(popover(page)).toHaveCount(0);
+  await context.close();
+});
+
 test('lets a tap outside the highlight through to the page', async ({ browser }) => {
   const { context, page } = await person(browser);
-  await fromHelp(page, 'basics', 'Replay');
+  await fromHelp(page, 'basics');
   await expect(popover(page).locator('.driver-popover-title')).toHaveText('Needs you');
   // Outside the highlight: the tab bar's Search on a phone, the sidebar's Activity on a desktop.
   const [name, url] = project() === 'phone' ? ['Search', /\/search$/] : ['Activity', /\/activity$/];
@@ -267,7 +385,8 @@ test('Show me on an empty location makes one sample, and Discard trashes only th
       await expect(popover(page)).toBeVisible();
       const title = (await popover(page).locator('.driver-popover-title').textContent()) ?? '';
       seen.push(title);
-      const last = /(\d+) of \1/.test((await stopOf(page)).progress);
+      const last = await atChapterEnd(page);
+      if (last) await expect(popover(page)).toContainText('Next: The 3D map');
       await next(page, last);
       if (last) break;
     }
@@ -292,7 +411,7 @@ test('Show me on an empty location makes one sample, and Discard trashes only th
   }
 });
 
-test('The 3D map tour points at the map’s own controls', async ({ browser }) => {
+test('The 3D map chapter points at the map’s own controls', async ({ browser }) => {
   const { context, page } = await person(browser);
   await fromHelp(page, 'map');
   const anchors: string[] = [];
@@ -301,7 +420,7 @@ test('The 3D map tour points at the map’s own controls', async ({ browser }) =
     await expect.poll(async () => (await stopOf(page)).anchor).not.toBeNull();
     const s = await stopOf(page);
     anchors.push(s.anchor ?? '');
-    const last = /(\d+) of \1/.test(s.progress);
+    const last = /step (\d+) of \1$/.test(s.progress);
     await next(page, last);
     if (last) break;
   }

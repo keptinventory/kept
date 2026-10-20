@@ -128,14 +128,16 @@ holds at most 20 of them.
 
 ## 7. Take a tour
 
-**Help → Tours** lists short walkthroughs, three to six steps each, on the real screens:
+**Help → The tour** walks you through Kept on the real screens, in short chapters of three to six
+steps each:
 
-| Tour | What it shows |
+| Chapter | What it shows |
 |---|---|
 | Basics | Home, your locations, Scan, Search, and where everything else is |
 | Things & places | adding to a location, what's in it, and a thing's page |
 | The 3D map | the List / Grid / Map switch, 3D or plan, pins, floors and Arrange |
 | Capture & Inbox | picking what you capture, the shutter, and reviewing what Kept read |
+| Scanning | a scan session: count, pack or move, where, and what Finish changes |
 | Search & labels | the search field, saved views, printing labels and Scan |
 | Moving | starting a move, its boxes, and where they are |
 | Lending | what's lent out, Mark returned, and Lend on a thing |
@@ -145,18 +147,28 @@ holds at most 20 of them.
 | Import & export | where an import comes from, the file, and exporting |
 | Settings & sharing | notifications, your locations, inviting people, what to track |
 
-Only the tours you have are listed: a module's tour shows while it's on in one of your
-locations, and a viewer gets no steps that change anything. Each section's page also has a small
-**Show me** beside its title that starts its tour right there.
+Only the chapters you have are listed: a module's chapter shows while it's on in one of your
+locations, and a viewer gets no steps that change anything.
 
-- **Next** moves on, **Back** goes back, the arrow keys do both, and **Esc** or **×** closes it.
-- The page still works while a tour runs: tap anything outside the highlight. Going somewhere
+- **Take the tour** starts at the first chapter. Once some are done it reads **Continue the tour**
+  and picks up at the first chapter you haven't finished.
+- Each chapter's row shows its number of steps, or **Done**, and **Start here** starts the tour
+  at that chapter.
+- Each section's page also has a small **Show me** beside its title that starts its chapter
+  right there.
+- The popover shows where you are: "Chapter 3 of 12 · step 2 of 5".
+- **Next** moves on, **Back** goes back within the chapter, the arrow keys do both, and **Esc**
+  or **×** closes it.
+- A chapter's last step names the next one: **Continue** goes straight into it, **Stop here**
+  ends the tour there. The last chapter ends with **Done**.
+- The page still works while the tour runs: tap anything outside the highlight. Going somewhere
   the tour didn't open closes it.
-- A finished tour says **Done** on Help, on every device. Any tour replays from the top.
-- A tour that needs something to show and finds nothing makes one clearly named sample, such as
-  "Sample: Cordless drill". At the end you choose to keep it or discard it; it never touches
-  what you already have.
-- Tours never start by themselves.
+- A finished chapter says **Done** on Help, on every device. A chapter you close part-way starts
+  from its first step next time.
+- A chapter that needs something to show and finds nothing makes one clearly named sample, such
+  as "Sample: Cordless drill". When the tour ends you choose to keep it or discard it; it never
+  touches what you already have.
+- The tour never starts by itself.
 
 A few one-time hints also appear the first time you use Capture, Scan, the Inbox's suggested
 values or Labels.
