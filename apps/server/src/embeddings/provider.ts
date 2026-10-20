@@ -3,14 +3,14 @@ import type pg from 'pg';
 import type { Resolved } from '../ai/ports.js';
 import type { Pools } from '../db/pools.js';
 
-// Where semantic search's vectors come from (D200, D207; step-6 plan T14, Q13, spike S6.4).
+// Where semantic search's vectors come from (D200, D207).
 //
 // - The source is the instance setting `embeddings_source` (D207): KEPT_EMBEDDINGS writes it at
 //   boot (mirrorEmbeddingsSource), the admin status page's switch writes it after (routes.ts).
 //   With no row yet, the environment's default (`provider`) holds.
 // - `provider`: each location's resolved `embeddings` model (ai/resolve.ts's cascade); a
-//   location whose cascade has none is keyword-only (Groq has no embeddings model, §8a).
-// - `local`: the on-server model (S6.5). Not built in 1.0: its runtime isn't installed, so
+//   location whose cascade has none is keyword-only (Groq has no embeddings model).
+// - `local`: the on-server model. Not built in 1.0: its runtime isn't installed, so
 //   config/env.ts refuses KEPT_EMBEDDINGS=local and the switch refuses it; a row saying `local`
 //   (an older install) is treated as `off` here.
 // - `off`: no jobs, no query embeddings, keyword search only.
@@ -90,7 +90,7 @@ export async function mirrorEmbeddingsSource(
   }
 }
 
-/** The vectors' model key (T6): `provider:<kind>:<model>`, at most 200 characters. */
+/** The vectors' model key: `provider:<kind>:<model>`, at most 200 characters. */
 export function modelKeyOf(r: Pick<Resolved, 'provider'>): string {
   return `provider:${r.provider.kind}:${r.provider.model}`.slice(0, 200);
 }

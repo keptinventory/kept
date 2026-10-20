@@ -1,11 +1,11 @@
 /**
- * Quick log on Home (screens §6 "Quick log: Log a reading from Home and from the vehicle"; plan
- * T19; Q23): "Log a reading" shows when the caller has a metered thing they can log on (Home's
- * `meteredThings`, T13). It opens a sheet that picks the thing and its meter, the most recently
+ * Quick log on Home:
+ * "Log a reading" shows when the caller has a metered thing they can log on (Home's
+ * `meteredThings`). It opens a sheet that picks the thing and its meter, the most recently
  * read first, then the Log a reading sheet.
  *
  * The pick comes from the phone's snapshot (each thing carries its meters and their latest
- * reading, Q18), online and offline alike, so it works the same with no connection. Offline,
+ * reading), online and offline alike, so it works the same with no connection. Offline,
  * Home's own count isn't there: the button shows when the snapshot has a metered thing in a
  * location the caller can log in.
  */
@@ -29,7 +29,7 @@ import { sep, useFormat } from '@/lib/format';
 import { useOnline } from '@/lib/online';
 import { useMeterUnit } from '@/lib/units';
 
-/** A gauge, as the board's "Log a reading" button draws it. */
+/** A gauge, as the designs' "Log a reading" button draws it. */
 export function GaugeIcon({ className }: { className?: string }) {
   return (
     <svg

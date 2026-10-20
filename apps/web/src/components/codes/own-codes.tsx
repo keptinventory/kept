@@ -1,10 +1,10 @@
 /**
- * "Your codes" on a thing or a place (D208, plan T17a; engineering spec §7.16): the household's own
+ * "Your codes" on a thing or a place (D208): the household's own
  * identifiers, as an extra way to find it, never a replacement for its short ID. Several per thing
  * or place; each unique in the location; scanned, searched and typed in the jump box like any
  * code. Codes that came with an import (CSV, Homebox) are listed too, read-only.
  *
- * Adding, renaming and removing are `things.edit` (hidden for a viewer, screens §3), and each
+ * Adding, renaming and removing are `things.edit` (hidden for a viewer), and each
  * offers Undo (D150). A code the location already has says what has it, with a link; one the
  * location's format rule refuses says the owner's own words and example. When the location numbers
  * its codes, "Next number" adds the next one.

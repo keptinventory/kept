@@ -21,7 +21,7 @@ import {
   imageOf,
 } from './service.js';
 
-// Undo for fills (step-5 plan T11; D124, D150; Q11, Q14). Each handler checks that what the
+// Undo for fills (D124, D150). Each handler checks that what the
 // event changed is still as the event left it (else 409 `undo_refused` `changed_since`, naming
 // who), puts the before-image back, and writes its own audit row.
 //

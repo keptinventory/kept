@@ -11,12 +11,12 @@ import { authRequestHeaders, ClientIpError, requestClientIp } from './client-ip.
 import { gateSession, type ResolvedSession, resolveSession } from './session.js';
 import { limiterKey, reserveInWindow } from './sign-in-limiter.js';
 
-// Better Auth on Fastify, and the session every Kept route sees (task 17; D176, D181, §7.14).
+// Better Auth on Fastify, and the session every Kept route sees (D176, D181).
 //
 // How a route says who may call it (`config.auth`):
 // - 'required' (the default, for every route that doesn't say otherwise; security review M1): a
 //   signed-in session whose second factor, if the user enrolled one, was proven in it. Otherwise
-//   401 `unauthenticated`, or 403 `mfa_required` for a pending session (spike S2's gate).
+//   401 `unauthenticated`, or 403 `mfa_required` for a pending session (the two-factor gate).
 // - 'optional': the same session when there is one, else `req.scope` stays null. A pending
 //   session counts as none.
 // - 'none': no session lookup at all. Each public route says so itself: health, the web bundle
@@ -59,7 +59,7 @@ export function authMode(req: FastifyRequest): AuthMode {
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
-/** `Authorization: Bearer kpt_…`: a personal token (step 6, tokens/verify.ts). */
+/** `Authorization: Bearer kpt_…`: a personal token (tokens/verify.ts). */
 const PERSONAL_BEARER = /^Bearer\s+kpt_/i;
 
 /**
@@ -134,7 +134,7 @@ export type SessionHookOptions = {
   auth: Auth | null;
   pools: Pick<Pools, 'auth'>;
   trustedProxies: readonly string[];
-  /** Runs for every request that got a scope (task 18: the cached ensureAccount check). */
+  /** Runs for every request that got a scope (the cached ensureAccount check). */
   onScope?: (req: FastifyRequest, scope: Scope, headers: Headers) => Promise<void>;
 };
 
@@ -236,7 +236,7 @@ export async function authRoutes(app: KeptApp, opts: AuthRoutesOptions): Promise
   const { auth, trustedProxies, pools } = opts;
   const origin = new URL(opts.publicUrl).origin;
 
-  // OAuth's token, revoke and introspect endpoints take form bodies (step 6, T12; spike S6.2):
+  // OAuth's token, revoke and introspect endpoints take form bodies:
   // inside the mount only, a form body reaches Better Auth as the raw string it was sent as.
   await app.register(async (child) => {
     child.addContentTypeParser(
@@ -301,7 +301,7 @@ export async function authRoutes(app: KeptApp, opts: AuthRoutesOptions): Promise
         });
       forwardCookies(reply, result.headers);
       // With two-factor enrolled the new session is pending until TOTP, a backup code or a
-      // passkey with user verification is proven in it (spike S2). Read afresh: a first magic
+      // passkey with user verification is proven in it. Read afresh: a first magic
       // link to an unverified address has just removed any two-factor (D197), after Better Auth
       // built its answer.
       const { id } = result.response.user as { id: string };

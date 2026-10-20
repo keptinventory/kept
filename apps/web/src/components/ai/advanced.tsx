@@ -1,8 +1,8 @@
 /**
- * AI settings → Advanced (D191, D202; screens §5 AI settings §6): the provider kind (OpenAI,
+ * AI settings → Advanced (D191, D202): the provider kind (OpenAI,
  * Anthropic, Google, OpenRouter, Groq, OpenAI-compatible) and, for a compatible server, its base
  * URL with the private-address note; the model per task from the provider's list; the reasoning
- * effort (L42). The page adds caps, the price table and "Pause AI" below (`children`).
+ * effort. The page adds caps, the price table and "Pause AI" below (`children`).
  *
  * A named kind's base URL is filled in by the server; only OpenAI-compatible asks for one. A key
  * whose provider Kept can't read from its prefix is saved with the kind chosen here.

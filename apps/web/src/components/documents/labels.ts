@@ -1,5 +1,5 @@
 /**
- * Words for expiring documents (plan T23; D155, D172, Q31): each kind's name, and a document's
+ * Words for expiring documents (D155, D172): each kind's name, and a document's
  * name as a reader sees it, its own title when it has one, otherwise its kind ("Insurance").
  */
 import type { DocumentKind } from '@kept/shared';
@@ -20,7 +20,7 @@ export function useDocumentKindLabels(): Record<DocumentKind, string> {
   };
 }
 
-/** A document's name: its title, or its kind's (Q31: "other" always has a title). */
+/** A document's name: its title, or its kind's ("other" always has a title). */
 export function useDocumentName(): (d: { kind: DocumentKind; title: string | null }) => string {
   const kinds = useDocumentKindLabels();
   return (d) => d.title?.trim() || kinds[d.kind];

@@ -35,7 +35,7 @@ BEGIN
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'inbox_items'; removed := n; RETURN NEXT;
 
-  -- 0055 (step 4, §3.3): the centre keeps 90 days; the reminder ledger a year.
+  -- 0055: the centre keeps 90 days; the reminder ledger a year.
   DELETE FROM public.notifications x WHERE x.created_at < now() - interval '90 days';
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'notifications'; removed := n; RETURN NEXT;
@@ -54,12 +54,12 @@ BEGIN
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'notification_digests'; removed := n; RETURN NEXT;
 
-  -- 0070 (step 6, Q19): a rate window is a minute; two hours is plenty for Retry-After.
+  -- 0070: a rate window is a minute; two hours is plenty for Retry-After.
   DELETE FROM public.token_rate_windows w WHERE w.minute < now() - interval '2 hours';
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'token_rate_windows'; removed := n; RETURN NEXT;
 
-  -- 0078 (step 6, §3.3): a webhook's deliveries keep 30 days.
+  -- 0078: a webhook's deliveries keep 30 days.
   DELETE FROM public.webhook_deliveries d WHERE d.created_at < now() - interval '30 days';
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'webhook_deliveries'; removed := n; RETURN NEXT;

@@ -1,12 +1,12 @@
 -- Custom SQL migration file, put your code below! --
--- Step 2, task 10: the maintenance doors the reindex and purge jobs call (engineering spec §3.3,
--- §7.4, §7.9; D149, D161, D162; plan Q12). Each is SECURITY DEFINER and kept_system's alone:
+-- The maintenance doors the reindex and purge jobs call (D149, D161, D162).
+-- Each is SECURITY DEFINER and kept_system's alone:
 -- the worker has no policy on any inventory table (SYSTEM_TABLES doesn't grow), and a job's data
 -- is at most a location id, so reindexing or purging reads nothing out to its caller but counts
 -- and storage keys. Blobs are deleted by the job after commit, from the keys these return.
 -- test/leak.test.ts and src/db/migrate.test.ts list every function here.
 
--- Recomputes the path and search caches of a location's live things (§7.9), after a place, a
+-- Recomputes the path and search caches of a location's live things, after a place, a
 -- container or a registry entry was renamed or moved. Setting the caches to NULL makes
 -- kept.thing_cache() recompute them; touch_row sees only quiet columns, so no row_version bump.
 -- Returns the things refreshed.
@@ -25,10 +25,10 @@ BEGIN
 END $$;
 --> statement-breakpoint
 
--- Empties the trash (D162, §3.3): things trashed before `p_before`, innermost first (a box goes
+-- Empties the trash (D162): things trashed before `p_before`, innermost first (a box goes
 -- once nothing is left inside it; something live inside a trashed box keeps the box), then
 -- places trashed before `p_before` with nothing left under them. At most `p_limit` rows in all,
--- oldest first. Each deletion leaves a tombstone (§7.4); short IDs turn into retired codes
+-- oldest first. Each deletion leaves a tombstone; short IDs turn into retired codes
 -- (kept.retire_orphan_code()); meters, readings, attachments, links, tags and secret values go
 -- by cascade, and their files become unattached (kept.purge_orphan_files() takes those).
 -- Returns the rows deleted.
@@ -89,8 +89,8 @@ END $$;
 
 -- Deletes locations past their deletion grace period (D149): at most `p_limit`, oldest purge
 -- date first. Everything in them goes by ON DELETE CASCADE (the tree's self-references are NO
--- ACTION, so one cascading delete succeeds, Q12); the deferred owner check skips a vanished
--- location. Short IDs stay, as retired codes keeping their location_id (§7.13). Returns one row
+-- ACTION, so one cascading delete succeeds); the deferred owner check skips a vanished
+-- location. Short IDs stay, as retired codes keeping their location_id. Returns one row
 -- per purged location with the storage keys its files and derivatives held that nothing left
 -- references (a cross-account copy may still share a blob, D161), for the job to delete after
 -- commit. (The plan had an integer; without the keys those blobs would never be deleted.)

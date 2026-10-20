@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { dailyLimit, decimalOut, METER_VALUE, milli, placeReading } from './check.js';
 
-// check.ts on its own (D26, D52, D112, §3.4, §7.13). The routes' tests (meters.test.ts) cover the
+// check.ts on its own (D26, D52, D112). The routes' tests (meters.test.ts) cover the
 // same rules end to end.
 
 const day = (d: number, h = 12) => new Date(Date.UTC(2026, 8, d, h));

@@ -5,7 +5,7 @@ import { type Ctx, todayIn } from '../schedules/service.js';
 import { gateFor } from '../serialize/gates.js';
 import { correctedSeries } from './meters.js';
 
-// A meter's series for the vehicle's charts (step-5 plan T13; D52, D188; Q8): its accepted
+// A meter's series for the vehicle's charts (D52, D188): its accepted
 // readings (offset-corrected, D52, so a replaced odometer draws one line), the usage estimate
 // dashed on to the next threshold, and the thresholds of step 4's unit schedules on the meter
 // with their estimated dates (kept.schedule_next(), 0066: the same dates the agenda and the

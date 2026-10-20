@@ -1,9 +1,9 @@
 /**
  * The one fetch wrapper. Same origin, cookies included, JSON in and out. Every failure becomes an
- * `ApiError` with a Kept `ErrorCode`, whether the body is Kept's `{error, hint, code}` (§7.7) or
+ * `ApiError` with a Kept `ErrorCode`, whether the body is Kept's `{error, hint, code}` or
  * Better Auth's `{message, code}` (its codes are upper-case, e.g. INVALID_EMAIL_OR_PASSWORD, and
  * are kept in `authCode`). A network failure is `offline`, so a screen can say "Needs a
- * connection" (§3) instead of a generic error.
+ * connection" instead of a generic error.
  */
 import { type ErrorCode, isErrorCode } from '@kept/shared';
 
@@ -133,7 +133,7 @@ function browserTimeZone(): string | undefined {
 }
 
 /**
- * The header on a write that recorded an undoable change (engineering spec §7.7; the server's
+ * The header on a write that recorded an undoable change (the server's
  * `AUDIT_EVENT_HEADER` in apps/server/src/http/write.ts): the audit event's id, for the Undo
  * toast's `POST /api/v1/audit/:eventId/undo`.
  */
@@ -198,7 +198,7 @@ export async function requestWritten<T>(
   return { body, auditEvents: auditEventIds(res.headers.get(AUDIT_EVENT_HEADER)) };
 }
 
-/** `If-Match: <rowVersion>` for a versioned write (§7.7), or nothing. */
+/** `If-Match: <rowVersion>` for a versioned write, or nothing. */
 export const ifMatch = (rowVersion: number | undefined): Record<string, string> | undefined =>
   rowVersion === undefined ? undefined : { 'if-match': String(rowVersion) };
 
@@ -228,13 +228,13 @@ export const written = {
     requestWritten<T>(path, { method: 'PUT', body, ...(headers ? { headers } : {}) }),
 };
 
-/** The server's largest page (§7.7). */
+/** The server's largest page. */
 const PAGE = 200;
 /** A bound on pages followed, so a server bug can't loop the client forever. */
 const MAX_PAGES = 100;
 
 /**
- * Follows `nextCursor` through every page of a paginated list (§7.7), `query` added to each
+ * Follows `nextCursor` through every page of a paginated list, `query` added to each
  * request. Step 1's lists are short (locations, members, admin lists), so screens hold them
  * whole; a list that grows gets real paging with the list-surface standard.
  */

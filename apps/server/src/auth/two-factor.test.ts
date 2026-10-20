@@ -19,7 +19,7 @@ import { pendingSessionMayCall, SECOND_FACTOR_PATHS } from './security.js';
 import { gateSession, resolveSession } from './session.js';
 import { FREE_FAILURES } from './sign-in-limiter.js';
 
-// Spike S2 (V32): two-factor on every sign-in method. Better Auth's twoFactor plugin challenges
+// two-factor on every sign-in method. Better Auth's twoFactor plugin challenges
 // only password sign-in; Kept's gate (auth/security.ts, auth/session.ts) covers the rest.
 
 const PASSWORD = 'correct horse battery';
@@ -253,7 +253,7 @@ describe('two-factor on every sign-in method', () => {
     const cookie = await magicLinkSession(rows[0].email);
     const session = await resolve(cookie);
     expect(session).toMatchObject({ twoFactorEnabled: false, mfa: false, mfaPending: false });
-    // Signed in, but require_2fa locations stay hidden (app.mfa = false, §7.14).
+    // Signed in, but require_2fa locations stay hidden (app.mfa = false).
     expect(gateSession(session)).toEqual({ ok: true, scope: { userId: plain.userId, mfa: false } });
   });
 

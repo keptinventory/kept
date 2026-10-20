@@ -9,7 +9,7 @@ import { AppError } from '../http/errors.js';
 import { gateFor } from '../serialize/gates.js';
 import { ruleRecord } from './service.js';
 
-// Undo for "keep at least" (step-7 plan T17; D150). `thing.stock_rule` holds the minimum before
+// Undo for "keep at least" (D150). `thing.stock_rule` holds the minimum before
 // and after (`min_quantity`; null when there was no rule, or none after a delete). Undoing puts the
 // minimum back as it was before: the rule goes when there was none, comes back when it was
 // removed, or takes its old minimum. Refused when the minimum changed since (D124), and where

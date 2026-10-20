@@ -1,7 +1,7 @@
 /**
- * A vehicle's page (step-5 plan T18; screens §5, §8; D26, D52, D188, D195): the tabs in the URL;
+ * A vehicle's page (D26, D52, D188, D195): the tabs in the URL;
  * the Overview's odometer, schedules with estimated dates and the licence banner; Readings with the
- * proof strip and the chart's table; the Costs tab against the board's numbers, its table equal to
+ * proof strip and the chart's table; the Costs tab against the designs' numbers, its table equal to
  * the bars, mirrored in Arabic; the viewer without money; a reading too old to estimate from;
  * starter schedules.
  */
@@ -37,7 +37,7 @@ const seeded = (patch?: (s: MockState) => void) => {
 };
 
 beforeEach(() => {
-  // The board's day: October is the month "so far" (D188).
+  // The designs' day: October is the month "so far" (D188).
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date('2026-10-10T09:00:00.000Z'));
 });
@@ -130,7 +130,7 @@ describe('the Costs tab', () => {
       '2026-08',
       '2026-09',
     ]);
-    // Every bar's label carries the same amount as its table cell (the spike's rule).
+    // Every bar's label carries the same amount as its table cell.
     const marks = await waitFor(() => {
       const m = document.querySelectorAll('rect[data-mark]');
       if (m.length === 0) throw new Error('no bars yet');
@@ -225,7 +225,7 @@ describe('starter schedules', () => {
     await findHeading('مولد الكهرباء');
     await user.click(await screen.findByRole('button', { name: 'Add starter schedules' }));
     const dialog = await screen.findByRole('dialog', { name: 'Starter schedules' });
-    // An hours meter: months alone (Q25).
+    // An hours meter: months alone.
     expect(within(dialog).getAllByText(/^Every \d+ months$/).length).toBeGreaterThan(0);
     await user.click(within(dialog).getByRole('checkbox', { name: /Brake fluid/ }));
     await user.click(within(dialog).getByRole('button', { name: 'Add' }));

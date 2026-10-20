@@ -1,5 +1,5 @@
 /**
- * The two rows of a browse list (screens §5, frames 02 · 1–2): a place ("Tool wall · 9 things ·
+ * The two rows of a browse list (frames 02 · 1–2): a place ("Tool wall · 9 things ·
  * 2 places", with a chevron) and a thing (icon or photo, name, the ID chip, "× 3", its derived
  * states, and where it is when the list spans depths). Both are links by id. Names are user text
  * and bidi-isolated; nothing is cut off with an ellipsis (phones never trim).

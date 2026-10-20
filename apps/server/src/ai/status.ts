@@ -1,5 +1,5 @@
 /**
- * The AI status line of a location (plan T9; D191, D202, D206; screens §3, §5): who would pay
+ * The AI status line of a location (D191, D202, D206): who would pay
  * for a photo read there, what pauses it, what the key is waiting for, and who can do something
  * about it. Read through `kept.ai_status`, which viewers may call (the assistant's line) and
  * which never returns key material; the rest is read under the caller's own policies.
@@ -29,7 +29,7 @@ export const StatusSchema = z.object({
   canManage: z.boolean(),
   manager: z.object({ displayName: z.string() }).nullable(),
   modelMissing: z.boolean(),
-  /** Where this server's search embeddings come from (step-6 T14, D207): AI settings' "Search"
+  /** Where this server's search embeddings come from (D207): AI settings' "Search"
    * line. GET /ai/status adds it; statusOf() leaves it out. */
   embeddingsSource: z.enum(EMBEDDINGS_SOURCES).optional(),
 });
@@ -83,7 +83,7 @@ export async function statusOf(client: pg.ClientBase, locationId: string): Promi
   const pausedUntil = isoTime(r.paused_until);
   const waitingUntil = isoTime(r.waiting_until);
   // Who can resume or fix AI here: the location's owner (the account's key and caps are theirs),
-  // named for everyone else's "Ask Alfred to resume" (§3).
+  // named for everyone else's "Ask Alfred to resume".
   let manager: Status['manager'] = null;
   if (!r.can_manage) {
     const { rows: owner } = await client.query<{ name: string | null }>(

@@ -1,13 +1,13 @@
 /**
- * Capture (screens §5; plan T25). The session itself is components/capture/capture-screen.tsx;
- * this route gives it the signed-in person's offline store and sync engine (T24), and the ways
+ * Capture. The session itself is components/capture/capture-screen.tsx;
+ * this route gives it the signed-in person's offline store and sync engine, and the ways
  * in:
  *
  * - `?into=<thing id>`: capture into that box ("Capture into Box 3" from a scan);
  * - `?place=<place id>`: "Capture here" from a place;
- * - `?label=<thing id>`: LABEL mode on that thing (step 5: "read its registration card" from a
+ * - `?label=<thing id>`: LABEL mode on that thing ("read its registration card" from a
  *   vehicle's Documents tab); `captureLabelSearch()` in components/capture/links.ts builds it;
- * - `?shared=<id>` / `?share=<problem>`: a share into Kept (D140, plan T23, Q26), shown as the
+ * - `?shared=<id>` / `?share=<problem>`: a share into Kept (D140), shown as the
  *   "Shared into Kept" sheet, whose Keep runs through the capture queue.
  */
 import { useLingui } from '@lingui/react/macro';
@@ -100,7 +100,7 @@ function CapturePage() {
       {...(label ? { labelFor: label } : {})}
       onExit={exit}
       onOpen={open}
-      // One decoder for capture and Scan (T26): native where it reads QR, else the lazy wasm.
+      // One decoder for capture and Scan: native where it reads QR, else the lazy wasm.
       detect={appDetect()}
       {...(engine ? { onQueued: () => engine.kick() } : {})}
       {...(subscribe ? { subscribe } : {})}

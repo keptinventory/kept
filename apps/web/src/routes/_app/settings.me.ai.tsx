@@ -1,5 +1,5 @@
 /**
- * Me → Personal AI key (plan T29; D121, D167, D206): the note "Used for Personal, your private
+ * Me → Personal AI key (D121, D167, D206): the note "Used for Personal, your private
  * threads, and questions that span owners", the key box, the personal cap, and My AI usage.
  */
 import { useLingui } from '@lingui/react/macro';

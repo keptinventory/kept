@@ -1,5 +1,5 @@
 /**
- * A type's or place kind's fields (screens §5 Type editor, frame 06 · 5): inherited fields first,
+ * A type's or place kind's fields (frame 06 · 5): inherited fields first,
  * headed by the type they come from; then the type's own; then each field group's (D192), headed
  * "Device group · shared by …"; then archived fields (D92), which can be restored.
  *
@@ -7,7 +7,7 @@
  * lock; who may reveal it, and its policy, are the account owner's to set (D177), so the Policy
  * button shows for the owner only. Rows are a list, not a table, so they wrap on a phone.
  *
- * Step 7 (T24): the account owner also converts a type's own field: Make secret or Make plain on
+ * The account owner also converts a type's own field: Make secret or Make plain on
  * a text field, Change kind where `CONVERSIONS` allows one (./convert-field-sheet.tsx). On a
  * phone they fold into More with the row's other actions out of the way; offline they're
  * disabled.
@@ -40,7 +40,7 @@ export type FieldListProps = {
   onArchive?: (field: ResolvedField) => void;
   onRestore?: (field: ResolvedField) => void;
   onPolicy?: (field: ResolvedField) => void;
-  /** The account owner's conversions (T24); offered only with `isOwner`. */
+  /** The account owner's conversions; offered only with `isOwner`. */
   onConvert?: (field: ResolvedField, mode: ConvertMode) => void;
   pendingId?: string | null;
   /** What "no fields" means here (a type's things, a place kind's places). */

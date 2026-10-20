@@ -1,9 +1,9 @@
 /**
  * The step-5 web contract: every request and response the vehicle screens exchange with the
  * server (the Vehicles list, a vehicle's tabs, Log a reading, Log a service from an invoice, fuel
- * and charging, vehicle documents, the history report). Written from the route tables of the
- * step-5 plan's Phase B (T8, T9, T11–T13, T15), field for field; the server tasks implement the
- * same shapes. A difference is fixed in both, in the same commit (plan T3).
+ * and charging, vehicle documents, the history report). Written from the server's
+ * route tables, field for field; the server tasks implement the
+ * same shapes. A difference is fixed in both, in the same commit.
  *
  * Step 4's shapes stay step 4's (../household/types.ts): a service record, a schedule and an
  * expiring document keep their contract, and what step 5 adds to them is an extension here
@@ -13,7 +13,7 @@
  * Where the plan names a shape without spelling it out, the shape here is T3's proposal, marked
  * "(proposed)"; the server task adopts it or fixes both sides.
  *
- * Conventions (engineering spec §7.7), as steps 2–4: camelCase JSON; lists are
+ * Conventions, as steps 2–4: camelCase JSON; lists are
  * `{items, next_cursor}`; money is a decimal string plus `currency`, **omitted** where the money
  * gate hides it, with `moneyHidden: true`; a versioned write sends `If-Match`; an undoable write
  * answers `undo: {eventId, until}` (and names its event in `X-Kept-Audit-Event`, D150). List
@@ -74,13 +74,13 @@ export type WhenFilter = string;
  * the server hasn't made it yet, or for a file that has none: show the file's icon). */
 export type ProofRef = { attachmentId: string; fileId: string; thumbUrl: string | null };
 
-/** Who owns a reading made by a fill or a service (Q11): it is changed through its owner. */
+/** Who owns a reading made by a fill or a service: it is changed through its owner. */
 export type ReadingOwner = { type: 'fuel' | 'service'; id: string };
 
-// ----- meters and readings, finished (T8) -------------------------------------------------------
+// ----- meters and readings, finished ------------------------------------------------------------
 
 /**
- * `kept.meter_estimate()` (T7, Q8): the rate over the 90 days before the latest reading, when two
+ * `kept.meter_estimate()`: the rate over the 90 days before the latest reading, when two
  * readings span 7 days or more; `advice` at 30 days (`stale`) and 60 (`unknown`, `perDay` null).
  */
 export type Estimate = {
@@ -95,7 +95,7 @@ export type Estimate = {
 /** GET /api/v1/things/:id: each `meters[]` entry gains its estimate and nudge interval. */
 export type ThingMeterV5 = ThingMeter & { estimate: Estimate; nudgeDays: number | null };
 
-/** PATCH /api/v1/meters/:id (If-Match): gains the stale-reading nudge (`meters.manage`, Q19). */
+/** PATCH /api/v1/meters/:id (If-Match): gains the stale-reading nudge (`meters.manage`). */
 export type UpdateMeterBodyV5 = UpdateMeterBody & {
   /** 7–365 days, or null for no nudge. */
   nudgeDays?: number | null;
@@ -103,8 +103,8 @@ export type UpdateMeterBodyV5 = UpdateMeterBody & {
 
 /**
  * POST /api/v1/meters/:id/readings. `confirmJump` stores an implausible jump as accepted ("It's
- * right", Q9); a backwards reading is still 409 `conflict`. `proofFileId` attaches the photo to
- * the reading (D195, Q10).
+ * right"); a backwards reading is still 409 `conflict`. `proofFileId` attaches the photo to
+ * the reading (D195).
  */
 export type CreateReadingBodyV5 = CreateReadingBody & { confirmJump?: true; proofFileId?: string };
 export type CreateReadingResultV5 = {
@@ -134,7 +134,7 @@ export type ReadingsParams = {
 export type ReadingOwnedDetails = { ownedBy: ReadingOwner };
 
 /** One photo on the odometer proof strip (D195): a reading's, or a step-3 proof still on the
- * thing (no reading, no value; dated by its attachment, Q10). */
+ * thing (no reading, no value; dated by its attachment). */
 export type ProofItem = {
   readingId: string | null;
   value: string | null;
@@ -146,7 +146,7 @@ export type ProofItem = {
 /** GET /api/v1/meters/:id/proofs?cursor&limit, newest first. */
 export type ProofsPage = Page<ProofItem>;
 
-// ----- service drafts from an invoice (T9) ------------------------------------------------------
+// ----- service drafts from an invoice -----------------------------------------------------------
 
 /** A suggestion read from the invoice (drafts only; violet and dashed until confirmed, D131). */
 export type ServiceSuggestion = {
@@ -208,7 +208,7 @@ export type ServiceRecordsParams = {
 };
 export type ServiceRecordsPageV5 = Page<ServiceRecordV5>;
 
-// ----- fuel and charging (T11) ------------------------------------------------------------------
+// ----- fuel and charging ------------------------------------------------------------------------
 
 export type FuelRow = {
   id: string;
@@ -307,9 +307,9 @@ export type FuelSummary = {
   moneyHidden?: true;
 };
 
-// ----- vehicle documents (T12) ------------------------------------------------------------------
+// ----- vehicle documents ------------------------------------------------------------------------
 
-/** Step 4's expiring document with its issue date and cost (Q5). */
+/** Step 4's expiring document with its issue date and cost. */
 export type ExpiringDocumentV5 = ExpiringDocument & {
   issuedOn: string | null;
   cost?: string;
@@ -328,7 +328,7 @@ export type CreateDocumentBodyV5 = Step4CreateDocumentBody & DocumentCostFields;
 export type UpdateDocumentBodyV5 = Step4UpdateDocumentBody & DocumentCostFields;
 export type RenewDocumentBodyV5 = RenewDocumentBody & DocumentCostFields;
 
-// ----- vehicles, costs, series and starter schedules (T13) --------------------------------------
+// ----- vehicles, costs, series and starter schedules --------------------------------------------
 
 export type VehicleReadingFilter = 'fresh' | 'stale' | 'unknown' | 'none';
 export type VehicleDueFilter = 'overdue' | 'soon';
@@ -356,7 +356,7 @@ export type VehicleRow = {
 };
 
 /** GET /api/v1/vehicles (module `vehicles`; global across the caller's locations with it on).
- * `f.state` defaults to `in_use` (Q24). */
+ * `f.state` defaults to `in_use`. */
 export type VehiclesParams = {
   q?: string;
   'f.location'?: Many;
@@ -378,7 +378,7 @@ export type VehiclesPage = Page<VehicleRow>;
 export type CostAmounts = Record<CostCategory, string> & { total: string };
 
 /** GET /api/v1/things/:id/costs?from&to. Default: the last 6 full months and the current month
- * "so far" (D188). Per currency, never added across currencies (Q22). */
+ * "so far" (D188). Per currency, never added across currencies. */
 export type CostReport = {
   period: { from: string; to: string };
   distance: { value: string; unit: string; basis: 'readings' } | null;
@@ -397,7 +397,7 @@ export type CostReport = {
 export type CostsParams = { from?: string; to?: string };
 
 /** GET /api/v1/meters/:id/series?from&to: the chart's points, the estimate to the next
- * threshold, and step 4's schedules' thresholds with their estimated dates (T7). */
+ * threshold, and step 4's schedules' thresholds with their estimated dates. */
 export type MeterSeries = {
   unit: string;
   points: Array<{ takenAt: string; value: string; source: ReadingSource }>;
@@ -418,17 +418,17 @@ export type StarterSchedulesBody = { keys?: StarterKey[] };
  * for a request that changed nothing (the server's T13). */
 export type StarterSchedulesResult = { schedules: Schedule[]; undo?: Undo };
 
-/** Step 4's schedule with its estimated due date (T7): a unit schedule's `estimatedOn` is when
+/** Step 4's schedule with its estimated due date: a unit schedule's `estimatedOn` is when
  * the meter reaches the due value at its usage; labelled estimated everywhere (D52). */
 export type ScheduleV5 = Schedule & {
   next: Schedule['next'] & { estimatedOn?: string | null; estimated?: boolean };
 };
 
-/** GET /api/v1/home gains how many metered things the caller can log a reading on (T13), so Home
+/** GET /api/v1/home gains how many metered things the caller can log a reading on, so Home
  * shows "Log a reading" only when there is one. */
 export type HomeResponseV5 = HomeResponse & { meteredThings: number };
 
-// ----- the vehicle history report (T15) ---------------------------------------------------------
+// ----- the vehicle history report ---------------------------------------------------------------
 
 /** POST /api/v1/reports/vehicle-history → 202 `ReportCreated` (module `vehicles`; the reports'
  * shared hourly limit). Viewers may make one; costs appear only if they see money. */

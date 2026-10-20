@@ -6,7 +6,7 @@ import { type ReportLabels, type ReportLocale, templateLabels, wordsFor } from '
 // string is final here: numbers, money and dates are formatted with Intl in the report's
 // language and digits (D143), so the template only lays them out. Money is formatted by
 // @kept/shared's formatMoney(), the web's own, rounded to the currency's minor units only here
-// at the output edge (Q2); sums are exact decimal arithmetic on the database's numeric strings.
+// at the output edge; sums are exact decimal arithmetic on the database's numeric strings.
 // Short IDs and serials are never localised: they stay in Western digits (D120, D143), and a
 // short ID is printed as the app's chip shows it, 3 + 3 around a non-breaking hyphen (D134).
 

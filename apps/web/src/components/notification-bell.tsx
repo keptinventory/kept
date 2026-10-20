@@ -1,6 +1,6 @@
 /**
- * The notification bell in the page header (screens §1: "the notification bell" on every screen;
- * the design board's app bar and desktop top bar). It opens the notification centre and shows the
+ * The notification bell in the page header ("the notification bell" on every screen;
+ * the app bar and desktop top bar). It opens the notification centre and shows the
  * unread count from `GET /api/v1/notifications/count` as a badge, the way the rail shows the
  * Inbox's (D198). Hidden on the centre itself, whose header carries its settings instead
  * (frame "7 · Notification centre").

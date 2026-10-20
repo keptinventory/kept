@@ -1,5 +1,5 @@
 /**
- * The carrying tray (D175, screens §6; board frames 7a–7c): pick things up from a thing's menu or
+ * The carrying tray (D175): pick things up from a thing's menu or
  * by scanning them, then scan the destination's label or choose a place, and everything moves in
  * one go, with Undo. The tray stays with you, offline too (it lives in the phone's store).
  */

@@ -1,7 +1,7 @@
 /**
- * The error screens of step 7's server-only routes (plan T3): Export and Consumables. Their
+ * The error screens of step 7's server-only routes: Export and Consumables. Their
  * component chunks load on demand from assets/household/ (vite.config.ts), out of the precache;
- * offline before the first load the chunk can't arrive, and the §3 reason says so: "Needs a
+ * offline before the first load the chunk can't arrive, and the reason says so: "Needs a
  * connection". Any other error is the usual error state.
  */
 import { useLingui } from '@lingui/react/macro';

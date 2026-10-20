@@ -1,17 +1,17 @@
 #!/usr/bin/env node
-// The entry-bundle weight check (D80, lessons L88). Runs after `vite build`: finds the entry
+// The entry-bundle weight check (D80). Runs after `vite build`: finds the entry
 // chunk that dist/index.html loads, gzips it, and fails when it is more than BUDGET bytes over
 // the recorded baseline. Everything else is code-split per route, so the entry chunk is what
 // every first visit pays for; an icon library imported by accident shows up here first.
 //
-// It also checks the service worker's precache (plan T23):
+// It also checks the service worker's precache:
 // everything a phone downloads on install, under PRECACHE_BUDGET without the scanner's wasm, the
 // wasm on its own under WASM_BUDGET, index.html precached at its current content, and nothing
 // authenticated, no icon chunk (per-icon or the DynamicIcon map) and no Lingui catalogue in it:
 // those are cached on first use (vite.config.ts, sw.ts).
 //
 // The on-demand rule for new screens: the precache holds only what the offline promise needs
-// (screens §4: the shell, Home, browsing places and things, capture, the inbox, scan and old
+// (the shell, Home, browsing places and things, capture, the inbox, scan and old
 // labels, search, the offline store and sync). A screen that needs a connection anyway (settings,
 // admin, imports, exports, reports, the assistant, anything reading only the server) loads on
 // demand: add its route's `?tsr-split=component` chunk to HOUSEHOLD_ROUTES in vite.config.ts (and
@@ -30,7 +30,7 @@ import { gzipSync } from 'node:zlib';
 
 const web = fileURLToPath(new URL('..', import.meta.url));
 const baselinePath = join(web, 'bundle-baseline.json');
-/** 25 KB gzip over the baseline (plan task 3). */
+/** 25 KB gzip over the baseline. */
 export const BUDGET = 25 * 1024;
 /**
  * The precache, excluding the scanner's wasm: "3 MB" in the unit Serwist's build log prints

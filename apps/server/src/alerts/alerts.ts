@@ -6,19 +6,19 @@ import type { Mailer } from '../mail/mailer.js';
 import type { ChannelSenders } from '../reminders/channel.js';
 import { readScanStatus, scanOverdue } from '../reminders/status.js';
 
-// Admin alerts (task 25; D166, D185): conditions an instance admin must hear about without
+// Admin alerts (D166, D185): conditions an instance admin must hear about without
 // looking. One row per condition (`dedupe_key`), raised again and again while it lasts (the
 // count goes up), resolved when a check finds it gone. Each raise may mail every instance admin,
 // at most once per 24 hours per alert, in their own language; the status page and
 // GET /api/v1/admin/alerts show them too. Raised and resolved only by kept_system (migration
-// 0011). Step 4 adds push (D166: "the admin's own channels"; step-1 carry-over "Admin alerts
+// 0011). Step 4 adds push (D166: "the admin's own channels"; "Admin alerts
 // reach email only"): the same 24-hour claim also pushes to each admin's subscribed devices,
 // through the web-push sender (reminders/channel.ts, T15's notify/push.ts).
 
 /** Mail an alert's admins at most this often. */
 export const ALERT_MAIL_HOURS = 24;
 
-/** failed_jobs_rising: more than this many jobs failed in the last hour (task 25). */
+/** failed_jobs_rising: more than this many jobs failed in the last hour. */
 export const FAILED_JOBS_PER_HOUR = 5;
 
 export type AlertDeps = {
@@ -37,7 +37,7 @@ export type Raised = {
   opened: boolean;
   /** How many admins were mailed now (0 inside the 24-hour quiet period). */
   mailed: number;
-  /** How many admins' devices were pushed to now (step 4). */
+  /** How many admins' devices were pushed to now. */
   pushed: number;
 };
 
@@ -97,7 +97,7 @@ export async function raiseAlert(
           )
         ).rows
       : [];
-    // Their web-push channels, when this instance pushes (step 4).
+    // Their web-push channels, when this instance pushes.
     const pushTo =
       recipients.length > 0 && deps.channels?.webpush
         ? (
@@ -186,8 +186,8 @@ export type CheckResult = { raised: AdminAlertKind[]; resolved: AdminAlertKind[]
  * - failed_jobs_rising: more than 5 jobs failed for good in the last hour (D166).
  * - audit_default_partition: audit_events_default holds rows, which blocks that month's
  *   partition and fails the nightly audit-partitions job until an operator moves them (0005).
- * - llm_default_partition: the same for the AI call ledger's llm_calls_default (0040, T6).
- * - reminders_not_scanned: no reminder scan has finished for 2 hours (step 4, T14; §3.4). The
+ * - llm_default_partition: the same for the AI call ledger's llm_calls_default (0040).
+ * - reminders_not_scanned: no reminder scan has finished for 2 hours. The
  *   scan resolves it too, after its next good pass.
  */
 export async function checkAdminAlerts(

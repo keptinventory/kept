@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The Developer Certificate of Origin (https://developercertificate.org/, go-public plan D5):
+# The Developer Certificate of Origin (https://developercertificate.org/):
 # every non-merge commit in a range carries a `Signed-off-by:` trailer naming its author exactly,
 # as `git commit -s` writes it. No bot and no third-party app: the ci workflow runs this on a pull
 # request's commits. It applies from the first public pull request on; the history before that has

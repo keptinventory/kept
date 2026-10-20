@@ -20,14 +20,14 @@ import { places } from './places.js';
 import { locations } from './tenancy.js';
 import { things } from './things.js';
 
-// Service records (step-4 plan T5, Q1; engineering spec §1.6, §7.13; D26, D29, D113): the core
+// Service records (D26, D29, D113): the core
 // tables and their lines, for any thing or place. Completing a schedule links a record to it
-// (service_completions, T6). Step 5 adds the vehicle side (invoice extraction into lines, fuel);
+// (service_completions). Step 5 adds the vehicle side (invoice extraction into lines, fuel);
 // step 7 the consumables. Row-level security and the vendor guard are in the custom migration
 // that follows (0051); the reading key is ON DELETE SET NULL (meter_reading_id), there too.
 
 const lineKind = textEnum('kind', SERVICE_LINE_KINDS);
-// Step 5 (Q12): an invoice attached for AI makes a draft; drafts count nowhere until confirmed.
+// An invoice attached for AI makes a draft; drafts count nowhere until confirmed.
 const reviewState = textEnum('review_state', REVIEW_STATES);
 
 /** A service done on one thing or one place, with its reading, vendor and total. */
@@ -48,7 +48,7 @@ export const serviceRecords = pgTable(
     currency: char('currency', { length: 3 }).references(() => currencies.code),
     notes: text('notes'),
     loggedBy: uuid('logged_by').notNull(),
-    /** A draft (an invoice being read by AI, step 5) counts nowhere until it is confirmed. */
+    /** A draft (an invoice being read by AI) counts nowhere until it is confirmed. */
     reviewState: reviewState.col().notNull().default('confirmed'),
     ...mutable(),
   },
@@ -77,7 +77,7 @@ export const serviceRecords = pgTable(
     index('service_records_place_idx').on(t.placeId, t.servicedOn),
     index('service_records_reading_idx').on(t.meterReadingId),
     index('service_records_vendor_idx').on(t.vendorId),
-    // Step 5: one owner per reading (Q11), and each person's open drafts.
+    // One owner per reading, and each person's open drafts.
     uniqueIndex('service_records_reading_uq')
       .on(t.meterReadingId)
       .where(sql`meter_reading_id IS NOT NULL`),
@@ -87,7 +87,7 @@ export const serviceRecords = pgTable(
   ],
 );
 
-/** A part, labour, fluid or other line of a service record (§1.6). */
+/** A part, labour, fluid or other line of a service record. */
 export const serviceLines = pgTable(
   'service_lines',
   {
@@ -100,7 +100,7 @@ export const serviceLines = pgTable(
     unitCost: numeric('unit_cost', { precision: 16, scale: 4 }),
     sort: integer('sort').notNull().default(0),
     /**
-     * D236 (engineering spec §1.6, D170): the consumable this line used from the shelf (the oil
+     * D236 (D170): the consumable this line used from the shelf (the oil
      * filter), of the line's own location. Its key, ON UPDATE CASCADE ON DELETE SET NULL
      * (consumable_thing_id), is in the custom migration that follows (drizzle can't declare a
      * column list); so is the trigger that drops the link when a move separates them.

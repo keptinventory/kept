@@ -15,7 +15,7 @@ import {
 import { diffRows } from '../audit/audited.js';
 import { type Scope, withScope } from './scope.js';
 
-// Task 7: purchases and lines (engineering spec §1.4, §7.2, §7.13; D13, D115; plan Q2).
+// Purchases and lines (D13, D115).
 
 const db = await testDb();
 const app = db.pools.app;

@@ -1,6 +1,6 @@
 /**
- * The offline store the scan, tray and box-check screens use (plan T26): the signed-in person's
- * Dexie store once it has opened (T24), or the page's memory store where this browser has no
+ * The offline store the scan, tray and box-check screens use: the signed-in person's
+ * Dexie store once it has opened, or the page's memory store where this browser has no
  * IndexedDB (the component tests' jsdom, some locked-down browsers). Null while Dexie opens.
  */
 import { offlineSupported } from '@/offline/open';
@@ -13,7 +13,7 @@ export function useScanStore(): ScanStore | null {
   return offline?.store ?? (offlineSupported() ? null : pageStore());
 }
 
-/** After queueing an op: the sync engine sends it now if it can (T24). */
+/** After queueing an op: the sync engine sends it now if it can. */
 export function useKick(): () => void {
   const offline = useOffline();
   return () => offline?.engine.kick();

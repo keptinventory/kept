@@ -7,7 +7,7 @@ import { AppError, forbidden, notFound, pgErrorOf } from '../http/errors.js';
 import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 
-// Currencies (T12; D136, D168, D189; engineering spec §3.4). Shapes: the web contract's Currency,
+// Currencies (D136, D168, D189). Shapes: the web contract's Currency,
 // CurrenciesResponse and UpdateCurrencyBody (apps/web/src/api/inventory/types.ts).
 //
 // GET   /api/v1/currencies                → {currencies}: the enabled ones, for every picker.
@@ -103,7 +103,7 @@ export async function currencyRoutes(app: KeptApp, deps: InventoryDeps): Promise
     { schema: { params: CodeParams, body: PatchBody, response: { 200: CurrencySchema } } },
     (req, reply) =>
       scopedWrite(pools, req, reply, async (tx, client, scope) => {
-        // TODO(task 23): the instance-admin guard lives in admin/routes.ts, which registers only
+        // TODO: the instance-admin guard lives in admin/routes.ts, which registers only
         // with auth; this route is an inventory module, so it asks kept.is_instance_admin() itself.
         if (!(await isInstanceAdmin(client))) {
           throw forbidden('Only instance admins switch currencies.');

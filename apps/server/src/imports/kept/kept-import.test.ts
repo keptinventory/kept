@@ -29,9 +29,9 @@ import { keptDryRun } from './plan.js';
 import { openKeptArchive, readManifest } from './read.js';
 import { unlockSecrets } from './secrets.js';
 
-// Step-7 T14: a Kept export imported into a new location (plan Q8), on the server it came from:
-// every row remapped, labels re-issued with the old codes kept (Q9), files byte-identical, the
-// secrets with the passphrase (D68), history carried as `import` events (Q10), and a resumed run
+// A Kept export imported into a new location, on the server it came from:
+// every row remapped, labels re-issued with the old codes kept, files byte-identical, the
+// secrets with the passphrase (D68), history carried as `import` events, and a resumed run
 // that makes nothing twice. The export is made with the registry's own readers
 // (test/kept-export.ts); the round trip through the export job is test/portability.
 

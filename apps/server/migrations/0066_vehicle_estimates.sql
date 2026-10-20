@@ -1,7 +1,6 @@
 -- Custom SQL migration file, put your code below! --
--- Step 5, task 7: usage estimates, estimated due dates, the stale-reading nudge and vehicle types
--- (engineering spec §1.9, §3.4, §7.6; D26, D52, D113, D154, D188; plan Q2, Q8, Q19; step 4's
--- Q2, Q3, Q5). Nothing drizzle declares. Below:
+-- Usage estimates, estimated due dates, the stale-reading nudge and vehicle types
+-- (D26, D52, D113, D154, D188). Nothing drizzle declares. Below:
 --   1. kept.meter_estimate(meter, now): the meter's latest accepted reading (offset-corrected by
 --      the latest replacement at or before each reading, as meters/check.ts compares them), its
 --      rate over the 90 days before that reading (RATE_WINDOW_DAYS; 2 readings at least 7 days
@@ -12,7 +11,7 @@
 --   2. kept.meter_eta(meter, value, now): the location's local date the meter is expected to
 --      reach `value` at that rate; NULL with no rate, a rate of 0, a value already reached, or one
 --      more than a century away.
---   3. Estimated due dates (step 4's Q2; D52): kept.schedule_due(schedule, today, now), the one
+--   3. Estimated due dates (D52): kept.schedule_due(schedule, today, now), the one
 --      place a schedule's next due point is decided, is 0053's kept.schedule_point() plus the
 --      estimate: `estimated_on` is when the meter is expected to reach the unit side's due-from
 --      reading (due_value - lead_units, the plan's formula); from that day the schedule is due
@@ -22,13 +21,13 @@
 --      kept.schedule_next() returns the two new columns (its return type changes, so it is made
 --      again); the agenda's schedule rows carry them. due_period stays 'meter:<due_value>' for a
 --      due point from the estimate, so the reminder's key doesn't move as the estimate does.
---   4. The `reading_stale` source (D52, D113; step 4's Q3): an agenda branch per meter with
+--   4. The `reading_stale` source (D52, D113): an agenda branch per meter with
 --      nudge_days, on a live in-use thing, with an accepted reading: due from the latest reading's
 --      local date + nudge_days, keyed 'date:<that day>'. No module: stale nudges are core.
---   5. kept.is_vehicle_type(type) (Q2): the type reaches the built-in `vehicle` through parent_id
+--   5. kept.is_vehicle_type(type): the type reaches the built-in `vehicle` through parent_id
 --      or copied_from_id (a customised copy), at most 64 steps. kept.type_chain() follows parent_id
 --      only, so this is its own walk.
---   6. Documents on vehicles (step 4's Q5): the agenda's document branch counts a document whose
+--   6. Documents on vehicles: the agenda's document branch counts a document whose
 --      thing is a vehicle while Paperwork or Vehicles is on; its `module` is 'paperwork' when
 --      Paperwork is on, else 'vehicles' (what the scan and the feed check a person's hidden modules
 --      against).
@@ -217,7 +216,7 @@ SELECT 'warranty', w.id, w.location_id, w.thing_id, NULL::uuid, 'expiring',
  WHERE w.effective_ends_on IS NOT NULL AND kept.module_on(w.location_id, 'warranties')
    AND t.deleted_at IS NULL AND t.lifecycle = 'in_use'
 UNION ALL
--- Registration (Q4: D55's warranty-registration deadline): due from 14 days before.
+-- Registration (D55's warranty-registration deadline): due from 14 days before.
 SELECT 'registration', w.id, w.location_id, w.thing_id, NULL::uuid, 'due',
        w.registration_deadline, NULL::numeric, NULL::uuid,
        CASE WHEN loc.today > w.registration_deadline THEN 'overdue'
@@ -232,7 +231,7 @@ SELECT 'registration', w.id, w.location_id, w.thing_id, NULL::uuid, 'due',
    AND t.deleted_at IS NULL AND t.lifecycle = 'in_use'
 UNION ALL
 -- Documents, current ones only: expiring from the lead, overdue after (an expired lease matters).
--- A vehicle's document also while Vehicles alone is on (step 5, step 4's Q5).
+-- A vehicle's document also while Vehicles alone is on.
 SELECT 'document', d.id, d.location_id, d.thing_id, d.place_id,
        CASE WHEN loc.today > d.expires_on THEN 'overdue' ELSE 'expiring' END,
        d.expires_on, NULL::numeric, NULL::uuid,
@@ -279,7 +278,7 @@ SELECT 'thing_expiry', t.id, t.location_id, t.id, NULL::uuid,
  WHERE t.expires_on IS NOT NULL AND kept.module_on(t.location_id, 'schedules')
    AND t.deleted_at IS NULL AND t.lifecycle = 'in_use'
 UNION ALL
--- Stale readings (step 5; D52, Q19): due from the latest accepted reading's local day plus the
+-- Stale readings (D52): due from the latest accepted reading's local day plus the
 -- meter's nudge_days; none before the first reading, none with nudge_days NULL. Core: no module.
 SELECT 'reading_stale', m.id, m.location_id, m.thing_id, NULL::uuid, 'due',
        r.due_on, NULL::numeric, m.id,

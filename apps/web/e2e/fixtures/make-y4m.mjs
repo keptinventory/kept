@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The fake camera's videos for the step-3 e2e run (plan T32): Chromium plays a .y4m file as the
+// The fake camera's videos for the step-3 e2e run: Chromium plays a .y4m file as the
 // camera with `--use-fake-device-for-media-stream --use-file-for-fake-video-capture=<file>`
 // (playwright.config.ts, e2e/camera.ts). Written from code, so they are reproducible and nothing
 // is downloaded:

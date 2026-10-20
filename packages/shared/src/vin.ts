@@ -1,6 +1,6 @@
 /**
- * VIN check digits (ISO 3779; engineering spec §2.1 "a VIN must pass its checksum where the
- * format has one"). The ninth character is a check digit for vehicles made for North America
+ * VIN check digits (ISO 3779).
+ * The ninth character is a check digit for vehicles made for North America
  * (world manufacturer codes starting 1–5). Elsewhere the position is not a checksum, so those
  * VINs are not tested: `null` means "no checksum", never "invalid".
  */

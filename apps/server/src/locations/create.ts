@@ -6,12 +6,12 @@ import type { Scope, Tx } from '../db/scope.js';
 import { assertClientId } from '../http/conventions.js';
 import { forbidden, invalid, notFound } from '../http/errors.js';
 
-// Creating a location (task 19; D33, D47, D61, D114, D118, D191), shared by POST /api/v1/locations
-// and an archive import's new target (step-7 plan T8: "created through the locations service in
+// Creating a location (D33, D47, D61, D114, D118, D191), shared by POST /api/v1/locations
+// and an archive import's new target ("created through the locations service in
 // the same transaction"). Runs as the signed-in user, in the caller's transaction.
 
 export type NewLocation = {
-  /** A client-generated UUIDv7 (§7.7); checked here. */
+  /** A client-generated UUIDv7; checked here. */
   id?: string | undefined;
   name: string;
   kind: string;
@@ -60,7 +60,7 @@ export async function createLocation(c: CreateCtx, body: NewLocation): Promise<s
   const languages = [...new Set(body.languages ?? [])];
   const modules = presetModules(body.preset);
 
-  // Order matters under RLS (§7.14): the location, then its owner membership (after which it is
+  // Order matters under RLS: the location, then its owner membership (after which it is
   // visible and writable), then its places and module switches. No RETURNING on the location
   // insert: it isn't visible to its own creator until the membership exists.
   await client.query(

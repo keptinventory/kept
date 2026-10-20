@@ -1,5 +1,5 @@
 /**
- * The PWA shell (plan T23): the manifest, the worker's routing, the update prompt's gates (D148),
+ * The PWA shell: the manifest, the worker's routing, the update prompt's gates (D148),
  * the share target's hand-over (D140) and the diagnostics report (D188).
  */
 import { act, screen, waitFor } from '@testing-library/react';

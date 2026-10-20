@@ -1,5 +1,5 @@
 /**
- * The vehicle history report sheet (plan T23): the request body it posts (the period, what to
+ * The vehicle history report sheet: the request body it posts (the period, what to
  * include, the language), step 2's progress to Download on the mock, a viewer's costs left out,
  * and offline disabled with the reason.
  */

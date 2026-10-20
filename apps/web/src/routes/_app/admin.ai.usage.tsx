@@ -1,5 +1,5 @@
 /**
- * Admin → AI usage (plan T29a; D206): per-account totals and the calls the instance key paid, with
+ * Admin → AI usage (D206): per-account totals and the calls the instance key paid, with
  * the account and person but no location, thing or thread (D33). Inside the admin frame.
  */
 import { createFileRoute } from '@tanstack/react-router';

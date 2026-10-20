@@ -1,4 +1,4 @@
-// The size check (step-8 plan T5, L79, Q25): a dump far smaller than the last good one is
+// The size check: a dump far smaller than the last good one is
 // suspicious (a bug that emptied a table, a dump of the wrong database). The snapshot is still
 // taken (it may be right), but the run is a `warning` with `backup_suspicious_size`, its
 // retention is skipped, and the alert says why, so a bad dump can never push good snapshots out.

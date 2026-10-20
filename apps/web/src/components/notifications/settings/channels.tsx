@@ -1,15 +1,15 @@
 /**
- * Me → Notifications → Channels (plan T25; D30, D139, D193; step-4 Q6, Q13): how Kept reaches you
+ * Me → Notifications → Channels (D30, D139, D193): how Kept reaches you
  * besides the notification centre, which everyone has.
  *
  * - **Email:** your address; "Mail isn't configured on this server" when SMTP is off; a Test.
- *   A managed account has no email, so no email channel (Q13).
+ *   A managed account has no email, so no email channel.
  * - **This device:** Enable asks for the notification permission **only on that tap** (D139).
  *   On an iPhone or iPad in the browser it says plainly that notifications work only from the
- *   installed app, offers the install sheet, and email instead (D139, V8). Over plain HTTP: "Push
+ *   installed app, offers the install sheet, and email instead (D139). Over plain HTTP: "Push
  *   needs HTTPS" (D193). Once on: Test and Turn off.
  * - **Other devices** with push on: Test and Remove.
- * - **Webhooks** (Q6: a personal channel; the §2.6 envelope, event `reminder.due`, ids and dates,
+ * - **Webhooks** (a personal channel; the webhook envelope, event `reminder.due`, ids and dates,
  *   no names): add with a URL and a label, then the signing secret **shown once** with Copy; Test
  *   and Remove. Its URL is never shown again, only its host.
  */
@@ -109,7 +109,7 @@ function useTest() {
       if (r.ok) toast({ title: t`Test sent`, tone: 'ok' });
       else toast({ title: t`The test didn't arrive`, description: why(r), tone: 'danger' });
     } catch (e) {
-      // Tests share one allowance: 5 an hour, every channel and device together (T15).
+      // Tests share one allowance: 5 an hour, every channel and device together.
       const limited = e instanceof ApiError && e.code === 'rate_limited';
       toast({
         title: t`Couldn't send a test`,

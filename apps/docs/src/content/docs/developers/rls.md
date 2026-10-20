@@ -106,7 +106,7 @@ locations, and a read token has nothing writable
 
 ## Policy shapes
 
-Scopes (spec §1.1): **location** (most tables), **account** (the registries: types, brands,
+Scopes: **location** (most tables), **account** (the registries: types, brands,
 vendors, people, tags, place kinds), **user** (profiles, channels, tokens, assistant threads) and
 **instance** (instance settings, backup runs). The membership functions are `SECURITY DEFINER`,
 `STABLE`, owned by `kept_owner` with a fixed `search_path`

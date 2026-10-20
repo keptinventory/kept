@@ -5,9 +5,9 @@
  * only an alias), `createOpenAICompatible`, `createGroq` and `createOpenRouter`.
  *
  * Always a model **object**: a plain string model id is a `GlobalProviderModelId`, which the
- * `ai` package routes to the Vercel AI Gateway (spike). `ModelObject` refuses strings.
+ * `ai` package routes to the Vercel AI Gateway. `ModelObject` refuses strings.
  *
- * Per kind (spike 2026-09-26 §3):
+ * Per kind:
  * - structured output is `json_schema` with **strict off** everywhere (the wire schema leaves
  *   optional fields out of `required`, which strict mode rejects). Never JSON mode: it drops the
  *   schema. An OpenAI-compatible server that says it has no structured outputs gets the schema
@@ -98,7 +98,7 @@ export function modelFor(t: ModelTarget, apiKey: string | null, fetchFn: Fetch):
 }
 
 /**
- * The embeddings model for a resolved provider (step-6 T8; spike S6.4), from each package's
+ * The embeddings model for a resolved provider, from each package's
  * `embeddingModel(id)` (read in its `dist/index.d.ts`). Anthropic, Groq and OpenRouter have no
  * embeddings model here: the cascade never resolves one for them (`DEFAULT_MODELS`), so asking is
  * a programming error.
@@ -127,7 +127,7 @@ export function embeddingModelFor(
   }
 }
 
-/** The provider option that asks for shorter vectors (spike S6.4 finding 2), per kind. */
+/** The provider option that asks for shorter vectors, per kind. */
 export function embeddingDimensionsOption(
   kind: ProviderKind,
   dims: number | undefined,

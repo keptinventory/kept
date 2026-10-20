@@ -1,5 +1,5 @@
 /**
- * The mock's scripted tool calls (step-6 plan T17, for KEPT_AI_MOCK and the assistant evaluation):
+ * The mock's scripted tool calls (for KEPT_AI_MOCK and the assistant evaluation):
  * a question the script knows is answered step by step, as a model would, with tool calls and then
  * an answer built from what the tools returned. Before this the mock answered every turn "red".
  *
@@ -33,7 +33,7 @@ export type ScriptCall = { tool: string; input: Record<string, unknown> };
 export type ScriptStep = { calls: ScriptCall[] } | { answer: string; empty?: string };
 export type Script = { question: string; mock: ScriptStep[] };
 
-/** Where the scripts live: the assistant evaluation's cases (T17). */
+/** Where the scripts live: the assistant evaluation's cases. */
 export const MOCK_SCRIPTS_PATH = path.join(packageRoot(), 'test/fixtures/assistant/cases.json');
 
 let cache: Map<string, Script> | undefined;

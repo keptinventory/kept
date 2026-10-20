@@ -1,8 +1,8 @@
 /**
- * The usage page's charts (D206, screens §5 AI usage §3), in the design board's chart style (the
+ * The usage page's charts (D206), in the chart kit's style (the
  * series colours s1–s3 and "other"): tokens by day, stacked by task (photos and receipts,
  * assistant, search, tests); and tokens by task, model, person, location or account as bars. Each
- * has a table alternative behind "Show as a table" (§4), in the reader's digits. Days run with the
+ * has a table alternative behind "Show as a table", in the reader's digits. Days run with the
  * reading direction: right to gutter in Arabic. The day chart's `<svg>` is `direction: ltr` and
  * draws RTL by geometry (the V38 rule).
  */
@@ -154,7 +154,7 @@ export function DayChart({
           role="img"
           aria-label={t`Tokens by day, stacked by task`}
           className="block h-auto w-full"
-          // V38: SVG text-anchor follows the inherited `direction`, so under an Arabic page
+          // SVG text-anchor follows the inherited `direction`, so under an Arabic page
           // `start` ran the value labels leftwards into the bars. The SVG is always LTR and RTL is
           // drawn by geometry: days run right to left, the value labels sit in the right gutter.
           style={{ direction: 'ltr' }}

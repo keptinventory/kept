@@ -17,7 +17,7 @@ import {
   setDisplayName,
 } from '../../test/things.js';
 
-// Moves (T15; D45, D118, D161, D177; plan Q13) through the front door, as the web calls them
+// Moves (D45, D118, D161, D177) through the front door, as the web calls them
 // (apps/web/src/api/inventory/{types,paths}.ts, mock/things.ts): fixtures seeded as kept_owner,
 // every request as a signed-in user on kept_app, so row-level security and can() decide.
 
@@ -359,7 +359,7 @@ describe('POST /api/v1/things/move across locations (D45, D161)', () => {
       });
       expect(await subjectsOf(audit?.id as string)).toEqual([kit.id, drill.id].sort());
     }
-    // Sync (§7.4): gone from home, box and contents.
+    // Sync: gone from home, box and contents.
     const tombs = await own<{ entity_id: string }>(
       db,
       `SELECT entity_id FROM public.sync_tombstones
@@ -420,7 +420,7 @@ describe('POST /api/v1/things/move across locations (D45, D161)', () => {
     expect(await row(crate.id)).toMatchObject({ location_id: home.id });
     expect(await row(clamp.id)).toMatchObject({ location_id: home.id });
 
-    // Whatever the code's source there (an import's legacy code counts too, §7.16).
+    // Whatever the code's source there (an import's legacy code counts too).
     const removed = await call(t, `/api/v1/things/${spanner.id}/codes/SHED-7`, {
       as: ann,
       method: 'DELETE',

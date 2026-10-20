@@ -9,7 +9,7 @@ import {
 import { z } from 'zod';
 import { type SubjectRef, SubjectRefSchema } from '../paperwork/view.js';
 
-// The agenda's shapes (apps/web/src/api/household/types.ts, "the agenda (T13)"): one row of
+// The agenda's shapes (apps/web/src/api/household/types.ts, "the agenda"): one row of
 // public.agenda_items (0053) as the web reads it.
 
 export const AGENDA_ACTIONS = ['complete', 'snooze', 'mark_returned', 'renew', 'open'] as const;
@@ -56,7 +56,7 @@ export const AgendaCountsSchema = z.object({
   expiring: z.number().int(),
 });
 
-/** What a writer can do from a row, by source (screens §5, Q32); a viewer only opens it. */
+/** What a writer can do from a row, by source; a viewer only opens it. */
 export const WRITER_ACTIONS: Readonly<Record<ActiveSourceType, readonly AgendaAction[]>> = {
   schedule: ['complete', 'snooze', 'open'],
   warranty: ['open'],

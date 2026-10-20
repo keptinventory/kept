@@ -1,5 +1,5 @@
-// Kept's vehicle history report (D51, D201; step-5 plan T15), the third template on the D201
-// engine, from the V39 spike. Everything comes
+// Kept's vehicle history report (D51, D201), the third template on the D201
+// engine. Everything comes
 // from /data.json (reports/vehicle/view.ts builds it): strings, money and dates arrive formatted
 // in the reader's language and digits, so no formatting happens here. Photos are
 // /thumbs/<id>.jpg (200 px JPEG, GPS-stripped derivatives), the short ID's QR /qr/<id>.svg. Data
@@ -7,7 +7,7 @@
 //
 // report.typ's rules hold: weights by family name ("IBM Plex Sans SmBld"), `dir: rtl` for Arabic,
 // the VIN and short ID left to right in Plex Mono (D143), the plate in its own box in the
-// direction it is written in (the spike measured Arabic plates keeping their printed order), page
+// direction it is written in (a trial run measured Arabic plates keeping their printed order), page
 // numbers in the reader's digits, rows unbreakable, headings sticky, a contents page over the
 // level-2 headings, and never `#let rtl = …`.
 #let d = json("/data.json")

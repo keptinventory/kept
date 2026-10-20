@@ -1,15 +1,15 @@
 -- Custom SQL migration file, put your code below! --
--- Step 5, task 5: service drafts for invoices read by AI (screens §5; D26, D29; plan Q11, Q12).
+-- Service drafts for invoices read by AI (D26, D29).
 -- Above, in 0062, drizzle's part: service_records.review_state ('draft' | 'confirmed', confirmed
 -- by default) with each person's drafts indexed, service_records_reading_uq (one owner per
--- reading, Q11), and extractions.service_record_id (the draft whose invoice the RECEIPT
+-- reading), and extractions.service_record_id (the draft whose invoice the RECEIPT
 -- extraction reads; set at insert only, so no grant; extractions_one_draft_chk counts it). Below:
 --   1. review_state joins the service record's column grant (0051). It moves one way, draft to
 --      confirmed (23514 service_records_review_state), except for kept_owner and an undo
 --      (`app.undo` set, 0056).
 --   2. A draft counts nowhere: kept.recompute_schedule_anchor() (0053) reads confirmed records
 --      only, so a draft that "completes" a schedule doesn't re-anchor it; a draft's completion
---      doesn't end the schedule's snooze or skip (Q28); confirming the draft does both, as a new
+--      doesn't end the schedule's snooze or skip; confirming the draft does both, as a new
 --      completion would. public.agenda_items reads no service record, so it needs no change; the
 --      scan's "a completion since it opened" (reminders/scan.ts) is Phase B's to filter.
 -- src/db/service-drafts.test.ts tests them; test/leak-vehicles.ts fills a draft, its invoice and
@@ -73,7 +73,7 @@ BEGIN
           OR x.anchor_value IS DISTINCT FROM coalesce(last_value, x.base_value));
 END $$;
 --> statement-breakpoint
--- 0053's: a new completion ends the snooze and the skip (Q28), now only a confirmed record's.
+-- 0053's: a new completion ends the snooze and the skip, now only a confirmed record's.
 CREATE OR REPLACE FUNCTION kept.schedule_completion_changed() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$
 BEGIN
@@ -91,7 +91,7 @@ BEGIN
   RETURN NULL;
 END $$;
 --> statement-breakpoint
--- 0053's: a completing service's date or reading changed, or (step 5) it was confirmed. A draft
+-- 0053's: a completing service's date or reading changed, or it was confirmed. A draft
 -- confirmed is its completions arriving: they end each schedule's snooze and skip too.
 CREATE OR REPLACE FUNCTION kept.service_record_anchor_changed() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$

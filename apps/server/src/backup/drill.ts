@@ -8,7 +8,7 @@ import { type RestoreReport, restoreVerified, runResticRestore } from './restore
 import { BACKUP_RUN_COLUMNS, type BackupRunRow, backupRunOf, GOOD_RUN_SQL } from './runs.js';
 import type { ResolvedBackupSettings } from './settings.js';
 
-// The restore drill (D66's monthly nudge, L78; step-8 plan T7): `kept admin backup drill --into
+// The restore drill (D66's monthly nudge): `kept admin backup drill --into
 // <empty database>`. It restores the newest good snapshot into a scratch database the runbook's
 // one superuser command made, compares every table's count and data digest with the manifest,
 // checks a sample of 50 files' SHA-256 (every one with --all-files) without putting any back,

@@ -1,6 +1,6 @@
 /**
- * Log a reading (plan T19; screens §6 Quick log, §7 "Reading"; the board's frame 70; D26, D27,
- * D52, D112, D195; Q9, Q18, Q23). One sheet, opened from every door: a meter card, the vehicle's
+ * Log a reading (D26, D27,
+ * D52, D112, D195). One sheet, opened from every door: a meter card, the vehicle's
  * Overview and Readings tabs, Home's quick log, and the first-reading step after creating a thing.
  *
  * In order: the meter (in the header), the value (either digits) with the check against the
@@ -11,7 +11,7 @@
  *   odometer proof strip, D195). A reading that runs backwards is refused (409) with the
  *   neighbour, and **Meter replaced** (step 2's `POST /meters/:id/replaced`, `meters.manage`)
  *   records the new meter's offset and sends the reading again. A jump over the daily limit asks
- *   "Is it right?" first: **It's right** sends `confirmJump: true` (Q9); a jump the server still
+ *   "Is it right?" first: **It's right** sends `confirmJump: true`; a jump the server still
  *   holds (a custom limit the client can't see) is saved for review and said so.
  * - **Offline:** a `log_reading` op in the phone's queue (./enqueue-reading.ts), the photo as its
  *   blob. "Saved on this phone. Kept checks it against your other readings when it syncs; if it

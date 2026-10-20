@@ -1,6 +1,6 @@
 /**
- * Consumables (D14; screens "Other screens": "low stock, with Adjust"; frame 08 "Consumables";
- * step-7 plan T23): the things with a "keep at least" in one location, low first, then by name
+ * Consumables (D14; screens "Other screens": "low stock, with Adjust"; frame 08 "Consumables"):
+ * the things with a "keep at least" in one location, low first, then by name
  * (the server's order), each with what's left, its minimum, where it is and Adjust.
  *
  * The list standard (D205): the filter strip holds the search (matched here, on the rows loaded),
@@ -11,7 +11,7 @@
  * Where the module is off in the chosen location: "Things you run out of is off in this
  * location", with Turn on for its owners and admins; with none chosen and none on, "off in your
  * locations". Viewers see the list without Adjust; offline,
- * Adjust is disabled with "Needs a connection" (screens §3).
+ * Adjust is disabled with "Needs a connection".
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';

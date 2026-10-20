@@ -17,7 +17,7 @@ import { currencies } from './currencies.js';
 import { vendors } from './registries.js';
 import { locations } from './tenancy.js';
 
-// Purchases and their lines (engineering spec §1.4, §7.13; D13, D115, D136, D168; plan Q2).
+// Purchases and their lines (D13, D115, D136, D168).
 // Money is numeric(16,4) with a currency (a foreign key to currencies), stored as received and
 // rounded only at the edges. Things point at a line through things.purchase_line_id (a split
 // keeps the same line; a move keeps it too, D115). Row-level security and the guards are in the
@@ -34,7 +34,7 @@ export const purchases = pgTable(
       .notNull()
       .references(() => locations.id, { onDelete: 'cascade' }),
     vendorId: uuid('vendor_id').references(() => vendors.id, { onDelete: 'set null' }),
-    /** NULL only on a draft (a RECEIPT capture before its date is read or typed; plan Q10). */
+    /** NULL only on a draft (a RECEIPT capture before its date is read or typed). */
     purchasedOn: date('purchased_on'),
     currency: char('currency', { length: 3 }).references(() => currencies.code),
     total: numeric('total', { precision: 16, scale: 4 }),

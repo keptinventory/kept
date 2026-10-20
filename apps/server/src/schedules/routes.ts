@@ -28,7 +28,7 @@ import {
 import { registerScheduleUndo } from './undo.js';
 import { ScheduleSchema, ServiceRecordSchema } from './view.js';
 
-// Schedules and service records (plan T11; D29, D39, D52, D113, D146, D162; Q1, Q2, Q9, Q28), in
+// Schedules and service records (D29, D39, D52, D113, D146, D162), in
 // the shapes of the web contract (apps/web/src/api/household/{types,paths}.ts):
 //
 // GET    /api/v1/schedules?locationId&state&subjectType&q&cursor&limit
@@ -42,14 +42,14 @@ import { ScheduleSchema, ServiceRecordSchema } from './view.js';
 //          (both 409 `conflict` on a one-off that is done, D247)
 // POST   /api/v1/schedules/:id/skip · …/unsnooze (If-Match) → Schedule           undoable
 // GET    /api/v1/things/:id/service-records · /api/v1/places/:id/service-records
-//          ?q&f.when&f.vendor*&f.kind*&f.draft&not*&sort&dir&cursor&limit (step 5, T9)
+//          ?q&f.when&f.vendor*&f.kind*&f.draft&not*&sort&dir&cursor&limit
 //                                         → {items: ServiceRecord[], next_cursor}, drafts first
 // POST   /api/v1/service-records              → 201 ServiceRecord (core; `completes` needs Schedules)
 // PATCH  /api/v1/service-records/:id (If-Match) → ServiceRecord  service_record.update, undoable
 // DELETE /api/v1/service-records/:id (If-Match) → 204           service_record.delete, undoable
 //
 // Schedules are the `schedules` module's: a read where it is off is 404 `module_off`, a write
-// 409 (§7.6). The module is checked in the service, in the request's transaction, where the
+// 409. The module is checked in the service, in the request's transaction, where the
 // location is known (a body's subject, a schedule's row). Service records are core (D113).
 // A reading refused by the meters' check is 409 `conflict` with `reason` and the neighbour it
 // collides with, the meters section's shape (meters/service.ts).

@@ -1,5 +1,5 @@
 /**
- * Offline thing and place pages (step-3 carry-over, step-4 plan T28; D36, D188, Q34): with the
+ * Offline thing and place pages (D36, D188): with the
  * server out of reach, `/t/<code>` and `/p/<id>` answer from the phone's copy, "as of last sync",
  * with the derived states and the loan line, and say the details need a connection. The store is
  * the real `MemoryStore` (open.ts is stood in for: jsdom has no IndexedDB).
@@ -52,7 +52,7 @@ vi.mock('@/offline/open', () => {
 beforeEach(async () => {
   const store = Object.assign(new MemoryStore(), { setMeta: async () => {} });
   const page = firstPage();
-  // The drill is lent to Murdock (step-4 Q34), and a lamp sits in Box 3.
+  // The drill is lent to Murdock, and a lamp sits in Box 3.
   page.changes.things = page.changes.things.map((t) =>
     t.id === DRILL
       ? {

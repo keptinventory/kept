@@ -14,7 +14,7 @@ import {
 } from './service.js';
 import { CreateBody, LinkBody, PatchBody, PurchaseViewSchema, UnlinkQuery } from './view.js';
 
-// Purchases and their lines (T12; D13, D115, D136, D168, D189). Shapes: the web contract's
+// Purchases and their lines (D13, D115, D136, D168, D189). Shapes: the web contract's
 // "currencies and purchases" section (apps/web/src/api/inventory/types.ts, paths.ts).
 //
 // POST   /api/v1/purchases                    → 201 PurchaseView
@@ -27,7 +27,7 @@ import { CreateBody, LinkBody, PatchBody, PurchaseViewSchema, UnlinkQuery } from
 //
 // Purchases are core, not a module: with the money module off they still carry date, vendor,
 // notes and lines; their amounts are withheld, and so are their receipts and invoices, which show
-// the amounts (D13, §7.1; security review #10). The same holds for a viewer where viewers don't
+// the amounts (D13; security review #10). The same holds for a viewer where viewers don't
 // see money.
 
 const Id = z.object({ id: z.uuid() });

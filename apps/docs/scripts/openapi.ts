@@ -1,5 +1,5 @@
 // Writes Kept's OpenAPI document for the API reference (D199), from the server's own buildApp()
-// in-process: no database, no running server (spike D1, finding 1). Every pool points at a closed
+// in-process: no database, no running server (finding 1). Every pool points at a closed
 // port, and the request's Host is the public URL's, so even the former-hostnames hook doesn't try
 // a read. A connection attempt fails the script, so "no database" stays true.
 //

@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { boolean, char, check, integer, pgTable, text } from 'drizzle-orm/pg-core';
 
-/** The supported currencies (D136, §7.13): a reference table, so adding one is a row, not a
+/** The supported currencies (D136): a reference table, so adding one is a row, not a
  * migration. Money columns reference it with a foreign key. Seeded by a custom migration. */
 export const currencies = pgTable(
   'currencies',

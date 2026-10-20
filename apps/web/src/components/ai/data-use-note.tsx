@@ -1,12 +1,12 @@
 /**
- * "What is sent to <provider>" (D83, D206, L63; screens §5 AI settings §7): beside the provider
+ * "What is sent to <provider>" (D83, D206): beside the provider
  * choice and on its own row. The fixed sentence first: only a copy of the photo with the location
  * and camera data removed, never the original; the fixed instructions and the location's
  * languages; for the assistant, the question and what it looks up within your role; never secret
  * fields.
  *
  * Then the provider's own retention and training terms, summarised per kind with the date they
- * were read and a link to the page they were read from (screens §8). Each summary is read from the
+ * were read and a link to the page they were read from. Each summary is read from the
  * provider's own published page on its `checked` date, never paraphrased from memory, and is
  * re-read before each release. A kind with no entry says where
  * its terms live instead. `openai_compatible` is a server the person runs, so it has no terms.

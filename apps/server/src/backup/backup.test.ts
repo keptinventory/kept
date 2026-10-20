@@ -41,12 +41,12 @@ import { RestoreError, runRestore } from './restore.js';
 import type { ResolvedBackupSettings } from './settings.js';
 import { LocalDirTarget } from './target.js';
 
-// Step 8, T5: the nightly snapshot on restic (D64, D66, D144; L78, L79), end to end against a
+// The nightly snapshot on restic (D64, D66, D144), end to end against a
 // real database and file store: the dump, the manifest with per-table data digests and every
 // blob, the snapshot's contents, retention, the size check, the lock, and secrets that never leave
 // the restic child's environment. restic is the in-memory fake (restic/fake.ts) unless
 // KEPT_TEST_RESTIC=1, when the real binary (KEPT_RESTIC_BIN) runs the round trip too. Also: the
-// alpha's runs stay restorable (`--legacy`, plan Q1) and `kept admin export` is unchanged.
+// alpha's runs stay restorable (`--legacy`) and `kept admin export` is unchanged.
 //
 // pg_dump/pg_restore must be the server's major version (18): test/pg-tools.ts uses the local
 // ones when they match, else the ones inside the dev database's container.
@@ -612,7 +612,7 @@ describe('secrets', () => {
 });
 
 // ---------------------------------------------------------------------------------------------
-// The alpha's runs (T31c): still restorable for one release (plan Q1), never written again.
+// The alpha's runs: still restorable for one release, never written again.
 
 /** An alpha run, written the way T31c's nightly did: runs/<id>/{db.dump,manifest.json}, blobs/. */
 async function alphaRun(target: LocalDirTarget): Promise<string> {

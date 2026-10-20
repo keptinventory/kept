@@ -4,7 +4,7 @@ import { invalid } from '../../http/errors.js';
 import { locationOfRef, thingIn } from '../resolve.js';
 import type { Handler, Op } from '../types.js';
 
-// Step 5's tools (§2.5, D124): `log_fuel` calls the fill route's own operation (fuel/service.ts
+// Step 5's tools (D124): `log_fuel` calls the fill route's own operation (fuel/service.ts
 // logFuel), so a fill by the assistant or MCP meets the same rules: `logs.add`, the Fuel module
 // (runTool's gate, the contract's `module`), the money gate and an enabled currency for a cost,
 // and the odometer through the meters' entry (a value that runs backwards is refused, nothing

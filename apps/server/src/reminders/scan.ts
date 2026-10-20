@@ -8,9 +8,9 @@ import { notBefore } from './quiet.js';
 import { RecipientBook, type RecipientDeps } from './recipients.js';
 import { writeScanStatus } from './status.js';
 
-// `reminder-scan` (every 15 minutes, kept_system; plan T14; §3.4, §7.13; D29, D111, D162):
+// `reminder-scan` (every 15 minutes, kept_system; D29, D111, D162):
 // 1. Reads the agenda (public.agenda_items, 0053) where a source is reminding now: due, overdue
-//    or expiring, the kind its state gives (a loan's `overdue` only once it is: Q7), in pages of
+//    or expiring, the kind its state gives (a loan's `overdue` only once it is), in pages of
 //    2,000.
 // 2. Writes each occurrence once: INSERT … ON CONFLICT ON CONSTRAINT reminder_occurrences_key_uq
 //    DO NOTHING RETURNING, so only a new one goes on, even with two scans at once (the second
@@ -21,11 +21,11 @@ import { writeScanStatus } from './status.js';
 // 3. Closes the open occurrences the agenda no longer reminds of: `done` when the source was
 //    completed (a returned loan, a renewed document, a registered warranty, a schedule a
 //    confirmed service completed since the occurrence opened: 0056's system_select on
-//    service_records and service_completions; a stale reading answered by a newer one, step 5),
+//    service_records and service_completions; a stale reading answered by a newer one),
 //    `superseded` when the source is still
 //    on the agenda with another key (a snooze, a skip, due becoming overdue, a new end date),
-//    else `cancelled` (the source gone, its module off, its subject trashed or ended; §7.13).
-//    Resuming never floods (§7.6): only the current due period ever exists.
+//    else `cancelled` (the source gone, its module off, its subject trashed or ended).
+//    Resuming never floods: only the current due period ever exists.
 // 4. Fans each new occurrence out in the transaction that inserts it: a notification per
 //    recipient (the centre), then a delivery per recipient and channel (recipients.ts): `overdue`
 //    queued with a `reminder-deliver` job (after the person's quiet hours), `due` and `expiring`
@@ -72,13 +72,13 @@ export const DELIVER_JOB = 'reminder-deliver';
 export type DeliverJobData = { occurrenceId: string; userId: string; channelId: string };
 
 /** The agenda rows that remind now: due, overdue or expiring, and an `overdue` kind only once
- * the source is overdue (a loan in its lead days is on the Lending screen, not reminded: Q7). */
+ * the source is overdue (a loan in its lead days is on the Lending screen, not reminded). */
 const REMINDING = `a.state IN ('due', 'overdue', 'expiring') AND (a.kind <> 'overdue' OR a.state = 'overdue')`;
 
 /**
  * A completion `c` by service record `r` counts for occurrence `o` when the record is confirmed (a
  * draft counts nowhere, 0063) and the completion was made since `o` opened: a draft's completions
- * are written by its confirm (step 5, T14), so `c.created_at` (0088) is when it completed, and an
+ * are written by its confirm, so `c.created_at` (0088) is when it completed, and an
  * unrelated later edit of an older record no longer counts.
  */
 export const COMPLETED_SINCE = `r.review_state = 'confirmed' AND c.created_at >= o.created_at`;
@@ -99,7 +99,7 @@ export const READ_SINCE = `EXISTS (
          WHERE pr.meter_id = o.source_id AND pr.state = 'accepted'
            AND pr.received_at < o.created_at), '-infinity'::date))`;
 
-/** The §7.13 key of occurrence `o` against agenda row `a` (NULLS NOT DISTINCT, as the index). */
+/** The key of occurrence `o` against agenda row `a` (NULLS NOT DISTINCT, as the index). */
 const SAME_KEY = `o.location_id = a.location_id AND o.thing_id IS NOT DISTINCT FROM a.thing_id
       AND o.place_id IS NOT DISTINCT FROM a.place_id AND o.source_type = a.source_type
       AND o.source_id = a.source_id AND o.kind = a.kind AND o.due_period = a.due_period`;
@@ -176,7 +176,7 @@ async function fanOut(
       }
     }
   }
-  // The location's own webhooks (§2.6, D172): `reminder.due` once per occurrence, whoever its
+  // The location's own webhooks (D172): `reminder.due` once per occurrence, whoever its
   // recipients are, through the same fan-out as a write's events (webhooks/fanout.ts).
   if (deps.send) await queueReminderWebhook(client, deps.send, occ);
   return { notifications, deliveries };

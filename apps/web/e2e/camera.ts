@@ -1,5 +1,5 @@
 /**
- * Step 3's e2e fixtures outside the step-1/2 instance list (plan T32): the fake camera's flags,
+ * Step 3's e2e fixtures outside the step-1/2 instance list: the fake camera's flags,
  * and the instance the capture flows run on (e2e/step3.spec.ts).
  */
 import { fileURLToPath } from 'node:url';

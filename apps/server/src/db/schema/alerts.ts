@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import { check, integer, jsonb, pgTable, text } from 'drizzle-orm/pg-core';
 import { id, textEnum, tstz } from './common.js';
 
-// Admin alerts (task 25; D166, D185): instance scope. kept_app reads them only as an instance
+// Admin alerts (D166, D185): instance scope. kept_app reads them only as an instance
 // admin; kept_system raises and resolves them (migration 0011). Not synced to phones, so no
 // row_version: `last_at` and `count` are the alert's own bookkeeping.
 
@@ -13,16 +13,16 @@ export const ADMIN_ALERT_KINDS = [
   /** audit_events_default holds rows: a month's partition was missing when they were written,
    * and kept.ensure_audit_partitions() refuses to create it until they are moved (0005). */
   'audit_default_partition',
-  /** llm_calls_default holds rows: a month's ledger partition was missing (step 3, T6). */
+  /** llm_calls_default holds rows: a month's ledger partition was missing. */
   'llm_default_partition',
   /** The instance key's monthly cap passed 80%, or reached 100% (D206). */
   'ai_instance_cap_warning',
   'ai_instance_cap_reached',
   /** The instance key was refused by its provider (401/403, D206). */
   'ai_instance_key_rejected',
-  /** The nightly backup failed (T31c, D207): the error and when the last good one ran. */
+  /** The nightly backup failed (D207): the error and when the last good one ran. */
   'backup_failed',
-  /** The reminder scan hasn't completed for 2 hours (step 4, D166, §3.4). */
+  /** The reminder scan hasn't completed for 2 hours (D166). */
   'reminders_not_scanned',
   /** No good backup in more than 26 hours (step 8 T10, D66): the nightly one stopped running. */
   'backup_stale',

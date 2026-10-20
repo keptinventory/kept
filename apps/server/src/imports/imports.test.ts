@@ -16,7 +16,7 @@ import { withScope } from '../db/scope.js';
 import { runJob } from '../jobs/boss.js';
 import { CHUNK, importChunk, importJobs } from './job.js';
 
-// T18 (D73, Q18): CSV import through the front door. Ann owns Home (household: money on) and
+// T18 (D73): CSV import through the front door. Ann owns Home (household: money on) and
 // Shed (essentials: money off); in Home, Bob is an admin and Louis a member. Eve shares nothing.
 // The job is run the way a worker runs it: a tenant job in the sender's scope (runJob).
 

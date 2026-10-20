@@ -1,5 +1,5 @@
 /**
- * The OAuth consent page (step-6 plan T22; D93, D125, D179, D180): an app asks to use your Kept,
+ * The OAuth consent page (D93, D125, D179, D180): an app asks to use your Kept,
  * and you choose what it may do (read, or read and change; never delete) and in which locations
  * (one pre-selected; more shows D179's warning), then Allow or Deny. Kept's answer goes back to
  * the app through the redirect the server returns.

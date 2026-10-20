@@ -13,14 +13,14 @@ import { fillPortability } from './leak-portability.js';
 import { fillVehicles } from './leak-vehicles.js';
 import { addMember, asOwner, ownerTx, seedTenant, seedUser, type Tenant } from './tenancy.js';
 
-// The schema-wide leak test (engineering spec §1.1, §7.1, §7.2; D178, L28, L30).
+// The schema-wide leak test (D178).
 //
 // Everything below is generated from the catalogue (pg_class, pg_policies, information_schema),
 // so a table added later is covered without editing this file, and fails here until it has RLS,
 // policies, a scope, and fixture rows. The explicit lists are the deliberate exceptions; adding
 // to one is a decision a reviewer should see.
 
-/** Tables kept_system may read and write across tenants (0006 `system_all`, §7.1). */
+/** Tables kept_system may read and write across tenants (0006 `system_all`). */
 const SYSTEM_TABLES = [
   'admin_alerts',
   'audit_events',
@@ -30,10 +30,10 @@ const SYSTEM_TABLES = [
   'user_profiles',
 ].sort();
 
-/** Tables the reminder jobs write across tenants (0055, step-4 T7): the ledger, the centre's
- * rows, and the channels, devices and preferences they send by; and the webhook jobs' (0078,
- * step-6 T7): the hooks they send to (read, and marked failing) and the deliveries they record;
- * and the worker's boot guard's (0091, step-8 T8): the release history it reads and stamps; and
+/** Tables the reminder jobs write across tenants (0055): the ledger, the centre's
+ * rows, and the channels, devices and preferences they send by; and the webhook jobs' (0078):
+ * the hooks they send to (read, and marked failing) and the deliveries they record;
+ * and the worker's boot guard's (0091): the release history it reads and stamps; and
  * the `report-schedules` job's (1.3, D228): the schedules it reads and marks as run; and the
  * `mail-in` job's (0120, 1.4 D231): the mailboxes it polls and the messages it records.
  * Each kept_system policy names its job in a comment. */
@@ -54,8 +54,8 @@ const SYSTEM_JOB_TABLES = [
 ].sort();
 
 /** Tables kept_system only reads across tenants (SELECT-only `system_select` policies, each
- * commented with the job it serves): the reminder scan reads every location's agenda (0053,
- * step-4 T6), the estimate's offsets and a document's vehicle type (0066, step-5 T7), and the
+ * commented with the job it serves): the reminder scan reads every location's agenda (0053),
+ * the estimate's offsets and a document's vehicle type (0066), and the
  * price table the embeddings backfill costs its calls by (0099), and the keep-at-least rules the
  * scan's low-stock branch reads (0104). It changes and writes nothing in them. */
 const SYSTEM_READ_TABLES = [
@@ -80,14 +80,14 @@ const SYSTEM_READ_TABLES = [
 ].sort();
 
 /** Tables with no tenant scope column, and why. Anything else must carry location_id,
- * owner_account_id or user_id (L15), or be one of IDENTITY_SCOPE. */
+ * owner_account_id or user_id, or be one of IDENTITY_SCOPE. */
 const UNSCOPED: Record<string, 'reference' | 'instance'> = {
   currencies: 'reference', // readable by every signed-in request (and nothing else)
-  instance_settings: 'instance', // instance admins only (§7.14)
-  admin_alerts: 'instance', // instance admins read; kept_system writes (task 25, 0011)
+  instance_settings: 'instance', // instance admins only
+  admin_alerts: 'instance', // instance admins read; kept_system writes (0011)
   ai_model_prices: 'reference', // every signed-in request reads the price table (0040, D206)
-  backup_runs: 'instance', // instance admins read; only kept_owner writes (0091, step 8)
-  release_history: 'instance', // instance admins read; the boot guard stamps it (0091, step 8)
+  backup_runs: 'instance', // instance admins read; only kept_owner writes (0091)
+  release_history: 'instance', // instance admins read; the boot guard stamps it (0091)
 };
 
 /** Tables no runtime role may touch at all, and why: no grant, no kept_app policy; only the
@@ -180,21 +180,21 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.restore_location(uuid)': { roles: APP, definer: true },
   'kept.set_location_require_2fa(uuid,boolean)': { roles: APP, definer: true },
   'kept.set_location_successor(uuid,uuid)': { roles: APP, definer: true },
-  // Maintenance: next months' audit partitions (task 24).
+  // Maintenance: next months' audit partitions.
   'kept.ensure_audit_partitions(integer)': { roles: SYS, definer: true },
   // First run (0009): whether setup is done, and the first instance admin.
   'kept.claim_first_instance_admin(uuid)': { roles: SYS, definer: true },
   'kept.instance_has_admin()': { roles: SYS, definer: true },
   // (0010) The email-invite mail job makes the token it mails.
   'kept.rekey_email_invite(uuid,text)': { roles: SYS, definer: true },
-  // (0011) The system jobs' and the mail transport's doors (tasks 24–25): the nightly prune, the
+  // (0011) The system jobs' and the mail transport's doors: the nightly prune, the
   // default-partition check, alert recipients, a mail's language, the owner's new-member notice.
   'kept.audit_default_partition_rows()': { roles: SYS, definer: true },
   'kept.instance_admin_recipients()': { roles: SYS, definer: true },
   'kept.mail_locale(text)': { roles: SYS, definer: true },
   'kept.new_member_notice(uuid,uuid)': { roles: SYS, definer: true },
   'kept.prune_stale_rows()': { roles: SYS, definer: true },
-  // Account creation, step two (0007, task 18): only ever for the scope's own user.
+  // Account creation, step two (0007): only ever for the scope's own user.
   'kept.ensure_account(text,text,text)': { roles: BOTH, definer: true },
   // The ownership invariant's trigger: must see every membership. Nobody calls it.
   'kept.check_location_owner()': { roles: NOBODY, definer: true },
@@ -228,7 +228,7 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.thing_receipt_file(uuid,uuid)': { roles: APP, definer: true },
   'kept.thing_receipts(uuid)': { roles: APP, definer: true },
   // (0021) The inventory's definer paths: moves across locations and accounts, place/container
-  // conversions, merges, customising a built-in type and its impact (task 9).
+  // conversions, merges, customising a built-in type and its impact.
   'kept.convert_container_to_place(uuid,uuid)': { roles: APP, definer: true },
   'kept.convert_place_to_container(uuid,uuid)': { roles: APP, definer: true },
   'kept.customise_type(uuid,uuid)': { roles: APP, definer: true },
@@ -236,7 +236,7 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.merge_registry(text,uuid,uuid)': { roles: APP, definer: true },
   'kept.move_things(uuid[],uuid,uuid,uuid)': { roles: APP, definer: true },
   'kept.type_impact(uuid)': { roles: APP, definer: true },
-  // (0022) kept_system's maintenance doors: the reindex job and the purges (task 10).
+  // (0022) kept_system's maintenance doors: the reindex job and the purges.
   'kept.purge_deleted_locations(integer)': { roles: SYS, definer: true },
   'kept.purge_orphan_files(timestamp with time zone,timestamp with time zone,integer)': {
     roles: SYS,
@@ -249,34 +249,34 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   // trigger.
   'kept.guard_person_member()': { roles: NOBODY, definer: true },
   'kept.person_contact_writable(uuid)': { roles: APP, definer: true },
-  // (0026, task 11) Where a registry row is used across its account: in_use and reindexing.
+  // (0026) Where a registry row is used across its account: in_use and reindexing.
   'kept.registry_use_locations(text,uuid)': { roles: APP, definer: true },
-  // (0027, task 12) Currencies a location uses (instance admins only), and a purchase's lines
+  // (0027) Currencies a location uses (instance admins only), and a purchase's lines
   // still used in another location (writers of its location).
   'kept.currencies_in_use()': { roles: APP, definer: true },
   'kept.purchase_lines_used_elsewhere(uuid,uuid[])': { roles: APP, definer: true },
   // (0028) Which storage keys no file or derivative row names any more: "delete original"
   // asks after its commit, so a blob a cross-account copy shares stays (D161).
   'kept.unreferenced_storage_keys(text[])': { roles: SYS, definer: true },
-  // (0030, task 24) Text search on its indexes: under RLS `@@` and `%` aren't leakproof, so the
+  // (0030) Text search on its indexes: under RLS `@@` and `%` aren't leakproof, so the
   // match runs past the policy qual and applies the caller's visibility itself; ids and names
   // of visible things only.
   'kept.near_thing_names(text,text[],text[],uuid)': { roles: APP, definer: true },
   'kept.search_thing_ids(tsquery,tsquery,text,uuid)': { roles: APP, definer: true },
-  // (0032, task 32) The hourly purge of generated reports past their 24 hours (D201); it
+  // (0032) The hourly purge of generated reports past their 24 hours (D201); it
   // returns the run ids whose blobs (`r/<id>.pdf`) the job then deletes.
   'kept.purge_expired_reports(integer)': { roles: SYS, definer: true },
-  // (0036, step-3 T4) The cover cache: things.cover_file_id has no UPDATE grant, so the
+  // (0036) The cover cache: things.cover_file_id has no UPDATE grant, so the
   // attachments trigger that keeps it writes past the column privileges. Nobody calls it.
   'kept.refresh_thing_cover()': { roles: NOBODY, definer: true },
   // (0107) files.attached_at has no UPDATE grant: the attachments trigger that sets it writes
   // past it. Nobody calls it.
   'kept.note_file_attached()': { roles: NOBODY, definer: true },
   'kept.touch_thing_meters()': { roles: NOBODY, definer: true },
-  // (0038, T5) Document search on file_text's index (`@@` isn't leakproof, §7.2): file ids the
+  // (0038) Document search on file_text's index (`@@` isn't leakproof): file ids the
   // caller could already select, and nothing else.
   'kept.search_file_ids(tsquery,uuid)': { roles: APP, definer: true },
-  // (0040, T6) AI providers, caps and the call ledger (D206, §7.15). The guard must see the
+  // (0040) AI providers, caps and the call ledger (D206). The guard must see the
   // location's account; nobody calls it.
   'kept.guard_ai_budget_location()': { roles: NOBODY, definer: true },
   // Resolution: the only way to a key (ai/db-keys.ts), and the status line.
@@ -310,15 +310,15 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.ai_price_remove(text,text)': { roles: APP, definer: true },
   'kept.ai_recost_unknown(text,text,timestamp with time zone)': { roles: APP, definer: true },
   'kept.ai_ensure_brand(uuid,text)': { roles: APP, definer: true },
-  // (0043, T9) A cap's month so far, for the cap rows the caller may read.
+  // (0043) A cap's month so far, for the cap rows the caller may read.
   'kept.ai_cap_usage(uuid[])': { roles: APP, definer: true },
-  // (0042, T7) Claiming a blank label (the server decides, D43/D112) and merging a duplicate
+  // (0042) Claiming a blank label (the server decides, D43/D112) and merging a duplicate
   // (D36): each checks the caller writes the location.
   'kept.claim_blank_code(character,uuid,uuid)': { roles: APP, definer: true },
   'kept.merge_things(uuid,uuid)': { roles: APP, definer: true },
   // (0042, for T13) The phone's display of a photo: files are append-only to kept_app.
   'kept.set_file_display(uuid,jsonb)': { roles: APP, definer: true },
-  // (0046, T17a) The next numbered own code (checks the caller writes the location); numbering
+  // (0046) The next numbered own code (checks the caller writes the location); numbering
   // a new thing; a legacy code's tombstone as it goes and as it comes back.
   'kept.next_own_code(uuid)': { roles: APP, definer: true },
   'kept.number_new_thing()': { roles: NOBODY, definer: true },
@@ -329,13 +329,13 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.ensure_llm_partitions(integer)': { roles: SYS, definer: true },
   'kept.llm_default_partition_rows()': { roles: SYS, definer: true },
   'kept.ai_rollover()': { roles: SYS, definer: true },
-  // (0043, T9) The cap and key-rejected notices' view of a cap, its recipients and a key.
+  // (0043) The cap and key-rejected notices' view of a cap, its recipients and a key.
   'kept.ai_notice_cap(uuid)': { roles: SYS, definer: true },
   'kept.ai_notice_recipients(uuid)': { roles: SYS, definer: true },
   'kept.ai_notice_provider(uuid)': { roles: SYS, definer: true },
   'kept.ai_rollup_and_drop(integer)': { roles: SYS, definer: true },
   'kept.prune_ai_windows(timestamp with time zone)': { roles: SYS, definer: true },
-  // (0049, step-4 T4) Export runs (claim packs, D180): the job's doors are its creator's (a
+  // (0049) Export runs (claim packs, D180): the job's doors are its creator's (a
   // tenant job) or kept_system's; the public link and the purge are kept_system's.
   'kept.export_run_claim(uuid)': { roles: BOTH, definer: true },
   'kept.export_run_progress(uuid,integer,integer)': { roles: BOTH, definer: true },
@@ -349,11 +349,11 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.token_actor_names(uuid[])': { roles: APP, definer: true },
   'kept.export_download(text)': { roles: SYS, definer: true },
   'kept.purge_expired_exports(integer)': { roles: SYS, definer: true },
-  // (0051, T5) The thing's state bump: things.state_version has no grant. Nobody calls it. And
+  // (0051) The thing's state bump: things.state_version has no grant. Nobody calls it. And
   // the service-lines policies' check, invoker.
   'kept.touch_thing_state()': { roles: NOBODY, definer: true },
   'kept.service_record_changeable(uuid)': { roles: APP, definer: false },
-  // (0053, T6) The schedule anchor: kept up by triggers past the column grants; nobody calls
+  // (0053) The schedule anchor: kept up by triggers past the column grants; nobody calls
   // them. Module state, a meter's latest reading and a schedule's next due point: invoker, for
   // requests and the reminder scan alike (they read under the caller's policies).
   'kept.recompute_schedule_anchor(uuid)': { roles: NOBODY, definer: true },
@@ -369,9 +369,9 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
     },
   'kept.meter_latest(uuid)': { roles: BOTH, definer: false },
   'kept.schedule_next(uuid,date)': { roles: BOTH, definer: false },
-  // (0055, T7) The public calendar feed's door (D142, D181): kept_system, by token hash. A code
-  // moved to another thing bumps the thing it left (T19): nobody calls it. Whether the caller
-  // was a member of a location, for sync's location_revoked (T19, D210).
+  // (0055) The public calendar feed's door (D142, D181): kept_system, by token hash. A code
+  // moved to another thing bumps the thing it left: nobody calls it. Whether the caller
+  // was a member of a location, for sync's location_revoked (D210).
   'kept.calendar_feed_user(text)': { roles: SYS, definer: true },
   'kept.touch_code_move()': { roles: NOBODY, definer: true },
   'kept.was_member_of(uuid)': { roles: APP, definer: true },
@@ -382,10 +382,10 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.keep_merged_loans()': { roles: NOBODY, definer: true },
   // (0059) The AI monthly summary job's per-person totals, with the address to write to.
   'kept.ai_month_summaries(date)': { roles: SYS, definer: true },
-  // (0061, step-5 T4) A reading bumps its thing's meter_version (no column grant), so the
+  // (0061) A reading bumps its thing's meter_version (no column grant), so the
   // snapshot resends the thing with its latest reading. Nobody calls it.
   'kept.touch_reading_meters()': { roles: NOBODY, definer: true },
-  // (0066, step-5 T7) The usage estimate, estimated due dates and vehicle types: invokers, so
+  // (0066) The usage estimate, estimated due dates and vehicle types: invokers, so
   // RLS decides what they see (the reminder scan reads through its system_select policies).
   'kept.meter_estimate(uuid,timestamp with time zone)': { roles: BOTH, definer: false },
   'kept.meter_eta(uuid,numeric,timestamp with time zone)': { roles: BOTH, definer: false },
@@ -395,7 +395,7 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   // (0133, D247) The day a one-off was done: invoker, the caller's policies on its services.
   'kept.schedule_done_on(schedules)': { roles: BOTH, definer: false },
   'kept.is_vehicle_type(uuid)': { roles: BOTH, definer: false },
-  // (0070, step-6 T4) The token principal: the scope reader (invoker), the doors a request takes
+  // (0070) The token principal: the scope reader (invoker), the doors a request takes
   // before it has a scope (verify, an OAuth grant's lookup, the rate limiter), the consent step's
   // grant, and revocation for the membership routes and jobs. The location guard, the
   // last-location revoke and the membership trigger: nobody calls them.
@@ -416,7 +416,7 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.guard_token_location()': { roles: NOBODY, definer: true },
   'kept.token_last_location()': { roles: NOBODY, definer: true },
   'kept.membership_access_ended()': { roles: NOBODY, definer: true },
-  // (0073, step-6 T5) The assistant: retention and the search text are kept by triggers (nobody
+  // (0073) The assistant: retention and the search text are kept by triggers (nobody
   // calls them); the maintenance job prunes; redaction for the membership routes and jobs.
   'kept.assistant_thread_expiry()': { roles: NOBODY, definer: true },
   'kept.assistant_turn_bumps_thread()': { roles: NOBODY, definer: true },
@@ -424,7 +424,7 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.assistant_title_tsv()': { roles: NOBODY, definer: true },
   'kept.prune_assistant(timestamp with time zone)': { roles: SYS, definer: true },
   'kept.redact_assistant_for(uuid,uuid)': { roles: BOTH, definer: true },
-  // (0076, step-6 T6) Semantic search: the backfill's and the editor's job's doors, the only
+  // (0076) Semantic search: the backfill's and the editor's job's doors, the only
   // way to a match, the index's status, and the background's payer for embeddings.
   'kept.embedding_backlog(uuid,text,integer)': { roles: BOTH, definer: true },
   'kept.embedding_store(uuid,text,jsonb)': { roles: BOTH, definer: true },
@@ -439,7 +439,7 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.embedding_backfill_locations()': { roles: SYS, definer: true },
   'kept.embedding_backlog_thing(uuid,text)': { roles: APP, definer: true },
   'kept.ai_provider_for_system(uuid,text)': { roles: SYS, definer: true },
-  // (0078, step-6 T7) Webhooks: the delivery job's view of a hook with its sealed secret, whether
+  // (0078) Webhooks: the delivery job's view of a hook with its sealed secret, whether
   // a write should fan out, and turning off a hook whose creator lost the admin role (D180).
   'kept.webhook_secret(uuid)': { roles: SYS, definer: true },
   // (0120, 1.4 D231) The mail-in job's view of a mailbox with its sealed connection.
@@ -455,16 +455,16 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   // must see links the mover can't). Nobody calls the trigger.
   'kept.paperless_config(uuid)': { roles: SYS, definer: true },
   'kept.drop_moved_paperless_links()': { roles: NOBODY, definer: true },
-  // (0080, step-7 T4) An archive import's target, set once by its creator; the prune-imports
+  // (0080) An archive import's target, set once by its creator; the prune-imports
   // job's view of abandoned runs and the door that clears one.
   'kept.set_import_target(uuid,uuid)': { roles: APP, definer: true },
   'kept.stale_import_runs(timestamp with time zone,integer)': { roles: SYS, definer: true },
   'kept.clear_import_run(uuid)': { roles: SYS, definer: true },
-  // (0083, step-7 T5) A running Kept import's carried history and adopted label codes: its
+  // (0083) A running Kept import's carried history and adopted label codes: its
   // creator's, while they administer its location.
   'kept.import_history(uuid,jsonb)': { roles: APP, definer: true },
   'kept.adopt_short_code(uuid,character,text,uuid,uuid)': { roles: APP, definer: true },
-  // (0085, step-7 T6) Converting a field to or from secret, or to another kind: the account
+  // (0085) Converting a field to or from secret, or to another kind: the account
   // owner's preview (counts), its values, and the batches it writes.
   'kept.field_conversion_preview(uuid,jsonb)': { roles: APP, definer: true },
   'kept.field_conversion_rows(uuid,uuid,integer)': { roles: APP, definer: true },
@@ -542,7 +542,7 @@ async function publicPolicies(c: pg.ClientBase): Promise<string[]> {
   return rows.map((r) => r.name);
 }
 
-/** Views that run as their owner (bypassing the caller's RLS, L28), and materialized views,
+/** Views that run as their owner (bypassing the caller's RLS), and materialized views,
  * which can't have RLS at all. */
 async function viewProblems(c: pg.ClientBase): Promise<string[]> {
   const { rows } = await c.query<{ name: string }>(
@@ -971,7 +971,7 @@ describe('catalogue', () => {
           WHERE n.nspname = 'public' AND p.relkind = 'p' ORDER BY 1`,
       ),
     );
-    // The partitioned tables: the audit log (step 1) and the AI call ledger (0040). A new one
+    // The partitioned tables: the audit log and the AI call ledger (0040). A new one
     // lands here, and needs fixture rows in fillTenant().
     expect(rows.map((r) => r.parent)).toEqual(['audit_events', 'llm_calls']);
     for (const r of rows) {
@@ -1859,7 +1859,7 @@ const PROBES: Probe[] = [
     args: (_i, t) => [t.locationId],
     viewer: 'rows',
   },
-  // The AI doors (T6): a viewer reads the status line and whether AI runs, and nothing else.
+  // The AI doors: a viewer reads the status line and whether AI runs, and nothing else.
   {
     name: 'ai_provider_resolved',
     sql: 'SELECT kept.ai_provider_resolved($1) AS v',
@@ -1967,7 +1967,7 @@ const PROBES: Probe[] = [
     args: (i) => [i.purchase],
     viewer: 'refused',
   },
-  // The rest of the AI gate and pacer (T6, T9): charging the victim's account, and reading or
+  // The rest of the AI gate and pacer: charging the victim's account, and reading or
   // moving its key's breaker, lease and rate-limit window. A viewer pays for nothing; since 0096
   // its assistant turn runs on the account's key, so it reaches that key's pacer and breaker
   // (rate-limit bookkeeping, no spending: kept.ai_provider_reachable()), and no other door here.
@@ -2044,14 +2044,14 @@ const PROBES: Probe[] = [
     args: () => [],
     viewer: 'refused',
   },
-  // (0046, T17a) The victim location's next numbered code.
+  // (0046) The victim location's next numbered code.
   {
     name: 'next_own_code',
     sql: 'SELECT kept.next_own_code($1) AS v',
     args: (_i, t) => [t.locationId],
     viewer: 'refused',
   },
-  // (0049, step-4 T4) The claim-pack job's doors, on the victim's run: its creator's alone.
+  // (0049) The claim-pack job's doors, on the victim's run: its creator's alone.
   {
     name: 'export_run_claim',
     sql: 'SELECT * FROM kept.export_run_claim($1)',
@@ -2085,7 +2085,7 @@ const PROBES: Probe[] = [
     args: (i) => [i.token],
     viewer: 'rows',
   },
-  // (0070, step-6 T4) The token doors, aimed at the victim's user, location and token.
+  // (0070) The token doors, aimed at the victim's user, location and token.
   {
     name: 'token_oauth_grant',
     sql: `SELECT kept.token_oauth_grant($1, 'https://probe.example.test/c.json', 'write',
@@ -2111,14 +2111,14 @@ const PROBES: Probe[] = [
     args: (_i, t) => [t.userId, t.locationId],
     viewer: 'refused',
   },
-  // (0073, step-6 T5) Redaction, aimed at the victim's user and location.
+  // (0073) Redaction, aimed at the victim's user and location.
   {
     name: 'redact_assistant_for',
     sql: 'SELECT kept.redact_assistant_for($1, $2) AS v',
     args: (_i, t) => [t.userId, t.locationId],
     viewer: 'refused',
   },
-  // (0076, step-6 T6) The embedding doors, aimed at the victim's location. A viewer sees its
+  // (0076) The embedding doors, aimed at the victim's location. A viewer sees its
   // things' texts and matches, as keyword search does; it writes no vector and reads no status.
   {
     name: 'embedding_backlog',
@@ -2145,7 +2145,7 @@ const PROBES: Probe[] = [
     args: (i) => [i.thing],
     viewer: 'rows',
   },
-  // (0078, step-6 T7) Webhooks, aimed at the victim's location. A viewer's write would fan out,
+  // (0078) Webhooks, aimed at the victim's location. A viewer's write would fan out,
   // so it learns that a hook listens; nothing else.
   {
     name: 'webhooks_listening',
@@ -2159,7 +2159,7 @@ const PROBES: Probe[] = [
     args: (_i, t) => [t.userId, t.locationId],
     viewer: 'refused',
   },
-  // (0080, step-7 T4) The victim's archive run with no target, aimed at the victim's location:
+  // (0080) The victim's archive run with no target, aimed at the victim's location:
   // only its creator sets it.
   {
     name: 'set_import_target',
@@ -2167,7 +2167,7 @@ const PROBES: Probe[] = [
     args: (i, t) => [i.importDraft, t.locationId],
     viewer: 'refused',
   },
-  // (0083, step-7 T5) The victim's running Kept import: its history and its label codes.
+  // (0083) The victim's running Kept import: its history and its label codes.
   {
     name: 'import_history',
     sql: `SELECT kept.import_history($1, '[]') AS v`,
@@ -2180,7 +2180,7 @@ const PROBES: Probe[] = [
     args: (i) => [i.keptImport],
     viewer: 'refused',
   },
-  // (0085, step-7 T6) The victim's secret field: its account owner's alone, a viewer's too.
+  // (0085) The victim's secret field: its account owner's alone, a viewer's too.
   {
     name: 'field_conversion_preview',
     sql: `SELECT * FROM kept.field_conversion_preview($1, '{"toSecret": false}')`,

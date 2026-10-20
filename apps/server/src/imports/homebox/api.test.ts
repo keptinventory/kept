@@ -10,7 +10,7 @@ import { createLocation, type Loc, own } from '../../../test/things.js';
 import { createLogger } from '../../http/logger.js';
 import { homeboxRoot, readHomebox } from './api.js';
 
-// T11 against a fake Homebox on 127.0.0.1 that answers the four calls as spike H3 recorded them
+// T11 against a fake Homebox on 127.0.0.1 that answers the four calls as recorded from a real Homebox
 // (v0.26.2). Never the internet. The fake is on a loopback address, so the instance's
 // `ssrf_allow_private` decides whether Kept may reach it at all.
 

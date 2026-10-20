@@ -1,4 +1,4 @@
-// The assistant end to end on the database (step-6 plan T13): threads through the routes, turns
+// The assistant end to end on the database: threads through the routes, turns
 // through runTurn() as the assistant-turn job runs them, with a scripted mock model (never a real
 // provider). The sample cast: Ibrahim owns Home and Garage, Alfred owns بيت العائلة; Louis is a
 // member of Home and Garage, Bruce an admin of Home, Talia a viewer of Home.
@@ -465,7 +465,7 @@ describe('writes are proposals the person confirms (D22, D179)', () => {
     };
     expect(again.results[0]?.status).toBe('confirmed');
     expect((await eventsOf(db, home.id, hdmi.id)).length).toBe(events.length);
-    // The thread got the outcome as the call's result (Q5: no model call).
+    // The thread got the outcome as the call's result (no model call).
     const tool = await own<{
       parts: { type: string; callId?: string; output?: { status?: string } }[];
     }>(

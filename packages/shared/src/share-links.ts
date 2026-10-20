@@ -1,6 +1,6 @@
 /**
- * Read-only share links (D39 item 7, D72, D116, D180; engineering spec §1 `share_links`, §3.2,
- * §3.3; D233). A location's owner or admin shares a box (a thing), a place or a filtered list as
+ * Read-only share links (D39 item 7, D72, D116, D180, D233; `share_links`).
+ * A location's owner or admin shares a box (a thing), a place or a filtered list as
  * an expiring link that opens with no account. The page shows a fixed whitelist only: name,
  * photo, type, place path, quantity, condition, description. Never money, secrets, serials,
  * people, loan details or documents.
@@ -10,7 +10,7 @@
 export const SHARE_LINK_SCOPES = ['thing', 'place', 'view'] as const;
 export type ShareLinkScope = (typeof SHARE_LINK_SCOPES)[number];
 
-/** The expiry choices, in days (§3.3: default 30, at most a year). */
+/** The expiry choices, in days (default 30, at most a year). */
 export const SHARE_LINK_EXPIRY_DAYS = [1, 7, 30, 90, 365] as const;
 export const SHARE_LINK_DEFAULT_DAYS = 30;
 export const SHARE_LINK_MAX_DAYS = 365;
@@ -25,7 +25,7 @@ export const SHARE_LINK_TOKEN = /^[A-Za-z0-9_-]{43}$/;
 export const SHARE_LINK_PAGE_SIZE = 60;
 export const SHARE_LINK_MAX_ITEMS = 1200;
 
-/** Page views a minute, per link (§3.2). */
+/** Page views a minute, per link. */
 export const SHARE_LINK_VIEWS_PER_MINUTE = 60;
 
 /**

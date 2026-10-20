@@ -1,9 +1,9 @@
 /**
- * One schedule in a list (plan T21; screens §5 Schedules): its name, what it's for (a link to the
+ * One schedule in a list: its name, what it's for (a link to the
  * thing or place, with its path), how often and when it was last done, and when it's next due as
  * a pill ("In 12 days", "3 days overdue", "At 60,000 km"), with a snooze or a skip said under it.
  *
- * Actions follow screens §3: hidden for a role that can't manage schedules (viewers), disabled
+ * Actions follow the role rules: hidden for a role that can't manage schedules (viewers), disabled
  * with the reason offline. Complete is the row's button; the rest (Snooze or Unsnooze, Skip once,
  * Log a service, Edit, Delete) are buttons from `md` and fold into **More** on a phone (the
  * inbox's bottom sheet), so no second row of controls. Every write but a new one offers Undo.
@@ -36,7 +36,7 @@ export function ScheduleRowView({
   note,
 }: {
   schedule: Schedule;
-  /** Beside the due pill: a vehicle's "estimated ~14 Nov" (step 5, T18). */
+  /** Beside the due pill: a vehicle's "estimated ~14 Nov". */
   note?: ReactNode;
   /** Opens one of the sheets for this schedule (the page holds them). */
   onOpen: (action: ScheduleRowAction, schedule: Schedule) => void;

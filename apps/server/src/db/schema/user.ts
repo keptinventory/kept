@@ -4,7 +4,7 @@ import { user } from './auth.js';
 import { id, mutable, tstz } from './common.js';
 import { locations } from './tenancy.js';
 
-// A user's own things beside the inventory (engineering spec §7.13; D42, D138, D205): saved views
+// A user's own things beside the inventory (D42, D138, D205): saved views
 // of a list, optionally shared with a location, each person's pinned and default views per list,
 // and which hints they have seen. Row-level security is in 0020 (saved_views, user_hints) and
 // 0034 (saved_view_prefs).

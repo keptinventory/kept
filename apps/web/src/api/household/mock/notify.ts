@@ -1,12 +1,12 @@
 /**
- * Mock handlers for channels and preferences (T15) and the notification centre (T16).
+ * Mock handlers for channels and preferences and the notification centre.
  *
  * Settings: the digest time and quiet hours (both ends or neither), SMTP and push availability,
  * the channels (email, this and other devices' push, webhooks whose secret is shown once and URL
  * never again), and a kind × channel table for all locations and per location (D239): a location
- * reads its own choice, else the one for all locations, else `defaultPreference()` (Q8, Q10); only
+ * reads its own choice, else the one for all locations, else `defaultPreference()`; only
  * what differs is stored at each layer. Viewers' locations list only Membership. The AI monthly
- * summary is account-level (Q35).
+ * summary is account-level.
  *
  * The centre: the caller's notifications, newest first; a reminder's state and actions are read
  * from its source now (db.ts `notificationView`), so a returned loan reads `done` with no
@@ -44,7 +44,7 @@ const invalid = (hint: string) => err(400, 'validation', 'The request is not val
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 /** The default on one channel, as the server's notify/prefs.ts preferenceDefault(): the shared
- * default everywhere but webhooks, which are on only once chosen (plan T14, T15). */
+ * default everywhere but webhooks, which are on only once chosen. */
 const channelDefault = (role: Role, kind: NotifyKind, channel: PreferenceChannel) =>
   channel === 'webhook' ? false : defaultPreference({ role, kind });
 
@@ -149,7 +149,7 @@ export function notifyRoutes(state: MockState): MockRoute[] {
   };
 
   return [
-    // ----- settings, preferences, channels (T15) -----
+    // ----- settings, preferences, channels -----------
     route('GET', p.notificationSettings, () => {
       ensureSeeded(state);
       return settings();
@@ -298,7 +298,7 @@ export function notifyRoutes(state: MockState): MockRoute[] {
       return found ? { ok: true, status: 201 } : notFound();
     }),
 
-    // ----- the notification centre (T16) -----
+    // ----- the notification centre -----------
     route('GET', p.notifications, ({ query }) => {
       ensureSeeded(state);
       const unreadOnly = query.get('unread') === '1';

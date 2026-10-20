@@ -1,5 +1,5 @@
 /**
- * Push on this device, the page's half (plan T25; D139, D193). Every browser API is a stub: no
+ * Push on this device, the page's half (D139, D193). Every browser API is a stub: no
  * test asks a real browser for the notification permission.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

@@ -755,7 +755,7 @@ describe('search that changes data between cases', () => {
     await thing(home, { name: 'Stapler', placeId: office });
     expect(names(await find(ann, { q: 'office' }))).toEqual(['Stapler']);
     await own(`UPDATE public.places SET name = 'Study' WHERE id = $1`, [office]);
-    // The document is stale until the job runs (§7.9): the breadcrumb is always live.
+    // The document is stale until the job runs: the breadcrumb is always live.
     expect(names(await find(ann, { q: 'study' }))).toEqual([]);
 
     const logged: object[] = [];

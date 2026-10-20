@@ -25,7 +25,7 @@ import {
   readDocumentRow,
 } from './view.js';
 
-// The paperwork library and expiring documents (plan T12; D39, D155, D172). The web contract is
+// The paperwork library and expiring documents (D39, D155, D172). The web contract is
 // apps/web/src/api/household/{types,paths}.ts, "the paperwork library and expiring documents".
 //
 // GET    /api/v1/paperwork?q&locationId&role&subjectType&expiry&cursor&limit
@@ -39,11 +39,11 @@ import {
 // POST   /api/v1/documents/:id/renew (If-Match) {id?, expiresOn, leadDays?}
 //                                        → {renewed, previous}
 //
-// The two lists are global (screens §1): they read every visible location with Paperwork on and
+// The two lists are global: they read every visible location with Paperwork on and
 // narrow with `locationId`, so they declare no module (the gate would need one location). The
 // rest gate on Paperwork in the document's location: 404 `module_off` to read, 409 to write.
 //
-// Step 5 (T12): a document on a vehicle works with Paperwork or Vehicles on, so these routes
+// A document on a vehicle works with Paperwork or Vehicles on, so these routes
 // gate in documents.ts requireDocumentModule() (a route's config names one module). The bodies of
 // POST, PATCH and renew gain `issuedOn`, `cost` and `currency`; GET /documents gains `thingId`;
 // an ExpiringDocument gains `issuedOn`, and `cost` and `currency` through the money gate.

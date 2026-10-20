@@ -23,8 +23,8 @@ import { serviceRecords } from './services.js';
 import { locations } from './tenancy.js';
 import { things } from './things.js';
 
-// Schedules, their completions and expiring documents (step-4 plan T6; engineering spec §1.6,
-// §7.13; D26, D29, D39, D52, D146, D155, D162, D172; plan Q2, Q27, Q28, Q31). Row-level
+// Schedules, their completions and expiring documents (D26, D29, D39, D52, D146, D155, D162, D172).
+// Row-level
 // security, the anchor's recomputation, module state in SQL, kept.schedule_next() and the agenda
 // view are in the custom migration that follows (0053); see src/db/schedules.test.ts and
 // src/db/agenda.test.ts.
@@ -37,7 +37,7 @@ const documentKind = textEnum('kind', DOCUMENT_KINDS);
  * from: the latest completing service's date and reading, else `base_on`/`base_value`, what the
  * schedule was made with (a last-done date, or its creation day). The anchor is kept by
  * kept.recompute_schedule_anchor() (D162), never written by a request: no column grant. A snooze
- * replaces the due point until the next completion; skipping moves it one interval on (Q28).
+ * replaces the due point until the next completion; skipping moves it one interval on.
  */
 export const schedules = pgTable(
   'schedules',
@@ -55,7 +55,7 @@ export const schedules = pgTable(
     /** A one-off date, when there is no interval (D146). */
     dueOn: date('due_on'),
     leadDays: integer('lead_days').notNull().default(14),
-    /** Units before a unit due point; null is 10% of `every_units` (§3.4, Q9). */
+    /** Units before a unit due point; null is 10% of `every_units`. */
     leadUnits: numeric('lead_units', { precision: 14, scale: 3 }),
     /** What the schedule was made with (or later told): a last-done date and reading, else its
      * creation day. Filled from `anchor_on`/`anchor_value` on insert when not given (0053). */
@@ -78,7 +78,7 @@ export const schedules = pgTable(
     check('schedules_lead_days_chk', sql`lead_days BETWEEN 0 AND 365`),
     check('schedules_lead_units_chk', sql`lead_units >= 0`),
     check('schedules_subject_chk', sql`num_nonnulls(thing_id, place_id) = 1`),
-    // screens §7: an interval in months or units, or a date.
+    // An interval in months or units, or a date.
     check('schedules_rule_chk', sql`num_nonnulls(every_months, every_units, due_on) >= 1`),
     check('schedules_meter_chk', sql`(every_units IS NULL) = (meter_id IS NULL)`),
     check('schedules_meter_thing_chk', sql`meter_id IS NULL OR thing_id IS NOT NULL`),
@@ -148,7 +148,7 @@ export const serviceCompletions = pgTable(
  * A document that expires, on a thing, a place or (both null) the location itself (D155): a
  * registration, an insurance policy, a lease. Renewing it adds the new one and points the old one
  * at it (`superseded_by_id`, ON DELETE SET NULL (col) in 0053), so the old one is kept (D172).
- * `title` names it, and is required for `other` (Q31).
+ * `title` names it, and is required for `other`.
  */
 export const expiringDocuments = pgTable(
   'expiring_documents',
@@ -164,7 +164,7 @@ export const expiringDocuments = pgTable(
     expiresOn: date('expires_on').notNull(),
     leadDays: integer('lead_days').notNull().default(30),
     supersededById: uuid('superseded_by_id'),
-    /** Step 5 (Q5): when it was issued or renewed; its cost counts in that month ("Fees &
+    /** When it was issued or renewed; its cost counts in that month ("Fees &
      * insurance"). */
     issuedOn: date('issued_on'),
     currency: char('currency', { length: 3 }).references(() => currencies.code),

@@ -1,12 +1,12 @@
 /**
- * Start an export (plan T21; D68, D69, D159; Q7, Q14, Q17): a location you own or administer, or
+ * Start an export (D68, D69, D159): a location you own or administer, or
  * your own data ("Export my data": the Personal location, your profile and preferences, and your
  * own AI calls). What goes in besides the things: ended things, the Trash, the history, the AI
  * calls, and a copy readable without Kept (HTML, CSVs, thumbnails) with the inventory PDF, in a
  * language and digits of its own. "Include secrets" is the owner's: encrypted with a passphrase
  * given twice, with the warning that Kept can't recover it. The readable copy never holds them.
  *
- * Exports need a connection (screens §4): offline, Export is disabled with the reason.
+ * Exports need a connection: offline, Export is disabled with the reason.
  */
 import { newId } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';

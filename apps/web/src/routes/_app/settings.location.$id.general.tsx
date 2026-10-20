@@ -1,11 +1,10 @@
 /**
- * Location settings → General (screens §5, D41, D204). Its name first (an owner or admin renames
+ * Location settings → General (D41, D204). Its name first (an owner or admin renames
  * it; the server checks). Its languages: the ones AI writes search aliases in when it fills in a
  * thing here, chosen in a multi-select with flags. Its timezone: dates here read in it. Its
  * currency: new amounts default to it (existing amounts keep theirs; converted totals need
  * Account → Exchange rates). Then the location's own codes: numbering and
- * the format rule (D208, T17a). Last, for the owner, Delete with "Export first" (D149, step-7
- * T21).
+ * the format rule (D208). Last, for the owner, Delete with "Export first" (D149).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

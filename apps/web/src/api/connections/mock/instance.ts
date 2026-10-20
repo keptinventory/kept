@@ -1,7 +1,7 @@
 /**
  * Step 6's instance-wide mock answers (for T22 and T24): the sign-in page's "Sign in with <name>"
- * (`GET /setup`'s `oidc`, T16), Better Auth's start of an OIDC sign-in, and Admin → Status's
- * OIDC, connectors and embeddings rows with the embeddings switch (T12, T14, T16). Kept beside
+ * (`GET /setup`'s `oidc`), Better Auth's start of an OIDC sign-in, and Admin → Status's
+ * OIDC, connectors and embeddings rows with the embeddings switch. Kept beside
  * the scenario in a WeakMap, like the rest of Connections' mock state; these routes are composed
  * after the base server's, so they answer first.
  */
@@ -78,7 +78,7 @@ export function instanceMockRoutes(state: MockState): MockRoute[] {
       oidc: s().oidc.configured && s().oidc.name ? { name: s().oidc.name } : null,
       ...(s().google.configured ? { google: true } : {}),
     })),
-    // Better Auth's generic-OAuth start (spike S6.7): `{provider, callbackURL, errorCallbackURL}`
+    // Better Auth's generic-OAuth start: `{provider, callbackURL, errorCallbackURL}`
     // → `{url}` at the IdP. The mock's IdP is a placeholder; tests stub the navigation.
     route('POST', paths.auth.signInSocial, ({ body }) => {
       const b = body as { provider?: string };

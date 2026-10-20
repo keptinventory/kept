@@ -1,5 +1,5 @@
 /**
- * The world the assistant and search evaluations run in (step-6 plan T17): the `households` seed
+ * The world the assistant and search evaluations run in: the `households` seed
  * on a database of its own, an AI provider every location resolves (the mock, or the one a real
  * run names), the cases' own fixtures (things with injected notes), and the things embedded by the
  * real backfill (embeddings/backfill.ts) so meaning can be searched.

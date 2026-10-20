@@ -7,7 +7,7 @@ import type { Pools } from '../db/pools.js';
 import { buildApp, type KeptApp } from './app.js';
 import { locationOfMeter, locationOfPlace, locationOfThing, type ModuleLoader } from './modules.js';
 
-// Task 16: module gating (engineering spec §7.6).
+// Module gating.
 
 const db = await testDb();
 const pools = db.pools as Pools;
@@ -41,7 +41,7 @@ async function appWith(loader?: ModuleLoader, userId?: () => string | null): Pro
     },
     handler,
   );
-  // Step 2: camelCase bodies and the query string name the location too.
+  // camelCase bodies and the query string name the location too.
   app.post(
     '/camel/vehicles',
     {

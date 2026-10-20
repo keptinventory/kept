@@ -1,6 +1,6 @@
 /**
- * Who pays, and with which key (D121, D167, D206; step-3 plan Q5; product design §8a "Resolution
- * order"). With T6 the cascade runs inside `kept.ai_provider_for`, the only way application
+ * Who pays, and with which key (D121, D167, D206).
+ * With T6 the cascade runs inside `kept.ai_provider_for`, the only way application
  * code reaches a key; this is the same order in TypeScript, for the in-memory KeyStore and as
  * the executable statement of the rule the door's tests check.
  *

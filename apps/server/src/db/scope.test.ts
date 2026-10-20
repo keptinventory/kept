@@ -8,7 +8,7 @@ import { createPools } from './pools.js';
 import { locations } from './schema/index.js';
 import { ScopeError, withScope, withSystem } from './scope.js';
 
-// Task 11: withScope() / withSystem() (engineering spec §7.1, §7.14).
+// withScope() / withSystem().
 
 const db = await testDb();
 

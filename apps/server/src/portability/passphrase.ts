@@ -9,7 +9,7 @@ import {
 import { type Aad, open, type Sealed, seal } from '../crypto/envelope.js';
 import type { SecretKeys } from '../crypto/keyring.js';
 
-// Passphrase-protected secrets in a Kept export (D68; plan T12, T14, Q7; spike P1).
+// Passphrase-protected secrets in a Kept export (D68).
 //
 // - The route that takes a passphrase derives the key with scrypt during the request, seals it
 //   under the keyring onto its run (`export_runs` or `import_runs`, AAD
@@ -47,7 +47,7 @@ export class SecretsFileError extends Error {
 
 export const newSalt = (): Buffer => randomBytes(PASSPHRASE_KDF.saltBytes);
 
-/** The key scrypt derives from `passphrase` and `salt` (`maxmem` 256 × N × r, spike P1). */
+/** The key scrypt derives from `passphrase` and `salt` (`maxmem` 256 × N × r). */
 export function deriveKey(
   passphrase: string,
   salt: Buffer,

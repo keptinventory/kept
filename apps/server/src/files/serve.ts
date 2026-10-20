@@ -14,7 +14,7 @@ import {
   signFile,
 } from './views.js';
 
-// Serving files (D117, D157; plan Q16).
+// Serving files (D117, D157).
 //
 // A file never leaves through a session-bearing route. The app hands out a five-minute signed URL
 // (POST /api/v1/files/:id/url), and the bytes come from `/f/<token>` (local storage), a route
@@ -24,7 +24,7 @@ import {
 //
 // Who may have which URL:
 // - a derivative (display, thumb, share): anyone who can see the file, i.e. its attachment (or
-//   its uploader before it is attached; §7.2, D177);
+//   its uploader before it is attached; D177);
 // - the original: a member or above in the file's location (D117);
 // - a thing's receipt after a move (`?thingId=`, D115): kept.thing_receipt_file(), which serves
 //   the original to a member or above of the thing's location even when the purchase stayed in a

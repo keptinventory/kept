@@ -1,6 +1,6 @@
 /**
- * Inventory fixtures for the mock server: Ibrahim's Personal, Home and Garage (English, the screens
- * board's household) and **بيت العائلة**, an Arabic household owned by his brother Bruce where he
+ * Inventory fixtures for the mock server: Ibrahim's Personal, Home and Garage (English, the screen
+ * designs' household) and **بيت العائلة**, an Arabic household owned by his brother Bruce where he
  * is a member (EGP, names with harakat and ال, for search and RTL). Built fresh per scenario.
  *
  * Built-in types and place kinds carry `name: null` and a `builtinKey`, as the server sends

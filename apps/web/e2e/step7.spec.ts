@@ -1,5 +1,5 @@
 /**
- * Step 7's journeys against the real server (plan T25; the final check for steps 5–8), on the
+ * Step 7's journeys against the real server (the final check for steps 5–8), on the
  * `households` seed, behind HTTPS (the `portability` instance, e2e/instances.ts):
  *
  * 1. The Homebox import: the committed v0.26.2 `home` export (apps/server/test/fixtures/homebox)

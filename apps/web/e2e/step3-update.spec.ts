@@ -1,5 +1,5 @@
 /**
- * The update prompt (plan T32 flow 6; T23): a new service worker waits while a capture session
+ * The update prompt: a new service worker waits while a capture session
  * is open (an upload may be under way), and only after it does Kept offer "A new version is
  * ready · Reload".
  *

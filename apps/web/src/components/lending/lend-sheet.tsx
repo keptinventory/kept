@@ -1,11 +1,11 @@
 /**
- * Lend (D57, screens §5): to a member or a contact (members first, "+ New person"), part of a
- * quantity (the lent part becomes its own row, D10, and merges back on return, Q14), an optional
+ * Lend (D57): to a member or a contact (members first, "+ New person"), part of a
+ * quantity (the lent part becomes its own row, D10, and merges back on return), an optional
  * due date, a note and condition photos. Kept never messages the person; it reminds you when the
- * loan is overdue. Lending is a create, so it has no Undo (§7.7): "Mark returned" ends it, and
+ * loan is overdue. Lending is a create, so it has no Undo: "Mark returned" ends it, and
  * Remove on the loan takes back one recorded by mistake.
  *
- * With Lending off here, the sheet says so (screens §3) instead of the form.
+ * With Lending off here, the sheet says so instead of the form.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';

@@ -12,7 +12,7 @@ import { aiNoticeHooks, runAiNotice } from './notices.js';
 import type { AiDeps } from './routes.js';
 import { aiRuntime } from './runtime.js';
 
-// T9: AI settings, keys, "Test connection", caps, prices, usage and the call ledger, through the
+// AI settings, keys, "Test connection", caps, prices, usage and the call ledger, through the
 // front door in the web contract's shapes (apps/web/src/api/capture/types.ts "AI", mock/ai.ts).
 // The sample cast: Ibrahim owns Home and is the instance admin; Bruce is Home's admin, Louis a
 // member, Talia a viewer; Alfred owns بيت العائلة, another household.

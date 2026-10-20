@@ -1,5 +1,5 @@
 /**
- * Admin → Backups (step-8 plan T21; D64, D66, D144, D181, D186, D193; frames 103–106): how the
+ * Admin → Backups (D64, D66, D144, D181, D186, D193): how the
  * backups stand, where they go and their password (backup-target-form.tsx), Test and Run now, the
  * runs on the list standard (backup-runs.tsx, its filters in the URL) and the repository's
  * snapshots, read-only (snapshots-list.tsx). Inside the admin frame (admin.tsx), which says "For
@@ -55,7 +55,7 @@ function Headline({ status }: { status: StatusPageData | undefined }) {
   );
 }
 
-/** The saved settings in a few lines, with Edit, Test and Run now (frame 106). */
+/** The saved settings in a few lines, with Edit, Test and Run now. */
 function Summary({
   view,
   https,

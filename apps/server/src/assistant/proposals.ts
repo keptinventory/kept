@@ -32,13 +32,13 @@ const THING_VERSIONED: ReadonlySet<string> = new Set([
   'adjust_stock',
 ]);
 
-// Write proposals (D22, D123, D179, D213; plan T13, Q5). The model never runs a write: each write
+// Write proposals (D22, D123, D179, D213). The model never runs a write: each write
 // call becomes a proposal, drawn by the web from its `args`, `before` and `refs` (never from model
 // text), bound to the SHA-256 of its canonical arguments, open for 10 minutes, one batch (one card)
 // per step. Confirming runs it through runTool() **as the person** (actor `user`), each in its own
 // transaction, with If-Match from `before.rowVersion`, and appends the outcome to the thread as the
 // call's result, so the next question sees it (convert.ts: the last result per call wins). No model
-// call follows (Q5).
+// call follows.
 //
 // `before` is `{callId, rowVersion?, fields?}`: the model's call id (to answer it in the thread),
 // and for a tool about one thing, that thing's version and the fields the card shows, as they were
@@ -78,7 +78,7 @@ export type Proposed =
   | {
       ok: false;
       error: Envelope<never> & { error: string };
-      /** The location's name when the person is a viewer there (Q23's sentence). */
+      /** The location's name when the person is a viewer there (the refusal sentence). */
       viewerOf?: string;
     };
 
@@ -402,7 +402,7 @@ async function conflictOf(
   return { field: 'rowVersion', before: row.before.rowVersion, now: now.rowVersion, by };
 }
 
-/** Appends a confirmed (or refused) proposal's outcome as its call's result (Q5). */
+/** Appends a confirmed (or refused) proposal's outcome as its call's result. */
 async function appendOutcome(
   client: pg.ClientBase,
   userId: string,

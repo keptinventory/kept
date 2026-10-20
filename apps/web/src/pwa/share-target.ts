@@ -1,5 +1,5 @@
 /**
- * Share into Kept (D140; engineering spec §2.7; plan T23 and Q26).
+ * Share into Kept (D140).
  *
  * 1. Another app shares images or PDFs; the installed app's manifest sends them as a
  *    multipart POST to `/share`.
@@ -10,13 +10,13 @@
  *    (`putShared`) until the "Shared into Kept" sheet keeps or discards it.
  *
  * The worker hands the share to the page rather than writing it itself: the offline store is
- * one database per user (T24), and the worker can't know whose to open.
+ * one database per user, and the worker can't know whose to open.
  *
  * When the worker isn't active yet (the first visit), the server answers the POST itself with
  * `303 /capture?share=unavailable` without reading it (apps/server/src/http/share.ts): the page
  * says "Open Kept once, then share again".
  *
- * iPhone web apps can't be share targets (V9); there, Help and the install sheet say "use Gallery".
+ * iPhone web apps can't be share targets; there, Help and the install sheet say "use Gallery".
  */
 import type { OfflineStore, SharedInto } from '@/offline/store';
 

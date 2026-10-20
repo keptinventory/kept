@@ -7,7 +7,7 @@ import { gateFor } from '../serialize/gates.js';
 import { type ThingListFilter, thingListOrder, thingListWhere } from '../things/service.js';
 import type { ListQuery } from '../things/validate.js';
 
-// The things list you're looking at, as a CSV (D169; step-7 plan T16; engineering spec §3.5):
+// The things list you're looking at, as a CSV (D169):
 // GET /api/v1/things.csv takes every GET /things parameter and writes the same rows in the same
 // order, through the one safe cell writer (@kept/shared safeCsvCell: formula triggers defused,
 // a BOM, CRLF). Any member can export what they can see.
@@ -21,7 +21,7 @@ import type { ListQuery } from '../things/validate.js';
 // - At most CSV_MAX_ROWS rows; past that the file stops and `truncated` says so.
 
 export const CSV_MAX_ROWS = 100_000;
-/** §3.5: five CSV exports an hour per person. */
+/** Five CSV exports an hour per person. */
 export const CSV_PER_HOUR = 5;
 /** Rows read per query. */
 const BATCH = 1000;

@@ -7,7 +7,7 @@ import { idempotencyKeys } from '../db/schema/index.js';
 import type { Tx } from '../db/scope.js';
 import { AppError, invalid } from './errors.js';
 
-// API conventions (engineering spec §7.7; D156, D178).
+// API conventions (D156, D178).
 
 // ---------------------------------------------------------------------------------------------
 // Optimistic concurrency: If-Match: <row_version>
@@ -32,7 +32,7 @@ export function requireIfMatch(req: Pick<FastifyRequest, 'headers'>): number {
   return Number(match[1]);
 }
 
-/** Who made the change a stale write collided with, for the 412 body (the web contract, T26). */
+/** Who made the change a stale write collided with, for the 412 body (the web contract). */
 export type ChangedBy = { displayName: string };
 
 /**
@@ -117,7 +117,7 @@ export function pageOf<T>(
 // Client-supplied ids
 // ---------------------------------------------------------------------------------------------
 
-/** A client-generated id must be a UUIDv7 within ± 7 days of now (§7.7, D17). */
+/** A client-generated id must be a UUIDv7 within ± 7 days of now (D17). */
 export function assertClientId(id: string, now: number = Date.now()): string {
   if (!withinWindow(id, now)) {
     throw new AppError(

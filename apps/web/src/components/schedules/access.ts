@@ -1,7 +1,7 @@
 /**
- * What the reader may do with a step-4 record in one location (screens §3): their role, whether a
+ * What the reader may do with a step-4 record in one location: their role, whether a
  * module is on there, whether money shows, and "today" in the location's own zone, which decides
- * due and overdue (engineering spec §7.13). The global lists (Schedules, Lending) hold rows from
+ * due and overdue. The global lists (Schedules, Lending) hold rows from
  * several locations, so each row asks for its own.
  */
 import { type Action, can, effectiveModules, type ModuleId } from '@kept/shared';
@@ -77,7 +77,7 @@ export function useLocationAccess(): (locationId: string) => LocationAccess {
   return useCallback((id: string) => accessOf(list.find((l) => l.id === id)), [list]);
 }
 
-/** Whether a module is on in any of the reader's locations (its nav entry shows, screens §1). */
+/** Whether a module is on in any of the reader's locations (its nav entry shows). */
 export function useModuleAnywhere(m: ModuleId): { on: boolean; loaded: boolean } {
   const locations = useLocations();
   const list = locations.data ?? [];

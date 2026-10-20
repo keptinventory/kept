@@ -1,12 +1,12 @@
 /**
- * Which agenda sources the Expiring screen reads (plan T23, T27): by default warranties (with
- * their registration deadlines), expiring documents and things that expire (screens §5); Home's
- * overdue and due rows add schedules, loans and stale readings (step 5) when they count them,
+ * Which agenda sources the Expiring screen reads: by default warranties (with
+ * their registration deadlines), expiring documents and things that expire; Home's
+ * overdue and due rows add schedules, loans and stale readings when they count them,
  * through `f.source`.
  */
 import type { ActiveSourceType } from '@kept/shared';
 
-/** The Expiring screen's sources when none is chosen (screens §5). */
+/** The Expiring screen's sources when none is chosen. */
 export const EXPIRING_SOURCES: readonly ActiveSourceType[] = [
   'warranty',
   'registration',

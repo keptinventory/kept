@@ -1,8 +1,8 @@
 /**
- * One extraction call for a capture mode (plan T8/T10; spike §3): the mode's wire schema
- * (wire.ts) sent unvalidated, `parseLenient` against the full `EXTRACTION_SCHEMAS[mode]` (L52),
- * `maxOutputTokens` = the mode's JSON allowance + the reasoning allowance (`outputTokenCap`,
- * Q6), and a `length` finish as a failure (L42, in callModel). The prompts are T10's
+ * One extraction call for a capture mode: the mode's wire schema
+ * (wire.ts) sent unvalidated, `parseLenient` against the full `EXTRACTION_SCHEMAS[mode]`,
+ * `maxOutputTokens` = the mode's JSON allowance + the reasoning allowance (`outputTokenCap`),
+ * and a `length` finish as a failure (in callModel). The prompts are T10's
  * (`extraction/prompts/*.ts`); this takes them as input, with their version for the ledger.
  */
 import {
@@ -39,7 +39,7 @@ export type Extracted<M extends CaptureMode> = {
 
 export type ExtractRequest<M extends CaptureMode> = {
   mode: M;
-  /** GPS-free sources only (Q12): the display derivative or an in-memory re-encode. */
+  /** GPS-free sources only: the display derivative or an in-memory re-encode. */
   images: ImageInput[];
   prompt: { system: string; text: string; version: string };
   locationId: string | null;
@@ -52,7 +52,7 @@ export type ExtractRequest<M extends CaptureMode> = {
   resolved?: Resolved;
   /** The wire schema variant (wire.ts); the worker leaves it to `WIRE_IN_USE`. */
   wire?: WireVariant;
-  /** Step 5 (Q12): a RECEIPT read as a service invoice, each line with its kind
+  /** A RECEIPT read as a service invoice, each line with its kind
    * (`ServiceInvoiceExtraction`). Same ledger task and output allowance as RECEIPT. */
   schema?: 'service-invoice' | 'thing-many';
 };

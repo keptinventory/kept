@@ -23,7 +23,7 @@ import { loadHomeboxLookups } from './lookups.js';
 import { type AttachmentOp, type HbOp, planHomebox } from './plan.js';
 import { type HomeboxData, openHomebox, readHomebox } from './read.js';
 
-// The `import-homebox` job (D146; step-7 plan T10; engineering spec §3.1b: one attempt, two
+// The `import-homebox` job (D146; one attempt, two
 // hours, resumable), the CSV job's shape (imports/job.ts).
 //
 // A tenant job: it runs as the person who pressed Import, under their row-level security, and
@@ -38,7 +38,7 @@ import { type HomeboxData, openHomebox, readHomebox } from './read.js';
 //   (sniffing, per-location dedupe, derivatives, `pdf-text`), as a new file;
 // - then one transaction, the run locked: each step through the step-2 services in its own
 //   savepoint, remembered in import_source_ids; a step that fails is rolled back and listed in
-//   the chunk's `import.run` audit event, which has the things made as its subjects (Q11);
+//   the chunk's `import.run` audit event, which has the things made as its subjects;
 //   `progress` moves;
 // - the last chunk sets `done` and clears the archive's columns, and the archive is deleted.
 // A run that fails (the database went away, the archive can't be read) is `failed` with a short
@@ -321,7 +321,7 @@ function tenantQueue(deps: SystemJobDeps): JobQueue | null {
   };
 }
 
-/** The `import-homebox` tenant job (T10), aggregated by jobs/portability.ts. */
+/** The `import-homebox` tenant job, aggregated by jobs/portability.ts. */
 export function homeboxImportJobs(deps: SystemJobDeps): JobDefinition[] {
   return [
     defineJob({

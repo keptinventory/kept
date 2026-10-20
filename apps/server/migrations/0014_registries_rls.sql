@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put your code below! --
--- Step 2, task 5: the account registries' RLS, guards and indexes (engineering spec §1.1, §7.2,
--- §7.9, §7.13; D11, D92, D123, D154, D177, D192; plan Q3, Q4, Q5). The tables are 0013's.
+-- The account registries' RLS, guards and indexes (D11, D92, D123, D154, D177, D192).
+-- The tables are 0013's.
 --   1. RLS enabled and forced, kept_owner's owner_all, and kept_app's policies by account:
 --      built-ins (owner NULL) readable by any signed-in request; the rest by visible account;
 --      created by admin accounts (types, fields, kinds, brands) or writable ones (vendors,
@@ -8,8 +8,8 @@
 --   2. Column grants: never an id, a key or owner_account_id.
 --   3. touch_row on every table.
 --   4. Normalised-name uniques (brands, tags) and trigram indexes for search.
---   5. Contact details: kept.person_contact_visible() (D177, Q5).
---   6. The type tree's guards (D92, §7.13): parents and field groups in the same account or
+--   5. Contact details: kept.person_contact_visible() (D177).
+--   6. The type tree's guards (D92): parents and field groups in the same account or
 --      built in, no loops, no key defined twice along a chain; kept.type_chain() and
 --      kept.type_capabilities() for the thing triggers and the routes.
 -- test/leak.test.ts and src/db/migrate.test.ts list every function here.
@@ -86,7 +86,7 @@ BEGIN
 END $$;
 --> statement-breakpoint
 
--- 5. Contact details (D177, Q5): only for someone who administers every location that uses the
+-- 5. Contact details (D177): only for someone who administers every location that uses the
 --    person; a person used nowhere, for an admin of any location of the account. "Uses" means a
 --    non-deleted thing there belongs to them (task 6 adds that clause, once `things` exists;
 --    loans join in step 4). A definer: it must see things in locations the caller can't.
@@ -114,9 +114,9 @@ CREATE POLICY app_delete ON public.person_contacts FOR DELETE TO kept_app
   USING (kept.person_contact_visible(person_id));
 --> statement-breakpoint
 
--- 2. Column grants (0006 §3's rule). Not granted: ids, keys, owner_account_id, builtin_key,
+-- 2. Column grants (0006 the rule). Not granted: ids, keys, owner_account_id, builtin_key,
 --    copied_from_id, is_field_group, search_names; a field's key, kind and secret flag
---    (converting a kind or a secret is later work, Q3, Q11).
+--    (converting a kind or a secret is later work).
 REVOKE UPDATE ON public.place_kinds, public.types, public.type_fields, public.brands,
   public.vendors, public.people, public.person_contacts, public.tags
   FROM kept_app, kept_system;
@@ -197,7 +197,7 @@ GRANT EXECUTE ON FUNCTION kept.type_chain(uuid) TO kept_app;
 GRANT EXECUTE ON FUNCTION kept.type_capabilities(uuid) TO kept_app, kept_system;
 --> statement-breakpoint
 
--- Parents and field groups (D92, Q4). Invoker: a parent or group the caller can't see is the
+-- Parents and field groups (D92). Invoker: a parent or group the caller can't see is the
 -- same refusal as one in another account, and as an id that exists nowhere (42501, a 404).
 -- - The parent is a type, not a field group, and built in or of the same account.
 -- - Every field group is a field group, built in or of the same account.
@@ -278,8 +278,8 @@ CREATE TRIGGER type_fields_guard BEFORE INSERT OR UPDATE ON public.type_fields
   FOR EACH ROW EXECUTE FUNCTION kept.guard_type_field();
 --> statement-breakpoint
 
--- No field key twice along a type's resolved chain (§7.13, D192): its own fields, its
--- ancestors', and the field groups of each (Q4). Checked after the row is written, for the type
+-- No field key twice along a type's resolved chain (D192): its own fields, its
+-- ancestors', and the field groups of each. Checked after the row is written, for the type
 -- and every type that resolves through it (its descendants and, for a group, the types that
 -- carry it), so both "a child redefines an inherited key" and "a parent adds a key a child
 -- already has" are refused, as is a re-parent or regroup that would bring two together

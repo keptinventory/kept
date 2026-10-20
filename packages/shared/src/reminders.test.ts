@@ -21,7 +21,7 @@ import {
 } from './reminders.js';
 import { ROLES } from './roles.js';
 
-// The CHECK on reminder_occurrences.due_period (step-4 plan T7).
+// The CHECK on reminder_occurrences.due_period.
 const DUE_PERIOD_CHECK = /^(date:\d{4}-\d{2}-\d{2}|meter:\d+(\.\d{1,3})?)$/;
 
 describe('reminder sources (§1.9; Q3–Q7)', () => {

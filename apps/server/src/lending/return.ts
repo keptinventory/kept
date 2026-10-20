@@ -9,7 +9,7 @@ import type { ThingRow } from '../things/view.js';
 import { actor, type Ctx, loanRecord, requireLoanVersion, writableLoan } from './service.js';
 import { anyRowsOf, type Loan, loanImage, loanView } from './view.js';
 
-// Returning a loan (plan T10; D45, D56, D172; Q14, Q15).
+// Returning a loan (D45, D56, D172).
 //
 // - Out: the thing comes back to where it left (its container if that is still there, else its
 //   place, else the location's Unplaced area) or to where it is put, seen now. A part that was
@@ -159,7 +159,7 @@ export async function returnLoan(
     await placeThing(client, loan.thing_id, where);
     returnPlaceId = where.containerId ? null : where.placeId;
     returnContainerId = where.containerId;
-    // D172, Q14: the part merges back into the row it came from.
+    // D172: the part merges back into the row it came from.
     if (body.mergeBack !== false && loan.split_from_thing_id) {
       const original = await thingState(client, loan.split_from_thing_id);
       const { rowCount: holds } = await client.query(
@@ -192,7 +192,7 @@ export async function returnLoan(
       }
     }
   } else {
-    // Q15: a borrowed thing goes back to its owner and leaves counts and totals (D56).
+    // A borrowed thing goes back to its owner and leaves counts and totals (D56).
     const today = await todayIn(client, loan.location_id);
     await client.query(
       `UPDATE public.things SET lifecycle = 'returned_to_owner', ended_on = $2

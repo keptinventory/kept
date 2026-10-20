@@ -164,7 +164,7 @@ IndexedDB: [offline and sync](/developers/offline-sync/).
 Fastify 5 with zod, Drizzle over `pg`, Better Auth for sign-in. One directory per feature; the
 [monorepo page](/developers/monorepo/) lists them.
 
-**Postgres 18 with pgvector** (spec §7.1, §7.2). Four login roles, one pool each for the three
+**Postgres 18 with pgvector**. Four login roles, one pool each for the three
 runtime ones, row-level security forced on every table. pg-boss keeps its queue in the same
 database, in schema `pgboss`; Better Auth keeps its tables in schema `auth`; Kept's functions live
 in schema `kept`. The `vector`, `pg_trgm` and `unaccent` extensions are created at database
@@ -180,7 +180,7 @@ if the write commits. Retry and timeout policies are in `jobs/policies.ts`.
 One blob-store interface, two drivers: `local.ts` under `KEPT_DATA_DIR` and `s3.ts`
 (`KEPT_STORAGE=s3`). Originals stay byte-identical; display and thumbnail derivatives are made in
 the upload request. Every file is fetched through a five-minute signed URL: `/f/<token>` on local
-storage, a presigned URL on S3 (spec §7.11). See [file storage](/admin/storage/).
+storage, a presigned URL on S3. See [file storage](/admin/storage/).
 
 **Mail** ([`apps/server/src/mail`](https://github.com/keptinventory/kept/tree/main/apps/server/src/mail)).
 Nodemailer over `KEPT_SMTP_URL`. Without it, mail is logged as due and reminders reach people in

@@ -1,11 +1,11 @@
 /**
- * A call's cost, worked out once, at settle (D167, D206; engineering spec §7.15 "Cost"):
+ * A call's cost, worked out once, at settle (D167, D206):
  * 1. the provider's reported cost wins (OpenRouter's `providerMetadata.openrouter.usage.cost`,
  *    USD, with `usage: {include: true}` set in providers.ts);
  * 2. else the current price-table version: uncached input × input, cached input × cached
  *    (else input), output **minus reasoning** × output, reasoning × reasoning (else output),
  *    plus images × per-image when set;
- * 3. else unknown: shown as "cost unknown", never guessed (Q8).
+ * 3. else unknown: shown as "cost unknown", never guessed.
  *
  * Money is exact: rates and amounts are decimal strings with at most 6 places (the columns are
  * numeric(16,6)); the arithmetic runs on BigInt millionths and rounds half up once.
@@ -106,7 +106,7 @@ export function costOf(input: {
 }
 
 /**
- * The reservation's cost (§7.15 "Reservation"): the estimated input at the input rate plus the
+ * The reservation's cost: the estimated input at the input rate plus the
  * output allowance at the output rate. Null without a price: only tokens are reserved.
  */
 export function estimateCost(

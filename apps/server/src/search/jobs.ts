@@ -6,7 +6,7 @@ import { JOB_POLICIES } from '../jobs/policies.js';
 import type { JobQueue } from '../jobs/queue.js';
 import type { SystemJobDeps } from '../jobs/system.js';
 
-// The `reindex` job (T20; engineering spec §7.9): renaming or re-parenting a place, a container
+// The `reindex` job: renaming or re-parenting a place, a container
 // or a registry entry leaves the search documents and breadcrumbs of the things under it stale;
 // the route that did it enqueues this job for the location, in its own transaction
 // (enqueueReindex), and the worker rebuilds them through kept.reindex_location() on kept_system.

@@ -20,9 +20,9 @@ import type {
 } from './channel.js';
 import { runScan, type ScanDeps } from './scan.js';
 
-// Plan T14: the scan writes each occurrence exactly once (D111, §7.13), fans it out to the
-// centre and the channels by recipients.ts (D29, D57; Q8, Q10, Q13, Q16), closes what the agenda
-// dropped (done, superseded, cancelled; D162, §7.6) and never floods on resuming. Rows are
+// The scan writes each occurrence exactly once (D111), fans it out to the
+// centre and the channels by recipients.ts (D29, D57), closes what the agenda
+// dropped (done, superseded, cancelled; D162) and never floods on resuming. Rows are
 // seeded as kept_owner; the scan runs as kept_system (and the auth pool for addresses), as the
 // worker does.
 
@@ -193,7 +193,7 @@ describe('exactly once (D111, §7.13)', () => {
     expect(occ).toEqual([
       expect.objectContaining({ kind: 'overdue', state: 'open', due_period: `date:${plus(-2)}` }),
     ]);
-    // Owner and admin get every kind (Q8); both have a verified address, so one email each.
+    // Owner and admin get every kind; both have a verified address, so one email each.
     expect(await notifiedUsers(lent)).toEqual([ibrahim.userId, bruce].sort());
     expect(await deliveries(lent)).toEqual(
       [ibrahim.userId, bruce]

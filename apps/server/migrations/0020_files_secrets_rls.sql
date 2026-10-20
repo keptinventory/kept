@@ -1,11 +1,11 @@
 -- Custom SQL migration file, put your code below! --
--- Step 2, task 8: files and attachments, the secret store, saved views and hints (engineering
--- spec §1.5, §7.2, §7.3, §7.13; D42, D115, D116, D117, D138, D155, D157, D161, D177). The tables
+-- Files and attachments, the secret store, saved views and hints (D42, D115, D116, D117, D138, D155, D157, D161, D177).
+-- The tables
 -- are 0019's.
 --   1. Files: readable only through an attachment the caller can see, or by their uploader
---      before they are attached (§7.2); never edited. Derivatives follow their file.
+--      before they are attached; never edited. Derivatives follow their file.
 --   2. Attachments: location-scoped; a file id must be one the caller can see. The file foreign
---      key is DEFERRABLE for moves (task 9).
+--      key is DEFERRABLE for moves.
 --   3. A thing's receipts after a move (D115): kept.thing_receipts(), kept.thing_receipt_file().
 --   4. Secrets: versioned values readable only by who may reveal them; superseding works for a
 --      writer who can't reveal; policies are the location owner's (D177).
@@ -33,7 +33,7 @@ REVOKE UPDATE ON public.files, public.file_derivatives, public.attachments, publ
 
 -- 1. Files and derivatives ------------------------------------------------------------------
 -- The EXISTS runs under attachments' own policies, so a file is readable only through an
--- attachment the caller can see (§7.2, D177), or as its own upload before it is attached.
+-- attachment the caller can see (D177), or as its own upload before it is attached.
 CREATE POLICY app_select ON public.files FOR SELECT TO kept_app
   USING (location_id IN (SELECT kept.visible_location_ids())
          AND (created_by = (SELECT kept.current_user_id())
@@ -58,7 +58,7 @@ CREATE POLICY app_delete ON public.file_derivatives FOR DELETE TO kept_app
 
 -- 2. Attachments ----------------------------------------------------------------------------
 -- DEFERRABLE, so a cross-location move can re-home a file row and its attachments in one
--- transaction (task 9, SET CONSTRAINTS attachments_file_fk DEFERRED).
+-- transaction (SET CONSTRAINTS attachments_file_fk DEFERRED).
 ALTER TABLE public.attachments ADD CONSTRAINT attachments_file_fk FOREIGN KEY (location_id, file_id)
   REFERENCES public.files (location_id, id) ON UPDATE CASCADE ON DELETE CASCADE
   DEFERRABLE INITIALLY IMMEDIATE;
@@ -98,7 +98,7 @@ CREATE TRIGGER attachments_guard_file BEFORE INSERT ON public.attachments
   FOR EACH ROW EXECUTE FUNCTION kept.guard_attachment_file();
 --> statement-breakpoint
 
--- 3. Receipts after a move (§7.2, D115) ---------------------------------------------------------
+-- 3. Receipts after a move (D115) ---------------------------------------------------------------
 -- The receipt and invoice attachments of a thing's purchase, for a thing the caller can see,
 -- wherever the purchase is (a move within the account leaves it in the old location).
 CREATE FUNCTION kept.thing_receipts(p_thing uuid)
@@ -125,7 +125,7 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, public AS $$
 $$;
 --> statement-breakpoint
 
--- 4. Secrets (D116, D177, §7.13) ----------------------------------------------------------------
+-- 4. Secrets (D116, D177) -----------------------------------------------------------------------
 -- Whether the caller may reveal field `p_field` in `p_location`: by role (owners and admins
 -- unless the location's policy says otherwise) or by name.
 CREATE FUNCTION kept.can_reveal_secret(p_location uuid, p_field uuid) RETURNS boolean

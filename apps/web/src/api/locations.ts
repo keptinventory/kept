@@ -1,4 +1,4 @@
-/** Locations, memberships, modules, invites and managed accounts (tasks 19–21). */
+/** Locations, memberships, modules, invites and managed accounts. */
 import { allPages, api, ifMatch } from './client';
 import { paths } from './paths';
 import type {
@@ -66,7 +66,7 @@ export const updateMember = (
 export const removeMember = (id: string, membershipId: string) =>
   api.del(paths.locationMember(id, membershipId));
 
-/** PATCH a location's settings (§7.7): the server answers 428 without its `rowVersion`. */
+/** PATCH a location's settings: the server answers 428 without its `rowVersion`. */
 export const updateLocation = (id: string, body: UpdateLocationBody, rowVersion?: number) =>
   api.patch<LocationDetail>(paths.location(id), body, ifMatch(rowVersion));
 

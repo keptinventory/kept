@@ -1,5 +1,5 @@
 /**
- * The Schedules screen (plan T21; screens §5, D29, step-4 Q28): the boiler service in Home's
+ * The Schedules screen (D29): the boiler service in Home's
  * kitchen, due in 10 days; Complete, Snooze and Skip once with Undo; a new schedule that needs an
  * interval; and the viewer, module-off, offline and Arabic variants.
  */

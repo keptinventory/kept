@@ -111,11 +111,11 @@ Put `cosign.key` and its password in your password manager too. Copy `cosign.pub
 repository root and commit it (it is public by design; the docs' "Verifying a release" page names
 it). `cosign.key` never enters the repository (`.gitignore` already ignores `*.key`). Signing is
 key-based (D187), not keyless: keyless signing records the signer in the public transparency log,
-which plan Q14 keeps off while the repository is private.
+which stays off while the repository is private.
 
 **W2. The registry path.** `ghcr.io/keptinventory/kept` (and the chart at
 `ghcr.io/keptinventory/charts/kept`) is **inferred** from the Dockerfile's `SOURCE` default
-(`https://github.com/keptinventory/kept`), never confirmed (plan Q14). Confirm it, or set
+(`https://github.com/keptinventory/kept`), never confirmed. Confirm it, or set
 `KEPT_RELEASE_REGISTRY` (and `KEPT_RELEASE_CHART_REPO`) in the release step's `env:` in
 `release.yml`. The chart's own default (`charts/kept/values.yaml` `image.repository`) carries the
 same path; a release rewrites it in the packaged chart to wherever it published.
@@ -198,7 +198,7 @@ signature verified, so a failed run leaves only untagged digests behind (GHCR's 
 delete them in the package settings if you like). After a failure in **publish** only, "Re-run
 failed jobs" re-runs publish alone with the build jobs' digests: no rebuild.
 
-The chart's version is the release's (plan Q17): release X.Y.Z publishes chart X.Y.Z with
+The chart's version is the release's: release X.Y.Z publishes chart X.Y.Z with
 appVersion X.Y.Z, set by `helm package --version --app-version` at package time
 (`scripts/release/chart.sh`). Nothing is bumped by hand and no release edits the committed
 `charts/kept/Chart.yaml`, which stays `0.0.0-dev` for both (`check-helm.sh` fails otherwise). Each
@@ -275,7 +275,7 @@ exercise the later stages meanwhile, a dry run (never a release) can smoke with 
 |---|---|---|
 | preflight (workflow) | signing half set up, an unsigned `1.0.0`+, the GitHub release exists | Finish W1 (or undo it, before 1.0); delete the stray release, or release the next version |
 | preconditions | "already published", "not newer than", "not on origin/main" | Release the next version; push `main` before the tag (W4) |
-| build | `ERR_PNPM_BROKEN_METADATA_JSON` / a registry timeout in an install (spike R2; mostly the laptop's emulated amd64) | Retried once automatically; else re-run the workflow (or, on the laptop, run again on a quieter machine) |
+| build | `ERR_PNPM_BROKEN_METADATA_JSON` / a registry timeout in an install (mostly the laptop's emulated amd64) | Retried once automatically; else re-run the workflow (or, on the laptop, run again on a quieter machine) |
 | build, push | `denied` / `permission_denied` from ghcr.io | W3: the package isn't linked to the repository; give it Write in "Manage Actions access" |
 | verify | `/readyz` not 200 in time | The workflow allows 180 s (native); on the laptop, amd64 is emulated: `KEPT_RELEASE_BOOT_TIMEOUT=600`. The smoke's log is `smoke-<arch>.log` in the work directory (`.tmp/release/X.Y.Z/`); the build job prints its last 30 lines |
 | publish, join | "the joined index has linux/… but the build job smoked …" | Never expected (imagetools copies manifests as they are). Re-run all jobs; if it repeats, release from the laptop and report it |

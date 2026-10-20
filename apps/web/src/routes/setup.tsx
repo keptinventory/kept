@@ -1,5 +1,5 @@
 /**
- * First-run setup (screens §6, §8, D32, D190, D193): setup code → first account → instance
+ * First-run setup (D32, D190, D193): setup code → first account → instance
  * options → Finish setup. Three steps; the recovery-kit acknowledgement no longer blocks Finish
  * (D193): the status page asks for it. The code is 6 Crockford characters from the server's
  * logs (`KEPT SETUP CODE: XXX-XXX`); the dash is optional and case doesn't matter.

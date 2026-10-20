@@ -18,11 +18,11 @@ import { requireRole } from '../things/service.js';
 import { moneyOff, requireCurrencies } from '../things/validate.js';
 import { fillMeter, liveThingOf } from '../vehicles/meters.js';
 
-// Fuel and charging (step-5 plan T11; D11, D28, D76, D112, D150, D170; Q3, Q6, Q7, Q11, Q14,
-// Q22). A fill or a charge of a vehicle, in litres, kWh or US gallons as entered, with its cost,
+// Fuel and charging (D11, D28, D76, D112, D150, D170).
+// A fill or a charge of a vehicle, in litres, kWh or US gallons as entered, with its cost,
 // whether it filled up, whether a fill-up was missed before it, the station and its odometer.
 // The route (fuel/routes.ts) and step 6's `log_fuel` tool (tools/handlers/vehicles.ts) both call
-// logFuel(): one implementation (§2.5).
+// logFuel(): one implementation.
 //
 // - The module is `fuel` (which needs `vehicles`), gated by the route's config and the tool's
 //   contract. Adding a fill is `logs.add`; changing or removing your own `logs.edit-own`, anyone's
@@ -31,7 +31,7 @@ import { fillMeter, liveThingOf } from '../vehicles/meters.js';
 //   (meters/service.ts createReading) in the same transaction, on the thing's odometer unless the
 //   body names another of its meters. A value that runs backwards is refused at entry, nothing
 //   written: 409 `conflict` with `reason` and the neighbour, as the meters section refuses it
-//   (step 4's code; plan notes: no `reading_refused`). The fill owns its reading (Q11): changed
+//   (step 4's code; plan notes: no `reading_refused`). The fill owns its reading: changed
 //   through the fill, deleted with it.
 // - Money (the cost) is written only by someone whose gate shows money (409 `module_off`), in an
 //   enabled currency (the location's by default); the database checks only that the code exists.
@@ -186,7 +186,7 @@ export async function fuelRow(ctx: Ctx, id: string): Promise<FuelRow> {
   return row;
 }
 
-/** A fill's audit image: its columns as stored, and its reading's value (Q11). */
+/** A fill's audit image: its columns as stored, and its reading's value. */
 export const imageOf = (r: EntryRecord) => ({
   thing_id: r.thing_id,
   taken_at: r.taken_at.toISOString(),
@@ -374,7 +374,7 @@ export async function logFuel(
   let reading: CreateFuelResult['reading'];
   if (body.reading) {
     const meter = await fillMeter(client, thing.id, body.reading.meterId);
-    // The proof photo hangs on the reading it proves (D195, Q10; meters/proofs.ts).
+    // The proof photo hangs on the reading it proves (D195; meters/proofs.ts).
     const made = await createReading(
       ctx,
       meter.id,
@@ -462,7 +462,7 @@ const FIELDS: readonly (keyof UpdateFuelInput)[] = [
 
 /**
  * PATCH /api/v1/fuel/:id (If-Match) → FuelRow. A changed odometer or time re-places the fill's
- * own reading through the meters' check (409 when it runs backwards; Q11: the fill is how its
+ * own reading through the meters' check (409 when it runs backwards; the fill is how its
  * reading changes). A new receipt replaces the old one. Audited `fuel.update`, undoable.
  */
 export async function updateFuel(
@@ -496,7 +496,7 @@ export async function updateFuel(
       throw invalid("Check body.reading.meterId: a fill's reading stays on its meter.");
     }
     if (readingId) {
-      // The fill owns its reading (Q11): changed here, through its owner, placed again.
+      // The fill owns its reading: changed here, through its owner, placed again.
       await updateReading(
         ctx,
         readingId,
@@ -583,7 +583,7 @@ export type HeldAttachment = {
   sort: number;
 };
 
-/** A deleted fill's reading, as its event keeps it (Q14). */
+/** A deleted fill's reading, as its event keeps it. */
 export type HeldReading = {
   id: string;
   meter_id: string;
@@ -596,7 +596,7 @@ export type HeldReading = {
 };
 
 /**
- * DELETE /api/v1/fuel/:id (If-Match) → {undo}. A real delete (Q14): its reading and receipt go
+ * DELETE /api/v1/fuel/:id (If-Match) → {undo}. A real delete: its reading and receipt go
  * with it; the event holds all three, and undo puts them back (refused when the reading no longer
  * fits the series). Removing a cost or a receipt the caller can't see is refused (409).
  */

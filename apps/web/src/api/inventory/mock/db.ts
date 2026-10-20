@@ -66,7 +66,7 @@ export type InventoryState = {
   readings: Record<string, Reading[]>;
   files: Record<string, FileView>;
   attachments: (AttachmentView & { locationId: string })[];
-  /** A file's text (a PDF's text layer, or a receipt's), by file id: document search (T21). */
+  /** A file's text (a PDF's text layer, or a receipt's), by file id: document search. */
   fileText?: Record<string, string>;
   savedViews: SavedView[];
   /** Your default and pinned views, per list (D205). */
@@ -79,7 +79,7 @@ export type InventoryState = {
    * Step 4's part of a thing and of an attachment, installed by api/household/mock when the mock
    * server is built (absent in a bare inventory state): the derived states lent, borrowed and in
    * repair, the view's loan line, repair vendor and current value, and the attachment subjects a
-   * warranty, a claim and a loan add (T20).
+   * warranty, a claim and a loan add.
    */
   step4?: Step4Hooks;
 };
@@ -236,7 +236,7 @@ export function paginate<T>(items: T[], query: URLSearchParams, defaultLimit = 5
   return { items: slice, next_cursor: more ? String(start + limit) : null };
 }
 
-/** A smaller stand-in for `kept.normalize` + the prefix stripping of screens §8 (D42, Q20). */
+/** A smaller stand-in for `kept.normalize` + the search prefix stripping (D42). */
 export function fold(s: string): string {
   return s
     .normalize('NFKC')

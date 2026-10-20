@@ -1,12 +1,12 @@
 /**
- * The provider layer's ports (step-3 T8). `callModel` (call.ts) talks to four of them, so the
- * layer is built and tested before the step-3 tables exist (T6). memory.ts has in-memory
- * implementations for tests, the evaluation harness (T11) and development; the DB-backed ones
+ * The provider layer's ports. `callModel` (call.ts) talks to four of them, so the
+ * layer is built and tested before the step-3 tables exist. memory.ts has in-memory
+ * implementations for tests, the evaluation harness and development; the DB-backed ones
  * plug in with T6's `kept.ai_*` doors:
  *
  * | Port | In memory | With T6 |
  * |---|---|---|
- * | `KeyStore` | a provider list + the Q5 cascade (resolve.ts) | `kept.ai_provider_for` / `kept.ai_provider_secret`, then the keyring's `open()` |
+ * | `KeyStore` | a provider list + the provider cascade (resolve.ts) | `kept.ai_provider_for` / `kept.ai_provider_secret`, then the keyring's `open()` |
  * | `BudgetGate` | caps, buckets and windows (memory.ts) | `kept.ai_reserve` / `kept.ai_settle` |
  * | `Ledger` | an array of rows | `kept.ai_reserve` (held-back rows) and `kept.ai_settle` (the rest) |
  * | `Pacer` | breaker + header limits + key slots | `ai_breakers` (`kept.ai_trip`), `ai_provider_limits`, the `key:` leases |
@@ -69,13 +69,13 @@ export type ResolveRequest = {
 };
 
 export interface KeyStore {
-  /** The D121/D167/D206 cascade (Q5) for a task; null: no provider, and AI stays off (D19). */
+  /** The D121/D167/D206 cascade for a task; null: no provider, and AI stays off (D19). */
   resolve(req: ResolveRequest): Promise<Resolved | null>;
-  /** One provider the caller manages, for "Test connection" and the model list (T9). */
+  /** One provider the caller manages, for "Test connection" and the model list. */
   forProvider(providerId: string, task: AiTask): Promise<Resolved | null>;
 }
 
-/** One `llm_calls` row (engineering spec §7.15), camelCased. Never a prompt, image, reply,
+/** One `llm_calls` row, camelCased. Never a prompt, image, reply,
  * provider message or key: there is no field that could hold one. */
 export type LedgerEntry = {
   reservationId: string | null;
@@ -168,7 +168,7 @@ export type ReserveRefused =
 export type ReserveResult = { ok: true; reservation: Reservation } | ReserveRefused;
 
 /** A monthly cap this call took past 80% or 100% (once per cap per month): enqueue
- * `ai.cap_notice` (T9). */
+ * `ai.cap_notice`. */
 export type Crossed = { budgetId: string; bucket: string; level: 80 | 100; month: string };
 
 export interface BudgetGate {
@@ -223,7 +223,7 @@ export interface Pacer {
   release(lease: KeyLease): Promise<void>;
   /** After every sent call: the rate-limit headers and what happened, for the breaker. */
   observe(p: ProviderRef, seen: Observed, now: Date): Promise<ProviderLimits | null>;
-  /** A replaced key clears an `auth` trip (T9). */
+  /** A replaced key clears an `auth` trip. */
   clearAuth(providerId: string): Promise<void>;
   /** The most tokens one request may hold: the per-minute limit the provider's headers last
    * named (Groq's 413 "Request too large … TPM"); null while none is known (1.4.1). */

@@ -69,7 +69,7 @@ describe('Members and roles', () => {
         expiresAt: null,
       }),
     );
-    // The server refuses a PATCH without If-Match (§7.7).
+    // The server refuses a PATCH without If-Match.
     expect(
       mock.lastCall('PATCH', paths.locationMember(IDS.home, 'm-alfred'))?.headers['if-match'],
     ).toBe('3');

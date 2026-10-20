@@ -1,5 +1,5 @@
 /**
- * The Lending screen and the person page (plan T22; D56, D57, screens §5): the drill Bruce lent
+ * The Lending screen and the person page (D56, D57): the drill Bruce lent
  * Murdock (2 days overdue) first, the ladder borrowed from Murdock; Mark returned with Undo; the
  * polite reminder copied, never sent; Murdock's page with "Has from us" and "Lent to us"; and the
  * viewer, module-off and Arabic variants.

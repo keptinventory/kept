@@ -1,25 +1,25 @@
 -- Custom SQL migration file, put your code below! --
--- Step 3, task 7: labels, blank claims and duplicate merges (D36, D43, D44, D112, D137, D172,
--- D175; engineering spec §2.4, §3.1b; plan Q16, Q24). Above, in 0041, drizzle's part:
+-- Labels, blank claims and duplicate merges (D36, D43, D44, D112, D137, D172,
+-- D175). Above, in 0041, drizzle's part:
 -- label_batches and label_batch_codes (src/db/schema/labels.ts). Below:
 --   1. Row-level security: a location's batches are read by whoever sees it and made by its
 --      writers (`labels.use`: owners, admins, members); a batch's codes are its location's own
 --      visible codes, so a batch can't probe another household's codes through the foreign key.
 --      Only "Printed OK?" is ever updated; codes are never updated or deleted.
---   2. The blank-label cap (§3.1b): at most 1,000 unclaimed blank codes per location, checked
+--   2. The blank-label cap: at most 1,000 unclaimed blank codes per location, checked
 --      under a per-location advisory lock (23514 short_ids_blank_cap, 409 blank_cap_reached).
 --   3. kept.claim_blank_code(): claiming a pre-printed blank label for a thing or a place of the
 --      location it was printed for, decided by the server (D43, D112): `claimed`, or
 --      `already_claimed` with who has it when it was claimed first, in a location the caller
 --      sees. Anything else (missing, retired, another location, invisible) is the same 42501 a
---      missing code gives (D137, §2.4, Q24).
---   4. kept.merge_things(): a duplicate merged into its survivor, keeping both histories (D36,
---      Q16). The merged thing is trashed with merged_into_id; its attachments, contents, tags,
+--      missing code gives (D137).
+--   4. kept.merge_things(): a duplicate merged into its survivor, keeping both histories (D36).
+--      The merged thing is trashed with merged_into_id; its attachments, contents, tags,
 --      links, legacy codes, meters (when the survivor has none), secret values (for fields the
 --      survivor has no value for) and purchase line (when the survivor has none) move to the
 --      survivor, and its short IDs become the survivor's secondary codes, so an old label still
---      finds it. Returns the references moved. It doesn't audit: the route does (T15).
---   6. kept.set_file_display() (T13, `PUT /files/:id/display`): the phone's display, thumb and
+--      finds it. Returns the references moved. It doesn't audit: the route does.
+--   6. kept.set_file_display() (`PUT /files/:id/display`): the phone's display, thumb and
 --      share renditions of a photo, and `derivative_state = 'ready'`, on a file the caller may see
 --      (through an attachment, or as its uploader before it is attached: files' own rule, 0020)
 --      in a location the caller writes. kept_app may not UPDATE files (append-only), so this is

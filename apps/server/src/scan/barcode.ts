@@ -4,10 +4,10 @@ import { z } from 'zod';
 import { AppError } from '../http/errors.js';
 import { guardedFetch } from '../net/ssrf.js';
 
-// Product barcode lookup (plan T17; D104, D126; engineering spec §2.4, §3.2; Q22; V28).
+// Product barcode lookup (D104, D126).
 //
 // Off by default (D126). An instance admin turns it on in the admin settings (or the first-run
-// options); KEPT_BARCODE_LOOKUP, when set, locks it either way (§7.11: the environment wins).
+// options); KEPT_BARCODE_LOOKUP, when set, locks it either way (the environment wins).
 //
 // When on, a lookup asks the Open*Facts databases, in order, until one knows the product:
 // Open Food Facts, Open Products Facts, Open Beauty Facts. Each is asked at most once per lookup,
@@ -25,9 +25,9 @@ import { guardedFetch } from '../net/ssrf.js';
 //   (ContactEmail)"); the contact is KEPT_BARCODE_CONTACT, else the admin's `barcode_contact`
 //   setting. Without either the User-Agent is `Kept/<version>` alone.
 // - Through guardedFetch (net/ssrf.ts): no private addresses, no redirects; 5 s per call.
-// - At most 15 lookups a minute across the instance (§3.2; their documented limit is 15 product
+// - At most 15 lookups a minute across the instance (their documented limit is 15 product
 //   reads a minute per IP), through the shared DB limiter; the 16th is 429 with Retry-After.
-// - Nothing is stored, and no product image is fetched or passed on (CSP `img-src 'self'`; Q22:
+// - Nothing is stored, and no product image is fetched or passed on (CSP `img-src 'self'`:
 //   a shared cache would tell one household what another scanned).
 //
 // `barcodeTransport.fetch` is the one way out; tests replace it with a double.
@@ -64,7 +64,7 @@ export type BarcodeSettings = {
   contact: { value: string | null; locked: boolean };
 };
 
-/** The instance's barcode settings, the environment winning (§7.11). `db` reads
+/** The instance's barcode settings, the environment winning. `db` reads
  * instance_settings: kept_system, or an instance admin's scoped connection. */
 export async function readBarcodeSettings(
   db: Pick<pg.ClientBase, 'query'>,

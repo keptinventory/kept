@@ -1,6 +1,6 @@
 /**
- * The offline sync contract (engineering spec §2.2, §2.3, §7.4; D17, D35, D112, D148, D172,
- * D175; plan Q1–Q3, Q30). The phone's queue items and the server's `POST /api/v1/sync/ops`
+ * The offline sync contract (D17, D35, D112, D148, D172,
+ * D175). The phone's queue items and the server's `POST /api/v1/sync/ops`
  * parse with these schemas, and the snapshot rows are typed here once for both sides.
  *
  * Payloads are versioned (D148). The server takes `MIN_PAYLOAD_VERSION`…`PAYLOAD_VERSION`,
@@ -43,7 +43,7 @@ export const OP_KINDS = [
 ] as const;
 export type OpKind = (typeof OP_KINDS)[number];
 
-/** Each op's answer (§2.3, §7.4). */
+/** Each op's answer. */
 export const OUTCOMES = ['applied', 'needs_review', 'dropped'] as const;
 export type Outcome = (typeof OUTCOMES)[number];
 
@@ -59,7 +59,7 @@ export const DROP_REASONS = [
 ] as const;
 export type DropReason = (typeof DROP_REASONS)[number];
 
-/** Limits (§2.2, §7.4, plan T12, T14, Q2, Q30). */
+/** Limits. */
 export const SYNC_LIMITS = Object.freeze({
   /** Ops per `POST /sync/ops`. */
   opsPerBatch: 50,
@@ -68,9 +68,9 @@ export const SYNC_LIMITS = Object.freeze({
   /** Snapshot page size: default and maximum. */
   snapshotPageDefault: 1000,
   snapshotPageMax: 2000,
-  /** Things per user in the snapshot; past it the response says `truncated` (Q30). */
+  /** Things per user in the snapshot; past it the response says `truncated`. */
   snapshotThings: 20_000,
-  /** The ops-only client-id window (Q2); online routes keep ±7 days (§7.7). */
+  /** The ops-only client-id window; online routes keep ±7 days. */
   clientIdPastDays: 90,
   clientIdFutureDays: 1,
 });
@@ -106,7 +106,7 @@ export const CreateThingPayload = z.strictObject({
         /**
          * The original's SHA-256 (the `X-Kept-Sha256` it was uploaded with). The upload of bytes
          * already in the location answers the existing file (`deduplicatedFrom`, D177) and makes
-         * no file with `fileId`; the server then finds that file by this hash (plan T14).
+         * no file with `fileId`; the server then finds that file by this hash.
          */
         sha256: z
           .string()
@@ -118,8 +118,8 @@ export const CreateThingPayload = z.strictObject({
   /** "+ photo to this thing" (D175): the capture adds its files to an existing draft. */
   attachToThingId: uuid.optional(),
   /**
-   * RECEIPT mode's "+ photo" (screens §8 "Receipt pages"): this capture's files are further
-   * pages of the receipt captured with that capture `id`, not a new receipt (plan Q13).
+   * RECEIPT mode's "+ photo": this capture's files are further
+   * pages of the receipt captured with that capture `id`, not a new receipt.
    */
   pageOf: uuid.optional(),
   /** RECEIPT and READING modes' "Note (optional)": text kept with the capture, never a name. */
@@ -238,7 +238,7 @@ export function parseOpPayload<K extends OpKind>(op: K, payload: unknown) {
 }
 
 /**
- * One queued op (§2.3, camelCased for the API). `payload` stays `unknown` here: it is validated
+ * One queued op (camelCased for the API). `payload` stays `unknown` here: it is validated
  * with the op's schema only after `upgradePayload`. `dependsOn` lists the idempotency keys of
  * earlier ops this one needs (a thing created in an area created offline); if any was dropped,
  * this one is dropped as `parent_dropped`.
@@ -263,7 +263,7 @@ export const SyncOpsRequestSchema = z.strictObject({
 export type SyncOpsRequest = z.output<typeof SyncOpsRequestSchema>;
 
 /**
- * One op's answer in `POST /sync/ops` (plan T14). `reason` when needs_review: `already_claimed`
+ * One op's answer in `POST /sync/ops`. `reason` when needs_review: `already_claimed`
  * (claim_label, or create_thing's `claimCode`), or the reading check's `lower_than_previous`,
  * `higher_than_next`, `implausible_jump`. `notice` names what changed under the op: "<name> was
  * <action> by <by>" (the place a move was going to, the thing it moved; D35).
@@ -282,13 +282,13 @@ export type SyncOpResult = {
 /**
  * The answers, in the order the ops were sent. An op the server could not answer (an internal
  * error: not a domain outcome) stops the batch there: `results` holds the answers before it, with
- * status 200, and the phone sends the rest again with the same keys (plan T14, T24).
+ * status 200, and the phone sends the rest again with the same keys.
  */
 export type SyncOpsResponse = { results: SyncOpResult[] };
 
 export type PayloadVersionStatus = 'ok' | 'client_outdated' | 'server_outdated';
 
-/** Where a payload version falls against this build's window (Q3). */
+/** Where a payload version falls against this build's window. */
 export function payloadVersionStatus(version: number): PayloadVersionStatus {
   if (version < MIN_PAYLOAD_VERSION) return 'client_outdated';
   if (version > PAYLOAD_VERSION) return 'server_outdated';
@@ -340,7 +340,7 @@ export function upgradePayload(
 }
 
 // ---------------------------------------------------------------------------------------------
-// The snapshot (plan T12: `GET /api/v1/sync/snapshot`). No secrets, money, documents or contact
+// The snapshot (`GET /api/v1/sync/snapshot`). No secrets, money, documents or contact
 // details, ever (D36, D159).
 
 export type SnapLocation = {
@@ -378,7 +378,7 @@ export type SnapPlace = {
 };
 
 /**
- * A meter on a thing, as READING needs it offline (plan T12, T13): which one to read, and how to
+ * A meter on a thing, as READING needs it offline: which one to read, and how to
  * name it (`label`, else its kind: "Odometer", "Hours"). No readings, no offset: those stay
  * online.
  */
@@ -388,7 +388,7 @@ export type SnapMeter = {
   unit: string;
   label: string | null;
   /**
-   * Step 5 (Q18): the latest accepted reading, offset-corrected, so offline "Log a reading" shows
+   * The latest accepted reading, offset-corrected, so offline "Log a reading" shows
    * the last value. Optional: an older snapshot row still parses. Not money, not secret.
    */
   latest?: { value: string; takenAt: string };
@@ -420,12 +420,12 @@ export type SnapThing = {
    */
   meters?: SnapMeter[];
   /**
-   * Step 4: the loan and repair states derived on the server (D119), so the offline path reads
+   * The loan and repair states derived on the server (D119), so the offline path reads
    * "with Murdock · due 17 Oct". Absent means none. Additive: no payload version change.
    */
   derived?: ('lent' | 'borrowed' | 'in_repair')[];
   /** The open loan, if any: a person's name is not a contact detail; no phone, email or notes
-   * ever reach the phone (D36; step-4 plan Q34). */
+   * ever reach the phone (D36). */
   loan?: { direction: LoanDirection; personName: string; dueOn: string | null };
   deleted: boolean;
 };
@@ -456,7 +456,7 @@ export const legacyCodeKey = (
 ) => `${c.locationId}:${c.source}:${c.sourceCollection}:${c.code}`;
 
 /**
- * Something that left a location (§7.4 tombstones, D156): purged, merged away, converted, or
+ * Something that left a location (tombstones, D156): purged, merged away, converted, or
  * moved to another location. It says "not in `locationId` any more", so the phone removes it only
  * where it holds it in that location: a thing moved to another location the person also sees
  * arrives there in `changes` (the same pass, or the next), and its old location's tombstone must
@@ -499,6 +499,6 @@ export type SnapshotPage = {
    * auth secret changed) is a 400 `validation`: drop it and the cached copy, and pull afresh. */
   nextCursor: string;
   complete: boolean;
-  /** Past `SYNC_LIMITS.snapshotThings`: "Only part of your Kept is on this phone" (Q30). */
+  /** Past `SYNC_LIMITS.snapshotThings`: "Only part of your Kept is on this phone". */
   truncated?: boolean;
 };

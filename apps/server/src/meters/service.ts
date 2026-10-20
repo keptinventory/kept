@@ -22,8 +22,8 @@ import { type Estimate, estimateOf } from './estimate.js';
 import { attachProof, type ProofRef, proofsOf } from './proofs.js';
 import { whenDays } from './when.js';
 
-// Meters and readings, core (plan T16; D26, D52, D112, D113, D183; engineering spec §3.4,
-// §7.13). Every function runs in the request's scoped kept_app transaction: RLS decides what
+// Meters and readings, core (D26, D52, D112, D113, D183).
+// Every function runs in the request's scoped kept_app transaction: RLS decides what
 // exists (a 404 otherwise), can() what the caller's role may do (a 403), and each write commits
 // with its audit row. Meters are core infrastructure (D113), so no module gates these routes.
 //
@@ -35,9 +35,9 @@ import { whenDays } from './when.js';
 //   refused (409 `conflict`, `reason`, and the neighbour it collides with); one that fits is
 //   accepted; one that climbs faster than the daily limit is kept as `needs_review`
 //   (`implausible_jump`), and the meter shows it with Keep, Edit and Discard. Readings arriving
-//   by sync (step 3) go to the Inbox instead of being refused.
+//   by sync go to the Inbox instead of being refused.
 // - `logged_by` and `received_at` are stamped by the database (0024), never taken from here.
-// - Step 5 (T8; D26, D27, D52, D150, D195; Q9, Q10, Q11, Q19):
+// - Step 5 (D26, D27, D52, D150, D195):
 //   - "It's right" (`confirmJump`): online, an implausible jump confirmed at entry is accepted, and
 //     its audit says so (`confirmed: 'implausible_jump'`); backwards is never confirmable. A
 //     jump arriving by sync still goes to the Inbox.
@@ -57,7 +57,7 @@ export type Ctx = {
   client: pg.PoolClient;
   scope: Scope;
   requestId: string;
-  /** For proof thumbnails in a list (step 5); absent, they come without one. */
+  /** For proof thumbnails in a list; absent, they come without one. */
   files?: FileStorage | null | undefined;
 };
 
@@ -79,9 +79,9 @@ export type MeterView = {
   maxPerDay: number | null;
   offset: string;
   rowVersion: number;
-  /** Step 5 (Q19): the stale-reading nudge's days, or null for none. */
+  /** The stale-reading nudge's days, or null for none. */
   nudgeDays: number | null;
-  /** Step 5 (Q8): kept.meter_estimate(). */
+  /** kept.meter_estimate(). */
   estimate: Estimate;
 };
 
@@ -96,13 +96,13 @@ export type ReadingView = {
   note: string | null;
   /** Beyond the contract's Reading: an If-Match a client may send with PATCH. */
   rowVersion: number;
-  /** Step 5: its proof photo (D195), in lists. */
+  /** Its proof photo (D195), in lists. */
   proof?: ProofRef;
-  /** Step 5 (Q11): the fill or service that owns it, which changes it. */
+  /** The fill or service that owns it, which changes it. */
   ownedBy?: ReadingOwner;
 };
 
-/** A fill or a service that owns a reading (Q11). */
+/** A fill or a service that owns a reading. */
 export type ReadingOwner = { type: 'fuel' | 'service'; id: string };
 
 export type CreateReadingResult = {
@@ -249,7 +249,7 @@ async function readingRow(client: pg.ClientBase, id: string): Promise<ReadingRow
 /**
  * A reading the caller may change, with its meter locked: 404 when they can't see it (or its
  * thing is trashed), 403 unless their role may change it. Their own: `logs.edit-own`; anyone
- * else's: `logs.edit-delete-others` (product design §7.1).
+ * else's: `logs.edit-delete-others`.
  */
 async function changeableReading(
   client: pg.ClientBase,
@@ -314,7 +314,7 @@ async function placement(
 
 /**
  * Where `value`, taken at `takenAt`, would fall in a live meter's series, with the meter; null when
- * the caller can't see it or its thing is trashed. For a reading AI read (step-3 T10), which is
+ * the caller can't see it or its thing is trashed. For a reading AI read, which is
  * never applied: it waits for review with this verdict (D19, D112).
  */
 export async function placementOf(
@@ -417,7 +417,7 @@ export async function createMeter(
 export type UpdateMeterInput = {
   label?: string | null | undefined;
   maxPerDay?: number | null | undefined;
-  /** Step 5 (Q19): 7–365 days, or null for no nudge. */
+  /** 7–365 days, or null for no nudge. */
   nudgeDays?: number | null | undefined;
 };
 
@@ -534,7 +534,7 @@ export async function recordReplacement(
 
 const ReadingCursor = z.tuple([z.iso.datetime({ offset: true }), z.uuid()]);
 
-/** GET /api/v1/meters/:id/readings: the `readings` surface's filters (step 5, T8; D205). */
+/** GET /api/v1/meters/:id/readings: the `readings` surface's filters (D205). */
 export type ReadingListQuery = {
   limit: number;
   cursor?: string | undefined;
@@ -548,7 +548,7 @@ export type ReadingListQuery = {
 
 /**
  * GET /api/v1/meters/:id/readings → by when they were taken, newest first unless `dir=asc`,
- * `{items, next_cursor}`; each with its proof photo and its owner (a fill or a service, Q11).
+ * `{items, next_cursor}`; each with its proof photo and its owner (a fill or a service).
  * `f.when` is in the location's days.
  */
 export async function listReadings(
@@ -629,7 +629,7 @@ export async function listReadings(
   };
 }
 
-/** The fill or service owning each reading (Q11), read as the caller: an owner lives in its
+/** The fill or service owning each reading, read as the caller: an owner lives in its
  * reading's location (their composite keys), which the caller sees when they see the reading. */
 export async function ownersOf(
   client: pg.ClientBase,
@@ -649,7 +649,7 @@ export async function ownersOf(
   return out;
 }
 
-/** 409 `reading_owned` (Q11): a fill's or a service's reading is changed through its owner. */
+/** 409 `reading_owned`: a fill's or a service's reading is changed through its owner. */
 async function refuseOwned(client: pg.ClientBase, readingId: string): Promise<void> {
   const owner = (await ownersOf(client, [readingId])).get(readingId);
   if (owner) {
@@ -665,7 +665,7 @@ async function refuseOwned(client: pg.ClientBase, readingId: string): Promise<vo
 }
 
 /** Whether a write may change a reading someone else owns: `allow` for the owner's own writes
- * (a service's edit) and the Inbox's reading actions, whose owner follows (Q11). */
+ * (a service's edit) and the Inbox's reading actions, whose owner follows. */
 export type OwnedOption = { owned?: 'refuse' | 'allow' };
 
 export type CreateReadingInput = {
@@ -673,18 +673,18 @@ export type CreateReadingInput = {
   value: string;
   takenAt: string;
   note?: string | undefined;
-  /** Step 5 (Q9): "It's right": an implausible jump is stored accepted. Online only. */
+  /** "It's right": an implausible jump is stored accepted. Online only. */
   confirmJump?: true | undefined;
-  /** Step 5 (Q10, D195): the photo that proves it, hung on the reading. */
+  /** Step 5 (D195): the photo that proves it, hung on the reading. */
   proofFileId?: string | undefined;
 };
 
 export type CreateReadingOptions = {
-  /** `op`: the `log_reading` sync op (step-3 T14), which checked the client id against its own
+  /** `op`: the `log_reading` sync op, which checked the client id against its own
    * 90-day window, and whose misfit is never refused: a reading that runs backwards is kept as
    * `needs_review` with its reason, for the Inbox (D112: never silently rejected). */
   via?: 'online' | 'op';
-  /** The reading can be undone for 7 days (a tool's write, step-6 T9, D124): undo removes it,
+  /** The reading can be undone for 7 days (a tool's write, D124): undo removes it,
    * unless it changed since. */
   undoable?: boolean;
 };
@@ -695,8 +695,8 @@ export async function createReading(
   ctx: Ctx,
   meterId: string,
   body: CreateReadingInput,
-  /** `photo` for a READING capture's typed value (capture/service.ts, T13; §1.6); `fuel` for a
-   * fill's odometer (fuel/service.ts, T11); `home_assistant` when the integration says so (D244).
+  /** `photo` for a READING capture's typed value (capture/service.ts); `fuel` for a
+   * fill's odometer (fuel/service.ts); `home_assistant` when the integration says so (D244).
    * 0017's meter_readings_source_chk accepts them all. */
   source: 'manual' | 'photo' | 'fuel' | 'import' | 'home_assistant' = 'manual',
   opts: CreateReadingOptions = {},
@@ -709,7 +709,7 @@ export async function createReading(
   const p = await placement(client, meter, body.value, takenAt, null);
   if (!byOp) refuseBackwards(meter, p);
   // Online, only a jump is left to review here (backwards was refused above), unless the person
-  // says it's right (Q9); by op, any misfit.
+  // says it's right; by op, any misfit.
   const confirmed = !byOp && body.confirmJump === true && p.reason === 'implausible_jump';
   const review = p.reason !== null && !confirmed;
   const { rows } = await client.query<{ id: string }>(

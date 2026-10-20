@@ -1,5 +1,5 @@
 /**
- * The update line (D65; plan T21, frame 107): "Kept 1.3.0 is available", what this server runs,
+ * The update line (D65): "Kept 1.3.0 is available", what this server runs,
  * and "What's new", a link out to the release page the check returned. Shown at the top of the
  * instance admin's pages (admin.tsx), so it is on the status page and the admin index alike, and
  * only while the opt-in check found a newer release. Nothing is downloaded or installed.

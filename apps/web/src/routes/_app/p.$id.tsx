@@ -1,11 +1,11 @@
 /**
- * A place's page (screens §5 Place, D160): the breadcrumb, its label ID, "Add here", its fields,
+ * A place's page (D160): the breadcrumb, its label ID, "Add here", its fields,
  * then what's in it (places first, then things) under the list standard, its attachments, and
  * every place operation: rename, move (re-parent within the location), merge, turn into a box,
  * label, share as a read-only link (owners and admins, never in Personal; 1.5, D233), and trash
  * with a choice for what's inside (D45).
  *
- * Controls follow screens §3: hidden for a role that can't use them; the label action shows
+ * Controls follow the role rules: hidden for a role that can't use them; the label action shows
  * "Off in this location" when the Labels module is off. The Unplaced area (D118) is a place too,
  * but a fixed one: it can't be renamed, moved, merged, converted or trashed.
  */
@@ -87,7 +87,7 @@ export const Route = createFileRoute('/_app/p/$id')({
   component: PlacePage,
 });
 
-/** `$id` is the short ID or the UUID (D208, T17a; lib/address.ts): a UUID address, or a code
+/** `$id` is the short ID or the UUID (D208; lib/address.ts): a UUID address, or a code
  * typed another way, is replaced in place by the short ID once the place has one. */
 function PlacePage() {
   const { id: param } = Route.useParams();
@@ -113,7 +113,7 @@ function PlaceScreen({ id, param }: { id: string; param: string }) {
   const place = usePlace(id);
   useCanonicalAddress('place', param, place.data);
   const location = useLocation(place.data?.locationId ?? '');
-  // Offline, or the server out of reach: the phone's copy, "as of last sync" (T28).
+  // Offline, or the server out of reach: the phone's copy, "as of last sync".
   const offline = useOfflinePage(place);
   if (offline) return <OfflinePlacePage id={id} />;
   if (place.error)
@@ -413,8 +413,8 @@ function ActionRow({
 
 /**
  * The label actions (D120, D137, `labels` module): give the place a short ID, print its label,
- * and "Label everything here" that has never been printed (the batch builder, plan T28). Off in
- * this location → says so, with "Turn on" for admins (§3).
+ * and "Label everything here" that has never been printed (the batch builder). Off in
+ * this location → says so, with "Turn on" for admins.
  */
 function LabelRow({ place, location }: { place: PlaceView; location: LocationDetail }) {
   const { t } = useLingui();

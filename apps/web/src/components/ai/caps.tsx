@@ -1,5 +1,5 @@
 /**
- * Caps and budgets (D19, D167, D206; screens §5 AI settings "Caps"): monthly money and/or tokens
+ * Caps and budgets (D19, D167, D206): monthly money and/or tokens
  * for the account, per location ("Home: USD 3.00 · inside the account's USD 5.00"), per person in
  * the account, a personal key's own cap, the instance's (overall and per account), and the
  * per-task budgets (tokens a minute, a day and a month). Money fields are plain inputs with Kept's
@@ -7,7 +7,7 @@
  * the account's cap" inline (400 `cap_above_account`). "Pause AI" pauses the scope by hand.
  *
  * Readers who can't edit (a location's admins, a member for their own row) see the same rows
- * without the buttons (screens §3: hidden for the role).
+ * without the buttons (hidden for the role).
  */
 import { AI_TASKS, type AiTask, DEFAULT_BUDGETS } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
@@ -371,7 +371,7 @@ function PauseButton({ target }: { target: CapTarget }) {
 }
 
 /**
- * "Limit an account" (Admin → AI; step-3 carry-over, T19): the accounts on this server by their
+ * "Limit an account" (Admin → AI): the accounts on this server by their
  * owner's name, found on the server as you type, each with how many locations it owns; nothing
  * about what's in them (D33). Picking one sets its own cap on the server's key.
  */

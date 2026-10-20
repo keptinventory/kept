@@ -6,7 +6,7 @@ import type { Pools } from '../db/pools.js';
 import { type Scope, type Tx, withScope } from '../db/scope.js';
 import { hashRequest, type StoredResponse, withIdempotency } from './conventions.js';
 
-// One way for a route to write (engineering spec §7.7; D94, D156): a scoped kept_app transaction
+// One way for a route to write (D94, D156): a scoped kept_app transaction
 // for the signed-in user, with the request's Idempotency-Key honoured inside it. Whatever `fn`
 // does (the write, its audit event, a job sent with sendInTx) commits or rolls back together, and
 // the stored response with it: a retry after a rollback runs afresh.

@@ -1,11 +1,11 @@
 /**
- * Per-location roles and the role matrix, transcribed from product design §7.1 (all rows, not
- * only those step 1 uses). Each action's comment quotes the §7.1 row it comes from. A row whose
+ * Per-location roles and the role matrix, transcribed from the role matrix (all rows, not
+ * only those step 1 uses). Each action's comment quotes the matrix row it comes from. A row whose
  * cells qualify a verb for one role ("create", "add, edit own", "own, read-only") is split into
  * one action per verb; cells the boolean can't carry are recorded in QUALIFIERS, and the two
  * conditional cells (money for viewers, secret reveal) are resolved by `can()`'s context.
  *
- * roles.test.ts holds a verbatim copy of the §7.1 table and fails when the spec changes.
+ * roles.test.ts holds a verbatim copy of the matrix and fails when it changes.
  */
 
 export const ROLES = ['owner', 'admin', 'member', 'viewer'] as const;

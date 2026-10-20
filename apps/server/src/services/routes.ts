@@ -12,7 +12,7 @@ import { confirmService, serviceView } from '../schedules/services.js';
 import { ServiceRecordSchema } from '../schedules/view.js';
 import { createDraft, MAX_INVOICE_PAGES, registerDraftUndo } from './drafts.js';
 
-// Step 5: service drafts from an invoice (Q12; plan T9), in the shapes of the web contract
+// Service drafts from an invoice, in the shapes of the web contract
 // (apps/web/src/api/vehicles/{types,paths}.ts: ServiceRecordV5, CreateServiceDraftBody,
 // ConfirmServiceBody). Only these routes live here; step 4's service-record routes (the list,
 // POST, PATCH, DELETE) stay in schedules/routes.ts.

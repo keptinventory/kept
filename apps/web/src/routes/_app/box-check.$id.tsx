@@ -1,5 +1,5 @@
 /**
- * The box check (plan T26; D40, screens §6): tick what's in the box, count what's short. The
+ * The box check (D40): tick what's in the box, count what's short. The
  * screen is components/boxcheck/box-check-screen.tsx; this route gives it the offline store and
  * goes back to the box when it is done.
  */

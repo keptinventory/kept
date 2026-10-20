@@ -14,7 +14,7 @@ import {
   updateCheckDue,
 } from './check.js';
 
-// The update check (D65; plan T11) against a local stand-in for GitHub's API: never the
+// The update check (D65) against a local stand-in for GitHub's API: never the
 // internet. The stub records every request it gets, so "nothing sent but the request" and "no
 // request at all" are both read off it.
 

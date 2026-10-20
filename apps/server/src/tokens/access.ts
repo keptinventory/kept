@@ -1,11 +1,11 @@
-// Which routes a personal token may call (step-6 plan T10, Q20; D63, D71, D180). The token's own
+// Which routes a personal token may call (D63, D71, D180). The token's own
 // column of the route catalogue: a route is **closed to tokens unless it is listed here**, as
 // `'read'` (any token) or `'write'` (a read+write token only). Kept in one table, not on each
 // route's options, so the whole surface a leaked token reaches is reviewable in one place, and
 // the test (tokens/access.test.ts) checks every entry against the app's real routes and the
 // "never" list below.
 //
-// The first wave (plan T10): things, places, search, history, meters and readings, labels (read),
+// The first wave: things, places, search, history, meters and readings, labels (read),
 // files' metadata (read), and undo of the token's own changes. Writes are the everyday ones a
 // Shortcut or a script makes (add, edit, move, mark seen, a place, a reading); nothing that
 // trashes, merges, converts, empties, reveals or claims is open to a token (D58, D124: the same
@@ -52,7 +52,7 @@ export const TOKEN_ROUTES: Readonly<Record<string, Exclude<TokenAccess, 'none'>>
   'GET /api/v1/search': 'read',
   'GET /api/v1/codes/:code': 'read',
   'GET /api/v1/activity': 'read',
-  // Meters and readings (the odometer Shortcut, D63, master plan 9.5).
+  // Meters and readings (the odometer Shortcut, D63).
   'GET /api/v1/meters/:id/readings': 'read',
   'GET /api/v1/meters/:id/series': 'read',
   'POST /api/v1/meters/:id/readings': 'write',

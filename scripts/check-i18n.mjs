@@ -8,8 +8,7 @@
 // i18n:extract` uses) in memory, writes nothing, and fails (exit 1) when an extracted message is
 // absent from any locale's catalogue. Run `pnpm --filter @kept/web i18n:extract` to fix it.
 //
-// It also fails when a message has an empty translation in a non-source locale (step-2 plan
-// task 30: every Arabic msgstr is written; an empty one would show English in the Arabic UI).
+// It also fails when a message has an empty translation in a non-source locale (every Arabic msgstr is written; an empty one would show English in the Arabic UI).
 //
 // D204: the five launch languages (English, Arabic, French, German, Italian) must all be in the
 // Lingui config, and each must be complete. A translation must also keep its source's shape: the

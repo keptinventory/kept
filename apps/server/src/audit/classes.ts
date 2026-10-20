@@ -1,4 +1,4 @@
-// Field classes for audit diffs (engineering spec §7.5; D110).
+// Field classes for audit diffs (D110).
 //
 // - `plain`: stored and shown as is.
 // - `money`: stored in full, tagged, and hidden by renderAudit() from anyone `can()` refuses
@@ -15,22 +15,22 @@
 export const FIELD_CLASSES_ORDER = ['plain', 'money', 'secret'] as const;
 export type FieldClass = (typeof FIELD_CLASSES_ORDER)[number];
 
-/** The static map: the money columns of things and purchases (step 2), valuations and claims
- * (step 4), fills and documents (step 5). */
+/** The static map: the money columns of things and purchases, valuations and claims,
+ * fills and documents. */
 export const FIELD_CLASSES: Readonly<Record<string, FieldClass>> = Object.freeze({
   // The invite token is stored hashed, but a hash of a short-lived bearer token is still a
   // credential to brute-force offline: never in the log.
   'invite.token_hash': 'secret',
-  // Step 2: money columns (D13, D115, D158).
+  // Money columns (D13, D115, D158).
   'thing.ended_price': 'money',
   'purchase.total': 'money',
   'purchase.tax': 'money',
   'purchase_line.unit_price': 'money',
-  // Step 4 (T8, T9): a valuation's value, a claim's cost and what it would have cost (D158, Q18).
+  // A valuation's value, a claim's cost and what it would have cost (D158).
   'valuation.value': 'money',
   'claim.cost': 'money',
   'claim.covered_amount': 'money',
-  // Step 5 (T2): a fill's cost and a document's cost (D110; plan Q5). Service records' money is
+  // A fill's cost and a document's cost (D110). Service records' money is
   // classed per call (schedules/services.ts).
   'fuel_entry.cost': 'money',
   'expiring_document.cost': 'money',
@@ -41,7 +41,7 @@ export const FIELD_CLASSES: Readonly<Record<string, FieldClass>> = Object.freeze
   'webhook.url': 'secret',
 });
 
-/** Cache columns (engineering spec §7.9, D183): recomputed by triggers, never audited. */
+/** Cache columns (D183): recomputed by triggers, never audited. */
 export const CACHE_COLUMNS: readonly string[] = Object.freeze(['search_tsv', 'place_path']);
 
 /** Field names that hold credentials whatever entity they're on. */

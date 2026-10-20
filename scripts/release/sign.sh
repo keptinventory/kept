@@ -2,8 +2,8 @@
 # Stages 5 and 6 of scripts/release.sh (sourced): cosign with a key (D187), and the tags.
 #
 # While the repository is private the signature goes in no transparency log (it would publish the
-# image's name and digest, plan Q14): cosign 3 says that with an empty signing config, and
-# verifiers pass --insecure-ignore-tlog (spike R2; `--tlog-upload=false` is refused by cosign 3).
+# image's name and digest): cosign 3 says that with an empty signing config, and
+# verifiers pass --insecure-ignore-tlog (`--tlog-upload=false` is refused by cosign 3).
 # KEPT_RELEASE_TLOG=1 uses Sigstore's public services instead (cosign's default).
 # An unsigned release (KEPT_RELEASE_UNSIGNED=1, `$unsigned` in release.sh) never calls the signing
 # functions, and the tags are checked by digest only.

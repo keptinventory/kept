@@ -1,5 +1,5 @@
 /**
- * Step 6's journeys against the real server (plan T26; the final check for steps 5–8), on the
+ * Step 6's journeys against the real server (the final check for steps 5–8), on the
  * `households` seed with the AI mock and its scripted cases (src/ai/mock-script.ts, the questions
  * in apps/server/test/fixtures/assistant/cases.json), behind HTTPS (the `assistant` instance,
  * e2e/instances.ts):
@@ -44,7 +44,7 @@ async function ensureMockProvider(page: Page) {
         (
           await api(page).get<{ providers: { scope: string }[] }>('/api/v1/ai/providers')
         ).providers.some((p) => p.scope === 'account'),
-      // A bare poll inherits 10 s; a loaded machine's Postgres can stall past it (step 4).
+      // A bare poll inherits 10 s; a loaded machine's Postgres can stall past it.
       { timeout: 30_000 },
     )
     .toBe(true);
@@ -97,7 +97,7 @@ test('the assistant proposes a move, Confirm moves the cable and Undo puts it ba
   await toast.getByRole('button', { name: 'Undo', exact: true }).last().click();
   await expect(toast).toContainText('Undone');
   await expect
-    // A bare poll inherits 10 s; a loaded machine's Postgres can stall past it (step 4).
+    // A bare poll inherits 10 s; a loaded machine's Postgres can stall past it.
     .poll(async () => (await where(page, id)).at(-1), { timeout: 30_000 })
     .toBe('Cable box');
   await context.close();

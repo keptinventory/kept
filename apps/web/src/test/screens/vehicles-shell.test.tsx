@@ -1,5 +1,5 @@
 /**
- * Step 5's frame (plan T3; screens §1): Vehicles in the navigation while the module is on in any
+ * Step 5's frame: Vehicles in the navigation while the module is on in any
  * location, its route answering (a stub until T17 builds the list), and the list pulling to
  * refresh (D212).
  */

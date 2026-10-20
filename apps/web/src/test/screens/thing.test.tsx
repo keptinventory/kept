@@ -1,5 +1,5 @@
 /**
- * Thing detail (task 26): header, layout, the action menu by keyboard, the viewer and module-off
+ * Thing detail: header, layout, the action menu by keyboard, the viewer and module-off
  * variants, Arabic right to left, secrets, the create sheet, lifecycle, split, re-type, links and
  * meters. Conflicts (D156) are in conflict.test.tsx; uploads in upload.test.tsx.
  */
@@ -48,7 +48,7 @@ describe('header and layout', () => {
     await findHeading('Samsung TV, 55″');
     const chip = screen.getByRole('img', { name: '5MT0QD' });
     expect(chip).toHaveAttribute('dir', 'ltr');
-    // The TV is in repair (step 4): its place is where it usually is (screens §8).
+    // The TV is in repair: its place is where it usually is.
     const path = screen.getByRole('navigation', { name: 'Where it usually is' });
     expect(within(path).getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(within(path).getByRole('link', { name: 'Living room' })).toHaveAttribute(
@@ -88,7 +88,7 @@ describe('header and layout', () => {
     // Arrow keys move between tabs and the URL follows.
     await user.click(screen.getByRole('tab', { name: 'Links' }));
     await user.keyboard('{ArrowLeft}');
-    // Step 4 put Claims before Links (screens §5's order).
+    // Step 4 put Claims before Links.
     await waitFor(() =>
       expect((router.state.location.search as { tab?: string }).tab).toBe('claims'),
     );
@@ -144,7 +144,7 @@ describe('the action menu', () => {
         'Move to Trash',
       ]),
     );
-    // Split doesn't apply at quantity 1 (screens §8), and the TV isn't a container.
+    // Split doesn't apply at quantity 1, and the TV isn't a container.
     expect(items).not.toContain('Split');
     expect(items).not.toContain('Convert to a room or spot');
     // Focus starts on the first item; arrow down to Mark seen.
@@ -318,7 +318,7 @@ describe('modules off (screens §3)', () => {
     await renderApp(`/t/${T.safe}`, { state: essentials() });
     await findHeading('Wall safe');
     expect(screen.getByText('Passwords and codes · Off in this location')).toBeInTheDocument();
-    // Warranties are off too (step 4), and say so the same way.
+    // Warranties are off too, and say so the same way.
     expect(screen.getByText('Warranties · Off in this location')).toBeInTheDocument();
     for (const link of screen.getAllByRole('link', { name: 'Turn on' }))
       expect(link).toHaveAttribute('href', `/settings/location/${IDS.home}/track`);

@@ -22,14 +22,14 @@ import { places } from './places.js';
 import { locations } from './tenancy.js';
 import { things } from './things.js';
 
-// Sync foundations (step-3 plan T4; engineering spec §1.10, §2.3, §7.4, §7.13; D40, D112, D146,
+// Sync foundations (D40, D112, D146,
 // D148, D175). Row-level security, the watermark and tombstone triggers, the cover cache and the
 // grants are in the custom migration that follows (0036); see src/db/sync-tables.test.ts and
 // src/db/sync-watermark.test.ts.
 
-/** `own`: a code the household chose, typed, numbered or imported (T17a, D208). `kept`: a thing's
+/** `own`: a code the household chose, typed, numbered or imported (D208). `kept`: a thing's
  * or place's short ID from a Kept export whose code was already taken on this server, so its
- * printed label still resolves (step-7 plan Q9, 0082). */
+ * printed label still resolves (0082). */
 export const LEGACY_CODE_SOURCES = ['homebox', 'csv', 'own', 'kept'] as const;
 
 const opKind = textEnum('op', OP_KINDS);
@@ -37,9 +37,9 @@ const outcome = textEnum('outcome', OUTCOMES);
 const legacySource = textEnum('source', LEGACY_CODE_SOURCES);
 
 /**
- * The per-user ledger of applied queue ops (§2.3): a replay with the same idempotency key gets
+ * The per-user ledger of applied queue ops: a replay with the same idempotency key gets
  * the recorded answer, a different body a mismatch. Append-only (no row_version), pruned after
- * 30 days by kept.prune_stale_rows() (§3.3). A person's own rows only, even within a location.
+ * 30 days by kept.prune_stale_rows(). A person's own rows only, even within a location.
  */
 export const syncOps = pgTable(
   'sync_ops',
@@ -75,9 +75,9 @@ export const syncOps = pgTable(
 );
 
 /**
- * Codes printed by another system, so an old label still finds its thing or place (§1.10,
- * §7.13, D146): Homebox asset ids and entity UUIDs (step 7), CSV "old code" columns (T18), and
- * the household's own codes (`own`, T17a, D208: several per thing or place, one per location).
+ * Codes printed by another system, so an old label still finds its thing or place (D146):
+ * Homebox asset ids and entity UUIDs, CSV "old code" columns, and
+ * the household's own codes (`own`, D208: several per thing or place, one per location).
  * Stored normalised (`upper(btrim())`), unique per location, source and collection; a code
  * written by Kept is also refused when the location has it under another source. Synced to
  * phones like short IDs (the scanner resolves them offline).
@@ -132,7 +132,7 @@ export const legacyCodes = pgTable(
 );
 
 /**
- * A location's own-code options (T17a, D208; engineering spec §1.10). Owners and admins set them
+ * A location's own-code options (D208). Owners and admins set them
  * (`location.settings`); every member reads them, to number a code or see the rule's message.
  * - **Numbering** (off by default): a new confirmed thing gets `<prefix><counter>`, the counter
  *   zero-padded to `pad` digits (`GAR-` + 4 → `GAR-0001`). The counter is in
@@ -174,7 +174,7 @@ export const ownCodeSettings = pgTable(
 );
 
 /**
- * The numbering's counters (T17a, D208): the last number taken, per location and prefix. Taken
+ * The numbering's counters (D208): the last number taken, per location and prefix. Taken
  * only through `kept.next_own_code()`, which increments it under the row's lock in the caller's
  * transaction: numbers are consecutive across parallel creates, and a number is never taken
  * twice, even after its code is deleted. A prefix changed back continues where it stopped.
@@ -196,7 +196,7 @@ export const ownCodeCounters = pgTable(
 
 /**
  * A box check (D40, D175): someone went through a container's direct contents and counted what
- * was there. Append-only; its undo is an audit-based reversal of what it changed (T20).
+ * was there. Append-only; its undo is an audit-based reversal of what it changed.
  */
 export const boxChecks = pgTable(
   'box_checks',
@@ -223,8 +223,8 @@ export const boxChecks = pgTable(
   ],
 );
 
-/** One counted line of a box check (§7.13: quantities, not found/missing arrays; D175). A
- * nested box is one line (plan Q25). Append-only. */
+/** One counted line of a box check (quantities, not found/missing arrays; D175). A
+ * nested box is one line. Append-only. */
 export const boxCheckLines = pgTable(
   'box_check_lines',
   {

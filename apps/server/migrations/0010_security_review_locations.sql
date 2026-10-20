@@ -2,7 +2,7 @@ ALTER TABLE "invites" ADD COLUMN "claimed_at" timestamp with time zone;--> state
 ALTER TABLE "invites" ADD COLUMN "claimed_email" text;--> statement-breakpoint
 ALTER TABLE "user_profiles" ADD COLUMN "created_in_location_id" uuid;--> statement-breakpoint
 ALTER TABLE "user_profiles" ADD CONSTRAINT "user_profiles_created_in_location_id_locations_id_fk" FOREIGN KEY ("created_in_location_id") REFERENCES "public"."locations"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
--- Security review of tasks 19–21 (D46, D47, D48, D114, D164, D180, D188, D197; §7.14).
+-- Security review of tasks 19–21 (D46, D47, D48, D114, D164, D180, D188, D197).
 -- Columns above (drizzle-kit): invites.claimed_at / claimed_email, a sign-up's hold on an invite
 -- (review I1); user_profiles.created_in_location_id, a managed account's home location (I2).
 -- Below, by hand: the definers and policies that use them, and the policies that fell short of

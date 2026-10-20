@@ -1,5 +1,5 @@
 /**
- * "Print pending labels (N)" (screens §8): things captured offline on this phone have no code
+ * "Print pending labels (N)": things captured offline on this phone have no code
  * until they sync (D112); when the sync engine records the code the server allocated, the thing
  * joins this phone's pending list (offline meta `printPending`). This lists their codes and
  * opens the batch builder for them, one location at a time (a batch belongs to one location).

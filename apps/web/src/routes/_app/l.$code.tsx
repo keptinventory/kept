@@ -1,5 +1,5 @@
 /**
- * `/l/<code>`: a label read by the phone's own camera (plan T26; D120, D137; V6, V7). Signed out,
+ * `/l/<code>`: a label read by the phone's own camera (D120, D137). Signed out,
  * the app frame's gate sends the person to sign in and back here with the code in the URL. The
  * code is all it carries, never data. The page is components/scan/label-link.tsx.
  */

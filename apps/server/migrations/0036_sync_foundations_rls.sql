@@ -1,9 +1,9 @@
 -- Custom SQL migration file, put your code below! --
--- Step 3, task 4: sync foundations (engineering spec §1.10, §2.3, §7.4, §7.13; D40, D112, D146,
--- D156, D175, D195; plan Q1). Above, in 0035, drizzle's part: change_xid on the five synced
+-- Sync foundations (D40, D112, D146,
+-- D156, D175, D195). Above, in 0035, drizzle's part: change_xid on the five synced
 -- tables, things' capture_batch_id / merged_into_id / cover_file_id, and the tables sync_ops,
 -- legacy_codes, box_checks and box_check_lines (src/db/schema/sync.ts). Below:
---   1. The watermark (Q1). A sequence value can't be compared with a transaction horizon: a
+--   1. The watermark. A sequence value can't be compared with a transaction horizon: a
 --      transaction that took change_seq 100 can commit after one that took 101. So beside
 --      change_seq every synced row carries change_xid, the id of the transaction that last moved
 --      its change_seq, and the snapshot asks for `change_xid >= <pg_snapshot_xmin of its previous
@@ -26,9 +26,9 @@
 --      - legacy_codes: read if visible, written if writable; only the target moves.
 --      - box_checks, box_check_lines: read if visible, inserted if writable (checked_by = me);
 --        append-only.
---   6. kept.prune_stale_rows() also removes sync_ops older than 30 days (§3.3).
---   7. Legacy codes follow their target through a conversion or a place merge (§7.13 "Changing
---      identity"): convert_place_to_container, convert_container_to_place (as 0024's) and
+--   6. kept.prune_stale_rows() also removes sync_ops older than 30 days.
+--   7. Legacy codes follow their target through a conversion or a place merge:
+--      convert_place_to_container, convert_container_to_place (as 0024's) and
 --      merge_places (as 0021's) each gain one UPDATE of legacy_codes.
 -- test/leak.test.ts and src/db/migrate.test.ts list the functions; test/leak-capture.ts fills the
 -- tables.

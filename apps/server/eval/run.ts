@@ -1,5 +1,5 @@
 /**
- * The extraction evaluation harness (plan T11; V1, V2, V3, V36, V37; D19, D129, D206).
+ * The extraction evaluation harness (D19, D129, D206).
  *
  *   pnpm eval:extraction [--dir <folder>] [--provider mock|groq|openai|anthropic|google|
  *     openrouter|compatible --model <id> [--base-url <url>] [--reasoning low]]
@@ -183,7 +183,7 @@ export type EvalRun = {
  * Prices the harness knows, per million tokens, with where each came from. Groq's is its own
  * model listing on 2026-09-26 (prompt 0.0000008, completion 0.000004, input_cache_read
  * 0.0000004 USD a token). Anything else
- * needs `--price`, or its cost is reported as unknown (never guessed, Q8).
+ * needs `--price`, or its cost is reported as unknown (never guessed).
  */
 export const LISTED_PRICES: readonly { kind: ProviderKind; model: string; price: Price }[] = [
   {

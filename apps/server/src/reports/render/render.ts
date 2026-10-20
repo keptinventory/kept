@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { ensureFonts } from './fonts.js';
 
-// Renders a report in a child process (D201; spike V34, "run the render in a child process").
+// Renders a report in a child process (D201; "run the render in a child process").
 // Typst's memory lives in the napi addon, outside V8, so no --max-old-space-size can bound it and
 // only the child's exit hands it back. The parent therefore:
 // - starts child.mjs with its own small V8 heap (the child's JavaScript is a few lines);
@@ -13,8 +13,8 @@ import { ensureFonts } from './fonts.js';
 //   it past `memoryMb` (error `memory`); a child that peaked past it between two samples and
 //   finished is failed the same way, from the peak it reports itself;
 // - kills it past `timeoutMs` of wall-clock time (error `timeout`).
-// The spike measured 500 things with photos in Arabic at 1.5–1.9 s and 248–278 MB peak, so the
-// defaults (512 MB, 60 s) leave room and still stop a runaway on a Pi (engineering spec §3.1).
+// A trial run measured 500 things with photos in Arabic at 1.5–1.9 s and 248–278 MB peak, so the
+// defaults (512 MB, 60 s) leave room and still stop a runaway on a Pi.
 
 export const RENDER_MEMORY_MB = 512;
 export const RENDER_TIMEOUT_MS = 60_000;
@@ -54,7 +54,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 export const CHILD_ENTRY = path.join(here, 'child.mjs');
 export const TEMPLATE = path.join(here, '..', 'template', 'report.typ');
 /** The templates, by `report_runs.kind` (REPORT_KINDS): the inventory report, the insurance
- * report (D158, step-4 T18) and the vehicle history report (D51, step-5 T15). */
+ * report (D158) and the vehicle history report (D51). */
 export const TEMPLATES = {
   inventory: TEMPLATE,
   insurance: path.join(here, '..', 'template', 'insurance.typ'),

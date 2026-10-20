@@ -1,6 +1,6 @@
 /**
  * Names the server leaves to the client: a built-in type arrives as `name: null` with a
- * `builtinKey`, and a built-in field as `label: null` with a `labelKey` (plan task 3's contract).
+ * `builtinKey`, and a built-in field as `label: null` with a `labelKey`.
  * Both are translated from @kept/shared's built-in library (D154, D192), in the reader's
  * language. An account's own types and fields carry their name as typed.
  */

@@ -15,7 +15,7 @@ import {
 import { withScope } from './scope.js';
 
 // Step 5, task 6 (0064, 0065): fuel entries, document costs and the vehicle report's thing
-// (engineering spec §1.6, §7.1, §7.13; D28, D170, D201; plan Q5, Q11, Q14, Q17).
+// (D28, D170, D201).
 
 const db = await testDb();
 

@@ -1,5 +1,5 @@
 /**
- * Thumbnails for offline browsing (plan T24; engineering spec §2.2; D181). A thumb is fetched
+ * Thumbnails for offline browsing (D181). A thumb is fetched
  * while online (`POST /files/:id/url {variant: 'thumb'}`, then the signed URL), kept as bytes in
  * the per-user database, and served as an object URL. Least recently used first out, past
  * 200 MB. **Never through the Cache API** (D181): it isn't per user and isn't wiped with the
@@ -9,7 +9,7 @@ import { api } from '@/api/client';
 import { inventoryPaths } from '@/api/inventory/paths';
 import type { KeptDb } from './db';
 
-/** The cache's size before the oldest thumbs go (§2.2). */
+/** The cache's size before the oldest thumbs go. */
 export const THUMB_LIMIT_BYTES = 200 * 1024 * 1024;
 /** A hit refreshes `lastUsedAt` at most this often, so browsing doesn't write on every render. */
 const TOUCH_EVERY_MS = 60_000;

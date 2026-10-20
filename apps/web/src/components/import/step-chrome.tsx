@@ -1,5 +1,5 @@
 /**
- * The import stepper's frame (screens §6): the step bar with its title and "Step 2 of 6", and the
+ * The import stepper's frame: the step bar with its title and "Step 2 of 6", and the
  * footer that holds Back and the step's main button (sticky above the tab bar on a phone). The
  * CSV flow has five steps (stepper.tsx), an archive six (archive-run.tsx).
  */

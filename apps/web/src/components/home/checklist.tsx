@@ -1,6 +1,6 @@
 /**
- * The Get-started checklist (D138, screens §5 Home and §8, frame 01 · Home): computed by the
- * server from real state (`GET /home`, task 22), shown by Home outside the first-run state.
+ * The Get-started checklist (D138, frame 01 · Home): computed by the
+ * server from real state (`GET /home`), shown by Home outside the first-run state.
  *
  * - Over plain HTTP an instance admin's first step is "Put Kept on HTTPS" (D193). The server
  *   can't see the scheme behind a proxy, so this client adds it.
@@ -14,7 +14,7 @@
  * - Dismissing, and bringing it back, are the `checklist` hint, so every phone agrees (D138).
  *   Step 1 kept "hidden" in this browser's storage; that flag moves to the server once.
  * - "Install on your phone" ticks itself: opened in standalone display mode, Kept posts the
- *   `installed_standalone` hint (§8).
+ *   `installed_standalone` hint.
  * - It disappears when every step is done.
  */
 import { can } from '@kept/shared';

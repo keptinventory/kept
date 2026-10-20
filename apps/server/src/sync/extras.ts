@@ -21,14 +21,14 @@ import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead } from '../http/write.js';
 import { type Gate, gateFor } from '../serialize/gates.js';
 
-// "Keep this location available offline" (D159, D181; plan T12, Q21, Q22): what a phone keeps
+// "Keep this location available offline" (D159, D181): what a phone keeps
 // of one location beyond the snapshot, behind its app lock. Registered by http/routes.ts.
 //
 // GET /api/v1/sync/extras?locationId&cursor → SyncExtrasPage, SYNC_EXTRAS_PAGE things a page;
 // GET /api/v1/sync/extras?locationId&estimate=1 → SyncExtrasEstimate (what keeping it would take).
 //
 // - **Who:** any member of the location, viewers included; anyone else gets 404 (the gate's own
-//   membership read, §7.7).
+//   membership read).
 // - **Money** through serialize/gates.ts: where the reader's gate hides it (the money module off,
 //   or a viewer where viewers don't see money) an item carries `moneyHidden: true`, its purchase
 //   only the date (`price` and `currency` null, as the thing page shows a purchase's date and

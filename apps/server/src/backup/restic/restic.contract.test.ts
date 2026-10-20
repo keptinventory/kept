@@ -7,8 +7,8 @@ import { FakeRestic } from './fake.js';
 import { ResticError, type ResticRepo, scrubSecrets } from './restic.js';
 import { ResticCli } from './run.js';
 
-// The Restic contract on the in-memory fake (step-8 plan T2), and on the real wrapper (run.ts,
-// T5) under KEPT_TEST_RESTIC=1, with the binary KEPT_RESTIC_BIN names (else `restic` on PATH):
+// The Restic contract on the in-memory fake, and on the real wrapper (run.ts)
+// under KEPT_TEST_RESTIC=1, with the binary KEPT_RESTIC_BIN names (else `restic` on PATH):
 // the pinned release R1 recorded, 0.19.1. Each repository is a directory in a scratch folder.
 
 let counter = 0;

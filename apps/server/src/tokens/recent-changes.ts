@@ -5,7 +5,7 @@ import type { Scope, Tx } from '../db/scope.js';
 import { HistoryEventSchema, HistoryQuery, tokenActivity } from '../history/service.js';
 import { notFound } from '../http/errors.js';
 
-// "Recent changes by connections" (D58, D124; screens §5): the audit events the caller's own
+// "Recent changes by connections" (D58, D124): the audit events the caller's own
 // tokens made, rendered as history rows (renderAudit, with the caller's role and money gate in
 // each event's location), with the token that made each and Undo while it is still undoable
 // (7 days; the undo itself is POST /api/v1/audit/:eventId/undo, which lets a token's creator undo

@@ -2,7 +2,7 @@ import path from 'node:path';
 import sharp from 'sharp';
 import type { Sniffed } from './sniff.js';
 
-// Derivatives (engineering spec §3.4, §7.2; D34, D36, D77, D117, D157; plan Q8, Q17).
+// Derivatives (D34, D36, D77, D117, D157).
 //
 // The original stays byte-identical (D117). What the app shows is made from it here: rotated
 // upright from the EXIF orientation, shrunk to fit, and re-encoded as JPEG, which drops every
@@ -12,11 +12,11 @@ import type { Sniffed } from './sniff.js';
 // - HEIC/HEIF → `unavailable`: sharp's prebuilt libvips can't decode HEVC (D36, D99). The phone
 //   makes the display JPEG in step 3 (D34); the upload is never refused for it;
 // - PDF → `not_applicable` in step 2: thumbnails and text wait for the step-3 child-process
-//   parser (Q8);
+//   parser;
 // - an image sharp can't decode (corrupt, or over the pixel limit) → `unavailable`: the bytes
 //   passed the magic-byte check and are still the user's evidence, so they are kept.
 //
-// Resizing runs in the upload request (Q17), a few at a time process-wide (ImageLimiter), with a
+// Resizing runs in the upload request, a few at a time process-wide (ImageLimiter), with a
 // pixel limit on every decode (D157), so a decompression bomb can't take a Pi down. The original
 // is decoded once: the display rendition is made from it, and the share and thumb renditions
 // from the display, which is already upright and at most 2048 px (security review #15). A full
@@ -27,7 +27,7 @@ import type { Sniffed } from './sniff.js';
  * 4-channel decode of 40 MP is 160 MB, already a lot for a Pi; security review #15). */
 export const LIMIT_INPUT_PIXELS = 40_000_000;
 
-/** The longest side of each rendition (§3.4). */
+/** The longest side of each rendition. */
 export const VARIANT_SIZES = { display: 2048, share: 1200, thumb: 400 } as const;
 export type ImageVariant = keyof typeof VARIANT_SIZES;
 export const IMAGE_VARIANTS = Object.keys(VARIANT_SIZES) as ImageVariant[];
@@ -56,7 +56,7 @@ export type Derived = {
 };
 
 // ---------------------------------------------------------------------------------------------
-// A process-wide limit on concurrent resizing (KEPT_IMAGE_CONCURRENCY, Q17)
+// A process-wide limit on concurrent resizing (KEPT_IMAGE_CONCURRENCY)
 // ---------------------------------------------------------------------------------------------
 
 /** The image queue is full: try again shortly (the upload route answers 503, Retry-After). */

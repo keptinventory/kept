@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put your code below! --
--- Step 2, task 7: purchases, lines and core meters (engineering spec §1.4, §1.6, §7.2, §7.13;
--- D10, D13, D113, D115, D161; plan Q11). The tables are 0017's.
+-- Purchases, lines and core meters (D10, D13, D113, D115, D161).
+-- The tables are 0017's.
 --   1. RLS: location-scoped; read if visible, written if writable. The finer rules
 --      (logs.edit-own, meters.manage) are can()'s.
 --   2. Column grants and touch_row.
@@ -66,7 +66,7 @@ GRANT UPDATE (at, "offset", updated_at, row_version) ON public.meter_events TO k
 -- Linking a thing to a purchase line (D115): the line must be one the caller can see, in the
 -- thing's own location. A line elsewhere (another tenant, or another of the caller's locations)
 -- is refused like one that doesn't exist (42501 things_purchase_line). Only a change is checked,
--- so a thing moved to another location keeps its line (D115); the move definer (task 9) copies it
+-- so a thing moved to another location keeps its line (D115); the move definer copies it
 -- across accounts.
 CREATE FUNCTION kept.guard_purchase_line_link() RETURNS trigger
 LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
@@ -86,7 +86,7 @@ CREATE TRIGGER things_guard_purchase_line BEFORE INSERT OR UPDATE OF purchase_li
   FOR EACH ROW EXECUTE FUNCTION kept.guard_purchase_line_link();
 --> statement-breakpoint
 
--- A purchase's vendor is of its location's account (§7.13). 42501 purchases_vendor_account.
+-- A purchase's vendor is of its location's account. 42501 purchases_vendor_account.
 CREATE FUNCTION kept.guard_purchase_vendor() RETURNS trigger
 LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
 BEGIN
@@ -105,7 +105,7 @@ CREATE TRIGGER purchases_guard_vendor BEFORE INSERT OR UPDATE OF vendor_id, loca
   FOR EACH ROW EXECUTE FUNCTION kept.guard_purchase_vendor();
 --> statement-breakpoint
 
--- D10 (plan Q11), now with meters: a thing with a meter has quantity 1, as a serialized or
+-- D10, now with meters: a thing with a meter has quantity 1, as a serialized or
 -- metered one does; 0 only for a consumable. Same signature, so 0016's trigger keeps it.
 CREATE OR REPLACE FUNCTION kept.guard_thing_quantity() RETURNS trigger
 LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
@@ -144,7 +144,7 @@ REVOKE EXECUTE ON FUNCTION kept.guard_purchase_line_link(), kept.guard_purchase_
   FROM PUBLIC, kept_app, kept_system;
 --> statement-breakpoint
 
--- 4. A thing's purchase (§7.2, D115) ---------------------------------------------------------
+-- 4. A thing's purchase (D115) ---------------------------------------------------------------
 -- The purchase and line a thing came from, for a thing the caller can see, wherever the purchase
 -- is: after a move within the account the line stays in the old location, which the caller may
 -- not see. `visible_purchase` says whether they can open the whole purchase. Money is returned

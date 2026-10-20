@@ -1,6 +1,6 @@
 /**
- * "Export view" and "Print" for the things list you're looking at (D169, D201; screens §5
- * Location / Place / Container; step-7 T16 and T22). Loaded on demand (./list-export.tsx), since
+ * "Export view" and "Print" for the things list you're looking at (D169, D201).
+ * Loaded on demand (./list-export.tsx), since
  * both need the server.
  *
  * - **Export view**: `GET /things.csv` with exactly the list's parameters, fetched as a file (no
@@ -12,7 +12,7 @@
  *   location, or the one account whose locations they're in (a brand's, vendor's or person's
  *   things); a list across two accounts' locations is asked to be narrowed to one.
  *
- * Offline, both are disabled with "Needs a connection" (screens §3).
+ * Offline, both are disabled with "Needs a connection".
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
@@ -37,7 +37,7 @@ import { useOnline } from '@/lib/online';
 
 /** The server's report limit (reports/gather.ts MAX_THINGS). */
 export const PRINT_MAX_THINGS = 2000;
-/** The server's largest page (§7.7). */
+/** The server's largest page. */
 const PAGE = 200;
 
 export type ListExportProps = {

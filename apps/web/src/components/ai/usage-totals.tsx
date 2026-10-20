@@ -1,5 +1,5 @@
 /**
- * The usage page's totals (D206, screens §5 AI usage §2 and §4): calls (and how many Kept held
+ * The usage page's totals (D206): calls (and how many Kept held
  * back), tokens, images, cost per currency (never converted, D76), "N calls with unknown cost",
  * the caps' progress, and the outcome counts, each of which filters the call list below.
  */

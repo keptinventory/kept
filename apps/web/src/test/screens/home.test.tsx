@@ -1,5 +1,5 @@
 /**
- * The signed-in gate, Home (task 29; D240's redesign: Get started as one line, Needs you as tiles,
+ * The signed-in gate, Home (D240's redesign: Get started as one line, Needs you as tiles,
  * the location cards with map previews, shortcuts, recent activity with its chips and Photos to
  * review, the Insights teaser; today, day one, a viewer, Money off, a phone width, Arabic) and the
  * app frame.
@@ -845,9 +845,9 @@ describe('the frame', () => {
     expect(screen.queryByRole('link', { name: 'Third-party notices' })).toBeNull();
   });
 
-  // /search is built from step 2 (task 27): src/test/screens/search.test.tsx; /capture from
-  // step 3 (task 25): src/components/capture/capture-screen.test.tsx; /inbox from step 3
-  // (task 27): src/test/screens/inbox.test.tsx.
+  // /search is built from step 2: src/test/screens/search.test.tsx; /capture from
+  // src/components/capture/capture-screen.test.tsx; /inbox from step 3:
+  // src/test/screens/inbox.test.tsx.
 
   it('signing out leaves nothing of the assistant for whoever signs in next (review finding)', async () => {
     const { user } = await renderApp('/more');

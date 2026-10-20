@@ -1,5 +1,5 @@
 /**
- * "Capture done" (screens §5; board frame 4): how many were captured and where, how many still
+ * "Capture done": how many were captured and where, how many still
  * wait to sync (from the phone's queue), each capture with its state, and on iPhone "Open to
  * finish syncing (8)" because Safari uploads only while Kept is open (D36). IDs stay pending until
  * the server allocates them (D112). "Undo this batch" takes back what hasn't synced and asks the

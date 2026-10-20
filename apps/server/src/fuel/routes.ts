@@ -16,11 +16,11 @@ import { deleteFuel, listFuel, logFuel, updateFuel } from './service.js';
 import { fuelSummary } from './summary.js';
 import { registerFuelUndo } from './undo.js';
 
-// Fuel and charging (step-5 plan T11; D28, D170; Q3, Q6, Q7, Q14, Q22), in the shapes of the web
+// Fuel and charging (D28, D170), in the shapes of the web
 // contract (apps/web/src/api/vehicles/{types,paths}.ts: FuelRow, FuelParams, CreateFuelBody,
 // CreateFuelResult, UpdateFuelBody, DeleteFuelResult, FuelSummary). Module `fuel` (which needs
 // `vehicles`) in the thing's location: 404 `module_off` to read, 409 to write. Fuel carries money,
-// which the phone never holds: it needs a connection (Q3).
+// which the phone never holds: it needs a connection.
 //
 // GET    /api/v1/things/:id/fuel?f.when&f.unit*&f.vendor*&f.full&not*&sort&dir&cursor&limit
 //                                         → {items: FuelRow[], next_cursor}

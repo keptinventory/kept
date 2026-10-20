@@ -1,5 +1,5 @@
 /**
- * Your threads (D23; screens §5 "Assistant": "a threads list opens from the sheet's menu"): your
+ * Your threads (D23; "a threads list opens from the sheet's menu"): your
  * own only, private even from admins, newest first, searchable over your questions and the
  * answers, each deletable at once (an in-app confirm, never `window.confirm`). "Deleted after 90
  * days" without a new question. The full list, under the list standard, is the `/assistant` page;

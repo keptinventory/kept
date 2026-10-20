@@ -1,4 +1,4 @@
-/** The parser settings the page and the worker share (plan T30, Q18). */
+/** The parser settings the page and the worker share. */
 import type { ParseConfig } from 'papaparse';
 
 /**

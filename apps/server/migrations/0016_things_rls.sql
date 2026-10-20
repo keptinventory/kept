@@ -1,17 +1,17 @@
 -- Custom SQL migration file, put your code below! --
--- Step 2, task 6: things, short IDs, links and tag assignments, and the places extension
--- (engineering spec §1.3, §7.2, §7.9, §7.13; D10, D42, D45, D76, D112, D120, D160, D177, D183;
--- plan Q1, Q5, Q11, Q12). The tables and columns are 0015's.
+-- Things, short IDs, links and tag assignments, and the places extension
+-- (D10, D42, D45, D76, D112, D120, D160, D177, D183).
+-- The tables and columns are 0015's.
 --   1. RLS: location-scoped, read if visible, written if writable; short IDs are never deleted.
 --   2. Column grants.
 --   3. Short IDs' foreign keys (ON DELETE SET NULL (col)) and the retired tombstone.
 --   4. Guards on things and their tags: registries of the location's own account, D10's
 --      quantity rule, no container loops.
---   5. The caches (§7.9): place_path and search_tsv, recomputed by kept.thing_cache(); tag
+--   5. The caches: place_path and search_tsv, recomputed by kept.thing_cache(); tag
 --      changes refresh the document without bumping row_version.
 --   6. Indexes Drizzle can't declare: GIN on search_tsv, trigram on normalised names, the
 --      normalised serial, the ICU sort key.
---   7. kept.person_contact_visible() gains its things clause (D177, Q5).
+--   7. kept.person_contact_visible() gains its things clause (D177).
 -- test/leak.test.ts and src/db/migrate.test.ts list every function here.
 
 -- 1. RLS -------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ BEGIN
         WITH CHECK (location_id IN (SELECT kept.writable_location_ids()))$p$, t);
   END LOOP;
   -- Deleted: things (only ever by purge or a definer in practice; the routes trash), links and
-  -- tag rows. Never short IDs (§7.13): no kept_app DELETE policy, so a DELETE finds no row.
+  -- tag rows. Never short IDs: no kept_app DELETE policy, so a DELETE finds no row.
   FOREACH t IN ARRAY ARRAY['things', 'thing_links', 'thing_tags'] LOOP
     EXECUTE format($p$
       CREATE POLICY app_delete ON public.%I FOR DELETE TO kept_app
@@ -52,7 +52,7 @@ END $$;
 
 -- 2. Column grants. Not granted: id, location_id, created_via, created_by, split_from_id,
 --    place_path (the cache writes it); short IDs' code, location and targets (moving a code is a
---    definer's, task 9); anything on links and tag rows.
+--    definer's); anything on links and tag rows.
 REVOKE UPDATE ON public.things, public.short_ids, public.thing_links, public.thing_tags
   FROM kept_app, kept_system;
 --> statement-breakpoint
@@ -69,7 +69,7 @@ GRANT UPDATE (printed_at, is_primary, updated_at, row_version) ON public.short_i
 GRANT UPDATE (icon, sort, custom, trash_batch_id) ON public.places TO kept_app;
 --> statement-breakpoint
 
--- 3. Short IDs (D45, D112, D120, §7.13) -------------------------------------------------------
+-- 3. Short IDs (D45, D112, D120) --------------------------------------------------------------
 -- The targets are cleared, never cascaded, when a thing or place is purged; the location stays.
 -- A move carries the code along (ON UPDATE CASCADE).
 ALTER TABLE public.short_ids ADD CONSTRAINT short_ids_thing_fk FOREIGN KEY (location_id, thing_id)
@@ -99,7 +99,7 @@ CREATE TRIGGER touch_row BEFORE INSERT OR UPDATE ON public.short_ids
 CREATE TRIGGER touch_row BEFORE INSERT OR UPDATE ON public.thing_links
   FOR EACH ROW EXECUTE FUNCTION kept.touch_row();
 --> statement-breakpoint
--- Tag rows are inserted and deleted, never updated: change_seq on insert, for sync (§7.4).
+-- Tag rows are inserted and deleted, never updated: change_seq on insert, for sync.
 CREATE TRIGGER touch_row BEFORE INSERT ON public.thing_tags
   FOR EACH ROW EXECUTE FUNCTION kept.touch_row();
 --> statement-breakpoint
@@ -107,9 +107,9 @@ CREATE TRIGGER touch_row BEFORE INSERT ON public.thing_tags
 -- 4. Guards on things ------------------------------------------------------------------------
 
 -- A thing's type, brand and owner-person are of its location's account (or a built-in type,
--- never a field group; §7.13, D178). Invoker: an id the caller can't see is refused exactly like
+-- never a field group; D178). Invoker: an id the caller can't see is refused exactly like
 -- one of another account and one that doesn't exist (42501 things_registry_account, a 404).
--- Runs again on a move (location_id), which a definer (task 9) remaps first.
+-- Runs again on a move (location_id), which a definer remaps first.
 CREATE FUNCTION kept.guard_thing_refs() RETURNS trigger
 LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
 DECLARE
@@ -136,7 +136,7 @@ CREATE TRIGGER things_guard_refs
   FOR EACH ROW EXECUTE FUNCTION kept.guard_thing_refs();
 --> statement-breakpoint
 
--- D10 (§7.13, plan Q11): quantity is 1 while the type (through inheritance) is serialized or
+-- D10: quantity is 1 while the type (through inheritance) is serialized or
 -- metered (task 7 adds "or has a meter"); 0 only for a consumable.
 CREATE FUNCTION kept.guard_thing_quantity() RETURNS trigger
 LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
@@ -189,7 +189,7 @@ CREATE TRIGGER things_container BEFORE INSERT OR UPDATE OF container_id, locatio
   FOR EACH ROW EXECUTE FUNCTION kept.check_thing_container();
 --> statement-breakpoint
 
--- A tag of the thing's location's account (D76, §7.13). 42501 thing_tags_account.
+-- A tag of the thing's location's account (D76). 42501 thing_tags_account.
 CREATE FUNCTION kept.guard_thing_tags() RETURNS trigger
 LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
 BEGIN
@@ -207,7 +207,7 @@ CREATE TRIGGER thing_tags_guard BEFORE INSERT OR UPDATE ON public.thing_tags
   FOR EACH ROW EXECUTE FUNCTION kept.guard_thing_tags();
 --> statement-breakpoint
 
--- 5. Caches (§7.9, D183) ---------------------------------------------------------------------
+-- 5. Caches (D183) ---------------------------------------------------------------------------
 
 -- Where something is: from the root place down to the innermost container, as
 -- [{id, name, kind: 'place' | 'container'}], for breadcrumbs and place_path. Starts at
@@ -245,7 +245,7 @@ BEGIN
 END $$;
 --> statement-breakpoint
 
--- The search document (D42, screens §8): A = name and aliases; B = model, serial, barcode,
+-- The search document (D42): A = name and aliases; B = model, serial, barcode,
 -- brand, type (its own name, or its built-in names), tags; C = notes, colour, where it is, whose
 -- it is, and scalar custom values. Money is an object {amount, currency} and never indexed; secret
 -- fields never reach `custom`. Every text goes through kept.search_text() (normalised + stripped).
@@ -274,7 +274,7 @@ $$;
 
 -- Recomputes both caches whenever something they read changes; a caller setting search_tsv
 -- (NULL, from kept.refresh_thing_doc()) or place_path (the reindex job) gets them recomputed.
--- touch_row() then sees only quiet columns change, so no row_version bump (Q1).
+-- touch_row() then sees only quiet columns change, so no row_version bump.
 CREATE FUNCTION kept.thing_cache() RETURNS trigger
 LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
 BEGIN
@@ -296,7 +296,7 @@ CREATE TRIGGER touch_row BEFORE INSERT OR UPDATE ON public.things
 --> statement-breakpoint
 
 -- A tag added or removed refreshes the thing's document: search_tsv is set to NULL and the
--- BEFORE trigger recomputes it; only a quiet column changed, so row_version stays (Q1).
+-- BEFORE trigger recomputes it; only a quiet column changed, so row_version stays.
 CREATE FUNCTION kept.refresh_thing_doc() RETURNS trigger
 LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
 DECLARE
@@ -322,7 +322,7 @@ REVOKE EXECUTE ON FUNCTION
   FROM PUBLIC, kept_app, kept_system;
 --> statement-breakpoint
 -- The cache helpers: kept_app's (breadcrumbs, and the triggers its writes fire). The reindex
--- and purge doors (task 10) run as kept_owner.
+-- and purge doors run as kept_owner.
 REVOKE EXECUTE ON FUNCTION kept.path_of(uuid, uuid), kept.thing_search_doc(public.things)
   FROM PUBLIC, kept_system;
 --> statement-breakpoint
@@ -345,7 +345,7 @@ CREATE INDEX places_name_trgm ON public.places
   USING gin (kept.normalize(name) public.gin_trgm_ops) WHERE deleted_at IS NULL;
 --> statement-breakpoint
 
--- 7. Contact details (D177, Q5): an admin of every location where a live thing belongs to the
+-- 7. Contact details (D177): an admin of every location where a live thing belongs to the
 --    person; a person used nowhere, an admin of any location of the account (0014's clause).
 CREATE OR REPLACE FUNCTION kept.person_contact_visible(p_person uuid) RETURNS boolean
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, public AS $$

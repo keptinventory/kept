@@ -1,5 +1,5 @@
-// Where a reading sits in its meter's series (plan T16; D26, D52, D112; engineering spec §3.4,
-// §7.13). Pure: the service reads the meter, its replacement events and its accepted readings,
+// Where a reading sits in its meter's series (D26, D52, D112).
+// Pure: the service reads the meter, its replacement events and its accepted readings,
 // and this decides.
 //
 // - Readings are ordered by when they were taken (D112), not when they arrived. A reading's
@@ -8,14 +8,14 @@
 // - Values are compared after replacement offsets (D52): a meter replaced at `at` with offset `o`
 //   reads `value + o` from then on, so the drop to a new odometer's 0 is not "backwards".
 // - Backwards (below the one before, or above the one after) is an ordering fault; a rise faster
-//   than the meter's `max_per_day` (§3.4: 1,500 km a day for distance, 24 h a day for hours) is
+//   than the meter's `max_per_day` (1,500 km a day for distance, 24 h a day for hours) is
 //   an implausible jump. What the caller does with each is the service's rule (D26: online, a
-//   backwards reading is refused at entry and a jump waits for review; by sync, step 3, both go
+//   backwards reading is refused at entry and a jump waits for review; by sync, both go
 //   to the Inbox).
-// - A reading made from a service (step 5) is taken at the service date, 12:00 in the location's
-//   timezone (§7.13); its caller computes that `takenAt` before it gets here.
+// - A reading made from a service is taken at the service date, 12:00 in the location's
+//   timezone; its caller computes that `takenAt` before it gets here.
 //
-// Values are numeric(14,3) (§7.13): compared exactly, as whole thousandths in BigInt.
+// Values are numeric(14,3): compared exactly, as whole thousandths in BigInt.
 
 import { decimalOut, milli } from '@kept/shared';
 
@@ -43,7 +43,7 @@ const DAY_MS = 86_400_000n;
 export { decimalOut, milli };
 
 /**
- * The daily limit that applies: the meter's own, else the §3.4 default for its kind. Distance
+ * The daily limit that applies: the meter's own, else the default for its kind. Distance
  * defaults only for the units whose scale is known (km, mi); a custom meter has none.
  */
 export function dailyLimit(meter: {

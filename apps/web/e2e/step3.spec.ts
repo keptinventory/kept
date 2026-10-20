@@ -1,5 +1,5 @@
 /**
- * Step 3's flows against the real server (plan T32), on the `households` seed with every AI call
+ * Step 3's flows against the real server, on the `households` seed with every AI call
  * answered by the mock provider (the `capture` instance, e2e/camera.ts), in Chromium with a fake
  * camera (playwright.config.ts: e2e/fixtures/camera-thing.y4m; the scan test launches its own
  * browser on camera-qr.y4m, a QR of the seeded Bosch drill's label).

@@ -1,18 +1,18 @@
 -- Custom SQL migration file, put your code below! --
--- Step 8, task 4: backup runs, release history, operations alert kinds and sealed backup settings
--- (engineering spec §1.10, §7.11; D64–D66, D166, D186; step-8 plan Q9). Above, in 0090,
+-- Backup runs, release history, operations alert kinds and sealed backup settings
+-- (D64–D66, D166, D186). Above, in 0090,
 -- drizzle's part: backup_runs and release_history (src/db/schema/operations.ts), and the alert
 -- kinds backup_stale, disk_space_low, bucket_versioning_off, restore_drill_due,
--- backup_suspicious_size (step 8) and webhook_failing (step 6, T15). Below:
+-- backup_suspicious_size and webhook_failing. Below:
 --   1. backup_runs: instance scope, written only by kept_owner (the worker's backup login, the
 --      CLI, `kept migrate`); instance admins read them (kept_app, like admin_alerts); nothing for
 --      kept_system.
 --   2. release_history: written by kept_owner in `kept migrate`. kept_system reads it and stamps
---      last_booted_at (the worker's boot guard, T8), through commented policies; instance admins
+--      last_booted_at (the worker's boot guard), through commented policies; instance admins
 --      read it (the status page) — the plan gave kept_app nothing, but every table carries a
 --      kept_app policy (test/leak.test.ts), and a read-only one for instance admins is harmless.
 --   3. The alpha's backup status (instance_settings `backup_status`: the last run and the last
---      good one, T31c) becomes one or two `nightly` rows, and the key goes. Its summaries never
+--      good one) becomes one or two `nightly` rows, and the key goes. Its summaries never
 --      recorded the file storage mode: the rows say `local` (the alpha's default) and carry
 --      `{"from": "backup_status"}` in detail; an error that isn't a short code becomes
 --      `backup_failed`.

@@ -1,5 +1,5 @@
 /**
- * AI's state in one line (D206, screens §3 and §5 "AI paused and waiting"):
+ * AI's state in one line (D206):
  *
  * - `useWaitingText(status)`: the progress line's words while work waits on the provider, never a
  *   banner: "Waiting for Groq · about 20 s", "Groq isn't answering · retrying at 14:05", and "Groq
@@ -24,7 +24,7 @@ const secondsUntil = (iso: string, now = Date.now()) =>
 
 /**
  * The progress line for work held by the provider (`status.waitingProvider`), or null when
- * nothing waits. A rate limit is "Waiting for Groq · about 20 s"; it is not a pause (§8a).
+ * nothing waits. A rate limit is "Waiting for Groq · about 20 s"; it is not a pause.
  */
 export function useWaitingText(): (status: AiStatus) => string | null {
   const { t } = useLingui();
@@ -64,7 +64,7 @@ export function KeyTrouble({ status, action }: { status: AiStatus; action?: Reac
   );
 }
 
-/** "AI here is paid by Ibrahim's account": the line members and viewers get (screens §5). */
+/** "AI here is paid by Ibrahim's account": the line members and viewers get. */
 export function PaidByLine({
   status,
   owner,

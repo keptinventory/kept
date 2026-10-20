@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-// A Homebox export ZIP, table by table, exactly as spike H1 recorded it (D146; step-7 plan T9;
-// the fixtures in test/fixtures/homebox/). Nothing here is a guess: a column the spike didn't see is
+// A Homebox export ZIP, table by table, exactly as recorded from real exports (D146; the fixtures in test/fixtures/homebox/).
+// Nothing here is a guess: a column those exports didn't have is
 // not read, and an encoding it didn't see fails the row, which becomes an issue on that row.
 //
 // - Every table is one JSON array (`<table>.json`, Go's json.Encoder), not NDJSON, read whole.

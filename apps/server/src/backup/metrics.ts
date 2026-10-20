@@ -3,7 +3,7 @@ import { withSystem } from '../db/scope.js';
 import { UPDATE_CHECK_STATE_KEY } from '../updates/check.js';
 import { BACKUP_METRICS_KEY, type BackupMetrics, DISK_STATUS_KEY, diskStatusOf } from './watch.js';
 
-// Step 8's Prometheus gauges (plan T10; D66, D166), served by /metrics (http/health.ts, behind
+// Step 8's Prometheus gauges (D66, D166), served by /metrics (http/health.ts, behind
 // its bearer token). Read on kept_system from what the hourly `ops-watch` and the update check
 // keep in instance_settings, so a scrape never touches backup_runs (the owner's), a disk or
 // GitHub. The backup's figures are therefore up to an hour old, well inside the 36-hour stale

@@ -14,7 +14,7 @@ import {
   type ResolvedBackupSettings,
 } from './settings.js';
 
-// The pre-upgrade snapshot's settings side (step-8 plan T8, Q8): `kept migrate` reads the backup
+// The pre-upgrade snapshot's settings side: `kept migrate` reads the backup
 // settings on its own owner connection, overlaid by the environment, and opens the sealed ones
 // with the keys when the migrate container has them (T15 mounts the config volume read-only and
 // passes the key variables). The snapshot itself is the backup engine's database-only run

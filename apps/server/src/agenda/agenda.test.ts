@@ -247,7 +247,7 @@ describe('GET /api/v1/agenda', () => {
       subject: { type: 'thing', id: s.tv, name: 'TV' },
       actions: ['open'],
     });
-    // An ended warranty isn't actionable (Q7).
+    // An ended warranty isn't actionable.
     expect(by(s.endedWarranty)).toBeUndefined();
     expect(by(s.licenceOverdue)).toMatchObject({
       sourceType: 'document',

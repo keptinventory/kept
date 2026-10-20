@@ -32,12 +32,12 @@ import {
 } from './query.js';
 import { meaningCandidates, rrf, type SemanticInput } from './semantic.js';
 
-// GET /api/v1/search (T20): the groups, paged and shaped as the web contract says
+// GET /api/v1/search: the groups, paged and shaped as the web contract says
 // (apps/web/src/api/inventory/types.ts, SearchResponse). Rows carry no money at all; the money
 // filters only narrow things in locations where the caller's gate shows money. The `documents`
-// group (T21, search/documents.ts) matches files' text; its snippets need the money gate.
+// group (search/documents.ts) matches files' text; its snippets need the money gate.
 //
-// Semantic search (step-6 T14; D200, Q14): with the query's vectors from prepareSemantic() (taken
+// Semantic search (D200): with the query's vectors from prepareSemantic() (taken
 // before this transaction: no model call runs inside one, D166), the first page of things fuses
 // the keyword ranking with the meaning ranking by reciprocal rank fusion (score = Σ 1/(k + rank),
 // k = RRF_K). Every keyword row of the page stays; a thing found by meaning alone joins it when it
@@ -58,7 +58,7 @@ export type PathStep = {
   name: string;
   kind: 'place' | 'container';
   isUnplaced: boolean;
-  /** The step's primary short ID (D208, T19). */
+  /** The step's primary short ID (D208). */
   shortCode: string | null;
 };
 
@@ -77,7 +77,7 @@ export type ThingRow = {
   lastSeenAt: string | null;
   isContainer: boolean;
   matchedAlias?: string;
-  /** Found by meaning alone (T14): "matched by meaning". */
+  /** Found by meaning alone: "matched by meaning". */
   matchedBy?: 'meaning';
 };
 
@@ -96,7 +96,7 @@ export type SearchResult = {
   documents: { items: DocumentItem[] };
   didYouMean: string[];
   asOf: string;
-  /** Why things were found by keywords only (T14, §7.15); null when meaning was searched too;
+  /** Why things were found by keywords only; null when meaning was searched too;
    * absent when meaning didn't apply (no query, one short word, a code). */
   semantic?: SemanticState | null;
 };
@@ -109,7 +109,7 @@ function indexOf(text: string): string[] {
 }
 
 /** Every word of `q` prefixes some indexed form of `text`: the JS twin of the tsquery match,
- * used to say which alias a result matched through (screens §8). */
+ * used to say which alias a result matched through. */
 export function wordsMatch(text: string, q: string): boolean {
   const index = indexOf(text);
   const words = normalize(q).match(WORD) ?? [];

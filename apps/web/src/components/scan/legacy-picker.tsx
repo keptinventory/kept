@@ -1,5 +1,5 @@
 /**
- * An old Homebox label whose asset ID is on more than one thing (D146, screens §8): Homebox numbers
+ * An old Homebox label whose asset ID is on more than one thing (D146): Homebox numbers
  * assets per collection, and each collection became a Kept location, so `000-014` can be in two.
  * The person picks the one in their hands; each choice names its location.
  */

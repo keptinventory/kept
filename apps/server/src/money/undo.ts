@@ -15,7 +15,7 @@ import { type RateImage, type RateKey, rateAt, rateOut, removeRate, writeRate } 
 import { moneyOff } from './input.js';
 import { type ValuationRow, valuationImage } from './valuations.js';
 
-// Undo of money's changes (step-4 plan T8, Q25; D124, D150), registered by routes.ts:
+// Undo of money's changes (D124, D150), registered by routes.ts:
 // - `valuation.update`: each field the event changed goes back, if it still holds the event's
 //   `after` (else 409 `changed_since`, naming who changed it);
 // - `valuation.delete`: the row comes back with its id, its thing still here and live, and its

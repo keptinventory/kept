@@ -11,7 +11,7 @@ import {
 } from '../config/env.js';
 import { generateKey, type Keyring, type MasterKey } from './envelope.js';
 
-// The keyring (engineering spec §7.3, D182; plan Q19). The current master key seals; every key
+// The keyring (D182). The current master key seals; every key
 // in the ring (the current one and the retired ones) opens what it sealed. Rotation
 // (`kept admin rotate-key`, secrets/rotate.ts) makes a new current key, keeps the old one as
 // retired, and re-wraps every stored data key under the new one.

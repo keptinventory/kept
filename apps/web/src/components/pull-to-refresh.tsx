@@ -50,7 +50,7 @@ const PULLS = [
   /^\/p\/[^/]+\/?$/,
   /^\/t\/[^/]+\/?$/,
   /^\/activity\/?$/,
-  // Step 4 (D212, plan T27): the schedules and lending lists, and a person's page with its loans;
+  // Step 4 (D212): the schedules and lending lists, and a person's page with its loans;
   // Paperwork, Expiring, the notification centre and incidents. A thing's new sections pull with
   // its page.
   /^\/schedules\/?$/,
@@ -61,7 +61,7 @@ const PULLS = [
   /^\/notifications\/?$/,
   /^\/incidents\/?$/,
   /^\/incidents\/[^/]+\/?$/,
-  // Step 5 (D212, plan T3): the vehicles list. A vehicle's tabs pull with its thing page.
+  // Step 5 (D212): the vehicles list. A vehicle's tabs pull with its thing page.
   /^\/vehicles\/?$/,
 ];
 export const pullsOn = (pathname: string) => PULLS.some((r) => r.test(pathname));

@@ -1,5 +1,5 @@
 /**
- * The export's passphrase, twice (D68; plan T21, Q7): the app's own password inputs, at least
+ * The export's passphrase, twice (D68): the app's own password inputs, at least
  * PASSPHRASE_MIN characters and no composition rules. A mismatch is said beside the second field,
  * as it's typed, and announced (WCAG 4.1.3); the parent's button waits until both agree. The
  * passphrase lives only in the parent's state while the sheet is open: never browser storage,

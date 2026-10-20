@@ -1,13 +1,13 @@
 import type pg from 'pg';
 
-// The reminder scan's own record (plan T7, T14; D166, §3.4): `instance_settings.reminder_scan`,
+// The reminder scan's own record (D166): `instance_settings.reminder_scan`,
 // written by the scan as kept_system, read by the admin status page (kept_app as an instance
 // admin) and by `check-admin-alerts`, which raises `reminders_not_scanned` when no pass has
 // finished for 2 hours and resolves it after the next good one.
 
 export const REMINDER_SCAN_KEY = 'reminder_scan';
 
-/** No finished pass for this long raises `reminders_not_scanned` (§3.4). */
+/** No finished pass for this long raises `reminders_not_scanned`. */
 export const NOT_SCANNED_HOURS = 2;
 
 export type ScanStatus = {

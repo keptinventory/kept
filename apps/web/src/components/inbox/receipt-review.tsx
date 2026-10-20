@@ -1,5 +1,5 @@
 /**
- * Receipt review (D11, D19, D36; screens §5 "Inbox", the 7a frame): the pages, the shop (one you
+ * Receipt review (D11, D19, D36; the 7a frame): the pages, the shop (one you
  * have, or a new one made here, with a hint when the name is close to one you have), the date,
  * the currency (no preselection when the mark was ambiguous, D189), the total and tax (money
  * hidden → "Prices hidden"), and each line: link it to a thing already captured (the J2 order:

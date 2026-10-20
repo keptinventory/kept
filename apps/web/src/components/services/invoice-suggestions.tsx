@@ -1,6 +1,6 @@
 /**
- * The invoice, read by AI, on Log a service (plan T20; screens §5 "Log a service", the board's
- * frame 65; D19, D131, D189; Q12). A draft service record's suggestions (the server's
+ * The invoice, read by AI, on Log a service (the designs'
+ * frame 65; D19, D131, D189). A draft service record's suggestions (the server's
  * `ServiceRecordV5.suggestions`): its lines, total, currency, vendor and date, shown violet and
  * dashed, never applied until the person says so: **Confirm all** takes them into the form, and
  * each line's **Edit** takes that one line into the typed lines to change it.

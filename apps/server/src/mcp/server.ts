@@ -21,20 +21,20 @@ import { runTool, toolsFor } from '../tools/context.js';
 import type { ToolDeps, ToolPrincipal } from '../tools/types.js';
 import { principalOf } from './auth.js';
 
-// The MCP server (step-6 plan T11; D58, D63, D113, D124, D128, D172, D179; screens §8).
+// The MCP server (D58, D63, D113, D124, D128, D172, D179).
 //
-// createMcpHandler(factory): stateless (D63), one fresh McpServer per HTTP request (spike S6.1:
-// ~1 ms for 25 tools). The factory reads the verified AuthInfo and registers **only** the tools
+// createMcpHandler(factory): stateless (D63), one fresh McpServer per HTTP request
+// (~1 ms for 25 tools). The factory reads the verified AuthInfo and registers **only** the tools
 // that token may call in its locations (toolsFor(), tools/context.ts): a write tool for a write
 // token where its role and the modules allow it, never a tool of a module that is off. Each
 // callback calls runTool(), which checks all of that again per call (D180) and answers Kept's
 // envelope; a refusal comes back as `isError` with `{error, hint}` for the model to read.
 //
 // Answers carry the envelope once, as text (≤ 8 KB, T1's fit()): no `outputSchema` and no
-// `structuredContent`, which would send every answer twice (spike S6.1 finding 4). The zod output
+// `structuredContent`, which would send every answer twice. The zod output
 // schemas stay the contract the tests check.
 //
-// `legacy: 'stateless'` (plan Q9): the SDK's own client still opens with the 2025 handshake by
+// `legacy: 'stateless'`: the SDK's own client still opens with the 2025 handshake by
 // default (S6.1 finding 6), so 2025-era clients are served statelessly until V15 shows the real
 // clients speak 2026-07-28.
 

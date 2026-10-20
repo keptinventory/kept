@@ -1,5 +1,5 @@
 /**
- * The notification centre (plan T24; D39, D57, step-4 Q32; frame "7 · Notification centre ·
+ * The notification centre (D39, D57; frame "7 · Notification centre ·
  * phone · light"): grouped by kind in the frame's order, each naming the thing or place, its
  * path and the local date; Complete and Snooze open T21's sheets; Mark returned in one tap with
  * Undo; the polite reminder copied, never sent; Mark all read; the filter strip from the URL; the

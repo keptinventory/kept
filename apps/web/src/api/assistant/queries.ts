@@ -1,7 +1,7 @@
 /**
  * Assistant fetchers, query keys and hooks over ./types.ts and ./paths.ts. The thread list follows
- * the list standard (L88): `useInfiniteQuery` over `next_cursor`. A live turn is polled every
- * second (Q2: no token streaming); the screens (T19, T20) wrap the writes in `useMutation`.
+ * the list standard: `useInfiniteQuery` over `next_cursor`. A live turn is polled every
+ * second (no token streaming); the screens wrap the writes in `useMutation`.
  */
 import { isLiveTurn } from '@kept/shared';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
@@ -39,7 +39,7 @@ export const assistantApi = {
   turn: (id: string) => api.get<TurnView>(p.turn(id)),
   cancelTurn: (id: string) => api.post<TurnView>(p.turnCancel(id)),
   /** `locale`: the card's language, which the result's fixed words are written in (the
-   * server reads Accept-Language here, T13). */
+   * server reads Accept-Language here). */
   confirm: (body: ConfirmBody, locale?: string) =>
     api.post<ConfirmResult>(
       p.proposalsConfirm,
@@ -49,7 +49,7 @@ export const assistantApi = {
   cancelProposals: (body: CancelProposalsBody) => api.post<void>(p.proposalsCancel, body),
 };
 
-/** How often a live turn is polled (Q2). */
+/** How often a live turn is polled. */
 export const TURN_POLL_MS = 1000;
 
 /** The caller's threads: `q` and the list standard's filters (./types.ts ThreadsParams). */

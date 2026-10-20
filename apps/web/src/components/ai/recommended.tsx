@@ -1,5 +1,5 @@
 /**
- * "Recommended: Groq" (D206, screens §5 AI settings), above the key box while no key is saved:
+ * "Recommended: Groq" (D206), above the key box while no key is saved:
  * why Groq with qwen/qwen3.8-27b, in the measured figures and their date, said plainly (a synthetic
  * test the evaluation re-checks; Groq has no embeddings model; about 2–3 photos a minute, paced),
  * with a link to Groq's key page. The other providers stay equal choices below it.

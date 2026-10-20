@@ -5,24 +5,24 @@ import { audited } from '../audit/audited.js';
 import { AppError, notFound, pgErrorOf } from '../http/errors.js';
 import { type Ctx, insertThing, requireRole } from '../things/service.js';
 
-// Claiming a pre-printed blank label (plan T16; D43, D112, D137; engineering spec §2.4; Q24).
+// Claiming a pre-printed blank label (D43, D112, D137).
 //
 // The decision is the database's: kept.claim_blank_code() (0042) claims the code for a thing or a
 // place of the location it was printed for, or answers `already_claimed` with who has it when it
 // was claimed first in a location the caller sees. Anything else (missing, retired, another
 // location, invisible, a viewer) is its 42501, which the error handler answers as the same 404 a
-// random code gets (§7.7), so a claim can't be used to learn that a code exists somewhere.
+// random code gets, so a claim can't be used to learn that a code exists somewhere.
 //
 // Three callers share claimLabel():
 // - `POST /api/v1/codes/:code/claim` (labels/routes.ts): `already_claimed` becomes 409
 //   `label_claimed {claimedFor}`, and the transaction rolls back (a new container with it);
-// - the capture service's `claimCode` (capture/service.ts, T13): the new thing is made, then the
+// - the capture service's `claimCode` (capture/service.ts): the new thing is made, then the
 //   code it was captured into is claimed for it;
-// - the `claim_label` sync op (T14): `already_claimed` is its `needs_review` plus an inbox
+// - the `claim_label` sync op: `already_claimed` is its `needs_review` plus an inbox
 //   `label_claim` item; the loser's new container stays, with its own (pending) code.
 //
 // A claimed label is a physical label: its `printed_at` is set, so the thing it went to no longer
-// counts as unprinted (Q28). On a thing made for the claim (a new container, a capture into a
+// counts as unprinted. On a thing made for the claim (a new container, a capture into a
 // scanned blank), the claimed code becomes the primary one and the code insertThing() allocated
 // is demoted: that one was never printed, and the one on the box is what the thing's page shows.
 
@@ -55,7 +55,7 @@ export type ClaimOutcome =
   | { outcome: 'already_claimed'; claimedFor: ClaimedFor };
 
 export type ClaimOptions = {
-  /** `op` (T14): the op checked the new container's client id against its own window. */
+  /** `op`: the op checked the new container's client id against its own window. */
   via?: 'online' | 'op';
   /** The `thingId` target was made for this claim (a capture into a scanned blank): the claimed
    * code becomes its primary one. */
@@ -199,7 +199,7 @@ export async function claimLabel(
   return result;
 }
 
-/** The route's refusal for a label claimed first elsewhere (§5 "Label already claimed"). */
+/** The route's refusal for a label claimed first elsewhere. */
 export function labelClaimed(claimedFor: ClaimedFor): AppError {
   return new AppError('label_claimed', 409, `This label is on "${claimedFor.name}".`, {
     claimedFor,
@@ -208,7 +208,7 @@ export function labelClaimed(claimedFor: ClaimedFor): AppError {
 
 /**
  * The loser of a claim race gets an inbox `label_claim` item on the thing it wanted to label
- * ("This label was claimed on another phone for 'Camping box'", screens §5): payload
+ * ("This label was claimed on another phone for 'Camping box'"): payload
  * `{claimedFor}`, the code in `code`. A claim meant for a place has no thing: the item carries
  * the code alone. Answers its id, or null when one is open already.
  */
@@ -240,7 +240,7 @@ export async function openLabelClaimItem(
 }
 
 /**
- * A capture into a scanned blank (`claimCode`, T13): claims the code for the thing just made,
+ * A capture into a scanned blank (`claimCode`): claims the code for the thing just made,
  * under a savepoint, so the capture stands whatever the claim answers:
  * - `claimed`: the label is the thing's primary code;
  * - `already_claimed`: an inbox `label_claim` item (the thing keeps its own code);

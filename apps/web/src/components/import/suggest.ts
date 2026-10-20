@@ -1,5 +1,5 @@
 /**
- * The import stepper's guesses (plan T30): which field each column is, from its header in any of
+ * The import stepper's guesses: which field each column is, from its header in any of
  * the five languages ("Name", "الاسم", "Désignation"); which date format the dates are in; and
  * which separator the place paths use. Guesses only fill the form: the person changes any of them,
  * and the server's dry run checks every cell again.

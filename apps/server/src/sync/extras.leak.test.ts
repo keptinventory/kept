@@ -5,7 +5,7 @@ import { addMember, ownerTx, seedTenant, seedUser, type Tenant } from '../../tes
 import { type Scope, withScope } from '../db/scope.js';
 import { extrasEstimate, extrasPage } from './extras.js';
 
-// The keep-offline extras' leak test (step-8 plan T12; engineering spec §7.2; D36, D159). Two
+// The keep-offline extras' leak test (D36, D159). Two
 // tenants filled as the schema-wide leak test fills them (test/leak-inventory.ts: a purchase with
 // a receipt, a person with contact details, a secret value), with money on. Tenant A's owner and
 // a viewer of A read A's extras on kept_app, every page and the estimate, and nothing of B's may

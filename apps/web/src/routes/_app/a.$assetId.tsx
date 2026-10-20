@@ -1,6 +1,6 @@
 /**
  * `/a/<assetId>`, a Homebox label's asset ID (`000-001`): opened in Kept when the old Homebox
- * hostname points here (D146; plan T20). The page is components/legacy/legacy-resolve.tsx, one per
+ * hostname points here (D146). The page is components/legacy/legacy-resolve.tsx, one per
  * label (keyed), and it stays in the precache: a label opens offline.
  */
 import { createFileRoute } from '@tanstack/react-router';

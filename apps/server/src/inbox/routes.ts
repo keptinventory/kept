@@ -29,8 +29,8 @@ import {
 } from './service.js';
 import { InboxItemSchema, InboxPageSchema, InboxQuery, listInbox } from './view.js';
 
-// The "To review" inbox (plan T15; D18, D19, D36, D175, D191). The web contract is
-// apps/web/src/api/capture/{paths,types}.ts, "inbox (T15)"; the mock it started on is
+// The "To review" inbox (D18, D19, D36, D175, D191). The web contract is
+// apps/web/src/api/capture/{paths,types}.ts, "inbox"; the mock it started on is
 // apps/web/src/api/capture/mock/inbox.ts.
 //
 // GET  /api/v1/inbox?locationId&mine&kind&batchId&q&cursor&limit → InboxPage          (view.ts)
@@ -48,7 +48,7 @@ import { InboxItemSchema, InboxPageSchema, InboxQuery, listInbox } from './view.
 // POST /api/v1/inbox/:id/discard                                 → {undo?}
 //
 // Every POST on an item takes the item's `rowVersion` as If-Match. An undoable write answers
-// X-Kept-Audit-Event (http/write.ts, §7.7): a bulk action's `inbox.bulk` event (one per location
+// X-Kept-Audit-Event (http/write.ts): a bulk action's `inbox.bulk` event (one per location
 // it spans), a discard's `thing.trash`, an accept's `thing.update`.
 
 const Params = z.object({ id: z.uuid() });
@@ -59,7 +59,7 @@ const ActionResult = z.object({
 const RestoreResult = z.object({ outcome: z.enum(['applied', 'needs_review', 'dropped']) });
 const Empty = z.object({}).optional();
 
-/** The "To review" inbox (T15). Registered by http/routes.ts; add routes here, never there. */
+/** The "To review" inbox. Registered by http/routes.ts; add routes here, never there. */
 export async function inboxRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools } = deps;
   registerInboxUndo();

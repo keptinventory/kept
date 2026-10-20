@@ -38,7 +38,7 @@ import {
 import { readableLocaleOf, readableWords } from './labels.js';
 import { copyThumbs, type ThumbJob } from './thumbs.js';
 
-// The readable copy (D159; step-7 plan T13, Q12): one location as plain files a person can read
+// The readable copy (D159): one location as plain files a person can read
 // with nothing but a browser and a spreadsheet, years from now, with no Kept and no network:
 //
 //   index.html            the location, its places as a tree, and per place its things
@@ -58,7 +58,7 @@ import { copyThumbs, type ThumbJob } from './thumbs.js';
 // **One builder, two callers.** buildReadableCopy() writes into any directory:
 // - the Kept export (exports/job.ts) writes it to a scratch directory and packs it under
 //   `readable/` in the ZIP, beside `files/<fileId>.<ext>` (`filesHref: '../files'`);
-// - step 8's nightly snapshot (backup/readable/, step-8 T6) writes it to
+// - step 8's nightly snapshot (backup/readable/) writes it to
 //   `KEPT_DATA_DIR/backup/readable/<locationId>/`, as the location's owner, and places the
 //   originals itself (hard links on local storage) at `filesHref/<name>` for each entry of the
 //   result's `files`; with S3 storage it asks for photos' display renditions (`target.photos`).
@@ -98,7 +98,7 @@ export type ReadableTarget = {
   filesHref: string;
   /** `display`: a photo (`files.class = 'photo'`) with a display rendition is linked as that
    * rendition, `<filesHref>/<fileId>-display.jpg`, not its original (the nightly snapshot's copy
-   * with S3 file storage, step-8 Q11). Default `original`, the export's. */
+   * with S3 file storage). Default `original`, the export's. */
   photos?: 'original' | 'display';
 };
 

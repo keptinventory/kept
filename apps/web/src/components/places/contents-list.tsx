@@ -1,11 +1,11 @@
 /**
- * What's here (screens §5 Location / Place / Container): places first, then things, under the
- * list standard (L88: search, filter, group, sort and cursor pagination, all in the URL).
+ * What's here (on a location, place or container): places first, then things, under the
+ * list standard (search, filter, group, sort and cursor pagination, all in the URL).
  *
  *   <ContentsList parent={{ kind: 'container', id, name, locationId }} canEdit={canEdit} />
  *
  * The host route declares the URL state with `validateSearch: contentsSearch`. The thing page
- * (task 26) hosts a container's contents with this; the Location and Place pages (task 25) use it
+ * hosts a container's contents with this; the Location and Place pages use it
  * for theirs.
  *
  * - A location lists its top-level places, then every thing in it at any depth, each with its
@@ -19,8 +19,8 @@
  *
  * With `canEdit`, things can be selected and moved together (D45), picked up together into the
  * carrying tray (D175, design frame 7a: the tray is on this phone, so it works offline), or sent
- * to "Print labels" (T28); an owner or admin can also add them to an incident or make a claim pack
- * of them (D158, step-4 T26, screens §5 "Incidents and claims"). On a pointer device a thing can
+ * to "Print labels"; an owner or admin can also add them to an incident or make a claim pack
+ * of them (D158). On a pointer device a thing can
  * be dragged onto a place row; the move picker does the same without dragging (WCAG 2.5.7).
  */
 import { can } from '@kept/shared';
@@ -131,7 +131,7 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
   const isPlace = parent.kind === 'place';
   const placeQuery = useContentsQuery(isPlace ? parent.id : '', contentsParams, isPlace);
   // The things this list shows, as GET /things parameters: its query's, and for a place (whose
-  // contents come from their own route) the things directly in it. "Export" sends these (T16).
+  // contents come from their own route) the things directly in it. "Export" sends these.
   const thingParams: ThingListParams =
     parent.kind === 'container'
       ? { containerId: parent.id, ...params }
@@ -210,7 +210,7 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
     setSelecting(false);
     setSelected(new Set());
   };
-  // "Print labels" for the selection (plan T28), where the Labels module is on (§3: hidden if not).
+  // "Print labels" for the selection, where the Labels module is on (hidden if not).
   const navigate = useNavigate();
   const here = useLocations().data?.find((l) => l.id === parent.locationId);
   const canLabel =
@@ -226,7 +226,7 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
   const online = useOnline();
   const [incidentFor, setIncidentFor] = useState<string[]>([]);
 
-  // "Pick up" for the selection (D175, frame 7a): into this phone's carrying tray.
+  // "Pick up" for the selection (D175): into this phone's carrying tray.
   const trayStore = useScanStore();
   const [pickingUp, setPickingUp] = useState(false);
   const pickUpSelected = async () => {
@@ -292,7 +292,7 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
     parent.kind === 'location' && parent.unplacedId
       ? tree.data?.places.find((pl) => pl.id === parent.unplacedId)
       : undefined;
-  // "Imported by" (T16): owners and admins, who can see the location's imports; a place's
+  // "Imported by": owners and admins, who can see the location's imports; a place's
   // contents route has no such filter.
   const canImport = !!here && can(here.role, 'location.export-import') && parent.kind !== 'place';
   const filters: FilterDef[] = [

@@ -10,7 +10,7 @@ import { runScan } from '../reminders/scan.js';
 import type { Notification } from './centre.js';
 import { aiSummaryChannels } from './notices.js';
 
-// Plan T16 through the front door, as the web calls it (apps/web/src/api/household/{types,paths}.ts
+// The notification centre through the front door, as the web calls it (apps/web/src/api/household/{types,paths}.ts
 // and mock/notify.ts): the centre lists the caller's own notifications while they see the
 // location, a reminder as it is now (its state, subject, title and actions), membership and AI
 // notices in words the web renders, the bell's count, and marking read. Rows come from the scan
@@ -159,7 +159,7 @@ describe('GET /api/v1/notifications', () => {
       [talia.userId, home],
     );
     const lent = await lend(drill, plus(-2));
-    // Viewers aren't recipients (Q8); write Talia's notice as the scan would.
+    // Viewers aren't recipients; write Talia's notice as the scan would.
     await runScan({ pools: db.pools });
     const [occ] = await own<{ id: string }>(
       'SELECT id FROM public.reminder_occurrences WHERE source_id = $1',

@@ -134,7 +134,7 @@ describe('POST /api/v1/things', () => {
     expect(box.isContainer).toBe(true);
     const inside = await createThing(t, ann, home, { name: 'Charger', containerId: box.id });
     expect(inside.containerId).toBe(box.id);
-    // Each step carries its short ID, so a breadcrumb links by code (D208, T19).
+    // Each step carries its short ID, so a breadcrumb links by code (D208).
     expect((inside.path as { id: string; kind: string }[]).at(-1)).toEqual(
       expect.objectContaining({ id: box.id, kind: 'container', shortCode: box.shortCode }),
     );

@@ -7,14 +7,14 @@ import { AppError, invalid, notFound, pgErrorOf } from '../http/errors.js';
 import { SHORT_ID_TRIES } from '../places/short-id.js';
 import { type Ctx, requireRole } from '../things/service.js';
 
-// Label batches (plan T16; D43, D44, D45, D97, D137, D172, D175, D185; screens §6; Q28, Q29).
-// The web contract is apps/web/src/api/capture/types.ts "labels (T16)".
+// Label batches (D43, D44, D45, D97, D137, D172, D175, D185).
+// The web contract is apps/web/src/api/capture/types.ts "labels".
 //
 // A batch is one print job: which codes, on which stock, from which cell. The sheet itself is the
-// web's (T28: print-styled HTML and phone PNGs); the server hands out the codes and remembers
+// web's (print-styled HTML and phone PNGs); the server hands out the codes and remembers
 // them, so a reprint is the same codes (D45).
 //
-// - `things` / `places`: the listed ones (at most 500), or `unprinted` (Q28): every live thing
+// - `things` / `places`: the listed ones (at most 500), or `unprinted`: every live thing
 //   (or place) in the place's subtree, or the location, none of whose codes was ever printed. A
 //   quantity row has one label (D137). A listed thing that isn't a live thing of this location
 //   with a code is excluded and counted: `pending` when the caller can't see it at all (an
@@ -24,7 +24,7 @@ import { type Ctx, requireRole } from '../things/service.js';
 //   batch's cap) prints the first 1,000 and counts the rest as `other`: they stay unprinted.
 // - `blank`: 1–500 new blank codes, each tried as `randomShortCode()` with INSERT … ON CONFLICT
 //   DO NOTHING (8 tries each, places/short-id.ts), under the 1,000-unclaimed cap per location
-//   (§3.1b; the 0042 trigger enforces it, this answers 409 `blank_cap_reached` first).
+//   (the 0042 trigger enforces it, this answers 409 `blank_cap_reached` first).
 // - "Printed OK?" (`printed`) sets `printed_at` on the batch's codes, keeping the first one, and
 //   the batch's `printed_confirmed_at`, once; a second confirmation changes and audits nothing.
 
@@ -32,7 +32,7 @@ export const MAX_LISTED = 500;
 export const MAX_BLANKS = 500;
 /** label_batches_code_count_chk. */
 export const MAX_BATCH = 1000;
-/** §3.1b, D172. */
+/** D172. */
 export const BLANK_CAP = 1000;
 
 const Ids = z.array(z.uuid()).min(1).max(MAX_LISTED);
@@ -144,7 +144,7 @@ async function cellsOf(
   return out;
 }
 
-/** The labels `codes` would print as, in order (a preview, T28). */
+/** The labels `codes` would print as, in order (a preview). */
 async function previewCells(
   client: pg.ClientBase,
   publicUrl: string,
@@ -299,7 +299,7 @@ async function pickListed(
   return picked;
 }
 
-/** Q28: every live thing (or place) under `placeId` (or in the location) none of whose codes was
+/** Every live thing (or place) under `placeId` (or in the location) none of whose codes was
  * ever printed, in place order. */
 async function pickUnprinted(
   client: pg.ClientBase,
@@ -346,7 +346,7 @@ async function pickUnprinted(
     locationId,
     placeId,
   ]);
-  // A thing with no code yet is `pending` (screens §6).
+  // A thing with no code yet is `pending`.
   const rows = all.filter((r): r is { id: string; code: string } => r.code !== null);
   const kept = rows.slice(0, MAX_BATCH);
   return {

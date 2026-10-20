@@ -10,7 +10,7 @@ import {
 import { z } from 'zod';
 import { type EntityDef, entityDef, type FieldKind, fieldsOf } from './registry.js';
 
-// The Kept export's format as zod (plan T12, T14): the writer (exports/data.ts) and the Kept
+// The Kept export's format as zod: the writer (exports/data.ts) and the Kept
 // importer (imports/kept/read.ts) read the same registry, so they can't drift. An importer reads
 // `data/<entity>.ndjson` lines with entitySchema(entity), `manifest.json` with ManifestSchema
 // (after checking `format` and `version` itself, for its own refusal), and

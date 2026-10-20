@@ -14,14 +14,14 @@ import { liveThingOf, odometerOf } from '../vehicles/meters.js';
 import { type Ctx, createSchedule, requireModule } from './service.js';
 import type { Schedule } from './view.js';
 
-// Starter schedules for a vehicle (step-5 plan T13; D52, engineering spec §3.4: "editable
-// defaults, not manufacturer advice"; Q25): oil change, tyre rotation, brake fluid and air filter,
+// Starter schedules for a vehicle (D52; "editable
+// defaults, not manufacturer advice"): oil change, tyre rotation, brake fluid and air filter,
 // whichever comes first. Never made automatically: the person asks, from the empty Schedules tab.
 //
 // - Made through step 4's own create (schedules/service.ts createSchedule), in one transaction,
 //   anchored today at the odometer's latest reading. A key whose name the vehicle already has
 //   (normalised, D42) is skipped, so asking twice makes none the second time.
-// - The distance side applies only to an odometer in km (Q25); in miles, or with no distance
+// - The distance side applies only to an odometer in km; in miles, or with no distance
 //   meter, a schedule gets its months alone (no rounded conversion presented as advice).
 // - Modules Vehicles (the route's config) and Schedules (here); `schedules-claims.manage`.
 // - One undoable event, `schedule.starter` on the thing, names what it made (each schedule's own

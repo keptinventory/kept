@@ -1,5 +1,5 @@
 /**
- * The app's own PIN keypad (step-8 plan T23; board frame 111): dots for the digits typed, then
+ * The app's own PIN keypad: dots for the digits typed, then
  * 1–9, an extra key (Face ID, or nothing), 0 and Delete. Never the system keyboard on a phone; a
  * hardware keyboard's digits and Backspace work too. The keypad keeps its order in Arabic, as a
  * phone's does; its digits follow the reader's digit setting.

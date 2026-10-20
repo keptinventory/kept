@@ -1,5 +1,5 @@
 /**
- * The Cairo household from the screens board: Ibrahim
+ * The Cairo household from the screen designs: Ibrahim
  * owns Home; his brother Bruce is an admin; Alfred is a member; Louis is house-sitting as a member
  * until 31 Oct; Peter, Alfred's son, has a managed account; Talia is a viewer. Shared by tests
  * and the demo mode. Every scenario is a fresh object, so a test can mutate it freely.
@@ -58,12 +58,12 @@ export type MockState = {
     alerts: AdminAlert[];
     status: AdminStatus;
   };
-  /** Step 2: places, things, registries, search, files, trash, home (api/inventory/mock). */
+  /** Places, things, registries, search, files, trash, home (api/inventory/mock). */
   inventory: InventoryState;
-  /** Step 3: capture, inbox, AI, labels, scan, imports, templates, undo, sync (api/capture/mock). */
+  /** Capture, inbox, AI, labels, scan, imports, templates, undo, sync (api/capture/mock). */
   capture: CaptureState;
   /**
-   * Step 4: money, warranties, lending, schedules, paperwork, the agenda, notifications, the
+   * Money, warranties, lending, schedules, paperwork, the agenda, notifications, the
    * calendar feed and incidents (api/household/mock).
    */
   household: HouseholdState;
@@ -150,7 +150,7 @@ const home = (): LocationDetail => ({
   thingCount: 214,
   pendingInviteCount: 1,
   require2fa: true,
-  // Consumables on (step-7 T23): the AA batteries keep at least 16 and run low.
+  // Consumables on: the AA batteries keep at least 16 and run low.
   modules: [
     'labels',
     'money',
@@ -581,7 +581,7 @@ export function ownerScenario(): MockState {
   return base();
 }
 
-/** Right after first-run setup: only the Personal location exists (screens §8, D114). */
+/** Right after first-run setup: only the Personal location exists (D114). */
 export function firstRunScenario(): MockState {
   const s = base();
   s.locations = [personal(IDS.personal)];
@@ -594,7 +594,7 @@ export function firstRunScenario(): MockState {
   return s;
 }
 
-/** Alfred: an invited member of Home (no invite or AI items for him, screens §5 Home). */
+/** Alfred: an invited member of Home (no invite or AI items for him). */
 export function memberScenario(): MockState {
   const s = base();
   s.me = {

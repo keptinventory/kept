@@ -1,5 +1,5 @@
 /**
- * Words for incidents (D158, plan T26): the kinds, the lifecycle an incident can end its things
+ * Words for incidents (D158): the kinds, the lifecycle an incident can end its things
  * with, and the incident's own name ("Burglary on 12 Sep 2026"), which the list, the page, the
  * insurance report's scope and the claim pack all use.
  */

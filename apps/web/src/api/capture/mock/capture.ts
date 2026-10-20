@@ -1,5 +1,5 @@
 /**
- * Mock handlers for the online capture path (T13) and extraction (T10): POST /captures, the
+ * Mock handlers for the online capture path and extraction: POST /captures, the
  * phone-made display image, capture batches and their undo, and re-extraction. Like the server,
  * a capture with no name is a draft and opens an inbox `draft` item; AI capture queues an
  * extraction (it stays paused where AI is paused).
@@ -158,7 +158,7 @@ export function captureRoutes(state: MockState): MockRoute[] {
         batch.thingIds.push(t.id);
         result.thing = rowOf(inv(), t);
       } else if (b.mode === 'receipt' && !b.pageOf) {
-        // Another page (`pageOf`) joins the first page's draft purchase: nothing new (Q13).
+        // Another page (`pageOf`) joins the first page's draft purchase: nothing new.
         result.purchaseId = newId();
       }
 
@@ -229,7 +229,7 @@ export function captureRoutes(state: MockState): MockRoute[] {
     route('POST', p.captureBatchUndo(':batchId'), ({ params }) => {
       const batch = cap().batches.find((b) => b.batchId === params.batchId);
       if (!batch || !access().visible(batch.locationId)) return notFound();
-      // Your own unreviewed drafts in the batch go to the trash (screens §8).
+      // Your own unreviewed drafts in the batch go to the trash.
       const trashed: string[] = [];
       if (batch.createdById === state.me.user.id) {
         for (const id of batch.thingIds) {

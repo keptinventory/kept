@@ -23,16 +23,16 @@ import { liveThing, writableThing } from '../things/service.js';
 import type { Applied } from './apply.js';
 import { EXTRACT_JOB } from './job.js';
 
-// Extraction on request, and its attempts (plan T10; D19, D206, L58; engineering spec §7.8,
-// §7.15 "Elsewhere"). The web contract is apps/web/src/api/capture/types.ts "extraction (T10)".
+// Extraction on request, and its attempts (D19, D206).
+// The web contract is apps/web/src/api/capture/types.ts "extraction".
 //
 // POST /api/v1/things/:id/extract {attachmentId?, mode?} → 202 {extractionId}
-//   Explicit only (D19, L58): the attachment's live or succeeded attempt becomes `superseded`, a
+//   Explicit only (D19): the attachment's live or succeeded attempt becomes `superseded`, a
 //   new attempt (attempt + 1) is queued, and its result replaces the draft's extracted fields
 //   (apply.ts puts back what the superseded one applied first). Needs `ai.capture` and the
 //   `ai_capture` module (409 `ai_unavailable` otherwise). Audited `thing.reextract`.
 // POST /api/v1/purchases/:id/extract → 202 {extractionId}
-//   Step 6 (T18, step-3 Q13): the same for a receipt. Its first page owns the extraction (the
+//   The same for a receipt. Its first page owns the extraction (the
 //   job reads every page); the live or succeeded attempt is superseded. Audited
 //   `purchase.reextract`.
 // GET /api/v1/things/:id/extractions → {items: ExtractionAttempt[]}
@@ -177,7 +177,7 @@ export async function requestExtraction(
   await deps.jobs?.sendTenant(client, EXTRACT_JOB, { extractionId: id });
   // The thing's open draft item follows this attempt (its payload names the latest, apply.ts),
   // so the inbox says "Naming…" for it, not the superseded one's state or nothing at all (a
-  // draft captured before any provider had no attempt: "Name N unnamed photos", T27).
+  // draft captured before any provider had no attempt: "Name N unnamed photos").
   await client.query(
     `UPDATE public.inbox_items SET payload = payload || jsonb_build_object('extractionId', $2::text)
       WHERE thing_id = $1 AND kind = 'draft' AND resolved_at IS NULL`,
@@ -202,7 +202,7 @@ export async function requestExtraction(
   return { extractionId: id };
 }
 
-/** POST /api/v1/purchases/:id/extract: read a receipt again, on request only (D19, L58). */
+/** POST /api/v1/purchases/:id/extract: read a receipt again, on request only (D19). */
 export async function requestReceiptExtraction(
   ctx: Ctx,
   deps: Pick<InventoryDeps, 'jobs'>,
@@ -307,8 +307,8 @@ export const CALL_COLUMNS = `c.id AS call_id, c.model, c.provider_kind, c.input_
               WHERE oa.id = c.paying_account_id) AS payer_account_user_id`;
 
 /**
- * The AI line of an attempt (§7.15 "Elsewhere"), or null without a visible ledger row. Money
- * follows the gate, unless the caller is the one who paid. Shared with the inbox view (T15).
+ * The AI line of an attempt, or null without a visible ledger row. Money
+ * follows the gate, unless the caller is the one who paid. Shared with the inbox view.
  */
 export function callSummaryOf(
   r: CallRow,
@@ -374,7 +374,7 @@ export async function listExtractions(
 ): Promise<{ items: ExtractionAttempt[] }> {
   const thing = await liveThing(client, thingId);
   const gate = await gateFor(tx, thing.location_id, scope);
-  // The ledger row is read through llm_calls' own policy (§7.15): each person their own calls,
+  // The ledger row is read through llm_calls' own policy: each person their own calls,
   // admins their locations', owners their account's. `at` narrows the partitions to the
   // extraction's lifetime.
   const { rows } = await client.query<AttemptRow>(
@@ -408,7 +408,7 @@ export async function listExtractions(
   };
 }
 
-/** Extraction: re-extract on request and its attempts (T10). The work itself is a job
+/** Extraction: re-extract on request and its attempts. The work itself is a job
  * (extraction/job.ts). Registered by http/routes.ts; add routes here, never there. */
 export async function extractionRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools } = deps;

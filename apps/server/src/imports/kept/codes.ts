@@ -1,7 +1,7 @@
 import type pg from 'pg';
 import { allocateShortId } from '../../places/short-id.js';
 
-// Printed labels on a Kept import (D45, D120; step-7 plan T14, Q9). Labels are permanent, and a
+// Printed labels on a Kept import (D45, D120). Labels are permanent, and a
 // short ID is unique on the whole instance:
 // - each exported code is adopted through kept.adopt_short_code() (0083) where it is free on this
 //   server: moving to a new server keeps every label as it was;
@@ -10,7 +10,7 @@ import { allocateShortId } from '../../places/short-id.js';
 //   code is kept as a `kept` legacy code, which the scanner and the phone resolve (scan/resolve.ts),
 //   so the old label still opens it here;
 // - a taken blank or retired code is dropped and counted (a retired label opened nothing there).
-// The door says only whether a code was free, never where it is used (accepted, Q9).
+// The door says only whether a code was free, never where it is used (accepted).
 //
 // The dry run asks the same question without writing: codesFree() tries the codes as retired
 // rows of the target location inside a savepoint it rolls back. That is the side channel the door

@@ -1,16 +1,16 @@
-// A small iCalendar writer (RFC 5545; step-4 plan T17): Kept's feed is a few all-day VEVENTs, so
+// A small iCalendar writer (RFC 5545): Kept's feed is a few all-day VEVENTs, so
 // it is written by hand rather than with a library (the plan's "deliberately not added").
 //
-// - Lines end in CRLF (§3.1).
+// - Lines end in CRLF.
 // - A content line longer than 75 octets is folded: CRLF then one space, each physical line at
-//   most 75 octets (the leading space included), and a fold never splits a UTF-8 sequence (§3.1:
-//   "a multi-octet character MUST NOT be split"), so Arabic titles stay whole.
-// - TEXT values escape backslash, semicolon, comma and newlines (§3.3.11).
+//   most 75 octets (the leading space included), and a fold never splits a UTF-8 sequence
+//   ("a multi-octet character MUST NOT be split"), so Arabic titles stay whole.
+// - TEXT values escape backslash, semicolon, comma and newlines.
 
 export const CRLF = '\r\n';
 const MAX_OCTETS = 75;
 
-/** A TEXT value, escaped (§3.3.11). Carriage returns go; newlines become `\n`. */
+/** A TEXT value, escaped. Carriage returns go; newlines become `\n`. */
 export function escapeText(value: string): string {
   return value
     .replace(/\\/g, '\\\\')
@@ -98,7 +98,7 @@ export function writeCalendar(cal: Calendar): string {
       `SUMMARY:${escapeText(e.summary)}`,
     );
     if (e.description) lines.push(`DESCRIPTION:${escapeText(e.description)}`);
-    // URL is a URI value (§3.8.4.6), not TEXT: never escaped.
+    // URL is a URI value, not TEXT: never escaped.
     if (e.url) lines.push(`URL:${e.url}`);
     lines.push('TRANSP:TRANSPARENT', 'END:VEVENT');
   }

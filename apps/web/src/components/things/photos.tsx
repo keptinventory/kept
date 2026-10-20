@@ -1,5 +1,5 @@
 /**
- * The header's photo carousel (screens §5 Thing detail: "the photo, swipe through photos").
+ * The header's photo carousel ("the photo, swipe through photos").
  * One photo at a time with "1 / 4", Previous and Next buttons, arrow keys, and a swipe on touch.
  * In Arabic the buttons and the swipe mirror. Without photos it shows the type's icon, and a
  * writer gets "Add photo". A HEIC photo has no preview yet (D36): it says so, never an error.

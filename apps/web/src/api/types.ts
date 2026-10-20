@@ -31,7 +31,7 @@ export type VersionInfo = {
   notices?: string | null;
 };
 
-// ----- setup (task 22) -----------------------------------------------------------------------
+// ----- setup ---------------------------------------------------------------------------------
 
 /**
  * GET /api/v1/setup (public). `oidc` (step 6 T16, D127): the generic OIDC provider's name for "Sign
@@ -81,7 +81,7 @@ export type SignInResult =
 
 export type TwoFactorEnableResult = { totpURI: string; backupCodes: string[] };
 
-// ----- me (task 17, 18) ----------------------------------------------------------------------
+// ----- me (18) -------------------------------------------------------------------------------
 
 /** GET /api/v1/me: the signed-in person and what the shell needs about them. */
 export type Me = {
@@ -100,14 +100,14 @@ export type Me = {
   mfa: boolean;
   /** Null only while it's hidden from this session (require_2fa without a second factor). */
   personalLocationId: string | null;
-  /** Display preferences (§7.9). `locale` is `en` or `ar`. */
+  /** Display preferences. `locale` is `en` or `ar`. */
   profile: {
     timezone: string;
     locale: string;
     units: 'metric' | 'imperial';
     theme: 'system' | 'light' | 'dark';
     digits: 'western' | 'eastern';
-    /** "Suggest where I am" (D153): the person's choice, on every device (T19). */
+    /** "Suggest where I am" (D153): the person's choice, on every device. */
     suggestLocation?: boolean;
   };
   /** The locations this session can see, with the user's role and end date in each. */
@@ -142,7 +142,7 @@ export type AccountDeletionState = {
   blockers: AccountDeletionBlockers;
 };
 
-/** GET /api/v1/me/sessions (task 17: user agent, created, last active). */
+/** GET /api/v1/me/sessions (user agent, created, last active). */
 export type DeviceSession = {
   id: string;
   userAgent: string | null;
@@ -154,7 +154,7 @@ export type DeviceSession = {
   secondFactor: boolean;
 };
 
-// ----- locations (task 19) -------------------------------------------------------------------
+// ----- locations -----------------------------------------------------------------------------
 
 /** One entry of GET /api/v1/locations. */
 export type LocationSummary = {
@@ -191,7 +191,7 @@ export type LocationDetail = LocationSummary & {
   providerResolved: boolean;
   /** The switched-on modules after dependencies and provider gating. */
   effectiveModules?: ModuleId[];
-  /** For PATCH's If-Match (§7.7). */
+  /** For PATCH's If-Match. */
   rowVersion?: number;
   languages?: string[];
   moneyVisibleToViewers?: boolean;
@@ -232,7 +232,7 @@ export type UpdateLocationBody = {
  */
 export type SetModulesBody = { preset: Preset; modules: ModuleId[] };
 
-// ----- members and invites (tasks 19–21) -----------------------------------------------------
+// ----- members and invites -------------------------------------------------------------------
 
 export type Member = {
   membershipId: string;
@@ -248,7 +248,7 @@ export type Member = {
   lastActiveAt: string | null;
   twoFactorEnabled: boolean;
   isYou: boolean;
-  /** For PATCH's If-Match (§7.7): the server answers 428 without it. */
+  /** For PATCH's If-Match: the server answers 428 without it. */
   rowVersion: number;
 };
 
@@ -268,11 +268,11 @@ export type PendingInvite = {
  * admins only. */
 export type MembersResponse = { members: Member[]; invites: PendingInvite[] };
 
-/** One page of GET /api/v1/locations/:id/members (§7.7: `limit`, `cursor`). Pending invites (at
+/** One page of GET /api/v1/locations/:id/members (`limit`, `cursor`). Pending invites (at
  * most 50) come whole with every page. */
 export type MembersPage = MembersResponse & { nextCursor?: string | null };
 
-/** One page of GET /api/v1/locations (§7.7: `limit`, `cursor`). */
+/** One page of GET /api/v1/locations (`limit`, `cursor`). */
 export type LocationsPage = { locations: LocationDetail[]; nextCursor?: string | null };
 
 /** GET /api/v1/locations/deleted: the owner's deleted locations still in their grace period. */
@@ -294,7 +294,7 @@ export type CreateInviteBody = {
 };
 
 /**
- * POST /api/v1/locations/:id/invites (task 20). The URL (`/invite#<token>`) carries the token in
+ * POST /api/v1/locations/:id/invites. The URL (`/invite#<token>`) carries the token in
  * its #fragment. `url` and `qrSvg` are null for an email invite (the link went only to the
  * mailbox) and on an idempotent replay (the token is never stored).
  */
@@ -309,7 +309,7 @@ export type CreateInviteResult = {
   emailed: boolean;
 };
 
-/** GET /api/v1/invites/:token: the public preview (task 20). */
+/** GET /api/v1/invites/:token: the public preview. */
 export type InvitePreview = {
   location: { name: string; kind: LocationKind };
   inviterName: string;
@@ -361,7 +361,7 @@ export type CreateManagedResult = {
 /** POST /api/v1/managed-accounts/:userId/reset-code: a new one-time code (D164, D197). */
 export type ManagedResetCode = { code: string; expiresAt: string };
 
-// ----- instance admin (tasks 23–25) ----------------------------------------------------------
+// ----- instance admin ------------------------------------------------------------------------
 
 export type AdminUser = {
   id: string;
@@ -382,11 +382,11 @@ export type AdminSetting<T> = { value: T; locked: boolean };
 
 /**
  * GET /api/v1/admin/settings (apps/server/src/admin/routes.ts). A value the server environment
- * sets comes back `locked`, and a PUT of it is 409 `conflict` (§7.11): KEPT_SIGNUP_OPEN,
+ * sets comes back `locked`, and a PUT of it is 409 `conflict`: KEPT_SIGNUP_OPEN,
  * KEPT_BARCODE_LOOKUP (D126, off by default) and KEPT_BARCODE_CONTACT (the contact the Open*Facts
- * lookups name in their User-Agent). `formerHostnames` (T16; D120, Q32): old host names of this
+ * lookups name in their User-Agent). `formerHostnames` (D120): old host names of this
  * instance, which redirect to the public URL, at most MAX_FORMER_HOSTNAMES, never the public
- * URL's own host (400). `ssrfAllowPrivate` (Q9, D83): whether a typed AI base URL may reach a
+ * URL's own host (400). `ssrfAllowPrivate` (D83): whether a typed AI base URL may reach a
  * private address (off by default, for a self-hosted server); no environment variable sets it.
  */
 export type AdminSettings = {
@@ -398,7 +398,7 @@ export type AdminSettings = {
   /** 1.4 (D230): find several things in one THING photo, each its own draft. Off by default; no
    * environment variable sets it. Absent from servers before 1.4. */
   multiItem?: boolean;
-  /** Step 8 (T11, D65): "Check for new versions", off by default; KEPT_UPDATE_CHECK locks it.
+  /** Step 8 (D65): "Check for new versions", off by default; KEPT_UPDATE_CHECK locks it.
    * Absent from servers before step 8. */
   updateCheck?: AdminSetting<boolean>;
 };
@@ -443,7 +443,7 @@ export type AdminAlertKind =
   | 'llm_default_partition'
   | 'backup_failed'
   | 'reminders_not_scanned'
-  // Step 6 (T15) and step 8 (T5, T10, D66, D144, D166).
+  // Step 6 and step 8 (D66, D144, D166).
   | 'webhook_failing'
   | 'backup_stale'
   | 'disk_space_low'
@@ -454,7 +454,7 @@ export type AdminAlertKind =
   | (string & {});
 
 /** GET /api/v1/admin/accounts?q&limit: an account, its owner's name and how many locations it
- * owns; nothing about what is in them (D33; T19). */
+ * owns; nothing about what is in them (D33). */
 export type AdminAccount = { id: string; ownerName: string; locations: number };
 
 export type AdminAlert = {
@@ -468,7 +468,7 @@ export type AdminAlert = {
    * The latest figures, never tenant content: `failed_jobs_rising` → `{failedLastHour,
    * byQueue}`, `audit_default_partition` and `llm_default_partition` → `{rows, oldest, newest}`,
    * `backup_failed` → `{error, lastOk}` (lastOk: when the last good backup finished, or null),
-   * `reminders_not_scanned` (D66, D166, step 4) → `{lastOkAt, lastRunAt}`: when the last
+   * `reminders_not_scanned` (D66, D166) → `{lastOkAt, lastRunAt}`: when the last
    * reminder scan finished and started, each null when none ever did (alerts.ts);
    * `backup_stale` → `{lastOkAt, hours}`, `disk_space_low` → `{volume: 'data' | 'backup',
    * usedRatio, freeBytes}`, `restore_drill_due` → `{lastDrillAt}` (backup/watch.ts).
@@ -476,7 +476,7 @@ export type AdminAlert = {
   payload: Record<string, unknown>;
 };
 
-/** GET /api/v1/admin/status (task 25). `alerts` is the number of open alerts. */
+/** GET /api/v1/admin/status. `alerts` is the number of open alerts. */
 export type AdminStatus = {
   version: string;
   dbOk: boolean;
@@ -485,7 +485,7 @@ export type AdminStatus = {
   /** `configured: false`: KEPT_SMTP_URL is unset, so no link, invite or alert mail goes out. */
   mail: { configured: boolean };
   /**
-   * The nightly backup (T31c, D207): `configured: false` while no KEPT_BACKUP_DIR or
+   * The nightly backup (D207): `configured: false` while no KEPT_BACKUP_DIR or
    * KEPT_BACKUP_S3_BUCKET is set; the last run and the last good one. Absent from servers before
    * step 3 (and the demo), where the page shows no backup line.
    */
@@ -495,7 +495,7 @@ export type AdminStatus = {
     lastOk: AdminBackupRun | null;
   };
   /**
-   * The reminder scan's last pass (step 4, T14; D166): when it last started and last finished, the
+   * The reminder scan's last pass (D166): when it last started and last finished, the
    * new occurrences that pass wrote and how long it took. Null before the first pass; absent from
    * servers before step 4.
    */
@@ -506,7 +506,7 @@ export type AdminStatus = {
     durationMs: number;
   } | null;
   /**
-   * Generic OIDC sign-in (step 6 T16, D127, spike S6.7): whether it's configured, the button's
+   * Generic OIDC sign-in (step 6 T16, D127): whether it's configured, the button's
    * name, the issuer, the callback URL to register at the IdP, and why boot-time discovery failed
    * (OIDC is then off until a restart). Absent from servers before step 6.
    */
@@ -521,7 +521,7 @@ export type AdminStatus = {
   /** 1.2 (D226): Google sign-in, and the redirect URI to register with Google. */
   google?: { configured: boolean; callbackUrl: string | null };
   /**
-   * The MCP endpoint and OAuth connectors (step 6 T11, T12; D63, D125): connectors need an https
+   * The MCP endpoint and OAuth connectors (step 6 T11; D63, D125): connectors need an https
    * public URL, so without one they're `needs_https` and only personal tokens work.
    */
   connectors?: { mcpUrl: string; oauth: 'available' | 'needs_https' };

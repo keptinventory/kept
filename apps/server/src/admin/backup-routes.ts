@@ -51,7 +51,7 @@ import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 import { markRecoveryKitStale, requireRecoveryKitAck } from '../setup/recovery-kit.js';
 
-// Step 8: Admin → Backups (D64, D66, D144, D186, D193; plan T10). Instance admins only
+// Admin → Backups (D64, D66, D144, D186, D193). Instance admins only
 // (kept.is_instance_admin(), 404 for anyone else: the screen doesn't exist for them); the
 // settings' PUT and the restic test behind requireHttps() (D181), audited with the target kind
 // and `{changed: true}` per secret, never a value. The PUT and the test run on withScope()
@@ -224,7 +224,7 @@ export async function backupRoutes(app: KeptApp, deps: InventoryDeps): Promise<v
           checkVersion({ rowVersion: version }, expected, ['target', 'password', 'time', 'keep']);
           const { next, audit } = applyBackupSettings(stored, input.data, overlay, keys.current);
           const nextVersion = await writeStoredBackupSettings(client, next);
-          // The kit holds the repository, its password and credentials (T9): a kit downloaded
+          // The kit holds the repository, its password and credentials: a kit downloaded
           // before this change is stale.
           if (Object.keys(audit.changed).length > 0) await markRecoveryKitStale(client);
           await auditInstance(tx, req, 'instance.backup_settings', {

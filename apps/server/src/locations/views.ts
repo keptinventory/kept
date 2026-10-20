@@ -14,7 +14,7 @@ import { LOCATION_KINDS } from '../db/schema/index.js';
 import { decodeCursor, encodeCursor } from '../http/conventions.js';
 import { invalid } from '../http/errors.js';
 
-// What the API shows of a location and its people (tasks 19–21). Field names are camelCase, as
+// What the API shows of a location and its people. Field names are camelCase, as
 // the web app's types (apps/web/src/api/types.ts) expect; dates are ISO 8601 strings.
 
 export const Iso = z.iso.datetime({ offset: true });
@@ -27,7 +27,7 @@ export const LocationView = z.object({
   id: z.uuid(),
   name: z.string(),
   kind: LocationKind,
-  /** The owner account the location belongs to: its registries, types and place kinds (T25). */
+  /** The owner account the location belongs to: its registries, types and place kinds. */
   ownerAccountId: z.uuid(),
   /** The caller's role here. */
   role: RoleSchema,
@@ -53,7 +53,7 @@ export const LocationView = z.object({
   effectiveModules: z.array(ModuleIdSchema),
   /** An AI provider resolves for this location (D113, D191). Step 3 wires the real check. */
   providerResolved: z.boolean(),
-  /** For If-Match on PATCH (§7.7). */
+  /** For If-Match on PATCH. */
   rowVersion: z.number().int(),
   createdAt: Iso,
   updatedAt: Iso,
@@ -85,7 +85,7 @@ type LocationRow = {
   sort_name: string;
 };
 
-/** A page of a keyset-sorted list (§7.7): at most `limit` rows after the row whose sort key is
+/** A page of a keyset-sorted list: at most `limit` rows after the row whose sort key is
  * `after` (null: from the start). */
 export type KeysetPage<K> = { limit: number; after: K | null };
 
@@ -205,7 +205,7 @@ async function locationRows(
       effectiveModules: [
         ...effectiveModules(enabled, { providerResolved: r.provider_resolved === true }),
       ],
-      // Step 3 (T9, D191): AI capture follows a provider that resolves for the caller here.
+      // Step 3 (D191): AI capture follows a provider that resolves for the caller here.
       providerResolved: r.provider_resolved === true,
       rowVersion: r.row_version,
       createdAt: r.created_at.toISOString(),
@@ -250,7 +250,7 @@ export const MemberView = z.object({
   /** Shown to owners and admins; false otherwise. */
   twoFactorEnabled: z.boolean(),
   isYou: z.boolean(),
-  /** For If-Match on PATCH (§7.7). */
+  /** For If-Match on PATCH. */
   rowVersion: z.number().int(),
 });
 export type MemberView = z.infer<typeof MemberView>;

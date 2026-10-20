@@ -1,8 +1,8 @@
 /**
  * Step-3 fetchers, query keys and hooks, over the contract in ./types.ts and the paths in
  * ./paths.ts. Keys are factories under one prefix per area (`captureKeys.inbox.*`,
- * `captureKeys.ai.*`, …) so a mutation invalidates by prefix. Lists follow the list standard
- * (L88): `useInfiniteQuery` over `next_cursor`.
+ * `captureKeys.ai.*`, …) so a mutation invalidates by prefix. Lists follow the list standard:
+ * `useInfiniteQuery` over `next_cursor`.
  *
  * Writes are fetchers on `captureApi` for the screens to wrap in `useMutation`; an undoable one
  * answers `undo: {eventId, until}` for T31's `useUndo`. The undo route itself, hints and mark
@@ -161,11 +161,11 @@ async function uploadError(res: Response): Promise<ApiError> {
 // ----- fetchers --------------------------------------------------------------------------------
 
 export const captureApi = {
-  // sync (T12, T14)
+  // sync
   snapshot: (params: SnapshotParams = {}) => api.get<SnapshotPage>(p.syncSnapshot + qs(params)),
   syncOps: (body: SyncOpsRequest) => api.post<SyncOpsResponse>(p.syncOps, body),
 
-  // capture (T13)
+  // capture
   capture: (body: CreateCaptureBody, idempotencyKey: string) =>
     api.post<CaptureResult>(p.captures, body, { 'idempotency-key': idempotencyKey }),
   batches: (params: CaptureBatchParams = {}) =>
@@ -191,12 +191,12 @@ export const captureApi = {
     return (await res.json()) as FileView;
   },
 
-  // extraction (T10)
+  // extraction
   extract: (thingId: string, body: ExtractBody = {}) =>
     api.post<ExtractResult>(p.thingExtract(thingId), body),
   extractions: (thingId: string) => api.get<ExtractionsResponse>(p.thingExtractions(thingId)),
 
-  // inbox (T15)
+  // inbox
   inbox: (params: InboxParams = {}) =>
     api.get<InboxPage>(
       p.inbox +
@@ -226,7 +226,7 @@ export const captureApi = {
   inboxDiscard: (id: string, rowVersion: number) =>
     written.post<InboxActionResult>(p.inboxDiscard(id), {}, ifMatch(rowVersion)),
 
-  // labels (T16)
+  // labels
   createLabelBatch: (body: CreateLabelBatchBody) =>
     api.post<CreateLabelBatchResult>(p.labelBatches, body),
   /** The builder's preview: the same call with `dryRun`, nothing saved or allocated. */
@@ -239,7 +239,7 @@ export const captureApi = {
   labelSummary: (locationId?: string) => api.get<LabelSummary>(p.labelSummary + qs({ locationId })),
   claim: (code: string, body: ClaimBody) => api.post<ClaimResult>(p.codeClaim(code), body),
 
-  // scan, barcodes, box checks (T17)
+  // scan, barcodes, box checks
   resolveScan: (body: ScanResolveBody) => api.post<ScanOutcome>(p.scanResolve, body),
   barcode: (code: string) => api.get<BarcodeLookup>(p.barcode(code)),
   boxCheck: (containerId: string, body: BoxCheckBody) =>
@@ -247,7 +247,7 @@ export const captureApi = {
   boxChecks: (containerId: string, cursor?: string) =>
     api.get<Page<BoxCheckSummary>>(p.thingBoxChecks(containerId) + qs({ cursor })),
 
-  // CSV import (T18)
+  // CSV import
   createImport: (body: CreateImportBody) => api.post<ImportRun>(p.importsCsv, body),
   dryRun: (id: string) => api.post<DryRunResult>(p.importDryRun(id)),
   runImport: (id: string) => api.post<ImportRun>(p.importStart(id)),
@@ -255,7 +255,7 @@ export const captureApi = {
   importRun: (id: string) => api.get<ImportRun>(p.importRun(id)),
   imports: (locationId?: string) => api.get<Page<ImportRun>>(p.imports + qs({ locationId })),
 
-  // templates (T19)
+  // templates
   templates: (locationId: string) => api.get<TemplatesResponse>(p.templates + qs({ locationId })),
   accountTemplates: (accountId: string) =>
     api.get<AccountTemplatesResponse>(p.accountTemplates(accountId)),
@@ -267,10 +267,10 @@ export const captureApi = {
   saveAsTemplate: (thingId: string, body: SaveAsTemplateBody) =>
     api.post<AccountTemplate>(p.thingSaveAsTemplate(thingId), body),
 
-  // undo (T20); the undo itself is inventoryApi's POST /audit/:eventId/undo
+  // undo; the undo itself is inventoryApi's POST /audit/:eventId/undo
   undoable: (thingId: string) => api.get<UndoableResponse>(p.thingUndoable(thingId)),
 
-  // AI (T9, §7.15)
+  // AI
   aiStatus: (locationId: string | null) =>
     api.get<AiStatus>(p.aiStatus + qs({ locationId: locationId ?? undefined })),
   aiProviders: () => api.get<AiProvidersResponse>(p.aiProviders),
@@ -300,7 +300,7 @@ export const captureApi = {
   aiUsage: (params: AiUsageParams) => api.get<AiUsage>(p.aiUsage + qs(params)),
   aiCalls: (params: AiCallParams) => api.get<Page<AiCall>>(p.aiCalls + qs(params)),
   aiCall: (id: string) => api.get<AiCallDetail>(p.aiCall(id)),
-  /** The CSV download's URL for the same filters (a link, not a fetch: §7.15). */
+  /** The CSV download's URL for the same filters (a link, not a fetch). */
   aiCallsCsvUrl: (params: AiCallParams) => p.aiCallsCsv + qs(params),
 };
 

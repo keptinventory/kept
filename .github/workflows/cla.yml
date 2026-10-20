@@ -3,8 +3,8 @@
 # DCO sign-off (the ci workflow's dco job) still applies to every commit. Gated on a public
 # repository, like the other workflows.
 #
-# StepSecurity's fork of CLA Assistant Lite (the upstream action is archived), pinned by commit SHA
-# (spike W1). It runs under pull_request_target, so it must NEVER check out or run the pull
+# StepSecurity's fork of CLA Assistant Lite (the upstream action is archived), pinned by commit SHA.
+# It runs under pull_request_target, so it must NEVER check out or run the pull
 # request's code: there is no checkout step here, and none may be added (D187). Triggers and
 # permissions are the action's own README's. Signatures are committed to the unprotected branch
 # `cla-signatures`, which exists apart from main and is never merged into it.

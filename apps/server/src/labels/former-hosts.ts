@@ -3,7 +3,7 @@ import type pg from 'pg';
 import { z } from 'zod';
 import { AppError } from '../http/errors.js';
 
-// Former hostnames (plan T16, Q32; D120; engineering spec §2.4). A printed label's link carries
+// Former hostnames (D120). A printed label's link carries
 // the host it was printed under; the in-app scanner ignores that host, but a phone's own camera
 // opens the link as it is. When an instance moves (kept.home.example → kept.example.org), the
 // admin lists the old names in `instance_settings.former_hostnames`, points them at Kept, and a

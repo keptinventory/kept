@@ -1,5 +1,5 @@
 /**
- * A schedule in words (screens §5, D29, D52; step-4 Q2): how often ("Every 12 months", "Every
+ * A schedule in words (D29, D52): how often ("Every 12 months", "Every
  * 10,000 km or 12 months", "Once, on 18 Dec"), when it's next due ("in 12 days", "due today",
  * "3 days overdue", "at 60,000 km"), and its state as a pill with an icon, a word and a colour
  * together, never colour alone (D134). The due point comes from the server's agenda (`next`),
@@ -77,7 +77,7 @@ export function useScheduleText() {
     const unit = s.meter?.unit ?? null;
     const at = s.next.dueValue ? units(s.next.dueValue, unit) : null;
     const days = s.next.dueOn ? count(today, s.next.dueOn) : null;
-    // Overdue by the meter while the day is still ahead (T29): the reading passed it.
+    // Overdue by the meter while the day is still ahead: the reading passed it.
     if (
       s.next.state === 'overdue' &&
       at &&

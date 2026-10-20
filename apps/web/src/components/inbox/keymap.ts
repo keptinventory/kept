@@ -1,5 +1,5 @@
 /**
- * The inbox's fixed keyboard map (D175; screens §5 "Keyboard", §8 "Inbox keys"), from
+ * The inbox's fixed keyboard map (D175), from
  * @kept/shared's INBOX_KEYMAP. A key does nothing while a field, a menu or a dialog has focus, or
  * with Ctrl, ⌘ or Alt held (those belong to the browser and the palette); `/` and `F` stay the
  * filter strip's.

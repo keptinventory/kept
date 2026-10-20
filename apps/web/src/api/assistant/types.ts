@@ -1,5 +1,5 @@
 /**
- * The assistant's API contract (step-6 plan T13's route table; D22–D24, D123, D164, D179, D213).
+ * The assistant's API contract (D22–D24, D123, D164, D179, D213).
  * Message parts, proposals and turn statuses are @kept/shared's (assistant.ts), the same shapes
  * the server stores. Threads are the caller's own only, private even from admins (D23).
  */
@@ -35,7 +35,7 @@ export type ThreadSummary = {
 };
 export type ThreadsPage = Page<ThreadSummary>;
 /**
- * The list standard's filters (L88), added by T19: `locationId` (repeatable; with
+ * The list standard's filters, added by T19: `locationId` (repeatable; with
  * `not=locationId`, "is none of") matches the thread's context location, and `from`/`to` bound
  * `updatedAt` (`from` inclusive, `to` exclusive).
  */
@@ -73,7 +73,7 @@ export type ThreadDetail = {
  * `POST /assistant/threads/:id/turns` → 202 `{turnId}`. 409 `turn_running` when one is live; 409
  * `ai_paused` (with `pausedUntil`) when the context's payer is paused; 400 `ai_unavailable` with
  * no provider. `text` is at most TURN_LIMITS.maxQuestionChars; `locale` is the interface
- * language, which the answer is written in (Q22).
+ * language, which the answer is written in.
  */
 export type AskBody = {
   text: string;
@@ -83,7 +83,7 @@ export type AskBody = {
 export type AskResult = { turnId: string };
 
 /**
- * `GET /assistant/turns/:id`, polled every second while live (Q2), and `POST …/cancel`'s answer:
+ * `GET /assistant/turns/:id`, polled every second while live, and `POST …/cancel`'s answer:
  * the messages since the turn began, and its proposals.
  */
 export type TurnView = {
@@ -120,9 +120,9 @@ export type ConfirmResult = {
      * `eventIds`, in write order; Undo undoes them newest first.
      */
     audit?: { eventId: string; until: string; eventIds?: string[] };
-    /** A row changed since it was proposed: both values and who changed it (screens §5). */
+    /** A row changed since it was proposed: both values and who changed it. */
     conflict?: { field: string; before: unknown; now: unknown; by: string };
-    /** For `failed`: the tool's error code (T13). */
+    /** For `failed`: the tool's error code. */
     error?: string;
   }[];
 };

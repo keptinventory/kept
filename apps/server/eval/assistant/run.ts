@@ -1,5 +1,5 @@
 /**
- * The assistant evaluation (step-6 plan T17; D22, D23, D123, D164, D179, D206; L61).
+ * The assistant evaluation (D22, D23, D123, D164, D179, D206).
  *
  *   pnpm eval:assistant [--cases <file>] [--only id,…] [--provider mock|openai|google|anthropic|
  *     groq|openrouter|compatible --model <chat model> [--embed-model <id>] [--base-url <url>]]

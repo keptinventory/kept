@@ -10,7 +10,7 @@ import { conflict } from '../http/errors.js';
 import { requireCan } from '../locations/access.js';
 import { type DOCUMENT_COLUMNS, findIncident, incidentImage } from './service.js';
 
-// The undo handlers of incidents (D150, Q25; step-4 plan T18), registered with audit/undo.ts by
+// The undo handlers of incidents (D150), registered with audit/undo.ts by
 // incidentRoutes(). The route has already checked the event is visible, the caller's own or the
 // caller an owner or admin, and still in its window; each handler also requires
 // `incidents.manage`, as the write did.
@@ -20,7 +20,7 @@ import { type DOCUMENT_COLUMNS, findIncident, incidentImage } from './service.js
 // - `incident.things`: the incident's thing list must still be the event's `after`; it goes back
 //   to `before` (a thing that has left the location since is a 409). Lifecycles ended by the same
 //   request are their own `thing.lifecycle` events, undone on their own.
-// - `incident.delete` (a hard delete, Q25): the row comes back with its id, its things, the claims
+// - `incident.delete` (a hard delete): the row comes back with its id, its things, the claims
 //   that were under it (still in the location and not under another incident since) and its
 //   documents. The undo transaction names its event (`app.undo`, 0056), so the row and its
 //   documents come back with who made them, and a document's file links again when the undoer

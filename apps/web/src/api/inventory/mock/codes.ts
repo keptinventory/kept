@@ -1,5 +1,5 @@
 /**
- * Mock handlers for own codes (D208, plan T17a; the server is apps/server/src/codes/). Codes live
+ * Mock handlers for own codes (D208; the server is apps/server/src/codes/). Codes live
  * in the capture state's `legacyCodes` (source `own`), so the mock scan resolves them like any
  * legacy code; a location's numbering and format rule, and its counters, in a table of their own
  * per mock state. Writes record undoable `thing.codes` / `place.codes` events, as the server does.

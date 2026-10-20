@@ -1,5 +1,5 @@
 /**
- * Reads a CSV file on the phone or desktop (plan T30, Q18): papaparse, loaded only when a file is
+ * Reads a CSV file on the phone or desktop: papaparse, loaded only when a file is
  * chosen, and run in a worker for a large file so the page stays responsive. The file is read as
  * UTF-8, with its byte-order mark dropped (spreadsheet apps write one).
  *

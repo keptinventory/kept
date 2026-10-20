@@ -11,7 +11,7 @@ import {
   seedUser,
 } from '../../test/tenancy.js';
 
-// Task 9: the tenancy schema as kept_owner (engineering spec §1.2, §7.4, §7.13, §7.14).
+// The tenancy schema as kept_owner.
 
 const db = await testDb();
 

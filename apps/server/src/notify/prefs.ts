@@ -15,7 +15,7 @@ import { audited } from '../audit/audited.js';
 import type { Tx } from '../db/scope.js';
 import { invalid, notFound } from '../http/errors.js';
 
-// Who wants which kind on which channel (D29; plan Q8, Q10, Q35; D239), and the digest time and
+// Who wants which kind on which channel (D29; D239), and the digest time and
 // quiet hours (D122). A preference row exists only where a person chose; no row is the default
 // below, so a change to the defaults reaches everyone who never chose. Setting a value equal to
 // what the cell would otherwise be deletes the row.
@@ -27,21 +27,21 @@ import { invalid, notFound } from '../http/errors.js';
 // a person runs (the owner default), so it stores only offs (and a webhook's on); a member who
 // wants more in a friend's home turns it on there. The AI monthly summary has only that layer.
 //
-// The reminder engine's recipients (T14), the notices (notify/notices.ts wants()), the AI cap
+// The reminder engine's recipients, the notices (notify/notices.ts wants()), the AI cap
 // notices and the calendar feed read the same rule.
 
 export const DEFAULT_DIGEST = '08:00';
 
-/** The kinds a location's table shows: every kind but the account-level ones (Q35). */
+/** The kinds a location's table shows: every kind but the account-level ones. */
 export const LOCATION_KINDS: readonly NotifyKind[] = NOTIFY_KINDS.filter(
   (k) => !(ACCOUNT_LEVEL_KINDS as readonly string[]).includes(k),
 );
 
 /**
  * What a person gets on `channel` for `kind` when they haven't chosen: @kept/shared
- * defaultPreference() on the in-app centre, email and push (Q10: the same default on each), and
- * never on a webhook until they turn it on (plan T14: "webhook channels only when chosen").
- * For an account-level kind (`ai_summary`, Q35) the role doesn't matter.
+ * defaultPreference() on the in-app centre, email and push (the same default on each), and
+ * never on a webhook until they turn it on ("webhook channels only when chosen").
+ * For an account-level kind (`ai_summary`) the role doesn't matter.
  */
 export function preferenceDefault(p: {
   role: Role;
@@ -148,7 +148,7 @@ function inherited(
   return stored.get(prefKey(null, kind, channel)) ?? preferenceDefault({ role, kind, channel });
 }
 
-/** A location's table (viewers see only Membership, Q8), each value as it is decided there. */
+/** A location's table (viewers see only Membership), each value as it is decided there. */
 export function kindsFor(
   role: Role,
   locationId: string,
@@ -193,7 +193,7 @@ export function storedMap(prefs: readonly StoredPreference[]): Map<string, boole
   return new Map(prefs.map((p) => [prefKey(p.locationId, p.kind, p.channel), p.enabled]));
 }
 
-/** The AI monthly summary by email: chosen, else on (Q35). */
+/** The AI monthly summary by email: chosen, else on. */
 export function aiSummaryEmail(stored: ReadonlyMap<string, boolean>): boolean {
   return stored.get(prefKey(null, 'ai_summary', 'email')) ?? accountDefault('ai_summary', 'email');
 }
@@ -202,7 +202,7 @@ export function aiSummaryEmail(stored: ReadonlyMap<string, boolean>): boolean {
 // Writes
 // ---------------------------------------------------------------------------------------------
 
-/** The caller's owner account, which an account-level audit event needs (§7.13). */
+/** The caller's owner account, which an account-level audit event needs. */
 async function ownerAccountOf(tx: Tx): Promise<string | null> {
   const [row] = (
     await tx.execute<{ id: string | null }>(sql`SELECT kept.current_owner_account_id() AS id`)

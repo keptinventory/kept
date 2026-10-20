@@ -1,5 +1,5 @@
 /**
- * Incidents (D158, plan T26, screens §5): the burglaries, fires, floods and losses recorded in
+ * Incidents (D158): the burglaries, fires, floods and losses recorded in
  * your locations, newest first, each with how many things and claims it has.
  *
  * The list standard on the filter strip (D205, surface `incidents`): search, location, kind and

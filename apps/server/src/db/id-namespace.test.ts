@@ -7,7 +7,7 @@ import { type Scope, withScope } from './scope.js';
 // Things and places share one id namespace (route security review #35, migration 0030): a place
 // may not take an id a thing has, anywhere, nor the reverse, so an id names one entity in the
 // history, the codes and the offline snapshot. The conversions keep the UUID on purpose
-// (Q14) and are the only writers exempt. As kept_app.
+// and are the only writers exempt. As kept_app.
 
 const db = await testDb();
 const app = db.pools.app;

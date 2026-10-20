@@ -13,8 +13,8 @@ import {
 import { withScope } from './scope.js';
 
 // Step-4 T6 (0052, 0053): schedules and their anchor (D162), kept.schedule_point() as the twin of
-// @kept/shared scheduleNext() (Q2, Q27, Q28), and expiring documents renewed while the old one is
-// kept (D155, D172; Q31). The agenda view and module state are in src/db/agenda.test.ts.
+// @kept/shared scheduleNext(), and expiring documents renewed while the old one is
+// kept (D155, D172). The agenda view and module state are in src/db/agenda.test.ts.
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });
@@ -113,7 +113,7 @@ describe('the anchor (D162)', () => {
     const march = await service(louis, '2026-03-10', { place: kitchen });
     await complete(louis, march, boiler);
     expect((await anchor(boiler))?.anchor_on).toBe('2026-03-10');
-    // Completing ends the snooze and the skip (Q28).
+    // Completing ends the snooze and the skip.
     expect(
       await own('SELECT snoozed_until, skip_next FROM public.schedules WHERE id = $1', [boiler]),
     ).toEqual([{ snoozed_until: null, skip_next: false }]);
@@ -317,7 +317,7 @@ describe('kept.schedule_point() is scheduleNext() (Q2, Q27, Q28)', () => {
 describe('kept.schedule_next() with the estimate is scheduleNext() with at.eta (step 5, T7)', () => {
   // Each case: a series (days before now, value), a replacement, and a rule. The TS twin gets the
   // meter's newest reading (kept.meter_latest) and, for the value it asks, kept.meter_eta, the one
-  // implementation of the estimate (Q8).
+  // implementation of the estimate.
   type Case = {
     name: string;
     series: [number, number][];

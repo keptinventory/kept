@@ -1,6 +1,6 @@
 /**
- * "Set a monthly limit?" (D206, screens §5 AI settings §3), once, after the first key is saved:
- * the suggested cap filled in (§3.5: the larger of 5.00 and three times the projected month, or
+ * "Set a monthly limit?" (D206), once, after the first key is saved:
+ * the suggested cap filled in (the larger of 5.00 and three times the projected month, or
  * 3,000,000 tokens without a price), "Set USD 5.00 a month" · "No limit". Nothing is capped
  * unless chosen.
  */

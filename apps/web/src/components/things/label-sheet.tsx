@@ -1,8 +1,8 @@
 /**
  * Label (D120, D134, D137). The thing's short ID is permanent: its label reprints with the same
  * code (D45). This shows the code as it prints, lets you copy it, and opens the batch builder for
- * this one thing (plan T28), where the stock and start cell are chosen. With the Labels module
- * off it says so (screens §3).
+ * this one thing, where the stock and start cell are chosen. With the Labels module
+ * off it says so.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { IdChip } from '@/components/id-chip';

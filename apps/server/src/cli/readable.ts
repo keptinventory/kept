@@ -7,7 +7,7 @@ import { type ReadableTreeDeps, writeReadableTree } from '../backup/readable/run
 import type { FileStorage } from '../storage/blob-store.js';
 import { createUrlSigner } from '../storage/signed-url.js';
 
-// `kept admin readable --out <dir> [--location <id>]` (step-8 plan T6, D159): the readable copy
+// `kept admin readable --out <dir> [--location <id>]` (D159): the readable copy
 // every snapshot holds, written on demand into a directory, for an operator who wants to look
 // before a backup exists. The same code as the snapshot's step 6 (backup/readable/run.ts): each
 // location as its owner sees it, on the kept_app login (KEPT_DATABASE_URL) in the owner's scope,

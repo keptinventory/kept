@@ -1,5 +1,5 @@
 /**
- * Admin → Status → Embeddings (step-6 plan T24; D200, D206, D207): where semantic search's
+ * Admin → Status → Embeddings (D200, D206, D207): where semantic search's
  * vectors come from (each location's AI provider, a local model on this server, or off), how much
  * is indexed ("Indexed 8,412 of 10,000 things"), a cap pause, and the switch. `local` is offered
  * only when the server says its package is there, with the model's download size and "runs on

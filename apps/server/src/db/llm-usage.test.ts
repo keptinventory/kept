@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { testDb } from '../../test/db.js';
 import { ownerTx } from '../../test/tenancy.js';
 
-// Step 6 (0092, 0093; spike S6.4 finding 5): a ledger row whose provider reported no tokens
+// Step 6 (0092, 0093): a ledger row whose provider reported no tokens
 // carries Kept's estimate, flagged usage_estimated.
 
 const db = await testDb();

@@ -6,7 +6,7 @@ import type { Tx } from '../db/scope.js';
 import { queueWebhookFanout } from '../webhooks/fanout.js';
 import { CACHE_COLUMNS, classOf, type FieldClass } from './classes.js';
 
-// audited(): the one way a write records itself (engineering spec §7.5, D110, D188).
+// audited(): the one way a write records itself (D110, D188).
 //
 // Called inside the request's withScope() transaction, so the event commits or rolls back with
 // the write it describes. kept_app may only INSERT audit rows (migration 0006), so nothing here
@@ -29,7 +29,7 @@ export type AuditDiff = Record<string, StoredChange>;
 export type AuditEventInput = {
   /** The location the event belongs to; null for account-level (or instance-level) events. */
   locationId: string | null;
-  /** Filled from the location when omitted. Pass it for account-level events (§7.13). */
+  /** Filled from the location when omitted. Pass it for account-level events. */
   ownerAccountId?: string | null;
   actor: AuditActor;
   /** `<entity>.<verb>`, e.g. `location.update`: one of @kept/shared's AUDIT_ACTIONS (#140). */
@@ -57,8 +57,8 @@ export type AuditResult = { id: string; diff: AuditDiff };
 // the list is gone with it.
 const UNDOABLE = new WeakMap<object, { id: string; entity: string }[]>();
 
-/** The event's undo window, or null: a diff holding a secret-class field is never undoable
- * (screens §8, plan T20), whatever the writer asked for. */
+/** The event's undo window, or null: a diff holding a secret-class field is never undoable,
+ * whatever the writer asked for. */
 function windowOf(event: AuditEventInput, diff: AuditDiff): Date | null {
   if (!event.undoableUntil) return null;
   return Object.values(diff).some((c) => c.class === 'secret') ? null : event.undoableUntil;
@@ -110,7 +110,7 @@ export function forgetUndoableSince(tx: Tx, mark: number): void {
 }
 
 /** Columns every mutable row carries; they change on every write and say nothing. Cache
- * columns (§7.9) are recomputed by triggers and never audited either. */
+ * columns are recomputed by triggers and never audited either. */
 const BOOKKEEPING = new Set([
   'created_at',
   'updated_at',
@@ -177,7 +177,7 @@ export async function audited(tx: Tx, event: AuditEventInput): Promise<AuditResu
   const id = newId();
   const diff = diffRows(event.entity.type, event.before, event.after, event.fieldClasses);
 
-  // §7.13: an event carries its location's owner account. Read under kept_app's own policies:
+  // An event carries its location's owner account. Read under kept_app's own policies:
   // a location it can't see yields NULL here and the insert policy refuses the row anyway.
   const ownerAccountId =
     event.ownerAccountId !== undefined
@@ -214,7 +214,7 @@ export async function audited(tx: Tx, event: AuditEventInput): Promise<AuditResu
     );
   }
   noteUndoable(tx, id, event, windowOf(event, diff));
-  // Step 6 (Q18, T15): a location webhook listening for this event hears of it, on this
+  // A location webhook listening for this event hears of it, on this
   // transaction, so a write that rolls back sends nothing (webhooks/fanout.ts).
   await queueWebhookFanout(tx, [{ id, locationId: event.locationId, action: event.action }]);
   return { id, diff };
@@ -224,7 +224,7 @@ export async function audited(tx: Tx, event: AuditEventInput): Promise<AuditResu
 const BATCH_ROWS = 2000;
 
 /**
- * audited() for many events of one request at once (a bulk move of 200 things, T15): the same
+ * audited() for many events of one request at once (a bulk move of 200 things): the same
  * rows, written with one INSERT per table instead of two per event. Returns the results in the
  * order of `events`.
  */

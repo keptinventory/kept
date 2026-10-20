@@ -1,14 +1,14 @@
 /**
- * A vehicle's Fuel tab (plan T21; screens §8, the board's vehicle frames; D28, D170): the summary
+ * A vehicle's Fuel tab (D28, D170): the summary
  * card with Log fuel, the consumption and price trends (a lazy chunk), and the fills and charges
  * as a list (the `fuel` surface: date, unit, station, full or partial; sorted by date, amount or
  * cost), each with its odometer, station, receipt and cost, and Remove with Undo for the one who
  * logged it or an admin.
  *
- * Controls follow screens §3: Log fuel for members and above (`logs.add`), none for a viewer, who
+ * Controls follow the role rules: Log fuel for members and above (`logs.add`), none for a viewer, who
  * still reads the litres and the consumption; money only where the response has it. With Fuel &
  * charging off in the location, the tab says so, with Turn on for admins. Offline, the list isn't
- * in the phone's copy (money, Q3): the page's own offline state covers it, and Log fuel says
+ * in the phone's copy (money): the page's own offline state covers it, and Log fuel says
  * "Needs a connection".
  *
  * Mounted by the vehicle page inside its ThingProvider. Its list filters live in the URL (the

@@ -15,8 +15,8 @@ import {
 import { diffRows } from '../audit/audited.js';
 import { type Scope, withScope } from './scope.js';
 
-// Task 6: things, short IDs, links, tag rows, and the places extension (engineering spec §1.3,
-// §7.9, §7.13; D10, D42, D45, D76, D120, D177, D183; plan Q1, Q5, Q11, Q12). As kept_app unless
+// Things, short IDs, links, tag rows, and the places extension (D10, D42, D45, D76, D120, D177, D183).
+// As kept_app unless
 // noted.
 
 const db = await testDb();

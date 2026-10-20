@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { bigint, check, customType, integer, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
-// Column helpers shared by Kept's own tables (engineering spec §1, §7.4, §7.13).
+// Column helpers shared by Kept's own tables.
 
 /** UUIDv7 primary key; Postgres 18 fills it when the client didn't (D17: offline rows bring
  * their own). */
@@ -9,9 +9,9 @@ export const id = () => uuid('id').primaryKey().default(sql`uuidv7()`);
 
 export const tstz = (name: string) => timestamp(name, { withTimezone: true });
 
-/** Every mutable table (§1, §7.4). `kept.touch_row()` (migration 0000) sets `change_seq` on
+/** Every mutable table. `kept.touch_row()` (migration 0000) sets `change_seq` on
  * insert and update and bumps `row_version`/`updated_at` on update; the trigger is attached
- * per table in the tenancy triggers migration. Append-only tables (§7.13) don't use this. */
+ * per table in the tenancy triggers migration. Append-only tables don't use this. */
 export const mutable = () => ({
   createdAt: tstz('created_at').notNull().defaultNow(),
   updatedAt: tstz('updated_at').notNull().defaultNow(),
@@ -24,7 +24,7 @@ export const mutable = () => ({
 const xid8 = customType<{ data: string }>({ dataType: () => 'xid8' });
 
 /**
- * The sync watermark's column (step-3 plan Q1, engineering spec §7.4) on the five synced tables:
+ * The sync watermark's column on the five synced tables:
  * places, things, short_ids, sync_tombstones and legacy_codes. `kept.stamp_change_xid()` (0036)
  * sets it to the writing transaction's id whenever `change_seq` changes, so the snapshot can ask
  * for rows at or above a `pg_snapshot_xmin` horizon and never skip a late commit. Written only by
@@ -51,7 +51,7 @@ export function textEnum<const T extends readonly [string, ...string[]]>(name: s
   };
 }
 
-/** Whether a captured row still needs a person's review (things, purchases; D76, §7.8). */
+/** Whether a captured row still needs a person's review (things, purchases; D76). */
 export const REVIEW_STATES = ['draft', 'confirmed'] as const;
-/** Where a row came from (§1.3). */
+/** Where a row came from. */
 export const CREATED_VIA = ['app', 'mcp', 'assistant', 'import', 'email'] as const;

@@ -20,7 +20,7 @@ import { requireRecoveryKit } from '../secrets/service.js';
 import { exportKey, type FileStorage } from '../storage/blob-store.js';
 import { SIGNED_URL_TTL_SECONDS } from '../storage/signed-url.js';
 
-// The Kept export's runs (D68, D69, D159, D180; step-7 plan T12, Q7, Q14, Q17). A run is an
+// The Kept export's runs (D68, D69, D159, D180). A run is an
 // `export_runs` row of kind `location` or `me` (step 4's table, widened by 0079/0080): its
 // creator's alone while they still own or administer the location (the policies), moved along
 // only through the doors (kept.export_run_claim/_progress/_finish), and purged seven days after
@@ -30,7 +30,7 @@ import { SIGNED_URL_TTL_SECONDS } from '../storage/signed-url.js';
 //   their own data (`me`: their Personal location, plus me.json). "Include secrets" is the
 //   owner's, needs the recovery kit acknowledged (D193) and the passphrase twice; the key is
 //   derived here, sealed under the keyring with the run's own AAD and inserted with the row,
-//   and the passphrase goes no further (Q7). Five an hour per person, one running per location.
+//   and the passphrase goes no further. Five an hour per person, one running per location.
 //   The `export` tenant job is sent in the same transaction, its `data` only `{exportId}`.
 // - GET /exports/:id: the run, with a five-minute signed URL to `x/<id>.zip` while it is done
 //   and unexpired. The policy re-checks the role on every read (D180): a creator who lost owner

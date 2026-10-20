@@ -1,5 +1,5 @@
 /**
- * What the assistant knows about the page it was opened over (D24, screens §5 "Assistant"): the
+ * What the assistant knows about the page it was opened over (D24): the
  * location, place or thing on screen, the search typed, or the inbox. The sheet shows it as a
  * removable chip (./context-chip.tsx); the question carries it as `context: {kind, id}`, and with
  * the chip removed as `context: none`. Read from the router, so the docked panel follows the page.

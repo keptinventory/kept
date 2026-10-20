@@ -12,21 +12,21 @@ import type { Pools } from '../db/pools.js';
 import type { ChannelSenders, ChannelTarget, ReminderRecipient } from './channel.js';
 import type { OccurrenceRow } from './items.js';
 
-// Who hears of an occurrence, and on which channels (plan T14; D29, D57, D113, D122; Q8, Q10,
-// Q13, Q16). Only Kept users ever receive anything (D57): a person in the registry is never a
+// Who hears of an occurrence, and on which channels (D29, D57, D113, D122).
+// Only Kept users ever receive anything (D57): a person in the registry is never a
 // recipient, only the member a person row is linked to.
 //
 // - The members of the location whose membership is live and whose role isn't viewer;
-// - minus anyone who hid the source's module there (user_hidden_modules, §7.6);
+// - minus anyone who hid the source's module there (user_hidden_modules);
 // - plus, for a loan to a person linked to a member of the location (people.member_user_id),
-//   that member: it's their own household (Q16);
+//   that member: it's their own household;
 // - a kind is on when the person chose it for this location, else for all their locations (a
 //   row with no location, D239), else defaultPreference(): owners and admins every kind, members
-//   only the loans they recorded (Q8). `inapp` off
-//   silences the kind entirely (Q10); on, it lands in the centre and on each channel that's on:
+//   only the loans they recorded. `inapp` off
+//   silences the kind entirely; on, it lands in the centre and on each channel that's on:
 //   - email: a verified, deliverable address (never a managed account's), SMTP on this instance
 //     (an `email` sender), and the email preference on (the kind's default); the row is made
-//     lazily (Q13);
+//     lazily;
 //   - web push: a device subscribed and the preference on (the kind's default);
 //   - webhooks: only when chosen (default off), every webhook channel of theirs.
 //
@@ -46,7 +46,7 @@ export type UserInfo = ReminderRecipient & {
   managed: boolean;
   /** Disabled (Better Auth's `banned`), or waiting to be deleted (D225): sent nothing. */
   banned: boolean;
-  /** `HH:MM:SS`, their zone; null: the default (08:00, Q9). */
+  /** `HH:MM:SS`, their zone; null: the default (08:00). */
   digestTime: string | null;
   quietFrom: string | null;
   quietTo: string | null;
@@ -113,7 +113,7 @@ export async function loadUsers(
 }
 
 /**
- * The user's email channel row, made when missing (Q13), as kept_system: 0056's system_insert
+ * The user's email channel row, made when missing, as kept_system: 0056's system_insert
  * lets it add exactly that (kind 'email', nothing sealed).
  */
 export async function ensureEmailChannel(
@@ -135,7 +135,7 @@ export async function ensureEmailChannel(
 export type Recipient = {
   userId: string;
   role: Role;
-  /** The channels beside the centre (never `inapp`: the centre isn't a channel, Q10). */
+  /** The channels beside the centre (never `inapp`: the centre isn't a channel). */
   channels: ChannelTarget[];
 };
 
@@ -255,7 +255,7 @@ export class RecipientBook {
     }
   }
 
-  /** For a loan: who recorded it, and the member its person is linked to (Q16). */
+  /** For a loan: who recorded it, and the member its person is linked to. */
   private async loanPeople(
     client: pg.ClientBase,
     loanId: string,

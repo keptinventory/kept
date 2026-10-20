@@ -1,5 +1,5 @@
 /**
- * The AI settings API (plan T9; D191, D193, D202, D206; engineering spec §7.15 "Routes"), in the
+ * The AI settings API (D191, D193, D202, D206), in the
  * shapes of the web contract (apps/web/src/api/capture/types.ts "AI", mock/ai.ts):
  *
  * GET    /api/v1/ai/status?locationId                   → AiStatus (viewers too)
@@ -124,9 +124,9 @@ import {
 const Id = z.uuid().transform((v) => v.toLowerCase());
 const Params = z.object({ id: Id });
 
-/** "Test connection" and a model-list refresh: 6 a minute per person (§3.5). */
+/** "Test connection" and a model-list refresh: 6 a minute per person. */
 const TESTS_PER_MINUTE = 6;
-/** CSV exports: 5 an hour per person (§3.5). */
+/** CSV exports: 5 an hour per person. */
 const EXPORTS_PER_HOUR = 5;
 
 /** A limiter row's key: hashed, like the sign-in limiter's (auth/sign-in-limiter.ts). */
@@ -153,7 +153,7 @@ async function limit(
 /**
  * The extraction jobs held for a provider, in the locations a key of `scope` serves and the
  * caller can change, sent again (oldest first):
- * - `auth` (a rejected key), when the key is new (T10: it has no end of its own);
+ * - `auth` (a rejected key), when the key is new (it has no end of its own);
  * - `no_provider` (captured while no provider resolved, capture/service.ts), whenever a key is
  *   saved or passes its test: the photos wait in a queue for the first provider, as the
  *   maintainer expected. Those go back to `queued` first, so the inbox says "Naming…" and a
@@ -370,7 +370,7 @@ export async function registerAiApi(app: KeptApp, deps: InventoryDeps): Promise<
       },
     },
     async (req) => {
-      // Step 6 (T14, D207): the server's embeddings source, for AI settings' "Search" line.
+      // Step 6 (D207): the server's embeddings source, for AI settings' "Search" line.
       const embeddingsSource = await storedSource(pools);
       const status = await (req.query.locationId
         ? scopedRead(pools, req, (_tx, client) => statusOf(client, req.query.locationId as string))
@@ -503,7 +503,7 @@ export async function registerAiApi(app: KeptApp, deps: InventoryDeps): Promise<
           fieldClasses: { api_key: 'secret' },
           requestId: req.id,
         });
-        // D180 (step 6, T16): a new instance provider kind is told to every active user, once,
+        // D180: a new instance provider kind is told to every active user, once,
         // after this commits (notices/transparency.ts reads it from this event).
         if (target === 'instance' && now?.kind !== row.kind && deps.jobs) {
           await deps.jobs.send(client, 'transparency-notice', { auditEventId: event.id });
@@ -692,7 +692,7 @@ export async function registerAiApi(app: KeptApp, deps: InventoryDeps): Promise<
         } catch (e) {
           throw listingError(e);
         }
-        // Not a model call (§8a): no ledger row; audited as a settings action.
+        // Not a model call: no ledger row; audited as a settings action.
         row = await scopedRead(pools, req, async (tx, client) => {
           const who = await whoAmI(client);
           const { rows } = await client.query<ProviderRow>(
@@ -790,7 +790,7 @@ export async function registerAiApi(app: KeptApp, deps: InventoryDeps): Promise<
           await capRows(client, who, req.query.scope, locationId),
         );
         if (caps.some((c) => c.monthlyCap || c.tokensPerMonth)) return { caps };
-        // No cap yet: setup suggests one (§3.5), from the last 30 days where the caller may see them.
+        // No cap yet: setup suggests one, from the last 30 days where the caller may see them.
         const price = await scopePrice(client, who, req.query.scope, locationId);
         let projected: string | null = null;
         if (price) {
@@ -907,7 +907,7 @@ export async function registerAiApi(app: KeptApp, deps: InventoryDeps): Promise<
           'SELECT extraction_id FROM kept.ai_resume($1, $2)',
           [before.id, JSON.stringify(raise)],
         );
-        // The paused work goes again at once, oldest first; the pacer spaces it (§8a).
+        // The paused work goes again at once, oldest first; the pacer spaces it.
         const resumed = await resend(
           deps,
           client,
@@ -1044,7 +1044,7 @@ export async function registerAiApi(app: KeptApp, deps: InventoryDeps): Promise<
         const who = await adminOnly(client);
         const provider = await managedProvider(client, req.body.providerId);
         const prices = prefillRows(provider);
-        // Nothing is saved; the proposal is audited as a settings action (§8a), like a listing.
+        // Nothing is saved; the proposal is audited as a settings action, like a listing.
         await audited(tx, {
           ...auditHome(who, true),
           actor: { type: 'user', id: who.userId },

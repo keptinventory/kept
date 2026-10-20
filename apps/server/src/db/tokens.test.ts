@@ -15,8 +15,8 @@ import { expireMemberships } from '../locations/membership-jobs.js';
 import { type Scope, withScope, withSystem } from './scope.js';
 
 // Step-6 T4 (0069, 0070): tokens as RLS principals, OAuth grants, the rate windows, and tokens
-// dying with their creator's access (engineering spec §1.10, §3.2, §7.13; D63, D180, D190; plan
-// Q6, Q7, Q19). Bruce is an admin of Ibrahim's Home and a member of his Garage.
+// dying with their creator's access (D63, D180, D190).
+// Bruce is an admin of Ibrahim's Home and a member of his Garage.
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });

@@ -1,5 +1,5 @@
 /**
- * The box check's list (D40, screens §6 and §8; board frame 3): a checkbox per row; a quantity
+ * The box check's list (D40): a checkbox per row; a quantity
  * row, once ticked, counts how many are there ("Found 2 of 3", and "1 will be marked not here",
  * because the missing part splits off as a row of its own, D10); a box inside is one line,
  * "not opened". Things found that belong elsewhere are listed apart: they move into this box.

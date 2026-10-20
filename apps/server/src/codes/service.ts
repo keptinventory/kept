@@ -11,7 +11,7 @@ import { legacyCodeOf } from '../imports/csv.js';
 import { requireCan, requireMembership } from '../locations/access.js';
 import { CODE_MAX, checkCodes, type FormatRule, RULE_LIMITS, vetRule } from './format-rule.js';
 
-// Own codes (T17a, D208; engineering spec §1.10, §7.16): the household's own identifiers for a
+// Own codes (D208): the household's own identifiers for a
 // thing or a place, kept in `legacy_codes` with `source = 'own'` (collection ''), so scan, search
 // and the jump box resolve them like any legacy code. A thing or place may have several; each is
 // unique in its location, whatever the source that holds it there (a CSV import's old code

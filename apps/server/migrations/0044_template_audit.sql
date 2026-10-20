@@ -1,5 +1,5 @@
 -- Custom SQL migration file, put your code below! --
--- Step 3, task 19: template history is account-level, like the registries' (plan T19; Q15, D123).
+-- Template history is account-level, like the registries' (D123).
 -- 0012 let an account's admins write and read account-level audit rows only for the registry
 -- entity types; a template is managed by the same owners and admins (D123), so 'template' joins
 -- that list. Without it only the account owner could write a template's audit row, and an admin's

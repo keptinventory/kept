@@ -1,8 +1,8 @@
 /**
- * An archive import once its run exists (screens §6; plan T19 steps 3–8): what's in it (with the
+ * An archive import once its run exists: what's in it (with the
  * optional Homebox connection, or a Kept export's passphrase) → where it goes → the Homebox
  * choices → the check's report → progress → the summary, with "See what was imported" (the
- * location's things filtered by this run, `f.importRun`, T16) and the offer to add search words.
+ * location's things filtered by this run, `f.importRun`) and the offer to add search words.
  *
  * Where it is comes from the run itself (`GET /imports/:id`, step 3's route, polled while it
  * runs), so a reload lands on the same step; only the connection's answer, the target being

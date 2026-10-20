@@ -5,7 +5,7 @@ import type { SecretKeys } from '../crypto/keyring.js';
 import { aadOf } from '../secrets/service.js';
 import { type ReadContext, thingOk } from './data.js';
 
-// The secret values of an export with "Include secrets" (D68; plan T12). Only the owner can ask
+// The secret values of an export with "Include secrets" (D68). Only the owner can ask
 // for them (the route, and export_runs' insert policy); the job reads each current value the
 // owner may reveal (secret_values' own policy), opens it with the keyring under its row's AAD,
 // exactly as the reveal path does (secrets/service.ts), and the caller encrypts the NDJSON with

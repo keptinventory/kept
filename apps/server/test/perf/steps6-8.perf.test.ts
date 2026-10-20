@@ -24,8 +24,8 @@ import { seedHousehold, THINGS } from './household.js';
 import { calibration, under } from './limits.js';
 import { timed } from './timing.js';
 
-// Steps 6–8's performance checks (the final check for steps 5–8; step-6 plan T26 "Perf", step-7
-// plan T25 "Perf"), full mode only: scripts/ci-local.sh `perf`, and
+// Steps 6–8's performance checks (the final check for steps 5–8),
+// full mode only: scripts/ci-local.sh `perf`, and
 // `pnpm --filter @kept/server exec vitest run --config vitest.perf.config.ts test/perf/steps6-8.perf.test.ts`.
 //
 // The fixture is step 4's household (test/perf/household.ts: Home with 10,000 things in 20 places,
@@ -40,12 +40,12 @@ import { timed } from './timing.js';
 //
 // The checks, and their limits:
 // - Search at 10,000 things, keywords only (a word one name has, never embedded) and with meaning
-//   fused in (a sentence, embedded by the mock): p95 < 300 ms each (§3.1's search budget; step-6
-//   plan T14's "search p95 < 300 ms at 10,000 things with embeddings"). The same with a word all
+//   fused in (a sentence, embedded by the mock): p95 < 300 ms each (the search budget).
+//   The same with a word all
 //   10,000 names share ("Thing") is recorded beside it, without a limit: every row then matches
 //   and is ranked.
 // - MCP `tools/call where_is` through the official client, the token verified on every request:
-//   p95 recorded; limited at §3.1's 300 ms read budget (the plan names no figure of its own).
+//   p95 recorded; limited at the 300 ms read budget (no figure of its own).
 // - The Kept export of Home (10,000 things, the default options: history, the readable copy; its
 //   PDF is left out past 2,000 things), built as the worker builds it: time, ZIP size and the
 //   process's RSS growth recorded; limited at 10 minutes.

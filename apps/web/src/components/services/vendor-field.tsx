@@ -1,5 +1,5 @@
 /**
- * Who did the work (screens §5 Log a service: "Vendor (from the registry, created inline, D11)"):
+ * Who did the work (a vendor from the registry, created inline, D11):
  * pick a vendor from the account's list, or type a new name, which the server creates with the
  * record. The value is what the write sends: `{id}`, `{name}`, or nothing.
  */

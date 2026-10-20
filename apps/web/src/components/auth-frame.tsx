@@ -1,8 +1,8 @@
 /**
  * The frame for pages outside the app: first-run setup, sign in, the second factor, the
  * magic-link confirm page and accepting an invite. Phone: full width. Desktop: a centred card,
- * with a rail of steps on the inline start when the flow has steps (the setup frame on the
- * screens board, 01-home-onboarding).
+ * with a rail of steps on the inline start when the flow has steps (as the setup
+ * flow has).
  */
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

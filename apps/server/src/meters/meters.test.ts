@@ -103,7 +103,7 @@ describe('POST /api/v1/things/:id/meters', () => {
       maxPerDay: 12.5,
       offset: '0',
       rowVersion: 1,
-      // Step 5 (T8): the nudge's default and the (empty) estimate.
+      // The nudge's default and the (empty) estimate.
       nudgeDays: 30,
       estimate: { perDay: null, basisDays: null, ageDays: null, advice: 'none' },
     });
@@ -236,7 +236,7 @@ describe('POST /api/v1/meters/:id/readings', () => {
         rowVersion: 1,
       },
       state: 'accepted',
-      // Step 5 (T8, D150): a reading logged here is undoable.
+      // Step 5 (D150): a reading logged here is undoable.
       undo: { eventId: expect.any(String), until: expect.any(String) },
     });
     const [row] = await readingRows(meterId);

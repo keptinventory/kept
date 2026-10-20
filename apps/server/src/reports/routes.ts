@@ -27,7 +27,7 @@ import {
   VehicleHistoryReportBody,
 } from './service.js';
 
-// The inventory report (D201; step-2 plan T32). The web's "Print inventory" (the location
+// The inventory report (D201). The web's "Print inventory" (the location
 // page's actions, Settings → Account) posts the request, polls the run, then downloads it.
 //
 // POST /api/v1/reports/inventory
@@ -45,16 +45,16 @@ import {
 //      createdAt, expiresAt}
 //   Someone else's run, or one past its purge, is a 404.
 //
-// The insurance report (D158, step-4 T18), in the Money module:
+// The insurance report (D158), in the Money module:
 // POST /api/v1/reports/insurance
 //   {scope: {locationId} | {incidentId}, asOf?, reportCurrency?, include?: {photos? = true},
 //    locale?, digits?} → 202 {id, status: 'queued', expiresAt}, the same run and 5-an-hour limit;
 //   403 for a reader who can't see money there, or a member asking about an incident; 409
-//   `rate_missing` with `missing: [{from, to}]` when a reportCurrency lacks a rate (Q21).
+//   `rate_missing` with `missing: [{from, to}]` when a reportCurrency lacks a rate.
 // GET /api/v1/reports/insurance.csv?locationId|incidentId&asOf
 //   → text/csv, one row per thing, formula-safe (D169); audited `report.export_csv`.
 //
-// The vehicle history report (D51, step-5 T15), in the Vehicles module of the vehicle's location:
+// The vehicle history report (D51), in the Vehicles module of the vehicle's location:
 // POST /api/v1/reports/vehicle-history
 //   {thingId, from?, to?, include?: {costs?, proofPhotos?, fuel?, documents?} (all true),
 //    locale?: 'en' | 'ar', digits?} → 202 {id, status: 'queued', expiresAt}; anyone who sees the

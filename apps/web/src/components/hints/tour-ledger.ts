@@ -1,5 +1,5 @@
 /**
- * Tour-data ledger for the full guided tour (spec §"Tour-data ledger"). While the tour runs,
+ * Tour-data ledger for the full guided tour. While the tour runs,
  * every micro-action records what it created; the finish step reads the ledger: empty means no
  * prompt, just Done, and non-empty means the Keep/Discard dialog (`tour-keep.tsx`). Discard
  * deletes exactly these ids, newest first, through a deleter the tour engine wires to the

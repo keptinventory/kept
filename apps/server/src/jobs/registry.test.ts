@@ -26,7 +26,7 @@ import { JOB_POLICIES } from './policies.js';
 import { bossQueue, createRequestQueues, REQUEST_QUEUES, TENANT_REQUEST_QUEUES } from './queue.js';
 import { systemJobs } from './system.js';
 
-// Task 24 (D166, §3.1b, §7.1): the job registry, policies, schedules and the failed-jobs admin.
+// Task 24 (D166): the job registry, policies, schedules and the failed-jobs admin.
 
 let db: TestDb;
 let boss: PgBoss;
@@ -200,7 +200,7 @@ describe('policies and schedules', () => {
       'prune-stale-rows': '35 3 * * *',
       'ai-maintenance': '45 3 * * *',
       'ai-rollover': '5 0 * * *',
-      // Step 4 (Q35): last month's AI summary, early on the 1st (UTC, as the ledger's months).
+      // Last month's AI summary, early on the 1st (UTC, as the ledger's months).
       'ai-summary': '20 0 1 * *',
       'purge-reports': '41 * * * *',
       'report-schedules': '27 * * * *',
@@ -300,7 +300,7 @@ describe('policies and schedules', () => {
     expect(JOB_POLICIES['purge-exports']).toEqual(JOB_POLICIES['prune-stale-rows']);
     expect(REQUEST_QUEUES).toEqual(expect.arrayContaining(['reminder-deliver', 'channel-webhook']));
 
-    // §3.1b, §2.6: ten attempts over about 24 hours. pg-boss 12.34.0 waits
+    // Ten attempts over about 24 hours. pg-boss 12.34.0 waits
     // retryDelay × 2^c × (1 + U) after a failure at retry count c, U uniform in [0, 1).
     const hook = JOB_POLICIES['channel-webhook'];
     expect(hook.retryLimit + 1).toBe(10);
@@ -353,7 +353,7 @@ describe('policies and schedules', () => {
 
   it('gives the step-8 jobs their policies (plan T2)', () => {
     expect(JOB_POLICIES['ops-watch']).toEqual(JOB_POLICIES['prune-stale-rows']);
-    // §3.1b "backup: 2 attempts, 4 h".
+    // "backup: 2 attempts, 4 h".
     expect(JOB_POLICIES['backup-verify']).toEqual(JOB_POLICIES.backup);
     // A rate limit or a network failure waits for the next day (D65).
     expect(JOB_POLICIES['update-check']).toMatchObject({ retryLimit: 0 });
@@ -487,7 +487,7 @@ describe('the maintenance jobs', () => {
            ($1, 'old', 'h', now() - interval '31 days'), ($1, 'new', 'h', now())`,
         [user],
       );
-      // Step 3 (T4): the sync ledger, 91 days: as long as a client may resend an op.
+      // The sync ledger, 91 days: as long as a client may resend an op.
       for (const [key, age] of [
         ['op-old-00001', '92 days'],
         ['op-mid-00001', '31 days'],
@@ -502,7 +502,7 @@ describe('the maintenance jobs', () => {
           [user, key, randomUUID(), age],
         );
       }
-      // Step 3 (T5): inbox items resolved more than 90 days ago; open ones stay, however old.
+      // Inbox items resolved more than 90 days ago; open ones stay, however old.
       for (const [code, resolved] of [
         ['AAAAAA', "now() - interval '91 days'"],
         ['BBBBBB', "now() - interval '1 day'"],
@@ -517,7 +517,7 @@ describe('the maintenance jobs', () => {
           [home.locationId, code, home.userId],
         );
       }
-      // Step 4 (T7): the centre after 90 days; the reminder ledger after a year, an occurrence
+      // The centre after 90 days; the reminder ledger after a year, an occurrence
       // only once its deliveries are gone.
       const channel = (
         await c.query<{ id: string }>(
@@ -571,7 +571,7 @@ describe('the maintenance jobs', () => {
       // The one whose delivery went in the same run; the other still has one.
       reminder_occurrences: 1,
       notification_digests: 1,
-      // Step 6: tokens' rate windows and webhook deliveries (none old enough here).
+      // tokens' rate windows and webhook deliveries (none old enough here).
       token_rate_windows: 0,
       webhook_deliveries: 0,
     });

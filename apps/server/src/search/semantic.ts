@@ -21,19 +21,19 @@ import {
   vectorLiteral,
 } from '../embeddings/provider.js';
 
-// Semantic search's query side (D200, D206, D207; step-6 plan T14, Q13, Q14; §7.15).
+// Semantic search's query side (D200, D206, D207).
 //
 // Two halves, because a model call never runs inside a transaction (D166):
 // 1. prepareSemantic(), **before** the search's transaction: for the locations searched, the
 //    `embeddings` provider each resolves to (the location's cascade, as the person), grouped by
 //    payer and model; the query embedded **once per group** (`embed_query`, one ledger row each,
 //    D206's table). Never a chat call (D200). A cap, a provider's wait or embeddings being off
-//    answer a `state` instead, and search runs on keywords (§7.15: "Semantic search paused ·
+//    answer a `state` instead, and search runs on keywords ("Semantic search paused ·
 //    keyword results"). Locations with no embeddings model anywhere in their cascade are
 //    keyword-only (Groq has none).
 // 2. meaningCandidates(), inside search() (search/service.ts): `kept.semantic_thing_ids` per group
-//    (the only way to a semantic match, §7.2), nearest first, cut at SEMANTIC_MAX_DISTANCE, then
-//    fused with the keyword ranking by reciprocal rank fusion (rrf(), k = RRF_K, Q14).
+//    (the only way to a semantic match), nearest first, cut at SEMANTIC_MAX_DISTANCE, then
+//    fused with the keyword ranking by reciprocal rank fusion (rrf(), k = RRF_K).
 //
 // The query isn't embedded when keywords win anyway: one short word, a short code, or a string
 // shaped like a serial or a model number.
@@ -71,7 +71,7 @@ const WORD = /[\p{L}\p{N}]+/gu;
 /** A code, serial or model number: letters and digits run together, at least one digit. */
 const CODE_SHAPED = /^(?=.*\d)[\p{L}\p{N}][\p{L}\p{N}./_-]{3,}$/u;
 
-/** Whether `q` is worth a query embedding (plan T14: not one short word, a code or a serial). */
+/** Whether `q` is worth a query embedding (not one short word, a code or a serial). */
 export function wantsMeaning(q: string | undefined): boolean {
   const raw = (q ?? '').trim();
   if (!raw) return false;
@@ -185,7 +185,7 @@ export async function prepareSemantic(
   return { groups, state: groups.length > 0 ? null : (paused ?? waiting ?? null) };
 }
 
-/** prepareSemantic() bound to its deps: what the tools (T9) and the search route take. */
+/** prepareSemantic() bound to its deps: what the tools and the search route take. */
 export function semanticPrep(deps: SemanticDeps): SemanticPrep {
   return (scope, q, filter) => prepareSemantic(deps, scope, q, filter);
 }
@@ -219,6 +219,6 @@ export async function meaningCandidates(
   return [...best.values()].sort((a, b) => a.rank - b.rank || a.distance - b.distance);
 }
 
-/** Reciprocal rank fusion's share of one ranking (Q14): 1 / (k + rank). */
+/** Reciprocal rank fusion's share of one ranking: 1 / (k + rank). */
 export const rrf = (rank: number | undefined): number =>
   rank === undefined ? 0 : 1 / (RRF_K + rank);

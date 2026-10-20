@@ -1,11 +1,11 @@
 /**
- * A label batch as print-styled sheets (plan T28; D44, D97, D185): no app shell, one sheet per
+ * A label batch as print-styled sheets (D44, D97, D185): no app shell, one sheet per
  * page at the stock's `@page` size, and a screen-only bar with Print and "Share as images" (one
  * PNG per label, made on the phone, for label-printer apps). Where the browser shares files the
  * PNGs are made as the page opens, so the press opens the share sheet at once: iOS refuses a
  * share that waited on them, and an installed iPhone app can't download them instead
  * (lib/files.ts). Print opens the browser's dialog,
- * then "Printed OK?" records the print date (screens §6). Arriving from the builder (`?print=1`)
+ * then "Printed OK?" records the print date. Arriving from the builder (`?print=1`)
  * opens the dialog by itself once the QR encoder and the fonts are ready; a reload doesn't.
  *
  * Reprinting a batch prints the same codes (D45). `?stock=` and `?start=` print it on another

@@ -3,7 +3,7 @@
  * values a field conversion previews. Kept beside the MockState (a WeakMap), not in it, so the
  * shared fixtures don't change; `pt(state)` seeds it on first use.
  *
- * Fixtures (step-7 plan T3):
+ * Fixtures:
  * - a Homebox run, checked, whose report carries every archive and `hb_*` issue kind;
  * - a Kept run from بيت العائلة's export (Arabic), inspected, with secrets and no target yet;
  * - an export of each state: queued, running, done, expired (purged after its seven days), failed;
@@ -30,7 +30,7 @@ export type PortabilityState = {
   stockRules: StockRule[];
   /** Per field id, per location id: the raw values a conversion would move. */
   fieldValues: Record<string, Record<string, string[]>>;
-  /** Wrong passphrase tries per run (10 an hour, plan Q7). */
+  /** Wrong passphrase tries per run (10 an hour). */
   passphraseTries: Record<string, number>;
 };
 

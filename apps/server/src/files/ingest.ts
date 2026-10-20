@@ -25,7 +25,7 @@ import {
   fileViewOf,
 } from './views.js';
 
-// The one way a file's bytes become a Kept file (step-7 plan T2): the upload route
+// The one way a file's bytes become a Kept file: the upload route
 // (files/upload.ts) and both archive importers (imports/homebox, imports/kept) call it, so an
 // imported photo is sniffed, deduplicated, resized and stored exactly as an uploaded one is.
 // Extracted from upload() without a change in behaviour; the caller has already received the
@@ -56,7 +56,7 @@ export type IngestDeps = {
   files: FileStorage;
   limiter: ImageLimiter;
   log: { error: (obj: object, msg: string) => void };
-  /** Where a PDF's `pdf-text` job is sent (T21); absent or null: no text is read (tests). */
+  /** Where a PDF's `pdf-text` job is sent; absent or null: no text is read (tests). */
   jobs?: JobQueue | null;
 };
 
@@ -221,7 +221,7 @@ export async function ingestFile(
           },
           requestId: opts.requestId ?? null,
         });
-        // A PDF's text layer, read for search and receipts in a limited child process (T21).
+        // A PDF's text layer, read for search and receipts in a limited child process.
         if (row.mime === 'application/pdf') {
           await deps.jobs?.sendTenant(client, 'pdf-text', { fileId: row.id });
         }
@@ -241,7 +241,7 @@ export async function ingestFile(
         );
         if (late) return late;
         // The same bytes are here as another member's upload that isn't attached yet, which
-        // this caller can't see (§7.2): nothing to answer with, and nothing to reveal.
+        // this caller can't see: nothing to answer with, and nothing to reveal.
         throw new AppError(
           'conflict',
           409,

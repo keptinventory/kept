@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put your code below! --
--- Step 3, task 9: what the AI settings and the cap notices read that 0040's doors don't give
--- (engineering spec §7.15 "Notices and alerts"; D166, D206). kept_system holds no grant on the AI
+-- What the AI settings and the cap notices read that 0040's doors don't give
+-- (D166, D206). kept_system holds no grant on the AI
 -- tables (0040), and kept_app can't read the counters, so each of these is a door:
 --   1. kept.ai_cap_usage(ids) (APP): a cap's month so far as its readers see it on AI settings
 --      and usage (GET /api/v1/ai/caps): the tokens and money in its bucket's counters, the same
@@ -8,7 +8,7 @@
 --      the caller may read under ai_budgets' SELECT policy; any other id answers nothing.
 --   2. kept.ai_notice_cap(id) (SYS): the `ai-notice` job's view of a cap that crossed 80% or
 --      100%: its scope, limits, the month's use and a label for the mail.
---   3. kept.ai_notice_recipients(id) (SYS): who hears of it (product design §8a "Warnings"):
+--   3. kept.ai_notice_recipients(id) (SYS): who hears of it:
 --      whoever set it; for a location cap its owner and admins; for a person cap that person and
 --      the account's owner; an account's cap its owner; a personal key's cap its person. Instance
 --      caps also raise an admin alert (the job does that). Banned accounts are left out.

@@ -16,14 +16,14 @@ import { semanticPrep } from '../search/semantic.js';
 import { mcpVerifier, type OAuthAccessVerifier } from './auth.js';
 import { MCP_BODY_LIMIT, mcpHandler } from './server.js';
 
-// POST /mcp: the MCP endpoint (step-6 plan T11; D63, D128), mounted by hand as spike S6.1 decided:
+// POST /mcp: the MCP endpoint (D63, D128), mounted by hand:
 // a web Request built from Fastify's, the SDK's
 // handler.fetch(), and its Response sent through Fastify's own reply (so helmet, the request
 // log and x-request-id still apply). GET and DELETE answer 405: stateless (D63). `/mcp` never
 // gets the SPA (http/web.ts).
 //
 // In front of the handler, in order:
-// 1. Host: the public URL's host, or a former one (step 3); Origin: none (a non-browser client)
+// 1. Host: the public URL's host, or a former one; Origin: none (a non-browser client)
 //    or Kept's own (no other site's page may drive it). Both 403 with a JSON-RPC body.
 // 2. The bearer token (mcp/auth.ts): a personal token, or an OAuth access token when T12's
 //    connectors are on; a failure is 401 with `WWW-Authenticate: Bearer`, carrying
@@ -71,7 +71,7 @@ export async function mcpRoutes(app: KeptApp, deps: InventoryDeps): Promise<void
   const key = deps.tokenKey ?? randomBytes(32);
   const hosts = allowedHosts(pools.system, publicUrl);
   const origins = [new URL(publicUrl).hostname.toLowerCase()];
-  // T12: OAuth access tokens, when the connectors are on (an https public URL and Better Auth).
+  // OAuth access tokens, when the connectors are on (an https public URL and Better Auth).
   const oauth: OAuthAccessVerifier | null = hasOAuthProvider(deps.auth)
     ? oauthAccessVerifier({ auth: deps.auth, pool: pools.app, publicUrl })
     : null;
@@ -86,7 +86,7 @@ export async function mcpRoutes(app: KeptApp, deps: InventoryDeps): Promise<void
         files: deps.files,
         baseUrl: publicUrl,
         log: deps.log,
-        // search_things and where_is search by meaning too, paid by the location's payer (T14).
+        // search_things and where_is search by meaning too, paid by the location's payer.
         semantic: semanticPrep({ pools, ai: deps.ai, log: deps.log }),
       },
     },

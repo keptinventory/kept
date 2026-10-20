@@ -8,7 +8,7 @@ import type { HbLookups } from './lookups.js';
 import { type HbOp, planHomebox, type ThingOp } from './plan.js';
 import { type HomeboxData, openHomebox, readHomebox } from './read.js';
 
-// T9: the Homebox mapping over spike H1's two real exports (test/fixtures/homebox/README.md),
+// The Homebox mapping over two real exports (test/fixtures/homebox/README.md),
 // planned against hand-made lookups: no database, the planner is pure.
 
 const FIXTURES = path.join(

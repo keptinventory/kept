@@ -1,14 +1,14 @@
 /**
- * The step-5 half of the mock server (plan T3): its state, its fixtures, and the helpers every
+ * The step-5 half of the mock server: its state, its fixtures, and the helpers every
  * vehicles area shares (the usage estimate, the ETA, a meter's series, the money gate, gates on a
  * vehicle). Kept in a WeakMap beside the MockState, so the shared fixtures file stays step 4's.
  *
- * What the fixtures hold (plan T3), all from the sample cast:
+ * What the fixtures hold, all from the sample cast:
  * - Ibrahim's Toyota Corolla (CAR7TY, Garage): 22 fills from 1 Apr to 1 Oct 2026 Cairo time (a
  *   missed fill-up in May, a partial in August), two services (Alfred's oil change completing
  *   "Oil & filter" on 18 Jun, Bruce's front brake pads on 27 Aug), the "Oil & filter" schedule,
  *   a licence due in 23 days and an insurance document issued 15 May for 3,500 EGP, and proof
- *   photos on two readings. Its numbers are the board's: April to September 2026 cost 29,800 EGP
+ *   photos on two readings. Its numbers are the designs': April to September 2026 cost 29,800 EGP
  *   (fuel 19,855.50, service 6,444.50, fees 3,500) over 11,346 km, 2.63 EGP a km, fuel 1.75 EGP a
  *   km and about 3,300 EGP a month, and the last 5 full fills give 7.3 L/100 km. The odometer
  *   reads 41,195 at 1 Apr 00:00 and 52,541 at 1 Oct 00:00 Cairo (a fill at each), so the
@@ -21,7 +21,7 @@
  * own, so the earlier steps' fixtures and their tests keep their counts. Seeding turns Vehicles,
  * Fuel & charging, Money, Schedules and Paperwork on in the Garage (the shared fixtures' Garage is
  * Essentials with Lending; step 4's document routes need Paperwork, and "Paperwork or Vehicles" is
- * the server's rule, T12). A test that wants a module off turns it off after calling
+ * the server's rule). A test that wants a module off turns it off after calling
  * `ensureVehiclesSeeded(state)`. Step 5's fields on the earlier steps' routes (a meter's estimate,
  * Home's `meteredThings`, a reading's `undo`, a document's cost) also start with the seeding, so
  * those steps' tests see their routes unchanged. Test and demo data only.
@@ -83,7 +83,7 @@ export type StoredFill = {
   rowVersion: number;
 };
 
-/** A proof photo on the strip: on its reading, or (step 3's) still on the thing (Q10). */
+/** A proof photo on the strip: on its reading, or (step 3's) still on the thing. */
 export type StoredProof = {
   thingId: string;
   meterId: string;
@@ -104,17 +104,17 @@ export type StoredDraft = {
 export type VehiclesState = {
   seeded: boolean;
   fills: StoredFill[];
-  /** Reading id → the fill or service that owns it (Q11). */
+  /** Reading id → the fill or service that owns it. */
   owners: Map<string, ReadingOwner>;
   proofs: StoredProof[];
   /** Meter id → its stale-reading nudge (absent: the default, 30). */
   nudgeDays: Map<string, number | null>;
-  /** Document id → its issue date and cost (T12). */
+  /** Document id → its issue date and cost. */
   documentCosts: Map<
     string,
     { issuedOn: string | null; cost: string | null; currency: string | null }
   >;
-  /** Service record id → its draft state (T9). Absent: confirmed. */
+  /** Service record id → its draft state. Absent: confirmed. */
   drafts: Map<string, StoredDraft>;
   /** `Idempotency-Key` → the answer it got (drafts, fills). */
   idempotency: Map<string, unknown>;
@@ -400,7 +400,7 @@ export const thumb = (fileId: string) => `${PIXEL}#${fileId}`;
 function seedProofs(state: MockState, v: VehiclesState): void {
   const odo = state.inventory.readings[COROLLA.meter] ?? [];
   // Two dashboard photos on the latest accepted manual readings, and one step-3 proof still on
-  // the thing (no reading, Q10).
+  // the thing (no reading).
   const manual = odo
     .filter((r) => r.source === 'manual' && r.state === 'accepted')
     .sort((a, b) => b.takenAt.localeCompare(a.takenAt));
@@ -650,7 +650,7 @@ export function ensureVehiclesSeeded(state: MockState): VehiclesState {
 // ----- gates ------------------------------------------------------------------------------------
 
 /**
- * A vehicle route's gate on one thing (screens §3), after step 4's `gateFor`: invisible → 404;
+ * A vehicle route's gate on one thing, after step 4's `gateFor`: invisible → 404;
  * the module off → 404 on a read, 409 `module_off` on a write; a viewer's write → 403.
  */
 export function thingGate(
@@ -678,7 +678,7 @@ export function thingGate(
 
 export const moneyShown = (state: MockState, locationId: string) => showsMoney(state, locationId);
 
-/** Whether a thing's type reaches the built-in Vehicle (Q2: `kept.is_vehicle_type`). */
+/** Whether a thing's type reaches the built-in Vehicle (`kept.is_vehicle_type`). */
 export function isVehicle(state: MockState, t: StoredThing): boolean {
   const types = state.inventory.types;
   let cur = t.type ? types.find((x) => x.id === t.type?.id) : undefined;
@@ -699,7 +699,7 @@ export function thingOfMeter(state: MockState, meterId: string): StoredThing | u
   return state.inventory.things.find((t) => !t.deletedAt && t.meters.some((m) => m.id === meterId));
 }
 
-// ----- the estimate (Q8: the SQL's inputs, the web mock's twin) ---------------------------------
+// ----- the estimate (the SQL's inputs, the web mock's twin) -------------------------------------
 
 export function acceptedReadings(state: MockState, meterId: string): Reading[] {
   return (state.inventory.readings[meterId] ?? [])
@@ -741,5 +741,5 @@ export function etaOf(state: MockState, meterId: string, value: string): string 
   return localDate(tz, new Date(Date.parse(last.takenAt) + Math.ceil(rest) * DAY_MS));
 }
 
-/** A thing's local "today" (§7.13). */
+/** A thing's local "today". */
 export const todayOf = (state: MockState, t: StoredThing) => todayIn(state, t.locationId);

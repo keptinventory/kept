@@ -1,5 +1,5 @@
 /**
- * The sample home of the "Try the map" demo (D241): the approved spike's house (three floors,
+ * The sample home of the "Try the map" demo (D241): the prototype's house (three floors,
  * thirteen rooms, what stands in them and what is inside), as the map's read answers it
  * (`MapView`, apps/web/src/api/map/types.ts), with every room and thing arranged. The shipped
  * map's own code turns it into a plan (layout.ts `planOf`) and draws it.
@@ -62,7 +62,7 @@ type Extra = {
 const LIKE_NEW: Two = ['Like new', 'كالجديد'];
 const GOOD: Two = ['Good', 'جيدة'];
 
-/** A stable short ID from a seed (the spike's hash), in Kept's own alphabet. */
+/** A stable short ID from a seed (the prototype's hash), in Kept's own alphabet. */
 function codeFor(seed: string): string {
   let h = 2166136261;
   for (const ch of seed) {

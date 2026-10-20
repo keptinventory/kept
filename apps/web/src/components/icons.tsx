@@ -98,7 +98,7 @@ export const AlertIcon = (p: IconProps) => (
   </Svg>
 );
 
-// ----- navigation (paths from the screens board) -----------------------------------------------
+// ----- navigation (paths from the screen designs) ----------------------------------------------
 
 export const HomeIcon = (p: IconProps) => (
   <Svg {...p}>
@@ -361,7 +361,7 @@ export const QrIcon = (p: IconProps) => (
   </Svg>
 );
 
-/** The board's print glyph (screens board `a2-print`): label sheets. */
+/** The print glyph from the screen designs: label sheets. */
 export const PrinterIcon = (p: IconProps) => (
   <Svg {...p}>
     <path d="M7 9V3h10v6M7 17H4v-7h16v7h-3" />

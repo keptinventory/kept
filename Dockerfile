@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 #
-# Kept's production image (task 29, step-8 T15; D147, D151, D186, D193; engineering spec §7.11).
+# Kept's production image (D147, D151, D186, D193).
 #
 #   docker buildx build --platform linux/arm64 --load \
 #     --build-arg REVISION=$(git rev-parse HEAD) --build-arg VERSION=1.2.3 -t kept:dev .
@@ -56,7 +56,7 @@ RUN pnpm --filter @kept/shared build \
  && pnpm --filter @kept/mcp build \
  && pnpm --filter @kept/server build \
  && KEPT_VERSION="${VERSION}" pnpm --filter @kept/web build
-# In the repo @kept/shared and @kept/mcp (the tool contracts, step 6) export their TypeScript
+# In the repo @kept/shared and @kept/mcp (the tool contracts) export their TypeScript
 # source (for tsx, vitest and vite); at runtime node needs the compiled files. Apply each one's
 # publishConfig the way a publish would. drizzle-kit's `meta/*_snapshot.json` are for generating
 # the next migration; drizzle's migrator and Kept's release guard read only `meta/_journal.json`
@@ -75,7 +75,7 @@ RUN node -e ' \
 # ---------------------------------------------------------------------------------------------
 # Runtime dependencies of the server (and of @kept/shared and @kept/mcp) only, for the target
 # architecture. No install scripts: none of them needs one (pnpm-workspace.yaml allows builds for
-# esbuild alone, a dev tool). Then the trim (spike R3): better-auth's optional peers pull vitest,
+# esbuild alone, a dev tool). Then the trim: better-auth's optional peers pull vitest,
 # drizzle-kit and their build tooling into a prod install; docker/prune-optional-peers.mjs
 # removes every store entry the shipped packages never reach (~90 MiB).
 FROM ${NODE_IMAGE} AS prod-deps
@@ -94,7 +94,7 @@ RUN --mount=type=bind,source=docker/prune-optional-peers.mjs,target=/tmp/prune-o
     node /tmp/prune-optional-peers.mjs /src >/tmp/pruned.json
 
 # ---------------------------------------------------------------------------------------------
-# restic (step 8, D64): 0.19.1, read from
+# restic (D64): 0.19.1, read from
 # github.com/restic/restic/releases (2026-10-06). The SHA-256s are the release's own SHA256SUMS,
 # whose signature verified against restic's key CF8F 18F2 8445 7597 3F79 D4E1 91A6 868B D3F7 A907
 # (restic.net/gpg-key-alex.asc). One stage per architecture, each with its literal checksum;
@@ -113,7 +113,7 @@ RUN apt-get update \
  && bunzip2 /restic.bz2 \
  && chmod 0755 /restic \
  && /restic version
-# Its licence (BSD-2-Clause) at the release's tag, by the checksum the spike recorded.
+# Its licence (BSD-2-Clause) at the release's tag, by its recorded checksum.
 ADD --checksum=sha256:6f08a01a9fab5b24e139a09f15cc24a73087c7bc09e3bacf099fdf2d767bf897 \
     https://raw.githubusercontent.com/restic/restic/v0.19.1/LICENSE /restic-LICENSE
 
@@ -121,14 +121,14 @@ ADD --checksum=sha256:6f08a01a9fab5b24e139a09f15cc24a73087c7bc09e3bacf099fdf2d76
 # The operating system the runtime gets, flattened into one layer below.
 FROM ${NODE_IMAGE} AS os
 
-# pg_dump and pg_restore for backups and `kept admin backup | restore` (T31c, D207). They must be
+# pg_dump and pg_restore for backups and `kept admin backup | restore` (D207). They must be
 # the database's major version, 18 (an older pg_dump refuses a newer server), and Debian
 # bookworm's own client is 15, so they come from PGDG: the key pinned by its checksum (fingerprint
 # B97B 0AFC AA1A 47F0 44F2 44A0 7FCC 7D46 ACCC 4CF8), the package pinned to the version in
 # bookworm-pgdg's index for both amd64 and arm64 (read 2026-09-27). Plain http, as the official
 # postgres image uses: apt checks every package against the key.
 #
-# openssh-client is restic's SFTP transport (step 8, spike R1), from Debian bookworm, pinned to
+# openssh-client is restic's SFTP transport, from Debian bookworm, pinned to
 # the version in bookworm's index for both architectures (read 2026-10-06). Pinned like the
 # Postgres client: a build after Debian publishes the next security update fails here and the pin
 # is bumped, rather than the image quietly changing.
@@ -165,7 +165,7 @@ COPY --from=restic /restic /usr/local/bin/restic
 COPY --from=restic /restic-LICENSE /usr/share/doc/restic/LICENSE
 
 # The runtime user. ssh refuses to start for a uid with no passwd entry ("No user exists for uid
-# 10001", spike R1), so SFTP backups need it; Helm's runAsUser: 10001 matches it too.
+# 10001"), so SFTP backups need it; Helm's runAsUser: 10001 matches it too.
 # npm, yarn and corepack come with the Node base and are never run; the flattening drops them, and
 # Node's C headers (for compiling native addons, ~6 MB) and its changelog with them.
 # `kept` on the PATH: `docker compose run --rm migrate admin …`, `docker compose exec kept kept …`.
@@ -182,7 +182,7 @@ RUN groupadd --gid 10001 kept \
  && chmod 0700 /data /config
 
 # ---------------------------------------------------------------------------------------------
-# Third-party notices (D151; spike R3): generated from this architecture's own pruned
+# Third-party notices (D151): generated from this architecture's own pruned
 # node_modules, the OS packages above, Node's and restic's licences. It also fails the build when
 # a shipped package's licence is off the runtime allowlist (scripts/check-licences.mjs), so the
 # licence scan covers exactly what the image ships.
@@ -221,7 +221,7 @@ RUN --mount=type=bind,source=scripts/third-party-notices.mjs,target=/notices/bin
 FROM scratch AS runtime
 COPY --from=os / /
 
-# Stamped by the build (D147, D186, L100). REVISION is the commit; SOURCE the repository.
+# Stamped by the build (D147, D186). REVISION is the commit; SOURCE the repository.
 ARG VERSION=0.0.0-dev
 ARG REVISION=
 ARG SOURCE=https://github.com/keptinventory/kept
@@ -282,6 +282,6 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD ["node", "/app/docker/healthcheck.mjs"]
 
-# The tracing preload (D84, T14) loads no OpenTelemetry package unless OTEL_EXPORTER_OTLP_ENDPOINT
+# The tracing preload (D84) loads no OpenTelemetry package unless OTEL_EXPORTER_OTLP_ENDPOINT
 # is set; it has to run before fastify and pg load, so it is an --import, not an import.
 ENTRYPOINT ["node", "--import", "/app/apps/server/dist/observability/tracing.js", "/app/apps/server/dist/main.js"]

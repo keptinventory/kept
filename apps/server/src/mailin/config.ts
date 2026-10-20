@@ -9,7 +9,7 @@ import {
   seal,
 } from '../crypto/envelope.js';
 
-// A mailbox's IMAP connection (1.4, D231): sealed together as `mailboxes|<id>|config` (§7.3), so
+// A mailbox's IMAP connection (1.4, D231): sealed together as `mailboxes|<id>|config`, so
 // the password never sits in the clear and kept_app never reads it (0120). The host and user
 // name are also kept in the clear for the settings page; the folder too, as the job's mark is
 // per folder.

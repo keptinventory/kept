@@ -1,5 +1,5 @@
 /**
- * The phone's own-code resolver (D208, plan T17a): an own or CSV code in the snapshot opens its
+ * The phone's own-code resolver (D208): an own or CSV code in the snapshot opens its
  * thing offline, typed any way the server would store it (lower case, Eastern digits), after the
  * short IDs; a code that is also a short ID's shape but isn't one on this phone still finds it.
  */

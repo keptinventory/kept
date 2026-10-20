@@ -1,7 +1,7 @@
 /**
  * The thing page's step-4 parts, loaded on demand from ./household-sections.tsx (its own chunk,
  * cached by the service worker on first use; see there). While it loads, a skeleton; when it
- * can't load (offline before it was ever fetched), the §3 reason: "Needs a connection".
+ * can't load (offline before it was ever fetched), the reason: "Needs a connection".
  */
 import { useLingui } from '@lingui/react/macro';
 import { type ComponentType, lazy, Suspense } from 'react';

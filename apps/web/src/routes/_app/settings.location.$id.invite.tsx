@@ -1,8 +1,8 @@
 /**
- * Invite (screens §5, D33, D180, D181, D193). Role (admin only for the owner), an end date
+ * Invite (D33, D180, D181, D193). Role (admin only for the owner), an end date
  * capped at your own, then the link with Copy link and a QR code beside it, so the other phone
  * scans it with no SMTP. The link works once, for 7 days. Its token travels in the #fragment.
- * Send by email is disabled with its reason until SMTP is set up (§3).
+ * Send by email is disabled with its reason until SMTP is set up.
  */
 import type { Role } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';

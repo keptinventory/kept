@@ -1,6 +1,6 @@
 /**
- * The records behind a reminder, read when an inline action needs them (plan T24; step-4 Q32:
- * every action goes through the source's own route). A notification carries only ids, so
+ * The records behind a reminder, read when an inline action needs them
+ * (every action goes through the source's own route). A notification carries only ids, so
  * Complete and Snooze read the schedule from its thing's or place's schedules, and Mark returned
  * and the polite reminder read the loan from its thing's loans: the same queries the thing page
  * uses, so what they fetch is shared.

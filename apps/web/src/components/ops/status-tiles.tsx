@@ -1,9 +1,9 @@
 /**
- * Admin → Status's step-8 tiles and notices (plan T21; D66, D144, D166, D181; frames 107, 108):
+ * Admin → Status's step-8 tiles and notices (D66, D144, D166, D181; 108):
  * backups, the restore drill, the repository check, the file bucket's versioning, the disks, the
  * release, failed jobs and the update check. Loud, plain words ("No backup configured", "Last good
  * backup 3 days ago", "Backups are on the same disk as your data"); each warning tile links to its
- * fix. Every figure comes from the status response (rows the server already keeps, T10), never a
+ * fix. Every figure comes from the status response (rows the server already keeps), never a
  * restic call. The recovery kit's tile is T22's (admin.status.tsx places it).
  */
 import { DISK_WARN_RATIO, type UpdateCheckState } from '@kept/shared';
@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 import { useRunWords, useSize } from './ops-words';
 
 const DAY = 86_400_000;
-/** A repository check older than this is overdue (the job runs weekly, T7). */
+/** A repository check older than this is overdue (the job runs weekly). */
 const VERIFY_DUE_DAYS = 14;
 
 const linkClass =
@@ -370,7 +370,7 @@ function JobsTile({ failed }: { failed: number }) {
   );
 }
 
-/** The update check's state in words (D65; plan T11's errors). */
+/** The update check's state in words (D65). */
 export function useUpdateWords() {
   const { t } = useLingui();
   return (u: UpdateCheckState): { title: string; detail: string | null; ok: boolean | null } => {

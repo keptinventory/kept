@@ -1,6 +1,6 @@
 /**
  * In-memory implementations of the four ports (ports.ts), for unit tests, the evaluation
- * harness's no-database run (T11) and development. They follow engineering spec §7.15's rules
+ * harness's no-database run and development. They follow the AI gate's rules
  * (buckets, windows, pauses, leases, the 80%/100% crossings) so the tests of callModel exercise
  * the real behaviour; T6's doors are the production implementation.
  *
@@ -148,7 +148,7 @@ type Windows = {
 };
 
 /**
- * The buckets a call counts against (§7.15): `location:`/`member:` when there is a location
+ * The buckets a call counts against: `location:`/`member:` when there is a location
  * (and a person), then the payer's.
  */
 export function bucketsFor(
@@ -186,7 +186,7 @@ export class InMemoryBudgetGate implements BudgetGate {
     readonly payerSlots = 2,
   ) {}
 
-  /** The cap rows that govern a bucket (a task bucket falls back to DEFAULT_BUDGETS, Q7). */
+  /** The cap rows that govern a bucket (a task bucket falls back to DEFAULT_BUDGETS). */
   private rowsFor(bucket: string): CapRow[] {
     const [kind, a, b] = bucket.split(':') as [string, string | undefined, string | undefined];
     const match = (pred: (c: CapRow) => boolean) => this.caps.filter(pred);

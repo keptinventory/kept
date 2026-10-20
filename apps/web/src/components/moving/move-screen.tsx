@@ -1,5 +1,5 @@
 /**
- * One move's board (1.x, D39 (5), D251; screens §11 "Moving board"): how many boxes are packed,
+ * One move's board (1.x, D39 (5), D251): how many boxes are packed,
  * in transit and unpacked, which are still to arrive, and every box with the room it goes to.
  *
  * - **Pack:** Add a box (the next number), Print labels for the boxes (Labels, D43), the
@@ -235,7 +235,7 @@ function BoxRow({ move, box, waiting }: { move: Move; box: MoveBox; waiting: boo
 
 const PAGE = 50;
 
-/** The board's boxes as the list surface's pages, `PAGE` at a time ("Load more"). */
+/** The designs' boxes as the list surface's pages, `PAGE` at a time ("Load more"). */
 function useBoxesQuery(boxes: MoveBox[]): UseInfiniteQueryResult<InfiniteData<PageOf<MoveBox>>> {
   const [pages, setPages] = useState(1);
   const shown = boxes.slice(0, pages * PAGE);

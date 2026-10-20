@@ -20,7 +20,7 @@ import {
   scrubSecrets,
 } from './restic.js';
 
-// An in-memory restic (step-8 plan T2) for T5–T8's tests before, and beside, the real binary. It
+// An in-memory restic for T5–T8's tests before, and beside, the real binary. It
 // reads and writes real directories (backup reads the given paths, restore writes the target), and
 // keeps the repository in memory: snapshots of paths → contents, content deduplicated by SHA-256.
 // It passes test/restic-contract.ts, which T5's run.ts must pass too.

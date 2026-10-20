@@ -30,8 +30,8 @@ import {
   ValuationsSchema,
 } from './view.js';
 
-// Money: exchange rates, valuations and the current value (step-4 plan T8; D14, D76, D136, D158,
-// Q21, Q22). Shapes: apps/web/src/api/household/types.ts, "money: exchange rates and valuations".
+// Money: exchange rates, valuations and the current value (D14, D76, D136, D158).
+// Shapes: apps/web/src/api/household/types.ts, "money: exchange rates and valuations".
 //
 // GET    /api/v1/accounts/:accountId/fx-rates?from&to              → {items: FxRate[]}
 // PUT    /api/v1/accounts/:accountId/fx-rates (If-Match to replace) → FxRate

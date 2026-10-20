@@ -1,5 +1,5 @@
 /**
- * "Resume now" (D206, screens §5 "AI paused and waiting"): for whoever set the cap. "Home has used
+ * "Resume now" (D206): for whoever set the cap. "Home has used
  * USD 5.00 of USD 5.00 this month · Raise to [6.25] · Remove the cap · Keep paused". Raising or
  * removing resumes paused work at once, oldest first and paced (`POST /ai/caps/:id/resume`);
  * a manual pause just resumes. The raise is prefilled 25% above what was used.

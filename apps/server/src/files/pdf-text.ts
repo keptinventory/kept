@@ -11,7 +11,7 @@ import { JOB_POLICIES } from '../jobs/policies.js';
 import type { SystemJobDeps } from '../jobs/system.js';
 import type { FileStorage } from '../storage/blob-store.js';
 
-// The `pdf-text` tenant job (plan T21, Q19; D77, D157; engineering spec §1.5, §3.1b, §7.2): a
+// The `pdf-text` tenant job (D77, D157): a
 // PDF's text layer, read into `file_text` for document search and for a PDF receipt's extraction
 // (extraction/image.ts sends it instead of an image).
 //
@@ -35,11 +35,11 @@ import type { FileStorage } from '../storage/blob-store.js';
 // in the lockfile (PDF.js 6.1.200 inside, Apache-2.0), pure JavaScript with no eval, the same on
 // amd64 and arm64. poppler-utils is not in the image; in its Debian bookworm base (read from the
 // image's own apt index, 2026-09-29) it is 22.12.0-2+deb12u3 and brings 32 packages, GPL.
-// Rasterising pages (thumbnails, OCR of scans) stays deferred to 1.x (Q19, D97, D209).
+// Rasterising pages (thumbnails, OCR of scans) stays deferred to 1.x (D97, D209).
 
-/** Wall-clock limit of one parse (§3.1b). */
+/** Wall-clock limit of one parse. */
 export const PDF_TIMEOUT_MS = 20_000;
-/** Resident-memory limit of the child, and its V8 heap limit (§3.1b). */
+/** Resident-memory limit of the child, and its V8 heap limit. */
 export const PDF_MEMORY_MB = 256;
 /** At most this many characters are kept (file_text's CHECK). */
 export const PDF_TEXT_MAX = 200_000;

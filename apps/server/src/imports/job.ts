@@ -21,7 +21,7 @@ import {
   type RunInput,
 } from './dry-run.js';
 
-// The `import-csv` job (plan T18, Q18; engineering spec §3.1b: 1 attempt, 2 h, resumable).
+// The `import-csv` job (1 attempt, 2 h, resumable).
 //
 // A tenant job: it runs as the person who pressed Import, under their row-level security, and
 // `data` only names the run, which is read back under that security (jobs/boss.ts's rule).
@@ -209,7 +209,7 @@ async function applyRow(c: ChunkCtx, runId: string, planned: PlannedRow): Promis
     c.lookups.rememberCode(code, thingId);
   }
   for (const code of t.ownCodes) {
-    // Own codes (D208, T17a): the lookups checked the format rule and every source.
+    // Own codes (D208): the lookups checked the format rule and every source.
     await c.client.query(
       `INSERT INTO public.legacy_codes (location_id, source, source_collection, code, thing_id)
        VALUES ($1, 'own', '', $2, $3)`,
@@ -348,7 +348,7 @@ export async function runImport(deps: ImportJobDeps, scope: Scope, runId: string
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** The `import-csv` tenant job (T18): a resumable import in the importing person's scope (Q18).
+/** The `import-csv` tenant job: a resumable import in the importing person's scope.
  * Aggregated by jobs/capture.ts. */
 export function importJobs(deps: SystemJobDeps): JobDefinition[] {
   return [

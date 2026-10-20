@@ -11,15 +11,15 @@ import { notFound } from '../http/errors.js';
 import { type Gate, stripMoney } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 
-// Purchases on the wire (T12; D13, D115, D136, D168; plan Q2): the web contract's PurchaseView
+// Purchases on the wire (D13, D115, D136, D168): the web contract's PurchaseView
 // (apps/web/src/api/inventory/types.ts, "currencies and purchases"), and the request shapes.
 //
 // Money leaves only through serialize/gates.ts: `total`, `tax` and each line's `unitPrice` are
 // omitted, never null, when the caller's gate hides money, and the objects that held them carry
-// `moneyHidden: true` (T26). The receipts and invoices go with them (`receipts: []`): a receipt
+// `moneyHidden: true`. The receipts and invoices go with them (`receipts: []`): a receipt
 // shows the price (security review #10). `flagged` is derived from those amounts, so it is false too then.
 // Amounts are returned as stored, at full precision, in the canonical parseAmount() form
-// ("1200.5", not "1200.5000"): rounding to minor units is the display's (Q2).
+// ("1200.5", not "1200.5000"): rounding to minor units is the display's.
 
 // ---------------------------------------------------------------------------------------------
 // Requests
@@ -184,7 +184,7 @@ function scaled(value: string, places: number): bigint {
 }
 
 /**
- * Screens §7, engineering spec §2: the lines don't reconcile with the total within ±1%. Checked
+ * The lines don't reconcile with the total within ±1%. Checked
  * only when there is a total and every line has a price; the lines may add up to the total with
  * or without the tax. Never an error, only a flag.
  */

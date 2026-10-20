@@ -13,7 +13,7 @@ import {
 import { id, mutable, textEnum, tstz } from './common.js';
 import { things } from './things.js';
 
-// Core meters and readings (engineering spec §1.6, §7.13; D26, D52, D112, D113, moved to step 2
+// Core meters and readings (D26, D52, D112, D113, moved to step 2
 // by D185). A meter belongs to one thing, in its location (composite foreign keys, ON UPDATE
 // CASCADE: a move carries meters and readings along). A thing with a meter has quantity 1 (D10,
 // kept.guard_thing_quantity()). Row-level security is in 0018; see src/db/meters.test.ts.
@@ -48,7 +48,7 @@ export const meters = pgTable(
     offset: numeric('offset', { precision: 14, scale: 3 }).notNull().default('0'),
     /** Readings implying more than this per day need review (D26: a car, 1,500 km). */
     maxPerDay: numeric('max_per_day', { precision: 14, scale: 3 }),
-    /** The stale-reading nudge, in days after the latest reading (step 5; D52, §3.4, Q19); null
+    /** The stale-reading nudge, in days after the latest reading (D52); null
      * for none. The `reading_stale` source of the agenda reads it. */
     nudgeDays: integer('nudge_days').default(30),
     ...mutable(),

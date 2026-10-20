@@ -1,12 +1,12 @@
 /**
  * The mock provider (`KEPT_AI_MOCK=1`: tests, the e2e run, CI's evaluation run; refused in
- * production by config/env.ts). A `MockLanguageModelV4` from `ai/test` (spike: both V3 and V4
+ * production by config/env.ts). A `MockLanguageModelV4` from `ai/test` (both V3 and V4
  * are accepted; T8 uses V4) that answers deterministically:
  * - by the SHA-256 of the first image part (the first 12 hex characters), from an answers map
  *   (T11's `test/fixtures/eval/mock-answers.json` via `loadMockAnswers`);
  * - otherwise with a schema-valid answer for the mode named by the structured-output name
  *   (`kept_receipt` …, wire.ts), or "red" for a plain-text question (the Test call);
- * - an assistant step (tools offered) whose question a script knows (mock-script.ts, step-6 T17)
+ * - an assistant step (tools offered) whose question a script knows (mock-script.ts)
  *   with that script's tool calls or answer.
  * An answer can instead act out a failure: a `length` stop (truncated or complete JSON),
  * invalid JSON, a schema miss, a content filter, an HTTP error with headers (429 with
@@ -63,7 +63,7 @@ export const DEFAULT_MOCK_OUTPUTS: Record<string, unknown> = {
   kept_label: { brand: c('Mock'), model: c('M-1'), serial: c('SN123456') },
   kept_reading: { value: c(52340), unit: c('km'), display: 'digital' },
   kept_test: { colour: 'red' },
-  // Step 7 (T15): alias enrichment's batch answer, schema-valid and empty (enrich/prompt.ts).
+  // Alias enrichment's batch answer, schema-valid and empty (enrich/prompt.ts).
   kept_aliases: { items: [] },
 };
 
@@ -105,7 +105,7 @@ export function createMockModel(
     modelId,
     doGenerate: async (options): Promise<LanguageModelV4GenerateResult> => {
       // An assistant step (tools offered): the scripted reply, when a script knows the question
-      // (mock-script.ts, step-6 T17).
+      // (mock-script.ts).
       const scripted = options.tools?.length ? scriptedReply(options, scripts) : null;
       if (scripted) {
         const usage = {
@@ -182,7 +182,7 @@ export function mockVector(text: string, dims = MOCK_EMBEDDING_DIMS): number[] {
   return raw.map((v) => v / norm);
 }
 
-// --- Vectors that mean something (step-6 T14, T17) ------------------------------------------------
+// --- Vectors that mean something ------------------------------------------------------------------
 // With only `mockVector`, equal texts embed equally and everything else is noise, so semantic
 // search couldn't be shown working under KEPT_AI_MOCK. A small lexicon of concepts
 // (test/fixtures/semantic/concepts.json) gives each concept one dimension: a text lights the

@@ -1,5 +1,5 @@
 /**
- * Search and the ⌘K palette (task 27; D42, D74, D195, screens §5 and §8), against the mock
+ * Search and the ⌘K palette (D42, D74, D195), against the mock
  * server: Arabic matching, aliases, the container photo, did-you-mean, filters and saved views
  * in the URL, recent searches per person, keyboard operation, RTL, and the viewer variant.
  */
@@ -60,7 +60,7 @@ describe('search', () => {
   });
 
   it.each([
-    ['الكابل', 'كابل HDMI'], // the article is stripped at query time (screens §8)
+    ['الكابل', 'كابل HDMI'], // the article is stripped at query time
     ['مكواه', 'مِكْواة البُخار'], // ة ↔ ه and harakat ignored (D42)
     ['٥٥', 'Samsung TV, 55″'], // Eastern Arabic digits (D42)
     ['cable', 'HDMI cable, 2 m'],
@@ -115,7 +115,7 @@ describe('search', () => {
     );
   });
 
-  /** A PDF manual on the drill and a receipt beside it, both in Home, with their text (T21). */
+  /** A PDF manual on the drill and a receipt beside it, both in Home, with their text. */
   function withDocuments(state: MockState = ownerScenario()): MockState {
     const file = (id: string) => ({
       id,
@@ -335,7 +335,7 @@ describe("the mock's matching mirrors the server's normalised forms (D42, screen
     ['الكابل', 'كابل', true], // the article, at query time
     ['بالكابلات', 'كابل', true], // ب + ال on the indexed word
     ['وَرَق', 'ورق', true], // harakat
-    ['ورق', 'رق', false], // a lone و is never stripped (Q20)
+    ['ورق', 'رق', false], // a lone و is never stripped
     ['Samsung TV, 55″', '٥٥', true], // Eastern Arabic digits
     ['HDMI cable', 'hd cab', true], // every word, as a prefix
     ['HDMI cable', 'hdmi box', false],
@@ -408,7 +408,7 @@ describe('the ⌘K palette', () => {
     expect(router.state.location.search).toMatchObject({ q: 'passport' });
   });
 
-  // Step 6 (T19): "Ask the assistant about …" opens the assistant with the words typed so far in
+  // "Ask the assistant about …" opens the assistant with the words typed so far in
   // its composer, unsent (D42), on the page it was asked from.
   it('hands the words to the assistant', async () => {
     const { user, router } = await renderApp('/');

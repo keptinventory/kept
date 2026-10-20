@@ -28,7 +28,7 @@ import { exportKey, importArchiveKey } from '../storage/blob-store.js';
 // status, the done one done at the same time; each box with its number, state and when that
 // changed, its room remapped, its container the imported box. The move to House comes in as a
 // move within the new location, its rooms not chosen: the export holds one location, and House
-// isn't it. Who changed a box's state is Nora, as every imported row's maker is (Q11). An export
+// isn't it. Who changed a box's state is Nora, as every imported row's maker is. An export
 // from before moves travelled (version 3) still imports.
 
 vi.setConfig({ testTimeout: 300_000, hookTimeout: 300_000 });
@@ -319,7 +319,7 @@ describe('a Kept export with moves (D251)', () => {
       expect(got.boxes.map((b) => shape(b, (id) => id))).toEqual(
         source.boxes.map((b) => shape(b, newIdOf)),
       );
-      // Who changed each box is the importing person (Q11).
+      // Who changed each box is the importing person.
       for (const b of got.boxes) expect(b.stateBy).toEqual({ displayName: 'Nora' });
     }
     // The unpacked box is in the imported hallway, as it was.

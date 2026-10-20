@@ -21,8 +21,8 @@ import {
 } from '../secrets/rotate.js';
 import { markRecoveryKitStale } from '../setup/recovery-kit.js';
 
-// `kept admin rotate-key [--new-key <key>] [--resume]` (engineering spec §7.3, D182; plan T19,
-// Q19). As kept_owner, beside the keys the server uses (the environment, or the config volume's
+// `kept admin rotate-key [--new-key <key>] [--resume]` (D182).
+// As kept_owner, beside the keys the server uses (the environment, or the config volume's
 // secrets.json; never generated here).
 //
 // With keys in secrets.json (generated on first boot, D193):
@@ -104,7 +104,7 @@ async function audit(
       after,
     });
     // A kit downloaded before a rotation lacks the new key (and, after --resume under an
-    // environment-set key, the one now current): the status page asks for a new one (T9).
+    // environment-set key, the one now current): the status page asks for a new one.
     if (action === 'instance.rotate_key') await markRecoveryKitStale(client);
     await client.query('COMMIT');
   } catch (err) {

@@ -1,5 +1,5 @@
 /**
- * The model picker (D202, D206; screens §5 AI settings, Advanced): the provider's own list, loaded
+ * The model picker (D202, D206; Advanced): the provider's own list, loaded
  * after a key is saved, in a Combobox (never a native select). Photos and receipts offer
  * vision-capable models only; a model whose vision the listing didn't state is offered with "Run
  * Test to check photos". The assistant gets text models, search gets embeddings models (D200).

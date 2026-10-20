@@ -16,16 +16,16 @@ import { id, mutable, textEnum, tstz } from './common.js';
 import { locations } from './tenancy.js';
 import { things } from './things.js';
 
-// Lending and borrowing (step-4 plan T5; engineering spec §1.7, §7.13; D56, D57, D119, D172; plan
-// Q14–Q17). Row-level security, the person guard and the thing's state bump are in the custom
+// Lending and borrowing (D56, D57, D119, D172).
+// Row-level security, the person guard and the thing's state bump are in the custom
 // migration that follows (0051); see src/db/household-records.test.ts.
 
 const direction = textEnum('direction', LOAN_DIRECTIONS);
 
 /**
- * A thing lent out to someone, or borrowed in from someone (D56): one open loan per thing
- * (§7.13). The person is the account's people registry (a member is a person with
- * `member_user_id`, Q16), guarded in 0051. `previous_*` say where it was, for "return to
+ * A thing lent out to someone, or borrowed in from someone (D56): one open loan per thing.
+ * The person is the account's people registry (a member is a person with
+ * `member_user_id`), guarded in 0051. `previous_*` say where it was, for "return to
  * previous": no foreign key, the place may be gone by the return (the route falls back to
  * Unplaced). `split_from_thing_id` is the row a partial lend split off (D172). The return-place
  * and split keys are ON DELETE SET NULL (col), in 0051.
@@ -60,7 +60,7 @@ export const loans = pgTable(
     unique('loans_location_id_uq').on(t.locationId, t.id),
     check('loans_lead_days_chk', sql`lead_days BETWEEN 0 AND 60`),
     check('loans_notes_chk', sql`char_length(notes) <= 2000`),
-    // "Due ≥ start" (screens §7) is the route's, in the location's zone; the table only refuses a
+    // "Due ≥ start" is the route's, in the location's zone; the table only refuses a
     // due date more than a day before the start (zone slack).
     check(
       'loans_due_chk',

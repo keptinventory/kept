@@ -18,8 +18,8 @@ import {
 } from '../../test/things.js';
 import { applyOps } from './ops.js';
 
-// T14's sync ordering and conflict suite (plan T14 "ordering.test.ts"; D35, D112, D148, D210;
-// Q2, Q3): what the server does with offline changes that arrive late, twice, out of order, or
+// T14's sync ordering and conflict suite (D35, D112, D148, D210):
+// what the server does with offline changes that arrive late, twice, out of order, or
 // into something that changed meanwhile.
 
 let db: TestDb;
@@ -356,7 +356,7 @@ describe('sync ordering and conflicts', () => {
 
   // Its time is measured alone, where a clock means something: test/perf/step3.perf.test.ts
   // holds a 50-op batch's p95 under 1.5 s. Here, inside the
-  // parallel suite, the same batch took 3.1–9.3 s at load 20–36 and about 1 s alone (T32).
+  // parallel suite, the same batch took 3.1–9.3 s at load 20–36 and about 1 s alone.
   it('10. applies 50 ops in one batch', async () => {
     const shelf = await place(db, home, 'Shelf F');
     const box = await builtinType(db, 'box_bin');

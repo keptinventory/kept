@@ -1,5 +1,5 @@
 /**
- * New and edit schedule (plan T21; D29, D39, D52, screens §7): on a thing or a place, every so
+ * New and edit schedule (D29, D39, D52): on a thing or a place, every so
  * many months and/or every so many units on one of the thing's meters, whichever comes first, or
  * a one-off date; with how long before to remind. At least one of the three is required (the
  * server's `schedule_interval_required`, said here first). "Last done" starts the count (default

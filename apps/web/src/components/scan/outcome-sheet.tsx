@@ -1,5 +1,5 @@
 /**
- * A scan's answer (D137's six outcomes; screens §8; board frames 5a–5c). On the scanner it is a
+ * A scan's answer (D137's six outcomes). On the scanner it is a
  * sheet over the camera; on a `/l/<code>` page, a card. Every answer is plain, and "Not in your
  * Kept" reads the same whatever the reason (another household's label, a location you left, a
  * deleted thing), so a scan never shows that a label exists somewhere else.

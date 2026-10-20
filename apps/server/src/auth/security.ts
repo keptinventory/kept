@@ -13,10 +13,10 @@ import {
   reserveSignInAttempt,
 } from './sign-in-limiter.js';
 
-// Spike S2 (V32). Better Auth's twoFactor plugin gates only /sign-in/email, /sign-in/username
+// Better Auth's twoFactor plugin gates only /sign-in/email, /sign-in/username
 // and /sign-in/phone-number (its after-hook matcher). Magic link, passkey and social/OIDC
 // callbacks create full sessions without a second factor. So Kept keeps its own flag per
-// session (auth.session_mfa) and gates on it (D176, §7.14):
+// session (auth.session_mfa) and gates on it (D176):
 // - a session is "satisfied" once a second factor is proven in it: TOTP, a backup code, or a
 //   passkey assertion with user verification (UV). Not an emailed OTP: email is the channel a
 //   magic link already used, so it would be the same factor twice (Phase B review, item 6);
@@ -75,7 +75,7 @@ export const ENROLMENT_PATHS = new Set([
   '/two-factor/enable',
 ]);
 
-/** Credential changes: each signs out every other session of the user (D176, task 17). A
+/** Credential changes: each signs out every other session of the user (D176). A
  * password reset does the same through Better Auth's `revokeSessionsOnPasswordReset`. */
 export const REVOKE_OTHERS_PATHS = new Set([
   CHANGE_PASSWORD_PATH,
@@ -86,7 +86,7 @@ export const REVOKE_OTHERS_PATHS = new Set([
   '/passkey/delete-passkey',
 ]);
 
-/** An OAuth sign-in's callback as hooks see it (step 6, generic OIDC; spike S6.7). It ends by
+/** An OAuth sign-in's callback as hooks see it (generic OIDC). It ends by
  * throwing its redirect, so a successful one reaches after-hooks as a 302 APIError. */
 export const OAUTH_CALLBACK_PATH = '/callback/:id';
 
@@ -100,7 +100,7 @@ function failed(path: string | undefined, returned: unknown): boolean {
 }
 
 /** Endpoints that create a session by signing someone in. A session the request already carried
- * is deleted once the new one exists: the token is rotated at every sign-in (task 17). */
+ * is deleted once the new one exists: the token is rotated at every sign-in. */
 export const SIGN_IN_SESSION_PATHS = new Set([
   '/sign-in/email',
   '/sign-in/username',
@@ -110,7 +110,7 @@ export const SIGN_IN_SESSION_PATHS = new Set([
   OAUTH_CALLBACK_PATH,
 ]);
 
-/** Emailed links, limited per account (§3.2): the kind names the limiter bucket. */
+/** Emailed links, limited per account: the kind names the limiter bucket. */
 const MAIL_LINK_PATHS: ReadonlyMap<string, 'magic-link' | 'password-reset'> = new Map([
   ['/sign-in/magic-link', 'magic-link'],
   ['/request-password-reset', 'password-reset'],
@@ -251,7 +251,7 @@ export function keptSecurity(opts: KeptSecurityOptions): BetterAuthPlugin {
         },
         {
           // "Trust this device" would let a later password sign-in skip the challenge and get a
-          // session Kept never marked. Kept doesn't offer it (spike S2); refuse it outright.
+          // session Kept never marked. Kept doesn't offer it; refuse it outright.
           matcher: (ctx) => (ctx.path ?? '').startsWith('/two-factor/'),
           handler: createAuthMiddleware(async (ctx) => {
             const body = (ctx.body ?? {}) as { trustDevice?: unknown };
@@ -302,7 +302,7 @@ export function keptSecurity(opts: KeptSecurityOptions): BetterAuthPlugin {
           }),
         },
         {
-          // Password reset and magic links (§3.2): 3 per hour per address from one client IP,
+          // Password reset and magic links: 3 per hour per address from one client IP,
           // and 10 per hour per address in all (security review M4: keyed on the address alone,
           // anyone anywhere could spend someone's three and block their magic-link sign-in).
           // Keyed on the address as typed, whether or not an account has it, so the answer never
@@ -494,7 +494,7 @@ export function keptSecurity(opts: KeptSecurityOptions): BetterAuthPlugin {
             if (isAPIError(ctx.context.returned)) return;
             const created = ctx.context.newSession;
             if (!created) return;
-            // A passkey with user verification counts as two factors (§7.14, D190).
+            // A passkey with user verification counts as two factors (D190).
             if (passkeyUserVerified.get(ctx.context) === true) {
               await markMfaSatisfied(pool, created.session.id, 'passkey');
             }

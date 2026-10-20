@@ -1,5 +1,5 @@
 /**
- * Members and roles (screens §5, D46, D47, D48, D180, D190). Grouped Owner · Admins · Members ·
+ * Members and roles (D46, D47, D48, D180, D190). Grouped Owner · Admins · Members ·
  * Viewers, then pending invites with their expiry and Revoke. Phone: a list whose rows open a
  * sheet of actions. Desktop: the same rows as a table with the actions inline. Promoting,
  * demoting or removing admins is owner only; the owner's row has no actions; an end date can't

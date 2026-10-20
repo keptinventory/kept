@@ -28,7 +28,7 @@ type Home = {
 };
 type Hint = { key: string; seenAt: string | null; dismissedAt: string | null };
 
-/** Step 4's rows (T13) when nothing is due, lent or borrowed: src/agenda/agenda.test.ts tests them. */
+/** Step 4's rows when nothing is due, lent or borrowed: src/agenda/agenda.test.ts tests them. */
 const NO_AGENDA = { overdue: 0, due: 0, expiring: 0, lentOut: 0, borrowedIn: 0, lowStock: 0 };
 
 const own = <T extends pg.QueryResultRow>(text: string, values: unknown[] = []) =>
@@ -580,7 +580,7 @@ describe('hints: GET /api/v1/me/hints, PUT /api/v1/me/hints/:key (D138)', () => 
 });
 
 // ---------------------------------------------------------------------------------------------
-// Step 3 (T22): "connect AI" follows the provider, the inbox joins "to review", and the counts.
+// "connect AI" follows the provider, the inbox joins "to review", and the counts.
 
 /** An account-scope AI provider on `owner`'s account (sealed as T9 seals it). */
 async function connectAi(owner: Person): Promise<void> {

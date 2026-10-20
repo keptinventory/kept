@@ -22,7 +22,7 @@ import type { PgTools } from './pg-tools.js';
 import type { Restic, ResticRepo } from './restic/restic.js';
 import type { BackupTarget } from './target.js';
 
-// `kept admin restore` (D66: restore into a new database, verify, then swap; step-8 plan T7).
+// `kept admin restore` (D66: restore into a new database, verify, then swap).
 //
 // Into an EMPTY database only (made the way setup makes one: owned by kept_owner, with the roles
 // and the extensions in place; docs/runbooks/backup-restore.md). It refuses anything else, so it
@@ -33,13 +33,13 @@ import type { BackupTarget } from './target.js';
 //   2. pg_restore's major version against the server's, and the extensions, before any data;
 //   3. pg_restore, in one transaction (all or nothing);
 //   4. every table's row count against the manifest and, for a restic snapshot, every table's
-//      data digest (digests.ts, L78): a table whose digest differs is a mismatch even when its
+//      data digest (digests.ts): a table whose digest differs is a mismatch even when its
 //      count is the same;
 //   5. the files: put back into the store KEPT_STORAGE names, each SHA-256 checked (from the
 //      snapshot's /blobs with local storage); with S3 storage the files never left the bucket
 //      (D144), and each one is checked to be there, unchanged. The drill checks a sample instead;
 //   6. `instance.restore` audited in the restored database.
-// Kept never swaps databases: renaming one needs the superuser (D66, Q13). The command prints
+// Kept never swaps databases: renaming one needs the superuser (D66). The command prints
 // the runbook's superuser commands. Secret values come back sealed as they were; the keys from
 // the recovery kit open them.
 
@@ -424,7 +424,7 @@ export async function runResticRestore(deps: ResticRestoreDeps): Promise<Restore
 }
 
 // ---------------------------------------------------------------------------------------------
-// From an alpha run (`--legacy`, plan Q1: for one release)
+// From an alpha run (`--legacy`, for one release)
 
 export type RestoreDeps = {
   ownerUrl: string;
@@ -468,7 +468,7 @@ export async function runRestore(deps: RestoreDeps): Promise<RestoreReport> {
   }
 }
 
-/** The runbook's swap (D66, Q13), which needs the superuser: Kept prints it, never runs it. */
+/** The runbook's swap (D66), which needs the superuser: Kept prints it, never runs it. */
 export function swapCommands(restoredUrl: string): string[] {
   const restored = decodeURIComponent(new URL(restoredUrl).pathname.replace(/^\//, ''));
   return [

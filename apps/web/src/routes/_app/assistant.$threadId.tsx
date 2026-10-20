@@ -1,5 +1,5 @@
 /**
- * One assistant thread on its own page (D23; screens §2 `/assistant/<thread>`): the same
+ * One assistant thread on its own page (D23; `/assistant/<thread>`): the same
  * conversation as the sheet and the docked panel (assistant/conversation.tsx), with the thread's
  * title, Delete, and the way back to your threads. A thread that isn't yours, or is gone, is not
  * found (private even from admins, D23). Its chunk loads on demand from assets/household/

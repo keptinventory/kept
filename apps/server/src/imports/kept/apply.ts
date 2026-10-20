@@ -4,7 +4,7 @@ import { type EntityDef, entityDef, type Field, fieldsOf } from '../../exports/r
 import { adoptCode, type CodeOutcome, type ImportedCode } from './codes.js';
 import { type IdMap, importedId, isUuid } from './ids.js';
 
-// Writing a Kept export's rows into the new location (step-7 plan T14, Q8, Q11).
+// Writing a Kept export's rows into the new location.
 //
 // The rows are the export registry's (exports/registry.ts): each entity is one table, its fields
 // that table's own columns. So one writer serves every entity, steps 4–6 included, and a column
@@ -16,7 +16,7 @@ import { type IdMap, importedId, isUuid } from './ids.js';
 //   template's payload) are remapped the same way;
 // - `location_id` is the new location, `owner_account_id` its account; the users of the old
 //   server are not this one's, so `created_by` (and `logged_by`, `checked_by`) is the importing
-//   person (Q11), and `created_via` is `import`;
+//   person, and `created_via` is `import`;
 // - each row is inserted as the importing person, under row-level security and every check and
 //   guard the table has, `ON CONFLICT DO NOTHING`: a resumed chunk meets its own rows and moves on.
 //
@@ -553,7 +553,7 @@ async function applyCode(c: ApplyCtx, row: Row): Promise<Applied> {
 // a trigger refuses its photos), so the importer writes it as a request would: open, as the
 // importing person (app_insert allows no other), then its rooms, then its photos with the other
 // attachments, and last finishReport() stamps the exported `finishedAt` (app_update: once, by the
-// person, who becomes its `finished_by` as Q11 makes them every row's `created_by`). No policy,
+// person, who becomes its `finished_by` as they are every row's `created_by`). No policy,
 // grant or trigger changes for this, so nothing can reopen or edit a finished report.
 
 /** A report row, written open: finishReport() finishes it after its rooms and photos. */
@@ -588,7 +588,7 @@ export async function finishReport(
 // (app_update), as a person reopening and closing it would. A move to another location names a
 // location the export doesn't hold: it comes in as a move within the new location (no
 // `to_location_id`), and its boxes' rooms, places of that other location, as not chosen yet.
-// Who last changed a box's state (`state_by`) is the importing person, as Q11 makes every
+// Who last changed a box's state (`state_by`) is the importing person, as for every
 // imported row's maker; when it changed (`state_at`) is the exported time, so a late offline
 // change on the new server is still ordered against it (D112).
 

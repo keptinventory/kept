@@ -1,5 +1,5 @@
 /**
- * The app lock (step-8 plan T23; D181, D210, Q22): off by default; when on, Kept asks for the PIN
+ * The app lock (D181, D210): off by default; when on, Kept asks for the PIN
  * (or Face ID / fingerprint) on a cold start and after APP_LOCK.idleMinutes hidden or idle, and
  * the lock screen covers everything, online and offline, until it is unlocked. Mounted by the
  * signed-in frame (routes/_app.tsx) around the shell.

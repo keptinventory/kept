@@ -17,7 +17,7 @@ import { createUrlSigner } from '../storage/signed-url.js';
 import { ResticCli } from './restic/run.js';
 
 // What the backup commands and the worker's job need beyond the backup settings (settings.ts):
-// the owner login, the file storage, KEPT_DATA_DIR, and restic itself (step-8 plan T5). The
+// the owner login, the file storage, KEPT_DATA_DIR, and restic itself. The
 // worker gets them from loadEnv(); the `kept admin backup | restore | export` commands from
 // loadBackupCliEnv() below, which needs none of the runtime logins. The commands open the saved
 // backup secrets with the keys when they can read them (the environment or the config volume's
@@ -32,7 +32,7 @@ export function backupCron(time: string): string {
 }
 
 /** The restic wrapper the environment names: KEPT_RESTIC_BIN (else `restic` on PATH, the
- * image's pinned one), its cache at KEPT_RESTIC_CACHE_DIR or KEPT_DATA_DIR/.cache/restic (Q5). */
+ * image's pinned one), its cache at KEPT_RESTIC_CACHE_DIR or KEPT_DATA_DIR/.cache/restic. */
 export function resticOf(
   env: Pick<EnvSchema, 'KEPT_RESTIC_BIN' | 'KEPT_RESTIC_CACHE_DIR' | 'KEPT_DATA_DIR'>,
   onLog?: (line: string, command: string) => void,

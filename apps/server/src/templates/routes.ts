@@ -18,8 +18,8 @@ import {
   updateTemplate,
 } from './service.js';
 
-// Templates and quick add (plan T19; D76, D177, Q17). Shapes: apps/web/src/api/capture/types.ts
-// "templates and quick add (T19)"; the rules are in service.ts. Quick add itself is `templateId`
+// Templates and quick add (D76, D177). Shapes: apps/web/src/api/capture/types.ts
+// "templates and quick add"; the rules are in service.ts. Quick add itself is `templateId`
 // on POST /api/v1/things (things/routes.ts) and on a capture (capture/service.ts).
 //
 // GET    /api/v1/templates?locationId                  → {items: Template[]} (members and above)

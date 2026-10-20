@@ -6,7 +6,7 @@ import { pruneImportJobs } from '../imports/prune.js';
 import type { JobDefinition } from './boss.js';
 import type { SystemJobDeps } from './system.js';
 
-// Step 7's jobs (plan T2), as jobs/household.ts gathers step 4's: each area declares its own with
+// Step 7's jobs, as jobs/household.ts gathers step 4's: each area declares its own with
 // defineJob() and a policy in jobs/policies.ts, and systemJobs() spreads this list, so no task
 // edits system.ts. The rule in jobs/boss.ts holds: `data` names what to work on, never whose
 // rights to use, and never a passphrase or a key.

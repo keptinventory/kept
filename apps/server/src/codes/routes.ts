@@ -22,7 +22,7 @@ import {
 } from './service.js';
 import { registerCodeUndo } from './undo.js';
 
-// Own codes (T17a, D208; engineering spec §7.16). The service is codes/service.ts.
+// Own codes (D208). The service is codes/service.ts.
 //
 // GET    /api/v1/{things|places}/:id/codes          → {codes: [{code, source, sourceCollection}]}
 // POST   /api/v1/{things|places}/:id/codes          {code} | {next: true} → 201 {code}

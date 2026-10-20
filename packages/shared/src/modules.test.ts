@@ -10,7 +10,7 @@ import {
 } from './modules.js';
 import { SOURCE_MODULE, SOURCE_TYPES } from './reminders.js';
 
-// Product design §5 (module table), as re-cut by D191; engineering spec §7.6.
+// The module table, as re-cut by D191.
 
 const all = new Set<ModuleId>(MODULE_IDS);
 

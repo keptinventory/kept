@@ -15,8 +15,8 @@ import { user } from './auth.js';
 import { id, mutable, textEnum, tstz } from './common.js';
 import { locations } from './tenancy.js';
 
-// Personal tokens and OAuth grants as principals (step-6 plan T4; engineering spec §1.10, §3.2,
-// §7.3, §7.13; D15, D60, D63, D179, D180, D190; plan Q6, Q7, Q19). A token acts as its creator,
+// Personal tokens and OAuth grants as principals (D15, D60, D63, D179, D180, D190).
+// A token acts as its creator,
 // limited to its locations and scope: withScope sets `app.token_id` beside `app.user_id`, and
 // kept.visible_location_ids()/writable_location_ids()/admin_location_ids() intersect the creator's
 // memberships with token_locations on every call. Row-level security, the location guard, the
@@ -30,7 +30,7 @@ const rateKind = textEnum('kind', TOKEN_SCOPES);
 
 /**
  * A personal token (`kpt_<lookup>_<secret>`, shown once) or an OAuth grant (one per user and
- * client while live, Q7). Only the secret's HMAC is stored; kept_app can't SELECT `hash`, and
+ * client while live). Only the secret's HMAC is stored; kept_app can't SELECT `hash`, and
  * verification goes through kept.token_verify().
  */
 export const apiTokens = pgTable(
@@ -76,7 +76,7 @@ export const apiTokens = pgTable(
   ],
 );
 
-/** The locations a token may reach (§7.13): a token whose last row goes is revoked (0070). */
+/** The locations a token may reach: a token whose last row goes is revoked (0070). */
 export const tokenLocations = pgTable(
   'token_locations',
   {
@@ -94,7 +94,7 @@ export const tokenLocations = pgTable(
 );
 
 /**
- * Per-token, per-minute request counters (§3.2, Q19), shared across replicas. Definer-only: only
+ * Per-token, per-minute request counters, shared across replicas. Definer-only: only
  * kept.token_rate_hit() touches them, and kept.prune_stale_rows() drops those past 2 hours.
  */
 export const tokenRateWindows = pgTable(

@@ -17,7 +17,7 @@ import {
 import { ownerTx } from '../../test/tenancy.js';
 import { MAX_PENDING_INVITES } from './routes.js';
 
-// Task 20: invites through the front door (D33, D46, D48, D180, D193; §7.10).
+// Invites through the front door (D33, D46, D48, D180, D193).
 
 const DAY = 86_400_000;
 

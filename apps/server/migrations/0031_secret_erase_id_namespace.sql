@@ -15,7 +15,7 @@ ALTER TABLE "secret_values" ADD CONSTRAINT "secret_values_ciphertext_chk" CHECK 
 --      each refuses, at commit, a row whose id the other table holds, anywhere (definer: the
 --      other tenant's rows are invisible to the writer). 23505 `inventory_ids_pkey`, which the
 --      API answers like any taken client id: 404 (D178). At commit, so the conversions
---      (convert_place_to_container / convert_container_to_place, Q14), which insert the new row
+--      (convert_place_to_container / convert_container_to_place), which insert the new row
 --      before deleting the old one under the same id, pass without an exemption. An advisory
 --      lock on the id serialises two transactions racing to take it in both tables.
 -- test/leak.test.ts and src/db/migrate.test.ts list the functions.
@@ -60,7 +60,7 @@ BEGIN
   IF TG_OP = 'UPDATE' AND TG_NARGS > 0
      AND coalesce(current_setting('kept.touch', true), '') <> 'force'
      AND (to_jsonb(NEW) - book - quiet - seqc) = (to_jsonb(OLD) - book - quiet - seqc) THEN
-    -- Only cache columns changed (§7.9, D183): no row_version, no updated_at.
+    -- Only cache columns changed (D183): no row_version, no updated_at.
     NEW.row_version := OLD.row_version;
     NEW.updated_at  := OLD.updated_at;
     NEW.change_seq  := CASE WHEN (to_jsonb(NEW) - book - quiet) = (to_jsonb(OLD) - book - quiet)

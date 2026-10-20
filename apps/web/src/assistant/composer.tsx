@@ -1,8 +1,8 @@
 /**
- * The composer (screens §5 "Assistant", §3 and §8; D25, D206, D213): a text area with the mic and
+ * The composer (D25, D206, D213): a text area with the mic and
  * Send. Enter sends, Shift+Enter starts a new line.
  *
- * - Disabled with the reason (screens §3): offline ("Needs a connection"), paused ("AI paused
+ * - Disabled with the reason: offline ("Needs a connection"), paused ("AI paused
  *   until 1 Oct · Home's monthly cap reached"), no provider ("Connect AI in Settings" for whoever
  *   manages AI, "AI isn't set up here" for everyone else), or the module off in the context's
  *   location ("Off in this location"). The reason is the caller's (./conversation.tsx).

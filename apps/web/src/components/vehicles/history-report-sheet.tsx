@@ -1,5 +1,5 @@
 /**
- * The vehicle history report sheet (plan T23; D51, D201; Q16): "History report" from the vehicle's
+ * The vehicle history report sheet (D51, D201): "History report" from the vehicle's
  * action menu and its Overview. The sheet asks for the period (all of it, or from and to), what
  * to include (costs, proof photos, fuel, documents) and the language, then makes the PDF on the
  * server (`POST /reports/vehicle-history`, the `vehicle_history` run kind) and follows it with
@@ -7,8 +7,7 @@
  * installed iPhone app gets Open and Share, never a dead download).
  *
  * Anyone who can see the vehicle may make one, viewers too; costs are in it only where the reader
- * sees money, and the sheet says so. Offline the button is off and says "Needs a connection"
- * (screens §3).
+ * sees money, and the sheet says so. Offline the button is off and says "Needs a connection".
  *
  * Mounted by the vehicle page inside its ThingProvider.
  */

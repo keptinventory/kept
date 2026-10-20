@@ -1,5 +1,5 @@
 /**
- * Log a service (plan T21; screens §5 "Log a service", D26, D29, D113; step-4 Q1): record work
+ * Log a service (D26, D29, D113): record work
  * done on a thing or a place, and close the schedules it completes. In order: the date (today by
  * default, never in the future), the thing's meter reading with a photo-proof slot (checked
  * against its neighbours and refused at entry with the reason, D112), the vendor (created inline,
@@ -9,9 +9,9 @@
  *
  * Service records are core (D113): any member can log one, but Completes needs Schedules on in
  * the location. Money fields appear only where money shows (D13). Needs a connection: it carries
- * money (screens §4); a reading alone is logged offline (components/readings/).
+ * money; a reading alone is logged offline (components/readings/).
  *
- * **The invoice, read by AI (step 5, T20; Q12, Q13).** Where money shows, attaching an invoice
+ * **The invoice, read by AI.** Where money shows, attaching an invoice
  * makes a **draft** service record (`POST /service-records/drafts`, with an Idempotency-Key),
  * whose pages the server reads where AI capture is on. While it reads, "Reading the invoice…";
  * then its lines, total, currency, vendor and date are suggestions (./invoice-suggestions.tsx),
@@ -21,7 +21,7 @@
  * Discard). Without AI the draft has no read, and the typed lines are what's saved.
  *
  * **Completes:** a schedule is pre-ticked when one line (typed, or suggested and not yet taken)
- * holds every significant word of its name (`matchSchedules`, Q13), and says which: "Matches “Oil
+ * holds every significant word of its name (`matchSchedules`), and says which: "Matches “Oil
  * filter”, was estimated ~14 Nov, restarts at 55,120 km"; the others "no matching line". The
  * person ticks or unticks any; one they touched stays as they left it.
  *
@@ -92,7 +92,7 @@ export function LogServiceSheet({
   locationId: string;
   /** Schedules to tick at the start (Complete → "Add line items or an invoice"). */
   completes?: string[];
-  /** A draft to finish (the Services tab's "Finish logging", T20). */
+  /** A draft to finish (the Services tab's "Finish logging"). */
   draft?: ServiceRecordV5 | null;
   onClose: () => void;
 }) {
@@ -159,7 +159,7 @@ const lineOf = (l: SuggestedLine): Line => ({
   consumableThingId: null,
 });
 
-/** The line a schedule matches (`matchSchedules`, Q13), or null. */
+/** The line a schedule matches (`matchSchedules`), or null. */
 function matchingLine(
   s: { id: string; name: string },
   lines: readonly { description: string }[],
@@ -248,7 +248,7 @@ function LogServiceForm({
   const [busy, setBusy] = useState(false);
   const clear = (key: string) => setErrors(({ [key]: _, ...rest }) => rest);
 
-  // ----- the draft and its invoice's read (T20) -----
+  // ----- the draft and its invoice's read -----------
   const [draftId] = useState(() => given?.id ?? newId());
   const [draftState, setDraftState] = useState<'none' | 'making' | 'made' | 'failed'>(
     given ? 'made' : 'none',
@@ -316,7 +316,7 @@ function LogServiceForm({
     setTaken((s) => new Set([...s, i]));
   };
 
-  // Completes: pre-ticked by a matching line (Q13), unless the person decided.
+  // Completes: pre-ticked by a matching line, unless the person decided.
   const matchLines = [
     ...lines.filter((l) => l.description.trim()),
     ...pending.map((i) => read.lines[i] as SuggestedLine),

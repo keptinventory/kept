@@ -1,5 +1,5 @@
 /**
- * Labels as PNGs made on the phone (plan T28; D44, D185), for label-printer apps that take an
+ * Labels as PNGs made on the phone (D44, D185), for label-printer apps that take an
  * image: one PNG per label at 300 dpi of the stock's cell, shared together through the share
  * sheet where the browser can share files, downloaded otherwise.
  *

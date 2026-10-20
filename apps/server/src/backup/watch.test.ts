@@ -7,7 +7,7 @@ import type { Mail } from '../mail/mailer.js';
 import { opsGauges } from './metrics.js';
 import { BACKUP_METRICS_KEY, DISK_STATUS_KEY, type DiskProbe, runOpsWatch } from './watch.js';
 
-// Step-8 plan T10: the hourly operations watch raises and resolves each alert once, and keeps
+// The hourly operations watch raises and resolves each alert once, and keeps
 // what the status page and /metrics read.
 
 let db: TestDb;

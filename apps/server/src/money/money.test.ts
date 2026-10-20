@@ -11,7 +11,7 @@ import { converterFor } from './convert.js';
 import { rateIn } from './fx.js';
 
 // Step-4 T8 through the front door: exchange rates, valuations and the thing's current value
-// (D76, D136, D158; plan Q21, Q22, Q25), in the web contract's shapes
+// (D76, D136, D158), in the web contract's shapes
 // (apps/web/src/api/household/types.ts, "money").
 //
 // Ibrahim owns Home (household: money on) and Garage (essentials: money off). In Home, Bruce is an

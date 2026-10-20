@@ -5,7 +5,7 @@ import { type ChannelMessage, type ChannelTarget, errorCode, type SendOutcome } 
 import { OCCURRENCE_COLUMNS, type OccurrenceRow, reminderItems } from './items.js';
 import { loadUsers, type RecipientDeps } from './recipients.js';
 
-// `reminder-deliver` (one delivery a job; plan T14; L112): an overdue reminder, sent on one
+// `reminder-deliver` (one delivery a job): an overdue reminder, sent on one
 // channel once the person's quiet hours are over. The job's data only names a delivery row;
 // whether to send is read from the database, never trusted from the data (jobs/boss.ts):
 // 1. claim the row, `queued` (or `failed`, on a retry) → `sending`, in a transaction that holds it
@@ -13,9 +13,9 @@ import { loadUsers, type RecipientDeps } from './recipients.js';
 //    crash mid-send rolls back to `queued` for the retry;
 // 2. skip it when the occurrence has closed, the person has left the location, or the channel
 //    isn't theirs or is off here;
-// 3. send through the channel's sender (reminders/channel.ts, T15) in the person's language, and
+// 3. send through the channel's sender (reminders/channel.ts) in the person's language, and
 //    record `sent`, `skipped` or `failed` with a short code. A failure fails the job, and pg-boss
-//    retries it (JOB_POLICIES['reminder-deliver']); a failed send never failed the scan (L112).
+//    retries it (JOB_POLICIES['reminder-deliver']); a failed send never failed the scan.
 //
 // A channel's test (T15's routes) may send `{kind: 'test', channelId}` to the same queue: the
 // channel's own user gets the test message.

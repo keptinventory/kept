@@ -6,7 +6,7 @@ import type pg from 'pg';
 import { blobToFile } from '../backup/manifest.js';
 import { BlobNotFoundError, type BlobStore, isBlobKey } from './blob-store.js';
 
-// Switching file storage between local and S3 (D186; step-8 plan T13): `kept admin storage copy
+// Switching file storage between local and S3 (D186): `kept admin storage copy
 // --to s3|local` and `kept admin storage verify --store s3|local` (cli/storage.ts).
 //
 // What is copied is what the database references: every original (`files`, with the SHA-256 the

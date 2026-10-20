@@ -1,6 +1,6 @@
 import type { ReadableLocale, ReadableWords } from './labels.js';
 
-// The readable copy's pages (D159; plan T13): plain HTML with one inline stylesheet, no script, no
+// The readable copy's pages (D159): plain HTML with one inline stylesheet, no script, no
 // remote resource (no font file, no image from anywhere but the copy itself), so it opens from
 // disk in any browser, years from now, with no network. Every piece of user text is escaped and
 // isolated (`<bdi>`), so a name in another script keeps its order and markup in a name stays

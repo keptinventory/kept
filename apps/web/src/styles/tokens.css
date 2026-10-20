@@ -1,9 +1,9 @@
 /*
- * Kept design tokens (D131). Copied verbatim from the design board (:root and the two dark
- * blocks) and the screens board's kit (the forced .t-light / .t-dark panels, which
- * also carry the series colours the board omits there). Names, values and even hex case are the
- * board's, so a value can be grepped across both; Biome skips this file for that reason. Do not
- * edit a value here without editing the board.
+ * Kept design tokens (D131). Copied verbatim from the design source (:root and the two dark
+ * blocks) and the screen designs' kit (the forced .t-light / .t-dark panels, which
+ * also carry the series colours the designs omit there). Names, values and even hex case are the
+ * source's, so a value can be grepped across both; Biome skips this file for that reason. Do not
+ * edit a value here without editing the source.
  */
 :root{
   --paper:#F2F1EC; --surface:#FBFAF7; --sunken:#ECEAE4; --line:#DEDBD3;

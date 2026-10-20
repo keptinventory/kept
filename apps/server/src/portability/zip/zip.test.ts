@@ -26,7 +26,7 @@ import {
 import { expectNames, inflateCounter, openArchive, UUID_ENTRY } from './read.js';
 import { shouldCompress, writeArchive } from './write.js';
 
-// The safe archive module (plan T7; spike Z1). Every
+// The safe archive module. Every
 // hostile archive is made here, byte by byte (test/zip-forge.ts), never downloaded.
 // The local store always runs; RustFS (compose.dev.yaml, profile s3, port 9452) runs when it
 // answers, and must when KEPT_TEST_S3_URL is set (as storage/s3.test.ts).

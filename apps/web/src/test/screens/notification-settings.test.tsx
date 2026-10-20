@@ -1,5 +1,5 @@
 /**
- * Me → Notifications (plan T25; D29, D30, D139, D142, D193; step-4 Q6, Q8, Q23, Q35): the
+ * Me → Notifications (D29, D30, D139, D142, D193): the
  * channels (email, this device's push asked for only on Enable, the iPhone rule, "Push needs
  * HTTPS", other devices, webhooks with their secret shown once), what reaches you (D239: one
  * table, all locations or one, inherited cells and Reset, paused kinds, a viewer's Membership

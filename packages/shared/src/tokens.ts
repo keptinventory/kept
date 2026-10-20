@@ -1,6 +1,6 @@
 /**
- * Personal tokens and OAuth grants (D15, D60, D63, D179, D180; engineering spec §3.2, §7.3,
- * §7.13). A personal token is `kpt_<lookup>_<secret>`: an 8-character lookup id the server finds
+ * Personal tokens and OAuth grants (D15, D60, D63, D179, D180).
+ * A personal token is `kpt_<lookup>_<secret>`: an 8-character lookup id the server finds
  * the row by, and a 32-byte random secret in base64url that only its HMAC is stored for. It is
  * shown once.
  */
@@ -24,10 +24,10 @@ export const TOKEN_REVOKED_REASONS = [
 ] as const;
 export type TokenRevokedReason = (typeof TOKEN_REVOKED_REASONS)[number];
 
-/** Per token, per minute (§3.2); MCP tool calls count by the tool's scope. */
+/** Per token, per minute; MCP tool calls count by the tool's scope. */
 export const TOKEN_RATE = Object.freeze({ readsPerMinute: 120, writesPerMinute: 30 });
 
-/** The OAuth scopes a connector asks for (step-6 plan Q7). */
+/** The OAuth scopes a connector asks for. */
 export const OAUTH_SCOPES = Object.freeze({ read: 'kept:read', write: 'kept:write' });
 
 export const TOKEN_LOOKUP_LENGTH = 8;

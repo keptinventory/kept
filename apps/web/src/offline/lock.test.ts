@@ -1,5 +1,5 @@
 /**
- * The app lock's keys (step-8 plan T23; spike L1). PBKDF2 runs at a small count here: the count
+ * The app lock's keys. PBKDF2 runs at a small count here: the count
  * is stored with each wrap, so the code path is the same as the device's 2,850,000. WebAuthn is a
  * stub (agent rules: never a real authenticator): `navigator.credentials` answers with or without
  * a PRF secret, the two cases L1 found.

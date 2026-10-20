@@ -1,5 +1,5 @@
 /**
- * The one error-code enum (engineering spec §7.7). Every API error body carries one of these as
+ * The one error-code enum. Every API error body carries one of these as
  * `code`; `error` is the human sentence and `hint` the optional next step (D63's `{error, hint}`).
  * Step-1 codes, then step 2's; later steps add theirs here.
  */
@@ -31,62 +31,62 @@ export const ErrorCode = Object.freeze({
   account_deletion_pending: 'account_deletion_pending',
   /** 1.2 (D225): the account can't be deleted yet; the body carries `blockers`. */
   account_deletion_blocked: 'account_deletion_blocked',
-  /** Step 2: a registry row (type, place kind, brand, vendor, person, tag) is still referenced;
+  /** A registry row (type, place kind, brand, vendor, person, tag) is still referenced;
    * archive or merge it instead (D92, D160). */
   in_use: 'in_use',
-  /** Step 2: trashing a place or container that holds something needs `contents: 'move' |
+  /** Trashing a place or container that holds something needs `contents: 'move' |
    * 'trash'` (D160, D162); the body carries `counts: {places, things}`. */
   contents_choice_required: 'contents_choice_required',
-  /** Step 2: an upload over KEPT_MAX_FILE_MB (§3.4). */
+  /** An upload over KEPT_MAX_FILE_MB. */
   payload_too_large: 'payload_too_large',
-  /** Step 2: an upload whose sniffed content is not on the allow-list (D157). */
+  /** An upload whose sniffed content is not on the allow-list (D157). */
   unsupported_media_type: 'unsupported_media_type',
-  /** Step 2: an upload whose bytes don't match the SHA-256 the client declared (D117). */
+  /** An upload whose bytes don't match the SHA-256 the client declared (D117). */
   checksum_mismatch: 'checksum_mismatch',
-  /** Step 3: a sync batch holds a payload older than MIN_PAYLOAD_VERSION (D148, Q3). */
+  /** A sync batch holds a payload older than MIN_PAYLOAD_VERSION (D148). */
   client_outdated: 'client_outdated',
-  /** Step 3: a sync batch holds a payload newer than this server's PAYLOAD_VERSION (Q3). */
+  /** A sync batch holds a payload newer than this server's PAYLOAD_VERSION. */
   server_outdated: 'server_outdated',
-  /** Step 3: the event can't be undone: too late, not yours, or changed since (D150). */
+  /** The event can't be undone: too late, not yours, or changed since (D150). */
   undo_refused: 'undo_refused',
-  /** Step 3: a blank label was claimed first by someone else (D43, D112). */
+  /** A blank label was claimed first by someone else (D43, D112). */
   label_claimed: 'label_claimed',
-  /** Step 3: the location already has 1,000 unclaimed blank labels (D172, §3.1b). */
+  /** The location already has 1,000 unclaimed blank labels (D172). */
   blank_cap_reached: 'blank_cap_reached',
-  /** Step 3: no AI provider resolves for this location, or the provider failed (D19, D121). */
+  /** No AI provider resolves for this location, or the provider failed (D19, D121). */
   ai_unavailable: 'ai_unavailable',
-  /** Step 3: the paying account's AI budget is used up; the body carries `pausedUntil` (D19). */
+  /** The paying account's AI budget is used up; the body carries `pausedUntil` (D19). */
   ai_paused: 'ai_paused',
-  /** Step 3: a URL resolves to a private address and private addresses are off (D83, Q9). */
+  /** A URL resolves to a private address and private addresses are off (D83). */
   private_address: 'private_address',
-  /** Step 3: a location's AI cap above its account's cap in the same unit (D206, §7.15). */
+  /** A location's AI cap above its account's cap in the same unit (D206). */
   cap_above_account: 'cap_above_account',
-  /** Step 3: "Resume now" while usage is still at the cap: raise or remove it (§7.15). */
+  /** "Resume now" while usage is still at the cap: raise or remove it. */
   ai_cap_still_reached: 'ai_cap_still_reached',
-  /** Step 3: an AI cap or price in a currency the instance hasn't turned on (§7.15). */
+  /** An AI cap or price in a currency the instance hasn't turned on. */
   currency_not_enabled: 'currency_not_enabled',
-  /** Step 4: a warranty needs quantity 1; split the row first (D10, step-4 plan Q26). */
+  /** A warranty needs quantity 1; split the row first (D10). */
   quantity_not_one: 'quantity_not_one',
-  /** Step 4: the thing already has an open loan (one per thing, §7.13). */
+  /** The thing already has an open loan (one per thing). */
   already_on_loan: 'already_on_loan',
-  /** Step 4: the thing already has a claim in repair (one per thing). */
+  /** The thing already has a claim in repair (one per thing). */
   thing_in_repair: 'thing_in_repair',
-  /** Step 4: a thing with an open loan can't leave its location (Q17). */
+  /** A thing with an open loan can't leave its location. */
   open_loan: 'open_loan',
-  /** Step 4: a thing with a claim in repair can't leave its location (Q17). */
+  /** A thing with a claim in repair can't leave its location. */
   open_claim: 'open_claim',
-  /** Step 4: a status change the record's transitions don't allow (a claim's, Q18). */
+  /** A status change the record's transitions don't allow (a claim's). */
   invalid_transition: 'invalid_transition',
-  /** Step 4: a schedule needs an interval in months or units, or a date (screens §7). */
+  /** A schedule needs an interval in months or units, or a date. */
   schedule_interval_required: 'schedule_interval_required',
-  /** Step 4: no exchange rate for a pair on or before the date; the body lists `missing`
-   * pairs (D76, Q21). Never estimated. */
+  /** No exchange rate for a pair on or before the date; the body lists `missing`
+   * pairs (D76). Never estimated. */
   rate_missing: 'rate_missing',
-  /** Step 4: web push isn't set up on this server, or this device can't receive it (Q11, V8). */
+  /** Web push isn't set up on this server, or this device can't receive it. */
   push_unavailable: 'push_unavailable',
-  /** Step 4: a test send to a channel (webhook, push) failed to arrive. */
+  /** A test send to a channel (webhook, push) failed to arrive. */
   channel_unreachable: 'channel_unreachable',
-  /** Step 4: a download link (a claim pack's) is unknown, revoked or expired (Q19). */
+  /** A download link (a claim pack's) is unknown, revoked or expired. */
   link_expired: 'link_expired',
   /** 1.10.5 (#141): an email was asked for (a report mailed or scheduled) and this server has no
    * mail transport (KEPT_SMTP_URL unset). Refused rather than accepted and dropped. */
@@ -94,70 +94,70 @@ export const ErrorCode = Object.freeze({
   /** 1.10.5 (#141): an email was asked for and the account has no address Kept can send to (a
    * managed account, D47). */
   no_email_address: 'no_email_address',
-  /** Step 5: a reading a fuel entry or service record owns is changed through its owner (Q11);
+  /** A reading a fuel entry or service record owns is changed through its owner;
    * the body carries `ownedBy: {type: 'fuel' | 'service', id}`. */
   reading_owned: 'reading_owned',
-  /** Step 5: a draft service record (an invoice read by AI) is finished before it's used (Q12). */
+  /** A draft service record (an invoice read by AI) is finished before it's used. */
   service_draft: 'service_draft',
-  /** Step 5: a fill's odometer needs the thing to have a meter. */
+  /** A fill's odometer needs the thing to have a meter. */
   fuel_needs_meter: 'fuel_needs_meter',
-  /** Step 6: the token is revoked or expired; make a new one (§5). */
+  /** The token is revoked or expired; make a new one. */
   token_revoked: 'token_revoked',
-  /** Step 6: a token called a route or tool its scope or the route's catalogue entry doesn't
-   * allow (Q20). */
+  /** A token called a route or tool its scope or the route's catalogue entry doesn't
+   * allow. */
   token_scope: 'token_scope',
-  /** Step 6: the tool isn't offered here: its module is off, the location isn't reachable, or no
+  /** The tool isn't offered here: its module is off, the location isn't reachable, or no
    * handler exists yet. The same answer for each, so nothing leaks (D113). */
   tool_unavailable: 'tool_unavailable',
-  /** Step 6: a proposal's 10 minutes are up (D22). */
+  /** A proposal's 10 minutes are up (D22). */
   proposal_expired: 'proposal_expired',
-  /** Step 6: the proposal's target changed since it was proposed (screens §5). */
+  /** The proposal's target changed since it was proposed. */
   proposal_conflict: 'proposal_conflict',
-  /** Step 6: the thread already has a turn in flight (Q21). */
+  /** The thread already has a turn in flight. */
   turn_running: 'turn_running',
-  /** Step 6: what was asked for was removed when access ended (D164). */
+  /** What was asked for was removed when access ended (D164). */
   thread_redacted: 'thread_redacted',
-  /** Step 7: an archive Kept won't read; the body's `reason` says why (ARCHIVE_REFUSALS, D157). */
+  /** An archive Kept won't read; the body's `reason` says why (ARCHIVE_REFUSALS, D157). */
   archive_invalid: 'archive_invalid',
-  /** Step 7: an archive over the upload cap or the 5 GB uncompressed cap (§3.1b). */
+  /** An archive over the upload cap or the 5 GB uncompressed cap. */
   archive_too_large: 'archive_too_large',
-  /** Step 7: the passphrase doesn't open the export's secrets (D68). */
+  /** The passphrase doesn't open the export's secrets (D68). */
   passphrase_wrong: 'passphrase_wrong',
-  /** Step 7: a passphrase shorter than PASSPHRASE_MIN, or the two entries differ (Q7). */
+  /** A passphrase shorter than PASSPHRASE_MIN, or the two entries differ. */
   passphrase_weak: 'passphrase_weak',
-  /** Step 7: an export past its seven days (§3.3). */
+  /** An export past its seven days. */
   export_expired: 'export_expired',
-  /** Step 7: an export is already running for that location (Q17). */
+  /** An export is already running for that location. */
   export_running: 'export_running',
-  /** Step 7: an archive import needs its target location first (screens §6). */
+  /** An archive import needs its target location first. */
   import_target_needed: 'import_target_needed',
-  /** Step 7: a field of this kind can't be converted to that one (CONVERSIONS, D172). */
+  /** A field of this kind can't be converted to that one (CONVERSIONS, D172). */
   field_convert_blocked: 'field_convert_blocked',
-  /** Step 7: "Keep at least" needs a consumable type (D14). */
+  /** "Keep at least" needs a consumable type (D14). */
   not_consumable: 'not_consumable',
   /** 1.x (D236): a service line takes more of a consumable than is left; the body names the
    * thing (`thing: {id, name}`) and what is left (`left`). */
   not_enough_stock: 'not_enough_stock',
-  /** Step 7: the optional Homebox connection failed: unreachable, a redirect, a refused key or
-   * sign-in, or an answer that isn't Homebox's (502, plan T11). */
+  /** The optional Homebox connection failed: unreachable, a redirect, a refused key or
+   * sign-in, or an answer that isn't Homebox's (502). */
   homebox_unreachable: 'homebox_unreachable',
-  /** Step 8: no backup target with a password is set (plan Q6: no password, no backup). */
+  /** No backup target with a password is set (no password, no backup). */
   backup_not_configured: 'backup_not_configured',
-  /** Step 8: a backup run (nightly, manual or pre-upgrade) already holds the lock. */
+  /** A backup run (nightly, manual or pre-upgrade) already holds the lock. */
   backup_running: 'backup_running',
-  /** Step 8: the backup target can't be reached (a directory, a bucket or an SFTP server). */
+  /** The backup target can't be reached (a directory, a bucket or an SFTP server). */
   backup_target_unreachable: 'backup_target_unreachable',
-  /** Step 8: a backup password shorter than BACKUP_PASSWORD_MIN (plan Q6). */
+  /** A backup password shorter than BACKUP_PASSWORD_MIN. */
   backup_password_weak: 'backup_password_weak',
-  /** Step 8: a setting the server's environment fixes was changed (D186, §7.11). */
+  /** A setting the server's environment fixes was changed (D186). */
   setting_locked: 'setting_locked',
-  /** Step 8: restic failed; the body's `reason` is a RESTIC_ERROR_REASONS code. */
+  /** Restic failed; the body's `reason` is a RESTIC_ERROR_REASONS code. */
   restic_failed: 'restic_failed',
-  /** Step 8: a secret, an export or an admin change over plain HTTP (D181). */
+  /** A secret, an export or an admin change over plain HTTP (D181). */
   https_required: 'https_required',
-  /** Step 8: the database is more than one release ahead of this image (plan Q9). */
+  /** The database is more than one release ahead of this image. */
   downgrade_refused: 'downgrade_refused',
-  /** Step 8: keeping this offline would pass the device's cap (KEEP_OFFLINE, plan Q21). */
+  /** Keeping this offline would pass the device's cap (KEEP_OFFLINE). */
   keep_offline_too_large: 'keep_offline_too_large',
   /** 1.x (D248): the location's Paperless-ngx server didn't answer, refused its token, or
    * answered unlike Paperless (502); the body's `paperlessError` says which. */
@@ -262,7 +262,7 @@ export const CONNECTIONS_ERROR_MESSAGES: Readonly<Record<ConnectionsErrorCode, s
   });
 
 /**
- * The next step for each step-6 code: the `hint` of D63's `{error, hint}` (engineering spec §5),
+ * The next step for each step-6 code: the `hint` of D63's `{error, hint}`,
  * for API bodies and for MCP tool errors, which a model reads.
  */
 export const CONNECTIONS_ERROR_HINTS: Readonly<Record<ConnectionsErrorCode, string>> =
@@ -280,7 +280,7 @@ export const CONNECTIONS_ERROR_HINTS: Readonly<Record<ConnectionsErrorCode, stri
  * Step 5's error codes. A reading that doesn't fit (a fill's or a confirmed draft's odometer running
  * backwards) has no code of its own: it is step 4's 409 `conflict` with `reason`
  * (`lower_than_previous` | `higher_than_next`) and the neighbour (`previous` | `next`:
- * `{value, takenAt}`), exactly as the meters and service records refuse one (the step-5 plan's
+ * `{value, takenAt}`), exactly as the meters and service records refuse one (the
  * `reading_refused`; its T1 reuses step 4's code).
  */
 export type VehicleErrorCode = 'reading_owned' | 'service_draft' | 'fuel_needs_meter';

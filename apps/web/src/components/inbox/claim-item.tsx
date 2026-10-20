@@ -1,5 +1,5 @@
 /**
- * A lost label claim (D43, D112, engineering spec §5): a blank label you claimed offline had
+ * A lost label claim (D43, D112): a blank label you claimed offline had
  * already been claimed on another phone. "This label was claimed on another phone for Box 3" ·
  * Open that box · Dismiss (your thing keeps its pending ID, and gets another label later).
  */

@@ -1,5 +1,5 @@
 /**
- * One notification in the centre (plan T24; D29, D39, D57, step-4 Q32; frame "7 · Notification
+ * One notification in the centre (D29, D39, D57; frame "7 · Notification
  * centre · phone · light"): what it's about, where (the thing or place and its path, which starts
  * with the location), the local date it's due or runs out, and its next step inline:
  *
@@ -10,9 +10,9 @@
  * - a document: **Renew** (T23's sheet);
  * - anything else: **Open** the thing, place or location.
  *
- * Every action goes through the source's own route (Q32) and marks the notification read. A
+ * Every action goes through the source's own route and marks the notification read. A
  * reminder whose source moved on reads Done, Replaced or No longer due, without actions. Actions
- * follow screens §3: the server leaves out the ones the role can't take, and offline they're
+ * follow the role rules: the server leaves out the ones the role can't take, and offline they're
  * disabled. Notices (a member joined or left, an AI cap, the AI summary, a download ready) link
  * to where they're dealt with.
  */
@@ -114,7 +114,7 @@ function useReminderTitle() {
       }
       case 'schedule':
         return r.title === on ? r.title : `${r.title}${sep()}${on}`;
-      // A stale reading (step 5): its meter's label, or none.
+      // A stale reading: its meter's label, or none.
       case 'reading_stale':
         return r.title ? `${r.title}${sep()}${on}` : t`Reading needed · ${on}`;
     }
@@ -144,7 +144,7 @@ function When({ r, today }: { r: Reminder; today: string }) {
     case 'loan':
       return <Trans>Was due back {day}</Trans>;
     case 'schedule': {
-      // Overdue by the meter while its day is still ahead (T29): the reading passed it.
+      // Overdue by the meter while its day is still ahead: the reading passed it.
       if (late && r.dueValue !== null && r.dueOn >= today) {
         const n = Number(r.dueValue);
         const at = Number.isFinite(n) ? f.num(n) : r.dueValue;
@@ -568,7 +568,7 @@ function NoticeRow({ n, actions }: { n: Notification; actions: RowActions }) {
     </div>
   ) : null;
   if (kind === 'location' || kind === 'me') {
-    // A Kept export (step 7): its download is on Settings → Export, with the run's other details.
+    // A Kept export: its download is on Settings → Export, with the run's other details.
     return (
       <Frame
         n={n}

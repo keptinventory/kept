@@ -1,16 +1,16 @@
 /**
- * Push on this device, the page's half (plan T25; D30, D139, D193). The worker's half is
+ * Push on this device, the page's half (D30, D139, D193). The worker's half is
  * ./push-worker.ts.
  *
  * - **Where push can work** (`pushBlocker`): a secure context (plain HTTP: "Push needs HTTPS",
  *   D193), the server's VAPID key (`push.available`), a browser with service workers, the Push API
- *   and notifications, and on an iPhone or iPad only the installed app (D139, V8: iOS 16.4+ gives
+ *   and notifications, and on an iPhone or iPad only the installed app (D139; iOS 16.4+ gives
  *   push to Home Screen web apps alone).
  * - **The permission prompt appears only when the person taps Enable** (D139): `enablePush` is the
  *   one place `Notification.requestPermission()` is called, never on load.
  * - **This device's subscription** is the one the server answered with its id; the id is kept on
  *   this device (it isn't secret, and the server never returns endpoints), so Settings can tell
- *   "this device" from the others. The same endpoint posted again updates it (T15).
+ *   "this device" from the others. The same endpoint posted again updates it.
  */
 import { householdApi } from '@/api/household/queries';
 import { TRY } from '@/try/flag';

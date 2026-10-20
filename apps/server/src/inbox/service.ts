@@ -42,8 +42,8 @@ import { UpdateBody } from '../things/validate.js';
 import { restoreThing, trashThing } from '../trash/service.js';
 import { type InboxItem, ITEM_COLUMNS, type ItemRow, itemsOf, LIVE_SUBJECT } from './view.js';
 
-// The inbox's one-item actions (plan T15; D18, D19, D35, D36, D52, D112, D150, D189; screens §5,
-// §8). Every one takes the item's `rowVersion` as If-Match (412 when it moved on), runs as the
+// The inbox's one-item actions (D18, D19, D35, D36, D52, D112, D150, D189).
+// Every one takes the item's `rowVersion` as If-Match (412 when it moved on), runs as the
 // caller on kept_app, and is audited: the change it makes through the step-2 service that owns
 // it (`thing.update`, `thing.trash`, `purchase.update`, `reading.accept`, …), and the item's
 // resolution as `inbox.resolve` {kind, resolution}.
@@ -54,7 +54,7 @@ import { type InboxItem, ITEM_COLUMNS, type ItemRow, itemsOf, LIVE_SUBJECT } fro
 //
 // - accept (draft): the accepted suggestions and `set` are one `thing.update` (undoable, D150)
 //   with `review_state = 'confirmed'` and the field provenance in the same event, so undoing it
-//   puts the draft back. A vehicle card's `document` suggestion (step 5, Q15) becomes an
+//   puts the draft back. A vehicle card's `document` suggestion becomes an
 //   expiring document with the card's photo (acceptDocument). A thing needs a name: 400 without one. The auto-applied fields become
 //   `confirmed`, the accepted ones `confirmed`, and what `set` typed `manual`. Rejected and
 //   accepted suggestions leave the payload; the item resolves `edited` with a `set`, otherwise
@@ -62,9 +62,9 @@ import { type InboxItem, ITEM_COLUMNS, type ItemRow, itemsOf, LIVE_SUBJECT } fro
 // - discard (draft): the draft goes to the trash (`thing.trash`, undoable). The item is left
 //   open behind it, hidden like any item whose draft is in the trash, so the Undo toast brings
 //   both back; it goes with the draft when the trash is purged.
-// - currency: the draft purchase's currency, then the amounts AI read that waited for it (§7.8).
+// - currency: the draft purchase's currency, then the amounts AI read that waited for it.
 // - merge (duplicate): `into` is the survivor, either side of the pair; the other is merged into
-//   it by kept.merge_things() (D36, Q16), audited `thing.merge` with both as subjects.
+//   it by kept.merge_things() (D36), audited `thing.merge` with both as subjects.
 //   not-duplicate resolves `dismissed`.
 // - reading: Keep, Edit, Discard and "Meter replaced" are step 2's reading actions (D52, D112).
 //   A reading AI couldn't read (`needs_value`) is kept by typing its value.
@@ -279,7 +279,7 @@ export async function accept(ctx: Ctx, id: string, expected: number, body: Accep
   const custom: Record<string, unknown> = {};
   const aliases: Record<string, string[]> = {};
   for (const f of accepted) {
-    // Step 5 (Q15): a vehicle's card becomes a document, below, not an edit of the thing.
+    // A vehicle's card becomes a document, below, not an edit of the thing.
     if (f === 'document') continue;
     const e = suggestedEdit(byField.get(f) as Suggestion, rows[0]?.aliases ?? {});
     if (e.custom) Object.assign(custom, e.custom);
@@ -340,7 +340,7 @@ export async function accept(ctx: Ctx, id: string, expected: number, body: Accep
 const DocumentValue = z.object({ kind: z.enum(DOCUMENT_KINDS), expiresOn: z.iso.date() });
 
 /**
- * Step 5 (T10; D52; Q15): a vehicle's registration, insurance, licence or inspection card read
+ * Step 5 (D52): a vehicle's registration, insurance, licence or inspection card read
  * in LABEL mode, accepted, becomes an expiring document on the thing (step 4's create,
  * paperwork/documents.ts, audited `document.create`), and the card's photo is attached to it as
  * `registration` (audited `attachment.create`). The photo stays the thing's too: the label's
@@ -495,7 +495,7 @@ export async function merge(
     subjects: [from, into],
     requestId: ctx.requestId,
   });
-  // Contents, codes and names moved: the search documents and breadcrumbs follow (T20).
+  // Contents, codes and names moved: the search documents and breadcrumbs follow.
   await enqueueReindex(ctx.jobs, ctx.client, item.location_id);
   await resolveItem(ctx, item, 'merged');
   return {};
@@ -633,7 +633,7 @@ export async function reading(
       (typeof item.payload.takenAt === 'string' ? item.payload.takenAt : null) ??
       item.created_at.toISOString();
     const made = await createReading(rctx, meterId, { value: body.value, takenAt }, 'photo');
-    // Step 5 (Q10, D195): the photo it was read from proves that reading now.
+    // Step 5 (D195): the photo it was read from proves that reading now.
     if (typeof item.payload.attachmentId === 'string') {
       await moveProofToReading(ctx.client, item.payload.attachmentId, made.reading.id);
     }
@@ -652,7 +652,7 @@ export async function reading(
       // The reading's delete takes its item with it (inbox_items_meter_reading_fk): resolve first,
       // so the audit says how it left.
       await resolveItem(ctx, item, 'discarded');
-      // A fill's or a service's reading that landed here is its owner's; the owner follows (Q11).
+      // A fill's or a service's reading that landed here is its owner's; the owner follows.
       await deleteReading(rctx, readingId, { owned: 'allow' });
       return {};
     }

@@ -10,23 +10,23 @@ import { type Client, expectStatus, type Json, SeedError } from './client.js';
 import { ACCOUNT_STOCK, type AccountStock, LOCATION_STOCK, type PlaceSpec } from './inventory.js';
 import { photoJpeg, sha256Hex } from './photos.js';
 
-// The households' inventory (task 23; D152, D185): registries, custom types, places, things with
+// The households' inventory (D152, D185): registries, custom types, places, things with
 // their fields, purchases with lines and receipts, meters and readings, photos, a secret value
 // and saved views, all through the real routes, as the person the board shows doing it.
 //
 // Idempotent the way the step-1 steps are: each step looks first (by name, the natural key of
 // the declarations in inventory.ts) and does only what is missing. Fixed UUIDv7s can't be the
-// key: a client id must be within 7 days of the server's clock (assertClientId, §7.7), so a
+// key: a client id must be within 7 days of the server's clock (assertClientId), so a
 // second run a week later would be refused.
 //
 // Two steps are not routes, because no route exists for them yet, and run the service code on
 // kept_app inside withScope() as the location's owner, so row-level security and the audit
 // trail apply exactly as for a request:
-// - a place's fixed short ID: places/service.ts labelPlace() with the board's code (the label
+// - a place's fixed short ID: places/service.ts labelPlace() with the designs' code (the label
 //   route draws a random one);
 // - a thing's board code: a thing gets a random code when it is made and no route chooses one
 //   before step 3's labels, so the seed relabels it (relabelThing(), below): the random code
-//   stays as a secondary code, the board's becomes primary, audited as `thing.label`.
+//   stays as a secondary code, the designs' becomes primary, audited as `thing.label`.
 
 export type StockContext = {
   client: Client;
@@ -690,7 +690,7 @@ function firstThen(code: string): () => string {
 }
 
 /**
- * Gives a thing the board's code as its primary short ID. Every thing gets a random code when it
+ * Gives a thing the designs' code as its primary short ID. Every thing gets a random code when it
  * is made (things/service.ts createThing, D183), and no route chooses one before step 3's
  * labels, so this is a relabel as a pre-printed label would do it: the random code stays the
  * thing's (codes are never deleted or reissued, D112) but no longer primary, and the chosen code

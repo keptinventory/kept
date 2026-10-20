@@ -1,4 +1,4 @@
-/** Account → Templates (plan T30; D76, D177): list-standard, with the template sheet. */
+/** Account → Templates (D76, D177): list-standard, with the template sheet. */
 import { createFileRoute } from '@tanstack/react-router';
 import { LoadingRows } from '@/components/page';
 import { useRequestedAccountScope } from '@/components/registries/api';

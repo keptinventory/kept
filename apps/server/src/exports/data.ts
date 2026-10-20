@@ -1,7 +1,7 @@
 import type pg from 'pg';
 import { type EntityDef, type Field, fieldsOf } from './registry.js';
 
-// Reading an export's entities (plan T12): keyset pages of 1,000 rows, in the requester's scoped
+// Reading an export's entities: keyset pages of 1,000 rows, in the requester's scoped
 // transaction, so row-level security decides what an export holds exactly as it decides what a
 // request sees. Every query is built from the registry (registry.ts): its columns, its scope, the
 // money gate and the "rows of things the export leaves out" rule. Nothing here takes a name from

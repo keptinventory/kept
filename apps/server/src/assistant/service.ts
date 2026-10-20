@@ -8,12 +8,12 @@ import type { JobQueue } from '../jobs/queue.js';
 import type { TurnJobData } from './loop.js';
 import { resolveContext, type TurnView, threadRow, titleOf, turnView } from './threads.js';
 
-// Asking and cancelling (step-6 plan T13's route table; D22, D166, D206; Q2, Q21; §7.15). A
+// Asking and cancelling (D22, D166, D206). A
 // question is stored with its turn and the turn's job **in one transaction**, so a turn exists
 // only with its job; the job runs in the asker's scope (D166). One live turn per thread (409
 // `turn_running`, enforced by assistant_turns_one_live_uq). No provider → 400 `ai_unavailable`;
 // the context's location paused → 409 `ai_paused` (the assistant is refused while paused, never
-// queued, §7.15).
+// queued).
 
 export const ASSISTANT_TURN_JOB = 'assistant-turn';
 
@@ -109,7 +109,7 @@ export async function ask(
 }
 
 /** POST /assistant/turns/:id/cancel: a live turn stops before its next step (a call in flight
- * still settles and is billed, Q21). */
+ * still settles and is billed). */
 export async function cancelTurn(client: pg.ClientBase, id: string, now: Date): Promise<TurnView> {
   const { rows } = await client.query<{ status: string }>(
     'SELECT status FROM public.assistant_turns WHERE id = $1 FOR UPDATE',

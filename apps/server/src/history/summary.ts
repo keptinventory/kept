@@ -9,7 +9,7 @@ import {
 import type { RenderedAuditEvent } from '../audit/render.js';
 import { arrangeLines, layoutOf, type NodeName } from './arrange.js';
 
-// One line per history or activity row (plan T21; T27 decision; #140): a structured `summaryKey`
+// One line per history or activity row (T27 decision; #140): a structured `summaryKey`
 // with `summaryParams` that the web localises, and `summary`, the same sentence in English, as the
 // fallback. It is built from the *rendered* event, after renderAudit() has redacted it, so it
 // can never say more than the row it sits on: money and secrets never reach the params (the

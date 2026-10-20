@@ -1,5 +1,5 @@
 /**
- * The snapshot pull (plan T12, T24; engineering spec §2.2, §7.4; D156). The first sync sends no
+ * The snapshot pull (D156). The first sync sends no
  * cursor and gets everything; every later one sends the cursor the last page left, and gets only
  * what changed since the previous complete pass (T12's xid watermark), plus tombstones
  * (`removed`) and locations the person lost (`revokedLocationIds`), which the store deletes at

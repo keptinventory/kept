@@ -1,6 +1,6 @@
 /**
- * Every step-4 server path the web app calls, in one place. Each comes from the route tables of
- * the step-4 plan's Phase B (tasks 8–18) and lands in the matching
+ * Every step-4 server path the web app calls, in one place. Each comes from the server's route tables
+ * and lands in the matching
  * `apps/server/src/<area>/routes.ts` (task 2's stubs). A path the server names differently is
  * fixed here and nowhere else. Task 30's contract check reads `HOUSEHOLD_METHODS` against the
  * server's openapi.json, as steps 2 and 3 do with `METHODS` and `CAPTURE_METHODS`.
@@ -16,14 +16,14 @@ const V1 = '/api/v1';
 const seg = (value: string) => encodeURIComponent(value);
 
 export const householdPaths = {
-  // ----- money: exchange rates and valuations (T8) -----
+  // ----- money: exchange rates and valuations ----------
   fxRates: (accountId: string) => `${V1}/accounts/${seg(accountId)}/fx-rates`,
   fxRate: (accountId: string, from: string, to: string, validFrom: string) =>
     `${V1}/accounts/${seg(accountId)}/fx-rates/${seg(from)}/${seg(to)}/${seg(validFrom)}`,
   thingValuations: (id: string) => `${V1}/things/${seg(id)}/valuations`,
   valuation: (id: string) => `${V1}/valuations/${seg(id)}`,
 
-  // ----- warranties, claims and brand logos (T9) -----
+  // ----- warranties, claims and brand logos ----------
   thingWarranties: (id: string) => `${V1}/things/${seg(id)}/warranties`,
   thingWarrantyDefaults: (id: string) => `${V1}/things/${seg(id)}/warranty-defaults`,
   warranty: (id: string) => `${V1}/warranties/${seg(id)}`,
@@ -32,7 +32,7 @@ export const householdPaths = {
   claim: (id: string) => `${V1}/claims/${seg(id)}`,
   brandLogo: (id: string) => `${V1}/brands/${seg(id)}/logo`,
 
-  // ----- lending and borrowing (T10) -----
+  // ----- lending and borrowing -----------
   thingLend: (id: string) => `${V1}/things/${seg(id)}/lend`,
   locationBorrow: (id: string) => `${V1}/locations/${seg(id)}/borrow`,
   loans: `${V1}/loans`,
@@ -42,7 +42,7 @@ export const householdPaths = {
   thingLoans: (id: string) => `${V1}/things/${seg(id)}/loans`,
   personLoans: (id: string) => `${V1}/people/${seg(id)}/loans`,
 
-  // ----- schedules and service records (T11) -----
+  // ----- schedules and service records -----------
   schedules: `${V1}/schedules`,
   schedule: (id: string) => `${V1}/schedules/${seg(id)}`,
   scheduleComplete: (id: string) => `${V1}/schedules/${seg(id)}/complete`,
@@ -56,16 +56,16 @@ export const householdPaths = {
   thingServiceRecords: (id: string) => `${V1}/things/${seg(id)}/service-records`,
   placeServiceRecords: (id: string) => `${V1}/places/${seg(id)}/service-records`,
 
-  // ----- the paperwork library and expiring documents (T12) -----
+  // ----- the paperwork library and expiring documents -----------
   paperwork: `${V1}/paperwork`,
   documents: `${V1}/documents`,
   document: (id: string) => `${V1}/documents/${seg(id)}`,
   documentRenew: (id: string) => `${V1}/documents/${seg(id)}/renew`,
 
-  // ----- the agenda (T13) -----
+  // ----- the agenda -----------
   agenda: `${V1}/agenda`,
 
-  // ----- channels and preferences (T15) -----
+  // ----- channels and preferences -----------
   notificationSettings: `${V1}/me/notification-settings`,
   notificationPreferences: `${V1}/me/notification-preferences`,
   /** 1.5.x (D239): DELETE a location's own choices. */
@@ -78,16 +78,16 @@ export const householdPaths = {
   pushSubscription: (id: string) => `${V1}/me/push-subscriptions/${seg(id)}`,
   pushSubscriptionTest: (id: string) => `${V1}/me/push-subscriptions/${seg(id)}/test`,
 
-  // ----- the notification centre (T16) -----
+  // ----- the notification centre -----------
   notifications: `${V1}/notifications`,
   notificationsCount: `${V1}/notifications/count`,
   notificationsRead: `${V1}/notifications/read`,
 
-  // ----- the calendar feed (T17) -----
+  // ----- the calendar feed -----------
   calendarFeeds: `${V1}/me/calendar-feeds`,
   calendarFeed: (id: string) => `${V1}/me/calendar-feeds/${seg(id)}`,
 
-  // ----- incidents, the insurance report and claim packs (T18) -----
+  // ----- incidents, the insurance report and claim packs -----------
   incidents: `${V1}/incidents`,
   incident: (id: string) => `${V1}/incidents/${seg(id)}`,
   incidentThings: (id: string) => `${V1}/incidents/${seg(id)}/things`,
@@ -101,7 +101,7 @@ export const householdPaths = {
 
 type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
-/** The methods the web app uses on each path (the contract check, task 30). */
+/** The methods the web app uses on each path (the contract check). */
 export const HOUSEHOLD_METHODS: Record<keyof typeof householdPaths, readonly Method[]> = {
   fxRates: ['GET', 'PUT'],
   fxRate: ['DELETE'],

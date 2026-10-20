@@ -1,5 +1,5 @@
 /**
- * The Fuel tab's trends (plan T21; D133, V38): consumption per full-to-full interval, and the price
+ * The Fuel tab's trends (D133): consumption per full-to-full interval, and the price
  * per unit per fill, each a line over time with "Show as table". A lazy chunk (fuel-tab.tsx loads
  * it with React.lazy), so the charts cost nothing until the tab is open.
  *
@@ -54,7 +54,7 @@ export function TrendChart({
   const values = points.map((p) => p.value);
   let t0 = Math.min(...times);
   let t1 = Math.max(...times);
-  // A little room either side, so the first point never sits on the value axis (V38).
+  // A little room either side, so the first point never sits on the value axis.
   const padT = Math.max((t1 - t0) * 0.04, 86_400_000);
   t0 -= padT;
   t1 += padT;
@@ -113,7 +113,7 @@ export function TrendChart({
       <p aria-hidden="true" className="m-0 min-h-5 text-small text-ink-2 tabular-nums">
         {shown ? `${f.day(shown.at)}: ${shown.text}` : null}
       </p>
-      {/* biome-ignore lint/a11y/useSemanticElements: an SVG chart's marks, grouped and named (V38) */}
+      {/* biome-ignore lint/a11y/useSemanticElements: an SVG chart's marks, grouped and named */}
       <svg
         viewBox={`0 0 ${W} ${H}`}
         role="group"
@@ -158,7 +158,7 @@ export function TrendChart({
         ) : null}
         <path d={path} fill="none" stroke="var(--s1)" strokeWidth="2" strokeLinejoin="round" />
         {points.map((p, i) => (
-          // biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: a mark is an image a keyboard can reach, one roving tab stop per chart (V38)
+          // biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: a mark is an image a keyboard can reach, one roving tab stop per chart
           <circle
             key={p.at}
             ref={(el) => {

@@ -1,5 +1,5 @@
 /**
- * The thing page's household parts (step 4, T20; screens §5 Thing detail, frames "Samsung TV" and
+ * The thing page's household parts (frames "Samsung TV" and
  * "Bosch drill on the Loans tab"): warranties with the coverage bar and their defaults, claims
  * with "Warranty saved you", the value behind the money gate, loans (lend, mark returned with
  * Undo), schedules, the derived states in the header and the action menu; the viewer, module-off
@@ -105,7 +105,7 @@ describe('the Samsung TV (in repair, two warranties)', () => {
       'aria-current',
       'step',
     );
-    // "In repair" once as the pill and once as the step, not in the eyebrow too (L5).
+    // "In repair" once as the pill and once as the step, not in the eyebrow too.
     expect(within(card).getByText('Claim · open')).toBeInTheDocument();
     expect(within(card).getAllByText('In repair')).toHaveLength(2);
     await user.click(within(card).getByRole('button', { name: 'Update' }));

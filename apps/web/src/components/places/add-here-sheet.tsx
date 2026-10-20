@@ -1,6 +1,6 @@
 /**
- * "Add here" (D45, screens §5): **Thing · Box / container · Room or spot**. "Room or spot" is the
- * UI word for any place (product design §6.2). Thing opens the full create sheet (task 26), with
+ * "Add here" (D45): **Thing · Box / container · Room or spot**. "Room or spot" is the
+ * UI word for any place. Thing opens the full create sheet, with
  * where already set to here; Box and Room or spot open a short sheet with an explicit Save, and
  * a toast offers to open what was made.
  *
@@ -55,7 +55,7 @@ export function AddHere({ locationId, thingTarget, placeParentId, hereName }: Ad
   const button =
     'flex min-h-11 flex-1 basis-0 flex-col items-center justify-center gap-1 px-2 py-2 text-center text-[12.5px] md:flex-row md:text-[13.5px]';
   const canPlace = placeParentId !== undefined;
-  // "+ Borrowed thing" (D56, T20): where Lending is on, a thing someone lent you comes in here.
+  // "+ Borrowed thing" (D56): where Lending is on, a thing someone lent you comes in here.
   const location = useLocation(locationId);
   const lending =
     !!location.data &&

@@ -13,7 +13,7 @@ import type { HeldAttachment } from './documents.js';
 import { imageOf } from './documents.js';
 import { readDocumentRow } from './view.js';
 
-// The undo handlers of expiring documents (plan T12, Q25; D124, D150, D172), registered with
+// The undo handlers of expiring documents (D124, D150, D172), registered with
 // audit/undo.ts:
 // - `document.update`: each field still holds what the edit wrote (else 409 changed_since), then
 //   goes back.
@@ -24,7 +24,7 @@ import { readDocumentRow } from './view.js';
 //   is left out.
 // - `document.renew`: the new term goes, while nothing was changed on it or added to it since
 //   (its files, a renewal of its own), and the old one is current again.
-// Step 5 (T12): an edit's and a delete's issue date and cost come back too; a cost is money, so
+// An edit's and a delete's issue date and cost come back too; a cost is money, so
 // its undo needs the money gate.
 
 const ENTITY = 'expiring_document';
@@ -39,7 +39,7 @@ async function refuse(args: UndoArgs, id: string, fields: string[]): Promise<nev
   throw undoConflict(fields, who);
 }
 
-/** Step 5 (T12): putting a cost back is a money write (409 `module_off` where it's hidden). */
+/** Putting a cost back is a money write (409 `module_off` where it's hidden). */
 async function requireMoney(args: UndoArgs): Promise<void> {
   const touches = Object.values(args.event.diff).some((c) => c.class === 'money');
   if (touches && !(await gateFor(args.tx, args.event.locationId, args.scope)).showMoney) {

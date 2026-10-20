@@ -22,7 +22,7 @@ import { things } from './things.js';
 // small cache (title, kind, type, correspondent, date) so the thing page shows something when
 // Paperless is down. "Copy into Kept" makes an ordinary attachment and records it on the link.
 //
-// The connection's URL and API token are sealed together (§7.3: table 'paperless_connections', row
+// The connection's URL and API token are sealed together (table 'paperless_connections', row
 // id, field 'config'; key version in `key_version`, so rotate-key finds it) and kept_app never
 // reads them: the server opens them through kept.paperless_config() after checking the caller's
 // access. `base_url` is kept in the clear too, for the settings page and "Open in Paperless".

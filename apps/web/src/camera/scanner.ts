@@ -1,6 +1,6 @@
 /**
- * The scanner (D101, D137; plan T26, V12): one decoder for the whole app. Scan, the box check's
- * "Found something else" and the capture camera's label recognition (T25) all read through
+ * The scanner (D101, D137): one decoder for the whole app. Scan, the box check's
+ * "Found something else" and the capture camera's label recognition all read through
  * `appDetect()`.
  *
  * - **The decoder:** the browser's own `BarcodeDetector` where it reads QR codes (Android
@@ -20,11 +20,11 @@ import type { Detect, Detected } from './label-recogniser';
 /** What the scanner reads (BarcodeDetector format names). */
 export const SCAN_FORMATS = ['qr_code', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] as const;
 
-/** About 8 decodes a second (V12). */
+/** About 8 decodes a second. */
 export const SCAN_FPS = 8;
 /** The long edge of the frame the decoder sees. */
 export const SCAN_MAX_SIDE = 960;
-/** V12's fallback for older phones, if the device check shows the loop can't keep up. */
+/** The fallback for older phones, if testing on a device shows the loop can't keep up. */
 export const SLOW_PHONE = { fps: 4, maxSide: 640 } as const;
 
 /** The decoder can't run on this device: the screen offers "Type the code" instead. */
@@ -126,7 +126,7 @@ export type ScanLoopOptions = {
 /**
  * Decodes what `video` shows, about `fps` times a second, and reports every frame that read
  * something. Answers a stop function. The frame's canvas is created with `willReadFrequently`,
- * because the ponyfill reads its pixels back on every decode (the spike's Chromium warning).
+ * because the ponyfill reads its pixels back on every decode (Chromium warns about it).
  */
 export function startScanLoop(
   video: HTMLVideoElement,
@@ -208,7 +208,7 @@ export function buzz(): void {
 
 /**
  * Decodes a QR code drawn on a canvas with the wasm reader, twice: whether the wasm runs here at
- * all (Safari under `'wasm-unsafe-eval'`, which the spike could only assume), how long the first
+ * all (Safari under `'wasm-unsafe-eval'`, which could only be assumed), how long the first
  * decode takes with the wasm's compile, and how long a frame takes after (V12's "fast enough on
  * older iPhones"). Facts only, for the copied report; nothing is sent.
  */

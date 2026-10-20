@@ -1,8 +1,8 @@
 /**
- * Undo (D150, D124; plan T20 and T31): `POST /api/v1/audit/:eventId/undo` reverses one event
+ * Undo (D150, D124): `POST /api/v1/audit/:eventId/undo` reverses one event
  * while its `undoable_until` window (7 days) is open. A refusal is 409 `undo_refused` with a
  * `reason` (api/capture/types.ts UndoRefusedDetails), which the toast says in words: "Can't
- * undo: Alfred changed Place since", with "Open the thing" to see what changed (screens §5).
+ * undo: Alfred changed Place since", with "Open the thing" to see what changed.
  *
  * Two ways in:
  * - a history or activity row offers Undo on an event that qualifies (`useUndo().canUndo`); a
@@ -13,7 +13,7 @@
  *   thing for a bulk move. A write without the header recorded nothing undoable, and its toast
  *   has no Undo (or the caller's own fallback, such as restoring from Trash).
  *
- * Offline, Undo says it needs a connection (screens §3); a write still queued on the phone is
+ * Offline, Undo says it needs a connection; a write still queued on the phone is
  * taken back locally by its own caller instead (the tray, the box check, "Undo this batch").
  *
  * The toast is announced politely and never takes focus (components/ui/toast.tsx).
@@ -57,11 +57,11 @@ export const UNDOABLE_ACTIONS: ReadonlySet<string> = new Set([
   // T17a (D208): own codes added, changed or removed (codes/undo.ts).
   'thing.codes',
   'place.codes',
-  // Step 4 (D150, Q25; the plan's "undoable" rows), as registered so far: an expiring document
+  // Step 4 (D150; the plan's "undoable" rows), as registered so far: an expiring document
   // changed, deleted or renewed (paperwork/undo.ts); an exchange rate set or deleted and a
   // valuation changed or deleted (money/undo.ts); an incident changed, deleted, or its things
   // changed (incidents/undo.ts); a schedule deleted and a service record logged by completing,
-  // changed or deleted (schedules/undo.ts). Plain creates never are (§7.7).
+  // changed or deleted (schedules/undo.ts). Plain creates never are.
   'document.update',
   'document.delete',
   'document.renew',
@@ -76,12 +76,12 @@ export const UNDOABLE_ACTIONS: ReadonlySet<string> = new Set([
   'service_record.create',
   'service_record.update',
   'service_record.delete',
-  // Step 5 (T19, T20): a reading logged or discarded (undo/registry.ts, meters/undo.ts), and a
+  // A reading logged or discarded (undo/registry.ts, meters/undo.ts), and a
   // draft service confirmed (services/drafts.ts). A draft itself isn't undoable: discard it.
   'reading.create',
   'reading.delete',
   'service_record.confirm',
-  // Step 7 (T17): a consumable's "keep at least" set, changed or removed (consumables/).
+  // A consumable's "keep at least" set, changed or removed (consumables/).
   'thing.stock_rule',
   // 1.x (D251): a moving box's state changed, and a box unpacked into its room (moving/).
   'move_box.update',
@@ -127,7 +127,7 @@ const online = () => typeof navigator === 'undefined' || navigator.onLine !== fa
 /** Why an undo was refused, in words: `changed` is true when something changed since. */
 export type Refusal = { title: string; changed: boolean };
 
-/** A failed undo, said the way screens §5 says it. */
+/** A failed undo, in the History screen's words. */
 export function useUndoRefusal() {
   const { t } = useLingui();
   const fieldLabel = useFieldLabel();
@@ -164,7 +164,7 @@ export function useUndoRefusal() {
 
 /**
  * The toasts after an undo: "Undone", or the refusal. When something changed since and the thing
- * is known, "Open the thing" goes to it (screens §5).
+ * is known, "Open the thing" goes to it.
  */
 function useReportUndo() {
   const { t } = useLingui();

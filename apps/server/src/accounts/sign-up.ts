@@ -16,7 +16,7 @@ import { ensureAccount } from './ensure-account.js';
 // Signing up (D33, D127, D190; security review of tasks 17–18 and of tasks 19–21). Better
 // Auth's public /sign-up/email is switched off (auth.ts DISABLED_AUTH_PATHS): it answered 422 for
 // a taken address. People sign up here, and only
-// - while sign-up is open (instance_settings `signup_open`, task 23), or
+// - while sign-up is open (instance_settings `signup_open`), or
 // - with a live invite. An email invite takes only its own address.
 // The answer is 202 `{next: 'sign-in'}` whether the address was free or already had an account,
 // with no session: the person signs in next either way, and then accepts the invite.
@@ -43,7 +43,7 @@ export const SIGNUP_OPEN_KEY = 'signup_open';
 
 /** Whether sign-up is open to anyone: `instance_settings.signup_open` is JSON `true`. Read as
  * kept_system (system_all on instance_settings, 0006): the caller has no session yet. Closed
- * when unset (carry-over: sign-up is closed by default). */
+ * when unset (sign-up is closed by default). */
 export async function readSignupOpen(systemPool: pg.Pool): Promise<boolean> {
   const { rows } = await systemPool.query<{ open: boolean }>(
     `SELECT value = 'true'::jsonb AS open FROM public.instance_settings WHERE key = $1`,
@@ -164,7 +164,7 @@ export async function signUpPerson(
     throw err;
   }
 
-  // The account (task 18): profile, owner account and Personal location from the first moment.
+  // The account: profile, owner account and Personal location from the first moment.
   // The user-created hook does the same, idempotently. A failure here leaves no half-made user:
   // it is deleted, and the answer is the same 202 (review I1).
   try {

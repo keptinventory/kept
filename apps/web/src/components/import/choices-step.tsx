@@ -1,5 +1,5 @@
 /**
- * Choices (plan T30 step 5; T18's `choices`): how place paths are split and whether missing places
+ * Choices (T18's `choices`): how place paths are split and whether missing places
  * are made, the date format (guessed from the file), the prices' currency when there's no currency
  * column, where a row without a place goes, and whether the type column is matched to types by
  * name. A choice that no mapped column needs isn't shown.

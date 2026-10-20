@@ -1,5 +1,5 @@
 /**
- * The DB-backed BudgetGate and Ledger (ports.ts; step-3 T6), one object for both ports because
+ * The DB-backed BudgetGate and Ledger (ports.ts), one object for both ports because
  * one door does both jobs: `kept.ai_reserve` holds the estimate and a payer slot, and
  * `kept.ai_settle` writes the ledger row, trues up every bucket and frees the slot in one
  * transaction. So:
@@ -28,7 +28,7 @@ import type {
   ReserveResult,
 } from './ports.js';
 
-/** DEFAULT_BUDGETS (Q7) as the door takes them. */
+/** DEFAULT_BUDGETS as the door takes them. */
 const DEFAULTS = Object.fromEntries(
   Object.entries(DEFAULT_BUDGETS).map(([task, b]) => [
     task,

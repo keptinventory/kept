@@ -1,5 +1,5 @@
 -- Custom SQL migration file, put your code below! --
--- Step 6, task 6: semantic search's storage and doors (D200, D207; plan Q12–Q15; spike S6.4).
+-- Semantic search's storage and doors (D200, D207).
 -- Above, in 0075, drizzle's part (src/db/schema/embeddings.ts): thing_embeddings (one
 -- undimensioned `vector` per thing and model, its length in dims, checked) and embedding_state
 -- (per location: the model, its source, the backfill's progress). pgvector itself is created with
@@ -11,9 +11,9 @@
 --      embedText() (src/db/embeddings.test.ts runs both on the same cases), fed by
 --      kept.embedding_text(thing): its name, aliases in every language, type (its own name or
 --      the built-in's names), brand, model, notes, the path from the location's name down to its
---      innermost container (kept.path_of()), and its receipt line's description and vendor (Q12).
+--      innermost container (kept.path_of()), and its receipt line's description and vendor.
 --      Never a secret (secret values live apart, D116), a serial, money, or a file's text.
---   3. The doors (§7.2: the distance operator isn't leakproof, so a match under RLS couldn't use
+--   3. The doors (the distance operator isn't leakproof, so a match under RLS couldn't use
 --      an index; it goes through a door, as keyword matches do):
 --      - kept.embedding_backlog(location, model_key, limit): live, named things whose vector for
 --        that model is missing or made from other text, missing ones first, with their text and
@@ -208,7 +208,7 @@ BEGIN
         updated_at = EXCLUDED.updated_at;
 END $$;
 --> statement-breakpoint
--- The only way to a semantic match (§7.2): exact, within the caller's visible locations (or one of
+-- The only way to a semantic match: exact, within the caller's visible locations (or one of
 -- them), one model, vectors of the query's length, live things only.
 CREATE FUNCTION kept.semantic_thing_ids(p_model_key text, p_query vector, p_location uuid,
                                         p_limit integer)

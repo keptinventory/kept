@@ -1,5 +1,5 @@
 /**
- * Admin → Backups' settings (plan T21; D64, D66, D181, D186, D193; Q3, Q6; frames 103–106): where
+ * Admin → Backups' settings (D64, D66, D181, D186, D193): where
  * backups go (a segmented Directory · S3-compatible · SFTP), the backup password, the night's time
  * and what is kept, then Save, Test and Run now.
  *
@@ -11,8 +11,8 @@
  * - Over plain HTTP the server refuses the writes (403 `https_required`, D181); the page says so
  *   before anyone tries, and Save and Test are off.
  * - The first save needs the recovery kit (409 `recovery_kit_required`, D193): the page then
- *   offers the kit's download (T22) and Save works again once it's kept.
- * - Test opens the repository with the SAVED settings (T10), so it waits for a save; a missing
+ *   offers the kit's download and Save works again once it's kept.
+ * - Test opens the repository with the SAVED settings, so it waits for a save; a missing
  *   repository can be created from its answer.
  */
 import {
@@ -161,7 +161,7 @@ function fieldOf(path: readonly PropertyKey[]): string {
   return a ?? 'form';
 }
 
-/** Words for the backup routes' refusals (T10), else the app's usual ones. */
+/** Words for the backup routes' refusals, else the app's usual ones. */
 export function useBackupErrorText() {
   const { t } = useLingui();
   const base = useErrorText();

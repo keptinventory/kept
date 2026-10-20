@@ -1,4 +1,4 @@
--- Step 3 follow-up: meters in the offline snapshot (READING offline; plan T12, T13). A SnapThing
+-- Step 3 follow-up: meters in the offline snapshot (READING offline). A SnapThing
 -- now carries its meters (sync/snapshot.ts), and the snapshot's delta reads a thing only when its
 -- change_xid moves. Adding a meter, or changing its kind, unit or label, doesn't touch the thing,
 -- so the phone would never learn of it. Below drizzle's column:
@@ -293,7 +293,7 @@ BEGIN
      WHERE id = r.id;
   END LOOP;
 
-  -- Sync (§7.4): gone from each source location; no longer gone from the target.
+  -- Sync: gone from each source location; no longer gone from the target.
   INSERT INTO public.sync_tombstones (location_id, entity_type, entity_id)
   SELECT x.loc, 'thing', x.id FROM unnest(set_ids, set_locs) AS x(id, loc)
    WHERE x.loc <> p_to_location

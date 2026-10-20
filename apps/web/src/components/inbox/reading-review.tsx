@@ -1,5 +1,5 @@
 /**
- * A reading that doesn't fit (D52, D112, engineering spec §5): "52,340 km is lower than 53,100 on
+ * A reading that doesn't fit (D52, D112): "52,340 km is lower than 53,100 on
  * 12 Oct", checked against its neighbours and sent here rather than rejected. Keep it (`a`), Edit
  * (`e`) the value, Discard (`d`), or record that the meter was replaced, with the old meter's last
  * reading as the offset, so the later readings are valid.

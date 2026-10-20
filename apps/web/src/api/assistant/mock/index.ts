@@ -1,5 +1,5 @@
 /**
- * Mock handlers for the assistant (step-6 plan T13's routes, for T19 and T20 to build on). Threads
+ * Mock handlers for the assistant (the assistant routes). Threads
  * are the caller's own only: another person's is a 404, as on the server (D23). A new question
  * makes a queued turn that runs on the next poll and answers on the one after, in the question's
  * language; a location whose AI is paused refuses it (`ai_paused`); a second live turn on a thread
@@ -108,7 +108,7 @@ export function assistantMockRoutes(state: MockState): MockRoute[] {
   };
   /**
    * A mock turn moves on as it's read: queued → running → done with a fixed answer. The fixture's
-   * running turn stays running, so a screen can show "Thinking…" (T19).
+   * running turn stays running, so a screen can show "Thinking…".
    */
   const advance = (t: StoredTurn) => {
     t.polls += 1;

@@ -13,7 +13,7 @@ import { PAGE_MAX } from '../http/conventions.js';
 import { type Many, manyOf, matchOf, notOf } from '../http/list-filters.js';
 import { legacyCodeOf } from '../imports/csv.js';
 
-// The search SQL (T20; engineering spec §7.9; D42, screens spec §8). Everything here runs on the
+// The search SQL (D42). Everything here runs on the
 // request's kept_app transaction, so row-level security decides what exists: a thing, place,
 // person or vendor the caller can't see is never a candidate, and so never a result, a
 // did-you-mean or a count.
@@ -33,9 +33,9 @@ import { legacyCodeOf } from '../imports/csv.js';
 // - a trigram match of the normalised name (pg_trgm's default threshold, 0.3);
 // - the normalised serial, exactly;
 // - a 6-character Crockford code of the thing (any of its codes), which also ranks first;
-// - a legacy or own code of the thing, typed whole (T17a, D146, D208), which ranks first too.
+// - a legacy or own code of the thing, typed whole (D146, D208), which ranks first too.
 //
-// The first four are matched by kept.search_thing_ids() (migration 0030, task 24): under RLS
+// The first four are matched by kept.search_thing_ids() (migration 0030): under RLS
 // neither `@@` nor `%` is leakproof, so a query on kept_app can't use their indexes and reads
 // every visible thing; the door runs the match on the indexes and applies the caller's
 // visibility itself, and the rows are then read here, through the policies, by id.
@@ -61,7 +61,7 @@ export const SearchQuery = z.object({
   state: manyOf(z.enum(SEARCH_STATES)).optional(),
   not: notOf(SEARCH_FILTERS).optional(),
   kind: z.enum(SEARCH_KINDS).optional(),
-  /** Money filters (screens §5): ignored, silently, where the caller can't see money. */
+  /** Money filters: ignored, silently, where the caller can't see money. */
   priceMin: Decimal.optional(),
   priceMax: Decimal.optional(),
   currency: z
@@ -159,7 +159,7 @@ export type ThingFilters = {
   type?: Many | undefined;
   tag?: Many | undefined;
   state?: Many<SearchState> | undefined;
-  /** Only these things (semantic search's candidates, T14): the other filters still apply. */
+  /** Only these things (semantic search's candidates): the other filters still apply. */
   ids?: readonly string[];
   /** Applied only in `locations`; absent when the caller sees money in none of them. */
   money?: {
@@ -213,7 +213,7 @@ const firstThumb = (thing: string) => `(
 
 /** A breadcrumb from kept.path_of(), each place step marked when it is the Unplaced area, and
  * each step with its primary short ID (null before one is assigned), so a breadcrumb links by
- * code (D208; step-3 carry-over, T19). */
+ * code (D208). */
 export const pathSql = (place: string, container: string) => `(
   SELECT coalesce(jsonb_agg(e || jsonb_build_object(
            'isUnplaced',
@@ -235,11 +235,11 @@ export const isContainerSql = (thing: string, type: string) =>
     OR EXISTS (SELECT 1 FROM public.things c
                 WHERE c.container_id = ${thing} AND c.deleted_at IS NULL))`;
 
-/** SQL: a claim of thing `t` (a table alias) is in repair (T9; D54: at most one is). */
+/** SQL: a claim of thing `t` (a table alias) is in repair (D54: at most one is). */
 const IN_REPAIR_SQL = (t: string) =>
   `EXISTS (SELECT 1 FROM public.claims c WHERE c.thing_id = ${t}.id AND c.status = 'in_repair')`;
 
-/** SQL: thing `t` has an open loan in `direction` (one open loan per thing, §7.13). */
+/** SQL: thing `t` has an open loan in `direction` (one open loan per thing). */
 const OPEN_LOAN_SQL = (t: string, direction: 'out' | 'in') =>
   `EXISTS (SELECT 1 FROM public.loans o
             WHERE o.thing_id = ${t}.id AND o.returned_at IS NULL AND o.direction = '${direction}')`;
@@ -248,7 +248,7 @@ export const STATE_SQL: Record<SearchState, string> = {
   uncertain: 't.location_uncertain',
   draft: `t.review_state = 'draft'`,
   ended: `t.lifecycle <> 'in_use'`,
-  // Home's attention rows (T29): readings to review, not seen for the location's
+  // Home's attention rows: readings to review, not seen for the location's
   // long_unseen_months, and things in the Unplaced area.
   to_review: `EXISTS (SELECT 1 FROM public.meters m
                         JOIN public.meter_readings r ON r.meter_id = m.id
@@ -274,9 +274,9 @@ export type StateFlags = {
   location_uncertain: boolean;
   review_state: string;
   lifecycle: string;
-  /** T9: a claim is in repair (householdStateSql). */
+  /** A claim is in repair (householdStateSql). */
   in_repair?: boolean | null;
-  /** T10: the direction of the open loan, if any (householdStateSql). */
+  /** The direction of the open loan, if any (householdStateSql). */
   loan_direction?: 'out' | 'in' | null;
 };
 
@@ -578,8 +578,8 @@ export function nearWords(q: string): { literals: string[]; patterns: string[] }
 
 /**
  * Up to three names close to `q`, for a search that found nothing: things and places whose name
- * has a word one edit from a query word first, then names by trigram similarity at 0.25 (plan
- * T20). Only names the caller can see.
+ * has a word one edit from a query word first, then names by trigram similarity at 0.25.
+ * Only names the caller can see.
  */
 export async function didYouMean(
   client: pg.ClientBase,
@@ -607,7 +607,7 @@ export async function didYouMean(
   const isNear = (name: string) => `EXISTS (
       SELECT 1 FROM unnest(tsvector_to_array(to_tsvector('simple', kept.normalize(${name})))) w
        WHERE w = ANY (${lits}::text[]) OR w LIKE ANY (${pats}::text[]))`;
-  // Things through kept.near_thing_names() (migration 0030, task 24): the same two arms on the
+  // Things through kept.near_thing_names() (migration 0030): the same two arms on the
   // indexes, with the near words taken from the names' and aliases' lexemes instead of
   // normalising every visible name; places, a few hundred at most, as they are.
   const { rows } = await client.query<{ name: string }>(

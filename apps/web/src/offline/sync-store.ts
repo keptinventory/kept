@@ -1,5 +1,5 @@
 /**
- * What the sync engine needs from a store beyond the screens' `OfflineStore` (plan T24). Kept
+ * What the sync engine needs from a store beyond the screens' `OfflineStore`. Kept
  * apart from store.ts on purpose: screens never settle ops, mark uploads or prune the queue, so
  * none of this is on the interface they code against, and `MemoryStore` (tests, the demo) doesn't
  * have to implement it. `DexieStore` does.

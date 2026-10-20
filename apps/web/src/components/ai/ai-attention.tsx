@@ -1,5 +1,5 @@
 /**
- * Home's "AI paused · Resume" row (D206, screens §5 "AI paused and waiting"): for whoever can
+ * Home's "AI paused · Resume" row (D206): for whoever can
  * resume, one row per pausing cap, styled like the attention panel's rows, opening the Resume sheet.
  * Everyone else learns about the pause where AI would act (Capture, the inbox, drafts).
  */

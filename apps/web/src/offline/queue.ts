@@ -1,5 +1,5 @@
 /**
- * The queue's rules, as pure functions over entries (plan T24; engineering spec §2.3, §7.4; D35,
+ * The queue's rules, as pure functions over entries (D35,
  * D112, D148). The sync engine asks these what to upload and what to send; the store only keeps
  * the entries.
  *
@@ -74,7 +74,7 @@ export function nextBatch(
 }
 
 /**
- * The `class` an upload is stored under (engineering spec §1: evidence · photo · document ·
+ * The `class` an upload is stored under (evidence · photo · document ·
  * video). THING mode's shrunk JPEG is a photo (D34); the evidence modes' untouched originals
  * and a reading's proof are evidence (D117).
  */

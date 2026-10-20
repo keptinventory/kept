@@ -1,5 +1,5 @@
 /**
- * Semantic search's notes (step-6 plan T24; D200, D206, §7.15): when the server searched by words
+ * Semantic search's notes (D200, D206): when the server searched by words
  * only, Search says why, quietly, above the results: "Semantic search paused · keyword results"
  * (a cap, until when), the provider's limit, the server's embeddings off, or "Keyword search only
  * here (no embeddings model)". Nothing when meaning was searched too. Offline, search runs on the
@@ -39,7 +39,7 @@ export function SemanticNote({ semantic }: { semantic: SemanticState | null | un
   );
 }
 
-/** "matched by meaning": a result found by what it is, not by its words (screens §8's twin). */
+/** "matched by meaning": a result found by what it is, not by its words. */
 export function MatchedByMeaning() {
   return (
     <span className="text-small text-ink-2">

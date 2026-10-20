@@ -1,5 +1,5 @@
 /**
- * Search's Documents group (screens §5 Search, frame 04 · 1; §8; plan T21): attachments whose
+ * Search's Documents group (frame 04 · 1): attachments whose
  * file's text matches (a PDF's text layer, or a receipt's), from `documents` of GET /search.
  *
  * - Each row names the document's role and what it is attached to ("Manual · Bosch drill"), the
@@ -10,7 +10,7 @@
  * - A thing or a place opens its page, and so does an incident; a purchase, a reading or a
  *   location has no page of its own here, so its row doesn't link. A step-4 record's document
  *   (a warranty's card, a loan's photos…) comes named by the thing or place it's about.
- * - Offline, the group is a placeholder, "Documents need a connection" (§8): file text is never
+ * - Offline, the group is a placeholder, "Documents need a connection": file text is never
  *   kept on the phone (D159).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -158,7 +158,7 @@ export function DocumentsGroup({
   );
 }
 
-/** Offline: documents are searched on the server only (screens §8). */
+/** Offline: documents are searched on the server only. */
 export function DocumentsOffline() {
   return (
     <Section title={<Trans>Documents</Trans>}>

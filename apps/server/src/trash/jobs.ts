@@ -6,7 +6,7 @@ import { JOB_POLICIES } from '../jobs/policies.js';
 import type { SystemJobDeps } from '../jobs/system.js';
 import type { BlobStore } from '../storage/blob-store.js';
 
-// The `purge` system job (T21; D149, D161, D162; engineering spec §3.3), daily at 03:17 UTC.
+// The `purge` system job (D149, D161, D162), daily at 03:17 UTC.
 // It runs on kept_system and only calls the maintenance doors of migration 0022, each in its own
 // transaction:
 // 1. kept.purge_trash(now() - 30 days, 500), again while a round fills its limit: things and
@@ -30,7 +30,7 @@ import type { BlobStore } from '../storage/blob-store.js';
 // Without file storage (a worker started with none configured) steps 2, 2b and 3 are skipped
 // outright and logged: running them would delete the rows and orphan their blobs for good.
 
-/** How long something stays in the trash before it is purged (D162, §3.3). */
+/** How long something stays in the trash before it is purged (D162). */
 export const TRASH_DAYS = 30;
 
 const TRASH_BATCH = 500;

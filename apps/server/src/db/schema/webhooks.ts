@@ -16,8 +16,8 @@ import {
 import { id, mutable, textEnum, tstz } from './common.js';
 import { locations } from './tenancy.js';
 
-// Outbound webhooks per location (step-6 plan T7; engineering spec §1.10, §2.6, §3.1b; D63, D110,
-// D172, D180; plan Q18). A hook's signing secret is sealed (§7.3: table 'webhooks', row id, field
+// Outbound webhooks per location (D63, D110,
+// D172, D180). A hook's signing secret is sealed (table 'webhooks', row id, field
 // 'secret'; its key version in `key_version`, as every sealed column, so rotate-key finds it) and
 // write-only: kept_app can't SELECT it, the delivery job opens it through
 // kept.webhook_secret(). Payloads carry ids and field names only (@kept/shared webhooks.ts).
@@ -61,7 +61,7 @@ export const webhooks = pgTable(
   ],
 );
 
-/** One event's delivery to one hook (§3.1b): 10 attempts over 24 hours, then `gave_up`. */
+/** One event's delivery to one hook: 10 attempts over 24 hours, then `gave_up`. */
 export const webhookDeliveries = pgTable(
   'webhook_deliveries',
   {

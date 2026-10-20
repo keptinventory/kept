@@ -1,5 +1,5 @@
 /**
- * The thing's schedules (screens §5 "Schedules"; T20 over T21's parts): each with its next due
+ * The thing's schedules (T20 over T21's parts): each with its next due
  * point and state, and T21's row actions and sheets (Complete, Snooze, Edit, Log a service), so
  * the thing page and the Schedules screen behave the same. "New schedule" opens T21's sheet on
  * this thing. With Schedules off here the tab isn't shown (thing-screen.tsx).
@@ -26,11 +26,11 @@ export function ThingSchedulesSection({
   empty,
   footer,
 }: {
-  /** Beside a row's due pill (a vehicle's estimated date, step 5). */
+  /** Beside a row's due pill (a vehicle's estimated date). */
   note?: (s: Schedule) => ReactNode;
-  /** Instead of "Nothing scheduled" (a vehicle's starter schedules, step 5). */
+  /** Instead of "Nothing scheduled" (a vehicle's starter schedules). */
   empty?: ReactNode;
-  /** Under the list (what a vehicle's estimates rest on, step 5). */
+  /** Under the list (what a vehicle's estimates rest on). */
   footer?: ReactNode;
 } = {}) {
   const { thing, can } = useThingCtx();

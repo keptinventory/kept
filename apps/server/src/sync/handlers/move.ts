@@ -10,7 +10,7 @@ import {
 } from './common.js';
 
 // `move` → step 2's move service (things/move.ts), within a location or across two (the op's
-// `locationId` is the destination's). Queue ops skip `row_version` (§7.4): the latest change wins,
+// `locationId` is the destination's). Queue ops skip `row_version`: the latest change wins,
 // visibly (D35). A thing that moved since is moved again, and both moves are in its history.
 //
 // - The place or container it was going to, trashed or gone meanwhile: nothing moves, and the op

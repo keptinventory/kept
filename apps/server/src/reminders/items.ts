@@ -3,7 +3,7 @@ import type pg from 'pg';
 import type { StaleMeter } from '../notify/words.js';
 import type { ReminderItem, ReminderSubject } from './channel.js';
 
-// An occurrence in words (L113): the thing (or place), where it is, the location, the local due
+// An occurrence in words: the thing (or place), where it is, the location, the local due
 // date, the source's own name, and a deep link. Read as kept_system, whose SELECT-only policies
 // (0053) reach every table used here; kept.path_of() is kept_app's, so the path is walked here,
 // a level per query, capped at 64 as the SQL one is.
@@ -25,7 +25,7 @@ export type OccurrenceRow = {
 export const OCCURRENCE_COLUMNS = `o.id, o.location_id, o.thing_id, o.place_id, o.source_type,
   o.source_id, o.kind, o.due_period, o.due_on::text AS due_on`;
 
-/** The §7.13 key as the web's agenda and the push topic write it. */
+/** The key as the web's agenda and the push topic write it. */
 export const occurrenceKey = (o: OccurrenceRow) =>
   `${o.source_type}:${o.source_id}:${o.kind}:${o.due_period}`;
 

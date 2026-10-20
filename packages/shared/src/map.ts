@@ -375,7 +375,7 @@ export function firstOverlap(rects: readonly MapRect[]): [number, number] | null
 /** A model something small can stand on (a counter, a desk, a shelf top, a box). */
 export const canHost = (key: MapModelKey): boolean => mapModel(key).top !== undefined;
 
-/** Only things and small storage go on top of something (the spike's rule); never a wall thing,
+/** Only things and small storage go on top of something; never a wall thing,
  * which hangs on its wall (#138). */
 export const canStandOn = (key: MapModelKey): boolean => {
   const m = mapModel(key);

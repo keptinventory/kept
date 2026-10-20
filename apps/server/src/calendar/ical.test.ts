@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { type Calendar, escapeText, foldLine, nextDay, writeCalendar } from './ical.js';
 
-// The iCal writer (RFC 5545; plan T17) against fixtures written out by hand-checked runs:
+// The iCal writer (RFC 5545) against fixtures written out by hand-checked runs:
 // CRLF line ends, folding at 75 octets that never splits a UTF-8 sequence (Arabic titles),
 // TEXT escaping, all-day DATE events.
 

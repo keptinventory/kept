@@ -1,7 +1,7 @@
 /**
- * Search normalisation (D42, D172, screens spec §8): the JavaScript twin of the IMMUTABLE SQL
- * `kept.normalize()` / `kept.strip_prefixes()` (engineering spec §7.9). Both are checked against
- * `normalize.vectors.json`; when they disagree, fix the twin, never the vector (V20).
+ * Search normalisation (D42, D172): the JavaScript twin of the IMMUTABLE SQL
+ * `kept.normalize()` / `kept.strip_prefixes()`. Both are checked against
+ * `normalize.vectors.json`; when they disagree, fix the twin, never the vector.
  *
  * `normalize(s)`, step by step:
  *  1. NFKC, then lower-case (full-width, ligatures, presentation forms, no-break spaces).
@@ -15,7 +15,7 @@
  *  6. ASCII whitespace runs collapse to one space; one leading and trailing space trimmed.
  *
  * `stripPrefixes(s)` works on normalised text, per word: `(و|ب|ف|ك)?ال` + at least two letters
- * loses the prefix, then `لل` + at least two letters. A lone `و ب ف ك` is never stripped (Q20):
+ * loses the prefix, then `لل` + at least two letters. A lone `و ب ف ك` is never stripped:
  * `ورق` and `بيت` stay whole. Search indexes and queries both forms, so recall never drops.
  */
 
@@ -66,7 +66,7 @@ export function normalize(s: string): string {
 const ARTICLE = /(^|\s)(?:[وبفك])?ال(\S{2,})/gu;
 const LAM_LAM = /(^|\s)لل(\S{2,})/gu;
 
-/** Drop Arabic attached prefixes from each word of already-normalised text (Q20). */
+/** Drop Arabic attached prefixes from each word of already-normalised text. */
 export function stripPrefixes(s: string): string {
   return s.replace(ARTICLE, '$1$2').replace(LAM_LAM, '$1$2');
 }

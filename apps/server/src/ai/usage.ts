@@ -1,7 +1,7 @@
 /**
- * Usage per scope and "What uses AI in Kept" (plan T9; D188, D206; engineering spec §3.5, §7.15).
+ * Usage per scope and "What uses AI in Kept" (D188, D206).
  * Totals come from `kept.ai_usage` (the ledger plus the monthly totals of rolled-up months, with
- * §7.15's visibility: `me`, a location's admins, an account's owner, instance admins per account
+ * The visibility: `me`, a location's admins, an account's owner, instance admins per account
  * only), one row per group and currency, merged here into one group with a cost per currency.
  */
 import {
@@ -215,7 +215,7 @@ export async function dayTasks(
 // "What uses AI in Kept"
 // ---------------------------------------------------------------------------------------------
 
-/** The actions the panel lists, in the screens' order (§5 AI settings). */
+/** The actions the panel lists, in the AI settings screen's order. */
 export const EXPLAIN_TASKS: LedgerTask[] = [
   'extract_thing',
   'extract_receipt',
@@ -225,7 +225,7 @@ export const EXPLAIN_TASKS: LedgerTask[] = [
   'embed_query',
   'connection_test',
 ];
-/** A scope's own figures replace the reference ones from this many calls of a task (§3.5). */
+/** A scope's own figures replace the reference ones from this many calls of a task. */
 export const HISTORY_MIN_CALLS = 5;
 
 export const ExplainSchema = z.object({

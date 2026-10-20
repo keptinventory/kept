@@ -7,7 +7,7 @@ import { type Tx, withSystem } from '../db/scope.js';
 import type { Mailer } from '../mail/mailer.js';
 import { noticeOwnerOfMember, wants } from '../notify/notices.js';
 
-// The membership jobs (task 19; D46, D180). Both run as kept_system, whose system_all policy on
+// The membership jobs (D46, D180). Both run as kept_system, whose system_all policy on
 // memberships (0006) lets them see every location's; neither takes its scope from job data.
 
 type Log = { info: (obj: object, msg: string) => void };
@@ -55,7 +55,7 @@ export type ExpiredMembership = {
  * `expire-memberships` (every 15 minutes, D46): deletes every membership whose end date has
  * passed, with an audit event for each, in one transaction. An expired membership already stops
  * working the moment it ends (kept.visible_location_ids() ignores it); this removes the row and
- * records it. The owner hears of it in the notification centre (step 4, Q30: a
+ * records it. The owner hears of it in the notification centre (a
  * `membership_ended` notice in the same transaction, unless they turned Membership off there),
  * and, given `mail`, by email (D46; T15's `membership-ended` mail) after the transaction commits,
  * when their Membership email preference is on (the default) and their address is verified and
@@ -120,7 +120,7 @@ export async function expireMemberships(
       const o = owner[0];
       if (!o || o.user_id === r.user_id) continue;
       const pref = { userId: o.user_id, locationId: r.location_id, kind: 'membership' as const };
-      // In-app off silences the kind entirely (Q10); email follows its own choice.
+      // In-app off silences the kind entirely; email follows its own choice.
       const on =
         (await wants(client, { ...pref, channel: 'inapp', role: 'owner' })) &&
         (await wants(client, { ...pref, channel: 'email', role: 'owner' }));
@@ -183,7 +183,7 @@ const isUuid = (value: unknown): value is string => typeof value === 'string' &&
  * database as it is now. A membership gone by the time the job runs (removed, expired) needs no
  * notice. The owner is mailed (kept.new_member_notice(), migration 0011) inside the job's
  * transaction, so a failed send rolls the audit event back and the retry starts clean. The
- * in-app notice (step 4, Q30: `membership_added`) is written in the same transaction, so it too
+ * in-app notice (`membership_added`) is written in the same transaction, so it too
  * exists once, with the mail.
  */
 export async function notifyOwnerNewMember(

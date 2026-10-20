@@ -1,6 +1,6 @@
 /**
- * The "wire" JSON Schema sent to a provider for each extraction mode (spike 2026-09-26 §3,
- * finding 1). What zod generates for `EXTRACTION_SCHEMAS` breaks providers: the bbox tuples
+ * The "wire" JSON Schema sent to a provider for each extraction mode (finding 1).
+ * What zod generates for `EXTRACTION_SCHEMAS` breaks providers: the bbox tuples
  * become draft-07 `items: [ … ]` arrays that XGrammar-based hosts reject, `z.iso.date()` becomes
  * `format: date` plus a ~300-character regex, and records carry `propertyNames`. The wire form
  * keeps the shape and drops only those:
@@ -9,7 +9,7 @@
  * - `propertyNames` is removed (the record keeps `additionalProperties`).
  *
  * It is sent with `Output.object({schema: jsonSchema(wire)})` and **no validation**, so the raw
- * object comes back and `parseLenient` against the full zod schema drops only what fails (L52);
+ * object comes back and `parseLenient` against the full zod schema drops only what fails;
  * with the zod schema itself, one bad optional field loses the whole answer.
  */
 import {
@@ -107,7 +107,7 @@ export function wireSchema(mode: CaptureMode, variant: WireVariant = WIRE_IN_USE
 }
 
 /**
- * The wire schema of a service invoice (step 5, Q12): RECEIPT's, each line with its optional
+ * The wire schema of a service invoice: RECEIPT's, each line with its optional
  * kind, and RECEIPT's variant (`receipt-required` asks for the date and currency too). Sent under
  * RECEIPT's name (`kept_receipt`), since the ledger task and the mock are RECEIPT's.
  */

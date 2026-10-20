@@ -1,5 +1,5 @@
 /**
- * Mock handlers for trash, restore, delete permanently, history and activity (task 21), as task
+ * Mock handlers for trash, restore, delete permanently, history and activity, as task
  * 27's screens use them:
  *
  * - history and activity rows are rendered for the caller the way the server's `renderAudit` does
@@ -331,7 +331,7 @@ export function trashRoutes(state: MockState): MockRoute[] {
     route('GET', p.thingHistory(':id'), ({ params, query }) => {
       const t = inv().things.find((x) => x.id === params.id);
       if (!t || !access().visible(t.locationId)) return notFound();
-      // Things merged into this one, however many times over (T15): their events are its history
+      // Things merged into this one, however many times over: their events are its history
       // too, each labelled with the merged thing ("merged from <name>"); its own events aren't.
       const merged = new Map<string, string | null>();
       for (let grew = true; grew; ) {
@@ -353,7 +353,7 @@ export function trashRoutes(state: MockState): MockRoute[] {
           const from = about(e).find((id): id is string => !!id && merged.has(id));
           return from ? { ...e, mergedFrom: { id: from, name: merged.get(from) ?? null } } : e;
         });
-      // The AI calls that touched it (D206, §7.15): ledger rows with its id, cost per the gate.
+      // The AI calls that touched it (D206): ledger rows with its id, cost per the gate.
       const loc = state.locations.find((l) => l.id === t.locationId);
       const moneyHidden = loc?.role === 'viewer' && !(loc.moneyVisibleToViewers ?? false);
       const calls: HistoryEvent[] = state.capture.calls
@@ -457,7 +457,7 @@ export function trashRoutes(state: MockState): MockRoute[] {
       const e = inv().events.find((x) => x.id === params.id);
       if (!e?.location_id || !access().visible(e.location_id)) return notFound();
       if (!access().canWrite(e.location_id)) return forbidden();
-      // The server's refusals (T20): 409 `undo_refused` with a `reason`.
+      // The server's refusals: 409 `undo_refused` with a `reason`.
       const refuse = (reason: string, hint: string) =>
         err(409, 'undo_refused', "That can't be undone any more.", hint, { reason });
       if (inv().events.some((x) => x.undo_of === e.id))

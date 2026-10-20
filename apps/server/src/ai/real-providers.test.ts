@@ -1,4 +1,4 @@
-// Opt-in smoke test against real providers (step-3 T8; the spike's L50 run, through the real
+// Opt-in smoke test against real providers (the first trial run, through the real
 // provider layer). Skipped unless KEPT_AI_SMOKE=1. Keys come from the environment only, loaded
 // from the git-ignored .env in the same shell command, and are never printed:
 //
@@ -10,7 +10,7 @@
 // Budget: at most 5 Groq requests (1 listing, 2 extractions, the 2-call Test), at least 5 s
 // apart and paced by Groq's rate-limit headers through the real Pacer; 1 OpenRouter listing (no
 // model call: the dev key has no credit). Images: the evaluation's synthetic, EXIF-free photos
-// (test/fixtures/eval, drawn as the spike's were).
+// (test/fixtures/eval, drawn as the trial run's were).
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
@@ -29,7 +29,7 @@ const OPENROUTER_KEY = process.env.KEPT_DEV_OPENROUTER_API_KEY ?? null;
 const IMAGES = fileURLToPath(new URL('../../test/fixtures/eval/', import.meta.url));
 const GAP_MS = 5_000;
 
-/** Groq's listed price for qwen/qwen3.8-27b on 2026-09-26 (spike listing), per million tokens. */
+/** Groq's listed price for qwen/qwen3.8-27b on 2026-09-26 (its listing), per million tokens. */
 const GROQ_QWEN: Price = {
   id: 'groq-listing-2026-09-26',
   inputPerMtok: '0.8',

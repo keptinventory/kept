@@ -1,5 +1,5 @@
 /**
- * Log a service with the invoice read, and a vehicle's Services tab (plan T20): attaching an
+ * Log a service with the invoice read, and a vehicle's Services tab: attaching an
  * invoice makes a draft whose suggestions Confirm all takes into the lines; Completes pre-ticks
  * the schedule a line matches; Save confirms the draft with If-Match; a bare `$` asks which
  * dollars with neither chosen; a draft lists first with Finish logging and Discard draft; the

@@ -1,5 +1,5 @@
 /**
- * Keep a location available offline, on one fake phone (step-8 plan T23; D159, D181, D210, Q21):
+ * Keep a location available offline, on one fake phone (D159, D181, D210):
  * what is kept is ciphertext at rest, never goes through the Cache API, respects the per-file and
  * per-device caps, refreshes without fetching an unchanged document again, and goes on a 401
  * (with the unsent queue kept), on a revoked location, and when the toggle goes off.

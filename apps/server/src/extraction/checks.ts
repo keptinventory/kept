@@ -1,9 +1,9 @@
 /**
- * The code checks after the model (engineering spec §2.1; plan T10; lessons L52, L57). The model
- * and the code never enforce the same rule (L57): the schema (parseLenient, L52) already dropped
+ * The code checks after the model. The model
+ * and the code never enforce the same rule: the schema (parseLenient) already dropped
  * what doesn't parse; these are the rules only code can apply.
  *
- * - **Below `CONFIDENCE_MIN`, a field is dropped**, not suggested (spike 2026-09-26 finding 6: the
+ * - **Below `CONFIDENCE_MIN`, a field is dropped**, not suggested (the
  *   model filled `warranty_terms_printed` with invented text at confidence 0). A reading's value
  *   is the exception: every reading waits for review anyway (D19), and its confidence isn't
  *   trustworthy (finding 4), so a low one changes nothing.
@@ -17,7 +17,7 @@
  * - A thing's quantity is a whole number from 1 to 999; a reading is ≥ 0 and fits numeric(14,3).
  * - Strings are trimmed and capped to their column's limit; aliases keep the location's
  *   languages, at most 20 each, deduplicated through `normalize`.
- * - **An alias is written in its language's own script** (D214; step-7 spike E1): Latin letters
+ * - **An alias is written in its language's own script** (D214): Latin letters
  *   for English, French…, Arabic letters for Arabic, where a Latin acronym ("شاشة LED") may
  *   stand among them. One that isn't ("مودem") is dropped. Latin-script aliases stay
  *   auto-accepted (D19); in any other script, E1 measured a third of the model's aliases wrong
@@ -94,7 +94,7 @@ export type ReceiptLineFields = {
   quantity?: Val<number>;
   unitPrice?: Val<number>;
   lineTotal?: Val<number>;
-  /** A service invoice's line (step 5, Q12): part, labour, fluid or other. */
+  /** A service invoice's line: part, labour, fluid or other. */
   kind?: Val<ServiceLineKind>;
 };
 
@@ -175,7 +175,7 @@ const PLACEHOLDER =
   /^(?:n\/?a|none|null|nil|unknown|not (?:printed|shown|visible|available|applicable)|no warranty(?: terms)?|-+|—|غير متوفر|لا يوجد)$/i;
 
 /**
- * Warranty terms (D55) must be about a warranty: the evaluation run (T11, Groq, 2026-09-29) kept
+ * Warranty terms (D55) must be about a warranty: the evaluation run (Groq, 2026-09-29) kept
  * "None printed." and "Thank you for shopping with us" at 0.9, and a sentence the model made up
  * from its own rules at 1.0 ("…is a sign, not a rule for the model…"). Terms need a warranty
  * word in one of Kept's five languages; "no warranty" in any of them, and text that talks about

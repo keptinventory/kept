@@ -1,5 +1,5 @@
 /**
- * Log fuel (plan T21; the board's vehicle frames; D28, D170, D11; Q3, Q6, Q7, Q11): a fill or a
+ * Log fuel (D28, D170, D11): a fill or a
  * charge on a vehicle. In order: when (today and now by default, on Kept's own date and time
  * pickers), the unit (L · kWh · gal, remembered per vehicle as its latest fill's), the amount,
  * full or partial, "I missed a fill-up before this one" (D170: consumption skips the gap), the
@@ -8,7 +8,7 @@
  * reason, D112, with a photo-proof slot that joins the proof strip, D195), the pump receipt and a
  * note.
  *
- * Needs a connection: a fill carries money, which the phone never holds (Q3). Saving sends
+ * Needs a connection: a fill carries money, which the phone never holds. Saving sends
  * `POST /things/:id/fuel` with an `Idempotency-Key`, then offers Undo (D150).
  */
 import { type FuelUnit, newId } from '@kept/shared';

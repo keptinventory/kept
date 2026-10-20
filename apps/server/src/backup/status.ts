@@ -28,7 +28,7 @@ import {
 } from './settings.js';
 import { DISK_STATUS_KEY, diskStatusOf } from './watch.js';
 
-// The status page's step-8 fields (AdminOpsStatus; step-8 plan T10; D66, D144, D166, §14), read
+// The status page's step-8 fields (AdminOpsStatus; D66, D144, D166), read
 // on an instance admin's kept_app transaction from rows already kept: backup_runs,
 // release_history and instance_settings (the backup settings, the watch's `disk_status`, the
 // update check's state, the recovery kit's dates). Never a restic call, never a statfs.

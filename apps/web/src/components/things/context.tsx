@@ -1,6 +1,6 @@
 /**
  * What every part of the thing screen needs to know: the thing, its location, the caller's role
- * there and which modules are on. Controls follow screens §3: hidden when the role can't use
+ * there and which modules are on. Controls follow the role rules: hidden when the role can't use
  * them, "Off in this location" when a module is off (with "Turn on" for admins).
  */
 import {
@@ -63,7 +63,7 @@ export function makeCtx(
   };
 }
 
-/** Screens §3: a module that is off, said plainly, with the way to turn it on. */
+/** A module that is off, said plainly, with the way to turn it on. */
 export function ModuleOff({ what, className }: { what: ReactNode; className?: string }) {
   const { location, role } = useThingCtx();
   const admin = role === 'owner' || role === 'admin';

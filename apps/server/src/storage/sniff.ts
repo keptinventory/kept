@@ -4,7 +4,7 @@ import { AppError } from '../http/errors.js';
 // What an upload really is (D157): read from its first bytes (file-type's magic numbers), never
 // from the declared Content-Type or the file's name. Anything not on the allow-list is 415
 // `unsupported_media_type`, including:
-// - SVG (Q9): it is text and can carry script; no logo uploads until step 4 rasterises them;
+// - SVG: it is text and can carry script; no logo uploads until step 4 rasterises them;
 // - HTML or anything else renamed to `.jpg`;
 // - HEIF/HEIC *sequences* (bursts, animations): only still images are photos here.
 // Videos (MP4, QuickTime) pass only with `allowVideo`, for the 1.x videos of D170.

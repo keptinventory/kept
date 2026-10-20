@@ -1,5 +1,5 @@
 /**
- * Plan T23: the paperwork library (search by a word inside, the filter strip, list or grid), the
+ * The paperwork library (search by a word inside, the filter strip, list or grid), the
  * Expiring screen (from the agenda, Renew with Undo), and the Paperwork section on a location's
  * and a place's page (D155): add an expiring document, renew it, the viewer and module-off
  * variants, offline, and Arabic (RTL).

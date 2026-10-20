@@ -1,9 +1,9 @@
 /**
- * A shared page (1.5, D233; screens §2 `/s/<token>`, D39 item 7, D116): what a household shared
+ * A shared page (1.5, D233; `/s/<token>`, D39 item 7, D116): what a household shared
  * as a read-only link, opened with no account. The things A to Z with only their name, photo,
  * type, where they are, quantity, condition and notes, under the list standard. A link that is
  * revoked, expired, unknown or no longer backed by its maker says "This link has expired", the
- * same for each (engineering spec §5), and never asks anyone to sign in. The page's language is
+ * same for each, and never asks anyone to sign in. The page's language is
  * the browser's (the app's own default). Kept for search engines: `noindex`.
  */
 import { Trans, useLingui } from '@lingui/react/macro';

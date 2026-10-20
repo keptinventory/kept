@@ -34,22 +34,22 @@ import {
   requestHash,
 } from './payload.js';
 
-// POST /api/v1/sync/ops (plan T14; engineering spec §2.3, §7.4; D17, D35, D36, D112, D148, D156,
-// D210; Q2, Q3): the phone's queued offline changes, applied in the order they arrive.
+// POST /api/v1/sync/ops (D17, D35, D36, D112, D148, D156,
+// D210): the phone's queued offline changes, applied in the order they arrive.
 //
 // Body `{clientVersion, ops: QueueItem[1..50]}` (packages/shared SyncOpsRequestSchema, strict: the
 // phone sends exactly the wire fields); answer `{results: SyncOpResult[]}`, one per op, in order.
 //
-// 1. Versions (D148, Q3), for the whole batch before anything is applied: an op below the oldest
+// 1. Versions (D148), for the whole batch before anything is applied: an op below the oldest
 //    payload version this server upgrades is 409 `client_outdated` {minPayloadVersion}; one above
 //    its own is 409 `server_outdated`. The phone keeps its queue either way.
-// 2. Then each op, in order, in its own scoped transaction (§7.4), as the caller:
+// 2. Then each op, in order, in its own scoped transaction, as the caller:
 //    a. the ledger (`sync_ops`, 0035): the same key with the same `request_hash` answers the
 //       stored result (a replay creates nothing, audits nothing); the same key with another body
 //       is `dropped` / `idempotency_mismatch`. The key is locked for the transaction, so two
 //       sends of one op racing each other apply it once;
-//    b. `client_id`, and every id the payload makes rows with, within the ops-only window (Q2:
-//       90 days back, 1 ahead), else `invalid`; `taken_at` clamped to the receipt (D112);
+//    b. `client_id`, and every id the payload makes rows with, within the ops-only window
+//       (90 days back, 1 ahead), else `invalid`; `taken_at` clamped to the receipt (D112);
 //    c. `dependsOn`: a parent dropped in this batch, or earlier (the ledger), drops it as
 //       `parent_dropped`;
 //    d. the payload, upgraded (`upgradePayload`) then validated with its schema, else `invalid`;
@@ -62,9 +62,9 @@ import {
 //       drop: 404 `target_missing`, 403 `not_permitted`, any other 4xx `invalid`. A drop writes
 //       nothing of the op, and, when it is `target_trashed` or `target_missing` in a location
 //       the caller still writes, opens an inbox `sync_drop` item carrying the op, so it can be
-//       restored (T15) and is seen on every device (D35: never silent);
+//       restored and is seen on every device (D35: never silent);
 //    g. the ledger row, with the answer, in the same transaction.
-// 3. Queue ops skip `row_version` (§7.4): the latest change wins, visibly (D35), except readings
+// 3. Queue ops skip `row_version`: the latest change wins, visibly (D35), except readings
 //    and label claims, which the server orders itself (D112).
 // 4. Anything else a handler throws (a bug, a lost connection, a serialization failure) stops the
 //    batch there: that op's transaction rolls back, and the answer (200) holds the results before
@@ -162,7 +162,7 @@ async function access(
   const role = rows[0]?.role;
   if (role) return role === 'viewer' ? { drop: 'not_permitted' } : { role };
   // A former member: their removal, leaving or expiry is on record (kept.was_member_of, whether
-  // or not an op of theirs ever reached it; step-3 carry-over, T19), or their own ledger holds
+  // or not an op of theirs ever reached it), or their own ledger holds
   // the location, which it does only while it was visible to them (the insert policy).
   const { rows: was } = await client.query<{ was: boolean }>(
     `SELECT kept.was_member_of($1) OR EXISTS (

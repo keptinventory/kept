@@ -1,6 +1,6 @@
 /**
  * Picking files: Gallery (many photos, each becomes a THING capture: D140) and "Use the system
- * camera" (full sensor resolution for the evidence modes: plan Q20). Both are a file input the
+ * camera" (full sensor resolution for the evidence modes). Both are a file input the
  * button opens, the one way a web page reaches the photo library and the phone's camera app;
  * the input itself is hidden and never takes focus.
  */
@@ -61,7 +61,7 @@ export function FilePick({
   );
 }
 
-/** The ring-and-caption button beside the shutter (screens board, capture frames). */
+/** The ring-and-caption button beside the shutter (capture frames). */
 export function SideButton({ icon, caption }: { icon: ReactNode; caption: ReactNode }) {
   return (
     <span className="grid justify-items-center gap-[5px] text-center font-medium text-[#F2EFE9] text-[12px] leading-tight">

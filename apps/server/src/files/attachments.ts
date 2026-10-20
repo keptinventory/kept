@@ -24,7 +24,7 @@ import {
   type SubjectColumn,
 } from './views.js';
 
-// Attachments (§7.13; D115, D128, D155, D162, D177): a file or a link on one subject (a thing, a
+// Attachments (D115, D128, D155, D162, D177): a file or a link on one subject (a thing, a
 // place, a purchase, a meter reading, or the location itself). Everything is read and written as
 // the request's user, so the policies decide visibility; the role rules are can()'s:
 // - adding: `attachments.add` (members and above);
@@ -175,7 +175,7 @@ export async function createAttachment(
   requireCan(me.role, 'attachments.add', 'Viewers can look at attachments but not add them.');
   await refuseHiddenMoneyRole(gateOf, locationId, body.role);
   const subject = subjectColumns(body.subject);
-  // T10: a loan's files are its condition photos, going out and coming back.
+  // A loan's files are its condition photos, going out and coming back.
   if (subject.loan_id && body.role !== 'condition_out' && body.role !== 'condition_in') {
     throw invalid('Check body.role: a loan takes condition_out or condition_in photos.');
   }

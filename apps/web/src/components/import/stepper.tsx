@@ -1,8 +1,8 @@
 /**
- * The import stepper (screens §6 "Import stepper"; plan T30; D73): source, location and file →
+ * The import stepper (D73): source, location and file →
  * columns → choices → the dry run's report → progress → the summary, for a CSV. A Homebox or
- * Kept export chosen as the source goes through the archive flow instead (step-7 T19:
- * archive-step.tsx, then archive-run.tsx once its run exists, `?source=` then `?run=`). Owners and admins only
+ * Kept export chosen as the source goes through the archive flow instead
+ * (archive-step.tsx, then archive-run.tsx once its run exists, `?source=` then `?run=`). Owners and admins only
  * (`location.export-import`): the location picker offers only their locations, and a 403 from the
  * server says so.
  *
@@ -92,7 +92,7 @@ export function ImportStepper({
 }: {
   locationParam: string | undefined;
   runId: string | undefined;
-  /** A Homebox or Kept export chosen as the source, before its run exists (T19). */
+  /** A Homebox or Kept export chosen as the source, before its run exists. */
   sourceParam?: ArchiveSource | undefined;
   /** Moves to another location, run or source, in the URL. */
   go: (next: { location?: string; run?: string; source?: ArchiveSource }) => void;

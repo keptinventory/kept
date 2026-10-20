@@ -1,5 +1,5 @@
 /**
- * Choosing the label stock (D44; screens §6 "Choose stock"): the rolls a label printer takes and
+ * Choosing the label stock (D44): the rolls a label printer takes and
  * the office sheets, as radio cards. Sizes follow the digit setting (D143); the names are the
  * app's own words, never a maker's logo (D172). The last stock used is remembered on this
  * browser, since a household has one printer.

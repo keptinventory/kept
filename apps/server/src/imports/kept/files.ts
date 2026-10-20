@@ -7,7 +7,7 @@ import { AppError } from '../../http/errors.js';
 import type { OpenArchive } from '../../portability/zip/read.js';
 import type { IdMap } from './ids.js';
 
-// An export's original files on import (D117, D157; step-7 plan T14). Each `files/<fileId>` the
+// An export's original files on import (D117, D157). Each `files/<fileId>` the
 // export's `files` rows name is streamed out of the archive by receive() (files/upload.ts) into a
 // temp file with a random name (never anything from the archive), hashed and counted on the way, checked against the
 // manifest's SHA-256, and handed to ingestFile(): sniffed, deduplicated in the location,

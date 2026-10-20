@@ -1,6 +1,6 @@
 /**
  * Every step-5 server path the web app calls that doesn't exist yet, in one place. Each comes from
- * the route tables of the step-5 plan's Phase B and lands in the matching
+ * the server's route tables and lands in the matching
  * `apps/server/src/<area>/routes.ts` (T2's stubs: `fuel/`, `vehicles/`, `services/`; the proofs in
  * step 2's `meters/`; the report in `reports/`). A path the server names differently is fixed here
  * and nowhere else. `VEHICLE_METHODS` is what the contract check reads, as steps 2–4 do.
@@ -16,26 +16,26 @@ const V1 = '/api/v1';
 const seg = (value: string) => encodeURIComponent(value);
 
 export const vehiclePaths = {
-  // ----- meters and readings (T8) -----
+  // ----- meters and readings ----------
   meterProofs: (id: string) => `${V1}/meters/${seg(id)}/proofs`,
 
-  // ----- service drafts (T9) -----
+  // ----- service drafts ----------
   serviceDrafts: `${V1}/service-records/drafts`,
   serviceRecord: (id: string) => `${V1}/service-records/${seg(id)}`,
   serviceRecordConfirm: (id: string) => `${V1}/service-records/${seg(id)}/confirm`,
 
-  // ----- fuel and charging (T11) -----
+  // ----- fuel and charging -----------
   thingFuel: (id: string) => `${V1}/things/${seg(id)}/fuel`,
   thingFuelSummary: (id: string) => `${V1}/things/${seg(id)}/fuel/summary`,
   fuelEntry: (id: string) => `${V1}/fuel/${seg(id)}`,
 
-  // ----- vehicles, costs, series and starter schedules (T13) -----
+  // ----- vehicles, costs, series and starter schedules -----------
   vehicles: `${V1}/vehicles`,
   thingCosts: (id: string) => `${V1}/things/${seg(id)}/costs`,
   meterSeries: (id: string) => `${V1}/meters/${seg(id)}/series`,
   thingStarterSchedules: (id: string) => `${V1}/things/${seg(id)}/starter-schedules`,
 
-  // ----- the history report (T15) -----
+  // ----- the history report -----------
   reportsVehicleHistory: `${V1}/reports/vehicle-history`,
 
   // ----- 1.3 (D229): LubeLogger's CSV exports into a vehicle -----

@@ -1,5 +1,5 @@
 -- Custom SQL migration file, put your code below! --
--- Step 2, task 19: clearing a secret value (D110, D116; engineering spec §7.13).
+-- Clearing a secret value (D110, D116).
 --
 -- DELETE /api/v1/{things|places}/:id/secrets/:fieldKey ends the current value of a field. The
 -- value is superseded, never deleted: its history stays in the encrypted store, readable by who

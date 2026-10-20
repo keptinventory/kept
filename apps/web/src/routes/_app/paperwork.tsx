@@ -1,7 +1,7 @@
 /**
- * Paperwork (plan T23; D39, D155, D172, screens §5): every receipt, invoice, manual, warranty
+ * Paperwork (D39, D155, D172): every receipt, invoice, manual, warranty
  * document and location or place document across your locations with Paperwork on, found by a
- * word inside them (the file's text, step 3), under the list standard: the filter strip (location,
+ * word inside them (the file's text), under the list standard: the filter strip (location,
  * kind, what it's on, expiry) with saved views (D205), and the Display button's layout, a list or
  * a grid (D211). Each row opens the file and links to what it belongs to.
  *

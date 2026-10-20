@@ -1,5 +1,5 @@
 /**
- * /people/<id> (screens §2): the person page. Built by task 28 in
+ * /people/<id>: the person page. Built by task 28 in
  * components/registries/registry-page.tsx, shared with the other registry pages.
  */
 

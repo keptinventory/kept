@@ -1,5 +1,5 @@
 /**
- * Short-ID addresses and own codes (D208, plan T17a): a thing or place opens by its short ID typed
+ * Short-ID addresses and own codes (D208): a thing or place opens by its short ID typed
  * any way, a UUID address is replaced in place by the short ID, a thing without one (created
  * offline, D112) keeps its UUID; "Your codes" on the thing and place pages; and a location's
  * numbering and format rule in Settings → General.

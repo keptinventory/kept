@@ -22,11 +22,11 @@ import {
   TABLE,
 } from './view.js';
 
-// Brands, vendors, people and tags (T11; D11, D55, D76, D123, D177; plan Q5, Q15). Account rows
+// Brands, vendors, people and tags (D11, D55, D76, D123, D177). Account rows
 // under 0014's policies: everyone who sees the account reads them; brands are created by its
 // admins, the others inline by anyone who writes in one of its locations; changing, merging and
 // deleting is an admin's. The routes check can() first so a visible account answers 403, not
-// the 404 a refused policy would give. Every write is an account-level audit row (Q15).
+// the 404 a refused policy would give. Every write is an account-level audit row.
 //
 // Names: a brand or tag is one per account after kept.normalize() (409 `conflict` carrying the
 // existing row's id); a vendor or person may share a name, and a create answers the near
@@ -35,7 +35,7 @@ import {
 
 type Ctx = WriteCtx;
 
-/** Who may create, and who may change, merge or delete, per kind (§7.1). */
+/** Who may create, and who may change, merge or delete, per kind. */
 const CREATE: Record<RegistryKind, Action> = {
   brands: 'registries-types.manage',
   vendors: 'people-vendors.create-inline',
@@ -134,7 +134,7 @@ export async function listItems(
   const offset = typeof page.after === 'number' && page.after > 0 ? Math.floor(page.after) : 0;
   const col = NAME_COLUMN[kind];
   const q = query.q?.trim() ? query.q.trim() : null;
-  // With `q`: a normalised substring or a near trigram match, best first (§7.9, D42).
+  // With `q`: a normalised substring or a near trigram match, best first (D42).
   const { rows } = await client.query<Row>(
     `SELECT r.* FROM public.${TABLE[kind]} r
       WHERE r.owner_account_id = $1
@@ -320,7 +320,7 @@ export async function mergeItem(
 }
 
 // ---------------------------------------------------------------------------------------------
-// A person's contact details (D177, Q5)
+// A person's contact details (D177)
 // ---------------------------------------------------------------------------------------------
 
 export type Contact = { phone: string | null; email: string | null; notes: string | null };
@@ -352,7 +352,7 @@ export async function getContact(client: pg.ClientBase, personId: string): Promi
   return (await contactRow(client, personId)) ?? EMPTY;
 }
 
-/** Replaces the three fields; one left out is cleared. Audited as secret (Q5). */
+/** Replaces the three fields; one left out is cleared. Audited as secret. */
 export async function putContact(
   ctx: Ctx,
   personId: string,
@@ -393,7 +393,7 @@ export async function putContact(
 }
 
 // ---------------------------------------------------------------------------------------------
-// The account switcher (Q21)
+// The account switcher
 // ---------------------------------------------------------------------------------------------
 
 export async function listAccounts(client: pg.ClientBase) {

@@ -1,6 +1,6 @@
 /**
  * Toasts on React Aria's toast queue (not sonner: shadcn's aria base ships sonner, which is not
- * React Aria and pulls in next-themes; spike S4).
+ * React Aria and pulls in next-themes).
  *
  * One app-level queue. Call `toast({ title })` from anywhere; <Toaster /> renders it once near
  * the root. The region is a landmark (F6 reaches it), toasts pause while hovered or focused, and
@@ -45,9 +45,9 @@ const toneBar: Record<ToastTone, string> = {
 
 /**
  * Where toasts sit: above the phone's tab bar (app-shell TabBar: 3.5rem, `md:hidden`, plus the
- * safe area), as the design board's phone frames have them; 1.5rem up from the corner on wider
+ * safe area), as the phone designs have them; 1.5rem up from the corner on wider
  * screens. At `bottom-6` on a phone a toast covered Search and Inbox in the tab bar (found by the
- * step-3 e2e, T32).
+ * step-3 e2e).
  */
 export const TOAST_REGION_POSITION =
   'fixed inset-x-3.5 bottom-[calc(3.5rem+env(safe-area-inset-bottom)+0.75rem)] md:bottom-6 sm:inset-x-auto sm:end-6 sm:w-96';
@@ -71,7 +71,7 @@ export function Toaster({ queue = toastQueue }: { queue?: ToastQueue<ToastConten
             aria-hidden="true"
             className={`absolute inset-y-0 start-0 w-1 ${toneBar[item.content.tone ?? 'neutral']}`}
           />
-          {/* Announced politely (plan T31): React Aria's content is role="alert", which
+          {/* Announced politely: React Aria's content is role="alert", which
               interrupts. Only a failure keeps that. Focus never moves to a toast. */}
           <ToastContent
             className="grid min-w-0 flex-1 gap-0.5"

@@ -1,11 +1,11 @@
 /**
- * Extraction output per capture mode (engineering spec §2.1, §7.8; D19, D20, D41, D55, D128;
- * lessons L42, L51, L52; plan Q6, Q11). The model returns JSON only. Every field carries a
- * confidence from 0 to 1. The model never returns IDs or URLs (L51), so free text that looks
- * like either fails its field. What fails is dropped one field at a time (`parseLenient`, L52),
+ * Extraction output per capture mode (D19, D20, D41, D55, D128).
+ * The model returns JSON only. Every field carries a
+ * confidence from 0 to 1. The model never returns IDs or URLs, so free text that looks
+ * like either fails its field. What fails is dropped one field at a time (`parseLenient`),
  * never the whole answer.
  *
- * Field names are the model's (snake_case, as in §2.1), not the API's: the extraction job maps
+ * Field names are the model's (snake_case), not the API's: the extraction job maps
  * them onto thing and purchase fields (`type_hint` → type, `date` → purchased_on, …).
  */
 
@@ -14,7 +14,7 @@ import type { ReasoningLevel } from './ai.js';
 import type { CaptureMode } from './capture.js';
 import { SERVICE_LINE_KINDS } from './household.js';
 
-/** `extractions.status` (§7.8; `waiting_provider` is D206's: the provider's rate limit, an open
+/** `extractions.status` (`waiting_provider` is D206's: the provider's rate limit, an open
  * breaker or a rejected key, never a budget). The database CHECK reads this list (0037). */
 export const EXTRACTION_STATUSES = [
   'queued',
@@ -97,16 +97,16 @@ export const ReceiptExtraction = z.object({
   lines: z.array(ReceiptLine).max(200),
   /** Only when printed on the receipt (D55). */
   warranty_terms_printed: conf(text(2000)).optional(),
-  /** Where the paper is in the photo, so the server can re-crop the display (Q11, D196). */
+  /** Where the paper is in the photo, so the server can re-crop the display (D196). */
   document_bbox: bbox.optional(),
 });
 
 /**
- * A service invoice (step 5, Q12): RECEIPT's fields, and each line's optional kind (step 4's
+ * A service invoice: RECEIPT's fields, and each line's optional kind (step 4's
  * `service_lines.kind`). Not a capture mode: the RECEIPT path runs it on a draft service record
  * with the `service-invoice` prompt, and its output only ever becomes suggestions. Its JSON
  * allowance is RECEIPT's (`MAX_OUTPUT_TOKENS.receipt`). A kind outside the list is dropped alone
- * (`parseLenient`, L52); the line stays.
+ * (`parseLenient`); the line stays.
  */
 export const ServiceInvoiceExtraction = ReceiptExtraction.extend({
   lines: z
@@ -159,7 +159,7 @@ export const REVIEW_FIELDS = [
   'vendor',
   'currency',
 ] as const;
-/** Below this, even an auto-accept field waits (§2.1, §3.4). Tunable. */
+/** Below this, even an auto-accept field waits. Tunable. */
 export const CONFIDENCE_MIN = 0.6;
 
 /**
@@ -183,7 +183,7 @@ export function aliasSuggestionLanguage(field: string): string | null {
   return /^alias_([a-z]{2,3})$/.exec(field)?.[1] ?? null;
 }
 
-/** The JSON allowance per mode, before reasoning (Q6). */
+/** The JSON allowance per mode, before reasoning. */
 export const MAX_OUTPUT_TOKENS: Readonly<Record<CaptureMode, number>> = Object.freeze({
   thing: 700,
   receipt: 2500,
@@ -191,7 +191,7 @@ export const MAX_OUTPUT_TOKENS: Readonly<Record<CaptureMode, number>> = Object.f
   reading: 200,
 });
 
-/** Reasoning tokens billed against `maxOutputTokens` (L42, Q6). */
+/** Reasoning tokens billed against `maxOutputTokens`. */
 export const REASONING_ALLOWANCE: Readonly<Record<ReasoningLevel, number>> = Object.freeze({
   none: 0,
   minimal: 512,
@@ -293,8 +293,8 @@ function lenient(schema: z.ZodType, raw: unknown, path: string): Lenient {
 }
 
 /**
- * Parses a model's answer, dropping each field that fails instead of failing the whole object
- * (L52): an optional field that fails is left out, a list item that fails is removed, a list
+ * Parses a model's answer, dropping each field that fails instead of failing the whole object:
+ * an optional field that fails is left out, a list item that fails is removed, a list
  * over its maximum is cut to it, and unknown keys are ignored. Null when what is left can't
  * satisfy the schema (a required field failed, or it isn't an object at all). `dropped` lists
  * the dotted paths removed, for the call log and the evaluation harness.

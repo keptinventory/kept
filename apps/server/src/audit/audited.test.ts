@@ -15,7 +15,7 @@ import { type AuditEventInput, audited, auditedMany } from './audited.js';
 import { classOf } from './classes.js';
 import { renderAudit } from './render.js';
 
-// Task 15: audited() and renderAudit() (engineering spec §7.5; D110).
+// audited() and renderAudit() (D110).
 
 const db = await testDb();
 
@@ -71,7 +71,7 @@ describe('audited()', () => {
     const { row } = await storedEvent(id);
     expect(row).toMatchObject({
       locationId: t.locationId,
-      // Filled from the location when the caller doesn't pass it (§7.13).
+      // Filled from the location when the caller doesn't pass it.
       ownerAccountId: t.accountId,
       actorType: 'user',
       actorId: t.userId,

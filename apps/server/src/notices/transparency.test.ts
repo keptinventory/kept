@@ -13,7 +13,7 @@ import {
   TRANSPARENCY_JOB,
 } from './transparency.js';
 
-// D180's configuration notices (step-6 plan T16, Q16, Q24): a changed OIDC or SMTP configuration
+// D180's configuration notices: a changed OIDC or SMTP configuration
 // is found at boot by its hash, audited as the system, and told to every active user once; the
 // first boot only records the hash; the hash never covers a secret.
 

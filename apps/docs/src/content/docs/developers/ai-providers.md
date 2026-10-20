@@ -83,7 +83,7 @@ application code. A row records the task (`LEDGER_TASKS`, such as `extract_recei
 `assistant_turn`, `embed_query`), who paid, tokens, cost and outcome. **It never holds a prompt,
 an image, a reply or a key.** Caps and budgets live in `ai_budgets`; reaching 80% and 100% of a
 cap sends a notice, and 100% pauses work until the cap resets or is raised. Prices are versioned
-rows in `ai_model_prices`. The full table definitions and the pause state machine are in §7.15.
+rows in `ai_model_prices`. The full table definitions are in `apps/server/src/db/schema/ai.ts`.
 
 ## Extraction
 

@@ -18,7 +18,7 @@ import { type RelayConfig, sealRelayConfig } from './relay.js';
 import { createChannelSenders, factsOf, type SenderDeps } from './senders.js';
 import { fixedPushSource } from './vapid.js';
 
-// The channel senders the reminder engine calls (reminders/channel.ts; plan T15): one email, push
+// The channel senders the reminder engine calls (reminders/channel.ts): one email, push
 // or webhook per message in the recipient's language, and an outcome the engine records. Email
 // goes to the dev Mailpit in all five languages; pushes to a local HTTPS receiver; webhooks are
 // only queued here (their job is webhook.test.ts's).

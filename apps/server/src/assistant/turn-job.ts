@@ -6,7 +6,7 @@ import { semanticPrep } from '../search/semantic.js';
 import { runTurn, type TurnJobData } from './loop.js';
 import { ASSISTANT_TURN_JOB } from './service.js';
 
-// The assistant's jobs (D22, D23, D166; step-6 plan T13), aggregated by jobs/step6.ts:
+// The assistant's jobs (D22, D23, D166), aggregated by jobs/step6.ts:
 // - `assistant-turn`: a tenant job sent by POST /api/v1/assistant/threads/:id/turns in its
 //   transaction, run in the asker's scope; `data` is `{turnId, locale}` only, never the question
 //   (jobs/boss.ts's rule). The handler re-reads the turn under row-level security (loop.ts), so a
@@ -39,7 +39,7 @@ export function assistantJobs(deps: SystemJobDeps): JobDefinition[] {
         const app = deps.pools.app;
         if (!app) throw new Error('assistant-turn job: the worker has no kept_app pool');
         // runJob() holds this scoped transaction open, unused, while each step commits on its own
-        // connection; a turn may take up to 180 s (Q21).
+        // connection; a turn may take up to 180 s.
         await client.query(`SET LOCAL idle_in_transaction_session_timeout = '210s'`);
         const send = deps.sendTenant;
         const outcome = await runTurn(
@@ -51,7 +51,7 @@ export function assistantJobs(deps: SystemJobDeps): JobDefinition[] {
               jobs: null,
               files: deps.files ?? null,
               log: deps.log,
-              // search_things and where_is search by meaning too (T14, D200).
+              // search_things and where_is search by meaning too (D200).
               semantic: semanticPrep({
                 pools: { app, system: deps.pools.system },
                 ai: deps.ai ?? null,

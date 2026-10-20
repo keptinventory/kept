@@ -1,4 +1,4 @@
-// Waiting for Postgres at boot (step-8 plan T24, operations review). A server that starts while
+// Waiting for Postgres at boot (operations review). A server that starts while
 // its database is still starting, restarting, or too loaded to answer a new connection in time
 // used to exit on the first refusal: pg-boss gives up on a connection after 10 s ("timeout
 // exceeded when trying to connect"), seen with the box's load around 30. Under Compose and

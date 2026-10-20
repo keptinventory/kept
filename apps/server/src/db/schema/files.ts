@@ -28,10 +28,10 @@ import { locations } from './tenancy.js';
 import { things } from './things.js';
 import { claims, warranties } from './warranties.js';
 
-// Files, derivatives and attachments (engineering spec §1.5, §7.2, §7.13; D117, D155, D157, D161,
+// Files, derivatives and attachments (D117, D155, D157, D161,
 // D162, D177). A file is a stored original, kept byte-identical (D117) and deduplicated per
 // location by SHA-256; it is readable only through an attachment the user can see, or as its
-// uploader before it is attached (§7.2). Blobs are addressed by ids only (storage keys) and may be
+// uploader before it is attached. Blobs are addressed by ids only (storage keys) and may be
 // shared by the copies a cross-account move makes (D161). Row-level security and the definers
 // are in the custom migration that follows (0020); see src/db/files.test.ts.
 
@@ -115,9 +115,9 @@ export const fileDerivatives = pgTable(
 );
 
 /**
- * A file or a link attached to one subject, typed (§7.13): a thing, a place, a purchase, a meter
- * reading, or (step 4) a warranty, claim, loan, incident, valuation, service record or expiring
- * document, or (step 5) a fuel entry, or (1.x, D235) a condition report's room; none means
+ * A file or a link attached to one subject, typed: a thing, a place, a purchase, a meter
+ * reading, or a warranty, claim, loan, incident, valuation, service record or expiring
+ * document, or a fuel entry, or (1.x, D235) a condition report's room; none means
  * the location itself (D155). The file foreign key is DEFERRABLE (in
  * 0020), so a cross-location move can re-home files within one transaction.
  */
@@ -141,7 +141,7 @@ export const attachments = pgTable(
     valuationId: uuid('valuation_id'),
     serviceRecordId: uuid('service_record_id'),
     expiringDocumentId: uuid('expiring_document_id'),
-    /** Step 5: a fill's pump receipt (role `receipt`). */
+    /** A fill's pump receipt (role `receipt`). */
     fuelEntryId: uuid('fuel_entry_id'),
     /** 1.x (D235): a condition report room's photo (role `photo`). */
     conditionRoomId: uuid('condition_room_id'),

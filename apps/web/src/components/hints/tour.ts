@@ -663,7 +663,7 @@ export function useGuidedTour() {
         returnFocus: returnFocus ?? null,
       };
       runRef.current = run;
-      // The person's own moves end the run where it is (spec §Interruptions): only the tour's
+      // The person's own moves end the run where it is: only the tour's
       // navigations, recorded in `expectPath` before each one, keep it going. A change of search
       // (List to Map) stays on the page and keeps it.
       run.stopWatching = router.subscribe('onResolved', ({ toLocation }) => {

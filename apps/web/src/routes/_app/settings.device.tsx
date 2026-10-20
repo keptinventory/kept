@@ -1,5 +1,5 @@
 /**
- * Settings → Me → This device (step-8 plan T23; D159, D181; board frame 110): the app lock (a PIN,
+ * Settings → Me → This device (D159, D181): the app lock (a PIN,
  * and Face ID or fingerprint where the device offers it) and "keep this location available
  * offline". Its chunk loads on demand from assets/household/ (vite.config.ts); the lock screen
  * itself is in the shell (components/device/app-lock.tsx), precached, so a locked app opens

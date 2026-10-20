@@ -15,15 +15,15 @@ import { tstz } from './common.js';
 import { locations } from './tenancy.js';
 import { things } from './things.js';
 
-// Semantic search's storage (step-6 plan T6; D200, D207; plan Q12–Q15; spike S6.4). Both tables
+// Semantic search's storage (D200, D207). Both tables
 // are definer-only: vectors are derived from things, and only the kept.embedding_* and
 // kept.semantic_* doors (0076) touch them; kept_app never reads a vector. pgvector's distance
-// operator isn't leakproof, so a match under RLS couldn't use an index anyway (§7.2): the door
-// runs an exact scan within the location and model (S6.4: 40 ms p95 at 10,000 things, 1,536
+// operator isn't leakproof, so a match under RLS couldn't use an index anyway: the door
+// runs an exact scan within the location and model (40 ms p95 at 10,000 things, 1,536
 // dimensions; T14 asks for 768).
 
 /**
- * pgvector's `vector` without a dimension (Q13): several models' vectors side by side, each row's
+ * pgvector's `vector` without a dimension: several models' vectors side by side, each row's
  * length in `dims`. Drizzle's own `vector` column requires a dimension, so this is a custom type,
  * as `xid8` and `tsvector` are. It reads back as pgvector's text form, `[1,2,3]`.
  */
@@ -56,7 +56,7 @@ export const thingEmbeddings = pgTable(
       .onUpdate('cascade')
       .onDelete('cascade'),
     check('thing_embeddings_model_key_chk', sql`char_length(model_key) BETWEEN 1 AND 200`),
-    // S6.4: never 3,072 (pgvector's HNSW stops at 2,000, and the exact scan is at its edge there).
+    // Never 3,072 (pgvector's HNSW stops at 2,000, and the exact scan is at its edge there).
     check('thing_embeddings_dims_chk', sql`dims BETWEEN 1 AND 2000`),
     check('thing_embeddings_hash_chk', sql`content_hash ~ '^[0-9a-f]{64}$'`),
     check('thing_embeddings_vector_chk', sql`vector_dims(embedding) = dims`),

@@ -34,14 +34,14 @@ import { propose } from './proposals.js';
 import type { TurnRow } from './threads.js';
 import { noAnswer, viewerRefusal } from './words.js';
 
-// One assistant turn (step-6 plan T13; D22, D23, D123, D164, D166, D167, D179, D206; Q2–Q5,
-// Q11, Q21–Q23). Kept runs the loop: every model step is one callModel() (one provider request,
+// One assistant turn (D22, D23, D123, D164, D166, D167, D179, D206).
+// Kept runs the loop: every model step is one callModel() (one provider request,
 // one reservation, one ledger row: `assistant_turn`, then `assistant_followup`), with no
 // transaction open around it. Each step is stored as it finishes, so a retried job resumes after
 // the last stored step and never repeats a paid call.
 //
 // Per step:
-// - the payer is resolved from the locations touched so far plus the context's (payer.ts, Q3);
+// - the payer is resolved from the locations touched so far plus the context's (payer.ts);
 // - the tools are those the person may call in each of their locations where the assistant is on
 //   (tools/context.ts toolsFor(): module, role and door, D113, D123, D191). Write tools only where
 //   they may write; none to a viewer anywhere. The last step offers none, to force an answer;
@@ -50,9 +50,9 @@ import { noAnswer, viewerRefusal } from './words.js';
 // - write tools never run: each becomes a proposal (proposals.ts), all of one step in one batch
 //   (one card, D213), and the turn stops there (D22);
 // - a call the SDK flagged invalid is answered with an error once; the second time the turn fails.
-//   A viewer whose model still reaches for a write gets Kept's fixed sentence, no card (Q23);
+//   A viewer whose model still reaches for a write gets Kept's fixed sentence, no card;
 // - an answer's links to things no tool showed this turn are reduced to text (D179), and the
-//   answer cites the locations of its links and the turn's (Q11).
+//   answer cites the locations of its links and the turn's.
 
 export type LoopDeps = {
   pools: Pick<Pools, 'app'>;
@@ -158,7 +158,7 @@ async function finish(
 
 type StoredMessage = KeptMessage & { turnId: string | null; cited: string[] };
 
-/** The thread's last messages, starting at a question (Q4: the last 20). */
+/** The thread's last messages, starting at a question (the last 20). */
 async function history(client: pg.ClientBase, threadId: string): Promise<StoredMessage[]> {
   const { rows } = await client.query<{
     role: KeptMessage['role'];
@@ -450,7 +450,7 @@ async function steps(
       );
     }
 
-    // Tool calls. A viewer everywhere whose model reaches for a write: the fixed sentence (Q23).
+    // Tool calls. A viewer everywhere whose model reaches for a write: the fixed sentence.
     const reachedForWrite = calls.some(
       (c) =>
         isToolName(c.tool) && TOOL_DEFS[c.tool].scope === 'write' && !RUN_WITHOUT_CARD.has(c.tool),
@@ -488,7 +488,7 @@ async function steps(
       return finish(deps, scope, turn.id, 'done');
     }
     if (outcome.viewerIn) {
-      // A write where the person is a viewer, and nothing else proposed: Kept's sentence (Q23).
+      // A write where the person is a viewer, and nothing else proposed: Kept's sentence.
       return answerWith(
         deps,
         scope,
@@ -562,7 +562,7 @@ async function runCalls(
     const id = (c.input as { location_id?: unknown } | null)?.location_id;
     return typeof id === 'string' ? id.toLowerCase() : null;
   };
-  // 1. The model's message: what it called, citing what the turn has touched (Q11).
+  // 1. The model's message: what it called, citing what the turn has touched.
   await withScope(deps.pools.app, scope, async (_tx, client) => {
     const parts: Part[] = [
       ...(r.reasoning ? [{ type: 'reasoning' as const, text: r.reasoning }] : []),
@@ -654,7 +654,7 @@ async function runCalls(
       c.input,
     )) as Envelope<unknown>;
     // What a read showed is its location's, an empty answer included ("nothing there").
-    // `touches` (what the payer follows, Q3) stays what the output names; `locations` (what the
+    // `touches` (what the payer follows) stays what the output names; `locations` (what the
     // result is stored and redacted by) adds every location the call ran over.
     const named = isToolError(env) ? [] : union(at ? [at] : [], locationsIn(env, r.known));
     done.push({

@@ -1,5 +1,5 @@
 /**
- * Search offline (D17, D36, D188; screens §5 Search, §8): the Things group answers from the
+ * Search offline (D17, D36, D188): the Things group answers from the
  * phone's copy instead of the server. `OfflineStore.search()` is the `normalize()` twin of the
  * server's search (names, aliases, the short ID, legacy and own codes, Arabic folding: D42,
  * D208), and its answer includes captures still waiting to sync, "ID pending" (D112). Each row
@@ -73,7 +73,7 @@ function rowOf(t: SnapThing, path: PathStep[]): ThingRow {
     derivedState: [
       ...(t.locationUncertain ? (['uncertain'] as const) : []),
       ...(t.reviewState === 'draft' ? (['draft'] as const) : []),
-      // Lent, borrowed and in repair ride on the snapshot (step-4 plan Q34).
+      // Lent, borrowed and in repair ride on the snapshot.
       ...(t.derived ?? []),
     ],
     path,

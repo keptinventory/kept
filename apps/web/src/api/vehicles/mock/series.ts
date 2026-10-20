@@ -1,9 +1,9 @@
 /**
- * A meter's readings, finished (plan T8), and its series and proof strip (T13, D195), after the
+ * A meter's readings, finished, and its series and proof strip (D195), after the
  * server's `meters/` and `vehicles/series.ts`:
  * - GET readings gains the `readings` surface's filters, `sort`/`dir`, and each reading's proof
- *   photo and owner (a fill or a service, Q11);
- * - POST readings gains "It's right" (`confirmJump`, Q9), the proof photo and `undo`; step 2's
+ *   photo and owner (a fill or a service);
+ * - POST readings gains "It's right" (`confirmJump`), the proof photo and `undo`; step 2's
  *   handler still decides the neighbours (a backwards value is its 409);
  * - PATCH and DELETE on a reading a fill or a service owns answer 409 `reading_owned`;
  * - step 2's "the meter was replaced" (`POST /meters/:id/replaced`, T19's Meter replaced): later
@@ -158,7 +158,7 @@ export function seriesRoutes(state: MockState): MockRoute[] {
       };
       const meterId = req.params.id ?? '';
       const r = res.reading;
-      // "It's right" (Q9): an implausible jump is stored accepted; backwards never gets here.
+      // "It's right": an implausible jump is stored accepted; backwards never gets here.
       if (b.confirmJump && r.reviewReason === 'implausible_jump') {
         r.state = 'accepted';
         r.reviewReason = null;
@@ -230,7 +230,7 @@ export function seriesRoutes(state: MockState): MockRoute[] {
       return paginate(items, query, 20);
     }),
 
-    // GET /api/v1/meters/:id/series (T13).
+    // GET /api/v1/meters/:id/series.
     route('GET', p.meterSeries(':id'), ({ params, query }) => {
       ensureVehiclesSeeded(state);
       const t = visibleMeter(params.id);

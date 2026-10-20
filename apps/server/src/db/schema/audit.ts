@@ -11,16 +11,16 @@ import {
 } from 'drizzle-orm/pg-core';
 import { textEnum, tstz } from './common.js';
 
-// The audit log (§1.10, §7.5, §7.13). Append-only: no row_version, no updates from kept_app.
+// The audit log. Append-only: no row_version, no updates from kept_app.
 
 export const ACTOR_TYPES = ['user', 'token', 'system', 'import'] as const;
 const actorType = textEnum('actor_type', ACTOR_TYPES);
 
-/** Partitioned by RANGE (`at`), monthly (§7.13). Drizzle can't declare partitioning: the
+/** Partitioned by RANGE (`at`), monthly. Drizzle can't declare partitioning: the
  * generated CREATE TABLE was edited to add `PARTITION BY RANGE ("at")`, and the partitions
  * themselves are made in the tenancy triggers migration. Hence the primary key includes `at`.
  *
- * Scope (§1.1, §7.13): `location_id` for location events; `owner_account_id` alone for
+ * Scope: `location_id` for location events; `owner_account_id` alone for
  * account-level events. No foreign keys to locations: history outlives what it describes until
  * retention removes it. */
 export const auditEvents = pgTable(
@@ -65,7 +65,7 @@ export const auditEvents = pgTable(
 );
 
 /** Fans an event out to every thing it touched ("moved with Box 3", D45). Carries its event's
- * `location_id` (L15: child tables carry their scope, so RLS never needs a join); the composite
+ * `location_id` (child tables carry their scope, so RLS never needs a join); the composite
  * foreign key keeps the two in agreement. */
 export const auditEventSubjects = pgTable(
   'audit_event_subjects',

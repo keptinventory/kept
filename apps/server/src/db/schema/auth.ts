@@ -12,7 +12,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 
-// Better Auth's tables (§7.1, §7.10, spike S1). Generated with `pnpm dlx auth@1.7.6 generate`
+// Better Auth's tables. Generated with `pnpm dlx auth@1.7.6 generate`
 // (the Better Auth CLI; the package moved from `@better-auth/cli` to `auth`) for the plugins
 // twoFactor, passkey, magicLink, username and admin, then adjusted for Kept:
 // - every timestamp is `timestamptz` (the generator emits `timestamp`);
@@ -20,7 +20,7 @@ import {
 //   (`advanced.database.generateId`, see auth/auth.ts); the default only covers rows it never
 //   writes directly.
 // The tables live in schema `auth`, owned by kept_owner; kept_auth gets DML through the default
-// privileges in migration 0000. Nothing else may read them (§7.1), except where a later task
+// privileges in migration 0000. Nothing else may read them, except where a later task
 // grants one table explicitly.
 export const authSchema = pgSchema('auth');
 
@@ -96,7 +96,7 @@ export const verification = authSchema.table(
   {
     // Text, not uuid: reserveVerificationValue() (used by magic-link verify for unverified
     // emails, and by other single-use flows) writes a deterministic id, the base64url SHA-256 of
-    // the identifier. Found in spike S2.
+    // the identifier. Found in a trial run.
     id: text('id').primaryKey().default(sql`uuidv7()::text`),
     identifier: text('identifier').notNull(),
     value: text('value').notNull(),
@@ -152,7 +152,7 @@ export const passkey = authSchema.table(
   ],
 );
 
-// Better Auth's `rateLimit: { storage: 'database' }` store: shared by every replica (V32).
+// Better Auth's `rateLimit: { storage: 'database' }` store: shared by every replica.
 export const rateLimit = authSchema.table('rate_limit', {
   id: id(),
   key: text('key').notNull().unique(),
@@ -160,11 +160,11 @@ export const rateLimit = authSchema.table('rate_limit', {
   lastRequest: bigint('last_request', { mode: 'number' }).notNull(),
 });
 
-// ---- Kept's own auth-side tables (spike S2). Written by kept_auth from Better Auth hooks. ----
+// ---- Kept's own auth-side tables. Written by kept_auth from Better Auth hooks. ---------------
 
 /** A session that has passed a second factor (TOTP, backup code, OTP, or a passkey with user
  * verification). Absence means "not satisfied": the gate fails closed for any sign-in path
- * Better Auth adds later (D176, §7.14). */
+ * Better Auth adds later (D176). */
 export const sessionMfa = authSchema.table('session_mfa', {
   sessionId: uuid('session_id')
     .primaryKey()
@@ -185,7 +185,7 @@ export const userDeletion = authSchema.table('user_deletion', {
   purgeAfter: tstz('purge_after').notNull(),
 });
 
-/** Failed credential attempts keyed on account + IP (D172, engineering spec §3.2): 20 per hour
+/** Failed credential attempts keyed on account + IP (D172): 20 per hour
  * with progressive delays, so nobody can lock someone else out. `key` is a SHA-256 of the
  * normalised account identifier and the client IP, never the raw email. */
 export const signInFailures = authSchema.table('sign_in_failures', {
@@ -195,13 +195,13 @@ export const signInFailures = authSchema.table('sign_in_failures', {
   lastFailureAt: tstz('last_failure_at').notNull(),
 });
 
-// Step 6 (T7; spike S6.2): the tables `jwt()`,
+// The tables `jwt()`,
 // `oauthProvider()`/`mcp()` and `cimd()` add, from the Better Auth CLI's output for those plugins
 // (`auth@1.7.6 generate --adapter drizzle --dialect postgresql`, no `database` in its config:
 // S1's stub adapter crashes on oauth-provider's startup seeding), adjusted as above. `cimd()` adds
 // no table: a discovered client is an `oauth_client` row (`client_discovery_id = 'cimd'`,
 // `client_id` = its metadata URL). `oauth_client_assertion.id` is text: oauth-provider writes it
-// with `forceAllowId: true` as a digest of the assertion's `jti`. Generic OIDC (S6.7) adds none:
+// with `forceAllowId: true` as a digest of the assertion's `jti`. Generic OIDC adds none:
 // its link is an `account` row. Kept's grant of scope and locations is public.api_tokens (kind
 // 'oauth'), not these.
 export const jwks = authSchema.table('jwks', {

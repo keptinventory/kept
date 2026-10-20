@@ -1,7 +1,7 @@
 /**
  * The error screen of T26's routes (incidents, reports, exchange rates). Their component chunks
  * load on demand from assets/household/ (vite.config.ts), so offline before the first load the
- * page says the §3 reason, "Needs a connection", as the notification routes do; any other error
+ * page says the reason, "Needs a connection", as the notification routes do; any other error
  * is the usual error state.
  */
 import { useLingui } from '@lingui/react/macro';

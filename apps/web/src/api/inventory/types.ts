@@ -1,6 +1,6 @@
 /**
  * The step-2 web ↔ server contract: the request and response shapes of every inventory route,
- * written from the step-2 plan's Phase B route tables (tasks 11–22). The server tasks implement exactly these shapes; if one has to differ, this file
+ * written from the server's route tables. The server tasks implement exactly these shapes; if one has to differ, this file
  * changes with it, in the same commit.
  *
  * Conventions (plan, "API conventions"): JSON is camelCase; money is a decimal **string** with a
@@ -10,7 +10,7 @@
  * A money field the caller may not see is **omitted** (never null), so every money field below is
  * optional: `serialize/gates.ts` decides.
  *
- * The domain unions below mirror `packages/shared/src/inventory.ts` (task 1) value for value.
+ * The domain unions below mirror `packages/shared/src/inventory.ts` value for value.
  * They are written out here so the web contract doesn't wait for task 1; once it lands they can
  * be re-exported from `@kept/shared` without changing a single use.
  */
@@ -44,9 +44,9 @@ export type Many<T extends string = string> = T | T[];
 /** Who did something, as every history and list row shows them. */
 export type ActorRef = { displayName: string };
 
-// ----- domain values (mirror @kept/shared inventory.ts, task 1) --------------------------------
+// ----- domain values (mirror @kept/shared inventory.ts) ----------------------------------------
 
-/** D119, D158, §7.13. `ENDED` is every value except `in_use`. */
+/** D119, D158. `ENDED` is every value except `in_use`. */
 export type Lifecycle =
   | 'in_use'
   | 'sold'
@@ -58,7 +58,7 @@ export type Lifecycle =
   | 'returned_to_owner';
 export type EndedLifecycle = Exclude<Lifecycle, 'in_use'>;
 
-/** Q10. */
+/** A thing's condition. */
 export type Condition = 'new' | 'good' | 'fair' | 'poor' | 'broken';
 
 /** D76. */
@@ -82,13 +82,13 @@ export type AttachmentRole =
   | 'registration'
   | 'document';
 
-/** `files.class` (engineering spec §1.5). */
+/** `files.class`. */
 export type FileClass = 'evidence' | 'photo' | 'document' | 'video';
 
-/** `vendors.kind` (engineering spec §1.4). */
+/** `vendors.kind`. */
 export type VendorKind = 'store' | 'online' | 'service_centre' | 'station' | 'other';
 
-/** "secret" is a flag on a field, never a kind (Q3). */
+/** "secret" is a flag on a field, never a kind. */
 export type FieldKind =
   | 'text'
   | 'number'
@@ -122,9 +122,9 @@ export type DerivedState = SharedDerivedState;
 /** A built-in type or place-kind icon: `lucide:<name>`, `tabler:<name>` or `kept:<name>` (D98). */
 export type IconRef = string;
 
-// ----- types, fields and place kinds (task 11) -------------------------------------------------
+// ----- types, fields and place kinds -----------------------------------------------------------
 
-/** GET /api/v1/accounts: the account switcher (Q21). */
+/** GET /api/v1/accounts: the account switcher. */
 export type AccountSummary = {
   id: string;
   ownerDisplayName: string;
@@ -149,11 +149,11 @@ export type TypeNode = {
   capabilities: Capability[];
   /** Own plus inherited (through parents and field groups). */
   resolvedCapabilities: Capability[];
-  /** The D192 Device group is a type with this set (Q4). */
+  /** The D192 Device group is a type with this set. */
   isFieldGroup: boolean;
   /** Ids of field-group types this type pulls fields from. */
   fieldGroups: string[];
-  /** Set when this is an account's customised copy of a built-in (Q13b). */
+  /** Set when this is an account's customised copy of a built-in. */
   copiedFromId: string | null;
   /** Things using it, counted in the caller's visible locations only. */
   inUse: number;
@@ -276,7 +276,7 @@ export type CreatePlaceKindFieldBody = CreateTypeFieldBody;
 /** POST /api/v1/accounts/:accountId/place-kinds/:builtinKey/customise (T28 decision 7). */
 export type CustomisePlaceKindResult = { placeKindId: string };
 
-// ----- registries: brands, vendors, people, tags (task 11) -------------------------------------
+// ----- registries: brands, vendors, people, tags -----------------------------------------------
 
 export type Brand = {
   id: string;
@@ -380,12 +380,12 @@ export type UpdateRegistryBody = {
 export type MergeRegistryResult = { repointed: number };
 
 /**
- * GET|PUT /api/v1/people/:id/contact (D177: 404 unless visible; audited as secret, Q5). A person
- * with no contact details yet answers 200 with every field null (T11), not 404.
+ * GET|PUT /api/v1/people/:id/contact (D177: 404 unless visible; audited as secret). A person
+ * with no contact details yet answers 200 with every field null, not 404.
  */
 export type PersonContact = { phone?: string | null; email?: string | null; notes?: string | null };
 
-// ----- currencies and purchases (task 12) ------------------------------------------------------
+// ----- currencies and purchases ----------------------------------------------------------------
 
 export type Currency = {
   code: string;
@@ -434,7 +434,7 @@ export type PurchaseView = {
   currency: string | null;
   total?: string;
   tax?: string;
-  /** The amounts were withheld from this caller (T26, T12); receipts go with them. */
+  /** The amounts were withheld from this caller; receipts go with them. */
   moneyHidden?: true;
   notes: string | null;
   lines: {
@@ -446,14 +446,14 @@ export type PurchaseView = {
     thing: { id: string; name: string } | null;
   }[];
   receipts: AttachmentView[];
-  /** The lines don't reconcile with the total within ±1% (never an error; screens §7). */
+  /** The lines don't reconcile with the total within ±1% (never an error). */
   flagged: boolean;
   rowVersion: number;
 };
 /** POST /api/v1/purchase-lines/:id/link. */
 export type LinkPurchaseLineBody = { thingId: string };
 
-// ----- places (task 13) ------------------------------------------------------------------------
+// ----- places ----------------------------------------------------------------------------------
 
 /** One node of GET /api/v1/locations/:locationId/places (the whole tree; trashed excluded). */
 export type PlaceNode = {
@@ -480,7 +480,7 @@ export type PathStep = {
   name: string;
   kind: 'place' | 'container';
   isUnplaced: boolean;
-  /** The step's primary short ID, so a breadcrumb links by code (D208; step 4, T19). Null
+  /** The step's primary short ID, so a breadcrumb links by code (D208). Null
    * before one is assigned; absent from the mock and older paths. */
   shortCode?: string | null;
 };
@@ -533,7 +533,7 @@ export type UpdatePlaceBody = {
   custom?: Record<string, unknown | null>;
 };
 
-/** GET /api/v1/places/:id/contents: places first, then things (screens §5). */
+/** GET /api/v1/places/:id/contents: places first, then things. */
 export type PlaceContents = { places: PlaceNode[]; things: Page<ThingRow> };
 
 export type MoveTarget = { placeId: string } | { containerId: string };
@@ -547,14 +547,14 @@ export type ContentsChoiceDetails = { counts: { places: number; things: number }
 /** POST /api/v1/places/:id/restore and /things/:id/restore. `hint` when a child went to Unplaced. */
 export type RestoreResult = { restored: string[]; hint?: string };
 
-/** POST /api/v1/places/:id/convert-to-container → the same id as a thing (Q14). */
+/** POST /api/v1/places/:id/convert-to-container → the same id as a thing. */
 export type ConvertToContainerBody = { typeId?: string };
 export type ConvertToContainerResult = { thingId: string };
 
 /** POST /api/v1/places/:id/label (`labels` module; printing is step 3). */
 export type LabelResult = { code: string };
 
-// ----- things (task 14) ------------------------------------------------------------------------
+// ----- things ----------------------------------------------------------------------------------
 
 export type TypeRef = { id: string; icon: IconRef; name: string | null; builtinKey: string | null };
 
@@ -575,7 +575,7 @@ export type ThingRow = {
   containerThumbUrl: string | null;
   thumbUrl: string | null;
   lastSeenAt: string | null;
-  /** Search only: the alias the query matched ("matched: display cable", screens §8). */
+  /** Search only: the alias the query matched ("matched: display cable"). */
   matchedAlias?: string;
   /**
    * Search only: found by meaning alone, not by its words (step 6 T14, D200): "matched by meaning".
@@ -595,7 +595,7 @@ export type ThingMeter = {
   label: string | null;
   latest: { value: string; takenAt: string } | null;
   needsReview: number;
-  /** For PATCH /api/v1/meters/:id (If-Match, T16). */
+  /** For PATCH /api/v1/meters/:id (If-Match). */
   rowVersion: number;
 };
 
@@ -667,13 +667,13 @@ export type ThingView = ThingRow & {
   currentValue?: ThingCurrentValue | null;
   /**
    * Step 4, T9 (D54): the claim in repair. The path line reads "at <vendor>" and the header
-   * "Usually in <place>" (screens §8). `vendorName` is null for a claim without a vendor.
+   * "Usually in <place>". `vendorName` is null for a claim without a vendor.
    */
   repairAt?: { vendorName: string | null } | null;
   /**
    * Step 4, T10 (D57): the open loan, which the web formats as "with Murdock since 3 Oct · due
    * 17 Oct". Shape proposed by T20 (the plan names `loanLine` only); a person's name is not a
-   * contact detail (plan Q34), so nothing else about them is here.
+   * contact detail, so nothing else about them is here.
    */
   loanLine?: ThingLoanLine | null;
   rowVersion: number;
@@ -681,12 +681,12 @@ export type ThingView = ThingRow & {
   updatedAt: string;
 };
 
-/** The thing view's current value (T8): the amount, or only that it's hidden (the money gate). */
+/** The thing view's current value: the amount, or only that it's hidden (the money gate). */
 export type ThingCurrentValue =
   | { amount: string; currency: string; valuedOn: string; source: ValuationSource }
   | { moneyHidden: true };
 
-/** The thing view's open loan (T10; proposed by T20). */
+/** The thing view's open loan (proposed by T20). */
 export type ThingLoanLine = {
   direction: LoanDirection;
   personName: string;
@@ -713,11 +713,11 @@ export type ThingListParams = {
   /** Which of the filters above are "is none of" (D205). */
   not?: ('locationId' | 'typeId' | 'tagId' | 'belongsToId' | 'brandId' | 'state')[];
   lifecycle?: Lifecycle;
-  /** `1` ⇒ containers only (T26). */
+  /** `1` ⇒ containers only. */
   container?: 1;
   /** `1` ⇒ things of a consumable type only (D236: a service line's "From stock" picker). */
   consumable?: 1;
-  /** The things an import run brought in ("Imported by", step-7 T16). Owners and admins; for
+  /** The things an import run brought in ("Imported by"). Owners and admins; for
    * anyone else the server matches nothing. */
   importRunId?: string;
   q?: string;
@@ -754,7 +754,7 @@ export type CreateThingBody = {
   custom?: Record<string, unknown>;
   /** Makes a one-line purchase. */
   purchase?: { purchasedOn: string; vendorId?: string; currency: string; price: string };
-  /** Quick add (T19): the template's payload is the base, and the fields sent here win. */
+  /** Quick add: the template's payload is the base, and the fields sent here win. */
   templateId?: string;
 };
 
@@ -811,7 +811,7 @@ export type SeenResult = { lastSeenAt: string };
 export type RetypeBody = { typeId: string };
 
 /** POST /api/v1/things/:id/duplicate → 201 ThingView & {ownCodes}: the copy's own codes once it
- * committed, as for a create (D208; step 4, T19). */
+ * committed, as for a create (D208). */
 export type DuplicateBody = { id?: string };
 
 /** POST /api/v1/things/:id/split (D10). */
@@ -842,7 +842,7 @@ export type ConvertToPlaceResult = { placeId: string };
 /** GET /api/v1/codes/:code: a 404 is identical for missing and forbidden codes (D137). */
 export type CodeLookup = { kind: 'thing' | 'place'; id: string };
 
-// ----- moves (task 15) -------------------------------------------------------------------------
+// ----- moves -----------------------------------------------------------------------------------
 
 /** POST /api/v1/things/move/preview (read-only; D45's "who will lose sight"). */
 export type MovePreviewBody = { thingIds: string[]; to: MoveTarget };
@@ -953,7 +953,7 @@ export type BulkTrashResult = { trashed: string[]; moved: string[]; events: stri
 /** POST /api/v1/things/:id/empty-into ("Empty Box 3 into Box 5", D45). */
 export type EmptyIntoBody = { to: MoveTarget };
 
-// ----- meters and readings (task 16) -----------------------------------------------------------
+// ----- meters and readings ---------------------------------------------------------------------
 
 export type CreateMeterBody = { kind: string; unit: string; label?: string; maxPerDay?: number };
 export type UpdateMeterBody = { label?: string | null; maxPerDay?: number | null };
@@ -977,7 +977,7 @@ export type Reading = {
   reviewReason: ReviewReason | null;
   loggedBy: ActorRef;
   note: string | null;
-  /** For PATCH /api/v1/readings/:id's optional If-Match (T16). */
+  /** For PATCH /api/v1/readings/:id's optional If-Match. */
   rowVersion: number;
 };
 
@@ -997,7 +997,7 @@ export type ReadingConflictDetails = {
 /** POST /api/v1/meters/:id/replaced (D52). */
 export type MeterReplacedBody = { at: string; offset: string };
 
-// ----- files and attachments (task 17) ---------------------------------------------------------
+// ----- files and attachments -------------------------------------------------------------------
 
 export type DerivativeState = 'ready' | 'pending' | 'unavailable' | 'not_applicable';
 
@@ -1026,10 +1026,10 @@ export type FileUrl = { url: string; expiresAt: string };
 export type DeleteFileBody = { reason: string };
 
 /**
- * What an attachment hangs on. Step 4 adds a warranty's and a claim's documents (T9), a loan's
- * condition photos (T10), a service record's invoice (T11), an expiring document's files (T12)
- * a valuation's documents (T8) and an incident's (T18), the `warranty_id`, `claim_id`, `loan_id`,
- * `service_record_id`, `expiring_document_id`, `valuation_id` and `incident_id` columns of §7.13.
+ * What an attachment hangs on. Step 4 adds a warranty's and a claim's documents, a loan's
+ * condition photos, a service record's invoice, an expiring document's files
+ * a valuation's documents and an incident's, the `warranty_id`, `claim_id`, `loan_id`,
+ * `service_record_id`, `expiring_document_id`, `valuation_id` and `incident_id` columns.
  */
 export type AttachmentSubject =
   | { thingId: string }
@@ -1044,7 +1044,7 @@ export type AttachmentSubject =
   | { valuationId: string }
   | { serviceRecordId: string }
   | { incidentId: string }
-  /** Step 5 (T11): a fill's pump receipt. */
+  /** A fill's pump receipt. */
   | { fuelEntryId: string }
   /** 1.x (D235): a condition report room's photo. */
   | { conditionRoomId: string };
@@ -1058,7 +1058,7 @@ export type AttachmentView = {
   url: string | null;
   subject: AttachmentSubject;
   createdBy: ActorRef;
-  /** For PATCH /api/v1/attachments/:id (If-Match, T17). */
+  /** For PATCH /api/v1/attachments/:id (If-Match). */
   rowVersion: number;
 };
 
@@ -1075,7 +1075,7 @@ export type CreateAttachmentBody = {
 /** PATCH /api/v1/attachments/:id (If-Match). */
 export type UpdateAttachmentBody = { role?: AttachmentRole; sort?: number };
 
-// ----- secrets (task 19) -----------------------------------------------------------------------
+// ----- secrets ---------------------------------------------------------------------------------
 
 /** PUT /api/v1/{things|places}/:id/secrets/:fieldKey → 204. 409 `recovery_kit_required` (D193). */
 export type SetSecretBody = { value: string };
@@ -1088,7 +1088,7 @@ export type SecretPolicy = {
   aiAllowed: boolean;
 };
 
-// ----- search and saved views (task 20) --------------------------------------------------------
+// ----- search and saved views ------------------------------------------------------------------
 
 export type SearchKind = 'things' | 'places' | 'people' | 'vendors' | 'documents';
 
@@ -1143,7 +1143,7 @@ export type DocumentSubjectKind =
   | 'incident'
   | 'location';
 /**
- * One attachment whose file's text matches (T21, f595aab): a PDF's text layer, or a receipt's.
+ * One attachment whose file's text matches (f595aab): a PDF's text layer, or a receipt's.
  * `subject.name` is the thing's, place's or location's name; a purchase's vendor; a reading's
  * thing. `snippet` is an excerpt around the first match, as the document wrote it (plain text,
  * no ellipses), sent only where the caller sees money; elsewhere there is no `snippet` and
@@ -1168,12 +1168,12 @@ export type SearchResponse = {
   places: PlaceResult[];
   people: PersonResult[];
   vendors: VendorResult[];
-  /** Attachments whose text matches (T21); `kind=documents` asks for this group alone. */
+  /** Attachments whose text matches; `kind=documents` asks for this group alone. */
   documents: { items: DocumentResult[] };
   didYouMean: string[];
   asOf: string;
   /**
-   * Semantic search's state for this query (step 6 T14, D200, §7.15): absent or null when meaning
+   * Semantic search's state for this query (step 6 T14, D200): absent or null when meaning
    * was searched too; otherwise why the results are keyword only: `paused` (a cap, until when),
    * `waiting` (the provider's limit), `off` (the server's embeddings are off) or `keyword_only`
    * (no embeddings model for the searched locations).
@@ -1230,7 +1230,7 @@ export type UpdateSavedViewBody = {
   sharedLocationId?: string | null;
 };
 
-// ----- trash, history and activity (task 21) ---------------------------------------------------
+// ----- trash, history and activity -------------------------------------------------------------
 
 /** GET /api/v1/trash?locationId&kind&q&cursor. */
 export type TrashItem = {
@@ -1268,7 +1268,7 @@ export type RenderedChange = (
 
 /**
  * A history or activity row: the server's `RenderedAuditEvent` (snake_case, as `renderAudit`
- * returns it) plus the actor's display name and a one-line summary (plan task 21).
+ * returns it) plus the actor's display name and a one-line summary.
  */
 /** A history row's detail line (#140): a key and params the web says, and the server's English. */
 export type SummaryLineView = { key: string; params: Record<string, string>; text: string };
@@ -1302,13 +1302,13 @@ export type HistoryEvent = {
   /** A `thing.move` arriving from a location the viewer can't see (D183): rendered with no diff. */
   movedInFromElsewhere?: boolean;
   /**
-   * An `ai_call` entry (D206, engineering spec §7.15 "Elsewhere"): a ledger row with this thing's
+   * An `ai_call` entry (D206): a ledger row with this thing's
    * id or an extraction of its attachments, visible to whoever sees the thing, cost per the gate.
    * Such an entry has `action: 'ai.call'`, `summaryKey: 'ai.call'`, no diff and no undo.
    */
   aiCall?: AiCallSummary & { task: LedgerTask };
   /**
-   * A thing's history: an event of a thing merged into this one (D36, plan Q16, T15), shown as
+   * A thing's history: an event of a thing merged into this one (D36), shown as
    * "merged from <name>". `name` is the merged thing's, null when it had none.
    */
   mergedFrom?: { id: string; name: string | null };
@@ -1335,7 +1335,7 @@ export type ActivityParams = {
 export type ActorsResponse = { items: { id: string; displayName: string }[] };
 
 /**
- * POST /api/v1/audit/:eventId/undo (D150, T27 decision; T20): reverses one event inside its
+ * POST /api/v1/audit/:eventId/undo (D150, T27 decision): reverses one event inside its
  * `undoable_until` window. Step 2: thing.update/retype/lifecycle/move/trash, place.update/move;
  * step 3 adds place.trash, thing.capture, capture.batch_undo, thing.extract, purchase.extract,
  * box.check and inbox.bulk. A refusal is 409 `undo_refused` with a hint and a `reason`
@@ -1344,7 +1344,7 @@ export type ActorsResponse = { items: { id: string; displayName: string }[] };
  */
 export type UndoResult = { undoOf: string; eventId: string };
 
-// ----- home and hints (task 22) ----------------------------------------------------------------
+// ----- home and hints --------------------------------------------------------------------------
 
 export type ChecklistKey =
   | 'locationCreated'
@@ -1356,13 +1356,13 @@ export type ChecklistKey =
 
 /**
  * GET /api/v1/home. "Put Kept on HTTPS" is added by the client over http (D193). Zero attention
- * rows are hidden by the client, in the §8 order.
+ * rows are hidden by the client, in Home's attention order.
  *
- * Step 3 (T22): `attention.toReview` counts the open inbox items of your writable locations
+ * `attention.toReview` counts the open inbox items of your writable locations
  * (yours and everyone's) plus the things with a reading to review that isn't already an inbox
  * item; `counts.inbox` is those items alone (the row opens the inbox when there are any, and
  * the sidebar's Inbox badge shows it); `counts.unprintedLabels` is the things whose code was
- * never printed, where Labels is on (Q28).
+ * never printed, where Labels is on.
  */
 export type HomeResponse = {
   checklist: { dismissed: boolean; items: { key: ChecklistKey; done: boolean }[] };
@@ -1372,7 +1372,7 @@ export type HomeResponse = {
     longUnseen: number;
     unplaced: number;
     /**
-     * Step 4 (T13): GET /agenda's counts, and the open loans out and in (GET /loans?state=open's
+     * GET /agenda's counts, and the open loans out and in (GET /loans?state=open's
      * `counts.out`, `counts.in`). Optional while the mock's /home doesn't send them.
      */
     overdue?: number;
@@ -1380,10 +1380,10 @@ export type HomeResponse = {
     expiring?: number;
     lentOut?: number;
     borrowedIn?: number;
-    /** Step 7 (T17, T23): things below their "keep at least", where Consumables is on. */
+    /** Things below their "keep at least", where Consumables is on. */
     lowStock?: number;
   };
-  /** Step 4 (T13): each of overdue, due and expiring by source, so a row opens Schedules when
+  /** Each of overdue, due and expiring by source, so a row opens Schedules when
    * every item is a schedule and Expiring otherwise. Optional as `attention`'s step-4 counts. */
   agendaBySource?: Record<
     'overdue' | 'due' | 'expiring',
@@ -1456,7 +1456,7 @@ export type HintsResponse = { hints: Hint[] };
 /** PUT /api/v1/me/hints/:key. */
 export type UpdateHintBody = { seen?: boolean; dismissed?: boolean };
 
-// ----- the inventory report (task 32, D201; apps/server/src/reports/service.ts) ----------------
+// ----- the inventory report (D201; apps/server/src/reports/service.ts) -------------------------
 
 /** What a report covers: one location, or an account across the locations you can see. */
 export type ReportScope = { locationId: string } | { accountId: string };
@@ -1469,7 +1469,7 @@ export type InventoryReportBody = {
     placeIds?: string[];
     typeIds?: string[];
     tagIds?: string[];
-    /** Exactly these things, at most PRINT_MAX_THINGS: "Print" on a list (step-7 T16). */
+    /** Exactly these things, at most PRINT_MAX_THINGS: "Print" on a list. */
     thingIds?: string[];
     includeEnded?: boolean;
     includeTrashed?: boolean;

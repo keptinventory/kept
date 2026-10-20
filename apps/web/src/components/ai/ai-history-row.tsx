@@ -1,5 +1,5 @@
 /**
- * An AI call in a thing's history (D206, screens §5 Thing detail): what it was for, who caused
+ * An AI call in a thing's history (D206): what it was for, who caused
  * it, when, and the AI line (model, tokens, ≈ cost per the gate, who paid), which opens the ledger
  * row. Nothing here can be undone: it's a record of a call, not a change.
  */

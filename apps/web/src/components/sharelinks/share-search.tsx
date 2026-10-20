@@ -3,7 +3,7 @@
  * keeps the words and the place, type and tag filters (@kept/shared shareViewOf) and shows what
  * they find when it is opened, in one location. So the link never shows more than the list did,
  * it is offered only for a list narrowed to one location the person administers (not Personal),
- * without state or price filters; otherwise the button says what to change (screens §3: disabled
+ * without state or price filters; otherwise the button says what to change (disabled
  * with the reason). Hidden for someone who administers no location that can share.
  */
 import { shareViewOf } from '@kept/shared';

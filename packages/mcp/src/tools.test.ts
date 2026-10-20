@@ -13,7 +13,7 @@ import {
 
 const defs = Object.entries(TOOL_DEFS) as [string, ToolDef][];
 
-/** The table in the step-6 plan, task 1 step 1. */
+/** The tool table. */
 const TABLE: Record<
   string,
   [scope: 'read' | 'write', module: string | null, since: number | '1.x']

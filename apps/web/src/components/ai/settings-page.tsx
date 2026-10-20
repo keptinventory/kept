@@ -1,5 +1,5 @@
 /**
- * AI settings (D191, D202, D206; screens §5 "AI settings"), for one key scope:
+ * AI settings (D191, D202, D206), for one key scope:
  *
  * - `account` (Settings → AI): the account's key, for owners. Others (a member or viewer in someone
  *   else's home) get "What uses AI", a line per location saying who pays, and their own month.

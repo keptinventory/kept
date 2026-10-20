@@ -19,13 +19,13 @@ import { isPrivateAddress, PrivateAddressError, type Resolve } from '../net/ssrf
 import { newWebhookSecret } from '../notify/webhook.js';
 
 // Location webhooks: the rows behind /api/v1/locations/:id/webhooks and /api/v1/webhooks/:id
-// (step-6 plan T15; engineering spec §2.6; D63, D110, D180). The web's contract is
+// (D63, D110, D180). The web's contract is
 // apps/web/src/api/connections/types.ts (WebhookRow, CreatedWebhook, WebhookDelivery).
 //
 // - Owners and admins only (`webhooks.manage`): a location the caller can't see is a 404, one
 //   they see but don't administer a 403. Row-level security says the same (0078): kept_app sees
 //   and writes a location's hooks only as its admin.
-// - The signing secret is made here, sealed with AAD `webhooks|<id>|secret` (§7.3) and shown
+// - The signing secret is made here, sealed with AAD `webhooks|<id>|secret` and shown
 //   once, in the create or rotate answer. kept_app can't SELECT it back; the delivery job opens
 //   it through kept.webhook_secret() as kept_system (deliver.ts).
 // - Audit images hold the URL, the events and the switch; never the secret or its ciphertext. A

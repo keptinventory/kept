@@ -1,17 +1,17 @@
 -- Custom SQL migration file, put your code below! --
--- Step 5, task 4: meters and readings, step 5's additions (engineering spec §3.4, §7.13; D27, D52,
--- D195; plan Q10, Q18, Q19). Above, in 0060, drizzle's part: meters.nudge_days (7–365, 30 by
+-- Meters and readings, step 5's additions (D27, D52,
+-- D195). Above, in 0060, drizzle's part: meters.nudge_days (7–365, 30 by
 -- default, NULL for no nudge). Below:
 --   1. nudge_days joins the meter's column grant (0018): owners and admins set it
 --      (`meters.manage` is can()'s, as for the daily limit).
---   2. Readings reach the snapshot (Q18): the offline snapshot's SnapMeter carries the latest
+--   2. Readings reach the snapshot: the offline snapshot's SnapMeter carries the latest
 --      reading, and the snapshot resends a thing only when its change_xid moves. A reading doesn't
 --      touch its thing, so kept.touch_reading_meters() bumps things.meter_version (a quiet column
 --      since 0047: change_seq only, row_version stays) when a reading is added, removed, or its
 --      value, time or state changes. A move's cascade rewrites location_id only and fires nothing.
 --      A reading deleted with its thing (the trash purge's cascade) finds no meter left to join,
 --      so it bumps nothing.
---   3. Proof photos move to their reading (Q10, D27, D195), once. Step 3 attached READING proofs
+--   3. Proof photos move to their reading (D27, D195), once. Step 3 attached READING proofs
 --      to the thing. A READING capture with a typed value made its reading with the capture's id,
 --      and its `thing.capture` event's diff names the meter and the attachments
 --      (capture/service.ts: capture_id, meter_id, attachment_ids, each as {before, after}; the

@@ -1,5 +1,5 @@
 /**
- * The shutter (D34; plan T25, Q20): the video's current frame, drawn at the track's full
+ * The shutter (D34): the video's current frame, drawn at the track's full
  * resolution, then kept the way the mode says (image.ts). The session stays open, so the next
  * shot is instant.
  */

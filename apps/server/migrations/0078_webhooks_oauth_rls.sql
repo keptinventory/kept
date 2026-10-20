@@ -1,9 +1,9 @@
 -- Custom SQL migration file, put your code below! --
--- Step 6, task 7: location webhooks, Better Auth's OAuth tables, instance settings (engineering
--- spec §1.10, §2.6, §3.1b, §3.3; D63, D110, D172, D180; plan Q16, Q18). Above, in 0077, drizzle's
+-- Location webhooks, Better Auth's OAuth tables, instance settings (D63, D110, D172, D180).
+-- Above, in 0077, drizzle's
 -- part: webhooks (a sealed, write-only secret; key_version as every sealed column, so rotate-key
 -- walks it), webhook_deliveries (one per hook and event), the eight tables Better Auth's jwt(),
--- oauthProvider()/mcp() and cimd() plugins use (schema auth, exactly spike S6.2's delta; kept_auth
+-- oauthProvider()/mcp() and cimd() plugins use (schema auth, exactly the plugins' own delta; kept_auth
 -- has DML on them through 0000's default privileges, kept_app and kept_system nothing), and
 -- instance_settings_values_chk (the embeddings source, the thread lifetime, the OIDC and SMTP
 -- configuration hashes). Below:
@@ -15,9 +15,9 @@
 --      kept.webhook_secret() (SYS).
 --   2. webhook_deliveries: the location's admins read them (the webhook's history); only
 --      kept_system writes them (the fan-out records one per hook and event, the delivery job each
---      attempt). kept.prune_stale_rows() drops those past 30 days (§3.3).
+--      attempt). kept.prune_stale_rows() drops those past 30 days.
 --   3. kept.webhooks_listening(location, event) (APP): whether an active hook there takes the
---      event, so audited() enqueues a fan-out only then, in the write's transaction (Q18); a
+--      event, so audited() enqueues a fan-out only then, in the write's transaction; a
 --      member can't read the hooks themselves. A yes or no, nothing else.
 --   4. D180: a hook stops (disabled_reason 'creator_lost_role') when its creator stops
 --      administering the location: kept.disable_webhooks_for() (SYS; APP for the membership
@@ -129,7 +129,7 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, public AS $$
     FROM public.webhooks w WHERE w.id = p_id
 $$;
 --> statement-breakpoint
--- Whether a write in a location the caller sees should fan out (Q18): false for a location it
+-- Whether a write in a location the caller sees should fan out: false for a location it
 -- can't see.
 CREATE FUNCTION kept.webhooks_listening(p_location uuid, p_event text) RETURNS boolean
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, public AS $$
@@ -229,7 +229,7 @@ BEGIN
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'inbox_items'; removed := n; RETURN NEXT;
 
-  -- 0055 (step 4, §3.3): the centre keeps 90 days; the reminder ledger a year.
+  -- 0055: the centre keeps 90 days; the reminder ledger a year.
   DELETE FROM public.notifications x WHERE x.created_at < now() - interval '90 days';
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'notifications'; removed := n; RETURN NEXT;
@@ -248,12 +248,12 @@ BEGIN
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'notification_digests'; removed := n; RETURN NEXT;
 
-  -- 0070 (step 6, Q19): a rate window is a minute; two hours is plenty for Retry-After.
+  -- 0070: a rate window is a minute; two hours is plenty for Retry-After.
   DELETE FROM public.token_rate_windows w WHERE w.minute < now() - interval '2 hours';
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'token_rate_windows'; removed := n; RETURN NEXT;
 
-  -- 0078 (step 6, §3.3): a webhook's deliveries keep 30 days.
+  -- 0078: a webhook's deliveries keep 30 days.
   DELETE FROM public.webhook_deliveries d WHERE d.created_at < now() - interval '30 days';
   GET DIAGNOSTICS n = ROW_COUNT;
   what := 'webhook_deliveries'; removed := n; RETURN NEXT;

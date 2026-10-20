@@ -1,5 +1,5 @@
 /**
- * Insights (1.x, D234; D39 item 8, D54, D113; screens §1): spending on things per year, what
+ * Insights (1.x, D234; D39 item 8, D54, D113): spending on things per year, what
  * things are worth per place and location, what the vehicles cost month by month, and how much is
  * under warranty. Global across your locations with Money on, narrowed by the location chip
  * (D174, `f.location` in the URL).

@@ -1,4 +1,4 @@
-/** On-device diagnostics (plan T23; D188, L87, L96): opt-in checks and "Copy report". */
+/** On-device diagnostics (D188): opt-in checks and "Copy report". */
 import { useLingui } from '@lingui/react/macro';
 import { createFileRoute } from '@tanstack/react-router';
 import { Page } from '@/components/page';

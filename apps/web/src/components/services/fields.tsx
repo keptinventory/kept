@@ -1,5 +1,5 @@
 /**
- * Pieces the Complete sheet and Log a service share (screens §5 Log a service, §7): a reading
+ * Pieces the Complete sheet and Log a service share: a reading
  * refused at entry, said with the neighbour it collides with (D112, as the meters section says
  * it); a decimal typed in either digits; and an amount with its currency (the Purchase rule).
  */
@@ -42,7 +42,7 @@ export function decimalOf(s: string): string | null {
   return /^\d+(\.\d+)?$/.test(w) ? w : null;
 }
 
-/** An amount, or `''` for none, or null when it isn't one (the Purchase rule, §7). */
+/** An amount, or `''` for none, or null when it isn't one (the Purchase rule). */
 export function amountOf(s: string): string | null {
   if (!s.trim()) return '';
   try {

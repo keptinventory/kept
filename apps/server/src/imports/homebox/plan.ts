@@ -29,11 +29,11 @@ import {
   templateTagIds,
 } from './read.js';
 
-// The Homebox mapping (D146, rule by rule; step-7 plan T9). planHomebox() is pure: over the
+// The Homebox mapping (D146, rule by rule). planHomebox() is pure: over the
 // archive's tables (read.ts), the run's choices and the target's lookups (lookups.ts) it answers
 // the steps the job takes, in apply order, and the dry run's report. The dry run stores the
-// report and writes nothing; the job (apply.ts, T10) works the same steps through the step-2
-// services, each remembered in import_source_ids (source `homebox`, plan Q2) under its `key`, so
+// report and writes nothing; the job (apply.ts) works the same steps through the step-2
+// services, each remembered in import_source_ids (source `homebox`) under its `key`, so
 // a resumed or re-run import skips what is done.
 //
 // - each collection → the run's location; location-type entities → places, keeping the tree
@@ -42,7 +42,7 @@ import {
 // - other entities → things; one holding others is a container: its type gets the `container`
 //   capability when this import creates it, else the thing is a "Box / bin";
 // - entity types → Kept types by the `types` choice (or by normalised name), else created, with
-//   icons per spike H2 (`hb_icon_dropped`);
+//   icons dropped (`hb_icon_dropped`);
 // - description, a blank line, then notes; manufacturer → brand, model, serial;
 // - purchase date, from and price → a one-line purchase (D115) in the `currency` choice, its
 //   vendor by name; warranty expiry or lifetime → a warranty from the purchase date; sold → the
@@ -50,18 +50,18 @@ import {
 // - tags → tags with colours, flattened (each ancestor tag applied too); tag icons dropped;
 // - custom fields → the mapped type's field of the same normalised label and kind, else by the
 //   `fields` choice: added to the type (a built-in is customised first) or kept in the notes;
-// - `insured` → a yes/no "Insured" field on the type, per the `insured` choice (Q25);
+// - `insured` → a yes/no "Insured" field on the type, per the `insured` choice;
 // - quantity 0 → 1 (`hb_quantity_zero`); fractional kept (D183) unless the type counts one by
 //   one (serialized, metered: `hb_quantity_rounded`, the original in the notes);
 // - archived → skipped (`hb_archived_skipped`) or tagged "Archived in Homebox";
 // - Homebox's seeded places and tags, empty and unused, skipped by default (`hb_seeded_skipped`);
 // - attachments: photo (the primary first), manual, warranty → the warranty's document, receipt
 //   → the purchase's receipt, attachment → document; thumbnails skipped; links → link
-//   attachments; a type Kept doesn't keep → `file_type_refused` (Q15), listed;
+//   attachments; a type Kept doesn't keep → `file_type_refused`, listed;
 // - maintenance done → a service record; only scheduled → a one-off schedule;
 // - templates → account templates, best effort (`hb_template_partial`);
 // - dates are the UTC date part; a `time` field within a second of its row's creation is empty
-//   (`hb_time_default`, spike H1's heuristic); notifiers never read (`hb_notifier_skipped`);
+//   (`hb_time_default`, a heuristic from real exports); notifiers never read (`hb_notifier_skipped`);
 // - legacy codes: every asset ID (`000-001`) and entity UUID, collection = manifest.groupId; one
 //   the location already has is `code_taken`.
 // Where a record's module is off in the location, or it can't be made (no start date for a
@@ -217,7 +217,7 @@ const ROLE: Record<string, string> = {
   receipt: 'receipt',
   attachment: 'document',
 };
-/** What an import can store (storage/sniff.ts, without video): photos and PDF (D157, Q15). */
+/** What an import can store (storage/sniff.ts, without video): photos and PDF (D157). */
 const KEPT_MIMES = new Set([
   'image/jpeg',
   'image/png',

@@ -1,5 +1,5 @@
 /**
- * The Unplaced area and "Sort them" (D118, screens §5 Location-only). The card says how many
+ * The Unplaced area and "Sort them" (D118). The card says how many
  * things were captured into a location with no place yet; Sort them walks through them one at a
  * time with the move picker (Skip leaves one where it is). To move several at once, open the
  * Unplaced area and use Select.

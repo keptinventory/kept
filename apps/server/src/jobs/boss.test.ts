@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { testDb } from '../../test/db.js';
 import { createBoss, sendInTx } from './boss.js';
 
-// Spike S1 (V33): pg-boss with its migrations off, under non-owner roles.
+// pg-boss with its migrations off, under non-owner roles.
 describe('pg-boss under kept_system, sending from kept_app', () => {
   let boss: PgBoss;
   let urls: Awaited<ReturnType<typeof testDb>>['urls'];

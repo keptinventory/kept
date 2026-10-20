@@ -24,7 +24,7 @@ import { runTool, toolsFor } from './context.js';
 import { handledTools } from './registry.js';
 import type { ToolContext, ToolPrincipal, ToolVia } from './types.js';
 
-// T9 through runTool(), as the assistant (T13) and MCP (T11) will call it: each tool against a
+// T9 through runTool(), as the assistant and MCP will call it: each tool against a
 // seeded instance as Louis (member of Home), Talia (viewer) and Ibrahim (owner). Every answer is
 // validated against its TOOL_DEFS output schema and the 8 KB limit.
 
@@ -784,7 +784,7 @@ describe('adjust_stock (step 7)', () => {
 });
 
 // ---------------------------------------------------------------------------------------------
-// Parity (Q1): the route and the tool call the same operation, so the same input writes the
+// Parity: the route and the tool call the same operation, so the same input writes the
 // same row.
 // ---------------------------------------------------------------------------------------------
 

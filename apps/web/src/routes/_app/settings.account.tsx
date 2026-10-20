@@ -1,5 +1,5 @@
 /**
- * Account settings (screens §5 Settings → Account, Q21): the registries of one owner account,
+ * Account settings: the registries of one owner account,
  * with a switcher over the accounts you manage. `?account=` picks the account (yours by default)
  * and every tab keeps it; each tab's own list state (search, the selected type) is its own.
  * "Print inventory" (D201) makes a report of the account's locations you can see.

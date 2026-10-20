@@ -1,5 +1,5 @@
 /**
- * Recent activity on Home (screens §5 Home, §8; D240): the newest 3 entries on the phone, 5 on
+ * Recent activity on Home (D240): the newest 3 entries on the phone, 5 on
  * desktop, then "All activity". Rows are the Activity feed's (`EventRow`, compact: who, what,
  * when and where, without the field changes).
  *
@@ -31,7 +31,7 @@ import { useMediaQuery, WIDE } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import { HomeSection, SectionLink } from './section';
 
-/** Screens §8: 3 on the phone, 5 on desktop. */
+/** 3 on the phone, 5 on desktop. */
 export const RECENT_PHONE = 3;
 export const RECENT_DESKTOP = 5;
 /** Photos to review: one row of four. */

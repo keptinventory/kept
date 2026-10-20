@@ -1,7 +1,7 @@
 import { utimes, writeFile } from 'node:fs/promises';
 import type { PgBoss } from 'pg-boss';
 
-// The worker's liveness signal (step-1 carry-over; step-8 plan T13). A `KEPT_ROLE=worker`
+// The worker's liveness signal. A `KEPT_ROLE=worker`
 // process serves no HTTP, so the image's HEALTHCHECK can't ask /readyz. Instead, every few
 // seconds the worker looks at its pg-boss workers' last successful fetch (pg-boss's own
 // `getWipData()`: `lastFetchedOn` is set only after a fetch from the database returned), and while

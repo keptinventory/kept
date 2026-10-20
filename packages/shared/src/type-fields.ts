@@ -1,5 +1,5 @@
 /**
- * Type fields, resolved and validated (D92, D154, D192; Q3, Q4). Shared by the server's routes and
+ * Type fields, resolved and validated (D92, D154, D192). Shared by the server's routes and
  * the web forms, so both refuse the same values. Works for built-ins and for account types alike:
  * anything with a `key`, `fields` and optional `groups`.
  */
@@ -8,7 +8,7 @@ import { z } from 'zod';
 import type { FieldDef } from './builtin-types.js';
 import { parseAmount } from './money.js';
 
-/** A decimal amount as the API accepts it: at most 12 integer digits and 4 decimals (§7.13). */
+/** A decimal amount as the API accepts it: at most 12 integer digits and 4 decimals. */
 export const AMOUNT_STRING = /^\d{1,12}(?:\.\d{1,4})?$/;
 export const CURRENCY_CODE = /^[A-Z]{3}$/;
 const TEXT_MAX = 2000;
@@ -124,7 +124,7 @@ const SECRET_MESSAGE = 'Secret fields are written through the secrets route, not
 /**
  * The strict schema for a thing's `custom` object: every resolved field optional, unknown keys
  * refused, and a secret field refused with a pointer to the secrets route (secrets never reach
- * `custom`: §7.13, Q3).
+ * `custom`).
  */
 export function customSchema(fields: readonly FieldDef[]) {
   const shape: Record<string, z.ZodType> = {};

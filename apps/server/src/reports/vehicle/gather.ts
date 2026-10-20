@@ -8,14 +8,14 @@ import { correctedValueSql, odometerOf, type VehicleMeter } from '../../vehicles
 import { typeNameOf } from '../gather.js';
 import type { ReportLocale } from '../labels.js';
 
-// What the vehicle history report holds (step-5 plan T15; D51, D201; Q16), read in the
+// What the vehicle history report holds (D51, D201), read in the
 // requester's scope: the `report` job runs as a tenant job inside withScope() on kept_app, so
 // row-level security decides what it can see, as for a request.
 //
 // - The vehicle: its name, type, short ID, VIN and plate (the built-in `vin` and `plate` fields of
 //   `custom`; a secret is never in `custom`, and the secrets store is never read), location, and
 //   cover photo.
-// - Odometer history, bounded by rows (V39: rows
+// - Odometer history, bounded by rows (rows
 //   drive the render's memory, not photos): every accepted reading that has a proof photo or was
 //   typed by hand, plus the latest of each local month. A fill's or a service's own reading also
 //   shows in its section. Proof photos: the latest PROOF_LIMIT (the measured load), "N more" past
@@ -31,7 +31,7 @@ import type { ReportLocale } from '../labels.js';
 
 /** Proof photos printed: the measured load of V39 (200 at five years, ~300 MB). */
 export const PROOF_LIMIT = 200;
-/** Invoice thumbnails printed per service (the spike's three). */
+/** Invoice thumbnails printed per service (three). */
 export const INVOICE_THUMBS = 3;
 
 export type VehicleReportOptions = {

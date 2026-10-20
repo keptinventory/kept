@@ -6,14 +6,14 @@ import { pipeline } from 'node:stream/promises';
 import type pg from 'pg';
 import type { BlobStore } from '../storage/blob-store.js';
 
-// What a backup (and an export) records about the database and the files it copied (T31c): the
+// What a backup (and an export) records about the database and the files it copied: the
 // row count of every table Kept owns, read in the same snapshot pg_dump dumped, and every blob the
 // rows reference with its size and SHA-256. A restore checks all of it.
 //
-// Version 2 (step 8, restic; plan T5) adds per-table data digests (digests.ts), the run's kind,
+// Version 2 (restic) adds per-table data digests (digests.ts), the run's kind,
 // and whether the snapshot holds the files (`blobs/`, local storage only, D144). It lives at
 // `backup/db/manifest.json` inside each restic snapshot, beside `backup/db/db.dump`. Version 1 is
-// the alpha's `runs/<id>/manifest.json`, read for `kept admin restore --legacy` (plan Q1).
+// the alpha's `runs/<id>/manifest.json`, read for `kept admin restore --legacy`.
 
 export const MANIFEST_FORMAT = 'kept-backup';
 export const MANIFEST_VERSION = 2;

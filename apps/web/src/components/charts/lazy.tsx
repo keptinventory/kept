@@ -1,5 +1,5 @@
 /**
- * The vehicle charts, loaded on demand (plan T18; D133): visx and the charts come with the tab
+ * The vehicle charts, loaded on demand (D133): visx and the charts come with the tab
  * that draws them, never in the entry or the precache (vite.config.ts names ./bars.tsx and
  * ./series.tsx into assets/household/). While one loads, a grey block its height; offline before
  * its first load, nothing: the chart's "Show as table" (./chart-table.tsx) still has the numbers.

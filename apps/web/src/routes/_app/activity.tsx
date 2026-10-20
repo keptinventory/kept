@@ -1,5 +1,5 @@
 /**
- * The activity feed (screens §5 Other screens, frame 04 · 8, D174): every change in every location
+ * The activity feed (frame 04 · 8, D174): every change in every location
  * you belong to, newest first and grouped by day, under the list standard (filters and cursor
  * pagination in the URL). Filters: location, person, kind and date. Each entry links to what it's
  * about and carries its location. Rows are the server's rendered events, so money and secrets

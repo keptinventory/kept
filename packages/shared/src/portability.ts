@@ -1,13 +1,13 @@
 /**
- * Portability (step 7; D68, D69, D146, D157, D159; engineering spec §3.1b, §3.3): the limits and
+ * Portability (D68, D69, D146, D157, D159): the limits and
  * names the export, the archive importers and the web share. The archive rules themselves live in
  * one server module (apps/server/src/portability/zip/); these are the numbers it enforces.
  */
 
 /**
- * Archives (D157, §3.1b; plan Q18). Counted on the bytes actually inflated, not on the headers.
- * The 100 : 1 ratio is judged only once an entry has inflated more than `ratioFloorBytes`
- * (spike Z1): an empty JSON array or a run of spaces in
+ * Archives (D157). Counted on the bytes actually inflated, not on the headers.
+ * The 100 : 1 ratio is judged only once an entry has inflated more than `ratioFloorBytes`:
+ * an empty JSON array or a run of spaces in
  * a CSV is normal. `archiveBytes` is the upload cap for the compressed file.
  */
 export const ZIP_LIMITS = Object.freeze({
@@ -18,9 +18,9 @@ export const ZIP_LIMITS = Object.freeze({
   archiveBytes: 5 * 1024 ** 3,
 });
 
-/** Why an archive was refused (plan T7), sent as `reason` beside 400 `archive_invalid` or 413
+/** Why an archive was refused, sent as `reason` beside 400 `archive_invalid` or 413
  * `archive_too_large`, and translated by the web. `unsupported_version` is a manifest newer
- * than this server reads (T9, T14). `encrypted`: an entry with a ZIP password, which Kept
+ * than this server reads. `encrypted`: an entry with a ZIP password, which Kept
  * can't read (a Kept export's secrets are encrypted inside its data, never with ZIP
  * encryption). `entry_too_large`: a JSON entry or an NDJSON line over the reader's cap. */
 export const ARCHIVE_REFUSALS = [
@@ -47,7 +47,7 @@ export const ARCHIVE_ISSUE_CODES = [
 export type ArchiveIssueCode = (typeof ARCHIVE_ISSUE_CODES)[number];
 
 /**
- * The Kept export's format (plan Q5): API-shaped, versioned, one location per archive.
+ * The Kept export's format: API-shaped, versioned, one location per archive.
  *
  * Version 2 (1.5, D238) adds the condition reports (`condition-reports`,
  * `condition-report-rooms`, and their photos as attachments). Version 3 (1.6, D237) adds the
@@ -61,7 +61,7 @@ export const EXPORT_VERSION = 4;
 
 /**
  * The data files of a Kept export (`data/<entity>.ndjson`), in the order they are written and
- * applied. Entities steps 4–6 add are appended by the export registry (T12), never renamed.
+ * applied. Entities steps 4–6 add are appended by the export registry, never renamed.
  */
 export const EXPORT_ENTITIES = [
   'location',
@@ -86,7 +86,7 @@ export const EXPORT_ENTITIES = [
   'box-checks',
   'stock-rules',
   'own-code-settings',
-  // Appended by the export registry (T12): the join rows and registries the list above didn't
+  // Appended by the export registry: the join rows and registries the list above didn't
   // name, then steps 4–6. `history` stays last: it is applied after every row it names.
   'own-code-counters',
   'type-fields',
@@ -126,7 +126,7 @@ export const EXPORT_FILE_PATH =
   /^files\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.[a-z0-9]{1,5}$/;
 
 /**
- * The entries of a Kept export (`kept-export` versions 1 to 4, plan T12, Q5). Read only by
+ * The entries of a Kept export (`kept-export` versions 1 to 4). Read only by
  * these exact names (plus the originals, `files/<fileId>.<ext>`); anything else in an archive is
  * ignored.
  *
@@ -140,9 +140,9 @@ export const EXPORT_FILE_PATH =
  *   readable copy). The manifest lists each with its `path`, SHA-256, size and type; an importer
  *   reads only the paths the manifest names, and only in this form.
  * - `secrets.json`: only with "Include secrets" (D68): ExportSecretsFile.
- * - `ai-calls.csv`: the location's AI call ledger (§7.15), formula-safe (D169).
- * - `me.json`, `my-ai-calls.csv`: "Export my data" only (Q14).
- * - `readable/…`: the readable copy (T13): `index.html`, CSVs, `thumbs/`, `inventory.pdf`. Its
+ * - `ai-calls.csv`: the location's AI call ledger, formula-safe (D169).
+ * - `me.json`, `my-ai-calls.csv`: "Export my data" only.
+ * - `readable/…`: the readable copy: `index.html`, CSVs, `thumbs/`, `inventory.pdf`. Its
  *   pages link to the originals at `../files/<fileId>.<ext>`.
  */
 export const EXPORT_PATHS = Object.freeze({
@@ -156,7 +156,7 @@ export const EXPORT_PATHS = Object.freeze({
   file: (fileId: string, ext: string) => `files/${fileId}.${ext}`,
 });
 
-/** What an export holds besides its data (plan T12): ended things (on), trashed things (off),
+/** What an export holds besides its data: ended things (on), trashed things (off),
  * history (on), AI calls (on), the readable copy (on) and its inventory PDF (on); the readable
  * copy's language and digits. */
 export type ExportOptions = {
@@ -214,7 +214,7 @@ export type ExportManifest = {
   includesSecrets: boolean;
   /** How many values `secrets.json` holds (0 without it). */
   secretsCount: number;
-  /** Names and roles only, "people to invite" on import (Q23); never an email. */
+  /** Names and roles only, "people to invite" on import; never an email. */
   members: { name: string; role: string }[];
   files: { id: string; path: string; sha256: string; bytes: number; mime: string }[];
   readable: { included: boolean; pdf: ExportPdfOutcome };
@@ -263,19 +263,18 @@ export type ExportSecretRecord = {
 };
 export const exportSecretsAad = (exportId: string): string => `kept-export|${exportId}|secrets`;
 
-/** What an export covers (plan T12, Q14): one location, or "Export my data". */
+/** What an export covers: one location, or "Export my data". */
 export const EXPORT_SCOPES = ['location', 'me'] as const;
 export type ExportScope = (typeof EXPORT_SCOPES)[number];
 
-/** Five an hour per person, one running per location, kept seven days after it is ready (§3.3,
- * plan Q17). */
+/** Five an hour per person, one running per location, kept seven days after it is ready. */
 export const EXPORT_LIMITS = Object.freeze({ perHour: 5, runningPerLocation: 1, keepDays: 7 });
 
-/** A passphrase is at least this long, with no composition rules (plan Q7). */
+/** A passphrase is at least this long, with no composition rules. */
 export const PASSPHRASE_MIN = 12;
 
 /**
- * The passphrase KDF (D68; spike P1): scrypt at
+ * The passphrase KDF (D68): scrypt at
  * 2^16 (64 MiB). The V5 run on a 2 GB, 2-vCPU VM may lower N to 2^15; every export records its
  * own parameters, so a changed default never breaks an old export.
  */
@@ -289,7 +288,7 @@ export const PASSPHRASE_KDF = Object.freeze({
 });
 
 /** What an importer accepts from an export's recorded KDF: N a power of two from 2^14 to 2^20,
- * r 8, p 1. Anything else is `archive_invalid` (spike P1). */
+ * r 8, p 1. Anything else is `archive_invalid`. */
 export function kdfParamsAccepted(kdf: { name: string; N: number; r: number; p: number }): boolean {
   return (
     kdf.name === 'scrypt' &&
@@ -302,7 +301,7 @@ export function kdfParamsAccepted(kdf: { name: string; N: number; r: number; p: 
   );
 }
 
-/** `import_runs.source` (engineering spec §1.10): the path an import took. */
+/** `import_runs.source`: the path an import took. */
 export const IMPORT_SOURCES = [
   'csv',
   'homebox_zip',
@@ -312,13 +311,13 @@ export const IMPORT_SOURCES = [
 ] as const;
 export type ImportSource = (typeof IMPORT_SOURCES)[number];
 
-/** `import_source_ids.source` (plan Q2): the import paths, plus `homebox`, which both Homebox
+/** `import_source_ids.source`: the import paths, plus `homebox`, which both Homebox
  * paths write so one Homebox entity is made once whichever way it came (D146). */
 export const IMPORT_SOURCE_ID_SOURCES = [...IMPORT_SOURCES, 'homebox'] as const;
 export type ImportSourceIdSource = (typeof IMPORT_SOURCE_ID_SOURCES)[number];
 
 /** `import_source_ids.entity_type`: what a source's id became. `warranty`, `service_record` and
- * `schedule` are written once the Homebox mappings to them land (plan T9, T10); the step 4–6
+ * `schedule` are written once the Homebox mappings to them land; the step 4–6
  * entities after them by the Kept import (0097). */
 export const IMPORT_ENTITY_TYPES = [
   'thing',
@@ -350,7 +349,7 @@ export const IMPORT_ENTITY_TYPES = [
 ] as const;
 export type ImportEntityType = (typeof IMPORT_ENTITY_TYPES)[number];
 
-/** The sources an archive upload takes (`POST /imports/archive`, plan T8). */
+/** The sources an archive upload takes (`POST /imports/archive`). */
 export const ARCHIVE_SOURCES = ['homebox_zip', 'kept_zip'] as const;
 export type ArchiveSource = (typeof ARCHIVE_SOURCES)[number];
 
@@ -367,5 +366,5 @@ export const IMPORT_STATUSES = [
 ] as const;
 export type ImportRunStatus = (typeof IMPORT_STATUSES)[number];
 
-/** Abandoned import runs and their archives are pruned after this many days (plan Q18). */
+/** Abandoned import runs and their archives are pruned after this many days. */
 export const IMPORT_PRUNE_DAYS = 7;

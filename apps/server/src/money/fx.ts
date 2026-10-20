@@ -8,8 +8,8 @@ import { accountAccess } from '../registries/account.js';
 import { currencyIn, requireEnabled } from './input.js';
 import type { FxRateView, PutFxRateBody } from './view.js';
 
-// Exchange rates (step-4 plan T8; D76, D136; Q21, Q22): one per account, pair and date, entered
-// by hand (no provider, Q22). A conversion uses the pair's newest rate valid on the day, else the
+// Exchange rates (D76, D136): one per account, pair and date, entered
+// by hand (no provider). A conversion uses the pair's newest rate valid on the day, else the
 // inverse pair's; never chained, never estimated (@kept/shared money.ts `convert`, convert.ts; in
 // SQL kept.fx_rate(), which the AI money caps count through).
 //

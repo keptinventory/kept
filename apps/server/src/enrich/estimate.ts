@@ -1,6 +1,6 @@
 /**
- * What alias enrichment would send, and what it would cost, before anything runs (D69, D206;
- * step-7 plan T15). Shared by the estimate route and the job, so the two agree call for call.
+ * What alias enrichment would send, and what it would cost, before anything runs (D69, D206).
+ * Shared by the estimate route and the job, so the two agree call for call.
  *
  * - **The things** are the run's (`import_source_ids`, entity `thing`, as the things list's
  *   "Imported by" filter reads them), not deleted, named, and with **no alias in any of the

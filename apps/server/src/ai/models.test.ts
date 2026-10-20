@@ -75,7 +75,7 @@ describe('listModels: Groq (top-level input_modalities)', () => {
     });
     const split = splitForPicker(models);
     expect(split.vision.map((m) => m.id)).toEqual(['qwen/qwen3.8-27b']);
-    // The prompt guard (512 tokens of context) and whisper are not text models (spike §7).
+    // The prompt guard (512 tokens of context) and whisper are not text models.
     expect(split.text.map((m) => m.id)).toEqual(['qwen/qwen3.8-27b', 'openai/gpt-oss-120b']);
   });
 });

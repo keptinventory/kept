@@ -23,7 +23,7 @@ import {
   subjectRefSql,
 } from './view.js';
 
-// The paperwork library (plan T12; D39, D155; screens §5 "Paperwork"): every receipt, invoice,
+// The paperwork library (D39, D155): every receipt, invoice,
 // manual, warranty document, registration and document across the caller's locations with
 // Paperwork on, whatever it hangs on, each named by what it is about (a thing, a place, or the
 // location). A file on a warranty, claim, valuation or service record is about that record's
@@ -35,7 +35,7 @@ import {
 // `q` matches a file's text (file_text, through kept.search_file_ids(), as search does), the
 // subject's name and an expiring document's title.
 //
-// Money (security review #10, step-3 Q19): receipts and invoices are left out entirely where the
+// Money (security review #10): receipts and invoices are left out entirely where the
 // caller's gate hides money, as from every attachment list; and a snippet is sent only where the
 // gate shows money, as search's documents group does, since any document's text may hold prices.
 // Originals stay members-and-above through the signed-URL route (D117).

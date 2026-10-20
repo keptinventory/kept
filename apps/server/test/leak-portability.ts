@@ -11,14 +11,14 @@ const SEALED = { v: 1, kv: 1, dek: 'ZGVr', iv: 'aXY=', ct: 'Y3Q=', tag: 'dGFn' }
 
 /** Fills `t`'s location. The rows of steps 2–6 are already there. */
 export async function fillPortability(c: pg.ClientBase, t: Tenant, label: string): Promise<void> {
-  // An owner's export of the location with "Include secrets": its passphrase key sealed (T4).
+  // An owner's export of the location with "Include secrets": its passphrase key sealed.
   await c.query(
     `INSERT INTO public.export_runs (location_id, kind, include_secrets, options, status,
                                      created_by, started_at, secrets_key_ciphertext, key_version)
      VALUES ($1, 'location', true, '{"history": true}', 'running', $2, now(), $3, 1)`,
     [t.locationId, t.userId, JSON.stringify(SEALED)],
   );
-  // A Homebox archive uploaded but not yet given a target: its creator's alone (T4).
+  // A Homebox archive uploaded but not yet given a target: its creator's alone.
   const draft = newId();
   await c.query(
     `INSERT INTO public.import_runs (id, location_id, source, created_by, archive_bytes,
@@ -26,7 +26,7 @@ export async function fillPortability(c: pg.ClientBase, t: Tenant, label: string
      VALUES ($1, NULL, 'homebox_zip', $2, 4096, $3, now(), '{"collections": []}')`,
     [draft, t.userId, 'a'.repeat(64)],
   );
-  // A Homebox run into the location, with a source id both Homebox paths share (Q2).
+  // A Homebox run into the location, with a source id both Homebox paths share.
   const run = newId();
   await c.query(
     `INSERT INTO public.import_runs (id, location_id, source, status, created_by)
@@ -40,7 +40,7 @@ export async function fillPortability(c: pg.ClientBase, t: Tenant, label: string
     [t.locationId, `${label}-hb-location`, newId(), run],
   );
 
-  // A Kept import running into the location (T5): an event it carried over, with the old
+  // A Kept import running into the location: an event it carried over, with the old
   // actor's name, and a label whose code was taken here, kept as a `kept` legacy code.
   const kept = newId();
   await c.query(
@@ -66,7 +66,7 @@ export async function fillPortability(c: pg.ClientBase, t: Tenant, label: string
     [t.locationId, `${label.toUpperCase()}KEPT1`, thing],
   );
 
-  // "Keep at least 4" on a pack of batteries, a built-in consumable type (T6).
+  // "Keep at least 4" on a pack of batteries, a built-in consumable type.
   const batteries = newId();
   await c.query(
     `INSERT INTO public.things (id, location_id, place_id, name, type_id, quantity)

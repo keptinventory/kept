@@ -1,5 +1,5 @@
 /**
- * Short-ID addresses (D208; engineering spec §7.16, plan T17a). A thing's page is `/t/<short-id>`
+ * Short-ID addresses (D208). A thing's page is `/t/<short-id>`
  * and a place's `/p/<short-id>` once the short ID exists; both routes also take the UUIDv7 (a
  * thing created offline has no short ID until the server allocates it at sync, D112, and links
  * already shared keep working).

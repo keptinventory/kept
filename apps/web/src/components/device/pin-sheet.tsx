@@ -1,5 +1,5 @@
 /**
- * The PIN asked for on This device (step-8 plan T23): one or more steps on the app's own keypad
+ * The PIN asked for on This device: one or more steps on the app's own keypad
  * (pin-pad.tsx). A new PIN is 6 to 12 digits and typed twice; a current one is tried as soon as
  * its length is in. `onDone` gets every step's PIN and answers an error to show, or null.
  */

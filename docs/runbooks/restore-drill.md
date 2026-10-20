@@ -1,6 +1,6 @@
 # Restore drill, and restoring for real
 
-**Status (2026-10-07):** restic restore, `kept admin backup drill` and `verify` (step 8 T7) are
+**Status (2026-10-07):** restic restore, `kept admin backup drill` and `verify` are
 built; the commands below match `apps/server/src/cli/index.ts`. Taking backups, the pre-upgrade
 rollback and the alpha's runs are in `docs/runbooks/backup-restore.md`. The public version is the docs site's "Restore and the
 drill" page (`apps/docs/src/content/docs/admin/restore.md`); keep the two in step.
@@ -59,7 +59,7 @@ repository (`kept admin backup verify --read-data 5%`), then take a manual backu
    version and the extensions; restores in one transaction; compares counts and digests; puts the
    files back into the store `KEPT_STORAGE` names, each SHA-256 checked; and prints the swap.
    `--legacy <runId>` restores an alpha run instead (one release only).
-4. Swap (Q13: renaming needs the superuser, which Kept never has):
+4. Swap (renaming needs the superuser, which Kept never has):
 
    ```sh
    docker compose stop kept

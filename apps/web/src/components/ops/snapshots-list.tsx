@@ -1,6 +1,6 @@
 /**
- * Admin → Backups' snapshots (plan T21, Q4; frame 106): what the repository holds, newest first,
- * read-only. The server reads `restic snapshots` and keeps the answer for 5 minutes (T10), so the
+ * Admin → Backups' snapshots: what the repository holds, newest first,
+ * read-only. The server reads `restic snapshots` and keeps the answer for 5 minutes, so the
  * list says how fresh it is. Restoring is a command, not a button (`kept admin restore`).
  */
 import type { BackupSnapshot } from '@kept/shared';

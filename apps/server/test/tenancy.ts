@@ -63,7 +63,7 @@ export type LocationOptions = {
 };
 
 /** A location owned by `accountId`, with its owner membership and Unplaced area, inserted in
- * the order ensureAccount() uses (§7.14). Call inside a transaction: the owner check is
+ * the order ensureAccount() uses. Call inside a transaction: the owner check is
  * deferred to commit. */
 export async function insertLocation(
   client: pg.ClientBase,

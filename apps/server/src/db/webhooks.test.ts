@@ -13,8 +13,7 @@ import {
 import { type Scope, withScope, withSystem } from './scope.js';
 
 // Step-6 T7 (0077, 0078): location webhooks with write-only secrets, their deliveries, D180's
-// switch-off, Better Auth's OAuth tables, and the step-6 instance settings (engineering spec
-// §1.10, §2.6, §3.1b; D63, D110, D180; plan Q16, Q18).
+// switch-off, Better Auth's OAuth tables, and the step-6 instance settings (D63, D110, D180).
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });

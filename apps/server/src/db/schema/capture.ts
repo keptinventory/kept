@@ -24,8 +24,8 @@ import { serviceRecords } from './services.js';
 import { locations, ownerAccounts } from './tenancy.js';
 import { things } from './things.js';
 
-// Capture records (step-3 plan T5; engineering spec §1.5, §1.8, §7.8, §7.13; D18, D36, D76, D77,
-// D112, D175, D177; plan Q14, Q15, Q17). Row-level security, the guards, the file-text search
+// Capture records (D18, D36, D76, D77,
+// D112, D175, D177). Row-level security, the guards, the file-text search
 // door and the grants are in the custom migration that follows (0038); see
 // src/db/capture.test.ts.
 
@@ -36,7 +36,7 @@ const mode = textEnum('mode', CAPTURE_MODES);
 const status = textEnum('status', EXTRACTION_STATUSES);
 
 /**
- * One extraction of one attachment (§7.8): what the model read, after the code checks
+ * One extraction of one attachment: what the model read, after the code checks
  * (`result`), and what auto-accept wrote (`applied`). Re-running is explicit and adds an attempt
  * (D19); only one attempt of an attachment is live at a time. `llm_call_id` is not a foreign
  * key: the ledger is partitioned and outlives it.
@@ -52,7 +52,7 @@ export const extractions = pgTable(
     thingId: uuid('thing_id'),
     purchaseId: uuid('purchase_id'),
     meterId: uuid('meter_id'),
-    /** Step 5 (Q12): the draft service record whose invoice this reads; set at insert only. */
+    /** The draft service record whose invoice this reads; set at insert only. */
     serviceRecordId: uuid('service_record_id'),
     mode: mode.col().notNull(),
     attempt: integer('attempt').notNull().default(1),
@@ -61,7 +61,7 @@ export const extractions = pgTable(
     pausedUntil: tstz('paused_until'),
     llmCallId: uuid('llm_call_id'),
     /** The output-token cap a retry runs at, learned from a truncated or refused-for-length call
-     * (step 6; the provider's learned output limit, 0045). NULL: the default allowance. */
+     * (the provider's learned output limit, 0045). NULL: the default allowance. */
     outputCap: integer('output_cap'),
     result: jsonb('result'),
     applied: jsonb('applied').notNull().default(sql`'{}'::jsonb`),
@@ -137,9 +137,9 @@ const inboxKind = textEnum('kind', INBOX_KINDS);
 const resolution = textEnum('resolution', INBOX_RESOLUTIONS);
 
 /**
- * "To review" (§7.8; D18, D36, D112, D175, D191): a decision waiting on a person. Members and
+ * "To review" (D18, D36, D112, D175, D191): a decision waiting on a person. Members and
  * above (writable locations) see a location's items; "Mine" is `created_by`. Rows go with their
- * subject (cascades); resolved ones are pruned after 90 days (plan Q15), the decision itself
+ * subject (cascades); resolved ones are pruned after 90 days, the decision itself
  * living on in the audit.
  */
 export const inboxItems = pgTable(
@@ -231,9 +231,9 @@ export const inboxItems = pgTable(
 );
 
 /**
- * A template (D76, D177; plan Q17): account-level, shared into chosen locations
+ * A template (D76, D177): account-level, shared into chosen locations
  * (`template_locations`), where members use it. Editing needs admin of every location it is
- * shared with. The payload's keys are the API's to police (T19): never money, never a secret.
+ * shared with. The payload's keys are the API's to police: never money, never a secret.
  */
 export const templates = pgTable(
   'templates',
@@ -282,11 +282,11 @@ export const FILE_TEXT_SOURCES = ['pdf', 'extraction'] as const;
 const fileTextSource = textEnum('source', FILE_TEXT_SOURCES);
 
 /**
- * A file's text, for document search and RECEIPT extraction (§1.5, D77; T21 fills it from PDFs,
- * T10 from extraction). It follows its file (§7.2): visible exactly when the file is. Its search
+ * A file's text, for document search and RECEIPT extraction (D77; T21 fills it from PDFs,
+ * T10 from extraction). It follows its file: visible exactly when the file is. Its search
  * runs through kept.search_file_ids() (0038), since `@@` under RLS can't use the index. A
  * receipt's text holds prices: the search route never shows a snippet of it without the money
- * gate (T21).
+ * gate.
  */
 export const fileText = pgTable(
   'file_text',

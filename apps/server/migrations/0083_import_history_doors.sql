@@ -1,14 +1,14 @@
 -- Custom SQL migration file, put your code below! --
--- Step 7, task 5: carried history, adopted short IDs and `kept` legacy codes (engineering spec
--- §3.3, §7.5, §7.13; D45, D120; step-7 plan Q9, Q10). Above, in 0082, drizzle's part:
+-- Carried history, adopted short IDs and `kept` legacy codes (D45, D120).
+-- Above, in 0082, drizzle's part:
 -- legacy_codes.source gains `kept` (src/db/schema/sync.ts). Below, the two doors a Kept import's
--- job (plan T14) takes, each for the run's own creator while it is running and they still
+-- job takes, each for the run's own creator while it is running and they still
 -- administer its location (else 42501):
 --   1. kept.import_history(): the exported history, written as `actor_type = 'import'` events
 --      (actor = the run) in the run's location, with the original actor's name kept in the diff
 --      as `_importedActor` ("Alfred (before the import)"). kept_app can't write an import event
---      itself (0044's insert policy takes only `user`). Only within the two-year audit retention
---      (§3.3): older events are dropped, and the caller counts them (sent less written). Each
+--      itself (0044's insert policy takes only `user`). Only within the two-year audit retention:
+--      older events are dropped, and the caller counts them (sent less written). Each
 --      month present gets its partition first, so no past-dated row lands in
 --      audit_events_default (0005); a month whose rows already sit there is refused by name, as
 --      kept.ensure_audit_partitions() does. Creating a partition locks audit_events, so the job
@@ -16,7 +16,7 @@
 --   2. kept.adopt_short_code(): a printed label's code on its thing or place, or as a blank or
 --      retired label, when the code is free on this server (labels are permanent, D45; codes are
 --      unique on the instance, D120). It says only whether it was free, never where it is used
---      (accepted, Q9). The blank-label cap (0042) still applies.
+--      (accepted). The blank-label cap (0042) still applies.
 -- test/leak.test.ts and src/db/migrate.test.ts list the functions; test/leak-portability.ts
 -- fills the rows; src/db/import-history.test.ts and adopt-codes.test.ts test them.
 

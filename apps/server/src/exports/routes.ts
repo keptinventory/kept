@@ -16,7 +16,7 @@ import {
   listExports,
 } from './service.js';
 
-// Step 7: the Kept export (D68, D69, D159, D180; plan T12). Shapes:
+// The Kept export (D68, D69, D159, D180). Shapes:
 // apps/web/src/api/portability/types.ts (ExportRun, CreateExportBody, ExportsPage).
 //
 // POST /api/v1/exports              {id?, scope: {locationId} | {me: true}, options?,
@@ -47,7 +47,7 @@ export async function exportRoutes(app: KeptApp, deps: InventoryDeps): Promise<v
   app.post(
     '/api/v1/exports',
     {
-      // Never over plain HTTP (D181; step-8 T24): 403 `https_required`.
+      // Never over plain HTTP (D181): 403 `https_required`.
       preHandler: requireHttps(deps.env.KEPT_PUBLIC_URL),
       schema: { body: CreateExportBody, response: { 202: ExportRunView } },
     },

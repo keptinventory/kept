@@ -1,8 +1,8 @@
 /**
- * A thing's or a place's page from the phone's copy (step-3 carry-over, step-4 plan T28; D36,
- * D188, screens §4): when the server can't be reached, `/t/$id` and `/p/$id` show what the
+ * A thing's or a place's page from the phone's copy (D36,
+ * D188): when the server can't be reached, `/t/$id` and `/p/$id` show what the
  * snapshot holds, "as of last sync": the name, short ID, where it is, the derived states and the
- * loan line ("With Murdock · due 17 Oct", step-4 Q34), a container's or place's contents, and
+ * loan line ("With Murdock · due 17 Oct"), a container's or place's contents, and
  * "Details need a connection" for the rest. Nothing here writes; every action waits for the
  * server, as the offline matrix says.
  *
@@ -204,7 +204,7 @@ export function OfflineThingPage({ id }: { id: string }) {
             <ThingList label={t`Inside ${thing.name ?? ''}`} rows={inside} />
           </Section>
         ) : null}
-        {/* A location kept offline (step 8, D159): its money and documents, from the device. */}
+        {/* A location kept offline (D159): its money and documents, from the device. */}
         <KeptExtras thingId={thing.id} />
       </div>
     </Page>

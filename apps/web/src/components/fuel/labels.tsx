@@ -1,5 +1,5 @@
 /**
- * Fuel and charging in words (plan T21; D28, D170; Q6, Q7, Q22): a unit's name, an amount with its
+ * Fuel and charging in words (D28, D170): a unit's name, an amount with its
  * unit, a consumption in the reader's units (metric L/100 km and kWh/100 km, imperial mpg and
  * mi/kWh, per hour on an hours meter: @kept/shared `displayConsumption`), and why there is no
  * consumption yet (`whyNone`). Only the derived figure follows the reader's units; a fill's own
@@ -16,7 +16,7 @@ import { type SVGProps, useMemo } from 'react';
 import { useMe } from '@/api/queries';
 import { formatLocale, usePrefs } from '@/lib/prefs';
 
-/** A fuel pump, in the icon set's style (24-unit box, 1.8 stroke; the board's `a5-fuel`). */
+/** A fuel pump, in the icon set's style (24-unit box, 1.8 stroke; the designs' `a5-fuel`). */
 export function FuelIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg

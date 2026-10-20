@@ -1,12 +1,12 @@
 /**
- * Trash (screens §5 Other screens, D162): what was trashed in every location you belong to, newest
+ * Trash (D162): what was trashed in every location you belong to, newest
  * first, under the list standard (search, cursor pagination and the filter strip, D205: kind,
  * location, deleted by and date, with saved views; all in the URL). Each row says where it was, who trashed it and when, what went with it (a batch), and
  * the day it goes for good (30 days on).
  *
  * Restore is for members and above; Delete permanently for admins and above, confirmed with
  * useConfirm (never window.confirm), and only for things: places have no permanent delete (they
- * purge with the trash). A viewer sees the list and no buttons (screens §3: hidden for the role).
+ * purge with the trash). A viewer sees the list and no buttons (hidden for the role).
  */
 import { can } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';

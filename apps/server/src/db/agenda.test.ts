@@ -21,8 +21,8 @@ import {
 import { withScope, withSystem } from './scope.js';
 
 // Step-4 T6 (0053): module state in SQL (the drift test against @kept/shared modules.ts) and the
-// agenda view (Q24): one row per live reminder source, its state in the location's own date,
-// pausing in its WHERE (§7.6, D162), under the caller's policies.
+// agenda view: one row per live reminder source, its state in the location's own date,
+// pausing in its WHERE (D162), under the caller's policies.
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });

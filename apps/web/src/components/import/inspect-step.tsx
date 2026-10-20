@@ -1,5 +1,5 @@
 /**
- * What a Homebox archive holds (plan T19 steps 3–4; T8, T11): the counts from its manifest, and
+ * What a Homebox archive holds: the counts from its manifest, and
  * the optional connection to the old Homebox server, which reads its version, the collection's
  * currency and its members (the ZIP holds none of these). The address and the API key, or the
  * email and password, are sent once in the request and never kept: not in the URL, not in

@@ -17,7 +17,7 @@ import { keyringOfMaterial, type SecretKeys, secretKeysOf } from '../crypto/keyr
 import { CIPHERTEXTS } from './rotate.js';
 import { aadOf } from './service.js';
 
-// `kept admin rotate-key` (plan T19, Q19; §7.3, D182): every stored value re-wrapped under a new
+// `kept admin rotate-key` (D182): every stored value re-wrapped under a new
 // key version, still readable afterwards; the old key kept as retired, so an old backup's
 // ciphertexts still open; resumable; and nothing done when a key the rows need is missing.
 
@@ -112,7 +112,7 @@ describe('kept admin rotate-key', () => {
     expect(after.map((r) => [r.id, r.key_version, r.ciphertext.kv])).toEqual(
       backup.map((r) => [r.id, 2, 2]),
     );
-    // Only the data key moved (§7.3): the value's own ciphertext is the same.
+    // Only the data key moved: the value's own ciphertext is the same.
     expect(after.map((r) => r.ciphertext.ct)).toEqual(backup.map((r) => r.ciphertext.ct));
 
     // The running server meets version 2, re-reads the file, and reveals as before.

@@ -99,7 +99,7 @@ may not see them.
 |---|---|
 | A personal token | 120 reads and 30 writes a minute, shared across replicas |
 | Sign-in | 5 a minute per IP; per account and IP 20 an hour, with growing delays |
-| Other limits | Per route where they matter (a channel's test send, a webhook ping); the full table is spec §3.2 |
+| Other limits | Per route where they matter (a channel's test send, a webhook ping); the full table is in [the security model](/admin/security-model/#rate-limits) |
 
 ## Example
 

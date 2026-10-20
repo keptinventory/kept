@@ -14,7 +14,7 @@ import { id, mutable } from './common.js';
 import { locations } from './tenancy.js';
 import { things } from './things.js';
 
-// Consumables (step-7 plan T6; engineering spec §1.6; D14, plan Q19). Row-level security, the
+// Consumables (D14). Row-level security, the
 // consumable guard, the grants and the undo's creator are in the custom migration that follows
 // (0085); see src/db/consumables.test.ts.
 

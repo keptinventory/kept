@@ -1,5 +1,5 @@
 /**
- * AI usage (plan T29a; screens §5 "AI usage"; D206): the scope switch (Me · each location you
+ * AI usage (D206): the scope switch (Me · each location you
  * administer · Account), the period, totals and caps, charts with tables, outcome counts, and the
  * call list on the filter strip with Export CSV (components/ai/usage-page.tsx). All in the URL:
  * `scope`, `location`, `period`, `from`, `to`, and the list's `q`, `f.*`, `not` and `dir`.

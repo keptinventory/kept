@@ -1,5 +1,5 @@
 /**
- * Registering the service worker and the update flow (D148; plan T23).
+ * Registering the service worker and the update flow (D148).
  *
  * A new worker installs in the background and **waits**. The page shows "A new version is
  * ready · Reload" (update-prompt.tsx) only when every update gate says it's safe: nothing is
@@ -48,7 +48,7 @@ export function uploadIdle(store: Pick<OfflineStore, 'counts'>): UpdateGate {
 }
 
 /**
- * Holds updates while `active` (a capture session is open, T25). The prompt waits and shows once
+ * Holds updates while `active` (a capture session is open). The prompt waits and shows once
  * the hold is released.
  */
 export function useHoldUpdates(active: boolean): void {

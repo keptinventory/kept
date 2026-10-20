@@ -1,5 +1,5 @@
 /**
- * Overview (screens §5): the thing's own details, then its type's fields (D154), each only when
+ * Overview: the thing's own details, then its type's fields (D154), each only when
  * it has a value; archived values collapsed underneath (D92: re-typing archives, never deletes);
  * then passwords and codes, and the purchase. Edit swaps the details for the form in place.
  */
@@ -64,7 +64,7 @@ export function Overview({
         ) : null}
       </div>
       <div className="grid min-w-0 gap-5">
-        {/* Step 7 (T23): a consumable's minimum, where Consumables is on. */}
+        {/* A consumable's minimum, where Consumables is on. */}
         <KeepAtLeastSection />
         <OwnCodesSection
           kind="thing"

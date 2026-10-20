@@ -1,6 +1,6 @@
 // Kept's documentation site (D102, D199): Starlight, built to static files in dist/.
 //
-// Five locales (plan Q19): English at the root and complete; Arabic right to left, with the key
+// Five locales: English at the root and complete; Arabic right to left, with the key
 // pages written in Arabic; French, German and Italian fall back to English under Starlight's own
 // "not translated yet" notice until the translation platform (D106) fills them in.
 //
@@ -208,9 +208,9 @@ export default defineConfig({
       ],
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/keptinventory/kept' }],
       plugins: [
-        // fr/de/it are fallback pages by design (Q19), so links into them must not fail. The API
+        // fr/de/it are fallback pages by design, so links into them must not fail. The API
         // reference is injected routes the validator can't see, so links to it aren't checked
-        // (spike D1, findings 2 and 3). Under a base path, a root-relative link without the base
+        // (findings 2 and 3). Under a base path, a root-relative link without the base
         // can only be a landing page's hero action (frontmatter, which baseLinks can't reach;
         // Hero.astro adds the base when it renders them): those are checked by a build without a
         // base (`pnpm docs:build` locally), not by this one.

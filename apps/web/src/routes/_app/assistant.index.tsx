@@ -1,6 +1,6 @@
 /**
- * Your assistant threads (D23; screens §5 "Assistant", §2 `/assistant`): your own only, private
- * even from admins, under the list standard (L88): search over your questions and the answers,
+ * Your assistant threads (D23; `/assistant`): your own only, private
+ * even from admins, under the list standard: search over your questions and the answers,
  * filters by location and by when you last used one, grouped by when or by location, "Load more",
  * all in the URL. Each opens at `/assistant/<thread>`; each can be deleted at once, asked first.
  * "Ask a question" opens the sheet or the docked panel on a new thread.

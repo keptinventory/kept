@@ -2,7 +2,7 @@ import { VALUATION_SOURCES } from '@kept/shared';
 import { z } from 'zod';
 import { AttachmentSubjectSchema, type AttachmentView } from '../files/views.js';
 
-// Money on the wire (step-4 plan T8; D76, D136, D158): the web contract's exchange rates and
+// Money on the wire (D76, D136, D158): the web contract's exchange rates and
 // valuations (apps/web/src/api/household/types.ts, "money: exchange rates and valuations").
 // A valuation's value leaves only through the caller's gate (serialize/gates.ts): `{moneyHidden:
 // true}` where money is hidden there, with its documents left out too (an appraisal shows the

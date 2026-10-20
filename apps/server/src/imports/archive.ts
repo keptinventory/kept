@@ -45,10 +45,10 @@ import { homeboxImporter } from './homebox/importer.js';
 import { keptImporter } from './kept/importer.js';
 import { keptImportRoutes } from './kept/routes.js';
 
-// Step 7: archive imports (D146, D157; plan T8, T11, T14; screens §6). Registered in
+// Archive imports (D146, D157). Registered in
 // http/routes.ts; T11 and T14 add their routes here. A Homebox export or a Kept export is
 // declared, uploaded whole, inspected, given a target (a new location, or for Homebox an existing
-// one), then checked by a dry run and imported by a tenant job (T10, T14), in the shapes of
+// one), then checked by a dry run and imported by a tenant job, in the shapes of
 // apps/web/src/api/portability/types.ts:
 //
 // POST /api/v1/imports/archive              {id, source, bytes, sha256} → 201 ImportRun (draft)
@@ -58,18 +58,18 @@ import { keptImportRoutes } from './kept/routes.js';
 // POST /api/v1/imports/:id/target           {locationId} | {newLocation} → ImportRun
 // POST /api/v1/imports/:id/choices          {choices: HomeboxChoices} (If-Match) → ImportRun
 // POST /api/v1/imports/:id/homebox-connect  {baseUrl, apiKey} | {baseUrl, username, password}
-//                                           → HomeboxConnection (T11; nothing stored or logged)
-// POST /api/v1/imports/:id/passphrase       {passphrase} → ImportRun (T14; no Idempotency-Key store)
+//                                           → HomeboxConnection (nothing stored or logged)
+// POST /api/v1/imports/:id/passphrase       {passphrase} → ImportRun (no Idempotency-Key store)
 //
 // GET /imports/:id, GET /imports, /dry-run, /run and /cancel are step 3's (imports/routes.ts),
 // which hand an archive run to archiveRunView(), archiveDryRun(), archiveStart() and
 // archiveCancel() below.
 //
 // Who: a run with no target yet is its creator's alone (row-level security, 0080: anyone else
-// gets 404); once targeted, the location's owners and admins' (`location.export-import`, §7.1),
+// gets 404); once targeted, the location's owners and admins' (`location.export-import`),
 // a member getting 403. The target is set once (kept.set_import_target, 0080).
 //
-// The archive itself (D157, Q18): declared with its size and SHA-256 first (413 over
+// The archive itself (D157): declared with its size and SHA-256 first (413 over
 // ZIP_LIMITS.archiveBytes before a byte is stored), then one streamed PUT of exactly those bytes
 // to KEPT_DATA_DIR/tmp, checked, and put() under `i/<runId>.zip`, a key built from the run's id
 // only. It is read by byte range through portability/zip/ (never unpacked to disk). A refused
@@ -77,8 +77,8 @@ import { keptImportRoutes } from './kept/routes.js';
 // archive is deleted when the run is cancelled or done; abandoned ones by `prune-imports`
 // (prune.ts).
 
-/** How each archive format is read, inspected and checked: Homebox's (T9) and the Kept
- * export's (T14). */
+/** How each archive format is read, inspected and checked: Homebox's and the Kept
+ * export's. */
 const IMPORTERS: Partial<Record<ArchiveSource, ArchiveImporter>> = {
   homebox_zip: homeboxImporter as ArchiveImporter,
   kept_zip: keptImporter as ArchiveImporter,
@@ -603,9 +603,9 @@ async function drain(body: Readable): Promise<void> {
 // ---------------------------------------------------------------------------------------------
 
 export async function archiveImportRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
-  // T11: the optional Homebox connection (imports/homebox/api.ts).
+  // The optional Homebox connection (imports/homebox/api.ts).
   await homeboxConnectRoutes(app, deps);
-  // T14: the Kept export's passphrase (imports/kept/routes.ts).
+  // The Kept export's passphrase (imports/kept/routes.ts).
   await keptImportRoutes(app, deps);
 
   const { pools } = deps;
@@ -811,7 +811,7 @@ export async function archiveImportRoutes(app: KeptApp, deps: InventoryDeps): Pr
         let locationId: string;
         let created = false;
         if ('locationId' in body) {
-          // A Kept export always lands in a new location (plan Q8).
+          // A Kept export always lands in a new location.
           if (run.source === 'kept_zip') {
             throw invalid('A Kept export goes into a new location: send body.newLocation.');
           }

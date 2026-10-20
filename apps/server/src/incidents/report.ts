@@ -14,14 +14,14 @@ import { type ReportLocale, wordsFor } from '../reports/labels.js';
 import { addDecimal } from '../reports/view.js';
 import { gateFor } from '../serialize/gates.js';
 
-// The insurance report (D158, D201; engineering spec §2.8; step-4 plan T18, Q20, Q21): what an
+// The insurance report (D158, D201): what an
 // insurer asks for on the day it matters, as a PDF (template/insurance.typ, through the D201
 // engine) and as CSV (D169). Read in the requester's scope, under row-level security, like the
 // inventory report (reports/gather.ts):
 //
 // - Scope: a location (its things in use, drafts and the trash left out), or one incident (its
 //   things, whatever their lifecycle now: a stolen television is the point of the report).
-// - As of (Q20): the report lists things as they are now; `asOf` picks each thing's current value
+// - As of: the report lists things as they are now; `asOf` picks each thing's current value
 //   (its latest valuation on or before that day) and labels the report. The past is not replayed.
 // - Per thing: thumbnail, name, brand, model, serial, purchase date and price, current value with
 //   its date, and the receipt count (the purchase's receipts and invoices plus any on the thing).
@@ -30,7 +30,7 @@ import { gateFor } from '../serialize/gates.js';
 // - Totals per place and per location, per currency, of each thing's insured value: its current
 //   value, or its purchase price when it has no valuation (said under the totals). With a report
 //   currency, one converted total beside them, only when every currency has a rate on or before
-//   `asOf` (direct or inverse, never chained, never estimated: @kept/shared convert(), Q21), and
+//   `asOf` (direct or inverse, never chained, never estimated: @kept/shared convert()), and
 //   labelled with the rates' dates.
 // - Money: the report is mostly money, so it is refused outright to a reader who can't see money
 //   (the route, 403), rather than rendered as blanks. The gather re-checks the gate when the job
@@ -275,7 +275,7 @@ export async function gatherInsurance(
       thumbKey: r.thumb_key,
       path: r.path ?? [],
       purchasedOn: r.purchased_on,
-      // Canonical decimals (§7.7): unit price × quantity carries both scales.
+      // Canonical decimals: unit price × quantity carries both scales.
       price: canonicalAmount(r.price),
       priceCurrency: r.price_currency,
       value: canonicalAmount(r.value),
@@ -308,7 +308,7 @@ export function totalsOf(things: readonly InsuranceThing[]): [string, string][] 
   return [...by.entries()].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
 }
 
-/** The pairs without a rate on or before `asOf` (direct or inverse) to `to` (Q21). */
+/** The pairs without a rate on or before `asOf` (direct or inverse) to `to`. */
 export function missingRates(
   totals: readonly [string, string][],
   to: string,

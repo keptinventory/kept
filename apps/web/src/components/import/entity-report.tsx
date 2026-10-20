@@ -1,5 +1,5 @@
 /**
- * An archive import's report (plan T19 step 7; Q27): the counts the import would make first, then
+ * An archive import's report: the counts the import would make first, then
  * only the entries with an issue, grouped by reason, each translated from its code and params
  * (labels.ts). A list-standard list: search (a name or a reason), a Status filter, pages, in the
  * URL; grouped by reason, fixed. People to invite follow (the connection's members with their

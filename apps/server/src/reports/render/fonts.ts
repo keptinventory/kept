@@ -5,7 +5,7 @@ import path from 'node:path';
 import { inflateSync } from 'node:zlib';
 import { packageRoot } from '../../package-root.js';
 
-// The report's fonts (D201; spike V34): IBM Plex Sans, Sans Arabic and Mono, the fonts the web
+// The report's fonts (D201): IBM Plex Sans, Sans Arabic and Mono, the fonts the web
 // ships. Typst reads only TTF/OTF, and IBM publishes Plex on npm as WOFF/WOFF2 only, so the eight
 // faces the template uses are converted at build time (`pnpm --filter @kept/server build` runs
 // build-assets.ts) from the pinned devDependencies @ibm/plex-sans@1.1.0,

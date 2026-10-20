@@ -13,7 +13,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { textEnum, tstz } from './common.js';
 
-// Operations (step-8 plan T4; engineering spec §1.10, §7.11; D64–D66, D186; plan Q9). Instance
+// Operations (D64–D66, D186). Instance
 // scope, no tenant column. Row-level security, the grants and the alpha's backup status moved into
 // rows are in the custom migration that follows (0091); see src/db/operations.test.ts.
 
@@ -48,7 +48,7 @@ export const backupRuns = pgTable(
     readableBytes: bigint('readable_bytes', { mode: 'number' }),
     sameVolume: boolean('same_volume'),
     bucketVersioningOk: boolean('bucket_versioning_ok'),
-    /** A pre-upgrade snapshot's versions (T8). */
+    /** A pre-upgrade snapshot's versions. */
     fromVersion: text('from_version'),
     toVersion: text('to_version'),
     verifiedAt: tstz('verified_at'),
@@ -72,7 +72,7 @@ export const backupRuns = pgTable(
 );
 
 /**
- * Every release this database was migrated by (plan Q9, T8): the downgrade guard compares the
+ * Every release this database was migrated by: the downgrade guard compares the
  * running image with it. Written by kept_owner in `kept migrate` (a `0.0.0-dev` build isn't
  * recorded); the worker's boot guard reads it and stamps `last_booted_at`.
  */

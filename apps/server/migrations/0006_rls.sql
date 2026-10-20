@@ -1,5 +1,5 @@
 -- Custom SQL migration file, put your code below! --
--- Row-level security (engineering spec §1.1, §7.1, §7.2, §7.14; D178, D183, D190).
+-- Row-level security (D178, D183, D190).
 --
 -- How it fits together:
 -- - Every table in public has RLS ENABLEd and FORCEd (FORCE: the table owner, kept_owner, is
@@ -17,7 +17,7 @@
 --   so Postgres evaluates each once per statement (an initPlan), not once per row.
 -- - The functions are SECURITY DEFINER, owned by kept_owner, with a fixed search_path: they
 --   read memberships and locations past those tables' own policies, which also avoids a policy
---   on memberships recursing into memberships (§7.2).
+--   on memberships recursing into memberships.
 -- Catalogue-wide guarantees are tested in test/leak.test.ts; behaviour in src/db/rls.test.ts.
 
 -- ---------------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@
 -- ---------------------------------------------------------------------------------------------
 
 -- Locations the user may read: active (unexpired) memberships, not in the deletion grace period
--- (D149), and not require_2fa unless this session passed a second factor (§7.14).
+-- (D149), and not require_2fa unless this session passed a second factor.
 CREATE FUNCTION kept.visible_location_ids() RETURNS SETOF uuid
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, public AS $$
   SELECT m.location_id FROM public.memberships m
@@ -74,7 +74,7 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, public AS $$
 $$;
 
 -- Whether the user's own account owns `loc`. The owner-membership INSERT policy needs this for
--- a location created a statement earlier in the same transaction (ensureAccount, §7.14): that
+-- a location created a statement earlier in the same transaction (ensureAccount): that
 -- location isn't visible yet, so a subselect under the locations SELECT policy would miss it.
 CREATE FUNCTION kept.owns_location(loc uuid) RETURNS boolean
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, public AS $$
@@ -244,12 +244,12 @@ CREATE POLICY app_all ON public.user_hidden_modules FOR ALL TO kept_app
   WITH CHECK (user_id = (SELECT kept.current_user_id())
               AND location_id IN (SELECT kept.visible_location_ids()));
 
--- idempotency_keys: the user's own (§7.13).
+-- idempotency_keys: the user's own.
 CREATE POLICY app_all ON public.idempotency_keys FOR ALL TO kept_app
   USING (user_id = (SELECT kept.current_user_id()))
   WITH CHECK (user_id = (SELECT kept.current_user_id()));
 
--- Instance scope (§7.14, D190): instance-admin routes run on kept_app behind
+-- Instance scope (D190): instance-admin routes run on kept_app behind
 -- kept.is_instance_admin(). A user may also read their own instance_admins row.
 CREATE POLICY app_admin ON public.instance_settings FOR ALL TO kept_app
   USING ((SELECT kept.is_instance_admin()))
@@ -314,7 +314,7 @@ CREATE POLICY app_insert ON public.audit_event_subjects FOR INSERT TO kept_app
 -- checks this for every table. Beyond that:
 -- - locations.owner_account_id: ownership moves only through a deliberate transfer path.
 -- - locations.require_2fa, successor_user_id, deleted_at, purge_after: the owner's alone
---   (D149, D165, §7.14), through the definers in section 5; an admin could otherwise name
+--   (D149, D165), through the definers in section 5; an admin could otherwise name
 --   themselves successor, or delete the location out from under its owner.
 -- - memberships.invited_by, invites.created_by / accepted_*: who invited whom is recorded by
 --   the insert (or kept.accept_invite()), never edited.
@@ -345,7 +345,7 @@ GRANT UPDATE (response) ON public.idempotency_keys TO kept_app;
 GRANT UPDATE (value, updated_at, row_version) ON public.instance_settings TO kept_app;
 
 -- ---------------------------------------------------------------------------------------------
--- 4. kept_system: only the tables the step-1 jobs need (§7.1). Handlers re-derive scope from
+-- 4. kept_system: only the tables the step-1 jobs need. Handlers re-derive scope from
 --    the database, never from job data (jobs/boss.ts).
 -- ---------------------------------------------------------------------------------------------
 
@@ -371,10 +371,10 @@ REVOKE UPDATE ON public.audit_events FROM kept_system;
 -- refused) and after restore_location().
 -- ---------------------------------------------------------------------------------------------
 
--- Joins the signed-in user to an invite's location (task 20, D33), consuming the invite. The
+-- Joins the signed-in user to an invite's location (D33), consuming the invite. The
 -- invite must be unexpired, unaccepted, for a live location, and still backed by its creator:
 -- an unexpired owner or admin of that location, and the owner if it makes an admin (D48). An
--- email invite needs the accepter's verified address to match (§7.10). The membership gets the
+-- email invite needs the accepter's verified address to match. The membership gets the
 -- invite's role and expiry, never later than the creator's own (D180), and is the accepter's
 -- own: nobody else can be added this way. Any failure is the same `invite_invalid`, whatever
 -- the reason. Returns the location's id.
@@ -415,7 +415,7 @@ BEGIN
   RETURN inv.location_id;
 END $$;
 
--- The public invite page (task 20): the location's name, the role, and the inviter's display
+-- The public invite page: the location's name, the role, and the inviter's display
 -- name, for an invite accept_invite() could still take (its email binding aside). Nothing for
 -- anything else. Needs no user scope: holding the token is the permission.
 CREATE FUNCTION kept.invite_preview(p_token_hash text)
@@ -433,7 +433,7 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, public AS $$
      AND (i.role <> 'admin' OR m.role = 'owner')
 $$;
 
--- The profile of a managed account (task 21, D47), right after Better Auth created its user.
+-- The profile of a managed account (D47), right after Better Auth created its user.
 -- Only for a user with Kept's synthetic `@managed.invalid` address (auth/emails.ts), so no real
 -- person's account can be claimed; only by someone who administers a location; marked managed
 -- and made by the caller, which is what add_managed_member() trusts. Once: a second call hits
@@ -453,7 +453,7 @@ BEGIN
   VALUES (p_user_id, p_display_name, true, uid);
 END $$;
 
--- Adds a managed account to a location (task 21, D47). The caller must be an unexpired owner or
+-- Adds a managed account to a location (D47). The caller must be an unexpired owner or
 -- admin of the location; the account must be managed, and either made by the caller or already
 -- a member of a live location the caller owns. `admin` only from the owner (D48), never
 -- `owner`; the expiry never later than the caller's own (D180). Returns the membership's id.
@@ -487,7 +487,7 @@ BEGIN
   RETURN mid;
 END $$;
 
--- Deletes a location (task 19, D149): owner only, never the Personal one; it disappears for
+-- Deletes a location (D149): owner only, never the Personal one; it disappears for
 -- everyone at once and is purged 30 days later unless restored. Returns purge_after.
 CREATE FUNCTION kept.delete_location(p_location_id uuid) RETURNS timestamptz
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$
@@ -511,7 +511,7 @@ BEGIN
   RETURN now() + interval '30 days';
 END $$;
 
--- Restores a deleted location within its grace period (task 19, D149): owner only, and with a
+-- Restores a deleted location within its grace period (D149): owner only, and with a
 -- second factor if the location requires one (as seeing it would).
 CREATE FUNCTION kept.restore_location(p_location_id uuid) RETURNS void
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$
@@ -538,7 +538,7 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, public AS $$
    ORDER BY l.deleted_at DESC
 $$;
 
--- Turns "require two-factor" on or off (§7.14): owner only.
+-- Turns "require two-factor" on or off: owner only.
 CREATE FUNCTION kept.set_location_require_2fa(p_location_id uuid, p_required boolean)
 RETURNS void
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$

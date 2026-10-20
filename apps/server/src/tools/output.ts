@@ -62,7 +62,7 @@ export function thingSummaryOf(
 }
 
 /** The open loans of `thingIds` ("with Murdock", D57): the person's name only, never a contact
- * detail (Q34). Read as the caller, so a loan they can't see isn't there. */
+ * detail. Read as the caller, so a loan they can't see isn't there. */
 export async function openLoansOf(
   client: pg.ClientBase,
   thingIds: readonly string[],

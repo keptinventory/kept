@@ -1,5 +1,5 @@
 /**
- * The filter strip (D205, screens §5 "The filter strip"): one filtering component for every list.
+ * The filter strip (D205): one filtering component for every list.
  *
  *   [saved view tabs…]
  *   [search box] [active filter chips…] [+ Filter] [Views ▾] [⇅ Display]

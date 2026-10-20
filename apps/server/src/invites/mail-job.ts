@@ -3,7 +3,7 @@ import { withSystem } from '../db/scope.js';
 import type { Mailer } from '../mail/mailer.js';
 import { inviteUrl, newInviteToken } from './token.js';
 
-// `send-invite-mail` (security review M9; D33, §7.10). An email invite's link is only ever mailed
+// `send-invite-mail` (security review M9; D33). An email invite's link is only ever mailed
 // and its token is never stored, not even in a job's data: the route stores an unusable hash and
 // enqueues this job in its own transaction, so the mail is due exactly when the invite exists.
 // The job makes the real token, stores its hash through kept.rekey_email_invite() (migration

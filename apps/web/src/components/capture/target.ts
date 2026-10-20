@@ -1,5 +1,5 @@
 /**
- * Where a capture lands, and how the place chip names it (screens §5 "Capture", §8; D153, D194).
+ * Where a capture lands, and how the place chip names it (D153, D194).
  *
  * The default, in order: the box a label or link put in view (`into`), the place asked for
  * ("Capture here"), the nearby location when "Suggest where I am" is on, else the location last

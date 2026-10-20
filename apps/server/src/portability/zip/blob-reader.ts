@@ -2,11 +2,11 @@ import { PassThrough, type Readable } from 'node:stream';
 import yauzl from 'yauzl';
 import type { BlobStore } from '../../storage/blob-store.js';
 
-// yauzl's RandomAccessReader over the BlobStore (spike Z1): an archive is read by byte range, so
+// yauzl's RandomAccessReader over the BlobStore: an archive is read by byte range, so
 // an S3 deployment never copies a 5 GB upload to local disk, and the local driver reads it in
 // place. The key is always an id-built one (`i/<runId>.zip`, `x/<runId>.zip`); the store checks it.
 //
-// Three things the spike measured:
+// Three things a trial run measured:
 // - yauzl reads the central directory with two small `read()`s per entry and each local header
 //   with two more. Unbuffered, that is one GET per read on S3 (about 400,000 for a 200,000-entry
 //   directory). `read()` is served from BLOCK_BYTES blocks, at most MAX_BLOCKS held (LRU), one

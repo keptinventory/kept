@@ -1,7 +1,7 @@
 /**
- * CSV import (D73; plan T18, T30, Q18). The browser parses the file and maps its columns; the
+ * CSV import (D73). The browser parses the file and maps its columns; the
  * server receives rows of strings and validates everything again. Both use these lists. The
- * archive importers (step 7: Homebox and Kept exports) report through the same issue list.
+ * archive importers (Homebox and Kept exports) report through the same issue list.
  */
 import { HB_ISSUE_CODES } from './homebox.js';
 import { ARCHIVE_ISSUE_CODES } from './portability.js';
@@ -27,7 +27,7 @@ export const MAPPABLE = [
   'currency',
   'manual_url',
   'legacy_code',
-  /** The household's own code (D208, T17a): checked against the location's format rule. */
+  /** The household's own code (D208): checked against the location's format rule. */
   'own_code',
   'source_id',
   'ignore',
@@ -42,7 +42,7 @@ export function isMappable(field: string): field is MappableField {
 }
 
 /**
- * Why a dry-run row isn't simply `ok` (plan T18, T30): a stable code the web translates, with the
+ * Why a dry-run row isn't simply `ok`: a stable code the web translates, with the
  * values its sentence needs in `params`. `message` is the server's English sentence, for a client
  * that doesn't know a newer code.
  */
@@ -84,7 +84,7 @@ export const IMPORT_ISSUE_CODES = [
   // an own code the location's format rule refuses: kept as text, with the owner's message
   'code_format',
   'notes_cut',
-  // step 7: an archive's files (a refused type, a missing entry) and the Homebox mapping (D146)
+  // An archive's files (a refused type, a missing entry) and the Homebox mapping (D146)
   ...ARCHIVE_ISSUE_CODES,
   ...HB_ISSUE_CODES,
 ] as const;
@@ -101,7 +101,7 @@ export type ImportIssueParams = {
   rule?: string;
 };
 
-/** What an archive import's issue is about (step 7): an entity (a Homebox item or location, a
+/** What an archive import's issue is about: an entity (a Homebox item or location, a
  * Kept thing or place), an attachment or its file, a maintenance entry or a template, by its id
  * in the archive and its name there. A CSV issue has none: its row number says where. */
 export type ImportIssueRef = {
@@ -120,7 +120,7 @@ export type ImportIssue = {
   ref?: ImportIssueRef;
 };
 
-/** Per file (Q18). */
+/** Per file. */
 export const CSV_LIMITS = Object.freeze({ rows: 10_000, bytes: 8_000_000 });
 
 /** A `running` import whose row hasn't moved for this long has lost its job, and may be resumed

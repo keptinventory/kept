@@ -10,7 +10,7 @@ import { FONT_FILES, fontDir, woffToSfnt } from './fonts.js';
 import { RenderError, renderPdf, writeData } from './render.js';
 
 // T32 (D201): the renderer on its own, outside any database: the child process, its limits, and
-// the budget the V34 spike measured (500 things with photos, in Arabic, well under 512 MB).
+// the budget a trial run measured (500 things with photos, in Arabic, well under 512 MB).
 
 let scratch: string;
 beforeAll(async () => {

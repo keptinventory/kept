@@ -1,5 +1,5 @@
 /**
- * The type editor's conversions (step-7 plan T24; D172, D177, D193): the account owner makes the
+ * The type editor's conversions (D172, D177, D193): the account owner makes the
  * Batteries type's Size field secret, plain, or another kind, through a preview per location
  * (counts, never values) and the field's name typed to confirm; the recovery kit asked for first;
  * hidden from an admin who isn't the owner; Arabic.

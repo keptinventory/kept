@@ -1,7 +1,7 @@
 /**
- * The frame for Location settings pages (screens §5): the location's name, the section tabs
+ * The frame for Location settings pages: the location's name, the section tabs
  * (General · What to track · Members; Personal has no Members, D114; Webhooks for its owner and
- * admins, step 6; Email-in for them too, 1.4; Paperless-ngx for them too, 1.x; Share links for them, never in Personal, 1.5) and the
+ * admins; Email-in for them too, 1.4; Paperless-ngx for them too, 1.x; Share links for them, never in Personal, 1.5) and the
  * owner/admin gate.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -76,7 +76,7 @@ export function LocationSettingsPage({
                   current: section === 'members',
                 },
               ]),
-          // Webhooks (step 6, T23): owners and admins only, hidden for everyone else.
+          // Webhooks: owners and admins only, hidden for everyone else.
           ...(admin
             ? [
                 {

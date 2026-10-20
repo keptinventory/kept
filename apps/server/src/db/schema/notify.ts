@@ -21,8 +21,8 @@ import { user } from './auth.js';
 import { id, mutable, textEnum, tstz } from './common.js';
 import { locations } from './tenancy.js';
 
-// Channels, push subscriptions, preferences and calendar feeds (step-4 plan T7; engineering spec
-// §1.9, §7.3, §7.13; D29, D30, D130, D139, D142, D181; plan Q10–Q13, Q23, Q35). Each is its user's
+// Channels, push subscriptions, preferences and calendar feeds (D29, D30, D130, D139, D142, D181).
+// Each is its user's
 // own. Row-level security, the caps and the calendar door are in 0055; see
 // src/db/reminders.test.ts.
 
@@ -33,11 +33,11 @@ const preferenceKindSlots = textEnum('kind', NOTIFY_KIND_SLOTS);
 const preferenceChannel = textEnum('channel', PREFERENCE_CHANNELS);
 
 /**
- * Where a user's notices go (D30; Q13): one email channel (made lazily; managed accounts never
+ * Where a user's notices go (D30): one email channel (made lazily; managed accounts never
  * get one), one web-push channel (its devices are push_subscriptions), up to 5 webhooks, and up
  * to 3 ntfy, 3 Telegram and 3 Apprise channels (1.3, D227; 1.5, D232; triggers, 0055 and later).
  * A webhook's `{url, secret}`, an ntfy channel's server, topic and token, a Telegram bot's token and
- * chat, and an Apprise channel's URLs are sealed (§7.3: table 'notification_channels', row id, field 'config'); kept_app can't SELECT
+ * chat, and an Apprise channel's URLs are sealed (table 'notification_channels', row id, field 'config'); kept_app can't SELECT
  * them, only the system side opens them (notify/webhook.ts, notify/relay.ts). `display_host` is
  * what to show: the webhook's or ntfy server's host, `api.telegram.org` for Telegram, the services
  * an Apprise channel's URLs name (`discord, mailto`).
@@ -73,7 +73,7 @@ export const notificationChannels = pgTable(
   ],
 );
 
-/** A browser's push subscription (D139, L112): removed when the push service answers 404/410. */
+/** A browser's push subscription (D139): removed when the push service answers 404/410. */
 export const pushSubscriptions = pgTable(
   'push_subscriptions',
   {
@@ -91,7 +91,7 @@ export const pushSubscriptions = pgTable(
   },
   (t) => [
     unique('push_subscriptions_endpoint_uq').on(t.endpoint),
-    // Q12: HTTPS only; the sender also refuses private addresses at connect time.
+    // HTTPS only; the sender also refuses private addresses at connect time.
     check(
       'push_subscriptions_endpoint_chk',
       sql`endpoint ~ '^https://' AND char_length(endpoint) <= 1000`,
@@ -107,7 +107,7 @@ export const pushSubscriptions = pgTable(
 );
 
 /**
- * A choice a person made (D29; Q35; D239): a row only where they chose; no row is @kept/shared
+ * A choice a person made (D29; D239): a row only where they chose; no row is @kept/shared
  * `defaultPreference()`, so a change to the defaults reaches everyone who never chose. A row with
  * no location is the person's choice for all their locations (1.5.x, D239), a row with one their
  * choice for that location; `resolvePreference()` reads location, then all locations, then the

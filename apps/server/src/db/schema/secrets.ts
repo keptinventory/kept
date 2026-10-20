@@ -18,7 +18,7 @@ import { typeFields } from './registries.js';
 import { locations } from './tenancy.js';
 import { things } from './things.js';
 
-// Secret field values and who may reveal them (engineering spec §1.3, §7.3, §7.13; D83, D116,
+// Secret field values and who may reveal them (D83, D116,
 // D177). Values are envelope-encrypted by the server (crypto/envelope.ts) and versioned: a new
 // value supersedes the current one, and history stays. Never indexed, never in `custom`, the
 // search document, the audit diff or the offline snapshot. Row-level security and the definers

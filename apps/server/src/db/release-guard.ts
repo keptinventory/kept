@@ -7,7 +7,7 @@ import { audited } from '../audit/audited.js';
 import { packageRoot } from '../package-root.js';
 import * as schema from './schema/index.js';
 
-// Upgrade safety (step-8 plan T8, Q8, Q9; D66, D82): which releases migrated this database, and
+// Upgrade safety (D66, D82): which releases migrated this database, and
 // whether this image may run on it.
 //
 // `release_history` records each release `kept migrate` ran (its version, revision and the last
@@ -26,7 +26,7 @@ import * as schema from './schema/index.js';
 // Development builds (`0.0.0-dev`) are never recorded and never refused: a branch switch in
 // development is not a downgrade (they log the finding instead).
 
-/** The status page's "Upgraded from X to Y without a snapshot" (plan T8), until the next good
+/** The status page's "Upgraded from X to Y without a snapshot", until the next good
  * backup: `{fromVersion, toVersion, at}`, written by `kept migrate` as kept_owner. */
 export const UPGRADE_WITHOUT_SNAPSHOT_KEY = 'upgrade_without_snapshot';
 
@@ -73,7 +73,7 @@ export type ReleaseDecision =
   | { state: 'refused'; newest: string | null; why: 'too_far' | 'unknown' };
 
 /**
- * The guard's rule (plan Q9). `ahead`: the database holds migrations this image doesn't know.
+ * The guard's rule. `ahead`: the database holds migrations this image doesn't know.
  * `aheadReleases`: the recorded releases that introduced them (when the caller can tell; the
  * boot passes the releases whose last tag the journal lacks).
  */
@@ -145,7 +145,7 @@ export async function auditDowngradeForced(
 export type BootGuardResult = { rolledBackFrom: string | null; forced: boolean };
 
 /**
- * The server's boot check (plan T8), as kept_system: refuses a database more than one recorded
+ * The server's boot check, as kept_system: refuses a database more than one recorded
  * release ahead (throws DowngradeRefused) unless `allowDowngrade`, logs a one-version rollback,
  * and stamps this release's `last_booted_at`.
  */

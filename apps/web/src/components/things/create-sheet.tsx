@@ -1,10 +1,10 @@
 /**
- * The create sheet (plan task 26; a bottom sheet on phones, a dialog on desktop): name, type (with
+ * The create sheet (a bottom sheet on phones, a dialog on desktop): name, type (with
  * its icon), where (the move picker), quantity (hidden when the type forces one, D10), brand,
  * model, serial, a photo, and the optional purchase quick fields (date, shop, price + currency),
  * which appear only when Money is on and you may see money. Amounts accept Arabic digits and
- * `٫` (D172). While the name is empty, "From a template" fills the sheet from one (quick add,
- * plan T30), and the thing is created with its `templateId`.
+ * `٫` (D172). While the name is empty, "From a template" fills the sheet from one (quick add),
+ * and the thing is created with its `templateId`.
  *
  * The thing's id is chosen here, so its photo uploads right after the create, attached to it.
  */
@@ -103,7 +103,7 @@ export function CreateThingSheet({
   const [currency, setCurrency] = useState<string | null>(null);
   const [errors, setErrors] = useState<Errors>({});
   const [busy, setBusy] = useState(false);
-  /** The step after creating a thing whose type has a default meter (D52, Q21): its first
+  /** The step after creating a thing whose type has a default meter (D52): its first
    * reading, skippable. Holds what was made until it is logged or skipped. */
   const [first, setFirst] = useState<{
     id: string;

@@ -1,7 +1,7 @@
 /**
- * "This month" (D206, screens §5 AI settings §5 and AI usage totals): a bar per cap, "so far"
+ * "This month" (D206; on AI settings and the AI usage totals): a bar per cap, "so far"
  * (never compared with full months, D188): "USD 1.12 of USD 5.00 · 22%", the tokens, and "3 calls
- * with unknown cost" under a money cap, which can't count them (§8a).
+ * with unknown cost" under a money cap, which can't count them.
  */
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import type { AiCap } from '@/api/capture/types';
@@ -12,7 +12,7 @@ import { useMoney, useTokens } from './labels';
 
 /**
  * Whose cap it is, as the subject of a sentence: the target's label, or "This server" for the
- * instance's own caps, whose label the server leaves empty (T9).
+ * instance's own caps, whose label the server leaves empty.
  */
 export function useCapWho(): (cap: Pick<AiCap, 'scope' | 'target'>) => string {
   const { t } = useLingui();
@@ -30,7 +30,7 @@ export function useCapName(): (cap: AiCap) => string {
       case 'instance':
         return t`This server, overall`;
       case 'instance_account':
-        // An instance cap's label is '' (T9): an account's own override names no one.
+        // An instance cap's label is '': an account's own override names no one.
         return c.target.id
           ? who
             ? t`${who} on this server's key`

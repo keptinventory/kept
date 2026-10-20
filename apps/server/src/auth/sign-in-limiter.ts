@@ -1,11 +1,11 @@
 import { createHash } from 'node:crypto';
 import type pg from 'pg';
 
-// D172, engineering spec §3.2: sign-in attempts are limited per account *and* IP, 20 per hour,
+// D172: sign-in attempts are limited per account *and* IP, 20 per hour,
 // with progressive delays rather than a lockout, so nobody can lock someone else out. Better
 // Auth's own limiter (also on, database-backed) keys on IP + path only, so this is Kept's.
 // State lives in auth.sign_in_failures and every decision uses the database clock, so replicas
-// agree (V32).
+// agree.
 //
 // An attempt is *reserved* before the credential is checked, in one atomic upsert that both
 // decides and counts (Phase B review, item 1). Checking first and counting the failure
@@ -44,12 +44,12 @@ export function limiterKey(
     | 'move-preview'
     | 'secret-reveal'
     | 'barcode-lookup'
-    // Step 4 (T15, T17): a channel's test send; a calendar feed's fetches.
+    // A channel's test send; a calendar feed's fetches.
     | 'channel-test'
     | 'calendar-feed'
-    // Step 6 (T15): a location webhook's test ping.
+    // A location webhook's test ping.
     | 'webhook-test'
-    // Step 7 (T14): a Kept import's passphrase tries, per run.
+    // A Kept import's passphrase tries, per run.
     | 'import-passphrase'
     // 1.4 (D231): signing in to a location's mailbox to check it, per person.
     | 'mailbox-check'
@@ -114,10 +114,10 @@ export async function clearSignInFailures(pool: pg.Pool, key: string): Promise<v
   await pool.query('DELETE FROM auth.sign_in_failures WHERE key = $1', [key]);
 }
 
-// Mailed links (engineering spec §3.2: password reset and magic link, 3 per hour per account;
+// Mailed links (password reset and magic link, 3 per hour per account;
 // Kept applies the same to email-change confirmations). Not failures: every request counts, and
 // nothing clears the count early. A plain fixed window in the same table, so the nightly prune
-// (task 24) covers it too. `count` stops at the cap, so a refused request changes nothing.
+// covers it too. `count` stops at the cap, so a refused request changes nothing.
 const RESERVE_IN_WINDOW_SQL = `
 INSERT INTO auth.sign_in_failures AS f (key, window_start, count, last_failure_at)
 VALUES ($1, now(), 1, now())
@@ -148,13 +148,13 @@ export async function reserveInWindow(
   return { allowed: false, retryAfter: Math.max(1, Math.ceil(row.retry_after ?? 1)) };
 }
 
-/** §3.2: mailed links per account, counted per (address, client IP) (security review M4), so
+/** Mailed links per account, counted per (address, client IP) (security review M4), so
  * nobody elsewhere can use up someone's allowance and block their sign-in. */
 export const MAIL_LINKS_PER_HOUR = 3;
 /** ...and a ceiling per address across every IP, so a botnet can't flood one mailbox. */
 export const MAIL_LINKS_PER_ADDRESS_PER_HOUR = 10;
 
-// A lockout (the setup code, task 22): `max` attempts, each within `lockSeconds` of the one
+// A lockout (the setup code): `max` attempts, each within `lockSeconds` of the one
 // before, then nothing for `lockSeconds` after the last of them. An attempt counts until
 // clearSignInFailures() says it succeeded; a quiet spell as long as the lockout starts afresh.
 // $2 max, $3 lock seconds.

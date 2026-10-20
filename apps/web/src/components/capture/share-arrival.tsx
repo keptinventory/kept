@@ -1,5 +1,5 @@
 /**
- * What the capture screen shows for a share (D140; plan T23, Q26):
+ * What the capture screen shows for a share (D140):
  *
  * - `?shared=<id>`: claims the share (pwa/share-target.ts) and opens "Shared into Kept";
  *   a share that is gone says so.
@@ -30,7 +30,7 @@ export function ShareArrival({
 }: {
   sharedId?: string;
   problem?: ShareProblem;
-  /** Defaults to the signed-in person's store (T24), or memory where IndexedDB is missing. */
+  /** Defaults to the signed-in person's store, or memory where IndexedDB is missing. */
   store?: OfflineStore;
   /** Asks the service worker for the share (tests pass a fake). */
   ask?: (id: string) => Promise<SharedInto | null>;

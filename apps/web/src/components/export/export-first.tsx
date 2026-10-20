@@ -1,5 +1,5 @@
 /**
- * "Export first" (D149; plan T21): before a location is deleted, its owner can take a copy of
+ * "Export first" (D149): before a location is deleted, its owner can take a copy of
  * everything in it, its files and a readable copy. It starts an export and follows it here;
  * once ready, Download (a fresh link per click). Optional: deleting doesn't wait for it.
  */

@@ -41,13 +41,13 @@ function tryHtml(): Plugin {
 }
 
 /**
- * Chunks the service worker caches when first used instead of precaching (sw.ts, plan T23):
+ * Chunks the service worker caches when first used instead of precaching (sw.ts):
  * - lucide-react/dynamic's one chunk per icon (about 1,800), and its name → import map
  *   (DynamicIcon, about 290 KB), which only custom type icons and the icon picker load: assets/icons/;
  * - the Lingui catalogues, one per language, of which a person uses one: assets/locales/;
- * - the thing page's step-4 sections (warranties, claims, value, loans, schedules; T20), the
- *   notification centre and Me → Notifications (T24, T25), incidents, reports and exchange rates
- *   (T26), Schedules, Lending, Paperwork, Expiring and a brand's logo (T29), and settings, admin,
+ * - the thing page's step-4 sections (warranties, claims, value, loans, schedules), the
+ *   notification centre and Me → Notifications, incidents, reports and exchange rates,
+ *   Schedules, Lending, Paperwork, Expiring and a brand's logo, and settings, admin,
  *   AI settings and usage, the import, Activity and Trash, which all read the server, so they're
  *   no use offline before their first load; and the hints' driver.js, which a hint can do
  *   without: assets/household/. The folder and the `kept-household` cache keep their step-4 name.
@@ -56,20 +56,20 @@ function tryHtml(): Plugin {
 const LUCIDE_ICON = '/lucide-react/dist/esm/icons/';
 const LUCIDE_DYNAMIC = '/lucide-react/dist/esm/DynamicIcon.mjs';
 const HOUSEHOLD_SECTIONS = [
-  // The assistant's sheet and docked panel (step 6, T19): loaded when first opened
+  // The assistant's sheet and docked panel: loaded when first opened
   // (assistant/host.tsx); it needs a connection anyway.
   '/src/assistant/surface.tsx',
   '/src/components/things/household-sections.tsx',
   '/src/components/incidents/screens.household.tsx',
-  // A brand's logo and its Add · Replace · Remove (T29).
+  // A brand's logo and its Add · Replace · Remove.
   '/src/components/registries/brand-logo.household.tsx',
-  // A things list's Export view and Print (step 7, T16): both need the server.
+  // A things list's Export view and Print: both need the server.
   '/src/components/filters/list-export.household.tsx',
-  // Consumables' Adjust and a thing's "Keep at least" (step 7, T23), and converting a type's
-  // field (T24): each reads and writes the server.
+  // Consumables' Adjust and a thing's "Keep at least", and converting a type's
+  // field: each reads and writes the server.
   '/src/components/consumables/stock.household.tsx',
   '/src/components/registries/convert-field-sheet.household.tsx',
-  // A vehicle's tabs (step 5, T18): costs, the meter's series and proofs, fills and documents all
+  // A vehicle's tabs: costs, the meter's series and proofs, fills and documents all
   // read the server. Its charts load later still, with the tab that draws them (visx, D133).
   '/src/components/vehicles/vehicle-sections.tsx',
   '/src/components/charts/bars.tsx',
@@ -87,28 +87,28 @@ const HOUSEHOLD_ROUTES = [
   '/src/routes/_app/incidents.$id.tsx?tsr-split=component',
   '/src/routes/_app/reports.$kind.tsx?tsr-split=component',
   '/src/routes/_app/settings.account.exchange-rates.tsx?tsr-split=component',
-  // Step 4's lists (T29): Schedules, Lending, Paperwork and Expiring read the server only.
+  // Step 4's lists: Schedules, Lending, Paperwork and Expiring read the server only.
   '/src/routes/_app/schedules.tsx?tsr-split=component',
   '/src/routes/_app/lending.tsx?tsr-split=component',
   '/src/routes/_app/paperwork.tsx?tsr-split=component',
   '/src/routes/_app/expiring.tsx?tsr-split=component',
-  // Step 5 (T3, T17): the Vehicles list reads the server; it isn't in the phone's snapshot.
+  // The Vehicles list reads the server; it isn't in the phone's snapshot.
   '/src/routes/_app/vehicles.tsx?tsr-split=component',
-  // Step 7 (T3): Export and Consumables need a connection. The old-label pages (/a, /item,
+  // Export and Consumables need a connection. The old-label pages (/a, /item,
   // /location) stay precached: a label opens offline.
   '/src/routes/_app/settings.export.tsx?tsr-split=component',
   '/src/routes/_app/consumables.tsx?tsr-split=component',
   // 1.x (D234): Insights reads the server only.
   '/src/routes/_app/insights.tsx?tsr-split=component',
-  // Step 6 (T3): the assistant, Connections and a location's webhooks read the server; none is
-  // any use offline. OAuth consent stays precached, like the sign-in pages it follows (T22).
+  // The assistant, Connections and a location's webhooks read the server; none is
+  // any use offline. OAuth consent stays precached, like the sign-in pages it follows.
   '/src/routes/_app/assistant.index.tsx?tsr-split=component',
   '/src/routes/_app/assistant.$threadId.tsx?tsr-split=component',
   '/src/routes/_app/settings.connections.tsx?tsr-split=component',
   '/src/routes/_app/settings.location.$id.webhooks.tsx?tsr-split=component',
   // 1.5 (D233): a share link's public page needs the server; its error screen stays precached.
   '/src/routes/s.$token.tsx?tsr-split=component',
-  // Settings, admin, imports and history need a connection (screens §4), so they come on demand
+  // Settings, admin, imports and history need a connection, so they come on demand
   // too, reclaiming precache for steps 5–7 (components/on-demand-route-error.tsx). Settings → Me,
   // Diagnostics and Help stay precached: they're this device's own.
   ...[
@@ -136,7 +136,7 @@ const HOUSEHOLD_ROUTES = [
     'settings.ai',
     'settings.ai.usage',
     'settings.me.ai',
-    // Step 8 (T3): This device; the lock screen itself is in the shell, precached (T23).
+    // This device; the lock screen itself is in the shell, precached.
     'settings.device',
     'settings.import',
     'settings.locations',
@@ -203,7 +203,7 @@ const ON_DEMAND_ENTRIES = [
   '/src/components/import/parse-config.ts',
 ];
 /**
- * Shared chunks only the chunks above import (T29): a chunk made of nothing but these modules is
+ * Shared chunks only the chunks above import: a chunk made of nothing but these modules is
  * on demand too. scripts/check-bundle.mjs fails the build if a precached chunk imports one.
  */
 const HOUSEHOLD_SHARED = [
@@ -232,7 +232,7 @@ const HOUSEHOLD_SHARED = [
   '/src/components/ai/usage-totals.tsx',
   '/src/components/ai/what-uses-ai.tsx',
   '/src/components/location-settings.tsx',
-  // The assistant (step 6, T19, T20), shared by its sheet and its two pages. Not dictation.ts,
+  // The assistant, shared by its sheet and its two pages. Not dictation.ts,
   // which Capture's precached name field uses too, nor store/open/button/host (entry chunk).
   ...[
     'answer.tsx',
@@ -251,12 +251,12 @@ const HOUSEHOLD_SHARED = [
     'use-turn.ts',
   ].map((f) => `/src/assistant/${f}`),
   '/src/api/assistant/queries.ts',
-  // Shared by step 4's thing sections and a vehicle's tabs (step 5, T18), which now load as two
+  // Shared by step 4's thing sections and a vehicle's tabs, which now load as two
   // on-demand chunks: the schedules section, gated money, and matchSchedules for Log a service.
   '/src/components/things/schedules-section.tsx',
   '/src/components/money/gated.tsx',
   '/packages/shared/src/services.ts',
-  // visx and the d3 it brings, shared by the vehicle and fuel charts (step 5).
+  // visx and the d3 it brings, shared by the vehicle and fuel charts.
   '/src/components/charts/kit.tsx',
   // The charts' loader and "Show as table", shared by a vehicle's tabs and Insights (1.x, D234).
   '/src/components/charts/lazy.tsx',
@@ -314,7 +314,7 @@ export default defineConfig({
     babel({ presets: [linguiTransformerBabelPreset({ linguiConfig }, { configPath })] }),
     tailwindcss(),
     ...(TRY ? [tryHtml()] : []),
-    // The service worker (plan T23): src/sw.ts is
+    // The service worker: src/sw.ts is
     // built to dist/sw.js with the precache manifest injected. The precache is the shell, the
     // fonts Kept renders (Latin and Arabic), the icons and the scanner's wasm, so capture and scan
     // work offline (D101). Never /api or /f: authenticated responses stay out of the Cache API

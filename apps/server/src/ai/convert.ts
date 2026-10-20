@@ -1,18 +1,17 @@
 /**
- * Kept's stored messages and tool specs ↔ the AI SDK's `ModelMessage[]` and `ToolSet` (step-6
- * plan T8; spike S6.3 recorded the part shapes).
+ * Kept's stored messages and tool specs ↔ the AI SDK's `ModelMessage[]` and `ToolSet` (the part shapes as recorded from the SDK).
  *
  * - A tool (`ToolSpec`) is a description and a JSON Schema with Kept's own `validate` (the SDK
  *   checks nothing for a bare `jsonSchema()`, S6.3 finding 2). call.ts's `toToolSet` turns it into
  *   the SDK's tool, **never** with an `execute`: Kept runs the loop itself, one provider request
  *   per `callModel`. Only call.ts builds SDK tools (no-direct-calls.test.ts).
  * - The conversation is rebuilt so every tool call is answered exactly once, right after the
- *   assistant message that made it, whatever the stored thread holds (T13):
+ *   assistant message that made it, whatever the stored thread holds:
  *   - a result redacted after its location was lost (D164) is a `{type: 'redacted'}` part that no
  *     longer names its call, and an assistant message citing that location is redacted whole, so
  *     its calls are gone while their results may remain. Each call is answered with its stored
  *     result or, when there is none, `[removed]`; a result whose call is gone is left out.
- *   - a result stored later for the same call (a confirmed proposal's outcome, T13) replaces the
+ *   - a result stored later for the same call (a confirmed proposal's outcome) replaces the
  *     earlier one: the last result per call id wins.
  * - Reasoning parts go back as the provider returned them (S6.3 finding 4); proposal parts are the
  *   web's, never the model's.
@@ -129,7 +128,7 @@ export function fromToolCalls(result: { toolCalls: readonly SdkToolCall[] }): To
   });
 }
 
-/** The characters a conversation sends, for the estimate (L43). */
+/** The characters a conversation sends, for the estimate. */
 export function conversationText(messages: readonly KeptMessage[]): string {
   let s = '';
   for (const m of messages) {

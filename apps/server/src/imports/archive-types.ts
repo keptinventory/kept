@@ -14,10 +14,10 @@ import type { JobQueue } from '../jobs/queue.js';
 import type { OpenArchive } from '../portability/zip/read.js';
 import type { FileStorage } from '../storage/blob-store.js';
 
-// The archive importers' contract (step-7 plan T8, T9, T14), in the shapes of the web's
+// The archive importers' contract, in the shapes of the web's
 // apps/web/src/api/portability/types.ts (ArchiveImportRun, ArchiveInspect, ArchiveDryRunReport).
 // imports/archive.ts serves the routes and dispatches on `import_runs.source` to an
-// `ArchiveImporter`: Homebox's (imports/homebox/importer.ts, T9) and the Kept export's (T14).
+// `ArchiveImporter`: Homebox's (imports/homebox/importer.ts) and the Kept export's.
 
 /** `import_runs` as the archive routes read it (the caller's row-level security applies). */
 export type ArchiveRunRow = {
@@ -39,7 +39,7 @@ export type ArchiveRunRow = {
   archive_sha256: string | null;
   archive_ready_at: Date | null;
   inspect: Record<string, unknown> | null;
-  /** Whether a passphrase-derived key is sealed on the run (T14); the key itself is never read
+  /** Whether a passphrase-derived key is sealed on the run; the key itself is never read
    * by the routes. */
   has_key: boolean;
   row_version: number;
@@ -92,7 +92,7 @@ export type KeptInspect = {
 /** POST /imports/:id/inspect: read from the manifest and the row counts only. */
 export type ArchiveInspect = HomeboxInspect | KeptInspect;
 
-/** One row of an archive dry run: only rows with issues are kept (plan Q27). */
+/** One row of an archive dry run: only rows with issues are kept. */
 export type ArchiveReportRow = {
   status: 'ok' | 'text' | 'skipped';
   ref: ImportIssueRef;

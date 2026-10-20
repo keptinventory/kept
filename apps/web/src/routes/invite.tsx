@@ -1,5 +1,5 @@
 /**
- * Accept invite (screens §5, D33, D127, D181, D190). `/invite#<token>`: the token stays in the
+ * Accept invite (D33, D127, D181, D190). `/invite#<token>`: the token stays in the
  * fragment and is spent by POST. Shows the location, who invited you, the role and any end
  * date. Signed in: Join. Signed out: create an account, the only way in while sign-up is closed;
  * the account is created and the invite consumed in one step (D190). Or sign in and come back.
@@ -103,7 +103,7 @@ function InviteBody({ token, invite }: { token: string; invite: InvitePreview })
   const role = roles.one[invite.role];
   const until = invite.membershipExpiresAt ? f.day(invite.membershipExpiresAt) : null;
   const signedIn = !!me.data;
-  // Step 6 (T22, D127): an invited person may join with the server's OIDC provider instead, or
+  // Step 6 (D127): an invited person may join with the server's OIDC provider instead, or
   // with Google (1.2, D226).
   const oidcName = useOidcName();
   const googleOn = useGoogleOn();

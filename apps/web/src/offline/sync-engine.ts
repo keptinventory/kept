@@ -1,5 +1,5 @@
 /**
- * The sync engine (plan T24; engineering spec §2.2, §2.3, §7.4; D17, D35, D36, D101, D112, D148,
+ * The sync engine (D17, D35, D36, D101, D112, D148,
  * D156, D181). It moves the queue to the server and the server's snapshot to the phone.
  *
  * **When it runs:** on start (app open), when the page becomes visible, when the network comes
@@ -75,9 +75,9 @@ export type SyncStatus = {
   /** The snapshot's own time: "as of last sync, 14:02" (D188). */
   asOf: string | null;
   counts: { waiting: number; uploading: number; needsAttention: number };
-  /** Only part of the Kept fits on this phone (Q30). */
+  /** Only part of the Kept fits on this phone. */
   truncated: boolean;
-  /** `navigator.storage.persist()`'s answer, once asked; null before (V11). */
+  /** `navigator.storage.persist()`'s answer, once asked; null before. */
   persisted: boolean | null;
   /** Things whose short ID came at sync and can be printed now: "Print pending labels (N)". */
   printPending: number;
@@ -409,7 +409,7 @@ export class SyncEngine {
       }
       const unanswered = send.filter((e) => !answered.has(e.idempotencyKey));
       if (unanswered.length > 0) {
-        // The server stopped part-way (a 500 in one op, T14): the rest go again, same keys.
+        // The server stopped part-way (a 500 in one op): the rest go again, same keys.
         await this.store.setState(
           unanswered.map((e) => e.seq),
           'pending',

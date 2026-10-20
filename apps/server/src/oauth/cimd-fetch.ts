@@ -1,13 +1,13 @@
 import type { ClientMetadataResourceFetch } from '@better-auth/oauth-provider';
 import { guardedFetch, type Resolve } from '../net/ssrf.js';
 
-// The transport for Client ID Metadata Documents (step-6 plan T12; D125, D128; spike S6.2 §7).
+// The transport for Client ID Metadata Documents (D125, D128).
 // A connector's `client_id` is a URL the client chose, so its metadata is fetched through Kept's
 // SSRF guard **always with private addresses refused**, whatever `ssrf_allow_private` says for AI
 // base URLs: the address is resolved once inside the connection's lookup and that connection is
 // pinned to it (no check-then-connect gap), redirects are refused, and every special-use range
 // is refused (net/ssrf.ts). The cimd plugin itself checks the URL's form, the 5 s timeout, the
-// JSON content type, the 5 KB cap and the metadata (S6.2 §7), and swallows the transport's own
+// JSON content type, the 5 KB cap and the metadata, and swallows the transport's own
 // error into `invalid_client`; so the guard's verdict is logged here (the URL without its query).
 
 export type CimdLog = { warn: (obj: object, msg: string) => void };

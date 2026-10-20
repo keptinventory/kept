@@ -7,9 +7,9 @@ import { type TestDb, testDb } from '../../test/db.js';
 import { call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { createLocation, type Loc, own as ownOf } from '../../test/things.js';
 
-// Brand logos (step-4 T9; D157, D172; Q33; 0057, 0058): an account's admins set one from a PNG,
+// Brand logos (D157, D172; 0057, 0058): an account's admins set one from a PNG,
 // JPEG, WebP or SVG, and Kept keeps only the PNG it renders; whoever sees the brand reads it.
-// The SVG cases follow the step-4 T0 spike: nothing referenced outside the upload is fetched.
+// The SVG cases follow an early trial: nothing referenced outside the upload is fetched.
 
 let db: TestDb;
 let t: TestApp;

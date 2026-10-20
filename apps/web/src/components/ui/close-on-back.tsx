@@ -1,5 +1,5 @@
 /**
- * Back closes the top sheet first, then goes back in history (screens §1, "Back"): Android's back
+ * Back closes the top sheet first, then goes back in history ("Back"): Android's back
  * gesture and the browser's Back button. Rendered inside a React Aria modal (the sheets, dialogs
  * and the ⌘K palette), where the modal's overlay state is in context.
  *

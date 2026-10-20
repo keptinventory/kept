@@ -1,5 +1,5 @@
 /**
- * Step 8's journeys against the real server (plan T25; the final check for steps 5–8), on the
+ * Step 8's journeys against the real server (the final check for steps 5–8), on the
  * `households` seed, behind HTTPS and with the owner login a backup run needs (the `operations`
  * instance, e2e/instances.ts):
  *

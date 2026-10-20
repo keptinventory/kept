@@ -15,10 +15,10 @@ import {
 import { changeXid, id, mutable, tstz } from './common.js';
 import { locations } from './tenancy.js';
 
-/** The place tree (§1.3, §7.14; D45, D118, D160). Step 2 adds icon, sort, the place-kind
+/** The place tree (D45, D118, D160). Step 2 adds icon, sort, the place-kind
  * fields in `custom`, `trash_batch_id` (what was trashed together, D162) and `created_by`.
  *
- * Parent consistency (§7.13): places expose UNIQUE (location_id, id) and a child's parent is a
+ * Parent consistency: places expose UNIQUE (location_id, id) and a child's parent is a
  * composite foreign key on (location_id, parent_id), so a parent is always in the same
  * location and a cross-location move carries `location_id` down (ON UPDATE CASCADE). Loops
  * and trashing or re-parenting the Unplaced area are refused by triggers. */
@@ -54,7 +54,7 @@ export const places = pgTable(
       foreignColumns: [t.locationId, t.id],
     })
       .onUpdate('cascade')
-      // NO ACTION, not RESTRICT (plan Q12): the same guarantee at statement end, and a purged
+      // NO ACTION, not RESTRICT: the same guarantee at statement end, and a purged
       // location's cascade can delete a parent and its children in one statement.
       .onDelete('no action'),
     // One Unplaced area per location (D118).
@@ -67,7 +67,7 @@ export const places = pgTable(
     index('places_parent_idx').on(t.locationId, t.parentId),
     // The purge walks trashed places oldest first, across locations (kept.purge_trash()).
     index('places_trash_purge_idx').on(t.deletedAt, t.id).where(sql`deleted_at IS NOT NULL`),
-    // The snapshot's per-location read from a watermark (step-3 plan Q1).
+    // The snapshot's per-location read from a watermark.
     index('places_sync_idx').on(t.locationId, t.changeXid),
   ],
 );

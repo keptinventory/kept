@@ -2,7 +2,7 @@
  * The provider's model list (D202): what the settings' picker offers, split into models that
  * can read a photo (capture and extraction) and text models (the assistant). Capabilities come
  * from the listing's own metadata; where a listing doesn't report them the value is `null`
- * ("unknown") until a Test call settles it (T9). Ids are kept verbatim and nothing is inferred
+ * ("unknown") until a Test call settles it. Ids are kept verbatim and nothing is inferred
  * from a model's name. Loading the list is not a model call: no tokens, no ledger row.
  *
  * Endpoints, each from the provider's API reference (base URLs are the SDK packages' own
@@ -14,14 +14,14 @@
  * - Google `GET /v1beta/models?pageSize=1000` (`x-goog-api-key`, the header the SDK sends),
  *   paged by `nextPageToken`: `supportedGenerationMethods` (`generateContent`,
  *   `embedContent`); no input modalities.
- * - OpenRouter `GET /api/v1/models` (Bearer), one page (the spike's 458 came in one):
+ * - OpenRouter `GET /api/v1/models` (Bearer), one page (a listing of 458 came in one):
  *   `architecture.input_modalities` / `output_modalities`, `expiration_date`, `pricing`.
  * - Groq `GET /openai/v1/models` (Bearer): top-level `input_modalities` / `output_modalities`,
  *   `active`, `context_window`, `pricing`.
  * - An OpenAI-compatible server: `GET <base>/models`; no list endpoint (404/405/501) → [] and
  *   the picker offers "Custom model id".
  *
- * Left out of the picker (spike §1): `:free` (a shared upstream pool that 429s), `:batch`,
+ * Left out of the picker: `:free` (a shared upstream pool that 429s), `:batch`,
  * `~…` aliases and `openrouter/free` (routers), anything retiring within 30 days, inactive
  * models, and text models with under 8,192 tokens of context (Groq's prompt guards).
  */
@@ -36,7 +36,7 @@ export type ListedModel = {
   /** Answers in text (chat, the assistant). Null: the listing doesn't say. */
   text: boolean | null;
   embeddings: boolean | null;
-  /** USD per token as the listing gives it, for the price prefill (T9); `-1` is dropped. */
+  /** USD per token as the listing gives it, for the price prefill; `-1` is dropped. */
   pricing: { prompt: string | null; completion: string | null; cachedInput: string | null } | null;
 };
 

@@ -15,7 +15,7 @@ import { ArchiveContentError, ArchiveError } from '../../portability/zip/limits.
 import { expectNames, type OpenArchive, openArchive } from '../../portability/zip/read.js';
 import { type BlobStore, importArchiveKey } from '../../storage/blob-store.js';
 
-// Reading a Kept export (step-7 plan T14, Q5): the archive is opened through the one safe reader
+// Reading a Kept export: the archive is opened through the one safe reader
 // (portability/zip/, D157) by exact names only: `manifest.json`, `secrets.json`,
 // `data/<entity>.ndjson` for the entities this server knows, and `files/<uuid>.<ext>` (the
 // manifest names each original's entry, which must carry that original's id). Anything else
@@ -88,7 +88,7 @@ export type KeptInspect = {
   members: { name: string; role: Role }[];
 };
 
-/** POST /imports/:id/inspect for a Kept export (plan T8 calls it): the manifest only. */
+/** POST /imports/:id/inspect for a Kept export: the manifest only. */
 export async function inspectKept(
   archive: OpenArchive,
 ): Promise<{ source: 'kept_zip'; sourceVersion: string; kept: KeptInspect }> {

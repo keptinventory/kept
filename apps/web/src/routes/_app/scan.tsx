@@ -1,5 +1,5 @@
 /**
- * Scan (plan T26; D137, D175; screens §5, §6): the scanner with its six outcomes, "Type the code",
+ * Scan (D137, D175): the scanner with its six outcomes, "Type the code",
  * the carrying tray (`?tray=1`, "Scan destination"), and a move's "Scan to unpack"
  * (`?unpack=<move id>`, D251). The screen is
  * components/scan/scan-screen.tsx; this route gives it the person's offline store and navigates

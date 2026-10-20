@@ -1,5 +1,5 @@
 /**
- * What the provider receives (plan T10, Q12; D163, D202): GPS-free sources only, never the
+ * What the provider receives (D163, D202): GPS-free sources only, never the
  * original's bytes.
  *
  * - THING: the file's `display` derivative (2048 px, made without metadata, storage/
@@ -8,8 +8,8 @@
  * - RECEIPT, LABEL and READING: an in-memory re-encode of the original, upright, at most 3072 px
  *   on its longest side, JPEG quality 85, metadata dropped (sharp writes none unless asked). It is
  *   never stored. An original the server can't decode (HEIC, D36/D99) uses the phone-made
- *   `display` instead (T13).
- * - A PDF receipt sends its extracted text (`file_text`, T21) and no image.
+ *   `display` instead.
+ * - A PDF receipt sends its extracted text (`file_text`) and no image.
  *
  * callModel checks every image part again (no EXIF, no XMP) and throws on a violation.
  */
@@ -25,12 +25,12 @@ import {
 } from '../storage/blob-store.js';
 import { LIMIT_INPUT_PIXELS } from '../storage/derivatives.js';
 
-/** The longest side of an evidence re-encode (Q12; D163 says "up to 3000 px"). */
+/** The longest side of an evidence re-encode (D163 says "up to 3000 px"). */
 export const EVIDENCE_MAX_PX = 3072;
-/** THING's size: the display rendition's (§3.4). */
+/** THING's size: the display rendition's. */
 export const THING_MAX_PX = 2048;
 const JPEG_QUALITY = 85;
-/** Receipt pages sent in one call (Q13). */
+/** Receipt pages sent in one call. */
 export const MAX_RECEIPT_PAGES = 4;
 
 export type SourceFile = {

@@ -1,5 +1,5 @@
 /**
- * The `OfflineStore` contract (plan T3): one suite that every implementation passes.
+ * The `OfflineStore` contract: one suite that every implementation passes.
  * offline/store.test.ts runs it on `MemoryStore`; T24 runs it on the Dexie store with
  * fake-indexeddb. Only the interface is used here, never an implementation's helpers.
  */

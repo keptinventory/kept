@@ -1,31 +1,31 @@
 /**
- * Fuel and charging maths (product design D28, D170; engineering spec §1.6; step-5 plan T1, Q6,
- * Q7, Q22). Pure: the server's fuel summary (apps/server/src/fuel/summary.ts) and the web's mock
+ * Fuel and charging maths (D28, D170).
+ * Pure: the server's fuel summary (apps/server/src/fuel/summary.ts) and the web's mock
  * both call these, so the screen and the API agree.
  *
  * - Values are decimal strings. Amounts and readings are numeric(…,3): compared and summed as whole
  *   thousandths in BigInt (`milli`), exactly as the meters' neighbours check does
  *   (apps/server/src/meters/check.ts re-exports `milli` and `decimalOut` from here). Money is
  *   numeric(16,4) and goes through the exact decimal helpers in ./decimal.ts.
- * - Consumption is measured full to full (Q6): an interval runs from one full fill to the next, and
+ * - Consumption is measured full to full: an interval runs from one full fill to the next, and
  *   its fuel is every fill after the first full up to and including the closing full (partials in
  *   between count). An interval is skipped when an end has no reading, when a fill in it is marked
  *   "I missed a fill-up before this one" (D170), when it mixes units (a plug-in hybrid), or when
  *   the distance isn't positive.
- * - Stored values are never converted (D76); only the derived figure follows the person's units
- *   (Q7): metric L/100 km and kWh/100 km, imperial mpg (US) and mi/kWh. `gal` is the US gallon.
+ * - Stored values are never converted (D76); only the derived figure follows the person's units:
+ *   metric L/100 km and kWh/100 km, imperial mpg (US) and mi/kWh. `gal` is the US gallon.
  */
 
 import { fromScaled, roundDiv, SCALE, toScaled } from './decimal.js';
 
-/** `fuel_entries.unit` (Q7). `gal` is the US gallon: UK and Canadian pumps sell litres. */
+/** `fuel_entries.unit`. `gal` is the US gallon: UK and Canadian pumps sell litres. */
 export const FUEL_UNITS = ['L', 'kWh', 'gal'] as const;
 export type FuelUnit = (typeof FUEL_UNITS)[number];
 
-/** How many fill intervals the headline consumption covers by default (Q6). */
+/** How many fill intervals the headline consumption covers by default. */
 export const CONSUMPTION_WINDOW = 5;
 
-/** Exact conversion constants (Q7): 1 US gallon = 3.785411784 L; 1 mile = 1.609344 km. */
+/** Exact conversion constants: 1 US gallon = 3.785411784 L; 1 mile = 1.609344 km. */
 export const LITRES_PER_US_GALLON = '3.785411784';
 export const KM_PER_MILE = '1.609344';
 
@@ -65,7 +65,7 @@ export type ConsumptionFill = {
   /** A decimal string, > 0. */
   amount: string;
   unit: FuelUnit;
-  /** Filled (or charged) to full. On a charge, "to your usual full" (Q6). */
+  /** Filled (or charged) to full. On a charge, "to your usual full". */
   isFull: boolean;
   /** "I missed a fill-up before this one" (D170): no consumption across the gap. */
   missedBefore: boolean;
@@ -108,7 +108,7 @@ const perHundredMilli = (amount: bigint, distance: bigint): bigint =>
   roundDiv(amount * 100n * 1000n, distance);
 
 /**
- * Consumption over a vehicle's fills, oldest first (Q6). With `unit`, only full fills in that
+ * Consumption over a vehicle's fills, oldest first. With `unit`, only full fills in that
  * unit open and close intervals (the per-unit summary of a plug-in hybrid); a fill in another unit
  * inside an interval still breaks it (`mixed_units`).
  */
@@ -183,7 +183,7 @@ export function consumption(
 }
 
 // ---------------------------------------------------------------------------------------------
-// Display units (Q7)
+// Display units
 // ---------------------------------------------------------------------------------------------
 
 export type UnitSystem = 'metric' | 'imperial';
@@ -201,7 +201,7 @@ function ratio(n: bigint, d: bigint, dp: number): string {
 }
 
 /**
- * A derived consumption in the person's units (Q7). `perHundred` is `fuelUnit` per 100
+ * A derived consumption in the person's units. `perHundred` is `fuelUnit` per 100
  * `distanceUnit` (a meter's unit: `km`, `mi`, or `h` for an hours meter). Only this derived figure
  * is converted; stored entries never are (D76).
  *
@@ -243,7 +243,7 @@ export function displayConsumption(
 }
 
 // ---------------------------------------------------------------------------------------------
-// Prices and cost per distance (Q22: per currency, never mixed)
+// Prices and cost per distance (per currency, never mixed)
 // ---------------------------------------------------------------------------------------------
 
 export type MoneyAmount = { amount: string; currency: string };
@@ -261,7 +261,7 @@ export function pricePerUnit(fill: {
 }
 
 /**
- * Costs per unit of distance, one figure per currency (never added across currencies, Q22), 4
+ * Costs per unit of distance, one figure per currency (never added across currencies), 4
  * decimals at most. Empty when the distance isn't positive.
  */
 export function perDistance(costs: readonly MoneyAmount[], distance: string): MoneyAmount[] {

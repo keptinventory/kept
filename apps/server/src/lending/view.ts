@@ -23,10 +23,10 @@ import {
   ThingRowSchema,
 } from '../things/view.js';
 
-// The shapes of lending and borrowing (plan T10), in the web contract's words
+// The shapes of lending and borrowing, in the web contract's words
 // (apps/web/src/api/household/types.ts: PersonRef, Loan, LoanRow). Read as the caller on
 // kept_app, so RLS decides what exists. A person is a name and whether they use Kept, never a
-// contact detail (D57, D177). `overdue` is the location's own date past the due date (§7.13).
+// contact detail (D57, D177). `overdue` is the location's own date past the due date.
 
 export type PersonRef = { id: string; name: string; isMember: boolean };
 

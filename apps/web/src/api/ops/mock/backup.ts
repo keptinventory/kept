@@ -1,5 +1,5 @@
 /**
- * Mock handlers for Admin → Backups (T10; D64, D66, D186, D193; plan Q6). Instance admins only.
+ * Mock handlers for Admin → Backups (D64, D66, D186, D193). Instance admins only.
  * A PUT needs If-Match, the recovery kit's acknowledgement (409 `recovery_kit_required`), https,
  * a password of 12+ characters when one is sent (400 `backup_password_weak`), and leaves a field
  * the environment locks as it is (400 `setting_locked`). Run now starts a `manual` run, which
@@ -121,7 +121,7 @@ export function backupRoutes(state: MockState): MockRoute[] {
         },
         version: cur.version + 1,
       };
-      // A change to the backup settings makes the downloaded kit stale (plan T9).
+      // A change to the backup settings makes the downloaded kit stale.
       if (s().kit.downloadedAt) s().kit.stale = true;
       return s().settings;
     }),

@@ -9,7 +9,7 @@ import { type PushPayload, testPush } from './push.js';
 import { webhookAad } from './webhook.js';
 
 // ntfy and Telegram channels (1.3, D227; D30). Each is a person's own channel, like a webhook: its
-// settings are sealed in `notification_channels.config_ciphertext` (§7.3, the same AAD as a
+// settings are sealed in `notification_channels.config_ciphertext` (the same AAD as a
 // webhook's: table, row id, 'config'), only the system side opens them, and a message goes out at
 // once, in the person's language, with the words a push would have (notify/push.ts).
 //

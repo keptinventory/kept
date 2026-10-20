@@ -1,5 +1,5 @@
 /**
- * AI usage (D206, screens §5 "AI usage"): how much AI was used, what it cost, who paid, and every
+ * AI usage (D206): how much AI was used, what it cost, who paid, and every
  * call. One page per scope: **Me** (everyone) · each **location** you administer · **Account**
  * (its owner) at `/settings/ai/usage?scope=…&location=<id>`, and **Instance** at `/admin/ai/usage`
  * (per-account totals and the calls the instance key paid, with no location detail). The switch

@@ -1,5 +1,5 @@
 /**
- * The step-1 flow (plan task 28, definition of done): a fresh Kept goes from first-run setup to a
+ * The step-1 flow (definition of done): a fresh Kept goes from first-run setup to a
  * home that someone else joins. Runs once per project (phone, desktop), each on its own fresh
  * instance (e2e/instances.ts).
  */

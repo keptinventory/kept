@@ -13,7 +13,7 @@ import { captureOp, syncOps } from '../sync-ops.js';
 import { createLocation, type Loc, ok, own, place } from '../things.js';
 import { calibration, under } from './limits.js';
 
-// Step 3's performance checks (plan T32 "Perf", full mode only: scripts/ci-local.sh `perf`, and
+// Step 3's performance checks (full mode only: scripts/ci-local.sh `perf`, and
 // `pnpm --filter @kept/server exec vitest run --config vitest.perf.config.ts`). The normal test
 // run leaves test/perf out (vitest.config.ts).
 //
@@ -21,18 +21,18 @@ import { calibration, under } from './limits.js';
 //   sync engine sends (apps/web/src/offline/sync-engine.ts). 3 warm-ups, then 20 timed batches.
 // - The inbox's first page (20 items, the default) with 500 open items in the location.
 //   5 warm-ups, then 50 timed pages.
-// - A CSV import chunk (T18: CHUNK = 200 rows, one transaction, as the import job works it):
+// - A CSV import chunk (CHUNK = 200 rows, one transaction, as the import job works it):
 //   rows with a two-level place path, a quantity, a date, a price and shop, a brand, two tags and
 //   a legacy code each. 1 warm-up chunk, then 3 timed chunks, each its own run.
 //
 // The requests go through the app in-process (fastify inject): server time, no network, as the
-// §3.1 targets are stated. The snapshot build at 10,000 things is the RLS bench's
+// performance targets are stated. The snapshot build at 10,000 things is the RLS bench's
 // (`pnpm --filter @kept/server bench -- --snapshot-only`), which the same ci-local step runs.
 //
-// None of these has a target in engineering spec §3.1. The limits below are PROVISIONAL, set by
+// None of these has a stated performance target. The limits below are PROVISIONAL, set by
 // T32 part B from the figures measured on 2026-09-30 (M1 Pro, load 5–7), with margin,
 // so that a real regression fails and ordinary machine noise doesn't: the batch's p95 was
-// 855–1,089 ms (limit 1.5 s), the inbox page's 19–20 ms (limit 100 ms, well under §3.1's page
+// 855–1,089 ms (limit 1.5 s), the inbox page's 19–20 ms (limit 100 ms, well under the page
 // p95 of 300 ms), and a 200-row import chunk 2.9–3.5 s, about 63–68 rows a second (limit 10 s).
 // Each is multiplied by the runner's speed factor (test/perf/calibration.ts, issue #159).
 

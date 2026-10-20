@@ -1,5 +1,5 @@
 /**
- * From the currency mark printed on a receipt to an ISO code (engineering spec §2.1's currency
+ * From the currency mark printed on a receipt to an ISO code (the currency
  * rule; D136, D168, D189). The model returns what it saw (`$`, `E£`, `ج.م`, `EUR`…) and this
  * decides. Unambiguous marks map directly. A bare `$` always waits for the person, with no
  * preselection (D189). A bare `£` is GBP only when something on the receipt is British;

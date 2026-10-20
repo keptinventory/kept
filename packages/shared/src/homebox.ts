@@ -1,5 +1,5 @@
 /**
- * The Homebox importer's contract (D146; step-7 plan T1, T9; spike H1–H3): the dry-run choices,
+ * The Homebox importer's contract (D146): the dry-run choices,
  * how Homebox's custom-field kinds
  * become Kept's, the canonical form of an asset ID, and the `hb_*` issue codes the dry run and the
  * summary report.
@@ -8,15 +8,15 @@ import { z } from 'zod';
 import { homeboxAssetId } from './scan.js';
 
 /**
- * What the person decides before a Homebox dry run can run (screens §6 "dry-run choices (D146)").
+ * What the person decides before a Homebox dry run can run (D146).
  * - `archived`: skip archived items, or import them with the tag "Archived in Homebox";
  * - `currency`: the collection's currency (the ZIP has none; prefilled from the connection, else
- *   the target location's, plan Q3);
+ *   the target location's);
  * - `quantityRounding`: one value today: where D10 forces 1, the original stays in the notes;
- * - `fields`: per Homebox field name, add it to the mapped type or keep it in the notes (Q16);
+ * - `fields`: per Homebox field name, add it to the mapped type or keep it in the notes;
  * - `types`: per Homebox entity type id, an existing Kept type or a new one by name;
- * - `insured`: an "Insured" yes/no field on the mapped type, or nothing (Q25);
- * - `seeded` *(T0, H1)*: Homebox's eight seeded places and six seeded tags, skipped when empty
+ * - `insured`: an "Insured" yes/no field on the mapped type, or nothing;
+ * - `seeded` *(H1)*: Homebox's eight seeded places and six seeded tags, skipped when empty
  *   and unused (the default), or imported like the rest.
  */
 export const HomeboxChoices = z.strictObject({
@@ -52,7 +52,7 @@ export function homeboxAssetCode(n: number): string | null {
   return homeboxAssetId(String(n));
 }
 
-/** Seeded in every new Homebox collection (v0.26.2), usually left empty (spike H1). */
+/** Seeded in every new Homebox collection (v0.26.2), usually left empty. */
 export const HB_SEEDED_PLACES = [
   'Living Room',
   'Garage',
@@ -73,7 +73,7 @@ export const HB_SEEDED_TAGS = [
 ] as const;
 
 /**
- * Why a Homebox row maps with a loss, or doesn't map (D146; plan T9). Each is translated by the
+ * Why a Homebox row maps with a loss, or doesn't map (D146). Each is translated by the
  * web from its code:
  * - `hb_archived_skipped`: archived, and the choice was to skip it;
  * - `hb_quantity_rounded`: a fractional quantity where Kept counts one (D10); the original is in

@@ -8,9 +8,9 @@ import {
 } from '@kept/shared';
 import type pg from 'pg';
 
-// The in-app side of the notices steps 1–3 could only mail (plan T16, Q30; D39, D46, D180, D206):
+// The in-app side of the notices steps 1–3 could only mail (D39, D46, D180, D206):
 // a new member and an ended membership for the location's owner, an AI cap at 80% or 100% for
-// each person its mail goes to, and the AI monthly summary's opt-out (Q35). Each is a
+// each person its mail goes to, and the AI monthly summary's opt-out. Each is a
 // `notifications` row written by kept_system (0055's system_insert) in the transaction of the job
 // that mails it, so the centre and the mail agree. `payload` holds ids and codes only, never
 // money, secrets or contact details; the one exception is a member's display name, kept so an
@@ -35,8 +35,8 @@ export async function insertNotice(client: pg.ClientBase, n: Notice): Promise<vo
 /**
  * Whether `userId` wants `kind` on `channel`: their choice for the location, else for all their
  * locations (a row with no location, D239), else the default for their role there (@kept/shared
- * defaultPreference(); Q8, Q10). Read as kept_system. An account-level kind (`ai_summary`), or a
- * notice with no location (an account's AI cap), reads only the all-locations choice (Q35).
+ * defaultPreference()). Read as kept_system. An account-level kind (`ai_summary`), or a
+ * notice with no location (an account's AI cap), reads only the all-locations choice.
  */
 export async function wants(
   client: pg.ClientBase,
@@ -62,7 +62,7 @@ export async function wants(
 }
 
 /**
- * The owner hears of a new member or an ended membership in the centre (D46, D180; Q30), unless
+ * The owner hears of a new member or an ended membership in the centre (D46, D180), unless
  * they turned the Membership kind off in-app there. Returns whether a notice was written.
  */
 export async function noticeOwnerOfMember(
@@ -125,8 +125,8 @@ export async function noticeAiCap(
 }
 
 /**
- * The AI monthly summary's channels for `userId` (Q35): account-level, on by default, off in
- * Settings → Me → Notifications. `inapp` off silences it entirely (Q10); the summary's sender
+ * The AI monthly summary's channels for `userId`: account-level, on by default, off in
+ * Settings → Me → Notifications. `inapp` off silences it entirely; the summary's sender
  * mails only when `email` is on, and writes its `ai_summary` notice only when `inapp` is.
  */
 export async function aiSummaryChannels(

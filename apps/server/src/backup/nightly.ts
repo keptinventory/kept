@@ -42,11 +42,11 @@ import {
 import type { ResolvedBackupSettings } from './settings.js';
 import { sizeCheck, watchedRows } from './size-check.js';
 
-// The backup, on restic (step-8 plan T5; D64, D66, D144, D159; L78, L79). One run, as kept_owner,
+// The backup, on restic (D64, D66, D144, D159). One run, as kept_owner,
 // under a session advisory lock (BACKUP_LOCK_KEY) so a nightly, a manual and a pre-upgrade run
 // never overlap (a second one is BackupRunningError, the route's 409 `backup_running`):
 //   1. a `backup_runs` row, `running`;
-//   2. unchanged from the alpha (T31c): a REPEATABLE READ READ ONLY transaction exports its
+//   2. unchanged from the alpha: a REPEATABLE READ READ ONLY transaction exports its
 //      snapshot; in it, every table's row count, every blob key the rows reference, the
 //      extensions, and pg_dump (custom format) of exactly that snapshot, into the stable
 //      directory KEPT_DATA_DIR/backup/db/db.dump;
@@ -55,7 +55,7 @@ import { sizeCheck, watchedRows } from './size-check.js';
 //   5. the manifest (version 2: counts, digests, every referenced blob's key, bytes and SHA-256),
 //      written last in backup/db/; a blob already in the previous manifest keeps its entry (keys
 //      are never reused), a new one is hashed from the store;
-//   6. the readable copy (T6, D159) into backup/readable/, through `readable`; until T6 lands
+//   6. the readable copy (D159) into backup/readable/, through `readable`; until T6 lands
 //      nothing is passed and the step does nothing;
 //   7. `restic init` when the repository is new, then `restic backup` of `backup` and, with local
 //      storage, `blobs` (never tmp/ or .cache/; never blobs' reports, export ZIPs or import
@@ -119,12 +119,12 @@ export type SnapshotOptions = {
   kind: SnapshotKind;
   /** The database alone: no files, no readable copy (T8's pre-upgrade snapshot). */
   databaseOnly?: boolean;
-  /** A pre-upgrade snapshot's versions (T8). */
+  /** A pre-upgrade snapshot's versions. */
   fromVersion?: string | null;
   toVersion?: string | null;
   /** `kept admin backup --accept-size`: a real shrink becomes the new baseline. */
   acceptSize?: boolean;
-  /** The run's id, chosen by Admin → Backups' "Run now" (T10: its 202 names it); absent, a new
+  /** The run's id, chosen by Admin → Backups' "Run now" (its 202 names it); absent, a new
    * one. */
   runId?: string;
   /** The snapshot's time (tests of retention over faked days: restic's `--time`). */
@@ -470,7 +470,7 @@ async function snapshotOnce(
   };
   await writeAtomically(manifestFile, `${JSON.stringify(manifest, null, 2)}\n`);
 
-  // 6: the readable copy (T6).
+  // 6: the readable copy.
   let readable: Awaited<ReturnType<ReadableCopy>> | null = null;
   if (!opts.databaseOnly && deps.readable) {
     const dir = path.join(backupDir, 'readable');

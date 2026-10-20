@@ -1,18 +1,18 @@
 /**
- * The sync status line (plan T24; D36, D148, D188, Q30, V11): what the phone's queue and copy
+ * The sync status line (D36, D148, D188): what the phone's queue and copy
  * are doing, in one quiet line that appears only when there is something to say.
  *
  * - "Offline · 12 waiting to sync", or "Offline · as of last sync, 14:02" (D188). The queue holds
- *   more than captures (a label claim, a move, "seen"), so it never says "captures" (T28);
+ *   more than captures (a label claim, a move, "seen"), so it never says "captures";
  * - on iOS, "Open to finish syncing (12)": the queue moves only while Kept is open (D36);
  * - "Update Kept to finish syncing" / "…ask your admin" when the server refused the queue (D148);
- * - a full phone, a partial copy (Q30), and a denied persistent-storage request (V11);
+ * - a full phone, a partial copy, and a denied persistent-storage request;
  * - "A change couldn't apply: the drill was trashed by Alfred" for each drop whose answer names
- *   what changed (D35, T14's `result.notice`; engineering spec's "Sync item dropped"), with Restore
+ *   what changed (D35, T14's `result.notice`), with Restore
  *   (the inbox's dropped changes, where the op can be applied again) and × to dismiss it;
  * - "2 changes need a look", to the inbox, for the other drops and reviews (D35).
  *
- * A polite live region says "12 waiting to sync" when the queue grows (screens §4); the capture
+ * A polite live region says "12 waiting to sync" when the queue grows; the capture
  * screen says "Captured." itself, for its own shutter.
  */
 import { plural } from '@lingui/core/macro';

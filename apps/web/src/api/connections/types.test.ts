@@ -1,6 +1,6 @@
 /**
  * The step-6 Connections mock answers its contract through the real fetchers (./queries.ts), for
- * T21–T23 to build on (plan T3): every path in ./paths.ts has a handler, the answers carry the
+ * T21–T23 to build on: every path in ./paths.ts has a handler, the answers carry the
  * contract's fields, and the fixtures hold two tokens, an OAuth app, three recent changes and a
  * webhook with a failing delivery. A secret appears in a create or rotate answer only.
  */

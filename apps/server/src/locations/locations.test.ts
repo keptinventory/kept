@@ -6,7 +6,7 @@ import { type TestDb, testDb } from '../../test/db.js';
 import { auditOf, call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { ownerTx } from '../../test/tenancy.js';
 
-// Task 19: locations through the front door (app.inject, signed-in cookies), as the web app
+// Locations through the front door (app.inject, signed-in cookies), as the web app
 // calls them.
 
 let db: TestDb;

@@ -1,5 +1,5 @@
 /**
- * The one capture path (plan T25 "Every capture"): what goes into the queue, and how "Undo this
+ * The one capture path: what goes into the queue, and how "Undo this
  * batch" takes it back.
  */
 import { newId, parseOpPayload } from '@kept/shared';

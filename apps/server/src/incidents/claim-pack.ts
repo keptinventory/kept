@@ -18,7 +18,7 @@ import { prepareInsurance, renderPrepared, reportLocaleOf, todayFor } from '../r
 import { exportKey, type FileStorage } from '../storage/blob-store.js';
 import type { InsuranceOptions } from './report.js';
 
-// Claim packs (D158, D180, D201; engineering spec §2.8; step-4 plan T18, Q19): a ZIP with the
+// Claim packs (D158, D180, D201): a ZIP with the
 // insurance report and every referenced receipt, invoice and photo, and a serial list, for an
 // incident or a selection of things. Owners and admins only (`incidents.manage`), behind an
 // explicit "this includes prices and documents" acknowledgement, and shared by an expiring
@@ -29,8 +29,8 @@ import type { InsuranceOptions } from './report.js';
 //   reports.
 // - The job (buildClaimPack) runs as the creator, under row-level security: it claims the run
 //   (kept.export_run_claim), renders the insurance report through the D201 engine, then streams
-//   the files from the blob store into a stored (not deflated: photos and PDFs don't shrink,
-//   spike) ZIP spooled under the data volume's tmp/, puts it at `x/<runId>.zip` and finishes the
+//   the files from the blob store into a stored (not deflated: photos and PDFs don't shrink)
+//   ZIP spooled under the data volume's tmp/, puts it at `x/<runId>.zip` and finishes the
 //   run (kept.export_run_finish, which writes that key itself). Progress every 20 files. The
 //   creator gets an `export_ready` notification. Secrets are never read.
 // - The link: POST …/link mints a new token (32 random bytes, base64url), stores only its sha256

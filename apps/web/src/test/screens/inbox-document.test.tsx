@@ -1,5 +1,5 @@
 /**
- * A vehicle's card read in LABEL mode, in the inbox (plan T22; T10, Q15): the `document`
+ * A vehicle's card read in LABEL mode, in the inbox: the `document`
  * suggestion reads "Licence · expires …", confirmed with `y` (or Confirm) and accepted, which makes
  * the vehicle's expiring document; rejected with `n`, nothing is made.
  */

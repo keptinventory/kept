@@ -1,5 +1,5 @@
 /**
- * The assistant evaluation's cases (step-6 plan T17): test/fixtures/assistant/cases.json, or a
+ * The assistant evaluation's cases: test/fixtures/assistant/cases.json, or a
  * folder's `cases.json` of the same shape (the maintainer's own questions, git-ignored). Each case
  * names who asks (the seed's cast), the interface language, the page it is asked from, what a
  * right answer does, and the script the mock plays (src/ai/mock-script.ts).

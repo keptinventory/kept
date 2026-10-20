@@ -1,6 +1,6 @@
 /**
- * Tabs that are links (settings sections): each is its own URL, so every state can be linked
- * (screens §2). Styled like the Tabs primitive. On a narrow phone the tabs keep one row that
+ * Tabs that are links (settings sections): each is its own URL, so every state can be linked.
+ * Styled like the Tabs primitive. On a narrow phone the tabs keep one row that
  * scrolls sideways, with the current tab brought into view; a label is never cut with … or
  * wrapped (UI audit L1: Settings, Admin, Account and AI usage's tabs wrapped onto a second row at
  * 375 px, with the underline on either row).

@@ -1,8 +1,8 @@
 /**
- * Likely duplicates after an extraction (D36; plan T10). Another live thing in the same location
+ * Likely duplicates after an extraction (D36). Another live thing in the same location
  * with the same serial (the thing's own, or the one AI suggests), or with the same brand and model
  * **and** the same place or container, opens an inbox `duplicate` item: the reviewer merges them
- * (`kept.merge_things`, T15) or says they are different. Never merged automatically.
+ * (`kept.merge_things`) or says they are different. Never merged automatically.
  */
 import type pg from 'pg';
 import { upsertInbox } from './apply.js';

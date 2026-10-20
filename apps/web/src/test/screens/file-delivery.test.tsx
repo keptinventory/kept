@@ -444,7 +444,7 @@ describe('an uploaded original (a receipt, a manual, a place attachment)', () =>
     const opened = vi.spyOn(window, 'open').mockImplementation(() => null);
     const share = on({ ua: IPHONE, standalone: true, shares: true });
     const { user, fetched } = await render(`/p/${INV_IDS.place.livingRoom}`);
-    // With Paperwork on, the place's document is in its Paperwork section (plan T23, D155).
+    // With Paperwork on, the place's document is in its Paperwork section (D155).
     const row = await screen.findByRole('button', { name: 'Share Document' });
     await waitFor(() => expect(fetched).toEqual([ORIGINAL]));
     await user.click(row);

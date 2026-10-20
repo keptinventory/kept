@@ -1,5 +1,5 @@
 /**
- * What a READING capture reads (D34, D52; plan T13): a meter on a thing. The server files a
+ * What a READING capture reads (D34, D52): a meter on a thing. The server files a
  * reading's photo as proof on the metered thing (`attachToThingId`, plus `meterId`) and refuses a
  * READING into a plain place with 400, so in READING mode the chip names a meter, not a place,
  * and its sheet offers only things that have one.
@@ -32,7 +32,7 @@ export type ReadingTarget = {
   thingName: string;
   meterId: string;
   meterName: string;
-  /** The meter's unit, for the typed value's label (T19). */
+  /** The meter's unit, for the typed value's label. */
   unit?: string;
 };
 
@@ -272,7 +272,7 @@ export function ReadingSheet({
 }
 
 /**
- * READING's typed value (plan T19, the step-3 carry-over): beside the note, the number on the
+ * READING's typed value: beside the note, the number on the
  * meter, in either digits. With one, the shutter queues a `log_reading` with the photo as its
  * proof, online or offline; left empty, the photo goes as step 3's READING capture and AI reads
  * it (or the Inbox asks).

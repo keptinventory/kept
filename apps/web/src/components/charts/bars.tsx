@@ -1,5 +1,5 @@
 /**
- * Stacked monthly bars (plan T18; D133, V38): a vehicle's running costs by month, one bar a month,
+ * Stacked monthly bars (D133): a vehicle's running costs by month, one bar a month,
  * one segment a category (fuel · service and parts · fees and insurance), in one currency. A month
  * with a note (a service's summary) gets a direct label above its bar. Loaded on demand with the
  * Costs tab (./lazy.tsx); the RTL, keyboard and tooltip rules are in ./kit.tsx.

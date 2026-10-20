@@ -1,8 +1,8 @@
 /**
- * The thing's header (screens §5 Thing detail): the photos, the ID chip, the full path, the
+ * The thing's header: the photos, the ID chip, the full path, the
  * derived-state pills and the lifecycle when it has ended. The name is the page's heading. User
  * text is isolated (`<bdi>`, `dir="auto"`), so an Arabic box name inside an English path keeps
- * its shape; the ID chip is always left to right (§8).
+ * its shape; the ID chip is always left to right.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
@@ -37,7 +37,7 @@ export function ThingPath({ path, usually = false }: { path: PathStep[]; usually
       className="text-small text-ink-2"
     >
       <ol className="m-0 flex list-none flex-wrap items-center gap-1 p-0">
-        {/* Lent or in repair, the place is where it lives, not where it is (screens §8). */}
+        {/* Lent or in repair, the place is where it lives, not where it is. */}
         {usually ? (
           <li className="text-ink-3">
             <Trans>Usually in</Trans>
@@ -119,7 +119,7 @@ export function ThingHeader() {
                 }
               />
             ) : s === 'in_repair' ? (
-              // "At Samsung Service Centre" (D54, screens §8).
+              // "At Samsung Service Centre" (D54).
               <StatusPill
                 key={s}
                 state={s}

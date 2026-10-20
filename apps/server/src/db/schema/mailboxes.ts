@@ -15,9 +15,9 @@ import {
 import { id, mutable, textEnum, tstz } from './common.js';
 import { locations } from './tenancy.js';
 
-// Email-in (1.4, D21, D231; engineering spec §1 `mailboxes`): a location's IMAP mailbox, which
+// Email-in (1.4, D21, D231; `mailboxes`): a location's IMAP mailbox, which
 // the `mail-in` job polls for receipts. Its connection (host, port, TLS, user name, password,
-// folder) is sealed (§7.3: table 'mailboxes', row id, field 'config'; its key version in
+// folder) is sealed (table 'mailboxes', row id, field 'config'; its key version in
 // `key_version`, so rotate-key finds it) and write-only: kept_app can't SELECT it, the job opens
 // it through kept.mailbox_config(). `host` and `username` are kept in the clear too, for the
 // settings page. The forwarding address on the cloud (kind `cloud_address`) is the cloud phase's.

@@ -9,16 +9,16 @@ import { guardedLookup, isPrivateAddress, PrivateAddressError } from '../net/ssr
 import type { VapidDetails } from './vapid.js';
 import { REMINDER_COUNT, REMINDER_WORDS, type ReminderFacts, shortTitle } from './words.js';
 
-// Web push (D139, L112; step-4 plan T15, Q12), over web-push 3.6.7's sendNotification() with the
+// Web push (D139), over web-push 3.6.7's sendNotification() with the
 // VAPID details passed per call (no global setVapidDetails, so a key change needs no restart).
 //
 // - A subscription's endpoint is browser-supplied, so a crafted one could aim the server at the
 //   LAN. Push services are public: every send goes through an `https.Agent` whose connect-time
 //   lookup refuses private addresses (net/ssrf.ts guardedLookup), whatever the instance's
 //   `ssrf_allow_private` says, and an IP-literal host is checked first (Node skips `lookup` for
-//   one). web-push always speaks TLS (spike 2026-09-30-step4-push.md), and honours `agent` only
+//   one). web-push always speaks TLS (checked in a trial run), and honours `agent` only
 //   when it is an https.Agent.
-// - 404 and 410 mean the subscription is gone: it is deleted (L112). 429 and 5xx are a failure to
+// - 404 and 410 mean the subscription is gone: it is deleted. 429 and 5xx are a failure to
 //   retry; 413 is a payload bug.
 // - The payload is text only, `{title, body, url, tag}`, under 3 KB: no money, no contact details.
 // - `topic` (≤ 32 URL-safe base64 characters) makes a re-send replace the pending one instead of
@@ -59,7 +59,7 @@ export const PUSH_MAX_BYTES = 3072;
 
 let defaultTransport: PushTransport | null = null;
 
-/** The real transport: web-push over an agent that refuses private addresses (Q12). */
+/** The real transport: web-push over an agent that refuses private addresses. */
 export function publicPushTransport(): PushTransport {
   defaultTransport ??= {
     send: webpush.sendNotification,

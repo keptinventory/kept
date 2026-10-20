@@ -1,4 +1,4 @@
-// The assistant evaluation in CI (step-6 plan T17): the scoring maths on hand-made runs, and the
+// The assistant evaluation in CI: the scoring maths on hand-made runs, and the
 // whole harness on the mock (KEPT_AI_MOCK's scripted model and concept embedder) over the
 // households seed: the real loop, tools, proposals and ledger, never a real provider.
 import { beforeAll, describe, expect, it, vi } from 'vitest';

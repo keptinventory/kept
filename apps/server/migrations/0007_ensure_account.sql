@@ -1,5 +1,5 @@
 -- Custom SQL migration file, put your code below! --
--- Account creation, step two (task 18; D114, D190, D191, §7.10, §7.14).
+-- Account creation, step two (D114, D190, D191).
 --
 -- Better Auth (kept_auth) creates the user; kept.ensure_account() then makes everything Kept
 -- needs for them, idempotently, in the caller's transaction: the owner account, the Personal
@@ -53,7 +53,7 @@ BEGIN
     INSERT INTO public.owner_accounts (id, user_id) VALUES (acct, uid);
   END IF;
 
-  -- Defaults: an existing profile's time zone wins (a managed profile made first, task 21);
+  -- Defaults: an existing profile's time zone wins (a managed profile made first);
   -- otherwise the caller's, if Postgres knows it; otherwise UTC. A currency Kept doesn't have
   -- falls back to USD, a malformed locale to en.
   SELECT p.timezone INTO tz FROM public.user_profiles p WHERE p.user_id = uid;
@@ -94,7 +94,7 @@ REVOKE EXECUTE ON FUNCTION kept.ensure_account(text, text, text) FROM PUBLIC;
 --> statement-breakpoint
 GRANT EXECUTE ON FUNCTION kept.ensure_account(text, text, text) TO kept_app, kept_system;
 --> statement-breakpoint
--- The repair job (task 18) finds auth users with no owner account. It needs their ids and
+-- The repair job finds auth users with no owner account. It needs their ids and
 -- creation times, nothing else of schema auth: a column grant, so SELECT * (and email, name,
 -- anything Better Auth adds later) stays refused.
 GRANT USAGE ON SCHEMA auth TO kept_system;

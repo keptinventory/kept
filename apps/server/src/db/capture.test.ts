@@ -14,8 +14,7 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step-3 T5: extractions, the inbox, templates, imports and file text (engineering spec §1.5,
-// §1.8, §7.2, §7.8; D18, D36, D77, D177; plan Q10, Q15, Q17).
+// Extractions, the inbox, templates, imports and file text (D18, D36, D77, D177).
 
 const db = await testDb();
 

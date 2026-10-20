@@ -6,7 +6,7 @@ import { type Many, matchOf } from '../http/list-filters.js';
 import { gateFor } from '../serialize/gates.js';
 import { Params, singleLocation, type Terms, termsCte } from './query.js';
 
-// The `documents` group of GET /api/v1/search (plan T21, Q19; D77; engineering spec §1.5, §7.2):
+// The `documents` group of GET /api/v1/search (D77):
 // attachments whose file's text (`file_text`, read from a PDF by files/pdf-text.ts, or a
 // receipt's) matches the query.
 //
@@ -19,7 +19,7 @@ import { Params, singleLocation, type Terms, termsCte } from './query.js';
 //   location where the caller's gate hides money they are not results at all, as they are
 //   withheld from every attachment list and the signed-URL route. Matching them would be an
 //   oracle for what a receipt says.
-// - **The snippet needs the money gate** (plan T21): any document's text may hold prices, so the
+// - **The snippet needs the money gate**: any document's text may hold prices, so the
 //   snippet is sent only where the caller's gate in the attachment's location shows money. Where
 //   it doesn't, the item has no `snippet` key and carries `moneyHidden: true`, the marker every
 //   money-gated object carries (serialize/gates.ts), so a missing snippet can't read as "no

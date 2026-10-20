@@ -25,7 +25,7 @@ import {
   shareTokenHash,
 } from './service.js';
 
-// Read-only share links (1.5, D233; D39 item 7, D72, D116, D180; engineering spec §3.2, §3.3).
+// Read-only share links (1.5, D233; D39 item 7, D72, D116, D180).
 // The web's contract is apps/web/src/api/sharelinks/{paths,types}.ts and its mock.
 //
 // GET    /api/v1/locations/:id/share-links      → {items: ShareLinkRow[]} (never a token)
@@ -35,7 +35,7 @@ import {
 // GET    /api/v1/share-links/:id/preview?page   → SharedPage, "Preview as recipient"
 // GET    /api/v1/shared/:token?page (public)    → SharedPage. Unknown, revoked, expired or no
 //                                               longer backed by its creator: 404, never saying
-//                                               which. 60 views a minute per link (§3.2).
+//                                               which. 60 views a minute per link.
 //
 // `share-links.create` (owner and admin) on the signed-in routes; closed to tokens
 // (tokens/access.ts NEVER_FOR_TOKENS). The public route has no session (`auth: 'none'`):

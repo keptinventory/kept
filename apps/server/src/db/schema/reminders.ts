@@ -25,7 +25,7 @@ import { places } from './places.js';
 import { locations } from './tenancy.js';
 import { things } from './things.js';
 
-// The reminder ledger (step-4 plan T7; engineering spec §1.9, §7.13; D29, D111, D122, D188): the
+// The reminder ledger (D29, D111, D122, D188): the
 // only stored reminder state. The agenda (public.agenda_items, 0053) says what is due; the scan
 // writes each occurrence once and fans it out to deliveries, once per user and channel row. Both
 // are the scan's bookkeeping: no row_version. Row-level security is in 0055; see
@@ -38,7 +38,7 @@ const deliveryStatus = textEnum('status', DELIVERY_STATUSES);
 const notificationKind = textEnum('kind', NOTIFICATION_KINDS);
 
 /**
- * One occurrence of a source's due point (D111): unique on the §7.13 key, so two scans (or two
+ * One occurrence of a source's due point (D111): unique on the key, so two scans (or two
  * concurrent ones) write it once. `source_id` has no foreign key (six source tables): the scan
  * cancels an occurrence whose source is gone. Both subjects null: the location itself.
  */
@@ -85,7 +85,7 @@ export const reminderOccurrences = pgTable(
     })
       .onUpdate('cascade')
       .onDelete('cascade'),
-    // §7.13's key: the scan's INSERT … ON CONFLICT DO NOTHING writes an occurrence once.
+    // The key: the scan's INSERT … ON CONFLICT DO NOTHING writes an occurrence once.
     unique('reminder_occurrences_key_uq')
       .on(t.thingId, t.placeId, t.locationId, t.sourceType, t.sourceId, t.kind, t.duePeriod)
       .nullsNotDistinct(),
@@ -95,7 +95,7 @@ export const reminderOccurrences = pgTable(
 );
 
 /**
- * One delivery of an occurrence to one user on one channel row (§7.13: the channel references
+ * One delivery of an occurrence to one user on one channel row (the channel references
  * notification_channels.id), exactly once. `digest` waits for the user's digest; `not_before`
  * holds an immediate one past their quiet hours. Append-only apart from its status.
  */
@@ -154,7 +154,7 @@ export const notificationDigests = pgTable(
 );
 
 /**
- * The in-app centre (D39; Q10): every enabled kind lands here, whatever the channels. `payload`
+ * The in-app centre (D39): every enabled kind lands here, whatever the channels. `payload`
  * holds ids and codes only (the web renders the words): never money, a secret or a contact
  * detail. A reminder's notification is its user's once per occurrence, and invisible once the
  * user loses the location (0055).

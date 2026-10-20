@@ -1,9 +1,9 @@
 /**
- * Mock handlers for the paperwork library and expiring documents (T12; D39, D155, D172; Q5,
- * Q31). The library lists every receipt, invoice, manual, warranty document and location or place
+ * Mock handlers for the paperwork library and expiring documents (D39, D155, D172).
+ * The library lists every receipt, invoice, manual, warranty document and location or place
  * document across your locations with Paperwork on, searchable by the words in a file's text, its
- * subject's name, or a document's title; a receipt's or invoice's snippet needs the money gate
- * (step-3 Q19). An expiring document renews into a new row and keeps the old one in its history.
+ * subject's name, or a document's title; a receipt's or invoice's snippet needs the money gate.
+ * An expiring document renews into a new row and keeps the old one in its history.
  */
 import { fold, liveThing, matches, paginate, versionError } from '../../inventory/mock/db';
 import type { AttachmentView } from '../../inventory/types';

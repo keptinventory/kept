@@ -41,7 +41,7 @@ import {
 } from './validate.js';
 import { LinkSchema, ThingRowSchema, ThingViewSchema, viewOf } from './view.js';
 
-// Things core (T14; D10, D40, D45, D76, D92, D119, D120, D137, D156, D158, D172, D183), in the
+// Things core (D10, D40, D45, D76, D92, D119, D120, D137, D156, D158, D172, D183), in the
 // shapes of the web contract (apps/web/src/api/inventory/{types,paths}.ts):
 //
 // GET    /api/v1/things?locationId*&placeId&containerId&typeId*&tagId*&belongsToId*&brandId*
@@ -50,13 +50,13 @@ import { LinkSchema, ThingRowSchema, ThingViewSchema, viewOf } from './view.js';
 //                                                                  → {items: ThingRow[], next_cursor}
 //          &importRunId&consumable
 //          `*`: repeatable, "is any of"; `not` names those that are "is none of" (D205);
-//          `importRunId`: the things that import run brought in (owners and admins, step-7 T16)
+//          `importRunId`: the things that import run brought in (owners and admins)
 //          `consumable=1`: things of a consumable type (D236, the "From stock" picker)
 // GET    /api/v1/things.csv?<the same, but limit and cursor>      → text/csv (lists/routes.ts)
 // POST   /api/v1/things                                           → 201 ThingView & {ownCodes};
-//          with `templateId` (quick add, T19) the template's payload is the base and the body
+//          with `templateId` (quick add) the template's payload is the base and the body
 //          wins. `ownCodes`: the thing's own codes once the create committed, the one the
-//          location's numbering gave it included (D208, T17a; see ownCodesAfterCommit)
+//          location's numbering gave it included (D208; see ownCodesAfterCommit)
 // GET    /api/v1/things/:id                                       → ThingView
 // PATCH  /api/v1/things/:id (If-Match)                            → ThingView; 412 per D156
 // POST   /api/v1/things/:id/lifecycle (If-Match)                  → ThingView
@@ -64,7 +64,7 @@ import { LinkSchema, ThingRowSchema, ThingViewSchema, viewOf } from './view.js';
 // POST   /api/v1/things/:id/not-here (If-Match optional)          → ThingView
 // POST   /api/v1/things/:id/retype (If-Match)                     → ThingView
 // POST   /api/v1/things/:id/duplicate                             → 201 ThingView & {ownCodes},
-//          the copy's own codes once it committed, as for a create (T19)
+//          the copy's own codes once it committed, as for a create
 // POST   /api/v1/things/:id/split (If-Match optional)             → {originalId, newId}
 // POST   /api/v1/things/:id/links                                 → 201 ThingLink
 // DELETE /api/v1/thing-links/:linkId                              → 204
@@ -74,10 +74,10 @@ import { LinkSchema, ThingRowSchema, ThingViewSchema, viewOf } from './view.js';
 // GET    /api/v1/codes/:code                                      → {kind, id}; 404 alike (D137)
 // POST   /api/v1/audit/:eventId/undo                              → {undoOf, eventId} (D150)
 //
-// Moves (T15: POST /things/move, /things/move/preview, /things/:id/empty-into) are in
+// Moves (POST /things/move, /things/move/preview, /things/:id/empty-into) are in
 // move-routes.ts, and the spreadsheet view (D250: GET /things/sheet, POST /things/bulk-edit,
-// /things/bulk-trash) in sheet-routes.ts, both registered from here; meters (T16), files (T17),
-// secrets (T19) and trash (T21) have their own modules.
+// /things/bulk-trash) in sheet-routes.ts, both registered from here; meters, files,
+// secrets and trash have their own modules.
 
 /** An If-Match the client may send (split, not-here: the web may send none). */
 function optionalIfMatch(req: FastifyRequest): number | null {
@@ -120,7 +120,7 @@ export async function thingRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
    * location that numbers its codes numbers a new thing at commit (kept.number_new_thing(), a
    * deferred constraint trigger, 0046), after the view was read, so the create's own
    * transaction can't see the number. Read afterwards, not numbered earlier in the service: the
-   * deferral keeps the counter's row lock for the commit alone (§7.16), and the trigger stays
+   * deferral keeps the counter's row lock for the commit alone, and the trigger stays
    * the one place that decides. An idempotent replay reads them again the same way.
    */
   const ownCodesAfterCommit = (req: FastifyRequest, thingId: string) =>

@@ -1,5 +1,5 @@
 /**
- * A reading logged on the phone without a connection (plan T19; the step-3 carry-over; D35,
+ * A reading logged on the phone without a connection (D35,
  * D112): one `log_reading` op in the offline queue, with the proof photo as its blob. The sync
  * engine uploads the photo (as `evidence`, offline/queue.ts `fileClassFor`) and sends the op;
  * the server places the reading by when it was taken, and a misfit waits in the Inbox
@@ -9,7 +9,7 @@
  * - Only the photo's original goes: the uploader sends a `display` only for a `create_thing`
  *   file (offline/queue.ts `displayParentOf`), so a reading's would be skipped anyway.
  *
- * `pendingReadings()` reads them back for the meter card ("waiting to sync", Q18).
+ * `pendingReadings()` reads them back for the meter card ("waiting to sync").
  */
 import { newId, type QueueItem } from '@kept/shared';
 import type { LocalBlob, OfflineStore, QueueEntry } from '@/offline/store';
@@ -54,7 +54,7 @@ export async function enqueueReading(
   return { id, idempotencyKey: item.idempotencyKey };
 }
 
-/** A reading still on the phone (Q18): shown on its meter as "waiting to sync". */
+/** A reading still on the phone: shown on its meter as "waiting to sync". */
 export type PendingReading = { id: string; value: string; takenAt: string };
 
 /** The meter's queued readings the server hasn't answered yet, newest taken first. */

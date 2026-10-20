@@ -1,5 +1,5 @@
 /**
- * Settings → Connections' mock state (step-6 plan T3), kept beside the scenario in a WeakMap so no
+ * Settings → Connections' mock state, kept beside the scenario in a WeakMap so no
  * other area's state type changes. Ibrahim's fixtures:
  * - two personal tokens: "Garage dashboard", read-only for Garage, and "Claude Desktop",
  *   read and write for Home, used a few minutes ago;

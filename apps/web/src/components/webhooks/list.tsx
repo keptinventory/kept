@@ -1,5 +1,5 @@
 /**
- * A location's webhooks (D63, D110, D180; screens §5 Location settings): owners and admins only.
+ * A location's webhooks (D63, D110, D180): owners and admins only.
  * On the list standard: search by address, a filter for working, off or failing, grouped by
  * state, with "Load more" (`GET /locations/:id/webhooks` answers the whole list; the paging is
  * done here). Each row: the address, its events, its state ("Failing since 12 Oct", or off because

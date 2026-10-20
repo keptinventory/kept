@@ -1,5 +1,5 @@
 /**
- * AI notices (plan T9; D166, D206; engineering spec §7.15 "Notices and alerts"):
+ * AI notices (D166, D206):
  * - a monthly cap a call took past **80%** or **100%** (`kept.ai_settle` returns each crossing
  *   once per cap, level and month) mails whoever set it and the people it governs, and for the
  *   instance's caps also raises the admin alert `ai_instance_cap_warning` / `_reached`;
@@ -11,7 +11,7 @@
  * and a failed send is retried (JOB_POLICIES). The job trusts nothing in its payload but ids: it
  * reads the cap, the recipients and the key's state through the SYS doors of 0043.
  *
- * Step 4 (plan T16, D206's "notification centre from step 4"): each person a cap notice mails
+ * Step 4 (D206's "notification centre from step 4"): each person a cap notice mails
  * also gets an `ai_cap` notification in the centre (notify/notices.ts noticeAiCap).
  */
 import type pg from 'pg';
@@ -165,10 +165,10 @@ export async function runAiNotice(deps: NoticeDeps, data: unknown): Promise<numb
       'SELECT user_id, email, locale FROM kept.ai_notice_recipients($1)',
       [notice.budgetId],
     );
-    // Step 4 (T16, D206): the same people find it in the notification centre, once per cap,
+    // Step 4 (D206): the same people find it in the notification centre, once per cap,
     // level and month, whatever the mail does (a retry of this job writes nothing twice).
     // 1.5.x (D239): each person's AI caps choice decides, for the cap's location or, for any
-    // other cap, for all their locations: In Kept off silences it (Q10), Email off keeps the mail.
+    // other cap, for all their locations: In Kept off silences it, Email off keeps the mail.
     // On unless they turned it off, as before.
     const row = cap.rows[0];
     const heard: typeof people.rows = [];
@@ -244,7 +244,7 @@ export async function resolveCapAlerts(
  * `ai-rollover` (daily, 00:05 UTC; D188): day-budget pauses whose day has ended and cap pauses
  * whose month has turned are cleared (`kept.ai_rollover`), and the instance caps' alerts of the
  * past month are resolved on the 1st. The paused extractions it names were sent again by the
- * extract job itself for their pause's end (`startAfter`, T10); a manual pause waits for Resume.
+ * extract job itself for their pause's end (`startAfter`); a manual pause waits for Resume.
  */
 export async function aiRollover(deps: Pick<NoticeDeps, 'pools'>): Promise<number> {
   return withSystem(deps.pools.system, async (_tx, client) => {

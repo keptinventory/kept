@@ -1,5 +1,5 @@
 /**
- * A location on Home (screens §5 Home; D240, the approved Home design): a map preview, the name
+ * A location on Home (D240, the approved Home design): a map preview, the name
  * with its kind, who is there, then what it holds and what is flagged there.
  *
  * - **Stats:** things (live, trash left out), places (Unplaced left out, from `/home/overview`),

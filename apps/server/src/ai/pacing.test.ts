@@ -129,13 +129,13 @@ describe('parseRetryAfter', () => {
 const OTPM_429 =
   'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_x` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Used 997, Requested 192. Please try again in 11.34s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing';
 
-/** Groq's refusal of one request, recorded 2026-09-29 by the evaluation harness (T11): exactly
+/** Groq's refusal of one request, recorded 2026-09-29 by the evaluation harness: exactly
  * as logged, which cut provider messages at 200 characters, with the organisation id removed. */
 const OTPM_TOO_LARGE_1308 =
   "Request too large for model `qwen/qwen3.8-27b` in organization `org_x` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1308. The request's e";
 const OTPM_TOO_LARGE_1029 =
   "Request too large for model `qwen/qwen3.8-27b` in organization `org_x` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1029. The request's e";
-/** The same refusal in full, recorded 2026-09-29 by the harness's full-message log (T15),
+/** The same refusal in full, recorded 2026-09-29 by the harness's full-message log,
  * organisation id removed. */
 const OTPM_TOO_LARGE_FULL =
   "Request too large for model `qwen/qwen3.8-27b` in organization `org_x` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1080. The request's expected output tokens exceed the enforced limit; reduce max_tokens (or the request's expected output) and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing";

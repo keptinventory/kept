@@ -6,7 +6,7 @@ import type { BlobStore } from '../../storage/blob-store.js';
 import { BlobRangeReader, type ReaderStats } from './blob-reader.js';
 import { ARCHIVE_LIMITS, ArchiveContentError, ArchiveError, type ArchiveLimits } from './limits.js';
 
-// The one reader of uploaded archives (D157, engineering spec §3.1b; plan T7; spike Z1). Every
+// The one reader of uploaded archives (D157). Every
 // archive rule is enforced here and nowhere else:
 //
 // - the archive itself: at most `archiveBytes`, and a ZIP yauzl can open (a truncated or non-ZIP

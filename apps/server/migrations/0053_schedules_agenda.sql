@@ -1,10 +1,9 @@
 -- Custom SQL migration file, put your code below! --
--- Step 4, task 6: schedules, expiring documents, module state in SQL and the agenda view
--- (engineering spec §1.6, §1.9, §7.6, §7.13; D29, D39, D52, D111, D113, D141, D146, D155, D162;
--- plan Q2–Q9, Q24, Q27, Q28, Q31). Above, in 0052, drizzle's part: schedules, service_completions,
+-- Schedules, expiring documents, module state in SQL and the agenda view
+-- (D29, D39, D52, D111, D113, D141, D146, D155, D162).
+-- Above, in 0052, drizzle's part: schedules, service_completions,
 -- expiring_documents and attachments.expiring_document_id (src/db/schema/schedules.ts). Below:
---   1. Row-level security: read wherever the subject is seen, written by its writers (§7.1
---      "Manage schedules": members and above). A schedule's anchor has no column grant: only
+--   1. Row-level security: read wherever the subject is seen, written by its writers (members and above). A schedule's anchor has no column grant: only
 --      kept.recompute_schedule_anchor() writes it.
 --   2. expiring_documents' renewal key: ON DELETE SET NULL (superseded_by_id).
 --   3. The anchor (D162): a schedule is made with a base (its last-done date and reading, or its
@@ -12,7 +11,7 @@
 --      completing service's date, and its reading of the schedule's meter (with the meter's
 --      offset, D52), are. kept.recompute_schedule_anchor() keeps it after a completion is added or
 --      removed, a completing service's date or reading changes (or it goes, through the cascade),
---      and the base changes; a new completion also clears the snooze and the skip (Q28). The
+--      and the base changes; a new completion also clears the snooze and the skip. The
 --      anchor bumps change_seq only (kept.touch_row's second argument): a completion must not
 --      make an open edit of the schedule a 412.
 --   4. Module state in SQL: kept.module_on(location, module), the twin of @kept/shared
@@ -22,18 +21,18 @@
 --   5. kept.schedule_point() and kept.schedule_next(): the twins of @kept/shared scheduleNext()
 --      (months from the anchor, clamped; units from the anchor against the meter's newest
 --      accepted reading plus its offset; "whichever first"; snooze and skip; no distance
---      estimate in step 4, Q2).
---   6. public.agenda_items (security_invoker, Q24): one row per live reminder source with a due
---      point, whatever its state. `kind` is the occurrence kind its state gives (plan Q7: a
+--      estimate in step 4).
+--   6. public.agenda_items (security_invoker): one row per live reminder source with a due
+--      point, whatever its state. `kind` is the occurrence kind its state gives (a
 --      schedule is due, then overdue; a warranty expiring; a registration deadline due; a
 --      document or a thing's expiry expiring, then overdue; a loan overdue), and an upcoming row
 --      carries the first kind it will reach. `state` is upcoming, due, overdue, expiring or
---      expired (an ended warranty: not actionable, Q7). "Today" is the location's own date; ends
---      are inclusive (L2). Pausing is in its WHERE (§7.6, D162): the source's module off, a
+--      expired (an ended warranty: not actionable). "Today" is the location's own date; ends
+--      are inclusive. Pausing is in its WHERE (D162): the source's module off, a
 --      trashed subject, a terminal lifecycle, an inactive schedule, a superseded document, a
 --      returned loan. It holds no money, secret or contact detail.
---   7. kept_system reads for the reminder scan (T14): SELECT-only policies on the tables the
---      agenda reads, and people (a loan's member, Q16).
+--   7. kept_system reads for the reminder scan: SELECT-only policies on the tables the
+--      agenda reads, and people (a loan's member).
 -- test/leak.test.ts and src/db/migrate.test.ts list the functions; test/leak-household.ts fills
 -- the tables; src/db/schedules.test.ts and src/db/agenda.test.ts test them.
 
@@ -143,7 +142,7 @@ BEGIN
           OR x.anchor_value IS DISTINCT FROM coalesce(last_value, x.base_value));
 END $$;
 --> statement-breakpoint
--- Completions come and go; a new one also ends the snooze and the skip (Q28).
+-- Completions come and go; a new one also ends the snooze and the skip.
 CREATE FUNCTION kept.schedule_completion_changed() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public AS $$
 BEGIN
@@ -372,7 +371,7 @@ SELECT 'warranty', w.id, w.location_id, w.thing_id, NULL::uuid, 'expiring',
  WHERE w.effective_ends_on IS NOT NULL AND kept.module_on(w.location_id, 'warranties')
    AND t.deleted_at IS NULL AND t.lifecycle = 'in_use'
 UNION ALL
--- Registration (Q4: D55's warranty-registration deadline): due from 14 days before.
+-- Registration (D55's warranty-registration deadline): due from 14 days before.
 SELECT 'registration', w.id, w.location_id, w.thing_id, NULL::uuid, 'due',
        w.registration_deadline, NULL::numeric, NULL::uuid,
        CASE WHEN loc.today > w.registration_deadline THEN 'overdue'
@@ -433,7 +432,7 @@ REVOKE ALL ON public.agenda_items FROM PUBLIC, kept_app, kept_system;
 GRANT SELECT ON public.agenda_items TO kept_app, kept_system;
 --> statement-breakpoint
 
--- 7. kept_system reads for the reminder scan (T14) ---------------------------------------------------------
+-- 7. kept_system reads for the reminder scan ---------------------------------------------------------------
 DO $$
 DECLARE
   t text;

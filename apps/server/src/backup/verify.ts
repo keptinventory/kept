@@ -11,7 +11,7 @@ import { resolveSnapshot } from './restore.js';
 import { BACKUP_RUN_COLUMNS, type BackupRunRow, backupRunOf, GOOD_RUN_SQL } from './runs.js';
 import type { ResolvedBackupSettings } from './settings.js';
 
-// Repository verification (step-8 plan T7; D144): the weekly `backup-verify` job and
+// Repository verification (D144): the weekly `backup-verify` job and
 // `kept admin backup verify [--read-data <percent>] [--all-files]`.
 // - `restic check` (with `--read-data-subset` when asked): the repository's structure, and that
 //   share of its data, are sound;

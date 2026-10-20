@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { localClock, minutesOf, notBefore, offsetAt, wallToInstant } from './quiet.js';
 
-// Quiet hours on the person's wall clock (plan T14; Q9; spike V21). Wall times turn into
+// Quiet hours on the person's wall clock. Wall times turn into
 // instants as Postgres reads them: a gap pushes forward, an overlap takes the later instant
-// (the spike's table, checked here against the same instants).
+// (a table worked out by hand, checked here against the same instants).
 
 const CAIRO = 'Africa/Cairo';
 const iso = (d: Date | null) => d?.toISOString() ?? null;

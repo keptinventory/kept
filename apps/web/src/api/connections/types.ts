@@ -1,11 +1,11 @@
 /**
- * Settings → Connections' API contract (step-6 plan T10, T12, T15; D58, D63, D124, D179, D180):
+ * Settings → Connections' API contract (D58, D63, D124, D179, D180):
  * personal tokens and connected apps (OAuth grants are tokens of kind `oauth`), recent changes by
  * connections with undo, the OAuth consent step, and location webhooks. A token's or a webhook's
  * secret is in its create (or rotate) answer only, never in a list.
  *
  * Two fields are this contract's, not the route tables': `rowVersion` on a token and a webhook
- * row (their PATCH takes If-Match, §7.7), and `confirmCrossLocation` on a token create (the
+ * row (their PATCH takes If-Match), and `confirmCrossLocation` on a token create (the
  * "asks again" of D179's warning; T10 names the field).
  */
 import type {
@@ -27,7 +27,7 @@ export type {
   WebhookEvent,
 } from '@kept/shared';
 
-// ----- tokens and connected apps (T10) -----------------------------------------------------------
+// ----- tokens and connected apps -----------------------------------------------------------------
 
 /** `GET /tokens`: the caller's own, personal and OAuth. Never a hash or a secret. */
 export type TokenRow = {
@@ -48,7 +48,7 @@ export type TokenRow = {
 };
 export type TokensPage = Page<TokenRow>;
 
-/** A ready-made MCP client configuration: `<public URL>/mcp` with the bearer header (T10). */
+/** A ready-made MCP client configuration: `<public URL>/mcp` with the bearer header. */
 export type ClientConfig = {
   url: string;
   headers: Record<string, string>;
@@ -92,7 +92,7 @@ export type ConnectionChange = HistoryEvent & {
 export type ConnectionChangesPage = Page<ConnectionChange>;
 export type ConnectionChangesParams = { cursor?: string; tokenId?: string };
 
-// ----- OAuth consent (T12) -----------------------------------------------------------------------
+// ----- OAuth consent -----------------------------------------------------------------------------
 
 /**
  * `GET /oauth/consent?<the plugin's query>`. The client's name and URI are as it calls itself
@@ -108,7 +108,7 @@ export type OAuthConsent = {
 export type OAuthConsentBody = { accept: boolean; scope: TokenScope; locationIds: string[] };
 export type OAuthConsentResult = { redirectTo: string };
 
-// ----- location webhooks (T15) -------------------------------------------------------------------
+// ----- location webhooks -------------------------------------------------------------------------
 
 export type WebhookRow = {
   id: string;

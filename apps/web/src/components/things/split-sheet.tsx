@@ -1,6 +1,6 @@
 /**
- * Split (D10, §1.4): take some of a quantity off as its own row, optionally somewhere else. The
- * new row keeps the same purchase line. Hidden at quantity 1 (screens §8: actions that don't
+ * Split (D10): take some of a quantity off as its own row, optionally somewhere else. The
+ * new row keeps the same purchase line. Hidden at quantity 1 (actions that don't
  * apply are hidden).
  */
 import { newId } from '@kept/shared';

@@ -22,7 +22,7 @@ import type { FileStorage } from '../../storage/blob-store.js';
 import type { IdMap } from './ids.js';
 import { openKeptArchive, readManifest } from './read.js';
 
-// A Kept export's secrets on import (D68; step-7 plan T14, Q7).
+// A Kept export's secrets on import (D68).
 //
 // POST /api/v1/imports/:id/passphrase {passphrase}: the passphrase is used once, in the request.
 // The route reads `secrets.json`'s header from the uploaded archive, derives the key with the
@@ -36,7 +36,7 @@ import { openKeptArchive, readManifest } from './read.js';
 // (setSecret: sealed for its new row, audited `secret.set` with `{changed: true}`), then clears
 // the column whatever the outcome.
 
-/** Wrong-or-right passphrase tries per run per hour (plan Q7). */
+/** Wrong-or-right passphrase tries per run per hour. */
 export const PASSPHRASE_TRIES_PER_HOUR = 10;
 
 export const PassphraseBody = z.strictObject({ passphrase: z.string().min(1).max(1024) });

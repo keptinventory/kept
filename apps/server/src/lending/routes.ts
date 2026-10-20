@@ -21,7 +21,7 @@ import {
 import { registerLendingUndo } from './undo.js';
 import { LoanRowSchema, LoanSchema } from './view.js';
 
-// Lending and borrowing (plan T10; D10, D45, D56, D57, D119, D172; Q14–Q17), in the shapes of the
+// Lending and borrowing (D10, D45, D56, D57, D119, D172), in the shapes of the
 // web contract (apps/web/src/api/household/{types,paths}.ts):
 //
 // POST   /api/v1/things/:id/lend {loanId?, person, startedAt?, dueOn?, quantity?, notes?}
@@ -40,8 +40,8 @@ import { LoanRowSchema, LoanSchema } from './view.js';
 // POST   /api/v1/loans/:id/attachments {id?, fileId, role: condition_out | condition_in}
 //                                         → 201 AttachmentView                attachment.create
 //
-// Loans are the `lending` module's: a read where it is off is 404 `module_off`, a write 409
-// (§7.6), checked in the service where the location is known. Writers are members and above
+// Loans are the `lending` module's: a read where it is off is 404 `module_off`, a write 409,
+// checked in the service where the location is known. Writers are members and above
 // (`things.edit`); a viewer reads.
 
 const Id = z.uuid();

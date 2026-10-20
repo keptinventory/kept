@@ -1,5 +1,5 @@
 /**
- * The dry run's report (plan T30 step 6; §5 "mapped, as text, skipped, why"): what the import
+ * The dry run's report: what the import
  * would make, then every row with its status and reasons, in the reader's language (labels.ts).
  * Then Adjust mapping, or Import.
  *

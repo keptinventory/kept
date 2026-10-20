@@ -1,5 +1,5 @@
 /**
- * The import running, and after (plan T30 steps 7–8): progress by rows, with Cancel; a stopped
+ * The import running, and after: progress by rows, with Cancel; a stopped
  * import (failed, or running without moving for IMPORT_STALE_MINUTES) with Resume, which carries
  * on from the row it reached; and the summary, linking to the location and to a search of it.
  * A cancelled import keeps what it already made.

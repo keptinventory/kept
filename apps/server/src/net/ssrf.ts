@@ -1,5 +1,5 @@
 /**
- * An SSRF-guarded `fetch` for URLs a person typed (D83, D128, D172; step-3 plan Q9): an
+ * An SSRF-guarded `fetch` for URLs a person typed (D83, D128, D172): an
  * OpenAI-compatible base URL, and later webhooks and barcode lookups.
  *
  * - The check runs **at connect time**: an undici `Agent` whose `connect.lookup` resolves the
@@ -8,7 +8,7 @@
  *   can't slip through. Node skips `lookup` for an IP literal, so literals are checked first.
  * - **Redirects are refused** (`redirect: 'error'`): a public host can't bounce the request to
  *   a private one.
- * - `allowPrivate` comes from `instance_settings.ssrf_allow_private` (default false, Q9), the
+ * - `allowPrivate` comes from `instance_settings.ssrf_allow_private` (default false), the
  *   switch self-hosters flip for Ollama on the LAN.
  * A refusal is 400 `private_address`, with a hint that names the admin setting.
  */
@@ -51,7 +51,7 @@ export const PRIVATE_RANGES = (() => {
   for (const [net, prefix] of [
     ['::', 128],
     ['::1', 128],
-    // Step 6 (spike S6.2 §7, the CIMD fetch): special-use ranges Better Auth's own
+    // Step 6 (the CIMD fetch): special-use ranges Better Auth's own
     // isPublicRoutableHost() refuses and this list didn't: IPv4-compatible and -translated
     // addresses, NAT64's local-use prefix, Teredo, benchmarking, 6to4 (which embeds any IPv4,
     // a private one included), site-local, documentation and 5f00::/16.
@@ -98,7 +98,7 @@ const systemResolve: Resolve = (host, cb) =>
 /**
  * A connect-time `lookup` that refuses private addresses (and a name with none). Also used by
  * web push's `https.Agent` (notify/push.ts), which refuses them whatever `ssrf_allow_private`
- * says (step-4 plan Q12). Node skips `lookup` for an IP literal: check those first.
+ * says. Node skips `lookup` for an IP literal: check those first.
  */
 export function guardedLookup(resolve: Resolve = systemResolve): LookupFunction {
   return ((hostname: string, options: { all?: boolean }, cb: (...args: unknown[]) => void) => {

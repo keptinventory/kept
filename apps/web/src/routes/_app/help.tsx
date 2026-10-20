@@ -1,8 +1,8 @@
 /**
- * Help (plan T31; D138, D139, screens §1 and §8): "Show me around" (the guided tour, replayable,
+ * Help (D138, D139): "Show me around" (the guided tour, replayable,
  * resumable where it stopped (D242), never started on launch), bringing back the Get-started
  * checklist, installing Kept on a phone, sharing into Kept from other apps per platform (iPhone
- * has no share target, V9), logging the odometer from an iPhone Shortcut with a token (step 6 T21,
+ * has no share target), logging the odometer from an iPhone Shortcut with a token (step 6 T21,
  * D63), and the diagnostics page.
  */
 import { Trans, useLingui } from '@lingui/react/macro';

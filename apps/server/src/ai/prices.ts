@@ -1,7 +1,7 @@
 /**
- * The versioned price table (plan T9; D167, D206; engineering spec §7.15 "Prices"): read by
+ * The versioned price table (D167, D206): read by
  * everyone signed in, written by instance admins through `kept.ai_price_set` /
- * `ai_price_remove` / `ai_recost_unknown`. Nothing is seeded (Q8), but the recommended model is
+ * `ai_price_remove` / `ai_recost_unknown`. Nothing is seeded, but the recommended model is
  * priced from Groq's listing when an instance admin connects it (api.ts priceRecommended). A
  * prefill proposes rows from a provider's cached model listing (Groq and OpenRouter list USD per
  * token; × 1,000,000; `-1`, a router's "varies", skipped) and saves nothing: the admin confirms

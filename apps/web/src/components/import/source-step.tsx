@@ -1,7 +1,7 @@
 /**
- * Where an import comes from (screens §6 "Import stepper", plan T19 step 1): a spreadsheet (step
+ * Where an import comes from: a spreadsheet (step
  * 3's CSV flow, unchanged), a Homebox export, or a Kept export. Homebox's help names its own menu
- * path and the v0.26 floor (plan Q1: older servers update Homebox first). Choosing an archive
+ * path and the v0.26 floor (older servers update Homebox first). Choosing an archive
  * moves to its upload; the CSV flow keeps its own file step below this.
  */
 import type { ArchiveSource } from '@kept/shared';

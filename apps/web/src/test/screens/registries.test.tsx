@@ -1,5 +1,5 @@
 /**
- * Registries and the type editor (task 28; D11, D92, D123, D160, D168, D177, D192), against the
+ * Registries and the type editor (D11, D92, D123, D160, D168, D177, D192), against the
  * mock server: the type tree and editor with the impact preview, Customise on a built-in, field
  * redefinition and cycles, secret fields for the owner only, the Device group shown as inherited,
  * the icon picker by keyboard, place kinds, the registries with the duplicate hint and merge, the
@@ -320,7 +320,7 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
   });
 
   it('merging a type previews first, then moves its things (D92)', async () => {
-    // Into the account's own copy of Furniture: a built-in original is never a target (T11).
+    // Into the account's own copy of Furniture: a built-in original is never a target.
     const state = ownerScenario();
     const furniture = state.inventory.types.find((x) => x.id === Y.furniture);
     if (furniture) furniture.copiedFromId = 'the-built-in-furniture';

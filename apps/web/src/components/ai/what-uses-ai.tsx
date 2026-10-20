@@ -1,5 +1,5 @@
 /**
- * "What uses AI in Kept" (D206, screens §5 AI settings §1): always first, for everyone who can open
+ * "What uses AI in Kept" (D206): always first, for everyone who can open
  * the page, and before the key box in the Get-started "Connect AI" step. One row per action: how
  * many AI calls it makes, the tokens including the image, and ≈ cost from the price table, or "Add
  * a price to see cost". The basis under it ("From your last 30 days", or "Measured by Kept on
@@ -41,7 +41,7 @@ export function WhatUsesAi({
 
 /**
  * Whether an action sends a photo: the extractions do; an assistant question, a search's or a
- * thing's embedding and the connection test don't (step 6: their figures come from history once
+ * thing's embedding and the connection test don't (their figures come from history once
  * there are 5 calls, step 3's rule, so "image included" must not follow them).
  */
 const withImage = (task: LedgerTask) => task.startsWith('extract_');

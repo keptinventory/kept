@@ -5,7 +5,7 @@ import type { Scope, Tx } from '../db/scope.js';
 import { Sums, spending } from '../insights/service.js';
 import { type Gate, gateFor } from '../serialize/gates.js';
 
-// Home's overview (1.6, D240; builds D138, D194, D234; screens spec §5 Home): what the redesigned
+// Home's overview (1.6, D240; builds D138, D194, D234): what the redesigned
 // Home shows beyond `GET /api/v1/home`, in one read that only Home makes. `/home` stays the
 // shell's (the sidebar's Inbox badge reads it on every page), so nothing here slows other pages.
 //

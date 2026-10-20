@@ -1,7 +1,7 @@
 /**
- * The error screen of `/vehicles` (step-5 plan T3). Its component chunk loads on demand from
+ * The error screen of `/vehicles`. Its component chunk loads on demand from
  * assets/household/ (vite.config.ts), out of the precache: the list reads the server and isn't in
- * the phone's snapshot. Offline before its first load the chunk can't arrive, and the §3 reason
+ * the phone's snapshot. Offline before its first load the chunk can't arrive, and the reason
  * says so: "Needs a connection". Any other error is the usual error state.
  */
 import { useLingui } from '@lingui/react/macro';

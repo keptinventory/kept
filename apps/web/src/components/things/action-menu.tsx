@@ -1,12 +1,12 @@
 /**
- * The thing's actions (screens §5): Move · Lend or Mark returned (step 4) · Pick up (the carrying tray, D175) · Box check
+ * The thing's actions: Move · Lend or Mark returned · Pick up (the carrying tray, D175) · Box check
  * (containers, D40) · Label · Split · Duplicate · Save as template (D76) · Mark seen · Not here · Change lifecycle ·
  * Re-type · Convert to place (containers) · Share a read-only link (containers, owners and admins,
  * never in Personal; 1.5, D233) · Trash, plus Copy link. On a phone
  * they open as a bottom sheet; from `md` up, as a menu. Both are a React Aria Menu: arrow keys
  * move, Enter chooses, Escape closes.
  *
- * What's shown follows screens §3 and §8: an action the role can't do is hidden (a viewer gets
+ * What's shown follows the role rules: an action the role can't do is hidden (a viewer gets
  * Copy link only, as a button, never this menu); one that doesn't apply is hidden (Split at
  * quantity 1); one whose module is off (Label) says "Off in this location".
  *
@@ -94,7 +94,7 @@ function useItems(extra: Item[] = []): Item[] {
   const edit = can('things.edit');
   if (edit) items.push({ id: 'move', label: t`Move`, icon: <MoveGlyph /> });
   // Lend, or Mark returned while it's lent or borrowed (D57). Lend is hidden while it's in repair
-  // or already on loan (screens §8: what doesn't apply is hidden); with Lending off it says so.
+  // or already on loan (what doesn't apply is hidden); with Lending off it says so.
   // Mark returned stays with Lending off: a loan opened before the switch can still end, and the
   // server allows that one write (UI step-4 review L3).
   const onLoan = thing.derivedState.includes('lent') || thing.derivedState.includes('borrowed');
@@ -106,7 +106,7 @@ function useItems(extra: Item[] = []): Item[] {
       icon: <HandoffIcon />,
       ...(moduleOn('lending') ? {} : { note: t`Off in this location` }),
     });
-  // The carrying tray (D175, plan T26): pick it up now, put it down where you scan.
+  // The carrying tray (D175): pick it up now, put it down where you scan.
   if (edit) items.push({ id: 'pickup', label: t`Pick up`, icon: <TrayIcon /> });
   if (thing.isContainer && can('things.mark-seen'))
     items.push({ id: 'box-check', label: t`Box check`, icon: <CheckCircleIcon /> });
@@ -120,7 +120,7 @@ function useItems(extra: Item[] = []): Item[] {
   if (edit && thing.quantity > 1)
     items.push({ id: 'split', label: t`Split`, icon: <SplitGlyph /> });
   if (edit) items.push({ id: 'duplicate', label: t`Duplicate`, icon: <CopyIcon /> });
-  // Templates are the account's, made by owners and admins (T19; registries-types.manage).
+  // Templates are the account's, made by owners and admins (registries-types.manage).
   if (can('registries-types.manage'))
     items.push({ id: 'template', label: t`Save as template`, icon: <CopyIcon /> });
   if (can('things.mark-seen')) {
@@ -355,7 +355,7 @@ export function ActionMenu({
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onAction: (id: string) => void;
-  /** Actions a kind of thing adds before Copy link (a vehicle's History report, step 5). */
+  /** Actions a kind of thing adds before Copy link (a vehicle's History report). */
   extra?: Item[];
 }) {
   const { t } = useLingui();

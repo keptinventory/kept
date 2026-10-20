@@ -1,5 +1,5 @@
 /**
- * Quick add (plan T30, T19): "From a template", offered while the name is empty, on the capture
+ * Quick add: "From a template", offered while the name is empty, on the capture
  * screen and in the create sheet. It lists the templates usable in the location (GET /templates?
  * locationId, members and above) and hands the chosen one back; the caller fills its fields and
  * sends `templateId`, so the server starts from the template's payload and what was typed wins.

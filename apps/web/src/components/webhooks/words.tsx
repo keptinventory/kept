@@ -1,5 +1,5 @@
 /**
- * Webhooks' words (D63, D110, D172, engineering spec §2.6): each event in plain words, a
+ * Webhooks' words (D63, D110, D172): each event in plain words, a
  * delivery's state, and why a webhook was switched off (D180).
  */
 import type { WebhookDeliveryStatus, WebhookDisabledReason, WebhookEvent } from '@kept/shared';

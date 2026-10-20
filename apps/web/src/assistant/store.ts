@@ -1,5 +1,5 @@
 /**
- * The assistant's open state (D24, screens §1 and §5): one small store outside React, so the
+ * The assistant's open state (D24): one small store outside React, so the
  * header button, ⌘K's hand-off (./open.ts), ⌘J and the sheet or docked panel all read and change
  * the same thing, and the panel survives route changes (it lives in the signed-in frame, not in a
  * page). It holds no thread content: that is the server's (api/assistant), cached by TanStack
@@ -125,7 +125,7 @@ export function removeContext(key: string | null): void {
   set({ removedContext: key });
 }
 
-/** ⌘J on Apple platforms, Ctrl+J elsewhere; either works everywhere (screens §1, D24). */
+/** ⌘J on Apple platforms, Ctrl+J elsewhere; either works everywhere (D24). */
 export function isAssistantShortcut(
   e: Pick<KeyboardEvent, 'key' | 'metaKey' | 'ctrlKey' | 'altKey' | 'shiftKey'>,
 ): boolean {

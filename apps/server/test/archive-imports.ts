@@ -7,9 +7,9 @@ import type { TestApp } from './app.js';
 import { sha256 } from './files.js';
 import { call, freshIp } from './people.js';
 
-// Archive imports through the front door (step-7 plan T8–T10): declare an archive, upload its
+// Archive imports through the front door: declare an archive, upload its
 // bytes the way the web's import stepper does (one raw PUT with X-Kept-Sha256), and the Homebox
-// fixtures from spike H1 (test/fixtures/homebox/README.md).
+// fixtures from real exports (test/fixtures/homebox/README.md).
 
 const HOMEBOX = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures', 'homebox');
 

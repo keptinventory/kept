@@ -11,7 +11,7 @@ import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 import { ImageLimiter } from '../storage/derivatives.js';
 
-// Brand logos (step-4 plan T9; §1.3; D157, D172: uploads only; step-2 Q9, plan Q33):
+// Brand logos (D157, D172: uploads only):
 //
 // PUT    /api/v1/brands/:id/logo  (the image as the body) → 200 BrandLogo
 // GET    /api/v1/brands/:id/logo  → image/png
@@ -20,8 +20,8 @@ import { ImageLimiter } from '../storage/derivatives.js';
 // A brand is its account's, so its logo is too: a brand_logos row (0057, 0058), never a `files`
 // row (a location's). The upload may be PNG, JPEG, WebP or SVG, told by its bytes (sharp's own
 // sniffing), never by the declared type. It is rendered from the buffer to a PNG of at most
-// 256 px a side, and only that PNG is kept: an SVG's bytes are never stored or served back
-// (Q33). The step-4 T0 spike showed an SVG rendered
+// 256 px a side, and only that PNG is kept: an SVG's bytes are never stored or served back.
+// An early trial showed an SVG rendered
 // from a buffer loads no external, `file:` or relative resource, refuses external entities and
 // entity expansion, and fails a huge canvas on `limitInputPixels`; anything sharp can't render
 // is a 415. Rendering runs in its own image limiter (one at a time).

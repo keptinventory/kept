@@ -1,11 +1,11 @@
 /**
- * Money on the wire and on screen (D136, D143, D172; engineering spec §7.13).
+ * Money on the wire and on screen (D136, D143, D172).
  *
  * - Amounts travel as canonical decimal strings (`"1234.5"`) next to an ISO 4217 `currency`, and
  *   are stored as `numeric(16,4)`: at most 12 integer digits and 4 decimals, never negative on
  *   input, never exponent notation.
  * - Input is stored as received, and totals are computed at full precision. Rounding to the
- *   currency's minor units happens only at the output edges: display, export and reports (Q2).
+ *   currency's minor units happens only at the output edges: display, export and reports.
  *   It rounds half away from zero.
  * - Display goes through `Intl.NumberFormat`. EGP is "EGP" in every non-Arabic locale and
  *   "ج.م." in Arabic, never a bare "£" (D136). Arabic results are isolated left-to-right
@@ -99,7 +99,7 @@ export function canonicalMoney(value: unknown): unknown {
 /**
  * Round a decimal string to `units` decimals, half away from zero, with exactly `units` digits
  * after the point (`"1.005", 2` → `"1.01"`; `"2.5", 0` → `"3"`). Exact: no floating point.
- * Used at the output edges only (Q2).
+ * Used at the output edges only.
  */
 export function roundForDisplay(amount: string, units: number): string {
   const m = DECIMAL.exec(amount.trim());
@@ -193,7 +193,7 @@ function newestOn(rates: readonly FxRate[], from: string, to: string, on: string
 }
 
 /**
- * Convert `amount` from one currency to another as of the day `on` (D76, D136; step-4 plan Q21).
+ * Convert `amount` from one currency to another as of the day `on` (D76, D136).
  *
  * - The same currency returns the amount unchanged (canonical).
  * - Otherwise the newest rate for the pair with `validFrom ≤ on` is used; only when the pair has
@@ -202,7 +202,7 @@ function newestOn(rates: readonly FxRate[], from: string, to: string, on: string
  *   answer is `{missing: {from, to}}`.
  *
  * Exact decimal arithmetic, rounded once, half away from zero, to 4 decimals; the result is a
- * canonical amount (§7.7). Rounding to the currency's minor units is left to display (Q2).
+ * canonical amount. Rounding to the currency's minor units is left to display.
  * T4's SQL for the AI caps follows the same order: the pair first, then its inverse.
  */
 export function convert(

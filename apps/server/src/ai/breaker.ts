@@ -1,11 +1,11 @@
 /**
- * The per-key circuit breaker (L45; engineering spec §3.5, §7.15 "Per key"). A pure state
+ * The per-key circuit breaker. A pure state
  * machine: the Pacer port stores the state (in memory here, `ai_breakers` through the
  * `kept.ai_trip` doors with T6).
  *
  * - A 429 or a quota error trips until `retry-after`, else 60 s; each consecutive trip doubles
  *   that, up to one hour. A success resets the count.
- * - 401 or 403: `auth`, until the key is replaced (`clearAuth`, T9).
+ * - 401 or 403: `auth`, until the key is replaced (`clearAuth`).
  * - Three 5xx, timeouts, network failures or errors inside a 200 within 5 minutes:
  *   `provider_down` for 5 minutes.
  * While tripped, `callModel` answers `paused` without calling.
@@ -88,7 +88,7 @@ export function nextBreaker(
   }
 }
 
-/** A replaced key clears an `auth` trip (T9); other trips run their course. */
+/** A replaced key clears an `auth` trip; other trips run their course. */
 export function clearAuth(state: BreakerState | null | undefined): BreakerState {
   const s = state ?? CLOSED;
   return s.reason === 'auth' ? { ...s, reason: null, until: null } : s;

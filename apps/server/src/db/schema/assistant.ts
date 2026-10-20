@@ -18,8 +18,8 @@ import { user } from './auth.js';
 import { id, mutable, textEnum, tstz } from './common.js';
 import { locations } from './tenancy.js';
 
-// The assistant's private threads (step-6 plan T5; engineering spec §1.8, §3.3, §7.13; D22, D23,
-// D123, D164, D179; plan Q3, Q11, Q17, Q21). Every row is its user's own, private even from
+// The assistant's private threads (D22, D23,
+// D123, D164, D179). Every row is its user's own, private even from
 // admins and instance admins, and never a token's. Each child names its user and reaches its
 // thread through (user_id, thread_id), so a row can't sit in someone else's thread. Row-level
 // security, retention, the search text and redaction are in the custom migration that follows
@@ -33,7 +33,7 @@ const proposalStatus = textEnum('status', PROPOSAL_STATUS);
 /**
  * A conversation (D23): its title, the page it was asked from (D24, `{kind, id?, locationId?}`),
  * the interface language, and the search text over the person's own questions and the answers,
- * never tool results (Q17). `expires_at` is set from `assistant_thread_days` at creation and on
+ * never tool results. `expires_at` is set from `assistant_thread_days` at creation and on
  * each new turn (0072).
  */
 export const assistantThreads = pgTable(
@@ -62,8 +62,8 @@ export const assistantThreads = pgTable(
 );
 
 /**
- * One question's run (D166, Q2–Q4, Q21): its status, the steps taken, and the locations it has
- * touched so far (the payer, Q3). One live turn per thread (409 `turn_running`).
+ * One question's run (D166): its status, the steps taken, and the locations it has
+ * touched so far (the payer). One live turn per thread (409 `turn_running`).
  */
 export const assistantTurns = pgTable(
   'assistant_turns',
@@ -97,9 +97,9 @@ export const assistantTurns = pgTable(
 );
 
 /**
- * A message (append-only; §7.13 `user_id`): the question (step 0), the model's answer or tool
+ * A message (append-only; `user_id`): the question, the model's answer or tool
  * calls, or the tool results, as @kept/shared `Part`s. `cited_location_ids` is what an answer
- * drew on (Q11). Redaction replaces parts in place (D164).
+ * drew on. Redaction replaces parts in place (D164).
  */
 export const assistantMessages = pgTable(
   'assistant_messages',
@@ -136,7 +136,7 @@ export const assistantMessages = pgTable(
 );
 
 /**
- * One tool result, by location, so losing a location redacts exactly its results (D164, Q11).
+ * One tool result, by location, so losing a location redacts exactly its results (D164).
  * `location_id` is null for a result that touched none; it keeps no key to the location, so a
  * purge can still redact it.
  */

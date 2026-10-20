@@ -1,7 +1,7 @@
 /**
  * The short-ID chip (D120, D134): the one visual motif, Plex Mono on amber label tape, the same
  * object as the printed label on the box. The code is shown as printed, split 3 + 3 with a
- * non-breaking hyphen (7KQ‑4MZ), always left to right, even inside Arabic (screens §8); its
+ * non-breaking hyphen (7KQ‑4MZ), always left to right, even inside Arabic; its
  * accessible name is the whole code.
  *
  * When the server allocates the code while the chip is on screen (null → code), or the parent

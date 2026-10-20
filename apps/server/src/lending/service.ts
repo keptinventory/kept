@@ -37,23 +37,23 @@ import {
   OVERDUE_SQL,
 } from './view.js';
 
-// Lending and borrowing (plan T10; D10, D45, D56, D57, D119, D172; Q14–Q17, Q34). Every function
+// Lending and borrowing (D10, D45, D56, D57, D119, D172). Every function
 // runs in the request's scoped kept_app transaction: RLS decides what exists (a 404), the Lending
-// module whether the location lends (404 on a read, 409 on a write, §7.6), and can() who may
+// module whether the location lends (404 on a read, 409 on a write), and can() who may
 // (`things.edit`: members and above; a viewer reads, a 403 on a write).
 //
-// - A loan is out (lent to someone) or in (borrowed from someone), one open loan per thing
-//   (§7.13). The person is the account's registry, found, made by name, or the one linked to a
-//   member (Q16: a member of that location gets the overdue reminder too, T14). Kept never
+// - A loan is out (lent to someone) or in (borrowed from someone), one open loan per thing.
+//   The person is the account's registry, found, made by name, or the one linked to a
+//   member (a member of that location gets the overdue reminder too). Kept never
 //   messages anyone outside the household (D57).
 // - Lending part of a quantity splits the thing first (step 2's split, D10): the loan is on the
 //   new row, `split_from_thing_id` the one it came from. A container goes with its contents
-//   (D45): nothing moves, the path reads "with Murdock". Nothing in repair is lent (screens §8).
+//   (D45): nothing moves, the path reads "with Murdock". Nothing in repair is lent.
 // - Borrowing makes a thing that belongs to the person (D56), with a loan in.
 // - Return (return.ts): out, the thing goes back where it was (or where it is put), and a part
 //   merges back into the row it came from when that row is live, in the same place and of the
-//   same type (D172, Q14); in, the thing ends as `returned_to_owner` today (Q15).
-// - Deletes are hard (Q25); the event holds the row and its photos, and undo puts them back.
+//   same type (D172); in, the thing ends as `returned_to_owner` today.
+// - Deletes are hard; the event holds the row and its photos, and undo puts them back.
 
 export type Ctx = {
   tx: Tx;
@@ -128,7 +128,7 @@ async function accountOf(client: pg.ClientBase, locationId: string): Promise<str
 /**
  * The person a loan is with, in the location's account: an existing one (another account's, or
  * one the caller can't see, is a 404), a new one by name (D11, created inline), or the one linked
- * to a member of this location (made from their name if there is none yet, Q16).
+ * to a member of this location (made from their name if there is none yet).
  */
 export async function personFor(ctx: Ctx, locationId: string, input: PersonInput): Promise<string> {
   const { client } = ctx;
@@ -173,7 +173,7 @@ export async function personFor(ctx: Ctx, locationId: string, input: PersonInput
   return made.item.id;
 }
 
-/** 409 `thing_in_repair` while a claim of the thing is in repair (screens §8: no Lend). */
+/** 409 `thing_in_repair` while a claim of the thing is in repair (no Lend). */
 async function refuseInRepair(client: pg.ClientBase, thingId: string): Promise<void> {
   const { rowCount } = await client.query(
     `SELECT 1 FROM public.claims WHERE thing_id = $1 AND status = 'in_repair'`,
@@ -193,7 +193,7 @@ async function refuseOnLoan(client: pg.ClientBase, thingId: string): Promise<voi
     throw new AppError('already_on_loan', 409, 'It is already on loan; mark it returned first.');
 }
 
-/** "Due ≥ start" (screens §7), in the location's zone. */
+/** "Due ≥ start", in the location's zone. */
 async function checkDue(
   client: pg.ClientBase,
   locationId: string,
@@ -431,7 +431,7 @@ type AttachmentImage = {
   sort: number;
 };
 
-/** DELETE /api/v1/loans/:id (If-Match) → 204: a loan recorded by mistake. Hard (Q25); undoable
+/** DELETE /api/v1/loans/:id (If-Match) → 204: a loan recorded by mistake. Hard; undoable
  * (the row and its photos come back). */
 export async function deleteLoan(ctx: Ctx, id: string, expected: number): Promise<void> {
   const { client } = ctx;
@@ -509,8 +509,8 @@ function offsetOf(cursor: string | undefined): number {
 }
 
 /**
- * GET /api/v1/loans: the Lending screen, across every location the caller sees with Lending on
- * (screens §1): overdue first, then open, soonest due first, then returned, latest first.
+ * GET /api/v1/loans: the Lending screen, across every location the caller sees with Lending on:
+ * overdue first, then open, soonest due first, then returned, latest first.
  * `counts` are the open loans out and in, and the overdue ones, for the same locations and person.
  */
 export async function listLoans(

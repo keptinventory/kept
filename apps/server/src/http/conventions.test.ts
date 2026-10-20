@@ -17,7 +17,7 @@ import {
 } from './conventions.js';
 import { AppError, toErrorReply } from './errors.js';
 
-// Task 16: API conventions (engineering spec §7.7; D156, D178).
+// API conventions (D156, D178).
 
 const db = await testDb();
 

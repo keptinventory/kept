@@ -791,7 +791,7 @@ describe('embeddings and OIDC (step 6, T2; D207, S6.7)', () => {
   });
 
   it('refuses local when its runtime is not installed, naming D207', async () => {
-    // The runtime is not a dependency in 1.0 (spike S6.5): the real check says so.
+    // The runtime is not a dependency in 1.0: the real check says so.
     expect(localEmbeddingsInstalled()).toBe(false);
     await expect(load({ KEPT_EMBEDDINGS: 'local' })).rejects.toMatchObject({
       code: 'embeddings_unavailable',

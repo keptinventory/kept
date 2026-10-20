@@ -1,5 +1,5 @@
 /**
- * The notification centre's body (plan T24; D39, screens §5 "Notification centre", frame "7 ·
+ * The notification centre's body (D39, frame "7 ·
  * Notification centre · phone · light"): everything Kept told you, grouped by kind (due and coming
  * up, lending, expiring, then members, AI and downloads), newest first in each group, each with
  * its next step inline (./notification-row.tsx). Mark all read; the unread count beside it.

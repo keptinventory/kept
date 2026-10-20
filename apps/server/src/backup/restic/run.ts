@@ -37,7 +37,7 @@ import {
   scrubSecrets,
 } from './restic.js';
 
-// The real restic (step-8 plan T5; D64): the pinned binary as a child process, never a library.
+// The real restic (D64): the pinned binary as a child process, never a library.
 // What R1 recorded and this follows:
 // - `--json` on every command; messages parsed with json.ts's schemas;
 // - the repository location, its password and its storage credentials go **only** in the
@@ -57,7 +57,7 @@ import {
 export type ResticCliOptions = {
   /** KEPT_RESTIC_BIN, else `restic` on PATH (the image puts the pinned one there). */
   bin?: string;
-  /** RESTIC_CACHE_DIR (plan Q5: `KEPT_DATA_DIR/.cache/restic`). Absent: restic's default. */
+  /** RESTIC_CACHE_DIR (`KEPT_DATA_DIR/.cache/restic`). Absent: restic's default. */
   cacheDir?: string;
   /** Milliseconds before a command is killed: `quick` for listing and checking a repository,
    * `long` for backup, restore, check and forget with prune. */
@@ -108,7 +108,7 @@ function under(p: string, prefix: string): boolean {
   return p === base || p.startsWith(`${base}/`);
 }
 
-/** A malformed message is a failed command (plan T5), never a crash. */
+/** A malformed message is a failed command, never a crash. */
 function parsed<T>(fn: () => T): T {
   try {
     return fn();

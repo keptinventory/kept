@@ -1,5 +1,5 @@
 /**
- * A thread's messages (D22, D23, D164, D179; screens §5 "Assistant", frames 04 · 4–6): the
+ * A thread's messages (D22, D23, D164, D179; frames 04 · 4–6): the
  * person's questions, the assistant's answers (./answer.tsx), its tool steps as quiet lines
  * ("Looked in Garage"), redacted parts as "Removed", and one confirmation card per batch of
  * proposals (./confirm-card.tsx). The model's reasoning is never shown. Under the last message,

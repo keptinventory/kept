@@ -1,5 +1,5 @@
 /**
- * The confirmation card (D22, D179, D213; screens §5 "Assistant" and §8, frames 04 · 5 and 5b).
+ * The confirmation card (D22, D179, D213; frames 04 · 5 and 5b).
  * One card per batch: the writes one turn proposed. Drawn by Kept from each proposal's `args`,
  * `before` and `refs` (./confirm-rows.ts), never from model text, with a border, a header and
  * controls that chat text never gets, so a "card" written in an answer is just text.
@@ -9,10 +9,10 @@
  *   many, before confirming (D213); the hash still binds what was proposed.
  * - A countdown to the 10-minute expiry; at zero the card locks as "Expired · ask again".
  * - A row that changed since it was proposed: a card-level conflict with both values and who
- *   changed it; Confirm is unavailable, only Ask again or Cancel (§8).
+ *   changed it; Confirm is unavailable, only Ask again or Cancel.
  * - Confirmed: what was done in Kept's fixed words ("Moved 2× HDMI cable to Garage › Box 3"), with
  *   Undo in step 3's toast, undoing every event the writes recorded, newest first (D150, D213).
- * - Offline, Confirm is disabled with "Needs a connection" (screens §3).
+ * - Offline, Confirm is disabled with "Needs a connection".
  */
 import { plural } from '@lingui/core/macro';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';

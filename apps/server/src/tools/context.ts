@@ -25,9 +25,9 @@ import type {
   ToolVia,
 } from './types.js';
 
-// runTool(): the one way a tool runs, for the assistant (T13) and MCP (T11), step-6 plan T9.
+// runTool(): the one way a tool runs, for the assistant and MCP.
 //
-// 1. The tool exists, has a handler (a contract whose service isn't built yet has none, Q10) and
+// 1. The tool exists, has a handler (a contract whose service isn't built yet has none) and
 //    is offered at this door (`doors`: the moving tools are MCP's only), and its input parses
 //    against TOOL_DEFS: anything else is `{error, hint}`, never a throw.
 // 2. A read principal never runs a write tool (`token_scope`).
@@ -38,7 +38,7 @@ import type {
 //    their role allows the handler's action. A location that fails any of these is
 //    `tool_unavailable`, the same answer for each, so nothing tells an outsider which modules a
 //    location has.
-// 4. The handler calls the route's own operation (Q1), which re-checks what it always checks.
+// 4. The handler calls the route's own operation, which re-checks what it always checks.
 // 5. The answer is fit() under 8 KB, with `as_of` and a cursor that resumes inside a shortened
 //    page.
 
@@ -64,7 +64,7 @@ export class ToolRefusal extends Error {
 export const unavailable = () => new ToolRefusal('tool_unavailable', UNAVAILABLE_HINT);
 
 /**
- * The RLS scope a principal runs as. A token principal (MCP, T11) sets `app.token_id` beside
+ * The RLS scope a principal runs as. A token principal (MCP) sets `app.token_id` beside
  * `app.user_id` (db/scope.ts): the location functions then intersect the creator's memberships
  * with the token's locations, and a read token writes nowhere (0070), evaluated on every call
  * (D180). Its writes audit as the token (audit/actor.ts).
@@ -139,8 +139,8 @@ export async function reachableAll(
   return out;
 }
 
-/** The tools a principal may call per reachable location (MCP's factory, T11; the assistant's
- * step, T13). `locationIds` narrows to those (a thread's candidates); unknown ones are left
+/** The tools a principal may call per reachable location (MCP's factory; the assistant's
+ * step). `locationIds` narrows to those (a thread's candidates); unknown ones are left
  * out. */
 export async function toolsFor(
   ctx: Pick<ToolContext, 'deps' | 'principal' | 'via'>,
@@ -203,7 +203,7 @@ export async function runTool(
   const base = (ctx.deps.baseUrl ?? '').replace(/\/+$/, '');
   try {
     const scope = principalScope(ctx.principal);
-    // Semantic search's query embedding (T14), before the transaction: no model call runs inside
+    // Semantic search's query embedding, before the transaction: no model call runs inside
     // one (D166). Over the asked location, else every visible one; search() filters the rest.
     const meaningOf = handler.meaning as ((i: unknown) => string | undefined) | undefined;
     const asked0 = (input as LocationInput).location_id?.toLowerCase();

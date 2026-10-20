@@ -1,5 +1,5 @@
 /**
- * A location's share links (1.5, D233; screens §5 Share links): owners and admins only. On the
+ * A location's share links (1.5, D233): owners and admins only. On the
  * list standard: search by name, filters for state and for what was shared, grouped by state,
  * with "Load more" (`GET /locations/:id/share-links` answers the whole list; the paging is done
  * here). Each row: what it shares (a box or place links to it), its state and dates, how often it
@@ -275,7 +275,7 @@ function ShareLinkRowView({ link: l, onPreview }: { link: ShareLinkRow; onPrevie
   );
 }
 
-/** "Preview as recipient": the page as it shows now, rows only (screens §5). */
+/** "Preview as recipient": the page as it shows now, rows only. */
 function PreviewSheet({ link, onClose }: { link: ShareLinkRow | null; onClose: () => void }) {
   const { t } = useLingui();
   return (

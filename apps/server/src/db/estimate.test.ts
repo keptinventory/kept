@@ -15,7 +15,7 @@ import { placeReading } from '../meters/check.js';
 import { withScope } from './scope.js';
 
 // Step 5, task 7 (0066): kept.meter_estimate() and kept.meter_eta(), the one implementation of the
-// usage estimate (D52, D188; plan Q8), against @kept/shared vehicles.ts's constants and
+// usage estimate (D52, D188), against @kept/shared vehicles.ts's constants and
 // meters/check.ts's offset correction.
 
 const db = await testDb();

@@ -1,13 +1,13 @@
 /**
- * The insurance report (D158, D201, engineering spec §2.8; plan T26, `/reports/insurance`): every
+ * The insurance report (D158, D201; `/reports/insurance`): every
  * thing in a location, or in one incident, with its photo, brand, model, serial, purchase date
  * and price, current value and receipts, and totals per place and per currency, as a PDF made on
  * the server (the step-2 engine), and the same rows as a CSV.
  *
  * - **Scope:** a location where you see money, or the incident in the URL (`?incident=`).
- * - **As of** (Q20): which valuation counts (the latest on or before it); the report lists things
+ * - **As of**: which valuation counts (the latest on or before it); the report lists things
  *   as they are now.
- * - **Also total in** (Q21): a converted total beside the per-currency ones, only when your
+ * - **Also total in**: a converted total beside the per-currency ones, only when your
  *   exchange rates cover every pair; otherwise the server refuses with the missing pairs, listed
  *   here with a link to add them. Never estimated (D76).
  * - Then the run's progress and the finished PDF as Open PDF, Share and Download (./progress.tsx:
@@ -17,7 +17,7 @@
  *   offered on the share sheet with a second press (iOS refuses a share that waited on the
  *   network), as AI usage's Export CSV does.
  *
- * Online only: offline the buttons are off and say why (screens §3).
+ * Online only: offline the buttons are off and say why.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';

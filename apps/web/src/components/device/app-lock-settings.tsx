@@ -1,5 +1,5 @@
 /**
- * This device → App lock (step-8 plan T23; D181, Q22; board frame 110): the lock on or off, Face ID
+ * This device → App lock (D181): the lock on or off, Face ID
  * or fingerprint where the platform can verify the person (L1 finding 4), and Change PIN.
  */
 import { APP_LOCK } from '@kept/shared';

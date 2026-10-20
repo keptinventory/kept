@@ -17,7 +17,7 @@ import {
   smtpMailer,
 } from './transport.js';
 
-// The mail transport (D81, §7.11): every kind in both languages, rendered safely, and delivered
+// The mail transport (D81): every kind in both languages, rendered safely, and delivered
 // over SMTP to Mailpit in the recipient's language.
 
 const PUBLIC_URL = 'http://kept.test';
@@ -42,7 +42,7 @@ const ADMIN: AdminAction[] = [
   'location-ownership-moved',
 ];
 
-/** A reminder's facts (step 4, notify/words.ts), with Latin names so only Arabic mail has Arabic. */
+/** A reminder's facts (notify/words.ts), with Latin names so only Arabic mail has Arabic. */
 const REMINDER: ReminderFacts = {
   sourceType: 'schedule',
   kind: 'overdue',
@@ -126,7 +126,7 @@ const EVERY_MAIL: MailBody[] = [
     alert: 'backup_failed',
     details: { error: 'the target is not writable', lastOk: null },
   },
-  // Step 4 (T14): the reminder scan hasn't finished for 2 hours, or ever.
+  // The reminder scan hasn't finished for 2 hours, or ever.
   {
     kind: 'admin-alert',
     to: 'admin@x.test',
@@ -139,14 +139,14 @@ const EVERY_MAIL: MailBody[] = [
     alert: 'reminders_not_scanned',
     details: { lastOkAt: null, lastRunAt: '2031-01-02T11:45:00.000Z' },
   },
-  // Step 6 (T15): a location's webhook started failing.
+  // A location's webhook started failing.
   {
     kind: 'admin-alert',
     to: 'admin@x.test',
     alert: 'webhook_failing',
     details: { webhookId: 'w', locationId: 'l', since: '2031-01-02T09:00:00.000Z' },
   },
-  // Step 8 (T10): the operations watch's alerts and the backup's size check.
+  // The operations watch's alerts and the backup's size check.
   {
     kind: 'admin-alert',
     to: 'admin@x.test',
@@ -250,7 +250,7 @@ const EVERY_MAIL: MailBody[] = [
       pausedUntil: '2031-02-01T00:00:00.000Z',
     },
   },
-  // Step 4 (T15): reminders, the digest, an ended membership, a channel's test and failure.
+  // Reminders, the digest, an ended membership, a channel's test and failure.
   { kind: 'reminder', to: 'bruce@x.test', item: REMINDER },
   {
     kind: 'reminder-digest',
@@ -287,7 +287,7 @@ const EVERY_MAIL: MailBody[] = [
     cost: [{ currency: 'USD', amount: '1.1234' }],
     unknownCostCalls: 2,
   },
-  // Step 6 (T16, D180): the configuration notices.
+  // Step 6 (D180): the configuration notices.
   { kind: 'oidc-changed', to: 'louis@x.test', name: 'Home SSO' },
   { kind: 'oidc-changed', to: 'louis@x.test', name: null },
   { kind: 'smtp-changed', to: 'louis@x.test', sender: 'kept@example.org' },

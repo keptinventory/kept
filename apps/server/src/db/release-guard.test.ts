@@ -12,7 +12,7 @@ import {
   UPGRADE_WITHOUT_SNAPSHOT_KEY,
 } from './release-guard.js';
 
-// Step-8 plan T8 (Q8, Q9; D66, D82): the snapshot before every upgrade, release history and the
+// D66, D82: the snapshot before every upgrade, release history and the
 // downgrade guard, on real migrations: a copy of the migrations folder with its journal cut
 // short stands for the previous image.
 

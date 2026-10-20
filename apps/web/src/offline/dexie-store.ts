@@ -1,5 +1,5 @@
 /**
- * The Dexie `OfflineStore` (plan T24), plus the engine-facing `SyncStore` methods. It passes the
+ * The Dexie `OfflineStore`, plus the engine-facing `SyncStore` methods. It passes the
  * same contract suite as `MemoryStore` (test/store-contract.ts). Loaded lazily (open.ts).
  *
  * - **Snapshot pages** apply in one transaction: a page is all or nothing, and the cursor moves
@@ -151,7 +151,7 @@ export class DexieStore implements SyncStore {
             await db.locations.delete(loc);
             for (const table of [db.places, db.things, db.codes, db.legacyCodes])
               await table.where('locationId').equals(loc).delete();
-            // What was kept offline there goes too (step 8, D159, D181).
+            // What was kept offline there goes too (D159, D181).
             await db.extras.where('locationId').equals(loc).delete();
             await db.extraDocs.where('locationId').equals(loc).delete();
             await db.keptOffline.delete(loc);
@@ -465,7 +465,7 @@ export class DexieStore implements SyncStore {
       const entry = await db.queue.where('idempotencyKey').equals(result.idempotencyKey).first();
       if (entry?.seq === undefined) return;
       await db.queue.update(entry.seq, { state, result, settledAt: Date.now() });
-      // Answered either way: the files are on the server (a drop's restore re-uses them, T15).
+      // Answered either way: the files are on the server (a drop's restore re-uses them).
       await db.blobs.where('queueSeq').equals(entry.seq).delete();
       if (result.outcome === 'applied') {
         if (entry.op === 'create_thing' && result.entity?.shortCode) {

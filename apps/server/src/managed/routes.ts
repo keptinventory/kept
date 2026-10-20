@@ -24,7 +24,7 @@ import type { JobQueue } from '../jobs/queue.js';
 import { outlasts, requireCan, requireMembership } from '../locations/access.js';
 import { GrantableRole, Iso, locationViews } from '../locations/views.js';
 
-// Managed accounts (task 21; D47, D114, D127, D164, D180, D197; spike S3).
+// Managed accounts (D47, D114, D127, D164, D180, D197).
 // - An owner or admin creates one in a location: a username and a display name, no email. The
 //   password is random and never shown; the response carries a one-time reset code (D164) the
 //   person uses to set their own. So nobody but the person ever knows the password. That
@@ -35,7 +35,7 @@ import { GrantableRole, Iso, locationViews } from '../locations/views.js';
 //   owner or admin there, can issue a new code (kept.managed_reset_location()). It signs the
 //   account out everywhere once the audited transaction commits (D164).
 // - Redeeming a code needs no session: POST /api/v1/auth/reset-code, limited per account + IP
-//   (redeemResetCode) and per IP alone (carry-over: one address trying many usernames), and
+//   (redeemResetCode) and per IP alone (one address trying many usernames), and
 //   audited in the home location (review M3).
 // - A managed account can't own a location other than its Personal one (locations/routes.ts,
 //   and the locations INSERT policy since 0010).
@@ -49,7 +49,7 @@ const UserParams = z.object({ userId: z.uuid() });
 const CreateBody = z.object({
   displayName: z.string().trim().min(1).max(100),
   /** Better Auth's username plugin validates it (3–30 characters, letters, digits, _ and .) and
-   * keeps it unique per instance, case-insensitively (§7.10). */
+   * keeps it unique per instance, case-insensitively. */
   username: z.string().trim().min(1).max(64),
   role: GrantableRole,
   expiresAt: Iso.nullable().optional(),

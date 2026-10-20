@@ -28,20 +28,20 @@ import {
 import { requireRole, targetOf, writableThing } from '../things/service.js';
 import { TRASH_DAYS } from './jobs.js';
 
-// Trash for things, and the trash list for things and places (T21; D45, D162; screens §5 "Trash":
+// Trash for things, and the trash list for things and places (D45, D162;
 // restore for members and above, delete permanently for admins and above).
 //
 // - Trashing a thing sets `deleted_at` and a fresh `trash_batch_id` on it; a container with
 //   something in it needs the contents choice first (409 `contents_choice_required`, D45): trash
 //   what is inside with it (the same batch, however deep), or move it out (to `moveTo`, or by
-//   default to where the container itself is). Reminder sources pause by derivation (§7.6).
+//   default to where the container itself is). Reminder sources pause by derivation.
 // - Restoring brings the whole batch back (D162). A batch that holds places began as a place's
 //   trash, so it goes through places/service.ts's restorePlace(), which knows what to do with
 //   places whose parent is still in the trash; a batch of things alone is restored here. Either
 //   way, whatever was inside something that is still in the trash goes to the Unplaced area,
 //   and the answer's `hint` says so.
 // - Deleting permanently (trashed things only) removes the thing and whatever is inside it, all
-//   of which must be in the trash too, and leaves tombstones so phones drop them (§7.4). Its
+//   of which must be in the trash too, and leaves tombstones so phones drop them. Its
 //   files become unattached and the purge job deletes them (trash/jobs.ts).
 // - The trash list is every trashed thing and place in the locations the caller can see; each
 //   row says who trashed it (from the trash event of its batch) and when it will be purged.

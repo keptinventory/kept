@@ -5,7 +5,7 @@
  * (api/inventory/mock), whose things, places, people and vendors it points at by id: every
  * response is serialised from the live inventory, so a trashed or renamed thing shows as it is.
  *
- * What the fixtures hold (plan T3), all from the sample cast:
+ * What the fixtures hold, all from the sample cast:
  * - Ibrahim's Home: the Samsung TV under two warranties (the maker's 2 years and B.TECH's 3), with
  *   a claim in repair at the Samsung service centre and a valuation; the boiler service on the
  *   Kitchen, due in 10 days; the home insurance on the location, expiring in 20 days.
@@ -70,7 +70,7 @@ export type StoredClaim = Omit<
 export type StoredLoan = Omit<Loan, 'overdue' | 'person'> & {
   locationId: string;
   personId: string;
-  /** Who recorded it (a member receives their own loans' reminders by default, Q8). */
+  /** Who recorded it (a member receives their own loans' reminders by default). */
   createdById: string;
 };
 
@@ -142,7 +142,7 @@ export type HouseholdState = {
   schedules: StoredSchedule[];
   serviceRecords: StoredServiceRecord[];
   documents: StoredDocument[];
-  /** A step-4 file's text by file id (the lease's), for the paperwork library's search (T12). */
+  /** A step-4 file's text by file id (the lease's), for the paperwork library's search. */
   fileText: Record<string, string>;
   notifications: StoredNotification[];
   settings: {
@@ -154,7 +154,7 @@ export type HouseholdState = {
     apprise: { available: boolean };
     aiSummaryEmail: boolean;
   };
-  /** Only the choices a person made; everything else is `defaultPreference()` (Q8). */
+  /** Only the choices a person made; everything else is `defaultPreference()`. */
   preferences: StoredPreference[];
   channels: Channel[];
   calendarFeeds: CalendarFeed[];
@@ -200,7 +200,7 @@ export const HOUSEHOLD_IDS = {
 const H = HOUSEHOLD_IDS;
 const I = INV_IDS;
 
-/** A calendar date in a time zone, YYYY-MM-DD ("today" is the location's, §7.13). */
+/** A calendar date in a time zone, YYYY-MM-DD ("today" is the location's). */
 export function localDate(timeZone: string, at: Date = new Date()): string {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone,

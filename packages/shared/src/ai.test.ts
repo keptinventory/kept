@@ -40,8 +40,8 @@ describe('provider kinds and key detection', () => {
     ['AIzaSyExample', 'google'],
     ['sk-proj-abc', 'openai'],
     ['sk-abc', 'openai'],
-    // D202: OpenRouter's `sk-or-` and Groq's `gsk_` (the prefixes seen on real keys, spike
-    // 2026-09-26-step3-ai-sdk.md §6). `sk-or-` is also an `sk-`, so it is checked first.
+    // D202: OpenRouter's `sk-or-` and Groq's `gsk_` (the prefixes seen on real
+    // keys). `sk-or-` is also an `sk-`, so it is checked first.
     [`sk-or-v1-${'0'.repeat(64)}`, 'openrouter'],
     ['sk-or-abc', 'openrouter'],
     [`gsk_${'A1'.repeat(26)}`, 'groq'],
@@ -161,8 +161,8 @@ describe('estimateImageTokens, against each provider’s documented numbers', ()
     }
   });
 
-  // console.groq.com vision docs: a flat 2048 tokens per image, which the spike's rate-limit
-  // headers matched (2026-09-26-step3-ai-sdk.md §4).
+  // console.groq.com vision docs: a flat 2048 tokens per image, which real rate-limit
+  // headers matched.
   it.each([
     [64, 64],
     [2048, 1536],

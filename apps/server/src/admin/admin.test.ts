@@ -8,7 +8,7 @@ import { asOwner, ownerTx } from '../../test/tenancy.js';
 import { allowPrivateAddresses } from '../ai/runtime.js';
 import { multiItemOn } from '../capture/split.js';
 
-// Task 23: instance admin routes (D164, D165, D180, §7.11, §7.14), through the front door.
+// Instance admin routes (D164, D165, D180), through the front door.
 
 let db: TestDb;
 let t: TestApp;

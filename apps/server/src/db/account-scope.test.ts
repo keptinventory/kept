@@ -5,8 +5,8 @@ import { testDb } from '../../test/db.js';
 import { addMember, ownerTx, pgError, seedTenant, seedUser } from '../../test/tenancy.js';
 import { type Scope, withScope } from './scope.js';
 
-// Task 4: account scope for the registries (§1.1, D123), the recovery-kit gate for writers
-// (D193, Q24), registry history at account level (Q15), and the currency switch (D168).
+// Account scope for the registries (D123), the recovery-kit gate for writers
+// (D193), registry history at account level, and the currency switch (D168).
 
 const db = await testDb();
 const app = db.pools.app;

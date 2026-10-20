@@ -1,4 +1,4 @@
-# Kept for self-hosters (task 29; D186, D193; engineering spec §7.11).
+# Kept for self-hosters (D186, D193).
 #
 #   cp compose.env.example .env      # then fill in the passwords and KEPT_PUBLIC_URL
 #   docker compose up -d             # Kept on http://<host>:8080
@@ -25,11 +25,11 @@ x-kept-image: &kept-image
   security_opt: [no-new-privileges:true]
 
 # What both the serving process and `migrate` read: the keys, the downgrade switch and the backup
-# settings. Backups (step 8; D64, D66) are restic, to a directory, an S3 bucket or SFTP. Every
+# settings. Backups (D64, D66) are restic, to a directory, an S3 bucket or SFTP. Every
 # backup variable set in .env locks its field in Admin → Backups; empty ones leave it to the
 # screen. The serving process runs the nightly backup, as the database owner, so it also needs
 # KEPT_OWNER_DATABASE_URL from a compose.override.yaml (the docs' Backups page); `migrate` takes
-# the snapshot before an upgrade (plan Q8).
+# the snapshot before an upgrade.
 # A directory target is a path inside the container: bind-mount the host directory on both
 # services (the commented `/backups` lines), owned by uid 10001. SFTP's key and known-hosts files
 # are mounted the same way, read-only. compose.env.example explains each variable.
@@ -54,7 +54,7 @@ x-ops-env: &ops-env
   # unset, they are read from the kept-config volume's secrets.json (D193).
   KEPT_SECRET_KEY: ${KEPT_SECRET_KEY:-}
   KEPT_AUTH_SECRET: ${KEPT_AUTH_SECRET:-}
-  # One-version rollback (plan Q9): `1` lets an older image start on a newer database anyway,
+  # One-version rollback: `1` lets an older image start on a newer database anyway,
   # audited. Only for a restore runbook.
   KEPT_ALLOW_DOWNGRADE: ${KEPT_ALLOW_DOWNGRADE:-}
 
@@ -91,11 +91,11 @@ services:
     entrypoint: ["kept"]
     command: ["migrate"]
     restart: "no"
-    # Only the owner login (engineering spec §7.12): the serving process never holds it. The
+    # Only the owner login: the serving process never holds it. The
     # public URL and mail settings are for `migrate admin <command>`, whose notices are mailed
     # to the people they concern (D180). The keys (the config volume, read-only, or the two
     # variables) and the backup settings are for the snapshot `kept migrate` takes before it
-    # migrates a populated database (plan Q8): with a backup target it snapshots the database
+    # migrates a populated database: with a backup target it snapshots the database
     # first and migrates nothing if that fails; without one it says so loudly and goes on.
     # KEPT_UPGRADE_SNAPSHOT=off skips it.
     environment:
@@ -137,7 +137,7 @@ services:
       KEPT_LOG_FORMAT: ${KEPT_LOG_FORMAT:-json}
       KEPT_SETUP_CODE: ${KEPT_SETUP_CODE:-}
       KEPT_SIGNUP_OPEN: ${KEPT_SIGNUP_OPEN:-}
-      # Files (step 2): empty values fall back to the defaults (§7.11).
+      # Files: empty values fall back to the defaults.
       KEPT_MAX_FILE_MB: ${KEPT_MAX_FILE_MB:-}
       KEPT_IMAGE_CONCURRENCY: ${KEPT_IMAGE_CONCURRENCY:-}
       KEPT_STORAGE: ${KEPT_STORAGE:-local}
@@ -148,15 +148,15 @@ services:
       KEPT_S3_ACCESS_KEY_ID: ${KEPT_S3_ACCESS_KEY_ID:-}
       KEPT_S3_SECRET_ACCESS_KEY: ${KEPT_S3_SECRET_ACCESS_KEY:-}
       KEPT_S3_FORCE_PATH_STYLE: ${KEPT_S3_FORCE_PATH_STYLE:-}
-      # Barcode lookup (step 3, D104, D126): off unless the admin turns it on or this locks it.
+      # Barcode lookup (D104, D126): off unless the admin turns it on or this locks it.
       KEPT_BARCODE_LOOKUP: ${KEPT_BARCODE_LOOKUP:-}
       KEPT_BARCODE_CONTACT: ${KEPT_BARCODE_CONTACT:-}
-      # Web push (step 4): both keys or neither; unset, a pair is generated at first run.
+      # Web push: both keys or neither; unset, a pair is generated at first run.
       KEPT_VAPID_PUBLIC_KEY: ${KEPT_VAPID_PUBLIC_KEY:-}
       KEPT_VAPID_PRIVATE_KEY: ${KEPT_VAPID_PRIVATE_KEY:-}
       KEPT_VAPID_SUBJECT: ${KEPT_VAPID_SUBJECT:-}
-      # Semantic search (step 6, D207), generic OIDC sign-in (step 6, D127) and Google sign-in
-      # (1.2, D226): empty values fall back to the defaults (§7.11).
+      # Semantic search (D207), generic OIDC sign-in (D127) and Google sign-in
+      # (1.2, D226): empty values fall back to the defaults.
       KEPT_EMBEDDINGS: ${KEPT_EMBEDDINGS:-}
       KEPT_OIDC_ISSUER: ${KEPT_OIDC_ISSUER:-}
       KEPT_OIDC_CLIENT_ID: ${KEPT_OIDC_CLIENT_ID:-}

@@ -9,9 +9,9 @@ import { ListQuery } from '../things/validate.js';
 import { CSV_PER_HOUR, thingsCsv } from './things-csv.js';
 
 // GET /api/v1/things.csv?<every GET /things parameter but limit and cursor>
-//   → text/csv; charset=utf-8, BOM first (D169; step-7 plan T16). The list's rows in the list's
+//   → text/csv; charset=utf-8, BOM first (D169). The list's rows in the list's
 //   order, at most 100,000; money columns only where the caller's gate shows money. Five an hour
-//   per person (§3.5; 429 with retryAfter), audited `things.export_csv` with the filter and the
+//   per person (429 with retryAfter), audited `things.export_csv` with the filter and the
 //   row count: one event per location the file drew from, or one on the caller's own account
 //   when it is empty (none for a managed member without one). Registered from things/routes.ts.
 

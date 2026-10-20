@@ -1,5 +1,5 @@
 /**
- * Estimated due dates on a vehicle's schedules (plan T18, T7; D52, D188): the meter series'
+ * Estimated due dates on a vehicle's schedules (D52, D188): the meter series'
  * thresholds carry each unit schedule's `estimatedOn` (`kept.meter_eta`), so the Overview and the
  * Schedules tab show "estimated ~14 Nov" without a second implementation of the estimate. A meter
  * whose latest reading is 60 days old or more (`unknown`) gives no estimated dates.

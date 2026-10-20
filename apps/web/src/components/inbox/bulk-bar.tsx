@@ -1,5 +1,5 @@
 /**
- * The bulk bar (D36, screens §5): for the drafts selected with `x` or their checkboxes, accept
+ * The bulk bar (D36): for the drafts selected with `x` or their checkboxes, accept
  * their names (`shift+a`), set a type, a place or tags, or discard them. Each is one request and
  * one undoable bulk event (D150): the toast's Undo reverts the whole selection.
  *

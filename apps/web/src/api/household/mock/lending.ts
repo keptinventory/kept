@@ -1,8 +1,8 @@
 /**
- * Mock handlers for lending and borrowing (T10; D56, D57, D119, D172). Lending part of a quantity
+ * Mock handlers for lending and borrowing (D56, D57, D119, D172). Lending part of a quantity
  * splits the thing and the loan sits on the split-off row; returning it merges it back into the
- * row it came from when that row is live, in the same place and of the same type (Q14). A borrowed
- * thing belongs to the person, and returning it ends it as `returned_to_owner` (Q15). One open
+ * row it came from when that row is live, in the same place and of the same type. A borrowed
+ * thing belongs to the person, and returning it ends it as `returned_to_owner`. One open
  * loan per thing; nothing is lent while in repair. Kept never contacts the person (D57).
  */
 import { can } from '@kept/shared';
@@ -45,7 +45,7 @@ export function lendingRoutes(state: MockState): MockRoute[] {
   const inv = () => state.inventory;
   const me = () => state.me.user;
 
-  /** The person a loan is with: an existing row, a new one by name, or a member (D57, Q16). */
+  /** The person a loan is with: an existing row, a new one by name, or a member (D57). */
   const personFor = (locationId: string, input: LoanPersonInput): string | null => {
     const accountId = locOf(state, locationId)?.ownerAccountId ?? '';
     if ('id' in input)
@@ -368,7 +368,7 @@ export function lendingRoutes(state: MockState): MockRoute[] {
       return reply(204);
     }),
 
-    // The Lending screen: global, overdue first, with a location filter (screens §1).
+    // The Lending screen: global, overdue first, with a location filter.
     route('GET', p.loans, ({ query }) => {
       ensureSeeded(state);
       const allowed = listLocations(state, 'lending');

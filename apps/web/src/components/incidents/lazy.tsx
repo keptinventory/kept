@@ -1,7 +1,7 @@
 /**
- * Plan T26's screens, loaded on demand from ./screens.household.tsx (its own chunk, cached by the
+ * The incident screens, loaded on demand from ./screens.household.tsx (its own chunk, cached by the
  * service worker on first use, never precached; vite.config.ts). While it loads, a skeleton in the
- * page's frame; when it can't load (offline before it was ever fetched), the §3 reason: "Needs a
+ * page's frame; when it can't load (offline before it was ever fetched), the reason: "Needs a
  * connection".
  *
  *   <Screens.Incidents />   <Screens.Report kind="insurance" search={…} />

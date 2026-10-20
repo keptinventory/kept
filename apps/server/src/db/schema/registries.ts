@@ -19,7 +19,7 @@ import { user } from './auth.js';
 import { id, mutable, textEnum, tstz } from './common.js';
 import { ownerAccounts } from './tenancy.js';
 
-// Account registries (engineering spec §1.3, §7.9, §7.13; D11, D76, D92, D123, D154, D160,
+// Account registries (D11, D76, D92, D123, D154, D160,
 // D177, D192). Each row belongs to an owner account, or (types, type fields, place kinds) to
 // nobody: a built-in, seeded by `kept migrate` (src/db/seed-reference.ts). Row-level security,
 // guards, the normalised-name uniques and the trigram indexes are in the custom migration that
@@ -52,7 +52,7 @@ export const placeKinds = pgTable(
     check('place_kinds_key_chk', sql`key ~ ${KEY}`),
     check('place_kinds_icon_chk', sql`icon ~ ${ICON}`),
     check('place_kinds_name_chk', sql`name IS NULL OR char_length(name) BETWEEN 1 AND 80`),
-    // An account's own kind is named; its customised copy of a built-in (same key, T11) may
+    // An account's own kind is named; its customised copy of a built-in (same key) may
     // stay unnamed, so it still translates.
     check(
       'place_kinds_named_chk',
@@ -64,7 +64,7 @@ export const placeKinds = pgTable(
 /**
  * The type tree (D92, D154, D192). A built-in has `builtin_key` and no owner; a custom type has
  * an owner and a name, or is a customised copy of a built-in (`copied_from_id`, name NULL until
- * renamed). A field group (Q4) is a type with `is_field_group`, referenced from other types'
+ * renamed). A field group is a type with `is_field_group`, referenced from other types'
  * `field_groups`; it has no parent and is nobody's parent. `default_meter` is `{kind, unit}`,
  * JSON `null` to cancel an inherited one, or SQL NULL to inherit.
  */
@@ -79,7 +79,7 @@ export const types = pgTable(
     copiedFromId: uuid('copied_from_id'),
     parentId: uuid('parent_id'),
     name: text('name'),
-    /** Built-ins: their English and Arabic names, so search finds them (§7.9). */
+    /** Built-ins: their English and Arabic names, so search finds them. */
     searchNames: text('search_names'),
     icon: text('icon').notNull(),
     colour: text('colour'),
@@ -135,11 +135,11 @@ export const types = pgTable(
 const fieldKind = textEnum('kind', FIELD_KINDS);
 
 /**
- * Fields of a type or a place kind (§7.13, D92, D116, D160). `owner_account_id` is the owner of
+ * Fields of a type or a place kind (D92, D116, D160). `owner_account_id` is the owner of
  * the type or kind (NULL for a built-in's), which the composite foreign keys hold to when set,
  * and kept.guard_type_field() when not (MATCH SIMPLE skips a NULL owner). A key is defined once
  * along a type's whole chain and its groups (kept.check_type_keys()). "Secret" is a flag on a
- * text field (Q3), set at creation only.
+ * text field, set at creation only.
  */
 export const typeFields = pgTable(
   'type_fields',
@@ -226,7 +226,7 @@ export const brands = pgTable(
 const bytea = customType<{ data: Buffer }>({ dataType: () => 'bytea' });
 
 /**
- * A brand's logo (§1.3; D157, D172: uploads only; step-4 T9, Q33), one per brand, kept by its
+ * A brand's logo (D157, D172: uploads only), one per brand, kept by its
  * account: a brand is the account's, not a location's, so a `files` row (location-owned, readable
  * only through an attachment, D177) can't hold it. It is the PNG Kept rendered (at most 256 px a
  * side), never the upload: an SVG's bytes are not kept, so none is ever served back. Read by

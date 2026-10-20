@@ -1,6 +1,6 @@
 /**
- * The `extract` tenant job (plan T10; D19, D94, D121, D166, D206; engineering spec §7.8, §7.15;
- * Q4, Q12, Q13). One per capture (a receipt's per purchase, Q13), sent by the capture service in
+ * The `extract` tenant job (D19, D94, D121, D166, D206).
+ * One per capture (a receipt's per purchase), sent by the capture service in
  * its own transaction with `{extractionId}` only, and run in the capturing person's scope: the
  * handler re-reads everything under row-level security (the rule in jobs/boss.ts), so a job
  * naming someone else's extraction finds nothing and ends.
@@ -13,7 +13,7 @@
  *    with no provider resolving: `waiting_provider` / `no_provider` until one is connected. Then
  *    `running`, committed **before any AI work** (D166).
  * 2. **Parts** (image.ts, no transaction): GPS-free images, or a PDF receipt's text. A draft
- *    service record's invoice (step 5, Q12) is a RECEIPT read with the service-invoice prompt
+ *    service record's invoice is a RECEIPT read with the service-invoice prompt
  *    and schema (each line's kind), from the record's `invoice` pages; apply.ts only suggests.
  * 3. **The call** (`extract()`, T8): the mode's prompt and wire schema, the ledger task
  *    `extract_<mode>`, the prompt version, the job id as the request id and the retry as the
@@ -21,16 +21,16 @@
  *    the ledger row are callModel's (ai/call.ts), each door in its own short transaction.
  * 4. **The outcome**, in one transaction:
  *    - ok → checks.ts, apply.ts, duplicates.ts, and `succeeded` with `result`, `applied` and
- *      `llm_call_id`; a receipt's paper crop (Q11) after it commits.
+ *      `llm_call_id`; a receipt's paper crop after it commits.
  *    - a cap → `paused_budget` until the cap's date, with the cap's reason, and the job is sent
- *      again for that time. A manual pause (`infinity`) waits for Resume, which re-sends it (T9).
+ *      again for that time. A manual pause (`infinity`) waits for Resume, which re-sends it.
  *    - the provider → `waiting_provider` (never shown as paused, D206) until its reset,
  *      retry-after or breaker time, and sent again then. A rejected key waits for a new one.
  *    - Neither pause spends an attempt: the re-sent job starts its own retries.
  *    - a retryable failure → `queued` and a throw, so pg-boss retries (JOB_POLICIES.extract);
  *      after the last retry, `failed`.
  *    - a final failure → `failed` with the outcome as the reason (`truncated`, `schema_invalid`,
- *      `refused`…): the inbox shows "Couldn't read this photo" with Retry (§5).
+ *      `refused`…): the inbox shows "Couldn't read this photo" with Retry.
  */
 import { mkdtemp, rm } from 'node:fs/promises';
 import path from 'node:path';
@@ -75,9 +75,9 @@ export type ExtractionJobDeps = {
   /** Sends `extract` again for `startAfter`, on the given scoped transaction (a pause). */
   sendLater: (client: pg.ClientBase, extractionId: string, startAfter: Date) => Promise<void>;
   log: { info: (obj: object, msg: string) => void; error: (obj: object, msg: string) => void };
-  /** Re-crop a receipt's display to the paper the model outlined (Q11). Off in the worker: a
+  /** Re-crop a receipt's display to the paper the model outlined. Off in the worker: a
    * real run (Groq, 2026-09-29) outlined [0, 0, 0.7, 0.6] for a receipt filling the photo, which
-   * would crop the display wrongly. On once the evaluation set (T11) shows bboxes are right. */
+   * would crop the display wrongly. On once the evaluation set shows bboxes are right. */
   cropToPaper?: boolean;
 };
 
@@ -150,8 +150,8 @@ export async function languagesOf(client: pg.ClientBase, locationId: string): Pr
   return [me[0]?.locale ? base(me[0].locale) : 'en'];
 }
 
-/** The attachments to send: the extraction's own, or its receipt's pages, that one first (Q13);
- * a service invoice's pages likewise (step 5, Q12). */
+/** The attachments to send: the extraction's own, or its receipt's pages, that one first;
+ * a service invoice's pages likewise. */
 async function sourcesOf(client: pg.ClientBase, ex: ExtractionRow): Promise<SourceFile[]> {
   if (ex.mode === 'receipt' && ex.service_record_id !== null) {
     const { rows } = await client.query<{
@@ -230,7 +230,7 @@ async function setStatus(client: pg.ClientBase, id: string, u: StatusUpdate): Pr
   return (rowCount ?? 0) > 0;
 }
 
-/** Step 1: the extraction, if it should run now, marked `running` and committed. */
+/** The extraction, if it should run now, marked `running` and committed. */
 async function claim(
   deps: ExtractionJobDeps,
   scope: Scope,
@@ -367,7 +367,7 @@ async function readBlob(files: FileStorage, key: string): Promise<Buffer> {
 }
 
 /**
- * Q11: the display and thumb made again from the original, upright and cropped to the paper
+ * The display and thumb made again from the original, upright and cropped to the paper
  * (the original itself stays byte-identical, D196). Best effort: the extraction has succeeded
  * whatever happens here.
  */
@@ -445,7 +445,7 @@ export async function runExtraction(
   const { ex } = claimed;
   const ai = deps.ai as AiDeps;
   const mode: CaptureMode = ex.mode;
-  // Step 5 (Q12): a draft service record's invoice, read on the RECEIPT path.
+  // A draft service record's invoice, read on the RECEIPT path.
   const invoice = mode === 'receipt' && ex.service_record_id !== null;
 
   let result: CallResult<Extracted<CaptureMode>> | { status: 'no_provider' };
@@ -460,7 +460,7 @@ export async function runExtraction(
       textOf: async (fileId) => claimed.texts.get(fileId) ?? null,
     });
     if (parts.images.length === 0 && parts.documentText === undefined) {
-      // Nothing to send. A PDF whose text isn't read yet (T21) may have it on a retry.
+      // Nothing to send. A PDF whose text isn't read yet may have it on a retry.
       const pdfWaiting = claimed.files.some((f) => f.mime === 'application/pdf');
       return await fail(
         deps,
@@ -519,7 +519,7 @@ export async function runExtraction(
       return waitingForProvider();
     case 'paused': {
       const status = result.kind === 'cap' ? 'paused_budget' : 'waiting_provider';
-      // A manual pause or a rejected key has no end: Resume (T9) or a new key re-sends it.
+      // A manual pause or a rejected key has no end: Resume or a new key re-sends it.
       const endless = result.until.getTime() >= FOREVER.getTime();
       const paused = result;
       await withScope(deps.pools.app, scope, async (_tx, client) => {
@@ -640,7 +640,7 @@ export function extractionJobs(deps: SystemJobDeps): JobDefinition[] {
         const app = deps.pools.app;
         if (!app) throw new Error('extract job: the worker has no kept_app pool');
         // runJob() holds this scoped transaction open, unused, while each step commits on its
-        // own connection; the model call may take up to 80 s (§3.5).
+        // own connection; the model call may take up to 80 s.
         await client.query(`SET LOCAL idle_in_transaction_session_timeout = '180s'`);
         const send = deps.sendTenant;
         const outcome = await runExtraction(

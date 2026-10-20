@@ -1,5 +1,5 @@
 /**
- * `callModel`, the one door every model call goes through (L41–L47, D121, D167, D206; plan T8).
+ * `callModel`, the one door every model call goes through (L41–L47, D121, D167, D206).
  * No other file calls `generateText` (no-direct-calls.test.ts).
  *
  * 1. Images are checked: JPEG, PNG or WebP with **no EXIF** (D202: only the EXIF-stripped
@@ -8,28 +8,28 @@
  * 2. The Pacer admits it: the breaker (a trip holds the call, with a `sent = false` row when it
  *    pauses work), the provider's own token window (sleep ≤ 10 s in place, else hold), and the
  *    key's concurrency (1 for Groq).
- * 3. The BudgetGate reserves the estimate against every bucket (§7.15). A cap, day budget or
+ * 3. The BudgetGate reserves the estimate against every bucket. A cap, day budget or
  *    manual pause refuses with one `sent = false` `over_budget` row; `tpm` and `concurrency`
  *    are short waits with no row.
  * 4. With no transaction open, `generateText` with `maxRetries: 0`, `maxOutputTokens` (the JSON
- *    allowance plus the reasoning allowance, Q6), the provider's reasoning setting and an 80 s
+ *    allowance plus the reasoning allowance), the provider's reasoning setting and an 80 s
  *    timeout. Structured output is the wire JSON Schema, unvalidated; the caller's `parse`
- *    (parseLenient, L52) decides what survives.
- * 5. The result maps to a D206 outcome; a `length` finish is `truncated`, never retried (L42).
+ *    (parseLenient) decides what survives.
+ * 5. The result maps to a D206 outcome; a `length` finish is `truncated`, never retried.
  * 6. The cost (cost.ts), the ledger row (never a prompt, image, reply, provider message or key),
  *    the settlement and its 80%/100% crossings. Every reserved call settles and every lease is
  *    released, whatever happens (`finally`).
  *
- * Step 6 (plan T8) adds, on the same path:
+ * Step 6 adds, on the same path:
  * - **tool calling with a conversation**: the thread's messages (convert.ts) and tool specs in,
  *   the model's tool calls out, **exactly one provider request per call**: a one-step stop
  *   condition always, no `execute` on any tool, never `toolApproval`, `repairToolCall`,
  *   `prepareStep` or tool callers. Kept runs the loop (assistant/loop.ts), so every step is one
  *   reservation, one settlement and one ledger row. A call the SDK flags invalid (an unknown tool,
- *   input its schema refuses; spike S6.3 finding 3: flagged, never thrown) is `schema_invalid` /
+ *   input its schema refuses: flagged, never thrown) is `schema_invalid` /
  *   `tool_input`, with the calls returned so the loop can answer them.
  * - **`embedValues`**: one embeddings request (`embedMany` with `maxParallelCalls: 1` and at most
- *   the model's own per-call limit, spike S6.4 finding 4), reserved, paced, settled and ledgered
+ *   the model's own per-call limit), reserved, paced, settled and ledgered
  *   the same way. Vectors and inputs never reach the ledger or a log.
  */
 import type { BudgetTask, LedgerOutcome, LedgerTask, ProviderKind } from '@kept/shared';
@@ -87,7 +87,7 @@ import {
   modelFor,
 } from './providers.js';
 
-// The SDK prints warnings to the console by default (spike); Kept's logs are pino only.
+// The SDK prints warnings to the console by default; Kept's logs are pino only.
 (globalThis as { AI_SDK_LOG_WARNINGS?: unknown }).AI_SDK_LOG_WARNINGS = false;
 
 export type PriceLookup = (
@@ -120,15 +120,15 @@ export type AiRuntime = {
   modelFactory?: (r: Resolved) => ModelObject;
   /** Builds the embeddings model instead of the provider packages or the mock (tests). */
   embeddingModelFactory?: (r: Resolved) => EmbeddingModelObject;
-  /** 80 s (§3.5); tests shorten it. */
+  /** 80 s; tests shorten it. */
   callTimeoutMs?: number;
-  /** For each cap crossed at settle, enqueue `ai.cap_notice` (T9). */
+  /** For each cap crossed at settle, enqueue `ai.cap_notice`. */
   onCrossed?: (crossed: Crossed) => Promise<void>;
 };
 
 export const CALL_TIMEOUT_MS = 80_000;
 const MAX_INLINE_SLEEPS = 3;
-/** Holds for the provider's window shorter than this are waits, not ledger rows (§3.5). */
+/** Holds for the provider's window shorter than this are waits, not ledger rows. */
 const HOLD_ROW_AFTER_MS = 60_000;
 
 export type ImageInput = {
@@ -153,12 +153,12 @@ export type CallRequest<T> = {
   output: { name: string; schema: JSONSchema7; parse: (raw: unknown) => T | null } | null;
   maxOutputTokens: number;
   /**
-   * Step 6 (T8): the thread so far (convert.ts pairs every tool call with one result). `text` is
+   * The thread so far (convert.ts pairs every tool call with one result). `text` is
    * then the new user message, or '' when the conversation already ends with what the model must
    * answer (a tool result).
    */
   conversation?: { messages: KeptMessage[] };
-  /** Step 6 (T8): the tools offered for this one step; never a function to run. A tool-calling
+  /** The tools offered for this one step; never a function to run. A tool-calling
    * request passes `output: null`: `value` is the text answer ('' for a step of tool calls). */
   tools?: { defs: ToolSpec[]; choice: 'auto' | 'none' };
   /** What a call like this usually produces, for the provider's window (estimate.ts). */
@@ -216,7 +216,7 @@ export type CallResult<T> =
       retryable: boolean;
       callId: string;
       /** `tool_input` only: every call of the step, the invalid ones flagged, so the loop can run
-       * the valid ones and tell the model about the rest (T13). */
+       * the valid ones and tell the model about the rest. */
       toolCalls?: ToolCallOut[];
       reasoning?: string | null;
     };
@@ -249,7 +249,7 @@ function embeddingModel(rt: AiRuntime, r: Resolved): EmbeddingModelObject {
 }
 
 /** The SDK's tools for these specs: a description and a validating JSON Schema each, **never** an
- * `execute` (one request per call; spike S6.3 finding 1). The only place Kept builds SDK tools. */
+ * `execute` (one request per call). The only place Kept builds SDK tools. */
 export function toToolSet(defs: readonly ToolSpec[]): ToolSet {
   const set: ToolSet = {};
   for (const d of defs) {
@@ -278,7 +278,7 @@ type ProviderPaused = {
 };
 
 /**
- * The pacer's admission (step 2): sleeps up to `MAX_INLINE_SLEEPS` times in place, else holds. A
+ * The pacer's admission: sleeps up to `MAX_INLINE_SLEEPS` times in place, else holds. A
  * hold that is more than a short wait (a breaker trip, or the provider's window held for a minute
  * or more) records a `sent = false` row through `heldRow`.
  */
@@ -684,7 +684,7 @@ export async function callModel<T>(rt: AiRuntime, req: CallRequest<T>): Promise<
 }
 
 // ---------------------------------------------------------------------------------------------
-// The embedding door (step-6 plan T8 step 6; D200, D206, D207; spike S6.4).
+// The embedding door (D200, D206, D207).
 
 export type EmbedRequest = {
   resolved: Resolved;
@@ -696,7 +696,7 @@ export type EmbedRequest = {
   /** At most EMBED_BATCH_MAX values and the model's own per-request limit: one request. Never a
    * secret or a money figure (D116, D200): the caller builds them (embeddings/text.ts). */
   values: string[];
-  /** Shorter vectors where the provider allows it (spike S6.4 finding 2). */
+  /** Shorter vectors where the provider allows it. */
   dimensions?: number;
   requestId: string;
   attempt: number;
@@ -707,8 +707,8 @@ export type EmbedResult =
   | {
       status: 'ok';
       vectors: number[][];
-      /** Input tokens as the provider reported them; null when it reported none (Google,
-       * spike S6.4 finding 5), and the budgets were then settled on the estimate. */
+      /** Input tokens as the provider reported them; null when it reported none (Google),
+       * and the budgets were then settled on the estimate. */
       usage: { tokens: number | null };
       cost: Cost;
       callId: string;

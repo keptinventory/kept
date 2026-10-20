@@ -14,7 +14,7 @@ import {
 } from './managed.js';
 import { FREE_FAILURES } from './sign-in-limiter.js';
 
-// Spike S3 (V14): managed accounts: a synthetic `.invalid` email, username sign-in, no magic
+// Managed accounts: a synthetic `.invalid` email, username sign-in, no magic
 // link, and an admin-issued one-time reset code (D47, D93, D164).
 
 const PASSWORD = 'first password 1';

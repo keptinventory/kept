@@ -1,5 +1,5 @@
 /**
- * Search (screens §5 Search, frames 04 · 1 and 04 · 10; D42, D74, D195): one box over every
+ * Search (frames 04 · 1 and 04 · 10; D42, D74, D195): one box over every
  * location you belong to, in English or Arabic, with filters, recent searches and saved views.
  * Everything is URL state (`?q=`, `f.<filter>` and `not`), so any search can be linked and Back
  * restores it. The box and the filters are the filter strip (D205): location, place, type, tag,

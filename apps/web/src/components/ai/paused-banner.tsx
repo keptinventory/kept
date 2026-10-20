@@ -1,10 +1,10 @@
 /**
- * The paused banner (D206, screens §5 "AI paused and waiting"): "AI paused until 1 Oct · Home's
+ * The paused banner (D206): "AI paused until 1 Oct · Home's
  * monthly cap reached", wherever AI would act. Captures still save and their naming waits.
  * Whoever may resume gets a way there; everyone else is told whom to ask. Waiting for the
  * provider (its rate limit) is not a pause and never shows a banner: progress lines say it.
  *
- * Used on the inbox (T27), Capture (T25: under the place chip, with the note "Photos still save;
+ * Used on the inbox, Capture (under the place chip, with the note "Photos still save;
  * naming waits"), AI settings and usage. "Resume now" opens ResumeSheet for whoever set the cap
  * (`canResume`); a manager who can't resume gets a link to AI settings; others read "Ask
  * <manager> to resume" (`status.manager`).
@@ -34,7 +34,7 @@ export function useClock(): (iso: string) => string {
 export function usePauseReason(): (status: AiStatus) => string {
   const { t } = useLingui();
   return (s) => {
-    // The instance's own caps carry no label (T9): they are this server's.
+    // The instance's own caps carry no label: they are this server's.
     const who =
       s.pausedBy?.label ||
       (s.pausedBy?.scope === 'instance' || s.pausedBy?.scope === 'instance_account'

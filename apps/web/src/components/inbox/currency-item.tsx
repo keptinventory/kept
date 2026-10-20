@@ -1,5 +1,5 @@
 /**
- * Needs a currency (screens §8, D189): "$" alone can mean US or Canadian dollars, so the receipt
+ * Needs a currency (D189): "$" alone can mean US or Canadian dollars, so the receipt
  * waits with **no preselection**, even in a USD or CAD location. One button per option; the
  * person's press is the answer.
  */

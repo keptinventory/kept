@@ -1,9 +1,9 @@
 /**
- * The alias-enrichment call (D41, D69, D214; step-7 plan T15; spike E1): the prompt, its wire
+ * The alias-enrichment call (D41, D69, D214): the prompt, its wire
  * schema, the batch size and the
  * checks on what comes back. Pure: no database.
  *
- * - **Numbered names in, answers by index out** (L51): the model never sees or returns an id. A
+ * - **Numbered names in, answers by index out**: the model never sees or returns an id. A
  *   thing is sent as its name and, when it has one, its type's name; nothing else.
  * - **Two aliases per Latin-script language, one per other script** (E1's option b, D214): the
  *   first Arabic alias was usually a real word, the second often not.
@@ -14,7 +14,7 @@
  *   allowance on top (extract.ts `allowanceLevel`).
  * - **Batches of 20** at two languages (E1: 680–731 output tokens for 20 names); fewer with more
  *   languages, so a batch's expected output stays inside the 900.
- * - **What comes back is checked by code** (L57), before checks.ts `cleanAliases` and D214's
+ * - **What comes back is checked by code**, before checks.ts `cleanAliases` and D214's
  *   `scriptAliases`: an alias equal to the name, over four words, holding a URL, an e-mail, a
  *   UUID-like id, or only digits is dropped; an answer for an index outside the batch, or a
  *   second one for an index, is dropped.

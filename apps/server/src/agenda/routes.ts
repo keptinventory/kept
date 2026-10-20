@@ -6,13 +6,13 @@ import { scopedRead } from '../http/write.js';
 import { AgendaQuery, listAgenda } from './query.js';
 import { AgendaCountsSchema, AgendaItemSchema } from './view.js';
 
-// The agenda (plan T13; Q7, Q24): every reminder source as one list. The web contract is
-// apps/web/src/api/household/{types,paths}.ts, "the agenda (T13)"; query.ts says how it's read.
+// The agenda: every reminder source as one list. The web contract is
+// apps/web/src/api/household/{types,paths}.ts, "the agenda"; query.ts says how it's read.
 //
 // GET /api/v1/agenda?state&sourceType&locationId&from&to&cursor&limit
 //   → {items: AgendaItem[], counts: {overdue, due, expiring}, next_cursor}
 //
-// Global (screens §1): every visible location, narrowed by `locationId`; the view leaves out the
+// Global: every visible location, narrowed by `locationId`; the view leaves out the
 // sources whose module is off, so the route declares no module. The Expiring screen reads
 // `sourceType=warranty,registration,document,thing_expiry`.
 

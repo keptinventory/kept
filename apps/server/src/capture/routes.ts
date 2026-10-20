@@ -17,8 +17,8 @@ import { listBatches } from './batches.js';
 import { setDisplay } from './display.js';
 import { CaptureBody, capture } from './service.js';
 
-// The online capture path (plan T13; D17, D18, D19, D34, D36, D150; engineering spec §7.7, §7.8).
-// The web contract is apps/web/src/api/capture/{paths,types}.ts, "capture (T13)".
+// The online capture path (D17, D18, D19, D34, D36, D150).
+// The web contract is apps/web/src/api/capture/{paths,types}.ts, "capture".
 //
 // POST /api/v1/captures (Idempotency-Key)            → 201 {thing?, purchaseId?, extraction?,
 //                                                      inboxItemId?, undo?}
@@ -28,7 +28,7 @@ import { CaptureBody, capture } from './service.js';
 // GET  /api/v1/captures/batches?locationId&mine&cursor&limit
 //                                                    → {items: CaptureBatch[], next_cursor}
 //
-// An undoable write answers `X-Kept-Audit-Event` (http/write.ts, §7.7): a new thing's capture and
+// An undoable write answers `X-Kept-Audit-Event` (http/write.ts): a new thing's capture and
 // a batch undo that trashed something.
 
 const Id = z.uuid();

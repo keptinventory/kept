@@ -1,4 +1,4 @@
--- Step 2, task 32: the inventory report (D201; engineering spec §7.1, §7.2, §7.13). Above,
+-- The inventory report (D201). Above,
 -- drizzle's part: report_runs (src/db/schema/reports.ts). Below:
 --   1. Row-level security: a run is its requester's alone, and only while they can still see what
 --      it covers: the location of a location report, the account of an account report. It is

@@ -1,5 +1,5 @@
 /**
- * Which account Account settings edits (Q21): yours, or the account of a home you are an admin
+ * Which account Account settings edits: yours, or the account of a home you are an admin
  * in. The choice is `?account=` in the URL, so every tab and every link keeps it. With one
  * account there is nothing to switch, and the line just says whose registries these are.
  */

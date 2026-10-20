@@ -1,5 +1,5 @@
 /**
- * The list's Display button (D211, screens §5 "The filter strip"): a list's view options (its
+ * The list's Display button (D211): a list's view options (its
  * sort, the sort's direction, its grouping, and its layout where it has one) behind one compact
  * button at the end of the filter strip's row, never a row of their own.
  *
@@ -40,7 +40,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * What a sort orders by: words (A to Z), dates that happened (newest first), or dates still to
- * come (`due`: soonest first; a schedule's or a loan's due date, step 4).
+ * come (`due`: soonest first; a schedule's or a loan's due date).
  */
 export type SortKind = 'text' | 'date' | 'due';
 

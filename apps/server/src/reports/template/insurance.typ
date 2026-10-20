@@ -1,5 +1,5 @@
-// Kept's insurance report (D158, D201; engineering spec §2.8), the second template on the D201
-// engine. From the step-4 spike, which rendered
+// Kept's insurance report (D158, D201), the second template on the D201
+// engine. A trial run rendered
 // 500 things in Arabic at 138 MB. Everything comes from /data.json (incidents/report.ts builds
 // it): strings, money and dates arrive formatted in the reader's language and digits, so no
 // formatting happens here. Photos are /thumbs/<id>.jpg. Data strings are only ever inserted as

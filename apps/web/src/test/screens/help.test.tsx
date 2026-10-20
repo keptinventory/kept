@@ -1,9 +1,9 @@
 /**
- * Help (plan T31; D138, D242): "Show me around" walks Home → Capture → Inbox → a location →
+ * Help (D138, D242): "Show me around" walks Home → Capture → Inbox → a location →
  * Search → Labels → More → Settings → Help, a keyboard can drive it (arrows by reading
  * direction, Escape), it is replayable, and where it stopped is remembered on the server
  * (`help.tour.<section>`) so Help resumes there; finishing or closing records `help.tour_seen`; the Get-started checklist comes back from here; install and share-into notes
- * per platform (iPhone has no share target, V9); the diagnostics link.
+ * per platform (iPhone has no share target); the diagnostics link.
  */
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';

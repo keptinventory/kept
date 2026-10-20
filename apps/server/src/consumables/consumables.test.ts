@@ -18,8 +18,8 @@ import { runScan } from '../reminders/scan.js';
 
 // Step-7 T17 through the front door, as the web calls it (apps/web/src/api/portability/
 // {types,paths}.ts, components/consumables/*): "keep at least N" on a consumable (D14), low below
-// the minimum (Q19), the low-stock list, Adjust (D183), Home's attention row, the module gate
-// (§7.6) and undo (D150).
+// the minimum, the low-stock list, Adjust (D183), Home's attention row, the module gate
+// and undo (D150).
 
 vi.setConfig({ testTimeout: 60_000, hookTimeout: 120_000 });
 

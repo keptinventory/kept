@@ -2,17 +2,17 @@ import { can, canonicalMoney, type Role } from '@kept/shared';
 import type { auditEvents } from '../db/schema/index.js';
 
 // renderAudit(): the one renderer every view of the audit goes through: thing history, the
-// activity feed, MCP `thing_history`, the undo list (engineering spec §7.5; D110). It applies
+// activity feed, MCP `thing_history`, the undo list (D110). It applies
 // the redaction rules to a stored event for one viewer:
 // - secret fields show only that they changed, whatever the stored diff holds;
 // - money fields show their values only to a viewer `can(role, 'money.view')` allows, and only
-//   while the Money module is on in the event's location (§7.6: serialisers strip gated fields
+//   while the Money module is on in the event's location (serialisers strip gated fields
 //   per row's location);
 // - D183: a thing's move from (or to) a location the viewer can't see renders with no diff at
 //   all, so neither the old household's ids nor its path reach the new one ("moved in from
 //   another location"); see crossingOf().
 // Later views add their own rules here, not in their own code. D177's contact details need none:
-// they are audited as `secret` (plan Q5), so they render as "changed" like any secret.
+// they are audited as `secret`, so they render as "changed" like any secret.
 //
 // Custom fields (T27 decision): a diff entry for `custom.<key>` (or `archived_custom.<key>`)
 // carries the field's `label` when the caller knows one, or its `labelKey` for a built-in field

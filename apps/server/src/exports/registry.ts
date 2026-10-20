@@ -1,6 +1,6 @@
 import { EXPORT_ENTITIES, type ExportEntity } from '@kept/shared';
 
-// The export registry (D69; step-7 plan T12, Q24): every entity a Kept export writes as
+// The export registry (D69): every entity a Kept export writes as
 // `data/<entity>.ndjson`, and every other location-scoped (or account-registry) table, left out
 // with a reason. registry.test.ts walks the catalogue and fails on a table in neither list, and
 // on a column of an exported table that is neither a field nor omitted with a reason, so a table
@@ -340,7 +340,7 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
   },
   {
     // Row-level security leaves out the people whose details the requester may not see (D177,
-    // Q22: kept.person_contact_visible()).
+    // kept.person_contact_visible()).
     entity: 'person-contacts',
     table: 'person_contacts',
     scope: 'account',

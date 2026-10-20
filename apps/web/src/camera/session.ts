@@ -1,7 +1,7 @@
 /**
- * The capture camera (D34; plan T25, Q20): the back camera, asked for 4K so the browser gives
+ * The capture camera (D34): the back camera, asked for 4K so the browser gives
  * the best it has, kept open for the whole session. Every reason it can't open has a name, so
- * the screen can say which ("Kept can't use the camera": screens §5, D31) and offer the file
+ * the screen can say which ("Kept can't use the camera", D31) and offer the file
  * picker instead, which always works.
  *
  * Needs HTTPS (or localhost): `navigator.mediaDevices` doesn't exist on a plain-HTTP page.

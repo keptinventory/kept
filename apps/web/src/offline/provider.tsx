@@ -1,5 +1,5 @@
 /**
- * The offline store and sync engine for the signed-in frame (plan T24). Mounted once around the
+ * The offline store and sync engine for the signed-in frame. Mounted once around the
  * app shell; opens the person's database through the lazy door (open.ts), so nothing of Dexie is
  * in the entry chunk, and starts the engine (app open is a sync trigger, D101).
  *

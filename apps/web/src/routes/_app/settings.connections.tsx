@@ -1,5 +1,5 @@
 /**
- * Settings → Connections (step-6 plan T21; D58, D63, D124, D179, screens §5): personal tokens and
+ * Settings → Connections (D58, D63, D124, D179): personal tokens and
  * connected apps (OAuth) on one list with a location filter, New token (shown once, with the
  * client configs), each location's webhooks for those who manage it, and recent changes by
  * connections with undo. Its chunk loads on demand from assets/household/ (vite.config.ts).
@@ -63,7 +63,7 @@ function ConnectionsPage() {
   );
 }
 
-/** Webhooks live in each location's settings; those you manage are listed here (screens §5). */
+/** Webhooks live in each location's settings; those you manage are listed here. */
 function WebhooksLinks() {
   const locations = useLocations();
   const nameOf = useLocationName();

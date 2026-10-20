@@ -28,8 +28,8 @@ import { requireRole } from '../things/service.js';
 import { moneyOff } from '../things/validate.js';
 import { moveStock } from './stock.js';
 
-// Service drafts from an invoice (step 5, T9; screens §5 "Log a service"; D19, D26, D29, D94,
-// D131; plan Q12). Step 4's POST /api/v1/service-records stays the one way a service is logged
+// Service drafts from an invoice (D19, D26, D29, D94,
+// D131). Step 4's POST /api/v1/service-records stays the one way a service is logged
 // in one go; attaching an invoice first makes a **draft**:
 //
 // - a `service_records` row with `review_state = 'draft'` on the thing or place, dated today in

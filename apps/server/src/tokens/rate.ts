@@ -3,7 +3,7 @@ import type { FastifyReply } from 'fastify';
 import type pg from 'pg';
 import { rateLimited } from '../auth/http.js';
 
-// The per-token limiter (engineering spec §3.2; plan Q19): reads 120 a minute and writes 30 a
+// The per-token limiter: reads 120 a minute and writes 30 a
 // minute per token, counted in Postgres by kept.token_rate_hit() so every replica shares the
 // window. The same limiter counts the public API's requests and MCP's tool calls (D63), a tool
 // call by its tool's scope.

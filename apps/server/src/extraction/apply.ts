@@ -1,6 +1,6 @@
 /**
- * What an extraction writes (plan T10; D18, D19, D36, D41, D150, D196; engineering spec §6.8,
- * §7.8; Q4, Q11, Q14). Runs in one scoped transaction as the capturing person (Q4), after the
+ * What an extraction writes (D18, D19, D36, D41, D150, D196).
+ * Runs in one scoped transaction as the capturing person, after the
  * code checks (checks.ts), with one audit event.
  *
  * THING, and LABEL on a thing:
@@ -18,14 +18,14 @@
  *   types.ts): `serial`, `quantity` above 1 and `alias_ar` (THING); `serial`, `vin`, `plate`,
  *   `expires_on` and `manufactured_on` (LABEL). Values are strings; dates `YYYY-MM-DD`.
  * - An inbox `draft` item is opened (or kept, with the suggestions in its payload) when the thing
- *   is a draft or suggestions wait (Q14).
+ *   is a draft or suggestions wait.
  * - A re-run replaces the draft's extracted fields: what a superseded attempt applied, and still
  *   holds, is put back first.
  *
  * RECEIPT: the draft purchase gets the date, the currency when the mark is unambiguous and
  * enabled, and (with a currency) the total, tax and lines as `purchase_lines`, whether or not the
- * money module is on (they are gated on the way out, not dropped). The vendor waits for review
- * (§7.8). The `receipt` item carries what was read; an ambiguous or unknown mark opens a
+ * money module is on (they are gated on the way out, not dropped). The vendor waits for review.
+ * The `receipt` item carries what was read; an ambiguous or unknown mark opens a
  * `currency` item with the options and no preselection (D189). A purchase a person has
  * confirmed meanwhile is left alone.
  *
@@ -69,7 +69,7 @@ export type ExtractionRow = {
   thing_id: string | null;
   purchase_id: string | null;
   meter_id: string | null;
-  /** Step 5 (Q12): a draft service record's invoice, read on the RECEIPT path. */
+  /** A draft service record's invoice, read on the RECEIPT path. */
   service_record_id: string | null;
   mode: CaptureMode;
   attempt: number;
@@ -89,7 +89,7 @@ export type Suggestion = {
 /** What `extractions.applied` records: each field written, with what it replaced. */
 export type Applied = {
   fields?: Record<string, { before: unknown; after: unknown }>;
-  /** THING: the default meter the type AI set brought (step 5). */
+  /** THING: the default meter the type AI set brought. */
   meterId?: string;
   /** RECEIPT: the purchase lines this attempt added. */
   lineIds?: string[];
@@ -102,9 +102,9 @@ export type ApplyResult = {
   suggestions: Suggestion[];
   /** Inbox items opened or updated. */
   inbox: string[];
-  /** RECEIPT: re-crop the display to the paper (Q11), after the transaction. */
+  /** RECEIPT: re-crop the display to the paper, after the transaction. */
   crop?: { fileId: string; bbox: [number, number, number, number] };
-  /** A service invoice (step 5): `total_mismatch`, `currency_unclear` (schedules/view.ts). */
+  /** A service invoice: `total_mismatch`, `currency_unclear` (schedules/view.ts). */
   flags?: string[];
 };
 
@@ -394,7 +394,7 @@ async function applyToThing(
     suggest('serial', f.serial, effective.serial);
     suggest('vin', f.vin, thing.custom?.vin);
     suggest('plate', f.plate, thing.custom?.plate);
-    // Step 5 (Q15, D52): a vehicle's registration, insurance, licence or inspection card is a
+    // Step 5 (D52): a vehicle's registration, insurance, licence or inspection card is a
     // document to keep, with its own expiry, not the car's `expires_on` (which stays for a fire
     // extinguisher, D141). Accepting it makes the expiring document (inbox/service.ts).
     const kind = f.documentKind?.value;
@@ -427,7 +427,7 @@ async function applyToThing(
       JSON.stringify(status),
     ]);
   }
-  // Step-3 carry-over: a type AI set brings its default meter (D113: a car starts with its
+  // A type AI set brings its default meter (D113: a car starts with its
   // odometer), as a new thing of that type does (things/service.ts), when the thing has none and
   // is a single thing (things_quantity_one). Its id is in `applied`, so undoing the extraction
   // removes it while it has no readings (undo/registry.ts).
@@ -454,7 +454,7 @@ async function applyToThing(
     undoableUntil: Object.keys(changes).length > 0 ? undoableUntil() : null,
   });
 
-  // Q14: a draft waits in the inbox; a named thing only when suggestions wait.
+  // A draft waits in the inbox; a named thing only when suggestions wait.
   if (thing.review_state === 'draft' || out.suggestions.length > 0) {
     out.inbox.push(
       await upsertInbox(client, {
@@ -470,7 +470,7 @@ async function applyToThing(
   return out;
 }
 
-/** The document kinds a vehicle's card suggests (Q15). */
+/** The document kinds a vehicle's card suggests. */
 const VEHICLE_DOCUMENT_KINDS = ['registration', 'insurance', 'licence', 'inspection'] as const;
 
 async function isVehicle(client: pg.ClientBase, typeId: string | null): Promise<boolean> {
@@ -694,7 +694,7 @@ async function applyReceipt(
       }),
     );
   }
-  // Q11: the paper's edges, for one photographed page the server re-encoded itself (a crop of
+  // The paper's edges, for one photographed page the server re-encoded itself (a crop of
   // the phone's display would crop again on every re-run).
   const [only] = sent.attachmentIds;
   if (f.documentBbox && sent.attachmentIds.length === 1 && only && !sent.fromDisplay[0]) {
@@ -708,7 +708,7 @@ async function applyReceipt(
 }
 
 // ---------------------------------------------------------------------------------------------
-// A service invoice (step 5, T10; Q12)
+// A service invoice
 // ---------------------------------------------------------------------------------------------
 
 /** A decimal string of a number read (4 places at most, no trailing zeros). */

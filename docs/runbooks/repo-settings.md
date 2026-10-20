@@ -36,7 +36,7 @@ with each setting below.
   commit messages (`COMMIT_MESSAGES`), which keeps each commit's `Signed-off-by`.
 - **Delete the branch on merge**, **allow auto-merge**, **always suggest updating the branch**.
 - **Sign-off required on web commits** (`web_commit_signoff_required`): an edit made in GitHub's
-  web editor gets the DCO sign-off the `dco` check asks for (plan D5).
+  web editor gets the DCO sign-off the `dco` check asks for.
 
 ### Features (`features`) — safe now
 
@@ -72,7 +72,7 @@ Sources: GitHub's docs, `reusables/gated-features` (`secret-scanning`, `dependab
 ### Actions (`actions`) — SHA pinning and the token now, the allowlist at the flip
 
 - **Full-SHA pinning required** (`sha_pinning_required`). Every `uses:` in the three workflows is
-  already pinned by commit SHA (spike W1); the script stops if one isn't.
+  already pinned by commit SHA; the script stops if one isn't.
 - **Default `GITHUB_TOKEN` read-only**, and Actions may not approve pull requests. Each workflow
   asks for more per job where it needs it (`docs.yml`'s deploy, `release.yml`).
 - **Allowed actions: GitHub-owned plus the third-party actions the workflows use**, read from the

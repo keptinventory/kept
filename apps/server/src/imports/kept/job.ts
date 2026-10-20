@@ -39,11 +39,11 @@ import { rowsOf, type Scan, scanArchive, totalOf } from './plan.js';
 import { openKeptArchive, readManifest } from './read.js';
 import { clearRunKey, readSecrets, sealedKeyOf, writeSecrets } from './secrets.js';
 
-// The `import-kept` job (D69; step-7 plan T14, Q8–Q11; engineering spec §3.1b: one attempt,
+// The `import-kept` job (D69; one attempt,
 // 2 hours, resumable). A tenant job: it runs as the person who pressed Import, under their
-// row-level security, and `data` only names the run (never a passphrase or a key, Q7).
+// row-level security, and `data` only names the run (never a passphrase or a key).
 //
-// The archive is read by byte range from the blob store (T7), and worked through in units: every
+// The archive is read by byte range from the blob store, and worked through in units: every
 // row of every entity in APPLY_ORDER (apply.ts), every original file, then every history event.
 // `progress` counts the units done; each chunk of rows is its own transaction that also moves
 // `progress`, so a cancel (which waits for the run's lock) stops the job at the next chunk, a
@@ -58,12 +58,12 @@ import { clearRunKey, readSecrets, sealedKeyOf, writeSecrets } from './secrets.j
 // only into an open move.
 //
 // After the rows: the secrets (only with the passphrase given, D68), in one transaction that also
-// clears the sealed key; then the history in batches through kept.import_history() (Q10), each
+// clears the sealed key; then the history in batches through kept.import_history(), each
 // its own short transaction (it may create audit partitions); then every thing without a label
 // gets one, the run is done, its key cleared and its archive deleted.
 //
-// One `import.run` audit event per chunk, as the person, with the things made as its subjects
-// (Q11), and a last one with the totals.
+// One `import.run` audit event per chunk, as the person, with the things made as its subjects,
+// and a last one with the totals.
 
 /** Rows per transaction. */
 export const CHUNK = 200;
@@ -596,7 +596,7 @@ export async function runKeptImport(deps: KeptJobDeps, scope: Scope, runId: stri
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** The `import-kept` tenant job (plan T14), aggregated by jobs/portability.ts. */
+/** The `import-kept` tenant job, aggregated by jobs/portability.ts. */
 export function keptImportJobs(deps: SystemJobDeps): JobDefinition[] {
   return [
     defineJob({

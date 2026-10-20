@@ -7,7 +7,7 @@ import { invalid } from '../http/errors.js';
 import { thumbKeysOf, thumbUrlOf } from '../search/service.js';
 import type { FileStorage } from '../storage/blob-store.js';
 
-// Proof photos of readings, and the odometer proof strip (step 5, T8; D27, D195; plan Q10).
+// Proof photos of readings, and the odometer proof strip (D27, D195).
 //
 // From step 5 a proof photo hangs on the reading it proves (`attachments.meter_reading_id`, role
 // `proof`): a typed reading's (POST /api/v1/meters/:id/readings `proofFileId`, a READING capture
@@ -173,7 +173,7 @@ const Cursor = z.tuple([z.iso.datetime({ offset: true }), z.uuid()]);
  * GET /api/v1/meters/:id/proofs (the odometer proof strip, D195) → newest first: the proofs of
  * the meter's readings, with the reading's value and time and who logged it; then the step-3
  * proofs still on the meter's thing and read by no extraction, dated by the attachment and by
- * who added it (Q10). The meter is one the caller sees (the route checked it).
+ * who added it. The meter is one the caller sees (the route checked it).
  */
 export async function listProofs(
   client: pg.ClientBase,

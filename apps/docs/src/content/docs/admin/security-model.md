@@ -9,7 +9,7 @@ and [the architecture](/developers/architecture/).
 
 ## Households are kept apart by the database
 
-Kept connects to Postgres with four logins, each allowed only what its job needs (spec §7.1):
+Kept connects to Postgres with four logins, each allowed only what its job needs:
 
 | Login | Used by | What it may do |
 |---|---|---|
@@ -34,7 +34,7 @@ why the database itself must stay private to the server.
   channel settings, webhook secrets, email-in mailbox passwords, Paperless-ngx API tokens, the
   web push private key, the backup password. AES-256-GCM
   with a per-row data key, each ciphertext bound to its table, row and field, so one can't be
-  swapped for another (spec §7.3).
+  swapped for another.
 - **`KEPT_AUTH_SECRET`** signs sessions and tokens. It is separate so either can be rotated alone.
 - **Generated on first boot** when both are unset, into the config volume (never the data
   volume), with one log line saying where. Set them yourself with `kept admin gen-key`; boot
@@ -88,7 +88,7 @@ public URL is HTTPS.
 
 ## Rate limits
 
-From spec §3.2, as built:
+As built:
 
 | What | Limit |
 |---|---|
@@ -121,7 +121,7 @@ network, such as [Ollama](/admin/ollama/), needs. It is off by default.
 
 ## Hostile input
 
-Imports and uploads are treated as hostile. The defaults (spec §3.1b):
+Imports and uploads are treated as hostile. The defaults:
 
 | Limit | Default |
 |---|---|

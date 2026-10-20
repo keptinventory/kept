@@ -1,5 +1,5 @@
 /**
- * Scan's ways in, through the real route tree (plan T26): a `/l/<code>` link opens what it's on in
+ * Scan's ways in, through the real route tree: a `/l/<code>` link opens what it's on in
  * place of itself (and marks it seen), "Pick up" in a thing's menu fills the carrying tray whose
  * chip then sits in every page header, and a box's menu starts its box check.
  */

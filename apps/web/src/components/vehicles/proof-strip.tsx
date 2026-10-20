@@ -1,9 +1,9 @@
 /**
- * The odometer proof strip (plan T18; D27, D195; screens §5): the dashboard photos that prove the
+ * The odometer proof strip (D27, D195): the dashboard photos that prove the
  * meter's readings, newest first, in one row that scrolls sideways, each with its value and date.
  * A photo opens larger in a sheet, with the ones beside it a press away. A step-3 proof still on
- * the thing (no reading yet) shows its date alone (Q10). The vehicle history report reuses the
- * same photos (T15).
+ * the thing (no reading yet) shows its date alone. The vehicle history report reuses the
+ * same photos.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery } from '@tanstack/react-query';

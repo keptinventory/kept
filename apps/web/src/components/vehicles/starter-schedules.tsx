@@ -1,5 +1,5 @@
 /**
- * Starter schedules (plan T18, T13; D52, engineering spec §3.4 "Schedules, none", Q25): a vehicle
+ * Starter schedules (D52): a vehicle
  * with nothing scheduled is offered the usual four (oil change, tyre rotation, brake fluid, air
  * filter), each with its interval, whichever comes first. They're editable defaults, not the
  * maker's advice, and never made without asking: the sheet lists them ticked, any can be

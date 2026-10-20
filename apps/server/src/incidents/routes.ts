@@ -32,7 +32,7 @@ import {
 } from './service.js';
 import { registerIncidentUndo } from './undo.js';
 
-// Incidents and claim packs (D158, D169, D180, D201; step-4 plan T18). The web contract is
+// Incidents and claim packs (D158, D169, D180, D201). The web contract is
 // apps/web/src/api/household/types.ts, "incidents, the insurance report and claim packs"; the
 // insurance report's own routes are in reports/routes.ts.
 //
@@ -40,7 +40,7 @@ import { registerIncidentUndo } from './undo.js';
 // GET    /api/v1/incidents/:id                             → Incident
 // POST   /api/v1/locations/:id/incidents                   → 201 Incident (owners, admins)
 // PATCH  /api/v1/incidents/:id (If-Match)                  → Incident; undoable
-// DELETE /api/v1/incidents/:id (If-Match)                  → 204; undoable (Q25)
+// DELETE /api/v1/incidents/:id (If-Match)                  → 204; undoable
 // POST   /api/v1/incidents/:id/things (If-Match)           {add?, remove?, lifecycle?} → Incident;
 //                                                          undoable
 // POST   /api/v1/claim-packs                               → 202 {id, status} (owners, admins)
@@ -49,7 +49,7 @@ import { registerIncidentUndo } from './undo.js';
 // DELETE /api/v1/claim-packs/:id/link                      → 204
 // GET    /x/:token                                         the ZIP, no session; 410 when refused
 //
-// Incidents and claim packs belong to Warranties & claims (product design §5): off in a
+// Incidents and claim packs belong to Warranties & claims: off in a
 // location, its incident routes answer `module_off`, and the list leaves its incidents out.
 
 const Params = z.object({ id: z.uuid() });

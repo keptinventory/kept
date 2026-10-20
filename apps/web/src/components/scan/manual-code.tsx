@@ -1,8 +1,8 @@
 /**
- * "Type the code" (plan T26; WCAG 1.1/2.1: an alternative to the camera, always reachable). The 6
+ * "Type the code" (WCAG 1.1/2.1: an alternative to the camera, always reachable). The 6
  * characters printed under a label's QR code, folded the way the server folds them
  * (`normaliseInputCode`: case, spaces, hyphens, O → 0, I/L → 1), with the chip previewing the code
- * exactly as the label prints it. The field stays left to right in Arabic (screens §8).
+ * exactly as the label prints it. The field stays left to right in Arabic.
  */
 import { isShortCode, normaliseInputCode } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';

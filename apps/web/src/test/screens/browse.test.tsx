@@ -1,5 +1,5 @@
 /**
- * Browse (task 25): the Location, Place and Container views and every place operation (D45,
+ * Browse: the Location, Place and Container views and every place operation (D45,
  * D118, D160), against the mock server. Each screen is checked by keyboard, right to left, as a
  * viewer, and with the Labels module off.
  */
@@ -175,7 +175,7 @@ describe('the location page', () => {
     await user.click(await screen.findByRole('button', { name: 'Thing' }));
     const dialog = await screen.findByRole('dialog', { name: 'Add a thing to Home' });
     await user.type(within(dialog).getByLabelText('Name'), 'Umbrella{Enter}');
-    // The full create sheet (T30), with where already set to the Unplaced area.
+    // The full create sheet, with where already set to the Unplaced area.
     await waitFor(() =>
       expect(mock.lastCall('POST', inventoryPaths.things)?.body).toMatchObject({
         locationId: IDS.home,
@@ -254,7 +254,7 @@ describe('select and pick up (D175, frame 7a)', () => {
     expect(within(bar).getByRole('button', { name: 'Pick up' })).toBeDisabled();
     await user.click(screen.getByRole('checkbox', { name: 'Select Galaxy S23' }));
     await user.click(screen.getByRole('checkbox', { name: 'Select Samsung TV, 55″' }));
-    // Beside "Print labels" (T28).
+    // Beside "Print labels".
     const buttons = within(bar)
       .getAllByRole('button')
       .map((b) => b.textContent);
@@ -913,7 +913,7 @@ describe('place fields (D160, D156)', () => {
       expect(call?.body).toEqual({ custom: { shelves: 4 } });
       expect(call?.headers['if-match']).toBe('1');
     });
-    // In the page: the sidebar's counts are numbers too (the notifications' unread, T24).
+    // In the page: the sidebar's counts are numbers too (the notifications' unread).
     expect(await within(screen.getByRole('main')).findByText('4')).toBeInTheDocument();
   });
 

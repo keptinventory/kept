@@ -2,7 +2,7 @@ import { type Converted, convert, type FxRate } from '@kept/shared';
 import type pg from 'pg';
 import { rateOut } from './fx.js';
 
-// The server's conversions (step-4 plan T8; D76, D136, Q21): @kept/shared `convert()` over an
+// The server's conversions (D76, D136): @kept/shared `convert()` over an
 // account's own rates, read once per request. The pair's newest rate valid on the day, else the
 // inverse pair's; never chained through a third currency and never estimated, so a pair with no
 // rate is `{missing: {from, to}}`, which T18's report answers with 409 `rate_missing` listing the
@@ -44,7 +44,7 @@ export async function converterFor(client: pg.ClientBase, accountId: string): Pr
 }
 
 /** Totals per currency, converted into `to` when every one has a rate on `on`: the pairs that
- * have none otherwise (Q21: totals per currency always, a converted total only when complete). */
+ * have none otherwise (totals per currency always, a converted total only when complete). */
 export function convertTotals(
   converter: Converter,
   totals: ReadonlyMap<string, string>,

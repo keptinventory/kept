@@ -10,7 +10,7 @@ import { loadTypes } from '../dry-run.js';
 import type { HomeboxData } from './read.js';
 
 // What the Homebox planner (plan.ts) checks the archive against, read once under the importer's
-// own row-level security (plan T9, as imports/dry-run.ts's Lookups): the target location, its
+// own row-level security (as imports/dry-run.ts's Lookups): the target location, its
 // money gate and modules, the enabled currencies, the account's types (with their capabilities
 // and fields), tags, brands and vendors by normalised name, the location's places, the Homebox
 // source ids it already holds and the legacy codes the archive would add that are already taken.

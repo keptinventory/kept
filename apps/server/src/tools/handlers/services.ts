@@ -5,14 +5,14 @@ import { findRef, locationOfRef, placeIn, thingIn } from '../resolve.js';
 import type { Handler, Op } from '../types.js';
 import { eventOf } from './household.js';
 
-// `log_service` (step 5; §2.5, D124): calls step 4's "Log a service" operation
+// `log_service` (D124): calls step 4's "Log a service" operation
 // (schedules/services.ts createService, the one POST /api/v1/service-records calls), so a service
 // by the assistant or MCP meets the route's rules: `logs.add`, the money gate and an enabled
 // currency for a total or a priced line, `schedules-claims.manage` and Schedules on for
 // `completes`, and a vendor of the location's account. It records a **confirmed** service
 // record, never a draft: a draft is an invoice being read by AI, which only the person confirms
-// on the Log a service form (T9, Q12), and the assistant never runs a write tool until the person
-// confirms its card (step-6 plan T13, D22). Undoable for 7 days when it completes a schedule,
+// on the Log a service form, and the assistant never runs a write tool until the person
+// confirms its card (D22). Undoable for 7 days when it completes a schedule,
 // as the route's is (D150); a plain log is removed by DELETE.
 //
 // D236: a line may name a consumable it used (`consumable_thing_id`, an id or a short ID) and how

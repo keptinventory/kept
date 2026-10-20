@@ -1,5 +1,5 @@
 /**
- * Back closes the top sheet first (screens §1): CloseOnBack inside the sheets and dialogs.
+ * Back closes the top sheet first: CloseOnBack inside the sheets and dialogs.
  */
 import { act, cleanup, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';

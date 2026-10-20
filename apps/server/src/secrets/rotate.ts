@@ -9,8 +9,8 @@ import {
 } from '../crypto/envelope.js';
 import { VAPID_AAD, VAPID_KEY } from '../notify/vapid.js';
 
-// Re-wrapping every ciphertext under a new master key (`kept admin rotate-key`, engineering spec
-// §7.3, D182). Only each value's small data key is re-encrypted (envelope.ts rewrap()); the
+// Re-wrapping every ciphertext under a new master key (`kept admin rotate-key`, D182).
+// Only each value's small data key is re-encrypted (envelope.ts rewrap()); the
 // value's own ciphertext never changes, and nothing is ever decrypted to plaintext here.
 //
 // CIPHERTEXTS is the registry of every column that holds a sealed value. Step 2 has one, the
@@ -57,7 +57,7 @@ export const CIPHERTEXTS: readonly SealedColumn[] = Object.freeze([
     aadTable: 'secret_values',
     fieldKey: { column: 'field_key' },
   }),
-  // Step 3 (T6, migration 0039): AI provider keys, sealed with AAD `ai_providers|<id>|api_key`
+  // Step 3 (migration 0039): AI provider keys, sealed with AAD `ai_providers|<id>|api_key`
   // (ai/db-keys.ts providerKeyAad).
   sealedColumn({
     name: 'AI provider keys',
@@ -66,8 +66,8 @@ export const CIPHERTEXTS: readonly SealedColumn[] = Object.freeze([
     fieldKey: { constant: 'api_key' },
     ciphertextColumn: 'key_ciphertext',
   }),
-  // Step 4 (T7, migration 0054): a webhook channel's `{url, secret}`, sealed with AAD
-  // `notification_channels|<id>|config` (step-4 plan T7; the sealer is T15's notify/webhook.ts).
+  // Step 4 (migration 0054): a webhook channel's `{url, secret}`, sealed with AAD
+  // `notification_channels|<id>|config` (the sealer is T15's notify/webhook.ts).
   sealedColumn({
     name: 'webhook channel configs',
     table: 'public.notification_channels',
@@ -75,7 +75,7 @@ export const CIPHERTEXTS: readonly SealedColumn[] = Object.freeze([
     fieldKey: { constant: 'config' },
     ciphertextColumn: 'config_ciphertext',
   }),
-  // Step 6 (T7, migration 0077): a location webhook's signing secret, sealed with AAD
+  // Step 6 (migration 0077): a location webhook's signing secret, sealed with AAD
   // `webhooks|<id>|secret` (T15 seals it).
   sealedColumn({
     name: 'location webhook secrets',
@@ -84,8 +84,8 @@ export const CIPHERTEXTS: readonly SealedColumn[] = Object.freeze([
     fieldKey: { constant: 'secret' },
     ciphertextColumn: 'secret_ciphertext',
   }),
-  // Step 7 (T4, migration 0079): the key derived from an export's or a Kept import's passphrase
-  // (D68, plan Q7), sealed with AAD `export_runs|<id>|secrets_key` and
+  // Step 7 (migration 0079): the key derived from an export's or a Kept import's passphrase
+  // (D68), sealed with AAD `export_runs|<id>|secrets_key` and
   // `import_runs|<id>|secrets_key` (portability/passphrase.ts); cleared when the run ends.
   sealedColumn({
     name: 'export passphrase keys',
@@ -132,14 +132,14 @@ export const BACKUP_SETTINGS_KEY = 'backup';
 
 /** Every sealed instance setting. Append here, as for CIPHERTEXTS. */
 export const SEALED_SETTINGS: readonly SealedSetting[] = Object.freeze([
-  // Step 4 (T15, Q11): the VAPID private key web push signs with (notify/vapid.ts).
+  // The VAPID private key web push signs with (notify/vapid.ts).
   Object.freeze({
     name: 'the web push (VAPID) key',
     key: VAPID_KEY,
     field: 'privateKeySealed',
     aad: VAPID_AAD,
   }),
-  // Step 8 (T4, T10): the backup settings' write-only secrets, in the `backup` row, each sealed
+  // The backup settings' write-only secrets, in the `backup` row, each sealed
   // with AAD `instance_settings|backup|<field>` by T10's settings route.
   ...(['password', 's3SecretAccessKey', 'sftpPrivateKey'] as const).map((field) =>
     Object.freeze({

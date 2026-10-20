@@ -23,7 +23,7 @@ import {
   setupCodeMatches,
 } from './setup-code.js';
 
-// Task 22: the one-time setup code and the first instance admin (D32, D190, D193, §7.10).
+// The one-time setup code and the first instance admin (D32, D190, D193).
 
 let db: TestDb;
 let t: TestApp;

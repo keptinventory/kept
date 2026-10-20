@@ -20,7 +20,7 @@ import {
 } from './vapid.js';
 import { openWebhookConfig, sealWebhookConfig } from './webhook.js';
 
-// The VAPID keys (plan T15, Q11; D81): made once however many processes boot together, the
+// The VAPID keys (D81): made once however many processes boot together, the
 // environment's pair winning, the private key sealed at rest, re-wrapped by rotate-key, never in
 // a log, and never readable by kept_app.
 

@@ -1,5 +1,5 @@
 /**
- * Settings → Import (plan T30; screens §6 "Import stepper"; D73; step-7 T19): the import stepper
+ * Settings → Import (D73): the import stepper
  * for a CSV, a Homebox export or a Kept export (components/import/stepper.tsx). The URL holds the
  * location (`?location=`), an export chosen as the source (`?source=`), the import once it exists
  * (`?run=`), and the lists' state (search, the report's Status and Column filters, the Homebox

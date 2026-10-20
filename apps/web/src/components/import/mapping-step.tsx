@@ -1,5 +1,5 @@
 /**
- * Mapping (plan T30 step 4): each column of the file, with a few of its values, and the field it
+ * Mapping: each column of the file, with a few of its values, and the field it
  * goes to, guessed from its header in any of the five languages (suggest.ts). One column must be
  * the name; a field that holds one value takes one column (notes, tags, other names and codes
  * take several). "A type's field" maps a column to a custom field by its key.

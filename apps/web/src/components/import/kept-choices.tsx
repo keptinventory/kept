@@ -1,5 +1,5 @@
 /**
- * What a Kept export holds (plan T19 steps 3 and 6; T14, Q8, Q9, Q23): the exported location's
+ * What a Kept export holds: the exported location's
  * name, its date and version, its counts and the people to invite (names and roles only). When it
  * carries secrets, the passphrase chosen at the export opens them: checked by decrypting on the
  * server, ten tries an hour. Without it everything else is imported. The passphrase lives only in
@@ -156,7 +156,7 @@ export function KeptSecrets({
   );
 }
 
-/** People in the export (names and roles only, Q23), to invite once it's imported. */
+/** People in the export (names and roles only), to invite once it's imported. */
 export function PeopleToInvite({
   people,
   inviteHref,

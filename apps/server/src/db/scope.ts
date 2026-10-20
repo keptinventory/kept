@@ -3,8 +3,8 @@ import type pg from 'pg';
 import * as schema from './schema/index.js';
 
 // Every request, and every tenant job, runs inside withScope(): one explicit transaction on a
-// kept_app connection with `app.user_id`, `app.mfa` and `app.token_id` set transaction-locally
-// (engineering spec §7.1, §7.14; step-6 plan Q6). Row-level security reads them through kept.current_user_id() and
+// kept_app connection with `app.user_id`, `app.mfa` and `app.token_id` set transaction-locally.
+// Row-level security reads them through kept.current_user_id() and
 // kept.current_mfa(); unset, every policy denies, so a query that skipped the wrapper sees
 // nothing (fail closed, D178). Cross-tenant jobs run inside withSystem() on kept_system.
 
@@ -17,10 +17,10 @@ export type Tx = Omit<NodePgDatabase<typeof schema>, 'transaction'>;
 export type Scope = {
   /** The Better Auth user id (`auth.user.id`, a UUID). */
   userId: string;
-  /** Whether this session passed a second factor (§7.14); gates `require_2fa` locations. For a
+  /** Whether this session passed a second factor; gates `require_2fa` locations. For a
    * token it is the token's `created_with_mfa` (kept.token_verify). */
   mfa: boolean;
-  /** A personal token or OAuth grant acting as `userId` (step 6, Q6): RLS then sees only the
+  /** A personal token or OAuth grant acting as `userId`: RLS then sees only the
    * token's locations, and nothing to write with a read token (0070). */
   tokenId?: string;
 };
@@ -116,7 +116,7 @@ export function withScope<T>(pool: pg.Pool, scope: Scope, fn: ScopedFn<T>): Prom
 }
 
 /** Runs `fn` in one transaction on `pool` (kept_system) with no user scope. kept_system reads
- * only the tables whose `system` policies allow it (§7.1). */
+ * only the tables whose `system` policies allow it. */
 export function withSystem<T>(pool: pg.Pool, fn: ScopedFn<T>): Promise<T> {
   return inTx(pool, '', false, '', fn);
 }

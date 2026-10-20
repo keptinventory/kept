@@ -9,7 +9,7 @@ import {
 import { invalid } from '../http/errors.js';
 
 // A location's Paperless-ngx connection (1.x, D248): its address and API token, sealed together
-// as `paperless_connections|<id>|config` (§7.3), so the token never sits in the clear and
+// as `paperless_connections|<id>|config`, so the token never sits in the clear and
 // kept_app never reads it (0135). The address is also kept in the clear (`base_url`) for the
 // settings page and the "Open in Paperless" links. The token is never answered, logged or
 // audited.

@@ -20,7 +20,7 @@ import {
   storableText,
 } from './pdf-text.js';
 
-// T21 (Q19; D77, D157; engineering spec §3.1b): a PDF's text, read in a limited child process
+// T21 (D77, D157): a PDF's text, read in a limited child process
 // and stored in file_text, and the job the upload sends for it. The hostile cases each end with
 // no row and a completed job, never a hung test worker: the child is SIGKILLed at its limits.
 //

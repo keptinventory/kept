@@ -36,13 +36,13 @@ import {
 import type { ReminderFacts } from './words.js';
 
 // The channel senders the reminder engine delivers through (reminders/channel.ts, T14's
-// contract; plan T15). Each turns one message into one email, push or webhook in the recipient's
+// contract). Each turns one message into one email, push or webhook in the recipient's
 // language and says how it went; none writes the ledger.
 //
 // - email: the reminder, digest and test mails (mail/messages-notify.ts). Present only when mail
 //   goes out (KEPT_SMTP_URL). Admin alerts are mailed by alerts/alerts.ts, not here.
 // - webpush: every device the person has (push.ts pushToUser), overdue at `high` urgency; admin
-//   alerts reach the instance admins' devices too (step-1 carry-over, D166).
+//   alerts reach the instance admins' devices too (D166).
 // - webhook: queues one `channel-webhook` job per reminder (jobs.ts), whose own ten attempts over
 //   a day are the channel's; a test is sent at once.
 // - ntfy, telegram (1.3, D227): a push's words, sent at once (relay.ts). A failure fails the
@@ -64,7 +64,7 @@ export type SenderDeps = {
   transport?: { push?: PushTransport; webhookFetch?: WebhookFetch; relayFetch?: RelayFetch };
 };
 
-/** The words a template needs, from the engine's item (L113). */
+/** The words a template needs, from the engine's item. */
 export function factsOf(item: ReminderItem): ReminderFacts {
   return {
     sourceType: item.sourceType,

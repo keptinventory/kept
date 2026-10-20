@@ -1,6 +1,6 @@
 /**
- * Mock handlers for CSV import (T18): owners and admins only; at most 10,000 rows (413 past it);
- * a dry run reports each row as mapped, as text or skipped, with why (§5), and only before the
+ * Mock handlers for CSV import: owners and admins only; at most 10,000 rows (413 past it);
+ * a dry run reports each row as mapped, as text or skipped, with why, and only before the
  * run starts; the run needs a dry run first (409 on a draft, as the server answers). The run
  * moves one chunk (200 rows) each time it's read, so progress, cancel and resume can be seen; a
  * failed run resumes from where it stopped.

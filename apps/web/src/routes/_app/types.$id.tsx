@@ -1,5 +1,5 @@
 /**
- * /types/<id> (screens §2): one type's editor on its own page, for a link from anywhere (a
+ * /types/<id>: one type's editor on its own page, for a link from anywhere (a
  * thing's type, a search result). The same editor as Account settings → Types; `?account=` says
  * which account's copy of the tree it sits in (yours by default).
  */

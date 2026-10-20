@@ -1,5 +1,5 @@
 /**
- * One answer from the assistant (D22, D179, D195; screens §5 "Replies", frame 04 · 4): the text
+ * One answer from the assistant (D22, D179, D195; frame 04 · 4): the text
  * through the link-only renderer (./link-only-markdown.tsx), then every thing it links, each with
  * its full path and, beside the path, its container's photo, as Search shows them (D195). Those
  * rows come from Kept's own API (`GET /things/:id`), never from model text: the photo is Kept's
@@ -185,7 +185,7 @@ export function Redacted() {
 }
 
 /**
- * A tool step as a quiet line (screens §5: "Looked in Garage"): what the tool does, in Kept's own
+ * A tool step as a quiet line ("Looked in Garage"): what the tool does, in Kept's own
  * words, and the locations its result came from. Never the model's arguments.
  */
 export function ToolStep({

@@ -1,5 +1,5 @@
 /**
- * The place chip, pinned at the top of the camera (screens §5 "Capture"; D153, D195): where the
+ * The place chip, pinned at the top of the camera (D153, D195): where the
  * next capture lands, why ("Nearby · tap to change"), and a thumbnail dropped in by each shutter
  * press (none under reduced motion's animation, the thumbnail still appears). Tapping it opens
  * the place sheet: every place in the locations you can add to, from this phone's snapshot, so

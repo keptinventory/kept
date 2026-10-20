@@ -1,8 +1,8 @@
 # Upgrade, roll back one version, and upgrade Postgres
 
 **Status (2026-10-06):** steps 1–2 work today. The pre-upgrade snapshot, the release history and
-the rollback guard (step 8 T8) and the `migrate` service's keys and backup settings (step 8 T15)
-**land with step 8**; T25 checks this runbook against them. The public version is the docs site's
+the rollback guard and the `migrate` service's keys and backup settings
+**land with step 8**. The public version is the docs site's
 "Upgrades and rollback" page (`apps/docs/src/content/docs/admin/upgrades.md`); keep the two in step.
 
 ## Upgrade (Compose)

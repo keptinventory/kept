@@ -1,5 +1,5 @@
 /**
- * Outbound webhooks (D63, D110, D172, D180; engineering spec §2.6, §3.1b). Payloads carry ids and
+ * Outbound webhooks (D63, D110, D172, D180). Payloads carry ids and
  * changed field names, never values: a receiver fetches the entity with its own token.
  */
 

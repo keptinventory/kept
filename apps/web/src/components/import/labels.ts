@@ -1,5 +1,5 @@
 /**
- * The import stepper's words (plan T30, step-7 T19): the fields a column can map to, the dry run's
+ * The import stepper's words: the fields a column can map to, the dry run's
  * reasons (one sentence per IMPORT_ISSUE_CODES code, with its params; the server's English message
  * for a code this build doesn't know), a row's status, why a file can't be read, and why an
  * archive was refused (ARCHIVE_REFUSALS).
@@ -163,7 +163,7 @@ export function useIssueText() {
       }
       case 'notes_cut':
         return t`The notes are cut to ${max} characters.`;
-      // an archive's files (step 7)
+      // an archive's files
       case 'file_type_refused':
         return t`Not imported: a file type Kept doesn't keep.`;
       case 'file_missing':

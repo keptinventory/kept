@@ -13,7 +13,7 @@ ALTER TABLE "saved_view_prefs" ADD CONSTRAINT "saved_view_prefs_user_id_user_id_
 ALTER TABLE "saved_view_prefs" ADD CONSTRAINT "saved_view_prefs_default_view_id_saved_views_id_fk" FOREIGN KEY ("default_view_id") REFERENCES "public"."saved_views"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "saved_views_user_surface_idx" ON "saved_views" USING btree ("user_id","surface");--> statement-breakpoint
 ALTER TABLE "saved_views" ADD CONSTRAINT "saved_views_surface_chk" CHECK (surface ~ '^[a-z][a-z-]{0,31}$');--> statement-breakpoint
--- The filter strip's saved views (D205; screens spec "The filter strip"). Above, drizzle's part:
+-- The filter strip's saved views (D205). Above, drizzle's part:
 -- saved_views.surface (which list a view belongs to; every view so far is a search view) and
 -- saved_view_prefs (src/db/schema/user.ts). Below:
 --   1. Every saved view's query becomes list state (@kept/shared SavedListQuery): the old search

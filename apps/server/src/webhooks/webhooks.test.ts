@@ -31,7 +31,7 @@ import {
 } from './fanout.js';
 import { checkWebhookUrl } from './service.js';
 
-// Location webhooks through the front door (step-6 plan T15; §2.6; D63, D110, D180): the secret
+// Location webhooks through the front door (D63, D110, D180): the secret
 // shown once and never stored in the clear or audited, owners and admins only, URLs checked for
 // private addresses when saved, and the whole path from a thing's move to a signed, value-free
 // POST: audited() → `webhook-fanout` → a delivery row → `webhook-deliver`. Every request goes

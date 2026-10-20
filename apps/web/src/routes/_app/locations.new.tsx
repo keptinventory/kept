@@ -1,5 +1,5 @@
 /**
- * New location (screens §6, D194): three steps, skippable after the name. Name and kind → rooms
+ * New location (D194): three steps, skippable after the name. Name and kind → rooms
  * ("Add room or spot", with the template's rooms filled in) → what to track (the preset cards).
  * The last step shows the timezone and currency taken from this browser; both are editable in
  * Location settings. Inviting people is a Home card afterwards, not a step.

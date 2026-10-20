@@ -1,5 +1,5 @@
 /**
- * An account's brands, vendors, people or tags (screens §5 Settings → Account): the list standard
+ * An account's brands, vendors, people or tags: the list standard
  * (search in the URL, cursor pages), an add box at the top, and per row Edit, Merge and Delete for
  * the owner and admins.
  *

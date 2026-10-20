@@ -18,8 +18,8 @@ import { type Gate, gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { type PathStep, rowsOf, type ThingRow, ThingRowSchema } from '../things/view.js';
 
-// The review inbox on the wire (plan T15; D18, D19, D36, D175, D191; screens §5, §8). The web
-// contract is apps/web/src/api/capture/types.ts "inbox (T15)": InboxItem, InboxPage, InboxParams.
+// The review inbox on the wire (D18, D19, D36, D175, D191). The web
+// contract is apps/web/src/api/capture/types.ts "inbox": InboxItem, InboxPage, InboxParams.
 //
 // GET /api/v1/inbox?locationId&mine(default 1)&kind&batchId&q&cursor&limit
 //   → {items: InboxItem[], counts: {byKind, mine, everyone}, next_cursor}
@@ -34,11 +34,11 @@ import { type PathStep, rowsOf, type ThingRow, ThingRowSchema } from '../things/
 // - Ordered by capture batch, newest batch first, then newest item first. A batch's time is its
 //   earliest open item's, so the order is the inbox's own and a page is one indexed read of the
 //   open items (inbox_open_loc_idx / inbox_open_mine_idx), never a scan of things.
-// - `q` (the list standard's search, L88) matches the draft's name, brand and model, a receipt's
+// - `q` (the list standard's search) matches the draft's name, brand and model, a receipt's
 //   vendor (as seen and as chosen) and line text, a reading's meter, the subject's place, a label
 //   claim's target and a sync drop's entity, normalised (the shared normaliser, D42) and as a
 //   substring. It filters the open items, joined to their subjects by primary key: the match
-//   never runs over the things table, so it needs no index door (§7.2).
+//   never runs over the things table, so it needs no index door.
 // - `counts` ignore `kind`, `batchId`, `q` and the cursor: `byKind` counts the scope ("Mine" or
 //   everyone's, the location), `mine` and `everyone` the location's. The web hides zero chips.
 // - Money follows the gate of the item's location: a receipt's total, tax and prices are omitted,
@@ -241,7 +241,7 @@ function containsPattern(q: string): string | null {
 /**
  * What `q` is matched against, per item (see the header): the subject's words, each read by a
  * scalar subquery on a primary key. A qual holding a subquery or a JSON operator isn't leakproof,
- * so under the policies it can't be an index condition (§7.2); the subjects' ids are therefore
+ * so under the policies it can't be an index condition; the subjects' ids are therefore
  * worked out first, a layer at a time (SUBJECT_LAYERS, materialised), and the lookups below
  * compare a key with a plain column of the item.
  */

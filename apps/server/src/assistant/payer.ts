@@ -1,6 +1,6 @@
 import type pg from 'pg';
 
-// Who pays for one model step of a turn (step-6 plan Q3; D121, D167, D206). Resolved per step,
+// Who pays for one model step of a turn (D121, D167, D206). Resolved per step,
 // because a turn's locations are only known as the model calls tools:
 // - the locations the turn has touched so far, plus the context's;
 // - one location, or several with the same owner account → that location's cascade (its owner's

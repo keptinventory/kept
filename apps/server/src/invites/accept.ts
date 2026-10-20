@@ -5,7 +5,7 @@ import type { Scope } from '../db/scope.js';
 import { AppError, conflict, pgErrorOf } from '../http/errors.js';
 import type { JobQueue } from '../jobs/queue.js';
 
-// Joining a location with an invite (task 20; D33, D46, D180, §7.10). The checks live in
+// Joining a location with an invite (D33, D46, D180). The checks live in
 // kept.accept_invite() (0006, rewritten in 0010): live, unaccepted, still backed by its creator,
 // the creator's own end date as a cap, the owner's alone for an admin invite, an email invite
 // only for the verified address it names, never a Personal location, and not while a sign-up
@@ -34,7 +34,7 @@ type Preview = { email_bound: boolean; email_matches: boolean; member_location_i
 /**
  * Accepts the invite `tokenHash` as `scope`'s user, inside the caller's kept_app transaction.
  *
- * An email invite's link is only ever mailed (task 20), so holding its token proves the mailbox:
+ * An email invite's link is only ever mailed, so holding its token proves the mailbox:
  * when the signed-in user's address is the invite's, it is marked verified here (Better Auth's
  * own flag, through kept_auth) before kept.accept_invite() asks for a verified address. A link
  * invite never touches the flag.

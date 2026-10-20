@@ -68,7 +68,7 @@ export function BrandLockup({ className, width = 96 }: { className?: string; wid
   );
 }
 
-/** The square mark, as the design board draws it (D135, "B · Label tape"). */
+/** The square mark, as the brand draws it (D135, "B · Label tape"). */
 export function AppMark({
   size = 32,
   label,

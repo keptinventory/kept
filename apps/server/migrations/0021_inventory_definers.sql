@@ -1,7 +1,7 @@
 -- Custom SQL migration file, put your code below! --
--- Step 2, task 9: the definer paths the inventory routes use for what the policies can't express
--- (engineering spec §6.1, §7.2, §7.4, §7.9, §7.13; D45, D92, D115, D123, D160, D161, D177; plan
--- Q13, Q13b, Q14). Each public one is SECURITY DEFINER, kept_app only, checks its caller from
+-- The definer paths the inventory routes use for what the policies can't express
+-- (D45, D92, D115, D123, D160, D161, D177).
+-- Each public one is SECURITY DEFINER, kept_app only, checks its caller from
 -- app.user_id first, and refuses anything the caller can't see or write with 42501 (a 404),
 -- exactly as for an id that doesn't exist. None writes an audit event: the route does, in the
 -- same transaction. Phase B calls these; it never re-implements them.
@@ -35,7 +35,7 @@ LANGUAGE sql STABLE SET search_path = pg_catalog, public AS $$
    LIMIT 1
 $$;
 --> statement-breakpoint
--- The type in `p_account` that stands for `p_type` (Q13): a built-in or one of the account's own
+-- The type in `p_account` that stands for `p_type`: a built-in or one of the account's own
 -- is itself; otherwise a matching type of the account (same parent after mapping, same
 -- normalised name, or the same customised built-in), or a copy made now with its fields, its
 -- parent chain mapped first and its field groups mapped too.
@@ -86,7 +86,7 @@ BEGIN
   RETURN new_id;
 END $$;
 --> statement-breakpoint
--- The brand, vendor, person or tag in `p_account` that stands for `p_id` (Q13): the same row if
+-- The brand, vendor, person or tag in `p_account` that stands for `p_id`: the same row if
 -- it is already the account's; else one with the same normalised name; else a copy made now.
 -- A person is copied by name only: contact details never cross accounts (D177).
 CREATE FUNCTION kept.map_registry(p_kind text, p_id uuid, p_account uuid) RETURNS uuid
@@ -171,7 +171,7 @@ BEGIN
   RETURN new_id;
 END $$;
 --> statement-breakpoint
--- A cross-account move's purchase (Q13, D161): the purchase header and the one line, copied into
+-- A cross-account move's purchase (D161): the purchase header and the one line, copied into
 -- `p_location` with the vendor mapped, and the purchase's receipts and invoices with it (file
 -- rows copied, blobs shared). Returns the new line's id.
 CREATE FUNCTION kept.copy_purchase_line(p_line uuid, p_location uuid, p_account uuid) RETURNS uuid
@@ -216,7 +216,7 @@ CREATE TRIGGER thing_tags_guard BEFORE INSERT ON public.thing_tags
   FOR EACH ROW EXECUTE FUNCTION kept.guard_thing_tags();
 --> statement-breakpoint
 
--- 2. Moves (D45, D161, §6.1, Q13) -------------------------------------------------------------
+-- 2. Moves (D45, D161) ------------------------------------------------------------------------
 -- Moves `p_ids` (and everything inside them) into place `p_place` or container `p_container` of
 -- location `p_to_location`. The caller must write in every source location and in the target;
 -- the targets must be live and in the target location; nothing may go inside itself (23514
@@ -226,7 +226,7 @@ CREATE TRIGGER thing_tags_guard BEFORE INSERT ON public.thing_tags
 -- dropped. Contents keep their last_seen_at (D45); the moved things are seen now and are no
 -- longer uncertain. Short IDs, meters, readings, attachments and secret values follow through
 -- ON UPDATE CASCADE; attachment files are re-homed (copies sharing the blob, D161) under the
--- deferred file key. Tombstones are written in each source location (§7.4). Returns one row per
+-- deferred file key. Tombstones are written in each source location. Returns one row per
 -- moved thing (contents included) with where it came from and the links dropped with it.
 CREATE FUNCTION kept.move_things(p_ids uuid[], p_to_location uuid, p_place uuid, p_container uuid)
 RETURNS TABLE (thing_id uuid, from_location uuid, dropped_link_ids uuid[])
@@ -373,7 +373,7 @@ BEGIN
      AND f.owner_account_id IS NOT NULL AND f.owner_account_id <> target_acct
      AND kept.field_for_key(t.type_id, s.field_key) IS NOT NULL;
 
-  -- Sync (§7.4): gone from each source location; no longer gone from the target.
+  -- Sync: gone from each source location; no longer gone from the target.
   INSERT INTO public.sync_tombstones (location_id, entity_type, entity_id)
   SELECT x.loc, 'thing', x.id FROM unnest(set_ids, set_locs) AS x(id, loc)
    WHERE x.loc <> p_to_location
@@ -389,7 +389,7 @@ BEGIN
 END $$;
 --> statement-breakpoint
 
--- 3. Conversions (D160, §7.13, Q14): the same UUID, so routes, short IDs, audit subjects and
+-- 3. Conversions (D160): the same UUID, so routes, short IDs, audit subjects and
 --    client caches stay valid; a tombstone for the old entity type.
 
 -- A place becomes a container thing of type `p_type` (NULL: the built-in box_bin), in the place's
@@ -668,7 +668,7 @@ BEGIN
 END $$;
 --> statement-breakpoint
 
--- 5. Customising and impact (D92, D123, §7.9, Q13b) -------------------------------------------
+-- 5. Customising and impact (D92, D123) -------------------------------------------------------
 
 -- A built-in type, customised for `p_account` (which the caller administers): the built-in and
 -- its built-in subtree are copied into the account (copied_from_id set, name NULL so it still
@@ -759,7 +759,7 @@ BEGIN
   RETURN map_to[1];
 END $$;
 --> statement-breakpoint
--- What changing type `p_type` touches (D123, §7.9): per location, the live things of the type or
+-- What changing type `p_type` touches (D123): per location, the live things of the type or
 -- a type under it. A custom type's account's locations the caller can't see are counted with no
 -- id or name (D123); a built-in's count covers only the caller's own visible locations (there is
 -- no account boundary to count within). 42501 for a type the caller can't see.

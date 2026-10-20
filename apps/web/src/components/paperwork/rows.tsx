@@ -1,5 +1,5 @@
 /**
- * One file in the paperwork library (plan T23; D39, D155): what it is (its role, or the expiring
+ * One file in the paperwork library (D39, D155): what it is (its role, or the expiring
  * document's kind), what it belongs to (a thing, a place or a whole location, linked), when it runs
  * out, and the line of its text that matched the search. **Open** asks for a short-lived signed URL
  * (`POST /files/:id/url`): the original for members and above, the display copy for a viewer

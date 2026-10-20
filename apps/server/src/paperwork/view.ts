@@ -21,7 +21,7 @@ import {
 import type { FileStorage } from '../storage/blob-store.js';
 
 // The paperwork shapes of the web contract (apps/web/src/api/household/types.ts, "the paperwork
-// library and expiring documents (T12)"; plan Phase B "Shared shapes"), and the SQL that builds
+// library and expiring documents"; plan Phase B "Shared shapes"), and the SQL that builds
 // them. Everything is read as the request's user, so the policies decide what exists.
 
 // ---------------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ export const subjectRefSql = (thing: string, place: string, location: string) =>
   END)`;
 
 // ---------------------------------------------------------------------------------------------
-// Expiring documents (D39, D155, D172; plan Q5, Q31)
+// Expiring documents (D39, D155, D172)
 // ---------------------------------------------------------------------------------------------
 
 export const DOCUMENT_STATES = ['ok', 'expiring', 'expired'] as const;
@@ -72,16 +72,16 @@ export type ExpiringDocument = {
   history: Array<{ id: string; expiresOn: string }>;
   documents: AttachmentView[];
   rowVersion: number;
-  /** Step 5 (T12, Q5): when it was issued (a renewal's cost counts in its month). */
+  /** When it was issued (a renewal's cost counts in its month). */
   issuedOn: string | null;
-  /** Step 5 (T12, Q5): what it cost, through the money gate: left out with `moneyHidden`. */
+  /** What it cost, through the money gate: left out with `moneyHidden`. */
   cost?: string;
   currency?: string;
   moneyHidden?: true;
 };
 
 /**
- * SQL: a document's state on its location's own date (L2: the expiry day itself is still
+ * SQL: a document's state on its location's own date (the expiry day itself is still
  * covered): expired after it, expiring from `lead_days` before it, ok before that. The agenda
  * (0053) names the same days `overdue`, `expiring` and `upcoming`.
  */
@@ -90,7 +90,7 @@ export const documentStateSql = (d: string, today: string) => `CASE
     WHEN ${today} >= ${d}.expires_on - ${d}.lead_days THEN 'expiring'
     ELSE 'ok' END`;
 
-/** SQL: a location's own date, from its timezone (§7.13: "today" is the location's). */
+/** SQL: a location's own date, from its timezone ("today" is the location's). */
 export const locationTodaySql = (location: string) =>
   `(SELECT (now() AT TIME ZONE tl.timezone)::date FROM public.locations tl WHERE tl.id = ${location})`;
 

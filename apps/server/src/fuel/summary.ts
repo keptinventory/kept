@@ -16,12 +16,12 @@ import {
   odometerOf,
 } from '../vehicles/meters.js';
 
-// A vehicle's fuel summary (step-5 plan T11; D28, D170; Q6, Q7, Q22): consumption per unit over
+// A vehicle's fuel summary (D28, D170): consumption per unit over
 // the last `window` usable full-to-full intervals (@kept/shared consumption(), the web mock's
 // twin), its trend, the price per unit, and the cost per distance and a month's average over the
 // last `months` full local months. Reading values are offset-corrected (D52) and only accepted
 // readings count. Money (prices, costs) only through the gate; per currency, never added
-// together (Q22). Stored units are never converted (D76): the web converts the derived figure.
+// together. Stored units are never converted (D76): the web converts the derived figure.
 
 export type FuelSummary = {
   byUnit: Array<{

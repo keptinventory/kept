@@ -1,5 +1,5 @@
 /**
- * Log a reading, everywhere (plan T19): the sheet's online outcomes (fits, a jump confirmed with
+ * Log a reading, everywhere: the sheet's online outcomes (fits, a jump confirmed with
  * "It's right", backwards refused and then recorded after "Meter replaced"), offline into the
  * phone's queue with its photo, Home's quick log, the first reading after creating a car, RTL and
  * Arabic digits, and the viewer, who has no Log a reading anywhere.

@@ -6,7 +6,7 @@ import type { ReadableFile } from '../../exports/readable/index.js';
 import { assertBlobKey, BlobNotFoundError, type BlobStore } from '../../storage/blob-store.js';
 import { LocalBlobStore } from '../../storage/local.js';
 
-// Where a location's readable copy finds the originals its pages link to (step-8 plan T6, Q11).
+// Where a location's readable copy finds the originals its pages link to.
 // The builder (exports/readable/) only links; this puts each file at `<dir>/<href>`:
 //   - local file storage: a hard link to the blob itself, so the copy takes no extra space and
 //     restic stores the bytes once (it reads both paths, and deduplicates by content). A link

@@ -1,13 +1,13 @@
 /**
- * The signed-in frame (screens §1). Phone: bottom tabs Home · Search · Capture · Inbox · More.
- * 768 px and up: a sidebar with the §1 entries, the locations list and the footer (version and
+ * The signed-in frame. Phone: bottom tabs Home · Search · Capture · Inbox · More.
+ * 768 px and up: a sidebar with the entries, the locations list and the footer (version and
  * the Source code link, D147). The sidebar folds to an icon rail (D198): a button at its foot or
  * ⌘\ / Ctrl+\, remembered per device; tablets start on the rail. Entries whose step isn't built
  * yet are shown, muted and inert, so the navigation already has its final shape. Activity and
- * Trash open from step 2 (screens §1 and §8); Labels and Help from step 3, and the header's Scan
+ * Trash open from step 2; Labels and Help from step 3, and the header's Scan
  * button on Home and Search (components/scan-button.tsx); Schedules, Lending, Paperwork and
  * Notifications from step 4, and the header's bell (components/notification-bell.tsx). The
- * assistant (step 6) docks beside the page from 768 px and is a sheet below (assistant/host.tsx).
+ * assistant docks beside the page from 768 px and is a sheet below (assistant/host.tsx).
  * The locations list marks the location the page is in, on its own page and on every page inside
  * it (lib/page-location.ts).
  */
@@ -120,11 +120,11 @@ type NavEntry = {
 };
 
 /**
- * Screens §1's entries, in order. Those without `to` arrive in later steps. An entry that belongs
- * to a module shows only when the module is on in at least one of your locations (§1): Vehicles,
+ * The navigation entries, in order. Those without `to` arrive in later steps. An entry that belongs
+ * to a module shows only when the module is on in at least one of your locations: Vehicles,
  * Labels, Schedules, Lending, Paperwork, Consumables, Insights with Money (1.x, D234), and Moving
  * (1.x, D251).
- * Notifications is core: everyone has it. The Inbox is for members and above (screens §5): a
+ * Notifications is core: everyone has it. The Inbox is for members and above: a
  * viewer everywhere has no entry for it.
  */
 export function useNavEntries(): NavEntry[] {
@@ -203,7 +203,7 @@ export function useNavEntries(): NavEntry[] {
 }
 
 /**
- * You can change something somewhere, so the inbox has something for you (screens §5: members
+ * You can change something somewhere, so the inbox has something for you (members
  * and above). While your locations load it's assumed, so the entry doesn't flicker in.
  */
 export function useHasInbox(): boolean {
@@ -227,7 +227,7 @@ const sideItem =
  * of the sticky footer (its toggle and Source code), never under it. */
 const railItem = 'h-9 min-h-9 w-11 scroll-mb-16 justify-center px-0 py-0';
 /** The rail's last entry, New location, sits on the footer: a full 44 px target there (UI review
- * steps 6–8, L17; axe target-size). */
+ * steps 6–8; axe target-size). */
 const railLastItem = 'h-11 min-h-11';
 const sideLink =
   'text-ink-2 hover:bg-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-info data-[status=active]:bg-sunken data-[status=active]:font-semibold data-[status=active]:text-ink';

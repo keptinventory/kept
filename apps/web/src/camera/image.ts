@@ -1,5 +1,5 @@
 /**
- * What the phone does with a photo before it queues (D34, D36, D117; plan T25, Q20; @kept/shared
+ * What the phone does with a photo before it queues (D34, D36, D117; @kept/shared
  * `PHOTO_POLICY`):
  *
  * - **THING:** the photo is shrunk to 2048 px on the long edge, JPEG q0.85, and that JPEG is the
@@ -7,7 +7,7 @@
  * - **RECEIPT, LABEL, READING:** the photo is evidence. A camera frame is encoded at full track
  *   resolution, JPEG q0.92, and becomes the `original`; a file (the system camera, the gallery,
  *   a share) is kept **byte for byte**. Both get a 2048 px `display` JPEG made here, because the
- *   server can't decode HEIC and the phone can (V10).
+ *   server can't decode HEIC and the phone can.
  * - **When the phone can't decode a file** (a HEIC on a browser without it, a PDF): the file
  *   goes as it is, with no display, and the server shows "preview unavailable" (D36). Never
  *   rejected.

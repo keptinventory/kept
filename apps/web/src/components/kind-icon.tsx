@@ -9,7 +9,7 @@ import {
   PersonIcon,
 } from '@/components/icons';
 
-/** One icon per location kind (screens §5 Home: "kind icon"). Decorative. */
+/** One icon per location kind ("kind icon"). Decorative. */
 export function KindIcon({ kind, className }: { kind: LocationKind; className?: string }) {
   const p = className ? { className } : {};
   switch (kind) {

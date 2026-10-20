@@ -1,6 +1,6 @@
 {
   "set": "search-households-2026-10",
-  "about": "The search evaluation (step-6 plan T17, T14; D200, D207; S6.5 measures on it too): queries in English and Arabic on the households seed, each with the things a right answer holds (by the seed's names). `words` cases are found by their words; `meaning` cases by what they are. Recall@10 and MRR are measured for keyword-only search, the provider's embeddings and (when built) the local model. The maintainer's own phrasings belong here: add them.",
+  "about": "The search evaluation (D200, D207): queries in English and Arabic on the households seed, each with the things a right answer holds (by the seed's names). `words` cases are found by their words; `meaning` cases by what they are. Recall@10 and MRR are measured for keyword-only search, the provider's embeddings and (when built) the local model. The maintainer's own phrasings belong here: add them.",
   "cases": [
     {
       "id": "w-hdmi",

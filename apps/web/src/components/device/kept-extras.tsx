@@ -1,5 +1,5 @@
 /**
- * A kept location's thing page, offline (step-8 plan T23; D159, D181): its money as the reader's
+ * A kept location's thing page, offline (D159, D181): its money as the reader's
  * role sees it and its documents, opened from the device. Precached with the offline pages
  * (components/places/offline-pages.tsx). Nothing shows for a thing whose location isn't kept, or
  * while the lock isn't on; a passkey without PRF leaves the extras locked until the PIN.

@@ -1,5 +1,5 @@
 /**
- * The UI audit's automated checks (step-3 plan T31b, master plan "UI audits"), against the real
+ * The UI audit's automated checks, against the real
  * server on the `households` seed, once per project (phone 375×780, desktop 1280×800), each on its
  * own seeded instance (e2e/instances.ts):
  *

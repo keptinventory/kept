@@ -1,5 +1,5 @@
 /**
- * What a box check checks (D40; plan T26, Q25): the container's **direct** contents. From the
+ * What a box check checks (D40): the container's **direct** contents. From the
  * server when online (the freshest), else from the phone's snapshot, so a box check works in a
  * garage with no signal. A box inside the box is one line, checked as a unit, never opened.
  */

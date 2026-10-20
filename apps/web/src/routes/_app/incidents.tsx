@@ -1,5 +1,5 @@
 /**
- * Incidents (plan T26; D158, screens §5): burglaries, fires, floods and losses, each grouping the
+ * Incidents (D158): burglaries, fires, floods and losses, each grouping the
  * things it affected, with the insurance report and a claim pack. The parent of /incidents/$id
  * (incidents.$id.tsx): when a child matches, this renders only the child. The screen loads on
  * demand (components/incidents/lazy.tsx); its list state is in the URL (surface `incidents`).

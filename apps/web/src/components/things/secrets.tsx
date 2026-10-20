@@ -2,7 +2,7 @@
  * Secret fields (D116, D175): kept in their own encrypted store, never in the thing's row.
  * "Reveal" (only when the field's policy lets you) shows the value for 30 seconds with
  * "Revealed · logged", then hides it again, and at once if you leave the page or switch away.
- * Copy is allowed and logged as copied (§8). Setting a value is write-only: "Replace" never shows
+ * Copy is allowed and logged as copied. Setting a value is write-only: "Replace" never shows
  * the old one. The first secret value on an instance needs the recovery kit acknowledged (D193).
  */
 import { Trans, useLingui } from '@lingui/react/macro';

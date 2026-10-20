@@ -12,7 +12,7 @@ import {
 } from './barcode.js';
 import { type ResolveDeps, ResolveScanBody, resolveScan, ScanOutcomeSchema } from './resolve.js';
 
-// Scan (plan T17; D40, D104, D120, D126, D137, D146; engineering spec §2.4, §3.2; Q22).
+// Scan (D40, D104, D120, D126, D137, D146).
 // The web contract is apps/web/src/api/capture/{paths,types}.ts "scan, barcodes and box checks".
 //
 // POST /api/v1/scan/resolve {text, format?} → ScanOutcome (read-only: on the route catalogue's

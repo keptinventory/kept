@@ -3,7 +3,7 @@
  * `<div role="img" aria-labelledby="<button id>">` to its hidden log for 7 seconds. When the
  * button goes first (a sheet closes on save, a toast's action runs), the node points at nothing,
  * an image without a name: axe's `role-img-alt`, "serious" (found by the step-3 e2e right after
- * a toast; step-4 plan T28). It has been read out already, the moment it was added, so an orphan
+ * a toast). It has been read out already, the moment it was added, so an orphan
  * is removed as soon as what it names is gone.
  *
  * `guardAnnouncer()` watches the document once and returns its own stop; the Toaster installs it.
