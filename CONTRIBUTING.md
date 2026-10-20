@@ -21,7 +21,7 @@ On the docs site:
   [migrations](https://keptinventory.info/developers/migrations/),
   [API conventions](https://keptinventory.info/developers/api/) and
   [the MCP server](https://keptinventory.info/developers/mcp/).
-- **Maintainers:** [the DCO](https://keptinventory.info/maintainers/dco/) and
+- **Maintainers:** [the CLA](https://keptinventory.info/maintainers/cla/) and
   [releasing](https://keptinventory.info/maintainers/releasing/).
 
 ## Prerequisites
@@ -148,7 +148,7 @@ in parallel jobs that are required to merge:
 | `e2e` | Playwright against the built server |
 | `images-amd64`, `images-arm64` | the image built natively on each architecture and smoked |
 | `helm` | the chart's lint, render and schema check |
-| `attribution`, `dco` | no AI attribution; every commit signed off |
+| `attribution` | no AI attribution in the commits or the description |
 | `build` (`docs.yml`) | the docs site, with its link check |
 
 Performance runs nightly (`perf.yml`) as a report, not a gate: timings on a shared runner are
@@ -228,37 +228,23 @@ runs the generic rules only.
   crediting them in the history is not.
 - One logical change per commit, with a message that says why.
 
-## Sign the CLA once, and sign off every commit
+## Sign the CLA once
 
-**The CLA, once.** Kept takes contributions under its
-[Contributor License Agreement](CLA.md), adapted from the Apache individual CLA. You keep the
-copyright in your work; you grant the maintainer a licence to it, including the right to
-distribute it under other licences. On your first pull request a bot asks you to sign by replying
-with a comment. Once is enough.
-
-**The DCO, every commit.** By adding a `Signed-off-by:` line to a commit you certify, under the
-[Developer Certificate of Origin](https://developercertificate.org/), that you wrote the change or
-otherwise have the right to submit it.
-
-- Sign off every commit: `git commit -s` adds
-  `Signed-off-by: Your Name <you@example.org>`, from your `user.name` and `user.email`.
-- The line must name the commit's author exactly. The `dco` job in `.github/workflows/ci.yml` runs
-  `scripts/check-dco.sh` over a pull request's commits and fails on a missing or different
-  sign-off; run it yourself with `bash scripts/check-dco.sh --range origin/main..HEAD`.
-- Forgot? `git rebase --signoff origin/main`, then force-push your branch.
-- Merge commits are not checked. The history from before Kept was public has no sign-offs; the DCO
-  applies from the first public pull request on.
+Sign the [Contributor License Agreement](CLA.md) once, on your first pull request: a bot asks you
+to reply with a comment, and that covers every later contribution. Kept is AGPL; the CLA also lets
+the maintainer offer Kept under other terms, such as a hosted version. You keep the copyright in
+your work. Self-hosting stays free and open source.
 
 ## Branches and pull requests
 
 `main` is protected: nobody pushes to it directly, the maintainer included.
 
 1. Fork, or branch in the repository if you have access: `git switch -c fix/short-name`.
-2. Commit with sign-off; run `bash scripts/ci-local.sh --fast` and the tests you touched.
+2. Commit; run `bash scripts/ci-local.sh --fast` and the tests you touched.
 3. Open a pull request against `main`. Its **title is a Conventional Commit subject**: pull
-   requests are squash-merged, the title becomes the commit on `main`, and your commits (with their
-   sign-offs) become its body. Fill in the template's checks.
-4. The required checks (`fast`, `attribution`, `dco`, `build`) must pass and every review thread
+   requests are squash-merged, the title becomes the commit on `main`, and your commits become its
+   body. Fill in the template's checks.
+4. The required checks (`fast`, `attribution`, `build`) must pass and every review thread
    must be resolved. History on `main` stays linear; the branch is deleted on merge.
 
 **Review.** The maintainer reviews every pull request. Expect questions

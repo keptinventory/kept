@@ -163,7 +163,6 @@ and `pnpm --filter @kept/docs gen:config` (regenerates the
 | `scripts/check-no-local-paths.mjs` | No home directories, private addresses or tailnet names in tracked files |
 | `scripts/check-licences.mjs` | Every dependency's licence is on the allowlist |
 | `scripts/check-attribution.sh` | No AI attribution in commits (also the commit-msg hook in `.githooks/`) |
-| `scripts/check-dco.sh` | Every commit is signed off by its author |
 | `scripts/check-helm.sh` | The chart: lint, golden renders, kubeconform, image pins |
 | `apps/web/scripts/check-bundle.mjs` | The web bundle and precache size budget |
 
@@ -171,5 +170,5 @@ and `pnpm --filter @kept/docs gen:config` (regenerates the
 compose, test, drift, licences, attribution, docs, helm, prod-boot, eval, portability, backup,
 perf, e2e, images, release-dry-run. `--fast` runs lint, catalogues, typecheck, the unit tests
 and the evaluations, with no Docker. On a pull request GitHub Actions (`.github/workflows/ci.yml`)
-runs the fast half and the licence, attribution and sign-off checks; the steps that need Docker
+runs the fast half and the licence and attribution checks; the steps that need Docker
 and the database run locally.

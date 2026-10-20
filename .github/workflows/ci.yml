@@ -12,8 +12,7 @@
 #   images-amd64,  the image built natively on each architecture's runner and smoked in full
 #   images-arm64   (scripts/smoke-image.sh)
 #   helm           the chart's lint, render and schema check at the pinned Helm and kubeconform
-#   attribution,   on a pull request: no AI attribution (D173), every commit signed off (DCO)
-#   dco
+#   attribution    on a pull request: no AI attribution (D173)
 # docs.yml's `build` builds the docs site (its link check included). perf runs nightly in
 # perf.yml: timing limits on a shared runner are a report, not a gate. Each job runs its slice of
 # the same script a developer runs (`ci-local.sh --only …`), so a failure reproduces locally.
@@ -307,19 +306,3 @@ jobs:
           bash scripts/check-attribution.sh --range "$BASE..$HEAD"
           printf '%s\n' "$PR_BODY" > "$RUNNER_TEMP/pr-body.txt"
           bash scripts/check-attribution.sh "$RUNNER_TEMP/pr-body.txt"
-
-  dco:
-    if: github.event.repository.private == false && github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      # The Developer Certificate of Origin (CONTRIBUTING.md): every commit of the pull request is
-      # signed off by its author (`git commit -s`). No bot, no third-party app.
-      - env:
-          BASE: ${{ github.event.pull_request.base.sha }}
-          HEAD: ${{ github.event.pull_request.head.sha }}
-        run: bash scripts/check-dco.sh --range "$BASE..$HEAD"

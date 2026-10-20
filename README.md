@@ -22,7 +22,7 @@
   <a href="LICENSE"><img alt="Licence: AGPL-3.0" src="https://img.shields.io/badge/licence-AGPL--3.0-F0B03A?style=flat-square&labelColor=55524C"></a>
   <a href="https://keptinventory.info/"><img alt="Documentation" src="https://img.shields.io/badge/docs-keptinventory.info-F0B03A?style=flat-square&labelColor=55524C&label=docs"></a>
   <a href="https://github.com/orgs/keptinventory/packages/container/package/kept"><img alt="Container image: ghcr.io/keptinventory/kept" src="https://img.shields.io/badge/image-ghcr.io%2Fkeptinventory%2Fkept-F0B03A?style=flat-square&labelColor=55524C"></a>
-  <a href="CONTRIBUTING.md#sign-the-cla-once-and-sign-off-every-commit"><img alt="CLA and DCO sign-off" src="https://img.shields.io/badge/CLA%20%2B%20DCO-sign--off-F0B03A?style=flat-square&labelColor=55524C"></a>
+  <a href="CONTRIBUTING.md#sign-the-cla-once"><img alt="CLA: sign once" src="https://img.shields.io/badge/CLA-sign%20once-F0B03A?style=flat-square&labelColor=55524C"></a>
 </p>
 
 <p align="center">
@@ -187,7 +187,7 @@ The camera, installing the app, push and location need HTTPS:
 
 - **Now:** [continuous scanning](https://github.com/keptinventory/kept/issues/168): count a whole room in one walk
 - **Next:** [mobile apps](https://github.com/keptinventory/kept/issues/169) · [kits and "who has it"](https://github.com/keptinventory/kept/issues/170) · [more 3D map shapes, from your requests](https://github.com/keptinventory/kept/issues/171)
-- **Later:** [stocktakes](https://github.com/keptinventory/kept/issues/172) · [more barcode types and video](https://github.com/keptinventory/kept/issues/173) · [Kept Cloud](https://github.com/keptinventory/kept/issues/174)
+- **Later:** [stocktakes](https://github.com/keptinventory/kept/issues/172) · [more barcode types and video](https://github.com/keptinventory/kept/issues/173)
 
 [Full roadmap →](https://github.com/orgs/keptinventory/projects/1) · 👍 the themes you want most.
 
@@ -201,7 +201,7 @@ The camera, installing the app, push and location need HTTPS:
 | MCP | [Connect an AI client](https://keptinventory.info/users/mcp-clients/) |
 | Roadmap | [Now, next and later](https://github.com/orgs/keptinventory/projects/1) |
 | Questions and ideas | [Discussions](https://github.com/keptinventory/kept/discussions) |
-| Contributing | [CONTRIBUTING.md](CONTRIBUTING.md): a discussion or an issue first for anything larger than a fix; [the CLA once, a sign-off on every commit](CONTRIBUTING.md#sign-the-cla-once-and-sign-off-every-commit) |
+| Contributing | [CONTRIBUTING.md](CONTRIBUTING.md): a discussion or an issue first for anything larger than a fix; [sign the CLA once](CONTRIBUTING.md#sign-the-cla-once) |
 | Security | [SECURITY.md](SECURITY.md): report privately, never in a public issue |
 | Changelog | [CHANGELOG.md](CHANGELOG.md) |
 

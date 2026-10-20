@@ -164,8 +164,7 @@ requests:
 
 - **`fast`**: `pnpm install --frozen-lockfile`, `bash scripts/ci-local.sh --fast`, and
   `node scripts/check-licences.mjs`;
-- **`attribution`** (pull requests): no AI attribution in any commit or in the description;
-- **`dco`** (pull requests): every commit signed off (`scripts/check-dco.sh`).
+- **`attribution`** (pull requests): no AI attribution in any commit or in the description.
 
 Everything that needs Docker or a database stays in the local gate. Say in a pull request which
 ci-local steps you could not run.

@@ -40,7 +40,7 @@ checklist:
 - new strings in all five catalogues, Arabic in the house style; logical CSS; works at 375 px and
   1280;
 - Conventional Commit messages, and no AI attribution in commits or the description (D173);
-- every commit signed off ([the DCO](/maintainers/dco/)).
+- the CLA signed, once, on the contributor's first pull request ([the CLA](/maintainers/cla/)).
 
 ### Checks that run on a pull request
 
@@ -62,7 +62,6 @@ so a failure reproduces locally with the same `--only` list. Every job is gated 
 | `ci` | `images-amd64`, `images-arm64` | `ci-local.sh --only images`: the image built natively on that architecture's runner and smoked in full |
 | `ci` | `helm` | the pinned Helm and kubeconform, then `ci-local.sh --only helm` |
 | `ci` | `attribution` | `scripts/check-attribution.sh` over the pull request's commits and its description |
-| `ci` | `dco` | `scripts/check-dco.sh` over the pull request's commits |
 | [`docs`](https://github.com/keptinventory/kept/blob/main/.github/workflows/docs.yml) | `build` | the configuration reference is current, then the docs site builds; a broken link fails it |
 
 `ci` also runs on pushes to `main`; `docs` also deploys to GitHub Pages from `main`. `release.yml`

@@ -153,13 +153,13 @@ fi
 
 # ---- merge ---------------------------------------------------------------------------------------
 # Squash only, the PR title as the commit title (Conventional Commits live in PR titles), the
-# branch commits as its body (keeps each commit's Signed-off-by), branches deleted on merge,
-# auto-merge allowed, "update branch" always offered, sign-off required on web commits (DCO, D5).
+# branch commits as its body, branches deleted on merge, auto-merge allowed, "update branch"
+# always offered. No sign-off on web commits: contributors sign the CLA once instead.
 merge_want='{
   "allow_squash_merge": true, "allow_merge_commit": false, "allow_rebase_merge": false,
   "squash_merge_commit_title": "PR_TITLE", "squash_merge_commit_message": "COMMIT_MESSAGES",
   "delete_branch_on_merge": true, "allow_auto_merge": true, "allow_update_branch": true,
-  "web_commit_signoff_required": true
+  "web_commit_signoff_required": false
 }'
 if want merge; then
   section "merge"
@@ -381,7 +381,7 @@ if want main-ruleset; then
     # The required checks: the job ids of ci.yml and docs.yml (a job without `name:` reports its
     # id), from the GitHub Actions app. Each is checked against the workflow file, so a renamed
     # job fails here rather than leaving a check that never reports.
-    required=(ci.yml:fast ci.yml:db ci.yml:e2e ci.yml:e2e-update ci.yml:images-amd64 ci.yml:images-arm64 ci.yml:helm ci.yml:attribution ci.yml:dco docs.yml:build)
+    required=(ci.yml:fast ci.yml:db ci.yml:e2e ci.yml:e2e-update ci.yml:images-amd64 ci.yml:images-arm64 ci.yml:helm ci.yml:attribution docs.yml:build)
     use_checks=$checks
     [[ $use_checks == auto ]] && { [[ $private == true ]] && use_checks=off || use_checks=on; }
     actions_app=$(gh api apps/github-actions -q .id)

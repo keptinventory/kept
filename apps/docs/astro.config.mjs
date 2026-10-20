@@ -155,7 +155,7 @@ const sidebar = [
     page('maintainers/changelog'),
     page('maintainers/triage'),
     page('maintainers/security'),
-    page('maintainers/dco'),
+    page('maintainers/cla'),
     page('maintainers/decisions'),
     page('maintainers/runbooks'),
   ]),

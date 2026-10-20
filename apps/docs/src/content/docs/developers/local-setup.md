@@ -14,7 +14,7 @@ git config core.hooksPath .githooks
 ```
 
 The commit-msg hook in `.githooks/` rejects AI attribution in commit messages
-(`scripts/check-attribution.sh`). Sign your commits with `git commit -s`; see
+(`scripts/check-attribution.sh`). On your first pull request you sign the CLA once; see
 [CONTRIBUTING.md](https://github.com/keptinventory/kept/blob/main/CONTRIBUTING.md).
 
 ## 2. Start the database and the mail catcher

@@ -33,10 +33,10 @@ with each setting below.
   gives one commit on `main` per pull request.
 - **The pull request title is the squash commit's title** (`PR_TITLE`), so a Conventional Commit
   title on the pull request becomes the commit `changelog.mjs` reads. The body stays the branch's
-  commit messages (`COMMIT_MESSAGES`), which keeps each commit's `Signed-off-by`.
+  commit messages (`COMMIT_MESSAGES`).
 - **Delete the branch on merge**, **allow auto-merge**, **always suggest updating the branch**.
-- **Sign-off required on web commits** (`web_commit_signoff_required`): an edit made in GitHub's
-  web editor gets the DCO sign-off the `dco` check asks for.
+- **No sign-off required on web commits** (`web_commit_signoff_required: false`): contributors
+  sign the CLA once instead of signing off each commit.
 
 ### Features (`features`) — safe now
 
@@ -103,7 +103,7 @@ A branch ruleset "main" on the default branch:
 
 - **changes only through pull requests**, 0 approvals required (a solo maintainer can't approve his
   own pull request), all review conversations resolved, squash the only merge method;
-- **required status checks**, from the GitHub Actions app only: `fast`, `attribution` and `dco`
+- **required status checks**, from the GitHub Actions app only: `fast` and `attribution`
   (`ci.yml`'s job ids) and `build` (`docs.yml`), with the branch up to date before merging. The
   script checks each name against the workflow file and stops if a job was renamed;
 - **linear history**; **no force-push**; **no deletion**;
