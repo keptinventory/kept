@@ -1,7 +1,7 @@
 # The Contributor License Agreement (D221; D105, D187). CLA.md is adapted from the Apache
-# individual CLA V2.2. A contributor signs once by commenting on their first pull request; the
-# DCO sign-off (the ci workflow's dco job) still applies to every commit. Gated on a public
-# repository, like the other workflows.
+# individual CLA V2.2. A contributor signs once by commenting on their first pull request; commits
+# need no sign-off. Kept is AGPL; the CLA also lets the maintainer offer it under other terms. Gated
+# on a public repository, like the other workflows.
 #
 # StepSecurity's fork of CLA Assistant Lite (the upstream action is archived), pinned by commit SHA.
 # It runs under pull_request_target, so it must NEVER check out or run the pull

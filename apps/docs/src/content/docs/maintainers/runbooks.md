@@ -38,7 +38,6 @@ All in [`scripts/`](https://github.com/keptinventory/kept/tree/main/scripts):
 | `ci-local.sh` | The CI gate: every step below. `--fast` runs lint, catalogues, typecheck, unit and eval only (no Docker, no database); `--from <step>` starts at a step; `--list` prints the step names. |
 | `release.sh` | The release: `--run-gate`, `--dry-run`, the laptop release, and `--ci` for the workflow ([releasing](/maintainers/releasing/)). Its stages are in `scripts/release/`. |
 | `changelog.mjs` | The changelog section for a release ([the changelog](/maintainers/changelog/)). |
-| `check-dco.sh` | Sign-offs over a range of commits ([the DCO](/maintainers/dco/)). |
 | `check-attribution.sh` | No AI attribution in a commit message, a range of commits, or a release's notes (D173). |
 | `tools.sh` | The laptop tools the chart check and the release need (cosign, helm, kubeconform), each at a pinned version: `path`, `fetch` (download and verify its SHA-256 into `.tmp/tools/`) and `check`. |
 | `smoke-image.sh <image>` | Runs a built image as `compose.yaml` does, against a throwaway Postgres, and checks it migrates, serves `/readyz` and `/version`, runs as uid 10001 on a read-only root, generates its keys and setup code once, and backs up and drills with restic. The release runs a shorter scope (`SMOKE_SCOPE=release`). |
