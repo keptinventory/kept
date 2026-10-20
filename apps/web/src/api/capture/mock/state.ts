@@ -16,7 +16,13 @@
  * `seedThings`, added to the inventory on the first inbox request (./inbox.ts), so step 2's
  * fixtures and their tests keep their counts.
  */
-import { INBOX_KINDS, type InboxKind, RECOMMENDED, type SyncOpResult } from '@kept/shared';
+import {
+  INBOX_KINDS,
+  type InboxKind,
+  RECOMMENDED,
+  type ScanSessionLine,
+  type SyncOpResult,
+} from '@kept/shared';
 import type { StoredThing } from '../../inventory/mock/db';
 import { INV_IDS } from '../../inventory/mock/fixtures';
 import type { ActorRef, PathStep } from '../../inventory/types';
@@ -31,6 +37,7 @@ import type {
   ImportRun,
   InboxItem,
   LabelBatch,
+  ScanSessionView,
   UndoableEvent,
 } from '../types';
 
@@ -113,6 +120,9 @@ export type CaptureState = {
   undoable: Record<string, UndoableEvent[]>;
   /** `sync_ops` by idempotency key: a replay answers the stored result. */
   syncOps: Record<string, SyncOpResult>;
+  /** 1.12: scan sessions' lines as they arrive, and the saved sessions. */
+  scanLines?: Record<string, { mode: string; locationId: string; lines: ScanSessionLine[] }>;
+  scanSessions?: Record<string, ScanSessionView>;
   /** `instance_settings.barcode_lookup` (D126): off by default. */
   barcodeLookup: boolean;
   /** Barcodes the lookup knows (Open Food Facts stand-ins). */

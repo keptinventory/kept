@@ -34,7 +34,7 @@ import {
 } from './store';
 
 /** The schema version. Raise it with a new `this.version(n).stores(…)` block, never edit v1. */
-export const DB_VERSION = 4;
+export const DB_VERSION = 5;
 
 /** v1's tables and indexes, unchanged in v2. */
 export const V1_STORES = {
@@ -75,6 +75,18 @@ export const V4_STORES = {
   extras: 'thingId, locationId',
   extraDocs: 'attachmentId, locationId, thingId',
   keptOffline: 'locationId',
+};
+
+/**
+ * v5 (1.12): a scan session in progress on this phone (components/scan/session/persist.ts), so it
+ * survives a reload, a crash or closing the app. New tables only.
+ * - `scanSessions`: the session without its reads (its expected list, mode, target, state).
+ * - `scanReads`: one row per code read, in order (`seq`), so a read writes a few bytes.
+ */
+export const V5_STORES = {
+  ...V4_STORES,
+  scanSessions: 'id',
+  scanReads: '[sessionId+key], sessionId',
 };
 
 /** The keep-offline tables: a 401, ten wrong PINs and a location's toggle going off empty them. */
@@ -192,6 +204,12 @@ export type SharedRow = {
   files: { name: string; type: string; bytes: ArrayBuffer }[];
 };
 
+/** A scan session in progress (v5): the session as components/scan/session/model.ts has it,
+ * without its reads and keys, which are rows of `scanReads`. */
+export type ScanSessionRow = { id: string; session: unknown; updatedAt: number };
+/** One code a scan session handled: `read` is null for one it didn't keep (a place, a repeat). */
+export type ScanReadRow = { sessionId: string; key: string; seq: number; read: unknown };
+
 export class KeptDb extends Dexie {
   declare meta: Table<MetaRow, MetaKey>;
   declare locations: Table<SnapLocation, string>;
@@ -210,6 +228,8 @@ export class KeptDb extends Dexie {
   declare extras: Table<ExtraRow, string>;
   declare extraDocs: Table<ExtraDocRow, string>;
   declare keptOffline: Table<KeptOfflineRow, string>;
+  declare scanSessions: Table<ScanSessionRow, string>;
+  declare scanReads: Table<ScanReadRow, [string, string]>;
 
   constructor(userId: string, options?: DexieOptions) {
     super(dbName(userId), options);
@@ -240,6 +260,8 @@ export class KeptDb extends Dexie {
       });
     // v4: the app lock and the keep-offline extras, in tables of their own.
     this.version(4).stores(V4_STORES);
+    // v5: a scan session in progress, in tables of its own.
+    this.version(5).stores(V5_STORES);
   }
 }
 

@@ -365,6 +365,23 @@ describe('deltas', () => {
     expect(pages.flatMap((p) => p.removed)).toEqual([]);
   });
 
+  it('carry a thing’s product barcode, so a scan session matches it offline', async () => {
+    const mark = await markNow();
+    const state: CursorState = {
+      v: 1,
+      w: { [home.id]: mark, [louis.personalLocationId]: mark },
+      p: null,
+    };
+    await own(`UPDATE public.things SET barcode = '5901234123457' WHERE id = $1`, [drill]);
+    const { pages } = await directPull(louis, state);
+    const rows = new Map(allOf(pages, 'things').map((x) => [x.id, x]));
+    expect(rows.get(drill)?.barcode).toBe('5901234123457');
+    expect(rows.has(ladder)).toBe(false);
+    const full = await directPull(louis, { v: 1, w: {}, p: null });
+    const ladderRow = allOf(full.pages, 'things').find((x) => x.id === ladder);
+    expect(ladderRow && 'barcode' in ladderRow).toBe(false);
+  });
+
   it('carry a rename, a sighting and the trash, and not a quiet cache update', async () => {
     const shelf = await place(home, 'Shelf');
     const mark = await markNow();

@@ -393,6 +393,9 @@ export function MapCard(p: CardProps) {
               <Trans>Photograph this room</Trans>
             </Link>
           ) : null}
+          <Link to="/scan-session" search={{ mode: 'count', place: r.id }} className="kmap-btn">
+            <Trans>Count this room</Trans>
+          </Link>
         </div>
         {p.arranging ? (
           <>

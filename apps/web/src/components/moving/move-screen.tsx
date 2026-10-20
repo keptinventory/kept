@@ -401,6 +401,13 @@ function BoardView({ board }: { board: Board }) {
               <QrIcon className="size-4" />
               <Trans>Scan to unpack</Trans>
             </Button>
+            <Button
+              variant="secondary"
+              onPress={() => void navigate({ to: '/scan-session', search: { mode: 'pack' } })}
+            >
+              <QrIcon className="size-4" />
+              <Trans>Pack boxes</Trans>
+            </Button>
             <Button variant="secondary" isDisabled={!online} onPress={() => setAdding(true)}>
               <PlusIcon className="size-4" />
               <Trans>Add a box</Trans>

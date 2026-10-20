@@ -269,6 +269,14 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'thing.reextract': (p) => `Read the photo of ${p.name} again`,
   'thing.merge': (p) => `Merged a duplicate into ${p.name}`,
   'box.check': (p) => `Checked what is in ${p.name}`,
+  'scan.session': (p) =>
+    p.expected ? `Counted ${p.name}: ${p.count} of ${p.expected}` : `Counted ${p.name}: ${p.count}`,
+  'scan.session.pack': (p) =>
+    plural(p.count, `Packed # thing into ${p.name}`, `Packed # things into ${p.name}`),
+  'scan.session.pack.many': (p) =>
+    plural(p.count, 'Packed # thing into boxes', 'Packed # things into boxes'),
+  'scan.session.move': (p) =>
+    plural(p.count, `Moved # thing to ${p.name}`, `Moved # things to ${p.name}`),
   'label.claim': (p) => `Gave ${p.name} a label`,
   'location.own_codes': (p) => `Changed how ${p.name} numbers its codes`,
   'location.transfer_ownership': (p) => `Handed ${p.name} to a new owner`,
@@ -477,6 +485,13 @@ function keyOf(event: RenderedAuditEvent, ctx: SummaryContext): SummaryKey {
       return afterOf(event, 'role') === 'photo' ? 'attachment.create.photo' : action;
     case 'report.generate':
       return REPORT_KINDS[String(afterOf(event, 'kind'))] ?? action;
+    case 'scan.session': {
+      const mode = afterOf(event, 'mode');
+      if (mode === 'move') return 'scan.session.move';
+      if (mode !== 'pack') return action;
+      const counts = afterOf(event, 'counts') as { targets?: unknown } | null | undefined;
+      return Number(counts?.targets ?? 1) > 1 ? 'scan.session.pack.many' : 'scan.session.pack';
+    }
     case 'label_batch.create': {
       const kind = afterOf(event, 'kind');
       return kind === 'things'
@@ -572,6 +587,15 @@ export function summarise(event: RenderedAuditEvent, ctx: SummaryContext): Summa
       // Left out when the row shows no lifecycle change.
       const lifecycle = afterOf(event, 'lifecycle');
       if (typeof lifecycle === 'string') params.lifecycle = lifecycle;
+    }
+    if (key.startsWith('scan.session')) {
+      // Counts only: how many were found (a count) or moved (a pack or a move), and expected.
+      const c = afterOf(event, 'counts') as Record<string, unknown> | null | undefined;
+      const n = key === 'scan.session' ? c?.found : c?.moved;
+      params.count = String(typeof n === 'number' ? n : 0);
+      if (key === 'scan.session' && typeof c?.expected === 'number') {
+        params.expected = String(c.expected);
+      }
     }
     if (key.startsWith('label_batch.create')) {
       params.count = String(countOf(afterOf(event, 'code_count')) ?? 0);

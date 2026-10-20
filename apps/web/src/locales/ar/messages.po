@@ -25245,3 +25245,423 @@ msgstr "كل صورة غرفة"
 #: src/components/ai/labels.ts
 msgid "Each room capture of several photos"
 msgstr "كل التقاط غرفة من عدة صور"
+
+msgid "Count here"
+msgstr "عُدّ هنا"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Scan every label in {name} in one walk"
+msgstr "امسح كل ملصق في {name} في جولة واحدة"
+
+#: src/map/card.tsx
+msgid "Count this room"
+msgstr "عُدّ هذه الغرفة"
+
+#: src/components/things/action-menu.tsx
+msgid "Count this box"
+msgstr "عُدّ هذا الصندوق"
+
+#: src/components/things/action-menu.tsx
+msgid "Pack into this box"
+msgstr "عبّئ في هذا الصندوق"
+
+#: src/components/scan/scan-screen.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "Resume session"
+msgstr "تابع الجلسة"
+
+#: src/components/scan/scan-screen.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "Start a session"
+msgstr "ابدأ جلسة"
+
+#: src/components/scan/session/camera.tsx
+msgid "The camera isn't available"
+msgstr "الكاميرا غير متاحة"
+
+#: src/components/scan/session/camera.tsx
+msgid "Type codes, or use a USB or Bluetooth barcode scanner."
+msgstr "اكتب الرموز، أو استخدم قارئ رموز شريطية عبر USB أو بلوتوث."
+
+#: src/components/scan/session/camera.tsx
+msgid "Torch off"
+msgstr "أطفئ المصباح"
+
+#: src/components/scan/session/camera.tsx
+msgid "Torch"
+msgstr "المصباح"
+
+#: src/components/scan/session/camera.tsx
+msgid "The camera is off in this demo. Play a recorded walk past the sample labels."
+msgstr "الكاميرا مطفأة في هذا العرض. شغّل جولة مسجّلة بين ملصقات العيّنة."
+
+#: src/components/scan/session/camera.tsx
+msgid "Stop the walk"
+msgstr "أوقف الجولة"
+
+#: src/components/scan/session/camera.tsx
+msgid "Play a sample walk"
+msgstr "شغّل جولة تجريبية"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "This phone couldn't keep the session. Keep the screen open."
+msgstr "لم يتمكن هذا الهاتف من حفظ الجلسة. أبقِ الشاشة مفتوحة."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Scan a box's label"
+msgstr "امسح ملصق صندوق"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Scan a place or a box"
+msgstr "امسح مكانًا أو صندوقًا"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "This session is full: finish it, then start another."
+msgstr "هذه الجلسة ممتلئة: أنهِها ثم ابدأ أخرى."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "That's a place's label. Count it from its own page."
+msgstr "هذا ملصق مكان. عُدّه من صفحته."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "A room can't be moved; scan things or boxes"
+msgstr "لا يمكن نقل غرفة؛ امسح أشياء أو صناديق"
+
+#: src/components/scan/session/session-screen.tsx
+#: src/components/scan/session/summary.tsx
+msgid "{found} of {all}"
+msgstr "{found} من {all}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Opening the session"
+msgstr "جارٍ فتح الجلسة"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Scan session"
+msgstr "جلسة مسح"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "A count of <0>{0}</0> is open on this phone."
+msgstr "عدّ <0>{0}</0> مفتوح على هذا الهاتف."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "A session is open on this phone."
+msgstr "هناك جلسة مفتوحة على هذا الهاتف."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "{0, plural, one {# label read so far.} other {# labels read so far.}}"
+msgstr "{0, plural, zero {لم يُقرأ أي ملصق بعد.} one {قُرئ ملصق واحد حتى الآن.} two {قُرئ ملصقان حتى الآن.} few {قُرئت # ملصقات حتى الآن.} many {قُرئ # ملصقًا حتى الآن.} other {قُرئ # ملصق حتى الآن.}}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Discard this session?"
+msgstr "أتتجاهل هذه الجلسة؟"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "What it read is not saved."
+msgstr "ما قرأته لن يُحفظ."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Discard it and start another"
+msgstr "تجاهلها وابدأ أخرى"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Summary"
+msgstr "الملخص"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Count {0}"
+msgstr "عدّ {0}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Pack into boxes"
+msgstr "التعبئة في صناديق"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Move to {0}"
+msgstr "النقل إلى {0}"
+
+#: src/components/scan/session/session-screen.tsx
+#: src/components/scan/session/summary.tsx
+msgid "You're a viewer: nothing is saved"
+msgstr "أنت مشاهد: لا يُحفظ شيء"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Scan the next box"
+msgstr "امسح الصندوق التالي"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Scan where things go next"
+msgstr "امسح المكان الذي تذهب إليه الأشياء الآن"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Going into {0}"
+msgstr "إلى داخل {0}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Now moving to {0}"
+msgstr "النقل الآن إلى {0}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Nearly full: a session holds 5,000 labels."
+msgstr "ممتلئة تقريبًا: تتسع الجلسة لـ ٥٬٠٠٠ ملصق."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Last reads"
+msgstr "آخر القراءات"
+
+#: src/components/scan/session/session-screen.tsx
+#: src/components/scan/session/summary.tsx
+msgid "in <0>{where}</0>"
+msgstr "في <0>{where}</0>"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "View only here"
+msgstr "للعرض فقط هنا"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Undo last read"
+msgstr "تراجع عن آخر قراءة"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Pause"
+msgstr "إيقاف مؤقت"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "All of {0}"
+msgstr "كل {0}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Count"
+msgstr "العدّ"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Walk a place or a box: what you scan is seen; the summary shows what's missing."
+msgstr "تجوّل في مكان أو صندوق: ما تمسحه يُسجَّل أنه شوهد، ويُظهر الملخص ما ينقص."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Check a place or a box: see what's there and what's missing. Viewers' counts aren't saved."
+msgstr "افحص مكانًا أو صندوقًا: انظر ما هناك وما ينقص. عدّ المشاهدين لا يُحفظ."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Pack into"
+msgstr "التعبئة في"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Everything you scan goes into a box. Tap Target, then scan the next box."
+msgstr "كل ما تمسحه يدخل صندوقًا. اضغط الوجهة ثم امسح الصندوق التالي."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Move to"
+msgstr "النقل إلى"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Everything you scan moves to a place or a box."
+msgstr "كل ما تمسحه يُنقل إلى مكان أو صندوق."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "What to do"
+msgstr "ماذا تفعل"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Counting <0>{0}</0>"
+msgstr "عدّ <0>{0}</0>"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Packing into <0>{0}</0>"
+msgstr "التعبئة في <0>{0}</0>"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Moving to <0>{0}</0>"
+msgstr "النقل إلى <0>{0}</0>"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "What to count"
+msgstr "ما الذي تعدّه"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Where things go"
+msgstr "أين تذهب الأشياء"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Scan the box's label"
+msgstr "امسح ملصق الصندوق"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Include the places inside it"
+msgstr "ضمّن الأماكن التي بداخله"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "A box you scan counts what's inside it"
+msgstr "الصندوق الذي تمسحه يحتسب ما بداخله"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Nothing changes until you finish: the summary shows what was found, what's missing and what's elsewhere, and you choose what to save."
+msgstr "لا يتغير شيء حتى تنتهي: يُظهر الملخص ما وُجد وما ينقص وما في مكان آخر، وتختار أنت ما تحفظه."
+
+#: src/components/scan/session/summary.tsx
+msgid "Waiting to save. It will save when you're online."
+msgstr "في انتظار الحفظ. سيُحفظ عندما تكون متصلًا."
+
+#: src/components/scan/session/summary.tsx
+msgid "Couldn't save your count of <0>{name}</0>: you can no longer edit there."
+msgstr "تعذّر حفظ عدّك لـ <0>{name}</0>: لم يعد بإمكانك التعديل هناك."
+
+#: src/components/scan/session/summary.tsx
+msgid "Couldn't save this session: you can no longer edit there."
+msgstr "تعذّر حفظ هذه الجلسة: لم يعد بإمكانك التعديل هناك."
+
+#: src/components/scan/session/summary.tsx
+msgid "Couldn't save this session. What it read is still on this phone."
+msgstr "تعذّر حفظ هذه الجلسة. ما قرأته لا يزال على هذا الهاتف."
+
+#: src/components/scan/session/summary.tsx
+msgid "Undone."
+msgstr "تم التراجع."
+
+#: src/components/scan/session/summary.tsx
+msgid "Couldn't undo: something it changed has changed since."
+msgstr "تعذّر التراجع: شيء غيّرته تغيّر منذ ذلك الحين."
+
+#: src/components/scan/session/summary.tsx
+msgid "Undo the whole session"
+msgstr "تراجع عن الجلسة كلها"
+
+#: src/components/scan/session/summary.tsx
+msgid "Find in this summary"
+msgstr "ابحث في هذا الملخص"
+
+#: src/components/scan/session/summary.tsx
+msgid "Found ({0})"
+msgstr "وُجد ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Missing ({0})"
+msgstr "مفقود ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Mark not here"
+msgstr "سجّل أنه ليس هنا"
+
+#: src/components/scan/session/summary.tsx
+msgid "Mark all not here"
+msgstr "سجّل الكل ليس هنا"
+
+#: src/components/scan/session/summary.tsx
+msgid "No label ({0})"
+msgstr "بلا ملصق ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Found elsewhere ({0})"
+msgstr "وُجد في مكان آخر ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Move all here"
+msgstr "انقل الكل إلى هنا"
+
+#: src/components/scan/session/summary.tsx
+msgid "In another location ({0})"
+msgstr "في موقع آخر ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "View only ({0})"
+msgstr "للعرض فقط ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Unmatched ({0})"
+msgstr "غير مطابق ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Blank labels can be claimed from Scan, one at a time."
+msgstr "يمكن ربط الملصقات الفارغة من المسح، واحدًا تلو الآخر."
+
+#: src/components/scan/session/summary.tsx
+msgid "Not in your Kept ({0})"
+msgstr "ليس في Kept الخاص بك ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Check later ({0})"
+msgstr "تحقّق لاحقًا ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Couldn't save on this phone. Try again."
+msgstr "تعذّر الحفظ على هذا الهاتف. حاول مرة أخرى."
+
+#: src/components/scan/session/summary.tsx
+msgid "Back to scanning"
+msgstr "العودة إلى المسح"
+
+#: src/components/scan/session/summary.tsx
+msgid "Show more"
+msgstr "اعرض المزيد"
+
+#: src/components/scan/session/summary.tsx
+msgid "Saved."
+msgstr "حُفظ."
+
+#: src/components/scan/session/summary.tsx
+msgid "Seen: {seen}. Not here: {notHere}. Moved here: {moved}."
+msgstr "شوهد: {seen}. ليس هنا: {notHere}. نُقل إلى هنا: {moved}."
+
+#: src/components/scan/session/summary.tsx
+msgid "Moved: {moved}."
+msgstr "نُقل: {moved}."
+
+#: src/components/scan/session/summary.tsx
+msgid "Left out: {skipped} (trashed or no longer yours to change since)."
+msgstr "مستبعد: {skipped} (نُقل إلى المهملات أو لم يعد بإمكانك تغييره منذ ذلك الحين)."
+
+#: src/components/moving/move-screen.tsx
+msgid "Pack boxes"
+msgstr "عبّئ الصناديق"
+
+#: src/components/history/labels.ts
+msgid "Counted {name}: {found} of {expected}"
+msgstr "عُدّ {name}: {found} من {expected}"
+
+#: src/components/history/labels.ts
+msgid "Counted {name}: {found}"
+msgstr "عُدّ {name}: {found}"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Packed # thing into {name}} other {Packed # things into {name}}}"
+msgstr "{count, plural, zero {لم يُعبّأ أي شيء في {name}} one {عُبّئ شيء واحد في {name}} two {عُبّئ شيئان في {name}} few {عُبّئت # أشياء في {name}} many {عُبّئ # شيئًا في {name}} other {عُبّئ # شيء في {name}}}"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Packed # thing into boxes} other {Packed # things into boxes}}"
+msgstr "{count, plural, zero {لم يُعبّأ أي شيء في صناديق} one {عُبّئ شيء واحد في صناديق} two {عُبّئ شيئان في صناديق} few {عُبّئت # أشياء في صناديق} many {عُبّئ # شيئًا في صناديق} other {عُبّئ # شيء في صناديق}}"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Moved # thing to {name}} other {Moved # things to {name}}}"
+msgstr "{count, plural, zero {لم يُنقل أي شيء إلى {name}} one {نُقل شيء واحد إلى {name}} two {نُقل شيئان إلى {name}} few {نُقلت # أشياء إلى {name}} many {نُقل # شيئًا إلى {name}} other {نُقل # شيء إلى {name}}}"
+
+#: src/components/hints/hint-copy.ts
+msgid "Scan many at once"
+msgstr "امسح الكثير دفعة واحدة"
+
+#: src/components/hints/hint-copy.ts
+msgid "Tap Scan, then Start a session to count, pack or move many labels in one walk."
+msgstr "اضغط مسح، ثم ابدأ جلسة لتعدّ أو تعبّئ أو تنقل ملصقات كثيرة في جولة واحدة."
+
+#: src/components/hints/hint-copy.ts
+msgid "Count, pack or move"
+msgstr "عُدّ أو عبّئ أو انقل"
+
+#: src/components/hints/hint-copy.ts
+msgid "Count checks what's there. Pack into and Move to put everything you scan in one box or place."
+msgstr "العدّ يتحقق مما هناك. التعبئة والنقل يضعان كل ما تمسحه في صندوق أو مكان واحد."
+
+#: src/components/hints/hint-copy.ts
+msgid "Pick a place, or scan its label. A box counts its contents; a room the places inside it."
+msgstr "اختر مكانًا أو امسح ملصقه. الصندوق يعدّ محتوياته، والغرفة الأماكن التي بداخلها."
+
+#: src/components/hints/hint-copy.ts
+msgid "Nothing changes until you finish"
+msgstr "لا يتغير شيء حتى تنتهي"
+
+#: src/components/hints/hint-copy.ts
+msgid "Finish shows what was found and what's missing. Missing things stay as they are unless you choose."
+msgstr "إنهاء يُظهر ما وُجد وما ينقص. تبقى الأشياء الناقصة كما هي إلا إذا اخترت غير ذلك."
+
+#: src/components/hints/hint-copy.ts
+msgid "Scanning"
+msgstr "المسح"

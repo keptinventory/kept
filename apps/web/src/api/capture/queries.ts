@@ -88,7 +88,10 @@ import type {
   ResumeAiResult,
   SaveAsTemplateBody,
   ScanOutcome,
+  ScanResolveBatchBody,
+  ScanResolveBatchResult,
   ScanResolveBody,
+  ScanSessionView,
   SnapshotParams,
   TemplatesResponse,
   UndoableResponse,
@@ -252,6 +255,9 @@ export const captureApi = {
 
   // scan, barcodes, box checks
   resolveScan: (body: ScanResolveBody) => api.post<ScanOutcome>(p.scanResolve, body),
+  resolveScanBatch: (body: ScanResolveBatchBody) =>
+    api.post<ScanResolveBatchResult>(p.scanResolveBatch, body),
+  scanSession: (id: string) => api.get<ScanSessionView>(p.scanSession(id)),
   barcode: (code: string) => api.get<BarcodeLookup>(p.barcode(code)),
   boxCheck: (containerId: string, body: BoxCheckBody) =>
     api.post<BoxCheckResult>(p.thingBoxCheck(containerId), body),

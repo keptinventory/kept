@@ -11,6 +11,8 @@ import {
   parseOpPayload,
   payloadVersionStatus,
   QueueItemSchema,
+  SCAN_SESSION_LIMITS,
+  ScanSessionFinishPayload,
   SyncOpsRequestSchema,
   upgradePayload,
 } from './sync.js';
@@ -44,6 +46,8 @@ describe('constants', () => {
       'box_check',
       'move_box',
       'move_box_room',
+      'scan_session_lines',
+      'scan_session_finish',
     ]);
     expect(OUTCOMES).toEqual(['applied', 'needs_review', 'dropped']);
     expect(DROP_REASONS).toContain('parent_dropped');
@@ -230,6 +234,93 @@ describe('op payloads (v1)', () => {
 
   it('refuses unknown keys, so a typo is invalid rather than ignored', () => {
     bad('mark_seen', { thingId: id(), extra: 1 });
+  });
+});
+
+describe('scan session ops', () => {
+  const ok = (op: (typeof OP_KINDS)[number], payload: unknown) =>
+    expect(parseOpPayload(op, payload).success, JSON.stringify(payload)).toBe(true);
+  const bad = (op: (typeof OP_KINDS)[number], payload: unknown) =>
+    expect(parseOpPayload(op, payload).success, JSON.stringify(payload)).toBe(false);
+  const at = '2026-10-20T10:00:00+03:00';
+  const header = (mode: 'count' | 'pack' | 'move', target: Record<string, unknown>) => ({
+    id: id(),
+    mode,
+    target,
+    startedAt: at,
+  });
+  const lines = (n: number, line: (i: number) => Record<string, unknown>) =>
+    Array.from({ length: n }, (_, i) => line(i));
+  const lineOk = (mode: 'count' | 'pack' | 'move', target: Record<string, unknown>, l: unknown[]) =>
+    parseOpPayload('scan_session_lines', { session: header(mode, target), lines: l }).success;
+
+  it('a count: seen, not here, or moved here, for a place, a box or the whole location', () => {
+    const seen = { thingId: id(), readAt: at, action: 'seen' };
+    expect(lineOk('count', { placeId: id(), inside: true }, [seen])).toBe(true);
+    expect(lineOk('count', { containerId: id() }, [seen])).toBe(true);
+    expect(lineOk('count', { locationId: id() }, [seen])).toBe(true);
+    expect(
+      lineOk('count', { placeId: id(), inside: false }, [
+        { thingId: id(), readAt: at, action: 'not_here' },
+        { thingId: id(), readAt: at, action: 'move', to: { placeId: id() } },
+      ]),
+    ).toBe(true);
+  });
+
+  it('at most 500 lines an op, at least one, each thing once', () => {
+    const line = () => ({ thingId: id(), readAt: at, action: 'seen' });
+    expect(SCAN_SESSION_LIMITS.linesPerOp).toBe(500);
+    expect(lineOk('count', { containerId: id() }, lines(500, line))).toBe(true);
+    expect(lineOk('count', { containerId: id() }, lines(501, line))).toBe(false);
+    expect(lineOk('count', { containerId: id() }, [])).toBe(false);
+    const twice = id();
+    expect(
+      lineOk('count', { containerId: id() }, [
+        { thingId: twice, readAt: at, action: 'seen' },
+        { thingId: twice, readAt: at, action: 'not_here' },
+      ]),
+    ).toBe(false);
+  });
+
+  it('a move line names where it goes, and only a move line does', () => {
+    expect(
+      lineOk('count', { containerId: id() }, [{ thingId: id(), readAt: at, action: 'move' }]),
+    ).toBe(false);
+    expect(
+      lineOk('count', { containerId: id() }, [
+        { thingId: id(), readAt: at, action: 'seen', to: { placeId: id() } },
+      ]),
+    ).toBe(false);
+  });
+
+  it('pack and move only move; pack goes into boxes, and the whole location is a count only', () => {
+    const into = { thingId: id(), readAt: at, action: 'move', to: { containerId: id() } };
+    expect(lineOk('pack', { containerId: id() }, [into])).toBe(true);
+    expect(lineOk('move', { placeId: id() }, [into])).toBe(true);
+    expect(
+      lineOk('pack', { containerId: id() }, [{ thingId: id(), readAt: at, action: 'seen' }]),
+    ).toBe(false);
+    expect(
+      lineOk('pack', { containerId: id() }, [
+        { thingId: id(), readAt: at, action: 'move', to: { placeId: id() } },
+      ]),
+    ).toBe(false);
+    expect(lineOk('pack', { placeId: id() }, [into])).toBe(false);
+    expect(lineOk('move', { locationId: id() }, [into])).toBe(false);
+  });
+
+  it('finish: the session, how many were expected, and whether a box’s contents count too', () => {
+    ok('scan_session_finish', { sessionId: id(), expected: 340, contentsSeen: false });
+    ok('scan_session_finish', { sessionId: id() });
+    expect(ScanSessionFinishPayload.parse({ sessionId: id() }).contentsSeen).toBe(false);
+    bad('scan_session_finish', { sessionId: id(), expected: -1 });
+    bad('scan_session_finish', { sessionId: id(), expected: 1.5 });
+  });
+
+  it('a session holds at most 5,000 labels, with a warning from 4,500', () => {
+    expect(SCAN_SESSION_LIMITS.labels).toBe(5000);
+    expect(SCAN_SESSION_LIMITS.warnAt).toBe(4500);
+    expect(SCAN_SESSION_LIMITS.resolveBatch).toBe(100);
   });
 });
 

@@ -65,6 +65,10 @@ export type ScanScreenProps = {
   onOpen: (target: ScanTarget) => void | Promise<void>;
   /** After an op was queued: the sync engine's kick. */
   onQueued?: () => void;
+  /** Scan sessions (#168): "Start a session", or "Resume session" when one is open here. */
+  onSession?: () => void;
+  /** A session is open on this phone. */
+  sessionOpen?: boolean;
   // ----- the device, injectable -----
   online?: boolean;
   camera?: CameraEnv;
@@ -92,6 +96,8 @@ export function ScanScreen({
   onExit,
   onOpen,
   onQueued,
+  onSession,
+  sessionOpen = false,
   online: onlineProp,
   camera,
   detect = appDetect(),
@@ -368,6 +374,11 @@ export function ScanScreen({
         >
           <Trans>Type the code</Trans>
         </Button>
+        {onSession && !trayMode && !unpack ? (
+          <Button onPress={onSession} className={`${darkBtn} border border-[#4A463F]`}>
+            {sessionOpen ? <Trans>Resume session</Trans> : <Trans>Start a session</Trans>}
+          </Button>
+        ) : null}
       </div>
 
       {trayMode && carried.length > 0 ? (

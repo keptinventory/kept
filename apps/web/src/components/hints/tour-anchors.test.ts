@@ -92,7 +92,8 @@ describe('the tours’ anchors', () => {
   }
 
   it('never sends a step to Scan, where the camera starts', () => {
-    for (const { stop } of STOPS) expect(stop.to ?? '').not.toMatch(/^\/scan/);
+    // A scan session opens on its setup, with no camera: its tour may stand there.
+    for (const { stop } of STOPS) expect(stop.to ?? '').not.toMatch(/^\/scan(?:$|[/?])/);
   });
 
   it('leaves no anchor in the app that no tour uses', () => {

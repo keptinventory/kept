@@ -10,13 +10,23 @@ import {
   lookupBarcode,
   readBarcodeSettings,
 } from './barcode.js';
-import { type ResolveDeps, ResolveScanBody, resolveScan, ScanOutcomeSchema } from './resolve.js';
+import {
+  type ResolveDeps,
+  ResolveScanBatchBody,
+  ResolveScanBody,
+  resolveScan,
+  resolveScanBatch,
+  ScanOutcomeSchema,
+} from './resolve.js';
 
 // Scan (D40, D104, D120, D126, D137, D146).
 // The web contract is apps/web/src/api/capture/{paths,types}.ts "scan, barcodes and box checks".
 //
 // POST /api/v1/scan/resolve {text, format?} → ScanOutcome (read-only: on the route catalogue's
 //                                             allowlist; nothing is marked seen, D40)
+// POST /api/v1/scan/resolve-batch {items: {text, format?}[1..100]} → {results: ScanOutcome[]}
+//                                             (a scan session's reads the phone didn't know; in
+//                                             order; read-only like the single resolve)
 // GET  /api/v1/barcodes/:code               → {enabled: false} | {enabled: true, found, product?,
 //                                             attribution}; 429 past 15 lookups a minute
 //
@@ -35,6 +45,18 @@ export async function scanRoutes(app: KeptApp, deps: InventoryDeps): Promise<voi
     '/api/v1/scan/resolve',
     { schema: { body: ResolveScanBody, response: { 200: ScanOutcomeSchema } } },
     (req) => scopedRead(pools, req, (_tx, client) => resolveScan(client, req.body, resolveDeps)),
+  );
+
+  app.post(
+    '/api/v1/scan/resolve-batch',
+    {
+      schema: {
+        body: ResolveScanBatchBody,
+        response: { 200: z.object({ results: z.array(ScanOutcomeSchema) }) },
+      },
+    },
+    (req) =>
+      scopedRead(pools, req, (_tx, client) => resolveScanBatch(client, req.body, resolveDeps)),
   );
 
   app.get(

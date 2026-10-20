@@ -102,6 +102,7 @@ const sidebar = [
     page('users/everyday-use'),
     page('users/location-map'),
     page('users/room-photos'),
+    page('users/scanning-sessions'),
     page('users/moving'),
     page('users/phone-app'),
     page('users/ai-providers'),

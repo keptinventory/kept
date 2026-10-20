@@ -10,7 +10,10 @@
  */
 import { parseScan } from '@kept/shared';
 
-export type Detected = { rawValue: string; format: string };
+/** Where a code is in a frame: in pixels of the image a `Detect` was given, or, as
+ * `startScanLoop` reports it, as fractions of the frame (0–1). */
+export type Box = { x: number; y: number; width: number; height: number };
+export type Detected = { rawValue: string; format: string; box?: Box };
 export type Detect = (source: CanvasImageSource) => Promise<Detected[]>;
 
 /** The long edge of the frame the scanner sees (640 px is the slow-phone fallback). */

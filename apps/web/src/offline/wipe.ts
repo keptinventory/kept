@@ -36,6 +36,9 @@ export async function clearCache(db: KeptDb): Promise<void> {
     db.extras,
     db.extraDocs,
     db.keptOffline,
+    // 1.12: a scan session in progress names the things it read.
+    db.scanSessions,
+    db.scanReads,
   ];
   await db.transaction('rw', [...cacheTables, db.meta, db.queue, db.blobs], async () => {
     for (const t of cacheTables) await t.clear();

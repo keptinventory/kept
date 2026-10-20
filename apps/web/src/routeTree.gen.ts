@@ -32,6 +32,7 @@ import { Route as AppMovingRouteImport } from './routes/_app/moving'
 import { Route as AppNotificationsRouteImport } from './routes/_app/notifications'
 import { Route as AppPaperworkRouteImport } from './routes/_app/paperwork'
 import { Route as AppScanRouteImport } from './routes/_app/scan'
+import { Route as AppScanSessionRouteImport } from './routes/_app/scan-session'
 import { Route as AppSchedulesRouteImport } from './routes/_app/schedules'
 import { Route as AppSearchRouteImport } from './routes/_app/search'
 import { Route as AppTrashRouteImport } from './routes/_app/trash'
@@ -218,6 +219,11 @@ const AppPaperworkRoute = AppPaperworkRouteImport.update({
 const AppScanRoute = AppScanRouteImport.update({
   id: '/scan',
   path: '/scan',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppScanSessionRoute = AppScanSessionRouteImport.update({
+  id: '/scan-session',
+  path: '/scan-session',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSchedulesRoute = AppSchedulesRouteImport.update({
@@ -628,6 +634,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AppNotificationsRoute
   '/paperwork': typeof AppPaperworkRoute
   '/scan': typeof AppScanRoute
+  '/scan-session': typeof AppScanSessionRoute
   '/schedules': typeof AppSchedulesRoute
   '/search': typeof AppSearchRoute
   '/trash': typeof AppTrashRoute
@@ -724,6 +731,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AppNotificationsRoute
   '/paperwork': typeof AppPaperworkRoute
   '/scan': typeof AppScanRoute
+  '/scan-session': typeof AppScanSessionRoute
   '/schedules': typeof AppSchedulesRoute
   '/search': typeof AppSearchRoute
   '/trash': typeof AppTrashRoute
@@ -822,6 +830,7 @@ export interface FileRoutesById {
   '/_app/notifications': typeof AppNotificationsRoute
   '/_app/paperwork': typeof AppPaperworkRoute
   '/_app/scan': typeof AppScanRoute
+  '/_app/scan-session': typeof AppScanSessionRoute
   '/_app/schedules': typeof AppSchedulesRoute
   '/_app/search': typeof AppSearchRoute
   '/_app/trash': typeof AppTrashRoute
@@ -922,6 +931,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/paperwork'
     | '/scan'
+    | '/scan-session'
     | '/schedules'
     | '/search'
     | '/trash'
@@ -1018,6 +1028,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/paperwork'
     | '/scan'
+    | '/scan-session'
     | '/schedules'
     | '/search'
     | '/trash'
@@ -1115,6 +1126,7 @@ export interface FileRouteTypes {
     | '/_app/notifications'
     | '/_app/paperwork'
     | '/_app/scan'
+    | '/_app/scan-session'
     | '/_app/schedules'
     | '/_app/search'
     | '/_app/trash'
@@ -1369,6 +1381,13 @@ declare module '@tanstack/react-router' {
       path: '/scan'
       fullPath: '/scan'
       preLoaderRoute: typeof AppScanRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/scan-session': {
+      id: '/_app/scan-session'
+      path: '/scan-session'
+      fullPath: '/scan-session'
+      preLoaderRoute: typeof AppScanSessionRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/schedules': {
@@ -2038,6 +2057,7 @@ interface AppRouteChildren {
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppPaperworkRoute: typeof AppPaperworkRoute
   AppScanRoute: typeof AppScanRoute
+  AppScanSessionRoute: typeof AppScanSessionRoute
   AppSchedulesRoute: typeof AppSchedulesRoute
   AppSearchRoute: typeof AppSearchRoute
   AppTrashRoute: typeof AppTrashRoute
@@ -2099,6 +2119,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppNotificationsRoute: AppNotificationsRoute,
   AppPaperworkRoute: AppPaperworkRoute,
   AppScanRoute: AppScanRoute,
+  AppScanSessionRoute: AppScanSessionRoute,
   AppSchedulesRoute: AppSchedulesRoute,
   AppSearchRoute: AppSearchRoute,
   AppTrashRoute: AppTrashRoute,

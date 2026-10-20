@@ -110,6 +110,11 @@ function useItems(extra: Item[] = []): Item[] {
   if (edit) items.push({ id: 'pickup', label: t`Pick up`, icon: <TrayIcon /> });
   if (thing.isContainer && can('things.mark-seen'))
     items.push({ id: 'box-check', label: t`Box check`, icon: <CheckCircleIcon /> });
+  // Scan sessions (#168): count a box's labels in one walk (a viewer's count is a check), or pack.
+  if (thing.isContainer && can('content.view'))
+    items.push({ id: 'scan-count', label: t`Count this box`, icon: <QrIcon /> });
+  if (thing.isContainer && edit)
+    items.push({ id: 'scan-pack', label: t`Pack into this box`, icon: <QrIcon /> });
   if (can('labels.use'))
     items.push({
       id: 'label',
@@ -231,6 +236,13 @@ export function useRunAction(openSheet: (s: SheetName) => void) {
         }
         case 'box-check':
           await navigate({ to: '/box-check/$id', params: { id: thing.id } });
+          return;
+        case 'scan-count':
+        case 'scan-pack':
+          await navigate({
+            to: '/scan-session',
+            search: { mode: id === 'scan-count' ? 'count' : 'pack', box: thing.id },
+          });
           return;
         case 'duplicate': {
           const copy = await thingApi.duplicate(thing.id, { id: newId() });

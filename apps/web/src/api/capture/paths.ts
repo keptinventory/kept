@@ -56,6 +56,8 @@ export const capturePaths = {
 
   // ----- scan, barcodes, box checks -----------
   scanResolve: `${V1}/scan/resolve`,
+  scanResolveBatch: `${V1}/scan/resolve-batch`,
+  scanSession: (id: string) => `${V1}/scan-sessions/${seg(id)}`,
   barcode: (code: string) => `${V1}/barcodes/${seg(code)}`,
   thingBoxCheck: (id: string) => `${V1}/things/${seg(id)}/box-check`,
   thingBoxChecks: (id: string) => `${V1}/things/${seg(id)}/box-checks`,
@@ -136,6 +138,8 @@ export const CAPTURE_METHODS: Record<keyof typeof capturePaths, readonly Method[
   labelSummary: ['GET'],
   codeClaim: ['POST'],
   scanResolve: ['POST'],
+  scanResolveBatch: ['POST'],
+  scanSession: ['GET'],
   barcode: ['GET'],
   thingBoxCheck: ['POST'],
   thingBoxChecks: ['GET'],

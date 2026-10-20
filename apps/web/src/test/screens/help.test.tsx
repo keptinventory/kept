@@ -47,12 +47,13 @@ describe('Help', () => {
     await renderApp('/help');
     await findHeading('Help');
     // Moving and Fuel are off in every location of this household.
-    await waitFor(() => expect(tourRows()).toHaveLength(11));
+    await waitFor(() => expect(tourRows()).toHaveLength(12));
     expect(tourRows()).toEqual([
       'basics',
       'things',
       'map',
       'capture',
+      'scanning',
       'search',
       'lending',
       'schedules',

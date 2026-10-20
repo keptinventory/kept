@@ -621,6 +621,8 @@ export const NOT_EXPORTED: Readonly<Record<string, string>> = Object.freeze({
   saved_views: 'each member\'s own views ("Export my data" carries the requester\'s, me.json)',
   user_hidden_modules: "each member's own settings on this server",
   secret_values: 'encrypted under this server; only in secrets.json, with a passphrase (D68)',
+  scan_sessions: 'a scan walk on a phone; what it changed is in the history (scan.session)',
+  scan_session_lines: 'a scan walk on a phone; what it changed is in the history (scan.session)',
   sync_ops: "devices' state on this server",
   sync_tombstones: "devices' state on this server",
   token_locations: "this server's access tokens",

@@ -1009,6 +1009,20 @@
       "when": 1792516459601,
       "tag": "0143_room_photos_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 144,
+      "version": "7",
+      "when": 1792521383133,
+      "tag": "0144_scan_sessions",
+      "breakpoints": true
+    },
+    {
+      "idx": 145,
+      "version": "7",
+      "when": 1792521391865,
+      "tag": "0145_scan_sessions_rls",
+      "breakpoints": true
     }
   ]
 }

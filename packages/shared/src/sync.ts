@@ -40,6 +40,9 @@ export const OP_KINDS = [
   'move_box',
   // 1.x (D251): the room a moving box goes to, chosen on the phone.
   'move_box_room',
+  // 1.12: a scan session saved in chunks of lines, then applied as one by its finish.
+  'scan_session_lines',
+  'scan_session_finish',
 ] as const;
 export type OpKind = (typeof OP_KINDS)[number];
 
@@ -218,6 +221,94 @@ export const MoveBoxRoomPayload = z.strictObject({
   placeId: uuid,
 });
 
+/** What a scan session does with each label it reads. */
+export const SCAN_SESSION_MODES = ['count', 'pack', 'move'] as const;
+export type ScanSessionMode = (typeof SCAN_SESSION_MODES)[number];
+
+/** What a saved line does: a count's seen / not here / moved here, or a pack's or move's move. */
+export const SCAN_SESSION_ACTIONS = ['seen', 'not_here', 'move'] as const;
+export type ScanSessionAction = (typeof SCAN_SESSION_ACTIONS)[number];
+
+export const SCAN_SESSION_LIMITS = Object.freeze({
+  /** Lines per `scan_session_lines` op. */
+  linesPerOp: 500,
+  /** Labels one session reads. */
+  labels: 5000,
+  /** "Nearly full" from here. */
+  warnAt: 4500,
+  /** Codes per `POST /scan/resolve-batch`. */
+  resolveBatch: 100,
+  /** No read for this long pauses the session. */
+  idlePauseMs: 60_000,
+});
+
+/**
+ * What a session is about. A count's place (with the places inside it, or not), box, or whole
+ * location; a pack's first box; a move's place or box. Pack and move lines each carry their own
+ * `to`, since the target can change mid-walk.
+ */
+export const ScanSessionTarget = z.union([
+  z.strictObject({ placeId: uuid, inside: z.boolean().default(true) }),
+  containerTarget,
+  z.strictObject({ locationId: uuid }),
+]);
+export type ScanSessionTarget = z.output<typeof ScanSessionTarget>;
+
+export const ScanSessionHeader = z.strictObject({
+  id: uuid,
+  mode: z.enum(SCAN_SESSION_MODES),
+  target: ScanSessionTarget,
+  startedAt: isoDateTime,
+});
+
+export const ScanSessionLine = z.strictObject({
+  thingId: uuid,
+  /** When the label was read on the phone: a count's seen date. */
+  readAt: isoDateTime,
+  action: z.enum(SCAN_SESSION_ACTIONS),
+  to: z.union([placeTarget, containerTarget]).optional(),
+});
+export type ScanSessionLine = z.output<typeof ScanSessionLine>;
+
+/**
+ * Up to 500 of a session's lines. Every one repeats the session's header, so the first to arrive
+ * makes the session; nothing is applied until `scan_session_finish`.
+ */
+export const ScanSessionLinesPayload = z
+  .strictObject({
+    session: ScanSessionHeader,
+    lines: z.array(ScanSessionLine).min(1).max(SCAN_SESSION_LIMITS.linesPerOp),
+  })
+  .superRefine((p, ctx) => {
+    const { mode, target } = p.session;
+    if (mode !== 'count' && 'locationId' in target)
+      ctx.addIssue({ code: 'custom', path: ['session', 'target'], message: 'a count only' });
+    if (mode === 'pack' && !('containerId' in target))
+      ctx.addIssue({ code: 'custom', path: ['session', 'target'], message: 'a box' });
+    const seen = new Set<string>();
+    p.lines.forEach((l, i) => {
+      const key = l.thingId.toLowerCase();
+      if (seen.has(key))
+        ctx.addIssue({ code: 'custom', path: ['lines', i, 'thingId'], message: 'each thing once' });
+      seen.add(key);
+      if ((l.action === 'move') !== (l.to !== undefined))
+        ctx.addIssue({ code: 'custom', path: ['lines', i, 'to'], message: 'a move names where' });
+      if (mode !== 'count' && l.action !== 'move')
+        ctx.addIssue({ code: 'custom', path: ['lines', i, 'action'], message: 'moves only' });
+      if (mode === 'pack' && l.to && !('containerId' in l.to))
+        ctx.addIssue({ code: 'custom', path: ['lines', i, 'to'], message: 'into a box' });
+    });
+  });
+
+/** Applies a session's lines, all at once, as one undoable change. */
+export const ScanSessionFinishPayload = z.strictObject({
+  sessionId: uuid,
+  /** A count's expected list ("312 of 340"); none for a pack or a move. */
+  expected: z.number().int().min(0).max(SYNC_LIMITS.snapshotThings).optional(),
+  /** A count: a box read also marks what is inside it seen. */
+  contentsSeen: z.boolean().default(false),
+});
+
 /** The v1 payload schema per op. */
 export const OP_SCHEMAS = Object.freeze({
   create_thing: CreateThingPayload,
@@ -230,6 +321,8 @@ export const OP_SCHEMAS = Object.freeze({
   box_check: BoxCheckPayload,
   move_box: MoveBoxPayload,
   move_box_room: MoveBoxRoomPayload,
+  scan_session_lines: ScanSessionLinesPayload,
+  scan_session_finish: ScanSessionFinishPayload,
 } satisfies Record<OpKind, z.ZodType>);
 
 export type OpPayload<K extends OpKind> = z.output<(typeof OP_SCHEMAS)[K]>;
@@ -416,6 +509,9 @@ export type SnapThing = {
   lastSeenAt: string | null;
   coverFileId: string | null;
   isContainer: boolean;
+  /** Its product barcode (EAN/UPC…), when it has one: a scan session matches it offline.
+   * Additive: an older snapshot row has none. */
+  barcode?: string;
   /**
    * Its meters, oldest first (READING's target list offline). The server always sends it; a row
    * the phone made itself (a capture not yet synced) has none.

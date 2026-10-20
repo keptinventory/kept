@@ -22,12 +22,18 @@ import {
   parseScan,
   type QueueItem,
   type Role,
+  SCAN_SESSION_LIMITS,
   type ScanResult,
   storedCodeOf,
 } from '@kept/shared';
 import type { QueryClient } from '@tanstack/react-query';
 import { captureApi } from '@/api/capture/queries';
-import type { ScanOutcome, ScanResolveBody } from '@/api/capture/types';
+import type {
+  ScanOutcome,
+  ScanResolveBatchBody,
+  ScanResolveBatchResult,
+  ScanResolveBody,
+} from '@/api/capture/types';
 import { isApiError } from '@/api/client';
 import { inventoryApi, inventoryKeys } from '@/api/inventory/queries';
 import type { LegacyHit, OfflineStore, SyncNotice } from '@/offline/store';
@@ -203,7 +209,9 @@ const isOffline = (e: unknown) => isApiError(e) && e.code === 'offline';
 /** The server's answer in the phone's terms. */
 export function fromServer(scan: ScanResult, o: ScanOutcome): Resolution {
   const code = scan.kind === 'kept' ? scan.code : null;
-  const legacy = scan.kind === 'homebox' ? legacyLabel(scan) : null;
+  // Several things carry a product barcode: asked which, under the barcode.
+  const legacy =
+    scan.kind === 'homebox' ? legacyLabel(scan) : scan.kind === 'barcode' ? scan.code : null;
   switch (o.outcome) {
     case 'open':
       return { outcome: 'open', target: o.target, code, legacy, from: 'server' };
@@ -261,6 +269,56 @@ export async function resolveScan(read: Read, deps: ResolveDeps): Promise<Resolu
     }
   }
   return offlineAnswer(scan, read.text.trim());
+}
+
+export type BatchDeps = {
+  store: OfflineStore | null;
+  online: boolean;
+  batch?: (body: ScanResolveBatchBody) => Promise<ScanResolveBatchResult>;
+  resolvers?: readonly LocalResolver[];
+};
+
+/**
+ * A scan session's reads (#168): each answered by the phone where it can, the rest asked of the
+ * server together, at most `SCAN_SESSION_LIMITS.resolveBatch` at a time; offline, or when the
+ * server can't be reached, as `resolveScan` answers offline. In the order given.
+ */
+export async function resolveBatch(reads: readonly Read[], deps: BatchDeps): Promise<Resolution[]> {
+  const scans = reads.map((r) => parseScan(r.text, r.format));
+  const out: (Resolution | null)[] = [];
+  for (const [i, read] of reads.entries()) {
+    let hit: Resolution | null = null;
+    if (deps.store)
+      for (const resolve of deps.resolvers ?? LOCAL_RESOLVERS) {
+        hit = await resolve(scans[i] as ScanResult, deps.store, read.text);
+        if (hit) break;
+      }
+    out.push(hit);
+  }
+  const ask = out.flatMap((r, i) => (r ? [] : [i]));
+  let online = deps.online;
+  const size = SCAN_SESSION_LIMITS.resolveBatch;
+  for (let at = 0; online && at < ask.length; at += size) {
+    const chunk = ask.slice(at, at + size);
+    try {
+      const { results } = await (deps.batch ?? captureApi.resolveScanBatch)({
+        items: chunk.map((i) => {
+          const r = reads[i] as Read;
+          return { text: r.text, ...(r.format ? { format: r.format } : {}) };
+        }),
+      });
+      chunk.forEach((i, k) => {
+        const o = results[k];
+        if (o) out[i] = fromServer(scans[i] as ScanResult, o);
+      });
+    } catch (e) {
+      if (!isOffline(e)) throw e;
+      online = false;
+    }
+  }
+  return out.map(
+    (r, i) => r ?? offlineAnswer(scans[i] as ScanResult, (reads[i] as Read).text.trim()),
+  );
 }
 
 // ----- after a scan -----------------------------------------------------------------------------

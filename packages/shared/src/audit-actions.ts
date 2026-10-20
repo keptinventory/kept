@@ -222,6 +222,7 @@ export const AUDIT_ACTIONS = [
   'saved_view.delete',
   'saved_view.update',
   'saved_view_prefs.update',
+  'scan.session',
   'schedule.create',
   'schedule.delete',
   'schedule.skip',
@@ -330,6 +331,10 @@ export const SUMMARY_REFINEMENTS = [
   'label_batch.create.things',
   'label_batch.create.places',
   'place.arrange.many',
+  // 1.12: a scan session's pack or move (`scan.session` itself is a count).
+  'scan.session.pack',
+  'scan.session.pack.many',
+  'scan.session.move',
   'undo',
   'event',
 ] as const;

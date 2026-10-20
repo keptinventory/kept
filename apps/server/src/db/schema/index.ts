@@ -28,6 +28,7 @@ export * from './registries.js';
 export * from './reminders.js';
 export * from './reports.js';
 export * from './room.js';
+export * from './scan-sessions.js';
 export * from './schedules.js';
 export * from './secrets.js';
 export * from './services.js';

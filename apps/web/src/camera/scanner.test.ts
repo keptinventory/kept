@@ -6,7 +6,13 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Detect } from './label-recogniser';
-import { createDetect, nativeScanner, ScannerUnavailable, startScanLoop } from './scanner';
+import {
+  createDetect,
+  type FrameDecoder,
+  nativeScanner,
+  ScannerUnavailable,
+  startScanLoop,
+} from './scanner';
 
 const qr = { rawValue: 'https://kept.example/l/7KQ4MZ', format: 'qr_code' };
 const canvas = {} as CanvasImageSource;
@@ -29,6 +35,22 @@ describe('the decoder', () => {
     const detect = await nativeScanner({ BarcodeDetector: Ctor });
     expect(await detect?.(canvas)).toEqual([qr]);
     expect(Ctor).toHaveBeenCalledWith({ formats: ['qr_code', 'ean_13'] });
+  });
+
+  it('reports where each code is in the frame, in pixels of what it read', async () => {
+    const detect = vi.fn(async () => [
+      { ...qr, boundingBox: { x: 10, y: 20, width: 30, height: 40 } },
+    ]);
+    const Ctor = Object.assign(
+      vi.fn(function (this: unknown) {
+        return { detect };
+      }),
+      { getSupportedFormats: async () => ['qr_code'] },
+    );
+    const native = await nativeScanner({ BarcodeDetector: Ctor });
+    expect(await native?.(canvas)).toEqual([
+      { ...qr, box: { x: 10, y: 20, width: 30, height: 40 } },
+    ]);
   });
 
   it('takes no native detector without QR support, or without one at all', async () => {
@@ -102,6 +124,71 @@ describe('the loop', () => {
     expect(detect.mock.calls.length).toBeGreaterThanOrEqual(7);
     expect(detect.mock.calls.length).toBeLessThanOrEqual(9);
     expect(drawn[0]).toBe(960);
+    expect(onRead).toHaveBeenCalledWith([qr]);
+  });
+
+  it('reports every code in a frame, each box as a fraction of the frame', async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+      drawImage: () => {},
+    } as never);
+    const { video, frame } = fakeVideo();
+    const two = [
+      { ...qr, box: { x: 96, y: 54, width: 96, height: 54 } },
+      { rawValue: '4006381333931', format: 'ean_13' },
+    ];
+    const onRead = vi.fn();
+    const stop = startScanLoop(video, async () => two, onRead, { now: () => 1000 });
+    frame();
+    await new Promise((r) => setTimeout(r, 0));
+    stop();
+    expect(onRead).toHaveBeenCalledWith([
+      { ...qr, box: { x: 0.1, y: 0.1, width: 0.1, height: 0.1 } },
+      { rawValue: '4006381333931', format: 'ean_13' },
+    ]);
+  });
+
+  it('decodes off the main thread when given a frame decoder, sized like the canvas would be', async () => {
+    const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext');
+    const { video, frame } = fakeVideo();
+    const decoder = vi.fn<FrameDecoder>(async () => [
+      { ...qr, box: { x: 480, y: 270, width: 96, height: 54 } },
+    ]);
+    const detect = vi.fn<Detect>(async () => []);
+    const onRead = vi.fn();
+    const stop = startScanLoop(video, detect, onRead, { now: () => 1000, decoder });
+    frame();
+    await new Promise((r) => setTimeout(r, 0));
+    stop();
+    expect(decoder).toHaveBeenCalledWith(video, { width: 960, height: 540 });
+    expect(detect).not.toHaveBeenCalled();
+    expect(getContext).not.toHaveBeenCalled();
+    expect(onRead).toHaveBeenCalledWith([
+      { ...qr, box: { x: 0.5, y: 0.5, width: 0.1, height: 0.1 } },
+    ]);
+  });
+
+  it('goes back to the main thread for good when the frame decoder breaks', async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+      drawImage: () => {},
+    } as never);
+    const { video, frame } = fakeVideo();
+    let clock = 0;
+    const decoder = vi.fn<FrameDecoder>(async () => {
+      throw new Error('the worker died');
+    });
+    const detect = vi.fn<Detect>(async () => [qr]);
+    const onRead = vi.fn();
+    const stop = startScanLoop(video, detect, onRead, { now: () => clock, decoder });
+    for (let i = 0; i < 6; i++) {
+      clock += 200;
+      frame();
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+    }
+    stop();
+    expect(decoder).toHaveBeenCalledTimes(1);
+    expect(detect.mock.calls.length).toBeGreaterThanOrEqual(3);
     expect(onRead).toHaveBeenCalledWith([qr]);
   });
 

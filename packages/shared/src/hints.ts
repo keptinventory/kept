@@ -14,6 +14,7 @@ export const TOUR_IDS = [
   'things',
   'map',
   'capture',
+  'scanning',
   'search',
   'moving',
   'lending',

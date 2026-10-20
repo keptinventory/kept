@@ -27,5 +27,11 @@ export function zxingDetect(formats: readonly string[]): Detect {
     (await detector.detect(source as Parameters<typeof detector.detect>[0])).map((d) => ({
       rawValue: d.rawValue,
       format: d.format,
+      ...boxOf(d.boundingBox),
     }));
+}
+
+/** A detector's `boundingBox`, as a plain box; nothing when it gave none. */
+function boxOf(r: { x: number; y: number; width: number; height: number } | undefined) {
+  return r ? { box: { x: r.x, y: r.y, width: r.width, height: r.height } } : {};
 }
