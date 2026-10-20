@@ -56,7 +56,7 @@ so a failure reproduces locally with the same `--only` list. Every job is gated 
 | `ci` | `db-test` | `ci-local.sh --only compose,test`: the server's tests on Postgres with pgvector and RustFS, in three shards |
 | `ci` | `db-ops` | `ci-local.sh --only compose,drift,prod-boot,portability,backup`: migration drift, a production boot, portability and backup |
 | `ci` | `db` | the required check: green exactly when both halves are |
-| `ci` | `e2e-shard` | `ci-local.sh --only compose,e2e` with `CI_E2E_SHARD=k/4`: a quarter of the Playwright suite against the built server; the results are a per-shard artifact when it fails |
+| `ci` | `e2e-shard` | `ci-local.sh --only compose,e2e` with `CI_E2E_SHARD=k/3` or `audit`: a third of the Playwright suite against the built server, or `e2e/audit.spec.ts` on its own; the results are a per-shard artifact when it fails |
 | `ci` | `e2e-update` | `ci-local.sh --only compose,e2e-update`: the step-3 update migration spec on its own |
 | `ci` | `e2e` | the required check: green exactly when every shard and the update spec are |
 | `ci` | `images-amd64`, `images-arm64` | `ci-local.sh --only images`: the image built natively on that architecture's runner and smoked in full |
