@@ -66,12 +66,20 @@ move done**; **Open it again** if a box turns up later.
 
 On a phone, a move you have opened once is kept for offline use. Without a connection you can
 still read the board and each box's contents (as of the last time it was read), pack, mark boxes
-packed or in transit, and unpack them. Those changes wait on the phone, are shown at once, and
-sync when it's back online. If two phones change the same box while offline, the change made
-last wins.
+packed or in transit, choose the room a box goes to, and unpack them. Those changes wait on the
+phone, are shown at once, and sync when it's back online; **Undo** on the message takes one back
+while it waits.
 
-Starting a move, adding a box, choosing a box's room, the contents sheets and marking the move
-done need a connection.
+If two phones change the same box while offline:
+
+- **Packed, in transit, unpacked:** the change made last on a phone wins, whichever syncs first.
+- **The room it goes to:** the room that syncs last wins.
+- **A box unpacked meanwhile** keeps the room it was unpacked into. A room chosen for it later
+  changes nothing: move the box itself if it belongs somewhere else.
+- **A room someone trashed meanwhile:** the change can't apply. The inbox says who trashed it,
+  with **Restore**.
+
+Starting a move, adding a box, the contents sheets and marking the move done need a connection.
 
 ## From a connected app
 
@@ -91,5 +99,7 @@ and Undo as here. A read-only connection lists moves and boxes, and which ones a
 Unpacking into another location needs you to be able to add things there too. Each change is in
 the box's history and the location's activity.
 
-A Kept export doesn't hold moves: the boxes and everything in them are exported as things, where
-they are.
+A Kept export holds the moves too: each box's number, state and the room it goes to, with the
+boxes and everything in them as things, where they are. Imported, a move to another location
+becomes a move within the new one, with its rooms to choose again (the export holds one location).
+A box already unpacked into another location is in that location's export instead, as a thing.

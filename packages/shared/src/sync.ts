@@ -38,6 +38,8 @@ export const OP_KINDS = [
   'box_check',
   // 1.x (D251): a moving box marked packed, in transit or unpacked; unpacked into a room moves it.
   'move_box',
+  // 1.x (D251): the room a moving box goes to, chosen on the phone.
+  'move_box_room',
 ] as const;
 export type OpKind = (typeof OP_KINDS)[number];
 
@@ -203,6 +205,17 @@ export const MoveBoxPayload = z.strictObject({
   placeId: uuid.optional(),
 });
 
+/**
+ * The room a box of a move (D251) goes to, chosen on the phone: a place where the move is going,
+ * never none (the screen only chooses). Rooms follow D35: the change the server gets last wins. A
+ * box unpacked by the time it arrives keeps the room it was unpacked into.
+ */
+export const MoveBoxRoomPayload = z.strictObject({
+  moveId: uuid,
+  containerId: uuid,
+  placeId: uuid,
+});
+
 /** The v1 payload schema per op. */
 export const OP_SCHEMAS = Object.freeze({
   create_thing: CreateThingPayload,
@@ -214,6 +227,7 @@ export const OP_SCHEMAS = Object.freeze({
   create_area: CreateAreaPayload,
   box_check: BoxCheckPayload,
   move_box: MoveBoxPayload,
+  move_box_room: MoveBoxRoomPayload,
 } satisfies Record<OpKind, z.ZodType>);
 
 export type OpPayload<K extends OpKind> = z.output<(typeof OP_SCHEMAS)[K]>;

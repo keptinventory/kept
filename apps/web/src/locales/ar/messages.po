@@ -25153,3 +25153,11 @@ msgstr "لا توجد شاشة متاحة في {roomName}."
 #: src/map/put-on.tsx
 msgid "Everything small in {roomName} is on something already."
 msgstr "كل شيء صغير في {roomName} موضوع على شيء بالفعل."
+
+#: src/components/moving/box-screen.tsx
+msgid "{name} goes to {where}"
+msgstr "{name} يذهب إلى {where}"
+
+#: src/components/moving/box-screen.tsx
+msgid "It has already synced. Choose the room again."
+msgstr "تمت مزامنته بالفعل. اختر الغرفة من جديد."

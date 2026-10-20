@@ -25153,3 +25153,11 @@ msgstr "No monitor in {roomName} is free."
 #: src/map/put-on.tsx
 msgid "Everything small in {roomName} is on something already."
 msgstr "Everything small in {roomName} is on something already."
+
+#: src/components/moving/box-screen.tsx
+msgid "{name} goes to {where}"
+msgstr "{name} goes to {where}"
+
+#: src/components/moving/box-screen.tsx
+msgid "It has already synced. Choose the room again."
+msgstr "It has already synced. Choose the room again."

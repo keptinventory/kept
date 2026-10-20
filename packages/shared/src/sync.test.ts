@@ -43,6 +43,7 @@ describe('constants', () => {
       'create_area',
       'box_check',
       'move_box',
+      'move_box_room',
     ]);
     expect(OUTCOMES).toEqual(['applied', 'needs_review', 'dropped']);
     expect(DROP_REASONS).toContain('parent_dropped');
@@ -204,6 +205,13 @@ describe('op payloads (v1)', () => {
     ok('move_box', { moveId: id(), containerId: id(), state: 'packed' });
     bad('move_box', { moveId: id(), containerId: id(), state: 'lost' });
     bad('move_box', { moveId: id(), state: 'packed' });
+  });
+
+  it('move_box_room (D251): the room a box goes to, never none', () => {
+    ok('move_box_room', { moveId: id(), containerId: id(), placeId: id() });
+    bad('move_box_room', { moveId: id(), containerId: id(), placeId: null });
+    bad('move_box_room', { moveId: id(), containerId: id() });
+    bad('move_box_room', { moveId: id(), containerId: id(), placeId: id(), state: 'packed' });
   });
 
   it('refuses unknown keys, so a typo is invalid rather than ignored', () => {

@@ -551,6 +551,116 @@ describe('the move_box op (offline)', () => {
   });
 });
 
+describe('the move_box_room op (offline)', () => {
+  // Choosing a box's room on a phone with no signal. Rooms follow D35: the change the server gets
+  // last wins, and each is in the box's history. A box unpacked meanwhile keeps the room it was
+  // unpacked into; a trashed room drops with a restore, like any op.
+  let move: Move;
+  let pantry: string;
+  beforeAll(async () => {
+    move = await start(louis, { name: 'Rooms offline', toLocationId: house.id });
+    pantry = await place(db, house, 'Pantry');
+  });
+  const room = (containerId: string, placeId: string, takenAt?: string) =>
+    op(
+      'move_box_room',
+      flat.id,
+      { moveId: move.id, containerId, placeId },
+      takenAt ? { takenAt } : {},
+    );
+  const boxOf = async (containerId: string) =>
+    (await read(louis, move.id)).boxes.find((b) => b.containerId === containerId) as Box;
+
+  it('chooses the room, without an undo window; the room the server gets last wins', async () => {
+    const box = await newBox(louis, move.id);
+    const now = Date.now();
+    const [first] = await sentOps(t, louis, [
+      room(box.containerId, kitchen, new Date(now).toISOString()),
+    ]);
+    expect(first).toMatchObject({
+      outcome: 'applied',
+      entity: { type: 'thing', id: box.containerId },
+    });
+    expect(first?.reason).toBeUndefined();
+    expect((await boxOf(box.containerId)).destination).toMatchObject({
+      placeId: kitchen,
+      name: 'Kitchen',
+      locationId: house.id,
+    });
+    // Another phone chose the pantry earlier, offline, and syncs now: it is the latest change
+    // the server got, so it stands (D35), and the state is untouched.
+    const [late] = await sentOps(t, louis, [
+      room(box.containerId, pantry, new Date(now - 60_000).toISOString()),
+    ]);
+    expect(late).toMatchObject({ outcome: 'applied' });
+    expect(await boxOf(box.containerId)).toMatchObject({
+      state: 'packed',
+      destination: { placeId: pantry },
+    });
+    const events = (await eventsOf(db, flat.id, box.containerId)).filter(
+      (e) => e.action === 'move_box.update',
+    );
+    expect(events).toHaveLength(2);
+    // The same room again changes nothing.
+    const [same] = await sentOps(t, louis, [room(box.containerId, pantry)]);
+    expect(same).toMatchObject({ outcome: 'applied', reason: 'superseded' });
+  });
+
+  it('a box unpacked meanwhile keeps the room it was unpacked into', async () => {
+    const box = await newBox(louis, move.id, { destinationPlaceId: kitchen });
+    const before = new Date().toISOString();
+    ok(
+      await call(t, `/api/v1/moves/${move.id}/boxes/${box.containerId}/unpack`, {
+        as: louis,
+        body: {},
+      }),
+    );
+    const [r] = await sentOps(t, louis, [room(box.containerId, pantry, before)]);
+    expect(r).toMatchObject({ outcome: 'applied', reason: 'superseded' });
+    expect(await boxOf(box.containerId)).toMatchObject({
+      state: 'unpacked',
+      destination: { placeId: kitchen },
+    });
+    expect(await thingRow(box.containerId)).toMatchObject({ place_id: kitchen });
+  });
+
+  it('drops a trashed room with a restore, a room where the move isn’t going, a box out of the move, a done move and a viewer', async () => {
+    const box = await newBox(louis, move.id);
+    const cellar = await place(db, house, 'Cellar');
+    ok(await call(t, `/api/v1/places/${cellar}/trash`, { as: ibrahim, body: {} }));
+    const [trashed] = await sentOps(t, louis, [room(box.containerId, cellar)]);
+    expect(trashed).toMatchObject({ outcome: 'dropped', reason: 'target_trashed' });
+
+    const [elsewhere] = await sentOps(t, louis, [room(box.containerId, study)]);
+    expect(elsewhere).toMatchObject({ outcome: 'dropped', reason: 'invalid' });
+
+    const [viewer] = await sentOps(t, talia, [room(box.containerId, kitchen)]);
+    expect(viewer).toMatchObject({ outcome: 'dropped', reason: 'not_permitted' });
+
+    const out = await newBox(louis, move.id);
+    const removed = await call(t, `/api/v1/moves/${move.id}/boxes/${out.containerId}`, {
+      method: 'DELETE',
+      as: louis,
+    });
+    expect(removed.statusCode, removed.body).toBe(204);
+    const [gone] = await sentOps(t, louis, [room(out.containerId, kitchen)]);
+    expect(gone).toMatchObject({ outcome: 'dropped', reason: 'target_missing' });
+
+    const open = await read(louis, move.id);
+    ok(
+      await call(t, `/api/v1/moves/${move.id}`, {
+        method: 'PATCH',
+        as: louis,
+        headers: ifMatch(open.rowVersion),
+        body: { status: 'done' },
+      }),
+    );
+    const [finished] = await sentOps(t, louis, [room(box.containerId, kitchen)]);
+    expect(finished).toMatchObject({ outcome: 'dropped', reason: 'invalid' });
+    expect((await boxOf(box.containerId)).destination).toBeNull();
+  });
+});
+
 describe('the contents sheets', () => {
   let move: Move;
   let box: Box;

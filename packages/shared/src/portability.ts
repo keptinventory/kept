@@ -51,12 +51,13 @@ export type ArchiveIssueCode = (typeof ARCHIVE_ISSUE_CODES)[number];
  *
  * Version 2 (1.5, D238) adds the condition reports (`condition-reports`,
  * `condition-report-rooms`, and their photos as attachments). Version 3 (1.6, D237) adds the
- * location map's layout (`map-nodes`). A reader refuses a newer version
+ * location map's layout (`map-nodes`). Version 4 (1.x, D251) adds the moves of Moving mode
+ * (`moves`, `move-boxes`: each box's number, state and room). A reader refuses a newer version
  * ("This export is from a newer Kept") and reads every older one: an entity or a field an older
  * export doesn't have is simply absent.
  */
 export const EXPORT_FORMAT = 'kept-export';
-export const EXPORT_VERSION = 3;
+export const EXPORT_VERSION = 4;
 
 /**
  * The data files of a Kept export (`data/<entity>.ndjson`), in the order they are written and
@@ -113,6 +114,9 @@ export const EXPORT_ENTITIES = [
   'condition-report-rooms',
   // 1.x (D237): the location map's layout.
   'map-nodes',
+  // Version 4 (D251): Moving mode's moves and their boxes (the boxes themselves are things).
+  'moves',
+  'move-boxes',
   'history',
 ] as const;
 export type ExportEntity = (typeof EXPORT_ENTITIES)[number];
@@ -122,7 +126,7 @@ export const EXPORT_FILE_PATH =
   /^files\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.[a-z0-9]{1,5}$/;
 
 /**
- * The entries of a Kept export (`kept-export` versions 1, 2 and 3, plan T12, Q5). Read only by
+ * The entries of a Kept export (`kept-export` versions 1 to 4, plan T12, Q5). Read only by
  * these exact names (plus the originals, `files/<fileId>.<ext>`); anything else in an archive is
  * ignored.
  *
@@ -202,7 +206,7 @@ export type ExportManifest = {
   };
   options: ExportOptions;
   /** Rows per data file written (every entity in EXPORT_ENTITIES, 0 when empty or left out). A
-   * version-1 or -2 export has no count for the entities later versions added; read, they count 0. */
+   * version-1, -2 or -3 export has no count for the entities later versions added; read, they count 0. */
   counts: Record<ExportEntity, number>;
   /** Whether money was hidden from the exporter (the Money module off there): money fields are
    * then absent, and the rows that had them say `moneyHidden: true`. */

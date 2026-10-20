@@ -8,15 +8,19 @@
  *   ("as of" the time it was read), with the box changes still queued on this phone laid over it.
  *   What is inside a box comes from the phone's snapshot, like the box check's (boxcheck/load.ts).
  * - **Writing.** Marking a box packed or in transit, and unpacking it into a room, are the
- *   `move_box` op: online they go straight to the server (with Undo from the toast); offline, or
- *   when the call can't reach it, they wait in the queue and the board shows them at once.
- *   Packing is the ordinary `move` op (the carrying tray, or Move on a thing). Starting a move,
- *   adding a box (its number comes from the server), choosing a box's room, the contents sheets
- *   and finishing a move need a connection.
- * - **Conflicts.** The server orders box changes by when they happened on each phone: a change
+ *   `move_box` op; choosing the room a box goes to is the `move_box_room` op. Online they go
+ *   straight to the server (with Undo from the toast for a state); offline, or when the call
+ *   can't reach it, they wait in the queue, the board shows them at once (a room by its name in
+ *   the phone's snapshot), and the toast's Undo takes them back out while they wait. Packing is
+ *   the ordinary `move` op (the carrying tray, or Move on a thing). Starting a move, adding a box
+ *   (its number comes from the server), the contents sheets and finishing a move need a
+ *   connection.
+ * - **Conflicts.** The server orders box states by when they happened on each phone: a change
  *   older than the box's last one changes nothing (the newer word stands, and the board shows it
- *   after the next sync). An unpack into a room someone trashed meanwhile is dropped with a notice
- *   and a restore, like any op (D35).
+ *   after the next sync). Rooms follow D35: the one the server gets last wins. A box unpacked by
+ *   the time a room arrives keeps the room it was unpacked into, on the server and in the overlay
+ *   here. An unpack into a room, or a room, someone trashed meanwhile is dropped with a notice and
+ *   a restore, like any op (D35).
  */
 import type { BoxState } from '@kept/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -90,26 +94,44 @@ export async function rememberedMoves(store: OfflineStore | null): Promise<Move[
   return Object.values(await readAll(store)).map((r) => r.move);
 }
 
-/** The `move_box` ops still waiting on this phone, in queue order. */
+/** The `move_box` and `move_box_room` ops still waiting on this phone, in queue order. */
 async function waiting(store: OfflineStore | null): Promise<QueueEntry[]> {
   if (!store) return [];
-  return (await store.pending()).filter((e) => e.op === 'move_box');
+  return (await store.pending()).filter((e) => e.op === 'move_box' || e.op === 'move_box_room');
 }
 
 type BoxPayload = { moveId: string; containerId: string; state: BoxState; placeId?: string };
+type RoomPayload = { moveId: string; containerId: string; placeId: string };
 
-/** The board with this phone's queued box changes laid over it. */
-export function overlay(move: Move, ops: readonly QueueEntry[]): Move {
+/**
+ * The board with this phone's queued box changes laid over it. A queued room is named from
+ * `names` (the phone's snapshot of the destination's places; a room it can't name shows when it
+ * syncs), and changes nothing for a box already unpacked, as on the server.
+ */
+export function overlay(
+  move: Move,
+  ops: readonly QueueEntry[],
+  names: ReadonlyMap<string, string> = new Map(),
+): Move {
+  const destination = move.toLocationId ?? move.locationId;
   const boxes = move.boxes.map((b) => {
     let out = b;
     for (const e of ops) {
-      const p = e.payload as BoxPayload;
+      const p = e.payload as BoxPayload | RoomPayload;
       if (p.moveId !== move.id || p.containerId !== b.containerId) continue;
+      if (e.op === 'move_box_room') {
+        const { placeId } = p as RoomPayload;
+        const name = names.get(placeId);
+        if (out.state !== 'unpacked' && name)
+          out = { ...out, destination: { placeId, name, locationId: destination } };
+        continue;
+      }
+      const s = p as BoxPayload;
       out = {
         ...out,
-        state: p.state,
+        state: s.state,
         stateAt: e.takenAt,
-        ...(p.state === 'unpacked' && p.placeId ? { placeId: p.placeId } : {}),
+        ...(s.state === 'unpacked' && s.placeId ? { placeId: s.placeId } : {}),
       };
     }
     return out;
@@ -144,7 +166,26 @@ export async function loadBoard(
     if (!kept) return null;
     board = { move: kept.move, from: 'phone', asOf: kept.at };
   }
-  return { ...board, move: overlay(board.move, await waiting(store)) };
+  const ops = await waiting(store);
+  return { ...board, move: overlay(board.move, ops, await roomNames(store, board.move, ops)) };
+}
+
+/** The names of the rooms queued for a move's boxes, from the phone's snapshot. */
+async function roomNames(
+  store: OfflineStore | null,
+  move: Move,
+  ops: readonly QueueEntry[],
+): Promise<Map<string, string>> {
+  const names = new Map<string, string>();
+  if (!store || !ops.some((e) => e.op === 'move_box_room')) return names;
+  try {
+    for (const p of await store.placesOf(move.toLocationId ?? move.locationId)) {
+      if (!p.deleted) names.set(p.id, p.name);
+    }
+  } catch {
+    // No snapshot: the room shows when it syncs.
+  }
+  return names;
 }
 
 export function useBoard(
@@ -155,6 +196,8 @@ export function useBoard(
     queryKey: [...movingKeys.one(id), online ? 'online' : 'offline'],
     queryFn: () => loadBoard(id, { store, online }),
     retry: false,
+    // It reads the phone's copy itself when there is no signal: never paused for one.
+    networkMode: 'always',
   });
 }
 
@@ -199,6 +242,48 @@ export async function setBoxState({
     containerId: box.containerId,
     state,
     ...(placeId ? { placeId } : {}),
+  });
+  await store.enqueue(item, []);
+  return { via: 'queue', key: item.idempotencyKey };
+}
+
+export type RoomWritten =
+  | { via: 'server'; box: MoveBox }
+  /** The op's idempotency key: Undo takes it back out of the queue while it is unsent. */
+  | { via: 'queue'; key: string };
+
+/**
+ * The room a box goes to: to the server when it can be reached, else the `move_box_room` op in
+ * the queue. Online a room is simply chosen again (no undo window, D251).
+ */
+export async function setBoxRoom({
+  store,
+  online,
+  move,
+  box,
+  placeId,
+}: {
+  store: OfflineStore | null;
+  online: boolean;
+  move: Pick<Move, 'id' | 'locationId'>;
+  box: Pick<MoveBox, 'containerId'>;
+  placeId: string;
+}): Promise<RoomWritten> {
+  if (online) {
+    try {
+      const w = await movingApi.updateBox(move.id, box.containerId, {
+        destinationPlaceId: placeId,
+      });
+      return { via: 'server', box: w.body };
+    } catch (e) {
+      if (!(isApiError(e) && e.code === 'offline') || !store) throw e;
+    }
+  }
+  if (!store) throw new Error('No offline store to queue the change in.');
+  const item = queueItem('move_box_room', move.locationId, {
+    moveId: move.id,
+    containerId: box.containerId,
+    placeId,
   });
   await store.enqueue(item, []);
   return { via: 'queue', key: item.idempotencyKey };

@@ -21,6 +21,7 @@ import {
   type Applied,
   type ApplyCtx,
   applyRow,
+  finishMove,
   finishReport,
   type Known,
   NOT_APPLIED,
@@ -53,6 +54,8 @@ import { clearRunKey, readSecrets, sealedKeyOf, writeSecrets } from './secrets.j
 //
 // Right after the attachments, the finished condition reports are finished again (D238): they are
 // written open so their rooms and photos can go in under the lock's own policies (apply.ts).
+// Right after the move boxes, the done moves are done again (D251), for the same reason: boxes go
+// only into an open move.
 //
 // After the rows: the secrets (only with the passphrase given, D68), in one transaction that also
 // clears the sealed key; then the history in batches through kept.import_history() (Q10), each
@@ -384,6 +387,42 @@ async function finishReports(s: Session): Promise<void> {
   }
 }
 
+/**
+ * The done moves, done again now that their boxes are in (D251), at the time the export says.
+ * Runs on every session (a resumed one marks only what is still open); it moves no progress, and
+ * audits `import.run` with how many.
+ */
+async function finishMoves(s: Session): Promise<void> {
+  const finished: { id: string; at: string }[] = [];
+  for await (const row of rowsOf(s.archive, 'moves')) {
+    if (
+      typeof row.id === 'string' &&
+      row.status === 'done' &&
+      typeof row.finishedAt === 'string' &&
+      s.known.has(row.id)
+    ) {
+      finished.push({ id: row.id, at: row.finishedAt });
+    }
+  }
+  for (let i = 0; i < finished.length; i += CHUNK) {
+    const part = finished.slice(i, i + CHUNK);
+    await inChunk(s, { from: s.at, to: s.at }, async (tx, client) => {
+      const c = applyCtxOf(s, client);
+      let n = 0;
+      for (const r of part) if (await finishMove(c, r.id, r.at)) n += 1;
+      if (n === 0) return;
+      await audited(tx, {
+        locationId: s.locationId,
+        actor: { type: 'user', id: s.scope.userId },
+        action: 'import.run',
+        entity: { type: 'import_run', id: s.runId },
+        after: { entity: 'moves', finished: n },
+        requestId: `import:${s.runId}`,
+      });
+    });
+  }
+}
+
 /** The secrets, with the passphrase's key; the key is cleared in the same transaction. */
 async function applySecrets(s: Session): Promise<void> {
   const keys = s.deps.keys;
@@ -527,6 +566,7 @@ export async function runKeptImport(deps: KeptJobDeps, scope: Scope, runId: stri
       if (entity === 'files') await applyFiles(s, count, originals);
       else await applyEntity(s, entity, count);
       if (entity === 'attachments') await finishReports(s);
+      if (entity === 'move-boxes') await finishMoves(s);
     }
     await applySecrets(s);
     await applyHistory(s, scan.history.total);

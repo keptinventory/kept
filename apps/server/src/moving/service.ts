@@ -43,7 +43,7 @@ import { type Ctx, insertThing, liveThing } from '../things/service.js';
 // starting, packing, marking and unpacking is `things.edit` (members and above). Unpacking into
 // another location also needs the caller to write there (the move's own rule: 404 otherwise).
 // Every route belongs to the Moving mode module of the move's location (http/modules.ts); the
-// `move_box` sync op checks the same.
+// `move_box` and `move_box_room` sync ops check the same.
 //
 // Audit: `move.create|update|delete`; `move_box.create|update|unpack|delete` on the box's
 // container (entity `thing`, so its timeline shows them), their diff a `box` image with the move
@@ -763,6 +763,23 @@ export async function updateBox(
     undoableUntil: stateChange ? undoableUntil() : null,
   });
   return { box: boxView(after), changed: true };
+}
+
+/**
+ * The `move_box_room` op (D251): the room a box goes to, chosen on a phone offline. Rooms follow
+ * D35 (the change the server gets last wins; each is in the box's history, without an undo
+ * window, as online). A box unpacked by the time it arrives keeps the room it was unpacked into:
+ * the unpack used the room, and changing it now would say the box goes somewhere it isn't.
+ */
+export async function chooseRoom(
+  ctx: WriteCtx,
+  moveId: string,
+  containerId: string,
+  placeId: string,
+): Promise<BoxWrite> {
+  const { box } = await writableBox(ctx, moveId, containerId);
+  if (box.state === 'unpacked') return { box: boxView(box), changed: false };
+  return updateBox(ctx, moveId, containerId, { destinationPlaceId: placeId });
 }
 
 type Whereabouts = { location_id: string; place_id: string | null; container_id: string | null };

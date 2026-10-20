@@ -64,6 +64,7 @@ export const OMIT_REASONS: Readonly<Record<string, string>> = Object.freeze({
   low_since: "derived: this server's day the thing ran low, re-made from its quantity",
   finished_by:
     'a user of this server; the importer finishes the report as the importing person (D238)',
+  state_by: "a user of this server; a box's state comes in as the importing person's (D251)",
 });
 
 export type EntityDef = Readonly<{
@@ -549,6 +550,33 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
       'id:uuid report_id:uuid place_id:uuid name:text condition:text note:text sort:int created_at:ts updated_at:ts',
     omit: 'location_id created_by row_version change_seq',
   },
+  {
+    // Format version 4 (D251): Moving mode's moves. Where a move goes (`toLocationId`) names
+    // another location, which the export doesn't hold: the importer brings such a move in as one
+    // within the new location. A done move is written open, its boxes added, then done again
+    // (imports/kept/job.ts), under the policies a request meets.
+    entity: 'moves',
+    table: 'moves',
+    scope: 'location',
+    key: ['id'],
+    fields:
+      'id:uuid to_location_id:uuid name:text status:text finished_at:ts created_at:ts updated_at:ts',
+    omit: 'location_id created_by row_version change_seq',
+  },
+  {
+    // A box's number, state and room in its move; the box is a thing (its container), with what
+    // is in it. A box whose container the export leaves out (ended, trashed, or unpacked into
+    // another location) goes with it.
+    entity: 'move-boxes',
+    table: 'move_boxes',
+    scope: 'location',
+    key: ['move_id', 'container_id'],
+    fields:
+      'move_id:uuid container_id:uuid number:int state:text destination_place_id:uuid state_at:ts created_at:ts updated_at:ts',
+    omit: 'location_id state_by created_by row_version change_seq',
+    where: 'x.container_id IN (SELECT kt.id FROM public.things kt WHERE kt.location_id = $1)',
+    thingRefs: ['x.container_id'],
+  },
 ] satisfies EntityDef[]);
 
 /** `history` isn't a table: it is the location's audit events, rendered (exports/history.ts). */
@@ -601,10 +629,6 @@ export const NOT_EXPORTED: Readonly<Record<string, string>> = Object.freeze({
   paperless_links:
     "links into this server's Paperless-ngx connection, which an export doesn't carry; a document copied into Kept travels as its attachment",
   share_links: "links to this server's pages, whose tokens are never shown again",
-  moves:
-    'a plan for one house move (D251); its boxes are containers and travel as things, with their contents',
-  move_boxes:
-    "a box's number and state in a move (D251); the box itself travels as a thing, its contents inside it",
 });
 
 const SNAKE = /_([a-z0-9])/g;
