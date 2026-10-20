@@ -185,9 +185,9 @@ The camera, installing the app, push and location need HTTPS:
 
 ## What's next
 
-- **Now:** [continuous scanning](https://github.com/keptinventory/kept/issues/168): count a whole room in one walk · [tours](https://github.com/keptinventory/kept/issues/189): a short walkthrough for every section
+- **Now:** [fill Kept from your camera](https://github.com/keptinventory/kept/issues/194): walk a room, AI drafts what it sees · [continuous scanning](https://github.com/keptinventory/kept/issues/168): count a whole room in one walk
 - **Next:** [mobile apps](https://github.com/keptinventory/kept/issues/169) · [kits and "who has it"](https://github.com/keptinventory/kept/issues/170) · [more 3D map shapes, from your requests](https://github.com/keptinventory/kept/issues/171)
-- **Later:** [stocktakes](https://github.com/keptinventory/kept/issues/172) · [more barcode types and video](https://github.com/keptinventory/kept/issues/173)
+- **Later:** [stocktakes](https://github.com/keptinventory/kept/issues/172) · [more barcode types and video](https://github.com/keptinventory/kept/issues/173) · [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197)
 
 [Full roadmap →](https://github.com/orgs/keptinventory/projects/1) · 👍 the themes you want most.
 

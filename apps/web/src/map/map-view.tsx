@@ -973,6 +973,7 @@ function MapBody({
             onAddOn={addOnIt}
             onHeight={setHeight}
             chosenShape={chosenShape}
+            here={scope?.placeId ?? null}
           />
         ) : null}
       </section>
