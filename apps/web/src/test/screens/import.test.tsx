@@ -12,6 +12,8 @@ import { IDS, memberScenario, ownerScenario } from '@/api/mock/fixtures';
 import { MockReply } from '@/api/mock/server';
 import { findHeading, renderApp } from '@/test/app';
 import { expectLogicalOnly } from '@/test/render';
+// Homebox v0.10.3's own Export Inventory file (apps/server/test/fixtures/homebox).
+import OLD_TSV from '../../../../server/test/fixtures/homebox/homebox-0.10.3-items.tsv?raw';
 
 vi.setConfig({ testTimeout: 20_000 });
 
@@ -225,5 +227,57 @@ describe('CSV import', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Cancel the import' }));
     expect(await screen.findByText('Import cancelled')).toBeInTheDocument();
     expect(mock.lastCall('POST', cp.importCancel(failed.id))).toBeTruthy();
+  });
+});
+
+describe('a Homebox spreadsheet export', () => {
+  it('says what it is, leaves its own columns to the preset, and asks about archived items', async () => {
+    const app = await renderApp(`/settings/import?location=${IDS.home}`);
+    await findHeading('Choose the file');
+    await waitFor(() => expect(fileInput()).not.toBeNull());
+    const { user, mock } = app;
+    await user.upload(
+      fileInput() as HTMLInputElement,
+      new File([OLD_TSV], 'homebox-items.tsv', { type: 'text/tab-separated-values' }),
+    );
+
+    expect(await findHeading('Match the columns')).toBeInTheDocument();
+    expect(screen.getByText("This is Homebox's spreadsheet export")).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'HB.name goes to' })).toHaveValue('Name');
+    expect(screen.queryByRole('combobox', { name: 'HB.asset_id goes to' })).toBeNull();
+    expect(screen.getAllByText('Read by the Homebox preset')).toHaveLength(10);
+    expectLogicalOnly();
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await findHeading('A few choices')).toBeInTheDocument();
+    const archived = screen.getByRole('radiogroup', { name: 'Archived items' });
+    expect(within(archived).getByRole('radio', { name: /Thrown away/ })).toBeChecked();
+    await user.click(within(archived).getByRole('radio', { name: /Archived in Homebox/ }));
+    await user.click(screen.getByRole('button', { name: 'Check the import' }));
+
+    expect(await findHeading('What the import will do')).toBeInTheDocument();
+    const body = mock.lastCall('POST', cp.importsCsv)?.body as CreateImportBody;
+    expect(body.choices).toMatchObject({
+      placeSeparator: '/',
+      dateFormat: 'YYYY-MM-DD',
+      homebox: { archived: 'tag' },
+    });
+    expect(body.mapping).toMatchObject({ 'HB.name': 'name', 'HB.location': 'place_path' });
+    expect(Object.keys(body.mapping)).not.toContain('HB.asset_id');
+    expect(Object.keys(body.mapping)).not.toContain('HB.archived');
+    expect(body.rows).toHaveLength(6);
+  });
+
+  it('a plain spreadsheet gets no preset', async () => {
+    const { user, mock } = await openWithFile('Name\nKettle\n');
+    expect(await findHeading('Match the columns')).toBeInTheDocument();
+    expect(screen.queryByText("This is Homebox's spreadsheet export")).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await findHeading('A few choices');
+    expect(screen.queryByRole('radiogroup', { name: 'Archived items' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Check the import' }));
+    await findHeading('What the import will do');
+    const body = mock.lastCall('POST', cp.importsCsv)?.body as CreateImportBody;
+    expect(body.choices).not.toHaveProperty('homebox');
   });
 });

@@ -3,16 +3,22 @@
  * goes to, guessed from its header in any of the five languages (suggest.ts). One column must be
  * the name; a field that holds one value takes one column (notes, tags, other names and codes
  * take several). "A type's field" maps a column to a custom field by its key.
+ *
+ * A Homebox spreadsheet export says so: the columns its preset reads (asset IDs, archived, sold,
+ * warranty, insured) show as the preset's, and a notice lists what a spreadsheet can't carry,
+ * with the way to the Homebox ZIP import for those.
  */
 import type { MappableField } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { Notice } from '@/components/page';
+import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { TextField } from '@/components/ui/text-field';
 import { useFormat } from '@/lib/format';
 import { FIELD_ORDER, useFieldLabel } from './labels';
 import type { ParsedCsv } from './parse';
-import { CUSTOM_KEY, MULTI_FIELDS } from './suggest';
+import { OLDER_HOMEBOX_DOCS } from './source-step';
+import { CUSTOM_KEY, HOMEBOX_PRESET, MULTI_FIELDS } from './suggest';
 
 const CUSTOM = 'custom';
 const SAMPLES = 3;
@@ -53,12 +59,18 @@ export function MappingStep({
   mapping,
   onChange,
   showProblems,
+  homebox = false,
+  onHomeboxZip,
 }: {
   parsed: ParsedCsv;
   mapping: Record<string, MappableField>;
   onChange: (mapping: Record<string, MappableField>) => void;
   /** Show what's wrong (after Next was pressed). */
   showProblems: boolean;
+  /** A Homebox spreadsheet export, read with the Homebox preset. */
+  homebox?: boolean;
+  /** Switch to the Homebox export (ZIP) import instead. */
+  onHomeboxZip?: () => void;
 }) {
   const { t } = useLingui();
   const fieldLabel = useFieldLabel();
@@ -80,6 +92,38 @@ export function MappingStep({
           other="# rows. Say what each column is; the guesses come from the headers."
         />
       </p>
+      {homebox ? (
+        <Notice
+          tone="info"
+          title={<Trans>This is Homebox's spreadsheet export</Trans>}
+          action={
+            onHomeboxZip ? (
+              <Button variant="secondary" onPress={onHomeboxZip}>
+                <Trans>Import a Homebox export instead</Trans>
+              </Button>
+            ) : null
+          }
+        >
+          <span className="grid gap-1.5">
+            <span>
+              <Trans>
+                Kept reads its asset IDs, so old Homebox labels still scan, and its archived and
+                sold items, warranties and insured column. A spreadsheet can't carry photos, files,
+                maintenance or items inside items: for those, update a copy of Homebox to v0.26.1 or
+                newer (v0.27.0 recommended) and import its export ZIP.
+              </Trans>
+            </span>
+            <a
+              href={OLDER_HOMEBOX_DOCS}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold underline underline-offset-2"
+            >
+              <Trans>Coming from an older Homebox</Trans>
+            </a>
+          </span>
+        </Notice>
+      ) : null}
       {parsed.unclosedQuoteRow !== null ? (
         <Notice tone="warn">
           <Trans>
@@ -136,43 +180,49 @@ export function MappingStep({
                   </span>
                 )}
               </div>
-              <div className="grid gap-2">
-                <Combobox
-                  label={t`${column} goes to`}
-                  items={options}
-                  selectedKey={isCustom ? CUSTOM : field}
-                  onSelectionChange={(k) => {
-                    if (!k) return;
-                    const next = String(k) === CUSTOM ? 'custom.' : (String(k) as MappableField);
-                    onChange({ ...mapping, [column]: next as MappableField });
-                  }}
-                  {...(showProblems && earlier
-                    ? {
-                        isInvalid: true,
-                        errorMessage: t`${fieldName} is already ${earlier}. One column each.`,
-                      }
-                    : {})}
-                />
-                {isCustom ? (
-                  <TextField
-                    label={t`Field key`}
-                    description={t`As the type's field is written in Settings → Account → Types, like warranty_months.`}
-                    value={field.slice('custom.'.length)}
-                    onChange={(v) =>
-                      onChange({
-                        ...mapping,
-                        [column]: `custom.${v.trim().toLowerCase()}` as MappableField,
-                      })
-                    }
-                    {...(showProblems && problems.badKey.includes(column)
+              {homebox && HOMEBOX_PRESET.has(column) ? (
+                <span className="text-small text-ink-2 md:pt-2">
+                  <Trans>Read by the Homebox preset</Trans>
+                </span>
+              ) : (
+                <div className="grid gap-2">
+                  <Combobox
+                    label={t`${column} goes to`}
+                    items={options}
+                    selectedKey={isCustom ? CUSTOM : field}
+                    onSelectionChange={(k) => {
+                      if (!k) return;
+                      const next = String(k) === CUSTOM ? 'custom.' : (String(k) as MappableField);
+                      onChange({ ...mapping, [column]: next as MappableField });
+                    }}
+                    {...(showProblems && earlier
                       ? {
                           isInvalid: true,
-                          errorMessage: t`Lowercase letters, digits and _, starting with a letter.`,
+                          errorMessage: t`${fieldName} is already ${earlier}. One column each.`,
                         }
                       : {})}
                   />
-                ) : null}
-              </div>
+                  {isCustom ? (
+                    <TextField
+                      label={t`Field key`}
+                      description={t`As the type's field is written in Settings → Account → Types, like warranty_months.`}
+                      value={field.slice('custom.'.length)}
+                      onChange={(v) =>
+                        onChange({
+                          ...mapping,
+                          [column]: `custom.${v.trim().toLowerCase()}` as MappableField,
+                        })
+                      }
+                      {...(showProblems && problems.badKey.includes(column)
+                        ? {
+                            isInvalid: true,
+                            errorMessage: t`Lowercase letters, digits and _, starting with a letter.`,
+                          }
+                        : {})}
+                    />
+                  ) : null}
+                </div>
+              )}
             </li>
           );
         })}

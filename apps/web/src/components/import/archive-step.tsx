@@ -6,6 +6,9 @@
  * (XMLHttpRequest: fetch reports no upload progress). The run joins the URL only once the bytes
  * have arrived, so a reload or an error starts the upload again from the beginning, cleanly.
  *
+ * A spreadsheet chosen as the Homebox export is what a Homebox older than v0.26 gives: it isn't
+ * sent, and the step says so, with the way to the CSV import's Homebox preset.
+ *
  * Leaving the page while it hashes or uploads asks first, with Kept's own confirm; closing the tab
  * gets the browser's own question, never text of ours.
  */
@@ -30,9 +33,15 @@ import { cn } from '@/lib/utils';
 import { useRefusalText } from './labels';
 import { hashFile } from './sha256';
 import { StepFooter, StepHeader } from './step-chrome';
+import { CSV_TYPES } from './upload-step';
 
 export const ARCHIVE_STEPS = 6;
 const ZIP_TYPES = ['application/zip', 'application/x-zip-compressed', '.zip'];
+
+/** A spreadsheet (CSV, or the TSV of Homebox v0.10.3 and v0.11.0), not an archive. */
+export const isSpreadsheet = (file: Pick<File, 'name' | 'type'>) =>
+  /\.(?:csv|tsv)$/i.test(file.name) ||
+  (!/\.zip$/i.test(file.name) && CSV_TYPES.includes(file.type));
 
 type Phase =
   | { kind: 'idle' }
@@ -109,6 +118,8 @@ export function ArchiveStep({
   const f = useFormat();
   const [file, setFile] = useState<File | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  const [spreadsheet, setSpreadsheet] = useState(false);
+  const accepted = source === 'homebox_zip' ? [...ZIP_TYPES, ...CSV_TYPES] : ZIP_TYPES;
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
   const busy = useRef(false);
   const abort = useRef<AbortController | null>(null);
@@ -176,6 +187,13 @@ export function ArchiveStep({
 
   const choose = (chosen: File | undefined) => {
     if (!chosen || busy.current) return;
+    setSpreadsheet(source === 'homebox_zip' && isSpreadsheet(chosen));
+    if (source === 'homebox_zip' && isSpreadsheet(chosen)) {
+      setFile(null);
+      setProblem(null);
+      setPhase({ kind: 'idle' });
+      return;
+    }
     const why = problemOf(chosen);
     setFile(why ? null : chosen);
     setProblem(why);
@@ -266,11 +284,29 @@ export function ArchiveStep({
           {problem}
         </Notice>
       ) : null}
+      {spreadsheet ? (
+        <Notice
+          tone="warn"
+          title={<Trans>This is Homebox's spreadsheet export</Trans>}
+          action={
+            <Button variant="secondary" onPress={onBack}>
+              <Trans>Import it as a spreadsheet</Trans>
+            </Button>
+          }
+        >
+          <Trans>
+            A Homebox older than v0.26 makes a spreadsheet instead of an export ZIP. Import it as a
+            spreadsheet: names, places, tags, purchases, warranties, sales and old labels come
+            across. For photos, files and maintenance too, update a copy of Homebox to v0.26.1 or
+            newer (v0.27.0 recommended) and export the ZIP.
+          </Trans>
+        </Notice>
+      ) : null}
 
       {!working ? (
         <DropZone
           getDropOperation={(types) =>
-            ZIP_TYPES.some((type) => types.has(type)) ? 'copy' : 'cancel'
+            accepted.some((type) => types.has(type)) ? 'copy' : 'cancel'
           }
           onDrop={async (e) => {
             const item = e.items.find((i) => i.kind === 'file');
@@ -293,7 +329,7 @@ export function ArchiveStep({
               <Trans>Needs a connection</Trans>
             )}
           </span>
-          <FileTrigger acceptedFileTypes={ZIP_TYPES} onSelect={(files) => choose(files?.[0])}>
+          <FileTrigger acceptedFileTypes={accepted} onSelect={(files) => choose(files?.[0])}>
             <Button isDisabled={!online} variant={file ? 'secondary' : 'primary'}>
               {file ? <Trans>Choose another file</Trans> : <Trans>Choose the .zip file</Trans>}
             </Button>
@@ -303,7 +339,10 @@ export function ArchiveStep({
 
       {source === 'homebox_zip' ? (
         <Notice tone="info" title={<Trans>If Homebox says "Topic has been Shutdown"</Trans>}>
-          <Trans>Restart Homebox and export again: v0.26 exports once each time it starts.</Trans>
+          <Trans>
+            Restart Homebox and export again: v0.26 exports once each time it starts. v0.27.0
+            doesn't have this limit.
+          </Trans>
         </Notice>
       ) : (
         <Notice tone="info">

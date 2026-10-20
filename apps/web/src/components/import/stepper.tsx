@@ -19,6 +19,7 @@ import {
   type ArchiveSource,
   CSV_LIMITS,
   type DateFormat,
+  isHomeboxCsv,
   type MappableField,
   newId,
 } from '@kept/shared';
@@ -44,7 +45,7 @@ import type { ParsedCsv } from './parse';
 import { RunFinished, RunProgress } from './progress-step';
 import { ReportList, ReportSummary } from './report-step';
 import { StepFooter, StepHeader } from './step-chrome';
-import { dateFormatsFor, separatorFor, suggestMapping } from './suggest';
+import { dateFormatsFor, homeboxMapping, separatorFor, suggestMapping } from './suggest';
 import { isStale, UploadStep } from './upload-step';
 
 type Draft = {
@@ -216,7 +217,9 @@ export function ImportStepper({
     );
 
   const onParsed = (file: { name: string }, parsed: ParsedCsv) => {
-    const mapping = suggestMapping(parsed.columns);
+    // A Homebox spreadsheet gets the Homebox preset: its own mapping, and archived items end.
+    const homebox = isHomeboxCsv(parsed.columns);
+    const mapping = homebox ? homeboxMapping(parsed.columns) : suggestMapping(parsed.columns);
     const valuesOf = (field: MappableField) => {
       const i = parsed.columns.findIndex((c) => mapping[c] === field);
       return i < 0 ? [] : parsed.rows.map((r) => r[i] ?? '');
@@ -233,6 +236,7 @@ export function ImportStepper({
         dateFormat: dateCandidates[0] ?? 'YYYY-MM-DD',
         defaultTarget: { unplaced: true },
         typeByName: true,
+        ...(homebox ? { homebox: { archived: 'ended' as const } } : {}),
       },
     });
     setShowProblems(false);
@@ -308,6 +312,8 @@ export function ImportStepper({
           mapping={draft.mapping}
           onChange={(mapping) => setDraft({ ...draft, mapping })}
           showProblems={showProblems}
+          homebox={!!draft.choices.homebox}
+          onHomeboxZip={() => go({ source: 'homebox_zip' })}
         />
       ) : null}
       {step === 'choices' && draft && location ? (

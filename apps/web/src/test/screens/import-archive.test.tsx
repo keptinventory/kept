@@ -216,6 +216,28 @@ describe('the upload', () => {
     expect(screen.getByRole('heading', { name: 'The Homebox export' })).toBeInTheDocument();
   });
 
+  it('names the version text, and explains a spreadsheet chosen as the Homebox export', async () => {
+    const app = await renderApp(`/settings/import?location=${IDS.home}`);
+    await findHeading('Choose the file');
+    expect(
+      screen.getByText(/Homebox v0\.26\.1 or newer \(v0\.27\.0 recommended\)/),
+    ).toBeInTheDocument();
+    await app.user.click(await screen.findByRole('radio', { name: /A Homebox export/ }));
+    await findHeading('The Homebox export');
+    await waitFor(() => expect(fileInput()).not.toBeNull());
+    await app.user.upload(
+      fileInput() as HTMLInputElement,
+      new File(['HB.name\tHB.location\nKettle\tKitchen\n'], 'homebox-items.tsv', {
+        type: 'text/tab-separated-values',
+      }),
+    );
+    expect(await screen.findByText(/This is Homebox's spreadsheet export/)).toBeInTheDocument();
+    expect(app.mock.lastCall('POST', p.importsArchive)).toBeUndefined();
+    await app.user.click(screen.getByRole('button', { name: 'Import it as a spreadsheet' }));
+    expect(await findHeading('Choose the file')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Choose a CSV file' })).toBeInTheDocument();
+  });
+
   it('needs a connection', async () => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
     await chooseSource('A Homebox export');
