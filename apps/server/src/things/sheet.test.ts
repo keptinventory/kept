@@ -1,3 +1,4 @@
+import pg from 'pg';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
@@ -276,6 +277,116 @@ describe('POST /api/v1/things/bulk-edit', () => {
     // Both of x's events are in the answer, so one Undo takes back the rename and the move.
     expect(body.events).toHaveLength(3);
     expect(body.events.slice(0, 2)).toEqual(xEvents.slice(-2).map((e) => e.id));
+  });
+
+  it('saves 40 rows in about as many statements as 4: set-based, not row by row', async () => {
+    const shelf = await place(db, home, 'Long shelf');
+    const blue = await tag('Blue');
+    const kilner = await brand('Kilner');
+    const things: string[] = [];
+    for (let i = 0; i < 44; i++) {
+      things.push((await createThing(t, mo, home, { name: `Jar ${i}` })).id);
+    }
+    // Every row renamed, given a brand, a model and a tag, every other one moved: the sheet's
+    // heaviest ordinary save. Statements counted while the request runs.
+    const statements = async (ids: string[]) => {
+      const edits = [];
+      for (const [i, id] of ids.entries()) {
+        edits.push({
+          id,
+          rowVersion: await versionOf(id),
+          set: {
+            name: `Jar ${i} (spices)`,
+            brandId: kilner,
+            model: `J-${i}`,
+            tagIds: [blue],
+            ...(i % 2 === 0 ? { to: { placeId: shelf } } : {}),
+          },
+        });
+      }
+      let n = 0;
+      const query = pg.Client.prototype.query;
+      pg.Client.prototype.query = function (this: pg.Client, ...args: unknown[]) {
+        n += 1;
+        return (query as (...a: unknown[]) => unknown).apply(this, args);
+      } as typeof query;
+      try {
+        const body = ok(await bulkEdit(mo, edits)) as unknown as {
+          results: { ok: boolean }[];
+          events: string[];
+        };
+        expect(body.results.every((r) => r.ok)).toBe(true);
+        expect(body.events).toHaveLength(ids.length + ids.length / 2);
+      } finally {
+        pg.Client.prototype.query = query;
+      }
+      return n;
+    };
+    const few = await statements(things.slice(0, 4));
+    const many = await statements(things.slice(4));
+    expect(many - few, `4 rows: ${few} statements, 40 rows: ${many}`).toBeLessThan(10);
+    // Each row still has its own audit events, its update's diff as PATCH writes it.
+    const events = await eventsOf(db, home.id, things[4] as string);
+    expect(events.slice(-2).map((e) => e.action)).toEqual(['thing.update', 'thing.move']);
+    expect(events.at(-2)?.diff).toMatchObject({
+      name: { before: 'Jar 4', after: 'Jar 0 (spices)', class: 'plain' },
+      brand_id: { before: null, after: kilner },
+      model: { before: null, after: 'J-0' },
+      tag_ids: { before: [], after: [blue] },
+    });
+    expect(events.at(-2)?.undoable_until).not.toBeNull();
+  });
+
+  it('saves the good rows when the database refuses one saved with them', async () => {
+    const theirs = await own<{ id: string }>(
+      db,
+      `INSERT INTO public.tags (owner_account_id, name)
+       SELECT owner_account_id, 'Not yours' FROM public.locations WHERE id = $1 RETURNING id`,
+      [bob.personalLocationId],
+    );
+    const foreign = theirs[0]?.id as string;
+    const green = await tag('Green');
+    const a = await createThing(t, mo, home, { name: 'Mug' });
+    const b = await createThing(t, mo, home, { name: 'Plate' });
+    const c = await createThing(t, mo, home, { name: 'Bowl' });
+    // What PATCH answers for a tag of another account.
+    const patched = await call(t, `/api/v1/things/${b.id}`, {
+      as: mo,
+      method: 'PATCH',
+      headers: { 'if-match': String(await versionOf(b.id)) },
+      body: { tagIds: [foreign] },
+    });
+    expect(patched.statusCode).toBeGreaterThanOrEqual(400);
+    const va = await versionOf(a.id);
+    const vb = await versionOf(b.id);
+    const body = ok(
+      await bulkEdit(mo, [
+        { id: a.id, rowVersion: va, set: { tagIds: [green] } },
+        { id: b.id, rowVersion: vb, set: { name: 'Big plate', tagIds: [foreign] } },
+        { id: c.id, rowVersion: await versionOf(c.id), set: { name: 'Small bowl' } },
+      ]),
+    ) as unknown as {
+      results: { id: string; ok: boolean; status?: number }[];
+      rows: Row[];
+      events: string[];
+    };
+    expect(body.results).toEqual([
+      { id: a.id, ok: true },
+      expect.objectContaining({ id: b.id, ok: false, status: patched.statusCode }),
+      { id: c.id, ok: true },
+    ]);
+    expect(body.rows.map((r) => r.id)).toEqual([a.id, c.id]);
+    // A tags-only change still moves the row version (security review #24).
+    expect(await versionOf(a.id)).toBe(va + 1);
+    expect(await versionOf(b.id)).toBe(vb);
+    const [bRow] = await own<{ name: string }>(db, 'SELECT name FROM public.things WHERE id = $1', [
+      b.id,
+    ]);
+    expect(bRow?.name).toBe('Plate');
+    const ea = (await eventsOf(db, home.id, a.id)).at(-1);
+    const ec = (await eventsOf(db, home.id, c.id)).at(-1);
+    expect(body.events).toEqual([ea?.id, ec?.id]);
+    expect(ea?.diff.tag_ids).toMatchObject({ before: [], after: [green] });
   });
 
   it('refuses a viewer and an outsider row by row, and checks the request', async () => {

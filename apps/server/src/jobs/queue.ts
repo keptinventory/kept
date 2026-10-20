@@ -1,6 +1,6 @@
 import type pg from 'pg';
 import type { PgBoss } from 'pg-boss';
-import { sendInTx, sendTenantJob } from './boss.js';
+import { sendInTx, sendTenantJob, sendTenantJobs } from './boss.js';
 import { JOB_POLICIES, queueOptions } from './policies.js';
 
 // The request side of jobs (D94): a route enqueues on its own transaction, so the job exists only
@@ -81,6 +81,13 @@ export type JobQueue = {
     data: object,
     dedupe?: SendDedupe,
   ) => Promise<void>;
+  /** sendTenant() for several jobs of one queue, the scope read once (a bulk write). A queue
+   * without it gets one sendTenant() per job (embeddings/job.ts enqueueEmbeds). */
+  sendTenantMany?: (
+    client: pg.ClientBase,
+    name: TenantRequestQueue,
+    jobs: readonly { data: object; dedupe?: SendDedupe }[],
+  ) => Promise<void>;
   /** Moves a system job's schedule (a cron in UTC): Admin → Backups' nightly time (step 8). The
    * schedule lives in pg-boss's tables, so the worker's cron follows it without a restart. */
   reschedule?: (name: RequestQueue, cron: string) => Promise<void>;
@@ -105,6 +112,17 @@ export function bossQueue(boss: PgBoss): JobQueue {
         name,
         data,
         dedupe ? { ...dedupe, singletonNextSlot: true } : {},
+      );
+    },
+    sendTenantMany: async (client, name, jobs) => {
+      await sendTenantJobs(
+        boss,
+        client,
+        name,
+        jobs.map((j) => ({
+          data: j.data,
+          options: j.dedupe ? { ...j.dedupe, singletonNextSlot: true } : {},
+        })),
       );
     },
     reschedule: async (name, cron) => {

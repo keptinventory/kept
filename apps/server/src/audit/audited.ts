@@ -100,6 +100,11 @@ export function undoableSince(tx: Tx, mark: number): string[] {
   return (UNDOABLE.get(tx) ?? []).slice(mark).map((e) => e.id);
 }
 
+/** undoableSince() with what each event is about (`<entity type>:<id>`), in write order. */
+export function undoableEntriesSince(tx: Tx, mark: number): { id: string; entity: string }[] {
+  return (UNDOABLE.get(tx) ?? []).slice(mark).map((e) => ({ ...e }));
+}
+
 export function forgetUndoableSince(tx: Tx, mark: number): void {
   UNDOABLE.get(tx)?.splice(mark);
 }
