@@ -513,7 +513,7 @@ export function CaptureScreen({
     (target.placeId === null ||
       target.placeId === loc?.unplacedPlaceId ||
       placesOf(target.locationId).some((p) => p.id === target.placeId && p.isUnplaced));
-  // Try Kept (D246): no AI runs there; every room photo gives the same sample results.
+  // Try Kept: no AI runs there; every room photo gives the same sample results.
   const roomBlock: RoomBlock =
     mode !== 'room'
       ? null

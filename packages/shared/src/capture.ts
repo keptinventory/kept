@@ -4,8 +4,8 @@
  * zod schemas and the web read these lists.
  */
 
-/** The camera's mode strip, THING · RECEIPT · LABEL · READING · ROOM (D34; ROOM: several
- * photos of one room, every object in them listed by AI). */
+/** The camera's mode strip, THING · RECEIPT · LABEL · READING · ROOM (ROOM: several photos of
+ * one room, every object in them listed by AI). */
 export const CAPTURE_MODES = ['thing', 'receipt', 'label', 'reading', 'room'] as const;
 export type CaptureMode = (typeof CAPTURE_MODES)[number];
 
