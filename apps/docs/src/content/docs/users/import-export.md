@@ -55,7 +55,7 @@ import would drop:
 |---|---|
 | `HB.asset_id`, and the item's link in `HB.url` (v0.13 and later) | Old labels: a printed Homebox label opens the thing |
 | `HB.sold_*` | The thing ended as sold, with its date, buyer, notes and price |
-| `HB.archived` | Your choice: **Thrown away, no longer in use**, **In use, tagged "Archived in Homebox"**, or **Leave out** |
+| `HB.archived` | Your choice: **Archived** (the default), **In use**, or **Leave out**. One with a sale ends sold |
 | `HB.warranty_expires`, `HB.lifetime_warranty` | A warranty from the purchase date, where Warranties is on |
 | `HB.warranty_details`, `HB.insured` | Lines in the notes |
 
@@ -85,7 +85,8 @@ re-run adds only what's new. **Connect to Homebox
 and an API key, or an email and password. They're used once and never stored. Then choose:
 
 - **Prices are in**: the currency. Choosing one relabels the amounts; it doesn't convert them.
-- **Archived items**: **Leave out**, or **Import, tagged "Archived in Homebox"**.
+- **Archived items**: **Archived** (the default: archived in Kept too, still yours, put away),
+  **In use**, or **Leave out**. An archived item with sale details ends sold.
 - **Add an "Insured" yes/no field**, and **Leave out Homebox's starter places and tags** (the
   eight rooms and six tags every new Homebox collection starts with, when they're unused).
 - **Custom fields**: for each, **Add to the type** or **Keep in notes**.
@@ -190,7 +191,7 @@ location's languages, the way captured things get them ([AI providers](/users/ai
 - **Export my data**: your Personal location with its files, your profile and preferences, and
   your own AI calls.
 
-**What goes in** besides: ended things (sold, given away, thrown out), the Trash, the history, the
+**What goes in** besides: archived and ended things (sold, given away, thrown out), the Trash, the history, the
 AI calls, and **A copy you can read without Kept**: web pages, spreadsheets, thumbnails and
 receipts that open in any browser, optionally with the inventory PDF, in a language of its own.
 
