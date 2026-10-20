@@ -3,6 +3,20 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.10.7 (2026-10-20)
+
+### Fixes
+
+- **web:** two timers no longer outlive their screens (#165) (f36502c)
+
+### Documentation
+
+- **release:** the 1.10.6 record (#158) (9704a46)
+
+### Other
+
+- Kept 1.10.7: MCP moving tools, moves in exports, faster sheet saves, map card and walls, hang things on a wall (#164) (e2db58d)
+
 ## 1.10.6 (2026-10-17)
 
 ### Fixes
