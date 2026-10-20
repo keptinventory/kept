@@ -6,19 +6,15 @@
  * the catalogue (library.ts). Plain HTML: everything is in the page, and the filter above it is
  * a small script that only hides cards; without it every shape shows.
  */
-import { THUMB_COLS } from '../../../../web/src/map/thumbs/sprite';
 import spriteUrl from '../../../../web/src/map/thumbs/shapes.webp?url';
+import { THUMB_COLS } from '../../../../web/src/map/thumbs/sprite';
 import { shapeLibrary } from './library';
 
 const groups = shapeLibrary();
 const count = groups.reduce((n, g) => n + g.shapes.length, 0);
 const SIZE = 64;
 /** What the filter compares: lower case, no accents. */
-const fold = (s: string) =>
-  s
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/\p{M}/gu, '');
+const fold = (s: string) => s.toLowerCase().normalize('NFKD').replace(/\p{M}/gu, '');
 const request = 'https://github.com/keptinventory/kept/issues/new?template=shape-request.yml';
 ---
 
