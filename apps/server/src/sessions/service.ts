@@ -3,6 +3,8 @@ import {
   can,
   type OpPayload,
   type Role,
+  SCAN_SESSION_APPLIED,
+  type ScanSessionAction,
   type ScanSessionMode,
   type ScanSessionTarget,
 } from '@kept/shared';
@@ -17,10 +19,11 @@ import {
   undoableUntil,
   undoConflict,
 } from '../audit/undo.js';
+import { assertClientId } from '../http/conventions.js';
 import { forbidden, invalid, notFound, toErrorReply } from '../http/errors.js';
 import { callerMembership } from '../locations/access.js';
 import { moveBackForUndo, moveThings } from '../things/move.js';
-import type { Ctx } from '../things/service.js';
+import { type Ctx, splitThing } from '../things/service.js';
 
 // Scan sessions (1.12, #168): one walk with the camera, many labels, one mode.
 //
@@ -44,6 +47,22 @@ import type { Ctx } from '../things/service.js';
 // One `scan.session` audit event in the session's location, undoable for 7 days as a whole: the
 // undo checks that nothing it changed has changed since, moves the moved things back (through the
 // move service's undo path) and restores every seen date and "not here".
+//
+// 1.14 (#172): a count keeps every result. Its other lines are stored and never applied: missing,
+// found elsewhere and left there, and, whatever the phone sent, never "missing" for a thing lent
+// out (`on_loan`), in repair (`in_repair`) or in the Trash (`trashed`); nor for one in an area the
+// count didn't reach (`not_counted`: the header names the areas counted). Each line keeps where the
+// thing was (`was_*`), its area (the place it was in, through its boxes) and, counted in number,
+// how many were found of how many; chosen "not here", the rest is split off as a box check does.
+// A finished count of a place completes that place's planned count (counts.ts reads them back).
+//
+// A count is shared until it is finished: started online (`POST /api/v1/scan-sessions`), it is
+// found by anyone opening the same target ("Count in progress by Sam: Join"), and every member
+// who counts there adds their lines to it as themselves (`read_by`) and their areas to its
+// counted areas. A read upgrades a line that was only a kept result (someone's phone listed the
+// thing as missing; someone else found it); otherwise the first line of a thing stays. Each phone
+// reads the others' lines back to merge them into its summary, and anyone who counts there
+// finishes it, once (`finished_by`). A pack or a move stays its own person's.
 
 /** Things per move call (the move service's limit). */
 const MOVE_CHUNK = 200;
@@ -106,13 +125,90 @@ async function requireAllowed(
 }
 
 async function sessionRow(client: pg.ClientBase, id: string, lock = false) {
-  const { rows } = await client.query<SessionRow>(
-    `SELECT id, location_id, mode, target_place_id, target_container_id, started_by, started_at,
-            finished_at
-       FROM public.scan_sessions WHERE id = $1${lock ? ' FOR UPDATE' : ''}`,
-    [id],
+  const read = async (forUpdate: boolean) =>
+    (
+      await client.query<SessionRow>(
+        `SELECT id, location_id, mode, target_place_id, target_container_id, started_by,
+                started_at, finished_at
+           FROM public.scan_sessions WHERE id = $1${forUpdate ? ' FOR UPDATE' : ''}`,
+        [id],
+      )
+    ).rows[0] ?? null;
+  const row = await read(false);
+  // Locked only while open: a finished session is no longer anyone's to change (its row policy).
+  if (!lock || !row || row.finished_at) return row;
+  return (await read(true)) ?? row;
+}
+
+export const StartCountBody = z.strictObject({
+  id: z.uuid(),
+  target: z.union([
+    z.strictObject({ placeId: z.uuid(), inside: z.boolean() }),
+    z.strictObject({ containerId: z.uuid() }),
+    z.strictObject({ locationId: z.uuid() }),
+  ]),
+  startedAt: z.iso.datetime({ offset: true }).optional(),
+  countedPlaceIds: z.array(z.uuid()).max(5000).optional(),
+});
+export type StartCountBody = z.infer<typeof StartCountBody>;
+
+/**
+ * POST /api/v1/scan-sessions: opens a count on the server at its start, so that others counting
+ * the same target can join it. Its lines and finish are the usual sync ops; starting it again
+ * (a retry) answers the same session.
+ */
+export async function startCount(ctx: Ctx, body: StartCountBody): Promise<{ id: string }> {
+  const { client, scope } = ctx;
+  const id = assertClientId(body.id.toLowerCase());
+  const locationId = await targetLocation(client, body.target);
+  await requireAllowed(client, locationId, needs('count'));
+  const found = await sessionRow(client, id);
+  if (found) {
+    if (found.started_by !== scope.userId || found.mode !== 'count') throw notFound();
+    return { id };
+  }
+  const t = body.target;
+  const now = new Date();
+  await client.query(
+    `INSERT INTO public.scan_sessions (id, location_id, mode, target_place_id,
+                                       target_container_id, target_inside, started_by,
+                                       started_at, counted_place_ids)
+     VALUES ($1, $2, 'count', $3, $4, $5, kept.current_user_id(), least($6::timestamptz, $7), $8)`,
+    [
+      id,
+      locationId,
+      'placeId' in t ? t.placeId.toLowerCase() : null,
+      'containerId' in t ? t.containerId.toLowerCase() : null,
+      'placeId' in t ? t.inside : null,
+      body.startedAt ?? now,
+      now,
+      body.countedPlaceIds?.map((x) => x.toLowerCase()) ?? null,
+    ],
   );
-  return rows[0] ?? null;
+  return { id };
+}
+
+/** A count's results that depend on the thing, not on the read: re-decided at the finish. */
+const KEPT_RESULTS = ['missing', 'not_counted', 'on_loan', 'in_repair', 'trashed'] as const;
+
+/**
+ * What a line's result really is, as SQL over the thing row `t`, its area and the areas counted:
+ * never "missing" (nor "not here") for a thing in the Trash, lent out or in repair; "not counted"
+ * for one in an area the count didn't reach. Reads and moves are what they say.
+ */
+function resultOf(action: string, t: string, area: string, counted: string): string {
+  return `CASE WHEN ${action} NOT IN ('not_here', ${KEPT_RESULTS.map((x) => `'${x}'`).join(', ')})
+                 THEN ${action}
+               WHEN ${t}.deleted_at IS NOT NULL THEN 'trashed'
+               WHEN EXISTS (SELECT 1 FROM public.loans o
+                             WHERE o.thing_id = ${t}.id AND o.returned_at IS NULL) THEN 'on_loan'
+               WHEN EXISTS (SELECT 1 FROM public.claims k
+                             WHERE k.thing_id = ${t}.id AND k.status = 'in_repair')
+                 THEN 'in_repair'
+               WHEN ${action} = 'not_here' THEN 'not_here'
+               WHEN ${counted} IS NOT NULL AND ${area} IS NOT NULL
+                    AND NOT ${area} = ANY (${counted}) THEN 'not_counted'
+               ELSE 'missing' END`;
 }
 
 /**
@@ -135,18 +231,30 @@ export async function addSessionLines(
   }
   await requireAllowed(client, locationId, needs(head.mode));
 
+  const counted = head.countedPlaceIds ? head.countedPlaceIds.map((x) => x.toLowerCase()) : null;
   const found = await sessionRow(client, id, true);
   if (found) {
-    if (found.started_by !== scope.userId) throw notFound();
+    if (found.started_by !== scope.userId && found.mode !== 'count') throw notFound();
     if (found.mode !== head.mode) throw invalid('This session is in another mode.');
     if (found.finished_at) throw invalid('This session is already saved.');
+    if (found.location_id !== locationId) throw invalid('This session is in another location.');
+    // Joined: what this phone counted adds to the areas counted.
+    if (counted) {
+      await client.query(
+        `UPDATE public.scan_sessions
+            SET counted_place_ids = ARRAY(SELECT DISTINCT x FROM unnest(
+                  coalesce(counted_place_ids, '{}'::uuid[]) || $2::uuid[]) x ORDER BY x)
+          WHERE id = $1`,
+        [id, counted],
+      );
+    }
   } else {
     const t = head.target;
     await client.query(
       `INSERT INTO public.scan_sessions (id, location_id, mode, target_place_id,
                                          target_container_id, target_inside, started_by,
-                                         started_at)
-       VALUES ($1, $2, $3, $4, $5, $6, kept.current_user_id(), least($7::timestamptz, $8))`,
+                                         started_at, counted_place_ids)
+       VALUES ($1, $2, $3, $4, $5, $6, kept.current_user_id(), least($7::timestamptz, $8), $9)`,
       [
         id,
         locationId,
@@ -156,19 +264,58 @@ export async function addSessionLines(
         'placeId' in t ? t.inside : null,
         head.startedAt,
         receivedAt,
+        counted,
       ],
     );
   }
 
-  const lines = payload.lines;
+  // One line per thing per op: the first (a phone never sends two; a hand-made op might).
+  const once = new Set<string>();
+  const lines = payload.lines.filter((l) => {
+    const k = l.thingId.toLowerCase();
+    if (once.has(k)) return false;
+    once.add(k);
+    return true;
+  });
+  // Where each thing is now (its place or its box, and its area: the place it is in, through
+  // its boxes), and what a "missing" really is (resultOf). A read upgrades a line that was only a
+  // kept result; else the first line of a thing stays (a resend, or a second phone).
   const { rowCount } = await client.query(
-    `INSERT INTO public.scan_session_lines (session_id, location_id, thing_id, read_at, action,
-                                            to_place_id, to_container_id)
-     SELECT $1, $2, x.thing_id, least(x.read_at, $8), x.action, x.to_place, x.to_container
-       FROM unnest($3::uuid[], $4::timestamptz[], $5::text[], $6::uuid[], $7::uuid[])
-            x(thing_id, read_at, action, to_place, to_container)
-      WHERE EXISTS (SELECT 1 FROM public.things t WHERE t.id = x.thing_id)
-     ON CONFLICT (session_id, thing_id) DO NOTHING`,
+    `WITH RECURSIVE x AS (
+       SELECT * FROM unnest($3::uuid[], $4::timestamptz[], $5::text[], $6::uuid[], $7::uuid[],
+                            $9::numeric[], $10::boolean[])
+                x(thing_id, read_at, action, to_place, to_container, found_qty, short_not_here)),
+     up(origin, id, place_id, container_id, depth) AS (
+       SELECT t.id, t.id, t.place_id, t.container_id, 0
+         FROM public.things t WHERE t.id IN (SELECT thing_id FROM x)
+       UNION ALL
+       SELECT u.origin, c.id, c.place_id, c.container_id, u.depth + 1
+         FROM up u JOIN public.things c ON c.id = u.container_id
+        WHERE u.place_id IS NULL AND u.depth < 20),
+     area AS (
+       SELECT DISTINCT ON (origin) origin, place_id FROM up
+        WHERE place_id IS NOT NULL ORDER BY origin, depth),
+     s AS (SELECT counted_place_ids AS counted FROM public.scan_sessions WHERE id = $1)
+     INSERT INTO public.scan_session_lines (session_id, location_id, thing_id, read_at, action,
+                                            to_place_id, to_container_id, was_place_id,
+                                            was_container_id, area_place_id, found_qty,
+                                            expected_qty, short_not_here, read_by)
+     SELECT $1, $2, x.thing_id, least(x.read_at, $8),
+            ${resultOf('x.action', 't', 'a.place_id', 's.counted')},
+            x.to_place, x.to_container, t.place_id, t.container_id, a.place_id,
+            x.found_qty, CASE WHEN x.found_qty IS NOT NULL THEN t.quantity END,
+            coalesce(x.short_not_here, false), kept.current_user_id()
+       FROM x
+       JOIN public.things t ON t.id = x.thing_id
+       LEFT JOIN area a ON a.origin = x.thing_id
+      CROSS JOIN s
+     ON CONFLICT (session_id, thing_id) DO UPDATE
+        SET read_at = EXCLUDED.read_at, action = EXCLUDED.action,
+            to_place_id = EXCLUDED.to_place_id, to_container_id = EXCLUDED.to_container_id,
+            found_qty = EXCLUDED.found_qty, expected_qty = EXCLUDED.expected_qty,
+            short_not_here = EXCLUDED.short_not_here, read_by = EXCLUDED.read_by
+      WHERE scan_session_lines.action <> ALL ($11::text[])
+        AND EXCLUDED.action = ANY ($11::text[])`,
     [
       id,
       locationId,
@@ -178,6 +325,9 @@ export async function addSessionLines(
       lines.map((l) => (l.to && 'placeId' in l.to ? l.to.placeId.toLowerCase() : null)),
       lines.map((l) => (l.to && 'containerId' in l.to ? l.to.containerId.toLowerCase() : null)),
       receivedAt,
+      lines.map((l) => l.quantity ?? null),
+      lines.map((l) => l.short === 'not_here'),
+      SCAN_SESSION_APPLIED,
     ],
   );
   return { sessionId: id, stored: rowCount ?? 0 };
@@ -192,15 +342,21 @@ type State = {
   container_id: string | null;
   last_seen_at: string;
   location_uncertain: boolean;
+  /** 1.14: a count may split a quantity; an older event has none. */
+  quantity?: string;
 };
 
 type LineRow = {
   thing_id: string;
   read_at: Date;
-  action: 'seen' | 'not_here' | 'move';
+  action: ScanSessionAction;
   to_place_id: string | null;
   to_container_id: string | null;
+  found_qty: string | null;
+  short_not_here: boolean;
 };
+
+const APPLIED: ReadonlySet<ScanSessionAction> = new Set(SCAN_SESSION_APPLIED);
 
 async function statesOf(
   client: pg.ClientBase,
@@ -212,7 +368,7 @@ async function statesOf(
     Omit<State, 'last_seen_at'> & { id: string; last_seen_at: Date; deleted: boolean }
   >(
     `SELECT id, location_id, place_id, container_id, last_seen_at, location_uncertain,
-            deleted_at IS NOT NULL AS deleted
+            trim_scale(quantity)::text AS quantity, deleted_at IS NOT NULL AS deleted
        FROM public.things WHERE id = ANY ($1::uuid[]) ORDER BY id${lock ? ' FOR UPDATE' : ''}`,
     [[...ids]],
   );
@@ -230,6 +386,7 @@ const stateOf = (s: State & { deleted?: boolean }): State => ({
   container_id: s.container_id,
   last_seen_at: s.last_seen_at,
   location_uncertain: s.location_uncertain,
+  ...(s.quantity !== undefined ? { quantity: s.quantity } : {}),
 });
 
 /** Runs `fn` under a savepoint: true when it applied, false when it was refused (rolled back). */
@@ -259,16 +416,34 @@ export async function finishSession(
   const { client, tx, scope } = ctx;
   const id = payload.sessionId.toLowerCase();
   const s = await sessionRow(client, id, true);
-  if (!s || s.started_by !== scope.userId) throw notFound();
+  // A count is anyone's who counts there to finish; a pack or a move its own person's.
+  if (!s || (s.started_by !== scope.userId && s.mode !== 'count')) throw notFound();
   if (s.finished_at) throw invalid('This session is already saved.');
   await requireAllowed(client, s.location_id, needs(s.mode));
+  if (s.mode === 'count') {
+    // What is lent, in repair or trashed now, and the areas counted by everyone who joined.
+    await client.query(
+      `UPDATE public.scan_session_lines l
+          SET action = ${resultOf('l.action', 't', 'l.area_place_id', 's.counted_place_ids')}
+         FROM public.things t, public.scan_sessions s
+        WHERE l.session_id = $1 AND s.id = l.session_id AND t.id = l.thing_id
+          AND l.action = ANY ($2::text[])
+          AND l.action IS DISTINCT FROM
+              ${resultOf('l.action', 't', 'l.area_place_id', 's.counted_place_ids')}`,
+      [id, KEPT_RESULTS],
+    );
+  }
 
-  const { rows: lines } = await client.query<LineRow>(
-    `SELECT thing_id, read_at, action, to_place_id, to_container_id
+  const { rows: all } = await client.query<LineRow>(
+    `SELECT thing_id, read_at, action, to_place_id, to_container_id,
+            trim_scale(found_qty)::text AS found_qty, short_not_here
        FROM public.scan_session_lines WHERE session_id = $1 ORDER BY read_at, thing_id`,
     [id],
   );
-  if (lines.length === 0) throw invalid('Nothing was read in this session.');
+  if (all.length === 0) throw invalid('Nothing was read in this session.');
+  // What the finish applies; the rest of a count's results are kept as they are.
+  const lines = all.filter((l) => APPLIED.has(l.action));
+  const kept = (action: ScanSessionAction) => all.filter((l) => l.action === action).length;
 
   const roles = new Map<string, Role | null>();
   const allowed = async (locationId: string, action: Action) => {
@@ -351,6 +526,22 @@ export async function finishSession(
       [seen.map((l) => l.thing_id), seen.map((l) => l.read_at)],
     );
   }
+  // Counted in number and short, the rest chosen "not here": split off, as a box check does.
+  const splits: { originalId: string; newId: string }[] = [];
+  for (const l of seen) {
+    if (!l.short_not_here || l.found_qty === null) continue;
+    const st = live(l.thing_id);
+    const rest = st?.quantity !== undefined ? Number(st.quantity) - Number(l.found_qty) : 0;
+    if (!(rest > 0)) continue;
+    let part: { originalId: string; newId: string } | null = null;
+    const done = await tryApply(client, async () => {
+      part = await splitThing(ctx, l.thing_id, { quantity: rest }, null);
+    });
+    if (done && part) {
+      splits.push(part);
+      notHere.push((part as { newId: string }).newId);
+    }
+  }
   if (notHere.length > 0) {
     await client.query(
       'UPDATE public.things SET location_uncertain = true WHERE id = ANY ($1::uuid[])',
@@ -399,7 +590,10 @@ export async function finishSession(
     }
   }
 
-  const touched = [...new Set([...seen.map((l) => l.thing_id), ...notHere, ...moved, ...inside])];
+  const splitIds = new Set(splits.map((x) => x.newId));
+  const touched = [
+    ...new Set([...seen.map((l) => l.thing_id), ...notHere, ...moved, ...inside]),
+  ].filter((x) => !splitIds.has(x));
   const after = await statesOf(client, touched);
   const until = undoableUntil();
   const counts = {
@@ -434,6 +628,7 @@ export async function finishSession(
             session_id: id,
             mode: s.mode,
             moved,
+            ...(splits.length > 0 ? { split: splits } : {}),
             counts: {
               ...counts,
               found: s.mode === 'count' ? seen.length + moved.length : null,
@@ -442,16 +637,20 @@ export async function finishSession(
             },
           },
           ...(entity.type === 'thing' ? { rootThingId: entity.id } : {}),
-          subjects: touched.filter(inLocation),
+          subjects: [...touched.filter(inLocation), ...splitIds],
           requestId: ctx.requestId,
           undoableUntil: until,
         })
       : null;
 
+  const isCount = s.mode === 'count';
+  const scheduleId = isCount ? await plannedCountOf(client, s) : null;
   await client.query(
     `UPDATE public.scan_sessions
         SET finished_at = now(), expected = $2, seen = $3, not_here = $4, moved = $5,
-            skipped = $6, audit_event_id = $7
+            skipped = $6, audit_event_id = $7, missing = $8, elsewhere = $9, on_loan = $10,
+            in_repair = $11, not_counted = $12, schedule_id = $13,
+            finished_by = kept.current_user_id()
       WHERE id = $1`,
     [
       id,
@@ -461,9 +660,26 @@ export async function finishSession(
       counts.moved,
       counts.skipped,
       event?.id ?? null,
+      isCount ? kept('missing') : null,
+      isCount ? kept('elsewhere') : null,
+      isCount ? kept('on_loan') : null,
+      isCount ? kept('in_repair') : null,
+      isCount ? kept('not_counted') : null,
+      scheduleId,
     ],
   );
   return { sessionId: id, eventId: event?.id ?? null };
+}
+
+/** A finished count of a place completes that place's planned count; a box's, none. */
+async function plannedCountOf(client: pg.ClientBase, s: SessionRow): Promise<string | null> {
+  if (!s.target_place_id) return null;
+  const { rows } = await client.query<{ id: string }>(
+    `SELECT id FROM public.schedules
+      WHERE place_id = $1 AND kind = 'count' AND active ORDER BY id LIMIT 1`,
+    [s.target_place_id],
+  );
+  return rows[0]?.id ?? null;
 }
 
 /** GET /api/v1/scan-sessions/:id. */
@@ -517,6 +733,7 @@ export async function sessionView(client: pg.ClientBase, id: string): Promise<Sc
 type Diff = {
   state?: { before?: Record<string, State> | null; after?: Record<string, State> | null };
   moved?: { after?: string[] | null };
+  split?: { after?: { originalId: string; newId: string }[] | null };
 };
 
 const same = (a: State, b: State) =>
@@ -524,7 +741,10 @@ const same = (a: State, b: State) =>
   a.place_id === b.place_id &&
   a.container_id === b.container_id &&
   a.location_uncertain === b.location_uncertain &&
-  Date.parse(a.last_seen_at) === Date.parse(b.last_seen_at);
+  Date.parse(a.last_seen_at) === Date.parse(b.last_seen_at) &&
+  (a.quantity === undefined ||
+    b.quantity === undefined ||
+    Number(a.quantity) === Number(b.quantity));
 
 async function undoScanSession(args: UndoArgs): Promise<void> {
   const { client, event } = args;
@@ -532,12 +752,23 @@ async function undoScanSession(args: UndoArgs): Promise<void> {
   const was = diff.state?.before ?? {};
   const left = diff.state?.after ?? {};
   const moved = new Set(diff.moved?.after ?? []);
+  const splits = diff.split?.after ?? [];
   const ids = Object.keys(left);
   const now = await statesOf(client, ids, true);
+  const parts = await statesOf(
+    client,
+    splits.map((x) => x.newId),
+    true,
+  );
   const changed = ids.filter((x) => {
     const r = now.get(x);
     return !r || r.deleted || !same(stateOf(r), left[x] as State);
   });
+  // A part split off: still as the count left it (not here, where it was split).
+  for (const x of splits) {
+    const r = parts.get(x.newId);
+    if (!r || r.deleted || !r.location_uncertain) changed.push(x.newId);
+  }
   if (changed.length > 0) {
     const first = changed[0] as string;
     const by = await lastChangedBy(
@@ -566,15 +797,24 @@ async function undoScanSession(args: UndoArgs): Promise<void> {
       { locationId: event.locationId, write: (e) => audited(args.tx, e).then(() => {}) },
     );
   }
+  for (const x of splits) {
+    await client.query(
+      'UPDATE public.things SET deleted_at = now(), trash_batch_id = uuidv7() WHERE id = $1',
+      [x.newId],
+    );
+  }
   await client.query(
     `UPDATE public.things t
-        SET last_seen_at = x.seen, location_uncertain = x.uncertain
-       FROM unnest($1::uuid[], $2::timestamptz[], $3::boolean[]) x(id, seen, uncertain)
+        SET last_seen_at = x.seen, location_uncertain = x.uncertain,
+            quantity = coalesce(x.quantity, t.quantity)
+       FROM unnest($1::uuid[], $2::timestamptz[], $3::boolean[], $4::numeric[])
+            x(id, seen, uncertain, quantity)
       WHERE t.id = x.id`,
     [
       ids,
       ids.map((x) => (was[x] as State).last_seen_at),
       ids.map((x) => (was[x] as State).location_uncertain),
+      ids.map((x) => (splits.some((p) => p.originalId === x) ? (was[x]?.quantity ?? null) : null)),
     ],
   );
   const subjects = ids.filter(
@@ -584,9 +824,9 @@ async function undoScanSession(args: UndoArgs): Promise<void> {
     action: 'scan.session',
     entity: { type: event.entityType, id: event.entityId },
     before: { state: left },
-    after: { state: was },
+    after: { state: was, ...(splits.length > 0 ? { trashed: splits.map((x) => x.newId) } : {}) },
     ...(event.rootThingId ? { rootThingId: event.rootThingId } : {}),
-    subjects,
+    subjects: [...subjects, ...splits.map((x) => x.newId)],
   });
 }
 

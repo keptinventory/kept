@@ -250,7 +250,8 @@ export const captureApi = {
     api.get<Page<LabelBatch>>(p.labelBatches + qs({ locationId, cursor })),
   labelBatch: (id: string) => api.get<LabelBatch>(p.labelBatch(id)),
   labelBatchPrinted: (id: string) => api.post<LabelBatch>(p.labelBatchPrinted(id)),
-  labelSummary: (locationId?: string) => api.get<LabelSummary>(p.labelSummary + qs({ locationId })),
+  labelSummary: (locationId?: string, placeId?: string) =>
+    api.get<LabelSummary>(p.labelSummary + qs({ locationId, placeId })),
   claim: (code: string, body: ClaimBody) => api.post<ClaimResult>(p.codeClaim(code), body),
 
   // scan, barcodes, box checks

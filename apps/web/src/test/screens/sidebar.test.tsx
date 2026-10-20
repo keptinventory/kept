@@ -188,6 +188,7 @@ describe('the rail', () => {
       'Consumables',
       'Insights',
       'Labels',
+      'Counts',
       'Activity',
       'Trash',
       expect.stringMatching(/^Notifications ?\d+$/),

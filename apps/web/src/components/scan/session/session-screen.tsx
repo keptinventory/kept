@@ -18,6 +18,11 @@
  * Every read is written to the phone as it happens (./persist.ts), so a reload, a crash or
  * closing the app loses nothing: Scan offers "Resume session". Service-worker updates wait while
  * it is open.
+ *
+ * A count (#172) started online is opened on the server, so that someone else counting the same
+ * target sees "Count in progress by Sam: Join"; the summary merges what others read (online),
+ * and finishing a count others joined needs a connection. The count's setup says how many of the
+ * things there have labels, with a link to print the rest.
  */
 import {
   can,
@@ -30,8 +35,12 @@ import {
 } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button as AriaButton } from 'react-aria-components';
+import { captureApi } from '@/api/capture/queries';
+import { countsApi } from '@/api/counts/queries';
+import { useMe } from '@/api/queries';
 import type { Detect, Detected } from '@/camera/label-recogniser';
 import { appDetect, type FrameDecoder } from '@/camera/scanner';
 import type { CameraEnv } from '@/camera/session';
@@ -49,7 +58,7 @@ import { useOnline } from '@/lib/online';
 import { useHoldUpdates } from '@/pwa/register';
 import { type BatchDeps, resolveBatch, type ScanStore } from '../resolve';
 import { type Flash, SessionCamera } from './camera';
-import { expectedFor } from './expected';
+import { areasFor, expectedFor } from './expected';
 import { announceEvery, feel, signalOf, useWakeLock } from './feedback';
 import {
   addRead,
@@ -57,7 +66,9 @@ import {
   counter,
   type ExpectedThing,
   finishKey,
+  finishNeedsConnection,
   linesOf,
+  mergeOthers,
   newSession,
   type ReadInfo,
   readKey,
@@ -86,6 +97,10 @@ export type SessionScreenProps = {
   onExit: () => void;
   /** After ops were queued: the sync engine's kick. */
   onQueued?: () => void;
+  /** A saved count's "See this count": its page. */
+  onOpenCount?: (id: string) => void;
+  /** The count's setup: print the labels the things there lack. */
+  onPrintLabels?: (where: { locationId: string; placeId?: string }) => void;
   // ----- the device, injectable -----
   online?: boolean;
   camera?: CameraEnv;
@@ -115,6 +130,8 @@ export function SessionScreen({
   start,
   onExit,
   onQueued,
+  onOpenCount,
+  onPrintLabels,
   online: onlineProp,
   camera,
   detect = appDetect(),
@@ -145,6 +162,7 @@ export function SessionScreen({
   const [names, setNames] = useState<Record<string, string>>({});
   const [spoken, setSpoken] = useState('');
   const announce = useMemo(() => announceEvery(2000, setSpoken), []);
+  const meId = useMe().data?.user.id ?? null;
 
   // ----- the phone's world and any session already on it ----------------------------------------
   const readWorld = useCallback(async (): Promise<World> => {
@@ -491,6 +509,37 @@ export function SessionScreen({
     </div>
   );
 
+  // A shared count's summary: what the others read so far, merged in (online).
+  const sharedId = session?.shared ? session.id : null;
+  useEffect(() => {
+    if (phase !== 'summary' || !online || !sharedId) return;
+    let live = true;
+    void countsApi
+      .lines(sharedId)
+      .then((r) => {
+        const cur = sessionRef.current;
+        if (!live || cur?.id !== sharedId) return;
+        commit(
+          mergeOthers(
+            cur,
+            r.lines.map((l) => ({
+              thingId: l.thingId,
+              action: l.action,
+              readBy: l.readBy?.displayName ?? null,
+              readById: l.readBy?.id ?? null,
+              foundQty: l.foundQty,
+            })),
+            r.countedPlaceIds,
+            meId,
+          ),
+        );
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [phase, online, sharedId, meId, commit]);
+
   if (phase === 'loading' || !world) {
     return (
       <div role="status" aria-busy="true" aria-label={t`Opening the session`}>
@@ -569,9 +618,26 @@ export function SessionScreen({
               flashes={[]}
             />
           )}
+          online={online}
+          meId={meId}
+          {...(onPrintLabels ? { onPrintLabels } : {})}
           onStart={(s) => {
             commit(s);
             setPhase('live');
+            // A count started online is opened on the server, for others to join.
+            if (s.mode !== 'count' || s.checkOnly || s.shared || !online) return;
+            void countsApi
+              .start({
+                id: s.id,
+                target: headerOf(s.target),
+                startedAt: s.startedAt,
+              })
+              .then(() => {
+                const cur = sessionRef.current;
+                if (cur?.id === s.id && !cur.shared)
+                  commit({ ...cur, shared: { joined: false, by: null, others: [], counted: [] } });
+              })
+              .catch(() => {});
           }}
         />
       </>,
@@ -591,6 +657,8 @@ export function SessionScreen({
           targetName={targetName}
           whereOf={whereOf}
           roles={roles}
+          onUpdate={commit}
+          finishOffline={finishNeedsConnection(session) && !online}
           onBack={() => {
             commit({ ...session, paused: false });
             setPhase('live');
@@ -599,7 +667,7 @@ export function SessionScreen({
             if (!store) return;
             const sum = summarise(session, roles);
             const lines = linesOf(session, sum, choices, now());
-            const ops = sessionOps(session, lines, { contentsSeen });
+            const ops = sessionOps(session, lines, { contentsSeen, counted: sum.counted });
             for (const op of ops) await store.enqueue(op, []);
             commit({ ...session, saving: { at: now(), finishKey: finishKey(session) } });
             onQueued?.();
@@ -610,6 +678,15 @@ export function SessionScreen({
             sessionRef.current = null;
             onExit();
           }}
+          {...(onOpenCount
+            ? {
+                onOpenCount: async () => {
+                  await persist.clear(session.id);
+                  sessionRef.current = null;
+                  onOpenCount(session.id);
+                },
+              }
+            : {})}
         />
       </>,
       false,
@@ -777,11 +854,28 @@ export function readLabel(r: SessionRead, t: ReturnType<typeof useLingui>['t']):
 
 type TargetOption = { key: string; target: SessionTarget; label: string; depth: number };
 
+const openTarget = (t: SessionTarget) =>
+  t.kind === 'place'
+    ? { placeId: t.id }
+    : t.kind === 'container'
+      ? { containerId: t.id }
+      : { locationId: t.id };
+
+const headerOf = (t: SessionTarget) =>
+  t.kind === 'place'
+    ? { placeId: t.id, inside: t.inside ?? true }
+    : t.kind === 'container'
+      ? { containerId: t.id }
+      : { locationId: t.id };
+
 function SessionSetup({
   store,
   world,
   start,
   now,
+  online,
+  meId,
+  onPrintLabels,
   onStart,
   pickByScan,
   camera,
@@ -790,11 +884,15 @@ function SessionSetup({
   world: World;
   start?: SessionStart;
   now: () => string;
+  online: boolean;
+  meId: string | null;
+  onPrintLabels?: SessionScreenProps['onPrintLabels'];
   onStart: (s: Session) => void;
   pickByScan: (found: Detected[], mode: ScanSessionMode) => Promise<SessionTarget | null>;
   camera: (onReads: (found: Detected[]) => void) => React.ReactNode;
 }) {
   const { t } = useLingui();
+  const fmt = useFormat();
   const placeName = usePlaceName();
   const locName = useLocationName();
   const [thing, setThing] = useState<SnapThing | null>(null);
@@ -911,6 +1009,31 @@ function SessionSetup({
   const target = chosen?.kind === 'place' ? { ...chosen, inside } : chosen;
   const allowed =
     !!target && (mode === 'count' ? role(target.locationId) !== null : canEdit(target.locationId));
+  const counting = mode === 'count' && !!target;
+  const counts = !!target && can(role(target.locationId) ?? 'viewer', 'things.mark-seen');
+  const openKey = target ? `${target.kind}:${target.id}` : '';
+  // Someone else's count of the same place in progress: "Join".
+  const open = useQuery({
+    queryKey: ['counts', 'open', openKey],
+    queryFn: () => countsApi.open(openTarget(target as SessionTarget)),
+    enabled: counting && counts && online && target?.kind !== undefined,
+    staleTime: 15_000,
+  });
+  const inProgress =
+    open.data?.session && open.data.session.by.id !== meId ? open.data.session : null;
+  // How many of the things there have labels (online; a box: not asked).
+  const coverage = useQuery({
+    queryKey: ['counts', 'labels', openKey],
+    queryFn: () =>
+      captureApi.labelSummary(
+        (target as SessionTarget).locationId,
+        target?.kind === 'place' ? target.id : undefined,
+      ),
+    enabled: counting && online && target?.kind !== 'container',
+    staleTime: 60_000,
+    retry: false,
+  });
+  const cov = coverage.data?.things ? coverage.data : null;
 
   const modes = [
     {
@@ -1004,6 +1127,46 @@ function SessionSetup({
           </Switch>
         ) : null}
       </div>
+      {counting && cov ? (
+        <p className="m-0 text-[15px]">
+          {(() => {
+            const all = cov.things ?? 1;
+            const pct = fmt.num(Math.round(((all - cov.unprinted) / all) * 100));
+            return <Trans>{pct}% of things here have labels.</Trans>;
+          })()} {cov.unprinted > 0 && target && onPrintLabels ? (
+            <AriaButton
+              className="cursor-pointer text-info underline outline-none data-focus-visible:outline-2 data-focus-visible:outline-info"
+              onPress={() =>
+                onPrintLabels({
+                  locationId: target.locationId,
+                  ...(target.kind === 'place' ? { placeId: target.id } : {}),
+                })
+              }
+            >
+              <Trans>Print labels for the rest</Trans>
+            </AriaButton>
+          ) : null}
+        </p>
+      ) : null}
+      {counting && inProgress ? (
+        <div
+          role="status"
+          className="grid gap-2 rounded-[12px] border border-line bg-sunken p-3 text-[15px]"
+        >
+          <p className="m-0">
+            <Trans>
+              Count in progress by <bdi className="font-semibold">{inProgress.by.displayName}</bdi>
+            </Trans>
+          </p>
+          <Button
+            variant="secondary"
+            isDisabled={busy || !store}
+            onPress={() => void begin(inProgress)}
+          >
+            <Trans>Join</Trans>
+          </Button>
+        </div>
+      ) : null}
       <p className="m-0 text-ink-3 text-small" data-tour="session-finish">
         <Trans>
           Nothing changes until you finish: the summary shows what was found, what's missing and
@@ -1013,31 +1176,43 @@ function SessionSetup({
       <Button
         isDisabled={!allowed || busy || !store}
         isPending={busy}
-        onPress={async () => {
-          if (!target || !store) return;
-          setBusy(true);
-          try {
-            const expected: ExpectedThing[] =
-              mode === 'count' ? await expectedFor(store, target) : [];
-            onStart(
-              newSession({
-                mode,
-                target,
-                role: role(target.locationId) ?? 'viewer',
-                expected,
-                contents: mode === 'count' && contents,
-                now: now(),
-              }),
-            );
-          } finally {
-            setBusy(false);
-          }
-        }}
+        onPress={() => void begin(null)}
       >
         <Trans>Start</Trans>
       </Button>
     </div>
   );
+
+  /** Starts the session, or joins someone else's count of the same target. */
+  async function begin(join: { id: string; by: { displayName: string } } | null) {
+    if (!target || !store) return;
+    setBusy(true);
+    try {
+      const isCount = mode === 'count';
+      const expected: ExpectedThing[] = isCount ? await expectedFor(store, target) : [];
+      const areas = isCount ? await areasFor(store as never, target) : [];
+      const s = newSession({
+        ...(join ? { id: join.id } : {}),
+        mode,
+        target,
+        role: role(target.locationId) ?? 'viewer',
+        expected,
+        contents: isCount && contents,
+        areas,
+        now: now(),
+      });
+      onStart(
+        join
+          ? {
+              ...s,
+              shared: { joined: true, by: join.by.displayName, others: [], counted: [] },
+            }
+          : s,
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
 
   function targetName(tg: SessionTarget) {
     return tg.name ?? t`Unnamed`;

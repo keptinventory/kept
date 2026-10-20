@@ -1,4 +1,4 @@
-import { DOCUMENT_KINDS } from '@kept/shared';
+import { DOCUMENT_KINDS, SCHEDULE_KINDS } from '@kept/shared';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -13,6 +13,7 @@ import {
   primaryKey,
   text,
   unique,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 import { id, mutable, textEnum, tstz } from './common.js';
@@ -30,6 +31,7 @@ import { things } from './things.js';
 // src/db/agenda.test.ts.
 
 const documentKind = textEnum('kind', DOCUMENT_KINDS);
+const scheduleKind = textEnum('kind', SCHEDULE_KINDS);
 
 /**
  * Something to do on a thing or a place: every N months and/or every N units of the thing's
@@ -48,6 +50,8 @@ export const schedules = pgTable(
       .references(() => locations.id, { onDelete: 'cascade' }),
     thingId: uuid('thing_id'),
     placeId: uuid('place_id'),
+    /** `count` (1.14, #172): count a place every N months; done by counting it. */
+    kind: scheduleKind.col().notNull().default('task'),
     name: text('name').notNull(),
     everyMonths: integer('every_months'),
     everyUnits: numeric('every_units', { precision: 14, scale: 3 }),
@@ -71,6 +75,14 @@ export const schedules = pgTable(
     ...mutable(),
   },
   (t) => [
+    scheduleKind.check('schedules'),
+    // A planned count: a place, every 1–24 months, nothing else.
+    check(
+      'schedules_count_chk',
+      sql`kind <> 'count' OR (place_id IS NOT NULL AND every_months BETWEEN 1 AND 24
+                              AND every_units IS NULL AND due_on IS NULL)`,
+    ),
+    uniqueIndex('schedules_one_count_uq').on(t.placeId).where(sql`kind = 'count' AND active`),
     unique('schedules_location_id_uq').on(t.locationId, t.id),
     check('schedules_name_chk', sql`char_length(name) BETWEEN 1 AND 120`),
     check('schedules_every_months_chk', sql`every_months BETWEEN 1 AND 600`),

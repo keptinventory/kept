@@ -103,6 +103,21 @@ function contract(
       expect(await reopen().load()).toEqual(switched);
     });
 
+    it("keeps a count's summary choices: an area checked, a found count, the shared count", async () => {
+      const { persist, reopen } = make();
+      const steps = walk(2);
+      await replay(persist, steps);
+      const last = steps.at(-1) as Session;
+      const chosen: Session = {
+        ...last,
+        checked: [STUDY],
+        qty: { a: '2' },
+        shared: { joined: true, by: 'Louis', others: [], counted: [STUDY] },
+      };
+      await persist.save(last, chosen);
+      expect(await reopen().load()).toEqual(chosen);
+    });
+
     it('holds one session: a new one replaces it, and clear removes it', async () => {
       const { persist, reopen } = make();
       await replay(persist, walk(2));

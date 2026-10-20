@@ -65,6 +65,10 @@ picks it up.
 - **Unmatched**: blank labels and codes that match several things. Claim blank labels from Scan,
   one at a time.
 
+A count also lists what is lent out or in repair (never missing), and what is in a place inside it
+that nobody counted (**Not counted**, until you tap **I checked it**). A thing counted in number
+has **−** and **+** on its row. Every result is kept: see [Counts and stocktakes](/users/counts/).
+
 **Save** sends the session. Offline, it waits on the phone and saves once you're back online.
 The session is one entry in **Activity**, "Counted Garage: 312 of 340", with **Undo** for 7 days.
 Undo puts back every seen date, every "not here" and every move, unless something has changed

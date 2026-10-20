@@ -56,8 +56,9 @@ const SYSTEM_JOB_TABLES = [
 /** Tables kept_system only reads across tenants (SELECT-only `system_select` policies, each
  * commented with the job it serves): the reminder scan reads every location's agenda (0053),
  * the estimate's offsets and a document's vehicle type (0066), and the
- * price table the embeddings backfill costs its calls by (0099), and the keep-at-least rules the
- * scan's low-stock branch reads (0104). It changes and writes nothing in them. */
+ * price table the embeddings backfill costs its calls by (0099), the keep-at-least rules the
+ * scan's low-stock branch reads (0104), and the counts that complete a planned count (0149). It
+ * changes and writes nothing in them. */
 const SYSTEM_READ_TABLES = [
   'ai_model_prices',
   'expiring_documents',
@@ -69,6 +70,7 @@ const SYSTEM_READ_TABLES = [
   'meters',
   'people',
   'places',
+  'scan_sessions',
   'schedules',
   'service_completions',
   'service_records',
@@ -360,6 +362,10 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.schedule_completion_changed()': { roles: NOBODY, definer: true },
   'kept.service_record_anchor_changed()': { roles: NOBODY, definer: true },
   'kept.schedule_base_changed()': { roles: NOBODY, definer: true },
+  // (0149) A planned count done by counting its place: kept up by triggers, nobody calls them.
+  'kept.schedule_counted_on(uuid)': { roles: NOBODY, definer: true },
+  'kept.scan_session_schedule_changed()': { roles: NOBODY, definer: true },
+  'kept.scan_session_undone()': { roles: NOBODY, definer: true },
   'kept.module_enabled(uuid,text)': { roles: BOTH, definer: false },
   'kept.module_on(uuid,text)': { roles: BOTH, definer: false },
   'kept.schedule_point(integer,numeric,date,date,numeric,date,numeric,boolean,integer,numeric,date,numeric)':

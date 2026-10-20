@@ -23,6 +23,7 @@ import {
   type ScanSessionLine,
   type SyncOpResult,
 } from '@kept/shared';
+import type { CountTarget } from '../../counts/types';
 import type { StoredThing } from '../../inventory/mock/db';
 import { INV_IDS } from '../../inventory/mock/fixtures';
 import type { ActorRef, PathStep } from '../../inventory/types';
@@ -120,8 +121,24 @@ export type CaptureState = {
   undoable: Record<string, UndoableEvent[]>;
   /** `sync_ops` by idempotency key: a replay answers the stored result. */
   syncOps: Record<string, SyncOpResult>;
-  /** 1.12: scan sessions' lines as they arrive, and the saved sessions. */
-  scanLines?: Record<string, { mode: string; locationId: string; lines: ScanSessionLine[] }>;
+  /** 1.12: scan sessions' lines as they arrive, and the saved sessions. 1.14: a count's header
+   * (its target, who started it, the areas counted), who read each line and where it was. */
+  scanLines?: Record<
+    string,
+    {
+      mode: string;
+      locationId: string;
+      lines: (ScanSessionLine & {
+        by?: { id: string; displayName: string };
+        was?: { id: string; name: string } | null;
+      })[];
+      target?: CountTarget;
+      startedAt?: string;
+      by?: { id: string; displayName: string };
+      counted?: string[];
+      finished?: boolean;
+    }
+  >;
   scanSessions?: Record<string, ScanSessionView>;
   /** `instance_settings.barcode_lookup` (D126): off by default. */
   barcodeLookup: boolean;

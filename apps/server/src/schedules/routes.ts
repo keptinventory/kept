@@ -1,4 +1,4 @@
-import { SERVICE_LINE_KINDS } from '@kept/shared';
+import { SCHEDULE_KINDS, SERVICE_LINE_KINDS } from '@kept/shared';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import type { KeptApp } from '../http/app.js';
@@ -107,6 +107,7 @@ const Line = z
 const CreateScheduleBody = z.strictObject({
   id: Id.optional(),
   subject: SubjectBody,
+  kind: z.enum(SCHEDULE_KINDS).optional(),
   name: Name,
   everyMonths: z.number().int().min(1).max(600).optional(),
   everyUnits: Positive.optional(),

@@ -6,6 +6,7 @@ import {
   foreignKey,
   index,
   integer,
+  numeric,
   pgTable,
   primaryKey,
   unique,
@@ -13,6 +14,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { id, textEnum, tstz } from './common.js';
 import { places } from './places.js';
+import { schedules } from './schedules.js';
 import { locations } from './tenancy.js';
 import { things } from './things.js';
 
@@ -26,6 +28,14 @@ import { things } from './things.js';
 // `thing_id` and the line's target are plain foreign keys: purging a thing takes its lines with
 // it. Row-level security, grants and the finish's update rights are in the custom migration that
 // follows.
+//
+// 1.14 (#172): a count keeps every result. Its lines also hold what it found missing, left
+// elsewhere, lent out, in repair, in the Trash or in an area nobody counted (stored, never
+// applied), where each thing was when it was counted (`was_*`, `area_place_id`) and, for a thing
+// counted in number, how many were found. A count is open on the server until it is finished:
+// several people (and phones, and days) add lines to the same session, each line saying who read
+// it (`read_by`), and anyone who counts there finishes it. A finished count of a place completes
+// that place's planned count (`schedule_id`).
 
 const mode = textEnum('mode', SCAN_SESSION_MODES);
 const action = textEnum('action', SCAN_SESSION_ACTIONS);
@@ -57,6 +67,19 @@ export const scanSessions = pgTable(
     moved: integer('moved').notNull().default(0),
     /** Lines that couldn't be applied at the finish (trashed meanwhile, no longer editable). */
     skipped: integer('skipped').notNull().default(0),
+    /** A count's kept results (1.14): null on a count saved before them ("not recorded"). */
+    missing: integer('missing'),
+    elsewhere: integer('elsewhere'),
+    onLoan: integer('on_loan'),
+    inRepair: integer('in_repair'),
+    notCounted: integer('not_counted'),
+    /** A count: the areas it counted (a read or a tick in each, or "Checked: empty"). Null: all
+     * of them (a box, or a count saved before areas). */
+    countedPlaceIds: uuid('counted_place_ids').array(),
+    /** The planned count its finish completed. */
+    scheduleId: uuid('schedule_id').references(() => schedules.id, { onDelete: 'set null' }),
+    /** Who finished it: anyone who counts there may (a count is open to everyone until then). */
+    finishedBy: uuid('finished_by'),
     /** The finish's `scan.session` event: its undo. */
     auditEventId: uuid('audit_event_id'),
     createdAt: tstz('created_at').notNull().defaultNow(),
@@ -68,9 +91,15 @@ export const scanSessions = pgTable(
     check(
       'scan_sessions_totals_chk',
       sql`seen >= 0 AND not_here >= 0 AND moved >= 0 AND skipped >= 0
-          AND (expected IS NULL OR expected >= 0)`,
+          AND (expected IS NULL OR expected >= 0)
+          AND (missing IS NULL OR missing >= 0) AND (elsewhere IS NULL OR elsewhere >= 0)
+          AND (on_loan IS NULL OR on_loan >= 0) AND (in_repair IS NULL OR in_repair >= 0)
+          AND (not_counted IS NULL OR not_counted >= 0)`,
     ),
     index('scan_sessions_location_idx').on(t.locationId, t.startedAt),
+    index('scan_sessions_schedule_idx').on(t.scheduleId),
+    // The open count of a target, for "Count in progress by Sam: Join".
+    index('scan_sessions_open_idx').on(t.locationId).where(sql`finished_at IS NULL`),
   ],
 );
 
@@ -87,6 +116,20 @@ export const scanSessionLines = pgTable(
     action: action.col().notNull(),
     toPlaceId: uuid('to_place_id').references(() => places.id, { onDelete: 'set null' }),
     toContainerId: uuid('to_container_id').references(() => things.id, { onDelete: 'set null' }),
+    /** Where Kept had the thing when the line was saved (1.14): its place or its box. */
+    wasPlaceId: uuid('was_place_id').references(() => places.id, { onDelete: 'set null' }),
+    wasContainerId: uuid('was_container_id').references(() => things.id, {
+      onDelete: 'set null',
+    }),
+    /** Who read it (a count is shared until it is finished). */
+    readBy: uuid('read_by'),
+    /** Its area: the place it was in, through its boxes. */
+    areaPlaceId: uuid('area_place_id').references(() => places.id, { onDelete: 'set null' }),
+    /** A seen line counted in number: how many were found, of how many Kept had. */
+    foundQty: numeric('found_qty', { precision: 12, scale: 3 }),
+    expectedQty: numeric('expected_qty', { precision: 12, scale: 3 }),
+    /** The rest were chosen "not here": the finish splits them off. */
+    shortNotHere: boolean('short_not_here').notNull().default(false),
   },
   (t) => [
     action.check('scan_session_lines'),
@@ -99,6 +142,11 @@ export const scanSessionLines = pgTable(
       .onUpdate('cascade')
       .onDelete('cascade'),
     check('scan_session_lines_to_chk', sql`num_nonnulls(to_place_id, to_container_id) <= 1`),
+    check(
+      'scan_session_lines_qty_chk',
+      sql`(found_qty IS NULL OR found_qty > 0) AND (expected_qty IS NULL OR expected_qty >= 0)
+          AND (NOT short_not_here OR found_qty IS NOT NULL)`,
+    ),
     index('scan_session_lines_thing_idx').on(t.thingId),
   ],
 );

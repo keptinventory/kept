@@ -36,7 +36,7 @@ import {
 // POST /api/v1/labels/batches/:id/printed       → LabelBatch ("Printed OK?")
 // POST /api/v1/codes/:code/claim                → {outcome: 'claimed', target: {kind, id}};
 //                                                 409 label_claimed {claimedFor: {kind, id, name}}
-// GET  /api/v1/labels/summary?locationId        → {unprinted, blankUnclaimed}
+// GET  /api/v1/labels/summary?locationId&placeId → {unprinted, blankUnclaimed, things}
 //
 // Module `labels`: the writes and a batch by id are gated on their location (a write in a
 // location with labels off is 409 `module_off`, a read 404). The list and the summary take the
@@ -184,7 +184,7 @@ export async function labelRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
     '/api/v1/labels/summary',
     {
       schema: {
-        querystring: z.object({ locationId: Id.optional() }),
+        querystring: z.object({ locationId: Id.optional(), placeId: Id.optional() }),
         response: { 200: SummarySchema },
       },
     },
@@ -192,7 +192,8 @@ export async function labelRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
       scopedRead(pools, req, async (tx, client) => {
         const locationId = req.query.locationId?.toLowerCase() ?? null;
         if (locationId) await requireLabelsOn(tx, client, locationId);
-        return labelSummary(client, locationId);
+        const placeId = locationId ? (req.query.placeId?.toLowerCase() ?? null) : null;
+        return labelSummary(client, locationId, placeId);
       }),
   );
 

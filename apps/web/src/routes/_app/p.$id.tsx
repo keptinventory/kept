@@ -16,16 +16,18 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { type FormEvent, type ReactNode, useState } from 'react';
+import { type FormEvent, useState } from 'react';
 import { inventoryApi, usePlace } from '@/api/inventory/queries';
 import type { BuiltinPlaceKind, PlaceView } from '@/api/inventory/types';
 import { useLocation } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
 import { captureRoomSearch } from '@/components/capture/links';
 import { OwnCodesSection } from '@/components/codes/own-codes';
+import { CountRegularlyRow } from '@/components/counts/count-regularly';
 import { SubjectPaperwork } from '@/components/documents/subject-paperwork';
 import { useOfferUndo } from '@/components/history/undo';
 import {
+  ActivityIcon,
   BoxIcon,
   CameraIcon,
   ChevronEndIcon,
@@ -47,10 +49,10 @@ import {
   LoadingRows,
   Notice,
   Page,
-  Row,
   Section,
   useErrorText,
 } from '@/components/page';
+import { ActionRow } from '@/components/places/action-row';
 import { AddHere } from '@/components/places/add-here-sheet';
 import { placeApi, subtreeOf, useInvalidateBrowse, usePlaceTree } from '@/components/places/api';
 import { Breadcrumb } from '@/components/places/breadcrumb';
@@ -74,6 +76,7 @@ import { Sheet } from '@/components/places/sheet';
 import { TrashPlaceDialog } from '@/components/places/trash-contents-dialog';
 import { PlacesPanel, PlaceTree } from '@/components/places/tree';
 import { SortUnplaced } from '@/components/places/unplaced-sort';
+import { accessOf } from '@/components/schedules/access';
 import { ShareLinkSheet } from '@/components/sharelinks/share-sheet';
 import { useOriginalFile } from '@/components/things/original-file';
 import { TypeIcon } from '@/components/type-icon';
@@ -303,6 +306,25 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
             void navigate({ to: '/scan-session', search: { mode: 'count', place: place.id } })
           }
         />
+        {/* 1.14 (#172): a planned count, and every past count of this place. */}
+        {place.isUnplaced || !accessOf(location).moduleOn('schedules') ? null : (
+          <CountRegularlyRow
+            placeId={place.id}
+            name={name}
+            canManage={accessOf(location).can('schedules-claims.manage')}
+          />
+        )}
+        <ActionRow
+          icon={<ActivityIcon />}
+          title={<Trans>Past counts</Trans>}
+          subtitle={<Trans>Every count of {name}, with what was missing</Trans>}
+          onPress={() =>
+            void navigate({
+              to: '/counts',
+              search: { 'f.location': location.id, 'f.place': place.id },
+            })
+          }
+        />
       </List>
 
       {place.isUnplaced ? null : (
@@ -418,53 +440,6 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
         <SortUnplaced unplacedId={place.id} locationId={location.id} onClose={close} />
       ) : null}
     </Page>
-  );
-}
-
-function ActionRow({
-  icon,
-  title,
-  subtitle,
-  onPress,
-  danger = false,
-  trailing,
-}: {
-  icon: ReactNode;
-  title: ReactNode;
-  subtitle?: ReactNode;
-  onPress?: () => void;
-  danger?: boolean;
-  trailing?: ReactNode;
-}) {
-  const row = (
-    <Row
-      leading={
-        <span
-          aria-hidden="true"
-          className={`grid size-10 shrink-0 place-items-center rounded-[10px] bg-sunken [&_svg]:size-5 ${danger ? 'text-danger' : 'text-ink-2'}`}
-        >
-          {icon}
-        </span>
-      }
-      title={<span className={danger ? 'text-danger' : undefined}>{title}</span>}
-      subtitle={subtitle}
-      trailing={trailing}
-    />
-  );
-  return (
-    <li>
-      {onPress ? (
-        <button
-          type="button"
-          onClick={onPress}
-          className="block w-full cursor-pointer bg-transparent p-0 text-start outline-none hover:bg-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-info"
-        >
-          {row}
-        </button>
-      ) : (
-        row
-      )}
-    </li>
   );
 }
 

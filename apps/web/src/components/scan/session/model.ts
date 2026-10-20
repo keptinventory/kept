@@ -15,6 +15,14 @@
  *
  * Each Kept code counts once per session; a product barcode matches the expected list, and the
  * same barcode again is ignored. Missing things are left alone unless chosen ("Mark not here").
+ *
+ * A count keeps every result (#172): Save also sends what was missing, found elsewhere and left
+ * there, lent out or in repair (never missing: their own groups, "With Murdock (3)"), and what
+ * is in an area nobody counted: a count of a place with places inside it (or of a location) has
+ * areas, and an area with no read is **Not counted** until someone taps "I checked it". A thing
+ * counted in number has a found count (+/−, its whole quantity once read); short, "Mark the rest
+ * not here" splits the rest off. A count opened online is shared: others join it, and what they
+ * read is merged into this summary (`shared`), found by them and their areas counted.
  */
 import {
   can,
@@ -43,7 +51,25 @@ export type SessionTarget = {
 export type ExpectedThing = Pick<
   SnapThing,
   'id' | 'locationId' | 'name' | 'shortCode' | 'placeId' | 'containerId' | 'isContainer'
-> & { barcode?: string };
+> & {
+  barcode?: string;
+  /** Counted in number when more than 1 (a decimal string). */
+  quantity?: string;
+  /** Lent out or in repair: never missing. */
+  derived?: SnapThing['derived'];
+  loan?: SnapThing['loan'];
+};
+
+/** A place a count covers, for "Not counted: Back shelf". */
+export type CountArea = { id: string; name: string | null };
+
+/** What someone else read in a shared count. */
+export type OtherLine = {
+  thingId: string;
+  action: string;
+  readBy: string | null;
+  foundQty: string | null;
+};
 
 export type ReadKind =
   /** On the expected list (count), or added to the target (pack, move). */
@@ -126,6 +152,14 @@ export type Session = {
   paused: boolean;
   /** Saved: its ops are queued, under the finish's key; the phone keeps it until they settle. */
   saving: { at: string; finishKey: string } | null;
+  /** A count of a place with places inside it, or of a location: the places it covers. */
+  areas?: CountArea[];
+  /** Areas ticked "I checked it" (counted, nothing read there). */
+  checked?: string[];
+  /** Found counts of things counted in number (thing id → how many); else all of them. */
+  qty?: Record<string, string>;
+  /** Opened on the server: others may join. `joined`: this phone joined someone else's. */
+  shared?: { joined: boolean; by: string | null; others: OtherLine[]; counted: string[] };
 };
 
 export type Roles = (locationId: string) => Role | null;
@@ -142,9 +176,11 @@ export function newSession(args: {
   role: Role;
   expected: ExpectedThing[];
   contents?: boolean;
+  areas?: CountArea[];
   now: string;
 }): Session {
   return {
+    ...(args.areas && args.areas.length > 1 ? { areas: args.areas } : {}),
     id: args.id ?? newId(),
     mode: args.mode,
     target: args.target,
@@ -203,9 +239,15 @@ function indexOf(list: ExpectedThing[]): Index {
 const foundIds = (s: Session) =>
   new Set(s.reads.filter((r) => r.kind === 'found' && r.thingId).map((r) => r.thingId as string));
 
+const OTHERS_FOUND = new Set(['seen', 'move']);
+/** Found by someone else in a shared count, and not by this phone. */
+const othersFound = (s: Session) =>
+  new Set((s.shared?.others ?? []).filter((l) => OTHERS_FOUND.has(l.action)).map((l) => l.thingId));
+
 /** What a count has found: the things read, and with `contents`, everything inside the boxes. */
-function countedIds(s: Session): Set<string> {
+function countedIds(s: Session, withOthers = false): Set<string> {
   const found = foundIds(s);
+  if (withOthers) for (const id of othersFound(s)) found.add(id);
   if (!s.contents) return found;
   const ix = indexOf(s.expected);
   const out = new Set(found);
@@ -235,8 +277,91 @@ export function counter(s: Session): {
   }
   const ix = indexOf(s.expected);
   let found = 0;
-  for (const id of countedIds(s)) if (ix.byId.has(id)) found += 1;
+  for (const id of countedIds(s, true)) if (ix.byId.has(id)) found += 1;
   return { found, expected: s.expected.length, reads, nearlyFull };
+}
+
+/** The area (place) a thing on the list is in, through its boxes; null when unknown. */
+export function areaOf(
+  s: Session,
+  t: Pick<ExpectedThing, 'placeId' | 'containerId'>,
+): string | null {
+  const ix = indexOf(s.expected);
+  let cur: Pick<ExpectedThing, 'placeId' | 'containerId'> | undefined = t;
+  for (let depth = 0; cur && depth < 20; depth++) {
+    if (cur.placeId) return cur.placeId;
+    cur = cur.containerId ? ix.byId.get(cur.containerId) : undefined;
+  }
+  return null;
+}
+
+/** The areas counted: a read in each (by anyone in a shared count), or "I checked it". */
+export function countedAreas(s: Session): Set<string> {
+  const out = new Set<string>([...(s.checked ?? []), ...(s.shared?.counted ?? [])]);
+  if (!s.areas) return out;
+  const ix = indexOf(s.expected);
+  for (const id of countedIds(s, true)) {
+    const t = ix.byId.get(id);
+    const a = t ? areaOf(s, t) : null;
+    if (a) out.add(a);
+  }
+  for (const r of s.reads) {
+    if (r.kind === 'found' && r.placeId) out.add(r.placeId);
+  }
+  return out;
+}
+
+/** "I checked it": an area counted with nothing read there. */
+export function checkArea(s: Session, areaId: string, on = true): Session {
+  const was = s.checked ?? [];
+  const checked = on ? [...new Set([...was, areaId])] : was.filter((x) => x !== areaId);
+  return { ...s, checked };
+}
+
+/** A thing counted in number: how many were found (its whole quantity once read). */
+export function quantityOf(s: Session, thingId: string): { found: string; of: string } | null {
+  const t = indexOf(s.expected).byId.get(thingId);
+  const of = t?.quantity;
+  if (!of || !(Number(of) > 1)) return null;
+  return { found: s.qty?.[thingId] ?? of, of };
+}
+
+/** +/− on a found row: at least 1, at most its quantity. */
+export function setQuantity(s: Session, thingId: string, found: number): Session {
+  const q = quantityOf(s, thingId);
+  if (!q) return s;
+  const n = Math.min(Math.max(1, Math.round(found)), Number(q.of));
+  const qty = { ...(s.qty ?? {}) };
+  if (String(n) === q.of || n === Number(q.of)) delete qty[thingId];
+  else qty[thingId] = String(n);
+  return { ...s, qty };
+}
+
+/** Joins what others read so far in a shared count (the server's lines, merged). */
+export function mergeOthers(
+  s: Session,
+  lines: readonly (OtherLine & { readById?: string | null })[],
+  counted: readonly string[] | null,
+  me: string | null,
+): Session {
+  const mine = new Set(s.reads.flatMap((r) => (r.thingId ? [r.thingId] : [])));
+  const others = lines.filter(
+    (l) => !mine.has(l.thingId) && (me === null || (l.readById ?? null) !== me),
+  );
+  return {
+    ...s,
+    shared: {
+      joined: s.shared?.joined ?? false,
+      by: s.shared?.by ?? null,
+      others: others.map(({ thingId, action, readBy, foundQty }) => ({
+        thingId,
+        action,
+        readBy,
+        foundQty,
+      })),
+      counted: [...(counted ?? [])],
+    },
+  };
 }
 
 const toOf = (t: SessionTarget): MoveTo | null =>
@@ -412,8 +537,20 @@ export function resolveLater(s: Session, key: string, info: ReadInfo, roles: Rol
 
 export type Summary = {
   found: SessionRead[];
-  /** Labelled things on the expected list not read. */
+  /** Labelled things on the expected list not read, in an area that was counted. */
   missing: ExpectedThing[];
+  /** On the list, not read here, lent out: by person. Never missing. */
+  lent: { person: string; things: ExpectedThing[] }[];
+  /** On the list, not read here, in repair. Never missing. */
+  inRepair: ExpectedThing[];
+  /** Labelled things in an area nobody counted: by area. Never missing until "I checked it". */
+  notCounted: { area: CountArea; things: ExpectedThing[] }[];
+  /** Found by others in a shared count. */
+  byOthers: (ExpectedThing & { readBy: string | null })[];
+  /** Found rows counted in number and short: "2 of 6". */
+  short: { read: SessionRead; found: string; of: string }[];
+  /** The areas counted (a count with areas). */
+  counted: string[];
   /** Things on the expected list without a label: ticked by hand, never missing. */
   noLabel: ExpectedThing[];
   elsewhere: SessionRead[];
@@ -428,9 +565,42 @@ export type Summary = {
 
 export function summarise(s: Session, roles?: Roles): Summary {
   const of = (kind: ReadKind) => s.reads.filter((r) => r.kind === kind);
-  const counted = countedIds(s);
+  const counted = countedIds(s, true);
   const labelled = (t: ExpectedThing) => !!t.shortCode || !!t.barcode;
-  const missing = s.mode === 'count' ? s.expected.filter((t) => !counted.has(t.id)) : [];
+  const unread = s.mode === 'count' ? s.expected.filter((t) => !counted.has(t.id)) : [];
+  // Lent out or in repair: their own groups, never missing.
+  const lentBy = new Map<string, ExpectedThing[]>();
+  const inRepair: ExpectedThing[] = [];
+  const others: ExpectedThing[] = [];
+  for (const t of unread) {
+    if (t.loan?.direction === 'out' || t.derived?.includes('lent')) {
+      const who = t.loan?.personName ?? '';
+      lentBy.set(who, [...(lentBy.get(who) ?? []), t]);
+    } else if (t.derived?.includes('in_repair')) inRepair.push(t);
+    else others.push(t);
+  }
+  // In an area nobody counted: not counted, never missing.
+  const areasCounted = countedAreas(s);
+  const byArea = new Map<string, ExpectedThing[]>();
+  const missing: ExpectedThing[] = [];
+  for (const t of others) {
+    const a = s.areas ? areaOf(s, t) : null;
+    if (a && labelled(t) && !areasCounted.has(a) && s.areas?.some((x) => x.id === a)) {
+      byArea.set(a, [...(byArea.get(a) ?? []), t]);
+    } else missing.push(t);
+  }
+  const ix = indexOf(s.expected);
+  const mineFound = foundIds(s);
+  const byOthers = (s.shared?.others ?? []).flatMap((l) => {
+    const t = ix.byId.get(l.thingId);
+    return t && OTHERS_FOUND.has(l.action) && !mineFound.has(t.id)
+      ? [{ ...t, readBy: l.readBy }]
+      : [];
+  });
+  const short = of('found').flatMap((r) => {
+    const q = r.thingId ? quantityOf(s, r.thingId) : null;
+    return q && Number(q.found) < Number(q.of) ? [{ read: r, ...q }] : [];
+  });
   const editsHere = (() => {
     const role = roles ? roles(s.locationId) : s.role;
     return !!role && can(role, 'things.edit');
@@ -444,6 +614,15 @@ export function summarise(s: Session, roles?: Roles): Summary {
   return {
     found: of('found'),
     missing: missing.filter(labelled),
+    lent: [...lentBy].map(([person, things]) => ({ person, things })),
+    inRepair,
+    notCounted: (s.areas ?? []).flatMap((area) => {
+      const things = byArea.get(area.id);
+      return things ? [{ area, things }] : [];
+    }),
+    byOthers,
+    short,
+    counted: s.areas ? [...areasCounted].filter((a) => s.areas?.some((x) => x.id === a)) : [],
     noLabel: missing.filter((t) => !labelled(t)),
     elsewhere: of('elsewhere'),
     otherLocation: of('other_location').map((r) => {
@@ -469,6 +648,8 @@ export type Choices = {
   moveHere?: readonly string[];
   /** Things without a label, ticked as here. */
   ticked?: readonly string[];
+  /** Found short (counted in number): the rest marked not here, split off. */
+  restNotHere?: readonly string[];
 };
 
 /** The lines Save sends. A viewer's check sends none. */
@@ -490,8 +671,18 @@ export function linesOf(
       }));
   }
   const lines: ScanSessionLine[] = [];
+  const rest = new Set(choices.restNotHere ?? []);
   for (const r of sum.found) {
-    if (r.thingId) lines.push({ thingId: r.thingId, readAt: r.at, action: 'seen' });
+    if (!r.thingId) continue;
+    const q = quantityOf(s, r.thingId);
+    const short = q && Number(q.found) < Number(q.of);
+    lines.push({
+      thingId: r.thingId,
+      readAt: r.at,
+      action: 'seen',
+      ...(short ? { quantity: q.found } : {}),
+      ...(short && rest.has(r.thingId) ? { short: 'not_here' as const } : {}),
+    });
   }
   const ticked = new Set(choices.ticked ?? []);
   for (const t of sum.noLabel) {
@@ -510,6 +701,17 @@ export function linesOf(
   for (const t of sum.missing) {
     if (gone.has(t.id)) lines.push({ thingId: t.id, readAt: now, action: 'not_here' });
   }
+  // What the count found and left as it is: kept, never applied.
+  const kept = (thingId: string, action: ScanSessionLine['action'], at = now) =>
+    lines.push({ thingId, readAt: at, action });
+  for (const t of sum.missing) if (!gone.has(t.id)) kept(t.id, 'missing');
+  for (const r of sum.elsewhere) {
+    if (r.thingId && !move.has(r.thingId) && r.locationId === s.locationId)
+      kept(r.thingId, 'elsewhere', r.at);
+  }
+  for (const g of sum.lent) for (const t of g.things) kept(t.id, 'on_loan');
+  for (const t of sum.inRepair) kept(t.id, 'in_repair');
+  for (const g of sum.notCounted) for (const t of g.things) kept(t.id, 'not_counted');
   return lines;
 }
 
@@ -524,17 +726,22 @@ const headerTarget = (t: SessionTarget) =>
 
 export const finishKey = (s: Pick<Session, 'id'>) => `scan-finish:${s.id}`;
 
+/** A shared count's finish needs a connection: others' lines are on the server. */
+export const finishNeedsConnection = (s: Session) =>
+  !!s.shared && (s.shared.joined || s.shared.others.length > 0);
+
 /** The ops that save the session: its lines in chunks of 500, then the finish. */
 export function sessionOps(
   s: Session,
   lines: readonly ScanSessionLine[],
-  { contentsSeen }: { contentsSeen: boolean },
+  { contentsSeen, counted }: { contentsSeen: boolean; counted?: readonly string[] },
 ): QueueInput[] {
   const session = {
     id: s.id,
     mode: s.mode,
     target: headerTarget(s.target),
     startedAt: s.startedAt,
+    ...(s.mode === 'count' && s.areas && counted ? { countedPlaceIds: [...counted] } : {}),
   };
   const ops: QueueInput[] = [];
   const size = SCAN_SESSION_LIMITS.linesPerOp;

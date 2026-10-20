@@ -217,12 +217,41 @@ export function labelsRoutes(state: MockState): MockRoute[] {
       const locationId = query.get('locationId');
       const inScope = (id: string) => access().visible(id) && (!locationId || id === locationId);
       const printed = printedCodes();
+      // A count's label coverage: what is in a place and the places inside it, boxes included.
+      const placeId = query.get('placeId');
+      const under = new Set<string>(placeId ? [placeId] : []);
+      for (let grew = !!placeId; grew; ) {
+        grew = false;
+        for (const pl of inv().places)
+          if (pl.parentId && under.has(pl.parentId) && !under.has(pl.id)) {
+            under.add(pl.id);
+            grew = true;
+          }
+      }
+      const placeOf = (t: {
+        placeId: string | null;
+        containerId: string | null;
+      }): string | null => {
+        let cur: { placeId: string | null; containerId: string | null } | undefined = t;
+        for (let i = 0; cur && i < 20; i++) {
+          if (cur.placeId) return cur.placeId;
+          const box: string | null = cur.containerId;
+          cur = inv().things.find((x) => x.id === box);
+        }
+        return null;
+      };
+      const coded = inv().things.filter(
+        (t) =>
+          !t.deletedAt &&
+          inScope(t.locationId) &&
+          t.shortCode &&
+          (!placeId || under.has(placeOf(t) ?? '')),
+      );
       return {
-        unprinted: inv().things.filter(
-          (t) => !t.deletedAt && inScope(t.locationId) && t.shortCode && !printed.has(t.shortCode),
-        ).length,
+        unprinted: coded.filter((t) => !printed.has(t.shortCode as string)).length,
         blankUnclaimed: cap().codes.filter((c) => c.state === 'blank' && inScope(c.locationId))
           .length,
+        things: coded.length,
       };
     }),
 

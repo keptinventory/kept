@@ -147,6 +147,8 @@ export const TOURS: readonly Tour[] = [
       { id: 'modes', to: '/scan-session', anchors: ['session-modes'] },
       { id: 'target', to: '/scan-session', anchors: ['session-target'] },
       { id: 'finish', to: '/scan-session', anchors: ['session-finish'] },
+      // 1.14 (#172): every count is kept, with what was missing.
+      { id: 'counts', to: '/counts', anchors: ['counts-list'] },
     ],
   },
   {

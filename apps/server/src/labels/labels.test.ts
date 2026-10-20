@@ -179,7 +179,12 @@ describe('POST /api/v1/labels/batches', () => {
     const summary = ok(
       await call(t, `/api/v1/labels/summary?locationId=${loc.id}`, { as: ibrahim }),
     );
-    expect(summary).toEqual({ unprinted: 3, blankUnclaimed: 0 });
+    expect(summary).toEqual({ unprinted: 3, blankUnclaimed: 0, things: 4 });
+    // A count's label coverage: in the attic (the box's contents too), 1 of 3 has a label.
+    const attic = ok(
+      await call(t, `/api/v1/labels/summary?locationId=${loc.id}&placeId=${room}`, { as: ibrahim }),
+    );
+    expect(attic).toEqual({ unprinted: 2, blankUnclaimed: 0, things: 3 });
   });
 
   it('makes blank sheets under the 1,000-unclaimed cap: the 1,001st is 409 blank_cap_reached', async () => {

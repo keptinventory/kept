@@ -28,7 +28,12 @@ const sameHead = (a: Session, b: Session) =>
   a.current === b.current &&
   a.targets === b.targets &&
   a.expected === b.expected &&
-  a.saving === b.saving;
+  a.saving === b.saving &&
+  // A count's choices on its summary (#172): "I checked it", found counts, the shared count.
+  a.areas === b.areas &&
+  a.checked === b.checked &&
+  a.qty === b.qty &&
+  a.shared === b.shared;
 
 /** What `save` has to write: keys added, keys gone, reads replaced under the same key. */
 function changes(prev: Session, next: Session) {

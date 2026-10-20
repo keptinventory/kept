@@ -50,6 +50,7 @@ import {
   PanelCollapseIcon,
   PanelExpandIcon,
   PlusIcon,
+  QrIcon,
   ScheduleIcon,
   SearchIcon,
   TagIcon,
@@ -117,6 +118,7 @@ type NavEntry = {
     | '/consumables'
     | '/insights'
     | '/moving'
+    | '/counts'
     | '/notifications';
 };
 
@@ -190,6 +192,7 @@ export function useNavEntries(): NavEntry[] {
       icon: <TagIcon />,
       to: '/labels',
     }),
+    { key: 'counts', label: t`Counts`, icon: <QrIcon />, to: '/counts' },
     { key: 'activity', label: t`Activity`, icon: <ActivityIcon />, to: '/activity' },
     { key: 'trash', label: t`Trash`, icon: <TrashIcon />, to: '/trash' },
     {

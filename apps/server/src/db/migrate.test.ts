@@ -244,6 +244,10 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.schedule_completion_changed()': OWNER_ONLY,
   'kept.service_record_anchor_changed()': OWNER_ONLY,
   'kept.schedule_base_changed()': OWNER_ONLY,
+  // 1.14 (0150): a planned count is done by counting its place.
+  'kept.schedule_counted_on(uuid)': OWNER_ONLY,
+  'kept.scan_session_schedule_changed()': OWNER_ONLY,
+  'kept.scan_session_undone()': OWNER_ONLY,
   'kept.module_enabled(uuid,text)': APP_AND_SYSTEM,
   'kept.module_on(uuid,text)': APP_AND_SYSTEM,
   'kept.schedule_point(integer,numeric,date,date,numeric,date,numeric,boolean,integer,numeric,date,numeric)':

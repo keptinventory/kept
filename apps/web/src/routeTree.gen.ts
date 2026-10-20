@@ -20,6 +20,7 @@ import { Route as AppAdminRouteImport } from './routes/_app/admin'
 import { Route as AppCaptureRouteImport } from './routes/_app/capture'
 import { Route as AppConditionReportsRouteImport } from './routes/_app/condition-reports'
 import { Route as AppConsumablesRouteImport } from './routes/_app/consumables'
+import { Route as AppCountsRouteImport } from './routes/_app/counts'
 import { Route as AppExpiringRouteImport } from './routes/_app/expiring'
 import { Route as AppHelpRouteImport } from './routes/_app/help'
 import { Route as AppInboxRouteImport } from './routes/_app/inbox'
@@ -61,6 +62,7 @@ import { Route as AppAssistantThreadIdRouteImport } from './routes/_app/assistan
 import { Route as AppBoxCheckIdRouteImport } from './routes/_app/box-check.$id'
 import { Route as AppBrandsIdRouteImport } from './routes/_app/brands.$id'
 import { Route as AppConditionReportsIdRouteImport } from './routes/_app/condition-reports.$id'
+import { Route as AppCountsIdRouteImport } from './routes/_app/counts.$id'
 import { Route as AppIncidentsIdRouteImport } from './routes/_app/incidents.$id'
 import { Route as AppItemUuidRouteImport } from './routes/_app/item.$uuid'
 import { Route as AppLCodeRouteImport } from './routes/_app/l.$code'
@@ -86,6 +88,7 @@ import { Route as AppTypesIdRouteImport } from './routes/_app/types.$id'
 import { Route as AppVendorsIdRouteImport } from './routes/_app/vendors.$id'
 import { Route as PrintLabelsBatchIdRouteImport } from './routes/_print/labels.$batchId'
 import { Route as AppAdminAiUsageRouteImport } from './routes/_app/admin.ai.usage'
+import { Route as AppCountsBoxIdRouteImport } from './routes/_app/counts.box.$id'
 import { Route as AppSettingsAccountIndexRouteImport } from './routes/_app/settings.account.index'
 import { Route as AppSettingsAccountBrandsRouteImport } from './routes/_app/settings.account.brands'
 import { Route as AppSettingsAccountExchangeRatesRouteImport } from './routes/_app/settings.account.exchange-rates'
@@ -159,6 +162,11 @@ const AppConditionReportsRoute = AppConditionReportsRouteImport.update({
 const AppConsumablesRoute = AppConsumablesRouteImport.update({
   id: '/consumables',
   path: '/consumables',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCountsRoute = AppCountsRouteImport.update({
+  id: '/counts',
+  path: '/counts',
   getParentRoute: () => AppRoute,
 } as any)
 const AppExpiringRoute = AppExpiringRouteImport.update({
@@ -366,6 +374,11 @@ const AppConditionReportsIdRoute = AppConditionReportsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppConditionReportsRoute,
 } as any)
+const AppCountsIdRoute = AppCountsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppCountsRoute,
+} as any)
 const AppIncidentsIdRoute = AppIncidentsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -490,6 +503,11 @@ const AppAdminAiUsageRoute = AppAdminAiUsageRouteImport.update({
   id: '/usage',
   path: '/usage',
   getParentRoute: () => AppAdminAiRoute,
+} as any)
+const AppCountsBoxIdRoute = AppCountsBoxIdRouteImport.update({
+  id: '/box/$id',
+  path: '/box/$id',
+  getParentRoute: () => AppCountsRoute,
 } as any)
 const AppSettingsAccountIndexRoute = AppSettingsAccountIndexRouteImport.update({
   id: '/',
@@ -622,6 +640,7 @@ export interface FileRoutesByFullPath {
   '/capture': typeof AppCaptureRoute
   '/condition-reports': typeof AppConditionReportsRouteWithChildren
   '/consumables': typeof AppConsumablesRoute
+  '/counts': typeof AppCountsRouteWithChildren
   '/expiring': typeof AppExpiringRoute
   '/help': typeof AppHelpRoute
   '/inbox': typeof AppInboxRoute
@@ -661,6 +680,7 @@ export interface FileRoutesByFullPath {
   '/box-check/$id': typeof AppBoxCheckIdRoute
   '/brands/$id': typeof AppBrandsIdRoute
   '/condition-reports/$id': typeof AppConditionReportsIdRoute
+  '/counts/$id': typeof AppCountsIdRoute
   '/incidents/$id': typeof AppIncidentsIdRoute
   '/item/$uuid': typeof AppItemUuidRoute
   '/l/$code': typeof AppLCodeRoute
@@ -688,6 +708,7 @@ export interface FileRoutesByFullPath {
   '/assistant/': typeof AppAssistantIndexRoute
   '/settings/': typeof AppSettingsIndexRoute
   '/admin/ai/usage': typeof AppAdminAiUsageRoute
+  '/counts/box/$id': typeof AppCountsBoxIdRoute
   '/settings/account/brands': typeof AppSettingsAccountBrandsRoute
   '/settings/account/exchange-rates': typeof AppSettingsAccountExchangeRatesRoute
   '/settings/account/people': typeof AppSettingsAccountPeopleRoute
@@ -719,6 +740,7 @@ export interface FileRoutesByTo {
   '/capture': typeof AppCaptureRoute
   '/condition-reports': typeof AppConditionReportsRouteWithChildren
   '/consumables': typeof AppConsumablesRoute
+  '/counts': typeof AppCountsRouteWithChildren
   '/expiring': typeof AppExpiringRoute
   '/help': typeof AppHelpRoute
   '/inbox': typeof AppInboxRoute
@@ -758,6 +780,7 @@ export interface FileRoutesByTo {
   '/box-check/$id': typeof AppBoxCheckIdRoute
   '/brands/$id': typeof AppBrandsIdRoute
   '/condition-reports/$id': typeof AppConditionReportsIdRoute
+  '/counts/$id': typeof AppCountsIdRoute
   '/incidents/$id': typeof AppIncidentsIdRoute
   '/item/$uuid': typeof AppItemUuidRoute
   '/l/$code': typeof AppLCodeRoute
@@ -784,6 +807,7 @@ export interface FileRoutesByTo {
   '/assistant': typeof AppAssistantIndexRoute
   '/settings': typeof AppSettingsIndexRoute
   '/admin/ai/usage': typeof AppAdminAiUsageRoute
+  '/counts/box/$id': typeof AppCountsBoxIdRoute
   '/settings/account/brands': typeof AppSettingsAccountBrandsRoute
   '/settings/account/exchange-rates': typeof AppSettingsAccountExchangeRatesRoute
   '/settings/account/people': typeof AppSettingsAccountPeopleRoute
@@ -818,6 +842,7 @@ export interface FileRoutesById {
   '/_app/capture': typeof AppCaptureRoute
   '/_app/condition-reports': typeof AppConditionReportsRouteWithChildren
   '/_app/consumables': typeof AppConsumablesRoute
+  '/_app/counts': typeof AppCountsRouteWithChildren
   '/_app/expiring': typeof AppExpiringRoute
   '/_app/help': typeof AppHelpRoute
   '/_app/inbox': typeof AppInboxRoute
@@ -858,6 +883,7 @@ export interface FileRoutesById {
   '/_app/box-check/$id': typeof AppBoxCheckIdRoute
   '/_app/brands/$id': typeof AppBrandsIdRoute
   '/_app/condition-reports/$id': typeof AppConditionReportsIdRoute
+  '/_app/counts/$id': typeof AppCountsIdRoute
   '/_app/incidents/$id': typeof AppIncidentsIdRoute
   '/_app/item/$uuid': typeof AppItemUuidRoute
   '/_app/l/$code': typeof AppLCodeRoute
@@ -885,6 +911,7 @@ export interface FileRoutesById {
   '/_app/assistant/': typeof AppAssistantIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/admin/ai/usage': typeof AppAdminAiUsageRoute
+  '/_app/counts/box/$id': typeof AppCountsBoxIdRoute
   '/_app/settings/account/brands': typeof AppSettingsAccountBrandsRoute
   '/_app/settings/account/exchange-rates': typeof AppSettingsAccountExchangeRatesRoute
   '/_app/settings/account/people': typeof AppSettingsAccountPeopleRoute
@@ -919,6 +946,7 @@ export interface FileRouteTypes {
     | '/capture'
     | '/condition-reports'
     | '/consumables'
+    | '/counts'
     | '/expiring'
     | '/help'
     | '/inbox'
@@ -958,6 +986,7 @@ export interface FileRouteTypes {
     | '/box-check/$id'
     | '/brands/$id'
     | '/condition-reports/$id'
+    | '/counts/$id'
     | '/incidents/$id'
     | '/item/$uuid'
     | '/l/$code'
@@ -985,6 +1014,7 @@ export interface FileRouteTypes {
     | '/assistant/'
     | '/settings/'
     | '/admin/ai/usage'
+    | '/counts/box/$id'
     | '/settings/account/brands'
     | '/settings/account/exchange-rates'
     | '/settings/account/people'
@@ -1016,6 +1046,7 @@ export interface FileRouteTypes {
     | '/capture'
     | '/condition-reports'
     | '/consumables'
+    | '/counts'
     | '/expiring'
     | '/help'
     | '/inbox'
@@ -1055,6 +1086,7 @@ export interface FileRouteTypes {
     | '/box-check/$id'
     | '/brands/$id'
     | '/condition-reports/$id'
+    | '/counts/$id'
     | '/incidents/$id'
     | '/item/$uuid'
     | '/l/$code'
@@ -1081,6 +1113,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/settings'
     | '/admin/ai/usage'
+    | '/counts/box/$id'
     | '/settings/account/brands'
     | '/settings/account/exchange-rates'
     | '/settings/account/people'
@@ -1114,6 +1147,7 @@ export interface FileRouteTypes {
     | '/_app/capture'
     | '/_app/condition-reports'
     | '/_app/consumables'
+    | '/_app/counts'
     | '/_app/expiring'
     | '/_app/help'
     | '/_app/inbox'
@@ -1154,6 +1188,7 @@ export interface FileRouteTypes {
     | '/_app/box-check/$id'
     | '/_app/brands/$id'
     | '/_app/condition-reports/$id'
+    | '/_app/counts/$id'
     | '/_app/incidents/$id'
     | '/_app/item/$uuid'
     | '/_app/l/$code'
@@ -1181,6 +1216,7 @@ export interface FileRouteTypes {
     | '/_app/assistant/'
     | '/_app/settings/'
     | '/_app/admin/ai/usage'
+    | '/_app/counts/box/$id'
     | '/_app/settings/account/brands'
     | '/_app/settings/account/exchange-rates'
     | '/_app/settings/account/people'
@@ -1297,6 +1333,13 @@ declare module '@tanstack/react-router' {
       path: '/consumables'
       fullPath: '/consumables'
       preLoaderRoute: typeof AppConsumablesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/counts': {
+      id: '/_app/counts'
+      path: '/counts'
+      fullPath: '/counts'
+      preLoaderRoute: typeof AppCountsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/expiring': {
@@ -1586,6 +1629,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppConditionReportsIdRouteImport
       parentRoute: typeof AppConditionReportsRoute
     }
+    '/_app/counts/$id': {
+      id: '/_app/counts/$id'
+      path: '/$id'
+      fullPath: '/counts/$id'
+      preLoaderRoute: typeof AppCountsIdRouteImport
+      parentRoute: typeof AppCountsRoute
+    }
     '/_app/incidents/$id': {
       id: '/_app/incidents/$id'
       path: '/$id'
@@ -1760,6 +1810,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/ai/usage'
       preLoaderRoute: typeof AppAdminAiUsageRouteImport
       parentRoute: typeof AppAdminAiRoute
+    }
+    '/_app/counts/box/$id': {
+      id: '/_app/counts/box/$id'
+      path: '/box/$id'
+      fullPath: '/counts/box/$id'
+      preLoaderRoute: typeof AppCountsBoxIdRouteImport
+      parentRoute: typeof AppCountsRoute
     }
     '/_app/settings/account/': {
       id: '/_app/settings/account/'
@@ -1964,6 +2021,20 @@ const AppConditionReportsRouteChildren: AppConditionReportsRouteChildren = {
 const AppConditionReportsRouteWithChildren =
   AppConditionReportsRoute._addFileChildren(AppConditionReportsRouteChildren)
 
+interface AppCountsRouteChildren {
+  AppCountsIdRoute: typeof AppCountsIdRoute
+  AppCountsBoxIdRoute: typeof AppCountsBoxIdRoute
+}
+
+const AppCountsRouteChildren: AppCountsRouteChildren = {
+  AppCountsIdRoute: AppCountsIdRoute,
+  AppCountsBoxIdRoute: AppCountsBoxIdRoute,
+}
+
+const AppCountsRouteWithChildren = AppCountsRoute._addFileChildren(
+  AppCountsRouteChildren,
+)
+
 interface AppIncidentsRouteChildren {
   AppIncidentsIdRoute: typeof AppIncidentsIdRoute
 }
@@ -2045,6 +2116,7 @@ interface AppRouteChildren {
   AppCaptureRoute: typeof AppCaptureRoute
   AppConditionReportsRoute: typeof AppConditionReportsRouteWithChildren
   AppConsumablesRoute: typeof AppConsumablesRoute
+  AppCountsRoute: typeof AppCountsRouteWithChildren
   AppExpiringRoute: typeof AppExpiringRoute
   AppHelpRoute: typeof AppHelpRoute
   AppInboxRoute: typeof AppInboxRoute
@@ -2107,6 +2179,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCaptureRoute: AppCaptureRoute,
   AppConditionReportsRoute: AppConditionReportsRouteWithChildren,
   AppConsumablesRoute: AppConsumablesRoute,
+  AppCountsRoute: AppCountsRouteWithChildren,
   AppExpiringRoute: AppExpiringRoute,
   AppHelpRoute: AppHelpRoute,
   AppInboxRoute: AppInboxRoute,

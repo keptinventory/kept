@@ -25858,3 +25858,279 @@ msgstr "non défini"
 #: src/assistant/confirm-card.tsx
 msgid "Put all in…"
 msgstr "Tout mettre dans…"
+
+#: src/components/app-shell.tsx
+msgid "Counts"
+msgstr "Comptages"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Past counts"
+msgstr "Comptages passés"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Every count of {name}, with what was missing"
+msgstr "Chaque comptage de {name}, avec ce qui manquait"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "{pct}% of things here have labels."
+msgstr "{pct} % des objets ici ont une étiquette."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Print labels for the rest"
+msgstr "Imprimer les étiquettes du reste"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Count in progress by <0>{0}</0>"
+msgstr "Comptage en cours par <0>{0}</0>"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Join"
+msgstr "Rejoindre"
+
+#: src/components/scan/session/summary.tsx
+msgid "See this count"
+msgstr "Voir ce comptage"
+
+#: src/components/scan/session/summary.tsx
+msgid "Found short ({0})"
+msgstr "Trouvés en partie ({0})"
+
+#: src/components/counts/box-check-page.tsx
+msgid "{found} of {of}"
+msgstr "{found} sur {of}"
+
+#: src/components/scan/session/summary.tsx
+msgid "Mark the rest not here"
+msgstr "Marquer le reste pas ici"
+
+#: src/components/scan/session/summary.tsx
+msgid "Found by others ({0})"
+msgstr "Trouvés par d'autres ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "found by <0>{0}</0>"
+msgstr "trouvé par <0>{0}</0>"
+
+#: src/components/scan/session/summary.tsx
+msgid "With {0} ({1})"
+msgstr "Chez {0} ({1})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Lent out ({0})"
+msgstr "Prêtés ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "In repair ({0})"
+msgstr "En réparation ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Not counted: {area} ({0})"
+msgstr "Non compté : {area} ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "I checked it"
+msgstr "J'ai vérifié"
+
+#: src/components/scan/session/summary.tsx
+msgid "Others are counting here too: finishing needs a connection."
+msgstr "D'autres comptent ici aussi : terminer demande une connexion."
+
+#: src/components/hints/hint-copy.ts
+msgid "Every count is kept"
+msgstr "Chaque comptage est gardé"
+
+#: src/components/hints/hint-copy.ts
+msgid "Counts lists each count and box check: what was found, what was missing, and what changed since the last one."
+msgstr "Comptages liste chaque comptage et chaque vérification de boîte : ce qui a été trouvé, ce qui manquait, et ce qui a changé depuis le précédent."
+
+#: src/components/counts/box-check-page.tsx
+msgid "{a} of {b} found"
+msgstr "{a} sur {b} trouvés"
+
+#: src/components/counts/box-check-page.tsx
+msgid "Box check of {name}"
+msgstr "Vérification de {name}"
+
+#: src/components/counts/box-check-page.tsx
+msgid "by <0>{0}</0>"
+msgstr "par <0>{0}</0>"
+
+#: src/components/counts/box-check-page.tsx
+msgid "What it should hold ({0})"
+msgstr "Ce qu'elle devrait contenir ({0})"
+
+#: src/components/counts/box-check-page.tsx
+msgid "Found in it from elsewhere ({0})"
+msgstr "Trouvés dedans, venus d'ailleurs ({0})"
+
+#: src/components/counts/count-page.tsx
+msgid "Missing"
+msgstr "Manquants"
+
+#: src/components/counts/count-page.tsx
+msgid "Found elsewhere"
+msgstr "Trouvés ailleurs"
+
+#: src/components/counts/count-page.tsx
+msgid "Moved here"
+msgstr "Déplacés ici"
+
+#: src/components/counts/count-page.tsx
+msgid "Marked not here"
+msgstr "Marqués pas ici"
+
+#: src/components/counts/count-page.tsx
+msgid "In the Trash"
+msgstr "Dans la corbeille"
+
+#: src/components/counts/count-page.tsx
+msgid "Not counted: {0}"
+msgstr "Non compté : {0}"
+
+#: src/components/counts/count-page.tsx
+msgid "Count of {name}"
+msgstr "Comptage de {name}"
+
+#: src/components/counts/count-page.tsx
+msgid "Still open"
+msgstr "Toujours ouvert"
+
+#: src/components/counts/count-page.tsx
+msgid "{minutes, plural, one {# minute} other {# minutes}}"
+msgstr "{minutes, plural, one {# minute} other {# minutes}}"
+
+#: src/components/counts/count-page.tsx
+msgid "finished by <0>{0}</0>"
+msgstr "terminé par <0>{0}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "Counted by <0>{readers}</0>"
+msgstr "Compté par <0>{readers}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "Done for the planned count <0>{0}</0>"
+msgstr "Fait pour le comptage prévu <0>{0}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "Since the previous count"
+msgstr "Depuis le comptage précédent"
+
+#: src/components/counts/count-page.tsx
+msgid "{0, plural, one {# newly missing} other {# newly missing}}"
+msgstr "{0, plural, one {# nouveau manquant} other {# nouveaux manquants}}"
+
+#: src/components/counts/count-page.tsx
+msgid "{0, plural, one {# found again} other {# found again}}"
+msgstr "{0, plural, one {# retrouvé} other {# retrouvés}}"
+
+#: src/components/counts/count-page.tsx
+msgid "{0, plural, one {# new thing} other {# new things}}"
+msgstr "{0, plural, one {# nouvel objet} other {# nouveaux objets}}"
+
+#: src/components/counts/count-page.tsx
+msgid "Open the previous count ({0})"
+msgstr "Ouvrir le comptage précédent ({0})"
+
+#: src/components/counts/count-page.tsx
+msgid "Counts saved before Kept 1.14 didn't record what was missing or elsewhere."
+msgstr "Les comptages enregistrés avant Kept 1.14 ne notaient pas ce qui manquait ou était ailleurs."
+
+#: src/components/counts/count-page.tsx
+msgid "now in <0>{now}</0>"
+msgstr "maintenant dans <0>{now}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "was in <0>{was}</0>"
+msgstr "était dans <0>{was}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "read by <0>{0}</0>"
+msgstr "lu par <0>{0}</0>"
+
+#: src/components/counts/count-regularly.tsx
+msgid "{months, plural, one {Counted every month} other {Counted every # months}}"
+msgstr "{months, plural, one {Compté chaque mois} other {Compté tous les # mois}}"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Count regularly"
+msgstr "Compter régulièrement"
+
+#: src/components/counts/count-regularly.tsx
+msgid "The next count is overdue"
+msgstr "Le prochain comptage est en retard"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Next count due {next}"
+msgstr "Prochain comptage le {next}"
+
+#: src/components/counts/count-regularly.tsx
+msgid "A reminder to count {name} every few months"
+msgstr "Un rappel pour compter {name} tous les quelques mois"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Planned count"
+msgstr "Comptage prévu"
+
+#: src/components/counts/count-regularly.tsx
+msgid "A whole number of months, {min} to {max}."
+msgstr "Un nombre entier de mois, de {min} à {max}."
+
+#: src/components/counts/count-regularly.tsx
+msgid "Count {name}"
+msgstr "Compter {name}"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Planned: count {name} regularly"
+msgstr "Prévu : compter {name} régulièrement"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Stopped the planned count"
+msgstr "Comptage prévu arrêté"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Counting <0>{name}</0> (and the places inside it) marks it done; you get a reminder a week before it's due."
+msgstr "Compter <0>{name}</0> (et les endroits à l'intérieur) le marque comme fait ; un rappel arrive une semaine avant l'échéance."
+
+#: src/components/counts/count-regularly.tsx
+msgid "Every how many months"
+msgstr "Tous les combien de mois"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Stop counting regularly"
+msgstr "Arrêter de compter régulièrement"
+
+#: src/components/counts/counts-list.tsx
+msgid "Box checks"
+msgstr "Vérifications de boîtes"
+
+#: src/components/counts/counts-list.tsx
+msgid "Had missing"
+msgstr "Avec des manquants"
+
+#: src/components/counts/counts-list.tsx
+msgid "Counted"
+msgstr "Compté"
+
+#: src/components/counts/counts-list.tsx
+msgid "Search counts"
+msgstr "Rechercher dans les comptages"
+
+#: src/components/counts/counts-list.tsx
+msgid "Search by what was counted"
+msgstr "Rechercher par ce qui a été compté"
+
+#: src/components/counts/counts-list.tsx
+msgid "by place"
+msgstr "par emplacement"
+
+#: src/components/counts/counts-list.tsx
+msgid "No counts yet"
+msgstr "Aucun comptage pour l'instant"
+
+#: src/components/counts/counts-list.tsx
+msgid "Count a place or a box from Scan: every count and box check is kept here, with what was found and what was missing."
+msgstr "Comptez un endroit ou une boîte depuis Scanner : chaque comptage et chaque vérification de boîte est gardé ici, avec ce qui a été trouvé et ce qui manquait."
+
+#: src/components/counts/counts-list.tsx
+msgid "{missing, plural, one {# missing} other {# missing}}"
+msgstr "{missing, plural, one {# manquant} other {# manquants}}"

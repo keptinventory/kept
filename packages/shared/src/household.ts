@@ -59,6 +59,12 @@ export type ValuationSource = (typeof VALUATION_SOURCES)[number];
 export const INCIDENT_KINDS = ['burglary', 'fire', 'flood', 'loss', 'other'] as const;
 export type IncidentKind = (typeof INCIDENT_KINDS)[number];
 
+/** `schedules.kind`: something to do, or a planned count of a place (1.14), done by counting it. */
+export const SCHEDULE_KINDS = ['task', 'count'] as const;
+export type ScheduleKind = (typeof SCHEDULE_KINDS)[number];
+/** A planned count repeats every 1 to 24 months. */
+export const COUNT_EVERY_MONTHS = Object.freeze({ min: 1, max: 24 });
+
 /** `expiring_documents.kind` (D155). `other` needs a title. */
 export const DOCUMENT_KINDS = [
   'registration',

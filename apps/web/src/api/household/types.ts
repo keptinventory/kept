@@ -388,6 +388,10 @@ export type Schedule = {
   skipNext: boolean;
   active: boolean;
   lastService: { id: string; servicedOn: string } | null;
+  /** 1.14 (#172): `count`, a planned count of a place, done by counting it. */
+  kind?: 'task' | 'count';
+  /** A planned count: the latest count of its place that completed it. */
+  lastCount?: { id: string; at: string } | null;
   rowVersion: number;
 };
 
@@ -407,6 +411,8 @@ export type SubjectSchedulesResponse = { items: Schedule[] };
 export type CreateScheduleBody = {
   id?: string;
   subject: { thingId: string } | { placeId: string };
+  /** `count`: a planned count of a place, every 1–24 months (1.14). */
+  kind?: 'task' | 'count';
   name: string;
   everyMonths?: number;
   everyUnits?: string;

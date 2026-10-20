@@ -458,7 +458,7 @@ describe('refusals', () => {
     expect(empty[0]).toMatchObject({ outcome: 'dropped', reason: 'target_missing' });
   });
 
-  it('refuses another person’s session: lines and finish are its own person’s', async () => {
+  it('a count is shared: another member who counts there may finish it', async () => {
     const thing = await createThing(t, ibrahim, home, { name: 'Iron' });
     const s = session('count', { locationId: home.id });
     await sent(t, ibrahim, [
@@ -468,7 +468,7 @@ describe('refusals', () => {
       }),
     ]);
     const theirs = await sent(t, louis, [op('scan_session_finish', home.id, { sessionId: s.id })]);
-    expect(theirs[0]?.outcome).toBe('dropped');
+    expect(theirs[0]?.outcome).toBe('applied');
   });
 
   it('answers a replay with the stored result and applies nothing twice', async () => {

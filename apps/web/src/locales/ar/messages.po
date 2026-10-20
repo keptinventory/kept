@@ -25858,3 +25858,279 @@ msgstr "غير محدد"
 #: src/assistant/confirm-card.tsx
 msgid "Put all in…"
 msgstr "ضع الكل في…"
+
+#: src/components/app-shell.tsx
+msgid "Counts"
+msgstr "عمليات العدّ"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Past counts"
+msgstr "عمليات العدّ السابقة"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Every count of {name}, with what was missing"
+msgstr "كل عدّ لـ{name}، مع ما كان مفقودًا"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "{pct}% of things here have labels."
+msgstr "{pct}٪ من الأشياء هنا عليها ملصقات."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Print labels for the rest"
+msgstr "اطبع ملصقات للباقي"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Count in progress by <0>{0}</0>"
+msgstr "عدّ جارٍ يقوم به <0>{0}</0>"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Join"
+msgstr "انضم"
+
+#: src/components/scan/session/summary.tsx
+msgid "See this count"
+msgstr "اعرض هذا العدّ"
+
+#: src/components/scan/session/summary.tsx
+msgid "Found short ({0})"
+msgstr "وُجد ناقصًا ({0})"
+
+#: src/components/counts/box-check-page.tsx
+msgid "{found} of {of}"
+msgstr "{found} من {of}"
+
+#: src/components/scan/session/summary.tsx
+msgid "Mark the rest not here"
+msgstr "سجّل أن الباقي ليس هنا"
+
+#: src/components/scan/session/summary.tsx
+msgid "Found by others ({0})"
+msgstr "وجده آخرون ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "found by <0>{0}</0>"
+msgstr "وجده <0>{0}</0>"
+
+#: src/components/scan/session/summary.tsx
+msgid "With {0} ({1})"
+msgstr "مع {0} ({1})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Lent out ({0})"
+msgstr "مُعار ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "In repair ({0})"
+msgstr "قيد الإصلاح ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Not counted: {area} ({0})"
+msgstr "لم يُعدّ: {area} ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "I checked it"
+msgstr "تحقّقت منه"
+
+#: src/components/scan/session/summary.tsx
+msgid "Others are counting here too: finishing needs a connection."
+msgstr "آخرون يعدّون هنا أيضًا: الإنهاء يحتاج إلى اتصال."
+
+#: src/components/hints/hint-copy.ts
+msgid "Every count is kept"
+msgstr "كل عدّ محفوظ"
+
+#: src/components/hints/hint-copy.ts
+msgid "Counts lists each count and box check: what was found, what was missing, and what changed since the last one."
+msgstr "تعرض عمليات العدّ كل عدّ وكل فحص صندوق: ما وُجد، وما كان مفقودًا، وما تغيّر منذ آخر مرة."
+
+#: src/components/counts/box-check-page.tsx
+msgid "{a} of {b} found"
+msgstr "وُجد {a} من {b}"
+
+#: src/components/counts/box-check-page.tsx
+msgid "Box check of {name}"
+msgstr "فحص صندوق {name}"
+
+#: src/components/counts/box-check-page.tsx
+msgid "by <0>{0}</0>"
+msgstr "بواسطة <0>{0}</0>"
+
+#: src/components/counts/box-check-page.tsx
+msgid "What it should hold ({0})"
+msgstr "ما يجب أن يحويه ({0})"
+
+#: src/components/counts/box-check-page.tsx
+msgid "Found in it from elsewhere ({0})"
+msgstr "وُجد فيه من مكان آخر ({0})"
+
+#: src/components/counts/count-page.tsx
+msgid "Missing"
+msgstr "مفقود"
+
+#: src/components/counts/count-page.tsx
+msgid "Found elsewhere"
+msgstr "وُجد في مكان آخر"
+
+#: src/components/counts/count-page.tsx
+msgid "Moved here"
+msgstr "نُقل إلى هنا"
+
+#: src/components/counts/count-page.tsx
+msgid "Marked not here"
+msgstr "سُجّل أنه ليس هنا"
+
+#: src/components/counts/count-page.tsx
+msgid "In the Trash"
+msgstr "في المهملات"
+
+#: src/components/counts/count-page.tsx
+msgid "Not counted: {0}"
+msgstr "لم يُعدّ: {0}"
+
+#: src/components/counts/count-page.tsx
+msgid "Count of {name}"
+msgstr "عدّ {name}"
+
+#: src/components/counts/count-page.tsx
+msgid "Still open"
+msgstr "ما زال مفتوحًا"
+
+#: src/components/counts/count-page.tsx
+msgid "{minutes, plural, one {# minute} other {# minutes}}"
+msgstr "{minutes, plural, zero {# دقيقة} one {دقيقة واحدة} two {دقيقتان} few {# دقائق} many {# دقيقة} other {# دقيقة}}"
+
+#: src/components/counts/count-page.tsx
+msgid "finished by <0>{0}</0>"
+msgstr "أنهاه <0>{0}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "Counted by <0>{readers}</0>"
+msgstr "عدّه <0>{readers}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "Done for the planned count <0>{0}</0>"
+msgstr "أُنجز للعدّ المخطَّط <0>{0}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "Since the previous count"
+msgstr "منذ العدّ السابق"
+
+#: src/components/counts/count-page.tsx
+msgid "{0, plural, one {# newly missing} other {# newly missing}}"
+msgstr "{0, plural, zero {لا شيء مفقود حديثًا} one {واحد مفقود حديثًا} two {اثنان مفقودان حديثًا} few {# مفقودة حديثًا} many {# مفقودًا حديثًا} other {# مفقود حديثًا}}"
+
+#: src/components/counts/count-page.tsx
+msgid "{0, plural, one {# found again} other {# found again}}"
+msgstr "{0, plural, zero {لم يُعثر على شيء من جديد} one {واحد وُجد من جديد} two {اثنان وُجدا من جديد} few {# وُجدت من جديد} many {# وُجد من جديد} other {# وُجد من جديد}}"
+
+#: src/components/counts/count-page.tsx
+msgid "{0, plural, one {# new thing} other {# new things}}"
+msgstr "{0, plural, zero {لا أشياء جديدة} one {شيء جديد واحد} two {شيئان جديدان} few {# أشياء جديدة} many {# شيئًا جديدًا} other {# شيء جديد}}"
+
+#: src/components/counts/count-page.tsx
+msgid "Open the previous count ({0})"
+msgstr "افتح العدّ السابق ({0})"
+
+#: src/components/counts/count-page.tsx
+msgid "Counts saved before Kept 1.14 didn't record what was missing or elsewhere."
+msgstr "عمليات العدّ المحفوظة قبل Kept ١٫١٤ لم تسجّل ما كان مفقودًا أو في مكان آخر."
+
+#: src/components/counts/count-page.tsx
+msgid "now in <0>{now}</0>"
+msgstr "الآن في <0>{now}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "was in <0>{was}</0>"
+msgstr "كان في <0>{was}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "read by <0>{0}</0>"
+msgstr "قرأه <0>{0}</0>"
+
+#: src/components/counts/count-regularly.tsx
+msgid "{months, plural, one {Counted every month} other {Counted every # months}}"
+msgstr "{months, plural, zero {يُعدّ كل # شهر} one {يُعدّ كل شهر} two {يُعدّ كل شهرين} few {يُعدّ كل # أشهر} many {يُعدّ كل # شهرًا} other {يُعدّ كل # شهر}}"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Count regularly"
+msgstr "عُدّ بانتظام"
+
+#: src/components/counts/count-regularly.tsx
+msgid "The next count is overdue"
+msgstr "العدّ التالي متأخر"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Next count due {next}"
+msgstr "العدّ التالي مستحق في {next}"
+
+#: src/components/counts/count-regularly.tsx
+msgid "A reminder to count {name} every few months"
+msgstr "تذكير بعدّ {name} كل بضعة أشهر"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Planned count"
+msgstr "عدّ مخطَّط"
+
+#: src/components/counts/count-regularly.tsx
+msgid "A whole number of months, {min} to {max}."
+msgstr "عدد صحيح من الأشهر، من {min} إلى {max}."
+
+#: src/components/counts/count-regularly.tsx
+msgid "Count {name}"
+msgstr "عدّ {name}"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Planned: count {name} regularly"
+msgstr "خُطِّط: عدّ {name} بانتظام"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Stopped the planned count"
+msgstr "أُوقف العدّ المخطَّط"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Counting <0>{name}</0> (and the places inside it) marks it done; you get a reminder a week before it's due."
+msgstr "عدّ <0>{name}</0> (والأماكن التي بداخله) يسجّله منجزًا، ويصلك تذكير قبل موعده بأسبوع."
+
+#: src/components/counts/count-regularly.tsx
+msgid "Every how many months"
+msgstr "كل كم شهرًا"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Stop counting regularly"
+msgstr "أوقف العدّ المنتظم"
+
+#: src/components/counts/counts-list.tsx
+msgid "Box checks"
+msgstr "فحوص الصناديق"
+
+#: src/components/counts/counts-list.tsx
+msgid "Had missing"
+msgstr "فيه مفقودات"
+
+#: src/components/counts/counts-list.tsx
+msgid "Counted"
+msgstr "تاريخ العدّ"
+
+#: src/components/counts/counts-list.tsx
+msgid "Search counts"
+msgstr "ابحث في عمليات العدّ"
+
+#: src/components/counts/counts-list.tsx
+msgid "Search by what was counted"
+msgstr "ابحث بما تم عدّه"
+
+#: src/components/counts/counts-list.tsx
+msgid "by place"
+msgstr "حسب المكان"
+
+#: src/components/counts/counts-list.tsx
+msgid "No counts yet"
+msgstr "لا توجد عمليات عدّ بعد"
+
+#: src/components/counts/counts-list.tsx
+msgid "Count a place or a box from Scan: every count and box check is kept here, with what was found and what was missing."
+msgstr "عُدّ مكانًا أو صندوقًا من المسح: كل عدّ وكل فحص صندوق يُحفظ هنا، مع ما وُجد وما كان مفقودًا."
+
+#: src/components/counts/counts-list.tsx
+msgid "{missing, plural, one {# missing} other {# missing}}"
+msgstr "{missing, plural, zero {لا مفقود} one {واحد مفقود} two {اثنان مفقودان} few {# مفقودة} many {# مفقودًا} other {# مفقود}}"

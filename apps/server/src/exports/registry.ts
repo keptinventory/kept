@@ -483,7 +483,7 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
     scope: 'location',
     key: ['id'],
     fields:
-      'id:uuid thing_id:uuid place_id:uuid name:text every_months:int every_units:dec meter_id:uuid due_on:date lead_days:int lead_units:dec base_on:date base_value:dec anchor_on:date anchor_value:dec snoozed_until:date snoozed_until_value:dec skip_next:bool active:bool created_at:ts updated_at:ts',
+      'id:uuid thing_id:uuid place_id:uuid name:text every_months:int every_units:dec meter_id:uuid due_on:date lead_days:int lead_units:dec base_on:date base_value:dec anchor_on:date anchor_value:dec snoozed_until:date snoozed_until_value:dec skip_next:bool active:bool created_at:ts updated_at:ts kind:text',
     omit: 'location_id created_by row_version change_seq',
     thingRefs: ['x.thing_id'],
   },

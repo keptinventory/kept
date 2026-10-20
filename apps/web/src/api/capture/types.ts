@@ -512,7 +512,12 @@ export type LabelBatchPreview = {
 };
 
 /** GET /api/v1/labels/summary?locationId: Home's checklist and the labels screen. */
-export type LabelSummary = { unprinted: number; blankUnclaimed: number };
+export type LabelSummary = {
+  unprinted: number;
+  blankUnclaimed: number;
+  /** Things with a code (in the place asked for, with `placeId`). */
+  things?: number;
+};
 
 /** POST /api/v1/codes/:code/claim (D43). */
 export type ClaimBody =

@@ -6,7 +6,7 @@
 import type { SnapPlace, SnapshotPage, SnapThing } from '@kept/shared';
 import { describe, expect, it } from 'vitest';
 import { MemoryStore } from '@/offline/store';
-import { expectedFor } from './expected';
+import { areasFor, expectedFor } from './expected';
 
 const HOME = '01926f00-0000-7000-8000-00000000e001';
 const UNPLACED = '01926f00-0000-7000-8000-00000000e0ff';
@@ -55,6 +55,14 @@ async function phone() {
     onShelf: thing({ placeId: SHELF }),
     loose: thing({ placeId: UNPLACED }),
     sold: thing({ placeId: GARAGE, lifecycle: 'sold' }),
+    // An archived thing (1.13's lifecycle) is in no count's list: never expected, never missing.
+    archived: thing({ placeId: GARAGE, lifecycle: 'archived' as SnapThing['lifecycle'] }),
+    lent: thing({
+      placeId: SHELF,
+      quantity: '6',
+      derived: ['lent'],
+      loan: { direction: 'out', personName: 'Murdock', dueOn: null },
+    }),
     draft: thing({ placeId: GARAGE, reviewState: 'draft' }),
     trashed: thing({ placeId: GARAGE, deleted: true }),
   };
@@ -104,8 +112,27 @@ describe('expectedFor', () => {
       name: 'Garage',
       inside: true,
     });
-    expect(ids(list)).toEqual(ids([t.onGarage, t.box, t.inBox, t.onShelf]));
+    expect(ids(list)).toEqual(ids([t.onGarage, t.box, t.inBox, t.onShelf, t.lent]));
     expect(list.find((x) => x.id === t.onGarage.id)?.barcode).toBe('5901234123457');
+    // What a count needs to never call it missing, and to count it in number.
+    expect(list.find((x) => x.id === t.lent.id)).toMatchObject({
+      quantity: '6',
+      derived: ['lent'],
+      loan: { personName: 'Murdock' },
+    });
+    expect(list.some((x) => x.id === t.archived.id || x.id === t.sold.id)).toBe(false);
+  });
+
+  it("a count's areas: the place and the places inside it", async () => {
+    const { store } = await phone();
+    const areas = await areasFor(store, {
+      kind: 'place',
+      id: GARAGE,
+      locationId: HOME,
+      name: 'Garage',
+      inside: true,
+    });
+    expect(areas.map((a) => a.name)).toEqual(['Garage', 'Shelf B']);
   });
 
   it('a place alone: what is directly there and in its boxes', async () => {
@@ -139,6 +166,6 @@ describe('expectedFor', () => {
       locationId: HOME,
       name: 'Home',
     });
-    expect(ids(list)).toEqual(ids([t.onGarage, t.box, t.inBox, t.onShelf, t.loose]));
+    expect(ids(list)).toEqual(ids([t.onGarage, t.box, t.inBox, t.onShelf, t.loose, t.lent]));
   });
 });
