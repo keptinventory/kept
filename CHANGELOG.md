@@ -3,6 +3,16 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.11.1 (2026-10-20)
+
+### Fixes
+
+- **map:** a place's own card, the map paints before WebGL, README what's next (#198) (3021926)
+
+### Documentation
+
+- **release:** the 1.11.0 record (#196) (fe24d07)
+
 ## 1.11.0 (2026-10-20)
 
 ### Features
