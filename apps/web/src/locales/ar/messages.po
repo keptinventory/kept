@@ -25669,3 +25669,47 @@ msgstr "المسح"
 #: src/components/capture/room-tray.tsx
 msgid "No AI runs in this demo"
 msgstr "لا يعمل الذكاء الاصطناعي في هذا العرض التجريبي"
+
+#: src/map/labels.ts
+msgid "Mini PC"
+msgstr "كمبيوتر صغير"
+
+#: src/map/labels.ts
+msgid "NAS"
+msgstr "جهاز تخزين شبكي (NAS)"
+
+#: src/map/labels.ts
+msgid "Raspberry Pi or SBC"
+msgstr "راسبيري باي أو حاسوب لوحة واحدة"
+
+#: src/map/labels.ts
+msgid "Network switch"
+msgstr "سويتش شبكة"
+
+#: src/map/labels.ts
+msgid "Patch panel"
+msgstr "لوحة توصيل الشبكة"
+
+#: src/map/labels.ts
+msgid "UPS"
+msgstr "مزود طاقة احتياطي (UPS)"
+
+#: src/map/labels.ts
+msgid "Server rack 24U"
+msgstr "خزانة سيرفر ٢٤ وحدة"
+
+#: src/map/labels.ts
+msgid "Server rack 42U"
+msgstr "خزانة سيرفر ٤٢ وحدة"
+
+#: src/map/labels.ts
+msgid "Wall rack 6U"
+msgstr "خزانة شبكة حائط ٦ وحدات"
+
+#: src/map/labels.ts
+msgid "Wall rack 12U"
+msgstr "خزانة شبكة حائط ١٢ وحدة"
+
+#: src/map/shapes.tsx
+msgid "Missing a shape? <0>Request it</0>, or browse the <1>shape library</1>."
+msgstr "ينقصك شكل؟ <0>اطلبه</0>، أو تصفّح <1>مكتبة الأشكال</1>."
