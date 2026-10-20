@@ -25713,3 +25713,52 @@ msgstr "Wall rack 12U"
 #: src/map/shapes.tsx
 msgid "Missing a shape? <0>Request it</0>, or browse the <1>shape library</1>."
 msgstr "Missing a shape? <0>Request it</0>, or browse the <1>shape library</1>."
+
+#: src/routes/_app/help.tsx
+msgid "{count, plural, one {# chapter} other {# chapters}}"
+msgstr "{count, plural, one {# chapter} other {# chapters}}"
+
+#: src/components/hints/hint-copy.ts
+msgid "Chapter {c} of {n}"
+msgstr "Chapter {c} of {n}"
+
+#: src/components/hints/hint-copy.ts
+msgid "step {done} of {total}"
+msgstr "step {done} of {total}"
+
+#: src/routes/_app/help.tsx
+msgid "Chapters done: {doneCount} of {total}"
+msgstr "Chapters done: {doneCount} of {total}"
+
+#: src/routes/_app/help.tsx
+msgid "Continue the tour"
+msgstr "Continue the tour"
+
+#: src/components/hints/hint-copy.ts
+msgid "Next: {chapter}"
+msgstr "Next: {chapter}"
+
+#: src/routes/_app/help.tsx
+msgid "One after another, on the real screens. Stop any time."
+msgstr "One after another, on the real screens. Stop any time."
+
+#: src/components/hints/hint-copy.ts
+msgid "One chapter per section. Start at any of them here, or tap Show me on its page."
+msgstr "One chapter per section. Start at any of them here, or tap Show me on its page."
+
+#: src/routes/_app/help.tsx
+msgid "Start here"
+msgstr "Start here"
+
+#: src/components/hints/hint-copy.ts
+msgid "Stop here"
+msgstr "Stop here"
+
+#: src/routes/_app/help.tsx
+msgid "Take the tour"
+msgstr "Take the tour"
+
+#: src/components/hints/hint-copy.ts
+#: src/routes/_app/help.tsx
+msgid "The tour"
+msgstr "The tour"

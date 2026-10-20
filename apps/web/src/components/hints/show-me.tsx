@@ -1,8 +1,8 @@
 /**
- * "Show me" in a page's header: starts that section's tour right there (Help → Tours lists them
- * all). Quiet on purpose, a small text button with the help icon; it isn't there for a tour the
- * person doesn't have (a module that's off, a viewer's write-only tour), and stands down while
- * a tour runs.
+ * "Show me" in a page's header: starts that section's chapter of the tour right there (Help lists
+ * them all); at the chapter's end Continue goes on into the next. Quiet on purpose, a small text
+ * button with the help icon; it isn't there for a chapter the person doesn't have (a module
+ * that's off, a viewer's write-only chapter), and stands down while the tour runs.
  */
 import type { TourId } from '@kept/shared';
 import { Trans } from '@lingui/react/macro';

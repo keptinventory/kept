@@ -1,6 +1,6 @@
 // @vitest-environment node
 /**
- * Every tour's anchors are on their screens. Each step names the route it opens and the
+ * Every chapter's anchors are on their screens. Each step names the route it opens and the
  * `data-tour` it points at; this reads the route's file (TanStack's file routes: `/loc/$id` is
  * routes/_app/loc.$id.tsx, `/settings` is settings.index.tsx, a stop that stays put is the app
  * shell's layout route) and the modules it imports, static and `import()`ed alike (the map and a

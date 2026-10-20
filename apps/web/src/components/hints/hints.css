@@ -57,13 +57,28 @@
   flex-wrap: wrap;
 }
 
+.kept-tour .kept-tour-next {
+  margin-block: 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
 .kept-tour .driver-popover-progress-text {
   font-size: 13px;
   color: var(--ink-3);
 }
 
+/*
+ * driver.css's `all: unset` makes the footer buttons static. They hold their own 44 px touch area
+ * (the ::after in styles/index.css, on a touch screen), so they have to be its containing block:
+ * static, the next button's area covered the whole popover and every tap on it, Back included,
+ * ran Next.
+ */
 .kept-hint .driver-popover-footer-btn,
 .kept-tour .driver-popover-footer-btn {
+  position: relative;
   font: inherit;
   font-size: 14px;
   font-weight: 600;

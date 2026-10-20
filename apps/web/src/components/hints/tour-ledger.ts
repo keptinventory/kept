@@ -1,9 +1,10 @@
 /**
- * Tour-data ledger for Help's Tours. While a tour runs, every sample it makes and every
- * micro-action records what it created; the finish step reads the ledger: empty means no
- * prompt, just Done, and non-empty means the Keep/Discard dialog (`tour-keep.tsx`). Discard
- * deletes exactly these ids, newest first, through a deleter the tour engine wires to the
- * existing delete fetchers — no new endpoint, and never anything the tour didn't create.
+ * Tour-data ledger for Help's tour. While the tour runs (one chapter or several), every sample
+ * it makes and every micro-action records what it created; the end of the run reads the ledger:
+ * empty means no prompt, just Done, and non-empty means the Keep/Discard dialog
+ * (`tour-keep.tsx`). Discard deletes exactly these ids, newest first, through a deleter the tour
+ * engine wires to the existing delete fetchers — no new endpoint, and never anything the tour
+ * didn't create.
  */
 
 /** What a tour can create: a sample thing or move (tour-subjects.ts), a capture batch, a place or

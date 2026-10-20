@@ -33,6 +33,7 @@ import {
   physicalAlign,
   physicalSide,
 } from './placement';
+import { tourFooterButton } from './tour-button';
 
 /** The body class while a tour runs: hints.css lets taps through the overlay under it. */
 export const TOUR_BODY_CLASS = 'kept-tour-open';
@@ -155,6 +156,10 @@ export type TourSpec = {
     /** "2 of 4", in the reader's digits. */
     progress: (current: number, total: number) => string;
   };
+  /** A line under the words, at a chapter's end: "Next: The 3D map". */
+  upNext?: string;
+  /** A second way out beside the done button, at a chapter's end: "Stop here". */
+  stop?: { label: string; onPress: () => void };
   /** The tour ended: `completed` when "Done" was used on the last step. */
   onEnd: (completed: boolean) => void;
   /** Where focus goes back to when the tour ends (the button that started it). */
@@ -180,6 +185,14 @@ export function runTour(spec: TourSpec): Shown {
         popover.closeButton.setAttribute('aria-label', labels.close);
         // textContent, not driver.js's `progressText` (innerHTML, Western digits only).
         popover.progress.textContent = labels.progress(i + 1, total);
+        if (spec.upNext) {
+          const line = document.createElement('p');
+          line.className = 'kept-tour-next';
+          line.textContent = spec.upNext;
+          popover.description.after(line);
+        }
+        const stop = spec.stop;
+        if (stop) popover.nextButton.before(tourFooterButton('stop', stop.label, stop.onPress));
       },
     },
   }));

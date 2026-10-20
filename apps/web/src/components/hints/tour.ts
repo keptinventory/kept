@@ -1,7 +1,12 @@
 /**
- * The tour engine for Help's Tours (tours.ts): started from Help or a page's Show me, never on
- * launch. One tour runs at a time, whichever button started it.
+ * The tour engine for Help's tour (tours.ts): one tour in chapters, started from Help (Take the
+ * tour, Continue the tour, a chapter's Start here) or a page's Show me, never on launch. One run
+ * at a time, whichever button started it.
  *
+ * - A run starts at a chapter and walks on through the chapters after it that the person has.
+ *   A chapter's last step names the next ("Next: The 3D map"): Continue goes straight into its
+ *   first step, Stop here ends the run. The last chapter ends with Done.
+ * - The popover counts both: "Chapter 3 of 12 · step 2 of 5". Back stays inside the chapter.
  * - Each step names the route it opens and the `data-tour="<anchor>"` it points at, per layout
  *   where they differ. The first anchor on screen wins; a step whose anchor never shows (a
  *   module that is off, an empty page) is passed over, and drops out of the count.
@@ -9,9 +14,11 @@
  *   it had to make is in the ledger, offered for Keep or Discard at the end (tour-keep.tsx).
  * - **Never in the way:** taps outside the highlighted element reach the page (driver-kit.ts).
  *   Going somewhere the tour didn't take you ends it, where you are.
- * - **Done:** finishing, or closing at the last step, records `help.tours.<tour>` on the server
- *   (@kept/shared `tourKey`), so Help shows it as Done on every device. A short tour doesn't
- *   resume part-way: it starts from the top.
+ * - **Done:** going past a chapter's last step (Continue, Stop here, Done), or closing there,
+ *   records `help.tours.<chapter>` on the server (@kept/shared `tourKey`), so Help shows it as
+ *   Done on every device and Continue the tour picks up at the first chapter not done. A chapter
+ *   doesn't resume part-way: it starts from its top.
+ * - Samples are offered for Keep or Discard once, when the run ends, whatever chapters it crossed.
  * - While it runs no hint shows.
  */
 
@@ -29,13 +36,15 @@ import { keys } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
 import { WIDE } from '@/lib/media';
 import type { Shown } from './driver-kit';
-import { useTourCopy, useTourStepCopy } from './hint-copy';
+import { useTourCopy, useTourStepCopy, useTourTitles } from './hint-copy';
 import { pageIsRtl, prefersReducedMotion } from './placement';
+import { tourFooterButton } from './tour-button';
 import { TourKeepHost } from './tour-keep';
 import { type TourDeleter, tourLedger } from './tour-ledger';
 import { tourRequests, usePendingTour, useRunningTour } from './tour-request';
 import { resolveSubject, type TourContext } from './tour-subjects';
 import {
+  type AvailableTour,
   availableTours,
   stopFor,
   type TourLayout,
@@ -131,6 +140,22 @@ function stopPath(stop: TourStop, params: Record<string, string> | undefined): s
 }
 
 /**
+ * Whether two pathnames are the same page. The tour's own path is percent-escaped
+ * (`encodeURIComponent`), the router's may not be (a location named in Arabic has an Arabic
+ * slug), so both are compared decoded.
+ */
+function samePath(a: string, b: string): boolean {
+  const decoded = (p: string) => {
+    try {
+      return decodeURIComponent(p);
+    } catch {
+      return p;
+    }
+  };
+  return a === b || decoded(a) === decoded(b);
+}
+
+/**
  * Discard through the existing endpoints only: Trash-move for things and places, the location
  * delete, the capture batch undo (the batch's synced drafts go to the trash), and a sample move's
  * delete (it has no boxes; the row version is read first, as the delete asks for it).
@@ -159,17 +184,25 @@ export const tourDeleter: TourDeleter = async (kind, id) => {
 
 type Run = {
   alive: boolean;
+  /** The chapter on screen. */
   tourId: TourId;
+  /** Every chapter this person has, in order, and the index of the one on screen. */
+  chapters: AvailableTour[];
+  chapter: number;
   /** Bumps on every move: stale async continuations stand down. */
   seq: number;
+  /** The steps of the chapter on screen. */
   steps: TourStep[];
   context: TourContext;
   /** Each subject once per run: a sample is made at most once. */
   subjects: Map<TourSubject, Promise<string | null>>;
   shownAny: boolean;
-  /** The last step is on screen: closing it now counts as done. */
+  /** A step of the chapter on screen has shown: going past its end counts it as done. */
+  shownInChapter: boolean;
+  /** The chapter's last step is on screen: closing it now counts as done. */
   atLast: boolean;
-  /** Passed over for a missing anchor or subject: Back and Next jump these; they leave the count. */
+  /** Passed over in this chapter for a missing anchor or subject: Back and Next jump these; they
+   * leave the count. */
   skipped: Set<number>;
   highlight: Shown | null;
   /** A programmatic destroy is coming: its onEnd is the engine's own echo, not the person. */
@@ -242,16 +275,7 @@ function injectBackButton(run: Run, seq: number, label: string, onBack: () => vo
     const bar = document.querySelector('.driver-popover .driver-popover-navigation-btns');
     if (!bar) return false;
     if (bar.querySelector('[data-tour-btn="back"]')) return true;
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'driver-popover-footer-btn';
-    button.dataset.tourBtn = 'back';
-    button.textContent = label;
-    button.addEventListener('click', (e) => {
-      e.preventDefault();
-      onBack();
-    });
-    bar.prepend(button);
+    bar.prepend(tourFooterButton('back', label, onBack));
     return true;
   };
   if (place()) return;
@@ -277,10 +301,11 @@ function injectBackButton(run: Run, seq: number, label: string, onBack: () => vo
 /** How a tour starts: where focus goes back to, and what the page it was started on is about. */
 export type TourStart = { returnFocus?: HTMLElement | null; context?: TourContext };
 
-/** `start(id)` runs that tour from its first step. */
+/** `start(id)` runs the tour from that chapter's first step, on through the chapters after it. */
 export function useTour() {
   const copy = useTourStepCopy();
   const labels = useTourCopy().labels;
+  const titles = useTourTitles();
   const mark = useMarkHint();
   const navigate = useNavigate();
   const router = useRouter();
@@ -331,8 +356,8 @@ export function useTour() {
     if (back?.isConnected) back.focus();
   };
 
-  /** Past the last step, closed early, or walked away: done once it got to its last step,
-   * then Keep/Discard when the run added something, otherwise straight to done. */
+  /** Stopped, past the last chapter, closed early, or walked away: the chapter is done once it got
+   * to its last step, then Keep/Discard when the run added something, otherwise straight to done. */
   const endTour = (run: Run) => {
     if (!run.alive) return;
     if (run.atLast) void mark(tourKey(run.tourId), { seen: true, dismissed: true });
@@ -378,9 +403,36 @@ export function useTour() {
     return found;
   };
 
+  /** Chapter `k` is on screen from its first step. */
+  const enterChapter = (run: Run, k: number) => {
+    const next = run.chapters[k];
+    if (!next) return;
+    run.chapter = k;
+    run.tourId = next.tour.id;
+    run.steps = next.steps;
+    run.skipped = new Set<number>();
+    run.atLast = false;
+    run.shownInChapter = false;
+    tourRequests.setRunning(next.tour.id);
+  };
+
+  /** Past a chapter's last step: it's done, and the next one starts; after the last, the end. */
+  const pastChapter = (run: Run, locations: readonly LocationDetail[]) => {
+    if (run.shownInChapter) void mark(tourKey(run.tourId), { seen: true, dismissed: true });
+    // Recorded here: the end of the run mustn't record it again.
+    run.atLast = false;
+    if (run.chapter + 1 >= run.chapters.length) {
+      endTour(run);
+      return Promise.resolve<'shown' | 'ended'>('ended');
+    }
+    enterChapter(run, run.chapter + 1);
+    return step(run, locations, 0);
+  };
+
   /**
-   * Show step `i`: find its subject, navigate (unless `stay`), wait for its anchor, highlight
-   * it. Past the end, finish. `stay` re-points at the same step after its target re-rendered.
+   * Show step `i` of the chapter on screen: find its subject, navigate (unless `stay`), wait for
+   * its anchor, highlight it. Past the chapter's end, the next chapter. `stay` re-points at the
+   * same step after its target re-rendered.
    */
   const step = async (
     run: Run,
@@ -395,10 +447,7 @@ export function useTour() {
       return step(run, locations, i + 1);
     };
     if (!run.alive) return 'ended';
-    if (i >= run.steps.length) {
-      endTour(run);
-      return 'ended';
-    }
+    if (i >= run.steps.length) return pastChapter(run, locations);
     // Known to have nothing to show: jump it without another navigate and anchor wait.
     if (run.skipped.has(i)) return step(run, locations, i + 1);
     const here = run.steps[i];
@@ -424,7 +473,7 @@ export function useTour() {
             ...(stop.search
               ? {
                   search: ((prev: Record<string, unknown>) =>
-                    path === router.state.location.pathname
+                    samePath(path, router.state.location.pathname)
                       ? { ...prev, ...stop.search }
                       : stop.search) as never,
                 }
@@ -442,12 +491,17 @@ export function useTour() {
     const entry = copy[stop.copyId ?? `${run.tourId}.${here.id}`];
     if (!entry) return skip();
     run.shownAny = true;
+    run.shownInChapter = true;
     // "n of m" counts the steps that can show: one passed over leaves the total, so the last
     // one reads "m of m".
     const before = [...run.skipped].filter((k) => k < i).length;
     const position = i + 1 - before;
     const total = run.steps.length - run.skipped.size;
     const isLast = forwardTo(run, i) >= run.steps.length;
+    // At a chapter's last step, the chapter Continue opens; none after the last chapter.
+    const upNext = isLast ? run.chapters[run.chapter + 1] : undefined;
+    const chapterNo = run.chapter + 1;
+    const chapters = run.chapters.length;
     driverKit ??= await import('./driver-kit');
     const kit = driverKit;
     if (!live()) return 'ended';
@@ -461,11 +515,23 @@ export function useTour() {
       dock: stop.dock ?? 'bottom',
       labels: {
         ...labels,
-        // A single step always renders the done label: Next until the last step.
-        done: isLast ? labels.done : labels.next,
-        // Progress counts the run's steps, not this one-element step list.
-        progress: () => labels.progress(position, total),
+        // A single step always renders the done label: Next until the chapter's last step, then
+        // Continue into the next chapter, or Done after the last one.
+        done: isLast ? (upNext ? labels.continue : labels.done) : labels.next,
+        // Progress counts the chapter's steps, not this one-element step list.
+        progress: () => labels.chapterProgress(chapterNo, chapters, position, total),
       },
+      ...(upNext
+        ? {
+            upNext: labels.upNext(titles[upNext.tour.id]),
+            stop: {
+              label: labels.stop,
+              onPress: () => {
+                if (run.alive && run.seq === seq) endTour(run);
+              },
+            },
+          }
+        : {}),
       returnFocus: run.returnFocus,
       onEnd: (completed) => {
         run.highlight = null;
@@ -537,16 +603,21 @@ export function useTour() {
         }
       }
       const known = locations ?? [];
-      const steps = availableTours(known).find((x) => x.tour.id === tourId)?.steps ?? [];
-      if (steps.length === 0) return false;
+      const chapters = availableTours(known);
+      const at = chapters.findIndex((x) => x.tour.id === tourId);
+      const first = chapters[at];
+      if (!first) return false;
       const run: Run = {
         alive: true,
         tourId,
+        chapters,
+        chapter: at,
         seq: 0,
-        steps,
+        steps: first.steps,
         context,
         subjects: new Map(),
         shownAny: false,
+        shownInChapter: false,
         atLast: false,
         skipped: new Set<number>(),
         highlight: null,
@@ -566,7 +637,7 @@ export function useTour() {
       // thing's tab) stays on the page and keeps it.
       run.stopWatching = router.subscribe('onResolved', ({ toLocation }) => {
         if (!run.alive || run.dialogOpen) return;
-        if (run.expectPath !== null && toLocation.pathname !== run.expectPath) endTour(run);
+        if (run.expectPath !== null && !samePath(toLocation.pathname, run.expectPath)) endTour(run);
       });
       hintSlot.take('tour');
       tourLedger.clear();
@@ -579,7 +650,7 @@ export function useTour() {
         return false;
       }
     },
-    [copy, labels, mark, navigate, router, qc, t],
+    [copy, labels, titles, mark, navigate, router, qc, t],
   );
   return { start, running };
 }

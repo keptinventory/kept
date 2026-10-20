@@ -1,9 +1,9 @@
 /**
- * The tours' copy in English and Arabic, and the navigate-then-highlight engine against a light
+ * The tour's copy in English and Arabic, and the navigate-then-highlight engine against a light
  * route tree built from TOURS: Next, Back, the arrows, passing over a missing anchor, closing,
- * Done, a navigation the tour didn't make, samples and Keep/Discard, and taps that reach the
- * page. Gating is tours.test.ts's; every anchor's presence in the real screens is
- * tour-anchors.test.ts's.
+ * a chapter's end (Continue into the next, or Stop here), Done at the last chapter, a navigation
+ * the tour didn't make, samples and Keep/Discard once per run, and taps that reach the page.
+ * Gating is tours.test.ts's; every anchor's presence in the real screens is tour-anchors.test.ts's.
  */
 
 import { type ModuleId, TOUR_IDS, type TourId } from '@kept/shared';
@@ -25,6 +25,7 @@ import { keys } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
 import { AppProviders } from '@/app-providers';
 import { activateLocale } from '@/i18n/i18n';
+import { setDigits, setLocale } from '@/lib/prefs';
 import { renderUI } from '@/test/render';
 import { type HintCopy, useTourCopy, useTourStepCopy, useTourTitles } from './hint-copy';
 import {
@@ -66,6 +67,32 @@ describe('the tour popover labels', () => {
       expect(seen.current?.labels.next, 'next').toBeTruthy();
       expect(seen.current?.labels.done, 'done').toBeTruthy();
       expect(seen.current?.labels.close, 'close').toBeTruthy();
+      expect(seen.current?.labels.continue, 'continue').toBeTruthy();
+      expect(seen.current?.labels.stop, 'stop').toBeTruthy();
+    });
+  }
+
+  for (const [locale, line, chapter, next] of [
+    ['en', 'Chapter 3 of 12 · step 2 of 5', 'The 3D map', 'Next: The 3D map'],
+    [
+      'ar',
+      'الفصل ٣ من ١٢، الخطوة ٢ من ٥',
+      'الخريطة ثلاثية الأبعاد',
+      'التالي: الخريطة ثلاثية الأبعاد',
+    ],
+  ] as const) {
+    it(`reads the chapter and the step in ${locale}, in its digits and separator`, async () => {
+      // The digits and the separator follow the reader's prefs, as the app sets them.
+      setLocale(locale);
+      setDigits('eastern');
+      try {
+        const seen: { current: ReturnType<typeof useTourCopy> | null } = { current: null };
+        await renderUI(<LabelsProbe onCopy={(c) => (seen.current = c)} />, { locale });
+        expect(seen.current?.labels.chapterProgress(3, 12, 2, 5)).toBe(line);
+        expect(seen.current?.labels.upNext(chapter)).toBe(next);
+      } finally {
+        setLocale('en');
+      }
     });
   }
 });
@@ -324,11 +351,14 @@ afterEach(() => {
 });
 
 const BASICS = ['needs', 'locations', 'scan', 'search', 'more', 'tours'];
+/** OWNER_LOCS's chapters: Basics, Things & places, The 3D map, Capture & Inbox, Scanning,
+ * Search & labels, Import & export and Settings & sharing (no module tours but Labels' step). */
+const CHAPTERS = 8;
 const BASICS_PATHS = ['/', '/', '/', '/search', '/more', '/help'];
 
 describe('useTour', () => {
   it(
-    'walks Basics step by step, counts them, and records it done on Done',
+    'walks Basics step by step, counts them, and records it done on Stop here',
     async () => {
       const { user, router, calls, copy } = await renderTour();
       expect(await startTour('basics')).toBe(true);
@@ -336,10 +366,14 @@ describe('useTour', () => {
       expect(tourRequests.running()).toBe('basics');
       for (const [k, id] of BASICS.entries()) {
         const dialog = await stepDialog(copy, `basics.${id}`);
-        expect(dialog).toHaveTextContent(`${k + 1} of ${BASICS.length}`);
+        expect(dialog).toHaveTextContent(
+          `Chapter 1 of ${CHAPTERS} · step ${k + 1} of ${BASICS.length}`,
+        );
         expect(pathOf(router)).toBe(BASICS_PATHS[k]);
         const last = k === BASICS.length - 1;
-        await user.click(within(dialog).getByRole('button', { name: last ? 'Done' : 'Next' }));
+        if (last) expect(dialog).toHaveTextContent('Next: Things & places');
+        else expect(within(dialog).queryByRole('button', { name: 'Stop here' })).toBeNull();
+        await user.click(within(dialog).getByRole('button', { name: last ? 'Stop here' : 'Next' }));
       }
       await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
       expect(putsTo(calls, 'help.tours.basics')).toEqual([{ seen: true, dismissed: true }]);
@@ -348,6 +382,110 @@ describe('useTour', () => {
       expect(document.activeElement).toBe(probe.el);
       // Nothing was made: no write but the hint.
       expect(calls.filter((c) => c.method !== 'GET' && c.method !== 'PUT')).toEqual([]);
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'goes on into the next chapter with Continue, recording the one it finished',
+    async () => {
+      const { user, router, calls, copy } = await renderTour();
+      await startTour('basics');
+      for (const id of BASICS.slice(0, -1)) {
+        const d = await stepDialog(copy, `basics.${id}`);
+        await user.click(within(d).getByRole('button', { name: 'Next' }));
+      }
+      const end = await stepDialog(copy, 'basics.tours');
+      await user.click(within(end).getByRole('button', { name: 'Continue' }));
+      const first = await stepDialog(copy, 'things.add');
+      expect(first).toHaveTextContent(`Chapter 2 of ${CHAPTERS} · step 1 of 5`);
+      expect(pathOf(router)).toMatch(/^\/loc\/[^/]+$/);
+      // The first step of a chapter has nothing before it in the chapter: no Back.
+      expect(within(first).queryByRole('button', { name: 'Back' })).toBeNull();
+      expect(putsTo(calls, 'help.tours.basics')).toEqual([{ seen: true, dismissed: true }]);
+      expect(putsTo(calls, 'help.tours.things')).toEqual([]);
+      expect(tourRequests.running()).toBe('things');
+      expect(hintSlot.get()).toBe('tour');
+      // Closing part-way through this chapter leaves it unfinished, for Continue the tour.
+      act(() => {
+        fireEvent.keyDown(window, { key: 'Escape' });
+      });
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(putsTo(calls, 'help.tours.things')).toEqual([]);
+      expect(tourRequests.running()).toBeNull();
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'ends the last chapter with Done, offering nothing after it',
+    async () => {
+      const { user, calls, copy } = await renderTour();
+      await startTour('settings');
+      const ids = ['notifications', 'locations', 'invite', 'track'];
+      for (const [k, id] of ids.entries()) {
+        const d = await stepDialog(copy, `settings.${id}`);
+        expect(d).toHaveTextContent(`Chapter ${CHAPTERS} of ${CHAPTERS} · step ${k + 1} of 4`);
+        if (k < ids.length - 1) {
+          await user.click(within(d).getByRole('button', { name: 'Next' }));
+          continue;
+        }
+        expect(d).not.toHaveTextContent('Next:');
+        expect(within(d).queryByRole('button', { name: 'Stop here' })).toBeNull();
+        await user.click(within(d).getByRole('button', { name: 'Done' }));
+      }
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(putsTo(calls, 'help.tours.settings')).toEqual([{ seen: true, dismissed: true }]);
+      expect(tourRequests.running()).toBeNull();
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'offers Keep or Discard once, at the end of the run, for a sample made chapters before',
+    async () => {
+      const { user, calls, copy } = await renderTour({ api: empty });
+      await startTour('things');
+      for (const id of ['add', 'contents', 'where', 'actions']) {
+        const d = await stepDialog(copy, `things.${id}`);
+        await user.click(within(d).getByRole('button', { name: 'Next' }));
+      }
+      const tabs = await stepDialog(copy, 'things.tabs');
+      expect(tabs).toHaveTextContent('Next: The 3D map');
+      await user.click(within(tabs).getByRole('button', { name: 'Continue' }));
+      // No Keep/Discard between chapters: the run goes on, the sample still in its ledger.
+      expect(await stepDialog(copy, 'map.layout')).toHaveTextContent(
+        `Chapter 3 of ${CHAPTERS} · step 1 of 5`,
+      );
+      expect(screen.queryByRole('dialog', { name: 'Keep what you added?' })).toBeNull();
+      expect(tourLedger.list()).toEqual([{ kind: 'thing', id: 't-new' }]);
+      expect(putsTo(calls, 'help.tours.things')).toEqual([{ seen: true, dismissed: true }]);
+      act(() => {
+        fireEvent.keyDown(window, { key: 'Escape' });
+      });
+      const keep = await screen.findByRole('dialog', { name: 'Keep what you added?' });
+      expect(keep).toHaveTextContent('1 item');
+      await user.click(within(keep).getByRole('button', { name: 'Keep' }));
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(calls.filter((c) => /trash$/.test(c.url))).toEqual([]);
+      expect(putsTo(calls, 'help.tours.map')).toEqual([]);
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'keeps going on a location whose id has letters a URL escapes',
+    async () => {
+      // An Arabic location name makes an Arabic slug: the tour's own move there isn't a walk-away.
+      const { user, router, copy } = await renderTour({
+        locations: [loc('المنزل-0000b002', 'owner', ['labels'])],
+      });
+      await startTour('things');
+      const add = await stepDialog(copy, 'things.add');
+      expect(decodeURIComponent(pathOf(router))).toBe('/loc/المنزل-0000b002');
+      await user.click(within(add).getByRole('button', { name: 'Next' }));
+      expect(await stepDialog(copy, 'things.contents')).toHaveTextContent('step 2 of 5');
+      expect(tourRequests.running()).toBe('things');
     },
     ENGINE_TIMEOUT,
   );
@@ -501,7 +639,7 @@ describe('useTour', () => {
         { locationId: 'loc-1', placeId: 'u-1', name: 'Sample: Cordless drill' },
       ]);
       expect(tourLedger.list()).toEqual([{ kind: 'thing', id: 't-new' }]);
-      await user.click(within(last).getByRole('button', { name: 'Done' }));
+      await user.click(within(last).getByRole('button', { name: 'Stop here' }));
       const keep = await screen.findByRole('dialog', { name: 'Keep what you added?' });
       expect(keep).toHaveTextContent('1 item');
       expect(tourRequests.running()).toBe('things');

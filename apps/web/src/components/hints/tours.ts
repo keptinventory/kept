@@ -1,5 +1,7 @@
 /**
- * Help's Tours: Basics, and one short tour per section. Each step stands on a real screen and
+ * Help's tour, in chapters: Basics, and one short chapter per section, walked one after another
+ * (Continue at a chapter's end goes on into the next). Each chapter is a `Tour` here, with its own
+ * `help.tours.<id>` progress key. Each step stands on a real screen and
  * points at a real control (`data-tour="<anchor>"`); its words are in hint-copy.ts under
  * `<tour>.<step>`. Data only: the engine that walks them is tour.ts.
  *
@@ -279,10 +281,10 @@ export function stepsFor(tour: Tour, gating: TourGating): TourStep[] {
   );
 }
 
-/** A tour this person has, with the steps they get. */
+/** A chapter this person has, with the steps they get. */
 export type AvailableTour = { tour: Tour; steps: TourStep[] };
 
-/** The tours this person has, in Help's order: one with no steps left isn't one. */
+/** The chapters this person has, in the tour's order: one with no steps left isn't one. */
 export function availableTours(locations: readonly LocationDetail[]): AvailableTour[] {
   const gating = gatingOf(locations);
   return TOURS.map((tour) => ({ tour, steps: stepsFor(tour, gating) })).filter(
@@ -294,4 +296,15 @@ export function tourById(id: TourId): Tour {
   const tour = TOURS.find((t) => t.id === id);
   if (!tour) throw new Error(`no tour ${id}`);
   return tour;
+}
+
+/**
+ * Where Continue the tour picks up: the first of `chapters` not done, in order; the first when
+ * every one is done (the tour starts again), or null with none.
+ */
+export function resumeAt(
+  chapters: readonly AvailableTour[],
+  done: (id: TourId) => boolean,
+): TourId | null {
+  return (chapters.find((c) => !done(c.tour.id)) ?? chapters[0])?.tour.id ?? null;
 }

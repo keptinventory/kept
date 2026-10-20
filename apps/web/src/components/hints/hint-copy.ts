@@ -74,8 +74,8 @@ export function useTourStepCopy(): Record<string, HintCopy> {
       t`Every section, one click away. A module shows here once it's on in one of your locations.`,
     ),
     'basics.tours': e(
-      t`Tours`,
-      t`One short tour per section. Replay any of them here, or tap Show me on its page.`,
+      t`The tour`,
+      t`One chapter per section. Start at any of them here, or tap Show me on its page.`,
     ),
 
     'things.add': e(t`Add here`, t`Add a thing, a box or a room to this location.`),
@@ -216,7 +216,7 @@ export function useTourStepCopy(): Record<string, HintCopy> {
   };
 }
 
-/** Each tour's name, as Help lists it. */
+/** Each chapter's name, as Help lists it. */
 export function useTourTitles(): Record<TourId, string> {
   const { t } = useLingui();
   return {
@@ -246,10 +246,23 @@ export function useTourCopy() {
       previous: t`Previous`,
       done: t`Done`,
       close: t`Close`,
+      /** At a chapter's last step: on into the next chapter, or end the tour there. */
+      continue: t`Continue`,
+      stop: t`Stop here`,
+      /** The chapter that Continue opens. */
+      upNext: (chapter: string) => t`Next: ${chapter}`,
       progress: (current: number, all: number) => {
         const done = f.num(current);
         const total = f.num(all);
         return t`${done} of ${total}`;
+      },
+      /** "Chapter 3 of 12 · step 2 of 5", in the reader's digits and separator. */
+      chapterProgress: (chapter: number, chapters: number, current: number, all: number) => {
+        const c = f.num(chapter);
+        const n = f.num(chapters);
+        const done = f.num(current);
+        const total = f.num(all);
+        return `${t`Chapter ${c} of ${n}`}${f.sep}${t`step ${done} of ${total}`}`;
       },
     },
   };
