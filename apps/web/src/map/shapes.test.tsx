@@ -1,9 +1,9 @@
-import { MAP_MODEL_KEYS, type ShapeInput } from '@kept/shared';
+import { MAP_MODEL_KEYS, mapModel, type ShapeInput } from '@kept/shared';
 import { act, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { expectLogicalOnly, renderUI } from '@/test/render';
 import { ShapeField, ShapePicker } from './shapes';
-import { THUMB_CELLS } from './thumbs/sprite';
+import { THUMB_CELLS, THUMB_HEIGHTS_CM } from './thumbs/sprite';
 
 const tv: ShapeInput = {
   name: 'Living room 55"',
@@ -33,6 +33,25 @@ describe('the shape sprite (D249)', () => {
     const cells = MAP_MODEL_KEYS.map((k) => THUMB_CELLS[k]);
     expect(cells.every((c) => Number.isInteger(c))).toBe(true);
     expect(new Set(cells).size).toBe(MAP_MODEL_KEYS.length);
+  });
+
+  it('measures every shape’s height as drawn, the homelab ones at their catalogue height', () => {
+    for (const k of MAP_MODEL_KEYS) expect(THUMB_HEIGHTS_CM[k], k).toBeGreaterThan(0);
+    for (const k of [
+      'rack_wall_6u',
+      'rack_wall_12u',
+      'rack_24u',
+      'rack_42u',
+      'mini_pc',
+      'nas',
+      'sbc',
+      'network_switch',
+      'patch_panel',
+      'ups',
+    ] as const) {
+      const h = (mapModel(k).h ?? 0) * 100;
+      expect(Math.abs(THUMB_HEIGHTS_CM[k] - h) / h, k).toBeLessThan(0.1);
+    }
   });
 });
 

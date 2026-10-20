@@ -4,7 +4,8 @@
 // packed by sharp into one WebP sprite with a transparent background, and an index of its cells:
 //
 //   src/map/thumbs/shapes.webp   one cell per shape, CELL px square, COLS per row
-//   src/map/thumbs/sprite.ts     the cell size, the columns and each shape's cell
+//   src/map/thumbs/sprite.ts     the cell size, the columns, each shape's cell, and its height as
+//                                drawn (the docs' shape library prints it)
 //
 // Dev only: run it after adding or changing a shape, and commit both outputs
 // (`node apps/web/scripts/render-map-thumbs.mjs`). The picker loads the sprite only when it opens.
@@ -39,6 +40,7 @@ const browser = await chromium.launch({
   args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
 });
 let thumbs;
+let heights;
 try {
   const page = await browser.newPage();
   page.on('pageerror', (e) => console.error(e.message));
@@ -47,6 +49,7 @@ try {
   const err = await page.evaluate(() => window.thumbsError);
   if (err) throw new Error(err);
   thumbs = await page.evaluate(() => window.thumbs);
+  heights = await page.evaluate(() => window.heights);
 } finally {
   await browser.close();
   await server.close();
@@ -99,6 +102,11 @@ export const THUMB_ROWS = ${rows};
 /** Each shape's cell, row by row. */
 export const THUMB_CELLS: Readonly<Record<MapModelKey, number>> = {
 ${keys.map((k, i) => `  ${k}: ${i},`).join('\n')}
+};
+
+/** Each shape's height as drawn, in centimetres, from its rendered bounds. */
+export const THUMB_HEIGHTS_CM: Readonly<Record<MapModelKey, number>> = {
+${keys.map((k) => `  ${k}: ${heights[k]},`).join('\n')}
 };
 `,
 );

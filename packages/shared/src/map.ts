@@ -266,10 +266,23 @@ export const MAP_MODELS = {
   tablet: { w: 0.25, d: 0.18, h: 0.01, kind: 'thing', small: true },
   power_strip: { w: 0.3, d: 0.06, h: 0.04, kind: 'thing', small: true },
   external_drive: { w: 0.08, d: 0.12, h: 0.02, kind: 'thing', small: true },
+  // Homelab gear (#171), drawn at typical retail sizes. A mini PC the size of a NUC; a four-bay
+  // NAS; a Raspberry Pi in its case; a 19-inch 24-port switch and a patch panel, each 1U (4.4 cm)
+  // high, the panel with its rack ears; a tower UPS.
+  mini_pc: { w: 0.12, d: 0.12, h: 0.05, kind: 'thing', small: true },
+  nas: { w: 0.2, d: 0.22, h: 0.17, kind: 'thing', small: true },
+  sbc: { w: 0.09, d: 0.065, h: 0.03, kind: 'thing', small: true },
+  network_switch: { w: 0.44, d: 0.18, h: 0.044, kind: 'thing', small: true },
+  patch_panel: { w: 0.48, d: 0.05, h: 0.044, kind: 'thing', small: true },
+  ups: { w: 0.1, d: 0.36, h: 0.24, kind: 'thing', small: true },
   /** A small gadget with no model of its own (a hub, a thermostat, a charger): D249. */
   device: { w: 0.2, d: 0.14, h: 0.1, kind: 'thing', small: true },
   chair: { w: 0.66, d: 0.66, kind: 'furniture' },
   cabinet: { w: 0.47, d: 0.62, kind: 'storage', holds: true },
+  // Server racks (#171): 19-inch cabinets that hold the gear inside them, standing on the floor.
+  // A 24U is a half-height rack, a 42U a full one.
+  rack_24u: { w: 0.6, d: 0.8, h: 1.2, kind: 'storage', holds: true },
+  rack_42u: { w: 0.6, d: 1.0, h: 2.0, kind: 'storage', holds: true },
   box: { w: 0.6, d: 0.4, kind: 'storage', holds: true, small: true, top: 0.34 },
   washer: { w: 0.6, d: 0.6, kind: 'thing' },
   workbench: { w: 1.8, d: 0.7, kind: 'furniture', top: 0.92, holds: true },
@@ -297,6 +310,9 @@ export const MAP_MODELS = {
   wall_shelf: { w: 0.8, d: 0.22, h: 0.04, kind: 'storage', top: 0.04, holds: true, wall: 1.5 },
   /** A kitchen wall cabinet, its bottom about 50 cm above a counter. */
   wall_cabinet: { w: 0.8, d: 0.35, h: 0.7, kind: 'storage', holds: true, wall: 1.75 },
+  /** Wall-mounted 19-inch racks (#171), 6U and 12U, holding the gear inside them. */
+  rack_wall_6u: { w: 0.6, d: 0.4, h: 0.37, kind: 'storage', holds: true, wall: 1.5 },
+  rack_wall_12u: { w: 0.6, d: 0.4, h: 0.64, kind: 'storage', holds: true, wall: 1.4 },
   /** A framed picture or a mirror. */
   picture: { w: 0.7, d: 0.03, h: 0.5, kind: 'thing', wall: 1.5 },
   clock: { w: 0.3, d: 0.05, h: 0.3, kind: 'thing', wall: 1.8 },

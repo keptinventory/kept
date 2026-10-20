@@ -247,7 +247,17 @@ describe('things on a wall (#138)', () => {
 
   it('has the wall shapes, at real sizes, each with where its middle hangs', () => {
     expect([...WALL_MODELS].sort()).toEqual(
-      ['clock', 'hooks', 'picture', 'tool_wall', 'wall_cabinet', 'wall_shelf', 'wall_tv'].sort(),
+      [
+        'clock',
+        'hooks',
+        'picture',
+        'rack_wall_12u',
+        'rack_wall_6u',
+        'tool_wall',
+        'wall_cabinet',
+        'wall_shelf',
+        'wall_tv',
+      ].sort(),
     );
     for (const k of WALL_MODELS) {
       const m = mapModel(k);

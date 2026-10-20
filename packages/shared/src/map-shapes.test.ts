@@ -9,6 +9,7 @@ import {
   type ShapeInput,
   searchShapes,
   shapeOnAdd,
+  shapeWordsByLang,
   suggestShapes,
 } from './map-shapes.js';
 
@@ -402,7 +403,7 @@ describe('suggestShapes: a notebook is a laptop, notebooks and paper ones are no
 });
 
 describe('suggestShapes: things with no shape of their own', () => {
-  it.each(['Thermostat', 'Raspberry Pi', 'Ladegerät', 'Video doorbell', 'كاشف دخان'])(
+  it.each(['Thermostat', 'Smart hub', 'Ladegerät', 'Video doorbell', 'كاشف دخان'])(
     '%s gets the small device, suggested but not given by itself',
     (name) => {
       const s = suggestShapes({ name });
@@ -621,5 +622,181 @@ describe('suggestShapes: things on a wall (#138)', () => {
       'tool_wall',
     ] as const)
       expect(SHAPE_GROUP[k], k).toBe('wall');
+  });
+});
+
+describe('suggestShapes: homelab gear and server racks (#171)', () => {
+  const HOMELAB = [
+    'rack_wall_6u',
+    'rack_wall_12u',
+    'rack_24u',
+    'rack_42u',
+    'mini_pc',
+    'nas',
+    'sbc',
+    'network_switch',
+    'patch_panel',
+    'ups',
+  ] as const;
+  const RACKS = ['rack_wall_6u', 'rack_wall_12u', 'rack_24u', 'rack_42u'] as const;
+
+  it.each([
+    ['Intel NUC', 'mini_pc'],
+    ['Mac mini', 'mini_pc'],
+    ['Mini PC', 'mini_pc'],
+    ['Mini-Rechner', 'mini_pc'],
+    ['Synology DS923+', 'nas'],
+    ['NAS', 'nas'],
+    ['Netzwerkspeicher', 'nas'],
+    ['Raspberry Pi 5', 'sbc'],
+    ['Orange Pi', 'sbc'],
+    ['Einplatinencomputer', 'sbc'],
+    ['راسبيري باي', 'sbc'],
+    ['8-port switch', 'network_switch'],
+    ['PoE switch', 'network_switch'],
+    ['Netzwerk-Switch', 'network_switch'],
+    ['Switch réseau', 'network_switch'],
+    ['سويتش شبكة', 'network_switch'],
+    ['Patch panel', 'patch_panel'],
+    ['Panneau de brassage', 'patch_panel'],
+    ['Patchfeld', 'patch_panel'],
+    ['APC UPS', 'ups'],
+    ['Onduleur', 'ups'],
+    ['USV', 'ups'],
+    ['Gruppo di continuità', 'ups'],
+    ['12U wall rack', 'rack_wall_12u'],
+    ['Wall rack 6U', 'rack_wall_6u'],
+    ['6HE Wandverteiler', 'rack_wall_6u'],
+    ['Rack 42U', 'rack_42u'],
+    ['Server rack 24U', 'rack_24u'],
+    ['42HE Serverschrank', 'rack_42u'],
+  ] as const)('%s gets the %s, given by itself', (name, model) => {
+    const s = suggestShapes({ name });
+    expect(s.shapes[0]).toMatchObject({ model, from: 'name' });
+    expect(s.confident).toBe(true);
+  });
+
+  it('suggests every rack for a plain server rack, the wall ones for a wall rack, and gives none', () => {
+    for (const name of ['Server rack', 'Serverschrank', 'Baie serveur', 'خزانة سيرفر']) {
+      const s = suggestShapes({ name });
+      expect(s.confident, name).toBe(false);
+      expect(
+        s.shapes
+          .slice(0, 4)
+          .map((x) => x.model)
+          .sort(),
+        name,
+      ).toEqual([...RACKS].sort());
+    }
+    const wall = suggestShapes({ name: 'Wall rack' });
+    expect(wall.confident).toBe(false);
+    expect(
+      wall.shapes
+        .slice(0, 2)
+        .map((x) => x.model)
+        .sort(),
+    ).toEqual(['rack_wall_12u', 'rack_wall_6u']);
+  });
+
+  it('keeps a plain rack a shelf, a Switch a console and raspberries food', () => {
+    expect(first({ name: 'Rack' })).toBe('metal_shelf');
+    expect(first({ name: 'Shoe rack' })).toBe('metal_shelf');
+    expect(first({ name: 'Nintendo Switch' })).toBe('console');
+    expect(first({ name: 'نينتندو سويتش' })).toBe('console');
+    expect(first({ name: 'Raspberry jam' })).not.toBe('sbc');
+    expect(first({ name: 'Light switch' })).not.toBe('network_switch');
+    expect(first({ name: 'Switch' })).not.toBe('network_switch');
+  });
+
+  it('gives a size word the shape its family word could only suggest', () => {
+    // "Wall rack" names both wall racks; "12U" says which.
+    expect(shapeOnAdd({ name: 'StarTech 12U wall-mount rack' })).toEqual({
+      model: 'rack_wall_12u',
+      from: 'name',
+    });
+    // The same for speakers: "Echo" says which speaker.
+    expect(shapeOnAdd({ name: 'Echo speaker' })).toEqual({ model: 'smart_speaker', from: 'name' });
+  });
+
+  it('draws them at their real sizes', () => {
+    // [width, depth, height] in centimetres, within a fifth either way.
+    const sizes: Record<(typeof HOMELAB)[number], [number, number, number]> = {
+      rack_wall_6u: [60, 40, 37],
+      rack_wall_12u: [60, 40, 64],
+      rack_24u: [60, 80, 120],
+      rack_42u: [60, 100, 200],
+      mini_pc: [12, 12, 5],
+      nas: [20, 22, 17],
+      sbc: [9, 6.5, 3],
+      network_switch: [44, 18, 4.4],
+      patch_panel: [48, 5, 4.4],
+      ups: [10, 36, 24],
+    };
+    for (const [key, [w, d, h]] of Object.entries(sizes)) {
+      const m = mapModel(key as MapModelKey);
+      expect(m.w * 100, key).toBeCloseTo(w, -0.7);
+      expect(m.d * 100, key).toBeCloseTo(d, -0.7);
+      expect((m.h ?? 0) * 100, key).toBeCloseTo(h, -0.7);
+      // Drawn in code: nothing to download.
+      expect(m.glb, key).toBeUndefined();
+    }
+  });
+
+  it('puts racks with storage, wall racks on the wall, and the gear with electronics', () => {
+    expect(SHAPE_GROUP.rack_24u).toBe('storage');
+    expect(SHAPE_GROUP.rack_42u).toBe('storage');
+    expect(SHAPE_GROUP.rack_wall_6u).toBe('wall');
+    expect(SHAPE_GROUP.rack_wall_12u).toBe('wall');
+    for (const k of RACKS) {
+      const m = mapModel(k);
+      expect(m.kind, k).toBe('storage');
+      expect(m.holds, k).toBe(true);
+      expect(m.top, k).toBeUndefined();
+    }
+    expect(mapModel('rack_wall_6u').wall).toBeGreaterThan(1);
+    expect(mapModel('rack_wall_12u').wall).toBeGreaterThan(1);
+    for (const k of HOMELAB.filter((x) => !RACKS.includes(x as (typeof RACKS)[number]))) {
+      expect(SHAPE_GROUP[k], k).toBe('electronics');
+      expect(mapModel(k).small, k).toBe(true);
+      expect(mapModel(k).kind, k).toBe('thing');
+    }
+  });
+
+  it('ranks them from a network device or computer type', () => {
+    const net = suggestShapes({ name: 'Office', typeKey: 'network_device' }).shapes.map(
+      (s) => s.model,
+    );
+    expect(net.slice(0, 3)).toEqual(['router', 'network_switch', 'nas']);
+    const pc = suggestShapes({ name: 'Office', typeKey: 'computer' }).shapes.map((s) => s.model);
+    expect(pc).toContain('mini_pc');
+    expect(pc[0]).toBe('laptop');
+  });
+
+  it('no longer stands in the small device for a NAS or a Raspberry Pi', () => {
+    expect(SHAPE_WORDS.device).not.toContain('nas');
+    expect(SHAPE_WORDS.device).not.toContain('raspberry pi');
+  });
+
+  it('finds them by search in five languages', () => {
+    const racks = searchShapes('rack');
+    for (const k of RACKS) expect(racks, k).toContain(k);
+    expect(searchShapes('nas')[0]).toBe('nas');
+    expect(searchShapes('switch')).toContain('network_switch');
+    expect(searchShapes('ondul', {}, 'fr')[0]).toBe('ups');
+    expect(searchShapes('patchf', {}, 'de')[0]).toBe('patch_panel');
+    expect(searchShapes('continuit', {}, 'it')[0]).toBe('ups');
+    expect(searchShapes('راسبيري', {}, 'ar')[0]).toBe('sbc');
+  });
+
+  it('lists each shape’s words by language, as written', () => {
+    const w = shapeWordsByLang('ups');
+    expect(w.en).toContain('ups');
+    expect(w.fr).toContain('onduleur');
+    expect(w.de).toContain('usv');
+    expect(w.it).toContain('gruppo di continuità');
+    expect(w.ar.length).toBeGreaterThan(0);
+    for (const k of HOMELAB)
+      for (const lang of ['en', 'ar', 'fr', 'de', 'it'] as const)
+        expect(shapeWordsByLang(k)[lang].length, `${k} ${lang}`).toBeGreaterThan(0);
   });
 });

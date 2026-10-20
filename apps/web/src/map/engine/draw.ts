@@ -453,6 +453,104 @@ function armBase(g: THREE.Object3D, w: number, d: number, F: Materials) {
   cy(g, 0.022, 0.022, 0.025, w / 2, 0.42, d / 2, F.black, 0, 0, 16);
 }
 
+/** One rack unit, in metres: 1.75 inches. */
+const RACK_U = 0.04445;
+
+type RackKey = 'rack_wall_6u' | 'rack_wall_12u' | 'rack_24u' | 'rack_42u';
+const RACK_UNITS: Readonly<Record<RackKey, number>> = {
+  rack_wall_6u: 6,
+  rack_wall_12u: 12,
+  rack_24u: 24,
+  rack_42u: 42,
+};
+
+/**
+ * A 19-inch rack (#171), its back at z = 0 and its base at y = 0: steel sides, top and back, the
+ * mounting rails behind a glass door, and gear in the top units (a patch panel, a switch, servers)
+ * so it reads as a rack, not a cupboard. One on the floor (not on a wall) stands on a plinth with
+ * casters.
+ */
+function rack(g: THREE.Object3D, key: RackKey, F: Materials) {
+  const m = mapModel(key);
+  const { w, d } = m;
+  const h = m.h ?? RACK_UNITS[key] * RACK_U;
+  const units = RACK_UNITS[key];
+  const floor = m.wall === undefined;
+  const base = floor ? 0.07 : 0.025;
+  const t = 0.018;
+  if (floor) {
+    rb(g, w, base - 0.02, d, w / 2, (base - 0.02) / 2 + 0.02, d / 2, F.black, 0.006);
+    for (const x of [0.06, w - 0.06])
+      for (const z of [0.08, d - 0.08])
+        cy(g, 0.022, 0.022, 0.02, x, 0.02, z, F.rubber, 0, Math.PI / 2, 12);
+  } else rb(g, w, base, d, w / 2, base / 2, d / 2, F.black, 0.004);
+  for (const x of [t / 2, w - t / 2])
+    rb(g, t, h - base, d, x, base + (h - base) / 2, d / 2, F.black, 0.004);
+  rb(g, w, 0.03, d, w / 2, h - 0.015, d / 2, F.black, 0.006);
+  rb(g, w - 2 * t, h - base - 0.03, 0.012, w / 2, base + (h - base - 0.03) / 2, 0.006, F.mesh, 0);
+  // The rails, 19 inches apart, 8 cm behind the door.
+  const rail = d - 0.08;
+  for (const x of [w / 2 - 0.233, w / 2 + 0.233])
+    rb(
+      g,
+      0.016,
+      h - base - 0.05,
+      0.012,
+      x,
+      base + (h - base - 0.05) / 2 + 0.01,
+      rail,
+      F.steel,
+      0.002,
+    );
+  // Gear in the top units: a patch panel, a switch, then 2U servers, down to about half the rack.
+  const top = h - 0.04;
+  const filled = Math.max(2, Math.round(units * 0.55));
+  let u = 0;
+  let k = 0;
+  while (u < filled) {
+    const kind = k === 0 ? 'panel' : k === 1 ? 'switch' : 'server';
+    const n = kind === 'server' ? Math.min(2, filled - u) : 1;
+    const uh = n * RACK_U - 0.003;
+    const y = top - (u + n / 2) * RACK_U;
+    if (y - uh / 2 < base + 0.01) break;
+    const deep = kind === 'server' ? Math.min(d - 0.14, 0.55) : kind === 'switch' ? 0.18 : 0.05;
+    rb(g, 0.482, uh, 0.006, w / 2, y, rail + 0.009, kind === 'server' ? F.steel : F.black, 0.002);
+    rb(g, 0.44, uh, deep, w / 2, y, rail - deep / 2, F.black, 0.003);
+    if (kind === 'panel' || kind === 'switch') {
+      const ports = kind === 'panel' ? 24 : 16;
+      for (let i = 0; i < ports; i++)
+        rb(
+          g,
+          0.011,
+          0.009,
+          0.002,
+          w / 2 - 0.19 + (i * 0.38) / (ports - 1),
+          y,
+          rail + 0.013,
+          kind === 'panel' ? F.label : F.void,
+          0,
+        );
+      if (kind === 'switch')
+        for (let i = 0; i < 4; i++)
+          sp(g, 0.0022, w / 2 + 0.205, y - 0.012 + i * 0.008, rail + 0.013, F.green);
+    } else {
+      for (let i = 0; i < 4; i++)
+        rb(g, 0.09, uh - 0.012, 0.003, w / 2 - 0.15 + i * 0.1, y, rail + 0.013, F.keys, 0.001);
+      sp(g, 0.003, w / 2 + 0.205, y, rail + 0.013, F.glow);
+    }
+    u += n;
+    k++;
+  }
+  // The glass door with its frame and handle.
+  const dh = h - base - 0.03;
+  const dy = base + dh / 2;
+  rb(g, w - 0.03, dh - 0.03, 0.005, w / 2, dy, d - 0.004, F.glass, 0);
+  for (const x of [0.012, w - 0.012]) rb(g, 0.024, dh, 0.014, x, dy, d - 0.007, F.black, 0.003);
+  for (const y of [base + 0.012, base + dh - 0.012])
+    rb(g, w, 0.024, 0.014, w / 2, y, d - 0.007, F.black, 0.003);
+  rb(g, 0.014, Math.min(0.12, dh * 0.3), 0.02, w - 0.04, dy, d + 0.006, F.chrome, 0.005);
+}
+
 /** The drawn models by name (MAP_MODELS' own key, or a `simple` stand-in's). */
 export function drawnModels(F: Materials): Record<string, Build> {
   const BUILD: Record<string, Build> = {
@@ -977,6 +1075,74 @@ export function drawnModels(F: Materials): Record<string, Build> {
       rb(g, w - 0.012, 0.002, d - 0.012, w / 2, 0.0175, d / 2, F.blackGloss, 0.001);
       sp(g, 0.0016, w / 2, 0.009, d + 0.0002, F.glow);
       rb(g, 0.012, 0.004, 0.002, w / 2, 0.008, -0.0005, F.void, 0);
+    },
+    // ---- Homelab gear (#171): each at its catalogue size, front towards +z -----------------------
+    /** A mini PC the size of a NUC: a low rounded box, a power light and two USB ports. */
+    mini_pc(g, w, d) {
+      rb(g, w, 0.048, d, w / 2, 0.024, d / 2, F.steel, 0.01);
+      rb(g, w - 0.006, 0.004, d - 0.006, w / 2, 0.049, d / 2, F.black, 0.003);
+      sp(g, 0.0022, w * 0.82, 0.03, d + 0.0005, F.glow);
+      for (const x of [w * 0.25, w * 0.42])
+        rb(g, 0.013, 0.006, 0.002, x, 0.022, d + 0.0005, F.void, 0);
+    },
+    /** A four-bay NAS: a dark body, four drive trays behind its front and a row of lights. */
+    nas(g, w, d) {
+      rb(g, w, 0.165, d, w / 2, 0.0825, d / 2, F.black, 0.01);
+      const bay = (w - 0.03) / 4;
+      for (let i = 0; i < 4; i++) {
+        const x = 0.015 + bay * (i + 0.5);
+        rb(g, bay - 0.006, 0.13, 0.004, x, 0.08, d + 0.001, F.keys, 0.002);
+        sp(g, 0.0022, x, 0.152, d + 0.001, F.green);
+      }
+    },
+    /** A Raspberry Pi in its case: red below, white above, the ports on its sides. */
+    sbc(g, w, d) {
+      rb(g, w, 0.016, d, w / 2, 0.008, d / 2, F.red, 0.006);
+      rb(g, w, 0.013, d, w / 2, 0.0225, d / 2, F.white, 0.006);
+      for (let i = 0; i < 3; i++)
+        rb(g, 0.002, 0.012, 0.014, w + 0.0005, 0.012, 0.012 + i * 0.019, F.chrome, 0);
+      for (const x of [0.02, 0.04, 0.06]) rb(g, 0.012, 0.004, 0.002, x, 0.01, -0.0005, F.void, 0);
+    },
+    /** A 1U 24-port switch: two rows of ports and their lights. */
+    network_switch(g, w, d) {
+      rb(g, w, 0.042, d, w / 2, 0.021, d / 2, F.steel, 0.004);
+      rb(g, w - 0.01, 0.034, 0.003, w / 2, 0.021, d + 0.0005, F.black, 0.002);
+      for (let row = 0; row < 2; row++)
+        for (let i = 0; i < 12; i++) {
+          const x = 0.08 + i * 0.022;
+          rb(g, 0.014, 0.011, 0.002, x, 0.013 + row * 0.015, d + 0.002, F.void, 0);
+          sp(g, 0.0015, x + 0.006, 0.02 + row * 0.015 - 0.003, d + 0.002, F.green);
+        }
+      sp(g, 0.0025, 0.03, 0.021, d + 0.002, F.glow);
+    },
+    /** A 1U patch panel with its rack ears: a shallow box, 24 white keystone ports. */
+    patch_panel(g, w, d) {
+      rb(g, w, 0.044, 0.004, w / 2, 0.022, d - 0.002, F.black, 0.002);
+      rb(g, w - 0.04, 0.04, d - 0.004, w / 2, 0.022, (d - 0.004) / 2, F.black, 0.003);
+      for (let i = 0; i < 24; i++)
+        rb(g, 0.011, 0.012, 0.002, w / 2 - 0.19 + (i * 0.38) / 23, 0.02, d + 0.0005, F.label, 0);
+      for (const x of [0.01, w - 0.01])
+        cy(g, 0.0035, 0.0035, 0.002, x, 0.022, d + 0.0005, F.chrome, Math.PI / 2, 0, 10);
+    },
+    /** A tower UPS: a dark box, a small lit screen and the power button on its front. */
+    ups(g, w, d) {
+      rb(g, w, 0.235, d, w / 2, 0.1175, d / 2, F.black, 0.012);
+      rb(g, w - 0.02, 0.05, 0.003, w / 2, 0.18, d + 0.0005, F.screenLit, 0.002);
+      cy(g, 0.009, 0.009, 0.004, w / 2, 0.13, d + 0.002, F.chrome, Math.PI / 2, 0, 16);
+      sp(g, 0.002, w / 2, 0.11, d + 0.002, F.green);
+    },
+    rack_24u(g) {
+      rack(g, 'rack_24u', F);
+    },
+    rack_42u(g) {
+      rack(g, 'rack_42u', F);
+    },
+    /** Wall racks hang with their back on the wall (#138, #171). */
+    rack_wall_6u(g) {
+      rack(g, 'rack_wall_6u', F);
+    },
+    rack_wall_12u(g) {
+      rack(g, 'rack_wall_12u', F);
     },
     /** A small gadget (D249): a dark rounded body, a lens and a status light on its front. */
     device(g, w, d) {

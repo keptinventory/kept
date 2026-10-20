@@ -98,9 +98,17 @@ export const SHAPE_GROUP: Readonly<Record<MapModelKey, ShapeGroup>> = {
   tablet: 'electronics',
   power_strip: 'electronics',
   external_drive: 'electronics',
+  mini_pc: 'electronics',
+  nas: 'electronics',
+  sbc: 'electronics',
+  network_switch: 'electronics',
+  patch_panel: 'electronics',
+  ups: 'electronics',
   device: 'electronics',
   chair: 'furniture',
   cabinet: 'storage',
+  rack_24u: 'storage',
+  rack_42u: 'storage',
   box: 'storage',
   washer: 'kitchen',
   workbench: 'tools',
@@ -108,6 +116,8 @@ export const SHAPE_GROUP: Readonly<Record<MapModelKey, ShapeGroup>> = {
   wall_tv: 'wall',
   wall_shelf: 'wall',
   wall_cabinet: 'wall',
+  rack_wall_6u: 'wall',
+  rack_wall_12u: 'wall',
   picture: 'wall',
   clock: 'wall',
   hooks: 'wall',
@@ -144,6 +154,62 @@ const SPEAKER = [
   'سماعات',
   'مكبر صوت',
   'سبيكر',
+] as const;
+
+/** What every server rack answers to (#171): "Server rack" alone could be any size, so it suggests
+ * them all and gives none by itself; "12U" or "42HE" says which. */
+const RACK = [
+  'server rack',
+  'network rack',
+  'rack cabinet',
+  'server cabinet',
+  'network cabinet',
+  'data cabinet',
+  '19 inch rack',
+  'baie serveur',
+  'baie informatique',
+  'baie réseau',
+  'armoire réseau',
+  'armoire serveur',
+  'serverschrank',
+  'netzwerkschrank',
+  'serverrack',
+  '19 zoll schrank',
+  'armadio rack',
+  'armadio di rete',
+  'rack di rete',
+  'خزانة سيرفر',
+  'خزانة شبكة',
+  'كابينة شبكة',
+  'راك',
+] as const;
+
+/** What both wall-mounted racks answer to. */
+const WALL_RACK = [
+  ...RACK,
+  'wall rack',
+  'wall mount rack',
+  'wall mounted rack',
+  'wall mount cabinet',
+  'wall rack cabinet',
+  'baie murale',
+  'coffret mural',
+  'wandverteiler',
+  'wandgehäuse',
+  'armadio rack a muro',
+  'راك حائط',
+  'خزانة شبكة حائط',
+] as const;
+
+/** What both floor-standing racks answer to. */
+const FLOOR_RACK = [
+  ...RACK,
+  'floor rack',
+  'floor standing rack',
+  'baie sur pied',
+  'standschrank',
+  'armadio rack a pavimento',
+  'راك أرضي',
 ] as const;
 
 export const SHAPE_WORDS: Readonly<Record<MapModelKey, readonly string[]>> = {
@@ -884,6 +950,7 @@ export const SHAPE_WORDS: Readonly<Record<MapModelKey, readonly string[]>> = {
     'بلايستيشن',
     'جهاز ألعاب',
     'اكس بوكس',
+    'نينتندو سويتش',
   ],
   controller: [
     'controller',
@@ -980,12 +1047,100 @@ export const SHAPE_WORDS: Readonly<Record<MapModelKey, readonly string[]>> = {
     'قرص صلب',
     'فلاشة',
   ],
+  mini_pc: [
+    'mini pc',
+    'mini computer',
+    'nuc',
+    'intel nuc',
+    'mac mini',
+    'thin client',
+    'tiny pc',
+    'micro pc',
+    'beelink',
+    'minisforum',
+    'mini ordinateur',
+    'mini rechner',
+    'computer compatto',
+    'ميني بي سي',
+    'كمبيوتر صغير',
+  ],
+  nas: [
+    'nas',
+    'network storage',
+    'network attached storage',
+    'nas server',
+    'synology',
+    'qnap',
+    'diskstation',
+    'serveur nas',
+    'stockage réseau',
+    'netzwerkspeicher',
+    'nas laufwerk',
+    'archiviazione di rete',
+    'جهاز تخزين شبكي',
+    'خادم تخزين',
+  ],
+  sbc: [
+    'raspberry pi',
+    'single board computer',
+    'sbc',
+    'orange pi',
+    'rock pi',
+    'odroid',
+    'arduino',
+    'ordinateur monocarte',
+    'nano ordinateur',
+    'einplatinencomputer',
+    'computer a scheda singola',
+    'راسبيري باي',
+    'حاسوب لوحة واحدة',
+  ],
+  // Never "switch" alone: that is as often a Nintendo Switch or a light switch.
+  network_switch: [
+    'network switch',
+    'ethernet switch',
+    'lan switch',
+    'poe switch',
+    'gigabit switch',
+    'managed switch',
+    'unmanaged switch',
+    'port switch',
+    'switch réseau',
+    'switch ethernet',
+    'commutateur réseau',
+    'netzwerk switch',
+    'netzwerkswitch',
+    'switch di rete',
+    'سويتش',
+    'سويتش شبكة',
+    'موزع شبكة',
+  ],
+  patch_panel: [
+    'patch panel',
+    'patchpanel',
+    'keystone panel',
+    'panneau de brassage',
+    'patchfeld',
+    'pannello patch',
+    'باتش بانل',
+    'لوحة توصيل الشبكة',
+  ],
+  ups: [
+    'ups',
+    'battery backup',
+    'uninterruptible power supply',
+    'onduleur',
+    'usv',
+    'unterbrechungsfreie stromversorgung',
+    'gruppo di continuità',
+    'gruppo di continuita',
+    'يو بي اس',
+    'مزود طاقة احتياطي',
+  ],
   device: [
     'gadget',
     'hub',
     'smart hub',
-    'raspberry pi',
-    'nas',
     'remote',
     'remote control',
     'tv remote',
@@ -1063,6 +1218,8 @@ export const SHAPE_WORDS: Readonly<Record<MapModelKey, readonly string[]>> = {
     'صندوق تخزين',
     'علبة',
   ],
+  rack_24u: [...FLOOR_RACK, '24u', '24 u', '24he', '24u rack', 'half rack', 'half height rack'],
+  rack_42u: [...FLOOR_RACK, '42u', '42 u', '42he', '42u rack', 'full rack', 'full height rack'],
   washer: [
     'washing machine',
     'washer',
@@ -1151,6 +1308,8 @@ export const SHAPE_WORDS: Readonly<Record<MapModelKey, readonly string[]>> = {
     'خزانة معلقة',
     'دولاب حائط',
   ],
+  rack_wall_6u: [...WALL_RACK, '6u', '6 u', '6he', '6u rack', '6u wall cabinet'],
+  rack_wall_12u: [...WALL_RACK, '12u', '12 u', '12he', '12u rack', '12u wall cabinet'],
   picture: [
     'picture',
     'painting',
@@ -1479,6 +1638,24 @@ export const SHAPE_WORD_LANGS: Readonly<Record<'fr' | 'de' | 'it', readonly stri
     'portemanteau',
     'réveil',
     'panneau perforé',
+    'baie serveur',
+    'baie informatique',
+    'baie réseau',
+    'armoire réseau',
+    'armoire serveur',
+    'baie murale',
+    'coffret mural',
+    'baie sur pied',
+    'mini ordinateur',
+    'serveur nas',
+    'stockage réseau',
+    'ordinateur monocarte',
+    'nano ordinateur',
+    'switch réseau',
+    'switch ethernet',
+    'commutateur réseau',
+    'panneau de brassage',
+    'onduleur',
   ],
   de: [
     'pc lautsprecher',
@@ -1644,6 +1821,26 @@ export const SHAPE_WORD_LANGS: Readonly<Record<'fr' | 'de' | 'it', readonly stri
     'hakenleiste',
     'wandgarderobe',
     'wecker',
+    'serverschrank',
+    'netzwerkschrank',
+    'serverrack',
+    '19 zoll schrank',
+    'wandverteiler',
+    'wandgehäuse',
+    'standschrank',
+    '6he',
+    '12he',
+    '24he',
+    '42he',
+    'mini rechner',
+    'netzwerkspeicher',
+    'nas laufwerk',
+    'einplatinencomputer',
+    'netzwerk switch',
+    'netzwerkswitch',
+    'patchfeld',
+    'usv',
+    'unterbrechungsfreie stromversorgung',
   ],
   it: [
     'casse pc',
@@ -1796,6 +1993,18 @@ export const SHAPE_WORD_LANGS: Readonly<Record<'fr' | 'de' | 'it', readonly stri
     'attaccapanni',
     'sveglia',
     'pannello forato',
+    'armadio rack',
+    'armadio di rete',
+    'rack di rete',
+    'armadio rack a muro',
+    'armadio rack a pavimento',
+    'archiviazione di rete',
+    'computer a scheda singola',
+    'switch di rete',
+    'pannello patch',
+    'gruppo di continuità',
+    'gruppo di continuita',
+    'computer compatto',
   ],
 };
 
@@ -1816,8 +2025,8 @@ const TYPE_SHAPES: Readonly<Record<string, TypeHint>> = {
   phone: { shapes: ['phone'], score: 0.9 },
   tablet: { shapes: ['tablet'], score: 0.9 },
   console: { shapes: ['console', 'controller'], score: 0.9 },
-  computer: { shapes: ['laptop', 'pc_tower', 'monitor', 'keyboard'], score: 0.7 },
-  network_device: { shapes: ['router', 'device'], score: 0.7 },
+  computer: { shapes: ['laptop', 'pc_tower', 'monitor', 'keyboard', 'mini_pc', 'sbc'], score: 0.7 },
+  network_device: { shapes: ['router', 'network_switch', 'nas', 'device'], score: 0.7 },
   camera: { shapes: ['camera', 'webcam', 'device'], score: 0.7 },
   device: { shapes: ['device', 'item'], score: 0.6 },
   smoke_detector: { shapes: ['device'], score: 0.6 },
@@ -1889,6 +2098,36 @@ const PHRASES: readonly Phrase[] = MAP_MODEL_KEYS.flatMap((model) =>
 type Hit = { model: MapModelKey; start: number; end: number; exact: boolean; terms: string[] };
 
 /**
+ * Phrases more than one shape answers to (a family's word: "speaker", "server rack", "wall rack",
+ * "screen"), with the shapes that do.
+ */
+const SHARED_PHRASES: ReadonlyMap<string, ReadonlySet<MapModelKey>> = (() => {
+  const owners = new Map<string, Set<MapModelKey>>();
+  for (const p of PHRASES) {
+    const key = p.terms.join(' ');
+    const set = owners.get(key) ?? new Set<MapModelKey>();
+    set.add(p.model);
+    owners.set(key, set);
+  }
+  return new Map([...owners].filter(([, set]) => set.size > 1));
+})();
+
+/**
+ * A family's word names every shape in the family; a word of one of them says which (#171): in
+ * "12U wall rack", "wall rack" names both wall racks and "12U" one, so only that one keeps the
+ * family's word. With no such word ("Wall rack"), the family's word keeps them all.
+ */
+function narrowFamilies(hits: readonly Hit[]): Hit[] {
+  const own = hits.filter((h) => !SHARED_PHRASES.has(h.terms.join(' ')));
+  return hits.filter((h) => {
+    const family = SHARED_PHRASES.get(h.terms.join(' '));
+    if (!family) return true;
+    const said = own.filter((o) => family.has(o.model));
+    return said.length === 0 || said.some((o) => o.model === h.model);
+  });
+}
+
+/**
  * Words whose plural doesn't say the same thing as the word, so a plural only suggests the shape:
  * "Notebook" is a laptop, "Notebooks" as often a pile of paper ones (and in German and Italian,
  * laptops), so it is asked about, not given.
@@ -1934,6 +2173,37 @@ const NOT_THE_SHAPE: readonly { model: MapModelKey; term: string; words: Readonl
         'ورقي',
         'حلزوني',
         'مسطر',
+      ].flatMap(words),
+    ),
+  },
+  // A "12U wall-mount rack" or a "Rack 42U" is a server rack (#171); a plain "Rack" or a "Shoe
+  // rack" stays the shelf.
+  {
+    model: 'metal_shelf',
+    term: 'rack',
+    words: new Set(
+      [
+        'server',
+        'servers',
+        'network',
+        'networking',
+        '19',
+        '10',
+        'u',
+        '6u',
+        '12u',
+        '24u',
+        '42u',
+        '6he',
+        '12he',
+        '24he',
+        '42he',
+        'serveur',
+        'réseau',
+        'netzwerk',
+        'rete',
+        'سيرفر',
+        'شبكة',
       ].flatMap(words),
     ),
   },
@@ -2071,7 +2341,7 @@ function nameScores(text: string | null | undefined): Map<MapModelKey, number> {
   const out = new Map<MapModelKey, number>();
   if (!text) return out;
   const ws = words(text);
-  const hits = hitsIn(ws).filter(
+  const hits = narrowFamilies(hitsIn(ws)).filter(
     (h) =>
       !NOT_THE_SHAPE.some(
         (r) =>
@@ -2263,6 +2533,17 @@ const FOLDED_WORDS: ReadonlyMap<MapModelKey, readonly { text: string; langs: Sha
       }),
     ]),
   );
+
+/** A shape's words as written, by language (the docs' shape library, #171). A word two languages
+ * share ("moto") is listed under both. */
+export function shapeWordsByLang(model: MapModelKey): Record<ShapeLang, string[]> {
+  const out: Record<ShapeLang, string[]> = { en: [], ar: [], fr: [], de: [], it: [] };
+  const folded = FOLDED_WORDS.get(model) ?? [];
+  SHAPE_WORDS[model].forEach((w, i) => {
+    for (const lang of folded[i]?.langs ?? []) if (!out[lang].includes(w)) out[lang].push(w);
+  });
+  return out;
+}
 
 /**
  * Shapes that match a search, best first (#130). The search meets each shape's name in the
