@@ -47,7 +47,7 @@ export const VOCABULARY: Readonly<Record<VocabularyLocale, string>> = Object.fre
 - **Location**: a home, a garage, an office. Each has members with a role (owner, admin, member, viewer), its own modules, currency and time zone.
 - **Place**: a floor, room, zone, closet or any place kind the account adds, nested inside a location.
 - **Container**: a thing that holds other things (a box, a drawer unit, a toolbox). It sits in a place or in another container.
-- **Thing**: anything kept. It has a quantity, a lifecycle (in use, sold, given away, lost, disposed, stolen, destroyed, returned to owner) and derived states (lent, borrowed, in repair, uncertain).
+- **Thing**: anything kept. It has a quantity, a lifecycle (in use, archived: still yours but put away, sold, given away, lost, disposed, stolen, destroyed, returned to owner) and derived states (lent, borrowed, in repair, uncertain).
 - **Unplaced**: a thing with no place yet.
 - **Short ID**: six characters from 0–9 and A–Z without I, L, O and U (K7D2QX). Printed on labels as K7D‑2QX; the hyphen is optional when typed.
 - **Path**: the places from the location down to a thing, as in Garage › Shelf 2 › Box 3.

@@ -40,7 +40,13 @@ import { legacyCodeOf } from '../imports/csv.js';
 // every visible thing; the door runs the match on the indexes and applies the caller's
 // visibility itself, and the rows are then read here, through the policies, by id.
 
-export const SEARCH_STATES = [...DERIVED_STATES, 'to_review', 'long_unseen', 'unplaced'] as const;
+export const SEARCH_STATES = [
+  ...DERIVED_STATES,
+  'archived',
+  'to_review',
+  'long_unseen',
+  'unplaced',
+] as const;
 export type SearchState = (typeof SEARCH_STATES)[number];
 export const SEARCH_KINDS = ['things', 'places', 'people', 'vendors', 'documents'] as const;
 export type SearchKind = (typeof SEARCH_KINDS)[number];
@@ -248,6 +254,8 @@ export const STATE_SQL: Record<SearchState, string> = {
   uncertain: 't.location_uncertain',
   draft: `t.review_state = 'draft'`,
   ended: `t.lifecycle <> 'in_use'`,
+  // Put away (still yours): one of the ended states, filtered on its own too.
+  archived: `t.lifecycle = 'archived'`,
   // Home's attention rows: readings to review, not seen for the location's
   // long_unseen_months, and things in the Unplaced area.
   to_review: `EXISTS (SELECT 1 FROM public.meters m
