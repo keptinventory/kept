@@ -44,3 +44,13 @@ export const locationSearch = listSearch(CONTENTS_FILTERS, {
   show: z.optional(z.catch(z.enum(['room', 'attention']), 'room')),
   debug: word,
 });
+
+/** A place's page (#190): a location's keys without the spreadsheet; its map opens on the place. */
+export const placeSearch = listSearch(CONTENTS_FILTERS, {
+  view: z.optional(z.catch(z.enum(['list', 'photos', 'grid', 'map']), 'list')),
+  size,
+  find: word,
+  floor: word,
+  show: z.optional(z.catch(z.enum(['room', 'attention']), 'room')),
+  debug: word,
+});

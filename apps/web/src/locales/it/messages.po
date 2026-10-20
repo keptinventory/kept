@@ -24677,3 +24677,23 @@ msgstr "Dal pavimento al centro"
 #: src/map/card.tsx
 msgid "On the wall, {hangs} m up"
 msgstr "A parete, a {hangs} m da terra"
+
+#: src/map/map-view.tsx
+msgid "<0>{place}</0> isn’t drawn on the map. It’s in <1>{holder}</1>."
+msgstr "<0>{place}</0> non compare sulla mappa. Si trova in <1>{holder}</1>."
+
+#: src/map/map-view.tsx
+msgid "<0>{place}</0> isn’t on the map"
+msgstr "<0>{place}</0> non è sulla mappa"
+
+#: src/map/map-view.tsx
+msgid "<0>{room}</0> isn’t on a floor yet. Move it into a floor to put it on one."
+msgstr "<0>{room}</0> non è ancora su nessun piano. Usa Sposta e scegli un piano."
+
+#: src/map/map-view.tsx
+msgid "Open the map of <0>{name}</0>"
+msgstr "Apri la mappa di <0>{name}</0>"
+
+#: src/map/map-view.tsx
+msgid "The map draws a location’s floors, the rooms on them and what stands in each room."
+msgstr "La mappa mostra i piani di un luogo, le stanze su ciascuno e ciò che sta in ogni stanza."

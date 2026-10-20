@@ -1,8 +1,9 @@
 /**
  * A location's layout, remembered (1.x, D237, M11): List, Grid or Map is the address's `view`
  * (D223), and Kept remembers the last one per person and location on this device, so a location
- * someone keeps as a map opens as one. List stays the default. Small and precached: the map
- * itself loads on demand (./lazy.tsx).
+ * someone keeps as a map opens as one. A place's page remembers its own (#190): Map on one room
+ * doesn't turn every other room, or the location's page, into a map. List stays the default.
+ * Small and precached: the map itself loads on demand (./lazy.tsx).
  */
 import { useLingui } from '@lingui/react/macro';
 import { useNavigate, useSearch } from '@tanstack/react-router';
@@ -19,7 +20,8 @@ const LAYOUTS: readonly string[] = ['grid', 'map', 'table'];
 const layoutOf = (v: unknown): LocationLayout =>
   typeof v === 'string' && LAYOUTS.includes(v) ? (v as LocationLayout) : 'list';
 
-const keyOf = (userId: string, locationId: string) => `kept.loc.view.${userId}.${locationId}`;
+const keyOf = (userId: string, locationId: string, placeId?: string) =>
+  placeId ? `kept.place.view.${userId}.${placeId}` : `kept.loc.view.${userId}.${locationId}`;
 /** Set once a map has been opened on this device; the Map option stops shining. */
 const SEEN = 'kept.map.seen';
 function seen(): boolean {
@@ -55,8 +57,9 @@ function write(key: string, v: LocationLayout): void {
   }
 }
 
-/** The layout in the address, after restoring the remembered one on arrival. */
-export function useRememberedLayout(locationId: string): LocationLayout {
+/** The layout in the address, after restoring the remembered one on arrival: the location's, or
+ * with `placeId`, that place's page's. */
+export function useRememberedLayout(locationId: string, placeId?: string): LocationLayout {
   const search = useSearch({ strict: false }) as { view?: unknown };
   const navigate = useNavigate();
   const me = useMe();
@@ -68,7 +71,7 @@ export function useRememberedLayout(locationId: string): LocationLayout {
   const arrived = useRef(false);
   useEffect(() => {
     if (!userId) return;
-    const key = keyOf(userId, locationId);
+    const key = keyOf(userId, locationId, placeId);
     const first = !arrived.current;
     arrived.current = true;
     if (explicit || !first) {
@@ -82,17 +85,17 @@ export function useRememberedLayout(locationId: string): LocationLayout {
         search: (prev: Record<string, unknown>) => ({ ...prev, view: stored }),
         replace: true,
       });
-  }, [userId, locationId, view, explicit, navigate]);
+  }, [userId, locationId, placeId, view, explicit, navigate]);
   return view;
 }
 
 /** List · Grid · Map (· Table on a wide screen) above the map, where the list's Display menu
- * isn't. */
-export function LayoutSwitch() {
+ * isn't. A place's page has no Table (`table={false}`). */
+export function LayoutSwitch({ table = true }: { table?: boolean } = {}) {
   const { t } = useLingui();
   const navigate = useNavigate();
   const search = useSearch({ strict: false }) as { view?: unknown };
-  const wide = useMediaQuery(SHEET);
+  const wide = useMediaQuery(SHEET) && table;
   const asked = layoutOf(search.view);
   const value: LocationLayout = asked === 'table' && !wide ? 'list' : asked;
   const shine = value !== 'map' && !seen();

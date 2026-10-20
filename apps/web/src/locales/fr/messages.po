@@ -24677,3 +24677,23 @@ msgstr "Du sol à son milieu"
 #: src/map/card.tsx
 msgid "On the wall, {hangs} m up"
 msgstr "Au mur, à {hangs} m du sol"
+
+#: src/map/map-view.tsx
+msgid "<0>{place}</0> isn’t drawn on the map. It’s in <1>{holder}</1>."
+msgstr "<0>{place}</0> n’apparaît pas sur la carte. À trouver dans <1>{holder}</1>."
+
+#: src/map/map-view.tsx
+msgid "<0>{place}</0> isn’t on the map"
+msgstr "<0>{place}</0> n’est pas sur la carte"
+
+#: src/map/map-view.tsx
+msgid "<0>{room}</0> isn’t on a floor yet. Move it into a floor to put it on one."
+msgstr "<0>{room}</0> n’est encore sur aucun étage. Pour l’y mettre, utilisez « Déplacer » et choisissez un étage."
+
+#: src/map/map-view.tsx
+msgid "Open the map of <0>{name}</0>"
+msgstr "Ouvrir la carte de <0>{name}</0>"
+
+#: src/map/map-view.tsx
+msgid "The map draws a location’s floors, the rooms on them and what stands in each room."
+msgstr "La carte montre les étages d’un lieu, leurs pièces et ce qui se trouve dans chaque pièce."

@@ -7,6 +7,7 @@
 import { useLingui } from '@lingui/react/macro';
 import { lazy, Suspense } from 'react';
 import { LoadingRows, Notice } from '@/components/page';
+import type { PlaceScope } from './scope';
 
 function Unavailable() {
   const { t } = useLingui();
@@ -15,7 +16,8 @@ function Unavailable() {
 
 const Lazy = lazy(() => import('./map-view').catch(() => ({ default: Unavailable })));
 
-export function LocationMapLazy(props: { locationId: string; name: string }) {
+/** `scope`: a place's page, whose map opens on that place (#190). */
+export function LocationMapLazy(props: { locationId: string; name: string; scope?: PlaceScope }) {
   return (
     <Suspense fallback={<LoadingRows rows={3} />}>
       <Lazy {...props} />

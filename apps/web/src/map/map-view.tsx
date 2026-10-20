@@ -8,6 +8,10 @@
  * like a lift, zoom, turn and home), the card, "Places on this level" for screen readers (M9), and
  * "What's in …" below. Arrange edits a copy of the plan; Done saves the session in one PUT (and
  * moves anything dragged into another room there in Kept first), Cancel throws it away.
+ *
+ * On a place's page (`scope`, #190) the map opens on that place (./scope.ts): its floor, its room
+ * focused, or its room with it (or what holds it) selected, with a note when it isn't drawn or
+ * its room is on no floor; a place the map doesn't have gets a note and a link instead of a map.
  */
 import {
   isMapModel,
@@ -18,14 +22,15 @@ import {
 } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useSearch } from '@tanstack/react-router';
+import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { isApiError } from '@/api/client';
 import { inventoryApi, inventoryKeys } from '@/api/inventory/queries';
 import { mapApi, mapKeys, useLocationMap } from '@/api/map/queries';
 import type { MapAttentionKind, MapView as MapData, MapThingView } from '@/api/map/types';
 import { useOfferUndo } from '@/components/history/undo';
-import { ErrorState, LoadingRows, useErrorText } from '@/components/page';
+import { ErrorState, LoadingRows, Notice, useErrorText } from '@/components/page';
+import { buttonClass } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/components/ui/toast';
@@ -54,6 +59,7 @@ import {
   thingItem,
 } from './layout';
 import { addOn, type ListQuery, type ListShow, whereOf } from './list';
+import { type PlaceScope, type ScopeAt, scopeOn } from './scope';
 import { WhatsIn } from './whats-in';
 import './map.css';
 
@@ -73,14 +79,103 @@ const clone = (p: Plan): Plan => ({
   items: p.items.map((i) => ({ ...i })),
 });
 
-export default function LocationMap({ locationId, name }: { locationId: string; name: string }) {
+export default function LocationMap({
+  locationId,
+  name,
+  scope,
+}: {
+  locationId: string;
+  name: string;
+  scope?: PlaceScope;
+}) {
   const map = useLocationMap(locationId);
   if (map.isPending) return <LoadingRows />;
   if (map.error) return <ErrorState error={map.error} onRetry={() => void map.refetch()} />;
-  return <MapBody key={locationId} data={map.data} locationId={locationId} name={name} />;
+  const at = scope ? scopeOn(map.data, scope) : null;
+  if (scope && at?.at === 'off') return <OffMap scope={scope} name={name} />;
+  return (
+    <MapBody
+      key={locationId}
+      data={map.data}
+      locationId={locationId}
+      name={name}
+      scope={scope && at ? { ...scope, at } : null}
+    />
+  );
 }
 
-function MapBody({ data, locationId, name }: { data: MapData; locationId: string; name: string }) {
+/** A place the map doesn't have: what the map draws, and the way to the location's map. */
+function OffMap({ scope, name }: { scope: PlaceScope; name: string }) {
+  const place = scope.name;
+  return (
+    <Notice
+      title={
+        <Trans>
+          <bdi>{place}</bdi> isn’t on the map
+        </Trans>
+      }
+      action={
+        <Link
+          to="/loc/$id"
+          params={{ id: scope.locationAddress }}
+          search={{ view: 'map' }}
+          className={buttonClass('secondary', 'small')}
+        >
+          <Trans>
+            Open the map of <bdi>{name}</bdi>
+          </Trans>
+        </Link>
+      }
+    >
+      <Trans>
+        The map draws a location’s floors, the rooms on them and what stands in each room.
+      </Trans>
+    </Notice>
+  );
+}
+
+/** The notes above a place's map: it isn't drawn (and what it is in), or its room is on no floor. */
+function ScopeNotes({ scope, data }: { scope: PlaceScope & { at: ScopeAt }; data: MapData }) {
+  const { at } = scope;
+  if (at.at === 'off' || at.at === 'floor') return null;
+  const place = scope.name;
+  const room = data.rooms.find((r) => r.id === at.roomId)?.name ?? '';
+  const holder =
+    at.at === 'inside' && at.holderId
+      ? (data.nodes.find((n) => n.id === at.holderId)?.name ?? room)
+      : room;
+  return (
+    <>
+      {at.at === 'inside' ? (
+        <Notice>
+          <Trans>
+            <bdi>{place}</bdi> isn’t drawn on the map. It’s in <bdi>{holder}</bdi>.
+          </Trans>
+        </Notice>
+      ) : null}
+      {at.noFloor ? (
+        <Notice>
+          <Trans>
+            <bdi>{room}</bdi> isn’t on a floor yet. Move it into a floor to put it on one.
+          </Trans>
+        </Notice>
+      ) : null}
+    </>
+  );
+}
+
+function MapBody({
+  data,
+  locationId,
+  name,
+  scope,
+}: {
+  data: MapData;
+  locationId: string;
+  name: string;
+  /** A place's page: where the map opens, worked out once the map is here. */
+  scope: (PlaceScope & { at: ScopeAt }) | null;
+}) {
   const { t } = useLingui();
   const f = useFormat();
   const qc = useQueryClient();
@@ -104,8 +199,14 @@ function MapBody({ data, locationId, name }: { data: MapData; locationId: string
   const engineRef = useRef<MapEngine | null>(null);
   const selKey = useRef('');
   const [plan, setPlanState] = useState<Plan>(serverPlan);
+  // A place's page opens on the place's floor; anything else on the first.
+  const scopeLevel = scope && scope.at.at !== 'off' ? scope.at.levelKey : null;
+  const startLevel =
+    scopeLevel && serverPlan.levels.some((l) => l.key === scopeLevel)
+      ? scopeLevel
+      : (serverPlan.levels[0]?.key ?? '_');
   const [es, setEs] = useState<EngineState>({
-    levelKey: serverPlan.levels[0]?.key ?? '_',
+    levelKey: startLevel,
     allFloors: false,
     focused: null,
     selected: null,
@@ -180,7 +281,7 @@ function MapBody({ data, locationId, name }: { data: MapData; locationId: string
         tip,
         plan: clone(serverPlan),
         quality,
-        levelKey: serverPlan.levels[0]?.key ?? '_',
+        levelKey: startLevel,
         info: {
           countIn: (it) => countIn(contentsRef.current, it),
           flags: (id) => flagsOf(contentsRef.current, id),
@@ -218,6 +319,13 @@ function MapBody({ data, locationId, name }: { data: MapData; locationId: string
       return;
     }
     engineRef.current = engine;
+    // A place's page: into its room at once, the place (or what holds it) or the room selected.
+    const at = scope?.at;
+    if (at && at.at !== 'off' && at.at !== 'floor') {
+      engine.drill(at.roomId, false);
+      const item = at.at === 'node' ? at.nodeId : at.at === 'inside' ? at.holderId : null;
+      engine.select(item ? { type: 'item', id: item } : { type: 'room', id: at.roomId });
+    }
     setEs(engine.state);
     return () => {
       engine.dispose();
@@ -590,6 +698,7 @@ function MapBody({ data, locationId, name }: { data: MapData; locationId: string
 
   return (
     <div className="kmap grid gap-6">
+      {scope ? <ScopeNotes scope={scope} data={data} /> : null}
       <section
         className="kmap-stage"
         ref={stageRef}
