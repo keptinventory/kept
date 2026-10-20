@@ -66,7 +66,7 @@ test('a room photo: sent from Capture, listed in the Inbox under one Room card, 
   browser,
 }) => {
   test.skip(test.info().project.name !== 'phone', 'runs in the phone project');
-  const page = await signedIn(browser, 'ibrahim');
+  const page = await signedIn(browser, 'ibrahim@kept.test');
   // The account's provider, with the mock key (Garage is paid by the account).
   const providers = await page.request.get('/api/v1/ai/providers');
   const { providers: list } = (await providers.json()) as { providers: { scope: string }[] };
@@ -117,7 +117,7 @@ test('a room photo: sent from Capture, listed in the Inbox under one Room card, 
   await card.getByRole('button', { name: 'Add as a place' }).click();
   await expect(card.getByText('Added', { exact: true })).toBeVisible();
   await card.getByRole('button', { name: 'Done', exact: true }).click();
-  const dialog = page.getByRole('alertdialog');
+  const dialog = page.getByRole('alertdialog', { name: 'Close this room?' });
   await expect(dialog).toContainText('The full photos are deleted');
   await dialog.getByRole('button', { name: 'Close', exact: true }).click();
   await expect(card).toHaveCount(0);
