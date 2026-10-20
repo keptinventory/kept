@@ -177,6 +177,7 @@ export function LoanRowView({
             isDisabled={!online}
             onPress={() => void markReturned()}
             aria-label={t`Mark ${isolate(name)} returned`}
+            data-tour="loan-return"
           >
             <Trans>Mark returned</Trans>
           </Button>

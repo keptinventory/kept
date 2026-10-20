@@ -3310,10 +3310,6 @@ msgstr "Find a value"
 msgid "Find anything you've kept"
 msgstr "Find anything you've kept"
 
-#: src/routes/_app/help.tsx
-msgid "Find your way around"
-msgstr "Find your way around"
-
 #: src/lib/labels.ts
 msgid "Finding things: rooms, boxes, labels and search."
 msgstr "Finding things: rooms, boxes, labels and search."
@@ -7521,10 +7517,6 @@ msgstr "Show all"
 #: src/components/filters/panel.tsx
 msgid "Show everything"
 msgstr "Show everything"
-
-#: src/routes/_app/help.tsx
-msgid "Show me around"
-msgstr "Show me around"
 
 #: src/components/ui/password-field.tsx
 msgid "Show password"
@@ -20776,16 +20768,8 @@ msgid "{failures, plural, one {# added item couldn't be removed. Check your conn
 msgstr "{failures, plural, one {# added item couldn't be removed. Check your connection and try Discard again, or Keep it.} other {# added items couldn't be removed. Check your connection and try Discard again, or Keep them.}}"
 
 #: src/components/hints/tour-keep.tsx
-msgid "Keep leaves everything where it is. Discard moves only what the tour added to Trash, where it waits 30 days before it's gone for good. Your activity history stays either way."
-msgstr "Keep leaves everything where it is. Discard moves only what the tour added to Trash, where it waits 30 days before it's gone for good. Your activity history stays either way."
-
-#: src/components/hints/tour-keep.tsx
 msgid "Keep what you added?"
 msgstr "Keep what you added?"
-
-#: src/components/hints/hint-copy.ts
-msgid "Name it and create it. At the end you keep it, or discard it."
-msgstr "Name it and create it. At the end you keep it, or discard it."
 
 #: src/components/connections/words.tsx
 msgid "Ended: the account was reclaimed"
@@ -22825,65 +22809,13 @@ msgstr "Nothing checked yet."
 msgid "Shortcuts"
 msgstr "Shortcuts"
 
-#: src/routes/_app/help.tsx
-msgid "Stopped at {stoppedAt}."
-msgstr "Stopped at {stoppedAt}."
-
-#: src/routes/_app/help.tsx
-msgid "Seen it all. Replay it any time."
-msgstr "Seen it all. Replay it any time."
-
-#: src/routes/_app/help.tsx
-msgid "A short walk from Home to Help. Close it any time; it picks up where you stopped."
-msgstr "A short walk from Home to Help. Close it any time; it picks up where you stopped."
-
-#: src/routes/_app/help.tsx
-msgid "Start over"
-msgstr "Start over"
-
-#: src/components/hints/hint-copy.ts
-msgid "What needs you, counted. Tap a tile for its list. Your locations are below."
-msgstr "What needs you, counted. Tap a tile for its list. Your locations are below."
-
-#: src/components/hints/hint-copy.ts
-msgid "Take a photo, or pick one with Gallery. It waits in your Inbox. At the end you keep it or discard it."
-msgstr "Take a photo, or pick one with Gallery. It waits in your Inbox. At the end you keep it or discard it."
-
-#: src/components/hints/hint-copy.ts
-msgid "Photos wait here until you confirm what Kept read from them. Switch between yours and everyone's."
-msgstr "Photos wait here until you confirm what Kept read from them. Switch between yours and everyone's."
-
-#: src/components/hints/hint-copy.ts
-msgid "List, Grid or Map. Map shows the location floor by floor, with what's in each room."
-msgstr "List, Grid or Map. Map shows the location floor by floor, with what's in each room."
-
 #: src/components/hints/hint-copy.ts
 msgid "Type part of a name, a brand, a serial or a short ID. Each result says where it is."
 msgstr "Type part of a name, a brand, a serial or a short ID. Each result says where it is."
 
 #: src/components/hints/hint-copy.ts
-msgid "Print labels for what has none yet. Scan one later and Kept opens what it's on."
-msgstr "Print labels for what has none yet. Scan one later and Kept opens what it's on."
-
-#: src/components/hints/hint-copy.ts
-msgid "Every section that isn't on the tab bar: the modules you use, Activity, Trash, Settings and Help."
-msgstr "Every section that isn't on the tab bar: the modules you use, Activity, Trash, Settings and Help."
-
-#: src/components/hints/hint-copy.ts
 msgid "Every section, one click away. A module shows here once it's on in one of your locations."
 msgstr "Every section, one click away. A module shows here once it's on in one of your locations."
-
-#: src/components/hints/hint-copy.ts
-msgid "Choose what reaches you, and how: in Kept, by email, push or a channel. Once for every location, or per location."
-msgstr "Choose what reaches you, and how: in Kept, by email, push or a channel. Once for every location, or per location."
-
-#: src/components/hints/hint-copy.ts
-msgid "That's the tour"
-msgstr "That's the tour"
-
-#: src/components/hints/hint-copy.ts
-msgid "Replay it from here any time. Close it early and it picks up where you stopped."
-msgstr "Replay it from here any time. Close it early and it picks up where you stopped."
 
 #: src/routes/_app/settings.index.tsx
 msgid "What reaches you and how, for all your locations or one at a time."
@@ -23279,7 +23211,6 @@ msgstr "Shapes"
 #: src/map/shapes.tsx
 msgid "No shape matches “{query}”. Try Small thing or Small device, and give it a name that says what it is."
 msgstr "No shape matches “{query}”. Try Small thing or Small device, and give it a name that says what it is."
-
 
 #: src/components/places/contents-list.tsx
 msgid "Table"
@@ -24697,3 +24628,332 @@ msgstr "Open the map of <0>{name}</0>"
 #: src/map/map-view.tsx
 msgid "The map draws a location’s floors, the rooms on them and what stands in each room."
 msgstr "The map draws a location’s floors, the rooms on them and what stands in each room."
+
+#: src/routes/_app/help.tsx
+msgid "{steps, plural, one {# step} other {# steps}}"
+msgstr "{steps, plural, one {# step} other {# steps}}"
+
+#: src/components/hints/hint-copy.ts
+msgid "3D or plan"
+msgstr "3D or plan"
+
+#: src/components/hints/hint-copy.ts
+msgid "Add a box and print its label. Scan it at the other end to unpack."
+msgstr "Add a box and print its label. Scan it at the other end to unpack."
+
+#: src/components/hints/hint-copy.ts
+msgid "Add a car, a motorbike or a generator."
+msgstr "Add a car, a motorbike or a generator."
+
+#: src/components/hints/hint-copy.ts
+msgid "Add a thing, a box or a room to this location."
+msgstr "Add a thing, a box or a room to this location."
+
+#: src/components/hints/hint-copy.ts
+msgid "Basics"
+msgstr "Basics"
+
+#: src/components/hints/hint-copy.ts
+msgid "Capture & Inbox"
+msgstr "Capture & Inbox"
+
+#: src/components/hints/hint-copy.ts
+msgid "Check what Kept read, fix anything wrong, then tap Accept."
+msgstr "Check what Kept read, fix anything wrong, then tap Accept."
+
+#: src/components/hints/hint-copy.ts
+msgid "Choose how reminders reach you: in Kept, by email, push or a channel."
+msgstr "Choose how reminders reach you: in Kept, by email, push or a channel."
+
+#: src/components/hints/hint-copy.ts
+msgid "Choose what reaches you, and how: in Kept, by email, push or a channel."
+msgstr "Choose what reaches you, and how: in Kept, by email, push or a channel."
+
+#: src/components/hints/hint-copy.ts
+msgid "Details, paperwork, history and the rest, each in its own tab."
+msgstr "Details, paperwork, history and the rest, each in its own tab."
+
+#: src/components/sheet/sheet-view.tsx
+msgid "Discard my change"
+msgstr "Discard my change"
+
+#: src/components/hints/hint-copy.ts
+msgid "Download a location or all your data, with its photos and documents."
+msgstr "Download a location or all your data, with its photos and documents."
+
+#: src/components/hints/hint-copy.ts
+msgid "Draw rooms, add a floor and put things where they really are."
+msgstr "Draw rooms, add a floor and put things where they really are."
+
+#: src/components/hints/hint-copy.ts
+msgid "Drop the file here, or choose it. Nothing is saved until you check it."
+msgstr "Drop the file here, or choose it. Nothing is saved until you check it."
+
+#: src/components/hints/hint-copy.ts
+msgid "Each home, garage or office you keep. Open one to see what's in it."
+msgstr "Each home, garage or office you keep. Open one to see what's in it."
+
+#: src/components/hints/hint-copy.ts
+msgid "Each vehicle with its last reading and what's due next."
+msgstr "Each vehicle with its last reading and what's due next."
+
+#: src/components/hints/hint-copy.ts
+msgid "Every fill or charge, with what it cost and how far it went."
+msgstr "Every fill or charge, with what it cost and how far it went."
+
+#: src/components/hints/hint-copy.ts
+msgid "Every location you're in. Open one to change who's in it and what it tracks."
+msgstr "Every location you're in. Open one to change who's in it and what it tracks."
+
+#: src/components/hints/hint-copy.ts
+msgid "Every move, open or done. Tap one to see its boxes."
+msgstr "Every move, open or done. Tap one to see its boxes."
+
+#: src/components/hints/hint-copy.ts
+msgid "Every other section: your modules, Activity, Trash, Settings and Help."
+msgstr "Every other section: your modules, Activity, Trash, Settings and Help."
+
+#: src/components/hints/hint-copy.ts
+msgid "Every schedule, soonest first. Overdue ones lead."
+msgstr "Every schedule, soonest first. Overdue ones lead."
+
+#: src/components/hints/hint-copy.ts
+msgid "Everything in this location. Tap a thing to open it."
+msgstr "Everything in this location. Tap a thing to open it."
+
+#: src/components/hints/hint-copy.ts
+msgid "Everything lent out or borrowed: who has it and when it's due back."
+msgstr "Everything lent out or borrowed: who has it and when it's due back."
+
+#: src/components/hints/hint-copy.ts
+msgid "Floors"
+msgstr "Floors"
+
+#: src/components/hints/hint-copy.ts
+msgid "Import & export"
+msgstr "Import & export"
+
+#: src/components/hints/hint-copy.ts
+msgid "Invite someone by link or email, and pick their role."
+msgstr "Invite someone by link or email, and pick their role."
+
+#: src/components/hints/hint-copy.ts
+msgid "Its sections"
+msgstr "Its sections"
+
+#: src/components/hints/tour-keep.tsx
+msgid "Keep leaves everything where it is. Discard removes only what the tour added: a thing goes to Trash for 30 days, a sample move is deleted. Your activity history stays either way."
+msgstr "Keep leaves everything where it is. Discard removes only what the tour added: a thing goes to Trash for 30 days, a sample move is deleted. Your activity history stays either way."
+
+#: src/components/hints/hint-copy.ts
+msgid "List, Grid or Map"
+msgstr "List, Grid or Map"
+
+#: src/components/hints/hint-copy.ts
+msgid "Log a reading, a service or fuel from here."
+msgstr "Log a reading, a service or fuel from here."
+
+#: src/components/hints/hint-copy.ts
+msgid "Log it"
+msgstr "Log it"
+
+#: src/components/hints/hint-copy.ts
+msgid "Mark what's running low, lent out or due, on the map."
+msgstr "Mark what's running low, lent out or due, on the map."
+
+#: src/components/hints/hint-copy.ts
+msgid "Move it, lend it, print its label or put it in Trash."
+msgstr "Move it, lend it, print its label or put it in Trash."
+
+#: src/components/hints/hint-copy.ts
+msgid "Name the move and say where it's going."
+msgstr "Name the move and say where it's going."
+
+#: src/components/hints/hint-copy.ts
+msgid "One short tour per section. Replay any of them here, or tap Show me on its page."
+msgstr "One short tour per section. Replay any of them here, or tap Show me on its page."
+
+#: src/components/hints/hint-copy.ts
+msgid "Open a claim when it breaks under warranty, and follow the repair."
+msgstr "Open a claim when it breaks under warranty, and follow the repair."
+
+#: src/components/hints/hint-copy.ts
+msgid "Pack"
+msgstr "Pack"
+
+#: src/components/hints/hint-copy.ts
+msgid "Packed, on the way and unpacked, counted."
+msgstr "Packed, on the way and unpacked, counted."
+
+#: src/components/hints/hint-copy.ts
+msgid "Paperwork & warranties"
+msgstr "Paperwork & warranties"
+
+#: src/components/hints/hint-copy.ts
+msgid "Pick a floor, or All for the whole building."
+msgstr "Pick a floor, or All for the whole building."
+
+#: src/components/hints/hint-copy.ts
+msgid "Pick how this location is shown. Map draws it floor by floor."
+msgstr "Pick how this location is shown. Map draws it floor by floor."
+
+#: src/components/hints/hint-copy.ts
+msgid "Pick what it is, then add the file to the thing it belongs to."
+msgstr "Pick what it is, then add the file to the thing it belongs to."
+
+#: src/components/hints/hint-copy.ts
+msgid "Pick where it comes from: a spreadsheet, Homebox or another Kept."
+msgstr "Pick where it comes from: a spreadsheet, Homebox or another Kept."
+
+#: src/components/hints/hint-copy.ts
+msgid "Print a sheet for everything still without a label."
+msgstr "Print a sheet for everything still without a label."
+
+#: src/components/hints/hint-copy.ts
+msgid "Receipts, manuals and warranty cards from every thing and room."
+msgstr "Receipts, manuals and warranty cards from every thing and room."
+
+#: src/routes/_app/help.tsx
+msgid "Replay"
+msgstr "Replay"
+
+#: src/components/hints/tour.ts
+msgid "Sample: Cordless drill"
+msgstr "Sample: Cordless drill"
+
+#: src/components/hints/tour.ts
+msgid "Sample: Move"
+msgstr "Sample: Move"
+
+#: src/components/hints/hint-copy.ts
+msgid "Save a search with its filters, and open it again in one tap."
+msgstr "Save a search with its filters, and open it again in one tap."
+
+#: src/components/hints/hint-copy.ts
+msgid "Schedules & reminders"
+msgstr "Schedules & reminders"
+
+#: src/components/hints/hint-copy.ts
+msgid "Search & labels"
+msgstr "Search & labels"
+
+#: src/components/hints/hint-copy.ts
+msgid "Set something to repeat: every few months, or by the odometer."
+msgstr "Set something to repeat: every few months, or by the odometer."
+
+#: src/components/hints/hint-copy.ts
+msgid "Settings & sharing"
+msgstr "Settings & sharing"
+
+#: src/components/hints/show-me.tsx
+msgid "Show me"
+msgstr "Show me"
+
+#: src/components/hints/hint-copy.ts
+msgid "Switch between what you captured and what everyone in your locations did."
+msgstr "Switch between what you captured and what everyone in your locations did."
+
+#: src/components/hints/hint-copy.ts
+msgid "Take a photo, or pick one with Gallery. It waits in your Inbox."
+msgstr "Take a photo, or pick one with Gallery. It waits in your Inbox."
+
+#: src/components/hints/hint-copy.ts
+msgid "Take the photo"
+msgstr "Take the photo"
+
+#: src/components/hints/hint-copy.ts
+msgid "Tap Complete when it's done. The next date moves on."
+msgstr "Tap Complete when it's done. The next date moves on."
+
+#: src/components/hints/hint-copy.ts
+msgid "Tap Lend to hand it to someone and set when it's due back."
+msgstr "Tap Lend to hand it to someone and set when it's due back."
+
+#: src/components/hints/hint-copy.ts
+msgid "Tap Mark returned when it comes back."
+msgstr "Tap Mark returned when it comes back."
+
+#: src/components/hints/hint-copy.ts
+msgid "Tap Scan and point the camera at a Kept label. What it's on opens."
+msgstr "Tap Scan and point the camera at a Kept label. What it's on opens."
+
+#: src/components/hints/hint-copy.ts
+msgid "Tap Scan and point the camera at a label to open what it's on."
+msgstr "Tap Scan and point the camera at a label to open what it's on."
+
+#: src/components/hints/hint-copy.ts
+msgid "The 3D map"
+msgstr "The 3D map"
+
+#: src/components/hints/hint-copy.ts
+msgid "The file"
+msgstr "The file"
+
+#: src/components/hints/hint-copy.ts
+msgid "The place it's in. Tap to go back there."
+msgstr "The place it's in. Tap to go back there."
+
+#: src/components/hints/hint-copy.ts
+msgid "Thing, receipt, label or reading. Pick one before the photo."
+msgstr "Thing, receipt, label or reading. Pick one before the photo."
+
+#: src/components/hints/hint-copy.ts
+msgid "Things & places"
+msgstr "Things & places"
+
+#: src/components/hints/hint-copy.ts
+#: src/routes/_app/help.tsx
+msgid "Tours"
+msgstr "Tours"
+
+#: src/components/hints/hint-copy.ts
+msgid "Turn modules on or off here: lending, vehicles, schedules and the rest."
+msgstr "Turn modules on or off here: lending, vehicles, schedules and the rest."
+
+#: src/components/hints/hint-copy.ts
+msgid "Turn the map in 3D, or look straight down at the plan."
+msgstr "Turn the map in 3D, or look straight down at the plan."
+
+#: src/components/hints/hint-copy.ts
+msgid "Type part of a name, a brand, a serial or a short ID. Filters narrow it down."
+msgstr "Type part of a name, a brand, a serial or a short ID. Filters narrow it down."
+
+#: src/components/hints/hint-copy.ts
+msgid "Vehicles & fuel"
+msgstr "Vehicles & fuel"
+
+#: src/components/hints/hint-copy.ts
+msgid "What runs out soon: warranties, insurance, a passport."
+msgstr "What runs out soon: warranties, insurance, a passport."
+
+#: src/components/hints/hint-copy.ts
+msgid "What you're capturing"
+msgstr "What you're capturing"
+
+#: src/components/hints/hint-copy.ts
+msgid "What's due"
+msgstr "What's due"
+
+#: src/components/hints/hint-copy.ts
+msgid "What's due, lent out or running low, counted. Tap a tile for its list."
+msgstr "What's due, lent out or running low, counted. Tap a tile for its list."
+
+#: src/components/hints/hint-copy.ts
+msgid "What's here"
+msgstr "What's here"
+
+#: src/components/hints/hint-copy.ts
+msgid "Where the boxes are"
+msgstr "Where the boxes are"
+
+#: src/components/hints/hint-copy.ts
+msgid "Your locations"
+msgstr "Your locations"
+
+#: src/components/hints/hint-copy.ts
+msgid "Your moves"
+msgstr "Your moves"
+
+#: src/components/hints/hint-copy.ts
+msgid "Yours or everyone's"
+msgstr "Yours or everyone's"

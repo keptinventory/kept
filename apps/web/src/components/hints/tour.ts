@@ -1,94 +1,49 @@
 /**
- * The guided tour (D138, rebuilt in D242): started from Help ("Show me around"), never on launch.
- * It walks today's screens in nine stops: Home's Needs you, Capture, the Inbox, a location's
- * List/Grid/Map switch, Search, Labels, everything else (More on a phone, the sidebar on a
- * desktop), Settings → Notifications, and Help.
+ * The tour engine for Help's Tours (tours.ts): started from Help or a page's Show me, never on
+ * launch. One tour runs at a time, whichever button started it.
  *
- * - Each section names the route it opens and the `data-tour="<anchor>"` it points at, per layout
- *   where they differ. The first anchor on screen wins; a section whose anchor never shows (a
+ * - Each step names the route it opens and the `data-tour="<anchor>"` it points at, per layout
+ *   where they differ. The first anchor on screen wins; a step whose anchor never shows (a
  *   module that is off, an empty page) is passed over, and drops out of the count.
+ * - A step that needs a subject (a thing, a move, …) finds it first (tour-subjects.ts); a sample
+ *   it had to make is in the ledger, offered for Keep or Discard at the end (tour-keep.tsx).
  * - **Never in the way:** taps outside the highlighted element reach the page (driver-kit.ts).
  *   Going somewhere the tour didn't take you ends it, where you are.
- * - **Resumable:** moving past a section records `help.tour.<section>` on the server (dismissed,
- *   @kept/shared `tourProgressKey`), so Help resumes at the first section not passed, on any
- *   device; Start over restores those keys first. Finishing or closing records `help.tour_seen`.
- * - While it runs no hint shows; what it added is listed for Keep or Discard at the end
- *   (tour-ledger.ts, tour-keep.tsx).
+ * - **Done:** finishing, or closing at the last step, records `help.tours.<tour>` on the server
+ *   (@kept/shared `tourKey`), so Help shows it as Done on every device. A short tour doesn't
+ *   resume part-way: it starts from the top.
+ * - While it runs no hint shows.
  */
 
-import { type ModuleId, type TourSectionId, tourProgressKey } from '@kept/shared';
+import { type TourId, tourKey } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouter } from '@tanstack/react-router';
-import { createElement, useCallback, useRef, useState } from 'react';
+import { createElement, useCallback, useEffect } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { captureApi } from '@/api/capture/queries';
-import { inventoryApi, inventoryKeys } from '@/api/inventory/queries';
-import type { Hint, HintsResponse } from '@/api/inventory/types';
+import { inventoryApi } from '@/api/inventory/queries';
 import { deleteLocation, listLocations } from '@/api/locations';
-import { keys, useLocations } from '@/api/queries';
+import { movingApi } from '@/api/moving/queries';
+import { keys } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
-import { locationAddress } from '@/lib/address';
 import { WIDE } from '@/lib/media';
 import type { Shown } from './driver-kit';
-import { useGuidedTourCopy, useTourCopy } from './hint-copy';
-import { type LogicalSide, pageIsRtl, prefersReducedMotion } from './placement';
+import { useTourCopy, useTourStepCopy } from './hint-copy';
+import { pageIsRtl, prefersReducedMotion } from './placement';
 import { TourKeepHost } from './tour-keep';
 import { type TourDeleter, tourLedger } from './tour-ledger';
+import { tourRequests, usePendingTour, useRunningTour } from './tour-request';
+import { resolveSubject, type TourContext } from './tour-subjects';
+import {
+  availableTours,
+  stopFor,
+  type TourLayout,
+  type TourStep,
+  type TourStop,
+  type TourSubject,
+} from './tours';
 import { hintSlot, useMarkHint } from './use-hint';
-
-/** The two shells: the phone's tab bar, or the sidebar from 768 px (lib/media.ts WIDE). */
-export type TourLayout = 'phone' | 'wide';
-
-/**
- * Where a section stands and what it points at. `to: null` stays on the page the tour is on.
- * `side` places the popover beside the target on a desktop; on a phone the popover is a sheet
- * docked at the bottom, above the tab bar, or at the top with `dock: 'top'` (hints.css).
- */
-export type TourStop = {
-  to: string | null;
-  anchors: readonly string[];
-  side?: LogicalSide;
-  dock?: 'top' | 'bottom';
-  /** The copy entry when it isn't the section's own. */
-  copyId?: string;
-};
-
-/** One section of the tour: its stop (always a route), and the desktop's own where it differs. */
-export type TourSection = TourStop & {
-  id: TourSectionId;
-  to: string;
-  params?: Record<string, string>;
-  wide?: TourStop;
-};
-
-/**
- * The walk, in order. Every anchor here must exist in its route's source (a unit test reads them:
- * tour-anchors.test.ts), so a moved element fails CI instead of the tour.
- */
-export const GUIDED_SECTIONS: readonly TourSection[] = [
-  { id: 'home', to: '/', anchors: ['home-needs', 'home-locations'] },
-  // Capture is a full screen with its controls at the bottom: the sheet docks at the top.
-  { id: 'capture', to: '/capture', anchors: ['capture-shutter'], dock: 'top' },
-  { id: 'inbox', to: '/inbox', anchors: ['inbox-whose'] },
-  { id: 'location', to: '/loc/$id', anchors: ['location-layout'] },
-  { id: 'search', to: '/search', anchors: ['search-field'] },
-  { id: 'labels', to: '/labels', anchors: ['labels-print'] },
-  {
-    id: 'more',
-    to: '/more',
-    anchors: ['more-entries'],
-    // A desktop has no More: the same entries are the sidebar, beside whatever page is open.
-    wide: { to: null, anchors: ['nav-entries'], side: 'end', copyId: 'more-wide' },
-  },
-  { id: 'settings', to: '/settings', anchors: ['settings-notifications'] },
-  { id: 'finish', to: '/help', anchors: ['help-tour'] },
-];
-
-/** The stop a section makes on `layout`. */
-export function stopFor(section: TourSection, layout: TourLayout): TourStop {
-  return layout === 'wide' && section.wide ? section.wide : section;
-}
 
 /** The layout on screen now (jsdom has no matchMedia: the phone's). */
 export function currentLayout(): TourLayout {
@@ -97,70 +52,6 @@ export function currentLayout(): TourLayout {
   } catch {
     return 'phone';
   }
-}
-
-/** What gating needs: the modules on anywhere, and whether anything is writable. */
-export type GuidedGating = { modulesOn: Set<ModuleId>; hasInbox: boolean };
-
-/** Sections whose screen is a write: taking a photo, reviewing what it found. */
-const WRITE_SECTIONS: ReadonlySet<string> = new Set(['capture', 'inbox']);
-
-/**
- * Whether the section exists for this person: Capture and the Inbox only where something can
- * change (`hasInbox`: some location where the role isn't viewer, as the shell's useHasInbox),
- * Labels only while the module is on anywhere. Everything else is always there.
- */
-export function isGuidedSectionAvailable(sectionId: string, gating: GuidedGating): boolean {
-  if (WRITE_SECTIONS.has(sectionId)) return gating.hasInbox;
-  if (sectionId === 'labels') return gating.modulesOn.has('labels');
-  return true;
-}
-
-// ----- progress, remembered on the server -----
-
-/** The sections moved past, from `GET /me/hints` (dismissed and not restored). */
-export function passedSections(hints: readonly Hint[] | undefined): Set<string> {
-  const passed = new Set<string>();
-  for (const s of GUIDED_SECTIONS) {
-    const h = hints?.find((x) => x.key === tourProgressKey(s.id));
-    if (h?.dismissedAt) passed.add(s.id);
-  }
-  return passed;
-}
-
-/** Where the tour stands: never started, stopped part-way (at `sectionId`), or finished. */
-export type TourProgress =
-  | { state: 'new' }
-  | { state: 'stopped'; index: number; sectionId: string }
-  | { state: 'finished' };
-
-/**
- * The tour's state for these sections: finished once the last was passed, stopped at the first
- * section not passed once any was, otherwise new.
- */
-export function tourProgress(
-  sections: readonly { id: string }[],
-  passed: ReadonlySet<string>,
-): TourProgress {
-  const last = sections[sections.length - 1];
-  if (!last || !sections.some((s) => passed.has(s.id))) return { state: 'new' };
-  if (passed.has(last.id)) return { state: 'finished' };
-  const index = sections.findIndex((s) => !passed.has(s.id));
-  return { state: 'stopped', index, sectionId: sections[index]?.id ?? last.id };
-}
-
-/** The gating for `locations` (the shell's own rules: useNavEntries, useHasInbox). */
-export function gatingOf(locations: readonly LocationDetail[]): GuidedGating {
-  return {
-    modulesOn: new Set(locations.flatMap((l) => l.modules)),
-    hasInbox: locations.some((l) => l.role !== 'viewer'),
-  };
-}
-
-/** The sections this person has, in order. */
-export function availableSections(locations: readonly LocationDetail[]): TourSection[] {
-  const gating = gatingOf(locations);
-  return GUIDED_SECTIONS.filter((s) => isGuidedSectionAvailable(s.id, gating));
 }
 
 // ----- the navigate-then-highlight engine -----
@@ -230,35 +121,6 @@ export function waitForSectionAnchor(
   });
 }
 
-/** A section with its location filled in, or New location for a household with none. */
-export type ResolvedGuidedSection = TourSection & { copyId: string };
-
-/**
- * The location stop opens the person's first shared location (the sidebar's order), else their
- * Personal one. With none at all it opens New location instead (spec decision 2): one created
- * there is recorded in the ledger (routes/_app/locations.new.tsx), deletable on Discard.
- */
-export function resolveGuidedSections(
-  sections: readonly TourSection[],
-  locationAddressOrNull: string | null,
-): ResolvedGuidedSection[] {
-  return sections.map((s) => {
-    if (s.id !== 'location') return { ...s, copyId: s.copyId ?? s.id };
-    if (locationAddressOrNull) return { ...s, params: { id: locationAddressOrNull }, copyId: s.id };
-    return {
-      id: s.id,
-      to: '/locations/new',
-      anchors: ['new-location-name'],
-      copyId: 'new-location',
-    };
-  });
-}
-
-/** The location the tour opens: the first one that isn't Personal, else the first. */
-export function tourLocation<L extends { kind: string }>(locations: readonly L[]): L | null {
-  return locations.find((l) => l.kind !== 'personal') ?? locations[0] ?? null;
-}
-
 /** The pathname a stop navigates to, for telling the tour's own moves apart. */
 function stopPath(stop: TourStop, params: Record<string, string> | undefined): string | null {
   if (stop.to === null) return null;
@@ -269,8 +131,9 @@ function stopPath(stop: TourStop, params: Record<string, string> | undefined): s
 }
 
 /**
- * Discard through the existing mutations (spec decision 3): Trash-move for things and places,
- * the location delete, the capture batch undo (the batch's synced drafts go to the trash).
+ * Discard through the existing endpoints only: Trash-move for things and places, the location
+ * delete, the capture batch undo (the batch's synced drafts go to the trash), and a sample move's
+ * delete (it has no boxes; the row version is read first, as the delete asks for it).
  */
 export const tourDeleter: TourDeleter = async (kind, id) => {
   switch (kind) {
@@ -278,7 +141,7 @@ export const tourDeleter: TourDeleter = async (kind, id) => {
       await inventoryApi.trashThing(id);
       return;
     case 'place':
-      await inventoryApi.trashPlace(id);
+      await inventoryApi.trashPlace(id, { contents: 'trash' });
       return;
     case 'location':
       await deleteLocation(id);
@@ -286,16 +149,27 @@ export const tourDeleter: TourDeleter = async (kind, id) => {
     case 'capture':
       await captureApi.undoBatch(id);
       return;
+    case 'move': {
+      const move = await movingApi.move(id);
+      await movingApi.remove(id, move.rowVersion);
+      return;
+    }
   }
 };
 
-type GuidedRun = {
+type Run = {
   alive: boolean;
+  tourId: TourId;
   /** Bumps on every move: stale async continuations stand down. */
   seq: number;
-  sections: ResolvedGuidedSection[];
+  steps: TourStep[];
+  context: TourContext;
+  /** Each subject once per run: a sample is made at most once. */
+  subjects: Map<TourSubject, Promise<string | null>>;
   shownAny: boolean;
-  /** Passed over for a missing anchor: Back and Next jump these, and they leave the count. */
+  /** The last step is on screen: closing it now counts as done. */
+  atLast: boolean;
+  /** Passed over for a missing anchor or subject: Back and Next jump these; they leave the count. */
   skipped: Set<number>;
   highlight: Shown | null;
   /** A programmatic destroy is coming: its onEnd is the engine's own echo, not the person. */
@@ -313,8 +187,11 @@ type GuidedRun = {
   returnFocus: HTMLElement | null;
 };
 
+// One run at a time, whichever Help row or Show me started it.
+let current: Run | null = null;
+
 /** Drop the per-step watchers: their popover and target are gone on every move. */
-function clearStepWatchers(run: GuidedRun): void {
+function clearStepWatchers(run: Run): void {
   run.stepObserver?.disconnect();
   run.stepObserver = null;
   if (run.stepTimer !== null) {
@@ -325,27 +202,33 @@ function clearStepWatchers(run: GuidedRun): void {
   run.targetObserver = null;
 }
 
-/** The nearest section before `i` that wasn't passed over for a missing anchor. */
-function backTo(run: GuidedRun, i: number): number {
+/** The nearest step before `i` that wasn't passed over. */
+function backTo(run: Run, i: number): number {
   let j = i - 1;
   while (j > 0 && run.skipped.has(j)) j -= 1;
   return j;
 }
 
-/** The nearest section after `i` that wasn't passed over for a missing anchor. */
-function forwardTo(run: GuidedRun, i: number): number {
+/** Whether a step before `i` showed, or can: Back has somewhere to go. */
+function hasBefore(run: Run, i: number): boolean {
+  for (let k = 0; k < i; k++) if (!run.skipped.has(k)) return true;
+  return false;
+}
+
+/** The nearest step after `i` that wasn't passed over. */
+function forwardTo(run: Run, i: number): number {
   let j = i + 1;
-  while (j < run.sections.length && run.skipped.has(j)) j += 1;
+  while (j < run.steps.length && run.skipped.has(j)) j += 1;
   return j;
 }
 
 /**
  * The step's Back button. driver.js only knows Next/Previous/Close, and a single-step highlight
- * shows only its done button and Close, so the engine adds Back beside it once there is a section
+ * shows only its done button and Close, so the engine adds Back beside it once there is a step
  * to go back to. It wears only the popover's generic footer-button class: the prev/next classes
  * would also match driver.js's own delegated click handler, hijacking the click.
  */
-function injectBackButton(run: GuidedRun, seq: number, label: string, onBack: () => void): void {
+function injectBackButton(run: Run, seq: number, label: string, onBack: () => void): void {
   const fresh = () => run.alive && run.seq === seq;
   const place = () => {
     if (!fresh()) return true;
@@ -384,23 +267,21 @@ function injectBackButton(run: GuidedRun, seq: number, label: string, onBack: ()
   }, 1500);
 }
 
-/** How the tour starts: from the top, or at the first section not yet passed. */
-export type TourStart = { from?: 'start' | 'resume'; returnFocus?: HTMLElement | null };
+/** How a tour starts: where focus goes back to, and what the page it was started on is about. */
+export type TourStart = { returnFocus?: HTMLElement | null; context?: TourContext };
 
-/** `start()` runs the tour; `running` is true until it ends. */
-export function useGuidedTour() {
-  const copy = useGuidedTourCopy();
+/** `start(id)` runs that tour from its first step. */
+export function useTour() {
+  const copy = useTourStepCopy();
   const labels = useTourCopy().labels;
   const mark = useMarkHint();
   const navigate = useNavigate();
   const router = useRouter();
   const qc = useQueryClient();
-  const locationsQuery = useLocations();
   const { t } = useLingui();
-  const [running, setRunning] = useState(false);
-  const runRef = useRef<GuidedRun | null>(null);
+  const running = useRunningTour();
 
-  const destroyHighlight = (run: GuidedRun) => {
+  const destroyHighlight = (run: Run) => {
     clearStepWatchers(run);
     if (!run.highlight) return;
     run.muteOnEnd = true;
@@ -412,15 +293,15 @@ export function useGuidedTour() {
     }
   };
 
-  const unmountKeepDialog = (run: GuidedRun) => {
+  const unmountKeepDialog = (run: Run) => {
     run.dialog?.root.unmount();
     run.dialog?.el.remove();
     run.dialog = null;
     run.dialogOpen = false;
   };
 
-  /** Silent teardown: nothing ever showed, so nothing is recorded. */
-  const abandon = (run: GuidedRun) => {
+  /** Silent teardown: put everything back. */
+  const abandon = (run: Run) => {
     run.alive = false;
     destroyHighlight(run);
     unmountKeepDialog(run);
@@ -430,25 +311,25 @@ export function useGuidedTour() {
     run.stopArrows = null;
     hintSlot.release('tour');
     tourLedger.clear();
-    if (runRef.current === run) {
-      runRef.current = null;
-      setRunning(false);
+    if (current === run) {
+      current = null;
+      tourRequests.setRunning(null);
     }
   };
 
-  /** The run is over: mark it seen, put everything back, hand focus home. */
-  const finalize = (run: GuidedRun) => {
+  /** The run is over: put everything back, hand focus home. */
+  const finalize = (run: Run) => {
     abandon(run);
-    void mark('help.tour_seen', { seen: true });
     const back = run.returnFocus;
     if (back?.isConnected) back.focus();
   };
 
-  /** Past the last step, closed early, or walked away: Keep/Discard when the run added
-   * something, otherwise straight to done. */
-  const endTour = (run: GuidedRun) => {
+  /** Past the last step, closed early, or walked away: done once it got to its last step,
+   * then Keep/Discard when the run added something, otherwise straight to done. */
+  const endTour = (run: Run) => {
     if (!run.alive) return;
-    if (!run.shownAny) {
+    if (run.atLast) void mark(tourKey(run.tourId), { seen: true, dismissed: true });
+    if (!run.shownAny && tourLedger.list().length === 0) {
       abandon(run);
       return;
     }
@@ -476,103 +357,121 @@ export function useGuidedTour() {
     );
   };
 
-  /** Section `i` was moved past: remembered so Help resumes after it. */
-  const markPassed = (run: GuidedRun, i: number) => {
-    const section = run.sections[i];
-    if (!section) return;
-    const key = tourProgressKey(section.id);
-    const hints = qc.getQueryData<HintsResponse>(inventoryKeys.hints)?.hints;
-    if (hints?.find((h) => h.key === key)?.dismissedAt) return;
-    void mark(key, { dismissed: true });
-  };
-
-  /** Move on from section `i`: it counts as passed, then the next section shows. */
-  const forward = (run: GuidedRun, i: number) => {
-    markPassed(run, i);
-    void step(run, forwardTo(run, i));
+  /** The step's `$id`, found once per run; null when there is nothing to open. */
+  const subjectOf = (run: Run, kind: TourSubject, locations: readonly LocationDetail[]) => {
+    let found = run.subjects.get(kind);
+    if (!found) {
+      found = resolveSubject(kind, {
+        locations,
+        context: run.context,
+        names: { thing: t`Sample: Cordless drill`, move: t`Sample: Move` },
+      }).catch(() => null);
+      run.subjects.set(kind, found);
+    }
+    return found;
   };
 
   /**
-   * Show section `i`: navigate (unless `stay`), wait for its anchor, highlight it. Past the end,
-   * finish. `stay` re-points at the same section after its target was re-rendered.
+   * Show step `i`: find its subject, navigate (unless `stay`), wait for its anchor, highlight
+   * it. Past the end, finish. `stay` re-points at the same step after its target re-rendered.
    */
-  const step = async (run: GuidedRun, i: number, stay = false): Promise<'shown' | 'ended'> => {
+  const step = async (
+    run: Run,
+    locations: readonly LocationDetail[],
+    i: number,
+    stay = false,
+  ): Promise<'shown' | 'ended'> => {
     const seq = ++run.seq;
     const live = () => run.alive && run.seq === seq;
+    const skip = () => {
+      run.skipped.add(i);
+      return step(run, locations, i + 1);
+    };
     if (!run.alive) return 'ended';
-    if (i >= run.sections.length) {
+    if (i >= run.steps.length) {
       endTour(run);
       return 'ended';
     }
     // Known to have nothing to show: jump it without another navigate and anchor wait.
-    if (run.skipped.has(i)) return step(run, i + 1);
-    const section = run.sections[i];
+    if (run.skipped.has(i)) return step(run, locations, i + 1);
+    const here = run.steps[i];
     // Unreachable (callers stay in range), but a skip beats a crash.
-    if (!section) return step(run, i + 1);
-    const stop = stopFor(section, currentLayout());
+    if (!here) return step(run, locations, i + 1);
+    const stop = stopFor(here, currentLayout());
     destroyHighlight(run);
+    let params: Record<string, string> | undefined;
+    if (here.needs && stop.to !== null) {
+      const id = await subjectOf(run, here.needs, locations);
+      if (!live()) return 'ended';
+      if (!id) return skip();
+      params = { id };
+    }
     if (!stay) {
-      const path = stopPath(stop, section.params);
+      const path = stopPath(stop, params);
       run.expectPath = path ?? router.state.location.pathname;
       if (path !== null) {
         try {
-          await navigate({ to: stop.to as never, params: section.params as never });
+          await navigate({
+            to: stop.to as never,
+            params: params as never,
+            ...(stop.search
+              ? {
+                  search: ((prev: Record<string, unknown>) =>
+                    path === router.state.location.pathname
+                      ? { ...prev, ...stop.search }
+                      : stop.search) as never,
+                }
+              : {}),
+          });
         } catch {
-          if (live()) {
-            run.skipped.add(i);
-            return step(run, i + 1);
-          }
+          if (live()) return skip();
           return 'ended';
         }
       }
     }
     const el = await waitForSectionAnchor(stop.anchors);
     if (!live()) return 'ended';
-    if (!el) {
-      run.skipped.add(i);
-      markPassed(run, i);
-      return step(run, i + 1);
-    }
+    if (!el) return skip();
+    const entry = copy[stop.copyId ?? `${run.tourId}.${here.id}`];
+    if (!entry) return skip();
     run.shownAny = true;
-    // "n of m" counts the sections that can show: one passed over for a missing anchor leaves
-    // the total, so the last one reads "m of m", and a resumed run counts from where it stands.
+    // "n of m" counts the steps that can show: one passed over leaves the total, so the last
+    // one reads "m of m".
     const before = [...run.skipped].filter((k) => k < i).length;
     const position = i + 1 - before;
-    const total = run.sections.length - run.skipped.size;
-    const entry = copy[stop.copyId ?? section.copyId] ?? copy[section.id];
-    if (!entry) return step(run, i + 1);
-    const isLast = forwardTo(run, i) >= run.sections.length;
+    const total = run.steps.length - run.skipped.size;
+    const isLast = forwardTo(run, i) >= run.steps.length;
     const kit = await import('./driver-kit');
     if (!live()) return 'ended';
     destroyHighlight(run);
-    const rtl = pageIsRtl();
+    run.atLast = isLast;
     run.highlight = kit.runTour({
       steps: [{ element: el, title: entry.title, description: entry.description }],
-      rtl,
+      rtl: pageIsRtl(),
       reducedMotion: prefersReducedMotion(),
       side: stop.side ?? 'bottom',
       dock: stop.dock ?? 'bottom',
       labels: {
         ...labels,
-        // A single step always renders the done label: Next until the last section.
+        // A single step always renders the done label: Next until the last step.
         done: isLast ? labels.done : labels.next,
-        // Progress counts the run's sections, not this one-element step list.
+        // Progress counts the run's steps, not this one-element step list.
         progress: () => labels.progress(position, total),
       },
       returnFocus: run.returnFocus,
       onEnd: (completed) => {
         run.highlight = null;
         if (run.muteOnEnd || !run.alive) return;
-        if (completed) forward(run, i);
+        if (completed) void step(run, locations, forwardTo(run, i));
         else endTour(run);
       },
     });
-    if (i > 0)
+    if (hasBefore(run, i))
       injectBackButton(run, seq, t`Back`, () => {
-        if (run.alive) void step(run, backTo(run, i));
+        if (run.alive) void step(run, locations, backTo(run, i));
       });
-    watchArrows(run, i);
-    watchTarget(run, seq, i, el);
+    watchArrows(run, locations, i);
+    watchTarget(run, locations, seq, i, el);
     return 'shown';
   };
 
@@ -580,19 +479,25 @@ export function useGuidedTour() {
    * The highlighted control can be re-rendered under the tour (the location's switch moves when
    * Map is chosen): point at the new one rather than at nothing.
    */
-  const watchTarget = (run: GuidedRun, seq: number, i: number, el: Element) => {
+  const watchTarget = (
+    run: Run,
+    locations: readonly LocationDetail[],
+    seq: number,
+    i: number,
+    el: Element,
+  ) => {
     const mo = new MutationObserver(() => {
       if (el.isConnected || !run.alive || run.seq !== seq) return;
       mo.disconnect();
       if (run.targetObserver === mo) run.targetObserver = null;
-      void step(run, i, true);
+      void step(run, locations, i, true);
     });
     run.targetObserver = mo;
     mo.observe(document.body, { childList: true, subtree: true });
   };
 
-  /** Arrows move between sections, by reading direction; Escape stays driver-kit's. */
-  const watchArrows = (run: GuidedRun, i: number) => {
+  /** Arrows move between steps, by reading direction; Escape stays driver-kit's. */
+  const watchArrows = (run: Run, locations: readonly LocationDetail[], i: number) => {
     run.stopArrows?.();
     const onKey = (e: KeyboardEvent) => {
       if (!run.alive || run.dialogOpen || !run.highlight) return;
@@ -601,54 +506,40 @@ export function useGuidedTour() {
       if (e.target instanceof HTMLElement && e.target.closest('input, textarea, [contenteditable]'))
         return;
       const ahead = (e.key === 'ArrowRight') !== pageIsRtl();
-      if (!ahead && i === 0) return;
+      if (!ahead && !hasBefore(run, i)) return;
       e.preventDefault();
-      if (ahead) forward(run, i);
-      else void step(run, backTo(run, i));
+      if (ahead) void step(run, locations, forwardTo(run, i));
+      else void step(run, locations, backTo(run, i));
     };
     window.addEventListener('keydown', onKey);
     run.stopArrows = () => window.removeEventListener('keydown', onKey);
   };
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: the run helpers close over this render by design; the tour outlives Help's unmount.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the run helpers close over this render by design; the tour outlives the page that started it.
   const start = useCallback(
-    async ({ from = 'start', returnFocus }: TourStart = {}): Promise<boolean> => {
-      if (runRef.current) abandon(runRef.current);
-      let locations = locationsQuery.data;
+    async (tourId: TourId, { returnFocus, context = {} }: TourStart = {}): Promise<boolean> => {
+      if (current) abandon(current);
+      let locations = qc.getQueryData<LocationDetail[]>(keys.locations);
       if (!locations) {
         try {
           locations = await qc.fetchQuery({ queryKey: keys.locations, queryFn: listLocations });
         } catch {
-          // Offline at start: run what the routes show, with no inbox and no modules.
+          // Offline at start: run what the routes show, with nothing writable and no modules.
           locations = [];
         }
       }
       const known = locations ?? [];
-      // The location's readable address (D224): the page would replace an id with it, and a
-      // navigation the tour didn't make ends the tour.
-      const place = tourLocation(known);
-      const sections = resolveGuidedSections(
-        availableSections(known),
-        place ? locationAddress({ id: place.id, name: place.name, kind: place.kind }) : null,
-      );
-      if (sections.length === 0) return false;
-      const passed = passedSections(
-        qc.getQueryData<HintsResponse>(inventoryKeys.hints)?.hints ?? undefined,
-      );
-      let first = 0;
-      if (from === 'resume') {
-        const progress = tourProgress(sections, passed);
-        if (progress.state === 'stopped') first = progress.index;
-      } else {
-        // Starting over forgets where the last run stopped, on every device.
-        for (const id of passed)
-          void mark(tourProgressKey(id as TourSectionId), { dismissed: false });
-      }
-      const run: GuidedRun = {
+      const steps = availableTours(known).find((x) => x.tour.id === tourId)?.steps ?? [];
+      if (steps.length === 0) return false;
+      const run: Run = {
         alive: true,
+        tourId,
         seq: 0,
-        sections,
+        steps,
+        context,
+        subjects: new Map(),
         shownAny: false,
+        atLast: false,
         skipped: new Set<number>(),
         highlight: null,
         muteOnEnd: false,
@@ -662,25 +553,44 @@ export function useGuidedTour() {
         targetObserver: null,
         returnFocus: returnFocus ?? null,
       };
-      runRef.current = run;
-      // The person's own moves end the run where it is: only the tour's
-      // navigations, recorded in `expectPath` before each one, keep it going. A change of search
-      // (List to Map) stays on the page and keeps it.
+      // The person's own moves end the run where it is: only the tour's navigations, recorded
+      // in `expectPath` before each one, keep it going. A change of search (List to Map, a
+      // thing's tab) stays on the page and keeps it.
       run.stopWatching = router.subscribe('onResolved', ({ toLocation }) => {
         if (!run.alive || run.dialogOpen) return;
         if (run.expectPath !== null && toLocation.pathname !== run.expectPath) endTour(run);
       });
       hintSlot.take('tour');
       tourLedger.clear();
-      setRunning(true);
+      current = run;
+      tourRequests.setRunning(tourId);
       try {
-        return (await step(run, first)) === 'shown' || run.shownAny;
+        return (await step(run, known, 0)) === 'shown' || run.shownAny;
       } catch {
         abandon(run);
         return false;
       }
     },
-    [copy, labels, mark, navigate, router, qc, locationsQuery.data, t],
+    [copy, labels, mark, navigate, router, qc, t],
   );
   return { start, running };
+}
+
+/**
+ * The one tour host: the app shell mounts it (loaded on demand) once Help or a Show me asked for
+ * a tour, and it runs each request (tour-request.ts).
+ */
+export function TourHost(): null {
+  const { start } = useTour();
+  const pending = usePendingTour();
+  useEffect(() => {
+    if (!pending) return;
+    const req = tourRequests.take();
+    if (req)
+      void start(req.id, {
+        returnFocus: req.returnFocus ?? null,
+        ...(req.context ? { context: req.context } : {}),
+      });
+  }, [pending, start]);
+  return null;
 }

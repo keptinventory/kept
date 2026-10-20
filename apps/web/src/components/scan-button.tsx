@@ -29,6 +29,7 @@ export function ScanButton() {
         <Link
           to="/scan"
           aria-label={t`Scan`}
+          data-tour="scan-button"
           className="grid size-11 shrink-0 place-items-center rounded-[10px] text-ink-2 outline-none hover:bg-sunken hover:text-ink focus-visible:outline-2 focus-visible:outline-info [&_svg]:size-[22px]"
         >
           <QrIcon />

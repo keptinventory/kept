@@ -97,7 +97,7 @@ function LabelsPage() {
       </Page>
     );
   return (
-    <Page title={t`Labels`} wide>
+    <Page title={t`Labels`} wide tour="search">
       <LabelsHome />
     </Page>
   );

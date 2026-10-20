@@ -204,12 +204,14 @@ function LocationBody({ location }: { location: LocationDetail }) {
   );
   const addHere =
     canEdit && unplaced ? (
-      <AddHere
-        locationId={location.id}
-        thingTarget={{ placeId: unplaced.id }}
-        placeParentId={null}
-        hereName={name}
-      />
+      <div data-tour="location-add">
+        <AddHere
+          locationId={location.id}
+          thingTarget={{ placeId: unplaced.id }}
+          placeParentId={null}
+          hereName={name}
+        />
+      </div>
     ) : null;
   const unplacedCard = unplaced ? (
     <UnplacedCard
@@ -228,6 +230,7 @@ function LocationBody({ location }: { location: LocationDetail }) {
       title={name}
       back="/"
       wide
+      tour={{ id: layout === 'map' ? 'map' : 'things', context: { locationId: location.id } }}
       {...(panel && places.length > 1 && layout !== 'table'
         ? {
             aside: (
@@ -264,7 +267,7 @@ function LocationBody({ location }: { location: LocationDetail }) {
           {layout === 'table' ? (
             <SheetLazy location={location} />
           ) : (
-            <>
+            <div className="grid min-w-0 gap-5" data-tour="location-contents">
               <ContentsList
                 parent={{
                   kind: 'location',
@@ -276,7 +279,7 @@ function LocationBody({ location }: { location: LocationDetail }) {
               />
 
               <div>{panel ? null : <PlaceTree places={places} />}</div>
-            </>
+            </div>
           )}
         </>
       )}

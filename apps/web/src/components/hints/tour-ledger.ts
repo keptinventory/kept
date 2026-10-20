@@ -1,14 +1,15 @@
 /**
- * Tour-data ledger for the full guided tour. While the tour runs,
- * every micro-action records what it created; the finish step reads the ledger: empty means no
+ * Tour-data ledger for Help's Tours. While a tour runs, every sample it makes and every
+ * micro-action records what it created; the finish step reads the ledger: empty means no
  * prompt, just Done, and non-empty means the Keep/Discard dialog (`tour-keep.tsx`). Discard
  * deletes exactly these ids, newest first, through a deleter the tour engine wires to the
  * existing delete fetchers — no new endpoint, and never anything the tour didn't create.
  */
 
-/** What a tour micro-action can create. Labels aren't here: the tour only previews them
- * (spec decision 4), and a printed sheet exists in the world, so nothing could discard one. */
-export type TourLedgerKind = 'capture' | 'thing' | 'place' | 'location';
+/** What a tour can create: a sample thing or move (tour-subjects.ts), a capture batch, a place or
+ * a location made while it ran. Labels aren't here: the tour only points at them, and a printed
+ * sheet exists in the world, so nothing could discard one. */
+export type TourLedgerKind = 'capture' | 'thing' | 'place' | 'location' | 'move';
 
 export type TourLedgerEntry = { kind: TourLedgerKind; id: string };
 

@@ -200,6 +200,7 @@ export function ScheduleRowView({
               isDisabled={!online}
               onPress={() => onOpen('complete', s)}
               aria-label={t`Complete ${s.name}`}
+              data-tour="schedule-complete"
             >
               <Trans context="schedule action">Complete</Trans>
             </Button>

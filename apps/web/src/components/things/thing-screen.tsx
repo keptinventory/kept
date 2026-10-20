@@ -324,6 +324,10 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
         title={<bdi dir="auto">{thing.name ?? t`Untitled`}</bdi>}
         back={back}
         wide
+        tour={{
+          id: asVehicle ? 'vehicles' : 'things',
+          context: { locationId: location.id, thing: addressOf(thing) },
+        }}
         {...(placesPanel && tree.data?.places
           ? {
               aside: (
@@ -372,7 +376,7 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
         {/* At every width: on a phone the header's back arrow is icon-only, and this says where
             it goes (the maintainer couldn't tell how to get back to a thing's place). */}
         <div>
-          <LinkButton size="small" variant="ghost" {...back}>
+          <LinkButton size="small" variant="ghost" data-tour="thing-where" {...back}>
             <ChevronStartIcon className="size-4" />
             <Trans>Back to {isolate(backName)}</Trans>
           </LinkButton>
@@ -402,7 +406,7 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
             selectedKey={current}
             onSelectionChange={(k) => setSearch({ tab: String(k) as ThingTab })}
           >
-            <TabList aria-label={t`Sections`}>
+            <TabList aria-label={t`Sections`} data-tour="thing-tabs">
               {tabs.map((x) => (
                 <Tab key={x} id={x}>
                   {titles[x]}
@@ -422,6 +426,7 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
             {/* One row that scrolls sideways: wrapped, History sat alone on a second row. */}
             <nav
               aria-label={t`Sections`}
+              data-tour="thing-tabs"
               className="sticky top-14 z-10 -mx-3.5 flex gap-1.5 overflow-x-auto overscroll-x-contain bg-paper px-3.5 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {tabs.map((x) => (

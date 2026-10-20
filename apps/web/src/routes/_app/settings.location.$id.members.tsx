@@ -122,6 +122,7 @@ function MembersBody({ location }: { location: LocationDetail }) {
           <LinkButton
             to="/settings/location/$id/invite"
             params={{ id: location.id }}
+            data-tour="members-invite"
             variant="primary"
             className="flex-1 sm:flex-none"
           >

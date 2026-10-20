@@ -41,14 +41,14 @@ function LocationsSettings() {
   const roles = useRoleLabels();
   const nameOf = useLocationName();
   return (
-    <Page title={t`Settings`}>
+    <Page title={t`Settings`} tour="settings">
       <SettingsTabs />
       {locations.isPending ? (
         <LoadingRows />
       ) : locations.error ? (
         <ErrorState error={locations.error} onRetry={() => void locations.refetch()} />
       ) : (
-        <List>
+        <List data-tour="settings-locations">
           {locations.data.map((l) => {
             const runs = l.role === 'owner' || l.role === 'admin';
             return (

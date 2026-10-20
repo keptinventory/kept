@@ -69,7 +69,12 @@ export function ThingLoansSection({
               title={<Trans>Not lent out</Trans>}
               action={
                 edit && !inRepair ? (
-                  <Button variant="secondary" isDisabled={!!blocked} onPress={onLend}>
+                  <Button
+                    variant="secondary"
+                    isDisabled={!!blocked}
+                    onPress={onLend}
+                    data-tour="thing-lend"
+                  >
                     <Trans>Lend</Trans>
                   </Button>
                 ) : undefined

@@ -1,11 +1,11 @@
 /**
- * Keep/Discard at the end of the guided tour (the tour-data ledger). The tour
+ * Keep/Discard at the end of a tour (the tour-data ledger). The tour
  * engine shows it only when the ledger is non-empty — an empty `ids` renders nothing. Keep
  * (and dismissing, the safe default) leaves everything; Discard deletes exactly `ids`,
  * newest first, through the engine's deleter (the normal Trash-move mutations, so trashed
- * things wait 30 days and Activity rows stay as history), then says plainly what stayed
- * behind instead of claiming cleanup it didn't do. A full Discard finishes through `onKeep`,
- * so the engine marks `help.tour_seen`, clears the ledger and closes on one path.
+ * things wait 30 days and Activity rows stay as history; a sample move, which has no boxes, is
+ * deleted), then says plainly what stayed behind instead of claiming cleanup it didn't do. A
+ * full Discard finishes through `onKeep`, so the engine clears the ledger and closes on one path.
  */
 
 import { I18nProvider } from '@lingui/react';
@@ -73,8 +73,8 @@ export function TourKeepDialog({
         </p>
         <p className="m-0 text-ink-2">
           <Trans>
-            Keep leaves everything where it is. Discard moves only what the tour added to Trash,
-            where it waits 30 days before it's gone for good. Your activity history stays either
+            Keep leaves everything where it is. Discard removes only what the tour added: a thing
+            goes to Trash for 30 days, a sample move is deleted. Your activity history stays either
             way.
           </Trans>
         </p>

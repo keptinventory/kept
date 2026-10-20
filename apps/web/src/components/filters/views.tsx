@@ -236,6 +236,7 @@ export function ViewsButton({
   const trigger = (
     <AriaButton
       aria-haspopup="dialog"
+      data-tour="list-views"
       onPress={wide ? undefined : () => setOpen(true)}
       className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-[13px] font-medium text-ink-2 outline-none data-hovered:text-ink data-focus-visible:outline-2 data-focus-visible:outline-info [&_svg]:size-3.5"
     >

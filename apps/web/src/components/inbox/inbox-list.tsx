@@ -317,6 +317,7 @@ export function InboxList({ local }: { local?: LocalQueue | null }) {
         ) : null}
 
         <div
+          data-tour="inbox-items"
           className={cn(
             'grid min-w-0 gap-4',
             reviewPane && 'grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)] items-start',

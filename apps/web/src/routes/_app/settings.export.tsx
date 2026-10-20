@@ -59,7 +59,7 @@ function ExportPage() {
         : null);
 
   return (
-    <Page title={t`Export`}>
+    <Page title={t`Export`} tour="import-export">
       <SettingsTabs />
       {locations.isPending ? (
         <LoadingRows rows={3} />
@@ -73,7 +73,7 @@ function ExportPage() {
               you can read without Kept. Import it into this Kept or another one.
             </Trans>
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2" data-tour="export-actions">
             {exportable.length > 0 ? (
               <Button isDisabled={!online} onPress={() => openSheet('location')}>
                 <Trans>Export a location</Trans>

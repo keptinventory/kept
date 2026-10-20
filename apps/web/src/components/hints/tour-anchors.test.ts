@@ -1,17 +1,18 @@
 // @vitest-environment node
 /**
- * The guided tour's anchors are on their screens (D242). Each section names the route it opens
- * and the `data-tour` it points at; this reads the route's file (TanStack's file routes:
- * `/loc/$id` is routes/_app/loc.$id.tsx, `/settings` is settings.index.tsx, a stop that stays put
- * is the app shell's layout route) and the modules it imports, two levels deep, and fails when the
- * anchor isn't written there. A moved or renamed element fails CI instead of the tour. The e2e
- * spec (e2e/tour.spec.ts) walks the real thing.
+ * Every tour's anchors are on their screens. Each step names the route it opens and the
+ * `data-tour` it points at; this reads the route's file (TanStack's file routes: `/loc/$id` is
+ * routes/_app/loc.$id.tsx, `/settings` is settings.index.tsx, a stop that stays put is the app
+ * shell's layout route) and the modules it imports, static and `import()`ed alike (the map and a
+ * vehicle's tabs load on demand), several levels deep, and fails when the anchor isn't written
+ * there. A moved or renamed element fails CI instead of the tour. The e2e spec
+ * (e2e/tour.spec.ts) walks the real thing.
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { GUIDED_SECTIONS, resolveGuidedSections, stopFor, type TourLayout } from './tour';
+import { stopFor, TOURS, type TourLayout } from './tours';
 
 const SRC = fileURLToPath(new URL('../../', import.meta.url));
 const ROUTES = path.join(SRC, 'routes');
@@ -41,10 +42,10 @@ function resolveImport(spec: string, from: string): string | null {
   return null;
 }
 
-const IMPORT = /(?:import|export)\s[^;]*?from\s+['"]([^'"]+)['"]/g;
+const IMPORT = /(?:(?:import|export)\s[^;]*?from\s+|import\(\s*)['"]([^'"]+)['"]/g;
 
 /** The route's file and what it imports from the app, `depth` levels deep. */
-function screenSources(entry: string, depth = 2): Map<string, string> {
+function screenSources(entry: string, depth = 6): Map<string, string> {
   const seen = new Map<string, string>();
   let frontier = [entry];
   for (let level = 0; level <= depth && frontier.length > 0; level++) {
@@ -65,15 +66,18 @@ function screenSources(entry: string, depth = 2): Map<string, string> {
 
 const written = (anchor: string) => `data-tour="${anchor}"`;
 
-/** Every stop the tour can make: both layouts, and New location for an empty household. */
+/** Every stop a tour can make, on both layouts. */
 const STOPS = (['phone', 'wide'] as TourLayout[]).flatMap((layout) =>
-  [
-    ...resolveGuidedSections(GUIDED_SECTIONS, 'home-3f9c2a1b'),
-    ...resolveGuidedSections(GUIDED_SECTIONS, null).filter((s) => s.id === 'location'),
-  ].map((s) => ({ layout, id: s.id, stop: stopFor(s, layout) })),
+  TOURS.flatMap((tour) =>
+    tour.steps.map((step) => ({
+      layout,
+      id: `${tour.id}.${step.id}`,
+      stop: stopFor(step, layout),
+    })),
+  ),
 );
 
-describe('the guided tour’s anchors', () => {
+describe('the tours’ anchors', () => {
   for (const { layout, id, stop } of STOPS) {
     it(`${id} (${layout}): ${stop.anchors.join(' or ')} on ${stop.to ?? 'the shell'}`, () => {
       const sources = screenSources(routeFile(stop.to));
@@ -87,9 +91,12 @@ describe('the guided tour’s anchors', () => {
     });
   }
 
-  it('leaves no anchor in the app that the tour no longer uses', () => {
+  it('never sends a step to Scan, where the camera starts', () => {
+    for (const { stop } of STOPS) expect(stop.to ?? '').not.toMatch(/^\/scan/);
+  });
+
+  it('leaves no anchor in the app that no tour uses', () => {
     const used = new Set(STOPS.flatMap((s) => s.stop.anchors));
-    used.add('help-tour');
     const found = new Set<string>();
     const walk = (dir: string) => {
       for (const name of readdirSync(dir)) {

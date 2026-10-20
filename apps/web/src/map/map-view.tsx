@@ -733,7 +733,12 @@ function MapBody({
               </>
             ) : null}
           </nav>
-          <fieldset data-map-obstacle className="kmap-seg" aria-label={t`View`}>
+          <fieldset
+            data-map-obstacle
+            data-tour="map-view"
+            className="kmap-seg"
+            aria-label={t`View`}
+          >
             <button
               type="button"
               aria-pressed={!es.planView}
@@ -763,6 +768,7 @@ function MapBody({
               <button
                 type="button"
                 data-map-obstacle
+                data-tour="map-arrange"
                 className="kmap-btn"
                 onClick={() => void startArranging()}
               >
@@ -770,7 +776,12 @@ function MapBody({
               </button>
             )
           ) : null}
-          <fieldset data-map-obstacle className="kmap-chips" aria-label={t`Pins`}>
+          <fieldset
+            data-map-obstacle
+            data-tour="map-pins"
+            className="kmap-chips"
+            aria-label={t`Pins`}
+          >
             {(['low', 'lent', 'due'] as const).map((k) => (
               <button
                 key={k}
@@ -815,7 +826,7 @@ function MapBody({
         ) : null}
         <div className="kmap-ctl" data-map-obstacle data-map-reserve="bottom">
           {levels.length > 1 ? (
-            <fieldset className="kmap-floors" aria-label={t`Floor`}>
+            <fieldset className="kmap-floors" aria-label={t`Floor`} data-tour="map-floors">
               {[...levels].reverse().map((l) => (
                 <button
                   key={l.key}

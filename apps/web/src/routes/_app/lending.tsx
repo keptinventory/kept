@@ -149,7 +149,7 @@ function LendingPage() {
   ];
 
   return (
-    <Page title={t`Lending`} wide>
+    <Page title={t`Lending`} wide tour="lending">
       {module.loaded && !module.on ? (
         <EmptyState icon={<HandoffIcon />} title={<Trans>Lending is off in your locations</Trans>}>
           <Trans>
@@ -173,7 +173,7 @@ function LendingPage() {
               </Trans>
             </p>
           ) : null}
-          <div>
+          <div data-tour="lending-list">
             <ListSurface<LoanRow>
               label={t`Loans`}
               search={{ label: t`Search loans`, placeholder: t`Search by thing or person` }}

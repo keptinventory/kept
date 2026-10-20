@@ -26,7 +26,7 @@ function VehiclesPage() {
   const { t } = useLingui();
   const module = useModuleAnywhere('vehicles');
   return (
-    <Page title={t`Vehicles`} wide>
+    <Page title={t`Vehicles`} wide tour="vehicles">
       {module.loaded && !module.on ? (
         <EmptyState icon={<CarIcon />} title={<Trans>Vehicles is off in your locations</Trans>}>
           <Trans>
@@ -34,7 +34,7 @@ function VehiclesPage() {
           </Trans>
         </EmptyState>
       ) : (
-        <div>
+        <div data-tour="vehicles-list">
           <VehiclesList />
         </div>
       )}
