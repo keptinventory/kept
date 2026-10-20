@@ -88,7 +88,9 @@ export const HB_SEEDED_TAGS = [
  * - `hb_location_in_item`: a location inside an item, which became a container;
  * - `hb_notifier_skipped`: notifiers are never imported (their URLs are credentials);
  * - `hb_seeded_skipped`: Homebox's seeded places and tags, empty and unused, left out;
- * - `hb_time_default`: a `time` field whose value is only its row's creation time, read as empty.
+ * - `hb_time_default`: a `time` field whose value is only its row's creation time, read as empty;
+ * - `hb_location_row`: a spreadsheet row that is a Homebox location (v0.26 on lists them), left
+ *   out: places come from the items' location column.
  */
 export const HB_ISSUE_CODES = [
   'hb_archived_skipped',
@@ -103,5 +105,60 @@ export const HB_ISSUE_CODES = [
   'hb_notifier_skipped',
   'hb_seeded_skipped',
   'hb_time_default',
+  'hb_location_row',
 ] as const;
 export type HomeboxIssueCode = (typeof HB_ISSUE_CODES)[number];
+
+// ---------------------------------------------------------------------------------------------
+// Homebox's spreadsheet export, read by the CSV import
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * What a Homebox spreadsheet's preset decides on the CSV import: archived items (not sold) end
+ * as thrown away (`ended`, the lifecycle that keeps them out of the lists, as Homebox's archive
+ * does), stay in use with the tag "Archived in Homebox" (`tag`), or are left out (`skip`).
+ */
+export const HomeboxCsvChoices = z.strictObject({
+  archived: z.enum(['ended', 'tag', 'skip']),
+});
+export type HomeboxCsvChoices = z.infer<typeof HomeboxCsvChoices>;
+
+/**
+ * The columns the preset reads itself, so they're never mapped: the asset ID and the item's
+ * link (old labels), archived, insured, the warranty and the sale. Homebox v0.26 renamed
+ * `HB.sold_time` to `HB.sold_date`; both are read.
+ */
+export const HB_CSV_PRESET_COLUMNS = [
+  'HB.asset_id',
+  'HB.url',
+  'HB.archived',
+  'HB.insured',
+  'HB.lifetime_warranty',
+  'HB.warranty_expires',
+  'HB.warranty_details',
+  'HB.sold_to',
+  'HB.sold_price',
+  'HB.sold_time',
+  'HB.sold_date',
+  'HB.sold_notes',
+] as const;
+
+/**
+ * Whether these headers are a Homebox spreadsheet export: "Export Inventory" up to v0.25 (a TSV
+ * in v0.10.3 and v0.11.0), `GET /entities/export` from v0.26. Every version writes `HB.name`
+ * and `HB.location`.
+ */
+export function isHomeboxCsv(columns: readonly string[]): boolean {
+  return columns.includes('HB.name') && columns.includes('HB.location');
+}
+
+const HB_LINK =
+  /\/(item|location)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i;
+
+/** The item or location an `HB.url` cell names: `<base>/item/<uuid>` (v0.13 to v0.25), or
+ * `/item/<uuid>` and `/location/<uuid>` (v0.26 on). Null when it names neither. */
+export function hbCsvLink(url: string): { kind: 'item' | 'location'; uuid: string } | null {
+  const m = HB_LINK.exec(url.trim());
+  if (!m) return null;
+  return { kind: m[1]?.toLowerCase() as 'item' | 'location', uuid: (m[2] as string).toLowerCase() };
+}

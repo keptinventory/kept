@@ -197,6 +197,8 @@ export function useIssueText() {
         return t`One of Homebox's starter places or tags, empty and unused, left out.`;
       case 'hb_time_default':
         return t`A date Homebox filled in with the day the item was made; read as empty.`;
+      case 'hb_location_row':
+        return t`A Homebox location, not an item, so it's skipped: places come from the items' location column.`;
       default:
         return issue.message;
     }
@@ -269,6 +271,8 @@ export function useRefusalText() {
         return t`It's protected with a ZIP password, which Kept can't open. Export it again without one.`;
       case 'entry_too_large':
         return t`One of its data files is too large to read.`;
+      case 'no_manifest':
+        return t`It has no manifest.json, so it isn't an export from Homebox v0.26.1 or newer. A Homebox older than v0.26 can't make one: update a copy of it to v0.27.0 and export again, or import its spreadsheet (CSV) export instead.`;
       default:
         return undefined;
     }
