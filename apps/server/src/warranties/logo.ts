@@ -21,7 +21,7 @@ import { ImageLimiter } from '../storage/derivatives.js';
 // row (a location's). The upload may be PNG, JPEG, WebP or SVG, told by its bytes (sharp's own
 // sniffing), never by the declared type. It is rendered from the buffer to a PNG of at most
 // 256 px a side, and only that PNG is kept: an SVG's bytes are never stored or served back
-// (Q33). The step-4 T0 spike (docs/spikes/2026-09-30-step4-svg-logo.md) showed an SVG rendered
+// (Q33). The step-4 T0 spike showed an SVG rendered
 // from a buffer loads no external, `file:` or relative resource, refuses external entities and
 // entity expansion, and fails a huge canvas on `limitInputPixels`; anything sharp can't render
 // is a 415. Rendering runs in its own image limiter (one at a time).

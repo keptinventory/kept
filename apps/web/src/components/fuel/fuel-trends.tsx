@@ -4,7 +4,7 @@
  * it with React.lazy), so the charts cost nothing until the tab is open.
  *
  * Drawn as plain SVG, the way the AI usage charts are (components/ai/usage-charts.tsx), by the V38
- * rules (docs/spikes/2026-09-30-step5-charts.md): the `<svg>` is `direction: ltr` and RTL is drawn
+ * rules (components/charts/kit.tsx): the `<svg>` is `direction: ltr` and RTL is drawn
  * by geometry (time runs right to left, the value labels sit on the right); every point is
  * reachable from the keyboard as one tab stop (a roving tabIndex; the arrows move the way they
  * point on screen, Home and End to the ends), each point's label says what the line above the

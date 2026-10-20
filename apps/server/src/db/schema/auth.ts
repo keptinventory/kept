@@ -195,7 +195,7 @@ export const signInFailures = authSchema.table('sign_in_failures', {
   lastFailureAt: tstz('last_failure_at').notNull(),
 });
 
-// Step 6 (T7; spike S6.2, docs/spikes/2026-09-30-step6-oauth-cimd.md): the tables `jwt()`,
+// Step 6 (T7; spike S6.2): the tables `jwt()`,
 // `oauthProvider()`/`mcp()` and `cimd()` add, from the Better Auth CLI's output for those plugins
 // (`auth@1.7.6 generate --adapter drizzle --dialect postgresql`, no `database` in its config:
 // S1's stub adapter crashes on oauth-provider's startup seeding), adjusted as above. `cimd()` adds

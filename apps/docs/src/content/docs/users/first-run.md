@@ -102,8 +102,8 @@ the invite is the only way to make an account.
 | **Member** | Add, edit, move, lend and trash things; log readings and services; print labels; use AI capture. Money is visible. |
 | **Viewer** | Look and search only. Money is hidden unless the location allows viewers to see it; the assistant answers but can't change anything. |
 
-The full matrix is in the
-[product design](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-product-design.md#71-role-matrix-per-location).
+The full matrix is `MATRIX` in
+[`packages/shared/src/roles.ts`](https://github.com/keptinventory/kept/blob/main/packages/shared/src/roles.ts).
 
 ### People without email
 

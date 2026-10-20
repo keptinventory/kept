@@ -8,7 +8,7 @@
  * Then the provider's own retention and training terms, summarised per kind with the date they
  * were read and a link to the page they were read from (screens §8). Each summary is read from the
  * provider's own published page on its `checked` date, never paraphrased from memory, and is
- * re-read before each release (docs/release/1.0-checklist.md). A kind with no entry says where
+ * re-read before each release. A kind with no entry says where
  * its terms live instead. `openai_compatible` is a server the person runs, so it has no terms.
  */
 import type { ProviderKind } from '@kept/shared';

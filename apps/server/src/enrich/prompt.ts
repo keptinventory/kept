@@ -1,6 +1,6 @@
 /**
- * The alias-enrichment call (D41, D69, D214; step-7 plan T15; spike E1,
- * docs/spikes/2026-09-30-step7-enrich.md): the prompt, its wire schema, the batch size and the
+ * The alias-enrichment call (D41, D69, D214; step-7 plan T15; spike E1): the prompt, its wire
+ * schema, the batch size and the
  * checks on what comes back. Pure: no database.
  *
  * - **Numbered names in, answers by index out** (L51): the model never sees or returns an id. A

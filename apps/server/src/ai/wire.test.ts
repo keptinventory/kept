@@ -80,7 +80,7 @@ describe('wireSchema variants (T11 follow-up)', () => {
       expect(wireSchema(mode, 'receipt-required')).toEqual(wireSchema(mode, 'simple'));
   });
 
-  it('the worker sends receipt-required (docs/evals/2026-09-29-groq-receipt-date-currency.md)', () => {
+  it('the worker sends receipt-required (the 2026-09-29 Groq evaluation)', () => {
     expect(WIRE_IN_USE).toBe('receipt-required');
   });
 });

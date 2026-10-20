@@ -1,5 +1,5 @@
-// Homebox's type icons as Kept's (D146 "icons matched by name where possible"; spike H2,
-// docs/spikes/2026-09-30-step7-homebox.md). Homebox v0.26.2's picker offers exactly these 16
+// Homebox's type icons as Kept's (D146 "icons matched by name where possible"; spike H2).
+// Homebox v0.26.2's picker offers exactly these 16
 // names (frontend/lib/icons.ts); each Lucide name was checked against lucide-react 1.48.0.
 // Anything else (the API stores any string) is dropped with `hb_icon_dropped`, and the Kept
 // type keeps its own icon; null or "" is no icon, with no issue.

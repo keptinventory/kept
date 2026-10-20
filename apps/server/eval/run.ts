@@ -26,7 +26,7 @@
  *
  * With `--dir` unset it reads `KEPT_EVAL_DIR`; with neither, or a folder that doesn't exist, it
  * prints `skipped: no evaluation folder` and exits 0. The report (report.ts) goes to
- * `docs/evals/<date>-<provider>-<model>.md`: numbers and case ids only.
+ * `.tmp/evals/<date>-<provider>-<model>.md` (git-ignored): numbers and case ids only.
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -181,8 +181,8 @@ export type EvalRun = {
 
 /**
  * Prices the harness knows, per million tokens, with where each came from. Groq's is its own
- * model listing on 2026-09-26 (docs/spikes/code/step3/server/models-groq-2026-09-26.json:
- * prompt 0.0000008, completion 0.000004, input_cache_read 0.0000004 USD a token). Anything else
+ * model listing on 2026-09-26 (prompt 0.0000008, completion 0.000004, input_cache_read
+ * 0.0000004 USD a token). Anything else
  * needs `--price`, or its cost is reported as unknown (never guessed, Q8).
  */
 export const LISTED_PRICES: readonly { kind: ProviderKind; model: string; price: Price }[] = [
@@ -818,7 +818,7 @@ export async function main(
   if (!values['no-report']) {
     const outDir = values.out
       ? path.resolve(typedFrom(), values.out)
-      : path.join(REPO_ROOT, 'docs/evals');
+      : path.join(REPO_ROOT, '.tmp/evals');
     const file = writeReport(run, outDir);
     print(`report: ${shown(file)}`);
   }

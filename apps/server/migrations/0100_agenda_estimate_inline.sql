@@ -1,5 +1,5 @@
 -- Custom SQL migration file, put your code below! --
--- Step 5's carried-over perf fix (docs/perf/2026-10-06-step5.md; the agenda, Home and the
+-- Step 5's carried-over perf fix (the agenda, Home and the
 -- Vehicles list with vehicles): every result is 0053/0066's, only how it is computed changes.
 -- Measured on the step-5 perf fixture (10,000 things, 700 schedules, 150 of them on a meter), a
 -- read of public.agenda_items spent ~160 of its ~170 ms in the schedule branch: one

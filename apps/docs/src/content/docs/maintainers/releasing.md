@@ -124,4 +124,3 @@ and must end with a verified signature and no container left behind. ci-local's
 - [Signing](/maintainers/signing/): the key, what is signed, and why it isn't keyless yet.
 - [The changelog](/maintainers/changelog/).
 - [Runbooks and scripts](/maintainers/runbooks/): every ci-local step.
-- [The 1.0 checklist](https://github.com/keptinventory/kept/blob/main/docs/release/1.0-checklist.md).

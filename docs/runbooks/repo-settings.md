@@ -2,7 +2,7 @@
 
 **Status (2026-10-14):** applied on the public repository: the `main` and `release tags` rulesets
 are live. The topics are not: the repository has 9, the script lists 19; the next run replaces
-them. The go-public plan §5 and audit rows 5.9, 5.11, 5.12 and 5.15 are what it implements.
+them.
 
 The script holds GitHub's settings as code. It reads each setting, prints `current -> intended`,
 and writes only what differs, so it can be run any number of times. Every endpoint and field comes

@@ -92,7 +92,7 @@ const page = (slug) => slug;
 /** A group filled from a directory, in each page's `sidebar.order`. */
 const dir = (directory) => [{ autogenerate: { directory } }];
 
-// Four audiences (go-public plan §2): people who use Kept, people who run it, people who build
+// Four audiences: people who use Kept, people who run it, people who build
 // on it, and people who maintain it. Pages keep their URLs (install/, admin/, reference/); the
 // sidebar groups them by who reads them.
 const sidebar = [

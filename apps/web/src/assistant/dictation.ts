@@ -1,5 +1,5 @@
 /**
- * Browser dictation (D25, D213, V13; spike S6.6, docs/spikes/2026-09-30-step6-dictation.md): the
+ * Browser dictation (D25, D213, V13; spike S6.6): the
  * mic in the assistant's composer and in Capture's name field. It uses the browser's own
  * recogniser (`SpeechRecognition`, or `webkitSpeechRecognition` in Safari), so Kept sends nothing
  * to any server; the browser may use its own speech service.

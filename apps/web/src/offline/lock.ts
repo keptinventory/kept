@@ -1,5 +1,5 @@
 /**
- * The app lock's keys (step-8 plan T23; D181, Q22; spike L1, docs/spikes/2026-10-06-step8-app-lock.md).
+ * The app lock's keys (step-8 plan T23; D181, Q22; spike L1).
  * WebCrypto only; nothing here touches IndexedDB, so the lock screen's chunk can load it alone.
  *
  * - **One random data key per device** (AES-GCM-256) encrypts what "keep this location available

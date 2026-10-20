@@ -3,7 +3,7 @@ import { localClock, minutesOf, notBefore, offsetAt, wallToInstant } from './qui
 
 // Quiet hours on the person's wall clock (plan T14; Q9; spike V21). Wall times turn into
 // instants as Postgres reads them: a gap pushes forward, an overlap takes the later instant
-// (docs/spikes/2026-09-30-step4-dst.md's table, checked here against the same instants).
+// (the spike's table, checked here against the same instants).
 
 const CAIRO = 'Africa/Cairo';
 const iso = (d: Date | null) => d?.toISOString() ?? null;

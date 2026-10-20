@@ -9,10 +9,8 @@ commit e01dd737, SQLite, the image's default storage), made on 2026-09-30 for st
 | `homebox-0.26.2-home.zip` | Home (`1d93892c-082a-4fb4-9645-b78321688b99`) | `SAR` | Ibrahim (owner), Bruce, Louis |
 | `homebox-0.26.2-family.zip` | بيت العائلة (`19c07b70-405b-4503-9517-2c5d847718b2`) | `USD` (never changed) | ألفريد (owner), Ibrahim |
 
-How they were made, what they hold and every format detail observed:
-`docs/spikes/2026-09-30-step7-homebox.md`. The script is
-`docs/spikes/code/step7/make_homebox_fixture.py`; a re-run makes new UUIDs, so tests must not
-hard-code ids from anywhere but these files.
+A re-run of the export makes new UUIDs, so tests must not hard-code ids from anywhere but these
+files.
 
 What the cases cover:
 

@@ -23,7 +23,7 @@ way).
 
 Outside the packages: `charts/kept` (the Helm chart), `docker/` (database bootstrap scripts, the
 Caddyfile, the image's health check), `compose.yaml` and `compose.dev.yaml`, `Dockerfile`,
-`docs/` (specs, plans, spikes, runbooks, performance reports) and `scripts/`.
+`docs/` (runbooks, release records and the repository's images) and `scripts/`.
 
 ## `apps/server/src`
 

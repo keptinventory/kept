@@ -1,11 +1,11 @@
-// Kept's inventory report (D201), ported from the V34 spike (docs/spikes/code/pdf/report.typ).
+// Kept's inventory report (D201), ported from the V34 spike.
 // Typst 0.14 through @myriaddreamin/typst-ts-node-compiler 0.7.0, rendered by
 // src/reports/render/child.mjs. Everything comes from /data.json (reports/view.ts builds it):
 // strings, numbers, money and dates arrive formatted (Intl, in the reader's language and digits),
 // so no formatting happens here. Photos are /thumbs/<id>.jpg (always JPEG, 200 px) and QR codes
 // /qr/<id>.svg. Data strings are only ever inserted as text, never evaluated as markup.
 //
-// Rules from the spike (docs/spikes/2026-09-26-pdf-engine.md):
+// Rules from the spike:
 // - weights are picked by family name ("IBM Plex Sans SmBld"), never with `weight:`: Typst files
 //   the Medium and SemiBold faces under their legacy family names;
 // - Arabic sets `dir: rtl`; short IDs and serials stay left-to-right in Plex Mono (D143);

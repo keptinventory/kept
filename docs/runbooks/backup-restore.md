@@ -3,7 +3,7 @@
 **Status (2026-10-07):** built in step 8 (T5–T8, D64, D66, D144, D159). Every command below is
 read from `apps/server/src/cli/index.ts` as it stands. The tests run on an in-memory fake restic
 (`bash scripts/ci-local.sh`'s `backup` step); the real binary was exercised by spike R1
-(`docs/spikes/2026-10-06-step8-restic.md`: directory, S3 on RustFS, SFTP) and runs the same tests
+(directory, S3 on RustFS, SFTP) and runs the same tests
 under `KEPT_TEST_RESTIC=1`, which no recorded run has done yet. The public versions are the docs
 site's "Backups", "Restore and the drill" and "Read your inventory with restic alone" pages
 (`apps/docs/src/content/docs/admin/`); keep them in step. The monthly drill and the full restore

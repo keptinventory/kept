@@ -57,7 +57,7 @@ function simplify(node: unknown): unknown {
  *   carries a short `^[0-9]{4}-[0-9]{2}-[0-9]{2}$` pattern (not zod's ~300-character regex).
  *   Other modes are sent as `simple`.
  *
- * **In use: `receipt-required`** (docs/evals/2026-09-29-groq-receipt-date-currency.md). On the
+ * **In use: `receipt-required`** (the 2026-09-29 evaluation). On the
  * three synthetic receipts with Groq `qwen/qwen3.8-27b` it read the date and the currency 3/3
  * each, where `simple` read them 2/3 and 1/3 (and 0/3 each at temperature 0), with the other
  * fields as right. Its answers were longer (mean 1,107 output tokens against 734), which on a

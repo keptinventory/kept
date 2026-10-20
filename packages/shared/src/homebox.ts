@@ -1,6 +1,6 @@
 /**
- * The Homebox importer's contract (D146; step-7 plan T1, T9; spike H1–H3,
- * docs/spikes/2026-09-30-step7-homebox.md): the dry-run choices, how Homebox's custom-field kinds
+ * The Homebox importer's contract (D146; step-7 plan T1, T9; spike H1–H3): the dry-run choices,
+ * how Homebox's custom-field kinds
  * become Kept's, the canonical form of an asset ID, and the `hb_*` issue codes the dry run and the
  * summary report.
  */

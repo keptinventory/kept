@@ -1,12 +1,9 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { ACTIONS, type Action, can, MATRIX, QUALIFIERS, ROLES, type Role } from './roles.js';
 
 /**
- * Product design §7.1, copied verbatim (docs/specs/2026-09-25-kept-product-design.md). The drift
- * test below fails if the spec's table changes without this fixture (and roles.ts) following.
+ * The role matrix (product design §7.1), the table roles.ts implements. A change to who may do
+ * what changes this table and roles.ts together.
  */
 const SPEC_7_1 = `| Action | Owner | Admin | Member | Viewer |
 |---|---|---|---|---|
@@ -201,18 +198,6 @@ const CELLS = Object.entries(EXPECTED).flatMap(([action, { roles }]) =>
 );
 
 describe('role matrix (product design §7.1)', () => {
-  it('matches the table in the product design spec (drift guard)', () => {
-    const specPath = path.resolve(
-      path.dirname(fileURLToPath(import.meta.url)),
-      '../../../docs/specs/2026-09-25-kept-product-design.md',
-    );
-    const spec = readFileSync(specPath, 'utf8');
-    const section = spec.slice(spec.indexOf('### 7.1 Role matrix'));
-    const start = section.indexOf('| Action |');
-    const table = section.slice(start, section.indexOf('\n\n', start));
-    expect(parseTable(table)).toEqual(SPEC_ROWS);
-  });
-
   it('has an action for every row of §7.1 and no action from outside it', () => {
     const covered = new Set(Object.values(EXPECTED).map((e) => e.row));
     expect([...covered].sort()).toEqual([...SPEC_ROWS.keys()].sort());

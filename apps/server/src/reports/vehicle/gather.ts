@@ -15,7 +15,7 @@ import type { ReportLocale } from '../labels.js';
 // - The vehicle: its name, type, short ID, VIN and plate (the built-in `vin` and `plate` fields of
 //   `custom`; a secret is never in `custom`, and the secrets store is never read), location, and
 //   cover photo.
-// - Odometer history, bounded by rows (V39, docs/spikes/2026-09-30-step5-vehicle-report.md: rows
+// - Odometer history, bounded by rows (V39: rows
 //   drive the render's memory, not photos): every accepted reading that has a proof photo or was
 //   typed by hand, plus the latest of each local month. A fill's or a service's own reading also
 //   shows in its section. Proof photos: the latest PROOF_LIMIT (the measured load), "N more" past

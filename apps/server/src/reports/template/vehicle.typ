@@ -1,5 +1,5 @@
 // Kept's vehicle history report (D51, D201; step-5 plan T15), the third template on the D201
-// engine, from the V39 spike (docs/spikes/code/step5/vehicle-report/vehicle.typ). Everything comes
+// engine, from the V39 spike. Everything comes
 // from /data.json (reports/vehicle/view.ts builds it): strings, money and dates arrive formatted
 // in the reader's language and digits, so no formatting happens here. Photos are
 // /thumbs/<id>.jpg (200 px JPEG, GPS-stripped derivatives), the short ID's QR /qr/<id>.svg. Data

@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 /**
- * Kept's service worker (plan T23; D101, D148, D181; spike docs/spikes/2026-09-26-step3-serwist.md).
+ * Kept's service worker (plan T23; D101, D148, D181).
  * Built by @serwist/vite (vite.config.ts) to dist/sw.js, with the precache manifest injected at
  * `self.__SW_MANIFEST`.
  *

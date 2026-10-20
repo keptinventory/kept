@@ -1,6 +1,6 @@
 /**
  * Toasts on React Aria's toast queue (not sonner: shadcn's aria base ships sonner, which is not
- * React Aria and pulls in next-themes; see docs/spikes/2026-09-26-s4.md).
+ * React Aria and pulls in next-themes; spike S4).
  *
  * One app-level queue. Call `toast({ title })` from anywhere; <Toaster /> renders it once near
  * the root. The region is a landmark (F6 reaches it), toasts pause while hovered or focused, and

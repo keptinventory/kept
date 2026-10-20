@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // restic's `--json` messages (step-8 plan T5), one zod schema per message type, as the R1 spike
-// recorded them from restic 0.19.1 (docs/spikes/2026-10-06-step8-restic.md, "JSON messages") and
+// recorded them from restic 0.19.1 ("JSON messages") and
 // restic's scripting docs. What R1 found and these follow:
 // - zero-valued numbers are omitted (the first `status` line had no `seconds_elapsed`), so every
 //   count is optional with a default of 0;

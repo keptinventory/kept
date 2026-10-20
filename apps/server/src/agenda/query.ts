@@ -132,7 +132,7 @@ export async function agendaCounts(
 
 /** Per state, the count of each source (Home: whether a row's items are all schedules). One read
  * of the view, without the title joins a count doesn't need (step-4 perf: each read of
- * agenda_items costs about 95 ms at 10,000 things, docs/perf/2026-09-30-step4.md). */
+ * agenda_items costs about 95 ms at 10,000 things). */
 export async function agendaCountsBySource(
   client: pg.ClientBase,
 ): Promise<Record<'overdue' | 'due' | 'expiring', Partial<Record<ActiveSourceType, number>>>> {

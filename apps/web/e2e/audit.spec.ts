@@ -9,8 +9,6 @@
  *    axe's best practices).
  * 2. A keyboard walk (desktop): capture → inbox → search → thing, and the label print flow, with
  *    no mouse at all.
- *
- * Findings and fixes: docs/audits/ui-2026-09-29.md.
  */
 import AxeBuilder from '@axe-core/playwright';
 import { type Browser, type BrowserContext, expect, type Page, test } from '@playwright/test';

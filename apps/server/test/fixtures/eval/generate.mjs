@@ -5,9 +5,8 @@
 //   node apps/server/test/fixtures/eval/generate.mjs
 //
 // Every photo is drawn here from SVG: nothing is downloaded, and nothing is a real document. The
-// receipt-en, label-nameplate and reading-odometer drawings are the step-3 spike's
-// (docs/spikes/code/step3/server/make-images.ts), so the harness's numbers compare with the
-// spike's. sharp writes no EXIF unless asked, so the files carry no metadata.
+// receipt-en, label-nameplate and reading-odometer drawings are the step-3 spike's, so the
+// harness's numbers compare with the spike's. sharp writes no EXIF unless asked, so the files carry no metadata.
 //
 // These are a smoke set. V1 and V3 are proven only by the maintainer's real photos (README.md).
 

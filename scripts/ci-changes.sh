@@ -3,8 +3,7 @@
 # stdin and prints two GitHub outputs:
 #
 #   unit=true|false    the unit tests (fast's `unit` and `eval` steps): false only when every path
-#                      is prose: docs/ (outside docs/spikes/, which holds code a test reads) or a
-#                      Markdown file at the root (CHANGELOG.md, README.md, …)
+#                      is prose: docs/ or a Markdown file at the root (CHANGELOG.md, README.md, …)
 #   heavy=true|false   db, e2e, the images and helm: false when every path is prose or the docs
 #                      site (apps/docs/, which none of them builds or runs; docs.yml builds it)
 #
@@ -21,9 +20,7 @@ n=0
 while IFS= read -r path; do
   [[ -n $path ]] || continue
   n=$((n + 1))
-  if [[ $path == docs/spikes/* ]]; then
-    unit=true heavy=true # code a test reads
-  elif [[ $path == docs/* || ($path == *.md && $path != */*) ]]; then
+  if [[ $path == docs/* || ($path == *.md && $path != */*) ]]; then
     : # prose: no test reads it (release.sh checks README.md at release time)
   elif [[ $path == apps/docs/* ]]; then
     unit=true

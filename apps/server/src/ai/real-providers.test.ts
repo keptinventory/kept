@@ -9,7 +9,8 @@
 //
 // Budget: at most 5 Groq requests (1 listing, 2 extractions, the 2-call Test), at least 5 s
 // apart and paced by Groq's rate-limit headers through the real Pacer; 1 OpenRouter listing (no
-// model call: the dev key has no credit). Images: the spike's synthetic, EXIF-free photos.
+// model call: the dev key has no credit). Images: the evaluation's synthetic, EXIF-free photos
+// (test/fixtures/eval, drawn as the spike's were).
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
@@ -25,9 +26,7 @@ import { testConnection } from './test-connection.js';
 const RUN = process.env.KEPT_AI_SMOKE === '1';
 const GROQ_KEY = process.env.KEPT_DEV_GROQ_API_KEY ?? null;
 const OPENROUTER_KEY = process.env.KEPT_DEV_OPENROUTER_API_KEY ?? null;
-const IMAGES = fileURLToPath(
-  new URL('../../../../docs/spikes/code/step3/server/images/', import.meta.url),
-);
+const IMAGES = fileURLToPath(new URL('../../test/fixtures/eval/', import.meta.url));
 const GAP_MS = 5_000;
 
 /** Groq's listed price for qwen/qwen3.8-27b on 2026-09-26 (spike listing), per million tokens. */
@@ -131,7 +130,7 @@ describe.skipIf(!RUN)('real providers (opt-in, KEPT_AI_SMOKE=1)', () => {
     const reading = await extract(rt, {
       ...base,
       mode: 'reading',
-      images: [await image('odometer.jpg')],
+      images: [await image('reading-odometer.jpg')],
       prompt: {
         system: `You read vehicle and utility meters. ${COMMON} Digits exactly as displayed. display: digital or analog. The value is an integer count of the unit shown.`,
         text: 'Read this meter.',

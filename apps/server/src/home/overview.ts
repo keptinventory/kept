@@ -28,7 +28,7 @@ import { type Gate, gateFor } from '../serialize/gates.js';
 //
 // Read as the caller on kept_app, so row-level security decides every count. The agenda view is
 // read once (the counts and the top rows share one materialised CTE; at 10,000 things a read of
-// it is most of Home's cost, docs/perf/2026-09-30-step4.md).
+// it is most of Home's cost).
 
 /** Full years of spending the teaser shows before this one. */
 export const TEASER_YEARS = 3;

@@ -25,8 +25,8 @@ import {
 // keeps the repository in memory: snapshots of paths → contents, content deduplicated by SHA-256.
 // It passes test/restic-contract.ts, which T5's run.ts must pass too.
 //
-// The password is read from `RESTIC_PASSWORD` in the repository's env (T0a R1 used that name:
-// docs/spikes/2026-10-06-step8-restic.md). Retention follows restic's "newest snapshot in each of
+// The password is read from `RESTIC_PASSWORD` in the repository's env (T0a R1 used that name).
+// Retention follows restic's "newest snapshot in each of
 // the last N days / ISO weeks / months", bucketed in local time, and keeps the oldest snapshot
 // while a policy's buckets aren't all filled (R1 saw restic keep its "oldest monthly snapshot").
 // Snapshots are grouped by host and tags unless `groupBy` says otherwise: R1's proposal for

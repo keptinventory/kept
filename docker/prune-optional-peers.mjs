@@ -1,4 +1,4 @@
-// The image trim (step-8 plan T15; spike R3, docs/spikes/2026-10-06-step8-image.md): drop what
+// The image trim (step-8 plan T15): drop what
 // better-auth's *optional* peers drag into the production install.
 //
 // pnpm links an optional peer whenever the workspace has it (vitest, drizzle-kit), and none of

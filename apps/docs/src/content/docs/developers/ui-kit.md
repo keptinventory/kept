@@ -3,25 +3,16 @@ title: UI kit
 description: Kept's design tokens, type, brand and component primitives, and the rules every screen follows.
 ---
 
-The web app's look comes from two design files in the repo, and the code copies them rather than
-reinterpreting them:
-
-- [`docs/design/kept-design-board.html`](https://github.com/keptinventory/kept/blob/main/docs/design/kept-design-board.html):
-  tokens, type, the brand and the visual motif;
-- [`docs/design/kept-screens.html`](https://github.com/keptinventory/kept/blob/main/docs/design/kept-screens.html):
-  every screen as a frame, with flow maps and the component kit in both themes. It is built from
-  the fragments in `docs/design/screens/` by `python3 docs/design/screens/assemble.py`; edit the
-  fragments, not the output.
-
-Open either file in a browser. The screens spec
-([`docs/specs/2026-09-26-kept-screens.md`](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-26-kept-screens.md))
-is the text that goes with them.
+The web app's look comes from a design board (tokens, type, the brand and the visual motif) and a
+screens board (every screen as a frame, with the component kit in both themes). The code copies
+them rather than reinterpreting them; the tokens below are the board's, and the rules on this page
+are what every screen follows.
 
 ## Tokens
 
 `apps/web/src/styles/tokens.css` holds the tokens (D131), copied verbatim from the design board:
 names, values and even hex case, so a value can be grepped across both. Biome skips the file for
-that reason. Don't change a value here without changing the board. `apps/web/src/styles/index.css`
+that reason. `apps/web/src/styles/index.css`
 exposes each one to Tailwind v4 through `@theme inline`, as `bg-surface`, `text-ink-2`,
 `border-line`, `bg-amber`, `text-amber-ink` and so on.
 

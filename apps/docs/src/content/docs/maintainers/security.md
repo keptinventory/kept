@@ -11,9 +11,9 @@ around them. The operator-facing summary of Kept's defences is the
 ## The channel
 
 **GitHub private vulnerability reporting is the only channel**: the repository's **Security** tab →
-**Report a vulnerability**. There is no security email address (go-public plan, decision D4). Only
+**Report a vulnerability**. There is no security email address. Only
 the reporter and the maintainer see the report. Conduct reports use the same private route, titled
-"Conduct report" ([1.0 checklist](https://github.com/keptinventory/kept/blob/main/docs/release/1.0-checklist.md), row 6.3).
+"Conduct report".
 
 :::caution[Switch it on]
 Private vulnerability reporting is off while the repository is private. It must be switched on
@@ -36,8 +36,7 @@ to the private channel without discussing the details in public.
 | When it applies | from 1.0; Kept has no supported release before it |
 
 These come from D187 (the support window and the 7 days) and D83 (`SECURITY.md` and GitHub's
-private advisories), in the
-[product design's decision log](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-product-design.md).
+private advisories) ([decision labels](/maintainers/decisions/)).
 
 ## Working a report
 
@@ -63,17 +62,11 @@ A fix is only useful if people can trust the image they pull. From `1.0.0` every
 
 ## The audit record
 
-Kept's security reviews and the pre-publication audit are kept in the repository:
+Kept has had a security review of personal tokens, the API, MCP, OAuth connectors, the
+assistant, webhooks, OIDC and semantic search (2026-10-06: 0 high, 5 medium, all fixed with a
+test, 19 low left as they are), and an audit of secrets, personal data and attribution across the
+whole history before going public. The operator's summary of the threat model is
+[the security model](/admin/security-model/).
 
-- [`docs/audits/security-step6-2026-10-06.md`](https://github.com/keptinventory/kept/blob/main/docs/audits/security-step6-2026-10-06.md):
-  the review of personal tokens, the API, MCP, OAuth connectors, the assistant, webhooks, OIDC
-  and semantic search. 0 high, 5 medium (all fixed with a test), 19 low left as they are.
-- [`docs/release/go-public-audit.md`](https://github.com/keptinventory/kept/blob/main/docs/release/go-public-audit.md):
-  secrets, personal data and attribution across the whole history before going public.
-- The threat model: the
-  [product design, §13](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-product-design.md).
-- The other files in [`docs/audits/`](https://github.com/keptinventory/kept/tree/main/docs/audits)
-  are UI reviews.
-
-The existing reviews share one shape: what was reviewed and how, a result line counting findings
-by severity, the findings with what was fixed, and how the fixes were verified.
+A review takes one shape: what was reviewed and how, a result line counting findings by severity,
+the findings with what was fixed, and how the fixes were verified.

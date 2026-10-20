@@ -1,8 +1,8 @@
 import type { SpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { setActiveTracing } from './state.js';
 
-// Optional OpenTelemetry tracing (D84; step-8 plan T14; docs/spikes/2026-10-06-step8-
-// observability.md). Off by default: with OTEL_EXPORTER_OTLP_ENDPOINT unset this module loads no
+// Optional OpenTelemetry tracing (D84; step-8 plan T14). Off by default: with
+// OTEL_EXPORTER_OTLP_ENDPOINT unset this module loads no
 // OpenTelemetry package at all and sends nothing anywhere.
 //
 // It must run before fastify and pg are first loaded, or their spans are missing (the spike's

@@ -16,8 +16,8 @@ import { semanticPrep } from '../search/semantic.js';
 import { mcpVerifier, type OAuthAccessVerifier } from './auth.js';
 import { MCP_BODY_LIMIT, mcpHandler } from './server.js';
 
-// POST /mcp: the MCP endpoint (step-6 plan T11; D63, D128), mounted by hand as spike S6.1 decided
-// (docs/spikes/2026-09-30-step6-mcp-sdk.md): a web Request built from Fastify's, the SDK's
+// POST /mcp: the MCP endpoint (step-6 plan T11; D63, D128), mounted by hand as spike S6.1 decided:
+// a web Request built from Fastify's, the SDK's
 // handler.fetch(), and its Response sent through Fastify's own reply (so helmet, the request
 // log and x-request-id still apply). GET and DELETE answer 405: stateless (D63). `/mcp` never
 // gets the SPA (http/web.ts).

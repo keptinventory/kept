@@ -98,7 +98,7 @@ export const AlertIcon = (p: IconProps) => (
   </Svg>
 );
 
-// ----- navigation (paths from docs/design/screens/_skeleton.html) ------------------------------
+// ----- navigation (paths from the screens board) -----------------------------------------------
 
 export const HomeIcon = (p: IconProps) => (
   <Svg {...p}>

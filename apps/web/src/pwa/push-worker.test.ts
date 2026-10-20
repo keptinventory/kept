@@ -1,6 +1,6 @@
 /**
  * The service worker's push handlers (plan T24), with synthetic events: the DevTools protocol can
- * deliver a push but can't tap a notification (spike docs/spikes/2026-09-30-step4-push.md), so
+ * deliver a push but can't tap a notification (the push spike), so
  * the tap's URL logic is proved here and the real tap is a device check.
  */
 import { describe, expect, it, vi } from 'vitest';

@@ -1,7 +1,6 @@
 /**
  * The step-2 web ↔ server contract: the request and response shapes of every inventory route,
- * written from the Phase B route tables of docs/plans/2026-09-26-step-2-core-inventory.md
- * (tasks 11–22). The server tasks implement exactly these shapes; if one has to differ, this file
+ * written from the step-2 plan's Phase B route tables (tasks 11–22). The server tasks implement exactly these shapes; if one has to differ, this file
  * changes with it, in the same commit.
  *
  * Conventions (plan, "API conventions"): JSON is camelCase; money is a decimal **string** with a

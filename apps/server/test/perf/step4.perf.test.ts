@@ -47,7 +47,7 @@ import { stats, timed } from './timing.js';
 // The requests go through the app in-process (fastify inject): server time, no network, as the
 // §3.1 targets are stated.
 //
-// LIMITS, from docs/perf/2026-09-30-step4.md (M1 Pro, load 3–12 from other agents' runs):
+// LIMITS, from the step-4 figures of 2026-09-30 (M1 Pro, load 3–12 from other agents' runs):
 // - Home: the plan's provisional p95 < 150 ms, kept. First measured at p95 232–295 ms: homeOf
 //   read public.agenda_items twice (fixed in 4913da8), and the view called kept.module_on() once
 //   per source row (it has SET search_path, so it is never inlined). 0071 decides each

@@ -1,6 +1,6 @@
 /**
- * The on-device diagnostics probes (D188, L87, L96; plan T23; the device checklist
- * docs/spikes/2026-09-26-step3-devices.md). Each probe answers ok / not ok / for information,
+ * The on-device diagnostics probes (D188, L87, L96; plan T23; the device checklist). Each probe
+ * answers ok / not ok / for information,
  * with technical facts (`key=value`) that go into the copied report as they are. Nothing is
  * sent anywhere; the report is text the person copies.
  *

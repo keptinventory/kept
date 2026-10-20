@@ -1,8 +1,8 @@
 import { type ArchiveRefusal, ZIP_LIMITS } from '@kept/shared';
 import { AppError } from '../../http/errors.js';
 
-// The archive rules' numbers (D157, engineering spec §3.1b; spike Z1,
-// docs/spikes/2026-09-30-step7-archive.md) and the one error every refusal is thrown as. The
+// The archive rules' numbers (D157, engineering spec §3.1b; spike Z1) and the one error every
+// refusal is thrown as. The
 // numbers the web shares are @kept/shared's ZIP_LIMITS; the reader's own caps are added here.
 
 export type ArchiveLimits = {

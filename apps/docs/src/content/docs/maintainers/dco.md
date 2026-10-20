@@ -11,12 +11,9 @@ nothing to sign once, no bot and no third-party app.
 ## Why the DCO, and not a CLA
 
 Kept first planned a contributor licence agreement (D105: the Harmony individual CLA, enforced by
-a CLA bot and a signatures branch). On 2026-10-07 the
-[go-public plan](https://github.com/keptinventory/kept/blob/main/docs/release/go-public-plan.md)'s
-decision D5 replaced it with the DCO:
+a CLA bot and a signatures branch). On 2026-10-07 the DCO replaced it:
 `CLA.md` and the `cla` workflow were removed, `scripts/check-dco.sh` was added and wired into the
-`ci` workflow, and CONTRIBUTING gained "Sign your commits (DCO)". D105 is marked superseded in the
-[product design's decision log](https://github.com/keptinventory/kept/blob/main/docs/specs/2026-09-25-kept-product-design.md).
+`ci` workflow, and CONTRIBUTING gained "Sign your commits (DCO)". D105 is marked superseded.
 
 On 2026-10-07 a CLA was added beside it (D221): [`CLA.md`](https://github.com/keptinventory/kept/blob/main/CLA.md),
 adapted from the Apache individual CLA, signed once by a comment on the contributor's first pull
