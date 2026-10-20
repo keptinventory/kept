@@ -204,6 +204,8 @@ export function PullToRefresh({ target }: { target: RefObject<HTMLElement | null
     if (!el || !on || fine()) return;
     const root = document.documentElement;
     root.setAttribute('data-pull', '');
+    // "Updated" fades after a moment; the timer goes with the screen, never after it.
+    let hide: ReturnType<typeof setTimeout> | undefined;
     const refresh = async () => {
       if (busy.current) return;
       busy.current = true;
@@ -218,7 +220,8 @@ export function PullToRefresh({ target }: { target: RefObject<HTMLElement | null
         const online = typeof navigator === 'undefined' || navigator.onLine !== false;
         setPhase({ kind: 'done', said: saidAfter(engine?.getStatus().problem ?? null, online) });
         busy.current = false;
-        setTimeout(() => setPhase((p) => (p.kind === 'done' ? { kind: 'idle' } : p)), 1400);
+        clearTimeout(hide);
+        hide = setTimeout(() => setPhase((p) => (p.kind === 'done' ? { kind: 'idle' } : p)), 1400);
       }
     };
     const detach = attachPull(el, {
@@ -232,6 +235,7 @@ export function PullToRefresh({ target }: { target: RefObject<HTMLElement | null
     });
     return () => {
       detach();
+      clearTimeout(hide);
       root.removeAttribute('data-pull');
     };
   }, [target, on, qc]);

@@ -203,10 +203,13 @@ export function waitForSectionAnchor(
   if (now) return Promise.resolve(now);
   return new Promise((resolve) => {
     let done = false;
+    let timer: number | undefined;
     const finish = (el: Element | null) => {
       if (done) return;
       done = true;
       mo.disconnect();
+      // The bound must not outlive the wait: a late timer reads `document` after the page is gone.
+      window.clearTimeout(timer);
       resolve(el);
     };
     const mo = new MutationObserver(() => {
@@ -221,7 +224,9 @@ export function waitForSectionAnchor(
       else requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
-    window.setTimeout(() => finish(hit()), timeout);
+    timer = window.setTimeout(() => {
+      if (!done) finish(hit());
+    }, timeout);
   });
 }
 

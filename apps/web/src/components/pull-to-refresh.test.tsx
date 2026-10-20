@@ -2,7 +2,7 @@
  * Pull to refresh (D212): it must never cost a tap. Synthetic touches, as the lesson from another
  * of the maintainer's apps says to test it: a `touchmove` whose default is prevented is a tap the phone never delivers.
  */
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderApp } from '@/test/app';
 import {
@@ -189,6 +189,32 @@ describe('pull to refresh on a phone screen', () => {
     touch(from, 'touchend', 100, 300);
     expect(await screen.findByText('Updated')).toBeInTheDocument();
     expect(mock.calls.length).toBeGreaterThan(before);
+  });
+
+  it('leaves no timer behind when the screen goes away while it says "Updated"', async () => {
+    // The 1.4 s "Updated" timer outlived the screen and fired after a test file had torn the page
+    // down ("window is not defined" as an unhandled error in CI).
+    const set = vi.spyOn(window, 'setTimeout');
+    const cleared = vi.spyOn(window, 'clearTimeout');
+    await renderApp('/');
+    const main = await screen.findByRole('main');
+    await waitFor(() => expect(document.documentElement).toHaveAttribute('data-pull'));
+    const from = await waitFor(() => {
+      const body = main.querySelector('[data-slot="page-body"]');
+      if (!body) throw new Error('no page body yet');
+      return body as HTMLElement;
+    });
+    touch(from, 'touchstart', 100, 100);
+    touch(from, 'touchmove', 100, 200);
+    touch(from, 'touchmove', 100, 300);
+    touch(from, 'touchend', 100, 300);
+    expect(await screen.findByText('Updated')).toBeInTheDocument();
+    const hide = set.mock.results.find((_, i) => set.mock.calls[i]?.[1] === 1400)?.value;
+    expect(hide).toBeDefined();
+    cleanup();
+    expect(cleared).toHaveBeenCalledWith(hide);
+    set.mockRestore();
+    cleared.mockRestore();
   });
 
   // D212 on step 4's screens (plan T27): the same pull, the same "Updated", no tap lost.
