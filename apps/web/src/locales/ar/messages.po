@@ -24677,3 +24677,23 @@ msgstr "من الأرض إلى منتصفه"
 #: src/map/card.tsx
 msgid "On the wall, {hangs} m up"
 msgstr "على الحائط، على ارتفاع {hangs} م"
+
+#: src/map/map-view.tsx
+msgid "<0>{place}</0> isn’t drawn on the map. It’s in <1>{holder}</1>."
+msgstr "لا يظهر <0>{place}</0> على الخريطة. تجده في <1>{holder}</1>."
+
+#: src/map/map-view.tsx
+msgid "<0>{place}</0> isn’t on the map"
+msgstr "<0>{place}</0> ليس على الخريطة"
+
+#: src/map/map-view.tsx
+msgid "<0>{room}</0> isn’t on a floor yet. Move it into a floor to put it on one."
+msgstr "<0>{room}</0> ليست على أي طابق بعد. استخدم «نقل» واختر طابقًا لتظهر عليه."
+
+#: src/map/map-view.tsx
+msgid "Open the map of <0>{name}</0>"
+msgstr "افتح خريطة <0>{name}</0>"
+
+#: src/map/map-view.tsx
+msgid "The map draws a location’s floors, the rooms on them and what stands in each room."
+msgstr "ترسم الخريطة طوابق الموقع والغرف عليها وما في كل غرفة."

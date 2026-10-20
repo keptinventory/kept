@@ -8,6 +8,10 @@
  * Controls follow the role rules: hidden for a role that can't use them; the label action shows
  * "Off in this location" when the Labels module is off. The Unplaced area (D118) is a place too,
  * but a fixed one: it can't be renamed, moved, merged, converted or trashed.
+ *
+ * List · Grid · Map as on its location's page (#190), remembered for this place: Map is the
+ * location's map opened on this place, in place of the list. Not on the Unplaced area, which the
+ * map doesn't draw.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation } from '@tanstack/react-query';
@@ -49,7 +53,7 @@ import { AddHere } from '@/components/places/add-here-sheet';
 import { placeApi, subtreeOf, useInvalidateBrowse, usePlaceTree } from '@/components/places/api';
 import { Breadcrumb } from '@/components/places/breadcrumb';
 import { ContentsList } from '@/components/places/contents-list';
-import { contentsSearch } from '@/components/places/contents-search';
+import { placeSearch } from '@/components/places/contents-search';
 import { ConvertToContainerDialog } from '@/components/places/convert-dialog';
 import {
   PLACE_KIND_ICONS,
@@ -81,9 +85,11 @@ import { isolate } from '@/lib/bidi';
 import { sep } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
 import { DOCKED, useMediaQuery } from '@/lib/media';
+import { LocationMapLazy } from '@/map/lazy';
+import { LayoutSwitch, useRememberedLayout } from '@/map/remembered';
 
 export const Route = createFileRoute('/_app/p/$id')({
-  validateSearch: contentsSearch,
+  validateSearch: placeSearch,
   component: PlacePage,
 });
 
@@ -163,6 +169,8 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
   // D155: a room's documents, while Paperwork is on (never on the Unplaced area).
   const paperwork =
     !place.isUnplaced && (location.effectiveModules ?? location.modules).includes('paperwork');
+  const remembered = useRememberedLayout(location.id, place.id);
+  const map = !place.isUnplaced && remembered === 'map';
 
   return (
     <Page
@@ -219,7 +227,26 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
         </div>
       </div>
 
-      {!panel && tree.data?.places ? (
+      {place.isUnplaced ? null : (
+        <div className="flex justify-end">
+          <LayoutSwitch table={false} />
+        </div>
+      )}
+
+      {map ? (
+        <LocationMapLazy
+          locationId={location.id}
+          name={locationName}
+          scope={{
+            placeId: place.id,
+            path: place.path.map((s) => s.id),
+            name,
+            locationAddress: locationAddress(location),
+          }}
+        />
+      ) : null}
+
+      {!panel && !map && tree.data?.places ? (
         <PlaceTree places={tree.data.places} currentId={place.id} />
       ) : null}
 
@@ -254,19 +281,21 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
         <OwnCodesSection kind="place" id={place.id} locationId={location.id} canEdit={canEdit} />
       )}
 
-      <ContentsList
-        parent={{ kind: 'place', id: place.id, locationId: location.id, name }}
-        canEdit={canEdit}
-        empty={
-          <EmptyState icon={<BoxIcon />} title={<Trans>Nothing here yet</Trans>}>
-            {canEdit ? (
-              <Trans>
-                Use Add here to put the first thing in <bdi>{name}</bdi>.
-              </Trans>
-            ) : null}
-          </EmptyState>
-        }
-      />
+      {map ? null : (
+        <ContentsList
+          parent={{ kind: 'place', id: place.id, locationId: location.id, name }}
+          canEdit={canEdit}
+          empty={
+            <EmptyState icon={<BoxIcon />} title={<Trans>Nothing here yet</Trans>}>
+              {canEdit ? (
+                <Trans>
+                  Use Add here to put the first thing in <bdi>{name}</bdi>.
+                </Trans>
+              ) : null}
+            </EmptyState>
+          }
+        />
+      )}
 
       {paperwork ? (
         <SubjectPaperwork

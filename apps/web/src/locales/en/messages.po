@@ -24677,3 +24677,23 @@ msgstr "From the floor to its middle"
 #: src/map/card.tsx
 msgid "On the wall, {hangs} m up"
 msgstr "On the wall, {hangs} m up"
+
+#: src/map/map-view.tsx
+msgid "<0>{place}</0> isn’t drawn on the map. It’s in <1>{holder}</1>."
+msgstr "<0>{place}</0> isn’t drawn on the map. It’s in <1>{holder}</1>."
+
+#: src/map/map-view.tsx
+msgid "<0>{place}</0> isn’t on the map"
+msgstr "<0>{place}</0> isn’t on the map"
+
+#: src/map/map-view.tsx
+msgid "<0>{room}</0> isn’t on a floor yet. Move it into a floor to put it on one."
+msgstr "<0>{room}</0> isn’t on a floor yet. Move it into a floor to put it on one."
+
+#: src/map/map-view.tsx
+msgid "Open the map of <0>{name}</0>"
+msgstr "Open the map of <0>{name}</0>"
+
+#: src/map/map-view.tsx
+msgid "The map draws a location’s floors, the rooms on them and what stands in each room."
+msgstr "The map draws a location’s floors, the rooms on them and what stands in each room."

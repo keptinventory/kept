@@ -1334,14 +1334,15 @@ export class MapEngine {
     this.applyPins();
   }
 
-  /** Into a room: the camera moves to it and everything else fades. */
-  drill(roomId: string): void {
+  /** Into a room: the camera moves to it and everything else fades. `animate: false` starts
+   * there, for a map that opens on a room (a place's page, #190). */
+  drill(roomId: string, animate = true): void {
     const r = this.roomOf(roomId);
     if (!r) return;
     if (this.s.allFloors || r.levelKey !== this.s.levelKey) this.setLevel(r.levelKey, false);
     this.s.focused = roomId;
     this.applyFocus();
-    this.fitTo(this.boundsOfRooms([r]), true, this.roomTurn(roomId));
+    this.fitTo(this.boundsOfRooms([r]), animate, this.roomTurn(roomId));
     this.emit();
   }
 
