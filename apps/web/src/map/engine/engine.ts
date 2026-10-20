@@ -40,6 +40,7 @@ import {
   turn,
 } from '../layout';
 import { nearestTurn, readTurn, writeTurn } from '../turns';
+import { WALL_HEIGHT, wallHeight } from '../walls';
 import {
   block,
   cy,
@@ -167,6 +168,10 @@ export class MapEngine {
   private readonly itemGroups = new Map<string, THREE.Group>();
   private readonly handles = new Map<string, THREE.Mesh>();
   private pinMeshes: THREE.Group[] = [];
+  /** Every room's two walls, each scaled down to a curb when it hides its room (walls.ts). */
+  private walls: THREE.Mesh[] = [];
+  /** The turn the walls were last set for (NaN: set them on the next frame). */
+  private wallAz = Number.NaN;
   private readonly drawn = new Map<string, THREE.Group>();
   private readonly floorBatches = new Map<string, Batches>();
   private readonly flat = new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>();
@@ -435,14 +440,22 @@ export class MapEngine {
     floor.userData.pick = pick;
     g.add(floor);
     const edge = new THREE.Group();
+    this.walls = this.walls.filter((m) => m.userData.room !== r.id);
     if (!this.outdoors(r)) {
-      const wall = (w: number, h: number, d: number, x: number, z: number) => {
-        const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), this.wallMat);
-        m.position.set(x, h / 2, z);
-        edge.add(m);
+      // Each wall its own mesh, standing on the floor, so it can drop to a curb (applyWalls).
+      const wall = (side: 'x' | 'z', w: number, d: number, x: number, z: number) => {
+        const geo = new THREE.BoxGeometry(w, WALL_HEIGHT, d).translate(0, WALL_HEIGHT / 2, 0);
+        const m = new THREE.Mesh(geo, this.wallMat);
+        m.position.set(x, 0, z);
+        m.castShadow = true;
+        m.receiveShadow = true;
+        m.userData = { pick, side, room: r.id };
+        g.add(m);
+        this.walls.push(m);
       };
-      wall(r.w, 1.3, 0.1, r.w / 2, 0.05);
-      wall(0.1, 1.3, r.d, 0.05, r.d / 2);
+      wall('z', r.w, 0.1, r.w / 2, 0.05);
+      wall('x', 0.1, r.d, 0.05, r.d / 2);
+      this.wallAz = Number.NaN;
       const sk = (w: number, d: number, x: number, z: number) => {
         const m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.08, d), this.skirtMat);
         m.position.set(x, 0.04, z);
@@ -751,6 +764,7 @@ export class MapEngine {
     for (const b of this.floorBatches.values()) for (const bm of b.list) bm.dispose();
     this.floorBatches.clear();
     this.pinMeshes = [];
+    this.walls = [];
     for (const l of this.plan.levels) {
       const g = new THREE.Group();
       this.world.add(g);
@@ -855,6 +869,7 @@ export class MapEngine {
       );
     }
     camera.lookAt(view.target);
+    this.applyWalls();
     const w = this.stage.clientWidth || 1;
     const h = this.stage.clientHeight || 1;
     const half = view.span / 2 / view.zoom;
@@ -870,6 +885,20 @@ export class MapEngine {
     // logical-css-ignore: the shadow camera's frustum, not layout
     Object.assign(sun.shadow.camera, { left: -s, right: s, top: s, bottom: -s, near: 1, far: 180 }); // logical-css-ignore
     sun.shadow.camera.updateProjectionMatrix();
+  }
+
+  /**
+   * A wall between the camera and its room drops to a curb, and stands again as the view turns
+   * away (walls.ts); every room's walls face the same two ways, so one turn sets them all. The
+   * plan view keeps them standing. Runs every frame of a turn, so it allocates nothing.
+   */
+  private applyWalls(): void {
+    const az = this.s.planView ? Math.PI / 4 : this.view.az;
+    if (az === this.wallAz) return;
+    this.wallAz = az;
+    const x = wallHeight('x', az) / WALL_HEIGHT;
+    const z = wallHeight('z', az) / WALL_HEIGHT;
+    for (const m of this.walls) m.scale.y = m.userData.side === 'x' ? x : z;
   }
 
   private boundsOfRooms(list: readonly Room[]): THREE.Box3 {

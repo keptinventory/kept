@@ -70,6 +70,7 @@ import mapCss from '../../../../web/src/map/map.css?inline';
 // D249: the shape picker's pictures, the app's own sprite (fetched when the picker first opens).
 import spriteUrl from '../../../../web/src/map/thumbs/shapes.webp?url';
 import { THUMB_CELLS, THUMB_COLS } from '../../../../web/src/map/thumbs/sprite';
+import { cardPath } from '../../../../web/src/map/where';
 import demoCss from './demo.css?inline';
 import { sampleHome } from './sample';
 import {
@@ -269,7 +270,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
         ${statusRows(contents.rows.get(inner) ?? [])}
         ${idBlock(code, false)}
         ${factsOf(inner)}
-        <div class="kmap-row">${install}</div>
+        <div class="kmap-row kmap-open">${install}</div>
       </aside>`;
     }
 
@@ -332,18 +333,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     const n = countIn(contents, it);
     const under = contents.under.get(it.id) ?? [];
     const onIt = plan.items.filter((x) => x.on === it.id);
-    const path = whereOf(plan, view, it.id).path;
-    const hosts: string[] = [];
-    for (
-      let h = it.on ? plan.items.find((x) => x.id === it.on) : undefined, i = 0;
-      h && i < 10;
-      i++
-    ) {
-      hosts.unshift(h.name);
-      const next: string | null = h.on;
-      h = next ? plan.items.find((x) => x.id === next) : undefined;
-    }
-    const meta = [...(path.length ? path : room ? [room.name] : []), ...hosts].join(' › ');
+    const meta = cardPath(plan, view, it).join(' › ');
     const levels = plan.levels;
     const li = levels.findIndex((l) => l.key === room?.levelKey);
     const stairs = STAIR_MODELS.has(it.model)
@@ -424,7 +414,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       ${shape}
       ${idBlock(it.shortCode, it.subject === 'place' || it.isContainer)}
       ${it.subject === 'thing' ? factsOf(it.id) : ''}
-      <div class="kmap-row">${install}</div>
+      <div class="kmap-row kmap-open">${install}</div>
       ${onItSection}
       ${insideSection}
     </aside>`;
