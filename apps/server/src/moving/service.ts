@@ -43,7 +43,7 @@ import { type Ctx, insertThing, liveThing } from '../things/service.js';
 // starting, packing, marking and unpacking is `things.edit` (members and above). Unpacking into
 // another location also needs the caller to write there (the move's own rule: 404 otherwise).
 // Every route belongs to the Moving mode module of the move's location (http/modules.ts); the
-// `move_box` sync op checks the same.
+// `move_box` and `move_box_room` sync ops check the same.
 //
 // Audit: `move.create|update|delete`; `move_box.create|update|unpack|delete` on the box's
 // container (entity `thing`, so its timeline shows them), their diff a `box` image with the move
@@ -62,6 +62,8 @@ import { type Ctx, insertThing, liveThing } from '../things/service.js';
 // POST   /api/v1/moves/:id/boxes/:containerId/unpack             → MoveBox
 // DELETE /api/v1/moves/:id/boxes/:containerId                    → 204
 // GET    /api/v1/move-boxes/:containerId                         → MoveBox & {move} (open moves first)
+//
+// The MCP tools (tools/handlers/moving.ts) call these same functions, packIntoBox() included.
 
 const Name = z.string().trim().min(1).max(MAX_MOVE_NAME);
 const State = z.enum(BOX_STATES);
@@ -763,6 +765,23 @@ export async function updateBox(
   return { box: boxView(after), changed: true };
 }
 
+/**
+ * The `move_box_room` op (D251): the room a box goes to, chosen on a phone offline. Rooms follow
+ * D35 (the change the server gets last wins; each is in the box's history, without an undo
+ * window, as online). A box unpacked by the time it arrives keeps the room it was unpacked into:
+ * the unpack used the room, and changing it now would say the box goes somewhere it isn't.
+ */
+export async function chooseRoom(
+  ctx: WriteCtx,
+  moveId: string,
+  containerId: string,
+  placeId: string,
+): Promise<BoxWrite> {
+  const { box } = await writableBox(ctx, moveId, containerId);
+  if (box.state === 'unpacked') return { box: boxView(box), changed: false };
+  return updateBox(ctx, moveId, containerId, { destinationPlaceId: placeId });
+}
+
 type Whereabouts = { location_id: string; place_id: string | null; container_id: string | null };
 
 /**
@@ -827,6 +846,30 @@ export async function unpackBox(
   return { box: boxView(after), changed: true };
 }
 
+/**
+ * Packing for the MCP tool `pack_into_box`: the things move into the box's container as the
+ * web's packing moves them (the ordinary move, D45: its checks, its `thing.move` rows, each
+ * undoable), once the box is one of this open move's and the caller may pack. A box can't go
+ * into itself.
+ */
+export async function packIntoBox(
+  ctx: WriteCtx,
+  moveId: string,
+  containerId: string,
+  thingIds: readonly string[],
+): Promise<{ box: MoveBoxView; moved: string[] }> {
+  const { box } = await writableBox(ctx, moveId, containerId);
+  if (thingIds.some((id) => id.toLowerCase() === box.container_id)) {
+    throw invalid('A box can’t be packed into itself.');
+  }
+  const { moved } = await moveThings(ctx, {
+    thingIds: [...thingIds],
+    to: { containerId: box.container_id },
+  });
+  const after = (await findBox(ctx.client, box.move_id, box.container_id)) as BoxRecord;
+  return { box: boxView(after), moved };
+}
+
 export async function removeBox(ctx: WriteCtx, moveId: string, containerId: string) {
   const { move, box } = await writableBox(ctx, moveId, containerId);
   await ctx.client.query('DELETE FROM public.move_boxes WHERE move_id = $1 AND container_id = $2', [
@@ -875,8 +918,7 @@ async function boxAsLeft(args: UndoArgs): Promise<{ was: BoxImage; left: BoxImag
   );
   const now = rows[0];
   const changed =
-    !now ||
-    now.status !== 'active' ||
+    now?.status !== 'active' ||
     now.state !== left.state ||
     now.destination_place_id !== left.destination_place_id ||
     now.state_at.toISOString() !== left.state_at;

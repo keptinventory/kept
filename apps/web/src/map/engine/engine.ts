@@ -13,19 +13,27 @@
  * - Arrange: drag things (onto counters, desks, shelves and boxes), drag a room's amber corner
  *   to resize it, draw a room on empty ground, turn a thing. Changes go into the plan; the
  *   React side saves the session.
+ * - Walls (#138): a wall thing hangs on the wall its turn puts at its back, at its height; a
+ *   wall stands behind it (on any side), tall enough, and drops with what hangs on it as the view
+ *   turns (walls.ts). Dragged, it goes to the nearest wall. In the plan view it is a thin strip
+ *   along its wall, so it doesn't hide what stands under it, and what is on it isn't drawn.
  */
-import { carryOf, mapModel, seatHeight, snapStep } from '@kept/shared';
+import { carryOf, type MapWall, mapModel, snapStep, turnOffset, wallOfTurn } from '@kept/shared';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { MapAttentionKind } from '@/api/map/types';
 import { declutter, LABEL_PRIORITY, type Rect } from '../declutter';
 import {
+  baseOf,
+  canPutOn,
   childrenOn,
   clampIn,
   dropOn,
   facingAz,
   fp,
+  groundOf,
+  hangOn,
   hostAt,
   type Item,
   moveBy,
@@ -38,8 +46,10 @@ import {
   snap,
   standingOn,
   turn,
+  wallTops,
 } from '../layout';
 import { nearestTurn, readTurn, writeTurn } from '../turns';
+import { fullHeight, hungShown, wallHeight } from '../walls';
 import {
   block,
   cy,
@@ -113,6 +123,13 @@ type Slot = { bm: THREE.BatchedMesh; id: number; fade: boolean };
 type Batches = { list: THREE.BatchedMesh[]; slots: Map<string, Slot[]> };
 
 const GAP = 5.4;
+/** How deep a wall thing is drawn in the plan view, along its wall (metres): a strip. */
+const STRIP = 0.05;
+/** A room's walls, in the order they are built. */
+const SIDES: readonly MapWall[] = ['-z', '-x', '+z', '+x'];
+
+/** A thing hung on a wall mesh: its id and how high its middle hangs (applyWalls). */
+type Hung = { id: string; mid: number };
 const ELEV = Math.atan(1 / Math.SQRT2);
 const T0 = performance.now();
 
@@ -167,6 +184,12 @@ export class MapEngine {
   private readonly itemGroups = new Map<string, THREE.Group>();
   private readonly handles = new Map<string, THREE.Mesh>();
   private pinMeshes: THREE.Group[] = [];
+  /** Every room's walls, each scaled down to a curb when it hides its room (walls.ts). */
+  private walls: THREE.Mesh[] = [];
+  /** Wall things hidden because their wall is down (#138), by id. */
+  private readonly wallHidden = new Set<string>();
+  /** The turn the walls were last set for (NaN: set them on the next frame). */
+  private wallAz = Number.NaN;
   private readonly drawn = new Map<string, THREE.Group>();
   private readonly floorBatches = new Map<string, Batches>();
   private readonly flat = new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>();
@@ -305,16 +328,16 @@ export class MapEngine {
   private outdoors = (r: Room) => r.kind !== 'room';
   private roomIdOf = (sel: Pick | Sel | null | undefined) =>
     sel?.type === 'room' ? sel.id : sel?.type === 'item' ? this.itemOf(sel.id)?.roomId : undefined;
-  private baseY(it: Item): number {
-    const seen = new Set<string>();
-    let y = 0;
-    let host = it.on ? this.itemOf(it.on) : undefined;
-    while (host && !seen.has(host.id)) {
-      seen.add(host.id);
-      y += seatHeight(host.model);
-      host = host.on ? this.itemOf(host.on) : undefined;
+  private baseY = (it: Item): number => baseOf(this.plan.items, it);
+  /** Not drawn now (#138): hung on a wall that is down, or on a wall holder in the plan view.
+   * What is selected (being moved, or its card open) stays in view, with what is on it. */
+  private unseen(it: Item): boolean {
+    const g = it.on || it.hang !== undefined ? groundOf(this.plan.items, it) : it;
+    if (this.wallHidden.has(g.id)) {
+      const sel = this.s.selected?.type === 'item' ? this.itemOf(this.s.selected.id) : undefined;
+      return !sel || groundOf(this.plan.items, sel).id !== g.id;
     }
-    return y;
+    return this.s.planView && g.id !== it.id && g.hang !== undefined;
   }
 
   // ---- Lifecycle -----------------------------------------------------------------------------
@@ -435,14 +458,36 @@ export class MapEngine {
     floor.userData.pick = pick;
     g.add(floor);
     const edge = new THREE.Group();
+    this.walls = this.walls.filter((m) => m.userData.room !== r.id);
+    // Each wall its own mesh, standing on the floor, so it can drop to a curb (applyWalls): the
+    // two back walls of a room, and any wall something hangs on, tall enough for it (#138).
+    const tops = wallTops(this.plan.items, r.id);
+    for (const side of SIDES) {
+      const full = fullHeight(side, tops.get(side), !this.outdoors(r));
+      if (full === null) continue;
+      const alongX = side === '-z' || side === '+z';
+      const geo = new THREE.BoxGeometry(alongX ? r.w : 0.1, full, alongX ? 0.1 : r.d).translate(
+        0,
+        full / 2,
+        0,
+      );
+      const m = new THREE.Mesh(geo, this.wallMat);
+      m.position.set(
+        alongX ? r.w / 2 : side === '-x' ? 0.05 : r.w - 0.05,
+        0,
+        alongX ? (side === '-z' ? 0.05 : r.d - 0.05) : r.d / 2,
+      );
+      m.castShadow = true;
+      m.receiveShadow = true;
+      const hung: Hung[] = this.plan.items
+        .filter((it) => it.roomId === r.id && it.hang !== undefined && wallOfTurn(it.rot) === side)
+        .map((it) => ({ id: it.id, mid: it.hang ?? 0 }));
+      m.userData = { pick, side, room: r.id, full, hung };
+      g.add(m);
+      this.walls.push(m);
+    }
+    this.wallAz = Number.NaN;
     if (!this.outdoors(r)) {
-      const wall = (w: number, h: number, d: number, x: number, z: number) => {
-        const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), this.wallMat);
-        m.position.set(x, h / 2, z);
-        edge.add(m);
-      };
-      wall(r.w, 1.3, 0.1, r.w / 2, 0.05);
-      wall(0.1, 1.3, r.d, 0.05, r.d / 2);
       const sk = (w: number, d: number, x: number, z: number) => {
         const m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.08, d), this.skirtMat);
         m.position.set(x, 0.04, z);
@@ -600,6 +645,14 @@ export class MapEngine {
     const f = fp(it);
     g.position.set(r.x + it.x + f.w / 2, this.baseY(it), r.z + it.z + f.d / 2);
     g.rotation.y = -(it.rot * Math.PI) / 180;
+    // #138: in the plan view a wall thing is a strip along its wall.
+    const d = mapModel(it.model).d;
+    if (this.s.planView && it.hang !== undefined && d > STRIP) {
+      g.scale.set(1, 1, STRIP / d);
+      const back = turnOffset(0, -(d - STRIP) / 2, it.rot);
+      g.position.x += back.x;
+      g.position.z += back.z;
+    } else g.scale.set(1, 1, 1);
   }
 
   private bodyOf = (it: Item) =>
@@ -727,9 +780,10 @@ export class MapEngine {
         if (!it) continue;
         const own = solo.has(id);
         const faded = !!this.s.focused && it.roomId !== this.s.focused;
-        for (const s of list) s.bm.setVisibleAt(s.id, !own && s.fade === faded);
+        const gone = this.unseen(it);
+        for (const s of list) s.bm.setVisibleAt(s.id, !gone && !own && s.fade === faded);
         const body = this.bodyOf(it);
-        if (body) body.visible = own;
+        if (body) body.visible = own && !gone;
       }
     }
     this.request();
@@ -751,6 +805,8 @@ export class MapEngine {
     for (const b of this.floorBatches.values()) for (const bm of b.list) bm.dispose();
     this.floorBatches.clear();
     this.pinMeshes = [];
+    this.walls = [];
+    this.wallHidden.clear();
     for (const l of this.plan.levels) {
       const g = new THREE.Group();
       this.world.add(g);
@@ -855,6 +911,7 @@ export class MapEngine {
       );
     }
     camera.lookAt(view.target);
+    this.applyWalls();
     const w = this.stage.clientWidth || 1;
     const h = this.stage.clientHeight || 1;
     const half = view.span / 2 / view.zoom;
@@ -870,6 +927,36 @@ export class MapEngine {
     // logical-css-ignore: the shadow camera's frustum, not layout
     Object.assign(sun.shadow.camera, { left: -s, right: s, top: s, bottom: -s, near: 1, far: 180 }); // logical-css-ignore
     sun.shadow.camera.updateProjectionMatrix();
+  }
+
+  /**
+   * A wall between the camera and its room drops to a curb, and stands again as the view turns
+   * away (walls.ts); every room's walls face the same two ways, so one turn sets them all. The
+   * plan view keeps them standing. Runs every frame of a turn, so it allocates nothing.
+   */
+  private applyWalls(): void {
+    // The plan view stands every wall, so everything on them shows (as strips).
+    const az = this.s.planView ? Number.POSITIVE_INFINITY : this.view.az;
+    if (az === this.wallAz) return;
+    this.wallAz = az;
+    let changed = false;
+    for (const m of this.walls) {
+      const full = m.userData.full as number;
+      const now = this.s.planView ? full : wallHeight(m.userData.side as MapWall, az, full);
+      m.scale.y = now / full;
+      // What hangs on it goes as it drops (#138).
+      for (const h of m.userData.hung as Hung[]) {
+        const hide = !hungShown(now, h.mid);
+        if (hide === this.wallHidden.has(h.id)) continue;
+        if (hide) this.wallHidden.add(h.id);
+        else this.wallHidden.delete(h.id);
+        changed = true;
+      }
+    }
+    if (changed) {
+      this.showBatches();
+      this.applyPins();
+    }
   }
 
   private boundsOfRooms(list: readonly Room[]): THREE.Box3 {
@@ -1070,7 +1157,7 @@ export class MapEngine {
           if (this.itemLevel(it) !== levelKey || (focused && it.roomId !== focused)) continue;
           const n = this.info.countIn(it);
           if (!planView && n === null) continue;
-          if (planView && it.on) continue;
+          if ((planView && it.on) || this.unseen(it)) continue;
           const g = this.itemGroups.get(it.id);
           if (!g) continue;
           let html: string;
@@ -1235,6 +1322,7 @@ export class MapEngine {
     this.paint(prev);
     this.paint(this.s.selected);
     this.showBatches();
+    if (this.wallHidden.size) this.applyPins();
     this.request();
     if (emit) this.emit();
   }
@@ -1269,7 +1357,8 @@ export class MapEngine {
     for (const p of this.pinMeshes) {
       if (p.userData.item !== it.id) continue;
       const kind = p.userData.pinKind as MapAttentionKind;
-      p.visible = this.shown[kind] && (!this.s.focused || it.roomId === this.s.focused);
+      p.visible =
+        this.shown[kind] && (!this.s.focused || it.roomId === this.s.focused) && !this.unseen(it);
     }
   }
 
@@ -1277,7 +1366,11 @@ export class MapEngine {
     for (const p of this.pinMeshes) {
       const it = this.itemOf(p.userData.item as string);
       const kind = p.userData.pinKind as MapAttentionKind;
-      p.visible = !!it && this.shown[kind] && (!this.s.focused || it.roomId === this.s.focused);
+      p.visible =
+        !!it &&
+        this.shown[kind] &&
+        (!this.s.focused || it.roomId === this.s.focused) &&
+        !this.unseen(it);
     }
     this.request();
   }
@@ -1389,10 +1482,33 @@ export class MapEngine {
     for (const h of this.ray.intersectObjects(objs, false)) {
       const p = h.object.userData.pick as Pick;
       if (p.type === 'handle' && !this.s.arranging) continue;
+      if (p.type === 'item') {
+        const it = this.itemOf(p.id);
+        if (it && this.unseen(it)) continue;
+      }
       if (this.s.focused && p.type !== 'handle' && this.roomIdOf(p) !== this.s.focused) continue;
       return p;
     }
     return null;
+  }
+
+  /** A wall holder (#138) the pointer is on that can take `it`, and where on it (the map's own
+   * coordinates): high up, it isn't over the floor point the pointer is over. */
+  private wallHostAt(x: number, y: number, it: Item): { host: Item; at: THREE.Vector3 } | null {
+    const mine = new Set([it.id, ...standingOn(this.plan.items, it.id)]);
+    const objs: THREE.Object3D[] = [];
+    for (const h of this.plan.items) {
+      if (h.hang === undefined || mine.has(h.id) || this.unseen(h)) continue;
+      if (this.itemLevel(h) !== this.s.levelKey || !canPutOn(this.plan.items, h, it)) continue;
+      const body = this.bodyOf(h);
+      if (body) objs.push(body);
+    }
+    if (!objs.length) return null;
+    this.ray.setFromCamera(this.ndc(x, y), this.camera);
+    const hit = this.ray.intersectObjects(objs, true)[0];
+    const id = (hit?.object.userData.pick as Pick | undefined)?.id;
+    const host = id ? this.itemOf(id) : undefined;
+    return hit && host ? { host, at: hit.point } : null;
   }
 
   private snapshot() {
@@ -1501,11 +1617,19 @@ export class MapEngine {
     if (p?.type === 'handle') this.drag = { type: 'resize', id: p.id };
     else if (p?.type === 'item') {
       const grp = this.itemGroups.get(p.id);
+      const it = this.itemOf(p.id);
+      // #138: a thing on a wall moves in the plane at its own height, so it follows the pointer
+      // along the walls rather than the floor far behind it.
+      let at = g;
+      if (it?.hang !== undefined) {
+        this.plane.constant = -(this.levelY(this.s.levelKey) + it.hang);
+        at = this.groundAt(e.clientX, e.clientY) ?? g;
+      }
       if (grp)
         this.drag = {
           type: 'item',
           id: p.id,
-          off: new THREE.Vector3(grp.position.x - g.x, 0, grp.position.z - g.z),
+          off: new THREE.Vector3(grp.position.x - at.x, 0, grp.position.z - at.z),
         };
     }
   }
@@ -1555,7 +1679,31 @@ export class MapEngine {
       if (!room || !home) return;
       // Into another room: saving the session moves it there in Kept too (map-view.tsx).
       if (room.id !== it.roomId) rehome(this.plan.items, it, home, room);
-      const host = hostAt(this.plan, this.s.levelKey, c, it);
+      if (it.hang !== undefined) {
+        // #138: a wall thing goes to the wall nearest the pointer, its walls built again when it
+        // changes wall or room (they stand behind what hangs on them).
+        const wall = wallOfTurn(it.rot);
+        hangOn(this.plan.items, it, room, { x: c.x - room.x, z: c.z - room.z }, free);
+        if (wall !== wallOfTurn(it.rot) || room.id !== home.id) {
+          this.buildRoom(home);
+          if (room.id !== home.id) this.buildRoom(room);
+          this.paint({ type: 'room', id: home.id });
+          this.paint({ type: 'room', id: room.id });
+        }
+        for (const t of [it, ...standingOn(this.plan.items, it.id).map((id) => this.itemOf(id))])
+          this.placeItem(t);
+        if (this.s.selected?.id !== it.id) this.select({ type: 'item', id: it.id });
+        this.request();
+        return;
+      }
+      // A wall holder under the pointer (a shelf, a tool wall, hooks: #138), else one under the
+      // point of the floor it is over.
+      const onWall = this.wallHostAt(x, y, it);
+      const host = onWall?.host ?? hostAt(this.plan, this.s.levelKey, c, it);
+      if (onWall) {
+        c.x = onWall.at.x;
+        c.z = onWall.at.z;
+      }
       // #137: on a holder it lines up with the holder (an edge's line, an arm's place, a desk's
       // own middle); on the floor by its own step: a centimetre for a webcam, 10 cm for a sofa.
       if (host) dropOn(this.plan.items, it, host, { x: c.x - room.x, z: c.z - room.z }, free);
@@ -1714,6 +1862,12 @@ export class MapEngine {
       this.applyFocus();
     }
     this.s.planView = on;
+    // #138: wall things become strips (or stop being them), batched again where they are.
+    if (this.plan.items.some((i) => i.hang !== undefined)) {
+      const keep = this.s.selected;
+      this.rebuild();
+      if (keep) this.select(keep, false);
+    }
     for (const g of this.roomGroups.values()) {
       for (const c of g.children) if (c.userData.grid) c.visible = on || this.s.arranging;
     }

@@ -110,11 +110,6 @@ msgstr "{0, plural, =0 {no fields} one {# field} other {# fields}}"
 msgid "{0, plural, one {# capture} other {# captures}}"
 msgstr "{0, plural, one {# capture} other {# captures}}"
 
-#. placeholder {0}: status.counts.needsAttention
-#: src/components/sync-status.tsx
-msgid "{0, plural, one {# change needs a look} other {# changes need a look}}"
-msgstr "{0, plural, one {# change needs a look} other {# changes need a look}}"
-
 #. placeholder {0}: chosen.length
 #: src/components/filters/strip.tsx
 msgid "{0, plural, one {# chosen} other {# chosen}}"
@@ -232,11 +227,6 @@ msgstr "{0, plural, one {Moved # thing to {where}} other {Moved # things to {whe
 msgid "{0, plural, one {Name # unnamed photo} other {Name # unnamed photos}}"
 msgstr "{0, plural, one {Name # unnamed photo} other {Name # unnamed photos}}"
 
-#. placeholder {0}: open.length
-#: src/components/home/checklist.tsx
-msgid "{0, plural, one {One more step and Kept is set up.} other {# more steps and Kept is set up.}}"
-msgstr "{0, plural, one {One more step and Kept is set up.} other {# more steps and Kept is set up.}}"
-
 #. placeholder {0}: alert.count
 #: src/routes/_app/admin.alerts.tsx
 msgid "{0, plural, one {raised once} other {raised # times}}"
@@ -346,10 +336,6 @@ msgstr "{0}'s account"
 #: src/routes/_app/admin.status.tsx
 msgid "{alerts} open"
 msgstr "{alerts} open"
-
-#: src/routes/_app/admin.status.tsx
-msgid "{at} · {size}"
-msgstr "{at} · {size}"
 
 #: src/routes/_app/settings.index.tsx
 msgid "{browser} on {where}"
@@ -473,25 +459,9 @@ msgstr "{n, plural, one {# person} other {# people}}"
 msgid "{n, plural, one {# reading needs a look} other {# readings need a look}}"
 msgstr "{n, plural, one {# reading needs a look} other {# readings need a look}}"
 
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# item needs a look} other {# items need a look}}"
-msgstr "{n, plural, one {# item needs a look} other {# items need a look}}"
-
 #: src/components/inbox/bulk-bar.tsx
 msgid "{n, plural, one {# selected} other {# selected}}"
 msgstr "{n, plural, one {# selected} other {# selected}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# thing isn't where it should be} other {# things aren't where they should be}}"
-msgstr "{n, plural, one {# thing isn't where it should be} other {# things aren't where they should be}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# thing not seen for a long time} other {# things not seen for a long time}}"
-msgstr "{n, plural, one {# thing not seen for a long time} other {# things not seen for a long time}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# thing waiting for a place} other {# things waiting for a place}}"
-msgstr "{n, plural, one {# thing waiting for a place} other {# things waiting for a place}}"
 
 #: src/components/counts.tsx
 msgid "{n, plural, one {# thing} other {# things}}"
@@ -658,10 +628,6 @@ msgstr "{vendor} receipt"
 #: src/components/capture/summary.tsx
 msgid "{waiting, plural, one {# waiting to sync} other {# waiting to sync}}"
 msgstr "{waiting, plural, one {# waiting to sync} other {# waiting to sync}}"
-
-#: src/components/sync-status.tsx
-msgid "{waiting, plural, one {Offline: # capture waiting} other {Offline: # captures waiting}}"
-msgstr "{waiting, plural, one {Offline: # capture waiting} other {Offline: # captures waiting}}"
 
 #: src/components/capture/summary.tsx
 msgid "{waiting, plural, one {Open to finish syncing (#).} other {Open to finish syncing (#).}}"
@@ -962,10 +928,6 @@ msgstr "A report holds at most {max} things. Choose some places, types or tags t
 #: src/routes/_app/p.$id.tsx
 msgid "A short code for the printed label on the shelf or door"
 msgstr "A short code for the printed label on the shelf or door"
-
-#: src/routes/_app/help.tsx
-msgid "A short look at Home, Capture, Inbox and Search. Replay it any time."
-msgstr "A short look at Home, Capture, Inbox and Search. Replay it any time."
 
 #: src/components/registries/registry-list.tsx
 msgid "A similar name was already here. An admin can merge them if they're the same."
@@ -1314,10 +1276,6 @@ msgstr "AI capture and the assistant"
 msgid "AI capture and the assistant come on in any preset once an AI provider is connected."
 msgstr "AI capture and the assistant come on in any preset once an AI provider is connected."
 
-#: src/routes/_app/admin.ai.tsx
-msgid "AI for this server"
-msgstr "AI for this server"
-
 #: src/routes/_app/settings.location.$id.track.tsx
 msgid "AI in this location"
 msgstr "AI in this location"
@@ -1338,11 +1296,6 @@ msgstr "AI isn't working here · ask an admin"
 #: src/components/capture/capture-screen.tsx
 msgid "AI paused"
 msgstr "AI paused"
-
-#. placeholder {0}: fmt.day(ai.data.pausedUntil)
-#: src/components/capture/capture-screen.tsx
-msgid "AI paused until {0}"
-msgstr "AI paused until {0}"
 
 #: src/components/ai/paused-banner.tsx
 msgid "AI paused until {when}"
@@ -1589,17 +1542,9 @@ msgstr "Back to sign in"
 msgid "Background work is keeping up. A job that fails every retry shows up here."
 msgstr "Background work is keeping up. A job that fails every retry shows up here."
 
-#: src/routes/_app/admin.status.tsx
-msgid "Backup"
-msgstr "Backup"
-
 #: src/routes/signin/two-factor.tsx
 msgid "Backup code"
 msgstr "Backup code"
-
-#: src/routes/_app/admin.status.tsx
-msgid "Backups are on the same disk as the data"
-msgstr "Backups are on the same disk as the data"
 
 #: src/lib/labels.ts
 msgid "Balcony"
@@ -1741,10 +1686,6 @@ msgstr "Brands are added here, or while you add a thing."
 msgid "Bring it back"
 msgstr "Bring it back"
 
-#: src/routes/_app/settings.import.tsx
-msgid "Bring in a spreadsheet"
-msgstr "Bring in a spreadsheet"
-
 #: src/routes/gallery.tsx
 msgid "British pound"
 msgstr "British pound"
@@ -1775,10 +1716,6 @@ msgstr "Built in · read-only · its fields are listed above"
 #: src/components/registries/type-editor.tsx
 msgid "Built in · read-only until you customise it"
 msgstr "Built in · read-only until you customise it"
-
-#: src/pwa/diagnostics.tsx
-msgid "Built-in barcode reader"
-msgstr "Built-in barcode reader"
 
 #: src/components/registries/type-editor.tsx
 msgid "Built-in field group · read-only"
@@ -1820,11 +1757,6 @@ msgstr "by type"
 #: src/routes/gallery.tsx
 msgid "Cables"
 msgstr "Cables"
-
-#: src/routes/_app/admin.ai.usage.tsx
-#: src/routes/_app/settings.ai.usage.tsx
-msgid "Calls, tokens and cost by day, task and person, with every call listed."
-msgstr "Calls, tokens and cost by day, task and person, with every call listed."
 
 #: src/components/things/overview.tsx
 msgid "Came from"
@@ -1960,10 +1892,6 @@ msgstr "Captured into <0>{locationName}</0>, no place yet"
 msgid "Captured."
 msgstr "Captured."
 
-#: src/components/sync-status.tsx
-msgid "Captured. {waiting} waiting to sync"
-msgstr "Captured. {waiting} waiting to sync"
-
 #: src/offline/provider.tsx
 msgid "Captures from another account are on this phone"
 msgstr "Captures from another account are on this phone"
@@ -1971,10 +1899,6 @@ msgstr "Captures from another account are on this phone"
 #: src/components/capture/capture-screen.tsx
 msgid "Captures that haven't synced are deleted from this phone. Synced drafts from this batch go to the trash."
 msgstr "Captures that haven't synced are deleted from this phone. Synced drafts from this batch go to the trash."
-
-#: src/components/hints/hint-copy.ts
-msgid "Captures that need a decision wait here: a name to check, a receipt to link, a possible duplicate."
-msgstr "Captures that need a decision wait here: a name to check, a receipt to link, a possible duplicate."
 
 #: src/components/capture/place-chip.tsx
 msgid "Capturing into {path}. Change place"
@@ -2076,10 +2000,6 @@ msgstr "Check the camera, offline support and storage, and copy a report."
 msgid "Check this device"
 msgstr "Check this device"
 
-#: src/routes/_app/box-check.$id.tsx
-msgid "Check what's in a box"
-msgstr "Check what's in a box"
-
 #: src/routes/signin/index.tsx
 msgid "Check your email"
 msgstr "Check your email"
@@ -2146,10 +2066,6 @@ msgstr "Choose the shop."
 #: src/components/inbox/receipt-review.tsx
 msgid "Choose the thing each linked line is."
 msgstr "Choose the thing each linked line is."
-
-#: src/components/places/contents-list.tsx
-msgid "Choose things to move"
-msgstr "Choose things to move"
 
 #: src/routes/_app/p.$id.tsx
 msgid "Choose what happens to what's inside"
@@ -2311,10 +2227,6 @@ msgstr "Confirm your second factor to continue."
 #: src/components/history/labels.ts
 msgid "Confirmed"
 msgstr "Confirmed"
-
-#: src/routes/_app/settings.ai.tsx
-msgid "Connect AI to name your photos"
-msgstr "Connect AI to name your photos"
 
 #: src/components/home/checklist.tsx
 msgid "Connect an AI provider"
@@ -3394,10 +3306,6 @@ msgstr "Find a type"
 msgid "Find a value"
 msgstr "Find a value"
 
-#: src/components/hints/hint-copy.ts
-msgid "Find anything by its name, its place, or what else it's called. On a phone it also works offline."
-msgstr "Find anything by its name, its place, or what else it's called. On a phone it also works offline."
-
 #: src/routes/_app/search.tsx
 msgid "Find anything you've kept"
 msgstr "Find anything you've kept"
@@ -3405,10 +3313,6 @@ msgstr "Find anything you've kept"
 #: src/routes/_app/help.tsx
 msgid "Find your way around"
 msgstr "Find your way around"
-
-#: src/routes/_app/help.tsx
-msgid "Find your way around Kept"
-msgstr "Find your way around Kept"
 
 #: src/lib/labels.ts
 msgid "Finding things: rooms, boxes, labels and search."
@@ -3575,10 +3479,6 @@ msgstr "General"
 msgid "Get started"
 msgstr "Get started"
 
-#: src/routes/_app/index.tsx
-msgid "Get started hidden"
-msgstr "Get started hidden"
-
 #: src/routes/_app/help.tsx
 msgid "Get-started checklist"
 msgstr "Get-started checklist"
@@ -3723,10 +3623,6 @@ msgstr "Have you kept the recovery kit?"
 msgid "Help"
 msgstr "Help"
 
-#: src/routes/_app/help.tsx
-msgid "Help will show you around the app, explain how to install Kept on your phone, and restore the Get-started checklist."
-msgstr "Help will show you around the app, explain how to install Kept on your phone, and restore the Get-started checklist."
-
 #: src/components/history/timeline.tsx
 msgid "hidden"
 msgstr "hidden"
@@ -3738,10 +3634,6 @@ msgstr "Hidden"
 #: src/routes/_app/help.tsx
 msgid "Hidden from Home."
 msgstr "Hidden from Home."
-
-#: src/components/home/checklist.tsx
-msgid "Hide Get started"
-msgstr "Hide Get started"
 
 #: src/components/things/secrets.tsx
 msgid "Hide now"
@@ -3895,10 +3787,6 @@ msgstr "If you lose your phone, each of these signs you in once. Keep them somew
 #: src/routes/_app/settings.import.tsx
 msgid "Import"
 msgstr "Import"
-
-#: src/routes/_app/settings.import.tsx
-msgid "Import things from a CSV file: match its columns, check a dry run, then import."
-msgstr "Import things from a CSV file: match its columns, check a dry run, then import."
 
 #: src/components/search/palette.tsx
 msgid "In {addToName}"
@@ -4168,10 +4056,6 @@ msgstr "It's kept for {hours} hours."
 msgid "It's pending until it syncs. If another phone claimed it first, you'll be told."
 msgstr "It's pending until it syncs. If another phone claimed it first, you'll be told."
 
-#: src/routes/setup.tsx
-msgid "It's printed once, on the first start. Other installs: the logs page of your host or app store."
-msgstr "It's printed once, on the first start. Other installs: the logs page of your host or app store."
-
 #: src/components/registries/type-editor.tsx
 msgid "Its fields show on every type that uses the group."
 msgstr "Its fields show on every type that uses the group."
@@ -4275,10 +4159,6 @@ msgstr "Keep the name under 200 characters."
 msgid "Keep the phone number to 40 characters."
 msgstr "Keep the phone number to 40 characters."
 
-#: src/routes/_app/admin.status.tsx
-msgid "Keep the secret key somewhere else"
-msgstr "Keep the secret key somewhere else"
-
 #: src/components/registries/field-sheet.tsx
 msgid "Keep the unit short, like cm or W."
 msgstr "Keep the unit short, like cm or W."
@@ -4320,10 +4200,6 @@ msgstr "Kept can't use the camera"
 #: src/routes/_app/settings.two-factor.tsx
 msgid "Kept emails you a sign-in link; opening it confirms the address. Opening it also removes this account's password, passkeys and other sessions, so nobody who set them up before you keeps a way in. Two-factor needs a password, so afterwards set a new one with “Forgot your password?” on the sign-in page, then come back here."
 msgstr "Kept emails you a sign-in link; opening it confirms the address. Opening it also removes this account's password, passkeys and other sessions, so nobody who set them up before you keeps a way in. Two-factor needs a password, so afterwards set a new one with “Forgot your password?” on the sign-in page, then come back here."
-
-#: src/routes/_app/admin.status.tsx
-msgid "Kept encrypts secret fields, AI keys and the backup password with KEPT_SECRET_KEY. If this server and its key are lost together, a backup still restores your things, but not those. Print the recovery kit with <0>kept admin recovery-kit</0> and keep it away from this server. Kept asks for this before the first secret, AI key or backup."
-msgstr "Kept encrypts secret fields, AI keys and the backup password with KEPT_SECRET_KEY. If this server and its key are lost together, a backup still restores your things, but not those. Print the recovery kit with <0>kept admin recovery-kit</0> and keep it away from this server. Kept asks for this before the first secret, AI key or backup."
 
 #: src/components/things/overview.tsx
 msgid "Kept from an earlier type. They're not lost; re-type back to use them again."
@@ -4529,10 +4405,6 @@ msgstr "Last day"
 #: src/components/capture/place-chip.tsx
 msgid "Last place · tap to change"
 msgstr "Last place · tap to change"
-
-#: src/routes/_app/admin.status.tsx
-msgid "Last run failed"
-msgstr "Last run failed"
 
 #: src/components/capture/capture-screen.tsx
 msgid "Last saved: {lastName} · ID pending"
@@ -5607,10 +5479,6 @@ msgstr "None of your locations is nearby."
 msgid "None open"
 msgstr "None open"
 
-#: src/routes/_app/admin.status.tsx
-msgid "None yet"
-msgstr "None yet"
-
 #: src/components/inbox/duplicate-review.tsx
 msgid "Not a duplicate · keep both"
 msgstr "Not a duplicate · keep both"
@@ -5693,10 +5561,6 @@ msgstr "Not shown to viewers here"
 msgid "Not sure where"
 msgstr "Not sure where"
 
-#: src/routes/_app/admin.status.tsx
-msgid "Not yet"
-msgstr "Not yet"
-
 #: src/components/history/labels.ts
 msgid "Note"
 msgstr "Note"
@@ -5776,10 +5640,6 @@ msgstr "Nothing on this phone matches ‘<0>{q}</0>’"
 #: src/components/capture/capture-screen.tsx
 msgid "Nothing on this phone yet. Open Kept once while online to bring your places."
 msgstr "Nothing on this phone yet. Open Kept once while online to bring your places."
-
-#: src/routes/_app/admin.status.tsx
-msgid "Nothing on this server is backed up. Set <0>KEPT_BACKUP_DIR</0> (a folder on another disk) or <1>KEPT_BACKUP_S3_BUCKET</1>, with <2>KEPT_OWNER_DATABASE_URL</2>, and restart Kept. The backup-restore runbook has the steps."
-msgstr "Nothing on this server is backed up. Set <0>KEPT_BACKUP_DIR</0> (a folder on another disk) or <1>KEPT_BACKUP_S3_BUCKET</1>, with <2>KEPT_OWNER_DATABASE_URL</2>, and restart Kept. The backup-restore runbook has the steps."
 
 #: src/components/things/overview.tsx
 msgid "Nothing recorded yet."
@@ -6157,10 +6017,6 @@ msgstr "Optional: without one it waits in the Inbox to be named."
 msgid "or"
 msgstr "or"
 
-#: src/routes/_app/index.tsx
-msgid "Or"
-msgstr "Or"
-
 #: src/components/home/checklist.tsx
 msgid "Or reach Kept through Tailscale and turn on HTTPS for your tailnet; the address ends in <0>.ts.net</0>."
 msgstr "Or reach Kept through Tailscale and turn on HTTPS for your tailnet; the address ends in <0>.ts.net</0>."
@@ -6324,10 +6180,6 @@ msgstr "Photo"
 msgid "Photo {0} of {1}"
 msgstr "Photo {0} of {1}"
 
-#: src/components/hints/hint-copy.ts
-msgid "Photograph things, receipts, labels and meter readings, one after another. It works without a connection too."
-msgstr "Photograph things, receipts, labels and meter readings, one after another. It works without a connection too."
-
 #: src/components/places/contents-list.tsx
 msgid "photos"
 msgstr "photos"
@@ -6442,11 +6294,6 @@ msgstr "Point at a Kept label, or a product's barcode."
 msgid "Point at the label of the place or box they go in."
 msgstr "Point at the label of the place or box they go in."
 
-#: src/routes/_app/l.$code.tsx
-#: src/routes/_app/scan.tsx
-msgid "Point the camera at a Kept label to open what it's on, or at a product's barcode to add it."
-msgstr "Point the camera at a Kept label to open what it's on, or at a product's barcode to add it."
-
 #: src/components/registries/field-list.tsx
 msgid "Policy"
 msgstr "Policy"
@@ -6529,19 +6376,9 @@ msgstr "Print again"
 msgid "Print inventory"
 msgstr "Print inventory"
 
-#: src/routes/_app/labels.tsx
-#: src/routes/_print/labels.$batchId.tsx
-msgid "Print labels for your boxes"
-msgstr "Print labels for your boxes"
-
 #: src/pwa/diagnostics.tsx
 msgid "Print page sizes"
 msgstr "Print page sizes"
-
-#: src/routes/_app/labels.tsx
-#: src/routes/_print/labels.$batchId.tsx
-msgid "Print sheets of labels for things and places, or blank labels to stick on boxes now and name later."
-msgstr "Print sheets of labels for things and places, or blank labels to stick on boxes now and name later."
 
 #: src/components/home/checklist.tsx
 msgid "Print your first label"
@@ -6550,10 +6387,6 @@ msgstr "Print your first label"
 #: src/components/home/checklist.tsx
 msgid "Printed a label"
 msgstr "Printed a label"
-
-#: src/routes/_app/p.$id.tsx
-msgid "Printing arrives in a later step."
-msgstr "Printing arrives in a later step."
 
 #: src/components/scan/barcode-sheet.tsx
 msgid "Product barcode"
@@ -6647,10 +6480,6 @@ msgstr "Queued again"
 #: src/components/things/action-menu.tsx
 msgid "Re-type"
 msgstr "Re-type"
-
-#: src/components/ai/ai-line.tsx
-msgid "Read by <0>{model}</0> ({provider}) · {tokens} tokens"
-msgstr "Read by <0>{model}</0> ({provider}) · {tokens} tokens"
 
 #: src/components/inbox/labels.ts
 #: src/components/inbox/reading-review.tsx
@@ -6977,10 +6806,6 @@ msgstr "Restore {entity}"
 msgid "Restore {name}"
 msgstr "Restore {name}"
 
-#: src/components/places/trash-contents-dialog.tsx
-msgid "Restored"
-msgstr "Restored"
-
 #: src/components/history/labels.ts
 #: src/routes/_app/trash.tsx
 msgid "Restored {name}"
@@ -7138,10 +6963,6 @@ msgstr "Save changes"
 #: src/components/registries/type-editor.tsx
 msgid "Save changes to {name}?"
 msgstr "Save changes to {name}?"
-
-#: src/routes/_app/settings.account.templates.tsx
-msgid "Save the details you type again and again, and share them with your locations."
-msgstr "Save the details you type again and again, and share them with your locations."
 
 #: src/components/filters/views.tsx
 msgid "Save view"
@@ -7468,15 +7289,6 @@ msgstr "Secure connection (HTTPS)"
 msgid "Security"
 msgstr "Security"
 
-#: src/routes/_app/admin.ai.usage.tsx
-#: src/routes/_app/settings.ai.usage.tsx
-msgid "See what AI has cost"
-msgstr "See what AI has cost"
-
-#: src/routes/_app/settings.ai.tsx
-msgid "See what uses AI in Kept and what it costs, paste a key and test it, and set a monthly limit."
-msgstr "See what uses AI in Kept and what it costs, paste a key and test it, and set a monthly limit."
-
 #. placeholder {0}: fmt.relative(thing.lastSeenAt)
 #: src/components/things/header.tsx
 msgid "Seen {0}"
@@ -7709,10 +7521,6 @@ msgstr "Show all"
 #: src/components/filters/panel.tsx
 msgid "Show everything"
 msgstr "Show everything"
-
-#: src/components/home/checklist.tsx
-msgid "Show Get started"
-msgstr "Show Get started"
 
 #: src/routes/_app/help.tsx
 msgid "Show me around"
@@ -7960,10 +7768,6 @@ msgstr "Start"
 #: src/components/home/checklist.tsx
 msgid "Start Kept's Compose file with the <0>https</0> profile. It adds a reverse proxy that gets a certificate for your domain."
 msgstr "Start Kept's Compose file with the <0>https</0> profile. It adds a reverse proxy that gets a certificate for your domain."
-
-#: src/routes/_app/settings.account.templates.tsx
-msgid "Start new things from a template"
-msgstr "Start new things from a template"
 
 #: src/components/filters/registry.tsx
 msgid "State"
@@ -8319,29 +8123,9 @@ msgstr "The first things in <0>{home}</0> go where you choose. You can change it
 msgid "The inbox is for members"
 msgstr "The inbox is for members"
 
-#: src/routes/_app/admin.ai.tsx
-msgid "The instance key, limits for every account, and the price table."
-msgstr "The instance key, limits for every account, and the price table."
-
 #: src/components/registries/field-sheet.tsx
 msgid "The key and kind stay as they are. Changing a kind comes with a preview, later."
 msgstr "The key and kind stay as they are. Changing a kind comes with a preview, later."
-
-#: src/routes/_app/admin.status.tsx
-msgid "The last backup failed"
-msgstr "The last backup failed"
-
-#: src/routes/_app/admin.status.tsx
-msgid "The last backup is old"
-msgstr "The last backup is old"
-
-#: src/routes/_app/admin.status.tsx
-msgid "The last good backup is from {lastGood}."
-msgstr "The last good backup is from {lastGood}."
-
-#: src/routes/_app/admin.status.tsx
-msgid "The last good backup is from {lastGood}. Check that Kept's worker is running."
-msgstr "The last good backup is from {lastGood}. Check that Kept's worker is running."
 
 #: src/components/inbox/receipt-review.tsx
 msgid "The lines don't add up to the total (more than 1% apart). Check them."
@@ -8471,10 +8255,6 @@ msgstr "Then set KEPT_PUBLIC_URL to the https address and restart Kept."
 msgid "There are {0}. The ones you take off get their own row, keeping the same purchase."
 msgstr "There are {0}. The ones you take off get their own row, keeping the same purchase."
 
-#: src/routes/_app/admin.status.tsx
-msgid "There is no good backup yet."
-msgstr "There is no good backup yet."
-
 #: src/components/registries/place-kinds.tsx
 msgid "There's already a kind with that name."
 msgstr "There's already a kind with that name."
@@ -8536,10 +8316,6 @@ msgstr "Things captured with no place yet"
 #: src/components/search/results.tsx
 msgid "Things found"
 msgstr "Things found"
-
-#: src/components/places/contents-list.tsx
-msgid "Things here"
-msgstr "Things here"
 
 #: src/components/inbox/receipt-review.tsx
 msgid "Things in the same location, by brand and model or by name."
@@ -8604,11 +8380,6 @@ msgstr "This changed since you opened it. Reload and try again."
 #: src/components/scan/outcome-sheet.tsx
 msgid "This code isn't one of Kept's labels. It says:"
 msgstr "This code isn't one of Kept's labels. It says:"
-
-#. placeholder {0}: thing.name ?? ''
-#: src/components/things/label-sheet.tsx
-msgid "This code stays with {0} for good, so a reprinted label still finds it. Printing label sheets comes with scanning, in a later step."
-msgstr "This code stays with {0} for good, so a reprinted label still finds it. Printing label sheets comes with scanning, in a later step."
 
 #: src/routes/_app/settings.index.tsx
 msgid "This device"
@@ -8715,10 +8486,6 @@ msgstr "This phone is out of space for Kept. Free some space to keep capturing o
 msgid "This phone may be out of space."
 msgstr "This phone may be out of space."
 
-#: src/routes/_app/p.$id.tsx
-msgid "This place has a label ID; printing arrives in a later step"
-msgstr "This place has a label ID; printing arrives in a later step"
-
 #: src/routes/signin/two-factor.tsx
 msgid "This sign-in timed out. Start again from the sign-in page."
 msgstr "This sign-in timed out. Start again from the sign-in page."
@@ -8747,10 +8514,6 @@ msgstr "Thrown away"
 msgid "Ticked"
 msgstr "Ticked"
 
-#: src/routes/_app/box-check.$id.tsx
-msgid "Tick off what you find, count what's short, and Kept marks the rest not here."
-msgstr "Tick off what you find, count what's short, and Kept marks the rest not here."
-
 #: src/routes/_app/search.tsx
 msgid "Tips"
 msgstr "Tips"
@@ -8767,10 +8530,6 @@ msgstr "To come back, someone in {name} has to invite you again."
 #: src/components/inbox/inbox-list.tsx
 msgid "To confirm: {list}"
 msgstr "To confirm: {list}"
-
-#: src/components/home/attention.tsx
-msgid "To review"
-msgstr "To review"
 
 #: src/components/filters/panel.tsx
 #: src/components/inbox/inbox-list.tsx
@@ -9455,10 +9214,6 @@ msgstr "What it changed no longer exists."
 msgid "What it shows stays."
 msgstr "What it shows stays."
 
-#: src/components/hints/hint-copy.ts
-msgid "What needs you comes first, then your locations and what's in them."
-msgstr "What needs you comes first, then your locations and what's in them."
-
 #: src/routes/_app/locations.new.tsx
 msgid "What should {displayName} track?"
 msgstr "What should {displayName} track?"
@@ -9772,10 +9527,6 @@ msgstr "Your new password works now. Every device that was signed in has been si
 #: src/components/registries/place-kinds.tsx
 msgid "Your own"
 msgstr "Your own"
-
-#: src/routes/_app/settings.me.ai.tsx
-msgid "Your own AI key"
-msgstr "Your own AI key"
 
 #: src/components/change-email.tsx
 #: src/routes/_app/settings.two-factor.tsx
@@ -11087,10 +10838,6 @@ msgstr "Test used {0} tokens with <0>{1}</0>"
 msgid "Tests"
 msgstr "Tests"
 
-#: src/components/ai/paste-key.tsx
-msgid "That address is on a private network. An instance admin can allow private addresses for a self-hosted server."
-msgstr "That address is on a private network. An instance admin can allow private addresses for a self-hosted server."
-
 #: src/components/ai/caps.tsx
 msgid "That currency isn't turned on. An instance admin can add it."
 msgstr "That currency isn't turned on. An instance admin can add it."
@@ -11491,10 +11238,6 @@ msgstr "Also where a row goes when its place isn't made."
 msgid "An import takes at most {limit} rows. Split the file and import each part."
 msgstr "An import takes at most {limit} rows. Split the file and import each part."
 
-#: src/components/import/upload-step.tsx
-msgid "Any spreadsheet saved as CSV: one thing per row, with a header row naming the columns."
-msgstr "Any spreadsheet saved as CSV: one thing per row, with a header row naming the columns."
-
 #: src/components/import/mapping-step.tsx
 msgid "As the type's field is written in Settings → Account → Types, like warranty_months."
 msgstr "As the type's field is written in Settings → Account → Types, like warranty_months."
@@ -11555,10 +11298,6 @@ msgstr "Column {n}"
 #: src/components/import/mapping-step.tsx
 msgid "Columns"
 msgstr "Columns"
-
-#: src/components/import/upload-step.tsx
-msgid "Coming in a later version."
-msgstr "Coming in a later version."
 
 #: src/components/import/choices-step.tsx
 msgid "Dates are written as"
@@ -11948,10 +11687,6 @@ msgstr "Worked out from the dates in the file."
 msgid "You can leave this page; the import carries on, and Settings → Import shows how far it got."
 msgstr "You can leave this page; the import carries on, and Settings → Import shows how far it got."
 
-#: src/components/import/labels.ts
-msgid "Your own code (an old label)"
-msgstr "Your own code (an old label)"
-
 #. placeholder {0}: x.locations.length
 #: src/components/templates/template-list.tsx
 msgid "{0, plural, one {Shared with 1 location} other {Shared with # locations}}"
@@ -11960,10 +11695,6 @@ msgstr "{0, plural, one {Shared with 1 location} other {Shared with # locations}
 #: src/components/templates/template-sheet.tsx
 msgid "Also the new thing's name, until you type one."
 msgstr "Also the new thing's name, until you type one."
-
-#: src/components/templates/template-sheet.tsx
-msgid "At most 120 characters."
-msgstr "At most 120 characters."
 
 #: src/components/templates/template-list.tsx
 msgid "Couldn't delete it"
@@ -12546,10 +12277,6 @@ msgid "Finding things with a meter…"
 msgstr "Finding things with a meter…"
 
 #: src/components/capture/reading-target.tsx
-msgid "Kept checks online which things have a meter. The one chosen before still works offline."
-msgstr "Kept checks online which things have a meter. The one chosen before still works offline."
-
-#: src/components/capture/reading-target.tsx
 msgid "Nothing here has a meter yet"
 msgstr "Nothing here has a meter yet"
 
@@ -12808,25 +12535,9 @@ msgstr "{unread, plural, one {# unread notification} other {# unread notificatio
 msgid "A report of your things with their prices, values and receipts, and a pack of the originals to send with a claim."
 msgstr "A report of your things with their prices, values and receipts, and a pack of the originals to send with a claim."
 
-#: src/routes/_app/paperwork.tsx
-msgid "All your paperwork in one place"
-msgstr "All your paperwork in one place"
-
-#: src/routes/_app/settings.me.notifications.tsx
-msgid "Choose what each location tells you, by email or on this device, when the daily digest comes, and when Kept stays quiet."
-msgstr "Choose what each location tells you, by email or on this device, when the daily digest comes, and when Kept stays quiet."
-
 #: src/routes/_app/reports.$kind.tsx
 msgid "Claim pack"
 msgstr "Claim pack"
-
-#: src/routes/_app/settings.account.exchange-rates.tsx
-msgid "Enter a rate for a pair of currencies and the date it applies from. Totals are converted only with a rate you entered, never an estimate."
-msgstr "Enter a rate for a pair of currencies and the date it applies from. Totals are converted only with a rate you entered, never an estimate."
-
-#: src/routes/_app/notifications.tsx
-msgid "Everything Kept told you"
-msgstr "Everything Kept told you"
 
 #: src/routes/_app/settings.account.tsx
 msgid "Exchange rates"
@@ -12852,15 +12563,6 @@ msgstr "Incidents"
 msgid "Insurance report"
 msgstr "Insurance report"
 
-#: src/routes/_app/paperwork.tsx
-msgid "Receipts, manuals, warranties, leases and policies from every location, found by a word inside them."
-msgstr "Receipts, manuals, warranties, leases and policies from every location, found by a word inside them."
-
-#: src/routes/_app/incidents.$id.tsx
-#: src/routes/_app/incidents.tsx
-msgid "Record a burglary, fire, flood or loss, mark what it took, and get what your insurer asks for."
-msgstr "Record a burglary, fire, flood or loss, mark what it took, and get what your insurer asks for."
-
 #: src/routes/_app/settings.index.tsx
 msgid "Reminders and alerts"
 msgstr "Reminders and alerts"
@@ -12873,46 +12575,9 @@ msgstr "Reminders that are due, loans that are overdue, and news about your loca
 msgid "Report"
 msgstr "Report"
 
-#: src/routes/_app/schedules.tsx
-msgid "Services and checks for your things and places, every few months or every so many kilometres or hours, with a reminder before each one is due."
-msgstr "Services and checks for your things and places, every few months or every so many kilometres or hours, with a reminder before each one is due."
-
-#: src/routes/_app/expiring.tsx
-msgid "Warranties, documents and things that expire, soonest first."
-msgstr "Warranties, documents and things that expire, soonest first."
-
-#: src/routes/_app/settings.index.tsx
-msgid "What each location tells you, by email or on this device."
-msgstr "What each location tells you, by email or on this device."
-
-#: src/routes/_app/schedules.tsx
-msgid "What needs doing, and when"
-msgstr "What needs doing, and when"
-
-#: src/routes/_app/expiring.tsx
-msgid "What runs out soon"
-msgstr "What runs out soon"
-
-#: src/routes/_app/lending.tsx
-msgid "What you lent and to whom, what you borrowed and from whom, and when each is due back."
-msgstr "What you lent and to whom, what you borrowed and from whom, and when each is due back."
-
 #: src/routes/_app/reports.$kind.tsx
 msgid "What your insurer asks for"
 msgstr "What your insurer asks for"
-
-#: src/routes/_app/incidents.$id.tsx
-#: src/routes/_app/incidents.tsx
-msgid "When something goes wrong"
-msgstr "When something goes wrong"
-
-#: src/routes/_app/lending.tsx
-msgid "Who has what"
-msgstr "Who has what"
-
-#: src/routes/_app/settings.account.exchange-rates.tsx
-msgid "Your exchange rates"
-msgstr "Your exchange rates"
 
 #: src/components/reports/progress.tsx
 msgid "Open PDF"
@@ -13017,14 +12682,6 @@ msgstr "{months, plural, one {Every {every} or # month} other {Every {every} or 
 #: src/components/schedules/labels.tsx
 msgid "{n, plural, one {In # day} other {In # days}}"
 msgstr "{n, plural, one {In # day} other {In # days}}"
-
-#: src/components/lending/loan-row.tsx
-msgid "{name} is back"
-msgstr "{name} is back"
-
-#: src/components/lending/loan-row.tsx
-msgid "{name} went back to {person}"
-msgstr "{name} went back to {person}"
 
 #: src/components/lending/loan-row.tsx
 msgid "{since} to {back} · returned"
@@ -13311,10 +12968,6 @@ msgstr "Loans with {name} that ended"
 #: src/components/services/log-service-sheet.tsx
 msgid "Log a service"
 msgstr "Log a service"
-
-#: src/components/lending/loan-row.tsx
-msgid "Mark {name} returned"
-msgstr "Mark {name} returned"
 
 #: src/components/lending/loan-row.tsx
 msgid "Mark returned"
@@ -13629,26 +13282,6 @@ msgstr "What {name} lent us"
 #: src/components/documents/subject-paperwork.tsx
 msgid "{earlier, plural, one {# earlier term} other {# earlier terms}}"
 msgstr "{earlier, plural, one {# earlier term} other {# earlier terms}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# is due soon} other {# are due soon}}"
-msgstr "{n, plural, one {# is due soon} other {# are due soon}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# is past its date} other {# are past their date}}"
-msgstr "{n, plural, one {# is past its date} other {# are past their date}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# runs out soon} other {# run out soon}}"
-msgstr "{n, plural, one {# runs out soon} other {# run out soon}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# thing is with someone} other {# things are with someone}}"
-msgstr "{n, plural, one {# thing is with someone} other {# things are with someone}}"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# thing to give back} other {# things to give back}}"
-msgstr "{n, plural, one {# thing to give back} other {# things to give back}}"
 
 #. placeholder {0}: f.num(i + 1)
 #: src/components/documents/subject-paperwork.tsx
@@ -14125,10 +13758,6 @@ msgstr "Change the due date"
 #: src/components/lending/return-sheet.tsx
 msgid "Choose where it goes."
 msgstr "Choose where it goes."
-
-#: src/components/claims/claims-section.tsx
-msgid "Claim · {status}"
-msgstr "Claim · {status}"
 
 #: src/components/warranties/warranty-sheet.tsx
 msgid "Claim contact"
@@ -14827,10 +14456,6 @@ msgstr "{MAX_WEBHOOK_CHANNELS, plural, one {You have # webhook, the most Kept al
 msgid "{unreadText} unread"
 msgstr "{unreadText} unread"
 
-#: src/components/notifications/settings/kinds.tsx
-msgid "{what} by {how} in {name}"
-msgstr "{what} by {how} in {name}"
-
 #: src/components/notifications/notification-row.tsx
 msgid "{who} joined {where}"
 msgstr "{who} joined {where}"
@@ -14854,10 +14479,6 @@ msgstr "Add a webhook"
 #: src/components/notifications/settings/kinds.tsx
 msgid "AI monthly summary"
 msgstr "AI monthly summary"
-
-#: src/components/notifications/settings/notification-settings.tsx
-msgid "AI monthly summary by email"
-msgstr "AI monthly summary by email"
 
 #: src/components/notifications/notification-row.tsx
 msgid "AI reached this month's cap"
@@ -15324,10 +14945,6 @@ msgstr "Webhook"
 #: src/components/notifications/settings/channels.tsx
 msgid "Webhooks"
 msgstr "Webhooks"
-
-#: src/components/notifications/settings/notification-settings.tsx
-msgid "What each location tells you"
-msgstr "What each location tells you"
 
 #: src/components/notifications/settings/notification-settings.tsx
 msgid "What's coming up arrives together, once a day."
@@ -15926,26 +15543,6 @@ msgstr "Consumables"
 msgid "Export"
 msgstr "Export"
 
-#: src/routes/_app/settings.export.tsx
-msgid "Export a location as one file: everything in it, the original photos and documents, and a copy you can read without Kept."
-msgstr "Export a location as one file: everything in it, the original photos and documents, and a copy you can read without Kept."
-
-#: src/components/legacy/legacy-resolve.tsx
-msgid "Homebox labels keep working"
-msgstr "Homebox labels keep working"
-
-#: src/routes/_app/consumables.tsx
-msgid "Keep at least a few of each, see what's running low, and adjust the count."
-msgstr "Keep at least a few of each, see what's running low, and adjust the count."
-
-#: src/components/legacy/legacy-resolve.tsx
-msgid "Once your Homebox export is imported, its printed labels open the same things here."
-msgstr "Once your Homebox export is imported, its printed labels open the same things here."
-
-#: src/routes/_app/settings.export.tsx
-msgid "Take your things with you"
-msgstr "Take your things with you"
-
 #: src/components/registries/brand-logo.household.tsx
 msgid "Logo of {name}"
 msgstr "Logo of {name}"
@@ -15993,19 +15590,6 @@ msgstr "Ask where something is or what's due, or ask for a change you confirm be
 #: src/routes/oauth/consent.tsx
 msgid "Connect other apps"
 msgstr "Connect other apps"
-
-#: src/routes/_app/settings.connections.tsx
-#: src/routes/oauth/consent.tsx
-msgid "Tokens and connected apps let AI apps like Claude find and add your things. Every change they make is listed here, with undo."
-msgstr "Tokens and connected apps let AI apps like Claude find and add your things. Every change they make is listed here, with undo."
-
-#: src/routes/_app/settings.location.$id.webhooks.tsx
-msgid "Tell another server what changed"
-msgstr "Tell another server what changed"
-
-#: src/routes/_app/settings.location.$id.webhooks.tsx
-msgid "A signed message to your own server when a thing is added, moved or changed here. It carries ids, never names or values."
-msgstr "A signed message to your own server when a thing is added, moved or changed here. It carries ids, never names or values."
 
 #: src/routes/oauth/consent.tsx
 msgid "Connect an app"
@@ -17116,10 +16700,6 @@ msgstr "Adjust"
 #: src/components/home/attention.tsx
 msgid "Low stock"
 msgstr "Low stock"
-
-#: src/components/home/attention.tsx
-msgid "{n, plural, one {# running low} other {# running low}}"
-msgstr "{n, plural, one {# running low} other {# running low}}"
 
 #: src/components/consumables/stock.household.tsx
 #: src/components/history/labels.ts
@@ -18291,10 +17871,6 @@ msgstr "{name}, {unit}"
 msgid "A car, a motorbike or a generator: Kept keeps its odometer, what's due, fuel and running costs."
 msgstr "A car, a motorbike or a generator: Kept keeps its odometer, what's due, fuel and running costs."
 
-#: src/components/vehicles/overview.tsx
-msgid "A fresh one keeps ~{next} honest; Kept nudges you at {nudge} days."
-msgstr "A fresh one keeps ~{next} honest; Kept nudges you at {nudge} days."
-
 #: src/components/vehicles/readings-tab.tsx
 msgid "Accepted"
 msgstr "Accepted"
@@ -18407,10 +17983,6 @@ msgstr "Home Assistant"
 #: src/components/vehicles/starter-schedules.tsx
 msgid "It has those already"
 msgstr "It has those already"
-
-#: src/components/vehicles/overview.tsx
-msgid "Kept nudges you at {nudge} days."
-msgstr "Kept nudges you at {nudge} days."
 
 #: src/components/vehicles/list.tsx
 msgid "Last reading"
@@ -19930,17 +19502,9 @@ msgstr "All threads"
 msgid "Backups"
 msgstr "Backups"
 
-#: src/routes/_app/admin.backups.tsx
-msgid "Back up every night to another disk, an S3 bucket or an SFTP server, encrypted with a password only you hold, and see each run and snapshot here."
-msgstr "Back up every night to another disk, an S3 bucket or an SFTP server, encrypted with a password only you hold, and see each run and snapshot here."
-
 #: src/routes/_app/settings.device.tsx
 msgid "Lock Kept on this device"
 msgstr "Lock Kept on this device"
-
-#: src/routes/_app/settings.device.tsx
-msgid "Ask for a PIN or your face or fingerprint when Kept opens, and keep a location's prices and documents on this phone for when you're offline."
-msgstr "Ask for a PIN or your face or fingerprint when Kept opens, and keep a location's prices and documents on this phone for when you're offline."
 
 #: src/components/history/labels.ts
 msgid "Issued on"
@@ -21009,10 +20573,6 @@ msgstr "Kept can't reach that address. Check it for typos."
 msgid "You have no AI of your own to answer here. Ask from a location's page, where its AI answers."
 msgstr "You have no AI of your own to answer here. Ask from a location's page, where its AI answers."
 
-#: src/components/app-shell.tsx
-msgid "Third-party notices"
-msgstr "Third-party notices"
-
 #: src/components/history/labels.ts
 msgid "Webhook added"
 msgstr "Webhook added"
@@ -21206,18 +20766,6 @@ msgstr "New amounts default to this. Existing amounts keep theirs; converted tot
 msgid "Back to {0}"
 msgstr "Back to {0}"
 
-#: src/components/hints/hint-copy.ts
-msgid "Your locations and everything else: vehicles, paperwork, settings and help."
-msgstr "Your locations and everything else: vehicles, paperwork, settings and help."
-
-#: src/components/hints/hint-copy.ts
-msgid "Print QR labels for boxes and shelves. Scan one and its place opens."
-msgstr "Print QR labels for boxes and shelves. Scan one and its place opens."
-
-#: src/components/hints/hint-copy.ts
-msgid "Locations, members, AI providers and backups live here."
-msgstr "Locations, members, AI providers and backups live here."
-
 #. placeholder {0}: ids.length
 #: src/components/hints/tour-keep.tsx
 msgid "{0, plural, one {The tour added # item to your library.} other {The tour added # items to your library.}}"
@@ -21226,14 +20774,6 @@ msgstr "{0, plural, one {The tour added # item to your library.} other {The tour
 #: src/components/hints/tour-keep.tsx
 msgid "{failures, plural, one {# added item couldn't be removed. Check your connection and try Discard again, or Keep it.} other {# added items couldn't be removed. Check your connection and try Discard again, or Keep them.}}"
 msgstr "{failures, plural, one {# added item couldn't be removed. Check your connection and try Discard again, or Keep it.} other {# added items couldn't be removed. Check your connection and try Discard again, or Keep them.}}"
-
-#: src/components/hints/hint-copy.ts
-msgid "Every addition, move and edit, newest first. Search it when you want history."
-msgstr "Every addition, move and edit, newest first. Search it when you want history."
-
-#: src/routes/_app/help.tsx
-msgid "Every section, one small thing in each, then keep or discard what you added. Replay it any time."
-msgstr "Every section, one small thing in each, then keep or discard what you added. Replay it any time."
 
 #: src/components/hints/tour-keep.tsx
 msgid "Keep leaves everything where it is. Discard moves only what the tour added to Trash, where it waits 30 days before it's gone for good. Your activity history stays either way."
@@ -21244,68 +20784,8 @@ msgid "Keep what you added?"
 msgstr "Keep what you added?"
 
 #: src/components/hints/hint-copy.ts
-msgid "Locations, members, AI and backups live here. Nothing changes unless you change it."
-msgstr "Locations, members, AI and backups live here. Nothing changes unless you change it."
-
-#: src/components/hints/hint-copy.ts
 msgid "Name it and create it. At the end you keep it, or discard it."
 msgstr "Name it and create it. At the end you keep it, or discard it."
-
-#: src/components/hints/hint-copy.ts
-msgid "What has no label yet is listed here. Print a sheet whenever you want to stick some on."
-msgstr "What has no label yet is listed here. Print a sheet whenever you want to stick some on."
-
-#: src/components/hints/hint-copy.ts
-msgid "Every document, with the ones running out first."
-msgstr "Every document, with the ones running out first."
-
-#: src/components/hints/hint-copy.ts
-msgid "What's lent out, who has it, and what's overdue."
-msgstr "What's lent out, who has it, and what's overdue."
-
-#: src/components/hints/hint-copy.ts
-msgid "What's due, soonest first. New schedules start here too."
-msgstr "What's due, soonest first. New schedules start here too."
-
-#: src/components/hints/hint-copy.ts
-msgid "Each vehicle shows its odometer, what's due next and its documents."
-msgstr "Each vehicle shows its odometer, what's due next and its documents."
-
-#: src/components/hints/hint-copy.ts
-msgid "What runs low, with how much is left."
-msgstr "What runs low, with how much is left."
-
-#: src/components/hints/hint-copy.ts
-msgid "Your photo waits here. Check what Kept suggests and accept it: accepting files it into its place."
-msgstr "Your photo waits here. Check what Kept suggests and accept it: accepting files it into its place."
-
-#: src/components/hints/hint-copy.ts
-msgid "Reminders land here, newest first. What you're told about is in Settings."
-msgstr "Reminders land here, newest first. What you're told about is in Settings."
-
-#: src/components/hints/hint-copy.ts
-msgid "Take a photo of one thing, or pick one from your gallery, then tap Next. It waits in your Inbox."
-msgstr "Take a photo of one thing, or pick one from your gallery, then tap Next. It waits in your Inbox."
-
-#: src/components/hints/hint-copy.ts
-msgid "That's every section. If the tour added anything, you choose to keep it or discard it."
-msgstr "That's every section. If the tour added anything, you choose to keep it or discard it."
-
-#: src/components/hints/hint-copy.ts
-msgid "A location's places, and how much each holds. Open any of them after the tour."
-msgstr "A location's places, and how much each holds. Open any of them after the tour."
-
-#: src/components/hints/hint-copy.ts
-msgid "Trashed things wait here for 30 days, each with Restore."
-msgstr "Trashed things wait here for 30 days, each with Restore."
-
-#: src/components/hints/hint-copy.ts
-msgid "Type part of a thing's name above. Each result shows where it is."
-msgstr "Type part of a thing's name above. Each result shows where it is."
-
-#: src/components/hints/hint-copy.ts
-msgid "What needs you is at the top, your locations below it. Next takes you into one."
-msgstr "What needs you is at the top, your locations below it. Next takes you into one."
 
 #: src/components/connections/words.tsx
 msgid "Ended: the account was reclaimed"
@@ -22654,10 +22134,6 @@ msgid "Less"
 msgstr "Less"
 
 #: src/map/card.tsx
-msgid "Shape"
-msgstr "Shape"
-
-#: src/map/card.tsx
 msgid "{n, plural, one {# thing inside} other {# things inside}}"
 msgstr "{n, plural, one {# thing inside} other {# things inside}}"
 
@@ -22974,8 +22450,8 @@ msgid "Couldn’t save the map"
 msgstr "Couldn’t save the map"
 
 #: src/map/map-view.tsx
-msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box. Drag a room’s amber corner to resize it."
-msgstr "Drag anything to move it. Drop small things on a counter, desk, shelf or box. Drag a room’s amber corner to resize it."
+msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. Drag a room’s amber corner to resize it."
+msgstr "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. Drag a room’s amber corner to resize it."
 
 #: src/map/map-view.tsx
 msgid "Drag on empty ground to draw a new room on this floor."
@@ -24555,14 +24031,6 @@ msgid "Things to add on it"
 msgstr "Things to add on it"
 
 #: src/map/put-on.tsx
-msgid "No monitor in {roomName} is free. Put one on the map first."
-msgstr "No monitor in {roomName} is free. Put one on the map first."
-
-#: src/map/put-on.tsx
-msgid "Everything small in {roomName} is on something, or not on the map yet."
-msgstr "Everything small in {roomName} is on something, or not on the map yet."
-
-#: src/map/put-on.tsx
 msgid "{n, plural, one {Put # on it} other {Put # on it}}"
 msgstr "{n, plural, one {Put # on it} other {Put # on it}}"
 
@@ -25153,3 +24621,59 @@ msgstr "No monitor in {roomName} is free."
 #: src/map/put-on.tsx
 msgid "Everything small in {roomName} is on something already."
 msgstr "Everything small in {roomName} is on something already."
+
+#: src/components/moving/box-screen.tsx
+msgid "{name} goes to {where}"
+msgstr "{name} goes to {where}"
+
+#: src/components/moving/box-screen.tsx
+msgid "It has already synced. Choose the room again."
+msgstr "It has already synced. Choose the room again."
+
+#: src/map/labels.ts
+msgid "Wall TV"
+msgstr "Wall TV"
+
+#: src/map/labels.ts
+msgid "Wall shelf"
+msgstr "Wall shelf"
+
+#: src/map/labels.ts
+msgid "Wall cabinet"
+msgstr "Wall cabinet"
+
+#: src/map/labels.ts
+msgid "Picture or mirror"
+msgstr "Picture or mirror"
+
+#: src/map/labels.ts
+msgid "Wall clock"
+msgstr "Wall clock"
+
+#: src/map/labels.ts
+msgid "Hooks"
+msgstr "Hooks"
+
+#: src/map/labels.ts
+msgid "On the wall"
+msgstr "On the wall"
+
+#: src/map/height.tsx
+msgid "Height"
+msgstr "Height"
+
+#: src/map/height.tsx
+msgid "Lower"
+msgstr "Lower"
+
+#: src/map/height.tsx
+msgid "Higher"
+msgstr "Higher"
+
+#: src/map/height.tsx
+msgid "From the floor to its middle"
+msgstr "From the floor to its middle"
+
+#: src/map/card.tsx
+msgid "On the wall, {hangs} m up"
+msgstr "On the wall, {hangs} m up"

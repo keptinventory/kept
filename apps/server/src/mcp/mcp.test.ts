@@ -148,6 +148,53 @@ describe('/mcp', () => {
     expect((changes.items as Json[]).map((c) => (c.token as Json).id)).toContain(made.id);
   });
 
+  it('offers the moving tools: reads to a viewer’s read token, all to a member’s write token, which packs a box as the token', async () => {
+    const moving = [
+      'list_moves',
+      'get_move',
+      'start_move',
+      'add_box',
+      'pack_into_box',
+      'set_box_status',
+      'unpack_box',
+    ];
+    const read = await connect((await token(talia, 'read', [home.id])).secret);
+    const readNames = (await read.listTools()).tools.map((x) => x.name);
+    expect(moving.filter((n) => readNames.includes(n))).toEqual(['list_moves', 'get_move']);
+
+    const { token: made, secret } = await token(louis, 'write', [home.id]);
+    const client = await connect(secret);
+    const names = (await client.listTools()).tools.map((x) => x.name);
+    expect(moving.filter((n) => names.includes(n))).toEqual(moving);
+    const call = async (name: string, args: Record<string, unknown>) => {
+      const res = await client.callTool({ name, arguments: args });
+      const body = answer(res);
+      expect(res.isError, JSON.stringify(body)).toBeFalsy();
+      return body.data as Json;
+    };
+    const started = (await call('start_move', { name: 'Spring clear-out' })).move as Json;
+    const box = (await call('add_box', { move_id: started.id })).box as Json;
+    const mug = await createThing(t, louis, home, { name: 'Travel mug' });
+    const packed = await call('pack_into_box', {
+      move_id: started.id,
+      box_id: box.short_code,
+      thing_ids: [mug.id],
+    });
+    expect((packed.box as Json).contents).toBe(1);
+    const moves = await call('get_move', { move_id: started.id });
+    expect(moves.missing).toEqual([1]);
+    expect(JSON.stringify(moves)).toContain('Spring clear-out');
+    const events = await own<{ action: string }>(
+      db,
+      `SELECT action FROM public.audit_events
+        WHERE actor_type = 'token' AND actor_id = $1 ORDER BY id`,
+      [made.id],
+    );
+    expect(events.map((e) => e.action)).toEqual(
+      expect.arrayContaining(['move.create', 'move_box.create', 'thing.move']),
+    );
+  });
+
   it('refuses a token per call once its creator loses the role (D180), in Kept’s words', async () => {
     const peter = await person(t, db, 'louis-two');
     const membership = await join(db, home.id, peter.userId, 'member');

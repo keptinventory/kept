@@ -177,13 +177,29 @@ export function whereOf(plan: Plan, view: Pick<MapView, 'things'>, id: string) {
   return { path, roomId };
 }
 
+/**
+ * A room's things that aren't on the map yet and lie directly in it: their nearest room or node in
+ * Kept's tree (`parentId`) is the room itself. A thing in a box, a cabinet, on a shelf or in
+ * anything else the map shows is carried by it, so it isn't offered on its own. The room's Put on
+ * the map list and Add on it's second one (offMapFor) are both this set.
+ */
+export function offMapIn(
+  plan: Plan,
+  view: Pick<MapView, 'things'>,
+  roomId: string,
+): MapView['things'] {
+  const onMap = new Set(plan.items.map((i) => i.id));
+  return view.things.filter((x) => !onMap.has(x.id) && x.parentId === roomId);
+}
+
 /** A shape someone chose for a thing in this session, or that it has on the saved map. */
 export type ChosenShape = (id: string) => MapModelKey | null;
 
 /**
- * Add on it's second list (#152): the holder's room's things that aren't on the map yet and, with
- * the shape they'd get (thingItem), are small enough to go on something (they'd get Put on…) and
- * fit on this holder; each as the item it would become, by name.
+ * Add on it's second list (#152): the holder's room's things that aren't on the map yet, directly
+ * in the room (offMapIn), and, with the shape they'd get (thingItem), small enough to go on
+ * something (they'd get Put on…) and to fit on this holder; each as the item it would become, by
+ * name.
  */
 export function offMapFor(
   plan: Plan,
@@ -193,9 +209,7 @@ export function offMapFor(
 ): Item[] {
   const room = plan.rooms.find((r) => r.id === host.roomId);
   if (!room) return [];
-  const onMap = new Set(plan.items.map((i) => i.id));
-  return view.things
-    .filter((x) => !onMap.has(x.id) && whereOf(plan, view, x.id).roomId === room.id)
+  return offMapIn(plan, view, room.id)
     .map((x) => thingItem(x, room, chosen(x.id)))
     .filter(
       (it) =>
@@ -226,7 +240,7 @@ export function addOn(
       continue;
     }
     const x = view.things.find((t) => t.id === id);
-    if (!x || whereOf(plan, view, id).roomId !== room.id) continue;
+    if (!x || x.parentId !== room.id) continue;
     const it = thingItem(x, room, chosen(id));
     plan.items.push(it);
     // It goes on the map only to go on the holder: if it can't (the holder filled up), it doesn't.

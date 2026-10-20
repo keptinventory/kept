@@ -80,6 +80,10 @@ export const APPLY_ORDER: readonly ExportEntity[] = [
   'own-code-settings',
   // 1.x (D237): the map's layout, after every place and thing it names.
   'map-nodes',
+  // Version 4 (D251): the moves, then their boxes (after the things that are the boxes and the
+  // places they go to); a done move is written open and done again after its boxes (finishMove).
+  'moves',
+  'move-boxes',
 ];
 
 /**
@@ -575,6 +579,49 @@ export async function finishReport(
   return (rowCount ?? 0) > 0;
 }
 
+// ---------------------------------------------------------------------------------------------
+// Moves (D251)
+// ---------------------------------------------------------------------------------------------
+//
+// Boxes go only into an open move (0137's app_insert), so a done move is written open, as the
+// importing person, its boxes added, and last finishMove() marks it done at the exported time
+// (app_update), as a person reopening and closing it would. A move to another location names a
+// location the export doesn't hold: it comes in as a move within the new location (no
+// `to_location_id`), and its boxes' rooms, places of that other location, as not chosen yet.
+// Who last changed a box's state (`state_by`) is the importing person, as Q11 makes every
+// imported row's maker; when it changed (`state_at`) is the exported time, so a late offline
+// change on the new server is still ordered against it (D112).
+
+/** A move, written open: finishMove() marks a done one done after its boxes. */
+async function applyMove(c: ApplyCtx, def: EntityDef, row: Row): Promise<Applied> {
+  return writeGeneric(c, def, row, { status: 'active', finished_at: null });
+}
+
+/** A box row: its move and its container must be in the import (else it is left out). */
+async function applyMoveBox(c: ApplyCtx, def: EntityDef, row: Row): Promise<Applied> {
+  const move = typeof row.moveId === 'string' && c.known.has(row.moveId);
+  const box = typeof row.containerId === 'string' && c.known.has(row.containerId);
+  if (!move || !box) return { status: 'skipped', reason: 'its move or its box is not imported' };
+  return writeGeneric(c, def, row, { state_by: { sql: 'kept.current_user_id()' } });
+}
+
+/**
+ * Marks imported move `oldId` done at `finishedAt`; true when it did. Only a move still open
+ * changes (the WHERE), so a resumed job marks nothing twice.
+ */
+export async function finishMove(
+  c: Pick<ApplyCtx, 'client' | 'ids'>,
+  oldId: string,
+  finishedAt: string,
+): Promise<boolean> {
+  const { rowCount } = await c.client.query(
+    `UPDATE public.moves SET status = 'done', finished_at = $2
+      WHERE id = $1 AND status = 'active'`,
+    [c.ids.of(oldId), finishedAt],
+  );
+  return (rowCount ?? 0) > 0;
+}
+
 /**
  * Writes one row of `entity`. Throws when the database refuses it (the caller rolls the row's
  * savepoint back and reports it).
@@ -614,6 +661,10 @@ export async function applyRow(c: ApplyCtx, entity: ExportEntity, row: Row): Pro
       return applyConditionReport(c, def, row);
     case 'map-nodes':
       return applyMapNode(c, def, row);
+    case 'moves':
+      return applyMove(c, def, row);
+    case 'move-boxes':
+      return applyMoveBox(c, def, row);
     default:
       return writeGeneric(c, def, row);
   }

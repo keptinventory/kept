@@ -1,21 +1,32 @@
-import { canonicalAmount } from '@kept/shared';
+import { can, canonicalAmount } from '@kept/shared';
 import { z } from 'zod';
-import { forgetUndoableSince, undoableMark, undoableSince } from '../audit/audited.js';
+import {
+  forgetUndoableSince,
+  undoableEntriesSince,
+  undoableMark,
+  undoableSince,
+} from '../audit/audited.js';
 import { decodeCursor, encodeCursor, PAGE_MAX } from '../http/conventions.js';
 import { AppError, invalid, toErrorReply } from '../http/errors.js';
+import { callerMembership } from '../locations/access.js';
 import { type Gate, gateFor, moneyProps } from '../serialize/gates.js';
 import { trashThing } from '../trash/service.js';
+import { typeCapabilities } from './fields.js';
 import { moveThings } from './move.js';
 import {
+  BATCH_UPDATE_KEYS,
   type Ctx,
+  type LiveThing,
+  liveThings,
   requireThingVersion,
   targetOf,
   thingListOrder,
   thingListWhere,
   writableThing,
   writeThingUpdate,
+  writeThingUpdates,
 } from './service.js';
-import { ListQuery, MoveTarget, type UpdateBody, UpdateFields } from './validate.js';
+import { checkQuantity, ListQuery, MoveTarget, type UpdateBody, UpdateFields } from './validate.js';
 import { rowsOf, type ThingRow, ThingRowSchema } from './view.js';
 
 // The spreadsheet view (1.x, D250; D39 item 2, D128, D156, D150), in the shapes of the web
@@ -36,14 +47,22 @@ import { rowsOf, type ThingRow, ThingRowSchema } from './view.js';
 //   warranty that covers it longest (where Warranties is on). A sheet sorts by more columns than
 //   the list: brand, model, serial, quantity and expiry too.
 // - **Bulk edit** is the "Save N changes" bar (D128): each row's staged change with the version it
-//   was read at (D156). Each row is written in a savepoint of its own through the thing's own edit
-//   (writeThingUpdate: the same validation, money gate, audit image and undo window as PATCH) and,
-//   for a new place, the move (a place or box in the thing's own location; another location is a
-//   move from the thing's page). A row that fails (gone, refused, 412 stale, 400 invalid) is
-//   reported with its code, conflicts and current version, and leaves the others saved: "rows
-//   without conflicts save; conflicted rows stay staged" (screens §6). `events` lists the undoable
-//   events the saved rows wrote, in write order, for POST /api/v1/audit/undo (one Undo for the
-//   whole save, D150); X-Kept-Audit-Event carries them too, one per thing.
+//   was read at (D156), written as the thing's own edit would write it (PATCH's validation, money
+//   gate, audit image and undo window) and, for a new place, the move (a place or box in the
+//   thing's own location; another location is a move from the thing's page). A row that fails
+//   (gone, refused, 412 stale, 400 invalid) is reported with its code, conflicts and current
+//   version, and leaves the others saved: "rows without conflicts save; conflicted rows stay
+//   staged" (screens §6). `events` lists the undoable events the saved rows wrote, row by row in
+//   the request's order (each row's update before its move), for POST /api/v1/audit/undo (one
+//   Undo for the whole save, D150); X-Kept-Audit-Event carries them too, one per thing.
+//   It is set-based, as 200 rows written one by one took 3–4 s (about 26 statements a row): the
+//   rows every check that needs no write passes (together(): visible, editable, current, plain
+//   columns and tags, a valid quantity and target) are locked and written in one savepoint, a
+//   statement per kind of change (writeThingUpdates, one move per target, the audit rows in one
+//   INSERT). The others go row by row, each in a savepoint of its own through writeThingUpdate,
+//   which answers their 404, 403, 412 or 400 exactly; and if the database refuses the rows saved
+//   together (a tag of another account, a box inside a moved thing), they go row by row too, so
+//   the one at fault is reported and the rest still save.
 // - **Bulk trash** sends a selection to the Trash, all or none (a 404, 403 or 409 names no row
 //   done). A thing that holds things needs `contents` (D45: move them out to where it is, or trash
 //   them too); one already trashed with a container earlier in the request is skipped. Each thing
@@ -415,14 +434,11 @@ export async function listSheet(
 // ---------------------------------------------------------------------------------------------
 
 type RowResult = z.infer<typeof RowResult>;
+type Edit = { id: string; rowVersion: number; set: BulkEditBody['edits'][number]['set'] };
 
-/** One row of a bulk edit, in the request's transaction (its savepoint is the caller's). */
-async function editOne(
-  ctx: Ctx,
-  id: string,
-  rowVersion: number,
-  set: BulkEditBody['edits'][number]['set'],
-) {
+/** One row of a bulk edit on its own, in the request's transaction (its savepoint is the
+ * caller's): PATCH's write and, for a new place, the move. */
+async function editOne(ctx: Ctx, id: string, rowVersion: number, set: Edit['set']) {
   const { client } = ctx;
   const { to, ...fields } = set;
   const thing = await writableThing(client, id, 'things.edit');
@@ -441,43 +457,187 @@ async function editOne(
   }
 }
 
-/** POST /api/v1/things/bulk-edit. */
+/** A row that failed, as the answer reports it (screens §6). */
+function failedRow(id: string, err: unknown): RowResult {
+  const reply = toErrorReply(err);
+  const b = reply.body as Record<string, unknown>;
+  return {
+    id,
+    ok: false,
+    status: reply.status,
+    code: String(b.code),
+    ...(typeof b.hint === 'string' ? { hint: b.hint } : {}),
+    ...(Array.isArray(b.conflicts) ? { conflicts: b.conflicts.map(String) } : {}),
+    ...(typeof b.row_version === 'number' ? { rowVersion: b.row_version } : {}),
+    ...(b.changedBy && typeof b.changedBy === 'object'
+      ? { changedBy: b.changedBy as { displayName: string } }
+      : {}),
+  };
+}
+
+type Together = { thing: LiveThing; fields: UpdateBody; to: MoveTarget | null };
+
+/**
+ * The rows the save can write together: each one that editOne() would save, as far as checks
+ * that need no write can tell. It is live and visible, the caller's role may edit it, it is at
+ * the version the client read (checked under its row lock, taken here as writableThing() takes
+ * it: role first, then FOR UPDATE), it changes only plain columns and tags (no re-type), its
+ * quantity is one checkQuantity() accepts, and its new place is a live place or another live
+ * thing in its own location. Any other row is left to editOne(), which answers its 404, 403,
+ * 412 or 400 as PATCH does.
+ */
+async function together(ctx: Ctx, edits: readonly Edit[]): Promise<Map<string, Together>> {
+  const { client } = ctx;
+  const seen = await liveThings(
+    client,
+    edits.map((e) => e.id),
+  );
+  const editable = new Map<string, boolean>();
+  for (const locationId of new Set([...seen.values()].map((t) => t.location_id))) {
+    const me = await callerMembership(client, locationId);
+    editable.set(locationId, me !== null && can(me.role, 'things.edit'));
+  }
+  const locked = await liveThings(
+    client,
+    edits.filter((e) => editable.get(seen.get(e.id)?.location_id ?? '')).map((e) => e.id),
+    { lock: true },
+  );
+
+  // Where the targets are: live places, and live things (boxes), by id.
+  const placeIds = new Set<string>();
+  const boxIds = new Set<string>();
+  for (const { set } of edits) {
+    if (set.to && 'placeId' in set.to) placeIds.add(set.to.placeId.toLowerCase());
+    if (set.to && 'containerId' in set.to) boxIds.add(set.to.containerId.toLowerCase());
+  }
+  const located = async (table: 'places' | 'things', ids: Set<string>) => {
+    if (ids.size === 0) return new Map<string, string>();
+    const { rows } = await client.query<{ id: string; location_id: string }>(
+      `SELECT id, location_id FROM public.${table}
+        WHERE id = ANY ($1::uuid[]) AND deleted_at IS NULL`,
+      [[...ids]],
+    );
+    return new Map(rows.map((r) => [r.id, r.location_id]));
+  };
+  const places = await located('places', placeIds);
+  const boxes = await located('things', boxIds);
+
+  const caps = new Map<string | null, string[]>();
+  const out = new Map<string, Together>();
+  for (const { id, rowVersion, set } of edits) {
+    const thing = locked.get(id);
+    if (!thing || thing.row_version !== rowVersion) continue;
+    const { to, ...fields } = set;
+    if (Object.keys(fields).some((k) => !BATCH_UPDATE_KEYS.has(k))) continue;
+    if (fields.quantity !== undefined) {
+      let c = caps.get(thing.type_id);
+      if (!c) {
+        c = await typeCapabilities(client, thing.type_id);
+        caps.set(thing.type_id, c);
+      }
+      try {
+        checkQuantity(fields.quantity, c, thing.has_meters);
+      } catch {
+        continue;
+      }
+    }
+    if (to) {
+      const there =
+        'placeId' in to
+          ? places.get(to.placeId.toLowerCase())
+          : to.containerId.toLowerCase() === id
+            ? undefined
+            : boxes.get(to.containerId.toLowerCase());
+      if (there !== thing.location_id) continue;
+    }
+    out.set(id, { thing, fields: fields as UpdateBody, to: to ?? null });
+  }
+  return out;
+}
+
+/** Writes `rows` (together()'s) set-based: their edits through writeThingUpdates(), then one move
+ * per target for the rows going to the same place or box. */
+async function saveTogether(ctx: Ctx, rows: readonly Together[]): Promise<void> {
+  await writeThingUpdates(
+    ctx,
+    rows
+      .filter((r) => Object.keys(r.fields).length > 0)
+      .map((r) => ({ thing: r.thing, body: r.fields })),
+  );
+  const moves = new Map<string, { to: MoveTarget; ids: string[] }>();
+  for (const r of rows) {
+    if (!r.to) continue;
+    const to: MoveTarget =
+      'placeId' in r.to
+        ? { placeId: r.to.placeId.toLowerCase() }
+        : { containerId: r.to.containerId.toLowerCase() };
+    const key = JSON.stringify(to);
+    const move = moves.get(key);
+    if (move) move.ids.push(r.thing.id);
+    else moves.set(key, { to, ids: [r.thing.id] });
+  }
+  for (const { to, ids } of moves.values()) await moveThings(ctx, { thingIds: ids, to });
+}
+
+/** POST /api/v1/things/bulk-edit: see the header. */
 export async function bulkEdit(ctx: Ctx, body: BulkEditBody): Promise<BulkEditResult> {
   const { client, tx } = ctx;
-  const results: RowResult[] = [];
-  const saved: string[] = [];
-  const events: string[] = [];
-  for (const edit of body.edits) {
-    const id = edit.id.toLowerCase();
+  const edits: Edit[] = body.edits.map((e) => ({ ...e, id: e.id.toLowerCase() }));
+  const results = new Map<string, RowResult>();
+  // Each row's undoable events in write order (its update before its move); the answer lists
+  // them row by row in the request's order, as when every row was written alone.
+  const eventsOf = new Map<string, string[]>(edits.map((e) => [e.id, []]));
+  const others: string[] = [];
+
+  // The rows that pass every check that needs no write, saved together in one savepoint.
+  const rows = await together(ctx, edits);
+  if (rows.size > 0) {
+    const mark = undoableMark(tx);
+    await client.query('SAVEPOINT sheet_rows');
+    try {
+      await saveTogether(ctx, [...rows.values()]);
+      await client.query('RELEASE SAVEPOINT sheet_rows');
+      for (const e of undoableEntriesSince(tx, mark)) {
+        const row = e.entity.startsWith('thing:') ? eventsOf.get(e.entity.slice(6)) : undefined;
+        (row ?? others).push(e.id);
+      }
+      for (const id of rows.keys()) results.set(id, { id, ok: true });
+    } catch {
+      // Something only the write finds (a tag or brand of another account, a box inside a moved
+      // thing): none of them is saved here, and each goes row by row below, which reports the row
+      // it was and saves the others.
+      await client.query('ROLLBACK TO SAVEPOINT sheet_rows');
+      forgetUndoableSince(tx, mark);
+    }
+  }
+
+  // The rest row by row, each in a savepoint of its own: a failure is that row's answer.
+  for (const edit of edits) {
+    if (results.has(edit.id)) continue;
     const mark = undoableMark(tx);
     await client.query('SAVEPOINT sheet_row');
     try {
-      await editOne(ctx, id, edit.rowVersion, edit.set);
+      await editOne(ctx, edit.id, edit.rowVersion, edit.set);
       await client.query('RELEASE SAVEPOINT sheet_row');
-      events.push(...undoableSince(tx, mark));
-      saved.push(id);
-      results.push({ id, ok: true });
+      eventsOf.get(edit.id)?.push(...undoableSince(tx, mark));
+      results.set(edit.id, { id: edit.id, ok: true });
     } catch (err) {
       await client.query('ROLLBACK TO SAVEPOINT sheet_row');
       forgetUndoableSince(tx, mark);
-      const reply = toErrorReply(err);
-      if (reply.status >= 500) throw err;
-      const b = reply.body as Record<string, unknown>;
-      results.push({
-        id,
-        ok: false,
-        status: reply.status,
-        code: String(b.code),
-        ...(typeof b.hint === 'string' ? { hint: b.hint } : {}),
-        ...(Array.isArray(b.conflicts) ? { conflicts: b.conflicts.map(String) } : {}),
-        ...(typeof b.row_version === 'number' ? { rowVersion: b.row_version } : {}),
-        ...(b.changedBy && typeof b.changedBy === 'object'
-          ? { changedBy: b.changedBy as { displayName: string } }
-          : {}),
-      });
+      if (toErrorReply(err).status >= 500) throw err;
+      results.set(edit.id, failedRow(edit.id, err));
     }
   }
-  return { results, rows: await sheetRowsOf(ctx, saved), events };
+
+  const answer = edits.map((e) => results.get(e.id) as RowResult);
+  return {
+    results: answer,
+    rows: await sheetRowsOf(
+      ctx,
+      answer.filter((r) => r.ok).map((r) => r.id),
+    ),
+    events: [...edits.flatMap((e) => eventsOf.get(e.id) ?? []), ...others],
+  };
 }
 
 // ---------------------------------------------------------------------------------------------

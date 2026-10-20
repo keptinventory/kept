@@ -356,6 +356,51 @@ describe('suggestShapes: headsets, earbuds, speakers in sizes and monitor arms',
   });
 });
 
+describe('suggestShapes: a notebook is a laptop, notebooks and paper ones are not sure', () => {
+  it.each([
+    'Notebook',
+    'Gaming notebook',
+    'Notebook computer',
+    'Notebook computers',
+    'Lenovo notebook',
+  ])('%s is a laptop, by itself', (name) => {
+    expect(first({ name })).toBe('laptop');
+    expect(sure({ name })).toBe(true);
+  });
+
+  it.each(['Notebooks', 'Gaming notebooks', 'Notebooks für die Schule'])(
+    '%s suggests the laptop but asks',
+    (name) => {
+      const s = suggestShapes({ name });
+      expect(s.shapes[0]?.model).toBe('laptop');
+      expect(s.shapes[0]?.score).toBeLessThan(0.9);
+      expect(s.confident).toBe(false);
+    },
+  );
+
+  it.each([
+    'Spiral notebook',
+    'Paper notebooks',
+    'A5 notebook, dotted',
+    'Notebook à spirale',
+    'Notebook papier',
+    'Notebook kariert',
+    'Notebook a righe',
+    'notebook ورقي',
+  ])('%s is stationery: a small thing, not a laptop', (name) => {
+    const s = suggestShapes({ name });
+    expect(s.shapes.map((x) => x.model)).not.toContain('laptop');
+    expect(s.shapes[0]).toMatchObject({ model: 'item', from: 'guess' });
+    expect(s.confident).toBe(false);
+  });
+
+  it('keeps the laptop for a computer type, but not by itself for notebooks', () => {
+    expect(first({ name: 'Notebooks', typeKey: 'computer' })).toBe('laptop');
+    expect(sure({ name: 'Notebooks', typeKey: 'computer' })).toBe(false);
+    expect(shapeOnAdd({ name: 'Spiral notebook' })).toEqual({ model: 'item', from: 'guess' });
+  });
+});
+
 describe('suggestShapes: things with no shape of their own', () => {
   it.each(['Thermostat', 'Raspberry Pi', 'Ladegerät', 'Video doorbell', 'كاشف دخان'])(
     '%s gets the small device, suggested but not given by itself',
@@ -512,5 +557,69 @@ describe('searchShapes', () => {
   it('is every shape when empty, and nothing for nonsense', () => {
     expect(searchShapes('  ', names)).toEqual(MAP_MODEL_KEYS);
     expect(searchShapes('zzqx', names)).toEqual([]);
+  });
+});
+
+describe('suggestShapes: things on a wall (#138)', () => {
+  it('gives a wall TV, a shelf, a cabinet, a picture, a clock and hooks from their names', () => {
+    const cases: [string, MapModelKey][] = [
+      ['Wall TV', 'wall_tv'],
+      ['Wall-mounted TV', 'wall_tv'],
+      ['Wandfernseher', 'wall_tv'],
+      ['Télé murale', 'wall_tv'],
+      ['تلفزيون حائط', 'wall_tv'],
+      ['Floating shelf', 'wall_shelf'],
+      ['Mensola', 'wall_shelf'],
+      ['رف حائط', 'wall_shelf'],
+      ['Wall cabinet', 'wall_cabinet'],
+      ['Hängeschrank', 'wall_cabinet'],
+      ['Pensile', 'wall_cabinet'],
+      ['Mirror', 'picture'],
+      ['Painting', 'picture'],
+      ['Miroir', 'picture'],
+      ['Specchio', 'picture'],
+      ['مرآة', 'picture'],
+      ['Wall clock', 'clock'],
+      ['Wanduhr', 'clock'],
+      ['Horloge', 'clock'],
+      ['ساعة حائط', 'clock'],
+      ['Coat rack', 'hooks'],
+      ['Coat hooks', 'hooks'],
+      ['Portemanteau', 'hooks'],
+      ['Attaccapanni', 'hooks'],
+      ['شماعة', 'hooks'],
+      ['Pegboard', 'tool_wall'],
+      ['Lochwand', 'tool_wall'],
+    ];
+    for (const [name, model] of cases) expect(first({ name }), name).toBe(model);
+    // Clear names are given by themselves, as the docs say.
+    for (const name of ['Wall TV', 'Floating shelf', 'Mirror', 'Pegboard'])
+      expect(sure({ name }), name).toBe(true);
+  });
+
+  it('keeps a TV a TV, a printer a printer and an alarm clock off the wall', () => {
+    expect(first({ name: 'TV' })).toBe('tv');
+    expect(first({ name: 'TV stand' })).toBe('tv_stand');
+    expect(first({ name: 'Printer' })).toBe('printer');
+    expect(first({ name: 'Bildschirm' })).not.toBe('picture');
+    expect(first({ name: 'Alarm clock' })).toBe('device');
+    expect(first({ name: 'Wecker' })).toBe('device');
+    // A TV-type thing stays a standing TV, a wall TV among its suggestions.
+    const tv = suggestShapes({ name: 'Living room screen', typeKey: 'tv_display' });
+    expect(tv.shapes[0]?.model).toBe('tv');
+    expect(tv.shapes.map((s) => s.model)).toContain('wall_tv');
+  });
+
+  it('puts every wall shape in the On the wall group', () => {
+    for (const k of [
+      'wall_tv',
+      'wall_shelf',
+      'wall_cabinet',
+      'picture',
+      'clock',
+      'hooks',
+      'tool_wall',
+    ] as const)
+      expect(SHAPE_GROUP[k], k).toBe('wall');
   });
 });

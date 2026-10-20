@@ -140,6 +140,19 @@ export type TenantPayload = { userId: string; mfa: boolean; data: unknown };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** The scope a tenant job re-assumes: the scoped transaction's own `app.user_id` and `app.mfa`. */
+async function tenantScopeOf(client: pg.ClientBase): Promise<{ userId: string; mfa: boolean }> {
+  const { rows } = await client.query<{ user_id: string | null; mfa: string | null }>(
+    `SELECT current_setting('app.user_id', true) AS user_id,
+            current_setting('app.mfa', true) AS mfa`,
+  );
+  const userId = rows[0]?.user_id ?? '';
+  if (!UUID.test(userId)) {
+    throw new ScopeError('a tenant job is sent from inside withScope(), which names its user');
+  }
+  return { userId, mfa: rows[0]?.mfa === 'true' };
+}
+
 /**
  * Enqueues a tenant job on a scoped transaction (withScope's `client`). The user and the second
  * factor come from the transaction's own `app.user_id` and `app.mfa`, so the job re-assumes
@@ -152,16 +165,24 @@ export async function sendTenantJob(
   data: object | null,
   options: Omit<SendOptions, 'db'> = {},
 ): Promise<string | null> {
-  const { rows } = await client.query<{ user_id: string | null; mfa: string | null }>(
-    `SELECT current_setting('app.user_id', true) AS user_id,
-            current_setting('app.mfa', true) AS mfa`,
-  );
-  const userId = rows[0]?.user_id ?? '';
-  if (!UUID.test(userId)) {
-    throw new ScopeError('a tenant job is sent from inside withScope(), which names its user');
-  }
-  const payload: TenantPayload = { userId, mfa: rows[0]?.mfa === 'true', data };
+  const payload: TenantPayload = { ...(await tenantScopeOf(client)), data };
   return sendInTx(boss, client, name, payload, options);
+}
+
+/** sendTenantJob() for several jobs of one queue, the scope read once (a bulk write's
+ * re-embeds: the spreadsheet's save of 200 rows). Each job is its own send, with its options. */
+export async function sendTenantJobs(
+  boss: PgBoss,
+  client: pg.ClientBase,
+  name: string,
+  jobs: readonly { data: object | null; options?: Omit<SendOptions, 'db'> }[],
+): Promise<void> {
+  if (jobs.length === 0) return;
+  const scope = await tenantScopeOf(client);
+  for (const job of jobs) {
+    const payload: TenantPayload = { ...scope, data: job.data };
+    await sendInTx(boss, client, name, payload, job.options ?? {});
+  }
 }
 
 function tenantPayload(raw: unknown): TenantPayload {

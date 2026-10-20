@@ -87,6 +87,22 @@ export async function readImage(
   return row ? imageOf(row) : null;
 }
 
+/** readImage() for many things in one query, by id (the visible ones only). */
+export async function readImages(
+  client: pg.ClientBase,
+  thingIds: readonly string[],
+): Promise<Map<string, ThingImage>> {
+  if (thingIds.length === 0) return new Map();
+  const { rows } = await client.query<ImageRow & { id: string }>(
+    `SELECT t.id, ${selectList}, t.custom, t.archived_custom,
+            coalesce((SELECT array_agg(g.tag_id::text ORDER BY g.tag_id) FROM public.thing_tags g
+                       WHERE g.thing_id = t.id), '{}'::text[]) AS tag_ids
+       FROM public.things t WHERE t.id = ANY ($1::uuid[])`,
+    [thingIds],
+  );
+  return new Map(rows.map((r) => [r.id, imageOf(r)]));
+}
+
 export function imageOf(row: ImageRow): ThingImage {
   const out: ThingImage = {};
   for (const c of IMAGE_COLUMNS) out[c] = row[c] ?? null;

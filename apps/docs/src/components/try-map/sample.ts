@@ -55,6 +55,8 @@ type Extra = {
   contents?: Content[];
   due?: Due;
   lent?: Lent;
+  /** #138: a thing on a wall, how high its middle hangs (metres). */
+  height?: number;
 };
 
 const LIKE_NEW: Two = ['Like new', 'كالجديد'];
@@ -206,7 +208,14 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
       typeKey: null,
       isContainer: container,
       quantity: 1,
-      layout: { x: mToCm(x), z: mToCm(z), rot, model, hostId },
+      layout: {
+        x: mToCm(x),
+        z: mToCm(z),
+        rot,
+        model,
+        hostId,
+        height: extra.height === undefined ? null : mToCm(extra.height),
+      },
     });
     if (!place)
       things.push({
@@ -259,9 +268,9 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
     });
     return { id, roomId, x, z };
   };
-  /** Something standing on `host`, `dx`/`dz` metres from the host's corner. */
-  const on = (host: Node, model: MapModelKey, dx: number, dz: number, extra: Extra = {}) =>
-    add(host.roomId, model, host.x + dx, host.z + dz, 0, extra, host.id);
+  /** Something standing on `host`, `dx`/`dz` metres from the host's corner, turned `rot`. */
+  const on = (host: Node, model: MapModelKey, dx: number, dz: number, extra: Extra = {}, rot = 0) =>
+    add(host.roomId, model, host.x + dx, host.z + dz, rot, extra, host.id);
 
   // ---- Ground floor · Living room ------------------------------------------------------------
   const stand = add('r1', 'tv_stand', 1.6, 0.15, 0, {
@@ -275,18 +284,27 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
       C(['AA batteries', 'بطاريات AA'], 4, { min: 6 }),
     ],
   });
-  on(stand, 'tv', 0.6, 0.12, {
+  // #138: the TV on the wall behind the stand (the −z wall, 10 cm thick), at eye level, its
+  // middle over the stand's.
+  add('r1', 'wall_tv', stand.x + 1.22 - 1.23 / 2, 0.1, 0, {
     name: ['Samsung TV', 'تلفاز Samsung'],
     brand: 'Samsung',
     model: 'QA55Q60C, 55″',
     serial: 'Q60C-0X55-7731',
     cond: LIKE_NEW,
     due: { title: ['Register the warranty', 'تسجيل الضمان'], days: 13 },
+    height: 1.2,
   });
   add('r1', 'sofa', 1.9, 3.7, 180, { brand: 'Chesterfield', model: 'Leather 2-seat', cond: GOOD });
   const table = add('r1', 'coffee_table', 2.2, 2.6, 0, { brand: 'IKEA', model: 'Lisabo' });
   on(table, 'succulent', 0.15, 0.2, { name: ['Haworthia', 'هاوورثيا'] });
   add('r1', 'armchair', 0.2, 2.0, 270, { brand: 'Kave Home' });
+  // #138: a floating shelf on the −x wall over the armchair, a small cactus on it.
+  const wallShelf = add('r1', 'wall_shelf', 0.1, 2.0, 270, {
+    name: ['Floating shelf', 'رف عائم'],
+    height: 1.5,
+  });
+  on(wallShelf, 'succulent', 0.02, 0.32, { name: ['Small cactus', 'صبار صغير'] }, 270);
   add('r1', 'bookshelf', 4.5, 0.15, 0, {
     brand: 'IKEA',
     model: 'Billy',
@@ -492,13 +510,10 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
       C(['Safety glasses', 'نظارات واقية']),
     ],
   });
-  on(bench, 'drill', 0.6, 0.3, {
-    name: ['Bosch drill', 'مثقاب Bosch'],
-    brand: 'Bosch',
-    model: 'GSR 12V-15',
-    lent: { who: ['Bruce', 'بروس'], days: 2 },
-  });
-  add('r6', 'tool_wall', 4.7, 0.12, 0, {
+  // #138: the tool wall over the bench, its bottom a metre up; the drill hangs on its hooks, in
+  // front of the board (its middle 1.5 cm out, the drill's 3 cm more).
+  const board = add('r6', 'tool_wall', 4.9, 0.1, 0, {
+    height: 1.3,
     contents: [
       C(['Claw hammer', 'مطرقة']),
       C(['Screwdriver set', 'طقم مفكات'], 1, { brand: 'Wera' }),
@@ -508,6 +523,12 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
       C(['Spirit level', 'ميزان ماء']),
       C(['Allen keys set', 'طقم مفاتيح ألن']),
     ],
+  });
+  on(board, 'drill', 0.21, 0.03, {
+    name: ['Bosch drill', 'مثقاب Bosch'],
+    brand: 'Bosch',
+    model: 'GSR 12V-15',
+    lent: { who: ['Bruce', 'بروس'], days: 2 },
   });
   add('r6', 'tool_cart', 5.5, 2.0, 0, {
     contents: [

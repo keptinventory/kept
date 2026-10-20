@@ -19,6 +19,11 @@
 // It does NOT fail on:
 //   - obsolete entries (in a catalogue, gone from the source): harmless at runtime (counted);
 //   - moved source references (`#:` lines): cosmetic.
+//
+//   node scripts/check-i18n.mjs                  the check
+//   node scripts/check-i18n.mjs --list-obsolete  also prints each obsolete message, per locale
+//                                                (delete those entries by hand; never a --clean
+//                                                re-extract, which rewrites the catalogues)
 import { createRequire } from 'node:module';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -31,11 +36,12 @@ const web = join(repo, 'apps/web');
  * `catalogues`: per locale, id → translation ('' when untranslated).
  */
 export function compareCatalogues(extracted, catalogues, sourceLocale = 'en') {
-  const result = { missing: {}, untranslated: {}, obsolete: {} };
+  const result = { missing: {}, untranslated: {}, obsolete: {}, obsoleteIds: {} };
   for (const [locale, entries] of Object.entries(catalogues)) {
     const have = new Set(Object.keys(entries));
     result.missing[locale] = [...extracted.keys()].filter((id) => !have.has(id));
-    result.obsolete[locale] = [...have].filter((id) => !extracted.has(id)).length;
+    result.obsoleteIds[locale] = [...have].filter((id) => !extracted.has(id));
+    result.obsolete[locale] = result.obsoleteIds[locale].length;
     result.untranslated[locale] =
       locale === sourceLocale
         ? 0
@@ -171,6 +177,7 @@ function describe(id, message) {
 }
 
 async function main() {
+  const listObsolete = process.argv.includes('--list-obsolete');
   // @lingui/* are apps/web's dependencies, not the root's: resolve them from there.
   const requireWeb = createRequire(join(web, 'package.json'));
   const load = (name) => import(pathToFileURL(requireWeb.resolve(name)).href);
@@ -197,8 +204,10 @@ async function main() {
     }
     const extracted = new Map(Object.entries(next));
     const catalogues = {};
+    const stored = {};
     for (const locale of config.locales) {
       const read = (await catalog.read(locale)) ?? {};
+      stored[locale] = read;
       catalogues[locale] = Object.fromEntries(
         Object.entries(read).map(([id, m]) => [id, m.translation ?? '']),
       );
@@ -237,6 +246,13 @@ async function main() {
       );
       for (const { id, why } of problems.slice(0, 40))
         console.error(`${describe(id, extracted.get(id))}  [${why}]`);
+    }
+    if (listObsolete) {
+      for (const locale of config.locales) {
+        const ids = r.obsoleteIds[locale];
+        console.log(`check-i18n: ${ids.length} obsolete in ${where}/${locale}/messages.po:`);
+        for (const id of ids) console.log(describe(id, stored[locale][id]));
+      }
     }
     const notes = [];
     const obsolete = r.obsolete[config.sourceLocale];

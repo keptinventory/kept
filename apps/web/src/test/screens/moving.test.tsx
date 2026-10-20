@@ -1,18 +1,36 @@
 /**
  * Moving mode (1.x, D39 (5), D251): starting a move, adding a numbered box, marking it in
- * transit from its page, unpacking a packed box into its room (everything inside goes too), the
- * still-to-unpack list, what a viewer sees, and the board in Arabic.
+ * transit from its page, unpacking a packed box into its room (everything inside goes too),
+ * choosing a box's room with no signal, the still-to-unpack list, what a viewer sees, and the
+ * board in Arabic.
  */
-import { screen, waitFor, within } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import type { SnapPlace } from '@kept/shared';
+import { act, screen, waitFor, within } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { IDS, type MockState, memberScenario, ownerScenario } from '@/api/mock/fixtures';
 import { seedMove } from '@/api/moving/mock';
 import { movingPaths } from '@/api/moving/paths';
+import { MemoryStore } from '@/offline/store';
 import { findHeading, renderApp } from '@/test/app';
 import { expectLogicalOnly } from '@/test/render';
 
 vi.setConfig({ testTimeout: 20_000 });
+
+// The box page reads the phone's store from the offline provider; jsdom has no IndexedDB, so the
+// offline test hands it a MemoryStore here (as the inbox's does).
+const offline = vi.hoisted(() => ({ store: null as unknown, kick: () => {} }));
+vi.mock('@/offline/provider', async (original) => ({
+  ...(await original<typeof import('@/offline/provider')>()),
+  useOffline: () =>
+    offline.store ? { store: offline.store, engine: { kick: () => offline.kick() } } : null,
+}));
+afterEach(() => {
+  offline.store = null;
+  vi.restoreAllMocks();
+  // The signal back, for the queries' online manager too.
+  window.dispatchEvent(new Event('online'));
+});
 
 const MOVE = '01926f00-0000-7000-8000-0000000mv001';
 const T = INV_IDS.thing;
@@ -117,6 +135,98 @@ describe('Moving', () => {
     // What was inside stays inside: it went with the box.
     expect(state.inventory.things.find((t) => t.id === T.scarves)?.containerId).toBe(T.box3);
     expect(await screen.findByText('Box 1 unpacked into Kitchen')).toBeInTheDocument();
+  });
+
+  it('chooses a box’s room with no signal: it waits on the phone, shows at once, and Undo takes it back', async () => {
+    const store = new MemoryStore();
+    const room = (id: string, name: string, sort: number): SnapPlace => ({
+      id,
+      locationId: IDS.home,
+      parentId: null,
+      name,
+      kindKey: 'room',
+      icon: null,
+      isUnplaced: false,
+      sort,
+      deleted: false,
+    });
+    await store.applySnapshot({
+      asOf: '2026-10-10T09:00:00.000Z',
+      payloadVersion: 1,
+      minPayloadVersion: 1,
+      locations: [
+        {
+          id: IDS.home,
+          name: 'Home',
+          kind: 'apartment',
+          timezone: 'Africa/Cairo',
+          languages: ['en'],
+          role: 'owner',
+          effectiveModules: ['labels', 'moving'],
+          unplacedPlaceId: P.homeUnplaced,
+          suggestRadiusM: 150,
+        },
+      ],
+      types: { hash: 'h', items: [] },
+      changes: {
+        places: [room(P.kitchen, 'Kitchen', 2), room(P.bedroom, 'Bedroom', 5)],
+        things: [],
+        codes: [],
+        legacyCodes: [],
+      },
+      removed: [],
+      revokedLocationIds: [],
+      nextCursor: 'c1',
+      complete: true,
+    });
+    offline.store = store;
+    const kick = vi.fn();
+    offline.kick = kick;
+    // Read once online (the phone keeps the board), then the signal goes.
+    const { user, mock } = await renderApp(`/moving/${MOVE}/boxes/${T.box3}`, {
+      state: seeded(),
+    });
+    await findHeading('Box 1');
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    act(() => {
+      window.dispatchEvent(new Event('offline'));
+    });
+    await screen.findByText('Kitchen');
+
+    await user.click(screen.getByRole('button', { name: 'Change' }));
+    const sheet = await screen.findByRole('dialog');
+    expect(within(sheet).queryByText('Needs a connection')).toBeNull();
+    await user.click(await within(sheet).findByRole('radio', { name: 'Bedroom' }));
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }));
+
+    expect(await screen.findByText('Box 1 goes to Bedroom')).toBeInTheDocument();
+    expect(screen.getByText("On this phone; it syncs when you're online.")).toBeInTheDocument();
+    expect(await screen.findByText('Bedroom')).toBeInTheDocument();
+    const [op] = await store.pending();
+    expect(op).toMatchObject({
+      op: 'move_box_room',
+      locationId: IDS.home,
+      payload: { moveId: MOVE, containerId: T.box3, placeId: P.bedroom },
+    });
+    expect(kick).toHaveBeenCalled();
+    expect(mock.lastCall('PATCH', movingPaths.box(MOVE, T.box3))).toBeFalsy();
+
+    await user.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(await screen.findByText('Undone')).toBeInTheDocument();
+    expect(await store.pending()).toHaveLength(0);
+    expect(await screen.findByText('Kitchen')).toBeInTheDocument();
+  });
+
+  it('an unpacked box keeps the room it was unpacked into: no Change', async () => {
+    const state = seeded();
+    const { user } = await renderApp(`/moving/${MOVE}/boxes/${T.box3}`, { state });
+    await findHeading('Box 1');
+    expect(screen.getByRole('button', { name: 'Change' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Unpack' }));
+    const sheet = await screen.findByRole('dialog');
+    await user.click(await within(sheet).findByRole('button', { name: 'Unpack into Kitchen' }));
+    expect(await screen.findByText('Box 1 unpacked into Kitchen')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Change' })).toBeNull());
   });
 
   it('leads the board with the counts and what is still to unpack', async () => {

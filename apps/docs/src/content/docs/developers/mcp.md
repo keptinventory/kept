@@ -52,6 +52,8 @@ User-written strings in outputs sit under an `untrusted` key. Lists default to 2
 | `add_warranty`, `open_claim`, `update_claim` | write | warranties |
 | `log_fuel` | write | fuel |
 | `adjust_stock` | write | consumables |
+| `list_moves`, `get_move` | read | moving (MCP only) |
+| `start_move`, `add_box`, `pack_into_box`, `set_box_status`, `unpack_box` | write | moving (MCP only) |
 
 **No tool trashes, deletes, merges, transfers ownership, reveals a secret, uploads a file or runs
 SQL** (D58, D63, D124). `packages/mcp/src/tools.test.ts` walks the names and fails on one that
@@ -61,6 +63,11 @@ opens the capture sheet in the web app.
 A tool is offered only in locations where its module is on and, for a write tool, where the
 principal may write. `capabilities` lists what each location allows. Roles are checked on every
 call, never cached in a token (D180).
+
+A tool's `doors` say who is offered it: MCP and the in-app assistant, unless it names fewer. The
+Moving mode tools (D251) are MCP's only; `runTool()` answers `tool_unavailable` at the other door.
+They call `moving/service.ts`, the routes' own functions: packing is the ordinary move into the
+box's container, and a box's state change and an unpack are undoable for 7 days, as in the web.
 
 ## Transport
 

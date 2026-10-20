@@ -71,6 +71,22 @@ const woodTex = (base: Rgb) =>
     grain(g, base, 0, 0, s, s, true, 110);
   });
 
+/** A pegboard's holes, 5 cm apart on a 1.2 × 0.6 m board (#138): drawn, not modelled. */
+const pegTex = () =>
+  tex(256, (g, s) => {
+    g.fillStyle = rgba([201, 176, 138]);
+    g.fillRect(0, 0, s, s);
+    const cols = 24;
+    const rows = 12;
+    g.fillStyle = 'rgba(70,52,30,.55)';
+    for (let i = 0; i < cols; i++)
+      for (let j = 0; j < rows; j++) {
+        g.beginPath();
+        g.ellipse(((i + 0.5) * s) / cols, ((j + 0.5) * s) / rows, 1.6, 3.2, 0, 0, Math.PI * 2);
+        g.fill();
+      }
+  });
+
 const fabricTex = (base: Rgb) =>
   tex(128, (g, s) => {
     g.fillStyle = rgba(base);
@@ -270,7 +286,7 @@ export function materials() {
     red: mat('red', { color: 0xa63a30, roughness: 0.4 }),
     redLight: mat('redLight', { color: 0xc2382f, roughness: 0.2, emissive: 0x4a0b06 }),
     headlight: mat('headlight', { color: 0xf7f3e3, roughness: 0.1, emissive: 0x333022 }),
-    pegboard: mat('pegboard', { color: 0xc9b08a, roughness: 0.8 }),
+    pegboard: mat('pegboard', { map: pegTex(), roughness: 0.8 }),
     green: mat('green', { color: 0x2f7a54, roughness: 0.4 }),
     booksA: mat('booksA', { color: 0x8c4a3a, roughness: 0.8 }),
     booksB: mat('booksB', { color: 0x3d5a73, roughness: 0.8 }),
@@ -1023,22 +1039,93 @@ export function drawnModels(F: Materials): Record<string, Build> {
         for (const z of [0.06, d - 0.06]) rb(g, 0.05, 0.86, 0.05, x, 0.43, z, F.steel, 0.006);
       rb(g, w - 0.12, 0.02, d - 0.12, w / 2, 0.22, d / 2, F.steel, 0.004);
     },
-    tool_wall(g, w) {
-      rb(g, w, 0.9, 0.02, w / 2, 1.5, 0.01, F.pegboard, 0.004);
-      rb(g, 0.03, 0.3, 0.03, 0.15, 1.5, 0.05, F.butcher, 0.008);
-      rb(g, 0.12, 0.04, 0.04, 0.15, 1.66, 0.05, F.steel, 0.008);
-      rb(g, 0.025, 0.28, 0.01, 0.45, 1.5, 0.04, F.chrome, 0.004);
-      rb(g, 0.16, 0.36, 0.006, 0.75, 1.42, 0.035, F.steel, 0.002);
-      rb(g, 0.1, 0.1, 0.03, 0.75, 1.64, 0.04, F.red, 0.02);
-      const pens = [F.red, F.green, F.black];
-      for (let i = 0; i < 5; i++) {
-        cy(g, 0.012, 0.012, 0.12, 0.95 + i * 0.05, 1.68, 0.05, pens[i % 3] ?? F.red);
-        cy(g, 0.004, 0.004, 0.12, 0.95 + i * 0.05, 1.56, 0.05, F.chrome);
+    // ---- On a wall (#138): each drawn with its back on the wall at z = 0, its base at y = 0. The
+    // map hangs it at its height (layout.ts baseOf).
+    /** A pegboard: things hang from its hooks (map.ts), so it draws only the board and its frame. */
+    tool_wall(g, w, d) {
+      const h = 0.6;
+      rb(g, w, h, 0.012, w / 2, h / 2, d - 0.006, F.pegboard, 0.002);
+      for (const y of [0.012, h - 0.012]) rb(g, w, 0.024, d, w / 2, y, d / 2, F.oakDark, 0.004);
+      for (const x of [0.012, w - 0.012]) rb(g, 0.024, h, d, x, h / 2, d / 2, F.oakDark, 0.004);
+    },
+    /** A flat TV on a wall bracket. */
+    wall_tv(g, w, d) {
+      const h = 0.71;
+      rb(g, 0.4, 0.3, 0.025, w / 2, h / 2, 0.0125, F.black, 0.004);
+      rb(g, w, h, 0.03, w / 2, h / 2, d - 0.015, F.blackGloss, 0.008);
+      rb(g, w - 0.03, h - 0.03, 0.004, w / 2, h / 2 + 0.004, d + 0.001, F.screen, 0.002);
+    },
+    /** A floating shelf. */
+    wall_shelf(g, w, d) {
+      rb(g, w, 0.04, d, w / 2, 0.02, d / 2, F.oak, 0.006);
+    },
+    /** A kitchen wall cabinet: two doors, the handles low, where a hand reaches up to them. */
+    wall_cabinet(g, w, d) {
+      const h = 0.7;
+      rb(g, w, h, d - 0.02, w / 2, h / 2, (d - 0.02) / 2, F.laminate, 0.006);
+      for (const side of [-1, 1]) {
+        rb(g, w / 2 - 0.01, h - 0.02, 0.018, w / 2 + (side * w) / 4, h / 2, d - 0.009, F.white);
+        // The handle near the doors' meeting edge.
+        rb(g, 0.11, 0.012, 0.012, w / 2 + side * 0.06, 0.07, d + 0.006, F.chrome, 0.004);
       }
-      const a = rb(g, 0.02, 0.22, 0.015, 1.36, 1.5, 0.04, F.red, 0.006);
-      a.rotation.z = 0.12;
-      const b = rb(g, 0.02, 0.22, 0.015, 1.4, 1.5, 0.04, F.red, 0.006);
-      b.rotation.z = -0.12;
+    },
+    /** A framed picture: a hill over the sea, and the sun, on a pale sky. */
+    picture(g, w, d) {
+      const h = 0.5;
+      rb(g, w, h, d - 0.005, w / 2, h / 2, (d - 0.005) / 2, F.walnut, 0.006);
+      rb(g, w - 0.08, h - 0.08, 0.004, w / 2, h / 2, d - 0.003, F.linen, 0.001);
+      // The hill is a disc whose lower half the sea hides.
+      cy(g, 0.12, 0.12, 0.003, w * 0.38, 0.16, d - 0.0015, F.leaf2, Math.PI / 2, 0, 28);
+      rb(g, w - 0.08, 0.12, 0.004, w / 2, 0.1, d - 0.001, F.booksB, 0.001);
+      cy(g, 0.04, 0.04, 0.003, w * 0.72, 0.34, d - 0.0015, F.tape, Math.PI / 2, 0, 20);
+    },
+    /** A round wall clock at ten past ten. */
+    clock(g, w, d) {
+      const r = w / 2;
+      cy(g, r, r, d - 0.01, r, r, (d - 0.01) / 2, F.white, Math.PI / 2, 0, 32);
+      tor(g, r - 0.008, 0.012, r, r, d - 0.01, F.black);
+      for (let i = 0; i < 12; i++) {
+        const a = (i * Math.PI) / 6;
+        const tick = rb(
+          g,
+          0.006,
+          i % 3 ? 0.014 : 0.026,
+          0.003,
+          r + Math.sin(a) * (r - 0.03),
+          r + Math.cos(a) * (r - 0.03),
+          d - 0.008,
+          F.black,
+          0,
+        );
+        tick.rotation.z = -a;
+      }
+      const hand = (len: number, t: number, a: number) => {
+        const o = rb(
+          g,
+          t,
+          len,
+          0.003,
+          r + (Math.sin(a) * len) / 2,
+          r + (Math.cos(a) * len) / 2,
+          d - 0.005,
+          F.black,
+          0,
+        );
+        o.rotation.z = -a;
+      };
+      hand(0.07, 0.01, -Math.PI / 3);
+      hand(0.11, 0.007, Math.PI / 3);
+      cy(g, 0.008, 0.008, 0.006, r, r, d - 0.004, F.red, Math.PI / 2, 0, 12);
+    },
+    /** A wooden rail of five hooks. */
+    hooks(g, w, d) {
+      const h = 0.1;
+      rb(g, w, h, 0.022, w / 2, h / 2, 0.011, F.oak, 0.006);
+      for (let i = 0; i < 5; i++) {
+        const x = ((i + 0.5) * w) / 5;
+        rod(g, [x, 0.04, 0.02], [x, 0.04, d - 0.008], 0.007, F.steel);
+        rod(g, [x, 0.04, d - 0.008], [x, 0.065, d - 0.004], 0.007, F.steel);
+      }
     },
     car(g, w, d) {
       rb(g, w, 0.55, d, w / 2, 0.5, d / 2, F.carPaint, 0.18);

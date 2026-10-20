@@ -17,17 +17,20 @@ export type ComponentMs = Record<Component, number>;
 
 /**
  * The reference workload on the reference runner, each part's fastest of CALIBRATION_RUNS, in ms:
- * a fast GitHub runner (AMD EPYC 9V45), the one the nightly passed on (Oct 10 and 12).
+ * a fast GitHub runner (AMD EPYC 9V45, 4 cores, 16 GB), the one the nightly passed on before.
  *
- * **Inferred, not yet measured on that runner**, because the workload is new: timed on an M1 Pro
- * (cpu 273.1, db 626.9, vector 401.8 ms, in a full local `ci-local.sh --only perf` run, 2026-10-17)
- * and divided by 1.42, how much slower that M1 Pro was than the 9V45 at the same fixed work in
- * the same run: the snapshot bench's full snapshot as owner, p50 453.5 ms against 327.2 and
- * 311.5 ms on Oct 10 and 12 (the bench is not scaled, and its p50 is steady). Re-pin from a 9V45
- * night's .tmp/perf/calibration.json (`measuredMs`, beside `machine`), and whenever calibrate.ts
- * changes (cpuWork()'s checksum guards its JavaScript part).
+ * **Measured on that runner**: nightly perf run 39219898824 (2026-10-19, AMD EPYC 9V45), its
+ * `perf calibration` line's `measuredMs`: cpu 198.2, db 418, vector 280.4 ms (the inferred values
+ * it replaces, 192.3 / 441.5 / 283.0, gave that night a factor of 0.99). For comparison, the
+ * slower AMD EPYC 7763 night before it (run 39107437224, Oct 18) measured cpu 322.8, db 718,
+ * vector 426.4 ms: a factor of 1.62 against these, and every check passed.
+ *
+ * Re-pin whenever calibrate.ts changes (cpuWork()'s checksum guards its JavaScript part): find a
+ * perf night whose `perf calibration: {…}` log line has `"machine": "AMD EPYC 9V45 …"`
+ * (`gh run list --workflow perf`, then the job log or the run's `perf-<run id>` artifact's
+ * calibration.json), copy its `measuredMs` here, each rounded to 0.1, and name the run.
  */
-export const REFERENCE_MS: ComponentMs = { cpu: 192.3, db: 441.5, vector: 283.0 };
+export const REFERENCE_MS: ComponentMs = { cpu: 198.2, db: 418.0, vector: 280.4 };
 
 /** Past this the run isn't evidence of anything: the limits stop growing and checks fail. */
 export const MAX_FACTOR = 3;

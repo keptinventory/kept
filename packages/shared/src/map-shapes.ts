@@ -23,6 +23,7 @@ import { MAP_MODEL_KEYS, type MapModelKey } from './map.js';
 export const SHAPE_GROUPS = [
   'furniture',
   'storage',
+  'wall',
   'electronics',
   'kitchen',
   'tools',
@@ -103,7 +104,13 @@ export const SHAPE_GROUP: Readonly<Record<MapModelKey, ShapeGroup>> = {
   box: 'storage',
   washer: 'kitchen',
   workbench: 'tools',
-  tool_wall: 'tools',
+  tool_wall: 'wall',
+  wall_tv: 'wall',
+  wall_shelf: 'wall',
+  wall_cabinet: 'wall',
+  picture: 'wall',
+  clock: 'wall',
+  hooks: 'wall',
   car: 'vehicles',
   bike: 'vehicles',
   water_tank: 'outdoor',
@@ -1010,6 +1017,12 @@ export const SHAPE_WORDS: Readonly<Record<MapModelKey, readonly string[]>> = {
     'باور بانك',
     'جرس الباب',
     'كاشف دخان',
+    // An alarm clock stands on a bedside table: not the wall clock (#138).
+    'alarm clock',
+    'réveil',
+    'wecker',
+    'sveglia',
+    'منبه',
   ],
   chair: [
     'desk chair',
@@ -1080,6 +1093,130 @@ export const SHAPE_WORDS: Readonly<Record<MapModelKey, readonly string[]>> = {
     'lochwand',
     'parete attrezzi',
     'جدار الأدوات',
+    'peg board',
+    'tool board',
+    'panneau perforé',
+    'pannello forato',
+    'لوحة أدوات',
+  ],
+  wall_tv: [
+    'wall tv',
+    'wall mounted tv',
+    'tv on the wall',
+    'wall television',
+    'télé murale',
+    'tv murale',
+    'téléviseur mural',
+    'wandfernseher',
+    'fernseher an der wand',
+    'tv a parete',
+    'televisore a parete',
+    'تلفزيون حائط',
+    'تلفزيون معلق',
+    'شاشة حائط',
+  ],
+  wall_shelf: [
+    'wall shelf',
+    'floating shelf',
+    'shelf on the wall',
+    'étagère murale',
+    'étagère flottante',
+    'wandregal',
+    'wandboard',
+    'schweberegal',
+    'mensola',
+    'mensola a muro',
+    'mensola a parete',
+    'رف حائط',
+    'رف معلق',
+    'رف جداري',
+  ],
+  wall_cabinet: [
+    'wall cabinet',
+    'wall cupboard',
+    'kitchen wall unit',
+    'medicine cabinet',
+    'meuble haut',
+    'placard mural',
+    'armoire murale',
+    'armoire à pharmacie',
+    'hängeschrank',
+    'oberschrank',
+    'wandschrank',
+    'spiegelschrank',
+    'pensile',
+    'pensile cucina',
+    'armadietto a muro',
+    'خزانة حائط',
+    'خزانة معلقة',
+    'دولاب حائط',
+  ],
+  picture: [
+    'picture',
+    'painting',
+    'picture frame',
+    'photo frame',
+    'poster',
+    'artwork',
+    'mirror',
+    'tableau',
+    'cadre',
+    'cadre photo',
+    'miroir',
+    'affiche',
+    'bild',
+    'gemälde',
+    'bilderrahmen',
+    'wandbild',
+    'spiegel',
+    'quadro',
+    'dipinto',
+    'cornice',
+    'specchio',
+    'لوحة فنية',
+    'صورة',
+    'برواز',
+    'إطار صورة',
+    'مرآة',
+    'مراية',
+  ],
+  clock: [
+    'clock',
+    'wall clock',
+    'horloge',
+    'pendule',
+    'horloge murale',
+    'uhr',
+    'wanduhr',
+    'orologio',
+    'orologio da parete',
+    'ساعة',
+    'ساعة حائط',
+  ],
+  hooks: [
+    'hook',
+    'coat hook',
+    'coat rack',
+    'hat rack',
+    'key hook',
+    'towel hook',
+    'crochet',
+    'patère',
+    'porte manteau',
+    'portemanteau',
+    'haken',
+    'kleiderhaken',
+    'hakenleiste',
+    'wandgarderobe',
+    'gancio',
+    'ganci',
+    'appendiabiti',
+    'attaccapanni',
+    'علاقة',
+    'شماعة',
+    'خطاف',
+    'علاقة ملابس',
+    'شماعة حائط',
   ],
   car: [
     'car',
@@ -1319,6 +1456,29 @@ export const SHAPE_WORD_LANGS: Readonly<Record<'fr' | 'de' | 'it', readonly stri
     'cage d escalier',
     'petit objet',
     'objet',
+    'télé murale',
+    'tv murale',
+    'téléviseur mural',
+    'étagère murale',
+    'étagère flottante',
+    'meuble haut',
+    'placard mural',
+    'armoire murale',
+    'armoire à pharmacie',
+    'tableau',
+    'cadre',
+    'cadre photo',
+    'miroir',
+    'affiche',
+    'horloge',
+    'pendule',
+    'horloge murale',
+    'crochet',
+    'patère',
+    'porte manteau',
+    'portemanteau',
+    'réveil',
+    'panneau perforé',
   ],
   de: [
     'pc lautsprecher',
@@ -1463,6 +1623,27 @@ export const SHAPE_WORD_LANGS: Readonly<Record<'fr' | 'de' | 'it', readonly stri
     'ecke',
     'kleines ding',
     'ding',
+    'wandfernseher',
+    'fernseher an der wand',
+    'wandregal',
+    'wandboard',
+    'schweberegal',
+    'hängeschrank',
+    'oberschrank',
+    'wandschrank',
+    'spiegelschrank',
+    'bild',
+    'gemälde',
+    'bilderrahmen',
+    'wandbild',
+    'spiegel',
+    'uhr',
+    'wanduhr',
+    'haken',
+    'kleiderhaken',
+    'hakenleiste',
+    'wandgarderobe',
+    'wecker',
   ],
   it: [
     'casse pc',
@@ -1595,6 +1776,26 @@ export const SHAPE_WORD_LANGS: Readonly<Record<'fr' | 'de' | 'it', readonly stri
     'angolo',
     'cosa piccola',
     'oggetto',
+    'tv a parete',
+    'televisore a parete',
+    'mensola',
+    'mensola a muro',
+    'mensola a parete',
+    'pensile',
+    'pensile cucina',
+    'armadietto a muro',
+    'quadro',
+    'dipinto',
+    'cornice',
+    'specchio',
+    'orologio',
+    'orologio da parete',
+    'gancio',
+    'ganci',
+    'appendiabiti',
+    'attaccapanni',
+    'sveglia',
+    'pannello forato',
   ],
 };
 
@@ -1606,7 +1807,7 @@ type TypeHint = { shapes: readonly MapModelKey[]; score: number };
  * thing's shape (a TV is drawn as a TV); lower ones only rank the picker's suggestions.
  */
 const TYPE_SHAPES: Readonly<Record<string, TypeHint>> = {
-  tv_display: { shapes: ['tv', 'monitor'], score: 0.95 },
+  tv_display: { shapes: ['tv', 'monitor', 'wall_tv'], score: 0.95 },
   car: { shapes: ['car'], score: 0.95 },
   bicycle: { shapes: ['bike'], score: 0.95 },
   motorbike: { shapes: ['bike'], score: 0.9 },
@@ -1685,7 +1886,58 @@ const PHRASES: readonly Phrase[] = MAP_MODEL_KEYS.flatMap((model) =>
   SHAPE_WORDS[model].map((w) => ({ model, terms: words(w) })).filter((p) => p.terms.length > 0),
 );
 
-type Hit = { model: MapModelKey; start: number; end: number; exact: boolean };
+type Hit = { model: MapModelKey; start: number; end: number; exact: boolean; terms: string[] };
+
+/**
+ * Words whose plural doesn't say the same thing as the word, so a plural only suggests the shape:
+ * "Notebook" is a laptop, "Notebooks" as often a pile of paper ones (and in German and Italian,
+ * laptops), so it is asked about, not given.
+ */
+const SINGULAR_ONLY: ReadonlySet<string> = new Set(['notebook'].flatMap(words));
+
+/**
+ * Words that make a word name something else entirely: a "Spiral notebook", an "A5 notebook" or
+ * a "Notebook a righe" is stationery, not a laptop, so it falls back to a small thing (there is no
+ * book shape). Whole words only, in Kept's five languages; "Notebook computer" and "Gaming
+ * notebook" stay laptops.
+ */
+const NOT_THE_SHAPE: readonly { model: MapModelKey; term: string; words: ReadonlySet<string> }[] = [
+  {
+    model: 'laptop',
+    term: 'notebook',
+    words: new Set(
+      [
+        'paper',
+        'spiral',
+        'lined',
+        'ruled',
+        'dotted',
+        'squared',
+        'sketch',
+        'exercise',
+        'composition',
+        'moleskine',
+        'stationery',
+        'a4',
+        'a5',
+        'a6',
+        'papier',
+        'spirale',
+        'ligné',
+        'quadrillé',
+        'liniert',
+        'kariert',
+        'carta',
+        'righe',
+        'quadretti',
+        'ورق',
+        'ورقي',
+        'حلزوني',
+        'مسطر',
+      ].flatMap(words),
+    ),
+  },
+];
 
 /** The shapes a name's words point at: phrases inside a longer matched phrase are dropped. */
 function hitsIn(ws: readonly string[]): Hit[] {
@@ -1702,8 +1954,11 @@ function hitsIn(ws: readonly string[]): Hit[] {
           break;
         }
         if (m === 1) exact = false;
+        if (m === 2 && ws[i + j] !== p.terms[j] && SINGULAR_ONLY.has(p.terms[j] as string)) {
+          exact = false;
+        }
       }
-      if (ok) hits.push({ model: p.model, start: i, end: i + n, exact });
+      if (ok) hits.push({ model: p.model, start: i, end: i + n, exact, terms: p.terms });
     }
   }
   return hits.filter(
@@ -1810,12 +2065,22 @@ const OWN_ACCESSORIES: Partial<Record<MapModelKey, ReadonlySet<string>>> = {
 };
 
 /** Each shape a text points at, with a score: 0.9 for whole words (0.95 for a phrase of two or
- * more), 0.6 for the end of a compound; seven tenths of that for what an accessory is for. */
+ * more), 0.6 for the end of a compound or a SINGULAR_ONLY word's plural; seven tenths of that for
+ * what an accessory is for. NOT_THE_SHAPE's words take a shape away. */
 function nameScores(text: string | null | undefined): Map<MapModelKey, number> {
   const out = new Map<MapModelKey, number>();
   if (!text) return out;
   const ws = words(text);
-  const hits = hitsIn(ws);
+  const hits = hitsIn(ws).filter(
+    (h) =>
+      !NOT_THE_SHAPE.some(
+        (r) =>
+          r.model === h.model &&
+          h.terms.length === 1 &&
+          h.terms[0] === r.term &&
+          ws.some((w) => r.words.has(w)),
+      ),
+  );
   const inPhrase = (i: number) =>
     hits.some((h) => h.end - h.start > 1 && h.start <= i && i < h.end);
   const acc = ws.map((w, i) => ACCESSORIES.has(w) && !inPhrase(i));

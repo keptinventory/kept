@@ -30,6 +30,10 @@ import { timed } from './timing.js';
 //
 // The fixture is step 4's household (test/perf/household.ts: Home with 10,000 things in 20 places,
 // 2,000 warranties, 500 schedules, 300 loans, 200 documents), with
+// - three of its things renamed to names that mean the semantic query without sharing a word with
+//   it (MEANING below), so meaning-fused search has something to find: every other name is
+//   "Thing NNNNN", which lights none of the mock's concepts, so the query matched nothing at all
+//   and the check timed an empty answer (semantic: null, results: 0 every night until 1.10.7);
 // - Home's account given an embeddings model (the mock provider: KEPT_AI_MOCK's concept vectors,
 //   never a real one) and every thing embedded by the backfill, as the worker would;
 // - MCP switched on in Home, and a read token of Louis's for it.
@@ -70,6 +74,15 @@ const TEST_MS = 300_000;
 // 10,000 share (the worst case for ranking, recorded without a limit).
 const RARE = '04217';
 const SHARED = 'Thing 04217';
+// The semantic query, and the things that answer it by meaning alone: each name lights the mock
+// lexicon's "tv" and "cable" concepts (test/fixtures/semantic/concepts.json), as the query does,
+// and none shares a word with it, so a keyword search finds none of them.
+const SEMANTIC_Q = 'the cable for the TV';
+const MEANING: Record<string, string> = {
+  'Thing 00011': 'HDMI lead',
+  'Thing 00012': 'Screen cord, 3 m',
+  'Thing 00013': 'Television wire',
+};
 
 let db: TestDb;
 let t: TestApp;
@@ -143,6 +156,13 @@ beforeAll(async () => {
   ibrahim = fixture.ibrahim;
   louis = fixture.louis;
   home = fixture.home;
+  await own(
+    db,
+    `UPDATE public.things x SET name = m.name
+       FROM unnest($2::text[], $3::text[]) AS m(was, name)
+      WHERE x.location_id = $1 AND x.name = m.was`,
+    [home.id, Object.keys(MEANING), Object.values(MEANING)],
+  );
 
   // An embeddings model on Home's account (the mock provider answers it), then the backfill.
   const providerId = crypto.randomUUID();
@@ -250,10 +270,14 @@ describe('steps 6–8 performance (final check, full mode only)', () => {
   it(
     `searches ${THINGS} embedded things with meaning fused in, p95 under ${LIMITS.searchP95Ms} ms`,
     async () => {
-      const q = 'the cable for the TV';
+      const q = SEMANTIC_Q;
       const first = await search(q);
-      // Meaning was asked for and not refused: the state is not keyword-only.
-      expect(first.semantic?.state).not.toBe('keyword_only');
+      // Meaning was searched (the response's `semantic` is null, not a paused/off/keyword-only
+      // state), and it found the three MEANING things, none of which the words match.
+      expect(first).toHaveProperty('semantic', null);
+      const byMeaning = first.things.items.filter((x) => x.matchedBy === 'meaning');
+      expect(byMeaning.map((x) => x.name).sort()).toEqual(Object.values(MEANING).sort());
+      expect(first.things.items.length).toBeGreaterThan(0);
       const s = await timed(WARMUP, RUNS, async () => {
         await search(q);
       });
@@ -262,7 +286,7 @@ describe('steps 6–8 performance (final check, full mode only)', () => {
         semantic: first.semantic ?? null,
         results: first.things.items.length,
         q,
-        byMeaning: first.things.items.filter((x) => x.matchedBy === 'meaning').length,
+        byMeaning: byMeaning.length,
       };
       // Recorded, not limited: the sentence has a word every name shares ("thing").
       results.searchSemanticEveryRow = {

@@ -1,3 +1,9 @@
+import {
+  createMemoryHistory,
+  createRootRoute,
+  createRouter,
+  RouterProvider,
+} from '@tanstack/react-router';
 import { act, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { MapThingView, MapView } from '@/api/map/types';
@@ -5,7 +11,7 @@ import { printedCode } from '@/components/id-chip';
 import { expectLogicalOnly, renderUI } from '@/test/render';
 import { MapCard } from './card';
 import { bodyOf, contentsOf, type Item, type Plan, putOn } from './layout';
-import { addOn, offMapFor } from './list';
+import { addOn, offMapFor, offMapIn } from './list';
 import { AddOnSheet, PutOnSheet } from './put-on';
 
 // #137: Put on… and Add on it, the cards that open them, and what a viewer sees.
@@ -84,9 +90,9 @@ const view = (plan: Plan): MapView => ({
   attention: [],
 });
 
-async function card(plan: Plan, it: Item, arranging: boolean, over: Record<string, unknown> = {}) {
+function cardProps(plan: Plan, it: Item, arranging: boolean, over: Record<string, unknown> = {}) {
   const v = view(plan);
-  const props = {
+  return {
     sel: { type: 'item' as const, id: it.id },
     plan,
     view: v,
@@ -111,8 +117,13 @@ async function card(plan: Plan, it: Item, arranging: boolean, over: Record<strin
     onPutOn: vi.fn(),
     onTakeOff: vi.fn(),
     onAddOn: vi.fn(),
+    onHeight: vi.fn(),
     ...over,
   };
+}
+
+async function card(plan: Plan, it: Item, arranging: boolean, over: Record<string, unknown> = {}) {
+  const props = cardProps(plan, it, arranging, over);
   return { props, ...(await renderUI(<MapCard {...props} />)) };
 }
 
@@ -392,6 +403,58 @@ describe('Add on it with things not on the map yet (#152)', () => {
     addOn(plan, { things: list }, desk.id, [away.id]);
     addOn(plan, { things: list }, arm.id, [cam.id]);
     expect(plan.items.length).toBe(before);
+  });
+
+  // A box and a shelf on the map carry what is in them: only what lies loose in the room is
+  // offered, in Add on it and in the room's Put on the map.
+  const withBox = () => {
+    const o = office();
+    const box = item({ model: 'box', name: 'Cable box', isContainer: true, x: 4, z: 1 });
+    const shelf = item({ subject: 'place', model: 'cube_shelf', name: 'Wall shelf', x: 4, z: 3 });
+    o.plan.items.push(box, shelf);
+    const t = things();
+    const inBox = thing({ name: 'Spare webcam, old', parentId: box.id });
+    const onShelf = thing({ name: 'Reading lamp', parentId: shelf.id });
+    return { ...o, ...t, box, inBox, onShelf, list: [...t.list, inBox, onShelf] };
+  };
+
+  it('lists only what lies directly in the room, not what is in a box or on a shelf', () => {
+    const { plan, desk, inBox, onShelf, list } = withBox();
+    expect(offMapIn(plan, { things: list }, ROOM).map((x) => x.name)).toEqual([
+      'Desk lamp',
+      'Spare webcam',
+      'Fridge',
+    ]);
+    expect(offMapFor(plan, { things: list }, desk).map((i) => i.name)).toEqual([
+      'Desk lamp',
+      'Spare webcam',
+    ]);
+    const before = plan.items.length;
+    addOn(plan, { things: list }, desk.id, [inBox.id, onShelf.id]);
+    expect(plan.items.length).toBe(before);
+  });
+
+  it('offers the same loose things in the room’s Put on the map', async () => {
+    const { plan, desk, list } = withBox();
+    const v = { ...view(plan), things: list };
+    const props = cardProps(plan, desk, true, {
+      sel: { type: 'room' as const, id: ROOM },
+      view: v,
+      contents: contentsOf(v),
+    });
+    // The room's card links to the place, so it renders inside a router.
+    const root = createRootRoute({ component: () => <MapCard {...props} /> });
+    const router = createRouter({
+      routeTree: root,
+      history: createMemoryHistory({ initialEntries: ['/'] }),
+    });
+    await renderUI(<RouterProvider router={router} />);
+    expect(await screen.findByText('Put on the map')).toBeTruthy();
+    const offered = screen
+      .getAllByRole('button')
+      .map((b) => b.querySelector('span')?.textContent)
+      .filter((x) => x && list.some((t) => t.name === x));
+    expect(offered).toEqual(['Desk lamp', 'Spare webcam', 'Fridge']);
   });
 
   it('shows them under their own heading, and hands both kinds back on Put', async () => {

@@ -2,7 +2,7 @@
  * Moving mode offline (1.x, D251): the board is remembered when read online and read back from
  * the phone without signal; a box change goes to the server when it can and waits in the queue
  * as a `move_box` op when it can't, shown on the board at once; an unpack waiting on the phone
- * shows the box in its room.
+ * shows the box in its room. Choosing a box's room works the same way, as `move_box_room`.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
@@ -10,7 +10,7 @@ import { IDS, ownerScenario } from '@/api/mock/fixtures';
 import { createMockApi } from '@/api/mock/server';
 import { seedMove } from '@/api/moving/mock';
 import { applyOptimistic, MemoryStore } from '@/offline/store';
-import { loadBoard, overlay, rememberedMove, setBoxState } from './offline';
+import { loadBoard, overlay, rememberedMove, setBoxRoom, setBoxState } from './offline';
 
 const MOVE = '01926f00-0000-7000-8000-0000000mv101';
 const T = INV_IDS.thing;
@@ -71,6 +71,21 @@ describe('the board offline', () => {
     expect(await loadBoard('01926f00-0000-7000-8000-0000000mv999', { store, online: false })).toBe(
       null,
     );
+  });
+
+  it('a board read before the phone’s database opened is still there offline once it has', async () => {
+    online();
+    const fresh = await loadBoard(MOVE, { store: null, online: true });
+    expect(fresh?.from).toBe('server');
+    // The phone's database (DexieStore) opens afterwards: nothing in it yet.
+    const meta = new Map<string, unknown>();
+    const dexie = Object.assign(new MemoryStore(), {
+      meta: async (key: string) => meta.get(key),
+      setMeta: async (key: string, value: unknown) => void meta.set(key, value),
+    });
+    offline();
+    const kept = await loadBoard(MOVE, { store: dexie, online: true });
+    expect(kept).toMatchObject({ from: 'phone', move: { name: 'Clear-out' } });
   });
 
   it('a box change goes to the server online, and waits in the queue offline, shown at once', async () => {
@@ -173,5 +188,117 @@ describe('the board offline', () => {
     ]);
     expect(out.boxes.map((b) => b.state)).toEqual(['unpacked', 'packed']);
     expect(out.counts).toEqual({ packed: 1, in_transit: 0, unpacked: 1, total: 2 });
+  });
+
+  it('a room chosen offline waits in the queue as move_box_room, named on the board at once', async () => {
+    const state = online();
+    const store = new MemoryStore();
+    // The phone's copy of Home: its rooms, as the snapshot holds them.
+    await store.applySnapshot({
+      asOf: '2026-10-10T09:00:00.000Z',
+      payloadVersion: 1,
+      minPayloadVersion: 1,
+      locations: [
+        {
+          id: IDS.home,
+          name: 'Home',
+          kind: 'apartment',
+          timezone: 'Africa/Cairo',
+          languages: ['en'],
+          role: 'owner',
+          effectiveModules: ['labels', 'moving'],
+          unplacedPlaceId: P.homeUnplaced,
+          suggestRadiusM: 150,
+        },
+      ],
+      types: { hash: 'h', items: [] },
+      changes: {
+        places: [
+          {
+            id: P.bedroom,
+            locationId: IDS.home,
+            parentId: null,
+            name: 'Bedroom',
+            kindKey: 'room',
+            icon: null,
+            isUnplaced: false,
+            sort: 5,
+            deleted: false,
+          },
+        ],
+        things: [],
+        codes: [],
+        legacyCodes: [],
+      },
+      removed: [],
+      revokedLocationIds: [],
+      nextCursor: 'c1',
+      complete: true,
+    });
+    const board = await loadBoard(MOVE, { store, online: true });
+    const move = board?.move as NonNullable<typeof board>['move'];
+    const box = move.boxes[0] as (typeof move.boxes)[number];
+
+    // Online: straight to the server.
+    const sent = await setBoxRoom({ store, online: true, move, box, placeId: P.livingRoom });
+    expect(sent.via === 'server' && sent.box.destination?.placeId).toBe(P.livingRoom);
+    await loadBoard(MOVE, { store, online: true });
+
+    offline();
+    const queued = await setBoxRoom({ store, online: true, move, box, placeId: P.bedroom });
+    expect(queued.via).toBe('queue');
+    const [op] = await store.pending();
+    expect(op).toMatchObject({
+      op: 'move_box_room',
+      locationId: IDS.home,
+      payload: { moveId: MOVE, containerId: T.box3, placeId: P.bedroom },
+    });
+    const shown = await loadBoard(MOVE, { store, online: false });
+    expect(shown?.move.boxes[0]).toMatchObject({
+      state: 'packed',
+      destination: { placeId: P.bedroom, name: 'Bedroom', locationId: IDS.home },
+    });
+    // The server never saw it.
+    vi.stubGlobal('fetch', createMockApi(state).fetch);
+    expect(
+      (await loadBoard(MOVE, { store: null, online: true }))?.move.boxes[0]?.destination,
+    ).toMatchObject({ placeId: P.livingRoom });
+    offline();
+
+    // Undo while it waits: the room is as it was.
+    if (queued.via === 'queue') await store.unqueue([queued.key]);
+    expect(
+      (await loadBoard(MOVE, { store, online: false }))?.move.boxes[0]?.destination,
+    ).toMatchObject({ placeId: P.livingRoom });
+  });
+
+  it('a room queued after the box was unpacked changes nothing, as on the server', () => {
+    const move = {
+      id: MOVE,
+      locationId: IDS.home,
+      toLocationId: null,
+      boxes: [
+        {
+          containerId: 'a',
+          state: 'packed',
+          destination: { placeId: P.kitchen, name: 'Kitchen', locationId: IDS.home },
+        },
+      ],
+      counts: { packed: 1, in_transit: 0, unpacked: 0, total: 1 },
+    } as unknown as Parameters<typeof overlay>[0];
+    type Op = Parameters<typeof overlay>[1][number];
+    const unpack = {
+      op: 'move_box',
+      payload: { moveId: MOVE, containerId: 'a', state: 'unpacked', placeId: P.kitchen },
+      takenAt: '2026-10-10T10:00:00Z',
+    } as unknown as Op;
+    const room = {
+      op: 'move_box_room',
+      payload: { moveId: MOVE, containerId: 'a', placeId: P.bedroom },
+      takenAt: '2026-10-10T11:00:00Z',
+    } as unknown as Op;
+    const names = new Map([[P.bedroom, 'Bedroom']]);
+    expect(overlay(move, [room], names).boxes[0]?.destination?.name).toBe('Bedroom');
+    expect(overlay(move, [unpack, room], names).boxes[0]?.destination?.name).toBe('Kitchen');
   });
 });

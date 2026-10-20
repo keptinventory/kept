@@ -80,6 +80,12 @@ export const MODEL_NAMES: Record<MapModelKey, Two> = {
   washer: ['Washing machine', 'غسالة'],
   workbench: ['Workbench', 'طاولة عمل'],
   tool_wall: ['Tool wall', 'جدار الأدوات'],
+  wall_tv: ['Wall TV', 'تلفزيون حائط'],
+  wall_shelf: ['Wall shelf', 'رف حائط'],
+  wall_cabinet: ['Wall cabinet', 'خزانة حائط'],
+  picture: ['Picture or mirror', 'لوحة أو مرآة'],
+  clock: ['Wall clock', 'ساعة حائط'],
+  hooks: ['Hooks', 'علّاقات'],
   car: ['Car', 'سيارة'],
   bike: ['Bike', 'دراجة'],
   water_tank: ['Water tank', 'خزان مياه'],
@@ -94,6 +100,7 @@ export const MODEL_NAMES: Record<MapModelKey, Two> = {
 export const GROUP_NAMES: Record<ShapeGroup, Two> = {
   furniture: ['Furniture', 'أثاث'],
   storage: ['Storage', 'تخزين'],
+  wall: ['On the wall', 'على الحائط'],
   electronics: ['Electronics', 'إلكترونيات'],
   kitchen: ['Kitchen and laundry', 'المطبخ والغسيل'],
   tools: ['Tools', 'العدة'],
@@ -206,6 +213,15 @@ type Words = {
   findThingIn: (name: string) => string;
   findThingLabel: string;
   everythingOnMap: string;
+  /** #138: a thing on a wall's Height, and where it hangs. */
+  height: {
+    label: string;
+    lower: string;
+    higher: string;
+    help: string;
+    value: (n: string) => string;
+    onWall: (n: string) => string;
+  };
   /** #137: Put on…, Add on it and Take off. */
   put: {
     putOn: string;
@@ -263,7 +279,7 @@ export const WORDS: Record<Lang, Words> = {
     addFloor: 'Add a floor',
     cancel: 'Cancel',
     hints: {
-      move: 'Drag anything to move it. Drop small things on a counter, desk, shelf or box. Drag a room’s amber corner to resize it.',
+      move: 'Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. Drag a room’s amber corner to resize it.',
       room: 'Drag on empty ground to draw a new room on this floor.',
       overlap: 'Rooms can’t overlap. Draw on empty ground.',
     },
@@ -295,6 +311,14 @@ export const WORDS: Record<Lang, Words> = {
     details: 'Details',
     less: 'Less',
     turn: 'Turn',
+    height: {
+      label: 'Height',
+      lower: 'Lower',
+      higher: 'Higher',
+      help: 'From the floor to its middle',
+      value: (n) => `${n} m`,
+      onWall: (n) => `On the wall, ${n} m up`,
+    },
     takeOff: 'Take off the map',
     upTo: (name) => `Up to ${name}`,
     downTo: (name) => `Down to ${name}`,
@@ -400,7 +424,7 @@ export const WORDS: Record<Lang, Words> = {
     addFloor: 'أضف طابقًا',
     cancel: 'إلغاء',
     hints: {
-      move: 'اسحب أي شيء لنقله. ضع الأشياء الصغيرة على سطح أو مكتب أو رف أو صندوق. اسحب الزاوية الكهرمانية للغرفة لتغيير حجمها.',
+      move: 'اسحب أي شيء لنقله. ضع الأشياء الصغيرة على سطح أو مكتب أو رف أو صندوق، وأشياء الحائط تُعلَّق على أقرب حائط. اسحب الزاوية الكهرمانية للغرفة لتغيير حجمها.',
       room: 'اسحب على أرض فارغة لرسم غرفة جديدة في هذا الطابق.',
       overlap: 'لا يمكن أن تتداخل الغرف. ارسم على أرض فارغة.',
     },
@@ -432,6 +456,14 @@ export const WORDS: Record<Lang, Words> = {
     details: 'التفاصيل',
     less: 'أقل',
     turn: 'تدوير',
+    height: {
+      label: 'الارتفاع',
+      lower: 'أخفض',
+      higher: 'أعلى',
+      help: 'من الأرض إلى منتصفه',
+      value: (n) => `${n} م`,
+      onWall: (n) => `على الحائط، على ارتفاع ${n} م`,
+    },
     takeOff: 'إزالة من الخريطة',
     upTo: (name) => `صعودًا إلى ${name}`,
     downTo: (name) => `نزولًا إلى ${name}`,

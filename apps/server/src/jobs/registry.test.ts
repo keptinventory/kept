@@ -12,6 +12,7 @@ import {
   registerJobs,
   sendInTx,
   sendTenantJob,
+  sendTenantJobs,
   type TenantJobContext,
 } from './boss.js';
 import { jobAdmin } from './failed.js';
@@ -116,6 +117,42 @@ describe('a tenant job', () => {
     expect(got.ctx.data).toEqual({ note: 'hello', userId: b.userId });
     expect(got.locations).toEqual([a.locationId]);
     await boss.offWork(name);
+  });
+
+  it('is sent many at once with the scope read once (a bulk write)', async () => {
+    const a = await seedTenant(db, 'tenant-jobs-a');
+    const name = `tenant-many-${randomUUID()}`;
+    await boss.createQueue(name);
+    let reads = 0;
+    await withScope(db.pools.app, { userId: a.userId, mfa: false }, async (_tx, client) => {
+      const query = client.query.bind(client) as (...args: unknown[]) => Promise<unknown>;
+      (client as unknown as { query: unknown }).query = (...args: unknown[]) => {
+        if (String(args[0]).includes("current_setting('app.user_id'")) reads += 1;
+        return query(...args);
+      };
+      try {
+        await sendTenantJobs(boss, client, name, [
+          { data: { n: 1 }, options: { singletonKey: 'k:1', singletonSeconds: 30 } },
+          { data: { n: 2 }, options: { singletonKey: 'k:2', singletonSeconds: 30 } },
+        ]);
+      } finally {
+        (client as unknown as { query: unknown }).query = query;
+      }
+    });
+    expect(reads).toBe(1);
+    const { rows } = await db.pools.system.query<{ key: string; data: unknown }>(
+      'SELECT singleton_key AS key, data FROM pgboss.job WHERE name = $1 ORDER BY singleton_key',
+      [name],
+    );
+    expect(rows).toEqual([
+      { key: 'k:1', data: { userId: a.userId, mfa: false, data: { n: 1 } } },
+      { key: 'k:2', data: { userId: a.userId, mfa: false, data: { n: 2 } } },
+    ]);
+    await expect(
+      withSystem(db.pools.system, (_tx, client) =>
+        sendTenantJobs(boss, client, name, [{ data: {} }]),
+      ),
+    ).rejects.toBeInstanceOf(ScopeError);
   });
 
   it('cannot be sent from outside a user scope', async () => {

@@ -355,7 +355,8 @@ fieldset.kmap-floors {
     top: 110px;
     width: 320px;
     border-radius: 12px;
-    max-height: calc(100% - 170px);
+    /* Down to 12px above the map's bottom edge: nothing sits under the card there. */
+    max-height: calc(100% - 122px);
     overflow: auto;
   }
 }
@@ -370,6 +371,17 @@ fieldset.kmap-floors {
   .kmap-panel.full {
     max-height: 68%;
   }
+}
+/* #161: on a short window or a phone the details scroll inside the card; Open stays on the card's
+   bottom edge until its own place scrolls into view, so it can always be reached. The strip
+   covers the card's bottom padding, so nothing scrolls by under it. */
+.kmap-panel > .kmap-open {
+  position: sticky;
+  bottom: -12px;
+  z-index: 1;
+  margin-block: -6px -12px;
+  padding-block: 6px 12px;
+  background: var(--surface);
 }
 .kmap-panel h2 {
   margin: 0;
@@ -566,6 +578,51 @@ fieldset.kmap-floors {
 .kmap-shape > span {
   flex: 1 1 12rem;
   overflow-wrap: anywhere;
+}
+/* Height (#138): a thing on a wall's card. The − and + are 44 px on a phone; the value never
+   cut short. */
+.kmap-height {
+  display: grid;
+  gap: 6px;
+}
+.kmap-height-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.kmap-height-row .kmap-input {
+  inline-size: 7.5rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.kmap-height-row button {
+  font: 600 18px / 1 var(--sans);
+  inline-size: 40px;
+  block-size: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.kmap-height-row button[data-disabled] {
+  color: var(--ink-3);
+  cursor: default;
+}
+.kmap-height-row button[data-focus-visible],
+.kmap-height-row .kmap-input:focus-visible {
+  outline: 2px solid var(--info);
+  outline-offset: 1px;
+}
+@media (pointer: coarse) {
+  .kmap-height-row button {
+    inline-size: 44px;
+    block-size: 44px;
+  }
+}
+.kmap-height-help {
+  font: 400 12.5px / 1.35 var(--sans);
+  color: var(--ink-3);
 }
 .kshape-thumb {
   display: block;

@@ -13,9 +13,14 @@
  * to face +z, `simple` names the drawn stand-in used when detailed models are off.
  *
  * Holders (#137): a model with `top` carries small things on it (a desk, a shelf, a box); one with
- * a `mount` carries them another way, on a screen's top edge (a webcam on a monitor) or on an arm
- * (monitors on a monitor arm). The saved layout only says which node something is on; how it
- * sits there comes from the holder's model, so the layout's format is the same for all three.
+ * a `mount` carries them another way, on a screen's top edge (a webcam on a monitor), on an arm
+ * (monitors on a monitor arm) or hung from hooks (a drill on a tool wall, #138). The saved layout
+ * only says which node something is on; how it sits there comes from the holder's model, so the
+ * layout's format is the same for all of them.
+ *
+ * Walls (#138): a model with `wall` hangs on a room's wall (a wall TV, a shelf, a clock), its back
+ * to the wall it faces away from, at a height: `wall` is where its middle hangs until someone
+ * says otherwise. Which wall comes from its turn (wallOfTurn); the layout stores the height.
  */
 
 export const MAP_ROOM_KINDS = ['room', 'balcony', 'terrace', 'garden'] as const;
@@ -44,10 +49,13 @@ export type MapModelKind = 'furniture' | 'storage' | 'thing';
  *   footprint fits the edge clip on along it (EDGE_FIT).
  * - `arm`: one place per `slots` entry (the offset across), each `z` forward and `h` up, for the
  *   models in `fits`.
+ * - `hook` (#138): small things hang in a row along its face (`z` from the middle), their tops at
+ *   the hook line `h` (HOOK_FIT): tools on a tool wall, bags on hooks.
  */
 export type MapMount = Readonly<
   | { on: 'edge'; h: number; z: number }
   | { on: 'arm'; h: number; z: number; slots: readonly number[]; fits: readonly string[] }
+  | { on: 'hook'; h: number; z: number }
 >;
 
 export type MapModel = Readonly<{
@@ -59,6 +67,8 @@ export type MapModel = Readonly<{
   holds?: boolean;
   small?: boolean;
   mount?: MapMount;
+  /** A wall thing (#138): where its middle hangs, in metres above the floor, until changed. */
+  wall?: number;
   glb?: string;
   rotFix?: number;
   simple?: string;
@@ -263,7 +273,43 @@ export const MAP_MODELS = {
   box: { w: 0.6, d: 0.4, kind: 'storage', holds: true, small: true, top: 0.34 },
   washer: { w: 0.6, d: 0.6, kind: 'thing' },
   workbench: { w: 1.8, d: 0.7, kind: 'furniture', top: 0.92, holds: true },
-  tool_wall: { w: 1.6, d: 0.12, kind: 'storage', holds: true },
+  // On a wall (#138), drawn at real sizes. The tool wall is a 1.2 × 0.6 m pegboard over a bench:
+  // tools hang from its hooks, their tops 5 cm under its top edge.
+  tool_wall: {
+    w: 1.2,
+    d: 0.03,
+    h: 0.6,
+    kind: 'storage',
+    holds: true,
+    mount: { on: 'hook', h: 0.55, z: 0.015 },
+    wall: 1.3,
+  },
+  /** A 55-inch TV on a wall bracket: its middle at a seated person's eye level. */
+  wall_tv: {
+    w: 1.23,
+    d: 0.06,
+    h: 0.71,
+    kind: 'thing',
+    mount: { on: 'edge', h: 0.71, z: 0 },
+    wall: 1.2,
+  },
+  /** A floating shelf: small things stand on it. */
+  wall_shelf: { w: 0.8, d: 0.22, h: 0.04, kind: 'storage', top: 0.04, holds: true, wall: 1.5 },
+  /** A kitchen wall cabinet, its bottom about 50 cm above a counter. */
+  wall_cabinet: { w: 0.8, d: 0.35, h: 0.7, kind: 'storage', holds: true, wall: 1.75 },
+  /** A framed picture or a mirror. */
+  picture: { w: 0.7, d: 0.03, h: 0.5, kind: 'thing', wall: 1.5 },
+  clock: { w: 0.3, d: 0.05, h: 0.3, kind: 'thing', wall: 1.8 },
+  /** A coat rail of five hooks: bags and coats hang from it. */
+  hooks: {
+    w: 0.6,
+    d: 0.08,
+    h: 0.1,
+    kind: 'storage',
+    holds: true,
+    mount: { on: 'hook', h: 0.06, z: 0.04 },
+    wall: 1.7,
+  },
   car: { w: 1.78, d: 4.6, kind: 'thing' },
   bike: { w: 0.6, d: 1.75, kind: 'thing' },
   water_tank: { w: 1.1, d: 1.1, kind: 'thing' },
@@ -297,6 +343,8 @@ export const MAP_LIMITS = {
   /** A room's side, in centimetres. */
   minRoom: 100,
   maxRoom: 10_000,
+  /** How high a thing on a wall hangs, in centimetres (HANG_TOP; #138). */
+  maxHeight: 300,
 } as const;
 
 /** A footprint (metres) after a quarter turn. */
@@ -327,15 +375,17 @@ export function firstOverlap(rects: readonly MapRect[]): [number, number] | null
 /** A model something small can stand on (a counter, a desk, a shelf top, a box). */
 export const canHost = (key: MapModelKey): boolean => mapModel(key).top !== undefined;
 
-/** Only things and small storage go on top of something (the spike's rule). */
+/** Only things and small storage go on top of something (the spike's rule); never a wall thing,
+ * which hangs on its wall (#138). */
 export const canStandOn = (key: MapModelKey): boolean => {
   const m = mapModel(key);
-  return m.kind === 'thing' || m.small === true;
+  return m.wall === undefined && (m.kind === 'thing' || m.small === true);
 };
 
-export type MapCarry = 'top' | 'edge' | 'arm';
+export type MapCarry = 'top' | 'edge' | 'arm' | 'hook';
 
-/** How a model carries things (#137): on its top, on a screen's edge, on an arm, or not at all. */
+/** How a model carries things (#137, #138): on its top, on a screen's edge, on an arm, from its
+ * hooks, or not at all. */
 export function carryOf(key: MapModelKey): MapCarry | null {
   const m = mapModel(key);
   if (m.top !== undefined) return 'top';
@@ -345,6 +395,10 @@ export function carryOf(key: MapModelKey): MapCarry | null {
 /** What clips onto a screen's top edge: a small thing at most this deep and high (a webcam, a
  * smart speaker, a light), no wider than the screen, and no holder itself. */
 export const EDGE_FIT = { d: 0.12, h: 0.2 } as const;
+
+/** What hangs from a hook (#138): a small thing at most this high (a drill, headphones, a bag),
+ * no wider than the board, and no holder itself. A thing with no height counts as `h`. */
+export const HOOK_FIT = { h: 0.6, unknown: 0.3 } as const;
 
 /** Whether `host` can carry `child` (the server's check and the web's). */
 export function canCarry(host: MapModelKey, child: MapModelKey): boolean {
@@ -363,6 +417,17 @@ export function canCarry(host: MapModelKey, child: MapModelKey): boolean {
     );
   }
   if (h.mount?.on === 'arm') return h.mount.fits.includes(child);
+  if (h.mount?.on === 'hook') {
+    return (
+      c.kind === 'thing' &&
+      c.small === true &&
+      !c.mount &&
+      c.top === undefined &&
+      c.wall === undefined &&
+      (c.h ?? HOOK_FIT.unknown) <= HOOK_FIT.h &&
+      c.w <= h.w
+    );
+  }
   return false;
 }
 
@@ -376,6 +441,14 @@ export function capacityOf(key: MapModelKey): number {
 export function seatHeight(key: MapModelKey): number {
   const m = mapModel(key);
   return m.top ?? m.mount?.h ?? 0;
+}
+
+/** Where a carried thing's base is, above its holder's base: at the holder's seat, or, hung from
+ * a hook (#138), so that its top is at the hook line. */
+export function seatFor(host: MapModelKey, child: MapModelKey): number {
+  const m = mapModel(host).mount;
+  if (m?.on === 'hook') return Math.max(0, m.h - (mapModel(child).h ?? HOOK_FIT.unknown));
+  return seatHeight(host);
 }
 
 /**
@@ -421,6 +494,94 @@ export function snapStep(key: MapModelKey): number {
   const m = mapModel(key);
   if (m.small || Math.max(m.w, m.d) < 0.3) return 0.01;
   return m.kind === 'thing' ? 0.05 : 0.1;
+}
+
+// ---- Walls (#138) ------------------------------------------------------------------------------
+
+/** The shapes that hang on a wall. */
+export const WALL_MODELS: readonly MapModelKey[] = MAP_MODEL_KEYS.filter(
+  (k) => mapModel(k).wall !== undefined,
+);
+
+export const isWallModel = (key: MapModelKey): boolean => mapModel(key).wall !== undefined;
+
+/** A room's four walls: the side of the room each stands on. */
+export type MapWall = '-x' | '+x' | '-z' | '+z';
+export const MAP_WALLS: readonly MapWall[] = ['-z', '+x', '+z', '-x'];
+
+/** A wall's thickness inside its room, in metres: what a wall thing hangs flat against. */
+export const WALL_T = 0.1;
+
+/** Nothing hangs higher than this (metres): a room's usual height. */
+export const HANG_TOP = 3;
+
+/** Where a wall thing's middle may hang: its bottom on the floor at the lowest, its top at
+ * HANG_TOP at the highest. Metres. */
+export function hangRange(key: MapModelKey): { min: number; max: number } {
+  const half = (mapModel(key).h ?? 0.3) / 2;
+  return { min: half, max: HANG_TOP - half };
+}
+
+/** A height in the range, to the centimetre. */
+export function clampHang(key: MapModelKey, h: number): number {
+  const r = hangRange(key);
+  return Math.round(Math.min(r.max, Math.max(r.min, h)) * 100) / 100;
+}
+
+/** The wall at a thing's back, from its turn: a thing on a wall faces into the room. */
+export function wallOfTurn(rot: number): MapWall {
+  const r = (((Math.round(rot / 90) * 90) % 360) + 360) % 360;
+  return r === 90 ? '+x' : r === 180 ? '+z' : r === 270 ? '-x' : '-z';
+}
+
+/** The turn of a thing on `wall`. */
+export function turnOfWall(wall: MapWall): MapTurn {
+  return wall === '+x' ? 90 : wall === '+z' ? 180 : wall === '-x' ? 270 : 0;
+}
+
+/** The wall nearest a point of a room (metres from its corner); outside, the one it is beyond. */
+export function nearestWall(room: { w: number; d: number }, p: { x: number; z: number }): MapWall {
+  const gaps: [MapWall, number][] = [
+    ['-z', p.z],
+    ['+x', room.w - p.x],
+    ['+z', room.d - p.z],
+    ['-x', p.x],
+  ];
+  let best = gaps[0] as [MapWall, number];
+  for (const g of gaps) if (g[1] < best[1]) best = g;
+  return best[0];
+}
+
+/**
+ * Where a wall thing's footprint corner goes (metres from the room's corner): flat against
+ * `wall`, `along` metres along it (the footprint's start, x on a −z or +z wall, z on the others),
+ * kept inside the walls at its ends. Its width runs along the wall, its depth into the room.
+ */
+export function wallSpot(
+  room: { w: number; d: number },
+  key: MapModelKey,
+  wall: MapWall,
+  along: number,
+): { x: number; z: number } {
+  const m = mapModel(key);
+  const length = wall === '-z' || wall === '+z' ? room.w : room.d;
+  const a = Math.max(WALL_T, Math.min(length - WALL_T - m.w, along));
+  if (wall === '-z') return { x: a, z: WALL_T };
+  if (wall === '+z') return { x: a, z: room.d - WALL_T - m.d };
+  if (wall === '-x') return { x: WALL_T, z: a };
+  return { x: room.w - WALL_T - m.d, z: a };
+}
+
+/** How far a node is from where it would hang on the wall its turn puts at its back (metres):
+ * the server's check of a thing on a wall. */
+export function offWall(
+  room: { w: number; d: number },
+  key: MapModelKey,
+  node: { x: number; z: number; rot: number },
+): number {
+  const wall = wallOfTurn(node.rot);
+  const at = wallSpot(room, key, wall, wall === '-z' || wall === '+z' ? node.x : node.z);
+  return Math.hypot(node.x - at.x, node.z - at.z);
 }
 
 /** Words in a name that pick a model (lower case, whole words or word starts). First match wins. */

@@ -40,6 +40,8 @@ const NodeLayout = z.object({
   rot: z.number().int(),
   model: z.string().nullable(),
   hostId: z.uuid().nullable(),
+  /** A thing on a wall (#138): how high its middle hangs, in centimetres; null when it stands. */
+  height: z.number().int().nullable(),
 });
 
 export const MapViewSchema = z.object({
@@ -141,11 +143,12 @@ export type NodeRow = {
   room_kind: (typeof MAP_ROOM_KINDS)[number] | null;
   surface: (typeof MAP_SURFACES)[number] | null;
   host_id: string | null;
+  height: number | null;
   created_at: Date;
 };
 
 export const NODE_COLUMNS =
-  'id, place_id, thing_id, x_cm AS x, z_cm AS z, w_cm AS w, d_cm AS d, rot, model, room_kind, surface, host_id, created_at';
+  'id, place_id, thing_id, x_cm AS x, z_cm AS z, w_cm AS w, d_cm AS d, rot, model, room_kind, surface, host_id, height_cm AS height, created_at';
 
 /** The layout's version: the newest row's stamp (an arrange session writes all its rows at once). */
 export function versionOf(rows: readonly Pick<NodeRow, 'created_at'>[]): string | null {
@@ -418,7 +421,7 @@ export async function mapView(tx: Tx, client: pg.ClientBase, locationId: string)
   const nodeLayout = (id: string) => {
     const n = layoutOf.get(id);
     return n && n.w === null
-      ? { x: n.x, z: n.z, rot: n.rot, model: n.model, hostId: n.host_id }
+      ? { x: n.x, z: n.z, rot: n.rot, model: n.model, hostId: n.host_id, height: n.height }
       : null;
   };
 

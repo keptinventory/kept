@@ -9,6 +9,7 @@ import { logReading } from './log-reading.js';
 import { markSeen } from './mark-seen.js';
 import { move } from './move.js';
 import { moveBoxOp } from './move-box.js';
+import { moveBoxRoomOp } from './move-box-room.js';
 import { notHere } from './not-here.js';
 
 /** One handler per op kind (plan T14). */
@@ -22,6 +23,7 @@ export const HANDLERS: { readonly [K in OpKind]: Handler<K> } = Object.freeze({
   create_area: createArea,
   box_check: boxCheckOp,
   move_box: moveBoxOp,
+  move_box_room: moveBoxRoomOp,
 });
 
 let registered = false;

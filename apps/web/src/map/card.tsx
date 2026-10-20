@@ -5,6 +5,7 @@
  * arranging, the card also turns a thing, changes its shape, takes it off the map, and sets a
  * room's kind and floor, or puts a thing of the room on the map. A small thing's card puts it on
  * a holder (Put on…) and a holder's card puts the room's small things on it (Add on it), #137.
+ * A thing on a wall's card sets how high it hangs (Height, #138); it doesn't turn.
  */
 import {
   canBeCarried,
@@ -28,6 +29,7 @@ import { IdChip, printedCode } from '@/components/id-chip';
 import { useTypeName } from '@/components/things/names';
 import { QrCode } from '@/components/ui/qr-code';
 import { useFormat } from '@/lib/format';
+import { HeightField } from './height';
 import { useModelNames, useRoomKindNames, useSurfaceNames } from './labels';
 import {
   allUnder,
@@ -41,9 +43,10 @@ import {
   type Room,
   seated,
 } from './layout';
-import { type ChosenShape, matches, whereOf } from './list';
+import { type ChosenShape, matches, offMapIn, whereOf } from './list';
 import { AddOnSheet, PutOnSheet } from './put-on';
 import { ShapeField, shapeInputOf } from './shapes';
+import { cardPath } from './where';
 
 export type CardSel = { type: 'room' | 'item'; id: string };
 
@@ -74,6 +77,8 @@ export type CardProps = {
   onPutOn: (id: string, hostId: string) => void;
   onTakeOff: (id: string) => void;
   onAddOn: (hostId: string, ids: string[]) => void;
+  /** #138: how high a thing on a wall hangs (metres, its middle). */
+  onHeight: (id: string, h: number) => void;
   /** #152: the shape a thing not on the map would get back, for Add on it. */
   chosenShape?: ChosenShape;
 };
@@ -325,7 +330,7 @@ export function MapCard(p: CardProps) {
         <StatusRows rows={contents.rows.get(p.inner) ?? []} />
         <IdBlock code={code} place={false} />
         <ThingFacts id={p.inner} />
-        <div className="kmap-row">
+        <div className="kmap-row kmap-open">
           <OpenLink id={p.inner} subject="thing" />
         </div>
       </aside>
@@ -338,9 +343,7 @@ export function MapCard(p: CardProps) {
     const inside = plan.items.filter((i) => i.roomId === r.id);
     const things = allUnder(contents, r.id).length;
     const full = p.detail || p.arranging;
-    const nodeIds = new Set(plan.items.map((i) => i.id));
-    const addable = view.things
-      .filter((x) => !nodeIds.has(x.id) && whereOf(plan, view, x.id).roomId === r.id)
+    const addable = offMapIn(plan, view, r.id)
       .filter((x) => matches(adding, x.name, x.shortCode))
       .slice(0, 30);
     const w = f.num(Math.round(r.w * 10) / 10);
@@ -480,17 +483,7 @@ export function MapCard(p: CardProps) {
   const n = countIn(contents, it);
   const under = contents.under.get(it.id) ?? [];
   const onIt = plan.items.filter((x) => x.on === it.id);
-  const path = whereOf(plan, view, it.id).path;
-  const hosts: string[] = [];
-  for (
-    let h = it.on ? plan.items.find((x) => x.id === it.on) : undefined, i = 0;
-    h && i < 10;
-    i++
-  ) {
-    hosts.unshift(h.name);
-    h = h.on ? plan.items.find((x) => x.id === h?.on) : undefined;
-  }
-  const meta = [...(path.length ? path : room ? [room.name] : []), ...hosts].join(' › ');
+  const meta = cardPath(plan, view, it).join(' › ');
   const levels = plan.levels;
   const li = levels.findIndex((l) => l.key === room?.levelKey);
   const stairs = STAIR_MODELS.has(it.model)
@@ -565,7 +558,7 @@ export function MapCard(p: CardProps) {
           <Trans>Add on it</Trans>
         </button>
       ) : null}
-      {p.arranging && !seated(plan.items, it) ? (
+      {p.arranging && !seated(plan.items, it) && it.hang === undefined ? (
         <button type="button" className="kmap-btn" onClick={() => p.onTurn(it.id)}>
           <Trans>Turn</Trans>
         </button>
@@ -637,8 +630,14 @@ export function MapCard(p: CardProps) {
     </div>
   ) : null;
   const shape = p.arranging ? (
-    <ShapeField item={it} input={shapeInputOf(view, it)} onShape={p.onShape} />
+    <>
+      <ShapeField item={it} input={shapeInputOf(view, it)} onShape={p.onShape} />
+      {it.hang === undefined ? null : (
+        <HeightField item={it} onHeight={(h) => p.onHeight(it.id, h)} />
+      )}
+    </>
   ) : null;
+  const hangs = it.hang === undefined ? null : f.num(it.hang);
   if (!p.detail) {
     return (
       <aside data-map-obstacle className="kmap-panel" aria-live="polite">
@@ -666,6 +665,7 @@ export function MapCard(p: CardProps) {
             ) : null}
           </span>
           <span className="[overflow-wrap:anywhere]">{meta}</span>
+          {hangs === null ? null : <span>{t`On the wall, ${hangs} m up`}</span>}
           {it.subject === 'place' ? <PlaceKind id={it.id} /> : null}
         </div>
       </div>
@@ -674,7 +674,7 @@ export function MapCard(p: CardProps) {
       {shape}
       <IdBlock code={it.shortCode} place={it.subject === 'place' || it.isContainer} />
       {it.subject === 'thing' ? <ThingFacts id={it.id} /> : null}
-      <div className="kmap-row">
+      <div className="kmap-row kmap-open">
         <OpenLink id={it.id} subject={it.subject} />
       </div>
       {onIt.length ? (

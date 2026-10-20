@@ -2,12 +2,16 @@ import {
   canCarry,
   capacityOf,
   carryOf,
+  cmToM,
   firstOverlap,
+  hangRange,
   isMapModel,
+  isWallModel,
   MAP_LIMITS,
   MAP_ROOM_KINDS,
   MAP_SURFACES,
   type MapModelKey,
+  offWall,
 } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
@@ -31,6 +35,10 @@ import { mapTree, NODE_COLUMNS, type NodeRow, nodeRows, placeRows, versionOf } f
 //   model from the catalogue; a host that is another node of the session and can carry it (small
 //   things on a top, a webcam on a screen's edge, monitors on an arm, #137), no more than an arm
 //   holds, with no loop; rooms on one floor don't overlap.
+// - A thing on a wall (#138) sends `height`, its middle's height in centimetres: only a wall shape
+//   has one, on nothing, between the floor and HANG_TOP, flat against the wall its turn puts at
+//   its back, in a room of the session (its walls are what it hangs on). A wall shape without a
+//   height is an older map's and stays as it is; the web hangs it when it next arranges.
 // - Audited `place.arrange` on the location with the whole layout before and after (the diff's
 //   `layout`, which the web never shows), undoable for ten minutes (undo.ts).
 
@@ -51,6 +59,8 @@ const NodeBody = z.object({
   rot: z.union([z.literal(0), z.literal(90), z.literal(180), z.literal(270)]),
   model: z.string().max(40),
   hostId: z.uuid().nullable(),
+  /** #138: optional, so a layout from before it still saves. */
+  height: z.number().int().min(0).max(MAP_LIMITS.maxHeight).nullable().optional(),
 });
 
 export const LayoutBody = z.object({
@@ -75,6 +85,9 @@ export type LayoutImage = {
   kind: string | null;
   surface: string | null;
   host: string | null;
+  /** A thing on a wall's height (#138), left out when it stands: an audit stored before #138
+   * then still equals the layout it describes, so its undo isn't refused. */
+  height?: number;
 };
 
 export function imageOf(rows: readonly NodeRow[]): LayoutImage[] {
@@ -91,6 +104,7 @@ export function imageOf(rows: readonly NodeRow[]): LayoutImage[] {
       kind: r.room_kind,
       surface: r.surface,
       host: r.host_id,
+      ...(r.height === null ? {} : { height: r.height }),
     }))
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
@@ -112,13 +126,13 @@ export async function writeImage(
   if (image.length === 0) return [];
   const { rows } = await client.query<NodeRow>(
     `INSERT INTO public.map_nodes (location_id, place_id, thing_id, x_cm, z_cm, w_cm, d_cm, rot, model,
-                                   room_kind, surface, host_id, created_by)
+                                   room_kind, surface, host_id, height_cm, created_by)
      SELECT $1, CASE WHEN r.s = 'place' THEN r.id END, CASE WHEN r.s = 'thing' THEN r.id END,
-            r.x, r.z, r.w, r.d, r.rot, r.model, r.kind, r.surface, r.host,
+            r.x, r.z, r.w, r.d, r.rot, r.model, r.kind, r.surface, r.host, r.height,
             kept.current_user_id()
        FROM jsonb_to_recordset($2::jsonb)
          AS r(id uuid, s text, x int, z int, w int, d int, rot int, model text, kind text,
-              surface text, host uuid)
+              surface text, host uuid, height int)
      RETURNING ${NODE_COLUMNS}`,
     [locationId, JSON.stringify(image)],
   );
@@ -161,10 +175,12 @@ async function checkedImage(
   };
   const image: LayoutImage[] = [];
   const byLevel = new Map<string, { x: number; z: number; w: number; d: number }[]>();
+  const roomSize = new Map<string, { w: number; d: number }>();
   for (const r of body.rooms) {
     const id = r.id.toLowerCase();
     once(id);
     if (!tree.rooms.has(id)) throw refuse(`Check rooms: ${id} is not a room of this location.`);
+    roomSize.set(id, { w: cmToM(r.w), d: cmToM(r.d) });
     const level = tree.rooms.get(id) ?? '';
     byLevel.set(level, [...(byLevel.get(level) ?? []), { x: r.x, z: r.z, w: r.w, d: r.d }]);
     image.push({
@@ -197,17 +213,22 @@ async function checkedImage(
     if (!isMapModel(n.model)) throw refuse(`Check nodes: there is no model "${n.model}".`);
     const place = tree.places.get(id);
     let subject: 'place' | 'thing';
+    let roomId: string | null;
     if (place) {
-      if (place.is_unplaced || tree.rooms.has(id) || !tree.roomOfPlace(id)) {
+      roomId = tree.roomOfPlace(id);
+      if (place.is_unplaced || tree.rooms.has(id) || !roomId) {
         throw refuse(`Check nodes: ${id} is not a place in a room of this location.`);
       }
       subject = 'place';
     } else if (things.has(id)) {
-      if (!roomOfThing(id)) throw refuse(`Check nodes: ${id} is not in a room of this location.`);
+      roomId = roomOfThing(id);
+      if (!roomId) throw refuse(`Check nodes: ${id} is not in a room of this location.`);
       subject = 'thing';
     } else {
       throw refuse(`Check nodes: ${id} is not a place or thing of this location.`);
     }
+    const height = n.height ?? null;
+    if (height !== null) checkWall(id, n, n.model, height, roomSize.get(roomId));
     models.set(id, n.model);
     if (n.hostId) hosts.set(id, n.hostId.toLowerCase());
     image.push({
@@ -222,6 +243,7 @@ async function checkedImage(
       kind: null,
       surface: null,
       host: n.hostId ? n.hostId.toLowerCase() : null,
+      ...(height === null ? {} : { height }),
     });
   }
   const carried = new Map<string, number>();
@@ -244,6 +266,27 @@ async function checkedImage(
     }
   }
   return image.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
+/** #138: a thing on a wall hangs on a wall of its room, at a height its shape can hang at. */
+function checkWall(
+  id: string,
+  n: z.infer<typeof NodeBody>,
+  model: MapModelKey,
+  height: number,
+  room: { w: number; d: number } | undefined,
+): void {
+  if (!isWallModel(model)) throw refuse(`Check nodes: a ${model} doesn't hang on a wall (${id}).`);
+  if (n.hostId) throw refuse(`Check nodes: ${id} hangs on a wall, so it stands on nothing.`);
+  const range = hangRange(model);
+  if (cmToM(height) < range.min - 0.005 || cmToM(height) > range.max + 0.005) {
+    throw refuse(`Check nodes: ${id} can't hang at ${height} cm.`);
+  }
+  if (!room) throw refuse(`Check nodes: ${id} hangs in a room that isn't in the layout.`);
+  // Whole centimetres either way: a centimetre or two from the wall is the wall.
+  if (offWall(room, model, { x: cmToM(n.x), z: cmToM(n.z), rot: n.rot }) > 0.025) {
+    throw refuse(`Check nodes: ${id} isn't against the wall behind it.`);
+  }
 }
 
 /** Ten minutes (the arrange session's undo, D237). */

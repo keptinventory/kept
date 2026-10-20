@@ -79,6 +79,32 @@ export async function enqueueEmbed(
   );
 }
 
+/** enqueueEmbed() for many things of one write (the spreadsheet's save), the sending scope read
+ * once where the queue can (JobQueue.sendTenantMany): the same job, key and debounce for each. */
+export async function enqueueEmbeds(
+  jobs: JobQueue | null,
+  client: pg.ClientBase,
+  thingIds: readonly string[],
+): Promise<void> {
+  if (!jobs || thingIds.length === 0) return;
+  if (!jobs.sendTenantMany) {
+    for (const thingId of thingIds) await enqueueEmbed(jobs, client, thingId);
+    return;
+  }
+  await jobs.sendTenantMany(
+    client,
+    EMBED_THING_JOB,
+    thingIds.map((thingId) => ({
+      data: { thingId },
+      dedupe: {
+        singletonKey: `embed:${thingId}`,
+        singletonSeconds: EMBED_DEBOUNCE_SECONDS,
+        startAfter: EMBED_DEBOUNCE_SECONDS,
+      },
+    })),
+  );
+}
+
 /** Embeds one thing as `scope`; see the header. */
 export async function embedThing(
   deps: EmbedThingDeps,

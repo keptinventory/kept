@@ -283,6 +283,7 @@ function BoardView({ board }: { board: Board }) {
   const waiting = useQuery({
     queryKey: ['moves', 'waiting', move.id, move.boxes.map((b) => b.state).join()],
     queryFn: () => waitingBoxes(store),
+    networkMode: 'always',
   }).data;
 
   const status = useMutation({

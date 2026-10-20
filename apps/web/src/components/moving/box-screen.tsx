@@ -7,7 +7,8 @@
  *   box's label to put them in. Both work offline.
  * - **Print:** its label (Labels), and its contents sheet (a one-page PDF).
  * - **Track:** In transit and Back to packed; Unpack chooses its room and moves the box with
- *   everything inside it. These work offline too (./offline.ts).
+ *   everything inside it; Change chooses the room it goes to (not once it is unpacked: it is in
+ *   that room). These work offline too (./offline.ts).
  *
  * What is inside comes from the server when online, else from the phone's snapshot
  * (boxcheck/load.ts). Viewers read; members and above change it.
@@ -35,7 +36,7 @@ import {
   Section,
   useErrorText,
 } from '@/components/page';
-import { type PickedPlace, PlacePicker } from '@/components/places/move-picker';
+import type { PickedPlace } from '@/components/places/move-picker';
 import { useKick, useScanStore } from '@/components/scan/use-scan-store';
 import { Sheet } from '@/components/things/sheet';
 import { Button, buttonClass } from '@/components/ui/button';
@@ -44,9 +45,11 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/toast';
 import { useFormat } from '@/lib/format';
 import { useOnline } from '@/lib/online';
+import type { OfflineStore } from '@/offline/store';
 import { UnpackPanel, useBoxWrite } from './box-write';
 import { STATE_TONES, useBoxStateLabels, useBoxTitle } from './labels';
-import { useBoard, useRefreshBoard } from './offline';
+import { setBoxRoom, useBoard, useRefreshBoard } from './offline';
+import { RoomPicker } from './room-picker';
 import { ContentsSheetsSheet } from './sheets';
 
 const linkButton = `${buttonClass('secondary')} no-underline hover:bg-sunken [&_svg]:size-4`;
@@ -101,6 +104,8 @@ function BoxView({ move, box }: { move: Move; box: MoveBox }) {
     queryFn: () => loadBox(box.containerId, { store, online }),
     enabled: box.visible,
     retry: false,
+    // It reads the phone's snapshot itself when there is no signal: never paused for one.
+    networkMode: 'always',
   });
   const remove = useMutation({
     mutationFn: () => movingApi.removeBox(move.id, box.containerId),
@@ -158,13 +163,8 @@ function BoxView({ move, box }: { move: Move; box: MoveBox }) {
               <bdi className="font-semibold text-[20px] [overflow-wrap:anywhere]">
                 {box.destination?.name ?? t`No room chosen yet`}
               </bdi>
-              {canWrite ? (
-                <Button
-                  variant="ghost"
-                  size="small"
-                  isDisabled={!online}
-                  onPress={() => setChoosing(true)}
-                >
+              {canWrite && box.state !== 'unpacked' ? (
+                <Button variant="ghost" size="small" onPress={() => setChoosing(true)}>
                   {box.destination ? <Trans>Change</Trans> : <Trans>Choose</Trans>}
                 </Button>
               ) : null}
@@ -321,7 +321,15 @@ function BoxView({ move, box }: { move: Move; box: MoveBox }) {
         ) : null}
       </Sheet>
       <Sheet isOpen={choosing} onOpenChange={setChoosing} title={t`Room it goes to`}>
-        {choosing ? <ChooseRoom move={move} box={box} onClose={() => setChoosing(false)} /> : null}
+        {choosing ? (
+          <ChooseRoom
+            store={store}
+            onQueued={kick}
+            move={move}
+            box={box}
+            onClose={() => setChoosing(false)}
+          />
+        ) : null}
       </Sheet>
       <ContentsSheetsSheet
         isOpen={sheet}
@@ -333,12 +341,29 @@ function BoxView({ move, box }: { move: Move; box: MoveBox }) {
   );
 }
 
-/** The room a box goes to, printed on its contents sheet; needs a connection. */
-function ChooseRoom({ move, box, onClose }: { move: Move; box: MoveBox; onClose: () => void }) {
+/**
+ * The room a box goes to, printed on its contents sheet: the destination's rooms from the phone's
+ * snapshot, so it works with no signal (./offline.ts setBoxRoom). Online it is saved at once, and
+ * is simply chosen again to change it; offline it waits on the phone, with Undo while it waits.
+ */
+function ChooseRoom({
+  store,
+  onQueued,
+  move,
+  box,
+  onClose,
+}: {
+  store: OfflineStore | null;
+  onQueued: () => void;
+  move: Move;
+  box: MoveBox;
+  onClose: () => void;
+}) {
   const { t } = useLingui();
   const errorText = useErrorText();
   const online = useOnline();
   const refresh = useRefreshBoard();
+  const boxTitle = useBoxTitle();
   const [room, setRoom] = useState<PickedPlace | null>(
     box.destination
       ? {
@@ -348,41 +373,75 @@ function ChooseRoom({ move, box, onClose }: { move: Move; box: MoveBox; onClose:
         }
       : null,
   );
-  const save = useMutation({
-    mutationFn: () =>
-      movingApi.updateBox(move.id, box.containerId, { destinationPlaceId: room?.placeId ?? null }),
-    onSuccess: async () => {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<unknown>(null);
+  const save = async () => {
+    if (!room) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const written = await setBoxRoom({ store, online, move, box, placeId: room.placeId });
       await refresh(move.id);
       onClose();
-    },
-  });
+      if (written.via === 'server') return;
+      onQueued();
+      const name = boxTitle(box.number);
+      const where = room.name;
+      toast(
+        {
+          title: t`${name} goes to ${where}`,
+          description: t`On this phone; it syncs when you're online.`,
+          tone: 'ok',
+          action: {
+            label: t`Undo`,
+            onAction: () =>
+              void store?.unqueue([written.key]).then(async (gone) => {
+                await refresh(move.id);
+                toast(
+                  gone.length
+                    ? { title: t`Undone`, tone: 'ok' }
+                    : {
+                        title: t`Couldn't undo that`,
+                        description: t`It has already synced. Choose the room again.`,
+                        tone: 'danger',
+                      },
+                );
+              }),
+          },
+        },
+        { timeout: 10_000 },
+      );
+    } catch (e) {
+      setError(e);
+    } finally {
+      setBusy(false);
+    }
+  };
   return (
     <form
       noValidate
       className="grid gap-4"
       onSubmit={(e) => {
         e.preventDefault();
-        save.mutate();
+        void save();
       }}
     >
-      <PlacePicker
+      <RoomPicker
+        store={store}
         label={t`Room it goes to`}
-        locationIds={[move.toLocationId ?? move.locationId]}
-        includeUnplaced={false}
+        locationId={move.toLocationId ?? move.locationId}
         value={room}
-        onChange={setRoom}
+        onChange={(r) => {
+          setRoom(r);
+          setError(null);
+        }}
       />
-      {save.error ? <Notice tone="danger">{errorText(save.error)}</Notice> : null}
-      {online ? null : (
-        <p className="m-0 text-small text-ink-2">
-          <Trans>Needs a connection</Trans>
-        </p>
-      )}
+      {error ? <Notice tone="danger">{errorText(error)}</Notice> : null}
       <DialogFooter>
         <Button variant="secondary" onPress={onClose}>
           <Trans>Cancel</Trans>
         </Button>
-        <Button type="submit" isPending={save.isPending} isDisabled={!online || !room}>
+        <Button type="submit" isPending={busy} isDisabled={!room}>
           <Trans>Save</Trans>
         </Button>
       </DialogFooter>

@@ -72,7 +72,8 @@ describe('ShapePicker', () => {
     const { user } = await picker();
     await user.type(screen.getByRole('searchbox', { name: 'Find a shape' }), 'Fernseher');
     const options = screen.getAllByRole('option');
-    expect(options.map((o) => o.textContent)).toEqual(['TV']);
+    // The TV first, then the one on a wall ("Fernseher an der Wand", #138).
+    expect(options.map((o) => o.textContent)).toEqual(['TV', 'Wall TV']);
     await user.clear(screen.getByRole('searchbox', { name: 'Find a shape' }));
     await user.type(screen.getByRole('searchbox', { name: 'Find a shape' }), 'webcam');
     expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['Webcam']);

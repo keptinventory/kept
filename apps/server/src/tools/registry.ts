@@ -12,6 +12,15 @@ import {
   updateClaimTool,
 } from './handlers/household.js';
 import {
+  addBoxTool,
+  getMoveTool,
+  listMovesTool,
+  packIntoBoxTool,
+  setBoxStatusTool,
+  startMoveTool,
+  unpackBoxTool,
+} from './handlers/moving.js';
+import {
   capabilities,
   findDocuments,
   getThing,
@@ -37,8 +46,8 @@ import type { Handler, HandlerTable } from './types.js';
 // The handlers, one per TOOL_DEFS entry whose service exists (step-6 plan T9, Q10). A contract
 // without a handler is never offered (`capabilities`, toolsFor()) and answers
 // `tool_unavailable`. Step 4's services exist, so its tools are here; step 5's join with their
-// services (log_service with schedules/services.ts, log_fuel with fuel/service.ts), and step 7's
-// adjust_stock with consumables/service.ts.
+// services (log_service with schedules/services.ts, log_fuel with fuel/service.ts), step 7's
+// adjust_stock with consumables/service.ts, and 1.x's Moving mode tools with moving/service.ts.
 
 const HANDLERS: HandlerTable = {
   capabilities,
@@ -71,6 +80,14 @@ const HANDLERS: HandlerTable = {
   log_fuel: logFuelTool,
   // Step 7's service (consumables).
   adjust_stock: adjustStockTool,
+  // 1.x's Moving mode (D251), MCP only.
+  list_moves: listMovesTool,
+  get_move: getMoveTool,
+  start_move: startMoveTool,
+  add_box: addBoxTool,
+  pack_into_box: packIntoBoxTool,
+  set_box_status: setBoxStatusTool,
+  unpack_box: unpackBoxTool,
 };
 
 export function handlerOf<N extends ToolName>(name: N): Handler<N> | undefined {

@@ -89,6 +89,7 @@ type MapJson = {
       rot: number;
       model: string | null;
       hostId: string | null;
+      height: number | null;
     } | null;
   }[];
   things: {
@@ -289,7 +290,14 @@ describe('PUT /api/v1/locations/:id/layout', () => {
     });
     // The TV is on the map now, standing on the box.
     const tv = map.nodes.find((n) => n.id === ids.tv);
-    expect(tv?.layout).toEqual({ x: 210, z: 310, rot: 0, model: 'laptop', hostId: ids.box });
+    expect(tv?.layout).toEqual({
+      x: 210,
+      z: 310,
+      rot: 0,
+      model: 'laptop',
+      hostId: ids.box,
+      height: null,
+    });
     expect(map.nodes.find((n) => n.id === ids.box)?.layout?.rot).toBe(90);
   });
 
@@ -432,6 +440,128 @@ describe('PUT /api/v1/locations/:id/layout', () => {
       await sql('DELETE FROM public.map_nodes WHERE place_id = $1', [study]);
       await sql('DELETE FROM public.places WHERE id = $1', [study]);
     }
+  });
+});
+
+describe('things on a wall (#138)', () => {
+  /** The living room (600 × 500 cm): a wall TV over a TV stand on its back wall, a tool wall on
+   * its left wall with a drill, a shelf (the box) on its right wall with a succulent. */
+  const hung = (version: string | null) => {
+    const base = fullLayout(version);
+    return {
+      ...base,
+      nodes: [
+        // The shelf place is the tool wall, flat against the −x wall (its back there: turn 270).
+        { id: ids.shelf, x: 10, z: 100, rot: 270, model: 'tool_wall', hostId: null, height: 130 },
+        { id: ids.drill, x: 13, z: 120, rot: 270, model: 'drill', hostId: ids.shelf },
+        // The box is a wall shelf on the +x wall (turn 90): 600 − 10 − 22.
+        { id: ids.box, x: 568, z: 200, rot: 90, model: 'wall_shelf', hostId: null, height: 150 },
+        { id: ids.batteries, x: 570, z: 220, rot: 90, model: 'succulent', hostId: ids.box },
+        // The TV on the −z wall at eye level.
+        { id: ids.tv, x: 200, z: 10, rot: 0, model: 'wall_tv', hostId: null, height: 120 },
+      ],
+    };
+  };
+
+  it('stores how high a thing hangs, and the map reads it back with what hangs on it', async () => {
+    const res = await putLayout(max, hung(null));
+    expect(res.statusCode, res.body).toBe(200);
+    const map = await json<MapJson>(getMap(vic));
+    const layout = (id: string) => map.nodes.find((n) => n.id === id)?.layout;
+    expect(layout(ids.tv)).toMatchObject({ model: 'wall_tv', rot: 0, z: 10, height: 120 });
+    expect(layout(ids.shelf)).toMatchObject({ model: 'tool_wall', height: 130 });
+    expect(layout(ids.drill)).toMatchObject({ hostId: ids.shelf, height: null });
+    expect(layout(ids.box)).toMatchObject({ model: 'wall_shelf', rot: 90, height: 150 });
+    expect(layout(ids.batteries)).toMatchObject({ hostId: ids.box, height: null });
+    // Map only: nothing moved in Kept.
+    const [drill] = await sql<{ place_id: string }>(
+      'SELECT place_id FROM public.things WHERE id = $1',
+      [ids.drill],
+    );
+    expect(drill?.place_id).toBe(ids.shelf);
+  });
+
+  it('still saves and reads an older map, with no heights at all', async () => {
+    const old = fullLayout(null);
+    expect('height' in (old.nodes[0] ?? {})).toBe(false);
+    expect((await putLayout(ola, old)).statusCode).toBe(200);
+    const map = await json<MapJson>(getMap(ola));
+    for (const n of map.nodes.filter((x) => x.layout)) expect(n.layout?.height).toBeNull();
+    // An older map's tool wall, standing where it was, without a height, is kept as it is.
+    const before = {
+      ...fullLayout(map.version),
+      nodes: [{ id: ids.shelf, x: 300, z: 300, rot: 0, model: 'tool_wall', hostId: null }],
+    };
+    expect((await putLayout(ola, before)).statusCode).toBe(200);
+  });
+
+  it('refuses a height on what doesn’t hang, off its wall, too low or high, or on something', async () => {
+    const base = hung(null);
+    const [shelf, drill, box, batteries, tv] = base.nodes as [
+      (typeof base.nodes)[0],
+      (typeof base.nodes)[0],
+      (typeof base.nodes)[0],
+      (typeof base.nodes)[0],
+      (typeof base.nodes)[0],
+    ];
+    const cases: [string, unknown][] = [
+      ['a laptop has no wall', { ...base, nodes: [{ ...tv, model: 'laptop' }] }],
+      ['off its wall', { ...base, nodes: [{ ...tv, z: 200 }] }],
+      ['turned away from its wall', { ...base, nodes: [{ ...tv, rot: 180 }] }],
+      ['below the floor', { ...base, nodes: [{ ...tv, height: 20 }] }],
+      ['above the top', { ...base, nodes: [{ ...tv, height: 290 }] }],
+      ['past any wall', { ...base, nodes: [{ ...tv, height: 301 }] }],
+      [
+        'on a holder',
+        { ...base, nodes: [box, { ...tv, x: 568, z: 210, rot: 90, hostId: ids.box }] },
+      ],
+      [
+        'a wall thing stood on a shelf',
+        { ...base, nodes: [box, { ...tv, height: null, hostId: ids.box }] },
+      ],
+      ['a height on what it carries', { ...base, nodes: [shelf, { ...drill, height: 140 }] }],
+      [
+        'in a room left out',
+        { ...base, rooms: base.rooms.filter((r) => r.id !== ids.living), nodes: [tv] },
+      ],
+      [
+        'too big for the tool wall’s hooks',
+        { ...base, nodes: [shelf, { ...drill, model: 'bike' }] },
+      ],
+    ];
+    for (const [why, body] of cases) {
+      const res = await putLayout(ola, body);
+      expect(res.statusCode, `${why}: ${res.body}`).toBe(400);
+    }
+    expect((await putLayout(ola, { ...base, nodes: [box, batteries] })).statusCode).toBe(200);
+  });
+
+  it('undoes a change of height with the rest of the session', async () => {
+    const v1 = (await json<{ version: string }>(putLayout(ola, hung(null)))).version;
+    const higher = hung(v1);
+    higher.nodes[4] = { ...higher.nodes[4], height: 160 } as (typeof higher.nodes)[number];
+    const res = await putLayout(max, higher);
+    expect(res.statusCode, res.body).toBe(200);
+    let map = await json<MapJson>(getMap(ola));
+    expect(map.nodes.find((n) => n.id === ids.tv)?.layout?.height).toBe(160);
+    const eventId = String(res.headers['x-kept-audit-event']);
+    const undo = await call(t, `/api/v1/audit/${eventId}/undo`, { as: max, body: {} });
+    expect(undo.statusCode, undo.body).toBe(200);
+    map = await json<MapJson>(getMap(ola));
+    expect(map.nodes.find((n) => n.id === ids.tv)?.layout?.height).toBe(120);
+    expect(map.nodes.find((n) => n.id === ids.drill)?.layout?.hostId).toBe(ids.shelf);
+  });
+
+  it('keeps the database to the same rules', async () => {
+    const insert = (height: number, extra = '') =>
+      sql(
+        `INSERT INTO public.map_nodes (location_id, thing_id, x_cm, z_cm, rot, model, height_cm${extra ? ', host_id' : ''})
+         VALUES ($1, $2, 200, 10, 0, 'wall_tv', $3${extra ? ', $4' : ''})`,
+        extra ? [home.id, ids.tv, height, extra] : [home.id, ids.tv, height],
+      );
+    await expect(insert(301)).rejects.toThrow(/map_nodes_height_chk/);
+    await expect(insert(120, ids.box)).rejects.toThrow(/map_nodes_height_chk/);
+    await insert(120);
   });
 });
 

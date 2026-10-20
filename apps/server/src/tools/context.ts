@@ -27,8 +27,9 @@ import type {
 
 // runTool(): the one way a tool runs, for the assistant (T13) and MCP (T11), step-6 plan T9.
 //
-// 1. The tool exists and has a handler (a contract whose service isn't built yet has none, Q10),
-//    and its input parses against TOOL_DEFS: anything else is `{error, hint}`, never a throw.
+// 1. The tool exists, has a handler (a contract whose service isn't built yet has none, Q10) and
+//    is offered at this door (`doors`: the moving tools are MCP's only), and its input parses
+//    against TOOL_DEFS: anything else is `{error, hint}`, never a throw.
 // 2. A read principal never runs a write tool (`token_scope`).
 // 3. In one withScope() transaction as the principal: the target location is resolved (the
 //    argument, else the row the input addresses, else the only reachable one, D179), and
@@ -87,6 +88,8 @@ export function toolsIn(
     const def = TOOL_DEFS[name];
     const handler = handlerOf(name) as Handler<ToolName> | undefined;
     if (!handler) continue;
+    // A tool for one door only (the moving tools are MCP's): never offered at the other.
+    if (!def.doors.includes(via)) continue;
     if (def.module && !modules.has(def.module)) continue;
     if (def.scope === 'write' && principal.scope !== 'write') continue;
     if (!can(role, handler.action)) continue;
@@ -188,6 +191,7 @@ export async function runTool(
   const handler = handlerOf(name) as Handler<ToolName> | undefined;
   if (!handler) return toolError('tool_unavailable', UNAVAILABLE_HINT);
   const def = TOOL_DEFS[name];
+  if (!def.doors.includes(ctx.via)) return toolError('tool_unavailable', UNAVAILABLE_HINT);
   const parsed = def.input.safeParse(args ?? {});
   if (!parsed.success) return toolError('validation', parseHint(parsed.error));
   const input = parsed.data as never;

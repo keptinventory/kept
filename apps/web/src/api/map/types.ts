@@ -19,6 +19,9 @@ export type MapNodeLayout = {
   rot: number;
   model: string | null;
   hostId: string | null;
+  /** A thing on a wall (#138): how high its middle hangs, in centimetres; null when it stands.
+   * Missing from a map read before #138. */
+  height?: number | null;
 };
 
 export type MapLevelView = { id: string | null; name: string | null };
@@ -91,5 +94,14 @@ export type MapView = {
 export type LayoutBody = {
   version: string | null;
   rooms: ({ id: string } & MapRoomLayout)[];
-  nodes: { id: string; x: number; z: number; rot: number; model: string; hostId: string | null }[];
+  nodes: {
+    id: string;
+    x: number;
+    z: number;
+    rot: number;
+    model: string;
+    hostId: string | null;
+    /** #138: centimetres, for a thing on a wall; null for everything standing. */
+    height: number | null;
+  }[];
 };

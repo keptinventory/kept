@@ -37,8 +37,8 @@ the new one is not older than the old one (an older Kept may refuse an export fr
 2. On the new server, sign in, open **Settings → Import**, and choose the Kept export (the ZIP).
    Kept checks it first and shows what it will add before anything is written; give the passphrase
    to bring the secret values back.
-3. The import makes a **new location** with the things, places, files, condition reports and
-   their history. Printed
+3. The import makes a **new location** with the things, places, files, condition reports, moves
+   and their history. Printed
    labels keep working: a label's short code is kept when it is free on the new server, and
    re-issued when it isn't, in which case scanning the old label still opens the thing.
 4. Invite the people who shared the location; the import lists them, but doesn't invite anyone by

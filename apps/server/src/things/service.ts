@@ -16,7 +16,7 @@ import { audited, auditedMany } from '../audit/audited.js';
 import type { FieldClass } from '../audit/classes.js';
 import { lastChangedBy, undoableUntil } from '../audit/undo.js';
 import type { Scope, Tx } from '../db/scope.js';
-import { enqueueEmbed } from '../embeddings/job.js';
+import { enqueueEmbed, enqueueEmbeds } from '../embeddings/job.js';
 import { assertClientId, checkVersion, decodeCursor, encodeCursor } from '../http/conventions.js';
 import { AppError, forbidden, invalid, notFound } from '../http/errors.js';
 import { filterOf, lowerIds, matchOf } from '../http/list-filters.js';
@@ -32,6 +32,7 @@ import {
   moneyShaped,
   moneyShapedClasses,
   readImage,
+  readImages,
   type ThingImage,
 } from './audit-image.js';
 import {
@@ -93,19 +94,37 @@ export type LiveThing = {
   has_meters: boolean;
 };
 
+const LIVE_COLUMNS = `t.id, t.location_id, t.type_id, t.place_id, t.container_id, t.name,
+            t.quantity::text AS quantity, t.row_version,
+            EXISTS (SELECT 1 FROM public.meters m WHERE m.thing_id = t.id) AS has_meters`;
+
 /** A live (not trashed) thing the caller can see. */
 export async function liveThing(client: pg.ClientBase, id: string): Promise<LiveThing> {
   const { rows } = await client.query<LiveThing>(
-    `SELECT t.id, t.location_id, t.type_id, t.place_id, t.container_id, t.name,
-            t.quantity::text AS quantity, t.row_version,
-            EXISTS (SELECT 1 FROM public.meters m WHERE m.thing_id = t.id) AS has_meters
-       FROM public.things t
-      WHERE t.id = $1 AND t.deleted_at IS NULL`,
+    `SELECT ${LIVE_COLUMNS} FROM public.things t WHERE t.id = $1 AND t.deleted_at IS NULL`,
     [id],
   );
   const row = rows[0];
   if (!row) throw notFound();
   return row;
+}
+
+/** liveThing() for many ids in one query, by id: the ones the caller can't see are absent.
+ * `lock` takes their row locks too (FOR UPDATE, in id order), as writableThing() does one by
+ * one; the caller has checked the role first (see writableThing). */
+export async function liveThings(
+  client: pg.ClientBase,
+  ids: readonly string[],
+  opts: { lock?: boolean } = {},
+): Promise<Map<string, LiveThing>> {
+  if (ids.length === 0) return new Map();
+  const { rows } = await client.query<LiveThing>(
+    `SELECT ${LIVE_COLUMNS} FROM public.things t
+      WHERE t.id = ANY ($1::uuid[]) AND t.deleted_at IS NULL
+      ORDER BY t.id${opts.lock ? ' FOR UPDATE OF t' : ''}`,
+    [ids],
+  );
+  return new Map(rows.map((r) => [r.id, r]));
 }
 
 /**
@@ -691,6 +710,149 @@ export async function writeThingUpdate(
     requestId: ctx.requestId,
     undoableUntil: extras.undoable === false ? null : undoableUntil(),
   });
+}
+
+/** What writeThingUpdates() writes: the plain columns and the tags. A re-type, aliases or custom
+ * fields go through writeThingUpdate(). */
+export const BATCH_UPDATE_KEYS: ReadonlySet<string> = new Set([
+  ...Object.keys(COLUMN_OF),
+  'tagIds',
+]);
+
+export type BatchUpdate = { thing: LiveThing; body: UpdateBody };
+
+const columnsOf = (body: UpdateBody) =>
+  (Object.keys(COLUMN_OF) as (keyof UpdateBody)[]).filter((k) => body[k] !== undefined);
+
+/**
+ * writeThingUpdate() for many things at once (the spreadsheet's save, sheet.ts), in a few
+ * statements instead of about twenty a thing: each thing gets the UPDATE it would get alone (one
+ * statement per set of columns, so each row's SET names the same columns and the same `UPDATE OF`
+ * triggers fire), the same tags, re-embed, reindex and its own `thing.update` audit row (its
+ * before and after image, field classes and undo window), the audit rows in one INSERT.
+ *
+ * The caller has done what writeThingUpdate() checks first: every thing is locked, visible and
+ * editable by the caller's role, at the row version the client read, and every body holds only
+ * BATCH_UPDATE_KEYS with a quantity checkQuantity() accepts. Row-level security still decides
+ * every statement; anything the database refuses (a tag or brand of another account, a CHECK)
+ * fails the whole call, for the caller's savepoint to roll back.
+ */
+export async function writeThingUpdates(ctx: Ctx, updates: readonly BatchUpdate[]): Promise<void> {
+  if (updates.length === 0) return;
+  const { client, tx, scope } = ctx;
+  for (const { body } of updates) {
+    const other = Object.keys(body).find((k) => !BATCH_UPDATE_KEYS.has(k));
+    if (other) throw new Error(`writeThingUpdates: body.${other} needs writeThingUpdate()`);
+  }
+  const ids = updates.map((u) => u.thing.id);
+  const before = await readImages(client, ids);
+
+  const groups = new Map<string, BatchUpdate[]>();
+  for (const u of updates) {
+    const key = columnsOf(u.body).join(',');
+    if (!key) continue;
+    const group = groups.get(key);
+    if (group) group.push(u);
+    else groups.set(key, [u]);
+  }
+  for (const [key, group] of groups) {
+    const keys = key.split(',') as (keyof UpdateBody)[];
+    const columns = keys.map((k) => COLUMN_OF[k] as string);
+    const rows = group.map((u) =>
+      Object.fromEntries([['id', u.thing.id], ...keys.map((k, i) => [columns[i], u.body[k]])]),
+    );
+    // The values typed as the columns are (jsonb_populate_recordset over the table's row type).
+    await client.query(
+      `UPDATE public.things t SET ${columns.map((c) => `${c} = x.${c}`).join(', ')}
+         FROM jsonb_populate_recordset(NULL::public.things, $1::jsonb) x
+        WHERE t.id = x.id`,
+      [JSON.stringify(rows)],
+    );
+  }
+
+  const tagged = updates.filter((u) => u.body.tagIds);
+  if (tagged.length > 0) {
+    const pairs = tagged.flatMap((u) =>
+      [...new Set((u.body.tagIds ?? []).map((x) => x.toLowerCase()))].map((tagId) => ({
+        locationId: u.thing.location_id,
+        thingId: u.thing.id,
+        tagId,
+      })),
+    );
+    await client.query(
+      `DELETE FROM public.thing_tags g
+        WHERE g.thing_id = ANY ($1::uuid[])
+          AND NOT EXISTS (SELECT 1 FROM unnest($2::uuid[], $3::uuid[]) AS k(thing_id, tag_id)
+                           WHERE k.thing_id = g.thing_id AND k.tag_id = g.tag_id)`,
+      [tagged.map((u) => u.thing.id), pairs.map((p) => p.thingId), pairs.map((p) => p.tagId)],
+    );
+    if (pairs.length > 0) {
+      // kept.guard_thing_tags(): a tag of another account, or one the caller can't see, is a
+      // 42501, as in setTags().
+      await client.query(
+        `INSERT INTO public.thing_tags (location_id, thing_id, tag_id)
+         SELECT * FROM unnest($1::uuid[], $2::uuid[], $3::uuid[])
+         ON CONFLICT (thing_id, tag_id) DO NOTHING`,
+        [pairs.map((p) => p.locationId), pairs.map((p) => p.thingId), pairs.map((p) => p.tagId)],
+      );
+    }
+    // Tags-only rows touch the thing so its row version moves (security review #24, setTags()).
+    const tagsOnly = tagged.filter((u) => columnsOf(u.body).length === 0).map((u) => u.thing.id);
+    if (tagsOnly.length > 0) {
+      await client.query(`SELECT set_config('kept.touch', 'force', true)`);
+      await client.query(
+        'UPDATE public.things SET updated_at = now() WHERE id = ANY ($1::uuid[])',
+        [tagsOnly],
+      );
+      await client.query(`SELECT set_config('kept.touch', '', true)`);
+    }
+  }
+
+  const after = await readImages(client, ids);
+  // A renamed thing that holds things leaves their breadcrumbs stale (holdsThings()).
+  const renamed = ids.filter((id) => before.get(id)?.name !== after.get(id)?.name);
+  if (renamed.length > 0) {
+    const { rows } = await client.query<{ location_id: string }>(
+      `SELECT DISTINCT t.location_id FROM public.things t
+        WHERE t.id = ANY ($1::uuid[])
+          AND EXISTS (SELECT 1 FROM public.things c WHERE c.container_id = t.id)`,
+      [renamed],
+    );
+    for (const r of rows) await enqueueReindex(ctx.jobs, client, r.location_id);
+  }
+  await enqueueEmbeds(
+    ctx.jobs,
+    client,
+    updates.filter((u) => EMBED_FIELDS.some((k) => u.body[k] !== undefined)).map((u) => u.thing.id),
+  );
+  const fieldsOf = new Map<string | null, ResolvedFieldView[]>();
+  for (const typeId of new Set(updates.map((u) => u.thing.type_id))) {
+    fieldsOf.set(typeId, await resolvedFields(client, typeId));
+  }
+  const until = undoableUntil();
+  await auditedMany(
+    tx,
+    updates.map(({ thing }) => {
+      const b = before.get(thing.id) as ThingImage;
+      const a = after.get(thing.id) as ThingImage;
+      return {
+        locationId: thing.location_id,
+        actor: actor(scope),
+        action: 'thing.update' as const,
+        entity: { type: 'thing', id: thing.id },
+        before: b,
+        after: a,
+        fieldClasses: {
+          ...moneyShapedClasses(b, a),
+          ...customClasses(fieldsOf.get(thing.type_id) ?? []),
+        },
+        rootThingId: thing.id,
+        subjects: [thing.id],
+        requestId: ctx.requestId,
+        undoableUntil: until,
+      };
+    }),
+  );
 }
 
 // ---------------------------------------------------------------------------------------------
