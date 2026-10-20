@@ -112,14 +112,14 @@ export function legacyLabel(scan: Extract<ScanResult, { kind: 'homebox' }>): str
 
 /**
  * An old Homebox label (D146), through the snapshot's legacy codes. The asset ID is looked up as
- * Homebox prints it (`000-014`); an item or location link by its UUID (inferred: the import, T18
- * and step 7, decides which Homebox value it stores as the code).
+ * Homebox prints it (`000-014`); an item or location link by its UUID, upper-cased as the server
+ * stores every legacy code (both Homebox imports store the asset ID and the UUID).
  */
 export const homeboxResolver: LocalResolver = async (scan, store) => {
   if (scan.kind !== 'homebox') return null;
   const code = legacyLabel(scan);
   if (!code) return null;
-  const hits = await store.byLegacy('homebox', code);
+  const hits = await store.byLegacy('homebox', code.toUpperCase());
   if (hits.length === 0) return null;
   return fromLegacyHits(store, hits, code);
 };
