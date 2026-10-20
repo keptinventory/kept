@@ -225,7 +225,7 @@ describe('PATCH /api/v1/locations/:id', () => {
   });
 
   it('keeps room photos after review when an admin says so, and only then', async () => {
-    const before = await patch(admin, { name: home.name }, home.rowVersion);
+    const before = await patch(admin, { keepRoomPhotos: false }, home.rowVersion);
     expect(before.json()).toMatchObject({ keepRoomPhotos: false });
     expect((await patch(member, { keepRoomPhotos: true }, 2)).statusCode).toBe(403);
     const res = await patch(admin, { keepRoomPhotos: true }, 2);
