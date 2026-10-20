@@ -22,7 +22,9 @@ export const ZIP_LIMITS = Object.freeze({
  * `archive_too_large`, and translated by the web. `unsupported_version` is a manifest newer
  * than this server reads. `encrypted`: an entry with a ZIP password, which Kept
  * can't read (a Kept export's secrets are encrypted inside its data, never with ZIP
- * encryption). `entry_too_large`: a JSON entry or an NDJSON line over the reader's cap. */
+ * encryption). `entry_too_large`: a JSON entry or an NDJSON line over the reader's cap.
+ * `no_manifest`: a Homebox upload with no `manifest.json`, which every export from Homebox
+ * v0.26 on has: an older Homebox's file, or not an export at all. */
 export const ARCHIVE_REFUSALS = [
   'too_many_entries',
   'too_large',
@@ -34,6 +36,7 @@ export const ARCHIVE_REFUSALS = [
   'unsupported_version',
   'encrypted',
   'entry_too_large',
+  'no_manifest',
 ] as const;
 export type ArchiveRefusal = (typeof ARCHIVE_REFUSALS)[number];
 
