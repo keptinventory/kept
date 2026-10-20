@@ -49,33 +49,50 @@ const metaOf = (store: OfflineStore | null): MetaStore | null => {
     : null;
 };
 
-/** A page without an offline database (tests, a browser with none) keeps them in memory. */
+/**
+ * The page's own copy: a page without an offline database (tests, a browser with none) keeps them
+ * here, and so does a board read before the phone's database opened (a box page opened straight
+ * from a link), so it is still there offline once the database has. Once a board is kept in the
+ * database the page's copy is emptied, so the database's 401 wipe (wipe.ts) is the only copy.
+ */
 const inMemory: Remembered = {};
 
 /** At most this many boards are kept: the moves in progress, newest first. */
 const KEEP = 5;
 
-async function readAll(store: OfflineStore | null): Promise<Remembered> {
-  const m = metaOf(store);
-  if (!m) return inMemory;
-  try {
-    return ((await m.meta('moves')) as Remembered | undefined) ?? {};
-  } catch {
-    return {};
-  }
-}
-
-/** Keeps `move` for offline use. Never throws: a full disk only loses the copy. */
-export async function rememberMove(store: OfflineStore | null, move: Move): Promise<void> {
-  const all = { ...(await readAll(store)), [move.id]: { move, at: new Date().toISOString() } };
-  const kept = Object.fromEntries(
+const newest = (all: Remembered): Remembered =>
+  Object.fromEntries(
     Object.entries(all)
       .sort(([, a], [, b]) => b.at.localeCompare(a.at))
       .slice(0, KEEP),
   );
+
+async function readAll(store: OfflineStore | null): Promise<Remembered> {
   const m = metaOf(store);
+  if (!m) return inMemory;
+  let stored: Remembered = {};
+  try {
+    stored = ((await m.meta('moves')) as Remembered | undefined) ?? {};
+  } catch {
+    // Unreadable: the page's copy still serves.
+  }
+  const all: Remembered = { ...stored };
+  for (const [id, r] of Object.entries(inMemory)) {
+    const s = all[id];
+    if (!s || s.at < r.at) all[id] = r;
+  }
+  return newest(all);
+}
+
+/** Keeps `move` for offline use. Never throws: a full disk only loses the copy. */
+export async function rememberMove(store: OfflineStore | null, move: Move): Promise<void> {
+  const kept = newest({
+    ...(await readAll(store)),
+    [move.id]: { move, at: new Date().toISOString() },
+  });
+  const m = metaOf(store);
+  for (const k of Object.keys(inMemory)) delete inMemory[k];
   if (!m) {
-    for (const k of Object.keys(inMemory)) delete inMemory[k];
     Object.assign(inMemory, kept);
     return;
   }
@@ -193,7 +210,8 @@ export function useBoard(
   { store, online }: { store: OfflineStore | null; online: boolean },
 ) {
   return useQuery({
-    queryKey: [...movingKeys.one(id), online ? 'online' : 'offline'],
+    // Read again once the phone's database opens, so the board is kept there too.
+    queryKey: [...movingKeys.one(id), online ? 'online' : 'offline', store ? 'store' : 'page'],
     queryFn: () => loadBoard(id, { store, online }),
     retry: false,
     // It reads the phone's copy itself when there is no signal: never paused for one.

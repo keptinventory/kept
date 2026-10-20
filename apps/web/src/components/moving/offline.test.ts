@@ -73,6 +73,21 @@ describe('the board offline', () => {
     );
   });
 
+  it('a board read before the phone’s database opened is still there offline once it has', async () => {
+    online();
+    const fresh = await loadBoard(MOVE, { store: null, online: true });
+    expect(fresh?.from).toBe('server');
+    // The phone's database (DexieStore) opens afterwards: nothing in it yet.
+    const meta = new Map<string, unknown>();
+    const dexie = Object.assign(new MemoryStore(), {
+      meta: async (key: string) => meta.get(key),
+      setMeta: async (key: string, value: unknown) => void meta.set(key, value),
+    });
+    offline();
+    const kept = await loadBoard(MOVE, { store: dexie, online: true });
+    expect(kept).toMatchObject({ from: 'phone', move: { name: 'Clear-out' } });
+  });
+
   it('a box change goes to the server online, and waits in the queue offline, shown at once', async () => {
     const state = online();
     const store = new MemoryStore();
