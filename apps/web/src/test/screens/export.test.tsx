@@ -1,5 +1,5 @@
 /**
- * Exports (step-7 T21; D68, D149, D180): a location exported with its secrets behind a passphrase
+ * Exports: a location exported with its secrets behind a passphrase
  * given twice; a member exports only their own data; an admin is never offered "Include
  * secrets"; mismatched passphrases hold the button with the reason beside the field; Download
  * asks for a fresh link on each click and keeps none in the page; an expired export offers Export

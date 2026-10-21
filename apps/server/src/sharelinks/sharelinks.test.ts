@@ -20,11 +20,11 @@ import {
 import { createLogger } from '../http/logger.js';
 import { derivativeKey } from '../storage/blob-store.js';
 
-// Read-only share links through the front door (1.5, D233; D39 item 7, D72, D116, D180): made by
-// a location's owner or admin, shown once and stored as a hash; the public page shows the D116
-// whitelist and nothing else, for the box, place or list shared, with photos as short-lived URLs
-// for those things only; revoked, expired or unbacked links are a 404 that never says which; views
-// are counted and limited; the token never reaches a log line.
+// Read-only share links through the front door: made by a location's owner or admin, shown once and
+// stored as a hash; the public page shows the public-field whitelist and nothing else, for the box,
+// place or list shared, with photos as short-lived URLs for those things only; revoked, expired or
+// unbacked links are a 404 that never says which; views are counted and limited; the token never
+// reaches a log line.
 
 let db: TestDb;
 let t: TestApp;
@@ -142,8 +142,8 @@ async function photo(loc: Loc, thingId: string, by: Person): Promise<string> {
 }
 
 /** Home with a garage shelf, a box on it holding a drill (and a pouch with bits), and things
- * that must not show: a draft, a trashed thing, a sold one. The drill carries everything D116
- * keeps off the page: a price, a serial, a model, a brand, an owner, a tag. */
+ * that must not show: a draft, a trashed thing, a sold one. The drill carries everything the
+ * whitelist keeps off the page: a price, a serial, a model, a brand, an owner, a tag. */
 async function household(owner: Person) {
   const home = await createLocation(t, db, owner, 'complete');
   const garage = await place(db, home, 'Garage');
@@ -308,7 +308,7 @@ describe('making, listing and revoking links', () => {
 });
 
 describe('GET /api/v1/shared/:token', () => {
-  it('shows a box and what is in it, the D116 whitelist and nothing else', async () => {
+  it('shows a box and what is in it, the public-field whitelist and nothing else', async () => {
     const bruce = await person(t, db, 'bruce');
     const h = await household(bruce);
     const made = await share(bruce, h.home, { thingId: h.box.id });
@@ -458,7 +458,7 @@ describe('GET /api/v1/shared/:token', () => {
     expect(gone.statusCode).toBe(404);
     expect(gone.body).toBe(unknown.body);
 
-    // Its creator no longer administers the location (D180): stopped, and back if they do again.
+    // Its creator no longer administers the location: stopped, and back if they do again.
     const byAlfred = await share(alfred, h.home, { placeId: h.garage });
     expect((await open(byAlfred.token)).statusCode).toBe(200);
     await own(
@@ -531,7 +531,7 @@ describe('GET /api/v1/shared/:token', () => {
     expect(second.nextPage).toBeNull();
   });
 
-  it('never writes the token to a log line (D181)', async () => {
+  it('never writes the token to a log line', async () => {
     const bruce = await person(t, db, 'bruce');
     const h = await household(bruce);
     const made = await share(bruce, h.home, { placeId: h.garage });

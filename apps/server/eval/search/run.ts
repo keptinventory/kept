@@ -146,7 +146,7 @@ export function renderSearchReport(
       (m) =>
         `| ${m.mode} | ${f3(m.recall10)} | ${f3(m.mrr)} | ${f3(m.byKind.words?.recall10 ?? 0)} | ${f3(m.byKind.words?.mrr ?? 0)} | ${f3(m.byKind.meaning?.recall10 ?? 0)} | ${f3(m.byKind.meaning?.mrr ?? 0)} |`,
     ),
-    '| local | not built (spike S6.5) | | | | | |',
+    '| local | not built | | | | | |',
     '',
     '| Case | Keyword recall@10 | Provider recall@10 | Provider RR | Semantic state |',
     '|---|---|---|---|---|',

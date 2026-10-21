@@ -16,7 +16,7 @@ const req = (over: Partial<ReserveRequest> = {}): ReserveRequest => ({
   ...over,
 });
 
-describe('bucketsFor (§7.15)', () => {
+describe('bucketsFor', () => {
   it('account-paid work in a location', () => {
     expect(bucketsFor(req())).toEqual([
       'account:acct-1',
@@ -45,7 +45,7 @@ describe('bucketsFor (§7.15)', () => {
   });
 });
 
-describe('InMemoryBudgetGate (D206 caps)', () => {
+describe('InMemoryBudgetGate (the caps)', () => {
   it('a location cap pauses that location only', async () => {
     const gate = new InMemoryBudgetGate([
       capRow({
@@ -110,7 +110,7 @@ describe('InMemoryBudgetGate (D206 caps)', () => {
     );
   });
 
-  it('the default per-task budget applies without a row (Q7): TPM is a wait, the day a pause', async () => {
+  it('the default per-task budget applies without a row: TPM is a wait, the day a pause', async () => {
     const gate = new InMemoryBudgetGate();
     expect(await gate.reserve(req({ estimateTokens: 60_001 }))).toMatchObject({
       ok: false,

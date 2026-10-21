@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type PgTools, pgTools } from '../src/backup/pg-tools.js';
 
-// pg_dump and pg_restore for the backup tests (T31c). They must be the database server's major
+// pg_dump and pg_restore for the backup tests. They must be the database server's major
 // version (18). A developer's machine often has another one on the PATH (Homebrew's default is
 // older), so when the local tools don't match, the tests run the ones inside the dev database's
 // own container (compose.dev.yaml's `db`, pgvector/pgvector:*-pg18), which match it by

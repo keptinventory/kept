@@ -57,7 +57,7 @@ describe('template database per vitest worker', () => {
       const currencies = await client.query(
         'SELECT count(*)::int AS n FROM public.currencies WHERE enabled',
       );
-      // The five enabled by default (0004, then the reference seed's ISO list, D136).
+      // The five enabled by default (0004, then the reference seed's ISO list).
       expect(currencies.rows[0].n).toBe(5);
 
       await client.query('DROP TABLE public."Harness Scratch"');

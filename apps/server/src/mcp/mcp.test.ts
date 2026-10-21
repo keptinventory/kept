@@ -6,7 +6,7 @@ import { type TestDb, testDb } from '../../test/db.js';
 import { call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { createLocation, createThing, type Json, type Loc, ok, own } from '../../test/things.js';
 
-// T11: `/mcp` through the official client (@modelcontextprotocol/client 2.2.0), with its HTTP
+// `/mcp` through the official client (@modelcontextprotocol/client 2.2.0), with its HTTP
 // routed into the app (app.inject), pinned to 2026-07-28 and in its default (2025) mode. Ibrahim
 // owns Home (every module, MCP on) and Garage (essentials: no MCP); Louis is a member of both,
 // Talia a viewer of Home.
@@ -23,7 +23,7 @@ const clients: Client[] = [];
 beforeAll(async () => {
   db = await testDb();
   await db.reset();
-  // Token creation is https only (D181).
+  // Token creation is https only.
   t = await peopleApp(db, { publicUrl: 'https://kept.example' });
   ibrahim = await person(t, db, 'ibrahim');
   louis = await person(t, db, 'louis');
@@ -94,7 +94,7 @@ async function token(who: Person, scope: 'read' | 'write', locationIds: string[]
   return ok(res, 201) as unknown as { token: Json; secret: string };
 }
 
-/** A tool's text, parsed, with its size checked against the 8 KB contract (D63). */
+/** A tool's text, parsed, with its size checked against the 8 KB contract. */
 function answer(result: { content?: unknown; isError?: boolean }): Json {
   const part = (result.content as { type: string; text: string }[])[0];
   expect(part?.type).toBe('text');
@@ -195,7 +195,7 @@ describe('/mcp', () => {
     );
   });
 
-  it('refuses a token per call once its creator loses the role (D180), in Kept’s words', async () => {
+  it('refuses a token per call once its creator loses the role, in Kept’s words', async () => {
     const peter = await person(t, db, 'louis-two');
     const membership = await join(db, home.id, peter.userId, 'member');
     const { secret } = await token(peter, 'read', [home.id]);

@@ -1,5 +1,5 @@
 /**
- * Every dry-run reason has a sentence of its own (step-7 T19): a test walks IMPORT_ISSUE_CODES,
+ * Every dry-run reason has a sentence of its own: a test walks IMPORT_ISSUE_CODES,
  * the CSV, archive and Homebox codes alike, and fails on one that falls back to the server's
  * English message. Every ARCHIVE_REFUSALS reason has its words too.
  */

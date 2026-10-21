@@ -10,7 +10,7 @@ import { recoveryKitStatus } from '../setup/recovery-kit.js';
 import { recoveryKitCommand } from './recovery-kit.js';
 import { rotateKey } from './rotate-key.js';
 
-// `kept admin recovery-kit [--format text|html] [--out <file>]` (step-8 T9; D165, D182), run in
+// `kept admin recovery-kit [--format text|html] [--out <file>]`, run in
 // process: the full kit with the backup half from the database, a 0600 file, the download
 // recorded and audited, and `kept admin rotate-key` making it stale.
 
@@ -25,7 +25,7 @@ beforeAll(async () => {
   await db.reset();
   dir = await mkdtemp(path.join(tmpdir(), 'kept-kit-cli-'));
   configDir = path.join(dir, 'config');
-  // The server's keys, generated into the config volume on first boot (D193).
+  // The server's keys, generated into the config volume on first boot.
   await loadEnv(
     {
       KEPT_DATABASE_URL: 'postgres://kept_app:kept_app@localhost:5452/kept',

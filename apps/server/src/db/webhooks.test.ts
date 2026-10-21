@@ -12,8 +12,9 @@ import {
 } from '../../test/tenancy.js';
 import { type Scope, withScope, withSystem } from './scope.js';
 
-// Step-6 T7 (0077, 0078): location webhooks with write-only secrets, their deliveries, D180's
-// switch-off, Better Auth's OAuth tables, and the step-6 instance settings (D63, D110, D180).
+// Migrations 0077, 0078: location webhooks with write-only secrets, their deliveries, the
+// switch-off when a creator loses the admin role, Better Auth's OAuth tables, and the step-6
+// instance settings.
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });
@@ -60,7 +61,7 @@ beforeEach(async () => {
   alfred = await seedTenant(db, 'wh-alfred', { name: 'بيت العائلة' });
 });
 
-describe('webhooks (D63, D180)', () => {
+describe('webhooks', () => {
   it("are their location's admins' to add and read; a member neither sees nor adds one", async () => {
     const id = await hook(bruce);
     const seen = (userId: string) =>
@@ -126,7 +127,7 @@ describe('webhooks (D63, D180)', () => {
     expect((await pgError(hook(bruce, []))).constraint).toBe('webhooks_events_chk');
   });
 
-  it("stops Bruce's hooks when he stops administering Home, and leaves Ibrahim's (D180)", async () => {
+  it("stops Bruce's hooks when he stops administering Home, and leaves Ibrahim's", async () => {
     const his = await hook(bruce);
     const ibrahims = await hook(ibrahim.userId);
     await as(user(ibrahim.userId), (c) =>
@@ -180,7 +181,7 @@ describe('webhooks (D63, D180)', () => {
   });
 });
 
-describe('webhook deliveries (§3.1b)', () => {
+describe('webhook deliveries', () => {
   const deliver = (webhookId: string, eventId: string) =>
     system((c) =>
       c.query(
@@ -275,11 +276,11 @@ describe("Better Auth's OAuth tables (S6.2)", () => {
   });
 });
 
-describe('instance settings (T7 step 3)', () => {
+describe('instance settings', () => {
   const set = (key: string, value: string) =>
     own('INSERT INTO public.instance_settings (key, value) VALUES ($1, $2::jsonb)', [key, value]);
 
-  it('holds the step-6 keys to their shapes, and leaves every other key alone', async () => {
+  it('holds the connection settings keys to their shapes, and leaves every other key alone', async () => {
     await set('embeddings_source', '"local"');
     await set('assistant_thread_days', '30');
     await set('oidc_config_hash', `"${'a'.repeat(64)}"`);

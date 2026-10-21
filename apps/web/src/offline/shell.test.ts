@@ -1,7 +1,7 @@
 /**
  * The frame's last-known state for a cold start offline (shell.ts, shell-db.ts): only what the
  * shell reads, never the email; it lives in the person's own database and goes with the cache on
- * a 401 (D181, D210).
+ * a 401.
  */
 import { newId } from '@kept/shared';
 import { describe, expect, it } from 'vitest';
@@ -89,7 +89,7 @@ describe('the shell copy', () => {
     expect(readShell(undefined, 'u1')).toBeNull();
   });
 
-  it('lives in the person’s database, and a 401 takes it with the cache (D210)', async () => {
+  it('lives in the person’s database, and a 401 takes it with the cache', async () => {
     const idb = fakeIdb();
     const id = newId();
     const store = makeDexieStore(id, idb);

@@ -1,5 +1,5 @@
 /**
- * The inbox (task 27; D18, D36, D175, D191, D205, D206), against the mock server: kind chips with
+ * The inbox (task 27), against the mock server: kind chips with
  * zero counts hidden, the keyboard map driving confirm, reject, accept and next, the currency item
  * with no default, bulk accept with one Undo, receipts linking their lines, duplicates merging
  * into the survivor chosen, the AI states, the offline read-only state with drafts still on the
@@ -37,7 +37,7 @@ const card = async (name: string) =>
   within(await inboxList()).findByRole('article', { name }, { timeout: 3000 });
 
 describe('the inbox', () => {
-  it('lists Mine by capture batch; a kind chip with no items is hidden (D191)', async () => {
+  it('lists Mine by capture batch; a kind chip with no items is hidden', async () => {
     const { user } = await renderApp('/inbox');
     await findHeading('Inbox');
     const list = await inboxList();
@@ -106,7 +106,7 @@ describe('the inbox', () => {
     ).toMatch(/Nov 14, 2025/);
   });
 
-  it('never offers Confirm on a field accept cannot write (T15 answers 400 for it)', async () => {
+  it('never offers Confirm on a field accept cannot write (the server answers 400 for it)', async () => {
     const state = ownerScenario();
     const item = state.capture.inbox.find((i) => i.id === I.driver);
     if (!item?.suggestions?.[0]) throw new Error('no driver item');
@@ -131,7 +131,7 @@ describe('the inbox', () => {
     );
   });
 
-  it('offers an Arabic alias AI proposed for confirming (D214), and Accept sends it', async () => {
+  it('offers an Arabic alias AI proposed for confirming, and Accept sends it', async () => {
     const state = ownerScenario();
     const item = state.capture.inbox.find((i) => i.id === I.driver);
     if (!item?.suggestions?.[0]) throw new Error('no driver item');
@@ -150,7 +150,7 @@ describe('the inbox', () => {
     );
   });
 
-  it('asks which currency "$" was, with no default (D189)', async () => {
+  it('asks which currency "$" was, with no default', async () => {
     const { user, mock } = await renderApp('/inbox?f.kind=currency');
     // Named apart from the receipt's own review item (both are "Hardware Depot receipt" on screen).
     const receipt = await card('Hardware Depot receipt · Needs a currency');
@@ -170,7 +170,7 @@ describe('the inbox', () => {
     );
   });
 
-  it('a receipt waiting for its currency takes the answer given in "Needs a currency" (D189)', async () => {
+  it('a receipt waiting for its currency takes the answer given in "Needs a currency"', async () => {
     const state = ownerScenario();
     const ace = state.capture.inbox.find((i) => i.id === I.aceReceipt)?.receipt;
     if (!ace) throw new Error('no Ace Hardware receipt in the fixtures');
@@ -228,7 +228,7 @@ describe('the inbox', () => {
     expect(shop).toHaveValue('Corner shop');
   });
 
-  it('accepts the names of a selection, and one Undo reverts them all (D150)', async () => {
+  it('accepts the names of a selection, and one Undo reverts them all', async () => {
     const { user, mock } = await renderApp('/inbox?f.kind=draft');
     await card('Extension cord, 5 m');
     await user.click(screen.getByRole('checkbox', { name: 'Select Extension cord, 5 m' }));
@@ -283,7 +283,7 @@ describe('the inbox', () => {
     ]);
   });
 
-  it('merges a duplicate into the one chosen to stay (D36)', async () => {
+  it('merges a duplicate into the one chosen to stay', async () => {
     const { user, mock } = await renderApp('/inbox?f.mine=everyone&f.kind=duplicate');
     const dup = await card('Cable box');
     expect(dup.textContent).toMatch(/Merging keeps both histories/);

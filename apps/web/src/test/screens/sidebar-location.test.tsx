@@ -1,5 +1,5 @@
 /**
- * The sidebar's Locations list follows the location you are in (builds D224): its own page marks
+ * The sidebar's Locations list follows the location you are in: its own page marks
  * the row as the current page; a place, a thing (any tab), a container, the location's settings and
  * a condition report mark it as the current location. Pages across locations mark none.
  */

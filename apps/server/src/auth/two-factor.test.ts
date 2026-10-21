@@ -36,7 +36,7 @@ describe('two-factor on every sign-in method', () => {
     const email = `u-${randomUUID()}@example.com`;
     const signedIn = await signUp(auth, email, PASSWORD);
     // The address's own owner: verified, so a magic link signs in rather than claiming the
-    // account (D197), which would remove the TOTP enrolled here.
+    // account, which would remove the TOTP enrolled here.
     await userEmail(db, signedIn.userId, true);
     const { secret } = await enrolTotp(auth, signedIn, PASSWORD);
     user = { ...signedIn, email, secret };
@@ -158,7 +158,7 @@ describe('two-factor on every sign-in method', () => {
       r.status === 'rejected' ? (r.reason as { statusCode: number }).statusCode : 200,
     );
     // Each attempt is reserved before it is verified, so no more than the free allowance ever
-    // reaches the code check; the rest wait (D172).
+    // reaches the code check; the rest wait.
     expect(statuses.filter((s) => s === 401)).toHaveLength(FREE_FAILURES + 1);
     expect(statuses.filter((s) => s === 429)).toHaveLength(30 - (FREE_FAILURES + 1));
     expect(await resolve(cookie)).toMatchObject({ mfaPending: true });

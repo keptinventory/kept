@@ -1,5 +1,5 @@
 /**
- * Moving mode offline (1.x, D251): the board is remembered when read online and read back from
+ * Moving mode offline (1.x): the board is remembered when read online and read back from
  * the phone without signal; a box change goes to the server when it can and waits in the queue
  * as a `move_box` op when it can't, shown on the board at once; an unpack waiting on the phone
  * shows the box in its room. Choosing a box's room works the same way, as `move_box_room`.

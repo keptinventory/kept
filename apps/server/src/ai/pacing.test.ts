@@ -39,7 +39,7 @@ describe('parseGoDuration', () => {
 });
 
 describe('readLimits', () => {
-  it('reads Groq’s headers as the spike recorded them', () => {
+  it('reads Groq’s headers as recorded from the real API', () => {
     const limits = readLimits(
       'groq',
       {

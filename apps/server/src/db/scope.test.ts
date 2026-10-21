@@ -53,7 +53,7 @@ describe('withScope', () => {
     expect(rows[0].uid).toBeNull();
   });
 
-  it('sets app.token_id for a token principal, and clears it after (step 6, Q6)', async () => {
+  it('sets app.token_id for a token principal, and clears it after', async () => {
     const userId = newId();
     const tokenId = newId();
     const seen = await withScope(app, { userId, mfa: false, tokenId }, async (_tx, client) => {

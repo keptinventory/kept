@@ -15,7 +15,7 @@ import {
   stripMoney,
 } from './gates.js';
 
-// T2 step 2: money and secrets leave the server only through these gates (D13, D110, D116).
+// T2 step 2: money and secrets leave the server only through these gates.
 
 const db = await testDb();
 

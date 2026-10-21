@@ -83,7 +83,7 @@ describe('the fetch wrapper', () => {
     expect(await api.del('/x')).toBeUndefined();
   });
 
-  it("keeps a Kept error's extra fields as details (a 412's conflicts, D156)", async () => {
+  it("keeps a Kept error's extra fields as details (a 412's conflicts)", async () => {
     vi.stubGlobal(
       'fetch',
       reply(412, {
@@ -122,7 +122,7 @@ describe('the fetch wrapper', () => {
   });
 });
 
-describe('X-Kept-Audit-Event (D150, §7.7)', () => {
+describe('X-Kept-Audit-Event', () => {
   it('splits one id, several for a bulk move, or none', () => {
     expect(auditEventIds('a1')).toEqual(['a1']);
     expect(auditEventIds('a1, b2, c3')).toEqual(['a1', 'b2', 'c3']);

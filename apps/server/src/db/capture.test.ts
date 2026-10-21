@@ -14,7 +14,7 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Extractions, the inbox, templates, imports and file text (D18, D36, D77, D177).
+// Extractions, the inbox, templates, imports and file text.
 
 const db = await testDb();
 
@@ -146,7 +146,7 @@ describe('inbox_items', () => {
   });
 });
 
-describe('templates (D177, Q17)', () => {
+describe('templates', () => {
   let second: { locationId: string };
   let template: string;
   let admin: string;
@@ -237,7 +237,7 @@ describe('templates (D177, Q17)', () => {
   });
 });
 
-describe('file_text (§7.2)', () => {
+describe('file_text', () => {
   it('follows its file: invisible to others until an attachment makes the file visible', async () => {
     const pdf = await ownerTx(db, (c) => insertFile(c, t.locationId, member, 'application/pdf'));
     await as(member, (c) =>
@@ -269,7 +269,7 @@ describe('file_text (§7.2)', () => {
   });
 });
 
-describe('draft purchases (Q10)', () => {
+describe('draft purchases', () => {
   it('may lack a date only while a draft', async () => {
     const insert = (state: string) =>
       as(member, (c) =>
@@ -284,7 +284,7 @@ describe('draft purchases (Q10)', () => {
   });
 });
 
-describe('imports (§7.1)', () => {
+describe('imports', () => {
   it('are for owners and admins only', async () => {
     const start = (userId: string) =>
       as(userId, (c) =>

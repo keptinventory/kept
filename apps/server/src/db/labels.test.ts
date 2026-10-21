@@ -13,8 +13,7 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Label batches, the blank-label cap and claiming a blank label (D43, D44, D112,
-// D137, D172).
+// Label batches, the blank-label cap and claiming a blank label.
 
 const db = await testDb();
 
@@ -68,7 +67,7 @@ const claim = (userId: string, code: string, thing: string | null, place: string
         .rows[0],
   );
 
-describe('claiming a blank label (D43, D112)', () => {
+describe('claiming a blank label', () => {
   it('claims it for a thing of its location, as the primary code when the thing has none', async () => {
     const code = await blank(t.locationId);
     expect(await claim(alfred, code, drill)).toEqual({
@@ -139,7 +138,7 @@ describe('claiming a blank label (D43, D112)', () => {
   });
 });
 
-describe('the blank-label cap (§3.1b)', () => {
+describe('the blank-label cap', () => {
   it('refuses the 1,001st unclaimed blank label of a location', async () => {
     // 1,000 distinct codes (hex digits are Crockford characters too).
     await own(

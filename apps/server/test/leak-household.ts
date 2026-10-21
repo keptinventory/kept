@@ -16,7 +16,7 @@ export async function fillHousehold(c: pg.ClientBase, t: Tenant, label: string):
     `${label} thing`,
   ]);
 
-  // Money (T4): a rate on the account, a valuation of the room thing, an incident that touched
+  // Money: a rate on the account, a valuation of the room thing, an incident that touched
   // it, and a claim pack of that incident with a live link.
   await c.query(
     `INSERT INTO public.fx_rates (owner_account_id, from_ccy, to_ccy, rate, valid_from, created_by)
@@ -69,7 +69,7 @@ export async function fillHousehold(c: pg.ClientBase, t: Tenant, label: string):
     ],
   );
 
-  // Records (T5): a warranty on the room thing, a claim under it at the account's vendor, an
+  // Records: a warranty on the room thing, a claim under it at the account's vendor, an
   // open loan of it to the account's person, a service of it with one line, and a link
   // attachment on each new subject.
   const vendor = await one(
@@ -142,7 +142,7 @@ export async function fillHousehold(c: pg.ClientBase, t: Tenant, label: string):
     thing,
   ]);
 
-  // Schedules (T6): a boiler service every 12 months on the room, completed by a service of the
+  // Schedules: a boiler service every 12 months on the room, completed by a service of the
   // room; a one-off on the room thing; a home-insurance document on the location itself.
   const room = await one('SELECT id FROM public.places WHERE location_id = $1 AND name = $2', [
     t.locationId,
@@ -178,7 +178,7 @@ export async function fillHousehold(c: pg.ClientBase, t: Tenant, label: string):
     [document, t.locationId, t.userId],
   );
 
-  // Reminders (T7): the overdue loan's occurrence, the tenant user's three channels, a push
+  // Reminders: the overdue loan's occurrence, the tenant user's three channels, a push
   // device, a preference, the centre's row, a delivery, a digest and a calendar link.
   const occurrence = newId();
   await c.query(
@@ -233,7 +233,7 @@ export async function fillHousehold(c: pg.ClientBase, t: Tenant, label: string):
     createHash('sha256').update(`${label}-feed`).digest('hex'),
   ]);
 
-  // Condition reports (1.x, D235): a move-in report with one room and a photo of it.
+  // Condition reports (1.x): a move-in report with one room and a photo of it.
   const report = await one(
     `INSERT INTO public.condition_reports (location_id, kind, held_on, notes, created_by)
      VALUES ($1, 'move_in', '2026-09-01', $2, $3) RETURNING id`,
@@ -246,7 +246,7 @@ export async function fillHousehold(c: pg.ClientBase, t: Tenant, label: string):
     [t.locationId, report, `${label} living room`, t.userId],
   );
 
-  // Moving mode (1.x, D251): a move with the valued thing as its box 1, going to its own place.
+  // Moving mode (1.x): a move with the valued thing as its box 1, going to its own place.
   const move = await one(
     `INSERT INTO public.moves (location_id, name, created_by) VALUES ($1, $2, $3) RETURNING id`,
     [t.locationId, `${label} move`, t.userId],

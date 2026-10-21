@@ -497,7 +497,7 @@ describe('deltas', () => {
     expect(await version()).toBe(before);
   });
 
-  it('carry a thing whose meter got a reading, with the latest (step 5, Q18)', async () => {
+  it('carry a thing whose meter got a reading, with the latest', async () => {
     const car = await thing(home, 'Corolla');
     const [meter] = await own<{ id: string }>(
       `INSERT INTO public.meters (location_id, thing_id, kind, unit)
@@ -645,7 +645,7 @@ describe('deltas', () => {
     expect(allOf(delta.pages, 'places').map((p) => p.id)).toContain(nook);
   });
 
-  it('keep the T4 watermark cases: a late commit is read on the next pass', async () => {
+  it('keep the watermark cases: a late commit is read on the next pass', async () => {
     const first = await pull(louis);
     const begin = async () => {
       const c = new pg.Client({ connectionString: db.urls.app });

@@ -11,7 +11,7 @@ import { withScope } from '../db/scope.js';
 // the Money module is off) the receipt and invoice attachments are withheld everywhere they could
 // leave: a thing's purchase, the purchase itself, the attachment lists, and the signed-URL route.
 // A thing's purchase also drops its currency then. And after a move within the account, a member
-// of the thing's new location still gets its receipt (D115), though the purchase stayed behind.
+// of the thing's new location still gets its receipt, though the purchase stayed behind.
 //
 // Ann owns Home and Office (Household: money on) and Shed (Essentials: money off). In Home Bob is
 // a member and Vic a viewer; Bob is a member of the Shed too. Nobody but Ann sees the Office.
@@ -211,7 +211,7 @@ describe('a member where the Money module is off (#10)', () => {
   });
 });
 
-describe('receipts after a move within the account (#12, D115)', () => {
+describe('receipts after a move within the account (#12)', () => {
   it("gives a member of the thing's new location the receipt the purchase kept behind", async () => {
     const printer = await bought(ann, office, 'Printer');
     await withScope(db.pools.app, { userId: ann.userId, mfa: false }, (_tx, c) =>
@@ -249,7 +249,7 @@ describe('receipts after a move within the account (#12, D115)', () => {
     const url = await urlFor(bob, printer.receipt, 'original', `?thingId=${printer.thing}`);
     expect(url.statusCode, url.body).toBe(200);
 
-    // A viewer can't open an original (D117), and money is hidden from Vic here anyway.
+    // A viewer can't open an original, and money is hidden from Vic here anyway.
     expect((await thingOf(vic, printer.thing)).purchase?.receipts).toEqual([]);
   });
 

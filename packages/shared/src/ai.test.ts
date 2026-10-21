@@ -23,7 +23,7 @@ import {
 } from './ai.js';
 
 describe('provider kinds and key detection', () => {
-  it('lists the six kinds (D202 added openrouter and groq)', () => {
+  it('lists the six kinds, openrouter and groq among them', () => {
     expect(PROVIDER_KINDS).toEqual([
       'openai',
       'anthropic',
@@ -40,7 +40,7 @@ describe('provider kinds and key detection', () => {
     ['AIzaSyExample', 'google'],
     ['sk-proj-abc', 'openai'],
     ['sk-abc', 'openai'],
-    // D202: OpenRouter's `sk-or-` and Groq's `gsk_` (the prefixes seen on real
+    // OpenRouter's `sk-or-` and Groq's `gsk_` (the prefixes seen on real
     // keys). `sk-or-` is also an `sk-`, so it is checked first.
     [`sk-or-v1-${'0'.repeat(64)}`, 'openrouter'],
     ['sk-or-abc', 'openrouter'],
@@ -70,7 +70,7 @@ describe('defaults', () => {
     expect(DEFAULT_MODELS.openai.models.extraction).toBeTruthy();
   });
 
-  it('suggests the models the real-provider spike found for groq and openrouter (D202)', () => {
+  it('suggests the models measured against groq and openrouter', () => {
     expect(DEFAULT_MODELS.groq.models).toEqual({
       extraction: 'qwen/qwen3.8-27b',
       assistant: 'openai/gpt-oss-120b',
@@ -83,7 +83,7 @@ describe('defaults', () => {
     });
   });
 
-  it('budgets extraction per Q7', () => {
+  it('gives extraction its default budget', () => {
     expect(DEFAULT_BUDGETS.extraction).toEqual({
       tokensPerMinute: 60_000,
       tokensPerDay: 2_000_000,
@@ -93,12 +93,12 @@ describe('defaults', () => {
     });
   });
 
-  it('reasons low by default, with none on offer (Q6)', () => {
+  it('reasons low by default, with none on offer', () => {
     expect(REASONING_LEVELS).toEqual(['none', 'minimal', 'low', 'medium', 'high']);
     expect(DEFAULT_REASONING).toBe('low');
   });
 
-  it('has a data-use note key per kind (D83, L63)', () => {
+  it('has a data-use note key per kind', () => {
     expect(Object.keys(DATA_USE_NOTE_KEYS).sort()).toEqual([...PROVIDER_KINDS].sort());
     for (const key of Object.values(DATA_USE_NOTE_KEYS)) expect(key).toMatch(/^ai\.data_use\./);
   });
@@ -209,7 +209,7 @@ describe('estimateImageTokens, against each provider’s documented numbers', ()
   });
 });
 
-describe('D206 additions', () => {
+describe('model defaults and reference figures', () => {
   it('marks the defaults no Kept call has exercised as untested', () => {
     expect(DEFAULT_MODELS.groq.untested).toEqual(['assistant']);
     expect(DEFAULT_MODELS.openrouter.untested).toEqual(['extraction', 'assistant']);
@@ -227,7 +227,7 @@ describe('D206 additions', () => {
     expect(DEFAULT_MODELS.groq.models.extraction).toBe(RECOMMENDED.model);
   });
 
-  it('carries the spike’s measured reference figures, dated and labelled synthetic', () => {
+  it('carries the measured reference figures, dated and labelled synthetic', () => {
     expect(REFERENCE_FIGURES.asOf).toBe('2026-09-26');
     expect(REFERENCE_FIGURES.basis).toBe('synthetic images');
     expect(REFERENCE_FIGURES.currency).toBe('USD');
@@ -259,7 +259,7 @@ describe('D206 additions', () => {
     }
   });
 
-  it('lists the ledger tasks, outcomes and cost sources of §7.15', () => {
+  it('lists the ledger tasks, outcomes and cost sources', () => {
     expect(LEDGER_TASKS).toEqual([
       'extract_thing',
       'extract_receipt',

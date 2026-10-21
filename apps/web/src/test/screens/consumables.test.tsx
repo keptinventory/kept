@@ -1,5 +1,5 @@
 /**
- * Consumables (D14, D150, D172, D183): the AA batteries (12 left, keep at least
+ * Consumables: the AA batteries (12 left, keep at least
  * 16, in Home's kitchen) listed as low with Adjust; Adjust in Eastern digits with the Undo toast;
  * the viewer, module-off, offline and Arabic variants; the thing page's "Keep at least"; and
  * Home's "Low stock" row, last in the attention panel.

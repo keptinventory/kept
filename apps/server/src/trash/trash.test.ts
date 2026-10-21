@@ -183,7 +183,7 @@ describe('POST /api/v1/things/:id/trash', () => {
     expect(event?.undoable_until).not.toBeNull();
   });
 
-  it('asks for a contents choice first (409 with counts, D45)', async () => {
+  it('asks for a contents choice first (409 with counts)', async () => {
     const box = await thing(home, 'Box');
     await thing(home, 'Cable', { containerId: box });
     await thing(home, 'Plug', { containerId: box });
@@ -262,7 +262,7 @@ describe('POST /api/v1/things/:id/trash', () => {
     expect((await api(ola, 'POST', `/api/v1/things/${lamp}/trash`, {})).statusCode).toBe(404);
   });
 
-  it('writes the event things/undo.ts undoes: the batch comes back (D150)', async () => {
+  it('writes the event things/undo.ts undoes: the batch comes back', async () => {
     const box = await thing(home, 'Undo box');
     const cable = await thing(home, 'Undo cable', { containerId: box });
     await ok(api(max, 'POST', `/api/v1/things/${box}/trash`, { contents: 'trash' }));
@@ -310,7 +310,7 @@ describe('POST /api/v1/things/:id/restore', () => {
     });
   });
 
-  it("restores a place's batch through the place (D162)", async () => {
+  it("restores a place's batch through the place", async () => {
     const room = await place(home, 'Attic');
     const chair = await thing(home, 'Old chair', { placeId: room });
     await ok(api(max, 'POST', `/api/v1/places/${room}/trash`, { contents: 'trash' }));
@@ -449,7 +449,7 @@ describe('GET /api/v1/trash', () => {
     expect((await api(max, 'GET', `/api/v1/trash?locationId=${bobs.id}`)).statusCode).toBe(404);
   });
 
-  it('filters by who trashed it, "none of" a location, several kinds and a date range (D205)', async () => {
+  it('filters by who trashed it, "none of" a location, several kinds and a date range', async () => {
     const cabin = await createLocation(ola, 'Cabin');
     const lamp = await thing(home, 'Sieve lamp');
     const rug = await thing(home, 'Sieve rug');
@@ -523,7 +523,7 @@ describe('GET /api/v1/trash', () => {
   });
 });
 
-describe('route security review (step 2): trash moves its contents on the record', () => {
+describe('route security review: trash moves its contents on the record', () => {
   // catalogue: POST /api/v1/things/:id/trash
   it('audits each thing a trash moves out of its container, and undo puts it back', async () => {
     const shelf = await place(home, 'Review shelf');

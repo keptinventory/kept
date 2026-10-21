@@ -73,7 +73,7 @@ afterEach(async () => {
   for (const c of open.splice(0)) await c.end().catch(() => {});
 });
 
-describe('the change_xid watermark (Q1)', () => {
+describe('the change_xid watermark', () => {
   it('re-reads a change whose transaction committed after a younger one was seen', async () => {
     const first = await pass(null);
     expect(first.rows.sort()).toEqual([`${thingA}=Drill/`, `${thingB}=Ladder/`].sort());

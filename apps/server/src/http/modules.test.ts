@@ -113,7 +113,7 @@ describe('module preHandler, with a fake loader', () => {
     expect(res.json().code).toBe('module_off');
   });
 
-  it('reads body.locationId and query.locationId (step 2)', async () => {
+  it('reads body.locationId and query.locationId', async () => {
     const camel = await app.inject({
       method: 'POST',
       url: '/camel/vehicles',

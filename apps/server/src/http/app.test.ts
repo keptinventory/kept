@@ -132,7 +132,7 @@ describe('buildApp()', () => {
 
   // The assistant needs no fetch beyond Kept's own API, and dictation is the
   // browser's own recogniser, not a page fetch. connect-src stays default-src's 'self'; nobody
-  // widens it for the assistant (no remote images, no model endpoints from the page, D179).
+  // widens it for the assistant (no remote images, no model endpoints from the page).
   it("keeps fetches to Kept's own origin: connect-src falls back to default-src 'self'", async () => {
     const csp = cspOf(
       (await app.inject({ method: 'GET', url: '/healthz' })).headers['content-security-policy'],
@@ -351,7 +351,7 @@ describe('redactUrl()', () => {
 });
 
 describe('health', () => {
-  it('/version reports version, revision and source (D147)', async () => {
+  it('/version reports version, revision and source', async () => {
     const withSource = await buildApp({
       env: { KEPT_PUBLIC_URL: 'http://kept.test', KEPT_SOURCE_URL: 'https://example.test/src' },
       pools,
@@ -375,7 +375,7 @@ describe('health', () => {
     }
   });
 
-  it('serves the image’s third-party notices and names them in /version (D151)', async () => {
+  it('serves the image’s third-party notices and names them in /version', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'kept-notices-'));
     const file = join(dir, 'THIRD-PARTY-NOTICES.txt');
     writeFileSync(file, 'Kept third-party notices\n\nweb-push (MPL-2.0)\n');

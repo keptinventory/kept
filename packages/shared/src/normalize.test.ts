@@ -5,7 +5,7 @@ import vectors from './normalize.vectors.json' with { type: 'json' };
 type Vector = { in: string; normalized: string; stripped: string; note?: string };
 const VECTORS = vectors as Vector[];
 
-describe('normalize.vectors.json (the shared contract with kept.normalize, V20)', () => {
+describe('normalize.vectors.json (the shared contract with kept.normalize)', () => {
   it('has at least 60 rows, each with in/normalized/stripped strings', () => {
     expect(VECTORS.length).toBeGreaterThanOrEqual(60);
     for (const v of VECTORS) {

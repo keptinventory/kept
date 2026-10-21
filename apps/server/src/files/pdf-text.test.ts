@@ -20,7 +20,7 @@ import {
   storableText,
 } from './pdf-text.js';
 
-// T21 (D77, D157): a PDF's text, read in a limited child process
+// A PDF's text, read in a limited child process
 // and stored in file_text, and the job the upload sends for it. The hostile cases each end with
 // no row and a completed job, never a hung test worker: the child is SIGKILLed at its limits.
 //
@@ -115,7 +115,7 @@ afterAll(async () => {
   await rm(dir, { recursive: true, force: true });
 });
 
-describe('the limits (§3.1b)', () => {
+describe('the limits', () => {
   it('are 20 s and 256 MB, with 200,000 characters kept, and one retry of a minute', () => {
     expect(PDF_TIMEOUT_MS).toBe(20_000);
     expect(PDF_MEMORY_MB).toBe(256);

@@ -1,9 +1,9 @@
 /**
- * The notification centre (D39, D57; frame "7 · Notification centre ·
- * phone · light"): grouped by kind in the frame's order, each naming the thing or place, its
- * path and the local date; Complete and Snooze open T21's sheets; Mark returned in one tap with
- * Undo; the polite reminder copied, never sent; Mark all read; the filter strip from the URL; the
- * rail's badge and the polled count; and the viewer, offline and Arabic variants.
+ * The notification centre (frame "7 · Notification centre · phone · light"): grouped by kind in the
+ * frame's order, each naming the thing or place, its path and the local date; Complete and Snooze
+ * open their sheets; Mark returned in one tap with Undo; the polite reminder copied, never sent;
+ * Mark all read; the filter strip from the URL; the rail's badge and the polled count; and the
+ * viewer, offline and Arabic variants.
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -74,7 +74,7 @@ describe('the notification centre', () => {
     expect(drill.getByText(/^Was due back /)).toBeInTheDocument();
   });
 
-  it('a schedule overdue by its meter while its day is ahead says the reading passed it (T29)', async () => {
+  it('a schedule overdue by its meter while its day is ahead says the reading passed it', async () => {
     const state = ownerScenario();
     const n = state.household.notifications.find((x) => x.reminder?.sourceId === H.schedule.boiler);
     if (!n?.reminder) throw new Error('no boiler reminder');
@@ -196,7 +196,7 @@ describe('the notification centre', () => {
 });
 
 describe('the counts', () => {
-  it('the sidebar shows the unread count beside Notifications (D198)', async () => {
+  it('the sidebar shows the unread count beside Notifications', async () => {
     await renderApp('/');
     await findHeading('Home');
     const nav = screen.getAllByRole('navigation', { name: 'Main' })[0] as HTMLElement;

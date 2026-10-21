@@ -7,7 +7,7 @@
 //   node apps/web/e2e/fixtures/make-y4m.mjs
 //
 // - camera-qr.y4m: a Kept label's QR for the seeded Bosch drill (households seed, code 2HX9RB;
-//   apps/server/src/seed/inventory.ts). The host is ignored when a label is read (D120), so any
+//   apps/server/src/seed/inventory.ts). The host is ignored when a label is read, so any
 //   host will do.
 // - camera-thing.y4m: a plain scene for Capture's shutter: a grey ramp with a dark block, so the
 //   photo isn't blank. The mock AI names it from its defaults ("Thing", apps/server/src/ai/mock.ts).

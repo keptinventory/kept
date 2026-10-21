@@ -1,5 +1,5 @@
 /**
- * Uploads (task 17's wire format, D117, D36): the browser hashes the bytes first
+ * Uploads (task 17's wire format): the browser hashes the bytes first
  * (crypto.subtle, mocked here so the digest is known), sends them raw with X-Kept-Sha256, then
  * attaches the file. HEIC is kept with "Preview unavailable", never an error.
  */
@@ -137,7 +137,7 @@ describe('uploading on the thing page', () => {
     expect(screen.getByRole('button', { name: 'Add a photo' })).toBeInTheDocument();
   });
 
-  it('HEIC is kept and says "Preview unavailable", never an error (D36)', async () => {
+  it('HEIC is kept and says "Preview unavailable", never an error', async () => {
     mockDigest();
     const { user } = await renderApp(`/t/${INV_IDS.thing.tv}`);
     await findHeading('Samsung TV, 55″');

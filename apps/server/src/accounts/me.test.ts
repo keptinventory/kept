@@ -92,7 +92,7 @@ describe('GET /api/v1/me', () => {
   });
 
   // catalogue: PATCH /api/v1/me
-  it('PATCH keeps "Suggest where I am" on the person, across devices, and audits it (T19)', async () => {
+  it('PATCH keeps "Suggest where I am" on the person, across devices, and audits it', async () => {
     const me = await person(t, db, 'me');
     const on = await call(t, '/api/v1/me', {
       as: me,

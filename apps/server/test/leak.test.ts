@@ -13,7 +13,7 @@ import { fillPortability } from './leak-portability.js';
 import { fillVehicles } from './leak-vehicles.js';
 import { addMember, asOwner, ownerTx, seedTenant, seedUser, type Tenant } from './tenancy.js';
 
-// The schema-wide leak test (D178).
+// The schema-wide leak test.
 //
 // Everything below is generated from the catalogue (pg_class, pg_policies, information_schema),
 // so a table added later is covered without editing this file, and fails here until it has RLS,
@@ -34,8 +34,8 @@ const SYSTEM_TABLES = [
  * rows, and the channels, devices and preferences they send by; and the webhook jobs' (0078):
  * the hooks they send to (read, and marked failing) and the deliveries they record;
  * and the worker's boot guard's (0091): the release history it reads and stamps; and
- * the `report-schedules` job's (1.3, D228): the schedules it reads and marks as run; and the
- * `mail-in` job's (0120, 1.4 D231): the mailboxes it polls and the messages it records.
+ * the `report-schedules` job's (1.3): the schedules it reads and marks as run; and the
+ * `mail-in` job's (0120): the mailboxes it polls and the messages it records.
  * Each kept_system policy names its job in a comment. */
 const SYSTEM_JOB_TABLES = [
   'mailbox_messages',
@@ -87,7 +87,7 @@ const UNSCOPED: Record<string, 'reference' | 'instance'> = {
   currencies: 'reference', // readable by every signed-in request (and nothing else)
   instance_settings: 'instance', // instance admins only
   admin_alerts: 'instance', // instance admins read; kept_system writes (0011)
-  ai_model_prices: 'reference', // every signed-in request reads the price table (0040, D206)
+  ai_model_prices: 'reference', // every signed-in request reads the price table (0040)
   backup_runs: 'instance', // instance admins read; only kept_owner writes (0091)
   release_history: 'instance', // instance admins read; the boot guard stamps it (0091)
 };
@@ -168,7 +168,7 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   // Paths past the policies (0006 §5): each checks its caller itself.
   'kept.accept_invite(text,text)': { roles: APP, definer: true },
   // (0010, security review of tasks 19–21) A sign-up's hold on an invite; managed-account reset
-  // authority (D197); the D180 expiry cap and the D47 location-insert check the policies use.
+  // authority; the membership expiry cap and the location-insert check the policies use.
   'kept.claim_invite(text,text)': { roles: APP, definer: true },
   'kept.current_user_managed()': { roles: APP, definer: true },
   'kept.managed_reset_location(uuid)': { roles: APP, definer: true },
@@ -201,7 +201,7 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.ensure_account(text,text,text)': { roles: BOTH, definer: true },
   // The ownership invariant's trigger: must see every membership. Nobody calls it.
   'kept.check_location_owner()': { roles: NOBODY, definer: true },
-  // Step 2 (0012): search normalisation, invoker and harmless (requests and the reindex job).
+  // Migration 0012: search normalisation, invoker and harmless (requests and the reindex job).
   'kept.normalize(text)': { roles: BOTH, definer: false },
   'kept.search_text(text)': { roles: BOTH, definer: false },
   'kept.strip_prefixes(text)': { roles: BOTH, definer: false },
@@ -210,16 +210,16 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.recovery_kit_acknowledged()': { roles: APP, definer: true },
   'kept.visible_account_ids()': { roles: APP, definer: true },
   'kept.writable_account_ids()': { roles: APP, definer: true },
-  // (0014) Registries: contact details (D177); the type chain and its capabilities.
+  // (0014) Registries: contact details; the type chain and its capabilities.
   'kept.person_contact_visible(uuid)': { roles: APP, definer: true },
   'kept.type_capabilities(uuid)': { roles: BOTH, definer: false },
   'kept.type_chain(uuid)': { roles: APP, definer: false },
   // (0016) Things: breadcrumbs and the search document (invoker; the triggers call them).
   'kept.path_of(uuid,uuid)': { roles: APP, definer: false },
   'kept.thing_search_doc(things)': { roles: APP, definer: false },
-  // (0018) A thing's purchase and line, even after a move (D115).
+  // (0018) A thing's purchase and line, even after a move.
   'kept.thing_purchase(uuid)': { roles: APP, definer: true },
-  // (0020) Receipts after a move (D115); who may reveal a secret, and which are set (D177). The
+  // (0020) Receipts after a move; who may reveal a secret, and which are set. The
   // supersede trigger must see the row a member can't read; nobody calls it.
   'kept.can_reveal_secret(uuid,uuid)': { roles: APP, definer: true },
   'kept.clear_secret(uuid,uuid,text)': { roles: APP, definer: true },
@@ -247,9 +247,9 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   },
   'kept.purge_trash(timestamp with time zone,integer)': { roles: SYS, definer: true },
   'kept.reindex_location(uuid)': { roles: SYS, definer: true },
-  // (0024, security review of Phase A) Adding contact details past the contacts' own policy
-  // (D177); the member link on a person must see memberships the caller can't. Nobody calls the
-  // trigger.
+  // (0024, security review of Phase A) Adding contact details past the contacts' own policy (a
+  // field's owner-only policy); the member link on a person must see memberships the caller can't.
+  // Nobody calls the trigger.
   'kept.guard_person_member()': { roles: NOBODY, definer: true },
   'kept.person_contact_writable(uuid)': { roles: APP, definer: true },
   // (0026) Where a registry row is used across its account: in_use and reindexing.
@@ -259,14 +259,14 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.currencies_in_use()': { roles: APP, definer: true },
   'kept.purchase_lines_used_elsewhere(uuid,uuid[])': { roles: APP, definer: true },
   // (0028) Which storage keys no file or derivative row names any more: "delete original"
-  // asks after its commit, so a blob a cross-account copy shares stays (D161).
+  // asks after its commit, so a blob a cross-account copy shares stays.
   'kept.unreferenced_storage_keys(text[])': { roles: SYS, definer: true },
   // (0030) Text search on its indexes: under RLS `@@` and `%` aren't leakproof, so the
   // match runs past the policy qual and applies the caller's visibility itself; ids and names
   // of visible things only.
   'kept.near_thing_names(text,text[],text[],uuid)': { roles: APP, definer: true },
   'kept.search_thing_ids(tsquery,tsquery,text,uuid)': { roles: APP, definer: true },
-  // (0032) The hourly purge of generated reports past their 24 hours (D201); it
+  // (0032) The hourly purge of generated reports past their 24 hours; it
   // returns the run ids whose blobs (`r/<id>.pdf`) the job then deletes.
   'kept.purge_expired_reports(integer)': { roles: SYS, definer: true },
   // (0036) The cover cache: things.cover_file_id has no UPDATE grant, so the
@@ -279,7 +279,7 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   // (0038) Document search on file_text's index (`@@` isn't leakproof): file ids the
   // caller could already select, and nothing else.
   'kept.search_file_ids(tsquery,uuid)': { roles: APP, definer: true },
-  // (0040) AI providers, caps and the call ledger (D206). The guard must see the
+  // (0040) AI providers, caps and the call ledger. The guard must see the
   // location's account; nobody calls it.
   'kept.guard_ai_budget_location()': { roles: NOBODY, definer: true },
   // Resolution: the only way to a key (ai/db-keys.ts), and the status line.
@@ -315,8 +315,8 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.ai_ensure_brand(uuid,text)': { roles: APP, definer: true },
   // (0043) A cap's month so far, for the cap rows the caller may read.
   'kept.ai_cap_usage(uuid[])': { roles: APP, definer: true },
-  // (0042) Claiming a blank label (the server decides, D43/D112) and merging a duplicate
-  // (D36): each checks the caller writes the location.
+  // (0042) Claiming a blank label (the server decides) and merging a duplicate:
+  // each checks the caller writes the location.
   'kept.claim_blank_code(character,uuid,uuid)': { roles: APP, definer: true },
   'kept.merge_things(uuid,uuid)': { roles: APP, definer: true },
   // (0042, for T13) The phone's display of a photo: files are append-only to kept_app.
@@ -338,7 +338,7 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.ai_notice_provider(uuid)': { roles: SYS, definer: true },
   'kept.ai_rollup_and_drop(integer)': { roles: SYS, definer: true },
   'kept.prune_ai_windows(timestamp with time zone)': { roles: SYS, definer: true },
-  // (0049) Export runs (claim packs, D180): the job's doors are its creator's (a
+  // (0049) Export runs (claim packs): the job's doors are its creator's (a
   // tenant job) or kept_system's; the public link and the purge are kept_system's.
   'kept.export_run_claim(uuid)': { roles: BOTH, definer: true },
   'kept.export_run_progress(uuid,integer,integer)': { roles: BOTH, definer: true },
@@ -378,9 +378,9 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
     },
   'kept.meter_latest(uuid)': { roles: BOTH, definer: false },
   'kept.schedule_next(uuid,date)': { roles: BOTH, definer: false },
-  // (0055) The public calendar feed's door (D142, D181): kept_system, by token hash. A code
+  // (0055) The public calendar feed's door: kept_system, by token hash. A code
   // moved to another thing bumps the thing it left: nobody calls it. Whether the caller
-  // was a member of a location, for sync's location_revoked (D210).
+  // was a member of a location, for sync's location_revoked.
   'kept.calendar_feed_user(text)': { roles: SYS, definer: true },
   'kept.touch_code_move()': { roles: NOBODY, definer: true },
   'kept.was_member_of(uuid)': { roles: APP, definer: true },
@@ -401,7 +401,7 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   // (0100) The ETA as a row a caller joins (inlined): invoker, as meter_eta() was.
   'kept.meter_eta_at(uuid,numeric,timestamp with time zone)': { roles: BOTH, definer: false },
   'kept.schedule_due(schedules,date,timestamp with time zone)': { roles: BOTH, definer: false },
-  // (0133, D247) The day a one-off was done: invoker, the caller's policies on its services.
+  // (0133) The day a one-off was done: invoker, the caller's policies on its services.
   'kept.schedule_done_on(schedules)': { roles: BOTH, definer: false },
   'kept.is_vehicle_type(uuid)': { roles: BOTH, definer: false },
   // (0070) The token principal: the scope reader (invoker), the doors a request takes
@@ -414,9 +414,9 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.token_oauth_grant(uuid,text,text,uuid[],text)': { roles: APP, definer: true },
   'kept.token_rate_hit(uuid,text,integer)': { roles: APP, definer: true },
   'kept.revoke_tokens_for(uuid,uuid,text)': { roles: BOTH, definer: true },
-  // (0109) D197's claim ends every token of the claimed account; the system only.
+  // (0109) A first magic-link claim ends every token of the claimed account; the system only.
   'kept.revoke_user_tokens(uuid,text)': { roles: SYS, definer: true },
-  // (0114, D225) Deleting your own account: the person's own blockers, asking and keeping it;
+  // (0114) Deleting your own account: the person's own blockers, asking and keeping it;
   // the purge is the system's.
   'kept.account_deletion_blockers()': { roles: APP, definer: true },
   'kept.request_account_deletion()': { roles: APP, definer: true },
@@ -449,17 +449,17 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.embedding_backlog_thing(uuid,text)': { roles: APP, definer: true },
   'kept.ai_provider_for_system(uuid,text)': { roles: SYS, definer: true },
   // (0078) Webhooks: the delivery job's view of a hook with its sealed secret, whether
-  // a write should fan out, and turning off a hook whose creator lost the admin role (D180).
+  // a write should fan out, and turning off a hook whose creator lost the admin role.
   'kept.webhook_secret(uuid)': { roles: SYS, definer: true },
-  // (0120, 1.4 D231) The mail-in job's view of a mailbox with its sealed connection.
+  // (0120) The mail-in job's view of a mailbox with its sealed connection.
   'kept.mailbox_config(uuid)': { roles: SYS, definer: true },
-  // (0127, 1.5 D233) Share links: the public page's door by the token's hash, and the location
-  // admins' "Preview as recipient". Both return the D116 whitelist only.
+  // (0127) Share links: the public page's door by the token's hash, and the location
+  // admins' "Preview as recipient". Both return the public-field whitelist only.
   'kept.share_link_open(text,integer)': { roles: SYS, definer: true },
   'kept.share_link_preview(uuid,integer)': { roles: APP, definer: true },
   'kept.webhooks_listening(uuid,text)': { roles: APP, definer: true },
   'kept.disable_webhooks_for(uuid,uuid)': { roles: BOTH, definer: true },
-  // (0135, 1.x D248) Paperless-ngx: a location's connection with its sealed token, opened by the
+  // (0135) Paperless-ngx: a location's connection with its sealed token, opened by the
   // server once kept_app's checks passed; and the trigger that drops a moved thing's links (it
   // must see links the mover can't). Nobody calls the trigger.
   'kept.paperless_config(uuid)': { roles: SYS, definer: true },
@@ -820,11 +820,11 @@ describe('catalogue', () => {
     expect(await asOwner(db, publicPolicies)).toEqual([]);
   });
 
-  it('has only security_invoker views, and no materialized views (L28)', async () => {
+  it('has only security_invoker views, and no materialized views', async () => {
     expect(await asOwner(db, viewProblems)).toEqual([]);
   });
 
-  it('gives kept_system policies on exactly the system tables (§7.1)', async () => {
+  it('gives kept_system policies on exactly the system tables', async () => {
     const { rows } = await asOwner(db, (c) =>
       c.query<{ tablename: string }>(
         `SELECT DISTINCT tablename FROM pg_policies
@@ -896,7 +896,7 @@ describe('catalogue', () => {
     expect(rows.map((r) => r.grant)).toEqual([]);
   });
 
-  it('classifies every public table: a scope column, its own id, or a listed exception (L15)', async () => {
+  it('classifies every public table: a scope column, its own id, or a listed exception', async () => {
     const tables = await asOwner(db, publicTables);
     const scoped = new Set(allTargets.map((t) => t.table));
     const unclassified = tables.filter(
@@ -916,7 +916,7 @@ describe('catalogue', () => {
     }
   });
 
-  it('lists only the AI and token counters and the embeddings as definer-only (D206, step-6 T4, T6)', () => {
+  it('lists only the AI and token counters and the embeddings as definer-only', () => {
     expect(Object.keys(DEFINER_ONLY_TABLES).sort()).toEqual([
       'ai_breakers',
       'ai_cost_windows',
@@ -942,7 +942,7 @@ describe('catalogue', () => {
 
   // kept_app may still write a new sealed key (replacing a provider, ai/settings.ts); it never
   // reads one back: the key leaves the database only through kept.ai_provider_secret.
-  it("keeps a provider's key unreadable, and the ledger unwritable, by every runtime role (D206)", async () => {
+  it("keeps a provider's key unreadable, and the ledger unwritable, by every runtime role", async () => {
     const { rows } = await asOwner(db, (c) =>
       c.query<{ grant: string }>(
         `SELECT format('%s %s', r, what) AS grant
@@ -1359,7 +1359,7 @@ describe('request path (kept_app): tenant A never reaches tenant B', () => {
     expect(await sqlstate(db.pools.app.query('SELECT banned FROM auth."user"'))).toBe('42501');
   });
 
-  it('keeps an export run from everyone but its creator, even another admin (step-4 T4, D180)', async () => {
+  it('keeps an export run from everyone but its creator, even another admin', async () => {
     const n = await withScope(db.pools.app, { userId: adminOfA, mfa: true }, async (_tx, c) => {
       const { rows } = await c.query(
         'SELECT count(*)::int AS n FROM public.export_runs WHERE location_id = $1',
@@ -1371,7 +1371,7 @@ describe('request path (kept_app): tenant A never reaches tenant B', () => {
     expect((await rowsWhere('export_runs', 'location_id', a.locationId)).length).toBeGreaterThan(0);
   });
 
-  it("refuses B's vendor on A's claim or service and B's person on A's loan (step-4 T5)", async () => {
+  it("refuses B's vendor on A's claim or service and B's person on A's loan", async () => {
     const one = async (sql: string, values: unknown[]) =>
       (await asOwner(db, (c) => c.query<{ id: string }>(sql, values))).rows[0]?.id as string;
     const thing = await one('SELECT id FROM public.things WHERE name = $1', ['a thing']);
@@ -1411,7 +1411,7 @@ describe('request path (kept_app): tenant A never reaches tenant B', () => {
     expect(codes).toEqual(['42501', '42501', '42501']);
   });
 
-  it("keeps a person's channels, devices, choices, centre and links from the other members of the same location (step-4 T7)", async () => {
+  it("keeps a person's channels, devices, choices, centre and links from the other members of the same location", async () => {
     const seen = await withScope(db.pools.app, { userId: adminOfA, mfa: true }, async (_tx, c) => {
       const out: Record<string, number> = {};
       for (const table of [
@@ -1446,7 +1446,7 @@ describe('request path (kept_app): tenant A never reaches tenant B', () => {
     expect(occurrences).toBeGreaterThan(0);
   });
 
-  it("keeps a person's tokens and grants from the other members of the same location, and from every token (step-6 T4)", async () => {
+  it("keeps a person's tokens and grants from the other members of the same location, and from every token", async () => {
     const seen = await withScope(db.pools.app, { userId: adminOfA, mfa: true }, async (_tx, c) => ({
       tokens: (await c.query('SELECT 1 FROM public.api_tokens WHERE user_id = $1', [a.userId]))
         .rowCount,
@@ -1466,7 +1466,7 @@ describe('request path (kept_app): tenant A never reaches tenant B', () => {
     expect(await sqlstate(asA((c) => c.query('SELECT hash FROM public.api_tokens')))).toBe('42501');
   });
 
-  it("keeps a person's assistant threads from everyone else, the location's admin and the instance admin included (step-6 T5, D23)", async () => {
+  it("keeps a person's assistant threads from everyone else, the location's admin and the instance admin included", async () => {
     const tables = [
       'assistant_threads',
       'assistant_turns',
@@ -1496,7 +1496,7 @@ describe('request path (kept_app): tenant A never reaches tenant B', () => {
     ).toEqual([0, 0, 0, 0, 0]);
   });
 
-  it("never lets kept_app read a webhook's sealed config or the VAPID key (step-4 T7)", async () => {
+  it("never lets kept_app read a webhook's sealed config or the VAPID key", async () => {
     expect(
       await sqlstate(
         asA((c) => c.query('SELECT config_ciphertext FROM public.notification_channels')),
@@ -1532,7 +1532,7 @@ describe('request path (kept_app): tenant A never reaches tenant B', () => {
     ).toBe(0);
   });
 
-  it("keeps a person's sync ledger from the other members of the same location (T4)", async () => {
+  it("keeps a person's sync ledger from the other members of the same location", async () => {
     const n = await withScope(db.pools.app, { userId: adminOfA, mfa: true }, async (_tx, c) => {
       const { rows } = await c.query(
         'SELECT count(*)::int AS n FROM public.sync_ops WHERE location_id = $1',
@@ -1763,7 +1763,7 @@ describe('request path (kept_app): room photos under review', () => {
 
 // The definer doors (security review I5): each one, called by every actor with the victim's own
 // ids, refuses (42501) or answers nothing. A viewer may read what the thing shows them, but never
-// an original (D117), a secret, or a write.
+// an original, a secret, or a write.
 type Ids = Record<
   | 'thing'
   | 'box'
@@ -2302,7 +2302,7 @@ const PROBES: Probe[] = [
     args: (i) => [i.pin],
     viewer: 'refused',
   },
-  // (0127, 1.5 D233) "Preview as recipient": the location's owners and admins only; a viewer of
+  // (0127) "Preview as recipient": the location's owners and admins only; a viewer of
   // the victim's location gets nothing either.
   {
     name: 'share_link_preview',
@@ -2336,21 +2336,20 @@ const UNPROBED_DOORS: Record<string, string> = {
   'kept.ensure_account(text,text,text)': "only ever creates the scope's own user's account",
   'kept.max_member_expiry(uuid)': 'a date limit the insert policy uses; no row data',
   'kept.person_contact_writable(uuid)': "the contacts insert policy's check; a boolean",
-  'kept.managed_reset_location(uuid)': "a managed person's reset authority (D197); a boolean",
+  'kept.managed_reset_location(uuid)': "a managed person's reset authority; a boolean",
   'kept.admin_user_summaries(uuid[])': 'instance admins only; role counts, no tenant rows',
   'kept.add_managed_member(uuid,uuid,text,timestamp with time zone)':
     'checks the caller administers the location itself (0010)',
   'kept.create_managed_profile(uuid,text)': 'checks the caller administers a location (0006)',
   'kept.delete_location(uuid)': 'owner only, checked inside (0006 §5)',
   'kept.account_deletion_blockers()':
-    "the caller's own account only, never a token (0114, D225): its own locations' names and two booleans",
-  'kept.request_account_deletion()': "the caller's own account only, never a token (0114, D225)",
-  'kept.cancel_account_deletion()': "the caller's own account only, never a token (0114, D225)",
+    "the caller's own account only, never a token (0114): its own locations' names and two booleans",
+  'kept.request_account_deletion()': "the caller's own account only, never a token (0114)",
+  'kept.cancel_account_deletion()': "the caller's own account only, never a token (0114)",
   'kept.restore_location(uuid)': 'owner only, checked inside (0006 §5)',
   'kept.set_location_require_2fa(uuid,boolean)': 'owner only, checked inside (0006 §5)',
   'kept.set_location_successor(uuid,uuid)': 'owner only, checked inside (0006 §5)',
-  'kept.was_member_of(uuid)':
-    "a boolean about the caller's own past membership (T19, D210); no row data",
+  'kept.was_member_of(uuid)': "a boolean about the caller's own past membership; no row data",
   'kept.undo_creator(uuid,uuid)':
     'answers only for the event app.undo names, in a location the caller writes (0056); probed in src/db/phase-b-fixes.test.ts',
   'kept.undo_holds_file(uuid,uuid)':
@@ -2476,7 +2475,7 @@ describe('worker path (kept_system)', () => {
   });
 });
 
-describe('id collision (§7.7)', () => {
+describe('id collision', () => {
   /** The error a request would answer with for `promise`, or 'ok'. */
   async function replyTo(promise: Promise<unknown>) {
     try {

@@ -10,7 +10,7 @@ import { ownerTx } from '../../test/tenancy.js';
 // calls them (apps/web/src/api/inventory/{types,paths}.ts and mock/registries.ts).
 //
 // The household: Bob owns an account with "Bob home" and "Bob cabin". Adam administers Bob home
-// only, so he manages the account's types without seeing all of it (D123); Mel is a member and
+// only, so he manages the account's types without seeing all of it; Mel is a member and
 // Vic a viewer there. Ann has her own account and sees nothing of Bob's.
 
 let db: TestDb;
@@ -332,7 +332,7 @@ describe('writing types', () => {
     expect(move.json()).toMatchObject({ reason: 'field_redefined', key: 'size' });
   });
 
-  it('makes a field secret for the account owner only, and only a text field (D177)', async () => {
+  it('makes a field secret for the account owner only, and only a text field', async () => {
     const vault = await createType(bob, gadget('Router'));
     const byAdam = await call(t, `/api/v1/types/${vault.id}/fields`, {
       as: adam,
@@ -559,7 +559,7 @@ describe('writing types', () => {
   });
 });
 
-describe('place kinds (D160)', () => {
+describe('place kinds', () => {
   type Kind = {
     id: string;
     key: string;
@@ -714,7 +714,7 @@ describe('place kinds (D160)', () => {
   });
 });
 
-describe('route security review (step 2): types', () => {
+describe('route security review: types', () => {
   it('previews a change only for those who may make it: 403 for a member or viewer, 404 outside', async () => {
     const shelf = await createType(bob, gadget('Review shelf'));
     for (const as of [mel, vic]) {

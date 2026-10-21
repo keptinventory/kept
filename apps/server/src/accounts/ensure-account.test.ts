@@ -18,7 +18,7 @@ import {
   TIMEZONE_HEADER,
 } from './ensure-account.js';
 
-// ensureAccount() (D114, D190, D191) and the repair-orphans job.
+// ensureAccount() and the repair-orphans job.
 
 let db: TestDb;
 
@@ -161,7 +161,7 @@ describe('ensureAccount()', () => {
     expect(s.audit).toHaveLength(1);
   });
 
-  it('keeps a profile made earlier (a managed one, task 21) and uses its time zone', async () => {
+  it('keeps a profile made earlier (a managed one) and uses its time zone', async () => {
     const userId = await bareUser('managed');
     await ownerTx(db, (c) =>
       c.query(
@@ -238,7 +238,7 @@ describe('wiring', () => {
     expect(accounts.cache.has(userId)).toBe(true);
   });
 
-  it('the hook leaves managed (.invalid) accounts to task 21', async () => {
+  it('the hook leaves managed (.invalid) accounts to the managed-account path', async () => {
     const accounts = accountEnsurer(db.pools);
     await accounts.onUserCreated({ id: randomUUID(), email: 'x@managed.invalid' }, undefined);
     expect(accounts.cache.size).toBe(0);
@@ -332,7 +332,7 @@ describe('repair-orphans (kept_system)', () => {
         `${halfMade}@managed.invalid`,
       ]),
     );
-    // A managed account whose profile was made, but not yet its owner account: ensured (D114).
+    // A managed account whose profile was made, but not yet its owner account: ensured.
     const whole = await bareUser('kid', 30);
     await ownerTx(db, async (c) => {
       await c.query(`UPDATE auth."user" SET email = $2 WHERE id = $1`, [

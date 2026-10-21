@@ -89,7 +89,7 @@ beforeAll(async () => {
         publicKey: vapid.publicKey,
         details: { ...vapid, subject: 'mailto:kept@example.org' },
       }),
-      // 1.5 (D232): the Apprise API server is the local receiver too.
+      // 1.5: the Apprise API server is the local receiver too.
       appriseUrl: `${hook.url}/apprise`,
       transport: {
         push: {
@@ -170,7 +170,7 @@ function browserKeys() {
 }
 
 describe('GET /api/v1/me/notification-settings', () => {
-  it('shows the defaults: owners every kind but webhooks, viewers only Membership (Q8, Q10)', async () => {
+  it('shows the defaults: owners every kind but webhooks, viewers only Membership', async () => {
     const bruce = await person(t, db, 'bruce');
     const talia = await person(t, db, 'talia');
     const home = await createLocation(t, db, bruce, 'complete');
@@ -203,7 +203,7 @@ describe('GET /api/v1/me/notification-settings', () => {
       isDefault: true,
       set: [],
     });
-    // D239: the all-locations table holds every kind, the AI summary too.
+    // The all-locations table holds every kind, the AI summary too.
     expect(Object.keys(mine.account.kinds).sort()).toEqual(
       [...LOCATION_KINDS, 'ai_summary'].sort(),
     );
@@ -330,7 +330,7 @@ describe('PUT /api/v1/me/notification-preferences', () => {
   });
 });
 
-describe('all locations, and overrides per location (D239)', () => {
+describe('all locations, and overrides per location', () => {
   const url = '/api/v1/me/notification-preferences';
   const put = (as: Person, items: object[]) => call(t, url, { as, method: 'PUT', body: { items } });
   const rowsOf = (userId: string) =>
@@ -583,7 +583,7 @@ describe('webhook channels', () => {
   });
 });
 
-describe('ntfy and Telegram channels (D227)', () => {
+describe('ntfy and Telegram channels', () => {
   beforeEach(() => {
     telegram.calls.length = 0;
     telegram.answer = { ok: true };
@@ -779,7 +779,7 @@ describe('push subscriptions', () => {
   });
 });
 
-describe('Apprise channels (D232)', () => {
+describe('Apprise channels', () => {
   // catalogue: POST /api/v1/me/channels
   it('makes an Apprise channel: URLs sealed, never returned, audited; a test POSTs to /notify/', async () => {
     const bruce = await person(t, db, 'bruce');

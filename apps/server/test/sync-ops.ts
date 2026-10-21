@@ -4,7 +4,7 @@ import { expect } from 'vitest';
 import type { TestApp } from './app.js';
 import { call } from './people.js';
 
-// Fixtures for the sync ops tests (step-3 T14): queue items as the phone's sync engine sends them
+// Fixtures for the sync ops tests: queue items as the phone's sync engine sends them
 // (apps/web/src/offline/sync-engine.ts toItem: exactly the wire fields), and the ops route.
 
 export const CLIENT_VERSION = '0.3.0';

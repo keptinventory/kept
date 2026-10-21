@@ -4,8 +4,7 @@ import { performance } from 'node:perf_hooks';
 import type { PgBoss } from 'pg-boss';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createBoss } from '../../src/jobs/boss.js';
-import { JOB_POLICIES, queueOptions } from '../../src/jobs/policies.js';
-import { bossQueue } from '../../src/jobs/queue.js';
+import { bossQueue, createRequestQueues } from '../../src/jobs/queue.js';
 import { packageRoot } from '../../src/package-root.js';
 import type { TestApp } from '../app.js';
 import { type TestDb, testDb } from '../db.js';
@@ -14,9 +13,10 @@ import { createLocation, type Loc, own, place } from '../things.js';
 import { calibration, under } from './limits.js';
 import { stats } from './timing.js';
 
-// The spreadsheet view's save (D250): POST /api/v1/things/bulk-edit with 200 rows, the most one
-// request takes, in a location of 5,000 things (the size D250 was measured at). Full mode only
-// (scripts/ci-local.sh `perf`; vitest.perf.config.ts); the normal run leaves test/perf out.
+// The spreadsheet view's save: POST /api/v1/things/bulk-edit with 200 rows, the most one
+// request takes, in a location of 5,000 things (the size the old save was measured at). Full
+// mode only (scripts/ci-local.sh `perf`; vitest.perf.config.ts); the normal run leaves test/perf
+// out.
 //
 // The fixture: one location (Home, the household preset) owned by Ann, with Mo (member), holding
 // 5,000 things in 20 places, 12 tags and 6 brands, bulk-inserted as kept_owner with every trigger
@@ -28,14 +28,14 @@ import { stats } from './timing.js';
 // Then one save is undone together (POST /api/v1/audit/undo), timed and recorded. A real pg-boss
 // queue takes the re-embeds, as in production.
 //
-// LIMITS (reference-runner ms; under() scales them, test/perf/limits.ts). D250 measured the old
-// row-by-row save at 3–4 s for 200 rows on a quiet machine: 5,312 statements, about 26 a row.
+// LIMITS (reference-runner ms; under() scales them, test/perf/limits.ts). The old row-by-row
+// save measured 3–4 s for 200 rows on a quiet machine: 5,312 statements, about 26 a row.
 // Set-based (sheet.ts bulkEdit, 2026-10-20) it measured 546, 400 of them the re-embeds' sends,
 // and then about 350 once those share one scope read (200 fewer reads, counted not timed). Old
-// and new saves interleaved
-// in one run on an M1 Pro took p50 16.9 s and 2.2 s (load 43–58 from other agents' suites,
-// calibration factor 1.47): 7.8 times faster under the same load. No quiet run was possible that
-// day, so the limit is the target itself, 1 s, which the old save fails threefold on any machine.
+// and new saves interleaved in one run on an M1 Pro took p50 16.9 s and 2.2 s (load 43–58 from
+// other test suites, calibration factor 1.47): 7.8 times faster under the same load. No quiet
+// run was possible that day, so the limit is the target itself, 1 s, which the old save fails
+// threefold on any machine.
 
 const THINGS = 5_000;
 const PLACES = 20;
@@ -62,7 +62,8 @@ beforeAll(async () => {
   db = await testDb();
   await db.reset();
   // A real job queue, as production has: each renamed thing queues its embedding (pg-boss's
-  // INSERT in the request's transaction), part of what a save costs.
+  // INSERT in the request's transaction), part of what a save costs. Every queue a request sends
+  // to is created as the server creates them at boot: pg-boss refuses a send to a missing queue.
   boss = createBoss({
     connectionString: db.urls.system,
     supervise: false,
@@ -70,7 +71,7 @@ beforeAll(async () => {
     max: 2,
   });
   await boss.start();
-  await boss.createQueue('embed-thing', queueOptions(JOB_POLICIES['embed-thing']));
+  await createRequestQueues(boss);
   t = await peopleApp(db, { jobs: bossQueue(boss) });
   const started = performance.now();
   ann = await person(t, db, 'ann');
@@ -183,7 +184,7 @@ async function save(slice: string[], n: number): Promise<{ ms: number; body: Sav
   return { ms, body };
 }
 
-describe('the spreadsheet save (D250, full mode only)', () => {
+describe('the spreadsheet save (full mode only)', () => {
   it(`saves ${ROWS} rows at ${THINGS} things in under ${LIMITS.save200MaxMs} ms`, async () => {
     const samples: number[] = [];
     let last: Saved | null = null;
@@ -196,7 +197,7 @@ describe('the spreadsheet save (D250, full mode only)', () => {
     results.save200 = s;
     under(results, 'save200MaxMs', s.max, LIMITS.save200MaxMs);
 
-    // One Undo for the whole save (D150), recorded (the sheet's toast sends it).
+    // One Undo for the whole save, recorded (the sheet's toast sends it).
     const undoStart = performance.now();
     const undo = await call(t, '/api/v1/audit/undo', {
       as: mo,

@@ -31,7 +31,7 @@ function picker(onPick = vi.fn(), input = tv, locale: 'en' | 'ar' | 'fr' = 'en')
 
 const sections = () => within(screen.getByRole('listbox')).getAllByRole('group');
 
-describe('the shape sprite (D249)', () => {
+describe('the shape sprite', () => {
   it('has a picture for every shape, each in its own cell', () => {
     const cells = MAP_MODEL_KEYS.map((k) => THUMB_CELLS[k]);
     expect(cells.every((c) => Number.isInteger(c))).toBe(true);

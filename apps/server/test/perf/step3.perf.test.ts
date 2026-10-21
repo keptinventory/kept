@@ -91,7 +91,7 @@ afterAll(async () => {
   console.log(`step3 perf: ${JSON.stringify(results)} → ${file}`);
 });
 
-describe('step-3 performance (plan T32, full mode only)', () => {
+describe('capture, inbox and CSV import performance (full mode only)', () => {
   it(`applies a ${BATCH_OPS}-op capture batch with p95 under ${LIMITS.batchP95Ms} ms`, async () => {
     const samples: number[] = [];
     for (let i = 0; i < BATCH_WARMUP + BATCH_RUNS; i++) {

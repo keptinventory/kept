@@ -54,7 +54,7 @@ function Names({ caps }: { caps: AiCap[] }) {
   );
 }
 
-describe("T9's empty labels and zero latency", () => {
+describe('the providers contract: empty labels and zero latency', () => {
   it('a call the instance key paid reads "paid by this server"', async () => {
     await renderUI(<AiLine call={call} />);
     expect(screen.getByText(/paid by this server/)).toBeInTheDocument();

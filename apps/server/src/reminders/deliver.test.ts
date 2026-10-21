@@ -24,10 +24,10 @@ import { runScan } from './scan.js';
 
 // `reminder-deliver` sends one queued delivery once (a duplicate job does nothing, a
 // failure is retried, a closed occurrence or a departed member is skipped), and `reminder-digest`
-// sends each person's digest once per local day and channel at their own digest time (D29, D122;
+// sends each person's digest once per local day and channel at their own digest time (across
 // Cairo's DST transitions, computed here, not typed in). What the senders get names the
-// thing, its path, the location and the local date; the words themselves are T15's
-// (notify/words.ts, tested in five languages there).
+// thing, its path, the location and the local date; the words themselves are
+// notify/words.ts's (tested in five languages there).
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });
@@ -128,7 +128,7 @@ beforeEach(async () => {
 });
 
 describe('reminder-deliver', () => {
-  it('sends once, naming the thing, its path, the location and the local date (L113)', async () => {
+  it('sends once, naming the thing, its path, the location and the local date', async () => {
     await runScan(deps());
     expect(jobs).toHaveLength(1);
     const data = jobs[0]?.data;
@@ -229,7 +229,7 @@ describe('reminder-deliver', () => {
   });
 });
 
-describe('reminder-digest (D29, D122)', () => {
+describe('reminder-digest', () => {
   /** A document expiring soon: a `digest` delivery for Ibrahim. */
   async function expiring(title: string, days: number): Promise<string> {
     const id = newId();
@@ -266,7 +266,7 @@ describe('reminder-digest (D29, D122)', () => {
     await expiring('Building inspection', 20);
     await runScan(deps());
     expect(sent).toEqual([]);
-    // Berlin's clock, whatever Cairo's says (D122).
+    // Berlin's clock, whatever Cairo's says.
     expect(
       (await runDigests(deps(), { now: await at('2026-10-05 07:59', 'Europe/Berlin') })).sent,
     ).toBe(0);
@@ -295,7 +295,7 @@ describe('reminder-digest (D29, D122)', () => {
     expect(sent).toHaveLength(2);
   });
 
-  describe("across Cairo's 2026 changes (V21)", () => {
+  describe("across Cairo's 2026 changes", () => {
     /** The instants Cairo's offset changes in 2026, found from the tz data by Postgres. */
     let changes: { at: Date; day: string }[];
 
@@ -314,7 +314,7 @@ describe('reminder-digest (D29, D122)', () => {
       await own('DELETE FROM public.loans');
     });
 
-    it('finds the two transitions the spike recorded', () => {
+    it('finds the two recorded transitions', () => {
       expect(changes.map((c) => c.at.toISOString())).toEqual([
         '2026-04-23T22:00:00.000Z',
         '2026-10-29T21:00:00.000Z',

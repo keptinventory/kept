@@ -234,7 +234,7 @@ export function storeContract(name: string, makeStore: () => OfflineStore | Prom
       expect(await s.byLegacy('csv', '000-001')).toEqual([]);
     });
 
-    it('keeps own codes (D208) and drops one removed by its key', async () => {
+    it('keeps own codes and drops one removed by its key', async () => {
       const s = await makeStore();
       const own = {
         locationId: LOC,
@@ -265,7 +265,7 @@ export function storeContract(name: string, makeStore: () => OfflineStore | Prom
       expect(await s.byLegacy('homebox', '000-001')).toEqual([{ locationId: LOC, thingId: DRILL }]);
     });
 
-    it('opens a label a Kept import re-issued by its old code, after the short IDs (step-7 T20)', async () => {
+    it('opens a label a Kept import re-issued by its old code, after the short IDs', async () => {
       const s = await makeStore();
       const reissued = {
         locationId: LOC,
@@ -289,7 +289,7 @@ export function storeContract(name: string, makeStore: () => OfflineStore | Prom
       expect(await s.byCode('ZZZZZZ')).toBeUndefined();
     });
 
-    it('searches a thing by its legacy and own codes, as online search does (D146, D208)', async () => {
+    it('searches a thing by its legacy and own codes, as online search does', async () => {
       const s = await makeStore();
       await s.applySnapshot(firstPage());
       const found = async (q: string) => (await s.search(q, 10)).map((t) => t.id);
@@ -605,7 +605,7 @@ export function storeContract(name: string, makeStore: () => OfflineStore | Prom
       expect(await s.tray()).toEqual([]);
     });
 
-    it('keeps a share until it is dropped, blobs intact (D140)', async () => {
+    it('keeps a share until it is dropped, blobs intact', async () => {
       const s = await makeStore();
       const share = {
         id: 'share-1',

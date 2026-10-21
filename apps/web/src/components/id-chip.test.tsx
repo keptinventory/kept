@@ -19,7 +19,7 @@ function reducedMotion(reduce: boolean) {
 }
 afterEach(() => vi.unstubAllGlobals());
 
-describe('IdChip (D134)', () => {
+describe('IdChip', () => {
   it('shows the code as printed, 3 + 3, with the full code as its name', async () => {
     reducedMotion(false);
     await renderUI(<IdChip code="7KQ4MZ" />);
@@ -44,7 +44,7 @@ describe('IdChip (D134)', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('"ID pending" (D112): a dashed chip, announced as "ID pending"', async () => {
+  it('"ID pending": a dashed chip, announced as "ID pending"', async () => {
     reducedMotion(false);
     await renderUI(<IdChip code={null} pending />);
     const chip = screen.getByRole('img', { name: 'ID pending' });
@@ -67,7 +67,7 @@ describe('IdChip (D134)', () => {
     expect(chip).toHaveAttribute('data-printing', 'true');
   });
 
-  it('animates like printed tape once, when the code arrives (D195)', async () => {
+  it('animates like printed tape once, when the code arrives', async () => {
     reducedMotion(false);
     const { rerender } = await renderUI(<IdChip code={null} />);
     rerender(
@@ -95,7 +95,7 @@ describe('IdChip (D134)', () => {
   });
 });
 
-describe('StatusPill (screens §4: never colour alone)', () => {
+describe('StatusPill (never colour alone)', () => {
   it.each([
     ['uncertain', 'Not sure where'],
     ['draft', 'Draft'],

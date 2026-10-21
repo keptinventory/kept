@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { AppError } from '../http/errors.js';
 import { sniff } from './sniff.js';
 
-// T2 step 6; D157: the content decides, never the declared type or the name.
+// Sniffing a file's type: the content decides, never the declared type or the name.
 
 const fixture = (name: string) =>
   fileURLToPath(new URL(`../../test/fixtures/files/${name}`, import.meta.url));
@@ -27,7 +27,7 @@ describe('sniff', () => {
     },
   );
 
-  it('accepts a video only through the video flag (D170)', async () => {
+  it('accepts a video only through the video flag', async () => {
     await expect(sniff(fixture('clip.mp4'))).rejects.toMatchObject({
       code: 'unsupported_media_type',
     });

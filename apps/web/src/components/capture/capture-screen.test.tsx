@@ -162,7 +162,7 @@ describe('the capture screen', () => {
     expect(localStorage.getItem('kept.capture.mode')).toBe('receipt');
   });
 
-  it('with AI off, Name is the primary input and a capture with no photo needs one (D194)', async () => {
+  it('with AI off, Name is the primary input and a capture with no photo needs one', async () => {
     const { user, store } = await renderCapture();
     const name = await screen.findByRole('textbox', { name: 'Name' });
     expect(name).toBeRequired();
@@ -227,7 +227,7 @@ describe('the capture screen', () => {
     }
   });
 
-  it('"+ photo to this thing" attaches the next shot to the draft just taken (D175)', async () => {
+  it('"+ photo to this thing" attaches the next shot to the draft just taken', async () => {
     const { user, store } = await renderCapture();
     const plus = await screen.findByRole('button', { name: /\+ photo to this thing/ });
     expect(plus).toBeDisabled();
@@ -243,7 +243,7 @@ describe('the capture screen', () => {
     expect(plus).not.toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('Gallery follows the mode strip: in Receipt a picked photo is a receipt, in Thing a thing (D140, V9)', async () => {
+  it('Gallery follows the mode strip: in Receipt a picked photo is a receipt, in Thing a thing', async () => {
     // Before, Gallery always made THING drafts, so a saved receipt picked in Receipt mode (the
     // iPhone's way in, with no share target) arrived as a Thing draft.
     const decode = vi.fn().mockRejectedValue(new Error('no canvas in jsdom'));
@@ -274,7 +274,7 @@ describe('the capture screen', () => {
     expect(modes).toEqual(['receipt', 'thing', 'thing']);
   });
 
-  it('opens the room grid on the first capture into a new home (D194)', async () => {
+  it('opens the room grid on the first capture into a new home', async () => {
     const { user } = await renderCapture({ personalLocationId: CABIN });
     const grid = await screen.findByRole('region', { name: 'Which room are you in?' });
     const rooms = within(grid)
@@ -308,7 +308,7 @@ describe('the capture screen', () => {
     expect(await screen.findByText(/needs a secure \(HTTPS\) address/)).toBeInTheDocument();
   });
 
-  it('suggests the nearest location from a position read on the phone, never sent (D153)', async () => {
+  it('suggests the nearest location from a position read on the phone, never sent', async () => {
     localStorage.setItem('kept.capture.suggestWhere', '1');
     const geo: Geo = {
       getCurrentPosition: vi.fn((ok: PositionCallback) =>
@@ -324,7 +324,7 @@ describe('the capture screen', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it("follows the person's own choice from /me: off there turns this phone's copy off (T19)", async () => {
+  it("follows the person's own choice from /me: off there turns this phone's copy off", async () => {
     localStorage.setItem('kept.capture.suggestWhere', '1');
     const geo: Geo = { getCurrentPosition: vi.fn() };
     await renderCapture({ geo }, 'en', (qc) =>
@@ -349,7 +349,7 @@ describe('the capture screen', () => {
     expect(screen.getByRole('button', { name: 'Undo this batch' })).toBeInTheDocument();
   });
 
-  it('Done on the summary offers Undo for 10 s; captures still queued leave the phone (D150)', async () => {
+  it('Done on the summary offers Undo for 10 s; captures still queued leave the phone', async () => {
     const store = await world();
     const serverUndo = vi.fn(async () => ({ trashed: [] }));
     const { user, onExit } = await renderCapture({ store, serverUndo });
@@ -384,7 +384,7 @@ describe('the capture screen', () => {
 });
 
 describe('the /capture route', () => {
-  it('where AI is paused, the paused banner sits under the place chip: photos still save (D206)', async () => {
+  it('where AI is paused, the paused banner sits under the place chip: photos still save', async () => {
     const until = new Date(Date.UTC(2031, 9, 1)).toISOString();
     vi.stubGlobal('fetch', async (input: RequestInfo | URL) =>
       String(input).includes('/api/v1/ai/status')
@@ -525,7 +525,7 @@ describe('the /capture route', () => {
     },
   });
 
-  it('READING reads a meter: the chip offers only things with one, and the photo goes on it (T13)', async () => {
+  it('READING reads a meter: the chip offers only things with one, and the photo goes on it', async () => {
     const store = await world(withCar);
     const { user } = await renderCapture({ store });
     await user.click(await screen.findByRole('radio', { name: 'Reading' }));
@@ -553,7 +553,7 @@ describe('the /capture route', () => {
     });
   });
 
-  it('READING with a typed value queues log_reading, the photo its proof, not create_thing (T19)', async () => {
+  it('READING with a typed value queues log_reading, the photo its proof, not create_thing', async () => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
     const store = await world(withCar);
     const { user } = await renderCapture({ store });

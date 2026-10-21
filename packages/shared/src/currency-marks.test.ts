@@ -4,9 +4,9 @@ import { type CurrencyContext, type CurrencyMatch, mapCurrencyMark } from './cur
 const eg: CurrencyContext = { languages: ['ar', 'en'], vendorCountry: 'EG' };
 const plain: CurrencyContext = { languages: ['en'] };
 
-describe('mapCurrencyMark (§2.1 currency rule, D136, D189)', () => {
+describe('mapCurrencyMark (the currency rule)', () => {
   const rows: Array<[string, CurrencyContext, CurrencyMatch | null]> = [
-    // A bare dollar always waits, with no preselection (D189), wherever the receipt is from.
+    // A bare dollar always waits, with no preselection, wherever the receipt is from.
     ['$', plain, { ambiguous: ['USD', 'CAD'] }],
     ['$', { languages: ['en'], vendorCountry: 'US' }, { ambiguous: ['USD', 'CAD'] }],
     [' $ ', eg, { ambiguous: ['USD', 'CAD'] }],
@@ -41,7 +41,7 @@ describe('mapCurrencyMark (§2.1 currency rule, D136, D189)', () => {
     ['€', plain, { code: 'EUR' }],
     ['EUR', plain, { code: 'EUR' }],
     ['يورو', eg, { code: 'EUR' }],
-    // Other ISO codes only when enabled on the instance (D168).
+    // Other ISO codes only when enabled on the instance.
     ['SAR', { languages: ['ar'], enabled: ['EGP', 'SAR'] }, { code: 'SAR' }],
     ['SAR', plain, null],
     ['XYZ', { languages: ['en'], enabled: ['XYZ'] }, null],

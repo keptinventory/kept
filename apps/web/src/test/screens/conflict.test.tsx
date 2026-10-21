@@ -1,7 +1,7 @@
 /**
- * D156 on the thing screen: a 412 on Save runs the three-way merge. Fields only Alfred changed are
- * taken silently; fields only I changed are saved on top of his version; a field we both changed
- * opens the conflict sheet (Keep mine, Keep theirs, or Edit).
+ * Edit conflicts on the thing screen: a 412 on Save runs the three-way merge. Fields only Alfred
+ * changed are taken silently; fields only I changed are saved on top of his version; a field we
+ * both changed opens the conflict sheet (Keep mine, Keep theirs, or Edit).
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -60,7 +60,7 @@ describe('edit and save', () => {
     expect(patches(mock)).toHaveLength(0);
   });
 
-  it('validates next to the field (screens §7)', async () => {
+  it('validates next to the field', async () => {
     const { user, mock, form } = await openEdit();
     await user.clear(within(form).getByLabelText('Name'));
     await user.click(within(form).getByRole('button', { name: 'Save' }));
@@ -78,7 +78,7 @@ describe('edit and save', () => {
   });
 });
 
-describe('a 412: the field-level merge (D156)', () => {
+describe('a 412: the field-level merge', () => {
   it('takes a field only Alfred changed silently, and saves mine on top of his version', async () => {
     const { user, mock, form } = await openEdit();
     alfredEdits(mock, { model: 'QE55Q60B-M' });

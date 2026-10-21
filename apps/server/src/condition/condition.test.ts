@@ -18,7 +18,7 @@ import { withScope } from '../db/scope.js';
 import { runJob } from '../jobs/boss.js';
 import { reportJobs } from '../reports/jobs.js';
 
-// Renters' condition reports (1.x, D171, D235), through the front door: starting a report from
+// Renters' condition reports (1.x), through the front door: starting a report from
 // the location's rooms, recording each room and its photos, finishing (and the lock that
 // follows, in the routes and in the database), deleting, and the PDF, alone and side by side.
 //

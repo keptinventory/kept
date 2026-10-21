@@ -3,7 +3,7 @@ import vectors from '@kept/shared/normalize.vectors.json' with { type: 'json' };
 import { describe, expect, it } from 'vitest';
 import { testDb } from '../../test/db.js';
 
-// Task 4: kept.normalize() / kept.strip_prefixes() against the shared vectors (D42, V20). The
+// kept.normalize() / kept.strip_prefixes() against the shared vectors. The
 // JavaScript twin (packages/shared) is tested against the same file; a disagreement is fixed in
 // the twin, never in the vector.
 

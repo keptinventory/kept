@@ -4,7 +4,7 @@
  * PDF itself on the share sheet, where the browser shares files) and Download (where downloads
  * work); only a desktop browser downloads by itself. The label images and the AI calls' CSV
  * reach the share sheet there too, and so do uploaded originals (receipts, manuals, a place's
- * attachments), which stay attachment-only (D157) and are fetched ahead. Each surface is checked
+ * attachments), which stay attachment-only and are fetched ahead. Each surface is checked
  * on a desktop browser, iPhone Safari, and the installed iPhone app, with `navigator.share` and
  * `navigator.canShare` mocked.
  */
@@ -444,7 +444,7 @@ describe('an uploaded original (a receipt, a manual, a place attachment)', () =>
     const opened = vi.spyOn(window, 'open').mockImplementation(() => null);
     const share = on({ ua: IPHONE, standalone: true, shares: true });
     const { user, fetched } = await render(`/p/${INV_IDS.place.livingRoom}`);
-    // With Paperwork on, the place's document is in its Paperwork section (D155).
+    // With Paperwork on, the place's document is in its Paperwork section.
     const row = await screen.findByRole('button', { name: 'Share Document' });
     await waitFor(() => expect(fetched).toEqual([ORIGINAL]));
     await user.click(row);

@@ -1,5 +1,5 @@
 /**
- * First-use hints (D138) with the real driver.js: shown once per person
+ * First-use hints with the real driver.js: shown once per person
  * (the server's `seen` is written when it shows, so a second render doesn't show it), skipped
  * for a module that's off, "Got it" records `dismissed` and puts focus back, one at a time.
  * The RTL placement is driver-kit.test.ts's.
@@ -99,7 +99,7 @@ describe('useHint', () => {
     expect(calls).toHaveLength(0);
   });
 
-  it('is skipped when its module is off in every location (D113)', async () => {
+  it('is skipped when its module is off in every location', async () => {
     await show('inbox.suggested', client([], ['labels']));
     await act(() => new Promise((r) => setTimeout(r, 50)));
     expect(document.querySelector('.driver-hint')).toBeNull();
@@ -137,7 +137,7 @@ describe('useHint', () => {
   });
 });
 
-describe('placement (spike V18: driver.js is physical)', () => {
+describe('placement (driver.js places by physical side)', () => {
   it('swaps start and end, left and right, in RTL only', () => {
     expect(physicalAlign('end', false)).toBe('end');
     expect(physicalAlign('end', true)).toBe('start');

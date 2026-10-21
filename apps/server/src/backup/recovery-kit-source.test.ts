@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readBackupForKit } from './recovery-kit-source.js';
 
-// Step-8 T9: the recovery kit's backup half from the effective backup settings (settings.ts),
+// The recovery kit's backup half from the effective backup settings (settings.ts),
 // here from the environment alone (a client with no saved `backup` row).
 
 const noRow = { query: async () => ({ rows: [], rowCount: 0 }) } as never;

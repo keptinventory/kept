@@ -193,7 +193,7 @@ Put in the key variable your `.env` holds and models your key can call (`DEFAULT
   tokens and cost per case from the ledger.
 - **Search cases** (`test/fixtures/semantic/search-cases.json`, 62): queries found by their words
   and by their meaning, English and Arabic. Recall@10 and MRR for keyword-only search and for the
-  provider's embeddings fused in; the local model (D207) column reads "not built" until S6.5's
+  provider's embeddings fused in; the local model's column reads "not built" until a local
   model ships. Add your own phrasings.
 - `score.test.ts` in each folder runs the scoring maths and the whole harness on the mock in the
   normal test run.

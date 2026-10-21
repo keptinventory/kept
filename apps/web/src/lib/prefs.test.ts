@@ -1,5 +1,5 @@
 /**
- * Device preferences (D143, D203, D204): the five languages, their Intl tags, content width, and
+ * Device preferences: the five languages, their Intl tags, content width, and
  * the pre-paint script in index.html, which must make the same choices before React loads.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -25,7 +25,7 @@ afterEach(() => {
   setThemePref('system');
 });
 
-describe('languages (D204)', () => {
+describe('languages', () => {
   it('has the five launch languages, and knows a tag by its language', () => {
     expect(LOCALES).toEqual(['en', 'ar', 'fr', 'de', 'it']);
     expect(isLocale('it')).toBe(true);
@@ -60,7 +60,7 @@ describe('languages (D204)', () => {
   });
 });
 
-describe('content width (D203)', () => {
+describe('content width', () => {
   it('stores Full width, forgets Centered, and marks the document', () => {
     expect(storedWidthPref()).toBe('centered');
     setWidthPref('full');
@@ -73,7 +73,7 @@ describe('content width (D203)', () => {
   });
 });
 
-describe('theme (D204)', () => {
+describe('theme', () => {
   it('follows the device live while the choice is System', () => {
     let dark = false;
     const listeners = new Set<() => void>();

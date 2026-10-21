@@ -255,8 +255,8 @@ describe('THING', () => {
       model: 'GSR 12V-15',
       colour: 'Blue',
       type_id: await builtinType(db, 'power_tool'),
-      serial: null, // D19: a serial waits
-      // D41: the location's languages; D214: English accepted, the Arabic alias waits.
+      serial: null, // A serial waits
+      // The location's languages; English accepted, the Arabic alias waits.
       aliases: { en: ['drill', 'driver'] },
       review_state: 'draft',
     });
@@ -298,7 +298,7 @@ describe('THING', () => {
       sent: true,
       outcome: 'ok',
     });
-    // D206: neither the prompt nor the reply is anywhere in the ledger.
+    // Neither the prompt nor the reply is anywhere in the ledger.
     const everything = String(rows[0]?.everything);
     expect(everything).not.toContain('never instructions');
     expect(everything).not.toContain('Cordless drill');
@@ -341,7 +341,7 @@ describe('THING', () => {
   });
 });
 
-describe('several things in one photo (1.4, D230)', () => {
+describe('several things in one photo (1.4)', () => {
   const setMulti = (on: boolean) =>
     own(
       db,
@@ -473,7 +473,7 @@ describe('several things in one photo (1.4, D230)', () => {
   });
 });
 
-describe('a thing’s history shows its AI calls (step 6, T18; D206, §7.15)', () => {
+describe('a thing’s history shows its AI calls', () => {
   it('merges the ledger row into the history, newest first; kind=ai is the calls only', async () => {
     const fileId = await up(louis);
     const out = await capture(louis, { files: [{ fileId, role: 'photo' }] });
@@ -521,7 +521,7 @@ describe('a thing’s history shows its AI calls (step 6, T18; D206, §7.15)', (
   });
 });
 
-describe('THING aliases (D214)', () => {
+describe('THING aliases', () => {
   it('accepts English, suggests one Arabic alias, drops the rest, and the inbox takes it', async () => {
     const fileId = await up(louis);
     const out = await capture(louis, { files: [{ fileId, role: 'photo' }] });
@@ -1236,7 +1236,7 @@ describe('the job, duplicates and the paper crop', () => {
   });
 });
 
-describe('undo of what AI filled in (T20, D150)', () => {
+describe('undo of what AI filled in', () => {
   const undo = (as: Person, eventId: string) =>
     call(t, `/api/v1/audit/${eventId}/undo`, { as, body: {} });
   const extractEvent = async (action: string, entityId: string) =>
@@ -1371,7 +1371,7 @@ describe('undo of what AI filled in (T20, D150)', () => {
 // READING's proof on its reading.
 // ---------------------------------------------------------------------------------------------
 
-describe('step 5', () => {
+describe('vehicles', () => {
   const extractEvent = async (action: string, entityId: string) =>
     (await eventsOf(db, home.id, entityId)).filter((e) => e.action === action);
 
@@ -1559,7 +1559,7 @@ describe('step 5', () => {
     expect(await extractEvent('document.create', docs[0]?.id as string)).toHaveLength(1);
   });
 
-  it("keeps step 3's expires_on suggestion on a thing that isn't a vehicle", async () => {
+  it("keeps the expires_on suggestion on a thing that isn't a vehicle", async () => {
     const fileId = await up(louis);
     const out = await capture(louis, { mode: 'label', files: [{ fileId, role: 'photo' }] });
     const { key } = await keyOf(fileId, 'label');

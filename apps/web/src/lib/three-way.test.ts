@@ -4,7 +4,7 @@ import { merge } from './three-way';
 type Row = Record<string, unknown>;
 const FIELDS = ['name', 'model', 'serial', 'custom.voltage', 'tagIds'];
 
-describe('three-way merge (D156)', () => {
+describe('three-way merge', () => {
   const base: Row = {
     name: 'Drill',
     model: 'GSR 18',

@@ -5,7 +5,7 @@ import { systemJobs } from '../jobs/system.js';
 import type { Mail } from '../mail/mailer.js';
 import { expireMemberships, notifyOwnerNewMember } from './membership-jobs.js';
 
-// Task 19: the membership jobs, as kept_system (D46, D180).
+// The membership jobs, as kept_system.
 
 let db: TestDb;
 
@@ -105,7 +105,7 @@ describe('notify-owner-new-member', () => {
   });
 });
 
-describe('the owner in the centre (step 4, Q30)', () => {
+describe('the owner in the centre', () => {
   const noticesOf = (userId: string) =>
     ownerTx(db, async (c) => {
       const { rows } = await c.query(

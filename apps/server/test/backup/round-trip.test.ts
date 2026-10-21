@@ -29,7 +29,7 @@ import { type TestPgTools, testPgTools } from '../pg-tools.js';
 import { asOwner } from '../tenancy.js';
 import { createLocation, createThing, type Loc } from '../things.js';
 
-// Step 8, T7 (D66, D144, L78): a backup comes back. Snapshot with restic, restore into a new,
+// A backup comes back. Snapshot with restic, restore into a new,
 // empty database and an empty file store, and check every table by its data digest, not just
 // its count; refuse what must be refused; the drill records itself in the live database; verify
 // finds a file the S3 bucket lost. restic is the in-memory fake unless KEPT_TEST_RESTIC=1 (then
@@ -357,7 +357,7 @@ describe('the drill', () => {
 describe('verify', () => {
   it('checks the repository and, with S3 file storage, reports a file the bucket lost, by key', async () => {
     const dir = path.join(scratch, 'verify');
-    // S3 storage: the files stay in the store and the manifest lists them (D144). The local
+    // S3 storage: the files stay in the store and the manifest lists them. The local
     // store stands in for the bucket.
     const run = await runSnapshot(depsFor(dir, { storage: 's3' }), { kind: 'nightly' });
     expect(run.status).toBe('ok');

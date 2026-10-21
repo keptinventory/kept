@@ -17,9 +17,9 @@ import {
 import type { HomeResponse } from './service.js';
 import type { SummaryResponse } from './summary.js';
 
-// GET /api/v1/summary (D244): Home's counts per location, for Home Assistant and dashboard
-// widgets, through the front door with a session and with personal tokens; and the routes D244
-// opens to tokens (the vehicles list, the agenda, the schedules list, marking a schedule done, a
+// GET /api/v1/summary: Home's counts per location, for Home Assistant and dashboard
+// widgets, through the front door with a session and with personal tokens; and the routes open
+// to tokens (the vehicles list, the agenda, the schedules list, marking a schedule done, a
 // reading sent as Home Assistant's).
 
 let db: TestDb;
@@ -84,7 +84,7 @@ function bearer(
 beforeAll(async () => {
   db = await testDb();
   await db.reset();
-  // Token creation is https only (D181).
+  // Token creation is https only.
   t = await peopleApp(db, { publicUrl: 'https://kept.example' });
   ibrahim = await person(t, db, 'ibrahim');
   talia = await person(t, db, 'talia');
@@ -136,7 +136,7 @@ beforeAll(async () => {
   await schedule(cabin, peter, boat.id, 'Peter overdue', inDays(-30));
 }, 120_000);
 
-describe('GET /api/v1/summary (D244)', () => {
+describe('GET /api/v1/summary', () => {
   it('needs a session or a token', async () => {
     expect((await call(t, '/api/v1/summary')).statusCode).toBe(401);
   });
@@ -222,7 +222,7 @@ describe('GET /api/v1/summary (D244)', () => {
   });
 });
 
-describe('the routes D244 opens to tokens', () => {
+describe('the routes open to tokens', () => {
   let reader: string;
   let writer: string;
 
@@ -236,7 +236,7 @@ describe('the routes D244 opens to tokens', () => {
       name: 'HA write',
       scope: 'write',
       locationIds: [home.id, garage.id],
-      // Home and the Garage have different members: say it is meant (D180's warning).
+      // Home and the Garage have different members: say it is meant (the mixed-members warning).
       confirmCrossLocation: true,
     });
   });
@@ -290,7 +290,7 @@ describe('the routes D244 opens to tokens', () => {
     };
     expect(done.schedule.id).toBe(filterScheduleId);
     expect(done.schedule.lastService?.servicedOn).toBe(cairoToday());
-    // The filter was a one-off: once done it is done (D247), and leaves Due everywhere.
+    // The filter was a one-off: once done it is done, and leaves Due everywhere.
     expect(done.schedule.next).toMatchObject({ state: 'done', dueOn: null });
     const s = await summary(ibrahim);
     expect(s.locations.find((l) => l.id === home.id)?.counts.due).toBe(0);

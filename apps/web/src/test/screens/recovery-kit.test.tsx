@@ -1,5 +1,5 @@
 /**
- * Step 8 T22 (D182, D176): the recovery kit's download from Admin → Status, after
+ * The recovery kit's download from Admin → Status, after
  * re-authentication, on the mock (api/ops/mock/kit.ts).
  */
 import { screen, waitFor, within } from '@testing-library/react';
@@ -34,7 +34,7 @@ const openSheet = async (locale: 'en' | 'ar' = 'en') => {
   return r;
 };
 
-describe('Admin → Status → the recovery kit (T22)', () => {
+describe('Admin → Status → the recovery kit', () => {
   it('a stale kit asks again; a wrong password keeps the sheet open; the kit saves and its URL goes', async () => {
     const { user, mock } = await openSheet();
     expect(await screen.findByText('Changed since you downloaded it')).toBeInTheDocument();

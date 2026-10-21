@@ -17,7 +17,7 @@ import { originalKey } from '../storage/blob-store.js';
 import { S3BlobStore } from '../storage/s3.js';
 import { createUrlSigner } from '../storage/signed-url.js';
 
-// T17 on S3 (Q18, D157): the same upload and serving, with the blobs in RustFS and the browser
+// T17 on S3: the same upload and serving, with the blobs in RustFS and the browser
 // sent to presigned URLs. Like storage/s3.test.ts, it runs against KEPT_TEST_S3_URL (CI) and
 // fails when that store isn't answering; without the variable it tries the dev port and skips
 // when nothing is there.
@@ -38,7 +38,7 @@ async function reachable(url: string): Promise<boolean> {
   }
 }
 
-describe('KEPT_S3_PUBLIC_ENDPOINT (T18 decision)', () => {
+describe('KEPT_S3_PUBLIC_ENDPOINT', () => {
   it('signs browser URLs for the public host, and talks to the store on the private one', async () => {
     const store = new S3BlobStore({
       bucket: 'kept',

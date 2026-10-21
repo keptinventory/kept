@@ -101,7 +101,7 @@ describe('the connections mock', () => {
     expect(JSON.stringify(listed)).not.toContain(created.secret);
   });
 
-  it('warns before a write token across locations (D179), then makes it when asked again', async () => {
+  it('warns before a write token across locations, then makes it when asked again', async () => {
     const body = { name: 'Both', scope: 'write' as const, locationIds: [L.home, L.garage] };
     expect(await api.createToken(body)).toEqual({ warning: 'cross_location_write' });
     const again = await api.createToken({ ...body, confirmCrossLocation: true });

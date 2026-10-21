@@ -11,7 +11,7 @@ import { createLogger } from '../http/logger.js';
 
 // Step-7 T18 through the front door, as the web calls it (apps/web/src/api/portability/
 // {types,paths}.ts, components/registries/convert-field-sheet): a field made secret, plain again,
-// or another kind, previewed per location (D172, D177, plan Q20), owner only, in one transaction;
+// or another kind, previewed per location, owner only, in one transaction;
 // no value in the response, the audit or a log line.
 
 vi.setConfig({ testTimeout: 60_000, hookTimeout: 120_000 });
@@ -43,7 +43,7 @@ beforeAll(async () => {
     },
   });
   t = await peopleApp(db, {
-    // Reveal is https only (D181).
+    // Reveal is https only.
     publicUrl: 'https://kept.example',
     secretKeys: keys,
     logger: createLogger({ KEPT_LOG_LEVEL: 'trace', KEPT_LOG_FORMAT: 'json' }, sink),

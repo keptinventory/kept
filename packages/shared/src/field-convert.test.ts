@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CONVERSIONS, canConvertKind, canConvertSecret } from './field-convert.js';
 import { FIELD_KINDS } from './inventory.js';
 
-describe('field conversions (D172, D177)', () => {
+describe('field conversions', () => {
   it('names every field kind', () => {
     expect(Object.keys(CONVERSIONS).sort()).toEqual([...FIELD_KINDS].sort());
   });

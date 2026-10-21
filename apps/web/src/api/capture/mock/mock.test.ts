@@ -85,7 +85,7 @@ describe('the capture mock', () => {
     expect(driver?.batch?.count).toBe(6);
     expect(driver?.suggestions?.map((s) => s.field)).toEqual(['serial', 'manufactured_on']);
     expect(driver?.extraction?.call?.tokens).toBe(2502);
-    // The drafts are real things (D18).
+    // The drafts are real things.
     expect((await inventoryApi.thing(CAPTURE_IDS.seed.cord)).name).toBe('Extension cord, 5 m');
     const found = await api.inbox({ q: 'extinguisher' });
     expect(found.items.map((i) => i.id)).toEqual([CAPTURE_IDS.inbox.extinguisher]);
@@ -119,7 +119,7 @@ describe('the capture mock', () => {
     await api.inboxMerge(CAPTURE_IDS.inbox.duplicate, { into: INV_IDS.thing.cableBox }, 1);
     expect((await fail(inventoryApi.thing(INV_IDS.thing.hdmiCable))).status).toBe(404);
     expect((await inventoryApi.thing(INV_IDS.thing.cableBox)).id).toBe(INV_IDS.thing.cableBox);
-    // The merged thing's events are the survivor's history now, marked "merged from" (T15).
+    // The merged thing's events are the survivor's history now, marked "merged from".
     const history = await inventoryApi.thingHistory(INV_IDS.thing.cableBox);
     const moved = history.items.find((e) => e.entity.id === INV_IDS.thing.hdmiCable);
     expect(moved?.mergedFrom).toEqual({ id: INV_IDS.thing.hdmiCable, name: 'HDMI cable, 2 m' });
@@ -253,7 +253,7 @@ describe('the capture mock', () => {
     expect(printed.printedConfirmedAt).not.toBeNull();
   });
 
-  it('labels: a dry run allocates nothing, and "unprinted" drops what was printed (T28)', async () => {
+  it('labels: a dry run allocates nothing, and "unprinted" drops what was printed', async () => {
     const before = await api.labelSummary(L.home);
     const blank = await api.previewLabelBatch({
       locationId: L.home,
@@ -278,7 +278,7 @@ describe('the capture mock', () => {
     await api.labelBatchPrinted(batch.id);
     expect((await api.previewLabelBatch(body)).labels).toEqual([]);
     expect((await api.labelSummary(L.home)).unprinted).toBe(0);
-    // A real batch with nothing left to label is refused, with what was left out (T16).
+    // A real batch with nothing left to label is refused, with what was left out.
     const none = await fail(api.createLabelBatch(body));
     expect(none).toMatchObject({ status: 400, code: 'validation' });
     expect(none.details.excluded).toEqual((await api.previewLabelBatch(body)).excluded);
@@ -340,7 +340,7 @@ describe('the capture mock', () => {
   });
 });
 
-describe('the AI mock (T29, T29a)', () => {
+describe('the AI mock', () => {
   it('lists calls per scope, filtered in the URL form, newest first', async () => {
     const mine = await api.aiCalls({ scope: 'me' });
     expect(mine.items.length).toBeGreaterThan(3);
@@ -364,7 +364,7 @@ describe('the AI mock (T29, T29a)', () => {
     if (first) first.model = '=cmd';
     const res = await fetch(api.aiCallsCsvUrl({ scope: 'me', task: 'extract_thing' }));
     expect(res.headers.get('content-type')).toContain('text/csv');
-    // The server's shape (D169): a BOM first (text() decodes it away), and CRLF after every
+    // The server's shape: a BOM first (text() decodes it away), and CRLF after every
     // row, the last one too.
     const bytes = new Uint8Array(await res.clone().arrayBuffer());
     expect([...bytes.slice(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
@@ -398,7 +398,7 @@ describe('the AI mock (T29, T29a)', () => {
     expect((await api.aiStatus(L.home)).pausedUntil).toBeNull();
   });
 
-  it("T9's contract: replacing a provider needs If-Match; a failed listing is 409", async () => {
+  it('the providers contract: replacing a provider needs If-Match; a failed listing is 409', async () => {
     const saved = await api.putAiProvider('account', { reasoning: 'medium' }, 1);
     expect(saved.rowVersion).toBe(2);
     expect((await fail(api.putAiProvider('account', { reasoning: 'low' }))).status).toBe(428);
@@ -413,7 +413,7 @@ describe('the AI mock (T29, T29a)', () => {
     expect(listing).toMatchObject({ status: 409, code: 'ai_unavailable' });
   });
 
-  it("T9's contract: the instance's caps have no label, and Remove keeps the cap's row", async () => {
+  it("the providers contract: the instance's caps have no label, and Remove keeps the cap's row", async () => {
     const instance = await api.putAiCap({ scope: 'instance', tokensPerMonth: 5_000_000 });
     expect(instance.target.label).toBe('');
     const paused = await api.pauseAi({ scope: 'instance' });
@@ -426,7 +426,7 @@ describe('the AI mock (T29, T29a)', () => {
     expect(after.caps.map((c) => c.id)).toEqual([home?.id]);
   });
 
-  it("T9's contract: usage is this UTC month by default; the instance list is newest first only", async () => {
+  it('the providers contract: usage is this UTC month by default; the instance list is newest first only', async () => {
     const usage = await api.aiUsage({ scope: 'me' });
     const now = new Date();
     expect(usage.from).toBe(
@@ -439,7 +439,7 @@ describe('the AI mock (T29, T29a)', () => {
     expect(newest.items.every((c) => c.paidBy.label === '')).toBe(true);
   });
 
-  it("T9's contract: a price from the prefill says when the provider listed it", async () => {
+  it('the providers contract: a price from the prefill says when the provider listed it', async () => {
     const listed = await api.addAiPrice({
       providerKind: 'groq',
       model: 'qwen/qwen3.8-27b',

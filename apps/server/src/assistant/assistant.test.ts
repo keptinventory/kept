@@ -243,7 +243,7 @@ describe('a question with a tool step and an answer', () => {
       [threadId],
     );
     expect(cited?.cited_location_ids).toEqual([home.id]);
-    // The tool-calling message cites the location it asked about (D164).
+    // The tool-calling message cites the location it asked about.
     const results = await own<{ location_id: string | null }>(
       db,
       `SELECT r.location_id FROM public.assistant_tool_results r
@@ -345,7 +345,7 @@ describe('a question with a tool step and an answer', () => {
     });
   });
 
-  it('a step after touching two owners’ locations is paid by the asker’s own cascade (D167)', async () => {
+  it('a step after touching two owners’ locations is paid by the asker’s own cascade', async () => {
     await join(db, family.id, louis.userId, 'member');
     try {
       const { turnId } = await ask(louis, 'Where are my cables?', {
@@ -420,7 +420,7 @@ describe('a question with a tool step and an answer', () => {
   });
 });
 
-describe('writes are proposals the person confirms (D22, D179)', () => {
+describe('writes are proposals the person confirms', () => {
   async function proposeMove(p: Person = louis) {
     const { threadId, turnId } = await ask(p, 'Move the HDMI cables to Garage box 3', {
       kind: 'thing',
@@ -853,7 +853,7 @@ describe('writes are proposals the person confirms (D22, D179)', () => {
     ).toEqual([]);
   });
 
-  it('a log_service card names the consumable each line takes stock from (D236)', async () => {
+  it('a log_service card names the consumable each line takes stock from', async () => {
     const corolla = await createThing(t, ibrahim, garage, { name: 'Corolla' });
     const oil = await createThing(t, ibrahim, garage, {
       name: 'Engine oil',
@@ -941,7 +941,7 @@ describe('writes are proposals the person confirms (D22, D179)', () => {
 });
 
 describe('privacy, pauses and redaction', () => {
-  it('Bruce, Home’s admin, and the instance admin can’t read Louis’s thread (D23)', async () => {
+  it('Bruce, Home’s admin, and the instance admin can’t read Louis’s thread', async () => {
     const { threadId, turnId } = await ask(louis, 'Private question');
     await own(
       db,
@@ -997,7 +997,7 @@ describe('privacy, pauses and redaction', () => {
     }
   });
 
-  it('Louis loses Home: Home’s results and answers read removed, Garage’s stay, open Home proposals are cancelled (D164)', async () => {
+  it('Louis loses Home: Home’s results and answers read removed, Garage’s stay, open Home proposals are cancelled', async () => {
     const box = await createThing(t, ibrahim, garage, { name: 'Toolbox' });
     const homeTurn = await ask(louis, 'Where is the HDMI cable?', {
       kind: 'location',

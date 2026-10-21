@@ -1,7 +1,7 @@
 /**
  * The PWA shell against the built app and the real server: the service worker
- * installs, the shell reloads offline, nothing authenticated is cached (D181), the manifest is
- * served as one, a share-target POST is handed to the page (D140), the catalogue in use is kept
+ * installs, the shell reloads offline, nothing authenticated is cached, the manifest is
+ * served as one, a share-target POST is handed to the page, the catalogue in use is kept
  * for offline, and no page load breaks the CSP. Reads only: it never sets the instance up, so it
  * can share the flow instances with flow.spec.ts.
  */

@@ -257,7 +257,7 @@ async function classesFor(
 
 /** A thing whose name shows in other things' breadcrumbs and search documents: renaming it
  * leaves those stale until the location is reindexed. */
-async function holdsThings(client: pg.ClientBase, thingId: string): Promise<boolean> {
+export async function holdsThings(client: pg.ClientBase, thingId: string): Promise<boolean> {
   const { rows } = await client.query<{ holds: boolean }>(
     `SELECT EXISTS (SELECT 1 FROM public.things c WHERE c.container_id = $1) AS holds`,
     [thingId],

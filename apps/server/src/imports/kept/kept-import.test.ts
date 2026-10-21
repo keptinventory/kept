@@ -31,7 +31,7 @@ import { unlockSecrets } from './secrets.js';
 
 // A Kept export imported into a new location, on the server it came from:
 // every row remapped, labels re-issued with the old codes kept, files byte-identical, the
-// secrets with the passphrase (D68), history carried as `import` events, and a resumed run
+// secrets with the passphrase, history carried as `import` events, and a resumed run
 // that makes nothing twice. The export is made with the registry's own readers
 // (test/kept-export.ts); the round trip through the export job is test/portability.
 
@@ -140,7 +140,7 @@ beforeAll(async () => {
     },
   });
   expect(attach.statusCode, attach.body).toBe(201);
-  // The map (D237, #138): the shelf as a room, the safe hung on its back wall at 1.75 m.
+  // The map (#138): the shelf as a room, the safe hung on its back wall at 1.75 m.
   await own(
     db,
     `INSERT INTO public.map_nodes (location_id, place_id, x_cm, z_cm, w_cm, d_cm, room_kind, surface)
@@ -160,7 +160,7 @@ afterAll(async () => {
   await files.cleanup();
 });
 
-describe('a Kept export imported on the server it came from (plan T14)', () => {
+describe('a Kept export imported on the server it came from', () => {
   let target: Loc;
   let runId: string;
   let forged: Awaited<ReturnType<typeof forgeKeptExport>>;
@@ -565,7 +565,7 @@ describe('resuming and refusing', () => {
     }
   });
 
-  it('reads a version-1 export, without the entities and fields version 2 added (D238)', async () => {
+  it('reads a version-1 export, without the entities and fields version 2 added', async () => {
     const strip = (entries: Map<string, Buffer | null>, entity: ExportEntity, keys: string[]) => {
       const name = EXPORT_PATHS.data(entity);
       const lines = (entries.get(name)?.toString('utf8') ?? '').split('\n').filter(Boolean);

@@ -1,6 +1,6 @@
 /**
- * Step 6 T22–T24 on the mock: the OAuth consent page (D179, D180: the app's name isolated as it
- * calls itself, read or read-and-change, one location pre-selected and D179's warning for more,
+ * On the mock: the OAuth consent page (the app's name isolated as it calls itself, read or
+ * read-and-change, one location pre-selected and a warning for more,
  * Allow and Deny, signed out → sign in first), "Sign in with <name>" and its failures, Admin →
  * Status's OIDC, connector and embeddings rows with the source switch, location webhooks
  * (add with the secret once, test ping, deliveries, the creator-lost-role state, hidden from
@@ -49,7 +49,7 @@ describe('the OAuth consent page', () => {
     expect(connectionsMock(mock.state).tokens[0]?.kind).toBe('oauth');
   });
 
-  it('warns with more than one location (D179) and denies', async () => {
+  it('warns with more than one location and denies', async () => {
     const to = vi.spyOn(leave, 'to').mockImplementation(() => undefined);
     const { user } = await renderApp(at);
     await findHeading('Claude wants to use your Kept');
@@ -62,7 +62,7 @@ describe('the OAuth consent page', () => {
     await waitFor(() => expect(to).toHaveBeenCalledWith(expect.stringContaining('access_denied')));
   });
 
-  it("names the Personal location in the reader's language (UI review steps 6–8, M9)", async () => {
+  it("names the Personal location in the reader's language", async () => {
     await renderApp(at, { locale: 'ar' });
     await screen.findAllByRole('checkbox');
     const labels = screen.getAllByRole('checkbox').map((b) => b.closest('label')?.textContent);
@@ -92,7 +92,7 @@ describe('Sign in with OIDC', () => {
     });
   });
 
-  it('explains invites when no account is linked (D127)', async () => {
+  it('explains invites when no account is linked', async () => {
     await renderApp('/signin?error=account_not_linked', { state: signedOutScenario() });
     expect(await screen.findByText('No Kept account uses that sign-in yet')).toBeInTheDocument();
     expect(screen.getByText(/open the invite/)).toBeInTheDocument();
@@ -107,7 +107,7 @@ describe('Sign in with OIDC', () => {
   });
 });
 
-describe('Admin → Status, step 6', () => {
+describe('Admin → Status, connections and embeddings', () => {
   it('shows OIDC, the MCP endpoint, connectors needing https, and indexing progress', async () => {
     await renderApp('/admin/status');
     expect(await screen.findByText('Sign-in with OIDC')).toBeInTheDocument();
@@ -158,7 +158,7 @@ describe('location webhooks', () => {
     expect(connectionsMock(mock.state).webhooks).toHaveLength(2);
   });
 
-  it("says on the field when the server can't reach the address (UI review steps 6–8, M5)", async () => {
+  it("says on the field when the server can't reach the address", async () => {
     const { user } = await renderApp(at, {
       setup: (m) =>
         m.on('POST', connectionsPaths.locationWebhooks(':id'), () =>
@@ -191,7 +191,7 @@ describe('location webhooks', () => {
     expect((await sheet.findAllByText(/attempt/)).length).toBeGreaterThan(0);
   });
 
-  it("says when it's off because its maker lost the role (D180)", async () => {
+  it("says when it's off because its maker lost the role", async () => {
     const state = ownerScenario();
     const hook = connectionsMock(state).webhooks[0];
     if (hook) {

@@ -23,8 +23,8 @@ import { configureBackupRoutes } from './backup-routes.js';
 
 // Admin → Backups through the front door, as the web calls it
 // (apps/web/src/api/ops/{paths,types}.ts, mock/backup.ts). Instance admins only (404 for anyone
-// else); the PUT behind the recovery kit (D193) and https (D181); the environment's locks
-// (D186); the password never in a response, a log line, the audit or the idempotency store.
+// else); the PUT behind the recovery kit and https; the environment's locks; the password never in
+// a response, a log line, the audit or the idempotency store.
 
 const HTTPS = 'https://kept.example.org';
 const PASSWORD = 'correct horse battery staple';
@@ -165,7 +165,7 @@ describe('GET and PUT /api/v1/admin/backup', () => {
     });
   });
 
-  it('409 recovery_kit_required until the kit is acknowledged (D193)', async () => {
+  it('409 recovery_kit_required until the kit is acknowledged', async () => {
     const res = await put(body());
     expect(res.statusCode).toBe(409);
     expect(res.json().code).toBe('recovery_kit_required');
@@ -277,7 +277,7 @@ describe('GET and PUT /api/v1/admin/backup', () => {
     expect(ok.json().configured).toBe(true);
   });
 
-  it('403 https_required over plain http (D181)', async () => {
+  it('403 https_required over plain http', async () => {
     const plain = await peopleApp(db, { secretKeys: keys });
     const admin = await person(plain, db, 'bruce');
     await ownerTx(db, (c) =>
@@ -434,7 +434,7 @@ describe('test, run, runs and snapshots', () => {
   });
 });
 
-describe('GET /api/v1/admin/status (T10)', () => {
+describe('GET /api/v1/admin/status', () => {
   it('reports the backup, the watch and the upgrade note from rows alone', async () => {
     configureBackupRoutes({
       env: {

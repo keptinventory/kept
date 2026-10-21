@@ -40,7 +40,7 @@ describe('idTimestamp', () => {
   });
 });
 
-describe('withinWindow (±7 days, §7.7)', () => {
+describe('withinWindow (±7 days)', () => {
   it('accepts an id 6 days old and one 6 days ahead', () => {
     expect(withinWindow(idAt(NOW - 6 * DAY), NOW)).toBe(true);
     expect(withinWindow(idAt(NOW + 6 * DAY), NOW)).toBe(true);

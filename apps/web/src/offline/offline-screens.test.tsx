@@ -1,7 +1,8 @@
 /**
- * D36 and D210 through the real app frame: sign-out asks before deleting unsynced captures, then
- * wipes; another person's kept queue is counted on a screen, then discarded. The store itself is
- * stood in for (open.ts is mocked): jsdom has no IndexedDB, and wipe.test.ts covers the database.
+ * Signing out and switching people through the real app frame: sign-out asks before deleting
+ * unsynced captures, then wipes; another person's kept queue is counted on a screen, then
+ * discarded. The store itself is stood in for (open.ts is mocked): jsdom has no IndexedDB, and
+ * wipe.test.ts covers the database.
  */
 import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -64,7 +65,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('sign-out with unsynced captures (D36)', () => {
+describe('sign-out with unsynced captures', () => {
   it('asks first; staying signed in keeps everything', async () => {
     open.pending = [{}, {}];
     const { user, mock } = await renderApp('/more');
@@ -98,7 +99,7 @@ describe('sign-out with unsynced captures (D36)', () => {
   });
 });
 
-describe('another person’s kept queue on this phone (D210)', () => {
+describe('another person’s kept queue on this phone', () => {
   it('says how many captures and photos go, then discards them and opens mine', async () => {
     open.orphans = [{ userId: 'someone-else', captures: 3, photos: 5, others: 1 }];
     const { user } = await renderApp('/more');
@@ -130,7 +131,7 @@ describe('another person’s kept queue on this phone (D210)', () => {
   });
 });
 
-describe('a 401 (D210)', () => {
+describe('a 401', () => {
   it('locks instead of wiping: the gate clears the cache and keeps the queue', async () => {
     const state = (await import('@/api/mock/fixtures')).ownerScenario();
     state.signedIn = false;
@@ -141,7 +142,7 @@ describe('a 401 (D210)', () => {
   });
 });
 
-describe('a cold start with no connection (step-3 DoD; D17, D181)', () => {
+describe('a cold start with no connection', () => {
   /** What the phone saved last time, from the mock server's own answers. */
   async function savedShell(): Promise<OfflineShell> {
     const { ownerScenario } = await import('@/api/mock/fixtures');

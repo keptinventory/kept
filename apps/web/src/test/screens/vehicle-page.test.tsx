@@ -1,5 +1,5 @@
 /**
- * A vehicle's page (D26, D52, D188, D195): the tabs in the URL;
+ * A vehicle's page: the tabs in the URL;
  * the Overview's odometer, schedules with estimated dates and the licence banner; Readings with the
  * proof strip and the chart's table; the Costs tab against the designs' numbers, its table equal to
  * the bars, mirrored in Arabic; the viewer without money; a reading too old to estimate from;
@@ -37,7 +37,7 @@ const seeded = (patch?: (s: MockState) => void) => {
 };
 
 beforeEach(() => {
-  // The designs' day: October is the month "so far" (D188).
+  // The designs' day: October is the month "so far".
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date('2026-10-10T09:00:00.000Z'));
 });
@@ -92,7 +92,7 @@ describe('a vehicle’s tabs', () => {
 });
 
 describe('the action menu', () => {
-  it('has History report for a vehicle, which opens its sheet (T23)', async () => {
+  it('has History report for a vehicle, which opens its sheet', async () => {
     desktop();
     const { user } = await renderApp(`/t/${COROLLA}`, { state: seeded() });
     await findHeading('Toyota Corolla');
@@ -235,7 +235,7 @@ describe('starter schedules', () => {
   });
 });
 
-describe('Import from LubeLogger (D229)', () => {
+describe('Import from LubeLogger', () => {
   const FUEL = [
     'Date,Odometer,FuelConsumed,Cost,FuelEconomy,IsFillToFull,MissedFuelUp,Notes,Tags',
     '14/09/2026 00:00:00,10500,"42,5","65,30",,True,False,,',

@@ -17,10 +17,10 @@ import {
 } from '../../test/things.js';
 
 // Task 10 through the front door, as the web calls it (apps/web/src/api/household/{types,paths}.ts,
-// components/lending/*): lending out and borrowing in (D56, D57), one open loan per thing, a
-// partial lend that splits and merges back on return (D10, D172), a borrowed thing that goes
+// components/lending/*): lending out and borrowing in, one open loan per thing, a
+// partial lend that splits and merges back on return, a borrowed thing that goes
 // back to its owner, condition photos, the derived states lent and borrowed everywhere
-// (thing, search, the offline snapshot, D119), and undo (D150).
+// (thing, search, the offline snapshot), and undo.
 
 let db: TestDb;
 let t: TestApp;
@@ -212,7 +212,7 @@ describe('POST /api/v1/things/:id/lend', () => {
     expect(read.statusCode).toBe(404);
   });
 
-  it('still returns an open loan where Lending was switched off since (UI step-4 review L3)', async () => {
+  it('still returns an open loan where Lending was switched off since (UI review)', async () => {
     const saw = await createThing(t, ibrahim, home, { name: 'Saw' });
     const loan = (await lend(ibrahim, saw.id, { person: { id: murdock } })).loan as {
       id: string;
@@ -243,7 +243,7 @@ describe('POST /api/v1/things/:id/lend', () => {
     }
   });
 
-  it('lends to a member (Q16): the person linked to them', async () => {
+  it('lends to a member: the person linked to them', async () => {
     const book = await createThing(t, ibrahim, home, { name: 'Book' });
     const res = await lend(ibrahim, book.id, { person: { memberUserId: louis.userId } });
     expect((res.loan as Json).person).toMatchObject({ name: 'Louis', isMember: true });
@@ -261,7 +261,7 @@ describe('POST /api/v1/things/:id/lend', () => {
   });
 });
 
-describe('partial lends and returns (D10, D172, Q14)', () => {
+describe('partial lends and returns', () => {
   // catalogue: POST /api/v1/loans/:id/return
   it('lending 3 of 5 splits; the return merges back; undo un-merges', async () => {
     const shelf = await place(db, home, 'Shelf');
@@ -382,7 +382,7 @@ describe('partial lends and returns (D10, D172, Q14)', () => {
   });
 });
 
-describe('POST /api/v1/locations/:id/borrow (D56, Q15)', () => {
+describe('POST /api/v1/locations/:id/borrow', () => {
   // catalogue: POST /api/v1/locations/:id/borrow
   it('borrows a thing that belongs to the person; its return ends it and it leaves Home’s counts', async () => {
     const before = ok(await call(t, '/api/v1/home', { as: ibrahim }));
@@ -552,7 +552,7 @@ describe('GET /api/v1/loans and the person page', () => {
   });
 });
 
-describe('the offline snapshot (Q34)', () => {
+describe('the offline snapshot', () => {
   async function pull(as: Person, cursor?: string) {
     const things = new Map<string, SnapThing>();
     let next = cursor;

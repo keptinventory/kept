@@ -174,7 +174,7 @@ beforeAll(async () => {
 
 // ---------------------------------------------------------------------------------------------
 
-describe('GET /api/v1/home: the Get-started checklist (D138)', () => {
+describe('GET /api/v1/home: the Get-started checklist', () => {
   let ann: Person;
 
   beforeEach(async () => {
@@ -211,7 +211,7 @@ describe('GET /api/v1/home: the Get-started checklist (D138)', () => {
     ]);
   });
 
-  it('never carries "Put Kept on HTTPS": the client adds it over http (D193)', async () => {
+  it('never carries "Put Kept on HTTPS": the client adds it over http', async () => {
     await createLocation(ann, 'household');
     for (const proto of ['http', 'https']) {
       const res = await call(t, '/api/v1/home', {
@@ -230,7 +230,7 @@ describe('GET /api/v1/home: the Get-started checklist (D138)', () => {
     }
   });
 
-  it('counts 3 things she captured herself, not trashed ones or anyone else’s (Q22)', async () => {
+  it('counts 3 things she captured herself, not trashed ones or anyone else’s', async () => {
     const bob = await person(t, db, 'bob');
     const loc = await createLocation(ann, 'household');
     await join(db, loc.id, bob.userId, 'member');
@@ -289,7 +289,7 @@ describe('GET /api/v1/home: the Get-started checklist (D138)', () => {
     expect(done(await home(ann), 'invited')).toBe(false);
   });
 
-  it('leaves out "connect AI" on Essentials (D191), and where both AI modules are off', async () => {
+  it('leaves out "connect AI" on Essentials, and where both AI modules are off', async () => {
     await createLocation(ann, 'essentials');
     expect(keys(await home(ann))).not.toContain('aiConnected');
     expect(keys(await home(ann))).toContain('invited');
@@ -348,7 +348,7 @@ describe('GET /api/v1/home: the Get-started checklist (D138)', () => {
     expect(done(await home(ann), 'installed')).toBe(true);
   });
 
-  it('dismissal is the checklist hint, and every device agrees (D138)', async () => {
+  it('dismissal is the checklist hint, and every device agrees', async () => {
     const phone = await secondDevice(ann);
     expect((await home(phone)).checklist.dismissed).toBe(false);
     expect((await putHint(ann, 'checklist', { dismissed: true })).statusCode).toBe(204);
@@ -393,7 +393,7 @@ describe('GET /api/v1/home: attention counts and location cards', () => {
     await toReview(bobs);
   });
 
-  it('counts each row over the locations she can see (§8 order; one per thing)', async () => {
+  it('counts each row over the locations she can see (the registry order; one per thing)', async () => {
     expect((await home(ann)).attention).toEqual({
       toReview: 1,
       uncertain: 1,
@@ -425,7 +425,7 @@ describe('GET /api/v1/home: attention counts and location cards', () => {
     expect(h.locations.map((l) => l.id).sort()).toEqual([vic.personalLocationId, loc.id].sort());
   });
 
-  it('agrees with the search list each row opens (task 29)', async () => {
+  it('agrees with the search list each row opens', async () => {
     const a = (await home(ann)).attention;
     const states = {
       toReview: 'to_review',
@@ -465,7 +465,7 @@ describe('GET /api/v1/home: attention counts and location cards', () => {
 
 // ---------------------------------------------------------------------------------------------
 
-describe('hints: GET /api/v1/me/hints, PUT /api/v1/me/hints/:key (D138)', () => {
+describe('hints: GET /api/v1/me/hints, PUT /api/v1/me/hints/:key', () => {
   let ann: Person;
 
   beforeEach(async () => {
@@ -628,7 +628,7 @@ async function inboxItem(
   return id;
 }
 
-describe('GET /api/v1/home: "connect AI" follows the provider (D191)', () => {
+describe('GET /api/v1/home: "connect AI" follows the provider', () => {
   let ann: Person;
 
   beforeEach(async () => {
@@ -661,7 +661,7 @@ describe('GET /api/v1/home: "connect AI" follows the provider (D191)', () => {
     expect(done(await home(ann), 'aiConnected')).toBe(true);
   });
 
-  it('never shows to an invited member, even with a provider (screens §5)', async () => {
+  it('never shows to an invited member, even with a provider', async () => {
     const owner = await person(t, db, 'olga');
     const loc = await createLocation(owner, 'household', 'Olga home');
     await join(db, loc.id, ann.userId, 'member');
@@ -671,7 +671,7 @@ describe('GET /api/v1/home: "connect AI" follows the provider (D191)', () => {
   });
 });
 
-describe('GET /api/v1/home: "a label printed" through the labels flow (T16)', () => {
+describe('GET /api/v1/home: "a label printed" through the labels flow', () => {
   it('flips when a batch is confirmed printed, and counts what is still unprinted', async () => {
     const ann = await person(t, db, 'ann');
     const loc = await createLocation(ann, 'household');
@@ -713,7 +713,7 @@ describe('GET /api/v1/home: "a label printed" through the labels flow (T16)', ()
   });
 });
 
-describe('GET /api/v1/home: the inbox in "to review" and the Inbox badge (T22, T27)', () => {
+describe('GET /api/v1/home: the inbox in "to review" and the Inbox badge', () => {
   let ibrahim: Person; // owner of Home
   let bruce: Person; // admin of Home
   let louis: Person; // member of Home
@@ -784,7 +784,7 @@ describe('GET /api/v1/home: the inbox in "to review" and the Inbox badge (T22, T
   });
 });
 
-describe('hints: every step-3 hint key round-trips (D138)', () => {
+describe('hints: every capture hint key round-trips', () => {
   it('accepts each of HINT_KEYS, seen then dismissed, and reads them back', async () => {
     const ann = await person(t, db, 'ann');
     for (const key of HINT_KEYS) {

@@ -17,7 +17,7 @@ import { keyringOfMaterial, type SecretKeys, secretKeysOf } from '../crypto/keyr
 import { CIPHERTEXTS } from './rotate.js';
 import { aadOf } from './service.js';
 
-// `kept admin rotate-key` (D182): every stored value re-wrapped under a new
+// `kept admin rotate-key`: every stored value re-wrapped under a new
 // key version, still readable afterwards; the old key kept as retired, so an old backup's
 // ciphertexts still open; resumable; and nothing done when a key the rows need is missing.
 
@@ -40,7 +40,7 @@ beforeAll(async () => {
   db = await testDb();
   await db.reset();
   configDir = await mkdtemp(path.join(tmpdir(), 'kept-rotate-test-'));
-  // The server's keys, generated into the config volume on first boot (D193): version 1.
+  // The server's keys, generated into the config volume on first boot: version 1.
   keys = secretKeysOf(await loadEnv(validEnv, { configDir }));
   t = await peopleApp(db, { secretKeys: keys, publicUrl: 'https://kept.example' });
   ann = await person(t, db, 'ann');
@@ -269,7 +269,7 @@ describe('kept admin rotate-key --drop <version> (review #17)', () => {
   });
 });
 
-describe('kept admin rotate-key: AI provider keys (T9)', () => {
+describe('kept admin rotate-key: AI provider keys', () => {
   it('re-wraps an AI key too, which still opens under its own row and field', async () => {
     const id = newId();
     const apiKey = `gsk_rotate${randomBytes(8).toString('hex')}`;

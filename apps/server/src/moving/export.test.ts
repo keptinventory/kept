@@ -21,7 +21,7 @@ import { runKeptImport } from '../imports/kept/job.js';
 import { openKeptArchive, readManifest } from '../imports/kept/read.js';
 import { exportKey, importArchiveKey } from '../storage/blob-store.js';
 
-// Moves in a Kept export (D251). Louis packs Flat in three moves: one within Flat (a box packed
+// Moves in a Kept export. Louis packs Flat in three moves: one within Flat (a box packed
 // for the study, one in transit, one unpacked into the hallway), one that is done, and one going
 // to House. Ibrahim exports Flat (the real export job) and Nora imports it on another server (a
 // fresh database and blob store, the real import job). The moves come back with their names and
@@ -158,7 +158,7 @@ beforeAll(async () => {
   await db.reset();
   files = await testFiles();
   await acknowledgeKit(db);
-  // An export is https only (D181).
+  // An export is https only.
   t = await peopleApp(db, {
     sent: [],
     files,
@@ -269,7 +269,7 @@ const shape = (b: Box, idOf: (id: string) => string) => ({
   destination: b.destination ? idOf(b.destination.placeId) : null,
 });
 
-describe('a Kept export with moves (D251)', () => {
+describe('a Kept export with moves', () => {
   it('holds the moves and their boxes, without a user of this server (format version 4)', async () => {
     const staged = await stageKeptRun(
       db,

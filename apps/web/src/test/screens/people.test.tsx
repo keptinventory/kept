@@ -53,7 +53,7 @@ describe('Members and roles', () => {
     await screen.findByRole('heading', { name: 'Admins' });
     await user.click(phoneRow('Alfred'));
     const dialog = screen.getByRole('dialog', { name: 'Alfred' });
-    // The owner may grant admin (D48).
+    // The owner may grant admin.
     expect(within(dialog).getByRole('radio', { name: 'Admin' })).toBeInTheDocument();
     await user.click(within(dialog).getByRole('radio', { name: 'Viewer' }));
     await user.click(within(dialog).getByRole('radio', { name: 'Until a date' }));
@@ -87,7 +87,7 @@ describe('Members and roles', () => {
     );
   });
 
-  it('an admin can’t manage other admins, and can’t grant admin (D48)', async () => {
+  it('an admin can’t manage other admins, and can’t grant admin', async () => {
     const state = ownerScenario();
     const home = state.locations.find((l) => l.id === IDS.home);
     if (home) home.role = 'admin';
@@ -152,7 +152,7 @@ describe('Members and roles', () => {
   });
 });
 
-describe('Invite (D33, D193)', () => {
+describe('Invite', () => {
   it('creates a link with a QR code beside Copy link', async () => {
     const { user, mock } = await renderApp(invite);
     await findHeading('Invite to Home');
@@ -178,7 +178,7 @@ describe('Invite (D33, D193)', () => {
     expect(screen.getByText('Choose the last day.')).toBeInTheDocument();
   });
 
-  it('an admin whose own access ends can only invite until then (D180)', async () => {
+  it('an admin whose own access ends can only invite until then', async () => {
     const state = ownerScenario();
     const home = state.locations.find((l) => l.id === IDS.home);
     if (home) {
@@ -273,7 +273,7 @@ describe('Settings → Me', () => {
     expect(await findHeading('Settings')).toBeInTheDocument();
   });
 
-  it('two-factor waits for a confirmed address, and says a link removes the password (D197)', async () => {
+  it('two-factor waits for a confirmed address, and says a link removes the password', async () => {
     const { user, mock } = await renderApp('/settings/two-factor', {
       state: firstRunScenario(),
       setup: (m) =>

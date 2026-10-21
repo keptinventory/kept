@@ -14,8 +14,7 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step-3 T7: kept.merge_things(), a duplicate merged into its survivor, keeping both histories
-// (D36; plan Q16).
+// kept.merge_things(), a duplicate merged into its survivor, keeping both histories.
 
 const db = await testDb();
 
@@ -106,7 +105,7 @@ beforeEach(async () => {
   });
 });
 
-describe('kept.merge_things (D36, Q16)', () => {
+describe('kept.merge_things', () => {
   it('moves what the duplicate had to the survivor, and trashes it with merged_into_id', async () => {
     const n = await merge(alfred, dup, keep);
     expect(n).toBeGreaterThanOrEqual(5);

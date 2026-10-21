@@ -15,7 +15,7 @@ import {
 } from '../../test/things.js';
 import { undoableActions } from '../audit/undo.js';
 
-// Undo of place edits and moves (D58, D124, D150; T27's decision): the `place.update` and
+// Undo of place edits and moves: the `place.update` and
 // `place.move` events PATCH /api/v1/places/:id writes, reversed through
 // POST /api/v1/audit/:eventId/undo (places/undo.ts).
 
@@ -67,7 +67,7 @@ const undo = (as: Person, eventId: string) =>
 /** The place's audit events, oldest first. */
 const auditOfPlace = (id: string) => eventsOf(db, home.id, id);
 
-describe('undo of place.update and place.move (D150)', () => {
+describe('undo of place.update and place.move', () => {
   it('registers both actions', () => {
     expect(undoableActions()).toEqual(expect.arrayContaining(['place.update', 'place.move']));
   });
@@ -129,7 +129,7 @@ describe('undo of place.update and place.move (D150)', () => {
     expect((await view(max, flat)).parentId).toBe(block);
   });
 
-  it('refuses when a field changed since, saying who (D124)', async () => {
+  it('refuses when a field changed since, saying who', async () => {
     const p = await place(db, home, 'Porch');
     await patch(max, p, { name: 'Stoop' });
     const [edit] = (await auditOfPlace(p)).slice(-1);

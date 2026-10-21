@@ -23,7 +23,7 @@ describe('scan entry points', () => {
     expect(router.history.canGoBack()).toBe(false);
   });
 
-  it('/l/<code> opens a thing that is not a box plainly, without view=photos (UI audit L10)', async () => {
+  it('/l/<code> opens a thing that is not a box plainly, without view=photos', async () => {
     const { router } = await renderApp('/l/7kq4mz');
     await waitFor(() => expect(pathOf(router)).toBe(`/t/${T.hdmiCable}`));
     expect(router.state.location.search).not.toHaveProperty('view');

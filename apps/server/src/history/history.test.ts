@@ -7,7 +7,7 @@ import { type TestDb, testDb } from '../../test/db.js';
 import { call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { ownerTx } from '../../test/tenancy.js';
 
-// History and the activity feed through the front door (D76, D110, D150, D174, D183).
+// History and the activity feed through the front door.
 // Events are written as kept_owner in the stored shape audited() gives
 // them (the real writes and their audit rows are each area's own tests); every read goes through
 // the app on kept_app, so the audit_events policy decides what exists and renderAudit() what
@@ -179,7 +179,7 @@ beforeAll(async () => {
 
 // ---------------------------------------------------------------------------------------------
 
-describe('GET /api/v1/things/:id/history: redaction per viewer (D110)', () => {
+describe('GET /api/v1/things/:id/history: redaction per viewer', () => {
   let tv: string;
   let customType: string;
   let builtinKey: string;
@@ -426,7 +426,7 @@ describe('GET /api/v1/things/:id/history: what is about the thing', () => {
   });
 });
 
-describe('moves across locations (D183)', () => {
+describe('moves across locations', () => {
   it('shows a move in from a location the viewer cannot see, with no old path', async () => {
     const lamp = await thing(home, 'Brass lamp');
     const cabinShelf = await place(cabin, 'Cabin shelf');
@@ -479,7 +479,7 @@ describe('moves across locations (D183)', () => {
     });
   });
 
-  it('names a thing or place with its short ID, for the short address (D208)', async () => {
+  it('names a thing or place with its short ID, for the short address', async () => {
     const kettle = await thing(home, 'Labelled kettle');
     const bare = await thing(home, 'Unlabelled kettle');
     const shelf = await place(home, 'Labelled shelf');
@@ -573,7 +573,7 @@ describe('GET /api/v1/places/:id/history', () => {
   });
 });
 
-describe('GET /api/v1/activity (D174)', () => {
+describe('GET /api/v1/activity', () => {
   let brandEvent: string;
   let bobEvent: string;
   let homeEvent: string;
@@ -629,7 +629,7 @@ describe('GET /api/v1/activity (D174)', () => {
     expect(bobs2).not.toContain(brandEvent);
   });
 
-  it("shows the account's registry events to its admins only (Q15)", async () => {
+  it("shows the account's registry events to its admins only", async () => {
     for (const as of [ola, ada]) {
       const items = (await feed(as, '?limit=200')).items;
       expect(items.find((e) => e.id === brandEvent)).toMatchObject({
@@ -674,7 +674,7 @@ describe('GET /api/v1/activity (D174)', () => {
     expect((await get(max, '/api/v1/activity?from=yesterday')).statusCode).toBe(400);
   });
 
-  it('takes several people, kinds and locations, and "is none of" each (D205)', async () => {
+  it('takes several people, kinds and locations, and "is none of" each', async () => {
     const all = await ids(ola, '?limit=200');
     // Two people: exactly their events.
     const both = (await feed(ola, `?actorId=${max.userId}&actorId=${ola.userId}&limit=200`)).items;

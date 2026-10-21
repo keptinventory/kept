@@ -13,10 +13,10 @@ import {
 } from '../src/storage/blob-store.js';
 
 // What every BlobStore driver promises (blob-store.ts), run against each of them: local.ts in
-// storage/blob-store-contract.test.ts, s3.ts against RustFS in storage/s3.test.ts (T18). What
+// storage/blob-store-contract.test.ts, s3.ts against RustFS in storage/s3.test.ts. What
 // only one driver does (file modes, the shape of a signed URL) stays in that driver's tests.
 
-/** Keys that aren't built from ids (D157). Every operation refuses them before any I/O. */
+/** Keys that aren't built from ids. Every operation refuses them before any I/O. */
 export const FOREIGN_KEYS = [
   '../etc/passwd',
   '/f/abc',
@@ -58,7 +58,7 @@ export function blobStoreContract(name: string, makeStore: () => Promise<BlobSto
       expect(await text(await store.stream(key, { start: 0, end: 0 }))).toBe('h');
     });
 
-    it('keeps binary bytes identical (D117)', async () => {
+    it('keeps binary bytes identical', async () => {
       const key = originalKey(newId(), newId());
       const bytes = Buffer.from(Array.from({ length: 70_000 }, (_, i) => (i * 31 + 7) % 256));
       await store.put(key, await upload(bytes), {

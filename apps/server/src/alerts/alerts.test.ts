@@ -21,7 +21,7 @@ import {
   resolveAlert,
 } from './alerts.js';
 
-// Task 25 (D166, D185): admin alerts, deduped, mailed at most once a day, resolved when the
+// Admin alerts, deduped, mailed at most once a day, resolved when the
 // condition is gone; the alerts list and the status page.
 
 let db: TestDb;
@@ -64,7 +64,7 @@ beforeEach(async () => {
 });
 
 describe('raiseAlert', () => {
-  it("also pushes to the instance admins' devices, under the same daily claim (step 4)", async () => {
+  it("also pushes to the instance admins' devices, under the same daily claim", async () => {
     const pushes: { userId: string; message: ChannelMessage }[] = [];
     const webpush: ChannelSender = {
       send: async (target, _to, message) => {
@@ -286,7 +286,7 @@ describe('checkAdminAlerts', () => {
     });
   });
 
-  it('raises llm_default_partition while the ledger’s default partition holds rows (T6)', async () => {
+  it('raises llm_default_partition while the ledger’s default partition holds rows', async () => {
     await ownerTx(db, (c) =>
       c.query(
         `INSERT INTO public.llm_calls (at, request_id, task, paying_scope, provider_kind, model,
@@ -311,7 +311,7 @@ describe('checkAdminAlerts', () => {
     });
   });
 
-  it('raises reminders_not_scanned after 2 hours without a finished scan, and a good pass ends it (T14)', async () => {
+  it('raises reminders_not_scanned after 2 hours without a finished scan, and a good pass ends it', async () => {
     const hour = 3_600_000;
     const lastOk = new Date('2026-10-01T09:00:00Z');
     await ownerTx(db, (c) =>
@@ -406,7 +406,7 @@ describe('GET /api/v1/admin/alerts and /status', () => {
     expect((await call(t, '/api/v1/admin/status', { as: bob })).statusCode).toBe(403);
     const res = await call(t, '/api/v1/admin/status', { as: admin });
     expect(res.statusCode).toBe(200);
-    // toMatchObject: oidc and embeddings (step 6) have their own tests.
+    // toMatchObject: oidc and embeddings have their own tests.
     expect(res.json()).toMatchObject({
       version: expect.any(String),
       dbOk: true,
@@ -414,9 +414,9 @@ describe('GET /api/v1/admin/alerts and /status', () => {
       recoveryKitAcknowledged: false,
       mail: { configured: false },
       reminders: null,
-      // Step 6 (T22): connectors need https; the test app serves http.
+      // Connectors need https; the test app serves http.
       connectors: { mcpUrl: expect.stringMatching(/\/mcp$/), oauth: 'needs_https' },
-      // Step 8 (T10): an unconfigured instance, from rows alone.
+      // An unconfigured instance, from rows alone.
       release: {
         version: expect.any(String),
         revision: null,
@@ -449,7 +449,7 @@ describe('GET /api/v1/admin/alerts and /status', () => {
       https: false,
     });
 
-    // Step 4 (T14): the reminder scan's last pass.
+    // The reminder scan's last pass.
     await runScan({ pools: db.pools });
     const scanned = await call(t, '/api/v1/admin/status', { as: admin });
     expect((scanned.json() as { reminders: unknown }).reminders).toEqual({

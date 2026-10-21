@@ -12,8 +12,8 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step-7 T5 (0082, 0083): a Kept import adopts each printed label's code where it is free on
-// this server (plan Q9); a taken one becomes a `kept` legacy code instead.
+// Migrations 0082, 0083: a Kept import adopts each printed label's code where it is free on
+// this server; a taken one becomes a `kept` legacy code instead.
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });
@@ -67,7 +67,7 @@ beforeEach(async () => {
   );
 });
 
-describe('kept.adopt_short_code (plan Q9)', () => {
+describe('kept.adopt_short_code', () => {
   it('adopts a free code as the primary label; a taken one is false and stays where it was', async () => {
     expect(await adopt(ibrahim.userId, '3F9XR2', 'assigned', drill)).toBe(true);
     const [mine] = await own<{ thing_id: string; is_primary: boolean; location_id: string }>(

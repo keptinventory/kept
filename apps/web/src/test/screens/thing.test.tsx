@@ -1,7 +1,7 @@
 /**
  * Thing detail: header, layout, the action menu by keyboard, the viewer and module-off
  * variants, Arabic right to left, secrets, the create sheet, lifecycle, split, re-type, links and
- * meters. Conflicts (D156) are in conflict.test.tsx; uploads in upload.test.tsx.
+ * meters. Conflicts are in conflict.test.tsx; uploads in upload.test.tsx.
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -293,7 +293,7 @@ describe('the action menu', () => {
   });
 });
 
-describe('a viewer (screens §5, A viewer’s thing detail)', () => {
+describe('a viewer’s thing detail', () => {
   const viewer = () =>
     withHome((h) => Object.assign(h, { role: 'viewer', modules: [...h.modules, 'secrets'] }));
 
@@ -306,11 +306,11 @@ describe('a viewer (screens §5, A viewer’s thing detail)', () => {
     expect(screen.queryByRole('button', { name: 'Link a thing' })).toBeNull();
     expect(screen.getByText("You're a viewer here")).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Copy link' }));
-    // The short-ID address (D208).
+    // The short-ID address.
     await waitFor(async () => expect(await copied()).toBe(`${window.location.origin}/t/5MT0QD`));
   });
 
-  it('sees no price (D13) and no Reveal (D116)', async () => {
+  it('sees no price and no Reveal', async () => {
     await renderApp(`/t/${T.tv}`, { state: viewer() });
     await findHeading('Samsung TV, 55″');
     expect(screen.queryByText('EGP 28,999.00')).toBeNull();
@@ -328,7 +328,7 @@ describe('a viewer (screens §5, A viewer’s thing detail)', () => {
   });
 });
 
-describe('modules off (screens §3)', () => {
+describe('modules off', () => {
   const essentials = () => withHome((h) => Object.assign(h, { preset: 'essentials', modules: [] }));
 
   it('Money off: the purchase keeps its date and shop but loses the price row', async () => {
@@ -372,7 +372,7 @@ describe('modules off (screens §3)', () => {
   });
 });
 
-describe('secrets (D116, D175)', () => {
+describe('secrets', () => {
   const secretsOn = () => withHome((h) => Object.assign(h, { modules: [...h.modules, 'secrets'] }));
 
   it('Reveal shows the value with "Revealed · logged", then hides it after 30 s', async () => {
@@ -419,7 +419,7 @@ describe('secrets (D116, D175)', () => {
     expect(screen.queryByText('17-42-08')).toBeNull();
   });
 
-  it('Replace is write-only; the recovery-kit gate explains itself (D193)', async () => {
+  it('Replace is write-only; the recovery-kit gate explains itself', async () => {
     const { user, mock } = await renderApp(`/t/${T.safe}`, { state: secretsOn() });
     await findHeading('Wall safe');
     await user.click(screen.getByRole('button', { name: 'Replace' }));
@@ -440,7 +440,7 @@ describe('secrets (D116, D175)', () => {
 });
 
 describe('create sheet', () => {
-  it('adds a thing to a box, with a price typed in Arabic digits (D172)', async () => {
+  it('adds a thing to a box, with a price typed in Arabic digits', async () => {
     const { user, mock } = await renderApp(`/t/${T.cableBox}`);
     await findHeading('Cable box');
     await user.click(screen.getByRole('button', { name: 'Add a thing' }));

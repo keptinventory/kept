@@ -18,7 +18,7 @@ import {
 
 const day = (d: string) => `2026-${d}T12:00:00.000Z`;
 
-describe('vehicle constants (D52, D188, Q8)', () => {
+describe('vehicle constants', () => {
   it('match the spec', () => {
     expect([
       RATE_WINDOW_DAYS,
@@ -49,7 +49,7 @@ describe('vehicle constants (D52, D188, Q8)', () => {
   });
 });
 
-describe('starter schedules (§3.4, Q25)', () => {
+describe('starter schedules', () => {
   it('are the four, with their intervals', () => {
     expect(STARTER_SCHEDULES.map((s) => s.key)).toEqual([...STARTER_KEYS]);
     expect(STARTER_SCHEDULES.map((s) => [s.everyKm, s.everyMonths])).toEqual([

@@ -14,7 +14,7 @@ import {
 } from '../../test/things.js';
 import { addMonths, type Insights } from './service.js';
 
-// Insights (1.x, D234) through the front door, as the web calls it (apps/web/src/api/insights/
+// Insights (1.x) through the front door, as the web calls it (apps/web/src/api/insights/
 // types.ts): spending per year from purchases, current value per place and location from
 // valuations, vehicle costs per month and year, and warranty coverage; per currency, never added
 // across currencies; amounts only where the caller's gate shows money; sections only where their
@@ -364,7 +364,7 @@ describe('GET /api/v1/insights', () => {
     }
   });
 
-  it('gives a viewer counts, not amounts, and names the locations it left out (D13)', async () => {
+  it('gives a viewer counts, not amounts, and names the locations it left out', async () => {
     const r = await insights(talia, home.id, garage.id);
     expect(r.locations.map((l) => [l.id, l.money])).toEqual([
       [home.id, false],

@@ -13,7 +13,7 @@ const KEY = /^[a-z][a-z0-9_]*$/;
 const ICON = /^(lucide|tabler|kept):[a-z0-9]+(-[a-z0-9]+)*$/;
 const TYPES = BUILTIN_TYPES.filter((t) => !t.isFieldGroup);
 
-describe('BUILTIN_TYPES (D154, D192)', () => {
+describe('BUILTIN_TYPES', () => {
   it('has unique, well-formed keys', () => {
     const keys = BUILTIN_TYPES.map((t) => t.key);
     expect(new Set(keys).size).toBe(keys.length);
@@ -45,7 +45,7 @@ describe('BUILTIN_TYPES (D154, D192)', () => {
     }
   });
 
-  it('D192: TV/display, phone, tablet, computer and network device share the Device group', () => {
+  it('TV/display, phone, tablet, computer and network device share the Device group', () => {
     const withDevice = TYPES.filter((t) => t.groups?.includes('device')).map((t) => t.key);
     expect(withDevice.sort()).toEqual(
       ['computer', 'network_device', 'phone', 'tablet', 'tv_display'].sort(),
@@ -86,7 +86,7 @@ describe('BUILTIN_TYPES (D154, D192)', () => {
     }
   });
 
-  it('exactly the D154/D192 fields are secret', () => {
+  it('marks exactly the licence key, linked account, Wi-Fi password and safe combination secret', () => {
     const secret = BUILTIN_TYPES.flatMap((t) =>
       t.fields.filter((f) => f.secret).map((f) => `${t.key}.${f.key}`),
     );
@@ -107,7 +107,7 @@ describe('BUILTIN_TYPES (D154, D192)', () => {
     }
   });
 
-  it('capabilities inherit down the tree (D154)', () => {
+  it('capabilities inherit down the tree', () => {
     expect(resolveCapabilities(builtinTypeChain('phone'))).toEqual(['warranty', 'serialized']);
     expect(resolveCapabilities(builtinTypeChain('car'))).toEqual([
       'container',

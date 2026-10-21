@@ -6,7 +6,7 @@ import { call, type Person, peopleApp, person } from '../../test/people.js';
 import { ownerTx } from '../../test/tenancy.js';
 import { withScope } from '../db/scope.js';
 
-// Task 12: the currency list and the instance admin's currency switch (D136, D168, D189), as
+// The currency list and the instance admin's currency switch, as
 // apps/web/src/routes/_app/admin.currencies.tsx calls them. `currencies` is a reference table
 // that survives test resets (test/db.ts), so every switch made here is put back in afterAll.
 
@@ -95,7 +95,7 @@ describe('GET /api/v1/currencies', () => {
     expect(currencies.some((c) => 'inUse' in c)).toBe(false);
   });
 
-  it('gives an instance admin every ISO currency with inUse (D168)', async () => {
+  it('gives an instance admin every ISO currency with inUse', async () => {
     const currencies = await list(admin, true);
     expect(currencies.length).toBeGreaterThan(100);
     const byCode = new Map(currencies.map((c) => [c.code, c]));
@@ -142,7 +142,7 @@ describe('PATCH /api/v1/admin/currencies/:code', () => {
     expect(await currencyAudit()).toHaveLength(before);
   });
 
-  it('keeps the five defaults on (D136): 409 with reason default', async () => {
+  it('keeps the five defaults on: 409 with reason default', async () => {
     for (const code of ['USD', 'CAD', 'GBP', 'EUR', 'EGP']) {
       const res = await patch(admin, code, false);
       expect(res.statusCode, `${code} ${res.body}`).toBe(409);
@@ -153,7 +153,7 @@ describe('PATCH /api/v1/admin/currencies/:code', () => {
     );
   });
 
-  it('keeps a currency a location uses on, until no location does (D168)', async () => {
+  it('keeps a currency a location uses on, until no location does', async () => {
     expect((await patch(admin, 'JPY', true)).statusCode).toBe(200);
     // The owner picks the newly enabled currency for their location (step 1's settings route).
     const [loc] = await own<{ row_version: number }>(

@@ -1,5 +1,5 @@
 /**
- * The Undo toast (D150): lifecycle changes, re-types and trash offer it now that the
+ * The Undo toast: lifecycle changes, re-types and trash offer it now that the
  * server records them undoably; it stays 10 s, is announced politely and never takes focus;
  * a refusal says why in words, with "Open the thing"; offline it says Undo needs a connection.
  */
@@ -52,7 +52,7 @@ describe('the Undo toast', () => {
   it('a refusal says who changed what, and offers "Open the thing"', async () => {
     const { user, mock, router } = await renderApp(`/t/${T.drill}`);
     await findHeading('Bosch drill, 18 V');
-    // The page's own address: the short ID once it replaces the UUID (D208).
+    // The page's own address: the short ID once it replaces the UUID.
     const thingPath = pathOf(router);
     mock.on(
       'POST',

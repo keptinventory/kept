@@ -10,8 +10,8 @@ import { withScope } from '../db/scope.js';
 import { converterFor } from './convert.js';
 import { rateIn } from './fx.js';
 
-// Step-4 T8 through the front door: exchange rates, valuations and the thing's current value
-// (D76, D136, D158), in the web contract's shapes
+// Money through the front door: exchange rates, valuations and the thing's current value,
+// in the web contract's shapes
 // (apps/web/src/api/household/types.ts, "money").
 //
 // Ibrahim owns Home (household: money on) and Garage (essentials: money off). In Home, Bruce is an
@@ -155,7 +155,7 @@ beforeAll(async () => {
 // Exchange rates
 // ---------------------------------------------------------------------------------------------
 
-describe('exchange rates (D76, D136)', () => {
+describe('exchange rates', () => {
   it('reads a rate as typed: Eastern Arabic digits, the Arabic decimal point, never 0', () => {
     expect(rateIn('٤٨٫٢٥', 'rate')).toBe('48.25');
     expect(rateIn('0.02000', 'rate')).toBe('0.02');
@@ -280,7 +280,7 @@ describe('exchange rates (D76, D136)', () => {
     expect((await undo(alfred, first)).statusCode).toBe(404);
   });
 
-  it('converts through a rate or its inverse, never chained, and names a missing pair (Q21)', async () => {
+  it('converts through a rate or its inverse, never chained, and names a missing pair', async () => {
     const c = await withScope(db.pools.app, { userId: ibrahim.userId, mfa: false }, (_tx, client) =>
       converterFor(client, home.accountId),
     );
@@ -298,7 +298,7 @@ describe('exchange rates (D76, D136)', () => {
     });
   });
 
-  it("counts a money cap's other currencies through the account's rates (step-3 carry-over)", async () => {
+  it("counts a money cap's other currencies through the account's rates", async () => {
     // A USD 10 cap on the account, and EGP 97 spent this month: uncounted without a rate for
     // today, then counted once one is entered (0049 kept.ai_spent, ai/caps.ts).
     const cap = await call(t, '/api/v1/ai/caps', {
@@ -331,7 +331,7 @@ describe('exchange rates (D76, D136)', () => {
 // Valuations
 // ---------------------------------------------------------------------------------------------
 
-describe('valuations and the current value (D158)', () => {
+describe('valuations and the current value', () => {
   let tv: string;
 
   beforeAll(async () => {

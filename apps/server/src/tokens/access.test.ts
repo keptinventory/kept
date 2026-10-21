@@ -9,7 +9,7 @@ import { NEVER_FOR_TOKENS, TOKEN_ROUTES, tokenAccessOf } from './access.js';
 
 const db = await testDb();
 
-describe('token access (Q20)', () => {
+describe('token access', () => {
   let t: TestApp;
   const routes = new Set<string>();
 

@@ -9,7 +9,7 @@ import { addDecimal, buildView } from '../view.js';
 import { FONT_FILES, fontDir, woffToSfnt } from './fonts.js';
 import { RenderError, renderPdf, writeData } from './render.js';
 
-// T32 (D201): the renderer on its own, outside any database: the child process, its limits, and
+// The renderer on its own, outside any database: the child process, its limits, and
 // the budget a trial run measured (500 things with photos, in Arabic, well under 512 MB).
 
 let scratch: string;
@@ -119,7 +119,7 @@ describe('fonts', () => {
 });
 
 describe('renderPdf', () => {
-  it('renders 500 Arabic things with photos and QR codes within the spike budget', async () => {
+  it('renders 500 Arabic things with photos and QR codes within the time and memory budget', async () => {
     const dir = await jobDir(500);
     const result = await renderPdf(dir);
     console.info(

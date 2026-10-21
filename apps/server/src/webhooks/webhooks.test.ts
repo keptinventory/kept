@@ -31,7 +31,7 @@ import {
 } from './fanout.js';
 import { checkWebhookUrl } from './service.js';
 
-// Location webhooks through the front door (D63, D110, D180): the secret
+// Location webhooks through the front door: the secret
 // shown once and never stored in the clear or audited, owners and admins only, URLs checked for
 // private addresses when saved, and the whole path from a thing's move to a signed, value-free
 // POST: audited() → `webhook-fanout` → a delivery row → `webhook-deliver`. Every request goes
@@ -290,7 +290,7 @@ describe('managing webhooks (webhooks.manage)', () => {
   });
 });
 
-describe('events, from a write to a signed POST (Q18, D110)', () => {
+describe('events, from a write to a signed POST', () => {
   it('a move sends one delivery: ids and changed field names, no name, place or value', async () => {
     setWebhookFanout(recordFanout);
     const { secret } = await addHook(bruce, ['thing.moved']);
@@ -412,7 +412,7 @@ describe('events, from a write to a signed POST (Q18, D110)', () => {
     expect((await alertOf())[0]?.resolved_at).not.toBeNull();
   });
 
-  it("D180: a hook whose creator's membership has expired sends nothing, before the expiry job runs", async () => {
+  it("a hook whose creator's membership has expired sends nothing, before the expiry job runs", async () => {
     setWebhookFanout(recordFanout);
     await addHook(bruce, ['thing.created']);
     await own(
@@ -476,7 +476,7 @@ describe('events, from a write to a signed POST (Q18, D110)', () => {
     expect((await deliveriesOf(webhook.id))[0]?.status).toBe('gave_up');
   });
 
-  it('D180: a hook stops when its creator stops administering the location', async () => {
+  it('a hook stops when its creator stops administering the location', async () => {
     setWebhookFanout(recordFanout);
     const { webhook } = await addHook(bruce, ['thing.created']);
     await createThing(t, ibrahim, home, { name: 'Ladder' });
@@ -508,8 +508,8 @@ describe('events, from a write to a signed POST (Q18, D110)', () => {
   });
 });
 
-describe('reminder.due, from the reminder scan (§2.6, D172)', () => {
-  // A thing's expiry reminds when Schedules is on (D141); Home was made with the essentials.
+describe('reminder.due, from the reminder scan', () => {
+  // A thing's expiry reminds when Schedules is on; Home was made with the essentials.
   beforeEach(async () => {
     await own(
       db,

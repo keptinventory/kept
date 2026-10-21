@@ -1,5 +1,5 @@
 /**
- * Location settings → Email-in (1.4, D231): connecting a mailbox, a refused sign-in said in
+ * Location settings → Email-in (1.4): connecting a mailbox, a refused sign-in said in
  * words, the saved password never shown, the recent mail, and removing it with a confirmation.
  */
 import { screen, waitFor, within } from '@testing-library/react';

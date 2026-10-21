@@ -38,7 +38,7 @@ describe('MemoryStore helpers (the mock stand-in for the sync engine)', () => {
     expect(await s.notices()).toEqual([]);
   });
 
-  it('a dropped op needs attention and leaves a notice (D35)', async () => {
+  it('a dropped op needs attention and leaves a notice', async () => {
     const s = new MemoryStore();
     await s.enqueue(op, []);
     s.settle({
@@ -55,7 +55,7 @@ describe('MemoryStore helpers (the mock stand-in for the sync engine)', () => {
     });
   });
 
-  it('terms are normalised, with Arabic prefixes stripped (D42)', () => {
+  it('terms are normalised, with Arabic prefixes stripped', () => {
     expect(
       termsOf({ name: 'الكابل', aliases: { en: ['Display Cable'] }, shortCode: '7KQ4MZ' }),
     ).toEqual(expect.arrayContaining(['الكابل', 'كابل', 'display', 'cable', '7kq4mz']));

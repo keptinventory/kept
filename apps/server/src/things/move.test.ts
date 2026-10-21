@@ -17,7 +17,7 @@ import {
   setDisplayName,
 } from '../../test/things.js';
 
-// Moves (D45, D118, D161, D177) through the front door, as the web calls them
+// Moves through the front door, as the web calls them
 // (apps/web/src/api/inventory/{types,paths}.ts, mock/things.ts): fixtures seeded as kept_owner,
 // every request as a signed-in user on kept_app, so row-level security and can() decide.
 
@@ -155,7 +155,7 @@ describe('POST /api/v1/things/move within a location', () => {
   });
 
   // catalogue: POST /api/v1/things/move
-  it('moves a container as one audit event whose subjects are its contents; their last-seen stays (D45)', async () => {
+  it('moves a container as one audit event whose subjects are its contents; their last-seen stays', async () => {
     const hall = await place(db, home, 'Hall');
     const attic = await place(db, home, 'Attic');
     const box3 = await box(home, 'Box 3', { placeId: hall });
@@ -277,7 +277,7 @@ describe('POST /api/v1/things/move within a location', () => {
   });
 
   // catalogue: POST /api/v1/things/move
-  it('moves part of a quantity by splitting it first (D10), and audits both', async () => {
+  it('moves part of a quantity by splitting it first, and audits both', async () => {
     const pantry = await place(db, home, 'Pantry');
     const batteries = await createThing(t, ann, home, {
       name: 'AA batteries',
@@ -329,7 +329,7 @@ describe('POST /api/v1/things/move within a location', () => {
   });
 });
 
-describe('POST /api/v1/things/move across locations (D45, D161)', () => {
+describe('POST /api/v1/things/move across locations', () => {
   // catalogue: POST /api/v1/things/move
   it('moves a box with its contents to another location: audit rows in both, tombstones, dropped links audited', async () => {
     const bench = await place(db, garage, 'Bench');
@@ -390,7 +390,7 @@ describe('POST /api/v1/things/move across locations (D45, D161)', () => {
     expect(await row(lamp.id)).toMatchObject({ location_id: studio.id });
   });
 
-  it('refuses a code the target location already has (409 naming the code and its holder, D208)', async () => {
+  it('refuses a code the target location already has (409 naming the code and its holder)', async () => {
     const addCode = (id: string, code: string) =>
       call(t, `/api/v1/things/${id}/codes`, { as: ann, body: { code } });
     const crate = await box(home, 'Code crate');
@@ -477,7 +477,7 @@ describe('POST /api/v1/things/move across locations (D45, D161)', () => {
     expect(await row(router.id)).toMatchObject({ location_id: garage.id });
   });
 
-  it('is undone through the audit event: back in the old location (D150)', async () => {
+  it('is undone through the audit event: back in the old location', async () => {
     const shelf = await place(db, home, 'Book shelf');
     const book = await createThing(t, ann, home, { name: 'Atlas', placeId: shelf });
     ok(await move(ann, { thingIds: [book.id], to: { placeId: garage.unplacedId } }));
@@ -491,7 +491,7 @@ describe('POST /api/v1/things/move across locations (D45, D161)', () => {
     });
   });
 
-  it('is undone within a location too, and refuses once it moved again (D124)', async () => {
+  it('is undone within a location too, and refuses once it moved again', async () => {
     const a = await place(db, home, 'Drawer A');
     const b = await place(db, home, 'Drawer B');
     const pen = await createThing(t, ann, home, { name: 'Pen', placeId: a });
@@ -509,7 +509,7 @@ describe('POST /api/v1/things/move across locations (D45, D161)', () => {
   });
 });
 
-describe('moving across owner accounts (Q13, D161)', () => {
+describe('moving across owner accounts', () => {
   let phone: Json;
   let foldable: string;
 
@@ -661,7 +661,7 @@ describe('moving across owner accounts (Q13, D161)', () => {
   });
 });
 
-describe('blob locks before a move copies files (security review #16, #18; D161)', () => {
+describe('blob locks before a move copies files (security review #16, #18)', () => {
   /** A file row in `loc` with a thumbnail, as kept_owner: {id, key, thumb}. */
   async function fileIn(loc: Loc): Promise<{ id: string; key: string; thumb: string }> {
     const id = newId();
@@ -742,7 +742,7 @@ describe('blob locks before a move copies files (security review #16, #18; D161)
     expect((await row(radio.id)).location_id).toBe(flat.id);
   });
 
-  it("waits on the blob locks of a moved thing's warranty and claim documents (step 4)", async () => {
+  it("waits on the blob locks of a moved thing's warranty and claim documents", async () => {
     const kettle = await createThing(t, ann, home, { name: 'Kettle' });
     const card = await fileIn(home);
     const invoice = await fileIn(home);
@@ -784,7 +784,7 @@ describe('blob locks before a move copies files (security review #16, #18; D161)
   });
 });
 
-describe('POST /api/v1/things/:id/empty-into (D45)', () => {
+describe('POST /api/v1/things/:id/empty-into', () => {
   // catalogue: POST /api/v1/things/:id/empty-into
   it('moves everything directly inside one box into another, one audit row each', async () => {
     const box3 = await box(home, 'Box 3');
@@ -832,7 +832,7 @@ describe('POST /api/v1/things/:id/empty-into (D45)', () => {
   });
 });
 
-describe('route security review (step 2): moves', () => {
+describe('route security review: moves', () => {
   // catalogue: POST /api/v1/things/move
   it('takes an optional If-Match for a one-thing move: stale is 412; with several things 400', async () => {
     const shelf = await place(db, home, 'Review shelf');

@@ -17,7 +17,7 @@ import {
 import { LocalBlobStore } from './local.js';
 import { createUrlSigner } from './signed-url.js';
 
-// T2 step 4: the local driver (D157: keys from ids only, never a user-supplied name).
+// The local driver: keys from ids only, never a user-supplied name.
 
 let dataDir: string;
 let scratch: string;

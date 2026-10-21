@@ -10,7 +10,7 @@ import { ownerTx } from '../../test/tenancy.js';
 import type { BlobStore } from '../storage/blob-store.js';
 import { runPurge } from '../trash/jobs.js';
 
-// 1.2, D225: deleting your own account. What stops it, the re-authentication, the 30 days in
+// Deleting your own account. What stops it, the re-authentication, the 30 days in
 // which only /me and keeping it answer, keeping it, and the purge that deletes it for good.
 
 let db: TestDb;
@@ -170,7 +170,7 @@ describe('DELETE /api/v1/me/deletion', () => {
   });
 });
 
-describe('the purge (D225)', () => {
+describe('the purge', () => {
   const deleted: string[] = [];
   const blobs = {
     delete: async (key: string) => void deleted.push(key),

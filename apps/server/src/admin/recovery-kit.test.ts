@@ -9,7 +9,7 @@ import { createLogger } from '../http/logger.js';
 import { markRecoveryKitStale } from '../setup/recovery-kit.js';
 import type { KitBackupHalf } from '../setup/recovery-kit-content.js';
 
-// Step-8 T9: the recovery kit's download from the web (D182, D176, D181), through the front door.
+// The recovery kit's download from the web, through the front door.
 // The backup half is T10's to fill in (backup/recovery-kit-source.ts); here it is mocked with
 // what T10's settings will hand the kit, so these tests hold when the seam is filled in.
 
@@ -125,7 +125,7 @@ describe('POST /api/v1/admin/recovery-kit/download', () => {
       expect(logLines.join('')).not.toContain(secret);
     }
 
-    // A download is a kept kit: it counts as the acknowledgement (D193).
+    // A download is a kept kit: it counts as the acknowledgement.
     const after = await state();
     expect(after.downloadedAt).toEqual(expect.any(String));
     expect(after.acknowledgedAt).toEqual(expect.any(String));
@@ -192,7 +192,7 @@ describe('POST /api/v1/admin/recovery-kit/download', () => {
     expect(await downloadAudit()).toEqual([]);
   });
 
-  it('is refused over plain http (D181)', async () => {
+  it('is refused over plain http', async () => {
     const plain = await peopleApp(db);
     const admin = await person(plain, db, 'bruce');
     await ownerTx(db, (c) =>

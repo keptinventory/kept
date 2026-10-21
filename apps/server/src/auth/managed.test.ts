@@ -15,7 +15,7 @@ import {
 import { FREE_FAILURES } from './sign-in-limiter.js';
 
 // Managed accounts: a synthetic `.invalid` email, username sign-in, no magic
-// link, and an admin-issued one-time reset code (D47, D93, D164).
+// link, and an admin-issued one-time reset code.
 
 const PASSWORD = 'first password 1';
 const NEW_PASSWORD = 'second password 2';
@@ -138,7 +138,7 @@ describe('managed accounts', () => {
     expect(await sessions(person.userId)).toBe(1);
   });
 
-  describe('admin reset code (D164)', () => {
+  describe('admin reset code', () => {
     let userId: string;
 
     beforeEach(async () => {

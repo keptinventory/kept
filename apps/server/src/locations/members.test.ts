@@ -4,7 +4,7 @@ import { type TestDb, testDb } from '../../test/db.js';
 import { auditOf, call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { ownerTx } from '../../test/tenancy.js';
 
-// Memberships (D46, D48, D180) through the front door.
+// Memberships through the front door.
 
 const DAY = 86_400_000;
 
@@ -33,7 +33,7 @@ beforeEach(async () => {
   });
   homeId = res.json().id;
   ids.admin = await join(db, homeId, admin.userId, 'admin', adminUntil());
-  // Within the admin's own end (D180): since 0010 an admin can't touch a membership that
+  // Within the admin's own end: since 0010 an admin can't touch a membership that
   // outlasts theirs.
   ids.member = await join(db, homeId, member.userId, 'member', memberUntil());
   ids.viewer = await join(db, homeId, viewer.userId, 'viewer', memberUntil());
@@ -95,7 +95,7 @@ describe('PATCH a member', () => {
     });
   });
 
-  it('keeps admins the owner’s to manage (D48)', async () => {
+  it('keeps admins the owner’s to manage', async () => {
     expect((await patch(admin, ids.member as string, { role: 'admin' })).statusCode).toBe(403);
     const other = await person(t, db, 'admin2');
     const otherId = await join(db, homeId, other.userId, 'admin');
@@ -110,7 +110,7 @@ describe('PATCH a member', () => {
     expect((await patch(member, ids.viewer as string, { role: 'member' })).statusCode).toBe(403);
   });
 
-  it("caps an admin's end dates at their own (D46, D180)", async () => {
+  it("caps an admin's end dates at their own", async () => {
     const later = new Date(Date.now() + 30 * DAY).toISOString();
     const sooner = new Date(Date.now() + 2 * DAY).toISOString();
     const tooLate = await patch(admin, ids.member as string, { expiresAt: later });
@@ -169,7 +169,7 @@ describe('DELETE a member, and leaving', () => {
 });
 
 describe('security review of tasks 19–21', () => {
-  it('pages members (§7.7, M8)', async () => {
+  it('pages members (M8)', async () => {
     const first = await call(t, `${url()}?limit=3`, { as: owner });
     expect(first.statusCode, first.body).toBe(200);
     expect(first.json().members.map((m: { role: string }) => m.role)).toEqual([
@@ -197,7 +197,7 @@ describe('security review of tasks 19–21', () => {
     expect(answers.map((r) => r.statusCode).sort()).toEqual([200, 412, 412]);
   });
 
-  it("leaves a membership that outlasts an admin's own to the owner (D180)", async () => {
+  it("leaves a membership that outlasts an admin's own to the owner", async () => {
     const longer = await person(t, db, 'longer');
     const id = await join(db, homeId, longer.userId, 'member');
     const res = await call(t, url(id), {
@@ -209,7 +209,7 @@ describe('security review of tasks 19–21', () => {
     expect(res.statusCode).toBe(403);
   });
 
-  it('caps the memberships an admin created when the admin is shortened or removed (D180, M6)', async () => {
+  it('caps the memberships an admin created when the admin is shortened or removed (M6)', async () => {
     const invitee = await person(t, db, 'invitee');
     const inviteeId = await ownerTx(db, async (c) => {
       const { rows } = await c.query<{ id: string }>(

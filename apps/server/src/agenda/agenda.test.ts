@@ -321,7 +321,7 @@ describe('GET /api/v1/agenda', () => {
     });
   });
 
-  it('pauses a module’s sources (D162) and a trashed thing’s warranty, in list and counts', async () => {
+  it('pauses a module’s sources and a trashed thing’s warranty, in list and counts', async () => {
     const s = await seedHome();
     const before = await agenda(ibrahim);
     await switchModule(home.id, 'warranties', false);
@@ -341,7 +341,7 @@ describe('GET /api/v1/agenda', () => {
     });
   });
 
-  it("decides overdue on the location's own date (§7.13)", async () => {
+  it("decides overdue on the location's own date", async () => {
     // Pago Pago (UTC−11) and Kiritimati (UTC+14) are 25 hours apart: their dates always differ.
     const pago = await createLocation(t, db, ibrahim, 'household', 'Pago Pago');
     const kiri = await createLocation(t, db, ibrahim, 'household', 'Kiritimati');
@@ -368,7 +368,7 @@ describe('GET /api/v1/agenda', () => {
   });
 });
 
-describe("GET /api/v1/home: step 4's attention rows (T13)", () => {
+describe('GET /api/v1/home: the household attention rows', () => {
   it('overdue, due and expiring are the agenda’s counts; loans are the open ones', async () => {
     await seedHome();
     const h = await homeOf(ibrahim);

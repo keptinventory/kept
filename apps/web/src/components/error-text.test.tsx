@@ -9,7 +9,7 @@ function Shown({ error }: { error: unknown }) {
   return <p>{text(error)}</p>;
 }
 
-/** The 409 a move answers when the target location already has one of the codes (D208). */
+/** The 409 a move answers when the target location already has one of the codes. */
 const clash = (holder: string | null) =>
   new ApiError(409, 'conflict', 'Conflict', {
     details: {
@@ -19,7 +19,7 @@ const clash = (holder: string | null) =>
     },
   });
 
-describe('useErrorText: a move refused over a code (D208)', () => {
+describe('useErrorText: a move refused over a code', () => {
   it('names the code, the location and what holds it there', async () => {
     await renderUI(<Shown error={clash('Spanner')} />);
     expect(

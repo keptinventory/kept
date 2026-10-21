@@ -360,7 +360,7 @@ test('a reading below the latest, logged offline, waits in the Inbox after it sy
   await expect(page.getByText('Saved on this phone').first()).toBeVisible();
   await context.setOffline(false);
 
-  // By sync, a reading that doesn't fit is kept for review, not refused (D112).
+  // By sync, a reading that doesn't fit is kept for review, not refused.
   await expect
     .poll(async () => (await readingsOf(page, car.meterId)).some((r) => r.value === '25000'), {
       timeout: 60_000,

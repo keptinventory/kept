@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { testDb } from '../../test/db.js';
 import { asOwner } from '../../test/tenancy.js';
 
-// kept.touch_row() with cache columns (D183). A temporary
+// kept.touch_row() with cache columns. A temporary
 // table in a rolled-back owner transaction, so nothing is left behind.
 
 const db = await testDb();

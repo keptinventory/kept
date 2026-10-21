@@ -13,7 +13,7 @@ import {
 } from '../../test/tenancy.js';
 import { type Scope, withScope } from './scope.js';
 
-// The secret store (D116, D177). As kept_app.
+// The secret store. As kept_app.
 
 const db = await testDb();
 const app = db.pools.app;
@@ -54,7 +54,7 @@ const write = (userId: string, t: Tenant, thingId: string, fieldId: string, key:
     ),
   );
 
-describe('secret values (D116, D177)', () => {
+describe('secret values', () => {
   let a: Tenant;
   let admin: string;
   let member: string;
@@ -231,7 +231,7 @@ describe('secret values (D116, D177)', () => {
     expect(JSON.stringify(rows)).not.toContain('hunter2');
   });
 
-  it("lets only the location's owner write its policies (D177)", async () => {
+  it("lets only the location's owner write its policies", async () => {
     const insert = (userId: string) =>
       q(
         as(userId),

@@ -18,8 +18,8 @@ import { auditOf, call, join, type Person, peopleApp, person } from '../../test/
 import { ownerTx } from '../../test/tenancy.js';
 import { originalKey } from '../storage/blob-store.js';
 
-// T17 through the front door: PUT /api/v1/files/:fileId, as the web sends it (a raw body with
-// X-Kept-Sha256; apps/web/src/api/inventory/mock/files.ts). D36, D117, D157, D177.
+// Uploads through the front door: PUT /api/v1/files/:fileId, as the web sends it (a raw body with
+// X-Kept-Sha256; apps/web/src/api/inventory/mock/files.ts).
 
 let db: TestDb;
 let t: TestApp;
@@ -96,7 +96,7 @@ describe('PUT /api/v1/files/:fileId', () => {
     expect(view.thumbUrl).toMatch(/^\/f\//);
     expect(view.displayUrl).toMatch(/^\/f\//);
 
-    // The original: under the key the database stamped, exactly the bytes sent (D117).
+    // The original: under the key the database stamped, exactly the bytes sent.
     const row = await fileRow(id);
     expect(row?.storage_key).toBe(originalKey(ann.personalLocationId, id));
     expect(row?.created_by).toBe(ann.userId);
@@ -161,7 +161,7 @@ describe('PUT /api/v1/files/:fileId', () => {
     expect(sizes).toEqual({ display: [2048, 683], share: [1200, 400], thumb: [400, 133] });
   });
 
-  it('stores a PDF with no derivatives (not_applicable until step 3, Q8)', async () => {
+  it('stores a PDF with no derivatives (not_applicable)', async () => {
     const res = await upload(t, ann, ann.personalLocationId, await fixture('doc.pdf'), {
       cls: 'document',
       contentType: 'application/pdf',
@@ -178,7 +178,7 @@ describe('PUT /api/v1/files/:fileId', () => {
     expect(await derivativesOf((res.json() as FileView).id)).toEqual([]);
   });
 
-  it('keeps a HEIC as "preview unavailable", never refusing it (D36)', async () => {
+  it('keeps a HEIC as "preview unavailable", never refusing it', async () => {
     const res = await upload(t, ann, ann.personalLocationId, await fixture('image.heic'), {
       contentType: 'image/heic',
     });
@@ -250,7 +250,7 @@ describe('PUT /api/v1/files/:fileId', () => {
   });
 });
 
-describe('upload size (§3.4, KEPT_MAX_FILE_MB)', () => {
+describe('upload size (KEPT_MAX_FILE_MB)', () => {
   it('refuses a 26 MB upload with 413 from Content-Length, without reading the body', async () => {
     let read = false;
     const body = new Readable({
@@ -292,7 +292,7 @@ describe('upload size (§3.4, KEPT_MAX_FILE_MB)', () => {
   });
 });
 
-describe('replays and dedupe (D36, D177)', () => {
+describe('replays and dedupe', () => {
   it('answers a replay of the same id and bytes with the same file (200)', async () => {
     const bytes = await uniqueJpeg();
     const id = newId();
@@ -376,7 +376,7 @@ describe('who may upload', () => {
     expect(member.statusCode, member.body).toBe(201);
   });
 
-  it('never reuses an id that exists in another tenant: 404, as for any unseen row (D178)', async () => {
+  it('never reuses an id that exists in another tenant: 404, as for any unseen row', async () => {
     const id = newId();
     expect(
       (await upload(t, ann, ann.personalLocationId, await uniqueJpeg(), { id })).statusCode,

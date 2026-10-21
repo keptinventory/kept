@@ -1,5 +1,5 @@
 /**
- * The app lock through the real app frame (D181, D210): a cold start with the
+ * The app lock through the real app frame: a cold start with the
  * lock on shows only the lock screen until the PIN; five minutes idle locks again; ten wrong PINs
  * remove the device's copy, keep the unsent queue and sign out; This device sets the lock up.
  * IndexedDB is fake-indexeddb (installed globally before Dexie loads); the offline store's door

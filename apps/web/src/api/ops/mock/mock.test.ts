@@ -173,7 +173,7 @@ describe('the recovery kit download', () => {
 });
 
 describe('the status page and the update check', () => {
-  it('answers the step-8 fields since T21, and step 1’s alone with them off', async () => {
+  it('answers the operations fields, and the basic ones alone with them off', async () => {
     const on = (await (await fetch('/api/v1/admin/status')).json()) as Record<string, unknown>;
     expect(on).toMatchObject({ release: { version: state.version.version }, https: true });
     ops(state).serveStatus = false;

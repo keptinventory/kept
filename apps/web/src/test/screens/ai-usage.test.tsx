@@ -1,5 +1,5 @@
 /**
- * AI usage (T29a; D206): scopes by role, totals, charts with tables, the call list on the filter
+ * AI usage: scopes by role, totals, charts with tables, the call list on the filter
  * strip with the URL round trip, the call's detail, CSV export with the same filters, the money
  * gate, the AI line, and Arabic digits.
  */
@@ -119,7 +119,7 @@ describe('AI usage', () => {
     await waitFor(() => expect(within(list).getAllByRole('listitem')).toHaveLength(1));
     expect(within(list).getByText(/qwen2.5vl:7b/)).toBeInTheDocument();
     expect(within(list).queryByText('Personal')).not.toBeInTheDocument();
-    // Newest first only (T9): no sort, so no direction switch.
+    // Newest first only: no sort, so no direction switch.
     expect(screen.getByRole('button', { name: /^Display options/ })).not.toHaveAccessibleName(
       /sorted by/,
     );
@@ -144,7 +144,7 @@ describe('AI usage', () => {
     expectLogicalOnly(container);
   });
 
-  it('Arabic: the day chart is an LTR SVG drawn right to left (V38), labels clear of the plot', async () => {
+  it('Arabic: the day chart is an LTR SVG drawn right to left, labels clear of the plot', async () => {
     await renderApp('/settings/ai/usage?scope=account', { locale: 'ar' });
     const chart = await screen.findByRole('img', { name: 'الرموز حسب اليوم، مكدّسة حسب المهمة' });
     // SVG text-anchor follows the inherited direction: an LTR SVG keeps start and end physical.

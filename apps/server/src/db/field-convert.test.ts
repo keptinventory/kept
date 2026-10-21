@@ -13,8 +13,8 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step-7 T6 (0085): converting a field to secret, back, or to another kind, through the account
-// owner's three doors (D172, D177, plan Q20).
+// Migration 0085: converting a field to secret, back, or to another kind, through the account
+// owner's three doors.
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });
@@ -128,7 +128,7 @@ beforeEach(async () => {
   );
 });
 
-describe('field conversion (D172, D177, plan Q20)', () => {
+describe('field conversion', () => {
   it('previews per location, counts only', async () => {
     const p = await preview(alfred.userId, doorCode, { toSecret: true });
     expect(p.map((r) => [r.location_id, r.values, r.convertible, r.to_notes]).sort()).toEqual(

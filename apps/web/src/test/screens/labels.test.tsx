@@ -1,5 +1,5 @@
 /**
- * The labels screens (D43, D44, D137, D175, D185): the labels screen, the
+ * The labels screens: the labels screen, the
  * batch builder with its stock and start cell, the print view's sheets, "Printed OK?" with the
  * first-print hint, Arabic names on labels, codes kept left to right, and a location with the
  * module off.
@@ -83,7 +83,7 @@ describe('the batch builder', () => {
     expect(await screen.findByText(/^Printed on /)).toBeInTheDocument();
   });
 
-  it('a batch with nothing left to label since the preview says why (T16: 400 with excluded)', async () => {
+  it('a batch with nothing left to label since the preview says why (400 with excluded)', async () => {
     const state = ownerScenario();
     const { user } = await renderApp(`/labels?loc=${IDS.home}&things=${T.hdmiCable},${T.draft}`, {
       state,

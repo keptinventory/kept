@@ -1,4 +1,4 @@
-// Semantic search end to end on the database (D200, D206, D207): the
+// Semantic search end to end on the database: the
 // backfill and the editor's job embed things with the mock embedder (KEPT_AI_MOCK's concept
 // vectors, test/fixtures/semantic/concepts.json; never a real provider), GET /search fuses meaning
 // with keywords, and the switch, the pauses and the leak hold. Ibrahim owns Home; Louis is a member

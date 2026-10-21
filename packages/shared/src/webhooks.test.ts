@@ -10,7 +10,7 @@ import {
 } from './webhooks.js';
 
 describe('webhooks', () => {
-  it('holds the §2.6 events and limits', () => {
+  it('holds the events and limits', () => {
     expect(WEBHOOK_EVENTS).toEqual([
       'thing.created',
       'thing.updated',

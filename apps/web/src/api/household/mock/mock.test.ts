@@ -135,7 +135,7 @@ describe('the household mock', () => {
     expect(back.body.thing.lifecycle).toBe('returned_to_owner');
   });
 
-  it('a stale If-Match is a 412 with the D156 body', async () => {
+  it('a stale If-Match is a 412 with the merge body', async () => {
     const drill = (await api.loans({ direction: 'out' })).items[0];
     if (!drill) throw new Error('no loan');
     const e = await fail(api.updateLoan(drill.id, { dueOn: null }, drill.rowVersion + 5));
@@ -164,7 +164,7 @@ describe('the household mock', () => {
     expect(again?.next.state).toBe('due');
   });
 
-  it('a one-off is done once completed (D247): off the agenda, done in the list, due on undo', async () => {
+  it('a one-off is done once completed: off the agenda, done in the list, due on undo', async () => {
     const s = await api.createSchedule({
       subject: { thingId: T.kettle },
       name: 'Descale once',
@@ -370,7 +370,7 @@ describe('the household mock', () => {
     expect(feeds.items.filter((f) => !f.revokedAt)).toHaveLength(3);
   });
 
-  it('seeds Murdock and the ladder only on the first step-4 request', async () => {
+  it('seeds Murdock and the ladder only on the first household request', async () => {
     const state = ownerScenario();
     use(state);
     expect(state.inventory.people.some((p) => p.id === H.person.murdock)).toBe(false);

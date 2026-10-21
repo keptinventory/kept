@@ -9,8 +9,8 @@ import { ownerTx } from '../../test/tenancy.js';
 import { renderAudit } from '../audit/render.js';
 import { withScope } from '../db/scope.js';
 
-// Task 12 through the front door: purchases with lines, their links to things, and money gating
-// (D13, D110, D115, D136, D168, D189), as the web contract has them
+// Purchases through the front door: purchases with lines, their links to things, and money
+// gating, as the web contract has them
 // (apps/web/src/api/inventory/types.ts, "currencies and purchases").
 //
 // The household: Bob owns "Bob home" and "Bob cabin" (household preset: money on) and "Bob shed"
@@ -209,7 +209,7 @@ describe('POST /api/v1/purchases', () => {
     expect(linked[0]?.diff.purchase_line_id).toMatchObject({ after: p.lines[0]?.id });
   });
 
-  it('reads amounts in Eastern Arabic digits and stores the canonical form (D172)', async () => {
+  it('reads amounts in Eastern Arabic digits and stores the canonical form', async () => {
     const p = await create(mel, {
       locationId: home,
       purchasedOn: today(),
@@ -302,7 +302,7 @@ describe('POST /api/v1/purchases', () => {
   });
 });
 
-describe('money gating (§7.1, D13, D110)', () => {
+describe('money gating', () => {
   let bought: Purchase;
   let fridge: string;
 
@@ -587,7 +587,7 @@ describe('DELETE /api/v1/purchases/:id', () => {
   });
 });
 
-describe('a thing moved to another location keeps its line (D115)', () => {
+describe('a thing moved to another location keeps its line', () => {
   let p: Purchase;
   let sofa: string;
 

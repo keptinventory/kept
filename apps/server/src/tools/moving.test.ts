@@ -15,7 +15,7 @@ import { createLocation, createThing, type Loc, ok, own, place } from '../../tes
 import { runTool, toolsFor } from './context.js';
 import type { ToolContext, ToolVia } from './types.js';
 
-// Moving mode's tools (1.x, D251) through runTool(), at the MCP door: start a move, add numbered
+// Moving mode's tools (1.x) through runTool(), at the MCP door: start a move, add numbered
 // boxes, pack them, mark one in transit (and Undo), unpack it into its room in the other location
 // with everything in it (and Undo), who may do what, and that the assistant is offered none.
 //

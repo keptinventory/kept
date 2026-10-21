@@ -3,8 +3,8 @@ import type { AddressInfo } from 'node:net';
 import sharp from 'sharp';
 import { textPdf } from './pdf.js';
 
-// A stand-in Paperless-ngx for the D248 tests, on 127.0.0.1. It answers the calls Kept makes the
-// way Paperless-ngx 3.3.1 answered them when recorded against a real server (test/fixtures/
+// A stand-in Paperless-ngx for the Paperless tests, on 127.0.0.1. It answers the calls Kept makes
+// the way Paperless-ngx 3.3.1 answered them when recorded against a real server (test/fixtures/
 // paperless/README.md): DRF pages `{count, next, previous, all, results}`, `X-Api-Version` and
 // `X-Version` on authenticated answers only, 401 `{"detail": …}` for a bad token, 406 for an API
 // version it doesn't serve and for a file asked for as `image/*` (DRF's content negotiation), a

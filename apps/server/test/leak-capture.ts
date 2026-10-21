@@ -24,14 +24,14 @@ export async function fillCapture(c: pg.ClientBase, t: Tenant, label: string): P
     `${label} inside`,
   ]);
 
-  // Sync foundations (T4): a legacy code on the room thing, a box check with one line on the
+  // Sync foundations: a legacy code on the room thing, a box check with one line on the
   // box, and an op in the tenant user's ledger.
   await c.query(
     `INSERT INTO public.legacy_codes (location_id, source, source_collection, code, thing_id)
      VALUES ($1, 'homebox', 'asset', $2, $3)`,
     [t.locationId, `${label.toUpperCase()}-000-001`, thing],
   );
-  // Own codes (T17a): the options and a counter, and an own code on the room thing.
+  // Own codes: the options and a counter, and an own code on the room thing.
   await c.query(
     `INSERT INTO public.own_code_settings (location_id, numbering, prefix, pad, rule_pattern,
                                            rule_message, rule_example)
@@ -99,7 +99,7 @@ export async function fillCapture(c: pg.ClientBase, t: Tenant, label: string): P
     ],
   );
 
-  // Capture records (T5): an extraction of the room thing's photo with its open inbox item; a
+  // Capture records: an extraction of the room thing's photo with its open inbox item; a
   // template shared into the location; an import run and a source id; a PDF on the room thing
   // with its text.
   const photo = await one(
@@ -210,7 +210,7 @@ export async function fillCapture(c: pg.ClientBase, t: Tenant, label: string): P
 
   await fillAi(c, t, label, thing);
 
-  // Labels (T7): a printed batch holding the room thing's code, and a blank code of the location.
+  // Labels: a printed batch holding the room thing's code, and a blank code of the location.
   const code = await one('SELECT code AS id FROM public.short_ids WHERE thing_id = $1 LIMIT 1', [
     thing,
   ]);
@@ -230,7 +230,7 @@ export async function fillCapture(c: pg.ClientBase, t: Tenant, label: string): P
   );
 }
 
-/** AI (T6): an account key and a personal key, an account cap, a location cap and a member cap,
+/** AI: an account key and a personal key, an account cap, a location cap and a member cap,
  * a price in two versions, a ledger row written through kept.ai_settle (so the counters have
  * rows), a held payer slot, a breaker and a provider window, and a month of totals. The doors
  * check their caller, so this runs as the tenant's user. */

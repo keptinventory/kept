@@ -1,7 +1,7 @@
 /**
  * Step 5's frame: Vehicles in the navigation while the module is on in any
  * location, its route answering (a stub until T17 builds the list), and the list pulling to
- * refresh (D212).
+ * refresh.
  */
 import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
@@ -11,7 +11,7 @@ import { findHeading, renderApp } from '../app';
 
 const nav = () => screen.getAllByRole('navigation', { name: 'Main' })[0] as HTMLElement;
 
-describe('the step-5 navigation', () => {
+describe('the vehicles navigation', () => {
   it('links Vehicles while the module is on somewhere, and the route answers', async () => {
     const { user } = await renderApp('/');
     await findHeading('Home');
@@ -35,7 +35,7 @@ describe('the step-5 navigation', () => {
     expect(main.queryByRole('link', { name: 'Vehicles' })).toBeNull();
   });
 
-  it('the vehicles list pulls to refresh (D212)', () => {
+  it('the vehicles list pulls to refresh', () => {
     expect(pullsOn('/vehicles')).toBe(true);
     expect(pullsOn('/vehicles/')).toBe(true);
   });

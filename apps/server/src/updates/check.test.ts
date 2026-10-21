@@ -14,7 +14,7 @@ import {
   updateCheckDue,
 } from './check.js';
 
-// The update check (D65) against a local stand-in for GitHub's API: never the
+// The update check against a local stand-in for GitHub's API: never the
 // internet. The stub records every request it gets, so "nothing sent but the request" and "no
 // request at all" are both read off it.
 
@@ -62,7 +62,7 @@ const release = (tag: string, extra: Record<string, unknown> = {}) => ({
 });
 const ok = (body: unknown): Answer => ({ status: 200, body: JSON.stringify(body) });
 
-describe('githubRepoOf (spike U1 rule)', () => {
+describe('githubRepoOf', () => {
   it('reads owner and repo from the image source label and nothing else', () => {
     expect(githubRepoOf(SOURCE)).toEqual({ owner: 'bruce', repo: 'kept' });
     expect(githubRepoOf('https://github.com/bruce/kept')).toEqual({ owner: 'bruce', repo: 'kept' });

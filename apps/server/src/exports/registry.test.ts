@@ -14,7 +14,7 @@ import {
   REGISTRY,
 } from './registry.js';
 
-// D69, plan Q24: the export registry names every location-scoped table (and every account
+// The export registry names every location-scoped table (and every account
 // registry beside them), exported or left out with a reason, and every column of an exported
 // table is a field of the right kind or omitted with a reason. A table or column a later step
 // adds fails here until it is decided.

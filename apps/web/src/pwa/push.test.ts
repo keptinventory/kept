@@ -1,5 +1,5 @@
 /**
- * Push on this device, the page's half (D139, D193). Every browser API is a stub: no
+ * Push on this device, the page's half. Every browser API is a stub: no
  * test asks a real browser for the notification permission.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -53,7 +53,7 @@ afterEach(() => {
 });
 
 describe('pushBlocker', () => {
-  it('says HTTPS first over plain HTTP (D193)', () => {
+  it('says HTTPS first over plain HTTP', () => {
     Object.defineProperty(window, 'isSecureContext', { configurable: true, value: false });
     try {
       expect(pushBlocker(server)).toBe('no_https');
@@ -69,7 +69,7 @@ describe('pushBlocker', () => {
     expect(pushBlocker({ available: false, reason: 'no_https' })).toBe('no_https');
   });
 
-  it('on an iPhone in the browser, push is for the installed app (D139)', () => {
+  it('on an iPhone in the browser, push is for the installed app', () => {
     stubPushBrowser();
     vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue(IPHONE);
     expect(pushBlocker(server)).toBe('ios_not_installed');

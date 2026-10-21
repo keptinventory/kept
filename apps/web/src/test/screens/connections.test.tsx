@@ -1,10 +1,9 @@
 /**
- * Settings → Connections (D58, D63, D124, D179): personal tokens and
- * connected apps on one list, a new token shown once with Copy and the client configs (URL and
- * header only, never an invented settings file) and gone from the page once closed, D179's
- * second step, the scope stopping at the role, revoke with an in-app confirm, recent changes by
- * connections with undo and the refusal reason on the row, offline, Arabic, and the Shortcut
- * recipe in Help.
+ * Settings → Connections: personal tokens and connected apps on one list, a new token shown once
+ * with Copy and the client configs (URL and header only, never an invented settings file) and gone
+ * from the page once closed, the consent's second step, the scope stopping at the role, revoke with
+ * an in-app confirm, recent changes by connections with undo and the refusal reason on the row,
+ * offline, Arabic, and the Shortcut recipe in Help.
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -22,7 +21,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-/** Ibrahim, a viewer in Garage (D179's roles test). */
+/** Ibrahim, a viewer in Garage (the scope stops at the role). */
 function viewerInGarage(): MockState {
   const s = ownerScenario();
   for (const l of s.locations) if (l.id === L.garage) l.role = 'viewer';
@@ -54,7 +53,7 @@ describe('Connections', () => {
     await user.click(await screen.findByRole('button', { name: 'New token' }));
     const sheet = within(await screen.findByRole('dialog', { name: 'New token' }));
     await user.type(sheet.getByRole('textbox', { name: 'Name' }), 'Laptop');
-    // One location is pre-selected (D179).
+    // One location is pre-selected.
     expect(sheet.getByRole('checkbox', { name: 'Home' })).toBeChecked();
     expect(sheet.getByRole('checkbox', { name: 'Garage' })).not.toBeChecked();
     await user.click(sheet.getByRole('button', { name: 'Make token' }));
@@ -74,7 +73,7 @@ describe('Connections', () => {
     expect(await within(list).findByText('Laptop')).toBeInTheDocument();
   });
 
-  it('asks again before a write token for two locations (D179)', async () => {
+  it('asks again before a write token for two locations', async () => {
     const { user, mock } = await renderApp('/settings/connections');
     await user.click(await screen.findByRole('button', { name: 'New token' }));
     const sheet = within(await screen.findByRole('dialog', { name: 'New token' }));

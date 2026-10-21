@@ -41,7 +41,7 @@ import { RestoreError, runRestore } from './restore.js';
 import type { ResolvedBackupSettings } from './settings.js';
 import { LocalDirTarget } from './target.js';
 
-// The nightly snapshot on restic (D64, D66, D144), end to end against a
+// The nightly snapshot on restic, end to end against a
 // real database and file store: the dump, the manifest with per-table data digests and every
 // blob, the snapshot's contents, retention, the size check, the lock, and secrets that never leave
 // the restic child's environment. restic is the in-memory fake (restic/fake.ts) unless
@@ -328,7 +328,7 @@ describe('the nightly job', () => {
     rawEnv,
   });
 
-  it('is scheduled at KEPT_BACKUP_TIME in UTC, and without a password does nothing (Q6)', async () => {
+  it('is scheduled at KEPT_BACKUP_TIME in UTC, and without a password does nothing', async () => {
     expect(backupCron('02:30')).toBe('30 2 * * *');
     expect(backupCron('23:05')).toBe('5 23 * * *');
     const idle = systemJobs({ ...jobDeps, pools: db.pools }).find((j) => j.name === 'backup');

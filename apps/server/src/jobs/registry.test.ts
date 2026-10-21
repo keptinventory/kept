@@ -26,7 +26,7 @@ import { JOB_POLICIES } from './policies.js';
 import { bossQueue, createRequestQueues, REQUEST_QUEUES, TENANT_REQUEST_QUEUES } from './queue.js';
 import { systemJobs } from './system.js';
 
-// Task 24 (D166): the job registry, policies, schedules and the failed-jobs admin.
+// The job registry, policies, schedules and the failed-jobs admin.
 
 let db: TestDb;
 let boss: PgBoss;
@@ -214,7 +214,7 @@ describe('policies and schedules', () => {
       // Hourly; it asks GitHub once a day at this instance's own hour (updates/job.ts).
       'update-check': '7 * * * *',
       'backup-verify': '10 4 * * 0',
-      // 1.4 (D231): each mailbox's new mail, every 10 minutes.
+      // 1.4: each mailbox's new mail, every 10 minutes.
       'mail-in': '*/10 * * * *',
     });
 
@@ -241,7 +241,7 @@ describe('policies and schedules', () => {
     }
   });
 
-  it('gives the step-3 jobs the §3.1b policies', () => {
+  it('gives the capture jobs their policies', () => {
     expect(JOB_POLICIES.extract).toEqual({
       retryLimit: 2,
       retryDelay: 20,
@@ -282,7 +282,7 @@ describe('policies and schedules', () => {
     });
   });
 
-  it('gives the step-4 jobs the §3.1b policies (plan T2)', () => {
+  it('gives the household jobs their policies', () => {
     expect(JOB_POLICIES['reminder-scan']).toEqual({
       retryLimit: 4,
       retryDelay: 30,
@@ -314,7 +314,7 @@ describe('policies and schedules', () => {
     expect(hours(soonest * 2)).toBeLessThan(36);
   });
 
-  it('gives the step-7 jobs the §3.1b policies (plan T2)', () => {
+  it('gives the portability jobs their policies', () => {
     // "import/export: 1 attempt, 2 h, resumable".
     for (const name of ['export', 'import-homebox', 'import-kept'] as const) {
       expect(JOB_POLICIES[name]).toEqual(JOB_POLICIES['import-csv']);
@@ -323,7 +323,7 @@ describe('policies and schedules', () => {
     expect(JOB_POLICIES['prune-imports']).toEqual(JOB_POLICIES['prune-stale-rows']);
   });
 
-  it('gives the step-6 jobs their policies (plan T2)', () => {
+  it('gives the assistant and embedding jobs their policies', () => {
     expect(JOB_POLICIES['assistant-turn']).toEqual({
       retryLimit: 1,
       retryDelay: 5,
@@ -351,11 +351,11 @@ describe('policies and schedules', () => {
     expect(TENANT_REQUEST_QUEUES).not.toContain('webhook-fanout');
   });
 
-  it('gives the step-8 jobs their policies (plan T2)', () => {
+  it('gives the operations jobs their policies', () => {
     expect(JOB_POLICIES['ops-watch']).toEqual(JOB_POLICIES['prune-stale-rows']);
     // "backup: 2 attempts, 4 h".
     expect(JOB_POLICIES['backup-verify']).toEqual(JOB_POLICIES.backup);
-    // A rate limit or a network failure waits for the next day (D65).
+    // A rate limit or a network failure waits for the next day.
     expect(JOB_POLICIES['update-check']).toMatchObject({ retryLimit: 0 });
   });
 

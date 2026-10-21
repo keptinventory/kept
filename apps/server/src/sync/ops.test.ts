@@ -20,7 +20,7 @@ import {
 } from '../../test/things.js';
 import { applyOps } from './ops.js';
 
-// T14: POST /api/v1/sync/ops through the front door, in the shapes the phone's sync engine sends
+// POST /api/v1/sync/ops through the front door, in the shapes the phone's sync engine sends
 // (apps/web/src/offline/sync-engine.ts) and reads back. The ordering and conflict suite is
 // ordering.test.ts.
 
@@ -149,7 +149,7 @@ describe('POST /api/v1/sync/ops', () => {
     expect((await thingOf(jar.id))?.last_seen_at).toEqual(before);
   });
 
-  it('tells a removed member location_revoked even when no op of theirs reached it (T19, D210)', async () => {
+  it('tells a removed member location_revoked even when no op of theirs reached it', async () => {
     const bruce = await person(t, db, 'bruce');
     const membership = await join(db, home.id, bruce.userId, 'member');
     const stranger = await person(t, db, 'murdock');
@@ -301,7 +301,7 @@ describe('POST /api/v1/sync/ops', () => {
     ).toHaveLength(1);
   });
 
-  it('takes a file whose bytes the location already held by its hash (dedupe, D177)', async () => {
+  it('takes a file whose bytes the location already held by its hash (dedupe)', async () => {
     const bytes = await uniqueJpeg();
     const sha = sha256(bytes);
     // Ibrahim's photo, on his own capture.

@@ -60,7 +60,7 @@ const receiptAr = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="9
 </g></svg>`;
 
 // A receipt lying on a table, so the paper's outline is known: x 0.30–0.70, y 0.10–0.90 of a
-// 1200×900 photo. A bare "$" (ambiguous, D189) and printed warranty terms (D55).
+// 1200×900 photo. A bare "$" (ambiguous) and printed warranty terms.
 const receiptTable = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900">
 <rect width="100%" height="100%" fill="#8a5a32"/>
 ${Array.from({ length: 18 }, (_, i) => `<rect x="0" y="${i * 50 + 12}" width="1200" height="3" fill="#7a4d2a" opacity="0.7"/>`).join('')}

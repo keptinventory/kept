@@ -23,7 +23,7 @@ import {
   setupCodeMatches,
 } from './setup-code.js';
 
-// The one-time setup code and the first instance admin (D32, D190, D193).
+// The one-time setup code and the first instance admin.
 
 let db: TestDb;
 let t: TestApp;
@@ -235,7 +235,7 @@ describe('GET/POST /api/v1/setup', () => {
   });
 });
 
-describe('requireRecoveryKitAck() (D193)', () => {
+describe('requireRecoveryKitAck()', () => {
   it('refuses until an instance admin acknowledged the kit, then lets everything through', async () => {
     const refused = await requireRecoveryKitAck(db.pools.system).catch((err: unknown) => err);
     expect(toErrorReply(refused)).toMatchObject({

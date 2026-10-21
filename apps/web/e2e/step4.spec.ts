@@ -774,7 +774,7 @@ test('lending part of a quantity: 2 of the 3 HDMI cables lent, returned and merg
   await expect(lend).toBeHidden();
   await expect(page.getByText(/^Lent to /).first()).toBeVisible();
 
-  // The two lent are a row of their own, split from the three (D10); one stays home.
+  // The two lent are a row of their own, split from the three; one stays home.
   await expect.poll(() => quantity(hdmi.id)).toBe(1);
   const { items } = await api(page).get<{
     items: (Loan & { quantity: string; splitFromThingId: string | null; thing: Located })[];
@@ -933,7 +933,7 @@ test("Talia, a viewer: the TV's warranties and claims, and Catan's loan, with no
   await noActions(['More actions', 'Mark returned', 'More', 'Lend']);
   await axe(page, 'Catan as a viewer, loans');
 
-  // Me → Notifications: in Home, where she is a viewer, only Membership; since D239 the
+  // Me → Notifications: in Home, where she is a viewer, only Membership; the
   // other kinds stay listed with the reason instead of a switch.
   await page.goto('/settings/me/notifications');
   await chooseWhere(page, 'Home');
@@ -988,7 +988,7 @@ test('calendar feed: a link fetched without a session is iCal with the schedules
   await context.close();
 });
 
-/** Settings › Me › Notifications (D239): one table, for all locations or the one chosen under Where. */
+/** Settings › Me › Notifications: one table, for all locations or the one chosen under Where. */
 async function chooseWhere(page: Page, name: string) {
   const group = page.getByRole('radiogroup', { name: 'Where' });
   const box = page.getByRole('combobox', { name: 'Where' });
@@ -1233,7 +1233,7 @@ test('incidents: two things stolen, a claim pack whose link downloads without a 
   await expect(page).toHaveURL(/\/reports\/claim-pack/);
   await axe(page, 'Claim pack');
 
-  // The warning must be accepted before anything is made (D158).
+  // The warning must be accepted before anything is made.
   const make = page.getByRole('button', { name: 'Make the claim pack', exact: true });
   await page.getByText('I understand the link shares prices and documents').click();
   await make.click();

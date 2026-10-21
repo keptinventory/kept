@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { TRY_APP_PATH, tryAppBase, tryAppHref } from './try-kept';
 
-describe('Try Kept paths (D246)', () => {
+describe('Try Kept paths', () => {
   it('puts the app under the docs site base', () => {
     expect(tryAppBase('/')).toBe('/try/kept/app/');
     expect(tryAppBase('')).toBe('/try/kept/app/');

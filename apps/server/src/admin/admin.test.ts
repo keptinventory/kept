@@ -8,7 +8,7 @@ import { asOwner, ownerTx } from '../../test/tenancy.js';
 import { allowPrivateAddresses } from '../ai/runtime.js';
 import { multiItemOn } from '../capture/split.js';
 
-// Instance admin routes (D164, D165, D180), through the front door.
+// Instance admin routes, through the front door.
 
 let db: TestDb;
 let t: TestApp;
@@ -107,7 +107,7 @@ describe('GET /api/v1/admin/users', () => {
   });
 });
 
-describe('GET /api/v1/admin/accounts (T19: the AI cap override picker)', () => {
+describe('GET /api/v1/admin/accounts (the AI cap override picker)', () => {
   it('lists accounts by owner name with their location counts, names only, admins only', async () => {
     await ownerTx(db, (c) =>
       c.query(
@@ -136,7 +136,7 @@ describe('GET /api/v1/admin/accounts (T19: the AI cap override picker)', () => {
   });
 });
 
-describe('actions on an account (D165), each audited and mailed (D180)', () => {
+describe('actions on an account, each audited and mailed', () => {
   // catalogue: POST /api/v1/admin/users/:id/disable
   // catalogue: POST /api/v1/admin/users/:id/enable
   it('disable: signs them out and refuses sign-in; enable lets them back', async () => {
@@ -234,7 +234,7 @@ describe('actions on an account (D165), each audited and mailed (D180)', () => {
   });
 });
 
-describe('settings: sign-up (D127, §7.11)', () => {
+describe('settings: sign-up', () => {
   const signUp = () =>
     call(t, '/api/v1/auth/sign-up', {
       body: { email: `new-${randomUUID()}@example.com`, password: PASSWORD, displayName: 'New' },
@@ -285,7 +285,7 @@ describe('settings: sign-up (D127, §7.11)', () => {
   });
 });
 
-describe('settings: private addresses (Q9, D83)', () => {
+describe('settings: private addresses', () => {
   const auditOfSettings = () =>
     asOwner(db, async (c) => {
       const { rows } = await c.query<{ diff: unknown }>(
@@ -339,7 +339,7 @@ describe('settings: private addresses (Q9, D83)', () => {
   });
 });
 
-describe('settings: multi-item photos (D230)', () => {
+describe('settings: multi-item photos', () => {
   it('is off by default; an instance admin turns it on, audited, and the capture job reads it', async () => {
     expect((await call(t, '/api/v1/admin/settings', { as: admin })).json()).toMatchObject({
       multiItem: false,
@@ -448,7 +448,7 @@ describe('instance admins', () => {
   });
 });
 
-describe('the recovery-kit acknowledgement (D193)', () => {
+describe('the recovery-kit acknowledgement', () => {
   // catalogue: POST /api/v1/admin/recovery-kit/acknowledge
   it('is recorded once, audited, and shows on /me', async () => {
     expect((await call(t, '/api/v1/admin/recovery-kit', { as: admin })).json()).toEqual({

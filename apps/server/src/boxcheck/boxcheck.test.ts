@@ -15,7 +15,7 @@ import {
 } from '../../test/things.js';
 import { AUDIT_EVENT_HEADER } from '../http/write.js';
 
-// The box check (D10, D40, D175), through the front door in the web
+// The box check, through the front door in the web
 // contract's shapes (apps/web/src/api/capture/types.ts `BoxCheckBody`, `BoxCheckResult`).
 
 let db: TestDb;
@@ -169,7 +169,7 @@ describe('POST /api/v1/things/:id/box-check', () => {
       container_id: p.box.id,
       location_uncertain: false,
     });
-    // A nested box is checked as a unit: what is in it keeps its last-seen date (D45).
+    // A nested box is checked as a unit: what is in it keeps its last-seen date.
     expect((await rowOf(p.inBag.id)).last_seen_at).toEqual(was.inBag.last_seen_at);
 
     // One box.check event, by Louis, undoable, with every line's thing as a subject.

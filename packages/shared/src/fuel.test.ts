@@ -44,7 +44,7 @@ describe('milli() and friends', () => {
   });
 });
 
-describe('consumption() (Q6)', () => {
+describe('consumption()', () => {
   it('full to full, with a partial between: one interval holding both amounts', () => {
     const c = consumption([
       fill(1, '40', '10000'),
@@ -164,7 +164,7 @@ describe('consumption() (Q6)', () => {
   });
 });
 
-describe('displayConsumption() (Q7)', () => {
+describe('displayConsumption()', () => {
   it.each([
     // [perHundred, fuel, distance unit, system, value, unit]
     ['15', 'kWh', 'km', 'metric', '15', 'kWh/100 km'],
@@ -179,7 +179,7 @@ describe('displayConsumption() (Q7)', () => {
   });
 });
 
-describe('prices and cost per distance (Q22)', () => {
+describe('prices and cost per distance', () => {
   it('a fill’s price per unit', () => {
     expect(pricePerUnit({ amount: '40', cost: '740', currency: 'EGP' })).toEqual({
       amount: '18.5',

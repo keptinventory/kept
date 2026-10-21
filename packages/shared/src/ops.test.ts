@@ -83,11 +83,11 @@ describe('backup settings', () => {
     keep: BACKUP_KEEP_DEFAULT,
   };
 
-  it('defaults retention to 7/4/6 (D66)', () => {
+  it('defaults retention to 7/4/6', () => {
     expect(BACKUP_KEEP_DEFAULT).toEqual({ daily: 7, weekly: 4, monthly: 6 });
   });
 
-  it('takes no password (keep the stored one) or one of at least 12 characters (Q6)', () => {
+  it('takes no password (keep the stored one) or one of at least 12 characters', () => {
     expect(BackupSettingsInput.safeParse(settings).success).toBe(true);
     expect(BACKUP_PASSWORD_MIN).toBe(12);
     expect(BackupSettingsInput.safeParse({ ...settings, password: 'a'.repeat(11) }).success).toBe(
@@ -177,13 +177,13 @@ describe('compareSemver', () => {
 });
 
 describe('this device', () => {
-  it('locks after 5 minutes, takes a 6+ digit PIN, wipes after 10 tries (D181)', () => {
+  it('locks after 5 minutes, takes a 6+ digit PIN, wipes after 10 tries', () => {
     expect(APP_LOCK).toMatchObject({ idleMinutes: 5, pinMin: 6, maxPinTries: 10 });
     // L1's count (about 288 ms in Chromium on the laptop); OWASP's 600,000 is the floor.
     expect(APP_LOCK.pbkdf2Iterations).toBe(2_850_000);
   });
 
-  it('keeps documents only, 25 MB a file and 250 MB a device (Q21)', () => {
+  it('keeps documents only, 25 MB a file and 250 MB a device', () => {
     expect(KEEP_OFFLINE).toEqual({ deviceBytes: 250 * 1024 ** 2, fileBytes: 25 * 1024 ** 2 });
     expect(KEEP_OFFLINE_ROLES).not.toContain('photo');
   });

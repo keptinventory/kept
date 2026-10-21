@@ -17,7 +17,7 @@ const OAM = ['owner', 'admin', 'member'] as const;
 const ALL = ROLES;
 
 export const MATRIX = Object.freeze({
-  // "See things, places, photos, history, activity feed (redacted per D110)"
+  // "See things, places, photos, history, activity feed (redacted)"
   'content.view': ALL,
   // "Add, edit, move, lend and borrow things; log readings, services and fuel"
   'things.edit': OAM,

@@ -13,8 +13,8 @@ import {
   setDisplayName,
 } from '../../test/things.js';
 
-// Step-4 T9 through the front door: warranties with defaults and coverage, claims and repairs,
-// and the derived state "in repair" (D53–D55, D158, D195; plan Q18, Q25–Q27), in the web
+// Warranties through the front door: warranties with defaults and coverage, claims and repairs,
+// and the derived state "in repair", in the web
 // contract's shapes (apps/web/src/api/household/types.ts, "warranties and claims").
 //
 // Ibrahim owns Home (household: warranties and money on) and Garage (essentials: both off). In
@@ -163,7 +163,7 @@ beforeAll(async () => {
 // Warranties
 // ---------------------------------------------------------------------------------------------
 
-describe('warranties, their defaults and the coverage bar (D53–D55, D195)', () => {
+describe('warranties, their defaults and the coverage bar', () => {
   it('defaults the term from the brand, else the nearest type up the chain, and the start from the purchase', async () => {
     const [brand] = await own<{ id: string }>(
       `INSERT INTO public.brands (owner_account_id, name, default_warranty_months)
@@ -503,7 +503,7 @@ describe('warranties, their defaults and the coverage bar (D53–D55, D195)', ()
 // Claims
 // ---------------------------------------------------------------------------------------------
 
-describe('claims and repairs (D54, D158, D195, Q18)', () => {
+describe('claims and repairs', () => {
   it('prefills a claim from the longest active warranty and the brand’s contacts', async () => {
     const [brand] = await own<{ id: string }>(
       `INSERT INTO public.brands (owner_account_id, name, claim_url, support_phone)

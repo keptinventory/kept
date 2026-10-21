@@ -298,7 +298,7 @@ describe('password reset', () => {
   });
 });
 
-describe('one-time code (managed accounts, D164)', () => {
+describe('one-time code (managed accounts)', () => {
   it('sets the password with the code, then signs in', async () => {
     const { user, mock } = await renderApp('/signin', { state: signedOutScenario() });
     await findHeading('Sign in to Kept');

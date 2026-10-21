@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
 // index.html turns zod's JIT off before any module runs: the CSP allows no eval, and zod's eval
-// probe is reported as a CSP violation even though its throw is caught (T32).
+// probe is reported as a CSP violation even though its throw is caught.
 describe("index.html's zod config", () => {
   const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1] ?? '');

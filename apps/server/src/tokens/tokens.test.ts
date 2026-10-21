@@ -14,7 +14,7 @@ import {
   setDisplayName,
 } from '../../test/things.js';
 
-// T10: personal tokens through the front door. Ibrahim owns Home and Garage; Bruce is an admin of
+// Personal tokens through the front door. Ibrahim owns Home and Garage; Bruce is an admin of
 // Home and a member of Garage; Louis a member of both; Talia a viewer of Home.
 
 const db: TestDb = await testDb();
@@ -28,7 +28,7 @@ let garage: Loc;
 
 beforeAll(async () => {
   await db.reset();
-  // Token creation is https only (D181); the refusal over http is tested below.
+  // Token creation is https only; the refusal over http is tested below.
   t = await peopleApp(db, { publicUrl: 'https://kept.example' });
   ibrahim = await person(t, db, 'ibrahim');
   bruce = await person(t, db, 'bruce');
@@ -218,7 +218,7 @@ describe('tokens', () => {
     expect(events.at(-1)).toMatchObject({ action: 'token.update', entity_id: token.id });
   });
 
-  it('keeps a token at or under its creator’s role, and warns before writing across differing member lists (D179)', async () => {
+  it('keeps a token at or under its creator’s role, and warns before writing across differing member lists', async () => {
     const viewer = await call(t, '/api/v1/tokens', {
       as: talia,
       body: { name: 'Mine', scope: 'write', locationIds: [home.id] },
@@ -297,7 +297,7 @@ describe('tokens', () => {
     });
     const undo = row?.undo as { eventId: string } | null;
     expect(undo?.eventId).toBeTruthy();
-    // History and Activity name the token, never "Kept" (UI review steps 6–8, L3, 0105): its
+    // History and Activity name the token, never "Kept" (UI review steps 6–8, 0105): its
     // creator reads its name, another member of the location "Louis (Script)".
     await setDisplayName(db, louis, 'Louis');
     const actorsOf = (page: Json) =>
@@ -402,7 +402,7 @@ describe('tokens', () => {
     expect((await bearer(member.secret, brands, { body: { name: 'Sony' } })).statusCode).toBe(403);
   });
 
-  it('dies with the creator’s role or membership, at the next call (D180)', async () => {
+  it('dies with the creator’s role or membership, at the next call', async () => {
     const peter = await person(t, db, 'bruce-two');
     const membership = await join(db, home.id, peter.userId, 'member');
     const { secret: write } = await makeToken(peter, {
@@ -461,7 +461,7 @@ describe('tokens', () => {
   });
 });
 
-describe('over plain http (D181, step-8 T24)', () => {
+describe('over plain http', () => {
   it('refuses to make a token: 403 https_required, and none is made', async () => {
     const plain = await peopleApp(db);
     try {

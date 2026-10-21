@@ -18,7 +18,7 @@ import { ownerTx } from '../../test/tenancy.js';
 import { withScope } from '../db/scope.js';
 import { allocateShortId } from './short-id.js';
 
-// Task 13 through the front door: every place operation of D160 as the web calls it
+// Places through the front door: every place operation as the web calls it
 // (apps/web/src/api/inventory/{types,paths}.ts, mock/places.ts). Fixtures are seeded as
 // kept_owner; every read and write goes through the app as a signed-in user on kept_app, so
 // row-level security and can() decide.
@@ -195,7 +195,7 @@ describe('GET /api/v1/locations/:locationId/places (the tree)', () => {
     await own('UPDATE public.places SET deleted_at = now() WHERE id = $1', [gone]);
     await thing(home, 'Lamp', { placeId: study });
     await thing(home, 'Old lamp', { placeId: study }, { lifecycle: 'sold' });
-    // The study's label: its short ID is the tree's link (D208).
+    // The study's label: its short ID is the tree's link.
     await own(
       `INSERT INTO public.short_ids (code, location_id, place_id, state, is_primary)
        VALUES ('ST4DY2', $1, $2, 'assigned', true)`,
@@ -453,7 +453,7 @@ describe('GET /api/v1/places/:id/contents', () => {
     expect(grouped.things.items[0]?.type?.builtinKey).toBe('box_bin');
   });
 
-  it('turns the sort around with dir (D211), and pages the same way', async () => {
+  it('turns the sort around with dir, and pages the same way', async () => {
     const walk = async (qs: string) => {
       const seen: string[] = [];
       let cursor: string | null = null;
@@ -478,7 +478,7 @@ describe('GET /api/v1/places/:id/contents', () => {
     expect(bad.statusCode).toBe(400);
   });
 
-  it('takes several types, brands and owners, and "is none of" each (D205)', async () => {
+  it('takes several types, brands and owners, and "is none of" each', async () => {
     const larder = await place(home, 'Larder');
     const [bosch, makita] = await own<{ id: string }>(
       `INSERT INTO public.brands (owner_account_id, name)
@@ -636,7 +636,7 @@ describe('PATCH /api/v1/places/:id', () => {
   });
 });
 
-describe('place fields (D160): custom values from the place kind', () => {
+describe('place fields: custom values from the place kind', () => {
   let kind: string;
   let alarmField: string;
   let pantry: string;
@@ -706,7 +706,7 @@ describe('place fields (D160): custom values from the place kind', () => {
       'custom.value': { after: { amount: '1200.5', currency: 'EGP' }, class: 'money' },
     });
 
-    // A viewer (money hidden by default, D13) sees everything but the money field.
+    // A viewer (money hidden by default) sees everything but the money field.
     const seenByViewer = await view(vic, pantry);
     expect(seenByViewer.custom).toEqual({ paint_colour: 'Sage', width_cm: 240, filter: 'M' });
 
@@ -759,7 +759,7 @@ describe('place fields (D160): custom values from the place kind', () => {
 
 // ---------------------------------------------------------------------------------------------
 
-describe('POST /api/v1/places/:id/trash (D45, D160, D162)', () => {
+describe('POST /api/v1/places/:id/trash', () => {
   // catalogue: POST /api/v1/places/:id/trash
   it('trashes an empty place and audits it', async () => {
     const p = await place(home, 'Empty cupboard');
@@ -986,7 +986,7 @@ describe('DELETE /api/v1/places/:id (delete permanently)', () => {
   });
 });
 
-describe('POST /api/v1/places/:id/merge-into (D160)', () => {
+describe('POST /api/v1/places/:id/merge-into', () => {
   // catalogue: POST /api/v1/places/:id/merge-into
   it('merges a duplicate into another place, for owners and admins, with both versions', async () => {
     const dup = await place(home, 'Kitchen (dup)');
@@ -1040,7 +1040,7 @@ describe('POST /api/v1/places/:id/merge-into (D160)', () => {
   });
 });
 
-describe('POST /api/v1/places/:id/convert-to-container (Q14: the same id, both ways)', () => {
+describe('POST /api/v1/places/:id/convert-to-container (the same id, both ways)', () => {
   // catalogue: POST /api/v1/places/:id/convert-to-container
   it('turns a place into a box thing and back, keeping its id, code and contents', async () => {
     const parent = await place(home, 'Workshop');
@@ -1146,7 +1146,7 @@ describe('POST /api/v1/places/:id/label (labels module)', () => {
   });
 });
 
-describe('the location carries its owner account (T25 decision 1)', () => {
+describe('the location carries its owner account', () => {
   it('answers ownerAccountId and moneyVisibleToViewers on GET /api/v1/locations/:id', async () => {
     const loc = await ok<{ ownerAccountId: string; moneyVisibleToViewers: boolean }>(
       api(max, 'GET', `/api/v1/locations/${home.id}`),
@@ -1198,7 +1198,7 @@ describe('row-level security and roles across every place route', () => {
     expect((await view(max, mine)).name).toBe('Viewer-proof room');
   });
 
-  it('shows a viewer money in place fields only when the location allows it (D13)', async () => {
+  it('shows a viewer money in place fields only when the location allows it', async () => {
     const kindId = newId();
     await own(
       `INSERT INTO public.place_kinds (id, owner_account_id, key, name, icon)
@@ -1235,7 +1235,7 @@ describe('row-level security and roles across every place route', () => {
   });
 });
 
-describe('route security review (step 2): places', () => {
+describe('route security review: places', () => {
   it("refuses a place with a thing's id, anywhere, like any taken id (404, #35)", async () => {
     const mine = await thing(home, 'Id holder');
     const theirs = await thing(bobs, 'Bob id holder');

@@ -1,5 +1,5 @@
 /**
- * Dictation (D25, D213) against a stubbed recogniser only: the real one is never started in
+ * Dictation against a stubbed recogniser only: the real one is never started in
  * a test (agent rules).
  */
 import { act, render, screen } from '@testing-library/react';

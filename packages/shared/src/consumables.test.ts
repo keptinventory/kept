@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { isLow, STOCK_MIN_MAX } from './consumables.js';
 
-describe('consumables (D14, Q19)', () => {
+describe('consumables', () => {
   it('is low below the minimum, not at it', () => {
     expect(isLow(3, 4)).toBe(true);
     expect(isLow(4, 4)).toBe(false);

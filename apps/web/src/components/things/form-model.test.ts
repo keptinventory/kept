@@ -79,7 +79,7 @@ describe('form model', () => {
     expect(mergeFields(fields)).not.toContain('custom.linked_account');
   });
 
-  it('reads Eastern Arabic and Persian digits and the Arabic decimal separator (D172)', () => {
+  it('reads Eastern Arabic and Persian digits and the Arabic decimal separator', () => {
     expect(westernNumber('١٬٢٠٠٫٥')).toBe('1200.5');
     expect(parseNumber('۴۲')).toBe(42);
     expect(parseNumber('')).toBeNull();
@@ -128,7 +128,7 @@ describe('form model', () => {
     ).toEqual({ 'custom.length': 'number' });
   });
 
-  it('merges per custom key, so different fields never conflict (D156)', () => {
+  it('merges per custom key, so different fields never conflict', () => {
     const base = formValues(thing);
     const mine = { ...base, custom: { ...base.custom, length: '3' } };
     const theirs = { ...base, custom: { ...base.custom, complete: false } };

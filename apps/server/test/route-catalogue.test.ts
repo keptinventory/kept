@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { type TestApp, testApp } from './app.js';
 import { testDb } from './db.js';
 
-// The route catalogue (D188). Every route that writes must leave an audit
+// The route catalogue. Every route that writes must leave an audit
 // row, and a test must prove it. The app is built with every route module, each non-GET route is
 // collected as it is added (buildApp's onRoute), and each one must either:
 // - have a `// catalogue: <METHOD> <url>` marker in a test file, directly above (comment lines
@@ -30,23 +30,23 @@ const db = await testDb();
 /** Non-GET routes that write no audit row, and why. */
 const ALLOWLIST: Record<string, string> = {
   'POST /api/v1/auth/*':
-    "Better Auth's own endpoints (sign-in and -out, passkeys, 2FA, password reset): authentication, not a change to Kept's data; the security notices they trigger are mailed (D197)",
+    "Better Auth's own endpoints (sign-in and -out, passkeys, 2FA, password reset): authentication, not a change to Kept's data; the security notices they trigger are mailed",
   'POST /api/v1/auth/magic-link/verify':
     "Better Auth's magic-link sign-in behind Kept's attempt limiter: a sign-in, not an audited change",
   'POST /api/v1/types/:id/preview':
-    'read-only: answers what a type change would touch (kept.type_impact, D92, D123) and changes nothing; the PATCH it previews is audited (type.update)',
+    'read-only: answers what a type change would touch (kept.type_impact) and changes nothing; the PATCH it previews is audited (type.update)',
   'POST /api/v1/type-fields/:id/convert/preview':
-    'read-only: counts per location what converting a field would convert and send to the notes (kept.field_conversion_preview, never a value, D172, D177) and changes nothing; the conversion itself is audited (type.field_convert)',
+    'read-only: counts per location what converting a field would convert and send to the notes (kept.field_conversion_preview, never a value) and changes nothing; the conversion itself is audited (type.field_convert)',
   'POST /api/v1/things/move/preview':
-    'read-only: answers what a move would copy and who would lose sight of the things (D45, D161), counting the copies inside a savepoint it always rolls back; the move itself is audited (thing.move)',
+    'read-only: answers what a move would copy and who would lose sight of the things, counting the copies inside a savepoint it always rolls back; the move itself is audited (thing.move)',
   'POST /api/v1/files/:id/url':
-    'read-only: signs a five-minute URL for a file the caller may already see (Q16, D157) and changes nothing; the upload, attachments and "delete original" are audited',
+    'read-only: signs a five-minute URL for a file the caller may already see and changes nothing; the upload, attachments and "delete original" are audited',
   'POST /api/v1/me/email-change':
     'only mails the old address a confirmation link; the change itself is audited when it completes (POST /api/v1/auth/email-change/confirm, account.email_change)',
   'POST /api/v1/inbox/:id/room/retry':
     "reads a room capture's photos again when none could be read (#194): new extraction attempts, the old ones superseded, as the capture's own reading was; it changes nothing in the inventory, and what the reading then makes is audited (thing.capture for each draft)",
   'POST /api/v1/scan/resolve':
-    'read-only: answers what a scanned code is (open, claim, not in your Kept, legacy, barcode, not Kept, D137) and changes nothing, not even last_seen_at (D40); the phone marks seen with the audited POST /api/v1/things/:id/seen',
+    'read-only: answers what a scanned code is (open, claim, not in your Kept, legacy, barcode, not Kept) and changes nothing, not even last_seen_at; the phone marks seen with the audited POST /api/v1/things/:id/seen',
   'POST /api/v1/scan-sessions':
     'opens a count on the server so that others counting the same place can join it (the session row only, no change to the inventory); what the count changes is applied and audited by its finish (scan.session)',
   'POST /api/v1/scan/resolve-batch':
@@ -62,21 +62,21 @@ const ALLOWLIST: Record<string, string> = {
   'POST /api/v1/locations/:id/paperless/check':
     "signs in to the location's saved Paperless-ngx to say whether it works and which version it runs, rate-limited to 6 a minute; it changes nothing (connecting, changing and disconnecting are audited: paperless.connect, paperless.update, paperless.disconnect)",
   'POST /api/v1/notifications/read':
-    "marks the caller's own notifications read (read_at only): a read receipt is the person's own bookkeeping, not a change to the household's data (plan T16)",
+    "marks the caller's own notifications read (read_at only): a read receipt is the person's own bookkeeping, not a change to the household's data",
   'POST /api/v1/assistant/threads':
-    "starts the caller's own private assistant thread (D23): threads are private from admins and the instance admin, never audit subjects, and deleted after 90 days; a write a thread leads to is audited when its card is confirmed",
+    "starts the caller's own private assistant thread: threads are private from admins and the instance admin, never audit subjects, and deleted after 90 days; a write a thread leads to is audited when its card is confirmed",
   'DELETE /api/v1/assistant/threads/:id':
-    "private data the owner deletes at once (D23): no audit copy may outlive the thread, whose messages and tool results are the person's own",
+    "private data the owner deletes at once: no audit copy may outlive the thread, whose messages and tool results are the person's own",
   'POST /api/v1/assistant/threads/:id/turns':
-    "stores the caller's question in their private thread and queues its turn (D23, D166); the model's tool calls only read, and every write it proposes is audited when the person confirms it (POST /api/v1/assistant/proposals/confirm)",
+    "stores the caller's question in their private thread and queues its turn; the model's tool calls only read, and every write it proposes is audited when the person confirms it (POST /api/v1/assistant/proposals/confirm)",
   'POST /api/v1/assistant/turns/:id/cancel':
     "stops the caller's own assistant turn before its next step (Q21): the turn's status in their private thread, not a change to the household's data",
   'POST /api/v1/assistant/proposals/cancel':
-    "dismisses the caller's own unconfirmed cards (D22): nothing was applied, so nothing is audited; the thread records that they were cancelled",
+    "dismisses the caller's own unconfirmed cards: nothing was applied, so nothing is audited; the thread records that they were cancelled",
   'POST /mcp':
     'MCP endpoint; each tool call audits itself: a write tool runs the same audited operation as its route, as the token (tools/context.ts runTool, step-6 T11)',
   'DELETE /mcp':
-    'answers 405 only: the MCP endpoint is stateless (D63), so there is no session to end and nothing changes',
+    'answers 405 only: the MCP endpoint is stateless, so there is no session to end and nothing changes',
   'POST /share':
     'redirect only; SW handles share-in: a share the service worker missed is answered 303 to /capture?share=unavailable before its body is read, and nothing is stored (http/share.ts, Q26)',
 };
@@ -257,7 +257,7 @@ async function markers(): Promise<{ found: Marker[]; misplaced: string[] }> {
   return { found, misplaced };
 }
 
-describe('the route catalogue (D188)', () => {
+describe('the route catalogue', () => {
   let t: TestApp;
   const routes = new Set<string>();
 
@@ -273,7 +273,7 @@ describe('the route catalogue (D188)', () => {
   });
   afterAll(() => t.app.close());
 
-  it('sees the step-1 writes (a sanity check that the hook caught the routes)', () => {
+  it('sees the core writes (a sanity check that the hook caught the routes)', () => {
     expect(routes).toContain('POST /api/v1/locations');
     expect(routes).toContain('PUT /api/v1/admin/settings');
     expect(routes.size).toBeGreaterThanOrEqual(30);

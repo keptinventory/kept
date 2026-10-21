@@ -8,7 +8,7 @@ import {
   splitPlacePath,
 } from './csv-import.js';
 
-describe('CSV import contract (D73, Q18)', () => {
+describe('CSV import contract', () => {
   it('maps the listed fields and custom.<key>, nothing else', () => {
     expect(MAPPABLE).toContain('place_path');
     expect(MAPPABLE).toContain('ignore');

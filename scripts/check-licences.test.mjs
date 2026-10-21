@@ -51,7 +51,7 @@ describe('expressionAllowed', () => {
 });
 
 describe('the allowlists', () => {
-  it('never contain a copyleft licence that would block relicensing (D151)', () => {
+  it('never contain a copyleft licence that would block relicensing', () => {
     for (const list of [RUNTIME_ALLOWED, DEV_ALLOWED]) {
       for (const bad of ['GPL-3.0-only', 'AGPL-3.0-only', 'SSPL-1.0', 'BUSL-1.1', 'GPL-2.0']) {
         expect(expressionAllowed(bad, list)).toBe(false);

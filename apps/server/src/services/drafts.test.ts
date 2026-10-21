@@ -323,7 +323,7 @@ describe('the read: suggestions behind the money gate', () => {
     const mine = ok(await get(louis, d.id));
     expect(mine.suggestions).toEqual(suggestions);
     expect(mine.extraction).toEqual({ id: extraction?.id, status: 'succeeded' });
-    // Home's viewers don't see money (money_visible_to_viewers is off by default, D13).
+    // Home's viewers don't see money (money_visible_to_viewers is off by default).
     const viewer = ok(await get(talia, d.id));
     expect(viewer.suggestions).toEqual([
       suggestions[0],

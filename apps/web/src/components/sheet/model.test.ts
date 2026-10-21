@@ -1,5 +1,5 @@
 /**
- * The spreadsheet's model (D250): columns, staged edits and what they send, selection, the
+ * The spreadsheet's model: columns, staged edits and what they send, selection, the
  * keyboard and the window of drawn rows.
  */
 import { beforeEach, describe, expect, it } from 'vitest';

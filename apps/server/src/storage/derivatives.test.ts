@@ -13,7 +13,7 @@ import {
   LIMIT_INPUT_PIXELS,
 } from './derivatives.js';
 
-// Derivatives (D36, D117, D157), below the routes.
+// Derivatives, below the routes.
 
 let dir: string;
 beforeAll(async () => {
@@ -58,7 +58,7 @@ describe('exifHasGps', () => {
 });
 
 describe('derive', () => {
-  it('marks a JPEG it cannot decode as unavailable, keeping the upload (D36)', async () => {
+  it('marks a JPEG it cannot decode as unavailable, keeping the upload', async () => {
     const photo = await fixture('photo.jpg');
     const broken = await file(
       'broken.jpg',
@@ -69,7 +69,7 @@ describe('derive', () => {
     expect(out.variants).toEqual([]);
   });
 
-  it('refuses to decode past the pixel limit (D157): unavailable, not a crash', async () => {
+  it('refuses to decode past the pixel limit: unavailable, not a crash', async () => {
     // A 1×1 PNG whose header claims 12,000 × 10,000: a decompression bomb's shape, cheaply.
     const bomb = await sharp({ create: { width: 1, height: 1, channels: 3, background: '#000' } })
       .png()
@@ -104,7 +104,7 @@ describe('derive', () => {
     expect(size).toEqual({ display: [1365, 2048], share: [800, 1200], thumb: [266, 400] });
   });
 
-  it('makes nothing for a PDF (Q8)', async () => {
+  it('makes nothing for a PDF', async () => {
     const p = await file('doc.pdf', await fixture('doc.pdf'));
     const out = await derive(p, { mime: 'application/pdf', ext: 'pdf', kind: 'pdf' });
     expect(out).toEqual({
@@ -117,7 +117,7 @@ describe('derive', () => {
   });
 });
 
-describe('ImageLimiter (KEPT_IMAGE_CONCURRENCY, Q17)', () => {
+describe('ImageLimiter (KEPT_IMAGE_CONCURRENCY)', () => {
   it('runs at most `size` jobs at once, in arrival order, and survives failures', async () => {
     const limiter = new ImageLimiter(2);
     let running = 0;

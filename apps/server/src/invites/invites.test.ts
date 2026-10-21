@@ -17,7 +17,7 @@ import {
 import { ownerTx } from '../../test/tenancy.js';
 import { MAX_PENDING_INVITES } from './routes.js';
 
-// Invites through the front door (D33, D46, D48, D180, D193).
+// Invites through the front door.
 
 const DAY = 86_400_000;
 
@@ -84,7 +84,7 @@ describe('POST /api/v1/locations/:id/invites', () => {
     expect(JSON.stringify(events.at(-1)?.diff)).not.toContain(rows[0].token_hash);
   });
 
-  it('keeps admin invites the owner’s (D48) and end dates within the inviter’s own (D180)', async () => {
+  it('keeps admin invites the owner’s and end dates within the inviter’s own', async () => {
     const admin = await person(t, db, 'admin');
     const member = await person(t, db, 'member');
     await join(db, homeId, admin.userId, 'admin', new Date(Date.now() + 3 * DAY));

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { cellsFor, isSheet, LABEL_STOCKS, labelStock } from './label-stocks.js';
 
-describe('LABEL_STOCKS (D44, Q29)', () => {
+describe('LABEL_STOCKS', () => {
   it('has the six stocks, in order', () => {
     expect(LABEL_STOCKS.map((s) => s.key)).toEqual([
       'thermal_50x30',

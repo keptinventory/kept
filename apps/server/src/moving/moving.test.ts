@@ -19,7 +19,7 @@ import {
 import { runJob } from '../jobs/boss.js';
 import { reportJobs } from '../reports/jobs.js';
 
-// Moving mode (1.x, D39 (5), D251), through the front door: starting a move, numbered boxes made
+// Moving mode, through the front door: starting a move, numbered boxes made
 // for it or chosen, packing them with the ordinary move, marking them in transit (and Undo),
 // unpacking one into its room with everything inside it (and Undo), across to another location,
 // the offline `move_box` op and its ordering, who may do what, the module gate, and the contents
@@ -599,9 +599,9 @@ describe('the move_box op (offline)', () => {
 });
 
 describe('the move_box_room op (offline)', () => {
-  // Choosing a box's room on a phone with no signal. Rooms follow D35: the change the server gets
-  // last wins, and each is in the box's history. A box unpacked meanwhile keeps the room it was
-  // unpacked into; a trashed room drops with a restore, like any op.
+  // Choosing a box's room on a phone with no signal. Rooms follow the usual rule: the change the
+  // server gets last wins, and each is in the box's history. A box unpacked meanwhile keeps the
+  // room it was unpacked into; a trashed room drops with a restore, like any op.
   let move: Move;
   let pantry: string;
   beforeAll(async () => {
@@ -635,7 +635,7 @@ describe('the move_box_room op (offline)', () => {
       locationId: house.id,
     });
     // Another phone chose the pantry earlier, offline, and syncs now: it is the latest change
-    // the server got, so it stands (D35), and the state is untouched.
+    // the server got, so it stands, and the state is untouched.
     const [late] = await sentOps(t, louis, [
       room(box.containerId, pantry, new Date(now - 60_000).toISOString()),
     ]);

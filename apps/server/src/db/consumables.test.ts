@@ -12,7 +12,7 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step-7 T6 (0084, 0085): "keep at least N" on a consumable thing (D14, plan Q19), under
+// Migrations 0084, 0085: "keep at least N" on a consumable thing, under
 // row-level security.
 
 const db = await testDb();
@@ -56,7 +56,7 @@ beforeEach(async () => {
   );
 });
 
-describe('stock rules (D14)', () => {
+describe('stock rules', () => {
   it("a member keeps a minimum on a consumable; a viewer can't", async () => {
     await rule(louis, batteries);
     expect((await pgError(rule(talia, batteries))).code).toBe('42501');

@@ -36,7 +36,7 @@ describe('embeddings', () => {
     );
   });
 
-  it('never carries a secret, a serial, a price or the receipt’s raw text (D116, D200, Q12)', () => {
+  it('never carries a secret, a serial, a price or the receipt’s raw text', () => {
     const thing = {
       name: 'Router',
       notes: null,

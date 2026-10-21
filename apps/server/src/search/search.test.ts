@@ -157,7 +157,7 @@ describe('GET /api/v1/search', () => {
     ann = await person(t, db, 'ann');
     bob = await person(t, db, 'bob');
     vic = await person(t, db, 'vic');
-    // Essentials: the D74 location (no money module).
+    // Essentials: a location with no money module.
     home = await createLocation(ann, 'essentials');
     await join(db, home.id, vic.userId, 'viewer');
     bobs = await createLocation(bob, 'essentials', 'Bob home');
@@ -196,7 +196,7 @@ describe('GET /api/v1/search', () => {
     );
   });
 
-  describe('the D74 criterion: the HDMI cable on Essentials (D194)', () => {
+  describe('the Essentials criterion: the HDMI cable', () => {
     it.each(['hdmi', 'HDMI', 'cable', 'كابل', 'الكابل', 'hdmi cab'])(
       'finds it by %s',
       async (q) => {
@@ -205,7 +205,7 @@ describe('GET /api/v1/search', () => {
       },
     );
 
-    it('finds it through the typo hmdi: no match, and the did-you-mean finds it (§1, "No match for hmdi")', async () => {
+    it('finds it through the typo hmdi: no match, and the did-you-mean finds it ("No match for hmdi")', async () => {
       const r = await find(ann, { q: 'hmdi' });
       expect(r.things.items).toEqual([]);
       expect(r.didYouMean).toContain('HDMI cable, 2 m');
@@ -213,7 +213,7 @@ describe('GET /api/v1/search', () => {
       expect(again.things.items[0]?.id).toBe(hdmi);
     });
 
-    it('says which alias matched when the name did not (screens §8)', async () => {
+    it('says which alias matched when the name did not', async () => {
       const r = await find(ann, { q: 'كابل' });
       const row = r.things.items.find((x) => x.id === hdmi);
       expect(row?.matchedAlias).toBe('كابل HDMI');
@@ -254,7 +254,7 @@ describe('GET /api/v1/search', () => {
     });
   });
 
-  describe('Arabic and digits (D42, screens §8)', () => {
+  describe('Arabic and digits', () => {
     it('finds مكتبه by مكتبة (ة ↔ ه)', async () => {
       expect(names(await find(ann, { q: 'مكتبة' }))).toContain('مكتبه صغيرة');
     });
@@ -327,7 +327,7 @@ describe('GET /api/v1/search', () => {
     });
   });
 
-  describe('short codes (D120)', () => {
+  describe('short codes', () => {
     it('finds a thing by its code, typed loosely, and ranks it first', async () => {
       const r = await find(ann, { q: annCode.toLowerCase() });
       expect(r.things.items[0]?.id).toBe(hdmi);
@@ -482,7 +482,7 @@ describe('search that changes data between cases', () => {
     // A viewer can't see money here, so a price can't narrow (or reveal) anything.
     const viewer = await find(vic, { q: 'lamp', priceMin: '1000' });
     expect(names(viewer).sort()).toEqual(['Cheap lamp', 'Dear lamp']);
-    // Once the location lets viewers see money, it applies to them too (D13).
+    // Once the location lets viewers see money, it applies to them too.
     await own('UPDATE public.locations SET money_visible_to_viewers = true WHERE id = $1', [
       home.id,
     ]);
@@ -490,7 +490,7 @@ describe('search that changes data between cases', () => {
     expect(names(shown)).toEqual(['Dear lamp']);
   });
 
-  it('takes several values of a filter, and "is none of" (D205)', async () => {
+  it('takes several values of a filter, and "is none of"', async () => {
     const cabin = await createLocation(ann, 'household', 'Cabin');
     const shelf = await place(home, 'Shelf');
     const office = await place(home, 'Office');
@@ -649,7 +649,7 @@ describe('search that changes data between cases', () => {
     expect(first.things.next_cursor).not.toBeNull();
   });
 
-  it('shows the container photo beside the path (D195)', async () => {
+  it('shows the container photo beside the path', async () => {
     const box = await thing(home, { name: 'Box 3', typeKey: 'box_bin' });
     const inside = await thing(home, { name: 'Spare fuse', containerId: box });
     const file = newId();
@@ -697,7 +697,7 @@ describe('search that changes data between cases', () => {
   });
 
   it('signs the thumbnail the derivative row names: a copy shares its source blob, a PDF has none', async () => {
-    // A photo a cross-account move copied here (D161): the copy's rows name the source's blobs,
+    // A photo a cross-account move copied here: the copy's rows name the source's blobs,
     // not keys made from the copy's own id.
     const source = newId();
     const copy = newId();
@@ -714,7 +714,7 @@ describe('search that changes data between cases', () => {
        VALUES ($1, 'thumb', $2, $3, 10, 10, 5)`,
       [copy, home.id, `d/${source}/thumb.jpg`],
     );
-    // A manual kept as a PDF "photo": no derivatives at all (D117).
+    // A manual kept as a PDF "photo": no derivatives at all.
     const manual = await thing(home, { name: 'Heirloom manual' });
     const pdf = newId();
     await own(

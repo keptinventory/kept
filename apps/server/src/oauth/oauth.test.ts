@@ -197,7 +197,7 @@ describe('OAuth connectors', () => {
 
   // Security review step 6 (M1): the provider's session-authenticated client management
   // would let any signed-in person register a client with any redirect URI and name, DCR by
-  // another door (D179). None of it is served.
+  // another door. None of it is served.
   it('serves none of the provider’s client or consent management to a signed-in person', async () => {
     const made = await call(t, '/api/v1/auth/oauth2/create-client', {
       as: louis,

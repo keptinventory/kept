@@ -49,7 +49,7 @@ describe('placeLabels per stock', () => {
   });
 });
 
-describe('the start cell (D175)', () => {
+describe('the start cell', () => {
   const a4 = labelStock('a4_24_70x37');
 
   it('start cell 20 leaves the first 19 cells of the first sheet empty', () => {

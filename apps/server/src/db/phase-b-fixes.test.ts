@@ -114,7 +114,7 @@ const reinsert = (
     );
   });
 
-describe("an admin's exchange-rate history (T8)", () => {
+describe("an admin's exchange-rate history", () => {
   const event = (userId: string) =>
     as(userId, (c) =>
       c.query(
@@ -140,7 +140,7 @@ describe("an admin's exchange-rate history (T8)", () => {
   });
 });
 
-describe('undo keeps who made a row, and its files (D150; 0056)', () => {
+describe('undo keeps who made a row, and its files (0056)', () => {
   it("brings Louis's document back as his, with his file, when Bruce undoes the delete", async () => {
     const file = await louisFile();
     const d = await deletedLease(file);
@@ -199,7 +199,7 @@ describe('undo keeps who made a row, and its files (D150; 0056)', () => {
   });
 });
 
-describe('the orphan-file purge and the undo window (T10–T12)', () => {
+describe('the orphan-file purge and the undo window', () => {
   const purge = () =>
     asSystem(async (c) =>
       (
@@ -222,7 +222,7 @@ describe('the orphan-file purge and the undo window (T10–T12)', () => {
   });
 });
 
-describe('the reminder jobs (T14, T16)', () => {
+describe('the reminder jobs', () => {
   it('read who hid a module and which services completed a schedule', async () => {
     await own(
       `INSERT INTO public.user_hidden_modules (user_id, location_id, module) VALUES ($1, $2, 'lending')`,
@@ -275,7 +275,7 @@ describe('the reminder jobs (T14, T16)', () => {
   });
 });
 
-describe('merged parts (T10; D172, Q14)', () => {
+describe('merged parts', () => {
   it('stay in the trash but for an un-merge, and their loans move to the row they joined', async () => {
     const part = newId();
     await own(

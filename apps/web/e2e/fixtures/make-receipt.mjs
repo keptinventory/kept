@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // The receipt photo the step-3 e2e picks from the Gallery in Receipt mode (e2e/step3.spec.ts):
 // a till receipt priced with a bare `$`, which Kept can't place between US and Canadian dollars
-// (D189). Written from code, so it is reproducible and nothing is downloaded:
+// on its own. Written from code, so it is reproducible and nothing is downloaded:
 //
 //   node apps/web/e2e/fixtures/make-receipt.mjs
 //

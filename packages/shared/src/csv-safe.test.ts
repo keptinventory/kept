@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CSV_BOM, csvDocument, csvLine, safeCsvCell } from './csv-safe.js';
 
-describe('safeCsvCell (D169)', () => {
+describe('safeCsvCell', () => {
   it.each([
     ['=HYPERLINK("x")', `"'=HYPERLINK(""x"")"`],
     ['+1', "'+1"],

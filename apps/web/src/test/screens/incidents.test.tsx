@@ -1,5 +1,5 @@
 /**
- * D76, D136, D158: Account → Exchange rates, incidents (the list, the page,
+ * Account → Exchange rates, incidents (the list, the page,
  * the selection's Add to incident and "Mark these stolen"), the insurance report and the claim
  * pack, against the mock. Keyboard and viewer, module-off, offline and Arabic variants.
  */

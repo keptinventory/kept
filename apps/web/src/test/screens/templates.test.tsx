@@ -1,5 +1,5 @@
 /**
- * Templates on the T3 mock (T30; D76, D177, Q17): Account → Templates lists them with where they
+ * Templates on the T3 mock: Account → Templates lists them with where they
  * are shared; the template sheet offers the type's fields but never money or secret ones; "Save
  * as template" on a thing; and quick add, where "From a template" fills the create sheet and the
  * thing is created with its templateId.

@@ -14,7 +14,7 @@ import { assertBackupName, type BackupTarget, LocalDirTarget, S3Target } from '.
 // A bucket round trip is milliseconds alone, seconds on a loaded machine.
 vi.setConfig({ testTimeout: 60_000, hookTimeout: 60_000 });
 
-// T31c: the two backup targets hold the same names and behave the same (backup/target.ts). The
+// The two backup targets hold the same names and behave the same (backup/target.ts). The
 // bucket half runs against RustFS (compose.dev.yaml's `s3` profile) like storage/s3.test.ts:
 // required when KEPT_TEST_S3_URL is set (ci-local), else skipped loudly when nothing answers.
 

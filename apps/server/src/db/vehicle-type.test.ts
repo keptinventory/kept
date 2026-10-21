@@ -5,7 +5,7 @@ import { testDb } from '../../test/db.js';
 import { ownerTx, seedTenant, type Tenant } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step 5, task 7 (0066): kept.is_vehicle_type(): a type is a vehicle's when it reaches
+// Migration 0066: kept.is_vehicle_type(): a type is a vehicle's when it reaches
 // the built-in `vehicle` through parent_id or copied_from_id.
 
 const db = await testDb();
@@ -50,7 +50,7 @@ beforeAll(async () => {
   ibrahim = await seedTenant(db, 'vt-ibrahim');
 });
 
-describe('kept.is_vehicle_type() (Q2)', () => {
+describe('kept.is_vehicle_type()', () => {
   it('is true for the built-in vehicle and the types under it', async () => {
     for (const key of [VEHICLE_TYPE_KEY, 'car', 'motorbike', 'bicycle', 'generator']) {
       expect(await isVehicle(await builtin(key)), key).toBe(true);

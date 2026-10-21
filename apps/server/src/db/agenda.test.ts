@@ -20,9 +20,9 @@ import {
 } from '../../test/tenancy.js';
 import { withScope, withSystem } from './scope.js';
 
-// Step-4 T6 (0053): module state in SQL (the drift test against @kept/shared modules.ts) and the
+// Migration 0053: module state in SQL (the drift test against @kept/shared modules.ts) and the
 // agenda view: one row per live reminder source, its state in the location's own date,
-// pausing in its WHERE (D162), under the caller's policies.
+// pausing in its WHERE, under the caller's policies.
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });
@@ -120,7 +120,7 @@ const EXPECTED = [
   'warranty expiring expiring warranties',
 ];
 
-describe('module state in SQL (§7.6)', () => {
+describe('module state in SQL', () => {
   it('kept.module_on() is effectiveModules() for every preset, module and switch', async () => {
     const mismatches: string[] = [];
     for (const preset of PRESETS) {
@@ -181,7 +181,7 @@ describe('module state in SQL (§7.6)', () => {
   });
 });
 
-describe('the agenda (Q24)', () => {
+describe('the agenda', () => {
   it("has one row per live source, in the state its location's date gives", async () => {
     expect(await agenda(agendaAs(ibrahim.userId))).toEqual(EXPECTED);
     const periods = (await agendaAs(ibrahim.userId)).map((r) => r.due_period);
@@ -198,7 +198,7 @@ describe('the agenda (Q24)', () => {
     expect(await agenda(Promise.resolve(system))).toEqual(EXPECTED);
   });
 
-  it("pauses a module's sources while it is off in the location (D162)", async () => {
+  it("pauses a module's sources while it is off in the location", async () => {
     await own(
       `INSERT INTO public.location_modules (location_id, module, enabled)
        VALUES ($1, 'warranties', false), ($1, 'lending', false)`,
@@ -235,7 +235,7 @@ describe('the agenda (Q24)', () => {
     ]);
   });
 
-  it("uses the location's own date, and a borrowed thing's due date too (D56)", async () => {
+  it("uses the location's own date, and a borrowed thing's due date too", async () => {
     // Kiritimati is UTC+14 and Pago Pago UTC-11: their dates differ for most of each day.
     const far = await ownerTx(db, async (c) => {
       const l = await insertLocation(

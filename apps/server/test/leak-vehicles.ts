@@ -15,7 +15,7 @@ export async function fillVehicles(c: pg.ClientBase, t: Tenant, label: string): 
     [t.locationId, `${label} box`],
   );
 
-  // Meters and readings (T4): the box's nudge, and a reading with its proof photo on it.
+  // Meters and readings: the box's nudge, and a reading with its proof photo on it.
   await c.query('UPDATE public.meters SET nudge_days = 45 WHERE id = $1', [meter]);
   const reading = await one(
     `INSERT INTO public.meter_readings (location_id, meter_id, value, taken_at, source, logged_by)
@@ -28,7 +28,7 @@ export async function fillVehicles(c: pg.ClientBase, t: Tenant, label: string): 
     [t.locationId, `https://example.test/${label}/proof`, reading, t.userId],
   );
 
-  // Service drafts (T5): a draft service of the box with its invoice, read by an extraction.
+  // Service drafts: a draft service of the box with its invoice, read by an extraction.
   const draft = await one(
     `INSERT INTO public.service_records (location_id, thing_id, serviced_on, review_state,
                                          logged_by)
@@ -49,7 +49,7 @@ export async function fillVehicles(c: pg.ClientBase, t: Tenant, label: string): 
     [t.locationId, invoice, draft, t.userId],
   );
 
-  // Fuel, document costs and the report's thing (T6): a fill of the box at the account's vendor
+  // Fuel, document costs and the report's thing: a fill of the box at the account's vendor
   // with its own reading and a pump receipt, a cost on the location's insurance document, and a
   // vehicle history report of the box.
   const box = await one('SELECT thing_id AS id FROM public.meters WHERE id = $1', [meter]);

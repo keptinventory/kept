@@ -40,7 +40,7 @@ export async function seedHousehold(db: TestDb, t: TestApp): Promise<Household> 
   await join(db, home.id, bruce.userId, 'admin');
   await join(db, home.id, louis.userId, 'member');
   await join(db, home.id, talia.userId, 'viewer');
-  // Verified addresses: the owner and the admin get every reminder by email as well (Q8, Q13).
+  // Verified addresses: the owner and the admin get every reminder by email as well.
   await own(db, 'UPDATE auth."user" SET email_verified = true WHERE id = ANY($1::uuid[])', [
     [ibrahim.userId, bruce.userId, louis.userId, talia.userId],
   ]);

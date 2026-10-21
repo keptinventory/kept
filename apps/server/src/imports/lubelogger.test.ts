@@ -5,7 +5,7 @@ import { call, join, type Person, peopleApp, person } from '../../test/people.js
 import { builtinType, createLocation, createThing, type Loc, own } from '../../test/things.js';
 import { lubeDate, lubeNumber } from './lubelogger.js';
 
-// 1.3, D229: LubeLogger's per-vehicle CSV exports (fuel, service, odometer) into a Kept vehicle,
+// LubeLogger's per-vehicle CSV exports (fuel, service, odometer) into a Kept vehicle,
 // through the front door. The rows are what LubeLogger's ExportFromVehicleToCsv writes (its
 // headers, its culture's dates and money), as the web sends them after parsing.
 

@@ -1,5 +1,5 @@
 /**
- * The filter strip (D205): fuzzy Arabic-aware matching, the URL → endpoint mapping, the keyboard,
+ * The filter strip: fuzzy Arabic-aware matching, the URL → endpoint mapping, the keyboard,
  * "is none of", the desktop popover, and saved views (save, pinned tabs, the default view, Save
  * changes, All) against the mock server.
  */
@@ -106,7 +106,7 @@ describe('from the URL to an endpoint', () => {
   });
 });
 
-describe('a saved view keeps the Display button’s order and grouping, not the layout (D211, D223)', () => {
+describe('a saved view keeps the Display button’s order and grouping, not the layout', () => {
   const list = {
     q: '',
     filters: { type: ['t-cable'] },
@@ -148,7 +148,7 @@ describe('a saved view keeps the Display button’s order and grouping, not the 
     expect(isModified(view, { ...opened, dir: '' })).toBe(true);
     expect(isModified(view, { ...opened, layout: '' })).toBe(false);
     expect(isModified(view, { ...opened, layout: 'grid' })).toBe(false);
-    // A view saved with a layout (before D223) opens without changing the one on screen.
+    // A view saved with a layout (by an older version) opens without changing the one on screen.
     const old = stateOf({ ...view, query: { sort: 'name', layout: 'photos' } }, list);
     expect(old).toMatchObject({ sort: 'name', dir: '' });
     expect(old).not.toHaveProperty('layout');
@@ -207,7 +207,7 @@ describe('the strip', () => {
   });
 });
 
-describe('saved views (D205)', () => {
+describe('saved views', () => {
   it('opens the default view when the list is reached with nothing in its URL', async () => {
     const state = withView({}, { activity: { defaultViewId: 'v-alfred', pinned: ['v-alfred'] } });
     const { router } = await renderApp('/activity', { state });

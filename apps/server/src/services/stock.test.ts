@@ -17,10 +17,10 @@ import {
 } from '../../test/things.js';
 import { decimal, milli, stockUse } from './stock.js';
 
-// D236 (builds D170) through the front door: a service line uses stock from a consumable. The
-// shelf count moves by the difference between a record's lines before and after every write
-// (log, confirm a draft, edit, delete, and the undo of each); not enough left is 409; the change
-// is on the consumable's history, linked to the service.
+// Service lines that use stock, through the front door: a service line uses stock from a
+// consumable. The shelf count moves by the difference between a record's lines before and after
+// every write (log, confirm a draft, edit, delete, and the undo of each); not enough left is 409;
+// the change is on the consumable's history, linked to the service.
 
 vi.setConfig({ testTimeout: 60_000, hookTimeout: 120_000 });
 
@@ -122,7 +122,7 @@ describe('the arithmetic', () => {
   });
 });
 
-describe('a service line from stock (D236)', () => {
+describe('a service line from stock', () => {
   // POST, PATCH and DELETE /api/v1/service-records are catalogued in schedules.test.ts; these
   // assert their stock rows.
   it('logging a service takes the line off the shelf; the consumable shows what it was for', async () => {
@@ -312,7 +312,7 @@ describe('a service line from stock (D236)', () => {
     const list = ok(await call(t, `/api/v1/things/${mower.id}/service-records`, { as: louis }));
     expect(list.items).toEqual([]);
 
-    // Exactly what is left is fine (D183: a consumable may reach 0).
+    // Exactly what is left is fine (a consumable may reach 0).
     const record = ok(await log(louis, mower.id, [filterLine(filter.id, '1')]), 201);
     expect(await quantityOf(filter.id)).toBe('0');
     // An edit asking for more is refused the same way, and leaves the record as it was.

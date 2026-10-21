@@ -20,7 +20,7 @@ beforeEach(async () => {
 });
 
 describe('reference data', () => {
-  it('seeds the five supported currencies (D136)', async () => {
+  it('seeds the five supported currencies', async () => {
     const { rows } = await asOwner(db, (c) =>
       c.query(
         'SELECT code, minor_units, enabled FROM public.currencies WHERE enabled ORDER BY code',
@@ -56,7 +56,7 @@ describe('locations', () => {
     expect(err).toMatchObject({ code: '23505', constraint: 'locations_one_personal_uq' });
   });
 
-  it('rejects enum values outside the list (text + CHECK, D183)', async () => {
+  it('rejects enum values outside the list (text + CHECK)', async () => {
     const t = await seedTenant(db, 'a');
     const err = await pgError(ownerTx(db, (c) => insertLocation(c, t, { kind: 'castle' })));
     expect(err).toMatchObject({ code: '23514', constraint: 'locations_kind_chk' });
@@ -105,7 +105,7 @@ describe('locations', () => {
   });
 });
 
-describe('ownership consistency (deferred, §7.13)', () => {
+describe('ownership consistency (deferred)', () => {
   it('commits the ensureAccount() order: location, then its owner membership, in one transaction', async () => {
     const t = await seedTenant(db, 'a');
     const { locationId } = await ownerTx(db, (c) => insertLocation(c, t));
@@ -186,7 +186,7 @@ describe('ownership consistency (deferred, §7.13)', () => {
     expect(err).toMatchObject({ code: '23514', constraint: 'locations_owner_membership' });
   });
 
-  it('refuses a second member on a personal location (§1.2)', async () => {
+  it('refuses a second member on a personal location', async () => {
     const t = await seedTenant(db, 'a', { kind: 'personal' });
     const other = await seedUser(db, 'b');
     const err = await pgError(
@@ -220,7 +220,7 @@ describe('ownership consistency (deferred, §7.13)', () => {
   });
 });
 
-describe('places (§7.13)', () => {
+describe('places', () => {
   async function place(locationId: string, parentId: string | null, name: string) {
     const id = newId();
     await ownerTx(db, (c) =>
@@ -271,7 +271,7 @@ describe('places (§7.13)', () => {
     expect(rows[0].location_id).toBe(second.locationId);
   });
 
-  it('refuses a parent that still has children being deleted (ON DELETE NO ACTION, plan Q12)', async () => {
+  it('refuses a parent that still has children being deleted (ON DELETE NO ACTION)', async () => {
     const a = await seedTenant(db, 'a');
     const room = await place(a.locationId, null, 'Room');
     await place(a.locationId, room, 'Shelf');
@@ -321,7 +321,7 @@ describe('places (§7.13)', () => {
   });
 });
 
-describe('audit_events (§7.13)', () => {
+describe('audit_events', () => {
   it('is partitioned by month, with a default partition and this month and three more', async () => {
     const { rows } = await asOwner(db, (c) =>
       c.query<{ name: string }>(

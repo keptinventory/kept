@@ -21,7 +21,7 @@ import { reportJobs } from '../reports/jobs.js';
 import { exportKey } from '../storage/blob-store.js';
 import { incidentJobs } from './jobs.js';
 
-// Step 4, T18 (D158, D169, D180, D201): incidents, the insurance report and claim packs,
+// Incidents, the insurance report and claim packs,
 // through the front door. Reports are rendered for real (Typst in its child process) and read
 // back with poppler's pdftotext; claim packs are unzipped here (stored entries, no inflate).
 //
@@ -492,7 +492,7 @@ describe('the insurance report', () => {
     },
   );
 
-  it('refuses a report currency without a rate for every pair, naming them (Q21)', async () => {
+  it('refuses a report currency without a rate for every pair, naming them', async () => {
     const res = await call(t, '/api/v1/reports/insurance', {
       as: ibrahim,
       body: { scope: { locationId: home.id }, asOf: '2026-09-30', reportCurrency: 'EGP' },
@@ -815,7 +815,7 @@ describe('claim packs', () => {
     expect(expired.statusCode).toBe(410);
     expect(expired.body).toContain('Ce lien a expiré');
 
-    // The creator demoted to member: the link stops working (D180).
+    // The creator demoted to member: the link stops working.
     const third = await linkFor(bruce, id);
     await own(
       db,

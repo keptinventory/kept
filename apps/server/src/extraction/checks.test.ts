@@ -41,7 +41,7 @@ describe('checkThing', () => {
     expect(out.fields).toEqual({
       name: c('Cordless drill'),
       brand: c('Bosch'),
-      // D214: English stays auto-accepted; the Arabic alias waits, at the name's confidence.
+      // English stays auto-accepted; the Arabic alias waits, at the name's confidence.
       aliases: { en: ['drill', 'driver'] },
       aliasSuggestions: [{ lang: 'ar', value: 'مثقاب', confidence: 0.9 }],
     });
@@ -56,7 +56,7 @@ describe('checkThing', () => {
     expect(out.fields).toEqual({ aliases: {} });
   });
 
-  it('D214: one Arabic alias suggested, English and French accepted, other scripts dropped', () => {
+  it('one Arabic alias suggested, English and French accepted, other scripts dropped', () => {
     const out = checkThing(
       {
         objects: [
@@ -92,7 +92,7 @@ describe('checkThing', () => {
   });
 });
 
-describe("an alias in its language's script (D214)", () => {
+describe("an alias in its language's script", () => {
   it.each([
     ['شاشة LED', 'ar', true], // a Latin acronym among Arabic words (E1)
     ['كابل HDMI', 'ar', true],
@@ -201,7 +201,7 @@ describe('placeholders and VIN formats seen in real runs', () => {
     ]);
   });
 
-  it('drops warranty terms that are not about a warranty (T11 evaluation, Groq)', () => {
+  it('drops warranty terms that are not about a warranty (seen in an evaluation on Groq)', () => {
     const terms = (text: string) =>
       checkReceipt({ warranty_terms_printed: c(text), lines: [] }, ctx);
     for (const text of [

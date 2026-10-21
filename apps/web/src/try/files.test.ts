@@ -1,4 +1,4 @@
-/** Try Kept (D246): a link to one of Kept's own files says so instead of leaving for a 404. */
+/** Try Kept: a link to one of Kept's own files says so instead of leaving for a 404. */
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { toastQueue } from '@/components/ui/toast';
 import { activateLocale } from '@/i18n/i18n';

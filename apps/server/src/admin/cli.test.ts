@@ -13,7 +13,7 @@ import { call, join, PASSWORD, type Person, peopleApp, person } from '../../test
 import { asOwner } from '../../test/tenancy.js';
 import { ensureSetupCode, SETUP_CODE_KEY, setupCodeMatches } from '../setup/setup-code.js';
 
-// Task 23: `kept admin` (D164, D165, D180, D190, D193), each command run the way an operator
+// `kept admin`, each command run the way an operator
 // would, in a child process with only the environment it needs.
 
 const run = promisify(execFile);

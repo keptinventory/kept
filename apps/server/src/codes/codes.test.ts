@@ -14,7 +14,7 @@ import {
 } from '../../test/things.js';
 import { vetRule } from './format-rule.js';
 
-// T17a (D208): own codes through the front door. Ibrahim owns Home and Garage; in Home, Bruce is
+// Own codes through the front door. Ibrahim owns Home and Garage; in Home, Bruce is
 // an admin, Louis a member and Talia a viewer.
 
 let db: TestDb;
@@ -299,7 +299,7 @@ describe('numbering and the format rule', () => {
     // POST /things answers with the number the commit gave it, and each parallel one with its own.
     expect(next.ownCodes).toEqual(['GAR-0021']);
     expect(made.map((m) => m.ownCodes).sort()).toEqual(numbers.map((r) => [r.code]));
-    // A duplicate answers its own number too (T19).
+    // A duplicate answers its own number too.
     const copy = ok(
       await call(t, `/api/v1/things/${next.id}/duplicate`, { as: ibrahim, body: {} }),
       201,

@@ -1,6 +1,6 @@
 /**
- * Browse: the Location, Place and Container views and every place operation (D45,
- * D118, D160), against the mock server. Each screen is checked by keyboard, right to left, as a
+ * Browse: the Location, Place and Container views and every place operation, against the mock
+ * server. Each screen is checked by keyboard, right to left, as a
  * viewer, and with the Labels module off.
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -94,7 +94,7 @@ describe('the location page', () => {
     expect(rows.map((r) => r.textContent)).toEqual([expect.stringMatching(/^Kitchen/)]);
   });
 
-  it('the Display button sorts Z to A and newest first, in the strip row (D211)', async () => {
+  it('the Display button sorts Z to A and newest first, in the strip row', async () => {
     const { user, router } = await renderApp(`/loc/${IDS.home}`);
     await list('Contents of Home');
     const thingNames = async () =>
@@ -220,7 +220,7 @@ describe('the location page', () => {
   });
 });
 
-describe('Sort them (D118)', () => {
+describe('Sort them', () => {
   it('walks the Unplaced things one at a time: Skip, then move', async () => {
     const { user, mock } = await renderApp(`/loc/${IDS.home}`);
     await findHeading('Home');
@@ -243,7 +243,7 @@ describe('Sort them (D118)', () => {
   });
 });
 
-describe('select and pick up (D175, frame 7a)', () => {
+describe('select and pick up (frame 7a)', () => {
   it('picks up several things at once into the carrying tray', async () => {
     await pageStore().setTray([]);
     const { user } = await renderApp(`/loc/${IDS.home}`);
@@ -533,7 +533,7 @@ describe('a grid keeps places and things apart, in three sizes (#139)', () => {
   });
 });
 
-describe('select and move (D45)', () => {
+describe('select and move', () => {
   it('moves selected things, warning who loses sight across locations', async () => {
     const { user, mock } = await renderApp(`/loc/${IDS.home}`);
     await list('Contents of Home');
@@ -556,7 +556,7 @@ describe('select and move (D45)', () => {
     expect(await screen.findByText('Moved to Shelves')).toBeInTheDocument();
   });
 
-  it('Undo after a bulk move undoes every thing it moved (X-Kept-Audit-Event, D150)', async () => {
+  it('Undo after a bulk move undoes every thing it moved (X-Kept-Audit-Event)', async () => {
     const { user, mock } = await renderApp(`/loc/${IDS.home}`);
     const before = new Map(
       mock.state.inventory.things
@@ -646,7 +646,7 @@ describe('the place page', () => {
       'page',
     );
     expect(screen.getByText(/Spot · 1 thing/)).toBeInTheDocument();
-    // Its short ID (D208).
+    // Its short ID.
     expect(
       within(await list('Contents of Desk drawer')).getByRole('link', { name: /Cable box/ }),
     ).toHaveAttribute('href', '/t/B0X3QF');
@@ -687,7 +687,7 @@ describe('the place page', () => {
     );
   });
 
-  it('trash with contents asks what happens to them (D45, D160)', async () => {
+  it('trash with contents asks what happens to them', async () => {
     const { user, mock, router } = await renderApp(`/p/${P.kitchen}`);
     await findHeading('Kitchen');
     await user.click(screen.getByRole('button', { name: /^Move to trash/ }));
@@ -763,7 +763,7 @@ describe('the place page', () => {
     await waitFor(() => expect(pathOf(router)).toBe(`/p/${P.livingRoom}`));
   });
 
-  it('turns a place with no places inside into a box, keeping its id (Q14)', async () => {
+  it('turns a place with no places inside into a box, keeping its id', async () => {
     const { user, mock, router } = await renderApp(`/p/${P.deskDrawer}`);
     await findHeading('Desk drawer');
     await user.click(screen.getByRole('button', { name: /^Turn into a box/ }));
@@ -793,7 +793,7 @@ describe('the place page', () => {
     expect((await screen.findAllByRole('img', { name: 'P1ACE7' })).length).toBeGreaterThan(0);
   });
 
-  it('with Labels off: "Off in this location" and Turn on for an admin (§3)', async () => {
+  it('with Labels off: "Off in this location" and Turn on for an admin', async () => {
     const state = ownerScenario();
     const home = state.locations.find((l) => l.id === IDS.home);
     if (home) home.modules = home.modules.filter((m) => m !== 'labels');
@@ -859,7 +859,7 @@ describe('the place page', () => {
   });
 });
 
-describe('place fields (D160, D156)', () => {
+describe('place fields', () => {
   function withClosetFields(state = ownerScenario()) {
     for (const kinds of Object.values(state.inventory.placeKinds))
       for (const k of kinds)
@@ -1003,20 +1003,20 @@ async function renderContainer(search = '', state = ownerScenario(), locale: 'en
   return { user, mock, router };
 }
 
-describe('ContentsList for a container (task 26 hosts it)', () => {
+describe('ContentsList for a container', () => {
   it('lists what is directly inside', async () => {
     await renderContainer();
     const rows = within(await list('Contents of Cable box')).getAllByRole('link');
     expect(rows.map((r) => r.textContent)).toEqual([expect.stringMatching(/HDMI cable, 2 m/)]);
   });
 
-  it('?view=photos leads with a photo grid (D195)', async () => {
+  it('?view=photos leads with a photo grid', async () => {
     await renderContainer('?view=photos');
     const grid = await screen.findByRole('region', { name: "Photos of what's in Cable box" });
     expect(within(grid).getByRole('link', { name: /HDMI cable/ })).toBeInTheDocument();
   });
 
-  it("list or photos is the Display menu's Layout (D211), not a link of its own", async () => {
+  it("list or photos is the Display menu's Layout, not a link of its own", async () => {
     const { user, router } = await renderContainer();
     await list('Contents of Cable box');
     expect(screen.queryByRole('link', { name: 'Show as a list' })).toBeNull();
@@ -1049,7 +1049,7 @@ describe('ContentsList for a container (task 26 hosts it)', () => {
   });
 });
 
-describe('a location’s address (1.1, D224)', () => {
+describe('a location’s address (1.1)', () => {
   it('reads as its name: an id link becomes /loc/<name>-<tail> in place', async () => {
     const { router } = await renderApp(`/loc/${IDS.home}`);
     await list('Contents of Home');
@@ -1070,7 +1070,7 @@ describe('a location’s address (1.1, D224)', () => {
   });
 });
 
-describe('inside a location (D39)', () => {
+describe('inside a location', () => {
   it('a place page links back to its parent and outlines the location around it', async () => {
     await renderApp(`/p/${P.deskDrawer}`);
     await findHeading('Desk drawer');

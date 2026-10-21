@@ -32,7 +32,7 @@ import { stageKeptRun } from '../kept-export.js';
 import { peopleApp, person, recordingQueue } from '../people.js';
 import { ownerTx } from '../tenancy.js';
 
-// D69: "An export → import round-trip test runs in CI". Home, as the households
+// "An export → import round-trip test runs in CI". Home, as the households
 // seed makes it, is exported by Ibrahim with its secrets (the real export job), then
 // imported (the real import job):
 // 1. on the same server, as a new location of Alfred's: every code is taken there, so each label
@@ -347,7 +347,7 @@ async function secretsOf(d: TestDb, scope: Scope, locationId: string, back: Map<
     .sort();
 }
 
-describe('export → import round trip (D69)', () => {
+describe('export → import round trip', () => {
   it('on the same server: everything as it was, labels re-issued with their old codes kept', async () => {
     const target = await newLocation(db, alfred, 'Home, moved');
     const run = await importInto(db, files, alfred, target);

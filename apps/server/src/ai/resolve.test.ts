@@ -37,7 +37,7 @@ const alfredPersonal: LocationFacts = {
   personal: true,
 };
 
-describe('cascade (Q5, D121, D206)', () => {
+describe('cascade', () => {
   it('a shared location is paid by its owner account, never a member’s personal key', () => {
     const r = cascade({
       providers,
@@ -122,7 +122,7 @@ describe('cascade (Q5, D121, D206)', () => {
     ).toBe('alfred-acct');
   });
 
-  it('skips disabled, keyless and auth-tripped providers; null when nothing is usable (D19)', () => {
+  it('skips disabled, keyless and auth-tripped providers; null when nothing is usable', () => {
     const list = [
       p({ ...alfredAccount, disabled: true }),
       p({ id: 'x', scope: 'instance', apiKey: null }),

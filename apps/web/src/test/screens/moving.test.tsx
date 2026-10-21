@@ -1,5 +1,5 @@
 /**
- * Moving mode (1.x, D39 (5), D251): starting a move, adding a numbered box, marking it in
+ * Moving mode: starting a move, adding a numbered box, marking it in
  * transit from its page, unpacking a packed box into its room (everything inside goes too),
  * choosing a box's room with no signal, the still-to-unpack list, what a viewer sees, and the
  * board in Arabic.

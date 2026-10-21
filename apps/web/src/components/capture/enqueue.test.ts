@@ -136,7 +136,7 @@ describe('enqueueCapture', () => {
     expect(await store.contentsOf({ placeId: SHELF })).toHaveLength(1);
   });
 
-  it('keeps a share as one capture per file; a PDF is always a receipt (D140)', async () => {
+  it('keeps a share as one capture per file; a PDF is always a receipt', async () => {
     const store = new MemoryStore();
     const decode = vi.fn().mockRejectedValue(new Error('no canvas in jsdom'));
     const queued = await keepShared(
@@ -167,7 +167,7 @@ describe('enqueueCapture', () => {
   });
 });
 
-describe('enqueueFiles (Gallery, D140)', () => {
+describe('enqueueFiles (Gallery)', () => {
   it('queues each file in the mode it was picked in: a receipt stays a receipt, kept as evidence', async () => {
     const store = new MemoryStore();
     const decode = vi.fn().mockRejectedValue(new Error('no canvas in jsdom'));
@@ -180,7 +180,7 @@ describe('enqueueFiles (Gallery, D140)', () => {
       decode,
     });
     expect(queued.map((q) => q.mode)).toEqual(['receipt']);
-    // The untouched original goes up (D34), never a shrunk copy.
+    // The untouched original goes up, never a shrunk copy.
     expect(queued[0]?.original?.blob).toBe(original);
     const [entry] = await store.pending();
     expect(entry?.payload).toMatchObject({ mode: 'receipt', files: [{ role: 'receipt' }] });

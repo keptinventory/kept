@@ -56,7 +56,7 @@ describe('toModelMessages', () => {
     ]);
   });
 
-  it('a redacted result still answers its call, as [removed] (D164)', () => {
+  it('a redacted result still answers its call, as [removed]', () => {
     const redacted: KeptMessage[] = twoSteps.map((m) =>
       m.role === 'tool'
         ? { role: 'tool', parts: [{ type: 'redacted', reason: 'access_ended' }] }

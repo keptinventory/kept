@@ -36,7 +36,7 @@ describe('comparisons', () => {
     expect(sameText('CAIRO HOME STORE', 'Home Store Cairo')).toBe(true);
     expect(sameText('CAIRO HOME STORE', 'STORE')).toBe(false);
     expect(tokenSetRatio('Extension Cord 3m', 'Extension Cord 3 m')).toBeGreaterThanOrEqual(0.9);
-    // Arabic letter forms and Arabic-Indic digits fold (normalize, D42).
+    // Arabic letter forms and Arabic-Indic digits fold (normalize).
     expect(sameText('أرز مصري ١ كجم', 'ارز مصري 1 كجم')).toBe(true);
   });
 
@@ -53,7 +53,7 @@ describe('comparisons', () => {
     expect(sameNumber(0, 0.01)).toBe(false);
   });
 
-  it('currency: the code, or the same ambiguity (D189)', () => {
+  it('currency: the code, or the same ambiguity', () => {
     expect(sameCurrency('EGP', { code: 'EGP' })).toBe(true);
     expect(sameCurrency({ ambiguous: ['USD', 'CAD'] }, { ambiguous: ['CAD', 'USD'] })).toBe(true);
     expect(sameCurrency({ ambiguous: ['USD', 'CAD'] }, { code: 'USD' })).toBe(false);
@@ -86,7 +86,7 @@ describe('comparisons', () => {
     expect(sameLines(want, want.slice(0, 1))).toBe(false);
   });
 
-  it('boxes: IoU, coverage, and what the worker crop would do (Q11)', () => {
+  it('boxes: IoU, coverage, and what the worker crop would do', () => {
     const full: [number, number, number, number] = [0, 0, 1, 1];
     // T10's real outline for a receipt filling the photo.
     expect(iou([0, 0, 0.7, 0.6], full)).toBeCloseTo(0.42, 5);
@@ -176,7 +176,7 @@ describe('options', () => {
     expect(() => promptFor('label', ctx, 'label-v9')).toThrow();
   });
 
-  it('skips without a folder, and exits 0 (plan T11)', async () => {
+  it('skips without a folder, and exits 0', async () => {
     const saved = process.env.KEPT_EVAL_DIR;
     delete process.env.KEPT_EVAL_DIR;
     const lines: string[] = [];

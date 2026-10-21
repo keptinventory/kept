@@ -12,7 +12,7 @@ import {
 } from './words.js';
 
 // Every reminder text names the thing (or place), its path, the location and the local
-// date, in every language (D204): the immediate mail, the digest, and the push payload, for each
+// date, in every language: the immediate mail, the digest, and the push payload, for each
 // source and each kind it produces. Money never appears (no field could carry it).
 
 const PUBLIC_URL = 'https://kept.example.org';
@@ -47,7 +47,7 @@ const CASES = ACTIVE_SOURCE_TYPES.flatMap((sourceType) =>
   SOURCE_KINDS[sourceType].map((kind) => ({ sourceType, kind })),
 );
 
-describe('reminder wording (L113)', () => {
+describe('reminder wording', () => {
   it.each(MAIL_LOCALES)('names the thing, its path, the location and the date in %s', (locale) => {
     const n = NAMES[locale];
     const day = longDay(REMINDER_WORDS[locale].tag, '2026-10-17');
@@ -112,7 +112,7 @@ describe('reminder wording (L113)', () => {
     expect(REMINDER_WORDS.ar.headline(facts('ar', { kind: 'overdue' }))).toMatch(/17/);
   });
 
-  it('says when a stale meter was last read, by its label or its kind (step 5, D52)', () => {
+  it('says when a stale meter was last read, by its label or its kind', () => {
     const f = (locale: MailLocale, meter: ReminderFacts['meter']) =>
       facts(locale, { sourceType: 'reading_stale', title: null, dueOn: '2026-10-17', meter });
     const odo = { kind: 'distance' as const, label: null, readOn: '2026-09-17' };

@@ -1,5 +1,5 @@
 /**
- * AI settings (T29; D191, D202, D206): what uses AI, paste-and-test with kind detection, the
+ * AI settings: what uses AI, paste-and-test with kind detection, the
  * write-only key, the model picker, the suggested cap, caps, the member and viewer views, the paused
  * state with Resume now, and RTL.
  */
@@ -26,7 +26,7 @@ function freshOwner() {
 }
 
 describe('AI settings', () => {
-  it('opens with What uses AI, then where the key lives, and marks the page opened (D191)', async () => {
+  it('opens with What uses AI, then where the key lives, and marks the page opened', async () => {
     const { mock } = await renderApp('/settings/ai', { state: freshOwner() });
     expect(await screen.findByText('What uses AI in Kept')).toBeInTheDocument();
     expect(await screen.findByText('Each captured photo')).toBeInTheDocument();
@@ -86,7 +86,7 @@ describe('AI settings', () => {
     );
   });
 
-  it('the first key needs the recovery kit (D193)', async () => {
+  it('the first key needs the recovery kit', async () => {
     const s = freshOwner();
     s.me.instance.recoveryKitAcknowledged = false;
     const { user } = await renderApp('/settings/ai', { state: s });
@@ -283,7 +283,7 @@ describe('AI settings', () => {
     );
   });
 
-  it('Admin → AI: an account found by its owner gets its own cap on the server key (T19)', async () => {
+  it('Admin → AI: an account found by its owner gets its own cap on the server key', async () => {
     const s = ownerScenario();
     s.capture.providers = s.capture.providers.map((p) => ({ ...p, scope: 'instance' as const }));
     const { user } = await renderApp('/admin/ai', { state: s });
@@ -296,7 +296,7 @@ describe('AI settings', () => {
     ).toBeInTheDocument();
   });
 
-  it('replacing a key sends If-Match with the version it started from (T9)', async () => {
+  it('replacing a key sends If-Match with the version it started from', async () => {
     const { user, mock } = await renderApp('/settings/ai');
     await user.click(await screen.findByRole('button', { name: 'Replace key' }));
     await user.type(await screen.findByLabelText('Paste the new key'), 'gsk_live0000secretABCD');

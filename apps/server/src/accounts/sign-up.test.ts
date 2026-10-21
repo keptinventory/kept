@@ -7,7 +7,7 @@ import { ownerTx } from '../../test/tenancy.js';
 import { FRESH_SESSION_SECONDS } from '../auth/auth.js';
 import { SIGN_UPS_PER_IP_PER_HOUR } from './sign-up.js';
 
-// Signing up (security review of tasks 17–18; D33, D127, D190): Better Auth's public sign-up is
+// Signing up (security review of tasks 17–18): Better Auth's public sign-up is
 // off, and Kept's own answers the same whether the address is taken.
 
 let db: TestDb;

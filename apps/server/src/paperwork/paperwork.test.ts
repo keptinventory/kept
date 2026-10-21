@@ -168,7 +168,7 @@ beforeEach(async () => {
 
 describe('expiring documents: create, read, list', () => {
   // catalogue: POST /api/v1/documents
-  it('makes a document on a thing, a place and the location itself (D155), audited', async () => {
+  it('makes a document on a thing, a place and the location itself, audited', async () => {
     const kitchen = await place(db, home, 'Kitchen');
     const boiler = await createThing(t, ibrahim, home, { name: 'Boiler', placeId: kitchen });
     const onThing = await createDoc(ibrahim, {
@@ -229,7 +229,7 @@ describe('expiring documents: create, read, list', () => {
     expect((await docs(ibrahim, '?state=expired')).map((d) => d.id)).toEqual([b.id]);
   });
 
-  it('refuses other without a title (Q31), and a viewer (403)', async () => {
+  it('refuses other without a title, and a viewer (403)', async () => {
     const res = await call(t, '/api/v1/documents', {
       as: ibrahim,
       body: { subject: { locationId: home.id }, kind: 'other', expiresOn: '2027-01-01' },
@@ -363,7 +363,7 @@ describe('expiring documents: edit, delete, renew and their undo', () => {
   });
 
   // catalogue: DELETE /api/v1/documents/:id
-  it('deletes for good, and undo puts it back with its file (Q25)', async () => {
+  it('deletes for good, and undo puts it back with its file', async () => {
     const doc = await createDoc(ibrahim, {
       subject: { locationId: home.id },
       kind: 'lease',
@@ -416,7 +416,7 @@ describe('expiring documents: edit, delete, renew and their undo', () => {
   });
 
   // catalogue: POST /api/v1/documents/:id/renew
-  it('renews into a new row and keeps the old one in history (D172); undo un-renews', async () => {
+  it('renews into a new row and keeps the old one in history; undo un-renews', async () => {
     const doc = await createDoc(ibrahim, {
       subject: { locationId: home.id },
       kind: 'insurance',
@@ -487,7 +487,7 @@ describe('expiring documents: edit, delete, renew and their undo', () => {
   });
 });
 
-describe('the paperwork library (D39, D155)', () => {
+describe('the paperwork library', () => {
   it('finds a lease PDF by a word of its text, with a snippet and its expiry', async () => {
     const lease = await createDoc(ibrahim, {
       subject: { locationId: home.id },

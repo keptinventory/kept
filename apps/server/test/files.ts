@@ -89,7 +89,7 @@ export function upload(
 }
 
 let counter = 0;
-/** A small JPEG no other test uploaded (dedupe is per location, D177): a unique EXIF note. */
+/** A small JPEG no other test uploaded (dedupe is per location): a unique EXIF note. */
 export async function uniqueJpeg(): Promise<Buffer> {
   const { default: sharp } = await import('sharp');
   counter += 1;

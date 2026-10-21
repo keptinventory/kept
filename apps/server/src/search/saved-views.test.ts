@@ -8,7 +8,7 @@ import { call, join, type Person, peopleApp, person } from '../../test/people.js
 import { createLocation, type Loc, own } from '../../test/things.js';
 
 // Saved views are bounded (route security review #34): at most 100 of one's own, and the list
-// pages instead of cutting off silently. Then the filter strip's views (D205), below.
+// pages instead of cutting off silently. Then the filter strip's views, below.
 
 let db: TestDb;
 let t: TestApp;
@@ -76,7 +76,7 @@ describe('saved views: cap and paging (#34)', () => {
 });
 
 // ---------------------------------------------------------------------------------------------
-// D205: a saved view belongs to one list (its surface), holds that list's state, and each person
+// A saved view belongs to one list (its surface), holds that list's state, and each person
 // pins views and picks a default per list.
 // ---------------------------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ type View = {
 type Prefs = { defaultViewId: string | null; pinned: string[] };
 type ListPage = { views: View[]; next_cursor: string | null; prefs: Prefs | null };
 
-describe('saved views by list (D205)', () => {
+describe('saved views by list', () => {
   let mel: Person;
   let vic: Person;
   let bob: Person;
@@ -169,7 +169,7 @@ describe('saved views by list (D205)', () => {
     expect((await call(t, '/api/v1/saved-views?surface=nope', { as: ann })).statusCode).toBe(400);
   });
 
-  it('saves a view of the AI call list (the ai-calls surface, D206, T19)', async () => {
+  it('saves a view of the AI call list (the ai-calls surface)', async () => {
     const view = await save(ann, {
       name: 'Failed this month',
       surface: 'ai-calls',
@@ -225,7 +225,7 @@ describe('saved views by list (D205)', () => {
         sort: 'deleted',
       },
     });
-    // The inbox's views (T27): kind, location and whose.
+    // The inbox's views: kind, location and whose.
     const inbox = await save(ann, {
       name: "Everyone's drafts",
       surface: 'inbox',
@@ -240,7 +240,7 @@ describe('saved views by list (D205)', () => {
       not: ['kind'],
       sort: 'deleted',
     });
-    // The Display button's state (D211): the order turned around, and the layout.
+    // The Display button's state: the order turned around, and the layout.
     const display = await save(ann, {
       name: 'Oldest photos',
       surface: 'contents',

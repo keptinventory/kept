@@ -1,5 +1,5 @@
 /**
- * Pull to refresh (D212): it must never cost a tap. Synthetic touches, as the lesson from another
+ * Pull to refresh: it must never cost a tap. Synthetic touches, as the lesson from another
  * of the maintainer's apps says to test it: a `touchmove` whose default is prevented is a tap the phone never delivers.
  */
 import { act, cleanup, screen, waitFor } from '@testing-library/react';
@@ -151,7 +151,7 @@ describe('the pull gesture', () => {
       expect(saidAfter(p, true)).toBe('failed');
   });
 
-  it('pulls on the scrolling screens of D212 only', () => {
+  it('pulls on the scrolling screens only', () => {
     for (const p of ['/', '/search', '/inbox', '/loc/x', '/p/x', '/t/AB3DEF', '/activity'])
       expect(pullsOn(p)).toBe(true);
     // Step 4.
@@ -217,7 +217,7 @@ describe('pull to refresh on a phone screen', () => {
     cleared.mockRestore();
   });
 
-  // D212 on step 4's screens: the same pull, the same "Updated", no tap lost.
+  // The household screens: the same pull, the same "Updated", no tap lost.
   it.each(['/paperwork', '/expiring', '/notifications', '/incidents'])(
     'refetches what %s shows and says "Updated"',
     async (path) => {

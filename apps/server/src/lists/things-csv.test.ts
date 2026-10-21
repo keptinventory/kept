@@ -9,7 +9,7 @@ import { createLocation, createThing, type Json, type Loc, ok, own } from '../..
 import { withScope } from '../db/scope.js';
 import { gather } from '../reports/gather.js';
 
-// Step-7 T16 (D169): the things list as a CSV, the import filter, and the report's `thingIds`.
+// The things list as a CSV, the import filter, and the report's `thingIds`.
 
 let db: TestDb;
 let t: TestApp;
@@ -146,7 +146,8 @@ describe('GET /api/v1/things.csv', () => {
     const list = ok(await call(t, `/api/v1/things?${q}&limit=100`, { as: ibrahim }));
     const names = (list.items as { name: string }[]).map((r) => r.name);
     expect(rows.map((r) => r[1]?.replace(/^'/, ''))).toEqual(names);
-    // Formula triggers defused (D169; the tab and carriage return in @kept/shared's tests); Arabic, a comma and quotes intact.
+    // Formula triggers defused (the tab and carriage return in @kept/shared's tests); Arabic, a
+    // comma and quotes intact.
     const byName = new Map(rows.map((r) => [r[1], r]));
     expect(byName.get(`'=HYPERLINK("x")`)?.[6]).toBe(`'-1+1`);
     expect(byName.has('مثقاب، كبير "جديد"')).toBe(true);

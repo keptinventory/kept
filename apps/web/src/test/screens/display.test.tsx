@@ -1,5 +1,5 @@
 /**
- * Settings → Me → Display (D203, D204) and a location's languages (D41, D204): the language
+ * Settings → Me → Display and a location's languages: the language
  * dropdown with flags and each language's own name, the theme with System first, digits only in
  * Arabic, the content width, the sign-in pages' picker, and French, German and Italian screens.
  */
@@ -187,7 +187,7 @@ describe('Location settings → General: the name', () => {
   });
 });
 
-describe('Location settings → General: languages (D41)', () => {
+describe('Location settings → General: languages', () => {
   it('chooses several languages with flags and saves them with If-Match', async () => {
     const { user, mock } = await renderApp(`/settings/location/${IDS.home}/general`, {
       setup: (m) => {
@@ -205,7 +205,7 @@ describe('Location settings → General: languages (D41)', () => {
     await user.keyboard('{Escape}');
     expect(within(trigger).getByText('Français')).toBeInTheDocument();
     expect(trigger.querySelectorAll('svg[data-flag]')).toHaveLength(2);
-    // The languages' Save, the first on the page (own codes have their own below, D208).
+    // The languages' Save, the first on the page (own codes have their own below).
     await user.click(screen.getAllByRole('button', { name: 'Save' })[0] as HTMLElement);
     await waitFor(() => expect(mock.lastCall('PATCH', paths.location(IDS.home))).toBeDefined());
     const call = mock.lastCall('PATCH', paths.location(IDS.home));
@@ -228,7 +228,7 @@ describe('Location settings → General: languages (D41)', () => {
     await user.click(trigger);
     await user.click(await screen.findByRole('option', { name: 'Italiano' }));
     await user.keyboard('{Escape}');
-    // The languages' Save, the first on the page (own codes have their own below, D208).
+    // The languages' Save, the first on the page (own codes have their own below).
     await user.click(screen.getAllByRole('button', { name: 'Save' })[0] as HTMLElement);
     await waitFor(() =>
       expect(mock.lastCall('PATCH', paths.location(IDS.home))?.body).toEqual({
@@ -247,7 +247,7 @@ describe('French, German and Italian screens', () => {
     await findHeading('Start');
     cleanup();
     await renderApp('/settings/account/types', { locale: 'it' });
-    // A built-in type's name comes from @kept/shared's table (D204), not the English.
+    // A built-in type's name comes from @kept/shared's table, not the English.
     expect(await screen.findByText('Elettrodomestico', {}, { timeout: 5000 })).toBeInTheDocument();
     expect(document.documentElement.lang).toBe('it');
   });

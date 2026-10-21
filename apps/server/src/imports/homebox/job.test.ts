@@ -17,7 +17,7 @@ import { runJob } from '../../jobs/boss.js';
 import { importArchiveKey } from '../../storage/blob-store.js';
 import { homeboxImportJobs, runHomeboxImport } from './job.js';
 
-// T10 (D146): the resumable Homebox import job over real exports, from the
+// The resumable Homebox import job over real exports, from the
 // upload to the labels. Ibrahim owns Home and Garage; Bruce administers Home, Louis is a member.
 
 let db: TestDb;

@@ -217,7 +217,7 @@ describe('schedules and upcoming', () => {
     expect(records).toHaveLength(1);
   });
 
-  it('completes a one-off: it is done, has no next date, and upcoming leaves it out (D247)', async () => {
+  it('completes a one-off: it is done, has no next date, and upcoming leaves it out', async () => {
     const heater = await createThing(t, ibrahim, home, { name: 'Water heater' });
     const s = ok(
       await call(t, '/api/v1/schedules', {

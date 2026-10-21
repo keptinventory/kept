@@ -499,7 +499,7 @@ describe('errors', () => {
 });
 
 describe('names never become paths', () => {
-  // Nothing from an archive becomes a storage key or a path on disk (D157): the archive module
+  // Nothing from an archive becomes a storage key or a path on disk: the archive module
   // and the importers never join or resolve a path.
   const src = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
   const dirs = ['portability/zip', 'imports/homebox', 'imports/kept'].map((d) => path.join(src, d));

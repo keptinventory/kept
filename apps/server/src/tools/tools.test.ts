@@ -144,7 +144,7 @@ function pathsOf(value: unknown, needle: string, path = ''): string[] {
 }
 
 describe('the registry', () => {
-  it('has a handler for every tool: step 6’s, step 5’s log_fuel and step 7’s adjust_stock', () => {
+  it('has a handler for every tool, log_fuel and adjust_stock included', () => {
     const handled = new Set(handledTools());
     for (const name of Object.keys(TOOL_DEFS)) {
       expect(handled.has(name as ToolName), name).toBe(true);
@@ -259,7 +259,7 @@ describe('capabilities and list_locations', () => {
   });
 });
 
-describe('add_thing (D213) and its undo', () => {
+describe('add_thing and its undo', () => {
   it('adds a spoken list in one call, a new place once, each undoable, one Undo for all', async () => {
     const d = await data(louis, 'add_thing', {
       location_id: home.id,
@@ -405,7 +405,7 @@ describe('add_thing (D213) and its undo', () => {
     expect(res.json()).toMatchObject({ code: 'undo_refused', reason: 'changed_since' });
   });
 
-  it('keeps names people wrote under untrusted only (D179)', async () => {
+  it('keeps names people wrote under untrusted only', async () => {
     const d = await data(louis, 'add_thing', {
       location_id: home.id,
       items: [{ name: TRICK, notes: TRICK }],
@@ -758,7 +758,7 @@ describe('writes', () => {
     expect(row).toEqual({ name: 'Main router', aliases: { en: ['modem'] }, notes: 'By the TV' });
   });
 
-  it('update_thing files an alias by its script: an Arabic one goes to Arabic, English stays (D214)', async () => {
+  it('update_thing files an alias by its script: an Arabic one goes to Arabic, English stays', async () => {
     const d = await data(louis, 'add_thing', {
       location_id: home.id,
       items: [{ name: 'Drill' }],
@@ -775,7 +775,7 @@ describe('writes', () => {
     expect(row?.aliases).toEqual({ en: ['driver', 'bit'], ar: ['مثقاب'] });
   });
 
-  it('update_thing with a stale proposal version is refused (D156)', async () => {
+  it('update_thing with a stale proposal version is refused', async () => {
     const thing = await createThing(t, ibrahim, home, { name: 'Lamp' });
     const c = { ...ctx(louis), ifMatch: Number(thing.rowVersion) - 1 };
     const env = await tool(c, 'update_thing', {
@@ -785,7 +785,7 @@ describe('writes', () => {
     expect(env).toMatchObject({ error: 'precondition_failed' });
   });
 
-  it('move_thing moves part of a quantity by splitting it (D10)', async () => {
+  it('move_thing moves part of a quantity by splitting it', async () => {
     const cans = await createThing(t, ibrahim, home, { name: 'Tennis balls', quantity: 5 });
     const shelf = await data(louis, 'create_place', { location_id: home.id, name: 'Shelf' });
     const d = await data(louis, 'move_thing', {
@@ -842,7 +842,7 @@ describe('writes', () => {
   });
 });
 
-describe('log_fuel (step 5)', () => {
+describe('log_fuel', () => {
   it('logs a fill with its odometer through the fill route’s operation, undoable', async () => {
     const d = await data(louis, 'add_thing', {
       location_id: home.id,
@@ -908,7 +908,7 @@ describe('log_fuel (step 5)', () => {
   });
 });
 
-describe('adjust_stock (step 7)', () => {
+describe('adjust_stock', () => {
   it('adds to and takes from a consumable’s stock through the Adjust route’s operation, undoable', async () => {
     const d = await data(louis, 'add_thing', {
       location_id: home.id,

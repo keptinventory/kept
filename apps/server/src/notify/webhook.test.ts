@@ -16,7 +16,7 @@ import {
   type WebhookEnvelope,
 } from './webhook.js';
 
-// The personal webhook channel (D30, D110): the signature verifies with the
+// The personal webhook channel: the signature verifies with the
 // channel's secret, redirects and private addresses are refused, the envelope holds ids and no
 // names, and the `channel-webhook` job's last failure marks the channel failing (once) without
 // failing anything else. Every request goes to a local receiver.
@@ -154,7 +154,7 @@ describe('the channel-webhook job', () => {
       return { delivery: d.rows[0], channel: ch.rows[0] };
     });
 
-  it('sends ids, the kind, the due date and a link, never a name (D110)', async () => {
+  it('sends ids, the kind, the due date and a link, never a name', async () => {
     const s = await reminder();
     const mail: Mail[] = [];
     expect(

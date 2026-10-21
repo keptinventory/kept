@@ -1,5 +1,5 @@
 /**
- * The web side of the step-2 contract decisions the server tasks settled (task 30): undo (D150),
+ * The web side of the step-2 contract decisions the server tasks settled (task 30): undo,
  * localised history summaries, the activity search and its people, the search price filter, a
  * refused backwards reading, the place-kind Customise, the currency 409's reason, and the
  * palette's "Add a thing".
@@ -36,7 +36,7 @@ function asRole(role: 'viewer' | 'member', state: MockState = ownerScenario()) {
   return state;
 }
 
-describe('undo (D150)', () => {
+describe('undo', () => {
   it('an edit offers Undo, which posts the event to /audit/:eventId/undo', async () => {
     const { user, mock } = await renderApp(`/t/${T.tv}`);
     await findHeading('Samsung TV, 55″');
@@ -127,7 +127,7 @@ describe('activity', () => {
   });
 });
 
-describe('search: the price filter (T27 decision)', () => {
+describe('search: the price filter', () => {
   it('sends priceMin, priceMax and currency, Arabic digits and all', async () => {
     const { user, mock, router } = await renderApp('/search?q=samsung');
     const urls = spyUrls(mock);
@@ -158,7 +158,7 @@ describe('search: the price filter (T27 decision)', () => {
   });
 });
 
-describe('meters (T16)', () => {
+describe('meters', () => {
   it('a backwards reading is refused, naming the reading before it', async () => {
     const { user } = await renderApp(`/t/${T.car}`);
     await findHeading('Toyota Corolla');
@@ -178,7 +178,7 @@ describe('meters (T16)', () => {
   });
 });
 
-describe('admin currencies (T12)', () => {
+describe('admin currencies', () => {
   it("a refused switch-off says why, from the 409's reason", async () => {
     const state = ownerScenario();
     const sar = state.inventory.currencies.find((c) => c.code === 'SAR');
@@ -202,7 +202,7 @@ describe('admin currencies (T12)', () => {
   });
 });
 
-describe('the palette (T27 follow-up)', () => {
+describe('the palette', () => {
   it('"Add a thing" opens the create sheet, in the location you are on', async () => {
     const { user } = await renderApp(`/loc/${IDS.garage}`);
     await findHeading('Garage');

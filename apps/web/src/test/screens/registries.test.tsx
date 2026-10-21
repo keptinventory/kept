@@ -1,5 +1,5 @@
 /**
- * Registries and the type editor (D11, D92, D123, D160, D168, D177, D192), against the
+ * Registries and the type editor, against the
  * mock server: the type tree and editor with the impact preview, Customise on a built-in, field
  * redefinition and cycles, secret fields for the owner only, the Device group shown as inherited,
  * the icon picker by keyboard, place kinds, the registries with the duplicate hint and merge, the
@@ -72,7 +72,7 @@ async function choose(
 const editor = (name: string | RegExp) => screen.findByRole('article', { name }, { timeout: 3000 });
 
 describe('the type tree and editor', { timeout: 20_000 }, () => {
-  it('lists the tree, and a built-in shows its inherited and Device-group fields read-only (D192)', async () => {
+  it('lists the tree, and a built-in shows its inherited and Device-group fields read-only', async () => {
     const { user } = await renderApp(typesUrl());
     const tree = await screen.findByRole('navigation', { name: 'Types' }, { timeout: 3000 });
     expect(within(tree).getByRole('link', { name: /Electronics/ })).toBeInTheDocument();
@@ -110,7 +110,7 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
     );
   });
 
-  it('Customise copies a built-in into the account and opens the copy (Q13b)', async () => {
+  it('Customise copies a built-in into the account and opens the copy', async () => {
     const { user, mock, router } = await renderApp(typesUrl(Y.phone));
     const phone = await editor('Phone');
     await user.click(within(phone).getByRole('button', { name: 'Customise' }));
@@ -132,7 +132,7 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
     expect(await screen.findByText(/Your things of this type use the copy/)).toBeInTheDocument();
   });
 
-  it('saving opens the impact preview first, then PATCHes with If-Match (D92, D123)', async () => {
+  it('saving opens the impact preview first, then PATCHes with If-Match', async () => {
     const { user, mock } = await renderApp(typesUrl(Y.boardGame));
     const game = await editor('Board game');
     const name = within(game).getByRole('textbox', { name: 'Name' });
@@ -177,7 +177,7 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
     ).toBeInTheDocument();
   });
 
-  it('adds a field; a key already defined is refused on the key field (D92)', async () => {
+  it('adds a field; a key already defined is refused on the key field', async () => {
     const { user, mock } = await renderApp(typesUrl(Y.boardGame), {
       setup: (m) =>
         m.on('POST', p.typeFields(':id'), ({ body }) =>
@@ -222,7 +222,7 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
     await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Add a field' })).toBeNull());
   });
 
-  it('a secret field is offered to the owner only (D177)', async () => {
+  it('a secret field is offered to the owner only', async () => {
     const { user, mock } = await renderApp(typesUrl(Y.boardGame));
     const game = await editor('Board game');
     await user.click(within(game).getByRole('button', { name: 'Add a field' }));
@@ -243,7 +243,7 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
     expect(within(after).getByRole('button', { name: 'Policy Online code' })).toBeInTheDocument();
   });
 
-  it('an admin edits types but sees no secret switch or policy (D177)', async () => {
+  it('an admin edits types but sees no secret switch or policy', async () => {
     const { user } = await renderApp(typesUrl(SEWING, BRUCE), { state: inBruces('admin') });
     const game = await editor('Sewing kit');
     await user.click(within(game).getByRole('button', { name: 'Add a field' }));
@@ -273,7 +273,7 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
     expect(screen.queryByRole('button', { name: 'New type' })).toBeNull();
   });
 
-  it('archives and restores a field (D92)', async () => {
+  it('archives and restores a field', async () => {
     const { user, mock } = await renderApp(typesUrl(Y.boardGame));
     const game = await editor('Board game');
     await user.click(within(game).getByRole('button', { name: 'Archive Players' }));
@@ -319,7 +319,7 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
     expectLogicalOnly();
   });
 
-  it('merging a type previews first, then moves its things (D92)', async () => {
+  it('merging a type previews first, then moves its things', async () => {
     // Into the account's own copy of Furniture: a built-in original is never a target.
     const state = ownerScenario();
     const furniture = state.inventory.types.find((x) => x.id === Y.furniture);
@@ -345,7 +345,7 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
     await waitFor(() => expect(router.state.location.search).toMatchObject({ type: Y.furniture }));
   });
 
-  it('deleting a type in use says to merge instead (D92)', async () => {
+  it('deleting a type in use says to merge instead', async () => {
     const { user } = await renderApp(typesUrl(Y.boardGame), {
       setup: (m) =>
         m.on(
@@ -372,7 +372,7 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
   });
 });
 
-describe('place kinds (D160)', { timeout: 20_000 }, () => {
+describe('place kinds', { timeout: 20_000 }, () => {
   it('makes a kind and gives it a field with the same field sheet', async () => {
     const { user, mock } = await renderApp('/settings/account/place-kinds');
     await screen.findByRole('list', { name: 'Place kinds' }, { timeout: 3000 });
@@ -408,7 +408,7 @@ describe('place kinds (D160)', { timeout: 20_000 }, () => {
     ).toBeInTheDocument();
   });
 
-  it('a built-in kind is read-only until customised, which makes the account its own (T28)', async () => {
+  it('a built-in kind is read-only until customised, which makes the account its own', async () => {
     const { user, mock } = await renderApp('/settings/account/place-kinds');
     const list = await screen.findByRole('list', { name: 'Place kinds' }, { timeout: 3000 });
     await user.click(within(list).getByRole('link', { name: /Room/ }));
@@ -444,7 +444,7 @@ describe('place kinds (D160)', { timeout: 20_000 }, () => {
   });
 });
 
-describe('brands, vendors, people and tags (D11)', { timeout: 20_000 }, () => {
+describe('brands, vendors, people and tags', { timeout: 20_000 }, () => {
   it('adding a near-duplicate person is a hint, never a block, and offers the merge', async () => {
     const { user, mock } = await renderApp('/settings/account/people');
     const list = await screen.findByRole('list', { name: 'People' }, { timeout: 3000 });
@@ -520,7 +520,7 @@ describe('brands, vendors, people and tags (D11)', { timeout: 20_000 }, () => {
     expect(screen.queryByRole('button', { name: /Actions for/ })).toBeNull();
   });
 
-  it('the account switcher lists accounts you manage and keeps the choice in the URL (Q21)', async () => {
+  it('the account switcher lists accounts you manage and keeps the choice in the URL', async () => {
     const state = ownerScenario();
     const bruce = state.inventory.accounts.find((a) => a.id === A.bruce);
     if (bruce) bruce.canManage = true;
@@ -539,7 +539,7 @@ describe('brands, vendors, people and tags (D11)', { timeout: 20_000 }, () => {
 });
 
 describe('the person, vendor and brand pages', { timeout: 20_000 }, () => {
-  it("a person's page shows the contact card and what belongs to them (D57, D177)", async () => {
+  it("a person's page shows the contact card and what belongs to them", async () => {
     await renderApp(`/people/${INV_IDS.person.alfred}`);
     await findHeading('Alfred');
     expect(await screen.findByRole('link', { name: /\+20 100 555 0199/ })).toBeInTheDocument();
@@ -547,7 +547,7 @@ describe('the person, vendor and brand pages', { timeout: 20_000 }, () => {
     expect(within(list).getByRole('link', { name: /Christmas lights/ })).toBeInTheDocument();
   });
 
-  it('the contact card is not there when the server withholds it (a member, D177)', async () => {
+  it('the contact card is not there when the server withholds it (a member)', async () => {
     const { mock } = await renderApp(`/people/${INV_IDS.person.alfredAr}`, {
       state: inBruces('member'),
     });
@@ -571,7 +571,7 @@ describe('the person, vendor and brand pages', { timeout: 20_000 }, () => {
   });
 });
 
-describe("a brand's logo (T9, T29)", { timeout: 20_000 }, () => {
+describe("a brand's logo", { timeout: 20_000 }, () => {
   it("an admin of the brand's account adds one: the image itself is the PUT's body", async () => {
     const { user, mock } = await renderApp(`/brands/${INV_IDS.brand.toshiba}`, {
       state: inBruces('admin'),
@@ -594,7 +594,7 @@ describe("a brand's logo (T9, T29)", { timeout: 20_000 }, () => {
     );
   });
 
-  it('asks for no image when the brand says it has none (UI step-4 review L8)', async () => {
+  it('asks for no image when the brand says it has none', async () => {
     const state = inBruces('member');
     const toshiba = state.inventory.brands.find((b) => b.id === INV_IDS.brand.toshiba);
     if (toshiba) Object.assign(toshiba, { hasLogo: false });
@@ -612,7 +612,7 @@ describe("a brand's logo (T9, T29)", { timeout: 20_000 }, () => {
   });
 });
 
-describe('admin → currencies (D168)', { timeout: 20_000 }, () => {
+describe('admin → currencies', { timeout: 20_000 }, () => {
   it('switches a currency on; the defaults stay on with the reason', async () => {
     const { user, mock } = await renderApp('/admin/currencies');
     await screen.findByRole('list', { name: 'Currencies' }, { timeout: 3000 });

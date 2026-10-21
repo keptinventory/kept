@@ -15,7 +15,7 @@ import {
 import { type Scope, withScope } from './scope.js';
 import { seedTypes } from './seed-reference.js';
 
-// The type tree, place kinds and the account registries (D11, D92, D123, D154, D177, D192),
+// The type tree, place kinds and the account registries,
 // as kept_app unless noted.
 
 const db = await testDb();
@@ -227,7 +227,7 @@ describe('the built-in library (seed-reference)', () => {
 });
 
 describe('kept.type_chain() and kept.type_capabilities()', () => {
-  it('walks up from a type to its root, and unions the capabilities (D154)', async () => {
+  it('walks up from a type to its root, and unions the capabilities', async () => {
     const a = await seedTenant(db, 'a');
     const phone = await builtin('phone');
     const mine = await customType(a, 'Foldable', phone);
@@ -273,7 +273,7 @@ describe('kept.guard_type()', () => {
     expect(err).toMatchObject({ code: '42501', constraint: 'types_parent_account' });
   });
 
-  it('refuses a loop (D92)', async () => {
+  it('refuses a loop', async () => {
     const top = await customType(a, 'Top', null);
     const mid = await customType(a, 'Mid', top);
     const leaf = await customType(a, 'Leaf', mid);
@@ -332,7 +332,7 @@ describe('type fields', () => {
     await addField(a, mine, 'x');
   });
 
-  it('refuses a key an ancestor or its group already defines (§7.13, D192)', async () => {
+  it('refuses a key an ancestor or its group already defines', async () => {
     const mine = await customType(a, 'Foldable', await builtin('phone'));
     for (const key of ['imei', 'os']) {
       const err = await pgError(addField(a, mine, key));
@@ -400,7 +400,7 @@ describe('type fields', () => {
   });
 });
 
-describe('who may write which registry (D11, D123)', () => {
+describe('who may write which registry', () => {
   let b: Tenant;
   let member: string;
   let viewer: string;
@@ -462,7 +462,7 @@ describe('who may write which registry (D11, D123)', () => {
     }
   });
 
-  it('refuses a second brand or tag with the same normalised name (D42)', async () => {
+  it('refuses a second brand or tag with the same normalised name', async () => {
     await insert(b.userId, 'brands', 'name', `'Samsung'`);
     expect(await pgError(insert(b.userId, 'brands', 'name', `'SAMSUNG '`))).toMatchObject({
       code: '23505',
@@ -483,7 +483,7 @@ describe('who may write which registry (D11, D123)', () => {
   });
 });
 
-describe('person contacts (D177, Q5)', () => {
+describe('person contacts', () => {
   it('shows contacts to admins of the account, never to members or viewers', async () => {
     const b = await seedTenant(db, 'b');
     const member = await seedUser(db, 'member');

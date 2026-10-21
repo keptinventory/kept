@@ -17,7 +17,7 @@ import {
 } from './conventions.js';
 import { AppError, toErrorReply } from './errors.js';
 
-// API conventions (D156, D178).
+// API conventions.
 
 const db = await testDb();
 
@@ -31,7 +31,7 @@ function thrown(fn: () => unknown): AppError {
   throw new Error('expected an AppError');
 }
 
-describe('If-Match and row versions (D156)', () => {
+describe('If-Match and row versions', () => {
   it.each([
     ['3', 3],
     ['"3"', 3],
@@ -65,7 +65,7 @@ describe('If-Match and row versions (D156)', () => {
     });
   });
 
-  it('checkVersion() names who changed it when the caller knows (step 2, T26)', () => {
+  it('checkVersion() names who changed it when the caller knows', () => {
     const err = thrown(() =>
       checkVersion({ rowVersion: 7 }, 6, ['name'], { displayName: 'Bruce' }),
     );
@@ -110,7 +110,7 @@ describe('pagination', () => {
   });
 });
 
-describe('assertClientId() (§7.7)', () => {
+describe('assertClientId()', () => {
   const now = Date.parse('2026-09-26T12:00:00Z');
   const at = (offsetDays: number) => v7({ msecs: now + offsetDays * 86_400_000 });
 

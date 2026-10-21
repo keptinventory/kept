@@ -6,7 +6,7 @@ import { GOOGLE_PROVIDER_ID, googleCallbackUrl, googleConfigOf } from './google.
 import { oidcInvites } from './oidc.js';
 import { resolveSession } from './session.js';
 
-// Google sign-in (1.2, D226): Better Auth's Google provider under Kept's outside-identity rules
+// Google sign-in (1.2): Better Auth's Google provider under Kept's outside-identity rules
 // (auth/oidc.ts). Google itself can't be reached from a test, so its token endpoint is stubbed:
 // the browser's hop to Google is skipped, and Kept's callback is called the way Google would
 // redirect to it, with the `state` Kept issued. What Google answers is an id token with the
@@ -128,7 +128,7 @@ const stale = (userId: string) =>
     [userId],
   );
 
-describe('Google sign-in (D226)', () => {
+describe('Google sign-in', () => {
   it('reads its client from the environment, both halves or nothing', () => {
     expect(
       googleConfigOf({ KEPT_GOOGLE_CLIENT_ID: CLIENT_ID, KEPT_GOOGLE_CLIENT_SECRET: 's' }),

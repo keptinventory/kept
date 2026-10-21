@@ -9,7 +9,7 @@ import { BUILTIN_TYPES } from './builtin-types.js';
 
 const MORE = ['fr', 'de', 'it'] as const;
 
-describe('built-in names in the five languages (D204)', () => {
+describe('built-in names in the five languages', () => {
   it('names every built-in type and field in French, German and Italian', () => {
     const typeKeys = BUILTIN_TYPES.map((t) => t.key).sort();
     const fieldKeys = [...new Set(BUILTIN_TYPES.flatMap((t) => t.fields.map((f) => f.key)))].sort();

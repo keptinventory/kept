@@ -1,4 +1,4 @@
-/** The coverage bar runs bought → today → covered until (D195; UI step-4 review L4). */
+/** The coverage bar runs bought → today → covered until (UI step-4 review L4). */
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { renderUI } from '@/test/render';

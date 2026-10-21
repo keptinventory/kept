@@ -1,6 +1,6 @@
 // @vitest-environment node
 /**
- * The phone PNG (D185): the right pixel size per stock at 300 dpi, and a QR the app's
+ * The phone PNG: the right pixel size per stock at 300 dpi, and a QR the app's
  * own scanner reads (the T26 wasm decoder, as in camera/scanner.decode.test.ts). `drawLabel` is
  * run against a small rasterising context: its rectangles become pixels, its text calls are
  * recorded, so no canvas is needed.

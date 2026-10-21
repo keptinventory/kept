@@ -13,7 +13,7 @@ import {
 } from '../../test/tenancy.js';
 import { withScope, withSystem } from './scope.js';
 
-// kept_system's maintenance doors (D149, D161, D162):
+// kept_system's maintenance doors:
 // reindexing a location, and purging the trash, deleted locations and orphan files.
 
 const db = await testDb();
@@ -79,7 +79,7 @@ async function file(loc: Loc, userId: string, opts: { key?: string; age?: string
   return id;
 }
 
-describe('kept.reindex_location() (§7.9)', () => {
+describe('kept.reindex_location()', () => {
   it("refreshes the contents' paths after a container is renamed, without a row_version bump", async () => {
     const a = await seedTenant(db, 'a');
     const box = await thing(a, { name: 'Box' });
@@ -106,7 +106,7 @@ describe('kept.reindex_location() (§7.9)', () => {
   });
 });
 
-describe('kept.purge_trash() (D162)', () => {
+describe('kept.purge_trash()', () => {
   let a: Tenant;
   beforeEach(async () => {
     a = await seedTenant(db, 'a');
@@ -193,7 +193,7 @@ describe('kept.purge_trash() (D162)', () => {
   });
 });
 
-describe('kept.purge_deleted_locations() (D149)', () => {
+describe('kept.purge_deleted_locations()', () => {
   it('purges a location past its grace period, keeping its codes as retired ones', async () => {
     const a = await seedTenant(db, 'a');
     const flat = await ownerTx(db, (c) => insertLocation(c, a, { name: 'Flat' }));
@@ -210,7 +210,7 @@ describe('kept.purge_deleted_locations() (D149)', () => {
       `INSERT INTO public.attachments (location_id, file_id, thing_id, role, created_by) VALUES ($1, $2, $3, 'photo', $4)`,
       [flat.locationId, photo, box, a.userId],
     );
-    // A copy of the photo elsewhere shares its blob (D161), so that key must survive.
+    // A copy of the photo elsewhere shares its blob, so that key must survive.
     const shared = await file(a, a.userId, { key: `f/${flat.locationId}/${photo}` });
     await own(
       `UPDATE public.locations SET deleted_at = now() - interval '31 days', purge_after = now() - interval '1 day' WHERE id = $1`,
@@ -232,7 +232,7 @@ describe('kept.purge_deleted_locations() (D149)', () => {
   });
 });
 
-describe('kept.purge_orphan_files() (D161, D162)', () => {
+describe('kept.purge_orphan_files()', () => {
   it('purges old unattached files and returns only the blobs nothing else references', async () => {
     const a = await seedTenant(db, 'a');
     const b = await seedTenant(db, 'b');
@@ -243,7 +243,7 @@ describe('kept.purge_orphan_files() (D161, D162)', () => {
       `INSERT INTO public.attachments (location_id, file_id, role, created_by) VALUES ($1, $2, 'document', $3)`,
       [a.locationId, attached, a.userId],
     );
-    // An unattached file whose blob a copy in B still holds (D161).
+    // An unattached file whose blob a copy in B still holds.
     const sharedKey = `f/${a.locationId}/${newId()}`;
     const shared = await file(a, a.userId, { key: sharedKey });
     const copy = await file(b, b.userId, { key: sharedKey, age: '1 hour' });
@@ -260,12 +260,12 @@ describe('kept.purge_orphan_files() (D161, D162)', () => {
   });
 });
 
-describe('kept.unreferenced_storage_keys() (D161, D162)', () => {
+describe('kept.unreferenced_storage_keys()', () => {
   it('answers only the keys no file or derivative row names any more', async () => {
     const a = await seedTenant(db, 'a');
     const b = await seedTenant(db, 'b');
     const kept = await file(a, a.userId);
-    // A copy in B holds the key of a file A no longer has (D161).
+    // A copy in B holds the key of a file A no longer has.
     const sharedKey = `f/${a.locationId}/${newId()}`;
     await file(b, b.userId, { key: sharedKey });
     const gone = `f/${a.locationId}/${newId()}`;

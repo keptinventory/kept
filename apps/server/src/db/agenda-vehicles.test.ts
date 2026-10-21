@@ -5,9 +5,9 @@ import { testDb } from '../../test/db.js';
 import { ownerTx, seedTenant, type Tenant } from '../../test/tenancy.js';
 import { withScope, withSystem } from './scope.js';
 
-// Step 5, task 7 (0066): the agenda's vehicle rows (D52, D113; plan Q2, Q19; step 4's Q2, Q3,
-// Q5): the stale-reading nudge, a vehicle's documents with Vehicles on, and a unit schedule due
-// from its estimated date. The same rows reach the reminder scan (kept_system).
+// Migration 0066: the agenda's vehicle rows: the stale-reading nudge, a vehicle's documents with
+// Vehicles on, and a unit schedule due from its estimated date. The same rows reach the reminder
+// scan (kept_system).
 
 const db = await testDb();
 
@@ -104,7 +104,7 @@ beforeEach(async () => {
   odometer = await meterOf(ibrahim, corolla);
 });
 
-describe('reading_stale (D52, Q19)', () => {
+describe('reading_stale', () => {
   it('is due from the latest reading’s local day plus nudge_days, for the scan too', async () => {
     const readOn = await readDaysAgo(odometer, 31, 52340);
     const expected = {
@@ -164,7 +164,7 @@ describe('reading_stale (D52, Q19)', () => {
   });
 });
 
-describe('documents on vehicles (step 4’s Q5)', () => {
+describe('documents on vehicles', () => {
   const doc = async (thing: string) => {
     const id = newId();
     await own(
@@ -203,7 +203,7 @@ describe('documents on vehicles (step 4’s Q5)', () => {
   });
 });
 
-describe('estimated due dates (D52; step 4’s Q2)', () => {
+describe('estimated due dates', () => {
   it('make a unit schedule due from the day the meter is expected at its due-from reading', async () => {
     // 100 km a day: 50,000 sixty days ago, 56,000 today. Oil every 10,000 km from 50,000: due
     // at 60,000, due from 59,000, expected in 30 days.

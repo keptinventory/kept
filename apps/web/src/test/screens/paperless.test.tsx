@@ -1,5 +1,5 @@
 /**
- * Paperless-ngx (1.x, D248): Location settings → Paperless (connect, a refused token said in
+ * Paperless-ngx (1.x): Location settings → Paperless (connect, a refused token said in
  * words, the token never shown, the plain-http warning, disconnect after asking), and a thing's
  * Paperwork section (the linked documents, the picker that searches and links, copy and unlink).
  */

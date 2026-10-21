@@ -23,7 +23,7 @@ const choices = {
   seeded: 'skip_unused',
 } as const;
 
-describe('HomeboxChoices (D146)', () => {
+describe('HomeboxChoices', () => {
   it('accepts a full set of choices', () => {
     expect(HomeboxChoices.parse(choices)).toEqual(choices);
     expect(

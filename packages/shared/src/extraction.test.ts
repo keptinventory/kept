@@ -21,7 +21,7 @@ import {
 
 const c = <T>(value: T, confidence = 0.9) => ({ value, confidence });
 
-describe('schemas (§2.1)', () => {
+describe('schemas', () => {
   it('accepts a full THING object', () => {
     const r = ThingExtraction.safeParse({
       objects: [
@@ -41,12 +41,12 @@ describe('schemas (§2.1)', () => {
     expect(r.success).toBe(true);
   });
 
-  it('allows one object in 1.0 (D20 is 1.x)', () => {
+  it('allows one object in 1.0 (several are later)', () => {
     const one = { name: c('Cable'), aliases: {} };
     expect(ThingExtraction.safeParse({ objects: [one, one] }).success).toBe(false);
   });
 
-  it('accepts a RECEIPT with a document box (Q11), a LABEL and a READING', () => {
+  it('accepts a RECEIPT with a document box, a LABEL and a READING', () => {
     expect(
       ReceiptExtraction.safeParse({
         vendor: { name: c('Carrefour'), phone: '+20 2 1234 5678' },
@@ -76,7 +76,7 @@ describe('schemas (§2.1)', () => {
     );
   });
 
-  it('never takes a URL where text is expected (L51)', () => {
+  it('never takes a URL where text is expected', () => {
     expect(
       ThingExtraction.safeParse({
         objects: [{ name: c('see https://evil.example/x'), aliases: {} }],
@@ -85,7 +85,7 @@ describe('schemas (§2.1)', () => {
   });
 });
 
-describe('parseLenient (L52): drop what fails, one field at a time', () => {
+describe('parseLenient: drop what fails, one field at a time', () => {
   const cases: Array<{
     name: string;
     schema: Parameters<typeof parseLenient>[0];
@@ -188,7 +188,7 @@ describe('parseLenient (L52): drop what fails, one field at a time', () => {
   });
 });
 
-describe('review rules (D19, D41, D128)', () => {
+describe('review rules', () => {
   it('auto-accepts the naming fields at or above 0.6, and never the others', () => {
     expect(CONFIDENCE_MIN).toBe(0.6);
     for (const f of AUTO_ACCEPT) expect(needsReview(f, 0.6)).toBe(false);
@@ -208,7 +208,7 @@ describe('review rules (D19, D41, D128)', () => {
   });
 });
 
-describe('token caps (Q6)', () => {
+describe('token caps', () => {
   it('adds the reasoning allowance to the mode’s JSON allowance', () => {
     expect(MAX_OUTPUT_TOKENS).toEqual({
       thing: 700,
@@ -228,7 +228,7 @@ describe('token caps (Q6)', () => {
     expect(outputTokenCap('reading', 'none')).toBe(200);
   });
 
-  it('lists the extraction statuses of §7.8', () => {
+  it('lists the extraction statuses', () => {
     expect(EXTRACTION_STATUSES).toEqual([
       'queued',
       'running',
@@ -242,7 +242,7 @@ describe('token caps (Q6)', () => {
   });
 });
 
-describe('the service invoice (step 5, Q12)', () => {
+describe('the service invoice', () => {
   it("is RECEIPT's shape with each line's optional kind", () => {
     const r = ServiceInvoiceExtraction.safeParse({
       vendor: { name: c('Service centre') },
@@ -256,7 +256,7 @@ describe('the service invoice (step 5, Q12)', () => {
     expect(r.success).toBe(true);
   });
 
-  it('drops a bad kind alone, keeping its line (L52)', () => {
+  it('drops a bad kind alone, keeping its line', () => {
     const out = parseLenient(ServiceInvoiceExtraction, {
       lines: [
         { description: c('Tyres, 4'), kind: c('tyres') },

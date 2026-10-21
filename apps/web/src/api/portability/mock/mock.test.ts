@@ -33,7 +33,7 @@ const fail = async (p: Promise<unknown>) => {
   return e as ApiError;
 };
 const SHA = 'e'.repeat(64);
-/** Turns Consumables off in Home, where the fixtures turn it on (T23). */
+/** Turns Consumables off in Home, where the fixtures turn it on. */
 const consumablesOff = (state: MockState) => {
   const home = state.locations.find((l) => l.id === IDS.home);
   if (!home) throw new Error('no Home');
@@ -54,7 +54,7 @@ describe('the portability mock', () => {
       ).test(path);
     const missing: string[] = [];
     for (const [key, methods] of Object.entries(PORTABILITY_METHODS)) {
-      if (key === 'thingsCsv') continue; // a download link (T16), never fetched as JSON
+      if (key === 'thingsCsv') continue; // a download link, never fetched as JSON
       const v = portabilityPaths[key as keyof typeof portabilityPaths] as
         | string
         | ((...args: string[]) => string);
@@ -94,7 +94,7 @@ describe('archive imports', () => {
     expect(((await ok.json()) as { archiveReadyAt: string | null }).archiveReadyAt).not.toBeNull();
     const inspect = await api.inspect(id);
     expect(inspect.source).toBe('kept_zip');
-    // A Kept export goes only into a new location (plan Q8).
+    // A Kept export goes only into a new location.
     expect((await fail(api.setTarget(id, { locationId: IDS.home }))).code).toBe('validation');
     const targeted = await api.setTarget(id, {
       newLocation: {
@@ -160,7 +160,7 @@ describe('archive imports', () => {
     expect(e.code).toBe('private_address');
   });
 
-  it("still answers step 3's CSV runs through the shared routes", async () => {
+  it('still answers CSV import runs through the shared routes', async () => {
     const run = await captureApi.importRun(CAPTURE_IDS.importRun.done);
     expect(run.source).toBe('csv');
     const list = await captureApi.imports();

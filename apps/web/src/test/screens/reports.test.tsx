@@ -1,5 +1,5 @@
 /**
- * "Print inventory" (D201, task 32), against the mock server: the filter sheet on the location
+ * "Print inventory" (task 32), against the mock server: the filter sheet on the location
  * page and on Settings → Account, the request it posts, the run's progress, the download once it
  * is done, a failure with Try again, the hourly limit, a viewer, and offline. 1.10.5 (#141): the
  * email-only options locked, with their reason, where mail can't go out.
@@ -44,7 +44,7 @@ async function openSheet(user: Awaited<ReturnType<typeof renderApp>>['user']) {
   return screen.findByRole('dialog', { name: 'Print inventory' });
 }
 
-describe('Print inventory (D201)', () => {
+describe('Print inventory', () => {
   it('posts the location, the chosen places and the switches, then downloads the PDF', async () => {
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
     const { user, mock } = await renderApp(`/loc/${IDS.home}`, {
@@ -169,7 +169,7 @@ describe('Print inventory (D201)', () => {
     await findHeading('Home');
     const button = await screen.findByRole('button', { name: 'Print inventory' });
     expect(button).toBeDisabled();
-    // The reason sits beside the button (the page's other sections say it too, T23).
+    // The reason sits beside the button (the page's other sections say it too).
     expect(
       within(button.parentElement as HTMLElement).getByText('Needs a connection'),
     ).toBeInTheDocument();
@@ -183,7 +183,7 @@ describe('Print inventory (D201)', () => {
   });
 });
 
-describe('Emailed and scheduled reports (D228)', () => {
+describe('Emailed and scheduled reports', () => {
   it('emails the PDF too, and keeps a monthly schedule of the location', async () => {
     const { user, mock } = await renderApp(`/loc/${IDS.home}`);
     await findHeading('Home');

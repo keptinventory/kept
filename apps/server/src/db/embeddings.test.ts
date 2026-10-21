@@ -13,7 +13,7 @@ import {
 } from '../../test/tenancy.js';
 import { type Scope, withScope, withSystem } from './scope.js';
 
-// Step-6 T6 (0075, 0076): semantic search's storage and doors (D200, D207).
+// Migrations 0075, 0076: semantic search's storage and doors.
 // Vectors here are 3-dimensional; the model key is what the doors match on.
 
 const db = await testDb();
@@ -162,7 +162,7 @@ beforeEach(async () => {
   );
 });
 
-describe('the text a thing is embedded from (D200, Q12)', () => {
+describe('the text a thing is embedded from', () => {
   const cases: EmbedTextInput[] = [
     {
       name: 'HDMI cable',
@@ -336,7 +336,7 @@ describe('the backlog and the store', () => {
   });
 });
 
-describe('kept.semantic_thing_ids(): the only way to a match (§7.2)', () => {
+describe('kept.semantic_thing_ids(): the only way to a match', () => {
   beforeEach(async () => {
     const home = await backlog('system', ibrahim.locationId);
     await store(

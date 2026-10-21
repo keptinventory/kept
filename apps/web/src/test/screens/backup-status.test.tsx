@@ -1,5 +1,5 @@
 /**
- * Admin → Status's step-8 tiles (T21; D66, D144, D166; frames 107, 108) on the ops mock's
+ * Admin → Status's step-8 tiles (frames 107, 108) on the ops mock's
  * scenarios: each warning state, the fix each links to, the update line and the update check's
  * wording, in English and Arabic.
  */
@@ -13,7 +13,7 @@ import { expectLogicalOnly } from '@/test/render';
 
 const DAY = 86_400_000;
 
-describe('Admin → Status: backups and operations (T21)', () => {
+describe('Admin → Status: backups and operations', () => {
   it('shows each tile with its warning, and links each warning to its fix', async () => {
     await renderApp('/admin/status');
     expect(await screen.findByText('Last good backup 4 hours ago')).toBeInTheDocument();
@@ -128,7 +128,7 @@ describe('Admin → Status: backups and operations (T21)', () => {
     ).toBe(true);
   });
 
-  it('shows what it has when the database didn’t answer (no step-8 fields)', async () => {
+  it('shows what it has when the database didn’t answer (no operations fields)', async () => {
     const state = ownerScenario();
     ops(state).serveStatus = false;
     await renderApp('/admin/status', { state });

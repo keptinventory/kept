@@ -53,7 +53,7 @@ async function session(browser: Browser, baseURL: string, login: string, lang = 
   await p.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(p).toHaveURL(/\/$/);
   await p.close();
-  // The language for every page from here on (the display preference, D204).
+  // The language for every page from here on (the display preference).
   await ctx.addInitScript((l) => {
     try {
       localStorage.setItem('kept.locale', l);

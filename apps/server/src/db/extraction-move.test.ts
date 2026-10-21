@@ -13,7 +13,7 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// 0074 (step 5, T8 and T10): an extraction follows its photo onto a new attachment, so the old
+// 0074: an extraction follows its photo onto a new attachment, so the old
 // attachment's delete no longer cascades it away; only its requester or an admin moves it, and
 // only onto an attachment of the same location.
 

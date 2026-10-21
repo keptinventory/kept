@@ -25,13 +25,13 @@ export const INSTANCES = {
   // Step 4's household journeys (e2e/step4.spec.ts): lending, schedules, documents, incidents
   // and the notification centre, on a seeded instance of their own.
   household: { name: 'household', port: 8188, seed: true },
-  // The guided tour (e2e/tour.spec.ts, D242): where it stopped is per person on the server, so a
+  // The guided tour (e2e/tour.spec.ts): where it stopped is per person on the server, so a
   // seeded instance of its own, one person per project.
   tour: { name: 'tour', port: 8190, seed: true },
-  // The spreadsheet view (e2e/sheet.spec.ts, D250) edits and moves things: a seeded instance of
+  // The spreadsheet view (e2e/sheet.spec.ts) edits and moves things: a seeded instance of
   // its own, so no other spec sees its changes.
   sheet: { name: 'sheet', port: 8198, seed: true },
-  // Moving mode (e2e/moving.spec.ts, D251) moves boxes between the seed's Garage and Home: a
+  // Moving mode (e2e/moving.spec.ts) moves boxes between the seed's Garage and Home: a
   // seeded instance of its own, so no other spec sees its changes.
   moving: { name: 'moving', port: 8199, seed: true },
 } as const satisfies Record<string, Instance>;
@@ -51,7 +51,7 @@ export const VEHICLES_INSTANCE: Instance & { aiMock: true } = {
 /**
  * Steps 6–8's journeys run behind HTTPS (serve.mjs `--https`: a TLS proxy with a self-signed
  * certificate made for the run), because token creation, an export with secrets, revealing a
- * secret and the backup settings are refused over plain http (D181). Their contexts take
+ * secret and the backup settings are refused over plain http. Their contexts take
  * `ignoreHTTPSErrors`. Keys for KEPT_E2E_INSTANCES: `assistant`, `portability`, `operations`.
  */
 export type TlsInstance = Instance & { https: true; aiMock?: boolean; owner?: boolean };

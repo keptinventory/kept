@@ -15,7 +15,7 @@ import { createLocation, type Loc, own as ownOf } from '../../test/things.js';
 import { withScope } from '../db/scope.js';
 import { extrasPage } from './extras.js';
 
-// "Keep this location available offline" through the front door (D159, D181).
+// "Keep this location available offline" through the front door.
 // Ibrahim owns Home (household: money and warranties on) and Garage (essentials: both
 // off). In Home, Louis is a member and Talia a viewer (Home hides money from viewers). Alfred has
 // his own account and sees nothing of Ibrahim's.

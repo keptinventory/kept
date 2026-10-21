@@ -12,9 +12,9 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step-4 T6 (0052, 0053): schedules and their anchor (D162), kept.schedule_point() as the twin of
+// Migrations 0052, 0053: schedules and their anchor, kept.schedule_point() as the twin of
 // @kept/shared scheduleNext(), and expiring documents renewed while the old one is
-// kept (D155, D172). The agenda view and module state are in src/db/agenda.test.ts.
+// kept. The agenda view and module state are in src/db/agenda.test.ts.
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });
@@ -94,7 +94,7 @@ const complete = (userId: string, record: string, schedule: string) =>
     ),
   );
 
-describe('the anchor (D162)', () => {
+describe('the anchor', () => {
   it('follows completions as they are added, back-dated, edited and removed', async () => {
     const boiler = await as(louis, async (c) => {
       const { rows } = await c.query<{ id: string }>(
@@ -226,7 +226,7 @@ describe('the anchor (D162)', () => {
   });
 });
 
-describe('kept.schedule_point() is scheduleNext() (Q2, Q27, Q28)', () => {
+describe('kept.schedule_point() is scheduleNext()', () => {
   type Case = { rule: ScheduleRule; today: string; latest?: string | null };
   const base = { anchorOn: '2026-01-31', leadDays: 14 };
   const cases: Case[] = [];
@@ -314,7 +314,7 @@ describe('kept.schedule_point() is scheduleNext() (Q2, Q27, Q28)', () => {
   });
 });
 
-describe('kept.schedule_next() with the estimate is scheduleNext() with at.eta (step 5, T7)', () => {
+describe('kept.schedule_next() with the estimate is scheduleNext() with at.eta', () => {
   // Each case: a series (days before now, value), a replacement, and a rule. The TS twin gets the
   // meter's newest reading (kept.meter_latest) and, for the value it asks, kept.meter_eta, the one
   // implementation of the estimate.
@@ -524,7 +524,7 @@ describe('kept.schedule_next() with the estimate is scheduleNext() with at.eta (
   });
 });
 
-describe('expiring documents (D155, D172; Q31)', () => {
+describe('expiring documents', () => {
   const add = (userId: string, values: Record<string, unknown>) =>
     as(userId, async (c) => {
       const v = { kind: 'insurance', title: null, thing: null, place: null, ...values };

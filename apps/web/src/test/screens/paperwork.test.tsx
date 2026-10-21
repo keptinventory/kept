@@ -1,7 +1,7 @@
 /**
  * The paperwork library (search by a word inside, the filter strip, list or grid), the
  * Expiring screen (from the agenda, Renew with Undo), and the Paperwork section on a location's
- * and a place's page (D155): add an expiring document, renew it, the viewer and module-off
+ * and a place's page: add an expiring document, renew it, the viewer and module-off
  * variants, offline, and Arabic (RTL).
  */
 import { screen, waitFor, within } from '@testing-library/react';
@@ -64,7 +64,7 @@ describe('/paperwork', () => {
     });
   });
 
-  it('narrows by what it is on, and shows a grid through Display (D211)', async () => {
+  it('narrows by what it is on, and shows a grid through Display', async () => {
     const { router } = await renderApp('/paperwork?f.subject=location&view=grid');
     const list = await screen.findByRole('list', { name: 'Paperwork' });
     await within(list).findByRole('article', { name: /Lease/ });
@@ -104,7 +104,7 @@ describe('/expiring', () => {
     expect(mock.lastCall('GET', hp.agenda)).toBeTruthy();
   });
 
-  it('renews a document, keeping the old term, with Undo (D172, D150)', async () => {
+  it('renews a document, keeping the old term, with Undo', async () => {
     const { user, mock } = await renderApp('/expiring');
     const list = await screen.findByRole('list', { name: 'Expiring' });
     const insurance = await within(list).findByRole('article', { name: 'Home insurance' });
@@ -149,7 +149,7 @@ describe('/expiring', () => {
     );
   });
 
-  it('titles every warranty as a warranty, by its provider or its kind (UI step-4 review L6)', async () => {
+  it('titles every warranty as a warranty, by its provider or its kind', async () => {
     await renderApp('/expiring?f.source=warranty');
     const list = await screen.findByRole('list', { name: 'Expiring' });
     const rows = await within(list).findAllByRole('article');
@@ -158,7 +158,7 @@ describe('/expiring', () => {
   });
 });
 
-describe('the Paperwork section (D155)', () => {
+describe('the Paperwork section', () => {
   it('a location lists its documents: the lease with its file, and Renew', async () => {
     await renderApp(`/loc/${IDS.family}`);
     const paperwork = await section('Paperwork');
@@ -195,7 +195,7 @@ describe('the Paperwork section (D155)', () => {
     expect(await within(paperwork).findByText('Boiler certificate')).toBeInTheDocument();
   });
 
-  it('"other" needs a name (Q31)', async () => {
+  it('"other" needs a name', async () => {
     const { user } = await renderApp(`/loc/${IDS.home}`);
     const paperwork = await section('Paperwork');
     await user.click(within(paperwork).getByRole('button', { name: 'Add expiring document' }));

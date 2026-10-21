@@ -1,5 +1,5 @@
 /**
- * Step 4 in step 2's thing rows and views (T20): the derived states lent, borrowed and in repair
+ * Step 4 in step 2's thing rows and views: the derived states lent, borrowed and in repair
  * on every list, the thing view's loan line, repair vendor and current value (behind the money
  * gate), and the attachment subjects a warranty, a claim and a loan add.
  */
@@ -26,7 +26,7 @@ afterEach(() => vi.unstubAllGlobals());
 const T = INV_IDS.thing;
 const thing = (id: string) => client.get<ThingView>(inventoryPaths.thing(id));
 
-describe('derived states in step 2 (T20)', () => {
+describe('derived states on a thing', () => {
   it('the drill is lent, with its loan line; the TV is in repair at the service centre', async () => {
     const drill = await thing(T.drill);
     expect(drill.derivedState).toContain('lent');
@@ -71,7 +71,7 @@ describe('derived states in step 2 (T20)', () => {
   });
 });
 
-describe('attachment subjects (T9, T10)', () => {
+describe('attachment subjects', () => {
   const attach = (subject: object, role: string) =>
     client.post<AttachmentView>(inventoryPaths.attachments, {
       id: newId(),

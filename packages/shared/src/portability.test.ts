@@ -10,7 +10,7 @@ import {
   ZIP_LIMITS,
 } from './portability.js';
 
-describe('portability limits (D157, §3.1b, §3.3)', () => {
+describe('portability limits', () => {
   it('caps archives at 200,000 entries, 5 GB and 100 : 1 above 1 MiB', () => {
     expect(ZIP_LIMITS).toEqual({
       entries: 200_000,
@@ -43,7 +43,7 @@ describe('portability limits (D157, §3.1b, §3.3)', () => {
   });
 });
 
-describe('the passphrase (D68, Q7, spike P1)', () => {
+describe('the passphrase', () => {
   it('is at least 12 characters, derived with scrypt at 2^16', () => {
     expect(PASSPHRASE_MIN).toBe(12);
     expect(PASSPHRASE_KDF).toEqual({

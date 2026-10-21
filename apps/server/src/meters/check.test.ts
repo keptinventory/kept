@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { dailyLimit, decimalOut, METER_VALUE, milli, placeReading } from './check.js';
 
-// check.ts on its own (D26, D52, D112). The routes' tests (meters.test.ts) cover the
+// check.ts on its own. The routes' tests (meters.test.ts) cover the
 // same rules end to end.
 
 const day = (d: number, h = 12) => new Date(Date.UTC(2026, 8, d, h));
@@ -19,7 +19,7 @@ describe('placeReading', () => {
     expect(p.next).toBeNull();
   });
 
-  it('accepts a late reading that fits between its neighbours in time (D112)', () => {
+  it('accepts a late reading that fits between its neighbours in time', () => {
     const p = placeReading({ value: '1500', takenAt: day(5) }, series, [], km);
     expect(p).toMatchObject({ reason: null, previous: { id: 'a' }, next: { id: 'b' } });
   });
@@ -35,7 +35,7 @@ describe('placeReading', () => {
     expect(placeReading({ value: '2000', takenAt: day(11) }, series, [], km).reason).toBeNull();
   });
 
-  it('lets a replacement offset explain the drop (D52)', () => {
+  it('lets a replacement offset explain the drop', () => {
     const replaced = [{ at: day(11), offset: '2000' }];
     // The new unit reads 30 on day 12: 2,030 in the meter's own series.
     expect(placeReading({ value: '30', takenAt: day(12) }, series, replaced, km).reason).toBeNull();
@@ -74,7 +74,7 @@ describe('placeReading', () => {
 });
 
 describe('helpers', () => {
-  it('reads the §3.4 defaults by kind and unit', () => {
+  it('reads the defaults by kind and unit', () => {
     expect(dailyLimit({ kind: 'distance', unit: 'km', maxPerDay: null })).toBe(milli('1500'));
     expect(dailyLimit({ kind: 'distance', unit: 'MI', maxPerDay: null })).toBe(milli('932'));
     expect(dailyLimit({ kind: 'hours', unit: 'h', maxPerDay: null })).toBe(milli('24'));

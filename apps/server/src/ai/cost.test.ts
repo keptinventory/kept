@@ -42,8 +42,8 @@ describe('decimal helpers', () => {
   });
 });
 
-describe('costOf (§7.15)', () => {
-  it('reproduces the spike’s English receipt on Groq: ≈ USD 0.0039', () => {
+describe('costOf', () => {
+  it('prices the recorded English receipt on Groq: ≈ USD 0.0039', () => {
     const c = costOf({
       providerCost: null,
       price: groqQwen,

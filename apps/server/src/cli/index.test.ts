@@ -60,7 +60,7 @@ describe('kept CLI', () => {
     );
   });
 
-  // T31c: the commands' own behaviour is tested in backup/backup.test.ts; here, that they run as
+  // The commands' own behaviour is tested in backup/backup.test.ts; here, that they run as
   // commands with only the owner login and the target, and say plainly what is missing.
   describe('backup', () => {
     const owner = 'postgres://kept_owner:kept_owner@localhost:5452/kept';
@@ -77,7 +77,7 @@ describe('kept CLI', () => {
       });
     });
 
-    // The final check's question (step 8 T5/T7): with `verify`, `drill` and `unlock` beside it,
+    // The final check's question: with `verify`, `drill` and `unlock` beside it,
     // a bare `kept admin backup` still makes a backup, not the help. Here it gets as far as
     // restic (a binary that isn't there, so nothing is written but the run's failed row).
     it('bare, makes a backup: it says where to, then runs restic', async () => {

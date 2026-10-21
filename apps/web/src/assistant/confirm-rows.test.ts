@@ -21,7 +21,7 @@ const proposal = (args: Record<string, unknown>, refs: Proposal['refs']): Propos
 });
 
 describe('log_service rows', () => {
-  it('names each line that takes stock (D236): how much, 1 unless said, of what', () => {
+  it('names each line that takes stock: how much, 1 unless said, of what', () => {
     const [row] = rowsOf(
       proposal(
         {

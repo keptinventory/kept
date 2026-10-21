@@ -50,10 +50,10 @@ test('setup → create a home → invite by link → the invitee joins as a view
   await expect(heading(page, 'How should this Kept work?')).toBeVisible();
   await page.getByRole('button', { name: 'Finish setup' }).click();
   await expect(heading(page, `Welcome, ${OWNER.name}`)).toBeVisible();
-  // The Personal location exists from the start (D114).
+  // The Personal location exists from the start.
   await expect(visibleLink(page, /^Personal/)).toBeVisible();
 
-  // The new-location wizard (D194): name and kind → rooms → what to track.
+  // The new-location wizard: name and kind → rooms → what to track.
   await page.getByRole('link', { name: 'Create your first home' }).click();
   await expect(heading(page, 'New location')).toBeVisible();
   await page.getByLabel('Name', { exact: true }).fill(HOME);
@@ -97,7 +97,7 @@ test('setup → create a home → invite by link → the invitee joins as a view
     await invitee.getByRole('button', { name: 'Create account and join' }).click();
 
     // Signed in and joined: the page opens the home.
-    // D224: the location's address reads as its name, with its id's last 8 hex characters.
+    // The location's address reads as its name, with its id's last 8 hex characters.
     await expect(invitee).toHaveURL(/\/loc\/[^/?#]+-[0-9a-f]{8}$/);
     await expect(heading(invitee, HOME)).toBeVisible();
 

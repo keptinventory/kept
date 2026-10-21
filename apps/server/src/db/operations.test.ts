@@ -11,7 +11,7 @@ import { BACKUP_SETTINGS_KEY, rotateCiphertexts, SEALED_SETTINGS } from '../secr
 import { migrationsFolder } from './migrate.js';
 import { withScope, withSystem } from './scope.js';
 
-// Step-8 T4 (0090, 0091): backup runs and release history at instance scope, the alpha's backup
+// Migrations 0090, 0091: backup runs and release history at instance scope, the alpha's backup
 // status moved into rows, and the backup setting's sealed fields re-wrapped by rotate-key.
 
 const db = await testDb();
@@ -42,7 +42,7 @@ beforeEach(async () => {
   );
 });
 
-describe('backup runs (step 8 T4)', () => {
+describe('backup runs', () => {
   it('instance admins read them; nobody else, and nobody but kept_owner writes them', async () => {
     const read = (userId: string) =>
       as(userId, async (c) => (await c.query('SELECT 1 FROM public.backup_runs')).rowCount);
@@ -82,7 +82,7 @@ describe('backup runs (step 8 T4)', () => {
   });
 });
 
-describe('release history (plan Q9)', () => {
+describe('release history', () => {
   it("kept_system reads it and stamps last_booted_at only; kept_app's instance admins only read", async () => {
     await asSystem((c) =>
       c.query(`UPDATE public.release_history SET last_booted_at = now() WHERE version = '1.0.0'`),

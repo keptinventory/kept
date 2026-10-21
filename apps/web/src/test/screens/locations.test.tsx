@@ -13,7 +13,7 @@ import { paths } from '@/api/paths';
 import { findHeading, pathOf, renderApp } from '@/test/app';
 import { expectLogicalOnly } from '@/test/render';
 
-describe('new location wizard (D194)', () => {
+describe('new location wizard', () => {
   it('needs a name', async () => {
     const { user } = await renderApp('/locations/new');
     await findHeading('New location');
@@ -51,7 +51,7 @@ describe('new location wizard (D194)', () => {
       timezone: expect.any(String),
       currency: expect.stringMatching(/^[A-Z]{3}$/),
     });
-    // The new location is on Home, with its Invite card (D194).
+    // The new location is on Home, with its Invite card.
     expect(await screen.findByText('Invite people to Beach flat')).toBeInTheDocument();
   });
 
@@ -88,7 +88,7 @@ describe('the location page', () => {
     expect(screen.queryByRole('button', { name: 'Leave this location' })).not.toBeInTheDocument();
   });
 
-  it('Personal: no Members, no Leave (D114)', async () => {
+  it('Personal: no Members, no Leave', async () => {
     await renderApp(`/loc/${IDS.personal}`);
     await findHeading('Personal');
     expect(screen.queryByRole('link', { name: /Members and roles/ })).not.toBeInTheDocument();
@@ -96,7 +96,7 @@ describe('the location page', () => {
     expect(screen.getByText(/Personal is yours alone/)).toBeInTheDocument();
   });
 
-  it('a member can leave, after a confirm that says what stops working (D180)', async () => {
+  it('a member can leave, after a confirm that says what stops working', async () => {
     const state = memberScenario();
     state.members[IDS.home]?.members.forEach((m) => {
       m.isYou = m.displayName === 'Alfred';
@@ -124,7 +124,7 @@ describe('the location page', () => {
   });
 });
 
-describe('What to track (D191)', () => {
+describe('What to track', () => {
   const url = `/settings/location/${IDS.garage}/track`;
 
   it('shows the preset cards, and lists what a switch turns on and off', async () => {
@@ -147,7 +147,7 @@ describe('What to track (D191)', () => {
     expect(body.modules).not.toContain('ai_capture');
   });
 
-  it('lists Moving house with its switch (D251), and Complete turns it on', async () => {
+  it('lists Moving house with its switch, and Complete turns it on', async () => {
     const { user, mock } = await renderApp(url);
     await findHeading('What to track');
     expect(screen.getByRole('switch', { name: /Moving house/ })).toBeInTheDocument();
@@ -189,7 +189,7 @@ describe('What to track (D191)', () => {
   });
 });
 
-describe('accept invite (D190)', () => {
+describe('accept invite', () => {
   it('signed in: shows who, where and until when, then joins', async () => {
     const { user, mock, router } = await renderApp(`/invite#${INVITE_TOKEN}`);
     expect(await screen.findByText('Ibrahim invites you to')).toBeInTheDocument();

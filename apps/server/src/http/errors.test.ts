@@ -13,7 +13,7 @@ import {
   toErrorReply,
 } from './errors.js';
 
-// The error shape and the Postgres mapping (D81, D178).
+// The error shape and the Postgres mapping.
 
 const pg = (code: string, constraint?: string, message = 'boom') =>
   Object.assign(new Error(message), { code, severity: 'ERROR', constraint });
@@ -106,7 +106,7 @@ describe('toErrorReply()', () => {
     });
   });
 
-  it('gives the step-7 codes their sentences (T2)', () => {
+  it('gives the portability codes their sentences', () => {
     expect(toErrorReply(new AppError('archive_invalid', 400)).body.error).toBe(
       "Kept can't read this archive.",
     );
@@ -116,7 +116,7 @@ describe('toErrorReply()', () => {
     });
   });
 
-  it('gives the step-5 codes their sentences (T1)', () => {
+  it('gives the vehicle codes their sentences', () => {
     expect(toErrorReply(new AppError('reading_owned', 409)).body.error).toBe(
       'Change this reading from its fuel entry or service.',
     );
@@ -129,7 +129,7 @@ describe('toErrorReply()', () => {
     expect(toErrorReply(pg('23505', 'fuel_entries_reading_uq')).body.hint).toMatch(/fuel entry/);
   });
 
-  it('maps a collision on a primary key to exactly the body of a missing row (§7.7)', () => {
+  it('maps a collision on a primary key to exactly the body of a missing row', () => {
     expect(toErrorReply(wrapped(pg('23505', 'places_pkey')))).toEqual(toErrorReply(notFound()));
   });
 

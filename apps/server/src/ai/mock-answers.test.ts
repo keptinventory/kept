@@ -45,7 +45,7 @@ describe('the mock answers file', () => {
     );
   });
 
-  it('is T11’s fixtures by default, and nothing without the mock', () => {
+  it('is the eval fixtures by default, and nothing without the mock', () => {
     expect(
       MOCK_ANSWERS_PATH.endsWith(path.join('test', 'fixtures', 'eval', 'mock-answers.json')),
     ).toBe(true);

@@ -81,7 +81,7 @@ describe('the sync engine', () => {
     expect(engine.getStatus().problem).toBe('offline');
     expect(engine.getStatus().counts.waiting).toBe(1);
     expect(mock.calls).toEqual([]);
-    expect((await store.thing(id))?.shortCode).toBeNull(); // "ID pending" (D112)
+    expect((await store.thing(id))?.shortCode).toBeNull(); // "ID pending"
 
     online.mockReturnValue(true);
     await engine.run();
@@ -166,7 +166,7 @@ describe('the sync engine', () => {
     const photo = await localBlob(new Blob(['jpeg'], { type: 'image/jpeg' }), 'original');
     const item = capture({ name: 'Queued', files: [{ fileId: photo.id, role: 'photo' }] });
     await store.enqueue(item, [photo]);
-    // Held back (an older build's payload the server refused, D148), so it stays through the run.
+    // Held back (an older build's payload the server refused), so it stays through the run.
     const [queued] = await store.pending();
     await store.markUploaded(photo.id);
     await store.setState([queued?.seq ?? -1], 'blocked');
@@ -301,7 +301,7 @@ describe('the sync engine', () => {
     expect((await store.thing(id))?.name).toBe('Ladder');
   });
 
-  it('a move into a place trashed meanwhile is dropped with a visible notice (D35)', async () => {
+  it('a move into a place trashed meanwhile is dropped with a visible notice', async () => {
     const engine = engineFor();
     const office = mock.state.inventory.places.find((p) => p.id === OFFICE);
     if (!office) throw new Error('fixture');
@@ -337,7 +337,7 @@ describe('the sync engine', () => {
     expect(engine.getStatus().notices).toEqual([]);
   });
 
-  it('client_outdated blocks the batch and keeps the queue; an upgrade on the next start sends it (D148)', async () => {
+  it('client_outdated blocks the batch and keeps the queue; an upgrade on the next start sends it', async () => {
     const engine = engineFor();
     const old = capture({ name: 'Old capture' });
     const later = capture({ name: 'Later capture' });
@@ -412,7 +412,7 @@ describe('the sync engine', () => {
     expect(mock.state.inventory.files[original.id]).toMatchObject({ class: 'evidence' });
   });
 
-  it('uploading a blocked entry’s files keeps it blocked (D148: only a start or a retry unblocks)', async () => {
+  it('uploading a blocked entry’s files keeps it blocked (only a start or a retry unblocks)', async () => {
     const engine = engineFor();
     const photo = await localBlob(new Blob(['jpeg'], { type: 'image/jpeg' }), 'original');
     await engine.enqueue(capture({ files: [{ fileId: photo.id, role: 'photo' }] }), [photo]);
@@ -439,7 +439,7 @@ describe('the sync engine', () => {
     expect(await store.cursor()).toBe(before);
   });
 
-  it('a 401 drops the cache but keeps the unsent queue, locked; the same person resumes and it syncs (D210)', async () => {
+  it('a 401 drops the cache but keeps the unsent queue, locked; the same person resumes and it syncs', async () => {
     const onSignedOut = vi.fn();
     const engine = engineFor(store, { onSignedOut });
     await engine.run();

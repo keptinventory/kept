@@ -24,7 +24,7 @@ import {
 } from '../../test/things.js';
 import { AUDIT_EVENT_HEADER } from '../http/write.js';
 
-// T15: the inbox's bulk bar (D36, D150): one request, one undoable event, one undo.
+// The inbox's bulk bar: one request, one undoable event, one undo.
 
 let db: TestDb;
 let t: TestApp;

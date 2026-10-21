@@ -29,7 +29,7 @@ import { ResticCli } from '../restic/run.js';
 import { MARKER_FILE } from './cache.js';
 import { type ReadableTreeDeps, readableCopy, writeReadableTree } from './run.js';
 
-// Step 8, T6 (D159; Q10, Q11): every location's readable copy in the nightly snapshot, written as
+// Every location's readable copy in the nightly snapshot, written as
 // its owner sees it. Against a real database and file store; restic is the fake unless
 // KEPT_TEST_RESTIC=1 and a binary is there (KEPT_RESTIC_BIN, else `restic` on PATH).
 

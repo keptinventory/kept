@@ -12,7 +12,7 @@ import { JOB_POLICIES, queueOptions } from '../jobs/policies.js';
 import { bossQueue } from '../jobs/queue.js';
 import { capture } from './service.js';
 
-// D94: a capture's extraction job is sent on the capture's own transaction. A capture that rolls
+// A capture's extraction job is sent on the capture's own transaction. A capture that rolls
 // back leaves no job behind; one that commits leaves exactly one, in the capturer's scope.
 
 let db: TestDb;

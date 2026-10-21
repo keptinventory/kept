@@ -14,7 +14,7 @@ import {
 } from '../../test/tenancy.js';
 import { type Scope, withScope, withSystem } from './scope.js';
 
-// fail-closed row-level security (D178, D190).
+// fail-closed row-level security.
 // Everything here runs as kept_app (or kept_system) through withScope()/withSystem().
 
 const db = await testDb();
@@ -162,7 +162,7 @@ describe('location scope', () => {
     expect(await n(as(member), `UPDATE public.places SET name = 'Somewhere'`)).toBe(1);
   });
 
-  it('hides a require_2fa location until the session has passed a second factor (§7.14)', async () => {
+  it('hides a require_2fa location until the session has passed a second factor', async () => {
     const guarded = await seedTenant(db, 'g', { require2fa: true });
     const member = await seedUser(db, 'm');
     await addMember(db, guarded.locationId, member, 'member');
@@ -187,7 +187,7 @@ describe('location scope', () => {
     expect(ids(await q(as(later), 'SELECT id FROM public.locations'))).toEqual([a.locationId]);
   });
 
-  it('hides a location in its deletion grace period, even from its owner (D149)', async () => {
+  it('hides a location in its deletion grace period, even from its owner', async () => {
     await ownerTx(db, (c) =>
       c.query(
         `UPDATE public.locations SET deleted_at = now(), purge_after = now() + interval '30 days'
@@ -199,7 +199,7 @@ describe('location scope', () => {
     expect(await q(as(a.userId), 'SELECT id FROM public.places')).toEqual([]);
   });
 
-  it('lets an owner soft-delete a location through kept.delete_location(), and restore it (D149)', async () => {
+  it('lets an owner soft-delete a location through kept.delete_location(), and restore it', async () => {
     const [deleted0] = await q<{ purge_after: Date }>(
       as(a.userId),
       'SELECT kept.delete_location($1) AS purge_after',
@@ -246,7 +246,7 @@ describe('location scope', () => {
     expect(late.code).toBe('42501');
   });
 
-  it('keeps delete, restore, successor and require_2fa away from admins (review #4, D165)', async () => {
+  it('keeps delete, restore, successor and require_2fa away from admins (review #4)', async () => {
     const admin = await seedUser(db, 'admin');
     await addMember(db, a.locationId, admin, 'admin');
     // Straight UPDATEs of the owner-only columns: no column grant.
@@ -277,7 +277,7 @@ describe('location scope', () => {
     ).toBe('42501');
   });
 
-  it('lets the owner name a member as successor and require two-factor (D165, §7.14)', async () => {
+  it('lets the owner name a member as successor and require two-factor', async () => {
     const member = await seedUser(db, 'm');
     await addMember(db, a.locationId, member, 'member');
     await q(as(a.userId), 'SELECT kept.set_location_successor($1, $2)', [a.locationId, member]);
@@ -414,7 +414,7 @@ describe('location scope', () => {
   });
 });
 
-describe('creating an account: the ensureAccount() order (§7.14, task 18)', () => {
+describe('creating an account: the ensureAccount() order', () => {
   it('works in one kept_app transaction: account, location, owner membership, Unplaced, profile', async () => {
     const userId = await ownerTx(db, async (c) => {
       const id = newId();
@@ -528,7 +528,7 @@ describe('memberships', () => {
     const admin = await seedUser(db, 'admin');
     await addMember(db, a.locationId, admin, 'admin', new Date(Date.now() + 86_400_000));
     const newcomer = await seedUser(db, 'new');
-    // No later than the admin's own end (D180, 0010): an admin can't touch a membership that
+    // No later than the admin's own end (0010): an admin can't touch a membership that
     // outlasts theirs.
     await addMember(db, a.locationId, newcomer, 'member', new Date(Date.now() + 3_600_000));
     expect(
@@ -563,7 +563,7 @@ describe('memberships', () => {
     ).toBe(1);
   });
 
-  it('lets anyone but the owner leave: delete their own row, and nobody else’s (task 19)', async () => {
+  it('lets anyone but the owner leave: delete their own row, and nobody else’s', async () => {
     const viewer = await seedUser(db, 'viewer');
     const member = await seedUser(db, 'member');
     await addMember(db, a.locationId, viewer, 'viewer');
@@ -800,7 +800,7 @@ describe('user scope', () => {
   });
 });
 
-describe('instance scope (§7.14, D190)', () => {
+describe('instance scope', () => {
   it('lets an instance admin read and write instance_settings; others see 0 rows', async () => {
     const a = await seedTenant(db, 'a');
     const admin = await seedUser(db, 'root');
@@ -830,7 +830,7 @@ describe('instance scope (§7.14, D190)', () => {
     expect(await q(as(admin), 'SELECT user_id FROM public.instance_admins')).toEqual([
       { user_id: admin },
     ]);
-    // An instance admin is not a member: no location is visible (D33).
+    // An instance admin is not a member: no location is visible.
     expect(await q(as(admin), 'SELECT id FROM public.locations')).toEqual([]);
   });
 });
@@ -986,7 +986,7 @@ describe('audit_events', () => {
 });
 
 describe('kept_system', () => {
-  it('reads the tables its step-1 jobs need, across tenants, and nothing else', async () => {
+  it('reads the tables its membership jobs need, across tenants, and nothing else', async () => {
     await seedTenant(db, 'a');
     await seedTenant(db, 'b');
     const count = (table: string) =>
@@ -1053,7 +1053,7 @@ describe('security review of tasks 19–21 (migration 0010)', () => {
     await addMember(db, a.locationId, member, 'member', new Date(Date.now() + DAY));
   });
 
-  it("keeps admins and their rows the owner's alone (D48): no promoting, editing or removing", async () => {
+  it("keeps admins and their rows the owner's alone: no promoting, editing or removing", async () => {
     const other = await seedUser(db, 'other-admin');
     await addMember(db, a.locationId, other, 'admin', new Date(Date.now() + DAY));
     const promote = await pgError(
@@ -1088,7 +1088,7 @@ describe('security review of tasks 19–21 (migration 0010)', () => {
     );
   });
 
-  it("caps an admin's end dates at their own (D180)", async () => {
+  it("caps an admin's end dates at their own", async () => {
     const past = await pgError(
       n(as(admin), 'UPDATE public.memberships SET expires_at = $2 WHERE user_id = $1', [
         member,
@@ -1148,7 +1148,7 @@ describe('security review of tasks 19–21 (migration 0010)', () => {
     ).toBe(0);
   });
 
-  it('refuses a managed account creating a location (D47)', async () => {
+  it('refuses a managed account creating a location', async () => {
     const kid = await seedTenant(db, 'kid');
     await ownerTx(db, (c) =>
       c.query('UPDATE public.user_profiles SET managed = true WHERE user_id = $1', [kid.userId]),

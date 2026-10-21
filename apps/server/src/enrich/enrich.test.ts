@@ -19,7 +19,7 @@ import { aliasProblem, batchSize, enrichPrompt, parseAnswer, screenAliases } fro
 // real DB adapters (reservation, ledger, caps).
 
 describe('prompt.ts (pure)', () => {
-  it('numbers the names, sends no ids, and asks one alias in Arabic, two in English (D214)', () => {
+  it('numbers the names, sends no ids, and asks one alias in Arabic, two in English', () => {
     const p = enrichPrompt(
       [
         { name: 'Makita DHP485 drill', type: 'Power tool' },
@@ -304,7 +304,7 @@ describe('alias enrichment after an import', { timeout: 180_000 }, () => {
       [things],
     );
     const by = new Map(rows.map((r) => [r.id, r.aliases]));
-    // English auto-accepted (the URL dropped); Arabic never written to the thing (D214).
+    // English auto-accepted (the URL dropped); Arabic never written to the thing.
     expect(by.get(things[0] as string)).toEqual({ en: ['television'] });
     expect(by.get(things[1] as string)).toEqual({ en: ['washing machine'] });
     expect(by.get(things[2] as string)).toEqual({ en: ['drill'] });
@@ -435,7 +435,7 @@ describe('alias enrichment after an import', { timeout: 180_000 }, () => {
     }
   });
 
-  it('stops a chain a demoted admin started, at its next batch (D180)', async () => {
+  it('stops a chain a demoted admin started, at its next batch', async () => {
     const { runId } = await importedRun(['Iron']);
     const { jobId } = (await start(bruce, runId)).json() as { jobId: string };
     await own(

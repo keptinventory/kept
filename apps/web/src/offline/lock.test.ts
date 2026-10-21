@@ -45,7 +45,7 @@ describe('the PIN', () => {
     expect(await unlockWithPin(record, 'abcdef')).toBeNull();
   });
 
-  it('uses the spike’s count by default', () => {
+  it('uses the measured count by default', () => {
     expect(APP_LOCK.pbkdf2Iterations).toBe(2_850_000);
   });
 
@@ -117,7 +117,7 @@ describe('the passkey', () => {
     expect(await unsealJson(key as CryptoKey, 'extra:t', sealed)).toBe(1);
   });
 
-  it('with the secret only at assertion, asks once more during setup (L1 finding 2)', async () => {
+  it('with the secret only at assertion, asks once more during setup', async () => {
     const { get } = stubCredentials({ prf: 'get-only' });
     const { record, dataKey } = await createLock('482913', FAST);
     const withKey = await enrolPasskey(record, dataKey, 'Kept app lock');

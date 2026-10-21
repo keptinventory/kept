@@ -17,9 +17,9 @@ import { REMINDER_WORDS } from '../notify/words.js';
 import { runScan } from '../reminders/scan.js';
 
 // Step-7 T17 through the front door, as the web calls it (apps/web/src/api/portability/
-// {types,paths}.ts, components/consumables/*): "keep at least N" on a consumable (D14), low below
-// the minimum, the low-stock list, Adjust (D183), Home's attention row, the module gate
-// and undo (D150).
+// {types,paths}.ts, components/consumables/*): "keep at least N" on a consumable, low below
+// the minimum, the low-stock list, Adjust, Home's attention row, the module gate
+// and undo.
 
 vi.setConfig({ testTimeout: 60_000, hookTimeout: 120_000 });
 
@@ -202,7 +202,7 @@ describe('POST /api/v1/things/:id/adjust', () => {
   });
 });
 
-describe('the module gate (§7.6)', () => {
+describe('the module gate', () => {
   it('Consumables off: reads are 404 module_off, writes 409', async () => {
     const aa = await pack('Garage AA', 1, garage);
     const read = await call(t, ruleUrl(aa.id), { as: louis });

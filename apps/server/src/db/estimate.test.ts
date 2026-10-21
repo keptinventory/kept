@@ -14,8 +14,8 @@ import { ownerTx, seedTenant, type Tenant } from '../../test/tenancy.js';
 import { placeReading } from '../meters/check.js';
 import { withScope } from './scope.js';
 
-// Step 5, task 7 (0066): kept.meter_estimate() and kept.meter_eta(), the one implementation of the
-// usage estimate (D52, D188), against @kept/shared vehicles.ts's constants and
+// Migration 0066: kept.meter_estimate() and kept.meter_eta(), the one implementation of the
+// usage estimate, against @kept/shared vehicles.ts's constants and
 // meters/check.ts's offset correction.
 
 const db = await testDb();
@@ -89,7 +89,7 @@ beforeEach(async () => {
   meter = await meterOf(ibrahim);
 });
 
-describe('kept.meter_estimate() (Q8)', () => {
+describe('kept.meter_estimate()', () => {
   const now = '2026-09-30T10:00:00Z';
 
   it('answers "none" before the first reading, and nothing for a meter it can’t see', async () => {

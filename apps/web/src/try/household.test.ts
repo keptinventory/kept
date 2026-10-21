@@ -1,5 +1,5 @@
 /**
- * Try Kept (D246) walks the demo household's every link: each short code is one the server could
+ * Try Kept walks the demo household's every link: each short code is one the server could
  * issue (the scan resolver refuses any other, so a link to it opened "This isn't here any more"),
  * and what Insights names is in the inventory.
  */

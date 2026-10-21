@@ -1,5 +1,5 @@
 /**
- * The Schedules screen (D29): the boiler service in Home's
+ * The Schedules screen: the boiler service in Home's
  * kitchen, due in 10 days; Complete, Snooze and Skip once with Undo; a new schedule that needs an
  * interval; and the viewer, module-off, offline and Arabic variants.
  */
@@ -103,7 +103,7 @@ describe('the schedules list', () => {
     expect(saved?.completes.map((c) => c.scheduleId)).toEqual([H.schedule.boiler]);
   });
 
-  it('Log a service: a line from stock takes it off the shelf, never more than is left (D236)', async () => {
+  it('Log a service: a line from stock takes it off the shelf, never more than is left', async () => {
     const { user, mock } = await renderApp('/schedules');
     await user.click(
       within(await boilerRow()).getByRole('button', { name: 'Complete Boiler service' }),
@@ -167,7 +167,7 @@ describe('the variants', () => {
     expect(screen.queryByRole('button', { name: 'New schedule' })).toBeNull();
   });
 
-  it('a one-off that is done says when, with nothing to complete or snooze (D247)', async () => {
+  it('a one-off that is done says when, with nothing to complete or snooze', async () => {
     const state = ownerScenario();
     const [boiler] = state.household.schedules;
     const [last] = state.household.serviceRecords;

@@ -42,7 +42,7 @@ async function withAnswer(answer: MockAnswer, colour = '#336699') {
   return { img, answers: { [mockKey(img.bytes)]: answer } };
 }
 
-describe('callModel: outcomes (D206 table)', () => {
+describe('callModel: outcomes', () => {
   it('ok: a usable object, one sent ledger row with the tokens the model reported', async () => {
     const { img, answers } = await withAnswer({
       output: {

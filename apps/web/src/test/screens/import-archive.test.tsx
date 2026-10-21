@@ -1,5 +1,5 @@
 /**
- * The import stepper for archives (D146, D157): a Homebox export uploaded,
+ * The import stepper for archives: a Homebox export uploaded,
  * inspected, connected, targeted, chosen, checked and imported, with "See what was imported" and
  * the enrichment offer; a Kept export's passphrase and its new-location-only target; a 5 GB + 1
  * file refused before anything is sent; an upload that fails starts again cleanly; leaving

@@ -1,4 +1,4 @@
-// Every model call goes through ai/call.ts's callModel (step-3 ground rules; L41–L47, D206):
+// Every model call goes through ai/call.ts's callModel (step-3 ground rules; L41–L47):
 // reserve, pace, retries off, settle, one ledger row. This fails on any direct call of the SDK's
 // generation functions anywhere else under src/.
 import { readdirSync, readFileSync, statSync } from 'node:fs';
@@ -27,7 +27,7 @@ describe('no direct model calls', () => {
     expect(offenders).toEqual([]);
   });
 
-  // Step 6 (T8): one provider request per call. The stop condition is set once, to one step, and
+  // One provider request per call. The stop condition is set once, to one step, and
   // only call.ts builds SDK tools (a tool with `execute` elsewhere could start a loop Kept can't
   // see, pace or ledger).
   it('call.ts sets the stop condition exactly once, to one step', () => {

@@ -8,7 +8,7 @@ import { asOwner, userEmail } from '../../test/tenancy.js';
 import { ensureAccount } from '../accounts/ensure-account.js';
 import { AUTH_BASE_PATH, SESSION_DAYS_HTTPS, SESSION_HOURS_HTTP } from './auth.js';
 
-// Task 17: the auth-flow security suite, through the Fastify app the way a browser reaches it
+// The auth-flow security suite, through the Fastify app the way a browser reaches it
 // (app.inject), with Better Auth mounted at /api/v1/auth/* and Kept's session gate in front of
 // every /api/v1 route.
 
@@ -144,7 +144,7 @@ describe('the Better Auth mount', () => {
   });
 });
 
-describe('magic links (D176)', () => {
+describe('magic links', () => {
   it('mails a link to the web page with the token in the fragment; a GET never signs in or consumes it', async () => {
     const user = await newUser('ml');
     const sent = await auth('/sign-in/magic-link', { body: { email: user.email } });
@@ -174,7 +174,7 @@ describe('magic links (D176)', () => {
 
   it('says the session still needs a second factor when the user enrolled one', async () => {
     const user = await newUser('ml2fa');
-    await userEmail(db, user.userId, true); // verified: the link signs in, it doesn't claim (D197)
+    await userEmail(db, user.userId, true); // verified: the link signs in, it doesn't claim
     const cookie = await signIn(user.email);
     await enrolTotp(t.auth, { userId: user.userId, cookie }, PASSWORD);
     await auth('/sign-in/magic-link', { body: { email: user.email } });
@@ -252,7 +252,7 @@ describe('magic links (D176)', () => {
   });
 });
 
-describe('sessions (D181)', () => {
+describe('sessions', () => {
   it('over plain HTTP: no Secure flag, 12 hours, never renewed', async () => {
     const user = await newUser('http');
     const res = await auth('/sign-in/email', { body: { email: user.email, password: PASSWORD } });
@@ -347,7 +347,7 @@ describe('the session gate on Kept routes', () => {
     ).toBe(401);
 
     const user = await newUser('gate');
-    await userEmail(db, user.userId, true); // verified: the link signs in, it doesn't claim (D197)
+    await userEmail(db, user.userId, true); // verified: the link signs in, it doesn't claim
     const cookie = await signIn(user.email);
     const { secret } = await enrolTotp(t.auth, { userId: user.userId, cookie }, PASSWORD);
     // A password sign-in with two-factor on: challenge, then a verified session.
@@ -392,7 +392,7 @@ describe('the session gate on Kept routes', () => {
       },
     });
     const user = await newUser('probe', probe);
-    await userEmail(db, user.userId, true); // verified: the link signs in, it doesn't claim (D197)
+    await userEmail(db, user.userId, true); // verified: the link signs in, it doesn't claim
     const cookie = await signIn(user.email, { app: probe });
     await enrolTotp(probe.auth, { userId: user.userId, cookie }, PASSWORD);
     await auth('/sign-in/magic-link', { app: probe, body: { email: user.email } });
@@ -502,7 +502,7 @@ describe('devices: GET /api/v1/me/sessions, DELETE /api/v1/me/sessions/:id', () 
   });
 });
 
-describe('email change (D176): the old address confirms, then the new one verifies', () => {
+describe('email change: the old address confirms, then the new one verifies', () => {
   // catalogue: POST /api/v1/auth/email-change/confirm
   it('needs the password, mails the old address, then the new, then switches and signs out the rest', async () => {
     const user = await newUser('change');

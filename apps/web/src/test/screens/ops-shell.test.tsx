@@ -6,7 +6,7 @@ import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { findHeading, renderApp } from '../app';
 
-describe('the step-8 routes', () => {
+describe('the operations routes', () => {
   it('puts Backups in the instance admin’s tabs', async () => {
     await renderApp('/admin/status');
     expect(await screen.findByRole('link', { name: 'Backups' })).toHaveAttribute(

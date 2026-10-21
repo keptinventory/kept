@@ -1,5 +1,5 @@
 /**
- * Insights (1.x, D234): spending per year with this year apart, value per place, the vehicles'
+ * Insights (1.x): spending per year with this year apart, value per place, the vehicles'
  * monthly costs and a table per vehicle, warranty coverage; a viewer who can't see money gets
  * counts and is told which location's amounts are left out; the location chip narrows it, and a
  * location without Money says so.
@@ -68,7 +68,7 @@ describe('Insights', () => {
     expectLogicalOnly();
   });
 
-  it('gives a viewer counts, and says whose amounts are left out (D13)', async () => {
+  it('gives a viewer counts, and says whose amounts are left out', async () => {
     const state = ownerScenario();
     const home = state.locations.find((l) => l.id === IDS.home);
     if (home) home.role = 'viewer';
@@ -89,7 +89,7 @@ describe('Insights', () => {
   it('narrows to a location with the chip, and says when Money is off there', async () => {
     await renderApp(`/insights?f.location=${IDS.garage}`);
     expect(await screen.findByText('Money is off here')).toBeInTheDocument();
-    // The chip names the location picked (D174).
+    // The chip names the location picked.
     expect(screen.getAllByRole('button', { name: /Garage/ }).length).toBeGreaterThan(0);
   });
 

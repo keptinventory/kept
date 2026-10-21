@@ -27,8 +27,8 @@ import {
 } from '../../test/things.js';
 import { AUDIT_EVENT_HEADER } from '../http/write.js';
 
-// T15: the review inbox through the front door, in the web contract's shapes
-// (apps/web/src/api/capture/types.ts "inbox (T15)").
+// The review inbox through the front door, in the web contract's shapes
+// (apps/web/src/api/capture/types.ts "inbox").
 
 let db: TestDb;
 let t: TestApp;
@@ -749,7 +749,7 @@ describe('POST /api/v1/inbox/:id/reading', () => {
     )[0];
 
   // catalogue: POST /api/v1/inbox/:id/reading
-  it("keeps, edits and discards a reading through step 2's reading actions", async () => {
+  it('keeps, edits and discards a reading through the reading actions', async () => {
     const kept = await waiting('53900', 'ai_read', 20);
     const listed = (await page(ibrahim, `locationId=${home.id}&kind=reading`)).items.find(
       (i) => i.id === kept.item,

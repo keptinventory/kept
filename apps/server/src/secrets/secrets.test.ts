@@ -22,8 +22,8 @@ import { aadOf } from './service.js';
 
 // Task 19 through the front door, as the web calls it (apps/web/src/api/inventory/{types,
 // paths}.ts; mock/things.ts, mock/registries.ts): secret values sealed in their own store,
-// revealed per the field's policy (D13, D116, D177) for 30 s (D175) and audited, never in the
-// audit's values (D110), a row, the search index or a log line; the recovery-kit gate (D193).
+// revealed per the field's policy for 30 s and audited, never in the
+// audit's values, a row, the search index or a log line; the recovery-kit gate.
 
 let db: TestDb;
 let t: TestApp;
@@ -52,7 +52,7 @@ beforeAll(async () => {
     },
   });
   t = await peopleApp(db, {
-    // Reveal is https only (D181); the refusal over http is tested below.
+    // Reveal is https only; the refusal over http is tested below.
     publicUrl: 'https://kept.example',
     secretKeys: keys,
     logger: createLogger({ KEPT_LOG_LEVEL: 'trace', KEPT_LOG_FORMAT: 'json' }, sink),
@@ -219,7 +219,7 @@ describe('PUT /api/v1/things/:id/secrets/:fieldKey', () => {
     expect(ok(await reveal(ann, secretUrl(safe.id))).value).toBe('  spaced  ');
   });
 
-  it('is gated on the recovery kit (D193): 409 recovery_kit_required, "ask your instance admin"', async () => {
+  it('is gated on the recovery kit: 409 recovery_kit_required, "ask your instance admin"', async () => {
     const safe = await newSafe('Kit safe');
     await own(
       db,
@@ -386,7 +386,7 @@ describe('DELETE /api/v1/things/:id/secrets/:fieldKey', () => {
   });
 });
 
-describe('secret-field policies (owner only, D177)', () => {
+describe('secret-field policies (owner only)', () => {
   const policyUrl = (loc: Loc = home, field = comboField) =>
     `/api/v1/locations/${loc.id}/secret-policies/${field}`;
 
@@ -417,7 +417,7 @@ describe('secret-field policies (owner only, D177)', () => {
       method: 'PUT',
       body: { revealRoles: ['member'], revealUserIds: [vic.userId], aiAllowed: false },
     });
-    // Owners and admins always stay on it (D13: a policy only widens the default).
+    // Owners and admins always stay on it (a policy only widens the default).
     expect(ok(res)).toEqual({
       revealRoles: ['owner', 'admin', 'member'],
       revealUserIds: [vic.userId],
@@ -525,7 +525,7 @@ describe('secret values on a place (a place kind with a secret field)', () => {
   });
 });
 
-describe('where a value never goes (D110, D116)', () => {
+describe('where a value never goes', () => {
   it('is in no audit row, thing row, search index, idempotency row or log line', async () => {
     const value = `leak-canary-${randomBytes(6).toString('hex')}`;
     const safe = await newSafe('Hall safe');
@@ -560,7 +560,7 @@ describe('where a value never goes (D110, D116)', () => {
   });
 });
 
-describe('over plain http (D181, step-8 T24)', () => {
+describe('over plain http', () => {
   it('refuses a reveal: 403 https_required, the value not in the answer', async () => {
     const overHttp = await peopleApp(db, { secretKeys: keys });
     try {

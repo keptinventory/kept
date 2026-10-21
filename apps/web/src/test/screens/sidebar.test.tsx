@@ -1,5 +1,5 @@
 /**
- * The collapsible sidebar (D198): the foot button and ⌘\ / Ctrl+\ fold it to an icon rail, the
+ * The collapsible sidebar: the foot button and ⌘\ / Ctrl+\ fold it to an icon rail, the
  * choice is kept per device, tablets start on the rail, every rail entry keeps its name and shows
  * it in a tooltip, and counts become badges.
  */
@@ -220,7 +220,7 @@ describe('the rail', () => {
     expect(vehicles).not.toHaveAttribute('aria-disabled');
     await waitFor(() => expect(screen.getByRole('tooltip')).toHaveTextContent(/^Vehicles$/));
 
-    // Insights is a page since 1.x (D234), after Schedules, Lending, Paperwork and Consumables: a
+    // Insights is a page since 1.x, after Schedules, Lending, Paperwork and Consumables: a
     // plain link with its name in the tooltip.
     for (let i = 0; i < 5; i++) await user.tab();
     const insights = within(mainNav()).getByRole('link', { name: 'Insights' });
@@ -229,7 +229,7 @@ describe('the rail', () => {
     await waitFor(() => expect(screen.getByRole('tooltip')).toHaveTextContent(/^Insights$/));
   });
 
-  it('the source code link stays, as an icon with the version in its tooltip (D147)', async () => {
+  it('the source code link stays, as an icon with the version in its tooltip', async () => {
     media(TABLET);
     const { user } = await renderApp('/');
     await findHeading('Home');
@@ -256,7 +256,7 @@ describe('the rail', () => {
   });
 });
 
-describe('with the assistant docked (1280 px and up, D216)', () => {
+describe('with the assistant docked (1280 px and up)', () => {
   const panel = () => screen.findByRole('complementary', { name: 'Assistant' }, { timeout: 4000 });
   const sidebar = () => document.getElementById('kept-sidebar') as HTMLElement;
 
@@ -281,7 +281,7 @@ describe('with the assistant docked (1280 px and up, D216)', () => {
     );
     expect(sidebar()).not.toHaveClass('w-16');
     // The assistant stays open, floating over the page's end as it does below 1280 px. Nothing
-    // is stored: D216 leaves the person's own choice alone.
+    // is stored: the person's own choice is left alone.
     expect(await panel()).toHaveClass('xl:fixed');
     expect(stored()).toBeNull();
 

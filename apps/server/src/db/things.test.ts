@@ -15,7 +15,7 @@ import {
 import { diffRows } from '../audit/audited.js';
 import { type Scope, withScope } from './scope.js';
 
-// Things, short IDs, links, tag rows, and the places extension (D10, D42, D45, D76, D120, D177, D183).
+// Things, short IDs, links, tag rows, and the places extension.
 // As kept_app unless
 // noted.
 
@@ -117,7 +117,7 @@ describe('things: where a thing is', () => {
     await thing(a, { containerId: box });
   });
 
-  it('refuses a container loop (D45)', async () => {
+  it('refuses a container loop', async () => {
     const outer = await thing(a, { name: 'Outer' });
     const inner = await thing(a, { name: 'Inner', containerId: outer });
     const err = await pgError(
@@ -152,7 +152,7 @@ describe('things: where a thing is', () => {
   });
 });
 
-describe("things: registries of the location's own account (§7.13, D178)", () => {
+describe("things: registries of the location's own account", () => {
   let a: Tenant;
   let b: Tenant;
   beforeEach(async () => {
@@ -216,7 +216,7 @@ describe("things: registries of the location's own account (§7.13, D178)", () =
   });
 });
 
-describe('things: quantity (D10, §7.13, Q11)', () => {
+describe('things: quantity', () => {
   let a: Tenant;
   beforeEach(async () => {
     a = await seedTenant(db, 'a');
@@ -242,7 +242,7 @@ describe('things: quantity (D10, §7.13, Q11)', () => {
   });
 });
 
-describe('things: search document and caches (§7.9, D42, Q1)', () => {
+describe('things: search document and caches', () => {
   let a: Tenant;
   beforeEach(async () => {
     a = await seedTenant(db, 'a');
@@ -348,7 +348,7 @@ describe('things: search document and caches (§7.9, D42, Q1)', () => {
     expect(err.code).toBe('42501');
   });
 
-  it('never audits the cache columns; ended_price is money (§7.5)', () => {
+  it('never audits the cache columns; ended_price is money', () => {
     const diff = diffRows(
       'thing',
       { name: 'a', place_path: 'x', searchTsv: "'a':1", endedPrice: null },
@@ -359,7 +359,7 @@ describe('things: search document and caches (§7.9, D42, Q1)', () => {
   });
 });
 
-describe('short IDs (D45, D120, §7.13)', () => {
+describe('short IDs', () => {
   let a: Tenant;
   beforeEach(async () => {
     a = await seedTenant(db, 'a');
@@ -419,7 +419,7 @@ describe('short IDs (D45, D120, §7.13)', () => {
     });
   });
 
-  it('survive their location being purged, as retired codes (Q12: NO ACTION lets the cascade run)', async () => {
+  it('survive their location being purged, as retired codes (NO ACTION lets the cascade run)', async () => {
     const loc = await ownerTx(db, (c) => insertLocation(c, a));
     const t: Tenant = { ...a, ...loc };
     const room = newId();
@@ -490,7 +490,7 @@ describe('links and places', () => {
   });
 });
 
-describe('person contacts after task 6 (D177, Q5)', () => {
+describe('person contacts', () => {
   it('hide contacts from an admin who does not administer every location using the person', async () => {
     const b = await seedTenant(db, 'b');
     const second = await ownerTx(db, (c) => insertLocation(c, b, { name: 'Flat' }));

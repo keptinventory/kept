@@ -283,7 +283,7 @@ describe('release.sh refuses', { timeout: 30_000 }, () => {
   });
 });
 
-describe("the chart stage (release/chart.sh, plan Q17: the chart's version is the release's)", () => {
+describe("the chart stage (release/chart.sh: the chart's version is the release's)", () => {
   let dir;
   const repoRoot = path.dirname(scripts);
   const digest = `sha256:${'a'.repeat(64)}`;

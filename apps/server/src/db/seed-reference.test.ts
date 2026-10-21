@@ -4,7 +4,7 @@ import { testDb } from '../../test/db.js';
 import { asOwner } from '../../test/tenancy.js';
 import { seedReference } from './seed-reference.js';
 
-// Task 4: the reference seed `kept migrate` runs (D136, D168). The template database was
+// The reference seed `kept migrate` runs. The template database was
 // migrated (and so seeded) once; these tests re-run the seed as kept_owner.
 
 const db = await testDb();
@@ -19,7 +19,7 @@ const snapshot = () =>
   });
 
 describe('currencies', () => {
-  it('holds every ISO currency, with only the five defaults enabled (D136)', async () => {
+  it('holds every ISO currency, with only the five defaults enabled', async () => {
     const rows = await snapshot();
     expect(rows.map((r) => r.code)).toEqual(ISO_CURRENCIES.map((c) => c.code).sort());
     expect(rows.filter((r) => r.enabled).map((r) => [r.code, r.minor_units])).toEqual([

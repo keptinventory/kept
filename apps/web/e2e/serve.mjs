@@ -12,7 +12,7 @@
 //    NODE_ENV=production, serving apps/web/dist) on <port>. `node dist/main.js` always listens
 //    on 8080; startKept's `port` option is what lets three instances run side by side.
 //    The setup code line goes to <state>/server.log, where the tests read it.
-//    With --ai-mock (step 3), KEPT_AI_MOCK=1 answers every AI call from the mock provider, and
+//    With --ai-mock, KEPT_AI_MOCK=1 answers every AI call from the mock provider, and
 //    the server runs with NODE_ENV=development, because a production boot refuses the mock.
 //    The mock answers by the hash of the image it is sent, so e2e/fixtures/mock-answers.json
 //    (keyed by fixture file) is re-keyed here to the hash of each fixture as the server sends it:
@@ -20,7 +20,7 @@
 //    <state>/mock-answers.json, is startKept's `aiMockAnswersFile`; any other image gets the
 //    mock's per-mode default.
 //    With --https (steps 6–8: token creation, an export with secrets and backup settings are
-//    refused over plain http, D181), the public URL is https://localhost:<port>: a TLS proxy in
+//    refused over plain http), the public URL is https://localhost:<port>: a TLS proxy in
 //    this process listens on <port> with a self-signed certificate made by `openssl` for the run
 //    (the browser context takes ignoreHTTPSErrors) and forwards to the server on <port> + 1000.
 //    With --owner (step 8: Admin → Backups' Run now), the server also gets the owner login

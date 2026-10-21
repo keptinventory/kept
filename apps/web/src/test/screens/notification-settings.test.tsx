@@ -1,7 +1,7 @@
 /**
- * Me → Notifications (D29, D30, D139, D142, D193): the
+ * Me → Notifications: the
  * channels (email, this device's push asked for only on Enable, the iPhone rule, "Push needs
- * HTTPS", other devices, webhooks with their secret shown once), what reaches you (D239: one
+ * HTTPS", other devices, webhooks with their secret shown once), what reaches you (one
  * table, all locations or one, inherited cells and Reset, paused kinds, a viewer's Membership
  * only, the AI monthly summary in it), the digest and quiet hours and the calendar feed. Every
  * browser push API is a stub: nothing asks a real browser.
@@ -68,7 +68,7 @@ describe('channels', () => {
     expect(screen.queryByRole('button', { name: 'Send a test email' })).toBeNull();
   });
 
-  it('asks for the notification permission only when Enable is tapped (D139)', async () => {
+  it('asks for the notification permission only when Enable is tapped', async () => {
     const { requestPermission, pushManager } = stubPushBrowser();
     const { user, mock } = await renderApp(PATH);
     await channels();
@@ -133,7 +133,7 @@ describe('channels', () => {
     ).toBeInTheDocument();
   });
 
-  it('over plain HTTP: Push needs HTTPS (D193)', async () => {
+  it('over plain HTTP: Push needs HTTPS', async () => {
     Object.defineProperty(window, 'isSecureContext', { configurable: true, value: false });
     try {
       await renderApp(PATH);
@@ -167,7 +167,7 @@ describe('channels', () => {
     ).toBeInTheDocument();
   });
 
-  it('adds an ntfy channel: settings sent once, never shown, and its column (D227)', async () => {
+  it('adds an ntfy channel: settings sent once, never shown, and its column', async () => {
     const { user, mock } = await renderApp(PATH);
     await channels();
     await user.click(await screen.findByRole('button', { name: 'Add ntfy' }));
@@ -207,7 +207,7 @@ describe('channels', () => {
     expect(screen.getByText('api.telegram.org')).toBeInTheDocument();
   });
 
-  it('adds an Apprise channel when the server has Apprise, and hides it when not (D232)', async () => {
+  it('adds an Apprise channel when the server has Apprise, and hides it when not', async () => {
     const { user, mock } = await renderApp(PATH);
     await channels();
     await user.click(await screen.findByRole('button', { name: 'Add Apprise' }));
@@ -274,7 +274,7 @@ async function pick(user: ReturnType<typeof userEvent.setup>, name: string) {
   await user.click(await screen.findByRole('option', { name }));
 }
 
-describe('what reaches you (D239)', () => {
+describe('what reaches you', () => {
   it('All locations: a switch stores one choice with no location', async () => {
     const { user, mock } = await renderApp(PATH);
     await channels();
@@ -326,7 +326,7 @@ describe('what reaches you (D239)', () => {
     ).not.toBeChecked();
   });
 
-  it('a kind whose module is off there is paused, not hidden (D113)', async () => {
+  it('a kind whose module is off there is paused, not hidden', async () => {
     const { user } = await renderApp(PATH);
     await channels();
     await screen.findByRole('switch', { name: 'Warranties running out by Email in all locations' });
@@ -341,7 +341,7 @@ describe('what reaches you (D239)', () => {
     expect(screen.getByRole('switch', { name: 'Overdue loans by Email in Garage' })).toBeChecked();
   });
 
-  it("a viewer's location offers only Membership (Q8)", async () => {
+  it("a viewer's location offers only Membership", async () => {
     const state = ownerScenario();
     const garage = state.locations.find((l) => l.id === IDS.garage);
     if (garage) garage.role = 'viewer';
@@ -356,7 +356,7 @@ describe('what reaches you (D239)', () => {
     expect(screen.queryByRole('switch', { name: /^Overdue loans by .* in Garage/ })).toBeNull();
   });
 
-  it('In Kept off silences the kind: its other switches wait (Q10)', async () => {
+  it('In Kept off silences the kind: its other switches wait', async () => {
     const { user } = await renderApp(PATH);
     await channels();
     const inapp = await screen.findByRole('switch', {
@@ -449,7 +449,7 @@ describe('digest, quiet hours, the calendar feed and the AI summary', () => {
     expect(await screen.findByText('Revoked')).toBeInTheDocument();
   });
 
-  it('the AI monthly summary is an account-level switch in the table (Q35)', async () => {
+  it('the AI monthly summary is an account-level switch in the table', async () => {
     const { user, mock } = await renderApp(PATH);
     await channels();
     const summary = await screen.findByRole('switch', {

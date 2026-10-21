@@ -14,8 +14,7 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step 5, task 6 (0064, 0065): fuel entries, document costs and the vehicle report's thing
-// (D28, D170, D201).
+// Migrations 0064, 0065: fuel entries, document costs and the vehicle report's thing.
 
 const db = await testDb();
 
@@ -116,7 +115,7 @@ const fill = (userId: string, f: Fill = {}) =>
   });
 
 describe('fuel_entries', () => {
-  it('holds amounts, units and money as §7.13 says', async () => {
+  it('holds amounts, units and money to their shapes', async () => {
     expect(await pgError(fill(alfred, { currency: null }))).toMatchObject({
       code: '23514',
       constraint: 'fuel_entries_money_chk',
@@ -199,7 +198,7 @@ describe('fuel_entries', () => {
     expect(await pgError(reading(alfred, 1, vanMeter, louis))).toMatchObject({ code: '42501' });
   });
 
-  it('owns its reading alone (Q11), and loses it when the reading goes', async () => {
+  it('owns its reading alone, and loses it when the reading goes', async () => {
     const r = await reading(alfred, 52340);
     const f = await fill(alfred, { reading: r });
     expect(await pgError(fill(alfred, { reading: r }))).toMatchObject({
@@ -212,7 +211,7 @@ describe('fuel_entries', () => {
     ).toEqual([{ meter_reading_id: null }]);
   });
 
-  it('comes back from undo with its logger (Q14, D150)', async () => {
+  it('comes back from undo with its logger', async () => {
     const f = await fill(alfred, { vendor: station });
     const row = (await own<Record<string, unknown>>('SELECT * FROM public.fuel_entries')).at(0);
     await as(bruce, (c) => c.query('DELETE FROM public.fuel_entries WHERE id = $1', [f]));
@@ -347,7 +346,7 @@ describe('moves and merges', () => {
   });
 });
 
-describe('document costs (Q5)', () => {
+describe('document costs', () => {
   it('carries an issue date and a cost, null together with its currency', async () => {
     const doc = await as(alfred, async (c) => {
       const id = newId();
@@ -379,7 +378,7 @@ describe('document costs (Q5)', () => {
   });
 });
 
-describe('the vehicle report’s thing (Q17)', () => {
+describe('the vehicle report’s thing', () => {
   const run = (userId: string, t: Tenant, kind: string, thing: string | null) =>
     as(userId, (c) =>
       c.query(

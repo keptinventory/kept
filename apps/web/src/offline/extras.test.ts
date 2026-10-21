@@ -1,5 +1,5 @@
 /**
- * Keep a location available offline, on one fake phone (D159, D181, D210):
+ * Keep a location available offline, on one fake phone:
  * what is kept is ciphertext at rest, never goes through the Cache API, respects the per-file and
  * per-device caps, refreshes without fetching an unchanged document again, and goes on a 401
  * (with the unsent queue kept), on a revoked location, and when the toggle goes off.
@@ -101,7 +101,7 @@ let huge: Awaited<ReturnType<typeof doc>>;
 let fake: Fake;
 let items: Record<string, SyncExtra[]>;
 
-/** A fake Cache API that records every use (D181: nothing kept may go there). */
+/** A fake Cache API that records every use (nothing kept may go there). */
 const cacheUse: string[] = [];
 const caches = {
   open: vi.fn(async (name: string) => {
@@ -177,7 +177,7 @@ describe('keeping a location', () => {
     expect((await tooLargeOf(store.db, key, HOME)).map((d) => d.title)).toEqual([
       'TV service manual',
     ]);
-    // A receipt is fetched with its thing, for one that stayed behind after a move (D115).
+    // A receipt is fetched with its thing, for one that stayed behind after a move.
     expect(fake.fetched).toContain(`/f/${receipt.d.fileId}?thing=${TV}`);
   });
 
@@ -267,7 +267,7 @@ describe('what removes it', () => {
     expect(await store.db.keptOffline.count()).toBe(0);
   });
 
-  it('a 401: the extras go, the unsent queue and the lock stay (D181, D210)', async () => {
+  it('a 401: the extras go, the unsent queue and the lock stay', async () => {
     await keepLocation(store.db, key, HOME, fake.api);
     const { record } = await createLock('482913', 1000);
     await store.db.lock.put({ key: 'device', record });

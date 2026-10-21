@@ -1,5 +1,5 @@
 /**
- * Drive the filter strip (D205) from a screen test. jsdom has no media queries, so the strip is
+ * Drive the filter strip from a screen test. jsdom has no media queries, so the strip is
  * in its phone layout: "Filters" opens the bottom sheet with the list's fields.
  */
 import { screen, within } from '@testing-library/react';

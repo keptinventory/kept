@@ -1,6 +1,7 @@
 /**
- * D210 on one phone (one fake IndexedDB shared by two people): a 401 clears the cache and keeps
- * the person's own unsent queue; another person's sign-in finds it, counts it, and discards it.
+ * Two people on one phone (one fake IndexedDB shared by two people): a 401 clears the cache and
+ * keeps the person's own unsent queue; another person's sign-in finds it, counts it, and discards
+ * it.
  */
 import { newId, type QueueItem } from '@kept/shared';
 import { describe, expect, it } from 'vitest';
@@ -76,7 +77,7 @@ async function filled(store: DexieStore) {
   return { kept };
 }
 
-describe('a 401 and the next sign-in (D210)', () => {
+describe('a 401 and the next sign-in', () => {
   it('a 401 on a store this tab never opened clears the cache and keeps the unsent queue', async () => {
     const idb = fakeIdb();
     const a = newId();

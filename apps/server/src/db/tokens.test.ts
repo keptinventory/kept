@@ -14,8 +14,8 @@ import {
 import { expireMemberships } from '../locations/membership-jobs.js';
 import { type Scope, withScope, withSystem } from './scope.js';
 
-// Step-6 T4 (0069, 0070): tokens as RLS principals, OAuth grants, the rate windows, and tokens
-// dying with their creator's access (D63, D180, D190).
+// Migrations 0069, 0070: tokens as RLS principals, OAuth grants, the rate windows, and tokens
+// dying with their creator's access.
 // Bruce is an admin of Ibrahim's Home and a member of his Garage.
 
 const db = await testDb();
@@ -139,7 +139,7 @@ beforeEach(async () => {
   );
 });
 
-describe('the token principal (Q6, D180)', () => {
+describe('the token principal', () => {
   it('reads only its locations, and writes nothing with a read token, though Bruce can', async () => {
     const read = await token(bruce, 'read', [ibrahim.locationId]);
     expect(await thingsIn(viaToken(bruce, read), ibrahim.locationId)).toBe(1);
@@ -204,7 +204,7 @@ describe('the token principal (Q6, D180)', () => {
     expect(await thingsIn(viaToken(bruce, strong, true), vault.locationId)).toBe(0);
   });
 
-  it('is never an instance admin (D180)', async () => {
+  it('is never an instance admin', async () => {
     await own('INSERT INTO public.instance_admins (user_id) VALUES ($1)', [bruce]);
     const write = await token(bruce, 'write', [ibrahim.locationId]);
     const [plain, viaTok] = await Promise.all([
@@ -217,7 +217,7 @@ describe('the token principal (Q6, D180)', () => {
     expect([plain?.v, viaTok?.v]).toEqual([true, false]);
   });
 
-  it('plans the thing list the same way with a token as without (§7.2)', async () => {
+  it('plans the thing list the same way with a token as without', async () => {
     const read = await token(bruce, 'read', [ibrahim.locationId]);
     const plan = (scope: Scope) =>
       as(scope, async (c) =>
@@ -254,7 +254,7 @@ describe('api_tokens and token_locations under RLS', () => {
     expect(seen).toEqual({ tokens: 0, locations: 0 });
   });
 
-  it('keeps a token from another member of the same location, even its admin (D63)', async () => {
+  it('keeps a token from another member of the same location, even its admin', async () => {
     await token(louis, 'read', [ibrahim.locationId]);
     const n = await as(
       user(bruce),
@@ -315,7 +315,7 @@ describe('api_tokens and token_locations under RLS', () => {
   });
 });
 
-describe('tokens die with access (D180)', () => {
+describe('tokens die with access', () => {
   it('revokes the only-Home tokens and drops Home from the others when Bruce leaves Home', async () => {
     const only = await token(bruce, 'read', [ibrahim.locationId]);
     const both = await token(bruce, 'write', [ibrahim.locationId, garage.locationId]);
@@ -356,7 +356,7 @@ describe('tokens die with access (D180)', () => {
     expect(await tokenRow(taliaToken)).toMatchObject({ revoked_reason: 'membership_ended' });
   });
 
-  it("takes Home from Louis's write tokens, not his read ones, when he becomes a viewer (Q6)", async () => {
+  it("takes Home from Louis's write tokens, not his read ones, when he becomes a viewer", async () => {
     const write = await token(louis, 'write', [ibrahim.locationId]);
     const read = await token(louis, 'read', [ibrahim.locationId]);
     await as(user(ibrahim.userId), (c) =>
@@ -399,7 +399,7 @@ describe('tokens die with access (D180)', () => {
   });
 });
 
-describe('the audit actor (step-1 carry-over)', () => {
+describe('the audit actor', () => {
   const event = (scope: Scope, actorType: 'user' | 'token', actorId: string) =>
     as(scope, (c) =>
       c.query(
@@ -497,7 +497,7 @@ describe('the doors', () => {
     expect(await thingsIn(viaToken(bruce, first as string, true), garage.locationId)).toBe(1);
   });
 
-  it('kept.token_verify() and token_oauth_for(): nothing while the user is disabled, back once enabled (D210)', async () => {
+  it('kept.token_verify() and token_oauth_for(): nothing while the user is disabled, back once enabled', async () => {
     const h = hash();
     const l = lookup();
     const id = await token(bruce, 'write', [ibrahim.locationId], { hash: h, lookup: l });
@@ -532,7 +532,7 @@ describe('the doors', () => {
     expect(await oauth()).toEqual([{ token_id: grant }]);
   });
 
-  it('kept.token_verify() and token_oauth_for(): nothing while the account waits to be deleted, back once kept (D225)', async () => {
+  it('kept.token_verify() and token_oauth_for(): nothing while the account waits to be deleted, back once kept', async () => {
     const h = hash();
     const l = lookup();
     const id = await token(bruce, 'write', [ibrahim.locationId], { hash: h, lookup: l });
@@ -568,7 +568,7 @@ describe('the doors', () => {
     expect(await oauth()).toEqual([{ token_id: grant }]);
   });
 
-  it('kept.revoke_user_tokens(): the system ends every live token of a claimed account (D197)', async () => {
+  it('kept.revoke_user_tokens(): the system ends every live token of a claimed account', async () => {
     const a = await token(bruce, 'write', [ibrahim.locationId]);
     const b = await token(bruce, 'read', [garage.locationId]);
     const louisToken = await token(louis, 'read', [ibrahim.locationId]);

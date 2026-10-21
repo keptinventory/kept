@@ -36,7 +36,7 @@ describe('the inventory mock', () => {
     expect(cable?.shortCode).toBe('7KQ4MZ');
   });
 
-  it('search folds Arabic: ال, harakat and ة↔ه (D42)', async () => {
+  it('search folds Arabic: ال, harakat and ة↔ه', async () => {
     const names = async (q: string) => (await api.search({ q })).things.items.map((t) => t.name);
     expect(await names('الكابل')).toContain('كابل HDMI');
     expect(await names('hdmi')).toEqual(expect.arrayContaining(['HDMI cable, 2 m', 'كابل HDMI']));
@@ -53,12 +53,12 @@ describe('the inventory mock', () => {
     expect(res.things.items).toEqual([]);
   });
 
-  it('a short code finds its thing; an unknown one is a plain 404 (D137)', async () => {
+  it('a short code finds its thing; an unknown one is a plain 404', async () => {
     expect(await api.code('7kq4mz')).toEqual({ kind: 'thing', id: INV_IDS.thing.hdmiCable });
     expect((await fail(api.code('ZZZZZZ'))).status).toBe(404);
   });
 
-  it('trashing a container with contents needs a choice (D45)', async () => {
+  it('trashing a container with contents needs a choice', async () => {
     const e = await fail(api.trashThing(INV_IDS.thing.box3));
     expect(e.status).toBe(409);
     expect((e.details as ContentsChoiceDetails).counts.things).toBe(2);
@@ -70,7 +70,7 @@ describe('the inventory mock', () => {
     expect((await api.thing(INV_IDS.thing.scarves)).name).toBe('Winter scarves');
   });
 
-  it('a stale If-Match is a 412 with the conflicting fields and who changed it (D156)', async () => {
+  it('a stale If-Match is a 412 with the conflicting fields and who changed it', async () => {
     const thing = await api.thing(INV_IDS.thing.tv);
     await api.updateThing(thing.id, { model: 'A' }, thing.rowVersion);
     const e = await fail(api.updateThing(thing.id, { model: 'B' }, thing.rowVersion));
@@ -92,7 +92,7 @@ describe('the inventory mock', () => {
 
   it('Home counts the attention rows from the data', async () => {
     const home = await api.home();
-    // Step 3 (T22): "to review" is the one reading plus the inbox's open items.
+    // "to review" is the one reading plus the inbox's open items.
     expect(home.counts.inbox).toBeGreaterThan(0);
     expect(home.attention).toMatchObject({
       toReview: 1 + home.counts.inbox,

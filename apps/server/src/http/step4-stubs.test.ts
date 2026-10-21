@@ -9,7 +9,7 @@ import { testDb } from '../../test/db.js';
 
 const db = await testDb();
 
-describe('the step-4 public token routes (T2)', () => {
+describe('the public token routes', () => {
   let t: TestApp;
   beforeAll(async () => {
     t = await testApp(db);

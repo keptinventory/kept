@@ -135,7 +135,7 @@ describe('the keyring from the environment', () => {
 });
 
 describe('the keyring in secrets.json', () => {
-  it('reads a step-1 file (no version) as version 1', async () => {
+  it('reads a first-format file (no version) as version 1', async () => {
     const dir = await configDir();
     const first = await loadEnv(validEnv, { configDir: dir });
     const ring = loadKeyring(first);

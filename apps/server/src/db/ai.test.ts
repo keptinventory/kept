@@ -13,7 +13,7 @@ import {
 } from '../../test/tenancy.js';
 import { withScope, withSystem } from './scope.js';
 
-// AI providers, caps, pacing doors and the partitioned call ledger (D121, D167, D206).
+// AI providers, caps, pacing doors and the partitioned call ledger.
 // Ibrahim owns an account with a Personal location
 // and a shared home; Alfred is a member there, Bruce a viewer, Louis an admin. Talia is another
 // household; Peter is an instance admin.
@@ -196,7 +196,7 @@ const providerFor = (userId: string, location: string | null) =>
     return rows[0];
   });
 
-describe('resolution (plan Q5, D121)', () => {
+describe('resolution', () => {
   beforeAll(household);
 
   it('a Personal location takes its owner’s key; a shared one the account’s', async () => {
@@ -280,7 +280,7 @@ describe('resolution (plan Q5, D121)', () => {
   });
 });
 
-describe('the gate: reserve and settle (§7.15)', () => {
+describe('the gate: reserve and settle', () => {
   beforeEach(household);
 
   it('keeps the windows exact under 10 concurrent reservations', async () => {
@@ -507,7 +507,7 @@ describe('the gate: reserve and settle (§7.15)', () => {
     ).toBe('42501');
   });
 
-  it('a money cap in EGP does not count USD costs without a USD→EGP rate (D76)', async () => {
+  it('a money cap in EGP does not count USD costs without a USD→EGP rate', async () => {
     await own(
       `INSERT INTO public.ai_budgets (scope, owner_account_id, monthly_cap_amount, cap_currency,
                                       set_by)
@@ -530,7 +530,7 @@ describe('the gate: reserve and settle (§7.15)', () => {
     expect(await reserve(ibrahim.userId, egp)).toMatchObject({ ok: false, reason: 'cap_money' });
   });
 
-  // Step-4 T4 (0049): the "counted through an exchange-rate row" case.
+  // Migration 0049: the "counted through an exchange-rate row" case.
   it("a USD cap counts an EGP cost through the account's USD→EGP rate, and names what it can't", async () => {
     await own(
       `INSERT INTO public.fx_rates (owner_account_id, from_ccy, to_ccy, rate, valid_from, created_by)
@@ -841,7 +841,7 @@ describe('resume, rollover and prices', () => {
   });
 });
 
-describe('the ledger: who sees what (D206)', () => {
+describe('the ledger: who sees what', () => {
   beforeAll(household);
 
   let homeCall: string;

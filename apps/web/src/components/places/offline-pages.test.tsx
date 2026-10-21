@@ -1,5 +1,5 @@
 /**
- * Offline thing and place pages (D36, D188): with the
+ * Offline thing and place pages: with the
  * server out of reach, `/t/<code>` and `/p/<id>` answer from the phone's copy, "as of last sync",
  * with the derived states and the loan line, and say the details need a connection. The store is
  * the real `MemoryStore` (open.ts is stood in for: jsdom has no IndexedDB).

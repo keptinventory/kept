@@ -15,7 +15,7 @@ import { reportJobs } from './jobs.js';
 import { runReportSchedules } from './schedules.js';
 import { purgeExpiredReports, RATE_LIMIT } from './service.js';
 
-// T32 (D201): the inventory report, end to end through the front door. Each report is rendered
+// The inventory report, end to end through the front door. Each report is rendered
 // for real (Typst in its child process) and read back with poppler's pdftotext/pdfinfo.
 //
 // Ann owns Home and Garage (Household: money on). In Home, Bob is a member and Vic a viewer
@@ -34,7 +34,7 @@ let eve: Person;
 let home: Loc;
 let garage: Loc;
 let tvId: string;
-/** As the report prints it: "5KJ‑JZK", the chip's form (D134). */
+/** As the report prints it: "5KJ‑JZK", the chip's form. */
 let tvCode: string;
 
 const hasPoppler = (() => {
@@ -59,7 +59,7 @@ const log = {
   info: (obj: object, msg: string) => logs.push({ obj, msg }),
   error: (obj: object, msg: string) => logs.push({ obj, msg }),
 };
-/** Mails the report job sent (1.3, D228). */
+/** Mails the report job sent (1.3). */
 const mailed: Mail[] = [];
 const jobDeps = () => ({
   pools: db.pools,
@@ -548,7 +548,7 @@ describe('the report job and GET /api/v1/reports/:id', () => {
   });
 });
 
-describe('emailed and scheduled reports (D228)', () => {
+describe('emailed and scheduled reports', () => {
   const verify = (p: Person) =>
     db.pools.auth.query('UPDATE auth."user" SET email_verified = true WHERE id = $1', [p.userId]);
   const accountAudit = (p: Person) =>

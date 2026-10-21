@@ -1,5 +1,5 @@
 /**
- * The assistant (D22–D25, D123, D179, D206, D213), on
+ * The assistant, on
  * the mock (api/assistant/mock): the sheet and the docked panel, threads, the context chip, the
  * composer's states, dictation with a stubbed recogniser only (never the real microphone), the
  * palette's hand-off (search.test.tsx), and the confirmation card drawn from the proposal.
@@ -53,7 +53,7 @@ describe('the assistant sheet (phone)', () => {
     await user.click(button);
     const s = await sheet();
     await waitFor(() => expect(composer(s)).toHaveFocus());
-    // The context chip: the page it came from (D24).
+    // The context chip: the page it came from.
     expect(within(s).getByRole('button', { name: 'Remove page context' })).toBeInTheDocument();
     expect(within(s).getByText('Garage')).toBeInTheDocument();
 
@@ -80,7 +80,7 @@ describe('the assistant sheet (phone)', () => {
     await waitFor(() => expect(button).toHaveFocus());
   }, 20_000);
 
-  it('removes the page context, and says why it can’t ask while AI is paused (D206)', async () => {
+  it('removes the page context, and says why it can’t ask while AI is paused', async () => {
     const { user } = await renderApp(`/t/${INV_IDS.thing.hdmiCable}`);
     await user.click(await assistantButton('HDMI cable, 2 m'));
     const s = await sheet();
@@ -143,7 +143,7 @@ describe('the assistant sheet (phone)', () => {
     expect(within(s).queryByText(/Ask again/)).toBeNull();
   });
 
-  it('says why a question from a page with no location is refused, and waits for an edit (UI review L1)', async () => {
+  it('says why a question from a page with no location is refused, and waits for an edit', async () => {
     // No location in the context: the status can't say whose AI would answer, so Send is on,
     // and the server's 400 ai_unavailable is said under the field.
     const { user } = await renderApp('/', {
@@ -171,7 +171,7 @@ describe('the assistant sheet (phone)', () => {
     );
   });
 
-  it('lists threads, opens one, and deletes one after asking (D23)', async () => {
+  it('lists threads, opens one, and deletes one after asking', async () => {
     const { user } = await renderApp(GARAGE);
     await assistantButton();
     act(() => openAssistant());
@@ -239,7 +239,7 @@ describe('the docked panel (768 px and up)', () => {
   });
 });
 
-describe('the confirmation card (T20)', () => {
+describe('the confirmation card', () => {
   it('confirms a move drawn from its arguments, with Undo', async () => {
     const { user, mock } = await renderApp(GARAGE);
     await assistantButton();
@@ -263,7 +263,7 @@ describe('the confirmation card (T20)', () => {
     expect(body.proposals).toEqual([{ id: A.proposal.open, argsHash: expect.any(String) }]);
   });
 
-  it('shows an expired card and a changed-since card without Confirm (screens §8)', async () => {
+  it('shows an expired card and a changed-since card without Confirm', async () => {
     await renderApp(GARAGE);
     await assistantButton();
     act(() => showThread(A.thread.found));
@@ -275,7 +275,7 @@ describe('the confirmation card (T20)', () => {
     expect(within(s).getAllByRole('button', { name: /^Confirm/ })).toHaveLength(1);
   });
 
-  it('adds a spoken list as one card: untick, edit, one Confirm, and Undo in reverse (D213)', async () => {
+  it('adds a spoken list as one card: untick, edit, one Confirm, and Undo in reverse', async () => {
     const { user, mock } = await renderApp(GARAGE);
     mock.on('POST', '/api/v1/audit/:id/undo', () => reply(200, { undone: true }));
     await assistantButton();

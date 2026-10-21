@@ -16,9 +16,9 @@ import {
 } from '../../test/things.js';
 
 // Task 16 through the front door, as the web calls it (apps/web/src/api/inventory/{types,
-// paths}.ts, mock/things.ts, components/things/meters-section.tsx): meters and readings (D113),
-// ordered by when they were taken and checked against their neighbours (D112), refused at entry
-// when they run backwards (D26), a jump kept for review, and meter replacement (D52).
+// paths}.ts, mock/things.ts, components/things/meters-section.tsx): meters and readings,
+// ordered by when they were taken and checked against their neighbours, refused at entry
+// when they run backwards, a jump kept for review, and meter replacement.
 
 let db: TestDb;
 let t: TestApp;
@@ -53,7 +53,7 @@ beforeAll(async () => {
 
 type Car = { thing: Json; meterId: string };
 
-/** A car (its type gives it an odometer, D113). */
+/** A car (its type gives it an odometer). */
 async function newCar(name = 'Corolla'): Promise<Car> {
   const thing = await createThing(t, ann, home, { name, typeId: carType });
   const meters = thing.meters as { id: string }[];
@@ -139,7 +139,7 @@ describe('POST /api/v1/things/:id/meters', () => {
     expect(gone.statusCode).toBe(404);
   });
 
-  it('needs a single thing (D10), a known kind and a short unit', async () => {
+  it('needs a single thing, a known kind and a short unit', async () => {
     const screws = await createThing(t, ann, home, { name: 'Screws', quantity: 40 });
     const many = await call(t, `/api/v1/things/${screws.id}/meters`, {
       as: ann,
@@ -236,7 +236,7 @@ describe('POST /api/v1/meters/:id/readings', () => {
         rowVersion: 1,
       },
       state: 'accepted',
-      // Step 5 (D150): a reading logged here is undoable.
+      // A reading logged here is undoable.
       undo: { eventId: expect.any(String), until: expect.any(String) },
     });
     const [row] = await readingRows(meterId);
@@ -254,7 +254,7 @@ describe('POST /api/v1/meters/:id/readings', () => {
     });
   });
 
-  it('refuses a reading lower than the one before it, with a clear hint (D26)', async () => {
+  it('refuses a reading lower than the one before it, with a clear hint', async () => {
     const { meterId } = await newCar('Backwards car');
     await logOk(ann, meterId, '53000', at(1));
     const res = await log(mo, meterId, { value: '52999.999', takenAt: at(2) });
@@ -271,7 +271,7 @@ describe('POST /api/v1/meters/:id/readings', () => {
     await logOk(mo, meterId, '53000', at(3));
   });
 
-  it('accepts a late reading that fits between its neighbours, and refuses one that does not (D112)', async () => {
+  it('accepts a late reading that fits between its neighbours, and refuses one that does not', async () => {
     const { thing, meterId } = await newCar('Late car');
     await logOk(ann, meterId, '1000', at(1));
     await logOk(ann, meterId, '2000', at(10));
@@ -289,7 +289,7 @@ describe('POST /api/v1/meters/:id/readings', () => {
     });
   });
 
-  it('keeps an implausible jump for review instead of refusing it (D26, §3.4)', async () => {
+  it('keeps an implausible jump for review instead of refusing it', async () => {
     const { thing, meterId } = await newCar('Jumpy car');
     await logOk(ann, meterId, '1000', at(1));
     const res = ok(await log(mo, meterId, { value: '5000', takenAt: at(2) }), 201);
@@ -322,7 +322,7 @@ describe('POST /api/v1/meters/:id/readings', () => {
     expect(res.reason).toBe('implausible_jump');
   });
 
-  it('clamps a reading taken in the future to now (D112)', async () => {
+  it('clamps a reading taken in the future to now', async () => {
     const { meterId } = await newCar('Future car');
     const before = Date.now();
     const res = ok(await log(ann, meterId, { value: '10', takenAt: '2099-01-01T00:00:00Z' }), 201);
@@ -331,7 +331,7 @@ describe('POST /api/v1/meters/:id/readings', () => {
     expect(taken).toBeLessThanOrEqual(Date.now() + 1000);
   });
 
-  it('keeps numeric(14,3) precision and refuses what it would have to round (§7.13)', async () => {
+  it('keeps numeric(14,3) precision and refuses what it would have to round', async () => {
     const { meterId } = await newCar('Precise car');
     const max = await logOk(ann, meterId, '99999999999.999', at(1));
     expect(max.value).toBe('99999999999.999');
@@ -402,7 +402,7 @@ describe('GET /api/v1/meters/:id/readings', () => {
   });
 });
 
-describe('needs review: Keep, Edit, Discard (D112)', () => {
+describe('needs review: Keep, Edit, Discard', () => {
   /** A car with 1000 on day 1 and a jump to 9000 on day 2 waiting for review. */
   async function jumpy(by: Person = mo) {
     const car = await newCar('Review car');
@@ -524,7 +524,7 @@ describe('needs review: Keep, Edit, Discard (D112)', () => {
     expect((await call(t, url, { method: 'DELETE', as: bob })).statusCode).toBe(404);
   });
 
-  it("counts toward Home's to-review attention (T29)", async () => {
+  it("counts toward Home's to-review attention", async () => {
     const { thing } = await jumpy();
     const rows = await own<{ n: number }>(
       db,
@@ -537,7 +537,7 @@ describe('needs review: Keep, Edit, Discard (D112)', () => {
   });
 });
 
-describe('POST /api/v1/meters/:id/replaced (D52)', () => {
+describe('POST /api/v1/meters/:id/replaced', () => {
   // catalogue: POST /api/v1/meters/:id/replaced
   it('records a replacement so the new unit may read lower, audited', async () => {
     const { thing, meterId } = await newCar('Replaced car');

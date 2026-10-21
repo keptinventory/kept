@@ -10,12 +10,12 @@ import {
 } from './modules.js';
 import { SOURCE_MODULE, SOURCE_TYPES } from './reminders.js';
 
-// The module table, as re-cut by D191.
+// The module table.
 
 const all = new Set<ModuleId>(MODULE_IDS);
 
 describe('the module registry', () => {
-  it('has the §5 modules, and Insights inside Money rather than a module of its own', () => {
+  it('has the modules, and Insights inside Money rather than a module of its own', () => {
     expect([...MODULE_IDS].sort()).toEqual(
       [
         'ai_assistant',
@@ -36,7 +36,7 @@ describe('the module registry', () => {
     );
   });
 
-  it('declares the §5 dependencies', () => {
+  it('declares the dependencies', () => {
     expect(MODULES.fuel.deps).toEqual(['vehicles']);
     expect(MODULES.moving.deps).toEqual(['labels']);
     const withDeps = MODULE_IDS.filter((id) => MODULES[id].deps.length > 0).sort();
@@ -58,7 +58,7 @@ describe('the module registry', () => {
   });
 });
 
-describe('presets (D75 re-cut by D191)', () => {
+describe('presets', () => {
   it('Essentials is Labels, plus AI that follows the provider', () => {
     expect([...presetModules('essentials')].sort()).toEqual([
       'ai_assistant',
@@ -83,11 +83,11 @@ describe('presets (D75 re-cut by D191)', () => {
     );
   });
 
-  it('Complete is every module, Moving mode included (D251)', () => {
+  it('Complete is every module, Moving mode included', () => {
     expect(presetModules('complete')).toEqual(new Set(all));
   });
 
-  it('Moving mode is built (D251): on with Labels, its nav entry with it', () => {
+  it('Moving mode is built: on with Labels, its nav entry with it', () => {
     expect(MODULE_IDS.filter((id) => MODULES[id].soon)).toEqual([]);
     expect(effectiveModules(['labels', 'moving'], { providerResolved: true })).toEqual(
       new Set(['labels', 'moving']),
@@ -140,7 +140,7 @@ describe('effectiveModules()', () => {
   });
 });
 
-describe('reminder sources and nav (§7.6; step 4)', () => {
+describe('reminder sources and nav', () => {
   it('maps every source type to exactly one module, or to core', () => {
     for (const source of SOURCE_TYPES) {
       const owners = MODULE_IDS.filter((id) => MODULES[id].reminderSources.includes(source));
@@ -149,7 +149,7 @@ describe('reminder sources and nav (§7.6; step 4)', () => {
     }
   });
 
-  it('pauses the step-4 sources with their modules', () => {
+  it('pauses the household sources with their modules', () => {
     expect(MODULES.schedules.reminderSources).toEqual(['schedule', 'thing_expiry']);
     expect(MODULES.warranties.reminderSources).toEqual(['warranty', 'registration']);
     expect(MODULES.paperwork.reminderSources).toEqual(['document']);
@@ -157,7 +157,7 @@ describe('reminder sources and nav (§7.6; step 4)', () => {
     expect(MODULES.consumables.reminderSources).toEqual(['stock']);
   });
 
-  it('gives each global view one module (screens §1); Notifications is core', () => {
+  it('gives each global view one module; Notifications is core', () => {
     const entries = MODULE_IDS.flatMap((id) => MODULES[id].nav);
     expect([...entries].sort()).toEqual([...MODULE_NAV].sort());
     expect(MODULES.money.nav).toEqual(['insights']);

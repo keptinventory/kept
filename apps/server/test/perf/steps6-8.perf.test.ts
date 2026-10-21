@@ -241,7 +241,7 @@ afterAll(async () => {
   console.log(`steps6-8 perf: ${JSON.stringify(results)} → ${file}`);
 });
 
-describe('steps 6–8 performance (final check, full mode only)', () => {
+describe('search, MCP, export and import performance (full mode only)', () => {
   it(`embeds all ${THINGS} things in the backfill`, () => {
     expect((results.backfill as { things: number }).things).toBe(THINGS);
   });

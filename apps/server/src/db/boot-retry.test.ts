@@ -4,7 +4,7 @@ import { BOOT_RETRY_DELAYS_MS, isTransientDbError, retryAtBoot } from './boot-re
 
 const coded = (code: string, message = code) => Object.assign(new Error(message), { code });
 
-describe('isTransientDbError (T24)', () => {
+describe('isTransientDbError', () => {
   it("counts pg-boss's connect timeout, refused connections and Postgres starting up", () => {
     expect(isTransientDbError(new Error('timeout exceeded when trying to connect'))).toBe(true);
     expect(isTransientDbError(coded('ECONNREFUSED'))).toBe(true);
@@ -33,7 +33,7 @@ describe('isTransientDbError (T24)', () => {
   });
 });
 
-describe('retryAtBoot (T24)', () => {
+describe('retryAtBoot', () => {
   const log = () => ({ warn: vi.fn<(obj: Record<string, unknown>, msg: string) => void>() });
   const noSleep = async (_ms: number) => {};
 

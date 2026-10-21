@@ -9,10 +9,10 @@
       "mode": "receipt",
       "languages": ["en", "ar"],
       "locationCurrency": "EGP",
-      "notes": "The spike's English receipt: the currency is printed only as the code beside TOTAL, and the date as day/month/year. Fills the photo, so the paper's outline is the whole frame.",
+      "notes": "An English receipt: the currency is printed only as the code beside TOTAL, and the date as day/month/year. Fills the photo, so the paper's outline is the whole frame.",
       "regressions": [
-        "receipt-v1 missed the date and the currency on this receipt (Groq, T10, 2026-09-29)",
-        "the model invented warranty terms (spike 2026-09-26; T10 2026-09-29): none are printed"
+        "receipt-v1 missed the date and the currency on this receipt (Groq, 2026-09-29)",
+        "the model invented warranty terms (2026-09-26 and 2026-09-29): none are printed"
       ],
       "expected": {
         "vendor": { "name": "CAIRO HOME STORE" },
@@ -86,9 +86,9 @@
       "mode": "label",
       "languages": ["en", "ar"],
       "locationCurrency": "EGP",
-      "notes": "The spike's TV nameplate: a model code and a labelled serial, no VIN.",
+      "notes": "A TV nameplate: a model code and a labelled serial, no VIN.",
       "regressions": [
-        "the model put the serial or the model code into vin (spike 2026-09-26; T10 2026-09-29)"
+        "the model put the serial or the model code into vin (2026-09-26 and 2026-09-29)"
       ],
       "expected": {
         "brand": "Samsung",
@@ -122,7 +122,7 @@
       "languages": ["en", "ar"],
       "locationCurrency": "EGP",
       "meter": { "kind": "distance", "unit": "km" },
-      "notes": "The spike's seven-segment odometer (V1): 052340 km. The spike read it once as 0.04340057 and once as 52340, both at 0.98.",
+      "notes": "A seven-segment odometer: 052340 km. An early run read it once as 0.04340057 and once as 52340, both at 0.98.",
       "expected": { "value": 52340, "unit": "km", "display": "digital" }
     },
     {

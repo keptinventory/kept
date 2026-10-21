@@ -6,7 +6,7 @@ import type { TestDb } from './db.js';
 import { call, type Person } from './people.js';
 import { createThing, type Loc, own } from './things.js';
 
-// Fixtures for the inbox tests (step-3 T15): open items as capture (T13) and extraction (T10)
+// Fixtures for the inbox tests: open items as capture and extraction
 // leave them, written as kept_owner, and small wrappers for the inbox routes.
 
 /** A file row (no blob) attached to a thing or purchase; answers the attachment id. */

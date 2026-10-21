@@ -25,7 +25,7 @@ import { MODEL_NAMES } from './strings';
 
 const TODAY = new Date(2026, 9, 15);
 
-describe('the Try the map sample home (D241)', () => {
+describe('the Try the map sample home', () => {
   const en = sampleHome('en', TODAY);
   const ar = sampleHome('ar', TODAY);
 

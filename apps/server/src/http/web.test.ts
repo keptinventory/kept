@@ -7,7 +7,7 @@ import type { Pools } from '../db/pools.js';
 import { buildApp, type KeptApp } from './app.js';
 import { inlineScriptHashes, loadWebBundle } from './web.js';
 
-// Task 29: the API process serves the built web bundle, with an SPA fallback and a CSP that
+// The API process serves the built web bundle, with an SPA fallback and a CSP that
 // allows index.html's inline pre-paint script by hash only.
 
 const PREPAINT = "\n      document.documentElement.setAttribute('data-theme', 'dark');\n    ";
@@ -96,7 +96,7 @@ describe('serving the web bundle', () => {
     expect(icon.headers['cache-control']).toBe('no-cache');
   });
 
-  // Step 3 (T2, T23): the service worker and the manifest are never cached as they are, so a new
+  // The service worker and the manifest are never cached as they are, so a new
   // release is noticed on the next check; the manifest is served as a manifest.
   it('serves sw.js and the manifest with no-cache, the manifest as application/manifest+json', async () => {
     const sw = await app.inject({ method: 'GET', url: '/sw.js' });
@@ -109,7 +109,7 @@ describe('serving the web bundle', () => {
     expect(manifest.headers['content-type']).toMatch(/^application\/manifest\+json/);
   });
 
-  // T23: the service worker precaches `index.html` (fetched at /index.html) and serves it for
+  // The service worker precaches `index.html` (fetched at /index.html) and serves it for
   // navigations. That copy must be the same bytes as `/`, under a CSP that allows its pre-paint
   // script by hash, or the installed app would load with its theme script blocked.
   it('serves /index.html, the precached copy, as the same bytes under the same script hash', async () => {
@@ -161,7 +161,7 @@ describe('serving the web bundle', () => {
     expect(dot.body).not.toContain('nope');
   });
 
-  // Step 6 (T2): OAuth discovery and the MCP endpoint are machine paths. The four well-known
+  // OAuth discovery and the MCP endpoint are machine paths. The four well-known
   // documents are reserved as public JSON 404s until T12 serves them; nothing under
   // `/.well-known/` or `/mcp` is ever answered with index.html.
   it('never answers /.well-known/ or /mcp with the SPA; the discovery paths are public JSON 404s', async () => {

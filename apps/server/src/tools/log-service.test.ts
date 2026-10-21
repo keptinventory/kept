@@ -24,7 +24,7 @@ import { runTool, toolsFor } from './context.js';
 import { handledTools } from './registry.js';
 import type { ToolContext } from './types.js';
 
-// `log_service` (step 5) through runTool(), as the assistant (after the person confirms its
+// `log_service` through runTool(), as the assistant (after the person confirms its
 // card, step-6 T13) and MCP call it: step 4's createService, so the same rules as
 // POST /api/v1/service-records, and always a confirmed record, never a draft.
 
@@ -94,7 +94,7 @@ async function car(name: string, loc = home): Promise<string> {
   return d.things[0].id;
 }
 
-describe('log_service (step 5)', () => {
+describe('log_service', () => {
   it('is handled, offered to a member and not to a viewer', async () => {
     expect(handledTools()).toContain('log_service');
     const forLouis = await toolsFor(ctx(louis), [home.id]);
@@ -227,7 +227,7 @@ describe('log_service (step 5)', () => {
   });
 });
 
-describe('log_service from stock (D236)', () => {
+describe('log_service from stock', () => {
   const quantityOf = async (id: string) =>
     (
       await own<{ q: string }>(
@@ -303,7 +303,7 @@ describe('log_service from stock (D236)', () => {
     const hint = (env as { hint: string }).hint;
     expect(hint).toContain('lines.1.consumed_quantity');
     expect(hint).toContain('only 2 left');
-    // A name is user-written text: never in a hint (D179).
+    // A name is user-written text: never in a hint.
     expect(hint).not.toContain('Gear oil');
     expect(await quantityOf(oil)).toBe('2');
     expect(
@@ -343,7 +343,7 @@ describe('log_service from stock (D236)', () => {
       }),
     ).toMatchObject({ error: 'validation' });
 
-    // The garage is on Essentials: no Consumables, so the line can't take stock there (D113).
+    // The garage is on Essentials: no Consumables, so the line can't take stock there.
     const garageCar = await car('Garage stock car', garage);
     expect(
       await tool(louis, 'log_service', {

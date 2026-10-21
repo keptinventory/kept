@@ -12,7 +12,7 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step-7 T5 (0083): a Kept import carries the exported history as `import` events (plan Q10),
+// Migration 0083: a Kept import carries the exported history as `import` events,
 // within the two-year retention, with every month's partition made before its rows arrive.
 
 const db = await testDb();
@@ -79,7 +79,7 @@ const event = (at: string, extra: Record<string, unknown> = {}) => ({
   ...extra,
 });
 
-describe('kept.import_history (plan Q10)', () => {
+describe('kept.import_history', () => {
   it("writes events as the import, in their own months' partitions, never the default", async () => {
     const at = monthsAgo(18);
     const part = `audit_events_${at.slice(0, 4)}_${at.slice(5, 7)}`;

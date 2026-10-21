@@ -13,8 +13,8 @@ import {
 } from '../../test/tenancy.js';
 import { withScope, withSystem } from './scope.js';
 
-// Step-4 T4 (0048, 0049): exchange rates, valuations, incidents and export runs under row-level
-// security, and the claim-pack doors (D158, D180).
+// Migrations 0048, 0049: exchange rates, valuations, incidents and export runs under row-level
+// security, and the claim-pack doors.
 // The AI money caps through exchange rates are in src/db/ai.test.ts.
 
 const db = await testDb();
@@ -54,7 +54,7 @@ beforeEach(async () => {
   );
 });
 
-describe('exchange rates (D136)', () => {
+describe('exchange rates', () => {
   const addRate = (userId: string, validFrom = '2026-09-01') =>
     as(userId, (c) =>
       c.query(
@@ -130,7 +130,7 @@ describe('exchange rates (D136)', () => {
   });
 });
 
-describe('valuations (D158)', () => {
+describe('valuations', () => {
   const addValuation = (userId: string, thingId = tv) =>
     as(userId, (c) =>
       c.query(
@@ -189,7 +189,7 @@ describe('valuations (D158)', () => {
   });
 });
 
-describe('incidents (§7.1: owners and admins)', () => {
+describe('incidents (owners and admins)', () => {
   const addIncident = (userId: string, id = newId()) =>
     as(userId, async (c) => {
       await c.query(
@@ -239,7 +239,7 @@ describe('incidents (§7.1: owners and admins)', () => {
   });
 });
 
-describe('export runs (D180, Q19)', () => {
+describe('export runs', () => {
   const queue = (userId: string, over: Record<string, unknown> = {}) =>
     as(userId, async (c) => {
       const id = newId();
@@ -329,7 +329,7 @@ describe('export runs (D180, Q19)', () => {
     ).toEqual([{ status: 'failed', error: 'too_large', storage_key: null }]);
   });
 
-  it('download without a session, counted, and re-check the creator (D180)', async () => {
+  it('download without a session, counted, and re-check the creator', async () => {
     const id = await queue(bruce, { token: 'pack-2' });
     await claim(bruce, id);
     // Not built yet: no download.

@@ -12,7 +12,7 @@ import { ownerTx } from '../../test/tenancy.js';
 //
 // The household: Bob owns an account with two locations, "Bob home" and "Bob cabin". In Bob
 // home, Adam is an admin, Mel a member and Vic a viewer; the cabin is Bob's alone, so Adam
-// administers the account without seeing all of it (D123). Ann has her own account and sees
+// administers the account without seeing all of it. Ann has her own account and sees
 // nothing of Bob's.
 
 let db: TestDb;
@@ -352,7 +352,7 @@ describe('brands', () => {
   });
 });
 
-describe('vendors and people, created inline (D11)', () => {
+describe('vendors and people, created inline', () => {
   // catalogue: POST /api/v1/accounts/:accountId/people
   it('a member adds a person and is shown the near duplicates; a viewer gets 403', async () => {
     const alfred = await create<{ displayName: string; userId: string | null }>(mel, 'people', {
@@ -589,7 +589,7 @@ describe('tags', () => {
   });
 });
 
-describe('a person’s contact details (D177)', () => {
+describe('a person’s contact details', () => {
   let ibrahim: string;
 
   beforeAll(async () => {
@@ -644,7 +644,7 @@ describe('a person’s contact details (D177)', () => {
   });
 });
 
-describe('route security review (step 2): registries', () => {
+describe('route security review: registries', () => {
   it('answers 400, never 500, to a PATCH that changes nothing', async () => {
     const { item } = await create(bob, 'brands', { name: 'Empty patch brand' });
     for (const body of [{}, { name: undefined }]) {

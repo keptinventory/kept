@@ -1,5 +1,5 @@
 /**
- * Search and the ⌘K palette (D42, D74, D195), against the mock
+ * Search and the ⌘K palette, against the mock
  * server: Arabic matching, aliases, the container photo, did-you-mean, filters and saved views
  * in the URL, recent searches per person, keyboard operation, RTL, and the viewer variant.
  */
@@ -41,12 +41,12 @@ const resultNames = async (list = 'Things found') =>
     .map((a) => a.textContent ?? '');
 
 describe('search', () => {
-  it('finds the HDMI cable by hdmi, with its full path, ID chip and location groups (D74)', async () => {
+  it('finds the HDMI cable by hdmi, with its full path, ID chip and location groups', async () => {
     await renderApp('/search?q=hdmi');
     await findHeading('Search');
     const list = await things();
     const cable = within(list).getByRole('link', { name: /HDMI cable, 2 m/ });
-    // Links use the short ID (D208).
+    // Links use the short ID.
     expect(cable).toHaveAttribute('href', '/t/7KQ4MZ');
     expect(cable.textContent).toContain('Home › Office › Desk drawer › Cable box');
     expect(within(cable).getByRole('img', { name: '7KQ4MZ' })).toBeInTheDocument();
@@ -61,21 +61,21 @@ describe('search', () => {
 
   it.each([
     ['الكابل', 'كابل HDMI'], // the article is stripped at query time
-    ['مكواه', 'مِكْواة البُخار'], // ة ↔ ه and harakat ignored (D42)
-    ['٥٥', 'Samsung TV, 55″'], // Eastern Arabic digits (D42)
+    ['مكواه', 'مِكْواة البُخار'], // ة ↔ ه and harakat ignored
+    ['٥٥', 'Samsung TV, 55″'], // Eastern Arabic digits
     ['cable', 'HDMI cable, 2 m'],
   ])('%s finds %s', async (q, name) => {
     await renderApp(`/search?q=${encodeURIComponent(q)}`);
     expect((await resultNames()).some((n) => n.includes(name))).toBe(true);
   });
 
-  it('says which alias matched (screens §8)', async () => {
+  it('says which alias matched', async () => {
     await renderApp('/search?q=display');
     const cable = within(await things()).getByRole('link', { name: /HDMI cable, 2 m/ });
     expect(cable.textContent).toContain('matched: display cable');
   });
 
-  it("shows the container's photo beside the path (D195)", async () => {
+  it("shows the container's photo beside the path", async () => {
     const state = ownerScenario();
     const box = state.inventory.things.find((x) => x.id === T.cableBox);
     if (box) box.thumbUrl = '/f/cable-box-thumb';
@@ -153,7 +153,7 @@ describe('search', () => {
     return state;
   }
 
-  it('finds documents by their text, each with an excerpt as plain text (T21)', async () => {
+  it('finds documents by their text, each with an excerpt as plain text', async () => {
     await renderApp('/search?q=torque', { state: withDocuments() });
     const heading = await screen.findByRole('heading', { name: /Documents/ });
     const section = heading.closest('section') as HTMLElement;
@@ -178,14 +178,14 @@ describe('search', () => {
     expect(section.querySelector('[data-snippet]')).toBeNull();
   });
 
-  it('offline, documents say they need a connection (screens §8)', async () => {
+  it('offline, documents say they need a connection', async () => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
     await renderApp('/search?q=torque', { state: withDocuments() });
     expect(await screen.findByText('Documents need a connection')).toBeInTheDocument();
     vi.restoreAllMocks();
   });
 
-  it('a filter works by keyboard and lives in the URL (D205)', async () => {
+  it('a filter works by keyboard and lives in the URL', async () => {
     const { user, router, mock } = await renderApp('/search?q=cable');
     await things();
     const urls = spyUrls(mock);
@@ -232,7 +232,7 @@ describe('search', () => {
     });
   });
 
-  it('finds a tag by typing, in Arabic too, through the server (D205)', async () => {
+  it('finds a tag by typing, in Arabic too, through the server', async () => {
     const { user, mock } = await renderApp('/search?q=cable');
     await things();
     const urls = spyUrls(mock);
@@ -264,7 +264,7 @@ describe('search', () => {
     ).toHaveLength(8);
   });
 
-  it('saves a search, shares it with Home, and opens it again (D183, D205)', async () => {
+  it('saves a search, shares it with Home, and opens it again', async () => {
     const { user, mock, router } = await renderApp('/search?q=cable&f.state=%5B%22ended%22%5D');
     await screen.findByText(/No match for|Things/);
     await user.click(screen.getByRole('button', { name: 'Views' }));
@@ -329,7 +329,7 @@ describe('search', () => {
   });
 });
 
-describe("the mock's matching mirrors the server's normalised forms (D42, screens §8)", () => {
+describe("the mock's matching mirrors the server's normalised forms", () => {
   it.each([
     ['مكتبة', 'مكتبه', true], // ة ↔ ه
     ['الكابل', 'كابل', true], // the article, at query time
@@ -409,7 +409,7 @@ describe('the ⌘K palette', () => {
   });
 
   // "Ask the assistant about …" opens the assistant with the words typed so far in
-  // its composer, unsent (D42), on the page it was asked from.
+  // its composer, unsent, on the page it was asked from.
   it('hands the words to the assistant', async () => {
     const { user, router } = await renderApp('/');
     await screen.findByRole('button', { name: /Search or jump to/ }, { timeout: 3000 });

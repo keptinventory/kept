@@ -1,5 +1,5 @@
 /**
- * The stepper's guesses (T30): fields from headers in the five languages, Arabic included; a field
+ * The stepper's guesses: fields from headers in the five languages, Arabic included; a field
  * that takes one column goes to the first; the date format and the place separator from values.
  */
 import { describe, expect, it } from 'vitest';

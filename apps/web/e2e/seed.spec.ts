@@ -53,7 +53,7 @@ test('a viewer signs in and sees Home', async ({ page }) => {
   );
 });
 
-test('a managed account signs in with its username (D47)', async ({ page }) => {
+test('a managed account signs in with its username', async ({ page }) => {
   await signIn(page, 'peter');
   const me = await (await page.request.get('/api/v1/me')).json();
   expect(me.user.managed).toBe(true);

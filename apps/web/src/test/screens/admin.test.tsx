@@ -26,7 +26,7 @@ describe('Instance admin', () => {
     expect(await screen.findByText('This page is on plain HTTP')).toBeInTheDocument();
   });
 
-  it('Users: badges, no actions on yourself, and disable asks first (D180)', async () => {
+  it('Users: badges, no actions on yourself, and disable asks first', async () => {
     const { user, mock } = await renderApp('/admin/users');
     await screen.findByText('Ibrahim (you)');
     const self = screen.getByText('Ibrahim (you)').closest('li') as HTMLElement;
@@ -170,7 +170,7 @@ describe('Instance admin', () => {
     expect(mock.state.admin.settings.ssrfAllowPrivate).toBe(true);
   });
 
-  it('Several things in one photo: off by default, and the switch saves (D230)', async () => {
+  it('Several things in one photo: off by default, and the switch saves', async () => {
     const { user, mock } = await renderApp('/admin/settings');
     const toggle = await screen.findByRole('switch', { name: /Find several things in a photo/ });
     expect(toggle).not.toBeChecked();
@@ -182,7 +182,7 @@ describe('Instance admin', () => {
     expect(await screen.findByText(/Each thing AI finds in a photo/)).toBeInTheDocument();
   });
 
-  it('Failed jobs: never a location (D164), and a job with no message says so', async () => {
+  it('Failed jobs: never a location, and a job with no message says so', async () => {
     await renderApp('/admin/jobs');
     await screen.findByText('repair-orphans');
     expect(screen.getByText('It left no error message.')).toBeInTheDocument();
@@ -221,14 +221,14 @@ describe('Instance admin', () => {
     expect(await screen.findByText('Nothing needs you')).toBeInTheDocument();
   });
 
-  it('Status: asks for the recovery kit until it is acknowledged (D193)', async () => {
+  it('Status: asks for the recovery kit until it is acknowledged', async () => {
     await renderApp('/admin/status');
     expect(await screen.findByText('Keep the recovery kit somewhere else')).toBeInTheDocument();
     expect(screen.getByText('Answering')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '1 open' })).toHaveAttribute('href', '/admin/alerts');
   });
 
-  it('Status: the recovery kit is acknowledged after a confirm (D193)', async () => {
+  it('Status: the recovery kit is acknowledged after a confirm', async () => {
     // A kit never downloaded (step 8's mock: no backup configured, so nothing stale).
     const state = ownerScenario();
     setOpsScenario(state, 'unconfigured');
@@ -266,7 +266,7 @@ describe('Instance admin', () => {
     expect(screen.getByText('12 failed in the last hour.')).toBeInTheDocument();
   });
 
-  it('Alerts: reminders not scanned says when the last check finished (D166)', async () => {
+  it('Alerts: reminders not scanned says when the last check finished', async () => {
     const state = ownerScenario();
     const at = new Date(Date.now() - 3 * 3_600_000).toISOString();
     state.admin.alerts = [
@@ -295,7 +295,7 @@ describe('Instance admin', () => {
     expect(screen.getByText(/^No check for due reminders has finished yet/)).toBeInTheDocument();
   });
 
-  it('Status: the reminder scan, and says so when it stopped (D166)', async () => {
+  it('Status: the reminder scan, and says so when it stopped', async () => {
     await renderApp('/admin/status');
     expect(await screen.findByText(/^Checked .* · 3 new$/)).toBeInTheDocument();
     expect(screen.queryByText('Reminders have stopped going out')).toBeNull();

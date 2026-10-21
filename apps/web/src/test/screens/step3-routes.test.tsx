@@ -10,8 +10,8 @@ import { ownerScenario } from '@/api/mock/fixtures';
 import { expectLogicalOnly } from '@/test/render';
 import { findHeading, pathOf, renderApp } from '../app';
 
-describe('step-3 route stubs', () => {
-  it('/settings/diagnostics is the diagnostics panel (T23), which runs nothing until asked', async () => {
+describe('capture route stubs', () => {
+  it('/settings/diagnostics is the diagnostics panel, which runs nothing until asked', async () => {
     await renderApp('/settings/diagnostics');
     expect(await findHeading('Diagnostics')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Run the checks' })).toBeInTheDocument();
@@ -36,7 +36,7 @@ describe('step-3 route stubs', () => {
     expect(within(screen.getByRole('main')).queryByText('Coming soon')).toBeNull();
   });
 
-  it('/l/<code> shows the code on label tape while it answers (T26)', async () => {
+  it('/l/<code> shows the code on label tape while it answers', async () => {
     await renderApp('/l/zzzzzz');
     expect(await screen.findByRole('img', { name: 'ZZZZZZ' })).toBeInTheDocument();
     expect(await screen.findByRole('heading', { name: 'Not in your Kept' })).toBeInTheDocument();
@@ -50,13 +50,13 @@ describe('step-3 route stubs', () => {
     expect(router.state.location.search).toMatchObject({ next: '/l/7KQ4MZ' });
   });
 
-  it('the print view (T28) has no app shell', async () => {
+  it('the print view has no app shell', async () => {
     await renderApp('/labels/01926f00-0000-7000-8000-000000100091');
     expect(await screen.findByRole('region', { name: /^Sheet 1 of / })).toBeInTheDocument();
     expect(screen.queryByRole('navigation', { name: 'Main' })).toBeNull();
   });
 
-  it('Labels (T28) is built, in Arabic too', async () => {
+  it('Labels is built, in Arabic too', async () => {
     await renderApp('/labels', { locale: 'ar' });
     expect(await findHeading('الملصقات')).toBeInTheDocument();
     expect(screen.queryByText('يأتي في مرحلة لاحقة')).toBeNull();
@@ -64,7 +64,7 @@ describe('step-3 route stubs', () => {
   });
 });
 
-describe('step-3 navigation', () => {
+describe('capture navigation', () => {
   it('Scan is in the header on Home and Search, and nowhere else', async () => {
     const { user, router } = await renderApp('/');
     await findHeading('Home');
@@ -83,7 +83,7 @@ describe('step-3 navigation', () => {
     expect(hrefs('Help')).toEqual(['/help', '/help']);
   });
 
-  it('Labels is hidden when the module is off in every location (screens §1)', async () => {
+  it('Labels is hidden when the module is off in every location', async () => {
     const state = ownerScenario();
     state.locations = state.locations.map((l) => ({
       ...l,

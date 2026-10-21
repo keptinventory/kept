@@ -16,7 +16,7 @@ import {
 const first = (input: ShapeInput) => suggestShapes(input).shapes[0]?.model;
 const sure = (input: ShapeInput) => suggestShapes(input).confident;
 
-describe('the shape catalogue (D249)', () => {
+describe('the shape catalogue', () => {
   it('puts every shape in a group and gives it words', () => {
     for (const key of MAP_MODEL_KEYS) {
       expect(SHAPE_GROUPS, key).toContain(SHAPE_GROUP[key]);

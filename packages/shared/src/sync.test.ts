@@ -32,7 +32,7 @@ const item = (over: Record<string, unknown> = {}) => ({
 });
 
 describe('constants', () => {
-  it('match the plan and D148', () => {
+  it('match the sync contract', () => {
     expect(PAYLOAD_VERSION).toBe(1);
     expect(MIN_PAYLOAD_VERSION).toBe(1);
     expect(OP_KINDS).toEqual([
@@ -218,7 +218,7 @@ describe('op payloads (v1)', () => {
     });
   });
 
-  it('move_box (D251): a state, and a room only to unpack into', () => {
+  it('move_box: a state, and a room only to unpack into', () => {
     ok('move_box', { moveId: id(), containerId: id(), state: 'in_transit' });
     ok('move_box', { moveId: id(), containerId: id(), state: 'unpacked', placeId: id() });
     ok('move_box', { moveId: id(), containerId: id(), state: 'packed' });
@@ -226,7 +226,7 @@ describe('op payloads (v1)', () => {
     bad('move_box', { moveId: id(), state: 'packed' });
   });
 
-  it('move_box_room (D251): the room a box goes to, never none', () => {
+  it('move_box_room: the room a box goes to, never none', () => {
     ok('move_box_room', { moveId: id(), containerId: id(), placeId: id() });
     bad('move_box_room', { moveId: id(), containerId: id(), placeId: null });
     bad('move_box_room', { moveId: id(), containerId: id() });

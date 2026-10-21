@@ -14,7 +14,7 @@ function walk(node: unknown, visit: (n: Record<string, unknown>) => void): void 
   }
 }
 
-describe('wireSchema (spike finding 1)', () => {
+describe('wireSchema', () => {
   it.each(CAPTURE_MODES)('%s (simple): no tuples, formats, patterns or propertyNames', (mode) => {
     const s = wireSchema(mode, 'simple');
     walk(s, (n) => {
@@ -54,7 +54,7 @@ describe('wireSchema (spike finding 1)', () => {
   });
 });
 
-describe('wireSchema variants (T11 follow-up)', () => {
+describe('wireSchema variants', () => {
   it("receipt-required: the receipt's date and currency required, and a short date pattern", () => {
     const s = wireSchema('receipt', 'receipt-required') as Json;
     expect(s.required).toEqual(['lines', 'date', 'currency']);

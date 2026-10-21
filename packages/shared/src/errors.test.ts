@@ -13,7 +13,7 @@ import {
 } from './errors.js';
 
 describe('ErrorCode', () => {
-  it('holds exactly the step-1 to step-6 codes, each mapped to itself', () => {
+  it('holds exactly the shared codes, each mapped to itself', () => {
     const codes = [
       'validation',
       'unauthenticated',
@@ -104,7 +104,7 @@ describe('ErrorCode', () => {
     for (const [key, value] of Object.entries(ErrorCode)) expect(value).toBe(key);
   });
 
-  it('gives every step-3 code an English sentence', () => {
+  it('gives every capture code an English sentence', () => {
     expect(Object.keys(CAPTURE_ERROR_MESSAGES)).toHaveLength(11);
     for (const [code, message] of Object.entries(CAPTURE_ERROR_MESSAGES)) {
       expect(isErrorCode(code)).toBe(true);
@@ -112,7 +112,7 @@ describe('ErrorCode', () => {
     }
   });
 
-  it('gives every step-4 code an English sentence', () => {
+  it('gives every household code an English sentence', () => {
     expect(Object.keys(HOUSEHOLD_ERROR_MESSAGES)).toHaveLength(15);
     for (const [code, message] of Object.entries(HOUSEHOLD_ERROR_MESSAGES)) {
       expect(isErrorCode(code)).toBe(true);
@@ -120,7 +120,7 @@ describe('ErrorCode', () => {
     }
   });
 
-  it('gives every step-7 code an English sentence', () => {
+  it('gives every portability code an English sentence', () => {
     expect(Object.keys(PORTABILITY_ERROR_MESSAGES)).toHaveLength(11);
     for (const [code, message] of Object.entries(PORTABILITY_ERROR_MESSAGES)) {
       expect(isErrorCode(code)).toBe(true);
@@ -128,7 +128,7 @@ describe('ErrorCode', () => {
     }
   });
 
-  it('gives every step-8 code an English sentence', () => {
+  it('gives every operations code an English sentence', () => {
     expect(Object.keys(OPS_ERROR_MESSAGES)).toHaveLength(9);
     for (const [code, message] of Object.entries(OPS_ERROR_MESSAGES)) {
       expect(isErrorCode(code)).toBe(true);
@@ -136,7 +136,7 @@ describe('ErrorCode', () => {
     }
   });
 
-  it('gives every step-5 code an English sentence', () => {
+  it('gives every vehicle code an English sentence', () => {
     expect(Object.keys(VEHICLE_ERROR_MESSAGES)).toHaveLength(3);
     for (const [code, message] of Object.entries(VEHICLE_ERROR_MESSAGES)) {
       expect(isErrorCode(code)).toBe(true);
@@ -146,7 +146,7 @@ describe('ErrorCode', () => {
     expect(isErrorCode('reading_refused')).toBe(false);
   });
 
-  it('gives every step-6 code an English sentence and a hint', () => {
+  it('gives every connections code an English sentence and a hint', () => {
     expect(Object.keys(CONNECTIONS_ERROR_MESSAGES)).toHaveLength(7);
     expect(Object.keys(CONNECTIONS_ERROR_HINTS).sort()).toEqual(
       Object.keys(CONNECTIONS_ERROR_MESSAGES).sort(),

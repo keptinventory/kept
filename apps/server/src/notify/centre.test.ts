@@ -285,7 +285,7 @@ describe('the bell and marking read', () => {
   });
 });
 
-describe('the AI monthly summary opt-out (Q35)', () => {
+describe('the AI monthly summary opt-out', () => {
   it('is on by default, off by email alone, and off entirely when the kind is silenced', async () => {
     const channels = () =>
       withSystem(db.pools.system, (_tx, c) => aiSummaryChannels(c, ibrahim.userId));

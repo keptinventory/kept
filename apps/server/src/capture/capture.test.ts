@@ -489,7 +489,7 @@ describe('PUT /api/v1/files/:fileId/display', () => {
       expect(meta.format).toBe('jpeg');
       expect(meta.exif).toBeUndefined();
     }
-    // D117: the original is byte-identical.
+    // The original is byte-identical.
     expect(sha256(await blob(before[0]?.storage_key as string))).toBe(sha256(heic));
 
     const events = await auditActions(home.id, 'file.display_set');

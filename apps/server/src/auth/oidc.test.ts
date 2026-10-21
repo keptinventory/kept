@@ -27,7 +27,7 @@ import {
 } from './oidc.js';
 import { resolveSession } from './session.js';
 
-// Generic OIDC sign-in (D127, D128, D176), repeating the cases an early trial found
+// Generic OIDC sign-in, repeating the cases an early trial found
 // against an in-process fake provider on 127.0.0.1 (test/oidc-issuer.ts): sign-in reaches only an
 // explicitly linked account (never on email), linking needs a fresh session and the same email,
 // only provider-verified and deliverable emails pass, new users come only by invite or an allowed
@@ -166,7 +166,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe('discovery and boot (D128, plan Q16)', () => {
+describe('discovery and boot', () => {
   it('runs through the SSRF guard: a loopback issuer is refused unless private addresses are allowed', async () => {
     await expect(
       discoverOidc(idp.issuer, guardedFetch({ allowPrivate: false })),
@@ -231,7 +231,7 @@ describe('discovery and boot (D128, plan Q16)', () => {
   });
 });
 
-describe('sign-in and linking (D176)', () => {
+describe('sign-in and linking', () => {
   it('never links on email: an existing verified email under a new sub is account_not_linked', async () => {
     const bruce = await signUp(auth, 'bruce@example.net');
     await verify(bruce.userId);
@@ -298,7 +298,7 @@ describe('sign-in and linking (D176)', () => {
     expect(await oidcAccounts()).toEqual([]);
   });
 
-  it('rotates the previous session at the callback, and keeps the TOTP gate (V32)', async () => {
+  it('rotates the previous session at the callback, and keeps the TOTP gate', async () => {
     const bruce = await signUp(auth, 'bruce@example.net');
     await verify(bruce.userId);
     await flow(
@@ -346,7 +346,7 @@ describe('sign-in and linking (D176)', () => {
   });
 });
 
-describe('the provisioning gate (D127, D176)', () => {
+describe('the provisioning gate', () => {
   it('refuses an email the IdP hasn’t verified, however the claim is dressed', async () => {
     for (const claims of [
       { email: 'talia@example.org', email_verified: false },

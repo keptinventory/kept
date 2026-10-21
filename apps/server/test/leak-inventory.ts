@@ -110,7 +110,7 @@ export async function fillInventory(
      VALUES ($1, $2, $3, 'related')`,
     [t.locationId, thing, box],
   );
-  // The location map (1.x, D237): the room's rectangle, and the box standing in it with the
+  // The location map (1.x): the room's rectangle, and the box standing in it with the
   // room thing on top.
   await c.query(
     `INSERT INTO public.map_nodes (location_id, place_id, x_cm, z_cm, w_cm, d_cm, room_kind, surface)
@@ -177,7 +177,7 @@ export async function fillInventory(
      VALUES ($1, $2, $3, 'photo', $4)`,
     [t.locationId, file, thing, t.userId],
   );
-  // The same file as the purchase's receipt: what kept.thing_receipt_file() serves (D115, D117).
+  // The same file as the purchase's receipt: what kept.thing_receipt_file() serves.
   await c.query(
     `INSERT INTO public.attachments (location_id, file_id, purchase_id, role, created_by)
      VALUES ($1, $2, $3, 'receipt', $4)`,
@@ -199,7 +199,7 @@ export async function fillInventory(
      VALUES ($1, $2, $3, 'Garden tools', true)`,
     [view, t.userId, t.locationId],
   );
-  // The filter strip's pins and default (D205): the shared view, on the search list.
+  // The filter strip's pins and default: the shared view, on the search list.
   await c.query(
     `INSERT INTO public.saved_view_prefs (user_id, surface, default_view_id, pinned)
      VALUES ($1, 'search', $2, ARRAY[$2::uuid])`,
@@ -220,7 +220,7 @@ export async function fillInventory(
      VALUES ($1, $2, ARRAY[$3::uuid])`,
     [t.userId, t.accountId, t.locationId],
   );
-  // A scheduled report (1.3, D228).
+  // A scheduled report (1.3).
   await c.query(
     `INSERT INTO public.report_schedules (user_id, location_id, kind, cadence)
      VALUES ($1, $2, 'inventory', 'weekly')`,

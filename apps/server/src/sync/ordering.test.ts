@@ -18,7 +18,7 @@ import {
 } from '../../test/things.js';
 import { applyOps } from './ops.js';
 
-// T14's sync ordering and conflict suite (D35, D112, D148, D210):
+// T14's sync ordering and conflict suite:
 // what the server does with offline changes that arrive late, twice, out of order, or
 // into something that changed meanwhile.
 

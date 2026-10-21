@@ -22,7 +22,7 @@ import {
 import { resolvedFields } from './fields.js';
 import { moveBackForUndo } from './move.js';
 import { auditRelocations, ORPHAN_RETURNING, type Orphan, relocationOf } from './relocate.js';
-import { requireRole } from './service.js';
+import { holdsThings, requireRole } from './service.js';
 
 // The undo handlers of things (D58, D124, D150; T27 decision), registered with audit/undo.ts.
 //
@@ -161,7 +161,10 @@ export async function undoFields(args: UndoArgs): Promise<void> {
     ...(await resolvedFields(client, current.type_id as string | null)),
     ...(await resolvedFields(client, after.type_id as string | null)),
   ];
-  if (current.name !== after.name) await enqueueReindex(args.deps.jobs, client, event.locationId);
+  // As for the edit itself: only a renamed thing that holds things leaves breadcrumbs stale.
+  if (current.name !== after.name && (await holdsThings(client, thingId))) {
+    await enqueueReindex(args.deps.jobs, client, event.locationId);
+  }
   await args.audit({
     action: event.action,
     entity: { type: 'thing', id: thingId },

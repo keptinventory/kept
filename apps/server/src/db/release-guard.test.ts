@@ -12,7 +12,7 @@ import {
   UPGRADE_WITHOUT_SNAPSHOT_KEY,
 } from './release-guard.js';
 
-// D66, D82: the snapshot before every upgrade, release history and the
+// The snapshot before every upgrade, release history and the
 // downgrade guard, on real migrations: a copy of the migrations folder with its journal cut
 // short stands for the previous image.
 

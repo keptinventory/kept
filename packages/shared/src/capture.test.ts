@@ -14,7 +14,7 @@ describe('capture vocabulary', () => {
     expect(CAPTURE_MODES).toEqual(['thing', 'receipt', 'label', 'reading', 'room']);
   });
 
-  it('keeps originals only for the evidence modes (D34)', () => {
+  it('keeps originals only for the evidence modes', () => {
     expect(PHOTO_POLICY.thing).toEqual({ shrinkTo: 2048, keepOriginal: false });
     expect(PHOTO_POLICY.room).toEqual({ shrinkTo: 2048, keepOriginal: false });
     for (const mode of ['receipt', 'label', 'reading'] as const) {
@@ -23,7 +23,7 @@ describe('capture vocabulary', () => {
     expect(Object.keys(PHOTO_POLICY).sort()).toEqual([...CAPTURE_MODES].sort());
   });
 
-  it('matches the inbox CHECKs (§7.8, plan T5)', () => {
+  it('matches the inbox CHECKs', () => {
     expect(INBOX_KINDS).toEqual([
       'draft',
       'reading',
@@ -50,7 +50,7 @@ describe('capture vocabulary', () => {
     expect(ROOM_CAPTURE_STATUSES).toEqual(['reading', 'merging', 'ready', 'failed', 'off']);
   });
 
-  it('maps every key of the fixed keyboard map once (screens §5, §8)', () => {
+  it('maps every key of the fixed keyboard map once', () => {
     expect(Object.keys(INBOX_KEYMAP).sort()).toEqual(
       ['a', 'd', 'e', 'g', 'j', 'k', 'l', 'm', 'n', 's', 'shift+a', 't', 'x', 'y'].sort(),
     );

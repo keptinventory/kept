@@ -17,7 +17,7 @@ import {
   smtpMailer,
 } from './transport.js';
 
-// The mail transport (D81): every kind in both languages, rendered safely, and delivered
+// The mail transport: every kind in both languages, rendered safely, and delivered
 // over SMTP to Mailpit in the recipient's language.
 
 const PUBLIC_URL = 'http://kept.test';
@@ -186,7 +186,7 @@ const EVERY_MAIL: MailBody[] = [
     alert: 'backup_verify_failed',
     details: { error: 'repository_check_failed' },
   },
-  // D206: the instance caps and a rejected instance key.
+  // The instance caps and a rejected instance key.
   {
     kind: 'admin-alert',
     to: 'admin@x.test',
@@ -221,7 +221,7 @@ const EVERY_MAIL: MailBody[] = [
     alert: 'ai_instance_key_rejected',
     details: { provider: 'Groq' },
   },
-  // D206: a location's money cap at 80%, a person's token cap at 100%.
+  // A location's money cap at 80%, a person's token cap at 100%.
   {
     kind: 'ai-cap',
     to: 'ibrahim@x.test',
@@ -287,7 +287,7 @@ const EVERY_MAIL: MailBody[] = [
     cost: [{ currency: 'USD', amount: '1.1234' }],
     unknownCostCalls: 2,
   },
-  // Step 6 (D180): the configuration notices.
+  // The configuration notices.
   { kind: 'oidc-changed', to: 'louis@x.test', name: 'Home SSO' },
   { kind: 'oidc-changed', to: 'louis@x.test', name: null },
   { kind: 'smtp-changed', to: 'louis@x.test', sender: 'kept@example.org' },
@@ -302,7 +302,7 @@ describe('the message table', () => {
     expect(mailLocale('ar')).toBe('ar');
     expect(mailLocale('AR_sa')).toBe('ar');
     expect(mailLocale('en-GB')).toBe('en');
-    // D204: French, German and Italian too, by their language subtag.
+    // French, German and Italian too, by their language subtag.
     expect(mailLocale('fr')).toBe('fr');
     expect(mailLocale('fr-CA')).toBe('fr');
     expect(mailLocale('de-AT')).toBe('de');
@@ -358,7 +358,7 @@ describe('the message table', () => {
     }
   });
 
-  it('writes French, German and Italian as their own text, never English left in (D204)', () => {
+  it('writes French, German and Italian as their own text, never English left in', () => {
     for (const locale of ['fr', 'de', 'it'] as const) {
       for (const mail of EVERY_MAIL) {
         const en = messageFor(mail, 'en', ctx);
@@ -392,7 +392,7 @@ describe('the message table', () => {
   });
 });
 
-describe('the operations alerts (step 8)', () => {
+describe('the operations alerts', () => {
   const STEP8 = [
     'backup_stale',
     'disk_space_low',
@@ -436,7 +436,7 @@ describe('the operations alerts (step 8)', () => {
   });
 });
 
-describe('AI cap notices and alerts (D206)', () => {
+describe('AI cap notices and alerts', () => {
   const alert = (kind: string) =>
     EVERY_MAIL.find((m) => m.kind === 'admin-alert' && m.alert === kind) as MailBody;
   const caps = EVERY_MAIL.filter((m) => m.kind === 'ai-cap');
@@ -583,7 +583,7 @@ describe('over SMTP, to Mailpit', () => {
     expect(en?.Subject).toBe('Your Kept password was changed');
   });
 
-  it("mails the owner of a location about a new member (D180), in the owner's language", async () => {
+  it("mails the owner of a location about a new member, in the owner's language", async () => {
     const home = await seedTenant(db, 'owner-notice');
     const owner = await userEmail(db, home.userId);
     const joiner = await seedUser(db, 'joiner');

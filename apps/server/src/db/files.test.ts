@@ -15,8 +15,7 @@ import {
 } from '../../test/tenancy.js';
 import { type Scope, withScope } from './scope.js';
 
-// Files, derivatives and attachments (D115, D117,
-// D155, D177), plus saved views and hints (D42, D138). As kept_app unless noted.
+// Files, derivatives and attachments, plus saved views and hints. As kept_app unless noted.
 
 const db = await testDb();
 const app = db.pools.app;
@@ -79,7 +78,7 @@ const attach = (userId: string, t: Tenant, fileId: string, thingId: string, role
     ),
   );
 
-describe('files (§7.2, D177)', () => {
+describe('files', () => {
   let a: Tenant;
   let member: string;
   let viewer: string;
@@ -124,7 +123,7 @@ describe('files (§7.2, D177)', () => {
     expect(await derivatives()).toEqual([{ variant: 'thumb' }]);
   });
 
-  it('dedupes by content per location (D177), and is never updated', async () => {
+  it('dedupes by content per location, and is never updated', async () => {
     await upload(a.userId, a.locationId, 'same bytes');
     expect(await pgError(upload(member, a.locationId, 'same bytes'))).toMatchObject({
       code: '23505',
@@ -212,7 +211,7 @@ describe('storage keys and deletes (security review I6, minor)', () => {
     expect((await pgError(derivative)).code).toBe('42501');
   });
 
-  it('lets the uploader delete an unattached upload, and only an admin an attached file (D162)', async () => {
+  it('lets the uploader delete an unattached upload, and only an admin an attached file', async () => {
     const del = (userId: string, fileId: string) =>
       withScope(
         app,
@@ -233,7 +232,7 @@ describe('storage keys and deletes (security review I6, minor)', () => {
   });
 });
 
-describe('receipts after a move (D115)', () => {
+describe('receipts after a move', () => {
   it("serves a thing's receipt to a member of its new location, and nothing else", async () => {
     const a = await seedTenant(db, 'a');
     const flat = await ownerTx(db, (c) => insertLocation(c, a, { name: 'Flat' }));
@@ -281,7 +280,7 @@ describe('receipts after a move (D115)', () => {
       q(as(userId), 'SELECT mime, bytes FROM kept.thing_receipt_file($1, $2)', [phone, fileId]);
     expect(await serve(flatMember, receipt)).toEqual([{ mime: 'image/jpeg', bytes: '10' }]);
     expect(await serve(flatMember, photo)).toEqual([]);
-    // Originals are for members and above (D117): a viewer lists the receipt, never gets the file.
+    // Originals are for members and above: a viewer lists the receipt, never gets the file.
     const flatViewer = await seedUser(db, 'flat-viewer');
     await addMember(db, flat.locationId, flatViewer, 'viewer');
     expect(await q(as(flatViewer), 'SELECT file_id FROM kept.thing_receipts($1)', [phone])).toEqual(
@@ -297,7 +296,7 @@ describe('receipts after a move (D115)', () => {
   });
 });
 
-describe('saved views and hints (D42, D138)', () => {
+describe('saved views and hints', () => {
   let a: Tenant;
   let viewer: string;
   beforeEach(async () => {

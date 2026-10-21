@@ -24,9 +24,9 @@ export type TestAppOptions = {
   onUserCreated?: AuthDeps['onUserCreated'];
   jobs?: Parameters<typeof buildApp>[0]['jobs'];
   jobAdmin?: Parameters<typeof buildApp>[0]['jobAdmin'];
-  /** Whether mail goes out: the status page says so, and D197's enrolment gate applies. */
+  /** Whether mail goes out: the status page says so, and the verified-address enrolment gate applies. */
   mailConfigured?: boolean;
-  /** Whether a backup target is set, for the status page's backup line (T31c). */
+  /** Whether a backup target is set, for the status page's backup line. */
   backupConfigured?: boolean;
   isSignupOpen?: Parameters<typeof buildApp>[0]['isSignupOpen'];
   /** KEPT_SIGNUP_OPEN, as the environment would set it. */
@@ -35,19 +35,19 @@ export type TestAppOptions = {
   routes?: (app: KeptApp) => void | Promise<void>;
   /** Sees every route as it is added (the route-catalogue test). */
   onRoute?: Parameters<typeof buildApp>[0]['onRoute'];
-  /** File storage for the file routes (T17); omitted, they answer 503. */
+  /** File storage for the file routes; omitted, they answer 503. */
   files?: Parameters<typeof buildApp>[0]['files'];
-  /** The keyring for the secret routes (T19); omitted, they answer 503. */
+  /** The keyring for the secret routes; omitted, they answer 503. */
   secretKeys?: Parameters<typeof buildApp>[0]['secretKeys'];
-  /** 1.4 (D231): a fake mailbox for the mailbox routes; omitted, they would reach for imapflow. */
+  /** 1.4: a fake mailbox for the mailbox routes; omitted, they would reach for imapflow. */
   mailSource?: Parameters<typeof buildApp>[0]['mailSource'];
   /** Step 3's AI layer (ai/routes.ts AiDeps); omitted, the AI routes answer as with no layer. */
   ai?: Parameters<typeof buildApp>[0]['ai'];
   /** A pino logger (http/logger.ts createLogger) to capture what the app logs; default silent. */
   logger?: Parameters<typeof buildApp>[0]['logger'];
-  /** Step 4 (T15): web push's setup and the test transports (notify/). */
+  /** Web push's setup and the test transports (notify/). */
   notify?: Parameters<typeof buildApp>[0]['notify'];
-  /** Step 6 (T12): the OAuth provider for MCP connectors (oauth/plugin.ts); off when omitted. */
+  /** The OAuth provider for MCP connectors (oauth/plugin.ts); off when omitted. */
   oauth?: AuthDeps['oauth'];
 };
 

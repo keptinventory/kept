@@ -7,8 +7,8 @@ import type { Gathered, GatheredThing, ReportOptions } from './gather.js';
 import { renderPdf, writeData } from './render/render.js';
 import { buildView } from './view.js';
 
-// How the report prints what the app also shows: short IDs as the chip prints them (D134,
-// "5KJ‑JZK" around U+2011) and place paths pointing the reader's way ("›" left to right, "‹"
+// How the report prints what the app also shows: short IDs as the chip prints them
+// ("5KJ‑JZK" around U+2011) and place paths pointing the reader's way ("›" left to right, "‹"
 // right to left, as the web's breadcrumbs do). Checked in the view, then in a rendered PDF read
 // back with poppler's pdftotext where it is installed.
 

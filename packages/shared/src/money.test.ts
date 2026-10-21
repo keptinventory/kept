@@ -129,7 +129,7 @@ describe('canonicalAmount: one form on the wire, whatever was stored (numeric(16
   });
 });
 
-describe('roundForDisplay (half away from zero, at the edges only: Q2)', () => {
+describe('roundForDisplay (half away from zero, at the edges only)', () => {
   it.each([
     ['1.005', 2, '1.01'],
     ['1.004', 2, '1.00'],
@@ -152,14 +152,14 @@ describe('roundForDisplay (half away from zero, at the edges only: Q2)', () => {
   });
 });
 
-describe('formatMoney: five currencies × en/ar × western/eastern digits (D136, D143)', () => {
+describe('formatMoney: five currencies × en/ar × western/eastern digits', () => {
   const table: [string, string, 'western' | 'eastern', string][] = [
     ['USD', 'en', 'western', '$1,200.00'],
     ['CAD', 'en', 'western', 'CA$1,200.00'],
     ['GBP', 'en', 'western', '£1,200.00'],
     ['EUR', 'en', 'western', '€1,200.00'],
     ['EGP', 'en', 'western', `EGP${NBSP}1,200.00`],
-    // English ignores the Eastern-digits setting: it is an Arabic-only preference (D143).
+    // English ignores the Eastern-digits setting: it is an Arabic-only preference.
     ['USD', 'en', 'eastern', '$1,200.00'],
     ['CAD', 'en', 'eastern', 'CA$1,200.00'],
     ['GBP', 'en', 'eastern', '£1,200.00'],
@@ -226,7 +226,7 @@ describe('formatAmount (the number alone, for inputs) round-trips through parseA
   });
 });
 
-describe('convert() (D76, D136; step-4 plan Q21)', () => {
+describe('convert()', () => {
   const rates: FxRate[] = [
     { fromCcy: 'USD', toCcy: 'EGP', rate: '48.5', validFrom: '2026-06-01' },
     { fromCcy: 'USD', toCcy: 'EGP', rate: '49.25', validFrom: '2026-09-01' },

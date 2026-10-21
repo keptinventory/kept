@@ -6,7 +6,7 @@ import { type TestDb, testDb } from '../../test/db.js';
 import { call, type Person, peopleApp, person } from '../../test/people.js';
 import { ownerTx } from '../../test/tenancy.js';
 
-// The shared normalisation vectors (V20, packages/shared/src/normalize.vectors.json) end to end:
+// The shared normalisation vectors (packages/shared/src/normalize.vectors.json) end to end:
 // a thing named with each vector's input is found through GET /api/v1/search by the vector's
 // normalised form and by its prefix-stripped form, and a thing named with the normalised form is
 // found by the raw input. This runs the JS twin (tsQuery) and SQL (kept.normalize(),
@@ -62,7 +62,7 @@ beforeAll(async () => {
   });
 });
 
-describe('normalize.vectors.json through SQL search (V20)', () => {
+describe('normalize.vectors.json through SQL search', () => {
   it('has searchable vectors', () => {
     expect(searchable.length).toBeGreaterThan(70);
   });

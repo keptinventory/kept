@@ -6,7 +6,7 @@
  * offline variant; RTL.
  */
 import { screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { IDS, ownerScenario } from '@/api/mock/fixtures';
 import { ensureVehiclesSeeded, VEHICLE_IDS } from '@/api/vehicles/mock';
@@ -16,11 +16,18 @@ import { renderApp } from '@/test/app';
 import { expectLogicalOnly } from '@/test/render';
 
 // The vehicle page mounts the Services tab through its slots (components/vehicles/slots.tsx);
-// this test mounts T20's whatever that line says today.
+// this test mounts whatever that line says today.
 vi.mock('@/components/vehicles/slots', async (original) => ({
   ...(await original<typeof import('@/components/vehicles/slots')>()),
   VehicleServices: (await import('@/components/vehicles/services-tab')).VehicleServices,
 }));
+
+// The vehicle tabs load on demand (components/vehicles/vehicle-lazy.tsx). Loaded once here, so a
+// cold module graph on a busy machine (the full suite) isn't spent from the tests' own waits for
+// the Services tab: the first two tests timed out on "Log a service" that way.
+beforeAll(async () => {
+  await import('@/components/vehicles/vehicle-sections');
+}, 120_000);
 
 afterEach(() => {
   vi.restoreAllMocks();

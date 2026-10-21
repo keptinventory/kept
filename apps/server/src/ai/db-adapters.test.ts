@@ -23,7 +23,7 @@ import type { ReserveRequest } from './ports.js';
 import { wireName, wireSchema } from './wire.js';
 
 // The DB adapters for the provider layer's ports, run through the scenarios
-// memory.test.ts runs against the in-memory ones (bucketsFor, the D206 caps, the default
+// memory.test.ts runs against the in-memory ones (bucketsFor, the caps, the default
 // budgets, a manual pause, the 80%/100% crossings, payer and key slots, clearAuth), then
 // callModel end to end on them: one ledger row per call, a held-back row when a cap refuses.
 
@@ -166,7 +166,7 @@ describe('DbBudgetGate: buckets (memory.test.ts "bucketsFor")', () => {
   });
 });
 
-describe('DbBudgetGate (memory.test.ts "D206 caps")', () => {
+describe('DbBudgetGate (memory.test.ts "the caps")', () => {
   it('a location cap pauses that location only', async () => {
     await cap({
       scope: 'location',
@@ -245,7 +245,7 @@ describe('DbBudgetGate (memory.test.ts "D206 caps")', () => {
     );
   });
 
-  // Step 4 (0049): other currencies count through the account's exchange rates (D76).
+  // Migration 0049: other currencies count through the account's exchange rates.
   it("a USD cap counts an EGP estimate and cost through the account's USD→EGP rate", async () => {
     await own(
       `INSERT INTO public.fx_rates (owner_account_id, from_ccy, to_ccy, rate, valid_from, created_by)
@@ -276,7 +276,7 @@ describe('DbBudgetGate (memory.test.ts "D206 caps")', () => {
     ).toMatchObject({ ok: false, kind: 'cap', reason: 'cap_money' });
   });
 
-  it('the default per-task budget applies without a row (Q7): TPM is a wait, the day a pause', async () => {
+  it('the default per-task budget applies without a row: TPM is a wait, the day a pause', async () => {
     expect(await gateFor(ibrahim.userId).reserve(req({ estimateTokens: 60_001 }))).toMatchObject({
       ok: false,
       kind: 'wait',
@@ -623,7 +623,7 @@ describe('callModel on the DB adapters', () => {
     ]);
   });
 
-  // The conversation never reaches the ledger (D206). A question, a tool argument, a
+  // The conversation never reaches the ledger. A question, a tool argument, a
   // tool result and an embedding input each carry a marker; no llm_calls column holds any.
   it('a two-step tool turn and an embedding: four markers, none in any ledger column', async () => {
     const marks = ['QMARK8842', 'ARGMARK1196', 'RESMARK5521', 'EMBMARK7730'];

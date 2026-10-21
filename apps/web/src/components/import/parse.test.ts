@@ -1,5 +1,5 @@
 /**
- * Reading the file (T30, Q18): papaparse on this device, UTF-8 with the byte-order mark dropped,
+ * Reading the file: papaparse on this device, UTF-8 with the byte-order mark dropped,
  * unique non-blank headers, one cell per column, and the server's limits refused before anything
  * is sent (10,000 rows, 8 MB, 200 columns, 10,000 characters a cell).
  */

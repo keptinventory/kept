@@ -24,8 +24,8 @@ import { ROLES } from './roles.js';
 // The CHECK on reminder_occurrences.due_period.
 const DUE_PERIOD_CHECK = /^(date:\d{4}-\d{2}-\d{2}|meter:\d+(\.\d{1,3})?)$/;
 
-describe('reminder sources (§1.9; Q3–Q7)', () => {
-  it('has the §1.9 sources, and steps 4, 5 and 7 build them all', () => {
+describe('reminder sources', () => {
+  it('has every source, and the app builds them all', () => {
     expect([...SOURCE_TYPES].sort()).toEqual(
       [
         'document',
@@ -52,7 +52,7 @@ describe('reminder sources (§1.9; Q3–Q7)', () => {
     for (const s of ACTIVE_SOURCE_TYPES) expect(SOURCE_KINDS[s].length).toBeGreaterThan(0);
   });
 
-  it('produces the Q7 kinds', () => {
+  it('gives each source its kinds', () => {
     expect(SOURCE_KINDS.schedule).toEqual(['due', 'overdue']);
     expect(SOURCE_KINDS.warranty).toEqual(['expiring']);
     expect(SOURCE_KINDS.registration).toEqual(['due']);
@@ -63,7 +63,7 @@ describe('reminder sources (§1.9; Q3–Q7)', () => {
     expect(SOURCE_KINDS.stock).toEqual(['due']);
   });
 
-  it('pauses a source with its module; a vehicle’s document on Paperwork or Vehicles (step 5)', () => {
+  it('pauses a source with its module; a vehicle’s document on Paperwork or Vehicles', () => {
     const only =
       (...on: string[]) =>
       (m: string) =>
@@ -78,7 +78,7 @@ describe('reminder sources (§1.9; Q3–Q7)', () => {
   });
 });
 
-describe('duePeriod() (§7.13)', () => {
+describe('duePeriod()', () => {
   it.each([
     [{ dueOn: '2026-10-17' }, 'date:2026-10-17'],
     [{ dueValue: '60000' }, 'meter:60000'],
@@ -101,8 +101,8 @@ describe('duePeriod() (§7.13)', () => {
   });
 });
 
-describe('notification kinds and channels (D30, D130; Q10, Q35)', () => {
-  it('prefers the step-4 and step-5 sources plus the notices', () => {
+describe('notification kinds and channels', () => {
+  it('prefers the household and vehicle sources plus the notices', () => {
     expect(NOTIFY_KINDS).toEqual([
       'schedule',
       'warranty',
@@ -145,12 +145,12 @@ describe('notification kinds and channels (D30, D130; Q10, Q35)', () => {
     ]);
   });
 
-  it('sends the digest at 08:00 by default (Q9)', () => {
+  it('sends the digest at 08:00 by default', () => {
     expect(DEFAULT_DIGEST_TIME).toBe('08:00');
   });
 });
 
-describe('defaultPreference() (D29; Q8)', () => {
+describe('defaultPreference()', () => {
   const reminderKinds = ACTIVE_SOURCE_TYPES;
 
   it('owners and admins get every kind', () => {
@@ -183,7 +183,7 @@ describe('defaultPreference() (D29; Q8)', () => {
   });
 });
 
-describe('resolvePreference() and kindChannels() (D239)', () => {
+describe('resolvePreference() and kindChannels()', () => {
   it('a location choice beats the all-locations choice, which beats the default', () => {
     expect(resolvePreference({ location: false, account: true, fallback: true })).toBe(false);
     expect(resolvePreference({ location: true, account: false, fallback: false })).toBe(true);
@@ -200,7 +200,7 @@ describe('resolvePreference() and kindChannels() (D239)', () => {
   });
 });
 
-describe('step-4 list surfaces (D205)', () => {
+describe('household list surfaces', () => {
   it('keep saved views, with surface names the saved_views CHECK accepts', () => {
     for (const s of [
       'schedules',

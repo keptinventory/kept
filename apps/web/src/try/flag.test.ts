@@ -1,4 +1,4 @@
-/** Try Kept (D246): the flag is off in every other build, and the docs links walk back right. */
+/** Try Kept: the flag is off in every other build, and the docs links walk back right. */
 import { describe, expect, it } from 'vitest';
 import { docsUrl, TRY } from './flag';
 

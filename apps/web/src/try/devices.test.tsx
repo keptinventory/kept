@@ -1,5 +1,5 @@
 /**
- * Try Kept (D246) never asks the browser for a device: with the flag on, the camera, the
+ * Try Kept never asks the browser for a device: with the flag on, the camera, the
  * microphone, the position, push, persistent storage and another site's sign-in each stop
  * before the browser is asked, and Capture says the camera is off instead.
  */

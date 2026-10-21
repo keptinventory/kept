@@ -18,7 +18,7 @@ export async function fillAssistant(c: pg.ClientBase, t: Tenant, label: string):
   const one = async (sql: string, values: unknown[]) =>
     (await c.query<{ id: string }>(sql, values)).rows[0]?.id as string;
 
-  // Tokens (T4): a personal token limited to the tenant's location, an OAuth grant, and a rate
+  // Tokens: a personal token limited to the tenant's location, an OAuth grant, and a rate
   // window. Made with a second factor, so the require_2fa tenant's location takes them too.
   const personal = await one(
     `INSERT INTO public.api_tokens (user_id, kind, name, lookup, hash, scope, created_with_mfa)
@@ -54,7 +54,7 @@ export async function fillAssistant(c: pg.ClientBase, t: Tenant, label: string):
     [personal],
   );
 
-  // The assistant (T5): a thread with a turn, one message of each role, a tool result from the
+  // The assistant: a thread with a turn, one message of each role, a tool result from the
   // tenant's location, and an open proposal there.
   const thread = await one(
     `INSERT INTO public.assistant_threads (user_id, title, locale, context)
@@ -115,7 +115,7 @@ export async function fillAssistant(c: pg.ClientBase, t: Tenant, label: string):
     [t.userId, thread, turn, t.locationId, 'b'.repeat(64)],
   );
 
-  // Embeddings (T6): a 3-dimension vector of the tenant's thing, and the location's index state.
+  // Embeddings: a 3-dimension vector of the tenant's thing, and the location's index state.
   await c.query(
     `INSERT INTO public.thing_embeddings (thing_id, location_id, model_key, dims, content_hash,
                                           embedding)
@@ -129,7 +129,7 @@ export async function fillAssistant(c: pg.ClientBase, t: Tenant, label: string):
     [t.locationId],
   );
 
-  // Email-in (1.4, D231): a mailbox with a (fake) sealed connection, and one message it read.
+  // Email-in (1.4): a mailbox with a (fake) sealed connection, and one message it read.
   const mailbox = await one(
     `INSERT INTO public.mailboxes (location_id, host, username, folder, config_ciphertext,
                                    key_version, created_by)
@@ -144,7 +144,7 @@ export async function fillAssistant(c: pg.ClientBase, t: Tenant, label: string):
     [t.locationId, mailbox],
   );
 
-  // Paperless-ngx (1.x, D248): a connection with a (fake) sealed token, and a thing's link to one
+  // Paperless-ngx (1.x): a connection with a (fake) sealed token, and a thing's link to one
   // of its documents.
   const paperless = await one(
     `INSERT INTO public.paperless_connections (location_id, base_url, config_ciphertext,
@@ -161,7 +161,7 @@ export async function fillAssistant(c: pg.ClientBase, t: Tenant, label: string):
     [t.locationId, paperless, t.userId, `${label} thing`],
   );
 
-  // Share links (1.5, D233): a filtered list shared until next month (the token is fake).
+  // Share links (1.5): a filtered list shared until next month (the token is fake).
   await c.query(
     `INSERT INTO public.share_links (location_id, scope_type, filter, title, token_hash,
                                      expires_at, created_by)
@@ -170,7 +170,7 @@ export async function fillAssistant(c: pg.ClientBase, t: Tenant, label: string):
     [t.locationId, `share-${label}`, t.userId],
   );
 
-  // Webhooks (T7): a hook with a (fake) sealed secret, and one delivery of an event to it.
+  // Webhooks: a hook with a (fake) sealed secret, and one delivery of an event to it.
   const hook = await one(
     `INSERT INTO public.webhooks (location_id, url, secret_ciphertext, key_version, events,
                                   created_by)

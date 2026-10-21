@@ -1,5 +1,5 @@
 /**
- * The camera starts only where a person asked for it (D239's bug: opening Settings → Me →
+ * The camera starts only where a person asked for it (a past bug: opening Settings → Me →
  * Notifications in a test browser met a camera prompt). `navigator.mediaDevices.getUserMedia` is
  * a stub that records every call, on a secure page so nothing stops short of it: Home, Settings
  * and Notifications (with the whole app shell) never call it; Capture, when "Show me around"

@@ -301,7 +301,7 @@ describe('loadEnv', () => {
     expect((await stat(configDir)).mode & 0o777).toBe(0o750);
   });
 
-  it('requires KEPT_SOURCE_URL in production (D147)', async () => {
+  it('requires KEPT_SOURCE_URL in production', async () => {
     await expect(loadEnv({ ...validEnv, NODE_ENV: 'production' })).rejects.toMatchObject({
       code: 'source_url_required',
     });
@@ -315,7 +315,7 @@ describe('loadEnv', () => {
   });
 });
 
-describe('loadEnv: files and storage (step 2; §3.4, D186)', () => {
+describe('loadEnv: files and storage', () => {
   const GB = 1024 ** 3;
 
   it('KEPT_MAX_FILE_MB defaults to 25 and takes a whole number of megabytes', async () => {
@@ -392,7 +392,7 @@ describe('loadEnv: files and storage (step 2; §3.4, D186)', () => {
     expect(plain.KEPT_S3_FORCE_PATH_STYLE).toBe(false);
   });
 
-  it('reads KEPT_S3_PUBLIC_ENDPOINT, an http(s) URL, for presigned URLs (T18, T17)', async () => {
+  it('reads KEPT_S3_PUBLIC_ENDPOINT, an http(s) URL, for presigned URLs', async () => {
     const env = await loadEnv(
       { ...validEnv, ...s3, KEPT_S3_PUBLIC_ENDPOINT: 'https://files.example.com' },
       { configDir: await unusedConfigDir() },
@@ -420,7 +420,7 @@ describe('loadEnv: files and storage (step 2; §3.4, D186)', () => {
   });
 });
 
-describe('loadEnv: capture, AI and barcodes (step 3, T2)', () => {
+describe('loadEnv: capture, AI and barcodes', () => {
   it('KEPT_AI_MOCK is off unless set to 1', async () => {
     const plain = await loadEnv(validEnv, { configDir: await unusedConfigDir() });
     expect(plain.KEPT_AI_MOCK).toBe(false);
@@ -456,7 +456,7 @@ describe('loadEnv: capture, AI and barcodes (step 3, T2)', () => {
     expect(off.KEPT_AI_MOCK).toBe(false);
   });
 
-  it('KEPT_BARCODE_LOOKUP locks the setting when set, like KEPT_SIGNUP_OPEN (D126)', async () => {
+  it('KEPT_BARCODE_LOOKUP locks the setting when set, like KEPT_SIGNUP_OPEN', async () => {
     const plain = await loadEnv(validEnv, { configDir: await unusedConfigDir() });
     expect(plain.KEPT_BARCODE_LOOKUP).toBeUndefined();
     for (const [value, parsed] of [
@@ -475,7 +475,7 @@ describe('loadEnv: capture, AI and barcodes (step 3, T2)', () => {
     });
   });
 
-  it('KEPT_BARCODE_CONTACT is an email address, for the lookup User-Agent (D104)', async () => {
+  it('KEPT_BARCODE_CONTACT is an email address, for the lookup User-Agent', async () => {
     const env = await loadEnv(
       { ...validEnv, KEPT_BARCODE_CONTACT: 'ops@example.org' },
       { configDir: await unusedConfigDir() },
@@ -520,7 +520,7 @@ describe('loadMigrateEnv', () => {
   });
 });
 
-describe('the backup settings (T31c)', () => {
+describe('the backup settings', () => {
   const owner = 'postgres://kept_owner:kept_owner@localhost:5452/kept';
   const load = async (extra: Record<string, string>) =>
     loadEnv(
@@ -577,7 +577,7 @@ describe('the backup settings (T31c)', () => {
   });
 });
 
-describe('the step-8 operations settings (plan T2)', () => {
+describe('the operations settings', () => {
   const owner = 'postgres://kept_owner:kept_owner@localhost:5452/kept';
   const withOwner = { KEPT_OWNER_DATABASE_URL: owner };
   const load = async (extra: Record<string, string>, logger?: (line: string) => void) =>
@@ -624,7 +624,7 @@ describe('the step-8 operations settings (plan T2)', () => {
     }
   });
 
-  it("reads the alpha's KEPT_BACKUP_KEEP as the daily count, with one deprecation line (Q7)", async () => {
+  it("reads the alpha's KEPT_BACKUP_KEEP as the daily count, with one deprecation line", async () => {
     const logged: string[] = [];
     const env = await load({ KEPT_BACKUP_KEEP: '10' }, (line) => logged.push(line));
     expect(backupKeepOf(env).daily).toBe(10);
@@ -668,7 +668,7 @@ describe('the step-8 operations settings (plan T2)', () => {
   });
 });
 
-describe('the VAPID settings (step 4, T2; plan Q11)', () => {
+describe('the VAPID settings', () => {
   const load = async (extra: Record<string, string>, base: Record<string, string> = validEnv) =>
     loadEnv({ ...base, ...extra }, { configDir: await unusedConfigDir() });
   const pair = () => webpush.generateVAPIDKeys();
@@ -768,7 +768,7 @@ describe('the VAPID settings (step 4, T2; plan Q11)', () => {
   });
 });
 
-describe('embeddings and OIDC (step 6, T2; D207, S6.7)', () => {
+describe('embeddings and OIDC (S6.7)', () => {
   const load = async (extra: Record<string, string>, available?: () => boolean) =>
     loadEnv(
       { ...validEnv, ...extra },
@@ -790,7 +790,7 @@ describe('embeddings and OIDC (step 6, T2; D207, S6.7)', () => {
     });
   });
 
-  it('refuses local when its runtime is not installed, naming D207', async () => {
+  it('refuses local when its runtime is not installed, and says why', async () => {
     // The runtime is not a dependency in 1.0: the real check says so.
     expect(localEmbeddingsInstalled()).toBe(false);
     await expect(load({ KEPT_EMBEDDINGS: 'local' })).rejects.toMatchObject({
@@ -836,7 +836,7 @@ describe('embeddings and OIDC (step 6, T2; D207, S6.7)', () => {
     ).rejects.toMatchObject({ code: 'invalid_env' });
   });
 
-  it('Google sign-in (D226): the id and secret together, the secret never shown', async () => {
+  it('Google sign-in: the id and secret together, the secret never shown', async () => {
     const env = await load({
       KEPT_GOOGLE_CLIENT_ID: '1234.apps.googleusercontent.com',
       KEPT_GOOGLE_CLIENT_SECRET: 'google-secret-value',

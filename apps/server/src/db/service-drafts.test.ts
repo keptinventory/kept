@@ -12,7 +12,7 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step 5, task 5 (0062, 0063): service drafts for invoices read by AI.
+// Migrations 0062, 0063: service drafts for invoices read by AI.
 // A draft is seen by the location's members, counts nowhere until confirmed, and is
 // confirmed one way; the extraction reading its invoice points at it.
 
@@ -100,7 +100,7 @@ const scheduleRow = async (id: string) =>
     )
   )[0];
 
-describe('service drafts (Q12)', () => {
+describe('service drafts', () => {
   it('are confirmed by default, and every member of the location sees a draft', async () => {
     const plain = await as(louis, async (c) => {
       const id = newId();
@@ -177,7 +177,7 @@ describe('service drafts (Q12)', () => {
     expect((await scheduleRow(oil))?.anchor_on).toBe('2026-01-10');
   });
 
-  it('one record owns a reading (Q11)', async () => {
+  it('one record owns a reading', async () => {
     const r = await reading(50000, '2026-09-21T09:00:00Z');
     await service('2026-09-21', 'confirmed', r);
     expect(await pgError(service('2026-09-21', 'draft', r))).toMatchObject({

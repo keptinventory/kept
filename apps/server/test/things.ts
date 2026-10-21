@@ -6,7 +6,7 @@ import type { TestDb } from './db.js';
 import { call, type Person } from './people.js';
 import { ownerTx } from './tenancy.js';
 
-// Fixtures for the things route tests (T14): locations made through the front door, rows seeded
+// Fixtures for the things route tests: locations made through the front door, rows seeded
 // as kept_owner, and small wrappers for the JSON the routes answer.
 
 export type Loc = { id: string; unplacedId: string; accountId: string };

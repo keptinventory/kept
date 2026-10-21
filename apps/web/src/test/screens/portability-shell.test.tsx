@@ -10,7 +10,7 @@ import { findHeading, renderApp } from '../app';
 
 const nav = () => screen.getAllByRole('navigation', { name: 'Main' })[0] as HTMLElement;
 
-describe('the step-7 navigation', () => {
+describe('the portability navigation', () => {
   it('links Consumables only while the module is on somewhere', async () => {
     const state = ownerScenario();
     for (const l of state.locations) {
@@ -43,7 +43,7 @@ describe('the step-7 navigation', () => {
   });
 });
 
-describe('the step-7 routes', () => {
+describe('the portability routes', () => {
   it.each([
     ['/settings/export', 'Export'],
     ['/consumables', 'Consumables'],

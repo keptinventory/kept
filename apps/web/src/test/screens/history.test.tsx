@@ -1,5 +1,5 @@
 /**
- * Trash, the activity feed and the history timeline (task 27; D110, D162, D174, D183), against
+ * Trash, the activity feed and the history timeline (task 27), against
  * the mock server: role rules for restore and delete permanently, money redacted for viewers and
  * where the Money module is off, secrets shown only as changed, the moved-in row, filters in the
  * URL, keyboard operation and RTL.
@@ -144,7 +144,7 @@ describe('activity', () => {
     const list = await feed();
     const rows = within(list).getAllByRole('article');
     expect(rows[0]).toHaveAccessibleName('Added HDMI cable, 2 m');
-    // By its short ID (D208).
+    // By its short ID.
     expect(within(rows[0] as HTMLElement).getByRole('link')).toHaveAttribute('href', '/t/7KQ4MZ');
     expect(within(list).getByText('بيت العائلة')).toBeInTheDocument();
     expect(within(list).getAllByRole('presentation')[0]?.textContent).toMatch(/Today|Yesterday|\d/);
@@ -175,7 +175,7 @@ describe('activity', () => {
     expect(screen.getByRole('button', { name: 'Date: Last 7 days' })).toBeInTheDocument();
   });
 
-  it('"is none of" leaves a person out (D205)', async () => {
+  it('"is none of" leaves a person out', async () => {
     const { user, router, mock } = await renderApp('/activity');
     await feed();
     const urls: string[] = [];
@@ -205,7 +205,7 @@ describe('activity', () => {
     );
   });
 
-  it('shows money to an owner, hides it from a viewer (D110)', async () => {
+  it('shows money to an owner, hides it from a viewer', async () => {
     await renderApp('/activity');
     const tv = within(await feed())
       .getAllByRole('article', { name: 'Edited Samsung TV, 55″' })
@@ -265,7 +265,7 @@ describe('activity', () => {
     ).toBeInTheDocument();
   });
 
-  it('a person whose name is gone reads "A former member", never "Kept" (D225)', async () => {
+  it('a person whose name is gone reads "A former member", never "Kept"', async () => {
     const state = ownerScenario();
     const event = (n: number, actor: { type: 'user' | 'system'; displayName: null }) => ({
       id: `01926f00-0000-7000-8000-0000000efb${n}0`,
@@ -341,7 +341,7 @@ describe('activity', () => {
     expect(label.textContent).toContain('3CB\u20118WN');
   });
 
-  it("step 4's records read in words: their event, their fields and their codes (T29)", async () => {
+  it('the household records read in words: their event, their fields and their codes', async () => {
     const state = ownerScenario();
     const event = (n: number, action: string, type: string, diff: Record<string, unknown>) => ({
       id: `01926f00-0000-7000-8000-0000000efb${n}0`,
@@ -388,7 +388,7 @@ describe('activity', () => {
     expect(warranty.textContent).not.toMatch(/Documents|warranty_doc/);
   });
 
-  it("steps 6–8's events read in words, never the server's English fallback", async () => {
+  it("connection, portability and operations events read in words, never the server's English fallback", async () => {
     const state = ownerScenario();
     const sentences: Record<string, string> = {
       'webhook.create': 'Webhook added',
@@ -451,7 +451,7 @@ describe('activity', () => {
     expect(list.textContent).not.toContain('English, never shown');
   });
 
-  it("a reading's review reason reads in words, not its field or its code (UI step-4 review L10)", async () => {
+  it("a reading's review reason reads in words, not its field or its code", async () => {
     const state = ownerScenario();
     state.inventory.events.push({
       id: '01926f00-0000-7000-8000-0000000efd10',
@@ -478,7 +478,7 @@ describe('activity', () => {
     expect(row.textContent).not.toMatch(/Review reason|implausible_jump/);
   });
 
-  it("a created thing's row leaves out the values every new thing starts with (UI audit L9)", async () => {
+  it("a created thing's row leaves out the values every new thing starts with", async () => {
     const state = ownerScenario();
     const diff = {
       name: 'Drill',
@@ -515,7 +515,7 @@ describe('activity', () => {
     expect(row.textContent).not.toMatch(/Confirmed|Not sure where|In use|Quantity|Aliases/);
   });
 
-  it('a service line from stock says what it was used for, and links to it (D236)', async () => {
+  it('a service line from stock says what it was used for, and links to it', async () => {
     const state = ownerScenario();
     const event = (id: string, before: string, after: string) => ({
       id,
@@ -616,14 +616,14 @@ describe('the history timeline', () => {
     expect(screen.getByRole('heading', { name: 'History' })).toBeInTheDocument();
   });
 
-  it('a move in from a location you cannot see is its own row, with no old path (D183)', async () => {
+  it('a move in from a location you cannot see is its own row, with no old path', async () => {
     await renderTimeline({ kind: 'thing', id: T.hdmiCable });
     const row = await screen.findByRole('article', { name: 'Moved in from another location' });
     expect(within(row).queryByRole('term')).toBeNull();
     expect(row.textContent).not.toMatch(/Bruce/);
   });
 
-  it("a merged thing's events are in the survivor's history, marked merged from it (T15)", async () => {
+  it("a merged thing's events are in the survivor's history, marked merged from it", async () => {
     const state = ownerScenario();
     const cable = state.inventory.things.find((x) => x.id === T.hdmiCable);
     if (!cable) throw new Error('no cable');

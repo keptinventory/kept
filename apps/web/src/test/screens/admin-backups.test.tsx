@@ -1,5 +1,5 @@
 /**
- * Admin → Backups (T21; D64, D66, D181, D186, D193; frames 103–106) on the ops mock: the saved
+ * Admin → Backups (frames 103–106) on the ops mock: the saved
  * settings, the form's write-only and locked fields, the recovery kit's gate, Test, Run now, the
  * runs list's filters in the URL, plain HTTP, a member, and Arabic.
  */
@@ -19,7 +19,7 @@ type PutBody = {
   keep: Record<string, number>;
 };
 
-describe('Admin → Backups (T21)', () => {
+describe('Admin → Backups', () => {
   it('summarises the saved S3 target, and saves a change without sending any secret', async () => {
     const { user, mock } = await renderApp('/admin/backups');
     expect(await screen.findByText('Last good backup 4 hours ago')).toBeInTheDocument();

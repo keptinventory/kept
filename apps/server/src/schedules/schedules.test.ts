@@ -18,9 +18,9 @@ import {
 
 // Task 11 through the front door, as the web calls it (apps/web/src/api/household/{types,paths}.ts,
 // components/schedules/*, components/services/log-service-sheet.tsx): schedules on things and
-// places, "every N units and/or M months, whichever first" or once (D29, D146), completion
-// through a service record that re-anchors (D162), snooze, skip, and service records as
-// core (D113), with readings refused at entry as the meters section refuses them (D112).
+// places, "every N units and/or M months, whichever first" or once, completion
+// through a service record that re-anchors, snooze, skip, and service records as
+// core, with readings refused at entry as the meters section refuses them.
 
 let db: TestDb;
 let t: TestApp;
@@ -202,7 +202,7 @@ describe('POST /api/v1/schedules', () => {
     expect(read.json()).toMatchObject({ code: 'module_off' });
   });
 
-  it('puts a schedule on a place (D39): the boiler service', async () => {
+  it('puts a schedule on a place: the boiler service', async () => {
     const kitchen = await place(db, home, 'Kitchen');
     const s = await schedule(bruce, {
       subject: { placeId: kitchen },
@@ -218,7 +218,7 @@ describe('POST /api/v1/schedules', () => {
   });
 });
 
-describe('the due point (D29, D146, D162; Q2, Q28)', () => {
+describe('the due point', () => {
   it('"every 10,000 km or 12 months": due by months first, then by units', async () => {
     const car = await newCar('Accord');
     // Made eleven and a half months ago: the months side is due (inside the 14-day lead).
@@ -267,7 +267,7 @@ describe('the due point (D29, D146, D162; Q2, Q28)', () => {
     });
   });
 
-  it('a one-off is done once completed (D247): off the agenda, done in the lists, due again on undo', async () => {
+  it('a one-off is done once completed: off the agenda, done in the lists, due again on undo', async () => {
     const car = await newCar('Inspected');
     const s = await schedule(ibrahim, {
       subject: { thingId: car.thing.id },
@@ -542,7 +542,7 @@ describe('PATCH and DELETE /api/v1/schedules/:id', () => {
   });
 
   // catalogue: DELETE /api/v1/schedules/:id
-  it('deletes for good (Q25), and undo brings it back with its id', async () => {
+  it('deletes for good, and undo brings it back with its id', async () => {
     const car = await newCar('Deleter');
     const s = await schedule(ibrahim, {
       subject: { thingId: car.thing.id },
@@ -606,7 +606,7 @@ describe('GET /api/v1/schedules (the Schedules screen)', () => {
   });
 });
 
-describe('service records (core, D113)', () => {
+describe('service records (core)', () => {
   // catalogue: POST /api/v1/service-records
   it('logs a service with lines, a vendor by name and an invoice subject; the total is money', async () => {
     const car = await newCar('Logger');
@@ -730,7 +730,7 @@ describe('service records (core, D113)', () => {
     expect(priced.json()).toMatchObject({ code: 'module_off' });
   });
 
-  it('a back-dated service re-anchors (D162); deleting it puts the previous anchor back', async () => {
+  it('a back-dated service re-anchors; deleting it puts the previous anchor back', async () => {
     const car = await newCar('Backdated');
     const s = await schedule(ibrahim, {
       subject: { thingId: car.thing.id },

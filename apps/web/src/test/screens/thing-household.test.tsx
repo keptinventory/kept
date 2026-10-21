@@ -227,7 +227,7 @@ describe('variants', () => {
     expect(screen.queryByText('EGP 21,000.00')).toBeNull();
   });
 
-  it('with the modules off, the step-4 tabs are gone and Lend says "Off in this location"', async () => {
+  it('with the modules off, the household tabs are gone and Lend says "Off in this location"', async () => {
     desktop();
     const s = withLocation(IDS.home, (h) =>
       Object.assign(h, { preset: 'essentials', modules: [] }),
@@ -242,7 +242,7 @@ describe('variants', () => {
     expect(lend).toHaveTextContent('Off in this location');
   });
 
-  it('with Lending off, a thing still on loan can be marked returned (UI step-4 review L3)', async () => {
+  it('with Lending off, a thing still on loan can be marked returned', async () => {
     desktop();
     const s = withLocation(IDS.home, (h) =>
       Object.assign(h, { preset: 'essentials', modules: [] }),

@@ -9,7 +9,7 @@ import {
   storedCodeOf,
 } from './short-code.js';
 
-describe('short codes (D120: 6 Crockford base32 characters)', () => {
+describe('short codes (6 Crockford base32 characters)', () => {
   it('uses the 32-character Crockford alphabet, with no I, L, O or U', () => {
     expect(ALPHABET).toHaveLength(32);
     expect(new Set(ALPHABET).size).toBe(32);
@@ -42,13 +42,13 @@ describe('short codes (D120: 6 Crockford base32 characters)', () => {
     expect(normaliseInputCode('7k3\u20114mz')).toBe('7K34MZ');
   });
 
-  it('prints a code 3 + 3 around a non-breaking hyphen (D134), and anything else as it is', () => {
+  it('prints a code 3 + 3 around a non-breaking hyphen, and anything else as it is', () => {
     expect(printedCode('7KQ4MZ')).toBe('7KQ\u20114MZ');
     expect(normaliseInputCode(printedCode('7KQ4MZ'))).toBe('7KQ4MZ');
     expect(printedCode('ABC12')).toBe('ABC12');
     expect(printedCode('')).toBe('');
   });
-  it('stores a legacy or own code upper case, trimmed, with Eastern digits folded, and nothing else (D208)', () => {
+  it('stores a legacy or own code upper case, trimmed, with Eastern digits folded, and nothing else', () => {
     expect(storedCodeOf(' gar-٠٠٤٢ ')).toBe('GAR-0042');
     expect(storedCodeOf('bolt-01')).toBe('BOLT-01');
     expect(storedCodeOf('۱۲')).toBe('12');

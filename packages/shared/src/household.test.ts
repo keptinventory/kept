@@ -14,7 +14,7 @@ import {
 } from './household.js';
 import { LEAD_DEFAULTS } from './reminders.js';
 
-describe('addMonthsClamped() (Q27)', () => {
+describe('addMonthsClamped()', () => {
   it.each([
     ['2026-01-31', 1, '2026-02-28'],
     ['2028-01-31', 1, '2028-02-29'],
@@ -47,7 +47,7 @@ describe('addDays()', () => {
   });
 });
 
-describe('warrantyEnds() (L2: inclusive)', () => {
+describe('warrantyEnds() (inclusive)', () => {
   it.each([
     [{ startsOn: '2026-10-01', termMonths: 24 }, '2028-09-30'],
     [{ startsOn: '2026-01-31', termMonths: 1 }, '2026-02-27'],
@@ -62,7 +62,7 @@ describe('warrantyEnds() (L2: inclusive)', () => {
   });
 });
 
-describe('coverage() (D195)', () => {
+describe('coverage()', () => {
   const tv = [
     { id: 'maker', startsOn: '2026-01-10', termMonths: 12 },
     { id: 'extended', startsOn: '2027-01-10', termMonths: 24 },
@@ -110,7 +110,7 @@ describe('coverage() (D195)', () => {
   });
 });
 
-describe('claim transitions (Q18)', () => {
+describe('claim transitions', () => {
   it('lists a row for every status, and closed claims go nowhere', () => {
     expect(Object.keys(CLAIM_TRANSITIONS).sort()).toEqual([...CLAIM_STATUSES].sort());
     for (const closed of CLOSED_CLAIM_STATUSES) expect(CLAIM_TRANSITIONS[closed]).toEqual([]);
@@ -129,7 +129,7 @@ describe('claim transitions (Q18)', () => {
   });
 });
 
-describe('scheduleNext() (D29, D162; Q2, Q28)', () => {
+describe('scheduleNext()', () => {
   const boiler: ScheduleRule = { everyMonths: 12, anchorOn: '2025-11-15' };
   const oil: ScheduleRule = { everyUnits: '10000', anchorOn: '2026-01-01', anchorValue: '50000' };
   const both: ScheduleRule = { ...oil, everyMonths: 12 };
@@ -234,7 +234,7 @@ describe('scheduleNext() (D29, D162; Q2, Q28)', () => {
       { today: '2026-02-01' },
       { dueOn: '2026-03-31', state: 'upcoming' },
     ],
-    // One-off (D146).
+    // One-off.
     [
       'one-off: due',
       { dueOn: '2026-10-10', anchorOn: '2026-09-01' },
@@ -377,7 +377,7 @@ describe('scheduleNext() (D29, D162; Q2, Q28)', () => {
     );
   });
 
-  it('uses the plan defaults (§3.4, Q9)', () => {
+  it('uses the plan defaults', () => {
     expect(LEAD_DEFAULTS.schedule_days).toBe(14);
     expect(1 / Number(UNITS_LEAD_DIVISOR)).toBe(LEAD_DEFAULTS.schedule_units_ratio);
   });

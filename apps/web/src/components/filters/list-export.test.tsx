@@ -12,7 +12,7 @@ import {
   scopeOf,
 } from './list-export.household';
 
-// "Export view" and "Print" on a things list (step-7 T16, T22; D169).
+// "Export view" and "Print" on a things list.
 
 const HOME = '0199aa00-0000-7000-8000-000000000001';
 const TYPE_A = '0199aa00-0000-7000-8000-00000000000a';

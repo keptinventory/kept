@@ -16,8 +16,8 @@ import {
 } from '../../test/things.js';
 import { forgetFormerHostnames } from './former-hosts.js';
 
-// T16: label batches, blank sheets, "Printed OK?", claims and former hostnames, through the front
-// door in the web contract's shapes (apps/web/src/api/capture/types.ts "labels (T16)").
+// Label batches, blank sheets, "Printed OK?", claims and former hostnames, through the front
+// door in the web contract's shapes (apps/web/src/api/capture/types.ts "labels").
 
 let db: TestDb;
 let t: TestApp;
@@ -107,7 +107,7 @@ describe('POST /api/v1/labels/batches', () => {
       startCell: 5,
     });
     const out = ok(res, 201) as unknown as { batch: Batch; excluded: Json };
-    // A quantity row has one label (D137); an unknown id and another household's alike are
+    // A quantity row has one label; an unknown id and another household's alike are
     // "pending" (an offline capture looks the same).
     expect(out.excluded).toEqual({ pending: 2, other: 0 });
     expect(out.batch).toMatchObject({ locationId: home.id, kind: 'things', startCell: 5 });
@@ -124,7 +124,7 @@ describe('POST /api/v1/labels/batches', () => {
     ]);
     const events = await auditActions(home.id, 'label_batch.create');
     expect(events.map((e) => [e.entity_id, e.actor_id])).toEqual([[out.batch.id, louis.userId]]);
-    // A reprint is the same codes (D45).
+    // A reprint is the same codes.
     const again = ok(await call(t, `/api/v1/labels/batches/${out.batch.id}`, { as: talia }));
     expect((again as unknown as Batch).labels.map((l) => l.code)).toEqual([
       drill.shortCode,
@@ -235,7 +235,7 @@ describe('POST /api/v1/labels/batches', () => {
   });
 });
 
-describe('a dry run (the T28 preview)', () => {
+describe('a dry run (the preview)', () => {
   it('answers the labels, with paths, and saves and allocates nothing', async () => {
     const loc = await createLocation(t, db, ibrahim, 'household', 'Flat');
     const room = await place(db, loc, 'Kitchen');
@@ -396,7 +396,7 @@ describe('POST /api/v1/codes/:code/claim', () => {
     expect(rows).toEqual([{ thing_id: drill.id, is_primary: false, printed: true }]);
   });
 
-  it('makes a new box for a blank (D43), with the label as its code', async () => {
+  it('makes a new box for a blank, with the label as its code', async () => {
     const [code] = (await blanks(home, 1)) as [string];
     const id = newId();
     const out = ok(
@@ -442,7 +442,7 @@ describe('POST /api/v1/codes/:code/claim', () => {
   });
 });
 
-describe('a capture into a scanned blank (T13 claimCode)', () => {
+describe('a capture into a scanned blank (claimCode)', () => {
   const capture = (as: Person, body: Record<string, unknown>) =>
     call(t, '/api/v1/captures', { as, body, headers: { 'idempotency-key': newId() } });
   const captureBody = (over: Record<string, unknown>) => ({
@@ -506,7 +506,7 @@ describe('a capture into a scanned blank (T13 claimCode)', () => {
   });
 });
 
-describe('former hostnames (D120, Q32)', () => {
+describe('former hostnames', () => {
   it('redirects GET and HEAD from a former hostname, and refuses anything else with 421', async () => {
     await own(
       db,

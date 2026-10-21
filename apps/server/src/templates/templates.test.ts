@@ -6,7 +6,7 @@ import { type TestDb, testDb } from '../../test/db.js';
 import { call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { builtinType, createLocation, createThing, type Loc, ok, own } from '../../test/things.js';
 
-// T19: account templates shared per location, save-as-template and quick add, through the front
+// Account templates shared per location, save-as-template and quick add, through the front
 // door in the web contract's shapes (apps/web/src/api/capture/types.ts "templates and quick add").
 //
 // The household: Ibrahim owns Home and Garage (one account). In Home, Bruce is an admin, Louis a

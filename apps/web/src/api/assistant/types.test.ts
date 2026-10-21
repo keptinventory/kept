@@ -97,7 +97,7 @@ describe('the assistant mock', () => {
       expect(keys(t)).toEqual(['context', 'expiresAt', 'id', 'title', 'updatedAt']);
       expect(CONTEXT_KINDS).toContain(t.context.kind);
     }
-    // Talia's thread is hers alone, private even from the instance admin (D23).
+    // Talia's thread is hers alone, private even from the instance admin.
     expect(page.items.map((t) => t.id)).not.toContain(A.thread.talia);
     expect((await fail(api.thread(A.thread.talia))).status).toBe(404);
     expect((await api.threads({ q: 'garage' })).items.map((t) => t.id)).toEqual([
@@ -214,7 +214,7 @@ describe('the assistant mock', () => {
     );
   });
 
-  it('refuses a question while the location’s AI is paused (ai_paused, §7.15)', async () => {
+  it('refuses a question while the location’s AI is paused (ai_paused)', async () => {
     const e = await fail(
       api.ask(A.thread.found, {
         text: 'And the remote?',
@@ -232,7 +232,7 @@ describe('the assistant mock', () => {
     expect((await fail(api.thread(A.thread.arabic))).status).toBe(404);
   });
 
-  it('adds a spoken list as one card: kept items, edited, one event each (D213)', async () => {
+  it('adds a spoken list as one card: kept items, edited, one event each', async () => {
     const { proposals } = await api.thread(A.thread.list);
     const list = proposals[0] as Proposal;
     expect(list).toMatchObject({ tool: 'add_thing', status: 'open' });

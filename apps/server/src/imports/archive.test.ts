@@ -15,7 +15,7 @@ import { forgeZip } from '../../test/zip-forge.js';
 import { importArchiveKey } from '../storage/blob-store.js';
 import { pruneImports } from './prune.js';
 
-// Step-7 T8 (D146, D157, Q8, Q18): an archive import's upload, inspection, target and choices,
+// An archive import's upload, inspection, target and choices,
 // and the prune of abandoned runs, through the front door. Ibrahim owns Home; Bruce is its
 // admin, Louis a member. Alfred shares nothing with them.
 

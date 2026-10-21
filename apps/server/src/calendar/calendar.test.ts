@@ -9,7 +9,7 @@ import { createLocation, type Loc, own } from '../../test/things.js';
 import { createLogger } from '../http/logger.js';
 import { FEED_FETCHES_PER_MINUTE } from './routes.js';
 
-// The calendar feed through the front door (D142, D181): a link shown once and
+// The calendar feed through the front door: a link shown once and
 // stored as a hash, at most 3 live, revocable; the public .ics in the owner's own scope, with the
 // kinds they get and nothing hidden; 404 for anything wrong; 60 fetches a minute; the token never
 // in a log line.
@@ -253,7 +253,7 @@ describe('GET /cal/:token.ics', () => {
     expect(over.headers['retry-after']).toBeDefined();
   });
 
-  it('never writes the token to a log line (D181)', async () => {
+  it('never writes the token to a log line', async () => {
     const bruce = await person(t, db, 'bruce');
     const made = await createFeed(bruce);
     const token = made.path.slice('/cal/'.length, -'.ics'.length);

@@ -142,7 +142,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe('ListSurface (the list standard, L88)', () => {
+describe('ListSurface (the list standard)', () => {
   it('typing updates the URL, and the list follows', async () => {
     const { user, router } = await renderList();
     await user.type(screen.getByRole('searchbox', { name: 'Search Things' }), 'cable');
@@ -170,7 +170,7 @@ describe('ListSurface (the list standard, L88)', () => {
     expect(screen.getByRole('searchbox')).toHaveValue('box');
   });
 
-  it('hides a zero-count value when the definition says so (D191)', async () => {
+  it('hides a zero-count value when the definition says so', async () => {
     const { user } = await renderList();
     await user.click(screen.getByRole('button', { name: /^Filters/ }));
     const sheet = await screen.findByRole('dialog', { name: 'Filters' });
@@ -218,7 +218,7 @@ describe('ListSurface (the list standard, L88)', () => {
     await waitFor(() => expect(search(router)['f.kind']).toBeUndefined());
   });
 
-  it('groups under headings, from the Display menu (D211)', async () => {
+  it('groups under headings, from the Display menu', async () => {
     const { user, router } = await renderList();
     await user.click(display());
     const sheet = await screen.findByRole('dialog', { name: 'Display' });

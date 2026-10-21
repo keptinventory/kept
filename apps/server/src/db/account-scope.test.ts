@@ -5,8 +5,8 @@ import { testDb } from '../../test/db.js';
 import { addMember, ownerTx, pgError, seedTenant, seedUser } from '../../test/tenancy.js';
 import { type Scope, withScope } from './scope.js';
 
-// Account scope for the registries (D123), the recovery-kit gate for writers
-// (D193), registry history at account level, and the currency switch (D168).
+// Account scope for the registries, the recovery-kit gate for writers, registry history at account
+// level, and the currency switch.
 
 const db = await testDb();
 const app = db.pools.app;
@@ -90,7 +90,7 @@ describe('kept.recovery_kit_acknowledged()', () => {
   });
 });
 
-describe('registry history at account level (Q15)', () => {
+describe('registry history at account level', () => {
   // No RETURNING, as audited() writes (a writer need not be able to read the row back).
   const event = (accountId: string, userId: string, entityType: string) =>
     withScope(
@@ -157,7 +157,7 @@ describe('registry history at account level (Q15)', () => {
   });
 });
 
-describe('currencies (D168)', () => {
+describe('currencies', () => {
   it('lets an instance admin switch one on or off, and nothing else of the row', async () => {
     const admin = await seedTenant(db, 'admin');
     await ownerTx(db, (c) =>

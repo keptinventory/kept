@@ -13,9 +13,9 @@ import {
 } from '../../test/tenancy.js';
 import { withScope } from './scope.js';
 
-// Step-4 T5 (0050, 0051): warranties, claims, loans and service records under row-level security,
+// Migrations 0050, 0051: warranties, claims, loans and service records under row-level security,
 // their guards, the thing's state bump, moves across locations and accounts, and a loan counting
-// as a use of its person (D10, D53–D57, D172, D177).
+// as a use of its person.
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });
@@ -109,8 +109,8 @@ const lend = (userId: string, over: Record<string, unknown> = {}) =>
     return rows[0]?.id as string;
   });
 
-describe('warranties (D53, D55)', () => {
-  it('end where @kept/shared warrantyEnds() says, inclusive, clamping month ends (Q27)', async () => {
+describe('warranties', () => {
+  it('end where @kept/shared warrantyEnds() says, inclusive, clamping month ends', async () => {
     const cases = [
       { startsOn: '2026-10-01', termMonths: 24 },
       { startsOn: '2026-01-31', termMonths: 1 },
@@ -170,7 +170,7 @@ describe('warranties (D53, D55)', () => {
     ).toBe('42501');
   });
 
-  it('D10: need a thing of quantity 1, and hold it there (Q26: "Split it first")', async () => {
+  it('need a thing of quantity 1, and hold it there ("Split it first")', async () => {
     const cables = newId();
     await own(
       `INSERT INTO public.things (id, location_id, place_id, name, quantity)
@@ -191,7 +191,7 @@ describe('warranties (D53, D55)', () => {
   });
 });
 
-describe('claims (D54, D195; Q18)', () => {
+describe('claims', () => {
   it('move through CLAIM_TRANSITIONS; a closed claim reopens only through undo', async () => {
     const id = await addClaim(louis);
     const setStatus = (status: string, closed: string | null, undo = false) =>
@@ -229,7 +229,7 @@ describe('claims (D54, D195; Q18)', () => {
     );
   });
 
-  it('refuse a vendor of another account like a missing one (§7.13)', async () => {
+  it('refuse a vendor of another account like a missing one', async () => {
     const theirs = newId();
     await own(`INSERT INTO public.vendors (id, owner_account_id, name) VALUES ($1, $2, 'Shop')`, [
       theirs,
@@ -240,7 +240,7 @@ describe('claims (D54, D195; Q18)', () => {
   });
 });
 
-describe('loans (D56, D57, D172)', () => {
+describe('loans', () => {
   it('one open loan per thing; a person of the location account only', async () => {
     await lend(louis);
     expect((await pgError(lend(louis))).constraint).toBe('loans_one_open_uq');
@@ -284,7 +284,7 @@ describe('loans (D56, D57, D172)', () => {
     expect((await versions(drill))?.row_version).toBe(before?.row_version);
   });
 
-  it("make the person's contact details an admin's of every location they are used in (D177)", async () => {
+  it("make the person's contact details an admin's of every location they are used in", async () => {
     const visible = (userId: string) =>
       as(userId, async (c) => {
         const { rows } = await c.query<{ v: boolean }>(
@@ -307,7 +307,7 @@ describe('loans (D56, D57, D172)', () => {
   });
 });
 
-describe('service records (§7.1; Q1)', () => {
+describe('service records', () => {
   const log = (userId: string) =>
     as(userId, async (c) => {
       const { rows } = await c.query<{ id: string }>(
@@ -371,7 +371,7 @@ describe('service records (§7.1; Q1)', () => {
   });
 });
 
-describe('kept.move_things() with household records (Q17)', () => {
+describe('kept.move_things() with household records', () => {
   const move = (userId: string, to: string, place: string) =>
     as(userId, async (c) => {
       const { rows } = await c.query<{
@@ -479,7 +479,7 @@ describe('kept.move_things() with household records (Q17)', () => {
     expect(await own('SELECT 1 FROM public.incident_things WHERE thing_id = $1', [drill])).toEqual(
       [],
     );
-    // The warranty's document is re-homed as the thing's own files are (D161).
+    // The warranty's document is re-homed as the thing's own files are.
     expect(
       await own<{ location_id: string }>(
         `SELECT f.location_id FROM public.attachments a JOIN public.files f ON f.id = a.file_id

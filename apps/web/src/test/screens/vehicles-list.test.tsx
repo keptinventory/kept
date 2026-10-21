@@ -1,5 +1,5 @@
 /**
- * The Vehicles list (D52, D188, D205): the in-use vehicles of
+ * The Vehicles list: the in-use vehicles of
  * every location with the module on, each with its odometer and how old the reading is, what's
  * due next and its documents; the sold motorbike only under State: Sold; the stale and unknown
  * readings; Arabic digits and direction; the keyboard; offline.
@@ -48,7 +48,7 @@ describe('the Vehicles list', () => {
     expect(corolla).toHaveTextContent(/L\/100 km/);
   });
 
-  it('marks a stale reading and an unknown one (D52, D188)', async () => {
+  it('marks a stale reading and an unknown one', async () => {
     await renderApp('/vehicles', { state: seeded(), digits: 'western' });
     await list();
     expect(within(row('هيونداي إلنترا')).getByText('Reading is 34 days old')).toBeInTheDocument();

@@ -280,7 +280,7 @@ describe('the webhook sender', () => {
   });
 });
 
-describe('the ntfy and Telegram senders (D227)', () => {
+describe('the ntfy and Telegram senders', () => {
   const master = { key: randomBytes(32), keyVersion: 1 };
   const keyring = new Map([[1, master.key]]) as Keyring;
 
@@ -366,7 +366,7 @@ describe('the ntfy and Telegram senders (D227)', () => {
     ).rows;
     expect(row?.failing_since).not.toBeNull();
   });
-  it('sends to Apprise through the operator’s server, and only when there is one (D232)', async () => {
+  it('sends to Apprise through the operator’s server, and only when there is one', async () => {
     const calls: Array<{ url: string; body: Record<string, unknown> }> = [];
     const fetchFor = () =>
       (async (input: string | URL | Request, init?: RequestInit) => {

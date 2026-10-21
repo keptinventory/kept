@@ -1,5 +1,5 @@
 // The embedding door: one request, one ledger row, retries
-// off, and neither the values nor the vectors in the ledger or the logs (D206).
+// off, and neither the values nor the vectors in the ledger or the logs.
 import { APICallError } from 'ai';
 import { MockEmbeddingModelV4 } from 'ai/test';
 import { describe, expect, it } from 'vitest';

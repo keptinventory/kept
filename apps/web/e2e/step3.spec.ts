@@ -39,7 +39,7 @@ import { stateDirOf, urlOf } from './instances';
 
 const BASE = urlOf(CAPTURE_INSTANCE);
 const PASSWORD = 'kept-seed-password';
-/** A made-up key for the mock provider: KEPT_AI_MOCK=1 never sends it anywhere (D202 kind: groq). */
+/** A made-up key for the mock provider: KEPT_AI_MOCK=1 never sends it anywhere (kind: groq). */
 const MOCK_KEY = 'gsk_e2e-mock-provider-not-a-real-key';
 /** The seeded Bosch drill (camera-qr.y4m) and HDMI cable (Home; Talia is a viewer there). */
 const DRILL = { code: '2HX9RB', name: 'Bosch drill, 18 V' };
@@ -178,7 +178,7 @@ async function receiptFromGallery(page: Page) {
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Capture done', level: 1 })).toBeVisible();
   await page.getByRole('button', { name: 'Done', exact: true }).click();
-  // Uploaded and sent before anything navigates away (a page never unloads mid-upload: D148).
+  // Uploaded and sent before anything navigates away (a page never unloads mid-upload).
   await expect(page.getByText(/waiting to sync/)).toHaveCount(0, { timeout: 60_000 });
 }
 
@@ -295,7 +295,7 @@ test('a cold reload while offline opens the signed-in app from the phone', async
   await expect(page.getByRole('link', { name: /^Garage/ }).first()).toBeVisible();
   await axe(page, 'Home (cold start offline)');
 
-  // A 401 once back online still locks the phone (D210): the session is gone, so sign-in.
+  // A 401 once back online still locks the phone: the session is gone, so sign-in.
   await context.clearCookies();
   await context.setOffline(false);
   await expect(page).toHaveURL(/\/signin/, { timeout: 30_000 });
@@ -353,7 +353,7 @@ test('scan: the camera reads a seeded label and opens it (seen now); a random co
     await page.getByRole('link', { name: 'Scan' }).first().click();
     await expect(page).toHaveURL(new RegExp(`/t/${DRILL.code}`), { timeout: 30_000 });
     await expect(page.getByRole('heading', { name: DRILL.name, level: 1 })).toBeVisible();
-    // Marked seen by this scan (D40): today's history says so.
+    // Marked seen by this scan: today's history says so.
     await expect(page.getByRole('article', { name: `Saw ${DRILL.name}` }).first()).toBeVisible();
     await axe(page, 'Thing page after a scan');
     await context.close();
@@ -469,7 +469,7 @@ test('receipt: a `$` receipt picked from the Gallery in Receipt mode asks USD or
     await expect(review).toBeVisible({ timeout: 5_000 });
   }).toPass({ timeout: 120_000, intervals: [3_000] });
   await expect(ask).toContainText('“$” alone can mean US or Canadian dollars. Which was it?');
-  // Both offered, neither chosen for them (D189), here and in the review.
+  // Both offered, neither chosen for them, here and in the review.
   const currency = ask.getByRole('group', { name: 'Currency' });
   await expect(currency.getByRole('button')).toHaveText([/· USD$/, /· CAD$/]);
   await expect(review.getByRole('combobox', { name: 'Currency' })).toHaveValue('');
@@ -568,7 +568,7 @@ test('labels: three things on an A4 sheet from cell 5, printed to PDF at the she
   await expect(dialog).toBeHidden();
 
   // Home's checklist: the label step is done (it joins the done row as "Printed a label"). Get
-  // started is one line since D240; its chevron button opens the steps.
+  // started is one line; its chevron button opens the steps.
   await page.goto('/');
   const started = page.getByRole('region', { name: 'Get started' });
   await started.getByRole('button', { name: /^Get started/ }).click();

@@ -17,7 +17,7 @@ import { ownerTx } from '../../test/tenancy.js';
 import { RESET_CODE_LENGTH } from '../auth/managed.js';
 import { MAX_MANAGED_PER_LOCATION } from './routes.js';
 
-// Task 21: managed accounts (D47, D114, D164, D180) through the front door.
+// Managed accounts through the front door.
 
 let db: TestDb;
 let t: TestApp;
@@ -83,7 +83,7 @@ describe('POST /api/v1/locations/:id/managed-accounts', () => {
         [created.userId, homeId],
       ),
     );
-    // D114: even a managed account has its account and Personal location.
+    // Even a managed account has its account and Personal location.
     expect(rows[0]).toEqual({
       managed: true,
       created_by_user_id: admin.userId,
@@ -107,7 +107,7 @@ describe('POST /api/v1/locations/:id/managed-accounts', () => {
     });
     expect(signIn.statusCode, signIn.body).toBe(200);
 
-    // A managed account owns no location but its Personal one (D47, D114).
+    // A managed account owns no location but its Personal one.
     const cookie = jar(signIn);
     const own = await call(t, '/api/v1/locations', {
       as: { cookie },
@@ -116,7 +116,7 @@ describe('POST /api/v1/locations/:id/managed-accounts', () => {
     expect(own.statusCode).toBe(403);
   });
 
-  it('follows the role rules (D48, D180) and refuses Personal locations', async () => {
+  it('follows the role rules and refuses Personal locations', async () => {
     const member = await person(t, db, 'member');
     await join(db, homeId, member.userId, 'member');
     expect((await createManaged(member)).statusCode).toBe(403);
@@ -147,7 +147,7 @@ describe('POST /api/v1/locations/:id/managed-accounts', () => {
 
 describe('POST /api/v1/managed-accounts/:userId/reset-code', () => {
   // catalogue: POST /api/v1/managed-accounts/:userId/reset-code
-  it('lets the creator and the owner issue a new code, signing the account out (D164)', async () => {
+  it('lets the creator and the owner issue a new code, signing the account out', async () => {
     const created = (await createManaged(admin)).json();
     await redeem(created.username, created.code);
     const signIn = await call(t, '/api/v1/auth/sign-in/username', {
@@ -190,7 +190,7 @@ describe('POST /api/v1/managed-accounts/:userId/reset-code', () => {
   });
 });
 
-describe('reset authority (D197)', () => {
+describe('reset authority', () => {
   const resetBy = (as: Person, userId: string) =>
     call(t, `/api/v1/managed-accounts/${userId}/reset-code`, { as, body: {} });
 

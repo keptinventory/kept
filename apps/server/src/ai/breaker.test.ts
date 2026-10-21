@@ -4,7 +4,7 @@ import { CLOSED, clearAuth, FOREVER, nextBreaker, trippedAt } from './breaker.js
 const t0 = new Date('2026-09-26T12:00:00Z');
 const at = (s: number) => new Date(t0.getTime() + s * 1000);
 
-describe('the breaker (L45)', () => {
+describe('the breaker', () => {
   it('trips on the first 429 until retry-after, else 60 s', () => {
     const a = nextBreaker(CLOSED, { kind: 'rate_limited', retryAfterMs: 7000 }, t0);
     expect(trippedAt(a, at(6))).toEqual({ reason: 'rate_limited', until: at(7) });

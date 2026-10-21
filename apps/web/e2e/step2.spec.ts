@@ -2,8 +2,8 @@
  * Step 2's flows against the real server, on the `households` seed
  * (`kept admin seed --scenario households`, apps/server/src/seed): browse Home down to the Cable
  * box and the HDMI cable in it, search in English and Arabic, edit with a field-level conflict
- * from a second browser (D156), move, trash and restore with Undo, see it in Activity, and a
- * viewer's thing page without money or edit actions (D13, D110). Runs once per project (phone
+ * from a second browser, move, trash and restore with Undo, see it in Activity, and a
+ * viewer's thing page without money or edit actions. Runs once per project (phone
  * 375×780, desktop 1280×800), each on its own seeded instance (e2e/instances.ts), in order: the
  * later tests read what the earlier ones did.
  *
@@ -130,7 +130,7 @@ test('browse Home down to the Cable box and the HDMI cable; search in English an
   // A container opens on its contents.
   await visible(page, 'link', new RegExp(CABLE)).click();
   await expect(heading(page, CABLE)).toBeVisible();
-  // Its short ID chip (D120) and its path, ending in the box.
+  // Its short ID chip and its path, ending in the box.
   await expect(page.getByRole('img', { name: /^[0-9A-Z]{6}$/ }).first()).toBeVisible();
   await expect(visible(page, 'link', 'Cable box')).toBeVisible();
 
@@ -142,7 +142,7 @@ test('browse Home down to the Cable box and the HDMI cable; search in English an
   await expect(visible(page, 'link', /كابل HDMI/)).toBeVisible();
 });
 
-test('an edit that meets another person’s edit opens the conflict sheet (D156)', async ({
+test('an edit that meets another person’s edit opens the conflict sheet', async ({
   page,
   browser,
 }) => {
@@ -180,15 +180,13 @@ test('an edit that meets another person’s edit opens the conflict sheet (D156)
   expect(after.model).toBe('IBRAHIM-2M');
 });
 
-test('move it, trash it, restore it; Activity shows it and filters by person (D205)', async ({
-  page,
-}) => {
+test('move it, trash it, restore it; Activity shows it and filters by person', async ({ page }) => {
   await signIn(page, 'ibrahim@kept.test');
   const id = await thingId(page, 'hdmi', CABLE);
   await page.goto(`/t/${id}`);
   await expect(heading(page, CABLE)).toBeVisible();
 
-  // Move into the Living room (D45), with Undo on the toast (D150).
+  // Move into the Living room, with Undo on the toast.
   await thingAction(page, 'Move');
   const move = page.getByRole('dialog', { name: `Move ${CABLE}` });
   const where = move.getByRole('combobox', { name: 'Room, spot or box' });
@@ -214,7 +212,7 @@ test('move it, trash it, restore it; Activity shows it and filters by person (D2
     )
     .toBe('Cable box');
 
-  // Trash (D162), then restore from Trash.
+  // Trash, then restore from Trash.
   await page.reload();
   await expect(heading(page, CABLE)).toBeVisible();
   await thingAction(page, 'Move to Trash');
@@ -238,7 +236,7 @@ test('move it, trash it, restore it; Activity shows it and filters by person (D2
   await expect(feed.getByRole('article', { name: `Restored ${CABLE}` })).toBeVisible();
   await expect(feed.getByRole('article', { name: `Moved ${CABLE}` })).toBeVisible();
 
-  // The filter strip (D205): filter by person, save it as a view that opens by default. Here
+  // The filter strip: filter by person, save it as a view that opens by default. Here
   // rather than in a test of its own, which would sign in once more and meet the sign-in limit.
   await page.goto('/activity');
   await expect(feed).toBeVisible();
@@ -289,7 +287,7 @@ test('move it, trash it, restore it; Activity shows it and filters by person (D2
   expect(views.prefs.defaultViewId).toBe(mine?.id);
 });
 
-test('a viewer sees no money and no edit actions (D13, D110)', async ({ page }) => {
+test('a viewer sees no money and no edit actions', async ({ page }) => {
   await signIn(page, 'talia@kept.test');
   const id = await thingId(page, 'hdmi', CABLE);
   const raw = await (await page.request.get(`/api/v1/things/${id}`)).json();

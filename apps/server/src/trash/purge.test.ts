@@ -14,7 +14,7 @@ import { LocalBlobStore } from '../storage/local.js';
 import { createUrlSigner } from '../storage/signed-url.js';
 import { runPurge, trashJobs } from './jobs.js';
 
-// The `purge` system job end to end (D149, D161, D162). Fixtures are written as
+// The `purge` system job end to end. Fixtures are written as
 // kept_owner; the job runs as it does in the worker, on kept_system through the maintenance
 // doors of migration 0022, and deletes the blobs they hand back from a real local blob store.
 
@@ -100,7 +100,7 @@ beforeEach(async () => {
   logs.splice(0);
 });
 
-describe('the purge job (T21)', () => {
+describe('the purge job', () => {
   it('is scheduled daily at 03:17 UTC with its own policy', () => {
     const jobs = trashJobs({
       pools: db.pools,
@@ -179,7 +179,7 @@ describe('the purge job (T21)', () => {
     expect(await own('SELECT 1 FROM public.things WHERE location_id = $1', [home.id])).toEqual([]);
   });
 
-  it('purges locations past their grace period, with their blobs (D149)', async () => {
+  it('purges locations past their grace period, with their blobs', async () => {
     const gone = await location('Old flat');
     const kept = await location('Home');
     const goneBlob = await file(gone, 3, await thing(gone, 'Sofa', null));

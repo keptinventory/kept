@@ -12,7 +12,7 @@ import {
 } from './assistant.js';
 
 describe('assistant contracts', () => {
-  it('holds the plan’s limits (Q4, Q21) and lifetimes (D22, D23)', () => {
+  it('holds the plan’s limits and lifetimes', () => {
     expect(TURN_LIMITS).toEqual({
       maxSteps: 6,
       maxToolCallsPerStep: 4,

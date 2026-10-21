@@ -12,7 +12,7 @@ const SUPERUSER_MAINTENANCE_URL = 'postgres://postgres:postgres@localhost:5452/p
 // `currencies`, from task 9 onward). reset() leaves them alone.
 const REFERENCE_TABLES = new Set(['currencies']);
 
-// The built-in type library and place kinds (step 2) share their tables with tenants' own rows.
+// The built-in type library and place kinds share their tables with tenants' own rows.
 // reset() keeps the built-in rows (owner_account_id NULL) the clone got from `kept migrate`, and
 // deletes the rest: these tables and the two they reference (owner_accounts, auth.user) are kept
 // out of the TRUNCATE, whose CASCADE would otherwise empty them, and emptied with DELETE instead.

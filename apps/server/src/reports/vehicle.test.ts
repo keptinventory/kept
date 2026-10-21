@@ -22,7 +22,7 @@ import { runJob } from '../jobs/boss.js';
 import { reportJobs } from './jobs.js';
 import { gatherVehicle, type VehicleReportOptions } from './vehicle/gather.js';
 
-// Step-5 T15 (D51, D201; Q16): the vehicle history report, end to end through the front door and
+// The vehicle history report, end to end through the front door and
 // the `report` job, rendered for real (Typst in its child process) and read back with poppler.
 //
 // Ibrahim owns the Garage (Complete); Alfred is a member and logs the Corolla's fills, Bruce an
@@ -204,7 +204,7 @@ afterAll(async () => {
   await t.app.close();
 });
 
-describe('POST /api/v1/reports/vehicle-history (T15)', () => {
+describe('POST /api/v1/reports/vehicle-history', () => {
   it('bounds the odometer rows: photos, typed readings and the latest of each month', async () => {
     const options: VehicleReportOptions = {
       kind: 'vehicle_history',

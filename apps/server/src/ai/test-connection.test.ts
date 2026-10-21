@@ -7,7 +7,7 @@ import { testConnection, testSquare } from './test-connection.js';
 
 const req = { resolved: resolved('groq'), userId: 'owner', requestId: 'req-1', jobId: 'req-1' };
 
-describe('testConnection (D202, L50)', () => {
+describe('testConnection', () => {
   it('the square is 64×64 and carries no metadata', async () => {
     const meta = await sharp(await testSquare()).metadata();
     expect([meta.width, meta.height, meta.format, meta.exif]).toEqual([64, 64, 'jpeg', undefined]);

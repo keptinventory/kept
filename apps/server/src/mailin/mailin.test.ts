@@ -20,7 +20,7 @@ import {
   MailSourceError,
 } from './source.js';
 
-// Email-in (1.4, D231) through the front door and the job: a location's admins connect a
+// Email-in (1.4) through the front door and the job: a location's admins connect a
 // mailbox (the password sealed, never answered, never audited); the `mail-in` job reads only mail
 // that arrives after, and makes a draft receipt from each message's photos and PDFs, or from its
 // body as a PDF; the mailbox turns off when its creator stops administering the location or the
@@ -458,7 +458,7 @@ describe('reading a message', () => {
   });
 });
 
-describe('the IMAP source refuses private addresses (D128)', () => {
+describe('the IMAP source refuses private addresses', () => {
   const config: MailboxConfig = {
     host: '10.0.0.5',
     port: 993,

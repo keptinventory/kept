@@ -7,7 +7,7 @@ import { call, join, type Person, peopleApp, person, type RecordedJob } from '..
 import { createLocation, eventsOf, type Loc, own } from '../../test/things.js';
 import { withScope } from '../db/scope.js';
 
-// The location map (1.x, D237) through the front door: GET /api/v1/locations/:id/map and
+// The location map (1.x) through the front door: GET /api/v1/locations/:id/map and
 // PUT /api/v1/locations/:id/layout as the web calls them, its undo, and map_nodes' row-level
 // security. Fixtures are seeded as kept_owner; every read and write goes through the app as a
 // signed-in user on kept_app.
@@ -214,7 +214,7 @@ describe('GET /api/v1/locations/:id/map', () => {
     expect(things.get(ids.batteries)).toMatchObject({ parentId: ids.box, quantity: 2 });
     expect(things.get(ids.drill)?.parentId).toBe(ids.shelf);
     expect(things.get(ids.tv)?.parentId).toBe(ids.living);
-    // D249: what the shape picker ranks a thing's shapes from.
+    // What the shape picker ranks a thing's shapes from.
     expect(things.get(ids.tv)).toMatchObject({
       typeKey: 'tv_display',
       typeName: null,
@@ -233,7 +233,7 @@ describe('GET /api/v1/locations/:id/map', () => {
     );
   });
 
-  it('names a custom type, so its things get a shape from it (D249)', async () => {
+  it('names a custom type, so its things get a shape from it', async () => {
     const den = await placeOf(bobs, 'Den', null);
     const typeId = newId();
     await sql(

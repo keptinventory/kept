@@ -16,7 +16,7 @@ import {
 import type { Insights } from '../insights/service.js';
 import type { HomeOverview } from './overview.js';
 
-// Home's overview (1.6, D240) through the front door, as the web calls it (apps/web/src/api/
+// Home's overview (1.6) through the front door, as the web calls it (apps/web/src/api/
 // inventory/types.ts HomeOverview): the location cards' places, flags and value, the tiles' most
 // urgent items, and the Insights teaser; amounts only where the caller's gate shows money; nothing
 // from a location the caller can't see. And the activity feed's chips (`kind`).
@@ -156,7 +156,7 @@ beforeAll(async () => {
   await own(db, 'UPDATE public.things SET location_uncertain = true WHERE id = $1', [boat.id]);
 }, 120_000);
 
-describe('GET /api/v1/home/overview (D240)', () => {
+describe('GET /api/v1/home/overview', () => {
   it('needs a session', async () => {
     expect((await call(t, '/api/v1/home/overview')).statusCode).toBe(401);
   });
@@ -294,7 +294,7 @@ describe('GET /api/v1/home/overview (D240)', () => {
       expect(card(o, garage.id).flags.lowStock).toBe(0);
       expect(o.top.lentOut).toBeUndefined();
       expect(o.top.lowStock).toBeUndefined();
-      // The loan's reminder pauses with its module (D113), so it is not overdue either.
+      // The loan's reminder pauses with its module, so it is not overdue either.
       expect(o.top.overdue?.name).not.toBe('Bosch drill');
     } finally {
       await switchModule(home.id, 'lending', true);
@@ -303,7 +303,7 @@ describe('GET /api/v1/home/overview (D240)', () => {
   });
 });
 
-describe('GET /api/v1/activity?kind= (D240: Home’s chips)', () => {
+describe('GET /api/v1/activity?kind= (Home’s chips)', () => {
   let ann: Person;
   let loc: Loc;
   let box: Json;

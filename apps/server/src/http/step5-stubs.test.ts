@@ -8,8 +8,8 @@ import { INVENTORY_ROUTE_MODULES } from './routes.js';
 // T13 vehicles) are registered from the start, so no task edits http/routes.ts. Each adds its
 // route table's routes; the route catalogue (test/route-catalogue.test.ts) checks their writes.
 
-describe('the step-5 route stubs (T2)', () => {
-  it('are registered, after step 4’s and in the plan’s order', () => {
+describe('the vehicle route modules', () => {
+  it('are registered, after the household modules and in order', () => {
     const modules: readonly unknown[] = INVENTORY_ROUTE_MODULES;
     const at = [serviceDraftRoutes, fuelRoutes, vehicleRoutes].map((m) => modules.indexOf(m));
     expect(at.every((i) => i >= 0)).toBe(true);

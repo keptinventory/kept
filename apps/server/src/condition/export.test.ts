@@ -22,7 +22,7 @@ import { runKeptImport } from '../imports/kept/job.js';
 import { openKeptArchive, readManifest } from '../imports/kept/read.js';
 import { exportKey, importArchiveKey } from '../storage/blob-store.js';
 
-// Condition reports in a Kept export (D238, builds D235). Louis records Flat's move-in, with
+// Condition reports in a Kept export. Louis records Flat's move-in, with
 // photos, and Ibrahim finishes it; a move-out is still a draft. Ibrahim exports Flat (the real
 // export job) and Nora imports it on another server (a fresh database and blob store, the real
 // import job). Both reports come back as they were: kind, day, notes, rooms, conditions, notes,
@@ -152,7 +152,7 @@ beforeAll(async () => {
   await db.reset();
   files = await testFiles();
   await acknowledgeKit(db);
-  // An export is https only (D181).
+  // An export is https only.
   t = await peopleApp(db, {
     sent: [],
     files,
@@ -277,7 +277,7 @@ afterAll(async () => {
 
 const newIdOf = (oldId: string) => importedId(runId, oldId, runAt);
 
-describe('a Kept export with condition reports (D238)', () => {
+describe('a Kept export with condition reports', () => {
   it('holds the reports, their rooms, and their photos’ originals (format version 2 and later)', async () => {
     const staged = await stageKeptRun(
       db,

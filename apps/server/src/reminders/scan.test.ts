@@ -20,9 +20,9 @@ import type {
 } from './channel.js';
 import { runScan, type ScanDeps } from './scan.js';
 
-// The scan writes each occurrence exactly once (D111), fans it out to the
-// centre and the channels by recipients.ts (D29, D57), closes what the agenda
-// dropped (done, superseded, cancelled; D162) and never floods on resuming. Rows are
+// The scan writes each occurrence exactly once, fans it out to the
+// centre and the channels by recipients.ts, closes what the agenda
+// dropped (done, superseded, cancelled) and never floods on resuming. Rows are
 // seeded as kept_owner; the scan runs as kept_system (and the auth pool for addresses), as the
 // worker does.
 
@@ -183,7 +183,7 @@ beforeEach(async () => {
   murdock = await person('Murdock');
 });
 
-describe('exactly once (D111, §7.13)', () => {
+describe('exactly once', () => {
   it('two scans in a row, and two at once, write one occurrence and one delivery per user and channel', async () => {
     const lent = await loan(drill, ibrahim.userId, murdock, plus(-2));
     await runScan(deps());
@@ -253,7 +253,7 @@ describe('closing what the agenda dropped', () => {
     expect(await occurrences(maker)).toEqual([expect.objectContaining({ state: 'open' })]);
   });
 
-  it('trashing the thing cancels; restoring brings back the current period only (D162)', async () => {
+  it('trashing the thing cancels; restoring brings back the current period only', async () => {
     const milk = await thing('Fire extinguisher', { expiresOn: plus(10) });
     await runScan(deps());
     await own('UPDATE public.things SET deleted_at = now() WHERE id = $1', [milk]);
@@ -351,7 +351,7 @@ describe('closing what the agenda dropped', () => {
   });
 });
 
-describe('recipients (D29, D57; Q8, Q16)', () => {
+describe('recipients', () => {
   it('Bruce gets everything, Louis only his own loan, Talia nothing, Murdock never', async () => {
     const saw = await thing('Saw');
     const ladder = await thing('Ladder');
@@ -444,7 +444,7 @@ describe('recipients (D29, D57; Q8, Q16)', () => {
     ]);
   });
 
-  it('a user who hid Lending gets no loan reminder, and still gets the rest (§7.6; 0056)', async () => {
+  it('a user who hid Lending gets no loan reminder, and still gets the rest (0056)', async () => {
     await own(
       `INSERT INTO public.user_hidden_modules (user_id, location_id, module) VALUES ($1, $2, 'lending')`,
       [bruce, ibrahim.locationId],
@@ -462,7 +462,7 @@ describe('recipients (D29, D57; Q8, Q16)', () => {
   });
 });
 
-describe('choices for all locations (D239)', () => {
+describe('choices for all locations', () => {
   const choose = (rows: Array<[string, string | null, string, string, boolean]>) =>
     ownerTx(db, async (c) => {
       for (const [user, location, kind, channel, enabled] of rows) {
@@ -520,7 +520,7 @@ describe('choices for all locations (D239)', () => {
     expect(await notifiedUsers(cover)).toEqual([bruce]);
   });
 
-  it('a kind whose module is off stays paused, whatever was chosen (D113)', async () => {
+  it('a kind whose module is off stays paused, whatever was chosen', async () => {
     await choose([
       [louis, null, 'warranty', 'inapp', true],
       [louis, ibrahim.locationId, 'warranty', 'email', true],
@@ -537,7 +537,7 @@ describe('choices for all locations (D239)', () => {
   });
 });
 
-describe('time (D122; V21)', () => {
+describe('time', () => {
   it('quiet hours 22:00–07:00 hold an overdue delivery until 07:00 on the person’s clock', async () => {
     await own(
       `UPDATE public.user_profiles SET timezone = 'Europe/Berlin', quiet_from = '22:00',
@@ -599,7 +599,7 @@ describe('time (D122; V21)', () => {
   });
 });
 
-describe('the record and the admin alert (D166, §3.4)', () => {
+describe('the record and the admin alert', () => {
   it('writes instance_settings.reminder_scan', async () => {
     await loan(drill, ibrahim.userId, murdock, plus(-2));
     await runScan(deps());

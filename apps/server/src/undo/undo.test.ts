@@ -15,7 +15,7 @@ import {
 } from '../../test/things.js';
 import { undoableActions } from '../audit/undo.js';
 
-// T20 (D150, D124) through the front door: the actions step 3 adds to the undo route
+// T20 through the front door: the actions step 3 adds to the undo route
 // (place.trash; the web's lifecycle and trash toasts, whose events step 2 already writes), every
 // refusal's `reason`, who may undo whose change, GET /api/v1/things/:id/undoable, and that
 // another household reaches none of it. thing.extract and purchase.extract are undone end to
@@ -124,8 +124,8 @@ async function handWritten(
 
 // ---------------------------------------------------------------------------------------------
 
-describe('what step 3 undoes', () => {
-  it('registers a handler for every action D150 and plan Q23 name', () => {
+describe('what can be undone', () => {
+  it('registers a handler for every undoable action', () => {
     expect(undoableActions()).toEqual(
       expect.arrayContaining([
         'thing.update',
@@ -146,7 +146,7 @@ describe('what step 3 undoes', () => {
     );
   });
 
-  it('undoes a status change the web toasts: the header names it (D150)', async () => {
+  it('undoes a status change the web toasts: the header names it', async () => {
     const drill = await createThing(t, louis, home, { name: 'Drill' });
     const res = await call(t, `/api/v1/things/${drill.id}/lifecycle`, {
       as: louis,
@@ -262,7 +262,7 @@ describe('refusals: 409 undo_refused with a reason', () => {
     expect(again.json()).toMatchObject({ code: 'undo_refused', reason: 'already_undone' });
   });
 
-  it('expired once the 7 days are over, and the window is 7 days (D150)', async () => {
+  it('expired once the 7 days are over, and the window is 7 days', async () => {
     const jar = await createThing(t, louis, home, { name: 'Jar' });
     const before = Date.now();
     const eventId = await rename(louis, jar.id, 'Glass jar');
@@ -286,7 +286,7 @@ describe('refusals: 409 undo_refused with a reason', () => {
     expect((await thingRow(jar.id))?.name).toBe('Glass jar');
   });
 
-  it('not_undoable: a create, an undo (no redo), and a secret-class change (screens §8)', async () => {
+  it('not_undoable: a create, an undo (no redo), and a secret-class change', async () => {
     const vase = await createThing(t, louis, home, { name: 'Vase' });
     const [created] = await eventsOf(db, home.id, vase.id);
     const create = await undo(louis, created?.id as string);
@@ -309,7 +309,7 @@ describe('refusals: 409 undo_refused with a reason', () => {
 
 // ---------------------------------------------------------------------------------------------
 
-describe('who may undo (Q23)', () => {
+describe('who may undo', () => {
   let bowl: Json;
   let eventId: string;
 
@@ -351,7 +351,7 @@ describe('who may undo (Q23)', () => {
 
 // ---------------------------------------------------------------------------------------------
 
-describe('GET /api/v1/things/:id/undoable (D150: the timeline, 7 days)', () => {
+describe('GET /api/v1/things/:id/undoable (the timeline, 7 days)', () => {
   type Items = { items: { eventId: string; action: string; at: string; until: string }[] };
   const list = async (as: Person, id: string) => ok(await undoable(as, id)) as unknown as Items;
 

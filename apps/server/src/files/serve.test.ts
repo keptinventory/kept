@@ -21,7 +21,7 @@ import { createLogger } from '../http/logger.js';
 import { originalKey } from '../storage/blob-store.js';
 import { createUrlSigner } from '../storage/signed-url.js';
 
-// Serving files (D117, D157). Signed URLs from POST /api/v1/files/:id/url, bytes
+// Serving files. Signed URLs from POST /api/v1/files/:id/url, bytes
 // from GET /f/:token, which reads no session and marks every response as inert.
 
 let db: TestDb;
@@ -127,14 +127,14 @@ describe('POST /api/v1/files/:id/url and GET /f/:token', () => {
     }
   });
 
-  it('refuses a viewer the original: 403 (D117)', async () => {
+  it('refuses a viewer the original: 403', async () => {
     const { id } = await attachedPhoto();
     const res = await urlFor(vic, id, 'original');
     expect(res.statusCode).toBe(403);
     expect(res.json()).toMatchObject({ code: 'forbidden' });
   });
 
-  it('keeps an unattached upload to its uploader (§7.2), and other tenants out', async () => {
+  it('keeps an unattached upload to its uploader, and other tenants out', async () => {
     const up = await upload(t, ann, home, await uniqueJpeg());
     const id = (up.json() as FileView).id;
     expect((await urlFor(ann, id, 'original')).statusCode).toBe(200);
@@ -212,7 +212,7 @@ describe('POST /api/v1/files/:id/url and GET /f/:token', () => {
   });
 });
 
-describe("a thing's receipt after a move (?thingId=, D115)", () => {
+describe("a thing's receipt after a move (?thingId=)", () => {
   it('serves the original to a member of the thing’s location, even when the purchase is elsewhere', async () => {
     // Ann's purchase (with its receipt) is in her Office; the thing was moved to Home, where Bob
     // is a member and Vic a viewer, neither of whom can see the Office.

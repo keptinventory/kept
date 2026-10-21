@@ -1,4 +1,4 @@
-/** Try Kept's banner (D246): what this is, Reset, and Install Kept in the interface's language. */
+/** Try Kept's banner: what this is, Reset, and Install Kept in the interface's language. */
 import { screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { setLocale } from '@/lib/prefs';

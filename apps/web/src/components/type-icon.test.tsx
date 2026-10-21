@@ -4,7 +4,7 @@ import { resolveIcon, STATIC_ICONS, TypeIcon } from './type-icon';
 
 const svgOf = (el: HTMLElement) => el.querySelector('svg') as SVGElement;
 
-describe('TypeIcon (D98)', () => {
+describe('TypeIcon', () => {
   it('resolves a static Lucide icon', () => {
     const { container } = render(<TypeIcon icon="lucide:cable" />);
     const svg = svgOf(container);

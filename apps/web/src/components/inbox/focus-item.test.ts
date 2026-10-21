@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { focusInboxItem } from './inbox-list';
 
-// `j` focuses the next item on the next frame; a key pressed before that frame wins (T32).
+// `j` focuses the next item on the next frame; a key pressed before that frame wins.
 describe('focusInboxItem', () => {
   let frames: FrameRequestCallback[] = [];
   const flush = () => {

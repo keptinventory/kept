@@ -7,7 +7,7 @@ import { promisify } from 'node:util';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { type TestDb, testDb } from '../../test/db.js';
 
-// Optional tracing and error reporting (D84), each in a child process started the way
+// Optional tracing and error reporting, each in a child process started the way
 // the image starts Kept: `--import …/observability/tracing.ts` first. A local stub stands in for
 // both the OTLP collector and the Sentry-compatible endpoint, so nothing reaches the internet,
 // and every byte they are sent is searched for what must never leave.

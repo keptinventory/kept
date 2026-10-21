@@ -18,8 +18,8 @@ import { builtinType, createLocation, createThing, ok, own } from '../../test/th
 import { migrationsFolder } from './migrate.js';
 import { type Scope, withScope } from './scope.js';
 
-// Step 5, task 4 (0060, 0061): the stale-reading nudge's interval, readings that reach the
-// offline snapshot, and step 3's proof photos moved onto their reading (D27, D52, D195).
+// Migrations 0060, 0061: the stale-reading nudge's interval, readings that reach the
+// offline snapshot, and step 3's proof photos moved onto their reading.
 
 const db = await testDb();
 const app = db.pools.app;
@@ -65,7 +65,7 @@ const versions = async (thing: string) =>
     )
   ).rows[0] as { meter_version: number; row_version: number; change_seq: string };
 
-describe('meters.nudge_days (Q19)', () => {
+describe('meters.nudge_days', () => {
   it('is 30 days by default, 7–365 or none, and the meter’s writers set it', async () => {
     const a = await seedTenant(db, 'a');
     const { meter } = await car(a);
@@ -87,7 +87,7 @@ describe('meters.nudge_days (Q19)', () => {
   });
 });
 
-describe('readings reach the snapshot (Q18)', () => {
+describe('readings reach the snapshot', () => {
   it('bump the thing’s change_seq, never its row_version, on a real change only', async () => {
     const a = await seedTenant(db, 'a');
     const { thing, meter } = await car(a);
@@ -170,7 +170,7 @@ describe('readings reach the snapshot (Q18)', () => {
   });
 });
 
-describe('proof photos move to their reading (Q10)', () => {
+describe('proof photos move to their reading', () => {
   // 0061's last statement, run again on captures made through step 3's capture service. It is
   // idempotent, and a proof already on its reading (T8's capture) is left as it is.
   const moveProofs = (() => {

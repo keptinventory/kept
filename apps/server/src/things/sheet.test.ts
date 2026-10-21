@@ -2,7 +2,7 @@ import pg from 'pg';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
-import { call, join, type Person, peopleApp, person } from '../../test/people.js';
+import { call, join, type Person, peopleApp, person, type RecordedJob } from '../../test/people.js';
 import {
   builtinType,
   createLocation,
@@ -16,7 +16,7 @@ import {
   setDisplayName,
 } from '../../test/things.js';
 
-// The spreadsheet view (1.x, D250) through the front door, as the web calls it
+// The spreadsheet view (1.x) through the front door, as the web calls it
 // (apps/web/src/api/inventory/{types,paths}.ts SheetRow, BulkEditBody, mock/sheet.ts): every
 // request as a signed-in user on kept_app, so row-level security and can() decide.
 
@@ -28,11 +28,12 @@ let vic: Person; // viewer of home
 let bob: Person; // outsider
 let home: Loc;
 let garage: Loc; // ann's too
+const sent: RecordedJob[] = [];
 
 beforeAll(async () => {
   db = await testDb();
   await db.reset();
-  t = await peopleApp(db);
+  t = await peopleApp(db, { sent });
   ann = await person(t, db, 'ann');
   mo = await person(t, db, 'mo');
   vic = await person(t, db, 'vic');
@@ -141,7 +142,7 @@ describe('GET /api/v1/things/sheet', () => {
     });
     expect(row.rowVersion).toBeGreaterThan(0);
 
-    // A viewer, with money hidden from viewers: the date, never the amount (D13).
+    // A viewer, with money hidden from viewers: the date, never the amount.
     const seen = (await sheet(vic, `locationId=${loc.id}&q=Drill`)).items[0] as Row;
     expect(seen.purchase).toEqual({ purchasedOn: '2026-09-01', moneyHidden: true });
 
@@ -423,7 +424,7 @@ describe('POST /api/v1/things/bulk-edit', () => {
         ])
       ).statusCode,
     ).toBe(400);
-    // The thing form's checks: a blank name, and a quantity for a serialized thing (D10).
+    // The thing form's checks: a blank name, and a quantity for a serialized thing.
     const laptop = await createThing(t, ann, home, {
       name: 'Old laptop',
       typeId: await builtinType(db, 'electronics'),
@@ -496,6 +497,83 @@ describe('POST /api/v1/audit/undo (together)', () => {
     expect(rows).toHaveLength(2);
     // An outsider can't see the events: 404.
     expect((await undoTogether(bob, [saved.events[2] as string])).statusCode).toBe(404);
+  });
+  it.each([1, 10])(
+    'undoes a %i-row save of renames, brands, models, tags and moves, and reindexes only for a renamed box',
+    async (n) => {
+      const shelf = await place(db, home, `Undo shelf ${n}`);
+      const [red, green] = [await tag(`Red ${n}`), await tag(`Green ${n}`)];
+      const acme = await brand(`Acme ${n}`);
+      const ids: string[] = [];
+      for (let i = 0; i < n; i++) {
+        ids.push((await createThing(t, mo, home, { name: `Mug ${n}-${i}`, tagIds: [red] })).id);
+      }
+      const edits = [];
+      for (const [i, id] of ids.entries()) {
+        edits.push({
+          id,
+          rowVersion: await versionOf(id),
+          set: {
+            name: `Cup ${n}-${i}`,
+            brandId: acme,
+            model: `C-${i}`,
+            tagIds: [green],
+            ...(i % 2 === 0 ? { to: { placeId: shelf } } : {}),
+          },
+        });
+      }
+      const saved = ok(await bulkEdit(mo, edits)) as unknown as { events: string[] };
+      expect(saved.events).toHaveLength(n + Math.ceil(n / 2));
+      sent.length = 0;
+      const undone = await undoTogether(mo, saved.events);
+      expect(undone.statusCode, undone.body).toBe(200);
+      expect((undone.json() as { undone: unknown[] }).undone).toHaveLength(saved.events.length);
+      const back = await own<{
+        name: string;
+        brand_id: string | null;
+        model: string | null;
+        place_id: string;
+      }>(
+        db,
+        'SELECT name, brand_id, model, place_id FROM public.things WHERE id = ANY ($1::uuid[]) ORDER BY name',
+        [ids],
+      );
+      expect(back).toEqual(
+        ids
+          .map((_, i) => ({
+            name: `Mug ${n}-${i}`,
+            brand_id: null,
+            model: null,
+            place_id: home.unplacedId,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name)),
+      );
+      const tagged = await own<{ tag_id: string }>(
+        db,
+        'SELECT DISTINCT tag_id FROM public.thing_tags WHERE thing_id = ANY ($1::uuid[])',
+        [ids],
+      );
+      expect(tagged).toEqual([{ tag_id: red }]);
+      // A renamed thing that holds nothing leaves no other thing's breadcrumbs stale, as for the
+      // save itself: no location reindex.
+      expect(sent.filter((j) => j.name === 'reindex')).toEqual([]);
+    },
+  );
+
+  it("reindexes the location when a renamed box's undo changes its contents' breadcrumbs", async () => {
+    const crate = await createThing(t, mo, home, {
+      name: 'Tool crate',
+      typeId: await builtinType(db, 'box_bin'),
+    });
+    await createThing(t, mo, home, { name: 'Spanner', containerId: crate.id });
+    const saved = ok(
+      await bulkEdit(mo, [
+        { id: crate.id, rowVersion: await versionOf(crate.id), set: { name: 'Red crate' } },
+      ]),
+    ) as unknown as { events: string[] };
+    sent.length = 0;
+    ok(await undoTogether(mo, saved.events));
+    expect(sent).toContainEqual({ name: 'reindex', data: { locationId: home.id } });
   });
 });
 

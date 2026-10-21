@@ -15,7 +15,7 @@ import { type AuditEventInput, audited, auditedMany } from './audited.js';
 import { classOf } from './classes.js';
 import { renderAudit } from './render.js';
 
-// audited() and renderAudit() (D110).
+// audited() and renderAudit().
 
 const db = await testDb();
 
@@ -143,7 +143,7 @@ describe('audited()', () => {
     expect((await storedEvent(id)).row.diff).toEqual(diff);
   });
 
-  it('writes an event even when nothing changed (every write audits, D188)', async () => {
+  it('writes an event even when nothing changed (every write audits)', async () => {
     const { id, diff } = await asUser(t.userId, (tx) =>
       audited(tx, locationUpdate({ before: { name: 'A' }, after: { name: 'A' } })),
     );
@@ -208,7 +208,7 @@ describe('audited()', () => {
     });
   });
 
-  it('stores a money field in full and tags it (type_fields.kind = money, §7.5)', async () => {
+  it('stores a money field in full and tags it (type_fields.kind = money)', async () => {
     const { id, diff } = await asUser(t.userId, (tx) =>
       audited(
         tx,
@@ -361,7 +361,7 @@ describe('renderAudit()', () => {
     return (await storedEvent(id)).row;
   }
 
-  it('hides money from a viewer unless the location allows it (D110, D13)', async () => {
+  it('hides money from a viewer unless the location allows it', async () => {
     const event = await moneyEvent();
     const hidden = renderAudit(event, { role: 'viewer', moneyVisibleToViewers: false });
     expect(hidden.diff).toEqual({

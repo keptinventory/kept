@@ -52,7 +52,7 @@ describe('compareCatalogues', () => {
   });
 });
 
-describe('the launch languages (D204)', () => {
+describe('the launch languages', () => {
   it('requires all five in the config', () => {
     expect(missingLocales(['en', 'ar', 'fr', 'de', 'it'])).toEqual([]);
     expect(missingLocales(['en', 'ar'])).toEqual(['fr', 'de', 'it']);

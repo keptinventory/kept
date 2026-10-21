@@ -1,5 +1,5 @@
 /**
- * Search offline (step-3 DoD: "findable offline"; D17, D42, D112, D188): the Things group answers
+ * Search offline (step-3 DoD: "findable offline"): the Things group answers
  * from the phone's copy, "on this phone · as of last sync", with captures still waiting to sync
  * ("ID pending"), Arabic folding and aliases, and where each thing is. Documents keep "need a
  * connection". The store is the real `MemoryStore` (open.ts is stood in for: jsdom has no
@@ -52,7 +52,7 @@ vi.mock('@/offline/open', () => {
 async function phone() {
   const store = Object.assign(new MemoryStore(), { setMeta: async () => {} });
   await store.applySnapshot(firstPage());
-  // A capture taken offline, not synced yet: no short ID (D112).
+  // A capture taken offline, not synced yet: no short ID.
   const id = newId();
   await store.enqueue(
     {
@@ -114,7 +114,7 @@ describe('search offline', () => {
     expect(screen.queryByText('Loading')).toBeNull();
   });
 
-  it('finds a capture still waiting to sync, "ID pending" (D112)', async () => {
+  it('finds a capture still waiting to sync, "ID pending"', async () => {
     await offlineSearch('/search?q=sander');
     const list = await screen.findByRole('list', { name: 'Things found' }, { timeout: 3000 });
     const sander = within(list).getByRole('link', { name: /Orbital sander/ });
@@ -122,7 +122,7 @@ describe('search offline', () => {
     expect(sander.textContent).toContain('Home › Shelf A');
   });
 
-  it('folds Arabic and finds by alias and short ID, like the server (D42)', async () => {
+  it('folds Arabic and finds by alias and short ID, like the server', async () => {
     await offlineSearch('/search?q=كابل');
     const list = await screen.findByRole('list', { name: 'Things found' }, { timeout: 3000 });
     expect(within(list).getByRole('link', { name: /الكابل/ })).toBeInTheDocument();

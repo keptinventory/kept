@@ -27,7 +27,7 @@ import { PaperlessClient, PaperlessError } from './client.js';
 import { paperlessRoot, paperlessToken } from './config.js';
 import { kindOf } from './kinds.js';
 
-// Paperless-ngx (1.x, D248) through the front door: a location's admins connect it (the token
+// Paperless-ngx (1.x) through the front door: a location's admins connect it (the token
 // sealed, never answered, logged or audited); members search it through Kept, link documents to a
 // thing or a place (Kept caches what Paperless says, not what the browser sent), see thumbnails
 // re-encoded and access-checked, download, copy a document into Kept, and unlink; viewers see the

@@ -54,8 +54,7 @@ import { sweepExportScratch } from './purge.js';
 import { EXPORTED_ENTITIES } from './registry.js';
 import type { ExportRunView } from './service.js';
 
-// Step 7, T12 and T13 (D68, D69, D110, D157, D159, D169, D180; plan Q5, Q7, Q12, Q14, Q17, Q22,
-// Q23): the Kept export through the front door, its job run as the worker would, and the ZIP read
+// The Kept export through the front door, its job run as the worker would, and the ZIP read
 // back entry by entry.
 //
 // Ibrahim owns Home (Complete: money and secrets on). Bruce is an admin there, Louis a member and
@@ -149,7 +148,7 @@ beforeAll(async () => {
     sent,
     files,
     secretKeys: keys,
-    // An export is https only (D181); the refusal over http is tested below.
+    // An export is https only; the refusal over http is tested below.
     publicUrl: 'https://kept.example',
   });
   ibrahim = await person(t, db, 'ibrahim');
@@ -271,7 +270,7 @@ describe('who may export', () => {
     expect(first.statusCode).toBe(202);
     const busy = await createExport(bruce, { scope });
     expect(busy.json()).toMatchObject({ code: 'export_running' });
-    // Anyone's, though the run itself is invisible to another admin (D180; 0101's door).
+    // Anyone's, though the run itself is invisible to another admin (0101's door).
     const theirs = await createExport(ibrahim, { scope });
     expect(theirs.json()).toMatchObject({ code: 'export_running' });
     await own(
@@ -408,7 +407,7 @@ describe('a location export', () => {
     expect(JSON.stringify(audit)).not.toContain(SECRET);
   });
 
-  it('is gone for a creator who stops administering the location (D180)', async () => {
+  it('is gone for a creator who stops administering the location', async () => {
     const { id } = await exported(bruce, {
       scope: { locationId: home.id },
       options: { readable: false, history: false },
@@ -555,7 +554,7 @@ describe('the readable copy', () => {
   });
 });
 
-describe('another tenant (step-7 definition of done 2)', () => {
+describe('another tenant', () => {
   it("a byte search of Home's export, the ZIP and its readable copy, finds nothing of Alfred's household", async () => {
     // Alfred's household, with Ibrahim a member of it: the exporter can see it, so only the
     // export's own scoping keeps it out.
@@ -672,7 +671,7 @@ describe('the purge', () => {
   });
 });
 
-describe('over plain http (D181, step-8 T24)', () => {
+describe('over plain http', () => {
   it('refuses to start an export: 403 https_required, and no run is made', async () => {
     const plain = await peopleApp(db, { files });
     try {

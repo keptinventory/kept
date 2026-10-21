@@ -1,4 +1,4 @@
-/** Try Kept (D246): each visit and Reset start from the same household; display prefs stay. */
+/** Try Kept: each visit and Reset start from the same household; display prefs stay. */
 import { describe, expect, it, vi } from 'vitest';
 import { forgetHousehold, forgetHouseholdHere, resetTry } from './reset';
 

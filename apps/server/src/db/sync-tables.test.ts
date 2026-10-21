@@ -15,7 +15,7 @@ import {
 import { withScope, withSystem } from './scope.js';
 
 // The sync ledger, legacy codes, box checks, the cover cache and tombstones on
-// arrival (D40, D146, D156, D175, D195).
+// arrival.
 
 const db = await testDb();
 
@@ -211,7 +211,7 @@ describe('box checks', () => {
   });
 });
 
-describe('the cover cache (D195)', () => {
+describe('the cover cache', () => {
   async function photo(sort: number): Promise<{ file: string; attachment: string }> {
     const file = newId();
     const attachment = newId();
@@ -281,7 +281,7 @@ describe('the cover cache (D195)', () => {
   });
 });
 
-describe('tombstones on arrival (§7.4, D156)', () => {
+describe('tombstones on arrival', () => {
   it('a thing moved A → B → A → B leaves exactly one tombstone, where it last left', async () => {
     const b = await ownerTx(db, (c) =>
       insertLocation(c, { userId: t.userId, accountId: t.accountId }, { name: 'Cottage' }),

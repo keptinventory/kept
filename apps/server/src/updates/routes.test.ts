@@ -5,7 +5,7 @@ import { call, type Person, peopleApp, person } from '../../test/people.js';
 import { asOwner, ownerTx } from '../../test/tenancy.js';
 import { UPDATE_CHECK_ENABLED_KEY } from './check.js';
 
-// "Check now" (D65) through the front door. The test app has no KEPT_SOURCE_URL, so
+// "Check now" through the front door. The test app has no KEPT_SOURCE_URL, so
 // the check can't be a GitHub one and nothing leaves the machine; updates/check.test.ts drives
 // the GitHub answers against a local stub.
 

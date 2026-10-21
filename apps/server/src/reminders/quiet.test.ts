@@ -21,8 +21,8 @@ function transitions(year: number, zone: string): Date[] {
   return out;
 }
 
-describe('wall clocks (V21)', () => {
-  it("finds Cairo's two 2026 changes where the spike did", () => {
+describe('wall clocks', () => {
+  it("finds Cairo's two 2026 changes where the tz database has them", () => {
     expect(transitions(2026, CAIRO).map(iso)).toEqual([
       '2026-04-23T22:00:00.000Z',
       '2026-10-29T21:00:00.000Z',
@@ -54,7 +54,7 @@ describe('wall clocks (V21)', () => {
   });
 });
 
-describe('notBefore (Q9)', () => {
+describe('notBefore', () => {
   it('holds a message inside 22:00–07:00 until 07:00, across midnight', () => {
     // 23:30 in Berlin in summer (UTC+2) → 07:00 the next morning.
     expect(

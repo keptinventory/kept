@@ -64,7 +64,7 @@ describe('one id namespace for things and places (#35)', () => {
     expect(err).toMatchObject({ code: '23505', constraint: 'inventory_ids_pkey' });
   });
 
-  it('lets both conversions keep the id (Q14)', async () => {
+  it('lets both conversions keep the id', async () => {
     const box = newId();
     await insertPlace(a, box);
     await run(a, 'SELECT kept.convert_place_to_container($1, NULL)', [box]);

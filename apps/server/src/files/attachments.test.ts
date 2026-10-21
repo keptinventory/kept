@@ -14,7 +14,7 @@ import {
 import { auditOf, call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { ownerTx } from '../../test/tenancy.js';
 
-// Attachments (D115, D128, D155, D162, D177), through the front door, in the web
+// Attachments, through the front door, in the web
 // contract's shapes (apps/web/src/api/inventory/types.ts AttachmentView).
 
 let db: TestDb;
@@ -130,7 +130,7 @@ describe('POST /api/v1/attachments', () => {
     expect(subjects).toEqual([{ thing_id: thing }]);
   });
 
-  it('keeps a link as a link: never fetched, file null (D128)', async () => {
+  it('keeps a link as a link: never fetched, file null', async () => {
     const res = await attach(bob, {
       locationId: home,
       url: 'https://example.com/manual.pdf',
@@ -147,7 +147,7 @@ describe('POST /api/v1/attachments', () => {
     });
   });
 
-  it('attaches to a place, and to the location itself (D155)', async () => {
+  it('attaches to a place, and to the location itself', async () => {
     const place = await seedPlace(db, home);
     const onPlace = await attach(bob, {
       locationId: home,
@@ -188,7 +188,7 @@ describe('POST /api/v1/attachments', () => {
     expect((await attach(eve, body)).statusCode).toBe(404);
   });
 
-  it("can't attach someone else's unattached upload (it is theirs alone until attached, §7.2)", async () => {
+  it("can't attach someone else's unattached upload (it is theirs alone until attached)", async () => {
     const annsDraft = await uploaded(ann, home);
     const res = await attach(bob, {
       locationId: home,
@@ -199,7 +199,7 @@ describe('POST /api/v1/attachments', () => {
     expect(res.statusCode, res.body).toBe(404);
   });
 
-  it("can't attach a file from another location or another tenant (D177)", async () => {
+  it("can't attach a file from another location or another tenant", async () => {
     const garage = await newLocation(ann, 'Garage');
     const fromGarage = await uploaded(ann, garage);
     const cross = await attach(ann, {
@@ -487,7 +487,7 @@ describe('GET …/attachments lists', () => {
   });
 });
 
-describe('DELETE /api/v1/files/:id: "delete original" (D162)', () => {
+describe('DELETE /api/v1/files/:id: "delete original"', () => {
   // catalogue: DELETE /api/v1/files/:id
   it('lets an admin remove a mistaken upload for good, with its attachments, audited with the reason', async () => {
     const fileId = await uploaded(bob, home, await fixture('photo.jpg'));
@@ -520,7 +520,7 @@ describe('DELETE /api/v1/files/:id: "delete original" (D162)', () => {
     expect((await del(dan)).statusCode).toBe(404);
   });
 
-  it('deletes the blobs after the commit, keeping those a cross-account copy still shares (D161)', async () => {
+  it('deletes the blobs after the commit, keeping those a cross-account copy still shares', async () => {
     const keysOf = async (fileId: string) =>
       (
         await own<{ key: string }>(

@@ -12,7 +12,7 @@ import {
 } from '../../test/tenancy.js';
 import { type Scope, withScope } from './scope.js';
 
-// Core meters, readings and events (D10, D52, D113).
+// Core meters, readings and events.
 
 const db = await testDb();
 const app = db.pools.app;
@@ -50,7 +50,7 @@ const meter = (t: Tenant, thingId: string) =>
     [t.locationId, thingId],
   ).then((r) => r[0]?.id as string);
 
-describe('meters and quantity (D10)', () => {
+describe('meters and quantity', () => {
   let a: Tenant;
   beforeEach(async () => {
     a = await seedTenant(db, 'a');

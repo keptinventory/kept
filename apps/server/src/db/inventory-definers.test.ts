@@ -15,8 +15,7 @@ import {
 } from '../../test/tenancy.js';
 import { type Scope, withScope } from './scope.js';
 
-// The definer paths (D45, D92, D115, D123,
-// D160, D161, D177): moves, conversions, merges, customising types and
+// The definer paths: moves, conversions, merges, customising types and
 // their impact. Called as kept_app, the way the routes will.
 
 const db = await testDb();
@@ -128,7 +127,7 @@ const move = (
     dropped_incident_ids: string[];
   }>(as(userId), 'SELECT * FROM kept.move_things($1, $2, $3, $4)', [ids, to, placeId, containerId]);
 
-describe('kept.move_things() within an account (D45)', () => {
+describe('kept.move_things() within an account', () => {
   let a: Tenant;
   let flat: Loc;
   let member: string;
@@ -193,7 +192,7 @@ describe('kept.move_things() within an account (D45)', () => {
     expect(tombs.map((t) => t.entity_id).sort()).toEqual([box, one, two].sort());
   });
 
-  it('keeps the purchase line in the old location (D115) and drops links that would cross', async () => {
+  it('keeps the purchase line in the old location and drops links that would cross', async () => {
     const purchase = newId();
     const line = newId();
     await own(
@@ -260,7 +259,7 @@ describe('kept.move_things() within an account (D45)', () => {
   });
 });
 
-describe('kept.move_things() across accounts (Q13, D161)', () => {
+describe('kept.move_things() across accounts', () => {
   it('copies the custom type, tag, person and purchase with its receipt; files share the blob', async () => {
     const m = await seedTenant(db, 'mover', { kind: 'personal' });
     const b = await seedTenant(db, 'b');
@@ -364,7 +363,7 @@ describe('kept.move_things() across accounts (Q13, D161)', () => {
     expect(await own('SELECT tag_id FROM public.thing_tags WHERE thing_id = $1', [phone])).toEqual([
       { tag_id: bTag },
     ]);
-    // The person: by name only; contacts stay behind (D177).
+    // The person: by name only; contacts stay behind.
     const [p] = await own<{ owner_account_id: string; display_name: string; contacts: number }>(
       `SELECT p.owner_account_id, p.display_name,
               (SELECT count(*) FROM public.person_contacts c WHERE c.person_id = p.id)::int AS contacts
@@ -413,7 +412,7 @@ describe('kept.move_things() across accounts (Q13, D161)', () => {
   });
 });
 
-describe('conversions between a place and a container (D160, Q14)', () => {
+describe('conversions between a place and a container', () => {
   let a: Tenant;
   beforeEach(async () => {
     a = await seedTenant(db, 'a');
@@ -511,7 +510,7 @@ describe('conversions between a place and a container (D160, Q14)', () => {
   });
 });
 
-describe('kept.merge_places() (D160)', () => {
+describe('kept.merge_places()', () => {
   it('moves everything under one place into another, its codes as secondary ones', async () => {
     const a = await seedTenant(db, 'a');
     const from = await place(a, 'Garage');
@@ -549,7 +548,7 @@ describe('kept.merge_places() (D160)', () => {
   });
 });
 
-describe('kept.merge_registry() (D92, D123)', () => {
+describe('kept.merge_registry()', () => {
   let b: Tenant;
   let flat: Loc;
   let admin: string;
@@ -651,7 +650,7 @@ describe('kept.merge_registry() (D92, D123)', () => {
   });
 });
 
-describe('kept.customise_type() and kept.type_impact() (D92, D123, Q13b)', () => {
+describe('kept.customise_type() and kept.type_impact()', () => {
   let b: Tenant;
   let flat: Loc;
   let admin: string;
@@ -762,7 +761,7 @@ describe('kept.customise_type() and kept.type_impact() (D92, D123, Q13b)', () =>
     }
   });
 
-  it('counts a type’s things per location, naming only the ones the caller can see (D123)', async () => {
+  it('counts a type’s things per location, naming only the ones the caller can see', async () => {
     const lamp = newId();
     const desk = newId();
     await own(
@@ -1005,7 +1004,7 @@ describe('I2: kept.type_impact() counts hidden locations for admins only', () =>
   });
 });
 
-describe('I3: a copied purchase carries only the thing’s line (D115)', () => {
+describe('I3: a copied purchase carries only the thing’s line', () => {
   it('leaves the header’s total, tax and notes behind when the mover cannot see the purchase', async () => {
     const a = await seedTenant(db, 'a');
     const flat = await ownerTx(db, (c) => insertLocation(c, a, { name: 'Flat' }));
@@ -1028,7 +1027,7 @@ describe('I3: a copied purchase carries only the thing’s line (D115)', () => {
       `INSERT INTO public.attachments (location_id, file_id, purchase_id, role, created_by) VALUES ($1, $2, $3, 'receipt', $4)`,
       [a.locationId, receipt, purchase, a.userId],
     );
-    // Bought for the home, then moved to the flat (D115: the line stays in the home).
+    // Bought for the home, then moved to the flat (the line stays in the home).
     const lamp = await thing(a, { name: 'Lamp' });
     await own('UPDATE public.things SET purchase_line_id = $1 WHERE id = $2', [line, lamp]);
     await own('UPDATE public.things SET location_id = $1, place_id = $2 WHERE id = $3', [
@@ -1057,8 +1056,7 @@ describe('I3: a copied purchase carries only the thing’s line (D115)', () => {
       tax: null,
       notes: null,
     });
-    // The thing's receipt goes with it all the same (D161; D115 shows it to anyone who sees the
-    // thing).
+    // The thing's receipt goes with it all the same (shown to anyone who sees the thing).
     expect(
       await own<{ n: number }>(
         `SELECT count(*)::int AS n FROM public.attachments WHERE purchase_id = $1 AND role = 'receipt'`,
@@ -1161,7 +1159,7 @@ describe('I4: custom references and secret keys follow the rules', () => {
     ]);
   });
 
-  it('counts a person used in custom when showing contacts (D177)', async () => {
+  it('counts a person used in custom when showing contacts', async () => {
     const b = await seedTenant(db, 'b');
     const flat = await ownerTx(db, (c) => insertLocation(c, b, { name: 'Flat' }));
     const admin = await seedUser(db, 'admin');
@@ -1299,7 +1297,7 @@ describe('secret values of fields the target account lacks (review minor)', () =
   });
 });
 
-describe('sync tombstones for what leaves with a thing (D156, §7.4)', () => {
+describe('sync tombstones for what leaves with a thing', () => {
   it('tombstones its attachments, meters, readings and links in the source', async () => {
     const a = await seedTenant(db, 'a');
     const flat = await ownerTx(db, (c) => insertLocation(c, a, { name: 'Flat' }));

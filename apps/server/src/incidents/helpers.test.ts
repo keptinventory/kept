@@ -5,7 +5,7 @@ import { convertedTotal, missingRates } from './report.js';
 
 // The claim pack's and the insurance report's pure parts.
 
-describe('langOf() (the expired page, engineering spec §5)', () => {
+describe('langOf() (the expired page)', () => {
   it.each([
     [undefined, 'en'],
     ['', 'en'],
@@ -51,7 +51,7 @@ describe('packDay()', () => {
   });
 });
 
-describe('the converted total (Q21: never chained, never estimated)', () => {
+describe('the converted total (never chained, never estimated)', () => {
   const rates = [
     { fromCcy: 'USD', toCcy: 'EGP', rate: '48.5', validFrom: '2026-09-01' },
     { fromCcy: 'EGP', toCcy: 'EUR', rate: '0.018', validFrom: '2026-08-01' },

@@ -1,5 +1,5 @@
 /**
- * Condition reports (1.x, D171, D235): starting a move-in report from a location's rooms,
+ * Condition reports (1.x): starting a move-in report from a location's rooms,
  * recording a room, adding one, finishing (and the lock that follows), comparing a move-out with
  * it room by room, and what a viewer sees.
  */

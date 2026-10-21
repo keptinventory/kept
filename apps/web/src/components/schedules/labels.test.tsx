@@ -30,7 +30,7 @@ function Due({ s }: { s: Schedule }) {
   return <p>{useScheduleText().due(s, '2026-09-30')}</p>;
 }
 
-describe('a schedule due by the day or the meter (T29)', () => {
+describe('a schedule due by the day or the meter', () => {
   it('overdue by the meter while the day is ahead: says the reading passed it', async () => {
     await renderUI(
       <Due s={oil({ dueOn: '2027-03-14', dueValue: '51000', state: 'overdue', basis: 'both' })} />,
@@ -46,7 +46,7 @@ describe('a schedule due by the day or the meter (T29)', () => {
   });
 });
 
-describe('a one-off that is done (D247)', () => {
+describe('a one-off that is done', () => {
   it('says it is done, not when it is due', async () => {
     await renderUI(
       <Due

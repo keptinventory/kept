@@ -1,5 +1,5 @@
 /**
- * Old labels open in Kept (step-7 T20; D146): `/a/<assetId>` with one match opens it, with two
+ * Old labels open in Kept: `/a/<assetId>` with one match opens it, with two
  * asks which (naming each thing's location) and opens the one chosen; `/item/<uuid>` opens
  * directly; an unknown one is "Not in your Kept"; and offline, a printed Kept label a Kept import
  * re-issued opens from the phone's copy by its old code.

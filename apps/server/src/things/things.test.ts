@@ -134,7 +134,7 @@ describe('POST /api/v1/things', () => {
     expect(box.isContainer).toBe(true);
     const inside = await createThing(t, ann, home, { name: 'Charger', containerId: box.id });
     expect(inside.containerId).toBe(box.id);
-    // Each step carries its short ID, so a breadcrumb links by code (D208).
+    // Each step carries its short ID, so a breadcrumb links by code.
     expect((inside.path as { id: string; kind: string }[]).at(-1)).toEqual(
       expect.objectContaining({ id: box.id, kind: 'container', shortCode: box.shortCode }),
     );
@@ -162,7 +162,7 @@ describe('POST /api/v1/things', () => {
     expect(again.statusCode).toBe(404);
   });
 
-  it("gives a car its type's default meter (D113)", async () => {
+  it("gives a car its type's default meter", async () => {
     const car = await createThing(t, ann, home, {
       name: 'Corolla',
       typeId: await builtinType(db, 'car'),
@@ -173,7 +173,7 @@ describe('POST /api/v1/things', () => {
     expect(car.quantity).toBe(1);
   });
 
-  it('applies D10: serialized is one by one, consumables may be 0, others never 0', async () => {
+  it('applies the quantity rule: serialized is one by one, consumables may be 0, others never 0', async () => {
     const tool = await call(t, '/api/v1/things', {
       as: ann,
       body: {
@@ -380,7 +380,7 @@ describe('custom fields', () => {
     });
   });
 
-  it('audits custom per key, money classed money and hidden from a viewer (D110)', async () => {
+  it('audits custom per key, money classed money and hidden from a viewer', async () => {
     const made = await createThing(t, ann, home, {
       name: 'Wave print',
       typeId: collectible,
@@ -446,7 +446,7 @@ describe('custom fields', () => {
       class: 'plain',
     });
 
-    // The view: a viewer gets no money value; with the location's toggle on, they do (D13).
+    // The view: a viewer gets no money value; with the location's toggle on, they do.
     const asViewer = await thingOf(vic, made.id);
     expect(asViewer.custom).toEqual({ edition: '2/50' });
     expect(asViewer.moneyHidden).toBe(true);
@@ -490,7 +490,7 @@ describe('custom fields', () => {
     expect(ok(plain).custom).toEqual({ edition: 'A/P' });
   });
 
-  it('summarises secrets without values: set, and who may reveal (D116)', async () => {
+  it('summarises secrets without values: set, and who may reveal', async () => {
     const router = await createThing(t, ann, home, {
       name: 'Router',
       typeId: await builtinType(db, 'network_device'),
@@ -583,7 +583,7 @@ describe('GET /api/v1/things/:id', () => {
     expect(print.custom).toEqual({ size: 'A2', edition: 'open' });
   });
   it("links a moved thing's purchase to its own vendor, even among vendors of the same name", async () => {
-    // Two vendors of one name in Ann's account; the purchase names the second (D115).
+    // Two vendors of one name in Ann's account; the purchase names the second.
     const vendors = await own<{ id: string }>(
       db,
       `INSERT INTO public.vendors (owner_account_id, name, kind)
@@ -652,7 +652,7 @@ describe('PATCH /api/v1/things/:id', () => {
     expect(update?.diff.tag_ids).toEqual({ before: [], after: [tag?.id], class: 'plain' });
   });
 
-  it('answers 412 with the conflicting fields and who changed it (D156), 428 without If-Match', async () => {
+  it('answers 412 with the conflicting fields and who changed it, 428 without If-Match', async () => {
     const made = await createThing(t, ann, home, { name: 'Vase' });
     ok(
       await call(t, `/api/v1/things/${made.id}`, {
@@ -685,7 +685,7 @@ describe('PATCH /api/v1/things/:id', () => {
     expect(none.statusCode).toBe(428);
   });
 
-  it('checks D10 on quantity edits: not for a thing with a meter', async () => {
+  it('checks the quantity rule on quantity edits: not for a thing with a meter', async () => {
     const car = await createThing(t, ann, home, {
       name: 'Van',
       typeId: await builtinType(db, 'car'),
@@ -699,7 +699,7 @@ describe('PATCH /api/v1/things/:id', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  it('reindexes the location when a container with things in it is renamed (T20)', async () => {
+  it('reindexes the location when a container with things in it is renamed', async () => {
     const box = await createThing(t, ann, home, { name: 'Crate' });
     await createThing(t, ann, home, { name: 'Inside', containerId: box.id });
     sent.length = 0;
@@ -752,7 +752,7 @@ describe('the viewer and the outsider', () => {
 
 describe('lifecycle, seen and not here', () => {
   // catalogue: POST /api/v1/things/:id/lifecycle
-  it('ends a thing with a gated price, and in_use clears the end (found, D119), audited', async () => {
+  it('ends a thing with a gated price, and in_use clears the end (found), audited', async () => {
     const made = await createThing(t, ann, home, { name: 'Bike' });
     const sold = ok(
       await call(t, `/api/v1/things/${made.id}/lifecycle`, {
@@ -851,7 +851,7 @@ describe('lifecycle, seen and not here', () => {
   });
 
   // catalogue: POST /api/v1/things/:id/not-here
-  it('marks a thing not here: uncertain, audited (D40)', async () => {
+  it('marks a thing not here: uncertain, audited', async () => {
     const made = await createThing(t, ann, home, { name: 'Keys' });
     const view = ok(await call(t, `/api/v1/things/${made.id}/not-here`, { as: mo, body: {} }));
     expect(view.locationUncertain).toBe(true);
@@ -866,7 +866,7 @@ describe('lifecycle, seen and not here', () => {
   });
 
   // catalogue: POST /api/v1/things/:id/seen
-  it('marks a thing seen now and clears not-here, audited (D40)', async () => {
+  it('marks a thing seen now and clears not-here, audited', async () => {
     const made = await createThing(t, ann, home, { name: 'Wallet' });
     await own(
       db,
@@ -885,7 +885,7 @@ describe('lifecycle, seen and not here', () => {
 
 describe('retype, duplicate and split', () => {
   // catalogue: POST /api/v1/things/:id/retype
-  it('re-types: matching keys stay, the rest are archived, never deleted (D92), audited', async () => {
+  it('re-types: matching keys stay, the rest are archived, never deleted, audited', async () => {
     const made = await createThing(t, ann, home, {
       name: 'Etching',
       typeId: collectible,
@@ -951,7 +951,7 @@ describe('retype, duplicate and split', () => {
   });
 
   // catalogue: POST /api/v1/things/:id/split
-  it('splits part of a quantity into a new thing with the same purchase line (D10), audited', async () => {
+  it('splits part of a quantity into a new thing with the same purchase line, audited', async () => {
     const shelf = await place(db, home, 'Shelf');
     const made = await createThing(t, ann, home, {
       name: 'HDMI cables',
@@ -1020,7 +1020,7 @@ describe('retype, duplicate and split', () => {
 
 describe('links, convert and codes', () => {
   // catalogue: POST /api/v1/things/:id/links
-  it('links two things of a location (D76), audited; the other side sees it', async () => {
+  it('links two things of a location, audited; the other side sees it', async () => {
     const camera = await createThing(t, ann, home, { name: 'Camera' });
     const lens = await createThing(t, ann, home, { name: 'Lens' });
     const link = ok(
@@ -1082,7 +1082,7 @@ describe('links, convert and codes', () => {
   });
 
   // catalogue: POST /api/v1/things/:id/convert-to-place
-  it('converts a container to a place with the same id (Q14), audited, reindexed', async () => {
+  it('converts a container to a place with the same id, audited, reindexed', async () => {
     const box = await createThing(t, ann, home, { name: 'Toy box' });
     const toy = await createThing(t, ann, home, { name: 'Lego', containerId: box.id });
     sent.length = 0;
@@ -1114,7 +1114,7 @@ describe('links, convert and codes', () => {
     expect(metered.statusCode).toBe(409);
   });
 
-  it("looks up codes: its own, folded input; another tenant's and a random one alike (D137)", async () => {
+  it("looks up codes: its own, folded input; another tenant's and a random one alike", async () => {
     const made = await createThing(t, ann, home, { name: 'Label me' });
     const code = made.shortCode as string;
     expect(ok(await get(ann, `/api/v1/codes/${code}`))).toEqual({ kind: 'thing', id: made.id });
@@ -1211,7 +1211,7 @@ describe('GET /api/v1/things (list-standard)', () => {
     expect(new Set(seen.map((x) => x.id)).size).toBe(names.length);
   });
 
-  it('turns any sort around with dir (D211), the same across pages', async () => {
+  it('turns any sort around with dir, the same across pages', async () => {
     const zToA = await pages(ann, 'sort=name&dir=desc');
     expect(zToA.map((x) => x.name)).toEqual([
       'golf',
@@ -1249,7 +1249,7 @@ describe('GET /api/v1/things (list-standard)', () => {
     const q = ok(await get(ann, `/api/v1/things?locationId=${list.id}&q=char`));
     expect((q.items as Json[]).map((x) => x.name)).toEqual(['charlie']);
     // A location filter the caller can't see is a 404, as /search, /trash and /activity answer
-    // it (review #36; D205 made the filter a list, each id checked).
+    // it (review #36; the filter is a list, each id checked).
     const outsider = await get(bob, `/api/v1/things?locationId=${list.id}`);
     expect(outsider.statusCode).toBe(404);
     const viewer = ok(await get(vic, `/api/v1/things?locationId=${home.id}&limit=5`));
@@ -1260,7 +1260,7 @@ describe('GET /api/v1/things (list-standard)', () => {
     expect(bad.statusCode).toBe(400);
   });
 
-  it('filters by brand, person, tag and vendor (T28)', async () => {
+  it('filters by brand, person, tag and vendor', async () => {
     const [brand] = await own<{ id: string }>(
       db,
       `INSERT INTO public.brands (owner_account_id, name) VALUES ($1, 'Bosch') RETURNING id`,
@@ -1295,18 +1295,18 @@ describe('GET /api/v1/things (list-standard)', () => {
       ).toEqual([drill.id]);
     }
   });
-  it('takes several types, brands and owners, and "is none of" each (D205)', async () => {
+  it('takes several types, brands and owners, and "is none of" each', async () => {
     const multi = await createLocation(t, db, ann, 'complete', 'Multi home');
     const [bosch, makita] = await own<{ id: string }>(
       db,
       `INSERT INTO public.brands (owner_account_id, name)
-       VALUES ($1, 'Bosch D205'), ($1, 'Makita D205') RETURNING id`,
+       VALUES ($1, 'Bosch Multi'), ($1, 'Makita Multi') RETURNING id`,
       [multi.accountId],
     );
     const [ibrahim, bruce] = await own<{ id: string }>(
       db,
       `INSERT INTO public.people (owner_account_id, display_name)
-       VALUES ($1, 'Ibrahim D205'), ($1, 'Bruce D205') RETURNING id`,
+       VALUES ($1, 'Ibrahim Multi'), ($1, 'Bruce Multi') RETURNING id`,
       [multi.accountId],
     );
     const box = await builtinType(db, 'box_bin');
@@ -1352,7 +1352,7 @@ describe('GET /api/v1/things (list-standard)', () => {
   });
 });
 
-describe('route security review (step 2): things', () => {
+describe('route security review: things', () => {
   it('classes arrays of money-shaped values as money (audit images)', () => {
     const money = { amount: '5', currency: 'EGP' };
     expect(moneyShaped(money)).toBe(true);

@@ -13,7 +13,7 @@ import {
   TRANSPARENCY_JOB,
 } from './transparency.js';
 
-// D180's configuration notices: a changed OIDC or SMTP configuration
+// The configuration notices: a changed OIDC or SMTP configuration
 // is found at boot by its hash, audited as the system, and told to every active user once; the
 // first boot only records the hash; the hash never covers a secret.
 
@@ -82,7 +82,7 @@ describe('the boot check', () => {
     ).toEqual([]);
   });
 
-  it('Google sign-in (D226): a baseline, then a notice when it changes or goes, never the secret', async () => {
+  it('Google sign-in: a baseline, then a notice when it changes or goes, never the secret', async () => {
     const g = (clientId: string) => ({ clientId, clientSecret: 'google-never-hashed' });
     const withGoogle = (google: ReturnType<typeof g> | null) => ({
       ...deps(sso('Home SSO')),

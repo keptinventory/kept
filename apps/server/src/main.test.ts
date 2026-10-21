@@ -59,7 +59,7 @@ describe('startKept()', () => {
     }
   });
 
-  it('web: listens on KEPT_PORT (step-8 T13)', async () => {
+  it('web: listens on KEPT_PORT', async () => {
     // A port that was free a moment ago.
     const probe = createServer();
     await new Promise<void>((resolve) => probe.listen(0, '127.0.0.1', resolve));

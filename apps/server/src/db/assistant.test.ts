@@ -14,8 +14,8 @@ import {
 import { expireMemberships } from '../locations/membership-jobs.js';
 import { type Scope, withScope, withSystem } from './scope.js';
 
-// Step-6 T5 (0072, 0073): the assistant's private threads, turns, messages, tool results and
-// proposals; retention; the search text; and redaction when access ends (D22, D23, D123, D164).
+// Migrations 0072, 0073: the assistant's private threads, turns, messages, tool results and
+// proposals; retention; the search text; and redaction when access ends.
 // Louis is a member of Ibrahim's Home and Garage.
 
 const db = await testDb();
@@ -98,7 +98,7 @@ beforeEach(async () => {
   await addMember(db, ibrahim.locationId, talia, 'viewer');
 });
 
-describe('private threads (D23, D123)', () => {
+describe('private threads', () => {
   it('lets a viewer ask, and never hold a proposal', async () => {
     const th = await thread(talia);
     const tu = await turn(talia, th);
@@ -206,7 +206,7 @@ describe('private threads (D23, D123)', () => {
     await turn(louis, th);
   });
 
-  it("searches the person's questions and the answers, never tool results (Q17)", async () => {
+  it("searches the person's questions and the answers, never tool results", async () => {
     const th = await thread(louis, 'Cables');
     const tu = await turn(louis, th);
     await message(louis, th, tu, { role: 'user', parts: text('Where is the HDMI cable?') });
@@ -240,7 +240,7 @@ describe('private threads (D23, D123)', () => {
   });
 });
 
-describe('retention (D23, Q17)', () => {
+describe('retention', () => {
   it('takes the lifetime from assistant_thread_days, and each new turn renews it', async () => {
     const days = async (id: string) =>
       Number(
@@ -309,7 +309,7 @@ describe('retention (D23, Q17)', () => {
   });
 });
 
-describe('redaction when access ends (D164, Q11)', () => {
+describe('redaction when access ends', () => {
   /** Louis's thread: a question, a tool message with one result from Home and one from Garage,
    * an answer citing Home, an answer citing Garage, and an open proposal in each. */
   async function louisThread() {

@@ -9,7 +9,7 @@ import { HOUSEHOLDS, SEED_PASSWORD } from './cast.js';
 import { formatSeedReport, type SeedReport } from './households.js';
 import { assertSeedAllowed, buildSeedApp, runSeed, SeedRefused } from './index.js';
 
-// Tasks 26 and 23 (D152, D185): the households scenario with its inventory, through the service
+// Tasks 26 and 23: the households scenario with its inventory, through the service
 // layer, idempotent; and the bench scenario at a small size (the 10k run is task 24's).
 
 const env = {
@@ -226,7 +226,7 @@ describe('kept admin seed --scenario households', () => {
     expect(perLocation.Home?.[0]).toBeGreaterThanOrEqual(14);
     expect(perLocation.Home?.[1]).toBeGreaterThanOrEqual(35);
     expect(perLocation.Garage).toEqual([5, 12]);
-    // With records.ts's Hyundai and generator (step-5 T16).
+    // With records.ts's Hyundai and generator.
     expect(perLocation['بيت العائلة']).toEqual([6, 13]);
     const total = Object.values(perLocation).reduce((n, [, t]) => n + (t ?? 0), 0);
     expect(total).toBeGreaterThanOrEqual(58);
@@ -333,7 +333,7 @@ describe('kept admin seed --scenario households', () => {
     expect(first.notes).toEqual([]);
   });
 
-  it("keeps step 4's records and step 5's vehicles: warranties to fills (records.ts)", async () => {
+  it('keeps the household records and the vehicles: warranties to fills (records.ts)', async () => {
     const n = await asOwner(db, async (c) => {
       const one = async (sql: string) => Number((await c.query(sql)).rows[0]?.n ?? 0);
       const corolla = `(SELECT id FROM public.things WHERE name = 'Toyota Corolla')`;

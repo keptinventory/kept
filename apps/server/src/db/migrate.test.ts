@@ -65,7 +65,7 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.guard_attachment_file()': OWNER_ONLY,
   // 1.x (0147, #194): a room photo never goes back under review.
   'kept.guard_attachment_review()': OWNER_ONLY,
-  // 1.5 (0125, D235): a finished condition report's photos stay as they are.
+  // 1.5 (0125): a finished condition report's photos stay as they are.
   'kept.guard_condition_photo()': OWNER_ONLY,
   'kept.note_file_attached()': OWNER_ONLY,
   'kept.guard_field_secret()': OWNER_ONLY,
@@ -152,22 +152,22 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.visible_location_ids()': APP_ONLY,
   'kept.writable_account_ids()': APP_ONLY,
   'kept.writable_location_ids()': APP_ONLY,
-  // Step 3, T7 (0042): labels, blank claims and duplicate merges.
+  // Migration 0042: labels, blank claims and duplicate merges.
   'kept.claim_blank_code(character,uuid,uuid)': APP_ONLY,
   'kept.guard_blank_cap()': OWNER_ONLY,
   'kept.merge_things(uuid,uuid)': APP_ONLY,
   'kept.set_file_display(uuid,jsonb)': APP_ONLY,
-  // Step 3, T17a (0046): own codes' numbering, and legacy-code removals for phones.
+  // Migration 0046: own codes' numbering, and legacy-code removals for phones.
   'kept.next_own_code(uuid)': APP_ONLY,
   'kept.number_new_thing()': OWNER_ONLY,
   'kept.tombstone_legacy_code()': OWNER_ONLY,
   'kept.clear_code_tombstone_on_arrival()': OWNER_ONLY,
-  // Step 3, T9 (0043): a cap's use for its readers, and the cap and key-rejected notices.
+  // Migration 0043: a cap's use for its readers, and the cap and key-rejected notices.
   'kept.ai_cap_usage(uuid[])': APP_ONLY,
   'kept.ai_notice_cap(uuid)': SYSTEM_ONLY,
   'kept.ai_notice_provider(uuid)': SYSTEM_ONLY,
   'kept.ai_notice_recipients(uuid)': SYSTEM_ONLY,
-  // Step 3, T6 (0040): AI providers, caps, pacing and the call ledger.
+  // Migration 0040: AI providers, caps, pacing and the call ledger.
   'kept.ai_breaker_state(uuid)': APP_AND_SYSTEM,
   'kept.ai_bucket_rows(text,jsonb)': OWNER_ONLY,
   'kept.ai_buckets(jsonb)': OWNER_ONLY,
@@ -215,7 +215,7 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.guard_ai_budget_location()': OWNER_ONLY,
   'kept.llm_default_partition_rows()': SYSTEM_ONLY,
   'kept.prune_ai_windows(timestamp with time zone)': SYSTEM_ONLY,
-  // Step 4, T4 (0049): export runs' doors, and the AI money caps through exchange rates.
+  // Migration 0049: export runs' doors, and the AI money caps through exchange rates.
   'kept.export_run_mine(export_runs)': OWNER_ONLY,
   'kept.export_run_claim(uuid)': APP_AND_SYSTEM,
   'kept.export_run_progress(uuid,integer,integer)': APP_AND_SYSTEM,
@@ -223,7 +223,7 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.export_running(uuid)': APP_ONLY,
   // UI review L3 (0105): the names of tokens seen acting.
   'kept.token_actor_names(uuid[])': APP_ONLY,
-  // Step 7 (0104): low stock's day, kept by triggers.
+  // Migration 0104: low stock's day, kept by triggers.
   'kept.stock_rule_low_since()': OWNER_ONLY,
   'kept.stock_quantity_changed()': OWNER_ONLY,
   'kept.export_download(text)': SYSTEM_ONLY,
@@ -232,13 +232,13 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.ai_bucket_account(text)': OWNER_ONLY,
   'kept.ai_convert(numeric,text,text,text)': OWNER_ONLY,
   'kept.ai_spent_uncounted(text,text)': OWNER_ONLY,
-  // Step 4, T5 (0051): household records' guards, the state bump, a service's lines.
+  // Migration 0051: household records' guards, the state bump, a service's lines.
   'kept.guard_household_refs()': OWNER_ONLY,
   'kept.guard_claim_transition()': OWNER_ONLY,
   'kept.guard_warranty_quantity()': OWNER_ONLY,
   'kept.touch_thing_state()': OWNER_ONLY,
   'kept.service_record_changeable(uuid)': APP_ONLY,
-  // Step 4, T6 (0053): the schedule anchor, module state in SQL and the agenda's twins.
+  // Migration 0053: the schedule anchor, module state in SQL and the agenda's twins.
   'kept.schedule_base()': OWNER_ONLY,
   'kept.recompute_schedule_anchor(uuid)': OWNER_ONLY,
   'kept.schedule_completion_changed()': OWNER_ONLY,
@@ -257,7 +257,7 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
     APP_AND_SYSTEM,
   'kept.meter_latest(uuid)': APP_AND_SYSTEM,
   'kept.schedule_next(uuid,date)': APP_AND_SYSTEM,
-  // Step 4, T7 (0055): the notify caps, the calendar feed's door; T19's code move and past
+  // Migration 0055: the notify caps, the calendar feed's door; T19's code move and past
   // membership.
   'kept.guard_notify_caps()': OWNER_ONLY,
   'kept.calendar_feed_user(text)': SYSTEM_ONLY,
@@ -272,24 +272,24 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.keep_merged_loans()': OWNER_ONLY,
   // The AI monthly summary's totals (0059).
   'kept.ai_month_summaries(date)': SYSTEM_ONLY,
-  // Step 5 (0061): readings reach the snapshot.
+  // Migration 0061: readings reach the snapshot.
   'kept.touch_reading_meters()': OWNER_ONLY,
-  // Step 5 (0063): a service draft is confirmed one way.
+  // Migration 0063: a service draft is confirmed one way.
   'kept.guard_service_review_state()': OWNER_ONLY,
-  // Step 5 (0065): a fill's reading is its own vehicle's; a vehicle report follows its car.
+  // Migration 0065: a fill's reading is its own vehicle's; a vehicle report follows its car.
   'kept.guard_fuel_reading()': OWNER_ONLY,
   'kept.report_run_follows_thing()': OWNER_ONLY,
-  // 1.x (D236): a service line's consumable link drops when a move separates them.
+  // 1.x: a service line's consumable link drops when a move separates them.
   'kept.service_line_consumable_follows()': OWNER_ONLY,
-  // Step 5 (0066): the usage estimate, estimated due dates and vehicle types.
+  // Migration 0066: the usage estimate, estimated due dates and vehicle types.
   'kept.meter_estimate(uuid,timestamp with time zone)': APP_AND_SYSTEM,
   'kept.meter_eta(uuid,numeric,timestamp with time zone)': APP_AND_SYSTEM,
   'kept.meter_eta_at(uuid,numeric,timestamp with time zone)': APP_AND_SYSTEM,
   'kept.schedule_due(schedules,date,timestamp with time zone)': APP_AND_SYSTEM,
-  // 1.x (D247): the day a one-off schedule was done.
+  // 1.x: the day a one-off schedule was done.
   'kept.schedule_done_on(schedules)': APP_AND_SYSTEM,
   'kept.is_vehicle_type(uuid)': APP_AND_SYSTEM,
-  // Step 6 (0070): the token principal, its doors, and tokens dying with access.
+  // Migration 0070: the token principal, its doors, and tokens dying with access.
   'kept.current_token_id()': APP_AND_SYSTEM,
   'kept.token_location_ids(boolean)': OWNER_ONLY,
   'kept.guard_token_revoked()': OWNER_ONLY,
@@ -302,15 +302,15 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.revoke_tokens_in(uuid,uuid,text)': OWNER_ONLY,
   'kept.revoke_tokens_for(uuid,uuid,text)': APP_AND_SYSTEM,
   'kept.revoke_user_tokens(uuid,text)': SYSTEM_ONLY,
-  // 1.2 (0114, D225): deleting your own account; the purge is the system's.
+  // 1.2 (0114): deleting your own account; the purge is the system's.
   'kept.account_deletion_blockers()': APP_ONLY,
   'kept.request_account_deletion()': APP_ONLY,
   'kept.cancel_account_deletion()': APP_ONLY,
   'kept.purge_deleted_accounts(integer)': SYSTEM_ONLY,
   'kept.membership_access_ended()': OWNER_ONLY,
-  // Step 5 (0074): an extraction follows its photo onto a new attachment.
+  // Migration 0074: an extraction follows its photo onto a new attachment.
   'kept.guard_extraction_attachment()': OWNER_ONLY,
-  // Step 6 (0073): the assistant's retention, search text and redaction.
+  // Migration 0073: the assistant's retention, search text and redaction.
   'kept.assistant_expiry()': OWNER_ONLY,
   'kept.assistant_thread_expiry()': OWNER_ONLY,
   'kept.assistant_turn_bumps_thread()': OWNER_ONLY,
@@ -320,7 +320,7 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.prune_assistant(timestamp with time zone)': SYSTEM_ONLY,
   'kept.redact_assistant_in(uuid,uuid)': OWNER_ONLY,
   'kept.redact_assistant_for(uuid,uuid)': APP_AND_SYSTEM,
-  // Step 6 (0076): semantic search's text, doors, status and background payer.
+  // Migration 0076: semantic search's text, doors, status and background payer.
   'kept.embedding_moved()': OWNER_ONLY,
   'kept.embedding_text_of(text,text[],text,text,text,text,text[],text,text[])': OWNER_ONLY,
   'kept.embedding_text(things)': OWNER_ONLY,
@@ -334,11 +334,12 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.embedding_backfill_locations()': SYSTEM_ONLY,
   'kept.embedding_backlog_thing(uuid,text)': APP_ONLY,
   'kept.ai_provider_for_system(uuid,text)': SYSTEM_ONLY,
-  // Step 6 (0078): webhooks' secret, fan-out check, and D180's switch-off.
+  // Migration 0078: webhooks' secret, fan-out check, and the switch-off of a hook whose creator
+  // lost the admin role.
   'kept.webhook_secret(uuid)': SYSTEM_ONLY,
-  // 1.4 (0120, D231): the mail-in job's view of a mailbox with its sealed connection.
+  // 1.4 (0120): the mail-in job's view of a mailbox with its sealed connection.
   'kept.mailbox_config(uuid)': SYSTEM_ONLY,
-  // 1.5 (0127, D233): share links' cap, what a link shows (owner-only), and the public page's
+  // 1.5 (0127): share links' cap, what a link shows (owner-only), and the public page's
   // and the admins' preview doors.
   'kept.guard_share_link_cap()': OWNER_ONLY,
   'kept.share_path(uuid,uuid)': OWNER_ONLY,
@@ -350,22 +351,22 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.webhooks_listening(uuid,text)': APP_ONLY,
   'kept.disable_webhooks_in(uuid,uuid)': OWNER_ONLY,
   'kept.disable_webhooks_for(uuid,uuid)': APP_AND_SYSTEM,
-  // 1.x (0135, D248): a location's Paperless-ngx connection with its sealed token, for the server
+  // 1.x (0135): a location's Paperless-ngx connection with its sealed token, for the server
   // after kept_app's checks; and the trigger that drops a moved thing's links.
   'kept.paperless_config(uuid)': SYSTEM_ONLY,
   'kept.drop_moved_paperless_links()': OWNER_ONLY,
-  // Step 7 (0080): an archive import's target, the prune-imports doors, and D180's end of a
+  // Migration 0080: an archive import's target, the prune-imports doors, and the end of a
   // former admin's unfinished exports and imports.
   'kept.set_import_target(uuid,uuid)': APP_ONLY,
   'kept.stale_import_runs(timestamp with time zone,integer)': SYSTEM_ONLY,
   'kept.clear_import_run(uuid)': SYSTEM_ONLY,
   'kept.end_portability_runs_in(uuid,uuid)': OWNER_ONLY,
-  // Step 7 (0083): a running Kept import's history and label codes, and their owner-only checks.
+  // Migration 0083: a running Kept import's history and label codes, and their owner-only checks.
   'kept.import_history(uuid,jsonb)': APP_ONLY,
   'kept.adopt_short_code(uuid,character,text,uuid,uuid)': APP_ONLY,
   'kept.import_run_mine(uuid)': OWNER_ONLY,
   'kept.audit_change_ok(jsonb)': OWNER_ONLY,
-  // Step 7 (0085): the stock-rule guard, and field conversion's doors and owner-only helpers.
+  // Migration 0085: the stock-rule guard, and field conversion's doors and owner-only helpers.
   'kept.guard_stock_rule()': OWNER_ONLY,
   'kept.field_conversion_preview(uuid,jsonb)': APP_ONLY,
   'kept.field_conversion_rows(uuid,uuid,integer)': APP_ONLY,

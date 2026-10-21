@@ -2,7 +2,7 @@ import { newId } from '@kept/shared';
 import { describe, expect, it } from 'vitest';
 import { type AuditEventRow, crossingOf, customKeyOf, renderAudit } from './render.js';
 
-// Task 21's additions to renderAudit() (D110, D183; T27 decisions): money
+// Task 21's additions to renderAudit() (T27 decisions): money
 // hidden where the Money module is off, custom-field labels on diff entries, and a move from a
 // location the viewer can't see rendered as "moved in from another location" with no diff. The
 // stored-event cases (a viewer, a secret) are in audited.test.ts.
@@ -37,7 +37,7 @@ function event(overrides: Partial<AuditEventRow> = {}): AuditEventRow {
   };
 }
 
-describe('renderAudit(): the Money module (§7.6)', () => {
+describe('renderAudit(): the Money module', () => {
   it('hides money from everyone, the owner included, where Money is off', () => {
     const out = renderAudit(event(), {
       role: 'owner',
@@ -66,7 +66,7 @@ describe('renderAudit(): the Money module (§7.6)', () => {
   });
 });
 
-describe('renderAudit(): custom-field labels (T27)', () => {
+describe('renderAudit(): custom-field labels', () => {
   const labelOf = (key: string) =>
     ({
       insured_value: { label: 'Insured value', labelKey: null },
@@ -110,7 +110,7 @@ describe('renderAudit(): custom-field labels (T27)', () => {
   });
 });
 
-describe('renderAudit(): moves across locations (D183)', () => {
+describe('renderAudit(): moves across locations', () => {
   const move = (from: string, to: string, at: string) =>
     event({
       action: 'thing.move',

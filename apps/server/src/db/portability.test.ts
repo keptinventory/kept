@@ -13,9 +13,8 @@ import {
 } from '../../test/tenancy.js';
 import { withScope, withSystem } from './scope.js';
 
-// Step-7 T4 (0079, 0080): export runs for Kept exports beside step 4's claim packs, archive
-// import runs with no target yet, Homebox source ids, and the pruning of abandoned runs
-// (D68, D146, D180).
+// Migrations 0079, 0080: export runs for Kept exports beside step 4's claim packs, archive
+// import runs with no target yet, Homebox source ids, and the pruning of abandoned runs.
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });
@@ -92,7 +91,7 @@ const exportRow = async (id: string) =>
     )
   )[0];
 
-describe('export runs (D68, D180, plan Q14)', () => {
+describe('export runs', () => {
   it('are made by owners and admins; "Include secrets" and its sealed key only by the owner', async () => {
     expect((await pgError(exportAs(louis))).code).toBe('42501');
     expect((await pgError(exportAs(talia))).code).toBe('42501');
@@ -245,7 +244,7 @@ const draftAs = (userId: string) =>
     return id;
   });
 
-describe('archive import runs (plan T8, Q8, Q18)', () => {
+describe('archive import runs', () => {
   it("a run with no target is its creator's alone", async () => {
     const run = await draftAs(bruce);
     const read = 'SELECT 1 FROM public.import_runs WHERE id = $1';
@@ -395,7 +394,7 @@ describe('archive import runs (plan T8, Q8, Q18)', () => {
   });
 });
 
-describe('the AI ledger (plan Q21)', () => {
+describe('the AI ledger', () => {
   it('records alias enrichment against the extraction budget', async () => {
     const [row] = await own<{ budget_task: string }>(
       `INSERT INTO public.llm_calls (request_id, task, paying_scope, provider_kind, model, sent,

@@ -225,7 +225,7 @@ async function scan(rawValue: string, format = 'qr_code') {
 const pendingOps = async (store: MemoryStore) => (await store.pending()).map((e) => e.op);
 
 describe('scan outcomes, online', () => {
-  it('a Kept label you can see opens at once, from any host, and is marked seen (D40, D120)', async () => {
+  it('a Kept label you can see opens at once, from any host, and is marked seen', async () => {
     const { onOpen } = await renderScan();
     await scan('https://old.example/l/B0X3QF');
     await waitFor(() =>
@@ -296,7 +296,7 @@ describe('scan outcomes, online', () => {
     });
   });
 
-  it('a claim another phone won first names the other box (D112)', async () => {
+  it('a claim another phone won first names the other box', async () => {
     const store = await serverHomeOnPhone();
     const { user, onOpen } = await renderScan({ store });
     await scan(BLANK_CODES[1]);
@@ -320,7 +320,7 @@ describe('scan outcomes, online', () => {
     expect(onOpen).toHaveBeenCalledWith({ kind: 'thing', id: T.box3, locationId: L.home });
   });
 
-  it('an old Homebox label says what it was (and marks it seen); a shared asset ID asks which (D146)', async () => {
+  it('an old Homebox label says what it was (and marks it seen); a shared asset ID asks which', async () => {
     const { user, onOpen } = await renderScan();
     await scan(`http://homebox.lan/a/${HOMEBOX_ASSET.unique}`);
     expect(await screen.findByText('Old Homebox label')).toBeInTheDocument();
@@ -336,7 +336,7 @@ describe('scan outcomes, online', () => {
     expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({ kind: 'thing', id: T.box3 }));
   });
 
-  it('a product barcode is added as a new thing, named by the lookup when it is on (D126)', async () => {
+  it('a product barcode is added as a new thing, named by the lookup when it is on', async () => {
     const state = ownerScenario();
     state.capture.barcodeLookup = true;
     server(state);
@@ -368,7 +368,7 @@ describe('scan outcomes, online', () => {
     expect(mock.calls.some((c) => c.path.startsWith('/api/v1/barcodes/'))).toBe(false);
   });
 
-  it('any other code is "Not a Kept label", its text shown and never a link (D137 case 5)', async () => {
+  it('any other code is "Not a Kept label", its text shown and never a link', async () => {
     await renderScan();
     await scan('https://example.com/promo?x=1');
     expect(await screen.findByRole('heading', { name: 'Not a Kept label' })).toBeInTheDocument();
@@ -584,7 +584,7 @@ describe('in Arabic', () => {
   });
 });
 
-describe('Scan to unpack (D251)', () => {
+describe('Scan to unpack', () => {
   const MOVE = '01926f00-0000-7000-8000-0000000mv301';
 
   function moving() {

@@ -10,7 +10,7 @@ import { findHeading, renderApp } from '../app';
 
 const nav = () => screen.getAllByRole('navigation', { name: 'Main' })[0] as HTMLElement;
 
-describe('the step-4 navigation', () => {
+describe('the household navigation', () => {
   it('links Schedules, Lending, Paperwork and Notifications', async () => {
     await renderApp('/');
     await findHeading('Home');
@@ -19,7 +19,7 @@ describe('the step-4 navigation', () => {
       ['Schedules', '/schedules'],
       ['Lending', '/lending'],
       ['Paperwork', '/paperwork'],
-      // With its unread count after the name (D198).
+      // With its unread count after the name.
       [/^Notifications\b/, '/notifications'],
     ] as const)
       expect(await main.findByRole('link', { name })).toHaveAttribute('href', href);
@@ -65,7 +65,7 @@ describe('the bell', () => {
   });
 });
 
-describe('the step-4 routes', () => {
+describe('the household routes', () => {
   it.each([
     ['/schedules', 'Schedules'],
     ['/lending', 'Lending'],

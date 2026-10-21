@@ -13,9 +13,9 @@ import {
 } from '../../test/tenancy.js';
 import { withScope, withSystem } from './scope.js';
 
-// Step-4 T7 (0054, 0055): the reminder ledger written exactly once (D111), the user-scope
+// Migrations 0054, 0055: the reminder ledger written exactly once, the user-scope
 // channels, devices, choices, centre and calendar links, their caps and the calendar feed's door
-// (D142, D181), and two earlier gaps (a moved code resends the thing it left; a past
+// and two earlier gaps (a moved code resends the thing it left; a past
 // membership for location_revoked).
 
 const db = await testDb();
@@ -47,7 +47,7 @@ beforeEach(async () => {
   );
 });
 
-describe('occurrences, exactly once (D111)', () => {
+describe('occurrences, exactly once', () => {
   const write = (source: string, thing: string | null) =>
     asSystem(
       async (c) =>
@@ -114,7 +114,7 @@ describe('occurrences, exactly once (D111)', () => {
   });
 });
 
-describe("a person's channels, devices, choices and centre (D29, D30, D39)", () => {
+describe("a person's channels, devices, choices and centre", () => {
   const channel = (userId: string, kind: string) =>
     as(userId, (c) =>
       c.query(
@@ -142,7 +142,7 @@ describe("a person's channels, devices, choices and centre (D29, D30, D39)", () 
         async (c) => (await c.query('SELECT 1 FROM public.notification_channels')).rowCount,
       ),
     ).toBe(1);
-    // Apprise isn't built (D130; ntfy and Telegram came in 1.3, D227).
+    // Apprise isn't built (ntfy and Telegram came in 1.3).
     expect((await pgError(channel(ibrahim.userId, 'apprise'))).code).toBe('23514');
   });
 
@@ -161,7 +161,7 @@ describe("a person's channels, devices, choices and centre (D29, D30, D39)", () 
     await add('https://push.example.test/abc');
   });
 
-  it('takes a choice for a location the person sees or for all of them, the AI summary for none (Q35, D239)', async () => {
+  it('takes a choice for a location the person sees or for all of them, the AI summary for none', async () => {
     const choose = (userId: string, location: string | null, kind: string) =>
       as(userId, (c) =>
         c.query(
@@ -172,7 +172,7 @@ describe("a person's channels, devices, choices and centre (D29, D30, D39)", () 
       );
     await choose(bruce, ibrahim.locationId, 'loan');
     expect((await pgError(choose(bruce, talia.locationId, 'loan'))).code).toBe('42501');
-    // D239: a row with no location is the choice for all their locations, for any kind.
+    // A row with no location is the choice for all their locations, for any kind.
     await choose(bruce, null, 'loan');
     expect((await pgError(choose(bruce, null, 'loan'))).constraint).toBe(
       'notification_preferences_uq',
@@ -235,7 +235,7 @@ describe("a person's channels, devices, choices and centre (D29, D30, D39)", () 
   });
 });
 
-describe('calendar feeds (D142, D181)', () => {
+describe('calendar feeds', () => {
   const link = (userId: string, token: string) =>
     as(userId, (c) =>
       c.query('INSERT INTO public.calendar_feeds (user_id, token_hash) VALUES ($1, $2)', [
@@ -284,14 +284,14 @@ describe('calendar feeds (D142, D181)', () => {
 });
 
 describe('admin alerts', () => {
-  it('know reminders_not_scanned (D166)', async () => {
+  it('know reminders_not_scanned', async () => {
     await own(
       `INSERT INTO public.admin_alerts (kind, dedupe_key) VALUES ('reminders_not_scanned', 'scan')`,
     );
   });
 });
 
-describe('step-3 carry-over (T19)', () => {
+describe('codes that move', () => {
   it("resends the thing a code moved away from (state_version), not the code's new one alone", async () => {
     const kettle = newId();
     await own(

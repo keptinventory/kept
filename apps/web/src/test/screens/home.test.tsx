@@ -1,5 +1,5 @@
 /**
- * The signed-in gate, Home (D240's redesign: Get started as one line, Needs you as tiles,
+ * The signed-in gate, Home (Get started as one line, Needs you as tiles,
  * the location cards with map previews, shortcuts, recent activity with its chips and Photos to
  * review, the Insights teaser; today, day one, a viewer, Money off, a phone width, Arabic) and the
  * app frame.
@@ -29,7 +29,7 @@ import { expectLogicalOnly } from '@/test/render';
 // Whole-app renders under a parallel run can pass the 5 s default.
 vi.setConfig({ testTimeout: 15_000 });
 
-/** jsdom serves the page over http:, which is what D193 checks; a test can say https. */
+/** jsdom serves the page over http:, which is what the recovery-kit check reads; a test can say https. */
 const https = vi.hoisted(() => ({ plain: true }));
 vi.mock('@/lib/https', () => ({ servedOverHttp: () => https.plain }));
 beforeEach(() => {
@@ -95,7 +95,7 @@ const homeIs =
   };
 
 const section = async (name: string) => (await findHeading(name)).closest('section') as HTMLElement;
-/** Get started, one line (D240): its region, and its steps once the chevron opens them. */
+/** Get started, one line: its region, and its steps once the chevron opens them. */
 const startedRegion = () => screen.findByRole('region', { name: 'Get started' }, { timeout: 3000 });
 async function openSteps(user: { click: (el: Element) => Promise<void> }) {
   const region = await startedRegion();
@@ -184,7 +184,7 @@ describe('Home', () => {
     for (const name of ['Needs you', 'Shortcuts', 'Recent activity', 'Insights'])
       expect(await section(name)).toBeInTheDocument();
     expect(await startedRegion()).toBeInTheDocument();
-    // The banners stay above Needs you; the Invite card sits under the locations (D194).
+    // The banners stay above Needs you; the Invite card sits under the locations.
     expect(screen.getByText('Invite people to Garage')).toBeInTheDocument();
     const order = (name: string) =>
       Number(
@@ -222,7 +222,7 @@ describe('Home', () => {
       await within(recent).findByText('Nothing yet. What you add, move and check shows here.'),
     ).toBeInTheDocument();
     expect(within(recent).queryByRole('link', { name: 'All activity' })).not.toBeInTheDocument();
-    // Over plain HTTP the admin still hears about HTTPS (D193).
+    // Over plain HTTP the admin still hears about HTTPS.
     expect(screen.getByText('Put Kept on HTTPS')).toBeInTheDocument();
   });
 
@@ -329,7 +329,7 @@ describe('Home', () => {
   });
 });
 
-describe('Home: Get started (D138, D191, D193, D240)', () => {
+describe('Home: Get started', () => {
   it('is one line: progress, "3 of 7 done", the next step; the chevron opens the steps', async () => {
     const { user } = await renderApp('/');
     const started = await startedRegion();
@@ -390,7 +390,7 @@ describe('Home: Get started (D138, D191, D193, D240)', () => {
     expect(await screen.findByRole('dialog', { name: 'Add a thing' })).toBeInTheDocument();
   });
 
-  it('on Essentials there is no AI step (D191)', async () => {
+  it('on Essentials there is no AI step', async () => {
     const state = ownerScenario();
     for (const l of state.locations) l.preset = 'essentials';
     const { user } = await renderApp('/', { state });
@@ -437,7 +437,7 @@ describe('Home: Get started (D138, D191, D193, D240)', () => {
     expect(screen.queryByRole('button', { name: 'Show Get started' })).not.toBeInTheDocument();
   });
 
-  it("step 1's hidden flag on this device moves to the server", async () => {
+  it('the old hidden flag on this device moves to the server', async () => {
     localStorage.setItem('kept.getStarted.hidden', '1');
     const { mock } = await renderApp('/');
     await section('Locations');
@@ -498,7 +498,7 @@ const tiles = (panel: HTMLElement) =>
     .getAllByRole('link')
     .map((r) => r.querySelector('[data-title]')?.textContent);
 
-describe('Home: Needs you (D185, D240, screens §8)', () => {
+describe('Home: Needs you', () => {
   it('six fixed tiles; a zero stays, muted; the extras join only with a count', async () => {
     await renderApp('/', {
       setup: homeIs({ attention: { toReview: 2, uncertain: 0, longUnseen: 4, unplaced: 3 } }),
@@ -520,7 +520,7 @@ describe('Home: Needs you (D185, D240, screens §8)', () => {
     expect(tile('Uncertain')).toHaveTextContent('Nothing');
     expect(tile('Long unseen')).toHaveAccessibleName('Long unseen 4');
     expect(tile('Long unseen')).toHaveAttribute('href', '/search?f.state=long_unseen');
-    // To review and Unplaced left Needs you (D240).
+    // To review and Unplaced left Needs you.
     expect(within(panel).queryByText('To review')).not.toBeInTheDocument();
     expect(within(panel).queryByText('Unplaced')).not.toBeInTheDocument();
   });
@@ -561,14 +561,14 @@ describe('Home: Needs you (D185, D240, screens §8)', () => {
     );
   });
 
-  it('the sidebar’s Inbox shows the open items from Home’s counts (D198)', async () => {
+  it('the sidebar’s Inbox shows the open items from Home’s counts', async () => {
     await renderApp('/', {
       setup: homeIs({ counts: { inbox: 7, unprintedLabels: 0 } }),
     });
     expect(await screen.findByRole('link', { name: 'Inbox 7' })).toBeInTheDocument();
   });
 
-  it('the registry order is the §8 order, later rows included', () => {
+  it('the registry order is the screen order, later rows included', () => {
     expect(ATTENTION_ORDER).toEqual([
       'toReview',
       'overdue',
@@ -584,7 +584,7 @@ describe('Home: Needs you (D185, D240, screens §8)', () => {
   });
 });
 
-describe("Home: step 4's counts (plan T13, T27)", () => {
+describe('Home: the household counts', () => {
   it('overdue · due · expiring · lent out, then borrowed in, with their links', async () => {
     await renderApp('/');
     const panel = await section('Needs you');
@@ -667,7 +667,7 @@ describe("Home: step 4's counts (plan T13, T27)", () => {
   });
 });
 
-describe('Home: shortcuts and Insights (D240, D234)', () => {
+describe('Home: shortcuts and Insights', () => {
   it('Capture, Scan a label, Log a reading and Add a thing', async () => {
     // A metered car (step 5's fixtures) puts Log a reading among them.
     const state = ownerScenario();
@@ -740,7 +740,7 @@ describe('Home: shortcuts and Insights (D240, D234)', () => {
   });
 });
 
-describe('Home: recent activity (screens §8, D240)', () => {
+describe('Home: recent activity', () => {
   it('three entries on the phone, with All activity', async () => {
     await renderApp('/');
     const recent = await section('Recent activity');
@@ -819,7 +819,7 @@ describe('the frame', () => {
         .map((l) => l.textContent),
     ).toEqual(['Home', 'Search', 'Capture', 'Inbox', 'More']);
     const sidebar = navs.find((n) => within(n).queryByText('Settings')) as HTMLElement;
-    // Vehicles is a page since step 5 and Insights since 1.x (D234), each shown once the locations
+    // Vehicles is a page since step 5 and Insights since 1.x, each shown once the locations
     // say its module is on somewhere.
     expect(await within(sidebar).findByRole('link', { name: 'Vehicles' })).not.toHaveAttribute(
       'aria-disabled',
@@ -830,14 +830,14 @@ describe('the frame', () => {
     expect(within(sidebar).getByRole('link', { name: 'Settings' })).toBeInTheDocument();
   });
 
-  it('shows the version and the Source code link (D147)', async () => {
+  it('shows the version and the Source code link', async () => {
     await renderApp('/');
     const links = await screen.findAllByRole('link', { name: 'Source code' });
     expect(links[0]).toHaveAttribute('href', 'https://github.com/keptinventory/kept/tree/3f9ed1d');
     expect(screen.getAllByText('v0.1.0').length).toBeGreaterThan(0);
   });
 
-  it('keeps the image’s third-party notices out of the footer, even when the server serves them (D151)', async () => {
+  it('keeps the image’s third-party notices out of the footer, even when the server serves them', async () => {
     const state = ownerScenario();
     state.version = { ...state.version, notices: '/notices.txt' };
     await renderApp('/more', { state });

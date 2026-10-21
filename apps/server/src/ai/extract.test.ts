@@ -80,7 +80,7 @@ describe('extract (mock provider)', () => {
     expect(ledger.rows[0]?.estimateTokens).toBeGreaterThan(4548);
   });
 
-  it('drops a failing optional field and reports it (L52)', async () => {
+  it('drops a failing optional field and reports it', async () => {
     const img = await jpeg('#0a0b0c');
     const { rt } = kit({
       providers: [groq],
@@ -103,7 +103,7 @@ describe('extract (mock provider)', () => {
     });
   });
 
-  it('no provider → no_provider, and no ledger row (D19: everything still works)', async () => {
+  it('no provider → no_provider, and no ledger row (everything still works)', async () => {
     const { rt, ledger } = kit({ providers: [], locations: [home] });
     expect(
       await extract(rt, { ...base, mode: 'thing', images: [await jpeg('#fff000')], prompt }),

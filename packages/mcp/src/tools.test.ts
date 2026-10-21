@@ -45,7 +45,7 @@ const TABLE: Record<
   log_service: ['write', null, 5],
   log_fuel: ['write', 'fuel', 5],
   adjust_stock: ['write', 'consumables', 7],
-  // Moving mode (1.x, D251), MCP only.
+  // Moving mode (1.x), MCP only.
   list_moves: ['read', 'moving', '1.x'],
   get_move: ['read', 'moving', '1.x'],
   start_move: ['write', 'moving', '1.x'],
@@ -163,7 +163,7 @@ describe('TOOL_DEFS', () => {
     );
   });
 
-  it('adds a spoken list in one call (D213): 1 to 20 items, a new place allowed', () => {
+  it('adds a spoken list in one call: 1 to 20 items, a new place allowed', () => {
     const input = TOOL_DEFS.add_thing.input;
     const three = {
       items: [
@@ -177,7 +177,7 @@ describe('TOOL_DEFS', () => {
     expect(input.safeParse({ items: Array(21).fill({ name: 'x' }) }).success).toBe(false);
   });
 
-  it('log_service lines may use stock (D236): a consumable, and how much only with one', () => {
+  it('log_service lines may use stock: a consumable, and how much only with one', () => {
     const input = TOOL_DEFS.log_service.input;
     const base = { thing_id: 'K7D2QX', serviced_on: '2026-10-01' };
     const line = (l: object) => ({ ...base, lines: [{ description: 'Oil change', ...l }] });

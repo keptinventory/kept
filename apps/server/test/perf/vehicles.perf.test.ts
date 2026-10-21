@@ -50,7 +50,7 @@ import { timed } from './timing.js';
 // - The Corolla's running costs over the last 60 months (600 fills, 60 services): p95 < 200 ms.
 // - Its fuel summary over 600 fills: p95 < 100 ms.
 // - The compressor's thing page (GET /api/v1/things/:id) with 3 meters: p95 < 200 ms.
-// - Insights (1.x, D234: GET /api/v1/insights) over every location, after a valuation on each of
+// - Insights (GET /api/v1/insights) over every location, after a valuation on each of
 //   Home's things and 1,000 purchases are added: p95 < 300 ms (the search target).
 // - The Corolla's history report over the five years, with costs and fuel: the `report` job
 //   renders it (Typst in its child process, killed past RENDER_MEMORY_MB, render/render.ts).
@@ -67,7 +67,7 @@ const LIMITS = {
   costsP95Ms: 200,
   fuelSummaryP95Ms: 100,
   thingPageP95Ms: 200,
-  // 1.x (D234): Insights over every location, with a valuation on each of Home's 10,000 things
+  // 1.x: Insights over every location, with a valuation on each of Home's 10,000 things
   // and 1,000 purchases: the search target.
   insightsP95Ms: 300,
 };
@@ -249,8 +249,8 @@ afterAll(async () => {
   console.log(`step5 perf: ${JSON.stringify(results)} → ${file}`);
 });
 
-describe('step-5 performance (plan T25, full mode only)', () => {
-  it(`reads Home and the agenda with step 5's branches within 20% of step 4's figures (${LIMITS.homeP95Ms} / ${LIMITS.agendaP95Ms} ms p95)`, async () => {
+describe('vehicle performance (full mode only)', () => {
+  it(`reads Home and the agenda with the vehicle branches within 20% of the household figures (${LIMITS.homeP95Ms} / ${LIMITS.agendaP95Ms} ms p95)`, async () => {
     const first = ok(await call(t, '/api/v1/home', { as: ibrahim })) as unknown as {
       attention: { overdue: number; due: number; expiring: number };
     };

@@ -20,8 +20,8 @@ import {
 
 // Step 5, T8 through the front door, as the web calls it (apps/web/src/api/vehicles/types.ts:
 // ThingMeterV5, UpdateMeterBodyV5, CreateReadingBodyV5, ReadingRow, ReadingsParams, ProofsPage):
-// "It's right" for a jump, proof photos on their reading (D195) and the proof strip,
-// owned readings, reading undo (D150), usage estimates and the stale-reading nudge's
+// "It's right" for a jump, proof photos on their reading and the proof strip,
+// owned readings, reading undo, usage estimates and the stale-reading nudge's
 // setting.
 
 let db: TestDb;
@@ -198,7 +198,7 @@ describe("POST /api/v1/meters/:id/readings: It's right, proof photos, undo", () 
   });
 });
 
-describe('owned readings (Q11)', () => {
+describe('owned readings', () => {
   it("refuses a fill's and a service's reading on the readings routes (409 reading_owned)", async () => {
     const car = await newCar();
     const reading = ok(await log(alfred, car.meterId, { value: '41000', takenAt: daysAgo(3) }), 201)
@@ -257,7 +257,7 @@ describe('owned readings (Q11)', () => {
 });
 
 describe('proofs and the readings list', () => {
-  it('lists the strip newest first: typed, synced and captured proofs on readings, and step 3 proofs on the thing', async () => {
+  it('lists the strip newest first: typed, synced and captured proofs on readings, and older proofs on the thing', async () => {
     const car = await newCar();
     // A step-3 proof, still on the thing.
     const old = await photo(ibrahim);
@@ -376,7 +376,7 @@ describe('proofs and the readings list', () => {
   });
 });
 
-describe('estimates and the nudge (Q8, Q19)', () => {
+describe('estimates and the nudge', () => {
   it('estimates about 62 km a day from 90 days of readings; stale at 34 days, unknown at 70', async () => {
     const car = await newCar();
     // 124 days back to 34 days back: 90 days at 62 km a day.

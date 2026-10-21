@@ -1,7 +1,7 @@
 /**
- * The spreadsheet view (D250) on the location page, against the mock server: offered from
+ * The spreadsheet view on the location page, against the mock server: offered from
  * 1024 px only, edit in place by keyboard behind "Save N changes", one Undo for the save, bulk
- * actions on a selection, a stale row kept staged (D156), viewers read-only, money hidden where
+ * actions on a selection, a stale row kept staged, viewers read-only, money hidden where
  * the gate hides it, and right to left.
  */
 import { screen, waitFor, within } from '@testing-library/react';
@@ -158,7 +158,7 @@ describe('editing in place', () => {
     expect(cellOf(grid, 'Old kettle', 'Model')).not.toHaveTextContent('Nope');
   });
 
-  it('keeps a row someone else changed staged, with keep mine or keep theirs (D156)', async () => {
+  it('keeps a row someone else changed staged, with keep mine or keep theirs', async () => {
     const { grid, user, mock } = await openSheet({
       setup: (m) =>
         m.on('POST', inventoryPaths.thingsBulkEdit, () => ({

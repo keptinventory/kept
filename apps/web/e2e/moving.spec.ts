@@ -1,5 +1,5 @@
 /**
- * Moving mode against the real server (D251), on its own seeded `moving` instance
+ * Moving mode against the real server, on its own seeded `moving` instance
  * (e2e/instances.ts): the owner turns Moving mode on in the Garage, starts a move to Home, adds a
  * numbered box going to Home's kitchen, packs a thing into it, prints the contents sheets (the
  * PDF is made by the server's job), then unpacks the box by its label from Scan to unpack: the

@@ -1,6 +1,6 @@
 /**
- * The PWA shell: the manifest, the worker's routing, the update prompt's gates (D148),
- * the share target's hand-over (D140) and the diagnostics report (D188).
+ * The PWA shell: the manifest, the worker's routing, the update prompt's gates,
+ * the share target's hand-over and the diagnostics report.
  */
 import { act, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -27,7 +27,7 @@ afterEach(() => {
   act(() => toastQueue.clear());
 });
 
-describe('manifest.webmanifest (§2.7)', () => {
+describe('manifest.webmanifest', () => {
   const manifest = JSON.parse(manifestText);
   const publicFiles = Object.keys(import.meta.glob('../../public/*')).map((k) =>
     k.replace('../../public', ''),
@@ -45,7 +45,7 @@ describe('manifest.webmanifest (§2.7)', () => {
     });
   });
 
-  it('lists the icons from step 2, maskable included, and each exists', () => {
+  it('lists the icons, maskable included, and each exists', () => {
     const purposes = manifest.icons.map((i: { purpose: string }) => i.purpose);
     expect(purposes).toContain('maskable');
     for (const icon of manifest.icons as { src: string }[]) expect(publicFiles).toContain(icon.src);
@@ -66,7 +66,7 @@ describe('manifest.webmanifest (§2.7)', () => {
   });
 });
 
-describe('the service worker routes (D181)', () => {
+describe('the service worker routes', () => {
   it('never caches the API or files: they are NetworkOnly', () => {
     for (const p of ['/api', '/api/v1/me', '/f/abc', '/f'])
       expect(isAuthenticatedPath(p)).toBe(true);
@@ -88,7 +88,7 @@ describe('the service worker routes (D181)', () => {
   });
 });
 
-describe('the update prompt (D148)', () => {
+describe('the update prompt', () => {
   it('waits while something uploads, then offers Reload, and hands over on Reload', async () => {
     const store = new MemoryStore();
     await store.enqueue(
@@ -159,7 +159,7 @@ describe('the update prompt (D148)', () => {
   });
 });
 
-describe('share into Kept (D140)', () => {
+describe('share into Kept', () => {
   const pdf = new File(['%PDF-1.7'], 'receipt.pdf', { type: 'application/pdf' });
   const jpg = new File(['jpeg'], 'drill.jpg', { type: 'image/jpeg' });
 
@@ -216,13 +216,13 @@ describe('share into Kept (D140)', () => {
     expect(await store.shared('s2')).toBeUndefined();
   });
 
-  it('explains a share the server answered because the worker was not running (Q26)', async () => {
+  it('explains a share the server answered because the worker was not running', async () => {
     await renderUI(<ShareArrival problem="unavailable" onDone={() => undefined} />);
     expect(screen.getByText('Open Kept once, then share again')).toBeInTheDocument();
   });
 });
 
-describe('plain HTTP (D31)', () => {
+describe('plain HTTP', () => {
   it('shows what needs HTTPS, only on an insecure page', async () => {
     const { rerender } = await renderUI(<InsecureBanner insecure />);
     expect(screen.getByRole('status')).toHaveTextContent(
@@ -233,7 +233,7 @@ describe('plain HTTP (D31)', () => {
   });
 });
 
-describe('diagnostics (D188)', () => {
+describe('diagnostics', () => {
   it('runs nothing until asked, then lists every check and copies a text report', async () => {
     const run = vi.fn(
       async (key: ProbeKey): Promise<ProbeResult> =>

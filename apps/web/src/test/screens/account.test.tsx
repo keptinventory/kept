@@ -1,7 +1,7 @@
 /**
- * Step 1's screens for routes that already existed: changing the sign-in email (D176), restoring
- * a deleted location (D149), a managed account's new one-time code (D164, D197) and instance
- * admins (D164).
+ * Step 1's screens for routes that already existed: changing the sign-in email, restoring
+ * a deleted location, a managed account's new one-time code and instance
+ * admins.
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
@@ -18,7 +18,7 @@ import { paths } from '@/api/paths';
 import { findHeading, renderApp } from '@/test/app';
 import { expectLogicalOnly } from '@/test/render';
 
-describe('Settings → Me → Change email (D176)', () => {
+describe('Settings → Me → Change email', () => {
   const open = async () => {
     const r = await renderApp('/settings');
     await r.user.click(await screen.findByRole('button', { name: 'Change email' }));
@@ -94,7 +94,7 @@ describe('Settings → Me → Change email (D176)', () => {
   });
 });
 
-describe('/auth/email-change (D176, D181)', () => {
+describe('/auth/email-change', () => {
   it('the old address confirms: never on load, then "check your new inbox"', async () => {
     const { user, mock } = await renderApp(`/auth/email-change#token=${EMAIL_CHANGE_OLD_TOKEN}`, {
       state: signedOutScenario(),
@@ -142,7 +142,7 @@ describe('/auth/email-change (D176, D181)', () => {
   });
 });
 
-describe('Settings → Locations → Recently deleted (D149)', () => {
+describe('Settings → Locations → Recently deleted', () => {
   it('lists deleted locations with their purge date, and restores one', async () => {
     const { user, mock } = await renderApp('/settings/locations');
     const section = (await screen.findByRole('heading', { name: 'Recently deleted' })).closest(
@@ -183,7 +183,7 @@ describe('Settings → Locations → Recently deleted (D149)', () => {
   });
 });
 
-describe('Members → a managed account’s new one-time code (D164, D197)', () => {
+describe('Members → a managed account’s new one-time code', () => {
   const members = `/settings/location/${IDS.home}/members`;
 
   it('the owner issues one after a confirm; it shows once with copy and expiry', async () => {
@@ -212,7 +212,7 @@ describe('Members → a managed account’s new one-time code (D164, D197)', () 
     ).not.toBeInTheDocument();
   });
 
-  it('an admin who did not create the account is not offered it (D197)', async () => {
+  it('an admin who did not create the account is not offered it', async () => {
     const state = ownerScenario();
     const home = state.locations.find((l) => l.id === IDS.home);
     if (home) home.role = 'admin';
@@ -252,7 +252,7 @@ describe('Members → a managed account’s new one-time code (D164, D197)', () 
   });
 });
 
-describe('Instance admin → Admins (D164)', () => {
+describe('Instance admin → Admins', () => {
   it('lists the admins; the last one cannot be removed, and says why', async () => {
     await renderApp('/admin/admins');
     const list = (await screen.findByRole('heading', { name: 'Instance admins' })).closest(
@@ -340,7 +340,7 @@ describe('Instance admin → Admins (D164)', () => {
   });
 });
 
-describe('Settings → Me → Delete my account (D225)', () => {
+describe('Settings → Me → Delete my account', () => {
   /** Ibrahim with nothing in the way: no location of his own but Personal, not an admin. */
   const free = () => {
     const state = ownerScenario();

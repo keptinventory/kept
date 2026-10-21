@@ -10,7 +10,7 @@ import { OCCURRENCE_COLUMNS, type OccurrenceRow, reminderItems } from './items.j
 import { runScan, type ScanDeps } from './scan.js';
 
 // Reminders for vehicles. The stale-reading nudge (0066's `reading_stale` branch)
-// through step 4's scan with no engine change (D52, D111); a reading crossing a unit
+// through step 4's scan with no engine change; a reading crossing a unit
 // schedule's point; selling stops a thing's sources and keeps its history; a service
 // counts only once confirmed, and a draft confirmed after the occurrence opened completes it.
 
@@ -107,7 +107,7 @@ beforeEach(async () => {
   odometer = await meterOf(corolla);
 });
 
-describe('the stale-reading nudge (D52, Q19)', () => {
+describe('the stale-reading nudge', () => {
   it('a meter last read 31 days ago in Cairo reminds once across two scans, owner and admin only', async () => {
     const readOn = await read(odometer, 52_340, { days: 31 });
     await runScan(deps());
@@ -229,7 +229,7 @@ describe('unit schedules on the odometer', () => {
   });
 });
 
-describe('selling (D52, §7.13)', () => {
+describe('selling', () => {
   it("a sold Corolla's nudge and schedules raise nothing, and its services stay", async () => {
     await read(odometer, 52_340, { days: 31 });
     const oil = await unitSchedule('Oil change', 47_000, 5_000);
@@ -253,7 +253,7 @@ describe('selling (D52, §7.13)', () => {
   });
 });
 
-describe('services complete schedules once confirmed (T14; 0063)', () => {
+describe('services complete schedules once confirmed (0063)', () => {
   /** A dated schedule, 6 months from 190 days ago: overdue. */
   async function overdue(): Promise<string> {
     const id = newId();

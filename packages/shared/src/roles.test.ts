@@ -5,16 +5,16 @@ import { ACTIONS, type Action, can, MATRIX, QUALIFIERS, ROLES, type Role } from 
  * The role matrix, the table roles.ts implements. A change to who may do
  * what changes this table and roles.ts together.
  */
-const SPEC_7_1 = `| Action | Owner | Admin | Member | Viewer |
+const MATRIX_TABLE = `| Action | Owner | Admin | Member | Viewer |
 |---|---|---|---|---|
-| See things, places, photos, history, activity feed (redacted per D110) | ✓ | ✓ | ✓ | ✓ |
+| See things, places, photos, history, activity feed (redacted) | ✓ | ✓ | ✓ | ✓ |
 | Add, edit, move, lend and borrow things; log readings, services and fuel | ✓ | ✓ | ✓ | – |
 | Manage schedules; open and update claims | ✓ | ✓ | ✓ | – |
 | Print labels; claim blank labels; box check | ✓ | ✓ | ✓ | – |
 | Mark seen / not here | ✓ | ✓ | ✓ | – |
-| Use AI capture (spends the location owner's budget, D121) | ✓ | ✓ | ✓ | – |
+| Use AI capture (spends the location owner's budget) | ✓ | ✓ | ✓ | – |
 | Ask the assistant (read-only for viewers; spends budget) | ✓ | ✓ | ✓ | ✓ read-only |
-| Create people and vendors inline (D11) | ✓ | ✓ | ✓ | – |
+| Create people and vendors inline | ✓ | ✓ | ✓ | – |
 | Edit, merge, delete people, vendors, brands; create and edit types and templates | ✓ | ✓ | – | – |
 | Trash things (undoable); restore from trash | ✓ | ✓ | ✓ | – |
 | Delete permanently | ✓ | ✓ | – | – |
@@ -24,17 +24,17 @@ const SPEC_7_1 = `| Action | Owner | Admin | Member | Viewer |
 | Attachments: add · delete | ✓ | ✓ | add, delete own | – |
 | Shared saved views | ✓ | ✓ | ✓ | – |
 | Webhooks | ✓ | ✓ | – | – |
-| Incidents; claim packs (D158) | ✓ | ✓ | – | – |
-| Reveal a secret field | per the field's policy (D116); admins and above by default | | | |
-| Set a secret field's policy; convert a field to or from secret | owner only (D177) | | | |
-| See money | ✓ | ✓ | ✓ | only if the location allows (D13) |
+| Incidents; claim packs | ✓ | ✓ | – | – |
+| Reveal a secret field | per the field's policy; admins and above by default | | | |
+| Set a secret field's policy; convert a field to or from secret | owner only | | | |
+| See money | ✓ | ✓ | ✓ | only if the location allows |
 | Export the location; import into it | ✓ | ✓ | – | – |
 | Create share links | ✓ | ✓ | – | – |
 | Invite and remove members and viewers; change their roles and expiry | ✓ | ✓ | – | – |
-| Promote, demote or remove admins (D48) | ✓ | – | – | – |
+| Promote, demote or remove admins | ✓ | – | – | – |
 | Location settings and modules | ✓ | ✓ | – | – |
 | API/MCP tokens for this location | ✓ | ✓ | own, up to own role | own, read-only |
-| Require two-factor for the location; grant support access (D71) | ✓ | – | – | – |
+| Require two-factor for the location; grant support access | ✓ | – | – | – |
 | Transfer or delete the location; billing | ✓ | – | – | – |`;
 
 type Cells = readonly [owner: string, admin: string, member: string, viewer: string];
@@ -51,11 +51,11 @@ function parseTable(table: string): Map<string, Cells> {
   return rows;
 }
 
-const SPEC_ROWS = parseTable(SPEC_7_1);
+const TABLE_ROWS = parseTable(MATRIX_TABLE);
 
 /** A plain row: ✓ (including "✓ read-only") allows, – denies. */
 function plain(label: string): Record<Role, boolean> {
-  const cells = SPEC_ROWS.get(label);
+  const cells = TABLE_ROWS.get(label);
   if (!cells) throw new Error(`fixture has no row "${label}"`);
   const [owner, admin, member, viewer] = cells.map((c) => {
     if (c.startsWith('✓')) return true;
@@ -79,8 +79,8 @@ const R = (owner: boolean, admin: boolean, member: boolean, viewer: boolean) => 
  */
 const EXPECTED: Record<Action, { row: string; roles: Record<Role, boolean> }> = {
   'content.view': {
-    row: 'See things, places, photos, history, activity feed (redacted per D110)',
-    roles: plain('See things, places, photos, history, activity feed (redacted per D110)'),
+    row: 'See things, places, photos, history, activity feed (redacted)',
+    roles: plain('See things, places, photos, history, activity feed (redacted)'),
   },
   'things.edit': {
     row: 'Add, edit, move, lend and borrow things; log readings, services and fuel',
@@ -96,16 +96,16 @@ const EXPECTED: Record<Action, { row: string; roles: Record<Role, boolean> }> = 
   },
   'things.mark-seen': { row: 'Mark seen / not here', roles: plain('Mark seen / not here') },
   'ai.capture': {
-    row: "Use AI capture (spends the location owner's budget, D121)",
-    roles: plain("Use AI capture (spends the location owner's budget, D121)"),
+    row: "Use AI capture (spends the location owner's budget)",
+    roles: plain("Use AI capture (spends the location owner's budget)"),
   },
   'assistant.ask': {
     row: 'Ask the assistant (read-only for viewers; spends budget)',
     roles: plain('Ask the assistant (read-only for viewers; spends budget)'),
   },
   'people-vendors.create-inline': {
-    row: 'Create people and vendors inline (D11)',
-    roles: plain('Create people and vendors inline (D11)'),
+    row: 'Create people and vendors inline',
+    roles: plain('Create people and vendors inline'),
   },
   'registries-types.manage': {
     row: 'Edit, merge, delete people, vendors, brands; create and edit types and templates',
@@ -145,17 +145,17 @@ const EXPECTED: Record<Action, { row: string; roles: Record<Role, boolean> }> = 
   'saved-views.share': { row: 'Shared saved views', roles: plain('Shared saved views') },
   'webhooks.manage': { row: 'Webhooks', roles: plain('Webhooks') },
   'incidents.manage': {
-    row: 'Incidents; claim packs (D158)',
-    roles: plain('Incidents; claim packs (D158)'),
+    row: 'Incidents; claim packs',
+    roles: plain('Incidents; claim packs'),
   },
-  // "per the field's policy (D116); admins and above by default": the default, no policy.
+  // "per the field's policy; admins and above by default": the default, no policy.
   'secrets.reveal': { row: 'Reveal a secret field', roles: R(true, true, false, false) },
-  // "owner only (D177)".
+  // "owner only".
   'secrets.set-policy': {
     row: "Set a secret field's policy; convert a field to or from secret",
     roles: R(true, false, false, false),
   },
-  // Viewer cell: "only if the location allows (D13)": the default, location does not allow.
+  // Viewer cell: "only if the location allows": the default, location does not allow.
   'money.view': { row: 'See money', roles: R(true, true, true, false) },
   'location.export-import': {
     row: 'Export the location; import into it',
@@ -167,8 +167,8 @@ const EXPECTED: Record<Action, { row: string; roles: Record<Role, boolean> }> = 
     roles: plain('Invite and remove members and viewers; change their roles and expiry'),
   },
   'admins.manage': {
-    row: 'Promote, demote or remove admins (D48)',
-    roles: plain('Promote, demote or remove admins (D48)'),
+    row: 'Promote, demote or remove admins',
+    roles: plain('Promote, demote or remove admins'),
   },
   'location.settings': {
     row: 'Location settings and modules',
@@ -184,8 +184,8 @@ const EXPECTED: Record<Action, { row: string; roles: Record<Role, boolean> }> = 
     roles: R(true, true, false, false),
   },
   'location.security': {
-    row: 'Require two-factor for the location; grant support access (D71)',
-    roles: plain('Require two-factor for the location; grant support access (D71)'),
+    row: 'Require two-factor for the location; grant support access',
+    roles: plain('Require two-factor for the location; grant support access'),
   },
   'location.transfer-delete': {
     row: 'Transfer or delete the location; billing',
@@ -197,10 +197,10 @@ const CELLS = Object.entries(EXPECTED).flatMap(([action, { roles }]) =>
   ROLES.map((role) => ({ action: action as Action, role, allowed: roles[role] })),
 );
 
-describe('role matrix (product design §7.1)', () => {
-  it('has an action for every row of §7.1 and no action from outside it', () => {
+describe('role matrix', () => {
+  it('has an action for every row of the table and no action from outside it', () => {
     const covered = new Set(Object.values(EXPECTED).map((e) => e.row));
-    expect([...covered].sort()).toEqual([...SPEC_ROWS.keys()].sort());
+    expect([...covered].sort()).toEqual([...TABLE_ROWS.keys()].sort());
     expect([...ACTIONS].sort()).toEqual(Object.keys(EXPECTED).sort());
     expect(Object.keys(MATRIX).sort()).toEqual([...ACTIONS].sort());
   });
@@ -211,13 +211,13 @@ describe('role matrix (product design §7.1)', () => {
 });
 
 describe('conditional cells', () => {
-  it('lets a viewer see money only when the location allows it (D13)', () => {
+  it('lets a viewer see money only when the location allows it', () => {
     expect(can('viewer', 'money.view', { moneyVisibleToViewers: false })).toBe(false);
     expect(can('viewer', 'money.view', { moneyVisibleToViewers: true })).toBe(true);
     expect(can('member', 'money.view', { moneyVisibleToViewers: false })).toBe(true);
   });
 
-  it("widens a secret's reveal to the roles its field policy names, never narrows it (D116)", () => {
+  it("widens a secret's reveal to the roles its field policy names, never narrows it", () => {
     expect(can('member', 'secrets.reveal', { secretRevealRoles: ['member'] })).toBe(true);
     expect(can('viewer', 'secrets.reveal', { secretRevealRoles: ['member'] })).toBe(false);
     expect(can('admin', 'secrets.reveal', { secretRevealRoles: [] })).toBe(true);

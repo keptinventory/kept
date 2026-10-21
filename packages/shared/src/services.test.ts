@@ -4,7 +4,7 @@ import { matchSchedules, reconcileTotal, significantWords } from './services.js'
 const one = (name: string, description: string) =>
   matchSchedules([{ id: 's', name }], [{ description }]).length === 1;
 
-describe('matchSchedules() (Q13)', () => {
+describe('matchSchedules()', () => {
   it.each([
     ['Oil & filter', 'Oil filter', true],
     ['Oil & filter', 'Engine oil 5W-30', false],

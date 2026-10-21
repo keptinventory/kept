@@ -2,7 +2,7 @@ import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { createDeflate } from 'node:zlib';
 
-// Hand-made PDFs for the PDF text tests (T21): the smallest documents that exercise the reader,
+// Hand-made PDFs for the PDF text tests: the smallest documents that exercise the reader,
 // written here rather than committed as binaries. Offsets are computed, so every xref is valid.
 
 /** A PDF of `objects` (object 1 must be the catalog), with a trailer and a valid xref table. */

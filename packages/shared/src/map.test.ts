@@ -37,7 +37,7 @@ import {
   wallSpot,
 } from './map.js';
 
-describe('the map catalogue (D237)', () => {
+describe('the map catalogue', () => {
   it('gives every model a positive footprint', () => {
     for (const key of MAP_MODEL_KEYS) {
       const m = MAP_MODELS[key];

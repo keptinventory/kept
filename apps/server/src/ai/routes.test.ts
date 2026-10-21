@@ -262,7 +262,7 @@ afterAll(async () => {
 // ---------------------------------------------------------------------------------------------
 
 describe('keys: PUT /api/v1/ai/providers/:scope', () => {
-  it('needs the recovery kit before the first AI key (D193)', async () => {
+  it('needs the recovery kit before the first AI key', async () => {
     const res = await put(ibrahim, 'account', { apiKey: groqKey() });
     expect(res.statusCode).toBe(409);
     expect(res.json()).toMatchObject({ code: 'recovery_kit_required' });
@@ -416,7 +416,7 @@ describe('keys: PUT /api/v1/ai/providers/:scope', () => {
     ok(await put(ibrahim, 'account', { models: { chat: 'openai/gpt-oss-120b' } }, now));
   });
 
-  it('checks a typed base URL against private addresses, unless the instance allows them (Q9)', async () => {
+  it('checks a typed base URL against private addresses, unless the instance allows them', async () => {
     const body = {
       kind: 'openai_compatible',
       baseUrl: 'http://10.0.0.5:11434/v1',
@@ -472,7 +472,7 @@ const accountKey = async () =>
     (p) => p.scope === 'account',
   ) as Json;
 
-describe('"Test connection" and the model list (D188, D202, L50)', () => {
+describe('"Test connection" and the model list', () => {
   // catalogue: POST /api/v1/ai/providers/:id/test
   it('makes the two ledgered calls, records the capabilities, and is audited', async () => {
     const key = await accountKey();
@@ -596,7 +596,7 @@ const putCap = (as: Person, body: object, rowVersion?: number) =>
     headers: rowVersion === undefined ? {} : { 'if-match': String(rowVersion) },
   });
 
-describe('status and caps (D206)', () => {
+describe('status and caps', () => {
   it('gives every role the status line; only the owner may manage, the rest are told whom to ask', async () => {
     const mine = ok(await call(t, `/api/v1/ai/status?locationId=${home.id}`, { as: ibrahim }));
     expect(mine).toMatchObject({
@@ -801,7 +801,7 @@ const priceBody = {
   currency: 'USD',
 };
 
-describe('the price table (D167, D206)', () => {
+describe('the price table', () => {
   // catalogue: POST /api/v1/admin/ai/prices
   it('is the instance admin’s: versioned, the old one superseded, read by everyone', async () => {
     expect(
@@ -939,7 +939,7 @@ describe('the price table (D167, D206)', () => {
       source: 'provider_listing',
       listingFetchedAt: RECOMMENDED_PRICE.listingFetchedAt,
     });
-    // This month's unpriced call of it is costed now (D206's price_table_later).
+    // This month's unpriced call of it is costed now (price_table_later).
     const [costed] = await own<{ cost_source: string; cost_amount: string | null }>(
       db,
       'SELECT cost_source, cost_amount::text FROM public.llm_calls WHERE id = $1',
@@ -967,7 +967,7 @@ const list = async (as: Person, qs: string) =>
     next_cursor: string | null;
   };
 
-describe('usage and the call list (L47, D205, D206)', () => {
+describe('usage and the call list', () => {
   const marks: Record<string, string> = {};
 
   beforeAll(async () => {
@@ -1048,7 +1048,7 @@ describe('usage and the call list (L47, D205, D206)', () => {
     expect((await call(t, '/api/v1/ai/calls?scope=instance', { as: louis })).statusCode).toBe(404);
   });
 
-  it('filters in the D205 URL form: repeated values, not, dir, ranges and background', async () => {
+  it('filters in the shared list URL form: repeated values, not, dir, ranges and background', async () => {
     const q = `scope=location&locationId=${home.id}`;
     const tasks = await list(bruce, `${q}&task=extract_thing&not=task`);
     expect(tasks.items.map((c) => c.task).sort()).toEqual(['assistant_turn', 'embed_thing']);
@@ -1097,7 +1097,7 @@ describe('usage and the call list (L47, D205, D206)', () => {
     expect(viewer.body.split('\r\n')[0]).not.toContain('cost');
     for (let i = 0; i < 4; i++) await call(t, '/api/v1/ai/calls.csv?scope=me', { as: talia });
     expect((await call(t, '/api/v1/ai/calls.csv?scope=me', { as: talia })).statusCode).toBe(429);
-    // The shared writer (D169): a BOM first, and a leading tab or carriage return defused too.
+    // The shared writer: a BOM first, and a leading tab or carriage return defused too.
     expect(res.body.startsWith(CSV_BOM)).toBe(true);
     expect(safeCsvCell('+1')).toBe(`'+1`);
     expect(safeCsvCell('\tcmd')).toBe(`'\tcmd`);
@@ -1150,7 +1150,7 @@ describe('usage and the call list (L47, D205, D206)', () => {
 // Notices
 // ---------------------------------------------------------------------------------------------
 
-describe('cap notices and the rejected-key alert (D166, D206)', () => {
+describe('cap notices and the rejected-key alert', () => {
   const deps = () => ({
     pools: db.pools,
     mailer: {
@@ -1187,7 +1187,7 @@ describe('cap notices and the rejected-key alert (D166, D206)', () => {
     expect(await runAiNotice(deps(), { kind: 'nonsense' })).toBe(0);
   });
 
-  it('leaves each person it mails one ai_cap notification in the centre, however often it runs (T16)', async () => {
+  it('leaves each person it mails one ai_cap notification in the centre, however often it runs', async () => {
     const [cap] = await own<{ id: string }>(
       db,
       `SELECT id FROM public.ai_budgets WHERE scope = 'location' AND location_id = $1`,
@@ -1382,7 +1382,7 @@ describe('leak: the AI routes answer another household exactly as nothing', () =
   });
 });
 
-describe('the module wiring (D191)', () => {
+describe('the module wiring', () => {
   it('turns AI capture on in a location once a provider resolves, and off with its toggle', async () => {
     await acknowledgeKit();
     const view = async () => ok(await call(t, `/api/v1/locations/${family.id}`, { as: alfred }));

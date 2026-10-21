@@ -1,5 +1,5 @@
 // callModel with tools and a conversation: one provider request per call, every
-// step one ledger row, and nothing of the conversation in the ledger or the logs (D206).
+// step one ledger row, and nothing of the conversation in the ledger or the logs.
 import type { LanguageModelV4CallOptions, LanguageModelV4GenerateResult } from '@ai-sdk/provider';
 import { TOOL_DEFS } from '@kept/mcp';
 import { APICallError } from 'ai';
@@ -212,7 +212,7 @@ describe('callModel with tools: one request per call', () => {
       true,
     );
     expect(ledger.rows.every((r) => r.attempt === 1)).toBe(true);
-    // D206: no question, tool argument or tool result in any ledger column or log line.
+    // No question, tool argument or tool result in any ledger column or log line.
     const dump = JSON.stringify({ rows: ledger.rows, logs });
     for (const mark of [MARK_Q, MARK_ARG, MARK_RESULT]) expect(dump).not.toContain(mark);
   });

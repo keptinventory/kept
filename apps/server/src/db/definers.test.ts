@@ -129,7 +129,7 @@ describe('kept.accept_invite()', () => {
     expect(await accept(joiner, hash)).toEqual([{ location_id: a.locationId }]);
   });
 
-  it("follows its creator's standing: gone, no longer an admin, or an admin inviting an admin (D48, D180)", async () => {
+  it("follows its creator's standing: gone, no longer an admin, or an admin inviting an admin", async () => {
     const admin = await seedUser(db, 'admin');
     await addMember(db, a.locationId, admin, 'admin');
     // An admin may invite members, not admins (only the owner manages admins).
@@ -149,7 +149,7 @@ describe('kept.accept_invite()', () => {
     expect((await pgError(accept(joiner, orphan))).constraint).toBe('invite_invalid');
   });
 
-  it("caps the membership at the inviting admin's own expiry (D180)", async () => {
+  it("caps the membership at the inviting admin's own expiry", async () => {
     const adminUntil = new Date(Date.now() + 5 * DAY);
     const admin = await seedUser(db, 'admin');
     await addMember(db, a.locationId, admin, 'admin', adminUntil);
@@ -329,7 +329,7 @@ describe('kept.claim_invite() (security review I1)', () => {
     await accept(await seedUser(db, 'j'), used);
     const admin = await seedUser(db, 'admin');
     await addMember(db, a.locationId, admin, 'admin');
-    // An admin can't make admins (D48): the invite is dead on arrival.
+    // An admin can't make admins: the invite is dead on arrival.
     const adminMade = await insertInvite(db, a.locationId, admin, { role: 'admin' });
     const personal = await seedTenant(db, 'p', { kind: 'personal' });
     const toPersonal = await insertInvite(db, personal.locationId, personal.userId);
@@ -359,7 +359,7 @@ describe('kept.accept_invite() after migration 0010', () => {
     joiner = await seedUser(db, 'joiner');
   });
 
-  it('refuses an invite to a Personal location (D114)', async () => {
+  it('refuses an invite to a Personal location', async () => {
     const p = await seedTenant(db, 'p', { kind: 'personal' });
     const hash = await insertInvite(db, p.locationId, p.userId);
     expect((await pgError(accept(joiner, hash))).constraint).toBe('invite_invalid');
@@ -400,7 +400,7 @@ describe('kept.accept_invite() after migration 0010', () => {
   });
 });
 
-describe('managed accounts: kept.create_managed_profile() and kept.add_managed_member() (D47)', () => {
+describe('managed accounts: kept.create_managed_profile() and kept.add_managed_member()', () => {
   let a: Tenant;
 
   beforeEach(async () => {
@@ -500,7 +500,7 @@ describe('managed accounts: kept.create_managed_profile() and kept.add_managed_m
     expect((await membership(second.locationId, kid))?.role).toBe('member');
   });
 
-  it('holds admins to D48 and D180: no admin role, no longer than their own membership', async () => {
+  it('holds admins to their own reach: no admin role, no longer than their own membership', async () => {
     const until = new Date(Date.now() + 3 * DAY);
     const admin = await seedUser(db, 'admin');
     await addMember(db, a.locationId, admin, 'admin', until);
@@ -524,7 +524,7 @@ describe('managed accounts: kept.create_managed_profile() and kept.add_managed_m
       ])
     )[0]?.loc ?? null;
 
-  it('records the first location as home, and refuses a Personal one (D114, D197)', async () => {
+  it('records the first location as home, and refuses a Personal one', async () => {
     const kid = await managedUser();
     await createProfile(a.userId, kid);
     const personal = await ownerTx(db, (c) => insertLocation(c, a, { kind: 'personal' }));
@@ -536,7 +536,7 @@ describe('managed accounts: kept.create_managed_profile() and kept.add_managed_m
     expect(rows[0]?.created_in_location_id).toBe(a.locationId);
   });
 
-  it('gives reset authority to the home owner, and the creator only while still an admin there (D197)', async () => {
+  it('gives reset authority to the home owner, and the creator only while still an admin there', async () => {
     const admin = await seedUser(db, 'admin');
     await addMember(db, a.locationId, admin, 'admin');
     const kid = await managedUser();
@@ -565,7 +565,7 @@ describe('managed accounts: kept.create_managed_profile() and kept.add_managed_m
     expect((await pgError(addManaged(admin, elsewhere.locationId, kid))).code).toBe('42501');
   });
 
-  it('gives owners of the other locations it joined no reset power (D197)', async () => {
+  it('gives owners of the other locations it joined no reset power', async () => {
     const kid = await managedUser();
     await createProfile(a.userId, kid);
     await addManaged(a.userId, a.locationId, kid);
@@ -580,7 +580,7 @@ describe('managed accounts: kept.create_managed_profile() and kept.add_managed_m
   });
 });
 
-describe('kept.ensure_audit_partitions() (task 24)', () => {
+describe('kept.ensure_audit_partitions()', () => {
   const sys = (monthsAhead: number) =>
     withSystem(db.pools.system, async (_tx, c) => {
       const { rows } = await c.query('SELECT kept.ensure_audit_partitions($1) AS n', [monthsAhead]);

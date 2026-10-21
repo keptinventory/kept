@@ -87,7 +87,7 @@ describe('security notices (review I3)', () => {
     );
   });
 
-  it('makes a reset on an unverified address claim the account (D197)', async () => {
+  it('makes a reset on an unverified address claim the account', async () => {
     // Someone signed up with this address first, and planted a passkey and TOTP on it.
     const user = await newUser('prehijack');
     const { cookie } = await enrolTotp(t.auth, user, PASSWORD);
@@ -197,7 +197,7 @@ describe('security notices (review I3)', () => {
   });
 });
 
-describe('D197: a first magic-link sign-in claims an unverified account', () => {
+describe('a first magic-link sign-in claims an unverified account', () => {
   /** What is left on the account that could still get someone in. */
   async function waysIn(userId: string) {
     const { rows } = await db.pools.auth.query(
@@ -297,7 +297,7 @@ describe('D197: a first magic-link sign-in claims an unverified account', () => 
   });
 });
 
-describe('D197: with mail configured, enrolment waits for a verified address', () => {
+describe('with mail configured, enrolment waits for a verified address', () => {
   beforeEach(async () => {
     t = await testApp(db, { mailConfigured: true });
   });

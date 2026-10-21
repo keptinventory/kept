@@ -91,17 +91,17 @@ describe('the sync status line', () => {
     expect(screen.queryByText(/captures? waiting/)).toBeNull();
   });
 
-  it('offline with nothing waiting says how old the copy is (D188)', async () => {
+  it('offline with nothing waiting says how old the copy is', async () => {
     await show({ ...base, problem: 'offline' });
     expect(screen.getByText(/^Offline · as of last sync, /)).toBeInTheDocument();
   });
 
-  it('a refused queue asks for an update, and a full phone says so (D148)', async () => {
+  it('a refused queue asks for an update, and a full phone says so', async () => {
     await show({ ...base, problem: 'client_outdated', counts: { ...base.counts, waiting: 3 } });
     expect(screen.getByText('Update Kept to finish syncing.')).toBeInTheDocument();
   });
 
-  it('a partial copy and a refused persistence request are explained (Q30, V11)', async () => {
+  it('a partial copy and a refused persistence request are explained', async () => {
     await show({
       ...base,
       truncated: true,
@@ -112,7 +112,7 @@ describe('the sync status line', () => {
     expect(screen.getByText(/may clear Kept's offline copy/)).toBeInTheDocument();
   });
 
-  it('spells out a dropped change, with Restore to the inbox and × to dismiss it (D35)', async () => {
+  it('spells out a dropped change, with Restore to the inbox and × to dismiss it', async () => {
     const { user, router, dismissNotice } = await showRouted({
       ...base,
       counts: { ...base.counts, needsAttention: 1 },

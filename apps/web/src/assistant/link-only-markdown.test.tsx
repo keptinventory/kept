@@ -1,5 +1,5 @@
 /**
- * The answer renderer (D179): paragraphs, lists, bold and Kept's own links only. Anything else
+ * The answer renderer: paragraphs, lists, bold and Kept's own links only. Anything else
  * a model writes (a link elsewhere, an image, HTML, a fake confirmation card) is plain text.
  */
 import {

@@ -8,7 +8,7 @@ import {
   shellQuote,
 } from './recovery-kit-content.js';
 
-// Step-8 T9 (D182, Q15): what the recovery kit says, as text and as the printable page.
+// What the recovery kit says, as text and as the printable page.
 
 const base: RecoveryKitInput = {
   generatedAt: new Date('2026-10-06T09:30:00Z'),

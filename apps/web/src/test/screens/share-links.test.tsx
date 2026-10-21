@@ -1,5 +1,5 @@
 /**
- * Read-only share links (1.5, D233): sharing a box from its page, the link shown once; the
+ * Read-only share links (1.5): sharing a box from its page, the link shown once; the
  * location's list with its states, preview and revoke after an in-app confirm; the public page
  * with only the whitelisted fields, and "This link has expired" for a link that no longer opens;
  * and Search's list shared only when narrowed to one location.

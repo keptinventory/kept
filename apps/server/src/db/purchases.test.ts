@@ -15,7 +15,7 @@ import {
 import { diffRows } from '../audit/audited.js';
 import { type Scope, withScope } from './scope.js';
 
-// Purchases and lines (D13, D115).
+// Purchases and lines.
 
 const db = await testDb();
 const app = db.pools.app;
@@ -64,7 +64,7 @@ async function thing(t: { locationId: string; unplacedId: string }, userId: stri
   return id;
 }
 
-describe('purchase lines on things (D115)', () => {
+describe('purchase lines on things', () => {
   let a: Tenant;
   let b: Tenant;
   beforeEach(async () => {
@@ -110,7 +110,7 @@ describe('purchase lines on things (D115)', () => {
         purchase_id: purchase,
         line_id: line,
         // Only the thing's own line: the purchase's total (and tax) are the purchase location's
-        // (D115, security review I3).
+        // (security review I3).
         total: null,
         currency: 'EGP',
         visible_purchase: false,
@@ -165,7 +165,7 @@ describe('purchases', () => {
     await insert(null, 'EGP');
   });
 
-  it('classes the money columns as money in the audit diff (D13)', () => {
+  it('classes the money columns as money in the audit diff', () => {
     const purchase = diffRows(
       'purchase',
       { total: '1', tax: '0', notes: 'a' },

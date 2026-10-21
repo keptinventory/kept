@@ -15,7 +15,7 @@ import {
 } from '../../test/things.js';
 import { registerUndo, undoableActions } from '../audit/undo.js';
 
-// Undo (D58, D124, D150; T27's decision): POST /api/v1/audit/:eventId/undo over this task's
+// Undo: POST /api/v1/audit/:eventId/undo over this task's
 // undoable events (thing.update, thing.retype, thing.lifecycle) and the handlers it registers for
 // T15's thing.move and T21's thing.trash, whose events are written here by hand in the shape
 // things/undo.ts documents.
@@ -94,7 +94,7 @@ async function handWritten(
 
 describe('POST /api/v1/audit/:eventId/undo', () => {
   // catalogue: POST /api/v1/audit/:eventId/undo
-  it("undoes the caller's own edit: fields back, one audit row pointing at it (D150)", async () => {
+  it("undoes the caller's own edit: fields back, one audit row pointing at it", async () => {
     const made = await createThing(t, mo, home, { name: 'Lamp', colour: 'red' });
     await patch(mo, made, { name: 'Desk lamp', colour: null });
     const edit = await lastEvent(made.id);
@@ -116,7 +116,7 @@ describe('POST /api/v1/audit/:eventId/undo', () => {
     expect(row?.diff.name).toEqual({ before: 'Desk lamp', after: 'Lamp', class: 'plain' });
   });
 
-  it('refuses when a field changed since, saying who (D124)', async () => {
+  it('refuses when a field changed since, saying who', async () => {
     const made = await createThing(t, ann, home, { name: 'Chair' });
     await patch(mo, made, { name: 'Office chair' });
     const edit = await lastEvent(made.id);
@@ -203,7 +203,7 @@ describe('POST /api/v1/audit/:eventId/undo', () => {
     expect(back.aliases).toEqual({ en: ['pipe'] });
   });
 
-  it('undoes a status change, price and all (D124: terminal statuses too)', async () => {
+  it('undoes a status change, price and all (terminal statuses too)', async () => {
     const made = await createThing(t, ann, home, { name: 'Bike' });
     ok(
       await call(t, `/api/v1/things/${made.id}/lifecycle`, {
@@ -263,7 +263,7 @@ describe('POST /api/v1/audit/:eventId/undo', () => {
     expect(back.archivedCustom).toEqual({});
   });
 
-  it('undoes a move (T15 shape): back where it was, the contents with it, unless moved since', async () => {
+  it('undoes a move: back where it was, the contents with it, unless moved since', async () => {
     const shelf = await place(db, home, 'Shelf');
     const attic = await place(db, home, 'Attic');
     const box = await createThing(t, ann, home, { name: 'Box' });
@@ -298,7 +298,7 @@ describe('POST /api/v1/audit/:eventId/undo', () => {
     expect(refused.json().conflicts).toEqual(['place_id']);
   });
 
-  it('undoes a trash (T21 shape): the batch comes back, and an orphan goes to Unplaced', async () => {
+  it('undoes a trash: the batch comes back, and an orphan goes to Unplaced', async () => {
     const closet = await place(db, home, 'Closet');
     const coat = await createThing(t, ann, home, { name: 'Coat', placeId: closet });
     const scarf = await createThing(t, ann, home, { name: 'Scarf', placeId: closet });

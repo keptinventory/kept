@@ -1,6 +1,6 @@
 /**
- * 1.2 on the mock: Google sign-in (D226) on the sign-in page and its failures, and Settings → Me →
- * Sign-in methods (D176): link and unlink the OIDC provider or Google, the fresh-session refusal,
+ * 1.2 on the mock: Google sign-in on the sign-in page and its failures, and Settings → Me →
+ * Sign-in methods: link and unlink the OIDC provider or Google, the fresh-session refusal,
  * the last way in, and a refused link coming back. Admin → Status's Google row.
  */
 import { screen, waitFor, within } from '@testing-library/react';

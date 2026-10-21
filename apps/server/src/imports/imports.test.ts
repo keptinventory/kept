@@ -19,7 +19,7 @@ import { withScope } from '../db/scope.js';
 import { runJob } from '../jobs/boss.js';
 import { CHUNK, importChunk, importJobs } from './job.js';
 
-// T18 (D73): CSV import through the front door. Ann owns Home (household: money on) and
+// CSV import through the front door. Ann owns Home (household: money on) and
 // Shed (essentials: money off); in Home, Bob is an admin and Louis a member. Eve shares nothing.
 // The job is run the way a worker runs it: a tenant job in the sender's scope (runJob).
 
@@ -273,7 +273,7 @@ describe('the dry run and the import', () => {
     things = await thingsIn(home);
   }, LONG);
 
-  it('reports each row: mapped, as text, skipped, and why (§5)', () => {
+  it('reports each row: mapped, as text, skipped, and why', () => {
     expect(report.summary).toEqual({
       things: 3,
       places: 2,
@@ -362,7 +362,7 @@ describe('the dry run and the import', () => {
     expect(codes).toEqual([{ source: 'csv', code: 'HB-001', thing_id: things[0]?.id }]);
   });
 
-  it('resolves an imported legacy code through scan (T17)', async () => {
+  it('resolves an imported legacy code through scan', async () => {
     const res = ok(await call(t, '/api/v1/scan/resolve', { as: ann, body: { text: 'hb-001' } }));
     expect(res).toEqual({
       outcome: 'open',
@@ -556,7 +556,7 @@ describe('POST /api/v1/imports/:id/cancel', () => {
   );
 });
 
-describe('legacy codes (D146, D208)', () => {
+describe('legacy codes', () => {
   it('refuses a code already on something else in the location, whatever its source', async () => {
     const [other] = await thingsIn(home);
     await own(
@@ -605,7 +605,7 @@ describe('legacy codes (D146, D208)', () => {
   });
 });
 
-describe('own codes (T17a, D208)', () => {
+describe('own codes', () => {
   it('maps an own-code column: checked against the format rule at import, kept as text when it fails, and resolved by scan', async () => {
     await own(
       db,

@@ -80,7 +80,7 @@ describe('sendPush', () => {
     expect(got?.body.includes(Buffer.from('Boiler service'))).toBe(false);
   });
 
-  it('refuses a private address, a literal or a name that resolves to one (Q12)', async () => {
+  it('refuses a private address, a literal or a name that resolves to one', async () => {
     const literal = await sendPush(
       { endpoint: 'https://10.0.0.5/push', ...browserKeys() },
       payload,

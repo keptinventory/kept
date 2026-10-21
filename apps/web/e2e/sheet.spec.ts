@@ -1,5 +1,5 @@
 /**
- * The spreadsheet view against the real server (D250), on its own seeded `sheet` instance
+ * The spreadsheet view against the real server, on its own seeded `sheet` instance
  * (e2e/instances.ts): the owner opens Garage as a Table, edits a cell in place by keyboard and
  * saves it, then selects two rows, moves them to a bay and saves; the changes are on the server
  * after a reload; a save of two cells is taken back by one Undo. On a phone the Table isn't
@@ -92,8 +92,8 @@ async function openGarage(page: Page) {
 }
 
 /**
- * The cell of a row (by the thing's name) under a column header (Model is a default column,
- * D250). Waits for that row first: right after a reload the grid is still loading, and reading
+ * The cell of a row (by the thing's name) under a column header (Model is a default
+ * column). Waits for that row first: right after a reload the grid is still loading, and reading
  * the headers then finds none.
  */
 async function cell(page: Page, rowName: string, header: string) {

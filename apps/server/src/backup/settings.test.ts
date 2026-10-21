@@ -62,7 +62,7 @@ describe('the environment overlay', () => {
     expect(set.password).toBe(PASSWORD);
   });
 
-  it("reads the alpha's KEPT_BACKUP_KEEP as the daily count (plan Q7)", () => {
+  it("reads the alpha's KEPT_BACKUP_KEEP as the daily count", () => {
     expect(backupEnvOverlay({ ...base, KEPT_BACKUP_KEEP: '9' }).keep.daily).toBe(9);
     expect(
       backupEnvOverlay({ ...base, KEPT_BACKUP_KEEP: '9', KEPT_BACKUP_KEEP_DAILY: '5' }).keep.daily,
@@ -114,7 +114,7 @@ describe('saving and reading', () => {
     );
   });
 
-  it('no password, no backup (plan Q6)', () => {
+  it('no password, no backup', () => {
     const overlay = backupEnvOverlay(base);
     const { password: _p, ...input } = s3Input;
     const { next } = applyBackupSettings({}, input, overlay, master);

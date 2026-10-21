@@ -1,7 +1,7 @@
 /**
- * Short-ID addresses and own codes (D208): a thing or place opens by its short ID typed
+ * Short-ID addresses and own codes: a thing or place opens by its short ID typed
  * any way, a UUID address is replaced in place by the short ID, a thing without one (created
- * offline, D112) keeps its UUID; "Your codes" on the thing and place pages; and a location's
+ * offline) keeps its UUID; "Your codes" on the thing and place pages; and a location's
  * numbering and format rule in Settings → General.
  */
 import { screen, waitFor, within } from '@testing-library/react';
@@ -66,7 +66,7 @@ describe('short-ID addresses', () => {
   });
 });
 
-describe('short addresses in place links and activity (D208)', () => {
+describe('short addresses in place links and activity', () => {
   it('the place tree, a place row and the breadcrumb link a place by its short ID', async () => {
     await renderApp(`/loc/${IDS.home}`);
     const contents = await screen.findByRole('list', { name: 'Contents of Home' });

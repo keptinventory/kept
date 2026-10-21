@@ -50,7 +50,7 @@ describe('POST /api/v1/locations', () => {
       memberCount: 1,
       pendingInviteCount: 0,
       modules: [...presetModules('essentials')],
-      // The AI modules need a provider (D191): switched on, not effective.
+      // The AI modules need a provider: switched on, not effective.
       effectiveModules: ['labels'],
       providerResolved: false,
       rowVersion: 1,
@@ -97,7 +97,7 @@ describe('POST /api/v1/locations', () => {
     }
   });
 
-  it('refuses a managed account (D47, D114)', async () => {
+  it('refuses a managed account', async () => {
     await ownerTx(db, (c) =>
       c.query('UPDATE public.user_profiles SET managed = true WHERE user_id = $1', [owner.userId]),
     );
@@ -242,7 +242,7 @@ describe('PATCH /api/v1/locations/:id', () => {
     expect((await patch(member, { name: 'x' }, 2)).statusCode).toBe(403);
   });
 
-  it("keeps require_2fa and the successor the owner's (§7.14, D165)", async () => {
+  it("keeps require_2fa and the successor the owner's", async () => {
     expect((await patch(admin, { require2fa: true }, 1)).statusCode).toBe(403);
     expect((await patch(admin, { successorUserId: admin.userId }, 1)).statusCode).toBe(403);
     // The owner without a second factor would hide the location from their own session.
@@ -279,7 +279,7 @@ describe('DELETE and restore', () => {
     expect(del.statusCode, del.body).toBe(200);
     const purgeAfter = new Date(del.json().purgeAfter).getTime();
     expect(purgeAfter - Date.now()).toBeGreaterThan(29 * 86_400_000);
-    // Gone for everyone at once (D149).
+    // Gone for everyone at once.
     expect((await call(t, `/api/v1/locations/${home.id}`, { as: admin })).statusCode).toBe(404);
     expect((await call(t, `/api/v1/locations/${home.id}`, { as: owner })).statusCode).toBe(404);
     const deleted = (await call(t, '/api/v1/locations/deleted', { as: owner })).json().locations;
@@ -331,7 +331,7 @@ describe('POST /api/v1/locations/:id/modules', () => {
       body: { preset: 'complete', modules: ['labels', 'fuel'] },
     });
     expect(full.json()).toMatchObject({ preset: 'complete', modules: ['labels', 'fuel'] });
-    // Fuel needs Vehicles (D191): switched on, not in effect.
+    // Fuel needs Vehicles: switched on, not in effect.
     expect(full.json().effectiveModules).toEqual(['labels']);
     expect((await auditOf(db, home.id)).map((e) => e.action)).toEqual([
       'location.create',
@@ -342,7 +342,7 @@ describe('POST /api/v1/locations/:id/modules', () => {
 });
 
 describe('security review of tasks 19–21', () => {
-  it('pages the location list and the deleted list (§7.7, M8)', async () => {
+  it('pages the location list and the deleted list (M8)', async () => {
     for (const name of ['Beta', 'alpha', 'Gamma']) await create(owner, { name, rooms: [] });
     const first = await call(t, '/api/v1/locations?limit=2', { as: owner });
     expect(first.statusCode, first.body).toBe(200);
