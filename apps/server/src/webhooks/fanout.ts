@@ -240,6 +240,23 @@ async function sourceOf(
   return { locationId: ev.location_id, event, eventId: eventIdOf(auditEventId) };
 }
 
+/**
+ * Whether hook `w`'s creator may still send from its location, as SQL over `w`: they own or
+ * administer it (between a membership's expiry and the expire-memberships job too), their
+ * account isn't disabled, and they have a second factor where the location requires one (a job
+ * has no session, so it is the account's enrolment that counts). The fan-out and every delivery
+ * attempt check it (webhooks/deliver.ts).
+ */
+export const CREATOR_MAY_SEND = `EXISTS (
+  SELECT 1 FROM public.memberships m
+    JOIN public.locations l ON l.id = m.location_id
+    JOIN auth."user" u ON u.id = m.user_id
+   WHERE m.user_id = w.created_by AND m.location_id = w.location_id
+     AND m.role IN ('owner', 'admin')
+     AND (m.expires_at IS NULL OR m.expires_at > now())
+     AND NOT (coalesce(u.banned, false) AND (u.ban_expires IS NULL OR u.ban_expires > now()))
+     AND (NOT l.require_2fa OR coalesce(u.two_factor_enabled, false)))`;
+
 /** Runs one `webhook-fanout` job ({auditEventId} from audited(), {occurrenceId} from the
  * reminder scan). Returns the deliveries it recorded. */
 export async function runWebhookFanout(deps: FanoutDeps, raw: unknown): Promise<string[]> {
@@ -253,12 +270,7 @@ export async function runWebhookFanout(deps: FanoutDeps, raw: unknown): Promise<
        SELECT w.location_id, w.id, $3, $2, now()
          FROM public.webhooks w
         WHERE w.location_id = $1 AND w.active AND $2 = ANY (w.events)
-          -- D180 between the expiry and expire-memberships (security review S5): a hook sends
-          -- only while its creator still owns or administers the location.
-          AND EXISTS (SELECT 1 FROM public.memberships m
-                       WHERE m.user_id = w.created_by AND m.location_id = w.location_id
-                         AND m.role IN ('owner', 'admin')
-                         AND (m.expires_at IS NULL OR m.expires_at > now()))
+          AND ${CREATOR_MAY_SEND}
        ON CONFLICT (webhook_id, event_id) DO NOTHING
        RETURNING id`,
       [src.locationId, src.event, src.eventId],

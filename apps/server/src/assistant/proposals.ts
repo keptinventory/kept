@@ -19,7 +19,7 @@ import type { Scope, Tx } from '../db/scope.js';
 import { withScope } from '../db/scope.js';
 import { AppError, notFound } from '../http/errors.js';
 import { viewOf } from '../things/view.js';
-import { runTool } from '../tools/context.js';
+import { runTool, unavailable as unavailableRefusal } from '../tools/context.js';
 import { placeRefOf, thingRefOf } from '../tools/output.js';
 import { handlerOf } from '../tools/registry.js';
 import { findRef, typeNamed } from '../tools/resolve.js';
@@ -549,6 +549,12 @@ export async function confirmProposals(
         via: 'assistant',
         ...(typeof rowVersion === 'number' ? { ifMatch: rowVersion } : {}),
         now,
+        // The card's location, and no other: a call that resolves elsewhere writes nothing.
+        onLocations: (locationIds) => {
+          if (locationIds.length !== 1 || locationIds[0] !== row.location_id) {
+            throw unavailableRefusal();
+          }
+        },
       },
       row.tool,
       c.args,

@@ -255,8 +255,10 @@ function SettingsPage() {
             <Notice tone="warn" className="mb-1.5">
               <Trans>
                 Only for a server you host yourself. While this is on, anyone who can add an AI
-                provider can make this server send requests to machines on its network, such as your
-                router or other services.
+                provider, and any location's admin through a webhook, can make this server send
+                requests to machines on its network, such as your router or other services. A
+                webhook's test shows the status they answer with. The Homebox import and OIDC
+                sign-in can reach that network too.
               </Trans>
             </Notice>
           </li>

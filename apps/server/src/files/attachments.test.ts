@@ -450,6 +450,41 @@ describe('GET …/attachments lists', () => {
       (await call(t, `/api/v1/purchases/${newId()}/attachments`, { as: bob })).statusCode,
     ).toBe(404);
   });
+
+  it('answers a personal token the metadata only: no signed thumb or display link', async () => {
+    // Token creation is https only, so this test has its own app on the same database.
+    const secure = await peopleApp(db, { files, publicUrl: 'https://kept.example' });
+    try {
+      const lou = await person(secure, db, 'lou');
+      await join(db, home, lou.userId, 'member');
+      const lamp = await seedThing(db, home, 'Desk lamp');
+      const res = await attach(bob, {
+        locationId: home,
+        fileId: await uploaded(bob, home),
+        subject: { thingId: lamp },
+        role: 'photo',
+      });
+      expect(res.statusCode, res.body).toBe(201);
+      const asCookie = await call(secure, `/api/v1/things/${lamp}/attachments`, { as: lou });
+      const [seen] = (asCookie.json() as { items: AttachmentView[] }).items;
+      expect(seen?.file?.thumbUrl).toMatch(/^\/f\//);
+
+      const made = await call(secure, '/api/v1/tokens', {
+        as: lou,
+        body: { name: 'Lamp reader', scope: 'read', locationIds: [home] },
+      });
+      expect(made.statusCode, made.body).toBe(201);
+      const { secret } = made.json() as { secret: string };
+      const headers = { authorization: `Bearer ${secret}` };
+      const viaToken = await call(secure, `/api/v1/things/${lamp}/attachments`, { headers });
+      expect(viaToken.statusCode, viaToken.body).toBe(200);
+      const [item] = (viaToken.json() as { items: AttachmentView[] }).items;
+      expect(item?.file).toMatchObject({ id: seen?.file?.id, thumbUrl: null, displayUrl: null });
+      expect(viaToken.body).not.toContain('/f/');
+    } finally {
+      await secure.app.close();
+    }
+  });
 });
 
 describe('DELETE /api/v1/files/:id: "delete original" (D162)', () => {

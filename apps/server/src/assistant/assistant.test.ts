@@ -588,6 +588,33 @@ describe('writes are proposals the person confirms (D22, D179)', () => {
     expect(r.results).toEqual([{ id: proposal.id, status: 'expired' }]);
   });
 
+  it('a card writes only in its own location: one whose call lands elsewhere is refused', async () => {
+    const { proposal } = await proposeMove();
+    const [was] = await own<{ name: string }>(db, 'SELECT name FROM public.things WHERE id = $1', [
+      hdmi.id,
+    ]);
+    // The card is Garage's, but its call is about a thing in Home.
+    await own(db, 'UPDATE public.assistant_proposals SET location_id = $2 WHERE id = $1', [
+      proposal.id,
+      garage.id,
+    ]);
+    const r = await confirmProposals(
+      { tools: loop.tools },
+      scopeOf(louis),
+      {
+        batchId: proposal.batch_id,
+        proposals: [{ id: proposal.id, argsHash: proposal.args_hash }],
+      },
+      'req-elsewhere',
+      'en',
+    );
+    expect(r.results).toEqual([{ id: proposal.id, status: 'failed', error: 'tool_unavailable' }]);
+    const [now] = await own<{ name: string }>(db, 'SELECT name FROM public.things WHERE id = $1', [
+      hdmi.id,
+    ]);
+    expect(now?.name).toBe(was?.name);
+  });
+
   it('a thing Bruce changed meanwhile is a conflict naming him, not applied', async () => {
     const { proposal } = await proposeMove();
     const view = ok(await call(t, `/api/v1/things/${hdmi.id}`, { as: bruce })) as unknown as {

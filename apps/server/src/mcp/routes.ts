@@ -64,6 +64,24 @@ function webRequest(req: FastifyRequest, publicUrl: string): Request {
   return new Request(url, { method: req.method, headers, body });
 }
 
+/** A 403 for a request whose `Origin` isn't exactly the public URL's origin (scheme, host and
+ * port); the SDK's own check below compares the host name only. No Origin header passes. */
+function foreignOriginResponse(request: Request, publicOrigin: string): Response | undefined {
+  const origin = request.headers.get('origin');
+  if (origin === null) return undefined;
+  let same = false;
+  try {
+    same = new URL(origin).origin === publicOrigin;
+  } catch {
+    same = false;
+  }
+  if (same) return undefined;
+  return Response.json(
+    { jsonrpc: '2.0', error: { code: -32000, message: 'Origin not allowed' }, id: null },
+    { status: 403 },
+  );
+}
+
 export async function mcpRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools } = deps;
   const publicUrl = deps.env.KEPT_PUBLIC_URL.replace(/\/+$/, '');
@@ -71,6 +89,7 @@ export async function mcpRoutes(app: KeptApp, deps: InventoryDeps): Promise<void
   const key = deps.tokenKey ?? randomBytes(32);
   const hosts = allowedHosts(pools.system, publicUrl);
   const origins = [new URL(publicUrl).hostname.toLowerCase()];
+  const publicOrigin = new URL(publicUrl).origin;
   // OAuth access tokens, when the connectors are on (an https public URL and Better Auth).
   const oauth: OAuthAccessVerifier | null = hasOAuthProvider(deps.auth)
     ? oauthAccessVerifier({ auth: deps.auth, pool: pools.app, publicUrl })
@@ -101,6 +120,7 @@ export async function mcpRoutes(app: KeptApp, deps: InventoryDeps): Promise<void
       const request = webRequest(req, publicUrl);
       const refused =
         hostHeaderValidationResponse(request, await hosts()) ??
+        foreignOriginResponse(request, publicOrigin) ??
         originValidationResponse(request, origins);
       if (refused) return reply.send(refused);
       const challenge = resourceMetadataUrl ? { resourceMetadataUrl } : {};

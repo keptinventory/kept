@@ -426,6 +426,56 @@ describe('events, from a write to a signed POST (Q18, D110)', () => {
     expect(await runWebhookFanout({ pools: db.pools }, { auditEventId: fanouts[0] })).toEqual([]);
   });
 
+  it('a hook whose creator is disabled sends nothing while the ban stands', async () => {
+    setWebhookFanout(recordFanout);
+    await addHook(bruce, ['thing.created']);
+    await own(db, 'UPDATE auth."user" SET banned = true, ban_expires = NULL WHERE id = $1', [
+      bruce.userId,
+    ]);
+    await createThing(t, ibrahim, home, { name: 'Ladder' });
+    expect(await runWebhookFanout({ pools: db.pools }, { auditEventId: fanouts[0] })).toEqual([]);
+    // A ban that has run out stops nothing.
+    await own(
+      db,
+      `UPDATE auth."user" SET ban_expires = now() - interval '1 minute' WHERE id = $1`,
+      [bruce.userId],
+    );
+    await createThing(t, ibrahim, home, { name: 'Saw' });
+    expect(await runWebhookFanout({ pools: db.pools }, { auditEventId: fanouts[1] })).toHaveLength(
+      1,
+    );
+  });
+
+  it('a hook sends nothing while its location requires a second factor its creator lacks', async () => {
+    setWebhookFanout(recordFanout);
+    await addHook(bruce, ['thing.created']);
+    await createThing(t, ibrahim, home, { name: 'Ladder' });
+    await own(db, 'UPDATE public.locations SET require_2fa = true WHERE id = $1', [home.id]);
+    expect(await runWebhookFanout({ pools: db.pools }, { auditEventId: fanouts[0] })).toEqual([]);
+    await own(db, 'UPDATE auth."user" SET two_factor_enabled = true WHERE id = $1', [bruce.userId]);
+    expect(await runWebhookFanout({ pools: db.pools }, { auditEventId: fanouts[0] })).toHaveLength(
+      1,
+    );
+  });
+
+  it('a queued delivery re-checks its creator on every attempt, not only the hook', async () => {
+    setWebhookFanout(recordFanout);
+    const { webhook } = await addHook(bruce, ['thing.created']);
+    await createThing(t, ibrahim, home, { name: 'Ladder' });
+    const [deliveryId] = await runWebhookFanout({ pools: db.pools }, { auditEventId: fanouts[0] });
+    expect(deliveryId).toBeDefined();
+    // The membership expires after the fan-out, before the expiry job turns the hook off.
+    await own(
+      db,
+      `UPDATE public.memberships SET expires_at = now() - interval '1 minute'
+        WHERE location_id = $1 AND user_id = $2`,
+      [home.id, bruce.userId],
+    );
+    expect((await runWebhookDelivery(deliverDeps(), { deliveryId })).outcome).toBe('nothing');
+    expect(receiver.received).toEqual([]);
+    expect((await deliveriesOf(webhook.id))[0]?.status).toBe('gave_up');
+  });
+
   it('D180: a hook stops when its creator stops administering the location', async () => {
     setWebhookFanout(recordFanout);
     const { webhook } = await addHook(bruce, ['thing.created']);

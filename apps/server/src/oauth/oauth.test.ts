@@ -5,7 +5,9 @@ import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
 import { call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { createLocation, createThing, type Json, type Loc, ok, own } from '../../test/things.js';
+import { withScope } from '../db/scope.js';
 import { cimdFetch } from './cimd-fetch.js';
+import { decide } from './consent.js';
 
 // OAuth connectors with Client ID Metadata Documents, end to end through the app: authorize
 // (as Louis, signed in) → Kept's consent (read, Home only) → the token endpoint with PKCE → `/mcp`
@@ -24,6 +26,15 @@ const METADATA = {
   grant_types: ['authorization_code'],
   response_types: ['code'],
 };
+// A second client, registered the same way, for the consent that names one and posts the other.
+const OTHER_ID = 'https://other.example/oauth/kept-client.json';
+const OTHER_REDIRECT = 'https://other.example/callback';
+const OTHER_METADATA = {
+  ...METADATA,
+  client_id: OTHER_ID,
+  client_name: 'Talia’s planner',
+  redirect_uris: [OTHER_REDIRECT],
+};
 
 let db: TestDb;
 let t: TestApp;
@@ -40,12 +51,13 @@ beforeAll(async () => {
   t = await peopleApp(db, {
     oauth: {
       publicUrl: 'http://localhost:5173',
-      isMetadataDocumentUrlAllowed: (url) => url === CLIENT_ID,
+      isMetadataDocumentUrlAllowed: (url) => url === CLIENT_ID || url === OTHER_ID,
       fetchClientMetadataResource: async (input) => {
         fetched += 1;
         const url = input instanceof Request ? input.url : String(input);
-        if (url !== CLIENT_ID) return new Response('not found', { status: 404 });
-        return Response.json(METADATA);
+        if (url === CLIENT_ID) return Response.json(METADATA);
+        if (url === OTHER_ID) return Response.json(OTHER_METADATA);
+        return new Response('not found', { status: 404 });
       },
     },
   });
@@ -109,12 +121,15 @@ async function mcpClient(accessToken: string): Promise<Client> {
 }
 
 /** authorize → the consent page's signed query (Better Auth answers a script with JSON). */
-async function authorize(verifier: string): Promise<string> {
+async function authorize(
+  verifier: string,
+  client: { id: string; redirect: string } = { id: CLIENT_ID, redirect: REDIRECT },
+): Promise<string> {
   const challenge = createHash('sha256').update(verifier).digest('base64url');
   const q = new URLSearchParams({
     response_type: 'code',
-    client_id: CLIENT_ID,
-    redirect_uri: REDIRECT,
+    client_id: client.id,
+    redirect_uri: client.redirect,
     scope: 'kept:read kept:write',
     state: 'state-1',
     code_challenge: challenge,
@@ -266,6 +281,64 @@ describe('OAuth connectors', () => {
     expect(String(after.headers['www-authenticate'])).toContain('resource_metadata=');
   });
 
+  it('ends the grant when the app revokes its access token, and only for that app', async () => {
+    const verifier = randomBytes(32).toString('base64url');
+    const query = await authorize(verifier);
+    const decided = ok(
+      await call(t, `/api/v1/oauth/consent?${query}`, {
+        as: louis,
+        body: { accept: true, scope: 'read', locationIds: [home.id] },
+      }),
+    );
+    const access = await redeem(decided.redirectTo as string, verifier);
+    const listTools = () =>
+      t.app.inject({
+        method: 'POST',
+        url: '/mcp',
+        headers: {
+          host: host(),
+          authorization: `Bearer ${access}`,
+          'content-type': 'application/json',
+          accept: 'application/json, text/event-stream',
+        },
+        payload: { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} },
+      });
+    const revoke = (clientId: string) =>
+      t.app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/oauth2/revoke',
+        headers: { host: host(), 'content-type': 'application/x-www-form-urlencoded' },
+        payload: new URLSearchParams({
+          token: access,
+          token_type_hint: 'access_token',
+          client_id: clientId,
+        }).toString(),
+      });
+    expect((await listTools()).statusCode).toBe(200);
+
+    // Another registered app can't end this one's grant with a token it got hold of.
+    await authorize(randomBytes(32).toString('base64url'), {
+      id: OTHER_ID,
+      redirect: OTHER_REDIRECT,
+    });
+    await revoke(OTHER_ID);
+    expect((await listTools()).statusCode).toBe(200);
+
+    const res = await revoke(CLIENT_ID);
+    expect(res.statusCode, res.body).toBe(200);
+    expect((await listTools()).statusCode).toBe(401);
+    const tokens = ok(await call(t, '/api/v1/tokens?kind=oauth', { as: louis }));
+    const live = (tokens.items as Json[]).filter((x) => x.revokedAt === null);
+    expect(live).toEqual([]);
+    // The app asks for consent again: Better Auth's side of the grant is gone too.
+    const consents = await own(
+      db,
+      'SELECT 1 FROM auth.oauth_consent WHERE user_id = $1 AND client_id = $2',
+      [louis.userId, CLIENT_ID],
+    );
+    expect(consents).toHaveLength(0);
+  });
+
   it('records a refusal and sends the client back without a code', async () => {
     const verifier = randomBytes(32).toString('base64url');
     const query = await authorize(verifier);
@@ -278,6 +351,46 @@ describe('OAuth connectors', () => {
     expect(new URL(decided.redirectTo as string).searchParams.get('code')).toBeNull();
     const events = await own(db, `SELECT 1 FROM public.audit_events WHERE action = 'oauth.deny'`);
     expect(events).toHaveLength(1);
+  });
+
+  it('refuses a consent whose posted client is not the one its signed request names', async () => {
+    // Both clients are registered; the signed request is the first one's.
+    await authorize(randomBytes(32).toString('base64url'), {
+      id: OTHER_ID,
+      redirect: OTHER_REDIRECT,
+    });
+    const query = await authorize(randomBytes(32).toString('base64url'));
+    const pools = db.pools;
+    const consent = (oauthQuery: string, clientId: string) =>
+      withScope(pools.app, { userId: louis.userId, mfa: false }, (tx, client) =>
+        decide(
+          {
+            tx,
+            client,
+            scope: { userId: louis.userId, mfa: false },
+            requestId: 'consent-mismatch',
+            auth: t.auth as never,
+            authPool: pools.auth,
+            publicUrl: t.publicUrl,
+            headers: new Headers({ cookie: louis.cookie }),
+          },
+          oauthQuery,
+          clientId,
+          { accept: true, scope: 'write', locationIds: [home.id] },
+        ),
+      );
+    await expect(consent(query, OTHER_ID)).rejects.toMatchObject({ code: 'validation' });
+    // A query naming the client twice is refused too, whichever one is posted.
+    await expect(
+      consent(`${query}&client_id=${encodeURIComponent(OTHER_ID)}`, CLIENT_ID),
+    ).rejects.toMatchObject({ code: 'validation' });
+    const grants = await own(
+      db,
+      `SELECT 1 FROM public.audit_events WHERE action = 'oauth.grant' AND actor_id = $1
+          AND diff::text LIKE '%' || $2 || '%'`,
+      [louis.userId, 'write'],
+    );
+    expect(grants).toHaveLength(0);
   });
 });
 

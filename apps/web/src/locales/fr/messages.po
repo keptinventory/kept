@@ -12301,8 +12301,8 @@ msgid "Off. An AI provider's address must be on the public internet."
 msgstr "Désactivé. L’adresse d’un fournisseur d’IA doit être sur l’internet public."
 
 #: src/routes/_app/admin.settings.tsx
-msgid "Only for a server you host yourself. While this is on, anyone who can add an AI provider can make this server send requests to machines on its network, such as your router or other services."
-msgstr "Uniquement pour un serveur que vous hébergez vous-même. Tant que c’est activé, toute personne qui peut ajouter un fournisseur d’IA peut faire envoyer par ce serveur des requêtes aux machines de son réseau, comme votre routeur ou d’autres services."
+msgid "Only for a server you host yourself. While this is on, anyone who can add an AI provider, and any location's admin through a webhook, can make this server send requests to machines on its network, such as your router or other services. A webhook's test shows the status they answer with. The Homebox import and OIDC sign-in can reach that network too."
+msgstr "Uniquement pour un serveur que vous hébergez vous-même. Tant que c’est activé, toute personne qui peut ajouter un fournisseur d’IA, et tout administrateur d’un lieu au moyen d’un webhook, peut faire envoyer par ce serveur des requêtes aux machines de son réseau, comme votre routeur ou d’autres services. Le test d’un webhook montre le statut qu’elles renvoient. L’import Homebox et la connexion OIDC peuvent aussi atteindre ce réseau."
 
 #: src/components/ai/paste-key.tsx
 msgid "That address is on a private network. On a self-hosted server, an instance admin can allow private addresses in Admin → Settings."

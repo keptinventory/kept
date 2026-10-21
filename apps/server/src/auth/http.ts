@@ -180,6 +180,14 @@ export type AuthRoutesOptions = {
   pools: Pick<Pools, 'auth'>;
   publicUrl: string;
   trustedProxies: readonly string[];
+  /** With OAuth connectors on: ends the grant behind an access token its client revokes
+   * (oauth/revoke.ts). The form body, the Authorization header and the request id; true when
+   * it did. */
+  revokeOAuthAccess?: (
+    form: string,
+    authorization: string | undefined,
+    id: string,
+  ) => Promise<boolean>;
 };
 
 /** Removes every `token` field, at any depth, from a Better Auth JSON body (security review
@@ -231,6 +239,16 @@ export async function reserveTokenAttempt(
   if (!decision.allowed) throw rateLimited(reply, decision.retryAfter);
 }
 
+/** The OAuth `error` code of a 400 from Better Auth, read from a copy of the response. */
+async function oauthErrorOf(res: Response): Promise<unknown> {
+  if (res.status !== 400) return null;
+  const body = (await res
+    .clone()
+    .json()
+    .catch(() => null)) as { error?: unknown } | null;
+  return body?.error ?? null;
+}
+
 /** The Better Auth mount at /api/v1/auth/*, and Kept's magic-link confirm. */
 export async function authRoutes(app: KeptApp, opts: AuthRoutesOptions): Promise<void> {
   const { auth, trustedProxies, pools } = opts;
@@ -260,6 +278,17 @@ export async function authRoutes(app: KeptApp, opts: AuthRoutesOptions): Promise
           init.body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
         }
         const res = await auth.handler(new Request(url, init));
+        // Better Auth stores no JWT access token, so it can't revoke one: it answers
+        // `unsupported_token_type`, having authenticated the client. Kept's grant can be ended.
+        if (
+          opts.revokeOAuthAccess &&
+          url.pathname === `${AUTH_BASE_PATH}/oauth2/revoke` &&
+          typeof req.body === 'string' &&
+          (await oauthErrorOf(res)) === 'unsupported_token_type' &&
+          (await opts.revokeOAuthAccess(req.body, req.headers.authorization, req.id))
+        ) {
+          return reply.code(200).header('cache-control', 'no-store').send();
+        }
 
         reply.code(res.status);
         for (const [name, value] of res.headers) {

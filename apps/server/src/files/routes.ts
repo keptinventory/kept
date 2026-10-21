@@ -346,7 +346,8 @@ export async function fileRoutes(app: KeptApp, deps: InventoryDeps): Promise<voi
         return scopedRead(pools, req, (tx, client, scope) =>
           listAttachments(
             client,
-            files,
+            // A personal token reads the metadata only: never a signed link to the bytes.
+            req.token ? null : files,
             (locationId) => gateFor(tx, locationId, scope),
             owner,
             req.params.id.toLowerCase(),

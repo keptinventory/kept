@@ -123,7 +123,8 @@ const USER_ID_NOT_SCOPE = new Set<string>();
 
 /** kept_app / kept_system privileges in schema auth, each granted on purpose. Task 18:
  * kept_system SELECT on auth.user, columns id and created_at only (migration 0007), for the
- * repair-orphans job. Task 24's prune of auth.sign_in_failures and auth.session_mfa goes through
+ * repair-orphans job; and banned, ban_expires and two_factor_enabled (0153), for the webhook
+ * fan-out and delivery's check of a hook's creator. Task 24's prune of auth.sign_in_failures and auth.session_mfa goes through
  * kept.prune_stale_rows() (0011) instead of a grant, so nothing is added here. Anything else
  * there is a leak. */
 const AUTH_PRIVILEGES: { role: string; table: string; privilege: string }[] = [
@@ -1343,10 +1344,19 @@ describe('request path (kept_app): tenant A never reaches tenant B', () => {
     expect(await sqlstate(db.pools.system.query('SELECT * FROM auth."user"'))).toBe('42501');
     expect(await sqlstate(db.pools.system.query('SELECT email FROM auth."user"'))).toBe('42501');
     expect(await sqlstate(db.pools.system.query('SELECT * FROM auth.session'))).toBe('42501');
-    // The repair job's two columns, and nothing else (0007).
+    // The repair job's two columns (0007) and the webhook jobs' three (0153), and nothing else.
     expect(await sqlstate(db.pools.system.query('SELECT id, created_at FROM auth."user"'))).toBe(
       'ok',
     );
+    expect(
+      await sqlstate(
+        db.pools.system.query('SELECT banned, ban_expires, two_factor_enabled FROM auth."user"'),
+      ),
+    ).toBe('ok');
+    expect(await sqlstate(db.pools.system.query('SELECT ban_reason FROM auth."user"'))).toBe(
+      '42501',
+    );
+    expect(await sqlstate(db.pools.app.query('SELECT banned FROM auth."user"'))).toBe('42501');
   });
 
   it('keeps an export run from everyone but its creator, even another admin (step-4 T4, D180)', async () => {

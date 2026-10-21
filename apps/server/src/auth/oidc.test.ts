@@ -186,6 +186,27 @@ describe('discovery and boot (D128, plan Q16)', () => {
     );
   });
 
+  it('an https issuer may name no plain-http endpoint, the userinfo one included', async () => {
+    const issuer = 'https://sso.example.org';
+    const doc = {
+      issuer,
+      authorization_endpoint: `${issuer}/authorize`,
+      token_endpoint: `${issuer}/token`,
+      jwks_uri: `${issuer}/jwks`,
+    };
+    const serving = (body: object) => (async () => Response.json(body)) as unknown as typeof fetch;
+    await expect(discoverOidc(issuer, serving(doc))).resolves.toMatchObject({ issuer });
+    await expect(
+      discoverOidc(issuer, serving({ ...doc, userinfo_endpoint: `${issuer}/userinfo` })),
+    ).resolves.toMatchObject({ userinfo_endpoint: `${issuer}/userinfo` });
+    await expect(
+      discoverOidc(
+        issuer,
+        serving({ ...doc, userinfo_endpoint: 'http://sso.example.org/userinfo' }),
+      ),
+    ).rejects.toMatchObject({ reason: 'insecure_endpoint' });
+  });
+
   it('refuses an issuer that discovery names differently, and stays off with the reason', async () => {
     idp.advertise(`${idp.issuer}/`);
     const booted = await bootOidc({
