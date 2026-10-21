@@ -485,7 +485,7 @@ export function useTour() {
         }
       }
     }
-    const el = await waitForSectionAnchor(stop.anchors);
+    const el = await waitForSectionAnchor(stop.anchors, stop.wait);
     if (!live()) return 'ended';
     if (!el) return skip();
     const entry = copy[stop.copyId ?? `${run.tourId}.${here.id}`];
