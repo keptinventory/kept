@@ -112,13 +112,16 @@ open the box.
 ## What it does
 
 - **Inventory.** Locations, places, boxes and things, with photos, documents, tags, custom fields,
-  quantities, saved views, search and a trash you can restore from.
-- **Capture.** Photograph a thing, a receipt or a label, online or offline; your AI provider
-  (OpenAI, Anthropic, Google, OpenRouter, Groq, or an OpenAI-compatible server such as Ollama)
-  suggests the details and you confirm them. Without one, you type them.
-- **Labels.** Print label sheets with a short ID and a QR code; scan one to open the box it is on.
-- **The household.** Shared locations with roles, lending, schedules, warranties, paperwork and an
-  insurance report; reminders in the app, by mail, by push and in a calendar feed.
+  quantities, saved views, search, an archive for what you no longer use and a trash you can
+  restore from.
+- **Capture.** Photograph a thing, a receipt, a label or a whole room, online or offline; your AI
+  provider (OpenAI, Anthropic, Google, OpenRouter, Groq, or an OpenAI-compatible server such as
+  Ollama) suggests the details and you confirm them. Without one, you type them.
+- **Labels and scanning.** Print label sheets with a short ID and a QR code; scan one to open the
+  box it is on. Scan sessions count a shelf, pack a box or move a pile in one go.
+- **The household.** Shared locations with roles, lending, kits that go out and come back as one,
+  stocktakes, schedules, warranties, paperwork and an insurance report; reminders in the app, by
+  mail, by push and in a calendar feed.
 - **Moving house.** Numbered boxes, a label and a contents sheet for each, tracked in the van,
   unpacked by scanning ([moving](https://keptinventory.info/users/moving/)).
 - **Vehicles and machines.** Readings, services, fuel and running costs.
@@ -185,7 +188,7 @@ The camera, installing the app, push and location need HTTPS:
 
 ## What's next
 
-- **Now:** [more barcode types and video](https://github.com/keptinventory/kept/issues/173)
+- **Now:** [more barcode types](https://github.com/keptinventory/kept/issues/173)
 - **Later:** [mobile apps](https://github.com/keptinventory/kept/issues/169) · [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197) · [graph view](https://github.com/keptinventory/kept/issues/207)
 
 [Full roadmap →](https://github.com/orgs/keptinventory/projects/1) · 👍 the themes you want most.
