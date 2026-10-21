@@ -1,23 +1,54 @@
 /**
- * The start cell on a partly used sheet (D175), which is also the layout preview:
- * the sheet's grid in its own proportions, the cells before the start hatched as used, the start
- * outlined, and each label drawn small in the cell it will print into, with the parts it prints:
- * a QR glyph, the code and, on a full stock, the name (one line here; the cell's accessible name
- * keeps all of it). Blanks have no code until the batch is made, so they show the glyph alone.
- * Every cell is a radio, so a tap or the arrow keys choose where printing starts.
+ * The start cell on a partly used sheet (D175), which is also the sheet preview: the printed
+ * page itself, smaller. The page is laid out in millimetres exactly as the print view lays it out
+ * (the same cells from `cellsFor`, the same `LabelCell` with its real QR, code, name and place,
+ * wrapped and sized the same way) and scaled down as a whole to the preview's width, so every
+ * line breaks where it will on paper. The cells before the start are hatched as used, the start
+ * is outlined, and the die cuts are drawn dashed over the paper. A blank sheet has no codes until
+ * the batch is made, so its cells show a sample label of the same layout.
  *
- * The grid is the paper, so it runs left to right in every language, like the maker's numbering
- * ("row 4, column 1"); only the words around it follow the page.
+ * Every cell is a radio, so a tap or the arrow keys choose where printing starts. The paper runs
+ * left to right in every language, like the maker's numbering ("row 4, column 1"); only the words
+ * around it follow the page.
  */
-import { type LabelStock, printedCode } from '@kept/shared';
+import { cellsFor, type LabelStock } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useEffect, useState } from 'react';
 import { Radio, RadioGroup } from 'react-aria-components';
 import type { LabelCellContent } from '@/api/capture/types';
-import { QrIcon } from '@/components/icons';
 import { isolate } from '@/lib/bidi';
 import { useFormat } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { type PreviewMetrics, pagesFor, perPage, previewMetrics, rowColOf } from './layout';
+import type { TextMeasure } from './fit';
+import { LabelCell } from './label-cell';
+import { mm, PX_PER_MM, pagesFor, perPage, rowColOf } from './layout';
+import type { Encode } from './qr';
+
+/** A blank label's stand-in before the batch gives it a code: the same layout, a sample code. */
+export function blankSample(): LabelCellContent {
+  const origin = typeof window === 'undefined' ? '' : window.location.origin;
+  return { code: '000000', url: `${origin}/l/000000`, kind: 'blank' };
+}
+
+/** The preview's widest, in CSS pixels. */
+const MAX_WIDTH = 380;
+
+/** The width an element is laid out at, kept current; `fallback` until it is measured. */
+function useWidth(el: HTMLElement | null, fallback: number): number {
+  const [width, setWidth] = useState(fallback);
+  useEffect(() => {
+    if (!el) return;
+    const update = () => {
+      const w = el.getBoundingClientRect().width;
+      if (w > 0) setWidth(w);
+    };
+    update();
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    ro?.observe(el);
+    return () => ro?.disconnect();
+  }, [el]);
+  return width;
+}
 
 export function StartCellPicker({
   stock,
@@ -25,18 +56,26 @@ export function StartCellPicker({
   onChange,
   labels,
   count,
+  encode,
+  measure,
 }: {
   stock: LabelStock;
   value: number;
   onChange: (cell: number) => void;
-  /** The labels to print, for their codes; blanks have none until the batch is made. */
+  /** The labels to print; a blank sheet has none until the batch is made. */
   labels: readonly LabelCellContent[];
   /** How many labels print (a blank sheet has no `labels` yet). */
   count: number;
+  encode: Encode | null;
+  measure: TextMeasure;
 }) {
   const { t } = useLingui();
   const fmt = useFormat();
-  const cells = perPage(stock);
+  const [box, setBox] = useState<HTMLDivElement | null>(null);
+  const width = useWidth(box, MAX_WIDTH);
+  // The paper's border is outside the scaled page.
+  const scale = Math.max(0, width - 2) / (stock.page.w * PX_PER_MM);
+  const cells = cellsFor(stock, perPage(stock)).cells;
   const used = value - 1;
   const { row, col } = rowColOf(stock, value);
   const pages = pagesFor(stock, count, value);
@@ -45,8 +84,9 @@ export function StartCellPicker({
   const c = fmt.num(col);
   const n = fmt.num(pages);
   const usedN = fmt.num(used);
-  const parts = previewMetrics(stock);
-  const named = !parts.compact && labels.length > 0;
+  const compact = stock.content === 'compact';
+  const blank = labels.length === 0 && count > 0;
+  const sample = blankSample();
   return (
     <RadioGroup
       value={String(value)}
@@ -70,59 +110,76 @@ export function StartCellPicker({
         </Trans>
       </p>
       <div
+        ref={setBox}
         dir="ltr"
-        className="grid w-full max-w-[380px] gap-[3px] justify-self-center border border-line bg-white shadow-[0_8px_24px_rgba(0,0,0,.1)]"
-        style={{
-          aspectRatio: `${stock.page.w} / ${stock.page.h}`,
-          gridTemplateColumns: `repeat(${stock.cols}, minmax(0, 1fr))`,
-          gridTemplateRows: `repeat(${stock.rows}, minmax(0, 1fr))`,
-          paddingBlock: `${(stock.margin.top / stock.page.h) * 100}%`,
-          paddingInline: `${(stock.margin.left / stock.page.w) * 100}%`,
-        }}
+        data-slot="sheet-preview"
+        className="relative w-full max-w-[380px] justify-self-center overflow-hidden border border-line bg-white shadow-[0_8px_24px_rgba(0,0,0,.1)]"
+        style={{ aspectRatio: `${stock.page.w} / ${stock.page.h}` }}
       >
-        {Array.from({ length: cells }, (_, i) => {
-          const cell = i + 1;
-          const index = cell - value;
-          const printing = index >= 0 && index < count;
-          const label = printing ? labels[index] : undefined;
-          const { row: rr, col: cc } = rowColOf(stock, cell);
-          const at = fmt.num(cell);
-          const rn = fmt.num(rr);
-          const cn2 = fmt.num(cc);
-          const cd = label?.code ?? '';
-          const nm = isolate(label?.name ?? '');
-          const name = !label
-            ? t`Label ${at}, row ${rn}, column ${cn2}`
-            : nm && !parts.compact
-              ? t`Label ${at}, row ${rn}, column ${cn2}: ${nm}, ${cd}`
-              : t`Label ${at}, row ${rn}, column ${cn2}: ${cd}`;
-          return (
-            <Radio
-              key={cell}
-              value={String(cell)}
-              aria-label={name}
-              className={cn(
-                '@container grid min-w-0 cursor-pointer place-items-center overflow-hidden rounded-[2px] border border-dashed border-[#CFCBC2] text-[#111] outline-none data-focus-visible:outline-2 data-focus-visible:outline-info',
-                cell < value &&
-                  'border-solid border-[#E2DFD7] bg-[repeating-linear-gradient(135deg,#EEECE6_0_5px,#F8F7F3_5px_10px)]',
-                cell === value &&
-                  'border-solid outline-2 outline-offset-1 outline-solid outline-[#1C1B19]',
-              )}
-            >
-              {label ? (
-                <PreviewLabel label={label} parts={parts} />
-              ) : printing ? (
-                <QrIcon className="size-3.5 text-[#555]" />
-              ) : null}
-            </Radio>
-          );
-        })}
+        <div
+          data-slot="preview-paper"
+          className="absolute start-0 top-0 bg-white"
+          style={{
+            inlineSize: mm(stock.page.w),
+            blockSize: mm(stock.page.h),
+            transform: `scale(${scale})`,
+            transformOrigin: '0 0',
+          }}
+        >
+          {cells.map((place) => {
+            const cell = place.cell + 1;
+            const index = cell - value;
+            const printing = index >= 0 && index < count;
+            const label = printing ? (labels[index] ?? (blank ? sample : undefined)) : undefined;
+            const { row: rr, col: cc } = rowColOf(stock, cell);
+            const at = fmt.num(cell);
+            const rn = fmt.num(rr);
+            const cn2 = fmt.num(cc);
+            const cd = label && label.kind !== 'blank' ? label.code : '';
+            const nm = isolate(label?.name ?? '');
+            const name = !cd
+              ? t`Label ${at}, row ${rn}, column ${cn2}`
+              : nm && !compact
+                ? t`Label ${at}, row ${rn}, column ${cn2}: ${nm}, ${cd}`
+                : t`Label ${at}, row ${rn}, column ${cn2}: ${cd}`;
+            return (
+              <Radio
+                key={cell}
+                value={String(cell)}
+                aria-label={name}
+                data-slot="preview-cell"
+                className="group absolute cursor-pointer outline-none"
+                style={{
+                  insetInlineStart: mm(place.x),
+                  insetBlockStart: mm(place.y),
+                  inlineSize: mm(stock.cell.w),
+                  blockSize: mm(stock.cell.h),
+                }}
+              >
+                {label ? (
+                  <LabelCell label={label} stock={stock} encode={encode} measure={measure} />
+                ) : null}
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    'pointer-events-none absolute inset-0 border-[3px] border-dashed border-[#CFCBC2] group-data-focus-visible:outline-[6px] group-data-focus-visible:outline-info group-data-focus-visible:outline-solid',
+                    cell < value &&
+                      'border-solid border-[#E2DFD7] bg-[repeating-linear-gradient(135deg,#EEECE6_0_12px,#F8F7F3_12px_24px)]',
+                    cell === value && 'border-[7px] border-solid border-[#1C1B19]',
+                  )}
+                />
+              </Radio>
+            );
+          })}
+        </div>
       </div>
       <p className="m-0 text-small text-ink-2">
-        {named ? (
-          <Trans>Each label: QR code, name, where it is and short ID</Trans>
-        ) : (
+        {compact ? (
           <Trans>Each label: QR code and short ID</Trans>
+        ) : blank ? (
+          <Trans>Each label: QR code and short ID. The codes are made when you print.</Trans>
+        ) : (
+          <Trans>Each label: QR code, name, where it is and short ID</Trans>
         )}
       </p>
       {pages > 1 ? (
@@ -131,47 +188,5 @@ export function StartCellPicker({
         </p>
       ) : null}
     </RadioGroup>
-  );
-}
-
-/**
- * One label in its preview cell, laid out like the printed one (label-cell.tsx): the QR, then the
- * code over the name. Sizes are `cqw` of the cell, from `previewMetrics`, set through the style
- * prop like the printed label's millimetres.
- */
-function PreviewLabel({ label, parts }: { label: LabelCellContent; parts: PreviewMetrics }) {
-  const cqw = (n: number) => `${Math.round(n * 100) / 100}cqw`;
-  return (
-    <span
-      data-slot="preview-label"
-      className="flex size-full min-w-0 items-center"
-      style={{ padding: cqw(parts.pad), columnGap: cqw(parts.pad) }}
-    >
-      <QrIcon
-        data-slot="preview-qr"
-        className="max-h-full shrink-0"
-        style={{ inlineSize: cqw(parts.qr), blockSize: cqw(parts.qr) }}
-      />
-      <span className="grid min-w-0 flex-1 content-center" style={{ rowGap: cqw(parts.pad / 2) }}>
-        <bdi
-          dir="ltr"
-          data-slot="preview-code"
-          className="block font-mono font-semibold whitespace-nowrap"
-          style={{ fontSize: cqw(parts.code), lineHeight: 1, letterSpacing: '0.06em' }}
-        >
-          {printedCode(label.code)}
-        </bdi>
-        {!parts.compact && label.name ? (
-          <span
-            dir="auto"
-            data-slot="preview-name"
-            className="block truncate font-semibold"
-            style={{ fontSize: cqw(parts.name), lineHeight: 1.2 }}
-          >
-            {label.name}
-          </span>
-        ) : null}
-      </span>
-    </span>
   );
 }

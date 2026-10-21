@@ -253,6 +253,27 @@ describe('the capture mock', () => {
     expect(printed.printedConfirmedAt).not.toBeNull();
   });
 
+  it('labels: the same things again offer the unconfirmed batch; "Not printed" sets it aside', async () => {
+    const things = [INV_IDS.thing.hdmiCable, INV_IDS.thing.box3];
+    const body = { locationId: L.home, kind: 'things' as const, stock: 'a4_24_70x37' };
+    const { batch } = await api.createLabelBatch({ ...body, thingIds: things });
+    expect(batch.dismissedAt).toBeNull();
+    const again = await api.previewLabelBatch({ ...body, thingIds: [...things].reverse() });
+    expect(again.unconfirmed).toMatchObject({ id: batch.id, count: 2, stock: 'a4_24_70x37' });
+    const fewer = await api.previewLabelBatch({ ...body, thingIds: [things[0] as string] });
+    expect(fewer.unconfirmed).toBeNull();
+    const set = await api.labelBatchDismiss(batch.id);
+    expect(set.dismissedAt).not.toBeNull();
+    expect((await api.previewLabelBatch({ ...body, thingIds: things })).unconfirmed).toBeNull();
+    const printed = await api.labelBatchPrinted(batch.id);
+    expect(printed.dismissedAt).toBeNull();
+    expect(
+      (await api.labelBatchDismiss(batch.id).catch((e: ApiError) => e)) as ApiError,
+    ).toMatchObject({
+      status: 400,
+    });
+  });
+
   it('labels: a dry run allocates nothing, and "unprinted" drops what was printed', async () => {
     const before = await api.labelSummary(L.home);
     const blank = await api.previewLabelBatch({

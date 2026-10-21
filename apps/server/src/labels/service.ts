@@ -27,6 +27,10 @@ import { type Ctx, requireRole } from '../things/service.js';
 //   (the 0042 trigger enforces it, this answers 409 `blank_cap_reached` first).
 // - "Printed OK?" (`printed`) sets `printed_at` on the batch's codes, keeping the first one, and
 //   the batch's `printed_confirmed_at`, once; a second confirmation changes and audits nothing.
+// - "Not printed" (`dismiss`) sets an unconfirmed batch aside (`dismissed_at`), once, so the
+//   labels screen stops asking about it; a later "Printed OK?" clears it.
+// - A dry run of things or places names the newest batch still waiting for "Printed OK?" that
+//   holds exactly the same codes (`unconfirmed`), so the builder offers it instead of a duplicate.
 
 export const MAX_LISTED = 500;
 export const MAX_BLANKS = 500;
@@ -69,6 +73,7 @@ export const LabelBatchSchema = z.object({
   startCell: z.number(),
   createdAt: z.string(),
   printedConfirmedAt: z.string().nullable(),
+  dismissedAt: z.string().nullable(),
   labels: z.array(LabelCellSchema),
 });
 export type LabelBatch = z.infer<typeof LabelBatchSchema>;
@@ -84,6 +89,11 @@ export const LabelBatchPreviewSchema = z.object({
   labels: z.array(LabelCellSchema),
   blank: z.number(),
   excluded: z.object({ pending: z.number(), other: z.number() }),
+  /** The newest batch of this location not confirmed printed nor set aside that holds exactly
+   * these codes; null for a blank sheet or when there is none. */
+  unconfirmed: z
+    .object({ id: z.uuid(), createdAt: z.string(), stock: z.string(), count: z.number() })
+    .nullable(),
 });
 export type LabelBatchPreview = z.infer<typeof LabelBatchPreviewSchema>;
 
@@ -112,10 +122,11 @@ type BatchRow = {
   start_cell: number;
   created_at: Date;
   printed_confirmed_at: Date | null;
+  dismissed_at: Date | null;
 };
 
 const BATCH_COLUMNS = `b.id, b.location_id, b.kind, b.stock, b.start_cell, b.created_at,
-                       b.printed_confirmed_at`;
+                       b.printed_confirmed_at, b.dismissed_at`;
 
 type CellRow = {
   batch_id: string;
@@ -209,6 +220,7 @@ function batchOf(b: BatchRow, labels: LabelBatch['labels']): LabelBatch {
     startCell: b.start_cell,
     createdAt: b.created_at.toISOString(),
     printedConfirmedAt: b.printed_confirmed_at?.toISOString() ?? null,
+    dismissedAt: b.dismissed_at?.toISOString() ?? null,
     labels,
   };
 }
@@ -455,11 +467,12 @@ export async function createBatch(
   if (body.dryRun) {
     // T28's preview: nothing saved, no blank allocated, nothing audited.
     return body.kind === 'blank'
-      ? { labels: [], blank: body.blankCount as number, excluded }
+      ? { labels: [], blank: body.blankCount as number, excluded, unconfirmed: null }
       : {
           labels: await previewCells(client, publicUrl, body.kind, picked.codes),
           blank: 0,
           excluded,
+          unconfirmed: await unconfirmedWith(client, locationId, body.kind, picked.codes),
         };
   }
   if (picked.codes.length === 0) {
@@ -500,6 +513,31 @@ export async function createBatch(
   return { batch: await getBatch(client, publicUrl, id), excluded };
 }
 
+/** The newest batch of the location still waiting for "Printed OK?" (not set aside) that holds
+ * exactly `codes`: the same count, and none outside them (a batch's codes are unique). */
+async function unconfirmedWith(
+  client: pg.ClientBase,
+  locationId: string,
+  kind: 'things' | 'places',
+  codes: readonly string[],
+): Promise<LabelBatchPreview['unconfirmed']> {
+  if (codes.length === 0) return null;
+  const { rows } = await client.query<{ id: string; created_at: Date; stock: string; n: number }>(
+    `SELECT b.id, b.created_at, b.stock, b.code_count AS n
+       FROM public.label_batches b
+      WHERE b.location_id = $1 AND b.kind = $2
+        AND b.printed_confirmed_at IS NULL AND b.dismissed_at IS NULL
+        AND b.code_count = $3
+        AND NOT EXISTS (SELECT 1 FROM public.label_batch_codes c
+                         WHERE c.batch_id = b.id AND c.code::text <> ALL ($4::text[]))
+      ORDER BY b.created_at DESC, b.id DESC
+      LIMIT 1`,
+    [locationId, kind, new Set(codes).size, [...codes]],
+  );
+  const r = rows[0];
+  return r ? { id: r.id, createdAt: r.created_at.toISOString(), stock: r.stock, count: r.n } : null;
+}
+
 /** POST /api/v1/labels/batches/:id/printed ("Printed OK?"): idempotent, the first time kept. */
 export async function markPrinted(ctx: Ctx, publicUrl: string, id: string): Promise<LabelBatch> {
   const { client, tx, scope } = ctx;
@@ -517,7 +555,7 @@ export async function markPrinted(ctx: Ctx, publicUrl: string, id: string): Prom
       [id],
     );
     await client.query(
-      'UPDATE public.label_batches SET printed_confirmed_at = now() WHERE id = $1',
+      'UPDATE public.label_batches SET printed_confirmed_at = now(), dismissed_at = NULL WHERE id = $1',
       [id],
     );
     const { rows: things } = await client.query<{ id: string }>(
@@ -534,6 +572,37 @@ export async function markPrinted(ctx: Ctx, publicUrl: string, id: string): Prom
       before: { printed_confirmed_at: null },
       after: { printed_confirmed_at: true },
       subjects: things.map((t) => t.id),
+      requestId: ctx.requestId,
+    });
+  }
+  return getBatch(client, publicUrl, id);
+}
+
+/** POST /api/v1/labels/batches/:id/dismiss ("Not printed"): sets an unconfirmed batch aside,
+ * once; a batch confirmed printed can't be (400). */
+export async function dismissBatch(ctx: Ctx, publicUrl: string, id: string): Promise<LabelBatch> {
+  const { client, tx, scope } = ctx;
+  const { rows } = await client.query<{
+    location_id: string;
+    printed_confirmed_at: Date | null;
+    dismissed_at: Date | null;
+  }>(
+    'SELECT location_id, printed_confirmed_at, dismissed_at FROM public.label_batches WHERE id = $1',
+    [id],
+  );
+  const b = rows[0];
+  if (!b) throw notFound();
+  await requireRole(client, b.location_id, 'labels.use');
+  if (b.printed_confirmed_at) throw invalid('This batch was confirmed printed.');
+  if (!b.dismissed_at) {
+    await client.query('UPDATE public.label_batches SET dismissed_at = now() WHERE id = $1', [id]);
+    await audited(tx, {
+      locationId: b.location_id,
+      actor: actor(scope.userId),
+      action: 'label_batch.dismiss',
+      entity: { type: 'label_batch', id },
+      before: { dismissed_at: null },
+      after: { dismissed_at: true },
       requestId: ctx.requestId,
     });
   }

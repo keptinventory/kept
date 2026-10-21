@@ -222,6 +222,7 @@ const batch = (): LabelBatch => ({
   startCell: 1,
   createdAt: '2026-10-06T08:00:00Z',
   printedConfirmedAt: null,
+  dismissedAt: null,
   labels: [
     {
       code: 'AR7HDM',

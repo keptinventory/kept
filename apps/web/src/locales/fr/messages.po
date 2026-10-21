@@ -26814,3 +26814,75 @@ msgstr "A dissocié un moyen de connexion externe"
 #: src/components/sign-in-security.household.tsx
 msgid "A location you belong to asks for two-factor. Turn on the authenticator app before removing your last passkey."
 msgstr "Un lieu dont vous êtes membre exige la double authentification. Activez l’application d’authentification avant de retirer votre dernière clé d’accès."
+
+#: src/routes/_print/labels.$batchId.tsx
+msgid "The page is already {stockTitle} with no margins: keep the print dialog's defaults and scale 100%, so each label lands in its cell."
+msgstr "La page est déjà au format {stockTitle}, sans marges : gardez les réglages par défaut de la fenêtre d’impression et l’échelle à 100 %, pour que chaque étiquette tombe dans sa case."
+
+#: src/routes/_app/labels.tsx
+msgid "Set aside"
+msgstr "Mise de côté"
+
+#: src/routes/_app/labels.tsx
+msgid "Did this sheet print?"
+msgstr "Cette planche s’est-elle imprimée ?"
+
+#: src/routes/_app/labels.tsx
+msgid "Printed OK"
+msgstr "Bien imprimée"
+
+#: src/routes/_app/labels.tsx
+msgid "Not printed"
+msgstr "Pas imprimée"
+
+#: src/components/labels/batch-builder.tsx
+msgid "These labels are already on a sheet that isn’t confirmed printed"
+msgstr "Ces étiquettes sont déjà sur une planche dont l’impression n’a pas été confirmée"
+
+#: src/components/labels/batch-builder.tsx
+msgid "Open that sheet"
+msgstr "Ouvrir cette planche"
+
+#: src/components/labels/batch-builder.tsx
+msgid "Made {when} on {stock}. Open it to print it or confirm it printed, or print a new sheet below."
+msgstr "Créée le {when} sur {stock}. Ouvrez-la pour l’imprimer ou confirmer son impression, ou imprimez une nouvelle planche ci-dessous."
+
+#: src/components/labels/batch-builder.tsx
+msgid "{0, plural, one {# name is too long for this label} other {# names are too long for this label}}"
+msgstr "{0, plural, one {# nom est trop long pour cette étiquette} other {# noms sont trop longs pour cette étiquette}}"
+
+#: src/components/labels/batch-builder.tsx
+msgid "Shorten them, or pick a bigger label. Printed as they are, they won't fit."
+msgstr "Raccourcissez-les ou choisissez une étiquette plus grande. Imprimés tels quels, ils ne tiendront pas."
+
+#: src/components/labels/batch-builder.tsx
+msgid "Rename {0}"
+msgstr "Renommer {0}"
+
+#: src/components/labels/batch-summary.ts
+msgid "{more, plural, one {# more} other {# more}}"
+msgstr "{more, plural, one {# autre} other {# autres}}"
+
+#: src/components/labels/batch-summary.ts
+msgid "{count}: {list}"
+msgstr "{count} : {list}"
+
+#: src/components/labels/printed-ok.tsx
+msgid "Made {made}"
+msgstr "Créée le {made}"
+
+#: src/components/labels/printed-ok.tsx
+msgid "Not confirmed as printed"
+msgstr "Impression non confirmée"
+
+#: src/components/labels/printed-ok.tsx
+msgid "Once these labels have printed, confirm it here, so Kept stops counting them as unprinted."
+msgstr "Une fois ces étiquettes imprimées, confirmez-le ici, pour que Kept cesse de les compter comme non imprimées."
+
+#: src/components/labels/start-cell.tsx
+msgid "Each label: QR code and short ID. The codes are made when you print."
+msgstr "Chaque étiquette : QR code et identifiant court. Les codes sont créés à l’impression."
+
+#: src/components/history/labels.ts
+msgid "Set aside a label sheet that was not printed"
+msgstr "A mis de côté une planche d’étiquettes non imprimée"

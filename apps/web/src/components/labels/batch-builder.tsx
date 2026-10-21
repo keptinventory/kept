@@ -8,18 +8,28 @@
  * will hold, and says how many things were left out because their ID is still pending (they were
  * captured offline and haven't synced). Print makes the batch, then opens the print view, which
  * opens the print dialog.
+ *
+ * The preview is the printed label itself (start-cell.tsx, `LabelCell`), and names or places too
+ * long for the chosen label even at the smallest type are listed before anything prints, each
+ * with a link to rename it. When a batch still waiting for "Printed OK?" holds exactly these
+ * labels, the builder offers to open it rather than make a duplicate.
+ *
+ * One press, one request: the create. The preview's dry run isn't asked again when the create
+ * lands (the labels queries are refreshed, the preview left out), so a print is one dry run when
+ * the builder opens and one create.
  */
 import { isSheet, labelStock } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { captureApi, captureKeys, useLabelSummary } from '@/api/capture/queries';
 import type {
   CreateLabelBatchBody,
   LabelBatchKind,
   LabelBatchNothingDetails,
+  LabelBatchPreview,
   LabelCellContent,
   LabelExclusions,
 } from '@/api/capture/types';
@@ -29,11 +39,13 @@ import { PrinterIcon } from '@/components/icons';
 import { IdChip } from '@/components/id-chip';
 import { EmptyState, LoadingRows, Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
+import { isolate } from '@/lib/bidi';
 import { useFormat } from '@/lib/format';
+import { labelsTooLong, useLabelMeasure } from './fit';
 import { LabelCell } from './label-cell';
 import { perPage } from './layout';
 import { useQrEncoder } from './qr';
-import { StartCellPicker } from './start-cell';
+import { blankSample, StartCellPicker } from './start-cell';
 import { rememberedStock, StockPicker, useStockText } from './stock-picker';
 
 /** Where the builder was opened from (the `/labels` search). */
@@ -46,9 +58,6 @@ export type BatchSource = {
   unprinted?: { placeId?: string };
   blankCount?: number;
 };
-
-/** Shown on a roll's preview before a blank label has its code. */
-const SAMPLE: LabelCellContent = { code: '000000', url: '/l/000000', kind: 'blank' };
 
 /**
  * The server's 400 for a real batch with nothing left to label: what it left out, or null
@@ -114,6 +123,7 @@ export function BatchBuilder({
   const errorText = useErrorText();
   const stockText = useStockText();
   const encode = useQrEncoder();
+  const { measure } = useLabelMeasure();
   const [stockKey, setStockKey] = useState(rememberedStock);
   const stock = labelStock(stockKey);
   const sheet = isSheet(stock);
@@ -156,7 +166,11 @@ export function BatchBuilder({
     },
     onSuccess: async ({ batch }) => {
       qc.setQueryData(captureKeys.labels.batch(batch.id), batch);
-      void qc.invalidateQueries({ queryKey: captureKeys.labels.all });
+      // Not the preview: it would post its dry run again for a builder that is closing.
+      void qc.invalidateQueries({
+        queryKey: captureKeys.labels.all,
+        predicate: (q) => q.queryKey[1] !== 'preview',
+      });
       await navigate({
         to: '/labels/$batchId',
         params: { batchId: batch.id },
@@ -166,6 +180,8 @@ export function BatchBuilder({
   });
 
   const nothingLeft = nothingToLabel(create.error);
+  const tooLong = useMemo(() => labelsTooLong(stock, labels, measure), [stock, labels, measure]);
+  const already = preview.data?.unconfirmed ?? null;
   const first = labels[0];
   const { title: stockTitle } = stockText(stock);
   const countText = fmt.num(count);
@@ -226,6 +242,7 @@ export function BatchBuilder({
           </Notice>
         ) : null}
         {preview.isError ? <Notice tone="danger">{errorText(preview.error)}</Notice> : null}
+        {already ? <AlreadyOnASheet batch={already} /> : null}
 
         <StockPicker
           value={stockKey}
@@ -235,6 +252,7 @@ export function BatchBuilder({
           }}
         />
 
+        {tooLong.length > 0 ? <TooLong labels={tooLong} /> : null}
         {create.isError ? (
           nothingLeft ? (
             <NothingToLabel excluded={nothingLeft} />
@@ -283,6 +301,8 @@ export function BatchBuilder({
             onChange={setStart}
             labels={labels}
             count={count}
+            encode={encode}
+            measure={measure}
           />
         ) : (
           <>
@@ -295,7 +315,12 @@ export function BatchBuilder({
                 style={{ zoom: 260 / ((stock.cell.w * 96) / 25.4) }}
               >
                 <div style={{ inlineSize: `${stock.cell.w}mm`, blockSize: `${stock.cell.h}mm` }}>
-                  <LabelCell label={first ?? SAMPLE} stock={stock} encode={encode} />
+                  <LabelCell
+                    label={first ?? blankSample()}
+                    stock={stock}
+                    encode={encode}
+                    measure={measure}
+                  />
                 </div>
               </div>
             </div>
@@ -308,6 +333,90 @@ export function BatchBuilder({
         )}
       </div>
     </div>
+  );
+}
+
+/** A batch still waiting for "Printed OK?" holds exactly these labels: open it instead. */
+function AlreadyOnASheet({ batch }: { batch: NonNullable<LabelBatchPreview['unconfirmed']> }) {
+  const { t } = useLingui();
+  const fmt = useFormat();
+  const stockText = useStockText();
+  const when = fmt.dateTime(batch.createdAt);
+  let stock = batch.stock;
+  try {
+    stock = stockText(labelStock(batch.stock)).title;
+  } catch {
+    // A stock this build doesn't know: its key.
+  }
+  const title = t`These labels are already on a sheet that isn’t confirmed printed`;
+  return (
+    <section aria-label={title}>
+      <Notice
+        tone="warn"
+        title={title}
+        action={
+          <Link to="/labels/$batchId" params={{ batchId: batch.id }} className={inlineLink}>
+            <Trans>Open that sheet</Trans>
+          </Link>
+        }
+      >
+        <Trans>
+          Made {when} on {stock}. Open it to print it or confirm it printed, or print a new sheet
+          below.
+        </Trans>
+      </Notice>
+    </section>
+  );
+}
+
+const inlineLink =
+  'shrink-0 font-semibold text-ink underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-info';
+
+/** Names or places too long for this label even at the smallest type: say so before printing. */
+function TooLong({ labels }: { labels: readonly LabelCellContent[] }) {
+  const { t } = useLingui();
+  const title = plural(labels.length, {
+    one: '# name is too long for this label',
+    other: '# names are too long for this label',
+  });
+  return (
+    <section aria-label={title}>
+      <Notice tone="warn" title={title}>
+        <span className="block">
+          <Trans>Shorten them, or pick a bigger label. Printed as they are, they won't fit.</Trans>
+        </span>
+        <ul className="m-0 mt-1.5 grid list-none gap-1 p-0">
+          {labels.map((l) => {
+            const name = l.name ?? l.code;
+            const rename = t`Rename ${isolate(name)}`;
+            return (
+              <li key={l.code} className="flex flex-wrap items-baseline gap-x-2">
+                <bdi className="min-w-0 [overflow-wrap:anywhere]">{name}</bdi>
+                {l.targetId && l.kind === 'thing' ? (
+                  <Link
+                    to="/t/$id"
+                    params={{ id: l.targetId }}
+                    aria-label={rename}
+                    className={inlineLink}
+                  >
+                    <Trans>Rename</Trans>
+                  </Link>
+                ) : l.targetId && l.kind === 'place' ? (
+                  <Link
+                    to="/p/$id"
+                    params={{ id: l.targetId }}
+                    aria-label={rename}
+                    className={inlineLink}
+                  >
+                    <Trans>Rename</Trans>
+                  </Link>
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
+      </Notice>
+    </section>
   );
 }
 

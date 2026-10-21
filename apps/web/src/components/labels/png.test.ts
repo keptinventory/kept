@@ -11,7 +11,7 @@ import { LABEL_STOCKS, labelStock } from '@kept/shared';
 import { encode } from 'uqr';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { LabelCellContent } from '@/api/capture/types';
-import { drawLabel, type LabelContext, labelPixelSize, wrapText } from './png';
+import { drawLabel, type LabelContext, labelPixelSize } from './png';
 import { qrMatrix } from './qr';
 
 const require = createRequire(import.meta.url);
@@ -143,15 +143,18 @@ describe('drawLabel', () => {
   });
 });
 
-describe('wrapText', () => {
-  const measure = (s: string) => s.length;
-  it('wraps by words into at most two lines', () => {
-    expect(wrapText(measure, 'Paint roller set with tray', 12, 2)).toEqual([
-      'Paint roller',
-      'set with',
-    ]);
-  });
-  it('breaks a word longer than the line', () => {
-    expect(wrapText(measure, 'Extension', 4, 3)).toEqual(['Exte', 'nsio', 'n']);
+describe('the name and place are never cut', () => {
+  it('draws every word of a long name and its place, over as many lines as they need', () => {
+    const stock = labelStock('a4_24_70x37');
+    const { width, height } = labelPixelSize(stock);
+    const { ctx, texts } = raster(width, height);
+    const name = 'Spare cables box (HDMI, USB-A to USB-C, Lightning, DisplayPort, audio)';
+    const path = 'Study › Tall bookshelf by the window, second shelf';
+    const l = label({ name, path });
+    drawLabel(ctx, stock, l, qrMatrix(encode, l.url));
+    const lines = texts.slice(1).map((t) => t.text);
+    expect(lines.length).toBeGreaterThan(4);
+    expect(lines.join(' ')).toBe(`${name} ${path}`);
+    expect(lines.join('')).not.toMatch(/…/);
   });
 });

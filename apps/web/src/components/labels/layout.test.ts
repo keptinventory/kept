@@ -5,15 +5,7 @@
 import { LABEL_STOCKS, labelStock } from '@kept/shared';
 import { describe, expect, it } from 'vitest';
 import type { LabelCellContent } from '@/api/capture/types';
-import {
-  cellMetrics,
-  directionOfText,
-  pageCss,
-  pagesFor,
-  placeLabels,
-  previewMetrics,
-  rowColOf,
-} from './layout';
+import { cellMetrics, directionOfText, pageCss, pagesFor, placeLabels, rowColOf } from './layout';
 
 const labels = (n: number): LabelCellContent[] =>
   Array.from({ length: n }, (_, i) => {
@@ -46,6 +38,32 @@ describe('placeLabels per stock', () => {
     expect(pages).toHaveLength(3);
     expect(pages.map((p) => p.map((l) => l.cell.cell))).toEqual([[0], [0], [0]]);
     expect(pagesFor(stock, 3, 7)).toBe(3);
+  });
+});
+
+describe('pageCss', () => {
+  it('names the paper for the sheets, so the browser picks it with no margin, at 100 %', () => {
+    expect(pageCss(labelStock('a4_24_70x37'))).toBe('@page { size: A4; margin: 0; }');
+    expect(pageCss(labelStock('a4_65_38x21'))).toBe('@page { size: A4; margin: 0; }');
+    expect(pageCss(labelStock('letter_30_67x25'))).toBe('@page { size: letter; margin: 0; }');
+  });
+
+  it("a roll's page is the label itself", () => {
+    expect(pageCss(labelStock('thermal_50x30'))).toBe('@page { size: 50mm 30mm; margin: 0; }');
+  });
+});
+
+describe('the A4 24 grid', () => {
+  it('is 3 × 8 cells of 70 × 37 mm that stay on the page', () => {
+    const a4 = labelStock('a4_24_70x37');
+    const [page] = placeLabels(a4, labels(24));
+    expect(page).toHaveLength(24);
+    for (const { cell } of page ?? []) {
+      expect(cell.x).toBeCloseTo(cell.col * 70, 6);
+      expect(cell.y).toBeCloseTo(0.5 + cell.row * 37, 6);
+      expect(cell.x + 70).toBeLessThanOrEqual(210 + 1e-9);
+      expect(cell.y + 37).toBeLessThanOrEqual(297 + 1e-9);
+    }
   });
 });
 
@@ -90,32 +108,6 @@ describe('cellMetrics', () => {
       'a4_65_38x21',
     ]);
   });
-});
-
-describe('previewMetrics', () => {
-  it.each(LABEL_STOCKS.map((s) => [s.key] as const))(
-    "%s: the sheet preview keeps the label's proportions",
-    (key) => {
-      const stock = labelStock(key);
-      const p = previewMetrics(stock);
-      const m = cellMetrics(stock);
-      // Percentages of the cell's width, from the printed label's own geometry.
-      expect(p.qr).toBeCloseTo((m.qr / stock.cell.w) * 100, 5);
-      expect(p.pad).toBeCloseTo((m.pad / stock.cell.w) * 100, 5);
-      // The code still fits the text column beside the QR, and the name is set under it.
-      expect((p.code * 7 * 0.66) / 100).toBeLessThanOrEqual(m.text / stock.cell.w + 1e-9);
-      expect(p.name).toBeLessThan(p.code);
-      expect(p.compact).toBe(m.compact);
-      const r = (n: number) => +n.toFixed(2);
-      expect({
-        ...p,
-        pad: r(p.pad),
-        qr: r(p.qr),
-        code: r(p.code),
-        name: r(p.name),
-      }).toMatchSnapshot();
-    },
-  );
 });
 
 describe('directionOfText', () => {

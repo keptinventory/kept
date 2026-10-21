@@ -1,8 +1,10 @@
 /**
- * The labels screens: the labels screen, the
- * batch builder with its stock and start cell, the print view's sheets, "Printed OK?" with the
- * first-print hint, Arabic names on labels, codes kept left to right, and a location with the
- * module off.
+ * The labels screens: the labels screen and its recent batches (what each holds, printed or
+ * not, confirmed or set aside from the list), the batch builder with its stock and start cell, its
+ * preview (the printed label itself), names too long for a label, the offer of a sheet already
+ * made for the same things, one create per print, the print view's sheets, "Printed OK?" for the
+ * batch just printed with the first-print hint, Arabic names on labels, codes kept left to right,
+ * nothing cut short anywhere, and a location with the module off.
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -14,6 +16,29 @@ import { expectLogicalOnly } from '@/test/render';
 import { findHeading, pathOf, renderApp } from '../app';
 
 const T = INV_IDS.thing;
+
+/** Anything that would cut text short: a truncate or line-clamp class, or an ellipsis style. */
+function cutters(root: ParentNode = document.body): string[] {
+  const out: string[] = [];
+  for (const el of root.querySelectorAll<HTMLElement>('*')) {
+    const cls = el.getAttribute('class') ?? '';
+    if (/(^|\s)(truncate|line-clamp-\S+|text-ellipsis)(\s|$)/.test(cls))
+      out.push(`${el.tagName}.${cls}`);
+    if (el.style.textOverflow === 'ellipsis') out.push(`${el.tagName}[style]`);
+  }
+  return out;
+}
+
+/** The POSTs to /labels/batches the app sends from now on, real creates and dry runs apart. */
+function batchPosts() {
+  const spy = vi.spyOn(globalThis, 'fetch');
+  return () =>
+    spy.mock.calls
+      .filter(
+        ([url, init]) => String(url).endsWith('/api/v1/labels/batches') && init?.method === 'POST',
+      )
+      .map(([, init]) => (JSON.parse(String(init?.body ?? '{}')).dryRun ? 'dry run' : 'create'));
+}
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -108,20 +133,21 @@ describe('the batch builder', () => {
     const first = await screen.findByRole('radio', {
       name: `Label 1, row 1, column 1: ${FSI}HDMI cable, 2 m${PDI}, 7KQ4MZ`,
     });
-    const cell = first.closest('label') as HTMLElement;
-    expect(cell.querySelector('[data-slot="preview-qr"]')).not.toBeNull();
+    const cell = first.closest('[data-slot="preview-cell"]') as HTMLElement;
+    expect(cell.querySelector('[data-slot="label-qr"] path')).not.toBeNull();
     expect(within(cell).getByText('HDMI cable, 2 m')).toBeInTheDocument();
     expect(within(cell).getByText('7KQ‑4MZ')).toBeInTheDocument();
+    expect(cell.querySelector('[data-slot="label-place"]')).not.toBeNull();
     expect(
       screen.getByText('Each label: QR code, name, where it is and short ID'),
     ).toBeInTheDocument();
 
     await user.click(screen.getByRole('radio', { name: /A4 sheet · 65 labels/ }));
     const compact = screen.getByRole('radio', { name: 'Label 1, row 1, column 1: 7KQ4MZ' });
-    const small = compact.closest('label') as HTMLElement;
-    expect(small.querySelector('[data-slot="preview-qr"]')).not.toBeNull();
+    const small = compact.closest('[data-slot="preview-cell"]') as HTMLElement;
+    expect(small.querySelector('[data-slot="label-qr"] path')).not.toBeNull();
     expect(within(small).getByText('7KQ‑4MZ')).toBeInTheDocument();
-    expect(small.querySelector('[data-slot="preview-name"]')).toBeNull();
+    expect(small.querySelector('[data-slot="label-name"]')).toBeNull();
     expect(screen.getByText('Each label: QR code and short ID')).toBeInTheDocument();
   });
 
@@ -134,6 +160,181 @@ describe('the batch builder', () => {
     await user.click(screen.getByRole('radio', { name: /40 × 30 mm roll/ }));
     expect(screen.queryByRole('radio', { name: /^Label 1,/ })).toBeNull();
     expect(screen.getByText('Label preview')).toBeInTheDocument();
+  });
+});
+
+describe('one batch, the right one', () => {
+  it('one Print makes one batch: no second dry run after the create', async () => {
+    const print = vi.spyOn(window, 'print').mockImplementation(() => {});
+    const { user, router } = await renderApp(
+      `/labels?loc=${IDS.home}&things=${T.hdmiCable},${T.box3}`,
+    );
+    await screen.findByRole('button', { name: 'Print 2 labels' });
+    const posts = batchPosts();
+    await user.click(screen.getByRole('button', { name: 'Print 2 labels' }));
+    await waitFor(() => expect(pathOf(router)).toMatch(/^\/labels\/[\w-]+$/));
+    await screen.findByRole('dialog', { name: 'Printed OK?' });
+    expect(print).toHaveBeenCalledTimes(1);
+    expect(posts()).toEqual(['create']);
+  });
+
+  it('"Printed OK?" names the batch just printed and confirms that one, not an older sheet', async () => {
+    vi.spyOn(window, 'print').mockImplementation(() => {});
+    const state = ownerScenario();
+    const { user, router } = await renderApp(
+      `/labels?loc=${IDS.home}&things=${T.hdmiCable},${T.box3}`,
+      { state },
+    );
+    await user.click(await screen.findByRole('button', { name: 'Print 2 labels' }));
+    await waitFor(() => expect(pathOf(router)).toMatch(/^\/labels\/[\w-]+$/));
+    const id = pathOf(router).split('/').pop();
+    const ask = await screen.findByRole('dialog', { name: 'Printed OK?' });
+    expect(
+      within(ask).getByText(`2 labels: ${FSI}HDMI cable, 2 m${PDI} and ${FSI}Box 3${PDI}`),
+    ).toBeInTheDocument();
+    await user.click(within(ask).getByRole('button', { name: 'Yes, printed OK' }));
+    await waitFor(() =>
+      expect(
+        state.capture.labelBatches.find((b) => b.id === id)?.printedConfirmedAt,
+      ).not.toBeNull(),
+    );
+    // The old blank sheet from the fixtures is untouched.
+    const old = state.capture.labelBatches.find((b) => b.kind === 'blank');
+    expect(old?.printedConfirmedAt).toBeNull();
+  });
+
+  it('answering "No" keeps asking on the page printed from, for that batch', async () => {
+    vi.spyOn(window, 'print').mockImplementation(() => {});
+    const state = ownerScenario();
+    const { user, router } = await renderApp(`/labels?loc=${IDS.home}&things=${T.hdmiCable}`, {
+      state,
+    });
+    await user.click(await screen.findByRole('button', { name: 'Print 1 label' }));
+    await waitFor(() => expect(pathOf(router)).toMatch(/^\/labels\/[\w-]+$/));
+    const id = pathOf(router).split('/').pop();
+    const ask = await screen.findByRole('dialog', { name: 'Printed OK?' });
+    await user.click(within(ask).getByRole('button', { name: 'No, print again' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    const bar = screen.getByRole('region', { name: 'Not confirmed as printed' });
+    await user.click(within(bar).getByRole('button', { name: 'Yes, printed OK' }));
+    await waitFor(() =>
+      expect(
+        state.capture.labelBatches.find((b) => b.id === id)?.printedConfirmedAt,
+      ).not.toBeNull(),
+    );
+  });
+
+  it('the same things again offer the sheet already made instead of a duplicate', async () => {
+    vi.spyOn(window, 'print').mockImplementation(() => {});
+    const state = ownerScenario();
+    const first = await renderApp(`/labels?loc=${IDS.home}&things=${T.hdmiCable},${T.box3}`, {
+      state,
+    });
+    await first.user.click(await screen.findByRole('button', { name: 'Print 2 labels' }));
+    await waitFor(() => expect(pathOf(first.router)).toMatch(/^\/labels\/[\w-]+$/));
+    const id = pathOf(first.router).split('/').pop() as string;
+    first.unmount();
+
+    await renderApp(`/labels?loc=${IDS.home}&things=${T.box3},${T.hdmiCable}`, { state });
+    const offer = await screen.findByRole('region', {
+      name: 'These labels are already on a sheet that isn’t confirmed printed',
+    });
+    expect(within(offer).getByRole('link', { name: 'Open that sheet' })).toHaveAttribute(
+      'href',
+      `/labels/${id}`,
+    );
+    // Still possible to print a new one.
+    expect(screen.getByRole('button', { name: 'Print 2 labels' })).toBeEnabled();
+  });
+});
+
+describe('names too long for the label', () => {
+  it('the builder lists them before printing, with a link to rename each', async () => {
+    const state = ownerScenario();
+    const box = state.inventory.things.find((x) => x.id === T.box3);
+    if (!box) throw new Error('no box');
+    box.name = 'Storage box for the winter clothes '.repeat(6).trim();
+    const { user } = await renderApp(`/labels?loc=${IDS.home}&things=${T.hdmiCable},${T.box3}`, {
+      state,
+    });
+    await screen.findByRole('button', { name: 'Print 2 labels' });
+    await user.click(screen.getByRole('radio', { name: /40 × 30 mm roll/ }));
+    const warn = await screen.findByRole('region', { name: '1 name is too long for this label' });
+    expect(within(warn).getByText(box.name)).toBeInTheDocument();
+    expect(
+      within(warn).getByRole('link', { name: `Rename ${FSI}${box.name}${PDI}` }),
+    ).toHaveAttribute('href', `/t/${T.box3}`);
+    // On the A4 sheet the same name fits.
+    await user.click(screen.getByRole('radio', { name: /A4 sheet · 24 labels/ }));
+    await waitFor(() =>
+      expect(screen.queryByRole('region', { name: /too long for this label/ })).toBeNull(),
+    );
+  });
+});
+
+describe('nothing is cut short', () => {
+  it('no truncate, line-clamp or ellipsis on the labels screen, the builder or the print view', async () => {
+    const state = ownerScenario();
+    const cable = state.inventory.things.find((x) => x.id === T.hdmiCable);
+    if (!cable) throw new Error('no cable');
+    cable.name = 'Spare cables box (HDMI, USB-A to USB-C, Lightning, DisplayPort, audio)';
+    const list = await renderApp('/labels', { state });
+    await screen.findByRole('heading', { name: 'Recent batches' });
+    expect(cutters()).toEqual([]);
+    list.unmount();
+
+    vi.spyOn(window, 'print').mockImplementation(() => {});
+    const builder = await renderApp(`/labels?loc=${IDS.home}&things=${T.hdmiCable},${T.box3}`, {
+      state,
+    });
+    await screen.findByRole('button', { name: 'Print 2 labels' });
+    expect(cutters()).toEqual([]);
+    await builder.user.click(screen.getByRole('button', { name: 'Print 2 labels' }));
+    await screen.findByRole('region', { name: 'Sheet 1 of 1', hidden: true });
+    expect(cutters()).toEqual([]);
+    const sheet = screen.getByRole('region', { name: 'Sheet 1 of 1', hidden: true });
+    expect(sheet.textContent).not.toMatch(/…/);
+  });
+});
+
+describe('recent batches', () => {
+  it('say what each holds, where, on what, when, and whether it printed, newest first', async () => {
+    const state = ownerScenario();
+    vi.spyOn(window, 'print').mockImplementation(() => {});
+    const made = await renderApp(`/labels?loc=${IDS.home}&things=${T.hdmiCable},${T.box3}`, {
+      state,
+    });
+    await made.user.click(await screen.findByRole('button', { name: 'Print 2 labels' }));
+    await waitFor(() => expect(pathOf(made.router)).toMatch(/^\/labels\/[\w-]+$/));
+    made.unmount();
+
+    const { user } = await renderApp('/labels', { state });
+    const section = (await screen.findByRole('heading', { name: 'Recent batches' })).closest(
+      'section',
+    ) as HTMLElement;
+    const rows = within(section).getAllByRole('article');
+    const newest = rows[0] as HTMLElement;
+    const blank = rows[1] as HTMLElement;
+    expect(
+      within(newest).getByText(`2 labels: ${FSI}HDMI cable, 2 m${PDI} and ${FSI}Box 3${PDI}`),
+    ).toBeInTheDocument();
+    expect(newest).toHaveTextContent('Home');
+    expect(newest).toHaveTextContent('A4 sheet · 24 labels');
+    expect(newest).toHaveTextContent(/\d{2}:\d{2}/);
+    expect(within(newest).getByText('Not confirmed')).toBeInTheDocument();
+    expect(blank).toHaveTextContent(/\d+ blank labels/);
+
+    // Confirmed from the list, the right one.
+    await user.click(within(newest).getByRole('button', { name: 'Printed OK' }));
+    await waitFor(() => expect(within(newest).getByText('Printed')).toBeInTheDocument());
+    const newestId = state.capture.labelBatches[0]?.id;
+    expect(state.capture.labelBatches[0]?.printedConfirmedAt).not.toBeNull();
+    // The old blank sheet set aside, not printed.
+    await user.click(within(blank).getByRole('button', { name: 'Not printed' }));
+    await waitFor(() => expect(within(blank).getByText('Set aside')).toBeInTheDocument());
+    const old = state.capture.labelBatches.find((b) => b.id !== newestId && b.kind === 'blank');
+    expect(old?.dismissedAt).not.toBeNull();
+    expect(old?.printedConfirmedAt).toBeNull();
   });
 });
 
@@ -170,6 +371,7 @@ describe('the print view', () => {
     startCell: 1,
     createdAt: '2026-10-06T08:00:00Z',
     printedConfirmedAt: null,
+    dismissedAt: null,
     labels: [
       {
         code: 'AR7HDM',
@@ -189,7 +391,7 @@ describe('the print view', () => {
     await renderApp('/labels/01926f00-0000-7000-8000-000000100099', { state, locale: 'ar' });
     const sheet = await screen.findByRole('region', { name: 'الورقة ١ من ١' });
     const name = within(sheet).getByText('كابل HDMI');
-    expect(name).toHaveAttribute('dir', 'auto');
+    expect(name.closest('p')).toHaveAttribute('dir', 'auto');
     const code = within(sheet).getByText('AR7‑HDM');
     expect(code.tagName).toBe('BDI');
     expect(code).toHaveAttribute('dir', 'ltr');

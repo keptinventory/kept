@@ -854,6 +854,7 @@ export function captureFixtures(meId: string): CaptureState {
         startCell: 1,
         createdAt: ago(48),
         printedConfirmedAt: null,
+        dismissedAt: null,
         labels: BLANK_CODES.map((code) => ({ code, url: urlOf(code), kind: 'blank' as const })),
       },
     ],

@@ -133,6 +133,7 @@ export const AUDIT_ACTIONS = [
   'kit.update',
   'label.claim',
   'label_batch.create',
+  'label_batch.dismiss',
   'labels.printed',
   'loan.create',
   'loan.delete',

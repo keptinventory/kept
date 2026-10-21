@@ -31,15 +31,26 @@ export { DialogTrigger };
 
 export type ModalProps = Omit<ModalOverlayProps, 'className' | 'children'> & {
   className?: string;
+  /** Classes for the dimmed overlay behind the dialog (`print:hidden`, say). */
+  overlayClassName?: string;
   children: ReactNode;
 };
 
-export function Modal({ className, children, isDismissable = true, ...props }: ModalProps) {
+export function Modal({
+  className,
+  overlayClassName,
+  children,
+  isDismissable = true,
+  ...props
+}: ModalProps) {
   return (
     <ModalOverlay
       data-slot="modal-overlay"
       isDismissable={isDismissable}
-      className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/35 p-4"
+      className={cn(
+        'fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/35 p-4',
+        overlayClassName,
+      )}
       {...props}
     >
       <ModalPrimitive

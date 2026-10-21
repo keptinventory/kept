@@ -160,7 +160,7 @@ describe('the blank-label cap', () => {
 });
 
 describe('label batches', () => {
-  it('are made by writers with their own location’s codes, and only "Printed OK?" changes', async () => {
+  it('are made by writers with their own location’s codes, and only "Printed OK?" and setting aside change', async () => {
     const code = randomShortCode();
     await own(`INSERT INTO public.short_ids (code, location_id, thing_id) VALUES ($1, $2, $3)`, [
       code,
@@ -193,9 +193,11 @@ describe('label batches', () => {
         `INSERT INTO public.label_batch_codes (batch_id, location_id, code, sort) VALUES ($1, $2, $3, 1)`,
         [batch, t.locationId, code],
       );
-      await c.query('UPDATE public.label_batches SET printed_confirmed_at = now() WHERE id = $1', [
-        batch,
-      ]);
+      await c.query('UPDATE public.label_batches SET dismissed_at = now() WHERE id = $1', [batch]);
+      await c.query(
+        'UPDATE public.label_batches SET printed_confirmed_at = now(), dismissed_at = NULL WHERE id = $1',
+        [batch],
+      );
     });
     // Another household's code: refused by the policy, not revealed by the foreign key.
     const probe = await pgError(

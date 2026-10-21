@@ -17,9 +17,23 @@ export const LABEL_MONO = '"IBM Plex Mono", monospace';
 /** A CSS length in millimetres, rounded to a hundredth so snapshots stay readable. */
 export const mm = (n: number) => `${Math.round(n * 100) / 100}mm`;
 
-/** The one `@page` rule a print view installs for its stock: the paper, no printer margin. */
+/** CSS pixels per millimetre (96 per inch). */
+export const PX_PER_MM = 96 / 25.4;
+
+/** The paper by name where it has one, so the print dialog picks that paper itself. */
+function pageSize(stock: LabelStock): string {
+  const { w, h } = stock.page;
+  if (w === 210 && h === 297) return 'A4';
+  if (w === 215.9 && h === 279.4) return 'letter';
+  return `${mm(w)} ${mm(h)}`;
+}
+
+/**
+ * The one `@page` rule a print view installs for its stock: the paper, and no margin, so the
+ * browser's default settings (Margins "Default", scale 100 %) print each label in its cell.
+ */
 export function pageCss(stock: LabelStock): string {
-  return `@page { size: ${mm(stock.page.w)} ${mm(stock.page.h)}; margin: 0; }`;
+  return `@page { size: ${pageSize(stock)}; margin: 0; }`;
 }
 
 export type PlacedLabel = { label: LabelCellContent; cell: LabelCell };
@@ -65,7 +79,10 @@ export type CellMetrics = {
   qr: number;
   /** The text column's width, beside the QR. */
   text: number;
-  /** Font sizes (the em box): the code, the name, the path. */
+  /**
+   * Font sizes (the em box): the code; the name and the place they start at, before a long one
+   * steps down towards `NAME_MIN` and `PATH_MIN` (fit.ts).
+   */
   code: number;
   name: number;
   path: number;
@@ -73,12 +90,24 @@ export type CellMetrics = {
   compact: boolean;
 };
 
+/** The smallest name and place a label sets, in mm (about 6.2 pt and 5.7 pt): still readable. */
+export const NAME_MIN = 2.2;
+export const PATH_MIN = 2.0;
+
+/** The place line's ink: near-black, so it reads on paper. */
+export const PLACE_INK = '#222222';
+
 /** Plex Mono's advance is 0.6 em; the code is set 0.06 em apart, 7 characters with the hyphen. */
 const CODE_EM = 7 * 0.66;
 
+/** Down to a hundredth of a millimetre, so the CSS sets exactly the size the fit worked with. */
+const floor2 = (n: number) => Math.floor(n * 100 + 1e-6) / 100;
+
 /**
  * The parts of one label, scaled from the designs' 40 × 30 mm label (D134: QR, the code large in
- * mono, the name, the place). The code never wraps: it shrinks to fit the text column.
+ * mono, the name, the place). The code never wraps: it shrinks to fit the text column. The name
+ * starts at about a tenth of the label's height (never larger than four fifths of the code), the
+ * place at four fifths of the name; fit.ts steps both down when a long one needs it.
  */
 export function cellMetrics(stock: LabelStock): CellMetrics {
   const { w, h } = stock.cell;
@@ -86,45 +115,16 @@ export function cellMetrics(stock: LabelStock): CellMetrics {
   const qr = Math.min(h - 2 * pad, w * 0.48);
   const text = Math.max(0, w - qr - 3 * pad);
   const compact = stock.content === 'compact';
+  const code = Math.min(h * (compact ? 0.16 : 0.13), text / CODE_EM);
+  const name = floor2(Math.max(NAME_MIN, Math.min(h * 0.095, code * 0.8)));
   return {
     pad,
     qr,
     text,
-    code: Math.min(h * (compact ? 0.16 : 0.13), text / CODE_EM),
-    name: Math.max(2.2, h * 0.077),
-    path: Math.max(1.8, h * 0.059),
+    code,
+    name,
+    path: floor2(Math.max(PATH_MIN, name * 0.8)),
     compact,
-  };
-}
-
-export type PreviewMetrics = {
-  /** Percentages of the cell's width (CSS `cqw` inside a cell): padding, the QR's side. */
-  pad: number;
-  qr: number;
-  /** Font sizes, the same way: the code, and the name under it. */
-  code: number;
-  name: number;
-  /** Only the QR and the code, as on the paper. */
-  compact: boolean;
-};
-
-/**
- * One label's parts at the sheet preview's scale, as percentages of the cell's width. The QR and
- * padding are the printed label's own; the text is set larger than on paper, as large as the
- * code can be and still fit its column (capped by the cell's height), so a 100 px cell stays
- * readable. The name is one line under the code.
- */
-export function previewMetrics(stock: LabelStock): PreviewMetrics {
-  const m = cellMetrics(stock);
-  const { w, h } = stock.cell;
-  const code = Math.min(m.text / CODE_EM, h * 0.2);
-  const pct = (n: number) => (n / w) * 100;
-  return {
-    pad: pct(m.pad),
-    qr: pct(m.qr),
-    code: pct(code),
-    name: pct(code * 0.8),
-    compact: m.compact,
   };
 }
 

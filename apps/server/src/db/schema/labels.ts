@@ -38,6 +38,9 @@ export const labelBatches = pgTable(
     createdBy: uuid('created_by').notNull(),
     /** "Printed OK?" answered yes. */
     printedConfirmedAt: tstz('printed_confirmed_at'),
+    /** Set aside from the labels screen without printing it ("Not printed"); a later "Printed
+     * OK?" clears it. */
+    dismissedAt: tstz('dismissed_at'),
     ...mutable(),
   },
   (t) => [

@@ -3,7 +3,7 @@
  * image: one PNG per label at 300 dpi of the stock's cell, shared together through the share
  * sheet where the browser can share files, downloaded otherwise.
  *
- * The same geometry as the print sheet (`cellMetrics`). QR modules are filled rectangles on a
+ * The same geometry as the print sheet (`cellMetrics`) and the same lines (`fitLabel`). QR modules are filled rectangles on a
  * whole-pixel grid; text is `fillText`, so the canvas shapes Arabic, after the Plex faces have
  * loaded (a canvas never waits for a font on its own). `drawLabel` takes any 2D context, so a
  * test can rasterise it without a canvas.
@@ -12,7 +12,8 @@ import type { LabelStock } from '@kept/shared';
 import { printedCode } from '@kept/shared';
 import type { LabelCellContent } from '@/api/capture/types';
 import { canShareFiles, downloadsWork, saveFile, shareFiles } from '@/lib/files';
-import { cellMetrics, directionOfText, LABEL_MONO, LABEL_SANS } from './layout';
+import { FIT_LINE_HEIGHT, fitLabel, loadLabelFaces, type TextMeasure } from './fit';
+import { cellMetrics, directionOfText, LABEL_MONO, LABEL_SANS, PLACE_INK } from './layout';
 import { loadQr, qrMatrix } from './qr';
 
 export const PNG_DPI = 300;
@@ -29,40 +30,6 @@ export type LabelContext = Pick<
   CanvasRenderingContext2D,
   'fillRect' | 'fillText' | 'measureText' | 'font' | 'fillStyle' | 'textAlign' | 'textBaseline'
 > & { direction: CanvasDirection };
-
-/** Greedy word wrap into at most `max` lines; a word wider than the line breaks by letters. */
-export function wrapText(
-  measure: (s: string) => number,
-  text: string,
-  width: number,
-  max: number,
-): string[] {
-  const lines: string[] = [];
-  let line = '';
-  const push = (s: string) => {
-    lines.push(s);
-    return lines.length < max;
-  };
-  for (const word of text.split(/\s+/).filter(Boolean)) {
-    const next = line ? `${line} ${word}` : word;
-    if (measure(next) <= width) {
-      line = next;
-      continue;
-    }
-    if (line && !push(line)) return lines;
-    line = '';
-    let rest = word;
-    while (measure(rest) > width && rest.length > 1) {
-      let cut = rest.length - 1;
-      while (cut > 1 && measure(rest.slice(0, cut)) > width) cut--;
-      if (!push(rest.slice(0, cut))) return lines;
-      rest = rest.slice(cut);
-    }
-    line = rest;
-  }
-  if (line) lines.push(line);
-  return lines.slice(0, max);
-}
 
 /** Draws one label: white ground, the QR, the code, and on full stocks the name and path. */
 export function drawLabel(
@@ -93,8 +60,6 @@ export function drawLabel(
   const x0 = pad + side + pad;
   const textWidth = pxOf(m.text);
   const code = pxOf(m.code);
-  const name = pxOf(m.name);
-  const path = pxOf(m.path);
   type Block = { lines: string[]; step: number; font: string; color: string; rtl: boolean };
   const blocks: Block[] = [];
   ctx.textBaseline = 'top';
@@ -106,22 +71,25 @@ export function drawLabel(
     color: '#000000',
     rtl: false,
   });
-  if (!m.compact) {
-    for (const [text, size, weight, color] of [
-      [label.name, name, 600, '#000000'],
-      [label.path, path, 400, '#444444'],
-    ] as const) {
-      if (!text) continue;
-      ctx.font = `${weight} ${size}px ${LABEL_SANS}`;
-      const lines = wrapText((s) => ctx.measureText(s).width, text, textWidth, 2);
-      blocks.push({
-        lines,
-        step: Math.round(size * 1.25),
-        font: ctx.font,
-        color,
-        rtl: directionOfText(text) === 'rtl',
-      });
-    }
+  // The same lines and sizes as the HTML label (fit.ts), measured on this canvas.
+  const measure: TextMeasure = (text, size, weight = 600) => {
+    ctx.font = `${weight} 100px ${LABEL_SANS}`;
+    return (ctx.measureText(text).width / 100) * size;
+  };
+  const fit = fitLabel(stock, label, measure);
+  for (const [part, text, weight, color] of [
+    [fit.name, label.name, 600, '#000000'],
+    [fit.path, label.path, 400, PLACE_INK],
+  ] as const) {
+    if (!part || !text) continue;
+    const size = pxOf(part.size);
+    blocks.push({
+      lines: part.lines,
+      step: Math.round(size * FIT_LINE_HEIGHT),
+      font: `${weight} ${size}px ${LABEL_SANS}`,
+      color,
+      rtl: directionOfText(text) === 'rtl',
+    });
   }
 
   // Centred as a block beside the QR, like the HTML label.
@@ -143,24 +111,12 @@ export function drawLabel(
   }
 }
 
-/** Waits for the faces a label draws with; a canvas uses whatever has loaded. */
-async function loadFaces() {
-  if (typeof document === 'undefined' || !document.fonts) return;
-  await Promise.all([
-    document.fonts.load(`600 10px "IBM Plex Mono"`, '7KQ‑4MZ'),
-    document.fonts.load(`600 10px "IBM Plex Sans"`, 'Aa'),
-    document.fonts.load(`400 10px "IBM Plex Sans"`, 'Aa'),
-    document.fonts.load(`600 10px "IBM Plex Sans Arabic"`, 'بيت'),
-    document.fonts.load(`400 10px "IBM Plex Sans Arabic"`, 'بيت'),
-  ]).catch(() => undefined);
-}
-
 /** One PNG file per label, named by its code. */
 export async function labelPngs(
   stock: LabelStock,
   labels: readonly LabelCellContent[],
 ): Promise<File[]> {
-  const [encode] = await Promise.all([loadQr(), loadFaces()]);
+  const [encode] = await Promise.all([loadQr(), loadLabelFaces()]);
   const { width, height } = labelPixelSize(stock);
   const files: File[] = [];
   for (const label of labels) {

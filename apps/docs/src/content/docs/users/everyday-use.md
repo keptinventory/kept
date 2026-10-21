@@ -144,8 +144,17 @@ that opens the thing. A label keeps its code for good, so a lost one reprints th
 **Label everything unprinted** in a location or place, or a **Blank sheet**), choose the **Label
 stock**, pick where to start on a partly used sheet, and print from the browser. Stocks include A4
 sheets of 24 and 65 labels, a Letter sheet in the Avery 5160 layout, and 50 × 30, 40 × 30 and
-62 × 29 mm rolls for label printers. Afterwards, **Printed OK?** records the batch; **Recent
-batches** reprints one with the same codes. Things whose ID is still pending can't be printed yet.
+62 × 29 mm rolls for label printers. The **Sheet preview** is the print itself, smaller: the same
+QR codes, names and places, broken over the same lines. A name is never cut short: a long one
+wraps and its type gets smaller, and one that still doesn't fit is listed before you print, with
+a link to rename it. The page is set to the sheet's paper with no margins, so the print dialog's
+defaults (scale 100 %) put every label in its cell.
+
+Afterwards, **Printed OK?** asks about the batch you just printed and records it. **Recent
+batches** shows what each one holds, when and where it was made and whether it printed; one not
+confirmed yet can be marked **Printed OK** or **Not printed** there, and reprints with the same
+codes. Printing the same things again while their sheet is unconfirmed offers that sheet
+instead of a new one. Things whose ID is still pending can't be printed yet.
 
 **Scanning**: **Scan** on Home and Search opens the camera.
 

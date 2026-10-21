@@ -1,7 +1,8 @@
 /**
  * Labels (D43, D44, D137, D175). Without a source it is the labels screen: "Print
  * pending labels (N)" for this phone's offline captures, per location "Label everything
- * unprinted" and "Blank sheet", recent batches to reprint (a reprint uses the same codes, D45),
+ * unprinted" and "Blank sheet", recent batches to reprint (a reprint uses the same codes, D45)
+ * or to confirm or set aside,
  * and the locations where Labels is off. With a source in the URL it is the batch builder:
  *
  *   ?loc=<id>&things=<id>,<id>   a selection, or a thing's own label
@@ -14,16 +15,19 @@
 import { can, labelStock } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
-import { useLabelBatches, useLabelSummary } from '@/api/capture/queries';
+import { captureApi, captureKeys, useLabelBatches, useLabelSummary } from '@/api/capture/queries';
 import type { LabelBatch } from '@/api/capture/types';
 import { useLocation, useLocations } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
 import { BoxIcon, PrinterIcon, QrIcon, TagIcon } from '@/components/icons';
 import { BatchBuilder, type BatchSource, MAX_BLANK } from '@/components/labels/batch-builder';
+import { useBatchSummary } from '@/components/labels/batch-summary';
 import { perPage } from '@/components/labels/layout';
 import { PendingPrompt } from '@/components/labels/pending-prompt';
+import { useConfirmPrinted } from '@/components/labels/printed-ok';
 import { rememberedStock, useStockText } from '@/components/labels/stock-picker';
 import {
   EmptyState,
@@ -35,8 +39,10 @@ import {
   Pill,
   Row,
   Section,
+  useErrorText,
 } from '@/components/page';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/toast';
 import { useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
 
@@ -269,21 +275,20 @@ function LocationLabels({ location, name }: { location: LocationDetail; name: st
   );
 }
 
+/**
+ * Recent batches, newest first, each told apart at a glance: what it holds ("16 labels: 4K webcam,
+ * … and 13 more", "24 blank labels"), where, on which stock, when (day and time), and whether it
+ * printed. One not confirmed yet can be confirmed or set aside ("Not printed") right here, so an
+ * old blank sheet never waits to be confirmed by mistake for today's print.
+ */
 function RecentBatches({ locations }: { locations: LocationDetail[] }) {
   const { t } = useLingui();
-  const fmt = useFormat();
   const stockText = useStockText();
   const locationName = useLocationName();
   const batches = useLabelBatches();
   const items = batches.data?.pages.flatMap((p) => p.items) ?? [];
   if (batches.isPending) return <LoadingRows rows={2} label={t`Loading recent batches`} />;
   if (items.length === 0) return null;
-  const titleOf = (b: LabelBatch) => {
-    const n = b.labels.length;
-    return b.kind === 'blank'
-      ? plural(n, { one: '# blank label', other: '# blank labels' })
-      : plural(n, { one: '# label', other: '# labels' });
-  };
   const stockName = (key: string) => {
     try {
       return stockText(labelStock(key)).title;
@@ -296,37 +301,14 @@ function RecentBatches({ locations }: { locations: LocationDetail[] }) {
       <List>
         {items.map((b) => {
           const loc = locations.find((l) => l.id === b.locationId);
-          const stock = stockName(b.stock);
-          const when = fmt.day(b.createdAt);
-          const where = loc ? locationName(loc) : '';
           return (
             <li key={b.id}>
-              <Link to="/labels/$batchId" params={{ batchId: b.id }} className={rowLinkClass}>
-                <Row
-                  leading={
-                    <span aria-hidden="true" className={tileClass}>
-                      {b.kind === 'blank' ? <QrIcon /> : <BoxIcon />}
-                    </span>
-                  }
-                  title={titleOf(b)}
-                  subtitle={
-                    <Trans>
-                      <bdi>{where}</bdi> · {stock} · {when}
-                    </Trans>
-                  }
-                  trailing={
-                    b.printedConfirmedAt ? (
-                      <Pill tone="ok">
-                        <Trans>Printed</Trans>
-                      </Pill>
-                    ) : (
-                      <Pill>
-                        <Trans>Not confirmed</Trans>
-                      </Pill>
-                    )
-                  }
-                />
-              </Link>
+              <BatchRow
+                batch={b}
+                where={loc ? locationName(loc) : ''}
+                stock={stockName(b.stock)}
+                canWrite={!!loc && can(loc.role, 'labels.use')}
+              />
             </li>
           );
         })}
@@ -343,5 +325,83 @@ function RecentBatches({ locations }: { locations: LocationDetail[] }) {
         </Button>
       ) : null}
     </Section>
+  );
+}
+
+function BatchRow({
+  batch: b,
+  where,
+  stock,
+  canWrite,
+}: {
+  batch: LabelBatch;
+  where: string;
+  stock: string;
+  canWrite: boolean;
+}) {
+  const fmt = useFormat();
+  const summary = useBatchSummary();
+  const qc = useQueryClient();
+  const errorText = useErrorText();
+  const confirm = useConfirmPrinted(b);
+  const dismiss = useMutation({
+    mutationFn: () => captureApi.labelBatchDismiss(b.id),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: captureKeys.labels.all }),
+    onError: (e) => toast({ title: errorText(e), tone: 'danger' }),
+  });
+  const when = fmt.dateTime(b.createdAt);
+  const waiting = !b.printedConfirmedAt && !b.dismissedAt;
+  return (
+    <article>
+      <Link to="/labels/$batchId" params={{ batchId: b.id }} className={rowLinkClass}>
+        <Row
+          leading={
+            <span aria-hidden="true" className={tileClass}>
+              {b.kind === 'blank' ? <QrIcon /> : <BoxIcon />}
+            </span>
+          }
+          title={summary(b)}
+          subtitle={[where, stock, when].filter(Boolean).join(fmt.sep)}
+          trailing={
+            b.printedConfirmedAt ? (
+              <Pill tone="ok">
+                <Trans>Printed</Trans>
+              </Pill>
+            ) : b.dismissedAt ? (
+              <Pill>
+                <Trans>Set aside</Trans>
+              </Pill>
+            ) : (
+              <Pill tone="warn">
+                <Trans>Not confirmed</Trans>
+              </Pill>
+            )
+          }
+        />
+      </Link>
+      {waiting && canWrite ? (
+        <div className="flex flex-wrap items-center gap-2 px-3.5 pb-2.5 ps-[66px]">
+          <span className="text-small text-ink-2">
+            <Trans>Did this sheet print?</Trans>
+          </span>
+          <Button
+            size="small"
+            variant="secondary"
+            onPress={() => confirm.mutate()}
+            isPending={confirm.isPending}
+          >
+            <Trans>Printed OK</Trans>
+          </Button>
+          <Button
+            size="small"
+            variant="secondary"
+            onPress={() => dismiss.mutate()}
+            isPending={dismiss.isPending}
+          >
+            <Trans>Not printed</Trans>
+          </Button>
+        </div>
+      ) : null}
+    </article>
   );
 }

@@ -5,8 +5,12 @@
  * PNGs are made as the page opens, so the press opens the share sheet at once: iOS refuses a
  * share that waited on them, and an installed iPhone app can't download them instead
  * (lib/files.ts). Print opens the browser's dialog,
- * then "Printed OK?" records the print date. Arriving from the builder (`?print=1`)
- * opens the dialog by itself once the QR encoder and the fonts are ready; a reload doesn't.
+ * then "Printed OK?" records the print date for this batch; until it is answered yes, a bar on
+ * this page keeps asking (only after a print here, so opening an old batch never invites
+ * confirming the wrong sheet). Arriving from the builder (`?print=1`) opens the dialog by itself
+ * once the QR encoder and the label faces are ready (the names are fitted in those faces); a
+ * reload doesn't. The `@page` rule names the paper with no margin, so the dialog's defaults print
+ * every label in its cell.
  *
  * Reprinting a batch prints the same codes (D45). `?stock=` and `?start=` print it on another
  * stock or from another cell without changing the batch.
@@ -19,9 +23,10 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { useLabelBatch } from '@/api/capture/queries';
 import { ChevronStartIcon, PrinterIcon, ShareIcon } from '@/components/icons';
+import { useLabelMeasure } from '@/components/labels/fit';
 import { perPage } from '@/components/labels/layout';
 import { labelPngs, shareOrDownload } from '@/components/labels/png';
-import { PrintedOkDialog } from '@/components/labels/printed-ok';
+import { NotConfirmedBar, PrintedOkDialog } from '@/components/labels/printed-ok';
 import { useQrEncoder } from '@/components/labels/qr';
 import { LabelSheets } from '@/components/labels/sheet';
 import { useStockText } from '@/components/labels/stock-picker';
@@ -56,7 +61,9 @@ function PrintLabelsPage() {
   const stockText = useStockText();
   const batch = useLabelBatch(batchId);
   const encode = useQrEncoder();
+  const { measure, ready } = useLabelMeasure();
   const [asking, setAsking] = useState(false);
+  const [printedHere, setPrintedHere] = useState(false);
   const autoPrinted = useRef(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
 
@@ -72,12 +79,13 @@ function PrintLabelsPage() {
   const print = () => {
     window.print();
     // print() returns once the dialog closes (or at once, on iOS): then ask.
+    setPrintedHere(true);
     setAsking(true);
   };
 
   // From the builder: open the dialog once, when the QR and the faces are ready.
   useEffect(() => {
-    if (!search.print || !data || !encode || autoPrinted.current) return;
+    if (!search.print || !data || !encode || !ready || autoPrinted.current) return;
     autoPrinted.current = true;
     void navigate({
       to: '/labels/$batchId',
@@ -159,7 +167,7 @@ function PrintLabelsPage() {
             data-slot="label-actions"
             className="grid grid-cols-2 gap-2 md:flex md:shrink-0 md:flex-row-reverse"
           >
-            <Button onPress={print} isDisabled={count === 0 || !encode}>
+            <Button onPress={print} isDisabled={count === 0 || !encode || !ready}>
               <PrinterIcon className="size-5" />
               <Trans>Print</Trans>
             </Button>
@@ -179,18 +187,27 @@ function PrintLabelsPage() {
             <Trans>Printed on {printedOn}. Reprinting prints the same codes.</Trans>
           </Notice>
         ) : null}
+        {printedHere && !asking && !data.printedConfirmedAt ? (
+          <NotConfirmedBar batch={data} />
+        ) : null}
         <p className="m-0 text-small text-ink-2">
           {isSheet(stock) ? (
             <Trans>
-              In the print dialog choose {stockTitle}, scale 100% and no margins, so each label
-              lands in its cell.
+              The page is already {stockTitle} with no margins: keep the print dialog's defaults and
+              scale 100%, so each label lands in its cell.
             </Trans>
           ) : (
             <Trans>In the print dialog choose your label printer and this label size.</Trans>
           )}
         </p>
       </header>
-      <LabelSheets stock={stock} labels={data.labels} startCell={startCell} encode={encode} />
+      <LabelSheets
+        stock={stock}
+        labels={data.labels}
+        startCell={startCell}
+        encode={encode}
+        measure={measure}
+      />
       <PrintedOkDialog
         batch={data}
         isOpen={asking}

@@ -26814,3 +26814,75 @@ msgstr "Unlinked an outside sign-in"
 #: src/components/sign-in-security.household.tsx
 msgid "A location you belong to asks for two-factor. Turn on the authenticator app before removing your last passkey."
 msgstr "A location you belong to asks for two-factor. Turn on the authenticator app before removing your last passkey."
+
+#: src/routes/_print/labels.$batchId.tsx
+msgid "The page is already {stockTitle} with no margins: keep the print dialog's defaults and scale 100%, so each label lands in its cell."
+msgstr "The page is already {stockTitle} with no margins: keep the print dialog's defaults and scale 100%, so each label lands in its cell."
+
+#: src/routes/_app/labels.tsx
+msgid "Set aside"
+msgstr "Set aside"
+
+#: src/routes/_app/labels.tsx
+msgid "Did this sheet print?"
+msgstr "Did this sheet print?"
+
+#: src/routes/_app/labels.tsx
+msgid "Printed OK"
+msgstr "Printed OK"
+
+#: src/routes/_app/labels.tsx
+msgid "Not printed"
+msgstr "Not printed"
+
+#: src/components/labels/batch-builder.tsx
+msgid "These labels are already on a sheet that isn’t confirmed printed"
+msgstr "These labels are already on a sheet that isn’t confirmed printed"
+
+#: src/components/labels/batch-builder.tsx
+msgid "Open that sheet"
+msgstr "Open that sheet"
+
+#: src/components/labels/batch-builder.tsx
+msgid "Made {when} on {stock}. Open it to print it or confirm it printed, or print a new sheet below."
+msgstr "Made {when} on {stock}. Open it to print it or confirm it printed, or print a new sheet below."
+
+#: src/components/labels/batch-builder.tsx
+msgid "{0, plural, one {# name is too long for this label} other {# names are too long for this label}}"
+msgstr "{0, plural, one {# name is too long for this label} other {# names are too long for this label}}"
+
+#: src/components/labels/batch-builder.tsx
+msgid "Shorten them, or pick a bigger label. Printed as they are, they won't fit."
+msgstr "Shorten them, or pick a bigger label. Printed as they are, they won't fit."
+
+#: src/components/labels/batch-builder.tsx
+msgid "Rename {0}"
+msgstr "Rename {0}"
+
+#: src/components/labels/batch-summary.ts
+msgid "{more, plural, one {# more} other {# more}}"
+msgstr "{more, plural, one {# more} other {# more}}"
+
+#: src/components/labels/batch-summary.ts
+msgid "{count}: {list}"
+msgstr "{count}: {list}"
+
+#: src/components/labels/printed-ok.tsx
+msgid "Made {made}"
+msgstr "Made {made}"
+
+#: src/components/labels/printed-ok.tsx
+msgid "Not confirmed as printed"
+msgstr "Not confirmed as printed"
+
+#: src/components/labels/printed-ok.tsx
+msgid "Once these labels have printed, confirm it here, so Kept stops counting them as unprinted."
+msgstr "Once these labels have printed, confirm it here, so Kept stops counting them as unprinted."
+
+#: src/components/labels/start-cell.tsx
+msgid "Each label: QR code and short ID. The codes are made when you print."
+msgstr "Each label: QR code and short ID. The codes are made when you print."
+
+#: src/components/history/labels.ts
+msgid "Set aside a label sheet that was not printed"
+msgstr "Set aside a label sheet that was not printed"

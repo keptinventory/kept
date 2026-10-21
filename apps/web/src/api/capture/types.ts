@@ -484,6 +484,8 @@ export type LabelBatch = {
   startCell: number;
   createdAt: string;
   printedConfirmedAt: string | null;
+  /** Set aside without printing ("Not printed" on the labels screen); cleared by "Printed OK?". */
+  dismissedAt: string | null;
   labels: LabelCellContent[];
 };
 
@@ -511,6 +513,12 @@ export type LabelBatchPreview = {
   labels: LabelCellContent[];
   blank: number;
   excluded: LabelExclusions;
+  /**
+   * The newest batch of this location still waiting for "Printed OK?" (not set aside) that holds
+   * exactly these labels, so the builder can offer it instead of a duplicate; null for a blank
+   * sheet or when there is none.
+   */
+  unconfirmed: { id: string; createdAt: string; stock: string; count: number } | null;
 };
 
 /** GET /api/v1/labels/summary?locationId: Home's checklist and the labels screen. */

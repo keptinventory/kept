@@ -536,6 +536,7 @@ export function useSummary() {
       'inbox.restore': () => t`Brought back an inbox item`,
       'inbox.bulk': () => t`Changed several inbox items at once`,
       'labels.printed': () => t`Printed labels`,
+      'label_batch.dismiss': () => t`Set aside a label sheet that was not printed`,
       'purchase.capture': () => t`Captured a receipt`,
       'purchase.confirm': () => t`Confirmed a receipt`,
       'purchase.extract': () => t`Read a receipt`,

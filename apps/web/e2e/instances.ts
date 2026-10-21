@@ -34,6 +34,10 @@ export const INSTANCES = {
   // Moving mode (e2e/moving.spec.ts) moves boxes between the seed's Garage and Home: a
   // seeded instance of its own, so no other spec sees its changes.
   moving: { name: 'moving', port: 8199, seed: true },
+  // Labels printed from long names (e2e/labels-print.spec.ts): the print PDF read back, the
+  // preview against the print, "Printed OK?" and the duplicate-sheet offer, on a seeded instance
+  // of its own.
+  labels: { name: 'labels', port: 8202, seed: true },
 } as const satisfies Record<string, Instance>;
 
 /**

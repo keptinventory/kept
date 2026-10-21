@@ -36,6 +36,7 @@ type Batch = {
   stock: string;
   startCell: number;
   printedConfirmedAt: string | null;
+  dismissedAt: string | null;
   labels: {
     code: string;
     url: string;
@@ -50,6 +51,8 @@ const batch = (as: Person, body: Record<string, unknown>) =>
   call(t, '/api/v1/labels/batches', { as, body: { stock: 'a4_24_70x37', ...body } });
 const printed = (as: Person, id: string) =>
   call(t, `/api/v1/labels/batches/${id}/printed`, { as, body: {} });
+const dismiss = (as: Person, id: string) =>
+  call(t, `/api/v1/labels/batches/${id}/dismiss`, { as, body: {} });
 const claim = (as: Person, code: string, body: Record<string, unknown>) =>
   call(t, `/api/v1/codes/${code}/claim`, { as, body });
 
@@ -281,6 +284,7 @@ describe('a dry run (the preview)', () => {
       ],
       blank: 0,
       excluded: { pending: 1, other: 0 },
+      unconfirmed: null,
     });
     const places = ok(
       await batch(ibrahim, {
@@ -301,7 +305,12 @@ describe('a dry run (the preview)', () => {
     const blank = ok(
       await batch(ibrahim, { locationId: loc.id, kind: 'blank', blankCount: 30, dryRun: true }),
     );
-    expect(blank).toEqual({ labels: [], blank: 30, excluded: { pending: 0, other: 0 } });
+    expect(blank).toEqual({
+      labels: [],
+      blank: 30,
+      excluded: { pending: 0, other: 0 },
+      unconfirmed: null,
+    });
     expect(await batches()).toBe(0);
     const blanks = await own<{ n: number }>(
       db,
@@ -318,6 +327,103 @@ describe('a dry run (the preview)', () => {
       (await batch(ibrahim, { locationId: loc.id, kind: 'blank', blankCount: 501, dryRun: true }))
         .statusCode,
     ).toBe(400);
+  });
+});
+
+describe('a sheet made but not confirmed', () => {
+  it('a dry run of exactly those things names the unconfirmed batch, in any order', async () => {
+    const loc = await createLocation(t, db, ibrahim, 'household', 'Studio');
+    const a = await createThing(t, ibrahim, loc, { name: 'Ring light' });
+    const b = await createThing(t, ibrahim, loc, { name: 'Tripod' });
+    const c = await createThing(t, ibrahim, loc, { name: 'Lens cloth' });
+    const made = ok(
+      await batch(ibrahim, { locationId: loc.id, kind: 'things', thingIds: [a.id, b.id] }),
+      201,
+    ) as unknown as { batch: Batch };
+    expect(made.batch.dismissedAt).toBeNull();
+    const same = ok(
+      await batch(ibrahim, {
+        locationId: loc.id,
+        kind: 'things',
+        thingIds: [b.id, a.id],
+        dryRun: true,
+      }),
+    );
+    expect(same.unconfirmed).toEqual({
+      id: made.batch.id,
+      createdAt: expect.any(String),
+      stock: 'a4_24_70x37',
+      count: 2,
+    });
+    // Not the same things: no offer.
+    for (const thingIds of [[a.id], [a.id, b.id, c.id]]) {
+      const other = ok(
+        await batch(ibrahim, { locationId: loc.id, kind: 'things', thingIds, dryRun: true }),
+      );
+      expect(other.unconfirmed).toBeNull();
+    }
+    // "Everything unprinted" twice offers the first sheet the second time.
+    const all = ok(
+      await batch(ibrahim, { locationId: loc.id, kind: 'things', unprinted: {} }),
+      201,
+    ) as unknown as { batch: Batch };
+    const again = ok(
+      await batch(ibrahim, { locationId: loc.id, kind: 'things', unprinted: {}, dryRun: true }),
+    );
+    expect((again.unconfirmed as Json).id).toBe(all.batch.id);
+    // A blank sheet is never the same as another.
+    const blank = ok(
+      await batch(ibrahim, { locationId: loc.id, kind: 'blank', blankCount: 2, dryRun: true }),
+    );
+    expect(blank.unconfirmed).toBeNull();
+    // Dismissed or confirmed, it is no longer offered.
+    ok(await dismiss(ibrahim, all.batch.id));
+    ok(await printed(ibrahim, made.batch.id));
+    const after = ok(
+      await batch(ibrahim, { locationId: loc.id, kind: 'things', unprinted: {}, dryRun: true }),
+    );
+    expect(after.unconfirmed).toBeNull();
+  });
+});
+
+describe('POST /api/v1/labels/batches/:id/dismiss', () => {
+  // catalogue: POST /api/v1/labels/batches/:id/dismiss
+  it('sets an unconfirmed batch aside once, audited; confirming it later still works', async () => {
+    const thing = await createThing(t, ibrahim, home, { name: 'Desk fan' });
+    const made = ok(
+      await batch(ibrahim, { locationId: home.id, kind: 'things', thingIds: [thing.id] }),
+      201,
+    ) as unknown as { batch: Batch };
+    const first = ok(await dismiss(louis, made.batch.id)) as unknown as Batch;
+    expect(first.dismissedAt).not.toBeNull();
+    expect(first.printedConfirmedAt).toBeNull();
+    const second = ok(await dismiss(ibrahim, made.batch.id)) as unknown as Batch;
+    expect(second.dismissedAt).toBe(first.dismissedAt);
+    const events = await auditActions(home.id, 'label_batch.dismiss');
+    expect(events.filter((e) => e.entity_id === made.batch.id)).toHaveLength(1);
+    // The codes were never confirmed printed.
+    const at = await own<{ printed_at: Date | null }>(
+      db,
+      'SELECT printed_at FROM public.short_ids WHERE code = $1',
+      [thing.shortCode],
+    );
+    expect(at[0]?.printed_at).toBeNull();
+    // The list says so.
+    const listed = ok(
+      await call(t, `/api/v1/labels/batches?locationId=${home.id}`, { as: ibrahim }),
+    ) as unknown as { items: Batch[] };
+    expect(listed.items.find((b) => b.id === made.batch.id)?.dismissedAt).toBe(first.dismissedAt);
+    // Printed after all: the confirmation wins and the batch is no longer set aside.
+    const confirmed = ok(await printed(ibrahim, made.batch.id)) as unknown as Batch;
+    expect(confirmed.printedConfirmedAt).not.toBeNull();
+    expect(confirmed.dismissedAt).toBeNull();
+    // A printed batch can't be set aside; a viewer can't set one aside.
+    expect((await dismiss(ibrahim, made.batch.id)).statusCode).toBe(400);
+    const other = ok(
+      await batch(ibrahim, { locationId: home.id, kind: 'things', thingIds: [thing.id] }),
+      201,
+    ) as unknown as { batch: Batch };
+    expect((await dismiss(talia, other.batch.id)).statusCode).toBe(403);
   });
 });
 
@@ -563,6 +669,7 @@ describe('leak: the label routes answer another household exactly as nothing', (
       );
     }
     expect(answer(await printed(ibrahim, id))).toEqual(answer(await printed(ibrahim, newId())));
+    expect(answer(await dismiss(ibrahim, id))).toEqual(answer(await dismiss(ibrahim, newId())));
     expect(
       answer(await batch(ibrahim, { locationId: garage.id, kind: 'blank', blankCount: 1 })),
     ).toEqual(answer(await batch(ibrahim, { locationId: newId(), kind: 'blank', blankCount: 1 })));

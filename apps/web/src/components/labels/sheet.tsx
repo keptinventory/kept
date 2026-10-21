@@ -13,8 +13,9 @@ import { useLingui } from '@lingui/react/macro';
 import { useEffect, useState } from 'react';
 import type { LabelCellContent } from '@/api/capture/types';
 import { useFormat } from '@/lib/format';
+import type { TextMeasure } from './fit';
 import { LabelCell } from './label-cell';
-import { mm, pageCss, placeLabels } from './layout';
+import { mm, PX_PER_MM, pageCss, placeLabels } from './layout';
 import type { Encode } from './qr';
 
 /** Installs `css` for as long as the caller is mounted. */
@@ -33,9 +34,6 @@ export function usePageRule(css: string) {
     };
   }, [css]);
 }
-
-/** CSS pixels per millimetre (96 per inch). */
-const PX_PER_MM = 96 / 25.4;
 
 /**
  * On a screen narrower than the paper, the sheets are zoomed to fit (a phone at 375 px shows a
@@ -62,11 +60,13 @@ export function LabelSheets({
   labels,
   startCell,
   encode,
+  measure,
 }: {
   stock: LabelStock;
   labels: readonly LabelCellContent[];
   startCell: number;
   encode: Encode | null;
+  measure: TextMeasure;
 }) {
   const { t } = useLingui();
   const fmt = useFormat();
@@ -104,7 +104,7 @@ export function LabelSheets({
                   blockSize: mm(stock.cell.h),
                 }}
               >
-                <LabelCell label={label} stock={stock} encode={encode} />
+                <LabelCell label={label} stock={stock} encode={encode} measure={measure} />
               </div>
             ))}
           </section>

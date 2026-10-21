@@ -3,7 +3,9 @@
  * a code (an offline capture not yet synced) can't be in a batch: it's counted as `pending`. A
  * claim of a code another phone claimed first is 409 `label_claimed` with the other target's
  * name; any code the caller can't claim is the same 404 as a random one (D137). A `dryRun`
- * create (T28's preview) answers the labels without saving or allocating anything.
+ * create (T28's preview) answers the labels without saving or allocating anything, and names
+ * the newest unconfirmed batch holding exactly the same codes. "Not printed" (`dismiss`) sets an
+ * unconfirmed batch aside; "Printed OK?" clears that.
  */
 
 import {
@@ -151,7 +153,25 @@ export function labelsRoutes(state: MockState): MockRoute[] {
         }
       }
       const excluded = { pending, other };
-      if (b.dryRun) return reply(200, { labels, blank, excluded } satisfies LabelBatchPreview);
+      if (b.dryRun) {
+        const codes = new Set(labels.map((l) => l.code));
+        const same =
+          b.kind === 'blank' || codes.size === 0
+            ? undefined
+            : cap().labelBatches.find(
+                (x) =>
+                  x.locationId === b.locationId &&
+                  x.kind === b.kind &&
+                  !x.printedConfirmedAt &&
+                  !x.dismissedAt &&
+                  x.labels.length === codes.size &&
+                  x.labels.every((l) => codes.has(l.code)),
+              );
+        const unconfirmed = same
+          ? { id: same.id, createdAt: same.createdAt, stock: same.stock, count: same.labels.length }
+          : null;
+        return reply(200, { labels, blank, excluded, unconfirmed } satisfies LabelBatchPreview);
+      }
       // A real batch with nothing to label (the preview was stale, or everything is pending).
       if (b.kind !== 'blank' && labels.length === 0)
         return err(
@@ -169,6 +189,7 @@ export function labelsRoutes(state: MockState): MockRoute[] {
         startCell: b.startCell ?? 1,
         createdAt: now(),
         printedConfirmedAt: null,
+        dismissedAt: null,
         labels,
       };
       cap().labelBatches.unshift(batch);
@@ -195,6 +216,7 @@ export function labelsRoutes(state: MockState): MockRoute[] {
       if (!batch || !access().visible(batch.locationId)) return notFound();
       const at = now();
       batch.printedConfirmedAt ??= at;
+      batch.dismissedAt = null;
       for (const l of batch.labels) {
         const c = cap().codes.find((x) => x.code === l.code);
         if (c) c.printedAt ??= at;
@@ -208,6 +230,21 @@ export function labelsRoutes(state: MockState): MockRoute[] {
             printedAt: at,
           });
       }
+      return batch;
+    }),
+
+    route('POST', p.labelBatchDismiss(':id'), ({ params }) => {
+      const batch = cap().labelBatches.find((b) => b.id === params.id);
+      if (!batch || !access().visible(batch.locationId)) return notFound();
+      if (!access().canWrite(batch.locationId)) return forbidden();
+      if (batch.printedConfirmedAt)
+        return err(
+          400,
+          'validation',
+          'The request is not valid.',
+          'This batch was confirmed printed.',
+        );
+      batch.dismissedAt ??= now();
       return batch;
     }),
 
