@@ -45,7 +45,7 @@ Three jobs, and no emulation anywhere:
    the ones the build jobs smoked, and `release.sh` refuses the join if they differ. The SBOMs come
    along. Then, as `release.sh` always has: sign the index and every manifest under it, tag
    `X.Y.Z` (`X.Y`, `X`), push and sign the chart, write the release record; and the job creates
-   the GitHub release `vX.Y.Z` (the changelog section and the record as its notes,
+   the GitHub release `vX.Y.Z` (its notes composed by `scripts/release/compose-notes.mjs`, below,
    `THIRD-PARTY-NOTICES.txt` and `X.Y.Z.md` attached, a prerelease for `X.Y.Z-…`).
 
 What the Dockerfile's `build` stage compiles (shared, mcp, server, the web bundle) is the same
@@ -143,12 +143,25 @@ pull request.
 1. The changelog section and the README's quick start, by a pull request, squash-merged. Its title
    must be `chore(release): X.Y.Z` (a squash merge commits under the pull request's title, and a
    `chore` subject stays out of the next changelog). The preflight refuses a version README.md
-   doesn't install, and a tag on the previous release's commit:
+   doesn't install, and a tag on the previous release's commit.
+
+   First write the **highlights**: 2–4 bullets, each led by a bold sentence, with the pull request
+   or issue it came from, in an ignored file (under `.tmp/`). They open the
+   release page and the Discord post; without the file there is no Highlights section, and nothing
+   is written for you. `gh` must be signed in (any account; read-only queries): it adds
+   "closes #N, reported by @x" to each change's line and the Contributors line. Without it the
+   section is still written, with a warning and neither.
+
+   ```text
+   - **Passkeys in Settings.** Add, rename and remove them; a code works only once (#239).
+   - **Labels print what you see.** The preview is the sheet you print (#246).
+   ```
 
    ```sh
    git switch main && git pull --ff-only
    git switch -c release-X.Y.Z
-   node scripts/changelog.mjs --version X.Y.Z --from vPREVIOUS --write CHANGELOG.md   # no --from for the first
+   node scripts/changelog.mjs --version X.Y.Z --from vPREVIOUS --highlights .tmp/highlights-X.Y.Z.md \
+     --write CHANGELOG.md   # no --from for the first; run again to replace the section
    sed -i.bak -e 's/--branch v[0-9.]* /--branch vX.Y.Z /' -e 's|/kept:[0-9.]*|/kept:X.Y.Z|' README.md && rm README.md.bak
    git commit -m "chore(release): X.Y.Z" -- CHANGELOG.md README.md
    git push -u origin release-X.Y.Z
@@ -189,6 +202,23 @@ pull request.
    cosign verify --key cosign.pub ghcr.io/keptinventory/kept:X.Y.Z
    docker buildx imagetools inspect ghcr.io/keptinventory/kept:X.Y.Z --format '{{ json .SBOM }}'
    ```
+
+**The release page** (`scripts/release/compose-notes.mjs`, run by `release.yml`'s "The GitHub
+release" step) is, in order: **Highlights** (from the section); **What's changed**, the
+user-facing groups, then Documentation and Behind the scenes (features and fixes on an internal
+scope: `e2e`, `test`, `ci`, `release`, `build`, `deps-dev`) folded in `<details>`; **Upgrade**, the
+image on GHCR and Docker Hub, Compose, the chart, and whether the database changes (a migration
+`.sql` added or changed since the previous tag); **Contributors**, the section's @handles, from which
+GitHub draws the avatars; the **Full changelog** compare link; and the whole release record,
+folded. `docs/releases/X.Y.Z.md` stays the record alone. `discord.yml` posts the Highlights (or,
+without them, What's changed without the folded parts). Preview it before tagging:
+
+```sh
+node scripts/release/compose-notes.mjs --version X.Y.Z --from vPREVIOUS --section <(awk '/^## X.Y.Z /{on=1;print;next} on&&/^## /{exit} on' CHANGELOG.md) \
+  --record docs/releases/PREVIOUS.md
+```
+
+(the record is any earlier one, as a stand-in: the real one exists only after the run).
 
 A pushed tag is never moved. If the release needs a code fix, release the next version (or the
 next `-rc.N`). If the run failed for a reason outside the code (a registry timeout, a slow smoke),

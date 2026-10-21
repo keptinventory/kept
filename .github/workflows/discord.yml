@@ -3,9 +3,10 @@
 # release made by a workflow's token starts no `release` event); `release: published` covers one
 # published by hand, and Run workflow posts an existing release again.
 #
-# The post is the changelog part of the release notes (up to the release record), headings made
-# bold, with a link to the whole release. A final release pings the Release pings role; a prerelease
-# is posted without the ping.
+# The post is the release's Highlights, or, without them, its "What's changed" with the folded
+# parts left out (a release in the earlier layout: its changelog part, up to the release record),
+# headings made bold, with a link to the whole release; never anything folded in <details>. A final
+# release pings the Release pings role; a prerelease is posted without the ping.
 #
 # No third-party action: the webhook URL is a secret, so it only goes to curl.
 name: discord
@@ -46,10 +47,23 @@ jobs:
           [[ $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || { echo "::error::not a release tag: $TAG"; exit 1; }
           gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json name,url,body,isPrerelease,publishedAt >release.json
           jq --arg role "$ROLE" '
-            # The changelog part: the notes before the release record ("Built … from commit"),
-            # without its own "## X.Y.Z (date)" heading; ## and ### become bold.
-            (.body | split("\nBuilt ")[0]
-              | split("\n") | map(select(test("^## [0-9]") | not))
+            # The sections of the release page, by their "## " heading. (No apostrophe anywhere
+            # in this program: it sits in single quotes.)
+            def sections: split("\n") | reduce .[] as $l ([];
+              if ($l | test("^## ")) then . + [{ h: $l[3:], lines: [] }]
+              elif length == 0 then [{ h: "", lines: [$l] }]
+              else .[-1].lines += [$l] end);
+            def section($h): map(select(.h == $h)) | first
+              | if . then "## \(.h)\n\n" + (.lines | join("\n")) else null end;
+            (.body | gsub("\r"; "")) as $body
+            | ($body | sections) as $s
+            # The highlights when the release has them, else what changed without its folded
+            # parts; a release in the earlier layout posts its changelog part (the notes before
+            # the "Built … from commit" line of the record, without its "## X.Y.Z (date)" heading).
+            | ($s | section("Highlights")
+                // ($s | section("What\u0027s changed") | if . then gsub("<details>[\\s\\S]*?</details>"; "") else null end)
+                // ($body | split("\nBuilt ")[0] | split("\n") | map(select(test("^## [0-9]") | not)) | join("\n"))
+              | split("\n")
               | map(if test("^### ") then "**" + .[4:] + "**"
                     elif test("^## ") then "__**" + .[3:] + "**__" else . end)
               | join("\n") | gsub("\n{3,}"; "\n\n") | gsub("^\\s+|\\s+$"; "")) as $notes

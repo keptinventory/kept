@@ -44,13 +44,16 @@ In this order, stopping at the first failure (D87, D186, D187):
    signed too;
 6. the **release record** `docs/releases/X.Y.Z.md`: digests, tags, the chart and the verify
    commands;
-7. the **GitHub release** `vX.Y.Z`: the changelog section and the record as its notes, with
-   `THIRD-PARTY-NOTICES.txt` and `X.Y.Z.md` attached, marked a prerelease for `X.Y.Z-…`;
+7. the **GitHub release** `vX.Y.Z`, with `THIRD-PARTY-NOTICES.txt` and `X.Y.Z.md` attached,
+   marked a prerelease for `X.Y.Z-…`. Its page (`scripts/release/compose-notes.mjs`) is the
+   section's Highlights; What's changed, with documentation and internal work folded away;
+   Upgrade (the image on both registries, Compose, the chart, and whether the database changes);
+   Contributors; the full changelog link; and the release record, folded;
 8. the **Docker Hub copy** (`dockerhub.yml`, `scripts/mirror-dockerhub.sh`): the same index copied
    by digest to `docker.io/keptinventory/kept` with the same tags, and signed there with the same
    key. It needs the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets; a release already out is
    copied with **Run workflow** on `dockerhub` and its version.
-9. the **Discord announcement** (`discord.yml`): the changelog part of the notes posted to
+9. the **Discord announcement** (`discord.yml`): the Highlights (else What's changed, unfolded parts only) posted to
    #announcements through the `DISCORD_RELEASES_WEBHOOK` secret, pinging Release pings for a final
    release; **Run workflow** on `discord` with a tag posts one again.
 
@@ -63,12 +66,18 @@ from the Dockerfile and is to be confirmed (its step W2).
 
 The short version of the runbook's "Each release":
 
-1. On `main`, clean, at the commit to release, write the changelog section and commit it alone:
+1. Write 2–4 highlights (bullets led by a bold sentence, with their pull request or issue) in an
+   ignored file under `.tmp/`, then the changelog section, and commit it alone through the
+   release pull request. `gh` signed in adds the closed issues, who reported them and the
+   Contributors line; without it they are left out with a warning:
 
    ```sh
-   node scripts/changelog.mjs --version X.Y.Z --from vPREVIOUS --write CHANGELOG.md
+   node scripts/changelog.mjs --version X.Y.Z --from vPREVIOUS --highlights .tmp/highlights-X.Y.Z.md --write CHANGELOG.md
    git commit -m "chore(release): X.Y.Z" -- CHANGELOG.md
    ```
+
+   No highlights file, no Highlights section: nothing is written for you. Running it again
+   replaces the version's section.
 
 2. Wait for the `ci` workflow to pass on that commit on main. It is the gate (D222): every
    step of `scripts/ci-local.sh` except perf, as required jobs. The release workflow's preflight

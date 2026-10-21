@@ -366,8 +366,8 @@ fi
 
 say "2. the changelog since ${last_tag:-the first commit}"
 cp "$repo/CHANGELOG.md" "$work/CHANGELOG.md" 2>/dev/null || true
-# The runbook commits the section before the gate (`chore(release): X.Y.Z`); that one is used as
-# committed. changelog.mjs --write refuses a version the file already has.
+# The runbook commits the section before the gate (`chore(release): X.Y.Z`, with its highlights and
+# contributors); that one is used as committed. Otherwise it is generated here, without highlights.
 section_at="## $version ("
 if [[ -f $work/CHANGELOG.md ]] && awk -v h="$section_at" 'index($0, h) == 1 { found = 1 } END { exit !found }' "$work/CHANGELOG.md"; then
   awk -v h="$section_at" 'index($0, h) == 1 { on = 1; print; next } on && /^## / { exit } on { print }' \
@@ -447,6 +447,9 @@ if [[ -n $ci ]]; then
     echo "index_digest=$index_digest"
     echo "notes_file=$notes_file"
     echo "changelog_section=$work/changelog-section.md"
+    echo "previous_tag=$last_tag"
+    echo "registry=$registry"
+    echo "chart_repo=$chart_repo"
     echo "notices_file=$work/THIRD-PARTY-NOTICES.txt"
     echo "signed=$([[ -n $unsigned ]] && echo false || echo true)"
   } >>"$out"
@@ -471,7 +474,10 @@ Written: $record_files.
      git tag -a v$version -m "Kept $version" $commit && git push origin v$version
      (with release.yml in that commit the tag also starts the workflow, which stops at "already published")
   2. gh auth switch --user ibrahimroshdy   # the personal account
-     gh release create v$version --verify-tag --title "Kept $version" --notes-file $work/changelog-section.md \\
+     node scripts/release/compose-notes.mjs --version $version --section $work/changelog-section.md \\
+       --record $notes_file${last_tag:+ --from $last_tag} --to $commit --image $registry \\
+       --chart oci://$chart_repo/kept --out $work/release-body.md
+     gh release create v$version --verify-tag --title "Kept $version" --notes-file $work/release-body.md \\
        $work/THIRD-PARTY-NOTICES.txt $notes_file
 EOF
 if [[ $version == *-* ]]; then echo "     (add --prerelease: $version is a prerelease)"; fi

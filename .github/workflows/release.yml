@@ -252,11 +252,22 @@ jobs:
           SECTION: ${{ steps.release.outputs.changelog_section }}
           NOTICES: ${{ steps.release.outputs.notices_file }}
           PRERELEASE: ${{ steps.release.outputs.prerelease }}
+          PREVIOUS: ${{ steps.release.outputs.previous_tag }}
+          REGISTRY: ${{ steps.release.outputs.registry }}
+          CHART_REPO: ${{ steps.release.outputs.chart_repo }}
+          SIGNED: ${{ steps.release.outputs.signed }}
         run: |
           body=$RUNNER_TEMP/release-body.md
-          # The changelog section, then the release record without its title (digests, tags,
-          # the chart, the verify commands).
-          { cat "$SECTION"; echo; sed '1d' "$NOTES"; } >"$body"
+          # The page (scripts/release/compose-notes.mjs): the changelog section's highlights and
+          # changes (documentation and internal work folded), how to upgrade, the contributors,
+          # the full changelog link, then the whole release record folded. Docker Hub gets its
+          # copy only of a signed release (the dockerhub job).
+          mirror=docker.io/keptinventory/kept
+          [[ $SIGNED == true ]] || mirror=
+          node scripts/release/compose-notes.mjs --version "$VERSION" --section "$SECTION" \
+            --record "$NOTES" ${PREVIOUS:+--from "$PREVIOUS"} --to HEAD --image "$REGISTRY" \
+            --mirror "$mirror" --chart "oci://$CHART_REPO/kept" \
+            --repo-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" --out "$body"
           bash scripts/check-attribution.sh "$body"
           # In the log too, so a failed `gh release create` can be done by hand from it.
           cat "$body"
