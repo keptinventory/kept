@@ -37,6 +37,8 @@ import { logMailer, type Mailer } from '../mail/mailer.js';
 import type { MailSource } from '../mailin/source.js';
 import { managedRoutes } from '../managed/routes.js';
 import type { NotifyDeps } from '../notify/channels.js';
+import { oauthRevoker } from '../oauth/revoke.js';
+import { hasOAuthProvider } from '../oauth/verify.js';
 import {
   errorReportingActive,
   reportError,
@@ -344,7 +346,15 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
     const publicUrl = opts.env.KEPT_PUBLIC_URL;
     const mailer = opts.mailer ?? logMailer(app.log);
     const jobs = opts.jobs ?? null;
-    await authRoutes(app, { auth, pools: opts.pools, publicUrl, trustedProxies });
+    await authRoutes(app, {
+      auth,
+      pools: opts.pools,
+      publicUrl,
+      trustedProxies,
+      ...(hasOAuthProvider(auth)
+        ? { revokeOAuthAccess: oauthRevoker({ auth, pools: opts.pools, publicUrl }) }
+        : {}),
+    });
     await emailChangeRoutes(app, {
       auth,
       pools: opts.pools,

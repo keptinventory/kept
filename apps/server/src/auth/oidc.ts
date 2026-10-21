@@ -161,6 +161,15 @@ export async function discoverOidc(
       throw new OidcDiscoveryError(`${key} is not https`, 'insecure_endpoint');
     }
   }
+  // The optional userinfo endpoint is sent the IdP's access token: https as well, when named.
+  const userinfo = doc.userinfo_endpoint;
+  if (
+    https &&
+    typeof userinfo === 'string' &&
+    (!URL.canParse(userinfo) || new URL(userinfo).protocol !== 'https:')
+  ) {
+    throw new OidcDiscoveryError('userinfo_endpoint is not https', 'insecure_endpoint');
+  }
   return doc as OidcDiscovery;
 }
 

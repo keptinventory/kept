@@ -242,6 +242,19 @@ describe('/mcp', () => {
         })
       ).statusCode,
     ).toBe(403);
+    // The whole origin is compared with the public URL's: scheme and port too, not the name.
+    for (const origin of ['http://kept.example', 'https://kept.example:8443', 'null']) {
+      const res = await t.app.inject({ ...base, headers: { ...headers, origin } });
+      expect(res.statusCode, origin).toBe(403);
+    }
+    expect(
+      (
+        await t.app.inject({
+          ...base,
+          headers: { ...headers, origin: new URL(t.publicUrl).origin },
+        })
+      ).statusCode,
+    ).toBe(200);
     const { authorization: _, ...anonymous } = headers;
     expect((await t.app.inject({ ...base, headers: anonymous })).statusCode).toBe(401);
     for (const method of ['GET', 'DELETE'] as const) {

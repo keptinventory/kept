@@ -260,9 +260,8 @@ export async function proposalsOf(
 ): Promise<Proposal[]> {
   const [col, id] = 'threadId' in where ? ['thread_id', where.threadId] : ['turn_id', where.turnId];
   // D164 (security review T25, M4): a proposal in a location the person no longer sees isn't
-  // shown. Its args, before and refs carry that location's names and field values, and the
-  // membership trigger only cancels open ones (the scrub at the source is queued for the
-  // migration owner).
+  // shown. Losing the location also blanks its args, before, refs and result at the source
+  // (kept.redact_assistant_in, 0102); this filter is the second guard.
   const { rows } = await client.query<ProposalRow>(
     `SELECT ${PROPOSAL_COLUMNS} FROM public.assistant_proposals
       WHERE ${col} = $1 AND location_id IN (SELECT kept.visible_location_ids())

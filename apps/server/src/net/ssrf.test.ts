@@ -42,6 +42,11 @@ describe('isPrivateAddress', () => {
     ['fd12::1', true],
     ['fe80::1', true],
     ['::ffff:10.0.0.1', true],
+    // IPv4-mapped IPv6 written in hex is still checked as the IPv4 address it carries.
+    ['[::ffff:7f00:1]', true],
+    ['::ffff:a9fe:a9fe', true],
+    ['::ffff:c0a8:101', true],
+    ['::ffff:808:808', false],
     // The gaps found in the CIMD fetch.
     ['192.88.99.1', true],
     ['2002:7f00:1::', true],

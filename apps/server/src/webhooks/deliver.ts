@@ -10,7 +10,13 @@ import { defineJob, type JobDefinition, type JobMeta } from '../jobs/boss.js';
 import { JOB_POLICIES } from '../jobs/policies.js';
 import type { SystemJobDeps } from '../jobs/system.js';
 import { postWebhook, type WebhookFetch } from '../notify/webhook.js';
-import { auditEventIdOf, occurrenceIdOf, runWebhookFanout, WEBHOOK_EVENT_OF } from './fanout.js';
+import {
+  auditEventIdOf,
+  CREATOR_MAY_SEND,
+  occurrenceIdOf,
+  runWebhookFanout,
+  WEBHOOK_EVENT_OF,
+} from './fanout.js';
 import { webhookAad } from './service.js';
 
 // Location webhooks' jobs (D63, D110, D180),
@@ -188,10 +194,17 @@ export async function runWebhookDelivery(
     const hook = (await c.query<HookRow>('SELECT * FROM kept.webhook_secret($1)', [d.webhook_id]))
       .rows[0];
     if (!hook || hook.location_id !== d.location_id) return null;
-    const payload = hook.active ? await payloadOf(c, d) : null;
+    // Re-checked on every attempt, so a retry stops as soon as the creator may no longer send,
+    // before the job that turns the hook off has run.
+    const { rows: may } = await c.query<{ ok: boolean }>(
+      `SELECT ${CREATOR_MAY_SEND} AS ok FROM public.webhooks w WHERE w.id = $1`,
+      [d.webhook_id],
+    );
+    const payload = hook.active && may[0]?.ok === true ? await payloadOf(c, d) : null;
     if (!payload) {
-      // The hook was turned off (by an admin, or because its creator lost the role, D180), or
-      // the event is gone: nothing will ever be sent for this delivery.
+      // The hook was turned off (by an admin, or because its creator lost the role, D180), its
+      // creator may no longer send, or the event is gone: nothing will ever be sent for this
+      // delivery.
       await c.query(
         `UPDATE public.webhook_deliveries SET status = 'gave_up', next_attempt_at = NULL,
                 updated_at = now()

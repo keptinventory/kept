@@ -144,6 +144,11 @@ export async function decide(
   clientId: string,
   body: ConsentBody,
 ): Promise<{ redirectTo: string }> {
+  // The grant is written for the client the signed request names, and for no other.
+  const named = new URLSearchParams(oauthQuery).getAll('client_id');
+  if (named.length !== 1 || named[0] !== clientId) {
+    throw invalid('This request expired or is not valid; start again.');
+  }
   const app = await clientOf(ctx.authPool, clientId);
   const account = await ownAccount(ctx.tx);
   if (!body.accept) {
