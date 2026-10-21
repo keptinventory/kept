@@ -1,4 +1,11 @@
-import { can, parseScan, SCAN_SESSION_LIMITS, type ScanResult } from '@kept/shared';
+import {
+  CODE_FIELD_MAX,
+  can,
+  parseScan,
+  SCAN_SESSION_LIMITS,
+  type ScanResult,
+  serialsOf,
+} from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
 import { legacyCodeOf } from '../imports/csv.js';
@@ -16,9 +23,12 @@ import { callerMembership } from '../locations/access.js';
 //   codes the caller sees: one live target → `open`, several (an asset ID repeats per collection)
 //   → `legacy_ambiguous` with the candidates, each with its location (so the phone can queue
 //   `mark_seen` for a pick offline);
-// - `barcode`: the things that carry it as their barcode, one → `open`, several →
-//   `legacy_ambiguous`; else `barcode` with whether lookup is on (the lookup is its own call);
-// - `other`: `not_kept` with the text (D137: "Not a Kept label", nothing hidden).
+// - `barcode`: the things that carry it as their serial number (a GS1 code's serial, or any code
+//   that isn't a product's GTIN, such as an asset tag) or else as their barcode, one → `open`,
+//   several → `legacy_ambiguous`; else `barcode` with whether lookup is on (the lookup is its own
+//   call). A GS1 code's barcode is its GTIN;
+// - `other`: the things whose serial number or barcode it is, as for `barcode`; else `not_kept`
+//   with the text (D137: "Not a Kept label", nothing hidden).
 // Before a miss is answered, the text as typed is looked up among every legacy code the caller
 // sees (a CSV import's old codes; a Homebox asset ID typed by hand; own codes later, D208,
 // which are `legacy_codes` rows with `source = 'own'` and so resolve here unchanged).
@@ -31,7 +41,9 @@ import { callerMembership } from '../locations/access.js';
 // opening (D40), or queues `mark_seen`.
 //
 // Every query is an equality on an indexed key (short_ids' primary key, legacy_codes(source,
-// code) and its primary key), which PostgreSQL treats as leakproof, so RLS keeps the index.
+// code) and its primary key, things(location_id, barcode) and things(location_id, serial)),
+// which PostgreSQL treats as leakproof, so RLS keeps the index. A serial is matched exactly, as
+// stored: the scanned text is what is printed on the thing.
 
 export const ResolveScanBody = z.object({
   text: z.string().max(2048),
@@ -166,28 +178,39 @@ async function byLegacy(
 }
 
 /**
- * A product barcode stored on things the caller sees: one opens it, several ask which. The
- * stored text is compared as it is (a thing's barcode is what was scanned or typed for it).
+ * Things the caller sees that carry the code: as their serial number (any of `serials`) or as
+ * their barcode. A serial names one unit, so serial matches win over barcode ones; one match
+ * opens it, several ask which. The stored text is compared as it is (a thing's barcode and serial
+ * are what was scanned or typed for it).
  */
-async function byBarcode(client: pg.ClientBase, code: string): Promise<ScanOutcome | null> {
-  if (!code || code.length > 64) return null;
+async function byThingCode(
+  client: pg.ClientBase,
+  barcode: string | null,
+  serials: readonly string[],
+): Promise<ScanOutcome | null> {
+  const code = barcode && barcode.length <= CODE_FIELD_MAX.barcode ? barcode : null;
+  const wanted = serials.filter((s) => s && s.length <= CODE_FIELD_MAX.serial);
+  if (!code && wanted.length === 0) return null;
   const { rows } = await client.query<{
     id: string;
     location_id: string;
     location_name: string | null;
     name: string | null;
+    by_serial: boolean;
   }>(
-    `SELECT t.id, t.location_id, l.name AS location_name, t.name
+    `SELECT t.id, t.location_id, l.name AS location_name, t.name,
+            coalesce(t.serial = ANY ($2::text[]), false) AS by_serial
        FROM public.things t
        JOIN public.locations l ON l.id = t.location_id
-      WHERE t.barcode = $1 AND t.deleted_at IS NULL
+      WHERE (t.barcode = $1 OR t.serial = ANY ($2::text[])) AND t.deleted_at IS NULL
       ORDER BY l.name, t.name, t.id
       LIMIT 50`,
-    [code],
+    [code, wanted],
   );
-  const [only] = rows;
+  const hits = rows.some((r) => r.by_serial) ? rows.filter((r) => r.by_serial) : rows;
+  const [only] = hits;
   if (!only) return null;
-  if (rows.length === 1) {
+  if (hits.length === 1) {
     return {
       outcome: 'open',
       target: { kind: 'thing', id: only.id, locationId: only.location_id },
@@ -195,7 +218,7 @@ async function byBarcode(client: pg.ClientBase, code: string): Promise<ScanOutco
   }
   return {
     outcome: 'legacy_ambiguous',
-    candidates: rows.map((r) => ({
+    candidates: hits.map((r) => ({
       locationName: r.location_name ?? '',
       locationId: r.location_id,
       name: r.name ?? '',
@@ -232,12 +255,13 @@ const RESOLVERS: {
     (await byLegacy(client, legacyCodeOf(scan.assetId ?? scan.uuid ?? ''), ['homebox'])) ?? MISS,
   barcode: async (client, scan, text, deps) =>
     (await anyLegacy(client, text)) ??
-    (await byBarcode(client, scan.code)) ?? {
+    (await byThingCode(client, scan.code, serialsOf(scan))) ?? {
       outcome: 'barcode',
       barcode: { code: scan.code, lookupEnabled: await deps.lookupEnabled() },
     },
   other: async (client, scan, text) =>
-    (await anyLegacy(client, text)) ?? { outcome: 'not_kept', text: scan.text },
+    (await anyLegacy(client, text)) ??
+    (await byThingCode(client, scan.text, [scan.text])) ?? { outcome: 'not_kept', text: scan.text },
 };
 
 export const ResolveScanBatchBody = z.object({

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { gtinValid, parseScan, upcEToUpcA } from './scan.js';
+import { gtinShort, gtinValid, parseGs1, parseScan, upcEToUpcA } from './scan.js';
 
 describe('parseScan: Kept labels (D120, §2.4)', () => {
   it.each([
@@ -63,7 +63,7 @@ describe('parseScan: product barcodes', () => {
     ['036000291452', 'upc_a', 'upc_a'],
     ['04252614', 'upc_e', 'upc_e'],
   ])('%s (%s) → %s', (code, format, symbology) => {
-    expect(parseScan(code, format)).toEqual({ kind: 'barcode', code, symbology });
+    expect(parseScan(code, format)).toEqual({ kind: 'barcode', code, symbology, field: 'barcode' });
   });
 
   it('refuses a wrong check digit', () => {
@@ -77,6 +77,7 @@ describe('parseScan: product barcodes', () => {
       kind: 'barcode',
       code: 'SN-4411-A',
       symbology: 'code_128',
+      field: 'barcode',
     });
   });
 
@@ -85,6 +86,7 @@ describe('parseScan: product barcodes', () => {
       kind: 'barcode',
       code: '123456',
       symbology: 'code_128',
+      field: 'barcode',
     });
   });
 
@@ -103,8 +105,164 @@ describe('check digits', () => {
     expect(gtinValid('4006381333932')).toBe(false);
     expect(gtinValid('96385074')).toBe(true);
     expect(gtinValid('abc')).toBe(false);
+    expect(gtinValid('14006381333938')).toBe(true);
+    expect(gtinValid('14006381333937')).toBe(false);
     expect(upcEToUpcA('04252614')).toBe('042100005264');
     expect(upcEToUpcA('01234505')).toBe('012000003455');
     expect(upcEToUpcA('21234565')).toBeNull(); // number system 2 has no UPC-E
+  });
+});
+
+describe('parseScan: asset tags and other codes', () => {
+  it.each(['code_39', 'code_93'])(
+    'takes %s as a serial number, or a barcode if the person says',
+    (format) => {
+      expect(parseScan('AT-00417', format)).toEqual({
+        kind: 'barcode',
+        code: 'AT-00417',
+        symbology: format,
+        field: 'either',
+        prefer: 'serial',
+      });
+    },
+  );
+
+  it('takes Codabar as a barcode', () => {
+    expect(parseScan('A40156B', 'codabar')).toEqual({
+      kind: 'barcode',
+      code: 'A40156B',
+      symbology: 'codabar',
+      field: 'barcode',
+    });
+  });
+
+  it('takes an ITF-14 carton code as its product barcode when the check digit passes', () => {
+    expect(parseScan('14006381333938', 'itf')).toEqual({
+      kind: 'barcode',
+      code: '14006381333938',
+      symbology: 'itf',
+      field: 'barcode',
+    });
+    // A GTIN-14 with a leading zero is the EAN-13 inside it, as a product scan stores it.
+    expect(parseScan('04006381333931', 'itf')).toMatchObject({ code: '4006381333931' });
+    // Any other ITF is the person's to place.
+    expect(parseScan('14006381333937', 'itf')).toEqual({
+      kind: 'barcode',
+      code: '14006381333937',
+      symbology: 'itf',
+      field: 'either',
+    });
+  });
+
+  it.each(['data_matrix', 'pdf417', 'aztec'])('asks where plain %s text goes', (format) => {
+    expect(parseScan('SN-4417-QX', format)).toEqual({
+      kind: 'barcode',
+      code: 'SN-4417-QX',
+      symbology: format,
+      field: 'either',
+    });
+  });
+
+  it('offers only what fits: a serial up to 100 characters, a barcode up to 64', () => {
+    const long = 'W'.repeat(80);
+    expect(parseScan(long, 'pdf417')).toEqual({
+      kind: 'barcode',
+      code: long,
+      symbology: 'pdf417',
+      field: 'serial',
+    });
+    expect(parseScan('A'.repeat(70), 'code_39')).toMatchObject({ field: 'serial' });
+    const huge = 'Warranty card. '.repeat(10).trim();
+    expect(parseScan(huge, 'pdf417')).toEqual({ kind: 'other', text: huge });
+    expect(parseScan('A'.repeat(101), 'code_128')).toMatchObject({ kind: 'other' });
+  });
+
+  it('still reads a Kept or Homebox label first, whatever symbol carries it', () => {
+    expect(parseScan('https://kept.example/l/7KQ4MZ', 'data_matrix')).toEqual({
+      kind: 'kept',
+      code: '7KQ4MZ',
+    });
+    expect(parseScan('7KQ4MZ', 'aztec')).toEqual({ kind: 'kept', code: '7KQ4MZ' });
+    expect(parseScan('http://homebox.local/a/000-014', 'pdf417')).toMatchObject({
+      kind: 'homebox',
+      assetId: '000-014',
+    });
+  });
+});
+
+describe('parseScan: GS1 codes', () => {
+  it('keeps a GS1 Data Matrix code’s GTIN as the barcode and its serial as the serial', () => {
+    expect(parseScan('010400638133393121K7Q2X9', 'data_matrix')).toEqual({
+      kind: 'barcode',
+      code: '4006381333931',
+      symbology: 'data_matrix',
+      field: 'barcode',
+      serial: 'K7Q2X9',
+    });
+  });
+
+  it('reads the element string with or without a symbology identifier, and in brackets', () => {
+    const want = { kind: 'barcode', code: '4006381333931', serial: 'K7Q2X9', field: 'barcode' };
+    expect(parseScan(`]d2010400638133393121K7Q2X9`)).toMatchObject(want);
+    expect(parseScan(`]Q3010400638133393121K7Q2X9`, 'qr_code')).toMatchObject(want);
+    expect(parseScan(`]C1010400638133393121K7Q2X9`, 'code_128')).toMatchObject(want);
+    expect(parseScan('(01)04006381333931(21)K7Q2X9')).toMatchObject(want);
+    expect(parseScan('010400638133393121K7Q2X9', 'code_128')).toMatchObject(want);
+  });
+
+  it('takes a serial-only GS1 code as the serial', () => {
+    expect(parseScan('(21)K7Q2X9')).toEqual({
+      kind: 'barcode',
+      code: 'K7Q2X9',
+      symbology: 'gs1',
+      field: 'serial',
+    });
+  });
+
+  it('is not GS1 when the GTIN check digit fails: the text is the person’s to place', () => {
+    expect(parseScan('010400638133393721K7Q2X9', 'data_matrix')).toMatchObject({
+      code: '010400638133393721K7Q2X9',
+      field: 'either',
+    });
+  });
+
+  it('shows a GS1 code with neither GTIN nor serial as text', () => {
+    expect(parseScan('(17)271231(10)LOT7')).toEqual({ kind: 'other', text: '(17)271231(10)LOT7' });
+  });
+});
+
+describe('GS1 element strings', () => {
+  const GS = '\u001d';
+  it.each([
+    ['plain, the GTIN first', `010400638133393117271231` + `10LOT7${GS}21K7Q2X9`],
+    ['with a leading separator', `${GS}010400638133393117271231` + `10LOT7${GS}21K7Q2X9`],
+    ['after ]d2', `]d2010400638133393117271231` + `10LOT7${GS}21K7Q2X9`],
+    ['in brackets', '(01)04006381333931(17)271231(10)LOT7(21)K7Q2X9'],
+  ])('%s', (_how, text) => {
+    expect(parseGs1(text)).toEqual({
+      '01': '04006381333931',
+      '17': '271231',
+      '10': 'LOT7',
+      '21': 'K7Q2X9',
+    });
+  });
+
+  it.each([
+    ['not an element string', 'SN-4417-QX'],
+    ['a plain string that does not start with a GTIN', '21K7Q2X9'],
+    ['a wrong GTIN check digit', '(01)04006381333932'],
+    ['a short fixed field', '(01)0400638133'],
+    ['an unknown application identifier', '(05)123'],
+    ['an empty field', '(21)'],
+    ['a field too long', `(21)${'A'.repeat(21)}`],
+  ])('refuses %s', (_why, text) => {
+    expect(parseGs1(text)).toBeNull();
+  });
+
+  it('shortens a GTIN-14 to the form a product scan stores', () => {
+    expect(gtinShort('04006381333931')).toBe('4006381333931');
+    expect(gtinShort('00036000291452')).toBe('036000291452');
+    expect(gtinShort('00000096385074')).toBe('96385074');
+    expect(gtinShort('14006381333938')).toBe('14006381333938');
   });
 });

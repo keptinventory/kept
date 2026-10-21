@@ -13,10 +13,14 @@
  * 4. **Offline and not on the phone:** a Kept or Homebox code is "Not on this phone" (the sixth
  *    outcome), and the caller queues it as a notice to re-check online; a product barcode is
  *    "Add as a new thing" without a lookup; anything else is "Not a Kept label".
+ *    A serial number is matched by the server only: the phone's snapshot holds no serials
+ *    (sync/snapshot.ts keeps them off the phone, as it does notes and money), so offline an
+ *    asset tag on a thing you have is offered as a new thing.
  *
  * Opening never marks anything seen here: the caller does, after opening (`markSeen`, D40).
  */
 import {
+  type CodeField,
   can,
   newId,
   parseScan,
@@ -66,11 +70,31 @@ export type Resolution =
   | { outcome: 'not_in_your_kept'; code: string | null }
   | { outcome: 'legacy_ambiguous'; legacy: string; candidates: LegacyCandidate[] }
   /** `lookupEnabled` is null offline: the lookup can't run, so it isn't known. */
-  | { outcome: 'barcode'; code: string; lookupEnabled: boolean | null }
+  | ({ outcome: 'barcode'; code: string; lookupEnabled: boolean | null } & CodeRead)
   | { outcome: 'not_kept'; text: string }
   | { outcome: 'not_on_phone'; text: string; code: string | null };
 
 export type Read = { text: string; format?: string };
+
+/** What a barcode scan read, for a new thing (@kept/shared `parseScan`): its format, where the
+ * code goes (absent: the barcode), the likelier field when either will do, a GS1 serial. */
+export type CodeRead = {
+  symbology?: string;
+  field?: CodeField;
+  prefer?: 'barcode' | 'serial';
+  serial?: string;
+};
+
+/** A barcode scan's `CodeRead`. */
+function codeRead(scan: ScanResult): CodeRead {
+  if (scan.kind !== 'barcode') return {};
+  return {
+    symbology: scan.symbology,
+    field: scan.field,
+    ...(scan.prefer ? { prefer: scan.prefer } : {}),
+    ...(scan.serial ? { serial: scan.serial } : {}),
+  };
+}
 
 /** The phone's store as the scanner uses it; `addNotice` where the store has one (Dexie). */
 export type ScanStore = OfflineStore & Partial<Pick<SyncStore, 'addNotice' | 'dismissNotice'>>;
@@ -209,12 +233,19 @@ const isOffline = (e: unknown) => isApiError(e) && e.code === 'offline';
 /** The server's answer in the phone's terms. */
 export function fromServer(scan: ScanResult, o: ScanOutcome): Resolution {
   const code = scan.kind === 'kept' ? scan.code : null;
-  // Several things carry a product barcode: asked which, under the barcode.
+  // Several things carry a barcode or serial number: asked which, under the code. One opens at
+  // once, as a Kept label does; only an old Homebox label stops to say what it was.
   const legacy =
     scan.kind === 'homebox' ? legacyLabel(scan) : scan.kind === 'barcode' ? scan.code : null;
   switch (o.outcome) {
     case 'open':
-      return { outcome: 'open', target: o.target, code, legacy, from: 'server' };
+      return {
+        outcome: 'open',
+        target: o.target,
+        code,
+        legacy: scan.kind === 'homebox' ? legacy : null,
+        from: 'server',
+      };
     case 'claim':
       return { outcome: 'claim', code: code ?? '', locationId: o.locationId, from: 'server' };
     case 'not_in_your_kept':
@@ -230,6 +261,7 @@ export function fromServer(scan: ScanResult, o: ScanOutcome): Resolution {
         outcome: 'barcode',
         code: o.barcode.code,
         lookupEnabled: o.barcode.lookupEnabled,
+        ...codeRead(scan),
       };
     case 'not_kept':
       return { outcome: 'not_kept', text: o.text };
@@ -244,7 +276,7 @@ export function offlineAnswer(scan: ScanResult, text: string): Resolution {
     case 'homebox':
       return { outcome: 'not_on_phone', text, code: null };
     case 'barcode':
-      return { outcome: 'barcode', code: scan.code, lookupEnabled: null };
+      return { outcome: 'barcode', code: scan.code, lookupEnabled: null, ...codeRead(scan) };
     case 'other':
       return { outcome: 'not_kept', text: scan.text };
   }

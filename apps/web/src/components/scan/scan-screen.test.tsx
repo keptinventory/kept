@@ -368,6 +368,82 @@ describe('scan outcomes, online', () => {
     expect(mock.calls.some((c) => c.path.startsWith('/api/v1/barcodes/'))).toBe(false);
   });
 
+  it('a GS1 Data Matrix is added with its GTIN as the barcode and its serial number', async () => {
+    const store = await serverHomeOnPhone();
+    const { user } = await renderScan({ store });
+    await scan('010400638133393121K7Q2X9', 'data_matrix');
+    const result = await screen.findByRole('region', { name: 'Scan result' });
+    expect(within(result).getByText('Data Matrix')).toBeInTheDocument();
+    expect(within(result).getByText('4006381333931')).toBeInTheDocument();
+    expect(within(result).getByText('K7Q2X9')).toBeInTheDocument();
+    expect(
+      within(result).getByText('Kept stores the barcode and serial number with it.'),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Add as a new thing' }));
+    await waitFor(() => expect(screen.getByRole('radio', { name: 'Unplaced' })).toBeChecked());
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+    await waitFor(async () => expect(await pendingOps(store)).toEqual(['create_thing']));
+    expect((await store.pending())[0]?.payload).toMatchObject({
+      barcode: '4006381333931',
+      serial: 'K7Q2X9',
+    });
+  });
+
+  it('an asset tag is kept as the serial number, unless the person picks Barcode', async () => {
+    const store = await serverHomeOnPhone();
+    const { user } = await renderScan({ store });
+    await scan('AT-00417', 'code_39');
+    expect(
+      await screen.findByRole('heading', { name: 'A serial number or a barcode' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Code 39')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Add as a new thing' }));
+    expect(screen.getByRole('radio', { name: 'Serial number' })).toBeChecked();
+    await waitFor(() => expect(screen.getByRole('radio', { name: 'Unplaced' })).toBeChecked());
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+    await waitFor(async () => expect(await pendingOps(store)).toEqual(['create_thing']));
+    const [first] = await store.pending();
+    expect(first?.payload).toMatchObject({ serial: 'AT-00417' });
+    expect(first?.payload).not.toHaveProperty('barcode');
+
+    await scan('AT-00418', 'code_39');
+    await user.click(await screen.findByRole('button', { name: 'Add as a new thing' }));
+    await user.click(screen.getByRole('radio', { name: 'Barcode' }));
+    await waitFor(() => expect(screen.getByRole('radio', { name: 'Unplaced' })).toBeChecked());
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+    await waitFor(async () => expect(await pendingOps(store)).toHaveLength(2));
+    const second = (await store.pending())[1];
+    expect(second?.payload).toMatchObject({ barcode: 'AT-00418' });
+    expect(second?.payload).not.toHaveProperty('serial');
+  });
+
+  it('plain text from a Data Matrix waits for the person to say where it goes', async () => {
+    const store = await serverHomeOnPhone();
+    const { user } = await renderScan({ store });
+    await scan('SN-4417-QX', 'data_matrix');
+    await user.click(await screen.findByRole('button', { name: 'Add as a new thing' }));
+    expect(screen.getByRole('radio', { name: 'Serial number' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Barcode' })).not.toBeChecked();
+    await waitFor(() => expect(screen.getByRole('radio', { name: 'Unplaced' })).toBeChecked());
+    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
+    await user.click(screen.getByRole('radio', { name: 'Serial number' }));
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+    await waitFor(async () => expect(await pendingOps(store)).toEqual(['create_thing']));
+    expect((await store.pending())[0]?.payload).toMatchObject({ serial: 'SN-4417-QX' });
+  });
+
+  it('a scanned serial number opens the thing that has it', async () => {
+    const state = ownerScenario();
+    const kettle = state.inventory.things.find((x) => x.id === T.kettle);
+    if (kettle) kettle.serial = 'SN-4417-QX';
+    server(state);
+    const { onOpen } = await renderScan();
+    await scan('SN-4417-QX', 'data_matrix');
+    await waitFor(() =>
+      expect(onOpen).toHaveBeenCalledWith({ kind: 'thing', id: T.kettle, locationId: L.home }),
+    );
+  });
+
   it('any other code is "Not a Kept label", its text shown and never a link', async () => {
     await renderScan();
     await scan('https://example.com/promo?x=1');

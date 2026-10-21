@@ -132,6 +132,8 @@ export const CreateThingPayload = z.strictObject({
   note: z.string().trim().min(1).max(500).optional(),
   meterId: uuid.optional(),
   barcode: z.string().trim().min(1).max(64).optional(),
+  /** A serial number or asset tag read by the scanner (a GS1 code's serial, a Code 39 tag). */
+  serial: z.string().trim().min(1).max(100).optional(),
   templateId: uuid.optional(),
   /** A blank label scanned during capture (D43); the server claims it (D112). */
   claimCode: shortCode.optional(),

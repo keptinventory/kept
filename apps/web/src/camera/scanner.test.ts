@@ -9,9 +9,13 @@ import type { Detect } from './label-recogniser';
 import {
   createDetect,
   type FrameDecoder,
+  HOT_FORMATS,
   nativeScanner,
+  rotatingDetect,
+  SCAN_FORMATS,
   ScannerUnavailable,
   startScanLoop,
+  WASM_FRAMES,
 } from './scanner';
 
 const qr = { rawValue: 'https://kept.example/l/7KQ4MZ', format: 'qr_code' };
@@ -30,11 +34,16 @@ function nativeCtor(formats: string[]) {
 }
 
 describe('the decoder', () => {
-  it('uses the native detector where it reads QR codes, asking for the formats it has', async () => {
-    const { Ctor } = nativeCtor(['qr_code', 'ean_13', 'aztec']);
+  it('uses the native detector where it reads every format, asking for all of them', async () => {
+    const { Ctor } = nativeCtor([...SCAN_FORMATS, 'maxi_code']);
     const detect = await nativeScanner({ BarcodeDetector: Ctor });
     expect(await detect?.(canvas)).toEqual([qr]);
-    expect(Ctor).toHaveBeenCalledWith({ formats: ['qr_code', 'ean_13'] });
+    expect(Ctor).toHaveBeenCalledWith({ formats: [...SCAN_FORMATS] });
+  });
+
+  it('takes no native detector that lacks a format, so every phone reads the same codes', async () => {
+    const { Ctor } = nativeCtor(SCAN_FORMATS.filter((f) => f !== 'codabar'));
+    expect(await nativeScanner({ BarcodeDetector: Ctor })).toBeNull();
   });
 
   it('reports where each code is in the frame, in pixels of what it read', async () => {
@@ -45,7 +54,7 @@ describe('the decoder', () => {
       vi.fn(function (this: unknown) {
         return { detect };
       }),
-      { getSupportedFormats: async () => ['qr_code'] },
+      { getSupportedFormats: async () => [...SCAN_FORMATS] },
     );
     const native = await nativeScanner({ BarcodeDetector: Ctor });
     expect(await native?.(canvas)).toEqual([
@@ -83,6 +92,36 @@ describe('the decoder', () => {
       },
     });
     await expect(refused(canvas)).rejects.toBeInstanceOf(ScannerUnavailable);
+  });
+});
+
+describe('the wasm reader’s formats, frame by frame', () => {
+  it('reads Kept labels, product barcodes and Code 128 on every frame', () => {
+    for (const formats of WASM_FRAMES)
+      expect(formats).toEqual(expect.arrayContaining([...HOT_FORMATS]));
+  });
+
+  it('reads every format within a few frames, and Data Matrix at least every fourth', () => {
+    expect(new Set(WASM_FRAMES.flat())).toEqual(new Set(SCAN_FORMATS));
+    WASM_FRAMES.forEach((_, i) => {
+      const four = [0, 1, 2, 3].map((k) => WASM_FRAMES[(i + k) % WASM_FRAMES.length] ?? []);
+      expect(four.some((f) => f.includes('data_matrix'))).toBe(true);
+    });
+  });
+
+  it('asks each frame’s reader in turn, making each reader once', async () => {
+    const made: string[][] = [];
+    const detect = rotatingDetect(
+      (formats) => {
+        made.push([...formats]);
+        return async () => [{ rawValue: formats.join(','), format: 'qr_code' }];
+      },
+      [['qr_code'], ['qr_code', 'aztec']],
+    );
+    const reads = [];
+    for (let i = 0; i < 4; i++) reads.push((await detect(canvas))[0]?.rawValue);
+    expect(reads).toEqual(['qr_code', 'qr_code,aztec', 'qr_code', 'qr_code,aztec']);
+    expect(made).toHaveLength(2);
   });
 });
 

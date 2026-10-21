@@ -627,6 +627,17 @@ describe('reads', () => {
     expect(w.items[0].states).toContain('lent');
   });
 
+  it('where_is and search_things find a thing by its serial number, as printed on it', async () => {
+    const webcam = await createThing(t, ibrahim, home, { name: 'HD webcam', serial: 'AT-00417' });
+    for (const name of ['where_is', 'search_things'] as const) {
+      const d = await data(louis, name, { location_id: home.id, query: 'AT-00417' });
+      expect(
+        d.items.map((i: Json) => i.id),
+        name,
+      ).toContain(webcam.id);
+    }
+  });
+
   it('search_things reads every reachable location without location_id', async () => {
     await createThing(t, ibrahim, garage, { name: 'HDMI switch' });
     const d = await data(louis, 'search_things', { query: 'HDMI' });

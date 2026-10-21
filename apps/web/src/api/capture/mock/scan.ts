@@ -1,10 +1,11 @@
 /**
  * Mock handlers for scan resolution, barcode lookup and box checks (T17). Resolution starts from
- * @kept/shared's `parseScan`, like the server; `not_in_your_kept` is the same answer for a
+ * @kept/shared's `parseScan`, like the server, and finds things by serial number and barcode as it
+ * does; `not_in_your_kept` is the same answer for a
  * missing, forbidden or retired code and for another household's blank (D137). Opening doesn't
  * mark anything seen: the client calls `POST /things/:id/seen` afterwards (D40).
  */
-import { parseScan, SCAN_SESSION_LIMITS } from '@kept/shared';
+import { parseScan, SCAN_SESSION_LIMITS, serialsOf } from '@kept/shared';
 import { storedCode } from '../../inventory/mock/codes';
 import { accessOf, liveThing, newId, now } from '../../inventory/mock/db';
 import type { MockState } from '../../mock/fixtures';
@@ -22,6 +23,29 @@ export function scanRoutes(state: MockState): MockRoute[] {
   const inv = () => state.inventory;
   const cap = () => state.capture;
   const access = () => accessOf(state);
+
+  /** As the server: things you can see with the code as their serial (those win) or barcode;
+   * one opens, several ask which. */
+  const byThingCode = (barcode: string, serials: readonly string[]): ScanOutcome | null => {
+    const live = inv().things.filter((x) => !x.deletedAt && access().visible(x.locationId));
+    const bySerial = live.filter((x) => !!x.serial && serials.includes(x.serial));
+    const on = bySerial.length > 0 ? bySerial : live.filter((x) => x.barcode === barcode);
+    const [one] = on;
+    if (on.length === 1 && one)
+      return { outcome: 'open', target: { kind: 'thing', id: one.id, locationId: one.locationId } };
+    if (on.length > 1)
+      return {
+        outcome: 'legacy_ambiguous',
+        candidates: on.map((x) => ({
+          locationName: state.locations.find((l) => l.id === x.locationId)?.name ?? '',
+          locationId: x.locationId,
+          name: x.name ?? '',
+          kind: 'thing' as const,
+          id: x.id,
+        })),
+      };
+    return null;
+  };
 
   const resolveOne = (b: ScanResolveBody): ScanOutcome => {
     const scan = parseScan(b.text, b.format);
@@ -110,35 +134,15 @@ export function scanRoutes(state: MockState): MockRoute[] {
           };
         return miss;
       }
-      case 'barcode': {
-        // A barcode stored on things you can see opens the one, or asks which.
-        const on = inv().things.filter(
-          (x) => x.barcode === scan.code && !x.deletedAt && access().visible(x.locationId),
+      case 'barcode':
+        return (
+          byThingCode(scan.code, serialsOf(scan)) ?? {
+            outcome: 'barcode',
+            barcode: { code: scan.code, lookupEnabled: cap().barcodeLookup },
+          }
         );
-        const [one] = on;
-        if (on.length === 1 && one)
-          return {
-            outcome: 'open',
-            target: { kind: 'thing', id: one.id, locationId: one.locationId },
-          };
-        if (on.length > 1)
-          return {
-            outcome: 'legacy_ambiguous',
-            candidates: on.map((x) => ({
-              locationName: state.locations.find((l) => l.id === x.locationId)?.name ?? '',
-              locationId: x.locationId,
-              name: x.name ?? '',
-              kind: 'thing' as const,
-              id: x.id,
-            })),
-          };
-        return {
-          outcome: 'barcode',
-          barcode: { code: scan.code, lookupEnabled: cap().barcodeLookup },
-        };
-      }
       default:
-        return { outcome: 'not_kept', text: scan.text };
+        return byThingCode(scan.text, [scan.text]) ?? { outcome: 'not_kept', text: scan.text };
     }
   };
 

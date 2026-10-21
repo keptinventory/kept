@@ -115,7 +115,7 @@ export function ScanAnswer(props: AnswerProps) {
         </AnswerFrame>
       );
     case 'barcode':
-      return <BarcodeSheet {...props} code={res.code} lookupEnabled={res.lookupEnabled} />;
+      return <BarcodeSheet {...props} read={res} />;
     case 'not_in_your_kept':
       return (
         <AnswerFrame label={t`Scan result`} onCamera={onCamera}>

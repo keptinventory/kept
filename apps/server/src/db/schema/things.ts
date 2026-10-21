@@ -189,6 +189,9 @@ export const things = pgTable(
     index('things_brand_idx').on(t.brandId),
     index('things_person_idx').on(t.belongsToPersonId),
     index('things_barcode_idx').on(t.locationId, t.barcode),
+    // A scanned asset tag or GS1 serial finds its thing exactly (scan/resolve.ts); search's
+    // things_serial_idx is on the normalised serial, which a scan doesn't use.
+    index('things_serial_exact_idx').on(t.locationId, t.serial),
     index('things_last_seen_idx')
       .on(t.locationId, t.lastSeenAt)
       .where(sql`lifecycle = 'in_use' AND deleted_at IS NULL`),

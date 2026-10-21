@@ -26565,3 +26565,27 @@ msgstr "Violet"
 #: src/components/search/offline-results.tsx
 msgid "Offline, search uses the words, the location, the type and the tags. The other filters apply when you're back online."
 msgstr "Offline, search uses the words, the location, the type and the tags. The other filters apply when you're back online."
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "A serial number"
+msgstr "A serial number"
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "A serial number or a barcode"
+msgstr "A serial number or a barcode"
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "Keep the code as"
+msgstr "Keep the code as"
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "Kept stores it as the serial number."
+msgstr "Kept stores it as the serial number."
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "Kept stores it as the serial number or the barcode: you pick."
+msgstr "Kept stores it as the serial number or the barcode: you pick."
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "Kept stores the barcode and serial number with it."
+msgstr "Kept stores the barcode and serial number with it."

@@ -506,6 +506,7 @@ export async function capture(
       ...fields,
       name: named,
       ...(input.barcode ? { barcode: input.barcode } : {}),
+      ...(input.serial ? { serial: input.serial } : {}),
     },
     {
       draft: named === null,

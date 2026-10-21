@@ -237,6 +237,24 @@ describe('POST /api/v1/captures', () => {
     expect(await inboxOf(b.id as string)).toEqual([]);
   });
 
+  it('keeps the code a scan added the thing with, as its barcode or its serial number', async () => {
+    const b = body(home, {
+      name: 'USB-C charger',
+      target: { placeId: shelf },
+      barcode: '4006381333931',
+      serial: 'K7Q2X9',
+    });
+    expect((await capture(ibrahim, b)).statusCode).toBe(201);
+    const [row] = await own<{ barcode: string | null; serial: string | null }>(
+      db,
+      'SELECT barcode, serial FROM public.things WHERE id = $1',
+      [b.id],
+    );
+    expect(row).toEqual({ barcode: '4006381333931', serial: 'K7Q2X9' });
+    const tooLong = body(home, { name: 'Tag', serial: 'S'.repeat(101) });
+    expect((await capture(ibrahim, tooLong)).statusCode).toBe(400);
+  });
+
   it('refuses a capture with neither a photo nor a name, and one without an Idempotency-Key', async () => {
     expect((await capture(ibrahim, body(home))).statusCode).toBe(400);
     const res = await capture(ibrahim, body(home, { name: 'Tape' }), null);

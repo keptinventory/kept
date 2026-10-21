@@ -1,10 +1,11 @@
 /**
  * The scan Worker (./worker-detect.ts): decodes the frames it is sent, one at a time, with the
- * native `BarcodeDetector` where this worker has one that reads QR codes, else the ZXing wasm
- * (loaded on the first frame; precached with the app, so it works offline).
+ * native `BarcodeDetector` where this worker has one that reads every format, else the ZXing wasm
+ * (loaded on the first frame; precached with the app, so it works offline). The formats and their
+ * turns are the main thread's (scanner.ts).
  */
 import type { Detect } from './label-recogniser';
-import { nativeScanner } from './scanner';
+import { loadWasmScanner, nativeScanner } from './scanner';
 import type { ScanWorkerAnswer, ScanWorkerAsk } from './worker-detect';
 
 let chosen: Promise<Detect | null> | null = null;
@@ -14,14 +15,7 @@ const pick = (): Promise<Detect | null> => {
     try {
       return (
         (await nativeScanner(self as unknown as { BarcodeDetector?: unknown })) ??
-        (await import('./zxing')).zxingDetect([
-          'qr_code',
-          'ean_13',
-          'ean_8',
-          'upc_a',
-          'upc_e',
-          'code_128',
-        ])
+        (await loadWasmScanner())
       );
     } catch {
       return null;

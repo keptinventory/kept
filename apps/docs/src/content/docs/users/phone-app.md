@@ -79,7 +79,10 @@ how many captures are waiting from another account and deletes them only when th
 - **Share into Kept**: on Android and desktop Chrome, the installed app appears in the share
   sheet, so a receipt or PDF from another app lands in Capture. iPhone doesn't let web apps appear
   in the Share sheet: save the file, then use **Gallery** in Capture.
-- **Scan** reads Kept labels and product barcodes, offline too, from the phone's copy.
+- **Scan** reads Kept labels and product barcodes, offline too, from the phone's copy, and
+  Data Matrix, Code 39, Code 93, ITF, Codabar, PDF417 and Aztec codes; a serial number or asset
+  tag opens its thing when you're online. The full list:
+  [Short IDs and labels](/users/everyday-use/#short-ids-and-labels).
 - **Suggest where I am**, a switch in Capture's place picker, compares your position with your
   locations on the phone itself and suggests the nearby one. Your position is never sent or kept.
 - **Dictate** fills the name by voice where the browser supports it.

@@ -19,7 +19,8 @@ export type SegmentedOption<K extends string> = {
 type Common<K extends string> = Omit<RadioGroupProps, 'value' | 'onChange' | 'children'> & {
   label?: ReactNode;
   description?: ReactNode;
-  value: K;
+  /** Null: nothing chosen yet. */
+  value: K | null;
   onChange: (value: K) => void;
 };
 

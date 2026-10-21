@@ -3,11 +3,17 @@
  * "Found something else" and the capture camera's label recognition all read through
  * `appDetect()`.
  *
- * - **The decoder:** the browser's own `BarcodeDetector` where it reads QR codes (Android
- *   Chrome); otherwise `barcode-detector`'s ponyfill with the self-hosted ZXing wasm (./zxing.ts),
- *   loaded on the first scan, never with the page. Every iPhone takes the wasm path.
+ * - **The decoder:** the browser's own `BarcodeDetector` where it reads every format below
+ *   (Android Chrome); otherwise `barcode-detector`'s ponyfill with the self-hosted ZXing wasm
+ *   (./zxing.ts), loaded on the first scan, never with the page. Every iPhone takes the wasm path.
  * - **Formats:** Kept labels are QR codes; products carry EAN-13, EAN-8, UPC-A or UPC-E; Code 128
- *   is on many shop and asset labels.
+ *   is on many shop and asset labels; Data Matrix on electronics and parts (often GS1, with a
+ *   serial number); Code 39 and Code 93 on asset tags; ITF-14 on cartons; Codabar on library
+ *   labels; PDF417 and Aztec on shipping labels, warranty cards and tickets.
+ * - **The wasm reads in turn:** each format costs the reader time on every frame, and the 2D ones
+ *   most (all thirteen at once took 3.5 times as long as the first six). So the first six are read
+ *   on every frame and the rest take turns on every other frame (`WASM_FRAMES`): a QR label reads
+ *   as fast as before, a Data Matrix within four frames.
  * - **The loop:** `requestVideoFrameCallback` where there is one, else `requestAnimationFrame`,
  *   throttled to about 8 frames a second on a downscaled copy of the frame, and never two decodes
  *   at once (V12 falls back to 4 fps and 640 px on slow phones).
@@ -17,8 +23,35 @@
  */
 import type { Box, Detect, Detected } from './label-recogniser';
 
-/** What the scanner reads (BarcodeDetector format names). */
-export const SCAN_FORMATS = ['qr_code', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] as const;
+/** Read on every frame: Kept labels, product barcodes and Code 128 (BarcodeDetector names). */
+export const HOT_FORMATS = ['qr_code', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] as const;
+
+/** What the scanner reads (BarcodeDetector format names): the one list, main thread and worker. */
+export const SCAN_FORMATS = [
+  ...HOT_FORMATS,
+  'data_matrix',
+  'code_39',
+  'code_93',
+  'itf',
+  'codabar',
+  'pdf417',
+  'aztec',
+] as const;
+export type ScanFormat = (typeof SCAN_FORMATS)[number];
+
+const withHot = (...more: ScanFormat[]): readonly ScanFormat[] => [...HOT_FORMATS, ...more];
+
+/** The wasm reader's formats, frame by frame, in a loop: the hot ones always, the rest in turn. */
+export const WASM_FRAMES: readonly (readonly ScanFormat[])[] = [
+  HOT_FORMATS,
+  withHot('data_matrix'),
+  HOT_FORMATS,
+  withHot('code_39', 'code_93', 'itf', 'codabar'),
+  HOT_FORMATS,
+  withHot('data_matrix'),
+  HOT_FORMATS,
+  withHot('pdf417', 'aztec'),
+];
 
 /** About 8 decodes a second. */
 export const SCAN_FPS = 8;
@@ -43,7 +76,11 @@ type NativeCtor = {
   getSupportedFormats?: () => Promise<string[]>;
 };
 
-/** The browser's `BarcodeDetector`, if it reads QR codes; null otherwise. */
+/**
+ * The browser's `BarcodeDetector`, if it reads every format the scanner reads; null otherwise, and
+ * the wasm reads them all. A partial native reader would make a code readable on one phone and
+ * not on another.
+ */
 export async function nativeScanner(
   scope: { BarcodeDetector?: unknown } = globalThis as { BarcodeDetector?: unknown },
 ): Promise<Detect | null> {
@@ -51,8 +88,8 @@ export async function nativeScanner(
   if (typeof Ctor !== 'function') return null;
   try {
     const supported = (await Ctor.getSupportedFormats?.()) ?? [];
-    if (!supported.includes('qr_code')) return null;
-    const detector = new Ctor({ formats: SCAN_FORMATS.filter((f) => supported.includes(f)) });
+    if (!SCAN_FORMATS.every((f) => supported.includes(f))) return null;
+    const detector = new Ctor({ formats: [...SCAN_FORMATS] });
     return async (source) =>
       (await detector.detect(source)).map((d) => {
         const r = d.boundingBox;
@@ -67,16 +104,40 @@ export async function nativeScanner(
   }
 }
 
-/** The wasm reader, fetched with its chunk the first time it is needed. */
-export const loadWasmScanner = async (): Promise<Detect> =>
-  (await import('./zxing')).zxingDetect(SCAN_FORMATS);
+/**
+ * A `Detect` that reads each call with the next frame's formats in `frames` (in a loop), each
+ * reader made once, the first time its turn comes.
+ */
+export function rotatingDetect(
+  make: (formats: readonly string[]) => Detect,
+  frames: readonly (readonly string[])[] = WASM_FRAMES,
+): Detect {
+  const readers = new Map<number, Detect>();
+  let turn = 0;
+  return (source) => {
+    const i = turn;
+    turn = (turn + 1) % frames.length;
+    let read = readers.get(i);
+    if (!read) {
+      read = make(frames[i] ?? HOT_FORMATS);
+      readers.set(i, read);
+    }
+    return read(source);
+  };
+}
+
+/** The wasm reader, fetched with its chunk the first time it is needed, reading in turn. */
+export const loadWasmScanner = async (): Promise<Detect> => {
+  const { zxingDetect } = await import('./zxing');
+  return rotatingDetect(zxingDetect);
+};
 
 const unsupported = (e: unknown) =>
   !!e && typeof e === 'object' && 'name' in e && e.name === 'NotSupportedError';
 
 /**
- * A `Detect` that picks its decoder on the first call: the native one when it reads QR codes,
- * else the wasm. A decoder that can't start, or refuses as unsupported, throws
+ * A `Detect` that picks its decoder on the first call: the native one when it reads every
+ * format, else the wasm. A decoder that can't start, or refuses as unsupported, throws
  * `ScannerUnavailable` from then on.
  */
 export function createDetect({
@@ -110,7 +171,7 @@ export function createDetect({
 
 let shared: Detect | null = null;
 
-/** The app's one decoder (Scan, box check, capture's label recognition). */
+/** The app's one decoder (Scan, box check, capture's label recognition, room photos). */
 export function appDetect(): Detect {
   shared ??= createDetect();
   return shared;

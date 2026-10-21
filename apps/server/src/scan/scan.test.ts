@@ -289,6 +289,78 @@ describe('POST /api/v1/scan/resolve', () => {
   });
 });
 
+describe('POST /api/v1/scan/resolve: serial numbers and asset tags', () => {
+  it('opens the thing an asset tag is the serial number of, in your locations only', async () => {
+    await setting('barcode_lookup', false);
+    const webcam = await createThing(t, ibrahim, home, { name: 'HD webcam', serial: 'AT-00417' });
+    expect(ok(await resolve(talia, 'AT-00417', 'code_39'))).toEqual({
+      outcome: 'open',
+      target: { kind: 'thing', id: webcam.id, locationId: home.id },
+    });
+    // Another household's serial is never matched: the code is new to you.
+    await createThing(t, bruce, garage, { name: 'Bruce’s router', serial: 'AT-00418' });
+    expect(ok(await resolve(ibrahim, 'AT-00418', 'code_93'))).toEqual({
+      outcome: 'barcode',
+      barcode: { code: 'AT-00418', lookupEnabled: false },
+    });
+    expect(ok(await resolve(bruce, 'AT-00418', 'code_93'))).toMatchObject({ outcome: 'open' });
+  });
+
+  it('finds a serial typed by hand, or read from any symbol that carries text', async () => {
+    const dock = await createThing(t, ibrahim, cottage, {
+      name: 'Laptop dock',
+      serial: 'SN-4417-QX',
+    });
+    for (const format of [undefined, 'qr_code', 'data_matrix', 'pdf417', 'aztec', 'code_128']) {
+      expect(ok(await resolve(ibrahim, 'SN-4417-QX', format)), String(format)).toEqual({
+        outcome: 'open',
+        target: { kind: 'thing', id: dock.id, locationId: cottage.id },
+      });
+    }
+    // Exactly as stored.
+    expect(ok(await resolve(ibrahim, 'sn-4417-qx'))).toEqual({
+      outcome: 'not_kept',
+      text: 'sn-4417-qx',
+    });
+  });
+
+  it('opens a GS1 code’s thing by its serial first, else by its GTIN', async () => {
+    await setting('barcode_lookup', false);
+    const gs1 = '010400638133393121K7Q2X9';
+    const box = await createThing(t, ibrahim, home, {
+      name: 'USB-C charger (box)',
+      barcode: '4006381333931',
+    });
+    expect(ok(await resolve(ibrahim, gs1, 'data_matrix'))).toEqual({
+      outcome: 'open',
+      target: { kind: 'thing', id: box.id, locationId: home.id },
+    });
+    const unit = await createThing(t, ibrahim, home, {
+      name: 'USB-C charger',
+      barcode: '4006381333931',
+      serial: 'K7Q2X9',
+    });
+    expect(ok(await resolve(ibrahim, gs1, 'data_matrix'))).toEqual({
+      outcome: 'open',
+      target: { kind: 'thing', id: unit.id, locationId: home.id },
+    });
+    // A new unit of a known product: its GTIN is the barcode to look up.
+    expect(ok(await resolve(ibrahim, '(01)04012345678901(21)Q8W2E4'))).toEqual({
+      outcome: 'barcode',
+      barcode: { code: '4012345678901', lookupEnabled: false },
+    });
+  });
+
+  it('never takes a product barcode for a serial number', async () => {
+    await setting('barcode_lookup', false);
+    await createThing(t, ibrahim, home, { name: 'Odd label', serial: '96385074' });
+    expect(ok(await resolve(ibrahim, '96385074', 'ean_8'))).toEqual({
+      outcome: 'barcode',
+      barcode: { code: '96385074', lookupEnabled: false },
+    });
+  });
+});
+
 describe('POST /api/v1/scan/resolve-batch', () => {
   const batch = (as: Person, items: { text: string; format?: string }[]) =>
     call(t, '/api/v1/scan/resolve-batch', { as, body: { items } });

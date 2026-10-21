@@ -35,6 +35,7 @@ import {
   test,
 } from '@playwright/test';
 import { CAPTURE_INSTANCE, fakeCameraArgs, fixtureFile, fixtureVideo } from './camera';
+import { writeCodeVideo } from './code-video';
 import { stateDirOf, urlOf } from './instances';
 
 const BASE = urlOf(CAPTURE_INSTANCE);
@@ -130,8 +131,8 @@ async function controlled(page: Page) {
 const nav = (page: Page, name: string) =>
   page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name, exact: true });
 
-/** Garage's id, from the locations list. */
-async function garageId(page: Page): Promise<string> {
+/** A seeded location's id, by its name, from the locations list. */
+async function locationId(page: Page, name: string): Promise<string> {
   const res = await api(page).get('/api/v1/locations');
   expect(res.ok()).toBe(true);
   const body = (await res.json()) as { locations?: { id: string; name: string }[] } | unknown[];
@@ -139,10 +140,13 @@ async function garageId(page: Page): Promise<string> {
     id: string;
     name: string;
   }[];
-  const garage = list.find((l) => l.name === 'Garage');
-  if (!garage) throw new Error('no Garage location');
-  return garage.id;
+  const found = list.find((l) => l.name === name);
+  if (!found) throw new Error(`no ${name} location`);
+  return found.id;
 }
+
+/** Garage's id, from the locations list. */
+const garageId = (page: Page) => locationId(page, 'Garage');
 
 /** The account's AI provider, set up once with the mock key (Garage is paid by the account). */
 async function ensureMockProvider(page: Page) {
@@ -381,6 +385,58 @@ test('scan: the camera reads a seeded label and opens it (seen now); a random co
   await expect(result).toContainText("It will check when you're online.");
   await context.setOffline(false);
   await context.close();
+});
+
+test('scan: the camera reads a Data Matrix serial number and opens the thing that has it', async ({
+  browser,
+}) => {
+  onlyOn('phone');
+  // A thing with an invented serial, made through the API, in a place of its own.
+  const setup = await person(browser, 'ibrahim@kept.test');
+  const home = await locationId(setup.page, 'Home');
+  const shelf = await api(setup.page).send('POST', `/api/v1/locations/${home}/places`, {
+    name: `Serial shelf ${Date.now()}`,
+    kindKey: 'zone',
+  });
+  expect(shelf.status(), await shelf.text()).toBe(201);
+  const serial = `SN-${Date.now().toString(36).toUpperCase()}`;
+  const made = await api(setup.page).send('POST', '/api/v1/things', {
+    locationId: home,
+    placeId: ((await shelf.json()) as { id: string }).id,
+    name: 'HD webcam',
+    serial,
+  });
+  expect(made.status(), await made.text()).toBe(201);
+  const webcam = (await made.json()) as { shortCode: string };
+  await setup.context.close();
+
+  const video = test.info().outputPath('camera-data-matrix.y4m');
+  await writeCodeVideo(video, serial, 'DataMatrix');
+  const use = test.info().project.use;
+  const camBrowser = await chromium.launch({
+    ...(use.channel ? { channel: use.channel } : {}),
+    args: fakeCameraArgs(video),
+  });
+  try {
+    const context = await camBrowser.newContext({
+      baseURL: BASE,
+      storageState: await storageFor(browser, 'ibrahim@kept.test'),
+      viewport: use.viewport ?? { width: 375, height: 780 },
+      isMobile: true,
+      hasTouch: true,
+      timezoneId: 'Africa/Cairo',
+      locale: 'en-GB',
+    });
+    const page = await context.newPage();
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'Home', level: 1 })).toBeVisible();
+    await page.getByRole('link', { name: 'Scan' }).first().click();
+    await expect(page).toHaveURL(new RegExp(`/t/${webcam.shortCode}`), { timeout: 30_000 });
+    await expect(page.getByRole('heading', { name: 'HD webcam', level: 1 })).toBeVisible();
+    await context.close();
+  } finally {
+    await camBrowser.close();
+  }
 });
 
 test('the claim race: two phones claim one blank label offline; the first to sync wins, the other is told in its Inbox', async ({

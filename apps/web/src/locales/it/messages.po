@@ -26565,3 +26565,27 @@ msgstr "Viola"
 #: src/components/search/offline-results.tsx
 msgid "Offline, search uses the words, the location, the type and the tags. The other filters apply when you're back online."
 msgstr "Offline, la ricerca usa le parole, il luogo, il tipo e i tag. Gli altri filtri si applicano quando torni online."
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "A serial number"
+msgstr "Un numero di serie"
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "A serial number or a barcode"
+msgstr "Un numero di serie o un codice a barre"
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "Keep the code as"
+msgstr "Conserva il codice come"
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "Kept stores it as the serial number."
+msgstr "Kept lo conserva come numero di serie."
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "Kept stores it as the serial number or the barcode: you pick."
+msgstr "Kept lo conserva come numero di serie o codice a barre: scegli tu."
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "Kept stores the barcode and serial number with it."
+msgstr "Kept conserva il codice a barre e il numero di serie con l’oggetto."

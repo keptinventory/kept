@@ -1,0 +1,1 @@
+CREATE INDEX "things_serial_exact_idx" ON "things" USING btree ("location_id","serial");

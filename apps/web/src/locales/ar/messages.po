@@ -26565,3 +26565,27 @@ msgstr "بنفسجي"
 #: src/components/search/offline-results.tsx
 msgid "Offline, search uses the words, the location, the type and the tags. The other filters apply when you're back online."
 msgstr "دون اتصال، يبحث Kept بالكلمات والموقع والنوع والوسوم فقط. تُطبَّق عوامل التصفية الأخرى حين تعود إلى الإنترنت."
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "A serial number"
+msgstr "رقم تسلسلي"
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "A serial number or a barcode"
+msgstr "رقم تسلسلي أو رمز شريطي"
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "Keep the code as"
+msgstr "احفظ الرمز على أنه"
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "Kept stores it as the serial number."
+msgstr "يحفظه Kept على أنه الرقم التسلسلي."
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "Kept stores it as the serial number or the barcode: you pick."
+msgstr "يحفظه Kept على أنه الرقم التسلسلي أو الرمز الشريطي، والاختيار لك."
+
+#: src/components/scan/barcode-sheet.tsx
+msgid "Kept stores the barcode and serial number with it."
+msgstr "يحفظ Kept الرمز الشريطي والرقم التسلسلي معه."

@@ -1,11 +1,17 @@
 /**
- * A product barcode (D104, D126, D137 case 4). When the server's lookup is on, one
- * `GET /barcodes/:code` names the product (Open Food Facts and its sister databases, with their
- * ODbL attribution shown); nothing about it is stored on the server, and no product image is ever
- * fetched. Found or not, "Add as a new thing" queues a THING capture with the barcode kept and the
- * name filled in, which the person can change; it works offline, where the lookup can't run.
+ * A barcode, serial number or asset tag nothing here carries (D104, D126, D137 case 4). The sheet
+ * names the code's type ("Data Matrix", "Code 39"). For a product's GTIN, when the server's lookup
+ * is on, one `GET /barcodes/:code` names the product (Open Food Facts and its sister databases,
+ * with their ODbL attribution shown); nothing about it is stored on the server, and no product
+ * image is ever fetched. Found or not, "Add as a new thing" queues a THING capture with the code
+ * kept where it belongs and the name filled in, which the person can change; it works offline,
+ * where the lookup can't run.
+ *
+ * Where the code goes (@kept/shared `parseScan`): a product barcode to the barcode, with a GS1
+ * code's serial number as the serial; an asset tag (Code 39, Code 93) to the serial unless the
+ * person picks Barcode; plain Data Matrix, PDF417 or Aztec text where the person says.
  */
-import { newId } from '@kept/shared';
+import { isProductCode, newId } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useState } from 'react';
 import { Form } from 'react-aria-components';
@@ -14,10 +20,11 @@ import { rememberTarget } from '@/components/capture/target';
 import { Notice } from '@/components/page';
 import type { PickedPlace } from '@/components/places/move-picker';
 import { Button } from '@/components/ui/button';
+import { Segmented } from '@/components/ui/segmented';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
 import { AgainOrDone, AnswerFrame, type AnswerProps } from './outcome-sheet';
-import { queueItem } from './resolve';
+import { queueItem, type Resolution } from './resolve';
 import { WherePicker } from './where-picker';
 
 /** "Stabilo Textmarker": the brand first, unless the product's name already starts with it. */
@@ -29,18 +36,66 @@ export function productName(p: { name: string | null; brand: string | null }): s
   return name.toLowerCase().startsWith(brand.toLowerCase()) ? name : `${brand} ${name}`;
 }
 
+/** A code's type as it is printed and known everywhere: never translated. */
+const TYPE_NAMES: Record<string, string> = {
+  qr_code: 'QR code',
+  ean_13: 'EAN-13',
+  ean_8: 'EAN-8',
+  upc_a: 'UPC-A',
+  upc_e: 'UPC-E',
+  code_128: 'Code 128',
+  code_39: 'Code 39',
+  code_93: 'Code 93',
+  itf: 'ITF',
+  codabar: 'Codabar',
+  data_matrix: 'Data Matrix',
+  pdf417: 'PDF417',
+  aztec: 'Aztec',
+  gs1: 'GS1',
+};
+
+type Field = 'serial' | 'barcode';
+type BarcodeRead = Extract<Resolution, { outcome: 'barcode' }>;
+
+/** What a new thing keeps of the code: its barcode, its serial number, or both (a GS1 code). */
+export function codeFields(
+  read: BarcodeRead,
+  picked: Field | null,
+): {
+  barcode?: string;
+  serial?: string;
+} {
+  const field = read.field ?? 'barcode';
+  const into = field === 'either' ? picked : field;
+  if (into === 'barcode')
+    return { barcode: read.code.slice(0, 64), ...(read.serial ? { serial: read.serial } : {}) };
+  if (into === 'serial') return { serial: read.code.slice(0, 100) };
+  return {};
+}
+
 export function BarcodeSheet({
-  code,
-  lookupEnabled,
+  read,
   store,
   online,
   onCamera,
   onAgain,
   onDone,
   onQueued,
-}: AnswerProps & { code: string; lookupEnabled: boolean | null }) {
+}: AnswerProps & { read: BarcodeRead }) {
   const { t } = useLingui();
-  const lookup = useBarcode(online && lookupEnabled ? code : null);
+  const { code, lookupEnabled } = read;
+  const field = read.field ?? 'barcode';
+  const product = isProductCode({
+    kind: 'barcode',
+    code,
+    symbology: read.symbology ?? '',
+    field,
+  });
+  const typeName = read.symbology ? TYPE_NAMES[read.symbology] : undefined;
+  const [picked, setPicked] = useState<Field | null>(
+    field === 'either' ? (read.prefer ?? null) : null,
+  );
+  const lookup = useBarcode(online && lookupEnabled && product ? code : null);
   const found = lookup.data?.enabled && lookup.data.found ? lookup.data : null;
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState('');
@@ -70,7 +125,7 @@ export function BarcodeSheet({
             mode: 'thing',
             batchId: newId(),
             files: [],
-            barcode: code.slice(0, 64),
+            ...codeFields(read, picked),
             ...(typed ? { name: typed } : {}),
           },
           { key: `cap:${id}` },
@@ -90,27 +145,36 @@ export function BarcodeSheet({
     }
   };
 
-  const status =
-    lookupEnabled === null || !online ? (
-      <Trans>Looking it up needs a connection.</Trans>
-    ) : !lookupEnabled ? null : lookup.isPending ? (
-      <Trans>Looking it up…</Trans>
-    ) : lookup.data?.enabled && !lookup.data.found ? (
-      <Trans>Not found in the product databases.</Trans>
-    ) : lookup.isError ? (
-      <Trans>The lookup didn't answer. You can still add it.</Trans>
-    ) : null;
+  const status = !product ? null : lookupEnabled === null || !online ? (
+    <Trans>Looking it up needs a connection.</Trans>
+  ) : !lookupEnabled ? null : lookup.isPending ? (
+    <Trans>Looking it up…</Trans>
+  ) : lookup.data?.enabled && !lookup.data.found ? (
+    <Trans>Not found in the product databases.</Trans>
+  ) : lookup.isError ? (
+    <Trans>The lookup didn't answer. You can still add it.</Trans>
+  ) : null;
 
   return (
     <AnswerFrame label={t`Scan result`} onCamera={onCamera}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-small text-ink-3">
-          <Trans>Product barcode</Trans>
+          {typeName ? <bdi dir="ltr">{typeName}</bdi> : <Trans>Product barcode</Trans>}
         </span>
-        <bdi dir="ltr" className="font-mono text-small text-ink">
+        <bdi dir="ltr" className="font-mono text-small text-ink [overflow-wrap:anywhere]">
           {code}
         </bdi>
       </div>
+      {read.serial ? (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-small text-ink-3">
+            <Trans>Serial number</Trans>
+          </span>
+          <bdi dir="ltr" className="font-mono text-small text-ink [overflow-wrap:anywhere]">
+            {read.serial}
+          </bdi>
+        </div>
+      ) : null}
       {found?.product ? (
         <div className="grid gap-0.5">
           <h2 className="m-0 font-semibold text-[19px] [overflow-wrap:anywhere]">
@@ -125,7 +189,13 @@ export function BarcodeSheet({
         </div>
       ) : (
         <h2 className="m-0 font-semibold text-[19px]">
-          <Trans>A product barcode</Trans>
+          {field === 'serial' ? (
+            <Trans>A serial number</Trans>
+          ) : field === 'either' ? (
+            <Trans>A serial number or a barcode</Trans>
+          ) : (
+            <Trans>A product barcode</Trans>
+          )}
         </h2>
       )}
       {status ? <p className="m-0 text-small text-ink-3">{status}</p> : null}
@@ -145,6 +215,18 @@ export function BarcodeSheet({
             onChange={setName}
             maxLength={200}
           />
+          {field === 'either' ? (
+            <Segmented<Field>
+              label={t`Keep the code as`}
+              value={picked}
+              onChange={setPicked}
+              isRequired
+              options={[
+                { id: 'serial', label: t`Serial number` },
+                { id: 'barcode', label: t`Barcode` },
+              ]}
+            />
+          ) : null}
           <WherePicker store={store} label={t`Where it is`} value={place} onChange={pick} />
           {!store ? (
             <Notice tone="info">
@@ -155,7 +237,11 @@ export function BarcodeSheet({
             <Button variant="secondary" onPress={() => setAdding(false)}>
               <Trans>Back</Trans>
             </Button>
-            <Button type="submit" isPending={busy} isDisabled={!store || !place}>
+            <Button
+              type="submit"
+              isPending={busy}
+              isDisabled={!store || !place || (field === 'either' && !picked)}
+            >
               <Trans>Add</Trans>
             </Button>
           </div>
@@ -163,7 +249,15 @@ export function BarcodeSheet({
       ) : (
         <>
           <p className="m-0 text-ink-2">
-            <Trans>Kept stores the barcode with it.</Trans>
+            {field === 'serial' ? (
+              <Trans>Kept stores it as the serial number.</Trans>
+            ) : field === 'either' ? (
+              <Trans>Kept stores it as the serial number or the barcode: you pick.</Trans>
+            ) : read.serial ? (
+              <Trans>Kept stores the barcode and serial number with it.</Trans>
+            ) : (
+              <Trans>Kept stores the barcode with it.</Trans>
+            )}
           </p>
           <Button onPress={() => setAdding(true)}>
             <Trans>Add as a new thing</Trans>

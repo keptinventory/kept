@@ -39,6 +39,7 @@ scan counts what's inside it** when you count boxes without opening them.
 | A place's label | Kept suggests counting it from its own page | Refused: a room can't be moved |
 | A blank label, or a code on several things | Kept for the summary | The same |
 | A product barcode | Matched to the thing that carries it | The same |
+| A serial number or asset tag (Data Matrix, Code 39…) | Matched to the thing that has it, online | The same |
 | A code this phone doesn't know, offline | **Check later** | The same |
 
 The counter reads "312 of 340" for a count. Each read plays a short tone and draws a box on the

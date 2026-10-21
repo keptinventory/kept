@@ -61,7 +61,7 @@ describe('resolveBatch', () => {
 
   it('names a barcode on several things by the barcode', () => {
     const res = fromServer(
-      { kind: 'barcode', code: '5901234123457', symbology: 'ean_13' },
+      { kind: 'barcode', code: '5901234123457', symbology: 'ean_13', field: 'barcode' },
       {
         outcome: 'legacy_ambiguous',
         candidates: [
