@@ -303,8 +303,8 @@ try {
     port: serverPort,
     host: 'localhost',
     print: (line) => log(line),
-    // Nine servers share the dev Postgres (max_connections 100): 3 connections a pool, and 3
-    // for pg-boss, keep them all inside it (main.ts `poolMax`).
+    // Eleven servers share the dev Postgres (max_connections 200, compose.dev.yaml): 3
+    // connections a pool, and 3 for pg-boss, keep them all inside it (main.ts `poolMax`).
     poolMax: 3,
     ...(aiMockAnswersFile ? { aiMockAnswersFile } : {}),
   });
