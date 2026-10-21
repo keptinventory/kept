@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { BetterAuthPlugin } from 'better-auth';
 import { APIError, createAuthMiddleware, isAPIError } from 'better-auth/api';
+import { symmetricDecrypt } from 'better-auth/crypto';
 import type pg from 'pg';
 import { requestClientIp } from './client-ip.js';
 import { isUndeliverableEmail } from './emails.js';
@@ -12,6 +13,7 @@ import {
   reserveInWindow,
   reserveSignInAttempt,
 } from './sign-in-limiter.js';
+import { claimTotpStep, totpStep } from './totp.js';
 
 // Better Auth's twoFactor plugin gates only /sign-in/email, /sign-in/username
 // and /sign-in/phone-number (its after-hook matcher). Magic link, passkey and social/OIDC
@@ -77,6 +79,8 @@ export const EMAIL_OTP_PATHS = ['/two-factor/send-otp', '/two-factor/verify-otp'
 export const PASSKEY_VERIFY_PATH = '/passkey/verify-authentication';
 const PASSKEY_REGISTER_PATH = '/passkey/verify-registration';
 const VERIFY_TOTP_PATH = '/two-factor/verify-totp';
+/** Better Auth's sign-in challenge cookie (two-factor plugin's TWO_FACTOR_COOKIE_NAME). */
+const TWO_FACTOR_COOKIE = 'two_factor';
 /** The longest passkey name Kept stores (the rename route allows the same). */
 export const PASSKEY_NAME_MAX = 64;
 /** A set-up-again in progress: the new secret, until its first code is proven
@@ -527,6 +531,40 @@ export function keptSecurity(opts: KeptSecurityOptions): BetterAuthPlugin {
             const key = limiterKey('second-factor', found.user.id);
             const decision = await reserveSignInAttempt(pool, key);
             if (!decision.allowed) throw tooManyAttempts(decision.retryAfter);
+          }),
+        },
+        {
+          // A code is accepted once per account (auth/totp.ts): the step this code is, if it is
+          // one, is claimed before Better Auth checks it, and a step already used is refused.
+          // Whose code it is: the session's user, or at sign-in the two-factor cookie's.
+          matcher: (ctx) => ctx.path === VERIFY_TOTP_PATH,
+          handler: createAuthMiddleware(async (ctx) => {
+            const code = (ctx.body as { code?: unknown } | undefined)?.code;
+            if (typeof code !== 'string' || !ctx.headers) return;
+            let userId = (await getSession(ctx.headers))?.user.id ?? null;
+            if (!userId) {
+              const cookie = ctx.context.createAuthCookie(TWO_FACTOR_COOKIE);
+              const challenge = await ctx.getSignedCookie(cookie.name, ctx.context.secret);
+              if (!challenge) return; // Better Auth answers
+              const found = await ctx.context.internalAdapter.findVerificationValue(challenge);
+              userId = found?.value ?? null;
+            }
+            if (!userId) return;
+            const { rows } = await pool.query<{ secret: string }>(
+              'SELECT secret FROM auth.two_factor WHERE user_id = $1',
+              [userId],
+            );
+            const stored = rows[0]?.secret;
+            if (!stored) return;
+            const secret = await symmetricDecrypt({ key: ctx.context.secretConfig, data: stored });
+            const step = totpStep(secret, code);
+            if (step === null) return; // a wrong code: Better Auth refuses and counts it
+            if (!(await claimTotpStep(pool, userId, step))) {
+              throw new APIError('UNAUTHORIZED', {
+                message: 'That code was used already. Wait for the next one.',
+                code: 'INVALID_CODE',
+              });
+            }
           }),
         },
         {

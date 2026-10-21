@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { LightMyRequestResponse } from 'fastify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jar, type TestApp, type TestAppOptions, testApp } from '../../test/app.js';
-import { cookieHeader, requestHeaders, signUp, totp } from '../../test/auth.js';
+import { cookieHeader, nextTotp, requestHeaders, signUp, totp } from '../../test/auth.js';
 import { type TestDb, testDb } from '../../test/db.js';
 import { freshIp } from '../../test/people.js';
 import { addMember, ownerTx, seedTenant, userEmail } from '../../test/tenancy.js';
@@ -162,7 +162,7 @@ async function turnOn(
   const secret = new URL(totpURI).searchParams.get('secret') ?? '';
   const verified = await auth('/two-factor/verify-totp', {
     cookie: user.cookie,
-    body: { code: totp(secret) },
+    body: { code: await nextTotp(secret, user.userId) },
   });
   expect(verified.statusCode, verified.body).toBe(200);
   return { secret, backupCodes, cookie: jar(verified, user.cookie) };
@@ -996,7 +996,7 @@ describe('turning the authenticator app on', () => {
     expect((await accountAudit(user.userId)).map((e) => e.action)).toEqual(
       expect.arrayContaining(['two_factor.setup', 'two_factor.enable']),
     );
-    expect(await signInWith(user.email, { code: totp(secret) })).toBe(200);
+    expect(await signInWith(user.email, { code: await nextTotp(secret, user.userId) })).toBe(200);
   });
 
   it('a passwordless account turns it on after a fresh sign-in; a stale one is refused', async () => {
@@ -1055,7 +1055,7 @@ describe('turning the authenticator app on', () => {
     expect(again.statusCode).toBe(400);
     expect(again.json()).toMatchObject({ code: 'TOTP_ALREADY_ENABLED' });
     // Better Auth refuses rather than replacing the secret: the app still signs in.
-    expect(await signInWith(user.email, { code: totp(secret) })).toBe(200);
+    expect(await signInWith(user.email, { code: await nextTotp(secret, user.userId) })).toBe(200);
   });
 });
 
@@ -1078,7 +1078,9 @@ describe('setting the authenticator app up again', () => {
     expect(first.json()).toEqual({ totpURI: expect.stringMatching(/^otpauth:\/\/totp\//) });
     const abandoned = new URL(first.json().totpURI).searchParams.get('secret') ?? '';
     expect(abandoned).not.toBe(on.secret);
-    expect(await signInWith(user.email, { code: totp(on.secret) })).toBe(200);
+    expect(await signInWith(user.email, { code: await nextTotp(on.secret, user.userId) })).toBe(
+      200,
+    );
     expect(await signInWith(user.email, { code: totp(abandoned) })).toBe(401);
     expect(await signInWith(user.email, { backupCode: on.backupCodes[0] ?? '' })).toBe(200);
 
@@ -1095,7 +1097,9 @@ describe('setting the authenticator app up again', () => {
     });
     expect(wrong.statusCode).toBe(400);
     expect(wrong.json()).toMatchObject({ code: 'validation' });
-    expect(await signInWith(user.email, { code: totp(on.secret) })).toBe(200);
+    expect(await signInWith(user.email, { code: await nextTotp(on.secret, user.userId) })).toBe(
+      200,
+    );
     // The abandoned secret was replaced by the second start.
     const stale = await kept('/me/two-factor/set-up-again/verify', {
       cookie,
@@ -1105,7 +1109,7 @@ describe('setting the authenticator app up again', () => {
 
     const done = await kept('/me/two-factor/set-up-again/verify', {
       cookie,
-      body: { code: totp(fresh) },
+      body: { code: await nextTotp(fresh, user.userId) },
     });
     expect(done.statusCode).toBe(200);
     const { backupCodes } = done.json() as { backupCodes: string[] };
@@ -1113,7 +1117,7 @@ describe('setting the authenticator app up again', () => {
     expect(backupCodes.some((c) => on.backupCodes.includes(c))).toBe(false);
     expect(await alive(other)).toBe(false);
     expect(await alive(cookie)).toBe(true);
-    expect(await signInWith(user.email, { code: totp(fresh) })).toBe(200);
+    expect(await signInWith(user.email, { code: await nextTotp(fresh, user.userId) })).toBe(200);
     expect(await signInWith(user.email, { code: totp(on.secret) })).toBe(401);
     expect(await signInWith(user.email, { backupCode: on.backupCodes[1] ?? '' })).toBe(401);
     expect(await signInWith(user.email, { backupCode: backupCodes[0] ?? '' })).toBe(200);
@@ -1135,7 +1139,7 @@ describe('setting the authenticator app up again', () => {
       body: { code: totp(fresh) },
     });
     expect(replay.statusCode).toBe(400);
-  });
+  }, 150000);
 
   it('belongs to the session that started it', async () => {
     const user = await newUser('session');
@@ -1148,7 +1152,7 @@ describe('setting the authenticator app up again', () => {
     const first = await auth('/sign-in/email', { body: { email: user.email, password: PASSWORD } });
     const verified = await auth('/two-factor/verify-totp', {
       cookie: jar(first),
-      body: { code: totp(on.secret) },
+      body: { code: await nextTotp(on.secret, user.userId) },
     });
     const elsewhere = jar(verified, jar(first));
     const refused = await kept('/me/two-factor/set-up-again/verify', {
@@ -1156,8 +1160,10 @@ describe('setting the authenticator app up again', () => {
       body: { code: totp(fresh) },
     });
     expect(refused.statusCode).toBe(400);
-    expect(await signInWith(user.email, { code: totp(on.secret) })).toBe(200);
-  });
+    expect(await signInWith(user.email, { code: await nextTotp(on.secret, user.userId) })).toBe(
+      200,
+    );
+  }, 90000);
 
   it('wrong codes are delayed after the free attempts', async () => {
     const user = await newUser('delays');
@@ -1535,6 +1541,104 @@ describe('rate limits on the Kept routes', () => {
   });
 });
 
+describe('a code is accepted once', () => {
+  /** The 30-second step now, waiting first when less than 4 s of it are left. */
+  async function stepNow(): Promise<number> {
+    const left = 30_000 - (Date.now() % 30_000);
+    if (left < 4_000) await new Promise((r) => setTimeout(r, left + 100));
+    return Math.floor(Date.now() / 30_000);
+  }
+  const at = (step: number) => step * 30_000 + 1_000;
+
+  it('at sign-in: the same code twice is refused; the next step works; an older one stays refused', async () => {
+    const user = await newUser('replay');
+    const on = await turnOn(user);
+    const step = await stepNow();
+    // The code that turned it on was this step's (or the one before): the next one signs in.
+    const next = totp(on.secret, at(step + 1));
+    expect(await signInWith(user.email, { code: next })).toBe(200);
+    expect(await signInWith(user.email, { code: next })).toBe(401);
+    expect(await signInWith(user.email, { code: totp(on.secret, at(step)) })).toBe(401);
+  });
+
+  it('the code that turned the app on cannot sign in again', async () => {
+    const user = await newUser('replay-on');
+    const started = await kept('/me/two-factor/enable', {
+      cookie: user.cookie,
+      body: { password: PASSWORD },
+    });
+    const secret = new URL(started.json().totpURI).searchParams.get('secret') ?? '';
+    const step = await stepNow();
+    const code = totp(secret, at(step));
+    const verified = await auth('/two-factor/verify-totp', { cookie: user.cookie, body: { code } });
+    expect(verified.statusCode).toBe(200);
+    expect(await signInWith(user.email, { code })).toBe(401);
+    expect(await signInWith(user.email, { code: totp(secret, at(step + 1)) })).toBe(200);
+  });
+
+  it('the code that finished setting the app up again cannot sign in again', async () => {
+    const user = await newUser('replay-again');
+    const on = await turnOn(user);
+    const started = await kept('/me/two-factor/set-up-again', {
+      cookie: on.cookie,
+      body: { password: PASSWORD },
+    });
+    const fresh = new URL(started.json().totpURI).searchParams.get('secret') ?? '';
+    const step = await stepNow();
+    // A step after the one that turned the app on.
+    const code = totp(fresh, at(step + 1));
+    const done = await kept('/me/two-factor/set-up-again/verify', {
+      cookie: on.cookie,
+      body: { code },
+    });
+    expect(done.statusCode).toBe(200);
+    expect(await signInWith(user.email, { code })).toBe(401);
+  });
+
+  it('set up again refuses a code from a step already used, and keeps what was staged', async () => {
+    const user = await newUser('replay-staged');
+    const on = await turnOn(user);
+    const step = await stepNow();
+    expect(await signInWith(user.email, { code: totp(on.secret, at(step + 1)) })).toBe(200);
+    const started = await kept('/me/two-factor/set-up-again', {
+      cookie: on.cookie,
+      body: { password: PASSWORD },
+    });
+    const fresh = new URL(started.json().totpURI).searchParams.get('secret') ?? '';
+    const used = await kept('/me/two-factor/set-up-again/verify', {
+      cookie: on.cookie,
+      body: { code: totp(fresh, at(step)) },
+    });
+    expect(used.statusCode).toBe(400);
+    // Still staged: the old app signs in, and a later step's code would finish it.
+    const stillThere = await db.pools.auth.query(
+      `SELECT count(*)::int AS n FROM auth.verification WHERE identifier LIKE 'two-factor-setup:%'`,
+    );
+    expect(stillThere.rows[0].n).toBe(1);
+  });
+
+  it('is per account: another account uses the same step freely', async () => {
+    const ann = await newUser('replay-ann');
+    const ben = await newUser('replay-ben');
+    const annOn = await turnOn(ann);
+    const benOn = await turnOn(ben);
+    const step = await stepNow();
+    expect(await signInWith(ann.email, { code: totp(annOn.secret, at(step + 1)) })).toBe(200);
+    expect(await signInWith(ben.email, { code: totp(benOn.secret, at(step + 1)) })).toBe(200);
+  });
+
+  it('a pending session cannot finish with a code already used at sign-in', async () => {
+    const user = await newUser('replay-pending');
+    const on = await turnOn(user);
+    const step = await stepNow();
+    const code = totp(on.secret, at(step + 1));
+    expect(await signInWith(user.email, { code })).toBe(200);
+    const pending = await otherDevice(user);
+    const res = await auth('/two-factor/verify-totp', { cookie: pending, body: { code } });
+    expect(res.statusCode).toBe(401);
+  });
+});
+
 describe('notices', () => {
   it('a managed account (no real address) is never mailed, whatever changes', async () => {
     const user = await newUser('managed');
@@ -1563,7 +1667,7 @@ describe('notices', () => {
     const fresh = new URL(started.json().totpURI).searchParams.get('secret') ?? '';
     const swapped = await kept('/me/two-factor/set-up-again/verify', {
       cookie: on.cookie,
-      body: { code: totp(fresh) },
+      body: { code: await nextTotp(fresh, user.userId) },
     });
     expect(swapped.statusCode).toBe(200);
     const off = await kept('/me/two-factor/disable', {

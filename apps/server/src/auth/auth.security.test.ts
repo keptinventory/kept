@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { LightMyRequestResponse } from 'fastify';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { fragmentToken, jar, setCookies, type TestApp, testApp } from '../../test/app.js';
-import { enrolTotp, signUp, totp } from '../../test/auth.js';
+import { enrolTotp, nextTotp, signUp } from '../../test/auth.js';
 import { type TestDb, testDb } from '../../test/db.js';
 import { asOwner, userEmail } from '../../test/tenancy.js';
 import { ensureAccount } from '../accounts/ensure-account.js';
@@ -361,7 +361,7 @@ describe('the session gate on Kept routes', () => {
     expect(challenged.json()).toMatchObject({ twoFactorRedirect: true });
     const verified = await auth('/two-factor/verify-totp', {
       cookie: jar(challenged),
-      body: { code: totp(secret) },
+      body: { code: await nextTotp(secret, user.userId) },
     });
     expect(verified.statusCode).toBe(200);
     expect(
@@ -739,7 +739,7 @@ describe('security review follow-ups (M2, M3, M5–M8)', () => {
     });
     const verified = await auth('/two-factor/verify-totp', {
       cookie: jar(challenged),
-      body: { code: totp(secret) },
+      body: { code: await nextTotp(secret, user.userId) },
     });
     const full = jar(verified, jar(challenged));
     // The pending device confirms the new address: it is signed out with every other session.

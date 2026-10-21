@@ -3,6 +3,7 @@
  * the e2e journeys (the server tests' twin is apps/server/test/auth.ts `totp`).
  */
 import { createHmac } from 'node:crypto';
+import type { Page } from '@playwright/test';
 
 const BASE32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
@@ -30,4 +31,24 @@ export function totp(secretBase32: string, at = Date.now()): string {
   const offset = (mac[mac.length - 1] ?? 0) & 0x0f;
   const code = (mac.readUInt32BE(offset) & 0x7fffffff) % 1_000_000;
   return code.toString().padStart(6, '0');
+}
+
+const usedSteps = new Map<string, number>();
+
+/**
+ * The code of a 30-second step `account` hasn't used yet: the server accepts each step once per
+ * account, whichever app it came from. Waits for the next step when the current one is used, or
+ * has under 5 s left (the code could expire on its way).
+ */
+export async function freshCode(page: Page, secret: string, account: string): Promise<string> {
+  for (;;) {
+    const now = Date.now();
+    const step = Math.floor(now / 30_000);
+    const left = 30_000 - (now % 30_000);
+    if (step > (usedSteps.get(account) ?? -1) && left >= 5_000) {
+      usedSteps.set(account, step);
+      return totp(secret, now);
+    }
+    await page.waitForTimeout(left + 250);
+  }
 }

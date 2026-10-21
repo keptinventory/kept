@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import {
   cookieHeader,
   enrolTotp,
+  nextTotp,
   PUBLIC_URL,
   requestHeaders,
   type SignedIn,
@@ -84,7 +85,7 @@ describe('two-factor on every sign-in method', () => {
     expect(challengeCookie).not.toMatch(/session_token/);
 
     const verified = await auth.api.verifyTOTP({
-      body: { code: totp(user.secret) },
+      body: { code: await nextTotp(user.secret, user.userId) },
       headers: requestHeaders(challengeCookie),
       returnHeaders: true,
     });
@@ -115,7 +116,7 @@ describe('two-factor on every sign-in method', () => {
       user: { id: user.userId },
     });
     await auth.api.verifyTOTP({
-      body: { code: totp(user.secret) },
+      body: { code: await nextTotp(user.secret, user.userId) },
       headers: requestHeaders(cookie),
     });
     expect(await resolve(cookie)).toMatchObject({ mfa: true, mfaPending: false });
@@ -141,7 +142,10 @@ describe('two-factor on every sign-in method', () => {
       ).rejects.toMatchObject({ statusCode: 401 });
     }
     await expect(
-      auth.api.verifyTOTP({ body: { code: totp(user.secret) }, headers: requestHeaders(cookie) }),
+      auth.api.verifyTOTP({
+        body: { code: await nextTotp(user.secret, user.userId) },
+        headers: requestHeaders(cookie),
+      }),
     ).rejects.toMatchObject({ statusCode: 429, body: { code: 'SIGN_IN_DELAYED' } });
     expect(await resolve(cookie)).toMatchObject({ mfaPending: true });
   });
@@ -200,7 +204,7 @@ describe('two-factor on every sign-in method', () => {
     });
     await expect(
       auth.api.verifyTOTP({
-        body: { code: totp(user.secret), trustDevice: true },
+        body: { code: await nextTotp(user.secret, user.userId), trustDevice: true },
         headers: requestHeaders(cookieHeader(challenge.headers)),
       }),
     ).rejects.toMatchObject({ statusCode: 400, body: { code: 'TRUST_DEVICE_UNSUPPORTED' } });
@@ -223,7 +227,7 @@ describe('two-factor on every sign-in method', () => {
     });
     const challengeCookie = cookieHeader(challenge.headers);
     const verified = await auth.api.verifyTOTP({
-      body: { code: totp(user.secret) },
+      body: { code: await nextTotp(user.secret, user.userId) },
       headers: requestHeaders(challengeCookie),
       returnHeaders: true,
     });

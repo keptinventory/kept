@@ -99,6 +99,25 @@ export function totp(secretBase32: string, at = Date.now()): string {
   return code.toString().padStart(6, '0');
 }
 
+const lastSteps = new Map<string, number>();
+
+/**
+ * A code from a 30-second step `account` hasn't used yet. The server accepts each step once per
+ * account (src/auth/totp.ts), and one step ahead of now; when both are used this waits for the
+ * next step.
+ */
+export async function nextTotp(secretBase32: string, account: string): Promise<string> {
+  for (;;) {
+    const now = Math.floor(Date.now() / 30_000);
+    const step = Math.max(now, (lastSteps.get(account) ?? -1) + 1);
+    if (step <= now + 1) {
+      lastSteps.set(account, step);
+      return totp(secretBase32, step * 30_000 + 1_000);
+    }
+    await new Promise((r) => setTimeout(r, (now + 1) * 30_000 - Date.now() + 50));
+  }
+}
+
 export type SignedIn = { userId: string; cookie: string };
 
 export async function signUp(
@@ -128,7 +147,7 @@ export async function enrolTotp(
   const uri = new URL('totpURI' in enabled ? enabled.totpURI : '');
   const secret = uri.searchParams.get('secret') ?? '';
   const { headers } = await auth.api.verifyTOTP({
-    body: { code: totp(secret) },
+    body: { code: await nextTotp(secret, signedIn.userId) },
     headers: requestHeaders(signedIn.cookie),
     returnHeaders: true,
   });

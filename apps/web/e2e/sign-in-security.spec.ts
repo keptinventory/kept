@@ -24,7 +24,7 @@ import { createRequire } from 'node:module';
 import { type BrowserContext, type CDPSession, type Page, test } from '@playwright/test';
 import { SIGN_IN_INSTANCE, stateDirOf, urlOf } from './instances';
 import { axe, expect, PASSWORD } from './tls-people';
-import { totp } from './totp';
+import { freshCode } from './totp';
 
 const BASE = urlOf(SIGN_IN_INSTANCE);
 test.use({ baseURL: BASE });
@@ -124,15 +124,6 @@ async function codesOn(page: Page): Promise<string[]> {
   const list = page.getByRole('list', { name: 'Backup codes' });
   await expect(list.getByRole('listitem')).toHaveCount(10);
   return (await list.getByRole('listitem').allInnerTexts()).map((c) => c.trim());
-}
-
-/** Waits for the next 30-second step, so a code isn't one the server has just seen. */
-async function freshCode(page: Page, secret: string): Promise<string> {
-  const now = Date.now();
-  const left = 30_000 - (now % 30_000);
-  // A code with under 5 s left could expire on the way: wait for the next one.
-  if (left < 5_000) await page.waitForTimeout(left + 250);
-  return totp(secret);
 }
 
 /** The instance's database (serve.mjs logs `database <name> migrated`), as kept_auth. */
@@ -282,7 +273,7 @@ test('the authenticator app: on, a code, new backup codes, a backup code, set up
   await page.getByRole('button', { name: 'Continue' }).click();
   const secret = await keyOn(page);
   await axe(page, 'Turn on two-factor, the QR step');
-  await page.getByLabel('6-digit code').fill(await freshCode(page, secret));
+  await page.getByLabel('6-digit code').fill(await freshCode(page, secret, login));
   await page.getByRole('button', { name: 'Turn on two-factor' }).click();
   await codesOn(page);
   await page.getByRole('button', { name: "I've saved them" }).click();
@@ -292,7 +283,7 @@ test('the authenticator app: on, a code, new backup codes, a backup code, set up
   await signOut(page);
   await signInWithPassword(page, login);
   await expect(page).toHaveURL(/\/signin\/two-factor/);
-  await page.getByLabel('6-digit code').fill(await freshCode(page, secret));
+  await page.getByLabel('6-digit code').fill(await freshCode(page, secret, login));
   await page.getByRole('button', { name: 'Continue' }).click();
   await expect(page).toHaveURL(/\/$/);
 
@@ -335,7 +326,7 @@ test('the authenticator app: on, a code, new backup codes, a backup code, set up
   await signOut(page);
   await signInWithPassword(page, login);
   await expect(page).toHaveURL(/\/signin\/two-factor/);
-  await page.getByLabel('6-digit code').fill(await freshCode(page, secret));
+  await page.getByLabel('6-digit code').fill(await freshCode(page, secret, login));
   await page.getByRole('button', { name: 'Continue' }).click();
   await expect(page).toHaveURL(/\/$/);
 
@@ -347,7 +338,7 @@ test('the authenticator app: on, a code, new backup codes, a backup code, set up
   await sheet.getByRole('button', { name: 'Continue' }).click();
   await expect(page.getByText(/Until you enter a code from the new app/)).toBeVisible();
   const replacement = await keyOn(page);
-  await page.getByLabel('6-digit code').fill(await freshCode(page, replacement));
+  await page.getByLabel('6-digit code').fill(await freshCode(page, replacement, login));
   await page.getByRole('button', { name: 'Use the new app' }).click();
   await expect(
     page.getByText('The new app is set up. Codes from the old one no longer work.'),

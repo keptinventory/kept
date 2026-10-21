@@ -1,4 +1,3 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
 import { isAPIError } from 'better-auth/api';
 import { generateRandomString, symmetricDecrypt, symmetricEncrypt } from 'better-auth/crypto';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -27,6 +26,7 @@ import {
   reserveInWindow,
   reserveSignInAttempt,
 } from './sign-in-limiter.js';
+import { claimTotpStep, totpStep, totpUri } from './totp.js';
 
 // Settings → Sign-in and security: the person's passkeys and authenticator app.
 //
@@ -81,8 +81,6 @@ const LOCK_NOT_AVAILABLE = '55P03';
 export const SET_UP_AGAIN_PER_HOUR = 10;
 
 const ISSUER = 'Kept';
-const DIGITS = 6;
-const PERIOD_SECONDS = 30;
 const BACKUP_CODES = 10;
 
 const Password = z.string().max(128).optional();
@@ -129,60 +127,6 @@ const passkeyView = (r: PasskeyRow) => ({
   backedUp: r.backed_up,
   deviceType: r.device_type,
 });
-
-// ---- TOTP, as Better Auth's two-factor plugin makes and checks it ------------------------------
-// (@better-auth/utils/otp): HMAC-SHA1 keyed with the secret string's bytes, 6 digits, 30 s, one
-// step either side; the URI carries the secret in base32 without padding.
-
-const BASE32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-
-function base32(bytes: Buffer): string {
-  let out = '';
-  let buffer = 0;
-  let bits = 0;
-  for (const byte of bytes) {
-    buffer = (buffer << 8) | byte;
-    bits += 8;
-    while (bits >= 5) {
-      bits -= 5;
-      out += BASE32[(buffer >> bits) & 31];
-    }
-  }
-  if (bits > 0) out += BASE32[(buffer << (5 - bits)) & 31];
-  return out;
-}
-
-function hotp(secret: string, counter: number): string {
-  const message = Buffer.alloc(8);
-  message.writeBigUInt64BE(BigInt(counter));
-  const mac = createHmac('sha1', Buffer.from(secret, 'utf8')).update(message).digest();
-  const offset = (mac[mac.length - 1] ?? 0) & 0x0f;
-  const code = (mac.readUInt32BE(offset) & 0x7fffffff) % 10 ** DIGITS;
-  return code.toString().padStart(DIGITS, '0');
-}
-
-/** Whether `code` is this secret's code now, or one step before or after. */
-export function totpMatches(secret: string, code: string, now = Date.now()): boolean {
-  const given = Buffer.from(code.replace(/\s+/g, ''));
-  const counter = Math.floor(now / 1000 / PERIOD_SECONDS);
-  let matched = false;
-  for (const step of [-1, 0, 1]) {
-    const expected = Buffer.from(hotp(secret, counter + step));
-    if (given.length === expected.length && timingSafeEqual(given, expected)) matched = true;
-  }
-  return matched;
-}
-
-/** The otpauth:// URI an authenticator app scans. */
-export function totpUri(secret: string, account: string): string {
-  const params = new URLSearchParams({
-    secret: base32(Buffer.from(secret, 'utf8')),
-    issuer: ISSUER,
-    digits: String(DIGITS),
-    period: String(PERIOD_SECONDS),
-  });
-  return `otpauth://totp/${encodeURIComponent(ISSUER)}:${encodeURIComponent(account)}?${params}`;
-}
 
 /** Ten backup codes in Better Auth's shape (`abcde-12345`). */
 function newBackupCodes(): string[] {
@@ -591,7 +535,7 @@ export async function signInSecurityRoutes(
         value: JSON.stringify(staged),
         expiresAt: new Date(Date.now() + SET_UP_AGAIN_SECONDS * 1000),
       });
-      return { totpURI: totpUri(secret, me.email) };
+      return { totpURI: totpUri(secret, me.email, ISSUER) };
     },
   );
 
@@ -631,13 +575,21 @@ export async function signInSecurityRoutes(
         throw notStarted();
       }
       const secret = await symmetricDecrypt({ key: ctx.secretConfig, data: staged.secret });
-      if (!totpMatches(secret, req.body.code)) {
-        await ctx.internalAdapter.createVerificationValue({
+      const putBack = () =>
+        ctx.internalAdapter.createVerificationValue({
           identifier,
           value: row.value,
           expiresAt: row.expiresAt,
         });
+      const step = totpStep(secret, req.body.code);
+      if (step === null) {
+        await putBack();
         throw invalid("That code didn't match. Check the time on your phone, then try again.");
+      }
+      // A code is accepted once per account, whichever app it came from (auth/totp.ts).
+      if (!(await claimTotpStep(pools.auth, scope.userId, step))) {
+        await putBack();
+        throw invalid('That code was used already. Wait for the next one, then enter it.');
       }
       await clearSignInFailures(pools.auth, key);
 

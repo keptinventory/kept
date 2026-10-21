@@ -2537,7 +2537,7 @@ describe('id collision', () => {
 describe('GET /api/v1/me/sign-in: what signs an account in, never a secret, key or code', () => {
   it('names passkeys and counts backup codes, and carries no secret, public key, credential id or code', async () => {
     const { testApp, jar } = await import('./app.js');
-    const { signUp, totp } = await import('./auth.js');
+    const { signUp, nextTotp } = await import('./auth.js');
     const { softRegistration } = await import('./webauthn.js');
     const { ensureAccount } = await import('../src/accounts/ensure-account.js');
     const t = await testApp(db, { rateLimitEnabled: false });
@@ -2578,7 +2578,7 @@ describe('GET /api/v1/me/sign-in: what signs an account in, never a secret, key 
       };
       const secret = new URL(totpURI).searchParams.get('secret') ?? '';
       const verified = await inject('/api/v1/auth/two-factor/verify-totp', user.cookie, {
-        code: totp(secret),
+        code: await nextTotp(secret, user.userId),
       });
       const cookie = jar(verified, user.cookie);
       // A set-up-again in progress, so a staged secret exists too.

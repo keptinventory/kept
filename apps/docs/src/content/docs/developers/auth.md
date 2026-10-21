@@ -49,6 +49,11 @@ again on every signed-in request (cached), and from the hourly `repair-orphans` 
 TOTP with backup codes (`twoFactor`), or a passkey with user verification. An emailed code is
 **not** a second factor: email is the channel a magic link already used.
 
+A TOTP code is accepted once (RFC 6238 §5.2): the last accepted 30-second step is kept per
+account (`auth/totp.ts`, an `auth.verification` row written under the lock of the account's
+`auth.two_factor` row), and a code of that step or an earlier one is refused, at sign-in, inside a
+pending session and when an app is set up again.
+
 Better Auth gates only some sign-in paths on two-factor, so Kept keeps its own flag per session
 (`auth.session_mfa`) and fails closed (`auth/security.ts`): a session whose user has two-factor on
 but hasn't proven it is **pending**, and every route refuses it with 403 `mfa_required` except
