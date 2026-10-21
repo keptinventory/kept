@@ -3,6 +3,26 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.12.4 (2026-10-21)
+
+### Features
+
+- **mail:** Kept's logo and colours in every email (#244) (01767e9)
+- **auth:** passkeys and the authenticator app in Settings (#239) (e573c4e)
+
+### Fixes
+
+- **labels:** the preview is the print, nothing cut, the right sheet confirmed (#246) (92a225b)
+- **e2e:** room for eleven test servers in the dev Postgres (#245) (abdda14)
+- **move:** the place box waits for its places and boxes (#233) (fbd917b)
+
+### Documentation
+
+- **readme:** the Discord server (#242) (5f0aac2)
+- **readme:** a Docker Hub badge (#236) (af1f1c6)
+- **readme:** what's next after 1.12.3 (#234) (69e3c42)
+- **release:** the 1.12.3 record (#232) (3f901c8)
+
 ## 1.12.3 (2026-10-21)
 
 ### Features
