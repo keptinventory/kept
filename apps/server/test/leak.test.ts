@@ -2533,3 +2533,96 @@ describe('id collision', () => {
     expect(reply).toEqual(toErrorReply(notFound()));
   });
 });
+
+describe('GET /api/v1/me/sign-in: what signs an account in, never a secret, key or code', () => {
+  it('names passkeys and counts backup codes, and carries no secret, public key, credential id or code', async () => {
+    const { testApp, jar } = await import('./app.js');
+    const { signUp, totp } = await import('./auth.js');
+    const { softRegistration } = await import('./webauthn.js');
+    const { ensureAccount } = await import('../src/accounts/ensure-account.js');
+    const t = await testApp(db, { rateLimitEnabled: false });
+    try {
+      const inject = (url: string, cookie: string, payload?: object) =>
+        t.app.inject({
+          method: payload ? 'POST' : 'GET',
+          url,
+          headers: { origin: t.publicUrl, cookie },
+          remoteAddress: '198.51.100.77',
+          ...(payload ? { payload } : {}),
+        });
+      const user = await signUp(t.auth, `leak-${newId()}@example.com`, 'correct horse battery');
+      await ensureAccount(db.pools, user.userId);
+      const origin = new URL(t.publicUrl);
+      for (const name of ['Laptop', 'Phone']) {
+        await inject('/api/v1/me/passkeys/confirm', user.cookie, {
+          password: 'correct horse battery',
+        });
+        const options = await inject('/api/v1/auth/passkey/generate-register-options', user.cookie);
+        const { challenge } = options.json() as { challenge: string };
+        const added = await inject(
+          '/api/v1/auth/passkey/verify-registration',
+          jar(options, user.cookie),
+          {
+            response: softRegistration(challenge, { id: origin.hostname, origin: origin.origin }),
+            name,
+          },
+        );
+        expect(added.statusCode).toBe(200);
+      }
+      const started = await inject('/api/v1/me/two-factor/enable', user.cookie, {
+        password: 'correct horse battery',
+      });
+      const { totpURI, backupCodes } = started.json() as {
+        totpURI: string;
+        backupCodes: string[];
+      };
+      const secret = new URL(totpURI).searchParams.get('secret') ?? '';
+      const verified = await inject('/api/v1/auth/two-factor/verify-totp', user.cookie, {
+        code: totp(secret),
+      });
+      const cookie = jar(verified, user.cookie);
+      // A set-up-again in progress, so a staged secret exists too.
+      await inject('/api/v1/me/two-factor/set-up-again', cookie, {
+        password: 'correct horse battery',
+      });
+
+      const res = await inject('/api/v1/me/sign-in', cookie);
+      expect(res.statusCode).toBe(200);
+      const body = res.body;
+      expect(res.json()).toMatchObject({
+        passkeys: [{ name: 'Laptop' }, { name: 'Phone' }],
+        twoFactor: { enabled: true, backupCodesLeft: 10 },
+      });
+      const stored = await db.pools.auth.query<Record<string, string>>(
+        `SELECT p.public_key, p.credential_id, f.secret, f.backup_codes
+           FROM auth.passkey p JOIN auth.two_factor f ON f.user_id = p.user_id
+          WHERE p.user_id = $1`,
+        [user.userId],
+      );
+      const staged = await db.pools.auth.query<{ value: string }>(
+        `SELECT value FROM auth.verification WHERE identifier LIKE 'two-factor-setup:%'`,
+      );
+      const never = [
+        secret,
+        ...backupCodes,
+        ...stored.rows.flatMap((r) => Object.values(r)),
+        ...staged.rows.map((r) => JSON.parse(r.value).secret as string),
+      ];
+      expect(never.length).toBeGreaterThan(10);
+      for (const value of never) expect(body).not.toContain(value);
+      for (const key of [
+        'publicKey',
+        'credentialID',
+        'secret',
+        'backupCodes',
+        'transports',
+        'counter',
+        'aaguid',
+      ]) {
+        expect(body).not.toContain(`"${key}"`);
+      }
+    } finally {
+      await t.app.close();
+    }
+  });
+});

@@ -41,6 +41,10 @@ const ALLOWLIST: Record<string, string> = {
     'read-only: answers what a move would copy and who would lose sight of the things, counting the copies inside a savepoint it always rolls back; the move itself is audited (thing.move)',
   'POST /api/v1/files/:id/url':
     'read-only: signs a five-minute URL for a file the caller may already see and changes nothing; the upload, attachments and "delete original" are audited',
+  'POST /api/v1/me/passkeys/confirm':
+    "records that the caller confirmed it's them, for their own session, one passkey and five minutes; nothing changes until the passkey is added, which is audited (passkey.add, in the Better Auth mount)",
+  'POST /api/v1/me/two-factor/set-up-again':
+    "stages a new authenticator secret for the caller's own session and changes nothing: the old app keeps signing in until a code from the new one is proven, and that swap is audited (POST /api/v1/me/two-factor/set-up-again/verify, two_factor.replace)",
   'POST /api/v1/me/email-change':
     'only mails the old address a confirmation link; the change itself is audited when it completes (POST /api/v1/auth/email-change/confirm, account.email_change)',
   'POST /api/v1/inbox/:id/room/retry':

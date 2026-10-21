@@ -27,7 +27,7 @@ const IT_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
       'Al tuo account Kept è stata aggiunta una nuova passkey e tutti gli altri dispositivi sono stati disconnessi.',
     ],
     footnote:
-      'Se non sei stato tu, reimposta subito la password e rimuovi la passkey dalle impostazioni dell’account.',
+      'Se non sei stato tu, reimposta subito la password e rimuovi la passkey da Impostazioni → Accesso e sicurezza.',
   }),
   'two-factor-disabled': () => ({
     subject: 'La verifica in due passaggi è stata disattivata',
@@ -36,6 +36,43 @@ const IT_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
     ],
     footnote:
       'Se non sei stato tu, reimposta subito la password e riattiva la verifica in due passaggi.',
+  }),
+  'passkey-removed': () => ({
+    subject: 'È stata rimossa una passkey dal tuo account Kept',
+    paragraphs: [
+      'Dal tuo account Kept è stata rimossa una passkey e tutti gli altri dispositivi sono stati disconnessi. Non consente più di accedere.',
+    ],
+    footnote: IT_NOT_YOU,
+  }),
+  'two-factor-enabled': () => ({
+    subject: 'La verifica in due passaggi è stata attivata',
+    paragraphs: [
+      'La verifica in due passaggi è stata attivata per il tuo account Kept e tutti gli altri dispositivi sono stati disconnessi. Per accedere ora serve un codice dell’app di autenticazione.',
+    ],
+    footnote:
+      'Se non sei stato tu, reimposta subito la password e controlla Impostazioni → Accesso e sicurezza.',
+  }),
+  'two-factor-replaced': () => ({
+    subject: 'La verifica in due passaggi è stata configurata di nuovo',
+    paragraphs: [
+      'La verifica in due passaggi del tuo account Kept è stata configurata di nuovo con una nuova app di autenticazione e tutti gli altri dispositivi sono stati disconnessi. I codici della vecchia app e i vecchi codici di backup non funzionano più.',
+    ],
+    footnote:
+      'Se non sei stato tu, reimposta subito la password e controlla Impostazioni → Accesso e sicurezza.',
+  }),
+  'backup-codes-new': () => ({
+    subject: 'Sono stati creati nuovi codici di backup per il tuo account Kept',
+    paragraphs: [
+      'Sono stati creati nuovi codici di backup per la verifica in due passaggi del tuo account Kept e tutti gli altri dispositivi sono stati disconnessi. I vecchi codici di backup non funzionano più.',
+    ],
+    footnote: IT_NOT_YOU,
+  }),
+  'sign-in-unlinked': () => ({
+    subject: 'È stato scollegato un metodo di accesso dal tuo account Kept',
+    paragraphs: [
+      'Un metodo di accesso esterno (come Google) è stato scollegato dal tuo account Kept e tutti gli altri dispositivi sono stati disconnessi. Non consente più di accedere.',
+    ],
+    footnote: IT_NOT_YOU,
   }),
   'password-changed': () => ({
     subject: 'La password di Kept è stata modificata',

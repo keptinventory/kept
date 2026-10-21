@@ -21,6 +21,7 @@ import {
   DROP_IDP_TOKENS,
   externalIdentityPolicy,
   keptOidc,
+  OIDC_PROVIDER_ID,
   type OidcInvites,
 } from './oidc.js';
 import {
@@ -115,8 +116,29 @@ export const ADMIN_PLUGIN_PATHS = [
   '/admin/has-permission',
 ];
 
+/** Better Auth's two-factor, passkey and outside-sign-in management. Kept's own routes take
+ * their place (auth/sign-in-security.ts): each confirms it's you first (auth/reauth.ts), and
+ * refuses removing the last way in or turning off two-factor that a location asks for. The
+ * two-factor ones go through `auth.api`, which `disabledPaths` doesn't reach. Over HTTP all of
+ * these answer 404: with `allowPasswordless`, Better Auth would let a passwordless account's
+ * session (however old) turn two-factor off or read the secret, its passkey list carries public
+ * keys, and its unlink counts neither passkeys nor which providers are configured. */
+export const SIGN_IN_MANAGEMENT_PATHS = [
+  '/two-factor/enable',
+  '/two-factor/disable',
+  '/two-factor/generate-backup-codes',
+  '/two-factor/get-totp-uri',
+  '/passkey/list-user-passkeys',
+  '/passkey/update-passkey',
+  '/passkey/delete-passkey',
+  // Kept's DELETE /api/v1/me/linked/:id instead: confirm-it's-you, and the last way in counted
+  // under the account's row lock with passkeys and the providers configured now.
+  '/unlink-account',
+];
+
 /** Better Auth endpoints Kept switches off. See the comment where it is used. */
 export const DISABLED_AUTH_PATHS = [
+  ...SIGN_IN_MANAGEMENT_PATHS,
   ...ADMIN_PLUGIN_PATHS,
   ...EMAIL_OTP_PATHS,
   // The magic link is consumed by Kept's POST /api/v1/auth/magic-link/verify (auth/http.ts), never
@@ -212,6 +234,19 @@ export function createAuth(deps: AuthDeps) {
   // An outside identity (generic OIDC, Google) is on: its rules apply to every OAuth sign-in,
   // link and creation (auth/oidc.ts), whichever provider it comes through.
   const external = deps.oidc || deps.google ? (deps.oidc?.invites ?? deps.google?.invites) : null;
+  /** The outside sign-ins this server offers now: an account linked to one of them has a way in. */
+  const outsideProviders = [
+    ...(deps.oidc ? [OIDC_PROVIDER_ID] : []),
+    // Better Auth's provider id for Google (google.ts GOOGLE_PROVIDER_ID; google.ts imports
+    // this file).
+    ...(deps.google ? ['google'] : []),
+  ];
+  // Set exactly when mail is delivered (main.ts: mail.configured), so a link mailed to a verified
+  // address is a way in.
+  const waysIn = {
+    outsideProviders,
+    mailDelivered: deps.enrolmentNeedsVerifiedEmail ?? false,
+  };
 
   // The gate looks sessions up through the finished instance; hooks run only after createAuth
   // returns, so the late binding is safe.
@@ -333,11 +368,30 @@ export function createAuth(deps: AuthDeps) {
     disabledPaths: DISABLED_AUTH_PATHS,
     telemetry: { enabled: false },
     plugins: [
-      twoFactor({ issuer: 'Kept' }),
+      // Passwordless accounts (passkey, email link, Google) can turn on the authenticator app too.
+      // Better Auth then asks such an account for nothing; Kept's routes ask it to confirm it's
+      // you first, and Better Auth's own routes for it are off over HTTP
+      // (SIGN_IN_MANAGEMENT_PATHS). An account with a password still gives it to Better Auth.
+      twoFactor({ issuer: 'Kept', allowPasswordless: true }),
       passkey({
         rpName: 'Kept',
         rpID: publicUrl.hostname,
         origin: publicUrl.origin,
+        // Kept's passkey sign-in names no account, so the credential must be discoverable; and
+        // every passkey Kept adds verified its user (Face ID, a fingerprint, a PIN), so any of
+        // them can stand in for two-factor where a location asks for it.
+        authenticatorSelection: { residentKey: 'required', userVerification: 'required' },
+        registration: {
+          // The browser was asked for user verification; the server checks it happened.
+          afterVerification: ({ verification }) => {
+            if (!verification.registrationInfo?.userVerified) {
+              throw new APIError('BAD_REQUEST', {
+                message: 'Add a passkey that unlocks with Face ID, a fingerprint or a PIN.',
+                code: 'USER_VERIFICATION_REQUIRED',
+              });
+            }
+          },
+        },
         authentication: {
           // Better Auth verifies with requireUserVerification: false; record whether UV
           // happened so a passkey with UV can count as two factors.
@@ -395,7 +449,12 @@ export function createAuth(deps: AuthDeps) {
   lookup = async (headers) =>
     (await auth.api.getSession({ headers, query: { disableRefresh: true } })) as SessionLike | null;
 
-  return auth;
+  // Kept's own sign-in routes (auth/sign-in-security.ts) tell the owner through the same mail.
+  return Object.assign(auth, {
+    securityNotice: (user: { email: string }, event: SecurityEvent) => notify(user, event),
+    /** What counts as a way in (auth/sign-in-security.ts). */
+    waysIn,
+  });
 }
 
 export type Auth = ReturnType<typeof createAuth>;

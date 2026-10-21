@@ -8,6 +8,7 @@
 import { EMBEDDINGS_SOURCES, type EmbeddingsSource } from '@kept/shared';
 import type { MockState } from '../../mock/fixtures';
 import { err, type MockRoute, reply, route, sessionGate } from '../../mock/kit';
+import { confirmItsYou } from '../../mock/sign-in';
 import { paths } from '../../paths';
 import type { AdminStatus, EmbeddingsStatus, PutEmbeddingsBody, SignInMethod } from '../../types';
 
@@ -117,24 +118,18 @@ export function instanceMockRoutes(state: MockState): MockRoute[] {
         };
       return reply(404, { code: 'PROVIDER_NOT_FOUND', message: 'Provider not found' });
     }),
-    route('POST', paths.auth.unlinkAccount, ({ body }) => {
-      const gate = sessionGate(state);
-      if (gate) return gate;
-      if (s().staleSession)
-        return reply(403, {
-          code: 'SESSION_NOT_FRESH',
-          message: 'Sign in again, then link or unlink the account.',
-        });
-      const id = (body as { accountId?: string })?.accountId;
-      if (s().methods.length === 1)
-        return reply(400, {
-          code: 'FAILED_TO_UNLINK_LAST_ACCOUNT',
-          message: "You can't unlink your last account",
-        });
-      if (!s().methods.some((m) => m.id === id))
-        return reply(400, { code: 'ACCOUNT_NOT_FOUND', message: 'Account not found' });
-      s().methods = s().methods.filter((m) => m.id !== id);
-      return { status: true };
+    // Kept's unlink (Better Auth's /unlink-account is off): confirm-it's-you, never the last
+    // way in (a password, a passkey or another linked sign-in), as the server answers.
+    route('DELETE', paths.myLinked(':id'), ({ params, body }) => {
+      const refused = sessionGate(state) ?? confirmItsYou(state, body);
+      if (refused) return refused;
+      const target = s().methods.find((m) => m.id === params.id && m.providerId !== 'credential');
+      if (!target) return err(404, 'not_found', 'Not found.');
+      const others = s().methods.filter((m) => m.id !== params.id && m.providerId !== 'credential');
+      if (!state.signIn.hasPassword && others.length === 0 && state.signIn.passkeys.length === 0)
+        return err(409, 'last_sign_in_method', 'That is your only way to sign in.');
+      s().methods = s().methods.filter((m) => m.id !== params.id);
+      return reply(204);
     }),
     route('GET', paths.admin.status, () => {
       const gate = requireAdmin();

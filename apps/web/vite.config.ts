@@ -75,6 +75,8 @@ const HOUSEHOLD_SECTIONS = [
   '/src/components/charts/bars.tsx',
   '/src/components/charts/series.tsx',
   '/src/components/fuel/fuel-trends.tsx',
+  // Settings → Sign-in and security (#226): passkeys and the authenticator app, from the server.
+  '/src/components/sign-in-security.household.tsx',
   // 1.x (D237): the location map, with three.js and its engine; its .glb models are plain assets
   // under assets/ (fingerprinted, a year's cache), never precached either (the glob below).
   '/src/map/map-view.tsx',
@@ -224,6 +226,10 @@ const ON_DEMAND_ENTRIES = [
  */
 const HOUSEHOLD_SHARED = [
   '/src/components/services/',
+  // The authenticator app's QR step and backup codes: Turn on and Sign-in and security's
+  // Set up again.
+  '/src/components/totp-setup.tsx',
+  '/src/lib/otp.ts',
   // 1.x (#209): what only the tag picker, the tag editors and a tag's page use.
   '/src/components/tags/api.ts',
   '/src/components/tags/bulk-tags.tsx',

@@ -28,6 +28,8 @@ export const keys = {
   setup: ['setup'] as const,
   me: ['me'] as const,
   sessions: ['me', 'sessions'] as const,
+  /** Settings → Sign-in and security: passkeys and the authenticator app. */
+  signIn: ['me', 'sign-in'] as const,
   locations: ['locations'] as const,
   /** Under `locations`, so invalidating the list refreshes it too. */
   deletedLocations: ['locations', 'deleted'] as const,

@@ -109,6 +109,7 @@ const sidebar = [
     page('users/kits'),
     page('users/moving'),
     page('users/phone-app'),
+    page('users/sign-in-security'),
     page('users/ai-providers'),
     page('admin/ollama'),
     page('users/mcp-clients'),

@@ -43,6 +43,7 @@ import {
 import { vehicleMockRoutes } from '../vehicles/mock';
 import { MOCK_ACCOUNTS, type MockState, uuid } from './fixtures';
 import { err, type Handler, MockReply, type MockRequest, PASS, reply, sessionGate } from './kit';
+import { signInMockRoutes } from './sign-in';
 
 export { MockReply, type MockRequest };
 
@@ -169,15 +170,6 @@ export function createMockApi(state: MockState): MockApi {
     state.mfaPending = false;
     state.me.mfa = true;
     return { token: 't' };
-  });
-  add('POST', paths.auth.twoFactorEnable, ({ body }) => {
-    if ((body as { password: string }).password !== state.password)
-      return authErr(400, 'INVALID_PASSWORD', 'Invalid password');
-    state.enrolling = true;
-    return {
-      totpURI: `otpauth://totp/Kept:${state.me.user.email}?secret=JBSWY3DPEHPK3PXP&issuer=Kept`,
-      backupCodes: state.backupCodes,
-    };
   });
   add('GET', paths.auth.passkeyAuthenticateOptions, () =>
     authErr(400, 'PASSKEY_NOT_FOUND', 'No passkey'),
@@ -615,6 +607,7 @@ export function createMockApi(state: MockState): MockApi {
   // ----- 1.4: email-in, a location's mailbox (D231) ----------------------------------------------
   for (const r of mailinMockRoutes(state)) add(r.method, r.template, r.handler);
   for (const r of countsMockRoutes(state)) add(r.method, r.template, r.handler);
+  for (const r of signInMockRoutes(state)) add(r.method, r.template, r.handler);
   for (const r of paperlessMockRoutes(state)) add(r.method, r.template, r.handler);
   // ----- 1.x: renters' condition reports (D235) --------------------------------------------------
   for (const r of conditionMockRoutes(state)) add(r.method, r.template, r.handler);

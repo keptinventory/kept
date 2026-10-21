@@ -25,6 +25,7 @@ import {
   sessionHook,
 } from '../auth/http.js';
 import { meSessionRoutes } from '../auth/me.js';
+import { signInSecurityRoutes } from '../auth/sign-in-security.js';
 import type { Env } from '../config/env.js';
 import type { SecretKeys } from '../crypto/keyring.js';
 import type { Pools } from '../db/pools.js';
@@ -362,6 +363,12 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
       publicUrl,
       trustedProxies,
       onMailError: (err) => app.log.error({ err }, 'mail failed'),
+    });
+    await signInSecurityRoutes(app, {
+      auth,
+      pools: opts.pools,
+      trustedProxies,
+      mailConfigured: opts.mailConfigured ?? false,
     });
     await accountDeletionRoutes(app, {
       auth,

@@ -1,26 +1,25 @@
 /**
- * Two-factor enrolment (D176): confirm the password, scan the QR code (drawn here from the
- * otpauth URI; the secret never leaves this page), prove one code, then keep the backup codes.
- * Two-factor is on only after the code is proven. Kept never offers "trust this device" (S2).
+ * Turning on the authenticator app (D176): confirm it's you (the password, or on an account
+ * without one a sign-in in the last ten minutes), scan the QR code, prove one code, then keep the
+ * backup codes. Two-factor is on only after the code is proven. Kept never offers "trust this
+ * device" (S2).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { enableTwoFactor, requestMagicLink, verifyTotp } from '@/api/auth';
+import { enableTwoFactor, getSignInSecurity, requestMagicLink, verifyTotp } from '@/api/auth';
 import { isApiError } from '@/api/client';
 import { keys, useMe } from '@/api/queries';
 import type { TwoFactorEnableResult } from '@/api/types';
 import { StepCounter } from '@/components/auth-frame';
 import { TwoFactorRouteError } from '@/components/on-demand-route-error';
-import { Notice, Page, useErrorText } from '@/components/page';
+import { ErrorState, LoadingRows, Notice, Page, useErrorText } from '@/components/page';
+import { useSignOut } from '@/components/sign-out';
+import { BackupCodeList, TotpScan } from '@/components/totp-setup';
 import { Button } from '@/components/ui/button';
-import { CopyButton } from '@/components/ui/copy-button';
 import { PasswordField } from '@/components/ui/password-field';
-import { QrCode } from '@/components/ui/qr-code';
-import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
-import { secretOf } from '@/lib/otp';
 
 export const Route = createFileRoute('/_app/settings/two-factor')({
   component: EnrolPage,
@@ -49,7 +48,14 @@ function EnrolPage() {
           }}
         />
       ) : null}
-      {step === 2 && enrol ? <ScanStep uri={enrol.totpURI} onDone={() => setStep(3)} /> : null}
+      {step === 2 && enrol ? (
+        <TotpScan
+          uri={enrol.totpURI}
+          verify={verifyTotp}
+          onDone={() => setStep(3)}
+          submitLabel={<Trans>Turn on two-factor</Trans>}
+        />
+      ) : null}
       {step === 3 && enrol ? <BackupCodes codes={enrol.backupCodes} /> : null}
     </Page>
   );
@@ -79,8 +85,7 @@ function ConfirmAddressFirst() {
           <Trans>
             Kept emails you a sign-in link; opening it confirms the address. Opening it also removes
             this account's password, passkeys and other sessions, so nobody who set them up before
-            you keeps a way in. Two-factor needs a password, so afterwards set a new one with
-            “Forgot your password?” on the sign-in page, then come back here.
+            you keeps a way in. Then come back here within ten minutes.
           </Trans>
         </p>
         {email ? (
@@ -104,118 +109,89 @@ function ConfirmAddressFirst() {
 function PasswordStep({ onDone }: { onDone: (r: TwoFactorEnableResult) => void }) {
   const { t } = useLingui();
   const errorText = useErrorText();
+  const signOut = useSignOut();
+  const account = useQuery({ queryKey: keys.signIn, queryFn: getSignInSecurity });
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | undefined>();
   const [unverified, setUnverified] = useState(false);
+  const [signInAgain, setSignInAgain] = useState(false);
+  const hasPassword = account.data?.password !== false;
   const start = useMutation({
-    mutationFn: () => enableTwoFactor(password),
+    mutationFn: () => enableTwoFactor(hasPassword ? password : undefined),
     onSuccess: onDone,
     onError: (e) => {
       if (isApiError(e) && e.authCode === 'EMAIL_UNVERIFIED') return setUnverified(true);
-      setError(
-        isApiError(e) && (e.authCode === 'INVALID_PASSWORD' || e.status === 400)
-          ? t`That password isn't right.`
-          : errorText(e),
-      );
+      if (isApiError(e) && e.code === 'reauth_required') {
+        if (e.details.reauth === 'sign_in') return setSignInAgain(true);
+        return setError(password ? t`That password isn't right.` : t`Enter your password.`);
+      }
+      setError(errorText(e));
     },
   });
   if (unverified) return <ConfirmAddressFirst />;
+  if (account.isPending) return <LoadingRows rows={1} label={t`Loading`} />;
+  if (account.error) {
+    return <ErrorState error={account.error} onRetry={() => void account.refetch()} />;
+  }
   return (
     <form
       className="grid gap-4"
       onSubmit={(e) => {
         e.preventDefault();
-        if (!password) return setError(t`Enter your password.`);
+        if (hasPassword && !password) return setError(t`Enter your password.`);
         start.mutate();
       }}
     >
       <p className="m-0 text-ink-2">
-        <Trans>
-          After this, signing in asks for a 6-digit code from an authenticator app (1Password,
-          Google Authenticator, Aegis…) as well as your password or sign-in link.
-        </Trans>
+        {hasPassword ? (
+          <Trans>
+            After this, signing in asks for a 6-digit code from an authenticator app (1Password,
+            Google Authenticator, Aegis…) as well as your password or sign-in link.
+          </Trans>
+        ) : (
+          <Trans>
+            After this, signing in with a sign-in link or Google also asks for a 6-digit code from
+            an authenticator app (1Password, Google Authenticator, Aegis…).
+          </Trans>
+        )}
       </p>
-      <PasswordField
-        label={t`Your password`}
-        value={password}
-        onChange={(v) => {
-          setPassword(v);
-          setError(undefined);
-        }}
-        isInvalid={!!error}
-        errorMessage={error}
-        autoFocus
-      />
-      <Button type="submit" isPending={start.isPending}>
+      {signInAgain ? (
+        <Notice
+          tone="warn"
+          title={<Trans>Sign in again</Trans>}
+          action={
+            <Button
+              size="small"
+              variant="secondary"
+              onPress={() => void signOut({ next: '/settings/two-factor' })}
+            >
+              <Trans>Sign in again</Trans>
+            </Button>
+          }
+        >
+          <Trans>
+            Your account has no password, and you signed in over ten minutes ago. Sign in again,
+            then come back here.
+          </Trans>
+        </Notice>
+      ) : null}
+      {hasPassword ? (
+        <PasswordField
+          label={t`Your password`}
+          value={password}
+          onChange={(v) => {
+            setPassword(v);
+            setError(undefined);
+          }}
+          isInvalid={!!error}
+          errorMessage={error}
+          autoFocus
+        />
+      ) : error ? (
+        <Notice tone="danger">{error}</Notice>
+      ) : null}
+      <Button type="submit" isPending={start.isPending} isDisabled={signInAgain}>
         <Trans>Continue</Trans>
-      </Button>
-    </form>
-  );
-}
-
-function ScanStep({ uri, onDone }: { uri: string; onDone: () => void }) {
-  const { t } = useLingui();
-  const errorText = useErrorText();
-  const [code, setCode] = useState('');
-  const [error, setError] = useState<string | undefined>();
-  const secret = secretOf(uri);
-  const verify = useMutation({
-    mutationFn: () => verifyTotp(code),
-    onSuccess: onDone,
-    onError: (e) =>
-      setError(
-        isApiError(e) && (e.status === 400 || e.status === 401)
-          ? t`That code didn't match. Check the time on your phone, then try the newest code.`
-          : errorText(e),
-      ),
-  });
-  return (
-    <form
-      className="grid gap-4"
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (!/^\d{6}$/.test(code.replace(/\s/g, ''))) return setError(t`Enter the 6 digits.`);
-        verify.mutate();
-      }}
-    >
-      <p className="m-0 text-ink-2">
-        <Trans>Scan this with your authenticator app, then type the code it shows.</Trans>
-      </p>
-      <div className="flex flex-wrap items-center gap-4 rounded-[10px] border border-line bg-surface p-3.5">
-        <div className="rounded-lg border border-line bg-white p-1.5">
-          <QrCode value={uri} label={t`QR code for your authenticator app`} size={168} />
-        </div>
-        <div className="grid min-w-0 flex-1 basis-44 gap-1.5">
-          <div className="eyebrow">
-            <Trans>Can't scan it?</Trans>
-          </div>
-          <div className="text-small text-ink-2">
-            <Trans>Enter this key in the app instead:</Trans>
-          </div>
-          <div className="ltr font-mono text-[15px] font-semibold tracking-[.06em] [overflow-wrap:anywhere]">
-            {secret}
-          </div>
-          <CopyButton text={secret.replace(/\s/g, '')} label={t`Copy key`} size="small" />
-        </div>
-      </div>
-      <TextField
-        label={t`6-digit code`}
-        value={code}
-        onChange={(v) => {
-          setCode(v.replace(/[^\d\s]/g, ''));
-          setError(undefined);
-        }}
-        isInvalid={!!error}
-        errorMessage={error}
-        inputProps={{
-          inputMode: 'numeric',
-          autoComplete: 'one-time-code',
-          dir: 'ltr',
-        }}
-        maxLength={7}
-      />
-      <Button type="submit" isPending={verify.isPending}>
-        <Trans>Turn on two-factor</Trans>
       </Button>
     </form>
   );
@@ -230,26 +206,11 @@ function BackupCodes({ codes }: { codes: string[] }) {
       <Notice tone="ok" title={<Trans>Two-factor is on</Trans>}>
         <Trans>Next time you sign in, Kept asks for a code from your app.</Trans>
       </Notice>
-      <div className="grid gap-1">
-        <h2 className="m-0 font-semibold text-[18px]">
-          <Trans>Keep your backup codes</Trans>
-        </h2>
-        <p className="m-0 text-ink-2">
-          <Trans>
-            If you lose your phone, each of these signs you in once. Keep them somewhere other than
-            this phone: a password manager or a printed page.
-          </Trans>
-        </p>
-      </div>
-      <ul className="ltr m-0 grid list-none grid-cols-2 gap-2 rounded-[10px] border border-line bg-sunken p-3.5 font-mono text-[15px]">
-        {codes.map((c) => (
-          <li key={c}>{c}</li>
-        ))}
-      </ul>
-      <CopyButton text={codes.join('\n')} label={t`Copy all codes`} className="w-full" />
+      <BackupCodeList codes={codes} />
       <Button
         onPress={async () => {
           await qc.invalidateQueries({ queryKey: keys.me });
+          await qc.invalidateQueries({ queryKey: keys.signIn });
           toast({ title: t`Two-factor is on`, tone: 'ok' });
           void navigate({ to: '/settings' });
         }}

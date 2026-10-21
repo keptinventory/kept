@@ -39,6 +39,8 @@ const MESSAGES: Record<ErrorCode, string> = {
   invite_invalid: 'The invite is not valid.',
   last_owner: 'A location needs an owner.',
   reauth_required: 'Confirm it is you to continue.',
+  last_sign_in_method: 'That is your only way to sign in. Add another one first.',
+  two_factor_required: 'A location you belong to asks for two-factor.',
   token_invalid: 'That link is invalid or has expired.',
   recovery_kit_required: 'Save the recovery kit first.',
   account_deletion_pending: 'This account is going to be deleted. Keep it to use Kept again.',

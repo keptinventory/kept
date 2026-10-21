@@ -137,6 +137,30 @@ describe('This device', () => {
     ).toBeEnabled();
   }, 20_000);
 
+  it('Face ID or fingerprint unlocks this device only, and says where passkeys are added', async () => {
+    await setLock();
+    vi.stubGlobal('PublicKeyCredential', {
+      isUserVerifyingPlatformAuthenticatorAvailable: async () => true,
+    });
+    const { user } = await renderApp('/settings/device');
+    await typePin(user, PIN);
+    expect(
+      await screen.findByRole(
+        'switch',
+        { name: 'Unlock with Face ID or fingerprint' },
+        { timeout: 5000 },
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('switch', { name: 'Use Face ID or fingerprint' })).toBeNull();
+    expect(
+      screen.getByText(/Unlocks Kept on this device only\. To sign in with a passkey, add one in/),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Sign-in and security' })).toHaveAttribute(
+      'href',
+      '/settings#sign-in-security',
+    );
+  });
+
   it('offers keep offline only with the lock on', async () => {
     await renderApp('/settings/device');
     expect(await screen.findByText(/Turn on the app lock first/)).toBeVisible();

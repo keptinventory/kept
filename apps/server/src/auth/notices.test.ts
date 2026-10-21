@@ -39,6 +39,19 @@ function auth(
   });
 }
 
+/** Better Auth's registration options, after Kept's confirm-it's-you (the password), as the
+ * app's Add a passkey sheet asks for them. */
+async function registerOptions(cookie: string): Promise<LightMyRequestResponse> {
+  await t.app.inject({
+    method: 'POST',
+    url: '/api/v1/me/passkeys/confirm',
+    headers: { origin: t.publicUrl, cookie },
+    remoteAddress: freshIp(),
+    payload: { password: PASSWORD },
+  });
+  return auth('/passkey/generate-register-options', { cookie });
+}
+
 async function newUser(label: string) {
   const email = `${label}-${randomUUID()}@example.com`;
   const signed = await signUp(t.auth, email, PASSWORD);
@@ -91,7 +104,7 @@ describe('security notices (review I3)', () => {
     // Someone signed up with this address first, and planted a passkey and TOTP on it.
     const user = await newUser('prehijack');
     const { cookie } = await enrolTotp(t.auth, user, PASSWORD);
-    const options = await auth('/passkey/generate-register-options', { cookie });
+    const options = await registerOptions(cookie);
     const { challenge } = options.json() as { challenge: string };
     const origin = new URL(t.publicUrl);
     const planted = await auth('/passkey/verify-registration', {
@@ -147,15 +160,30 @@ describe('security notices (review I3)', () => {
     );
   });
 
-  it('mails the owner when two-factor is switched off', async () => {
+  it('mails the owner when two-factor is switched on, and when it is switched off', async () => {
     const user = await newUser('tfa');
-    const { cookie } = await enrolTotp(t.auth, user, PASSWORD);
     expect(noticesFor(user.email)).toEqual([]);
-    const disabled = await auth('/two-factor/disable', { cookie, body: { password: PASSWORD } });
-    expect(disabled.statusCode).toBe(200);
+    const { cookie } = await enrolTotp(t.auth, user, PASSWORD);
     await vi.waitFor(
       () =>
         expect(noticesFor(user.email)).toEqual([
+          { email: user.email, event: 'two-factor-enabled' },
+        ]),
+      { timeout: 10_000 },
+    );
+    // Kept's route; Better Auth's own /two-factor/disable is off over HTTP.
+    const disabled = await t.app.inject({
+      method: 'POST',
+      url: '/api/v1/me/two-factor/disable',
+      headers: { origin: t.publicUrl, cookie },
+      remoteAddress: freshIp(),
+      payload: { password: PASSWORD },
+    });
+    expect(disabled.statusCode).toBe(204);
+    await vi.waitFor(
+      () =>
+        expect(noticesFor(user.email)).toEqual([
+          { email: user.email, event: 'two-factor-enabled' },
           { email: user.email, event: 'two-factor-disabled' },
         ]),
       { timeout: 10_000 },
@@ -164,7 +192,7 @@ describe('security notices (review I3)', () => {
 
   it('mails the owner when a passkey is registered', async () => {
     const user = await newUser('passkey');
-    const options = await auth('/passkey/generate-register-options', { cookie: user.cookie });
+    const options = await registerOptions(user.cookie);
     expect(options.statusCode).toBe(200);
     const { challenge } = options.json() as { challenge: string };
     const origin = new URL(t.publicUrl);
@@ -218,7 +246,7 @@ describe('a first magic-link sign-in claims an unverified account', () => {
   async function plantedAccount(label: string) {
     const user = await newUser(label);
     const { cookie } = await enrolTotp(t.auth, user, PASSWORD);
-    const options = await auth('/passkey/generate-register-options', { cookie });
+    const options = await registerOptions(cookie);
     const { challenge } = options.json() as { challenge: string };
     const origin = new URL(t.publicUrl);
     const planted = await auth('/passkey/verify-registration', {
@@ -304,25 +332,25 @@ describe('with mail configured, enrolment waits for a verified address', () => {
 
   it('refuses TOTP and passkey enrolment on an unverified address, and allows it once verified', async () => {
     const user = await newUser('gate');
-    const totp = await auth('/two-factor/enable', {
-      cookie: user.cookie,
-      body: { password: PASSWORD },
-    });
+    const enable = () =>
+      t.app.inject({
+        method: 'POST',
+        url: '/api/v1/me/two-factor/enable',
+        headers: { origin: t.publicUrl, cookie: user.cookie },
+        remoteAddress: freshIp(),
+        payload: { password: PASSWORD },
+      });
+    const totp = await enable();
     expect(totp.statusCode).toBe(403);
     expect(totp.json()).toMatchObject({ code: 'EMAIL_UNVERIFIED' });
-    const passkey = await auth('/passkey/generate-register-options', { cookie: user.cookie });
+    const passkey = await registerOptions(user.cookie);
     expect(passkey.statusCode).toBe(403);
 
     await db.pools.auth.query('UPDATE auth."user" SET email_verified = true WHERE id = $1', [
       user.userId,
     ]);
-    expect(
-      (await auth('/two-factor/enable', { cookie: user.cookie, body: { password: PASSWORD } }))
-        .statusCode,
-    ).toBe(200);
-    expect(
-      (await auth('/passkey/generate-register-options', { cookie: user.cookie })).statusCode,
-    ).toBe(200);
+    expect((await enable()).statusCode).toBe(200);
+    expect((await registerOptions(user.cookie)).statusCode).toBe(200);
   });
 
   it('leaves managed accounts alone: their synthetic address can never be verified', async () => {
@@ -331,8 +359,6 @@ describe('with mail configured, enrolment waits for a verified address', () => {
       `${randomUUID()}@managed.invalid`,
       user.userId,
     ]);
-    expect(
-      (await auth('/passkey/generate-register-options', { cookie: user.cookie })).statusCode,
-    ).toBe(200);
+    expect((await registerOptions(user.cookie)).statusCode).toBe(200);
   });
 });

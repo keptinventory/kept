@@ -120,7 +120,9 @@ function SignInPage() {
         void navigate({ to: '/signin/two-factor', search: next ? { next } : {} });
         return;
       }
-      setError(t`That passkey isn't registered here. Sign in another way, then add it.`);
+      setError(
+        t`That passkey isn't one this account signs in with. A device's app lock can't sign you in. Sign in another way, then add a passkey in Settings → Sign-in and security.`,
+      );
     },
   });
 

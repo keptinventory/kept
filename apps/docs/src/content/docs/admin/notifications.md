@@ -43,7 +43,9 @@ scanner or a server log never holds a usable one.
 
 - **Signing in and the account**: sign-in links, password resets, confirming and verifying a new
   email address and a note to the old one, a note when someone tries to sign up with an address
-  that already has an account, and a notice when a credential changes.
+  that already has an account, and a notice when a credential changes: the password, a passkey
+  added or removed, an outside sign-in unlinked, two-factor turned on, set up again or turned off,
+  and new backup codes.
 - **People and locations**: email invites; to a location's owner, each new member or managed
   account and each membership that reaches its end date.
 - **Transparency**: when an instance admin (or `kept admin`) acts on someone's account; and to

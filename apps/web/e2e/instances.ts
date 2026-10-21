@@ -82,6 +82,20 @@ export const OPERATIONS_INSTANCE: TlsInstance = {
   owner: true,
 };
 
+/**
+ * Settings → Sign-in and security (e2e/sign-in-security.spec.ts): passkeys through Chromium's
+ * virtual authenticator and the authenticator app, on the `households` seed. Its server believes
+ * `X-Forwarded-For` from this machine (serve.mjs `--trust-proxy`), so each journey's sign-ins
+ * come from an address of their own and Better Auth's per-address sign-in limit (5 a minute)
+ * doesn't run out between journeys. Key for KEPT_E2E_INSTANCES: `signIn`.
+ */
+export const SIGN_IN_INSTANCE: Instance & { trustProxy: true } = {
+  name: 'sign-in',
+  port: 8200,
+  seed: true,
+  trustProxy: true,
+};
+
 export const urlOf = (i: Instance & { https?: boolean }) =>
   `${i.https ? 'https' : 'http'}://localhost:${i.port}`;
 

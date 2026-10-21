@@ -21,6 +21,11 @@ export const ErrorCode = Object.freeze({
   last_owner: 'last_owner',
   /** A sensitive change (email) needs the password again, or a fresh sign-in (D176). */
   reauth_required: 'reauth_required',
+  /** Removing a passkey would leave the account with no way to sign in (409). */
+  last_sign_in_method: 'last_sign_in_method',
+  /** Turning two-factor off while a location the person belongs to asks for it, and no passkey
+   * can stand in for it (409). */
+  two_factor_required: 'two_factor_required',
   /** An emailed link's token (magic link, email change) is unknown, used or expired. */
   token_invalid: 'token_invalid',
   /** The instance admin has not yet acknowledged the recovery kit (D193): needed before the

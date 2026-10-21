@@ -26589,3 +26589,224 @@ msgstr "Kept lo conserva come numero di serie o codice a barre: scegli tu."
 #: src/components/scan/barcode-sheet.tsx
 msgid "Kept stores the barcode and serial number with it."
 msgstr "Kept conserva il codice a barre e il numero di serie con l’oggetto."
+
+#: src/routes/invite.tsx
+msgid "Add one in Sign-in and security"
+msgstr "Aggiungine una in Accesso e sicurezza"
+
+#: src/routes/signin/index.tsx
+msgid "That passkey isn't one this account signs in with. A device's app lock can't sign you in. Sign in another way, then add a passkey in Settings → Sign-in and security."
+msgstr "Questa passkey non serve per accedere a questo account. Il blocco dell’app di un dispositivo non può farti accedere. Accedi in un altro modo, poi aggiungi una passkey in Impostazioni → Accesso e sicurezza."
+
+#: src/routes/_app/settings.location.$id.invite.tsx
+msgid "They add one in Sign-in and security"
+msgstr "La aggiungono in Accesso e sicurezza"
+
+#: src/routes/_app/settings.two-factor.tsx
+msgid "Kept emails you a sign-in link; opening it confirms the address. Opening it also removes this account's password, passkeys and other sessions, so nobody who set them up before you keeps a way in. Then come back here within ten minutes."
+msgstr "Kept ti invia via email un link di accesso; aprirlo conferma l’indirizzo. Aprirlo rimuove anche la password, le passkey e le altre sessioni di questo account, così nessuno che le abbia impostate prima di te conserva un accesso. Poi torna qui entro dieci minuti."
+
+#: src/routes/_app/settings.two-factor.tsx
+msgid "After this, signing in with a sign-in link or Google also asks for a 6-digit code from an authenticator app (1Password, Google Authenticator, Aegis…)."
+msgstr "Da ora, per accedere con un link di accesso o con Google ti verrà chiesto anche un codice a 6 cifre da un’app di autenticazione (1Password, Google Authenticator, Aegis…)."
+
+#: src/components/page.tsx
+msgid "That's your only way to sign in. Add another passkey or link another sign-in first."
+msgstr "È il tuo unico modo per accedere. Prima aggiungi un’altra passkey o collega un altro metodo di accesso."
+
+#: src/components/page.tsx
+msgid "A location you belong to asks for two-factor. Add a passkey first, then turn the authenticator app off."
+msgstr "Un luogo di cui fai parte richiede la verifica in due passaggi. Prima aggiungi una passkey, poi disattiva l’app di autenticazione."
+
+#: src/components/sign-in-security.household.tsx
+#: src/components/sign-in-security.tsx
+msgid "Loading your sign-in settings"
+msgstr "Caricamento delle impostazioni di accesso"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys"
+msgstr "Passkey"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Add a passkey"
+msgstr "Aggiungi una passkey"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Sign in with Face ID, a fingerprint or your phone's screen lock instead of typing a password. A passkey counts as two-factor on its own."
+msgstr "Accedi con Face ID, un’impronta o il blocco schermo del telefono invece di digitare una password. Una passkey vale da sola come verifica in due passaggi."
+
+#: src/components/sign-in-security.household.tsx
+msgid "This browser can't add a passkey. Try another browser or device."
+msgstr "Questo browser non può aggiungere una passkey. Prova un altro browser o dispositivo."
+
+#: src/components/sign-in-security.household.tsx
+msgid "No passkeys yet"
+msgstr "Ancora nessuna passkey"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkey"
+msgstr "Passkey"
+
+#: src/components/sign-in-security.household.tsx
+msgid "This device only"
+msgstr "Solo questo dispositivo"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkey added"
+msgstr "Passkey aggiunta"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Use {NAME_MAX} characters or fewer."
+msgstr "Usa al massimo {NAME_MAX} caratteri."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Your browser asks for Face ID, a fingerprint or your screen lock. The passkey is kept by this device or your password manager; Kept never sees it."
+msgstr "Il browser chiede Face ID, un’impronta o il blocco schermo. La passkey resta su questo dispositivo o nel gestore di password; Kept non la vede mai."
+
+#: src/components/sign-in-security.household.tsx
+msgid "So you can tell your passkeys apart."
+msgstr "Per distinguere le tue passkey."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Adding a passkey needs a sign-in in the last ten minutes."
+msgstr "Per aggiungere una passkey serve un accesso negli ultimi dieci minuti."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Sign in once with a link sent to your email address, then add the passkey."
+msgstr "Accedi una volta con un link inviato al tuo indirizzo email, poi aggiungi la passkey."
+
+#: src/components/sign-in-security.household.tsx
+msgid "This device already has a passkey for your account."
+msgstr "Questo dispositivo ha già una passkey per il tuo account."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Rename passkey"
+msgstr "Rinomina passkey"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkey renamed"
+msgstr "Passkey rinominata"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Remove <0>{name}</0>?"
+msgstr "Rimuovere <0>{name}</0>?"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkey removed"
+msgstr "Passkey rimossa"
+
+#: src/components/sign-in-security.household.tsx
+msgid "It stops signing you in, and every other device is signed out. The passkey itself stays on the device until you delete it there."
+msgstr "Non ti farà più accedere e tutti gli altri dispositivi vengono disconnessi. La passkey resta sul dispositivo finché non la elimini lì."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Authenticator app"
+msgstr "App di autenticazione"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Two-factor with an authenticator app"
+msgstr "Verifica in due passaggi con un’app di autenticazione"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Off. Some locations ask for it; until you turn it on, or sign in with a passkey, they stay hidden for you."
+msgstr "Disattivata. Alcuni luoghi la richiedono; finché non la attivi, o non accedi con una passkey, restano nascosti per te."
+
+#: src/components/sign-in-security.household.tsx
+msgid "{0} of {1} backup codes left"
+msgstr "{0} codici di backup rimasti su {1}"
+
+#: src/components/sign-in-security.household.tsx
+msgid "New backup codes"
+msgstr "Nuovi codici di backup"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Set up again"
+msgstr "Configura di nuovo"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Make new codes"
+msgstr "Crea nuovi codici"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Ten new codes, shown once. Your old backup codes stop working, and every other device is signed out."
+msgstr "Dieci nuovi codici, mostrati una sola volta. I vecchi codici di backup smettono di funzionare e tutti gli altri dispositivi vengono disconnessi."
+
+#: src/components/sign-in-security.household.tsx
+msgid "The new app is set up. Codes from the old one no longer work."
+msgstr "La nuova app è configurata. I codici della vecchia non funzionano più."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Until you enter a code from the new app, your current app keeps working. Close this and nothing changes."
+msgstr "Finché non inserisci un codice della nuova app, l’app attuale continua a funzionare. Chiudi qui e non cambia nulla."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Use the new app"
+msgstr "Usa la nuova app"
+
+#: src/components/sign-in-security.household.tsx
+msgid "For a new phone or another authenticator app. Your current app keeps working until the new one is set up; then it stops, your backup codes are replaced, and every other device is signed out."
+msgstr "Per un nuovo telefono o un’altra app di autenticazione. L’app attuale continua a funzionare finché la nuova non è configurata; poi smette, i codici di backup vengono sostituiti e tutti gli altri dispositivi vengono disconnessi."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Turn off two-factor?"
+msgstr "Disattivare la verifica in due passaggi?"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Two-factor is off"
+msgstr "La verifica in due passaggi è disattivata"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Signing in stops asking for a code, your backup codes stop working, and every other device is signed out. Locations that ask for two-factor stay hidden until you sign in with a passkey or turn it on again."
+msgstr "L’accesso non chiede più un codice, i codici di backup smettono di funzionare e tutti gli altri dispositivi vengono disconnessi. I luoghi che richiedono la verifica in due passaggi restano nascosti finché non accedi con una passkey o la riattivi."
+
+#: src/components/sign-in-security.tsx
+msgid "Sign-in and security"
+msgstr "Accesso e sicurezza"
+
+#: src/components/totp-setup.tsx
+msgid "Backup codes"
+msgstr "Codici di backup"
+
+#: src/components/history/labels.ts
+msgid "Renamed a passkey"
+msgstr "Ha rinominato una passkey"
+
+#: src/components/history/labels.ts
+msgid "Removed a passkey"
+msgstr "Ha rimosso una passkey"
+
+#: src/components/history/labels.ts
+msgid "Started setting up two-factor"
+msgstr "Ha iniziato a configurare la verifica in due passaggi"
+
+#: src/components/history/labels.ts
+msgid "Turned off two-factor"
+msgstr "Ha disattivato la verifica in due passaggi"
+
+#: src/components/history/labels.ts
+msgid "Made new backup codes"
+msgstr "Ha creato nuovi codici di backup"
+
+#: src/components/history/labels.ts
+msgid "Set up two-factor again"
+msgstr "Ha configurato di nuovo la verifica in due passaggi"
+
+#: src/components/device/app-lock-settings.tsx
+msgid "Unlock with Face ID or fingerprint"
+msgstr "Sblocca con Face ID o impronta"
+
+#: src/components/device/app-lock-settings.tsx
+msgid "Unlocks Kept on this device only. To sign in with a passkey, add one in <0>Sign-in and security</0>."
+msgstr "Sblocca Kept solo su questo dispositivo. Per accedere con una passkey, aggiungine una in <0>Accesso e sicurezza</0>."
+
+#: src/components/history/labels.ts
+msgid "Added a passkey"
+msgstr "Ha aggiunto una passkey"
+
+#: src/components/history/labels.ts
+msgid "Turned on two-factor"
+msgstr "Ha attivato la verifica in due passaggi"
+
+#: src/components/history/labels.ts
+msgid "Unlinked an outside sign-in"
+msgstr "Ha scollegato un metodo di accesso esterno"

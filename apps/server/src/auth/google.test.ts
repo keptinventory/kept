@@ -198,7 +198,7 @@ describe('Google sign-in', () => {
     ).toBe(bruce.userId);
   });
 
-  it('links and unlinks only from a session younger than ten minutes', async () => {
+  it("links only from a session younger than ten minutes; Better Auth's unlink is closed", async () => {
     const bruce = await signUp(auth, 'bruce@example.net');
     await verify(bruce.userId);
     await flow(
@@ -218,17 +218,13 @@ describe('Google sign-in', () => {
     );
     expect(late).toMatchObject({ status: 403, error: 'SESSION_NOT_FRESH' });
 
-    // Better Auth's `accountId` here is its own row id, not Google's subject.
-    const unlink = await call('POST', '/unlink-account', bruce.cookie, { accountId: rowId });
-    expect(unlink.res.status).toBe(403);
-    expect(((await unlink.res.json()) as { code: string }).code).toBe('SESSION_NOT_FRESH');
-    expect(await googleAccounts(bruce.userId)).toHaveLength(1);
-
+    // Unlinking is Kept's DELETE /api/v1/me/linked/:id (auth/sign-in-security.test.ts): Better
+    // Auth's own /unlink-account answers 404, fresh session or not.
     await db.pools.auth.query(`UPDATE auth.session SET created_at = now() WHERE user_id = $1`, [
       bruce.userId,
     ]);
-    const fresh = await call('POST', '/unlink-account', bruce.cookie, { accountId: rowId });
-    expect(fresh.res.status, await fresh.res.clone().text()).toBe(200);
-    expect(await googleAccounts(bruce.userId)).toEqual([]);
+    const closed = await call('POST', '/unlink-account', bruce.cookie, { accountId: rowId });
+    expect(closed.res.status).toBe(404);
+    expect(await googleAccounts(bruce.userId)).toHaveLength(1);
   });
 });

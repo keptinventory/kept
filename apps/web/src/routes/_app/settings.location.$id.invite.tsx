@@ -16,6 +16,7 @@ import { LinkIcon, MailIcon, ShareIcon } from '@/components/icons';
 import { LocationSettingsPage } from '@/components/location-settings';
 import { SettingsRouteError } from '@/components/on-demand-route-error';
 import { IconTile, Notice, useErrorText } from '@/components/page';
+import { SIGN_IN_SECURITY_ANCHOR } from '@/components/sign-in-security';
 import { Button } from '@/components/ui/button';
 import { CopyButton } from '@/components/ui/copy-button';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -216,7 +217,14 @@ function InviteForm({ location }: { location: LocationDetail }) {
           <Trans>
             {place} asks everyone for two-factor. They can join now; {place} stays hidden for them
             until they add a passkey or an authenticator.
-          </Trans>
+          </Trans>{' '}
+          <Link
+            to="/settings"
+            hash={SIGN_IN_SECURITY_ANCHOR}
+            className="font-semibold text-ink underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-info"
+          >
+            <Trans>They add one in Sign-in and security</Trans>
+          </Link>
         </Notice>
       ) : null}
     </div>

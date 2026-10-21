@@ -25,12 +25,15 @@ export const paths = {
     magicLinkVerify: `${AUTH}/magic-link/verify`,
     signOut: `${AUTH}/sign-out`,
     getSession: `${AUTH}/get-session`,
-    twoFactorEnable: `${AUTH}/two-factor/enable`,
+    /** Proves a code: at sign-in, and the first one that turns the authenticator app on. */
     twoFactorVerifyTotp: `${AUTH}/two-factor/verify-totp`,
     twoFactorVerifyBackupCode: `${AUTH}/two-factor/verify-backup-code`,
-    twoFactorGetTotpUri: `${AUTH}/two-factor/get-totp-uri`,
     passkeyAuthenticateOptions: `${AUTH}/passkey/generate-authenticate-options`,
     passkeyVerifyAuthentication: `${AUTH}/passkey/verify-authentication`,
+    /** Adding a passkey: both need a sign-in in the last ten minutes (`SESSION_NOT_FRESH`). */
+    passkeyRegisterOptions: `${AUTH}/passkey/generate-register-options`,
+    /** `{response, name}` → the passkey. */
+    passkeyVerifyRegistration: `${AUTH}/passkey/verify-registration`,
     changePassword: `${AUTH}/change-password`,
     /** Better Auth: `{email}` → 200 either way; mails a `/auth/reset#token=…` link (3 an hour). */
     requestPasswordReset: `${AUTH}/request-password-reset`,
@@ -53,8 +56,6 @@ export const paths = {
     linkSocial: `${AUTH}/link-social`,
     /** The account's sign-in methods (password, OIDC, Google), never their tokens. */
     listAccounts: `${AUTH}/list-accounts`,
-    /** `{accountId}`: Better Auth's own row id. From a fresh session; never the last way in. */
-    unlinkAccount: `${AUTH}/unlink-account`,
   },
   /** D147: `{version, revision, source}` (apps/server/src/http/health.ts). */
   version: '/version',
@@ -66,6 +67,33 @@ export const paths = {
   myEmailChange: `${V1}/me/email-change`,
   /** D225: GET what stops it, POST to ask (202 `{purgeAfter}`), DELETE to keep the account. */
   myDeletion: `${V1}/me/deletion`,
+  /**
+   * Settings → Sign-in and security (apps/server/src/auth/sign-in-security.ts). Every change takes
+   * `{password?}`: 403 `reauth_required` with `reauth: 'password' | 'sign_in'` until it's you.
+   * Better Auth's own two-factor and passkey management answers 404 over HTTP.
+   */
+  mySignIn: `${V1}/me/sign-in`,
+  /** PATCH `{name, password?}` → the passkey; DELETE `{password?}` → 204, or 409
+   * `last_sign_in_method`. */
+  myPasskey: (id: string) => `${V1}/me/passkeys/${seg(id)}`,
+  /** DELETE `{password?}` → 204: unlinks an outside sign-in (Better Auth's own row id, as
+   * /list-accounts gives it); 409 `last_sign_in_method` for the last way in. Better Auth's
+   * /unlink-account answers 404. */
+  myLinked: (id: string) => `${V1}/me/linked/${seg(id)}`,
+  /** `{password?}` → 204: this session may add one passkey in the next five minutes. */
+  myPasskeyConfirm: `${V1}/me/passkeys/confirm`,
+  myTwoFactor: {
+    /** `{password?}` → `{totpURI, backupCodes}`; on once the first code is proven. */
+    enable: `${V1}/me/two-factor/enable`,
+    /** `{password?}` → 204, or 409 `two_factor_required`. */
+    disable: `${V1}/me/two-factor/disable`,
+    /** `{password?}` → `{backupCodes}`; the old ones stop working. */
+    backupCodes: `${V1}/me/two-factor/backup-codes`,
+    /** `{password?}` → `{totpURI}`; the current app keeps working until `setUpAgainVerify`. */
+    setUpAgain: `${V1}/me/two-factor/set-up-again`,
+    /** `{code}` → `{backupCodes}`. */
+    setUpAgainVerify: `${V1}/me/two-factor/set-up-again/verify`,
+  },
   locations: `${V1}/locations`,
   /** The owner's deleted locations still in their grace period. */
   locationsDeleted: `${V1}/locations/deleted`,

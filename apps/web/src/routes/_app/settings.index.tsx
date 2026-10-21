@@ -1,7 +1,8 @@
 /**
  * Settings → Me: who you are, how Kept looks on this device, how Kept
- * reaches you (Notifications), Export my data (on the Export page), and Security: two-factor and sessions and devices (task
- * 17's device list, with revoke), and This device (the app lock, keep offline).
+ * reaches you (Notifications), Export my data (on the Export page), Sign-in and security
+ * (passkeys and the authenticator app), sessions and devices (task 17's device list, with
+ * revoke), and This device (the app lock, keep offline).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -14,13 +15,10 @@ import { DeleteAccount } from '@/components/delete-account';
 import { DisplayPrefs } from '@/components/display-prefs';
 import {
   BellIcon,
-  CheckCircleIcon,
   LaptopIcon,
   LockIcon,
   PhoneIcon,
   ShareIcon,
-  ShieldCheckIcon,
-  ShieldIcon,
   TrashIcon,
 } from '@/components/icons';
 import {
@@ -38,6 +36,7 @@ import {
 } from '@/components/page';
 import { SettingsTabs } from '@/components/settings-tabs';
 import { SignInMethods } from '@/components/sign-in-methods';
+import { SignInSecuritySection } from '@/components/sign-in-security';
 import { SignOutButton } from '@/components/sign-out';
 import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
@@ -150,34 +149,10 @@ function MePage() {
         </List>
       </Section>
 
+      <SignInSecuritySection />
+
       <Section title={<Trans>Security</Trans>}>
         <List>
-          <li className="flex items-center gap-3 px-3.5 py-3">
-            <IconTile>{user?.twoFactorEnabled ? <ShieldCheckIcon /> : <ShieldIcon />}</IconTile>
-            <div className="grid min-w-0 flex-1 gap-0.5">
-              <div className="font-semibold text-[15px]">
-                <Trans>Two-factor</Trans>
-              </div>
-              <div className="text-small text-ink-2">
-                {user?.twoFactorEnabled ? (
-                  <Trans>On. Signing in asks for a code from your authenticator app.</Trans>
-                ) : (
-                  <Trans>
-                    Off. Some locations ask for it; until you turn it on they stay hidden for you.
-                  </Trans>
-                )}
-              </div>
-            </div>
-            {user?.twoFactorEnabled ? (
-              <Pill tone="ok" icon={<CheckCircleIcon />}>
-                <Trans>On</Trans>
-              </Pill>
-            ) : (
-              <LinkButton to="/settings/two-factor" size="small" variant="primary">
-                <Trans>Turn on</Trans>
-              </LinkButton>
-            )}
-          </li>
           {/* Step 8 (D159, D181): the app lock and the locations kept offline. */}
           <li>
             <Row

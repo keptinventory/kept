@@ -5,8 +5,10 @@
 import { APP_LOCK } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { Notice } from '@/components/page';
+import { SIGN_IN_SECURITY_ANCHOR } from '@/components/sign-in-security';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/components/ui/toast';
@@ -81,16 +83,31 @@ export function AppLockSettings({ keptCount }: { keptCount: number }) {
         <Trans>Lock Kept on this device</Trans>
       </Switch>
       {on && canPasskey ? (
-        <Switch
-          isSelected={record?.passkey != null}
-          onChange={(v) => {
-            if (!v) void lock.removePasskey();
-            else if (lock.dataKey) void enrol();
-            else setSheet('passkey');
-          }}
-        >
-          <Trans>Use Face ID or fingerprint</Trans>
-        </Switch>
+        <div className="grid gap-1">
+          <Switch
+            isSelected={record?.passkey != null}
+            onChange={(v) => {
+              if (!v) void lock.removePasskey();
+              else if (lock.dataKey) void enrol();
+              else setSheet('passkey');
+            }}
+          >
+            <Trans>Unlock with Face ID or fingerprint</Trans>
+          </Switch>
+          <p className="m-0 text-small text-ink-2">
+            <Trans>
+              Unlocks Kept on this device only. To sign in with a passkey, add one in{' '}
+              <Link
+                to="/settings"
+                hash={SIGN_IN_SECURITY_ANCHOR}
+                className="font-semibold text-ink underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-info"
+              >
+                Sign-in and security
+              </Link>
+              .
+            </Trans>
+          </p>
+        </div>
       ) : null}
       {on ? (
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -178,7 +195,7 @@ export function AppLockSettings({ keptCount }: { keptCount: number }) {
       ) : null}
       {sheet === 'passkey' ? (
         <PinSheet
-          title={<Trans>Use Face ID or fingerprint</Trans>}
+          title={<Trans>Unlock with Face ID or fingerprint</Trans>}
           steps={[current]}
           onClose={() => setSheet(null)}
           onDone={async ([pin]) => {

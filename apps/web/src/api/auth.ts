@@ -1,13 +1,16 @@
-/** Better Auth calls (sign-in, second factor, passkeys). Paths in ./paths.ts. */
-import { startAuthentication } from '@simplewebauthn/browser';
+/** Better Auth calls (sign-in, second factor, passkeys), and Kept's Sign-in and security
+ * routes. Paths in ./paths.ts. */
+import { startAuthentication, startRegistration } from '@simplewebauthn/browser';
 import { assistantStore } from '@/assistant/store';
 import { TRY } from '@/try/flag';
 import { api } from './client';
 import { paths } from './paths';
 import type {
   EmailChangeStage,
+  PasskeyView,
   SignInMethod,
   SignInResult,
+  SignInSecurity,
   SignUpBody,
   TwoFactorEnableResult,
 } from './types';
@@ -69,9 +72,11 @@ export function startLinkSignIn(
 /** The account's sign-in methods: `credential` (a password), `oidc`, `google`. */
 export const listSignInMethods = () => api.get<SignInMethod[]>(paths.auth.listAccounts);
 
-/** Unlinks one (by Better Auth's row id): from a fresh session, never the last way in. */
-export const unlinkSignInMethod = (id: string) =>
-  api.post<{ status: boolean }>(paths.auth.unlinkAccount, { accountId: id });
+/** Unlinks one (by Better Auth's row id), after confirm-it's-you: the password, or a sign-in in
+ * the last ten minutes on an account without one. Never the last way in (409
+ * `last_sign_in_method`). */
+export const unlinkSignInMethod = (id: string, password?: string) =>
+  api.del(paths.myLinked(id), password ? { password } : {});
 
 /** The server mails a link to /auth/confirm#token=…; the fragment never reaches it. */
 export function requestMagicLink(email: string) {
@@ -99,10 +104,48 @@ export function verifyBackupCode(code: string) {
   return api.post<unknown>(paths.auth.twoFactorVerifyBackupCode, { code: code.trim() });
 }
 
-/** Starts enrolment: the secret and backup codes exist, but 2FA is on only after verifyTotp. */
-export function enableTwoFactor(password: string) {
-  return api.post<TwoFactorEnableResult>(paths.auth.twoFactorEnable, { password });
+const reauthBody = (password: string | undefined) => (password ? { password } : {});
+
+/**
+ * Starts the authenticator app: the secret and backup codes exist, but it is on only after
+ * verifyTotp. `password` on an account with one; without, a sign-in in the last ten minutes.
+ */
+export function enableTwoFactor(password?: string) {
+  return api.post<TwoFactorEnableResult>(paths.myTwoFactor.enable, reauthBody(password));
 }
+
+/** What signs this account in: passkeys, the authenticator app, a password, outside sign-ins. */
+export const getSignInSecurity = () => api.get<SignInSecurity>(paths.mySignIn);
+
+export const renamePasskey = (id: string, name: string, password?: string) =>
+  api.patch<PasskeyView>(paths.myPasskey(id), { name: name.trim(), ...reauthBody(password) });
+
+/** 409 `last_sign_in_method` when nothing else would sign the account in. */
+export const removePasskey = (id: string, password?: string) =>
+  api.del(paths.myPasskey(id), reauthBody(password));
+
+/** 409 `two_factor_required` while a location asks for it and no passkey can stand in. */
+export const disableTwoFactor = (password?: string) =>
+  api.post<void>(paths.myTwoFactor.disable, reauthBody(password));
+
+/** Ten new backup codes, shown once; the old ones stop working. */
+export const newBackupCodes = (password?: string) =>
+  api.post<{ backupCodes: string[] }>(paths.myTwoFactor.backupCodes, reauthBody(password));
+
+/** Lets this session add one passkey in the next five minutes: an account with a password must
+ * give it before Better Auth's registration (403 `PASSKEY_CONFIRM_REQUIRED` otherwise). */
+export const confirmPasskeyAdd = (password?: string) =>
+  api.post<void>(paths.myPasskeyConfirm, reauthBody(password));
+
+/** A new secret for a new app; the current app keeps working until finishSetUpAgain. */
+export const startSetUpAgain = (password?: string) =>
+  api.post<{ totpURI: string }>(paths.myTwoFactor.setUpAgain, reauthBody(password));
+
+/** A code from the new app: the new app replaces the old one, with ten new backup codes. */
+export const finishSetUpAgain = (code: string) =>
+  api.post<{ backupCodes: string[] }>(paths.myTwoFactor.setUpAgainVerify, {
+    code: code.replace(/\s+/g, ''),
+  });
 
 export function changePassword(currentPassword: string, newPassword: string) {
   return api.post<unknown>(paths.auth.changePassword, {
@@ -132,6 +175,37 @@ export async function signInWithPasskey(): Promise<unknown> {
   }
   const { clientExtensionResults: _ignored, ...body } = response;
   return api.post<unknown>(paths.auth.passkeyVerifyAuthentication, { response: body });
+}
+
+/** The browser already holds a passkey of this account for Kept. */
+export class PasskeyExists extends Error {
+  constructor() {
+    super('This device already has a passkey for this account');
+    this.name = 'PasskeyExists';
+  }
+}
+
+/**
+ * Adds a passkey to the signed-in account: Better Auth's registration ceremony. It needs a
+ * sign-in in the last ten minutes (403 `SESSION_NOT_FRESH`) and, with mail on, a verified address
+ * (403 `EMAIL_UNVERIFIED`). Throws PasskeyCancelled when the person closes the browser's dialog.
+ */
+export async function addPasskey(name: string): Promise<PasskeyView> {
+  // biome-ignore lint/suspicious/noExplicitAny: the options JSON is passed through untouched
+  const optionsJSON = await api.get<any>(paths.auth.passkeyRegisterOptions);
+  let response: Awaited<ReturnType<typeof startRegistration>>;
+  try {
+    response = await startRegistration({ optionsJSON });
+  } catch (err) {
+    if ((err as { code?: unknown }).code === 'ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED') {
+      throw new PasskeyExists();
+    }
+    throw new PasskeyCancelled();
+  }
+  return api.post<PasskeyView>(paths.auth.passkeyVerifyRegistration, {
+    response,
+    name: name.trim(),
+  });
 }
 
 export function passkeysSupported(): boolean {

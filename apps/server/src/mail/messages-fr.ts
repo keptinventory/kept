@@ -34,7 +34,7 @@ const FR_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
       'Une nouvelle clé d’accès a été ajoutée à votre compte Kept, et tous vos autres appareils ont été déconnectés.',
     ],
     footnote:
-      'Si vous n’êtes pas à l’origine de cet ajout, réinitialisez dès maintenant votre mot de passe et supprimez la clé d’accès dans les paramètres de votre compte.',
+      'Si vous n’êtes pas à l’origine de cet ajout, réinitialisez dès maintenant votre mot de passe et supprimez la clé d’accès dans Paramètres → Connexion et sécurité.',
   }),
   'two-factor-disabled': () => ({
     subject: 'La double authentification a été désactivée',
@@ -43,6 +43,43 @@ const FR_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
     ],
     footnote:
       'Si vous n’êtes pas à l’origine de ce changement, réinitialisez dès maintenant votre mot de passe et réactivez la double authentification.',
+  }),
+  'passkey-removed': () => ({
+    subject: 'Une clé d’accès a été supprimée de votre compte Kept',
+    paragraphs: [
+      'Une clé d’accès a été supprimée de votre compte Kept, et tous vos autres appareils ont été déconnectés. Elle ne permet plus de vous connecter.',
+    ],
+    footnote: FR_NOT_YOU,
+  }),
+  'two-factor-enabled': () => ({
+    subject: 'La double authentification a été activée',
+    paragraphs: [
+      'La double authentification a été activée pour votre compte Kept, et tous vos autres appareils ont été déconnectés. La connexion demande désormais un code de votre application d’authentification.',
+    ],
+    footnote:
+      'Si vous n’êtes pas à l’origine de ce changement, réinitialisez dès maintenant votre mot de passe et vérifiez Paramètres → Connexion et sécurité.',
+  }),
+  'two-factor-replaced': () => ({
+    subject: 'La double authentification a été configurée à nouveau',
+    paragraphs: [
+      'La double authentification de votre compte Kept a été configurée à nouveau avec une nouvelle application d’authentification, et tous vos autres appareils ont été déconnectés. Les codes de l’ancienne application et les anciens codes de secours ne fonctionnent plus.',
+    ],
+    footnote:
+      'Si vous n’êtes pas à l’origine de ce changement, réinitialisez dès maintenant votre mot de passe et vérifiez Paramètres → Connexion et sécurité.',
+  }),
+  'backup-codes-new': () => ({
+    subject: 'De nouveaux codes de secours ont été créés pour votre compte Kept',
+    paragraphs: [
+      'De nouveaux codes de secours de double authentification ont été créés pour votre compte Kept, et tous vos autres appareils ont été déconnectés. Les anciens codes de secours ne fonctionnent plus.',
+    ],
+    footnote: FR_NOT_YOU,
+  }),
+  'sign-in-unlinked': () => ({
+    subject: 'Un moyen de connexion a été dissocié de votre compte Kept',
+    paragraphs: [
+      'Un moyen de connexion externe (comme Google) a été dissocié de votre compte Kept, et tous vos autres appareils ont été déconnectés. Il ne permet plus de vous connecter.',
+    ],
+    footnote: FR_NOT_YOU,
   }),
   'password-changed': () => ({
     subject: 'Le mot de passe de votre compte Kept a été modifié',

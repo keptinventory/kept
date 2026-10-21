@@ -8,7 +8,7 @@
 //   node --conditions=kept-dist e2e/serve-all.mjs <status-port>
 //
 // The instances come from KEPT_E2E_SERVE: a JSON array of { name, port, seed, aiMock, https,
-// owner } (playwright.config.ts writes it). KEPT_E2E_START_CONCURRENCY caps how many start at
+// owner, trustProxy } (playwright.config.ts writes it). KEPT_E2E_START_CONCURRENCY caps how many start at
 // once (default 4: each seed opens its own pools on the dev Postgres, max_connections 100).
 //
 // One instance that exits before it is ready fails the whole start, with its output above. On
@@ -82,6 +82,7 @@ function start(i) {
     i.aiMock && '--ai-mock',
     i.https && '--https',
     i.owner && '--owner',
+    i.trustProxy && '--trust-proxy',
   ].filter(Boolean);
   const child = spawn(
     process.execPath,

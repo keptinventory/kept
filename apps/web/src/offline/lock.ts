@@ -144,7 +144,7 @@ export async function changePin(
 type PrfOutputs = { enabled?: boolean; results?: { first?: BufferSource } };
 type WithPrf = { prf?: PrfOutputs };
 
-/** "Use Face ID or fingerprint" is offered only where the platform can verify the person (L1
+/** "Unlock with Face ID or fingerprint" is offered only where the platform can verify the person (L1
  * finding 4). */
 export async function passkeyAvailable(): Promise<boolean> {
   try {

@@ -332,7 +332,11 @@ describe('sessions', () => {
     const user = await newUser('tfa');
     const a = await signIn(user.email);
     const b = await signIn(user.email);
-    const enabled = await auth('/two-factor/enable', { cookie: a, body: { password: PASSWORD } });
+    // Kept's route (Better Auth's own is off over HTTP), which starts it through Better Auth.
+    const enabled = await call('/api/v1/me/two-factor/enable', {
+      cookie: a,
+      body: { password: PASSWORD },
+    });
     expect(enabled.statusCode).toBe(200);
     expect((await call('/api/v1/me/sessions', { cookie: b })).statusCode).toBe(401);
     expect((await call('/api/v1/me/sessions', { cookie: jar(enabled, a) })).statusCode).toBe(200);

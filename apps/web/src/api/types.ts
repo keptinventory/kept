@@ -81,6 +81,25 @@ export type SignInResult =
 
 export type TwoFactorEnableResult = { totpURI: string; backupCodes: string[] };
 
+/** One of the person's passkeys (GET /api/v1/me/sign-in): never its key or credential id. */
+export type PasskeyView = {
+  id: string;
+  name: string | null;
+  createdAt: string | null;
+  /** Synced by a password manager or the platform; false: on this one device only. */
+  backedUp: boolean;
+  deviceType: string;
+};
+
+/** GET /api/v1/me/sign-in: what signs this account in. Never a secret or a code. */
+export type SignInSecurity = {
+  password: boolean;
+  passkeys: PasskeyView[];
+  twoFactor: { enabled: boolean; backupCodesLeft: number | null };
+  linked: { providerId: string }[];
+  emailLink: boolean;
+};
+
 // ----- me (18) -------------------------------------------------------------------------------
 
 /** GET /api/v1/me: the signed-in person and what the shell needs about them. */

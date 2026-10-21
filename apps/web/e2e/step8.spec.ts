@@ -9,7 +9,8 @@
  *    whose pg_dump is older than the database records `pg_version_mismatch`; the image ships
  *    matching tools, and the Compose check takes a real snapshot).
  * 2. The app lock with a STUBBED WebAuthn (never a real authenticator): a PIN set in This device,
- *    Face ID or fingerprint enrolled through the stub's PRF secret, then a reload asks for the PIN
+ *    "Unlock with Face ID or fingerprint" (which says it unlocks this device only, and where
+ *    passkeys are added) enrolled through the stub's PRF secret, then a reload asks for the PIN
  *    (a wrong one is refused, the right one opens Kept), and another reload opens with Face ID.
  *
  * Every page a test visits is checked with axe (nothing above "minor").
@@ -117,7 +118,15 @@ test('the app lock: a PIN, Face ID through a stubbed WebAuthn, the lock screen a
   const toasts = page.getByRole('region', { name: 'Notifications' });
   await expect(toasts).toContainText('Kept locks on this device now', { timeout: 60_000 });
 
-  await page.getByRole('switch', { name: 'Use Face ID or fingerprint' }).click({ force: true });
+  // It unlocks this device; signing in with a passkey is Settings → Sign-in and security's.
+  await expect(page.getByText(/Unlocks Kept on this device only\./)).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Sign-in and security' })).toHaveAttribute(
+    'href',
+    '/settings#sign-in-security',
+  );
+  await page
+    .getByRole('switch', { name: 'Unlock with Face ID or fingerprint' })
+    .click({ force: true });
   await expect(toasts).toContainText('Face ID or fingerprint can unlock Kept now');
 
   // A cold start asks for the PIN: a wrong one is refused, the right one opens Kept.

@@ -3,6 +3,7 @@
 // e2e/instances.ts). Run with the compiled server, the way production runs it:
 //
 //   node --conditions=kept-dist e2e/serve.mjs <name> <port> [--seed] [--ai-mock] [--https] [--owner]
+//     [--trust-proxy]
 //
 // 1. Creates a scratch database `kept_e2e_<name>_<pid>` on the dev Postgres (localhost:5452,
 //    compose.dev.yaml), never the dev `kept` database, and migrates it as kept_owner.
@@ -25,6 +26,9 @@
 //    (the browser context takes ignoreHTTPSErrors) and forwards to the server on <port> + 1000.
 //    With --owner (step 8: Admin → Backups' Run now), the server also gets the owner login
 //    (KEPT_OWNER_DATABASE_URL), which a backup run needs; KEPT_RESTIC_BIN passes through when set.
+//    With --trust-proxy (Sign-in and security's journeys), the server believes X-Forwarded-For
+//    from this machine (KEPT_TRUSTED_PROXIES), so a test can give its sign-ins an address of
+//    their own and Better Auth's per-address sign-in limit holds per journey.
 // 4. On SIGTERM or SIGINT (Playwright's gracefulShutdown), stops the server and drops the
 //    database. A database left behind by a run that was killed outright is dropped by the next
 //    run of the same instance.
@@ -42,7 +46,7 @@ const [name, portArg, ...flags] = process.argv.slice(2);
 const port = Number(portArg);
 if (!name || !/^[a-z-]+$/.test(name) || !Number.isInteger(port)) {
   console.error(
-    'usage: node --conditions=kept-dist e2e/serve.mjs <name> <port> [--seed] [--ai-mock] [--https] [--owner]',
+    'usage: node --conditions=kept-dist e2e/serve.mjs <name> <port> [--seed] [--ai-mock] [--https] [--owner] [--trust-proxy]',
   );
   process.exit(2);
 }
@@ -50,6 +54,7 @@ const seed = flags.includes('--seed');
 const aiMock = flags.includes('--ai-mock');
 const tls = flags.includes('--https');
 const owner = flags.includes('--owner');
+const trustProxy = flags.includes('--trust-proxy');
 // Behind the TLS proxy the server itself listens 1000 above the public port.
 const serverPort = tls ? port + 1000 : port;
 
@@ -222,6 +227,7 @@ const env = {
   KEPT_LOG_LEVEL: 'warn',
   ...(aiMock ? { KEPT_AI_MOCK: '1' } : {}),
   ...(owner ? { KEPT_OWNER_DATABASE_URL: url('kept_owner') } : {}),
+  ...(trustProxy ? { KEPT_TRUSTED_PROXIES: '127.0.0.1,::1' } : {}),
   ...(process.env.KEPT_RESTIC_BIN ? { KEPT_RESTIC_BIN: process.env.KEPT_RESTIC_BIN } : {}),
 };
 

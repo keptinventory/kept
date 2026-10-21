@@ -26589,3 +26589,224 @@ msgstr "Kept stores it as the serial number or the barcode: you pick."
 #: src/components/scan/barcode-sheet.tsx
 msgid "Kept stores the barcode and serial number with it."
 msgstr "Kept stores the barcode and serial number with it."
+
+#: src/routes/invite.tsx
+msgid "Add one in Sign-in and security"
+msgstr "Add one in Sign-in and security"
+
+#: src/routes/signin/index.tsx
+msgid "That passkey isn't one this account signs in with. A device's app lock can't sign you in. Sign in another way, then add a passkey in Settings → Sign-in and security."
+msgstr "That passkey isn't one this account signs in with. A device's app lock can't sign you in. Sign in another way, then add a passkey in Settings → Sign-in and security."
+
+#: src/routes/_app/settings.location.$id.invite.tsx
+msgid "They add one in Sign-in and security"
+msgstr "They add one in Sign-in and security"
+
+#: src/routes/_app/settings.two-factor.tsx
+msgid "Kept emails you a sign-in link; opening it confirms the address. Opening it also removes this account's password, passkeys and other sessions, so nobody who set them up before you keeps a way in. Then come back here within ten minutes."
+msgstr "Kept emails you a sign-in link; opening it confirms the address. Opening it also removes this account's password, passkeys and other sessions, so nobody who set them up before you keeps a way in. Then come back here within ten minutes."
+
+#: src/routes/_app/settings.two-factor.tsx
+msgid "After this, signing in with a sign-in link or Google also asks for a 6-digit code from an authenticator app (1Password, Google Authenticator, Aegis…)."
+msgstr "After this, signing in with a sign-in link or Google also asks for a 6-digit code from an authenticator app (1Password, Google Authenticator, Aegis…)."
+
+#: src/components/page.tsx
+msgid "That's your only way to sign in. Add another passkey or link another sign-in first."
+msgstr "That's your only way to sign in. Add another passkey or link another sign-in first."
+
+#: src/components/page.tsx
+msgid "A location you belong to asks for two-factor. Add a passkey first, then turn the authenticator app off."
+msgstr "A location you belong to asks for two-factor. Add a passkey first, then turn the authenticator app off."
+
+#: src/components/sign-in-security.household.tsx
+#: src/components/sign-in-security.tsx
+msgid "Loading your sign-in settings"
+msgstr "Loading your sign-in settings"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys"
+msgstr "Passkeys"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Add a passkey"
+msgstr "Add a passkey"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Sign in with Face ID, a fingerprint or your phone's screen lock instead of typing a password. A passkey counts as two-factor on its own."
+msgstr "Sign in with Face ID, a fingerprint or your phone's screen lock instead of typing a password. A passkey counts as two-factor on its own."
+
+#: src/components/sign-in-security.household.tsx
+msgid "This browser can't add a passkey. Try another browser or device."
+msgstr "This browser can't add a passkey. Try another browser or device."
+
+#: src/components/sign-in-security.household.tsx
+msgid "No passkeys yet"
+msgstr "No passkeys yet"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkey"
+msgstr "Passkey"
+
+#: src/components/sign-in-security.household.tsx
+msgid "This device only"
+msgstr "This device only"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkey added"
+msgstr "Passkey added"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Use {NAME_MAX} characters or fewer."
+msgstr "Use {NAME_MAX} characters or fewer."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Your browser asks for Face ID, a fingerprint or your screen lock. The passkey is kept by this device or your password manager; Kept never sees it."
+msgstr "Your browser asks for Face ID, a fingerprint or your screen lock. The passkey is kept by this device or your password manager; Kept never sees it."
+
+#: src/components/sign-in-security.household.tsx
+msgid "So you can tell your passkeys apart."
+msgstr "So you can tell your passkeys apart."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Adding a passkey needs a sign-in in the last ten minutes."
+msgstr "Adding a passkey needs a sign-in in the last ten minutes."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Sign in once with a link sent to your email address, then add the passkey."
+msgstr "Sign in once with a link sent to your email address, then add the passkey."
+
+#: src/components/sign-in-security.household.tsx
+msgid "This device already has a passkey for your account."
+msgstr "This device already has a passkey for your account."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Rename passkey"
+msgstr "Rename passkey"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkey renamed"
+msgstr "Passkey renamed"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Remove <0>{name}</0>?"
+msgstr "Remove <0>{name}</0>?"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkey removed"
+msgstr "Passkey removed"
+
+#: src/components/sign-in-security.household.tsx
+msgid "It stops signing you in, and every other device is signed out. The passkey itself stays on the device until you delete it there."
+msgstr "It stops signing you in, and every other device is signed out. The passkey itself stays on the device until you delete it there."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Authenticator app"
+msgstr "Authenticator app"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Two-factor with an authenticator app"
+msgstr "Two-factor with an authenticator app"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Off. Some locations ask for it; until you turn it on, or sign in with a passkey, they stay hidden for you."
+msgstr "Off. Some locations ask for it; until you turn it on, or sign in with a passkey, they stay hidden for you."
+
+#: src/components/sign-in-security.household.tsx
+msgid "{0} of {1} backup codes left"
+msgstr "{0} of {1} backup codes left"
+
+#: src/components/sign-in-security.household.tsx
+msgid "New backup codes"
+msgstr "New backup codes"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Set up again"
+msgstr "Set up again"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Make new codes"
+msgstr "Make new codes"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Ten new codes, shown once. Your old backup codes stop working, and every other device is signed out."
+msgstr "Ten new codes, shown once. Your old backup codes stop working, and every other device is signed out."
+
+#: src/components/sign-in-security.household.tsx
+msgid "The new app is set up. Codes from the old one no longer work."
+msgstr "The new app is set up. Codes from the old one no longer work."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Until you enter a code from the new app, your current app keeps working. Close this and nothing changes."
+msgstr "Until you enter a code from the new app, your current app keeps working. Close this and nothing changes."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Use the new app"
+msgstr "Use the new app"
+
+#: src/components/sign-in-security.household.tsx
+msgid "For a new phone or another authenticator app. Your current app keeps working until the new one is set up; then it stops, your backup codes are replaced, and every other device is signed out."
+msgstr "For a new phone or another authenticator app. Your current app keeps working until the new one is set up; then it stops, your backup codes are replaced, and every other device is signed out."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Turn off two-factor?"
+msgstr "Turn off two-factor?"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Two-factor is off"
+msgstr "Two-factor is off"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Signing in stops asking for a code, your backup codes stop working, and every other device is signed out. Locations that ask for two-factor stay hidden until you sign in with a passkey or turn it on again."
+msgstr "Signing in stops asking for a code, your backup codes stop working, and every other device is signed out. Locations that ask for two-factor stay hidden until you sign in with a passkey or turn it on again."
+
+#: src/components/sign-in-security.tsx
+msgid "Sign-in and security"
+msgstr "Sign-in and security"
+
+#: src/components/totp-setup.tsx
+msgid "Backup codes"
+msgstr "Backup codes"
+
+#: src/components/history/labels.ts
+msgid "Renamed a passkey"
+msgstr "Renamed a passkey"
+
+#: src/components/history/labels.ts
+msgid "Removed a passkey"
+msgstr "Removed a passkey"
+
+#: src/components/history/labels.ts
+msgid "Started setting up two-factor"
+msgstr "Started setting up two-factor"
+
+#: src/components/history/labels.ts
+msgid "Turned off two-factor"
+msgstr "Turned off two-factor"
+
+#: src/components/history/labels.ts
+msgid "Made new backup codes"
+msgstr "Made new backup codes"
+
+#: src/components/history/labels.ts
+msgid "Set up two-factor again"
+msgstr "Set up two-factor again"
+
+#: src/components/device/app-lock-settings.tsx
+msgid "Unlock with Face ID or fingerprint"
+msgstr "Unlock with Face ID or fingerprint"
+
+#: src/components/device/app-lock-settings.tsx
+msgid "Unlocks Kept on this device only. To sign in with a passkey, add one in <0>Sign-in and security</0>."
+msgstr "Unlocks Kept on this device only. To sign in with a passkey, add one in <0>Sign-in and security</0>."
+
+#: src/components/history/labels.ts
+msgid "Added a passkey"
+msgstr "Added a passkey"
+
+#: src/components/history/labels.ts
+msgid "Turned on two-factor"
+msgstr "Turned on two-factor"
+
+#: src/components/history/labels.ts
+msgid "Unlinked an outside sign-in"
+msgstr "Unlinked an outside sign-in"

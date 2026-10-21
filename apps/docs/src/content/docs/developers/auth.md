@@ -56,9 +56,55 @@ the ones that finish or abandon sign-in. Whether the session proved a factor bec
 the database scope, which hides locations with "require two-factor" until it is true
 ([row-level security](/developers/rls/)).
 
-Changing the sign-in email and downloading the recovery kit need **re-authentication**
-(`auth/reauth.ts`): the password again, or a sign-in in the last few minutes for an account
-without one. The answer is 403 `reauth_required`.
+Changing the sign-in email, downloading the recovery kit, deleting the account and every change in
+Settings → Sign-in and security need **re-authentication** (`auth/reauth.ts`): the password
+again, or a sign-in in the last ten minutes for an account without one. The answer is 403
+`reauth_required` with `reauth: 'password' | 'sign_in'`.
+
+## Passkeys and the authenticator app
+
+Settings → Sign-in and security goes through Kept's routes (`auth/sign-in-security.ts`), each
+behind re-authentication:
+
+| Route | Does |
+|---|---|
+| `GET /api/v1/me/sign-in` | Password or not, passkeys (name, date, synced), two-factor on and backup codes left, linked sign-ins, whether an email link signs in. Never a secret, a public key or a code |
+| `POST /api/v1/me/passkeys/confirm` | Lets this session add one passkey in the next five minutes (an account with a password must, before Better Auth's registration) |
+| `PATCH /api/v1/me/passkeys/:id` | Rename (1 to 64 characters) |
+| `DELETE /api/v1/me/linked/:id` | Unlink an outside sign-in; 409 `last_sign_in_method` for the last way in |
+| `DELETE /api/v1/me/passkeys/:id` | Remove; 409 `last_sign_in_method` when nothing else signs the account in, 409 `two_factor_required` for the last passkey while a location requires two-factor and the app is off |
+| `POST /api/v1/me/two-factor/enable` | Start the authenticator app; on once Better Auth's `/two-factor/verify-totp` proves a first code |
+| `POST /api/v1/me/two-factor/backup-codes` | Ten new codes; the old ones stop working |
+| `POST /api/v1/me/two-factor/set-up-again` | Stage a new secret (encrypted, for this session, 15 minutes) |
+| `POST /api/v1/me/two-factor/set-up-again/verify` | A code from the new app swaps the secret and the backup codes |
+| `POST /api/v1/me/two-factor/disable` | Off; 409 `two_factor_required` while a location requires it and the account has no passkey |
+
+Another person's passkey id answers 404, as a missing one. Adding a passkey is Better Auth's own
+ceremony (`/passkey/generate-register-options`, `/passkey/verify-registration`), which needs a
+sign-in in the last ten minutes, on an account with a password Kept's confirmation (403
+`PASSKEY_CONFIRM_REQUIRED` without it), user verification and a discoverable credential, and
+refuses `createSession` and names over 64 characters. Its answer to the browser carries no public
+key or credential id, and it is audited (`passkey.add`).
+
+Unlinking an outside sign-in is Kept's `DELETE /api/v1/me/linked/:id` (Better Auth's
+`/unlink-account` answers 404 over HTTP): confirm-it's-you, 409 `last_sign_in_method` for the last
+way in, then the other sessions are signed out, the owner is mailed and it is audited. Ways in are
+counted in one transaction holding the account's row lock (`FOR NO KEY UPDATE` on `auth.user`),
+which removing a passkey and unlinking both take, so neither can remove the last one at the same
+moment as the other. The wait for the lock is short (2 s); past it the answer is 409 `conflict`.
+A linked account counts only while its provider is configured. When Better Auth swaps the session
+(turning two-factor on or off), the new one keeps the old one's sign-in time, so it never counts
+as a fresh sign-in.
+
+Better Auth's own two-factor, passkey and unlink management
+(`/two-factor/enable`, `/disable`, `/generate-backup-codes`, `/get-totp-uri`,
+`/passkey/list-user-passkeys`, `/update-passkey`, `/delete-passkey`, `/unlink-account`) answers
+404 over HTTP (`SIGN_IN_MANAGEMENT_PATHS`): with `allowPasswordless` on, it would let any session
+of a passwordless account turn two-factor off. Kept calls the two-factor ones through `auth.api`.
+
+Set up again never uses Better Auth's `/two-factor/enable`, which refuses an account that has
+two-factor on. The old secret signs in until the new one's first code is proven. Every change
+except a rename signs out the other sessions and mails the owner.
 
 ## Limits
 

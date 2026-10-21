@@ -31,6 +31,8 @@ describe('ErrorCode', () => {
       'invite_invalid',
       'last_owner',
       'reauth_required',
+      'last_sign_in_method',
+      'two_factor_required',
       'token_invalid',
       'recovery_kit_required',
       'account_deletion_pending',

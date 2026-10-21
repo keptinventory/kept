@@ -254,7 +254,7 @@ describe('Settings → Me', () => {
     const { user, mock } = await renderApp('/settings', { state: firstRunScenario() });
     await user.click(await screen.findByRole('link', { name: 'Turn on' }));
     await findHeading('Turn on two-factor');
-    await user.type(screen.getByLabelText('Your password'), 'wrong');
+    await user.type(await screen.findByLabelText('Your password'), 'wrong');
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(await screen.findByText("That password isn't right.")).toBeInTheDocument();
     await user.clear(screen.getByLabelText('Your password'));
@@ -279,7 +279,7 @@ describe('Settings → Me', () => {
       setup: (m) =>
         m.on(
           'POST',
-          paths.auth.twoFactorEnable,
+          paths.myTwoFactor.enable,
           () =>
             new MockReply(403, {
               code: 'EMAIL_UNVERIFIED',
@@ -288,7 +288,7 @@ describe('Settings → Me', () => {
         ),
     });
     await findHeading('Turn on two-factor');
-    await user.type(screen.getByLabelText('Your password'), 'correct horse battery');
+    await user.type(await screen.findByLabelText('Your password'), 'correct horse battery');
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(await screen.findByText('Confirm your email address first')).toBeInTheDocument();
     expect(screen.getByText(/also removes this account's password/)).toBeInTheDocument();

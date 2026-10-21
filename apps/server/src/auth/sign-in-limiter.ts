@@ -57,7 +57,9 @@ export function limiterKey(
     | 'share-link'
     // 1.x (D248): testing a location's Paperless connection, and searching it, per person.
     | 'paperless-check'
-    | 'paperless-search',
+    | 'paperless-search'
+    // Starts of "Set up again" for the authenticator app, per person.
+    | 'two-factor-setup',
   ...parts: string[]
 ): string {
   const normalised = parts.map((p) => p.trim().toLowerCase());

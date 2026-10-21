@@ -1,6 +1,6 @@
 /**
  * Re-authentication before a sensitive action (D176; step-8 T22): the recovery kit's download,
- * and deleting the account (D225).
+ * deleting the account (D225), and every change in Settings → Sign-in and security.
  * The password again, or, for an account without one (passkey or magic link only) whose sign-in
  * is over ten minutes old, "Sign in again". The server says which (403 `reauth_required` with
  * `details.reauth`: `password` or `sign_in`); a wrong password keeps the sheet open with the
@@ -29,6 +29,11 @@ export type ReauthSheetProps = {
   onClose: () => void;
   /** The page the sign-in returns to after "Sign in again". */
   returnTo: string;
+  /** False when the account is known to have no password: no password field, and a recent
+   * sign-in is what confirms. Default: the field is shown. */
+  hasPassword?: boolean;
+  /** Keeps the submit button off (a required field of the sheet's own is empty). */
+  isSubmitDisabled?: boolean;
 };
 
 export function ReauthSheet({
@@ -39,6 +44,8 @@ export function ReauthSheet({
   onSubmit,
   onClose,
   returnTo,
+  hasPassword = true,
+  isSubmitDisabled = false,
 }: ReauthSheetProps) {
   const { t } = useLingui();
   const errorText = useErrorText();
@@ -100,7 +107,7 @@ export function ReauthSheet({
                 then come back here.
               </Trans>
             </Notice>
-          ) : (
+          ) : !hasPassword ? null : (
             <PasswordField
               label={t`Your password`}
               description={t`No password on your account? Leave this empty: a sign-in in the last ten minutes is enough.`}
@@ -120,7 +127,7 @@ export function ReauthSheet({
               type="submit"
               variant={submitVariant}
               isPending={pending}
-              isDisabled={refusal === 'sign_in'}
+              isDisabled={refusal === 'sign_in' || isSubmitDisabled}
             >
               {submitLabel}
             </Button>

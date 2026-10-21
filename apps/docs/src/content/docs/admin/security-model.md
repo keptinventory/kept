@@ -58,10 +58,18 @@ Kept uses Better Auth on its own login and schema. What an account can sign in w
 
 - **Email and password.** A password reset signs the account out everywhere, and the owner is
   told by mail when a credential changes.
-- **Passkeys**, registered for the host name of `KEPT_PUBLIC_URL`.
+- **Passkeys**, registered for the host name of `KEPT_PUBLIC_URL`. Each must verify its user
+  (Face ID, a fingerprint, a PIN) and be discoverable.
 - **Two-factor** with an authenticator app (TOTP) or a passkey that verified the user. An emailed
   one-time code is never a second factor. A location's owner can require two-factor for everyone
-  in it.
+  in it. Accounts without a password can use the authenticator app too.
+- **Settings → Sign-in and security** adds, renames and removes passkeys, and turns the
+  authenticator app on, makes new backup codes, sets it up again and turns it off
+  ([Sign-in and security](/users/sign-in-security/)). Every change asks for the password, or a
+  sign-in in the last ten minutes on an account without one, and signs out every other device
+  (renaming aside). The server refuses removing the last way in, and turning two-factor off while
+  a location requires it and the account has no passkey. Setting the app up again keeps the old
+  secret working until a code from the new one is proven.
 - **Magic links** for existing accounts only (no open sign-up), valid 15 minutes. Mailed tokens
   travel in the link's `#fragment` and are spent by a POST from the page, so a mail scanner that
   opens links can't use them up; only a hash is stored.
@@ -73,8 +81,9 @@ Kept uses Better Auth on its own login and schema. What an account can sign in w
 - **Google**, when `KEPT_GOOGLE_CLIENT_ID` and `KEPT_GOOGLE_CLIENT_SECRET` are set, with the
   redirect URI Admin → Status shows. The same rules as OIDC, except that nobody gets in by
   domain: only an existing account that linked Google, or an invited person.
-- **Linking and unlinking** an outside sign-in happen in Settings → Me → Sign-in methods, from a
-  sign-in in the last ten minutes. An account keeps at least one way in.
+- **Linking and unlinking** an outside sign-in happen in Settings → Me → Sign-in methods.
+  Linking needs a sign-in in the last ten minutes; unlinking asks for the password (or that
+  recent sign-in on an account without one). An account keeps at least one way in.
 
 **Sessions** last 30 days over HTTPS, extended once a day of use, with `Secure`, `__Secure-`
 prefixed cookies. Over plain HTTP they last 12 hours and are never extended, and Kept refuses

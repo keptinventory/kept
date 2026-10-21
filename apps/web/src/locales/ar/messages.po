@@ -26589,3 +26589,224 @@ msgstr "يحفظه Kept على أنه الرقم التسلسلي أو الرم�
 #: src/components/scan/barcode-sheet.tsx
 msgid "Kept stores the barcode and serial number with it."
 msgstr "يحفظ Kept الرمز الشريطي والرقم التسلسلي معه."
+
+#: src/routes/invite.tsx
+msgid "Add one in Sign-in and security"
+msgstr "أضِف واحدًا من «تسجيل الدخول والأمان»"
+
+#: src/routes/signin/index.tsx
+msgid "That passkey isn't one this account signs in with. A device's app lock can't sign you in. Sign in another way, then add a passkey in Settings → Sign-in and security."
+msgstr "مفتاح المرور هذا ليس من مفاتيح الدخول إلى هذا الحساب. قفل التطبيق على الجهاز لا يُدخلك إلى حسابك. سجّل الدخول بطريقة أخرى، ثم أضِف مفتاح مرور من الإعدادات، قسم «تسجيل الدخول والأمان»."
+
+#: src/routes/_app/settings.location.$id.invite.tsx
+msgid "They add one in Sign-in and security"
+msgstr "يضيفونه من «تسجيل الدخول والأمان»"
+
+#: src/routes/_app/settings.two-factor.tsx
+msgid "Kept emails you a sign-in link; opening it confirms the address. Opening it also removes this account's password, passkeys and other sessions, so nobody who set them up before you keeps a way in. Then come back here within ten minutes."
+msgstr "يرسل لك Kept رابط دخول بالبريد، وفتحه يؤكد العنوان. ويزيل فتحه أيضًا كلمة مرور هذا الحساب ومفاتيح المرور والجلسات الأخرى، فلا يبقى لمن أعدّها قبلك طريق للدخول. ثم عد إلى هنا خلال عشر دقائق."
+
+#: src/routes/_app/settings.two-factor.tsx
+msgid "After this, signing in with a sign-in link or Google also asks for a 6-digit code from an authenticator app (1Password, Google Authenticator, Aegis…)."
+msgstr "بعد ذلك، يطلب تسجيل الدخول برابط دخول أو بحساب Google أيضًا رمزًا من ٦ أرقام من تطبيق مصادقة (مثل 1Password أو Google Authenticator أو Aegis…)."
+
+#: src/components/page.tsx
+msgid "That's your only way to sign in. Add another passkey or link another sign-in first."
+msgstr "هذه طريقتك الوحيدة لتسجيل الدخول. أضِف مفتاح مرور آخر أو اربط طريقة دخول أخرى أولًا."
+
+#: src/components/page.tsx
+msgid "A location you belong to asks for two-factor. Add a passkey first, then turn the authenticator app off."
+msgstr "أحد المواقع التي تنتمي إليها يطلب التحقق بخطوتين. أضِف مفتاح مرور أولًا، ثم أوقف تطبيق المصادقة."
+
+#: src/components/sign-in-security.household.tsx
+#: src/components/sign-in-security.tsx
+msgid "Loading your sign-in settings"
+msgstr "جارٍ تحميل إعدادات تسجيل الدخول"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys"
+msgstr "مفاتيح المرور"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Add a passkey"
+msgstr "أضِف مفتاح مرور"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Sign in with Face ID, a fingerprint or your phone's screen lock instead of typing a password. A passkey counts as two-factor on its own."
+msgstr "سجّل الدخول ببصمة الوجه أو ببصمة الإصبع أو بقفل شاشة هاتفك بدلًا من كتابة كلمة مرور. ويُعدّ مفتاح المرور وحده تحققًا بخطوتين."
+
+#: src/components/sign-in-security.household.tsx
+msgid "This browser can't add a passkey. Try another browser or device."
+msgstr "لا يستطيع هذا المتصفح إضافة مفتاح مرور. جرّب متصفحًا أو جهازًا آخر."
+
+#: src/components/sign-in-security.household.tsx
+msgid "No passkeys yet"
+msgstr "لا مفاتيح مرور بعد"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkey"
+msgstr "مفتاح مرور"
+
+#: src/components/sign-in-security.household.tsx
+msgid "This device only"
+msgstr "هذا الجهاز فقط"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkey added"
+msgstr "أُضيف مفتاح المرور"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Use {NAME_MAX} characters or fewer."
+msgstr "استخدم {NAME_MAX} حرفًا أو أقل."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Your browser asks for Face ID, a fingerprint or your screen lock. The passkey is kept by this device or your password manager; Kept never sees it."
+msgstr "يطلب متصفحك بصمة الوجه أو بصمة الإصبع أو قفل الشاشة. يحفظ هذا الجهاز أو مدير كلمات المرور مفتاحَ المرور، ولا يراه Kept أبدًا."
+
+#: src/components/sign-in-security.household.tsx
+msgid "So you can tell your passkeys apart."
+msgstr "لتميّز مفاتيح المرور بعضها من بعض."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Adding a passkey needs a sign-in in the last ten minutes."
+msgstr "تتطلب إضافة مفتاح مرور تسجيل دخول خلال الدقائق العشر الأخيرة."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Sign in once with a link sent to your email address, then add the passkey."
+msgstr "سجّل الدخول مرة برابط يُرسل إلى بريدك الإلكتروني، ثم أضِف مفتاح المرور."
+
+#: src/components/sign-in-security.household.tsx
+msgid "This device already has a passkey for your account."
+msgstr "على هذا الجهاز مفتاح مرور لحسابك بالفعل."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Rename passkey"
+msgstr "إعادة تسمية مفتاح المرور"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkey renamed"
+msgstr "أُعيدت تسمية مفتاح المرور"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Remove <0>{name}</0>?"
+msgstr "أتريد إزالة <0>{name}</0>؟"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkey removed"
+msgstr "أُزيل مفتاح المرور"
+
+#: src/components/sign-in-security.household.tsx
+msgid "It stops signing you in, and every other device is signed out. The passkey itself stays on the device until you delete it there."
+msgstr "لن يُدخلك بعد الآن، ويُسجَّل الخروج من جميع الأجهزة الأخرى. ويبقى مفتاح المرور نفسه على الجهاز حتى تحذفه منه."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Authenticator app"
+msgstr "تطبيق المصادقة"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Two-factor with an authenticator app"
+msgstr "التحقق بخطوتين بتطبيق مصادقة"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Off. Some locations ask for it; until you turn it on, or sign in with a passkey, they stay hidden for you."
+msgstr "متوقف. بعض المواقع تطلبه، وتبقى مخفية عنك حتى تفعّله أو تسجّل الدخول بمفتاح مرور."
+
+#: src/components/sign-in-security.household.tsx
+msgid "{0} of {1} backup codes left"
+msgstr "بقي {0} من {1} رموز احتياطية"
+
+#: src/components/sign-in-security.household.tsx
+msgid "New backup codes"
+msgstr "رموز احتياطية جديدة"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Set up again"
+msgstr "إعداد من جديد"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Make new codes"
+msgstr "أنشئ رموزًا جديدة"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Ten new codes, shown once. Your old backup codes stop working, and every other device is signed out."
+msgstr "عشرة رموز جديدة تُعرض مرة واحدة. تتوقف رموزك الاحتياطية القديمة عن العمل، ويُسجَّل الخروج من جميع الأجهزة الأخرى."
+
+#: src/components/sign-in-security.household.tsx
+msgid "The new app is set up. Codes from the old one no longer work."
+msgstr "أُعدّ التطبيق الجديد. لم تعد رموز التطبيق القديم تعمل."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Until you enter a code from the new app, your current app keeps working. Close this and nothing changes."
+msgstr "حتى تُدخل رمزًا من التطبيق الجديد، يبقى تطبيقك الحالي يعمل. أغلق هذا ولن يتغير شيء."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Use the new app"
+msgstr "استخدم التطبيق الجديد"
+
+#: src/components/sign-in-security.household.tsx
+msgid "For a new phone or another authenticator app. Your current app keeps working until the new one is set up; then it stops, your backup codes are replaced, and every other device is signed out."
+msgstr "لهاتف جديد أو لتطبيق مصادقة آخر. يبقى تطبيقك الحالي يعمل حتى يُعدّ الجديد، ثم يتوقف، وتُستبدل رموزك الاحتياطية، ويُسجَّل الخروج من جميع الأجهزة الأخرى."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Turn off two-factor?"
+msgstr "أتريد إيقاف التحقق بخطوتين؟"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Two-factor is off"
+msgstr "التحقق بخطوتين متوقف"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Signing in stops asking for a code, your backup codes stop working, and every other device is signed out. Locations that ask for two-factor stay hidden until you sign in with a passkey or turn it on again."
+msgstr "لن يطلب تسجيل الدخول رمزًا بعد الآن، وتتوقف رموزك الاحتياطية عن العمل، ويُسجَّل الخروج من جميع الأجهزة الأخرى. وتبقى المواقع التي تطلب التحقق بخطوتين مخفية حتى تسجّل الدخول بمفتاح مرور أو تفعّله من جديد."
+
+#: src/components/sign-in-security.tsx
+msgid "Sign-in and security"
+msgstr "تسجيل الدخول والأمان"
+
+#: src/components/totp-setup.tsx
+msgid "Backup codes"
+msgstr "الرموز الاحتياطية"
+
+#: src/components/history/labels.ts
+msgid "Renamed a passkey"
+msgstr "أعاد تسمية مفتاح مرور"
+
+#: src/components/history/labels.ts
+msgid "Removed a passkey"
+msgstr "أزال مفتاح مرور"
+
+#: src/components/history/labels.ts
+msgid "Started setting up two-factor"
+msgstr "بدأ إعداد التحقق بخطوتين"
+
+#: src/components/history/labels.ts
+msgid "Turned off two-factor"
+msgstr "أوقف التحقق بخطوتين"
+
+#: src/components/history/labels.ts
+msgid "Made new backup codes"
+msgstr "أنشأ رموزًا احتياطية جديدة"
+
+#: src/components/history/labels.ts
+msgid "Set up two-factor again"
+msgstr "أعاد إعداد التحقق بخطوتين"
+
+#: src/components/device/app-lock-settings.tsx
+msgid "Unlock with Face ID or fingerprint"
+msgstr "افتح القفل ببصمة الوجه أو الإصبع"
+
+#: src/components/device/app-lock-settings.tsx
+msgid "Unlocks Kept on this device only. To sign in with a passkey, add one in <0>Sign-in and security</0>."
+msgstr "يفتح قفل Kept على هذا الجهاز فقط. لتسجيل الدخول بمفتاح مرور، أضِف واحدًا من <0>تسجيل الدخول والأمان</0>."
+
+#: src/components/history/labels.ts
+msgid "Added a passkey"
+msgstr "أضاف مفتاح مرور"
+
+#: src/components/history/labels.ts
+msgid "Turned on two-factor"
+msgstr "فعّل التحقق بخطوتين"
+
+#: src/components/history/labels.ts
+msgid "Unlinked an outside sign-in"
+msgstr "ألغى ربط طريقة دخول خارجية"

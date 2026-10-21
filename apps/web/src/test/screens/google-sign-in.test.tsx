@@ -7,6 +7,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { instanceMock } from '@/api/connections/mock/instance';
 import { ownerScenario, signedOutScenario } from '@/api/mock/fixtures';
+import { paths } from '@/api/paths';
 import { leave } from '@/lib/leave';
 import { renderApp } from '../app';
 
@@ -96,36 +97,64 @@ describe('Settings → Me → Sign-in methods', () => {
     createdAt: '2026-10-01T09:00:00.000Z',
   };
 
-  it('unlinks Google after a confirm', async () => {
+  it('unlinks Google after a confirm sheet that asks for the password', async () => {
     const state = withGoogle();
     instanceMock(state).methods.push(googleMethod);
-    const { user } = await renderApp('/settings', { state });
+    const { user, mock } = await renderApp('/settings', { state });
     const section = (await screen.findByRole('heading', { name: 'Sign-in methods' })).closest(
       'section',
     ) as HTMLElement;
     expect(await within(section).findByText('Linked')).toBeInTheDocument();
     await user.click(within(section).getByRole('button', { name: 'Unlink' }));
-    const dialog = await screen.findByRole('alertdialog');
+    const dialog = await screen.findByRole('dialog', { name: 'Unlink Google?' });
+    await user.type(within(dialog).getByLabelText('Your password'), 'not it');
+    await user.click(within(dialog).getByRole('button', { name: 'Unlink' }));
+    expect(await within(dialog).findByText("That password isn't right.")).toBeInTheDocument();
+    await user.type(within(dialog).getByLabelText('Your password'), 'correct horse battery');
     await user.click(within(dialog).getByRole('button', { name: 'Unlink' }));
     await waitFor(() => expect(within(section).getAllByText('Not linked')).toHaveLength(2));
     expect(instanceMock(state).methods.map((m) => m.providerId)).toEqual(['credential']);
+    expect(mock.lastCall('DELETE', paths.myLinked('acc-google'))?.body).toEqual({
+      password: 'correct horse battery',
+    });
   });
 
   it('never unlinks the last way in, and says why', async () => {
     const state = withGoogle();
     instanceMock(state).methods = [googleMethod];
+    state.signIn.hasPassword = false;
+    state.signIn.passkeys = [];
+    state.freshSignIn = true;
     const { user } = await renderApp('/settings', { state });
     const section = (await screen.findByRole('heading', { name: 'Sign-in methods' })).closest(
       'section',
     ) as HTMLElement;
     await user.click(await within(section).findByRole('button', { name: 'Unlink' }));
-    await user.click(
-      within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Unlink' }),
-    );
+    const dialog = await screen.findByRole('dialog', { name: 'Unlink Google?' });
+    // No password on this account: nothing to type.
+    expect(within(dialog).queryByLabelText('Your password')).toBeNull();
+    await user.click(within(dialog).getByRole('button', { name: 'Unlink' }));
     expect(
-      await screen.findByText("That's your only way in. Add a password or another sign-in first."),
+      await within(dialog).findByText(
+        "That's your only way to sign in. Add another passkey or link another sign-in first.",
+      ),
     ).toBeInTheDocument();
     expect(instanceMock(state).methods).toHaveLength(1);
+  });
+
+  it('a passwordless account signed in long ago is asked to sign in again before unlinking', async () => {
+    const state = withGoogle();
+    instanceMock(state).methods.push(googleMethod);
+    state.signIn.hasPassword = false;
+    const { user } = await renderApp('/settings', { state });
+    const section = (await screen.findByRole('heading', { name: 'Sign-in methods' })).closest(
+      'section',
+    ) as HTMLElement;
+    await user.click(await within(section).findByRole('button', { name: 'Unlink' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Unlink Google?' });
+    await user.click(within(dialog).getByRole('button', { name: 'Unlink' }));
+    expect(await within(dialog).findByText(/signed in over ten minutes ago/)).toBeInTheDocument();
+    expect(instanceMock(state).methods).toHaveLength(2);
   });
 
   it('is absent when no outside sign-in is configured', async () => {

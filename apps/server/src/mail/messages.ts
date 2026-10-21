@@ -56,7 +56,7 @@ const EN_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
       'A new passkey was added to your Kept account, and every other device was signed out.',
     ],
     footnote:
-      'If this wasn’t you, reset your password now and remove the passkey in your account settings.',
+      'If this wasn’t you, reset your password now and remove the passkey in Settings → Sign-in and security.',
   }),
   'two-factor-disabled': () => ({
     subject: 'Two-factor sign-in was turned off',
@@ -64,6 +64,43 @@ const EN_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
       'Two-factor authentication was turned off for your Kept account, and every other device was signed out.',
     ],
     footnote: 'If this wasn’t you, reset your password now and turn two-factor back on.',
+  }),
+  'passkey-removed': () => ({
+    subject: 'A passkey was removed from your Kept account',
+    paragraphs: [
+      'A passkey was removed from your Kept account, and every other device was signed out. It no longer signs you in.',
+    ],
+    footnote: EN_NOT_YOU,
+  }),
+  'two-factor-enabled': () => ({
+    subject: 'Two-factor sign-in was turned on',
+    paragraphs: [
+      'Two-factor authentication was turned on for your Kept account, and every other device was signed out. Signing in now asks for a code from your authenticator app.',
+    ],
+    footnote:
+      'If this wasn’t you, reset your password now and check Settings → Sign-in and security.',
+  }),
+  'two-factor-replaced': () => ({
+    subject: 'Two-factor sign-in was set up again',
+    paragraphs: [
+      'Two-factor authentication for your Kept account was set up again with a new authenticator app, and every other device was signed out. The old app’s codes and the old backup codes no longer work.',
+    ],
+    footnote:
+      'If this wasn’t you, reset your password now and check Settings → Sign-in and security.',
+  }),
+  'backup-codes-new': () => ({
+    subject: 'New backup codes were made for your Kept account',
+    paragraphs: [
+      'New two-factor backup codes were made for your Kept account, and every other device was signed out. The old backup codes no longer work.',
+    ],
+    footnote: EN_NOT_YOU,
+  }),
+  'sign-in-unlinked': () => ({
+    subject: 'A sign-in was unlinked from your Kept account',
+    paragraphs: [
+      'An outside sign-in (such as Google) was unlinked from your Kept account, and every other device was signed out. It no longer signs you in.',
+    ],
+    footnote: EN_NOT_YOU,
   }),
   'password-changed': () => ({
     subject: 'Your Kept password was changed',
@@ -482,12 +519,50 @@ const AR_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
   'passkey-added': () => ({
     subject: 'أُضيف مفتاح مرور إلى حسابك على Kept',
     paragraphs: ['أُضيف مفتاح مرور جديد إلى حسابك على Kept، وسُجِّل الخروج من جميع الأجهزة الأخرى.'],
-    footnote: 'إذا لم تكن أنت، فأعد تعيين كلمة المرور فورًا واحذف مفتاح المرور من إعدادات حسابك.',
+    footnote:
+      'إذا لم تكن أنت، فأعد تعيين كلمة المرور فورًا واحذف مفتاح المرور من الإعدادات، قسم «تسجيل الدخول والأمان».',
   }),
   'two-factor-disabled': () => ({
     subject: 'أُوقف التحقق بخطوتين',
     paragraphs: ['أُوقف التحقق بخطوتين لحسابك على Kept، وسُجِّل الخروج من جميع الأجهزة الأخرى.'],
     footnote: 'إذا لم تكن أنت، فأعد تعيين كلمة المرور فورًا وأعد تفعيل التحقق بخطوتين.',
+  }),
+  'passkey-removed': () => ({
+    subject: 'حُذف مفتاح مرور من حسابك على Kept',
+    paragraphs: [
+      'حُذف مفتاح مرور من حسابك على Kept، وسُجِّل الخروج من جميع الأجهزة الأخرى. لم يعد هذا المفتاح يُدخلك إلى حسابك.',
+    ],
+    footnote: AR_NOT_YOU,
+  }),
+  'two-factor-enabled': () => ({
+    subject: 'فُعِّل التحقق بخطوتين',
+    paragraphs: [
+      'فُعِّل التحقق بخطوتين لحسابك على Kept، وسُجِّل الخروج من جميع الأجهزة الأخرى. يطلب تسجيل الدخول الآن رمزًا من تطبيق المصادقة.',
+    ],
+    footnote:
+      'إذا لم تكن أنت، فأعد تعيين كلمة المرور فورًا وراجع الإعدادات، قسم «تسجيل الدخول والأمان».',
+  }),
+  'two-factor-replaced': () => ({
+    subject: 'أُعيد إعداد التحقق بخطوتين',
+    paragraphs: [
+      'أُعيد إعداد التحقق بخطوتين لحسابك على Kept بتطبيق مصادقة جديد، وسُجِّل الخروج من جميع الأجهزة الأخرى. لم تعد رموز التطبيق القديم ولا الرموز الاحتياطية القديمة تعمل.',
+    ],
+    footnote:
+      'إذا لم تكن أنت، فأعد تعيين كلمة المرور فورًا وراجع الإعدادات، قسم «تسجيل الدخول والأمان».',
+  }),
+  'backup-codes-new': () => ({
+    subject: 'أُنشئت رموز احتياطية جديدة لحسابك على Kept',
+    paragraphs: [
+      'أُنشئت رموز احتياطية جديدة للتحقق بخطوتين لحسابك على Kept، وسُجِّل الخروج من جميع الأجهزة الأخرى. لم تعد الرموز الاحتياطية القديمة تعمل.',
+    ],
+    footnote: AR_NOT_YOU,
+  }),
+  'sign-in-unlinked': () => ({
+    subject: 'أُلغي ربط طريقة دخول بحسابك على Kept',
+    paragraphs: [
+      'أُلغي ربط طريقة دخول خارجية (مثل Google) بحسابك على Kept، وسُجِّل الخروج من جميع الأجهزة الأخرى. لم تعد تُدخلك إلى حسابك.',
+    ],
+    footnote: AR_NOT_YOU,
   }),
   'password-changed': () => ({
     subject: 'تغيّرت كلمة مرورك على Kept',

@@ -49,6 +49,8 @@ export type TestAppOptions = {
   notify?: Parameters<typeof buildApp>[0]['notify'];
   /** The OAuth provider for MCP connectors (oauth/plugin.ts); off when omitted. */
   oauth?: AuthDeps['oauth'];
+  /** Google sign-in, configured as KEPT_GOOGLE_CLIENT_ID and _SECRET would. */
+  google?: AuthDeps['google'];
 };
 
 export async function testApp(db: TestDb, opts: TestAppOptions = {}): Promise<TestApp> {
@@ -59,6 +61,7 @@ export async function testApp(db: TestDb, opts: TestAppOptions = {}): Promise<Te
     ...(opts.onUserCreated ? { onUserCreated: opts.onUserCreated } : {}),
     ...(opts.mailConfigured ? { enrolmentNeedsVerifiedEmail: true } : {}),
     ...(opts.oauth ? { oauth: opts.oauth } : {}),
+    ...(opts.google ? { google: opts.google } : {}),
   });
   const mail: Mail[] = [];
   const app = await buildApp({

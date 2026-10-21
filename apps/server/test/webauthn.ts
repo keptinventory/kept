@@ -101,11 +101,13 @@ function cborByteString(bytes: Buffer): Buffer {
 
 /**
  * The browser's answer to a registration ceremony, from a fresh software key: attestation
- * `none` (what the passkey plugin asks for), user present and verified.
+ * `none` (what the passkey plugin asks for), user present and, unless `userVerified` is false,
+ * verified.
  */
 export function softRegistration(
   challenge: string,
   rp: { id: string; origin: string },
+  opts: { userVerified?: boolean } = {},
 ): RegistrationResponseJSON {
   const { publicKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
   const credentialId = randomBytes(16);
@@ -113,7 +115,8 @@ export function softRegistration(
   idLength.writeUInt16BE(credentialId.length);
   const authData = Buffer.concat([
     createHash('sha256').update(rp.id).digest(),
-    Buffer.from([0x01 | 0x04 | 0x40]), // UP, UV, attested credential data
+    // UP, UV (unless asked not to), attested credential data
+    Buffer.from([0x01 | (opts.userVerified === false ? 0 : 0x04) | 0x40]),
     Buffer.alloc(4), // sign count
     Buffer.alloc(16), // AAGUID
     idLength,

@@ -70,7 +70,7 @@ export type UpdateCheckSetting = { updateCheck: Locked<boolean> };
 export type DeviceState = {
   appLock: {
     enabled: boolean;
-    /** "Use Face ID or fingerprint": a passkey with user verification also unlocks the app. */
+    /** "Unlock with Face ID or fingerprint": a passkey with user verification also unlocks the app. */
     passkey: boolean;
     /** Whether the passkey's PRF output also unwraps the extras' key. */
     passkeyUnlocksExtras: boolean;

@@ -23,6 +23,7 @@ import type {
   MembersResponse,
   VersionInfo,
 } from '../types';
+import { type SignInMockState, signInFixtures } from './sign-in';
 
 export type MockState = {
   setupNeeded: boolean;
@@ -66,7 +67,8 @@ export type MockState = {
    * Money, warranties, lending, schedules, paperwork, the agenda, notifications, the
    * calendar feed and incidents (api/household/mock).
    */
-  household: HouseholdState;
+  household: HouseholdState /** Settings → Sign-in and security: passkeys and the authenticator app (./sign-in.ts). */;
+  signIn: SignInMockState;
 };
 
 /** An ISO time `hours` before now, so "active 2 hours ago" stays true whenever it runs. */
@@ -573,6 +575,7 @@ function base(): MockState {
     inventory: inventoryFixtures(),
     capture: captureFixtures(IDS.ibrahim),
     household: householdFixtures(IDS.ibrahim),
+    signIn: signInFixtures(),
   };
 }
 

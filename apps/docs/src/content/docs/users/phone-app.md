@@ -93,8 +93,12 @@ what it found.
 ## The app lock
 
 **Settings → This device → App lock** locks Kept on this phone with a PIN of 6 to 12 digits, and
-with **Use Face ID or fingerprint** where the phone can verify you. With the lock on, Kept asks on
-a cold start and after 5 minutes hidden or idle, online or offline.
+with **Unlock with Face ID or fingerprint** where the phone can verify you. With the lock on, Kept
+asks on a cold start and after 5 minutes hidden or idle, online or offline.
+
+Face ID or fingerprint here unlocks Kept on this device only; it never signs you in. To sign in
+with Face ID or a fingerprint, add a passkey in
+[Sign-in and security](/users/sign-in-security/).
 
 - Ten wrong PINs in a row remove Kept's copy from this phone and sign you out, keeping your own
   unsent captures. **Forgot it? Sign out and sign in again** does the same.

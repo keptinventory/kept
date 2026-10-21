@@ -29,7 +29,7 @@ const DE_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
       'Deinem Kept-Konto wurde ein neuer Passkey hinzugefügt, und alle anderen Geräte wurden abgemeldet.',
     ],
     footnote:
-      'Falls du das nicht warst, setze jetzt dein Passwort zurück und entferne den Passkey in deinen Kontoeinstellungen.',
+      'Falls du das nicht warst, setze jetzt dein Passwort zurück und entferne den Passkey unter Einstellungen → Anmeldung und Sicherheit.',
   }),
   'two-factor-disabled': () => ({
     subject: 'Die Zwei-Faktor-Anmeldung wurde ausgeschaltet',
@@ -38,6 +38,43 @@ const DE_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
     ],
     footnote:
       'Falls du das nicht warst, setze jetzt dein Passwort zurück und schalte die Zwei-Faktor-Authentifizierung wieder ein.',
+  }),
+  'passkey-removed': () => ({
+    subject: 'Aus deinem Kept-Konto wurde ein Passkey entfernt',
+    paragraphs: [
+      'Aus deinem Kept-Konto wurde ein Passkey entfernt, und alle anderen Geräte wurden abgemeldet. Mit ihm kannst du dich nicht mehr anmelden.',
+    ],
+    footnote: DE_NOT_YOU,
+  }),
+  'two-factor-enabled': () => ({
+    subject: 'Die Zwei-Faktor-Anmeldung wurde eingeschaltet',
+    paragraphs: [
+      'Die Zwei-Faktor-Authentifizierung für dein Kept-Konto wurde eingeschaltet, und alle anderen Geräte wurden abgemeldet. Die Anmeldung fragt jetzt nach einem Code aus deiner Authenticator-App.',
+    ],
+    footnote:
+      'Falls du das nicht warst, setze jetzt dein Passwort zurück und prüfe Einstellungen → Anmeldung und Sicherheit.',
+  }),
+  'two-factor-replaced': () => ({
+    subject: 'Die Zwei-Faktor-Anmeldung wurde neu eingerichtet',
+    paragraphs: [
+      'Die Zwei-Faktor-Authentifizierung für dein Kept-Konto wurde mit einer neuen Authenticator-App neu eingerichtet, und alle anderen Geräte wurden abgemeldet. Die Codes der alten App und die alten Backup-Codes funktionieren nicht mehr.',
+    ],
+    footnote:
+      'Falls du das nicht warst, setze jetzt dein Passwort zurück und prüfe Einstellungen → Anmeldung und Sicherheit.',
+  }),
+  'backup-codes-new': () => ({
+    subject: 'Für dein Kept-Konto wurden neue Backup-Codes erstellt',
+    paragraphs: [
+      'Für dein Kept-Konto wurden neue Backup-Codes für die Zwei-Faktor-Authentifizierung erstellt, und alle anderen Geräte wurden abgemeldet. Die alten Backup-Codes funktionieren nicht mehr.',
+    ],
+    footnote: DE_NOT_YOU,
+  }),
+  'sign-in-unlinked': () => ({
+    subject: 'Von deinem Kept-Konto wurde eine Anmeldung getrennt',
+    paragraphs: [
+      'Eine externe Anmeldung (etwa Google) wurde von deinem Kept-Konto getrennt, und alle anderen Geräte wurden abgemeldet. Mit ihr kannst du dich nicht mehr anmelden.',
+    ],
+    footnote: DE_NOT_YOU,
   }),
   'password-changed': () => ({
     subject: 'Dein Kept-Passwort wurde geändert',

@@ -6,7 +6,7 @@
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, useNavigate, useRouterState } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { useState } from 'react';
 import { signInWithPassword } from '@/api/auth';
 import { isApiError } from '@/api/client';
@@ -18,6 +18,7 @@ import { ClockIcon } from '@/components/icons';
 import { KindIcon } from '@/components/kind-icon';
 import { OidcSignInButton, useGoogleOn, useOidcName } from '@/components/oidc-sign-in';
 import { LinkButton, LoadingRows, Notice, Pill, useErrorText } from '@/components/page';
+import { SIGN_IN_SECURITY_ANCHOR } from '@/components/sign-in-security';
 import { Button } from '@/components/ui/button';
 import { PasswordField } from '@/components/ui/password-field';
 import { TextField } from '@/components/ui/text-field';
@@ -199,7 +200,14 @@ function InviteBody({ token, invite }: { token: string; invite: InvitePreview })
           <Trans>
             {name} asks for two-factor. You can join now; it stays hidden until you add a passkey or
             an authenticator app.
-          </Trans>
+          </Trans>{' '}
+          <Link
+            to="/settings"
+            hash={SIGN_IN_SECURITY_ANCHOR}
+            className="font-semibold text-ink underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-info"
+          >
+            <Trans>Add one in Sign-in and security</Trans>
+          </Link>
         </Notice>
       ) : null}
       {invite.emailBound ? (

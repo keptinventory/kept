@@ -529,6 +529,10 @@ export function useErrorText() {
         return t`This invite no longer works.`;
       case 'reauth_required':
         return t`Enter your password to confirm it's you.`;
+      case 'last_sign_in_method':
+        return t`That's your only way to sign in. Add another passkey or link another sign-in first.`;
+      case 'two_factor_required':
+        return t`A location you belong to asks for two-factor. Add a passkey first, then turn the authenticator app off.`;
       case 'account_deletion_pending':
         return t`Your account is going to be deleted. Keep it to use Kept again.`;
       case 'account_deletion_blocked':

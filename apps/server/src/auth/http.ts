@@ -2,6 +2,7 @@ import { isAPIError } from 'better-auth/api';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type pg from 'pg';
 import { z } from 'zod';
+import { auditAccountEvent } from '../accounts/account-audit.js';
 import type { Pools } from '../db/pools.js';
 import type { Scope } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
@@ -177,7 +178,8 @@ export function sessionHook(opts: SessionHookOptions) {
 
 export type AuthRoutesOptions = {
   auth: Auth;
-  pools: Pick<Pools, 'auth'>;
+  /** kept_auth for Better Auth's tables; kept_app for the account's audit events. */
+  pools: Pick<Pools, 'auth' | 'app'>;
   publicUrl: string;
   trustedProxies: readonly string[];
   /** With OAuth connectors on: ends the grant behind an access token its client revokes
@@ -239,6 +241,16 @@ export async function reserveTokenAttempt(
   if (!decision.allowed) throw rateLimited(reply, decision.retryAfter);
 }
 
+const PASSKEY_REGISTER = `${AUTH_BASE_PATH}/passkey/verify-registration`;
+const VERIFY_TOTP = `${AUTH_BASE_PATH}/two-factor/verify-totp`;
+
+/** What the browser gets back for a passkey it just added: what Settings lists, never its public
+ * key, credential id, counter, transports or owner. */
+function passkeyAnswer(body: Record<string, unknown>) {
+  const { id, name, createdAt, backedUp, deviceType } = body;
+  return { id, name: name ?? null, createdAt: createdAt ?? null, backedUp, deviceType };
+}
+
 /** The OAuth `error` code of a 400 from Better Auth, read from a copy of the response. */
 async function oauthErrorOf(res: Response): Promise<unknown> {
   if (res.status !== 400) return null;
@@ -277,7 +289,29 @@ export async function authRoutes(app: KeptApp, opts: AuthRoutesOptions): Promise
         if (req.method === 'POST' && req.body !== undefined) {
           init.body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
         }
+        // A first code proven in a session whose two-factor is off turns it on: noted before,
+        // audited after (Better Auth's own route, so Kept's routes can't log it).
+        let turningOn: string | null = null;
+        if (url.pathname === VERIFY_TOTP && req.method === 'POST' && req.headers.cookie) {
+          const found = await auth.api
+            .getSession({ headers, query: { disableRefresh: true } })
+            .catch(() => null);
+          if (found && found.user.twoFactorEnabled !== true) turningOn = found.user.id;
+        }
         const res = await auth.handler(new Request(url, init));
+        if (turningOn && res.status === 200) {
+          const { rows } = await pools.auth.query<{ on: boolean }>(
+            'SELECT coalesce(two_factor_enabled, false) AS on FROM auth."user" WHERE id = $1',
+            [turningOn],
+          );
+          if (rows[0]?.on) {
+            await auditAccountEvent(pools.app, turningOn, {
+              action: 'two_factor.enable',
+              entity: { type: 'user', id: turningOn },
+              requestId: req.id,
+            });
+          }
+        }
         // Better Auth stores no JWT access token, so it can't revoke one: it answers
         // `unsupported_token_type`, having authenticated the client. Kept's grant can be ended.
         if (
@@ -299,7 +333,19 @@ export async function authRoutes(app: KeptApp, opts: AuthRoutesOptions): Promise
         const text = await res.text();
         const json = (res.headers.get('content-type') ?? '').includes('application/json');
         if (!json || !text || res.status >= 300) return reply.send(text || undefined);
-        return reply.send(JSON.stringify(withoutTokens(JSON.parse(text))));
+        const parsed = JSON.parse(text) as unknown;
+        if (url.pathname === PASSKEY_REGISTER && res.status === 200 && parsed) {
+          const added = parsed as Record<string, unknown>;
+          if (typeof added.userId === 'string' && typeof added.id === 'string') {
+            await auditAccountEvent(pools.app, added.userId, {
+              action: 'passkey.add',
+              entity: { type: 'passkey', id: added.id },
+              requestId: req.id,
+            });
+          }
+          return reply.send(JSON.stringify(passkeyAnswer(added)));
+        }
+        return reply.send(JSON.stringify(withoutTokens(parsed)));
       },
     });
   });
