@@ -40,6 +40,12 @@ import { principalOf } from './auth.js';
 
 export const MCP_BODY_LIMIT = 1_048_576;
 
+/** The most array elements and object members one tool call's arguments may hold, counted by
+ * the SDK before the input schema runs, so a body within MCP_BODY_LIMIT can't make validation
+ * exhaust memory. The largest real call, add_thing with 20 items of every field, is a few
+ * thousand; over the limit, the call is answered as a tool error and the server keeps serving. */
+export const MCP_MAX_TOOL_INPUT_ELEMENTS = 10_000;
+
 export type McpServerDeps = {
   tools: ToolDeps;
   /** kept_app, for the per-token limiter (T10's, D63: the same one as the API). */
@@ -83,7 +89,7 @@ export function mcpFactory(deps: McpServerDeps) {
   return async (ctx: McpRequestContext): Promise<McpServer> => {
     const server = new McpServer(
       { name: 'Kept', version: KEPT_VERSION },
-      { instructions: SERVER_INSTRUCTIONS.en },
+      { instructions: SERVER_INSTRUCTIONS.en, maxToolInputElements: MCP_MAX_TOOL_INPUT_ELEMENTS },
     );
     server.registerResource(
       VOCABULARY_RESOURCE.name,

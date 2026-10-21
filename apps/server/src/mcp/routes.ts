@@ -28,6 +28,8 @@ import { MCP_BODY_LIMIT, mcpHandler } from './server.js';
 // 2. The bearer token (mcp/auth.ts): a personal token, or an OAuth access token when T12's
 //    connectors are on; a failure is 401 with `WWW-Authenticate: Bearer`, carrying
 //    `resource_metadata` when OAuth is on so a client can find the authorization server.
+//    `expectedResource`: the verifier reports each token's audience in `AuthInfo.resource`, and
+//    the SDK refuses one that isn't `<public URL>/mcp`.
 // The route itself is `auth: 'none'` (no session lookup, no CSRF for a bearer): the token is the
 // only credential. Each tool call is limited and audited per token (mcp/server.ts).
 //
@@ -126,7 +128,11 @@ export async function mcpRoutes(app: KeptApp, deps: InventoryDeps): Promise<void
       const challenge = resourceMetadataUrl ? { resourceMetadataUrl } : {};
       let authInfo: Awaited<ReturnType<typeof verifyBearerToken>>;
       try {
-        authInfo = await verifyBearerToken(req.headers.authorization, { verifier, ...challenge });
+        authInfo = await verifyBearerToken(req.headers.authorization, {
+          verifier,
+          expectedResource: resource,
+          ...challenge,
+        });
       } catch (err) {
         return reply.send(bearerAuthChallengeResponse(err, challenge));
       }

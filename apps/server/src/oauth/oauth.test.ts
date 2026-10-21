@@ -392,6 +392,46 @@ describe('OAuth connectors', () => {
     );
     expect(grants).toHaveLength(0);
   });
+
+  it('refuses an access token signed here for another resource, and accepts the same claims for /mcp', async () => {
+    const verifier = randomBytes(32).toString('base64url');
+    const query = await authorize(verifier);
+    const decided = ok(
+      await call(t, `/api/v1/oauth/consent?${query}`, {
+        as: louis,
+        body: { accept: true, scope: 'read', locationIds: [home.id] },
+      }),
+    );
+    const access = await redeem(decided.redirectTo as string, verifier);
+    const claims = JSON.parse(
+      Buffer.from(access.split('.')[1] ?? '', 'base64url').toString('utf8'),
+    ) as Record<string, unknown>;
+    expect(claims.aud).toBe(`${t.publicUrl}/mcp`);
+    // Re-signed with this instance's own key: only the audience differs between the two.
+    const sign = t.auth.api as unknown as {
+      signJWT: (o: { body: { payload: Record<string, unknown> } }) => Promise<{ token: string }>;
+    };
+    const resigned = async (aud: string) =>
+      (await sign.signJWT({ body: { payload: { ...claims, aud } } })).token;
+    const listTools = (bearer: string) =>
+      t.app.inject({
+        method: 'POST',
+        url: '/mcp',
+        headers: {
+          host: host(),
+          authorization: `Bearer ${bearer}`,
+          'content-type': 'application/json',
+          accept: 'application/json, text/event-stream',
+        },
+        payload: { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} },
+      });
+    expect((await listTools(await resigned(`${t.publicUrl}/mcp`))).statusCode).toBe(200);
+    for (const aud of ['https://other.example/mcp', t.publicUrl, `${t.publicUrl}/api/v1`]) {
+      const res = await listTools(await resigned(aud));
+      expect(res.statusCode, aud).toBe(401);
+      expect(String(res.headers['www-authenticate']), aud).toContain('invalid_token');
+    }
+  });
 });
 
 describe('the CIMD transport (cimd-fetch.ts)', () => {

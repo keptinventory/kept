@@ -1,15 +1,17 @@
 import { OUTPUT_LIMIT_BYTES } from '@kept/mcp';
+import { formatToken, newTokenParts, parseToken } from '@kept/shared';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
 import { call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { createLocation, createThing, type Json, type Loc, ok, own } from '../../test/things.js';
+import { MCP_MAX_TOOL_INPUT_ELEMENTS } from './server.js';
 
-// `/mcp` through the official client (@modelcontextprotocol/client 2.2.0), with its HTTP
+// `/mcp` through the official client (@modelcontextprotocol/client), with its HTTP
 // routed into the app (app.inject), pinned to 2026-07-28 and in its default (2025) mode. Ibrahim
-// owns Home (every module, MCP on) and Garage (essentials: no MCP); Louis is a member of both,
-// Talia a viewer of Home.
+// owns Home (every module, MCP on), Garage (essentials: no MCP) and Office (every module); Louis
+// is a member of Home and Garage, Talia a viewer of Home.
 
 let db: TestDb;
 let t: TestApp;
@@ -18,6 +20,7 @@ let louis: Person;
 let talia: Person;
 let home: Loc;
 let garage: Loc;
+let office: Loc;
 const clients: Client[] = [];
 
 beforeAll(async () => {
@@ -33,7 +36,9 @@ beforeAll(async () => {
   await join(db, home.id, louis.userId, 'member');
   await join(db, garage.id, louis.userId, 'member');
   await join(db, home.id, talia.userId, 'viewer');
+  office = await createLocation(t, db, ibrahim, 'complete', 'Office');
   await createThing(t, ibrahim, home, { name: 'HDMI cable' });
+  await createThing(t, ibrahim, office, { name: 'HDMI adapter' });
 });
 
 afterAll(async () => {
@@ -265,5 +270,81 @@ describe('/mcp', () => {
       });
       expect(res.statusCode, method).toBe(405);
     }
+  });
+  it('refuses a bearer Kept never issued: a made-up token, a real lookup with another secret, a token of another kind', async () => {
+    const { secret } = await token(louis, 'read', [home.id]);
+    const real = parseToken(secret);
+    expect(real).not.toBeNull();
+    const headers = {
+      host: new URL(t.publicUrl).host,
+      'content-type': 'application/json',
+      accept: 'application/json, text/event-stream',
+    };
+    const listWith = (bearer: string) =>
+      t.app.inject({
+        method: 'POST',
+        url: '/mcp',
+        headers: { ...headers, authorization: `Bearer ${bearer}` },
+        payload: { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} },
+      });
+    expect((await listWith(secret)).statusCode).toBe(200);
+    const forged = {
+      // Well formed, but no row here: what a token from another instance looks like.
+      unknown: formatToken(newTokenParts()),
+      // This token's row, with a secret its stored HMAC wasn't made from.
+      wrongSecret: formatToken({ lookup: real?.lookup ?? '', secret: newTokenParts().secret }),
+      // Not a personal token, and OAuth is off on this instance.
+      jwt: 'eyJhbGciOiJFZERTQSJ9.eyJzdWIiOiJ4IiwiYXVkIjoiaHR0cHM6Ly9vdGhlci5leGFtcGxlL21jcCJ9.c2ln',
+    };
+    for (const [why, bearer] of Object.entries(forged)) {
+      const res = await listWith(bearer);
+      expect(res.statusCode, why).toBe(401);
+      expect(String(res.headers['www-authenticate']), why).toMatch(/^Bearer /);
+      expect(res.body, why).not.toContain('where_is');
+    }
+  });
+
+  it('keeps overlapping clients apart: each sees its own tools and answers, though their request ids collide', async () => {
+    // Both clients number their requests from 0, so every pair below shares a JSON-RPC id.
+    const homeRead = await connect((await token(louis, 'read', [home.id])).secret);
+    const officeWrite = await connect((await token(ibrahim, 'write', [office.id])).secret);
+    const rounds = 6;
+    const [homeTools, officeTools] = await Promise.all([
+      Promise.all(Array.from({ length: rounds }, () => homeRead.listTools())),
+      Promise.all(Array.from({ length: rounds }, () => officeWrite.listTools())),
+    ]);
+    for (const res of homeTools) expect(res.tools.map((x) => x.name)).not.toContain('create_place');
+    for (const res of officeTools) expect(res.tools.map((x) => x.name)).toContain('create_place');
+    const ask = (client: Client) =>
+      Promise.all(
+        Array.from({ length: rounds }, () =>
+          client.callTool({ name: 'where_is', arguments: { query: 'HDMI' } }),
+        ),
+      );
+    const [homeAnswers, officeAnswers] = await Promise.all([ask(homeRead), ask(officeWrite)]);
+    for (const res of homeAnswers) {
+      const text = JSON.stringify(answer(res));
+      expect(text).toContain('HDMI cable');
+      expect(text).not.toContain('HDMI adapter');
+    }
+    for (const res of officeAnswers) {
+      const text = JSON.stringify(answer(res));
+      expect(text).toContain('HDMI adapter');
+      expect(text).not.toContain('HDMI cable');
+    }
+  });
+
+  it('answers a tool call with more argument elements than any tool takes as a tool error, and keeps serving', async () => {
+    const client = await connect((await token(louis, 'read', [home.id])).secret);
+    const flood = await client.callTool({
+      name: 'where_is',
+      arguments: { query: 'HDMI', padding: new Array(MCP_MAX_TOOL_INPUT_ELEMENTS + 1).fill(0) },
+    });
+    expect(flood.isError).toBe(true);
+    expect(JSON.stringify(flood.content)).toContain(`maximum of ${MCP_MAX_TOOL_INPUT_ELEMENTS}`);
+    expect(JSON.stringify(flood.content)).not.toContain('HDMI cable');
+    const res = await client.callTool({ name: 'where_is', arguments: { query: 'HDMI' } });
+    expect(res.isError).toBeFalsy();
+    expect(JSON.stringify(answer(res))).toContain('HDMI cable');
   });
 });
