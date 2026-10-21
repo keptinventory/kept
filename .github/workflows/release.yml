@@ -296,3 +296,13 @@ jobs:
     with:
       version: ${{ needs.preflight.outputs.version }}
     secrets: inherit
+
+  # The release announced on Discord (discord.yml), once it is published on GitHub.
+  discord:
+    needs: [preflight, publish]
+    permissions:
+      contents: read
+    uses: ./.github/workflows/discord.yml
+    with:
+      tag: v${{ needs.preflight.outputs.version }}
+    secrets: inherit

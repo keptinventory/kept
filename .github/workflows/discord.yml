@@ -1,0 +1,72 @@
+# A release announced in the Discord server's #announcements, through the webhook in the
+# DISCORD_RELEASES_WEBHOOK secret. release.yml calls it after the GitHub release is published (a
+# release made by a workflow's token starts no `release` event); `release: published` covers one
+# published by hand, and Run workflow posts an existing release again.
+#
+# The post is the changelog part of the release notes (up to the release record), headings made
+# bold, with a link to the whole release. A final release pings the Release pings role; a prerelease
+# is posted without the ping.
+#
+# No third-party action: the webhook URL is a secret, so it only goes to curl.
+name: discord
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: The release tag, vX.Y.Z
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: A published release to announce, e.g. v1.12.3
+        required: true
+        type: string
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  announce:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Post the release to Discord
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
+          WEBHOOK: ${{ secrets.DISCORD_RELEASES_WEBHOOK }}
+          # The Release pings role in the Kept server.
+          ROLE: '1562434808234377256'
+        run: |
+          [[ -n $WEBHOOK ]] || { echo "::warning::DISCORD_RELEASES_WEBHOOK is not set; nothing posted"; exit 0; }
+          [[ $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || { echo "::error::not a release tag: $TAG"; exit 1; }
+          gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json name,url,body,isPrerelease,publishedAt >release.json
+          jq --arg role "$ROLE" '
+            # The changelog part: the notes before the release record ("Built … from commit"),
+            # without its own "## X.Y.Z (date)" heading; ## and ### become bold.
+            (.body | split("\nBuilt ")[0]
+              | split("\n") | map(select(test("^## [0-9]") | not))
+              | map(if test("^### ") then "**" + .[4:] + "**"
+                    elif test("^## ") then "__**" + .[3:] + "**__" else . end)
+              | join("\n") | gsub("\n{3,}"; "\n\n") | gsub("^\\s+|\\s+$"; "")) as $notes
+            | ($notes | if length > 3800 then .[0:3800] + "…" else . end) as $text
+            | {
+                username: "Kept Releases",
+                content: (if .isPrerelease then "A Kept prerelease is out." else "<@&\($role)> a new Kept release is out!" end),
+                allowed_mentions: { parse: [], roles: (if .isPrerelease then [] else [$role] end) },
+                embeds: [{
+                  title: .name,
+                  url: .url,
+                  description: ($text + "\n\n[Full release notes](\(.url))"),
+                  color: 15773754,
+                  footer: { text: "Kept" },
+                  timestamp: .publishedAt
+                }]
+              }' release.json >payload.json
+          jq -r '.embeds[0].description' payload.json
+          curl -fsS --retry 3 -H 'Content-Type: application/json' --data @payload.json "$WEBHOOK" >/dev/null
+          echo "posted $TAG"
