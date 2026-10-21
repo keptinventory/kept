@@ -271,6 +271,7 @@ const MESSAGES: Partial<Record<ImportIssueCode, string>> = {
   hb_notifier_skipped: 'Notifiers are never imported: their addresses can hold passwords.',
   hb_seeded_skipped: "One of Homebox's starter places or tags, empty and unused, left out.",
   hb_time_default: 'A date Homebox filled in with the day the item was made; read as empty.',
+  hb_place_tags_dropped: "Its tags aren't kept: in Kept only things have tags.",
   already_imported: 'Already imported by an earlier import, so it is skipped.',
   no_name: "No name, so it's skipped.",
   too_long: 'Too long; kept in the notes.',
@@ -681,6 +682,9 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
       : null;
     if (existingId) placeIdOfKey.set(e.id, existingId);
     const codes = codesOf(e);
+    // #209: only things have tags in Kept; a location's are named in the report, not lost silently.
+    if ((tagsOfEntity.get(e.id) ?? []).length > 0)
+      report.issue(entityRef(e), 'hb_place_tags_dropped');
     ops.places.push({ op: 'place', key: e.id, name, parent: parentRef, existingId, codes });
     if (!existingId) summary.places += 1;
     summary.legacyCodes += codes.length;

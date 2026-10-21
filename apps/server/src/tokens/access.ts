@@ -34,6 +34,8 @@ export const TOKEN_ROUTES: Readonly<Record<string, Exclude<TokenAccess, 'none'>>
   // row at a time; its bulk trash stays the app's, like every trash.
   'GET /api/v1/things/sheet': 'read',
   'POST /api/v1/things/bulk-edit': 'write',
+  // Tags added to or taken off many things at once: the same edit as PATCH's tagIds.
+  'POST /api/v1/things/tags': 'write',
   // Places.
   'GET /api/v1/locations/:locationId/places': 'read',
   'GET /api/v1/places/:id': 'read',

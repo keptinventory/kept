@@ -10,7 +10,7 @@ import type { KeptMessage } from '../ai/convert.js';
 //   locations) and the everyday changes (add, update, move, mark seen);
 // - a topic's tools when the thread's last questions name it, by keywords in the five interface
 //   languages (lending, schedules, warranties, documents, vehicles and meters, stock, history,
-//   places and capture links). A Latin-script keyword matches at a word's start; an Arabic one
+//   places and capture links, tags). A Latin-script keyword matches at a word's start; an Arabic one
 //   anywhere (its prefixes join the word: الـ، و، ب، ل);
 // - any tool the thread already called, or asked for and was not offered, so a follow-up
 //   ("and the drill?") keeps its tools and the model can ask again;
@@ -108,6 +108,17 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       de: 'auto|fahrzeug|wagen|inspektion|ölwechsel|reifen|kilometer|tacho|benzin|zähler|getankt',
       it: 'macchina|veicolo|tagliando|olio|gomm|chilometr|contachilometri|benzina|carburante|gasolio|pieno|lettura|contatore',
       ar: 'سيارة|عربية|موتوسيكل|صيانة|زيت|كاوتش|إطار|عداد|كيلو|بنزين|وقود|سولار|فول|تفويل|قراءة|كهرباء',
+    },
+  },
+  // #209: the tags themselves; tagging one thing is update_thing's, in the core.
+  tags: {
+    tools: ['list_tags', 'tag_things'],
+    words: {
+      en: 'tag|tags|tagged|untag',
+      fr: 'tag|étiquette',
+      de: 'schlagwort|tag|tags|getaggt',
+      it: 'tag|etichetta',
+      ar: 'وسم|وسوم|موسوم|تاغ',
     },
   },
   stock: {

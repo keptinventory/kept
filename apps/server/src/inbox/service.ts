@@ -238,6 +238,25 @@ function suggestedEdit(s: Suggestion, aliases: Record<string, string[]>): Record
   }
 }
 
+/**
+ * The thing's tags with a `tags` suggestion's added (#209): its value is `[{id, name, colour}]`;
+ * a tag deleted or merged away since is left out.
+ */
+async function withSuggestedTags(ctx: Ctx, thingId: string, s: Suggestion): Promise<string[]> {
+  const ids = Array.isArray(s.value)
+    ? (s.value as { id?: unknown }[])
+        .map((g) => g?.id)
+        .filter((x): x is string => typeof x === 'string')
+    : [];
+  const { rows } = await ctx.client.query<{ id: string }>(
+    `SELECT tag_id::text AS id FROM public.thing_tags WHERE thing_id = $1
+     UNION
+     SELECT g.id::text FROM public.tags g WHERE g.id = ANY ($2::uuid[])`,
+    [thingId, ids],
+  );
+  return rows.map((r) => r.id).sort();
+}
+
 /** The field_status key an edit's body key stands for. */
 const STATUS_KEY: Readonly<Record<string, string>> = Object.freeze({
   name: 'name',
@@ -282,6 +301,11 @@ export async function accept(ctx: Ctx, id: string, expected: number, body: Accep
   for (const f of accepted) {
     // A vehicle's card becomes a document, below, not an edit of the thing.
     if (f === 'document') continue;
+    // #209: suggested tags join the thing's own (those still in the account).
+    if (f === 'tags') {
+      edit.tagIds = await withSuggestedTags(ctx, thing.id, byField.get(f) as Suggestion);
+      continue;
+    }
     const e = suggestedEdit(byField.get(f) as Suggestion, rows[0]?.aliases ?? {});
     if (e.custom) Object.assign(custom, e.custom);
     else if (e.aliases) Object.assign(aliases, e.aliases);

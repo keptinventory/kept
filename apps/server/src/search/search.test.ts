@@ -317,6 +317,7 @@ describe('GET /api/v1/search', () => {
             'path',
             'quantity',
             'shortCode',
+            'tags',
             'thumbUrl',
             'type',
             ...('matchedAlias' in row ? ['matchedAlias'] : []),

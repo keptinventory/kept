@@ -5714,10 +5714,6 @@ msgstr "Offline"
 msgid "Offline · {queue}"
 msgstr "Offline · {queue}"
 
-#: src/components/search/offline-results.tsx
-msgid "Offline, search uses the words, the location and the type. The other filters apply when you're back online."
-msgstr "Offline sucht Kept nur nach den Wörtern, dem Standort und dem Typ. Die anderen Filter gelten wieder, sobald du wieder online bist."
-
 #: src/components/sync-status.tsx
 msgid "Offline · as of last sync, {time}"
 msgstr "Offline · Stand der letzten Synchronisierung, {time}"
@@ -7384,17 +7380,9 @@ msgstr "Passwort festlegen"
 msgid "Set password and sign in"
 msgstr "Passwort festlegen und anmelden"
 
-#: src/components/inbox/bulk-bar.tsx
-msgid "Set tags"
-msgstr "Tags setzen"
-
 #: src/components/inbox/currency-item.tsx
 msgid "Set the currency to {currency}"
 msgstr "Währung auf {currency} gesetzt"
-
-#: src/components/inbox/bulk-bar.tsx
-msgid "Set the tags of {names}"
-msgstr "Tags von {names} setzen"
 
 #: src/components/inbox/item-card.tsx
 msgid "Set the type of {names}"
@@ -26442,3 +26430,138 @@ msgstr "Bei {who} (in {box}) seit {since} · fällig am {due}"
 #: src/components/lending/loan-text.tsx
 msgid "With {who} (in {box}) since {since}"
 msgstr "Bei {who} (in {box}) seit {since}"
+
+#: src/components/filters/strip.tsx
+msgid "{label}: all of {summary}"
+msgstr "{label}: alle von {summary}"
+
+#: src/components/tags/editors.tsx
+#: src/components/tags/tags-field.tsx
+msgid "Add tag"
+msgstr "Schlagwort hinzufügen"
+
+#: src/components/inbox/bulk-bar.tsx
+#: src/components/tags/bulk-tags.tsx
+msgid "Add tags…"
+msgstr "Schlagwörter hinzufügen…"
+
+#: src/components/tags/palette.ts
+msgid "Amber"
+msgstr "Bernstein"
+
+#: src/components/tags/palette.ts
+msgid "Blue"
+msgstr "Blau"
+
+#: src/components/tags/palette.ts
+msgid "Brown"
+msgstr "Braun"
+
+#: src/components/places/contents-list.tsx
+msgid "by tag"
+msgstr "nach Schlagwort"
+
+#: src/components/tags/api.ts
+#: src/components/tags/picker.tsx
+msgid "Couldn't change the tags"
+msgstr "Die Schlagwörter konnten nicht geändert werden"
+
+#: src/components/tags/picker.tsx
+msgid "Create “<0>{typed}</0>”"
+msgstr "„<0>{typed}</0>“ anlegen"
+
+#: src/components/tags/palette.ts
+msgid "Cyan"
+msgstr "Cyan"
+
+#: src/components/tags/palette.ts
+msgid "Green"
+msgstr "Grün"
+
+#: src/components/tags/palette.ts
+msgid "Grey"
+msgstr "Grau"
+
+#: src/components/filters/panel.tsx
+msgid "has all of"
+msgstr "hat alle von"
+
+#: src/components/tags/palette.ts
+msgid "Indigo"
+msgstr "Indigo"
+
+#: src/components/import/labels.ts
+msgid "Its tags aren't kept: in Kept only things have tags."
+msgstr "Seine Schlagwörter werden nicht übernommen: In Kept haben nur Dinge Schlagwörter."
+
+#: src/components/tags/colour-choice.tsx
+msgid "No colour"
+msgstr "Keine Farbe"
+
+#: src/components/tags/chip.tsx
+msgid "No tag"
+msgstr "Ohne Schlagwort"
+
+#: src/components/tags/picker.tsx
+msgid "No tags yet."
+msgstr "Noch keine Schlagwörter."
+
+#: src/components/tags/palette.ts
+msgid "Orange"
+msgstr "Orange"
+
+#: src/components/tags/palette.ts
+msgid "Pink"
+msgstr "Rosa"
+
+#: src/components/tags/palette.ts
+msgid "Red"
+msgstr "Rot"
+
+#: src/components/tags/bulk-tags.tsx
+msgid "Remove tags…"
+msgstr "Schlagwörter entfernen…"
+
+#: src/components/tags/editors.tsx
+msgid "Tagged {shown}"
+msgstr "Schlagwort {shown} hinzugefügt"
+
+#: src/components/tags/bulk-tags.tsx
+#: src/components/tags/editors.tsx
+msgid "Tags changed"
+msgstr "Schlagwörter geändert"
+
+#: src/components/tags/capture-tags.tsx
+msgid "Tags: <0>{names}</0>"
+msgstr "Schlagwörter: <0>{names}</0>"
+
+#. placeholder {0}: isolate(g.name)
+#. placeholder {0}: isolate(name)
+#: src/components/tags/editors.tsx
+#: src/components/tags/tag-page.tsx
+#: src/components/tags/tags-field.tsx
+msgid "Take {0} off"
+msgstr "{0} entfernen"
+
+#: src/components/tags/palette.ts
+msgid "Teal"
+msgstr "Petrol"
+
+#. placeholder {0}: tag.name
+#: src/components/tags/tag-page.tsx
+msgid "Things tagged {0}"
+msgstr "Dinge mit dem Schlagwort {0}"
+
+#: src/components/tags/editors.tsx
+#: src/components/tags/tag-page.tsx
+msgid "Took off {shown}"
+msgstr "Schlagwort {shown} entfernt"
+
+#: src/components/tags/palette.ts
+msgid "Violet"
+msgstr "Violett"
+
+
+#: src/components/search/offline-results.tsx
+msgid "Offline, search uses the words, the location, the type and the tags. The other filters apply when you're back online."
+msgstr "Offline sucht Kept nur nach den Wörtern, dem Standort, dem Typ und den Schlagwörtern. Die anderen Filter gelten wieder, sobald du wieder online bist."

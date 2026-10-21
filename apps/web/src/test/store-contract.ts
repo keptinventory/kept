@@ -169,6 +169,61 @@ export function storeContract(name: string, makeStore: () => OfflineStore | Prom
       expect((await s.thing(DRILL))?.name).toBe('Bosch drill');
     });
 
+    it("keeps the account's tags, a page without them leaving them be, and shows queued tag changes at once (#209)", async () => {
+      const s = await makeStore();
+      const ACCOUNT = '01926f00-0000-7000-8000-00000000a001';
+      const CAMPING = '01926f00-0000-7000-8000-0000000e0001';
+      const NEW = '01926f00-0000-7000-8000-0000000e0002';
+      const page = firstPage({
+        locations: firstPage().locations.map((l) => ({ ...l, ownerAccountId: ACCOUNT })),
+        tags: {
+          hash: 't1',
+          items: [{ id: CAMPING, accountId: ACCOUNT, name: 'Camping', colour: '#30A46C' }],
+        },
+      });
+      await s.applySnapshot({
+        ...page,
+        changes: {
+          ...page.changes,
+          things: page.changes.things.map((t) =>
+            t.id === DRILL ? { ...t, tagIds: [CAMPING] } : t,
+          ),
+        },
+      });
+      // A later page whose tags didn't change carries the hash only.
+      await s.applySnapshot({
+        ...page,
+        tags: { hash: 't1' },
+        changes: { ...page.changes, things: [] },
+      });
+      expect(await s.tags()).toEqual([
+        { id: CAMPING, accountId: ACCOUNT, name: 'Camping', colour: '#30A46C' },
+      ]);
+      expect((await s.thing(DRILL))?.tagIds).toEqual([CAMPING]);
+      await s.enqueue(
+        {
+          clientId: NEW,
+          idempotencyKey: `tag:${NEW}`,
+          op: 'tag_things',
+          takenAt: '2026-09-27T11:06:00.000Z',
+          locationId: LOC,
+          payload: {
+            thingIds: [DRILL, BOX],
+            add: [NEW],
+            remove: [CAMPING],
+            create: [{ id: NEW, name: 'Garage tools' }],
+          },
+        },
+        [],
+      );
+      expect((await s.thing(DRILL))?.tagIds).toEqual([NEW]);
+      expect((await s.thing(BOX))?.tagIds).toEqual([NEW]);
+      // Listed by tag, a change still queued included; one no longer tagged left out.
+      expect((await s.byTags([NEW], 10)).map((t) => t.id).sort()).toEqual([DRILL, BOX].sort());
+      expect(await s.byTags([CAMPING], 10)).toEqual([]);
+      expect((await s.tags()).map((g) => g.name).sort()).toEqual(['Camping', 'Garage tools']);
+    });
+
     it('resolves codes: assigned, blank, and unknown', async () => {
       const s = await makeStore();
       await s.applySnapshot(firstPage());

@@ -92,7 +92,8 @@ export const HB_SEEDED_TAGS = [
  * - `hb_seeded_skipped`: Homebox's seeded places and tags, empty and unused, left out;
  * - `hb_time_default`: a `time` field whose value is only its row's creation time, read as empty;
  * - `hb_location_row`: a spreadsheet row that is a Homebox location (v0.26 on lists them), left
- *   out: places come from the items' location column.
+ *   out: places come from the items' location column;
+ * - `hb_place_tags_dropped`: a location's tags, not kept: in Kept only things have tags (#209).
  */
 export const HB_ISSUE_CODES = [
   'hb_archived_skipped',
@@ -108,6 +109,7 @@ export const HB_ISSUE_CODES = [
   'hb_seeded_skipped',
   'hb_time_default',
   'hb_location_row',
+  'hb_place_tags_dropped',
 ] as const;
 export type HomeboxIssueCode = (typeof HB_ISSUE_CODES)[number];
 

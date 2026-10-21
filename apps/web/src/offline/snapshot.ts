@@ -26,9 +26,11 @@ export async function pullSnapshot(
   for (let i = 0; i < maxPages; i++) {
     const cursor = await store.cursor();
     const typesHash = (await store.meta('typesHash')) as string | undefined;
+    const tagsHash = (await store.meta('tagsHash')) as string | undefined;
     const page = await fetchPage({
       ...(cursor ? { cursor } : {}),
       ...(typesHash ? { typesHash } : {}),
+      ...(tagsHash ? { tagsHash } : {}),
     });
     await store.applySnapshot(page);
     truncated ||= page.truncated === true;

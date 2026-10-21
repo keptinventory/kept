@@ -176,7 +176,20 @@ export function rowOf(inv: InventoryState, t: StoredThing): ThingRow {
     thumbUrl: t.thumbUrl,
     lastSeenAt: t.lastSeenAt,
     isContainer: t.isContainer || contentsOf(inv, t.id).length > 0,
+    tags: tagsOf(inv, t),
   };
+}
+
+/** A thing's tags as the server sends them: the tags' current names and colours, A to Z. */
+export function tagsOf(inv: InventoryState, t: StoredThing): ThingRow['tags'] {
+  return t.tags
+    .map((g) => inv.tags.find((x) => x.id === g.id) ?? g)
+    .map((g) => ({ id: g.id, name: g.name, colour: g.colour }))
+    .sort(
+      (a, b) =>
+        a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase()) ||
+        (a.id < b.id ? -1 : 1),
+    );
 }
 
 export function viewOf(inv: InventoryState, t: StoredThing): ThingView {
@@ -431,4 +444,10 @@ export function accessOf(state: { locations: LocationDetail[] }): Access {
     },
     visibleIds: () => new Set(state.locations.map((l) => l.id)),
   };
+}
+
+/** The key a list grouped by tag sorts a thing by (#209): its first tag A to Z, untagged last. */
+export function tagGroupKey(inv: InventoryState, t: StoredThing): string {
+  const first = tagsOf(inv, t)[0];
+  return first ? `0${first.name.toLocaleLowerCase()} ${first.id}` : '1';
 }

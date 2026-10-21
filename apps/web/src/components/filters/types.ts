@@ -3,8 +3,8 @@
  * them from the registry (./registry.tsx); FilterStrip renders any definition by its `kind`, so
  * a new kind plugs in there and a list gains a filter by adding one entry.
  *
- * State lives in the URL (lib/url-state.ts): `f.<key>` holds the values and `not` names the
- * filters that are "is none of".
+ * State lives in the URL (lib/url-state.ts): `f.<key>` holds the values, `not` names the
+ * filters that are "is none of" and `all` those that are "has all of" (#209).
  */
 import type { QueryKey } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -46,6 +46,8 @@ export type FilterDef = {
   values?: FilterValues;
   /** multi: offers "is any of / is none of" (default true). */
   negatable?: boolean;
+  /** multi: offers "has all of" too (#209: the tags), `all=<key>` in the URL. */
+  allOf?: boolean;
   /** Hide values whose `count` is 0, unless chosen (D191, the attention-panel rule). */
   hideZero?: boolean;
   /** number-range: the URL keys of the lowest and highest value, and of their currency. */

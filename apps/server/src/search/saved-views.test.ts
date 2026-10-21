@@ -266,6 +266,29 @@ describe('saved views by list (D205)', () => {
     });
   });
 
+  it('keeps "has all of" for the tags only, while the tag filter holds something', async () => {
+    const refused = [
+      { surface: 'things', query: { filters: { type: ['x'] }, all: ['type'] } },
+      { surface: 'inbox', query: { all: ['tag'] } },
+    ];
+    for (const body of refused) {
+      const res = await call(t, '/api/v1/saved-views', { as: ann, body: { name: 'Bad', ...body } });
+      expect(res.statusCode, JSON.stringify(body)).toBe(400);
+    }
+    const both = await save(ann, {
+      name: 'Camping and beach',
+      surface: 'contents',
+      query: { filters: { tag: ['a', 'b'] }, all: ['tag', 'tag'] },
+    });
+    expect(both.query).toEqual({ filters: { tag: ['a', 'b'] }, all: ['tag'] });
+    const none = await save(ann, {
+      name: 'Neither',
+      surface: 'search',
+      query: { filters: { tag: ['a'] }, not: ['tag'], all: ['tag'] },
+    });
+    expect(none.query).toEqual({ filters: { tag: ['a'] }, not: ['tag'] });
+  });
+
   it('withholds money filters where the location of a personal view hides money (#29)', async () => {
     const query = { q: 'lamp', filters: { location: [home.id], priceMin: ['500'] } };
     const vics = await save(vic, { name: 'Dear lamps', query });

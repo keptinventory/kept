@@ -392,6 +392,31 @@ async function applyToThing(
       if (have.includes(normalize(a.value))) continue;
       suggest(aliasSuggestionField(a.lang), { value: a.value, confidence: a.confidence });
     }
+    // #209: the household's own tags the model picked, never a new one, that the thing hasn't
+    // got yet: one `tags` suggestion, confirmed (or not) in the inbox like the others.
+    if (f.tags) {
+      const { rows: tags } = await client.query<{
+        id: string;
+        name: string;
+        colour: string | null;
+      }>(
+        `SELECT g.id, g.name, g.colour FROM public.tags g
+          WHERE g.owner_account_id = $1
+            AND kept.normalize(g.name) = ANY (SELECT kept.normalize(n) FROM unnest($2::text[]) n)
+            AND NOT EXISTS (SELECT 1 FROM public.thing_tags x
+                             WHERE x.thing_id = $3 AND x.tag_id = g.id)
+          ORDER BY lower(g.name), g.id`,
+        [thing.owner_account_id, f.tags.value, thing.id],
+      );
+      if (tags.length > 0) {
+        out.suggestions.push({
+          field: 'tags',
+          value: tags,
+          confidence: f.tags.confidence,
+          source: { extractionId: ex.id, attachmentId: sentAttachmentId },
+        });
+      }
+    }
   } else {
     const f = fields as LabelFields;
     await put('brand', f.brand);

@@ -56,6 +56,7 @@ export function useFieldLabels(): (field: string) => string {
     vendor: t`shop`,
     currency: t`currency`,
     document: t`vehicle document`,
+    tags: t`tags`,
   };
   return (field) => {
     const lang = aliasSuggestionLanguage(field);

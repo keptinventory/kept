@@ -150,6 +150,13 @@ const thingSummary = thingRef.extend({
   matched_by: z.enum(['keyword', 'meaning']).optional(),
 });
 
+/** A tag as the tag tools cite it (#209): its name is people's words. */
+const tagRef = z.object({
+  id: uuid,
+  colour: z.string().nullable(),
+  untrusted: z.object({ name: z.string() }),
+});
+
 /** What every write answers: the audit event, and until when it can be undone (7 days, D58). */
 const writeResult = z.object({
   audit_event_id: uuid,
@@ -269,7 +276,10 @@ const thingFields = {
   condition: z.enum(CONDITIONS),
   notes: z.string().max(2000).describe('Only what no other field holds'),
   aliases: z.array(shortText(200)).max(20).describe('Other names for it'),
-  tags: z.array(shortText(80)).max(20).describe('Tag names; only tags that exist'),
+  tags: z
+    .array(shortText(60))
+    .max(20)
+    .describe('Tag names; a name no tag has yet makes one, where your role may'),
   belongs_to: shortText(200).describe('Whose it is: a person’s name'),
   manual_url: z.url({ protocol: /^https?$/ }).max(2000),
   expires_on: isoDate,
@@ -371,6 +381,19 @@ export const TOOL_DEFS = Object.freeze({
           place_id: idOrCode.optional(),
           status: z.enum([...LIFECYCLES, ...DERIVED_STATES]).optional(),
           tag: z.string().max(80).optional(),
+          // 1.x (#209): several tags, any or all of them.
+          tags: z
+            .array(z.string().trim().min(1).max(80))
+            .min(1)
+            .max(10)
+            .optional()
+            .describe('Tag names (list_tags lists them)'),
+          tag_match: z
+            .enum(['any', 'all'])
+            .optional()
+            .describe(
+              '`all`: things with every tag in `tags`; `any` (the default): with one of them',
+            ),
         })
         .optional(),
       cursor,
@@ -402,6 +425,8 @@ export const TOOL_DEFS = Object.freeze({
         type_id: uuid.nullable(),
         condition: z.enum(CONDITIONS).nullable(),
         container: z.boolean(),
+        // 1.x (#209): its tags, A to Z.
+        tags: z.array(tagRef).optional(),
         untrusted: thingRef.shape.untrusted.extend({
           type: z.string().nullable(),
           brand: z.string().nullable(),
@@ -541,6 +566,52 @@ export const TOOL_DEFS = Object.freeze({
         untrusted: z.object({ title: z.string().nullable(), subject: z.string() }),
       }),
     ),
+  }),
+
+  // --- tags (1.x, #209): the assistant is offered them when a question is about tags (select.ts)
+  list_tags: tool({
+    name: 'list_tags',
+    title: 'Tags',
+    description:
+      'Which tags are there? Lists the tags of the location’s account, A to Z, with how many things have each.',
+    scope: 'read',
+    module: null,
+    since: '1.x',
+    input: z.object({
+      location_id: locationId,
+      query: z.string().trim().max(80).optional().describe('Words from a tag’s name'),
+      cursor,
+      limit,
+    }),
+    output: list(tagRef.extend({ things: z.number().int() })),
+  }),
+  tag_things: tool({
+    name: 'tag_things',
+    title: 'Tag things',
+    description:
+      'Add tags to things, or take them off. Tags are named; a tag added that does not exist yet is made.',
+    scope: 'write',
+    module: null,
+    since: '1.x',
+    idempotent: true,
+    input: z
+      .object({
+        location_id: locationId,
+        thing_ids: z.array(idOrCode).min(1).max(50),
+        add: z.array(z.string().trim().min(1).max(60)).max(20).optional(),
+        remove: z.array(z.string().trim().min(1).max(60)).max(20).optional(),
+      })
+      .refine((i) => (i.add?.length ?? 0) + (i.remove?.length ?? 0) > 0, {
+        message: 'add or remove at least one tag',
+      }),
+    output: writeResult.extend({
+      /** One undoable event per changed thing (one Undo undoes all). */
+      audit_event_ids: z.array(uuid),
+      changed: z.array(thingRef),
+      created_tags: z.array(tagRef),
+      /** Names in `remove` that no tag has. */
+      not_found: z.array(z.object({ untrusted: z.object({ value: z.string() }) })),
+    }),
   }),
 
   // --- read, modules -------------------------------------------------------------------------

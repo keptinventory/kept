@@ -42,6 +42,9 @@ import { AddToIncidentSheet } from '@/components/incidents/lazy';
 import { ListSurface } from '@/components/list-surface';
 import { EmptyState, Notice, useErrorText } from '@/components/page';
 import { useScanStore } from '@/components/scan/use-scan-store';
+import { tagGroupOf } from '@/components/tags/chip';
+import { BulkTagButtons } from '@/components/tags/lazy';
+import { useLocationAccountId } from '@/components/things/pickers';
 import { TrayIcon } from '@/components/tray/tray-icon';
 import { pickUp } from '@/components/tray/use-tray';
 import { Button } from '@/components/ui/button';
@@ -99,7 +102,7 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
   const f = useFilterRegistry();
   const common = {
     ...(list.q ? { q: list.q } : {}),
-    ...(list.group && list.group !== 'none' ? { group: list.group as 'type' } : {}),
+    ...(list.group && list.group !== 'none' ? { group: list.group as 'type' | 'tag' } : {}),
     ...(list.sort ? { sort: list.sort as 'name' | 'updated' | 'lastSeen' } : {}),
     ...(list.dir ? { dir: list.dir } : {}),
   };
@@ -213,6 +216,7 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
   // "Print labels" for the selection, where the Labels module is on (hidden if not).
   const navigate = useNavigate();
   const here = useLocations().data?.find((l) => l.id === parent.locationId);
+  const accountId = useLocationAccountId(here);
   const canLabel =
     !!here &&
     (here.effectiveModules ?? here.modules).includes('labels') &&
@@ -460,6 +464,14 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
               </Button>
             </>
           ) : null}
+          {/* #209: tags added to the selection, or taken off, with one Undo. */}
+          <BulkTagButtons
+            thingIds={[...selected]}
+            accountId={accountId}
+            canCreate={!!here && can(here.role, 'tags.create')}
+            locationId={parent.locationId}
+            onDone={stopSelecting}
+          />
           <Button size="small" variant="ghost" onPress={stopSelecting}>
             <Trans>Done</Trans>
           </Button>
@@ -499,6 +511,8 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
         groups={[
           { value: 'none', label: t`None` },
           { value: 'type', label: t`Type`, short: t`by type` },
+          // #209: under each thing's first tag, A to Z; untagged last.
+          { value: 'tag', label: t`Tag`, short: t`by tag` },
         ]}
         sorts={[
           { value: 'name', label: t`Name` },
@@ -578,13 +592,15 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
               : null
         }
         collapsible="contents"
-        groupOf={(e) =>
+        groupOf={(e, group) =>
           e.kind === 'place'
             ? { key: '__places', label: <Trans>Places</Trans> }
-            : {
-                key: e.thing.type?.id ?? '__none',
-                label: typeName(e.thing.type) ?? <Trans>No type</Trans>,
-              }
+            : group === 'tag'
+              ? tagGroupOf(e.thing)
+              : {
+                  key: e.thing.type?.id ?? '__none',
+                  label: typeName(e.thing.type) ?? <Trans>No type</Trans>,
+                }
         }
         empty={emptyState}
       />

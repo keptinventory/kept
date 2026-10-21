@@ -86,12 +86,13 @@ async function thing(
 /** One page through the route. */
 async function page(
   as: Person,
-  q: { cursor?: string; limit?: number; typesHash?: string } = {},
+  q: { cursor?: string; limit?: number; typesHash?: string; tagsHash?: string } = {},
 ): Promise<SnapshotPage> {
   const params = new URLSearchParams();
   if (q.cursor) params.set('cursor', q.cursor);
   if (q.limit) params.set('limit', String(q.limit));
   if (q.typesHash) params.set('typesHash', q.typesHash);
+  if (q.tagsHash) params.set('tagsHash', q.tagsHash);
   const res = await call(t, `/api/v1/sync/snapshot?${params}`, { as });
   expect(res.statusCode, res.body).toBe(200);
   return res.json() as SnapshotPage;
@@ -316,6 +317,37 @@ describe('the first sync', () => {
     expect(stale.types.items).toHaveLength(first.types.items?.length as number);
   });
 
+  it("sends the account's tags, only when their hash differs, and each thing's tag ids", async () => {
+    const account = await accountOf(ibrahim);
+    const [camping, beach] = await own<{ id: string }>(
+      `INSERT INTO public.tags (owner_account_id, name, colour)
+       VALUES ($1, 'Camping', '#30A46C'), ($1, 'Beach', NULL) RETURNING id`,
+      [account],
+    );
+    for (const g of [camping, beach]) {
+      await own(
+        'INSERT INTO public.thing_tags (location_id, thing_id, tag_id) VALUES ($1, $2, $3)',
+        [home.id, drill, g?.id],
+      );
+    }
+    const first = await page(louis, { limit: 2000 });
+    expect(first.tags?.items).toEqual(
+      expect.arrayContaining([
+        { id: camping?.id, accountId: account, name: 'Camping', colour: '#30A46C' },
+        { id: beach?.id, accountId: account, name: 'Beach', colour: null },
+      ]),
+    );
+    expect(first.locations.find((l) => l.id === home.id)?.ownerAccountId).toBe(account);
+    const row = first.changes.things.find((x) => x.id === drill);
+    expect(row?.tagIds).toEqual([camping?.id, beach?.id].sort());
+    expect(first.changes.things.find((x) => x.id === ladder)?.tagIds).toBeUndefined();
+    const again = await page(louis, { limit: 2000, tagsHash: first.tags?.hash as string });
+    expect(again.tags).toEqual({ hash: first.tags?.hash });
+    // Alfred sees nothing of Ibrahim's account, so none of its tags.
+    const theirs = await page(alfred, { limit: 2000 });
+    expect(JSON.stringify(theirs.tags)).not.toContain('Camping');
+  });
+
   it('gives a viewer and a member the same rows, each with their own role', async () => {
     const asMember = await pull(louis);
     const asViewer = await pull(talia);
@@ -363,6 +395,21 @@ describe('deltas', () => {
       expect.objectContaining({ code: 'MV1234', thingId: ladder, placeId: null }),
     ]);
     expect(pages.flatMap((p) => p.removed)).toEqual([]);
+  });
+
+  it('carry a thing whose tags changed, with its tag ids', async () => {
+    const { cursor } = await pull(louis);
+    const [g] = await own<{ id: string }>(
+      `INSERT INTO public.tags (owner_account_id, name) VALUES ($1, 'Winter') RETURNING id`,
+      [await accountOf(ibrahim)],
+    );
+    const res = await call(t, `/api/v1/things/tags`, {
+      as: louis,
+      body: { thingIds: [ladder], add: [g?.id] },
+    });
+    expect(res.statusCode, res.body).toBe(200);
+    const delta = await pull(louis, cursor);
+    expect(delta.things.get(ladder)?.tagIds).toEqual([g?.id]);
   });
 
   it('carry a thing’s product barcode, so a scan session matches it offline', async () => {

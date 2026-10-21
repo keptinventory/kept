@@ -48,6 +48,7 @@ describe('constants', () => {
       'move_box_room',
       'scan_session_lines',
       'scan_session_finish',
+      'tag_things',
     ]);
     expect(OUTCOMES).toEqual(['applied', 'needs_review', 'dropped']);
     expect(DROP_REASONS).toContain('parent_dropped');
@@ -414,5 +415,32 @@ describe('payload versions', () => {
   it('throws when a step is missing or the version is ahead of this build', () => {
     expect(() => upgradePayload('move', 0, {})).toThrow(PayloadVersionError);
     expect(() => upgradePayload('move', PAYLOAD_VERSION + 1, {})).toThrow(PayloadVersionError);
+  });
+});
+
+describe('tag_things', () => {
+  const parse = (payload: unknown) => parseOpPayload('tag_things', payload);
+
+  it('adds or removes tags on up to 200 things, and makes the tags it names new', () => {
+    const tag = id();
+    const ok = parse({
+      thingIds: [id(), id()],
+      add: [tag],
+      create: [{ id: tag, name: 'Camping' }],
+    });
+    expect(ok.success).toBe(true);
+    expect(ok.data).toMatchObject({ remove: [], create: [{ id: tag, name: 'Camping' }] });
+    expect(parse({ thingIds: [id()], remove: [id()] }).success).toBe(true);
+  });
+
+  it('refuses nothing to do, too many things, and a new tag it does not add', () => {
+    expect(parse({ thingIds: [id()] }).success).toBe(false);
+    expect(parse({ thingIds: Array.from({ length: 201 }, () => id()), add: [id()] }).success).toBe(
+      false,
+    );
+    expect(
+      parse({ thingIds: [id()], add: [id()], create: [{ id: id(), name: 'Loose' }] }).success,
+    ).toBe(false);
+    expect(parse({ thingIds: [id()], add: [id()], extra: true }).success).toBe(false);
   });
 });

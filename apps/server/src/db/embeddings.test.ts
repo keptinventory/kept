@@ -224,6 +224,34 @@ describe('the text a thing is embedded from (D200, Q12)', () => {
     for (const leak of ['450', 'EGP', 'hunter2', 'Wi-Fi', 'wifi_password'])
       expect(byId[router]).not.toContain(leak);
   });
+
+  it("ends with the thing's tags, A to Z, as embedText() writes them", async () => {
+    const tags = await own<{ id: string }>(
+      `INSERT INTO public.tags (owner_account_id, name)
+       VALUES ($1, 'workshop'), ($1, 'Car  care') RETURNING id`,
+      [ibrahim.accountId],
+    );
+    for (const g of tags) {
+      await own(
+        'INSERT INTO public.thing_tags (location_id, thing_id, tag_id) VALUES ($1, $2, $3)',
+        [garage.locationId, jack, g.id],
+      );
+    }
+    const [row] = await own<{ t: string }>(
+      'SELECT kept.embedding_text(t) AS t FROM public.things t WHERE t.id = $1',
+      [jack],
+    );
+    expect(row?.t).toBe(
+      embedText({
+        name: 'Jack',
+        placePath: ['Garage', 'Unplaced'],
+        tags: ['Car  care', 'workshop'],
+      }),
+    );
+    expect(row?.t).toBe('name: Jack\nplace: Garage › Unplaced\ntag: Car care\ntag: workshop');
+    await own('DELETE FROM public.thing_tags WHERE thing_id = $1', [jack]);
+    await own('DELETE FROM public.tags WHERE id = ANY ($1::uuid[])', [tags.map((g) => g.id)]);
+  });
 });
 
 describe('the backlog and the store', () => {

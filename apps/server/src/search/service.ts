@@ -16,6 +16,7 @@ import { requireMembership } from '../locations/access.js';
 import { gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { SIGNED_URL_TTL_SECONDS } from '../storage/signed-url.js';
+import { isAll, type ThingTag, tagsOfRow } from '../things/tag-sql.js';
 import { type DocumentItem, searchDocuments } from './documents.js';
 import {
   derivedStatesOf,
@@ -76,10 +77,20 @@ export type ThingRow = {
   thumbUrl: string | null;
   lastSeenAt: string | null;
   isContainer: boolean;
+  /** Its tags, A to Z (things/tag-sql.ts). */
+  tags: ThingTag[];
   matchedAlias?: string;
   /** Found by meaning alone: "matched by meaning". */
   matchedBy?: 'meaning';
 };
+
+/** A tag filter as "has all of" when the query names it in `all` (and not in `not`). */
+const withAll = (
+  f: Many | undefined,
+  query: { all?: readonly string[] | undefined; not?: readonly string[] | undefined },
+  name: string,
+): (Many & { all?: boolean }) | undefined =>
+  f && isAll(query.all, query.not, name) ? { ...f, all: true } : f;
 
 export type SearchResult = {
   things: { items: ThingRow[]; next_cursor: string | null };
@@ -208,6 +219,7 @@ async function rowOf(
     thumbUrl: await thumbUrlOf(files, keys, h.thumb_file_id),
     lastSeenAt: h.last_seen_at ? new Date(h.last_seen_at).toISOString() : null,
     isContainer: h.is_container,
+    tags: tagsOfRow(h.tags),
     ...(alias !== undefined ? { matchedAlias: alias } : {}),
     ...(byMeaning ? { matchedBy: 'meaning' as const } : {}),
   };
@@ -326,7 +338,7 @@ export async function search(
       location,
       place: filterOf(lowerIds(query.placeId), 'placeId', query.not),
       type: filterOf(lowerIds(query.typeId), 'typeId', query.not),
-      tag: filterOf(lowerIds(query.tagId), 'tagId', query.not),
+      tag: withAll(filterOf(lowerIds(query.tagId), 'tagId', query.not), query, 'tagId'),
       state: filterOf(query.state, 'state', query.not),
       ...(money.length > 0
         ? {

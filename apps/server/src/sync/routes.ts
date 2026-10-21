@@ -12,7 +12,7 @@ import { snapshotPage } from './snapshot.js';
 // Sync. Registered by http/routes.ts; add
 // routes here, never there.
 //
-// GET /api/v1/sync/snapshot?cursor&limit&typesHash → SnapshotPage (packages/shared/src/sync.ts).
+// GET /api/v1/sync/snapshot?cursor&limit&typesHash&tagsHash → SnapshotPage (packages/shared/src/sync.ts).
 // Every member role, viewers included: they browse offline too. Without a cursor it starts a
 // full pass; each page's `nextCursor` goes back as `cursor` until a page says `complete`, and the
 // last one is kept for the next sync, which then gets only what changed. A cursor that doesn't
@@ -31,6 +31,7 @@ const SnapshotQuery = z.object({
     .max(SYNC_LIMITS.snapshotPageMax)
     .default(SYNC_LIMITS.snapshotPageDefault),
   typesHash: z.string().max(64).optional(),
+  tagsHash: z.string().max(64).optional(),
 });
 
 const SnapshotResponse = z.object({
@@ -50,6 +51,7 @@ const SnapshotResponse = z.object({
       latitude: z.number().optional(),
       longitude: z.number().optional(),
       suggestRadiusM: z.number().int(),
+      ownerAccountId: Uuid.optional(),
     }),
   ),
   types: z.object({
@@ -66,6 +68,16 @@ const SnapshotResponse = z.object({
       )
       .optional(),
   }),
+  tags: z
+    .object({
+      hash: z.string(),
+      items: z
+        .array(
+          z.object({ id: Uuid, accountId: Uuid, name: z.string(), colour: z.string().nullable() }),
+        )
+        .optional(),
+    })
+    .optional(),
   changes: z.object({
     places: z.array(
       z.object({
@@ -113,6 +125,8 @@ const SnapshotResponse = z.object({
         // Step 4 (D119): lent, borrowed and in repair, and the open loan (a name and a
         // due date only). Absent means none.
         derived: z.array(z.enum(['lent', 'borrowed', 'in_repair'])).optional(),
+        // #209: its tags' ids. Absent means none.
+        tagIds: z.array(Uuid).optional(),
         loan: z
           .object({
             direction: z.enum(LOAN_DIRECTIONS),
@@ -167,11 +181,11 @@ export async function syncRoutes(app: KeptApp, deps: InventoryDeps): Promise<voi
     '/api/v1/sync/snapshot',
     { schema: { querystring: SnapshotQuery, response: { 200: SnapshotResponse } } },
     async (req) => {
-      const { cursor, limit, typesHash } = req.query;
+      const { cursor, limit, typesHash, tagsHash } = req.query;
       const state = cursor === undefined ? FIRST_SYNC : verifyCursor(key, cursor);
       if (!state) throw invalid('The sync cursor is not valid; sync again from the start.');
       const { page, next } = await scopedRead(pools, req, (_tx, client) =>
-        snapshotPage(client, state, { limit, typesHash }),
+        snapshotPage(client, state, { limit, typesHash, tagsHash }),
       );
       return { ...page, nextCursor: signCursor(key, next) };
     },

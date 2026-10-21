@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { PAGE_MAX } from '../http/conventions.js';
 import { type Many, manyOf, matchOf, notOf } from '../http/list-filters.js';
 import { legacyCodeOf } from '../imports/csv.js';
+import { tagMatchSql, tagsSql } from '../things/tag-sql.js';
 
 // The search SQL (D42). Everything here runs on the
 // request's kept_app transaction, so row-level security decides what exists: a thing, place,
@@ -69,6 +70,8 @@ export const SearchQuery = z.object({
   tagId: manyOf(z.uuid()).optional(),
   state: manyOf(z.enum(SEARCH_STATES)).optional(),
   not: notOf(SEARCH_FILTERS).optional(),
+  /** The filters that are "has all of" rather than "any of" (the tags): `all=tagId`. */
+  all: notOf(['tagId']).optional(),
   kind: z.enum(SEARCH_KINDS).optional(),
   /** Money filters: ignored, silently, where the caller can't see money. */
   priceMin: Decimal.optional(),
@@ -166,7 +169,8 @@ export type ThingFilters = {
   location?: Many | undefined;
   place?: Many | undefined;
   type?: Many | undefined;
-  tag?: Many | undefined;
+  /** `all`: "has all of" (tag-sql.ts tagMatchSql). */
+  tag?: (Many & { all?: boolean }) | undefined;
   state?: Many<SearchState> | undefined;
   /** Only these things (semantic search's candidates): the other filters still apply. */
   ids?: readonly string[];
@@ -209,6 +213,8 @@ export type ThingHit = {
   thumb_file_id: string | null;
   container_thumb_file_id: string | null;
   is_container: boolean;
+  /** tag-sql.ts tagsSql(). */
+  tags: unknown;
   /** The sort key the cursor resumes from. */
   s: number | string;
 };
@@ -344,11 +350,7 @@ export async function searchThings(
   }
   if (f.tag?.values.length) {
     where.push(
-      matchOf(
-        `EXISTS (SELECT 1 FROM public.thing_tags g
-                  WHERE g.thing_id = t.id AND g.tag_id = ANY (${p.add(f.tag.values)}::uuid[]))`,
-        f.tag.not,
-      ),
+      matchOf(tagMatchSql('t.id', `${p.add(f.tag.values)}::uuid[]`, f.tag.all === true), f.tag.not),
     );
   }
   if (f.state?.values.length) {
@@ -441,6 +443,7 @@ export async function searchThings(
            CASE WHEN t.container_id IS NULL THEN NULL ELSE ${firstThumb('t.container_id')} END
              AS container_thumb_file_id,
            ${isContainerSql('t.id', 't.type_id')} AS is_container,
+           ${tagsSql('t.id')} AS tags,
            ${householdStateSql('t')},
            m.s
       FROM page m

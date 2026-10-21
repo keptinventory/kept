@@ -145,8 +145,18 @@ export const searchThings: Handler<'search_things'> = {
     const empty = { data: { items: [] } };
     const typeId = f.type ? await typeIds(op, f.type) : undefined;
     if (typeId && typeId.length === 0) return empty;
-    const tagId = f.tag ? await tagIds(op, f.tag) : undefined;
-    if (tagId && tagId.length === 0) return empty;
+    // One tag (`tag`) or several (`tags`), any or all of them (#209). A name no tag has matches
+    // nothing: with `all`, nothing at all; with `any`, the other names still match.
+    const names = [...new Set([...(f.tag ? [f.tag] : []), ...(f.tags ?? [])])];
+    const allTags = f.tag_match === 'all' && names.length > 1;
+    let tagId: string[] | undefined;
+    if (names.length > 0) {
+      const each = await Promise.all(names.map((n) => tagIds(op, n)));
+      if (allTags && each.some((ids) => ids.length === 0)) return empty;
+      tagId = [...new Set(each.flat())];
+      if (tagId.length === 0) return empty;
+    }
+    const tagAll = allTags ? { all: ['tagId' as const] } : {};
     let placeId: string | undefined;
     if (f.place_id) {
       const found = await findRef(op.client, f.place_id);
@@ -163,7 +173,7 @@ export const searchThings: Handler<'search_things'> = {
           ...(input.query ? { q: input.query } : {}),
           ...(placeId ? { placeId } : {}),
           ...(typeId ? { typeId } : {}),
-          ...(tagId ? { tagId } : {}),
+          ...(tagId ? { tagId, ...tagAll } : {}),
           limit: size,
           ...(c ? { cursor: c } : {}),
         });
@@ -186,7 +196,7 @@ export const searchThings: Handler<'search_things'> = {
         limit: size,
         ...(placeId ? { placeId: [placeId] } : {}),
         ...(typeId ? { typeId } : {}),
-        ...(tagId ? { tagId } : {}),
+        ...(tagId ? { tagId, ...tagAll } : {}),
         ...state,
         ...(c ? { cursor: c } : {}),
       });
@@ -324,6 +334,15 @@ export const getThing: Handler<'get_thing'> = {
           type_id: v.type?.id ?? null,
           condition: v.condition,
           container: v.isContainer,
+          ...(v.tags.length > 0
+            ? {
+                tags: v.tags.map((g) => ({
+                  id: g.id,
+                  colour: g.colour,
+                  untrusted: { name: g.name },
+                })),
+              }
+            : {}),
           untrusted: {
             ...ref.untrusted,
             ...(aliases.length > 0 ? { aliases } : {}),

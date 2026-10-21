@@ -41,6 +41,8 @@ export type TourStop = {
   dock?: 'top' | 'bottom';
   /** The copy entry when it isn't the step's own (`<tour>.<step>`). */
   copyId?: string;
+  /** How long to wait for the anchor, in ms, when not the engine's own (tour.ts). */
+  wait?: number;
 };
 
 export type TourStep = TourStop & {
@@ -64,6 +66,15 @@ const thing = (id: string, anchor: string, more: Partial<TourStep> = {}): TourSt
   anchors: [anchor],
   ...more,
 });
+
+/**
+ * How long the step that opens the Map waits for its control. The map is a large chunk loaded on
+ * demand, and its controls render only once it and the location's plan are in: on a slow phone
+ * that is longer than a page takes, and passing over every Map step would end the chapter with
+ * nothing shown. The steps after it find the map already there, and keep the engine's own wait:
+ * a control that is not shown (one floor, no floor picker) is passed over as quickly as anywhere.
+ */
+export const MAP_ANCHOR_WAIT_MS = 10000;
 
 /** A step on the location's Map (the same address again is no move at all). */
 const onMap = (id: string, anchor: string, more: Partial<TourStep> = {}): TourStep => ({
@@ -121,7 +132,7 @@ export const TOURS: readonly Tour[] = [
     id: 'map',
     steps: [
       { id: 'layout', to: '/loc/$id', needs: 'location', anchors: ['location-layout'] },
-      onMap('view', 'map-view'),
+      onMap('view', 'map-view', { wait: MAP_ANCHOR_WAIT_MS }),
       onMap('pins', 'map-pins'),
       onMap('floors', 'map-floors'),
       onMap('arrange', 'map-arrange', { writes: true }),

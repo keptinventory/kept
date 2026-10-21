@@ -6,12 +6,13 @@
  * says where the thing is from the snapshot's places, and the group says how old the copy is:
  * "On this phone · as of last sync, 14:02".
  *
- * Offline it filters by the words, the location and the type; place, tag, state and price need
- * the server, and the page says so rather than answering as if they applied. The other groups
+ * Offline it filters by the words, the location, the type and the tags (#209: tags alone list the
+ * things that have them); place, state and price need the server, and the page says so rather than
+ * answering as if they applied. The other groups
  * (places, people, shops, documents) have no copy on the phone: documents say they need a
  * connection (components/search/documents.tsx), the rest wait.
  */
-import type { SnapPlace, SnapThing } from '@kept/shared';
+import type { SnapPlace, SnapTag, SnapThing } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useState } from 'react';
 import type { PathStep, SearchParams, ThingRow } from '@/api/inventory/types';
@@ -19,6 +20,7 @@ import type { LocationKind } from '@/api/types';
 import { placePath } from '@/components/capture/target';
 import { SearchIcon } from '@/components/icons';
 import { EmptyState, List, Section } from '@/components/page';
+import { tagsOfSnap } from '@/components/tags/offline';
 import { sep, useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
 import { formatLocale, usePrefs } from '@/lib/prefs';
@@ -32,23 +34,34 @@ export const OFFLINE_LIMIT = 50;
 const many = (v: string | string[] | undefined): string[] =>
   v === undefined ? [] : Array.isArray(v) ? v : [v];
 
-/** Whether a row passes the filters the phone can apply: location and type, "is" or "is not". */
+/** Whether a row passes the filters the phone can apply: location, type and (#209) tags, "is"
+ * or "is not", and for tags "has all of". */
 export function passesOffline(params: SearchParams) {
   const locations = many(params.locationId);
   const types = many(params.typeId);
+  const tags = many(params.tagId);
   const not = new Set(params.not ?? []);
+  const allTags = (params.all ?? []).includes('tagId') && !not.has('tagId');
   return (t: SnapThing): boolean => {
     if (locations.length && locations.includes(t.locationId) === not.has('locationId'))
       return false;
     if (types.length && types.includes(t.typeId ?? '') === not.has('typeId')) return false;
+    if (tags.length) {
+      const has = t.tagIds ?? [];
+      const hit = allTags ? tags.every((g) => has.includes(g)) : tags.some((g) => has.includes(g));
+      if (hit === not.has('tagId')) return false;
+    }
     return true;
   };
 }
 
+/** Tags are filtered "any of" or "all of", so the phone can list them without words (#209). */
+export const tagsAlone = (params: SearchParams) =>
+  many(params.tagId).length > 0 && !(params.not ?? []).includes('tagId');
+
 /** A filter only the server can apply is set. */
 export const serverOnlyFilters = (params: SearchParams) =>
   many(params.placeId).length > 0 ||
-  many(params.tagId).length > 0 ||
   many(params.state).length > 0 ||
   !!params.priceMin ||
   !!params.priceMax;
@@ -61,7 +74,7 @@ const placeStep = (p: SnapPlace): PathStep => ({
 });
 
 /** A phone row in the server's row shape, so it reads like every other search result. */
-function rowOf(t: SnapThing, path: PathStep[]): ThingRow {
+function rowOf(t: SnapThing, path: PathStep[], tags: readonly SnapTag[] = []): ThingRow {
   return {
     id: t.id,
     locationId: t.locationId,
@@ -81,6 +94,7 @@ function rowOf(t: SnapThing, path: PathStep[]): ThingRow {
     thumbUrl: null,
     lastSeenAt: t.lastSeenAt,
     isContainer: t.isContainer,
+    tags: tagsOfSnap(t.tagIds, tags),
   };
 }
 
@@ -93,14 +107,20 @@ type Found = {
 /** The phone's answer to `params`: rows with their paths, best match first. */
 export async function searchPhone(store: OfflineStore, params: SearchParams): Promise<Found> {
   const q = params.q?.trim() ?? '';
-  const [hits, asOf, locations] = await Promise.all([
-    q ? store.search(q, OFFLINE_LIMIT) : Promise.resolve([]),
+  const [hits, asOf, locations, tags] = await Promise.all([
+    q
+      ? store.search(q, OFFLINE_LIMIT)
+      : // A tag filter alone (#209): the things with those tags, narrowed below.
+        tagsAlone(params)
+        ? store.byTags(many(params.tagId), OFFLINE_LIMIT * 4)
+        : Promise.resolve([]),
     store.asOf(),
     store.locations(),
+    store.tags(),
   ]);
   const places = new Map<string, SnapPlace[]>();
   const rows: ThingRow[] = [];
-  for (const t of hits.filter(passesOffline(params))) {
+  for (const t of hits.filter(passesOffline(params)).slice(0, OFFLINE_LIMIT)) {
     let inLocation = places.get(t.locationId);
     if (!inLocation) {
       inLocation = await store.placesOf(t.locationId);
@@ -113,7 +133,7 @@ export async function searchPhone(store: OfflineStore, params: SearchParams): Pr
           { id: box.id, name: box.name ?? '', kind: 'container' as const, isUnplaced: false },
         ]
       : placePath(inLocation, t.placeId).map(placeStep);
-    rows.push(rowOf(t, path));
+    rows.push(rowOf(t, path, tags));
   }
   return { rows, asOf, locationNames: new Map(locations.map((l) => [l.id, l])) };
 }
@@ -159,7 +179,7 @@ export function OfflineResults({
   const order: string[] = [];
   for (const r of found.rows) if (!order.includes(r.locationId)) order.push(r.locationId);
   const grouped = order.flatMap((loc) => found.rows.filter((r) => r.locationId === loc));
-  const partial = serverOnlyFilters(params) || !q;
+  const partial = serverOnlyFilters(params) || (!q && !tagsAlone(params));
 
   return (
     <div className="grid gap-3">
@@ -169,8 +189,8 @@ export function OfflineResults({
       {partial ? (
         <p className="m-0 text-small text-ink-2">
           <Trans>
-            Offline, search uses the words, the location and the type. The other filters apply when
-            you're back online.
+            Offline, search uses the words, the location, the type and the tags. The other filters
+            apply when you're back online.
           </Trans>
         </p>
       ) : null}

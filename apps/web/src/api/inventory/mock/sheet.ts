@@ -6,7 +6,14 @@
 import type { MockState } from '../../mock/fixtures';
 import { err, forbidden, type MockRoute, notFound, reply, route } from '../../mock/kit';
 import { inventoryPaths as p } from '../paths';
-import type { BulkEditBody, BulkEditRowResult, BulkTrashBody, SheetRow, ThingRow } from '../types';
+import type {
+  BulkEditBody,
+  BulkEditRowResult,
+  BulkTrashBody,
+  SheetRow,
+  TagThingsBody,
+  ThingRow,
+} from '../types';
 import {
   accessOf,
   contentsOf,
@@ -228,6 +235,51 @@ export function sheetRoutes(state: MockState): MockRoute[] {
         results.push({ id: edit.id, ok: true });
       }
       return { results, rows: saved.map(sheetRowOf), events };
+    }),
+
+    // #209: tags added to or taken off many things, one undoable event a changed thing.
+    route('POST', p.thingsTags, ({ body }) => {
+      const b = body as TagThingsBody;
+      const add = b.add ?? [];
+      const remove = (b.remove ?? []).filter((x) => !add.includes(x));
+      if (!b.thingIds?.length || add.length + remove.length === 0)
+        return err(400, 'validation', 'Name tags to add or remove.');
+      const things = b.thingIds.map((id) => liveThing(inv(), id));
+      for (const t of things) {
+        if (!t || !access().visible(t.locationId)) return notFound();
+        if (!access().canWrite(t.locationId)) return forbidden();
+      }
+      const named = [...add, ...remove].map((id) => inv().tags.find((g) => g.id === id));
+      if (named.some((g) => !g)) return notFound();
+      const changed: string[] = [];
+      const events: string[] = [];
+      for (const t of things) {
+        if (!t) continue;
+        const before = [...t.tags];
+        const next = [
+          ...t.tags.filter((g) => !remove.includes(g.id)),
+          ...inv()
+            .tags.filter((g) => add.includes(g.id) && !t.tags.some((x) => x.id === g.id))
+            .map((g) => ({ id: g.id, name: g.name, colour: g.colour })),
+        ];
+        if (next.length === before.length && next.every((g) => before.some((x) => x.id === g.id)))
+          continue;
+        t.tags = next;
+        t.rowVersion += 1;
+        t.updatedAt = now();
+        changed.push(t.id);
+        const ev = recordEvent(inv(), me(), {
+          action: 'thing.update',
+          entity: { type: 'thing', id: t.id },
+          locationId: t.locationId,
+          name: t.name ?? '',
+          undo: () => {
+            t.tags = before;
+          },
+        });
+        events.push(ev.id);
+      }
+      return { changed, events };
     }),
 
     route('POST', p.thingsBulkTrash, ({ body }) => {

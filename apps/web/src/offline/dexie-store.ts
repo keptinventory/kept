@@ -16,6 +16,7 @@ import {
   type QueueItem,
   type SnapRemoved,
   type SnapshotPage,
+  type SnapTag,
   type SnapThing,
   type SyncOpResult,
 } from '@kept/shared';
@@ -52,6 +53,7 @@ import {
   type SyncNotice,
   termsOf,
   UNANSWERED,
+  withQueuedTags,
 } from './store';
 import type { StoredBlob, SyncStore } from './sync-store';
 
@@ -181,6 +183,9 @@ export class DexieStore implements SyncStore {
             { key: 'cursor', value: page.nextCursor },
             { key: 'asOf', value: page.asOf },
             { key: 'typesHash', value: page.types.hash },
+            // #209: the tags come only when their hash changed; an older server sends none.
+            ...(page.tags ? [{ key: 'tagsHash' as const, value: page.tags.hash }] : []),
+            ...(page.tags?.items ? [{ key: 'tags' as const, value: page.tags.items }] : []),
             { key: 'truncated', value: page.truncated === true },
             {
               key: 'serverPayloadWindow',
@@ -197,6 +202,13 @@ export class DexieStore implements SyncStore {
   }
   async asOf() {
     return ((await this.meta('asOf')) as string | undefined) ?? null;
+  }
+  async tags() {
+    const base = ((await this.meta('tags')) as SnapTag[] | undefined) ?? [];
+    const queue = (await this.db.queue.where('state').anyOf(OVERLAID_STATES).toArray()).map(
+      toEntry,
+    );
+    return withQueuedTags(base, queue, await this.db.locations.toArray());
   }
   async locations() {
     return this.db.locations.toArray();
@@ -275,6 +287,15 @@ export class DexieStore implements SyncStore {
     );
     return rows
       .filter((t) => matchesAll(termsOf(t, codes.get(codesKey(t))), words))
+      .slice(0, limit);
+  }
+
+  async byTags(tagIds: readonly string[], limit: number) {
+    // No index on tags: the phone's things are scanned (at most SYNC_LIMITS.snapshotThings), and
+    // those a queued tag change touches are laid over (touchedIds).
+    const base = await this.db.things.filter((t) => (t.tagIds?.length ?? 0) > 0).toArray();
+    return (await this.overlaid(base))
+      .filter((t) => !t.deleted && (t.tagIds ?? []).some((g) => tagIds.includes(g)))
       .slice(0, limit);
   }
 
@@ -592,7 +613,7 @@ function touchedIds(e: QueueEntry): string[] {
     placeId?: unknown;
   };
   if (e.op === 'create_thing' && typeof p.id === 'string') return [p.id];
-  if (e.op === 'move' && Array.isArray(p.thingIds))
+  if ((e.op === 'move' || e.op === 'tag_things') && Array.isArray(p.thingIds))
     return p.thingIds.filter((x): x is string => typeof x === 'string');
   if (e.op === 'move_box' && typeof p.containerId === 'string' && typeof p.placeId === 'string')
     return [p.containerId];

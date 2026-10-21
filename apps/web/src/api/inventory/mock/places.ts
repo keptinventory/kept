@@ -24,6 +24,7 @@ import {
   accessOf,
   contentsOf,
   derivedStateOf,
+  type InventoryState,
   livePlace,
   matches,
   newId,
@@ -34,6 +35,7 @@ import {
   rowOf,
   type StoredPlace,
   type StoredThing,
+  tagGroupKey,
   versionError,
 } from './db';
 import { narrow } from './filters';
@@ -129,7 +131,7 @@ export function placesRoutes(state: MockState): MockRoute[] {
       found = narrow(found, query, 'brand', (t, v) => t.brand?.id === v);
       found = narrow(found, query, 'belongsTo', (t, v) => t.belongsTo?.id === v);
       const things = found
-        .sort(contentsOrder(query.get('sort'), query.get('group'), query.get('dir')))
+        .sort(contentsOrder(query.get('sort'), query.get('group'), query.get('dir'), inv()))
         .map((t) => rowOf(inv(), t));
       const out: PlaceContents = { places: children, things: paginate(things, query) };
       return out;
@@ -314,12 +316,18 @@ export function placesRoutes(state: MockState): MockRoute[] {
 
 /** The contents sort (`name` A to Z by default, `updated`, `lastSeen` newest first), grouped by
  * type first; `dir` turns the sort around (D211). */
-function contentsOrder(sort: string | null, group: string | null, dir: string | null) {
+function contentsOrder(
+  sort: string | null,
+  group: string | null,
+  dir: string | null,
+  inv: InventoryState,
+) {
   const typeKey = (t: StoredThing) => t.type?.builtinKey ?? t.type?.name ?? '~';
   const date = sort === 'updated' || sort === 'lastSeen';
   const flip = dir === (date ? 'asc' : 'desc') ? -1 : 1;
   return (a: StoredThing, b: StoredThing) =>
     (group === 'type' ? typeKey(a).localeCompare(typeKey(b)) : 0) ||
+    (group === 'tag' ? tagGroupKey(inv, a).localeCompare(tagGroupKey(inv, b)) : 0) ||
     flip *
       (sort === 'updated'
         ? b.updatedAt.localeCompare(a.updatedAt)

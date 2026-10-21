@@ -10,7 +10,15 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { LocationDetail } from '@/api/types';
 import { tourLedger } from './tour-ledger';
 import { resolveSubject, type SubjectDeps, tourLocation } from './tour-subjects';
-import { availableTours, gatingOf, resumeAt, stepsFor, TOURS, tourById } from './tours';
+import {
+  availableTours,
+  gatingOf,
+  MAP_ANCHOR_WAIT_MS,
+  resumeAt,
+  stepsFor,
+  TOURS,
+  tourById,
+} from './tours';
 
 const loc = (
   id: string,
@@ -36,6 +44,18 @@ describe('TOURS', () => {
       for (const step of tour.steps) expect(step.anchors.length, step.id).toBeGreaterThan(0);
       expect(new Set(tour.steps.map((s) => s.id)).size, tour.id).toBe(tour.steps.length);
     }
+  });
+
+  it('gives the step that opens the map longer to find its control, and only that one', () => {
+    const map = tourById('map').steps.filter((s) => s.search?.view === 'map');
+    expect(map[0]?.id).toBe('view');
+    // A page's anchor gets 3 s (tour.ts GUIDED_ANCHOR_WAIT_MS); the map's chunk takes longer cold.
+    expect(MAP_ANCHOR_WAIT_MS).toBeGreaterThan(3000);
+    expect(map[0]?.wait).toBe(MAP_ANCHOR_WAIT_MS);
+    // The rest find the map there: a control not shown (one floor) is passed over quickly.
+    for (const tour of TOURS)
+      for (const step of tour.steps)
+        if (step !== map[0]) expect(step.wait, `${tour.id}.${step.id}`).toBeUndefined();
   });
 
   it('names a subject for every `$id` route', () => {

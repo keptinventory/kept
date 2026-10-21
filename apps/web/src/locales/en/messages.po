@@ -5714,10 +5714,6 @@ msgstr "Offline"
 msgid "Offline · {queue}"
 msgstr "Offline · {queue}"
 
-#: src/components/search/offline-results.tsx
-msgid "Offline, search uses the words, the location and the type. The other filters apply when you're back online."
-msgstr "Offline, search uses the words, the location and the type. The other filters apply when you're back online."
-
 #: src/components/sync-status.tsx
 msgid "Offline · as of last sync, {time}"
 msgstr "Offline · as of last sync, {time}"
@@ -7384,17 +7380,9 @@ msgstr "Set password"
 msgid "Set password and sign in"
 msgstr "Set password and sign in"
 
-#: src/components/inbox/bulk-bar.tsx
-msgid "Set tags"
-msgstr "Set tags"
-
 #: src/components/inbox/currency-item.tsx
 msgid "Set the currency to {currency}"
 msgstr "Set the currency to {currency}"
-
-#: src/components/inbox/bulk-bar.tsx
-msgid "Set the tags of {names}"
-msgstr "Set the tags of {names}"
 
 #: src/components/inbox/item-card.tsx
 msgid "Set the type of {names}"
@@ -26442,3 +26430,138 @@ msgstr "With {who} (in {box}) since {since} · due {due}"
 #: src/components/lending/loan-text.tsx
 msgid "With {who} (in {box}) since {since}"
 msgstr "With {who} (in {box}) since {since}"
+
+#: src/components/filters/strip.tsx
+msgid "{label}: all of {summary}"
+msgstr "{label}: all of {summary}"
+
+#: src/components/tags/editors.tsx
+#: src/components/tags/tags-field.tsx
+msgid "Add tag"
+msgstr "Add tag"
+
+#: src/components/inbox/bulk-bar.tsx
+#: src/components/tags/bulk-tags.tsx
+msgid "Add tags…"
+msgstr "Add tags…"
+
+#: src/components/tags/palette.ts
+msgid "Amber"
+msgstr "Amber"
+
+#: src/components/tags/palette.ts
+msgid "Blue"
+msgstr "Blue"
+
+#: src/components/tags/palette.ts
+msgid "Brown"
+msgstr "Brown"
+
+#: src/components/places/contents-list.tsx
+msgid "by tag"
+msgstr "by tag"
+
+#: src/components/tags/api.ts
+#: src/components/tags/picker.tsx
+msgid "Couldn't change the tags"
+msgstr "Couldn't change the tags"
+
+#: src/components/tags/picker.tsx
+msgid "Create “<0>{typed}</0>”"
+msgstr "Create “<0>{typed}</0>”"
+
+#: src/components/tags/palette.ts
+msgid "Cyan"
+msgstr "Cyan"
+
+#: src/components/tags/palette.ts
+msgid "Green"
+msgstr "Green"
+
+#: src/components/tags/palette.ts
+msgid "Grey"
+msgstr "Grey"
+
+#: src/components/filters/panel.tsx
+msgid "has all of"
+msgstr "has all of"
+
+#: src/components/tags/palette.ts
+msgid "Indigo"
+msgstr "Indigo"
+
+#: src/components/import/labels.ts
+msgid "Its tags aren't kept: in Kept only things have tags."
+msgstr "Its tags aren't kept: in Kept only things have tags."
+
+#: src/components/tags/colour-choice.tsx
+msgid "No colour"
+msgstr "No colour"
+
+#: src/components/tags/chip.tsx
+msgid "No tag"
+msgstr "No tag"
+
+#: src/components/tags/picker.tsx
+msgid "No tags yet."
+msgstr "No tags yet."
+
+#: src/components/tags/palette.ts
+msgid "Orange"
+msgstr "Orange"
+
+#: src/components/tags/palette.ts
+msgid "Pink"
+msgstr "Pink"
+
+#: src/components/tags/palette.ts
+msgid "Red"
+msgstr "Red"
+
+#: src/components/tags/bulk-tags.tsx
+msgid "Remove tags…"
+msgstr "Remove tags…"
+
+#: src/components/tags/editors.tsx
+msgid "Tagged {shown}"
+msgstr "Tagged {shown}"
+
+#: src/components/tags/bulk-tags.tsx
+#: src/components/tags/editors.tsx
+msgid "Tags changed"
+msgstr "Tags changed"
+
+#: src/components/tags/capture-tags.tsx
+msgid "Tags: <0>{names}</0>"
+msgstr "Tags: <0>{names}</0>"
+
+#. placeholder {0}: isolate(g.name)
+#. placeholder {0}: isolate(name)
+#: src/components/tags/editors.tsx
+#: src/components/tags/tag-page.tsx
+#: src/components/tags/tags-field.tsx
+msgid "Take {0} off"
+msgstr "Take {0} off"
+
+#: src/components/tags/palette.ts
+msgid "Teal"
+msgstr "Teal"
+
+#. placeholder {0}: tag.name
+#: src/components/tags/tag-page.tsx
+msgid "Things tagged {0}"
+msgstr "Things tagged {0}"
+
+#: src/components/tags/editors.tsx
+#: src/components/tags/tag-page.tsx
+msgid "Took off {shown}"
+msgstr "Took off {shown}"
+
+#: src/components/tags/palette.ts
+msgid "Violet"
+msgstr "Violet"
+
+
+#: src/components/search/offline-results.tsx
+msgid "Offline, search uses the words, the location, the type and the tags. The other filters apply when you're back online."
+msgstr "Offline, search uses the words, the location, the type and the tags. The other filters apply when you're back online."

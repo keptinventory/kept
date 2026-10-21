@@ -178,6 +178,8 @@ export const ListQuery = z.object({
   /** A derived state, or `archived` (put away: one of the ended things, on its own). */
   state: manyOf(z.enum([...DERIVED_STATES, 'archived'])).optional(),
   not: notOf(THING_LIST_FILTERS).optional(),
+  /** The filters that are "has all of" rather than "any of" (the tags): `all=tagId`. */
+  all: notOf(['tagId']).optional(),
   lifecycle: z.enum(LIFECYCLES).optional(),
   /** The things an import run brought in (its import_source_ids): "See what was imported".
    * Owners and admins; for anyone else it matches nothing. */
@@ -187,7 +189,7 @@ export const ListQuery = z.object({
   /** `1`: only things whose type is consumable (D236: a service line's "From stock" picker). */
   consumable: z.enum(['0', '1']).optional(),
   q: z.string().trim().max(200).optional(),
-  group: z.enum(['type', 'place', 'none']).default('none'),
+  group: z.enum(['type', 'place', 'tag', 'none']).default('none'),
   sort: z.enum(['name', 'updated', 'lastSeen']).default('name'),
   /** The order (D211): `asc` or `desc`. Absent, the sort's own: A to Z for the name, newest
    * first for the dates. */

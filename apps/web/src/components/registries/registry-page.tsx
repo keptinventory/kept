@@ -31,7 +31,7 @@ import { ContactCard } from './contact-card';
 import { useVendorKindLabels } from './labels';
 import { MergeSheet, type MergeSubject } from './merge-sheet';
 import { RegistryEditSheet, registryName } from './registry-edit-sheet';
-import { RegistryIcon } from './registry-list';
+import { RegistryIcon } from './registry-icon';
 
 export function RegistryPage<K extends 'brands' | 'vendors' | 'people'>({
   kind,

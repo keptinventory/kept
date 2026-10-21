@@ -40,6 +40,7 @@ import { EmptyState, List, Section } from '@/components/page';
 import { placeIcon, usePlaceName } from '@/components/places/labels';
 import { rowLink, Tile } from '@/components/places/rows';
 import { StatusPill } from '@/components/status-pill';
+import { TagChips } from '@/components/tags/chip';
 import { TypeIcon } from '@/components/type-icon';
 import { Button } from '@/components/ui/button';
 import { addressOf } from '@/lib/address';
@@ -426,6 +427,7 @@ export function ThingResult({
             ))}
           </span>
         ) : null}
+        <TagChips tags={thing.tags ?? []} />
       </span>
     </Link>
   );

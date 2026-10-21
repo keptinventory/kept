@@ -191,6 +191,8 @@ export function useIssueText() {
         return t`Kept can't hold this record yet; its text is kept in the thing's notes.`;
       case 'hb_location_in_item':
         return t`A location inside an item became a container.`;
+      case 'hb_place_tags_dropped':
+        return t`Its tags aren't kept: in Kept only things have tags.`;
       case 'hb_notifier_skipped':
         return t`Notifiers are never imported: their addresses can hold passwords.`;
       case 'hb_seeded_skipped':

@@ -16,11 +16,18 @@ import { FileTrigger } from 'react-aria-components';
 import type { Template } from '@/api/capture/types';
 import { useTypes } from '@/api/inventory/queries';
 import { thingApi, useInvalidateThing } from '@/api/inventory/thing-api';
-import type { CreateThingBody, MoveTarget, ThingView, TypeNode } from '@/api/inventory/types';
+import type {
+  CreateThingBody,
+  MoveTarget,
+  ThingTag,
+  ThingView,
+  TypeNode,
+} from '@/api/inventory/types';
 import { useLocation } from '@/api/queries';
 import { CameraIcon, XIcon } from '@/components/icons';
 import { useErrorText } from '@/components/page';
 import { LogReadingForm, useCanLogReading } from '@/components/readings/log-reading-sheet';
+import { TagsField } from '@/components/tags/lazy';
 import { FromTemplate, prefillOf } from '@/components/templates/quick-add';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -101,6 +108,7 @@ export function CreateThingSheet({
   const [vendorId, setVendorId] = useState<string | null>(null);
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState<string | null>(null);
+  const [tags, setTags] = useState<ThingTag[]>([]);
   const [errors, setErrors] = useState<Errors>({});
   const [busy, setBusy] = useState(false);
   /** The step after creating a thing whose type has a default meter (D52): its first
@@ -163,6 +171,7 @@ export function CreateThingSheet({
     setVendorId(null);
     setPrice('');
     setCurrency(null);
+    setTags([]);
     setErrors({});
     setTemplate(null);
   };
@@ -200,6 +209,10 @@ export function CreateThingSheet({
       ...(model.trim() ? { model: model.trim() } : {}),
       ...(serial.trim() ? { serial: serial.trim() } : {}),
       ...(template ? { ...template.extra, templateId: template.id } : {}),
+      // #209: the tags chosen here, with the template's.
+      ...(tags.length
+        ? { tagIds: [...new Set([...(template?.extra.tagIds ?? []), ...tags.map((g) => g.id)])] }
+        : {}),
       ...(showMoney && amount && currency
         ? {
             purchase: {
@@ -359,6 +372,12 @@ export function CreateThingSheet({
           label={t`Brand`}
           value={brandId}
           onChange={setBrandId}
+        />
+        <TagsField
+          accountId={accountId}
+          value={tags}
+          onChange={setTags}
+          canCreate={!!location && can(location.role, 'tags.create')}
         />
         <div className="grid gap-3.5 md:grid-cols-2">
           <TextField

@@ -517,9 +517,9 @@ describe('tags', () => {
   it('a member creates one, audited; a normalised duplicate is 409 with the existing id', async () => {
     const { item } = await create<{ colour: string | null }>(mel, 'tags', {
       name: 'Fragile',
-      colour: '#AA0000',
+      colour: '#E5484D',
     });
-    expect(item).toMatchObject({ name: 'Fragile', colour: '#AA0000' });
+    expect(item).toMatchObject({ name: 'Fragile', colour: '#E5484D' });
     expect(await accountAudit(bobAccount, item.id)).toMatchObject([{ action: 'tag.create' }]);
     const res = await call(t, `/api/v1/accounts/${bobAccount}/tags`, {
       as: mel,

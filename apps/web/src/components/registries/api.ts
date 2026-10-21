@@ -15,7 +15,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { useSearch } from '@tanstack/react-router';
-import { api, ifMatch, isApiError } from '@/api/client';
+import { api, ifMatch, isApiError, written } from '@/api/client';
 import { inventoryPaths as p, qs, type RegistryPathKind } from '@/api/inventory/paths';
 import {
   inventoryApi,
@@ -54,15 +54,16 @@ export type AccountRole = 'owner' | 'admin' | 'member' | 'viewer';
 export const registryApi = {
   item: <K extends RegistryPathKind>(kind: K, id: string) =>
     api.get<RegistryItem[K]>(p.registryItem(kind, id)),
+  /** A tag's rename, recolour, merge and delete are undoable (#209): these keep the events. */
   update: <K extends RegistryPathKind>(
     kind: K,
     id: string,
     body: UpdateRegistryBody[K],
     rowVersion: number,
-  ) => api.patch<RegistryItem[K]>(p.registryItem(kind, id), body, ifMatch(rowVersion)),
-  remove: (kind: RegistryPathKind, id: string) => api.del(p.registryItem(kind, id)),
+  ) => written.patch<RegistryItem[K]>(p.registryItem(kind, id), body, ifMatch(rowVersion)),
+  remove: (kind: RegistryPathKind, id: string) => written.del(p.registryItem(kind, id)),
   mergeInto: (kind: RegistryPathKind, id: string, targetId: string) =>
-    api.post<MergeRegistryResult>(p.registryMergeInto(kind, id), { targetId }),
+    written.post<MergeRegistryResult>(p.registryMergeInto(kind, id), { targetId }),
   contact: (id: string) => api.get<PersonContact>(p.personContact(id)),
   putContact: (id: string, body: PersonContact) =>
     api.put<PersonContact>(p.personContact(id), body),

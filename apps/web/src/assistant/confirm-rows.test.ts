@@ -153,3 +153,18 @@ describe('add_thing rows', () => {
     expect(row?.editable).toMatchObject({ colour: 'Blue', condition: 'good' });
   });
 });
+
+describe('tag_things rows', () => {
+  it('lists the tags added and taken off, and how many things', () => {
+    const [row] = rowsOf({
+      ...proposal({ thing_ids: [CAR, OIL], add: ['Camping'], remove: ['Old'] }, {}),
+      tool: 'tag_things',
+    });
+    expect(row).toMatchObject({
+      verb: 'change',
+      target: null,
+      count: { n: 2 },
+      fields: [{ key: 'tags', after: { t: 'list', v: ['+ Camping', '− Old'] } }],
+    });
+  });
+});

@@ -8,12 +8,12 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { RegistryPathKind } from '@/api/inventory/paths';
+import { useOfferUndo } from '@/components/history/undo';
 import { Notice, useErrorText } from '@/components/page';
 import { Sheet } from '@/components/places/sheet';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { DialogFooter } from '@/components/ui/dialog';
-import { toast } from '@/components/ui/toast';
 import { invalidateRegistry, registryApi, useRegistryAll } from './api';
 
 export type MergeSubject = { id: string; name: string; accountId: string; targetId?: string };
@@ -60,6 +60,7 @@ function MergeForm({
   const { t } = useLingui();
   const qc = useQueryClient();
   const errorText = useErrorText();
+  const offerUndo = useOfferUndo();
   const all = useRegistryAll(kind, subject.accountId);
   const [target, setTarget] = useState<string | null>(subject.targetId ?? null);
   const options = (all.data?.items ?? [])
@@ -68,14 +69,17 @@ function MergeForm({
   const into = options.find((o) => o.id === target)?.label ?? '';
   const merge = useMutation({
     mutationFn: (to: string) => registryApi.mergeInto(kind, subject.id, to),
-    onSuccess: async ({ repointed }, to) => {
+    onSuccess: async ({ body: { repointed }, auditEvents }, to) => {
       await invalidateRegistry(qc, kind);
       const from = subject.name;
-      toast({
-        title: t`Merged ${from} into ${into}`,
-        description: plural(repointed, { one: '# thing updated.', other: '# things updated.' }),
-        tone: 'ok',
-      });
+      // A tag's merge is undoable (#209): the toast offers it.
+      offerUndo(
+        {
+          title: t`Merged ${from} into ${into}`,
+          description: plural(repointed, { one: '# thing updated.', other: '# things updated.' }),
+        },
+        auditEvents,
+      );
       onCancel();
       onMerged?.(to);
     },

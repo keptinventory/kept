@@ -13,6 +13,7 @@ import {
   type SnapPlace,
   type SnapRemoved,
   type SnapshotPage,
+  type SnapTag,
   type SnapThing,
   type SnapType,
   SYNC_LIMITS,
@@ -55,6 +56,8 @@ export type SnapshotOptions = {
   limit: number;
   /** The types hash the phone holds; the items come only when it differs. */
   typesHash?: string | undefined;
+  /** The tags hash the phone holds (#209); the items come only when it differs. */
+  tagsHash?: string | undefined;
   /** Live things per person; a test lowers it. */
   thingCap?: number;
 };
@@ -83,13 +86,14 @@ type LocationRow = {
   role: Role;
   unplaced_id: string | null;
   provider_resolved: boolean | null;
+  owner_account_id: string;
 };
 
 /** Every location the person can see now, with their role there. */
 async function visibleLocations(client: pg.ClientBase): Promise<SnapLocation[]> {
   const { rows } = await client.query<LocationRow>(
     `SELECT l.id, l.name, l.kind, l.timezone, l.languages, l.preset, l.latitude, l.longitude,
-            l.suggest_radius_m, m.role,
+            l.suggest_radius_m, m.role, l.owner_account_id,
             (SELECT p.id FROM public.places p
               WHERE p.location_id = l.id AND p.is_unplaced) AS unplaced_id,
             kept.ai_provider_resolved(l.id) AS provider_resolved
@@ -126,6 +130,8 @@ async function visibleLocations(client: pg.ClientBase): Promise<SnapLocation[]> 
       ...(r.latitude !== null ? { latitude: r.latitude } : {}),
       ...(r.longitude !== null ? { longitude: r.longitude } : {}),
       suggestRadiusM: r.suggest_radius_m,
+      // #209: which account's tags its things can have, offline.
+      ownerAccountId: r.owner_account_id,
     };
   });
 }
@@ -153,6 +159,25 @@ async function visibleTypes(client: pg.ClientBase): Promise<{ hash: string; item
     name: r.name ?? r.builtin_key ?? '',
     icon: r.icon,
     isContainer: r.is_container,
+  }));
+  const hash = createHash('sha256').update(JSON.stringify(items)).digest('base64url').slice(0, 22);
+  return { hash, items };
+}
+
+/** The tags of the accounts the person sees (#209; the tags' policies decide), with the hash
+ * the phone compares, as for the types. */
+async function visibleTags(client: pg.ClientBase): Promise<{ hash: string; items: SnapTag[] }> {
+  const { rows } = await client.query<{
+    id: string;
+    owner_account_id: string;
+    name: string;
+    colour: string | null;
+  }>('SELECT g.id, g.owner_account_id, g.name, g.colour FROM public.tags g ORDER BY g.id');
+  const items = rows.map((r) => ({
+    id: r.id,
+    accountId: r.owner_account_id,
+    name: r.name,
+    colour: r.colour,
   }));
   const hash = createHash('sha256').update(JSON.stringify(items)).digest('base64url').slice(0, 22);
   return { hash, items };
@@ -330,6 +355,7 @@ type ThingRow = {
   loan_with: string | null;
   in_repair: boolean;
   kit_parts: string[] | null;
+  tag_ids: string[] | null;
 };
 
 async function readThings(ctx: PageContext, q: Slice): Promise<Read> {
@@ -350,7 +376,9 @@ async function readThings(ctx: PageContext, q: Slice): Promise<Read> {
             EXISTS (SELECT 1 FROM public.claims k
                      WHERE k.thing_id = t.id AND k.status = 'in_repair') AS in_repair,
             (SELECT array_agg(kp.thing_id ORDER BY kp.thing_id) FROM public.kit_parts kp
-              WHERE kp.kit_id = t.id) AS kit_parts
+              WHERE kp.kit_id = t.id) AS kit_parts,
+            (SELECT array_agg(x.tag_id::text ORDER BY x.tag_id) FROM public.thing_tags x
+              WHERE x.thing_id = t.id) AS tag_ids
        FROM public.things t
        LEFT JOIN public.short_ids s
               ON s.thing_id = t.id AND s.is_primary AND s.state = 'assigned'
@@ -438,6 +466,8 @@ async function readThings(ctx: PageContext, q: Slice): Promise<Read> {
       meters: meters.get(r.id) ?? [],
       // 1.12: a scan session matches product barcodes against its expected list offline.
       ...(r.barcode ? { barcode: r.barcode } : {}),
+      // #209: its tags, for chips and the tag filter offline.
+      ...(r.tag_ids?.length ? { tagIds: r.tag_ids } : {}),
       ...(derived.length > 0 ? { derived } : {}),
       ...(r.loan_direction
         ? {
@@ -625,6 +655,7 @@ export async function snapshotPage(
   const visibleIds = locations.map((l) => l.id);
   const visible = new Set(visibleIds);
   const types = await visibleTypes(client);
+  const tags = await visibleTags(client);
   const pass =
     state.p ??
     (await startPass(client, state.w, visibleIds, opts.thingCap ?? SYNC_LIMITS.snapshotThings));
@@ -662,6 +693,7 @@ export async function snapshotPage(
     minPayloadVersion: MIN_PAYLOAD_VERSION,
     locations,
     types: types.hash === opts.typesHash ? { hash: types.hash } : types,
+    tags: tags.hash === opts.tagsHash ? { hash: tags.hash } : tags,
     changes: {
       places: out.places,
       things: out.things,

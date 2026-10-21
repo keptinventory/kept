@@ -1,4 +1,5 @@
 import {
+  ALL_OF_FILTER_KEYS,
   isDateFilterValue,
   LIST_SURFACES,
   type ListSurface,
@@ -53,6 +54,8 @@ export const SavedListQuerySchema = z.strictObject({
   q: z.string().trim().max(200).optional(),
   filters: z.record(z.string().max(40), z.array(FilterValue).max(MAX_FILTER_VALUES)).optional(),
   not: z.array(z.string().max(40)).max(40).optional(),
+  /** "Has all of" (#209): the tags only. */
+  all: z.array(z.string().max(40)).max(40).optional(),
   group: z.string().trim().max(40).optional(),
   sort: z.string().trim().max(40).optional(),
   /** The sort turned around, or not (D211). */
@@ -96,6 +99,15 @@ export function checkQuery(
     if (filters[key] && !not.includes(key)) not.push(key);
   }
   if (not.length > 0) out.not = not;
+  // "Has all of" (#209): only a filter that may be, that is present, and isn't "none of".
+  const all: string[] = [];
+  for (const key of query.all ?? []) {
+    if (!(ALL_OF_FILTER_KEYS as readonly string[]).includes(key) || !allowed.includes(key)) {
+      throw invalid(`query.all: ${key} can't be "has all of".`);
+    }
+    if (filters[key] && !not.includes(key) && !all.includes(key)) all.push(key);
+  }
+  if (all.length > 0) out.all = all;
   if (query.group) out.group = query.group;
   if (query.sort) out.sort = query.sort;
   if (query.dir) out.dir = query.dir;
@@ -129,6 +141,7 @@ export const SavedViewSchema = z.object({
     q: z.string().optional(),
     filters: z.record(z.string(), z.array(z.string())).optional(),
     not: z.array(z.string()).optional(),
+    all: z.array(z.string()).optional(),
     group: z.string().optional(),
     sort: z.string().optional(),
     dir: z.enum(['asc', 'desc']).optional(),

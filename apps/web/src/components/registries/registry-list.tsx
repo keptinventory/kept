@@ -10,6 +10,7 @@
  * change after adding, are the owner's and admins'. Viewers only look.
  */
 import { newId } from '@kept/shared';
+import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
@@ -18,17 +19,11 @@ import { Menu, MenuItem, MenuTrigger, Popover } from 'react-aria-components';
 import { isApiError } from '@/api/client';
 import type { RegistryPathKind } from '@/api/inventory/paths';
 import { inventoryApi } from '@/api/inventory/queries';
-import type { RegistryItem, Vendor } from '@/api/inventory/types';
-import {
-  BriefcaseIcon,
-  LinkIcon,
-  MenuIcon,
-  PencilIcon,
-  ShieldIcon,
-  TrashIcon,
-} from '@/components/icons';
+import type { RegistryItem, Tag, Vendor } from '@/api/inventory/types';
+import { useOfferUndo } from '@/components/history/undo';
+import { LinkIcon, MenuIcon, PencilIcon, TrashIcon } from '@/components/icons';
 import { ListSurface } from '@/components/list-surface';
-import { Avatar, EmptyState, IconTile, Notice, Pill, useErrorText } from '@/components/page';
+import { EmptyState, Notice, Pill, useErrorText } from '@/components/page';
 import { rowLink } from '@/components/places/rows';
 import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
@@ -41,6 +36,7 @@ import { type AccountScope, invalidateRegistry, registryApi, useRegistryList } f
 import { useRegistryWords, useVendorKindLabels } from './labels';
 import { MergeSheet, type MergeSubject } from './merge-sheet';
 import { RegistryEditSheet, registryName } from './registry-edit-sheet';
+import { RegistryIcon } from './registry-icon';
 
 type Item = RegistryItem[RegistryPathKind];
 
@@ -48,16 +44,8 @@ const DETAIL = {
   brands: '/brands/$id',
   vendors: '/vendors/$id',
   people: '/people/$id',
+  tags: '/tags/$id',
 } as const;
-
-export function RegistryIcon({ kind, item }: { kind: RegistryPathKind; item: Item }) {
-  if (kind === 'people') return <Avatar name={registryName(item)} />;
-  return (
-    <IconTile>
-      {kind === 'brands' ? <ShieldIcon /> : kind === 'vendors' ? <BriefcaseIcon /> : <LinkIcon />}
-    </IconTile>
-  );
-}
 
 export function RegistryList({ kind, scope }: { kind: RegistryPathKind; scope: AccountScope }) {
   const words = useRegistryWords()[kind];
@@ -75,6 +63,10 @@ export function RegistryList({ kind, scope }: { kind: RegistryPathKind; scope: A
     }
     if (kind === 'people' && (item as RegistryItem['people']).userId)
       return <Trans>Has a Kept account</Trans>;
+    if (kind === 'tags') {
+      const n = (item as Tag).thingCount;
+      if (n !== undefined) return plural(n, { one: '# thing', other: '# things' });
+    }
     return null;
   };
 
@@ -133,13 +125,9 @@ export function RegistryList({ kind, scope }: { kind: RegistryPathKind; scope: A
           );
           return (
             <div className="flex items-center">
-              {kind === 'tags' ? (
-                <div className={cn(rowLink, 'hover:bg-transparent')}>{body}</div>
-              ) : (
-                <Link to={DETAIL[kind]} params={{ id: item.id }} className={rowLink}>
-                  {body}
-                </Link>
-              )}
+              <Link to={DETAIL[kind]} params={{ id: item.id }} className={rowLink}>
+                {body}
+              </Link>
               {scope.canManage && !builtin ? (
                 <RowMenu
                   name={name}
@@ -176,20 +164,16 @@ function RowMenu({
   const qc = useQueryClient();
   const confirm = useConfirm();
   const errorText = useErrorText();
+  const inUseText = useInUseText();
+  const offerUndo = useOfferUndo();
   const remove = useMutation({
     mutationFn: () => registryApi.remove(kind, item.id),
-    onSuccess: async () => {
+    onSuccess: async ({ auditEvents }) => {
       await invalidateRegistry(qc, kind);
-      toast({ title: t`Deleted ${name}`, tone: 'ok' });
+      // A tag's delete is undoable (#209).
+      offerUndo({ title: t`Deleted ${name}` }, auditEvents);
     },
-    onError: (e) =>
-      toast({
-        title:
-          isApiError(e) && e.code === 'in_use'
-            ? t`${name} is still used by some things. Merge it into another instead.`
-            : errorText(e),
-        tone: 'danger',
-      }),
+    onError: (e) => toast({ title: inUseText(e, name) ?? errorText(e), tone: 'danger' }),
   });
   const item_ =
     'flex min-h-11 cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-[15px] outline-none data-focused:bg-sunken [&_svg]:size-[18px]';
@@ -237,6 +221,16 @@ function RowMenu({
       </MenuTrigger>
     </div>
   );
+}
+
+/** Why a delete was refused for being in use (a tag: things in the Trash too, #209). */
+export function useInUseText() {
+  const { t } = useLingui();
+  return (e: unknown, name: string): string | null => {
+    if (!isApiError(e) || e.code !== 'in_use') return null;
+    // Things in the Trash count too (#209): the same words say so.
+    return t`${name} is still used by some things. Merge it into another instead.`;
+  };
 }
 
 type Outcome =

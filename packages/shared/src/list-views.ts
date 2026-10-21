@@ -133,6 +133,8 @@ export type SavedListQuery = {
   q?: string;
   filters?: Record<string, string[]>;
   not?: string[];
+  /** The filters that are "has all of" rather than "any of" (#209: the tags). */
+  all?: string[];
   group?: string;
   sort?: string;
   /** The sort turned around (D211); absent, the sort's own order (A to Z, newest first). */
@@ -145,6 +147,9 @@ export type SavedListQuery = {
  * (either end may be empty: `2026-09-01..`). */
 export const DATE_PRESETS = ['today', 'week', 'month', 'year'] as const;
 export type DatePreset = (typeof DATE_PRESETS)[number];
+
+/** The filters that may be "has all of" (#209): only the tags, each value a different tag. */
+export const ALL_OF_FILTER_KEYS = ['tag'] as const;
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 

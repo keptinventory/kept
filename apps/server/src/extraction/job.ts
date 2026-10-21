@@ -120,6 +120,8 @@ type Claimed = {
   languages: string[];
   meter: { kind: string; unit: string } | null;
   thingId: string | null;
+  /** THING (#209): the account's tags the model may pick from, most used first. */
+  tags: string[];
 };
 
 async function roleIn(client: pg.ClientBase, locationId: string): Promise<Role | null> {
@@ -324,6 +326,19 @@ async function claim(
       thingId ??= r[0]?.thing_id ?? null;
     }
     const languages = await languagesOf(client, ex.location_id);
+    // #209: the household's tags a THING answer may pick from (never a new one), at most 100.
+    const { rows: tags } =
+      ex.mode === 'thing'
+        ? await client.query<{ name: string }>(
+            `SELECT g.name FROM public.tags g
+               JOIN public.locations l ON l.owner_account_id = g.owner_account_id
+              WHERE l.id = $1
+              ORDER BY (SELECT count(*) FROM public.thing_tags x WHERE x.tag_id = g.id) DESC,
+                       lower(g.name), g.id
+              LIMIT 100`,
+            [ex.location_id],
+          )
+        : { rows: [] };
     return {
       ex,
       files,
@@ -331,6 +346,7 @@ async function claim(
       languages,
       meter,
       thingId,
+      tags: tags.map((r) => r.name),
       checkCtx: {
         timezone: loc[0]?.timezone ?? 'UTC',
         languages,
@@ -515,6 +531,7 @@ async function runOne(
       pages: parts.images.length,
       ...(parts.documentText !== undefined ? { documentText: parts.documentText } : {}),
       meter: claimed.meter,
+      ...(mode === 'thing' && !many && claimed.tags.length > 0 ? { tags: claimed.tags } : {}),
     };
     image = parts.images[0];
     const prompt = invoice

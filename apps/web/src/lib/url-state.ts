@@ -1,6 +1,7 @@
 /**
  * List state in the URL (the list standard): the search text `q`, one `f.<name>`
- * per filter, `not` (the filters that are "is none of", D205), `saved` (the saved view it
+ * per filter, `not` (the filters that are "is none of", D205), `all` (those that are "has all
+ * of", #209), `saved` (the saved view it
  * was opened from, D205), `group`, `sort` and `dir` (the sort turned around, D211), `view`
  * (the layout, where the route declares one, D211) and `size` (a grid's tiles, #139). Every
  * list is linkable, and Back restores it.
@@ -23,6 +24,9 @@ export type ListState = {
   filters: Record<string, string[]>;
   /** Filter names whose values are excluded ("is none of") rather than wanted (`not=…`). */
   not: string[];
+  /** Filter names that need every value ("has all of", `all=…`; #209: the tags). Absent where
+   * a caller builds a state by hand: read it as none. */
+  all?: string[];
   /** The saved view this state was opened from (`saved=<id>`), to tell when it's been changed. */
   savedView: string | undefined;
   group: string | undefined;
@@ -75,6 +79,7 @@ export function listSearch(
     sort: text,
     dir: text,
     not: values,
+    all: values,
     saved: text,
     ...extra,
   };
@@ -95,10 +100,14 @@ export function toListState(search: Record<string, unknown>): ListState {
   }
   const str = (v: unknown) => text.safeParse(v).data || undefined;
   const not = (values.safeParse(search.not).data ?? []).filter((n) => filters[n]);
+  const all = (values.safeParse(search.all).data ?? []).filter(
+    (n) => filters[n] && !not.includes(n),
+  );
   return {
     q: str(search.q) ?? '',
     filters,
     not,
+    all,
     savedView: str(search.saved),
     group: str(search.group),
     sort: str(search.sort),
@@ -119,6 +128,7 @@ export function fromListState(state: Partial<ListState>): Record<string, unknown
   if (state.size !== undefined) out.size = state.size || undefined;
   if (state.savedView !== undefined) out.saved = state.savedView || undefined;
   if (state.not !== undefined) out.not = state.not.length ? state.not : undefined;
+  if (state.all !== undefined) out.all = state.all.length ? state.all : undefined;
   for (const [name, list] of Object.entries(state.filters ?? {}))
     out[`${FILTER_PREFIX}${name}`] = list.length ? list : undefined;
   return out;
@@ -132,6 +142,10 @@ export type SetListState = (next: Partial<ListState>, opts?: { replace?: boolean
 
 /** Whether a filter is "is none of" (`not`). */
 export const isNot = (state: ListState, name: string): boolean => state.not.includes(name);
+
+/** Whether a filter is "has all of" (`all`, #209). */
+export const isAll = (state: ListState, name: string): boolean =>
+  (state.all ?? []).includes(name) && !state.not.includes(name);
 
 /**
  * Read and write the current route's list state. `set` merges: pass only what changed. Typing

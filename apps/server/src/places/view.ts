@@ -24,6 +24,14 @@ import {
 import { thumbKeysOf, thumbUrlOf } from '../search/service.js';
 import { customForView, type Gate, gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
+import {
+  isAll,
+  ThingTagSchema,
+  tagGroupSql,
+  tagMatchSql,
+  tagsOfRow,
+  tagsSql,
+} from '../things/tag-sql.js';
 
 // What the API shows of places (D45, D118, D160): the shapes of the web contract
 // (apps/web/src/api/inventory/types.ts: PlaceNode, PlaceView, PlaceContents, ThingRow), plus the
@@ -151,6 +159,7 @@ export const ThingRowSchema = z.object({
   thumbUrl: z.string().nullable(),
   lastSeenAt: z.string().nullable(),
   isContainer: z.boolean(),
+  tags: z.array(ThingTagSchema),
 });
 export type ThingRow = z.infer<typeof ThingRowSchema>;
 
@@ -496,7 +505,7 @@ export async function placeView(
 // ---------------------------------------------------------------------------------------------
 
 export const CONTENTS_SORTS = ['name', 'updated', 'lastSeen'] as const;
-export const CONTENTS_GROUPS = ['type', 'none'] as const;
+export const CONTENTS_GROUPS = ['type', 'tag', 'none'] as const;
 
 /** The contents list's filters: each takes several values, and "is none of" (D205). */
 export const CONTENTS_FILTERS = ['type', 'tag', 'state', 'brand', 'belongsTo'] as const;
@@ -510,6 +519,8 @@ export const ContentsQuery = z.object({
   /** Whose it is (`belongs_to_person_id`). */
   belongsTo: manyOf(z.uuid()).optional(),
   not: notOf(CONTENTS_FILTERS).optional(),
+  /** The filters that are "has all of" rather than "any of" (the tags): `all=tag`. */
+  all: notOf(['tag']).optional(),
   group: z.enum(CONTENTS_GROUPS).optional(),
   sort: z.enum(CONTENTS_SORTS).optional(),
   /** The order (D211): `asc` or `desc`. Absent, the sort's own: A to Z for the name, newest
@@ -542,6 +553,8 @@ type RawThing = {
   type_builtin_key: string | null;
   thumb_file_id: string | null;
   is_container: boolean;
+  /** things/tag-sql.ts tagsSql(). */
+  tags: unknown;
   g: string;
   s: string;
 };
@@ -601,12 +614,7 @@ export async function placeContents(
     if (f) where.push(matchOf(cond(`${p.add(f.values)}::uuid[]`), f.not));
   };
   many(query.type, 'type', (ids) => `t.type_id = ANY (${ids})`);
-  many(
-    query.tag,
-    'tag',
-    (ids) => `EXISTS (SELECT 1 FROM public.thing_tags g
-                       WHERE g.thing_id = t.id AND g.tag_id = ANY (${ids}))`,
-  );
+  many(query.tag, 'tag', (ids) => tagMatchSql('t.id', ids, isAll(query.all, query.not, 'tag')));
   many(query.brand, 'brand', (ids) => `t.brand_id = ANY (${ids})`);
   many(query.belongsTo, 'belongsTo', (ids) => `t.belongs_to_person_id = ANY (${ids})`);
   const state = filterOf(query.state, 'state', query.not);
@@ -617,11 +625,14 @@ export async function placeContents(
   }
 
   const sort = query.sort ?? 'name';
-  const grouped = query.group === 'type';
-  // Grouped by type: typed things first, by built-in key or name, untyped ones last.
-  const g = grouped
-    ? `CASE WHEN ty.id IS NULL THEN '1' ELSE '0' || coalesce(ty.builtin_key, lower(ty.name)) END`
-    : `''`;
+  // Grouped by type: typed things first, by built-in key or name, untyped ones last. By tag: under
+  // the first tag A to Z, untagged ones last (things/tag-sql.ts).
+  const g =
+    query.group === 'type'
+      ? `CASE WHEN ty.id IS NULL THEN '1' ELSE '0' || coalesce(ty.builtin_key, lower(ty.name)) END`
+      : query.group === 'tag'
+        ? tagGroupSql('t.id')
+        : `''`;
   const sortCol =
     sort === 'updated' ? 't.updated_at' : sort === 'lastSeen' ? 't.last_seen_at' : null;
   const s = sortCol ? `${sortCol}::text` : `lower(coalesce(t.name, ''))`;
@@ -656,6 +667,7 @@ export async function placeContents(
               WHERE a.thing_id = t.id AND a.role = 'photo'
               ORDER BY a.sort, a.created_at, a.id LIMIT 1) AS thumb_file_id,
             ${isContainerSql('t.id', 't.type_id')} AS is_container,
+            ${tagsSql('t.id')} AS tags,
             ${householdStateSql('t')},
             ${g} AS g, ${s} AS s
        FROM public.things t
@@ -697,6 +709,7 @@ export async function placeContents(
       thumbUrl: await thumbUrlOf(files, keys, r.thumb_file_id),
       lastSeenAt: r.last_seen_at ? new Date(r.last_seen_at).toISOString() : null,
       isContainer: r.is_container,
+      tags: tagsOfRow(r.tags),
     })),
   );
   return {

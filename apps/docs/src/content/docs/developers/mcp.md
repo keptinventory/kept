@@ -52,6 +52,8 @@ User-written strings in outputs sit under an `untrusted` key. Lists default to 2
 | `add_warranty`, `open_claim`, `update_claim` | write | warranties |
 | `log_fuel` | write | fuel |
 | `adjust_stock` | write | consumables |
+| `list_tags` | read | core |
+| `tag_things` | write | core |
 | `list_moves`, `get_move` | read | moving (MCP only) |
 | `start_move`, `add_box`, `pack_into_box`, `set_box_status`, `unpack_box` | write | moving (MCP only) |
 

@@ -585,6 +585,72 @@ describe('THING aliases (D214)', () => {
   });
 });
 
+describe('THING tags (#209)', () => {
+  it("suggests only the household's own tags the model picked, and the inbox adds them", async () => {
+    const made = await own<{ id: string; name: string }>(
+      db,
+      `INSERT INTO public.tags (owner_account_id, name) VALUES ($1, 'Power tools'), ($1, 'Garage')
+       RETURNING id, name`,
+      [home.accountId],
+    );
+    const power = made.find((g) => g.name === 'Power tools')?.id as string;
+    const garage = made.find((g) => g.name === 'Garage')?.id as string;
+    const fileId = await up(louis);
+    const out = await capture(louis, { files: [{ fileId, role: 'photo' }] });
+    const thingId = out.thing?.id as string;
+    await own(
+      db,
+      'INSERT INTO public.thing_tags (location_id, thing_id, tag_id) VALUES ($1, $2, $3)',
+      [home.id, thingId, garage],
+    );
+    const { key } = await keyOf(fileId, 'thing');
+    answers[key] = {
+      output: thingAnswer({
+        serial: undefined,
+        aliases: { en: ['drill'] },
+        tags: ['power  tools', 'Garage', 'Made up'],
+      }),
+    };
+    expect((await run(louis, out.extraction.id)).status).toBe('succeeded');
+    const [item] = await inbox(thingId);
+    expect(item?.payload.suggestions).toEqual([
+      expect.objectContaining({
+        field: 'tags',
+        value: [{ id: power, name: 'Power tools', colour: null }],
+        confidence: 0.93,
+      }),
+    ]);
+    const listed = ok(
+      await call(t, `/api/v1/inbox?locationId=${home.id}`, { as: louis }),
+    ) as unknown as { items: { id: string; rowVersion: number }[] };
+    const row = listed.items.find((i) => i.id === item?.id);
+    const res = await call(t, `/api/v1/inbox/${item?.id}/accept`, {
+      as: louis,
+      body: { accept: ['tags'], set: { name: 'Cordless drill' } },
+      headers: { 'if-match': String(row?.rowVersion) },
+    });
+    expect(res.statusCode, res.body).toBe(200);
+    const tags = await own<{ tag_id: string }>(
+      db,
+      'SELECT tag_id FROM public.thing_tags WHERE thing_id = $1 ORDER BY tag_id',
+      [thingId],
+    );
+    expect(tags.map((r) => r.tag_id)).toEqual([power, garage].sort());
+  });
+
+  it('suggests no tag when none of the picked names is one of the household’s', async () => {
+    const fileId = await up(louis);
+    const out = await capture(louis, { files: [{ fileId, role: 'photo' }] });
+    const { key } = await keyOf(fileId, 'thing');
+    answers[key] = {
+      output: thingAnswer({ serial: undefined, aliases: { en: ['drill'] }, tags: ['Invented'] }),
+    };
+    expect((await run(louis, out.extraction.id)).status).toBe('succeeded');
+    const [item] = await inbox(out.thing?.id as string);
+    expect(item?.payload.suggestions ?? []).toEqual([]);
+  });
+});
+
 describe('LABEL', () => {
   it('fills brand and model, suggests the serial, and drops a VIN that fails its check', async () => {
     const fileId = await up(louis);

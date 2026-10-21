@@ -148,16 +148,18 @@ higher. The part of Kept a tool needs is the name under **What to track**.
 | `log_service` | change | | Record a service: date, who did it, total, lines (each may use stock from a consumable), and the schedules it completes. |
 | `log_fuel` | change | Fuel | Record a fill-up: amount, unit, cost, whether full, and the odometer. |
 | `adjust_stock` | change | Things you run out of | Add to or take from a consumable's stock. |
+| `list_tags` | read | | Which tags there are, with how many things have each. |
+| `tag_things` | change | | Add tags to things, or take them off; a new name makes the tag. |
 
 **A thing's fields.** `add_thing` and `update_thing` take every field you can set on a thing in the
 app, each in its own field rather than in the notes: name, how many, type (by name, in English or
 Arabic, or by id), brand (made if new), model, serial number, barcode, colour, condition, notes,
-other names, tags (ones that exist), whose it is (a person, made if new), the manual's link,
+other names, tags (a new name makes the tag, for members and up), whose it is (a person, made if new), the manual's link,
 expiry and how many days before to remind, a consumable's minimum, and the type's own fields by
 key. `add_thing` also takes where it goes and the purchase (date, price of one with its currency,
 and the shop); `update_thing` also takes where it came from. A price needs Money on and a role that
-sees money, as in the app; a minimum needs **Things you run out of**. A type Kept doesn't know, or
-a tag that doesn't exist, is left out and the answer's `not_set` says so; the assistant's card
+sees money, as in the app; a minimum needs **Things you run out of**. A type Kept doesn't know is
+left out and the answer's `not_set` says so; the assistant's card
 shows it as "not set" with a picker.
 | `list_moves` | read | Moving house | Which moves there are, with how many boxes are packed, in transit and unpacked. |
 | `get_move` | read | Moving house | Where each box of a move is, and which numbers are still missing. |

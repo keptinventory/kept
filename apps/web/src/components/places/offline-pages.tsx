@@ -2,24 +2,27 @@
  * A thing's or a place's page from the phone's copy (D36,
  * D188): when the server can't be reached, `/t/$id` and `/p/$id` show what the
  * snapshot holds, "as of last sync": the name, short ID, where it is, the derived states and the
- * loan line ("With Murdock · due 17 Oct"), a container's or place's contents, and
- * "Details need a connection" for the rest. Nothing here writes; every action waits for the
- * server, as the offline matrix says.
+ * loan line ("With Murdock · due 17 Oct"), its tags, a container's or place's contents, and
+ * "Details need a connection" for the rest. Only tags change here (#209: queued as a `tag_things`
+ * op); every other action waits for the server, as the offline matrix says.
  *
  *   const off = useOfflinePage(query);   if (off) return <OfflineThingPage id={id} />;
  */
-import type { SnapPlace, SnapThing } from '@kept/shared';
+import { can, type Role, type SnapPlace, type SnapTag, type SnapThing } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { isApiError } from '@/api/client';
-import type { PathStep, ThingRow } from '@/api/inventory/types';
+import type { PathStep, ThingRow, ThingTag } from '@/api/inventory/types';
 import { placePath } from '@/components/capture/target';
 import { KeptExtras } from '@/components/device/kept-extras';
 import { ChevronEndIcon } from '@/components/icons';
 import { IdChip } from '@/components/id-chip';
 import { List, LoadingRows, Notice, Page, Pill, Section } from '@/components/page';
 import { StatusPill } from '@/components/status-pill';
+import { TagChips } from '@/components/tags/chip';
+import { TagsEditor } from '@/components/tags/lazy';
+import { tagsOfSnap } from '@/components/tags/offline';
 import { useFormat } from '@/lib/format';
 import { useOnline } from '@/lib/online';
 import { formatLocale, usePrefs } from '@/lib/prefs';
@@ -48,7 +51,7 @@ const stepOf = (p: SnapPlace): PathStep => ({
 });
 
 /** A phone row in the server's row shape, so the lists read like online. */
-function rowOf(t: SnapThing, path: PathStep[]): ThingRow {
+function rowOf(t: SnapThing, path: PathStep[], tags: readonly SnapTag[] = []): ThingRow {
   return {
     id: t.id,
     locationId: t.locationId,
@@ -67,6 +70,7 @@ function rowOf(t: SnapThing, path: PathStep[]): ThingRow {
     thumbUrl: null,
     lastSeenAt: t.lastSeenAt,
     isContainer: t.isContainer,
+    tags: tagsOfSnap(t.tagIds, tags),
   };
 }
 
@@ -142,10 +146,14 @@ export function OfflineThingPage({ id }: { id: string }) {
     if (!thing || thing.deleted) return null;
     const places = await store.placesOf(thing.locationId);
     const inside = thing.isContainer ? await store.contentsOf({ containerId: id }) : [];
+    const tags = await store.tags();
+    const location = (await store.locations()).find((l) => l.id === thing.locationId);
     return {
       thing,
+      tags,
+      location: location ?? null,
       path: await pathOf(store, thing, places),
-      inside: inside.filter((x) => !x.deleted).map((x) => rowOf(x, [])),
+      inside: inside.filter((x) => !x.deleted).map((x) => rowOf(x, [], tags)),
       ...(await copyOf(store, thing.locationId)),
     };
   });
@@ -157,7 +165,7 @@ export function OfflineThingPage({ id }: { id: string }) {
     );
   const found = q.data;
   if (!found) return <Missing title={t`Thing`} />;
-  const { thing, path, inside, asOf, locationName } = found;
+  const { thing, path, inside, asOf, locationName, tags, location } = found;
   const loan = thing.loan;
   // The person's name isolated in the sentence (UI step-4 review L9).
   const who = <bdi>{loan?.personName ?? ''}</bdi>;
@@ -177,7 +185,7 @@ export function OfflineThingPage({ id }: { id: string }) {
   ) : (
     <Trans>From {who}</Trans>
   );
-  const row = rowOf(thing, path);
+  const row = rowOf(thing, path, tags);
   return (
     <Page title={thing.name ? <bdi>{thing.name}</bdi> : t`Untitled draft`} back="/">
       <div className="grid gap-4">
@@ -199,6 +207,13 @@ export function OfflineThingPage({ id }: { id: string }) {
           ) : null}
           {loanLine ? <p className="m-0 [overflow-wrap:anywhere]">{loanLine}</p> : null}
         </div>
+        <OfflineThingTags
+          thingId={thing.id}
+          locationId={thing.locationId}
+          accountId={location?.ownerAccountId ?? ''}
+          role={location?.role ?? 'viewer'}
+          tags={row.tags}
+        />
         {inside.length ? (
           <Section title={<Trans>Inside</Trans>}>
             <ThingList label={t`Inside ${thing.name ?? ''}`} rows={inside} />
@@ -220,11 +235,12 @@ export function OfflinePlacePage({ id }: { id: string }) {
       const place = places.find((p) => p.id === id && !p.deleted);
       if (!place) continue;
       const things = await store.contentsOf({ placeId: id });
+      const tags = await store.tags();
       return {
         place,
         path: placePath(places, place.parentId).map(stepOf),
         children: places.filter((p) => p.parentId === id && !p.deleted),
-        things: things.filter((x) => !x.deleted && !x.containerId).map((x) => rowOf(x, [])),
+        things: things.filter((x) => !x.deleted && !x.containerId).map((x) => rowOf(x, [], tags)),
         ...(await copyOf(store, loc.id)),
       };
     }
@@ -278,5 +294,42 @@ export function OfflinePlacePage({ id }: { id: string }) {
         )}
       </div>
     </Page>
+  );
+}
+
+/**
+ * A thing's tags on the phone (#209): its chips, and for anyone who edits things there the editor
+ * as online (./tags/editors.tsx, on demand), queued as one `tag_things` op that syncs later.
+ */
+function OfflineThingTags({
+  thingId,
+  locationId,
+  accountId,
+  role,
+  tags,
+}: {
+  thingId: string;
+  locationId: string;
+  accountId: string;
+  role: Role;
+  tags: ThingTag[];
+}) {
+  const canEdit = can(role, 'things.edit') && !!accountId;
+  if (!canEdit && tags.length === 0) return null;
+  return (
+    <Section title={<Trans>Tags</Trans>}>
+      {canEdit ? (
+        <TagsEditor
+          thingId={thingId}
+          locationId={locationId}
+          accountId={accountId}
+          tags={tags}
+          canCreate={can(role, 'tags.create')}
+          fallback={<TagChips tags={tags} />}
+        />
+      ) : (
+        <TagChips tags={tags} />
+      )}
+    </Section>
   );
 }

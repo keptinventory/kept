@@ -41,6 +41,7 @@ export * from './services.js';
 export * from './share-links.js';
 export * from './short-code.js';
 export * from './sync.js';
+export * from './tags.js';
 export * from './tokens.js';
 export * from './type-fields.js';
 export * from './vehicles.js';
