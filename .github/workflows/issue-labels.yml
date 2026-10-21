@@ -1,0 +1,50 @@
+# Labels a new issue by its form, however it was filed. Issue templates add their labels only when
+# someone opens the template on github.com; an issue filed through the API or `gh` (an agent, a
+# script) arrives with none. This adds the template's labels from the body's headings and the title,
+# and `status: needs triage` to every new issue, so none sits unlabelled. Priority is never set here:
+# that is the maintainer's call at triage.
+#
+# The title and body are untrusted text: they reach the script only through the environment and are
+# only matched, never run. No third-party action, no checkout.
+name: issue-labels
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+
+jobs:
+  label:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    permissions:
+      issues: write
+    steps:
+      - name: Label from the form
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.issue.number }}
+          TITLE: ${{ github.event.issue.title }}
+          BODY: ${{ github.event.issue.body }}
+          HAS: ${{ join(github.event.issue.labels.*.name, '|') }}
+        run: |
+          labels=()
+          add() { [[ "|$HAS|" == *"|$1|"* ]] || labels+=("$1"); }
+          # The shape request form (.github/ISSUE_TEMPLATE/shape-request.yml).
+          if [[ $TITLE == Shape:* ]] || { [[ $BODY == *"### What it is"* ]] && [[ $BODY == *"### Its size"* ]]; }; then
+            add "area: map"; add "shape request"
+          # The bug report (bug_report.md).
+          elif [[ $BODY == *"**What happened**"* ]] && [[ $BODY == *"**What you expected**"* ]]; then
+            add "bug"
+          # The idea form (feature_request.md).
+          elif [[ $BODY == *"**What you're trying to do**"* ]] && [[ $BODY == *"**What you'd like**"* ]]; then
+            add "idea"
+          fi
+          [[ $HAS == *"status: "* ]] || add "status: needs triage"
+          [[ ${#labels[@]} -gt 0 ]] || { echo "nothing to add"; exit 0; }
+          args=()
+          for l in "${labels[@]}"; do args+=(--add-label "$l"); done
+          gh issue edit "$NUMBER" -R "$GITHUB_REPOSITORY" "${args[@]}"
+          echo "added: ${labels[*]}"
