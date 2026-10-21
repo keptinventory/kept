@@ -31,6 +31,7 @@ import {
   OPERATIONS_INSTANCE,
   PORTABILITY_INSTANCE,
   SIGN_IN_INSTANCE,
+  SIGN_IN_MAIL_INSTANCE,
   urlOf,
   VEHICLES_INSTANCE,
 } from './e2e/instances';
@@ -70,6 +71,8 @@ type Served = Instance & {
   https?: boolean;
   owner?: boolean;
   trustProxy?: boolean;
+  mail?: boolean;
+  google?: boolean;
 };
 
 /** Every instance, by key: step 1–2's, step 3's capture instance, step 5's vehicles and steps
@@ -82,6 +85,7 @@ const ALL: Record<string, Served> = {
   portability: PORTABILITY_INSTANCE,
   operations: OPERATIONS_INSTANCE,
   signIn: SIGN_IN_INSTANCE,
+  signInMail: SIGN_IN_MAIL_INSTANCE,
 };
 
 /** The instances to start: all, or those KEPT_E2E_INSTANCES names (e.g. `capture`). */
@@ -97,7 +101,7 @@ function selected(): Served[] {
 }
 
 const server = (i: Served) => ({
-  command: `node --conditions=kept-dist e2e/serve.mjs ${i.name} ${i.port}${i.seed ? ' --seed' : ''}${i.aiMock ? ' --ai-mock' : ''}${i.https ? ' --https' : ''}${i.owner ? ' --owner' : ''}${i.trustProxy ? ' --trust-proxy' : ''}`,
+  command: `node --conditions=kept-dist e2e/serve.mjs ${i.name} ${i.port}${i.seed ? ' --seed' : ''}${i.aiMock ? ' --ai-mock' : ''}${i.https ? ' --https' : ''}${i.owner ? ' --owner' : ''}${i.trustProxy ? ' --trust-proxy' : ''}${i.mail ? ' --mail' : ''}${i.google ? ' --google' : ''}`,
   url: `${urlOf(i)}/readyz`,
   // The --https instances' certificate is self-signed, made for the run.
   ignoreHTTPSErrors: !!i.https,
@@ -123,7 +127,7 @@ const serveAll = (list: Served[]) => ({
   url: `http://localhost:${SERVE_ALL_PORT}/readyz`,
   env: {
     KEPT_E2E_SERVE: JSON.stringify(
-      list.map(({ name, port, seed, aiMock, https, owner, trustProxy }) => ({
+      list.map(({ name, port, seed, aiMock, https, owner, trustProxy, mail, google }) => ({
         name,
         port,
         seed,
@@ -131,6 +135,8 @@ const serveAll = (list: Served[]) => ({
         https,
         owner,
         trustProxy,
+        mail,
+        google,
       })),
     ),
   },

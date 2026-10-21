@@ -19,14 +19,26 @@
  *
  *   KEPT_E2E_INSTANCES=signIn pnpm --filter @kept/web exec playwright test sign-in-security.spec.ts
  */
-import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { type BrowserContext, type CDPSession, type Page, test } from '@playwright/test';
-import { SIGN_IN_INSTANCE, stateDirOf, urlOf } from './instances';
+import { test } from '@playwright/test';
+import { SIGN_IN_INSTANCE } from './instances';
+import {
+  codesOn,
+  keyOn,
+  openSection,
+  signInKit,
+  toasts,
+  virtualAuthenticator,
+} from './sign-in-kit';
 import { axe, expect, PASSWORD } from './tls-people';
 import { freshCode } from './totp';
 
-const BASE = urlOf(SIGN_IN_INSTANCE);
+const { BASE, nextAddress, newPerson, signInWithPassword, signOut, asAuth } = signInKit(
+  SIGN_IN_INSTANCE,
+  {
+    phone: 10,
+    desktop: 20,
+  },
+);
 test.use({ baseURL: BASE });
 
 /** Seeded people (src/seed/cast.ts), two per project, so the projects never share one. */
@@ -35,116 +47,6 @@ const PEOPLE = {
   desktop: { passkeys: 'bruce@kept.test', twoFactor: 'ibrahim@kept.test' },
 } as const;
 const who = () => PEOPLE[test.info().project.name as keyof typeof PEOPLE];
-
-let address = 0;
-/** A documentation-range address for the next sign-in, different per project and per call. */
-function nextAddress(): string {
-  address += 1;
-  const project = test.info().project.name === 'phone' ? 10 : 20;
-  return `198.51.100.${project + (address % 9)}`;
-}
-
-async function newPerson(browser: import('@playwright/test').Browser): Promise<{
-  context: BrowserContext;
-  page: Page;
-}> {
-  const use = test.info().project.use;
-  const context = await browser.newContext({
-    baseURL: BASE,
-    viewport: use.viewport ?? { width: 1280, height: 800 },
-    isMobile: use.isMobile ?? false,
-    hasTouch: use.hasTouch ?? false,
-    timezoneId: 'Africa/Cairo',
-    locale: 'en-GB',
-  });
-  return { context, page: await context.newPage() };
-}
-
-/** Chromium's virtual authenticator: a platform passkey store with user verification. */
-async function virtualAuthenticator(page: Page): Promise<{ cdp: CDPSession; id: string }> {
-  const cdp = await page.context().newCDPSession(page);
-  await cdp.send('WebAuthn.enable', { enableUI: false });
-  const { authenticatorId } = await cdp.send('WebAuthn.addVirtualAuthenticator', {
-    options: {
-      protocol: 'ctap2',
-      transport: 'internal',
-      hasResidentKey: true,
-      hasUserVerification: true,
-      isUserVerified: true,
-      automaticPresenceSimulation: true,
-    },
-  });
-  return { cdp, id: authenticatorId };
-}
-
-/** page.goto, once more when the app's own navigation (a redirect after sign-in) aborted it. */
-async function go(page: Page, url: string) {
-  try {
-    await page.goto(url);
-  } catch (err) {
-    if (!String(err).includes('ERR_ABORTED')) throw err;
-    await page.waitForLoadState();
-    await page.goto(url);
-  }
-}
-
-async function signInWithPassword(page: Page, login: string) {
-  await page.setExtraHTTPHeaders({ 'x-forwarded-for': nextAddress() });
-  await go(page, '/signin');
-  await page.getByLabel('Email or username', { exact: true }).fill(login);
-  await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-}
-
-async function signOut(page: Page) {
-  await go(page, '/settings');
-  await page.getByRole('button', { name: 'Sign out', exact: true }).last().click();
-  await expect(page).toHaveURL(/\/signin/);
-}
-
-async function openSection(page: Page) {
-  await go(page, '/settings');
-  const section = page.locator('#sign-in-security');
-  await expect(section.getByRole('heading', { name: 'Passkeys' })).toBeVisible();
-  return section;
-}
-
-const toasts = (page: Page) => page.getByRole('region', { name: 'Notifications' });
-
-/** The key under the QR code ("JBSW Y3DP …"), without its spaces. */
-async function keyOn(page: Page): Promise<string> {
-  const text = await page
-    .getByText(/^Enter this key in the app instead:$/)
-    .locator('xpath=following-sibling::div[1]')
-    .innerText();
-  return text.replace(/\s+/g, '');
-}
-
-async function codesOn(page: Page): Promise<string[]> {
-  const list = page.getByRole('list', { name: 'Backup codes' });
-  await expect(list.getByRole('listitem')).toHaveCount(10);
-  return (await list.getByRole('listitem').allInnerTexts()).map((c) => c.trim());
-}
-
-/** The instance's database (serve.mjs logs `database <name> migrated`), as kept_auth. */
-async function asAuth<T>(
-  fn: (q: (sql: string, values: unknown[]) => Promise<unknown>) => Promise<T>,
-) {
-  const log = readFileSync(`${stateDirOf(SIGN_IN_INSTANCE)}server.log`, 'utf8');
-  const name = /database (kept_e2e_\w+) migrated/.exec(log)?.[1];
-  if (!name) throw new Error('sign-in instance: no database line in its log');
-  // pg is the server's dependency, not the web app's.
-  const pg = createRequire(new URL('../../server/package.json', import.meta.url))('pg');
-  const client = new pg.Client({
-    connectionString: `postgres://kept_auth:kept_auth@localhost:5452/${name}`,
-  });
-  await client.connect();
-  try {
-    return await fn((sql, values) => client.query(sql, values));
-  } finally {
-    await client.end();
-  }
-}
 
 test.describe('passkeys', () => {
   test('a password account adds a passkey, signs in with it, renames it, adds another and removes one; without a password the last one stays', async ({

@@ -96,6 +96,26 @@ export const SIGN_IN_INSTANCE: Instance & { trustProxy: true } = {
   trustProxy: true,
 };
 
+/**
+ * Sign-in changes seen from outside (e2e/sign-in-changes.spec.ts): other devices signed out, the
+ * security notices in the mail, unlinking an outside sign-in, a location that asks for
+ * two-factor. Its server mails through the dev Mailpit (compose.dev.yaml, SMTP 1025, API 8025;
+ * serve.mjs `--mail`), and offers Google sign-in with made-up client credentials (`--google`): no
+ * Google request is ever made, unlinking needs none. Key for KEPT_E2E_INSTANCES: `signInMail`.
+ */
+export const SIGN_IN_MAIL_INSTANCE: Instance & {
+  trustProxy: true;
+  mail: true;
+  google: true;
+} = {
+  name: 'sign-in-mail',
+  port: 8201,
+  seed: true,
+  trustProxy: true,
+  mail: true,
+  google: true,
+};
+
 export const urlOf = (i: Instance & { https?: boolean }) =>
   `${i.https ? 'https' : 'http'}://localhost:${i.port}`;
 
