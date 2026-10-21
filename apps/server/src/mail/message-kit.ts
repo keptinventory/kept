@@ -19,6 +19,8 @@ export type Chrome = {
   linkFallback: string;
   /** The last line: which Kept sent it. */
   sentBy: (host: string) => string;
+  /** The line under it: what Kept is, and where the project lives (`site`). */
+  about: (site: string) => string;
 };
 
 export type MessageContext = {

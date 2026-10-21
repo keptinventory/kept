@@ -7,8 +7,8 @@ import type { SecurityEvent } from '../auth/security.js';
 import { notifyOwnerNewMember } from '../locations/membership-jobs.js';
 import type { ReminderFacts } from '../notify/words.js';
 import type { AdminAction, Mail, MailBody } from './mailer.js';
-import { MAIL_LOCALES, type MailLocale, mailLocale, messageFor } from './messages.js';
-import { renderMail } from './render.js';
+import { CHROME, MAIL_LOCALES, type MailLocale, mailLocale, messageFor } from './messages.js';
+import { BRAND, renderMail } from './render.js';
 import {
   createMailer,
   defaultFrom,
@@ -513,6 +513,137 @@ describe('renderMail', () => {
       expect(text).toContain(mail.url);
       expect(text).toContain('kept.test');
       expect(subject).toBe(messageFor(mail, locale, ctx).subject);
+    }
+  });
+});
+
+describe('the branded HTML', () => {
+  const SITE = 'https://keptinventory.info/';
+  const every = MAIL_LOCALES.flatMap((locale) =>
+    EVERY_MAIL.map((mail) => {
+      const message = messageFor(mail, locale, ctx);
+      return { locale, mail, message, ...renderMail(message, locale, PUBLIC_URL) };
+    }),
+  );
+  const label = (locale: string, mail: MailBody) =>
+    `${locale} ${mail.kind} ${JSON.stringify(mail)}`;
+
+  /** WCAG contrast of two #RRGGBB colours. */
+  const contrast = (a: string, b: string) => {
+    const lum = (hex: string) => {
+      const [r, g, b] = [1, 3, 5].map((i) => {
+        const c = Number.parseInt(hex.slice(i, i + 2), 16) / 255;
+        return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+      });
+      return 0.2126 * (r as number) + 0.7152 * (g as number) + 0.0722 * (b as number);
+    };
+    const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x) as [number, number];
+    return (hi + 0.05) / (lo + 0.05);
+  };
+
+  it('draws the mark and the KEPT wordmark in every mail, without an image', () => {
+    for (const { locale, mail, html } of every) {
+      const l = label(locale, mail);
+      expect(html, l).toMatch(/<table[^>]*data-kept-mark=""[^>]*dir="ltr"/);
+      expect(html, l).toMatch(/data-kept-tile=""[^>]*>[\s\S]*?>K<\/div>/);
+      // The punched hole is a block, so it stays at the tape's top left in Arabic mail too.
+      expect(html, l).toMatch(/class="k-hole" style="display:block;/);
+      expect(html, l).toContain('>KEPT</td>');
+      expect(html, l).not.toMatch(/<img|<svg|<picture|background-image|url\(/i);
+    }
+  });
+
+  it('paints the action as an amber button with dark ink text, readable at 4.5:1', () => {
+    expect(contrast(BRAND.amberInk, BRAND.amber)).toBeGreaterThanOrEqual(4.5);
+    for (const { locale, mail, message, html } of every) {
+      const l = label(locale, mail);
+      if (!message.action) {
+        expect(html, l).not.toContain('data-kept-action');
+        continue;
+      }
+      // A one-cell table, as Outlook paints a cell's colour but not a link's padding.
+      const start = html.search(/<table[^>]*data-kept-action=""/);
+      expect(start, l).toBeGreaterThan(-1);
+      const button = html.slice(start, html.indexOf('</a>', start));
+      expect(button, l).toMatch(new RegExp(`^<table[^>]*bgcolor="${BRAND.amber}"`));
+      expect(button, l).toMatch(new RegExp(`<td[^>]*background-color:${BRAND.amber}`));
+      const link = button.match(/<a [^>]*>/)?.[0] ?? '';
+      expect(link, l).toContain(`href="${message.action.url}"`);
+      expect(link, l).toContain(`color:${BRAND.amberInk}`);
+    }
+  });
+
+  it('keeps every colour pair readable, in light and in dark', () => {
+    const pairs: [string, string][] = [
+      [BRAND.light.ink, BRAND.light.surface],
+      [BRAND.light.ink2, BRAND.light.surface],
+      [BRAND.light.ink3, BRAND.light.paper],
+      [BRAND.dark.ink, BRAND.dark.surface],
+      [BRAND.dark.ink2, BRAND.dark.surface],
+      [BRAND.dark.ink3, BRAND.dark.paper],
+    ];
+    for (const [fg, bg] of pairs) expect(contrast(fg, bg), `${fg} on ${bg}`).toBeGreaterThan(4.5);
+  });
+
+  it('links the footer to the instance and to keptinventory.info, in every language', () => {
+    for (const { locale, mail, html } of every) {
+      const l = label(locale, mail);
+      expect(html, l).toMatch(new RegExp(`<a [^>]*href="${PUBLIC_URL}/"[^>]*>kept\\.test</a>`));
+      expect(html, l).toMatch(new RegExp(`<a [^>]*href="${SITE}"[^>]*>keptinventory\\.info</a>`));
+    }
+    const abouts = new Set(MAIL_LOCALES.map((l) => CHROME[l].about('keptinventory.info')));
+    expect(abouts.size).toBe(MAIL_LOCALES.length);
+    expect(CHROME.ar.about('keptinventory.info')).toMatch(ARABIC);
+  });
+
+  it('points at no address but the instance’s own and keptinventory.info', () => {
+    for (const { locale, mail, html } of every) {
+      const urls = html.match(/https?:\/\/[^\s"'<>)]+/g) ?? [];
+      expect(urls.length, label(locale, mail)).toBeGreaterThan(0);
+      for (const url of urls) {
+        expect(
+          url === SITE || url.startsWith(`${PUBLIC_URL}/`),
+          `${url} in ${label(locale, mail)}`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it('declares light and dark, and repaints the page, card and text for dark', () => {
+    const { html } = renderMail(messageFor(EVERY_MAIL[0] as MailBody, 'en', ctx), 'en', PUBLIC_URL);
+    expect(html).toContain('<meta name="color-scheme" content="light dark">');
+    expect(html).toContain('<meta name="supported-color-schemes" content="light dark">');
+    const dark = html.match(/@media \(prefers-color-scheme: ?dark\)\{([\s\S]*?)\}\}/)?.[1] ?? '';
+    for (const [cls, colour] of [
+      ['k-page', BRAND.dark.paper],
+      ['k-card', BRAND.dark.surface],
+      ['k-ink', BRAND.dark.ink],
+    ]) {
+      expect(dark, cls).toMatch(new RegExp(`\\.${cls}[^{]*\\{[^}]*${colour}`));
+      expect(html, cls).toContain(`class="${cls}`);
+    }
+  });
+
+  it('lays the mail out in tables, right to left in Arabic with the mark left as drawn', () => {
+    const { html } = renderMail(messageFor(EVERY_MAIL[0] as MailBody, 'ar', ctx), 'ar', PUBLIC_URL);
+    expect(html).toContain('<html lang="ar" dir="rtl">');
+    expect(html).toMatch(/<table role="presentation"[^>]*dir="rtl"/);
+    expect(html).toContain('text-align:right');
+    expect(html).not.toContain('text-align:left');
+    expect(html).toMatch(/data-kept-mark=""[^>]*dir="ltr"/);
+    const en = renderMail(messageFor(EVERY_MAIL[0] as MailBody, 'en', ctx), 'en', PUBLIC_URL);
+    expect(en.html).toContain('text-align:left');
+    expect(en.html).not.toMatch(/<div[^>]*max-width/);
+  });
+
+  it('keeps the text part plain, its footer naming the instance and keptinventory.info', () => {
+    for (const { locale, mail, text } of every) {
+      const l = label(locale, mail);
+      const footer = text.slice(text.lastIndexOf('-- \n'));
+      expect(footer, l).toBe(
+        `-- \n${CHROME[locale].sentBy('kept.test')}\n${CHROME[locale].about(SITE)}\n`,
+      );
+      expect(text, l).not.toMatch(/<(table|td|a|p|div)\b|style=/);
     }
   });
 });

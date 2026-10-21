@@ -966,11 +966,13 @@ export const CHROME: Record<MailLocale, Chrome> = {
     dir: 'ltr',
     linkFallback: 'If the button doesn’t work, copy this address into your browser:',
     sentBy: (host) => `Sent by Kept at ${host}.`,
+    about: (site) => `Kept, the open-source home inventory: ${site}`,
   },
   ar: {
     dir: 'rtl',
     linkFallback: 'إذا لم يعمل الزر، فانسخ هذا الرابط والصقه في المتصفح:',
     sentBy: (host) => `أُرسلت من Kept على ${host}.`,
+    about: (site) => `Kept، جرد المنزل مفتوح المصدر: ${site}`,
   },
   fr: FR_CHROME,
   de: DE_CHROME,

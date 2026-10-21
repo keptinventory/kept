@@ -492,4 +492,5 @@ export const DE_CHROME: Chrome = {
   dir: 'ltr',
   linkFallback: 'Falls der Button nicht funktioniert, kopiere diese Adresse in deinen Browser:',
   sentBy: (host) => `Gesendet von Kept unter ${host}.`,
+  about: (site) => `Kept, das Open-Source-Inventar fürs Zuhause: ${site}`,
 };
