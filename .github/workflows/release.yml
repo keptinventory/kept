@@ -284,3 +284,15 @@ jobs:
           rm -f "$RUNNER_TEMP/cosign.key"
           docker logout ghcr.io || true
           helm=$(bash scripts/tools.sh path helm 2>/dev/null) && "$helm" registry logout ghcr.io || true
+
+  # The same release on Docker Hub (dockerhub.yml): copied by digest and signed with the same key.
+  dockerhub:
+    needs: [preflight, publish]
+    if: needs.preflight.outputs.unsigned != '1'
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/dockerhub.yml
+    with:
+      version: ${{ needs.preflight.outputs.version }}
+    secrets: inherit

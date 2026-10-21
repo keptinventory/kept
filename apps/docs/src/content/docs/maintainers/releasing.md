@@ -45,7 +45,11 @@ In this order, stopping at the first failure (D87, D186, D187):
 6. the **release record** `docs/releases/X.Y.Z.md`: digests, tags, the chart and the verify
    commands;
 7. the **GitHub release** `vX.Y.Z`: the changelog section and the record as its notes, with
-   `THIRD-PARTY-NOTICES.txt` and `X.Y.Z.md` attached, marked a prerelease for `X.Y.Z-…`.
+   `THIRD-PARTY-NOTICES.txt` and `X.Y.Z.md` attached, marked a prerelease for `X.Y.Z-…`;
+8. the **Docker Hub copy** (`dockerhub.yml`, `scripts/mirror-dockerhub.sh`): the same index copied
+   by digest to `docker.io/keptinventory/kept` with the same tags, and signed there with the same
+   key. It needs the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets; a release already out is
+   copied with **Run workflow** on `dockerhub` and its version.
 
 Nothing is tagged until both architectures passed and the signature verified, so a failed run
 leaves only untagged digests behind. The default registry is `ghcr.io/keptinventory/kept` (the

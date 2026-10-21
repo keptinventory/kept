@@ -1,0 +1,80 @@
+# The Docker Hub copy of a release: scripts/mirror-dockerhub.sh copies the published GHCR index to
+# docker.io/keptinventory/kept (the same digest, no rebuild), with X.Y and X where GHCR has them,
+# and signs the copy with the release key. Called by release.yml after the release is published;
+# by hand (Run workflow) for a release that is already out.
+#
+# Secrets: DOCKERHUB_USERNAME and DOCKERHUB_TOKEN (a Docker Hub access token, Read & Write), and the
+# release's COSIGN_PRIVATE_KEY and COSIGN_PASSWORD.
+#
+# Every action is pinned by commit SHA with its tag in a comment.
+name: dockerhub
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: The release, X.Y.Z
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: A published release to copy to Docker Hub, e.g. 1.12.3 (no v)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dockerhub-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: read # GHCR is public; the token only avoids anonymous pull limits
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # cosign at the pinned version, checksum-verified (scripts/tools.sh).
+      - run: bash scripts/tools.sh fetch cosign
+
+      - name: Registry logins
+        env:
+          TOKEN: ${{ github.token }}
+          HUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          HUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          [[ -n $HUB_USER && -n $HUB_TOKEN ]] || { echo "::error::DOCKERHUB_USERNAME and DOCKERHUB_TOKEN must be set"; exit 1; }
+          printf '%s' "$TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          printf '%s' "$HUB_TOKEN" | docker login docker.io -u "$HUB_USER" --password-stdin
+
+      - name: The signing key, to a file only this job can read
+        env:
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+        run: |
+          umask 077
+          printf '%s\n' "$COSIGN_PRIVATE_KEY" >"$RUNNER_TEMP/cosign.key"
+          echo "KEPT_COSIGN_KEY=$RUNNER_TEMP/cosign.key" >>"$GITHUB_ENV"
+
+      - name: scripts/mirror-dockerhub.sh
+        env:
+          VERSION: ${{ inputs.version }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          KEPT_RELEASE_TLOG: ${{ github.event.repository.private == false && '1' || '' }}
+        run: |
+          [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || { echo "::error::not a version: $VERSION"; exit 1; }
+          bash scripts/mirror-dockerhub.sh "$VERSION"
+
+      - name: Remove the key and the logins
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/cosign.key"
+          docker logout ghcr.io || true
+          docker logout docker.io || true
