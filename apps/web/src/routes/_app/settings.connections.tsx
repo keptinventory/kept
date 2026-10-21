@@ -9,9 +9,10 @@ import { createFileRoute, type ErrorComponentProps } from '@tanstack/react-route
 import { useState } from 'react';
 import * as z from 'zod/mini';
 import { useLocations } from '@/api/queries';
+import { CONNECTION_FILTERS } from '@/components/connections/filters';
 import { RecentChanges } from '@/components/connections/recent-changes';
 import { TokenCreateSheet } from '@/components/connections/token-create';
-import { CONNECTION_FILTERS, ConnectionsList } from '@/components/connections/tokens';
+import { ConnectionsList } from '@/components/connections/tokens';
 import { LinkIcon, PlusIcon } from '@/components/icons';
 import { HouseholdRouteError } from '@/components/notifications/route-error';
 import { IconTile, LinkButton, List, Page, Row, Section } from '@/components/page';

@@ -24,9 +24,6 @@ import { Button } from '@/components/ui/button';
 import { useFormat } from '@/lib/format';
 import { firstOf, useListState } from '@/lib/url-state';
 
-/** The URL filter keys the public page's list owns (its route's `listSearch`). */
-export const SHARED_FILTERS = ['type', 'condition'] as const;
-
 type Query = UseInfiniteQueryResult<InfiniteData<SharedPage>>;
 type Row = SharedThing & { key: string };
 

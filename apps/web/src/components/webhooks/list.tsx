@@ -32,8 +32,6 @@ import { DeliveriesSheet } from './deliveries';
 import { WebhookSheet, type WebhookSheetState } from './edit';
 import { useDeliveryWords, useDisabledWords, useEventWords } from './words';
 
-/** The URL filter keys this list owns (the route's `listSearch`). */
-export const WEBHOOK_FILTERS = ['state'] as const;
 const PAGE = 20;
 
 type State = 'working' | 'failing' | 'off';

@@ -227,6 +227,7 @@ const HOUSEHOLD_SHARED = [
   '/src/components/schedules/snooze-sheet.tsx',
   // AI settings and usage (Settings, Me and admin); ai-line and call-detail stay precached.
   '/src/components/ai/advanced.tsx',
+  '/src/components/ai/call-filters.tsx',
   '/src/components/ai/call-list.tsx',
   '/src/components/ai/cap-suggest.tsx',
   '/src/components/ai/data-use-note.tsx',

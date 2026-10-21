@@ -26,9 +26,6 @@ import { OAuthAppRow } from './oauth-apps';
 import { RevokeButton } from './revoke';
 import { useNameList, useRevokedWords, useScopeWords } from './words';
 
-/** The URL filter keys this list owns (the route's `listSearch`). */
-export const CONNECTION_FILTERS = ['location', 'kind', 'state'] as const;
-
 export function ConnectionsList({ action }: { action?: ReactNode }) {
   const { t } = useLingui();
   const [list] = useListState();

@@ -7,7 +7,7 @@
 import { useLingui } from '@lingui/react/macro';
 import { createFileRoute } from '@tanstack/react-router';
 import * as z from 'zod/mini';
-import { AI_CALL_FILTERS } from '@/components/ai/call-filters';
+import { AI_CALL_FILTERS } from '@/components/ai/call-filter-keys';
 import { UsagePage } from '@/components/ai/usage-page';
 import { Page } from '@/components/page';
 import { listSearch } from '@/lib/url-state';
