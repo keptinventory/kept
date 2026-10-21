@@ -275,6 +275,37 @@ describe('the action menu', () => {
     expect(options.some((o) => o.includes('HDMI cable'))).toBe(false);
   });
 
+  it('Move keeps the place box shut until its places and boxes have loaded', async () => {
+    const { user, mock, queryClient } = await renderApp(`/t/${T.hdmiCable}`);
+    await findHeading('HDMI cable, 2 m');
+    // A cold cache and a held list of boxes, so the sheet opens before the boxes arrive.
+    queryClient.removeQueries({
+      predicate: (q) => JSON.stringify(q.queryKey).includes('"limit":200'),
+    });
+    let release = () => {};
+    const held = new Promise<void>((ok) => {
+      release = ok;
+    });
+    const real = mock.fetch;
+    vi.stubGlobal('fetch', async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input), 'http://x');
+      if (url.pathname === p.things && url.searchParams.get('limit') === '200') await held;
+      return real(input, init);
+    });
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Move' }));
+    const dialog = await screen.findByRole('dialog');
+    const where = within(dialog).getByRole('combobox', { name: 'Room, spot or box' });
+    // Typing now would be mixed into the current place when it arrives.
+    expect(where).toBeDisabled();
+    release();
+    await waitFor(() => expect(where).toBeEnabled());
+    expect(where).toHaveValue('Cable box');
+    await user.clear(where);
+    await user.type(where, 'Living');
+    expect(await screen.findByRole('option', { name: /^Living room/ })).toBeInTheDocument();
+  });
+
   it('links another thing', async () => {
     const { user, mock } = await renderApp(`/t/${T.phone}`);
     await findHeading('Galaxy S23');

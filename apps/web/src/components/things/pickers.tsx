@@ -264,6 +264,9 @@ export function WherePicker({
         onSelectionChange={(k) => {
           if (k) onChange({ locationId: value.locationId, target: targetOf(String(k)) });
         }}
+        // The current place's name fills the box once its option arrives; typing before that
+        // would be mixed into it.
+        isDisabled={places.isPending || things.isPending}
         placeholder={t`Search rooms, spots and boxes`}
       >
         {(item) => <IconItem item={item} />}
