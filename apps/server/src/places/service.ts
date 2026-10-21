@@ -348,6 +348,8 @@ export const TrashBody = z
   .object({
     contents: z.enum(['move', 'trash']).optional(),
     moveTo: MoveTarget.optional(),
+    /** 1.14: trash it although it is with someone (lending/guard.ts). */
+    onLoan: z.literal('confirm').optional(),
   })
   .optional();
 export type TrashBody = z.infer<typeof TrashBody>;

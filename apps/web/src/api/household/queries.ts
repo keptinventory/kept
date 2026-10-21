@@ -51,6 +51,8 @@ import type {
   FxRate,
   FxRatesParams,
   FxRatesResponse,
+  Handover,
+  HandoverReturnBody,
   Incident,
   IncidentRow,
   IncidentsParams,
@@ -58,6 +60,8 @@ import type {
   InsuranceCsvParams,
   InsuranceReportBody,
   InsuranceReportCreated,
+  Kit,
+  KitBody,
   LendBody,
   LendResult,
   Loan,
@@ -244,7 +248,8 @@ export const householdApi = {
   deleteBrandLogo: (brandId: string) => api.del(p.brandLogo(brandId)),
 
   // lending and borrowing
-  lend: (thingId: string, body: LendBody) => api.post<LendResult>(p.thingLend(thingId), body),
+  /** Undoable (1.14): the hand-over goes, every line with it, while nothing changed. */
+  lend: (thingId: string, body: LendBody) => written.post<LendResult>(p.thingLend(thingId), body),
   borrow: (locationId: string, body: BorrowBody) =>
     api.post<BorrowResult>(p.locationBorrow(locationId), body),
   /** Undoable: reopens the loan and moves the thing back (un-merging it when it merged). */
@@ -257,6 +262,31 @@ export const householdApi = {
   thingLoans: (thingId: string) => api.get<ThingLoansResponse>(p.thingLoans(thingId)),
   personLoans: (personId: string, cursor?: string) =>
     api.get<PersonLoans>(p.personLoans(personId) + qs({ cursor })),
+  handover: (id: string) => api.get<Handover>(p.handover(id)),
+  /** Each line's return or loss is its own undoable event; the toast undoes them together. */
+  returnHandover: (id: string, body: HandoverReturnBody) =>
+    written.post<Handover>(p.handoverReturn(id), body),
+  updateHandover: (
+    id: string,
+    body: { dueOn?: string | null; leadDays?: number; notes?: string | null },
+    rowVersion: number,
+  ) => written.patch<Handover>(p.handover(id), body, ifMatch(rowVersion)),
+  loseLoan: (id: string, body: { notes?: string }, rowVersion: number) =>
+    written.post<{ loan: Loan }>(p.loanLost(id), body, ifMatch(rowVersion)),
+  thingHandovers: (thingId: string) => api.get<{ items: Handover[] }>(p.thingHandovers(thingId)),
+  kit: (thingId: string) => api.get<{ kit: Kit | null }>(p.thingKit(thingId)),
+  makeKit: (thingId: string, body: KitBody) => written.post<Kit>(p.thingKit(thingId), body),
+  updateKit: (thingId: string, body: KitBody, rowVersion: number) =>
+    requestWritten<Kit>(p.thingKit(thingId), {
+      method: 'PUT',
+      body,
+      headers: ifMatch(rowVersion) ?? {},
+    }),
+  dissolveKit: (thingId: string) => requestWritten<void>(p.thingKit(thingId), { method: 'DELETE' }),
+  locationKits: (locationId: string, incomplete = false) =>
+    api.get<{ items: { thing: { id: string; name: string | null }; summary: Kit['summary'] }[] }>(
+      p.locationKits(locationId) + qs({ incomplete: incomplete ? '1' : undefined }),
+    ),
   addLoanAttachment: (loanId: string, body: CreateLoanAttachmentBody) =>
     api.post<unknown>(p.loanAttachments(loanId), body),
 
@@ -423,6 +453,24 @@ export const useLoans = (params: LoansParams = {}, enabled = true) =>
     initialPageParam: undefined as string | undefined,
     getNextPageParam: nextCursor,
     enabled,
+  });
+export const useHandover = (id: string | null) =>
+  useQuery({
+    queryKey: ['handovers', id ?? ''] as const,
+    queryFn: () => householdApi.handover(id as string),
+    enabled: !!id,
+  });
+export const useThingHandovers = (thingId: string) =>
+  useQuery({
+    queryKey: ['handovers', 'thing', thingId] as const,
+    queryFn: () => householdApi.thingHandovers(thingId),
+    enabled: !!thingId,
+  });
+export const useKit = (thingId: string) =>
+  useQuery({
+    queryKey: ['kits', thingId] as const,
+    queryFn: () => householdApi.kit(thingId),
+    enabled: !!thingId,
   });
 export const useThingLoans = (thingId: string) =>
   useQuery({

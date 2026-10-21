@@ -1,6 +1,8 @@
 import {
   canonicalAmount,
   reconcileTotal,
+  SCHEDULE_KINDS,
+  type ScheduleKind,
   SERVICE_LINE_KINDS,
   type ServiceLineKind,
 } from '@kept/shared';
@@ -96,6 +98,8 @@ export type Schedule = {
   id: string;
   locationId: string;
   subject: SubjectRef;
+  /** `count`: a planned count of a place, done by counting it (1.14). */
+  kind: ScheduleKind;
   name: string;
   everyMonths: number | null;
   everyUnits: string | null;
@@ -116,6 +120,8 @@ export type Schedule = {
   skipNext: boolean;
   active: boolean;
   lastService: { id: string; servicedOn: string } | null;
+  /** A planned count: the latest count of its place that completed it, not undone. */
+  lastCount: { id: string; at: string } | null;
   rowVersion: number;
 };
 
@@ -123,6 +129,7 @@ export const ScheduleSchema = z.object({
   id: z.uuid(),
   locationId: z.uuid(),
   subject: SubjectRefSchema,
+  kind: z.enum(SCHEDULE_KINDS),
   name: z.string(),
   everyMonths: z.number().nullable(),
   everyUnits: z.string().nullable(),
@@ -143,6 +150,7 @@ export const ScheduleSchema = z.object({
   skipNext: z.boolean(),
   active: z.boolean(),
   lastService: z.object({ id: z.uuid(), servicedOn: z.string() }).nullable(),
+  lastCount: z.object({ id: z.uuid(), at: z.string() }).nullable(),
   rowVersion: z.number(),
 });
 
@@ -152,6 +160,7 @@ export type ScheduleRow = {
   location_id: string;
   thing_id: string | null;
   place_id: string | null;
+  kind: ScheduleKind;
   name: string;
   every_months: number | null;
   every_units: string | null;
@@ -171,7 +180,7 @@ export type ScheduleRow = {
   row_version: number;
 };
 
-export const SCHEDULE_COLUMNS = `s.id, s.location_id, s.thing_id, s.place_id, s.name, s.every_months,
+export const SCHEDULE_COLUMNS = `s.id, s.location_id, s.thing_id, s.place_id, s.kind, s.name, s.every_months,
        trim_scale(s.every_units)::text AS every_units, s.meter_id, s.due_on::text AS due_on,
        s.lead_days, trim_scale(s.lead_units)::text AS lead_units, s.base_on::text AS base_on,
        trim_scale(s.base_value)::text AS base_value, s.anchor_on::text AS anchor_on,
@@ -183,6 +192,7 @@ export const SCHEDULE_COLUMNS = `s.id, s.location_id, s.thing_id, s.place_id, s.
 export const scheduleImage = (r: ScheduleRow) => ({
   thing_id: r.thing_id,
   place_id: r.place_id,
+  kind: r.kind,
   name: r.name,
   every_months: r.every_months,
   every_units: r.every_units,
@@ -206,6 +216,7 @@ type ScheduleRecord = ScheduleRow & {
   next_state: ScheduleNextState;
   subject: unknown;
   last_service: { id: string; servicedOn: string } | null;
+  last_count: { id: string; at: string } | null;
 };
 
 /**
@@ -233,7 +244,13 @@ export const scheduleViewColumns = (next: NextSource = NEXT_OF_N) => `${SCHEDULE
           FROM public.service_completions c
           JOIN public.service_records r ON r.id = c.service_record_id
          WHERE c.schedule_id = s.id AND r.review_state = 'confirmed'
-         ORDER BY r.serviced_on DESC, r.created_at DESC, r.id DESC LIMIT 1) AS last_service`;
+         ORDER BY r.serviced_on DESC, r.created_at DESC, r.id DESC LIMIT 1) AS last_service,
+       (SELECT jsonb_build_object('id', c.id, 'at', c.finished_at)
+          FROM public.scan_sessions c
+         WHERE c.schedule_id = s.id AND c.finished_at IS NOT NULL
+           AND NOT EXISTS (SELECT 1 FROM public.audit_events u
+                            WHERE u.undo_of = c.audit_event_id AND u.location_id = c.location_id)
+         ORDER BY c.finished_at DESC, c.id DESC LIMIT 1) AS last_count`;
 
 function basisOf(r: ScheduleRow): ScheduleBasis {
   if (r.every_months !== null && r.every_units !== null) return 'both';
@@ -247,6 +264,7 @@ function scheduleOf(r: ScheduleRecord): Schedule {
     id: r.id,
     locationId: r.location_id,
     subject: subjectOf(r.subject),
+    kind: r.kind,
     name: r.name,
     everyMonths: r.every_months,
     everyUnits: r.every_units,
@@ -270,6 +288,9 @@ function scheduleOf(r: ScheduleRecord): Schedule {
     skipNext: r.skip_next,
     active: r.active,
     lastService: r.last_service,
+    lastCount: r.last_count
+      ? { id: r.last_count.id, at: new Date(r.last_count.at).toISOString() }
+      : null,
     rowVersion: r.row_version,
   };
 }

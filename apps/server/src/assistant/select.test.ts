@@ -43,6 +43,8 @@ describe('choosing the tools a step offers', () => {
     ['J’ai prêté la perceuse à Louis', 'lend_thing'],
     ['Ich habe die Leiter verliehen', 'lend_thing'],
     ['Ho prestato il trapano a Louis', 'lend_thing'],
+    ['I handed the camera kit to Talia', 'lend_thing'],
+    ['Ich habe Peter die Kamera übergeben', 'lend_thing'],
     ['What is due this week?', 'upcoming'],
     ['ما الصيانة القادمة؟', 'upcoming'],
     ['Was ist diese Woche fällig?', 'upcoming'],

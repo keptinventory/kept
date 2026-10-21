@@ -12,7 +12,8 @@ import { isApiError } from '@/api/client';
 import { useSharedPage } from '@/api/sharelinks/queries';
 import { Logo } from '@/components/app-shell';
 import { ErrorState, LoadingRows } from '@/components/page';
-import { SHARED_FILTERS, SharedHeader, SharedList } from '@/components/sharelinks/shared-view';
+import { SHARED_FILTERS } from '@/components/sharelinks/filters';
+import { SharedHeader, SharedList } from '@/components/sharelinks/shared-view';
 import { useTypeName } from '@/components/things/names';
 import { listSearch } from '@/lib/url-state';
 

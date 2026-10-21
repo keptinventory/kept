@@ -104,6 +104,8 @@ const sidebar = [
     page('users/map-shapes'),
     page('users/room-photos'),
     page('users/scanning-sessions'),
+    page('users/counts'),
+    page('users/kits'),
     page('users/moving'),
     page('users/phone-app'),
     page('users/ai-providers'),

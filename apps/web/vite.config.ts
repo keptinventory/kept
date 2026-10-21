@@ -108,6 +108,10 @@ const HOUSEHOLD_ROUTES = [
   '/src/routes/_app/settings.location.$id.webhooks.tsx?tsr-split=component',
   // 1.12 (#168): a scan session, cached on first use; offline before that, "Needs a connection".
   '/src/routes/_app/scan-session.tsx?tsr-split=component',
+  // 1.14 (#172): Counts, a count's page and a box check's read the server only.
+  '/src/routes/_app/counts.tsx?tsr-split=component',
+  '/src/routes/_app/counts.$id.tsx?tsr-split=component',
+  '/src/routes/_app/counts.box.$id.tsx?tsr-split=component',
   // 1.5 (D233): a share link's public page needs the server; its error screen stays precached.
   '/src/routes/s.$token.tsx?tsr-split=component',
   // Settings, admin, imports and history need a connection, so they come on demand
@@ -192,6 +196,9 @@ const COMPONENT_ONLY_ROUTES = new Set<string>([
   '/_app/vehicles',
   '/_app/insights',
   '/_app/scan-session',
+  '/_app/counts',
+  '/_app/counts/$id',
+  '/_app/counts/box/$id',
 ]);
 /**
  * On-demand chunks named by their entry module: driver.js behind the hints and the tour
@@ -220,6 +227,7 @@ const HOUSEHOLD_SHARED = [
   '/src/components/schedules/snooze-sheet.tsx',
   // AI settings and usage (Settings, Me and admin); ai-line and call-detail stay precached.
   '/src/components/ai/advanced.tsx',
+  '/src/components/ai/call-filters.tsx',
   '/src/components/ai/call-list.tsx',
   '/src/components/ai/cap-suggest.tsx',
   '/src/components/ai/data-use-note.tsx',

@@ -22,15 +22,18 @@ import type {
   ActiveSourceType,
   AgendaState,
   ClaimStatus,
+  Condition,
   DocumentKind,
   ExportRunStatus,
   IncidentKind,
   LoanDirection,
+  LoanOutcome,
   NotificationKind,
   NotifyKind,
   OccurrenceKind,
   OccurrenceState,
   PreferenceChannel,
+  ReturnLineOutcome,
   Role,
   ScheduleState,
   ServiceLineKind,
@@ -277,8 +280,74 @@ export type Loan = {
   conditionIn: AttachmentRef[];
   rowVersion: number;
   createdBy: ActorRef;
+  /** 1.14 (#170): its hand-over (a line of it), where it sat in the box that went, how it
+   * ended, its condition out and back in, and the return note (the lend note is `notes`). */
+  handoverId?: string;
+  pathAtLend?: string | null;
+  outcome?: LoanOutcome | null;
+  condition?: { out: Condition | null; in: Condition | null };
+  returnNotes?: string | null;
+  /** What it went with: the hand-over's box or kit ("with Camera bag"). */
+  with?: { id: string; name: string | null } | null;
 };
 export type LoanRow = Loan & { thing: ThingRow };
+
+/** A hand-over (1.14, #170): one lend of a thing, a box or a kit, a line per item. */
+export type HandoverLine = Loan & {
+  thing: { id: string; name: string | null; shortCode: string | null; quantity: string };
+};
+export type Handover = {
+  id: string;
+  locationId: string;
+  direction: LoanDirection;
+  person: PersonRef;
+  root: { id: string; name: string | null } | null;
+  startedAt: string;
+  dueOn: string | null;
+  leadDays: number;
+  notes: string | null;
+  conditionOut: Condition | null;
+  rowVersion: number;
+  lines: HandoverLine[];
+  counts: { lines: number; open: number; returned: number; lost: number };
+  createdBy: ActorRef;
+};
+/** Inside what was lent, but not lent: already with someone, in repair, or ended. */
+export type LendExcluded = {
+  thingId: string;
+  name: string | null;
+  reason: 'on_loan' | 'in_repair' | 'ended';
+  with: string | null;
+};
+/** POST /api/v1/handovers/:id/return: the checklist, a line each. */
+export type HandoverReturnLine = {
+  loanId: string;
+  outcome: ReturnLineOutcome;
+  conditionIn?: Condition;
+  notes?: string;
+  quantityBack?: string;
+  updateCondition?: boolean;
+};
+export type HandoverReturnBody = { returnedAt?: string; lines: HandoverReturnLine[] };
+
+/** A kit (1.14, #170): a container with a parts list, each part where it is now. */
+export type KitPartStatus = 'in_kit' | 'elsewhere' | 'missing' | 'with_someone' | 'trashed';
+export type KitLent = { handoverId: string; person: string; since: string; dueOn: string | null };
+export type Kit = {
+  thingId: string;
+  locationId: string;
+  rowVersion: number;
+  parts: {
+    thing: { id: string; name: string | null; shortCode: string | null };
+    quantity: string;
+    status: KitPartStatus;
+    where: { id: string; name: string } | null;
+    with: KitLent | null;
+  }[];
+  summary: { parts: number; inKit: number; notInKit: number; complete: boolean };
+  lent: KitLent | null;
+};
+export type KitBody = { parts: { thingId: string; quantity?: string }[] };
 
 /** Who a loan is with: a person in the registry, a new one by name, or a member (D57). */
 export type LoanPersonInput = { id: string } | { name: string } | { memberUserId: string };
@@ -291,8 +360,20 @@ export type LendBody = {
   dueOn?: string;
   quantity?: string;
   notes?: string;
+  /** 1.14 (#170). */
+  handoverId?: string;
+  conditionOut?: Condition;
+  leadDays?: number;
+  /** A kit's parts kept elsewhere, lent with it. */
+  alsoParts?: string[];
 };
-export type LendResult = { loan: Loan; thing: ThingRow; splitFrom?: ThingRow };
+export type LendResult = {
+  loan: Loan;
+  thing: ThingRow;
+  splitFrom?: ThingRow;
+  handover?: Handover;
+  excluded?: LendExcluded[];
+};
 
 /** POST /api/v1/locations/:id/borrow: a new thing that belongs to the person, and a loan in. */
 export type BorrowBody = {
@@ -313,7 +394,11 @@ export type ReturnBody = {
   to?: 'previous' | { placeId: string } | { containerId: string };
   /** Default true: a split-off part merges back into the row it came from (D172). */
   mergeBack?: boolean;
+  /** The return note (kept apart from the lend note, 1.14). */
   notes?: string;
+  conditionIn?: Condition;
+  updateCondition?: boolean;
+  quantityBack?: string;
 };
 export type ReturnResult = { loan: Loan; thing: ThingRow; mergedInto?: ThingRow };
 
@@ -388,6 +473,10 @@ export type Schedule = {
   skipNext: boolean;
   active: boolean;
   lastService: { id: string; servicedOn: string } | null;
+  /** 1.14 (#172): `count`, a planned count of a place, done by counting it. */
+  kind?: 'task' | 'count';
+  /** A planned count: the latest count of its place that completed it. */
+  lastCount?: { id: string; at: string } | null;
   rowVersion: number;
 };
 
@@ -407,6 +496,8 @@ export type SubjectSchedulesResponse = { items: Schedule[] };
 export type CreateScheduleBody = {
   id?: string;
   subject: { thingId: string } | { placeId: string };
+  /** `count`: a planned count of a place, every 1–24 months (1.14). */
+  kind?: 'task' | 'count';
   name: string;
   everyMonths?: number;
   everyUnits?: string;

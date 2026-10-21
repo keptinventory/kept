@@ -9,7 +9,8 @@ import { useLingui } from '@lingui/react/macro';
 import { createFileRoute } from '@tanstack/react-router';
 import { LocationSettingsPage } from '@/components/location-settings';
 import { SettingsRouteError } from '@/components/on-demand-route-error';
-import { SHARE_LINK_FILTERS, ShareLinksList } from '@/components/sharelinks/list';
+import { SHARE_LINK_FILTERS } from '@/components/sharelinks/filters';
+import { ShareLinksList } from '@/components/sharelinks/list';
 import { listSearch } from '@/lib/url-state';
 
 export const Route = createFileRoute('/_app/settings/location/$id/share-links')({

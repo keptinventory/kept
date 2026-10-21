@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { thingApi } from '@/api/inventory/thing-api';
 import type { MovePreview } from '@/api/inventory/types';
 import { useOfferUndo } from '@/components/history/undo';
+import { useOnLoanConfirm } from '@/components/lending/on-loan';
 import { Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
@@ -41,6 +42,7 @@ export function MoveSheet({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
     target: currentTarget(thing),
   });
   const [busy, setBusy] = useState(false);
+  const withConfirm = useOnLoanConfirm();
   const chosen = isChosen(where.target);
   const same =
     JSON.stringify(where.target) === JSON.stringify(currentTarget(thing)) &&
@@ -54,12 +56,22 @@ export function MoveSheet({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   const save = async () => {
     setBusy(true);
     try {
-      const { auditEvents } = await thingApi.move(
-        { thingIds: [thing.id], to: where.target },
-        thing.rowVersion,
+      // With someone: asked first (1.14).
+      const r = await withConfirm(
+        (onLoan) =>
+          thingApi.move(
+            {
+              thingIds: [thing.id],
+              to: where.target,
+              ...(onLoan ? { onLoan: 'confirm' as const } : {}),
+            },
+            thing.rowVersion,
+          ),
+        t`Move it anyway`,
       );
+      if (!r) return;
       await refresh();
-      offerUndo({ title: t`Moved` }, auditEvents);
+      offerUndo({ title: t`Moved` }, r.auditEvents);
       onClose();
     } catch (e) {
       toast({ title: t`Couldn't move it`, description: errorText(e), tone: 'danger' });

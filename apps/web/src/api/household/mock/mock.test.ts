@@ -118,7 +118,7 @@ describe('the household mock', () => {
   });
 
   it('a partial lend splits, and the return merges back; undo reopens the loan', async () => {
-    const lent = await api.lend(T.hdmiCable, { person: { name: 'Louis' }, quantity: '2' });
+    const lent = (await api.lend(T.hdmiCable, { person: { name: 'Louis' }, quantity: '2' })).body;
     expect(lent.thing.quantity).toBe(2);
     expect(lent.splitFrom?.quantity).toBe(1);
     const back = await api.returnLoan(lent.loan.id, {}, lent.loan.rowVersion);

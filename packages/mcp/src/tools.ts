@@ -436,6 +436,30 @@ export const TOOL_DEFS = Object.freeze({
           )
           .optional()
           .describe('Receipts, manuals and other documents linked from Paperless-ngx'),
+        // 1.14 (#170): who has it (its open hand-over line), and a kit's parts.
+        with: z
+          .object({
+            handover_id: uuid,
+            since: z.string(),
+            due_on: z.string().nullable(),
+            in_box: z.string().nullable().describe('Lent inside this, when it went in a box'),
+            untrusted: z.object({ person: z.string() }),
+          })
+          .optional()
+          .describe('Lent out: to whom, since when'),
+        kit: z
+          .object({
+            complete: z.boolean(),
+            parts: z.array(
+              z.object({
+                thing_id: uuid,
+                status: z.enum(['in_kit', 'elsewhere', 'missing', 'with_someone', 'trashed']),
+                untrusted: z.object({ name: z.string().nullable() }),
+              }),
+            ),
+          })
+          .optional()
+          .describe('A kit: its parts and where each is'),
         url: z.string().describe('The thing’s page in Kept'),
       }),
     }),
@@ -703,7 +727,8 @@ export const TOOL_DEFS = Object.freeze({
   lend_thing: tool({
     name: 'lend_thing',
     title: 'Lend',
-    description: 'Lend a thing to someone, with an optional due date.',
+    description:
+      'Lend a thing to someone, with an optional due date. A box or a kit goes with everything in it, each on its own line.',
     scope: 'write',
     module: 'lending',
     since: 4,
@@ -713,13 +738,31 @@ export const TOOL_DEFS = Object.freeze({
       person: shortText(120).describe('A person’s name or id'),
       due_on: isoDate.optional(),
       quantity: z.number().int().min(1).optional(),
+      with_parts_elsewhere: z
+        .boolean()
+        .optional()
+        .describe('A kit: lend its parts kept elsewhere with it too'),
     }),
-    output: writeResult.extend({ thing: thingRef, loan_id: uuid }),
+    output: writeResult.extend({
+      thing: thingRef,
+      loan_id: uuid,
+      handover_id: uuid,
+      lines: z.number().int().describe('How many things went'),
+      left_behind: z
+        .array(
+          z.object({
+            thing_id: uuid,
+            reason: z.enum(['on_loan', 'in_repair', 'ended']),
+          }),
+        )
+        .describe('Inside it, but not lent: already lent, in repair or no longer in use'),
+    }),
   }),
   return_thing: tool({
     name: 'return_thing',
     title: 'Returned',
-    description: 'A lent or borrowed thing came back (all of it, or a quantity).',
+    description:
+      'A lent or borrowed thing came back (all of it, or a quantity). A box or kit brings back what is still out with it.',
     scope: 'write',
     module: 'lending',
     since: 4,
@@ -727,8 +770,13 @@ export const TOOL_DEFS = Object.freeze({
       location_id: locationId,
       thing_id: idOrCode,
       quantity: z.number().int().min(1).optional(),
+      condition: z.enum(CONDITIONS).optional().describe('The condition it came back in'),
     }),
-    output: writeResult.extend({ thing: thingRef, loan_id: uuid }),
+    output: writeResult.extend({
+      thing: thingRef,
+      loan_id: uuid,
+      lines_returned: z.number().int(),
+    }),
   }),
   borrow_thing: tool({
     name: 'borrow_thing',

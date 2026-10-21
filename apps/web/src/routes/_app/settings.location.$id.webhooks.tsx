@@ -9,7 +9,8 @@ import { useLingui } from '@lingui/react/macro';
 import { createFileRoute, type ErrorComponentProps } from '@tanstack/react-router';
 import { LocationSettingsPage } from '@/components/location-settings';
 import { HouseholdRouteError } from '@/components/notifications/route-error';
-import { WEBHOOK_FILTERS, WebhooksList } from '@/components/webhooks/list';
+import { WEBHOOK_FILTERS } from '@/components/webhooks/filters';
+import { WebhooksList } from '@/components/webhooks/list';
 import { listSearch } from '@/lib/url-state';
 
 export const Route = createFileRoute('/_app/settings/location/$id/webhooks')({

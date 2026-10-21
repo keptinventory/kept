@@ -183,10 +183,31 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'valuation.create': () => 'Valuation added',
   'valuation.update': () => 'Valuation changed',
   'valuation.delete': () => 'Valuation deleted',
-  'loan.create': () => 'Loan added',
+  'loan.create': (p) =>
+    p.person
+      ? p.direction === 'in'
+        ? `Borrowed from ${p.person}`
+        : `Lent to ${p.person}`
+      : 'Loan added',
   'loan.update': () => 'Loan changed',
-  'loan.return': () => 'Loan returned',
+  'loan.return': (p) =>
+    p.person
+      ? p.condition
+        ? `Came back from ${p.person} (${p.condition})`
+        : `Came back from ${p.person}`
+      : 'Loan returned',
+  'loan.lost': (p) => (p.person ? `Lost by ${p.person}` : 'Marked lost'),
   'loan.delete': () => 'Loan deleted',
+  'handover.create': (p) =>
+    plural(
+      p.count,
+      `Lent ${p.name} to ${p.person ?? ''}`,
+      `Lent ${p.name} to ${p.person ?? ''}, # things`,
+    ),
+  'handover.update': () => 'Hand-over changed',
+  'kit.create': (p) => `Made ${p.name} a kit`,
+  'kit.update': (p) => `Changed the parts of ${p.name}`,
+  'kit.dissolve': (p) => `${p.name} is no longer a kit`,
   'schedule.create': () => 'Schedule added',
   'schedule.update': () => 'Schedule changed',
   'schedule.delete': () => 'Schedule deleted',
@@ -446,6 +467,7 @@ function plainOf(event: RenderedAuditEvent, field: string): Plain | null {
 }
 
 const afterOf = (event: RenderedAuditEvent, field: string) => plainOf(event, field)?.after;
+const beforeOf = (event: RenderedAuditEvent, field: string) => plainOf(event, field)?.before;
 
 const REPORT_KINDS: Record<string, SummaryKey> = {
   insurance: 'report.generate.insurance',
@@ -595,6 +617,22 @@ export function summarise(event: RenderedAuditEvent, ctx: SummaryContext): Summa
       params.count = String(typeof n === 'number' ? n : 0);
       if (key === 'scan.session' && typeof c?.expected === 'number') {
         params.expected = String(c.expected);
+      }
+    }
+    if (key.startsWith('loan.') || key.startsWith('handover.')) {
+      // 1.14: who it went to (a name, never a contact detail), its direction, how it came back.
+      const person = plainOf(event, 'person_name');
+      const who = [person?.after, person?.before].find(
+        (v): v is string => typeof v === 'string' && v.length > 0,
+      );
+      if (who) params.person = who;
+      const direction = afterOf(event, 'direction') ?? beforeOf(event, 'direction');
+      if (typeof direction === 'string') params.direction = direction;
+      const condition = afterOf(event, 'condition_in');
+      if (key === 'loan.return' && typeof condition === 'string') params.condition = condition;
+      if (key === 'handover.create') {
+        const lines = afterOf(event, 'lines');
+        params.count = String(Array.isArray(lines) ? lines.length : 1);
       }
     }
     if (key.startsWith('label_batch.create')) {

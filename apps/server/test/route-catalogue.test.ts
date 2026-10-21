@@ -47,6 +47,8 @@ const ALLOWLIST: Record<string, string> = {
     "reads a room capture's photos again when none could be read (#194): new extraction attempts, the old ones superseded, as the capture's own reading was; it changes nothing in the inventory, and what the reading then makes is audited (thing.capture for each draft)",
   'POST /api/v1/scan/resolve':
     'read-only: answers what a scanned code is (open, claim, not in your Kept, legacy, barcode, not Kept, D137) and changes nothing, not even last_seen_at (D40); the phone marks seen with the audited POST /api/v1/things/:id/seen',
+  'POST /api/v1/scan-sessions':
+    'opens a count on the server so that others counting the same place can join it (the session row only, no change to the inventory); what the count changes is applied and audited by its finish (scan.session)',
   'POST /api/v1/scan/resolve-batch':
     "read-only: the single resolve's answer for up to 100 codes a scan session read, in order; it changes nothing, and a session's results are saved and audited by its sync ops (scan.session)",
   'POST /api/v1/me/channels/:id/test':

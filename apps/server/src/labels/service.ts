@@ -87,7 +87,12 @@ export const LabelBatchPreviewSchema = z.object({
 });
 export type LabelBatchPreview = z.infer<typeof LabelBatchPreviewSchema>;
 
-export const SummarySchema = z.object({ unprinted: z.number(), blankUnclaimed: z.number() });
+export const SummarySchema = z.object({
+  unprinted: z.number(),
+  blankUnclaimed: z.number(),
+  /** Live things with a code (1.14): with `unprinted`, how many here have a label. */
+  things: z.number(),
+});
 
 const actor = (userId: string) => ({ type: 'user' as const, id: userId });
 
@@ -535,24 +540,48 @@ export async function markPrinted(ctx: Ctx, publicUrl: string, id: string): Prom
   return getBatch(client, publicUrl, id);
 }
 
-/** GET /api/v1/labels/summary?locationId: Home's checklist and the labels screen; across every
- * visible location when none is given. The route checks the location and its module. */
+/** GET /api/v1/labels/summary?locationId&placeId: Home's checklist, the labels screen and a
+ * count's label coverage (in a place and the places inside it, boxes' contents included);
+ * across every visible location when none is given. The route checks the location and its
+ * module. */
 export async function labelSummary(
   client: pg.ClientBase,
   locationId: string | null,
-): Promise<{ unprinted: number; blankUnclaimed: number }> {
-  const { rows } = await client.query<{ unprinted: number; blank: number }>(
-    `SELECT
-       (SELECT count(*)::int FROM public.things t
-         WHERE t.deleted_at IS NULL AND ($1::uuid IS NULL OR t.location_id = $1::uuid)
-           AND EXISTS (SELECT 1 FROM public.short_ids s
-                        WHERE s.thing_id = t.id AND s.state = 'assigned')
-           AND NOT EXISTS (SELECT 1 FROM public.short_ids s
-                            WHERE s.thing_id = t.id AND s.state = 'assigned'
-                              AND s.printed_at IS NOT NULL)) AS unprinted,
-       (SELECT count(*)::int FROM public.short_ids s
-         WHERE s.state = 'blank' AND ($1::uuid IS NULL OR s.location_id = $1::uuid)) AS blank`,
-    [locationId],
+  placeId: string | null = null,
+): Promise<{ unprinted: number; blankUnclaimed: number; things: number }> {
+  if (placeId && locationId) await requirePlace(client, locationId, placeId);
+  const { rows } = await client.query<{ unprinted: number; blank: number; things: number }>(
+    `WITH RECURSIVE sub(id) AS (
+       SELECT p.id FROM public.places p WHERE $2::uuid IS NOT NULL AND p.id = $2::uuid
+       UNION
+       SELECT p.id FROM public.places p JOIN sub ON p.parent_id = sub.id
+        WHERE p.deleted_at IS NULL),
+     inside(id) AS (
+       SELECT t.id FROM public.things t
+        WHERE $2::uuid IS NOT NULL AND t.deleted_at IS NULL
+          AND t.place_id IN (SELECT id FROM sub)
+       UNION
+       SELECT t.id FROM public.things t JOIN inside i ON t.container_id = i.id
+        WHERE t.deleted_at IS NULL),
+     coded AS (
+       SELECT t.id,
+              EXISTS (SELECT 1 FROM public.short_ids s
+                       WHERE s.thing_id = t.id AND s.state = 'assigned'
+                         AND s.printed_at IS NOT NULL) AS printed
+         FROM public.things t
+        WHERE t.deleted_at IS NULL AND ($1::uuid IS NULL OR t.location_id = $1::uuid)
+          AND ($2::uuid IS NULL OR t.id IN (SELECT id FROM inside))
+          AND EXISTS (SELECT 1 FROM public.short_ids s
+                       WHERE s.thing_id = t.id AND s.state = 'assigned'))
+     SELECT (SELECT count(*) FILTER (WHERE NOT printed)::int FROM coded) AS unprinted,
+            (SELECT count(*)::int FROM coded) AS things,
+            (SELECT count(*)::int FROM public.short_ids s
+              WHERE s.state = 'blank' AND ($1::uuid IS NULL OR s.location_id = $1::uuid)) AS blank`,
+    [locationId, placeId],
   );
-  return { unprinted: rows[0]?.unprinted ?? 0, blankUnclaimed: rows[0]?.blank ?? 0 };
+  return {
+    unprinted: rows[0]?.unprinted ?? 0,
+    blankUnclaimed: rows[0]?.blank ?? 0,
+    things: rows[0]?.things ?? 0,
+  };
 }

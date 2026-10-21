@@ -16,6 +16,7 @@ import {
   type SyncOpsRequest,
   upgradePayload,
 } from '@kept/shared';
+import { countTarget, recordCount, whereNow } from '../../counts/mock';
 import { accessOf, liveThing, newId, now, type StoredThing } from '../../inventory/mock/db';
 import { contentsTemplate } from '../../inventory/mock/places';
 import type { MockState } from '../../mock/fixtures';
@@ -266,16 +267,36 @@ export function syncRoutes(state: MockState): MockRoute[] {
       // 1.12: a scan session's lines are kept; its finish applies them, as the server does.
       case 'scan_session_lines': {
         const b = payload as {
-          session: { id: string; mode: string };
+          session: {
+            id: string;
+            mode: string;
+            target: Parameters<typeof countTarget>[1];
+            startedAt: string;
+            countedPlaceIds?: string[];
+          };
           lines: ScanSessionLine[];
         };
         cap().scanLines ??= {};
+        const by = { id: state.me.user.id, displayName: state.me.user.displayName };
         const held = cap().scanLines?.[b.session.id] ?? {
           mode: b.session.mode,
           locationId: item.locationId,
           lines: [],
+          target: countTarget(state, b.session.target),
+          startedAt: b.session.startedAt,
+          by,
+          counted: [],
         };
-        held.lines.push(...b.lines);
+        if (held.finished) return drop('invalid');
+        held.counted = [
+          ...new Set([...(held.counted ?? []), ...(b.session.countedPlaceIds ?? [])]),
+        ];
+        const have = new Set(held.lines.map((l) => l.thingId));
+        held.lines.push(
+          ...b.lines
+            .filter((l) => !have.has(l.thingId))
+            .map((l) => ({ ...l, by, was: whereNow(state, l.thingId) })),
+        );
         (cap().scanLines as Record<string, typeof held>)[b.session.id] = held;
         return { ...base, outcome: 'applied', entity: { type: 'scan_session', id: b.session.id } };
       }
@@ -288,6 +309,8 @@ export function syncRoutes(state: MockState): MockRoute[] {
         let moved = 0;
         let skipped = 0;
         for (const l of held.lines) {
+          // A count's other results are kept, never applied.
+          if (l.action !== 'seen' && l.action !== 'not_here' && l.action !== 'move') continue;
           const t = liveThing(inv(), l.thingId);
           if (!t) {
             skipped += 1;
@@ -307,6 +330,7 @@ export function syncRoutes(state: MockState): MockRoute[] {
             notHere += 1;
           }
         }
+        recordCount(state, b.sessionId, b.expected ?? null, { seen, notHere, moved, skipped });
         cap().scanSessions ??= {};
         (cap().scanSessions as Record<string, ScanSessionView>)[b.sessionId] = {
           id: b.sessionId,

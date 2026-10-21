@@ -61,6 +61,8 @@ export const APPLY_ORDER: readonly ExportEntity[] = [
   'warranties',
   'incidents',
   'claims',
+  // 1.14: a loan's hand-over before the loan.
+  'handovers',
   'loans',
   'valuations',
   'incident-things',
@@ -84,6 +86,9 @@ export const APPLY_ORDER: readonly ExportEntity[] = [
   // places they go to); a done move is written open and done again after its boxes (finishMove).
   'moves',
   'move-boxes',
+  // Version 6 (1.14, #170): kits, after the things that are kits and their parts.
+  'kits',
+  'kit-parts',
 ];
 
 /**

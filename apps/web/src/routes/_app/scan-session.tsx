@@ -72,6 +72,19 @@ function ScanSessionPage() {
       />
     );
   return (
-    <SessionScreen store={store} persist={persist} start={start} onExit={exit} onQueued={kick} />
+    <SessionScreen
+      store={store}
+      persist={persist}
+      start={start}
+      onExit={exit}
+      onQueued={kick}
+      onOpenCount={(id) => void navigate({ to: '/counts/$id', params: { id }, replace: true })}
+      onPrintLabels={({ locationId, placeId }) =>
+        void navigate({
+          to: '/labels',
+          search: { loc: locationId, unprinted: 1, ...(placeId ? { place: placeId } : {}) },
+        })
+      }
+    />
   );
 }

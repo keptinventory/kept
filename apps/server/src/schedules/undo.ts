@@ -164,9 +164,10 @@ async function undoScheduleDelete(args: UndoArgs): Promise<void> {
   await client.query(
     `INSERT INTO public.schedules (id, location_id, thing_id, place_id, name, every_months,
                                    every_units, meter_id, due_on, lead_days, lead_units, base_on,
-                                   base_value, anchor_on, anchor_value, active, created_by)
+                                   base_value, anchor_on, anchor_value, active, created_by,
+                                   kind)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $12, $13, $14,
-             kept.current_user_id())`,
+             kept.current_user_id(), $15)`,
     [
       id,
       event.locationId,
@@ -182,6 +183,7 @@ async function undoScheduleDelete(args: UndoArgs): Promise<void> {
       b.base_on,
       b.base_value,
       b.active ?? true,
+      b.kind ?? 'task',
     ],
   );
   await recomplete(client, event.locationId, id, (b.completed_by as string[] | null) ?? [], {

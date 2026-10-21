@@ -4,11 +4,22 @@
  * to, the condition photos) with **Mark returned** and, in More on a phone (buttons from `md`),
  * Copy a polite reminder, Change the due date and Remove; then the earlier loans. Kept never
  * messages the person: the reminder text is yours to send.
+ *
+ * 1.14 (#170): each loan is a line of a hand-over. The panel says what it went with ("with
+ * Camera bag") and where it sat; a line of a hand-over with other things still out offers
+ * "Mark everything returned" (the checklist). Earlier loans show how they ended (back, in what
+ * condition, lost) and both notes. A box or kit lists its own hand-overs and what is still out.
  */
+import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
-import { householdApi, useThingLoans } from '@/api/household/queries';
-import type { Loan } from '@/api/household/types';
+import {
+  householdApi,
+  useHandover,
+  useThingHandovers,
+  useThingLoans,
+} from '@/api/household/queries';
+import type { Handover, Loan } from '@/api/household/types';
 import { useOfferUndo } from '@/components/history/undo';
 import { HandoffIcon } from '@/components/icons';
 import { OverflowActions } from '@/components/inbox/overflow-actions';
@@ -24,6 +35,7 @@ import {
 } from '@/components/page';
 import { useThingCtx } from '@/components/things/context';
 import { todayIn, useBlocked, useHouseholdDone } from '@/components/things/household';
+import { useConditionLabels } from '@/components/things/labels';
 import { Sheet } from '@/components/things/sheet';
 import { UploadButton } from '@/components/things/upload';
 import { Bidi, KeyValues, KV } from '@/components/things/values';
@@ -34,6 +46,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/toast';
 import { bdi } from '@/lib/bidi';
 import { sep, useFormat } from '@/lib/format';
+import { HandoverReturnSheet } from './handover-return';
 import { useCopyPoliteReminder, useLoanText } from './loan-text';
 import { subjectText } from './return-sheet';
 
@@ -53,6 +66,10 @@ export function ThingLoansSection({
   const open = items.find((l) => !l.returnedAt) ?? null;
   const earlier = items.filter((l) => l.returnedAt);
   const inRepair = thing.derivedState.includes('in_repair');
+  const handovers = useThingHandovers(thing.isContainer ? thing.id : '');
+  const own = (handovers.data?.items ?? []).filter((h) => h.counts.lines > 1);
+  const done = useHouseholdDone();
+  const [checklist, setChecklist] = useState<string | null>(null);
   return (
     <Section title={<Trans>Loans</Trans>}>
       {q.isPending ? (
@@ -88,6 +105,29 @@ export function ThingLoansSection({
               {blocked && edit ? <> {blocked}</> : null}
             </EmptyState>
           )}
+          {own.length ? (
+            <section className="grid gap-2" aria-labelledby="thing-handovers">
+              <h3 id="thing-handovers" className="eyebrow m-0">
+                <Trans>Lent with what is inside</Trans>
+              </h3>
+              <List>
+                {own.map((h) => (
+                  <li key={h.id}>
+                    <HandoverRow
+                      handover={h}
+                      onReturn={edit && h.counts.open > 0 ? () => setChecklist(h.id) : undefined}
+                    />
+                  </li>
+                ))}
+              </List>
+            </section>
+          ) : null}
+          <HandoverReturnSheet
+            handoverId={checklist}
+            isOpen={!!checklist}
+            onClose={() => setChecklist(null)}
+            onDone={done}
+          />
           {earlier.length ? (
             <section className="grid gap-2" aria-labelledby="thing-earlier-loans">
               <h3 id="thing-earlier-loans" className="eyebrow m-0">
@@ -108,8 +148,47 @@ export function ThingLoansSection({
   );
 }
 
+/** A hand-over of this box or kit: to whom, when, how many came back. */
+function HandoverRow({ handover: h, onReturn }: { handover: Handover; onReturn?: () => void }) {
+  const fmt = useFormat();
+  const back = fmt.num(h.counts.returned);
+  const all = fmt.num(h.counts.lines);
+  return (
+    <Row
+      title={
+        <>
+          <bdi>{h.person.name}</bdi>
+          {sep()}
+          {fmt.day(h.startedAt)}
+        </>
+      }
+      subtitle={
+        <>
+          <Trans>
+            {back} of {all} came back
+          </Trans>
+          {h.counts.lost ? (
+            <>
+              {sep()}
+              {plural(h.counts.lost, { one: '# lost', other: '# lost' })}
+            </>
+          ) : null}
+        </>
+      }
+      trailing={
+        onReturn ? (
+          <Button size="small" variant="secondary" onPress={onReturn}>
+            <Trans>Mark returned</Trans>
+          </Button>
+        ) : undefined
+      }
+    />
+  );
+}
+
 function EarlierLoan({ loan: l }: { loan: Loan }) {
   const fmt = useFormat();
+  const conditions = useConditionLabels();
   const from = fmt.day(l.startedAt);
   const back = fmt.day(l.returnedAt ?? l.startedAt);
   const late = !!l.dueOn && !!l.returnedAt && l.returnedAt.slice(0, 10) > l.dueOn;
@@ -125,12 +204,38 @@ function EarlierLoan({ loan: l }: { loan: Loan }) {
       subtitle={
         <>
           {l.direction === 'out' ? <Trans>Lent out</Trans> : <Trans>Borrowed</Trans>}
+          {l.with ? (
+            <>
+              {' '}
+              <Trans>
+                with <bdi>{l.with.name ?? ''}</bdi>
+              </Trans>
+            </>
+          ) : null}
           {sep()}
-          {late ? <Trans>Returned late</Trans> : <Trans context="loan">Returned</Trans>}
+          {l.outcome === 'lost' ? (
+            <Trans>Lost</Trans>
+          ) : late ? (
+            <Trans>Returned late</Trans>
+          ) : (
+            <Trans context="loan">Returned</Trans>
+          )}
+          {l.condition?.in ? (
+            <>
+              {sep()}
+              <Trans>came back {conditions[l.condition.in].toLocaleLowerCase()}</Trans>
+            </>
+          ) : null}
           {l.notes ? (
             <>
               {sep()}
               <Bidi>{l.notes}</Bidi>
+            </>
+          ) : null}
+          {l.returnNotes ? (
+            <>
+              {sep()}
+              <Bidi>{l.returnNotes}</Bidi>
             </>
           ) : null}
         </>
@@ -155,8 +260,17 @@ function LoanPanel({ loan, onReturn }: { loan: Loan; onReturn: () => void }) {
   const out = loan.direction === 'out';
   const today = todayIn(location.timezone);
   const due = text.dueIn(loan.dueOn, today);
-  const line = text.line({ ...loan, personName: loan.person.name });
+  const line = text.line({
+    ...loan,
+    personName: loan.person.name,
+    withName: loan.with?.name ?? null,
+  });
   const person = loan.person.name;
+  const conditions = useConditionLabels();
+  // A line of a hand-over with other things still out: the checklist for all of it.
+  const handover = useHandover(loan.handoverId ?? null);
+  const others = (handover.data?.counts.open ?? 1) > 1;
+  const [checklist, setChecklist] = useState(false);
 
   const remove = async () => {
     const ok = await confirm({
@@ -209,6 +323,14 @@ function LoanPanel({ loan, onReturn }: { loan: Loan; onReturn: () => void }) {
         </KV>
         {loan.quantity !== '1' ? (
           <KV label={t`How many`}>{fmt.num(Number(loan.quantity))}</KV>
+        ) : null}
+        {loan.with ? (
+          <KV label={t`Went with`}>
+            <bdi dir="auto">{loan.pathAtLend ?? loan.with.name ?? ''}</bdi>
+          </KV>
+        ) : null}
+        {loan.condition?.out ? (
+          <KV label={t`Condition going out`}>{conditions[loan.condition.out]}</KV>
         ) : null}
         {loan.notes ? (
           <KV label={t`Note`}>
@@ -264,6 +386,11 @@ function LoanPanel({ loan, onReturn }: { loan: Loan; onReturn: () => void }) {
           <Button isDisabled={!!blocked} onPress={onReturn}>
             <Trans>Mark returned</Trans>
           </Button>
+          {others ? (
+            <Button variant="secondary" isDisabled={!!blocked} onPress={() => setChecklist(true)}>
+              <Trans>Mark everything returned</Trans>
+            </Button>
+          ) : null}
           <OverflowActions actions={more} title={thing.name ?? ''} isDisabled={!!blocked} />
         </div>
       ) : null}
@@ -281,6 +408,14 @@ function LoanPanel({ loan, onReturn }: { loan: Loan; onReturn: () => void }) {
         </p>
       ) : null}
       {edit ? <DueSheet loan={loan} isOpen={dueOpen} onClose={() => setDueOpen(false)} /> : null}
+      {edit && loan.handoverId ? (
+        <HandoverReturnSheet
+          handoverId={loan.handoverId}
+          isOpen={checklist}
+          onClose={() => setChecklist(false)}
+          onDone={done}
+        />
+      ) : null}
     </article>
   );
 }

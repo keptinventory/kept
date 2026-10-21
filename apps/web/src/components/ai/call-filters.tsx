@@ -32,25 +32,6 @@ import { useLocationName } from '@/lib/labels';
 import { firstOf, type ListState } from '@/lib/url-state';
 import { useOutcomeLabel, useProviderName, useTaskLabel } from './labels';
 
-/** The URL filter names the usage routes declare (`listSearch(AI_CALL_FILTERS, …)`). */
-export const AI_CALL_FILTERS = [
-  'at',
-  'person',
-  'location',
-  'task',
-  'model',
-  'provider',
-  'outcome',
-  'paidBy',
-  'hasImage',
-  'tokensMin',
-  'tokensMax',
-  'costMin',
-  'costMax',
-  'currency',
-  'thing',
-] as const;
-
 const range = (min: string | undefined, max: string | undefined) =>
   min || max ? `${min ?? ''}..${max ?? ''}` : undefined;
 

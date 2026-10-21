@@ -462,6 +462,8 @@ export type ThingLoanLine = {
   startedAt: string;
   dueOn: string | null;
   overdue: boolean;
+  /** 1.14 (#170): what it went with, the hand-over's box or kit ("in Camera bag"). */
+  withName?: string | null;
 };
 
 /** The thing's open loan (D57): whom it is with, since when, and when it is due, overdue on the
@@ -473,12 +475,16 @@ async function loanLineOf(client: pg.ClientBase, thingId: string): Promise<Thing
     started_at: Date;
     due_on: string | null;
     overdue: boolean;
+    with_name: string | null;
   }>(
     `SELECT o.direction, pe.display_name AS name, o.started_at, o.due_on::text AS due_on,
-            (o.due_on IS NOT NULL AND (now() AT TIME ZONE l.timezone)::date > o.due_on) AS overdue
+            (o.due_on IS NOT NULL AND (now() AT TIME ZONE l.timezone)::date > o.due_on) AS overdue,
+            hr.name AS with_name
        FROM public.loans o
        JOIN public.locations l ON l.id = o.location_id
        LEFT JOIN public.people pe ON pe.id = o.person_id
+       LEFT JOIN public.handovers ho ON ho.id = o.handover_id
+       LEFT JOIN public.things hr ON hr.id = ho.root_thing_id AND hr.id <> o.thing_id
       WHERE o.thing_id = $1 AND o.returned_at IS NULL LIMIT 1`,
     [thingId],
   );
@@ -490,6 +496,7 @@ async function loanLineOf(client: pg.ClientBase, thingId: string): Promise<Thing
     startedAt: o.started_at.toISOString(),
     dueOn: o.due_on,
     overdue: o.overdue,
+    ...(o.with_name ? { withName: o.with_name } : {}),
   };
 }
 
@@ -989,6 +996,7 @@ export const ThingViewSchema = ThingRowSchema.extend({
       startedAt: Iso,
       dueOn: z.string().nullable(),
       overdue: z.boolean(),
+      withName: z.string().nullable().optional(),
     })
     .nullable(),
   rowVersion: z.number(),

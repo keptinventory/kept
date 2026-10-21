@@ -5,8 +5,9 @@ import { LISTED_SOURCES, listAgenda } from '../../agenda/query.js';
 import { undoableEventIds } from '../../audit/audited.js';
 import { decodeCursor } from '../../http/conventions.js';
 import { invalid, notFound } from '../../http/errors.js';
+import { lend, returnHandover } from '../../lending/handovers.js';
 import { returnLoan } from '../../lending/return.js';
-import { borrow, lend } from '../../lending/service.js';
+import { borrow } from '../../lending/service.js';
 import { unplacedOf } from '../../places/view.js';
 import { snoozeSchedule, todayIn } from '../../schedules/service.js';
 import { completeSchedule } from '../../schedules/services.js';
@@ -150,16 +151,29 @@ export const lendThing: Handler<'lend_thing'> = {
   run: async (op, input) => {
     const loc = locationOf(op);
     const id = await thingIn(op.client, loc.id, input.thing_id);
+    // A kit: its parts kept elsewhere go too, when asked.
+    const parts = input.with_parts_elsewhere
+      ? (
+          await op.client.query<{ thing_id: string }>(
+            'SELECT thing_id FROM public.kit_parts WHERE kit_id = $1',
+            [id],
+          )
+        ).rows.map((r) => r.thing_id)
+      : [];
     const res = await lend(op, id, {
       person: await personOf(op.client, loc.id, input.person),
       ...(input.due_on ? { dueOn: input.due_on } : {}),
       ...(input.quantity !== undefined ? { quantity: String(input.quantity) } : {}),
+      ...(parts.length ? { alsoParts: parts } : {}),
     });
     return {
       data: {
-        ...(await eventOf(op, 'loan', res.loan.id)),
+        ...(await eventOf(op, 'thing', res.thing.id)),
         thing: await thingRef(op, res.thing.id),
         loan_id: res.loan.id,
+        handover_id: res.handover.id,
+        lines: res.handover.lines.length,
+        left_behind: res.excluded.map((x) => ({ thing_id: x.thingId, reason: x.reason })),
       },
     };
   },
@@ -179,16 +193,47 @@ export const returnThing: Handler<'return_thing'> = {
     );
     const loan = rows[0];
     if (!loan) throw invalid('It isn’t on loan.');
-    // A loan comes back whole (step 4): a part lent was split off first, and is its own thing.
-    if (input.quantity !== undefined && String(input.quantity) !== loan.quantity) {
-      throw invalid(`A loan comes back whole: all ${loan.quantity} of it.`);
+    if (input.quantity !== undefined && Number(input.quantity) > Number(loan.quantity)) {
+      throw invalid(`Only ${loan.quantity} of it is out.`);
     }
-    const res = await returnLoan(op, loan.id, op.ifMatch ?? loan.row_version, {});
+    // A box or a kit that went as a hand-over brings back what is still out with it.
+    const { rows: lines } = await op.client.query<{ id: string }>(
+      `SELECT o.id FROM public.loans o JOIN public.handovers h ON h.id = o.handover_id
+        WHERE h.root_thing_id = $1 AND o.returned_at IS NULL AND o.id <> $2
+          AND o.handover_id = (SELECT handover_id FROM public.loans WHERE id = $2)`,
+      [id, loan.id],
+    );
+    const back = (loanId: string) => ({
+      loanId,
+      outcome: 'back' as const,
+      ...(input.condition ? { conditionIn: input.condition } : {}),
+    });
+    let thingId = id;
+    if (lines.length > 0) {
+      const handoverId = (
+        await op.client.query<{ handover_id: string }>(
+          'SELECT handover_id FROM public.loans WHERE id = $1',
+          [loan.id],
+        )
+      ).rows[0]?.handover_id as string;
+      await returnHandover(op, handoverId, {
+        lines: [...lines.map((l) => back(l.id)), back(loan.id)],
+      });
+    } else {
+      const res = await returnLoan(op, loan.id, op.ifMatch ?? loan.row_version, {
+        ...(input.quantity !== undefined && String(input.quantity) !== loan.quantity
+          ? { quantityBack: String(input.quantity) }
+          : {}),
+        ...(input.condition ? { conditionIn: input.condition } : {}),
+      });
+      thingId = res.thing.id;
+    }
     return {
       data: {
         ...(await eventOf(op, 'loan', loan.id)),
-        thing: await thingRef(op, res.thing.id),
+        thing: await thingRef(op, thingId),
         loan_id: loan.id,
+        lines_returned: lines.length + 1,
       },
     };
   },

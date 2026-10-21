@@ -7,20 +7,13 @@ import type { Scope, Tx } from '../db/scope.js';
 import { createAttachment } from '../files/attachments.js';
 import type { AttachmentView } from '../files/views.js';
 import { assertClientId, checkVersion, decodeCursor, encodeCursor } from '../http/conventions.js';
-import { AppError, conflict, invalid, notFound } from '../http/errors.js';
+import { AppError, invalid, notFound } from '../http/errors.js';
 import type { JobQueue } from '../jobs/queue.js';
 import { createItem } from '../registries/service.js';
 import { requireModule } from '../schedules/service.js';
 import { gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
-import {
-  insertThing,
-  liveThing,
-  requireRole,
-  splitThing,
-  targetOf,
-  writableThing,
-} from '../things/service.js';
+import { insertThing, liveThing, requireRole, targetOf } from '../things/service.js';
 import type { ThingRow } from '../things/view.js';
 import {
   anyRowsOf,
@@ -173,26 +166,6 @@ export async function personFor(ctx: Ctx, locationId: string, input: PersonInput
   return made.item.id;
 }
 
-/** 409 `thing_in_repair` while a claim of the thing is in repair (no Lend). */
-async function refuseInRepair(client: pg.ClientBase, thingId: string): Promise<void> {
-  const { rowCount } = await client.query(
-    `SELECT 1 FROM public.claims WHERE thing_id = $1 AND status = 'in_repair'`,
-    [thingId],
-  );
-  if (rowCount) {
-    throw new AppError('thing_in_repair', 409, "It's in repair; lend it once the claim is closed.");
-  }
-}
-
-async function refuseOnLoan(client: pg.ClientBase, thingId: string): Promise<void> {
-  const { rowCount } = await client.query(
-    'SELECT 1 FROM public.loans WHERE thing_id = $1 AND returned_at IS NULL',
-    [thingId],
-  );
-  if (rowCount)
-    throw new AppError('already_on_loan', 409, 'It is already on loan; mark it returned first.');
-}
-
 /** "Due ≥ start", in the location's zone. */
 async function checkDue(
   client: pg.ClientBase,
@@ -243,83 +216,6 @@ async function auditLoan(
 // ---------------------------------------------------------------------------------------------
 // Lend and borrow
 // ---------------------------------------------------------------------------------------------
-
-export type LendInput = {
-  loanId?: string | undefined;
-  person: PersonInput;
-  startedAt?: string | undefined;
-  dueOn?: string | undefined;
-  quantity?: string | undefined;
-  notes?: string | undefined;
-};
-
-/** POST /api/v1/things/:id/lend → 201 {loan, thing, splitFrom?}. */
-export async function lend(
-  ctx: Ctx,
-  thingId: string,
-  body: LendInput,
-): Promise<{ loan: Loan; thing: ThingRow; splitFrom?: ThingRow }> {
-  const { client } = ctx;
-  const seen = await liveThing(client, thingId);
-  await requireModule(ctx, seen.location_id, MODULE, 'write');
-  const thing = await writableThing(client, thingId, 'things.edit');
-  const loanId = body.loanId ? assertClientId(body.loanId) : newId();
-  await refuseOnLoan(client, thingId);
-  await refuseInRepair(client, thingId);
-  const { rows: life } = await client.query<{ lifecycle: string }>(
-    'SELECT lifecycle FROM public.things WHERE id = $1',
-    [thingId],
-  );
-  if (life[0]?.lifecycle !== 'in_use')
-    throw conflict('It has ended; only something in use is lent.');
-  const startedAt = body.startedAt ? new Date(body.startedAt) : new Date();
-  if (startedAt.getTime() > Date.now() + 60_000)
-    throw invalid('Check body.startedAt: not in the future.');
-  await checkDue(client, thing.location_id, startedAt, body.dueOn ?? null);
-  const personId = await personFor(ctx, thing.location_id, body.person);
-
-  // Part of a quantity: split it off first (D10), and lend the part.
-  const total = Number(thing.quantity);
-  const quantity = body.quantity === undefined ? total : Number(body.quantity);
-  if (!(quantity > 0) || quantity > total) {
-    throw invalid(`Check body.quantity: more than 0 and at most the ${thing.quantity} there are.`);
-  }
-  let lentId = thingId;
-  let splitFrom: string | null = null;
-  if (quantity < total) {
-    const split = await splitThing(ctx, thingId, { quantity }, null);
-    lentId = split.newId;
-    splitFrom = thingId;
-  }
-  const { rows: at } = await client.query<{ place_id: string | null; container_id: string | null }>(
-    'SELECT place_id, container_id FROM public.things WHERE id = $1',
-    [lentId],
-  );
-  await client.query(
-    `INSERT INTO public.loans (id, location_id, thing_id, direction, person_id, started_at, due_on,
-                               previous_place_id, previous_container_id, split_from_thing_id,
-                               notes, created_by)
-     VALUES ($1, $2, $3, 'out', $4, $5, $6, $7, $8, $9, $10, kept.current_user_id())`,
-    [
-      loanId,
-      thing.location_id,
-      lentId,
-      personId,
-      startedAt,
-      body.dueOn ?? null,
-      at[0]?.place_id ?? null,
-      at[0]?.container_id ?? null,
-      splitFrom,
-      body.notes ?? null,
-    ],
-  );
-  await auditLoan(ctx, 'loan.create', null, await loanRecord(client, loanId), {}, false);
-  return {
-    loan: await loanView(client, ctx.files, loanId),
-    thing: await thingRow(ctx, lentId),
-    ...(splitFrom ? { splitFrom: await thingRow(ctx, splitFrom) } : {}),
-  };
-}
 
 export type BorrowInput = {
   thingId?: string | undefined;

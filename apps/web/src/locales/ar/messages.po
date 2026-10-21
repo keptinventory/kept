@@ -25858,3 +25858,587 @@ msgstr "غير محدد"
 #: src/assistant/confirm-card.tsx
 msgid "Put all in…"
 msgstr "ضع الكل في…"
+
+#: src/components/app-shell.tsx
+msgid "Counts"
+msgstr "عمليات العدّ"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Past counts"
+msgstr "عمليات العدّ السابقة"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Every count of {name}, with what was missing"
+msgstr "كل عدّ لـ{name}، مع ما كان مفقودًا"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "{pct}% of things here have labels."
+msgstr "{pct}٪ من الأشياء هنا عليها ملصقات."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Print labels for the rest"
+msgstr "اطبع ملصقات للباقي"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Count in progress by <0>{0}</0>"
+msgstr "عدّ جارٍ يقوم به <0>{0}</0>"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Join"
+msgstr "انضم"
+
+#: src/components/scan/session/summary.tsx
+msgid "See this count"
+msgstr "اعرض هذا العدّ"
+
+#: src/components/scan/session/summary.tsx
+msgid "Found short ({0})"
+msgstr "وُجد ناقصًا ({0})"
+
+#: src/components/counts/box-check-page.tsx
+msgid "{found} of {of}"
+msgstr "{found} من {of}"
+
+#: src/components/scan/session/summary.tsx
+msgid "Mark the rest not here"
+msgstr "سجّل أن الباقي ليس هنا"
+
+#: src/components/scan/session/summary.tsx
+msgid "Found by others ({0})"
+msgstr "وجده آخرون ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "found by <0>{0}</0>"
+msgstr "وجده <0>{0}</0>"
+
+#: src/components/scan/session/summary.tsx
+msgid "With {0} ({1})"
+msgstr "مع {0} ({1})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Lent out ({0})"
+msgstr "مُعار ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "In repair ({0})"
+msgstr "قيد الإصلاح ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Not counted: {area} ({0})"
+msgstr "لم يُعدّ: {area} ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "I checked it"
+msgstr "تحقّقت منه"
+
+#: src/components/scan/session/summary.tsx
+msgid "Others are counting here too: finishing needs a connection."
+msgstr "آخرون يعدّون هنا أيضًا: الإنهاء يحتاج إلى اتصال."
+
+#: src/components/hints/hint-copy.ts
+msgid "Every count is kept"
+msgstr "كل عدّ محفوظ"
+
+#: src/components/hints/hint-copy.ts
+msgid "Counts lists each count and box check: what was found, what was missing, and what changed since the last one."
+msgstr "تعرض عمليات العدّ كل عدّ وكل فحص صندوق: ما وُجد، وما كان مفقودًا، وما تغيّر منذ آخر مرة."
+
+#: src/components/counts/box-check-page.tsx
+msgid "{a} of {b} found"
+msgstr "وُجد {a} من {b}"
+
+#: src/components/counts/box-check-page.tsx
+msgid "Box check of {name}"
+msgstr "فحص صندوق {name}"
+
+#: src/components/counts/box-check-page.tsx
+msgid "by <0>{0}</0>"
+msgstr "بواسطة <0>{0}</0>"
+
+#: src/components/counts/box-check-page.tsx
+msgid "What it should hold ({0})"
+msgstr "ما يجب أن يحويه ({0})"
+
+#: src/components/counts/box-check-page.tsx
+msgid "Found in it from elsewhere ({0})"
+msgstr "وُجد فيه من مكان آخر ({0})"
+
+#: src/components/counts/count-page.tsx
+msgid "Missing"
+msgstr "مفقود"
+
+#: src/components/counts/count-page.tsx
+msgid "Found elsewhere"
+msgstr "وُجد في مكان آخر"
+
+#: src/components/counts/count-page.tsx
+msgid "Moved here"
+msgstr "نُقل إلى هنا"
+
+#: src/components/counts/count-page.tsx
+msgid "Marked not here"
+msgstr "سُجّل أنه ليس هنا"
+
+#: src/components/counts/count-page.tsx
+msgid "In the Trash"
+msgstr "في المهملات"
+
+#: src/components/counts/count-page.tsx
+msgid "Not counted: {0}"
+msgstr "لم يُعدّ: {0}"
+
+#: src/components/counts/count-page.tsx
+msgid "Count of {name}"
+msgstr "عدّ {name}"
+
+#: src/components/counts/count-page.tsx
+msgid "Still open"
+msgstr "ما زال مفتوحًا"
+
+#: src/components/counts/count-page.tsx
+msgid "{minutes, plural, one {# minute} other {# minutes}}"
+msgstr "{minutes, plural, zero {# دقيقة} one {دقيقة واحدة} two {دقيقتان} few {# دقائق} many {# دقيقة} other {# دقيقة}}"
+
+#: src/components/counts/count-page.tsx
+msgid "finished by <0>{0}</0>"
+msgstr "أنهاه <0>{0}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "Counted by <0>{readers}</0>"
+msgstr "عدّه <0>{readers}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "Done for the planned count <0>{0}</0>"
+msgstr "أُنجز للعدّ المخطَّط <0>{0}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "Since the previous count"
+msgstr "منذ العدّ السابق"
+
+#: src/components/counts/count-page.tsx
+msgid "{0, plural, one {# newly missing} other {# newly missing}}"
+msgstr "{0, plural, zero {لا شيء مفقود حديثًا} one {واحد مفقود حديثًا} two {اثنان مفقودان حديثًا} few {# مفقودة حديثًا} many {# مفقودًا حديثًا} other {# مفقود حديثًا}}"
+
+#: src/components/counts/count-page.tsx
+msgid "{0, plural, one {# found again} other {# found again}}"
+msgstr "{0, plural, zero {لم يُعثر على شيء من جديد} one {واحد وُجد من جديد} two {اثنان وُجدا من جديد} few {# وُجدت من جديد} many {# وُجد من جديد} other {# وُجد من جديد}}"
+
+#: src/components/counts/count-page.tsx
+msgid "{0, plural, one {# new thing} other {# new things}}"
+msgstr "{0, plural, zero {لا أشياء جديدة} one {شيء جديد واحد} two {شيئان جديدان} few {# أشياء جديدة} many {# شيئًا جديدًا} other {# شيء جديد}}"
+
+#: src/components/counts/count-page.tsx
+msgid "Open the previous count ({0})"
+msgstr "افتح العدّ السابق ({0})"
+
+#: src/components/counts/count-page.tsx
+msgid "Counts saved before Kept 1.14 didn't record what was missing or elsewhere."
+msgstr "عمليات العدّ المحفوظة قبل Kept ١٫١٤ لم تسجّل ما كان مفقودًا أو في مكان آخر."
+
+#: src/components/counts/count-page.tsx
+msgid "now in <0>{now}</0>"
+msgstr "الآن في <0>{now}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "was in <0>{was}</0>"
+msgstr "كان في <0>{was}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "read by <0>{0}</0>"
+msgstr "قرأه <0>{0}</0>"
+
+#: src/components/counts/count-regularly.tsx
+msgid "{months, plural, one {Counted every month} other {Counted every # months}}"
+msgstr "{months, plural, zero {يُعدّ كل # شهر} one {يُعدّ كل شهر} two {يُعدّ كل شهرين} few {يُعدّ كل # أشهر} many {يُعدّ كل # شهرًا} other {يُعدّ كل # شهر}}"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Count regularly"
+msgstr "عُدّ بانتظام"
+
+#: src/components/counts/count-regularly.tsx
+msgid "The next count is overdue"
+msgstr "العدّ التالي متأخر"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Next count due {next}"
+msgstr "العدّ التالي مستحق في {next}"
+
+#: src/components/counts/count-regularly.tsx
+msgid "A reminder to count {name} every few months"
+msgstr "تذكير بعدّ {name} كل بضعة أشهر"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Planned count"
+msgstr "عدّ مخطَّط"
+
+#: src/components/counts/count-regularly.tsx
+msgid "A whole number of months, {min} to {max}."
+msgstr "عدد صحيح من الأشهر، من {min} إلى {max}."
+
+#: src/components/counts/count-regularly.tsx
+msgid "Count {name}"
+msgstr "عدّ {name}"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Planned: count {name} regularly"
+msgstr "خُطِّط: عدّ {name} بانتظام"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Stopped the planned count"
+msgstr "أُوقف العدّ المخطَّط"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Counting <0>{name}</0> (and the places inside it) marks it done; you get a reminder a week before it's due."
+msgstr "عدّ <0>{name}</0> (والأماكن التي بداخله) يسجّله منجزًا، ويصلك تذكير قبل موعده بأسبوع."
+
+#: src/components/counts/count-regularly.tsx
+msgid "Every how many months"
+msgstr "كل كم شهرًا"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Stop counting regularly"
+msgstr "أوقف العدّ المنتظم"
+
+#: src/components/counts/counts-list.tsx
+msgid "Box checks"
+msgstr "فحوص الصناديق"
+
+#: src/components/counts/counts-list.tsx
+msgid "Had missing"
+msgstr "فيه مفقودات"
+
+#: src/components/counts/counts-list.tsx
+msgid "Counted"
+msgstr "تاريخ العدّ"
+
+#: src/components/counts/counts-list.tsx
+msgid "Search counts"
+msgstr "ابحث في عمليات العدّ"
+
+#: src/components/counts/counts-list.tsx
+msgid "Search by what was counted"
+msgstr "ابحث بما تم عدّه"
+
+#: src/components/counts/counts-list.tsx
+msgid "by place"
+msgstr "حسب المكان"
+
+#: src/components/counts/counts-list.tsx
+msgid "No counts yet"
+msgstr "لا توجد عمليات عدّ بعد"
+
+#: src/components/counts/counts-list.tsx
+msgid "Count a place or a box from Scan: every count and box check is kept here, with what was found and what was missing."
+msgstr "عُدّ مكانًا أو صندوقًا من المسح: كل عدّ وكل فحص صندوق يُحفظ هنا، مع ما وُجد وما كان مفقودًا."
+
+#: src/components/counts/counts-list.tsx
+msgid "{missing, plural, one {# missing} other {# missing}}"
+msgstr "{missing, plural, zero {لا مفقود} one {واحد مفقود} two {اثنان مفقودان} few {# مفقودة} many {# مفقودًا} other {# مفقود}}"
+
+#: src/components/things/move-sheet.tsx
+msgid "Move it anyway"
+msgstr "انقله على أي حال"
+
+#: src/components/kits/kit-section.tsx
+msgid "Parts"
+msgstr "الأجزاء"
+
+#: src/components/things/trash.tsx
+msgid "Move to Trash anyway"
+msgstr "انقله إلى المهملات على أي حال"
+
+#: src/components/lending/handover-return.tsx
+msgid "How many came back: 1 to {0}."
+msgstr "كم عاد: من ١ إلى {0}."
+
+#: src/components/lending/handover-return.tsx
+msgid "{back} of {all} came back"
+msgstr "عاد {back} من {all}"
+
+#: src/components/kits/kit-section.tsx
+msgid "in <0>{0}</0>"
+msgstr "في <0>{0}</0>"
+
+#: src/components/lending/handover-return.tsx
+msgid "Came back"
+msgstr "عاد"
+
+#: src/components/lending/handover-return.tsx
+msgid "Not returned"
+msgstr "لم يُرجَع"
+
+#: src/components/lending/handover-return.tsx
+msgid "How many came back"
+msgstr "كم عاد"
+
+#: src/components/lending/handover-return.tsx
+msgid "Of {0}. The rest stays out."
+msgstr "من {0}. الباقي يبقى معهم."
+
+#: src/components/lending/handover-return.tsx
+msgid "Condition it came back in"
+msgstr "الحالة التي عاد بها"
+
+#: src/components/lending/handover-return.tsx
+msgid "Update its condition"
+msgstr "حدّث حالته"
+
+#: src/components/lending/handover-return.tsx
+msgid "It stays with them; reminders go on."
+msgstr "يبقى معهم، وتستمر التذكيرات."
+
+#: src/components/lending/handover-return.tsx
+msgid "It is marked lost, never deleted: its history stays."
+msgstr "يُسجَّل مفقودًا ولا يُحذف أبدًا: يبقى سجله."
+
+#: src/components/lending/lend-sheet.tsx
+msgid "{lines, plural, one {Lent to {0}} other {Lent to {1}: # things}}"
+msgstr "{lines, plural, zero {أُعير إلى {1}: # شيء} one {أُعير إلى {0}} two {أُعير إلى {1}: شيئان} few {أُعير إلى {1}: # أشياء} many {أُعير إلى {1}: # شيئًا} other {أُعير إلى {1}: # شيء}}"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Stayed here: {0}"
+msgstr "بقي هنا: {0}"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Optional. Kept reminds you, never them, two days before and when it's overdue."
+msgstr "اختياري. يذكّرك Kept، وليس هم، قبل الموعد بيومين وعند التأخر."
+
+#: src/components/lending/lend-sheet.tsx
+msgid "What goes with it"
+msgstr "ما يذهب معه"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Everything inside goes too"
+msgstr "كل ما بداخله يذهب أيضًا"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "and what is inside it"
+msgstr "وما بداخله"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Each keeps its own record. Something already lent or in repair stays here."
+msgstr "لكلٍّ سجله الخاص. ما هو مُعار أو قيد الإصلاح يبقى هنا."
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Parts kept elsewhere"
+msgstr "أجزاء محفوظة في مكان آخر"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Parts not in the kit"
+msgstr "أجزاء ليست في الطقم"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Lend <0>{0}</0> too (in <1>{1}</1>)"
+msgstr "أعِر <0>{0}</0> أيضًا (في <1>{1}</1>)"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Lend <0>{0}</0> too"
+msgstr "أعِر <0>{0}</0> أيضًا"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Condition going out"
+msgstr "الحالة عند الإعارة"
+
+#: src/components/lending/on-loan.ts
+msgid "This is with {0}"
+msgstr "هذا مع {0}"
+
+#: src/components/lending/on-loan.ts
+msgid "{0} is lent out. Mark it returned first, or go ahead anyway?"
+msgstr "{0} مُعار. سجّل أنه أُرجع أولًا، أم تتابع على أي حال؟"
+
+#: src/components/lending/on-loan.ts
+msgid "Mark it returned first, or go ahead anyway?"
+msgstr "سجّل أنه أُرجع أولًا، أم تتابع على أي حال؟"
+
+#: src/components/kits/kit-section.tsx
+msgid "with <0>{0}</0>"
+msgstr "مع <0>{0}</0>"
+
+#: src/components/history/labels.ts
+msgid "Marked lost"
+msgstr "سُجّل مفقودًا"
+
+#: src/components/lending/return-sheet.tsx
+msgid "Mark lost"
+msgstr "سجّل أنه مفقود"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Lent with what is inside"
+msgstr "أُعير مع ما بداخله"
+
+#: src/components/lending/thing-loans.tsx
+msgid "{0, plural, one {# lost} other {# lost}}"
+msgstr "{0, plural, zero {لا مفقود} one {واحد مفقود} two {اثنان مفقودان} few {# مفقودة} many {# مفقودًا} other {# مفقود}}"
+
+#: src/components/lending/thing-loans.tsx
+msgid "came back {0}"
+msgstr "عاد {0}"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Went with"
+msgstr "ذهب مع"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Mark everything returned"
+msgstr "سجّل أن كل شيء أُرجع"
+
+#: src/components/kits/kit-section.tsx
+msgid "Loading the kit"
+msgstr "جارٍ تحميل الطقم"
+
+#: src/components/kits/kit-section.tsx
+msgid "Not a kit"
+msgstr "ليس طقمًا"
+
+#: src/components/kits/kit-section.tsx
+msgid "Make this a kit"
+msgstr "اجعله طقمًا"
+
+#: src/components/kits/kit-section.tsx
+msgid "A kit remembers what should be in it: move a part out or lend it, and the kit still knows."
+msgstr "الطقم يتذكر ما يجب أن يكون فيه: انقل جزءًا منه أو أعِره، ويظل الطقم يعرف."
+
+#: src/components/kits/kit-section.tsx
+msgid "In the kit"
+msgstr "في الطقم"
+
+#: src/components/kits/kit-section.tsx
+msgid "Elsewhere"
+msgstr "في مكان آخر"
+
+#: src/components/kits/kit-section.tsx
+msgid "With someone"
+msgstr "مع شخص ما"
+
+#: src/components/kits/kit-section.tsx
+msgid "Put it back anyway"
+msgstr "أرجعه على أي حال"
+
+#: src/components/kits/kit-section.tsx
+msgid "Put back in {0}"
+msgstr "أُرجع إلى {0}"
+
+#: src/components/kits/kit-section.tsx
+msgid "Couldn't put it back"
+msgstr "تعذّر إرجاعه"
+
+#: src/components/kits/kit-section.tsx
+msgid "No longer a kit?"
+msgstr "ألا يكون طقمًا بعد الآن؟"
+
+#: src/components/kits/kit-section.tsx
+msgid "Its parts stay where they are; only the list goes. You can undo this for 7 days."
+msgstr "تبقى أجزاؤه حيث هي، وتزول القائمة فقط. يمكنك التراجع خلال ٧ أيام."
+
+#: src/components/kits/kit-section.tsx
+msgid "No longer a kit"
+msgstr "لم يعد طقمًا"
+
+#: src/components/kits/kit-section.tsx
+msgid "With <0>{0}</0> since {1}"
+msgstr "مع <0>{0}</0> منذ {1}"
+
+#: src/components/kits/kit-section.tsx
+msgid "{0, plural, one {# part not in the kit} other {# parts not in the kit}}"
+msgstr "{0, plural, zero {لا أجزاء خارج الطقم} one {جزء واحد ليس في الطقم} two {جزءان ليسا في الطقم} few {# أجزاء ليست في الطقم} many {# جزءًا ليس في الطقم} other {# جزء ليس في الطقم}}"
+
+#: src/components/kits/kit-section.tsx
+msgid "Put back"
+msgstr "أرجعه"
+
+#: src/components/kits/kit-section.tsx
+msgid "Check this kit"
+msgstr "افحص هذا الطقم"
+
+#: src/components/kits/kit-section.tsx
+msgid "Edit parts"
+msgstr "عدّل الأجزاء"
+
+#: src/components/kits/kit-section.tsx
+msgid "Parts of {0}"
+msgstr "أجزاء {0}"
+
+#: src/components/kits/kit-section.tsx
+msgid "Make {0} a kit"
+msgstr "اجعل {0} طقمًا"
+
+#: src/components/kits/kit-section.tsx
+msgid "Parts changed"
+msgstr "تغيّرت الأجزاء"
+
+#: src/components/kits/kit-section.tsx
+msgid "Made a kit"
+msgstr "صار طقمًا"
+
+#: src/components/kits/kit-section.tsx
+msgid "Nothing in it yet: add its parts below."
+msgstr "لا شيء فيه بعد: أضف أجزاءه أدناه."
+
+#: src/components/kits/kit-section.tsx
+msgid "Add a part"
+msgstr "أضف جزءًا"
+
+#: src/components/history/labels.ts
+msgid "Borrowed from {person}"
+msgstr "استُعير من {person}"
+
+#: src/components/history/labels.ts
+msgid "Lent to {person}"
+msgstr "أُعير إلى {person}"
+
+#: src/components/history/labels.ts
+msgid "Came back from {person}, {condition}"
+msgstr "عاد من {person}، {condition}"
+
+#: src/components/history/labels.ts
+msgid "Came back from {person}"
+msgstr "عاد من {person}"
+
+#: src/components/history/labels.ts
+msgid "Lost by {person}"
+msgstr "أضاعه {person}"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Lent {name} to {person}} other {Lent {name} to {person}, # things}}"
+msgstr "{count, plural, zero {أُعير {name} إلى {person}، # شيء} one {أُعير {name} إلى {person}} two {أُعير {name} إلى {person}، شيئان} few {أُعير {name} إلى {person}، # أشياء} many {أُعير {name} إلى {person}، # شيئًا} other {أُعير {name} إلى {person}، # شيء}}"
+
+#: src/components/history/labels.ts
+msgid "Lent {name} to {person}"
+msgstr "أُعير {name} إلى {person}"
+
+#: src/components/history/labels.ts
+msgid "Changed the hand-over"
+msgstr "تغيّرت الإعارة"
+
+#: src/components/history/labels.ts
+msgid "Made {name} a kit"
+msgstr "صار {name} طقمًا"
+
+#: src/components/history/labels.ts
+msgid "Changed the parts of {name}"
+msgstr "تغيّرت أجزاء {name}"
+
+#: src/components/history/labels.ts
+msgid "{name} is no longer a kit"
+msgstr "لم يعد {name} طقمًا"
+
+#: src/components/filters/registry.tsx
+msgid "Kits"
+msgstr "الأطقم"
+
+#: src/components/hints/hint-copy.ts
+msgid "A kit remembers what should be in it. Its parts say where each one is: in the kit, elsewhere, or with someone."
+msgstr "الطقم يتذكر ما يجب أن يكون فيه. أجزاؤه تقول أين كل واحد: في الطقم، أو في مكان آخر، أو مع شخص ما."
+
+#: src/components/filters/registry.tsx
+msgid "Incomplete kits"
+msgstr "أطقم ناقصة"
+
+#: src/components/lending/loan-text.tsx
+msgid "With {who} (in {box}) since {since} · due {due}"
+msgstr "مع {who} (في {box}) منذ {since} · يُعاد في {due}"
+
+#: src/components/lending/loan-text.tsx
+msgid "With {who} (in {box}) since {since}"
+msgstr "مع {who} (في {box}) منذ {since}"

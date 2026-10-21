@@ -433,7 +433,7 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
     scope: 'location',
     key: ['id'],
     fields:
-      'id:uuid thing_id:uuid direction:text person_id:uuid started_at:ts due_on:date returned_at:ts return_place_id:uuid previous_place_id:uuid previous_container_id:uuid split_from_thing_id:uuid lead_days:int notes:text created_at:ts updated_at:ts return_container_id:uuid',
+      'id:uuid thing_id:uuid direction:text person_id:uuid started_at:ts due_on:date returned_at:ts return_place_id:uuid previous_place_id:uuid previous_container_id:uuid split_from_thing_id:uuid lead_days:int notes:text created_at:ts updated_at:ts return_container_id:uuid handover_id:uuid path_at_lend:text outcome:text condition_out:text condition_in:text return_notes:text',
     omit: 'location_id created_by row_version change_seq',
     thingRefs: ['x.thing_id'],
   },
@@ -483,7 +483,7 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
     scope: 'location',
     key: ['id'],
     fields:
-      'id:uuid thing_id:uuid place_id:uuid name:text every_months:int every_units:dec meter_id:uuid due_on:date lead_days:int lead_units:dec base_on:date base_value:dec anchor_on:date anchor_value:dec snoozed_until:date snoozed_until_value:dec skip_next:bool active:bool created_at:ts updated_at:ts',
+      'id:uuid thing_id:uuid place_id:uuid name:text every_months:int every_units:dec meter_id:uuid due_on:date lead_days:int lead_units:dec base_on:date base_value:dec anchor_on:date anchor_value:dec snoozed_until:date snoozed_until_value:dec skip_next:bool active:bool created_at:ts updated_at:ts kind:text',
     omit: 'location_id created_by row_version change_seq',
     thingRefs: ['x.thing_id'],
   },
@@ -580,6 +580,36 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
     omit: 'location_id state_by created_by row_version change_seq',
     where: 'x.container_id IN (SELECT kt.id FROM public.things kt WHERE kt.location_id = $1)',
     thingRefs: ['x.container_id'],
+  },
+  {
+    // 1.14 (#170): a loan's hand-over. An older export has none: each loan gets its own, as the
+    // migration made them (0152's trigger).
+    entity: 'handovers',
+    table: 'handovers',
+    scope: 'location',
+    key: ['id'],
+    fields:
+      'id:uuid direction:text person_id:uuid root_thing_id:uuid started_at:ts due_on:date lead_days:int notes:text condition_out:text created_at:ts updated_at:ts',
+    omit: 'location_id created_by row_version change_seq',
+  },
+  {
+    // A kit is its container's flag; its parts, things of the location.
+    entity: 'kits',
+    table: 'kits',
+    scope: 'location',
+    key: ['thing_id'],
+    fields: 'thing_id:uuid created_at:ts updated_at:ts',
+    omit: 'location_id created_by row_version change_seq',
+    thingRefs: ['x.thing_id'],
+  },
+  {
+    entity: 'kit-parts',
+    table: 'kit_parts',
+    scope: 'location',
+    key: ['kit_id', 'thing_id'],
+    fields: 'kit_id:uuid thing_id:uuid quantity:dec created_at:ts updated_at:ts',
+    omit: 'location_id row_version change_seq',
+    thingRefs: ['x.kit_id', 'x.thing_id'],
   },
 ] satisfies EntityDef[]);
 

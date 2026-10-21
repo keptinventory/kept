@@ -250,10 +250,16 @@ describe('a count', () => {
     expect(ops.map((o) => o.op)).toEqual(['scan_session_lines', 'scan_session_finish']);
     const first = ops[0]?.payload as { lines: { thingId: string; action: string }[] } | undefined;
     const lines = first?.lines ?? [];
-    expect(lines.map((l) => [l.thingId, l.action])).toEqual([
+    // What was chosen is applied; the rest is kept as the count's result (#172).
+    expect(
+      lines
+        .filter((l) => l.action === 'seen' || l.action === 'not_here')
+        .map((l) => [l.thingId, l.action]),
+    ).toEqual([
       [WEBCAM, 'seen'],
       [MOUSE, 'not_here'],
     ]);
+    expect(lines.map((l) => l.action)).toEqual(['seen', 'not_here', 'missing', 'elsewhere']);
     expect(props.onQueued).toHaveBeenCalled();
   });
 
@@ -366,5 +372,93 @@ describe('pack into', () => {
     await waitFor(() => expect(startButton).toBeEnabled());
     fireEvent.click(startButton);
     expect(await screen.findByText('Going into Box 15')).toBeInTheDocument();
+  });
+});
+
+describe('a shared count', () => {
+  const OPEN = '01926f00-0000-7000-8000-00000000e0aa';
+  const LOUIS = '01926f00-0000-7000-8000-00000000e0bb';
+  afterEach(() => vi.unstubAllGlobals());
+
+  /** The server: a count of the study in progress by Louis, who found the lamp; 3 of 4 labelled. */
+  function server() {
+    const calls: string[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        calls.push(`${init?.method ?? 'GET'} ${url}`);
+        const json = (body: unknown) =>
+          new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json' } });
+        if (url.includes('/scan-sessions/open'))
+          return json({
+            session: {
+              id: OPEN,
+              target: { type: 'place', id: STUDY, name: 'Study', inside: true },
+              startedAt: '2026-10-20T09:00:00.000Z',
+              lastReadAt: '2026-10-20T09:30:00.000Z',
+              by: { id: LOUIS, displayName: 'Louis' },
+              readers: [{ id: LOUIS, displayName: 'Louis' }],
+              lines: 1,
+              countedPlaceIds: [STUDY],
+            },
+          });
+        if (url.includes(`/scan-sessions/${OPEN}/lines`))
+          return json({
+            finishedAt: null,
+            countedPlaceIds: [STUDY],
+            lines: [
+              {
+                thingId: LAMP,
+                action: 'seen',
+                readAt: '2026-10-20T09:30:00.000Z',
+                readBy: { id: LOUIS, displayName: 'Louis' },
+                foundQty: null,
+              },
+            ],
+          });
+        if (url.includes('/labels/summary'))
+          return json({ unprinted: 1, blankUnclaimed: 0, things: 4 });
+        if (url.endsWith('/api/v1/me')) return json({ user: { id: 'me', displayName: 'Ibrahim' } });
+        return new Response('{}', { status: 404 });
+      }),
+    );
+    return calls;
+  }
+
+  it('offers to join a count in progress, says how many have labels, and merges what others found', async () => {
+    server();
+    const store = await phone();
+    await render({
+      store,
+      online: true,
+      start: { mode: 'count', target: { kind: 'place', id: STUDY } },
+    });
+    expect(await screen.findByText(/75% of things here have labels/)).toBeInTheDocument();
+    expect(await screen.findByText(/Count in progress by/)).toHaveTextContent('Louis');
+    fireEvent.click(screen.getByRole('button', { name: 'Join' }));
+    await counterIs('0 of 3');
+    await read(qr('WEBC4M'));
+    await counterIs('1 of 3');
+    fireEvent.click(screen.getByRole('button', { name: 'Finish' }));
+    const others = await screen.findByRole('region', { name: 'Found by others (1)' });
+    expect(within(others).getByText('Desk lamp')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Missing (1)' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    const ops = await waitFor(async () => {
+      const pending = await store.pending();
+      expect(pending.length).toBeGreaterThan(0);
+      return pending;
+    });
+    // Saved into the count it joined; what Louis found isn't sent again.
+    const first = ops[0]?.payload as {
+      session: { id: string };
+      lines: { thingId: string; action: string }[];
+    };
+    expect(first.session.id).toBe(OPEN);
+    expect(first.lines.map((l) => [l.thingId, l.action])).toEqual([
+      [WEBCAM, 'seen'],
+      [MOUSE, 'missing'],
+    ]);
   });
 });

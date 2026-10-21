@@ -309,6 +309,65 @@ describe('scan session ops', () => {
     expect(lineOk('move', { locationId: id() }, [into])).toBe(false);
   });
 
+  it('a count keeps what it found missing, elsewhere, away or not counted, applying none of it', () => {
+    const informational = [
+      'missing',
+      'elsewhere',
+      'on_loan',
+      'in_repair',
+      'trashed',
+      'not_counted',
+    ];
+    for (const action of informational) {
+      expect(
+        lineOk('count', { placeId: id(), inside: true }, [{ thingId: id(), readAt: at, action }]),
+      ).toBe(true);
+      // Results of a count only, and never with a place to go.
+      expect(
+        lineOk('move', { placeId: id() }, [
+          { thingId: id(), readAt: at, action, to: { placeId: id() } },
+        ]),
+      ).toBe(false);
+    }
+  });
+
+  it('a seen line may say how many were found, and that the rest are not here', () => {
+    const seen = (extra: Record<string, unknown>) =>
+      lineOk('count', { containerId: id() }, [
+        { thingId: id(), readAt: at, action: 'seen', ...extra },
+      ]);
+    expect(seen({ quantity: '4' })).toBe(true);
+    expect(seen({ quantity: '4', short: 'not_here' })).toBe(true);
+    expect(seen({ quantity: '0' })).toBe(false);
+    expect(seen({ quantity: 'x' })).toBe(false);
+    expect(seen({ short: 'not_here' })).toBe(false);
+    expect(
+      lineOk('count', { containerId: id() }, [
+        { thingId: id(), readAt: at, action: 'missing', quantity: '2' },
+      ]),
+    ).toBe(false);
+  });
+
+  it('a count header may name the areas that were counted', () => {
+    const h = {
+      ...header('count', { placeId: id(), inside: true }),
+      countedPlaceIds: [id(), id()],
+    };
+    expect(
+      parseOpPayload('scan_session_lines', {
+        session: h,
+        lines: [{ thingId: id(), readAt: at, action: 'seen' }],
+      }).success,
+    ).toBe(true);
+    const pack = { ...header('pack', { containerId: id() }), countedPlaceIds: [id()] };
+    expect(
+      parseOpPayload('scan_session_lines', {
+        session: pack,
+        lines: [{ thingId: id(), readAt: at, action: 'move', to: { containerId: id() } }],
+      }).success,
+    ).toBe(false);
+  });
+
   it('finish: the session, how many were expected, and whether a box’s contents count too', () => {
     ok('scan_session_finish', { sessionId: id(), expected: 340, contentsSeen: false });
     ok('scan_session_finish', { sessionId: id() });

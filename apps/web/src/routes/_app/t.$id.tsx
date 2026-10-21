@@ -40,6 +40,7 @@ export const Route = createFileRoute('/_app/t/$id')({
     view: oneOf(['list', 'photos']),
     tab: oneOf([
       'contents',
+      'parts',
       'overview',
       'paperwork',
       'value',

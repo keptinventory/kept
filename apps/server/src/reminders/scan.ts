@@ -21,7 +21,8 @@ import { writeScanStatus } from './status.js';
 // 3. Closes the open occurrences the agenda no longer reminds of: `done` when the source was
 //    completed (a returned loan, a renewed document, a registered warranty, a schedule a
 //    confirmed service completed since the occurrence opened: 0056's system_select on
-//    service_records and service_completions; a stale reading answered by a newer one),
+//    service_records and service_completions; a planned count a count of its place finished
+//    since: 0150's on scan_sessions; a stale reading answered by a newer one),
 //    `superseded` when the source is still
 //    on the agenda with another key (a snooze, a skip, due becoming overdue, a new end date),
 //    else `cancelled` (the source gone, its module off, its subject trashed or ended).
@@ -206,6 +207,10 @@ async function closeDropped(client: pg.ClientBase): Promise<ScanResult['closed']
             SELECT 1 FROM public.service_completions c
               JOIN public.service_records r ON r.id = c.service_record_id
              WHERE c.schedule_id = o.source_id AND ${COMPLETED_SINCE})
+            THEN 'done'
+          WHEN o.source_type = 'schedule' AND EXISTS (
+            SELECT 1 FROM public.scan_sessions c
+             WHERE c.schedule_id = o.source_id AND c.finished_at >= o.created_at)
             THEN 'done'
           WHEN o.source_type = 'reading_stale' AND ${READ_SINCE}
             THEN 'done'

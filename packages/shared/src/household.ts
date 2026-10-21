@@ -51,6 +51,29 @@ export function canTransitionClaim(from: ClaimStatus, to: ClaimStatus): boolean 
 export const LOAN_DIRECTIONS = ['out', 'in'] as const;
 export type LoanDirection = (typeof LOAN_DIRECTIONS)[number];
 
+/**
+ * A hand-over (1.14, #170): one lend of a thing, a box or a kit to a person, a line (a loan) for
+ * each thing that went. A line ends `returned` or `lost`; open, it has no outcome.
+ */
+export const LOAN_OUTCOMES = ['returned', 'lost'] as const;
+export type LoanOutcome = (typeof LOAN_OUTCOMES)[number];
+
+/** What a returned line says happened, per line: came back (fine or damaged), not returned (the
+ * line stays open), or lost. */
+export const RETURN_LINE_OUTCOMES = ['back', 'damaged', 'not_returned', 'lost'] as const;
+export type ReturnLineOutcome = (typeof RETURN_LINE_OUTCOMES)[number];
+
+export const HANDOVER_LIMITS = Object.freeze({
+  /** Lines in one hand-over: a box with everything inside it. */
+  lines: 500,
+  /** Days before the due date the due-soon reminder comes (a new hand-over's default). */
+  defaultLeadDays: 2,
+  maxLeadDays: 60,
+});
+
+/** A kit's parts (1.14, #170): at most this many, each in at most one kit. */
+export const KIT_LIMITS = Object.freeze({ parts: 500 });
+
 /** `valuations.source` (D158). */
 export const VALUATION_SOURCES = ['purchase', 'appraisal', 'estimate', 'insurer'] as const;
 export type ValuationSource = (typeof VALUATION_SOURCES)[number];
@@ -58,6 +81,12 @@ export type ValuationSource = (typeof VALUATION_SOURCES)[number];
 /** `incidents.kind` (D158). */
 export const INCIDENT_KINDS = ['burglary', 'fire', 'flood', 'loss', 'other'] as const;
 export type IncidentKind = (typeof INCIDENT_KINDS)[number];
+
+/** `schedules.kind`: something to do, or a planned count of a place (1.14), done by counting it. */
+export const SCHEDULE_KINDS = ['task', 'count'] as const;
+export type ScheduleKind = (typeof SCHEDULE_KINDS)[number];
+/** A planned count repeats every 1 to 24 months. */
+export const COUNT_EVERY_MONTHS = Object.freeze({ min: 1, max: 24 });
 
 /** `expiring_documents.kind` (D155). `other` needs a title. */
 export const DOCUMENT_KINDS = [

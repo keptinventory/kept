@@ -30,6 +30,8 @@ export const LIST_SURFACES = [
   // 1.x (D251): moves, and the boxes of one move.
   'moves',
   'move-boxes',
+  // 1.14 (#172): a location's counts and box checks.
+  'counts',
 ] as const;
 export type ListSurface = (typeof LIST_SURFACES)[number];
 
@@ -65,6 +67,8 @@ export type ListSurface = (typeof LIST_SURFACES)[number];
  * - moves (D251): location, status (active, done).
  * - move-boxes (a move's boxes, D251): state (packed, in_transit, unpacked), the room it goes to
  *   (`room`).
+ * - counts (1.14, #172): location, kind (count, box_check), place, who (`by`), had missing
+ *   (`had`), date (`when`).
  */
 export const SURFACE_FILTER_KEYS: Record<ListSurface, readonly string[]> = {
   search: ['location', 'place', 'type', 'tag', 'state', 'priceMin', 'priceMax', 'currency'],
@@ -103,6 +107,7 @@ export const SURFACE_FILTER_KEYS: Record<ListSurface, readonly string[]> = {
   'condition-reports': ['location', 'kind', 'state', 'when'],
   moves: ['location', 'status'],
   'move-boxes': ['state', 'room'],
+  counts: ['location', 'kind', 'place', 'by', 'had', 'when'],
 };
 
 /** Filter keys that carry money: a view holding one is withheld where money is hidden. */

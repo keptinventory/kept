@@ -7,6 +7,11 @@
  * Once saved, it says where the save is: waiting for a connection, saved (its totals, and Undo
  * while it lasts), or refused (the person can no longer edit there; the summary stays on the
  * phone until dismissed).
+ *
+ * A count (#172): lent out and in repair are their own groups, never missing; an area nobody
+ * counted lists its things under "Not counted: Back shelf" with "I checked it"; a thing counted
+ * in number has − and + on its row and, short, "Mark the rest not here"; in a shared count, what
+ * others found is listed as theirs, and finishing needs a connection.
  */
 import type { Role } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
@@ -14,6 +19,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { captureApi } from '@/api/capture/queries';
 import type { ScanSessionView } from '@/api/capture/types';
+import { CountStepper } from '@/components/boxcheck/count-stepper';
 import { undoEvents } from '@/components/history/undo';
 import { Button } from '@/components/ui/button';
 import { Segmented } from '@/components/ui/segmented';
@@ -24,11 +30,14 @@ import { useFormat } from '@/lib/format';
 import type { ScanStore } from '../resolve';
 import {
   type Choices,
+  checkArea,
   counter,
   type ExpectedThing,
+  quantityOf,
   type Session,
   type SessionRead,
   type SessionTarget,
+  setQuantity,
   summarise,
 } from './model';
 
@@ -50,6 +59,9 @@ export function SessionSummary({
   onBack,
   onSave,
   onDone,
+  onUpdate,
+  onOpenCount,
+  finishOffline = false,
 }: {
   session: Session;
   phase: 'summary' | 'saved';
@@ -61,6 +73,12 @@ export function SessionSummary({
   onBack: () => void;
   onSave: (choices: Choices, contentsSeen: boolean) => Promise<void>;
   onDone: () => Promise<void>;
+  /** A change on the summary kept with the session: a found count, "I checked it". */
+  onUpdate?: (s: Session) => void;
+  /** Saved: opens the count's page (Counts), done with the session. */
+  onOpenCount?: () => Promise<void>;
+  /** A shared count, offline: finishing it needs a connection. */
+  finishOffline?: boolean;
 }) {
   const { t } = useLingui();
   const fmt = useFormat();
@@ -68,6 +86,7 @@ export function SessionSummary({
   const [notHere, setNotHere] = useState<Set<string>>(new Set());
   const [moveHere, setMoveHere] = useState<Set<string>>(new Set());
   const [ticked, setTicked] = useState<Set<string>>(new Set());
+  const [rest, setRest] = useState<Set<string>>(new Set());
   const [q, setQ] = useState('');
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<Status | null>(null);
@@ -167,6 +186,11 @@ export function SessionSummary({
             <Trans>Undo the whole session</Trans>
           </Button>
         ) : null}
+        {isCount && onOpenCount && status?.state === 'saved' && status.view ? (
+          <Button variant="secondary" onPress={() => void onOpenCount()}>
+            <Trans>See this count</Trans>
+          </Button>
+        ) : null}
         <Button onPress={() => void onDone()}>
           <Trans>Done</Trans>
         </Button>
@@ -214,7 +238,63 @@ export function SessionSummary({
             sum.found.length,
             <Rows
               items={sum.found.filter((r) => match(nameOf(r)))}
-              render={(r) => <bdi>{nameOf(r)}</bdi>}
+              render={(r) => {
+                const q = r.thingId ? quantityOf(session, r.thingId) : null;
+                if (!q || !editable || !onUpdate) return <bdi>{nameOf(r)}</bdi>;
+                return (
+                  <div className="grid gap-1">
+                    <bdi>{nameOf(r)}</bdi>
+                    <CountStepper
+                      value={Number(q.found)}
+                      max={Number(q.of)}
+                      name={nameOf(r)}
+                      onChange={(v) => onUpdate(setQuantity(session, r.thingId as string, v))}
+                    />
+                  </div>
+                );
+              }}
+            />,
+          )}
+          {group(
+            t`Found short (${n(sum.short.length)})`,
+            sum.short.length,
+            <Rows
+              items={sum.short.filter((x) => match(nameOf(x.read)))}
+              render={(x) => {
+                const found = n(Number(x.found));
+                const of = n(Number(x.of));
+                const id = x.read.thingId as string;
+                return editable ? (
+                  <ChoiceRow
+                    name={`${nameOf(x.read)} (${t`${found} of ${of}`})`}
+                    value={rest.has(id) ? 'act' : 'leave'}
+                    act={t`Mark the rest not here`}
+                    onChange={(v) => setRest((s) => toggle(s, id, v === 'act'))}
+                  />
+                ) : (
+                  <bdi>{nameOf(x.read)}</bdi>
+                );
+              }}
+            />,
+          )}
+          {group(
+            t`Found by others (${n(sum.byOthers.length)})`,
+            sum.byOthers.length,
+            <Rows
+              items={sum.byOthers.filter((x) => match(x.name))}
+              render={(x) => (
+                <span>
+                  <bdi>{x.name ?? t`Unnamed`}</bdi>
+                  {x.readBy ? (
+                    <span className="text-ink-3 text-small">
+                      {' '}
+                      <Trans>
+                        found by <bdi>{x.readBy}</bdi>
+                      </Trans>
+                    </span>
+                  ) : null}
+                </span>
+              )}
             />,
           )}
           {group(
@@ -245,6 +325,46 @@ export function SessionSummary({
               </Button>
             ) : null,
           )}
+          {sum.lent.map((g) =>
+            group(
+              g.person
+                ? t`With ${g.person} (${n(g.things.length)})`
+                : t`Lent out (${n(g.things.length)})`,
+              g.things.length,
+              <Rows
+                items={g.things.filter((x) => match(x.name))}
+                render={(x: ExpectedThing) => <bdi>{x.name ?? t`Unnamed`}</bdi>}
+              />,
+            ),
+          )}
+          {group(
+            t`In repair (${n(sum.inRepair.length)})`,
+            sum.inRepair.length,
+            <Rows
+              items={sum.inRepair.filter((x) => match(x.name))}
+              render={(x: ExpectedThing) => <bdi>{x.name ?? t`Unnamed`}</bdi>}
+            />,
+          )}
+          {sum.notCounted.map((g) => {
+            const area = g.area.name ?? t`Unplaced`;
+            return group(
+              t`Not counted: ${area} (${n(g.things.length)})`,
+              g.things.length,
+              <Rows
+                items={g.things.filter((x) => match(x.name))}
+                render={(x: ExpectedThing) => <bdi>{x.name ?? t`Unnamed`}</bdi>}
+              />,
+              editable && onUpdate ? (
+                <Button
+                  size="small"
+                  variant="secondary"
+                  onPress={() => onUpdate(checkArea(session, g.area.id))}
+                >
+                  <Trans>I checked it</Trans>
+                </Button>
+              ) : null,
+            );
+          })}
           {group(
             t`No label (${n(sum.noLabel.length)})`,
             sum.noLabel.length,
@@ -370,14 +490,25 @@ export function SessionSummary({
       )}
 
       <div className="grid gap-2">
+        {editable && finishOffline ? (
+          <p role="status" className="m-0 text-ink-2 text-small">
+            <Trans>Others are counting here too: finishing needs a connection.</Trans>
+          </p>
+        ) : null}
         {editable ? (
           <Button
             isPending={busy}
+            isDisabled={finishOffline}
             onPress={async () => {
               setBusy(true);
               try {
                 await onSave(
-                  { notHere: [...notHere], moveHere: [...moveHere], ticked: [...ticked] },
+                  {
+                    notHere: [...notHere],
+                    moveHere: [...moveHere],
+                    ticked: [...ticked],
+                    restNotHere: [...rest],
+                  },
                   session.contents,
                 );
               } catch {

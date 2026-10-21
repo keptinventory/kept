@@ -114,8 +114,8 @@ describe('Help', () => {
     await waitFor(() => expect(tourRows()).toContain('lending'));
     expect(tourRows()).not.toContain('capture');
     expect(tourRows()).toContain('basics');
-    // Things & places loses Add here and Actions.
-    expect(screen.getByText('Things & places').closest('li')).toHaveTextContent('3 steps');
+    // Things & places loses Add here and Actions (it keeps Kits, a read).
+    expect(screen.getByText('Things & places').closest('li')).toHaveTextContent('4 steps');
   });
 
   it('Basics walks the real screens, then offers the next chapter or stops there', async () => {

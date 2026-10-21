@@ -130,6 +130,15 @@ export function useTourStepCopy(): Record<string, HintCopy> {
       t`Nothing changes until you finish`,
       t`Finish shows what was found and what's missing. Missing things stay as they are unless you choose.`,
     ),
+    'scanning.counts': e(
+      t`Every count is kept`,
+      t`Counts lists each count and box check: what was found, what was missing, and what changed since the last one.`,
+    ),
+
+    'things.kits': e(
+      t`Kits`,
+      t`A kit remembers what should be in it. Its parts say where each one is: in the kit, elsewhere, or with someone.`,
+    ),
 
     'search.field': e(
       t`Search`,

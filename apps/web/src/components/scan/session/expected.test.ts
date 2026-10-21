@@ -6,13 +6,14 @@
 import type { SnapPlace, SnapshotPage, SnapThing } from '@kept/shared';
 import { describe, expect, it } from 'vitest';
 import { MemoryStore } from '@/offline/store';
-import { expectedFor } from './expected';
+import { areasFor, expectedFor } from './expected';
 
 const HOME = '01926f00-0000-7000-8000-00000000e001';
 const UNPLACED = '01926f00-0000-7000-8000-00000000e0ff';
 const GARAGE = '01926f00-0000-7000-8000-00000000e010';
 const SHELF = '01926f00-0000-7000-8000-00000000e011';
 const BOX = '01926f00-0000-7000-8000-00000000e021';
+const KIT = '01926f00-0000-7000-8000-00000000e0c1';
 
 const place = (id: string, name: string, parentId: string | null = null): SnapPlace => ({
   id,
@@ -55,9 +56,25 @@ async function phone() {
     onShelf: thing({ placeId: SHELF }),
     loose: thing({ placeId: UNPLACED }),
     sold: thing({ placeId: GARAGE, lifecycle: 'sold' }),
+    // An archived thing (1.13's lifecycle) is in no count's list: never expected, never missing.
+    archived: thing({ placeId: GARAGE, lifecycle: 'archived' as SnapThing['lifecycle'] }),
+    lent: thing({
+      placeId: SHELF,
+      quantity: '6',
+      derived: ['lent'],
+      loan: { direction: 'out', personName: 'Murdock', dueOn: null },
+    }),
     draft: thing({ placeId: GARAGE, reviewState: 'draft' }),
     trashed: thing({ placeId: GARAGE, deleted: true }),
   };
+  // A kit kept in the Unplaced area, its parts on the shelf, loose and sold.
+  const kit = thing({
+    id: KIT,
+    placeId: UNPLACED,
+    isContainer: true,
+    name: 'Camera kit',
+    kitParts: [things.onShelf.id, things.loose.id, things.sold.id],
+  });
   const store = new MemoryStore();
   const page: SnapshotPage = {
     asOf: '2026-10-20T10:00:00.000Z',
@@ -79,7 +96,7 @@ async function phone() {
     types: { hash: 'h', items: [] },
     changes: {
       places: [place(UNPLACED, ''), place(GARAGE, 'Garage'), place(SHELF, 'Shelf B', GARAGE)],
-      things: Object.values(things),
+      things: [...Object.values(things), kit],
       codes: [],
       legacyCodes: [],
     },
@@ -104,8 +121,27 @@ describe('expectedFor', () => {
       name: 'Garage',
       inside: true,
     });
-    expect(ids(list)).toEqual(ids([t.onGarage, t.box, t.inBox, t.onShelf]));
+    expect(ids(list)).toEqual(ids([t.onGarage, t.box, t.inBox, t.onShelf, t.lent]));
     expect(list.find((x) => x.id === t.onGarage.id)?.barcode).toBe('5901234123457');
+    // What a count needs to never call it missing, and to count it in number.
+    expect(list.find((x) => x.id === t.lent.id)).toMatchObject({
+      quantity: '6',
+      derived: ['lent'],
+      loan: { personName: 'Murdock' },
+    });
+    expect(list.some((x) => x.id === t.archived.id || x.id === t.sold.id)).toBe(false);
+  });
+
+  it("a count's areas: the place and the places inside it", async () => {
+    const { store } = await phone();
+    const areas = await areasFor(store, {
+      kind: 'place',
+      id: GARAGE,
+      locationId: HOME,
+      name: 'Garage',
+      inside: true,
+    });
+    expect(areas.map((a) => a.name)).toEqual(['Garage', 'Shelf B']);
   });
 
   it('a place alone: what is directly there and in its boxes', async () => {
@@ -118,6 +154,18 @@ describe('expectedFor', () => {
       inside: false,
     });
     expect(ids(list)).toEqual(ids([t.onGarage]));
+  });
+
+  it('a kit: its parts, wherever they are', async () => {
+    const { store, things: t } = await phone();
+    const list = await expectedFor(store, {
+      kind: 'container',
+      id: KIT,
+      locationId: HOME,
+      name: 'Kit',
+    });
+    // The sold one isn't expected anywhere.
+    expect(ids(list)).toEqual(ids([t.onShelf, t.loose]));
   });
 
   it('a box: everything inside it', async () => {
@@ -139,6 +187,8 @@ describe('expectedFor', () => {
       locationId: HOME,
       name: 'Home',
     });
-    expect(ids(list)).toEqual(ids([t.onGarage, t.box, t.inBox, t.onShelf, t.loose]));
+    expect(ids(list)).toEqual(
+      ids([t.onGarage, t.box, t.inBox, t.onShelf, t.loose, t.lent, { id: KIT }]),
+    );
   });
 });

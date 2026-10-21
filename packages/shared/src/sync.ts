@@ -225,9 +225,27 @@ export const MoveBoxRoomPayload = z.strictObject({
 export const SCAN_SESSION_MODES = ['count', 'pack', 'move'] as const;
 export type ScanSessionMode = (typeof SCAN_SESSION_MODES)[number];
 
-/** What a saved line does: a count's seen / not here / moved here, or a pack's or move's move. */
-export const SCAN_SESSION_ACTIONS = ['seen', 'not_here', 'move'] as const;
+/**
+ * What a saved line does: a count's seen / not here / moved here, or a pack's or move's move. The
+ * rest are a count's results, stored and never applied: on its list and not read (`missing`),
+ * found but left where it is (`elsewhere`), lent out, in repair or in the Trash (never missing),
+ * and in an area nobody counted (`not_counted`).
+ */
+export const SCAN_SESSION_ACTIONS = [
+  'seen',
+  'not_here',
+  'move',
+  'missing',
+  'elsewhere',
+  'on_loan',
+  'in_repair',
+  'trashed',
+  'not_counted',
+] as const;
 export type ScanSessionAction = (typeof SCAN_SESSION_ACTIONS)[number];
+
+/** The actions a count's finish applies; the others are only kept. */
+export const SCAN_SESSION_APPLIED: readonly ScanSessionAction[] = ['seen', 'not_here', 'move'];
 
 export const SCAN_SESSION_LIMITS = Object.freeze({
   /** Lines per `scan_session_lines` op. */
@@ -259,6 +277,9 @@ export const ScanSessionHeader = z.strictObject({
   mode: z.enum(SCAN_SESSION_MODES),
   target: ScanSessionTarget,
   startedAt: isoDateTime,
+  /** A count: the areas (places) that were counted, a read or a tick in each, or "Checked:
+   * empty". What is on the list in any other area is "not counted", never missing. */
+  countedPlaceIds: z.array(uuid).max(SYNC_LIMITS.snapshotThings).optional(),
 });
 
 export const ScanSessionLine = z.strictObject({
@@ -267,6 +288,14 @@ export const ScanSessionLine = z.strictObject({
   readAt: isoDateTime,
   action: z.enum(SCAN_SESSION_ACTIONS),
   to: z.union([placeTarget, containerTarget]).optional(),
+  /** A seen line of a thing counted in number: how many were found (else all of them). */
+  quantity: z
+    .string()
+    .regex(/^\d{1,9}(\.\d{1,3})?$/)
+    .refine((q) => Number(q) > 0, 'more than 0')
+    .optional(),
+  /** With `quantity`: the rest were chosen "not here" (they are split off, as a box check does). */
+  short: z.literal('not_here').optional(),
 });
 export type ScanSessionLine = z.output<typeof ScanSessionLine>;
 
@@ -281,6 +310,12 @@ export const ScanSessionLinesPayload = z
   })
   .superRefine((p, ctx) => {
     const { mode, target } = p.session;
+    if (mode !== 'count' && p.session.countedPlaceIds !== undefined)
+      ctx.addIssue({
+        code: 'custom',
+        path: ['session', 'countedPlaceIds'],
+        message: 'a count only',
+      });
     if (mode !== 'count' && 'locationId' in target)
       ctx.addIssue({ code: 'custom', path: ['session', 'target'], message: 'a count only' });
     if (mode === 'pack' && !('containerId' in target))
@@ -297,6 +332,10 @@ export const ScanSessionLinesPayload = z
         ctx.addIssue({ code: 'custom', path: ['lines', i, 'action'], message: 'moves only' });
       if (mode === 'pack' && l.to && !('containerId' in l.to))
         ctx.addIssue({ code: 'custom', path: ['lines', i, 'to'], message: 'into a box' });
+      if (l.quantity !== undefined && l.action !== 'seen')
+        ctx.addIssue({ code: 'custom', path: ['lines', i, 'quantity'], message: 'a seen line' });
+      if (l.short !== undefined && l.quantity === undefined)
+        ctx.addIssue({ code: 'custom', path: ['lines', i, 'short'], message: 'with a quantity' });
     });
   });
 
@@ -524,7 +563,16 @@ export type SnapThing = {
   derived?: ('lent' | 'borrowed' | 'in_repair')[];
   /** The open loan, if any: a person's name is not a contact detail; no phone, email or notes
    * ever reach the phone (D36). */
-  loan?: { direction: LoanDirection; personName: string; dueOn: string | null };
+  loan?: {
+    direction: LoanDirection;
+    personName: string;
+    dueOn: string | null;
+    /** 1.14 (#170): since when, and what it went with ("in Camera bag"). Additive. */
+    since?: string;
+    withName?: string | null;
+  };
+  /** 1.14 (#170): a kit's parts (thing ids), for "Check this kit" offline. Additive. */
+  kitParts?: string[];
   deleted: boolean;
 };
 

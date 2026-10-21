@@ -201,7 +201,11 @@ export function useSummary() {
     const service = serviceName(p.service);
     const count = Number(p.count ?? 0);
     const expected = p.expected ? fmt.num(Number(p.expected)) : '';
-    return sentences({ name, service, count, expected })[key]();
+    // 1.14 (#170): who a loan was with, and the condition it came back in (a code).
+    const person = p.person ? isolate(p.person) : '';
+    const direction = p.direction ?? '';
+    const condition = p.condition ? words('condition', p.condition).toLocaleLowerCase() : '';
+    return sentences({ name, service, count, expected, person, direction, condition })[key]();
   };
 
   /** Every key's sentence, built lazily: only the one asked for is translated. */
@@ -210,6 +214,9 @@ export function useSummary() {
     service,
     count,
     expected,
+    person,
+    direction,
+    condition,
   }: Vars): Record<Exclude<SummaryKey, 'event' | 'thing.lifecycle'>, () => string> {
     return {
       'thing.create': () => t`Added ${name}`,
@@ -325,10 +332,32 @@ export function useSummary() {
       'valuation.create': () => t`Valuation added`,
       'valuation.update': () => t`Valuation changed`,
       'valuation.delete': () => t`Valuation deleted`,
-      'loan.create': () => t`Loan added`,
+      'loan.create': () =>
+        person
+          ? direction === 'in'
+            ? t`Borrowed from ${person}`
+            : t`Lent to ${person}`
+          : t`Loan added`,
       'loan.update': () => t`Loan changed`,
-      'loan.return': () => t`Loan returned`,
+      'loan.return': () =>
+        person
+          ? condition
+            ? t`Came back from ${person}, ${condition}`
+            : t`Came back from ${person}`
+          : t`Loan returned`,
+      'loan.lost': () => (person ? t`Lost by ${person}` : t`Marked lost`),
       'loan.delete': () => t`Loan deleted`,
+      'handover.create': () =>
+        count > 1
+          ? plural(count, {
+              one: `Lent ${name} to ${person}`,
+              other: `Lent ${name} to ${person}, # things`,
+            })
+          : t`Lent ${name} to ${person}`,
+      'handover.update': () => t`Changed the hand-over`,
+      'kit.create': () => t`Made ${name} a kit`,
+      'kit.update': () => t`Changed the parts of ${name}`,
+      'kit.dissolve': () => t`${name} is no longer a kit`,
       'schedule.create': () => t`Schedule added`,
       'schedule.update': () => t`Schedule changed`,
       'schedule.delete': () => t`Schedule deleted`,
@@ -549,7 +578,15 @@ export function useSummary() {
   }
 }
 
-type Vars = { name: string; service: string; count: number; expected: string };
+type Vars = {
+  name: string;
+  service: string;
+  count: number;
+  expected: string;
+  person: string;
+  direction: string;
+  condition: string;
+};
 
 const KEYS: ReadonlySet<string> = new Set(SUMMARY_KEYS);
 const isSummaryKey = (key: string): key is SummaryKey => KEYS.has(key);

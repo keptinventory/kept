@@ -46,6 +46,9 @@ export const SEARCH_STATES = [
   'to_review',
   'long_unseen',
   'unplaced',
+  // 1.14 (#170): kits, and kits with a part that isn't in them.
+  'kit',
+  'kit_incomplete',
 ] as const;
 export type SearchState = (typeof SEARCH_STATES)[number];
 export const SEARCH_KINDS = ['things', 'places', 'people', 'vendors', 'documents'] as const;
@@ -271,6 +274,17 @@ export const STATE_SQL: Record<SearchState, string> = {
   borrowed: OPEN_LOAN_SQL('t', 'in'),
   // T9 (D54): a claim of the thing is in repair.
   in_repair: IN_REPAIR_SQL('t'),
+  kit: 'EXISTS (SELECT 1 FROM public.kits k WHERE k.thing_id = t.id)',
+  kit_incomplete: `EXISTS (
+    SELECT 1 FROM public.kit_parts p JOIN public.things pt ON pt.id = p.thing_id
+     WHERE p.kit_id = t.id
+       AND (pt.deleted_at IS NOT NULL OR pt.id NOT IN (
+         WITH RECURSIVE inside(id, depth) AS (
+           SELECT c.id, 1 FROM public.things c WHERE c.container_id = t.id AND c.deleted_at IS NULL
+           UNION ALL
+           SELECT c.id, i.depth + 1 FROM public.things c JOIN inside i ON c.container_id = i.id
+            WHERE c.deleted_at IS NULL AND i.depth < 20)
+         SELECT id FROM inside)))`,
 };
 
 /**

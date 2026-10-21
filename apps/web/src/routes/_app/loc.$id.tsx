@@ -23,6 +23,7 @@ import {
   GearIcon,
   PeopleIcon,
   PrinterIcon,
+  QrIcon,
   ShieldIcon,
   TagIcon,
 } from '@/components/icons';
@@ -187,6 +188,15 @@ function LocationBody({ location }: { location: LocationDetail }) {
               <Trans>Incidents</Trans>
             </Link>
           ) : null}
+          {/* 1.14 (#172): every count and box check of the location, everyone's to read. */}
+          <Link
+            to="/counts"
+            search={{ 'f.location': location.id }}
+            className={buttonClass('secondary', 'small')}
+          >
+            <QrIcon className="size-4" />
+            <Trans>Counts</Trans>
+          </Link>
           {/* 1.x (D235): move-in and move-out condition reports, everyone's to read. */}
           {location.kind === 'personal' ? null : (
             <Link

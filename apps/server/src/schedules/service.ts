@@ -1,4 +1,12 @@
-import { type Action, type AuditAction, type ModuleId, newId, type Role } from '@kept/shared';
+import {
+  type Action,
+  type AuditAction,
+  COUNT_EVERY_MONTHS,
+  type ModuleId,
+  newId,
+  type Role,
+  type ScheduleKind,
+} from '@kept/shared';
 import type pg from 'pg';
 import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
@@ -235,6 +243,37 @@ async function checkRule(
   }
 }
 
+/**
+ * A planned count (1.14): a place, every 1–24 months, nothing else, and one at a time per place
+ * (409, as the unique index has it).
+ */
+async function checkCount(
+  client: pg.ClientBase,
+  subject: Subject,
+  rule: { everyMonths?: number | null | undefined; everyUnits?: unknown; dueOn?: unknown },
+  except: string | null = null,
+): Promise<void> {
+  if (!subject.placeId) throw invalid('Check body.subject: a planned count is of a place.');
+  const months = rule.everyMonths ?? null;
+  if (
+    months === null ||
+    months < COUNT_EVERY_MONTHS.min ||
+    months > COUNT_EVERY_MONTHS.max ||
+    (rule.everyUnits ?? null) !== null ||
+    (rule.dueOn ?? null) !== null
+  ) {
+    throw invalid(
+      `Check body.everyMonths: a planned count repeats every ${COUNT_EVERY_MONTHS.min} to ${COUNT_EVERY_MONTHS.max} months.`,
+    );
+  }
+  const { rowCount } = await client.query(
+    `SELECT 1 FROM public.schedules
+      WHERE place_id = $1 AND kind = 'count' AND active AND id IS DISTINCT FROM $2`,
+    [subject.placeId, except],
+  );
+  if (rowCount) throw conflict('This place has a planned count already.');
+}
+
 // ---------------------------------------------------------------------------------------------
 // Reads
 // ---------------------------------------------------------------------------------------------
@@ -376,6 +415,7 @@ export async function subjectSchedules(
 export type CreateScheduleInput = {
   id?: string | undefined;
   subject: SubjectInput;
+  kind?: ScheduleKind | undefined;
   name: string;
   everyMonths?: number | undefined;
   everyUnits?: string | undefined;
@@ -401,6 +441,8 @@ export async function createSchedule(ctx: Ctx, body: CreateScheduleInput): Promi
     meterId,
     dueOn: body.dueOn ?? null,
   });
+  const kind = body.kind ?? 'task';
+  if (kind === 'count') await checkCount(client, subject, body);
   const today = await todayIn(client, subject.locationId);
   const anchorOn = body.anchorOn ?? today;
   if (anchorOn > today)
@@ -418,9 +460,9 @@ export async function createSchedule(ctx: Ctx, body: CreateScheduleInput): Promi
   await client.query(
     `INSERT INTO public.schedules (id, location_id, thing_id, place_id, name, every_months,
                                    every_units, meter_id, due_on, lead_days, lead_units, base_on,
-                                   base_value, anchor_on, anchor_value, created_by)
+                                   base_value, anchor_on, anchor_value, created_by, kind)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, coalesce($10, 14), $11, $12, $13, $12, $13,
-             kept.current_user_id())`,
+             kept.current_user_id(), $14)`,
     [
       id,
       subject.locationId,
@@ -435,6 +477,7 @@ export async function createSchedule(ctx: Ctx, body: CreateScheduleInput): Promi
       body.leadUnits ?? null,
       anchorOn,
       anchorValue,
+      kind,
     ],
   );
   await auditSchedule(ctx, 'schedule.create', null, await scheduleRow(client, id), false);
@@ -496,6 +539,18 @@ export async function updateSchedule(
     meterId: meterId ? meterId.toLowerCase() : null,
     dueOn: pick('dueOn', before.due_on),
   });
+  if (before.kind === 'count' && pick('active', before.active)) {
+    await checkCount(
+      client,
+      subject,
+      {
+        everyMonths: pick('everyMonths', before.every_months),
+        everyUnits: pick('everyUnits', before.every_units),
+        dueOn: pick('dueOn', before.due_on),
+      },
+      before.id,
+    );
+  }
   if (body.anchorOn !== undefined && body.anchorOn > (await todayIn(client, before.location_id))) {
     throw invalid('Check body.anchorOn: when it was last done, not in the future.');
   }

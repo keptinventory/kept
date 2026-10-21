@@ -83,11 +83,11 @@ const TOPICS: Readonly<Record<string, Topic>> = {
   lending: {
     tools: ['lend_thing', 'return_thing', 'borrow_thing', 'upcoming'],
     words: {
-      en: 'lend|lent|loan|borrow|return|gave|give back|got back|came back|is back|brought back|back from|who has',
-      fr: 'prêt|emprunt|rendu|rendre|revenu',
-      de: 'verleih|verlieh|geliehen|ausgeliehen|ausleih|leih|zurück',
-      it: 'prest|restitu|ridat|riavut|tornat',
-      ar: 'أعار|أعرت|استعار|استلف|سلف|إعارة|رجع|أرجع|مع مين|عند مين|عند من|اقترض',
+      en: 'lend|lent|loan|borrow|return|gave|give back|got back|came back|is back|brought back|back from|who has|hand over|handed|hand-over|handover',
+      fr: 'prêt|emprunt|rendu|rendre|revenu|confié|remis',
+      de: 'verleih|verlieh|geliehen|ausgeliehen|ausleih|leih|zurück|übergeb|übergab',
+      it: 'prest|restitu|ridat|riavut|tornat|consegn|affidat',
+      ar: 'أعار|أعرت|استعار|استلف|سلف|إعارة|رجع|أرجع|مع مين|عند مين|عند من|اقترض|سلمت|تسليم',
     },
   },
   warranties: {

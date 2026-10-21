@@ -59,18 +59,32 @@ export async function fillCapture(c: pg.ClientBase, t: Tenant, label: string): P
      VALUES ($1, $2, $3, 1, 1)`,
     [check, t.locationId, inside],
   );
-  // A scan session (1.12): a count of the box, its one line.
+  // A scan session (1.12): a count of the box, its one line; with 1.14's kept results (who read
+  // it, where it was, its area, how many were found) and a planned count of a place it completed.
+  const place = await one(
+    'SELECT id FROM public.places WHERE location_id = $1 ORDER BY id LIMIT 1',
+    [t.locationId],
+  );
+  const planned = await one(
+    `INSERT INTO public.schedules (location_id, place_id, kind, name, every_months, anchor_on,
+                                   created_by)
+     VALUES ($1, $2, 'count', $3, 6, current_date, $4) RETURNING id`,
+    [t.locationId, place, `${label} planned count`, t.userId],
+  );
   const session = newId();
   await c.query(
     `INSERT INTO public.scan_sessions (id, location_id, mode, target_container_id, started_by,
-                                       started_at)
-     VALUES ($1, $2, 'count', $3, $4, now())`,
-    [session, t.locationId, box, t.userId],
+                                       started_at, finished_at, finished_by, missing, elsewhere,
+                                       counted_place_ids, schedule_id)
+     VALUES ($1, $2, 'count', $3, $4, now(), now(), $4, 1, 0, ARRAY[$5::uuid], $6)`,
+    [session, t.locationId, box, t.userId, place, planned],
   );
   await c.query(
-    `INSERT INTO public.scan_session_lines (session_id, location_id, thing_id, read_at, action)
-     VALUES ($1, $2, $3, now(), 'seen')`,
-    [session, t.locationId, inside],
+    `INSERT INTO public.scan_session_lines (session_id, location_id, thing_id, read_at, action,
+                                            read_by, was_container_id, area_place_id, found_qty,
+                                            expected_qty)
+     VALUES ($1, $2, $3, now(), 'seen', $4, $5, $6, 1, 1)`,
+    [session, t.locationId, inside, t.userId, box, place],
   );
   await c.query(
     `INSERT INTO public.sync_ops (user_id, idempotency_key, client_id, location_id, op,

@@ -36,6 +36,7 @@ import {
   thingSubject,
   todayIn,
 } from './db';
+import { lendWith, storeOf } from './handovers';
 import type { StoredLoan } from './state';
 
 const invalid = (hint: string) => err(400, 'validation', 'The request is not valid.', hint);
@@ -44,6 +45,11 @@ export function lendingRoutes(state: MockState): MockRoute[] {
   const h = () => hh(state);
   const inv = () => state.inventory;
   const me = () => state.me.user;
+  /** The household's fixtures, and the hand-overs and kits sample (./handovers.ts). */
+  const seeded = () => {
+    ensureSeeded(state);
+    storeOf(state);
+  };
 
   /** The person a loan is with: an existing row, a new one by name, or a member (D57). */
   const personFor = (locationId: string, input: LoanPersonInput): string | null => {
@@ -89,7 +95,7 @@ export function lendingRoutes(state: MockState): MockRoute[] {
 
   return [
     route('POST', p.thingLend(':id'), ({ params, body }) => {
-      ensureSeeded(state);
+      seeded();
       const t = liveThing(inv(), params.id ?? null);
       if (!t) return notFound();
       const gated = gateFor(state, t.locationId, 'lending', 'write');
@@ -141,22 +147,39 @@ export function lendingRoutes(state: MockState): MockRoute[] {
         createdById: me().id,
       };
       h().loans.push(loan);
+      // 1.14 (#170): one hand-over, a line for everything inside it.
+      const { handover, excluded } = lendWith(state, loan, {
+        ...(b.conditionOut ? { conditionOut: b.conditionOut } : {}),
+        ...(b.leadDays !== undefined ? { leadDays: b.leadDays } : {}),
+        ...(b.alsoParts ? { alsoParts: b.alsoParts } : {}),
+        ...(b.handoverId ? { handoverId: b.handoverId } : {}),
+      });
+      const before = { thing: structuredClone(t) };
       recordHouseholdEvent(state, {
-        action: 'loan.create',
-        entity: { type: 'loan', id: loan.id },
+        action: 'handover.create',
+        entity: { type: 'thing', id: lent.id },
         locationId: t.locationId,
         rootThingId: lent.id,
         name: lent.name ?? '',
+        undo: () => {
+          h().loans = h().loans.filter((x) => x.handoverId !== handover.id);
+          if (splitFrom) {
+            Object.assign(t, before.thing, { rowVersion: t.rowVersion + 1 });
+            lent.deletedAt = now();
+          }
+        },
       });
       return reply(201, {
         loan: loanView(state, loan),
         thing: householdRowOf(state, lent),
         ...(splitFrom ? { splitFrom: householdRowOf(state, splitFrom) } : {}),
+        handover,
+        excluded,
       });
     }),
 
     route('POST', p.locationBorrow(':id'), ({ params, body }) => {
-      ensureSeeded(state);
+      seeded();
       const locationId = params.id ?? '';
       const gated = gateFor(state, locationId, 'lending', 'write');
       if (gated) return gated;
@@ -295,9 +318,13 @@ export function lendingRoutes(state: MockState): MockRoute[] {
         t.lifecycle = 'returned_to_owner';
         t.ended = { on: todayIn(state, t.locationId), to: null, notes: null };
       }
+      if (b.updateCondition && b.conditionIn) t.condition = b.conditionIn;
       t.rowVersion += 1;
       loan.returnedAt = b.returnedAt ?? now();
-      if (b.notes !== undefined) loan.notes = b.notes;
+      // The return's own note (1.14): the lend note stays.
+      if (b.notes !== undefined) loan.returnNotes = b.notes;
+      loan.outcome = 'returned';
+      loan.condition = { out: loan.condition?.out ?? null, in: b.conditionIn ?? null };
       loan.rowVersion += 1;
       recordHouseholdEvent(state, {
         action: 'loan.return',
@@ -370,7 +397,7 @@ export function lendingRoutes(state: MockState): MockRoute[] {
 
     // The Lending screen: global, overdue first, with a location filter.
     route('GET', p.loans, ({ query }) => {
-      ensureSeeded(state);
+      seeded();
       const allowed = listLocations(state, 'lending');
       const direction = query.get('direction');
       const want = query.get('state');
@@ -413,7 +440,7 @@ export function lendingRoutes(state: MockState): MockRoute[] {
     }),
 
     route('GET', p.thingLoans(':id'), ({ params }) => {
-      ensureSeeded(state);
+      seeded();
       const t = liveThing(inv(), params.id ?? null);
       if (!t) return notFound();
       // With Lending off, only its open loan (the server's rule, UI step-4 review L3).
@@ -429,7 +456,7 @@ export function lendingRoutes(state: MockState): MockRoute[] {
 
     // The person page (D57): what they have from us, what they lent us, and the history.
     route('GET', p.personLoans(':id'), ({ params, query }) => {
-      ensureSeeded(state);
+      seeded();
       const person = inv().people.find((x) => x.id === params.id);
       const mine = new Set(state.locations.map((l) => l.ownerAccountId));
       if (!person || !mine.has(person.ownerAccountId)) return notFound();

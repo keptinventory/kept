@@ -101,6 +101,30 @@ export async function fillHousehold(c: pg.ClientBase, t: Tenant, label: string):
      VALUES ($1, $2, $3, 'out', $4, now() - interval '10 days', current_date - 1, $5)`,
     [loan, t.locationId, thing, person, t.userId],
   );
+  // 1.14: the loan's one-line hand-over (made by 0151's trigger), and a kit: the box with the
+  // thing inside it as its part.
+  const kitBox = await one('SELECT id FROM public.things WHERE location_id = $1 AND name = $2', [
+    t.locationId,
+    `${label} box`,
+  ]);
+  const kitPart = await one('SELECT id FROM public.things WHERE location_id = $1 AND name = $2', [
+    t.locationId,
+    `${label} inside`,
+  ]);
+  await c.query('INSERT INTO public.kits (thing_id, location_id, created_by) VALUES ($1, $2, $3)', [
+    kitBox,
+    t.locationId,
+    t.userId,
+  ]);
+  await c.query(
+    `INSERT INTO public.kit_parts (kit_id, location_id, thing_id, quantity)
+     VALUES ($1, $2, $3, 1)`,
+    [kitBox, t.locationId, kitPart],
+  );
+  await c.query(`UPDATE public.loans SET path_at_lend = $2, condition_out = 'good' WHERE id = $1`, [
+    loan,
+    `${label} box`,
+  ]);
   const service = newId();
   await c.query(
     `INSERT INTO public.service_records (id, location_id, thing_id, serviced_on, vendor_id, total,

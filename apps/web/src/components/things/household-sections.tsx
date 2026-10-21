@@ -6,6 +6,7 @@
  * of it reads the server, so none of it could work offline before its first load anyway.
  */
 export { ClaimsSection } from '@/components/claims/claims-section';
+export { KitSection } from '@/components/kits/kit-section';
 export { LendSheet } from '@/components/lending/lend-sheet';
 export { ReturnSheet } from '@/components/lending/return-sheet';
 export { ThingLoansSection } from '@/components/lending/thing-loans';

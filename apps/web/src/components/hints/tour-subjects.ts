@@ -6,6 +6,7 @@
  *   Unplaced ("Sample: Cordless drill") where the person can add things;
  * - a **vehicle**: the page's own, else the first one. None means the step is skipped (the tour's step before it
  *   points at Add a vehicle);
+ * - a **kit** (1.14): the first kit in that location; none means the step is skipped;
  * - a **move**: the page's own, else the first, else ONE sample move with no boxes
  *   ("Sample: Move") in a location with Moving on where the person can add;
  * - a **location you manage** (owner or admin, not Personal): its UUID, as location settings take.
@@ -73,6 +74,15 @@ export async function resolveSubject(kind: TourSubject, deps: SubjectDeps): Prom
     }
     case 'move':
       return deps.context.move ?? (await firstMove(deps));
+    case 'kit': {
+      const l = baseLocation(deps);
+      if (!l) return null;
+      const found = await inventoryApi
+        .search({ locationId: l.id, state: 'kit', limit: 1 })
+        .catch(() => null);
+      const row = found?.things.items[0];
+      return row ? addressOf(row) : null;
+    }
   }
 }
 

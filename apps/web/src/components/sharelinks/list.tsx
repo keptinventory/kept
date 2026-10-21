@@ -44,8 +44,6 @@ import { firstOf, useListState } from '@/lib/url-state';
 import { SharedHeader, SharedPlainList } from './shared-view';
 import { useScopeWords, useStateWords, WhatTheySee } from './words';
 
-/** The URL filter keys this list owns (the route's `listSearch`). */
-export const SHARE_LINK_FILTERS = ['state', 'scope'] as const;
 const PAGE = 20;
 
 /** The whole list as the list surface's pages, `PAGE` at a time. */

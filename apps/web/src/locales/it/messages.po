@@ -25858,3 +25858,587 @@ msgstr "non impostato"
 #: src/assistant/confirm-card.tsx
 msgid "Put all in…"
 msgstr "Metti tutto in…"
+
+#: src/components/app-shell.tsx
+msgid "Counts"
+msgstr "Conteggi"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Past counts"
+msgstr "Conteggi passati"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Every count of {name}, with what was missing"
+msgstr "Ogni conteggio di {name}, con ciò che mancava"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "{pct}% of things here have labels."
+msgstr "Il {pct}% delle cose qui ha un'etichetta."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Print labels for the rest"
+msgstr "Stampa le etichette per il resto"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Count in progress by <0>{0}</0>"
+msgstr "Conteggio in corso di <0>{0}</0>"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Join"
+msgstr "Partecipa"
+
+#: src/components/scan/session/summary.tsx
+msgid "See this count"
+msgstr "Vedi questo conteggio"
+
+#: src/components/scan/session/summary.tsx
+msgid "Found short ({0})"
+msgstr "Trovati in parte ({0})"
+
+#: src/components/counts/box-check-page.tsx
+msgid "{found} of {of}"
+msgstr "{found} su {of}"
+
+#: src/components/scan/session/summary.tsx
+msgid "Mark the rest not here"
+msgstr "Segna il resto non è qui"
+
+#: src/components/scan/session/summary.tsx
+msgid "Found by others ({0})"
+msgstr "Trovati da altri ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "found by <0>{0}</0>"
+msgstr "trovato da <0>{0}</0>"
+
+#: src/components/scan/session/summary.tsx
+msgid "With {0} ({1})"
+msgstr "Da {0} ({1})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Lent out ({0})"
+msgstr "Prestati ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "In repair ({0})"
+msgstr "In riparazione ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "Not counted: {area} ({0})"
+msgstr "Non contato: {area} ({0})"
+
+#: src/components/scan/session/summary.tsx
+msgid "I checked it"
+msgstr "Ho controllato"
+
+#: src/components/scan/session/summary.tsx
+msgid "Others are counting here too: finishing needs a connection."
+msgstr "Anche altri stanno contando qui: per finire serve una connessione."
+
+#: src/components/hints/hint-copy.ts
+msgid "Every count is kept"
+msgstr "Ogni conteggio viene conservato"
+
+#: src/components/hints/hint-copy.ts
+msgid "Counts lists each count and box check: what was found, what was missing, and what changed since the last one."
+msgstr "Conteggi elenca ogni conteggio e controllo scatola: cosa è stato trovato, cosa mancava e cosa è cambiato dall'ultimo."
+
+#: src/components/counts/box-check-page.tsx
+msgid "{a} of {b} found"
+msgstr "{a} su {b} trovati"
+
+#: src/components/counts/box-check-page.tsx
+msgid "Box check of {name}"
+msgstr "Controllo di {name}"
+
+#: src/components/counts/box-check-page.tsx
+msgid "by <0>{0}</0>"
+msgstr "di <0>{0}</0>"
+
+#: src/components/counts/box-check-page.tsx
+msgid "What it should hold ({0})"
+msgstr "Cosa dovrebbe contenere ({0})"
+
+#: src/components/counts/box-check-page.tsx
+msgid "Found in it from elsewhere ({0})"
+msgstr "Trovati dentro, da altrove ({0})"
+
+#: src/components/counts/count-page.tsx
+msgid "Missing"
+msgstr "Mancanti"
+
+#: src/components/counts/count-page.tsx
+msgid "Found elsewhere"
+msgstr "Trovati altrove"
+
+#: src/components/counts/count-page.tsx
+msgid "Moved here"
+msgstr "Spostati qui"
+
+#: src/components/counts/count-page.tsx
+msgid "Marked not here"
+msgstr "Segnati non è qui"
+
+#: src/components/counts/count-page.tsx
+msgid "In the Trash"
+msgstr "Nel cestino"
+
+#: src/components/counts/count-page.tsx
+msgid "Not counted: {0}"
+msgstr "Non contato: {0}"
+
+#: src/components/counts/count-page.tsx
+msgid "Count of {name}"
+msgstr "Conteggio di {name}"
+
+#: src/components/counts/count-page.tsx
+msgid "Still open"
+msgstr "Ancora aperto"
+
+#: src/components/counts/count-page.tsx
+msgid "{minutes, plural, one {# minute} other {# minutes}}"
+msgstr "{minutes, plural, one {# minuto} other {# minuti}}"
+
+#: src/components/counts/count-page.tsx
+msgid "finished by <0>{0}</0>"
+msgstr "finito da <0>{0}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "Counted by <0>{readers}</0>"
+msgstr "Contato da <0>{readers}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "Done for the planned count <0>{0}</0>"
+msgstr "Fatto per il conteggio previsto <0>{0}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "Since the previous count"
+msgstr "Dal conteggio precedente"
+
+#: src/components/counts/count-page.tsx
+msgid "{0, plural, one {# newly missing} other {# newly missing}}"
+msgstr "{0, plural, one {# nuovo mancante} other {# nuovi mancanti}}"
+
+#: src/components/counts/count-page.tsx
+msgid "{0, plural, one {# found again} other {# found again}}"
+msgstr "{0, plural, one {# ritrovato} other {# ritrovati}}"
+
+#: src/components/counts/count-page.tsx
+msgid "{0, plural, one {# new thing} other {# new things}}"
+msgstr "{0, plural, one {# cosa nuova} other {# cose nuove}}"
+
+#: src/components/counts/count-page.tsx
+msgid "Open the previous count ({0})"
+msgstr "Apri il conteggio precedente ({0})"
+
+#: src/components/counts/count-page.tsx
+msgid "Counts saved before Kept 1.14 didn't record what was missing or elsewhere."
+msgstr "I conteggi salvati prima di Kept 1.14 non registravano ciò che mancava o era altrove."
+
+#: src/components/counts/count-page.tsx
+msgid "now in <0>{now}</0>"
+msgstr "ora in <0>{now}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "was in <0>{was}</0>"
+msgstr "era in <0>{was}</0>"
+
+#: src/components/counts/count-page.tsx
+msgid "read by <0>{0}</0>"
+msgstr "letto da <0>{0}</0>"
+
+#: src/components/counts/count-regularly.tsx
+msgid "{months, plural, one {Counted every month} other {Counted every # months}}"
+msgstr "{months, plural, one {Contato ogni mese} other {Contato ogni # mesi}}"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Count regularly"
+msgstr "Conta regolarmente"
+
+#: src/components/counts/count-regularly.tsx
+msgid "The next count is overdue"
+msgstr "Il prossimo conteggio è in ritardo"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Next count due {next}"
+msgstr "Prossimo conteggio il {next}"
+
+#: src/components/counts/count-regularly.tsx
+msgid "A reminder to count {name} every few months"
+msgstr "Un promemoria per contare {name} ogni qualche mese"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Planned count"
+msgstr "Conteggio previsto"
+
+#: src/components/counts/count-regularly.tsx
+msgid "A whole number of months, {min} to {max}."
+msgstr "Un numero intero di mesi, da {min} a {max}."
+
+#: src/components/counts/count-regularly.tsx
+msgid "Count {name}"
+msgstr "Conta {name}"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Planned: count {name} regularly"
+msgstr "Previsto: contare {name} regolarmente"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Stopped the planned count"
+msgstr "Conteggio previsto interrotto"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Counting <0>{name}</0> (and the places inside it) marks it done; you get a reminder a week before it's due."
+msgstr "Contare <0>{name}</0> (e i posti al suo interno) lo segna come fatto; un promemoria arriva una settimana prima della scadenza."
+
+#: src/components/counts/count-regularly.tsx
+msgid "Every how many months"
+msgstr "Ogni quanti mesi"
+
+#: src/components/counts/count-regularly.tsx
+msgid "Stop counting regularly"
+msgstr "Smetti di contare regolarmente"
+
+#: src/components/counts/counts-list.tsx
+msgid "Box checks"
+msgstr "Controlli scatola"
+
+#: src/components/counts/counts-list.tsx
+msgid "Had missing"
+msgstr "Con mancanti"
+
+#: src/components/counts/counts-list.tsx
+msgid "Counted"
+msgstr "Contato"
+
+#: src/components/counts/counts-list.tsx
+msgid "Search counts"
+msgstr "Cerca nei conteggi"
+
+#: src/components/counts/counts-list.tsx
+msgid "Search by what was counted"
+msgstr "Cerca per ciò che è stato contato"
+
+#: src/components/counts/counts-list.tsx
+msgid "by place"
+msgstr "per posto"
+
+#: src/components/counts/counts-list.tsx
+msgid "No counts yet"
+msgstr "Ancora nessun conteggio"
+
+#: src/components/counts/counts-list.tsx
+msgid "Count a place or a box from Scan: every count and box check is kept here, with what was found and what was missing."
+msgstr "Conta un posto o una scatola da Scansiona: ogni conteggio e controllo scatola resta qui, con ciò che è stato trovato e ciò che mancava."
+
+#: src/components/counts/counts-list.tsx
+msgid "{missing, plural, one {# missing} other {# missing}}"
+msgstr "{missing, plural, one {# mancante} other {# mancanti}}"
+
+#: src/components/things/move-sheet.tsx
+msgid "Move it anyway"
+msgstr "Spostalo comunque"
+
+#: src/components/kits/kit-section.tsx
+msgid "Parts"
+msgstr "Parti"
+
+#: src/components/things/trash.tsx
+msgid "Move to Trash anyway"
+msgstr "Sposta nel cestino comunque"
+
+#: src/components/lending/handover-return.tsx
+msgid "How many came back: 1 to {0}."
+msgstr "Quanti sono tornati: da 1 a {0}."
+
+#: src/components/lending/handover-return.tsx
+msgid "{back} of {all} came back"
+msgstr "{back} su {all} sono tornati"
+
+#: src/components/kits/kit-section.tsx
+msgid "in <0>{0}</0>"
+msgstr "in <0>{0}</0>"
+
+#: src/components/lending/handover-return.tsx
+msgid "Came back"
+msgstr "Tornato"
+
+#: src/components/lending/handover-return.tsx
+msgid "Not returned"
+msgstr "Non restituito"
+
+#: src/components/lending/handover-return.tsx
+msgid "How many came back"
+msgstr "Quanti sono tornati"
+
+#: src/components/lending/handover-return.tsx
+msgid "Of {0}. The rest stays out."
+msgstr "Su {0}. Il resto resta in prestito."
+
+#: src/components/lending/handover-return.tsx
+msgid "Condition it came back in"
+msgstr "Condizione al rientro"
+
+#: src/components/lending/handover-return.tsx
+msgid "Update its condition"
+msgstr "Aggiorna la sua condizione"
+
+#: src/components/lending/handover-return.tsx
+msgid "It stays with them; reminders go on."
+msgstr "Resta da loro; i promemoria continuano."
+
+#: src/components/lending/handover-return.tsx
+msgid "It is marked lost, never deleted: its history stays."
+msgstr "Viene segnato come perso, mai eliminato: la sua cronologia resta."
+
+#: src/components/lending/lend-sheet.tsx
+msgid "{lines, plural, one {Lent to {0}} other {Lent to {1}: # things}}"
+msgstr "{lines, plural, one {Prestato a {0}} other {Prestato a {1}: # oggetti}}"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Stayed here: {0}"
+msgstr "Rimasto qui: {0}"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Optional. Kept reminds you, never them, two days before and when it's overdue."
+msgstr "Facoltativo. Kept lo ricorda a te, mai a loro, due giorni prima e quando è in ritardo."
+
+#: src/components/lending/lend-sheet.tsx
+msgid "What goes with it"
+msgstr "Cosa va con esso"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Everything inside goes too"
+msgstr "Anche tutto ciò che contiene va con esso"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "and what is inside it"
+msgstr "e ciò che contiene"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Each keeps its own record. Something already lent or in repair stays here."
+msgstr "Ognuno conserva la propria cronologia. Ciò che è già prestato o in riparazione resta qui."
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Parts kept elsewhere"
+msgstr "Parti tenute altrove"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Parts not in the kit"
+msgstr "Parti non nel kit"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Lend <0>{0}</0> too (in <1>{1}</1>)"
+msgstr "Presta anche <0>{0}</0> (in <1>{1}</1>)"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Lend <0>{0}</0> too"
+msgstr "Presta anche <0>{0}</0>"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Condition going out"
+msgstr "Condizione all'uscita"
+
+#: src/components/lending/on-loan.ts
+msgid "This is with {0}"
+msgstr "Questo è da {0}"
+
+#: src/components/lending/on-loan.ts
+msgid "{0} is lent out. Mark it returned first, or go ahead anyway?"
+msgstr "{0} è in prestito. Segnarlo prima come restituito, o procedere comunque?"
+
+#: src/components/lending/on-loan.ts
+msgid "Mark it returned first, or go ahead anyway?"
+msgstr "Segnarlo prima come restituito, o procedere comunque?"
+
+#: src/components/kits/kit-section.tsx
+msgid "with <0>{0}</0>"
+msgstr "con <0>{0}</0>"
+
+#: src/components/history/labels.ts
+msgid "Marked lost"
+msgstr "Segnato come perso"
+
+#: src/components/lending/return-sheet.tsx
+msgid "Mark lost"
+msgstr "Segna come perso"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Lent with what is inside"
+msgstr "Prestato con il contenuto"
+
+#: src/components/lending/thing-loans.tsx
+msgid "{0, plural, one {# lost} other {# lost}}"
+msgstr "{0, plural, one {# perso} other {# persi}}"
+
+#: src/components/lending/thing-loans.tsx
+msgid "came back {0}"
+msgstr "tornato {0}"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Went with"
+msgstr "Andato con"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Mark everything returned"
+msgstr "Segna tutto come restituito"
+
+#: src/components/kits/kit-section.tsx
+msgid "Loading the kit"
+msgstr "Caricamento del kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "Not a kit"
+msgstr "Non è un kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "Make this a kit"
+msgstr "Rendilo un kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "A kit remembers what should be in it: move a part out or lend it, and the kit still knows."
+msgstr "Un kit ricorda cosa dovrebbe contenere: sposta fuori una parte o prestala, e il kit lo sa ancora."
+
+#: src/components/kits/kit-section.tsx
+msgid "In the kit"
+msgstr "Nel kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "Elsewhere"
+msgstr "Altrove"
+
+#: src/components/kits/kit-section.tsx
+msgid "With someone"
+msgstr "Da qualcuno"
+
+#: src/components/kits/kit-section.tsx
+msgid "Put it back anyway"
+msgstr "Rimettilo comunque"
+
+#: src/components/kits/kit-section.tsx
+msgid "Put back in {0}"
+msgstr "Rimesso in {0}"
+
+#: src/components/kits/kit-section.tsx
+msgid "Couldn't put it back"
+msgstr "Impossibile rimetterlo"
+
+#: src/components/kits/kit-section.tsx
+msgid "No longer a kit?"
+msgstr "Non più un kit?"
+
+#: src/components/kits/kit-section.tsx
+msgid "Its parts stay where they are; only the list goes. You can undo this for 7 days."
+msgstr "Le parti restano dove sono; se ne va solo l'elenco. Puoi annullare per 7 giorni."
+
+#: src/components/kits/kit-section.tsx
+msgid "No longer a kit"
+msgstr "Non più un kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "With <0>{0}</0> since {1}"
+msgstr "Da <0>{0}</0> dal {1}"
+
+#: src/components/kits/kit-section.tsx
+msgid "{0, plural, one {# part not in the kit} other {# parts not in the kit}}"
+msgstr "{0, plural, one {# parte non nel kit} other {# parti non nel kit}}"
+
+#: src/components/kits/kit-section.tsx
+msgid "Put back"
+msgstr "Rimetti"
+
+#: src/components/kits/kit-section.tsx
+msgid "Check this kit"
+msgstr "Controlla questo kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "Edit parts"
+msgstr "Modifica le parti"
+
+#: src/components/kits/kit-section.tsx
+msgid "Parts of {0}"
+msgstr "Parti di {0}"
+
+#: src/components/kits/kit-section.tsx
+msgid "Make {0} a kit"
+msgstr "Rendi {0} un kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "Parts changed"
+msgstr "Parti modificate"
+
+#: src/components/kits/kit-section.tsx
+msgid "Made a kit"
+msgstr "Kit creato"
+
+#: src/components/kits/kit-section.tsx
+msgid "Nothing in it yet: add its parts below."
+msgstr "Ancora niente dentro: aggiungi le parti qui sotto."
+
+#: src/components/kits/kit-section.tsx
+msgid "Add a part"
+msgstr "Aggiungi una parte"
+
+#: src/components/history/labels.ts
+msgid "Borrowed from {person}"
+msgstr "Preso in prestito da {person}"
+
+#: src/components/history/labels.ts
+msgid "Lent to {person}"
+msgstr "Prestato a {person}"
+
+#: src/components/history/labels.ts
+msgid "Came back from {person}, {condition}"
+msgstr "Tornato da {person}, {condition}"
+
+#: src/components/history/labels.ts
+msgid "Came back from {person}"
+msgstr "Tornato da {person}"
+
+#: src/components/history/labels.ts
+msgid "Lost by {person}"
+msgstr "Perso da {person}"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Lent {name} to {person}} other {Lent {name} to {person}, # things}}"
+msgstr "{count, plural, one {{name} prestato a {person}} other {{name} prestato a {person}, # oggetti}}"
+
+#: src/components/history/labels.ts
+msgid "Lent {name} to {person}"
+msgstr "{name} prestato a {person}"
+
+#: src/components/history/labels.ts
+msgid "Changed the hand-over"
+msgstr "Consegna modificata"
+
+#: src/components/history/labels.ts
+msgid "Made {name} a kit"
+msgstr "{name} è diventato un kit"
+
+#: src/components/history/labels.ts
+msgid "Changed the parts of {name}"
+msgstr "Parti di {name} modificate"
+
+#: src/components/history/labels.ts
+msgid "{name} is no longer a kit"
+msgstr "{name} non è più un kit"
+
+#: src/components/filters/registry.tsx
+msgid "Kits"
+msgstr "Kit"
+
+#: src/components/hints/hint-copy.ts
+msgid "A kit remembers what should be in it. Its parts say where each one is: in the kit, elsewhere, or with someone."
+msgstr "Un kit ricorda cosa dovrebbe contenere. Le sue parti dicono dove si trova ciascuna: nel kit, altrove o da qualcuno."
+
+#: src/components/filters/registry.tsx
+msgid "Incomplete kits"
+msgstr "Kit incompleti"
+
+#: src/components/lending/loan-text.tsx
+msgid "With {who} (in {box}) since {since} · due {due}"
+msgstr "Da {who} (in {box}) dal {since} · da restituire il {due}"
+
+#: src/components/lending/loan-text.tsx
+msgid "With {who} (in {box}) since {since}"
+msgstr "Da {who} (in {box}) dal {since}"

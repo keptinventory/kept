@@ -7,9 +7,12 @@ import { describe, expect, it } from 'vitest';
 import type { Resolution } from '../resolve';
 import {
   addRead,
+  checkArea,
   counter,
   type ExpectedThing,
+  finishNeedsConnection,
   linesOf,
+  mergeOthers,
   newSession,
   type ReadInfo,
   readKey,
@@ -17,6 +20,7 @@ import {
   type Session,
   type SessionTarget,
   sessionOps,
+  setQuantity,
   setTarget,
   summarise,
   undoLast,
@@ -263,8 +267,12 @@ describe('a count', () => {
     expect(sum.otherLocation.map((r) => r.thingId)).toEqual([cottage.id]);
     expect(sum.unmatched.map((r) => r.text)).toEqual(['BLNK01']);
 
-    // Defaults: missing and elsewhere are left alone.
-    expect(linesOf(s, sum, {}, AT)).toEqual([{ thingId: lamp.id, readAt: AT, action: 'seen' }]);
+    // Defaults: missing and elsewhere are left alone, and kept as results.
+    expect(linesOf(s, sum, {}, AT)).toEqual([
+      { thingId: lamp.id, readAt: AT, action: 'seen' },
+      { thingId: missing.id, readAt: AT, action: 'missing' },
+      { thingId: away.id, readAt: AT, action: 'elsewhere' },
+    ]);
     const chosen = linesOf(
       s,
       sum,
@@ -296,6 +304,116 @@ describe('a count', () => {
       roles({ [HOME]: 'member', [GARAGE]: 'viewer' }),
     );
     expect(viewerThere.otherLocation.every((r) => !r.canMove)).toBe(true);
+  });
+});
+
+describe('a count keeps every result', () => {
+  const SHELF = 'bbbbbbbb-0000-7000-8000-000000000003';
+  const areas = [
+    { id: STUDY, name: 'Study' },
+    { id: SHELF, name: 'Back shelf' },
+  ];
+
+  it('never calls a thing lent out or in repair missing: their own groups', () => {
+    const lamp = thing();
+    const drill = thing({
+      derived: ['lent'],
+      loan: { direction: 'out', personName: 'Murdock', dueOn: null },
+    });
+    const tv = thing({ derived: ['in_repair'] });
+    const gone = thing();
+    let s = counting([lamp, drill, tv, gone]);
+    s = read(s, 'LAMP01', open(lamp)).session;
+    const sum = summarise(s);
+    expect(sum.missing.map((x) => x.id)).toEqual([gone.id]);
+    expect(sum.lent).toEqual([{ person: 'Murdock', things: [drill] }]);
+    expect(sum.inRepair.map((x) => x.id)).toEqual([tv.id]);
+    expect(linesOf(s, sum, {}, AT).map((l) => [l.thingId, l.action])).toEqual([
+      [lamp.id, 'seen'],
+      [gone.id, 'missing'],
+      [drill.id, 'on_loan'],
+      [tv.id, 'in_repair'],
+    ]);
+  });
+
+  it('calls an area with no read not counted, until "I checked it"', () => {
+    const lamp = thing({ placeId: STUDY });
+    const book = thing({ placeId: SHELF });
+    const box = thing({ placeId: SHELF, isContainer: true, shortCode: null });
+    const inBox = thing({ placeId: null, containerId: box.id });
+    let s = counting([lamp, book, box, inBox], { areas });
+    s = read(s, 'LAMP01', open(lamp)).session;
+    let sum = summarise(s);
+    expect(sum.missing).toEqual([]);
+    expect(sum.notCounted).toEqual([{ area: areas[1], things: [book, inBox] }]);
+    expect(sum.counted).toEqual([STUDY]);
+    const ops = sessionOps(s, linesOf(s, sum, {}, AT), {
+      contentsSeen: false,
+      counted: sum.counted,
+    });
+    expect(ops[0]?.payload).toMatchObject({ session: { countedPlaceIds: [STUDY] } });
+    const sent = (ops[0]?.payload ?? { lines: [] }) as {
+      lines: { thingId: string; action: string }[];
+    };
+    expect(sent.lines.filter((l) => l.action === 'not_counted').map((l) => l.thingId)).toEqual([
+      book.id,
+      inBox.id,
+    ]);
+
+    s = checkArea(s, SHELF);
+    sum = summarise(s);
+    expect(sum.notCounted).toEqual([]);
+    expect(sum.missing.map((x) => x.id)).toEqual([book.id, inBox.id]);
+    expect([...sum.counted].sort()).toEqual([STUDY, SHELF].sort());
+  });
+
+  it('counts a thing in number: its whole quantity once read, +/−, the rest not here when chosen', () => {
+    const tins = thing({ quantity: '6' });
+    let s = counting([tins]);
+    s = read(s, 'TINS01', open(tins)).session;
+    expect(summarise(s).short).toEqual([]);
+    expect(linesOf(s, summarise(s), {}, AT)).toEqual([
+      { thingId: tins.id, readAt: AT, action: 'seen' },
+    ]);
+    s = setQuantity(s, tins.id, 4);
+    s = setQuantity(s, tins.id, 0); // never below 1
+    s = setQuantity(s, tins.id, 2);
+    const sum = summarise(s);
+    expect(sum.short.map((x) => [x.found, x.of])).toEqual([['2', '6']]);
+    expect(linesOf(s, sum, {}, AT)).toEqual([
+      { thingId: tins.id, readAt: AT, action: 'seen', quantity: '2' },
+    ]);
+    expect(linesOf(s, sum, { restNotHere: [tins.id] }, AT)).toEqual([
+      { thingId: tins.id, readAt: AT, action: 'seen', quantity: '2', short: 'not_here' },
+    ]);
+    // Back to all of them.
+    expect(summarise(setQuantity(s, tins.id, 9)).short).toEqual([]);
+  });
+
+  it('merges what others read in a shared count, and then needs a connection to finish', () => {
+    const lamp = thing({ placeId: STUDY });
+    const book = thing({ placeId: SHELF });
+    const pen = thing({ placeId: SHELF });
+    let s = counting([lamp, book, pen], { areas });
+    s = { ...s, shared: { joined: true, by: 'Louis', others: [], counted: [] } };
+    expect(finishNeedsConnection(s)).toBe(true);
+    s = read(s, 'LAMP01', open(lamp)).session;
+    s = mergeOthers(
+      s,
+      [
+        { thingId: book.id, action: 'seen', readBy: 'Louis', foundQty: null },
+        { thingId: lamp.id, action: 'missing', readBy: 'Louis', foundQty: null },
+      ],
+      [SHELF],
+      null,
+    );
+    const sum = summarise(s);
+    expect(sum.byOthers.map((x) => [x.id, x.readBy])).toEqual([[book.id, 'Louis']]);
+    // The shelf was counted by Louis: the pen is missing, not "not counted".
+    expect(sum.missing.map((x) => x.id)).toEqual([pen.id]);
+    expect(counter(s).found).toBe(2);
+    // What Louis found isn't sent again.
+    expect(linesOf(s, sum, {}, AT).map((l) => l.thingId)).toEqual([lamp.id, pen.id]);
   });
 });
 

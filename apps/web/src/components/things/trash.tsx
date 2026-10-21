@@ -10,6 +10,7 @@ import { isApiError } from '@/api/client';
 import { thingApi } from '@/api/inventory/thing-api';
 import type { TrashBody } from '@/api/inventory/types';
 import { useOfferUndo } from '@/components/history/undo';
+import { useOnLoanConfirm } from '@/components/lending/on-loan';
 import { useErrorText } from '@/components/page';
 import { usePlaceName } from '@/components/places/labels';
 import { Button } from '@/components/ui/button';
@@ -58,6 +59,7 @@ export function useTrashThing(openSheet: (s: 'trash') => void) {
   const { thing } = useThingCtx();
   const { t } = useLingui();
   const confirm = useConfirm();
+  const withConfirm = useOnLoanConfirm();
   const after = useAfterTrash();
   return async () => {
     if (thing.contentsCount > 0) {
@@ -73,7 +75,13 @@ export function useTrashThing(openSheet: (s: 'trash') => void) {
     if (!ok) return;
     let auditEvents: string[];
     try {
-      ({ auditEvents } = await thingApi.trash(thing.id));
+      // With someone: asked first (1.14).
+      const r = await withConfirm(
+        (onLoan) => thingApi.trash(thing.id, onLoan ? { onLoan: 'confirm' } : {}),
+        t`Move to Trash anyway`,
+      );
+      if (!r) return;
+      ({ auditEvents } = r);
     } catch (e) {
       if (isContentsChoice(e)) {
         openSheet('trash');
@@ -91,6 +99,7 @@ export function TrashContentsSheet({ isOpen, onClose }: { isOpen: boolean; onClo
   const fmt = useFormat();
   const errorText = useErrorText();
   const after = useAfterTrash();
+  const withConfirm = useOnLoanConfirm();
   const [busy, setBusy] = useState<TrashBody['contents'] | null>(null);
   const placeName = usePlaceName();
   const last = thing.path.at(-1);
@@ -98,12 +107,17 @@ export function TrashContentsSheet({ isOpen, onClose }: { isOpen: boolean; onClo
   const run = async (contents: 'move' | 'trash') => {
     setBusy(contents);
     try {
-      const { auditEvents } = await thingApi.trash(
-        thing.id,
-        contents === 'move' ? { contents, moveTo: currentTarget(thing) } : { contents },
+      const r = await withConfirm(
+        (onLoan) =>
+          thingApi.trash(thing.id, {
+            ...(contents === 'move' ? { contents, moveTo: currentTarget(thing) } : { contents }),
+            ...(onLoan ? { onLoan: 'confirm' as const } : {}),
+          }),
+        t`Move to Trash anyway`,
       );
+      if (!r) return;
       onClose();
-      await after(auditEvents);
+      await after(r.auditEvents);
     } catch (e) {
       toast({ title: t`Couldn't trash it`, description: errorText(e), tone: 'danger' });
     } finally {

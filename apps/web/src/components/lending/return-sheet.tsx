@@ -4,7 +4,12 @@
  * off (the switch shows only for a split). Condition photos at return are optional. A thing
  * borrowed in goes back to its owner: it ends as "returned to owner" and leaves your counts, and
  * stays in its history. Undoable: the Undo toast reopens the loan and moves it back (T10).
+ *
+ * 1.14 (#170): the condition it came back in (and "Update its condition"), part of a quantity
+ * back (the rest stays out on its own line), or Lost: the loan closes as lost and the thing is
+ * marked lost, never deleted. The note is the return's own; the lend note stays.
  */
+import type { Condition } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -13,6 +18,7 @@ import type { Loan, ReturnBody } from '@/api/household/types';
 import { useOfferUndo } from '@/components/history/undo';
 import { useErrorText } from '@/components/page';
 import { useThingCtx } from '@/components/things/context';
+import { westernNumber } from '@/components/things/form-model';
 import { useBlocked, useHouseholdDone } from '@/components/things/household';
 import { PendingFiles, useAttachAll } from '@/components/things/pending-files';
 import { isChosen, WherePicker, type WhereValue } from '@/components/things/pickers';
@@ -23,6 +29,8 @@ import { Segmented } from '@/components/ui/segmented';
 import { Switch } from '@/components/ui/switch';
 import { TextField } from '@/components/ui/text-field';
 import { bdi, isolate } from '@/lib/bidi';
+import { useFormat } from '@/lib/format';
+import { ConditionPicker } from './condition-picker';
 
 /** "Garage › Tool wall": a subject's path with its own name at the end, once. */
 export function subjectText(s: { name: string; path: string }): string {
@@ -76,12 +84,47 @@ function ReturnForm({ loan, onClose }: { loan: Loan; onClose: () => void }) {
   });
   const [mergeBack, setMergeBack] = useState(true);
   const [notes, setNotes] = useState('');
+  const [outcome, setOutcome] = useState<'back' | 'lost'>('back');
+  const [condition, setCondition] = useState<Condition | null>(null);
+  const [updateCondition, setUpdateCondition] = useState(false);
+  const [back, setBack] = useState(loan.quantity);
+  const fmt = useFormat();
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
 
   const save = async () => {
+    if (out && outcome === 'lost') {
+      setBusy(true);
+      try {
+        const r = await householdApi.loseLoan(
+          loan.id,
+          notes.trim() ? { notes: notes.trim() } : {},
+          loan.rowVersion,
+        );
+        offerUndo({ title: t`Marked lost` }, r.auditEvents, { thingId: thing.id });
+        await done();
+        onClose();
+      } catch (e) {
+        setError(errorText(e));
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     const body: ReturnBody = {};
+    if (condition) {
+      body.conditionIn = condition;
+      if (updateCondition) body.updateCondition = true;
+    }
+    if (out && Number(loan.quantity) > 1) {
+      const n = Number(westernNumber(back).trim());
+      if (!(n > 0) || n > Number(loan.quantity)) {
+        setError(t`How many came back: 1 to ${fmt.num(Number(loan.quantity))}.`);
+        return;
+      }
+      if (n < Number(loan.quantity)) body.quantityBack = String(n);
+    }
     if (out) {
       if (to === 'elsewhere') {
         if (!isChosen(where.target)) {
@@ -123,7 +166,41 @@ function ReturnForm({ loan, onClose }: { loan: Loan; onClose: () => void }) {
       }}
     >
       {out ? (
+        <Segmented<'back' | 'lost'>
+          label={t`What happened`}
+          value={outcome}
+          onChange={setOutcome}
+          options={[
+            { id: 'back', label: t`Came back` },
+            { id: 'lost', label: t`Lost` },
+          ]}
+        />
+      ) : null}
+      {out && outcome === 'lost' ? (
+        <p className="m-0 text-small text-ink-2">
+          <Trans>It is marked lost, never deleted: its history stays.</Trans>
+        </p>
+      ) : out ? (
         <>
+          {Number(loan.quantity) > 1 ? (
+            <TextField
+              label={t`How many came back`}
+              description={t`Of ${fmt.num(Number(loan.quantity))}. The rest stays out.`}
+              value={back}
+              onChange={setBack}
+              inputProps={{ inputMode: 'numeric', dir: 'ltr' }}
+            />
+          ) : null}
+          <ConditionPicker
+            label={t`Condition it came back in`}
+            value={condition}
+            onChange={setCondition}
+          />
+          {condition ? (
+            <Switch isSelected={updateCondition} onChange={setUpdateCondition}>
+              <Trans>Update its condition</Trans>
+            </Switch>
+          ) : null}
           {loan.previousPlace ? (
             <Segmented<'previous' | 'elsewhere'>
               label={t`Where it goes`}
@@ -181,7 +258,7 @@ function ReturnForm({ loan, onClose }: { loan: Loan; onClose: () => void }) {
           <Trans>Cancel</Trans>
         </Button>
         <Button type="submit" isPending={busy} isDisabled={!!blocked}>
-          <Trans>Mark returned</Trans>
+          {out && outcome === 'lost' ? <Trans>Mark lost</Trans> : <Trans>Mark returned</Trans>}
         </Button>
       </DialogFooter>
     </form>

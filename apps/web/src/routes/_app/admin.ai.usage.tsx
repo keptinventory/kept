@@ -4,7 +4,7 @@
  */
 import { createFileRoute } from '@tanstack/react-router';
 import * as z from 'zod/mini';
-import { AI_CALL_FILTERS } from '@/components/ai/call-filters';
+import { AI_CALL_FILTERS } from '@/components/ai/call-filter-keys';
 import { InstanceUsagePage } from '@/components/ai/usage-page';
 import { listSearch } from '@/lib/url-state';
 
