@@ -1,11 +1,11 @@
 import type { KeptMessage } from '../ai/convert.js';
 
-// Sizing an assistant request under the provider's per-minute token limit (1.4.1). A provider
-// that counts tokens per minute refuses a single request bigger than the minute's whole limit:
-// Groq's free tier answers 413 "Request too large … TPM: Limit 8000" to a follow-up that carries
-// the 27 tools, the instructions and a tool result (measured 2026-10-13: the first request is
-// ~6,950 tokens with its output allowance; an 8 KB tool result adds ~1,700). Asking again sends
-// the same request, so the turn used to fail.
+// Sizing an assistant request under the provider's per-minute token limit. A provider that
+// counts tokens per minute refuses a single request bigger than the minute's whole limit: Groq's
+// free tier answers 413 "Request too large … TPM: Limit 8000". Asking again sends the same
+// request, so the turn used to fail. The step's tools are chosen first (select.ts: the first
+// request with every module on is ~2,400 tokens before its output allowance, against ~6,000 for
+// all 27 tools), and the loop tries the smaller tool choices before giving up.
 //
 // Before each step, with the limit the provider's headers last named (kept.ai_token_ceiling):
 // 1. the output allowance comes down, never below `floor` (the step's expected output plus the

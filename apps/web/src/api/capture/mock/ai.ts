@@ -87,16 +87,29 @@ const EXPLAIN_TASKS: LedgerTask[] = [
   'connection_test',
 ];
 
+/** The model ids an admin typed per provider id, which the listing doesn't name. */
+const TYPED = new Map<string, string[]>();
+
 /** A provider's model listing, per kind, as the list-models endpoints report them (D202). */
 const LISTINGS: Record<ProviderKind, AiModelListing['models']> = {
   groq: [
-    { id: RECOMMENDED.model, vision: true, text: true, embeddings: false, visionSource: 'listing' },
+    {
+      id: RECOMMENDED.model,
+      vision: true,
+      text: true,
+      embeddings: false,
+      visionSource: 'listing',
+      free: false,
+      typed: false,
+    },
     {
       id: 'openai/gpt-oss-120b',
       vision: false,
       text: true,
       embeddings: false,
       visionSource: 'listing',
+      free: false,
+      typed: false,
     },
     {
       id: 'llama-3.3-70b-versatile',
@@ -104,21 +117,49 @@ const LISTINGS: Record<ProviderKind, AiModelListing['models']> = {
       text: true,
       embeddings: false,
       visionSource: null,
+      free: false,
+      typed: false,
     },
   ],
   openai: [
-    { id: 'gpt-6-luna', vision: true, text: true, embeddings: false, visionSource: 'listing' },
-    { id: 'gpt-6-sol', vision: true, text: true, embeddings: false, visionSource: 'listing' },
+    {
+      id: 'gpt-6-luna',
+      vision: true,
+      text: true,
+      embeddings: false,
+      visionSource: 'listing',
+      free: false,
+      typed: false,
+    },
+    {
+      id: 'gpt-6-sol',
+      vision: true,
+      text: true,
+      embeddings: false,
+      visionSource: 'listing',
+      free: false,
+      typed: false,
+    },
     {
       id: 'text-embedding-3-small',
       vision: false,
       text: false,
       embeddings: true,
       visionSource: 'listing',
+      free: false,
+      typed: false,
     },
   ],
   anthropic: [
-    { id: 'claude-sonnet-5', vision: true, text: true, embeddings: false, visionSource: 'listing' },
+    {
+      id: 'claude-sonnet-5',
+      vision: true,
+      text: true,
+      embeddings: false,
+      visionSource: 'listing',
+      free: false,
+      typed: false,
+    },
   ],
   google: [
     {
@@ -127,6 +168,8 @@ const LISTINGS: Record<ProviderKind, AiModelListing['models']> = {
       text: true,
       embeddings: false,
       visionSource: 'listing',
+      free: false,
+      typed: false,
     },
     {
       id: 'gemini-embedding-001',
@@ -134,20 +177,58 @@ const LISTINGS: Record<ProviderKind, AiModelListing['models']> = {
       text: false,
       embeddings: true,
       visionSource: 'listing',
+      free: false,
+      typed: false,
     },
   ],
   openrouter: [
+    {
+      id: 'qwen/qwen3.8-27b:free',
+      vision: true,
+      text: true,
+      embeddings: false,
+      visionSource: 'listing',
+      free: true,
+      typed: false,
+    },
+    {
+      id: 'nvidia/nemotron-3-embed-1b:free',
+      vision: false,
+      text: false,
+      embeddings: true,
+      visionSource: 'listing',
+      free: true,
+      typed: false,
+    },
     {
       id: 'openai/gpt-6-luna',
       vision: true,
       text: true,
       embeddings: false,
       visionSource: 'listing',
+      free: false,
+      typed: false,
     },
   ],
   openai_compatible: [
-    { id: 'qwen2.5vl:7b', vision: null, text: true, embeddings: false, visionSource: null },
-    { id: 'nomic-embed-text', vision: false, text: false, embeddings: true, visionSource: null },
+    {
+      id: 'qwen2.5vl:7b',
+      vision: null,
+      text: true,
+      embeddings: false,
+      visionSource: null,
+      free: false,
+      typed: false,
+    },
+    {
+      id: 'nomic-embed-text',
+      vision: false,
+      text: false,
+      embeddings: true,
+      visionSource: null,
+      free: false,
+      typed: false,
+    },
   ],
 };
 
@@ -486,12 +567,8 @@ export function aiRoutes(state: MockState): MockRoute[] {
         /^https?:\/\/(10\.|192\.168\.|127\.|localhost)/.test(b.baseUrl)
       )
         return err(400, 'private_address', 'That address is on a private network.');
+      // Any model id is taken, for every kind (a typed one the listing doesn't name).
       const listing = LISTINGS[kind];
-      if (kind !== 'openai_compatible' && b.models) {
-        for (const id of Object.values(b.models))
-          if (id && !listing.some((m) => m.id === id))
-            return err(400, 'validation', "That model isn't in the provider's list.");
-      }
       const defaults = DEFAULT_MODELS[kind].models;
       const offered = (id: string | null) =>
         id && listing.some((m) => m.id === id) ? id : undefined;
@@ -524,6 +601,10 @@ export function aiRoutes(state: MockState): MockRoute[] {
       for (const [k, v] of Object.entries(provider.models))
         if (!v) delete provider.models[k as keyof AiProvider['models']];
       cap().providers = [...cap().providers.filter((x) => x.id !== provider.id), provider];
+      const typed = Object.values(b.models ?? {}).filter(
+        (id): id is string => !!id && !listing.some((m) => m.id === id),
+      );
+      if (typed.length) TYPED.set(provider.id, [...(TYPED.get(provider.id) ?? []), ...typed]);
       return provider;
     }),
 
@@ -568,11 +649,25 @@ export function aiRoutes(state: MockState): MockRoute[] {
           "AI isn't available for this location right now.",
           'The provider did not answer. Try again in a minute.',
         );
-      const models = LISTINGS[provider.kind];
+      const listed = LISTINGS[provider.kind];
       const chosenMissing = (['vision', 'chat', 'embeddings'] as const).filter((slot) => {
         const id = provider.models[slot];
-        return !!id && !models.some((m) => m.id === id);
+        return (
+          !!id && !listed.some((m) => m.id === id) && !(TYPED.get(provider.id) ?? []).includes(id)
+        );
       });
+      const typed = (TYPED.get(provider.id) ?? [])
+        .filter((id) => !listed.some((m) => m.id === id))
+        .map((id) => ({
+          id,
+          vision: provider.models.vision === id ? null : false,
+          text: provider.models.embeddings !== id,
+          embeddings: provider.models.embeddings === id,
+          visionSource: null,
+          free: false,
+          typed: true,
+        }));
+      const models = [...listed, ...typed];
       return { models, fetchedAt: now(), chosenMissing } satisfies AiModelListing;
     }),
 

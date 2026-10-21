@@ -822,6 +822,10 @@ export type AiModelListing = {
     text: boolean;
     embeddings: boolean;
     visionSource: 'listing' | 'test' | null;
+    /** OpenRouter's `:free` variant: a shared pool, often busy. */
+    free: boolean;
+    /** An id an admin typed that the listing doesn't name. */
+    typed: boolean;
   }[];
   fetchedAt: string | null;
   chosenMissing: ('vision' | 'chat' | 'embeddings')[];

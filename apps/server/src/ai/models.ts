@@ -15,15 +15,20 @@
  *   paged by `nextPageToken`: `supportedGenerationMethods` (`generateContent`,
  *   `embedContent`); no input modalities.
  * - OpenRouter `GET /api/v1/models` (Bearer), one page (a listing of 458 came in one):
- *   `architecture.input_modalities` / `output_modalities`, `expiration_date`, `pricing`.
+ *   `architecture.input_modalities` / `output_modalities`, `expiration_date`, `pricing`. Its
+ *   embeddings models are a second listing, `GET /api/v1/embeddings/models` (the same model
+ *   shape, `output_modalities: ['embeddings']`; openrouter.ai/docs API reference, "List all
+ *   embeddings models", read 2026-10-21; it answered without a key too). A failing embeddings
+ *   listing leaves the chat listing as it is.
  * - Groq `GET /openai/v1/models` (Bearer): top-level `input_modalities` / `output_modalities`,
  *   `active`, `context_window`, `pricing`.
  * - An OpenAI-compatible server: `GET <base>/models`; no list endpoint (404/405/501) → [] and
  *   the picker offers "Custom model id".
  *
- * Left out of the picker: `:free` (a shared upstream pool that 429s), `:batch`,
- * `~…` aliases and `openrouter/free` (routers), anything retiring within 30 days, inactive
- * models, and text models with under 8,192 tokens of context (Groq's prompt guards).
+ * `:free` models are kept and marked `free`: a shared upstream pool, often busy (429), which the
+ * picker says. Left out: `:batch`, `~…` aliases and `openrouter/free` (routers), anything
+ * retiring within 30 days, inactive models, and text models with under 8,192 tokens of context
+ * (Groq's prompt guards).
  */
 import type { ProviderKind } from '@kept/shared';
 import { PrivateAddressError } from '../net/ssrf.js';
@@ -38,6 +43,8 @@ export type ListedModel = {
   embeddings: boolean | null;
   /** USD per token as the listing gives it, for the price prefill; `-1` is dropped. */
   pricing: { prompt: string | null; completion: string | null; cachedInput: string | null } | null;
+  /** OpenRouter's `:free` variant: a shared pool, often busy. */
+  free: boolean;
 };
 
 export type ListModelsErrorCode = 'auth' | 'retryable' | 'provider_error';
@@ -98,10 +105,10 @@ function fromModalities(
 }
 
 function excludedId(id: string): boolean {
-  return (
-    id.endsWith(':free') || id.endsWith(':batch') || id.startsWith('~') || id === 'openrouter/free'
-  );
+  return id.endsWith(':batch') || id.startsWith('~') || id === 'openrouter/free';
 }
+
+const isFree = (id: string) => id.endsWith(':free');
 
 type Fetch = typeof fetch;
 
@@ -153,7 +160,14 @@ export async function listModels(
       for (const m of (body?.data as unknown[]) ?? []) {
         const o = obj(m);
         if (typeof o.id !== 'string' || retiringSoon(o.shutdown_date, now)) continue;
-        out.push({ id: o.id, vision: null, text: null, embeddings: null, pricing: null });
+        out.push({
+          id: o.id,
+          vision: null,
+          text: null,
+          embeddings: null,
+          pricing: null,
+          free: false,
+        });
       }
       break;
     }
@@ -173,6 +187,7 @@ export async function listModels(
             text: true,
             embeddings: false,
             pricing: null,
+            free: false,
           });
         }
         if (body?.has_more !== true || typeof body.last_id !== 'string') break;
@@ -196,6 +211,7 @@ export async function listModels(
             text: methods.includes('generateContent'),
             embeddings: methods.includes('embedContent'),
             pricing: null,
+            free: false,
           });
         }
         if (typeof body?.nextPageToken !== 'string' || body.nextPageToken === '') break;
@@ -216,7 +232,27 @@ export async function listModels(
           strings(arch.output_modalities),
           o.context_length,
         );
-        out.push({ id: o.id, ...caps, embeddings: caps.embeddings ?? false });
+        out.push({ id: o.id, ...caps, embeddings: caps.embeddings ?? false, free: isFree(o.id) });
+      }
+      let embeddings: Obj | null = null;
+      try {
+        embeddings = await getJson(fetchFn, `${base}/embeddings/models`, bearer, true);
+      } catch (e) {
+        if (!(e instanceof ListModelsError)) throw e;
+      }
+      for (const m of (embeddings?.data as unknown[]) ?? []) {
+        const o = obj(m);
+        if (typeof o.id !== 'string' || excludedId(o.id) || retiringSoon(o.expiration_date, now))
+          continue;
+        const caps = fromModalities(o, null, null, null);
+        out.push({
+          id: o.id,
+          vision: false,
+          text: false,
+          embeddings: true,
+          pricing: caps.pricing,
+          free: isFree(o.id),
+        });
       }
       break;
     }
@@ -231,7 +267,7 @@ export async function listModels(
           strings(o.output_modalities),
           o.context_window,
         );
-        out.push({ id: o.id, ...caps, embeddings: caps.embeddings ?? false });
+        out.push({ id: o.id, ...caps, embeddings: caps.embeddings ?? false, free: false });
       }
       break;
     }
@@ -246,6 +282,7 @@ export async function listModels(
         out.push({
           id: o.id,
           ...fromModalities(o, inputs, outputs, o.context_window ?? o.context_length),
+          free: false,
         });
       }
       break;

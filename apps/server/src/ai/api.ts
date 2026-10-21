@@ -92,6 +92,7 @@ import {
   lister,
   listingError,
   listingFetch,
+  listingModel,
   listProviders,
   ModelListingSchema,
   managedProvider,
@@ -106,6 +107,7 @@ import {
   type StoredModel,
   saveProvider,
   storedModels,
+  withTyped,
 } from './settings.js';
 import { NO_PROVIDER, StatusSchema, statusOf } from './status.js';
 import { testConnection } from './test-connection.js';
@@ -126,6 +128,8 @@ const Params = z.object({ id: Id });
 
 /** "Test connection" and a model-list refresh: 6 a minute per person. */
 const TESTS_PER_MINUTE = 6;
+/** How long the picker's live listing of a provider is reused. */
+const LISTING_TTL_MS = 10 * 60_000;
 /** CSV exports: 5 an hour per person. */
 const EXPORTS_PER_HOUR = 5;
 
@@ -355,6 +359,10 @@ export async function registerAiApi(app: KeptApp, deps: InventoryDeps): Promise<
     if (!deps.secretKeys) throw new AppError('internal', 503, 'Secrets are not configured.');
     return deps.secretKeys;
   };
+  /** The picker's live listings, per provider, for a short while: opening the picker again
+   * within LISTING_TTL_MS asks the provider nothing. A save or removal of the provider clears
+   * its entry. */
+  const listings = new Map<string, { at: number; list: StoredModel[]; fetchedAt: string }>();
   const listingFetchFor = async (scope: Scope): Promise<typeof fetch> =>
     deps.ai ? (await deps.ai.runtime(scope)).fetch : listingFetch(pools);
   const mock = deps.ai?.mock ?? false;
@@ -458,6 +466,13 @@ export async function registerAiApi(app: KeptApp, deps: InventoryDeps): Promise<
         requested: body.models,
         existing: sameKind && existing?.models.vision ? existing.models : null,
       });
+      // A model typed that the listing doesn't name joins the stored list, marked typed.
+      if (body.models) {
+        const current = list === undefined ? (existing?.model_list ?? null) : list;
+        const typed = withTyped(current, models);
+        if (typed !== current) list = typed;
+      }
+      listings.delete(existing?.id ?? '');
 
       // 4. The write, the audit, and work held for a rejected key sent again.
       return scopedWrite(pools, req, reply, async (tx, client) => {
@@ -532,6 +547,7 @@ export async function registerAiApi(app: KeptApp, deps: InventoryDeps): Promise<
         const who = await whoAmI(client);
         const row = await managedProvider(client, id.data.toLowerCase(), true);
         await retireProvider(client, row.id);
+        listings.delete(row.id);
         await audited(tx, {
           ...auditHome(who, row.scope === 'instance'),
           actor: { type: 'user', id: who.userId },
@@ -671,14 +687,19 @@ export async function registerAiApi(app: KeptApp, deps: InventoryDeps): Promise<
       const scope = requireScope(req);
       const refresh = req.query.refresh === '1' || req.query.refresh === 'true';
       const id = req.params.id;
+      // The provider's list as it is now (no stored snapshot), or the one fetched within the
+      // last ten minutes. It is also written to model_list, which the price prefill, the status
+      // line and Test read.
       const pre = await scopedRead(pools, req, async (_tx, client) => {
         const row = await managedProvider(client, id);
-        const key =
-          refresh || !row.model_list ? await providerKey(client, needKeys(), row.id) : null;
-        return { row, key };
+        const hit = listings.get(row.id);
+        const fresh = !refresh && hit && Date.now() - hit.at < LISTING_TTL_MS ? hit : null;
+        const key = fresh ? null : await providerKey(client, needKeys(), row.id);
+        return { row, key, fresh };
       });
-      let row = pre.row;
-      if (refresh || !row.model_list) {
+      const row = pre.row;
+      let cached = pre.fresh;
+      if (!cached) {
         if (refresh) await limit(deps, req, reply, 'models', TESTS_PER_MINUTE, 60);
         let list: StoredModel[];
         try {
@@ -693,14 +714,12 @@ export async function registerAiApi(app: KeptApp, deps: InventoryDeps): Promise<
           throw listingError(e);
         }
         // Not a model call: no ledger row; audited as a settings action.
-        row = await scopedRead(pools, req, async (tx, client) => {
+        const fetchedAt = await scopedRead(pools, req, async (tx, client) => {
           const who = await whoAmI(client);
-          const { rows } = await client.query<ProviderRow>(
+          const { rows } = await client.query<{ scope: ProviderRow['scope']; model_list_at: Date }>(
             `UPDATE public.ai_providers SET model_list = $2, model_list_at = now()
               WHERE id = $1 AND disabled_at IS NULL
-              RETURNING id, scope, owner_account_id, user_id, kind, model_list, model_list_at,
-                        label, base_url, key_hint, models, capabilities, reasoning, disabled_at,
-                        row_version`,
+              RETURNING scope, model_list_at`,
             [id, JSON.stringify(list)],
           );
           const updated = rows[0];
@@ -714,20 +733,15 @@ export async function registerAiApi(app: KeptApp, deps: InventoryDeps): Promise<
             after: { models_listed: list.length },
             requestId: req.id,
           });
-          return updated;
+          return new Date(updated.model_list_at).toISOString();
         });
+        cached = { at: Date.now(), list, fetchedAt };
+        listings.set(row.id, cached);
       }
-      const list = row.model_list ?? [];
       return {
-        models: list.map((m) => ({
-          id: m.id,
-          vision: m.vision,
-          text: m.text,
-          embeddings: m.embeddings,
-          visionSource: m.visionSource,
-        })),
-        fetchedAt: row.model_list_at ? new Date(row.model_list_at).toISOString() : null,
-        chosenMissing: chosenMissing(row.models, list),
+        models: cached.list.map(listingModel),
+        fetchedAt: cached.fetchedAt,
+        chosenMissing: chosenMissing(row.models, cached.list),
       };
     },
   );

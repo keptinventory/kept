@@ -1,17 +1,31 @@
 import type { PlaceRef, ThingRef, ToolOutput } from '@kept/mcp';
-import { normalize } from '@kept/shared';
+import { type ModuleId, normalize, parseAmount } from '@kept/shared';
 import { undoableEventIds } from '../../audit/audited.js';
 import { undoableUntil } from '../../audit/undo.js';
-import { invalid, notFound } from '../../http/errors.js';
+import { deleteStockRule, putStockRule } from '../../consumables/service.js';
+import { AppError, invalid, notFound } from '../../http/errors.js';
+import { personFor } from '../../lending/service.js';
 import { createReading } from '../../meters/service.js';
 import { createPlace } from '../../places/service.js';
 import { unplacedOf } from '../../places/view.js';
+import { todayIn } from '../../schedules/service.js';
+import { vendorFor } from '../../schedules/services.js';
 import { moveThings } from '../../things/move.js';
 import { insertThing, liveThing, markSeen, updateThing } from '../../things/service.js';
 import type { UpdateBody } from '../../things/validate.js';
 import { viewOf } from '../../things/view.js';
 import { placePath, placeRefOf, thingPath, thingRefOf } from '../output.js';
-import { brandNamed, locationOfRef, placeIn, targetIn, thingIn, typeNamed } from '../resolve.js';
+import {
+  brandEnsured,
+  locationOfRef,
+  personOf,
+  placeIn,
+  tagsNamed,
+  targetIn,
+  thingIn,
+  typeNamed,
+  vendorNamed,
+} from '../resolve.js';
 import type { Handler, Op } from '../types.js';
 
 // The write tools (D58, D124). Each calls the route's own operation, which checks the
@@ -19,6 +33,12 @@ import type { Handler, Op } from '../types.js';
 // undoable for 7 days: the moves and edits already are; a tool's creates (things, places,
 // readings) pass `undoable` so they are too (undo/registry.ts has their handlers). The answer
 // names the audit event(s) and how long they can be undone.
+
+/** A module the field needs is on where the tool runs, else `module_off` (`tool_unavailable` to
+ * the caller, as a module that is off always answers). */
+function requireModule(loc: { modules: ReadonlySet<ModuleId> }, module: ModuleId) {
+  if (!loc.modules.has(module)) throw new AppError('module_off', 409);
+}
 
 const locationOf = (op: Op) => {
   if (!op.location) throw new Error('a write tool always runs in one location');
@@ -148,12 +168,22 @@ export const addThing: Handler<'add_thing'> = {
         target = { placeId: unplaced };
         placed.push({ item: i, status: 'unplaced', place: null });
       }
-      const typeId = item.type ? await typeNamed(op.client, loc.id, item.type) : null;
+      const typeId =
+        item.type_id ?? (item.type ? await typeNamed(op.client, loc.id, item.type) : null);
       if (item.type && !typeId)
         notSet.push({ item: i, field: 'type', untrusted: { value: item.type } });
-      const brandId = item.brand ? await brandNamed(op.client, loc.id, item.brand) : null;
-      if (item.brand && !brandId)
-        notSet.push({ item: i, field: 'brand', untrusted: { value: item.brand } });
+      const brandId = item.brand?.trim() ? await brandEnsured(op.client, loc.id, item.brand) : null;
+      const tags = item.tags?.length ? await tagsNamed(op.client, loc.id, item.tags) : null;
+      for (const value of tags?.missing ?? [])
+        notSet.push({ item: i, field: 'tag', untrusted: { value } });
+      const belongsTo = item.belongs_to
+        ? await personFor(op, loc.id, await personOf(op.client, loc.id, item.belongs_to))
+        : null;
+      const p = item.purchase;
+      const vendorId = p?.shop
+        ? ((await vendorNamed(op.client, loc.id, p.shop)) ??
+          (await vendorFor(op, loc.id, { name: p.shop })))
+        : null;
       const id = await insertThing(
         op,
         {
@@ -165,10 +195,34 @@ export const addThing: Handler<'add_thing'> = {
           ...(brandId ? { brandId } : {}),
           ...(item.model ? { model: item.model } : {}),
           ...(item.serial ? { serial: item.serial } : {}),
+          ...(item.barcode ? { barcode: item.barcode } : {}),
+          ...(item.colour ? { colour: item.colour } : {}),
+          ...(item.condition ? { condition: item.condition } : {}),
           ...(item.notes ? { notes: item.notes } : {}),
+          ...(item.aliases?.length ? { aliases: aliasesByLanguage(op.locale, item.aliases) } : {}),
+          ...(tags?.ids.length ? { tagIds: tags.ids } : {}),
+          ...(belongsTo ? { belongsToPersonId: belongsTo } : {}),
+          ...(item.manual_url ? { manualUrl: item.manual_url } : {}),
+          ...(item.expires_on ? { expiresOn: item.expires_on } : {}),
+          ...(item.expiry_lead_days !== undefined ? { expiryLeadDays: item.expiry_lead_days } : {}),
+          ...(item.custom ? { custom: item.custom } : {}),
+          ...(p
+            ? {
+                purchase: {
+                  purchasedOn: p.purchased_on ?? (await todayIn(op.client, loc.id)),
+                  currency: p.currency,
+                  price: parseAmount(p.price),
+                  ...(vendorId ? { vendorId } : {}),
+                },
+              }
+            : {}),
         },
         { audit: { action: 'thing.create', undoableUntil: until } },
       );
+      if (item.keep_at_least !== undefined) {
+        requireModule(loc, 'consumables');
+        await putStockRule(op, id, undefined, item.keep_at_least);
+      }
       thingIds.push(id);
     }
 
@@ -226,29 +280,62 @@ export const updateThingTool: Handler<'update_thing'> = {
     const f = input.fields;
     const body: UpdateBody = {};
     if (f.name !== undefined) body.name = f.name;
+    if (f.quantity !== undefined) body.quantity = f.quantity;
     if (f.notes !== undefined) body.notes = f.notes;
     if (f.model !== undefined) body.model = f.model;
     if (f.serial !== undefined) body.serial = f.serial;
+    if (f.barcode !== undefined) body.barcode = f.barcode;
+    if (f.colour !== undefined) body.colour = f.colour;
     if (f.condition !== undefined) body.condition = f.condition;
+    if (f.manual_url !== undefined) body.manualUrl = f.manual_url;
+    if (f.expires_on !== undefined) body.expiresOn = f.expires_on;
+    if (f.expiry_lead_days !== undefined) body.expiryLeadDays = f.expiry_lead_days;
+    if (f.acquired_from !== undefined) body.acquiredFrom = f.acquired_from;
+    if (f.provenance_notes !== undefined) body.provenanceNotes = f.provenance_notes;
     if (f.custom !== undefined) body.custom = f.custom;
+    if (f.type_id !== undefined) body.typeId = f.type_id;
+    else if (f.type !== undefined) {
+      const typeId = f.type === null ? null : await typeNamed(op.client, loc.id, f.type);
+      if (f.type !== null && !typeId)
+        throw invalid('There is no type with that name here; leave type out or name another.');
+      body.typeId = typeId;
+    }
+    if (f.tags !== undefined) {
+      const tags = await tagsNamed(op.client, loc.id, f.tags);
+      if (tags.missing.length)
+        throw invalid('There is no tag with that name here; name only tags that exist.');
+      body.tagIds = tags.ids;
+    }
+    if (f.belongs_to !== undefined) {
+      body.belongsToPersonId =
+        f.belongs_to === null
+          ? null
+          : await personFor(op, loc.id, await personOf(op.client, loc.id, f.belongs_to));
+    }
     if (f.aliases !== undefined) {
       const v = await viewOf(op.tx, op.client, op.scope, null, id);
       body.aliases = { ...(v.aliases ?? {}), ...aliasesByLanguage(op.locale, f.aliases) };
     }
     if (f.brand !== undefined) {
-      if (f.brand === null) body.brandId = null;
-      else {
-        const brandId = await brandNamed(op.client, loc.id, f.brand);
-        if (!brandId)
-          throw invalid('There is no brand with that name here; leave brand out or name another.');
-        body.brandId = brandId;
-      }
+      body.brandId =
+        f.brand === null || !f.brand.trim() ? null : await brandEnsured(op.client, loc.id, f.brand);
     }
     const expected = op.ifMatch ?? (await liveThing(op.client, id)).row_version;
     // The route's operation: secret keys in `custom` are refused (they have their own route,
     // D116), a money value where the gate hides money is `module_off`, and a changed row
     // since the proposal is 412 (D156).
-    await updateThing(op, id, expected, body);
+    if (Object.keys(body).length > 0) await updateThing(op, id, expected, body);
+    if (f.keep_at_least !== undefined) {
+      requireModule(loc, 'consumables');
+      const { rows } = await op.client.query<{ row_version: number }>(
+        'SELECT row_version FROM public.stock_rules WHERE thing_id = $1',
+        [id],
+      );
+      const rule = rows[0];
+      if (f.keep_at_least === null) {
+        if (rule) await deleteStockRule(op, id, rule.row_version);
+      } else await putStockRule(op, id, rule?.row_version, f.keep_at_least);
+    }
     return {
       data: {
         ...(await writeResult(op, 'thing', id)),

@@ -104,12 +104,31 @@ describe('defaults', () => {
   });
 });
 
-describe('estimateTextTokens (L43: the high estimate)', () => {
-  it('is ceil(chars / 2.4)', () => {
-    expect(estimateTextTokens('')).toBe(0);
+describe('estimateTextTokens', () => {
+  it('counts the pieces a byte-pair tokenizer splits text into', () => {
+    expect(estimateTextTokens('', 'groq')).toBe(0);
+    // A word of up to six letters is one token; a space before it joins it.
+    expect(estimateTextTokens('where is the drill', 'groq')).toBe(4);
+    // Digits go in groups of up to three; punctuation runs by three.
+    expect(estimateTextTokens('1234567', 'openai')).toBe(3);
+    expect(estimateTextTokens('{"a":1}', 'groq')).toBe(5);
+    // Letters outside ASCII (Arabic) at 2.6 characters a token.
+    expect(estimateTextTokens('كابل', 'groq')).toBe(2);
+  });
+
+  it('an unmeasured tokenizer (or none named) never gets less than one token per 2.4 characters', () => {
+    const text = 'abcdefghijkl';
+    expect(estimateTextTokens(text, 'groq')).toBe(2);
+    for (const kind of ['anthropic', 'google', 'openrouter', 'openai_compatible'] as const) {
+      expect(estimateTextTokens(text, kind)).toBe(5);
+    }
+    expect(estimateTextTokens(text)).toBe(5);
     expect(estimateTextTokens('a')).toBe(1);
-    expect(estimateTextTokens('abcdefghijkl')).toBe(5);
-    expect(estimateTextTokens('كابل HDMI')).toBe(Math.ceil(9 / 2.4));
+    expect(estimateTextTokens('')).toBe(0);
+    // Ids tokenize densely: the pieces count wins over the ratio.
+    const id = '3f6c1e2a-8b4d-4c7e-9a1f-2d3e4f5a6b7c';
+    expect(estimateTextTokens(id, 'anthropic')).toBe(estimateTextTokens(id, 'groq'));
+    expect(estimateTextTokens(id, 'groq')).toBeGreaterThan(Math.ceil(id.length / 2.4));
   });
 });
 

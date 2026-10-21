@@ -442,6 +442,10 @@ export const useAiModels = (providerId: string | null) =>
     queryKey: k.ai.models(providerId ?? ''),
     queryFn: () => captureApi.aiModels(providerId ?? ''),
     enabled: !!providerId,
+    // Live each time the picker opens; the server keeps a ten-minute copy.
+    staleTime: 0,
+    refetchOnMount: 'always',
+    retry: false,
   });
 export const useAiExplain = (scope: AiScope, locationId?: string) =>
   useQuery({

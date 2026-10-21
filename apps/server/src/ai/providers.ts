@@ -99,9 +99,10 @@ export function modelFor(t: ModelTarget, apiKey: string | null, fetchFn: Fetch):
 
 /**
  * The embeddings model for a resolved provider, from each package's
- * `embeddingModel(id)` (read in its `dist/index.d.ts`). Anthropic, Groq and OpenRouter have no
- * embeddings model here: the cascade never resolves one for them (`DEFAULT_MODELS`), so asking is
- * a programming error.
+ * `embeddingModel(id)` (read in its `dist/index.d.ts`); OpenRouter's is `textEmbeddingModel(id)`,
+ * which POSTs `/embeddings` with the model and the values. Anthropic and Groq have no embeddings
+ * model: the cascade never resolves one for them (`DEFAULT_MODELS`), so asking is a programming
+ * error.
  */
 export function embeddingModelFor(
   t: Pick<ModelTarget, 'kind' | 'baseUrl' | 'model'>,
@@ -122,12 +123,22 @@ export function embeddingModelFor(
         apiKey: key,
         fetch: fetchFn,
       }).embeddingModel(t.model);
+    case 'openrouter':
+      return createOpenRouter({
+        apiKey: key,
+        baseURL,
+        fetch: fetchFn,
+        compatibility: 'strict',
+      }).textEmbeddingModel(t.model);
     default:
       throw new Error(`embeddings: a ${t.kind} provider has no embeddings model in Kept`);
   }
 }
 
-/** The provider option that asks for shorter vectors, per kind. */
+/** The provider option that asks for shorter vectors, per kind. None for OpenRouter: its router
+ * takes `dimensions`, but whether the model behind it honours it is per model (its listing's
+ * `supported_parameters` is empty for every embeddings model, 2026-10-21), and a model served by
+ * two upstreams could answer two lengths. Without it a model always answers its own length. */
 export function embeddingDimensionsOption(
   kind: ProviderKind,
   dims: number | undefined,

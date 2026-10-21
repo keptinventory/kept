@@ -1,7 +1,9 @@
 import { parseRef } from '@kept/mcp';
-import { BUILTIN_TYPES, normalize } from '@kept/shared';
+import { normalize } from '@kept/shared';
 import type pg from 'pg';
+import { matchType } from '../extraction/apply.js';
 import { notFound } from '../http/errors.js';
+import type { PersonInput } from '../lending/service.js';
 
 // References a model or an MCP client typed (a UUID or a short ID in any spelling, D137, D208),
 // resolved as the caller: a row they can't see, one in the trash, and one in another location
@@ -75,36 +77,98 @@ export async function targetIn(
  * of the location's account's own types by name, compared after kept.normalize()'s twin. Null
  * when none matches; the caller says so rather than guessing (add_thing's `not_set`).
  */
+/**
+ * The type a name says, in the location's account: matched as capture's type hint is (the
+ * account's own types by name, then the built-in library by its English or Arabic name or a part
+ * of it, "Box / bin" → "bin", the account's copy of a built-in first). Null when none matches.
+ */
 export async function typeNamed(
   client: pg.ClientBase,
   locationId: string,
   name: string,
 ): Promise<string | null> {
-  const wanted = normalize(name);
-  const builtin = BUILTIN_TYPES.find(
-    (t) =>
-      !t.isFieldGroup && (normalize(t.names.en) === wanted || normalize(t.names.ar) === wanted),
+  const { rows } = await client.query<{ owner_account_id: string }>(
+    'SELECT owner_account_id FROM public.locations WHERE id = $1',
+    [locationId],
   );
-  if (builtin) {
-    const { rows } = await client.query<{ id: string }>(
-      `SELECT id FROM public.types
-        WHERE builtin_key = $1 AND owner_account_id IS NULL AND archived_at IS NULL`,
-      [builtin.key],
-    );
-    if (rows[0]) return rows[0].id;
+  const account = rows[0]?.owner_account_id;
+  return account ? matchType(client, account, name) : null;
+}
+
+/** A brand of the location's account by name: the one there is, or a new one (as capture
+ * makes a brand it reads). */
+export async function brandEnsured(
+  client: pg.ClientBase,
+  locationId: string,
+  name: string,
+): Promise<string> {
+  const { rows } = await client.query<{ id: string }>('SELECT kept.ai_ensure_brand($1, $2) AS id', [
+    locationId,
+    name.trim(),
+  ]);
+  return (rows[0] as { id: string }).id;
+}
+
+/** The location account's tags by name; the names no tag has come back in `missing`. */
+export async function tagsNamed(
+  client: pg.ClientBase,
+  locationId: string,
+  names: readonly string[],
+): Promise<{ ids: string[]; missing: string[] }> {
+  const { rows } = await client.query<{ id: string; key: string }>(
+    `SELECT g.id, kept.normalize(g.name) AS key FROM public.tags g
+       JOIN public.locations l ON l.owner_account_id = g.owner_account_id
+      WHERE l.id = $1 AND kept.normalize(g.name) = ANY (
+        SELECT kept.normalize(n) FROM unnest($2::text[]) AS n)`,
+    [locationId, names],
+  );
+  const byKey = new Map(rows.map((r) => [r.key, r.id]));
+  const ids: string[] = [];
+  const missing: string[] = [];
+  for (const n of names) {
+    const id = byKey.get(normalize(n));
+    if (id) {
+      if (!ids.includes(id)) ids.push(id);
+    } else missing.push(n);
   }
+  return { ids, missing };
+}
+
+/** A vendor of the location's account by name, or null. */
+export async function vendorNamed(
+  client: pg.ClientBase,
+  locationId: string,
+  name: string,
+): Promise<string | null> {
   const { rows } = await client.query<{ id: string }>(
-    `SELECT ty.id FROM public.types ty
-       JOIN public.locations l ON l.owner_account_id = ty.owner_account_id
-      WHERE l.id = $1 AND ty.archived_at IS NULL AND NOT ty.is_field_group
-        AND kept.normalize(ty.name) = kept.normalize($2)
-      ORDER BY ty.id LIMIT 1`,
+    `SELECT v.id FROM public.vendors v
+       JOIN public.locations l ON l.owner_account_id = v.owner_account_id
+      WHERE l.id = $1 AND kept.normalize(v.name) = kept.normalize($2)
+      ORDER BY v.id LIMIT 1`,
     [locationId, name],
   );
   return rows[0]?.id ?? null;
 }
 
-/** The brand of the location's account with that name (unique after normalising), or null. */
+/** A person as the model names them: an id, else a person of the location's account with that
+ * name (so "Murdock" twice is one person), else a new one by name. */
+export async function personOf(
+  client: pg.ClientBase,
+  locationId: string,
+  raw: string,
+): Promise<PersonInput> {
+  const ref = parseRef(raw);
+  if (ref?.kind === 'id') return { id: ref.id };
+  const { rows } = await client.query<{ id: string }>(
+    `SELECT pe.id FROM public.people pe
+       JOIN public.locations l ON l.owner_account_id = pe.owner_account_id
+      WHERE l.id = $1 AND kept.normalize(pe.display_name) = kept.normalize($2)
+      ORDER BY pe.created_at, pe.id LIMIT 1`,
+    [locationId, raw],
+  );
+  return rows[0] ? { id: rows[0].id } : { name: raw };
+}
+
 export async function brandNamed(
   client: pg.ClientBase,
   locationId: string,

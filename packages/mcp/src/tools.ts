@@ -10,8 +10,9 @@
  *   after the plan (Moving mode's, D251). The contract lands now; the handler lands with that
  *   step, and `capabilities` never lists a tool without one.
  * - `doors`: who is offered the tool, MCP and the assistant (D22) unless it says otherwise. The
- *   moving tools are MCP's only: the assistant's confirmation card has no rows for them, and every
- *   assistant request carries every tool it may call (its free-tier budget, D124's amendment).
+ *   moving tools are MCP's only: the assistant's confirmation card has no rows for them (D124's
+ *   amendment). The assistant offers each step the tools its question is about
+ *   (apps/server/src/assistant/select.ts).
  * - `input` is what the model or the MCP client sends (snake_case). Ids are UUIDs or
  *   6-character short IDs (`idOrCode`), read through `normaliseInputCode`. `location_id` is
  *   optional where the principal has one location (D179).
@@ -254,25 +255,76 @@ const moveBox = z.object({
 const moveId = uuid.describe('The move (list_moves lists them)');
 const boxId = idOrCode.describe('The box: its id, or the short ID on its label');
 
+/** A thing's own fields, as add_thing sets them and update_thing changes them: every field the
+ * app's create and edit forms set (fields-parity.test.ts in apps/server checks the two stay
+ * together). Each detail goes in its own field, never in `notes`. */
+const thingFields = {
+  type: z.string().max(120).describe('Its type, by name ("Drill", "Car")'),
+  type_id: uuid.describe('Its type, by id (instead of `type`)'),
+  brand: z.string().max(120),
+  model: z.string().max(120),
+  serial: z.string().max(100).describe('As printed on it'),
+  barcode: z.string().max(64),
+  colour: z.string().max(60),
+  condition: z.enum(CONDITIONS),
+  notes: z.string().max(2000).describe('Only what no other field holds'),
+  aliases: z.array(shortText(200)).max(20).describe('Other names for it'),
+  tags: z.array(shortText(80)).max(20).describe('Tag names; only tags that exist'),
+  belongs_to: shortText(200).describe('Whose it is: a person’s name'),
+  manual_url: z.url({ protocol: /^https?$/ }).max(2000),
+  expires_on: isoDate,
+  expiry_lead_days: z.number().int().min(0).max(3650).describe('Days before expiry to remind'),
+  keep_at_least: z.number().min(0).max(999_999).describe('A consumable’s minimum stock'),
+  custom: z.record(z.string().max(64), z.unknown()).describe('Its type’s own fields, by key'),
+};
+
+/** Each field of a shape, nullable (update_thing: null clears it). */
+const nullable = <T extends Record<string, z.ZodType>>(shape: T) =>
+  Object.fromEntries(Object.entries(shape).map(([k, v]) => [k, v.nullable()])) as {
+    [K in keyof T]: z.ZodNullable<T[K]>;
+  };
+
+const { aliases, tags, custom, ...clearable } = thingFields;
+
 /** One item of `add_thing` (D213: a spoken list is one call with several items). */
-export const addThingItem = z.object({
-  name: shortText(200),
-  quantity: z.number().int().min(1).max(100_000).optional(),
-  place_id: idOrCode.optional().describe('An existing place or container'),
-  new_place: z
-    .object({
-      name: shortText(120),
-      parent_id: idOrCode.optional(),
-      kind: z.string().max(40).optional(),
-    })
-    .optional()
-    .describe('A place that does not exist yet; it is proposed with the thing (D213)'),
-  type: z.string().max(120).optional().describe('A type name, e.g. "Drill"'),
-  brand: z.string().max(120).optional(),
-  model: z.string().max(120).optional(),
-  serial: z.string().max(100).optional().describe('The serial number, as printed on the thing'),
-  notes: z.string().max(2000).optional(),
-});
+export const addThingItem = z
+  .object({
+    name: shortText(200),
+    quantity: z.number().int().min(1).max(100_000).optional(),
+    place_id: idOrCode.optional().describe('An existing place or container'),
+    new_place: z
+      .object({
+        name: shortText(120),
+        parent_id: idOrCode.optional(),
+        kind: z.string().max(40).optional(),
+      })
+      .optional()
+      .describe('A place that does not exist yet; it is proposed with the thing (D213)'),
+    purchase: z
+      .object({
+        purchased_on: isoDate.optional(),
+        price: money.shape.amount.describe('The price of one'),
+        currency: money.shape.currency,
+        shop: shortText(200).optional(),
+      })
+      .optional(),
+  })
+  .extend(z.object(thingFields).partial().shape);
+
+/** update_thing's fields: each of a thing's fields; `null` clears one. */
+const updateFields = z
+  .object({
+    name: shortText(200),
+    quantity: z.number().min(0).max(999_999_999),
+    aliases,
+    tags,
+    custom,
+    ...nullable(clearable),
+    acquired_from: z.string().max(200).nullable().describe('Where it came from'),
+    provenance_notes: z.string().max(2000).nullable(),
+  })
+  .partial()
+  .refine((f) => Object.keys(f).length > 0, { message: 'at least one field' });
 
 export const TOOL_DEFS = Object.freeze({
   // --- read, core ----------------------------------------------------------------------------
@@ -503,7 +555,7 @@ export const TOOL_DEFS = Object.freeze({
     name: 'add_thing',
     title: 'Add things',
     description:
-      'Add one or more things. Put every thing the person listed in `items`, in one call; name a new place in `new_place` when it does not exist.',
+      'Add things: every one the person listed goes in `items`, in one call. Each detail in its own field (type, colour, condition, purchase …), never in notes. `new_place`: a place not made yet.',
     scope: 'write',
     module: null,
     since: 6,
@@ -532,7 +584,7 @@ export const TOOL_DEFS = Object.freeze({
         .array(
           z.object({
             item: z.number().int().min(0),
-            field: z.enum(['type', 'brand']),
+            field: z.enum(['type', 'brand', 'tag']),
             untrusted: z.object({ value: z.string() }),
           }),
         )
@@ -543,7 +595,7 @@ export const TOOL_DEFS = Object.freeze({
     name: 'update_thing',
     title: 'Change a thing',
     description:
-      'Change a thing’s name, aliases, notes, brand, model, serial number, condition or fields. Secret fields and prices only where allowed.',
+      'Change a thing’s fields: each detail in its own field (type, colour, condition …), never in notes; null clears one. Secret fields and prices only where allowed.',
     scope: 'write',
     module: null,
     since: 6,
@@ -551,24 +603,7 @@ export const TOOL_DEFS = Object.freeze({
     input: z.object({
       location_id: locationId,
       thing_id: idOrCode,
-      fields: z
-        .object({
-          name: shortText(200).optional(),
-          aliases: z
-            .array(shortText(200))
-            .max(20)
-            .optional()
-            .describe(
-              'Replaces the aliases of each language given: Arabic-script words are Arabic, the rest English. Send the full list for that language',
-            ),
-          notes: z.string().max(2000).nullable().optional(),
-          brand: z.string().max(120).nullable().optional(),
-          model: z.string().max(120).nullable().optional(),
-          serial: z.string().max(100).nullable().optional(),
-          condition: z.enum(CONDITIONS).nullable().optional(),
-          custom: z.record(z.string(), z.unknown()).optional(),
-        })
-        .refine((f) => Object.keys(f).length > 0, { message: 'at least one field' }),
+      fields: updateFields,
     }),
     output: writeResult.extend({ thing: thingRef, changed_fields: z.array(z.string()) }),
   }),

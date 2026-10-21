@@ -743,7 +743,7 @@ export async function embedValues(rt: AiRuntime, req: EmbedRequest): Promise<Emb
   if (req.values.length === 0 || req.values.length > limit) {
     throw new Error(`embedValues: 1–${limit} values per request, got ${req.values.length}`);
   }
-  const estimateTokens = req.values.reduce((n, v) => n + estimateTextTokens(v), 0);
+  const estimateTokens = req.values.reduce((n, v) => n + estimateTextTokens(v, provider.kind), 0);
   const base = (now: Date, over: Partial<LedgerEntry>): LedgerEntry => ({
     reservationId: null,
     at: now,
@@ -866,6 +866,15 @@ export async function embedValues(rt: AiRuntime, req: EmbedRequest): Promise<Emb
       if (vectors.length !== req.values.length) {
         outcome = 'schema_invalid';
         errorCode = 'vector_count';
+        vectors = null;
+      } else if (
+        new Set(vectors.map((v) => v.length)).size > 1 ||
+        (req.dimensions !== undefined && vectors.some((v) => v.length !== req.dimensions))
+      ) {
+        // Vectors of another length than asked, or of two lengths: never stored, so one model
+        // key never holds vectors search can't compare.
+        outcome = 'schema_invalid';
+        errorCode = 'vector_length';
         vectors = null;
       }
     } catch (e) {
