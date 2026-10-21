@@ -22,6 +22,7 @@
   <a href="LICENSE"><img alt="Licence: AGPL-3.0" src="https://img.shields.io/badge/licence-AGPL--3.0-F0B03A?style=flat-square&labelColor=55524C"></a>
   <a href="https://keptinventory.info/"><img alt="Documentation" src="https://img.shields.io/badge/docs-keptinventory.info-F0B03A?style=flat-square&labelColor=55524C&label=docs"></a>
   <a href="https://github.com/orgs/keptinventory/packages/container/package/kept"><img alt="Container image: ghcr.io/keptinventory/kept" src="https://img.shields.io/badge/image-ghcr.io%2Fkeptinventory%2Fkept-F0B03A?style=flat-square&labelColor=55524C"></a>
+  <a href="https://hub.docker.com/r/keptinventory/kept"><img alt="Docker Hub: keptinventory/kept" src="https://img.shields.io/badge/docker%20hub-keptinventory%2Fkept-F0B03A?style=flat-square&labelColor=55524C"></a>
   <a href="CONTRIBUTING.md#sign-the-cla-once"><img alt="CLA: sign once" src="https://img.shields.io/badge/CLA-sign%20once-F0B03A?style=flat-square&labelColor=55524C"></a>
 </p>
 
