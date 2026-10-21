@@ -3,6 +3,29 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.12.5 (2026-10-21)
+
+### Highlights
+
+- **Security update for the MCP server.** The MCP SDK moves to 2.3.1, closing the open advisories. Kept's `/mcp` now also accepts only tokens issued for this Kept's own `/mcp` address, and refuses oversized tool calls while it keeps serving. Kept already gave every request its own MCP server, so answers never crossed between clients; a test now proves it.
+- **A readable release page.** Each release now opens with its highlights, then what changed and the issues it closes, how to upgrade, and who wrote it. Image digests and verify commands are folded at the end.
+
+### Fixes
+
+- **deps:** MCP SDK 2.3.1 and vite 8.3.4 for the open security advisories (#251) (cc29ebb)
+
+### Documentation
+
+- **release:** the 1.12.4 record (#248) (28e2d72)
+
+### Behind the scenes
+
+- **release:** Contributors lists the code's authors (#250) (1ad535e)
+
+### Contributors
+
+@ibrahimroshdy
+
 ## 1.12.4 (2026-10-21)
 
 ### Features
