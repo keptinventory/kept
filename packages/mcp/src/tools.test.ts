@@ -53,6 +53,9 @@ const TABLE: Record<
   pack_into_box: ['write', 'moving', '1.x'],
   set_box_status: ['write', 'moving', '1.x'],
   unpack_box: ['write', 'moving', '1.x'],
+  // Tags (1.x, #209).
+  list_tags: ['read', null, '1.x'],
+  tag_things: ['write', null, '1.x'],
 };
 
 const MCP_ONLY = [
@@ -69,7 +72,7 @@ describe('TOOL_DEFS', () => {
   it('is exactly the plan’s table: scope, module and step', () => {
     expect(Object.keys(TOOL_DEFS).sort()).toEqual(Object.keys(TABLE).sort());
     for (const [name, d] of defs) expect([d.scope, d.module, d.since]).toEqual(TABLE[name]);
-    expect(TOOL_NAMES).toHaveLength(34);
+    expect(TOOL_NAMES).toHaveLength(36);
   });
 
   it('offers every tool at both doors but Moving mode’s, which only MCP is offered', () => {

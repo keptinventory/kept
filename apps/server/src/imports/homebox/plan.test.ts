@@ -178,6 +178,23 @@ describe('planHomebox over Home', () => {
     });
   });
 
+  it('notes the tags on a location that becomes a place: Kept tags things only', () => {
+    const tag = [...home.tags.values()][0];
+    const room = [...home.entities.values()].find(
+      (e) => home.types.get(e.entity_type_entities)?.is_location && e.name !== 'Bits tray',
+    );
+    if (!tag || !room) throw new Error('the fixture has a tag and a location');
+    const data = {
+      ...home,
+      tagEntities: [...home.tagEntities, { tag_id: tag.id, entity_id: room.id }],
+    };
+    const plan = planHomebox(data as HomeboxData, choices(home), lookups());
+    expect(issuesOf(plan, room.id)).toContain('hb_place_tags_dropped');
+    expect(issuesOf(planHomebox(home, choices(home), lookups()), room.id)).not.toContain(
+      'hb_place_tags_dropped',
+    );
+  });
+
   it('keeps a fractional quantity in the notes where the type counts one by one', () => {
     const plan = planHomebox(home, choices(home), lookups());
     const screws = thing(plan.ops, 'Wood screws');

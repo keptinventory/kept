@@ -476,7 +476,8 @@ describe('every field a person can set, through add_thing and update_thing', () 
         },
       ],
     });
-    expect(d.not_set).toEqual([{ item: 0, field: 'tag', untrusted: { value: 'No such tag' } }]);
+    // A member makes a tag no tag has yet (#209), so nothing is left unset.
+    expect(d.not_set).toBeUndefined();
     expect(await fullRow(d.things[0].id)).toMatchObject({
       name: 'Field kettle',
       quantity: '2',
@@ -493,7 +494,7 @@ describe('every field a person can set, through add_thing and update_thing', () 
       expires_on: '2030-01-31',
       expiry_lead_days: 30,
       owner: 'Murdock',
-      tags: ['Kitchen'],
+      tags: ['Kitchen', 'No such tag'],
       bought: '2026-09-01',
       currency: 'EGP',
       price: '45.5',

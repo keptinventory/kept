@@ -61,6 +61,8 @@ export const ThingObject = z.object({
   serial: conf(text(120)).optional(),
   /** In each of the location's languages (D41). */
   aliases: z.record(languageCode, z.array(text(80)).max(12)),
+  /** 1.x (#209): tags from the household's own list that fit; Kept keeps only those that exist. */
+  tags: z.array(text(60)).max(5).optional(),
 });
 
 /** THING: one object in 1.0; many objects is 1.x (D20). */

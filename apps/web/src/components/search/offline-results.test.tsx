@@ -148,7 +148,7 @@ describe('the filters the phone can apply', () => {
     expect(passesOffline({ typeId: 't2', not: ['typeId'] })(drill)).toBe(true);
     expect(passesOffline({ typeId: 't2' })(drill)).toBe(false);
   });
-  it('place, tag, state and price are the server’s', () => {
+  it('place, state and price are the server’s', () => {
     expect(serverOnlyFilters({ q: 'x', locationId: 'a' })).toBe(false);
     expect(serverOnlyFilters({ placeId: 'p' })).toBe(true);
     expect(serverOnlyFilters({ state: ['draft'] })).toBe(true);

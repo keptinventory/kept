@@ -84,6 +84,7 @@ import { Route as AppSettingsImportRouteImport } from './routes/_app/settings.im
 import { Route as AppSettingsLocationsRouteImport } from './routes/_app/settings.locations'
 import { Route as AppSettingsTwoFactorRouteImport } from './routes/_app/settings.two-factor'
 import { Route as AppTIdRouteImport } from './routes/_app/t.$id'
+import { Route as AppTagsIdRouteImport } from './routes/_app/tags.$id'
 import { Route as AppTypesIdRouteImport } from './routes/_app/types.$id'
 import { Route as AppVendorsIdRouteImport } from './routes/_app/vendors.$id'
 import { Route as PrintLabelsBatchIdRouteImport } from './routes/_print/labels.$batchId'
@@ -484,6 +485,11 @@ const AppTIdRoute = AppTIdRouteImport.update({
   path: '/t/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppTagsIdRoute = AppTagsIdRouteImport.update({
+  id: '/tags/$id',
+  path: '/tags/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppTypesIdRoute = AppTypesIdRouteImport.update({
   id: '/types/$id',
   path: '/types/$id',
@@ -701,6 +707,7 @@ export interface FileRoutesByFullPath {
   '/settings/locations': typeof AppSettingsLocationsRoute
   '/settings/two-factor': typeof AppSettingsTwoFactorRoute
   '/t/$id': typeof AppTIdRoute
+  '/tags/$id': typeof AppTagsIdRoute
   '/types/$id': typeof AppTypesIdRoute
   '/vendors/$id': typeof AppVendorsIdRoute
   '/labels/$batchId': typeof PrintLabelsBatchIdRoute
@@ -800,6 +807,7 @@ export interface FileRoutesByTo {
   '/settings/locations': typeof AppSettingsLocationsRoute
   '/settings/two-factor': typeof AppSettingsTwoFactorRoute
   '/t/$id': typeof AppTIdRoute
+  '/tags/$id': typeof AppTagsIdRoute
   '/types/$id': typeof AppTypesIdRoute
   '/vendors/$id': typeof AppVendorsIdRoute
   '/labels/$batchId': typeof PrintLabelsBatchIdRoute
@@ -904,6 +912,7 @@ export interface FileRoutesById {
   '/_app/settings/locations': typeof AppSettingsLocationsRoute
   '/_app/settings/two-factor': typeof AppSettingsTwoFactorRoute
   '/_app/t/$id': typeof AppTIdRoute
+  '/_app/tags/$id': typeof AppTagsIdRoute
   '/_app/types/$id': typeof AppTypesIdRoute
   '/_app/vendors/$id': typeof AppVendorsIdRoute
   '/_print/labels/$batchId': typeof PrintLabelsBatchIdRoute
@@ -1007,6 +1016,7 @@ export interface FileRouteTypes {
     | '/settings/locations'
     | '/settings/two-factor'
     | '/t/$id'
+    | '/tags/$id'
     | '/types/$id'
     | '/vendors/$id'
     | '/labels/$batchId'
@@ -1106,6 +1116,7 @@ export interface FileRouteTypes {
     | '/settings/locations'
     | '/settings/two-factor'
     | '/t/$id'
+    | '/tags/$id'
     | '/types/$id'
     | '/vendors/$id'
     | '/labels/$batchId'
@@ -1209,6 +1220,7 @@ export interface FileRouteTypes {
     | '/_app/settings/locations'
     | '/_app/settings/two-factor'
     | '/_app/t/$id'
+    | '/_app/tags/$id'
     | '/_app/types/$id'
     | '/_app/vendors/$id'
     | '/_print/labels/$batchId'
@@ -1783,6 +1795,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/tags/$id': {
+      id: '/_app/tags/$id'
+      path: '/tags/$id'
+      fullPath: '/tags/$id'
+      preLoaderRoute: typeof AppTagsIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/types/$id': {
       id: '/_app/types/$id'
       path: '/types/$id'
@@ -2157,6 +2176,7 @@ interface AppRouteChildren {
   AppSettingsLocationsRoute: typeof AppSettingsLocationsRoute
   AppSettingsTwoFactorRoute: typeof AppSettingsTwoFactorRoute
   AppTIdRoute: typeof AppTIdRoute
+  AppTagsIdRoute: typeof AppTagsIdRoute
   AppTypesIdRoute: typeof AppTypesIdRoute
   AppVendorsIdRoute: typeof AppVendorsIdRoute
   AppAssistantIndexRoute: typeof AppAssistantIndexRoute
@@ -2220,6 +2240,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppSettingsLocationsRoute: AppSettingsLocationsRoute,
   AppSettingsTwoFactorRoute: AppSettingsTwoFactorRoute,
   AppTIdRoute: AppTIdRoute,
+  AppTagsIdRoute: AppTagsIdRoute,
   AppTypesIdRoute: AppTypesIdRoute,
   AppVendorsIdRoute: AppVendorsIdRoute,
   AppAssistantIndexRoute: AppAssistantIndexRoute,

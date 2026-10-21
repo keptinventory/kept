@@ -27,6 +27,7 @@ import { ThingCount } from '@/components/counts';
 import { useValueWords } from '@/components/history/labels';
 import { CameraIcon } from '@/components/icons';
 import { IdChip, printedCode } from '@/components/id-chip';
+import { TagChips } from '@/components/tags/chip';
 import { useTypeName } from '@/components/things/names';
 import { QrCode } from '@/components/ui/qr-code';
 import { useFormat } from '@/lib/format';
@@ -204,6 +205,9 @@ function ThingFacts({ id }: { id: string }) {
       </span>,
     ]);
   if (d.condition) facts.push([<Trans key="c">Condition</Trans>, words('condition', d.condition)]);
+  // #209: its tags, each opening the tag's page.
+  if (d.tags.length)
+    facts.push([<Trans key="g">Tags</Trans>, <TagChips key="gv" tags={d.tags} link />]);
   return (
     <dl className="kmap-facts">
       {facts.map(([a, b], i) => (

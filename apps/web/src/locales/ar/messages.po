@@ -5714,10 +5714,6 @@ msgstr "دون اتصال"
 msgid "Offline · {queue}"
 msgstr "دون اتصال · {queue}"
 
-#: src/components/search/offline-results.tsx
-msgid "Offline, search uses the words, the location and the type. The other filters apply when you're back online."
-msgstr "دون اتصال، يبحث Kept بالكلمات والموقع والنوع فقط. تُطبَّق عوامل التصفية الأخرى حين تعود إلى الإنترنت."
-
 #: src/components/sync-status.tsx
 msgid "Offline · as of last sync, {time}"
 msgstr "دون اتصال · حسب آخر مزامنة، {time}"
@@ -7384,17 +7380,9 @@ msgstr "عيّن كلمة المرور"
 msgid "Set password and sign in"
 msgstr "اضبط كلمة المرور وادخل"
 
-#: src/components/inbox/bulk-bar.tsx
-msgid "Set tags"
-msgstr "تعيين الوسوم"
-
 #: src/components/inbox/currency-item.tsx
 msgid "Set the currency to {currency}"
 msgstr "عُيّنت العملة {currency}"
-
-#: src/components/inbox/bulk-bar.tsx
-msgid "Set the tags of {names}"
-msgstr "تعيين وسوم {names}"
 
 #: src/components/inbox/item-card.tsx
 msgid "Set the type of {names}"
@@ -26442,3 +26430,138 @@ msgstr "مع {who} (في {box}) منذ {since} · يُعاد في {due}"
 #: src/components/lending/loan-text.tsx
 msgid "With {who} (in {box}) since {since}"
 msgstr "مع {who} (في {box}) منذ {since}"
+
+#: src/components/filters/strip.tsx
+msgid "{label}: all of {summary}"
+msgstr "{label}: كلٌّ من {summary}"
+
+#: src/components/tags/editors.tsx
+#: src/components/tags/tags-field.tsx
+msgid "Add tag"
+msgstr "أضف وسمًا"
+
+#: src/components/inbox/bulk-bar.tsx
+#: src/components/tags/bulk-tags.tsx
+msgid "Add tags…"
+msgstr "أضف وسومًا…"
+
+#: src/components/tags/palette.ts
+msgid "Amber"
+msgstr "كهرماني"
+
+#: src/components/tags/palette.ts
+msgid "Blue"
+msgstr "أزرق"
+
+#: src/components/tags/palette.ts
+msgid "Brown"
+msgstr "بني"
+
+#: src/components/places/contents-list.tsx
+msgid "by tag"
+msgstr "حسب الوسم"
+
+#: src/components/tags/api.ts
+#: src/components/tags/picker.tsx
+msgid "Couldn't change the tags"
+msgstr "تعذّر تغيير الوسوم"
+
+#: src/components/tags/picker.tsx
+msgid "Create “<0>{typed}</0>”"
+msgstr "أنشئ «<0>{typed}</0>»"
+
+#: src/components/tags/palette.ts
+msgid "Cyan"
+msgstr "سماوي"
+
+#: src/components/tags/palette.ts
+msgid "Green"
+msgstr "أخضر"
+
+#: src/components/tags/palette.ts
+msgid "Grey"
+msgstr "رمادي"
+
+#: src/components/filters/panel.tsx
+msgid "has all of"
+msgstr "كلٌّ من"
+
+#: src/components/tags/palette.ts
+msgid "Indigo"
+msgstr "نيلي"
+
+#: src/components/import/labels.ts
+msgid "Its tags aren't kept: in Kept only things have tags."
+msgstr "لا تُحفظ وسومه: في Kept للأشياء وحدها وسوم."
+
+#: src/components/tags/colour-choice.tsx
+msgid "No colour"
+msgstr "بلا لون"
+
+#: src/components/tags/chip.tsx
+msgid "No tag"
+msgstr "بلا وسم"
+
+#: src/components/tags/picker.tsx
+msgid "No tags yet."
+msgstr "لا وسوم بعد."
+
+#: src/components/tags/palette.ts
+msgid "Orange"
+msgstr "برتقالي"
+
+#: src/components/tags/palette.ts
+msgid "Pink"
+msgstr "وردي"
+
+#: src/components/tags/palette.ts
+msgid "Red"
+msgstr "أحمر"
+
+#: src/components/tags/bulk-tags.tsx
+msgid "Remove tags…"
+msgstr "أزل وسومًا…"
+
+#: src/components/tags/editors.tsx
+msgid "Tagged {shown}"
+msgstr "أُضيف الوسم {shown}"
+
+#: src/components/tags/bulk-tags.tsx
+#: src/components/tags/editors.tsx
+msgid "Tags changed"
+msgstr "تغيّرت الوسوم"
+
+#: src/components/tags/capture-tags.tsx
+msgid "Tags: <0>{names}</0>"
+msgstr "الوسوم: <0>{names}</0>"
+
+#. placeholder {0}: isolate(g.name)
+#. placeholder {0}: isolate(name)
+#: src/components/tags/editors.tsx
+#: src/components/tags/tag-page.tsx
+#: src/components/tags/tags-field.tsx
+msgid "Take {0} off"
+msgstr "أزل {0}"
+
+#: src/components/tags/palette.ts
+msgid "Teal"
+msgstr "أزرق مخضر"
+
+#. placeholder {0}: tag.name
+#: src/components/tags/tag-page.tsx
+msgid "Things tagged {0}"
+msgstr "أشياء موسومة بـ{0}"
+
+#: src/components/tags/editors.tsx
+#: src/components/tags/tag-page.tsx
+msgid "Took off {shown}"
+msgstr "أُزيل الوسم {shown}"
+
+#: src/components/tags/palette.ts
+msgid "Violet"
+msgstr "بنفسجي"
+
+
+#: src/components/search/offline-results.tsx
+msgid "Offline, search uses the words, the location, the type and the tags. The other filters apply when you're back online."
+msgstr "دون اتصال، يبحث Kept بالكلمات والموقع والنوع والوسوم فقط. تُطبَّق عوامل التصفية الأخرى حين تعود إلى الإنترنت."

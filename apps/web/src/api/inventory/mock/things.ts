@@ -42,6 +42,7 @@ import {
   recordEvent,
   rowOf,
   type StoredThing,
+  tagGroupKey,
   versionError,
   viewOf,
 } from './db';
@@ -216,6 +217,8 @@ export function thingsRoutes(state: MockState): MockRoute[] {
         rows.sort((a, b) =>
           (a.placeId ?? a.containerId ?? '').localeCompare(b.placeId ?? b.containerId ?? ''),
         );
+      if (group === 'tag')
+        rows.sort((a, b) => tagGroupKey(inv(), a).localeCompare(tagGroupKey(inv(), b)));
       return paginate(
         rows.map((t) => rowOf(inv(), t)),
         query,

@@ -36,6 +36,7 @@ import {
 import type { FileStorage } from '../storage/blob-store.js';
 import { moneyShaped } from './audit-image.js';
 import { type ResolvedFieldView, resolvedFields } from './fields.js';
+import { type ThingTag, ThingTagSchema, tagsOfRow, tagsSql } from './tag-sql.js';
 
 // The one thing serialiser: `ThingRow` for every list, and `ThingView` for the
 // detail screen, in the shapes of the web contract (apps/web/src/api/inventory/types.ts). Moves,
@@ -75,6 +76,8 @@ export type ThingRow = {
   thumbUrl: string | null;
   lastSeenAt: string | null;
   isContainer: boolean;
+  /** Its tags, A to Z (tag-sql.ts): the chips a row shows. */
+  tags: ThingTag[];
 };
 
 /** The first photo of `thing` that has a thumbnail (D195). */
@@ -96,6 +99,7 @@ export const ROW_COLUMNS = `t.id, t.location_id, t.name, t.quantity::text AS qua
        CASE WHEN t.container_id IS NULL THEN NULL ELSE ${firstThumb('t.container_id')} END
          AS container_thumb_file_id,
        ${isContainerSql('t.id', 't.type_id')} AS is_container,
+       ${tagsSql('t.id')} AS tags,
        ${householdStateSql('t')}`;
 
 export type RowRecord = {
@@ -126,6 +130,8 @@ export type RowRecord = {
   in_repair: boolean;
   /** The open loan's direction (householdStateSql). */
   loan_direction: 'out' | 'in' | null;
+  /** tag-sql.ts tagsSql(); absent where a caller selects its own columns. */
+  tags?: unknown;
 };
 
 /** The row's derived states, as every thing list derives them (search/query.ts). */
@@ -164,6 +170,7 @@ export async function rowOf(
     thumbUrl: await thumbUrlOf(files, keys, r.thumb_file_id),
     lastSeenAt: iso(r.last_seen_at),
     isContainer: r.is_container,
+    tags: tagsOfRow(r.tags),
   };
 }
 
@@ -526,7 +533,7 @@ function moneyAwareDefs(
 async function tagsOf(client: pg.ClientBase, thingId: string): Promise<ThingView['tags']> {
   const { rows } = await client.query<{ id: string; name: string; colour: string | null }>(
     `SELECT g.id, g.name, g.colour FROM public.thing_tags x JOIN public.tags g ON g.id = x.tag_id
-      WHERE x.thing_id = $1 ORDER BY lower(g.name), g.id`,
+      WHERE x.thing_id = $1 ORDER BY lower(g.name) COLLATE "und-x-icu", g.id`,
     [thingId],
   );
   return rows;
@@ -868,6 +875,7 @@ export const ThingRowSchema = z.object({
   thumbUrl: z.string().nullable(),
   lastSeenAt: Iso.nullable(),
   isContainer: z.boolean(),
+  tags: z.array(ThingTagSchema),
 });
 const FileViewSchema = z.object({
   id: z.uuid(),

@@ -20,6 +20,8 @@ export type PromptContext = {
   documentText?: string;
   /** READING: what Kept knows about the meter (its unit and kind). */
   meter?: { kind: string; unit: string } | null;
+  /** THING (#209): the household's tags, most used first, that the answer may pick from. */
+  tags?: readonly string[];
 };
 
 export type BuiltPrompt = { system: string; text: string; version: string };
@@ -50,6 +52,20 @@ const LANGUAGE_NAMES: Readonly<Record<string, string>> = Object.freeze({
 
 export function languageList(codes: readonly string[]): string {
   return codes.map((c) => `${c} (${LANGUAGE_NAMES[c] ?? c})`).join(', ');
+}
+
+/**
+ * The household's tags inside markers, one per line: names people wrote, so data like the photo.
+ * The markers are removed from the names, so a name can't close the block early.
+ */
+export function tagsBlock(tags: readonly string[]): string {
+  const clean = tags.map((t) =>
+    t
+      .replace(/<\/?tags>/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
+  return `<tags>\n${clean.filter(Boolean).join('\n')}\n</tags>`;
 }
 
 /**

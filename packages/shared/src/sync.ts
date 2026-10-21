@@ -20,6 +20,7 @@ import type { ModuleId } from './modules.js';
 import { BOX_STATES } from './moving.js';
 import type { Role } from './roles.js';
 import { SHORT_CODE } from './short-code.js';
+import { TAG_LIMITS } from './tags.js';
 import { AMOUNT_STRING } from './type-fields.js';
 
 /** The payload schema this build writes and reads (D148). */
@@ -43,6 +44,8 @@ export const OP_KINDS = [
   // 1.12: a scan session saved in chunks of lines, then applied as one by its finish.
   'scan_session_lines',
   'scan_session_finish',
+  // 1.x (#209): tags added to or taken off things on the phone, new tags made with them.
+  'tag_things',
 ] as const;
 export type OpKind = (typeof OP_KINDS)[number];
 
@@ -348,6 +351,39 @@ export const ScanSessionFinishPayload = z.strictObject({
   contentsSeen: z.boolean().default(false),
 });
 
+/**
+ * Tags added to things or taken off them on the phone (#209), as `POST /things/tags` does online.
+ * `create` names tags made offline, each also in `add`: the server makes them first, in the
+ * location's account, or uses the tag that already has the name.
+ */
+export const TagThingsPayload = z
+  .strictObject({
+    thingIds: z.array(uuid).min(1).max(TAG_LIMITS.bulkThings),
+    add: z.array(uuid).max(TAG_LIMITS.perThing).default([]),
+    remove: z.array(uuid).max(TAG_LIMITS.perThing).default([]),
+    create: z
+      .array(
+        z.strictObject({
+          id: uuid,
+          name: z.string().trim().min(1).max(60),
+          colour: z
+            .string()
+            .regex(/^#[0-9A-Fa-f]{6}$/)
+            .optional(),
+        }),
+      )
+      .max(10)
+      .default([]),
+  })
+  .superRefine((p, ctx) => {
+    if (p.add.length + p.remove.length === 0)
+      ctx.addIssue({ code: 'custom', path: ['add'], message: 'add or remove a tag' });
+    p.create.forEach((c, i) => {
+      if (!p.add.includes(c.id))
+        ctx.addIssue({ code: 'custom', path: ['create', i, 'id'], message: 'a new tag is added' });
+    });
+  });
+
 /** The v1 payload schema per op. */
 export const OP_SCHEMAS = Object.freeze({
   create_thing: CreateThingPayload,
@@ -362,6 +398,7 @@ export const OP_SCHEMAS = Object.freeze({
   move_box_room: MoveBoxRoomPayload,
   scan_session_lines: ScanSessionLinesPayload,
   scan_session_finish: ScanSessionFinishPayload,
+  tag_things: TagThingsPayload,
 } satisfies Record<OpKind, z.ZodType>);
 
 export type OpPayload<K extends OpKind> = z.output<(typeof OP_SCHEMAS)[K]>;
@@ -489,6 +526,8 @@ export type SnapLocation = {
   latitude?: number;
   longitude?: number;
   suggestRadiusM: number;
+  /** Its account, whose tags its things can have (#209). Additive: an older server sends none. */
+  ownerAccountId?: string;
 };
 
 export type SnapType = {
@@ -551,6 +590,9 @@ export type SnapThing = {
   /** Its product barcode (EAN/UPC…), when it has one: a scan session matches it offline.
    * Additive: an older snapshot row has none. */
   barcode?: string;
+  /** Its tags' ids (`SnapshotPage.tags` names them), for chips and the tag filter offline.
+   * Additive (#209): absent on an older row and on a row the phone made itself. */
+  tagIds?: string[];
   /**
    * Its meters, oldest first (READING's target list offline). The server always sends it; a row
    * the phone made itself (a capture not yet synced) has none.
@@ -574,6 +616,14 @@ export type SnapThing = {
   /** 1.14 (#170): a kit's parts (thing ids), for "Check this kit" offline. Additive. */
   kitParts?: string[];
   deleted: boolean;
+};
+
+/** A tag of an account the person can see (#209): what a chip shows offline. */
+export type SnapTag = {
+  id: string;
+  accountId: string;
+  name: string;
+  colour: string | null;
 };
 
 export type SnapCode = {
@@ -633,6 +683,9 @@ export type SnapshotPage = {
   locations: SnapLocation[];
   /** `items` only when the hash differs from the `typesHash` the phone sent. */
   types: { hash: string; items?: SnapType[] };
+  /** The tags of every account the person sees (#209), `items` only when the hash differs from
+   * the `tagsHash` the phone sent. Additive: an older server sends none. */
+  tags?: { hash: string; items?: SnapTag[] };
   changes: {
     places: SnapPlace[];
     things: SnapThing[];

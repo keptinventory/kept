@@ -6,6 +6,7 @@ import { requireIfMatch } from '../http/conventions.js';
 import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 import { gateFor } from '../serialize/gates.js';
+import { ThingTagSchema } from '../things/tag-sql.js';
 import { SearchQuery } from './query.js';
 import {
   createView,
@@ -73,6 +74,7 @@ const ThingRow = z.object({
   thumbUrl: z.string().nullable(),
   lastSeenAt: Iso.nullable(),
   isContainer: z.boolean(),
+  tags: z.array(ThingTagSchema),
   matchedAlias: z.string().optional(),
   /** Found by meaning alone. */
   matchedBy: z.literal('meaning').optional(),

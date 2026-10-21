@@ -12,6 +12,7 @@ import {
   SheetPageSchema,
   SheetQuery,
 } from './sheet.js';
+import { TagThingsBody, TagThingsResult, tagThings } from './tags.js';
 
 // The spreadsheet view's routes (1.x, D250; sheet.ts has the decisions), registered from
 // things/routes.ts:
@@ -19,6 +20,7 @@ import {
 // GET  /api/v1/things/sheet       → {items: SheetRow[], next_cursor}
 // POST /api/v1/things/bulk-edit   {edits (≤ 200)} → {results, rows, events}
 // POST /api/v1/things/bulk-trash  {thingIds (≤ 200), contents?} → {trashed, moved, events}
+// POST /api/v1/things/tags        {thingIds (≤ 200), add?, remove?} → {changed, events} (tags.ts)
 
 export async function sheetRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools } = deps;
@@ -37,6 +39,19 @@ export async function sheetRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
       scopedWrite(pools, req, reply, async (tx, client, scope) => ({
         status: 200,
         body: await bulkEdit(
+          { tx, client, scope, requestId: req.id, jobs: deps.jobs, files: deps.files },
+          req.body,
+        ),
+      })),
+  );
+
+  app.post(
+    '/api/v1/things/tags',
+    { schema: { body: TagThingsBody, response: { 200: TagThingsResult } } },
+    (req, reply) =>
+      scopedWrite(pools, req, reply, async (tx, client, scope) => ({
+        status: 200,
+        body: await tagThings(
           { tx, client, scope, requestId: req.id, jobs: deps.jobs, files: deps.files },
           req.body,
         ),

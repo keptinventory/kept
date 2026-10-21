@@ -112,6 +112,8 @@ const HOUSEHOLD_ROUTES = [
   '/src/routes/_app/counts.tsx?tsr-split=component',
   '/src/routes/_app/counts.$id.tsx?tsr-split=component',
   '/src/routes/_app/counts.box.$id.tsx?tsr-split=component',
+  // 1.x (#209): a tag's page reads the server; its chips and filter work offline elsewhere.
+  '/src/routes/_app/tags.$id.tsx?tsr-split=component',
   // 1.5 (D233): a share link's public page needs the server; its error screen stays precached.
   '/src/routes/s.$token.tsx?tsr-split=component',
   // Settings, admin, imports and history need a connection, so they come on demand
@@ -199,6 +201,7 @@ const COMPONENT_ONLY_ROUTES = new Set<string>([
   '/_app/counts',
   '/_app/counts/$id',
   '/_app/counts/box/$id',
+  '/_app/tags/$id',
 ]);
 /**
  * On-demand chunks named by their entry module: driver.js behind the hints and the tour
@@ -209,6 +212,9 @@ const ON_DEMAND_ENTRIES = [
   '/src/components/hints/driver-kit.ts',
   // 1.x (D250): the spreadsheet view; it reads and writes the server only (sheet/lazy.tsx).
   '/src/components/sheet/sheet-view.tsx',
+  // 1.x (#209): the tag picker, fetched the first time one opens (tags/lazy.tsx).
+  '/src/components/tags/picker.tsx',
+  '/src/components/tags/editors.tsx',
   '/papaparse/papaparse.min.js',
   '/src/components/import/parse-config.ts',
 ];
@@ -218,6 +224,13 @@ const ON_DEMAND_ENTRIES = [
  */
 const HOUSEHOLD_SHARED = [
   '/src/components/services/',
+  // 1.x (#209): what only the tag picker, the tag editors and a tag's page use.
+  '/src/components/tags/api.ts',
+  '/src/components/tags/bulk-tags.tsx',
+  '/src/components/tags/capture-tags.tsx',
+  '/src/components/tags/tags-field.tsx',
+  // Account settings' registry lists (and a tag's page, which shares one of its helpers).
+  '/src/components/registries/registry-list.tsx',
   '/src/components/agenda/agenda-row.tsx',
   '/src/components/schedules/complete-sheet.tsx',
   '/src/components/schedules/labels.tsx',

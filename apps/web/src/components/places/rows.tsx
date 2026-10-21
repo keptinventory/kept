@@ -12,6 +12,7 @@ import { ChevronEndIcon } from '@/components/icons';
 import { IdChip } from '@/components/id-chip';
 import type { TileSize } from '@/components/list-surface';
 import { StatusPill } from '@/components/status-pill';
+import { TagChips } from '@/components/tags/chip';
 import { TypeIcon } from '@/components/type-icon';
 import { addressOf } from '@/lib/address';
 import { sep, useFormat } from '@/lib/format';
@@ -182,6 +183,8 @@ export function ThingRowView({
               {showPath && thing.path.length ? <PathText path={thing.path} /> : null}
             </span>
           ) : null}
+          {/* #209: every tag, wrapping (never cut off); the row is the link, so they aren't. */}
+          <TagChips tags={thing.tags ?? []} />
         </span>
       </Link>
     </div>
@@ -231,6 +234,7 @@ export function PhotoTile({
       </span>
       {size === 'large' && showPath && thing.path.length ? <PathText path={thing.path} /> : null}
       {size !== 'small' && thing.shortCode ? <IdChip code={thing.shortCode} /> : null}
+      {size !== 'small' ? <TagChips tags={thing.tags ?? []} /> : null}
     </Link>
   );
 }

@@ -10,9 +10,10 @@
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { canAcceptSuggestion, isDocumentSuggestion, type Suggestion } from '@/api/capture/types';
-import type { Money } from '@/api/inventory/types';
+import type { Money, ThingTag } from '@/api/inventory/types';
 import { useDocumentKindLabels } from '@/components/documents/labels';
 import { CheckIcon, XIcon } from '@/components/icons';
+import { TagChips } from '@/components/tags/chip';
 import { Printed, useMoney } from '@/components/things/values';
 import { Button } from '@/components/ui/button';
 import { sep, useFormat } from '@/lib/format';
@@ -65,6 +66,9 @@ export function useSuggestedValue() {
         </>
       );
     }
+    // #209: the tags it would add, as chips.
+    if (s.field === 'tags' && Array.isArray(v))
+      return <TagChips tags={(v as ThingTag[]).filter((g) => g && typeof g.id === 'string')} />;
     if (isMoney(v)) return <span className="tabular-nums">{money(v.amount, v.currency)}</span>;
     if (typeof v === 'string' && DAY.test(v)) return fmt.longDay(`${v}T12:00:00`);
     // As printed (screens: digits), codes a person checks against the label itself.

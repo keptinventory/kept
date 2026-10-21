@@ -85,6 +85,8 @@ export type ContentsParams = {
   belongsTo?: Many;
   /** Which of the filters above are "is none of" (D205). */
   not?: ('type' | 'tag' | 'state' | 'brand' | 'belongsTo')[];
+  /** Which are "has all of" rather than "any of": the server takes the tags only (#209). */
+  all?: ('type' | 'tag' | 'state' | 'brand' | 'belongsTo')[];
   group?: string;
   sort?: string;
   /** The sort turned around (D211). Absent: A to Z for the name, newest first for dates. */

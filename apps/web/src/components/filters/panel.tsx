@@ -50,8 +50,12 @@ import { fuzzyFilter } from './fuzzy';
 import { type FilterDef, type FilterOption, keysOf } from './types';
 import { useFilterOptions, useValueLabels } from './values';
 
-/** A change to the list's filters: the keys to set (empty to clear) and the new `not`. */
-export type FilterPatch = { filters: Record<string, string[]>; not: string[] };
+/** A change to the list's filters: the keys to set (empty to clear), the new `not` and, when the
+ * change touches it, the new `all` (#209). */
+export type FilterPatch = { filters: Record<string, string[]>; not: string[]; all?: string[] };
+
+/** How a multi filter matches its values: any of them, none of them, or (#209) all of them. */
+export type MatchMode = 'any' | 'none' | 'all';
 export type Commit = (patch: FilterPatch) => void;
 
 /** Whether `def` narrows the list now. */
@@ -59,20 +63,22 @@ export function isActive(def: FilterDef, list: ListState): boolean {
   return keysOf(def).some((key) => (list.filters[key]?.length ?? 0) > 0);
 }
 
-/** The patch that sets `def` to `values` ("is none of" when `not`), emptying what it clears. */
+/** The patch that sets `def` to `values` ("is none of" when `not`, or `'all'` for "has all of"),
+ * emptying what it clears. */
 export function patchFor(
   def: FilterDef,
   list: ListState,
   values: string[],
-  not = false,
+  not: boolean | MatchMode = false,
 ): FilterPatch {
+  const mode: MatchMode = not === true ? 'none' : not === false ? 'any' : not;
   const cleared = def.clears ?? [];
+  const others = (keys: readonly string[]) =>
+    keys.filter((key) => key !== def.key && !cleared.includes(key));
   return {
     filters: { [def.key]: values, ...Object.fromEntries(cleared.map((key) => [key, []])) },
-    not: [
-      ...list.not.filter((key) => key !== def.key && !cleared.includes(key)),
-      ...(not && values.length ? [def.key] : []),
-    ],
+    not: [...others(list.not), ...(mode === 'none' && values.length ? [def.key] : [])],
+    all: [...others(list.all ?? []), ...(mode === 'all' && values.length ? [def.key] : [])],
   };
 }
 
@@ -82,8 +88,13 @@ export function removal(def: FilterDef, list: ListState): FilterPatch {
   return {
     filters: Object.fromEntries(keys.map((key) => [key, []])),
     not: list.not.filter((key) => !keys.includes(key)),
+    all: (list.all ?? []).filter((key) => !keys.includes(key)),
   };
 }
+
+/** How `def` matches in `list` now. */
+export const modeOf = (def: FilterDef, list: ListState): MatchMode =>
+  list.not.includes(def.key) ? 'none' : (list.all ?? []).includes(def.key) ? 'all' : 'any';
 
 const rowClass =
   'group flex min-h-11 cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[15px] leading-snug text-ink outline-none data-focus-visible:outline-2 data-focus-visible:-outline-offset-2 data-focus-visible:outline-info data-focused:bg-sunken data-hovered:bg-sunken';
@@ -234,7 +245,7 @@ function ValuesEditor({
   const { t } = useLingui();
   const f = useFormat();
   const chosen = list.filters[def.key] ?? [];
-  const [mode, setMode] = useState<'any' | 'none'>(list.not.includes(def.key) ? 'none' : 'any');
+  const [mode, setMode] = useState<MatchMode>(modeOf(def, list));
   const [q, setQ] = useState('');
   const { options, isPending, isError } = useFilterOptions(def, q);
   // What was chosen when the panel opened leads the list; what's chosen now stays in place, so
@@ -258,7 +269,7 @@ function ValuesEditor({
     return [...first, ...visible.filter((o) => !initial.includes(o.value))];
   }, [options, named, initial, chosen, q, def.hideZero]);
 
-  const set = (values: string[], m = mode) => commit(patchFor(def, list, values, m === 'none'));
+  const set = (values: string[], m = mode) => commit(patchFor(def, list, values, m));
   const searchable = def.values?.from === 'server' || options.length > 8 || q !== '';
   const find = def.findLabel ?? t`Find a value`;
 
@@ -274,6 +285,8 @@ function ValuesEditor({
           }}
           options={[
             { id: 'any', label: <Trans>is any of</Trans> },
+            // #209: a thing with every chosen tag.
+            ...(def.allOf ? [{ id: 'all' as const, label: <Trans>has all of</Trans> }] : []),
             { id: 'none', label: <Trans>is none of</Trans> },
           ]}
         />

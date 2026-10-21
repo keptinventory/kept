@@ -109,6 +109,8 @@ export const SNAPSHOT_META_KEYS: readonly MetaKey[] = [
   'cursor',
   'asOf',
   'typesHash',
+  'tags',
+  'tagsHash',
   'truncated',
   'serverPayloadWindow',
 ];
@@ -121,6 +123,10 @@ export type MetaKey =
   | 'asOf'
   /** The types hash last received, sent back as `typesHash`. */
   | 'typesHash'
+  /** The tags of the accounts the person sees (#209), as the last snapshot sent them. */
+  | 'tags'
+  /** The tags hash last received, sent back as `tagsHash`. */
+  | 'tagsHash'
   /** The server said only part of the Kept fits on this phone. */
   | 'truncated'
   /** The payload window the server reported on its last snapshot page (D148). */

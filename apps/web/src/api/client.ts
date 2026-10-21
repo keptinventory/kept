@@ -226,6 +226,7 @@ export const written = {
     requestWritten<T>(path, { method: 'PATCH', body, ...(headers ? { headers } : {}) }),
   put: <T>(path: string, body: unknown, headers?: Record<string, string>) =>
     requestWritten<T>(path, { method: 'PUT', body, ...(headers ? { headers } : {}) }),
+  del: <T = void>(path: string) => requestWritten<T>(path, { method: 'DELETE' }),
 };
 
 /** The server's largest page. */

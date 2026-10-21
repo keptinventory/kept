@@ -1,5 +1,6 @@
-import { type Action, newId } from '@kept/shared';
+import { type Action, nearestTagColour, newId, nextTagColour, TAG_LIMITS } from '@kept/shared';
 import type pg from 'pg';
+import { undoableUntil } from '../audit/undo.js';
 import { assertClientId, checkVersion, pageOf, paginate } from '../http/conventions.js';
 import { AppError, invalid, notFound } from '../http/errors.js';
 import {
@@ -48,6 +49,8 @@ const EDIT: Record<RegistryKind, Action> = {
   people: 'registries-types.manage',
   tags: 'tags.edit-delete',
 };
+/** Whose rename, merge and delete are undoable for 7 days (registries/tag-undo.ts). */
+const UNDOABLE = new Set<RegistryKind>(['tags']);
 /** Whose names are unique per account (0014's normalised uniques). */
 const UNIQUE_NAMES = new Set<RegistryKind>(['brands', 'tags']);
 /** Whose names are in the things' search documents (0016's thing_search_doc). */
@@ -119,6 +122,57 @@ async function refuseDuplicateName(
   }
 }
 
+/** A tag row's live things the caller can see (row `r`), as `thing_count`. */
+const TAG_THING_COUNT = `(SELECT count(*)::int FROM public.thing_tags x
+                            JOIN public.things th ON th.id = x.thing_id AND th.deleted_at IS NULL
+                           WHERE x.tag_id = r.id) AS thing_count`;
+
+/** How many live things the caller can see have a tag, in all and per location. */
+async function tagUses(
+  client: pg.ClientBase,
+  id: string,
+): Promise<{ thingCount: number; uses: { locationId: string; count: number }[] }> {
+  const { rows } = await client.query<{ location_id: string; n: number }>(
+    `SELECT th.location_id, count(*)::int AS n
+       FROM public.thing_tags x
+       JOIN public.things th ON th.id = x.thing_id AND th.deleted_at IS NULL
+      WHERE x.tag_id = $1
+      GROUP BY th.location_id ORDER BY n DESC, th.location_id`,
+    [id],
+  );
+  return {
+    thingCount: rows.reduce((sum, r) => sum + r.n, 0),
+    uses: rows.map((r) => ({ locationId: r.location_id, count: r.n })),
+  };
+}
+
+/**
+ * A new tag's colour: a palette colour as given, an older free colour (a Homebox import) as its
+ * nearest, and none given as the account's least used (@kept/shared nextTagColour). An explicit
+ * null stays null. Refuses the account's 1,001st tag.
+ */
+async function prepareTag(
+  client: pg.ClientBase,
+  accountId: string,
+  body: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const { rows } = await client.query<{ colour: string | null }>(
+    'SELECT colour FROM public.tags WHERE owner_account_id = $1',
+    [accountId],
+  );
+  if (rows.length >= TAG_LIMITS.perAccount) {
+    throw new AppError(
+      'conflict',
+      409,
+      `An account has at most ${TAG_LIMITS.perAccount} tags. Merge or delete some first.`,
+      { reason: 'tag_limit' },
+    );
+  }
+  if (body.colour === null) return body;
+  if (typeof body.colour === 'string') return { ...body, colour: nearestTagColour(body.colour) };
+  return { ...body, colour: nextTagColour(rows.map((r) => r.colour)) };
+}
+
 /** The name a body carries, if any. */
 const nameIn = (kind: RegistryKind, body: Record<string, unknown>) =>
   (kind === 'people' ? body.displayName : body.name) as string | undefined;
@@ -136,7 +190,7 @@ export async function listItems(
   const q = query.q?.trim() ? query.q.trim() : null;
   // With `q`: a normalised substring or a near trigram match, best first (D42).
   const { rows } = await client.query<Row>(
-    `SELECT r.* FROM public.${TABLE[kind]} r
+    `SELECT r.*${kind === 'tags' ? `, ${TAG_THING_COUNT}` : ''} FROM public.${TABLE[kind]} r
       WHERE r.owner_account_id = $1
         AND ($2::text IS NULL
              OR strpos(kept.normalize(r.${col}), kept.normalize($2)) > 0
@@ -153,6 +207,7 @@ export async function listItems(
 
 export async function getItem(client: pg.ClientBase, kind: RegistryKind, id: string) {
   const item = itemOf(kind, await rowOf(client, kind, id));
+  if (kind === 'tags') return { ...item, ...(await tagUses(client, id)) };
   if (kind !== 'brands') return item;
   const { rows } = await client.query<{ has: boolean }>(
     'SELECT EXISTS (SELECT 1 FROM public.brand_logos WHERE brand_id = $1) AS has',
@@ -172,6 +227,7 @@ export async function createItem(
   const id = body.id ? assertClientId(body.id as string) : newId();
   const name = nameIn(kind, body) as string;
   await refuseDuplicateName(client, kind, accountId, name, null);
+  if (kind === 'tags') body = await prepareTag(client, accountId, body);
 
   const cols = ['id', 'owner_account_id'];
   const values: unknown[] = [id, accountId];
@@ -261,6 +317,7 @@ export async function updateItem(
     before: imageOf(was),
     after: imageOf(item),
     requestId: ctx.requestId,
+    ...(UNDOABLE.has(kind) ? { undoableUntil: undoableUntil() } : {}),
   });
   const indexed = INDEXED[kind];
   const col = NAME_COLUMN[kind];
@@ -271,6 +328,7 @@ export async function updateItem(
 export async function deleteItem(ctx: Ctx, kind: RegistryKind, id: string): Promise<void> {
   const { client } = ctx;
   const before = await editable(client, kind, id);
+  if (kind === 'tags') await refuseTagInUse(client, id);
   if ((await locationsUsing(client, ENTITY[kind], id)).length > 0) {
     throw new AppError(
       'in_use',
@@ -287,7 +345,33 @@ export async function deleteItem(ctx: Ctx, kind: RegistryKind, id: string): Prom
     entity: { type: ENTITY[kind], id },
     before: imageOf(itemOf(kind, before)),
     requestId: ctx.requestId,
+    ...(UNDOABLE.has(kind) ? { undoableUntil: undoableUntil() } : {}),
   });
+}
+
+/**
+ * 409 `in_use` while any thing has the tag, trashed ones too (a delete would strip it from them, and
+ * a restore wouldn't bring it back): `live` and `trashed` say how many, of the things the caller
+ * can see. Things in locations they can't see are locationsUsing()'s.
+ */
+async function refuseTagInUse(client: pg.ClientBase, id: string): Promise<void> {
+  const { rows } = await client.query<{ live: number; trashed: number }>(
+    `SELECT count(*) FILTER (WHERE th.deleted_at IS NULL)::int AS live,
+            count(*) FILTER (WHERE th.deleted_at IS NOT NULL)::int AS trashed
+       FROM public.thing_tags x JOIN public.things th ON th.id = x.thing_id
+      WHERE x.tag_id = $1`,
+    [id],
+  );
+  const { live = 0, trashed = 0 } = rows[0] ?? {};
+  if (live + trashed === 0) return;
+  throw new AppError(
+    'in_use',
+    409,
+    live === 0
+      ? 'Things in the Trash still have this tag. Merge it into another one instead, or empty the Trash first.'
+      : 'Merge it into another one instead, or remove it from its things first.',
+    { live, trashed },
+  );
 }
 
 export async function mergeItem(
@@ -301,11 +385,32 @@ export async function mergeItem(
   const into = await rowOf(client, kind, targetId);
   if (from.owner_account_id !== into.owner_account_id) throw notFound();
   if (from.id === into.id) throw invalid('Pick a different one to merge into.');
+  // A tag merge is undoable: which things had the merged tag, and which of them had the target
+  // already, so an undo puts each back as it was (registries/tag-undo.ts).
+  const tagged =
+    kind === 'tags'
+      ? (
+          await client.query<{ thing_id: string; had: boolean }>(
+            `SELECT x.thing_id, EXISTS (SELECT 1 FROM public.thing_tags y
+                                       WHERE y.thing_id = x.thing_id AND y.tag_id = $2) AS had
+               FROM public.thing_tags x WHERE x.tag_id = $1 ORDER BY x.thing_id`,
+            [id, targetId],
+          )
+        ).rows
+      : null;
   const { rows } = await client.query<{ n: number }>(
     'SELECT kept.merge_registry($1, $2, $3) AS n',
     [ENTITY[kind], id, targetId],
   );
   const repointed = rows[0]?.n ?? 0;
+  if (tagged && tagged.length > 0) {
+    // Their tags changed: touch them, so their row version moves and phones resync them.
+    await client.query(`SELECT set_config('kept.touch', 'force', true)`);
+    await client.query('UPDATE public.things SET updated_at = now() WHERE id = ANY ($1::uuid[])', [
+      tagged.map((r) => r.thing_id),
+    ]);
+    await client.query(`SELECT set_config('kept.touch', '', true)`);
+  }
   await auditRegistry(ctx.tx, {
     accountId: from.owner_account_id,
     userId: ctx.userId,
@@ -313,8 +418,18 @@ export async function mergeItem(
     action: `${ENTITY[kind]}.merge`,
     entity: { type: ENTITY[kind], id },
     before: imageOf(itemOf(kind, from)),
-    after: { merged_into: targetId, repointed },
+    after: {
+      merged_into: targetId,
+      repointed,
+      ...(tagged
+        ? {
+            thing_ids: tagged.map((r) => r.thing_id),
+            already_tagged: tagged.filter((r) => r.had).map((r) => r.thing_id),
+          }
+        : {}),
+    },
     requestId: ctx.requestId,
+    ...(UNDOABLE.has(kind) ? { undoableUntil: undoableUntil() } : {}),
   });
   return { repointed };
 }

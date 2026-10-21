@@ -4,6 +4,7 @@
  * filters its list offers (SURFACE_FILTER_KEYS), so opening one puts it straight back in the URL.
  */
 import {
+  ALL_OF_FILTER_KEYS,
   type ListSurface,
   MONEY_FILTER_KEYS,
   type SavedListQuery,
@@ -47,11 +48,16 @@ export function queryOf(list: ListState, surface: ListSurface): SavedListQuery {
   }
   const money = MONEY_FILTER_KEYS as readonly string[];
   const not = list.not.filter((key) => filters[key] && !money.includes(key));
+  const all = (list.all ?? []).filter(
+    (key) =>
+      filters[key] && !not.includes(key) && (ALL_OF_FILTER_KEYS as readonly string[]).includes(key),
+  );
   const q = list.q.trim();
   return {
     ...(q ? { q } : {}),
     ...(Object.keys(filters).length ? { filters } : {}),
     ...(not.length ? { not } : {}),
+    ...(all.length ? { all } : {}),
     ...(list.group ? { group: list.group } : {}),
     ...(list.sort ? { sort: list.sort } : {}),
     ...(list.dir ? { dir: list.dir } : {}),
@@ -73,6 +79,7 @@ export function stateOf(view: SavedView, current: ListState): Partial<ListState>
     q: view.query.q ?? '',
     filters,
     not: view.query.not ?? [],
+    all: view.query.all ?? [],
     group: view.query.group ?? '',
     sort: view.query.sort ?? '',
     dir: view.query.dir ?? '',
@@ -86,6 +93,7 @@ export function clearedState(current: ListState): Partial<ListState> {
     q: '',
     filters: Object.fromEntries(Object.keys(current.filters).map((key) => [key, []])),
     not: [],
+    all: [],
     savedView: '',
   };
 }
@@ -102,6 +110,7 @@ function canonical(query: SavedListQuery): string {
     q: query.q?.trim() ?? '',
     filters,
     not: [...(query.not ?? [])].sort(),
+    all: [...(query.all ?? [])].sort(),
     group: query.group ?? '',
     sort: query.sort ?? '',
     dir: query.dir ?? '',

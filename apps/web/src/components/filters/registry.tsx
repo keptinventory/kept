@@ -252,6 +252,8 @@ export function useFilterRegistry() {
       label: t`Tag`,
       icon: <TagIcon />,
       kind: 'multi',
+      // #209: things with every chosen tag, not just one of them.
+      allOf: true,
       findLabel: t`Find a tag`,
       values: registryValues('tags'),
     }),

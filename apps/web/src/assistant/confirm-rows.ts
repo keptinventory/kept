@@ -437,6 +437,23 @@ export function rowsOf(p: Proposal): CardRow[] {
       if (num(a.reading) !== undefined) push('reading', { t: 'num', v: num(a.reading) as number });
       return [{ ...base, verb: 'fuel', target: target(a.thing_id), fields }];
     }
+    case 'tag_things': {
+      // #209: the tags added (+) and taken off (−), on the things named.
+      const names = (v: unknown) =>
+        Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+      const ids = names(a.thing_ids);
+      const list = [...names(a.add).map((n) => `+ ${n}`), ...names(a.remove).map((n) => `− ${n}`)];
+      if (list.length) push('tags', { t: 'list', v: list });
+      return [
+        {
+          ...base,
+          verb: 'change',
+          target: ids.length === 1 ? target(ids[0]) : null,
+          ...(ids.length > 1 ? { count: { n: ids.length } } : {}),
+          fields,
+        },
+      ];
+    }
     case 'adjust_stock':
       if (num(a.delta) !== undefined) push('delta', { t: 'num', v: num(a.delta) as number });
       return [{ ...base, verb: 'stock', target: target(a.thing_id), fields }];

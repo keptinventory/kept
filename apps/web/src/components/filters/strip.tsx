@@ -117,6 +117,7 @@ export function FilterStrip({ filters, surface, search, display, children }: Fil
     setList({
       filters: Object.fromEntries(active.flatMap((d) => keysOf(d)).map((key) => [key, []])),
       not: [],
+      all: [],
     });
 
   // Keyboard shortcuts: `/` and `F`, for the first strip on the page.
@@ -349,6 +350,8 @@ function Chip({
   const label = def.label;
   const summary = <ChipValue def={def} list={list} />;
   const not = list.not.includes(def.key);
+  const all =
+    !not && (list.all ?? []).includes(def.key) && (list.filters[def.key]?.length ?? 0) > 1;
   return (
     <span className="inline-flex max-w-full items-stretch">
       {def.kind === 'boolean' ? (
@@ -366,6 +369,10 @@ function Chip({
             {not ? (
               <Trans>
                 {label}: not {summary}
+              </Trans>
+            ) : all ? (
+              <Trans>
+                {label}: all of {summary}
               </Trans>
             ) : (
               <Trans>

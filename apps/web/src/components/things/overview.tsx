@@ -1,7 +1,8 @@
 /**
  * Overview: the thing's own details, then its type's fields (D154), each only when
- * it has a value; archived values collapsed underneath (D92: re-typing archives, never deletes);
- * then passwords and codes, and the purchase. Edit swaps the details for the form in place.
+ * it has a value; its tags (#209), changed in place, the form open or not; archived values
+ * collapsed underneath (D92: re-typing archives, never deletes); then passwords and codes, and
+ * the purchase. Edit swaps the details for the form in place.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
@@ -11,6 +12,7 @@ import { OwnCodesSection } from '@/components/codes/own-codes';
 import { KeepAtLeastSection } from '@/components/consumables/lazy';
 import { ChevronDownIcon, PencilIcon } from '@/components/icons';
 import { Pill, Section } from '@/components/page';
+import { ThingTags } from '@/components/tags/thing-tags';
 import { Button } from '@/components/ui/button';
 import { sep, useFormat } from '@/lib/format';
 import { useThingCtx } from './context';
@@ -51,6 +53,7 @@ export function Overview({
         >
           {editing ? <EditForm editor={editor} /> : <Details onSplit={onSplit} />}
         </Section>
+        <ThingTags />
         {!editing && Object.keys(thing.archivedCustom).length ? <Archived /> : null}
         {thing.notes && !editing ? (
           <Section title={t`Notes`}>
@@ -124,19 +127,6 @@ function Details({ onSplit }: { onSplit?: (() => void) | undefined }) {
       <Link to="/people/$id" params={{ id: thing.belongsTo.id }} className="text-info underline">
         <bdi>{thing.belongsTo.displayName}</bdi>
       </Link>
-    ) : null,
-  );
-  add(
-    'tags',
-    t`Tags`,
-    thing.tags.length ? (
-      <span className="flex flex-wrap gap-1.5">
-        {thing.tags.map((g) => (
-          <Pill key={g.id}>
-            <bdi>{g.name}</bdi>
-          </Pill>
-        ))}
-      </span>
     ) : null,
   );
   const aliases = Object.values(thing.aliases).flat();

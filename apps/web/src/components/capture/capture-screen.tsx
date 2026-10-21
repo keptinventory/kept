@@ -20,7 +20,7 @@
  * `getUserMedia`, a fixed position) and the route passes the real ones.
  */
 import type { CaptureMode, SnapLocation, SnapPlace, SnapThing } from '@kept/shared';
-import { newId, ROOM_LIMITS } from '@kept/shared';
+import { can, newId, ROOM_LIMITS } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -28,6 +28,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } fro
 import { Button, useLocale } from 'react-aria-components';
 import { getMe, setSuggestLocation } from '@/api/account';
 import { captureApi, captureKeys } from '@/api/capture/queries';
+import type { ThingTag } from '@/api/inventory/types';
 import { keys as appKeys } from '@/api/queries';
 import type { Me } from '@/api/types';
 import {
@@ -57,6 +58,8 @@ import { CameraIcon, GalleryIcon } from '@/components/icons';
 import { usePlaceName } from '@/components/places/labels';
 import { enqueueReading } from '@/components/readings/enqueue-reading';
 import { readingValueOf } from '@/components/readings/reading-field';
+import { CaptureTags } from '@/components/tags/lazy';
+import { queueTagThings } from '@/components/tags/offline';
 import { FromTemplate, prefillOf } from '@/components/templates/quick-add';
 import { Button as KeptButton } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
@@ -462,6 +465,8 @@ export function CaptureScreen({
   const [sendingRoom, setSendingRoom] = useState(false);
   const [armed, setArmed] = useState(false);
   const [name, setName] = useState('');
+  // #209: the tags each new thing gets, kept from one photo to the next.
+  const [captureTags, setCaptureTags] = useState<ThingTag[]>([]);
   const [nameError, setNameError] = useState<string | null>(null);
   /** Quick add: the template the next capture starts from. */
   const picked = useRef<string | null>(null);
@@ -574,6 +579,15 @@ export function CaptureScreen({
       ...(add?.receipt ? { pageOf: add.id } : {}),
       ...(parent ? { dependsOn: [parent.idempotencyKey] } : {}),
     });
+    // A new thing gets the run's tags, queued behind it (#209).
+    if (captureTags.length && !add && !onThing && (m === 'thing' || m === 'label')) {
+      await queueTagThings(
+        store,
+        target.locationId,
+        { thingIds: [q.id], add: captureTags.map((g) => g.id) },
+        { dependsOn: [q.idempotencyKey] },
+      );
+    }
     const thumb = imageThumb(q, image);
     if (thumb) thumbs.current.push(thumb);
     setShots((s) => [
@@ -1164,6 +1178,17 @@ export function CaptureScreen({
           error={nameError}
         />
       )}
+      {(mode === 'thing' || mode === 'label') && target && !(armed && addTo) ? (
+        <CaptureTags
+          accountId={world?.locations.find((l) => l.id === target.locationId)?.ownerAccountId ?? ''}
+          value={captureTags}
+          onChange={setCaptureTags}
+          canCreate={can(
+            world?.locations.find((l) => l.id === target.locationId)?.role ?? 'viewer',
+            'tags.create',
+          )}
+        />
+      ) : null}
       {mode !== 'room' && kind === 'name' && online && target && !name.trim() ? (
         <FromTemplate
           tone="dark"

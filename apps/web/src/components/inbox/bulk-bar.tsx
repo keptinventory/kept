@@ -1,25 +1,21 @@
 /**
  * The bulk bar (D36): for the drafts selected with `x` or their checkboxes, accept
- * their names (`shift+a`), set a type, a place or tags, or discard them. Each is one request and
- * one undoable bulk event (D150): the toast's Undo reverts the whole selection.
+ * their names (`shift+a`), set a type or a place, add or take off tags (#209: the others stay), or
+ * discard them. Each is one request with one Undo (D150) for the whole selection.
  *
  * A type, place or tags belong to one location's lists, so those three need a selection from one
  * location; the bar says so rather than guessing.
  */
+import { can } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
-import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { Key } from 'react-aria-components';
 import { captureApi } from '@/api/capture/queries';
 import type { InboxBulkResult, InboxItem } from '@/api/capture/types';
 import type { Written } from '@/api/client';
-import { inventoryApi } from '@/api/inventory/queries';
 import type { LocationSummary } from '@/api/types';
-import { Sheet } from '@/components/things/sheet';
+import { BulkTagButtons } from '@/components/tags/lazy';
 import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
-import { DialogFooter } from '@/components/ui/dialog';
-import { Select, SelectItem } from '@/components/ui/select';
 import { sep, useFormat } from '@/lib/format';
 import { undoEventsOf, useInboxRun } from './actions';
 import { MoveSheet, TypeSheet } from './item-card';
@@ -70,7 +66,7 @@ export function BulkBar({
   const { run, busy } = useInboxRun();
   const { accept, busy: accepting } = useAcceptNames();
   const done = useBulkDone();
-  const [sheet, setSheet] = useState<'type' | 'place' | 'tags' | null>(null);
+  const [sheet, setSheet] = useState<'type' | 'place' | null>(null);
   const ids = selected.map((i) => i.id);
   const n = selected.length;
   const count = fmt.num(n);
@@ -141,14 +137,20 @@ export function BulkBar({
       >
         <Trans>Move</Trans>
       </Button>
-      <Button
-        size="small"
-        variant="secondary"
-        isDisabled={!!whereReason}
-        onPress={() => setSheet('tags')}
-      >
-        <Trans>Set tags</Trans>
-      </Button>
+      {location && !whereReason ? (
+        // #209: tags added to the drafts, or taken off, keeping the others; one Undo.
+        <BulkTagButtons
+          thingIds={selected.flatMap((i) => (i.thing ? [i.thing.id] : []))}
+          accountId={location.ownerAccountId}
+          canCreate={can(location.role, 'tags.create')}
+          locationId={location.id}
+          onDone={onClear}
+        />
+      ) : (
+        <Button size="small" variant="secondary" isDisabled>
+          <Trans>Add tags…</Trans>
+        </Button>
+      )}
       <Button
         size="small"
         variant="ghost"
@@ -185,79 +187,8 @@ export function BulkBar({
             locationId={location.id}
             names={names}
           />
-          <TagsSheet
-            isOpen={sheet === 'tags'}
-            onClose={() => setSheet(null)}
-            ids={ids}
-            accountId={location.ownerAccountId}
-            names={names}
-          />
         </>
       ) : null}
     </div>
-  );
-}
-
-/** Set the tags of drafts (`set_tags`: the set replaces theirs, one undoable event). */
-function TagsSheet({
-  isOpen,
-  onClose,
-  ids,
-  accountId,
-  names,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  ids: string[];
-  accountId: string;
-  names: string;
-}) {
-  const { t } = useLingui();
-  const { run, busy } = useInboxRun();
-  const [tagIds, setTagIds] = useState<string[]>([]);
-  const tags = useQuery({
-    queryKey: ['registry', 'tags', accountId, { limit: 200 }],
-    queryFn: () => inventoryApi.registry('tags', accountId, { limit: 200 }),
-    enabled: isOpen && !!accountId,
-  });
-  const items = (tags.data?.items ?? []).map((x) => ({ id: x.id, name: x.name }));
-  const save = () =>
-    void run(() => captureApi.inboxBulk({ ids, action: 'set_tags', tagIds }), {
-      done: t`Set the tags of ${names}`,
-      undo: undoEventsOf,
-    }).then((r) => {
-      if (r) onClose();
-    });
-  return (
-    <Sheet
-      isOpen={isOpen}
-      onOpenChange={(o) => !o && onClose()}
-      title={t`Set the tags of ${names}`}
-    >
-      <div className="grid gap-4">
-        <Select<{ id: string; name: string }, 'multiple'>
-          label={t`Tags`}
-          selectionMode="multiple"
-          items={items}
-          value={tagIds}
-          onChange={(keys: Key[]) => setTagIds(keys.map(String))}
-          renderValue={(chosen) => chosen.map((x) => <bdi key={x.id}>{x.name}</bdi>)}
-        >
-          {(x) => (
-            <SelectItem id={x.id} textValue={x.name}>
-              <bdi>{x.name}</bdi>
-            </SelectItem>
-          )}
-        </Select>
-        <DialogFooter>
-          <Button variant="secondary" onPress={onClose}>
-            <Trans>Cancel</Trans>
-          </Button>
-          <Button isPending={busy} onPress={save}>
-            <Trans>Set tags</Trans>
-          </Button>
-        </DialogFooter>
-      </div>
-    </Sheet>
   );
 }

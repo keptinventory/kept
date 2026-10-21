@@ -353,6 +353,8 @@ export const ACCEPTABLE_SUGGESTIONS = [
   'plate',
   'manufactured_on',
   'document',
+  // #209: the household's own tags AI picked, `[{id, name, colour}]`.
+  'tags',
 ] as const;
 /** A `document` suggestion's value (the server's extraction/apply.ts): the card's kind and expiry. */
 export type DocumentSuggestion = { kind: DocumentKind; expiresOn: string };
@@ -1063,4 +1065,10 @@ export type AiCallParams = {
 // ----- sync: the envelope; the rows are @kept/shared's ----------------------------------------
 
 /** GET /api/v1/sync/snapshot?cursor&limit&typesHash. */
-export type SnapshotParams = { cursor?: string; limit?: number; typesHash?: string };
+export type SnapshotParams = {
+  cursor?: string;
+  limit?: number;
+  typesHash?: string;
+  /** #209: the tags hash last received; the tags come only when it differs. */
+  tagsHash?: string;
+};

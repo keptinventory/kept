@@ -1,4 +1,4 @@
-import { VENDOR_KINDS } from '@kept/shared';
+import { isTagColour, VENDOR_KINDS } from '@kept/shared';
 import { z } from 'zod';
 
 // The registries' request and response shapes: apps/web/src/api/inventory/types.ts (Brand,
@@ -17,6 +17,12 @@ export const ENTITY: Record<RegistryKind, 'brand' | 'vendor' | 'person' | 'tag'>
 };
 
 const COLOUR = /^#[0-9A-Fa-f]{6}$/;
+/** A tag's colour: one of the palette (@kept/shared TAG_COLOURS), in any case, stored upper case. */
+const TAG_COLOUR = z
+  .string()
+  .regex(COLOUR)
+  .refine(isTagColour, { message: 'one of the tag palette colours' })
+  .transform((c) => c.toUpperCase());
 const name = (max: number) => z.string().trim().min(1).max(max);
 const optText = (max: number) => z.string().trim().max(max).nullable().optional();
 const months = z.number().int().min(0).max(1200).nullable().optional();
@@ -46,7 +52,7 @@ export const CreateBody = {
   tags: z.strictObject({
     id: z.uuid().optional(),
     name: name(60),
-    colour: z.string().regex(COLOUR).nullable().optional(),
+    colour: TAG_COLOUR.nullable().optional(),
   }),
 } as const;
 
@@ -122,6 +128,10 @@ export const ItemSchema = {
     ownerAccountId: z.uuid(),
     name: z.string(),
     colour: z.string().nullable(),
+    /** The live things the caller can see that have it: on a list and on `GET /tags/:id`. */
+    thingCount: z.number().int().optional(),
+    /** `GET /tags/:id` only: those things per location, the caller's locations. */
+    uses: z.array(z.object({ locationId: z.uuid(), count: z.number().int() })).optional(),
   }),
 } as const;
 
@@ -161,13 +171,25 @@ function itemShape(kind: RegistryKind, r: Record<string, unknown>): Record<strin
     case 'people':
       return { ...base, displayName: r.display_name, userId: r.member_user_id ?? null };
     case 'tags':
-      return { ...base, name: r.name, colour: r.colour ?? null };
+      return {
+        ...base,
+        name: r.name,
+        colour: r.colour ?? null,
+        ...(typeof r.thing_count === 'number' ? { thingCount: r.thing_count } : {}),
+      };
   }
 }
 
-/** The audit image: the item without its id, account and version (bookkeeping). */
+/** The audit image: the item without its id, account, version and usage (bookkeeping). */
 export function imageOf(item: Item): Record<string, unknown> {
-  const { id: _i, ownerAccountId: _o, rowVersion: _v, ...rest } = item as Record<string, unknown>;
+  const {
+    id: _i,
+    ownerAccountId: _o,
+    rowVersion: _v,
+    thingCount: _n,
+    uses: _u,
+    ...rest
+  } = item as Record<string, unknown>;
   return rest;
 }
 

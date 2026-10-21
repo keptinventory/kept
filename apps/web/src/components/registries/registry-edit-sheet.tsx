@@ -1,21 +1,23 @@
 /**
  * Edit a brand, vendor, person or tag (admin; PATCH with If-Match, D156). Brands carry their
- * support details for warranty claims later; vendors their kind and contact line; people and tags
- * only a name here (a person's contact card is separate and gated, D177).
+ * support details for warranty claims later; vendors their kind and contact line; tags their name
+ * and colour (#209, undoable); people only a name here (a person's contact card is separate and
+ * gated, D177).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { type FormEvent, useState } from 'react';
 import { isApiError } from '@/api/client';
 import type { RegistryPathKind } from '@/api/inventory/paths';
-import type { Brand, RegistryItem, Vendor, VendorKind } from '@/api/inventory/types';
+import type { Brand, RegistryItem, Tag, Vendor, VendorKind } from '@/api/inventory/types';
+import { useOfferUndo } from '@/components/history/undo';
 import { Notice, useErrorText } from '@/components/page';
 import { Sheet } from '@/components/places/sheet';
+import { TagColourChoice } from '@/components/tags/colour-choice';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { DialogFooter } from '@/components/ui/dialog';
 import { TextField } from '@/components/ui/text-field';
-import { toast } from '@/components/ui/toast';
 import { invalidateRegistry, registryApi, registryKeys } from './api';
 import { useRegistryWords, useVendorKindLabels, VENDOR_KIND_ORDER } from './labels';
 
@@ -63,6 +65,7 @@ function valuesOf(kind: RegistryPathKind, item: RegistryItem[RegistryPathKind]):
       website: v.website ?? '',
     };
   }
+  if (kind === 'tags') return { name: registryName(item), colour: (item as Tag).colour ?? '' };
   return { name: registryName(item) };
 }
 
@@ -80,6 +83,7 @@ function EditForm({
   const errorText = useErrorText();
   const vendorKinds = useVendorKindLabels();
   const words = useRegistryWords();
+  const offerUndo = useOfferUndo();
   const [v, setV] = useState<Values>(() => valuesOf(kind, item));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const set = (k: string) => (value: string) => setV((x) => ({ ...x, [k]: value }));
@@ -91,7 +95,11 @@ function EditForm({
         kind === 'people'
           ? { displayName: v.name?.trim() }
           : kind === 'tags'
-            ? { name: v.name?.trim() }
+            ? {
+                name: v.name?.trim(),
+                // Only a changed colour is sent: an older free colour stays until one is chosen.
+                ...(v.colour !== ((item as Tag).colour ?? '') ? { colour: v.colour || null } : {}),
+              }
             : kind === 'brands'
               ? {
                   name: v.name?.trim(),
@@ -111,11 +119,12 @@ function EditForm({
                 };
       return registryApi.update(kind, item.id, body as never, item.rowVersion);
     },
-    onSuccess: async (saved) => {
+    onSuccess: async ({ body: saved, auditEvents }) => {
       qc.setQueryData(registryKeys.item(kind, item.id), saved);
       await invalidateRegistry(qc, kind);
       const n = registryName(saved);
-      toast({ title: t`Saved ${n}`, tone: 'ok' });
+      // A tag's rename and recolour are undoable (#209).
+      offerUndo({ title: t`Saved ${n}` }, auditEvents);
       onDone();
     },
     onError: (e) => {
@@ -159,6 +168,9 @@ function EditForm({
   return (
     <form onSubmit={submit} noValidate className="grid gap-4">
       {field('name', t`Name`)}
+      {kind === 'tags' ? (
+        <TagColourChoice value={v.colour || null} onChange={(c) => set('colour')(c ?? '')} />
+      ) : null}
       {kind === 'brands' ? (
         <>
           {field('website', t`Website`, { ltr: true })}

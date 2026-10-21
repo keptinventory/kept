@@ -31,6 +31,7 @@ import {
   whereIs,
 } from './handlers/read.js';
 import { logServiceTool } from './handlers/services.js';
+import { listTags, tagThingsTool } from './handlers/tags.js';
 import { logFuelTool } from './handlers/vehicles.js';
 import {
   addThing,
@@ -88,6 +89,9 @@ const HANDLERS: HandlerTable = {
   pack_into_box: packIntoBoxTool,
   set_box_status: setBoxStatusTool,
   unpack_box: unpackBoxTool,
+  // 1.x (#209): tags, MCP only.
+  list_tags: listTags,
+  tag_things: tagThingsTool,
 };
 
 export function handlerOf<N extends ToolName>(name: N): Handler<N> | undefined {

@@ -18,6 +18,7 @@ import {
   putContact,
   updateItem,
 } from './service.js';
+import { registerTagUndo } from './tag-undo.js';
 import {
   AccountsSchema,
   ContactBody,
@@ -67,6 +68,7 @@ export function writeCtx(
 
 export async function registryRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools } = deps;
+  registerTagUndo();
 
   app.get('/api/v1/accounts', { schema: { response: { 200: AccountsSchema } } }, async (req) => ({
     accounts: await scopedRead(pools, req, (_tx, client) => listAccounts(client)),

@@ -12,6 +12,7 @@
  * rebuilds that after any change, and a key defined twice (D92) or a parent cycle is a 409 whose
  * `reason` says which (a contract question for task 11).
  */
+import { nextTagColour } from '@kept/shared';
 import type { MockState } from '../../mock/fixtures';
 import {
   err,
@@ -627,14 +628,29 @@ export function registriesRoutes(state: MockState): MockRoute[] {
           const items = all()
             .filter((x) => x.ownerAccountId === params.accountId || x.ownerAccountId === null)
             .filter((x) => !q || matches(nameOf(x), q))
-            .sort((a, b) => nameOf(a).localeCompare(nameOf(b)));
+            .sort((a, b) => nameOf(a).localeCompare(nameOf(b)))
+            // #209: how many live things have each tag.
+            .map((x) =>
+              kind === 'tags'
+                ? { ...x, thingCount: users(x.id).filter((t) => !t.deletedAt).length }
+                : x,
+            );
           return paginate(items, query);
         }),
         route('GET', p.registryItem(kind, ':id'), ({ params }) => {
           const item = find(params.id);
           if (!item || (item.ownerAccountId !== null && !visibleAccount(item.ownerAccountId)))
             return notFound();
-          return item;
+          if (kind !== 'tags') return item;
+          // #209: the live things that have it, in all and per location.
+          const live = users(item.id).filter((t) => !t.deletedAt);
+          const per = new Map<string, number>();
+          for (const t of live) per.set(t.locationId, (per.get(t.locationId) ?? 0) + 1);
+          return {
+            ...item,
+            thingCount: live.length,
+            uses: [...per].map(([locationId, count]) => ({ locationId, count })),
+          };
         }),
         route('POST', p.accountRegistry(':accountId', kind), ({ params, body }) => {
           const accountId = params.accountId ?? '';
@@ -669,7 +685,14 @@ export function registriesRoutes(state: MockState): MockRoute[] {
                       claimUrl: null,
                       defaultWarrantyMonths: null,
                     }
-                  : { ...base, name, colour: null };
+                  : {
+                      ...base,
+                      name,
+                      // #209: the least used palette colour, as the server gives a new tag.
+                      colour: nextTagColour(
+                        mine.map((x) => (x as { colour?: string | null }).colour ?? null),
+                      ),
+                    };
           const item = {
             ...blank,
             ...(b as object),
@@ -746,8 +769,13 @@ export function registriesRoutes(state: MockState): MockRoute[] {
           if (!item) return notFound();
           if (item.ownerAccountId === null) return conflict('builtin');
           if (!canManage(item.ownerAccountId)) return forbidden();
-          if (users(item.id).some((t) => !t.deletedAt))
-            return err(409, 'in_use', 'This is still used.', 'Merge it into another instead.');
+          // A tag is in use while any thing has it, the Trash's too (#209).
+          const using = users(item.id).filter((t) => kind === 'tags' || !t.deletedAt);
+          if (using.length)
+            return err(409, 'in_use', 'This is still used.', 'Merge it into another instead.', {
+              live: using.filter((t) => !t.deletedAt).length,
+              trashed: using.filter((t) => t.deletedAt).length,
+            });
           setAll(all().filter((x) => x.id !== params.id));
           return reply(204);
         }),

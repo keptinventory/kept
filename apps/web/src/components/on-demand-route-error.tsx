@@ -95,3 +95,9 @@ export function ScanSessionRouteError(props: ErrorComponentProps) {
   const { t } = useLingui();
   return <OnDemandError {...props} title={t`Scan session`} />;
 }
+
+/** A tag's page (#209): it reads the server, so it loads on demand. */
+export function TagRouteError(props: ErrorComponentProps) {
+  const { t } = useLingui();
+  return <OnDemandError {...props} title={t`Tag`} />;
+}

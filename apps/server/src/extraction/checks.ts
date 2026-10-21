@@ -72,6 +72,9 @@ export type ThingFields = {
   aliases: Record<string, string[]>;
   /** At most one per non-Latin-script language, for review (D214). */
   aliasSuggestions?: AliasSuggestion[];
+  /** #209: tag names the model picked from the household's list, with the name's confidence;
+   * apply.ts keeps only those an existing tag has, as one suggestion. */
+  tags?: Val<string[]>;
 };
 
 /** An alias that waits in the inbox (D214), with the name's confidence (aliases have none). */
@@ -387,6 +390,18 @@ export function checkThing(
     fields.aliases = scripted.aliases;
     if (scripted.suggestions.length > 0) fields.aliasSuggestions = scripted.suggestions;
   } else if (Object.keys(o.aliases).length > 0) c.drop(`${p}.aliases`, 'low_confidence');
+  // #209: tags follow the name's confidence, as aliases do; none without a name.
+  const tags = [
+    ...new Map(
+      (o.tags ?? [])
+        .map((x) => x.replace(/\s+/g, ' ').trim())
+        .filter(Boolean)
+        .map((x) => [normalize(x), x]),
+    ).values(),
+  ].slice(0, 3);
+  if (fields.name && tags.length > 0) {
+    fields.tags = { value: tags, confidence: fields.name.confidence };
+  } else if (tags.length > 0) c.drop(`${p}.tags`, 'low_confidence');
   return { mode: 'thing', fields, dropped: c.dropped };
 }
 

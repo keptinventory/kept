@@ -77,6 +77,8 @@ export async function auditRegistry(
     after?: Record<string, unknown> | null;
     fieldClasses?: Record<string, FieldClass>;
     requestId: string;
+    /** Undoable until then (account-level undo, audit/undo.ts registerAccountUndo). */
+    undoableUntil?: Date | null;
   },
 ): Promise<void> {
   await audited(tx, {
@@ -88,6 +90,7 @@ export async function auditRegistry(
     before: event.before ?? null,
     after: event.after ?? null,
     ...(event.fieldClasses ? { fieldClasses: event.fieldClasses } : {}),
+    ...(event.undoableUntil ? { undoableUntil: event.undoableUntil } : {}),
     requestId: event.requestId,
   });
 }

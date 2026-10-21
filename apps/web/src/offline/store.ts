@@ -25,6 +25,7 @@ import {
   type SnapPlace,
   type SnapRemoved,
   type SnapshotPage,
+  type SnapTag,
   type SnapThing,
   type SnapType,
   type SyncOpResult,
@@ -123,8 +124,12 @@ export interface OfflineStore {
    * places group has no offline twin.
    */
   search(q: string, limit: number): Promise<SnapThing[]>;
+  /** Live things with any of these tags (#209), tags changed on the phone included. */
+  byTags(tagIds: readonly string[], limit: number): Promise<SnapThing[]>;
   /** When the snapshot was last taken: "as of last sync, 14:02" (D188). */
   asOf(): Promise<string | null>;
+  /** The tags of every account the person sees (#209), tags made offline and still queued too. */
+  tags(): Promise<SnapTag[]>;
   // ----- queue -----
   /** Queues one op with its blobs; the store adds `clientVersion` and `payloadVersion`. */
   enqueue(
@@ -205,6 +210,7 @@ export class MemoryStore implements OfflineStore {
   private codes = new Map<string, SnapCode>();
   private legacy = new Map<string, SnapLegacyCode>();
   private types = new Map<string, SnapType>();
+  private tagMap = new Map<string, SnapTag>();
   private queue: QueueEntry[] = [];
   private blobs: (LocalBlob & { queueSeq: number })[] = [];
   private trayIds: string[] = [];
@@ -219,6 +225,10 @@ export class MemoryStore implements OfflineStore {
     if (page.types.items) {
       this.types.clear();
       for (const t of page.types.items) this.types.set(t.id, t);
+    }
+    if (page.tags?.items) {
+      this.tagMap.clear();
+      for (const g of page.tags.items) this.tagMap.set(g.id, g);
     }
     for (const p of page.changes.places) {
       if (p.deleted) this.places.delete(p.id);
@@ -266,6 +276,9 @@ export class MemoryStore implements OfflineStore {
   }
   async asOf() {
     return this.meta.asOf;
+  }
+  async tags() {
+    return withQueuedTags([...this.tagMap.values()], this.queue, [...this.locs.values()]);
   }
   async locations() {
     return [...this.locs.values()];
@@ -323,6 +336,12 @@ export class MemoryStore implements OfflineStore {
         const terms = termsOf(t, codes.get(codesKey(t)));
         return words.every((w) => terms.some((term) => term.startsWith(w)));
       })
+      .slice(0, limit);
+  }
+
+  async byTags(tagIds: readonly string[], limit: number) {
+    return this.view()
+      .filter((t) => !t.deleted && (t.tagIds ?? []).some((g) => tagIds.includes(g)))
       .slice(0, limit);
   }
 
@@ -399,6 +418,7 @@ export class MemoryStore implements OfflineStore {
     this.meta = { cursor: null, asOf: null };
     for (const m of [this.locs, this.places, this.things, this.codes, this.legacy, this.types])
       m.clear();
+    this.tagMap.clear();
     this.queue = [];
     this.blobs = [];
     this.trayIds = [];
@@ -523,6 +543,17 @@ export function applyOptimistic(rows: Map<string, SnapThing>, e: QueueEntry) {
         rows.set(id, { ...t, placeId: to.placeId ?? null, containerId: to.containerId ?? null });
     }
   }
+  // Tags added or taken off (#209): the things show their new tags at once.
+  if (op === 'tag_things' && Array.isArray(p.thingIds)) {
+    const add = Array.isArray(p.add) ? (p.add as string[]) : [];
+    const remove = new Set(Array.isArray(p.remove) ? (p.remove as string[]) : []);
+    for (const id of p.thingIds as string[]) {
+      const t = rows.get(id);
+      if (!t) continue;
+      const tagIds = [...new Set([...(t.tagIds ?? []), ...add])].filter((x) => !remove.has(x));
+      rows.set(id, { ...t, tagIds });
+    }
+  }
   // A moving box unpacked into its room (D251): the box goes there, its contents inside it.
   if (op === 'move_box' && p.state === 'unpacked' && typeof p.placeId === 'string') {
     const t = typeof p.containerId === 'string' ? rows.get(p.containerId) : undefined;
@@ -537,4 +568,27 @@ export function reissuedHit(hits: readonly LegacyHit[]): CodeHit | undefined {
   if (h.thingId) return { kind: 'thing', id: h.thingId, locationId: h.locationId };
   if (h.placeId) return { kind: 'place', id: h.placeId, locationId: h.locationId };
   return undefined;
+}
+
+/**
+ * The snapshot's tags with the ones made offline (#209): a queued `tag_things` op's `create`, in
+ * its location's account, until the server has answered and the next snapshot brings them.
+ */
+export function withQueuedTags(
+  tags: readonly SnapTag[],
+  queue: readonly QueueEntry[],
+  locations: readonly SnapLocation[],
+): SnapTag[] {
+  const out = new Map(tags.map((g) => [g.id, g] as const));
+  for (const e of queue) {
+    if (e.op !== 'tag_things' || !UNANSWERED.has(e.state)) continue;
+    const accountId = locations.find((l) => l.id === e.locationId)?.ownerAccountId;
+    if (!accountId) continue;
+    const made = (e.payload as { create?: { id: string; name: string; colour?: string }[] }).create;
+    for (const c of made ?? []) {
+      if (!out.has(c.id))
+        out.set(c.id, { id: c.id, accountId, name: c.name, colour: c.colour ?? null });
+    }
+  }
+  return [...out.values()];
 }

@@ -45,6 +45,8 @@ export type EmbedTextInput = {
   placePath?: readonly string[];
   /** From the receipt's extraction: the vendor and the lines' descriptions, never an amount. */
   receipt?: { vendor?: string | null; lines?: readonly { description?: string | null }[] } | null;
+  /** Its tags' names, A to Z: one `tag:` line each, last (#209). */
+  tags?: readonly string[];
 };
 
 /** The text a thing is embedded from: one field per line, empty fields left out. */
@@ -63,5 +65,6 @@ export function embedText(thing: EmbedTextInput): string {
   if (thing.placePath?.length) add('place', thing.placePath.join(' › '));
   add('vendor', thing.receipt?.vendor);
   for (const line of thing.receipt?.lines ?? []) add('item', line.description);
+  for (const tag of thing.tags ?? []) add('tag', tag);
   return lines.join('\n');
 }

@@ -41,6 +41,7 @@ import {
   resolvedFields,
   typeCapabilities,
 } from './fields.js';
+import { isAll, tagGroupSql, tagMatchSql } from './tag-sql.js';
 import {
   type CreateBody,
   checkCustom,
@@ -507,7 +508,7 @@ async function createDefaultMeter(
 // ---------------------------------------------------------------------------------------------
 
 /** The fields a thing's embedding text is built from (kept.embedding_text). */
-const EMBED_FIELDS = ['name', 'aliases', 'brandId', 'model', 'notes'] as const;
+const EMBED_FIELDS = ['name', 'aliases', 'brandId', 'model', 'notes', 'tagIds'] as const;
 
 const COLUMN_OF: Partial<Record<keyof UpdateBody, string>> = {
   name: 'name',
@@ -1383,12 +1384,7 @@ export async function thingListWhere(
   many(q.brandId, 'brandId', (ids) => `t.brand_id = ANY (${ids})`);
   many(q.belongsToId, 'belongsToId', (ids) => `t.belongs_to_person_id = ANY (${ids})`);
   if (q.lifecycle) where.push(`t.lifecycle = ${p(q.lifecycle)}`);
-  many(
-    q.tagId,
-    'tagId',
-    (ids) => `EXISTS (SELECT 1 FROM public.thing_tags g
-                       WHERE g.thing_id = t.id AND g.tag_id = ANY (${ids}))`,
-  );
+  many(q.tagId, 'tagId', (ids) => tagMatchSql('t.id', ids, isAll(q.all, q.not, 'tagId')));
   if (q.vendorId) {
     // Through the purchase line: purchases the caller can see.
     where.push(`t.purchase_line_id IN (
@@ -1437,7 +1433,9 @@ export function thingListOrder(q: Pick<ListQuery, 'group' | 'sort' | 'dir'>): {
       ? `(lower(coalesce(ty.name, ty.builtin_key, '~')) || ' ' || coalesce(ty.id::text, '')) ${ICU}`
       : q.group === 'place'
         ? `coalesce(t.container_id, t.place_id)::text ${ICU}`
-        : `''::text ${ICU}`;
+        : q.group === 'tag'
+          ? `${tagGroupSql('t.id')} ${ICU}`
+          : `''::text ${ICU}`;
   const desc = q.dir ? q.dir === 'desc' : q.sort !== 'name';
   const sort =
     q.sort === 'updated'

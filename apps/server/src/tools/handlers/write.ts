@@ -20,13 +20,13 @@ import {
   locationOfRef,
   personOf,
   placeIn,
-  tagsNamed,
   targetIn,
   thingIn,
   typeNamed,
   vendorNamed,
 } from '../resolve.js';
 import type { Handler, Op } from '../types.js';
+import { ensureTags } from './tags.js';
 
 // The write tools (D58, D124). Each calls the route's own operation, which checks the
 // role, the money gate and the row's version and writes the audit row. What a tool writes is
@@ -173,7 +173,8 @@ export const addThing: Handler<'add_thing'> = {
       if (item.type && !typeId)
         notSet.push({ item: i, field: 'type', untrusted: { value: item.type } });
       const brandId = item.brand?.trim() ? await brandEnsured(op.client, loc.id, item.brand) : null;
-      const tags = item.tags?.length ? await tagsNamed(op.client, loc.id, item.tags) : null;
+      // A tag no tag has yet is made where the role may (#209); else it is reported, not set.
+      const tags = item.tags?.length ? await ensureTags(op, loc.id, item.tags) : null;
       for (const value of tags?.missing ?? [])
         notSet.push({ item: i, field: 'tag', untrusted: { value } });
       const belongsTo = item.belongs_to
@@ -301,9 +302,9 @@ export const updateThingTool: Handler<'update_thing'> = {
       body.typeId = typeId;
     }
     if (f.tags !== undefined) {
-      const tags = await tagsNamed(op.client, loc.id, f.tags);
+      const tags = await ensureTags(op, loc.id, f.tags);
       if (tags.missing.length)
-        throw invalid('There is no tag with that name here; name only tags that exist.');
+        throw invalid('There is no tag with that name here, and your role may not make one.');
       body.tagIds = tags.ids;
     }
     if (f.belongs_to !== undefined) {

@@ -68,6 +68,10 @@ describe('choosing the tools a step offers', () => {
     ['Who moved the HD webcam?', 'thing_history'],
     ['Add a shelf in the study', 'create_place'],
     ['I want to add a photo of the receipt', 'attach_link'],
+    ['Tag the tent and the cool box camping', 'tag_things'],
+    ['Which tags do we have?', 'list_tags'],
+    ['ضع وسم التخييم على الخيمة', 'tag_things'],
+    ['Quels tags avons-nous ?', 'list_tags'],
   ] as const)('“%s” offers %s', (question, tool) => {
     expect(offered(question)).toContain(tool);
     // The core is always there.

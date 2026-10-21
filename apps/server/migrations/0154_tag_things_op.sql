@@ -1,0 +1,2 @@
+ALTER TABLE "sync_ops" DROP CONSTRAINT "sync_ops_op_chk";--> statement-breakpoint
+ALTER TABLE "sync_ops" ADD CONSTRAINT "sync_ops_op_chk" CHECK ("op" IN ('create_thing', 'move', 'log_reading', 'claim_label', 'mark_seen', 'not_here', 'create_area', 'box_check', 'move_box', 'move_box_room', 'scan_session_lines', 'scan_session_finish', 'tag_things'));

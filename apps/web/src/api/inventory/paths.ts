@@ -84,6 +84,8 @@ export const inventoryPaths = {
   thingsBulkEdit: `${V1}/things/bulk-edit`,
   /** POST `{thingIds, contents?}`: a selection to the Trash, all or none. */
   thingsBulkTrash: `${V1}/things/bulk-trash`,
+  /** POST `{thingIds, add?, remove?}`: tags on many things at once (#209). */
+  thingsTags: `${V1}/things/tags`,
 
   // ----- meters and readings (task 16) -----
   thingMeters: (id: string) => `${V1}/things/${seg(id)}/meters`,
@@ -208,6 +210,7 @@ export const METHODS: Record<keyof typeof inventoryPaths, readonly Method[]> = {
   thingsSheet: ['GET'],
   thingsBulkEdit: ['POST'],
   thingsBulkTrash: ['POST'],
+  thingsTags: ['POST'],
   thingMeters: ['POST'],
   meter: ['PATCH'],
   meterReadings: ['GET', 'POST'],

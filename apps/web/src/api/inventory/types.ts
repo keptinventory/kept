@@ -315,9 +315,19 @@ export type Tag = {
   id: string;
   ownerAccountId: string;
   name: string;
+  /** One of @kept/shared TAG_COLOURS (an older free colour is shown as its nearest). */
   colour: string | null;
   rowVersion: number;
+  /** The live things you can see that have it: on a list and on `GET /tags/:id` (#209). */
+  thingCount?: number;
+  /** `GET /tags/:id` only: those things per location. */
+  uses?: { locationId: string; count: number }[];
 };
+
+/** POST /api/v1/things/tags: tags added to or taken off many things at once (#209). */
+export type TagThingsBody = { thingIds: string[]; add?: string[]; remove?: string[] };
+/** The things whose tags changed, and their undoable events (undone together). */
+export type TagThingsResult = { changed: string[]; events: string[] };
 
 export type RegistryKind = 'brands' | 'vendors' | 'people' | 'tags';
 export type RegistryItem = {
@@ -592,7 +602,12 @@ export type ThingRow = {
    * `isContainerSql()`). Lists, details and search rows all send it.
    */
   isContainer: boolean;
+  /** Its tags, A to Z (the server's things/tag-sql.ts): the chips a row shows (#209). */
+  tags: ThingTag[];
 };
+
+/** A tag as a thing carries it: the chip's name and colour. */
+export type ThingTag = { id: string; name: string; colour: string | null };
 
 export type ThingMeter = {
   id: string;
@@ -720,6 +735,8 @@ export type ThingListParams = {
   state?: Many<DerivedState | 'archived'>;
   /** Which of the filters above are "is none of" (D205). */
   not?: ('locationId' | 'typeId' | 'tagId' | 'belongsToId' | 'brandId' | 'state')[];
+  /** Which are "has all of" rather than "any of": the server takes the tags only (#209). */
+  all?: ('locationId' | 'typeId' | 'tagId' | 'belongsToId' | 'brandId' | 'state')[];
   lifecycle?: Lifecycle;
   /** `1` ⇒ containers only. */
   container?: 1;
@@ -729,7 +746,8 @@ export type ThingListParams = {
    * anyone else the server matches nothing. */
   importRunId?: string;
   q?: string;
-  group?: 'type' | 'place' | 'none';
+  /** `tag`: under each thing's first tag, A to Z (#209). */
+  group?: 'type' | 'place' | 'tag' | 'none';
   sort?: 'name' | 'updated' | 'lastSeen';
   /** The sort turned around (D211). Absent: A to Z for the name, newest first for dates. */
   dir?: 'asc' | 'desc';
@@ -1132,6 +1150,8 @@ export type SearchParams = {
   state?: Many<SearchStateFilter>;
   /** Which of the filters above are "is none of" (D205). */
   not?: ('locationId' | 'placeId' | 'typeId' | 'tagId' | 'state')[];
+  /** Which are "has all of" rather than "any of": the server takes the tags only (#209). */
+  all?: ('locationId' | 'placeId' | 'typeId' | 'tagId' | 'state')[];
   /** With a kind, only that group is paginated. */
   kind?: SearchKind;
   /**
