@@ -398,7 +398,7 @@ describe('useTour', () => {
       const end = await stepDialog(copy, 'basics.tours');
       await user.click(within(end).getByRole('button', { name: 'Continue' }));
       const first = await stepDialog(copy, 'things.add');
-      expect(first).toHaveTextContent(`Chapter 2 of ${CHAPTERS} · step 1 of 5`);
+      expect(first).toHaveTextContent(`Chapter 2 of ${CHAPTERS} · step 1 of 6`);
       expect(pathOf(router)).toMatch(/^\/loc\/[^/]+$/);
       // The first step of a chapter has nothing before it in the chapter: no Back.
       expect(within(first).queryByRole('button', { name: 'Back' })).toBeNull();
@@ -484,7 +484,7 @@ describe('useTour', () => {
       const add = await stepDialog(copy, 'things.add');
       expect(decodeURIComponent(pathOf(router))).toBe('/loc/المنزل-0000b002');
       await user.click(within(add).getByRole('button', { name: 'Next' }));
-      expect(await stepDialog(copy, 'things.contents')).toHaveTextContent('step 2 of 5');
+      expect(await stepDialog(copy, 'things.contents')).toHaveTextContent('step 2 of 6');
       expect(tourRequests.running()).toBe('things');
     },
     ENGINE_TIMEOUT,
