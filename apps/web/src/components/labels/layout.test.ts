@@ -5,7 +5,15 @@
 import { LABEL_STOCKS, labelStock } from '@kept/shared';
 import { describe, expect, it } from 'vitest';
 import type { LabelCellContent } from '@/api/capture/types';
-import { cellMetrics, directionOfText, pageCss, pagesFor, placeLabels, rowColOf } from './layout';
+import {
+  cellMetrics,
+  directionOfText,
+  pageCss,
+  pagesFor,
+  placeLabels,
+  previewMetrics,
+  rowColOf,
+} from './layout';
 
 const labels = (n: number): LabelCellContent[] =>
   Array.from({ length: n }, (_, i) => {
@@ -82,6 +90,32 @@ describe('cellMetrics', () => {
       'a4_65_38x21',
     ]);
   });
+});
+
+describe('previewMetrics', () => {
+  it.each(LABEL_STOCKS.map((s) => [s.key] as const))(
+    "%s: the sheet preview keeps the label's proportions",
+    (key) => {
+      const stock = labelStock(key);
+      const p = previewMetrics(stock);
+      const m = cellMetrics(stock);
+      // Percentages of the cell's width, from the printed label's own geometry.
+      expect(p.qr).toBeCloseTo((m.qr / stock.cell.w) * 100, 5);
+      expect(p.pad).toBeCloseTo((m.pad / stock.cell.w) * 100, 5);
+      // The code still fits the text column beside the QR, and the name is set under it.
+      expect((p.code * 7 * 0.66) / 100).toBeLessThanOrEqual(m.text / stock.cell.w + 1e-9);
+      expect(p.name).toBeLessThan(p.code);
+      expect(p.compact).toBe(m.compact);
+      const r = (n: number) => +n.toFixed(2);
+      expect({
+        ...p,
+        pad: r(p.pad),
+        qr: r(p.qr),
+        code: r(p.code),
+        name: r(p.name),
+      }).toMatchSnapshot();
+    },
+  );
 });
 
 describe('directionOfText', () => {

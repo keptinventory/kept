@@ -25826,3 +25826,19 @@ msgstr "إلغاء الأرشفة"
 #: src/components/import/choices-step.tsx
 msgid "Still yours, put away, as in Homebox's archive. One with a sale ends sold instead."
 msgstr "ما زال لك، لكنه مُخزَّن جانبًا، كما في أرشيف Homebox. أما المَبيع منها فيُسجَّل مَبيعًا."
+
+#: src/components/labels/start-cell.tsx
+msgid "Label {at}, row {rn}, column {cn2}: {nm}, {cd}"
+msgstr "الملصق {at}، الصف {rn}، العمود {cn2}: {nm}، {cd}"
+
+#: src/components/labels/start-cell.tsx
+msgid "Label {at}, row {rn}, column {cn2}: {cd}"
+msgstr "الملصق {at}، الصف {rn}، العمود {cn2}: {cd}"
+
+#: src/components/labels/start-cell.tsx
+msgid "Each label: QR code, name, where it is and short ID"
+msgstr "كل ملصق: رمز QR والاسم والمكان والمعرّف القصير"
+
+#: src/components/labels/start-cell.tsx
+msgid "Each label: QR code and short ID"
+msgstr "كل ملصق: رمز QR والمعرّف القصير"

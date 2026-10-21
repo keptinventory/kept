@@ -1,8 +1,10 @@
 /**
  * The start cell on a partly used sheet (D175), which is also the layout preview:
  * the sheet's grid in its own proportions, the cells before the start hatched as used, the start
- * outlined, and the codes in the cells they will print into. Every cell is a radio, so a tap or
- * the arrow keys choose where printing starts.
+ * outlined, and each label drawn small in the cell it will print into, with the parts it prints:
+ * a QR glyph, the code and, on a full stock, the name (one line here; the cell's accessible name
+ * keeps all of it). Blanks have no code until the batch is made, so they show the glyph alone.
+ * Every cell is a radio, so a tap or the arrow keys choose where printing starts.
  *
  * The grid is the paper, so it runs left to right in every language, like the maker's numbering
  * ("row 4, column 1"); only the words around it follow the page.
@@ -12,9 +14,10 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { Radio, RadioGroup } from 'react-aria-components';
 import type { LabelCellContent } from '@/api/capture/types';
 import { QrIcon } from '@/components/icons';
+import { isolate } from '@/lib/bidi';
 import { useFormat } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { pagesFor, perPage, rowColOf } from './layout';
+import { type PreviewMetrics, pagesFor, perPage, previewMetrics, rowColOf } from './layout';
 
 export function StartCellPicker({
   stock,
@@ -42,6 +45,8 @@ export function StartCellPicker({
   const c = fmt.num(col);
   const n = fmt.num(pages);
   const usedN = fmt.num(used);
+  const parts = previewMetrics(stock);
+  const named = !parts.compact && labels.length > 0;
   return (
     <RadioGroup
       value={String(value)}
@@ -84,25 +89,28 @@ export function StartCellPicker({
           const at = fmt.num(cell);
           const rn = fmt.num(rr);
           const cn2 = fmt.num(cc);
+          const cd = label?.code ?? '';
+          const nm = isolate(label?.name ?? '');
+          const name = !label
+            ? t`Label ${at}, row ${rn}, column ${cn2}`
+            : nm && !parts.compact
+              ? t`Label ${at}, row ${rn}, column ${cn2}: ${nm}, ${cd}`
+              : t`Label ${at}, row ${rn}, column ${cn2}: ${cd}`;
           return (
             <Radio
               key={cell}
               value={String(cell)}
-              aria-label={t`Label ${at}, row ${rn}, column ${cn2}`}
+              aria-label={name}
               className={cn(
-                'grid min-w-0 cursor-pointer place-items-center overflow-hidden rounded-[2px] border border-dashed border-[#CFCBC2] text-[#111] outline-none data-focus-visible:outline-2 data-focus-visible:outline-info',
+                '@container grid min-w-0 cursor-pointer place-items-center overflow-hidden rounded-[2px] border border-dashed border-[#CFCBC2] text-[#111] outline-none data-focus-visible:outline-2 data-focus-visible:outline-info',
                 cell < value &&
                   'border-solid border-[#E2DFD7] bg-[repeating-linear-gradient(135deg,#EEECE6_0_5px,#F8F7F3_5px_10px)]',
-                cell === value && 'border-solid outline-2 outline-offset-1 outline-[#1C1B19]',
+                cell === value &&
+                  'border-solid outline-2 outline-offset-1 outline-solid outline-[#1C1B19]',
               )}
             >
               {label ? (
-                <bdi
-                  dir="ltr"
-                  className="font-mono text-[9px] font-semibold leading-none sm:text-[10.5px]"
-                >
-                  {printedCode(label.code)}
-                </bdi>
+                <PreviewLabel label={label} parts={parts} />
               ) : printing ? (
                 <QrIcon className="size-3.5 text-[#555]" />
               ) : null}
@@ -110,11 +118,60 @@ export function StartCellPicker({
           );
         })}
       </div>
+      <p className="m-0 text-small text-ink-2">
+        {named ? (
+          <Trans>Each label: QR code, name, where it is and short ID</Trans>
+        ) : (
+          <Trans>Each label: QR code and short ID</Trans>
+        )}
+      </p>
       {pages > 1 ? (
         <p className="m-0 text-small text-ink-2">
           <Trans>These labels take {n} sheets; the next ones start at label 1.</Trans>
         </p>
       ) : null}
     </RadioGroup>
+  );
+}
+
+/**
+ * One label in its preview cell, laid out like the printed one (label-cell.tsx): the QR, then the
+ * code over the name. Sizes are `cqw` of the cell, from `previewMetrics`, set through the style
+ * prop like the printed label's millimetres.
+ */
+function PreviewLabel({ label, parts }: { label: LabelCellContent; parts: PreviewMetrics }) {
+  const cqw = (n: number) => `${Math.round(n * 100) / 100}cqw`;
+  return (
+    <span
+      data-slot="preview-label"
+      className="flex size-full min-w-0 items-center"
+      style={{ padding: cqw(parts.pad), columnGap: cqw(parts.pad) }}
+    >
+      <QrIcon
+        data-slot="preview-qr"
+        className="max-h-full shrink-0"
+        style={{ inlineSize: cqw(parts.qr), blockSize: cqw(parts.qr) }}
+      />
+      <span className="grid min-w-0 flex-1 content-center" style={{ rowGap: cqw(parts.pad / 2) }}>
+        <bdi
+          dir="ltr"
+          data-slot="preview-code"
+          className="block font-mono font-semibold whitespace-nowrap"
+          style={{ fontSize: cqw(parts.code), lineHeight: 1, letterSpacing: '0.06em' }}
+        >
+          {printedCode(label.code)}
+        </bdi>
+        {!parts.compact && label.name ? (
+          <span
+            dir="auto"
+            data-slot="preview-name"
+            className="block truncate font-semibold"
+            style={{ fontSize: cqw(parts.name), lineHeight: 1.2 }}
+          >
+            {label.name}
+          </span>
+        ) : null}
+      </span>
+    </span>
   );
 }

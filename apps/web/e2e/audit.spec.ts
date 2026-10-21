@@ -311,7 +311,8 @@ test('keyboard: print labels from a start cell, then "Printed OK"', async ({
   await expect(print).toBeVisible({ timeout: 20_000 });
 
   // A partly used sheet: start at the third cell, with the arrow keys.
-  await tabTo(p, /^Label 1, row 1, column 1$/);
+  // The cell is named for its place on the sheet, then the label it will print (code, name).
+  await tabTo(p, /^Label 1, row 1, column 1(:|$)/);
   await p.keyboard.press('ArrowRight');
   await p.keyboard.press('ArrowRight');
   await expect(p.getByText(/^Start at label 3 /)).toBeVisible();

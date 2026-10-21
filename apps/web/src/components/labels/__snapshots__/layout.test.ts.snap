@@ -149,3 +149,63 @@ exports[`placeLabels per stock > thermal_62x29: the first page, cell by cell 1`]
   "second": undefined,
 }
 `;
+
+exports[`previewMetrics > a4_24_70x37: the sheet preview keeps the label's proportions 1`] = `
+{
+  "code": 9.52,
+  "compact": false,
+  "name": 7.61,
+  "pad": 3.17,
+  "qr": 46.51,
+}
+`;
+
+exports[`previewMetrics > a4_65_38x21: the sheet preview keeps the label's proportions 1`] = `
+{
+  "code": 8.75,
+  "compact": true,
+  "name": 7,
+  "pad": 3.94,
+  "qr": 47.77,
+}
+`;
+
+exports[`previewMetrics > letter_30_67x25: the sheet preview keeps the label's proportions 1`] = `
+{
+  "code": 7.62,
+  "compact": false,
+  "name": 6.1,
+  "pad": 2.29,
+  "qr": 33.52,
+}
+`;
+
+exports[`previewMetrics > thermal_40x30: the sheet preview keeps the label's proportions 1`] = `
+{
+  "code": 8.33,
+  "compact": false,
+  "name": 6.67,
+  "pad": 4.5,
+  "qr": 48,
+}
+`;
+
+exports[`previewMetrics > thermal_50x30: the sheet preview keeps the label's proportions 1`] = `
+{
+  "code": 8.92,
+  "compact": false,
+  "name": 7.13,
+  "pad": 3.6,
+  "qr": 48,
+}
+`;
+
+exports[`previewMetrics > thermal_62x29: the sheet preview keeps the label's proportions 1`] = `
+{
+  "code": 9.35,
+  "compact": false,
+  "name": 7.48,
+  "pad": 2.81,
+  "qr": 41.16,
+}
+`;

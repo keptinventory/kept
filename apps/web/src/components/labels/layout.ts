@@ -97,6 +97,37 @@ export function cellMetrics(stock: LabelStock): CellMetrics {
   };
 }
 
+export type PreviewMetrics = {
+  /** Percentages of the cell's width (CSS `cqw` inside a cell): padding, the QR's side. */
+  pad: number;
+  qr: number;
+  /** Font sizes, the same way: the code, and the name under it. */
+  code: number;
+  name: number;
+  /** Only the QR and the code, as on the paper. */
+  compact: boolean;
+};
+
+/**
+ * One label's parts at the sheet preview's scale, as percentages of the cell's width. The QR and
+ * padding are the printed label's own; the text is set larger than on paper, as large as the
+ * code can be and still fit its column (capped by the cell's height), so a 100 px cell stays
+ * readable. The name is one line under the code.
+ */
+export function previewMetrics(stock: LabelStock): PreviewMetrics {
+  const m = cellMetrics(stock);
+  const { w, h } = stock.cell;
+  const code = Math.min(m.text / CODE_EM, h * 0.2);
+  const pct = (n: number) => (n / w) * 100;
+  return {
+    pad: pct(m.pad),
+    qr: pct(m.qr),
+    code: pct(code),
+    name: pct(code * 0.8),
+    compact: m.compact,
+  };
+}
+
 /** The name's direction for the canvas (the HTML uses `dir=auto`): its first strong letter's. */
 export function directionOfText(text: string): 'ltr' | 'rtl' {
   const m = text.match(/[A-Za-zÀ-ɏͰ-ϿЀ-ӿ]|[֐-ࣿיִ-﷿ﹰ-﻿]/);

@@ -9,6 +9,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { LabelBatch } from '@/api/capture/types';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { IDS, ownerScenario } from '@/api/mock/fixtures';
+import { FSI, PDI } from '@/lib/bidi';
 import { expectLogicalOnly } from '@/test/render';
 import { findHeading, pathOf, renderApp } from '../app';
 
@@ -100,6 +101,28 @@ describe('the batch builder', () => {
     ).toBeInTheDocument();
     // The list is read again, as it is now.
     await waitFor(() => expect(screen.queryByRole('img', { name: '7KQ4MZ' })).toBeNull());
+  });
+
+  it('the sheet preview draws each label with what it prints: QR, name and code, or QR and code', async () => {
+    const { user } = await renderApp(`/labels?loc=${IDS.home}&things=${T.hdmiCable},${T.box3}`);
+    const first = await screen.findByRole('radio', {
+      name: `Label 1, row 1, column 1: ${FSI}HDMI cable, 2 m${PDI}, 7KQ4MZ`,
+    });
+    const cell = first.closest('label') as HTMLElement;
+    expect(cell.querySelector('[data-slot="preview-qr"]')).not.toBeNull();
+    expect(within(cell).getByText('HDMI cable, 2 m')).toBeInTheDocument();
+    expect(within(cell).getByText('7KQ‑4MZ')).toBeInTheDocument();
+    expect(
+      screen.getByText('Each label: QR code, name, where it is and short ID'),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('radio', { name: /A4 sheet · 65 labels/ }));
+    const compact = screen.getByRole('radio', { name: 'Label 1, row 1, column 1: 7KQ4MZ' });
+    const small = compact.closest('label') as HTMLElement;
+    expect(small.querySelector('[data-slot="preview-qr"]')).not.toBeNull();
+    expect(within(small).getByText('7KQ‑4MZ')).toBeInTheDocument();
+    expect(small.querySelector('[data-slot="preview-name"]')).toBeNull();
+    expect(screen.getByText('Each label: QR code and short ID')).toBeInTheDocument();
   });
 
   it('a roll has no start cell, and a blank sheet counts its labels', async () => {
