@@ -26,7 +26,7 @@ import {
   reserveInWindow,
   reserveSignInAttempt,
 } from './sign-in-limiter.js';
-import { claimTotpStep, totpStep, totpUri } from './totp.js';
+import { claimTotpStep, TotpBusyError, totpStep, totpUri } from './totp.js';
 
 // Settings → Sign-in and security: the person's passkeys and authenticator app.
 //
@@ -587,7 +587,15 @@ export async function signInSecurityRoutes(
         throw invalid("That code didn't match. Check the time on your phone, then try again.");
       }
       // A code is accepted once per account, whichever app it came from (auth/totp.ts).
-      if (!(await claimTotpStep(pools.auth, scope.userId, step))) {
+      let claim: Awaited<ReturnType<typeof claimTotpStep>>;
+      try {
+        claim = await claimTotpStep(pools.auth, scope.userId, step);
+      } catch (err) {
+        await putBack();
+        if (err instanceof TotpBusyError) throw rateLimited(reply, 1);
+        throw err;
+      }
+      if (!claim.claimed) {
         await putBack();
         throw invalid('That code was used already. Wait for the next one, then enter it.');
       }

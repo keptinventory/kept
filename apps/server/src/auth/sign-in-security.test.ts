@@ -12,6 +12,7 @@ import { tokenAccessOf } from '../tokens/access.js';
 import { AUTH_BASE_PATH, SIGN_IN_MANAGEMENT_PATHS } from './auth.js';
 import { lockAccount } from './security.js';
 import { FREE_FAILURES } from './sign-in-limiter.js';
+import { claimTotpStep } from './totp.js';
 
 // Settings → Sign-in and security: passkeys and the authenticator app, through Kept's own routes
 // (auth/sign-in-security.ts) and Better Auth's mount, the way the browser calls them.
@@ -1615,6 +1616,114 @@ describe('a code is accepted once', () => {
       `SELECT count(*)::int AS n FROM auth.verification WHERE identifier LIKE 'two-factor-setup:%'`,
     );
     expect(stillThere.rows[0].n).toBe(1);
+  });
+
+  /** A password sign-in's two-factor challenge cookie. */
+  async function challenge(email: string): Promise<string> {
+    const first = await auth('/sign-in/email', { body: { email, password: PASSWORD } });
+    expect(first.json()).toMatchObject({ twoFactorRedirect: true });
+    return jar(first);
+  }
+  const verify = (cookie: string, code: string) =>
+    auth('/two-factor/verify-totp', { cookie, body: { code } });
+
+  it('a right code sent with a space is refused without using up its step', async () => {
+    const user = await newUser('spaced');
+    const on = await turnOn(user);
+    const step = await stepNow();
+    const code = totp(on.secret, at(step + 1));
+    const cookie = await challenge(user.email);
+    expect((await verify(cookie, `${code.slice(0, 3)} ${code.slice(3)}`)).statusCode).toBe(401);
+    expect((await verify(cookie, code)).statusCode).toBe(200);
+  });
+
+  it('too many tries on one sign-in, a locked account or an expired challenge give the step back', async () => {
+    const user = await newUser('given-back');
+    const on = await turnOn(user);
+    const step = await stepNow();
+    const code = totp(on.secret, at(step + 1));
+    const wrong = code === '000000' ? '111111' : '000000';
+
+    // Too many tries on this sign-in: Better Auth refuses even the right code.
+    let cookie = await challenge(user.email);
+    for (let i = 0; i < 5; i++) await verify(cookie, wrong);
+    expect((await verify(cookie, code)).statusCode).not.toBe(200);
+
+    // A locked account.
+    await db.pools.auth.query(
+      `UPDATE auth.two_factor SET locked_until = now() + interval '1 hour' WHERE user_id = $1`,
+      [user.userId],
+    );
+    cookie = await challenge(user.email);
+    expect((await verify(cookie, code)).statusCode).not.toBe(200);
+    await db.pools.auth.query(
+      `UPDATE auth.two_factor SET locked_until = NULL, failed_verification_count = 0
+        WHERE user_id = $1`,
+      [user.userId],
+    );
+
+    // An expired challenge.
+    cookie = await challenge(user.email);
+    await db.pools.auth.query(
+      `UPDATE auth.verification SET expires_at = now() - interval '1 second'
+        WHERE value = $1 AND identifier NOT LIKE 'totp-step:%'`,
+      [user.userId],
+    );
+    expect((await verify(cookie, code)).statusCode).not.toBe(200);
+
+    // None of them used the step: the same code signs in now, once.
+    expect(await signInWith(user.email, { code })).toBe(200);
+    expect(await signInWith(user.email, { code })).toBe(401);
+  });
+
+  it('a held lock on the account answers 429, never 500, and uses up nothing', async () => {
+    const user = await newUser('busy');
+    const on = await turnOn(user);
+    const step = await stepNow();
+    const code = totp(on.secret, at(step + 1));
+    const started = await kept('/me/two-factor/set-up-again', {
+      cookie: on.cookie,
+      body: { password: PASSWORD },
+    });
+    const fresh = new URL(started.json().totpURI).searchParams.get('secret') ?? '';
+    const cookie = await challenge(user.email);
+    const holder = await db.pools.auth.connect();
+    try {
+      await holder.query('BEGIN');
+      await holder.query('SELECT 1 FROM auth.two_factor WHERE user_id = $1 FOR UPDATE', [
+        user.userId,
+      ]);
+      const [signIn, again] = await Promise.all([
+        verify(cookie, code),
+        kept('/me/two-factor/set-up-again/verify', {
+          cookie: on.cookie,
+          body: { code: totp(fresh, at(step + 1)) },
+        }),
+      ]);
+      expect(signIn.statusCode).toBe(429);
+      expect(again.statusCode).toBe(429);
+    } finally {
+      await holder.query('ROLLBACK');
+      holder.release();
+    }
+    expect(await signInWith(user.email, { code })).toBe(200);
+  });
+
+  it('an expired record of a used step blocks nothing', async () => {
+    const user = await newUser('stale-step');
+    await turnOn(user);
+    const step = await stepNow();
+    // A record of a much later step, expired (a clock that jumped and came back). The claim
+    // reads it itself, before anything else has cleared expired rows.
+    await db.pools.auth.query(
+      `UPDATE auth.verification SET value = $2, expires_at = now() - interval '1 second'
+        WHERE identifier = $1`,
+      [`totp-step:${user.userId}`, String(step + 100)],
+    );
+    expect(await claimTotpStep(db.pools.auth, user.userId, step + 1)).toEqual({
+      claimed: true,
+      previous: null,
+    });
   });
 
   it('is per account: another account uses the same step freely', async () => {

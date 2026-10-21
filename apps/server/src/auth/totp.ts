@@ -8,7 +8,8 @@ import type pg from 'pg';
 // A code is accepted once (RFC 6238 §5.2): the last accepted step is kept per account, and a code
 // of that step or an earlier one is refused, whichever secret it came from. It lives in
 // auth.verification (`totp-step:<user id>`, value the step), written under the row lock of the
-// account's auth.two_factor row, so two requests with the same code can't both pass.
+// account's auth.two_factor row, so two requests with the same code can't both pass. A code
+// refused for another reason after its step was claimed gives the step back (releaseTotpStep).
 
 export const TOTP_DIGITS = 6;
 export const TOTP_PERIOD_SECONDS = 30;
@@ -59,50 +60,120 @@ export function totpMatches(secret: string, code: string, now = Date.now()): boo
   return totpStep(secret, code, now) !== null;
 }
 
-/**
- * Records `step` as the account's last accepted one, unless that step or a later one already
- * was: then false, and the code must be refused. Atomic per account (the auth.two_factor row's
- * lock); without a two_factor row (two-factor off) there is nothing to replay, so true.
- */
-export async function claimTotpStep(pool: pg.Pool, userId: string, step: number): Promise<boolean> {
-  const identifier = `${TOTP_STEP_PREFIX}:${userId}`;
+/** The account's two_factor row was locked past LOCK_WAIT: the caller answers 429. */
+export class TotpBusyError extends Error {
+  constructor() {
+    super('Another code for this account is being checked');
+    this.name = 'TotpBusyError';
+  }
+}
+
+/** How long a claim waits for the account's two_factor row (`lock_timeout`). */
+const LOCK_WAIT = '1s';
+const LOCK_NOT_AVAILABLE = '55P03';
+
+export type TotpClaim = {
+  /** False: that step or a later one was already accepted, and the code must be refused. */
+  claimed: boolean;
+  /** The step recorded before this claim (its text), for releaseTotpStep. */
+  previous: string | null;
+};
+
+/** Runs `fn` in one transaction holding the account's two_factor row; false: no such row. */
+async function underTwoFactorLock<T>(
+  pool: pg.Pool,
+  userId: string,
+  fn: (client: pg.PoolClient) => Promise<T>,
+): Promise<{ row: false } | { row: true; value: T }> {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    await client.query("SET LOCAL lock_timeout = '2s'");
+    await client.query(`SET LOCAL lock_timeout = '${LOCK_WAIT}'`);
     const locked = await client.query(
       'SELECT 1 FROM auth.two_factor WHERE user_id = $1 FOR UPDATE',
       [userId],
     );
     if (!locked.rowCount) {
       await client.query('ROLLBACK');
-      return true;
+      return { row: false };
     }
+    const value = await fn(client);
+    await client.query('COMMIT');
+    return { row: true, value };
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    if ((err as { code?: unknown }).code === LOCK_NOT_AVAILABLE) throw new TotpBusyError();
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+async function writeStep(client: pg.ClientBase, identifier: string, step: string) {
+  await client.query('DELETE FROM auth.verification WHERE identifier = $1', [identifier]);
+  // Kept past the window in which the step's code is accepted (one step either side).
+  await client.query(
+    `INSERT INTO auth.verification (identifier, value, expires_at)
+     VALUES ($1, $2, now() + make_interval(secs => $3))`,
+    [identifier, step, TOTP_PERIOD_SECONDS * 4],
+  );
+}
+
+/**
+ * Records `step` as the account's last accepted one, unless that step or a later one already
+ * was (claimed: false). Atomic per account (the auth.two_factor row's lock, waited for at most a
+ * second: TotpBusyError); without a two_factor row (two-factor off) there is nothing to replay. A
+ * record past its expiry counts for nothing.
+ */
+export async function claimTotpStep(
+  pool: pg.Pool,
+  userId: string,
+  step: number,
+): Promise<TotpClaim> {
+  const identifier = `${TOTP_STEP_PREFIX}:${userId}`;
+  const done = await underTwoFactorLock(pool, userId, async (client) => {
+    const { rows } = await client.query<{ value: string }>(
+      `SELECT value FROM auth.verification
+        WHERE identifier = $1 AND expires_at > now()
+        ORDER BY created_at DESC LIMIT 1`,
+      [identifier],
+    );
+    const previous = rows[0]?.value ?? null;
+    const last = previous === null ? null : Number(previous);
+    if (last !== null && Number.isFinite(last) && step <= last) {
+      return { claimed: false, previous };
+    }
+    await writeStep(client, identifier, String(step));
+    return { claimed: true, previous };
+  });
+  return done.row ? done.value : { claimed: true, previous: null };
+}
+
+/**
+ * Gives `step` back when the code that claimed it was refused after all (Better Auth's lockout,
+ * attempt limit or an expired sign-in): the record returns to `previous`, unless another claim
+ * has moved it on since.
+ */
+export async function releaseTotpStep(
+  pool: pg.Pool,
+  userId: string,
+  step: number,
+  previous: string | null,
+): Promise<void> {
+  const identifier = `${TOTP_STEP_PREFIX}:${userId}`;
+  await underTwoFactorLock(pool, userId, async (client) => {
     const { rows } = await client.query<{ value: string }>(
       `SELECT value FROM auth.verification WHERE identifier = $1
         ORDER BY created_at DESC LIMIT 1`,
       [identifier],
     );
-    const last = rows[0] ? Number(rows[0].value) : null;
-    if (last !== null && Number.isFinite(last) && step <= last) {
-      await client.query('ROLLBACK');
-      return false;
+    if (rows[0]?.value !== String(step)) return;
+    if (previous === null) {
+      await client.query('DELETE FROM auth.verification WHERE identifier = $1', [identifier]);
+    } else {
+      await writeStep(client, identifier, previous);
     }
-    await client.query('DELETE FROM auth.verification WHERE identifier = $1', [identifier]);
-    // Kept past the window in which the step's code is accepted (one step either side).
-    await client.query(
-      `INSERT INTO auth.verification (identifier, value, expires_at)
-       VALUES ($1, $2, now() + make_interval(secs => $3))`,
-      [identifier, String(step), TOTP_PERIOD_SECONDS * 4],
-    );
-    await client.query('COMMIT');
-    return true;
-  } catch (err) {
-    await client.query('ROLLBACK').catch(() => {});
-    throw err;
-  } finally {
-    client.release();
-  }
+  });
 }
 
 /** The otpauth:// URI an authenticator app scans. */

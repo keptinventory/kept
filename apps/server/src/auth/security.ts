@@ -13,7 +13,7 @@ import {
   reserveInWindow,
   reserveSignInAttempt,
 } from './sign-in-limiter.js';
-import { claimTotpStep, totpStep } from './totp.js';
+import { claimTotpStep, releaseTotpStep, TotpBusyError, totpStep } from './totp.js';
 
 // Better Auth's twoFactor plugin gates only /sign-in/email, /sign-in/username
 // and /sign-in/phone-number (its after-hook matcher). Magic link, passkey and social/OIDC
@@ -268,6 +268,9 @@ const unverifiedMagicLinkUser = new WeakMap<object, string>();
 // session). The before-hook notes whose two-factor was still off; the after-hook then signs out
 // every other session and tells the owner.
 const turningTwoFactorOn = new WeakMap<object, string>();
+
+// A TOTP step claimed by the before-hook, given back if Better Auth then refuses the code.
+const totpClaims = new WeakMap<object, { userId: string; step: number; previous: string | null }>();
 
 // The session a swap replaced: its id and when it signed in (SESSION_SWAP_PATHS).
 const swappedFrom = new WeakMap<object, { id: string; createdAt: Date }>();
@@ -540,7 +543,8 @@ export function keptSecurity(opts: KeptSecurityOptions): BetterAuthPlugin {
           matcher: (ctx) => ctx.path === VERIFY_TOTP_PATH,
           handler: createAuthMiddleware(async (ctx) => {
             const code = (ctx.body as { code?: unknown } | undefined)?.code;
-            if (typeof code !== 'string' || !ctx.headers) return;
+            // Only a code Better Auth will compare as it is: six digits, nothing to strip.
+            if (typeof code !== 'string' || !/^\d{6}$/.test(code) || !ctx.headers) return;
             let userId = (await getSession(ctx.headers))?.user.id ?? null;
             if (!userId) {
               const cookie = ctx.context.createAuthCookie(TWO_FACTOR_COOKIE);
@@ -559,12 +563,20 @@ export function keptSecurity(opts: KeptSecurityOptions): BetterAuthPlugin {
             const secret = await symmetricDecrypt({ key: ctx.context.secretConfig, data: stored });
             const step = totpStep(secret, code);
             if (step === null) return; // a wrong code: Better Auth refuses and counts it
-            if (!(await claimTotpStep(pool, userId, step))) {
+            let claim: Awaited<ReturnType<typeof claimTotpStep>>;
+            try {
+              claim = await claimTotpStep(pool, userId, step);
+            } catch (err) {
+              if (err instanceof TotpBusyError) throw tooManyAttempts(1);
+              throw err;
+            }
+            if (!claim.claimed) {
               throw new APIError('UNAUTHORIZED', {
                 message: 'That code was used already. Wait for the next one.',
                 code: 'INVALID_CODE',
               });
             }
+            totpClaims.set(ctx.context, { userId, step, previous: claim.previous });
           }),
         },
         {
@@ -579,6 +591,17 @@ export function keptSecurity(opts: KeptSecurityOptions): BetterAuthPlugin {
         },
       ],
       after: [
+        {
+          // A claimed step whose code Better Auth then refused (lockout, attempt limit, an
+          // expired sign-in) goes back, so the same code still works on a retry.
+          matcher: (ctx) => ctx.path === VERIFY_TOTP_PATH,
+          handler: createAuthMiddleware(async (ctx) => {
+            const claim = totpClaims.get(ctx.context);
+            totpClaims.delete(ctx.context);
+            if (!claim || !isAPIError(ctx.context.returned)) return;
+            await releaseTotpStep(pool, claim.userId, claim.step, claim.previous).catch(() => {});
+          }),
+        },
         {
           matcher: (ctx) => SESSION_SWAP_PATHS.has(ctx.path ?? ''),
           handler: createAuthMiddleware(async (ctx) => {
