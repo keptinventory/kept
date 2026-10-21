@@ -3,6 +3,24 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.12.2 (2026-10-21)
+
+### Features
+
+- **tags:** tags you can actually use (#220) (48a182d)
+- stocktakes and kits with hand-overs (#219) (cbe37cb)
+
+### Fixes
+
+- **security:** tighter tokens, OAuth revoke, webhook senders and origin checks (#221) (e7047e5)
+- **ai:** the assistant fits small per-minute limits, every field for the assistant and MCP, live model lists and OpenRouter embeddings (#218) (9d08946)
+- **labels:** the sheet preview shows what each label prints (#217) (f07a34f)
+
+### Documentation
+
+- **readme:** what's next after 1.12.1 (#214) (3941284)
+- **release:** the 1.12.1 record (#213) (910d1f2)
+
 ## 1.12.1 (2026-10-20)
 
 ### Features
