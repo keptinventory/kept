@@ -3,6 +3,23 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.12.3 (2026-10-21)
+
+### Features
+
+- **scan:** more barcode types (#230) (f1f2220)
+
+### Fixes
+
+- **undo:** the sheet perf run's undo, and test text without planning labels (#229) (ce45847)
+
+### Documentation
+
+- **readme:** what Kept does now, and the current roadmap (#228) (255f7d0)
+- commit ids follow the rewritten history (#225) (a8d94fe)
+- **readme:** what's next after 1.12.2 (#224) (b0b249c)
+- **release:** the 1.12.2 record (#223) (014e585)
+
 ## 1.12.2 (2026-10-21)
 
 ### Features
