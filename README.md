@@ -188,7 +188,8 @@ The camera, installing the app, push and location need HTTPS:
 
 ## What's next
 
-- **Now:** [more barcode types](https://github.com/keptinventory/kept/issues/173)
+- **Now:** [passkeys and the authenticator app in Settings](https://github.com/keptinventory/kept/issues/226)
+- **Next:** [run comfortably on a 2 GB machine](https://github.com/keptinventory/kept/issues/176)
 - **Later:** [mobile apps](https://github.com/keptinventory/kept/issues/169) · [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197) · [graph view](https://github.com/keptinventory/kept/issues/207)
 
 [Full roadmap →](https://github.com/orgs/keptinventory/projects/1) · 👍 the themes you want most.
