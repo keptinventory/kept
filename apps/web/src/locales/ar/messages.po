@@ -26810,3 +26810,7 @@ msgstr "فعّل التحقق بخطوتين"
 #: src/components/history/labels.ts
 msgid "Unlinked an outside sign-in"
 msgstr "ألغى ربط طريقة دخول خارجية"
+
+#: src/components/sign-in-security.household.tsx
+msgid "A location you belong to asks for two-factor. Turn on the authenticator app before removing your last passkey."
+msgstr "أحد المواقع التي تنتمي إليها يطلب التحقق بخطوتين. فعّل تطبيق المصادقة قبل إزالة آخر مفتاح مرور لديك."

@@ -150,7 +150,7 @@ export function SignInMethods({ error, via }: { error?: string; via?: OutsidePro
       {unlinking ? (
         <UnlinkSheet
           name={unlinking.name}
-          hasPassword={security.data?.password !== false}
+          {...(security.data ? { hasPassword: security.data.password } : {})}
           onClose={() => setUnlinking(null)}
           onUnlink={async (password) => {
             await unlinkSignInMethod(unlinking.id, password);
@@ -180,7 +180,8 @@ function UnlinkSheet({
   onUnlink,
 }: {
   name: string;
-  hasPassword: boolean;
+  /** Unknown while it loads: the sheet then shows the field with its hint. */
+  hasPassword?: boolean;
   onClose: () => void;
   onUnlink: (password: string | undefined) => Promise<void>;
 }) {
@@ -191,7 +192,7 @@ function UnlinkSheet({
       submitLabel={<Trans>Unlink</Trans>}
       submitVariant="danger"
       returnTo={RETURN}
-      hasPassword={hasPassword}
+      {...(hasPassword === undefined ? {} : { hasPassword })}
       onClose={onClose}
       onSubmit={onUnlink}
     >

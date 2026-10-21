@@ -389,6 +389,11 @@ function RemovePasskeySheet({
       submitVariant="danger"
       returnTo={RETURN}
       hasPassword={hasPassword}
+      describeFailure={(e) =>
+        isApiError(e) && e.code === 'two_factor_required'
+          ? t`A location you belong to asks for two-factor. Turn on the authenticator app before removing your last passkey.`
+          : null
+      }
       onClose={onClose}
       onSubmit={async (password) => {
         await removePasskey(passkey.id, password);

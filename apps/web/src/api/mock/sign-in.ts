@@ -125,6 +125,8 @@ export const signInMockRoutes: AreaRoutes = (state: MockState) => {
       const others = s().passkeys.length - 1;
       if (!s().hasPassword && others === 0 && s().linked.length === 0 && !s().emailLink)
         return err(409, 'last_sign_in_method', 'That is your only way to sign in.');
+      if (s().locationRequiresTwoFactor && others === 0 && !state.me.user.twoFactorEnabled)
+        return err(409, 'two_factor_required', 'A location you belong to asks for two-factor.');
       s().passkeys = s().passkeys.filter((p) => p.id !== params.id);
       return reply(204);
     }),

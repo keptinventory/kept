@@ -29,11 +29,14 @@ export type ReauthSheetProps = {
   onClose: () => void;
   /** The page the sign-in returns to after "Sign in again". */
   returnTo: string;
-  /** False when the account is known to have no password: no password field, and a recent
-   * sign-in is what confirms. Default: the field is shown. */
+  /** Whether the account has a password, when the screen knows: true shows the field alone,
+   * false none (a recent sign-in is what confirms). Unknown (undefined, the default): the field,
+   * with a line saying an account without a password leaves it empty. */
   hasPassword?: boolean;
   /** Keeps the submit button off (a required field of the sheet's own is empty). */
   isSubmitDisabled?: boolean;
+  /** The action's own words for a refusal, when the general ones don't fit; null: those. */
+  describeFailure?: (err: unknown) => string | null;
 };
 
 export function ReauthSheet({
@@ -44,8 +47,9 @@ export function ReauthSheet({
   onSubmit,
   onClose,
   returnTo,
-  hasPassword = true,
+  hasPassword,
   isSubmitDisabled = false,
+  describeFailure,
 }: ReauthSheetProps) {
   const { t } = useLingui();
   const errorText = useErrorText();
@@ -107,10 +111,14 @@ export function ReauthSheet({
                 then come back here.
               </Trans>
             </Notice>
-          ) : !hasPassword ? null : (
+          ) : hasPassword === false ? null : (
             <PasswordField
               label={t`Your password`}
-              description={t`No password on your account? Leave this empty: a sign-in in the last ten minutes is enough.`}
+              description={
+                hasPassword === undefined
+                  ? t`No password on your account? Leave this empty: a sign-in in the last ten minutes is enough.`
+                  : undefined
+              }
               value={password}
               onChange={setPassword}
               isInvalid={!!passwordError}
@@ -118,7 +126,9 @@ export function ReauthSheet({
               autoFocus
             />
           )}
-          {failure ? <Notice tone="danger">{errorText(failure)}</Notice> : null}
+          {failure ? (
+            <Notice tone="danger">{describeFailure?.(failure) ?? errorText(failure)}</Notice>
+          ) : null}
           <DialogFooter>
             <Button variant="secondary" onPress={onClose}>
               <Trans>Cancel</Trans>

@@ -278,6 +278,8 @@ describe('renaming and removing a passkey', () => {
     await section();
     await user.click(within(passkeyRow('Laptop')).getByRole('button', { name: 'Rename' }));
     const dialog = await screen.findByRole('dialog', { name: 'Rename passkey' });
+    // The account has a password: the sheet doesn't suggest leaving it empty.
+    expect(dialog).not.toHaveTextContent(/No password on your account/);
     const name = within(dialog).getByLabelText('Name');
     await user.clear(name);
     await user.type(name, 'Desk laptop');
@@ -324,6 +326,26 @@ describe('renaming and removing a passkey', () => {
     expect(
       await within(dialog).findByText(
         "That's your only way to sign in. Add another passkey or link another sign-in first.",
+      ),
+    ).toBeInTheDocument();
+    expect(within(passkeyList()).getByText('Laptop')).toBeInTheDocument();
+  });
+
+  it('the last passkey while a location asks for two-factor and the app is off: says why', async () => {
+    const { user } = await renderApp('/settings', {
+      state: scenario((s) => {
+        s.me.user.twoFactorEnabled = false;
+        s.signIn.locationRequiresTwoFactor = true;
+      }),
+    });
+    await section();
+    await user.click(within(passkeyRow('Laptop')).getByRole('button', { name: 'Remove' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Remove Laptop?' });
+    await user.type(within(dialog).getByLabelText('Your password'), 'correct horse battery');
+    await user.click(within(dialog).getByRole('button', { name: 'Remove' }));
+    expect(
+      await within(dialog).findByText(
+        'A location you belong to asks for two-factor. Turn on the authenticator app before removing your last passkey.',
       ),
     ).toBeInTheDocument();
     expect(within(passkeyList()).getByText('Laptop')).toBeInTheDocument();

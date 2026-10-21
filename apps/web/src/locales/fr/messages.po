@@ -26810,3 +26810,7 @@ msgstr "A activé la double authentification"
 #: src/components/history/labels.ts
 msgid "Unlinked an outside sign-in"
 msgstr "A dissocié un moyen de connexion externe"
+
+#: src/components/sign-in-security.household.tsx
+msgid "A location you belong to asks for two-factor. Turn on the authenticator app before removing your last passkey."
+msgstr "Un lieu dont vous êtes membre exige la double authentification. Activez l’application d’authentification avant de retirer votre dernière clé d’accès."

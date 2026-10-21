@@ -26810,3 +26810,7 @@ msgstr "Turned on two-factor"
 #: src/components/history/labels.ts
 msgid "Unlinked an outside sign-in"
 msgstr "Unlinked an outside sign-in"
+
+#: src/components/sign-in-security.household.tsx
+msgid "A location you belong to asks for two-factor. Turn on the authenticator app before removing your last passkey."
+msgstr "A location you belong to asks for two-factor. Turn on the authenticator app before removing your last passkey."

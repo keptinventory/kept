@@ -26810,3 +26810,7 @@ msgstr "Ha attivato la verifica in due passaggi"
 #: src/components/history/labels.ts
 msgid "Unlinked an outside sign-in"
 msgstr "Ha scollegato un metodo di accesso esterno"
+
+#: src/components/sign-in-security.household.tsx
+msgid "A location you belong to asks for two-factor. Turn on the authenticator app before removing your last passkey."
+msgstr "Un luogo di cui fai parte richiede la verifica in due passaggi. Attiva l’app di autenticazione prima di rimuovere la tua ultima passkey."

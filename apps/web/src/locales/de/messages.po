@@ -26810,3 +26810,7 @@ msgstr "Hat Zwei-Faktor eingeschaltet"
 #: src/components/history/labels.ts
 msgid "Unlinked an outside sign-in"
 msgstr "Hat eine externe Anmeldung getrennt"
+
+#: src/components/sign-in-security.household.tsx
+msgid "A location you belong to asks for two-factor. Turn on the authenticator app before removing your last passkey."
+msgstr "Ein Standort, zu dem du gehörst, verlangt Zwei-Faktor-Authentifizierung. Schalte die Authenticator-App ein, bevor du deinen letzten Passkey entfernst."
