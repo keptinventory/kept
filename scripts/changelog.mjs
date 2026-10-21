@@ -16,7 +16,7 @@
 //
 // GitHub is asked (`gh api graphql`, read-only) who wrote each pull request and which issues it
 // closed, by whom: "closes #N, reported by @x" goes on the change's line, and a Contributors line
-// lists every author and reporter. If gh is missing or fails, both are left out with a warning
+// lists the pull requests' authors. If gh is missing or fails, both are left out with a warning
 // and the section is still written. KEPT_CHANGELOG_GH names another gh binary.
 //
 // Without --write the section is printed; with it, the section goes in above the newest one, or
@@ -112,7 +112,8 @@ const and = (items) =>
 /**
  * What GitHub knows about the release's pull requests: { pulls, contributors }, or null when no
  * commit names a pull request or GitHub can't be asked (then `warn` says why). `contributors` is
- * every author of a pull request and of an issue one closed, no bots, sorted, each once.
+ * every author of a pull request, no bots, sorted, each once: the people who wrote the code. Who
+ * reported an issue is credited on its change's line instead.
  */
 export async function gatherGitHub(commits, fetcher, warn = (m) => console.error(m)) {
   const numbers = [
@@ -127,10 +128,8 @@ export async function gatherGitHub(commits, fetcher, warn = (m) => console.error
   try {
     const pulls = await fetcher.pulls(numbers);
     const people = new Set();
-    for (const { author, closes } of pulls.values()) {
-      for (const who of [author, ...closes.map((i) => i.author)]) {
-        if (!isBot(who)) people.add(who.login);
-      }
+    for (const { author } of pulls.values()) {
+      if (!isBot(author)) people.add(author.login);
     }
     const contributors = [...people].sort((a, b) =>
       a.localeCompare(b, 'en', { sensitivity: 'base' }),

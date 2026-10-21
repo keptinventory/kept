@@ -213,12 +213,11 @@ describe('the issues each pull request closes, and the contributors', () => {
     expect(text).not.toMatch(/Thanks|New contributors/);
   });
 
-  it('ends with one line of every author and reporter, sorted, each once, no bots', async () => {
+  it("ends with one line of the pull requests' authors, sorted, each once, no bots", async () => {
     const github = await gatherGitHub(releaseCommits, fakeFetcher());
     const text = renderSection('1.12.4', '2026-10-21', releaseCommits, { github });
-    expect(text.trimEnd()).toMatch(
-      /### Contributors\n\n@bruce · @ibrahimroshdy · @louis · @peter · @talia$/,
-    );
+    // Reporters are credited on their change's line, not here: contributors wrote the code.
+    expect(text.trimEnd()).toMatch(/### Contributors\n\n@bruce · @ibrahimroshdy · @louis$/);
     expect(text).not.toMatch(/renovate|dependabot|github-actions/);
   });
 

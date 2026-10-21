@@ -51,9 +51,10 @@ Two more parts frame the groups:
 
 - **Highlights**, first: `--highlights <file>`, 2–4 hand-written bullets. Without the file there
   is none.
-- **Contributors**, last: one line of @handles, everyone who wrote a pull request in the release
-  or reported an issue one closed, no bots, sorted. GitHub draws the release page's avatars from
-  it. Left out, with a warning, when `gh` is missing or fails.
+- **Contributors**, last: one line of @handles, everyone who wrote a pull request in the release,
+  no bots, sorted. Whoever reported an issue is credited on its change's line ("reported by @x").
+  GitHub draws the release page's avatars from every @mention on the page, so reporters appear
+  there too. Left out, with a warning, when `gh` is missing or fails.
 
 The GitHub release page is built from this section (`scripts/release/compose-notes.mjs`):
 Documentation and Behind the scenes are folded away there.
