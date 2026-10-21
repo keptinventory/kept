@@ -94,6 +94,10 @@ export const ErrorCode = Object.freeze({
   /** 1.10.5 (#141): an email was asked for and the account has no address Kept can send to (a
    * managed account, D47). */
   no_email_address: 'no_email_address',
+  /** 1.14: a thing is a part of at most one kit. */
+  in_another_kit: 'in_another_kit',
+  /** 1.14: it is with someone (an open hand-over line): say so and confirm before changing it. */
+  on_loan: 'on_loan',
   /** A reading a fuel entry or service record owns is changed through its owner;
    * the body carries `ownedBy: {type: 'fuel' | 'service', id}`. */
   reading_owned: 'reading_owned',
@@ -218,7 +222,9 @@ export type HouseholdErrorCode =
   | 'channel_unreachable'
   | 'link_expired'
   | 'mail_not_configured'
-  | 'no_email_address';
+  | 'no_email_address'
+  | 'in_another_kit'
+  | 'on_loan';
 
 /** The English sentence for each step-4 code (spread into the server's `MESSAGES`). */
 export const HOUSEHOLD_ERROR_MESSAGES: Readonly<Record<HouseholdErrorCode, string>> = Object.freeze(
@@ -236,6 +242,8 @@ export const HOUSEHOLD_ERROR_MESSAGES: Readonly<Record<HouseholdErrorCode, strin
     link_expired: 'This link has expired or was revoked.',
     mail_not_configured: "Email isn't set up on this server.",
     no_email_address: 'Your account has no email address.',
+    in_another_kit: 'It is a part of another kit.',
+    on_loan: 'It is with someone: mark it returned first, or confirm.',
   },
 );
 

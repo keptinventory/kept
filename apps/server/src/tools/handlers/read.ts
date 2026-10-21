@@ -5,6 +5,7 @@ import { listAttachments } from '../../files/attachments.js';
 import { thingHistory } from '../../history/service.js';
 import { decodeCursor } from '../../http/conventions.js';
 import { invalid } from '../../http/errors.js';
+import { kitView } from '../../kits/service.js';
 import { listPaperwork } from '../../paperwork/library.js';
 import { SearchQuery } from '../../search/query.js';
 import { search } from '../../search/service.js';
@@ -269,10 +270,52 @@ export const getThing: Handler<'get_thing'> = {
         copied: p.copied,
         untrusted: { title: p.title, type: p.type_name },
       }));
+    // 1.14 (#170): its open hand-over line, and a kit's parts.
+    const { rows: out } = await op.client.query<{
+      handover_id: string;
+      started_at: Date;
+      due_on: string | null;
+      person: string | null;
+      in_box: string | null;
+    }>(
+      `SELECT o.handover_id, o.started_at, o.due_on::text AS due_on, pe.display_name AS person,
+              hr.name AS in_box
+         FROM public.loans o
+         LEFT JOIN public.people pe ON pe.id = o.person_id
+         LEFT JOIN public.handovers ho ON ho.id = o.handover_id
+         LEFT JOIN public.things hr ON hr.id = ho.root_thing_id AND hr.id <> o.thing_id
+        WHERE o.thing_id = $1 AND o.returned_at IS NULL AND o.direction = 'out' LIMIT 1`,
+      [id],
+    );
+    const lent = out[0];
+    const kit = await kitView(op.client, id);
     return {
       data: {
         thing: {
           ...ref,
+          ...(lent
+            ? {
+                with: {
+                  handover_id: lent.handover_id,
+                  since: lent.started_at.toISOString(),
+                  due_on: lent.due_on,
+                  in_box: lent.in_box,
+                  untrusted: { person: lent.person ?? '' },
+                },
+              }
+            : {}),
+          ...(kit
+            ? {
+                kit: {
+                  complete: kit.summary.complete,
+                  parts: kit.parts.map((p) => ({
+                    thing_id: p.thing.id,
+                    status: p.status,
+                    untrusted: { name: p.thing.name },
+                  })),
+                },
+              }
+            : {}),
           quantity: v.quantity,
           lifecycle: v.lifecycle as Lifecycle,
           states: v.derivedState,

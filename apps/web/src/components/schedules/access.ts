@@ -95,6 +95,9 @@ export function useInvalidateHousehold() {
       Promise.all([
         qc.invalidateQueries({ queryKey: householdKeys.schedules.all }),
         qc.invalidateQueries({ queryKey: householdKeys.loans.all }),
+        // 1.14 (#170): a kit's parts and a box's hand-overs.
+        qc.invalidateQueries({ queryKey: ['kits'] }),
+        qc.invalidateQueries({ queryKey: ['handovers'] }),
         qc.invalidateQueries({ queryKey: ['household'] }),
         qc.invalidateQueries({ queryKey: householdKeys.agenda.all }),
         qc.invalidateQueries({ queryKey: householdKeys.notifications.all }),

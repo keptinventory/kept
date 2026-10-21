@@ -156,12 +156,35 @@ async function undoLoanReturn(args: UndoArgs): Promise<void> {
     thing_lifecycle: thing.lifecycle,
     thing_ended_on: thing.ended_on,
     thing_deleted_at: thing.deleted_at ? thing.deleted_at.toISOString() : null,
+    thing_condition: thing.condition,
+    thing_quantity: thing.quantity,
   };
+  // The rest of a part return: still out, as the return left it.
+  const restOf = a.split_rest as { thing_id: string; loan_id: string; quantity: string } | null;
+  if (restOf) {
+    const [restLoan] = (
+      await client.query<{ returned_at: Date | null }>(
+        'SELECT returned_at FROM public.loans WHERE id = $1 FOR UPDATE',
+        [restOf.loan_id],
+      )
+    ).rows;
+    const restThing = await thingState(client, restOf.thing_id);
+    current.split_rest =
+      restLoan &&
+      restLoan.returned_at === null &&
+      restThing &&
+      !restThing.deleted_at &&
+      Number(restThing.quantity) === Number(restOf.quantity)
+        ? restOf
+        : null;
+  }
   const into = typeof a.merged_into === 'string' ? await thingState(client, a.merged_into) : null;
   if (into) current.merged_into_quantity = into.quantity;
   if (typeof a.merged_into === 'string') current.merged_into = a.merged_into;
   if (typeof a.merged_batch === 'string') current.merged_batch = thing.trash_batch_id;
-  const conflicts = changedSince(event.diff, current);
+  // Who it was with is what the history says, not something the undo puts back.
+  const { person_name: _who, ...diff } = event.diff;
+  const conflicts = changedSince(diff, current);
   if (typeof a.merged_into === 'string' && !into) conflicts.push('merged_into');
   if (conflicts.length > 0) await refuse(args, id, conflicts);
   // The diff holds only what the return changed; the rest is as it is now.
@@ -192,11 +215,35 @@ async function undoLoanReturn(args: UndoArgs): Promise<void> {
       containerId: (b.thing_container_id as string | null) ?? null,
     });
   }
+  if ('thing_condition' in event.diff) {
+    await client.query('UPDATE public.things SET condition = $2 WHERE id = $1', [
+      row.thing_id,
+      b.thing_condition,
+    ]);
+  }
+  // Part of it came back (1.14): the rest, still out on its own line, joins it again.
+  const rest = a.split_rest as { thing_id: string; loan_id: string; quantity: string } | null;
+  if (rest) {
+    await client.query('DELETE FROM public.loans WHERE id = $1', [rest.loan_id]);
+    await client.query(
+      `UPDATE public.things SET deleted_at = now(), trash_batch_id = uuidv7(), merged_into_id = $2
+        WHERE id = $1`,
+      [rest.thing_id, row.thing_id],
+    );
+    await client.query('UPDATE public.things SET quantity = $2::numeric WHERE id = $1', [
+      row.thing_id,
+      b.thing_quantity,
+    ]);
+  }
   await client.query(
     `UPDATE public.loans SET returned_at = NULL, return_place_id = NULL, return_container_id = NULL,
-                             notes = $2
+                             return_notes = $2, condition_in = $3
       WHERE id = $1`,
-    [id, 'notes' in event.diff ? b.notes : row.notes],
+    [
+      id,
+      'return_notes' in event.diff ? b.return_notes : row.return_notes,
+      'condition_in' in event.diff ? b.condition_in : row.condition_in,
+    ],
   );
   await args.audit({
     action: 'loan.return',

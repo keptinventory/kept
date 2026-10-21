@@ -2,7 +2,8 @@
  * What a count expects to find (#168), from the phone's snapshot so it works offline: everything
  * in the place (and, by default, the places inside it), in the box, or in the whole location,
  * boxes' contents included, so a box's things can be counted one by one or with the box. Only
- * things in use and confirmed: a sold thing or a draft isn't expected anywhere.
+ * things in use and confirmed: a sold thing or a draft isn't expected anywhere. A kit's check
+ * expects its parts, wherever they are.
  */
 import type { SnapThing } from '@kept/shared';
 import type { OfflineStore } from '@/offline/store';
@@ -60,6 +61,15 @@ export async function expectedFor(
     }
   };
   if (target.kind === 'container') {
+    // A kit (1.14, #170): its parts list, wherever each part is now.
+    const parts = (await store.thing(target.id))?.kitParts;
+    if (parts?.length) {
+      for (const id of parts) {
+        const t = await store.thing(id);
+        if (t && counts(t) && !out.has(t.id)) out.set(t.id, asExpected(t));
+      }
+      return [...out.values()];
+    }
     await add(await store.contentsOf({ containerId: target.id }));
     return [...out.values()];
   }

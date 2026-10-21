@@ -41,6 +41,13 @@ export const householdPaths = {
   loanAttachments: (id: string) => `${V1}/loans/${seg(id)}/attachments`,
   thingLoans: (id: string) => `${V1}/things/${seg(id)}/loans`,
   personLoans: (id: string) => `${V1}/people/${seg(id)}/loans`,
+  // 1.14 (#170): hand-overs and kits.
+  handover: (id: string) => `${V1}/handovers/${seg(id)}`,
+  handoverReturn: (id: string) => `${V1}/handovers/${seg(id)}/return`,
+  loanLost: (id: string) => `${V1}/loans/${seg(id)}/lost`,
+  thingHandovers: (id: string) => `${V1}/things/${seg(id)}/handovers`,
+  thingKit: (id: string) => `${V1}/things/${seg(id)}/kit`,
+  locationKits: (id: string) => `${V1}/locations/${seg(id)}/kits`,
 
   // ----- schedules and service records -----------
   schedules: `${V1}/schedules`,
@@ -122,6 +129,12 @@ export const HOUSEHOLD_METHODS: Record<keyof typeof householdPaths, readonly Met
   loanAttachments: ['POST'],
   thingLoans: ['GET'],
   personLoans: ['GET'],
+  handover: ['GET', 'PATCH'],
+  handoverReturn: ['POST'],
+  loanLost: ['POST'],
+  thingHandovers: ['GET'],
+  thingKit: ['GET', 'POST', 'PUT', 'DELETE'],
+  locationKits: ['GET'],
   schedules: ['GET', 'POST'],
   schedule: ['PATCH', 'DELETE'],
   scheduleComplete: ['POST'],

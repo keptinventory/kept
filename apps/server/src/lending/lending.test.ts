@@ -139,12 +139,17 @@ describe('POST /api/v1/things/:id/lend', () => {
       dueOn: addDays(today, 14),
       overdue: false,
     });
-    const [event] = await eventsOf(db, home.id, loan.id);
-    expect(event).toMatchObject({ action: 'loan.create', actor_id: louis.userId });
+    // One hand-over of one line, audited on the thing (1.14).
+    const event = (await eventsOf(db, home.id, drill.id)).find(
+      (e) => e.action === 'handover.create',
+    );
+    expect(event).toMatchObject({ actor_id: louis.userId });
     expect(event?.diff).toMatchObject({
       direction: { after: 'out' },
       person_id: { after: murdock },
+      lines: { after: [{ loan_id: loan.id, thing_id: drill.id }] },
     });
+    expect(loan.handoverId).toBe((res.handover as Json).id);
     // Search finds it as lent.
     const found = ok(
       await call(t, `/api/v1/search?state=lent&locationId=${home.id}`, { as: talia }),
@@ -349,8 +354,10 @@ describe('partial lends and returns (D10, D172, Q14)', () => {
       ),
     );
     expect(returned.mergedInto).toBeUndefined();
+    // The return note is its own (1.14): the lend note stays.
     expect(returned.loan).toMatchObject({
-      notes: 'One chipped',
+      returnNotes: 'One chipped',
+      outcome: 'returned',
       returnPlace: { id: attic, name: 'Attic' },
     });
     expect(await thingRow((res.thing as Json).id)).toMatchObject({ place_id: attic });

@@ -13,6 +13,7 @@ const UNPLACED = '01926f00-0000-7000-8000-00000000e0ff';
 const GARAGE = '01926f00-0000-7000-8000-00000000e010';
 const SHELF = '01926f00-0000-7000-8000-00000000e011';
 const BOX = '01926f00-0000-7000-8000-00000000e021';
+const KIT = '01926f00-0000-7000-8000-00000000e0c1';
 
 const place = (id: string, name: string, parentId: string | null = null): SnapPlace => ({
   id,
@@ -66,6 +67,14 @@ async function phone() {
     draft: thing({ placeId: GARAGE, reviewState: 'draft' }),
     trashed: thing({ placeId: GARAGE, deleted: true }),
   };
+  // A kit kept in the Unplaced area, its parts on the shelf, loose and sold.
+  const kit = thing({
+    id: KIT,
+    placeId: UNPLACED,
+    isContainer: true,
+    name: 'Camera kit',
+    kitParts: [things.onShelf.id, things.loose.id, things.sold.id],
+  });
   const store = new MemoryStore();
   const page: SnapshotPage = {
     asOf: '2026-10-20T10:00:00.000Z',
@@ -87,7 +96,7 @@ async function phone() {
     types: { hash: 'h', items: [] },
     changes: {
       places: [place(UNPLACED, ''), place(GARAGE, 'Garage'), place(SHELF, 'Shelf B', GARAGE)],
-      things: Object.values(things),
+      things: [...Object.values(things), kit],
       codes: [],
       legacyCodes: [],
     },
@@ -147,6 +156,18 @@ describe('expectedFor', () => {
     expect(ids(list)).toEqual(ids([t.onGarage]));
   });
 
+  it('a kit: its parts, wherever they are', async () => {
+    const { store, things: t } = await phone();
+    const list = await expectedFor(store, {
+      kind: 'container',
+      id: KIT,
+      locationId: HOME,
+      name: 'Kit',
+    });
+    // The sold one isn't expected anywhere.
+    expect(ids(list)).toEqual(ids([t.onShelf, t.loose]));
+  });
+
   it('a box: everything inside it', async () => {
     const { store, things: t } = await phone();
     const list = await expectedFor(store, {
@@ -166,6 +187,8 @@ describe('expectedFor', () => {
       locationId: HOME,
       name: 'Home',
     });
-    expect(ids(list)).toEqual(ids([t.onGarage, t.box, t.inBox, t.onShelf, t.loose, t.lent]));
+    expect(ids(list)).toEqual(
+      ids([t.onGarage, t.box, t.inBox, t.onShelf, t.loose, t.lent, { id: KIT }]),
+    );
   });
 });

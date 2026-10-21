@@ -563,7 +563,16 @@ export type SnapThing = {
   derived?: ('lent' | 'borrowed' | 'in_repair')[];
   /** The open loan, if any: a person's name is not a contact detail; no phone, email or notes
    * ever reach the phone (D36). */
-  loan?: { direction: LoanDirection; personName: string; dueOn: string | null };
+  loan?: {
+    direction: LoanDirection;
+    personName: string;
+    dueOn: string | null;
+    /** 1.14 (#170): since when, and what it went with ("in Camera bag"). Additive. */
+    since?: string;
+    withName?: string | null;
+  };
+  /** 1.14 (#170): a kit's parts (thing ids), for "Check this kit" offline. Additive. */
+  kitParts?: string[];
   deleted: boolean;
 };
 

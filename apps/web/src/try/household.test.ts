@@ -6,6 +6,7 @@
 import { SHORT_CODE } from '@kept/shared';
 import { describe, expect, it } from 'vitest';
 import { ensureSeeded } from '@/api/household/mock/db';
+import { seedKitSample } from '@/api/household/mock/handovers';
 import { insightsOf } from '@/api/insights/mock';
 import { ownerScenario } from '@/api/mock/fixtures';
 import { ensureVehiclesSeeded } from '@/api/vehicles/mock/state';
@@ -14,6 +15,8 @@ function household() {
   const state = ownerScenario();
   ensureSeeded(state);
   ensureVehiclesSeeded(state);
+  // The kits and hand-overs sample.
+  seedKitSample(state);
   return state;
 }
 

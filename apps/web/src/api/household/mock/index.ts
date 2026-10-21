@@ -9,6 +9,7 @@ import type { MockRoute } from '../../mock/kit';
 import { agendaRoutes } from './agenda';
 import { calendarRoutes } from './calendar';
 import { installStep4 } from './db';
+import { handoverRoutes } from './handovers';
 import { incidentsRoutes } from './incidents';
 import { lendingRoutes } from './lending';
 import { moneyRoutes } from './money';
@@ -24,6 +25,7 @@ export function householdMockRoutes(state: MockState): MockRoute[] {
     ...moneyRoutes(state),
     ...warrantiesRoutes(state),
     ...lendingRoutes(state),
+    ...handoverRoutes(state),
     ...schedulesRoutes(state),
     ...paperworkRoutes(state),
     ...agendaRoutes(state),

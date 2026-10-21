@@ -12,6 +12,7 @@ export * from './embeddings.js';
 export * from './files.js';
 export * from './fuel.js';
 export * from './imports.js';
+export * from './kits.js';
 export * from './labels.js';
 export * from './lending.js';
 export * from './mailboxes.js';

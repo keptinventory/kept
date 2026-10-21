@@ -248,6 +248,9 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.schedule_counted_on(uuid)': OWNER_ONLY,
   'kept.scan_session_schedule_changed()': OWNER_ONLY,
   'kept.scan_session_undone()': OWNER_ONLY,
+  // 1.14 (0152): a hand-over's person, and the one-line hand-over of a loan written without one.
+  'kept.guard_handover_person()': OWNER_ONLY,
+  'kept.loan_handover()': OWNER_ONLY,
   'kept.module_enabled(uuid,text)': APP_AND_SYSTEM,
   'kept.module_on(uuid,text)': APP_AND_SYSTEM,
   'kept.schedule_point(integer,numeric,date,date,numeric,date,numeric,boolean,integer,numeric,date,numeric)':

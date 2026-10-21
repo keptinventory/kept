@@ -1,4 +1,4 @@
-import { LOAN_DIRECTIONS } from '@kept/shared';
+import { CONDITIONS, LOAN_DIRECTIONS, LOAN_OUTCOMES } from '@kept/shared';
 import { sql } from 'drizzle-orm';
 import {
   check,
@@ -21,6 +21,48 @@ import { things } from './things.js';
 // migration that follows (0051); see src/db/household-records.test.ts.
 
 const direction = textEnum('direction', LOAN_DIRECTIONS);
+const outcome = textEnum('outcome', LOAN_OUTCOMES);
+const conditionOut = textEnum('condition_out', CONDITIONS);
+const conditionIn = textEnum('condition_in', CONDITIONS);
+const handoverConditionOut = textEnum('condition_out', CONDITIONS);
+
+/**
+ * A hand-over (1.14, #170): one lend to a person of a thing, a box (with everything inside it)
+ * or a kit, with one loan (a line) per thing that went. The person, the dates, the due-soon lead
+ * and the notes are the hand-over's, copied onto its lines; each line closes on its own (returned
+ * or lost). A loan made without one (a borrow, an older export, an undone delete) gets a one-line
+ * hand-over with the loan's own id (0152's trigger). Row-level security in 0152.
+ */
+export const handovers = pgTable(
+  'handovers',
+  {
+    id: id(),
+    locationId: uuid('location_id')
+      .notNull()
+      .references(() => locations.id, { onDelete: 'cascade' }),
+    direction: direction.col().notNull(),
+    personId: uuid('person_id').notNull(),
+    /** What was handed over: the thing, box or kit lent (the other lines are inside it, or a
+     * kit's parts kept elsewhere). */
+    rootThingId: uuid('root_thing_id').references(() => things.id, { onDelete: 'set null' }),
+    startedAt: tstz('started_at').notNull(),
+    dueOn: date('due_on'),
+    leadDays: integer('lead_days').notNull().default(0),
+    notes: text('notes'),
+    conditionOut: handoverConditionOut.col(),
+    createdBy: uuid('created_by').notNull(),
+    ...mutable(),
+  },
+  (t) => [
+    direction.check('handovers'),
+    handoverConditionOut.check('handovers'),
+    unique('handovers_location_id_uq').on(t.locationId, t.id),
+    check('handovers_lead_days_chk', sql`lead_days BETWEEN 0 AND 60`),
+    check('handovers_notes_chk', sql`char_length(notes) <= 2000`),
+    index('handovers_person_idx').on(t.personId),
+    index('handovers_root_idx').on(t.rootThingId),
+  ],
+);
 
 /**
  * A thing lent out to someone, or borrowed in from someone (D56): one open loan per thing.
@@ -51,12 +93,29 @@ export const loans = pgTable(
     previousContainerId: uuid('previous_container_id'),
     splitFromThingId: uuid('split_from_thing_id'),
     leadDays: integer('lead_days').notNull().default(0),
+    /** The lend note. A return writes `return_notes` (1.14), never this. */
     notes: text('notes'),
     createdBy: uuid('created_by').notNull(),
+    /** Its hand-over (1.14): every loan has one. NOT NULL, and the outcome check ("closed iff it
+     * has an outcome"), are set in 0152 after the existing loans got theirs. */
+    handoverId: uuid('handover_id').references(() => handovers.id, { onDelete: 'cascade' }),
+    /** Where it sat when it went, inside the hand-over's box: "Camera bag › Lens pouch". */
+    pathAtLend: text('path_at_lend'),
+    /** Closed: came back (`returned`) or `lost`. Open: null. */
+    outcome: outcome.col(),
+    conditionOut: conditionOut.col(),
+    conditionIn: conditionIn.col(),
+    returnNotes: text('return_notes'),
     ...mutable(),
   },
   (t) => [
     direction.check('loans'),
+    outcome.check('loans'),
+    conditionOut.check('loans'),
+    conditionIn.check('loans'),
+    check('loans_return_notes_chk', sql`char_length(return_notes) <= 2000`),
+    check('loans_path_chk', sql`char_length(path_at_lend) <= 1000`),
+    index('loans_handover_idx').on(t.handoverId),
     unique('loans_location_id_uq').on(t.locationId, t.id),
     check('loans_lead_days_chk', sql`lead_days BETWEEN 0 AND 60`),
     check('loans_notes_chk', sql`char_length(notes) <= 2000`),

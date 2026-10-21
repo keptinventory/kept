@@ -270,7 +270,8 @@ all of these encrypted and never shows them again; **Test** sends one now.
 
 **Lending**: **Lend** a thing (or part of a quantity) to a member or a contact, with a due date and
 condition photos. Kept never messages the borrower; **Copy a reminder** gives you the text to send
-yourself.
+yourself. A box goes with everything inside it, each thing on its own line: see
+[Kits and hand-overs](/users/kits/).
 
 ## Sharing a location
 

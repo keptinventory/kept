@@ -26134,3 +26134,311 @@ msgstr "عُدّ مكانًا أو صندوقًا من المسح: كل عدّ �
 #: src/components/counts/counts-list.tsx
 msgid "{missing, plural, one {# missing} other {# missing}}"
 msgstr "{missing, plural, zero {لا مفقود} one {واحد مفقود} two {اثنان مفقودان} few {# مفقودة} many {# مفقودًا} other {# مفقود}}"
+
+#: src/components/things/move-sheet.tsx
+msgid "Move it anyway"
+msgstr "انقله على أي حال"
+
+#: src/components/kits/kit-section.tsx
+msgid "Parts"
+msgstr "الأجزاء"
+
+#: src/components/things/trash.tsx
+msgid "Move to Trash anyway"
+msgstr "انقله إلى المهملات على أي حال"
+
+#: src/components/lending/handover-return.tsx
+msgid "How many came back: 1 to {0}."
+msgstr "كم عاد: من ١ إلى {0}."
+
+#: src/components/lending/handover-return.tsx
+msgid "{back} of {all} came back"
+msgstr "عاد {back} من {all}"
+
+#: src/components/kits/kit-section.tsx
+msgid "in <0>{0}</0>"
+msgstr "في <0>{0}</0>"
+
+#: src/components/lending/handover-return.tsx
+msgid "Came back"
+msgstr "عاد"
+
+#: src/components/lending/handover-return.tsx
+msgid "Not returned"
+msgstr "لم يُرجَع"
+
+#: src/components/lending/handover-return.tsx
+msgid "How many came back"
+msgstr "كم عاد"
+
+#: src/components/lending/handover-return.tsx
+msgid "Of {0}. The rest stays out."
+msgstr "من {0}. الباقي يبقى معهم."
+
+#: src/components/lending/handover-return.tsx
+msgid "Condition it came back in"
+msgstr "الحالة التي عاد بها"
+
+#: src/components/lending/handover-return.tsx
+msgid "Update its condition"
+msgstr "حدّث حالته"
+
+#: src/components/lending/handover-return.tsx
+msgid "It stays with them; reminders go on."
+msgstr "يبقى معهم، وتستمر التذكيرات."
+
+#: src/components/lending/handover-return.tsx
+msgid "It is marked lost, never deleted: its history stays."
+msgstr "يُسجَّل مفقودًا ولا يُحذف أبدًا: يبقى سجله."
+
+#: src/components/lending/lend-sheet.tsx
+msgid "{lines, plural, one {Lent to {0}} other {Lent to {1}: # things}}"
+msgstr "{lines, plural, zero {أُعير إلى {1}: # شيء} one {أُعير إلى {0}} two {أُعير إلى {1}: شيئان} few {أُعير إلى {1}: # أشياء} many {أُعير إلى {1}: # شيئًا} other {أُعير إلى {1}: # شيء}}"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Stayed here: {0}"
+msgstr "بقي هنا: {0}"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Optional. Kept reminds you, never them, two days before and when it's overdue."
+msgstr "اختياري. يذكّرك Kept، وليس هم، قبل الموعد بيومين وعند التأخر."
+
+#: src/components/lending/lend-sheet.tsx
+msgid "What goes with it"
+msgstr "ما يذهب معه"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Everything inside goes too"
+msgstr "كل ما بداخله يذهب أيضًا"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "and what is inside it"
+msgstr "وما بداخله"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Each keeps its own record. Something already lent or in repair stays here."
+msgstr "لكلٍّ سجله الخاص. ما هو مُعار أو قيد الإصلاح يبقى هنا."
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Parts kept elsewhere"
+msgstr "أجزاء محفوظة في مكان آخر"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Parts not in the kit"
+msgstr "أجزاء ليست في الطقم"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Lend <0>{0}</0> too (in <1>{1}</1>)"
+msgstr "أعِر <0>{0}</0> أيضًا (في <1>{1}</1>)"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Lend <0>{0}</0> too"
+msgstr "أعِر <0>{0}</0> أيضًا"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Condition going out"
+msgstr "الحالة عند الإعارة"
+
+#: src/components/lending/on-loan.ts
+msgid "This is with {0}"
+msgstr "هذا مع {0}"
+
+#: src/components/lending/on-loan.ts
+msgid "{0} is lent out. Mark it returned first, or go ahead anyway?"
+msgstr "{0} مُعار. سجّل أنه أُرجع أولًا، أم تتابع على أي حال؟"
+
+#: src/components/lending/on-loan.ts
+msgid "Mark it returned first, or go ahead anyway?"
+msgstr "سجّل أنه أُرجع أولًا، أم تتابع على أي حال؟"
+
+#: src/components/kits/kit-section.tsx
+msgid "with <0>{0}</0>"
+msgstr "مع <0>{0}</0>"
+
+#: src/components/history/labels.ts
+msgid "Marked lost"
+msgstr "سُجّل مفقودًا"
+
+#: src/components/lending/return-sheet.tsx
+msgid "Mark lost"
+msgstr "سجّل أنه مفقود"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Lent with what is inside"
+msgstr "أُعير مع ما بداخله"
+
+#: src/components/lending/thing-loans.tsx
+msgid "{0, plural, one {# lost} other {# lost}}"
+msgstr "{0, plural, zero {لا مفقود} one {واحد مفقود} two {اثنان مفقودان} few {# مفقودة} many {# مفقودًا} other {# مفقود}}"
+
+#: src/components/lending/thing-loans.tsx
+msgid "came back {0}"
+msgstr "عاد {0}"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Went with"
+msgstr "ذهب مع"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Mark everything returned"
+msgstr "سجّل أن كل شيء أُرجع"
+
+#: src/components/kits/kit-section.tsx
+msgid "Loading the kit"
+msgstr "جارٍ تحميل الطقم"
+
+#: src/components/kits/kit-section.tsx
+msgid "Not a kit"
+msgstr "ليس طقمًا"
+
+#: src/components/kits/kit-section.tsx
+msgid "Make this a kit"
+msgstr "اجعله طقمًا"
+
+#: src/components/kits/kit-section.tsx
+msgid "A kit remembers what should be in it: move a part out or lend it, and the kit still knows."
+msgstr "الطقم يتذكر ما يجب أن يكون فيه: انقل جزءًا منه أو أعِره، ويظل الطقم يعرف."
+
+#: src/components/kits/kit-section.tsx
+msgid "In the kit"
+msgstr "في الطقم"
+
+#: src/components/kits/kit-section.tsx
+msgid "Elsewhere"
+msgstr "في مكان آخر"
+
+#: src/components/kits/kit-section.tsx
+msgid "With someone"
+msgstr "مع شخص ما"
+
+#: src/components/kits/kit-section.tsx
+msgid "Put it back anyway"
+msgstr "أرجعه على أي حال"
+
+#: src/components/kits/kit-section.tsx
+msgid "Put back in {0}"
+msgstr "أُرجع إلى {0}"
+
+#: src/components/kits/kit-section.tsx
+msgid "Couldn't put it back"
+msgstr "تعذّر إرجاعه"
+
+#: src/components/kits/kit-section.tsx
+msgid "No longer a kit?"
+msgstr "ألا يكون طقمًا بعد الآن؟"
+
+#: src/components/kits/kit-section.tsx
+msgid "Its parts stay where they are; only the list goes. You can undo this for 7 days."
+msgstr "تبقى أجزاؤه حيث هي، وتزول القائمة فقط. يمكنك التراجع خلال ٧ أيام."
+
+#: src/components/kits/kit-section.tsx
+msgid "No longer a kit"
+msgstr "لم يعد طقمًا"
+
+#: src/components/kits/kit-section.tsx
+msgid "With <0>{0}</0> since {1}"
+msgstr "مع <0>{0}</0> منذ {1}"
+
+#: src/components/kits/kit-section.tsx
+msgid "{0, plural, one {# part not in the kit} other {# parts not in the kit}}"
+msgstr "{0, plural, zero {لا أجزاء خارج الطقم} one {جزء واحد ليس في الطقم} two {جزءان ليسا في الطقم} few {# أجزاء ليست في الطقم} many {# جزءًا ليس في الطقم} other {# جزء ليس في الطقم}}"
+
+#: src/components/kits/kit-section.tsx
+msgid "Put back"
+msgstr "أرجعه"
+
+#: src/components/kits/kit-section.tsx
+msgid "Check this kit"
+msgstr "افحص هذا الطقم"
+
+#: src/components/kits/kit-section.tsx
+msgid "Edit parts"
+msgstr "عدّل الأجزاء"
+
+#: src/components/kits/kit-section.tsx
+msgid "Parts of {0}"
+msgstr "أجزاء {0}"
+
+#: src/components/kits/kit-section.tsx
+msgid "Make {0} a kit"
+msgstr "اجعل {0} طقمًا"
+
+#: src/components/kits/kit-section.tsx
+msgid "Parts changed"
+msgstr "تغيّرت الأجزاء"
+
+#: src/components/kits/kit-section.tsx
+msgid "Made a kit"
+msgstr "صار طقمًا"
+
+#: src/components/kits/kit-section.tsx
+msgid "Nothing in it yet: add its parts below."
+msgstr "لا شيء فيه بعد: أضف أجزاءه أدناه."
+
+#: src/components/kits/kit-section.tsx
+msgid "Add a part"
+msgstr "أضف جزءًا"
+
+#: src/components/history/labels.ts
+msgid "Borrowed from {person}"
+msgstr "استُعير من {person}"
+
+#: src/components/history/labels.ts
+msgid "Lent to {person}"
+msgstr "أُعير إلى {person}"
+
+#: src/components/history/labels.ts
+msgid "Came back from {person}, {condition}"
+msgstr "عاد من {person}، {condition}"
+
+#: src/components/history/labels.ts
+msgid "Came back from {person}"
+msgstr "عاد من {person}"
+
+#: src/components/history/labels.ts
+msgid "Lost by {person}"
+msgstr "أضاعه {person}"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Lent {name} to {person}} other {Lent {name} to {person}, # things}}"
+msgstr "{count, plural, zero {أُعير {name} إلى {person}، # شيء} one {أُعير {name} إلى {person}} two {أُعير {name} إلى {person}، شيئان} few {أُعير {name} إلى {person}، # أشياء} many {أُعير {name} إلى {person}، # شيئًا} other {أُعير {name} إلى {person}، # شيء}}"
+
+#: src/components/history/labels.ts
+msgid "Lent {name} to {person}"
+msgstr "أُعير {name} إلى {person}"
+
+#: src/components/history/labels.ts
+msgid "Changed the hand-over"
+msgstr "تغيّرت الإعارة"
+
+#: src/components/history/labels.ts
+msgid "Made {name} a kit"
+msgstr "صار {name} طقمًا"
+
+#: src/components/history/labels.ts
+msgid "Changed the parts of {name}"
+msgstr "تغيّرت أجزاء {name}"
+
+#: src/components/history/labels.ts
+msgid "{name} is no longer a kit"
+msgstr "لم يعد {name} طقمًا"
+
+#: src/components/filters/registry.tsx
+msgid "Kits"
+msgstr "الأطقم"
+
+#: src/components/hints/hint-copy.ts
+msgid "A kit remembers what should be in it. Its parts say where each one is: in the kit, elsewhere, or with someone."
+msgstr "الطقم يتذكر ما يجب أن يكون فيه. أجزاؤه تقول أين كل واحد: في الطقم، أو في مكان آخر، أو مع شخص ما."
+
+#: src/components/filters/registry.tsx
+msgid "Incomplete kits"
+msgstr "أطقم ناقصة"
+
+#: src/components/lending/loan-text.tsx
+msgid "With {who} (in {box}) since {since} · due {due}"
+msgstr "مع {who} (في {box}) منذ {since} · يُعاد في {due}"
+
+#: src/components/lending/loan-text.tsx
+msgid "With {who} (in {box}) since {since}"
+msgstr "مع {who} (في {box}) منذ {since}"

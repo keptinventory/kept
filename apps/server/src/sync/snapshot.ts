@@ -326,7 +326,10 @@ type ThingRow = {
   loan_direction: LoanDirection | null;
   loan_person: string | null;
   loan_due_on: string | null;
+  loan_since: Date | null;
+  loan_with: string | null;
   in_repair: boolean;
+  kit_parts: string[] | null;
 };
 
 async function readThings(ctx: PageContext, q: Slice): Promise<Read> {
@@ -343,15 +346,21 @@ async function readThings(ctx: PageContext, q: Slice): Promise<Read> {
             t.location_uncertain, t.last_seen_at, t.cover_file_id, t.barcode,
             t.deleted_at IS NOT NULL AS deleted,
             ln.direction AS loan_direction, ln.person AS loan_person, ln.due_on AS loan_due_on,
+            ln.since AS loan_since, ln.with_name AS loan_with,
             EXISTS (SELECT 1 FROM public.claims k
-                     WHERE k.thing_id = t.id AND k.status = 'in_repair') AS in_repair
+                     WHERE k.thing_id = t.id AND k.status = 'in_repair') AS in_repair,
+            (SELECT array_agg(kp.thing_id ORDER BY kp.thing_id) FROM public.kit_parts kp
+              WHERE kp.kit_id = t.id) AS kit_parts
        FROM public.things t
        LEFT JOIN public.short_ids s
               ON s.thing_id = t.id AND s.is_primary AND s.state = 'assigned'
        -- Step 4 (Q34): the open loan, a name and a due date only; never a contact detail (D36).
        LEFT JOIN LATERAL (
-         SELECT o.direction, coalesce(pe.display_name, '') AS person, o.due_on::text AS due_on
+         SELECT o.direction, coalesce(pe.display_name, '') AS person, o.due_on::text AS due_on,
+                o.started_at AS since, hr.name AS with_name
            FROM public.loans o LEFT JOIN public.people pe ON pe.id = o.person_id
+           LEFT JOIN public.handovers ho ON ho.id = o.handover_id
+           LEFT JOIN public.things hr ON hr.id = ho.root_thing_id AND hr.id <> o.thing_id
           WHERE o.thing_id = t.id AND o.returned_at IS NULL LIMIT 1) ln ON true
       WHERE ${w.where} ${cutSql}
       ORDER BY ${w.order}
@@ -436,9 +445,12 @@ async function readThings(ctx: PageContext, q: Slice): Promise<Read> {
               direction: r.loan_direction,
               personName: r.loan_person ?? '',
               dueOn: r.loan_due_on,
+              ...(r.loan_since ? { since: r.loan_since.toISOString() } : {}),
+              ...(r.loan_with ? { withName: r.loan_with } : {}),
             },
           }
         : {}),
+      ...(r.kit_parts?.length ? { kitParts: r.kit_parts } : {}),
       deleted: r.deleted,
     });
   }

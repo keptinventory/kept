@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { KeptApp } from '../http/app.js';
 import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
+import { guardOnLoan } from '../lending/guard.js';
 import { TrashBody } from '../places/service.js';
 import {
   type Ctx,
@@ -54,7 +55,15 @@ export async function trashRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
     '/api/v1/things/:id/trash',
     { schema: { params: Params, body: TrashBody, response: { 200: TrashResultSchema } } },
     (req, reply) =>
-      write(req, reply, 200, (c) => trashThing(c, req.params.id.toLowerCase(), req.body)),
+      write(req, reply, 200, async (c) => {
+        await guardOnLoan(
+          c.client,
+          [req.params.id.toLowerCase()],
+          null,
+          req.body?.onLoan === 'confirm',
+        );
+        return trashThing(c, req.params.id.toLowerCase(), req.body);
+      }),
   );
 
   app.post(

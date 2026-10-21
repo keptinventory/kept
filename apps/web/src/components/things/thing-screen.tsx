@@ -51,6 +51,7 @@ import { useThingEditor } from './edit-form';
 import { ThingHeader } from './header';
 import {
   ClaimsSection,
+  KitSection,
   LendSheet,
   ReturnSheet,
   ThingLoansSection,
@@ -70,6 +71,7 @@ import { TrashContentsSheet } from './trash';
 
 export type ThingTab =
   | 'contents'
+  | 'parts'
   | 'overview'
   | 'paperwork'
   | 'value'
@@ -84,6 +86,8 @@ export type ThingTab =
 /** The tab order: Overview · Paperwork and warranties · Value · Meters · Loans · Claims · Links · Schedules · History. */
 export const THING_TABS: readonly ThingTab[] = [
   'contents',
+  // 1.14 (#170): a container's kit.
+  'parts',
   'overview',
   'paperwork',
   'value',
@@ -185,6 +189,7 @@ function tabsFor(thing: ThingView, moduleOn: (m: ModuleId) => boolean): ThingTab
     const m = TAB_MODULE[x];
     return (
       (x !== 'contents' || thing.isContainer) &&
+      (x !== 'parts' || thing.isContainer) &&
       (x !== 'meters' || thing.meters.length > 0) &&
       (!m || moduleOn(m))
     );
@@ -249,6 +254,7 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
   const titles: Record<ThingTab, string> = {
     ...vehicleTitles,
     contents: t`Contents`,
+    parts: t`Parts`,
     overview: asVehicle ? vehicleTitles.overview : t`Details`,
     paperwork: moduleOn('warranties') ? t`Paperwork and warranties` : t`Paperwork`,
     value: t`Value`,
@@ -263,6 +269,8 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
     switch (x) {
       case 'contents':
         return <ContentsSection />;
+      case 'parts':
+        return <KitSection />;
       case 'overview':
         return asVehicle ? (
           vehiclePanel('overview')

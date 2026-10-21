@@ -56,12 +56,14 @@ export type ArchiveIssueCode = (typeof ARCHIVE_ISSUE_CODES)[number];
  * `condition-report-rooms`, and their photos as attachments). Version 3 (1.6, D237) adds the
  * location map's layout (`map-nodes`). Version 4 (1.x, D251) adds the moves of Moving mode
  * (`moves`, `move-boxes`: each box's number, state and room). Version 5 (1.13) adds the
- * `archived` lifecycle, which an older server's things table refuses. A reader refuses a newer version
+ * `archived` lifecycle, which an older server's things table refuses. Version 6 (1.14, #170)
+ * adds hand-overs and kits (`handovers`, `kits`, `kit-parts`) and the loans' hand-over fields.
+ * A reader refuses a newer version
  * ("This export is from a newer Kept") and reads every older one: an entity or a field an older
  * export doesn't have is simply absent.
  */
 export const EXPORT_FORMAT = 'kept-export';
-export const EXPORT_VERSION = 5;
+export const EXPORT_VERSION = 6;
 
 /**
  * The data files of a Kept export (`data/<entity>.ndjson`), in the order they are written and
@@ -121,6 +123,10 @@ export const EXPORT_ENTITIES = [
   // Version 4 (D251): Moving mode's moves and their boxes (the boxes themselves are things).
   'moves',
   'move-boxes',
+  // Version 6 (1.14, #170): hand-overs (a loan's group), kits and their parts.
+  'handovers',
+  'kits',
+  'kit-parts',
   'history',
 ] as const;
 export type ExportEntity = (typeof EXPORT_ENTITIES)[number];

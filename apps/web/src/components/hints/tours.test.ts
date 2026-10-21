@@ -102,7 +102,7 @@ describe('tour gating', () => {
     for (const { tour, steps } of availableTours(viewer)) {
       for (const step of steps) expect(step.writes, `${tour.id}.${step.id}`).toBeFalsy();
     }
-    expect(stepIds('things', viewer)).toEqual(['contents', 'where', 'tabs']);
+    expect(stepIds('things', viewer)).toEqual(['contents', 'where', 'kits', 'tabs']);
     expect(stepIds('lending', viewer)).toEqual(['list']);
   });
 

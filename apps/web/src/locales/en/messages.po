@@ -26134,3 +26134,311 @@ msgstr "Count a place or a box from Scan: every count and box check is kept here
 #: src/components/counts/counts-list.tsx
 msgid "{missing, plural, one {# missing} other {# missing}}"
 msgstr "{missing, plural, one {# missing} other {# missing}}"
+
+#: src/components/things/move-sheet.tsx
+msgid "Move it anyway"
+msgstr "Move it anyway"
+
+#: src/components/kits/kit-section.tsx
+msgid "Parts"
+msgstr "Parts"
+
+#: src/components/things/trash.tsx
+msgid "Move to Trash anyway"
+msgstr "Move to Trash anyway"
+
+#: src/components/lending/handover-return.tsx
+msgid "How many came back: 1 to {0}."
+msgstr "How many came back: 1 to {0}."
+
+#: src/components/lending/handover-return.tsx
+msgid "{back} of {all} came back"
+msgstr "{back} of {all} came back"
+
+#: src/components/kits/kit-section.tsx
+msgid "in <0>{0}</0>"
+msgstr "in <0>{0}</0>"
+
+#: src/components/lending/handover-return.tsx
+msgid "Came back"
+msgstr "Came back"
+
+#: src/components/lending/handover-return.tsx
+msgid "Not returned"
+msgstr "Not returned"
+
+#: src/components/lending/handover-return.tsx
+msgid "How many came back"
+msgstr "How many came back"
+
+#: src/components/lending/handover-return.tsx
+msgid "Of {0}. The rest stays out."
+msgstr "Of {0}. The rest stays out."
+
+#: src/components/lending/handover-return.tsx
+msgid "Condition it came back in"
+msgstr "Condition it came back in"
+
+#: src/components/lending/handover-return.tsx
+msgid "Update its condition"
+msgstr "Update its condition"
+
+#: src/components/lending/handover-return.tsx
+msgid "It stays with them; reminders go on."
+msgstr "It stays with them; reminders go on."
+
+#: src/components/lending/handover-return.tsx
+msgid "It is marked lost, never deleted: its history stays."
+msgstr "It is marked lost, never deleted: its history stays."
+
+#: src/components/lending/lend-sheet.tsx
+msgid "{lines, plural, one {Lent to {0}} other {Lent to {1}: # things}}"
+msgstr "{lines, plural, one {Lent to {0}} other {Lent to {1}: # things}}"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Stayed here: {0}"
+msgstr "Stayed here: {0}"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Optional. Kept reminds you, never them, two days before and when it's overdue."
+msgstr "Optional. Kept reminds you, never them, two days before and when it's overdue."
+
+#: src/components/lending/lend-sheet.tsx
+msgid "What goes with it"
+msgstr "What goes with it"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Everything inside goes too"
+msgstr "Everything inside goes too"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "and what is inside it"
+msgstr "and what is inside it"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Each keeps its own record. Something already lent or in repair stays here."
+msgstr "Each keeps its own record. Something already lent or in repair stays here."
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Parts kept elsewhere"
+msgstr "Parts kept elsewhere"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Parts not in the kit"
+msgstr "Parts not in the kit"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Lend <0>{0}</0> too (in <1>{1}</1>)"
+msgstr "Lend <0>{0}</0> too (in <1>{1}</1>)"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Lend <0>{0}</0> too"
+msgstr "Lend <0>{0}</0> too"
+
+#: src/components/lending/lend-sheet.tsx
+msgid "Condition going out"
+msgstr "Condition going out"
+
+#: src/components/lending/on-loan.ts
+msgid "This is with {0}"
+msgstr "This is with {0}"
+
+#: src/components/lending/on-loan.ts
+msgid "{0} is lent out. Mark it returned first, or go ahead anyway?"
+msgstr "{0} is lent out. Mark it returned first, or go ahead anyway?"
+
+#: src/components/lending/on-loan.ts
+msgid "Mark it returned first, or go ahead anyway?"
+msgstr "Mark it returned first, or go ahead anyway?"
+
+#: src/components/kits/kit-section.tsx
+msgid "with <0>{0}</0>"
+msgstr "with <0>{0}</0>"
+
+#: src/components/history/labels.ts
+msgid "Marked lost"
+msgstr "Marked lost"
+
+#: src/components/lending/return-sheet.tsx
+msgid "Mark lost"
+msgstr "Mark lost"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Lent with what is inside"
+msgstr "Lent with what is inside"
+
+#: src/components/lending/thing-loans.tsx
+msgid "{0, plural, one {# lost} other {# lost}}"
+msgstr "{0, plural, one {# lost} other {# lost}}"
+
+#: src/components/lending/thing-loans.tsx
+msgid "came back {0}"
+msgstr "came back {0}"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Went with"
+msgstr "Went with"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Mark everything returned"
+msgstr "Mark everything returned"
+
+#: src/components/kits/kit-section.tsx
+msgid "Loading the kit"
+msgstr "Loading the kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "Not a kit"
+msgstr "Not a kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "Make this a kit"
+msgstr "Make this a kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "A kit remembers what should be in it: move a part out or lend it, and the kit still knows."
+msgstr "A kit remembers what should be in it: move a part out or lend it, and the kit still knows."
+
+#: src/components/kits/kit-section.tsx
+msgid "In the kit"
+msgstr "In the kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "Elsewhere"
+msgstr "Elsewhere"
+
+#: src/components/kits/kit-section.tsx
+msgid "With someone"
+msgstr "With someone"
+
+#: src/components/kits/kit-section.tsx
+msgid "Put it back anyway"
+msgstr "Put it back anyway"
+
+#: src/components/kits/kit-section.tsx
+msgid "Put back in {0}"
+msgstr "Put back in {0}"
+
+#: src/components/kits/kit-section.tsx
+msgid "Couldn't put it back"
+msgstr "Couldn't put it back"
+
+#: src/components/kits/kit-section.tsx
+msgid "No longer a kit?"
+msgstr "No longer a kit?"
+
+#: src/components/kits/kit-section.tsx
+msgid "Its parts stay where they are; only the list goes. You can undo this for 7 days."
+msgstr "Its parts stay where they are; only the list goes. You can undo this for 7 days."
+
+#: src/components/kits/kit-section.tsx
+msgid "No longer a kit"
+msgstr "No longer a kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "With <0>{0}</0> since {1}"
+msgstr "With <0>{0}</0> since {1}"
+
+#: src/components/kits/kit-section.tsx
+msgid "{0, plural, one {# part not in the kit} other {# parts not in the kit}}"
+msgstr "{0, plural, one {# part not in the kit} other {# parts not in the kit}}"
+
+#: src/components/kits/kit-section.tsx
+msgid "Put back"
+msgstr "Put back"
+
+#: src/components/kits/kit-section.tsx
+msgid "Check this kit"
+msgstr "Check this kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "Edit parts"
+msgstr "Edit parts"
+
+#: src/components/kits/kit-section.tsx
+msgid "Parts of {0}"
+msgstr "Parts of {0}"
+
+#: src/components/kits/kit-section.tsx
+msgid "Make {0} a kit"
+msgstr "Make {0} a kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "Parts changed"
+msgstr "Parts changed"
+
+#: src/components/kits/kit-section.tsx
+msgid "Made a kit"
+msgstr "Made a kit"
+
+#: src/components/kits/kit-section.tsx
+msgid "Nothing in it yet: add its parts below."
+msgstr "Nothing in it yet: add its parts below."
+
+#: src/components/kits/kit-section.tsx
+msgid "Add a part"
+msgstr "Add a part"
+
+#: src/components/history/labels.ts
+msgid "Borrowed from {person}"
+msgstr "Borrowed from {person}"
+
+#: src/components/history/labels.ts
+msgid "Lent to {person}"
+msgstr "Lent to {person}"
+
+#: src/components/history/labels.ts
+msgid "Came back from {person}, {condition}"
+msgstr "Came back from {person}, {condition}"
+
+#: src/components/history/labels.ts
+msgid "Came back from {person}"
+msgstr "Came back from {person}"
+
+#: src/components/history/labels.ts
+msgid "Lost by {person}"
+msgstr "Lost by {person}"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Lent {name} to {person}} other {Lent {name} to {person}, # things}}"
+msgstr "{count, plural, one {Lent {name} to {person}} other {Lent {name} to {person}, # things}}"
+
+#: src/components/history/labels.ts
+msgid "Lent {name} to {person}"
+msgstr "Lent {name} to {person}"
+
+#: src/components/history/labels.ts
+msgid "Changed the hand-over"
+msgstr "Changed the hand-over"
+
+#: src/components/history/labels.ts
+msgid "Made {name} a kit"
+msgstr "Made {name} a kit"
+
+#: src/components/history/labels.ts
+msgid "Changed the parts of {name}"
+msgstr "Changed the parts of {name}"
+
+#: src/components/history/labels.ts
+msgid "{name} is no longer a kit"
+msgstr "{name} is no longer a kit"
+
+#: src/components/filters/registry.tsx
+msgid "Kits"
+msgstr "Kits"
+
+#: src/components/hints/hint-copy.ts
+msgid "A kit remembers what should be in it. Its parts say where each one is: in the kit, elsewhere, or with someone."
+msgstr "A kit remembers what should be in it. Its parts say where each one is: in the kit, elsewhere, or with someone."
+
+#: src/components/filters/registry.tsx
+msgid "Incomplete kits"
+msgstr "Incomplete kits"
+
+#: src/components/lending/loan-text.tsx
+msgid "With {who} (in {box}) since {since} · due {due}"
+msgstr "With {who} (in {box}) since {since} · due {due}"
+
+#: src/components/lending/loan-text.tsx
+msgid "With {who} (in {box}) since {since}"
+msgstr "With {who} (in {box}) since {since}"

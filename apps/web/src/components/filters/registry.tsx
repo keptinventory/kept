@@ -140,6 +140,8 @@ export function useFilterRegistry() {
     lent: t`Lent out`,
     borrowed: t`Borrowed`,
     in_repair: t`In repair`,
+    kit: t`Kits`,
+    kit_incomplete: t`Incomplete kits`,
   };
 
   /** People who have acted in `locationIds` (all of yours when empty); you first, as "You". */

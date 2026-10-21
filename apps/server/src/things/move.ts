@@ -68,6 +68,8 @@ export const MoveBody = z.object({
   thingIds: ThingIds,
   to: MoveTarget,
   quantity: z.number().positive().max(999_999_999).multipleOf(0.001).optional(),
+  /** 1.14: move it although it is with someone (lending/guard.ts). */
+  onLoan: z.literal('confirm').optional(),
 });
 export type MoveBody = z.infer<typeof MoveBody>;
 

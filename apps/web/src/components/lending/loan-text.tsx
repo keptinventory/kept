@@ -18,6 +18,8 @@ export type LoanLike = {
   personName: string;
   startedAt: string;
   dueOn: string | null;
+  /** 1.14 (#170): what it went with ("in Camera bag"). */
+  withName?: string | null;
 };
 
 export function useLoanText() {
@@ -33,6 +35,17 @@ export function useLoanText() {
       const who = <bdi>{l.personName}</bdi>;
       const since = fmt.day(l.startedAt);
       const due = l.dueOn ? fmt.day(l.dueOn) : null;
+      const box = l.withName ? <bdi>{l.withName}</bdi> : null;
+      if (l.direction === 'out' && box)
+        return due ? (
+          <Trans>
+            With {who} (in {box}) since {since} · due {due}
+          </Trans>
+        ) : (
+          <Trans>
+            With {who} (in {box}) since {since}
+          </Trans>
+        );
       if (l.direction === 'out')
         return due ? (
           <Trans>

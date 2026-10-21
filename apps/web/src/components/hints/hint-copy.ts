@@ -135,6 +135,11 @@ export function useTourStepCopy(): Record<string, HintCopy> {
       t`Counts lists each count and box check: what was found, what was missing, and what changed since the last one.`,
     ),
 
+    'things.kits': e(
+      t`Kits`,
+      t`A kit remembers what should be in it. Its parts say where each one is: in the kit, elsewhere, or with someone.`,
+    ),
+
     'search.field': e(
       t`Search`,
       t`Type part of a name, a brand, a serial or a short ID. Filters narrow it down.`,

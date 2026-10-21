@@ -366,6 +366,8 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.schedule_counted_on(uuid)': { roles: NOBODY, definer: true },
   'kept.scan_session_schedule_changed()': { roles: NOBODY, definer: true },
   'kept.scan_session_undone()': { roles: NOBODY, definer: true },
+  // (0151) A loan written without a hand-over gets its one-line hand-over: a trigger's.
+  'kept.loan_handover()': { roles: NOBODY, definer: true },
   'kept.module_enabled(uuid,text)': { roles: BOTH, definer: false },
   'kept.module_on(uuid,text)': { roles: BOTH, definer: false },
   'kept.schedule_point(integer,numeric,date,date,numeric,date,numeric,boolean,integer,numeric,date,numeric)':

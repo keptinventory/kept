@@ -28,6 +28,7 @@ import { inboxRoutes } from '../inbox/routes.js';
 import { incidentRoutes } from '../incidents/routes.js';
 import { insightsRoutes } from '../insights/routes.js';
 import type { JobQueue } from '../jobs/queue.js';
+import { kitRoutes } from '../kits/routes.js';
 import { labelRoutes } from '../labels/routes.js';
 import { lendingRoutes } from '../lending/routes.js';
 import { mailboxRoutes } from '../mailin/routes.js';
@@ -149,6 +150,7 @@ export const INVENTORY_ROUTE_MODULES = [
   moneyRoutes,
   warrantyRoutes,
   lendingRoutes,
+  kitRoutes,
   scheduleRoutes,
   paperworkRoutes,
   agendaRoutes,

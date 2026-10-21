@@ -4,6 +4,7 @@ import path from 'node:path';
 import {
   EXPORT_ENTITIES,
   EXPORT_FILE_PATH,
+  EXPORT_VERSION,
   type ExportManifest,
   type ExportSecretRecord,
 } from '@kept/shared';
@@ -321,7 +322,11 @@ describe('a location export', () => {
 
     const zip = await zipOf(id);
     const manifest = ManifestSchema.parse(JSON.parse(text(zip, 'manifest.json'))) as ExportManifest;
-    expect(manifest).toMatchObject({ format: 'kept-export', version: 5, exportId: id });
+    expect(manifest).toMatchObject({
+      format: 'kept-export',
+      version: EXPORT_VERSION,
+      exportId: id,
+    });
     expect(manifest.members.map((m) => m.role)).toEqual(['owner', 'admin', 'member', 'viewer']);
     expect(JSON.stringify(manifest.members)).not.toContain('@');
     for (const entity of EXPORTED_ENTITIES) {

@@ -32,6 +32,8 @@ function part<P extends object>(pick: (m: Sections) => ComponentType<P>, quiet =
 
 export const ValueSection = part((m) => m.ValueSection);
 export const ThingLoansSection = part((m) => m.ThingLoansSection);
+/** 1.14 (#170): a container's Parts tab (its kit). */
+export const KitSection = part((m) => m.KitSection);
 export const ClaimsSection = part((m) => m.ClaimsSection);
 export const ThingSchedulesSection = part((m) => m.ThingSchedulesSection);
 export const WarrantiesBlock = part((m) => m.WarrantiesBlock);

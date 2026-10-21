@@ -26,7 +26,7 @@ import type { LogicalSide } from './placement';
 export type TourLayout = 'phone' | 'wide';
 
 /** What a `$id` route opens. */
-export type TourSubject = 'location' | 'thing' | 'vehicle' | 'move' | 'adminLocation';
+export type TourSubject = 'location' | 'thing' | 'vehicle' | 'move' | 'adminLocation' | 'kit';
 
 /**
  * Where a step stands and what it points at. `to: null` stays on the page the tour is on.
@@ -106,6 +106,14 @@ export const TOURS: readonly Tour[] = [
       },
       thing('where', 'thing-where'),
       thing('actions', 'thing-actions', { writes: true }),
+      // 1.14 (#170): a kit's parts, where there is one (skipped where there is none).
+      {
+        id: 'kits',
+        to: '/t/$id',
+        needs: 'kit',
+        search: { tab: 'parts' },
+        anchors: ['kit-parts'],
+      },
       thing('tabs', 'thing-tabs'),
     ],
   },

@@ -1,10 +1,10 @@
-import { newId } from '@kept/shared';
+import { type Condition, newId } from '@kept/shared';
 import type pg from 'pg';
 import { audited } from '../audit/audited.js';
 import { undoableUntil } from '../audit/undo.js';
 import { conflict, invalid, pgErrorOf } from '../http/errors.js';
 import { todayIn } from '../schedules/service.js';
-import { targetOf } from '../things/service.js';
+import { splitThing, targetOf } from '../things/service.js';
 import type { ThingRow } from '../things/view.js';
 import { actor, type Ctx, loanRecord, requireLoanVersion, writableLoan } from './service.js';
 import { anyRowsOf, type Loan, loanImage, loanView } from './view.js';
@@ -21,12 +21,23 @@ import { anyRowsOf, type Loan, loanImage, loanView } from './view.js';
 //   the location's zone, so it leaves counts and totals (D56) and stays in history.
 // The event (`loan.return`, undoable) holds the thing's place, lifecycle and the merge, so undo
 // reopens the loan, puts the thing back and un-merges it.
+//
+// 1.14 (#170): a line of a hand-over. The return writes its own note (`return_notes`; the lend
+// note stays), the condition it came back in and, chosen, the thing's condition with it. Part of
+// a quantity back (`quantityBack`): the rest is split off first and stays out on its own open
+// line of the same hand-over; undo puts it back together. `loseLoan` closes a line as lost.
 
 export type ReturnInput = {
   returnedAt?: string | undefined;
   to?: 'previous' | { placeId: string } | { containerId: string } | undefined;
   mergeBack?: boolean | undefined;
+  /** The return note (1.14: `return_notes`; the lend note is kept). */
   notes?: string | undefined;
+  conditionIn?: Condition | undefined;
+  /** Also set the thing's condition to `conditionIn`. */
+  updateCondition?: boolean | undefined;
+  /** Part of a quantity came back: the rest stays out on its own line. */
+  quantityBack?: string | undefined;
 };
 
 type ThingState = {
@@ -40,12 +51,13 @@ type ThingState = {
   ended_on: string | null;
   deleted_at: Date | null;
   trash_batch_id: string | null;
+  condition: Condition | null;
 };
 
 export async function thingState(client: pg.ClientBase, id: string): Promise<ThingState | null> {
   const { rows } = await client.query<ThingState>(
     `SELECT id, location_id, place_id, container_id, type_id, trim_scale(quantity)::text AS quantity,
-            lifecycle, ended_on::text AS ended_on, deleted_at, trash_batch_id
+            lifecycle, ended_on::text AS ended_on, deleted_at, trash_batch_id, condition
        FROM public.things WHERE id = $1`,
     [id],
   );
@@ -121,6 +133,8 @@ const thingImage = (t: ThingState) => ({
   thing_lifecycle: t.lifecycle,
   thing_ended_on: t.ended_on,
   thing_deleted_at: t.deleted_at,
+  thing_condition: t.condition,
+  thing_quantity: t.quantity,
 });
 
 /** POST /api/v1/loans/:id/return (If-Match) → {loan, thing, mergedInto?}. */
@@ -142,7 +156,33 @@ export async function returnLoan(
     throw invalid('Check body.returnedAt: not in the future.');
   }
   await client.query('SELECT 1 FROM public.things WHERE id = $1 FOR UPDATE', [loan.thing_id]);
-  const before = (await thingState(client, loan.thing_id)) as ThingState;
+  let before = (await thingState(client, loan.thing_id)) as ThingState;
+  // Part of a quantity back: the rest is split off and stays out on a line of its own.
+  let rest: { thing_id: string; loan_id: string; quantity: string } | null = null;
+  const imageBefore = thingImage(before);
+  if (body.quantityBack !== undefined && loan.direction === 'out') {
+    const back = Number(body.quantityBack);
+    const total = Number(before.quantity);
+    if (!(back > 0) || back > total)
+      throw invalid(`Check body.quantityBack: more than 0 and at most the ${before.quantity} out.`);
+    if (back < total) {
+      const left = String(Number((total - back).toFixed(3)));
+      const part = await splitThing(ctx, loan.thing_id, { quantity: Number(left) }, null);
+      const restLoan = newId();
+      await client.query(
+        `INSERT INTO public.loans (id, location_id, thing_id, direction, person_id, started_at,
+                                   due_on, previous_place_id, previous_container_id, lead_days,
+                                   notes, created_by, handover_id, path_at_lend, condition_out)
+         SELECT $2, location_id, $3, direction, person_id, started_at, due_on, previous_place_id,
+                previous_container_id, lead_days, notes, kept.current_user_id(), handover_id,
+                path_at_lend, condition_out
+           FROM public.loans WHERE id = $1`,
+        [id, restLoan, part.newId],
+      );
+      rest = { thing_id: part.newId, loan_id: restLoan, quantity: left };
+      before = (await thingState(client, loan.thing_id)) as ThingState;
+    }
+  }
   let returnPlaceId: string | null = null;
   let returnContainerId: string | null = null;
   let merged: { into: ThingState; batch: string } | null = null;
@@ -201,10 +241,17 @@ export async function returnLoan(
     );
   }
 
+  if (body.updateCondition && body.conditionIn) {
+    await client.query('UPDATE public.things SET condition = $2 WHERE id = $1', [
+      loan.thing_id,
+      body.conditionIn,
+    ]);
+  }
   await client.query(
     `UPDATE public.loans
         SET returned_at = $2, return_place_id = $3, return_container_id = $6,
-            notes = CASE WHEN $4 THEN $5 ELSE notes END
+            return_notes = CASE WHEN $4 THEN $5 ELSE return_notes END, outcome = 'returned',
+            condition_in = coalesce($7, condition_in)
       WHERE id = $1`,
     [
       id,
@@ -213,10 +260,15 @@ export async function returnLoan(
       body.notes !== undefined,
       body.notes ?? null,
       returnContainerId,
+      body.conditionIn ?? null,
     ],
   );
   const after = await loanRecord(client, id);
   const thingAfter = (await thingState(client, loan.thing_id)) as ThingState;
+  const { rows: who } = await client.query<{ display_name: string | null }>(
+    'SELECT display_name FROM public.people WHERE id = $1',
+    [loan.person_id],
+  );
   await audited(ctx.tx, {
     locationId: loan.location_id,
     actor: actor(ctx.scope),
@@ -224,12 +276,15 @@ export async function returnLoan(
     entity: { type: 'loan', id },
     before: {
       ...loanImage(loan),
-      ...thingImage(before),
+      ...imageBefore,
+      ...(rest ? { split_rest: null } : {}),
       ...(merged ? { merged_into: null, merged_into_quantity: merged.into.quantity } : {}),
     },
     after: {
       ...loanImage(after),
       ...thingImage(thingAfter),
+      ...(rest ? { split_rest: rest } : {}),
+      person_name: who[0]?.display_name ?? '',
       ...(merged
         ? {
             merged_into: merged.into.id,
@@ -238,7 +293,11 @@ export async function returnLoan(
           }
         : {}),
     },
-    subjects: merged ? [loan.thing_id, merged.into.id] : [loan.thing_id],
+    subjects: [
+      loan.thing_id,
+      ...(merged ? [merged.into.id] : []),
+      ...(rest ? [rest.thing_id] : []),
+    ],
     rootThingId: merged ? merged.into.id : loan.thing_id,
     requestId: ctx.requestId,
     undoableUntil: undoableUntil(),

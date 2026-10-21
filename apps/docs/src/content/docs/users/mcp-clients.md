@@ -125,7 +125,7 @@ higher. The part of Kept a tool needs is the name under **What to track**.
 | `list_locations` | read | | Which locations can I see, with my role and their time zone. |
 | `search_things` | read | | Which things match these words: names, aliases, types, brands and notes, with filters. |
 | `where_is` | read | | Where is a thing: the best matches with their full place path. |
-| `get_thing` | read | | What do we know about this thing (by id or short ID). |
+| `get_thing` | read | | What do we know about this thing (by id or short ID), who has it, and a kit's parts. |
 | `list_contents` | read | | What is in this place or container, 1 to 3 levels deep. |
 | `thing_history` | read | | What happened to this thing, newest first: who did what and when. |
 | `find_documents` | read | | Where is the receipt, manual or warranty for something. |
@@ -137,8 +137,8 @@ higher. The part of Kept a tool needs is the name under **What to track**.
 | `create_place` | change | | Add a place under another place, or at the top of the location. |
 | `attach_link` | change | | A link that opens Kept's capture sheet to add a photo, receipt or document. |
 | `log_reading` | change | | Record a meter reading: odometer, hours, electricity. |
-| `lend_thing` | change | Lending | Lend a thing to someone, with an optional due date. |
-| `return_thing` | change | Lending | A lent or borrowed thing came back, all of it or a quantity. |
+| `lend_thing` | change | Lending | Lend a thing to someone, with an optional due date. A box or a kit goes with everything in it, each on its own line. |
+| `return_thing` | change | Lending | A lent or borrowed thing came back, all of it or a quantity. A box or kit brings back what is still out with it. |
 | `borrow_thing` | change | Lending | Record a thing borrowed from someone, with an optional due date. |
 | `complete_schedule` | change | Reminders | A scheduled task was done, on a date or at a meter value. |
 | `snooze_schedule` | change | Reminders | Put off a scheduled task until a date or a meter value. |

@@ -1,4 +1,11 @@
-import { LOAN_DIRECTIONS, type LoanDirection } from '@kept/shared';
+import {
+  CONDITIONS,
+  type Condition,
+  LOAN_DIRECTIONS,
+  LOAN_OUTCOMES,
+  type LoanDirection,
+  type LoanOutcome,
+} from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
 import {
@@ -48,6 +55,15 @@ export type Loan = {
   conditionIn: AttachmentView[];
   rowVersion: number;
   createdBy: { displayName: string };
+  /** 1.14 (#170): its hand-over, where it sat in the box that went, how it ended, the
+   * condition it went out and came back in, and the return note. */
+  handoverId: string;
+  pathAtLend: string | null;
+  outcome: LoanOutcome | null;
+  condition: { out: Condition | null; in: Condition | null };
+  returnNotes: string | null;
+  /** The hand-over's root, when this line went inside it or with it ("with Camera bag"). */
+  with: { id: string; name: string | null } | null;
 };
 export type LoanRow = Loan & { thing: ThingRow };
 
@@ -71,6 +87,15 @@ export const LoanSchema = z.object({
   conditionIn: Attachments,
   rowVersion: z.number(),
   createdBy: z.object({ displayName: z.string() }),
+  handoverId: z.uuid(),
+  pathAtLend: z.string().nullable(),
+  outcome: z.enum(LOAN_OUTCOMES).nullable(),
+  condition: z.object({
+    out: z.enum(CONDITIONS).nullable(),
+    in: z.enum(CONDITIONS).nullable(),
+  }),
+  returnNotes: z.string().nullable(),
+  with: z.object({ id: z.uuid(), name: z.string().nullable() }).nullable(),
 });
 export const LoanRowSchema = LoanSchema.extend({ thing: ThingRowSchema });
 
@@ -93,12 +118,19 @@ export type LoanRecord = {
   notes: string | null;
   created_by: string;
   row_version: number;
+  handover_id: string;
+  path_at_lend: string | null;
+  outcome: LoanOutcome | null;
+  condition_out: Condition | null;
+  condition_in: Condition | null;
+  return_notes: string | null;
 };
 
 export const LOAN_COLUMNS = `o.id, o.location_id, o.thing_id, o.direction, o.person_id, o.started_at,
        o.due_on::text AS due_on, o.returned_at, o.return_place_id, o.return_container_id, o.previous_place_id,
        o.previous_container_id, o.split_from_thing_id, o.lead_days, o.notes, o.created_by,
-       o.row_version`;
+       o.row_version, o.handover_id, o.path_at_lend, o.outcome, o.condition_out, o.condition_in,
+       o.return_notes`;
 
 /** A loan's audit image (snake_case): what a write changes and an undo puts back. */
 export const loanImage = (r: LoanRecord) => ({
@@ -115,6 +147,12 @@ export const loanImage = (r: LoanRecord) => ({
   split_from_thing_id: r.split_from_thing_id,
   lead_days: r.lead_days,
   notes: r.notes,
+  handover_id: r.handover_id,
+  path_at_lend: r.path_at_lend,
+  outcome: r.outcome,
+  condition_out: r.condition_out,
+  condition_in: r.condition_in,
+  return_notes: r.return_notes,
 });
 
 /** `FROM` a loan `o`, with what its view needs. The caller adds WHERE and ORDER BY. */
@@ -127,7 +165,9 @@ export const LOAN_FROM = `
   LEFT JOIN public.things rc ON rc.id = o.return_container_id
   LEFT JOIN public.places pp ON pp.id = o.previous_place_id
   LEFT JOIN public.things pc ON pc.id = o.previous_container_id
-  LEFT JOIN public.user_profiles up ON up.user_id = o.created_by`;
+  LEFT JOIN public.user_profiles up ON up.user_id = o.created_by
+  LEFT JOIN public.handovers ho ON ho.id = o.handover_id
+  LEFT JOIN public.things hr ON hr.id = ho.root_thing_id AND hr.id <> o.thing_id`;
 
 /** SQL: whether loan `o` is overdue on its location's own date (`l`). */
 export const OVERDUE_SQL = `(o.returned_at IS NULL AND o.due_on IS NOT NULL
@@ -143,7 +183,8 @@ export const LOAN_VIEW_COLUMNS = `${LOAN_COLUMNS},
             WHEN pp.id IS NOT NULL THEN ${placeSubjectSql('pp')} END AS previous_place,
        -- A returned part that merged back (D172) is in the trash: its row is the one it joined.
        CASE WHEN t.deleted_at IS NOT NULL AND o.split_from_thing_id IS NOT NULL
-            THEN o.split_from_thing_id ELSE o.thing_id END AS row_thing_id`;
+            THEN o.split_from_thing_id ELSE o.thing_id END AS row_thing_id,
+       hr.id AS with_id, hr.name AS with_name`;
 
 type LoanViewRecord = LoanRecord & {
   person_name: string;
@@ -154,6 +195,8 @@ type LoanViewRecord = LoanRecord & {
   return_place: unknown;
   previous_place: unknown;
   row_thing_id: string;
+  with_id: string | null;
+  with_name: string | null;
 };
 
 /** Views of loan rows read with LOAN_VIEW_COLUMNS, their condition photos read in one go. */
@@ -195,6 +238,12 @@ export async function loansOf(
       conditionIn: photos.filter((a) => a.role === 'condition_in'),
       rowVersion: o.row_version,
       createdBy: { displayName: o.created_by_name ?? '' },
+      handoverId: o.handover_id,
+      pathAtLend: o.path_at_lend,
+      outcome: o.outcome,
+      condition: { out: o.condition_out, in: o.condition_in },
+      returnNotes: o.return_notes,
+      with: o.with_id ? { id: o.with_id, name: o.with_name } : null,
     };
   });
 }

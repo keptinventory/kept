@@ -7,6 +7,7 @@ import type { KeptApp } from '../http/app.js';
 import { requireIfMatch } from '../http/conventions.js';
 import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
+import { guardOnLoan } from '../lending/guard.js';
 import {
   EmptyIntoBody,
   emptyInto,
@@ -68,10 +69,19 @@ export async function moveRoutes(app: KeptApp, deps: InventoryDeps): Promise<voi
     { schema: { body: MoveBody, response: { 200: MoveResultSchema } } },
     (req, reply) => {
       const expected = optionalIfMatch(req);
-      return scopedWrite(pools, req, reply, async (tx, client, scope) => ({
-        status: 200,
-        body: await moveThings(ctxOf(tx, client, scope, req.id), req.body, expected),
-      }));
+      return scopedWrite(pools, req, reply, async (tx, client, scope) => {
+        // With someone: asked first (1.14), the thing or the box it goes into.
+        await guardOnLoan(
+          client,
+          req.body.thingIds.map((x) => x.toLowerCase()),
+          'containerId' in req.body.to ? req.body.to.containerId.toLowerCase() : null,
+          req.body.onLoan === 'confirm',
+        );
+        return {
+          status: 200,
+          body: await moveThings(ctxOf(tx, client, scope, req.id), req.body, expected),
+        };
+      });
     },
   );
 

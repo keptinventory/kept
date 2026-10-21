@@ -540,7 +540,12 @@ export type PlaceContents = { places: PlaceNode[]; things: Page<ThingRow> };
 export type MoveTarget = { placeId: string } | { containerId: string };
 
 /** POST /api/v1/places/:id/trash and POST /api/v1/things/:id/trash. */
-export type TrashBody = { contents?: 'move' | 'trash'; moveTo?: MoveTarget };
+export type TrashBody = {
+  contents?: 'move' | 'trash';
+  moveTo?: MoveTarget;
+  /** 1.14: trash it although it is with someone (asked first). */
+  onLoan?: 'confirm';
+};
 export type TrashResult = { trashed: string[]; moved: string[]; trashBatchId: string };
 /** The body of a 409 `contents_choice_required` (D45, D160). */
 export type ContentsChoiceDetails = { counts: { places: number; things: number } };
@@ -695,6 +700,8 @@ export type ThingLoanLine = {
   startedAt: string;
   dueOn: string | null;
   overdue: boolean;
+  /** 1.14 (#170): what it went with ("in Camera bag"). */
+  withName?: string | null;
 };
 
 /** GET /api/v1/things query (list-standard, global by default, D174). */
@@ -863,7 +870,13 @@ export type MovePreview = {
 };
 
 /** POST /api/v1/things/move: ≤ 200 things; `quantity` only with one thing (it splits first). */
-export type MoveBody = { thingIds: string[]; to: MoveTarget; quantity?: number };
+export type MoveBody = {
+  thingIds: string[];
+  to: MoveTarget;
+  quantity?: number;
+  /** 1.14: move it although it is with someone (asked first). */
+  onLoan?: 'confirm';
+};
 export type MoveResult = { moved: string[] };
 
 // ----- the spreadsheet view (1.x, D250) -----------------------------------------------------------
@@ -1098,12 +1111,15 @@ export type SearchKind = 'things' | 'places' | 'people' | 'vendors' | 'documents
  * 20), so each attention count opens its list: readings to review, not seen for
  * `long_unseen_months`, and things in an Unplaced area.
  */
+/** 1.14 (#170): kits, and kits with a part not in them. */
 export type SearchStateFilter =
   | DerivedState
   | 'archived'
   | 'to_review'
   | 'long_unseen'
-  | 'unplaced';
+  | 'unplaced'
+  | 'kit'
+  | 'kit_incomplete';
 
 /** GET /api/v1/search query. */
 export type SearchParams = {
