@@ -3,6 +3,19 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.12.1 (2026-10-20)
+
+### Features
+
+- **import:** older Homebox: its spreadsheet, the right versions, and a clear refusal (#210) (8c21574)
+- **help:** one tour in chapters; Help at full page width (#211) (a1a1524)
+- **map:** shape library, request a shape, homelab shapes (#208) (11b78dc)
+
+### Documentation
+
+- **readme:** what's next after 1.12.0 (#206) (357119a)
+- **release:** the 1.12.0 record (#205) (7af6933)
+
 ## 1.12.0 (2026-10-20)
 
 ### Features
