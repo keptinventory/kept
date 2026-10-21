@@ -25842,3 +25842,19 @@ msgstr "Each label: QR code, name, where it is and short ID"
 #: src/components/labels/start-cell.tsx
 msgid "Each label: QR code and short ID"
 msgstr "Each label: QR code and short ID"
+
+#: src/components/ai/model-picker.tsx
+msgid "Type a model id instead."
+msgstr "Type a model id instead."
+
+#: src/components/ai/model-picker.tsx
+msgid "free: shared, may be busy"
+msgstr "free: shared, may be busy"
+
+#: src/assistant/confirm-card.tsx
+msgid "not set"
+msgstr "not set"
+
+#: src/assistant/confirm-card.tsx
+msgid "Put all in…"
+msgstr "Put all in…"

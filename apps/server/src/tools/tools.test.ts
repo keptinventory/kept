@@ -273,11 +273,14 @@ describe('add_thing (D213) and its undo', () => {
     expect(d.places).toHaveLength(1);
     expect(d.things[0].untrusted).toEqual({ name: 'Drill', path: ['Home', 'Workbench'] });
     expect(d.audit_event_ids).toHaveLength(4); // the place, then the three things
-    // "Drill" is no type Kept knows, nor "Nobrand" a brand: added without them, and said so.
-    expect(d.not_set).toEqual([
-      { item: 0, field: 'type', untrusted: { value: 'Drill' } },
-      { item: 2, field: 'brand', untrusted: { value: 'Nobrand' } },
-    ]);
+    // "Drill" is no type Kept knows: added without it, and said so. A brand is made when new.
+    expect(d.not_set).toEqual([{ item: 0, field: 'type', untrusted: { value: 'Drill' } }]);
+    const [brand] = await own<{ name: string }>(
+      db,
+      'SELECT b.name FROM public.things t JOIN public.brands b ON b.id = t.brand_id WHERE t.id = $1',
+      [d.things[2].id],
+    );
+    expect(brand?.name).toBe('Nobrand');
     const events = await own<{ action: string; actor_id: string; undoable_until: Date | null }>(
       db,
       `SELECT action, actor_id, undoable_until FROM public.audit_events
@@ -414,6 +417,174 @@ describe('add_thing (D213) and its undo', () => {
       expect(paths.length).toBeGreaterThan(0);
       for (const p of paths) expect(p).toContain('.untrusted.');
     }
+  });
+});
+
+describe('every field a person can set, through add_thing and update_thing', () => {
+  const fullRow = (id: string) =>
+    own<Record<string, unknown>>(
+      db,
+      `SELECT t.name, trim_scale(t.quantity)::text AS quantity, t.model, t.serial, t.barcode,
+              t.colour, t.condition, t.notes, t.aliases, t.manual_url, t.expires_on::text,
+              t.expiry_lead_days, ty.builtin_key AS type, b.name AS brand, pe.display_name AS owner,
+              (SELECT array_agg(g.name ORDER BY g.name) FROM public.thing_tags x
+                 JOIN public.tags g ON g.id = x.tag_id WHERE x.thing_id = t.id) AS tags,
+              pu.purchased_on::text AS bought, pu.currency, trim_scale(pl.unit_price)::text AS price,
+              v.name AS shop, trim_scale(sr.min_quantity)::text AS keep_at_least
+         FROM public.things t
+         LEFT JOIN public.types ty ON ty.id = t.type_id
+         LEFT JOIN public.brands b ON b.id = t.brand_id
+         LEFT JOIN public.people pe ON pe.id = t.belongs_to_person_id
+         LEFT JOIN public.purchase_lines pl ON pl.id = t.purchase_line_id
+         LEFT JOIN public.purchases pu ON pu.id = pl.purchase_id
+         LEFT JOIN public.vendors v ON v.id = pu.vendor_id
+         LEFT JOIN public.stock_rules sr ON sr.thing_id = t.id
+        WHERE t.id = $1`,
+      [id],
+    ).then((r) => r[0]);
+
+  it('add_thing sets type, brand, colour, condition, purchase and the rest, each in its field', async () => {
+    await own(db, `INSERT INTO public.tags (owner_account_id, name) VALUES ($1, 'Kitchen')`, [
+      home.accountId,
+    ]);
+    const d = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [
+        {
+          name: 'Field kettle',
+          quantity: 2,
+          type: 'furniture',
+          brand: 'Fieldbrand',
+          model: 'FK-2',
+          serial: 'FK-0001',
+          barcode: '5012345678900',
+          colour: 'Blue',
+          condition: 'good',
+          notes: 'Spare lid in the drawer',
+          aliases: ['Travel kettle'],
+          tags: ['Kitchen', 'No such tag'],
+          belongs_to: 'Murdock',
+          manual_url: 'https://example.com/fk2',
+          expires_on: '2030-01-31',
+          expiry_lead_days: 30,
+          purchase: {
+            purchased_on: '2026-09-01',
+            price: '45.5',
+            currency: 'EGP',
+            shop: 'Corner shop',
+          },
+        },
+      ],
+    });
+    expect(d.not_set).toEqual([{ item: 0, field: 'tag', untrusted: { value: 'No such tag' } }]);
+    expect(await fullRow(d.things[0].id)).toMatchObject({
+      name: 'Field kettle',
+      quantity: '2',
+      type: 'furniture',
+      brand: 'Fieldbrand',
+      model: 'FK-2',
+      serial: 'FK-0001',
+      barcode: '5012345678900',
+      colour: 'Blue',
+      condition: 'good',
+      notes: 'Spare lid in the drawer',
+      aliases: { en: ['Travel kettle'] },
+      manual_url: 'https://example.com/fk2',
+      expires_on: '2030-01-31',
+      expiry_lead_days: 30,
+      owner: 'Murdock',
+      tags: ['Kitchen'],
+      bought: '2026-09-01',
+      currency: 'EGP',
+      price: '45.5',
+      shop: 'Corner shop',
+    });
+  });
+
+  it('a type is matched by its name in either language, a consumable keeps a minimum', async () => {
+    const d = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [
+        { name: 'Spare cells', type: 'بطاريات', quantity: 8, keep_at_least: 4 },
+        { name: 'Crate two', type: 'bin' },
+      ],
+    });
+    expect(d.not_set).toBeUndefined();
+    expect(await fullRow(d.things[0].id)).toMatchObject({ type: 'batteries', keep_at_least: '4' });
+    expect(await fullRow(d.things[1].id)).toMatchObject({ type: 'box_bin' });
+    const out = await data(louis, 'update_thing', {
+      thing_id: d.things[0].id,
+      fields: { keep_at_least: 6 },
+    });
+    expect(out.audit_event_id).toBeTruthy();
+    expect(await fullRow(d.things[0].id)).toMatchObject({ keep_at_least: '6' });
+    await data(louis, 'update_thing', {
+      thing_id: d.things[0].id,
+      fields: { keep_at_least: null },
+    });
+    expect(await fullRow(d.things[0].id)).toMatchObject({ keep_at_least: null });
+  });
+
+  it('a purchase where Money is hidden is refused, as the route refuses it', async () => {
+    const env = await tool(louis, 'add_thing', {
+      location_id: garage.id,
+      items: [{ name: 'Garage kettle', purchase: { price: '10', currency: 'EGP' } }],
+    });
+    const route = await call(t, '/api/v1/things', {
+      as: louis,
+      body: {
+        locationId: garage.id,
+        placeId: garage.unplacedId,
+        name: 'Garage kettle',
+        purchase: { purchasedOn: '2026-09-01', price: '10', currency: 'EGP' },
+      },
+    });
+    if (route.statusCode === 201) expect(isToolError(env)).toBe(false);
+    else
+      expect(env).toMatchObject({
+        error: expect.stringMatching(/tool_unavailable|module_off|forbidden/),
+      });
+  });
+
+  it('update_thing changes those fields too, and null clears one', async () => {
+    const d = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [{ name: 'Plain mug' }],
+    });
+    const id = d.things[0].id;
+    await data(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: id,
+      fields: {
+        type: 'Furniture',
+        quantity: 3,
+        brand: 'Mugbrand',
+        colour: 'Red',
+        condition: 'fair',
+        barcode: '4006381333931',
+        tags: ['Kitchen'],
+        belongs_to: 'Murdock',
+        manual_url: 'https://example.com/mug',
+        expires_on: '2031-05-01',
+        expiry_lead_days: 7,
+        acquired_from: 'A friend',
+      },
+    });
+    expect(await fullRow(id)).toMatchObject({
+      type: 'furniture',
+      quantity: '3',
+      brand: 'Mugbrand',
+      colour: 'Red',
+      condition: 'fair',
+      barcode: '4006381333931',
+      tags: ['Kitchen'],
+      owner: 'Murdock',
+      manual_url: 'https://example.com/mug',
+      expires_on: '2031-05-01',
+      expiry_lead_days: 7,
+    });
+    await data(louis, 'update_thing', { thing_id: id, fields: { colour: null, belongs_to: null } });
+    expect(await fullRow(id)).toMatchObject({ colour: null, owner: null });
   });
 });
 

@@ -115,8 +115,35 @@ describe('AI settings', () => {
     );
     expect(names.some((n) => n.includes('gpt-oss-120b'))).toBe(false);
     expect(names.some((n) => n.includes('Run Test to check photos'))).toBe(true);
-    // No custom model id for a named provider.
-    expect(screen.queryByLabelText(/Custom model id/)).not.toBeInTheDocument();
+    // Any model id can be typed, for a named provider too.
+    expect(screen.getByLabelText('Custom model id (Assistant)')).toBeInTheDocument();
+  });
+
+  it('OpenRouter’s :free models are offered, labelled as a shared pool', async () => {
+    const s = ownerScenario();
+    const provider = s.capture.providers[0];
+    if (provider) Object.assign(provider, { kind: 'openrouter', models: {} });
+    const { user } = await renderApp('/settings/ai', { state: s });
+    await user.click(await screen.findByRole('button', { name: 'Advanced' }));
+    const search = await screen.findByRole('combobox', { name: 'Search' });
+    await user.click(search);
+    await user.type(search, 'nemotron');
+    const listbox = await screen.findByRole('listbox');
+    const free = within(listbox).getByRole('option', { name: /nemotron-3-embed-1b:free/ });
+    expect(free).toHaveTextContent('free: shared, may be busy');
+  });
+
+  it('a typed model id is saved as it is, for any provider', async () => {
+    const { user, mock } = await renderApp('/settings/ai', { state: ownerScenario() });
+    await user.click(await screen.findByRole('button', { name: 'Advanced' }));
+    const typed = await screen.findByLabelText('Custom model id (Assistant)');
+    await user.type(typed, 'vendor/new-chat-model');
+    await user.click(screen.getByRole('button', { name: 'Save models' }));
+    await waitFor(() =>
+      expect(mock.lastCall('PUT', cp.aiProvider('account'))?.body).toMatchObject({
+        models: { chat: 'vendor/new-chat-model' },
+      }),
+    );
   });
 
   it('a location cap above the account cap is refused inline', async () => {
@@ -292,6 +319,11 @@ describe('AI settings', () => {
     expect(await screen.findByText('No model list')).toBeInTheDocument();
     expect(screen.getByText(/Couldn't get the model list from/)).toBeInTheDocument();
     expect(screen.queryByText("Couldn't load this")).toBeNull();
+    // The fallback: type the model id.
+    expect(screen.getByText(/Type a model id instead\./)).toBeInTheDocument();
+    expect(screen.getByLabelText('Custom model id (Photos and receipts)')).toHaveValue(
+      'qwen2.5vl:7b',
+    );
   });
 
   it('says up top when the photo model has no price, and an admin prices Groq in one tap', async () => {

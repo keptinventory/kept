@@ -32,6 +32,30 @@ describe('the tools as the model sees them', () => {
     }
   });
 
+  it('leave out lengths, counts and ranges: the validator checks them, and they cost tokens', () => {
+    expect(
+      compactSchema({
+        type: 'object',
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 200 },
+          n: { type: 'integer', minimum: 1, maximum: 100000 },
+          list: { type: 'array', minItems: 1, maxItems: 20, items: { type: 'string' } },
+          custom: { type: 'object', propertyNames: { type: 'string', maxLength: 64 } },
+        },
+      }),
+    ).toEqual({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        n: { type: 'integer' },
+        list: { type: 'array', items: { type: 'string' } },
+        custom: { type: 'object' },
+      },
+    });
+    const spec = toolSpecOf('add_thing' as ToolName);
+    expect(spec.validate?.({ items: [{ name: 'x'.repeat(201) }] }).success).toBe(false);
+  });
+
   it('with one location, offer no optional location_id; a required one stays', () => {
     for (const n of NAMES) {
       const full = toolSpecOf(n).inputSchema as {
@@ -46,9 +70,9 @@ describe('the tools as the model sees them', () => {
     }
   });
 
-  it('fit a free-tier plan: every tool together is well under 20,000 characters for one location', () => {
-    // A request carries every tool; Groq's free tier allowed 8,000 tokens a minute for
-    // openai/gpt-oss-120b, counting the output allowance too (2026-10-07: 9,571 asked).
+  it('every tool together stays well under 20,000 characters (a step offers fewer, select.ts)', () => {
+    // Groq's free tier allows 8,000 tokens a minute for openai/gpt-oss-120b, the output
+    // allowance included.
     expect(sizeOf({ oneLocation: true })).toBeLessThan(15_000);
     expect(sizeOf()).toBeLessThan(20_000);
   });

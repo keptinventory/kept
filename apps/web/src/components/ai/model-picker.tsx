@@ -1,10 +1,11 @@
 /**
- * The model picker (D202, D206; Advanced): the provider's own list, loaded
- * after a key is saved, in a Combobox (never a native select). Photos and receipts offer
- * vision-capable models only; a model whose vision the listing didn't state is offered with "Run
- * Test to check photos". The assistant gets text models, search gets embeddings models (D200).
- * RECOMMENDED's model is marked "Recommended". "Custom model id" is for OpenAI-compatible servers
- * only. A chosen model the provider stopped listing is flagged.
+ * The model picker (D202, D206; Advanced): the provider's own list, asked for live each time the
+ * picker opens (the server reuses it for ten minutes), in a Combobox (never a native select).
+ * Photos and receipts offer vision-capable models only; a model whose vision the listing didn't
+ * state is offered with "Run Test to check photos". The assistant gets text models, search gets
+ * embeddings models (D200). RECOMMENDED's model is marked "Recommended", an OpenRouter `:free`
+ * one "free: shared, may be busy". Any model id can be typed, for every provider; when the list
+ * can't be had, typing is what is left. A chosen model the provider stopped listing is flagged.
  */
 import { RECOMMENDED } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -71,25 +72,11 @@ export function ModelPickers({
       setRefreshing(false);
     }
   };
-  if (q.isError)
-    return isApiError(q.error) && q.error.code === 'ai_unavailable' ? (
-      <Notice
-        tone="warn"
-        title={<Trans>No model list</Trans>}
-        action={
-          <Button size="small" variant="secondary" onPress={() => void q.refetch()}>
-            <Trans>Try again</Trans>
-          </Button>
-        }
-      >
-        {listingText(q.error)}
-      </Notice>
-    ) : (
-      <ErrorState error={q.error} onRetry={() => void q.refetch()} />
-    );
+  const unavailable = q.isError && isApiError(q.error) && q.error.code === 'ai_unavailable';
+  if (q.isError && !unavailable)
+    return <ErrorState error={q.error} onRetry={() => void q.refetch()} />;
   const listing = q.data;
   const models = listing?.models ?? [];
-  const custom = provider.kind === 'openai_compatible';
   const slots: { slot: ModelSlot; label: string; empty: string }[] = [
     {
       slot: 'vision',
@@ -105,6 +92,19 @@ export function ModelPickers({
   ];
   return (
     <div className="grid gap-3">
+      {unavailable ? (
+        <Notice
+          tone="warn"
+          title={<Trans>No model list</Trans>}
+          action={
+            <Button size="small" variant="secondary" onPress={() => void q.refetch()}>
+              <Trans>Try again</Trans>
+            </Button>
+          }
+        >
+          {listingText(q.error)} <Trans>Type a model id instead.</Trans>
+        </Notice>
+      ) : null}
       {(listing?.chosenMissing ?? []).map((slot) => {
         const model = provider.models[slot] ?? '';
         return (
@@ -125,16 +125,18 @@ export function ModelPickers({
           label: m.id,
           ...(m.id === RECOMMENDED.model && provider.kind === RECOMMENDED.kind
             ? { description: t`Recommended` }
-            : slot === 'vision' && m.vision === null
-              ? { description: t`Run Test to check photos` }
-              : {}),
+            : m.free
+              ? { description: t`free: shared, may be busy` }
+              : slot === 'vision' && m.vision === null
+                ? { description: t`Run Test to check photos` }
+                : {}),
         }));
         const chosen = value[slot] ?? null;
         const unknownVision =
           slot === 'vision' && chosen && options.find((m) => m.id === chosen)?.vision === null;
         return (
           <div key={slot} className="grid gap-1.5">
-            {options.length === 0 && !custom && listing ? (
+            {unavailable ? null : options.length === 0 && listing ? (
               <p className="m-0 text-small text-ink-2">
                 <span className="font-semibold text-ink">{label}: </span>
                 {empty}
@@ -155,14 +157,12 @@ export function ModelPickers({
                 }
               />
             )}
-            {custom ? (
-              <TextField
-                label={<Trans>Custom model id ({label})</Trans>}
-                value={chosen && !options.some((m) => m.id === chosen) ? chosen : ''}
-                onChange={(v) => onChange({ ...value, [slot]: v.trim() || undefined })}
-                inputProps={{ dir: 'ltr', spellCheck: false, autoCapitalize: 'none' }}
-              />
-            ) : null}
+            <TextField
+              label={<Trans>Custom model id ({label})</Trans>}
+              value={chosen && !options.some((m) => m.id === chosen && !m.typed) ? chosen : ''}
+              onChange={(v) => onChange({ ...value, [slot]: v.trim() || undefined })}
+              inputProps={{ dir: 'ltr', spellCheck: false, autoCapitalize: 'none' }}
+            />
           </div>
         );
       })}

@@ -31,6 +31,7 @@ import { fitToCeiling } from './fit.js';
 import { payingLocation } from './payer.js';
 import { instructionsFor, PROMPT_VERSION, type PromptLocation, toolSpecOf } from './prompt.js';
 import { propose } from './proposals.js';
+import { askOf, offeredTools } from './select.js';
 import type { TurnRow } from './threads.js';
 import { noAnswer, viewerRefusal } from './words.js';
 
@@ -44,7 +45,10 @@ import { noAnswer, viewerRefusal } from './words.js';
 // - the payer is resolved from the locations touched so far plus the context's (payer.ts);
 // - the tools are those the person may call in each of their locations where the assistant is on
 //   (tools/context.ts toolsFor(): module, role and door, D113, D123, D191). Write tools only where
-//   they may write; none to a viewer anywhere. The last step offers none, to force an answer;
+//   they may write; none to a viewer anywhere. Of those, a step offers the ones the question is
+//   about (select.ts), the largest choice that fits the provider's per-minute limit. A tool the
+//   model asks for and was not offered is offered from the next step. The last step offers
+//   none, to force an answer;
 // - read tools run now through runTool() as the person; each result is stored with the locations
 //   it named (cite.ts), which join the turn's (D164);
 // - write tools never run: each becomes a proposal (proposals.ts), all of one step in one batch
@@ -339,21 +343,30 @@ async function steps(
 
     const last = step + 1 >= TURN_LIMITS.maxSteps;
     const names = [...new Set(candidates.flatMap((c) => c.tools))];
-    const writes = names.some((n) => TOOL_DEFS[n].scope === 'write');
-    const instructions = instructionsFor({ locale, locations: candidates, context, writes });
-    const defs = names.map((n) => toolSpecOf(n, { oneLocation: candidates.length === 1 }));
     const allowance = REASONING_ALLOWANCE[allowanceLevel(resolved.provider.reasoning)];
-    let messages = prepared.messages;
-    let maxOutputTokens = ASSISTANT_OUTPUT.maxTokens + allowance;
     // Under the provider's per-minute token limit, when its headers have named one (fit.ts).
     const ceiling = await rt.pacer.ceiling({
       id: resolved.provider.id,
       kind: resolved.provider.kind,
     });
-    if (ceiling) {
+    // The tools this question is about (select.ts), the largest choice that fits.
+    const choices = offeredTools(names, askOf(prepared.messages));
+    let messages = prepared.messages;
+    let maxOutputTokens = ASSISTANT_OUTPUT.maxTokens + allowance;
+    let instructions = '';
+    let defs: ReturnType<typeof toolSpecOf>[] = [];
+    let fits = false;
+    for (const offered of choices) {
+      const writes = offered.some((n) => TOOL_DEFS[n].scope === 'write');
+      instructions = instructionsFor({ locale, locations: candidates, context, writes });
+      defs = offered.map((n) => toolSpecOf(n, { oneLocation: candidates.length === 1 }));
+      if (!ceiling) {
+        fits = true;
+        break;
+      }
       const fitted = fitToCeiling({
-        messages,
-        maxOut: maxOutputTokens,
+        messages: prepared.messages,
+        maxOut: ASSISTANT_OUTPUT.maxTokens + allowance,
         floor:
           (last ? ASSISTANT_OUTPUT.expectedAnswer : ASSISTANT_OUTPUT.expectedToolStep) + allowance,
         ceiling,
@@ -365,10 +378,14 @@ async function steps(
             maxOutputTokens: maxOut,
           }),
       });
-      if (!fitted) return finish(deps, scope, turn.id, 'failed', { reason: 'too_large' });
-      messages = fitted.messages;
-      maxOutputTokens = fitted.maxOut;
+      if (fitted) {
+        messages = fitted.messages;
+        maxOutputTokens = fitted.maxOut;
+        fits = true;
+        break;
+      }
     }
+    if (!fits) return finish(deps, scope, turn.id, 'failed', { reason: 'too_large' });
     const result: CallResult<string> = await callModel<string>(rt, {
       resolved,
       task: step === 0 ? 'assistant_turn' : 'assistant_followup',
@@ -613,9 +630,11 @@ async function runCalls(
         call: c,
         output: toolError(
           'tool_input',
-          c.invalid?.error === 'AI_NoSuchToolError'
-            ? 'That tool is not offered here.'
-            : 'The input does not match the tool’s schema.',
+          c.invalid?.error !== 'AI_NoSuchToolError'
+            ? 'The input does not match the tool’s schema.'
+            : r.candidates.some((l) => (l.tools as string[]).includes(c.tool))
+              ? 'That tool is offered from the next step: call it again.'
+              : 'That tool is not offered here.',
         ),
         locations: [],
       });

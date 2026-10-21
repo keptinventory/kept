@@ -8,6 +8,7 @@ import {
   toolError,
 } from '@kept/mcp';
 import {
+  type Condition,
   canonicalJson,
   PROPOSAL_TTL_MS,
   type ProposalRef,
@@ -21,7 +22,7 @@ import { viewOf } from '../things/view.js';
 import { runTool } from '../tools/context.js';
 import { placeRefOf, thingRefOf } from '../tools/output.js';
 import { handlerOf } from '../tools/registry.js';
-import { findRef } from '../tools/resolve.js';
+import { findRef, typeNamed } from '../tools/resolve.js';
 import type { ToolDeps } from '../tools/types.js';
 import { PROPOSAL_COLUMNS, type ProposalRow } from './threads.js';
 
@@ -130,12 +131,18 @@ async function refsOf(
     const v = args[key];
     if (typeof v === 'string') raws.push({ key, raw: v });
   }
-  // add_thing: each item's place, and a new place's parent.
+  // add_thing: each item's place, a new place's parent, and the type its name matches (none
+  // when Kept knows no such type: the card says "not set").
   if (Array.isArray(args.items)) {
     for (const item of args.items as Record<string, unknown>[]) {
       if (typeof item?.place_id === 'string') raws.push({ key: 'place_id', raw: item.place_id });
       const np = item?.new_place as Record<string, unknown> | undefined;
       if (typeof np?.parent_id === 'string') raws.push({ key: 'parent_id', raw: np.parent_id });
+      const typeName = item?.type;
+      if (typeof typeName === 'string' && typeName.trim() && !refs[`type:${typeName}`]) {
+        const id = await typeNamed(client, location.id, typeName);
+        if (id) refs[`type:${typeName}`] = { kind: 'type', id, name: typeName, path: [] };
+      }
     }
   }
   // log_service: each line's consumable (D236), so the card names what comes off the shelf.
@@ -152,7 +159,12 @@ async function refsOf(
     if (found.kind === 'thing') {
       const v = await viewOf(tx, client, scope, null, found.id);
       const ref = thingRefOf(v, location.name);
-      const r: ProposalRef = { kind: 'thing', name: ref.untrusted.name, path: ref.untrusted.path };
+      const r: ProposalRef = {
+        kind: 'thing',
+        id: found.id,
+        name: ref.untrusted.name,
+        path: ref.untrusted.path,
+      };
       refs[raw] = r;
       refs[found.id] = r;
       if (key === THING_ARG) {
@@ -172,7 +184,12 @@ async function refsOf(
       }
     } else {
       const p = await placeRefOf(client, found.id);
-      const r: ProposalRef = { kind: 'place', name: p.untrusted.name, path: p.untrusted.path };
+      const r: ProposalRef = {
+        kind: 'place',
+        id: found.id,
+        name: p.untrusted.name,
+        path: p.untrusted.path,
+      };
       refs[raw] = r;
       refs[found.id] = r;
     }
@@ -290,12 +307,17 @@ export async function propose(
 // ---------------------------------------------------------------------------------------------
 // Confirm and cancel
 
-/** An add_thing item the person kept on the card, by its index in `args.items`, with the name or
- * quantity they edited (D213; the web's ConfirmItem). */
+/** An add_thing item the person kept on the card, by its index in `args.items`, with what they
+ * edited (D213; the web's ConfirmItem): the name, how many, where it goes (a place or container
+ * of the location; null: Unplaced), its type, colour and condition (null: none). */
 export type ConfirmItem = {
   index: number;
   name?: string | undefined;
   quantity?: number | undefined;
+  placeId?: string | null | undefined;
+  typeId?: string | null | undefined;
+  colour?: string | null | undefined;
+  condition?: Condition | null | undefined;
 };
 export type ConfirmBody = {
   batchId: string;
@@ -359,11 +381,29 @@ export function argsWithEdits(
     const item = proposed[it.index];
     if (!item || seen.has(it.index)) return null;
     seen.add(it.index);
-    kept.push({
+    const out: Record<string, unknown> = {
       ...item,
       ...(it.name !== undefined ? { name: it.name } : {}),
       ...(it.quantity !== undefined ? { quantity: it.quantity } : {}),
-    });
+    };
+    // Where: a place or container the card picked, else Unplaced; either replaces the model's.
+    if (it.placeId !== undefined) {
+      delete out.place_id;
+      delete out.new_place;
+      if (it.placeId !== null) out.place_id = it.placeId;
+    }
+    if (it.typeId !== undefined) {
+      delete out.type;
+      delete out.type_id;
+      if (it.typeId !== null) out.type_id = it.typeId;
+    }
+    for (const key of ['colour', 'condition'] as const) {
+      const v = it[key];
+      if (v === undefined) continue;
+      if (v === null || v === '') delete out[key];
+      else out[key] = v;
+    }
+    kept.push(out);
   }
   return kept.length ? { ...args, items: kept } : null;
 }

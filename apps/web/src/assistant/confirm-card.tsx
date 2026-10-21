@@ -5,8 +5,11 @@
  * controls that chat text never gets, so a "card" written in an answer is just text.
  *
  * - A checkbox per row, all ticked to start; Confirm counts only the ticked rows and sends each
- *   with its `argsHash`. An `add_thing` item (a spoken list) can also be edited, its name and how
- *   many, before confirming (D213); the hash still binds what was proposed.
+ *   with its `argsHash`. An `add_thing` item (a spoken list) shows every field the thing will get,
+ *   always where it goes (Unplaced said plainly) and its type ("not set" when Kept knows no such
+ *   type), and its name, how many, where, type, colour and condition can be edited before
+ *   confirming (D213); with more than one, "Put all in…" sets where for every row. Only what was
+ *   changed is sent; the hash still binds what was proposed.
  * - A countdown to the 10-minute expiry; at zero the card locks as "Expired · ask again".
  * - A row that changed since it was proposed: a card-level conflict with both values and who
  *   changed it; Confirm is unavailable, only Ask again or Cancel.
@@ -14,6 +17,7 @@
  *   Undo in step 3's toast, undoing every event the writes recorded, newest first (D150, D213).
  * - Offline, Confirm is disabled with "Needs a connection".
  */
+import type { Condition } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -22,6 +26,9 @@ import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { Checkbox, Input, Label, TextField } from 'react-aria-components';
 import { assistantApi, assistantKeys } from '@/api/assistant/queries';
 import type { ConfirmItem, ConfirmResult, Proposal } from '@/api/assistant/types';
+import { usePlaces, useThings } from '@/api/inventory/queries';
+import type { MoveTarget } from '@/api/inventory/types';
+import { useLocation } from '@/api/queries';
 import { useMoney } from '@/components/ai/labels';
 import { useOfferUndo } from '@/components/history/undo';
 import {
@@ -33,7 +40,15 @@ import {
   ShieldCheckIcon,
 } from '@/components/icons';
 import { useErrorText } from '@/components/page';
+import { useConditionLabels } from '@/components/things/labels';
+import {
+  TypePicker,
+  useLocationAccountId,
+  useTypeOptions,
+  WherePicker,
+} from '@/components/things/pickers';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { toast } from '@/components/ui/toast';
 import { isolate } from '@/lib/bidi';
 import { useFormat } from '@/lib/format';
@@ -45,6 +60,7 @@ import {
   type CardRow,
   cardExpiry,
   cardRows,
+  type Field,
   type FieldKey,
   type Val,
   type Verb,
@@ -165,6 +181,30 @@ function useFieldLabels(): (key: FieldKey, verb: Verb) => string {
         return t`How many`;
       case 'stock':
         return t`From stock`;
+      case 'where':
+        return t`Where`;
+      case 'serial':
+        return t`Serial number`;
+      case 'barcode':
+        return t`Barcode`;
+      case 'colour':
+        return t`Colour`;
+      case 'tags':
+        return t`Tags`;
+      case 'owner':
+        return t`Belongs to`;
+      case 'bought':
+        return t`Bought`;
+      case 'price':
+        return t`Price`;
+      case 'shop':
+        return t`Shop`;
+      case 'expires':
+        return t`Expires`;
+      case 'keepAtLeast':
+        return t`Keep at least`;
+      case 'manual':
+        return t`Manual`;
     }
   };
 }
@@ -173,7 +213,26 @@ function ValueView({ v }: { v: Val }) {
   const { t, i18n } = useLingui();
   const f = useFormat();
   const money = useMoney();
+  const conditions = useConditionLabels();
   switch (v.t) {
+    case 'unplaced':
+      return <span>{t`Unplaced`}</span>;
+    case 'type':
+      return <bdi>{v.name}</bdi>;
+    case 'notSet':
+      return (
+        <span className="text-ink-2">
+          {t`not set`}
+          {v.word ? (
+            <>
+              {' '}
+              (<bdi>{v.word}</bdi>)
+            </>
+          ) : null}
+        </span>
+      );
+    case 'condition':
+      return <span>{conditions[v.v]}</span>;
     case 'text':
       return v.v ? <bdi>{v.v}</bdi> : <span className="text-ink-3">{t`Nothing`}</span>;
     case 'path':
@@ -258,43 +317,159 @@ function TargetView({ row, onNavigate }: { row: CardRow; onNavigate?: () => void
   );
 }
 
-type Edit = { name: string; quantity: string };
+/** An add row's edit: name and how many always (as typed), the rest only once changed. `open`:
+ * its fields are showing. */
+type Edit = {
+  open: boolean;
+  name: string;
+  quantity: string;
+  where?: MoveTarget;
+  typeId?: string | null;
+  colour?: string;
+  condition?: Condition | null;
+};
 
-function Row({
-  row,
-  ticked,
-  onTick,
-  locked,
-  edit,
-  onEdit,
-  onNavigate,
-}: {
-  row: CardRow;
-  ticked: boolean;
-  onTick: (v: boolean) => void;
-  locked: boolean;
-  edit: Edit | null;
-  onEdit: (e: Edit | null) => void;
-  onNavigate?: () => void;
-}) {
+const startEdit = (row: CardRow, open: boolean): Edit => ({
+  open,
+  name: row.editable?.name ?? '',
+  quantity: String(row.editable?.quantity ?? 1),
+});
+
+const targetId = (w: MoveTarget) => ('placeId' in w ? w.placeId : w.containerId);
+
+/** A place or container of the location by its path, for a row whose where was edited. */
+function useWhereVal(locationId: string): (w: MoveTarget) => Val {
   const { t } = useLingui();
-  const verbs = useVerbLabels();
-  const label = useFieldLabels();
-  const nav = onNavigate ? { onNavigate } : {};
-  const editing = edit !== null;
-  const name = edit?.name ?? row.editable?.name ?? '';
-  const title = (
-    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 font-semibold text-[14.5px] leading-snug">
-      <span className="font-semibold text-[11.5px] text-ink-3 uppercase tracking-[.06em]">
-        {verbs[row.verb]}
-      </span>
-      {row.count ? <Count n={row.count.n} of={row.count.of} /> : null}
-      <TargetView row={row} {...nav} />
-    </span>
+  const places = usePlaces(locationId).data?.places ?? [];
+  const things = useThings({ locationId, limit: 200 }).data?.pages.flatMap((p) => p.items) ?? [];
+  const byId = new Map(places.map((p) => [p.id, p]));
+  return (w) => {
+    if ('containerId' in w) {
+      const th = things.find((x) => x.id === w.containerId);
+      return th
+        ? {
+            t: 'path',
+            v: [...th.path.map((s) => (s.isUnplaced ? t`Unplaced` : s.name)), th.name ?? ''],
+          }
+        : { t: 'text', v: '' };
+    }
+    const at = byId.get(w.placeId);
+    if (at?.isUnplaced) return { t: 'unplaced' };
+    const path: string[] = [];
+    let cur = at;
+    while (cur) {
+      path.unshift(cur.name);
+      cur = cur.parentId ? byId.get(cur.parentId) : undefined;
+    }
+    return { t: 'path', v: path };
+  };
+}
+
+/** The row's fields with what the person changed in place of what was proposed. */
+function editedFields(
+  fields: readonly Field[],
+  edit: Edit | null,
+  whereVal: (w: MoveTarget) => Val,
+  typeName: (id: string) => string,
+): Field[] {
+  if (!edit) return [...fields];
+  const set = (key: FieldKey, after: Val | null, list: Field[]) => {
+    const at = list.findIndex((f) => f.key === key);
+    if (after === null) return at >= 0 ? list.filter((_, i) => i !== at) : list;
+    const next = { key, after };
+    if (at >= 0) return list.map((f, i) => (i === at ? next : f));
+    return [...list, next];
+  };
+  let out = [...fields];
+  if (edit.where) out = set('where', whereVal(edit.where), out);
+  if (edit.typeId !== undefined)
+    out = set(
+      'type',
+      edit.typeId ? { t: 'type', id: edit.typeId, name: typeName(edit.typeId) } : { t: 'notSet' },
+      out,
+    );
+  if (edit.colour !== undefined)
+    out = set('colour', edit.colour.trim() ? { t: 'text', v: edit.colour.trim() } : null, out);
+  if (edit.condition !== undefined)
+    out = set('condition', edit.condition ? { t: 'condition', v: edit.condition } : null, out);
+  return out;
+}
+
+/** What an add row's edit changed, as the confirm request sends it. */
+function changesOf(row: CardRow, e: Edit | null | undefined): Omit<ConfirmItem, 'index'> {
+  const was = row.editable;
+  if (!e || !was) return {};
+  const out: Omit<ConfirmItem, 'index'> = {};
+  if (e.name.trim() !== was.name) out.name = e.name.trim();
+  const n = toNumber(e.quantity);
+  if (n !== was.quantity) out.quantity = n;
+  if (e.where) out.placeId = targetId(e.where);
+  if (e.typeId !== undefined && e.typeId !== was.typeId) out.typeId = e.typeId;
+  if (e.colour !== undefined && e.colour.trim() !== was.colour)
+    out.colour = e.colour.trim() || null;
+  if (e.condition !== undefined && e.condition !== was.condition) out.condition = e.condition;
+  return out;
+}
+
+/** An add row's where, type, colour and condition, while editing. */
+function AddFields({ row, edit, onEdit }: { row: CardRow; edit: Edit; onEdit: (e: Edit) => void }) {
+  const { t } = useLingui();
+  const location = useLocation(row.locationId).data;
+  const accountId = useLocationAccountId(location);
+  const conditions = useConditionLabels();
+  const was = row.editable;
+  const where: MoveTarget =
+    edit.where ?? (was?.where.kind === 'place' ? { placeId: was.where.id } : { placeId: '' });
+  return (
+    <>
+      <WherePicker
+        value={{ locationId: row.locationId, target: where }}
+        onChange={(v) => onEdit({ ...edit, where: v.target })}
+        allowOtherLocations={false}
+        label={t`Where`}
+      />
+      {accountId ? (
+        <TypePicker
+          accountId={accountId}
+          value={edit.typeId !== undefined ? edit.typeId : (was?.typeId ?? null)}
+          onChange={(id) => onEdit({ ...edit, typeId: id })}
+          label={t`Type`}
+        />
+      ) : null}
+      <TextField
+        value={edit.colour ?? was?.colour ?? ''}
+        onChange={(v) => onEdit({ ...edit, colour: v })}
+        maxLength={60}
+        className="grid gap-1"
+      >
+        <Label className="text-[12.5px] text-ink-3">{t`Colour`}</Label>
+        <Input
+          dir="auto"
+          className="min-h-11 rounded-lg border border-line bg-paper px-3 text-[15px] text-ink outline-none focus:border-ink"
+        />
+      </TextField>
+      <Combobox
+        label={t`Condition`}
+        items={(Object.keys(conditions) as Condition[]).map((c) => ({
+          id: c,
+          label: conditions[c],
+        }))}
+        selectedKey={edit.condition !== undefined ? edit.condition : (was?.condition ?? null)}
+        onSelectionChange={(k) =>
+          onEdit({ ...edit, condition: k ? (String(k) as Condition) : null })
+        }
+      />
+    </>
   );
-  const fieldList = row.fields.length ? (
+}
+
+/** A row's fields, then its location. */
+function FieldList({ row, fields }: { row: CardRow; fields: readonly Field[] }) {
+  const { t } = useLingui();
+  const label = useFieldLabels();
+  return fields.length ? (
     <dl className="m-0 mt-2 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-1.5 text-[13.5px] leading-snug">
-      {row.fields.map((field, i) => (
+      {fields.map((field, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: a row's fields, in order
         <div key={i} className="contents">
           <dt className="pt-px text-[12.5px] text-ink-3">{label(field.key, row.verb)}</dt>
@@ -340,6 +515,55 @@ function Row({
       </dd>
     </dl>
   );
+}
+
+/** An add row's fields with the person's edits in place of what was proposed. */
+function EditedFieldList({ row, edit }: { row: CardRow; edit: Edit }) {
+  const whereVal = useWhereVal(row.locationId);
+  const location = useLocation(row.locationId).data;
+  const types = useTypeOptions(useLocationAccountId(location));
+  const name = (id: string) => types.options.find((o) => o.id === id)?.label ?? '';
+  return <FieldList row={row} fields={editedFields(row.fields, edit, whereVal, name)} />;
+}
+
+function Row({
+  row,
+  ticked,
+  onTick,
+  locked,
+  edit,
+  onEdit,
+  onNavigate,
+}: {
+  row: CardRow;
+  ticked: boolean;
+  onTick: (v: boolean) => void;
+  locked: boolean;
+  edit: Edit | null;
+  onEdit: (e: Edit) => void;
+  onNavigate?: () => void;
+}) {
+  const { t } = useLingui();
+  const verbs = useVerbLabels();
+  const nav = onNavigate ? { onNavigate } : {};
+  const editing = edit?.open === true;
+  const name = edit?.name ?? row.editable?.name ?? '';
+
+  const title = (
+    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 font-semibold text-[14.5px] leading-snug">
+      <span className="font-semibold text-[11.5px] text-ink-3 uppercase tracking-[.06em]">
+        {verbs[row.verb]}
+      </span>
+      {row.count ? <Count n={row.count.n} of={row.count.of} /> : null}
+      <TargetView row={row} {...nav} />
+    </span>
+  );
+  const fieldList =
+    row.editable && edit ? (
+      <EditedFieldList row={row} edit={edit} />
+    ) : (
+      <FieldList row={row} fields={row.fields} />
+    );
 
   return (
     <li
@@ -370,11 +594,11 @@ function Row({
         </Checkbox>
       )}
       <div className={cn('min-w-0', !locked && 'pt-2.5')}>
-        {editing ? (
+        {editing && edit ? (
           <div className="grid gap-2">
             <TextField
               value={name}
-              onChange={(v) => onEdit({ name: v, quantity: edit.quantity })}
+              onChange={(v) => onEdit({ ...edit, name: v })}
               maxLength={200}
               isRequired
               className="grid gap-1"
@@ -387,13 +611,14 @@ function Row({
             </TextField>
             <TextField
               value={edit.quantity}
-              onChange={(v) => onEdit({ name, quantity: v.replace(/[^0-9٠-٩]/g, '') })}
+              onChange={(v) => onEdit({ ...edit, quantity: v.replace(/[^0-9٠-٩]/g, '') })}
               inputMode="numeric"
               className="grid gap-1"
             >
               <Label className="text-[12.5px] text-ink-3">{t`How many`}</Label>
               <Input className="min-h-11 w-28 rounded-lg border border-line bg-paper px-3 font-mono text-[15px] text-ink outline-none focus:border-ink" />
             </TextField>
+            <AddFields row={row} edit={edit} onEdit={onEdit} />
           </div>
         ) : (
           title
@@ -403,16 +628,7 @@ function Row({
           <Button
             variant="ghost"
             className="-ms-2 mt-1"
-            onPress={() =>
-              onEdit(
-                editing
-                  ? null
-                  : {
-                      name: row.editable?.name ?? '',
-                      quantity: String(row.editable?.quantity ?? 1),
-                    },
-              )
-            }
+            onPress={() => onEdit(edit ? { ...edit, open: !editing } : startEdit(row, true))}
           >
             {editing ? (
               <Trans>Done</Trans>
@@ -480,6 +696,8 @@ export function ConfirmCard({
   const rows = useMemo(() => cardRows(proposals), [proposals]);
   const [ticked, setTicked] = useState<ReadonlySet<string>>(() => new Set(rows.map((r) => r.key)));
   const [edits, setEdits] = useState<Record<string, Edit | null>>({});
+  const [putAll, setPutAll] = useState<MoveTarget>({ placeId: '' });
+  const addRows = rows.filter((r) => r.editable);
   const [outcome, setOutcome] = useState<Outcome>(() => initialOutcome(proposals));
   const batchId = proposals[0]?.batchId ?? '';
   const left = useSecondsLeft(outcome.kind === 'open' ? cardExpiry(proposals) : null);
@@ -530,16 +748,13 @@ export function ConfirmCard({
             .map((p) => {
               const kept = byProposal.get(p.id) ?? [];
               const all = rows.filter((r) => r.proposalId === p.id);
-              const edited = kept.some((r) => edits[r.key]);
+              const items: ConfirmItem[] = kept.map((r) => ({
+                index: r.item ?? 0,
+                ...changesOf(r, edits[r.key]),
+              }));
+              const edited = items.some((it) => Object.keys(it).length > 1);
               if (p.tool !== 'add_thing' || (kept.length === all.length && !edited))
                 return { id: p.id, argsHash: p.argsHash };
-              const items: ConfirmItem[] = kept.map((r) => {
-                const e = edits[r.key];
-                return {
-                  index: r.item ?? 0,
-                  ...(e ? { name: e.name.trim(), quantity: toNumber(e.quantity) } : {}),
-                };
-              });
               return { id: p.id, argsHash: p.argsHash, items };
             }),
         },
@@ -664,6 +879,25 @@ export function ConfirmCard({
             // biome-ignore lint/suspicious/noArrayIndexKey: one per conflicted row
             <ConflictLine key={i} conflict={c} proposals={proposals} />
           ))}
+        </div>
+      ) : null}
+
+      {state === 'open' && addRows.length > 1 && addRows[0] ? (
+        <div className="border-line border-t px-3 py-2.5">
+          <WherePicker
+            value={{ locationId: addRows[0].locationId, target: putAll }}
+            onChange={(v) => {
+              setPutAll(v.target);
+              setEdits((all) => {
+                const next = { ...all };
+                for (const r of addRows)
+                  next[r.key] = { ...(all[r.key] ?? startEdit(r, false)), where: v.target };
+                return next;
+              });
+            }}
+            allowOtherLocations={false}
+            label={t`Put all in…`}
+          />
         </div>
       ) : null}
 

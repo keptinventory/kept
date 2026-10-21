@@ -32,7 +32,9 @@ export function estimateCall(input: {
 }): CallEstimate {
   const each = input.images.map((i) => estimateImageTokens(input.kind, i.width, i.height));
   const inputTokens =
-    estimateTextTokens(input.promptText) + FRAMING_TOKENS + each.reduce((a, b) => a + b, 0);
+    estimateTextTokens(input.promptText, input.kind) +
+    FRAMING_TOKENS +
+    each.reduce((a, b) => a + b, 0);
   return {
     inputTokens,
     imageTokensEach: each.length ? Math.max(...each) : null,

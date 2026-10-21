@@ -287,6 +287,15 @@ export function mockEmbedding(text: string, dims = MOCK_EMBEDDING_DIMS): number[
     : mockVector(text, dims);
 }
 
+function askedDims(o: unknown): number | undefined {
+  const opts = (o ?? {}) as {
+    openai?: { dimensions?: unknown };
+    google?: { outputDimensionality?: unknown };
+  };
+  const n = opts.openai?.dimensions ?? opts.google?.outputDimensionality;
+  return typeof n === 'number' && Number.isInteger(n) && n > 0 ? n : undefined;
+}
+
 /** A mock embeddings model: one vector per value from `mockEmbedding`, `usage.tokens` from the
  * text length (one token per four characters). */
 export function createMockEmbeddingModel(
@@ -298,8 +307,10 @@ export function createMockEmbeddingModel(
     modelId,
     maxEmbeddingsPerCall: 100,
     supportsParallelCalls: false,
-    doEmbed: async ({ values }) => ({
-      embeddings: values.map((v) => mockEmbedding(v, dims)),
+    // A length asked for (OpenAI's `dimensions`, Google's `outputDimensionality`) is honoured,
+    // as those providers do.
+    doEmbed: async ({ values, providerOptions }) => ({
+      embeddings: values.map((v) => mockEmbedding(v, askedDims(providerOptions) ?? dims)),
       usage: { tokens: values.reduce((n, v) => n + Math.max(1, Math.ceil(v.length / 4)), 0) },
       warnings: [],
     }),

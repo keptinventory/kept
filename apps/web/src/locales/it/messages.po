@@ -25842,3 +25842,19 @@ msgstr "Ogni etichetta: codice QR, nome, posizione e ID breve"
 #: src/components/labels/start-cell.tsx
 msgid "Each label: QR code and short ID"
 msgstr "Ogni etichetta: codice QR e ID breve"
+
+#: src/components/ai/model-picker.tsx
+msgid "Type a model id instead."
+msgstr "Scrivi invece l’ID del modello."
+
+#: src/components/ai/model-picker.tsx
+msgid "free: shared, may be busy"
+msgstr "gratis: condiviso, può essere occupato"
+
+#: src/assistant/confirm-card.tsx
+msgid "not set"
+msgstr "non impostato"
+
+#: src/assistant/confirm-card.tsx
+msgid "Put all in…"
+msgstr "Metti tutto in…"

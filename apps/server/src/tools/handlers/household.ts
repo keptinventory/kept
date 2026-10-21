@@ -1,4 +1,4 @@
-import { pageSize, parseRef, type ThingRef } from '@kept/mcp';
+import { pageSize, type ThingRef } from '@kept/mcp';
 import { addDays } from '@kept/shared';
 import type pg from 'pg';
 import { LISTED_SOURCES, listAgenda } from '../../agenda/query.js';
@@ -6,7 +6,7 @@ import { undoableEventIds } from '../../audit/audited.js';
 import { decodeCursor } from '../../http/conventions.js';
 import { invalid, notFound } from '../../http/errors.js';
 import { returnLoan } from '../../lending/return.js';
-import { borrow, lend, type PersonInput } from '../../lending/service.js';
+import { borrow, lend } from '../../lending/service.js';
 import { unplacedOf } from '../../places/view.js';
 import { snoozeSchedule, todayIn } from '../../schedules/service.js';
 import { completeSchedule } from '../../schedules/services.js';
@@ -14,7 +14,7 @@ import { viewOf } from '../../things/view.js';
 import { createClaim, updateClaim } from '../../warranties/claims.js';
 import { createWarranty, defaultsFor } from '../../warranties/service.js';
 import { decodeToolCursor, encodeToolCursor, thingRefOf } from '../output.js';
-import { locationOfRef, targetIn, thingIn } from '../resolve.js';
+import { locationOfRef, personOf, targetIn, thingIn } from '../resolve.js';
 import type { Handler, Op } from '../types.js';
 
 // Step 4's tools (D124): lending, schedules, warranties and claims, and `upcoming` over the
@@ -43,25 +43,6 @@ export async function eventOf(op: Op, entityType: string, entityId: string) {
   const r = rows[0];
   if (!r) throw new Error(`no audit event for ${entityType} ${entityId}`);
   return { audit_event_id: r.id, undo_until: r.undoable_until?.toISOString() ?? null };
-}
-
-/** A person as the model names them: an id, else a person of the location's account with that
- * name (so "Murdock" twice is one person), else a new one by name (step 4, D11). */
-async function personOf(
-  client: pg.ClientBase,
-  locationId: string,
-  raw: string,
-): Promise<PersonInput> {
-  const ref = parseRef(raw);
-  if (ref?.kind === 'id') return { id: ref.id };
-  const { rows } = await client.query<{ id: string }>(
-    `SELECT pe.id FROM public.people pe
-       JOIN public.locations l ON l.owner_account_id = pe.owner_account_id
-      WHERE l.id = $1 AND kept.normalize(pe.display_name) = kept.normalize($2)
-      ORDER BY pe.created_at, pe.id LIMIT 1`,
-    [locationId, raw],
-  );
-  return rows[0] ? { id: rows[0].id } : { name: raw };
 }
 
 const scheduleLocation = async (client: pg.ClientBase, id: string) => {

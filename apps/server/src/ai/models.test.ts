@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { ListModelsError, listModels, splitForPicker } from './models.js';
 
@@ -72,6 +74,7 @@ describe('listModels: Groq (top-level input_modalities)', () => {
       text: true,
       embeddings: false,
       pricing: { prompt: '0.0000008', completion: '0.000004', cachedInput: '0.0000004' },
+      free: false,
     });
     const split = splitForPicker(models);
     expect(split.vision.map((m) => m.id)).toEqual(['qwen/qwen3.8-27b']);
@@ -102,7 +105,7 @@ describe('listModels: OpenRouter (architecture.input_modalities)', () => {
     ],
   };
 
-  it('leaves out :free, :batch, routers and models retiring within 30 days', async () => {
+  it('keeps :free models, marked free; leaves out :batch, routers and models retiring within 30 days', async () => {
     const { f } = stub({ 'https://openrouter.ai/api/v1/models': [200, body] });
     const models = await listModels(
       { kind: 'openrouter', baseUrl: null },
@@ -112,16 +115,86 @@ describe('listModels: OpenRouter (architecture.input_modalities)', () => {
     );
     expect(models.map((x) => x.id)).toEqual([
       'openai/gpt-6-luna',
+      'qwen/qwen3.8-27b:free',
       'bytedance-seed/seed-2.0-code',
       'typesafe/jev-router',
       'deepseek/text-only',
     ]);
+    expect(models.filter((x) => x.free).map((x) => x.id)).toEqual(['qwen/qwen3.8-27b:free']);
     expect(models.find((x) => x.id === 'typesafe/jev-router')?.pricing).toEqual({
       prompt: null,
       completion: null,
       cachedInput: null,
     });
     expect(models.find((x) => x.id === 'deepseek/text-only')?.vision).toBe(false);
+  });
+});
+
+describe('listModels: OpenRouter embeddings (GET /embeddings/models)', () => {
+  // Recorded 2026-10-21 from https://openrouter.ai/api/v1/embeddings/models (no key needed;
+  // trimmed to six of its 33 models). Docs:
+  // https://openrouter.ai/docs/api/api-reference/embeddings/list-all-embeddings-models
+  const recorded = JSON.parse(
+    readFileSync(
+      fileURLToPath(
+        new URL('../../test/fixtures/openrouter/embeddings-models.json', import.meta.url),
+      ),
+      'utf8',
+    ),
+  ) as unknown;
+
+  it('adds the embeddings listing to the chat listing, free ones marked', async () => {
+    const { f, calls } = stub({
+      'https://openrouter.ai/api/v1/models': [
+        200,
+        {
+          data: [
+            {
+              id: 'openai/gpt-6-luna',
+              context_length: 1_000_000,
+              architecture: { input_modalities: ['text', 'image'], output_modalities: ['text'] },
+            },
+          ],
+        },
+      ],
+      'https://openrouter.ai/api/v1/embeddings/models': [200, recorded],
+    });
+    const models = await listModels({ kind: 'openrouter', baseUrl: null }, 'k', f, now);
+    expect(calls.map((c) => c.url)).toEqual([
+      'https://openrouter.ai/api/v1/models',
+      'https://openrouter.ai/api/v1/embeddings/models',
+    ]);
+    const embeddings = splitForPicker(models).embeddings;
+    expect(embeddings.map((m) => [m.id, m.free])).toEqual([
+      ['liquid/lfm-2.5-embedding-350m:free', true],
+      ['nvidia/nemotron-3-embed-1b:free', true],
+      ['nvidia/llama-nemotron-embed-vl-1b-v2:free', true],
+      ['google/gemini-embedding-001', false],
+      ['openai/text-embedding-3-small', false],
+      ['qwen/qwen3-embedding-8b', false],
+    ]);
+    // Never offered for photos or the assistant.
+    expect(splitForPicker(models).text.map((m) => m.id)).toEqual(['openai/gpt-6-luna']);
+    expect(splitForPicker(models).vision.map((m) => m.id)).toEqual(['openai/gpt-6-luna']);
+  });
+
+  it('an embeddings listing that fails leaves the chat listing as it is', async () => {
+    const { f } = stub({
+      'https://openrouter.ai/api/v1/models': [
+        200,
+        {
+          data: [
+            {
+              id: 'deepseek/text-only',
+              architecture: { input_modalities: ['text'], output_modalities: ['text'] },
+            },
+          ],
+        },
+      ],
+      'https://openrouter.ai/api/v1/embeddings/models': [503, { error: 'x' }],
+    });
+    const models = await listModels({ kind: 'openrouter', baseUrl: null }, 'k', f, now);
+    expect(models.map((m) => m.id)).toEqual(['deepseek/text-only']);
   });
 });
 
@@ -141,7 +214,7 @@ describe('listModels: kinds without modality metadata', () => {
     });
     const models = await listModels({ kind: 'openai', baseUrl: null }, 'sk-x', f, now);
     expect(models).toEqual([
-      { id: 'gpt-6-luna', vision: null, text: null, embeddings: null, pricing: null },
+      { id: 'gpt-6-luna', vision: null, text: null, embeddings: null, pricing: null, free: false },
     ]);
   });
 
@@ -175,8 +248,15 @@ describe('listModels: kinds without modality metadata', () => {
       'anthropic-version': '2023-06-01',
     });
     expect(models).toEqual([
-      { id: 'claude-sonnet-5', vision: true, text: true, embeddings: false, pricing: null },
-      { id: 'claude-old', vision: null, text: true, embeddings: false, pricing: null },
+      {
+        id: 'claude-sonnet-5',
+        vision: true,
+        text: true,
+        embeddings: false,
+        pricing: null,
+        free: false,
+      },
+      { id: 'claude-old', vision: null, text: true, embeddings: false, pricing: null, free: false },
     ]);
   });
 
@@ -206,8 +286,22 @@ describe('listModels: kinds without modality metadata', () => {
     const models = await listModels({ kind: 'google', baseUrl: null }, 'test-key-google', f, now);
     expect(calls[0]?.headers).toEqual({ 'x-goog-api-key': 'test-key-google' });
     expect(models).toEqual([
-      { id: 'gemini-3.8-flash', vision: null, text: true, embeddings: false, pricing: null },
-      { id: 'gemini-embedding-001', vision: null, text: false, embeddings: true, pricing: null },
+      {
+        id: 'gemini-3.8-flash',
+        vision: null,
+        text: true,
+        embeddings: false,
+        pricing: null,
+        free: false,
+      },
+      {
+        id: 'gemini-embedding-001',
+        vision: null,
+        text: false,
+        embeddings: true,
+        pricing: null,
+        free: false,
+      },
     ]);
     expect(splitForPicker(models).embeddings.map((m) => m.id)).toEqual(['gemini-embedding-001']);
   });
@@ -235,7 +329,9 @@ describe('listModels: kinds without modality metadata', () => {
         f,
         now,
       ),
-    ).toEqual([{ id: 'llava:13b', vision: null, text: null, embeddings: null, pricing: null }]);
+    ).toEqual([
+      { id: 'llava:13b', vision: null, text: null, embeddings: null, pricing: null, free: false },
+    ]);
     expect(calls[0]?.headers).toEqual({});
   });
 });

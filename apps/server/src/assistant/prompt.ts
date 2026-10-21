@@ -72,19 +72,32 @@ export function instructionsFor(p: PromptInput): string {
 /** A `pattern` longer than this (a UUID's, an ISO date's) is left out of what the model sees. */
 const MAX_PATTERN_CHARS = 40;
 
+/** Bounds the zod validator checks anyway (runTool validates again): left out of what the
+ * model reads. */
+const BOUNDS = new Set([
+  'minLength',
+  'maxLength',
+  'minItems',
+  'maxItems',
+  'minimum',
+  'maximum',
+  'propertyNames',
+]);
+
 /**
  * The JSON Schema as sent to the provider, without what costs tokens and tells the model nothing
- * its `format` and description don't: `$schema`, and long regular expressions. Every request
- * carries every tool, and a free-tier plan's tokens-per-minute limit counts them (Groq's 8,000
- * for `openai/gpt-oss-120b`, the maintainer's instance, 2026-10-07). The zod validator still
- * checks the full contract.
+ * its `format` and description don't: `$schema`, long regular expressions, and lengths, counts
+ * and ranges (a name's 200 characters, a list's 20 items). Every request
+ * carries its step's tools (select.ts), and a free-tier plan's tokens-per-minute limit counts
+ * them (Groq's 8,000 for `openai/gpt-oss-120b`). The zod validator still checks the full
+ * contract.
  */
 export function compactSchema(v: unknown): unknown {
   if (Array.isArray(v)) return v.map(compactSchema);
   if (!v || typeof v !== 'object') return v;
   const out: Record<string, unknown> = {};
   for (const [k, x] of Object.entries(v)) {
-    if (k === '$schema') continue;
+    if (k === '$schema' || BOUNDS.has(k)) continue;
     if (k === 'pattern' && typeof x === 'string' && x.length > MAX_PATTERN_CHARS) continue;
     out[k] = compactSchema(x);
   }

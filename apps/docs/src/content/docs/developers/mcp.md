@@ -55,6 +55,14 @@ User-written strings in outputs sit under an `untrusted` key. Lists default to 2
 | `list_moves`, `get_move` | read | moving (MCP only) |
 | `start_move`, `add_box`, `pack_into_box`, `set_box_status`, `unpack_box` | write | moving (MCP only) |
 
+**A thing's fields.** `add_thing`'s items and `update_thing`'s `fields` share one field list
+(`thingFields` in `tools.ts`): every field of `POST /things` (`CreateBody`) and
+`PATCH /things/:id` (`UpdateFields`) in `apps/server/src/things/validate.ts`, plus a consumable's
+minimum (its own route). `apps/server/src/tools/fields-parity.test.ts` fails when either body gains
+a field the tools don't take; its exclusions (the client id, the per-item location, the template
+shortcut) say why. The handlers write through `insertThing()` and `updateThing()`, so the money
+gate, the type's custom-field validation and the audit are the routes' own.
+
 **No tool trashes, deletes, merges, transfers ownership, reveals a secret, uploads a file or runs
 SQL** (D58, D63, D124). `packages/mcp/src/tools.test.ts` walks the names and fails on one that
 does. A tool that needs a file, such as a receipt, returns a short link from `attach_link` that

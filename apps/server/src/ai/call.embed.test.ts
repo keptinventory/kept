@@ -8,10 +8,11 @@ import { type EmbedRequest, embedValues } from './call.js';
 import type { Price } from './cost.js';
 import { capRow } from './memory.js';
 import { createMockEmbeddingModel, mockVector } from './mock.js';
+import { embeddingDimensionsOption, embeddingModelFor } from './providers.js';
 
 const MARK = 'EMBEDMARKER4417';
 
-function counting(opts: { tokens?: number; fail?: Error; max?: number } = {}) {
+function counting(opts: { tokens?: number; fail?: Error; max?: number; dims?: number } = {}) {
   let requests = 0;
   const seen: { values: string[]; providerOptions?: unknown }[] = [];
   const model = new MockEmbeddingModelV4({
@@ -23,7 +24,7 @@ function counting(opts: { tokens?: number; fail?: Error; max?: number } = {}) {
       seen.push({ values: o.values, providerOptions: o.providerOptions });
       if (opts.fail) throw opts.fail;
       return {
-        embeddings: o.values.map((v) => mockVector(v, 4)),
+        embeddings: o.values.map((v) => mockVector(v, opts.dims ?? 4)),
         ...(opts.tokens === undefined ? {} : { usage: { tokens: opts.tokens } }),
         warnings: [],
       };
@@ -49,7 +50,7 @@ function req(over: Partial<EmbedRequest> = {}): EmbedRequest {
 
 describe('embedValues', () => {
   it('three values: one request, one row, tokens from usage, no value or vector in the ledger', async () => {
-    const m = counting({ tokens: 12 });
+    const m = counting({ tokens: 12, dims: 768 });
     const { rt, ledger, logs } = kit({ runtime: { embeddingModelFactory: () => m.model } });
     const r = await embedValues(rt, req({ dimensions: 768 }));
     expect(m.requests()).toBe(1);
@@ -171,5 +172,70 @@ describe('embedValues', () => {
     expect(r.vectors[0]).toEqual(r.vectors[1]);
     expect(r.vectors[0]).not.toEqual(r.vectors[2]);
     expect(createMockEmbeddingModel().modelId).toBe('kept-mock-embed');
+  });
+});
+
+describe('vectors of one length only', () => {
+  const sized = (lengths: number[]) =>
+    new MockEmbeddingModelV4({
+      modelId: 'm',
+      maxEmbeddingsPerCall: 64,
+      supportsParallelCalls: true,
+      doEmbed: async (o) => ({
+        embeddings: o.values.map((_, i) => Array.from({ length: lengths[i] ?? 4 }, () => 0.5)),
+        warnings: [],
+      }),
+    });
+
+  it('a response mixing lengths fails, nothing returned to store', async () => {
+    const { rt, ledger } = kit({ runtime: { embeddingModelFactory: () => sized([4, 4, 8]) } });
+    const r = await embedValues(rt, req());
+    expect(r).toMatchObject({ status: 'failed', errorCode: 'vector_length', retryable: false });
+    expect(ledger.rows[0]).toMatchObject({ outcome: 'schema_invalid', errorCode: 'vector_length' });
+  });
+
+  it('a length other than the one asked for fails: the model ignored `dimensions`', async () => {
+    const { rt } = kit({ runtime: { embeddingModelFactory: () => sized([1024, 1024, 1024]) } });
+    const r = await embedValues(rt, req({ dimensions: 768 }));
+    expect(r).toMatchObject({ status: 'failed', errorCode: 'vector_length' });
+  });
+});
+
+describe('OpenRouter embeddings', () => {
+  it('POSTs /api/v1/embeddings with the model and the values, never `dimensions`', async () => {
+    const sent: { url: string; body: unknown }[] = [];
+    const f = (async (url: string, init?: RequestInit) => {
+      sent.push({ url: String(url), body: JSON.parse(String(init?.body)) });
+      return new Response(
+        JSON.stringify({
+          object: 'list',
+          data: [{ object: 'embedding', index: 0, embedding: [0.1, 0.2, 0.3] }],
+          model: 'nvidia/nemotron-3-embed-1b:free',
+          usage: { prompt_tokens: 3, total_tokens: 3 },
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    }) as unknown as typeof fetch;
+    const m = embeddingModelFor(
+      { kind: 'openrouter', baseUrl: null, model: 'nvidia/nemotron-3-embed-1b:free' },
+      'test-key-openrouter',
+      f,
+    );
+    const { rt } = kit({ runtime: { embeddingModelFactory: () => m } });
+    const r = await embedValues(
+      rt,
+      req({
+        resolved: resolved('openrouter', { model: 'nvidia/nemotron-3-embed-1b:free' }),
+        values: ['Drill'],
+        ...(embeddingDimensionsOption('openrouter', 768) ? { dimensions: 768 } : {}),
+      }),
+    );
+    expect(r).toMatchObject({ status: 'ok', vectors: [[0.1, 0.2, 0.3]], usage: { tokens: 3 } });
+    expect(sent).toEqual([
+      {
+        url: 'https://openrouter.ai/api/v1/embeddings',
+        body: { model: 'nvidia/nemotron-3-embed-1b:free', input: ['Drill'] },
+      },
+    ]);
   });
 });

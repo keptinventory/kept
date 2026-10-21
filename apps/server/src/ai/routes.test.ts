@@ -393,17 +393,27 @@ describe('keys: PUT /api/v1/ai/providers/:scope', () => {
     expect(next).toMatchObject({ id: current.id, keyHint: 'Nw22' });
   });
 
-  it('refuses a model the provider does not list, except a custom id on a compatible server', async () => {
+  it('takes any model id typed, for every kind, and keeps it in the list as typed', async () => {
     const current = (
       ok(await call(t, '/api/v1/ai/providers', { as: ibrahim })).providers as Json[]
     ).find((p) => p.scope === 'account') as Json;
-    const res = await put(
-      ibrahim,
-      'account',
-      { models: { vision: 'made-up-model' } },
-      current.rowVersion as number,
+    const saved = ok(
+      await put(
+        ibrahim,
+        'account',
+        { models: { chat: 'vendor/unlisted-chat' } },
+        current.rowVersion as number,
+      ),
     );
-    expect(res.statusCode).toBe(400);
+    expect(saved.models).toMatchObject({ chat: 'vendor/unlisted-chat' });
+    const listed = ok(await call(t, `/api/v1/ai/providers/${current.id}/models`, { as: ibrahim }));
+    expect(listed.models).toContainEqual(
+      expect.objectContaining({ id: 'vendor/unlisted-chat', text: true, typed: true }),
+    );
+    // Typed on purpose: never "no longer offered".
+    expect(listed.chosenMissing).toEqual([]);
+    const now = (await accountKey()).rowVersion as number;
+    ok(await put(ibrahim, 'account', { models: { chat: 'openai/gpt-oss-120b' } }, now));
   });
 
   it('checks a typed base URL against private addresses, unless the instance allows them (Q9)', async () => {
@@ -501,19 +511,29 @@ describe('"Test connection" and the model list (D188, D202, L50)', () => {
     expect(sent).toContainEqual({ name: 'extract', data: { extractionId: waiting } });
   });
 
-  it('lists the models from the cache, and a refresh is audited but never a model call', async () => {
-    const key = await accountKey();
+  it('lists live when the picker opens, cached ten minutes; a refresh is live again, never a model call', async () => {
+    const mine = ok(await put(talia, 'me', { apiKey: groqKey('Li44') }));
+    // A stored snapshot is never what the picker shows.
+    await own(
+      db,
+      `UPDATE public.ai_providers SET model_list = '[{"id": "stale-model", "vision": true, "text": true, "embeddings": false, "visionSource": "listing"}]'::jsonb WHERE id = $1`,
+      [mine.id],
+    );
     const calls = async () =>
       (await own<{ n: number }>(db, 'SELECT count(*)::int AS n FROM public.llm_calls'))[0]?.n;
     const n = await calls();
-    const cached = ok(await call(t, `/api/v1/ai/providers/${key.id}/models`, { as: ibrahim }));
-    expect(cached.models).toEqual([
+    const before = fetched.length;
+    const live = ok(await call(t, `/api/v1/ai/providers/${mine.id}/models`, { as: talia }));
+    expect(fetched.length).toBe(before + 1);
+    expect(live.models).toEqual([
       {
         id: RECOMMENDED.model,
         vision: true,
         text: true,
         embeddings: false,
         visionSource: 'listing',
+        free: false,
+        typed: false,
       },
       {
         id: 'openai/gpt-oss-120b',
@@ -521,15 +541,23 @@ describe('"Test connection" and the model list (D188, D202, L50)', () => {
         text: true,
         embeddings: false,
         visionSource: 'listing',
+        free: false,
+        typed: false,
       },
     ]);
-    expect(cached.chosenMissing).toEqual([]);
+    expect(live.chosenMissing).toEqual([]);
+    // Opened again within ten minutes: the server's short cache, no listing call.
+    const again = ok(await call(t, `/api/v1/ai/providers/${mine.id}/models`, { as: talia }));
+    expect(fetched.length).toBe(before + 1);
+    expect(again.fetchedAt).toBe(live.fetchedAt);
     const fresh = ok(
-      await call(t, `/api/v1/ai/providers/${key.id}/models?refresh=1`, { as: ibrahim }),
+      await call(t, `/api/v1/ai/providers/${mine.id}/models?refresh=1`, { as: talia }),
     );
-    expect(fresh.fetchedAt).not.toBe(cached.fetchedAt);
+    expect(fetched.length).toBe(before + 2);
+    expect(fresh.fetchedAt).not.toBe(live.fetchedAt);
     expect(await calls()).toBe(n);
     expect((await auditRows('ai.provider_models')).length).toBeGreaterThan(0);
+    gone(await call(t, `/api/v1/ai/providers/${mine.id}`, { as: talia, method: 'DELETE' }));
   });
 
   it('flags a chosen model the provider no longer lists, in the list and the status line', async () => {

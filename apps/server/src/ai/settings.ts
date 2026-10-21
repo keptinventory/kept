@@ -76,8 +76,11 @@ export const PutProviderBody = z.object({
 });
 export type PutProviderBody = z.infer<typeof PutProviderBody>;
 
-/** One model in the cached list (`ai_providers.model_list`): the listing's facts, plus what a
- * Test call settled (`visionSource: 'test'`) and the listing's own prices (for the prefill). */
+/** One model in the stored list (`ai_providers.model_list`): the listing's facts, plus what a
+ * Test call settled (`visionSource: 'test'`), the listing's own prices (for the prefill), and the
+ * ids an admin typed that the listing doesn't name (`typed`). The picker never reads it: it
+ * lists live (api.ts); the price prefill, the status line's "model missing" and Test's vision
+ * settlement do. */
 export type StoredModel = {
   id: string;
   vision: boolean | null;
@@ -85,6 +88,8 @@ export type StoredModel = {
   embeddings: boolean;
   visionSource: 'listing' | 'test' | null;
   pricing?: ListedModel['pricing'];
+  free?: boolean;
+  typed?: boolean;
 };
 
 export const ModelListingSchema = z.object({
@@ -95,6 +100,10 @@ export const ModelListingSchema = z.object({
       text: z.boolean(),
       embeddings: z.boolean(),
       visionSource: z.enum(['listing', 'test']).nullable(),
+      /** OpenRouter's `:free` variant: a shared pool, often busy. */
+      free: z.boolean(),
+      /** An id an admin typed that the listing doesn't name. */
+      typed: z.boolean(),
     }),
   ),
   fetchedAt: z.string().nullable(),
@@ -267,7 +276,7 @@ export function storedModels(listed: ListedModel[], previous: StoredModel[] | nu
   const settled = new Map(
     (previous ?? []).filter((m) => m.visionSource === 'test').map((m) => [m.id, m.vision]),
   );
-  return listed.map((m) => {
+  const out: StoredModel[] = listed.map((m) => {
     const tested = settled.get(m.id);
     const vision = m.vision ?? tested ?? null;
     return {
@@ -277,8 +286,47 @@ export function storedModels(listed: ListedModel[], previous: StoredModel[] | nu
       embeddings: m.embeddings === true,
       visionSource: m.vision !== null ? 'listing' : tested !== undefined ? 'test' : null,
       ...(m.pricing ? { pricing: m.pricing } : {}),
+      ...(m.free ? { free: true } : {}),
     };
   });
+  // Typed ids stay until the listing names them.
+  const ids = new Set(out.map((m) => m.id));
+  for (const m of previous ?? []) if (m.typed && !ids.has(m.id)) out.push(m);
+  return out;
+}
+
+/** The list with an entry for every chosen model it doesn't name, marked typed, so a model the
+ * admin typed is never "no longer offered". */
+export function withTyped(list: StoredModel[] | null, models: Models): StoredModel[] | null {
+  const ids = new Set((list ?? []).map((m) => m.id));
+  const added: StoredModel[] = [];
+  for (const slot of ['vision', 'chat', 'embeddings'] as const) {
+    const id = models[slot];
+    if (!id || ids.has(id)) continue;
+    ids.add(id);
+    added.push({
+      id,
+      vision: slot === 'vision' ? null : false,
+      text: slot !== 'embeddings',
+      embeddings: slot === 'embeddings',
+      visionSource: null,
+      typed: true,
+    });
+  }
+  return added.length ? [...(list ?? []), ...added] : list;
+}
+
+/** A stored model as the picker's listing gives it. */
+export function listingModel(m: StoredModel): z.infer<typeof ModelListingSchema>['models'][number] {
+  return {
+    id: m.id,
+    vision: m.vision,
+    text: m.text,
+    embeddings: m.embeddings,
+    visionSource: m.visionSource,
+    free: m.free === true,
+    typed: m.typed === true,
+  };
 }
 
 /** KEPT_AI_MOCK: a listing made of the kind's defaults, so a dev or e2e run needs no network. */
@@ -294,6 +342,7 @@ function mockListing(kind: ProviderKind): ListedModel[] {
       text: over.text ?? had?.text ?? true,
       embeddings: over.embeddings ?? had?.embeddings ?? false,
       pricing: null,
+      free: false,
     });
   };
   add(d.extraction, { vision: true, text: true });
@@ -348,8 +397,8 @@ export function chosenMissing(
 }
 
 /**
- * The models a provider gets (D202, D206). Asked-for models must be in the list (a custom id
- * only on `openai_compatible`; with no list at all nothing can be checked). Otherwise a new key or
+ * The models a provider gets (D202, D206). An asked-for model is taken as typed, for every kind:
+ * the listing can lag or hide models, and Test settles whether it works. Otherwise a new key or
  * kind gets the kind's defaults where the list offers them (a Groq key gets RECOMMENDED's model
  * for photos), else the first listed vision and text models; an unchanged provider keeps its own.
  */
@@ -368,9 +417,6 @@ export function chooseModels(input: {
     for (const slot of ['vision', 'chat', 'embeddings'] as const) {
       const id = requested[slot];
       if (id === undefined) continue;
-      if (kind !== 'openai_compatible' && ids && ids.size > 0 && !ids.has(id)) {
-        throw invalid(`${id} isn't in the provider's model list. Refresh the list and pick again.`);
-      }
       out[slot] = id;
     }
     return out;

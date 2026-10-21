@@ -25842,3 +25842,19 @@ msgstr "كل ملصق: رمز QR والاسم والمكان والمعرّف ا
 #: src/components/labels/start-cell.tsx
 msgid "Each label: QR code and short ID"
 msgstr "كل ملصق: رمز QR والمعرّف القصير"
+
+#: src/components/ai/model-picker.tsx
+msgid "Type a model id instead."
+msgstr "اكتب معرّف النموذج بدلًا من ذلك."
+
+#: src/components/ai/model-picker.tsx
+msgid "free: shared, may be busy"
+msgstr "مجاني: مشترك، وقد يكون مشغولًا"
+
+#: src/assistant/confirm-card.tsx
+msgid "not set"
+msgstr "غير محدد"
+
+#: src/assistant/confirm-card.tsx
+msgid "Put all in…"
+msgstr "ضع الكل في…"

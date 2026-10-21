@@ -26,7 +26,7 @@ import { providerKeyAad } from '../ai/db-keys.js';
 import { createAiDeps } from '../ai/routes.js';
 import { type Keyring, seal } from '../crypto/envelope.js';
 import { type LoopDeps, RetryTurn, runTurn } from './loop.js';
-import { argsHash, confirmProposals } from './proposals.js';
+import { argsHash, type ConfirmItem, confirmProposals } from './proposals.js';
 import { turnJobData } from './turn-job.js';
 
 vi.setConfig({ testTimeout: 60_000 });
@@ -295,6 +295,54 @@ describe('a question with a tool step and an answer', () => {
     } finally {
       await own(db, 'DELETE FROM public.ai_provider_limits WHERE provider_id = $1', [homeProvider]);
     }
+  });
+
+  it('under an 8,000-a-minute limit the first request is sent whole, with the question’s tools', async () => {
+    await own(
+      db,
+      `INSERT INTO public.ai_provider_limits (provider_id, limit_tokens, remaining_tokens, reset_at,
+                                              updated_at)
+       VALUES ($1, 8000, 8000, now() + interval '1 minute', now())`,
+      [homeProvider],
+    );
+    try {
+      const { turnId } = await ask(louis, 'Are you working?', { kind: 'location', id: home.id });
+      script.push(answer('Yes.'));
+      expect(await run(louis, turnId)).toEqual({ status: 'done' });
+      expect(prompts.at(-1)?.maxOutputTokens).toBe(
+        ASSISTANT_OUTPUT.maxTokens + REASONING_ALLOWANCE.low,
+      );
+      const offered = prompts.at(-1)?.tools?.map((x) => x.name) ?? [];
+      expect(offered).toEqual(expect.arrayContaining(['where_is', 'search_things', 'add_thing']));
+      expect(offered).not.toContain('lend_thing');
+    } finally {
+      await own(db, 'DELETE FROM public.ai_provider_limits WHERE provider_id = $1', [homeProvider]);
+    }
+  });
+
+  it('a tool the model asks for and was not offered is offered on the next step', async () => {
+    const { turnId } = await ask(louis, 'Where is the HDMI cable?', {
+      kind: 'location',
+      id: home.id,
+    });
+    script.push(
+      calls({ id: 'n1', name: 'thing_history', input: { thing_id: hdmi.id } }),
+      answer('Nothing happened to it.'),
+    );
+    expect(await run(louis, turnId)).toEqual({ status: 'done' });
+    expect(prompts[0]?.tools?.map((x) => x.name)).not.toContain('thing_history');
+    expect(prompts[1]?.tools?.map((x) => x.name)).toContain('thing_history');
+    const [result] = await own<{ output: { error: string; hint: string } }>(
+      db,
+      `SELECT r.output FROM public.assistant_tool_results r
+         JOIN public.assistant_messages m ON m.id = r.message_id
+        WHERE m.turn_id = $1 AND r.call_id = 'n1'`,
+      [turnId],
+    );
+    expect(result?.output).toEqual({
+      error: 'tool_input',
+      hint: 'That tool is offered from the next step: call it again.',
+    });
   });
 
   it('a step after touching two owners’ locations is paid by the asker’s own cascade (D167)', async () => {
@@ -685,6 +733,97 @@ describe('writes are proposals the person confirms (D22, D179)', () => {
       { name: 'Paint can', quantity: 2 },
     ]);
     expect(await own(db, `SELECT 1 FROM public.places WHERE name = 'Back wall'`)).toEqual([]);
+  });
+
+  it('an add card’s edits: where, type, colour and condition; a place elsewhere refused; undoable', async () => {
+    const furniture = await builtinType(db, 'furniture');
+    const propose = async () => {
+      const { turnId } = await ask(louis, 'Add a kettle and a mug', {
+        kind: 'location',
+        id: garage.id,
+      });
+      script.push(
+        calls({
+          id: 'add',
+          name: 'add_thing',
+          input: {
+            location_id: garage.id,
+            items: [
+              { name: 'Kettle', type: 'Kettlething' },
+              { name: 'Mug', type: 'Furniture', place_id: box3 },
+            ],
+          },
+        }),
+      );
+      expect(await run(louis, turnId)).toEqual({ status: 'done' });
+      const [p] = await own<{
+        id: string;
+        batch_id: string;
+        args_hash: string;
+        refs: Record<string, { kind: string; name: string; id?: string }>;
+      }>(
+        db,
+        'SELECT id, batch_id, args_hash, refs FROM public.assistant_proposals WHERE turn_id = $1',
+        [turnId],
+      );
+      if (!p) throw new Error('no proposal');
+      return p;
+    };
+    const p = await propose();
+    // The card names the type Kept matched, and none for a type it doesn't know.
+    expect(p.refs['type:Furniture']).toMatchObject({ kind: 'type', id: furniture });
+    expect(p.refs['type:Kettlething']).toBeUndefined();
+    const confirm = (q: typeof p, items: ConfirmItem[]) =>
+      confirmProposals(
+        { tools: loop.tools },
+        scopeOf(louis),
+        { batchId: q.batch_id, proposals: [{ id: q.id, argsHash: q.args_hash, items }] },
+        `req-${q.id}`,
+        'en',
+      ) as Promise<{ results: { status: string; audit?: { eventIds?: string[] } }[] }>;
+    const r = await confirm(p, [
+      { index: 0, placeId: box3, typeId: furniture, colour: 'Blue', condition: 'new' },
+      { index: 1, placeId: null, typeId: null },
+    ]);
+    expect(r.results[0]?.status).toBe('confirmed');
+    const made = await own<Record<string, unknown>>(
+      db,
+      `SELECT t.name, t.place_id = $2 AS in_box, p.is_unplaced AS unplaced, t.type_id, t.colour,
+              t.condition
+         FROM public.things t JOIN public.places p ON p.id = t.place_id
+        WHERE t.location_id = $1 AND t.name IN ('Kettle', 'Mug') AND t.deleted_at IS NULL
+        ORDER BY t.name`,
+      [garage.id, box3],
+    );
+    expect(made).toEqual([
+      {
+        name: 'Kettle',
+        in_box: true,
+        unplaced: false,
+        type_id: furniture,
+        colour: 'Blue',
+        condition: 'new',
+      },
+      { name: 'Mug', in_box: false, unplaced: true, type_id: null, colour: null, condition: null },
+    ]);
+    for (const id of [...(r.results[0]?.audit?.eventIds ?? [])].reverse()) {
+      ok(await call(t, `/api/v1/audit/${id}/undo`, { as: louis, body: {} }));
+    }
+    expect(
+      await own(
+        db,
+        `SELECT 1 FROM public.things WHERE location_id = $1 AND name IN ('Kettle', 'Mug') AND deleted_at IS NULL`,
+        [garage.id],
+      ),
+    ).toEqual([]);
+
+    // A place of another location is refused, and nothing is written.
+    const q = await propose();
+    const refused = await confirm(q, [{ index: 0, placeId: home.unplacedId }]);
+    expect(refused.results[0]?.status).toBe('failed');
+    expect(
+      await own(db, `SELECT 1 FROM public.things WHERE name = 'Kettle' AND deleted_at IS NULL`),
+    ).toEqual([]);
   });
 
   it('a log_service card names the consumable each line takes stock from (D236)', async () => {

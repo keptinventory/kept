@@ -1,4 +1,4 @@
-import { CONTEXT_KINDS, TURN_LIMITS } from '@kept/shared';
+import { CONDITIONS, CONTEXT_KINDS, TURN_LIMITS } from '@kept/shared';
 import { z } from 'zod';
 import { requireScope } from '../auth/http.js';
 import { withScope } from '../db/scope.js';
@@ -55,6 +55,12 @@ const ConfirmBodySchema = z.object({
               index: z.number().int().min(0).max(19),
               name: z.string().trim().min(1).max(200).optional(),
               quantity: z.number().int().min(1).max(100_000).optional(),
+              // Where it goes (a place or a container of the location; null: Unplaced), its type
+              // (null: none), colour and condition (null: none), as the card set them.
+              placeId: z.uuid().nullable().optional(),
+              typeId: z.uuid().nullable().optional(),
+              colour: z.string().trim().max(60).nullable().optional(),
+              condition: z.enum(CONDITIONS).nullable().optional(),
             }),
           )
           .min(1)

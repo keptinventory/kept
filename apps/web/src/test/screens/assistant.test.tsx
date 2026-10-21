@@ -316,6 +316,85 @@ describe('the confirmation card (T20)', () => {
     );
   });
 
+  it('an add row always says where (Unplaced in plain words); picking a room sends it', async () => {
+    const { user, mock } = await renderApp(GARAGE);
+    const list = assistantMock(mock.state).proposals.find((p) => p.id === A.proposal.list);
+    if (!list) throw new Error('no list fixture');
+    list.args = {
+      ...list.args,
+      items: [
+        { name: 'Drill', place_id: INV_IDS.place.shelves },
+        { name: 'Torch', type: 'Lamp' },
+      ],
+    };
+    await assistantButton();
+    act(() => showThread(A.thread.list));
+    const s = await sheet();
+    const card = await within(s).findByRole('group', {
+      name: 'Changes for you to confirm, drawn by Kept',
+    });
+    const torch = within(card).getAllByRole('listitem')[1] as HTMLElement;
+    expect(within(torch).getByText('Unplaced')).toBeInTheDocument();
+    // A type Kept doesn't know is said, never dropped silently.
+    expect(within(torch).getByText(/not set/)).toBeInTheDocument();
+    await user.click(within(torch).getByRole('button', { name: 'Edit' }));
+    const where = within(torch).getByRole('combobox', { name: 'Where' });
+    await waitFor(
+      async () => {
+        await user.clear(where);
+        await user.type(where, 'Tool');
+        expect(screen.getByRole('option', { name: /Tool wall/ })).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+    await user.click(screen.getByRole('option', { name: /Tool wall/ }));
+    const colour = within(torch).getByRole('textbox', { name: 'Colour' });
+    await user.type(colour, 'Black');
+    await user.click(within(card).getByRole('button', { name: 'Confirm 2' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', assistantPaths.proposalsConfirm)?.body).toBeTruthy(),
+    );
+    const body = mock.lastCall('POST', assistantPaths.proposalsConfirm)?.body as ConfirmBody;
+    expect(body.proposals[0]?.items).toEqual([
+      { index: 0 },
+      { index: 1, placeId: INV_IDS.place.toolWall, colour: 'Black' },
+    ]);
+  });
+
+  it('“Put all in…” sets where for every row of the card', async () => {
+    const { user, mock } = await renderApp(GARAGE);
+    const list = assistantMock(mock.state).proposals.find((p) => p.id === A.proposal.list);
+    if (!list) throw new Error('no list fixture');
+    list.args = { ...list.args, items: [{ name: 'Drill' }, { name: 'Torch' }] };
+    await assistantButton();
+    act(() => showThread(A.thread.list));
+    const s = await sheet();
+    const card = await within(s).findByRole('group', {
+      name: 'Changes for you to confirm, drawn by Kept',
+    });
+    const all = within(card).getByRole('combobox', { name: 'Put all in…' });
+    // Typed again until the location's places have loaded.
+    await waitFor(
+      async () => {
+        await user.clear(all);
+        await user.type(all, 'Shel');
+        expect(screen.getByRole('option', { name: /Shelves/ })).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+    await user.click(screen.getByRole('option', { name: /Shelves/ }));
+    expect(within(card).getAllByText('Shelves').length).toBeGreaterThanOrEqual(2);
+    await user.click(within(card).getByRole('button', { name: 'Confirm 2' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', assistantPaths.proposalsConfirm)?.body).toBeTruthy(),
+    );
+    const body = mock.lastCall('POST', assistantPaths.proposalsConfirm)?.body as ConfirmBody;
+    expect(body.proposals[0]?.items).toEqual([
+      { index: 0, placeId: INV_IDS.place.shelves },
+      { index: 1, placeId: INV_IDS.place.shelves },
+    ]);
+  });
+
   it('defaults a 30-row card to all ticked, narrows it, and locks at zero', async () => {
     const { user, mock } = await renderApp(GARAGE);
     const list = assistantMock(mock.state).proposals.find((p) => p.id === A.proposal.list);

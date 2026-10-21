@@ -16,13 +16,13 @@ service of its own.
 | **OpenAI** | yes | yes | yes |
 | **Anthropic** | yes | yes | no embeddings model |
 | **Google** (Gemini) | yes | yes | yes |
-| **OpenRouter** | yes | yes | no embeddings model |
+| **OpenRouter** | yes | yes | yes (its embeddings models) |
 | **OpenAI-compatible** (Ollama, LM Studio, …) | the models you name | the models you name | if the server offers one |
 
 **Groq with `qwen/qwen3.8-27b`** is the recommendation: the cheapest reliable result Kept measured,
 about USD 0.004 a receipt (on synthetic test images, 2026-09-26). Pasting a Groq key selects it,
 and **Why?** on the page gives the figures. Kept suggests a model for each provider and task; you
-can pick any other from the provider's list under **Advanced**.
+can pick any other from the provider's list under **Advanced**, or type any model id.
 
 ## Where the key goes
 
@@ -45,8 +45,14 @@ never shows a saved key again, and **Replace key** swaps it. Before the first ke
 the instance admin has to save the [recovery kit](/admin/recovery-kit/): the key is a secret Kept
 must be able to recover from a backup.
 
-**Advanced** holds the provider and base URL, the model for each task (**Models**, loaded from the
-provider's own list), **Reasoning effort** (low by default), the limits and the prices.
+**Advanced** holds the provider and base URL, the model for each task (**Models**), **Reasoning
+effort** (low by default), the limits and the prices.
+
+**Models:** the list is the provider's own, asked for each time the picker opens (Kept reuses it
+for ten minutes; **Refresh list** asks again). OpenRouter's `:free` models are in it, marked
+"free: shared, may be busy": a shared pool that often answers "busy". Under each picker, **Custom
+model id** takes any id, for every provider, including one the list doesn't show; **Save and
+test** then checks it. When the provider doesn't answer the list, typing the id is what is left.
 
 ## What uses AI, and what it costs
 
@@ -100,8 +106,13 @@ does. Whoever set the cap gets **Resume now**, to raise it, remove it or keep pa
 own rate limit is not a pause: progress lines say "Waiting for Groq · about 20 s" and carry on.
 
 **One assistant request is kept under the provider's per-minute limit** once the provider has
-named it (Groq's free tier: 8,000 tokens a minute). Kept first asks for a shorter answer, then
-leaves out the oldest tool results from what it sends; the thread keeps them. A question that
+named it (Groq's free tier: 8,000 tokens a minute). Each request carries the tools the question is
+about: finding things and the everyday changes always, and lending, schedules, warranties,
+documents, vehicles, stock, history or places when the question (or the thread's last ones) names
+them, in any of Kept's five languages; a tool the model asks for that wasn't sent is sent on its
+next step. A first question with every module on comes to about 2,900 tokens before its answer's
+allowance. If a request is still too big, Kept sends fewer tools, then asks for a shorter answer,
+then leaves out the oldest tool results from what it sends; the thread keeps them. A question that
 still can't fit fails with "too large": a model or plan with a higher limit answers it.
 
 ## What is sent to the provider
@@ -123,8 +134,14 @@ places, set by the server's admin with `KEPT_EMBEDDINGS`
 ([configuration](/reference/configuration/)):
 
 - `provider` (the default): the location's provider, when it has an embeddings model (OpenAI,
-  Google, or an OpenAI-compatible server). Groq, Anthropic and OpenRouter don't, so with those,
-  search stays keyword only and says so.
+  Google, OpenRouter, or an OpenAI-compatible server). Pick one under **Advanced → Models →
+  Search**; OpenRouter has no default, and lists free ones. Groq and Anthropic have none, so with
+  those, search stays keyword only and says so.
+
+  Kept asks OpenAI and Google for 768-number vectors. Other models answer their own length, which
+  must be 2,000 or fewer: a model with longer vectors can't be used for search. A request that
+  comes back with vectors of another length than asked, or of two lengths, is refused and nothing
+  is stored.
 - `local`: a small model inside Kept, with no key and no per-call cost. Kept refuses this setting
   unless the local model's runtime is installed.
 - `off`: keyword search only.

@@ -6,10 +6,12 @@
  * through `refs`, which the server looked up when it stored the proposal; values that came from
  * the model (a new thing's name, a person, a note) are user-level text, shown isolated.
  *
- * `add_thing` (D213: a spoken list) gives one row per item, each its own tick and editable name
- * and quantity; a place it names that doesn't exist yet is on the item's row as a new place.
+ * `add_thing` (D213: a spoken list) gives one row per item, each its own tick. A row shows every
+ * field the thing will get: always where it goes (a place, a new place, or Unplaced) and its type
+ * (the one Kept matched to the model's words, or "not set"), then the rest the model gave. Its
+ * name, how many, where, type, colour and condition can be edited before confirming.
  */
-import type { Proposal, ProposalRef } from '@kept/shared';
+import type { Condition, Proposal, ProposalRef } from '@kept/shared';
 
 export type Val =
   | { t: 'text'; v: string }
@@ -20,7 +22,14 @@ export type Val =
   | { t: 'yes'; v: boolean }
   | { t: 'list'; v: string[] }
   /** D236: what a service line takes off a consumable's shelf; no name when Kept can't name it. */
-  | { t: 'take'; n: number; name?: string };
+  | { t: 'take'; n: number; name?: string }
+  /** add_thing: the location's Unplaced, in Kept's own words. */
+  | { t: 'unplaced' }
+  /** add_thing: the type Kept matched (its id, the model's words for it). */
+  | { t: 'type'; id: string; name: string }
+  /** add_thing: no type; `word` is what the model said when Kept knows no such type. */
+  | { t: 'notSet'; word?: string }
+  | { t: 'condition'; v: Condition };
 
 export type FieldKey =
   | 'from'
@@ -55,7 +64,19 @@ export type FieldKey =
   | 'until'
   | 'delta'
   | 'quantity'
-  | 'stock';
+  | 'stock'
+  | 'where'
+  | 'serial'
+  | 'barcode'
+  | 'colour'
+  | 'tags'
+  | 'owner'
+  | 'bought'
+  | 'price'
+  | 'shop'
+  | 'expires'
+  | 'keepAtLeast'
+  | 'manual';
 
 export type Field = { key: FieldKey; before?: Val; after: Val };
 
@@ -99,9 +120,29 @@ export type CardRow = {
   fields: Field[];
   /** The location the write happens in, and the destination's when a move crosses into another. */
   location: { from: string; to?: string };
-  /** add_thing items: what the person may edit before confirming (D213). */
-  editable?: { name: string; quantity: number };
+  /** The location the write runs in (its places are what an add row may pick). */
+  locationId: string;
+  /** add_thing items: what the person may edit before confirming (D213), as proposed. */
+  editable?: Editable;
 };
+
+/** Where an add_thing item goes, as proposed. */
+export type Where =
+  | { kind: 'place'; id: string }
+  /** A place the write makes (`new_place`). */
+  | { kind: 'new' }
+  | { kind: 'unplaced' };
+
+export type Editable = {
+  name: string;
+  quantity: number;
+  where: Where;
+  typeId: string | null;
+  colour: string;
+  condition: Condition | null;
+};
+
+const CONDITION_VALUES: readonly string[] = ['new', 'good', 'fair', 'poor', 'broken'];
 
 const str = (v: unknown): string | undefined =>
   typeof v === 'string' && v.trim() !== '' ? v : undefined;
@@ -133,7 +174,13 @@ export function rowsOf(p: Proposal): CardRow[] {
       : null;
   };
   const here = refs[p.locationId]?.name ?? '';
-  const base = { key: p.id, proposalId: p.id, tool: p.tool, location: { from: here } };
+  const base = {
+    key: p.id,
+    proposalId: p.id,
+    tool: p.tool,
+    locationId: p.locationId,
+    location: { from: here },
+  };
   const fields: Field[] = [];
   const push = (key: FieldKey, after: Val | undefined, before?: Val) => {
     if (after) fields.push(before ? { key, after, before } : { key, after });
@@ -161,13 +208,55 @@ export function rowsOf(p: Proposal): CardRow[] {
         };
         const np = rec(item.new_place);
         const newName = str(np.name);
+        const placeId = str(item.place_id);
+        let where: Where = { kind: 'unplaced' };
         if (newName) {
           const parent = fullPath(ref(np.parent_id)) ?? (here ? [here] : []);
-          add('place', { t: 'path', v: [...parent, newName], isNew: true });
-        } else add('place', pathOf(item.place_id));
-        add('type', text(item.type));
+          add('where', { t: 'path', v: [...parent, newName], isNew: true });
+          where = { kind: 'new' };
+        } else if (placeId && ref(placeId)) {
+          add('where', pathOf(placeId));
+          const r = ref(placeId);
+          where = { kind: 'place', id: r?.id ?? placeId };
+        } else add('where', { t: 'unplaced' });
+        const typeWord = str(item.type);
+        const matched = typeWord ? refs[`type:${typeWord}`] : undefined;
+        const typeId =
+          str(item.type_id) ?? (matched?.kind === 'type' ? (matched.id ?? null) : null);
+        add(
+          'type',
+          typeId
+            ? { t: 'type', id: typeId, name: typeWord ?? '' }
+            : typeWord
+              ? { t: 'notSet', word: typeWord }
+              : { t: 'notSet' },
+        );
         add('brand', text(item.brand));
         add('model', text(item.model));
+        add('serial', text(item.serial));
+        add('barcode', text(item.barcode));
+        add('colour', text(item.colour));
+        const condition = str(item.condition);
+        const cond =
+          condition && CONDITION_VALUES.includes(condition) ? (condition as Condition) : null;
+        if (cond) add('condition', { t: 'condition', v: cond });
+        const list = (v: unknown): Val | undefined => {
+          const xs = Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+          return xs.length ? { t: 'list', v: xs } : undefined;
+        };
+        add('aliases', list(item.aliases));
+        add('tags', list(item.tags));
+        add('owner', text(item.belongs_to));
+        const buy = rec(item.purchase);
+        add('bought', date(buy.purchased_on));
+        add('price', money({ amount: buy.price, currency: buy.currency }));
+        add('shop', text(buy.shop));
+        add('expires', date(item.expires_on));
+        const min = num(item.keep_at_least);
+        if (min !== undefined) add('keepAtLeast', { t: 'num', v: min });
+        add('manual', text(item.manual_url));
+        const custom = Object.entries(rec(item.custom)).map(([k, v]) => `${k}: ${String(v)}`);
+        add('custom', custom.length ? { t: 'list', v: custom } : undefined);
         add('notes', text(item.notes));
         const name = str(item.name) ?? '';
         const quantity = num(item.quantity) ?? 1;
@@ -179,7 +268,14 @@ export function rowsOf(p: Proposal): CardRow[] {
           target: { kind: 'new', name },
           ...(quantity > 1 ? { count: { n: quantity } } : {}),
           fields: own,
-          editable: { name, quantity },
+          editable: {
+            name,
+            quantity,
+            where,
+            typeId,
+            colour: str(item.colour) ?? '',
+            condition: cond,
+          },
         };
       });
     }

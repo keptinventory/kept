@@ -130,8 +130,8 @@ higher. The part of Kept a tool needs is the name under **What to track**.
 | `thing_history` | read | | What happened to this thing, newest first: who did what and when. |
 | `find_documents` | read | | Where is the receipt, manual or warranty for something. |
 | `upcoming` | read | Reminders | What is due, overdue or expiring soon: schedules, warranties, loans and low stock. |
-| `add_thing` | change | | Add one or more things, with a new place if it doesn't exist yet. |
-| `update_thing` | change | | Change a thing's name, aliases, notes, brand, model, serial number, condition or fields. |
+| `add_thing` | change | | Add one or more things, with a new place if it doesn't exist yet, and every field the app's create sheet sets (see below). |
+| `update_thing` | change | | Change any of a thing's fields the app's edit form changes (see below); `null` clears one. |
 | `move_thing` | change | | Move a thing, or some of a quantity, to another place or container. |
 | `mark_seen` | change | | I just saw this thing where Kept says it is. |
 | `create_place` | change | | Add a place under another place, or at the top of the location. |
@@ -148,6 +148,17 @@ higher. The part of Kept a tool needs is the name under **What to track**.
 | `log_service` | change | | Record a service: date, who did it, total, lines (each may use stock from a consumable), and the schedules it completes. |
 | `log_fuel` | change | Fuel | Record a fill-up: amount, unit, cost, whether full, and the odometer. |
 | `adjust_stock` | change | Things you run out of | Add to or take from a consumable's stock. |
+
+**A thing's fields.** `add_thing` and `update_thing` take every field you can set on a thing in the
+app, each in its own field rather than in the notes: name, how many, type (by name, in English or
+Arabic, or by id), brand (made if new), model, serial number, barcode, colour, condition, notes,
+other names, tags (ones that exist), whose it is (a person, made if new), the manual's link,
+expiry and how many days before to remind, a consumable's minimum, and the type's own fields by
+key. `add_thing` also takes where it goes and the purchase (date, price of one with its currency,
+and the shop); `update_thing` also takes where it came from. A price needs Money on and a role that
+sees money, as in the app; a minimum needs **Things you run out of**. A type Kept doesn't know, or
+a tag that doesn't exist, is left out and the answer's `not_set` says so; the assistant's card
+shows it as "not set" with a picker.
 | `list_moves` | read | Moving house | Which moves there are, with how many boxes are packed, in transit and unpacked. |
 | `get_move` | read | Moving house | Where each box of a move is, and which numbers are still missing. |
 | `start_move` | change | Moving house | Start a move, to another location or between rooms of this one. |

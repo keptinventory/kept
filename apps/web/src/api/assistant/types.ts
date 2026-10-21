@@ -5,6 +5,7 @@
  */
 import type {
   AssistantContext,
+  Condition,
   ContextKind,
   Proposal,
   ProposalStatus,
@@ -101,7 +102,17 @@ export type TurnView = {
  * index in `args.items`, with the name or quantity they edited. Absent, every item is added as
  * proposed. The hash still binds the proposed `args`; the edits are the person's own words.
  */
-export type ConfirmItem = { index: number; name?: string; quantity?: number };
+/** An add_thing item kept on the card, with what the person edited: where it goes (a place or
+ * container of the location), its type (null: none), colour and condition (null: none). */
+export type ConfirmItem = {
+  index: number;
+  name?: string;
+  quantity?: number;
+  placeId?: string | null;
+  typeId?: string | null;
+  colour?: string | null;
+  condition?: Condition | null;
+};
 export type ConfirmBody = {
   batchId: string;
   proposals: { id: string; argsHash: string; items?: ConfirmItem[] }[];

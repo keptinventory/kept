@@ -58,6 +58,22 @@ application code reaches a key; `apps/server/src/ai/resolve.ts` states the same 
 Per task, the first scope with a model for that task wins: Groq has no embeddings model, so
 embeddings fall through.
 
+**Model lists** (`ai/models.ts`) are read live: `GET /api/v1/ai/providers/:id/models` asks the
+provider each time the picker opens and reuses the answer for ten minutes (`?refresh=1` asks
+again). It also writes `ai_providers.model_list`, which the price prefill, the status line's
+"model missing" and Test's vision settlement read; the picker never does. OpenRouter's embeddings
+models come from its second listing, `GET /api/v1/embeddings/models`, and `:free` models are
+marked `free`. Any model id may be saved for any kind; one the listing doesn't name is kept in
+`model_list` with `typed: true`, so it is never flagged as no longer offered.
+
+**Token estimates** (`estimateTextTokens` in `packages/shared/src/ai.ts`) count text the way a
+byte-pair tokenizer splits it: a word of up to six ASCII letters is a token, digits three to a
+token, punctuation three, other letters 2.6 characters a token. It was measured against OpenAI's
+`o200k` tokenizer (gpt-oss and OpenAI's current models) on the samples in
+`apps/server/test/fixtures/tokens/o200k.json`, made with tiktoken 0.12.0; `ai/estimate.test.ts`
+keeps it 0–20% high on each. Kinds whose tokenizer wasn't measured (Anthropic, Google, OpenRouter,
+an OpenAI-compatible server) get the higher of that and one token per 2.4 characters.
+
 ## One door: `callModel`
 
 `apps/server/src/ai/call.ts` exports `callModel`, and **no other file may call the SDK's
@@ -113,13 +129,25 @@ The tools are the MCP tool definitions (`TOOL_DEFS` from `@kept/mcp`), handled b
 `apps/server/src/tools/registry.ts`. Read tools run at once as the person. **Write tools never
 run**: each becomes a proposal card the person confirms. See [MCP](/developers/mcp/).
 
+A step does not send every tool: `assistant/select.ts` picks the core (finding things, add, update,
+move, mark seen) plus each topic the thread's last three questions name by keyword in the five
+languages, plus any tool the thread called. With a provider's per-minute limit known, the loop
+tries that set, then the latest question's alone, then the core, before trimming the output
+allowance and old tool results (`assistant/fit.ts`). `assistant/select.test.ts` checks the first
+request with every module on stays under Groq's free 8,000 tokens a minute, and that every tool
+the evaluation set's scripts call is offered for its question.
+
 ## Embeddings
 
 The source is the instance setting `embeddings_source`, set at boot from `KEPT_EMBEDDINGS`
 (`apps/server/src/embeddings/provider.ts`):
 
 - `provider` (the default): each location's resolved embeddings model, through `embedValues` in
-  `callModel`. A location with none is keyword-only.
+  `callModel`. A location with none is keyword-only. OpenAI and Google are asked for `EMBED_DIMS`
+  (768); OpenRouter (`POST /api/v1/embeddings`) and OpenAI-compatible servers answer their
+  model's own length, up to 2,000. `embedValues` refuses a response with vectors of another length
+  than asked, or of two lengths (`vector_length`), so a model key never holds vectors search
+  can't compare.
 - `off`: no embedding jobs; keyword search only.
 - `local` (an on-server model) is **not built in 1.0**: a trial of it failed on memory, so the server refuses `KEPT_EMBEDDINGS=local`.
 

@@ -1,0 +1,237 @@
+{
+  "data": [
+    {
+      "id": "liquid/lfm-2.5-embedding-350m:free",
+      "canonical_slug": "liquid/lfm-2.5-embedding-350m-20260818",
+      "hugging_face_id": "LiquidAI/LFM2.5-Embedding-350M",
+      "name": "LiquidAI: LFM2.5-Embedding-350M (free)",
+      "created": 1787077908,
+      "description": "LFM2.5-Embedding-350M is a text embedding model from Liquid AI. It produces 1,024-dimensional embeddings for retrieval and semantic search. Successful OpenRouter requests and embeddings may be retained and used to train...",
+      "context_length": 512,
+      "architecture": {
+        "modality": "text->embeddings",
+        "input_modalities": ["text"],
+        "output_modalities": ["embeddings"],
+        "tokenizer": "Other",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0",
+        "completion": "0"
+      },
+      "top_provider": {
+        "context_length": 512,
+        "max_completion_tokens": null,
+        "is_moderated": false
+      },
+      "per_request_limits": null,
+      "supported_parameters": [],
+      "default_parameters": {},
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": null,
+      "links": {
+        "details": "/api/v1/models/liquid/lfm-2.5-embedding-350m-20260818/endpoints"
+      }
+    },
+    {
+      "id": "nvidia/nemotron-3-embed-1b:free",
+      "canonical_slug": "nvidia/nemotron-3-embed-1b-20260716",
+      "hugging_face_id": null,
+      "name": "NVIDIA: Nemotron 3 Embed 1B (free)",
+      "created": 1784203294,
+      "description": "NVIDIA Nemotron 3 Embed 1B is an open text embedding model from NVIDIA, optimized for high-throughput, low-latency retrieval. It is suited for enterprise search, RAG, code retrieval, and agentic retrieval...",
+      "context_length": 32768,
+      "architecture": {
+        "modality": "text->embeddings",
+        "input_modalities": ["text"],
+        "output_modalities": ["embeddings"],
+        "tokenizer": "Other",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0",
+        "completion": "0"
+      },
+      "top_provider": {
+        "context_length": 32768,
+        "max_completion_tokens": null,
+        "is_moderated": false
+      },
+      "per_request_limits": null,
+      "supported_parameters": [],
+      "default_parameters": {
+        "temperature": null,
+        "top_p": null,
+        "top_k": null,
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null
+      },
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": null,
+      "links": {
+        "details": "/api/v1/models/nvidia/nemotron-3-embed-1b-20260716/endpoints"
+      }
+    },
+    {
+      "id": "nvidia/llama-nemotron-embed-vl-1b-v2:free",
+      "canonical_slug": "nvidia/llama-nemotron-embed-vl-1b-v2-20260224",
+      "hugging_face_id": "nvidia/llama-nemotron-embed-vl-1b-v2",
+      "name": "NVIDIA: Llama Nemotron Embed VL 1B V2 (free)",
+      "created": 1772045017,
+      "description": "The Llama Nemotron Embed VL 1B V2 embedding model is optimized for multimodal question-answering retrieval. The model can embed 'documents' in the form of image, text, or image and text...",
+      "context_length": 131072,
+      "architecture": {
+        "modality": "text+image->embeddings",
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["embeddings"],
+        "tokenizer": "Other",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0",
+        "completion": "0"
+      },
+      "top_provider": {
+        "context_length": 131072,
+        "max_completion_tokens": null,
+        "is_moderated": false
+      },
+      "per_request_limits": null,
+      "supported_parameters": [],
+      "default_parameters": {
+        "temperature": null,
+        "top_p": null,
+        "frequency_penalty": null
+      },
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": null,
+      "links": {
+        "details": "/api/v1/models/nvidia/llama-nemotron-embed-vl-1b-v2-20260224/endpoints"
+      }
+    },
+    {
+      "id": "google/gemini-embedding-001",
+      "canonical_slug": "google/gemini-embedding-001",
+      "hugging_face_id": "",
+      "name": "Google: Gemini Embedding 001",
+      "created": 1761943410,
+      "description": "gemini-embedding-001 provides a unified cutting edge experience across domains, including science, legal, finance, and coding. This embedding model has consistently held a top spot on the Massive Text Embedding Benchmark...",
+      "context_length": 20000,
+      "architecture": {
+        "modality": "text->embeddings",
+        "input_modalities": ["text"],
+        "output_modalities": ["embeddings"],
+        "tokenizer": "Gemini",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0.00000015",
+        "completion": "0",
+        "image": "0",
+        "audio": "0"
+      },
+      "top_provider": {
+        "context_length": 20000,
+        "max_completion_tokens": null,
+        "is_moderated": false
+      },
+      "per_request_limits": null,
+      "supported_parameters": [],
+      "default_parameters": {
+        "temperature": null,
+        "top_p": null,
+        "frequency_penalty": null
+      },
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": null,
+      "links": {
+        "details": "/api/v1/models/google/gemini-embedding-001/endpoints"
+      }
+    },
+    {
+      "id": "openai/text-embedding-3-small",
+      "canonical_slug": "openai/text-embedding-3-small",
+      "hugging_face_id": "",
+      "name": "OpenAI: Text Embedding 3 Small",
+      "created": 1761857455,
+      "description": "text-embedding-3-small is OpenAI's improved, more performant version of the ada embedding model. Embeddings are a numerical representation of text that can be used to measure the relatedness between two pieces...",
+      "context_length": 8192,
+      "architecture": {
+        "modality": "text->embeddings",
+        "input_modalities": ["text"],
+        "output_modalities": ["embeddings"],
+        "tokenizer": "Other",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0.00000002",
+        "completion": "0"
+      },
+      "top_provider": {
+        "context_length": 8192,
+        "max_completion_tokens": null,
+        "is_moderated": false
+      },
+      "per_request_limits": null,
+      "supported_parameters": [],
+      "default_parameters": {
+        "temperature": null,
+        "top_p": null,
+        "frequency_penalty": null
+      },
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": null,
+      "links": {
+        "details": "/api/v1/models/openai/text-embedding-3-small/endpoints"
+      }
+    },
+    {
+      "id": "qwen/qwen3-embedding-8b",
+      "canonical_slug": "qwen/qwen3-embedding-8b",
+      "hugging_face_id": "Qwen/Qwen3-Embedding-8B",
+      "name": "Qwen: Qwen3 Embedding 8B",
+      "created": 1761680622,
+      "description": "The Qwen3 Embedding model series is the latest proprietary model of the Qwen family, specifically designed for text embedding and ranking tasks. This series inherits the exceptional multilingual capabilities, long-text...",
+      "context_length": 40960,
+      "architecture": {
+        "modality": "text->embeddings",
+        "input_modalities": ["text"],
+        "output_modalities": ["embeddings"],
+        "tokenizer": "Other",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0.00000001",
+        "completion": "0"
+      },
+      "top_provider": {
+        "context_length": 40960,
+        "max_completion_tokens": 32000,
+        "is_moderated": false
+      },
+      "per_request_limits": null,
+      "supported_parameters": [],
+      "default_parameters": {
+        "temperature": null,
+        "top_p": null,
+        "frequency_penalty": null
+      },
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": null,
+      "links": {
+        "details": "/api/v1/models/qwen/qwen3-embedding-8b/endpoints"
+      }
+    }
+  ],
+  "total_count": 6,
+  "links": {
+    "next": null
+  }
+}

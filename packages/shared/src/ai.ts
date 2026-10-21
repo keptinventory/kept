@@ -65,9 +65,9 @@ export type DefaultModels = {
  * Suggested models per provider and task, read from each provider's own model docs on
  * 2026-09-26 (developers.openai.com/api/docs/models and /models/all; platform.claude.com
  * models overview; ai.google.dev/gemini-api/docs/models). Model lists go stale: these are
- * only the prefilled suggestion, and an admin can type any model name. Anthropic offers
- * no embeddings model; an OpenAI-compatible server (Ollama, LM Studio, OpenRouter) has no
- * default, so its admin names the model.
+ * only the prefilled suggestion, and an admin can type any model name. Anthropic and Groq offer
+ * no embeddings model; an OpenAI-compatible server (Ollama, LM Studio) has no default, so its
+ * admin names the model.
  *
  * - openai: `gpt-6-luna` is the docs' "most efficient model for focused, high-volume tasks";
  *   `gpt-6-sol` balances capability and cost for the assistant.
@@ -80,7 +80,10 @@ export type DefaultModels = {
  *   `openai/gpt-oss-120b` for the assistant. Groq lists no embeddings model.
  * - openrouter (D202, same source): `openai/gpt-6-luna`, the cheapest current major with
  *   structured outputs in its listing. Provisional: the test key had no credit, so no
- *   OpenRouter chat call has run yet. OpenRouter lists no embeddings model.
+ *   OpenRouter chat call has run yet. Its embeddings models are a separate listing
+ *   (`GET /api/v1/embeddings/models`, 33 models on 2026-10-21, three of them `:free`) served by
+ *   `POST /api/v1/embeddings`; the picker offers them. No default: no OpenRouter embeddings call
+ *   has run yet.
  */
 export const DEFAULT_MODELS: Readonly<Record<ProviderKind, DefaultModels>> = Object.freeze({
   openai: {
@@ -165,13 +168,45 @@ export const DATA_USE_NOTE_KEYS: Readonly<Record<ProviderKind, string>> = Object
   groq: 'ai.data_use.groq',
 });
 
+/** The pieces a byte-pair tokenizer splits text into before merging: ASCII words, digits in
+ * threes, punctuation runs, other letters (Arabic, accented), and whitespace. */
+const PIECES = /[A-Za-z]+|[0-9]{1,3}|[^\sA-Za-z0-9\u0080-\uffff]+|[\u0080-\uffff]+|\s+/g;
+
+/** The kinds whose tokenizer the estimate was measured against: o200k, which gpt-oss (Groq's
+ * assistant default) and OpenAI's current models use. */
+const MEASURED_KINDS: ReadonlySet<ProviderKind> = new Set(['groq', 'openai']);
+
+function pieceTokens(s: string): number {
+  let n = 0;
+  for (const [p] of s.matchAll(PIECES)) {
+    const c = p.charCodeAt(0);
+    if (c > 0x7f) n += Math.ceil(p.length / 2.6);
+    else if ((c | 0x20) >= 0x61 && (c | 0x20) <= 0x7a) n += Math.ceil(p.length / 6);
+    else if (c >= 0x30 && c <= 0x39) n += 1;
+    else if (p.trim() === '') n += p === ' ' ? 0 : 1;
+    else n += Math.ceil(p.length / 3);
+  }
+  return n;
+}
+
 /**
- * Text tokens, estimated high for pacing: one token per 2.4 UTF-16 code units, for every
- * language. Arabic runs denser than English per character, so one ratio errs on the safe side
- * for both. The settlement after the call uses the provider's real usage.
+ * Text tokens before a call; the settlement after it uses the provider's real usage.
+ *
+ * Counted the way a byte-pair tokenizer splits text: a word of up to six ASCII letters is one
+ * token (with the space before it), digits go three to a token, punctuation three, other
+ * letters 2.6 characters a token. Measured against o200k on fixed samples
+ * (apps/server/test/fixtures/tokens/o200k.json: an assistant request with every tool, tool
+ * results full of ids, interface text in the five languages), it lands 0–16% high on each. The
+ * old one-token-per-2.4-characters ratio read the assistant's first request 58% high on Groq,
+ * and ids 6% low.
+ *
+ * A kind whose tokenizer was not measured (Claude, Gemini, anything behind OpenRouter or an
+ * OpenAI-compatible server), or no kind, gets the higher of that count and one token per 2.4
+ * characters.
  */
-export function estimateTextTokens(s: string): number {
-  return Math.ceil(s.length / 2.4);
+export function estimateTextTokens(s: string, kind?: ProviderKind): number {
+  const pieces = pieceTokens(s);
+  return kind && MEASURED_KINDS.has(kind) ? pieces : Math.max(pieces, Math.ceil(s.length / 2.4));
 }
 
 function assertSize(w: number, h: number): void {

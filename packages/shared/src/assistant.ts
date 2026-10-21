@@ -122,10 +122,14 @@ export type Proposal = {
 };
 
 export type ProposalRef = {
-  kind: 'thing' | 'place' | 'location';
+  /** `type`: the type an add_thing item's type name matched, keyed `type:<the name>`. */
+  kind: 'thing' | 'place' | 'location' | 'type';
   name: string;
-  /** Place names from the location down to it (empty for a location). */
+  /** Place names from the location down to it (empty for a location or a type). */
   path: string[];
+  /** Its id, for a thing, a place or a type named by something other than its id (a short ID,
+   * a type's name). */
+  id?: string;
 };
 
 /** Threads are private and deleted after this many days without a new turn (D23). */
