@@ -185,8 +185,7 @@ The camera, installing the app, push and location need HTTPS:
 
 ## What's next
 
-- **Now:** [kits and "who has it"](https://github.com/keptinventory/kept/issues/170) · [stocktakes](https://github.com/keptinventory/kept/issues/172)
-- **Next:** [tags you can actually use](https://github.com/keptinventory/kept/issues/209) · [more barcode types and video](https://github.com/keptinventory/kept/issues/173)
+- **Now:** [more barcode types and video](https://github.com/keptinventory/kept/issues/173)
 - **Later:** [mobile apps](https://github.com/keptinventory/kept/issues/169) · [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197) · [graph view](https://github.com/keptinventory/kept/issues/207)
 
 [Full roadmap →](https://github.com/orgs/keptinventory/projects/1) · 👍 the themes you want most.
