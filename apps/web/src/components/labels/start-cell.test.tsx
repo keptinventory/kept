@@ -67,7 +67,7 @@ describe('the sheet preview', () => {
       code: null,
       name: null,
     });
-    expect(screen.getByText('Each label: QR code, name and short ID')).toBeInTheDocument();
+    expect(screen.getByText('Each label: QR code, name, where it is and short ID')).toBeInTheDocument();
   });
 
   it('a compact stock shows the QR and code only, and says so', async () => {

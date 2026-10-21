@@ -112,7 +112,7 @@ describe('the batch builder', () => {
     expect(cell.querySelector('[data-slot="preview-qr"]')).not.toBeNull();
     expect(within(cell).getByText('HDMI cable, 2 m')).toBeInTheDocument();
     expect(within(cell).getByText('7KQ‑4MZ')).toBeInTheDocument();
-    expect(screen.getByText('Each label: QR code, name and short ID')).toBeInTheDocument();
+    expect(screen.getByText('Each label: QR code, name, where it is and short ID')).toBeInTheDocument();
 
     await user.click(screen.getByRole('radio', { name: /A4 sheet · 65 labels/ }));
     const compact = screen.getByRole('radio', { name: 'Label 1, row 1, column 1: 7KQ4MZ' });

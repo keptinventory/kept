@@ -120,7 +120,7 @@ export function StartCellPicker({
       </div>
       <p className="m-0 text-small text-ink-2">
         {named ? (
-          <Trans>Each label: QR code, name and short ID</Trans>
+          <Trans>Each label: QR code, name, where it is and short ID</Trans>
         ) : (
           <Trans>Each label: QR code and short ID</Trans>
         )}

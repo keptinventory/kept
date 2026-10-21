@@ -25836,8 +25836,8 @@ msgid "Label {at}, row {rn}, column {cn2}: {cd}"
 msgstr "Etichetta {at}, riga {rn}, colonna {cn2}: {cd}"
 
 #: src/components/labels/start-cell.tsx
-msgid "Each label: QR code, name and short ID"
-msgstr "Ogni etichetta: codice QR, nome e ID breve"
+msgid "Each label: QR code, name, where it is and short ID"
+msgstr "Ogni etichetta: codice QR, nome, posizione e ID breve"
 
 #: src/components/labels/start-cell.tsx
 msgid "Each label: QR code and short ID"
