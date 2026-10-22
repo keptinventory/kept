@@ -10,6 +10,7 @@
  * 2. A location that asks for two-factor: turning the app off is refused while no passkey stands
  *    in; after adding one it is allowed; then that last passkey can't be removed.
  * 3. Arabic, right to left, on a phone: the section and the add sheet, with axe.
+ * 4. The sign-in page reads "Sign in with Google" as one line, its words spaced as written.
  *
  * Passkeys come from Chromium's virtual authenticator (e2e/sign-in-kit.ts), codes from
  * e2e/totp.ts. Kept has no screen that makes a location require two-factor (the members page only
@@ -345,6 +346,20 @@ test('a location that asks for two-factor: the app stays on until a passkey stan
   await axe(page, 'the remove sheet, refused by a location');
   await sheet.getByRole('button', { name: 'Cancel' }).click();
   await expect(section.getByText('Phone', { exact: true })).toBeVisible();
+  await context.close();
+});
+
+test('the sign-in page reads "Sign in with Google" as one line, beside its icon', async ({
+  browser,
+}) => {
+  const { context, page } = await newPerson(browser);
+  await go(page, '/signin');
+  const google = page.getByRole('button', { name: 'Sign in with Google' });
+  await expect(google).toBeVisible();
+  // innerText as laid out: the words and the name apart in the button's flex row read
+  // "Sign in with" and "Google" on two lines, with the row's gap between them on screen.
+  await expect(google).toHaveText('Sign in with Google', { useInnerText: true });
+  expect(await google.innerText()).toBe('Sign in with Google');
   await context.close();
 });
 

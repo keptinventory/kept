@@ -39,6 +39,18 @@ describe('Sign in with Google', () => {
     });
   });
 
+  it('reads "Sign in with Google" and "Sign in with Home SSO" as one label beside the icon', async () => {
+    await renderApp('/signin', { state: withGoogle(signedOutScenario()) });
+    for (const name of ['Sign in with Google', 'Sign in with Home SSO']) {
+      const button = await screen.findByRole('button', { name });
+      expect(button.textContent).toBe(name);
+      // The button spaces its children apart: the words and the provider's name as two of them
+      // would read "Sign in with  Google". One element holds the whole label.
+      const label = [...button.children].filter((c) => c.tagName.toLowerCase() !== 'svg');
+      expect(label.map((c) => c.textContent)).toEqual([name]);
+    }
+  });
+
   it('is absent when not configured', async () => {
     await renderApp('/signin', { state: signedOutScenario() });
     await screen.findByRole('button', { name: 'Sign in' });

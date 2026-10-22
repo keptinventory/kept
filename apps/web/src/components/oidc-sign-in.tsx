@@ -70,11 +70,14 @@ export function OidcSignInButton({
     <div className="grid gap-2">
       <Button variant="secondary" isPending={start.isPending} onPress={() => start.mutate()}>
         <KeyIcon />
-        {label ?? (
-          <Trans>
-            Sign in with <bdi>{name}</bdi>
-          </Trans>
-        )}
+        {/* One flex item: the button's gap between the words and the name read as two spaces. */}
+        <span>
+          {label ?? (
+            <Trans>
+              Sign in with <bdi>{name}</bdi>
+            </Trans>
+          )}
+        </span>
       </Button>
       {start.error ? <Notice tone="danger">{errorText(start.error)}</Notice> : null}
     </div>

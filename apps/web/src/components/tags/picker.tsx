@@ -207,9 +207,12 @@ function PickerBody({
             onPress={() => void create()}
           >
             <PlusIcon className="size-4" />
-            <Trans>
-              Create “<bdi>{typed}</bdi>”
-            </Trans>
+            {/* One flex item: the button's gap would otherwise widen the space before the name. */}
+            <span>
+              <Trans>
+                Create “<bdi>{typed}</bdi>”
+              </Trans>
+            </span>
           </Button>
         ) : null}
       </div>

@@ -43,9 +43,12 @@ export function DeleteLocationSection({ location }: { location: LocationDetail }
           isDisabled={!online}
           onPress={() => setOpen(true)}
         >
-          <Trans>
-            Delete <bdi>{name}</bdi>…
-          </Trans>
+          {/* One flex item: the button's gap would otherwise widen the space before the name. */}
+          <span>
+            <Trans>
+              Delete <bdi>{name}</bdi>…
+            </Trans>
+          </span>
         </Button>
       </div>
       {open ? (
@@ -129,9 +132,11 @@ export function DeleteLocationSheet({
               isDisabled={!matches || !online}
               isPending={remove.isPending}
             >
-              <Trans>
-                Delete <bdi>{name}</bdi>
-              </Trans>
+              <span>
+                <Trans>
+                  Delete <bdi>{name}</bdi>
+                </Trans>
+              </span>
             </Button>
           </DialogFooter>
         </form>
