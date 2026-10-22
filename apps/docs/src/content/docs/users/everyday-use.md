@@ -345,6 +345,8 @@ To hand someone a list on paper instead, print it (below).
 
 ## Condition reports (renting)
 
+Full detail: [condition reports](/users/condition-reports/).
+
 **Condition reports** on a location's page record how a rented home was when you moved in, and
 when you moved out, for a deposit dispute.
 
