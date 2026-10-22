@@ -303,6 +303,8 @@ yourself. A box goes with everything inside it, each thing on its own line: see
 
 ## Sharing a location
 
+Full detail: [sharing a location](/users/sharing/).
+
 A location is shared by inviting people to it, each with a role and an optional end date
 ([invites and roles](/users/first-run/#5-invite-people)). Owners and admins manage the
 **Members** page in Location settings; anyone but the owner can **Leave this location**. Your

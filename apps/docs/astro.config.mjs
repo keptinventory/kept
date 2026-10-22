@@ -107,6 +107,7 @@ const sidebar = [
     page('users/scanning-sessions'),
     page('users/counts'),
     page('users/kits'),
+    page('users/sharing'),
     page('users/moving'),
     page('users/phone-app'),
     page('users/sign-in-security'),
