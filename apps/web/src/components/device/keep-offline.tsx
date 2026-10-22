@@ -1,7 +1,8 @@
 /**
  * This device → Keep available offline (D159, D181): one
  * switch per location, only with the app lock on. Turning one on shows the warning and the size
- * from the server's estimate before anything downloads, then the progress; documents over
+ * from the server's estimate before anything downloads ("Calculating…" until it answers, "Nothing
+ * to download" or "No documents to download" rather than a size of zero), then the progress; documents over
  * KEEP_OFFLINE.fileBytes are listed as too large; the device's total is capped at
  * KEEP_OFFLINE.deviceBytes (`keep_offline_too_large` names what to turn off). Off removes it.
  */
@@ -166,7 +167,8 @@ function KeepRow({
       await reload();
       return;
     }
-    const about = estimate.data;
+    // The size only once it is known and there is something to say: never "About 0 bytes".
+    const about = estimate.data && estimate.data.totalBytes > 0 ? estimate.data : null;
     const ok = await confirm({
       title: t`Keep ${location.name} available offline?`,
       body: about
@@ -193,7 +195,16 @@ function KeepRow({
     }
     detail = parts.join(f.sep);
   } else if (lockOn && estimate.data) {
-    detail = t`About ${size(estimate.data.totalBytes)} to download`;
+    // The estimate's bytes are the documents': with none, only prices and dates come down.
+    const e = estimate.data;
+    detail =
+      e.things === 0
+        ? t`Nothing to download`
+        : e.totalBytes === 0
+          ? t`No documents to download`
+          : t`About ${size(e.totalBytes)} to download`;
+  } else if (lockOn && estimate.isLoading) {
+    detail = t`Calculating the download size…`;
   }
 
   const large =

@@ -26886,3 +26886,19 @@ msgstr "Each label: QR code and short ID. The codes are made when you print."
 #: src/components/history/labels.ts
 msgid "Set aside a label sheet that was not printed"
 msgstr "Set aside a label sheet that was not printed"
+
+#: src/components/portability/size.ts
+msgid "{bytes, plural, one {# byte} other {# bytes}}"
+msgstr "{bytes, plural, one {# byte} other {# bytes}}"
+
+#: src/components/device/keep-offline.tsx
+msgid "Nothing to download"
+msgstr "Nothing to download"
+
+#: src/components/device/keep-offline.tsx
+msgid "No documents to download"
+msgstr "No documents to download"
+
+#: src/components/device/keep-offline.tsx
+msgid "Calculating the download size…"
+msgstr "Calculating the download size…"

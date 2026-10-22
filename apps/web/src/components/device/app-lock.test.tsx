@@ -7,9 +7,10 @@
  */
 import 'fake-indexeddb/auto';
 import { newId } from '@kept/shared';
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { IDS } from '@/api/mock/fixtures';
+import { opsPaths } from '@/api/ops/paths';
 import { paths } from '@/api/paths';
 import { deviceDb, readLock, saveLock } from '@/offline/app-lock-db';
 import { createLock } from '@/offline/lock';
@@ -195,6 +196,66 @@ describe('This device', () => {
     expect(dialog).toHaveTextContent(/About .+ to download/);
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(await db.keptOffline.count()).toBe(0);
+  });
+});
+
+describe('the download size before keeping a location', () => {
+  /** This device, unlocked, with Home's estimate answered by `estimate` (null: never answers). */
+  async function open(estimate: { things: number; documents: number; totalBytes: number } | null) {
+    await setLock();
+    const { user } = await renderApp('/settings/device', {
+      setup: (m) =>
+        m.on('GET', opsPaths.syncExtras, ({ query }) =>
+          query.get('locationId') === IDS.home
+            ? (estimate ?? new Promise(() => {}))
+            : { things: 0, documents: 0, totalBytes: 0 },
+        ),
+    });
+    await screen.findByRole('heading', { name: 'Enter your PIN' });
+    await typePin(user, PIN);
+    const toggle = await screen.findByRole(
+      'switch',
+      { name: 'Keep Home available offline' },
+      { timeout: 5000 },
+    );
+    return { user, toggle, row: toggle.closest('li') as HTMLElement };
+  }
+
+  it('says it is still working the size out, never "0", until the estimate answers', async () => {
+    const { user, toggle, row } = await open(null);
+    expect(await within(row).findByText('Calculating the download size…')).toBeInTheDocument();
+    expect(document.body).not.toHaveTextContent(/About 0|0 byte(?!s)/);
+    await user.click(toggle);
+    const dialog = await screen.findByRole('alertdialog');
+    expect(dialog).not.toHaveTextContent(/to download/);
+  });
+
+  it('says plainly when there is nothing to download, and when there are no documents', async () => {
+    const { user, toggle, row } = await open({ things: 3, documents: 0, totalBytes: 0 });
+    expect(await within(row).findByText('No documents to download')).toBeInTheDocument();
+    const garage = (
+      await screen.findByRole('switch', { name: 'Keep Garage available offline' })
+    ).closest('li') as HTMLElement;
+    expect(await within(garage).findByText('Nothing to download')).toBeInTheDocument();
+    expect(document.body).not.toHaveTextContent(/About 0|0 byte(?!s)/);
+    await user.click(toggle);
+    const dialog = await screen.findByRole('alertdialog');
+    expect(dialog).toHaveTextContent(
+      'Whoever unlocks Kept on this phone sees prices and documents',
+    );
+    expect(dialog).not.toHaveTextContent(/to download/);
+  });
+
+  it.each([
+    [1, 'About 1 byte to download'],
+    [512, 'About 512 bytes to download'],
+    [138_000, 'About 138 kB to download'],
+    [48_200_000, 'About 48.2 MB to download'],
+  ])('a size of %d bytes reads "%s"', async (totalBytes, words) => {
+    const { user, toggle, row } = await open({ things: 2, documents: 1, totalBytes });
+    expect(await within(row).findByText(words)).toBeInTheDocument();
+    await user.click(toggle);
+    expect(await screen.findByRole('alertdialog')).toHaveTextContent(`${words}.`);
   });
 });
 

@@ -26886,3 +26886,19 @@ msgstr "Chaque étiquette : QR code et identifiant court. Les codes sont créés
 #: src/components/history/labels.ts
 msgid "Set aside a label sheet that was not printed"
 msgstr "A mis de côté une planche d’étiquettes non imprimée"
+
+#: src/components/portability/size.ts
+msgid "{bytes, plural, one {# byte} other {# bytes}}"
+msgstr "{bytes, plural, one {# octet} other {# octets}}"
+
+#: src/components/device/keep-offline.tsx
+msgid "Nothing to download"
+msgstr "Rien à télécharger"
+
+#: src/components/device/keep-offline.tsx
+msgid "No documents to download"
+msgstr "Aucun document à télécharger"
+
+#: src/components/device/keep-offline.tsx
+msgid "Calculating the download size…"
+msgstr "Calcul de la taille du téléchargement…"

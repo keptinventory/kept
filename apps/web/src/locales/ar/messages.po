@@ -26886,3 +26886,19 @@ msgstr "كل ملصق: رمز QR والمعرّف القصير. تُنشأ ال�
 #: src/components/history/labels.ts
 msgid "Set aside a label sheet that was not printed"
 msgstr "استبعد ورقة ملصقات لم تُطبع"
+
+#: src/components/portability/size.ts
+msgid "{bytes, plural, one {# byte} other {# bytes}}"
+msgstr "{bytes, plural, zero {# بايت} one {بايت واحد} two {بايتان} few {# بايتات} many {# بايتًا} other {# بايت}}"
+
+#: src/components/device/keep-offline.tsx
+msgid "Nothing to download"
+msgstr "لا شيء للتنزيل"
+
+#: src/components/device/keep-offline.tsx
+msgid "No documents to download"
+msgstr "لا مستندات للتنزيل"
+
+#: src/components/device/keep-offline.tsx
+msgid "Calculating the download size…"
+msgstr "جارٍ حساب حجم التنزيل…"

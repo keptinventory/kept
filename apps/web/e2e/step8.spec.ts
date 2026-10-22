@@ -8,7 +8,8 @@
  *    e2e server uses the machine's own pg_dump and restic, KEPT_RESTIC_BIN when set, so a laptop
  *    whose pg_dump is older than the database records `pg_version_mismatch`; the image ships
  *    matching tools, and the Compose check takes a real snapshot).
- * 2. The app lock with a STUBBED WebAuthn (never a real authenticator): a PIN set in This device,
+ * 2. The app lock with a STUBBED WebAuthn (never a real authenticator): a PIN set in This device
+ *    (Keep available offline then gives each location's download size, never a size of zero),
  *    "Unlock with Face ID or fingerprint" (which says it unlocks this device only, and where
  *    passkeys are added) enrolled through the stub's PRF secret, then a reload asks for the PIN
  *    (a wrong one is refused, the right one opens Kept), and another reload opens with Face ID.
@@ -117,6 +118,22 @@ test('the app lock: a PIN, Face ID through a stubbed WebAuthn, the lock screen a
   await sheet.getByRole('button', { name: 'Continue', exact: true }).click();
   const toasts = page.getByRole('region', { name: 'Notifications' });
   await expect(toasts).toContainText('Kept locks on this device now', { timeout: 60_000 });
+
+  // Keep available offline: each location's download size once the server has measured it, and
+  // never a size of zero ("Nothing to download" or "No documents to download" instead).
+  const keep = page
+    .getByRole('listitem')
+    .filter({ has: page.getByRole('switch', { name: /^Keep .+ available offline$/ }) });
+  await expect(keep.first()).toBeVisible();
+  await expect
+    .poll(async () => (await keep.allInnerTexts()).join('\n'), { timeout: 60_000 })
+    .not.toMatch(/Calculating the download size/);
+  const sizes = await keep.allInnerTexts();
+  expect(sizes.length).toBeGreaterThan(0);
+  for (const row of sizes) {
+    expect(row).toMatch(/About .+ to download|No documents to download|Nothing to download/);
+    expect(row).not.toMatch(/About 0|\b0 byte(?!s)/);
+  }
 
   // It unlocks this device; signing in with a passkey is Settings → Sign-in and security's.
   await expect(page.getByText(/Unlocks Kept on this device only\./)).toBeVisible();
