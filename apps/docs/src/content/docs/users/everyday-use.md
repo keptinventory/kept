@@ -237,6 +237,8 @@ last sync**. With an embeddings model, results "matched by meaning" join the key
 
 ## Vehicles and machines
 
+Full detail: [vehicles and machines](/users/vehicles/).
+
 Any thing whose type is metered (a car, a generator, a boiler) has **Meters**: log a reading,
 log a service, and set schedules by date or by reading. **Vehicles** (Household and Complete)
 gathers the vehicles in one place, each with tabs for its overview, readings, services, documents,
