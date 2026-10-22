@@ -327,6 +327,8 @@ To hand someone a list on paper instead, print it (below).
 
 ## Reports: the inventory, insurance and claims
 
+Full detail: [reports, insurance and claims](/users/reports/).
+
 - **Print inventory** on a location makes a PDF of its things grouped by place, with photos and
   short IDs, optionally QR codes, ended things and the Trash. Prices appear only for people who can
   see money. Anyone who can see the location can make one. **Email it to me** also mails the PDF
