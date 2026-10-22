@@ -265,6 +265,8 @@ costs and, on Complete, fuel.
 
 ## Reminders and notifications
 
+Full detail: [reminders and notifications](/users/reminders/).
+
 Kept reminds you of schedules due, warranties running out and registration deadlines, documents
 and things that expire, overdue loans, meters not read lately, low stock, members joining and
 leaving, and AI spending caps. Home's **Needs you** shows what's due or overdue; the bell opens
