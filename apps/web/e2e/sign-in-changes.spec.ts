@@ -7,15 +7,19 @@
  *    the acting one signed in, and mails the notice with its subject. Wrong passwords in the add
  *    sheet and the turn-off sheet are refused with a plain message. Once the account has no
  *    password, unlinking its last way in is refused with the reason on screen.
- * 2. A location that asks for two-factor: turning the app off is refused while no passkey stands
- *    in; after adding one it is allowed; then that last passkey can't be removed.
+ * 2. A location that asks for two-factor, turned on by its owner on its Members page (a confirm
+ *    that names the member with no second factor yet), which that member then can't open; turning
+ *    the owner's app off is refused while no passkey stands in; after adding one it is allowed;
+ *    then that last passkey can't be removed; signed back in with the passkey (with the app off,
+ *    the old session no longer counts as a second factor), the owner turns the requirement off,
+ *    and the member opens the location again.
  * 3. Arabic, right to left, on a phone: the section and the add sheet, with axe.
  * 4. The sign-in page reads "Sign in with Google" as one line, its words spaced as written.
  *
  * Passkeys come from Chromium's virtual authenticator (e2e/sign-in-kit.ts), codes from
- * e2e/totp.ts. Kept has no screen that makes a location require two-factor (the members page only
- * shows it), so journey 2 sets it with the location's own PATCH, as its owner. The Google account
- * row and the password taken away are database fixtures: no Google request is ever made.
+ * e2e/totp.ts. Journey 2's member is Alfred (src/seed/cast.ts), who joins by the owner's invite
+ * link and never sets up a second factor. The Google account row and the password taken away are
+ * database fixtures: no Google request is ever made.
  *
  *   KEPT_E2E_INSTANCES=signInMail pnpm --filter @kept/web exec playwright test sign-in-changes.spec.ts
  */
@@ -33,11 +37,17 @@ import {
 import { axe, expect, PASSWORD } from './tls-people';
 import { freshCode } from './totp';
 
-const { BASE, newPerson, signInWithPassword, asAuth } = signInKit(SIGN_IN_MAIL_INSTANCE, {
-  phone: 30,
-  desktop: 40,
-});
+const { BASE, newPerson, nextAddress, signInWithPassword, signOut, asAuth } = signInKit(
+  SIGN_IN_MAIL_INSTANCE,
+  {
+    phone: 30,
+    desktop: 40,
+  },
+);
 test.use({ baseURL: BASE });
+
+/** Journey 2's member: joins each project's own location, and changes nothing of their own. */
+const MEMBER = 'alfred@kept.test';
 
 /** Seeded people (src/seed/cast.ts), per project, so the projects never share one. */
 const PEOPLE = {
@@ -261,10 +271,10 @@ test('each change signs the other device out, keeps this one, and mails a notice
   await b.context.close();
 });
 
-test('a location that asks for two-factor: the app stays on until a passkey stands in, and the last passkey stays', async ({
+test('a location that asks for two-factor: the owner turns it on, a member without one is kept out, the app stays on until a passkey stands in, the last passkey stays, and off again lets the member in', async ({
   browser,
 }) => {
-  test.setTimeout(240_000);
+  test.setTimeout(300_000);
   const login = who().location;
   await confirmAddress(login);
   const { context, page } = await newPerson(browser);
@@ -284,24 +294,63 @@ test('a location that asks for two-factor: the app stays on until a passkey stan
   await page.getByRole('button', { name: "I've saved them" }).click();
   await expect(page.getByRole('heading', { name: 'Settings', level: 1 })).toBeVisible();
 
-  // A location of theirs that asks everyone for two-factor (its owner's PATCH; no screen sets
-  // it yet).
-  const write = { origin: BASE, 'idempotency-key': crypto.randomUUID() };
+  // A location of theirs, and a member in it with no second factor: Alfred, by invite.
+  const write = () => ({ origin: BASE, 'idempotency-key': crypto.randomUUID() });
   const created = await page.request.post('/api/v1/locations', {
-    headers: write,
+    headers: write(),
     data: { name: 'Workshop', kind: 'home', timezone: 'Africa/Cairo', currency: 'EGP' },
   });
   expect(created.status(), await created.text()).toBe(201);
   const location = (await created.json()) as { id: string; rowVersion: number };
-  const required = await page.request.patch(`/api/v1/locations/${location.id}`, {
-    headers: {
-      origin: BASE,
-      'idempotency-key': crypto.randomUUID(),
-      'if-match': String(location.rowVersion),
-    },
-    data: { require2fa: true },
+  const invite = await page.request.post(`/api/v1/locations/${location.id}/invites`, {
+    headers: write(),
+    data: { role: 'member' },
   });
-  expect(required.status(), await required.text()).toBe(200);
+  expect(invite.status(), await invite.text()).toBe(201);
+  const token = ((await invite.json()) as { url: string }).url.split('#')[1] ?? '';
+  const member = await newPerson(browser);
+  await signInWithPassword(member.page, MEMBER);
+  await expect(member.page).toHaveURL(/\/$/);
+  const joined = await member.page.request.post(`/api/v1/invites/${token}/accept`, {
+    headers: write(),
+    data: {},
+  });
+  expect(joined.status(), await joined.text()).toBe(200);
+  const opensWorkshop = async () => {
+    await go(member.page, `/loc/${location.id}`);
+    await expect(member.page.getByRole('heading', { name: 'Workshop', level: 1 })).toBeVisible();
+  };
+  await opensWorkshop();
+
+  // The owner asks everyone for two-factor, on the Members page.
+  await go(page, `/settings/location/${location.id}/members`);
+  const twoFactor = page.locator('section').filter({
+    has: page.getByRole('heading', { name: 'Two-factor' }),
+  });
+  await expect(twoFactor).toContainText(
+    "Members who haven't set up two-factor or a passkey can't open Workshop until they do.",
+  );
+  await axe(page, 'Members, with Require two-factor');
+  await twoFactor.getByRole('switch', { name: 'Require two-factor' }).click({ force: true });
+  let ask = page.getByRole('alertdialog', { name: 'Require two-factor for Workshop?' });
+  await expect(ask).toContainText('Not set up yet: Alfred');
+  await axe(page, 'the require-two-factor confirm');
+  await ask.getByRole('button', { name: 'Require two-factor' }).click();
+  await expect(toasts(page)).toContainText('Workshop now requires two-factor');
+  await expect(twoFactor.getByRole('switch', { name: 'Require two-factor' })).toBeChecked();
+  await expect(twoFactor).toContainText('Not set up yet: Alfred');
+  // The member rows are drawn twice (the phone list, the desktop table): the one on screen.
+  await expect(
+    page.getByText('No two-factor yet, so Workshop is hidden for them').locator('visible=true'),
+  ).toHaveCount(1);
+
+  // Alfred, with no second factor, can't open it, and it is gone from his locations.
+  await go(member.page, `/loc/${location.id}`);
+  await expect(
+    member.page.getByText("This isn't here any more, or you can't see it."),
+  ).toBeVisible();
+  const listed = await member.page.request.get('/api/v1/locations');
+  expect(JSON.stringify(await listed.json())).not.toContain(location.id);
 
   section = await openSection(page);
   await section.getByRole('button', { name: 'Turn off' }).click();
@@ -346,6 +395,24 @@ test('a location that asks for two-factor: the app stays on until a passkey stan
   await axe(page, 'the remove sheet, refused by a location');
   await sheet.getByRole('button', { name: 'Cancel' }).click();
   await expect(section.getByText('Phone', { exact: true })).toBeVisible();
+
+  // With the app off, this session no longer counts as a second factor, so Workshop is hidden
+  // from its own owner too: back in with the passkey, which does count.
+  await signOut(page);
+  await page.setExtraHTTPHeaders({ 'x-forwarded-for': nextAddress() });
+  await page.getByRole('button', { name: 'Sign in with a passkey' }).click();
+  await expect(page).toHaveURL(/\/$/);
+
+  // The owner stops asking; Alfred opens the location again.
+  await go(page, `/settings/location/${location.id}/members`);
+  await twoFactor.getByRole('switch', { name: 'Require two-factor' }).click({ force: true });
+  ask = page.getByRole('alertdialog', { name: 'Stop requiring two-factor for Workshop?' });
+  await expect(ask).toContainText('Members can open Workshop with only their password again.');
+  await ask.getByRole('button', { name: 'Stop requiring' }).click();
+  await expect(toasts(page)).toContainText('Workshop no longer requires two-factor');
+  await expect(twoFactor.getByRole('switch', { name: 'Require two-factor' })).not.toBeChecked();
+  await opensWorkshop();
+  await member.context.close();
   await context.close();
 });
 

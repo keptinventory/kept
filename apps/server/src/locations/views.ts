@@ -254,6 +254,9 @@ export const MemberView = z.object({
   lastActiveAt: Iso.nullable(),
   /** Shown to owners and admins; false otherwise. */
   twoFactorEnabled: z.boolean(),
+  /** The authenticator app is on or a passkey is registered: what a location that requires
+   * two-factor accepts at sign-in. Shown to owners and admins (and the member); false otherwise. */
+  secondFactor: z.boolean(),
   isYou: z.boolean(),
   /** For If-Match on PATCH. */
   rowVersion: z.number().int(),
@@ -291,6 +294,7 @@ type AuthUserRow = {
   email: string;
   username: string | null;
   two_factor_enabled: boolean | null;
+  passkey: boolean;
 };
 
 /** Members sort owner, admins, members, viewers, then by name, then id. */
@@ -370,7 +374,9 @@ async function memberRows(
   );
   if (rows.length === 0) return [];
   const users = await authPool.query<AuthUserRow>(
-    'SELECT id, email, username, two_factor_enabled FROM auth."user" WHERE id = ANY($1)',
+    `SELECT u.id, u.email, u.username, u.two_factor_enabled,
+            EXISTS (SELECT 1 FROM auth.passkey p WHERE p.user_id = u.id) AS passkey
+       FROM auth."user" u WHERE u.id = ANY($1)`,
     [rows.map((r) => r.user_id)],
   );
   const byId = new Map(users.rows.map((u) => [u.id, u]));
@@ -392,6 +398,7 @@ async function memberRows(
       managedByName: managed ? r.created_by_name : null,
       lastActiveAt: null,
       twoFactorEnabled: details ? u?.two_factor_enabled === true : false,
+      secondFactor: details ? u?.two_factor_enabled === true || u?.passkey === true : false,
       isYou,
       rowVersion: r.row_version,
     };

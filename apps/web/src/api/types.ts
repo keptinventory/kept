@@ -247,6 +247,9 @@ export type UpdateLocationBody = {
   currency?: string;
   /** Room photos stay on their place after review (#194); deleted then by default. */
   keepRoomPhotos?: boolean;
+  /** Members need two-factor or a passkey to open the location. The owner only; turning it on
+   * needs this session to have proven a second factor (403 `mfa_required`). */
+  require2fa?: boolean;
 };
 
 /**
@@ -270,6 +273,9 @@ export type Member = {
   managedByName: string | null;
   lastActiveAt: string | null;
   twoFactorEnabled: boolean;
+  /** The authenticator app is on or a passkey is registered: what a location that requires
+   * two-factor accepts. Shown to owners and admins (and the member); false otherwise. */
+  secondFactor?: boolean;
   isYou: boolean;
   /** For PATCH's If-Match: the server answers 428 without it. */
   rowVersion: number;

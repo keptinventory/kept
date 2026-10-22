@@ -4,11 +4,16 @@
  * sheet of actions. Desktop: the same rows as a table with the actions inline. Promoting,
  * demoting or removing admins is owner only; the owner's row has no actions; an end date can't
  * be later than your own (D180).
+ *
+ * Two-factor: the owner requires it for the location (`PATCH … {require2fa}`, owner only on the
+ * server) behind a confirm that names who has no second factor yet; an admin sees whether it is
+ * on. Turning it on needs this session to have proven a second factor (the server's 403
+ * `mfa_required` otherwise), so without one the switch waits, with the way to get one.
  */
 import type { Role } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { isApiError } from '@/api/client';
 import {
@@ -16,6 +21,7 @@ import {
   newManagedResetCode,
   removeMember,
   revokeInvite,
+  updateLocation,
   updateMember,
 } from '@/api/locations';
 import { keys, useMe, useMembers } from '@/api/queries';
@@ -44,12 +50,14 @@ import {
   Section,
   useErrorText,
 } from '@/components/page';
+import { SIGN_IN_SECURITY_ANCHOR } from '@/components/sign-in-security';
 import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
 import { CopyButton } from '@/components/ui/copy-button';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Dialog, DialogFooter, Modal } from '@/components/ui/dialog';
 import { Segmented } from '@/components/ui/segmented';
+import { Switch } from '@/components/ui/switch';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
 import { dayOf, endOfDay } from '@/lib/day-end';
@@ -73,6 +81,10 @@ function MembersPage() {
 }
 
 const ORDER: Role[] = ['owner', 'admin', 'member', 'viewer'];
+
+/** Whether a member can open a location that requires two-factor: the authenticator app or a
+ * passkey (`secondFactor`; a server without it says only whether the app is on). */
+const covered = (m: Member) => m.secondFactor ?? m.twoFactorEnabled;
 
 function canManageRow(me: Role, row: Member): boolean {
   if (row.role === 'owner' || row.isYou) return false;
@@ -136,6 +148,10 @@ function MembersBody({ location }: { location: LocationDetail }) {
         </div>
       </div>
 
+      {location.role === 'owner' || location.role === 'admin' ? (
+        <RequireTwoFactor location={location} members={list} />
+      ) : null}
+
       {/* Desktop: the rows are a table; these are its column heads. */}
       <div aria-hidden="true" className="eyebrow -mb-3 hidden items-center gap-3 px-3.5 md:flex">
         <span className="flex-[2]">
@@ -194,6 +210,121 @@ function MembersBody({ location }: { location: LocationDetail }) {
   );
 }
 
+/**
+ * "Require two-factor" for the location: the owner's switch, behind a confirm that names the
+ * members with no second factor yet; for an admin, whether it is on.
+ */
+function RequireTwoFactor({ location, members }: { location: LocationDetail; members: Member[] }) {
+  const { t } = useLingui();
+  const errorText = useErrorText();
+  const confirm = useConfirm();
+  const qc = useQueryClient();
+  const me = useMe();
+  const name = location.name;
+  const on = location.require2fa;
+  const owner = location.role === 'owner';
+  const missing = members.filter((m) => !m.isYou && !covered(m)).map((m) => m.displayName);
+  const names = missing.join(sep());
+  // Turning it on asks this session for a second factor; turning it off never does.
+  const needsProof = owner && !on && me.data?.mfa === false;
+  const save = useMutation({
+    mutationFn: (require2fa: boolean) =>
+      updateLocation(location.id, { require2fa }, location.rowVersion),
+    onSuccess: async (_, require2fa) => {
+      await qc.invalidateQueries({ queryKey: keys.location(location.id) });
+      await qc.invalidateQueries({ queryKey: keys.locations });
+      await qc.invalidateQueries({ queryKey: keys.members(location.id) });
+      toast({
+        title: require2fa
+          ? t`${name} now requires two-factor`
+          : t`${name} no longer requires two-factor`,
+        tone: 'ok',
+      });
+    },
+    onError: (e) => toast({ title: errorText(e), tone: 'danger' }),
+  });
+  const change = async (next: boolean) => {
+    const ok = next
+      ? await confirm({
+          title: t`Require two-factor for ${name}?`,
+          body: (
+            <div className="grid gap-2">
+              <p className="m-0">
+                <Trans>
+                  Members who haven't set up two-factor or a passkey can't open {name} until they
+                  do.
+                </Trans>
+              </p>
+              {missing.length > 0 ? (
+                <p className="m-0 font-semibold text-ink">
+                  <Trans>Not set up yet: {names}</Trans>
+                </p>
+              ) : (
+                <p className="m-0">
+                  <Trans>Everyone here has already set one up.</Trans>
+                </p>
+              )}
+            </div>
+          ),
+          confirmLabel: t`Require two-factor`,
+        })
+      : await confirm({
+          title: t`Stop requiring two-factor for ${name}?`,
+          body: t`Members can open ${name} with only their password again.`,
+          confirmLabel: t`Stop requiring`,
+        });
+    if (ok) save.mutate(next);
+  };
+  return (
+    <Section title={<Trans>Two-factor</Trans>}>
+      <div className="grid gap-2 rounded-[10px] border border-line bg-surface p-3.5">
+        {owner ? (
+          <Switch
+            isSelected={on}
+            isDisabled={save.isPending || needsProof}
+            onChange={(next) => void change(next)}
+          >
+            <Trans>Require two-factor</Trans>
+          </Switch>
+        ) : (
+          <div className="font-semibold text-[15px]">
+            {on ? (
+              <Trans>On. Only the owner changes this.</Trans>
+            ) : (
+              <Trans>Off. Only the owner changes this.</Trans>
+            )}
+          </div>
+        )}
+        <p className="m-0 text-small text-ink-2">
+          <Trans>
+            Members who haven't set up two-factor or a passkey can't open {name} until they do.
+          </Trans>
+        </p>
+        {on && missing.length > 0 ? (
+          <p className="m-0 text-small text-ink-2 [overflow-wrap:anywhere]">
+            <Trans>Not set up yet: {names}</Trans>
+          </p>
+        ) : null}
+        {needsProof ? (
+          <Notice tone="info">
+            <Trans>
+              To ask everyone for two-factor, sign in with a passkey or your authenticator app
+              first.
+            </Trans>{' '}
+            <Link
+              to="/settings"
+              hash={SIGN_IN_SECURITY_ANCHOR}
+              className="font-semibold text-ink underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-info"
+            >
+              <Trans>Sign-in and security</Trans>
+            </Link>
+          </Notice>
+        ) : null}
+      </div>
+    </Section>
+  );
+}
+
 function MemberSubtitle({ member, location }: { member: Member; location: LocationDetail }) {
   const f = useFormat();
   const name = location.name;
@@ -211,7 +342,7 @@ function MemberSubtitle({ member, location }: { member: Member; location: Locati
         <Trans key="m">Managed account</Trans>
       ),
     );
-  if (location.require2fa && !member.twoFactorEnabled)
+  if (location.require2fa && !covered(member))
     lines.push(<Trans key="2">No two-factor yet, so {name} is hidden for them</Trans>);
   if (lines.length === 0 && member.lastActiveAt) {
     const when = f.relative(member.lastActiveAt);

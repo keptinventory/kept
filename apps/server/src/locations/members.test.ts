@@ -3,6 +3,7 @@ import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
 import { auditOf, call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { ownerTx } from '../../test/tenancy.js';
+import { registerSoftPasskey } from '../../test/webauthn.js';
 
 // Memberships through the front door.
 
@@ -80,6 +81,39 @@ describe('GET members', () => {
     expect(asViewer.invites).toEqual([]);
     const outsider = await person(t, db, 'outsider');
     expect((await call(t, url(), { as: outsider })).statusCode).toBe(404);
+  });
+
+  it('says who has a second factor (the authenticator app or a passkey), to those who manage members', async () => {
+    await db.pools.auth.query('UPDATE auth."user" SET two_factor_enabled = true WHERE id = $1', [
+      admin.userId,
+    ]);
+    await registerSoftPasskey(db.pools.auth, member.userId, {
+      id: 'localhost',
+      origin: 'http://localhost',
+    });
+    const second = (as: Person) =>
+      call(t, url(), { as })
+        .then((r) => r.json().members as { role: string; secondFactor: boolean }[])
+        .then((list) => Object.fromEntries(list.map((m) => [m.role, m.secondFactor])));
+    expect(await second(owner)).toEqual({
+      owner: false,
+      admin: true,
+      member: true,
+      viewer: false,
+    });
+    // A viewer sees only their own.
+    expect(await second(viewer)).toEqual({
+      owner: false,
+      admin: false,
+      member: false,
+      viewer: false,
+    });
+    await registerSoftPasskey(db.pools.auth, viewer.userId, {
+      id: 'localhost',
+      origin: 'http://localhost',
+    });
+    expect((await second(viewer)).viewer).toBe(true);
+    expect((await second(member)).admin).toBe(false);
   });
 });
 

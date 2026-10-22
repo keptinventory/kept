@@ -26914,3 +26914,55 @@ msgstr "كل مكان هنا بلا ملصق مطبوع، ومعه ما لم ي�
 #: src/components/labels/batch-builder.tsx
 msgid "Every thing in here with no printed label."
 msgstr "كل شيء هنا بلا ملصق مطبوع."
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "{name} now requires two-factor"
+msgstr "«{name}» يطلب الآن التحقق بخطوتين"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "{name} no longer requires two-factor"
+msgstr "«{name}» لم يعد يطلب التحقق بخطوتين"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Require two-factor for {name}?"
+msgstr "أتطلب التحقق بخطوتين في «{name}»؟"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Members who haven't set up two-factor or a passkey can't open {name} until they do."
+msgstr "الأعضاء الذين لم يُعدّوا التحقق بخطوتين أو مفتاح مرور لا يمكنهم فتح «{name}» حتى يفعلوا."
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Not set up yet: {names}"
+msgstr "لم يُعدّوه بعد: {names}"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Everyone here has already set one up."
+msgstr "أعدّ الجميع هنا واحدًا بالفعل."
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Require two-factor"
+msgstr "اطلب التحقق بخطوتين"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Stop requiring two-factor for {name}?"
+msgstr "أتتوقف عن طلب التحقق بخطوتين في «{name}»؟"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Members can open {name} with only their password again."
+msgstr "يمكن للأعضاء فتح «{name}» بكلمة المرور وحدها من جديد."
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Stop requiring"
+msgstr "توقف عن الطلب"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "On. Only the owner changes this."
+msgstr "مفعّل. المالك وحده يغيّر هذا."
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Off. Only the owner changes this."
+msgstr "متوقف. المالك وحده يغيّر هذا."
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "To ask everyone for two-factor, sign in with a passkey or your authenticator app first."
+msgstr "لتطلب التحقق بخطوتين من الجميع، سجّل الدخول أولًا بمفتاح مرور أو بتطبيق المصادقة."

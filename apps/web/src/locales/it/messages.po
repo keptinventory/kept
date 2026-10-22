@@ -26914,3 +26914,55 @@ msgstr "Ogni posto qui senza etichetta stampata, anche quelli mai etichettati: c
 #: src/components/labels/batch-builder.tsx
 msgid "Every thing in here with no printed label."
 msgstr "Ogni oggetto qui senza etichetta stampata."
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "{name} now requires two-factor"
+msgstr "{name} ora richiede la verifica in due passaggi"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "{name} no longer requires two-factor"
+msgstr "{name} non richiede più la verifica in due passaggi"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Require two-factor for {name}?"
+msgstr "Richiedere la verifica in due passaggi per {name}?"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Members who haven't set up two-factor or a passkey can't open {name} until they do."
+msgstr "I membri che non hanno impostato la verifica in due passaggi o una passkey non possono aprire {name} finché non lo fanno."
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Not set up yet: {names}"
+msgstr "Non ancora impostato: {names}"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Everyone here has already set one up."
+msgstr "Qui tutti ne hanno già impostato uno."
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Require two-factor"
+msgstr "Richiedi la verifica in due passaggi"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Stop requiring two-factor for {name}?"
+msgstr "Non richiedere più la verifica in due passaggi per {name}?"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Members can open {name} with only their password again."
+msgstr "I membri potranno di nuovo aprire {name} con la sola password."
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Stop requiring"
+msgstr "Non richiedere più"
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "On. Only the owner changes this."
+msgstr "Attiva. Solo il proprietario può cambiarla."
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "Off. Only the owner changes this."
+msgstr "Disattivata. Solo il proprietario può cambiarla."
+
+#: src/routes/_app/settings.location.$id.members.tsx
+msgid "To ask everyone for two-factor, sign in with a passkey or your authenticator app first."
+msgstr "Per chiedere a tutti la verifica in due passaggi, accedi prima con una passkey o con la tua app di autenticazione."

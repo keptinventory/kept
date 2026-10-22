@@ -1,4 +1,5 @@
 /** Members and roles, Invite, Settings → Me (sessions, two-factor enrolment). */
+import type { Role } from '@kept/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { firstRunScenario, IDS, ownerScenario } from '@/api/mock/fixtures';
@@ -37,7 +38,14 @@ describe('Members and roles', () => {
     await renderApp(members);
     expect(await screen.findByRole('heading', { name: 'Admins' })).toBeInTheDocument();
     const groups = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
-    expect(groups).toEqual(['Owner', 'Admins', 'Members', 'Viewers', 'Pending invites']);
+    expect(groups).toEqual([
+      'Two-factor',
+      'Owner',
+      'Admins',
+      'Members',
+      'Viewers',
+      'Pending invites',
+    ]);
     expect(screen.getAllByText(/^Until /).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Managed account · by Alfred/).length).toBeGreaterThan(0);
     expect(
@@ -149,6 +157,101 @@ describe('Members and roles', () => {
     await renderApp(members, { locale: 'ar' });
     expect(await screen.findByRole('heading', { name: 'المشرفون' })).toBeInTheDocument();
     expectLogicalOnly();
+  });
+});
+
+describe('Require two-factor', () => {
+  /** Home with two-factor off (or on), and the people in it as `role`. */
+  function scenario(opts: { required?: boolean; role?: Role; mfa?: boolean } = {}) {
+    const state = ownerScenario();
+    const home = state.locations.find((l) => l.id === IDS.home);
+    if (!home) throw new Error('no Home');
+    home.require2fa = opts.required ?? false;
+    home.rowVersion = 4;
+    home.role = opts.role ?? 'owner';
+    state.me.mfa = opts.mfa ?? true;
+    return state;
+  }
+  const control = () => screen.queryByRole('switch', { name: 'Require two-factor' });
+  const section = async () =>
+    (await screen.findByRole('heading', { name: 'Two-factor' })).closest('section') as HTMLElement;
+
+  it('the owner turns it on after a confirm that names who has no second factor yet', async () => {
+    const state = scenario();
+    // Alfred signs in with a passkey: that counts, though his authenticator app is off.
+    const alfred = state.members[IDS.home]?.members.find((m) => m.displayName === 'Alfred');
+    if (alfred) Object.assign(alfred, { twoFactorEnabled: false, secondFactor: true });
+    const { user, mock } = await renderApp(members, { state });
+    const s = await section();
+    expect(s).toHaveTextContent(
+      "Members who haven't set up two-factor or a passkey can't open Home until they do.",
+    );
+    expect(control()).not.toBeChecked();
+    await user.click(control() as HTMLElement);
+    const confirm = await screen.findByRole('alertdialog', {
+      name: 'Require two-factor for Home?',
+    });
+    expect(confirm).toHaveTextContent('Not set up yet: Louis · Peter');
+    expect(confirm).not.toHaveTextContent('Alfred');
+    await user.click(within(confirm).getByRole('button', { name: 'Require two-factor' }));
+    await waitFor(() =>
+      expect(mock.lastCall('PATCH', paths.location(IDS.home))?.body).toEqual({ require2fa: true }),
+    );
+    expect(mock.lastCall('PATCH', paths.location(IDS.home))?.headers['if-match']).toBe('4');
+    expect(await screen.findByText('Home now requires two-factor')).toBeInTheDocument();
+    await waitFor(() => expect(control()).toBeChecked());
+    expect(await section()).toHaveTextContent('Not set up yet: Louis · Peter');
+    expect(screen.getAllByText(/No two-factor yet, so Home is hidden for them/)).not.toHaveLength(
+      0,
+    );
+  });
+
+  it('the owner turns it off after a confirm; cancelling changes nothing', async () => {
+    const { user, mock } = await renderApp(members, { state: scenario({ required: true }) });
+    await section();
+    expect(control()).toBeChecked();
+    await user.click(control() as HTMLElement);
+    let confirm = await screen.findByRole('alertdialog', {
+      name: 'Stop requiring two-factor for Home?',
+    });
+    await user.click(within(confirm).getByRole('button', { name: 'Cancel' }));
+    expect(mock.lastCall('PATCH', paths.location(IDS.home))).toBeUndefined();
+    expect(control()).toBeChecked();
+    await user.click(control() as HTMLElement);
+    confirm = await screen.findByRole('alertdialog', {
+      name: 'Stop requiring two-factor for Home?',
+    });
+    expect(confirm).toHaveTextContent('Members can open Home with only their password again.');
+    await user.click(within(confirm).getByRole('button', { name: 'Stop requiring' }));
+    await waitFor(() =>
+      expect(mock.lastCall('PATCH', paths.location(IDS.home))?.body).toEqual({ require2fa: false }),
+    );
+    expect(await screen.findByText('Home no longer requires two-factor')).toBeInTheDocument();
+  });
+
+  it('an owner whose session has no second factor is told to prove one first', async () => {
+    const { user } = await renderApp(members, { state: scenario({ mfa: false }) });
+    const s = await section();
+    expect(control()).toBeDisabled();
+    expect(s).toHaveTextContent(
+      'To ask everyone for two-factor, sign in with a passkey or your authenticator app first.',
+    );
+    await user.click(within(s).getByRole('link', { name: 'Sign-in and security' }));
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+  });
+
+  it('an admin sees whether it is on, with no control', async () => {
+    await renderApp(members, { state: scenario({ required: true, role: 'admin' }) });
+    const s = await section();
+    expect(control()).toBeNull();
+    expect(s).toHaveTextContent('On. Only the owner changes this.');
+  });
+
+  it.each(['member', 'viewer'] as const)('a %s sees no control', async (role) => {
+    await renderApp(members, { state: scenario({ role }) });
+    expect(await screen.findByText('Only the owner and admins change this')).toBeInTheDocument();
+    expect(control()).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Two-factor' })).toBeNull();
   });
 });
 
