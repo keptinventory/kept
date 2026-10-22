@@ -367,6 +367,8 @@ finished report is still finished and locked ([import and export](/users/import-
 
 ## Insights
 
+Full detail: [insights](/users/insights/).
+
 **Insights** (in the sidebar, and under More on a phone) shows, across your locations with Money
 on, or one location picked with the **Location** chip:
 
