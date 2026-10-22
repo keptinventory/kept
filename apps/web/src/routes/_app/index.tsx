@@ -48,6 +48,7 @@ import { Shortcuts } from '@/components/home/shortcuts';
 import { LinkIcon, PeopleIcon, PlusIcon } from '@/components/icons';
 import { PendingPrompt } from '@/components/labels/pending-prompt';
 import { ErrorState, IconTile, LinkButton, LoadingRows, Page } from '@/components/page';
+import { TwoFactorHiddenCard, useTwoFactorHidden } from '@/components/two-factor-hidden';
 import { toast } from '@/components/ui/toast';
 import { sep, useFormat } from '@/lib/format';
 import { servedOverHttp } from '@/lib/https';
@@ -73,6 +74,7 @@ function Home() {
   const overview = useHomeOverview();
   const setDismissed = useChecklistDismissed();
   const f = useFormat();
+  const hidden = useTwoFactorHidden();
   useChecklistSync(home.data);
 
   if (locations.isPending || !me.data) {
@@ -138,6 +140,9 @@ function Home() {
             counts={counts.get(l.id)}
             overview={cards.get(l.id)}
           />
+        ))}
+        {hidden.map((h) => (
+          <TwoFactorHiddenCard key={h.locationId} location={h} />
         ))}
         {firstRun ? (
           <Link

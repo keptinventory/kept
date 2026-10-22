@@ -26966,3 +26966,27 @@ msgstr "Off. Only the owner changes this."
 #: src/routes/_app/settings.location.$id.members.tsx
 msgid "To ask everyone for two-factor, sign in with a passkey or your authenticator app first."
 msgstr "To ask everyone for two-factor, sign in with a passkey or your authenticator app first."
+
+#: src/components/app-shell.tsx
+msgid "{0}, asks for two-factor"
+msgstr "{0}, asks for two-factor"
+
+#: src/components/app-shell.tsx
+msgid "{0}: asks for two-factor"
+msgstr "{0}: asks for two-factor"
+
+#: src/components/two-factor-hidden.tsx
+msgid "<0>{name}</0> asks for two-factor"
+msgstr "<0>{name}</0> asks for two-factor"
+
+#: src/components/two-factor-hidden.tsx
+msgid "Turn on an authenticator app to open it, or add a passkey and sign in with it."
+msgstr "Turn on an authenticator app to open it, or add a passkey and sign in with it."
+
+#: src/components/two-factor-hidden.tsx
+msgid "Set up two-factor"
+msgstr "Set up two-factor"
+
+#: src/components/two-factor-hidden.tsx
+msgid "Asks for two-factor: set it up to open it"
+msgstr "Asks for two-factor: set it up to open it"

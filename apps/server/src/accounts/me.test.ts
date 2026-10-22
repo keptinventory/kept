@@ -66,7 +66,70 @@ describe('GET /api/v1/me', () => {
       ],
       instance: { recoveryKitAcknowledged: null },
       deletion: null,
+      twoFactorHidden: [],
     });
+  });
+
+  it("names the member's locations hidden for want of a second factor, and nothing to anyone else", async () => {
+    const owner = await person(t, db, 'owner');
+    const member = await person(t, db, 'member');
+    const viaTotp = await person(t, db, 'totp');
+    const viaPasskey = await person(t, db, 'passkey');
+    const outsider = await person(t, db, 'outsider');
+    const make = async (name: string) =>
+      (
+        await call(t, '/api/v1/locations', {
+          as: owner,
+          body: { name, kind: 'home', timezone: 'UTC', currency: 'USD' },
+        })
+      ).json().id as string;
+    const workshop = await make('Workshop');
+    const open = await make('Cabin');
+    const gone = await make('Old flat');
+    for (const p of [member, viaTotp, viaPasskey]) {
+      for (const id of [workshop, open, gone]) await join(db, id, p.userId, 'member');
+    }
+    await ownerTx(db, (c) =>
+      c.query('UPDATE public.locations SET require_2fa = true WHERE id = ANY($1)', [
+        [workshop, gone],
+      ]),
+    );
+    await ownerTx(db, (c) =>
+      c.query('UPDATE public.locations SET deleted_at = now() WHERE id = $1', [gone]),
+    );
+    // A second factor proven in the session: the authenticator app, or a passkey with UV.
+    for (const [p, method] of [
+      [viaTotp, 'totp'],
+      [viaPasskey, 'passkey'],
+    ] as const) {
+      await db.pools.auth.query(
+        `INSERT INTO auth.session_mfa (session_id, method)
+         SELECT id, $2 FROM auth.session WHERE user_id = $1`,
+        [p.userId, method],
+      );
+    }
+    const me = async (as: typeof member) => (await call(t, '/api/v1/me', { as })).json();
+    const mine = await me(member);
+    expect(mine.twoFactorHidden).toEqual([
+      { locationId: workshop, name: 'Workshop', kind: 'home' },
+    ]);
+    expect(mine.memberships.map((m: { name: string }) => m.name)).toContain('Cabin');
+    expect(mine.memberships.map((m: { name: string }) => m.name)).not.toContain('Workshop');
+    // The location itself stays the same 404 as an id nobody has, for the member and anyone else.
+    const nothing = await call(t, '/api/v1/locations/00000000-0000-7000-8000-000000000000', {
+      as: outsider,
+    });
+    const hidden = await call(t, `/api/v1/locations/${workshop}`, { as: member });
+    const theirs = await call(t, `/api/v1/locations/${workshop}`, { as: outsider });
+    expect([hidden.statusCode, theirs.statusCode]).toEqual([404, 404]);
+    expect(hidden.body).toBe(nothing.body);
+    expect(theirs.body).toBe(nothing.body);
+    expect((await me(outsider)).twoFactorHidden).toEqual([]);
+    // With a second factor in the session, nothing is hidden and the location opens.
+    for (const p of [viaTotp, viaPasskey]) {
+      expect((await me(p)).twoFactorHidden).toEqual([]);
+      expect((await call(t, `/api/v1/locations/${workshop}`, { as: p })).statusCode).toBe(200);
+    }
   });
 
   it('says instance admin, and whether the recovery kit was acknowledged (admins only)', async () => {

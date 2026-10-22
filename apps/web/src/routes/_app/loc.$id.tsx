@@ -49,6 +49,11 @@ import { UnplacedCard } from '@/components/places/unplaced-sort';
 import { PrintInventory } from '@/components/reports/print-sheet';
 import { accessOf } from '@/components/schedules/access';
 import { SheetLazy } from '@/components/sheet/lazy';
+import {
+  hiddenAt,
+  TwoFactorHiddenNotice,
+  useTwoFactorHidden,
+} from '@/components/two-factor-hidden';
 import { buttonClass } from '@/components/ui/button';
 import { locationAddress, locationIdOf, useCanonicalLocationAddress } from '@/lib/address';
 import { sep, useFormat } from '@/lib/format';
@@ -70,6 +75,14 @@ function LocationPage() {
   const id = locationIdOf(param, locations.data);
   const location = useLocation(id ?? '');
   useCanonicalLocationAddress(param, location.data);
+  // Yours, but hidden until this session proves a second factor: say why, not "not here".
+  const hidden = hiddenAt(useTwoFactorHidden(), param);
+  if (hidden && (id === null || location.error))
+    return (
+      <Page title={hidden.name} back="/">
+        <TwoFactorHiddenNotice name={hidden.name} />
+      </Page>
+    );
   if (id === null)
     return (
       <Page title={t`Location`} back="/">

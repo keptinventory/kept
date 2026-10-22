@@ -46,6 +46,7 @@ import {
   HelpIcon,
   HomeIcon,
   InboxIcon,
+  LockIcon,
   MenuIcon,
   PanelCollapseIcon,
   PanelExpandIcon,
@@ -62,6 +63,7 @@ import { shortcutLabel, TipWithKeys } from '@/components/page';
 import { PullToRefresh } from '@/components/pull-to-refresh';
 import { PaletteHost } from '@/components/search/palette-host';
 import { SyncStatus } from '@/components/sync-status';
+import { useTwoFactorHidden } from '@/components/two-factor-hidden';
 import { Button } from '@/components/ui/button';
 import { Tip } from '@/components/ui/tooltip';
 import { locationAddress } from '@/lib/address';
@@ -326,6 +328,7 @@ function Sidebar({ locations, counts }: { locations: LocationSummary[]; counts: 
   const { t } = useLingui();
   const entries = useNavEntries();
   const nameOf = useLocationName();
+  const hidden = useTwoFactorHidden();
   const { sidebarCollapsed } = usePrefs();
   // The location the page is in: its own page, or a place, thing, container or settings page of it.
   const here = usePageLocation(locations);
@@ -509,6 +512,25 @@ function Sidebar({ locations, counts }: { locations: LocationSummary[]; counts: 
               </Fragment>
             );
           })}
+          {hidden.map((h) => (
+            <RailTip key={h.locationId} on={tips} content={t`${h.name}: asks for two-factor`}>
+              <Link
+                to="/loc/$id"
+                params={{ id: h.locationId }}
+                data-nav={`loc:${h.locationId}`}
+                aria-label={t`${h.name}, asks for two-factor`}
+                className={cn(item, sideLink, 'text-ink-3')}
+              >
+                <KindIcon kind={h.kind} />
+                <NavLabel rail={rail}>
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    <span className="min-w-0 [overflow-wrap:anywhere]">{h.name}</span>
+                    <LockIcon className="size-3.5 shrink-0" />
+                  </span>
+                </NavLabel>
+              </Link>
+            </RailTip>
+          ))}
           <RailTip on={tips} content={t`New location`}>
             <Link
               to="/locations/new"

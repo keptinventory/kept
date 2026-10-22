@@ -26966,3 +26966,27 @@ msgstr "Disattivata. Solo il proprietario può cambiarla."
 #: src/routes/_app/settings.location.$id.members.tsx
 msgid "To ask everyone for two-factor, sign in with a passkey or your authenticator app first."
 msgstr "Per chiedere a tutti la verifica in due passaggi, accedi prima con una passkey o con la tua app di autenticazione."
+
+#: src/components/app-shell.tsx
+msgid "{0}, asks for two-factor"
+msgstr "{0}, richiede la verifica in due passaggi"
+
+#: src/components/app-shell.tsx
+msgid "{0}: asks for two-factor"
+msgstr "{0}: richiede la verifica in due passaggi"
+
+#: src/components/two-factor-hidden.tsx
+msgid "<0>{name}</0> asks for two-factor"
+msgstr "<0>{name}</0> richiede la verifica in due passaggi"
+
+#: src/components/two-factor-hidden.tsx
+msgid "Turn on an authenticator app to open it, or add a passkey and sign in with it."
+msgstr "Attiva un’app di autenticazione per aprirlo, oppure aggiungi una passkey e accedi con quella."
+
+#: src/components/two-factor-hidden.tsx
+msgid "Set up two-factor"
+msgstr "Imposta la verifica in due passaggi"
+
+#: src/components/two-factor-hidden.tsx
+msgid "Asks for two-factor: set it up to open it"
+msgstr "Richiede la verifica in due passaggi: impostala per aprirlo"

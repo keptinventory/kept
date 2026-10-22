@@ -8,7 +8,7 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { restoreLocation } from '@/api/locations';
 import { keys, useDeletedLocations, useLocations } from '@/api/queries';
 import type { DeletedLocation } from '@/api/types';
-import { ChevronEndIcon } from '@/components/icons';
+import { ChevronEndIcon, LockIcon } from '@/components/icons';
 import { KindIcon } from '@/components/kind-icon';
 import { SettingsRouteError } from '@/components/on-demand-route-error';
 import {
@@ -23,6 +23,7 @@ import {
   useErrorText,
 } from '@/components/page';
 import { SettingsTabs } from '@/components/settings-tabs';
+import { TwoFactorHiddenLine, useTwoFactorHidden } from '@/components/two-factor-hidden';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/toast';
 import { locationAddress } from '@/lib/address';
@@ -40,6 +41,7 @@ function LocationsSettings() {
   const kinds = useKindLabels();
   const roles = useRoleLabels();
   const nameOf = useLocationName();
+  const hidden = useTwoFactorHidden();
   return (
     <Page title={t`Settings`} tour="settings">
       <SettingsTabs />
@@ -79,6 +81,27 @@ function LocationsSettings() {
               </li>
             );
           })}
+          {hidden.map((h) => (
+            <li key={h.locationId}>
+              <Link
+                to="/loc/$id"
+                params={{ id: h.locationId }}
+                aria-label={t`${h.name}, asks for two-factor`}
+                className="block outline-none hover:bg-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-info"
+              >
+                <Row
+                  leading={
+                    <IconTile>
+                      <KindIcon kind={h.kind} />
+                    </IconTile>
+                  }
+                  title={<bdi>{h.name}</bdi>}
+                  subtitle={<TwoFactorHiddenLine />}
+                  trailing={<LockIcon className="size-5 text-ink-3" />}
+                />
+              </Link>
+            </li>
+          ))}
         </List>
       )}
       <LinkButton to="/locations/new" className="w-full">

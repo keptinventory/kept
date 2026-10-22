@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Pools } from '../db/pools.js';
 import { DIGITS, THEMES, UNITS } from '../db/schema/index.js';
+import { withSystem } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
 import { unauthenticated } from '../http/errors.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
@@ -59,11 +60,17 @@ const Me = z.object({
   }),
   /** Set while the account waits to be deleted (D225): the moment it goes. */
   deletion: z.object({ purgeAfter: Iso }).nullable(),
+  /** The person's own locations that ask for two-factor and that this session can't open yet,
+   * because it hasn't proven a second factor (row-level security hides them everywhere else).
+   * Empty once it has. Only the person's memberships: nobody learns of a location they aren't in. */
+  twoFactorHidden: z.array(
+    z.object({ locationId: z.uuid(), name: z.string(), kind: LocationKind }),
+  ),
 });
 
 export async function meRoutes(
   app: KeptApp,
-  opts: { pools: Pick<Pools, 'app' | 'auth'> },
+  opts: { pools: Pick<Pools, 'app' | 'auth' | 'system'> },
 ): Promise<void> {
   const { pools } = opts;
 
@@ -126,6 +133,7 @@ export async function meRoutes(
       ]);
       const user = rows[0];
       if (!user) throw unauthenticated();
+      const twoFactorHidden = scope.mfa ? [] : await hiddenForTwoFactor(pools, scope.userId);
       const managed = kept.profile?.managed === true;
       const personal = kept.memberships.find((m) => m.kind === 'personal' && m.role === 'owner');
       return {
@@ -159,6 +167,7 @@ export async function meRoutes(
         deletion: req.authSession?.deletionPending
           ? { purgeAfter: req.authSession.deletionPending }
           : null,
+        twoFactorHidden,
       };
     },
   );
@@ -197,4 +206,27 @@ export async function meRoutes(
         return { status: 200, body: { suggestLocation: want } };
       }),
   );
+}
+
+/** The user's live memberships in live locations that ask for two-factor, by name. kept_system
+ * reads past row-level security, so the query names the user's own rows only. */
+async function hiddenForTwoFactor(
+  pools: Pick<Pools, 'system'>,
+  userId: string,
+): Promise<{ locationId: string; name: string; kind: z.infer<typeof LocationKind> }[]> {
+  return withSystem(pools.system, async (_tx, client) => {
+    const { rows } = await client.query<{
+      location_id: string;
+      name: string;
+      kind: z.infer<typeof LocationKind>;
+    }>(
+      `SELECT l.id AS location_id, l.name, l.kind
+         FROM public.memberships m JOIN public.locations l ON l.id = m.location_id
+        WHERE m.user_id = $1 AND l.require_2fa AND l.deleted_at IS NULL
+          AND (m.expires_at IS NULL OR m.expires_at > now())
+        ORDER BY lower(l.name), l.id`,
+      [userId],
+    );
+    return rows.map((r) => ({ locationId: r.location_id, name: r.name, kind: r.kind }));
+  });
 }

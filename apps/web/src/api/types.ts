@@ -102,6 +102,9 @@ export type SignInSecurity = {
 
 // ----- me (18) -------------------------------------------------------------------------------
 
+/** A location of yours that asks for two-factor, hidden until this session proves one. */
+export type TwoFactorHiddenLocation = { locationId: string; name: string; kind: LocationKind };
+
 /** GET /api/v1/me: the signed-in person and what the shell needs about them. */
 export type Me = {
   user: {
@@ -117,6 +120,9 @@ export type Me = {
   };
   /** Proven in this session (TOTP, backup code, or a passkey with UV). */
   mfa: boolean;
+  /** Your locations that ask for two-factor and this session can't open yet (empty with `mfa`);
+   * absent from a server before 1.12.6. */
+  twoFactorHidden?: TwoFactorHiddenLocation[];
   /** Null only while it's hidden from this session (require_2fa without a second factor). */
   personalLocationId: string | null;
   /** Display preferences. `locale` is `en` or `ar`. */

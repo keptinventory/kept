@@ -211,6 +211,8 @@ function BackupCodes({ codes }: { codes: string[] }) {
         onPress={async () => {
           await qc.invalidateQueries({ queryKey: keys.me });
           await qc.invalidateQueries({ queryKey: keys.signIn });
+          // This session now has a second factor: locations that ask for one open.
+          await qc.invalidateQueries({ queryKey: keys.locations });
           toast({ title: t`Two-factor is on`, tone: 'ok' });
           void navigate({ to: '/settings' });
         }}
