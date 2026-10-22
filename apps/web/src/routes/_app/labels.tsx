@@ -7,7 +7,8 @@
  *
  *   ?loc=<id>&things=<id>,<id>   a selection, or a thing's own label
  *   ?loc=<id>&places=<id>        a place's label
- *   ?loc=<id>&unprinted=1        everything unprinted in the location (&place=<id>: in a place)
+ *   ?loc=<id>&unprinted=1        everything unprinted in the location (&place=<id>: in a place;
+ *                                &kind=places: its places rather than its things)
  *   ?loc=<id>&blank=<n>          a blank sheet
  *
  * `validateSearch` is not code-split (D80), so it stays a few lines of plain checks.
@@ -52,6 +53,8 @@ export type LabelsSearch = {
   places?: string;
   unprinted?: 1;
   place?: string;
+  /** With `unprinted`: label the places rather than the things. */
+  kind?: 'places';
   blank?: number;
 };
 
@@ -70,6 +73,7 @@ export const Route = createFileRoute('/_app/labels')({
     if (s.unprinted === 1 || s.unprinted === '1') out.unprinted = 1;
     const place = text(s.place);
     if (place) out.place = place;
+    if (s.kind === 'places') out.kind = 'places';
     const blank = Number(s.blank);
     if (Number.isInteger(blank) && blank > 0) out.blank = blank;
     return out;
@@ -84,7 +88,11 @@ function sourceOf(s: LabelsSearch): BatchSource | null {
   const locationId = s.loc;
   if (s.blank) return { locationId, kind: 'blank', blankCount: Math.min(s.blank, MAX_BLANK) };
   if (s.unprinted)
-    return { locationId, kind: 'things', unprinted: s.place ? { placeId: s.place } : {} };
+    return {
+      locationId,
+      kind: s.kind === 'places' ? 'places' : 'things',
+      unprinted: s.place ? { placeId: s.place } : {},
+    };
   if (s.things) return { locationId, kind: 'things', thingIds: ids(s.things) };
   if (s.places) return { locationId, kind: 'places', placeIds: ids(s.places) };
   return null;
@@ -110,6 +118,7 @@ function LabelsPage() {
 }
 
 function Builder({ source }: { source: BatchSource }) {
+  const navigate = Route.useNavigate();
   const location = useLocation(source.locationId);
   if (location.isPending) return <LoadingRows />;
   if (location.isError)
@@ -122,7 +131,19 @@ function Builder({ source }: { source: BatchSource }) {
         <Trans>Printing labels is for members and admins of this location.</Trans>
       </Notice>
     );
-  return <BatchBuilder key={JSON.stringify(source)} source={source} location={l} />;
+  return (
+    <BatchBuilder
+      key={JSON.stringify(source)}
+      source={source}
+      location={l}
+      onUnprintedKind={(kind) =>
+        void navigate({
+          search: (s: LabelsSearch) => ({ ...s, kind: kind === 'places' ? 'places' : undefined }),
+          replace: true,
+        })
+      }
+    />
+  );
 }
 
 function TurnOn({ location }: { location: LocationDetail }) {

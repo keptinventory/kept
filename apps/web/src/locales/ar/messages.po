@@ -26902,3 +26902,15 @@ msgstr "لا مستندات للتنزيل"
 #: src/components/device/keep-offline.tsx
 msgid "Calculating the download size…"
 msgstr "جارٍ حساب حجم التنزيل…"
+
+#: src/components/labels/batch-builder.tsx
+msgid "What to label"
+msgstr "ما الذي تُلصق عليه"
+
+#: src/components/labels/batch-builder.tsx
+msgid "Every place in here with no printed label, the ones never labelled too: each gets its ID now."
+msgstr "كل مكان هنا بلا ملصق مطبوع، ومعه ما لم يُلصق عليه شيء قط: يحصل كل منها على معرّفه الآن."
+
+#: src/components/labels/batch-builder.tsx
+msgid "Every thing in here with no printed label."
+msgstr "كل شيء هنا بلا ملصق مطبوع."

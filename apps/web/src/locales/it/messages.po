@@ -26902,3 +26902,15 @@ msgstr "Nessun documento da scaricare"
 #: src/components/device/keep-offline.tsx
 msgid "Calculating the download size…"
 msgstr "Calcolo della dimensione del download…"
+
+#: src/components/labels/batch-builder.tsx
+msgid "What to label"
+msgstr "Cosa etichettare"
+
+#: src/components/labels/batch-builder.tsx
+msgid "Every place in here with no printed label, the ones never labelled too: each gets its ID now."
+msgstr "Ogni posto qui senza etichetta stampata, anche quelli mai etichettati: ciascuno riceve ora il suo ID."
+
+#: src/components/labels/batch-builder.tsx
+msgid "Every thing in here with no printed label."
+msgstr "Ogni oggetto qui senza etichetta stampata."

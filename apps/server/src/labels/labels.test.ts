@@ -330,6 +330,106 @@ describe('a dry run (the preview)', () => {
   });
 });
 
+describe('a places batch', () => {
+  const codesOf = async (placeIds: readonly string[]) =>
+    own<{ place_id: string; code: string }>(
+      db,
+      `SELECT place_id, code::text AS code FROM public.short_ids
+        WHERE place_id = ANY($1::uuid[]) AND state = 'assigned' AND is_primary`,
+      [placeIds],
+    );
+
+  it('gives every place in the subtree a code, the unlabelled ones too, once and audited', async () => {
+    const loc = await createLocation(t, db, ibrahim, 'household', 'Lodge');
+    const den = await place(db, loc, 'Den');
+    const top = await place(db, loc, 'Top shelf', den);
+    const bottom = await place(db, loc, 'Bottom shelf', den);
+    const hall = await place(db, loc, 'Hall');
+    const topCode = randomShortCode();
+    await own(
+      db,
+      'INSERT INTO public.short_ids (code, location_id, place_id) VALUES ($1, $2, $3)',
+      [topCode, loc.id, top],
+    );
+    // Bruce's Garage, another household: a place of its own that nothing here may touch.
+    const loft = await place(db, garage, 'Loft');
+
+    const body = { locationId: loc.id, kind: 'places', unprinted: { placeId: den } };
+    // Through a location the place isn't in, it is 404, and nothing is allocated.
+    expect((await batch(louis, { ...body, locationId: home.id, dryRun: true })).statusCode).toBe(
+      404,
+    );
+    expect(await codesOf([den, bottom])).toEqual([]);
+
+    const first = ok(await batch(ibrahim, { ...body, dryRun: true }));
+    const labels = first.labels as Batch['labels'];
+    expect(labels.map((l) => l.name)).toEqual(['Bottom shelf', 'Den', 'Top shelf']);
+    expect(first.excluded).toEqual({ pending: 0, other: 0 });
+    const codes = new Map((await codesOf([den, top, bottom])).map((r) => [r.place_id, r.code]));
+    expect(codes.get(top)).toBe(topCode);
+    expect(labels.map((l) => l.code)).toEqual([codes.get(bottom), codes.get(den), topCode]);
+    // Each new code is audited as a place's own label is.
+    const events = await auditActions(loc.id, 'place.label');
+    expect(events.map((e) => [e.entity_id, e.actor_id]).sort()).toEqual(
+      [
+        [bottom, ibrahim.userId],
+        [den, ibrahim.userId],
+      ].sort(),
+    );
+    expect(events.find((e) => e.entity_id === den)?.diff).toMatchObject({
+      short_code: { before: null, after: codes.get(den) },
+    });
+
+    // Again, and then the batch itself: the same codes, and nothing more allocated or audited.
+    const again = ok(await batch(ibrahim, { ...body, dryRun: true }));
+    expect((again.labels as Batch['labels']).map((l) => l.code)).toEqual(labels.map((l) => l.code));
+    const made = ok(await batch(ibrahim, body), 201) as unknown as { batch: Batch };
+    expect(made.batch.labels.map((l) => l.code)).toEqual(labels.map((l) => l.code));
+    expect(await auditActions(loc.id, 'place.label')).toHaveLength(2);
+    expect(await codesOf([den, top, bottom])).toHaveLength(3);
+
+    // The rest of the location: the hall gets its code; the Unplaced place never has a label.
+    const whole = ok(
+      await batch(ibrahim, { locationId: loc.id, kind: 'places', unprinted: {}, dryRun: true }),
+    );
+    expect((whole.labels as Batch['labels']).map((l) => l.name)).toContain('Hall');
+    expect(await codesOf([hall])).toHaveLength(1);
+    expect(await codesOf([loc.unplacedId])).toEqual([]);
+    // Bruce's place, and his location, are untouched; his place through this location is 404.
+    expect(
+      (await batch(ibrahim, { ...body, unprinted: { placeId: loft }, dryRun: true })).statusCode,
+    ).toBe(404);
+    expect(await codesOf([loft])).toEqual([]);
+    expect(await auditActions(garage.id, 'place.label')).toEqual([]);
+  });
+
+  it('gives a listed place with no code one, and leaves a printed place out of "unprinted"', async () => {
+    const loc = await createLocation(t, db, ibrahim, 'household', 'Chalet');
+    const porch = await place(db, loc, 'Porch');
+    const shed = await place(db, loc, 'Shed');
+    const listed = ok(
+      await batch(louis, { locationId: home.id, kind: 'places', placeIds: [shelf] }),
+      201,
+    ) as unknown as { batch: Batch; excluded: Json };
+    expect(listed.excluded).toEqual({ pending: 0, other: 0 });
+    expect(listed.batch.labels).toEqual([
+      expect.objectContaining({ kind: 'place', name: 'Shelf A', targetId: shelf }),
+    ]);
+    const made = ok(
+      await batch(ibrahim, { locationId: loc.id, kind: 'places', placeIds: [porch] }),
+      201,
+    ) as unknown as { batch: Batch };
+    ok(await printed(ibrahim, made.batch.id));
+    const rest = ok(
+      await batch(ibrahim, { locationId: loc.id, kind: 'places', unprinted: {}, dryRun: true }),
+    );
+    const names = (rest.labels as Batch['labels']).map((l) => l.name);
+    expect(names).toContain('Shed');
+    expect(names).not.toContain('Porch');
+    expect(await codesOf([shed])).toHaveLength(1);
+  });
+});
+
 describe('a sheet made but not confirmed', () => {
   it('a dry run of exactly those things names the unconfirmed batch, in any order', async () => {
     const loc = await createLocation(t, db, ibrahim, 'household', 'Studio');

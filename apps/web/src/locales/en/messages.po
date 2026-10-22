@@ -26902,3 +26902,15 @@ msgstr "No documents to download"
 #: src/components/device/keep-offline.tsx
 msgid "Calculating the download size…"
 msgstr "Calculating the download size…"
+
+#: src/components/labels/batch-builder.tsx
+msgid "What to label"
+msgstr "What to label"
+
+#: src/components/labels/batch-builder.tsx
+msgid "Every place in here with no printed label, the ones never labelled too: each gets its ID now."
+msgstr "Every place in here with no printed label, the ones never labelled too: each gets its ID now."
+
+#: src/components/labels/batch-builder.tsx
+msgid "Every thing in here with no printed label."
+msgstr "Every thing in here with no printed label."

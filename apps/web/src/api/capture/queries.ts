@@ -243,7 +243,7 @@ export const captureApi = {
   // labels
   createLabelBatch: (body: CreateLabelBatchBody) =>
     api.post<CreateLabelBatchResult>(p.labelBatches, body),
-  /** The builder's preview: the same call with `dryRun`, nothing saved or allocated. */
+  /** The builder's preview: the same call with `dryRun`, no batch saved, no blank allocated. */
   previewLabelBatch: (body: CreateLabelBatchBody) =>
     api.post<LabelBatchPreview>(p.labelBatches, { ...body, dryRun: true }),
   labelBatches: (locationId?: string, cursor?: string) =>

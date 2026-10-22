@@ -1,10 +1,11 @@
 import { isSheet, LABEL_STOCKS, labelStock, newId, randomShortCode } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { assertClientId, encodeCursor, type PageRequest } from '../http/conventions.js';
 import { AppError, invalid, notFound, pgErrorOf } from '../http/errors.js';
-import { SHORT_ID_TRIES } from '../places/short-id.js';
+import { allocateShortId, SHORT_ID_TRIES } from '../places/short-id.js';
 import { type Ctx, requireRole } from '../things/service.js';
 
 // Label batches (D43, D44, D45, D97, D137, D172, D175, D185).
@@ -22,6 +23,9 @@ import { type Ctx, requireRole } from '../things/service.js';
 //   keeps this from telling the two apart), `other` when it is a visible thing that can't be
 //   labelled here (trashed, or in another location). An `unprinted` run past 1,000 labels (the
 //   batch's cap) prints the first 1,000 and counts the rest as `other`: they stay unprinted.
+//   A place gets its code when it is first labelled, so a live place of this location with none
+//   is given one here, as `POST /places/:id/label` gives it (audited `place.label`), on the
+//   request's transaction and on a dry run too, so the preview shows the codes that print.
 // - `blank`: 1–500 new blank codes, each tried as `randomShortCode()` with INSERT … ON CONFLICT
 //   DO NOTHING (8 tries each, places/short-id.ts), under the 1,000-unclaimed cap per location
 //   (the 0042 trigger enforces it, this answers 409 `blank_cap_reached` first).
@@ -51,7 +55,8 @@ export const CreateBatchBody = z.strictObject({
   blankCount: z.number().int().min(1).max(MAX_BLANKS).optional(),
   stock: z.string().refine((s) => LABEL_STOCKS.some((x) => x.key === s), 'an unknown stock'),
   startCell: z.number().int().min(1).max(200).optional(),
-  /** T28's preview: 200 LabelBatchPreview, nothing saved and no blank code allocated. */
+  /** The preview: 200 LabelBatchPreview, no batch saved and no blank code allocated (a place
+   * with no code is given its own, so the preview shows the codes that print). */
   dryRun: z.boolean().optional(),
 });
 export type CreateBatchBody = z.infer<typeof CreateBatchBody>;
@@ -285,11 +290,11 @@ async function requirePlace(client: pg.ClientBase, locationId: string, placeId: 
 
 /** Listed things or places: their primary codes, in the order given, and what was left out. */
 async function pickListed(
-  client: pg.ClientBase,
-  locationId: string,
+  ctx: Ctx & { locationId: string },
   table: 'things' | 'places',
   ids: readonly string[],
 ): Promise<Picked> {
+  const { client, locationId } = ctx;
   const unique = [...new Set(ids.map((i) => i.toLowerCase()))];
   const col = table === 'things' ? 'thing_id' : 'place_id';
   const { rows } = await client.query<{ id: string; code: string | null; here: boolean }>(
@@ -306,24 +311,41 @@ async function pickListed(
   const seen = new Set(rows.map((r) => r.id));
   picked.pending = unique.filter((id) => !seen.has(id)).length;
   for (const r of rows) {
+    const code = r.here && !r.code && table === 'places' ? await codePlace(ctx, r.id) : r.code;
     if (!r.here) picked.other += 1;
-    else if (!r.code) picked.pending += 1;
+    else if (!code) picked.pending += 1;
     else {
-      picked.codes.push(r.code);
+      picked.codes.push(code);
       if (table === 'things') picked.subjects.push(r.id);
     }
   }
   return picked;
 }
 
+/** A new primary code for a live place of `locationId` that has none, audited as
+ * `labelPlace` (places/service.ts) audits it. */
+async function codePlace(ctx: Ctx & { locationId: string }, placeId: string): Promise<string> {
+  const code = await allocateShortId(ctx.client, ctx.locationId, { placeId });
+  await audited(ctx.tx, {
+    locationId: ctx.locationId,
+    actor: actorOf(ctx.scope),
+    action: 'place.label',
+    entity: { type: 'place', id: placeId },
+    before: { short_code: null },
+    after: { short_code: code },
+    requestId: ctx.requestId,
+  });
+  return code;
+}
+
 /** Every live thing (or place) under `placeId` (or in the location) none of whose codes was
- * ever printed, in place order. */
+ * ever printed, in place order. A place with no code yet gets one. */
 async function pickUnprinted(
-  client: pg.ClientBase,
-  locationId: string,
+  ctx: Ctx & { locationId: string },
   table: 'things' | 'places',
   placeId: string | null,
 ): Promise<Picked> {
+  const { client, locationId } = ctx;
   if (placeId) await requirePlace(client, locationId, placeId);
   const unprinted = (col: string, alias: string) =>
     `NOT EXISTS (SELECT 1 FROM public.short_ids x
@@ -356,13 +378,21 @@ async function pickUnprinted(
       : `${subtree}
          SELECT p.id, s.code::text AS code
            FROM sub JOIN public.places p ON p.id = sub.id
-           JOIN public.short_ids s ON s.place_id = p.id AND s.state = 'assigned' AND s.is_primary
+           LEFT JOIN public.short_ids s
+                  ON s.place_id = p.id AND s.state = 'assigned' AND s.is_primary
           WHERE NOT p.is_unplaced AND ${unprinted('place_id', 'p')}
           ORDER BY p.name COLLATE "und-x-icu", p.id`;
   const { rows: all } = await client.query<{ id: string; code: string | null }>(sql, [
     locationId,
     placeId,
   ]);
+  if (table === 'places') {
+    // A place with no code gets one, those that fit in the batch.
+    const kept = all.slice(0, MAX_BATCH);
+    const codes: string[] = [];
+    for (const r of kept) codes.push(r.code ?? (await codePlace(ctx, r.id)));
+    return { codes, subjects: [], pending: 0, other: all.length - kept.length };
+  }
   // A thing with no code yet is `pending`.
   const rows = all.filter((r): r is { id: string; code: string } => r.code !== null);
   const kept = rows.slice(0, MAX_BATCH);
@@ -450,11 +480,10 @@ export async function createBatch(
       const codes = await makeBlanks(client, locationId, body.blankCount as number);
       picked = { codes, subjects: [], pending: 0, other: 0 };
     } else if (listed) {
-      picked = await pickListed(client, locationId, body.kind, listed);
+      picked = await pickListed({ ...ctx, locationId }, body.kind, listed);
     } else {
       picked = await pickUnprinted(
-        client,
-        locationId,
+        { ...ctx, locationId },
         body.kind,
         body.unprinted?.placeId?.toLowerCase() ?? null,
       );
@@ -465,7 +494,7 @@ export async function createBatch(
   }
   const excluded = { pending: picked.pending, other: picked.other };
   if (body.dryRun) {
-    // T28's preview: nothing saved, no blank allocated, nothing audited.
+    // The preview: no batch saved, no blank allocated, the batch not audited.
     return body.kind === 'blank'
       ? { labels: [], blank: body.blankCount as number, excluded, unconfirmed: null }
       : {

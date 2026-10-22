@@ -458,8 +458,8 @@ export type CreateLabelBatchBody = {
   stock: string;
   startCell?: number;
   /**
-   * The builder's preview (for T16): validate and answer what the batch would hold, with
-   * nothing saved and no blank code allocated. 200 `LabelBatchPreview`; the same errors as a
+   * The builder's preview: validate and answer what the batch would hold, with no batch saved
+   * and no blank code allocated (a place with no code is given its own). 200 `LabelBatchPreview`; the same errors as a
    * real create (403, 404, 409 `module_off`, 409 `blank_cap_reached`).
    */
   dryRun?: boolean;

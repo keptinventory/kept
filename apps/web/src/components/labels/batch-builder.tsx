@@ -3,8 +3,10 @@
  * the stock, the start cell on a partly used sheet, then Print.
  *
  * What prints comes from where the person started: a selection of things, a place's own label,
- * "Label everything unprinted" in a place or location, or a blank sheet. The list is the server's
- * answer to a dry run (`dryRun`, nothing saved or allocated), so it shows exactly what the batch
+ * "Label everything unprinted" in a place or location (its things, or its places), or a blank
+ * sheet. The list is the server's
+ * answer to a dry run (`dryRun`: no batch saved, no blank allocated; a place with no code gets
+ * its own, the code it prints with), so it shows exactly what the batch
  * will hold, and says how many things were left out because their ID is still pending (they were
  * captured offline and haven't synced). Print makes the batch, then opens the print view, which
  * opens the print dialog.
@@ -39,6 +41,7 @@ import { PrinterIcon } from '@/components/icons';
 import { IdChip } from '@/components/id-chip';
 import { EmptyState, LoadingRows, Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
+import { Segmented } from '@/components/ui/segmented';
 import { isolate } from '@/lib/bidi';
 import { useFormat } from '@/lib/format';
 import { labelsTooLong, useLabelMeasure } from './fit';
@@ -112,9 +115,12 @@ export const MAX_BLANK = 500;
 export function BatchBuilder({
   source,
   location,
+  onUnprintedKind,
 }: {
   source: BatchSource;
   location: LocationDetail;
+  /** "Label everything unprinted": switch between its things and its places. */
+  onUnprintedKind?: (kind: 'things' | 'places') => void;
 }) {
   const { t } = useLingui();
   const fmt = useFormat();
@@ -193,6 +199,22 @@ export function BatchBuilder({
   return (
     <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,380px)] md:items-start md:gap-7">
       <div className="grid min-w-0 content-start gap-5">
+        {source.unprinted && onUnprintedKind && source.kind !== 'blank' ? (
+          <Segmented<'things' | 'places'>
+            label={t`What to label`}
+            value={source.kind}
+            onChange={onUnprintedKind}
+            options={[
+              { id: 'things', label: t`Things` },
+              { id: 'places', label: t`Places` },
+            ]}
+            description={
+              source.kind === 'places'
+                ? t`Every place in here with no printed label, the ones never labelled too: each gets its ID now.`
+                : t`Every thing in here with no printed label.`
+            }
+          />
+        ) : null}
         {blank ? (
           <BlankCount
             value={blankCount}

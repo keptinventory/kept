@@ -481,3 +481,63 @@ test('"Printed OK?" confirms the batch just printed, and printing the same unpri
   expect((await batch(older.batch.id)).printedConfirmedAt).toBeNull();
   await context.close();
 });
+
+test('"Label everything here" in a room, as places: the sheet lists the room and its never-labelled shelves, each with its own code', async ({
+  browser,
+}) => {
+  test.setTimeout(120_000);
+  const { context, page } = await person(browser);
+  const home = await homeId(page);
+  const tag = `${test.info().project.name} ${Date.now()}`;
+  const room = await send(page, `/api/v1/locations/${home}/places`, {
+    name: `Study ${tag}`,
+    kindKey: 'zone',
+  });
+  const shelves = ['Top shelf', 'Bottom shelf'];
+  for (const name of shelves) {
+    await send(page, `/api/v1/locations/${home}/places`, {
+      name,
+      kindKey: 'zone',
+      parentId: room.id,
+    });
+  }
+  // Nothing here was ever labelled: no codes yet.
+  const before = (await (await page.request.get(`/api/v1/places/${room.id}`)).json()) as {
+    shortCode: string | null;
+  };
+  expect(before.shortCode).toBeNull();
+
+  await page.goto(`/p/${room.id as string}`);
+  await page.getByRole('button', { name: /^Label everything here/ }).click();
+  await expect(page).toHaveURL(/\/labels\?/);
+  const what = page.getByRole('radiogroup', { name: 'What to label' });
+  await expect(what.getByRole('radio', { name: 'Things' })).toBeChecked();
+  await what.getByRole('radio', { name: 'Places' }).check({ force: true });
+  await expect(page).toHaveURL(/kind=places/);
+  await page
+    .getByRole('radiogroup', { name: 'Label stock' })
+    .getByRole('radio', { name: /^A4 sheet · 24 labels/ })
+    .check({ force: true });
+  const list = page.getByRole('heading', { name: 'Printing 3' }).locator('xpath=..');
+  for (const name of ['Bottom shelf', `Study ${tag}`, 'Top shelf']) {
+    await expect(list.getByText(name, { exact: true })).toBeVisible();
+  }
+  await page.getByRole('button', { name: 'Print 3 labels' }).click();
+  await expect(page.getByRole('region', { name: 'Sheet 1 of 1' })).toBeVisible();
+  const id = new URL(page.url()).pathname.split('/').pop() as string;
+  const batch = (await (await page.request.get(`/api/v1/labels/batches/${id}`)).json()) as {
+    kind: string;
+    labels: { code: string; kind: string; name?: string }[];
+  };
+  expect(batch.kind).toBe('places');
+  expect(batch.labels.map((l) => l.name).sort()).toEqual(
+    ['Bottom shelf', `Study ${tag}`, 'Top shelf'].sort(),
+  );
+  expect(new Set(batch.labels.map((l) => l.code)).size).toBe(3);
+  // The room's page now shows its code: the one on the sheet.
+  const after = (await (await page.request.get(`/api/v1/places/${room.id}`)).json()) as {
+    shortCode: string | null;
+  };
+  expect(batch.labels.find((l) => l.name === `Study ${tag}`)?.code).toBe(after.shortCode);
+  await context.close();
+});

@@ -351,6 +351,50 @@ describe('where printing starts', () => {
     expect(await screen.findByRole('img', { name: 'R00M4K' })).toBeInTheDocument();
   });
 
+  it('"Label everything here" offers things or places; places lists every place inside, never-labelled ones too', async () => {
+    vi.spyOn(window, 'print').mockImplementation(() => {});
+    const office = INV_IDS.place.office;
+    const state = ownerScenario();
+    const { user, router } = await renderApp(`/p/${office}`, { state });
+    await findHeading('Office');
+    await user.click(screen.getByRole('button', { name: /^Label everything here/ }));
+    await waitFor(() => expect(pathOf(router)).toBe('/labels'));
+    const what = await screen.findByRole('radiogroup', { name: 'What to label' });
+    expect(within(what).getByRole('radio', { name: 'Things' })).toBeChecked();
+    await user.click(within(what).getByRole('radio', { name: 'Places' }));
+    await waitFor(() =>
+      expect(router.state.location.search).toMatchObject({
+        loc: IDS.home,
+        unprinted: 1,
+        place: office,
+        kind: 'places',
+      }),
+    );
+    // The office has its code; its desk drawer never had one, and is given one to print with.
+    expect(await screen.findByRole('img', { name: 'R00M4K' })).toBeInTheDocument();
+    const drawer = state.inventory.places.find((x) => x.id === INV_IDS.place.deskDrawer);
+    expect(drawer?.shortCode).toMatch(/^[0-9A-Z]{6}$/);
+    expect(screen.getByRole('img', { name: drawer?.shortCode as string })).toBeInTheDocument();
+    expect(screen.getAllByText('Desk drawer').length).toBeGreaterThan(0);
+    const posts = batchPosts();
+    await user.click(screen.getByRole('button', { name: 'Print 2 labels' }));
+    await waitFor(() => expect(pathOf(router)).toMatch(/^\/labels\/[\w-]+$/));
+    expect(posts()).toEqual(['create']);
+    const create = vi
+      .mocked(globalThis.fetch)
+      .mock.calls.find(([url]) => String(url).endsWith('/api/v1/labels/batches'));
+    expect(JSON.parse(String(create?.[1]?.body))).toMatchObject({
+      kind: 'places',
+      unprinted: { placeId: office },
+    });
+  });
+
+  it('a list of chosen things has no things-or-places choice', async () => {
+    await renderApp(`/labels?loc=${IDS.home}&things=${T.hdmiCable}`);
+    expect(await screen.findByRole('img', { name: '7KQ4MZ' })).toBeInTheDocument();
+    expect(screen.queryByRole('radiogroup', { name: 'What to label' })).toBeNull();
+  });
+
   it("a thing's Label sheet opens the builder for that thing", async () => {
     const { user, router } = await renderApp(`/t/${T.box3}`);
     await findHeading('Box 3');

@@ -3,7 +3,8 @@
  * a code (an offline capture not yet synced) can't be in a batch: it's counted as `pending`. A
  * claim of a code another phone claimed first is 409 `label_claimed` with the other target's
  * name; any code the caller can't claim is the same 404 as a random one (D137). A `dryRun`
- * create (T28's preview) answers the labels without saving or allocating anything, and names
+ * create (the preview) answers the labels without saving a batch or allocating a blank (a place
+ * with no code is given one, as by the server), and names
  * the newest unconfirmed batch holding exactly the same codes. "Not printed" (`dismiss`) sets an
  * unconfirmed batch aside; "Printed OK?" clears that.
  */
@@ -51,7 +52,9 @@ export function labelsRoutes(state: MockState): MockRoute[] {
   const cap = () => state.capture;
   const access = () => accessOf(state);
   const codeTaken = (code: string) =>
-    inv().things.some((t) => t.shortCode === code) || cap().codes.some((c) => c.code === code);
+    inv().things.some((t) => t.shortCode === code) ||
+    inv().places.some((x) => x.shortCode === code) ||
+    cap().codes.some((c) => c.code === code);
   const labelsOn = (locationId: string) =>
     state.locations.find((l) => l.id === locationId)?.modules.includes('labels') ?? false;
   const printedCodes = () =>
@@ -134,14 +137,38 @@ export function labelsRoutes(state: MockState): MockRoute[] {
           });
         }
       } else {
-        for (const id of b.placeIds ?? []) {
+        const printed = printedCodes();
+        const under = (placeId: string, root: string): boolean => {
+          const pl = inv().places.find((x) => x.id === placeId);
+          if (!pl) return false;
+          return pl.id === root || (pl.parentId !== null && under(pl.parentId, root));
+        };
+        const root = b.unprinted?.placeId;
+        if (root && !inv().places.some((x) => x.id === root && x.locationId === b.locationId))
+          return notFound();
+        const ids = b.unprinted
+          ? inv()
+              .places.filter(
+                (x) =>
+                  x.locationId === b.locationId &&
+                  !x.deletedAt &&
+                  !x.isUnplaced &&
+                  !(x.shortCode && printed.has(x.shortCode)) &&
+                  (!root || under(x.id, root)),
+              )
+              .sort((a, z) => a.name.localeCompare(z.name))
+              .map((x) => x.id)
+          : (b.placeIds ?? []);
+        for (const id of ids) {
           const pl = inv().places.find((x) => x.id === id && !x.deletedAt);
-          if (!pl?.shortCode || pl.locationId !== b.locationId) {
+          if (!pl || pl.locationId !== b.locationId) {
             const seen = inv().places.find((x) => x.id === id);
             if (seen && access().visible(seen.locationId)) other += 1;
             else pending += 1;
             continue;
           }
+          // A place with no code is given one, on a dry run too, as the server does.
+          if (!pl.shortCode) pl.shortCode = allocateCode(codeTaken);
           labels.push({
             code: pl.shortCode,
             url: urlOf(pl.shortCode),
