@@ -213,6 +213,8 @@ Document). A file Kept can't preview yet is kept anyway and marked **Preview una
 
 ## Search
 
+Full detail: [search](/users/search/).
+
 **Search** finds things by name, brand, serial, ID, place, or the words AI added as aliases, and
 groups results into things, places, people, shops and documents (with a snippet of the receipt
 text). Filters narrow by location, place, type, tag and state; **Saved searches** keep a filter
