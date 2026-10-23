@@ -55,8 +55,14 @@ A schedule is a reminder to do something again, by date or by reading.
 
 ## Fuel (Complete preset)
 
-On the Complete preset, the **Fuel** tab records each fill. Fields include litres, the price per
-litre, the station, and **Full tank**.
+On the Complete preset, the **Fuel** tab records each fill. The form asks for the **amount** (in
+your unit: litres, gallons, or a charge in kWh for an EV) and the **cost**; the price per unit is
+worked out from those, not entered. It also has the date and time, **Full tank** or **Partial**,
+the odometer (optional, checked against the readings before and after it), a photo of the
+odometer, the pump receipt, a note, and the station — a new station is added to your vendors when
+you save. **I missed a fill-up before this one** marks a gap, so consumption stays right:
+consumption is measured from one full fill to the next, and shows again after two full fills with
+odometer readings.
 
 ## Costs
 
