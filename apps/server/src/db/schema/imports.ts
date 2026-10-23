@@ -66,6 +66,9 @@ export const importRuns = pgTable(
     inspect: jsonb('inspect'),
     secretsKeyCiphertext: jsonb('secrets_key_ciphertext'),
     keyVersion: integer('key_version'),
+    /** A Homebox import's new location, until Import makes it (1.13.0): name, kind, timezone,
+     * currency, languages, preset and whether Personal takes the same preset. Cleared then. */
+    newLocation: jsonb('new_location'),
     ...mutable(),
   },
   (t) => [
@@ -81,7 +84,13 @@ export const importRuns = pgTable(
     index('import_runs_location_idx').on(t.locationId, t.createdAt),
     check(
       'import_runs_target_chk',
-      sql`location_id IS NOT NULL OR status IN ('draft', 'failed', 'cancelled')`,
+      sql`location_id IS NOT NULL OR status IN ('draft', 'failed', 'cancelled')
+          OR (status = 'checked' AND new_location IS NOT NULL)`,
+    ),
+    check(
+      'import_runs_new_location_chk',
+      sql`new_location IS NULL OR (jsonb_typeof(new_location) = 'object'
+          AND source = 'homebox_zip' AND location_id IS NULL)`,
     ),
     check(
       'import_runs_archive_chk',

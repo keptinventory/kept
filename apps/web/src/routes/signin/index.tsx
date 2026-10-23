@@ -24,11 +24,13 @@ import { keys } from '@/api/queries';
 import { AuthFrame } from '@/components/auth-frame';
 import { KeyIcon, MailIcon } from '@/components/icons';
 import { OidcError, OidcSignInButton, useGoogleOn, useOidcName } from '@/components/oidc-sign-in';
+import { OriginMismatchNotice } from '@/components/origin-mismatch';
 import { LinkButton, Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { PasswordField } from '@/components/ui/password-field';
 import { TextField } from '@/components/ui/text-field';
 import { nextSearch } from '@/lib/next';
+import { expectedOriginOf } from '@/lib/origin-mismatch';
 
 /** `next`, the `error` a failed "Sign in with <name>" comes back with (step 6, T22), and `via`:
  * `google` when it was Google's (D226). */
@@ -54,6 +56,16 @@ export const Route = createFileRoute('/signin/')({
   component: SignInPage,
 });
 
+/** Better Auth's answers that mean the email or username and the password don't go together.
+ * Its other INVALID_* codes (the origin, a callback URL) say nothing about the password. */
+const WRONG_CREDENTIALS = new Set([
+  'INVALID_EMAIL_OR_PASSWORD',
+  'INVALID_USERNAME_OR_PASSWORD',
+  'INVALID_PASSWORD',
+  'INVALID_EMAIL',
+  'INVALID_USERNAME',
+]);
+
 const looksLikeEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
 function SignInPage() {
@@ -67,6 +79,8 @@ function SignInPage() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  /** The address this Kept is set up for, when it was opened at another one. */
+  const [mismatch, setMismatch] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ id?: string; password?: string }>({});
   const [linkSentTo, setLinkSentTo] = useState<{ to: string; kind: 'sign-in' | 'reset' } | null>(
     null,
@@ -79,13 +93,18 @@ function SignInPage() {
     router.history.push(next ?? '/');
   };
   const describe = (e: unknown) => {
+    setMismatch(expectedOriginOf(e));
     if (isApiError(e) && e.code === 'rate_limited') {
       const wait = e.retryAfter;
       return wait
         ? t`Too many attempts. Try again in ${wait} seconds.`
         : t`Too many attempts. Wait a minute and try again.`;
     }
-    if (isApiError(e) && (e.status === 401 || e.authCode?.startsWith('INVALID_')))
+    if (
+      isApiError(e) &&
+      e.code !== 'origin_mismatch' &&
+      (e.status === 401 || (e.authCode !== undefined && WRONG_CREDENTIALS.has(e.authCode)))
+    )
       return t`That email or username and password don't match.`;
     return errorText(e);
   };
@@ -115,6 +134,8 @@ function SignInPage() {
     mutationFn: signInWithPasskey,
     onSuccess: done,
     onError: (e) => {
+      setMismatch(expectedOriginOf(e));
+      if (expectedOriginOf(e)) return setError(describe(e));
       if (e instanceof PasskeyCancelled) return setError(t`Passkey sign-in was cancelled.`);
       if (isApiError(e) && e.code === 'mfa_required') {
         void navigate({ to: '/signin/two-factor', search: next ? { next } : {} });
@@ -202,7 +223,11 @@ function SignInPage() {
           isInvalid={!!fieldErrors.password}
           errorMessage={fieldErrors.password}
         />
-        {error ? <Notice tone="danger">{error}</Notice> : null}
+        {error && mismatch ? (
+          <OriginMismatchNotice expected={mismatch} />
+        ) : error ? (
+          <Notice tone="danger">{error}</Notice>
+        ) : null}
         <Button type="submit" isPending={password$.isPending}>
           <Trans>Sign in</Trans>
         </Button>

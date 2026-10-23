@@ -143,30 +143,24 @@ Docker with Compose v2, on a machine with at least 2 GB of RAM and 2 CPU cores
 ([what it needs](https://keptinventory.info/install/hardware/)).
 
 ```sh
-git clone --branch v1.12.5 --depth 1 https://github.com/keptinventory/kept.git && cd kept
-cp compose.env.example .env
-for v in SUPERUSER OWNER APP AUTH SYSTEM; do
-  sed -i.bak "s/^KEPT_DB_${v}_PASSWORD=\$/KEPT_DB_${v}_PASSWORD=$(openssl rand -hex 32)/" .env
-done
-sed -i.bak 's|^KEPT_IMAGE=$|KEPT_IMAGE=ghcr.io/keptinventory/kept:1.12.5|' .env && rm .env.bak
-# Set KEPT_PUBLIC_URL in .env to the address you will open, e.g. http://<this host>:8080
-docker compose pull
+mkdir kept && cd kept
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.13.0/compose.yaml
+docker compose run --rm init
 docker compose up -d
-docker compose logs kept | grep "KEPT SETUP CODE"
 ```
 
-1. **`.env`:** five generated database passwords, the released image, and `KEPT_PUBLIC_URL`:
-   exactly the address the browser shows (links and QR codes are built from it).
-2. **Start:** the database, then the one-shot `migrate`, then Kept on port 8080
-   (`KEPT_HTTP_PORT` changes it).
-3. **First run:** open `KEPT_PUBLIC_URL`, enter the setup code from the log, create the first
-   account. It becomes the instance admin.
-4. **Keep the keys:** `docker compose exec kept kept admin recovery-kit` prints them. Store them
-   off this server: a backup restores secret values only with the key.
+1. **`compose.yaml`:** the whole stack in one file; no clone, no passwords to make.
+2. **`init`:** asks the address you'll open Kept at (a name such as `http://kept.home.arpa:8080`
+   beats an IP address: printed labels carry it), writes `.env` and shows the setup code.
+3. **Start:** the database, a one-shot bootstrap that makes the database logins and their
+   passwords, the one-shot `migrate`, then Kept on port 8080 (`KEPT_HTTP_PORT` changes it).
+4. **First run:** open the address, enter the setup code, create the first account. It becomes
+   the instance admin. Then keep the keys off this server:
+   `docker compose exec kept kept admin recovery-kit` prints them.
 
 The camera, installing the app, push and location need HTTPS:
-`docker compose --profile https up -d` adds Caddy with a certificate for `KEPT_DOMAIN`
-([HTTPS](https://keptinventory.info/install/https/)). Every step in full:
+`docker compose --profile https up -d` adds Caddy with a certificate for `KEPT_DOMAIN`, from
+the Caddyfile in `docker/caddy/` ([HTTPS](https://keptinventory.info/install/https/)). Every step in full:
 [the install guide](https://keptinventory.info/install/compose/).
 
 - **Kubernetes:** the Helm chart, `oci://ghcr.io/keptinventory/charts/kept`, signed and published

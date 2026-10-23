@@ -1,9 +1,10 @@
 import { HomeboxChoices } from '@kept/shared';
-import { invalid } from '../../http/errors.js';
+import { AppError, invalid } from '../../http/errors.js';
 import { importArchiveKey } from '../../storage/blob-store.js';
 import type { ArchiveImporter } from '../archive-types.js';
+import { pendingOf } from '../pending.js';
 import { inspectHomebox } from './inspect.js';
-import { loadHomeboxLookups } from './lookups.js';
+import { loadHomeboxLookups, loadPendingLookups } from './lookups.js';
 import { planHomebox } from './plan.js';
 import { type HomeboxData, openHomebox, readHomebox } from './read.js';
 
@@ -24,15 +25,22 @@ export const homeboxImporter: ArchiveImporter<HomeboxData> = {
   dryRun: async (c, run, data) => {
     const choices = HomeboxChoices.safeParse(run.choices);
     if (!choices.success) throw invalid('Make the choices first.');
-    const lookups = await loadHomeboxLookups(
-      c.tx,
-      c.client,
-      c.scope,
-      run.location_id,
-      data,
-      choices.data,
-      c.files?.maxFileBytes ?? NO_STORAGE_MAX,
-    );
+    const max = c.files?.maxFileBytes ?? NO_STORAGE_MAX;
+    const pending = run.location_id ? null : pendingOf(run);
+    let lookups: Awaited<ReturnType<typeof loadHomeboxLookups>>;
+    if (run.location_id) {
+      lookups = await loadHomeboxLookups(
+        c.tx,
+        c.client,
+        c.scope,
+        run.location_id,
+        data,
+        choices.data,
+        max,
+      );
+    } else if (pending) {
+      lookups = await loadPendingLookups(c.client, pending, data, choices.data, max);
+    } else throw new AppError('import_target_needed', 409);
     const plan = planHomebox(data, choices.data, lookups);
     return { report: plan.report, total: plan.ops.length };
   },
