@@ -219,11 +219,6 @@ Full detail: [search](/users/search/).
 groups results into things, places, people, shops and documents (with a snippet of the receipt
 text). Filters narrow by location, place, type, tag and state; **Saved searches** keep a filter
 set for you or a whole location. On a computer, ⌘K or Ctrl+K opens the same search from anywhere.
-
-On a phone, Search also works offline from the phone's copy, labelled **On this phone · as of
-last sync**. With an embeddings model, results "matched by meaning" join the keyword ones
-([AI providers](/users/ai-providers/#search-and-embeddings)).
-
 ## Moving things
 
 - **Move** on a thing picks the new place. Moving into another location you belong to warns who
