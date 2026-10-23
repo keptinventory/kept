@@ -16,15 +16,10 @@ import { captureApi } from '@/api/capture/queries';
 import { ApiError } from '@/api/client';
 import { inventoryPaths } from '@/api/inventory/paths';
 import type { FileClass } from '@/api/inventory/types';
+import { sha256Hex } from '@/lib/sha256';
 import { displayParentOf, fileClassFor } from './queue';
 import type { LocalBlob, QueueEntry } from './store';
 import type { SyncStore } from './sync-store';
-
-/** The file's SHA-256 as 64 lower-case hex characters (`X-Kept-Sha256`). */
-export async function sha256Hex(blob: Blob): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', await blob.arrayBuffer());
-  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
-}
 
 /** A captured file ready to queue: its upload id chosen now, its hash computed now. */
 export async function localBlob(

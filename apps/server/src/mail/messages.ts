@@ -182,6 +182,13 @@ const EN_ADMIN: Record<AdminAction, (locationName: string) => Message> = {
       `The person who runs this Kept moved ${name} to a new owner. You stay in it as an admin.`,
     ],
   }),
+  'token-created': () => ({
+    subject: 'A token was made for your account',
+    paragraphs: [
+      'The person who runs this Kept made a personal token for your account on the server, for an app such as Home Assistant or an AI assistant. It can do what you can, in the locations it was made for.',
+      'If you didn’t ask for it, revoke it in Settings → Connections.',
+    ],
+  }),
 };
 
 // AI caps (D206): the cap in words, and how much of it is used.
@@ -630,6 +637,13 @@ const AR_ADMIN: Record<AdminAction, (locationName: string) => Message> = {
   'location-ownership-moved': (name) => ({
     subject: `انتقلت ملكية «${name}»`,
     paragraphs: [`نقل الشخص الذي يدير Kept ملكية «${name}» إلى مالك جديد، وتبقى فيه بصفة مشرف.`],
+  }),
+  'token-created': () => ({
+    subject: 'أُنشئ رمز وصول لحسابك',
+    paragraphs: [
+      'أنشأ الشخص الذي يدير Kept رمز وصول شخصيًا لحسابك من الخادم، لتطبيق مثل Home Assistant أو مساعد ذكاء اصطناعي. يستطيع ما تستطيعه أنت، في المواقع التي أُنشئ لها.',
+      'إن لم تطلبه، فألغِه من الإعدادات ← الربط.',
+    ],
   }),
 };
 

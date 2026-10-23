@@ -52,6 +52,7 @@ import { recoveryKitCommand } from './recovery-kit.js';
 import { restoreCommand } from './restore.js';
 import { rotateKey } from './rotate-key.js';
 import { storageCopyCommand, storageVerifyCommand } from './storage.js';
+import { tokenCreateCommand } from './token.js';
 
 const stderrLog = {
   warn: (obj: object, msg?: string) => {
@@ -439,6 +440,41 @@ export function buildCli(): Command {
         (line) => console.log(line),
       );
     });
+
+  // From 1.13.0: a personal token from the server, for MCP clients and Home Assistant on a Kept
+  // served over plain HTTP, where the app can't make one (cli/token.ts).
+  const token = admin
+    .command('token')
+    .description('Personal tokens for MCP clients and Home Assistant');
+  token
+    .command('create')
+    .description(
+      "Make a personal token for someone and print it once (run where the server's keys are: docker compose exec kept kept admin token create …)",
+    )
+    .requiredOption('--user <login>', "the email address, or a managed account's username")
+    .requiredOption('--scope <scope>', 'read, or write to let it change things too')
+    .requiredOption('--name <name>', 'what it is for, e.g. "Home Assistant"')
+    .option('--expires <days>', 'stop working after this many days (default: until revoked)')
+    .option(
+      '--location <id-or-name...>',
+      'only these locations (default: every location the token can reach)',
+    )
+    .option('--confirm-cross-location', 'make a write token across locations whose members differ')
+    .action(
+      async (opts: {
+        user: string;
+        scope: string;
+        name: string;
+        expires?: string;
+        location?: string[];
+        confirmCrossLocation?: boolean;
+      }) => {
+        process.exitCode = await tokenCreateCommand(process.env, opts, {
+          write: (line) => console.log(line),
+          warn: (line) => console.error(line),
+        });
+      },
+    );
 
   admin
     .command('gen-key')

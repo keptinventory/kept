@@ -20,10 +20,11 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useId,
   useLayoutEffect,
   useRef,
 } from 'react';
-import { Focusable } from 'react-aria-components';
+import { Button as AriaButton, Focusable } from 'react-aria-components';
 import { useLocations, useVersion } from '@/api/queries';
 import type { LocationSummary } from '@/api/types';
 import { AssistantHost } from '@/assistant/host';
@@ -39,6 +40,7 @@ import {
   CameraIcon,
   CarIcon,
   ChartIcon,
+  ChevronDownIcon,
   CodeIcon,
   DocumentIcon,
   GearIcon,
@@ -70,6 +72,7 @@ import { locationAddress } from '@/lib/address';
 import { sep } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
 import { DOCKED, useMediaQuery, WIDE } from '@/lib/media';
+import { type FoldableGroup, toggleNavFold, useNavFolds } from '@/lib/nav-folds';
 import { usePageLocation } from '@/lib/page-location';
 import { toggleSidebar, usePrefs, watchSidebarWidth } from '@/lib/prefs';
 import { cn } from '@/lib/utils';
@@ -101,10 +104,16 @@ export function VersionFooter({ className }: { className?: string }) {
   );
 }
 
-type NavEntry = {
+/** Where an entry sits: Home and Inbox at the top (the locations follow them), then Tracking,
+ * Tools, and the rest at the bottom. */
+export type NavGroup = 'top' | 'tracking' | 'tools' | 'bottom';
+
+/** One navigation entry (the More page lists them too). */
+export type NavEntry = {
   key: string;
   label: string;
   icon: ReactNode;
+  group: NavGroup;
   to?:
     | '/'
     | '/inbox'
@@ -125,12 +134,14 @@ type NavEntry = {
 };
 
 /**
- * The navigation entries, in order. Those without `to` arrive in later steps. An entry that belongs
- * to a module shows only when the module is on in at least one of your locations: Vehicles,
- * Labels, Schedules, Lending, Paperwork, Consumables, Insights with Money (1.x, D234), and Moving
- * (1.x, D251).
- * Notifications is core: everyone has it. The Inbox is for members and above: a
- * viewer everywhere has no entry for it.
+ * The navigation entries, in order and grouped (D78, as D256 restored it: Locations third, after
+ * Home and Inbox): Home and Inbox; then the locations (the sidebar's own list); Tracking
+ * (Schedules, Lending, Paperwork, Consumables, Vehicles, Moving, Insights); Tools (Labels,
+ * Counts); then Activity, Trash, Notifications, Settings and Help. Those without `to` arrive in
+ * later steps. An entry that belongs to a module shows only when the module is on in at least one
+ * of your locations: Vehicles, Labels, Schedules, Lending, Paperwork, Consumables, Insights with
+ * Money (1.x, D234), and Moving (1.x, D251). Notifications is core: everyone has it. The Inbox is
+ * for members and above: a viewer everywhere has no entry for it.
  */
 export function useNavEntries(): NavEntry[] {
   const { t } = useLingui();
@@ -142,70 +153,110 @@ export function useNavEntries(): NavEntry[] {
     MODULE_IDS.some((m) => modulesOn.has(m) && MODULES[m].nav.includes(entry));
   const gated = (on: boolean, entry: NavEntry): NavEntry[] => (on ? [entry] : []);
   return [
-    { key: 'home', label: t`Home`, icon: <HomeIcon />, to: '/' },
+    { key: 'home', label: t`Home`, icon: <HomeIcon />, to: '/', group: 'top' },
     ...(inboxOn
-      ? [{ key: 'inbox', label: t`Inbox`, icon: <InboxIcon />, to: '/inbox' as const }]
+      ? [
+          {
+            key: 'inbox',
+            label: t`Inbox`,
+            icon: <InboxIcon />,
+            to: '/inbox' as const,
+            group: 'top' as const,
+          },
+        ]
       : []),
-    ...gated(navOn('vehicles'), {
-      key: 'vehicles',
-      label: t`Vehicles`,
-      icon: <CarIcon />,
-      to: '/vehicles',
-    }),
     ...gated(navOn('schedules'), {
       key: 'schedules',
       label: t`Schedules`,
       icon: <ScheduleIcon />,
       to: '/schedules',
+      group: 'tracking',
     }),
     ...gated(navOn('lending'), {
       key: 'lending',
       label: t`Lending`,
       icon: <HandoffIcon />,
       to: '/lending',
+      group: 'tracking',
     }),
     ...gated(navOn('paperwork'), {
       key: 'paperwork',
       label: t`Paperwork`,
       icon: <DocumentIcon />,
       to: '/paperwork',
+      group: 'tracking',
     }),
     ...gated(navOn('consumables'), {
       key: 'consumables',
       label: t`Consumables`,
       icon: <BoxIcon />,
       to: '/consumables',
+      group: 'tracking',
     }),
-    ...gated(navOn('insights'), {
-      key: 'insights',
-      label: t`Insights`,
-      icon: <ChartIcon />,
-      to: '/insights',
+    ...gated(navOn('vehicles'), {
+      key: 'vehicles',
+      label: t`Vehicles`,
+      icon: <CarIcon />,
+      to: '/vehicles',
+      group: 'tracking',
     }),
     ...gated(navOn('moving'), {
       key: 'moving',
       label: t`Moving`,
       icon: <TruckIcon />,
       to: '/moving',
+      group: 'tracking',
+    }),
+    ...gated(navOn('insights'), {
+      key: 'insights',
+      label: t`Insights`,
+      icon: <ChartIcon />,
+      to: '/insights',
+      group: 'tracking',
     }),
     ...gated(modulesOn.has('labels'), {
       key: 'labels',
       label: t`Labels`,
       icon: <TagIcon />,
       to: '/labels',
+      group: 'tools',
     }),
-    { key: 'counts', label: t`Counts`, icon: <QrIcon />, to: '/counts' },
-    { key: 'activity', label: t`Activity`, icon: <ActivityIcon />, to: '/activity' },
-    { key: 'trash', label: t`Trash`, icon: <TrashIcon />, to: '/trash' },
+    { key: 'counts', label: t`Counts`, icon: <QrIcon />, to: '/counts', group: 'tools' },
+    {
+      key: 'activity',
+      label: t`Activity`,
+      icon: <ActivityIcon />,
+      to: '/activity',
+      group: 'bottom',
+    },
+    { key: 'trash', label: t`Trash`, icon: <TrashIcon />, to: '/trash', group: 'bottom' },
     {
       key: 'notifications',
       label: t`Notifications`,
       icon: <BellIcon />,
       to: '/notifications',
+      group: 'bottom',
     },
-    { key: 'settings', label: t`Settings`, icon: <GearIcon />, to: '/settings' },
-    { key: 'help', label: t`Help`, icon: <HelpIcon />, to: '/help' },
+    { key: 'settings', label: t`Settings`, icon: <GearIcon />, to: '/settings', group: 'bottom' },
+    { key: 'help', label: t`Help`, icon: <HelpIcon />, to: '/help', group: 'bottom' },
   ];
+}
+
+/** The entries of each group, in order. */
+export function byGroup(entries: NavEntry[]): Record<NavGroup, NavEntry[]> {
+  const out: Record<NavGroup, NavEntry[]> = { top: [], tracking: [], tools: [], bottom: [] };
+  for (const e of entries) out[e.group].push(e);
+  return out;
+}
+
+/** The headings of the groups that have one. */
+export function useNavGroupTitles(): Record<'tracking' | 'tools', string> {
+  const { t } = useLingui();
+  return {
+    tracking: t({ message: 'Tracking', context: 'sidebar group' }),
+    // Kept's own tools (labels, counts), not the things in a toolbox that "Tools" names elsewhere.
+    tools: t({ message: 'Tools', context: 'sidebar group' }),
+  };
 }
 
 /**
@@ -324,6 +375,58 @@ function RailTip({
   );
 }
 
+/**
+ * Tracking or Tools: a labelled group under a heading whose button folds it, remembered per
+ * device (lib/nav-folds.ts). The rail has a rule instead of the heading, and never folds.
+ */
+function NavFoldGroup({
+  group,
+  title,
+  rail,
+  children,
+}: {
+  group: FoldableGroup;
+  title: string;
+  rail: boolean;
+  children: ReactNode;
+}) {
+  const folds = useNavFolds();
+  const listId = useId();
+  const open = rail || !folds.includes(group);
+  return (
+    // biome-ignore lint/a11y/useSemanticElements: a group of links; a fieldset is for form controls
+    <div role="group" aria-label={title} className="grid gap-0.5 pt-3">
+      {rail ? (
+        <div aria-hidden="true" className="flex h-[15.5px] items-center px-2 pb-1">
+          <div className="w-full border-t border-line" />
+        </div>
+      ) : (
+        // Not a heading element: the page's own headings are the outline.
+        <div data-nav-heading="" className="eyebrow">
+          <AriaButton
+            aria-expanded={open}
+            aria-controls={listId}
+            onPress={() => toggleNavFold(group)}
+            className="flex w-full cursor-pointer items-center justify-between gap-2 rounded px-2.5 pb-1 text-start outline-none hover:text-ink data-focus-visible:outline-2 data-focus-visible:outline-info"
+          >
+            {title}
+            <ChevronDownIcon
+              aria-hidden="true"
+              className={cn(
+                'size-3.5 shrink-0 transition-transform',
+                !open && '-rotate-90 rtl:rotate-90',
+              )}
+            />
+          </AriaButton>
+        </div>
+      )}
+      <div id={listId} hidden={!open} className="grid gap-0.5">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 function Sidebar({ locations, counts }: { locations: LocationSummary[]; counts: NavCounts }) {
   const { t } = useLingui();
   const entries = useNavEntries();
@@ -386,6 +489,68 @@ function Sidebar({ locations, counts }: { locations: LocationSummary[]; counts: 
   }, [toggle]);
 
   const item = cn(sideItem, rail && railItem);
+  const groups = byGroup(entries);
+  const titles = useNavGroupTitles();
+  /** One entry; `last` is the rail's final one, on the footer (a 44 px target). */
+  const renderEntry = (e: NavEntry, last = false) => {
+    const n = counts[e.key] ?? 0;
+    return e.to ? (
+      <Fragment key={e.key}>
+        <RailTip on={tips} content={e.label}>
+          <Link
+            to={e.to}
+            data-nav={e.key}
+            activeOptions={{ exact: e.to === '/' }}
+            className={cn(item, last && rail && railLastItem, sideLink)}
+          >
+            {e.icon}
+            <NavLabel rail={rail}>{e.label}</NavLabel>
+            {/* The space keeps "Inbox 4" apart in the link's name; flex ignores it. */}
+            {n > 0 ? (
+              <>
+                {' '}
+                <NavCount n={n} rail={rail} />
+              </>
+            ) : null}
+          </Link>
+        </RailTip>
+      </Fragment>
+    ) : (
+      <Fragment key={e.key}>
+        <RailTip
+          on={tips}
+          content={
+            <>
+              <span className="block">{e.label}</span>
+              <span className="block opacity-75">{t`Coming soon`}</span>
+            </>
+          }
+        >
+          {/* A disabled link. In the rail it takes focus, so a keyboard reads its tooltip. */}
+          {/* biome-ignore lint/a11y/useSemanticElements: a disabled link has no href, and an <a> without one isn't a link */}
+          <span
+            role="link"
+            tabIndex={tips ? 0 : -1}
+            aria-disabled="true"
+            data-nav={e.key}
+            title={tips ? undefined : t`Coming soon`}
+            className={cn(
+              item,
+              'cursor-not-allowed text-ink-3 outline-none focus-visible:outline-2 focus-visible:outline-info [&>svg]:opacity-60',
+            )}
+          >
+            {e.icon}
+            <NavLabel rail={rail}>
+              <span className="opacity-60">{e.label}</span>
+            </NavLabel>
+            {/* The rail has no room for it: its tooltip says the same. */}
+            {rail ? null : <SoonBadge className="ms-auto" />}
+          </span>
+        </RailTip>
+      </Fragment>
+    );
+  };
+
   const toggleLabel = rail ? t`Expand sidebar` : t`Collapse sidebar`;
   return (
     <aside
@@ -415,132 +580,93 @@ function Sidebar({ locations, counts }: { locations: LocationSummary[]; counts: 
         </Link>
         {/* The guided tour's "everything else" stop on a desktop (components/hints/tour.ts). */}
         <nav aria-label={t`Main`} className="grid gap-0.5" data-tour="nav-entries">
-          {entries.map((e) => {
-            const n = counts[e.key] ?? 0;
-            return e.to ? (
-              <Fragment key={e.key}>
-                <RailTip on={tips} content={e.label}>
-                  <Link
-                    to={e.to}
-                    data-nav={e.key}
-                    activeOptions={{ exact: e.to === '/' }}
-                    className={cn(item, sideLink)}
-                  >
-                    {e.icon}
-                    <NavLabel rail={rail}>{e.label}</NavLabel>
-                    {/* The space keeps "Inbox 4" apart in the link's name; flex ignores it. */}
-                    {n > 0 ? (
-                      <>
-                        {' '}
-                        <NavCount n={n} rail={rail} />
-                      </>
-                    ) : null}
-                  </Link>
-                </RailTip>
-              </Fragment>
+          {groups.top.map((e) => renderEntry(e))}
+          <nav aria-label={t`Locations`} className="grid gap-0.5 pt-3">
+            {rail ? (
+              // Where the eyebrow was: a rule of the same height.
+              <div aria-hidden="true" className="flex h-[15.5px] items-center px-2 pb-1">
+                <div className="w-full border-t border-line" />
+              </div>
             ) : (
-              <Fragment key={e.key}>
-                <RailTip
-                  on={tips}
-                  content={
-                    <>
-                      <span className="block">{e.label}</span>
-                      <span className="block opacity-75">{t`Coming soon`}</span>
-                    </>
-                  }
+              <div data-nav-heading="" className="eyebrow px-2.5 pb-1">
+                <Trans>Locations</Trans>
+              </div>
+            )}
+            {locations.map((l) => {
+              const inside = here?.id === l.id;
+              return (
+                <Fragment key={l.id}>
+                  <RailTip on={tips} content={nameOf(l)}>
+                    {/* Marked while you're anywhere in the location. On its own page the router makes
+                      it the current page; elsewhere in it, `aria-current="location"` says "current
+                      location" without claiming this link is the page you're on. */}
+                    <Link
+                      to="/loc/$id"
+                      params={{ id: locationAddress(l) }}
+                      data-nav={`loc:${l.id}`}
+                      data-inside={inside ? '' : undefined}
+                      aria-current={inside && !here.own ? 'location' : undefined}
+                      className={cn(
+                        item,
+                        sideLink,
+                        'data-[status=active]:font-normal data-inside:bg-sunken data-inside:text-ink',
+                      )}
+                    >
+                      <KindIcon kind={l.kind} />
+                      <NavLabel rail={rail}>{nameOf(l)}</NavLabel>
+                    </Link>
+                  </RailTip>
+                </Fragment>
+              );
+            })}
+            {hidden.map((h) => (
+              <RailTip key={h.locationId} on={tips} content={t`${h.name}: asks for two-factor`}>
+                <Link
+                  to="/loc/$id"
+                  params={{ id: h.locationId }}
+                  data-nav={`loc:${h.locationId}`}
+                  aria-label={t`${h.name}, asks for two-factor`}
+                  className={cn(item, sideLink, 'text-ink-3')}
                 >
-                  {/* A disabled link. In the rail it takes focus, so a keyboard reads its tooltip. */}
-                  {/* biome-ignore lint/a11y/useSemanticElements: a disabled link has no href, and an <a> without one isn't a link */}
-                  <span
-                    role="link"
-                    tabIndex={tips ? 0 : -1}
-                    aria-disabled="true"
-                    data-nav={e.key}
-                    title={tips ? undefined : t`Coming soon`}
-                    className={cn(
-                      item,
-                      'cursor-not-allowed text-ink-3 outline-none focus-visible:outline-2 focus-visible:outline-info [&>svg]:opacity-60',
-                    )}
-                  >
-                    {e.icon}
-                    <NavLabel rail={rail}>
-                      <span className="opacity-60">{e.label}</span>
-                    </NavLabel>
-                    {/* The rail has no room for it: its tooltip says the same. */}
-                    {rail ? null : <SoonBadge className="ms-auto" />}
-                  </span>
-                </RailTip>
-              </Fragment>
-            );
-          })}
-        </nav>
-        <nav aria-label={t`Locations`} className="grid gap-0.5">
-          {rail ? (
-            // Where the eyebrow was: a rule of the same height.
-            <div aria-hidden="true" className="flex h-[15.5px] items-center px-2 pb-1">
-              <div className="w-full border-t border-line" />
-            </div>
-          ) : (
-            <div className="eyebrow px-2.5 pb-1">
-              <Trans>Locations</Trans>
-            </div>
-          )}
-          {locations.map((l) => {
-            const inside = here?.id === l.id;
-            return (
-              <Fragment key={l.id}>
-                <RailTip on={tips} content={nameOf(l)}>
-                  {/* Marked while you're anywhere in the location. On its own page the router makes
-                    it the current page; elsewhere in it, `aria-current="location"` says "current
-                    location" without claiming this link is the page you're on. */}
-                  <Link
-                    to="/loc/$id"
-                    params={{ id: locationAddress(l) }}
-                    data-nav={`loc:${l.id}`}
-                    data-inside={inside ? '' : undefined}
-                    aria-current={inside && !here.own ? 'location' : undefined}
-                    className={cn(
-                      item,
-                      sideLink,
-                      'data-[status=active]:font-normal data-inside:bg-sunken data-inside:text-ink',
-                    )}
-                  >
-                    <KindIcon kind={l.kind} />
-                    <NavLabel rail={rail}>{nameOf(l)}</NavLabel>
-                  </Link>
-                </RailTip>
-              </Fragment>
-            );
-          })}
-          {hidden.map((h) => (
-            <RailTip key={h.locationId} on={tips} content={t`${h.name}: asks for two-factor`}>
+                  <KindIcon kind={h.kind} />
+                  <NavLabel rail={rail}>
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      <span className="min-w-0 [overflow-wrap:anywhere]">{h.name}</span>
+                      <LockIcon className="size-3.5 shrink-0" />
+                    </span>
+                  </NavLabel>
+                </Link>
+              </RailTip>
+            ))}
+            <RailTip on={tips} content={t`New location`}>
               <Link
-                to="/loc/$id"
-                params={{ id: h.locationId }}
-                data-nav={`loc:${h.locationId}`}
-                aria-label={t`${h.name}, asks for two-factor`}
+                to="/locations/new"
+                data-nav="new-location"
                 className={cn(item, sideLink, 'text-ink-3')}
               >
-                <KindIcon kind={h.kind} />
-                <NavLabel rail={rail}>
-                  <span className="flex min-w-0 items-center gap-1.5">
-                    <span className="min-w-0 [overflow-wrap:anywhere]">{h.name}</span>
-                    <LockIcon className="size-3.5 shrink-0" />
-                  </span>
-                </NavLabel>
+                <PlusIcon />
+                <NavLabel rail={rail}>{t`New location`}</NavLabel>
               </Link>
             </RailTip>
-          ))}
-          <RailTip on={tips} content={t`New location`}>
-            <Link
-              to="/locations/new"
-              data-nav="new-location"
-              className={cn(item, rail && railLastItem, sideLink, 'text-ink-3')}
-            >
-              <PlusIcon />
-              <NavLabel rail={rail}>{t`New location`}</NavLabel>
-            </Link>
-          </RailTip>
+          </nav>
+          {groups.tracking.length ? (
+            <NavFoldGroup group="tracking" title={titles.tracking} rail={rail}>
+              {groups.tracking.map((e) => renderEntry(e))}
+            </NavFoldGroup>
+          ) : null}
+          {groups.tools.length ? (
+            <NavFoldGroup group="tools" title={titles.tools} rail={rail}>
+              {groups.tools.map((e) => renderEntry(e))}
+            </NavFoldGroup>
+          ) : null}
+          {/* biome-ignore lint/a11y/useSemanticElements: a group of links; a fieldset is for form controls */}
+          <div
+            role="group"
+            aria-label={t`Everything else`}
+            className="mt-3 grid gap-0.5 border-t border-line pt-3"
+          >
+            {groups.bottom.map((e, i) => renderEntry(e, i === groups.bottom.length - 1))}
+          </div>
         </nav>
         {/* Pinned to the bottom, so the toggle stays in reach when the entries scroll. */}
         <div

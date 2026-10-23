@@ -25771,10 +25771,6 @@ msgstr "Les articles archivés ne sont pas importés, vendus compris."
 msgid "Coming from an older Homebox"
 msgstr "Venir d'un Homebox plus ancien"
 
-#: src/components/import/source-step.tsx
-msgid "Homebox v0.26.1 or newer (v0.27.0 recommended): Collection settings → Export. Older than v0.26: import its spreadsheet export, or update a copy of Homebox first."
-msgstr "Homebox v0.26.1 ou plus récent (v0.27.0 recommandée) : Paramètres de la collection → Exporter. Plus ancien que v0.26 : importez son export tableur, ou mettez d'abord une copie de Homebox à jour."
-
 #: src/components/import/mapping-step.tsx
 msgid "Import a Homebox export instead"
 msgstr "Importer plutôt un export Homebox"
@@ -26561,7 +26557,6 @@ msgstr "Tag {shown} retiré"
 msgid "Violet"
 msgstr "Violet"
 
-
 #: src/components/search/offline-results.tsx
 msgid "Offline, search uses the words, the location, the type and the tags. The other filters apply when you're back online."
 msgstr "Hors ligne, la recherche utilise les mots, le lieu, le type et les tags. Les autres filtres s’appliquent une fois de retour en ligne."
@@ -27198,3 +27193,42 @@ msgstr "{count, plural, one {# entrée d’entretien} other {# entrées d’entr
 #: src/components/import/track-step.tsx
 msgid "What's unticked stays in the things' notes as text. Notes can't become records later: to keep it as records, tick it now."
 msgstr "Ce qui n’est pas coché reste en texte dans les notes des objets. Les notes ne peuvent pas devenir des fiches plus tard : pour le garder en fiches, cochez-le maintenant."
+
+#: src/components/app-shell.tsx
+msgctxt "sidebar group"
+msgid "Tracking"
+msgstr "Suivi"
+
+#: src/components/app-shell.tsx
+msgctxt "sidebar group"
+msgid "Tools"
+msgstr "Outils"
+
+#: src/components/origin-mismatch.tsx
+#: src/components/page.tsx
+msgid "Open {expected}"
+msgstr "Ouvrir {expected}"
+
+#: src/components/origin-mismatch.tsx
+msgid "This Kept is set up for <0>{expected}</0>. Open it there."
+msgstr "Ce Kept est configuré pour <0>{expected}</0>. Ouvrez-le à cette adresse."
+
+#: src/components/page.tsx
+msgid "This Kept is set up for a different address. Open it at the address you were given."
+msgstr "Ce Kept est configuré pour une autre adresse. Ouvrez-le à l’adresse qu’on vous a donnée."
+
+#: src/components/page.tsx
+msgid "This Kept is set up for {address}. Open it there."
+msgstr "Ce Kept est configuré pour {address}. Ouvrez-le à cette adresse."
+
+#: src/components/import/archive-step.tsx
+msgid "In Homebox, open Collection → Tools → Backup & Restore and choose Create Backup. When the backup is listed, Download it: that .zip is the file."
+msgstr "Dans Homebox, ouvrez Collection → Outils → Sauvegarde et restauration et choisissez Créer une sauvegarde. Quand la sauvegarde apparaît dans la liste, choisissez Télécharger : ce fichier .zip est le bon."
+
+#: src/components/import/source-step.tsx
+msgid "Homebox v0.26.1 or newer (v0.27.0 recommended): Collection → Tools → Backup & Restore → Create Backup → Download. Older than v0.26: import its spreadsheet export, or update a copy of Homebox first."
+msgstr "Homebox v0.26.1 ou plus récent (v0.27.0 recommandée) : Collection → Outils → Sauvegarde et restauration → Créer une sauvegarde → Télécharger. Plus ancien que v0.26 : importez son export tableur, ou mettez d'abord une copie de Homebox à jour."
+
+#: src/components/connections/token-create.tsx
+msgid "On a home network without HTTPS, the person who runs this Kept can make one on the server: kept admin token create."
+msgstr "Sur un réseau domestique sans HTTPS, la personne qui gère ce Kept peut en créer un sur le serveur : kept admin token create."

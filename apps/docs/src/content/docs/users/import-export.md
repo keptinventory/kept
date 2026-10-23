@@ -15,7 +15,7 @@ For moving a whole server, or a household between servers, see also
 | Source | What it is |
 |---|---|
 | **A spreadsheet (CSV)** | One thing per row, with a header row naming the columns; also Homebox's own spreadsheet export |
-| **A Homebox export** | The ZIP from Homebox v0.26.1 or newer, v0.27.0 recommended (Collection settings → Export) |
+| **A Homebox export** | The ZIP from Homebox v0.26.1 or newer, v0.27.0 recommended (Collection → Tools → Backup & Restore → Create Backup → Download) |
 | **A Kept export** | A location exported from this Kept or another one |
 
 Every import is checked before anything is written: **Check the import** shows **What the import
@@ -67,7 +67,8 @@ are only imported if you match them to a type's field. For all of that, use the 
 ### A Homebox export
 
 Kept reads Homebox's own export ZIP, which holds everything, including the files. In Homebox,
-open **Collection settings → Export** and download the ZIP. It exists from Homebox v0.26: use
+open **Collection → Tools → Backup & Restore**, choose **Create Backup**, and **Download** the
+backup once it is listed. It exists from Homebox v0.26: use
 v0.26.1 or newer (v0.26.0's Docker image loses attachments), and v0.27.0 if you can. A Homebox
 older than v0.26 has no export: see
 [coming from an older Homebox](#coming-from-an-older-homebox). A ZIP without Homebox's
@@ -178,8 +179,8 @@ your Homebox stays as it is:
 
    The first start updates the database in one go. It also adds Homebox's eight starter rooms,
    which Kept leaves out by default when they're empty.
-3. **Sign in** with your usual account and open **Collection settings → Export**. Download the
-   ZIP.
+3. **Sign in** with your usual account and open **Collection → Tools → Backup & Restore**.
+   Choose **Create Backup**, then **Download** the backup once it is listed.
 4. **Import it into Kept** as [a Homebox export](#a-homebox-export).
 5. Stop the copy and delete it once the import is done.
 

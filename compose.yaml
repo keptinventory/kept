@@ -337,6 +337,8 @@ services:
     # then `docker compose exec ollama ollama pull <model>`. In Settings → AI, add an
     # OpenAI-compatible provider with the base URL http://ollama:11434/v1 (Compose's network;
     # Ollama ignores the API key) and the model you pulled. Nothing is published on the host.
+    # That address is a private one: turn on Admin → Settings → Allow private addresses first,
+    # or adding the provider is refused ("That address is on a private network").
     # Tag read from Docker Hub (the latest stable release on 2026-10-06), pinned by its
     # multi-arch index digest; about 3.8 GB (amd64) or 2.8 GB (arm64) to pull, before any model.
     profiles: [ollama]

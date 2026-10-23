@@ -58,8 +58,11 @@ describe('kept CLI', () => {
         'restore',
         'readable',
         'backfill-pdf-text',
+        'token',
       ]),
     );
+    const token = admin?.commands.find((c) => c.name() === 'token');
+    expect(token?.commands.map((c) => c.name())).toEqual(['create']);
   });
 
   // `kept init`'s behaviour is tested in init.test.ts; here, that it runs as a command without a

@@ -129,6 +129,21 @@ export const SIGN_IN_MAIL_INSTANCE: Instance & {
   google: true,
 };
 
+/**
+ * Kept on a home network over plain HTTP (e2e/insecure.spec.ts, the `insecure` project): its
+ * public URL is http://kept.lan:8213, which the browser maps to 127.0.0.1
+ * (`--host-resolver-rules`), so the page is not a secure context: no `crypto.subtle`, no
+ * `navigator.clipboard`, no service worker. Uploads and Copy must work there all the same, and
+ * the same Kept opened at http://127.0.0.1:8213 must say which address it is set up for. Seeded
+ * with `households`. Key for KEPT_E2E_INSTANCES: `lan`.
+ */
+export const LAN_INSTANCE: Instance & { publicHost: string } = {
+  name: 'lan',
+  port: 8213,
+  seed: true,
+  publicHost: 'kept.lan',
+};
+
 export const urlOf = (i: Instance & { https?: boolean }) =>
   `${i.https ? 'https' : 'http'}://localhost:${i.port}`;
 

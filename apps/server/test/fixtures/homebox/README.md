@@ -48,7 +48,7 @@ thrown away afterwards.
 | File | What it is |
 |---|---|
 | `homebox-0.10.3-items.tsv` | v0.10.3's **Export Inventory** (`GET /api/v1/items/export`): tab-separated, `HB.labels`, `HB.purchase_time`/`HB.sold_time`, no `HB.url`, `0` for an unset price |
-| `homebox-0.27.0-upgraded.zip` | that v0.10.3 data folder, copied and started under v0.27.0 (`HBOX_AUTH_API_KEY_PEPPER` set): every migration ran in one start; then **Collection settings → Export** |
+| `homebox-0.27.0-upgraded.zip` | that v0.10.3 data folder, copied and started under v0.27.0 (`HBOX_AUTH_API_KEY_PEPPER` set): every migration ran in one start; then **Collection → Tools → Backup & Restore → Create Backup → Download** |
 | `homebox-0.27.0-upgraded-entities.csv` | the same upgraded collection's CSV (`GET /api/v1/entities/export`): `HB.purchase_date`/`HB.sold_date`, `HB.parent_import_ref`, a relative `HB.url` (`/item/<uuid>`), and one row per location (`/location/<uuid>`) |
 | `homebox-0.27.0-home.zip` | `homebox-0.26.2-home.zip` restored into a fresh v0.27.0 (`POST /api/v1/group/import`) and exported again. v0.27.0 refuses to restore a link attachment, so the copy restored had its one link (Manufacturer page) removed |
 

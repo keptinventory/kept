@@ -38,6 +38,26 @@ async function chooseSource(
 }
 
 describe('a Homebox export', () => {
+  it("names Homebox's own menu for the export, and keeps v0.26's restart note folded", async () => {
+    const app = await renderApp(`/settings/import?location=${IDS.home}`);
+    await findHeading('Choose the file');
+    const card = await screen.findByRole('radio', { name: /A Homebox export/ });
+    expect(card.closest('label') ?? card.parentElement).toHaveTextContent(
+      'Collection → Tools → Backup & Restore → Create Backup → Download',
+    );
+    await app.user.click(card);
+    await findHeading('The Homebox export');
+    expect(
+      screen.getByText(/In Homebox, open Collection → Tools → Backup & Restore/),
+    ).toBeInTheDocument();
+    // The restart note is behind its title until opened.
+    const note = screen.getByRole('button', { name: 'If Homebox says "Topic has been Shutdown"' });
+    expect(note).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByText(/v0.26 exports once each time it starts/)).not.toBeVisible();
+    await app.user.click(note);
+    expect(await screen.findByText(/v0.26 exports once each time it starts/)).toBeVisible();
+  });
+
   it('uploads, inspects, connects, targets, chooses, checks and imports', async () => {
     const app = await chooseSource('A Homebox export');
     const { user, mock } = app;

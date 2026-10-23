@@ -17,6 +17,7 @@ import type { TokenScope } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { type FormEvent, useMemo, useState } from 'react';
+import { isApiError } from '@/api/client';
 import { connectionsApi, connectionsKeys } from '@/api/connections/queries';
 import {
   type CreatedToken,
@@ -160,7 +161,13 @@ function CreateForm({
       await qc.invalidateQueries({ queryKey: connectionsKeys.tokens });
       onCreated(r);
     },
-    onError: (e) => setFailed(errorText(e)),
+    onError: (e) =>
+      setFailed(
+        isApiError(e) && e.code === 'https_required'
+          ? // Over plain HTTP the app makes no token; the server's command line can.
+            `${errorText(e)} ${t`On a home network without HTTPS, the person who runs this Kept can make one on the server: kept admin token create.`}`
+          : errorText(e),
+      ),
   });
 
   const submit = (e: FormEvent) => {
