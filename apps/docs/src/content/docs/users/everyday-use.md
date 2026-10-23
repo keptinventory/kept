@@ -105,6 +105,8 @@ change it.
 
 ## Things
 
+Full detail: [things](/users/things/).
+
 A thing's page has its photos, its name and **ID**, its full path, and sections for what it
 tracks: **Details**, **Paperwork and warranties**, **Value**, **Meters**, **Loans**, **Claims**,
 **Links**, **Schedules** and **History**. Sections whose module is off in the location don't show.
