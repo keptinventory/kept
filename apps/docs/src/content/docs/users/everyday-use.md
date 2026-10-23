@@ -349,24 +349,6 @@ Full detail: [condition reports](/users/condition-reports/).
 
 **Condition reports** on a location's page record how a rented home was when you moved in, and
 when you moved out, for a deposit dispute.
-
-- **New report**: the location, **Move-in** or **Move-out**, and the day of the walk-through. It
-  starts with the location's rooms (places of the Room kind); add any it missed, or remove one.
-- **Each room**: Good, Fair, Poor or Damaged, a note, and up to 12 photos. Each photo shows when
-  Kept received it, in the location's time zone, and who added it; photos lose their location data
-  as all photos in Kept do.
-- **Finish** locks the report for good, with who finished it and when. Nothing in it can change
-  after, photos included. A report that isn't finished can be deleted by anyone who can change the
-  location; a finished one only by owners and admins.
-- **Compare with** puts the move-in beside the move-out, room by room (the same room by its place,
-  or by its name), the earlier one first.
-- **Make the PDF**: the report, or both side by side when you compare, in English or Arabic, with
-  or without photos. A report that isn't finished says so in the PDF.
-
-Everyone in the location can read the reports and make the PDF, viewers too; members and above
-record them. A Kept export of the location holds its reports and their photos; imported, a
-finished report is still finished and locked ([import and export](/users/import-export/)).
-
 ## Insights
 
 **Insights** (in the sidebar, and under More on a phone) shows, across your locations with Money
