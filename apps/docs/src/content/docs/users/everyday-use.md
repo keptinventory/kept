@@ -190,6 +190,8 @@ offers to open that box or capture into it.
 
 ## Photos, receipts, manuals and warranties
 
+Full detail: [photos, receipts, manuals and warranties](/users/photos-paperwork/).
+
 Photos go on the thing; everything else goes under **Paperwork**, kept as the original file:
 **Add a file**, then say what it is (Receipt, Invoice, Manual, Warranty, Registration, Proof,
 Document). A file Kept can't preview yet is kept anyway and marked **Preview unavailable**.
