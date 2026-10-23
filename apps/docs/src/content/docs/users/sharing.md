@@ -14,11 +14,16 @@ The **Invite people to …** card on Home appears after you create a location. T
 **Location settings → Members → Invite**.
 
 1. Choose the **Role**, and under **Access** either **No end date** or **Until a date**. Their
-   access stops on that date.
+   access stops on that date, and any tokens they made for the API stop with it.
 2. **Create invite link.** The link works once, for 7 days. Show the QR code to scan with their
    phone, or copy the link. A pending invite shows under **Members** until it's used, and you can
    revoke it there.
 3. **Send by email** works only when the server has email set up.
+
+Someone without an email address can still be given an account: owners and admins add one from
+**Location settings → Members → Add someone without email**. It becomes a managed account — Kept
+makes an address for it that can't receive mail, sets its password with a reset code, and the
+owner is told about every new one.
 
 Anyone but the owner can **Leave this location**. An instance admin can't see inside a home unless
 they've been invited to it.
