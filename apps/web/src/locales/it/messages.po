@@ -26990,3 +26990,211 @@ msgstr "Imposta la verifica in due passaggi"
 #: src/components/two-factor-hidden.tsx
 msgid "Asks for two-factor: set it up to open it"
 msgstr "Richiede la verifica in due passaggi: impostala per aprirlo"
+
+#: src/components/import/archive-run.tsx
+msgid "Nothing was imported, and no location was made."
+msgstr "Non è stato importato nulla e nessun luogo è stato creato."
+
+#: src/components/import/archive-run.tsx
+msgid "What needed a look"
+msgstr "Cosa richiedeva un controllo"
+
+#: src/components/import/entity-report.tsx
+msgid "Imported, with a note"
+msgstr "Importato, con una nota"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Item"
+msgstr "Articolo"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Items with quantity 0"
+msgstr "Articoli con quantità 0"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Keep 0 or archive"
+msgstr "Mantieni 0 o archivia"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Set to 1"
+msgstr "Imposta a 1"
+
+#: src/components/import/homebox-choices.tsx
+msgid "{zeroItems, plural, one {# item has quantity 0.} other {# items have quantity 0.}}"
+msgstr "{zeroItems, plural, one {# articolo ha quantità 0.} other {# articoli hanno quantità 0.}}"
+
+#: src/components/import/homebox-choices.tsx
+msgid "A type you run out of keeps 0; anything else comes in archived. The notes say \"Quantity in Homebox: 0\"."
+msgstr "Un tipo che si esaurisce mantiene 0; il resto arriva archiviato. Le note riportano \"Quantity in Homebox: 0\"."
+
+#: src/components/import/homebox-choices.tsx
+msgid "They come in as 1, and the notes say \"Quantity in Homebox: 0\"."
+msgstr "Arrivano con 1, e le note riportano \"Quantity in Homebox: 0\"."
+
+#: src/components/import/homebox-choices.tsx
+msgid "They aren't imported. What's inside one comes in, in its place."
+msgstr "Non vengono importati. Ciò che contengono arriva al loro posto."
+
+#: src/components/import/homebox-choices.tsx
+msgid "A new type"
+msgstr "Un nuovo tipo"
+
+#: src/components/import/homebox-choices.tsx
+msgid "No type keeps things as they are, without a type's fields. A new type is made with the name you give it."
+msgstr "\"Nessun tipo\" lascia le cose come sono, senza i campi di un tipo. Un nuovo tipo viene creato con il nome che gli dai."
+
+#: src/components/import/homebox-choices.tsx
+msgid "New type…"
+msgstr "Nuovo tipo…"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Name of the new type"
+msgstr "Nome del nuovo tipo"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Give the new type a name (at most {max} characters)."
+msgstr "Dai un nome al nuovo tipo (al massimo {max} caratteri)."
+
+#: src/components/import/homebox-choices.tsx
+msgid "Chosen"
+msgstr "Scelta"
+
+#: src/components/import/homebox-choices.tsx
+msgid "As boxes"
+msgstr "Come scatole"
+
+#: src/components/import/homebox-choices.tsx
+msgid "As places"
+msgstr "Come posti"
+
+#: src/components/import/homebox-choices.tsx
+msgid "These look like boxes"
+msgstr "Questi sembrano scatole"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Ticked, they come in as boxes: things that hold things, carried with what's inside. The rest come in as places. You can change either later."
+msgstr "Spuntati, arrivano come scatole: cose che contengono cose, spostate con ciò che c’è dentro. Gli altri arrivano come posti. Puoi cambiare entrambi in seguito."
+
+#: src/components/import/homebox-choices.tsx
+msgid "Choose none"
+msgstr "Non scegliere nessuno"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Choose all"
+msgstr "Scegli tutti"
+
+#: src/components/import/homebox-choices.tsx
+msgid "{n} of {of} as boxes"
+msgstr "{n} di {of} come scatole"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Locations that look like boxes"
+msgstr "Posti che sembrano scatole"
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it came in as 1."
+msgstr "Quantità 0 in Homebox; è arrivato con 1."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox, kept: its type is one you run out of."
+msgstr "Quantità 0 in Homebox, mantenuta: il suo tipo si esaurisce."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it came in archived."
+msgstr "Quantità 0 in Homebox; è arrivato archiviato."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox, left out."
+msgstr "Quantità 0 in Homebox, escluso."
+
+#: src/components/import/labels.ts
+msgid "It holds other items, so it came in as a box."
+msgstr "Contiene altri articoli, quindi è arrivato come scatola."
+
+#: src/components/import/labels.ts
+msgid "A location that came in as a box, as chosen."
+msgstr "Un posto arrivato come scatola, come scelto."
+
+#: src/components/import/labels.ts
+msgid "Its description isn't kept: places in Kept have no notes."
+msgstr "La sua descrizione non viene mantenuta: i posti in Kept non hanno note."
+
+#: src/components/import/repair.tsx
+msgid "{joined}, and {more} more"
+msgstr "{joined} e altri {more}"
+
+#: src/components/import/repair.tsx
+msgid "Repaired the import"
+msgstr "Importazione riparata"
+
+#: src/components/import/repair.tsx
+msgid "Repair this import"
+msgstr "Ripara questa importazione"
+
+#: src/components/import/repair.tsx
+msgid "It was imported before Kept read Homebox the way it does now. Choose what to put right; one Undo takes it all back."
+msgstr "È stato importato prima che Kept leggesse Homebox come fa ora. Scegli cosa correggere; un solo Annulla riporta tutto indietro."
+
+#: src/components/import/repair.tsx
+msgid "{0, plural, one {Archive the # thing that had quantity 0 in Homebox} other {Archive the # things that had quantity 0 in Homebox}}"
+msgstr "{0, plural, one {Archivia la cosa che aveva quantità 0 in Homebox} other {Archivia le # cose che avevano quantità 0 in Homebox}}"
+
+#: src/components/import/repair.tsx
+msgid "<0>{0}</0>: its things stop opening on an empty Contents tab. One that holds things stays a box."
+msgstr "<0>{0}</0>: le sue cose non si aprono più su una scheda Contenuto vuota. Una che contiene cose resta una scatola."
+
+#: src/components/import/repair.tsx
+msgid "{0, plural, one {Make # type an ordinary type again} other {Make # types ordinary types again}}"
+msgstr "{0, plural, one {Rendi # tipo di nuovo un tipo normale} other {Rendi # tipi di nuovo tipi normali}}"
+
+#: src/components/import/repair.tsx
+msgid "Rename <0>{0}</0> to <1>{to}</1>"
+msgstr "Rinomina <0>{0}</0> in <1>{to}</1>"
+
+#: src/components/import/repair.tsx
+msgid "Repair"
+msgstr "Ripara"
+
+#: src/components/import/track-step.tsx
+msgid "Start with what you need; turn anything else on later in Location settings → What to track. Turning something off never deletes anything."
+msgstr "Inizia da ciò che ti serve; attiva il resto più tardi in Impostazioni del luogo → Cosa monitorare. Disattivare non elimina mai nulla."
+
+#: src/components/import/track-step.tsx
+msgid "{prices, plural, one {The backup has # price. With Essentials it stays in the notes; Household keeps prices and warranties as their own records.} other {The backup has # prices. With Essentials they stay in the notes; Household keeps prices and warranties as their own records.}}"
+msgstr "{prices, plural, one {Il backup contiene # prezzo. Con Essenziali resta nelle note; Famiglia tiene prezzi e garanzie come voci a sé.} other {Il backup contiene # prezzi. Con Essenziali restano nelle note; Famiglia tiene prezzi e garanzie come voci a sé.}}"
+
+#: src/components/import/track-step.tsx
+msgid "Also for Personal"
+msgstr "Anche per Personale"
+
+#: src/components/import/track-step.tsx
+msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "Personale, il tuo luogo, monitora lo stesso da quando parte l’importazione. Il menu mostra ciò che monitora uno qualsiasi dei tuoi luoghi."
+
+#: src/components/history/labels.ts
+msgid "Repaired an import"
+msgstr "Importazione riparata"
+
+#: src/components/import/track-step.tsx
+msgid "And what the backup uses"
+msgstr "E ciò che usa il backup"
+
+#: src/components/import/track-step.tsx
+msgid "Turns on {name}"
+msgstr "Attiva {name}"
+
+#: src/components/import/track-step.tsx
+msgid "{count, plural, one {Prices on # thing} other {Prices on # things}}"
+msgstr "{count, plural, one {Prezzi su # cosa} other {Prezzi su # cose}}"
+
+#: src/components/import/track-step.tsx
+msgid "{count, plural, one {# warranty} other {# warranties}}"
+msgstr "{count, plural, one {# garanzia} other {# garanzie}}"
+
+#: src/components/import/track-step.tsx
+msgid "{count, plural, one {# maintenance entry} other {# maintenance entries}}"
+msgstr "{count, plural, one {# voce di manutenzione} other {# voci di manutenzione}}"
+
+#: src/components/import/track-step.tsx
+msgid "What's unticked stays in the things' notes as text. Notes can't become records later: to keep it as records, tick it now."
+msgstr "Ciò che non è spuntato resta come testo nelle note delle cose. Le note non possono diventare voci in seguito: per tenerlo come voci, spuntalo ora."

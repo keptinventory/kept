@@ -25,8 +25,11 @@ const zip = (name = 'homebox-export-3f2a.zip', bytes = 2048) =>
   new File([new Uint8Array(bytes).fill(7)], name, { type: 'application/zip' });
 const fileInput = () => document.querySelector<HTMLInputElement>('input[type="file"]');
 
-async function chooseSource(label: 'A Homebox export' | 'A Kept export') {
-  const app = await renderApp(`/settings/import?location=${IDS.home}`);
+async function chooseSource(
+  label: 'A Homebox export' | 'A Kept export',
+  state: ReturnType<typeof ownerScenario> = ownerScenario(),
+) {
+  const app = await renderApp(`/settings/import?location=${IDS.home}`, { state });
   await findHeading('Choose the file');
   await app.user.click(await screen.findByRole('radio', { name: new RegExp(label) }));
   await findHeading(label === 'A Homebox export' ? 'The Homebox export' : 'The Kept export');
@@ -83,8 +86,14 @@ describe('a Homebox export', () => {
     const types = await screen.findByRole('list', { name: 'Homebox types' });
     expect(within(types).getByText('Kitchen gear')).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Kept type for Kitchen gear' })).toHaveValue(
-      'Create "Kitchen gear"',
+      'New type…',
     );
+    expect(screen.getAllByRole('textbox', { name: 'Name of the new type' })[0]).toHaveValue(
+      'Power Tools',
+    );
+    // Homebox's catch-all, global.item, reads as Item and comes in without a type.
+    expect(within(types).queryByText('global.item')).toBeNull();
+    expect(screen.getByRole('combobox', { name: 'Kept type for Item' })).toHaveValue('No type');
     expect(screen.getByText('3 items are marked insured.')).toBeInTheDocument();
     // Archived items come in archived unless you say otherwise.
     expect(screen.getByRole('radio', { name: 'Archived' })).toBeChecked();
@@ -124,11 +133,17 @@ describe('a Homebox export', () => {
     expect(await screen.findByText('Adding search words')).toBeInTheDocument();
   });
 
-  it('lists only the entries with an issue, grouped by their translated reason', async () => {
+  it('lists only the entries with an issue, each row saying why in words', async () => {
     const { user } = await renderApp(`/settings/import?run=${PORTABILITY_IDS.homeboxRun}`);
     expect(await findHeading('What the import will do')).toBeInTheDocument();
     const rows = await screen.findByRole('list', { name: 'Needs a look' });
-    expect(rows).toHaveTextContent('Quantity 0 became 1: Homebox gives 0 when none was set.');
+    // The row's subtitle is its reason, never "An item or location".
+    expect(rows).not.toHaveTextContent('An item or location');
+    const toolbox = within(rows).getByText('Toolbox drawer').closest('li') as HTMLElement;
+    expect(toolbox).toHaveTextContent('A location inside an item became a container.');
+    expect(rows).toHaveTextContent('Quantity 0 in Homebox; it came in as 1.');
+    expect(rows).toHaveTextContent('Quantity 0 in Homebox; it came in archived.');
+    expect(rows).toHaveTextContent('It holds other items, so it came in as a box.');
     expect(rows).toHaveTextContent('drill-manual.docx');
     expect(rows).toHaveTextContent('A location inside an item became a container.');
     for (const code of [...ARCHIVE_ISSUE_CODES, ...HB_ISSUE_CODES])
@@ -170,6 +185,138 @@ describe('a Homebox export', () => {
     await user.click(screen.getByRole('button', { name: 'Choose another file' }));
     expect(await findHeading('The Homebox export')).toBeInTheDocument();
     expect(router.state.location.search).toMatchObject({ source: 'homebox_zip' });
+  });
+});
+
+describe('a Homebox export, from 1.13.0', () => {
+  it('asks what a new location tracks, Essentials and what the backup uses, and makes it only when the import runs', async () => {
+    const state = ownerScenario();
+    const { user, mock } = await chooseSource('A Homebox export', state);
+    const before = state.locations.length;
+    await user.upload(fileInput() as HTMLInputElement, zip());
+    expect(await findHeading("What's in it")).toBeInTheDocument();
+    const declared = mock.lastCall('POST', p.importsArchive)?.body as CreateArchiveImportBody;
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    expect(await findHeading('Where it goes')).toBeInTheDocument();
+    await user.clear(screen.getByRole('textbox', { name: 'Name' }));
+    await user.type(screen.getByRole('textbox', { name: 'Name' }), 'Maple Street');
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await findHeading('What to track')).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /^Essentials/ })).toBeChecked();
+    // What the backup uses, ticked on top of Essentials, with how much.
+    const prices = screen.getByRole('checkbox', { name: /Prices on 4 things/ });
+    const warranties = screen.getByRole('checkbox', { name: /2 warranties/ });
+    expect(prices).toBeChecked();
+    expect(warranties).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /1 maintenance entry/ })).toBeChecked();
+    expect(screen.queryByText(/Notes can't become records later/)).toBeNull();
+    await user.click(warranties);
+    expect(screen.getByText(/Notes can't become records later/)).toBeInTheDocument();
+    await user.click(screen.getByRole('switch', { name: 'Also for Personal' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    expect(mock.lastCall('POST', p.importTarget(declared.id))?.body).toMatchObject({
+      newLocation: {
+        name: 'Maple Street',
+        preset: 'essentials',
+        modules: ['money', 'schedules'],
+        alsoPersonal: true,
+      },
+    });
+    // Not made yet: an import left here leaves nothing behind.
+    expect(await findHeading('A few choices, before the check')).toBeInTheDocument();
+    expect(state.locations).toHaveLength(before);
+
+    // The choices: quantity 0, the boxes, a new type with its own name.
+    expect(screen.getByRole('radio', { name: 'Keep 0 or archive' })).toBeChecked();
+    expect(screen.getByText(/2 items have quantity 0/)).toBeInTheDocument();
+    const boxes = screen.getByRole('list', { name: 'Locations that look like boxes' });
+    expect(within(boxes).getByText('Box 01')).toBeInTheDocument();
+    expect(
+      within(boxes)
+        .getAllByRole('checkbox')
+        .every((c) => !(c as HTMLInputElement).checked),
+    ).toBe(true);
+    await user.click(screen.getByRole('button', { name: 'Choose all' }));
+    expect(screen.getByText('3 of 3 as boxes')).toBeInTheDocument();
+    const name = screen.getAllByRole('textbox', { name: 'Name of the new type' })[1] as HTMLElement;
+    await user.clear(name);
+    expect(screen.getByRole('button', { name: 'Check the import' })).toBeDisabled();
+    await user.type(name, 'Gadgets');
+    await user.click(screen.getByRole('button', { name: 'Check the import' }));
+    expect(await findHeading('What the import will do')).toBeInTheDocument();
+    expect(mock.lastCall('POST', p.importChoices(declared.id))?.body).toMatchObject({
+      choices: {
+        zeroQuantity: 'keep_or_archive',
+        boxes: [
+          '0192a000-0000-7000-8000-00000000c201',
+          '0192a000-0000-7000-8000-00000000c202',
+          '0192a000-0000-7000-8000-00000000c203',
+        ],
+        types: {
+          '0192a000-0000-7000-8000-00000000c103': { create: 'Gadgets' },
+          '0192a000-0000-7000-8000-00000000c104': { none: true },
+        },
+      },
+    });
+
+    await user.click(screen.getByRole('button', { name: /^Import \d+ things$/ }));
+    expect(
+      await screen.findByRole('heading', { name: 'Done' }, { timeout: 10_000 }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Imported into Maple Street' }),
+    ).toBeVisible();
+    const made = state.locations.find((l) => l.name === 'Maple Street');
+    expect(made).toMatchObject({ preset: 'essentials' });
+    expect(state.locations.find((l) => l.kind === 'personal')).toMatchObject({
+      preset: 'essentials',
+    });
+    expect(state.locations.find((l) => l.kind === 'personal')?.modules).toEqual(
+      expect.arrayContaining(['money', 'schedules']),
+    );
+    expect(made?.modules).not.toContain('warranties');
+  });
+
+  it('keeps what needed a look on the import’s page, and repairs a past import with one Undo', async () => {
+    const { user, mock } = await renderApp(`/settings/import?run=${PORTABILITY_IDS.homeboxDone}`);
+    expect(await findHeading('Done')).toBeInTheDocument();
+    const looked = await screen.findByRole('list', { name: 'Needs a look' });
+    expect(within(looked).getByText('Candles').closest('li')).toHaveTextContent(
+      'Quantity 0 in Homebox; it came in as 1.',
+    );
+    expect(screen.getByRole('heading', { name: /^What needed a look/ })).toBeInTheDocument();
+
+    expect(await screen.findByRole('heading', { name: 'Repair this import' })).toBeInTheDocument();
+    const zero = screen.getByRole('checkbox', {
+      name: /Archive the 2 things that had quantity 0 in Homebox/,
+    });
+    expect(zero).toBeChecked();
+    expect(screen.getByText('AA batteries and Candles')).toBeInTheDocument();
+    expect(
+      screen.getByRole('checkbox', { name: /Make 1 type an ordinary type again/ }),
+    ).toBeChecked();
+    const rename = screen.getByRole('checkbox', { name: /Rename .?global\.item.? to .?Item/ });
+    await user.click(rename);
+    await user.click(rename);
+    await user.click(screen.getByRole('button', { name: 'Repair' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', p.importRepair(PORTABILITY_IDS.homeboxDone))?.body).toEqual({
+        zero: true,
+        containerTypes: true,
+        names: { item: 'Item', location: 'Location' },
+      }),
+    );
+    const toast = await screen.findByText('Repaired the import');
+    expect(toast).toBeInTheDocument();
+    // Nothing left to repair: the section goes.
+    await waitFor(() =>
+      expect(screen.queryByRole('heading', { name: 'Repair this import' })).toBeNull(),
+    );
+    await user.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(
+      await screen.findByRole('heading', { name: 'Repair this import' }, { timeout: 10_000 }),
+    ).toBeInTheDocument();
   });
 });
 

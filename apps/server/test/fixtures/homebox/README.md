@@ -58,3 +58,21 @@ insured), Old laptop (archived, sold to "A neighbour"), Spare router (archived).
 Homebox recorded file types, so the upgraded export lists it as `application/octet-stream`. v0.27.0's first start
 also added its eight starter rooms (Living Room, Garage, …) and numbered the locations' asset IDs after the items'.
 
+
+## A Homebox v0.27 upgrade with boxes
+
+`homebox-0.27.0-boxes.zip` is made by `make-boxes-backup.py` (invented data; the photos and the
+.docx are copied from `homebox-0.27.0-home.zip`, so regenerate it with that fixture's files, as the
+script's header says). It has the shape of the other v0.27.0 fixtures: the two entity types the
+v0.27 upgrade names `global.location` and `global.item`, Go zero times for unset item dates, and
+items before locations in `entities.json`.
+
+- **36 locations:** Homebox's eight starter rooms (four used), Garage › Box 01–Box 12 and
+  Workbench › Pegboard, Basement › Shelf A/B/C with Shelf C › Bin 1 and Bin 2, Kitchen › Drawer
+  1–4 and Pantry, Hallway › Coat closet, Shed, and a "Lure tray" location inside the "Tackle box"
+  item. Created out of name order on purpose.
+- **43 items:** eight with quantity 0 (used up), one with 2.5, twelve with a price (one without
+  a date, one dated in the future), five insured, five warranties (one lifetime), two archived
+  (one sold); custom fields Colour (text), Wattage (number) and an unset `time` field; one
+  maintenance entry done and one scheduled; two photos and a .docx.
+- **10 tags:** the six starters (four unused) and four more; one tag sits on a location (Box 12).

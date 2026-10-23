@@ -77,6 +77,15 @@ export const PORTABILITY_INSTANCE: TlsInstance = {
   https: true,
 };
 
+/** A Homebox 0.27 upgrade imported end to end (e2e/homebox-boxes.spec.ts), each project into a
+ * new location of its own. Key for KEPT_E2E_INSTANCES: `homebox`. */
+export const HOMEBOX_INSTANCE: TlsInstance = {
+  name: 'homebox',
+  port: 8203,
+  seed: true,
+  https: true,
+};
+
 /** Step 8 (e2e/step8.spec.ts): Admin → Backups (with the owner login a run needs), the app lock. */
 export const OPERATIONS_INSTANCE: TlsInstance = {
   name: 'operations',

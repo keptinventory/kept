@@ -26,6 +26,7 @@ import { defineConfig, devices } from '@playwright/test';
 import { CAPTURE_INSTANCE, fakeCameraArgs } from './e2e/camera';
 import {
   ASSISTANT_INSTANCE,
+  HOMEBOX_INSTANCE,
   INSTANCES,
   type Instance,
   OPERATIONS_INSTANCE,
@@ -83,6 +84,7 @@ const ALL: Record<string, Served> = {
   vehicles: VEHICLES_INSTANCE,
   assistant: ASSISTANT_INSTANCE,
   portability: PORTABILITY_INSTANCE,
+  homebox: HOMEBOX_INSTANCE,
   operations: OPERATIONS_INSTANCE,
   signIn: SIGN_IN_INSTANCE,
   signInMail: SIGN_IN_MAIL_INSTANCE,
