@@ -39,6 +39,8 @@ your Personal location, and the shortcuts that already work.
 
 ## Locations, rooms and boxes
 
+Full detail: [locations, rooms and boxes](/users/locations/).
+
 Everything sits in a tree: a **location** (Home, Garage, a storage unit) holds **rooms and
 spots** ("room or spot" is Kept's word for any place), which hold **things**. A thing can be a
 **box or container** that holds other things, as deep as you like. Each location also has
