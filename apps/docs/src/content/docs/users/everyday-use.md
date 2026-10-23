@@ -68,6 +68,8 @@ Links use IDs, never the path, so moving a thing never breaks a link to it.
 
 ## The spreadsheet view
 
+Full detail: [the spreadsheet view](/users/spreadsheet/).
+
 On a computer (a window 1024 pixels wide or more), a location's **Table** shows every thing in it
 as a row, for tidying up many things at once. Phones keep the lists.
 
