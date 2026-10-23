@@ -145,6 +145,7 @@ const sidebar = [
     page('developers/local-setup'),
     page('developers/data-model'),
     page('developers/rls'),
+    page('developers/security'),
     page('developers/migrations'),
     page('developers/auth'),
     page('developers/api'),
