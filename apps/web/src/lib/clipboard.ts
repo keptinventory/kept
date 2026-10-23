@@ -1,6 +1,6 @@
 /**
  * Copies text. The Clipboard API is only on secure pages: over plain HTTP from a network address
- * (http://kept.lan, http://192.168.1.20) `navigator.clipboard` is undefined, so the text is put
+ * (http://kept.lan, http://192.0.2.20) `navigator.clipboard` is undefined, so the text is put
  * in a hidden textarea, selected and copied with `execCommand('copy')`, which still works there.
  * Rejects when neither copied it; the caller says "Couldn't copy".
  */

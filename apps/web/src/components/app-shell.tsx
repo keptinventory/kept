@@ -407,7 +407,7 @@ function NavFoldGroup({
             aria-expanded={open}
             aria-controls={listId}
             onPress={() => toggleNavFold(group)}
-            className="flex w-full cursor-pointer items-center justify-between gap-2 rounded px-2.5 pb-1 text-start outline-none hover:text-ink data-focus-visible:outline-2 data-focus-visible:outline-info"
+            className="flex min-h-6 w-full cursor-pointer items-center justify-between gap-2 rounded px-2.5 pb-1 text-start outline-none hover:text-ink data-focus-visible:outline-2 data-focus-visible:outline-info"
           >
             {title}
             <ChevronDownIcon

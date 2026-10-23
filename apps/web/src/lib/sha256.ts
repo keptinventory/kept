@@ -1,7 +1,7 @@
 /**
  * SHA-256 (FIPS 180-4) for uploads and imports. `sha256Hex` uses `crypto.subtle` where the page has
  * it, and this same function in plain JavaScript where it doesn't: a page served over plain HTTP
- * from a network address (http://kept.lan, http://192.168.1.20) is not a secure context, and has
+ * from a network address (http://kept.lan, http://192.0.2.20) is not a secure context, and has
  * no `crypto.subtle` at all, yet photos and files must upload there too. The server compares the
  * result with the bytes it stored (`X-Kept-Sha256`).
  *
