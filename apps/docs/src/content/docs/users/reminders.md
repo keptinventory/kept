@@ -27,7 +27,8 @@ there you can **Complete**, **Snooze**, **Renew** or **Mark returned** without l
 **Settings → Me → Notifications** chooses what reaches you and how:
 
 - **Daily digest**: a single daily summary instead of individual notifications.
-- **Quiet hours**: no notifications during the hours you set.
+- **Quiet hours**: no notifications during the hours you set. Nothing is pushed or emailed in
+  them; what comes due waits until they end and is sent then.
 - **Calendar feed**: a private link for your calendar app, showing due dates.
 
 Push on a phone is covered in [Kept on your phone](/users/phone-app/#notifications).
