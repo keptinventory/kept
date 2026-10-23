@@ -11,6 +11,8 @@ installing, [try Kept](/try/kept/) with a sample household in your browser.
 
 ## Home
 
+Full detail: [home](/users/home/).
+
 Home is what needs you, then where things are. On a phone it is one column in this order; on a
 computer, locations and recent activity sit on the left, shortcuts and Insights on the right.
 
