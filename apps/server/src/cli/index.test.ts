@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdtemp, rm, symlink } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,6 +37,8 @@ describe('kept CLI', () => {
     const names = program.commands.map((c) => c.name());
     expect(names).toContain('migrate');
     expect(names).toContain('admin');
+    expect(names).toContain('init');
+    expect(names).toContain('bootstrap');
 
     const admin = program.commands.find((c) => c.name() === 'admin');
     const adminNames = admin?.commands.map((c) => c.name()) ?? [];
@@ -56,9 +58,45 @@ describe('kept CLI', () => {
         'restore',
         'readable',
         'backfill-pdf-text',
+        'token',
       ]),
     );
+    const token = admin?.commands.find((c) => c.name() === 'token');
+    expect(token?.commands.map((c) => c.name())).toEqual(['create']);
   });
+
+  // `kept init`'s behaviour is tested in init.test.ts; here, that it runs as a command without a
+  // terminal and says what it did.
+  it('init --url writes .env without asking and prints the setup code', async () => {
+    const dir = await mkdtemp(path.join(scratch, 'init-'));
+    const { stdout } = await kept(entry, ['init', '--url', 'http://kept.lan:8080', '--dir', dir]);
+    expect(stdout).toMatch(/^KEPT SETUP CODE: [0-9A-HJKMNP-TV-Z]{3}-[0-9A-HJKMNP-TV-Z]{3}$/m);
+    const written = await readFile(path.join(dir, '.env'), 'utf8');
+    expect(written).toContain('KEPT_PUBLIC_URL=http://kept.lan:8080');
+    const code = /KEPT SETUP CODE: (\S+)/.exec(stdout)?.[1];
+    expect(written).toContain(`KEPT_SETUP_CODE=${code}`);
+  });
+
+  it('completes a password-less owner URL from its file before the command runs', async () => {
+    const db = await testDb();
+    const ownerPassword = new URL(db.urls.owner).password;
+    const file = path.join(scratch, 'kept_owner');
+    await writeFile(file, `${ownerPassword}\n`, { mode: 0o600 });
+    const url = new URL(db.urls.owner);
+    url.password = '';
+    const { stderr } = await kept(entry, ['migrate', '--skip-snapshot'], {
+      KEPT_OWNER_DATABASE_URL: url.toString(),
+      KEPT_DB_OWNER_PASSWORD_FILE: file,
+    });
+    expect(stderr).not.toMatch(/password authentication failed/);
+
+    await expect(
+      kept(entry, ['migrate', '--skip-snapshot'], {
+        KEPT_OWNER_DATABASE_URL: url.toString(),
+        KEPT_DB_OWNER_PASSWORD_FILE: path.join(scratch, 'missing'),
+      }),
+    ).rejects.toMatchObject({ code: 1, stderr: expect.stringMatching(/^kept: .*bootstrap/m) });
+  }, 90_000);
 
   // The commands' own behaviour is tested in backup/backup.test.ts; here, that they run as
   // commands with only the owner login and the target, and say plainly what is missing.

@@ -386,9 +386,10 @@ describe('both fixtures, counted', () => {
         dropped: {
           hb_notifier_skipped: 1,
           hb_seeded_skipped: 14,
-          hb_quantity_zero: 7,
+          hb_quantity_zero: 6,
           hb_time_default: 2,
-          hb_number_integer: 1,
+          hb_item_holds_things: 1,
+          hb_place_notes_dropped: 1,
           hb_location_in_item: 1,
           hb_quantity_rounded: 1,
           hb_icon_dropped: 1,
@@ -419,7 +420,7 @@ describe('both fixtures, counted', () => {
         purchases: 1,
         sold: 0,
         failedSteps: [],
-        dropped: { hb_seeded_skipped: 14, hb_quantity_zero: 1 },
+        dropped: { hb_seeded_skipped: 14, hb_quantity_zero: 1, hb_item_holds_things: 1 },
       });
       expect(report.summary).toMatchObject({ things: 3, places: 2, legacyCodes: 10 });
     },
@@ -453,9 +454,10 @@ describe('both fixtures, counted', () => {
         dropped: {
           hb_notifier_skipped: 1,
           hb_seeded_skipped: 14,
-          hb_quantity_zero: 7,
+          hb_quantity_zero: 6,
           hb_time_default: 2,
-          hb_number_integer: 1,
+          hb_item_holds_things: 1,
+          hb_place_notes_dropped: 1,
           hb_location_in_item: 1,
           hb_quantity_rounded: 1,
           hb_icon_dropped: 1,

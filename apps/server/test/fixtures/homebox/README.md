@@ -48,7 +48,7 @@ thrown away afterwards.
 | File | What it is |
 |---|---|
 | `homebox-0.10.3-items.tsv` | v0.10.3's **Export Inventory** (`GET /api/v1/items/export`): tab-separated, `HB.labels`, `HB.purchase_time`/`HB.sold_time`, no `HB.url`, `0` for an unset price |
-| `homebox-0.27.0-upgraded.zip` | that v0.10.3 data folder, copied and started under v0.27.0 (`HBOX_AUTH_API_KEY_PEPPER` set): every migration ran in one start; then **Collection settings → Export** |
+| `homebox-0.27.0-upgraded.zip` | that v0.10.3 data folder, copied and started under v0.27.0 (`HBOX_AUTH_API_KEY_PEPPER` set): every migration ran in one start; then **Collection → Tools → Backup & Restore → Create Backup → Download** |
 | `homebox-0.27.0-upgraded-entities.csv` | the same upgraded collection's CSV (`GET /api/v1/entities/export`): `HB.purchase_date`/`HB.sold_date`, `HB.parent_import_ref`, a relative `HB.url` (`/item/<uuid>`), and one row per location (`/location/<uuid>`) |
 | `homebox-0.27.0-home.zip` | `homebox-0.26.2-home.zip` restored into a fresh v0.27.0 (`POST /api/v1/group/import`) and exported again. v0.27.0 refuses to restore a link attachment, so the copy restored had its one link (Manufacturer page) removed |
 
@@ -58,3 +58,21 @@ insured), Old laptop (archived, sold to "A neighbour"), Spare router (archived).
 Homebox recorded file types, so the upgraded export lists it as `application/octet-stream`. v0.27.0's first start
 also added its eight starter rooms (Living Room, Garage, …) and numbered the locations' asset IDs after the items'.
 
+
+## A Homebox v0.27 upgrade with boxes
+
+`homebox-0.27.0-boxes.zip` is made by `make-boxes-backup.py` (invented data; the photos and the
+.docx are copied from `homebox-0.27.0-home.zip`, so regenerate it with that fixture's files, as the
+script's header says). It has the shape of the other v0.27.0 fixtures: the two entity types the
+v0.27 upgrade names `global.location` and `global.item`, Go zero times for unset item dates, and
+items before locations in `entities.json`.
+
+- **36 locations:** Homebox's eight starter rooms (four used), Garage › Box 01–Box 12 and
+  Workbench › Pegboard, Basement › Shelf A/B/C with Shelf C › Bin 1 and Bin 2, Kitchen › Drawer
+  1–4 and Pantry, Hallway › Coat closet, Shed, and a "Lure tray" location inside the "Tackle box"
+  item. Created out of name order on purpose.
+- **43 items:** eight with quantity 0 (used up), one with 2.5, twelve with a price (one without
+  a date, one dated in the future), five insured, five warranties (one lifetime), two archived
+  (one sold); custom fields Colour (text), Wattage (number) and an unset `time` field; one
+  maintenance entry done and one scheduled; two photos and a .docx.
+- **10 tags:** the six starters (four unused) and four more; one tag sits on a location (Box 12).

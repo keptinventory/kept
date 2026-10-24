@@ -7,7 +7,8 @@
 #
 # One image for every role (KEPT_ROLE = all · web · worker) and for the one-shot `kept migrate`.
 # It runs as uid 10001 (user `kept`) with a read-only root filesystem: the only writable paths are
-# /data (local file storage), /config (first-boot keys, D193) and /tmp.
+# /data (local file storage), /config (first-boot keys, D193), /owner (the database owner's
+# password, which Compose's bootstrap writes and only migrate mounts) and /tmp.
 #
 # Both installs share the pnpm store and pnpm's cache directory as BuildKit cache mounts, so a warm
 # build reuses downloaded packages. (The lockfile's supply-chain check still asks the registry for
@@ -169,7 +170,8 @@ COPY --from=restic /restic-LICENSE /usr/share/doc/restic/LICENSE
 # npm, yarn and corepack come with the Node base and are never run; the flattening drops them, and
 # Node's C headers (for compiling native addons, ~6 MB) and its changelog with them.
 # `kept` on the PATH: `docker compose run --rm migrate admin …`, `docker compose exec kept kept …`.
-# The volumes belong to the runtime user; a fresh named volume copies this ownership.
+# The volumes belong to the runtime user; a fresh named volume copies this ownership. /owner is
+# not a VOLUME: only the services that mount kept-owner there have anything in it.
 RUN groupadd --gid 10001 kept \
  && useradd --uid 10001 --gid 10001 --home-dir /tmp --no-create-home --shell /usr/sbin/nologin kept \
  && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /opt/yarn-v* \
@@ -177,9 +179,9 @@ RUN groupadd --gid 10001 kept \
       /usr/local/bin/yarnpkg /usr/local/include/node /usr/local/CHANGELOG.md \
  && printf '#!/bin/sh\nexec node /app/apps/server/dist/cli/index.js "$@"\n' >/usr/local/bin/kept \
  && chmod 0755 /usr/local/bin/kept \
- && mkdir -p /data /config \
- && chown 10001:10001 /data /config \
- && chmod 0700 /data /config
+ && mkdir -p /data /config /owner \
+ && chown 10001:10001 /data /config /owner \
+ && chmod 0700 /data /config /owner
 
 # ---------------------------------------------------------------------------------------------
 # Third-party notices (D151): generated from this architecture's own pruned

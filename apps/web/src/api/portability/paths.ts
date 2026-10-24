@@ -23,6 +23,8 @@ export const portabilityPaths = {
   importTarget: (id: string) => `${V1}/imports/${seg(id)}/target`,
   importChoices: (id: string) => `${V1}/imports/${seg(id)}/choices`,
   importHomeboxConnect: (id: string) => `${V1}/imports/${seg(id)}/homebox-connect`,
+  /** GET what repairing a Homebox import that ran would change; POST the repairs (1.13.0). */
+  importRepair: (id: string) => `${V1}/imports/${seg(id)}/repair`,
   importPassphrase: (id: string) => `${V1}/imports/${seg(id)}/passphrase`,
 
   // ----- alias enrichment -----------
@@ -60,6 +62,7 @@ export const PORTABILITY_METHODS: Record<keyof typeof portabilityPaths, readonly
   importTarget: ['POST'],
   importChoices: ['POST'],
   importHomeboxConnect: ['POST'],
+  importRepair: ['GET', 'POST'],
   importPassphrase: ['POST'],
   importEnrichEstimate: ['GET'],
   importEnrich: ['POST'],

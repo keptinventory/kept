@@ -51,13 +51,18 @@ sidebar:
 services:
   kept:
     environment:
-      KEPT_OWNER_DATABASE_URL: postgres://kept_owner:${KEPT_DB_OWNER_PASSWORD}@db:5432/kept
+      KEPT_OWNER_DATABASE_URL: postgres://kept_owner:${KEPT_DB_OWNER_PASSWORD:-}@db:5432/kept
+      KEPT_DB_OWNER_PASSWORD_FILE: /owner/kept_owner
     volumes:
+      - kept-owner:/owner:ro
       - /mnt/backup/kept:/backups
   migrate:
     volumes:
       - /mnt/backup/kept:/backups
 ```
+
+تأتي كلمة مرور المالك من وحدة التخزين `kept-owner` حيث يحفظها `bootstrap`. أما التثبيت الأقدم من
+‏1.13.0 الذي فيه `KEPT_DB_OWNER_PASSWORD` داخل `.env` فيستخدم تلك القيمة، ولا يفعل سطر الملف شيئًا.
 
 ثم اضبط الوجهة وكلمة المرور من الشاشة، أو ثبّتهما في `.env`
 (`KEPT_BACKUP_DIR=/backups` و`KEPT_BACKUP_PASSWORD=…`).

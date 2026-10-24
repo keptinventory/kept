@@ -230,9 +230,8 @@ describe('GET /api/v1/home/overview', () => {
         { currency: 'USD', amount: '150' },
       ],
     });
-    expect(new Set(ins?.included)).toEqual(
-      new Set([ibrahim.personalLocationId, home.id, garage.id]),
-    );
+    // Personal starts with Essentials, which keeps no money: it isn't counted, and isn't named.
+    expect(new Set(ins?.included)).toEqual(new Set([home.id, garage.id]));
     expect(ins?.hiddenIn).toEqual([]);
     expect(ins?.moneyOff).toEqual([]);
     // The same figures as the Insights page.
@@ -274,6 +273,7 @@ describe('GET /api/v1/home/overview', () => {
       const g = card(o, garage.id);
       expect(g.value).toBeUndefined();
       expect(g.moneyHidden).toBeUndefined();
+      // Personal (Essentials, no money) is never named.
       expect(o.insights?.moneyOff).toEqual([garage.id]);
       expect(o.insights?.included).not.toContain(garage.id);
       expect(o.insights?.value.byCurrency).toEqual([

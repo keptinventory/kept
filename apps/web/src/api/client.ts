@@ -6,6 +6,7 @@
  * connection" instead of a generic error.
  */
 import { type ErrorCode, isErrorCode } from '@kept/shared';
+import { asOrigin, noteOriginMismatch } from '@/lib/origin-mismatch';
 
 export type ApiErrorCode = ErrorCode | 'offline';
 
@@ -85,6 +86,9 @@ export async function toApiError(res: Response): Promise<ApiError> {
   const retryAfter = retryAfterOf(res);
   const { error: _e, hint: _h, code: _c, message: _m, ...details } = b as Record<string, unknown>;
   if (rawCode && isErrorCode(rawCode)) {
+    // A page at another address than this Kept's: the app shows one strip naming the right one.
+    const expected = rawCode === 'origin_mismatch' ? asOrigin(details.expectedOrigin) : null;
+    if (expected) noteOriginMismatch(expected);
     return new ApiError(res.status, rawCode, typeof b.error === 'string' ? b.error : rawCode, {
       ...(typeof b.hint === 'string' ? { hint: b.hint } : {}),
       ...(retryAfter !== undefined ? { retryAfter } : {}),

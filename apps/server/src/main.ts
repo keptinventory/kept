@@ -15,6 +15,7 @@ import { pgTools } from './backup/pg-tools.js';
 import { readableCopy } from './backup/readable/run.js';
 import { openRepo } from './backup/restic/repo.js';
 import { isEntrypoint } from './cli/index.js';
+import { applyDatabasePasswordFiles } from './config/db-passwords.js';
 import { backupTargetSet, type Env, EnvError, loadEnv } from './config/env.js';
 import { secretKeysOf } from './crypto/keyring.js';
 import { retryAtBoot } from './db/boot-retry.js';
@@ -359,6 +360,9 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
 // Only when this file is the process entrypoint (`node dist/main.js`, `tsx src/main.ts`).
 if (isEntrypoint(import.meta.url)) {
   try {
+    // Password-less database URLs take their password from the bootstrap's files, before
+    // anything reads the environment.
+    applyDatabasePasswordFiles();
     const env = await loadEnv(process.env, { logger: (line) => console.log(line) });
     const running = await startKept(env);
     let stopping = false;
