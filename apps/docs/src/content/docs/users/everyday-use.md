@@ -265,41 +265,14 @@ costs and, on Complete, fuel.
 
 ## Reminders and notifications
 
-Kept reminds you of schedules due, warranties running out and registration deadlines, documents
-and things that expire, overdue loans, meters not read lately, low stock, members joining and
+Kept reminds you of schedules due, warranties running out, registration deadlines, documents and
+things that expire, overdue loans, meters not read lately, low stock, members joining and
 leaving, and AI spending caps. Home's **Needs you** shows what's due or overdue; the bell opens
 the notification centre, where **Complete**, **Snooze**, **Renew** and **Mark returned** act in
-place.
+place. **Settings → Me → Notifications** chooses what reaches you and how, including a **Daily
+digest**, **Quiet hours** and a private **Calendar feed** link.
 
-**Settings → Me → Notifications** chooses what reaches you and how, a **Daily digest**, **Quiet
-hours**, and a private **Calendar feed** link for your calendar app. Push on a phone is covered in
-[the phone app](/users/phone-app/#notifications).
-
-**What reaches you** is one table. Rows are the kinds, grouped: due dates (schedules, warranties,
-registration deadlines, documents, things that expire, meters), lending, stock, people
-(members joining and leaving) and AI (spending caps, the monthly summary). Columns are your
-channels: **In Kept**, **Email**, **Push**, and a column for webhooks, ntfy, Telegram or Apprise
-once you've added one (every channel of that kind follows it). Membership and AI notices only go
-to Kept and email. Turning **In Kept** off for a kind turns it off everywhere: nothing else is
-sent for it. On a phone, each kind shows its channels as switches underneath.
-
-- **All locations** sets what you get everywhere, including locations you add later.
-- **Pick a location** to change it there only. A dot marks what's set for that location alone;
-  **Reset this location to all locations** clears those. A kind whose module is off there shows
-  as paused (its reminders wait until the module is back), and where you're a viewer you only get
-  members joining and leaving. Where you're a member, Kept starts with only the loans you record:
-  turn on what you want there.
-
-**ntfy**: add your server (`https://ntfy.sh` or your own) and a topic that's hard to guess, plus
-an access token if the topic needs one. **Telegram**: make a bot with @BotFather, send it a
-message, then add its token and your chat ID. **Apprise** (when your server has it): paste one or
-more Apprise URLs, like `discord://…`, to reach Discord, Slack, Matrix, Signal and more. Kept keeps
-all of these encrypted and never shows them again; **Test** sends one now.
-
-**Lending**: **Lend** a thing (or part of a quantity) to a member or a contact, with a due date and
-condition photos. Kept never messages the borrower; **Copy a reminder** gives you the text to send
-yourself. A box goes with everything inside it, each thing on its own line: see
-[Kits and hand-overs](/users/kits/).
+Full detail: [reminders and notifications](/users/reminders/).
 
 ## Sharing a location
 
