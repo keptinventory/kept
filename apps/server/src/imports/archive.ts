@@ -10,6 +10,9 @@ import {
   IMPORT_ISSUE_CODES,
   IMPORT_STALE_MINUTES,
   IMPORT_STATUSES,
+  MODULE_IDS,
+  PRESETS,
+  type Preset,
   ZIP_LIMITS,
 } from '@kept/shared';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -28,7 +31,7 @@ import { AppError, conflict, invalid, notFound } from '../http/errors.js';
 import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 import type { JobQueue } from '../jobs/queue.js';
-import { createLocation } from '../locations/create.js';
+import { checkNewLocation, createLocation, switchPreset } from '../locations/create.js';
 import { ArchiveContentError, ArchiveError } from '../portability/zip/limits.js';
 import type { OpenArchive } from '../portability/zip/read.js';
 import { type FileStorage, importArchiveKey } from '../storage/blob-store.js';
@@ -44,6 +47,7 @@ import { homeboxConnectRoutes } from './homebox/api.js';
 import { homeboxImporter } from './homebox/importer.js';
 import { keptImporter } from './kept/importer.js';
 import { keptImportRoutes } from './kept/routes.js';
+import { PendingLocation, pendingOf } from './pending.js';
 
 // Archive imports (D146, D157). Registered in
 // http/routes.ts; T11 and T14 add their routes here. A Homebox export or a Kept export is
@@ -55,7 +59,8 @@ import { keptImportRoutes } from './kept/routes.js';
 // PUT  /api/v1/imports/:id/archive          raw application/zip → ImportRun (archiveReadyAt);
 //                                           stored under importArchiveKey(id), never a name
 // POST /api/v1/imports/:id/inspect          → ArchiveInspect
-// POST /api/v1/imports/:id/target           {locationId} | {newLocation} → ImportRun
+// POST /api/v1/imports/:id/target           {locationId} | {newLocation} → ImportRun (a Homebox
+//                                           import's new location is made when it runs)
 // POST /api/v1/imports/:id/choices          {choices: HomeboxChoices} (If-Match) → ImportRun
 // POST /api/v1/imports/:id/homebox-connect  {baseUrl, apiKey} | {baseUrl, username, password}
 //                                           → HomeboxConnection (nothing stored or logged)
@@ -124,6 +129,12 @@ const TargetBody = z.union([
         .array(z.string().regex(/^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8}){0,3}$/))
         .max(10)
         .optional(),
+      /** What to track there (1.13.0; a Homebox import only): Essentials unless chosen. */
+      preset: z.enum(PRESETS).optional(),
+      /** Modules on top of the preset (a Homebox import): what the backup uses, as ticked. */
+      modules: z.array(z.enum(MODULE_IDS)).max(MODULE_IDS.length).optional(),
+      /** The same preset for the caller's Personal location, when the import runs. */
+      alsoPersonal: z.boolean().optional(),
     }),
   }),
 ]);
@@ -142,6 +153,8 @@ export const ArchiveImportRunView = z.object({
   archiveReadyAt: z.string().nullable(),
   inspect: z.record(z.string(), z.unknown()).nullable(),
   choices: HomeboxChoices.nullable(),
+  /** The new location a Homebox import makes when it runs; null once made, or for any other. */
+  newLocation: PendingLocation.nullable(),
   secrets: z.object({ present: z.boolean(), unlocked: z.boolean() }).nullable(),
   progress: z.number().int(),
   total: z.number().int().nullable(),
@@ -180,7 +193,7 @@ export const ArchiveReport = z.object({
 /** Every column the archive routes read. Never the sealed key, only whether there is one. */
 export const ARCHIVE_RUN_COLUMNS = `id, location_id, source, source_version, status, choices,
   dry_run_report, progress, total, created_by, created_at, started_at, finished_at, error,
-  archive_bytes, archive_sha256, archive_ready_at, inspect,
+  archive_bytes, archive_sha256, archive_ready_at, inspect, new_location,
   secrets_key_ciphertext IS NOT NULL AS has_key, row_version, updated_at`;
 
 /** The archive run `id` as the caller sees it (null when they can't), optionally locked. */
@@ -233,6 +246,7 @@ export function archiveRunView(run: ArchiveRunRow, withReport: boolean): Archive
     archiveReadyAt: run.archive_ready_at?.toISOString() ?? null,
     inspect: run.inspect,
     choices: choices?.success ? choices.data : null,
+    newLocation: pendingOf(run),
     secrets:
       run.source === 'kept_zip' && inspect?.kept
         ? { present: inspect.kept.includesSecrets === true, unlocked: run.has_key }
@@ -253,6 +267,9 @@ export function archiveRunView(run: ArchiveRunRow, withReport: boolean): Archive
   }
   return view;
 }
+
+/** Whether the run knows where it goes: its location, or the new one Import will make. */
+const hasTarget = (run: ArchiveRunRow) => !!run.location_id || pendingOf(run) !== null;
 
 type Ctx = { tx: Tx; client: pg.PoolClient; scope: Scope; requestId: string };
 
@@ -436,7 +453,7 @@ function checkable(run: ArchiveRunRow): void {
   if (run.status !== 'draft' && run.status !== 'checked') {
     throw conflict(`This import is ${run.status}; a dry run is before it starts.`);
   }
-  if (!run.location_id) throw new AppError('import_target_needed', 409);
+  if (!hasTarget(run)) throw new AppError('import_target_needed', 409);
   if (!run.archive_ready_at) throw conflict('Upload the archive first.');
   if (run.source === 'homebox_zip' && !HomeboxChoices.safeParse(run.choices).success) {
     throw invalid('Make the choices first.');
@@ -468,11 +485,7 @@ export async function archiveDryRun(
       throw conflict('This import changed while it was being checked; check it again.');
     }
     const ctx: ArchiveCtx = { ...c, files: deps.files, jobs: deps.jobs };
-    const { report, total } = await importerOf(run.source).dryRun(
-      ctx,
-      run as ArchiveRunRow & { location_id: string },
-      loaded,
-    );
+    const { report, total } = await importerOf(run.source).dryRun(ctx, run, loaded);
     await client.query(
       `UPDATE public.import_runs SET status = 'checked', dry_run_report = $2, total = $3,
               progress = 0
@@ -508,8 +521,10 @@ export async function archiveStart(
         : `This import is ${run.status}; it can't be started again.`,
     );
   }
-  if (!run.location_id) throw new AppError('import_target_needed', 409);
+  if (!hasTarget(run)) throw new AppError('import_target_needed', 409);
   if (!run.archive_ready_at) throw conflict('The archive is gone; start a new import.');
+  const pending = run.location_id ? null : pendingOf(run);
+  if (pending) await makePendingLocation(c, run, pending);
   await c.client.query(
     `UPDATE public.import_runs
         SET status = 'running', started_at = coalesce(started_at, now()), error = NULL
@@ -518,13 +533,49 @@ export async function archiveStart(
   );
   await auditRun(
     c,
-    run,
+    pending ? await reread(c.client, run.id) : run,
     'import.start',
     { status: 'running', ...(run.progress > 0 ? { resumed_at: run.progress } : {}) },
     { status: run.status },
   );
   await jobs.sendTenant(c.client, importerOf(run.source).job, { runId: run.id });
   return archiveRunView(await reread(c.client, run.id), false);
+}
+
+/** Makes a Homebox import's new location now that it runs (with its preset, and Personal
+ * switched to the same when chosen), and sets it as the run's target. */
+async function makePendingLocation(
+  c: Ctx,
+  run: ArchiveRunRow,
+  pending: PendingLocation,
+): Promise<void> {
+  const locationId = await createLocation(c, {
+    name: pending.name,
+    kind: pending.kind,
+    preset: pending.preset,
+    extraModules: pending.modules,
+    timezone: pending.timezone,
+    currency: pending.currency,
+    rooms: [],
+    languages: pending.languages,
+  });
+  await c.client.query('SELECT kept.set_import_target($1, $2)', [run.id, locationId]);
+  if (pending.alsoPersonal) {
+    const { rows } = await c.client.query<{ id: string }>(
+      `SELECT l.id FROM public.locations l
+        WHERE l.kind = 'personal' AND l.owner_account_id = kept.current_owner_account_id()`,
+    );
+    const personal = rows[0]?.id;
+    if (personal) await switchPreset(c, personal, pending.preset, pending.modules);
+  }
+  await auditRun(c, { id: run.id, location_id: locationId }, 'import.target', {
+    source: run.source,
+    location_id: locationId,
+    new_location: true,
+    preset: pending.preset,
+    ...(pending.modules.length > 0 ? { modules: pending.modules } : {}),
+    ...(pending.alsoPersonal ? { also_personal: true } : {}),
+  });
 }
 
 /** POST /imports/:id/cancel for an archive run: the job stops at its next step; the archive and
@@ -804,12 +855,38 @@ export async function archiveImportRoutes(app: KeptApp, deps: InventoryDeps): Pr
         const c = { tx, client, scope, requestId: req.id };
         const id = req.params.id.toLowerCase();
         const run = await workableRun(client, id, true);
-        if (run.location_id) throw conflict('This import already has its location.');
+        if (hasTarget(run)) throw conflict('This import already has its location.');
         rethrowRefusal(run);
         if (run.status !== 'draft') throw conflict(`This import is ${run.status}.`);
         const body = req.body;
         let locationId: string;
         let created = false;
+        if ('newLocation' in body && run.source === 'homebox_zip') {
+          // Made when the import runs, so a check left alone leaves no location behind.
+          const n = body.newLocation;
+          const timezone = await checkNewLocation(client, n);
+          const pending: PendingLocation = {
+            name: n.name,
+            kind: n.kind,
+            timezone,
+            currency: n.currency,
+            ...(n.languages ? { languages: n.languages } : {}),
+            preset: (n.preset ?? 'essentials') as Preset,
+            modules: [...new Set(n.modules ?? [])],
+            alsoPersonal: n.alsoPersonal === true,
+          };
+          await client.query('UPDATE public.import_runs SET new_location = $2 WHERE id = $1', [
+            id,
+            JSON.stringify(pending),
+          ]);
+          await auditRun(c, run, 'import.target', {
+            source: run.source,
+            new_location: true,
+            preset: pending.preset,
+            pending: true,
+          });
+          return { status: 200, body: archiveRunView(await reread(client, id), false) };
+        }
         if ('locationId' in body) {
           // A Kept export always lands in a new location.
           if (run.source === 'kept_zip') {
@@ -851,7 +928,7 @@ export async function archiveImportRoutes(app: KeptApp, deps: InventoryDeps): Pr
         if (run.source !== 'homebox_zip') {
           throw invalid('Only a Homebox import has these choices.');
         }
-        if (!run.location_id) throw new AppError('import_target_needed', 409);
+        if (!hasTarget(run)) throw new AppError('import_target_needed', 409);
         checkVersion({ rowVersion: run.row_version }, expected, ['choices']);
         if (run.status !== 'draft' && run.status !== 'checked') {
           throw conflict(`This import is ${run.status}; its choices are made before it starts.`);
