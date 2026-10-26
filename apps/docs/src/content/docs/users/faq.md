@@ -117,7 +117,7 @@ text is in the repository's
 
 ## Is Kept free? Will it be paid?
 
-Self-hosted Kept is free and open source. Other versions are in progress.
+Self-hosted Kept is free and open source. Mobile and desktop apps and a cloud version are in progress.
 
 ## Is there a release?
 
