@@ -71,10 +71,15 @@ locations, and everyone has a private Personal location. See
 
 ## How is Kept different from Homebox?
 
-Both keep track of what you own and where it is. Kept also has a 3D map of your floors and rooms,
-vehicles with their services and fuel, reminders for what's due, an MCP server for AI assistants,
-and it works offline on your phone. It imports a Homebox backup, so you can try it with your own
-things.
+Both keep track of what you own and where it is. Kept also has:
+
+- **A 3D map** of your floors, rooms, shelves and boxes.
+- **Vehicles**: readings, services, fuel and their costs.
+- **Reminders** for warranties, services, loans and low stock.
+- **Offline use** on your phone, with labels you print and scan.
+- **AI, if you want it**: capture from a photo, and an MCP server for assistants.
+
+It imports a Homebox backup, so you can try it with your own things.
 
 ## Can I move from Homebox?
 
@@ -112,8 +117,7 @@ text is in the repository's
 
 ## Is Kept free? Will it be paid?
 
-Self-hosted Kept is free and open source, and stays that way. Mobile apps and an optional hosted
-version are coming.
+Self-hosted Kept is free and open source. Other versions are in progress.
 
 ## Is there a release?
 
