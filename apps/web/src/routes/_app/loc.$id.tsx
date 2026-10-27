@@ -55,6 +55,7 @@ import {
   useTwoFactorHidden,
 } from '@/components/two-factor-hidden';
 import { buttonClass } from '@/components/ui/button';
+import { LocationGraphLazy } from '@/graph/lazy';
 import { locationAddress, locationIdOf, useCanonicalLocationAddress } from '@/lib/address';
 import { sep, useFormat } from '@/lib/format';
 import { useKindLabels, useLocationName, usePresetCopy, useRoleLabels } from '@/lib/labels';
@@ -254,7 +255,7 @@ function LocationBody({ location }: { location: LocationDetail }) {
       back="/"
       wide
       tour={{ id: layout === 'map' ? 'map' : 'things', context: { locationId: location.id } }}
-      {...(panel && places.length > 1 && layout !== 'table'
+      {...(panel && places.length > 1 && layout !== 'table' && layout !== 'graph'
         ? {
             aside: (
               <PlacesPanel
@@ -266,14 +267,23 @@ function LocationBody({ location }: { location: LocationDetail }) {
           }
         : {})}
     >
-      {layout === 'map' ? (
+      {layout === 'map' || layout === 'graph' ? (
         <>
-          {/* D237: the map leads, under a one-line header; the rest follows it. */}
+          {/* D237: the map leads, under a one-line header; the rest follows it. So does the
+              graph (#207). */}
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <div className="text-ink-2">{meta}</div>
             <LayoutSwitch />
           </div>
-          <LocationMapLazy locationId={location.id} name={name} />
+          {layout === 'map' ? (
+            <LocationMapLazy locationId={location.id} name={name} />
+          ) : (
+            <LocationGraphLazy
+              locationId={location.id}
+              name={name}
+              address={locationAddress(location)}
+            />
+          )}
           {header}
           {addHere}
           {unplacedCard}

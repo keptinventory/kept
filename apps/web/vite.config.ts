@@ -104,6 +104,8 @@ const HOUSEHOLD_SECTIONS = [
   // 1.x (D237): the location map, with three.js and its engine; its .glb models are plain assets
   // under assets/ (fingerprinted, a year's cache), never precached either (the glob below).
   '/src/map/map-view.tsx',
+  // #207: the graph view, its layouts and both pictures; its CSS goes with it (assetFileNames).
+  '/src/graph/graph-view.tsx',
 ];
 /** Route components (TanStack's split chunks) that read the server and load on demand. */
 const HOUSEHOLD_ROUTES = [
@@ -417,9 +419,13 @@ export default defineConfig({
     rolldownOptions: {
       output: {
         chunkFileNames: chunkFileName,
-        // driver.js's CSS goes with its chunk (ON_DEMAND_ENTRIES), and the map's with its own.
+        // driver.js's CSS goes with its chunk (ON_DEMAND_ENTRIES), and the map's and the graph's
+        // with their own.
         assetFileNames: (asset) =>
-          asset.names.some((n) => n.startsWith('driver-kit') || n.startsWith('map-view'))
+          asset.names.some(
+            (n) =>
+              n.startsWith('driver-kit') || n.startsWith('map-view') || n.startsWith('graph-view'),
+          )
             ? 'assets/household/[name]-[hash][extname]'
             : 'assets/[name]-[hash][extname]',
       },
