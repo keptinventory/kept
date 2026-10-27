@@ -112,6 +112,7 @@ const sidebar = [
     page('users/kits'),
     page('users/sharing'),
     page('users/moving'),
+    page('users/condition-reports'),
     page('users/phone-app'),
     page('users/sign-in-security'),
     page('users/ai-providers'),
