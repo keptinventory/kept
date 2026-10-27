@@ -84,9 +84,9 @@ test('a Homebox 0.27 upgrade comes over as Homebox had it, into Essentials', asy
   const go = page.getByRole('button', { name: /^Import \d+ things$/ });
   await expect(go).toBeVisible({ timeout: 60_000 });
   const report = page.getByRole('list', { name: 'Needs a look' });
-  await expect(report).toContainText('Quantity 0 in Homebox; it came in archived.');
-  await expect(report).toContainText('A location that came in as a box, as chosen.');
-  await expect(report).toContainText('It holds other items, so it came in as a box.');
+  await expect(report).toContainText('Quantity 0 in Homebox; it comes in archived.');
+  await expect(report).toContainText('A location that comes in as a box, as chosen.');
+  await expect(report).toContainText('It holds other items, so it comes in as a box.');
   await expect(report).not.toContainText('An item or location');
   await expect(page.getByText(/global\./)).toHaveCount(0);
   await axe(page, 'the import’s check');
