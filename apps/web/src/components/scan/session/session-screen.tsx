@@ -659,6 +659,7 @@ export function SessionScreen({
           whereOf={whereOf}
           roles={roles}
           onUpdate={commit}
+          onQueued={onQueued}
           finishOffline={finishNeedsConnection(session) && !online}
           onBack={() => {
             commit({ ...session, paused: false });

@@ -116,6 +116,15 @@ async function phone(role: Role = 'member') {
         code('KETT1E', KETTLE),
         code('B0X14Q', BOX),
         code('B0X15Z', BOX15),
+        // A pre-printed blank, stuck on the kitchen door before the walk (#329).
+        {
+          code: 'BQNK4X',
+          locationId: HOME,
+          thingId: null,
+          placeId: null,
+          state: 'blank',
+          isPrimary: false,
+        },
       ],
       legacyCodes: [],
     },
@@ -261,6 +270,36 @@ describe('a count', () => {
     ]);
     expect(lines.map((l) => l.action)).toEqual(['seen', 'not_here', 'missing', 'elsewhere']);
     expect(props.onQueued).toHaveBeenCalled();
+  });
+
+  it('claims an unmatched blank label for a place from the summary, offline (#329)', async () => {
+    const store = await phone();
+    const { props } = await startCounting(store);
+    await read(qr('BQNK4X'));
+    const last = screen.getByRole('list', { name: 'Last reads' });
+    await waitFor(() => expect(within(last).getAllByRole('listitem')).toHaveLength(1));
+    fireEvent.click(screen.getByRole('button', { name: 'Finish' }));
+    const unmatched = await screen.findByRole('region', { name: 'Unmatched (1)' });
+    fireEvent.click(within(unmatched).getByRole('button', { name: 'Claim' }));
+    fireEvent.click(
+      await within(unmatched).findByRole('button', { name: /Attach to an existing place/ }),
+    );
+    fireEvent.click(await within(unmatched).findByRole('radio', { name: 'Kitchen' }));
+    fireEvent.click(within(unmatched).getByRole('button', { name: 'Claim' }));
+    expect(
+      await within(unmatched).findByText(
+        (_, el) =>
+          el?.tagName === 'P' &&
+          el.textContent === 'Claimed for Kitchen on this phone, until it syncs.',
+      ),
+    ).toBeInTheDocument();
+    const ops = await store.pending();
+    expect(ops.map((o) => [o.op, o.payload])).toEqual([
+      ['claim_label', { code: 'BQNK4X', target: { placeId: KITCHEN } }],
+    ]);
+    expect(props.onQueued).toHaveBeenCalled();
+    // The session itself is still to be saved.
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
   });
 
   it('lets a viewer check: the same counter, a banner, and nothing saved', async () => {

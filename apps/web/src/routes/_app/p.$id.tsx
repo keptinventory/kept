@@ -550,6 +550,15 @@ function LabelRow({ place, location }: { place: PlaceView; location: LocationDet
       }
     />
   );
+  // #329: a pre-printed blank stuck on the shelf or door, claimed for this place by scanning it.
+  const blank = (
+    <ActionRow
+      icon={<QrIcon />}
+      title={<Trans>Add a label code</Trans>}
+      subtitle={<Trans>Scan a blank label you've stuck on it</Trans>}
+      onPress={() => void navigate({ to: '/scan', search: { place: place.id } })}
+    />
+  );
   if (place.shortCode)
     return (
       <>
@@ -564,6 +573,7 @@ function LabelRow({ place, location }: { place: PlaceView; location: LocationDet
             void navigate({ to: '/labels', search: { loc: location.id, places: place.id } })
           }
         />
+        {blank}
         {everything}
       </>
     );
@@ -575,6 +585,7 @@ function LabelRow({ place, location }: { place: PlaceView; location: LocationDet
         subtitle={<Trans>A short code for the printed label on the shelf or door</Trans>}
         onPress={() => label.mutate()}
       />
+      {blank}
       {everything}
     </>
   );

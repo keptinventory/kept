@@ -622,6 +622,32 @@ describe('POST /api/v1/codes/:code/claim', () => {
     expect(await own(db, 'SELECT 1 FROM public.things WHERE id = $1', [lost])).toEqual([]);
   });
 
+  it('claims a blank for a place, as editing the place allows, and the place shows it printed (#329)', async () => {
+    const [code] = (await blanks(home, 1)) as [string];
+    const pantry = await place(db, home, 'Pantry');
+    // A viewer can't edit the place, so the claim is the 404 a random code gets.
+    const random = answer(await claim(talia, randomShortCode(), { placeId: pantry }));
+    expect(answer(await claim(talia, code, { placeId: pantry }))).toEqual(random);
+    // A member edits places, and claims for them.
+    expect(ok(await claim(louis, code, { placeId: pantry }))).toEqual({
+      outcome: 'claimed',
+      target: { kind: 'place', id: pantry },
+    });
+    const events = await auditActions(home.id, 'label.claim');
+    expect(events.at(-1)).toMatchObject({ entity_id: pantry, actor_id: louis.userId });
+    // Its page shows the label as the printed one (the amber tape), primary as it had none.
+    const view = ok(await call(t, `/api/v1/places/${pantry}`, { as: louis }));
+    expect(view).toMatchObject({ shortCode: code, labelPrinted: true });
+    // Claimed again, for a thing: 409 naming the place.
+    const jar = await createThing(t, ibrahim, home, { name: 'Jar' });
+    const again = await claim(ibrahim, code, { thingId: jar.id });
+    expect(again.statusCode).toBe(409);
+    expect(again.json()).toMatchObject({
+      code: 'label_claimed',
+      claimedFor: { kind: 'place', id: pantry, name: 'Pantry' },
+    });
+  });
+
   it("answers another household's blank, a retired code, a random one and a viewer's claim alike", async () => {
     const [theirs] = (await blanks(garage, 1)) as [string];
     const [mine] = (await blanks(home, 1)) as [string];

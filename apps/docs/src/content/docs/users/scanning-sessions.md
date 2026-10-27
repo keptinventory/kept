@@ -63,8 +63,9 @@ picks it up.
 - **Missing**: left alone by default. Choose **Mark not here** for each, or **Mark all not here**.
 - **No label**: things on the list without a label. Tick the ones you saw.
 - **Found elsewhere** and **In another location**: left alone, or **Move here**.
-- **Unmatched**: blank labels and codes that match several things. Claim blank labels from Scan,
-  one at a time.
+- **Unmatched**: blank labels and codes that match several things. Each blank label has
+  **Claim**: a new box, an existing thing or an existing place. Stick blanks on shelves and doors,
+  scan them all in one walk, then claim them here.
 
 A count also lists what is lent out or in repair (never missing), and what is in a place inside it
 that nobody counted (**Not counted**, until you tap **I checked it**). A thing counted in number
