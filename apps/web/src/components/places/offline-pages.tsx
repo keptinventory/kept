@@ -186,12 +186,22 @@ function Missing({ title }: { title: string }) {
   );
 }
 
-function ThingList({ label, rows }: { label: string; rows: ThingRow[] }) {
+function ThingList({
+  label,
+  rows,
+  boxes = [],
+}: {
+  label: string;
+  rows: ThingRow[];
+  /** The tree's boxes: a box's row says how many things are in it, as online (#321). */
+  boxes?: BoxNode[];
+}) {
+  const counts = new Map(boxes.map((b) => [b.id, b.contentCount]));
   return (
     <List aria-label={label}>
       {rows.map((r) => (
         <li key={r.id}>
-          <ThingRowView thing={r} />
+          <ThingRowView thing={r} contentCount={counts.get(r.id)} />
         </li>
       ))}
     </List>
@@ -351,7 +361,7 @@ export function OfflinePlacePage({ id }: { id: string }) {
         ) : null}
         {things.length ? (
           <Section title={<Trans>Things</Trans>}>
-            <ThingList label={t`Things in ${name}`} rows={things} />
+            <ThingList label={t`Things in ${name}`} rows={things} boxes={tree.boxes} />
           </Section>
         ) : (
           <p className="m-0 text-small text-ink-2">

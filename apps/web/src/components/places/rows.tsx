@@ -73,6 +73,15 @@ export function PlaceRowView({ place, trailing }: { place: PlaceNode; trailing?:
   );
 }
 
+/** A box's "2 things", at the end of its row, as the place tree shows it (#321). */
+function BoxCount({ things }: { things: number }) {
+  return (
+    <span className="shrink-0 ps-2 text-small text-ink-3">
+      <Plural value={things} one="# thing" other="# things" />
+    </span>
+  );
+}
+
 /** A tile's link, its picture's box and its name, per size (#139); Medium is the 1.1 tile. */
 const tileLink =
   'grid content-start rounded-[10px] p-1 text-ink outline-none hover:bg-sunken focus-visible:outline-2 focus-visible:outline-info';
@@ -142,12 +151,15 @@ export function ThingRowView({
   thing,
   showPath = false,
   leading,
+  contentCount,
 }: {
   thing: ThingRow;
   /** The list spans depths (a location's things): say where each one is. */
   showPath?: boolean;
   /** A selection checkbox, before the link. */
   leading?: ReactNode;
+  /** A box's count of what is directly in it, as the place tree shows it (#321). */
+  contentCount?: number | undefined;
 }) {
   const f = useFormat();
   return (
@@ -187,6 +199,7 @@ export function ThingRowView({
           {/* #209: every tag, wrapping (never cut off); the row is the link, so they aren't. */}
           <TagChips tags={thing.tags ?? []} />
         </span>
+        {contentCount === undefined ? null : <BoxCount things={contentCount} />}
       </Link>
     </div>
   );

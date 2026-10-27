@@ -190,7 +190,14 @@ describe('a place page offline', () => {
     await offline(`/p/${GARAGE}`);
     await screen.findByRole('heading', { name: 'Garage' }, { timeout: 3000 });
     const garage = screen.getAllByRole('link', { name: 'Garage' })[0] as HTMLElement;
-    const box = screen.getByRole('link', { name: /^Box 3\s*1 thing$/ });
+    // The tree's leaf, and (#321) its row in the place's things, with the same count.
+    const things = screen.getByRole('list', { name: 'Things in Garage' });
+    const [box, row] = screen.getAllByRole('link', { name: /^Box 3\s*1 thing$/ }) as [
+      HTMLElement,
+      HTMLElement,
+    ];
+    expect(things.contains(box)).toBe(false);
+    expect(things.contains(row)).toBe(true);
     expect(box).toHaveAttribute('href', expect.stringMatching(/^\/t\//));
     // After its place, in document order.
     expect(garage.compareDocumentPosition(box) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

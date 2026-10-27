@@ -859,6 +859,26 @@ describe('the place page', () => {
   });
 });
 
+describe('what a row says about a box (#321)', () => {
+  const rowOf = async (listName: string, name: RegExp) =>
+    within(await list(listName)).getByRole('link', { name });
+
+  it('a box in Things here says how many things are in it, as the tree does', async () => {
+    await renderApp(`/p/${P.hallwayCloset}`);
+    await findHeading('Hallway closet');
+    expect(await rowOf('Contents of Hallway closet', /Box 3/)).toHaveTextContent(/2 things$/);
+  });
+
+  it('Things: sort by says places keep their own order', async () => {
+    const { user } = await renderApp(`/p/${P.office}`);
+    await findHeading('Office');
+    await user.click(await screen.findByRole('button', { name: /^Display options/ }));
+    const sheet = await screen.findByRole('dialog', { name: 'Display' });
+    expect(within(sheet).getByText('Things: sort by')).toBeInTheDocument();
+    expect(within(sheet).getByText('Places keep their own order.')).toBeInTheDocument();
+  });
+});
+
 describe('place fields', () => {
   function withClosetFields(state = ownerScenario()) {
     for (const kinds of Object.values(state.inventory.placeKinds))

@@ -76,6 +76,9 @@ export type DisplayOptions = {
   /** The Sort list's heading, where "Sort" alone would promise more than it orders (a place's
    * contents: "Things: sort by", places keep their own order). Default: "Sort". */
   sortTitle?: string;
+  /** One quiet line under that heading, for what the sort leaves alone (a place's contents:
+   * "Places keep their own order.", #321). */
+  sortNote?: string;
   groups?: DisplayGroup[];
   /** The grouping when the URL names none (default: the first). */
   defaultGroup?: string;
@@ -203,7 +206,14 @@ export function DisplayButton({
             });
           }}
         >
-          <Header className={headerClass}>{options.sortTitle ?? <Trans>Sort</Trans>}</Header>
+          <Header className={headerClass}>
+            {options.sortTitle ?? <Trans>Sort</Trans>}
+            {options.sortNote ? (
+              <span className="mt-1 block font-normal text-small text-ink-3 normal-case tracking-normal">
+                {options.sortNote}
+              </span>
+            ) : null}
+          </Header>
           {sorts.map((s) => (
             <MenuItem
               key={s.value}

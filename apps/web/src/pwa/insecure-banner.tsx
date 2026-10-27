@@ -3,12 +3,20 @@
  * doesn't work, with the HTTPS setups behind "How". Capture falls back to picking files, which
  * works without HTTPS. localhost counts as secure, so development never shows it.
  *
- * Someone who stays on their home network can dismiss it: remembered per person on this device,
- * so another person on the same browser still sees it. Without storage (private mode, blocked
- * storage) it is dismissed for the page only.
+ * Someone who stays on their home network can dismiss it, once for every browser and phone they
+ * use (#321): the dismissal is the person's `http_banner` hint on the server (D138, the store
+ * the Get-started checklist uses), so another person on the same browser still sees it.
+ *
+ * - The hints are read when the app starts (hints-provider.tsx); until they are known the strip
+ *   waits, so a person who dismissed it never sees it flash. If they can't be read (offline at
+ *   start), it shows.
+ * - This device remembers the dismissal too (localStorage, per person): it hides the strip while
+ *   the server is out of reach, and a dismissal from before #321, kept only here, moves to the
+ *   server once. Without storage (private mode, blocked storage) it is dismissed for the page.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useHints, useMarkHint } from '@/components/hints/use-hint';
 import { HttpsHowButton } from '@/components/home/checklist';
 import { AlertIcon, XIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
@@ -16,6 +24,9 @@ import { Button } from '@/components/ui/button';
 export function isInsecure(): boolean {
   return typeof window !== 'undefined' && window.isSecureContext === false;
 }
+
+/** The person's hint (@kept/shared HINT_KEYS) that remembers the strip was dismissed. */
+export const HTTP_BANNER_HINT = 'http_banner';
 
 export const insecureBannerKey = (userId: string) => `kept.http-banner.hidden.${userId}`;
 
@@ -47,7 +58,16 @@ export function InsecureBanner({
 }) {
   const { t } = useLingui();
   const [hidden, setHidden] = useState(() => dismissedFor(userId));
-  if (!insecure || hidden) return null;
+  // Read only over plain HTTP: a secure page never asks for the hints on the strip's account.
+  const hints = useHints(insecure);
+  const mark = useMarkHint();
+  const onServer = !!hints.data?.hints.find((h) => h.key === HTTP_BANNER_HINT)?.dismissedAt;
+  // A dismissal this device kept before the server held it: moved there once.
+  useEffect(() => {
+    if (insecure && hidden && hints.isSuccess && !onServer)
+      void mark(HTTP_BANNER_HINT, { dismissed: true });
+  }, [insecure, hidden, hints.isSuccess, onServer, mark]);
+  if (!insecure || hidden || onServer || hints.isPending) return null;
   return (
     <div
       role="status"
@@ -65,6 +85,7 @@ export function InsecureBanner({
         onPress={() => {
           rememberDismissed(userId);
           setHidden(true);
+          void mark(HTTP_BANNER_HINT, { dismissed: true });
         }}
         className="size-9 shrink-0 [&_svg]:size-4"
       >

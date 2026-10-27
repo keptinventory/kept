@@ -21,6 +21,21 @@ describe('new location wizard', () => {
     expect(screen.getByText('Give it a name, like Home or Garage.')).toBeInTheDocument();
   });
 
+  it('marks the name invalid only after Next, and clears it on typing (#321)', async () => {
+    const { user } = await renderApp('/locations/new');
+    await findHeading('New location');
+    const name = screen.getByLabelText('Name');
+    expect(name).not.toHaveAttribute('aria-invalid');
+    expect(name.closest('[data-invalid]')).toBeNull();
+    // Leaving the empty field is not a mistake yet.
+    await user.click(screen.getByRole('radio', { name: 'Garage' }));
+    expect(name).not.toHaveAttribute('aria-invalid');
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    expect(name).toHaveAttribute('aria-invalid', 'true');
+    await user.type(name, 'B');
+    expect(name).not.toHaveAttribute('aria-invalid');
+  });
+
   it('name and kind → the template rooms → what to track → creates it', async () => {
     const { user, mock, router } = await renderApp('/locations/new');
     await findHeading('New location');
