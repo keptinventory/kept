@@ -234,6 +234,8 @@ services:
       KEPT_UPDATE_CHECK: ${KEPT_UPDATE_CHECK:-}
       # Tracing to your own OpenTelemetry collector (D84): unset, nothing is loaded or sent.
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      # The bearer token that turns /metrics on: empty, the path doesn't exist.
+      KEPT_METRICS_TOKEN: ${KEPT_METRICS_TOKEN:-}
       # KEPT_SOURCE_URL is not set here: the image's default (its OCI source + revision, D147,
       # D186) applies. A fork that serves modified code adds KEPT_SOURCE_URL pointing at its own.
     volumes:
