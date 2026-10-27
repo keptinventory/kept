@@ -86,6 +86,16 @@ describe('search', () => {
     expect(photo).toHaveAttribute('alt', '');
   });
 
+  it('a found thing says its type first on its path line (#321)', async () => {
+    await renderApp('/search?q=hdmi');
+    const cable = within(await things()).getByRole('link', { name: /HDMI cable, 2 m/ });
+    const type = cable.querySelector('[data-thing-type]');
+    expect(type).toHaveTextContent(/^Cable/);
+    expect(type).toHaveClass('text-ink-2');
+    expect(type?.parentElement?.firstElementChild).toBe(type);
+    expect(type?.parentElement).toHaveTextContent(/Cable.*Home › Office › Desk drawer/);
+  });
+
   it('with nothing found, says so and offers did-you-mean', async () => {
     const { user, router } = await renderApp('/search?q=hmdi');
     expect(await screen.findByText(/No match for/)).toHaveTextContent('No match for ‘hmdi’');
@@ -391,6 +401,17 @@ describe('the ⌘K palette', () => {
     expect(desk.textContent).toContain('Home › Office');
     await user.click(desk);
     await waitFor(() => expect(pathOf(router)).toBe(`/p/${INV_IDS.place.deskDrawer}`));
+  });
+
+  it('a thing’s type leads its path line (#321)', async () => {
+    const { user } = await renderApp('/');
+    await user.click(await screen.findByRole('button', { name: /Search or jump to/ }));
+    const dialog = await screen.findByRole('dialog', { name: 'Search or jump to' });
+    await user.type(within(dialog).getByRole('combobox'), 'hdmi');
+    const cable = await within(dialog).findByRole('option', { name: /HDMI cable, 2 m/ });
+    const type = cable.querySelector('[data-thing-type]');
+    expect(type).toHaveTextContent(/^Cable/);
+    expect(type?.parentElement?.firstElementChild).toBe(type);
   });
 
   it('offers actions, and hands the words to the search page', async () => {

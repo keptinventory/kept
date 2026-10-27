@@ -859,7 +859,7 @@ describe('the place page', () => {
   });
 });
 
-describe('what a row says about a box (#321)', () => {
+describe('what a row says about a box and a type (#321)', () => {
   const rowOf = async (listName: string, name: RegExp) =>
     within(await list(listName)).getByRole('link', { name });
 
@@ -867,6 +867,48 @@ describe('what a row says about a box (#321)', () => {
     await renderApp(`/p/${P.hallwayCloset}`);
     await findHeading('Hallway closet');
     expect(await rowOf('Contents of Hallway closet', /Box 3/)).toHaveTextContent(/2 things$/);
+  });
+
+  it('shows the type as a quiet line under the name, first on the line it shares', async () => {
+    await renderApp(`/loc/${IDS.home}`);
+    await findHeading('Home');
+    const hdmi = await rowOf('Contents of Home', /HDMI cable, 2 m/);
+    const type = within(hdmi).getByText('Cable').closest<HTMLElement>('[data-thing-type]');
+    // The secondary text's grey, not the label tape's amber (#271).
+    expect(type).toHaveClass('text-small', 'text-ink-2');
+    expect(type?.className).not.toMatch(/amber|tape/);
+    // First on the tape, states and path line: the row is no taller than before.
+    const line = type?.parentElement;
+    expect(line?.firstElementChild).toBe(type);
+    expect(line).toHaveTextContent(/Cable.*Office.*Desk drawer.*Cable box/);
+  });
+
+  it('shows no type line for a thing without a type', async () => {
+    await renderApp(`/t/${T.box3}`);
+    const scarves = await rowOf('Contents of Box 3', /Winter scarves/);
+    expect(scarves.querySelector('[data-thing-type]')).toBeNull();
+  });
+
+  it('a Large tile shows the type too', async () => {
+    await renderApp(`/p/${P.deskDrawer}?view=grid&size=large`);
+    const tile = await rowOf('Contents of Desk drawer', /Cable box/);
+    expect(within(tile).getByText('Box / bin').closest('[data-thing-type]')).toHaveClass(
+      'text-ink-2',
+    );
+  });
+
+  it('a Medium tile stays the name and its tape', async () => {
+    await renderApp(`/p/${P.deskDrawer}?view=grid`);
+    const medium = await rowOf('Contents of Desk drawer', /Cable box/);
+    expect(within(medium).queryByText('Box / bin')).toBeNull();
+  });
+
+  it('names a built-in type in the reader’s language, right to left', async () => {
+    await renderApp(`/p/${P.familyKitchen}`, { locale: 'ar' });
+    await findHeading('المطبخ');
+    const fridge = await rowOf('محتويات «المطبخ»', /ثلاجة توشيبا/);
+    expect(within(fridge).getByText('جهاز منزلي كبير')).toBeInTheDocument();
+    expectLogicalOnly();
   });
 
   it('Things: sort by says places keep their own order', async () => {

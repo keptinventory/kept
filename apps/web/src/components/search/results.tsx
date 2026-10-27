@@ -38,7 +38,7 @@ import { LabelTape } from '@/components/id-chip';
 import { ListSurface } from '@/components/list-surface';
 import { EmptyState, List, Section } from '@/components/page';
 import { placeIcon, usePlaceName } from '@/components/places/labels';
-import { rowLink, Tile } from '@/components/places/rows';
+import { rowLink, Tile, TypeText } from '@/components/places/rows';
 import { StatusPill } from '@/components/status-pill';
 import { TagChips } from '@/components/tags/chip';
 import { TypeIcon } from '@/components/type-icon';
@@ -409,6 +409,8 @@ export function ThingResult({
           </span>
         ) : null}
         <span className="flex items-center gap-2 text-small text-ink-2">
+          {/* #321: what it is, first on the line that says where. */}
+          <TypeText thing={thing} before />
           {thing.containerThumbUrl ? (
             <img
               src={thing.containerThumbUrl}

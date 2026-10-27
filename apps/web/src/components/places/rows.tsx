@@ -17,7 +17,7 @@ import { TypeIcon } from '@/components/type-icon';
 import { addressOf } from '@/lib/address';
 import { sep, useFormat } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { placeIcon, usePlaceName } from './labels';
+import { placeIcon, usePlaceName, useTypeName } from './labels';
 
 export const rowLink =
   'flex min-h-[60px] min-w-0 flex-1 items-center gap-3 px-3.5 py-2 text-ink outline-none hover:bg-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-info';
@@ -132,6 +132,28 @@ export function PlaceTile({ place, size = 'medium' }: { place: PlaceNode; size?:
   );
 }
 
+/** A thing's type, in the reader's language: the row's quiet secondary text, never the amber of a
+ * printed label's tape (#271). Nothing for a thing without a type. */
+export function TypeText({
+  thing,
+  before = false,
+}: {
+  thing: Pick<ThingRow, 'type'>;
+  before?: boolean;
+}) {
+  const typeName = useTypeName();
+  const name = typeName(thing.type);
+  if (!name) return null;
+  return (
+    <span data-thing-type="" className="text-small text-ink-2 [overflow-wrap:break-word]">
+      <bdi>{name}</bdi>
+      {/* Followed by the path ("Cable · Office › Desk drawer"): the language's separator, kept on
+          the type's line. */}
+      {before ? <span aria-hidden="true">{sep({ keep: true }).trimEnd()}</span> : null}
+    </span>
+  );
+}
+
 /** "Office › Desk drawer › Cable box". */
 export function PathText({ path }: { path: PathStep[] }) {
   const placeName = usePlaceName();
@@ -162,6 +184,9 @@ export function ThingRowView({
   contentCount?: number | undefined;
 }) {
   const f = useFormat();
+  const hasType = !!useTypeName()(thing.type);
+  const tape = !!(thing.labelPrinted && thing.shortCode);
+  const path = showPath && thing.path.length > 0;
   return (
     <div className="flex items-center">
       {leading}
@@ -186,14 +211,16 @@ export function ThingRowView({
               </span>
             ) : null}
           </span>
-          {/* Names first: the code shows only as the tape of a printed label. */}
-          {(thing.labelPrinted && thing.shortCode) || thing.derivedState.length || showPath ? (
+          {/* Names first: the code shows only as the tape of a printed label. The type leads the
+              line (#321), so it adds no line of its own where the row has one. */}
+          {hasType || tape || thing.derivedState.length || path ? (
             <span className="flex flex-wrap items-center gap-1.5">
+              <TypeText thing={thing} before={path && !tape && !thing.derivedState.length} />
               <LabelTape code={thing.shortCode} printed={thing.labelPrinted} />
               {thing.derivedState.map((s) => (
                 <StatusPill key={s} state={s} lifecycle={thing.lifecycle} />
               ))}
-              {showPath && thing.path.length ? <PathText path={thing.path} /> : null}
+              {path ? <PathText path={thing.path} /> : null}
             </span>
           ) : null}
           {/* #209: every tag, wrapping (never cut off); the row is the link, so they aren't. */}
@@ -247,6 +274,7 @@ export function PhotoTile({
       >
         {thing.name ? <bdi>{thing.name}</bdi> : <Trans>Untitled draft</Trans>}
       </span>
+      {size === 'large' ? <TypeText thing={thing} /> : null}
       {size === 'large' && showPath && thing.path.length ? <PathText path={thing.path} /> : null}
       {size !== 'small' ? <LabelTape code={thing.shortCode} printed={thing.labelPrinted} /> : null}
       {size !== 'small' ? <TagChips tags={thing.tags ?? []} /> : null}
