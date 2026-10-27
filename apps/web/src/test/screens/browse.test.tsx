@@ -18,6 +18,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { inventoryPaths } from '@/api/inventory/paths';
 import { IDS, type MockState, ownerScenario } from '@/api/mock/fixtures';
+import { PASS } from '@/api/mock/kit';
 import { createMockApi, MockReply } from '@/api/mock/server';
 import { AppProviders } from '@/app-providers';
 import { ContentsList, contentsSearch } from '@/components/places/contents-list';
@@ -777,6 +778,27 @@ describe('the place page', () => {
     await waitFor(() => expect(pathOf(router)).toBe(`/t/${P.deskDrawer}`));
   });
 
+  it('opens the box straight away, without asking for the place it was (#336)', async () => {
+    const { user, mock, router } = await renderApp(`/p/${P.deskDrawer}`);
+    await findHeading('Desk drawer');
+    await user.click(screen.getByRole('button', { name: /^Turn into a box/ }));
+    const dialog = await screen.findByRole('dialog', { name: 'Turn Desk drawer into a box?' });
+    await user.click(within(dialog).getByRole('button', { name: 'Turn into a box' }));
+    await waitFor(() => expect(pathOf(router)).toBe(`/t/${P.deskDrawer}`));
+    await findHeading('Desk drawer');
+    // The place is gone: asked for again it answers 404, and the page said "Couldn't load this"
+    // until the box opened.
+    const convert = mock.calls.findIndex(
+      (c) => c.method === 'POST' && c.path === inventoryPaths.placeConvertToContainer(P.deskDrawer),
+    );
+    expect(convert).toBeGreaterThan(-1);
+    const gone = [inventoryPaths.place(P.deskDrawer), inventoryPaths.placeContents(P.deskDrawer)];
+    expect(
+      mock.calls.slice(convert + 1).filter((c) => c.method === 'GET' && gone.includes(c.path)),
+    ).toEqual([]);
+    expect(screen.queryByText("Couldn't load this")).not.toBeInTheDocument();
+  });
+
   it('a place with places inside is not offered as a box', async () => {
     await renderApp(`/p/${P.office}`);
     await findHeading('Office');
@@ -1195,6 +1217,43 @@ describe('inside a location', () => {
       expect(
         screen.queryByText((_, el) => el?.tagName === 'SUMMARY' && el.textContent === 'All places'),
       ).toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('from 1280 px a selection made before the outline arrives stays made', async () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({
+      matches: ['(min-width: 768px)', '(min-width: 1024px)', '(min-width: 1280px)'].includes(q),
+      media: q,
+      onchange: null,
+      addEventListener() {},
+      removeEventListener() {},
+      addListener() {},
+      removeListener() {},
+      dispatchEvent: () => false,
+    }));
+    let release = () => {};
+    const held = new Promise<void>((done) => {
+      release = done;
+    });
+    try {
+      // The outline's places held back, as on a slow server: the place and its list come first.
+      const { user } = await renderApp(`/p/${P.kitchen}`, {
+        setup: (mock) =>
+          mock.on('GET', inventoryPaths.locationPlaces(':id'), async () => {
+            await held;
+            return PASS;
+          }),
+      });
+      await findHeading('Kitchen');
+      await user.click(await screen.findByRole('button', { name: 'Select' }));
+      const boxes = screen.getAllByRole('checkbox', { name: /^Select / });
+      expect(boxes.length).toBeGreaterThan(0);
+      release();
+      await screen.findByRole('navigation', { name: 'Places in Home' });
+      // The page's body moved beside the outline without starting again (#336).
+      expect(screen.getAllByRole('checkbox', { name: /^Select / })).toHaveLength(boxes.length);
     } finally {
       vi.unstubAllGlobals();
     }
