@@ -10,6 +10,7 @@ import { MemoryStore } from '@/offline/store';
 import type { SyncStatus } from '@/offline/sync-engine';
 import { renderApp } from '@/test/app';
 import { firstPage, snapThing } from '@/test/store-contract';
+import { offlineTree } from './offline-pages';
 
 const HOME = '01926f00-0000-7000-8000-00000000b002';
 const GARAGE = '01926f00-0000-7000-8000-0000000c0011';
@@ -151,5 +152,35 @@ describe('a place page offline', () => {
     expect(within(things).getByRole('link', { name: /Box 3/ })).toBeInTheDocument();
     // The lamp is inside Box 3, not on the Garage's floor.
     expect(within(things).queryByRole('link', { name: /Desk lamp/ })).toBeNull();
+  });
+
+  it('shows the place tree from the phone, with Box 3 as a leaf under the Garage', async () => {
+    await offline(`/p/${GARAGE}`);
+    await screen.findByRole('heading', { name: 'Garage' }, { timeout: 3000 });
+    const garage = screen.getAllByRole('link', { name: 'Garage' })[0] as HTMLElement;
+    const box = screen.getByRole('link', { name: /^Box 3\s*1 thing$/ });
+    expect(box).toHaveAttribute('href', expect.stringMatching(/^\/t\//));
+    // After its place, in document order.
+    expect(garage.compareDocumentPosition(box) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('orders boxes whose names differ only in case as the server does: by id', async () => {
+    const store = open.store as MemoryStore;
+    const page = firstPage();
+    const first = '01926f00-0000-7000-8000-0000000d0101';
+    const second = '01926f00-0000-7000-8000-0000000d0102';
+    page.changes.places = [];
+    page.changes.things = [
+      // The server sorts lower(name), then the id: "crate" and "Crate" tie, the lower id first.
+      snapThing(second, HOME, 'crate', { placeId: GARAGE, isContainer: true }),
+      snapThing(first, HOME, 'Crate', { placeId: GARAGE, isContainer: true }),
+    ];
+    await store.applySnapshot(page);
+    const places = await store.placesOf(HOME);
+    const { boxes } = await offlineTree(store, places);
+    expect(boxes.filter((b) => b.id === first || b.id === second).map((b) => b.id)).toEqual([
+      first,
+      second,
+    ]);
   });
 });

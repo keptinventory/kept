@@ -479,8 +479,21 @@ export type PlaceNode = {
   shortCode: string | null;
   thingCount: number;
   childCount: number;
+  /** When it was made (ISO): floors among siblings keep this order. */
+  createdAt: string;
+  /** Its boxes, directly in it; the tree shows at most 50 of them. */
+  boxCount: number;
 };
-export type PlacesResponse = { places: PlaceNode[] };
+/** A box in the place tree: a leaf under its place, with how many things are directly in it. */
+export type BoxNode = {
+  id: string;
+  placeId: string;
+  name: string | null;
+  icon: IconRef | null;
+  shortCode: string | null;
+  contentCount: number;
+};
+export type PlacesResponse = { places: PlaceNode[]; boxes: BoxNode[] };
 
 /**
  * A step of a breadcrumb. `kind` tells a place from a container thing; `isUnplaced` marks the

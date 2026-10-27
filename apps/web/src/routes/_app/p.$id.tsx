@@ -188,6 +188,7 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
             aside: (
               <PlacesPanel
                 places={tree.data.places}
+                boxes={tree.data.boxes ?? []}
                 currentId={place.id}
                 location={{
                   id: location.id,
@@ -254,7 +255,7 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
       ) : null}
 
       {!panel && !map && tree.data?.places ? (
-        <PlaceTree places={tree.data.places} currentId={place.id} />
+        <PlaceTree places={tree.data.places} boxes={tree.data.boxes ?? []} currentId={place.id} />
       ) : null}
 
       {canEdit ? (

@@ -438,6 +438,7 @@ export function importRoutes(state: MockState): MockRoute[] {
                 history: 118,
                 historyDropped: 2,
                 secrets: run.secrets?.present ? 3 : 0,
+                secretsWithheld: run.secrets?.present ? 0 : 2,
                 skipped: 0,
                 asText: 0,
                 members: [{ name: 'Bruce', role: 'admin' }],

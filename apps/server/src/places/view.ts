@@ -33,6 +33,7 @@ import {
   tagsOfRow,
   tagsSql,
 } from '../things/tag-sql.js';
+import { placeOrderSql, thingNameSql } from './order.js';
 
 // What the API shows of places (D45, D118, D160): the shapes of the web contract
 // (apps/web/src/api/inventory/types.ts: PlaceNode, PlaceView, PlaceContents, ThingRow), plus the
@@ -66,8 +67,24 @@ export const PlaceNodeSchema = z.object({
   shortCode: z.string().nullable(),
   thingCount: z.number().int(),
   childCount: z.number().int(),
+  /** When it was made: floors among siblings keep this order (places/order.ts). */
+  createdAt: z.string(),
+  /** Its live boxes, directly in it (the tree shows the first BOX_LEAVES of them). */
+  boxCount: z.number().int(),
 });
 export type PlaceNode = z.infer<typeof PlaceNodeSchema>;
+
+/** A box in the tree: a leaf under its place, with how many things are directly inside. */
+export const BoxNodeSchema = z.object({
+  id: z.uuid(),
+  placeId: z.uuid(),
+  name: z.string().nullable(),
+  /** Its type's icon; null shows a box. */
+  icon: z.string().nullable(),
+  shortCode: z.string().nullable(),
+  contentCount: z.number().int(),
+});
+export type BoxNode = z.infer<typeof BoxNodeSchema>;
 
 export const ResolvedFieldSchema = z.object({
   id: z.uuid(),
@@ -280,7 +297,11 @@ const NODE_COLUMNS = `p.id, p.parent_id, p.name, p.kind_key, p.icon, p.sort, p.i
   (SELECT count(*) FROM public.things t
     WHERE t.place_id = p.id AND t.deleted_at IS NULL)::int AS thing_count,
   (SELECT count(*) FROM public.places c
-    WHERE c.parent_id = p.id AND c.deleted_at IS NULL)::int AS child_count`;
+    WHERE c.parent_id = p.id AND c.deleted_at IS NULL)::int AS child_count,
+  p.created_at,
+  (SELECT count(*) FROM public.things t
+    WHERE t.place_id = p.id AND t.deleted_at IS NULL
+      AND ${isContainerSql('t.id', 't.type_id')})::int AS box_count`;
 
 type RawNode = {
   id: string;
@@ -293,6 +314,8 @@ type RawNode = {
   short_code: string | null;
   thing_count: number;
   child_count: number;
+  created_at: Date;
+  box_count: number;
 };
 
 const nodeOf = (r: RawNode): PlaceNode => ({
@@ -306,6 +329,8 @@ const nodeOf = (r: RawNode): PlaceNode => ({
   shortCode: r.short_code,
   thingCount: r.thing_count,
   childCount: r.child_count,
+  createdAt: r.created_at.toISOString(),
+  boxCount: r.box_count,
 });
 
 /** Every live place of a location, flat (`parentId` makes the tree), in the tree's order. */
@@ -313,10 +338,54 @@ export async function placeNodes(client: pg.ClientBase, locationId: string): Pro
   const { rows } = await client.query<RawNode>(
     `SELECT ${NODE_COLUMNS} FROM public.places p
       WHERE p.location_id = $1 AND p.deleted_at IS NULL
-      ORDER BY p.sort, lower(p.name), p.id`,
+      ORDER BY ${placeOrderSql('p')}`,
     [locationId],
   );
   return rows.map(nodeOf);
+}
+
+/** How many boxes the tree shows under one place; `boxCount` says how many more there are. */
+export const BOX_LEAVES = 50;
+
+/**
+ * The boxes of a location's tree: live things directly in a place (not inside another box) that
+ * are containers (their type, or something inside them), at most BOX_LEAVES per place, in the
+ * things' name order.
+ */
+export async function boxNodes(client: pg.ClientBase, locationId: string): Promise<BoxNode[]> {
+  const { rows } = await client.query<{
+    id: string;
+    place_id: string;
+    name: string | null;
+    icon: string | null;
+    short_code: string | null;
+    content_count: number;
+  }>(
+    `SELECT b.id, b.place_id, b.name, b.icon, b.short_code, b.content_count
+       FROM (SELECT t.id, t.place_id, t.name, ty.icon,
+                    (SELECT sc.code FROM public.short_ids sc
+                      WHERE sc.thing_id = t.id AND sc.is_primary AND sc.state = 'assigned' LIMIT 1)
+                      AS short_code,
+                    (SELECT count(*) FROM public.things c
+                      WHERE c.container_id = t.id AND c.deleted_at IS NULL)::int AS content_count,
+                    row_number() OVER (PARTITION BY t.place_id
+                                       ORDER BY ${thingNameSql('t')}, t.id) AS n
+               FROM public.things t
+               LEFT JOIN public.types ty ON ty.id = t.type_id
+              WHERE t.location_id = $1 AND t.deleted_at IS NULL AND t.place_id IS NOT NULL
+                AND ${isContainerSql('t.id', 't.type_id')}) b
+      WHERE b.n <= ${BOX_LEAVES}
+      ORDER BY b.place_id, b.n`,
+    [locationId],
+  );
+  return rows.map((r) => ({
+    id: r.id,
+    placeId: r.place_id,
+    name: r.name,
+    icon: r.icon,
+    shortCode: r.short_code,
+    contentCount: r.content_count,
+  }));
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -599,7 +668,7 @@ export async function placeContents(
   if (q) placeWhere.push(nameHas('p.name', pp.add(q)));
   const { rows: placeRows } = await client.query<RawNode>(
     `SELECT ${NODE_COLUMNS} FROM public.places p WHERE ${placeWhere.join(' AND ')}
-      ORDER BY p.sort, lower(p.name), p.id`,
+      ORDER BY ${placeOrderSql('p')}`,
     pp.values,
   );
 
@@ -644,7 +713,7 @@ export async function placeContents(
         : `''`;
   const sortCol =
     sort === 'updated' ? 't.updated_at' : sort === 'lastSeen' ? 't.last_seen_at' : null;
-  const s = sortCol ? `${sortCol}::text` : `lower(coalesce(t.name, ''))`;
+  const s = sortCol ? `${sortCol}::text` : thingNameSql('t');
   // D211: the name A to Z and the dates newest first, unless `dir` turns them around.
   const desc = query.dir ? query.dir === 'desc' : sortCol !== null;
 

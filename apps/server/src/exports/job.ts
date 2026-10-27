@@ -37,6 +37,7 @@ import { buildReadableCopy } from './readable/index.js';
 import { EXPORTED_ENTITIES, entityDef, HISTORY_ENTITY } from './registry.js';
 import { readSecrets } from './secrets.js';
 import { type ExportJobData, optionsOf } from './service.js';
+import { readWithheld, withheldCount } from './withheld.js';
 
 // The `export` job (D68, D69, D159, D180): one Kept export ZIP, built in its
 // creator's scope (the tenant job's, taken from the sending transaction; `data` names only the
@@ -254,7 +255,12 @@ export async function buildExport(
     await mkdir(path.join(work, 'data'));
     await progress(0);
 
-    // 1. The data files.
+    // 1. The data files. Without "Include secrets", each thing and place whose secret value is
+    // left out says which (`secretsWithheld`: the field keys, never a value).
+    const withheld = claimed.include_secrets
+      ? new Map<string, string[]>()
+      : await inScope((_tx, c) => readWithheld(c, ctx));
+    const secretsWithheld = withheldCount(withheld);
     const counts = Object.fromEntries(EXPORT_ENTITIES.map((e) => [e, 0])) as Record<
       ExportEntity,
       number
@@ -268,7 +274,10 @@ export async function buildExport(
       const out = new Lines(path.join(work, EXPORT_PATHS.data(entity)));
       try {
         await inScope(async (_tx, c) => {
+          const marks = entity === 'things' || entity === 'places' ? withheld : null;
           for await (const row of readEntity(c, def, ctx)) {
+            const keys = marks?.get(String(row.id));
+            if (keys) row.secretsWithheld = keys;
             await out.write(row);
             if (entity === 'files') {
               fileRows.push({
@@ -392,6 +401,7 @@ export async function buildExport(
           ended: options.ended,
           trashed: options.trashed,
           pdf: options.pdf,
+          secretsWithheld,
         },
         { checkpoint },
       );
@@ -443,6 +453,7 @@ export async function buildExport(
       moneyHidden: !showMoney,
       includesSecrets: claimed.include_secrets,
       secretsCount,
+      secretsWithheld,
       members,
       files: refs.map(({ key: _key, ...f }) => f),
       readable: { included: readable.included, pdf: readable.pdf },

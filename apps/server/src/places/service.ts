@@ -133,11 +133,15 @@ export async function createPlace(
     if (parent.isUnplaced) throw conflict(UNDER_UNPLACED);
   }
   await c.client.query(
+    // Siblings read A to Z (places/order.ts), so `sort` stays 0, except for a floor: floors
+    // keep a position, and older ones hold 0, 1, 2…, so a new floor goes after its sibling floors.
     `INSERT INTO public.places (id, location_id, parent_id, name, kind_key, icon, sort, created_by)
      VALUES ($1, $2, $3, $4, $5, $6,
-             (SELECT coalesce(max(s.sort) + 1, 0) FROM public.places s
-               WHERE s.location_id = $2 AND s.parent_id IS NOT DISTINCT FROM $3::uuid
-                 AND NOT s.is_unplaced),
+             CASE WHEN $5 = 'floor' THEN
+               (SELECT coalesce(max(s.sort) + 1, 0) FROM public.places s
+                 WHERE s.location_id = $2 AND s.parent_id IS NOT DISTINCT FROM $3::uuid
+                   AND s.kind_key = 'floor' AND s.deleted_at IS NULL)
+             ELSE 0 END,
              $7)`,
     [id, locationId, parentId, body.name, body.kindKey, body.icon ?? null, c.scope.userId],
   );

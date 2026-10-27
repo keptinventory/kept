@@ -6,6 +6,7 @@ import { notFound } from '../http/errors.js';
 import { locationModuleSet } from '../http/modules.js';
 import { labelPrintedSql, shownCodeSql } from '../labels/printed-sql.js';
 import { requireMembership } from '../locations/access.js';
+import { placeOrderSql, thingNameSql } from '../places/order.js';
 
 // GET /api/v1/locations/:id/map (1.x, D237): everything the location map draws and its card and
 // list show, in one read under the caller's row-level security.
@@ -226,7 +227,7 @@ export async function placeRows(client: pg.ClientBase, locationId: string): Prom
             ${labelPrintedSql('place_id', 'p.id')} AS label_printed
        FROM public.places p
       WHERE p.location_id = $1 AND p.deleted_at IS NULL
-      ORDER BY p.sort, lower(p.name), p.id`,
+      ORDER BY ${placeOrderSql('p')}`,
     [locationId],
   );
   return rows;
@@ -250,7 +251,7 @@ export async function thingRows(client: pg.ClientBase, locationId: string): Prom
        LEFT JOIN public.types ty ON ty.id = t.type_id
       WHERE t.location_id = $1 AND t.deleted_at IS NULL AND t.lifecycle = 'in_use'
         AND t.review_state <> 'draft'
-      ORDER BY on_map DESC, is_container DESC, lower(coalesce(t.name, '')), t.id`,
+      ORDER BY on_map DESC, is_container DESC, ${thingNameSql('t')}, t.id`,
     [locationId],
   );
   return rows;

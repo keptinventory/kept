@@ -14,6 +14,7 @@ import { connectionsApi, connectionsKeys } from '@/api/connections/queries';
 import type { WebhookRow } from '@/api/connections/types';
 import { Notice, useErrorText } from '@/components/page';
 import { Sheet } from '@/components/places/sheet';
+import { isPrivateAddressError, PrivateAddressLink } from '@/components/private-address-link';
 import { Button } from '@/components/ui/button';
 import { CopyButton } from '@/components/ui/copy-button';
 import { DialogFooter } from '@/components/ui/dialog';
@@ -159,6 +160,9 @@ function WebhookForm({
         autoFocus
         inputProps={{ dir: 'ltr', inputMode: 'url', autoCapitalize: 'none', spellCheck: false }}
       />
+      {errors.url && isPrivateAddressError(save.error) ? (
+        <PrivateAddressLink className="-mt-2 justify-self-start text-small font-semibold text-ink underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-info" />
+      ) : null}
       <div className="grid gap-1">
         <Label id="webhook-events">
           <Trans>When</Trans>

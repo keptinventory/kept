@@ -514,6 +514,7 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
           // #209: under each thing's first tag, A to Z; untagged last.
           { value: 'tag', label: t`Tag`, short: t`by tag` },
         ]}
+        sortTitle={t`Things: sort by`}
         sorts={[
           { value: 'name', label: t`Name` },
           { value: 'updated', label: t`Changed`, kind: 'date' },

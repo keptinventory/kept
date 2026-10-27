@@ -3,7 +3,8 @@
  * server from real state (`GET /home`), shown by Home outside the first-run state.
  *
  * - Over plain HTTP an instance admin's first step is "Put Kept on HTTPS" (D193). The server
- *   can't see the scheme behind a proxy, so this client adds it.
+ *   can't see the scheme behind a proxy, so this client adds it. "Staying on my home network"
+ *   completes it: the `checklist.home_network` hint, dismissed, so every phone agrees.
  * - D240 (the approved Home design): one line, a progress bar, "4 of 6 done" and the next step;
  *   the chevron opens the steps (open ones first, each with its action, then one "Done" row for
  *   the finished ones), and × hides it for good with Undo in the toast. Only Help brings it back
@@ -29,6 +30,7 @@ import { inventoryKeys } from '@/api/inventory/queries';
 import type { ChecklistKey, HomeResponse, UpdateHintBody } from '@/api/inventory/types';
 import { keys } from '@/api/queries';
 import type { LocationSummary, Me } from '@/api/types';
+import { useHints, useMarkHint } from '@/components/hints/use-hint';
 import { CheckIcon, ChevronDownIcon, XIcon } from '@/components/icons';
 import { LinkButton, Notice } from '@/components/page';
 import { CreateThingSheet } from '@/components/things/create-sheet';
@@ -94,6 +96,17 @@ export function useChecklistSync(home: HomeResponse | undefined) {
   }, [home, qc, setDismissed]);
 }
 
+/** The hint that says an instance admin is staying on their home network (no HTTPS). */
+export const HOME_NETWORK_HINT = 'checklist.home_network';
+
+/** Whether this person chose "Staying on my home network", and the way to choose it. */
+export function useHomeNetwork() {
+  const hints = useHints(false);
+  const mark = useMarkHint();
+  const chosen = !!hints.data?.hints.find((h) => h.key === HOME_NETWORK_HINT)?.dismissedAt;
+  return { chosen, choose: () => void mark(HOME_NETWORK_HINT, { dismissed: true }) };
+}
+
 // ----- the checklist ---------------------------------------------------------------------------
 
 type Step = {
@@ -112,12 +125,17 @@ const manages = (l: LocationSummary) => l.role === 'owner' || l.role === 'admin'
  * How many steps are still open for this person: the server's, less "your first home" once
  * she belongs to a shared one, plus HTTPS for an admin over http. Zero ⇒ no checklist at all.
  */
-export function openStepCount(home: HomeResponse, me: Me, locations: LocationSummary[]): number {
+export function openStepCount(
+  home: HomeResponse,
+  me: Me,
+  locations: LocationSummary[],
+  homeNetwork = false,
+): number {
   const hasShared = locations.some((l) => l.kind !== 'personal');
   const server = home.checklist.items.filter(
     (i) => !i.done && !(i.key === 'locationCreated' && hasShared),
   ).length;
-  return server + (me.user.instanceAdmin && servedOverHttp() ? 1 : 0);
+  return server + (me.user.instanceAdmin && servedOverHttp() && !homeNetwork ? 1 : 0);
 }
 
 export function GetStarted({
@@ -142,6 +160,7 @@ export function GetStarted({
   const labelId = useId();
   const stepsId = useId();
   const qc = useQueryClient();
+  const homeNetwork = useHomeNetwork();
 
   const shared = locations.filter((l) => l.kind !== 'personal');
   const owned = shared.find((l) => l.role === 'owner');
@@ -168,11 +187,18 @@ export function GetStarted({
   if (me.user.instanceAdmin && servedOverHttp()) {
     steps.push({
       key: 'https',
-      done: false,
+      done: homeNetwork.chosen,
       title: t`Put Kept on HTTPS`,
-      doneLabel: '',
+      doneLabel: t`Staying on my home network`,
       body: t`Over plain HTTP, phones block the camera, installing Kept, push notifications and location.`,
-      action: <HttpsHowButton />,
+      action: (
+        <span className="flex flex-wrap gap-2">
+          <HttpsHowButton />
+          <Button size="small" variant="secondary" onPress={homeNetwork.choose}>
+            <Trans>Staying on my home network</Trans>
+          </Button>
+        </span>
+      ),
     });
   }
   if (me.user.instanceAdmin && adminStatus.data && !adminStatus.data.mail.configured) {
@@ -284,7 +310,7 @@ export function GetStarted({
 
   const finished = steps.filter((s) => s.done);
   const open = steps.filter((s) => !s.done);
-  if (openStepCount(home, me, locations) === 0) return null;
+  if (openStepCount(home, me, locations, homeNetwork.chosen) === 0) return null;
   const next = open[0];
   // `done` and `total` keep the reader's digits (D143).
   const done = f.num(finished.length);
@@ -412,8 +438,21 @@ function StepRow({
 // ----- HTTPS (D193) ----------------------------------------------------------------------------
 
 export function HttpsNotice() {
+  const homeNetwork = useHomeNetwork();
+  if (homeNetwork.chosen) return null;
   return (
-    <Notice tone="warn" title={<Trans>Put Kept on HTTPS</Trans>} action={<HttpsHowButton />}>
+    <Notice
+      tone="warn"
+      title={<Trans>Put Kept on HTTPS</Trans>}
+      action={
+        <span className="flex flex-wrap gap-2">
+          <HttpsHowButton />
+          <Button size="small" variant="secondary" onPress={homeNetwork.choose}>
+            <Trans>Staying on my home network</Trans>
+          </Button>
+        </span>
+      }
+    >
       <Trans>
         Over plain HTTP, phones block the camera, installing Kept, push notifications and location.
       </Trans>

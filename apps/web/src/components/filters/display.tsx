@@ -73,6 +73,9 @@ export type DisplaySize = { value: string; label: string };
 
 export type DisplayOptions = {
   sorts?: DisplaySort[];
+  /** The Sort list's heading, where "Sort" alone would promise more than it orders (a place's
+   * contents: "Things: sort by", places keep their own order). Default: "Sort". */
+  sortTitle?: string;
   groups?: DisplayGroup[];
   /** The grouping when the URL names none (default: the first). */
   defaultGroup?: string;
@@ -200,9 +203,7 @@ export function DisplayButton({
             });
           }}
         >
-          <Header className={headerClass}>
-            <Trans>Sort</Trans>
-          </Header>
+          <Header className={headerClass}>{options.sortTitle ?? <Trans>Sort</Trans>}</Header>
           {sorts.map((s) => (
             <MenuItem
               key={s.value}

@@ -15,6 +15,7 @@
  * snapshot brings the real row. A queued `move` shows the thing in its new place.
  */
 import {
+  comparePlaceSiblings,
   legacyCodeKey,
   normalize,
   PAYLOAD_VERSION,
@@ -291,7 +292,7 @@ export class MemoryStore implements OfflineStore {
   async placesOf(locationId: string) {
     return [...this.places.values()]
       .filter((p) => p.locationId === locationId)
-      .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name));
+      .sort(comparePlaceSiblings);
   }
   async contentsOf(target: { placeId?: string; containerId?: string }) {
     return this.view().filter((t) =>

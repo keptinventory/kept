@@ -88,7 +88,8 @@ beforeAll(async () => {
   db = await testDb();
   await db.reset();
   files = await testFiles();
-  t = await peopleApp(db, { files, secretKeys: keys });
+  // Opening the secrets with the passphrase is https only (https-only-routes.test.ts).
+  t = await peopleApp(db, { files, secretKeys: keys, publicUrl: 'https://kept.example' });
   ibrahim = await person(t, db, 'ibrahim');
   alfred = await person(t, db, 'alfred');
   bruce = await person(t, db, 'bruce');

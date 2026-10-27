@@ -26,6 +26,7 @@
  */
 import {
   can,
+  comparePlaceSiblings,
   type Role,
   SCAN_SESSION_LIMITS,
   type ScanSessionMode,
@@ -977,7 +978,7 @@ function SessionSetup({
       const walk = (parent: string | null, d: number) => {
         for (const p of mine
           .filter((x) => (x.parentId ?? null) === parent)
-          .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name))) {
+          .sort(comparePlaceSiblings)) {
           depth.set(p.id, d);
           ordered.push(p);
           walk(p.id, d + 1);

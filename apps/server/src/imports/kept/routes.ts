@@ -5,6 +5,7 @@ import { limiterKey, reserveInWindow } from '../../auth/sign-in-limiter.js';
 import { withScope } from '../../db/scope.js';
 import type { KeptApp } from '../../http/app.js';
 import { AppError, notFound } from '../../http/errors.js';
+import { requireHttps } from '../../http/https-only.js';
 import type { InventoryDeps } from '../../http/routes.js';
 import { ArchiveImportRunView, archiveRunView, readArchiveRun } from '../archive.js';
 import { PASSPHRASE_TRIES_PER_HOUR, PassphraseBody, unlockSecrets } from './secrets.js';
@@ -14,6 +15,9 @@ import { PASSPHRASE_TRIES_PER_HOUR, PassphraseBody, unlockSecrets } from './secr
 // POST /api/v1/imports/:id/passphrase {passphrase} → ImportRun (`secrets.unlocked`)
 //   400 `passphrase_wrong` (checked by decrypting the export's secrets.json); 429 past 10 tries an
 //   hour per run, right or wrong; 409 before the archive is uploaded or once the run started.
+//   403 `https_required` over plain HTTP, before anything else: the passphrase opens the
+//   export's secret values, which never travel over plain HTTP (an export with secrets is
+//   refused there the same way). Without it the import runs and leaves the secrets out.
 //
 // Its own scoped transactions, not scopedWrite(): an Idempotency-Key would store a hash of the
 // body (the passphrase). Nothing logs a body; the request log carries the method and the URL.
@@ -32,6 +36,7 @@ export async function keptImportRoutes(app: KeptApp, deps: InventoryDeps): Promi
   app.post(
     '/api/v1/imports/:id/passphrase',
     {
+      preHandler: requireHttps(deps.env.KEPT_PUBLIC_URL),
       schema: {
         params: Params,
         body: PassphraseBody,

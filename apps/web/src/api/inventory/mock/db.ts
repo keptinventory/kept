@@ -4,11 +4,12 @@
  * the way the server does), pagination over `next_cursor`, If-Match checks with the D156 412
  * body, and a small Arabic-aware fold for search. Test and demo data only.
  */
-import { isAuditAction } from '@kept/shared';
+import { isAuditAction, naturalCompare } from '@kept/shared';
 import type { LocationDetail } from '../../types';
 import type {
   AccountSummary,
   AttachmentView,
+  BoxNode,
   Brand,
   Currency,
   DerivedState,
@@ -230,7 +231,44 @@ export function placeNodeOf(inv: InventoryState, p: StoredPlace): PlaceNode {
     shortCode: p.shortCode,
     thingCount: inv.things.filter((t) => t.placeId === p.id && !t.deletedAt).length,
     childCount: inv.places.filter((c) => c.parentId === p.id && !c.deletedAt).length,
+    createdAt: '',
+    boxCount: boxesIn(inv, p.id).length,
   };
+}
+
+/** The live boxes directly in a place, A to Z, as the server's tree has them. */
+function boxesIn(inv: InventoryState, placeId: string) {
+  return inv.things
+    .filter(
+      (t) =>
+        t.placeId === placeId &&
+        !t.containerId &&
+        !t.deletedAt &&
+        (t.isContainer || contentsOf(inv, t.id).length > 0),
+    )
+    .sort(
+      (a, b) =>
+        naturalCompare((a.name ?? '').toLowerCase(), (b.name ?? '').toLowerCase()) ||
+        (a.id < b.id ? -1 : 1),
+    );
+}
+
+/** The tree's box leaves of a location: at most 50 per place. */
+export function boxNodesOf(inv: InventoryState, locationId: string): BoxNode[] {
+  return inv.places
+    .filter((p) => p.locationId === locationId && !p.deletedAt)
+    .flatMap((p) =>
+      boxesIn(inv, p.id)
+        .slice(0, 50)
+        .map((t) => ({
+          id: t.id,
+          placeId: p.id,
+          name: t.name,
+          icon: null,
+          shortCode: t.shortCode,
+          contentCount: contentsOf(inv, t.id).filter((c) => !c.deletedAt).length,
+        })),
+    );
 }
 
 export function placeViewOf(inv: InventoryState, p: StoredPlace): PlaceView {

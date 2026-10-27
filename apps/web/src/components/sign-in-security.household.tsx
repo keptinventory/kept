@@ -51,6 +51,7 @@ import { PasswordField } from '@/components/ui/password-field';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
 import { sep, useFormat } from '@/lib/format';
+import { servedOverHttp } from '@/lib/https';
 import { describeUserAgent } from '@/lib/user-agent';
 
 /** Where "Sign in again" comes back to. */
@@ -106,7 +107,14 @@ function Passkeys({ state }: { state: SignInState }) {
       </p>
       {supported ? null : (
         <p className="m-0 text-small text-ink-2">
-          <Trans>This browser can't add a passkey. Try another browser or device.</Trans>
+          {servedOverHttp() ? (
+            <Trans>
+              Passkeys need HTTPS. On a plain-HTTP address browsers don't offer them; put Kept on
+              HTTPS to add one.
+            </Trans>
+          ) : (
+            <Trans>This browser can't add a passkey. Try another browser or device.</Trans>
+          )}
         </p>
       )}
       <List aria-label={t`Passkeys`}>

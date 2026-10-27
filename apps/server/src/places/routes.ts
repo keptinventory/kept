@@ -23,6 +23,8 @@ import {
 } from './service.js';
 import { registerPlaceUndo } from './undo.js';
 import {
+  BoxNodeSchema,
+  boxNodes,
   ContentsQuery,
   PlaceContentsSchema,
   PlaceNodeSchema,
@@ -37,7 +39,7 @@ import {
 // apps/web/src/api/inventory/{types,paths}.ts (PlaceNode, PlaceView, PlaceContents, TrashBody,
 // TrashResult, RestoreResult, ConvertToContainerResult, LabelResult).
 //
-// GET    /api/v1/locations/:locationId/places     → {places: PlaceNode[]}
+// GET    /api/v1/locations/:locationId/places     → {places: PlaceNode[], boxes: BoxNode[]}
 // POST   /api/v1/locations/:locationId/places     {id?, parentId?, name, kindKey, icon?} → 201 PlaceView
 // GET    /api/v1/places/:id                       → PlaceView
 // GET    /api/v1/places/:id/contents?q&type*&tag*&state*&brand*&belongsTo*&not*&group&sort&dir
@@ -87,14 +89,19 @@ export async function placeRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
     {
       schema: {
         params: LocationParams,
-        response: { 200: z.object({ places: z.array(PlaceNodeSchema) }) },
+        response: {
+          200: z.object({ places: z.array(PlaceNodeSchema), boxes: z.array(BoxNodeSchema) }),
+        },
       },
     },
     (req) =>
       scopedRead(pools, req, async (_tx, client) => {
         const locationId = req.params.locationId.toLowerCase();
         await requireMembership(client, locationId);
-        return { places: await placeNodes(client, locationId) };
+        return {
+          places: await placeNodes(client, locationId),
+          boxes: await boxNodes(client, locationId),
+        };
       }),
   );
 

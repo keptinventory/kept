@@ -32,6 +32,7 @@ export * from './money.js';
 export * from './moving.js';
 export * from './normalize.js';
 export * from './ops.js';
+export * from './order.js';
 export * from './portability.js';
 export * from './reminders.js';
 export * from './roles.js';

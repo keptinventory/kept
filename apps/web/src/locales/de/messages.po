@@ -27232,3 +27232,35 @@ msgstr "In einem Heimnetz ohne HTTPS kann die Person, die dieses Kept betreibt, 
 #: src/components/import/archive-run.tsx
 msgid "Open the map"
 msgstr "Karte öffnen"
+
+#: src/components/places/contents-list.tsx
+msgid "Things: sort by"
+msgstr "Gegenstände: sortieren nach"
+
+#: src/components/places/tree.tsx
+msgid "{count, plural, one {+# box} other {+# boxes}}"
+msgstr "{count, plural, one {+# Kiste} other {+# Kisten}}"
+
+#: src/components/private-address-link.tsx
+msgid "Allow private addresses in Admin → Settings"
+msgstr "Private Adressen unter Admin → Einstellungen erlauben"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys need HTTPS. On a plain-HTTP address browsers don't offer them; put Kept on HTTPS to add one."
+msgstr "Passkeys brauchen HTTPS. Auf einer einfachen HTTP-Adresse bieten Browser sie nicht an; stellen Sie Kept auf HTTPS um, um einen hinzuzufügen."
+
+#: src/components/import/entity-report.tsx
+msgid "{0, plural, one {secret value left out of the export} other {secret values left out of the export}}"
+msgstr "{0, plural, one {geheimer Wert nicht im Export} other {geheime Werte nicht im Export}}"
+
+#: src/components/home/checklist.tsx
+msgid "Staying on my home network"
+msgstr "Ich bleibe in meinem Heimnetz"
+
+#: src/components/export/export-sheet.tsx
+msgid "Over plain HTTP, secret values stay out of the export. Each one is marked as left out, and the rest imports as usual."
+msgstr "Über einfaches HTTP bleiben geheime Werte außerhalb des Exports. Jeder ist als ausgelassen markiert, der Rest wird wie gewohnt importiert."
+
+#: src/components/import/kept-choices.tsx
+msgid "Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to bring them over too, import this file at Kept’s HTTPS address."
+msgstr "Sie zu öffnen braucht HTTPS. Über einfaches HTTP wird alles andere ohne sie importiert; um sie mitzunehmen, importieren Sie diese Datei unter der HTTPS-Adresse von Kept."

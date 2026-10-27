@@ -6,6 +6,7 @@
  * Every write invalidates places, things and home: a move or a trash changes counts, paths and
  * the Unplaced number on Home at once, and the lists are cheap to refetch.
  */
+import { comparePlaceSiblings } from '@kept/shared';
 import {
   type QueryClient,
   useInfiniteQuery,
@@ -22,6 +23,7 @@ import {
   nextCursor,
 } from '@/api/inventory/queries';
 import type {
+  BoxNode,
   ConvertToContainerBody,
   ConvertToContainerResult,
   EmptyIntoBody,
@@ -104,6 +106,7 @@ export const usePlaceTree = (locationId: string) =>
 export type LocationTree = {
   location: { id: string; name: string; kind: LocationKind; role: Role };
   places: PlaceNode[];
+  boxes: BoxNode[];
 };
 
 /**
@@ -128,6 +131,7 @@ export function useAllPlaceTrees(): { trees: LocationTree[]; isPending: boolean 
             {
               location: { id: l.id, name: l.name, kind: l.kind, role: l.role },
               places: data.places,
+              boxes: data.boxes ?? [],
             },
           ]
         : [];
@@ -135,16 +139,15 @@ export function useAllPlaceTrees(): { trees: LocationTree[]; isPending: boolean 
   };
 }
 
-/** Children by parent id, sorted the way the server sorts (sort, then name). */
-export function childrenOf(places: PlaceNode[]): Map<string | null, PlaceNode[]> {
-  const out = new Map<string | null, PlaceNode[]>();
+/** Children by parent id, sorted the way the server sorts (floors in their order, then A to Z). */
+export function childrenOf<P extends PlaceNode>(places: P[]): Map<string | null, P[]> {
+  const out = new Map<string | null, P[]>();
   for (const pl of places) {
     const list = out.get(pl.parentId) ?? [];
     list.push(pl);
     out.set(pl.parentId, list);
   }
-  for (const list of out.values())
-    list.sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name));
+  for (const list of out.values()) list.sort(comparePlaceSiblings);
   return out;
 }
 
