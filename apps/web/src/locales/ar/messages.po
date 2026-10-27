@@ -27581,3 +27581,15 @@ msgstr "خُصّص لـ«<0>{label}</0>» على هذا الهاتف، حتى ت
 #: src/components/scan/session/summary.tsx
 msgid "Claimed for <0>{label}</0>."
 msgstr "خُصّص لـ«<0>{label}</0>»."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Blank label {code}"
+msgstr "ملصق فارغ {code}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Not matched: {text}"
+msgstr "غير مطابق: {text}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Check later: {text}"
+msgstr "تحقّق لاحقًا: {text}"

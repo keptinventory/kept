@@ -27581,3 +27581,15 @@ msgstr "Auf diesem Telefon an „<0>{label}</0>“ vergeben, bis es synchronisie
 #: src/components/scan/session/summary.tsx
 msgid "Claimed for <0>{label}</0>."
 msgstr "An „<0>{label}</0>“ vergeben."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Blank label {code}"
+msgstr "Leeres Etikett {code}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Not matched: {text}"
+msgstr "Nicht zugeordnet: {text}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Check later: {text}"
+msgstr "Später prüfen: {text}"

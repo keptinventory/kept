@@ -27581,3 +27581,15 @@ msgstr "Claimed for <0>{label}</0> on this phone, until it syncs."
 #: src/components/scan/session/summary.tsx
 msgid "Claimed for <0>{label}</0>."
 msgstr "Claimed for <0>{label}</0>."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Blank label {code}"
+msgstr "Blank label {code}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Not matched: {text}"
+msgstr "Not matched: {text}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Check later: {text}"
+msgstr "Check later: {text}"
