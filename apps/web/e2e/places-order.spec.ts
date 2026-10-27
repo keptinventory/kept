@@ -52,9 +52,8 @@ const isBox = (n: string | null | undefined) => /^Box \d+$/.test(n ?? '');
  * A location of its own: Garage (Box 1 … Box 12 as boxes, a thing in each, a bike pump loose)
  * and Pantry (rice and olive oil), all made through the API.
  */
-async function makeLocation(page: Page, name: string) {
-  const call = api(page);
-  const loc = await call.post<{ id: string }>('/api/v1/locations', {
+async function createLocation(page: Page, name: string): Promise<string> {
+  const loc = await api(page).post<{ id: string }>('/api/v1/locations', {
     name,
     kind: 'home',
     preset: 'essentials',
@@ -62,6 +61,13 @@ async function makeLocation(page: Page, name: string) {
     currency: 'EGP',
     rooms: ['Garage', 'Pantry'],
   });
+  return loc.id;
+}
+
+/** Fills a new location: the boxes in the Garage, the things, and the Pantry. */
+async function fillLocation(page: Page, locId: string) {
+  const call = api(page);
+  const loc = { id: locId };
   const { places } = await call.get<{ places: Node[] }>(`/api/v1/locations/${loc.id}/places`);
   const room = (n: string) => places.find((p) => p.name === n && p.parentId === null) as Node;
   const garage = room('Garage');
@@ -109,8 +115,11 @@ test('places read A to Z, boxes stay in the tree, and Move puts a thing into a b
   const info = test.info();
   const name = `Elm Road ${info.project.name} ${info.repeatEachIndex + 1} try ${info.retry + 1}`;
   const { context, page } = await person(browser, IBRAHIM);
-  const { loc, garage, pantry } = await makeLocation(page, name);
+  // Made inside the try, so a failure partway through setup still deletes it.
+  let loc: string | undefined;
   try {
+    loc = await createLocation(page, name);
+    const { garage, pantry } = await fillLocation(page, loc);
     const tree = () =>
       api(page).get<{ places: Node[]; boxes: Box[] }>(`/api/v1/locations/${loc}/places`);
 
@@ -168,10 +177,19 @@ test('places read A to Z, boxes stay in the tree, and Move puts a thing into a b
     expect(inside.items.map((x) => x.name)).toContain(thing);
   } finally {
     // Gone with everything in it (the Trash keeps it for its grace period), retry or not.
-    const res = await page.request.delete(`/api/v1/locations/${loc}`, {
-      headers: { origin: BASE, 'idempotency-key': crypto.randomUUID() },
-    });
-    expect(res.ok(), `delete ${name}: ${res.status()} ${await res.text()}`).toBe(true);
+    // Best effort: a failed delete is noted, never put in place of the test's own error.
+    if (loc) {
+      const res = await page.request
+        .delete(`/api/v1/locations/${loc}`, {
+          headers: { origin: BASE, 'idempotency-key': crypto.randomUUID() },
+        })
+        .catch((e: unknown) => e as Error);
+      if (res instanceof Error || !res.ok())
+        info.annotations.push({
+          type: 'cleanup',
+          description: `delete ${name}: ${res instanceof Error ? res.message : `${res.status()} ${await res.text()}`}`,
+        });
+    }
     await context.close();
   }
 });
