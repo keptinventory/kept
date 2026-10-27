@@ -50,6 +50,10 @@ function schemaOf(def: EntityDef): z.ZodObject {
   if (def.money?.length) shape.moneyHidden = z.literal(true).optional();
   if (def.entity === 'location') shape.modules = z.array(z.string());
   if (def.entity === 'types') shape.builtin = z.boolean();
+  // An export without secrets names the secret fields whose value it left out (exports/withheld.ts).
+  if (def.entity === 'things' || def.entity === 'places') {
+    shape.secretsWithheld = z.array(z.string()).optional();
+  }
   return z.object(shape);
 }
 
@@ -124,6 +128,8 @@ export const ManifestSchema = z.object({
   moneyHidden: z.boolean(),
   includesSecrets: z.boolean(),
   secretsCount: z.number().int().min(0),
+  // Absent before it was written: such an export said nothing about what it left out.
+  secretsWithheld: z.number().int().min(0).optional(),
   members: z.array(z.object({ name: z.string(), role: z.string() })),
   files: z.array(
     z.object({

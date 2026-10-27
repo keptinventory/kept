@@ -104,6 +104,14 @@ export function ArchiveReportSummary({ report }: { report: ArchiveDryRunReport }
           s.secrets,
           <Plural value={s.secrets} one="secret to bring over" other="secrets to bring over" />,
         ),
+        tile(
+          s.secretsWithheld ?? 0,
+          <Plural
+            value={s.secretsWithheld ?? 0}
+            one="secret value left out of the export"
+            other="secret values left out of the export"
+          />,
+        ),
       ]}
     />
   );

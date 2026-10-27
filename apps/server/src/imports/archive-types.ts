@@ -145,6 +145,8 @@ export type KeptDryRunSummary = {
   history: number;
   historyDropped: number;
   secrets: number;
+  /** Secret values the export left out (made without secrets). */
+  secretsWithheld: number;
   skipped: number;
   asText: number;
   members: { name: string; role: Role }[];

@@ -27236,3 +27236,27 @@ msgstr "الأشياء: الترتيب حسب"
 #: src/components/places/tree.tsx
 msgid "{count, plural, one {+# box} other {+# boxes}}"
 msgstr "{count, plural, zero {+لا صناديق} one {+صندوق واحد} two {+صندوقان} few {+# صناديق} many {+# صندوقًا} other {+# صندوق}}"
+
+#: src/components/private-address-link.tsx
+msgid "Allow private addresses in Admin → Settings"
+msgstr "السماح بالعناوين الخاصة من الإدارة ← الإعدادات"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys need HTTPS. On a plain-HTTP address browsers don't offer them; put Kept on HTTPS to add one."
+msgstr "مفاتيح المرور تحتاج إلى HTTPS. على عنوان HTTP عادي لا تعرضها المتصفحات؛ انقل Kept إلى HTTPS لإضافة مفتاح."
+
+#: src/components/import/entity-report.tsx
+msgid "{0, plural, one {secret value left out of the export} other {secret values left out of the export}}"
+msgstr "{0, plural, zero {قيمة سرية لم يشملها التصدير} one {قيمة سرية لم يشملها التصدير} two {قيمتان سريتان لم يشملهما التصدير} few {قيم سرية لم يشملها التصدير} many {قيمة سرية لم يشملها التصدير} other {قيمة سرية لم يشملها التصدير}}"
+
+#: src/components/home/checklist.tsx
+msgid "Staying on my home network"
+msgstr "سأبقى على شبكة منزلي"
+
+#: src/components/export/export-sheet.tsx
+msgid "Over plain HTTP, secret values stay out of the export. Each one is marked as left out, and the rest imports as usual."
+msgstr "عبر HTTP العادي تبقى القيم السرية خارج التصدير. يُعلَّم كل منها بأنه لم يُضمَّن، ويُستورد الباقي كالمعتاد."
+
+#: src/components/import/kept-choices.tsx
+msgid "Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to bring them over too, import this file at Kept’s HTTPS address."
+msgstr "فتحها يحتاج إلى HTTPS. عبر HTTP العادي يُستورد كل شيء آخر بدونها؛ ولنقلها أيضًا، استورد هذا الملف من عنوان HTTPS الخاص بـ Kept."

@@ -59,6 +59,8 @@ export const HINT_KEYS = [
   'help.tour_seen',
   'ai_settings_opened',
   'installed_standalone',
+  // Get started's HTTPS step answered "Staying on my home network" (dismissed = chosen).
+  'checklist.home_network',
   ...TOUR_SECTION_IDS.map(tourProgressKey),
   ...TOUR_IDS.map(tourKey),
 ] as const;

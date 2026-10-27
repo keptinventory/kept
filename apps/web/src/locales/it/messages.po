@@ -27236,3 +27236,27 @@ msgstr "Oggetti: ordina per"
 #: src/components/places/tree.tsx
 msgid "{count, plural, one {+# box} other {+# boxes}}"
 msgstr "{count, plural, one {+# scatola} other {+# scatole}}"
+
+#: src/components/private-address-link.tsx
+msgid "Allow private addresses in Admin → Settings"
+msgstr "Consenti gli indirizzi privati in Admin → Impostazioni"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys need HTTPS. On a plain-HTTP address browsers don't offer them; put Kept on HTTPS to add one."
+msgstr "Le passkey richiedono HTTPS. Su un indirizzo HTTP semplice i browser non le offrono; metti Kept su HTTPS per aggiungerne una."
+
+#: src/components/import/entity-report.tsx
+msgid "{0, plural, one {secret value left out of the export} other {secret values left out of the export}}"
+msgstr "{0, plural, one {valore segreto lasciato fuori dall’esportazione} other {valori segreti lasciati fuori dall’esportazione}}"
+
+#: src/components/home/checklist.tsx
+msgid "Staying on my home network"
+msgstr "Resto sulla mia rete di casa"
+
+#: src/components/export/export-sheet.tsx
+msgid "Over plain HTTP, secret values stay out of the export. Each one is marked as left out, and the rest imports as usual."
+msgstr "Su HTTP semplice i valori segreti restano fuori dall’esportazione. Ognuno è segnato come lasciato fuori, e il resto si importa come sempre."
+
+#: src/components/import/kept-choices.tsx
+msgid "Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to bring them over too, import this file at Kept’s HTTPS address."
+msgstr "Aprirli richiede HTTPS. Su HTTP semplice tutto il resto si importa senza di loro; per portarli anche, importa questo file all’indirizzo HTTPS di Kept."

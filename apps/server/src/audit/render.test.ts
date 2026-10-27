@@ -51,7 +51,8 @@ describe('renderAudit(): the Money module', () => {
       hidden: true,
     });
     expect(out.diff?.name).toEqual({ before: 'Drill', after: 'Hammer drill', class: 'plain' });
-    expect(JSON.stringify(out)).not.toMatch(/350|"200"|"100"/);
+    // The amounts as values, not digits that happen to sit inside an id.
+    expect(JSON.stringify(out)).not.toMatch(/(?<![0-9a-f-])(350|"200"|"100")(?![0-9a-f-])/);
   });
 
   it('shows money where Money is on (and when the flag is left out)', () => {

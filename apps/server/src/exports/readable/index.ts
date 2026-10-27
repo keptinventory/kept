@@ -113,6 +113,8 @@ export type ReadableOptions = {
   trashed: boolean;
   /** The inventory PDF, when the location holds at most MAX_THINGS things. */
   pdf: boolean;
+  /** How many secret values the export around it left out (a line says so when any). */
+  secretsWithheld?: number;
 };
 
 export type ReadableDeps = {
@@ -569,6 +571,7 @@ export async function buildReadableCopy(
     thingCount: count(read.things.length),
     placeCount: `${words.places}: ${nf.format(read.places.length)}`,
     showMoney: read.showMoney,
+    secretsWithheld: (options.secretsWithheld ?? 0) > 0,
     pdf:
       pdf === 'included'
         ? { href: 'inventory.pdf' }
