@@ -188,8 +188,23 @@ for (const size of ['phone', 'desktop'] as const) {
       expect(facts).toEqual({ secure: false, subtle: 'undefined', clipboard: 'undefined' });
     });
 
-    test('the HTTPS banner can be dismissed, and stays dismissed', async ({ page }) => {
+    test('the HTTPS banner can be dismissed, and stays dismissed for the person', async ({
+      page,
+      browser,
+    }, info) => {
+      // The dismissal is the person's (the http_banner hint), and both sizes sign in as the same
+      // person: start each run with the banner not dismissed.
       await page.goto('/');
+      await page.evaluate(async () => {
+        const res = await fetch('/api/v1/me/hints/http_banner', {
+          method: 'PUT',
+          credentials: 'include',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ dismissed: false }),
+        });
+        if (!res.ok) throw new Error(`reset http_banner: ${res.status}`);
+      });
+      await page.reload();
       await expect(page.getByRole('heading', { name: 'Home', level: 1 })).toBeVisible();
       const banner = page.getByRole('status').filter({ hasText: 'need HTTPS' });
       await expect(banner).toBeVisible();
@@ -198,6 +213,16 @@ for (const size of ['phone', 'desktop'] as const) {
       await page.reload();
       await expect(page.getByRole('heading', { name: 'Home', level: 1 })).toBeVisible();
       await expect(page.getByRole('status').filter({ hasText: 'need HTTPS' })).toHaveCount(0);
+      // Another browser, same person: still dismissed.
+      const other = await browser.newContext({
+        storageState: await stateFor(browser, size, info.project.outputDir),
+        baseURL: info.project.use.baseURL,
+      });
+      const elsewhere = await other.newPage();
+      await elsewhere.goto('/');
+      await expect(elsewhere.getByRole('heading', { name: 'Home', level: 1 })).toBeVisible();
+      await expect(elsewhere.getByRole('status').filter({ hasText: 'need HTTPS' })).toHaveCount(0);
+      await other.close();
     });
 
     test('a thing added with a photo has the photo; a PDF attached is listed', async ({ page }) => {
