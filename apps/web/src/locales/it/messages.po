@@ -27402,3 +27402,7 @@ msgstr "Una posizione dentro un articolo diventerà una scatola."
 #: src/components/import/labels.ts
 msgid "A location inside an item became a box."
 msgstr "Una posizione dentro un articolo è diventata una scatola."
+
+#: src/components/places/contents-list.tsx
+msgid "Places keep their own order."
+msgstr "I posti mantengono il proprio ordine."

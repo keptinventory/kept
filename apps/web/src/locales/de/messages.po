@@ -27402,3 +27402,7 @@ msgstr "Ein Ort in einem Artikel wird zu einer Kiste."
 #: src/components/import/labels.ts
 msgid "A location inside an item became a box."
 msgstr "Ein Ort in einem Artikel wurde zu einer Kiste."
+
+#: src/components/places/contents-list.tsx
+msgid "Places keep their own order."
+msgstr "Orte behalten ihre eigene Reihenfolge."

@@ -27402,3 +27402,7 @@ msgstr "A location inside an item becomes a box."
 #: src/components/import/labels.ts
 msgid "A location inside an item became a box."
 msgstr "A location inside an item became a box."
+
+#: src/components/places/contents-list.tsx
+msgid "Places keep their own order."
+msgstr "Places keep their own order."
