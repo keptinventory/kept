@@ -19,6 +19,13 @@ import { expectLogicalOnly } from '@/test/render';
 vi.setConfig({ testTimeout: 30_000 });
 afterEach(() => vi.restoreAllMocks());
 
+/** jsdom serves the page over http:; these tests are on https unless one says plain http. */
+const https = vi.hoisted(() => ({ plain: false }));
+vi.mock('@/lib/https', () => ({ servedOverHttp: () => https.plain }));
+afterEach(() => {
+  https.plain = false;
+});
+
 const E = PORTABILITY_IDS.export;
 
 describe('Settings → Export', () => {
@@ -70,6 +77,30 @@ describe('Settings → Export', () => {
     // Nothing of the passphrase is kept anywhere the page can be read back from.
     expect(JSON.stringify(localStorage)).not.toContain('passphrase');
     expect(JSON.stringify(sessionStorage)).not.toContain('a long');
+  });
+
+  it('over plain http: exports without secret values, and says why', async () => {
+    https.plain = true;
+    const { user, mock } = await renderApp('/settings/export');
+    await user.click(await screen.findByRole('button', { name: 'Export a location' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Export a location' });
+    const secrets = within(dialog).getByRole('switch', { name: 'Include secrets' });
+    expect(secrets).toBeDisabled();
+    expect(
+      within(dialog).getByText(
+        'Over plain HTTP, secret values stay out of the export. Each one is marked as left out, and the rest imports as usual.',
+      ),
+    ).toBeInTheDocument();
+    expect(within(dialog).queryByLabelText('Passphrase')).toBeNull();
+    for (const r of pt(mock.state).exports)
+      if (r.locationId === IDS.home && (r.status === 'queued' || r.status === 'running'))
+        r.status = 'cancelled';
+    await user.click(within(dialog).getByRole('button', { name: 'Export Home' }));
+    await waitFor(() => expect(mock.lastCall('POST', p.exports)).toBeTruthy());
+    const body = mock.lastCall('POST', p.exports)?.body as CreateExportBody;
+    expect(body.includeSecrets).toBeUndefined();
+    expect(body.passphrase).toBeUndefined();
+    expectLogicalOnly();
   });
 
   it('never offers an admin "Include secrets"', async () => {

@@ -56,6 +56,8 @@ export type ReadableView = {
   thingCount: string;
   placeCount: string;
   showMoney: boolean;
+  /** The export left secret values out (they are never in the readable copy either way). */
+  secretsWithheld: boolean;
   pdf: { href: string } | { note: string } | null;
   csvs: string[];
   /** Depth-first, the tree's order; the unplaced group last. */
@@ -261,6 +263,7 @@ export function indexHtml(view: ReadableView): string {
     )}.</p>
 <p>${esc(w.intro)}</p>
 ${view.showMoney ? '' : `<p class="muted">${esc(w.moneyHidden)}</p>`}
+${view.secretsWithheld ? `<p class="muted">${esc(w.secretsWithheld)}</p>` : ''}
 <ul>${pdf}<li>${esc(w.spreadsheets)}: ${csvs}</li></ul>
 <h2>${esc(w.places)}</h2>
 ${tree(view)}

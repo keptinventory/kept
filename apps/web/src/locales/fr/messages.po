@@ -27228,3 +27228,27 @@ msgstr "Homebox v0.26.1 ou plus récent (v0.27.0 recommandée) : Collection → 
 #: src/components/connections/token-create.tsx
 msgid "On a home network without HTTPS, the person who runs this Kept can make one on the server: kept admin token create."
 msgstr "Sur un réseau domestique sans HTTPS, la personne qui gère ce Kept peut en créer un sur le serveur : kept admin token create."
+
+#: src/components/private-address-link.tsx
+msgid "Allow private addresses in Admin → Settings"
+msgstr "Autoriser les adresses privées dans Administration → Paramètres"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys need HTTPS. On a plain-HTTP address browsers don't offer them; put Kept on HTTPS to add one."
+msgstr "Les clés d’accès demandent HTTPS. Sur une adresse en HTTP simple, les navigateurs ne les proposent pas ; passez Kept en HTTPS pour en ajouter une."
+
+#: src/components/import/entity-report.tsx
+msgid "{0, plural, one {secret value left out of the export} other {secret values left out of the export}}"
+msgstr "{0, plural, one {valeur secrète laissée hors de l’export} other {valeurs secrètes laissées hors de l’export}}"
+
+#: src/components/home/checklist.tsx
+msgid "Staying on my home network"
+msgstr "Je reste sur mon réseau domestique"
+
+#: src/components/export/export-sheet.tsx
+msgid "Over plain HTTP, secret values stay out of the export. Each one is marked as left out, and the rest imports as usual."
+msgstr "En HTTP simple, les valeurs secrètes restent hors de l’export. Chacune est marquée comme laissée de côté, et le reste s’importe normalement."
+
+#: src/components/import/kept-choices.tsx
+msgid "Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to bring them over too, import this file at Kept’s HTTPS address."
+msgstr "Les ouvrir demande HTTPS. En HTTP simple, tout le reste est importé sans eux ; pour les reprendre aussi, importez ce fichier à l’adresse HTTPS de Kept."

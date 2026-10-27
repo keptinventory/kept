@@ -274,6 +274,8 @@ export type KeptDryRunSummary = {
   historyDropped: number;
   /** Secret values in the export; imported only with the passphrase. */
   secrets: number;
+  /** Secret values an export made without secrets left out (absent from older servers). */
+  secretsWithheld?: number;
   skipped: number;
   asText: number;
   /** People to invite (names and roles). */

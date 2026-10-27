@@ -3,7 +3,7 @@ import { requireScope } from '../auth/http.js';
 import { withScope } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
 import { AppError } from '../http/errors.js';
-import { requireHttps } from '../http/https-only.js';
+import { assertHttps, isHttps } from '../http/https-only.js';
 import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 import {
@@ -23,7 +23,9 @@ import {
 //                                    includeSecrets?, passphrase?, passphraseAgain?}
 //   → 202 ExportRun. 403 for a member, or "Include secrets" from anyone but the owner; 409
 //   `recovery_kit_required`; 400 `passphrase_weak`; 429 past five an hour (Retry-After); 409
-//   `export_running` while one runs for that location. It may carry a passphrase, so it runs in
+//   `export_running` while one runs for that location. Over plain HTTP an export without
+//   secret values goes ahead; "Include secrets", or any passphrase field, is 403 `https_required`
+//   before anything else runs. It may carry a passphrase, so it runs in
 //   its own scoped transaction, never the Idempotency-Key store (secrets/routes.ts says why); a
 //   retry sends the same `id` instead, and gets the run that id made. Audited `export.create`.
 // GET  /api/v1/exports/:id          → ExportRun, with a five-minute `fileUrl` while done and
@@ -37,6 +39,7 @@ const Page = z.object({ items: z.array(ExportRunView), next_cursor: z.string().n
 
 export async function exportRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools } = deps;
+  const plainHttp = !isHttps(deps.env.KEPT_PUBLIC_URL);
   const needs = () => {
     if (!deps.files || !deps.jobs) {
       throw new AppError('internal', 503, 'Exports need file storage and the job queue.');
@@ -47,8 +50,19 @@ export async function exportRoutes(app: KeptApp, deps: InventoryDeps): Promise<v
   app.post(
     '/api/v1/exports',
     {
-      // Never over plain HTTP (D181): 403 `https_required`.
-      preHandler: requireHttps(deps.env.KEPT_PUBLIC_URL),
+      // The body is validated before this runs. Secret values (and the passphrase that seals
+      // them) never travel over plain HTTP; the person's own data does.
+      preHandler: async (req) => {
+        if (!plainHttp) return;
+        const body = req.body as CreateExportBody;
+        if (
+          body.includeSecrets === true ||
+          body.passphrase !== undefined ||
+          body.passphraseAgain !== undefined
+        ) {
+          assertHttps(deps.env.KEPT_PUBLIC_URL);
+        }
+      },
       schema: { body: CreateExportBody, response: { 202: ExportRunView } },
     },
     async (req, reply) => {

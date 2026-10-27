@@ -17,10 +17,13 @@ stop working:
 Kept also marks its cookies `Secure` and sends HSTS.
 
 Some things Kept refuses outright while `KEPT_PUBLIC_URL` is `http:`, even on `localhost`, because
-they hand out or change a secret: showing a secret value, starting an export, making an access
-token, connecting an app with OAuth, downloading the recovery kit, and changing or testing the
-backup settings. Sessions are also shorter over HTTP. While Kept is served over HTTP, the Get
-started checklist on Home puts "Put Kept on HTTPS" first.
+they hand out or change a secret: showing a secret value, an export with secret values, opening
+an export's secrets when importing it, making an access token in the browser, connecting an app
+with OAuth, downloading the recovery kit, and changing or testing the backup settings. An export
+without secret values works, and so does an import without them. Sessions are also shorter over
+HTTP. While Kept is served over HTTP, the Get started checklist on Home puts "Put Kept on HTTPS"
+first, until an admin chooses "Staying on my home network". Everything that works over plain HTTP,
+in one table: [Kept on a home network](/install/home-network/).
 
 Whichever way you choose, set `KEPT_PUBLIC_URL` to the `https://` address people will open, and
 restart Kept.

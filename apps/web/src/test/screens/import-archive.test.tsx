@@ -21,6 +21,13 @@ import { expectLogicalOnly } from '@/test/render';
 vi.setConfig({ testTimeout: 30_000 });
 afterEach(() => vi.restoreAllMocks());
 
+/** jsdom serves the page over http:; these tests are on https unless one says plain http. */
+const https = vi.hoisted(() => ({ plain: false }));
+vi.mock('@/lib/https', () => ({ servedOverHttp: () => https.plain }));
+afterEach(() => {
+  https.plain = false;
+});
+
 const zip = (name = 'homebox-export-3f2a.zip', bytes = 2048) =>
   new File([new Uint8Array(bytes).fill(7)], name, { type: 'application/zip' });
 const fileInput = () => document.querySelector<HTMLInputElement>('input[type="file"]');
@@ -452,6 +459,78 @@ describe('a Kept export', () => {
     const people = screen.getByRole('list', { name: 'People to invite' });
     expect(within(people).getByText('Bruce')).toBeInTheDocument();
     expect(within(people).getByRole('link', { name: 'Invite' })).toBeInTheDocument();
+  });
+});
+
+describe('a private address', () => {
+  async function connectTo(state: ReturnType<typeof ownerScenario>) {
+    const app = await chooseSource('A Homebox export', state);
+    await app.user.upload(fileInput() as HTMLInputElement, zip());
+    expect(await findHeading("What's in it")).toBeInTheDocument();
+    await app.user.click(screen.getByRole('button', { name: 'Connect' }));
+    await app.user.type(
+      screen.getByRole('textbox', { name: 'Homebox address' }),
+      'http://192.168.1.20:7745',
+    );
+    await app.user.type(
+      screen.getByLabelText('API key', { selector: 'input[type=password]' }),
+      'hb_secret',
+    );
+    await app.user.click(screen.getByRole('button', { name: 'Connect' }));
+    expect(await screen.findByText(/That address is on a private network/)).toBeInTheDocument();
+    return app;
+  }
+
+  it('links an instance admin to the switch that allows it', async () => {
+    await connectTo(ownerScenario());
+    const link = screen.getByRole('link', { name: 'Allow private addresses in Admin → Settings' });
+    expect(link).toHaveAttribute('href', '/admin/settings#private-addresses');
+  });
+
+  it("doesn't offer anyone else a link to Admin", async () => {
+    const state = ownerScenario();
+    state.me.user.instanceAdmin = false;
+    await connectTo(state);
+    expect(screen.queryByRole('link', { name: /Allow private addresses/ })).toBeNull();
+  });
+});
+
+describe('a Kept export with secrets, over plain HTTP', () => {
+  it('says the secrets need HTTPS, asks for no passphrase, and imports the rest', async () => {
+    https.plain = true;
+    const { user, mock } = await renderApp(`/settings/import?run=${PORTABILITY_IDS.keptRun}`);
+    expect(await findHeading("What's in it")).toBeInTheDocument();
+    expect(screen.getByText('It holds encrypted secrets')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to bring them over too, import this file at Kept’s HTTPS address.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText('Passphrase')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Open the secrets' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    expect(await findHeading('Where it goes')).toBeInTheDocument();
+    expect(mock.lastCall('POST', p.importPassphrase(PORTABILITY_IDS.keptRun))).toBeUndefined();
+  });
+});
+
+describe('a Kept export made without its secrets', () => {
+  it('says how many secret values it left out', async () => {
+    const { user } = await renderApp(`/settings/import?run=${PORTABILITY_IDS.keptRun}`, {
+      setup: (m) => {
+        const run = pt(m.state).archiveRuns.find((r) => r.id === PORTABILITY_IDS.keptRun);
+        if (run) run.secrets = null;
+      },
+    });
+    expect(await findHeading("What's in it")).toBeInTheDocument();
+    expect(screen.queryByLabelText('Passphrase')).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    expect(await findHeading('Where it goes')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Check the import' }));
+    expect(await findHeading('What the import will do')).toBeInTheDocument();
+    expect(screen.getByText('secret values left out of the export')).toBeInTheDocument();
+    expect(screen.queryByText(/secrets? to bring over/)).toBeNull();
   });
 });
 
