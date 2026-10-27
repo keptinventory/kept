@@ -2,9 +2,10 @@
  * Webhooks' words (D63, D110, D172): each event in plain words, a
  * delivery's state, and why a webhook was switched off (D180).
  */
-import type { WebhookDeliveryStatus, WebhookDisabledReason, WebhookEvent } from '@kept/shared';
+import type { WebhookDeliveryStatus, WebhookEvent } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback } from 'react';
+import type { WebhookOffReason } from '@/api/connections/types';
 
 export function useEventWords() {
   const { t } = useLingui();
@@ -57,12 +58,10 @@ export function useDeliveryWords() {
 export function useDisabledWords() {
   const { t } = useLingui();
   return useCallback(
-    (reason: WebhookDisabledReason) => {
+    (reason: WebhookOffReason) => {
       switch (reason) {
         case 'creator_lost_role':
           return t`Off: the person who made it is no longer an admin here.`;
-        case 'failing':
-          return t`Off: every delivery failed for a day.`;
         case 'admin':
           return t`Turned off by an admin.`;
       }
