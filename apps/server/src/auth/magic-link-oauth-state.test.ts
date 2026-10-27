@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { LightMyRequestResponse } from 'fastify';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fragmentToken, jar, type TestApp, testApp } from '../../test/app.js';
 import { signUp } from '../../test/auth.js';
 import { type TestDb, testDb } from '../../test/db.js';
@@ -105,9 +105,9 @@ describe('an OAuth state is never a magic link (GHSA-965c-763c-88jm)', () => {
     expect((await post('/sign-in/magic-link', { email: owner, callbackURL: '/' })).statusCode).toBe(
       200,
     );
-    await new Promise((r) => setTimeout(r, 50)); // the mail goes out in the background
+    // The mail goes out in the background: wait for it rather than for a fixed time.
+    await vi.waitFor(() => expect(t.auth.mails.at(-1)?.email).toBe(owner));
     const link = t.auth.mails.at(-1);
-    expect(link?.email).toBe(owner);
     const state = await startGoogle({});
 
     const { rows } = await db.pools.auth.query<{ identifier: string }>(
