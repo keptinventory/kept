@@ -111,6 +111,11 @@ describe('a 412: the field-level merge', () => {
     // Only the field we both changed is in the sheet; his notes went in silently.
     const rows = sheet.querySelectorAll('[data-conflict]');
     expect([...rows].map((r) => r.getAttribute('data-conflict'))).toEqual(['model']);
+    // The row is named by its field.
+    expect(rows[0]).toHaveTextContent('Model');
+    expect(
+      within(sheet).getByRole('radiogroup', { name: 'Which Model to keep' }),
+    ).toBeInTheDocument();
     expect(within(sheet).getByText('MY-MODEL')).toBeInTheDocument();
     expect(within(sheet).getByText('ALFREDS-MODEL')).toBeInTheDocument();
     const save = within(sheet).getByRole('button', { name: 'Save' });

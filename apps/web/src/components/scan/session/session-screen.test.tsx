@@ -277,7 +277,7 @@ describe('a count', () => {
     const { props } = await startCounting(store);
     await read(qr('BQNK4X'));
     const last = screen.getByRole('list', { name: 'Last reads' });
-    await waitFor(() => expect(within(last).getAllByRole('listitem')).toHaveLength(1));
+    expect(await within(last).findByText('Blank label BQNK4X')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Finish' }));
     const unmatched = await screen.findByRole('region', { name: 'Unmatched (1)' });
     fireEvent.click(within(unmatched).getByRole('button', { name: 'Claim' }));
