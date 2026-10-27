@@ -1143,3 +1143,25 @@ describe('inside a location', () => {
     expect(within(path).getByRole('link', { name: 'Office' })).toHaveAttribute('href', '/p/R00M4K');
   });
 });
+
+describe('an ended thing in a list (#320)', () => {
+  it('says its lifecycle, the word its own page shows, never only "Ended"', async () => {
+    const state = ownerScenario();
+    const kettle = state.inventory.things.find((x) => x.id === T.kettle);
+    if (!kettle) throw new Error('fixture');
+    // As a Homebox item at quantity 0 comes in with "Keep 0 or archive": archived.
+    kettle.lifecycle = 'archived';
+    kettle.ended = null;
+    const { user } = await renderApp(`/p/${P.kitchen}`, { state });
+    await findHeading('Kitchen');
+    const row = (await screen.findByRole('link', { name: /Old kettle/ })).closest(
+      'li',
+    ) as HTMLElement;
+    expect(within(row).getByText('Archived')).toBeInTheDocument();
+    expect(within(row).queryByText('Ended')).toBeNull();
+    await user.click(within(row).getByRole('link', { name: /Old kettle/ }));
+    expect(await findHeading('Old kettle')).toBeInTheDocument();
+    expect(screen.getAllByText('Archived').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Ended')).toBeNull();
+  });
+});

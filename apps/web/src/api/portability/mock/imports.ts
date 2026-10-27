@@ -298,6 +298,13 @@ export function importRoutes(state: MockState): MockRoute[] {
       const run = visibleRun(params.id);
       if (!run) return notFound();
       if (run.status !== 'done') return err(409, 'conflict', 'Finish the import first.');
+      // As the server (enrich/routes.ts): AI capture on in the run's location, else no offer.
+      const loc = state.locations.find((l) => l.id === run.locationId);
+      const ai =
+        loc?.effectiveModules?.includes('ai_capture') ??
+        (loc?.providerResolved === true && loc.modules.includes('ai_capture'));
+      if (!ai)
+        return err(400, 'ai_unavailable', 'Connect AI and turn on AI capture for this location.');
       const things = run.total ?? 0;
       const calls = Math.ceil(things / 20);
       const estimate: EnrichEstimate = {

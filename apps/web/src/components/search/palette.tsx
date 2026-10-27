@@ -383,7 +383,7 @@ export default function Palette({
                             </span>
                             <span className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
                               {e.thing.derivedState.map((st) => (
-                                <StatusPill key={st} state={st} />
+                                <StatusPill key={st} state={st} lifecycle={e.thing.lifecycle} />
                               ))}
                               <LabelTape code={e.thing.shortCode} printed={e.thing.labelPrinted} />
                             </span>

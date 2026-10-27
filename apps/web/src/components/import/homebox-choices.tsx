@@ -11,11 +11,13 @@
  * Homebox 0.27's own names for its two types, `global.item` and `global.location`, read as
  * "Item" and "Location" here, as they do in Homebox; its catch-all type defaults to No type.
  *
- * The types and the boxes are list-standard lists (search, a filter, pages), in the URL.
+ * The types and the boxes are list-standard lists (search, a filter, pages), in the URL. The boxes
+ * read A to Z, numbers in order, as every place list does (naturalCompare), not in the backup's
+ * order. A name typed into a type's picker is offered as a new type of that name.
  */
-import { HB_GLOBAL_TYPE_NAMES, type HomeboxChoices } from '@kept/shared';
+import { HB_GLOBAL_TYPE_NAMES, type HomeboxChoices, naturalCompare } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useCurrencies, useTypes } from '@/api/inventory/queries';
 import type { HomeboxConnection, HomeboxMappingHints } from '@/api/portability/types';
 import type { FilterDef } from '@/components/filters/types';
@@ -283,16 +285,23 @@ export function HomeboxChoicesStep({
                     </>
                   }
                 >
-                  <Segmented<'add_to_type' | 'notes'>
-                    aria-label={t`What happens to ${field.name}`}
-                    className="pt-1.5"
-                    value={choices.fields[field.name] ?? 'add_to_type'}
-                    onChange={(v) => set({ fields: { ...choices.fields, [field.name]: v } })}
-                    options={[
-                      { id: 'add_to_type', label: t`Add to the type` },
-                      { id: 'notes', label: t`Keep in notes` },
-                    ]}
-                  />
+                  {/* A field is added for a value only (plan.ts): say so rather than drop it. */}
+                  {field.filled === 0 ? (
+                    <p className="m-0 pt-1.5 text-small text-ink-2">
+                      <Trans>Left out: no item has a value for it.</Trans>
+                    </p>
+                  ) : (
+                    <Segmented<'add_to_type' | 'notes'>
+                      aria-label={t`What happens to ${field.name}`}
+                      className="pt-1.5"
+                      value={choices.fields[field.name] ?? 'add_to_type'}
+                      onChange={(v) => set({ fields: { ...choices.fields, [field.name]: v } })}
+                      options={[
+                        { id: 'add_to_type', label: t`Add to the type` },
+                        { id: 'notes', label: t`Keep in notes` },
+                      ]}
+                    />
+                  )}
                 </Row>
               </li>
             ))}
@@ -421,27 +430,11 @@ function TypeMapping({
                 </span>
               </span>
               <span className="grid gap-2">
-                <Combobox
-                  aria-label={t`Kept type for ${name}`}
-                  items={[
-                    { id: NONE, label: t`No type` },
-                    { id: NEW, label: t`New type…` },
-                    ...keptTypes.map((k) => ({ id: k.id, label: k.name })),
-                  ]}
-                  selectedKey={
-                    state === 'matched' && c && 'typeId' in c
-                      ? c.typeId
-                      : state === 'none'
-                        ? NONE
-                        : NEW
-                  }
-                  onSelectionChange={(k) => {
-                    if (!k) return;
-                    const key = String(k);
-                    if (key === NONE) setType(y.id, { none: true });
-                    else if (key === NEW) setType(y.id, { create: name.slice(0, TYPE_NAME_MAX) });
-                    else setType(y.id, { typeId: key });
-                  }}
+                <TypePicker
+                  name={name}
+                  choice={c}
+                  keptTypes={keptTypes}
+                  onChange={(next) => setType(y.id, next)}
                 />
                 {state === 'create' ? (
                   <TextField
@@ -459,6 +452,64 @@ function TypeMapping({
         }}
       />
     </section>
+  );
+}
+
+/** A Homebox type's Kept type: No type, New type… (named below), a Kept type, or a name typed
+ * here that no choice has, offered as a new type of that name (#320): the same as New type… and
+ * typing the name. */
+function TypePicker({
+  name,
+  choice,
+  keptTypes,
+  onChange,
+}: {
+  name: string;
+  choice: HomeboxChoices['types'][string] | undefined;
+  keptTypes: readonly KeptType[];
+  onChange: (next: HomeboxChoices['types'][string]) => void;
+}) {
+  const { t } = useLingui();
+  const state = stateOf(choice);
+  // A new type's entry is keyed and labelled by its name ("New type "Gadgets""), so choosing a
+  // typed name changes the selection even while a new type is already chosen.
+  const newType = (typeName: string) => t`New type "${typeName}"`;
+  const making = choice && 'create' in choice ? choice.create.trim() : '';
+  const created = making ? `${NEW}:${making}` : NEW;
+  const options = [
+    { id: NONE, label: t`No type` },
+    { id: created, label: making ? newType(making) : t`New type…` },
+    ...keptTypes.map((k) => ({ id: k.id, label: k.name })),
+  ];
+  const [typed, setTyped] = useState('');
+  const draft = typed.trim().slice(0, TYPE_NAME_MAX);
+  const known = options.some((o) => fold(o.label) === fold(draft));
+  const offer = `${NEW}:${draft}`;
+  const items =
+    draft && !known && offer !== created
+      ? [...options, { id: offer, label: newType(draft) }]
+      : options;
+  return (
+    <Combobox
+      aria-label={t`Kept type for ${name}`}
+      items={items}
+      selectedKey={
+        state === 'matched' && choice && 'typeId' in choice
+          ? choice.typeId
+          : state === 'none'
+            ? NONE
+            : created
+      }
+      onInputChange={setTyped}
+      onSelectionChange={(k) => {
+        if (!k) return;
+        const key = String(k);
+        if (key === NONE) onChange({ none: true });
+        else if (key === offer) onChange({ create: draft });
+        else if (key === created) onChange({ create: name.slice(0, TYPE_NAME_MAX) });
+        else onChange({ typeId: key });
+      }}
+    />
   );
 }
 
@@ -482,7 +533,15 @@ function BoxSuggestions({
   const wanted = list.filters.boxChosen ?? [];
   const not = isNot(list, 'boxChosen');
   const pathOf = (b: BoxRow) => b.path.join(' › ');
-  const rows = boxes.filter((b) => {
+  const sorted = useMemo(
+    () =>
+      [...boxes].sort(
+        (a, b) =>
+          naturalCompare(a.name, b.name) || naturalCompare(a.path.join('/'), b.path.join('/')),
+      ),
+    [boxes],
+  );
+  const rows = sorted.filter((b) => {
     const state = chosen.has(b.id) ? 'yes' : 'no';
     return !(wanted.length && wanted.includes(state) === not);
   });

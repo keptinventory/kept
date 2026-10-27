@@ -423,7 +423,7 @@ export function ThingResult({
           <span className="flex flex-wrap items-center gap-1.5">
             <LabelTape code={thing.shortCode} printed={thing.labelPrinted} pending={pending} />
             {thing.derivedState.map((s) => (
-              <StatusPill key={s} state={s} />
+              <StatusPill key={s} state={s} lifecycle={thing.lifecycle} />
             ))}
           </span>
         ) : null}

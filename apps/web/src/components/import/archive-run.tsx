@@ -587,9 +587,10 @@ export function ArchiveRunView({
           report={run.report}
           reportKey={`${run.id}:done`}
           title={<Trans>What needed a look</Trans>}
+          when="after"
         />
       ) : null}
-      {!cancelled ? <EnrichOffer runId={run.id} /> : null}
+      {!cancelled ? <EnrichOffer runId={run.id} locationId={run.locationId} /> : null}
       <PeopleToInvite people={people} {...(invite ? { inviteHref: invite } : {})} />
       <Button variant="ghost" className="justify-self-start" onPress={() => go({})}>
         <Trans>Import something else</Trans>

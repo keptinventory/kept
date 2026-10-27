@@ -86,10 +86,13 @@ export function useStatusLabel() {
   return (status: ImportRowStatus) => labels[status];
 }
 
-/** A dry-run reason in the reader's language. */
-export function useIssueText() {
+/** A dry-run reason in the reader's language. `before`: on the check, before anything is
+ * imported, a reason says what will happen ("it comes in archived", #320); `after` (the default):
+ * on the done screen and the stored report, what did. */
+export function useIssueText(when: 'before' | 'after' = 'after') {
   const { t } = useLingui();
   const f = useFormat();
+  const before = when === 'before';
   return (issue: ImportIssue): string => {
     const max = f.num(issue.params?.max ?? 0);
     const row = f.num(issue.params?.row ?? 0);
@@ -178,17 +181,25 @@ export function useIssueText() {
       case 'hb_quantity_rounded':
         return t`Counted one by one in Kept; Homebox's quantity is kept in the notes.`;
       case 'hb_quantity_zero':
-        return t`Quantity 0 in Homebox; it came in as 1.`;
+        return before
+          ? t`Quantity 0 in Homebox; it comes in as 1.`
+          : t`Quantity 0 in Homebox; it came in as 1.`;
       case 'hb_quantity_zero_kept':
         return t`Quantity 0 in Homebox, kept: its type is one you run out of.`;
       case 'hb_quantity_zero_archived':
-        return t`Quantity 0 in Homebox; it came in archived.`;
+        return before
+          ? t`Quantity 0 in Homebox; it comes in archived.`
+          : t`Quantity 0 in Homebox; it came in archived.`;
       case 'hb_quantity_zero_skipped':
         return t`Quantity 0 in Homebox, left out.`;
       case 'hb_item_holds_things':
-        return t`It holds other items, so it came in as a box.`;
+        return before
+          ? t`It holds other items, so it comes in as a box.`
+          : t`It holds other items, so it came in as a box.`;
       case 'hb_box_from_location':
-        return t`A location that came in as a box, as chosen.`;
+        return before
+          ? t`A location that comes in as a box, as chosen.`
+          : t`A location that came in as a box, as chosen.`;
       case 'hb_place_notes_dropped':
         return t`Its description isn't kept: places in Kept have no notes.`;
       case 'hb_number_integer':
@@ -202,7 +213,9 @@ export function useIssueText() {
       case 'hb_needs_module':
         return t`Kept can't hold this record yet; its text is kept in the thing's notes.`;
       case 'hb_location_in_item':
-        return t`A location inside an item became a container.`;
+        return before
+          ? t`A location inside an item becomes a box.`
+          : t`A location inside an item became a box.`;
       case 'hb_place_tags_dropped':
         return t`Its tags aren't kept: in Kept only things have tags.`;
       case 'hb_notifier_skipped':

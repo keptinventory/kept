@@ -31,10 +31,10 @@ const STATUS_ORDER: Record<ArchiveRowStatus, number> = { skipped: 0, text: 1, ok
 /** One entry with its reasons: the list's row. */
 type Line = { key: string; status: ArchiveRowStatus; row: ArchiveReportRow; issues: ImportIssue[] };
 
-function useArchiveStatusLabel() {
+function useArchiveStatusLabel(when: 'before' | 'after') {
   const { t } = useLingui();
   const labels: Record<ArchiveRowStatus, string> = {
-    ok: t`Imported, with a note`,
+    ok: when === 'before' ? t`Comes in, with a note` : t`Imported, with a note`,
     text: t`Changed`,
     skipped: t`Skipped`,
   };
@@ -121,16 +121,19 @@ export function EntityReport({
   report,
   reportKey,
   title,
+  when = 'before',
 }: {
   report: ArchiveDryRunReport;
   reportKey: string;
   /** The heading: "Needs a look" before the import, what needed one after it. */
   title?: ReactNode;
+  /** The check, before anything is imported (what will happen), or after it (what did). */
+  when?: 'before' | 'after';
 }) {
   const { t } = useLingui();
   const [list] = useListState();
-  const issueText = useIssueText();
-  const statusLabel = useArchiveStatusLabel();
+  const issueText = useIssueText(when);
+  const statusLabel = useArchiveStatusLabel(when);
 
   const first = (row: ArchiveReportRow) =>
     Math.min(...row.issues.map((i) => ORDER.get(i.code) ?? 999));

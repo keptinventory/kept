@@ -169,6 +169,7 @@ export const useExportRun = (id: string | null) =>
       q.state.data?.status === 'queued' || q.state.data?.status === 'running' ? 2000 : false,
   });
 
+/** Asked only where it can answer: `null` (or AI off in the run's location) asks nothing. */
 export const useEnrichEstimate = (runId: string | null) =>
   useQuery({
     queryKey: k.enrichEstimate(runId ?? ''),

@@ -54,8 +54,9 @@ export const PORTABILITY_IDS = {
   passphrase: 'correct horse battery',
 } as const;
 
-/** What a Homebox collection's choices step offers (HomeboxMappingHints): three types, two
- * custom fields, three insured items and the seeded places and tags left empty. */
+/** What a Homebox collection's choices step offers (HomeboxMappingHints): four types, three
+ * custom fields (one with no value), three insured items, the seeded places and tags left empty
+ * and four locations that look like boxes. */
 export const HOMEBOX_MAPPING: HomeboxMappingHints = {
   types: [
     { id: '0192a000-0000-7000-8000-00000000c101', name: 'Power Tools', items: 6 },
@@ -64,8 +65,10 @@ export const HOMEBOX_MAPPING: HomeboxMappingHints = {
     { id: '0192a000-0000-7000-8000-00000000c104', name: 'global.item', items: 9 },
   ],
   fields: [
-    { name: 'Voltage', kind: 'text', items: 5 },
-    { name: 'Warranty card no.', kind: 'text', items: 1 },
+    { name: 'Voltage', kind: 'text', items: 5, filled: 5 },
+    { name: 'Warranty card no.', kind: 'text', items: 1, filled: 1 },
+    // Its one value is Homebox's unset date: no item has a value, so it's left out (#320).
+    { name: 'Last defrosted', kind: 'time', items: 1, filled: 0 },
   ],
   insuredItems: 3,
   seededUnused: { places: ['Attic', 'Basement', 'Office'], tags: ['IOT', 'Servers'] },
@@ -74,15 +77,17 @@ export const HOMEBOX_MAPPING: HomeboxMappingHints = {
   warrantyItems: 2,
   maintenance: 1,
   zeroItems: 2,
+  // In the backup's order, not A to Z: the choices step sorts them (#320).
   boxes: [
+    { id: '0192a000-0000-7000-8000-00000000c204', name: 'Box 10', path: ['Garage'], items: 1 },
     { id: '0192a000-0000-7000-8000-00000000c201', name: 'Box 01', path: ['Garage'], items: 2 },
-    { id: '0192a000-0000-7000-8000-00000000c202', name: 'Box 02', path: ['Garage'], items: 1 },
     {
       id: '0192a000-0000-7000-8000-00000000c203',
       name: 'Bin 1',
       path: ['Basement', 'Shelf C'],
       items: 0,
     },
+    { id: '0192a000-0000-7000-8000-00000000c202', name: 'Box 2', path: ['Garage'], items: 1 },
   ],
   catchAll: '0192a000-0000-7000-8000-00000000c104',
 };

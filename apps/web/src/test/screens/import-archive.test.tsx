@@ -66,7 +66,13 @@ describe('a Homebox export', () => {
   });
 
   it('uploads, inspects, connects, targets, chooses, checks and imports', async () => {
-    const app = await chooseSource('A Homebox export');
+    // AI capture on in the Garage, so the done screen offers search words.
+    const state = ownerScenario();
+    const garage = state.locations.find((l) => l.id === IDS.garage);
+    if (!garage) throw new Error('no garage');
+    garage.modules = [...garage.modules, 'ai_capture'];
+    garage.providerResolved = true;
+    const app = await chooseSource('A Homebox export', state);
     const { user, mock } = app;
     await user.upload(fileInput() as HTMLInputElement, zip());
 
@@ -112,8 +118,9 @@ describe('a Homebox export', () => {
     // The connection's currency, the types matched by name or created, the fields kept.
     const types = await screen.findByRole('list', { name: 'Homebox types' });
     expect(within(types).getByText('Kitchen gear')).toBeInTheDocument();
+    // A new type reads with its name in the picker (#320).
     expect(screen.getByRole('combobox', { name: 'Kept type for Kitchen gear' })).toHaveValue(
-      'New type…',
+      'New type "Kitchen gear"',
     );
     expect(screen.getAllByRole('textbox', { name: 'Name of the new type' })[0]).toHaveValue(
       'Power Tools',
@@ -172,12 +179,14 @@ describe('a Homebox export', () => {
     // The row's subtitle is its reason, never "An item or location".
     expect(rows).not.toHaveTextContent('An item or location');
     const toolbox = within(rows).getByText('Toolbox drawer').closest('li') as HTMLElement;
-    expect(toolbox).toHaveTextContent('A location inside an item became a container.');
-    expect(rows).toHaveTextContent('Quantity 0 in Homebox; it came in as 1.');
-    expect(rows).toHaveTextContent('Quantity 0 in Homebox; it came in archived.');
-    expect(rows).toHaveTextContent('It holds other items, so it came in as a box.');
+    // Before anything is imported, it says what will happen (#320), never what did.
+    expect(toolbox).toHaveTextContent('A location inside an item becomes a box.');
+    expect(rows).toHaveTextContent('Quantity 0 in Homebox; it comes in as 1.');
+    expect(rows).toHaveTextContent('Quantity 0 in Homebox; it comes in archived.');
+    expect(rows).toHaveTextContent('It holds other items, so it comes in as a box.');
+    expect(rows).toHaveTextContent('A location that comes in as a box, as chosen.');
+    expect(rows).not.toHaveTextContent(/came in|became|Imported, with a note/);
     expect(rows).toHaveTextContent('drill-manual.docx');
-    expect(rows).toHaveTextContent('A location inside an item became a container.');
     for (const code of [...ARCHIVE_ISSUE_CODES, ...HB_ISSUE_CODES])
       expect(rows.textContent).not.toContain(code);
     await user.type(screen.getByRole('searchbox', { name: 'Search the report' }), 'Toolbox');
@@ -270,7 +279,7 @@ describe('a Homebox export, from 1.13.0', () => {
         .every((c) => !(c as HTMLInputElement).checked),
     ).toBe(true);
     await user.click(screen.getByRole('button', { name: 'Choose all' }));
-    expect(screen.getByText('3 of 3 as boxes')).toBeInTheDocument();
+    expect(screen.getByText('4 of 4 as boxes')).toBeInTheDocument();
     const name = screen.getAllByRole('textbox', { name: 'Name of the new type' })[1] as HTMLElement;
     await user.clear(name);
     expect(screen.getByRole('button', { name: 'Check the import' })).toBeDisabled();
@@ -281,9 +290,10 @@ describe('a Homebox export, from 1.13.0', () => {
       choices: {
         zeroQuantity: 'keep_or_archive',
         boxes: [
+          '0192a000-0000-7000-8000-00000000c204',
           '0192a000-0000-7000-8000-00000000c201',
-          '0192a000-0000-7000-8000-00000000c202',
           '0192a000-0000-7000-8000-00000000c203',
+          '0192a000-0000-7000-8000-00000000c202',
         ],
         types: {
           '0192a000-0000-7000-8000-00000000c103': { create: 'Gadgets' },
@@ -314,9 +324,11 @@ describe('a Homebox export, from 1.13.0', () => {
     const { user, mock } = await renderApp(`/settings/import?run=${PORTABILITY_IDS.homeboxDone}`);
     expect(await findHeading('Done')).toBeInTheDocument();
     const looked = await screen.findByRole('list', { name: 'Needs a look' });
+    // After the import the report says what happened.
     expect(within(looked).getByText('Candles').closest('li')).toHaveTextContent(
       'Quantity 0 in Homebox; it came in as 1.',
     );
+    expect(looked).toHaveTextContent('Imported, with a note');
     expect(screen.getByRole('heading', { name: /^What needed a look/ })).toBeInTheDocument();
 
     expect(await screen.findByRole('heading', { name: 'Repair this import' })).toBeInTheDocument();
@@ -349,6 +361,93 @@ describe('a Homebox export, from 1.13.0', () => {
     expect(
       await screen.findByRole('heading', { name: 'Repair this import' }, { timeout: 10_000 }),
     ).toBeInTheDocument();
+  });
+});
+
+describe('a Homebox export, from 1.13.1 (#320)', () => {
+  async function adjust() {
+    const app = await renderApp(`/settings/import?run=${PORTABILITY_IDS.homeboxRun}`);
+    expect(await findHeading('What the import will do')).toBeInTheDocument();
+    await app.user.click(screen.getByRole('button', { name: 'Adjust' }));
+    expect(await findHeading('A few choices, before the check')).toBeInTheDocument();
+    return app;
+  }
+
+  it('lists the locations that look like boxes A to Z, numbers in order', async () => {
+    await adjust();
+    const boxes = screen.getByRole('list', { name: 'Locations that look like boxes' });
+    const names = within(boxes)
+      .getAllByRole('checkbox')
+      .map((c) => c.closest('label')?.querySelector('bdi.font-medium')?.textContent);
+    expect(names).toEqual(['Bin 1', 'Box 01', 'Box 2', 'Box 10']);
+  });
+
+  it('offers a typed name as a new type, as New type… does', async () => {
+    const { user, mock } = await adjust();
+    const picker = screen.getByRole('combobox', { name: 'Kept type for Item' });
+    await user.clear(picker);
+    await user.type(picker, 'Gadgets');
+    expect(screen.queryByText('No matches')).toBeNull();
+    await user.click(await screen.findByRole('option', { name: 'New type "Gadgets"' }));
+    expect(picker).toHaveValue('New type "Gadgets"');
+    await waitFor(() =>
+      expect(
+        screen
+          .getAllByRole('textbox', { name: 'Name of the new type' })
+          .map((x) => (x as HTMLInputElement).value),
+      ).toContain('Gadgets'),
+    );
+    // A name a Kept type already has is that type, not a new one.
+    await user.clear(picker);
+    await user.type(picker, 'No type');
+    expect(screen.queryByRole('option', { name: /^New type "/ })).toBeNull();
+    await user.click(screen.getByRole('option', { name: 'No type' }));
+    await user.clear(picker);
+    await user.type(picker, 'Gadgets');
+    await user.click(await screen.findByRole('option', { name: 'New type "Gadgets"' }));
+    await user.click(screen.getByRole('button', { name: 'Check the import' }));
+    await waitFor(() =>
+      expect(
+        mock.lastCall('POST', p.importChoices(PORTABILITY_IDS.homeboxRun))?.body,
+      ).toMatchObject({
+        choices: { types: { '0192a000-0000-7000-8000-00000000c104': { create: 'Gadgets' } } },
+      }),
+    );
+  });
+
+  it('says a custom field no item has a value for is left out', async () => {
+    await adjust();
+    const fields = screen.getByRole('list', { name: 'Custom fields' });
+    const empty = within(fields).getByText('Last defrosted').closest('li') as HTMLElement;
+    expect(empty).toHaveTextContent('Left out: no item has a value for it.');
+    expect(within(empty).queryByRole('radio')).toBeNull();
+    const voltage = within(fields).getByText('Voltage').closest('li') as HTMLElement;
+    expect(voltage).not.toHaveTextContent('Left out');
+    expect(within(voltage).getByRole('radio', { name: 'Add to the type' })).toBeChecked();
+  });
+
+  it("doesn't ask for the AI estimate where AI is off, and offers it where it's on", async () => {
+    const off = await renderApp(`/settings/import?run=${PORTABILITY_IDS.homeboxDone}`);
+    expect(await findHeading('Done')).toBeInTheDocument();
+    expect(await screen.findByRole('list', { name: 'Needs a look' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'See what was imported' })).toBeInTheDocument();
+    expect(
+      off.mock.lastCall('GET', p.importEnrichEstimate(PORTABILITY_IDS.homeboxDone)),
+    ).toBeUndefined();
+    expect(screen.queryByText('Add search words with AI?')).toBeNull();
+    off.unmount();
+
+    const state = ownerScenario();
+    const garage = state.locations.find((l) => l.id === IDS.garage);
+    if (!garage) throw new Error('no garage');
+    garage.modules = [...garage.modules, 'ai_capture'];
+    garage.providerResolved = true;
+    const on = await renderApp(`/settings/import?run=${PORTABILITY_IDS.homeboxDone}`, { state });
+    expect(await findHeading('Done')).toBeInTheDocument();
+    expect(await screen.findByText('Add search words with AI?')).toBeInTheDocument();
+    expect(
+      on.mock.lastCall('GET', p.importEnrichEstimate(PORTABILITY_IDS.homeboxDone)),
+    ).toBeDefined();
   });
 });
 

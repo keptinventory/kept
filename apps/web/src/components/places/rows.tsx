@@ -179,7 +179,7 @@ export function ThingRowView({
             <span className="flex flex-wrap items-center gap-1.5">
               <LabelTape code={thing.shortCode} printed={thing.labelPrinted} />
               {thing.derivedState.map((s) => (
-                <StatusPill key={s} state={s} />
+                <StatusPill key={s} state={s} lifecycle={thing.lifecycle} />
               ))}
               {showPath && thing.path.length ? <PathText path={thing.path} /> : null}
             </span>

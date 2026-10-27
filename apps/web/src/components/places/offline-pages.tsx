@@ -255,7 +255,7 @@ export function OfflineThingPage({ id }: { id: string }) {
             {/* As online: the tape of a printed label leads; a code with no label is quiet, last. */}
             {row.labelPrinted ? <IdChip code={thing.shortCode} /> : null}
             {row.derivedState.map((s) => (
-              <StatusPill key={s} state={s} />
+              <StatusPill key={s} state={s} lifecycle={row.lifecycle} />
             ))}
             {Number(thing.quantity) > 1 ? <Pill>× {f.num(Number(thing.quantity))}</Pill> : null}
             {row.labelPrinted ? null : <IdChip code={thing.shortCode} variant="quiet" />}
