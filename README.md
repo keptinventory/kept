@@ -37,7 +37,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/kept-hero-dark.webp">
-    <img src="docs/assets/kept-hero-light.webp" alt="Kept's home screen on a desktop, with the same screen on a phone in front: what needs you, the get-started checklist and recent activity">
+    <img src="docs/assets/kept-hero-light.webp" alt="Kept's home screen on a desktop, with the same screen on a phone in front: the get-started checklist, what needs you, the locations and the shortcuts">
   </picture>
 </p>
 
@@ -80,7 +80,7 @@ Installs as an app. Capture, scan and search, offline too.
   </picture>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/search-phone-dark.webp">
-    <img src="apps/docs/src/assets/screens/search-phone-light.webp" alt="Searching for cable on a phone: the cable box and the HDMI cable, each with its path and label" width="220">
+    <img src="apps/docs/src/assets/screens/search-phone-light.webp" alt="Searching for cable on a phone: the cable box and the HDMI cable, each with its type, path and label" width="220">
   </picture>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/capture-phone-dark.webp">
@@ -95,7 +95,7 @@ A short ID, where it is down to the box, its details, paperwork, value, loans an
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/thing-dark.webp">
-    <img src="apps/docs/src/assets/screens/thing-light.webp" alt="An HDMI cable in Kept: its short ID, its path Home › Office › Desk drawer › Cable box, and its details: type, quantity, tags and connectors" width="720">
+    <img src="apps/docs/src/assets/screens/thing-light.webp" alt="An HDMI cable in Kept: its short ID, its path Home › Office › Desk drawer › Cable box, its details (type, quantity and connectors) and its tags" width="720">
   </picture>
 </p>
 
@@ -107,7 +107,7 @@ open the box.
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/labels-dark.webp">
-    <img src="apps/docs/src/assets/screens/labels-light.webp" alt="Printing labels: six things on an A4 sheet of 24, with the sheet preview" width="720">
+    <img src="apps/docs/src/assets/screens/labels-light.webp" alt="Printing labels: the six things in Home with no printed label, on an A4 sheet of 24, each label a QR code with its name, place and short ID" width="720">
   </picture>
 </p>
 
