@@ -106,15 +106,18 @@ describe('release.sh refuses', { timeout: 30_000 }, () => {
     git('add', '.');
     git('commit', '-q', '-m', 'feat: the scripts');
     git('tag', 'v1.2.0');
-    // A commit after the last release, with a README whose quick start installs the versions
-    // these tests release (the preflight refuses one it doesn't, and a tag on v1.2.0's commit).
+    // A commit after the last release, with a quick start that installs the versions these tests
+    // release (the preflight refuses one it doesn't, and a tag on v1.2.0's commit).
+    const versions = ['0.9.0', '1.1.0', '1.3.0'];
     writeFileSync(
       path.join(dir, 'README.md'),
-      ['0.9.0', '1.1.0', '1.3.0']
-        .map((v) => `git clone --branch v${v} --depth 1 x\nKEPT_IMAGE=ghcr.io/o/kept:${v}|\n`)
-        .join(''),
+      versions.map((v) => `curl -fsSLO https://x/o/kept/v${v}/compose.yaml\n`).join(''),
     );
-    git('add', 'README.md');
+    writeFileSync(
+      path.join(dir, 'compose.yaml'),
+      versions.map((v) => `image: \${KEPT_IMAGE:-ghcr.io/o/kept:${v}}\n`).join(''),
+    );
+    git('add', 'README.md', 'compose.yaml');
     git('commit', '-q', '-m', 'docs: the quick start');
   });
   afterEach(() => rmSync(dir, { recursive: true, force: true }));
