@@ -707,6 +707,7 @@ function MapBody({
     ArrowRight: (room) => t`Moved ${room} right.`,
   };
   const nudge = (ev: KeyboardEvent): boolean => {
+    if (ev.defaultPrevented) return false;
     if (!isArrow(ev.key) || ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey) return false;
     // Not from a control that has arrow keys of its own (a field, a slider, a list, a dialog).
     if ((ev.target as HTMLElement | null)?.closest?.(OWN_ARROWS)) return false;
@@ -716,8 +717,9 @@ function MapBody({
     const words = done.moved
       ? movedWords[ev.key](isolate(done.room.name))
       : t`Rooms can’t overlap.`;
-    // The same words again (a second step the same way) are said again: they differ by a space.
-    setSaid((prev) => (prev === words ? `${words}\u00a0` : words));
+    // A held key moves the room on but is said once. The same words again (a second step the
+    // same way) are said again: they differ by a space.
+    if (!ev.repeat) setSaid((prev) => (prev === words ? `${words}\u00a0` : words));
     return true;
   };
 

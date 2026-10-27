@@ -1170,7 +1170,8 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
   /** #301: with a room selected in Arrange, an arrow key moves it a metre, as in the app
    * (map-view.tsx), and says where it went. */
   const nudge = (ev: KeyboardEvent): boolean => {
-    if (!engine || !es.arranging || es.selected?.type !== 'room') return false;
+    if (!engine || ev.defaultPrevented || !es.arranging || es.selected?.type !== 'room')
+      return false;
     if (!isArrow(ev.key) || ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey) return false;
     if ((ev.target as HTMLElement | null)?.closest?.(OWN_ARROWS)) return false;
     const done = engine.nudgeRoom(ev.key);
@@ -1179,8 +1180,9 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     const words = done.moved
       ? w.movedRoom[ev.key](`\u2068${done.room.name}\u2069`)
       : w.hints.blocked;
-    // The same words again (a second step the same way) are said again: they differ by a space.
-    said.textContent = said.textContent === words ? `${words}\u00a0` : words;
+    // A held key moves the room on but is said once. The same words again (a second step the
+    // same way) are said again: they differ by a space.
+    if (!ev.repeat) said.textContent = said.textContent === words ? `${words}\u00a0` : words;
     return true;
   };
   const onKey = (ev: KeyboardEvent) => {
