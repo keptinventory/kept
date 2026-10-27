@@ -19,6 +19,7 @@
  *   offline at PBKDF2's pace; the PRF path has no such gap. The settings page says so.
  */
 import { APP_LOCK } from '@kept/shared';
+import { sha256Hex as sha256 } from '@/lib/sha256';
 
 /** Stored per device in the person's database (offline/db.ts `lock`). Bytes as ArrayBuffers. */
 export type LockRecord = {
@@ -262,7 +263,4 @@ export async function unsealJson<T>(key: CryptoKey, id: string, sealed: Sealed):
 }
 
 /** Lower-case hex SHA-256 of `bytes`: a downloaded document is checked against the server's. */
-export async function sha256Hex(bytes: ArrayBuffer): Promise<string> {
-  const digest = new Uint8Array(await subtle().digest('SHA-256', bytes));
-  return Array.from(digest, (b) => b.toString(16).padStart(2, '0')).join('');
-}
+export const sha256Hex = (bytes: ArrayBuffer): Promise<string> => sha256(bytes);

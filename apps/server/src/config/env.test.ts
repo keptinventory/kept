@@ -10,12 +10,14 @@ import {
   defaultImageConcurrency,
   EnvError,
   embeddingsDir,
+  loadAdminEnv,
   loadEnv,
   loadMigrateEnv,
   localEmbeddingsInstalled,
   resticCacheDir,
   vapidSubject,
 } from './env.js';
+import { renderEnvReference } from './reference.js';
 
 const validEnv = {
   KEPT_DATABASE_URL: 'postgres://kept_app:kept_app@localhost:5452/kept',
@@ -517,6 +519,70 @@ describe('loadMigrateEnv', () => {
         message: expect.stringContaining('KEPT_OWNER_DATABASE_URL'),
       }),
     );
+  });
+});
+
+describe('database passwords in files', () => {
+  async function passwordFile(name: string, value: string): Promise<string> {
+    const file = path.join(await freshConfigDir(), name);
+    await writeFile(file, `${value}\n`, { mode: 0o600 });
+    return file;
+  }
+
+  it('loadEnv completes the runtime URLs that carry no password from their files', async () => {
+    const env = await loadEnv(
+      {
+        ...validEnv,
+        KEPT_DATABASE_URL: 'postgres://kept_app:@db:5432/kept',
+        KEPT_DB_APP_PASSWORD_FILE: await passwordFile('kept_app', 'aa11'),
+        KEPT_AUTH_DATABASE_URL: 'postgres://kept_auth:@db:5432/kept',
+        KEPT_DB_AUTH_PASSWORD_FILE: await passwordFile('kept_auth', 'bb22'),
+        KEPT_SYSTEM_DATABASE_URL: 'postgres://kept_system:@db:5432/kept',
+        KEPT_DB_SYSTEM_PASSWORD_FILE: await passwordFile('kept_system', 'cc33'),
+      },
+      { configDir: await unusedConfigDir() },
+    );
+    expect(env.KEPT_DATABASE_URL).toBe('postgres://kept_app:aa11@db:5432/kept');
+    expect(env.KEPT_AUTH_DATABASE_URL).toBe('postgres://kept_auth:bb22@db:5432/kept');
+    expect(env.KEPT_SYSTEM_DATABASE_URL).toBe('postgres://kept_system:cc33@db:5432/kept');
+  });
+
+  it('loadEnv keeps the old behaviour: a URL with its password needs no file', async () => {
+    const env = await loadEnv(
+      { ...validEnv, KEPT_DB_APP_PASSWORD_FILE: '/nonexistent/kept_app' },
+      { configDir: await unusedConfigDir() },
+    );
+    expect(env.KEPT_DATABASE_URL).toBe(validEnv.KEPT_DATABASE_URL);
+  });
+
+  it('loadEnv refuses a password-less URL whose file is missing', async () => {
+    await expect(
+      loadEnv(
+        {
+          ...validEnv,
+          KEPT_DATABASE_URL: 'postgres://kept_app:@db:5432/kept',
+          KEPT_DB_APP_PASSWORD_FILE: '/nonexistent/kept_app',
+        },
+        { configDir: await unusedConfigDir() },
+      ),
+    ).rejects.toMatchObject({ code: 'invalid_env', message: expect.stringContaining('bootstrap') });
+  });
+
+  it('loadMigrateEnv and loadAdminEnv complete the owner URL from its file', async () => {
+    const file = await passwordFile('kept_owner', 'dd44');
+    const source = {
+      KEPT_OWNER_DATABASE_URL: 'postgres://kept_owner:@db:5432/kept',
+      KEPT_DB_OWNER_PASSWORD_FILE: file,
+    };
+    expect(loadMigrateEnv(source)).toEqual({ ownerUrl: 'postgres://kept_owner:dd44@db:5432/kept' });
+    expect(loadAdminEnv(source).ownerUrl).toBe('postgres://kept_owner:dd44@db:5432/kept');
+  });
+
+  it('the configuration reference lists the four password-file variables', () => {
+    const reference = renderEnvReference();
+    for (const name of ['OWNER', 'APP', 'AUTH', 'SYSTEM']) {
+      expect(reference).toContain(`| \`KEPT_DB_${name}_PASSWORD_FILE\` |`);
+    }
   });
 });
 

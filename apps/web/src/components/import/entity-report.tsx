@@ -1,9 +1,10 @@
 /**
  * An archive import's report: the counts the import would make first, then
- * only the entries with an issue, grouped by reason, each translated from its code and params
- * (labels.ts). A list-standard list: search (a name or a reason), a Status filter, pages, in the
- * URL; grouped by reason, fixed. People to invite follow (the connection's members with their
- * emails, or the Kept export's names and roles), each with Invite once the location exists.
+ * only the entries with an issue, one row each: its name, then what happened to it, in words
+ * (each reason translated from its code and params, labels.ts), and its status. A list-standard
+ * list: search (a name or a reason), a Status filter, grouping by status in Display, pages, in
+ * the URL. The same list shows the stored report after the import (archive-run.tsx), so what
+ * needed a look can be read again from Activity.
  */
 import { IMPORT_ISSUE_CODES, type ImportIssue } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
@@ -23,16 +24,17 @@ import { useMemoryPages } from './memory-list';
 import { CountTiles } from './step-chrome';
 
 const TONE: Record<ArchiveRowStatus, PillTone> = { ok: 'ok', text: 'warn', skipped: 'danger' };
-const STATUSES: ArchiveRowStatus[] = ['text', 'skipped'];
+const STATUSES: ArchiveRowStatus[] = ['skipped', 'text', 'ok'];
 const ORDER = new Map<string, number>(IMPORT_ISSUE_CODES.map((c, i) => [c, i]));
+const STATUS_ORDER: Record<ArchiveRowStatus, number> = { skipped: 0, text: 1, ok: 2 };
 
-/** One reason on one entry: the list's row. */
-type Line = { key: string; status: ArchiveRowStatus; row: ArchiveReportRow; issue: ImportIssue };
+/** One entry with its reasons: the list's row. */
+type Line = { key: string; status: ArchiveRowStatus; row: ArchiveReportRow; issues: ImportIssue[] };
 
 function useArchiveStatusLabel() {
   const { t } = useLingui();
   const labels: Record<ArchiveRowStatus, string> = {
-    ok: t`Imported`,
+    ok: t`Imported, with a note`,
     text: t`Changed`,
     skipped: t`Skipped`,
   };
@@ -110,20 +112,36 @@ export function ArchiveReportSummary({ report }: { report: ArchiveDryRunReport }
 export function EntityReport({
   report,
   reportKey,
+  title,
 }: {
   report: ArchiveDryRunReport;
   reportKey: string;
+  /** The heading: "Needs a look" before the import, what needed one after it. */
+  title?: ReactNode;
 }) {
   const { t } = useLingui();
   const [list] = useListState();
   const issueText = useIssueText();
   const statusLabel = useArchiveStatusLabel();
 
+  const first = (row: ArchiveReportRow) =>
+    Math.min(...row.issues.map((i) => ORDER.get(i.code) ?? 999));
   const lines: Line[] = report.rows
-    .flatMap((row, r) =>
-      row.issues.map((issue, i) => ({ key: `${r}:${i}`, status: row.status, row, issue })),
-    )
-    .sort((a, b) => (ORDER.get(a.issue.code) ?? 999) - (ORDER.get(b.issue.code) ?? 999));
+    .map((row, r) => ({
+      key: String(r),
+      status: row.status,
+      row,
+      issues: [...row.issues].sort(
+        (a, b) => (ORDER.get(a.code) ?? 999) - (ORDER.get(b.code) ?? 999),
+      ),
+    }))
+    .filter((l) => l.issues.length > 0)
+    .sort(
+      (a, b) =>
+        STATUS_ORDER[a.status] - STATUS_ORDER[b.status] ||
+        first(a.row) - first(b.row) ||
+        (a.row.ref.name ?? '').localeCompare(b.row.ref.name ?? ''),
+    );
   const counts: Record<ArchiveRowStatus, number> = { ok: 0, text: 0, skipped: 0 };
   for (const l of lines) counts[l.status] += 1;
 
@@ -133,7 +151,10 @@ export function EntityReport({
   const shown = lines.filter((l) => {
     if (statuses.length && statuses.includes(l.status) === not) return false;
     if (!q) return true;
-    return [l.row.ref.name ?? '', issueText(l.issue)].join('\n').toLocaleLowerCase().includes(q);
+    return [l.row.ref.name ?? '', ...l.issues.map(issueText)]
+      .join('\n')
+      .toLocaleLowerCase()
+      .includes(q);
   });
   const query = useMemoryPages(['archive-report', reportKey, q, statuses, not], shown);
 
@@ -149,7 +170,7 @@ export function EntityReport({
       },
     },
   ];
-  const total = report.rows.length;
+  const total = lines.length;
 
   if (total === 0)
     return (
@@ -161,7 +182,7 @@ export function EntityReport({
   return (
     <section className="grid gap-2" aria-labelledby="import-needs-look">
       <h3 id="import-needs-look" className="m-0 font-semibold text-[17px]">
-        <Trans>Needs a look</Trans>
+        {title ?? <Trans>Needs a look</Trans>}
         <span className="font-normal text-ink-2">
           {' '}
           <Plural value={total} one="(# entry)" other="(# entries)" />
@@ -173,18 +194,26 @@ export function EntityReport({
         filters={filters}
         query={query}
         getKey={(l) => l.key}
-        defaultGroup="reason"
-        groupOf={(l) => ({ key: l.issue.code, label: issueText(l.issue) })}
+        groups={[{ value: 'status', label: t`Status`, short: t`by status` }]}
+        groupOf={(l, group) =>
+          group === 'status' ? { key: l.status, label: statusLabel(l.status) } : null
+        }
         empty={null}
         renderRow={(l) => (
-          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 px-3.5 py-2.5">
+          <div className="flex flex-wrap items-start gap-x-2.5 gap-y-1 px-3.5 py-2.5">
             <span className="grid min-w-0 flex-1 gap-0.5">
               <bdi className="font-medium [overflow-wrap:anywhere]">
                 {l.row.ref.name ?? l.row.ref.id}
               </bdi>
-              <span className="text-small text-ink-2">
-                <RefKind kind={l.row.ref.kind} kept={report.source === 'kept_zip'} />
-              </span>
+              {/* What happened to it is the row's subtitle: its reasons, in words. */}
+              <ul className="m-0 grid list-none gap-0.5 p-0 text-small text-ink-2">
+                {l.issues.map((issue, i) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: an entry's reasons never move
+                  <li key={i} className="[overflow-wrap:anywhere]">
+                    {issueText(issue)}
+                  </li>
+                ))}
+              </ul>
             </span>
             <Pill tone={TONE[l.status]}>{statusLabel(l.status)}</Pill>
           </div>
@@ -192,19 +221,4 @@ export function EntityReport({
       />
     </section>
   );
-}
-
-function RefKind({ kind, kept }: { kind: ArchiveReportRow['ref']['kind']; kept: boolean }) {
-  switch (kind) {
-    case 'attachment':
-      return <Trans>An attachment</Trans>;
-    case 'file':
-      return <Trans>A file</Trans>;
-    case 'maintenance':
-      return <Trans>A maintenance entry</Trans>;
-    case 'template':
-      return <Trans>A template</Trans>;
-    default:
-      return kept ? <Trans>A thing or place</Trans> : <Trans>An item or location</Trans>;
-  }
 }

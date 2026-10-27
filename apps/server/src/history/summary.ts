@@ -411,6 +411,7 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'import.check': () => 'Checked an import',
   'import.start': () => 'Started an import',
   'import.run': () => 'Ran an import',
+  'import.repair': () => 'Repaired an import',
   'import.cancel': () => 'Cancelled an import',
   'report.export_csv': () => 'Exported a report as a CSV',
   'report.schedule': () => 'Scheduled a report',

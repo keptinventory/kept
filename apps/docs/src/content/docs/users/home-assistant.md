@@ -20,7 +20,7 @@ Kept works the same without it.
 | **Home Assistant 2026.10 or later** | The integration is built and tested against it |
 | **HACS** in Home Assistant | It installs the integration. [Download HACS](https://hacs.xyz/docs/use/download/download/) ([what it needs](https://hacs.xyz/docs/use/download/prerequisites/)) |
 | **Kept 1.8.0 or later** | It adds the summary the sensors read |
-| **Kept over `https`** | Kept makes personal tokens only over HTTPS ([HTTPS](/install/https/)) |
+| **A personal token** | The app makes them only over HTTPS ([HTTPS](/install/https/)); on a home network over `http`, [make one on the server](/admin/cli/#a-token-from-the-server) |
 | **Home Assistant can reach Kept** | Same network, a VPN such as Tailscale, or a public address. Test it: open Kept's address from the machine Home Assistant runs on |
 
 ## What you get
@@ -50,8 +50,10 @@ A location or vehicle added in Kept later shows up after you reload the integrat
 
 1. **Make a token.** In Kept, **Settings → Connections → New token**. Tick the locations Home
    Assistant should see. **Read only** is enough for the sensors and the calendar; **Read and
-   change** also lets the actions below send readings and mark schedules done. Kept makes tokens
-   only when it is served over `https` ([HTTPS](/install/https/)).
+   change** also lets the actions below send readings and mark schedules done. The app makes
+   tokens only when Kept is served over `https` ([HTTPS](/install/https/)); over `http`, the
+   person who runs the server makes it with
+   [`kept admin token create`](/admin/cli/#a-token-from-the-server).
 2. **Install.** In HACS, **⋮ → Custom repositories** ([how](https://hacs.xyz/docs/faq/custom_repositories/)): add
    `https://github.com/keptinventory/kept-homeassistant`, type **Integration**. Install **Kept**,
    and restart Home Assistant.
