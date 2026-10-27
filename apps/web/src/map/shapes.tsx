@@ -35,14 +35,12 @@ import { Sheet } from '@/components/things/sheet';
 import { TextField } from '@/components/ui/text-field';
 import { useModelNames, useShapeGroupNames } from './labels';
 import type { Item } from './layout';
+import { SHAPE_LIBRARY_URL, SHAPE_REQUEST_URL } from './shape-links';
 import spriteUrl from './thumbs/shapes.webp?url';
 import { THUMB_CELLS, THUMB_COLS } from './thumbs/sprite';
 
-/** The GitHub issue form that asks for a new shape (.github/ISSUE_TEMPLATE/shape-request.yml). */
-export const SHAPE_REQUEST_URL =
-  'https://github.com/keptinventory/kept/issues/new?template=shape-request.yml';
-/** Every shape with its picture, size and words, on the docs site (apps/docs, users/map-shapes). */
-export const SHAPE_LIBRARY_URL = 'https://keptinventory.info/users/map-shapes/';
+// The footer's two links, shared with the docs' Try the map (shape-links.ts).
+export { SHAPE_LIBRARY_URL, SHAPE_REQUEST_URL } from './shape-links';
 
 /** The search's language: the reader's, by its first subtag ("fr-CA" is French). */
 const shapeLang = (locale: string): ShapeLang => {

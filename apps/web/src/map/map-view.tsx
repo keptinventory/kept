@@ -10,6 +10,9 @@
  * moves anything dragged into another room there in Kept first), Cancel throws it away. With a
  * room selected in Arrange, the arrow keys move it a metre at a time and say where it went (#301).
  *
+ * Try the map (apps/docs/src/components/try-map/demo.ts) draws these controls, the card and What's
+ * in again in plain DOM around the same engine: a change here goes there too (#301).
+ *
  * On a place's page (`scope`, #190) the map opens on that place (./scope.ts): its floor, its room
  * focused, or its room with it (or what holds it) selected, with a note when it isn't drawn or
  * its room is on no floor; a place the map doesn't have gets a note and a link instead of a map.
