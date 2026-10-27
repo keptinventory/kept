@@ -184,8 +184,7 @@ the Caddyfile in `docker/caddy/` ([HTTPS](https://keptinventory.info/install/htt
   [Select → Trash](https://github.com/keptinventory/kept/issues/294) ·
   [vehicle services you can open](https://github.com/keptinventory/kept/issues/296) ·
   [label-maker tape](https://github.com/keptinventory/kept/issues/303) ·
-  [two new shapes](https://github.com/keptinventory/kept/issues/240) ·
-  [a 2 GB machine](https://github.com/keptinventory/kept/issues/176)
+  [two new shapes](https://github.com/keptinventory/kept/issues/240)
 - **Later:** [mobile and desktop apps](https://github.com/keptinventory/kept/issues/169) ·
   [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197) ·
   [storage furniture templates](https://github.com/keptinventory/kept/issues/238) ·
