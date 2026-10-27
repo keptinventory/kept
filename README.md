@@ -55,6 +55,18 @@ Nothing to install, nothing saved.
 
 ## A look around
 
+### A location's things
+
+Names first, each with its type; a box says how much is inside; the amber tape only on things with
+a printed label.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/list-dark.webp">
+    <img src="apps/docs/src/assets/screens/list-light.webp" alt="Home's things in Kept: each name with its type underneath, boxes with how many things are inside, and the amber label tape only on things whose label was printed" width="720">
+  </picture>
+</p>
+
 ### The location map
 
 Each location as a 3D map: floors, rooms, shelves and boxes, what's inside one tap away. Arranged
@@ -74,29 +86,7 @@ by you, or laid out by Kept. Plan view, balconies and terraces, phones included
 Installs as an app. Capture, scan and search, offline too.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/phone-dark.webp">
-    <img src="apps/docs/src/assets/screens/phone-light.webp" alt="Kept's Home on a phone: Get started, the Needs you tiles and the shortcuts, above the tab bar with its Capture button" width="220">
-  </picture>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/search-phone-dark.webp">
-    <img src="apps/docs/src/assets/screens/search-phone-light.webp" alt="Searching for cable on a phone: the cable box and the HDMI cable, each with its type, path and label" width="220">
-  </picture>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/capture-phone-dark.webp">
-    <img src="apps/docs/src/assets/screens/capture-phone-light.webp" alt="The capture screen on a phone, its camera on a labelled box on the garage shelves" width="220">
-  </picture>
-</p>
-
-### A thing
-
-A short ID, where it is down to the box, its details, paperwork, value, loans and history.
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/thing-dark.webp">
-    <img src="apps/docs/src/assets/screens/thing-light.webp" alt="An HDMI cable in Kept: its short ID, its path Home › Office › Desk drawer › Cable box, its details (type, quantity and connectors) and its tags" width="720">
-  </picture>
+  <img src="docs/assets/kept-demo-phone.webp" alt="Kept on a phone, in a short loop: Home, a location's list, the map with a room and a box's card, a search for cable, and the capture screen" width="300">
 </p>
 
 ### Labels
