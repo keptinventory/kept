@@ -27430,3 +27430,130 @@ msgstr "Moved {room} left."
 #: src/map/map-view.tsx
 msgid "Moved {room} right."
 msgstr "Moved {room} right."
+#: src/components/places/contents-list.tsx
+msgid "Graph"
+msgstr "Graph"
+
+#: src/graph/card.tsx
+msgid "Selected"
+msgstr "Selected"
+
+#: src/graph/card.tsx
+msgid "{0} in <0>{1}</0>"
+msgstr "{0} in <0>{1}</0>"
+
+#: src/graph/card.tsx
+msgid "Tagged"
+msgstr "Tagged"
+
+#: src/graph/card.tsx
+msgid "{0} inside"
+msgstr "{0} inside"
+
+#: src/graph/card.tsx
+msgid "Inside it"
+msgstr "Inside it"
+
+#: src/graph/card.tsx
+msgid "Go in"
+msgstr "Go in"
+
+#: src/graph/card.tsx
+msgid "Show on the map"
+msgstr "Show on the map"
+
+#: src/graph/floors-3d.tsx
+msgid "Graph of {0}"
+msgstr "Graph of {0}"
+
+#: src/graph/floors-3d.tsx
+msgid "Rooms on no floor"
+msgstr "Rooms on no floor"
+
+#: src/graph/floors-3d.tsx
+msgid "Stop turning"
+msgstr "Stop turning"
+
+#: src/graph/floors-3d.tsx
+msgid "Turn slowly"
+msgstr "Turn slowly"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from higher"
+msgstr "Look from higher"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from lower"
+msgstr "Look from lower"
+
+#: src/graph/floors-3d.tsx
+msgid "Show the whole house"
+msgstr "Show the whole house"
+
+#: src/graph/graph-view.tsx
+msgid "The graph is drawn from Kept’s server. The list has everything offline."
+msgstr "The graph is drawn from Kept’s server. The list has everything offline."
+
+#: src/graph/graph-view.tsx
+msgid "Where you are in the graph"
+msgstr "Where you are in the graph"
+
+#: src/graph/graph-view.tsx
+msgid "2D or 3D"
+msgstr "2D or 3D"
+
+#: src/graph/graph-view.tsx
+msgid "2D"
+msgstr "2D"
+
+#: src/graph/graph-view.tsx
+msgid "Size shows how much is inside. Pick twice to go in; the path above takes you back."
+msgstr "Size shows how much is inside. Pick twice to go in; the path above takes you back."
+
+#: src/graph/graph-view.tsx
+msgid "It turns slowly until you touch it. Drag to turn it; pick a room to bring it forward."
+msgstr "It turns slowly until you touch it. Drag to turn it; pick a room to bring it forward."
+
+#: src/graph/graph-view.tsx
+msgid "{more, plural, one {# more thing is counted in its place but not drawn.} other {# more things are counted in their places but not drawn.}}"
+msgstr "{more, plural, one {# more thing is counted in its place but not drawn.} other {# more things are counted in their places but not drawn.}}"
+
+#: src/graph/graph-view.tsx
+msgid "In this graph"
+msgstr "In this graph"
+
+#: src/graph/graph-view.tsx
+msgid "In <0>{0}</0>"
+msgstr "In <0>{0}</0>"
+
+#: src/graph/words.ts
+msgid "low on stock"
+msgstr "low on stock"
+
+#: src/graph/words.ts
+msgid "lent out"
+msgstr "lent out"
+
+#: src/graph/words.ts
+msgid "due soon"
+msgstr "due soon"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# low on stock} other {# low on stock}}"
+msgstr "{count, plural, one {# low on stock} other {# low on stock}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# lent out} other {# lent out}}"
+msgstr "{count, plural, one {# lent out} other {# lent out}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# due soon} other {# due soon}}"
+msgstr "{count, plural, one {# due soon} other {# due soon}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# more in {where}} other {# more in {where}}}"
+msgstr "{count, plural, one {# more in {where}} other {# more in {where}}}"
+
+#: src/components/places/contents-list.tsx
+msgid "graph"
+msgstr "graph"

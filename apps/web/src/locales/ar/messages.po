@@ -27430,3 +27430,130 @@ msgstr "نُقل «{room}» إلى اليسار."
 #: src/map/map-view.tsx
 msgid "Moved {room} right."
 msgstr "نُقل «{room}» إلى اليمين."
+#: src/components/places/contents-list.tsx
+msgid "Graph"
+msgstr "رسم شبكي"
+
+#: src/graph/card.tsx
+msgid "Selected"
+msgstr "المحدد"
+
+#: src/graph/card.tsx
+msgid "{0} in <0>{1}</0>"
+msgstr "{0} في <0>{1}</0>"
+
+#: src/graph/card.tsx
+msgid "Tagged"
+msgstr "الموسومة"
+
+#: src/graph/card.tsx
+msgid "{0} inside"
+msgstr "{0} في الداخل"
+
+#: src/graph/card.tsx
+msgid "Inside it"
+msgstr "بداخله"
+
+#: src/graph/card.tsx
+msgid "Go in"
+msgstr "ادخل"
+
+#: src/graph/card.tsx
+msgid "Show on the map"
+msgstr "اعرضه على الخريطة"
+
+#: src/graph/floors-3d.tsx
+msgid "Graph of {0}"
+msgstr "الرسم الشبكي لـ{0}"
+
+#: src/graph/floors-3d.tsx
+msgid "Rooms on no floor"
+msgstr "غرف بلا طابق"
+
+#: src/graph/floors-3d.tsx
+msgid "Stop turning"
+msgstr "أوقف الدوران"
+
+#: src/graph/floors-3d.tsx
+msgid "Turn slowly"
+msgstr "دوّره ببطء"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from higher"
+msgstr "انظر من أعلى"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from lower"
+msgstr "انظر من أسفل"
+
+#: src/graph/floors-3d.tsx
+msgid "Show the whole house"
+msgstr "اعرض البيت كاملًا"
+
+#: src/graph/graph-view.tsx
+msgid "The graph is drawn from Kept’s server. The list has everything offline."
+msgstr "يُرسم الرسم الشبكي من خادم Kept. والقائمة فيها كل شيء دون اتصال."
+
+#: src/graph/graph-view.tsx
+msgid "Where you are in the graph"
+msgstr "مكانك في الرسم الشبكي"
+
+#: src/graph/graph-view.tsx
+msgid "2D or 3D"
+msgstr "ثنائي أو ثلاثي الأبعاد"
+
+#: src/graph/graph-view.tsx
+msgid "2D"
+msgstr "ثنائي الأبعاد"
+
+#: src/graph/graph-view.tsx
+msgid "Size shows how much is inside. Pick twice to go in; the path above takes you back."
+msgstr "الحجم يبيّن كم بداخله. اختر مرتين للدخول، والمسار في الأعلى يعيدك."
+
+#: src/graph/graph-view.tsx
+msgid "It turns slowly until you touch it. Drag to turn it; pick a room to bring it forward."
+msgstr "يدور ببطء حتى تلمسه. اسحب لتدويره، واختر غرفة لتبرزها."
+
+#: src/graph/graph-view.tsx
+msgid "{more, plural, one {# more thing is counted in its place but not drawn.} other {# more things are counted in their places but not drawn.}}"
+msgstr "{more, plural, zero {لا أشياء أخرى غير مرسومة.} one {شيء واحد آخر محسوب في مكانه لكنه غير مرسوم.} two {شيئان آخران محسوبان في مكانيهما لكنهما غير مرسومين.} few {# أشياء أخرى محسوبة في أماكنها لكنها غير مرسومة.} many {# شيئًا آخر محسوبًا في أماكنه لكنه غير مرسوم.} other {# شيء آخر محسوب في أماكنه لكنه غير مرسوم.}}"
+
+#: src/graph/graph-view.tsx
+msgid "In this graph"
+msgstr "في هذا الرسم الشبكي"
+
+#: src/graph/graph-view.tsx
+msgid "In <0>{0}</0>"
+msgstr "في <0>{0}</0>"
+
+#: src/graph/words.ts
+msgid "low on stock"
+msgstr "مخزونه منخفض"
+
+#: src/graph/words.ts
+msgid "lent out"
+msgstr "مُعار"
+
+#: src/graph/words.ts
+msgid "due soon"
+msgstr "يحين قريبًا"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# low on stock} other {# low on stock}}"
+msgstr "{count, plural, zero {لا شيء منخفض المخزون} one {شيء واحد منخفض المخزون} two {شيئان منخفضا المخزون} few {# أشياء منخفضة المخزون} many {# شيئًا منخفض المخزون} other {# شيء منخفض المخزون}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# lent out} other {# lent out}}"
+msgstr "{count, plural, zero {لا شيء مُعار} one {شيء واحد مُعار} two {شيئان مُعاران} few {# أشياء مُعارة} many {# شيئًا مُعارًا} other {# شيء مُعار}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# due soon} other {# due soon}}"
+msgstr "{count, plural, zero {لا شيء يحين قريبًا} one {شيء واحد يحين قريبًا} two {شيئان يحينان قريبًا} few {# أشياء تحين قريبًا} many {# شيئًا يحين قريبًا} other {# شيء يحين قريبًا}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# more in {where}} other {# more in {where}}}"
+msgstr "{count, plural, zero {لا مزيد في {where}} one {واحد آخر في {where}} two {اثنان آخران في {where}} few {# أخرى في {where}} many {# أخرى في {where}} other {# أخرى في {where}}}"
+
+#: src/components/places/contents-list.tsx
+msgid "graph"
+msgstr "رسم شبكي"
