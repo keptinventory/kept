@@ -111,6 +111,7 @@ const sidebar = [
     page('users/vehicles'),
     page('users/tags'),
     page('users/location-map'),
+    page('users/graph'),
     page('users/map-shapes'),
     page('users/room-photos'),
     page('users/scanning-sessions'),
