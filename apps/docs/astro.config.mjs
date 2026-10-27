@@ -100,6 +100,7 @@ const sidebar = [
     group('Install', 'التثبيت', dir('install')),
     page('users/first-run'),
     page('users/everyday-use'),
+    page('users/reminders'),
     page('users/vehicles'),
     page('users/tags'),
     page('users/location-map'),
