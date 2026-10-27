@@ -220,7 +220,7 @@ describe('POST /api/v1/imports/:id/inspect', () => {
         counts: Record<string, number>;
         mapping: {
           types: { name: string; items: number }[];
-          fields: { name: string; kind: string; items: number }[];
+          fields: { name: string; kind: string; items: number; filled: number }[];
           insuredItems: number;
           seededUnused: { places: string[]; tags: string[] };
         };
@@ -251,10 +251,11 @@ describe('POST /api/v1/imports/:id/inspect', () => {
     expect(c?.mapping.types).toHaveLength(4);
     expect(c?.mapping.fields).toEqual(
       expect.arrayContaining([
-        { name: 'Colour', kind: 'text', items: 1 },
-        { name: 'Boiler size (ml)', kind: 'number', items: 1 },
-        { name: 'Plumbed in', kind: 'boolean', items: 1 },
-        { name: 'Installed', kind: 'time', items: 1 },
+        { name: 'Colour', kind: 'text', items: 1, filled: 1 },
+        { name: 'Boiler size (ml)', kind: 'number', items: 1, filled: 1 },
+        { name: 'Plumbed in', kind: 'boolean', items: 1, filled: 1 },
+        // Its one date is the day the row was made, which reads as empty: left out (#320).
+        { name: 'Installed', kind: 'time', items: 1, filled: 0 },
       ]),
     );
     expect(c?.mapping.insuredItems).toBe(1);

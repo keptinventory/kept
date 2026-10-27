@@ -229,3 +229,21 @@ export function hbDate(value: string | null | undefined): string | null {
   if (Number.isNaN(d.getTime())) return null;
   return d.toISOString().slice(0, 10);
 }
+
+/**
+ * A custom field's value as the import reads it, or undefined for none: empty text, no number,
+ * an unset date (Go's zero time), and a date within a second of the field row's creation
+ * (`defaulted`: Homebox filled it in with the day the row was made, H1). A field with no value
+ * on any item isn't added to a type (plan.ts); the choices step says so (inspect.ts `filled`).
+ */
+export function hbFieldValue(f: HbEntityField): {
+  value: string | number | boolean | undefined;
+  defaulted: boolean;
+} {
+  if (f.type === 'text') return { value: f.text_value || undefined, defaulted: false };
+  if (f.type === 'number') return { value: f.number_value ?? undefined, defaulted: false };
+  if (f.type === 'boolean') return { value: f.boolean_value, defaulted: false };
+  if (Math.abs(Date.parse(f.time_value) - Date.parse(f.created_at)) <= 1000)
+    return { value: undefined, defaulted: true };
+  return { value: hbDate(f.time_value) ?? undefined, defaulted: false };
+}

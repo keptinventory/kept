@@ -1,12 +1,12 @@
 import { HB_FIELD_KIND, type HomeboxFieldKind, looksLikeBox } from '@kept/shared';
 import type { HomeboxInspect, HomeboxMappingHints } from '../archive-types.js';
-import { hbDate } from './format.js';
+import { hbDate, hbFieldValue } from './format.js';
 import { childrenOf, type HomeboxData, isLocation, seededUnused } from './read.js';
 
 // What POST /imports/:id/inspect answers for a Homebox export: the collection's id
 // (the manifest's groupId), when it was exported, its counts, and the mapping hints the choices
 // step needs: the entity types things use (with how many), the custom fields by name (with their
-// kind and how many items carry them), how many items are insured, and the seeded places and
+// kind, how many items carry them and how many of those hold a value), how many items are insured, and the seeded places and
 // tags that are empty and unused; how many amounts it holds (the currency is asked only then),
 // the locations that read as boxes, and Homebox's catch-all type. Names and counts only, never a
 // value. The ZIP holds no
@@ -26,19 +26,29 @@ export function inspectHomebox(data: HomeboxData, sourceVersion: string | null):
     .map((t) => ({ id: t.id, name: t.name, items: typeItems.get(t.id) ?? 0 }));
 
   // A field name with more than one kind is offered once, as its most common kind.
-  const byName = new Map<string, { kinds: Map<HomeboxFieldKind, number>; entities: Set<string> }>();
+  // `filled`: the items holding a value as the import reads it (hbFieldValue); none, and the
+  // field isn't added to any type (#320).
+  const byName = new Map<
+    string,
+    { kinds: Map<HomeboxFieldKind, number>; entities: Set<string>; filled: Set<string> }
+  >();
   for (const f of data.fields) {
     if (!data.entities.has(f.entity_fields)) continue;
     const name = f.name.trim();
     if (!name) continue;
-    const seen = byName.get(name) ?? { kinds: new Map(), entities: new Set<string>() };
+    const seen = byName.get(name) ?? {
+      kinds: new Map(),
+      entities: new Set<string>(),
+      filled: new Set<string>(),
+    };
     seen.kinds.set(f.type, (seen.kinds.get(f.type) ?? 0) + 1);
     seen.entities.add(f.entity_fields);
+    if (hbFieldValue(f).value !== undefined) seen.filled.add(f.entity_fields);
     byName.set(name, seen);
   }
   const fields = [...byName].map(([name, seen]) => {
     const kind = [...seen.kinds].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'text';
-    return { name, kind, items: seen.entities.size };
+    return { name, kind, items: seen.entities.size, filled: seen.filled.size };
   });
 
   const seeded = seededUnused(data);

@@ -711,6 +711,52 @@ describe('quantity 0 applies to Homebox items only', () => {
   });
 });
 
+describe('a custom field no item has a value for (#320)', () => {
+  /** Home with a date field on the espresso machine whose only value is Homebox's unset date. */
+  const withUnsetDate = (): HomeboxData => {
+    const espresso = idOf(home, 'Espresso machine');
+    const like = home.fields.find((f) => f.entity_fields === espresso);
+    if (!like) throw new Error('no field on the espresso machine');
+    return {
+      ...home,
+      fields: [
+        ...home.fields,
+        {
+          ...like,
+          id: newId(),
+          name: 'Last defrosted',
+          type: 'time',
+          text_value: '',
+          number_value: null,
+          time_value: '0001-01-01T00:00:00Z',
+        },
+      ],
+    };
+  };
+
+  it('is left out of the type on purpose: an empty field carries nothing to keep', () => {
+    const data = withUnsetDate();
+    const plan = planHomebox(data, choices(data), lookups());
+    const types = plan.ops.filter((o) => o.op === 'type') as { fields: { label: string }[] }[];
+    expect(types.flatMap((y) => y.fields.map((f) => f.label))).not.toContain('Last defrosted');
+    expect(thing(plan.ops, 'Espresso machine').notes ?? '').not.toContain('Last defrosted');
+  });
+
+  it("is offered with how many items hold a value, so the choices step can say it's left out", () => {
+    const mapping = inspectHomebox(withUnsetDate(), null).collections[0]?.mapping;
+    expect(mapping?.fields.find((f) => f.name === 'Last defrosted')).toMatchObject({
+      kind: 'time',
+      items: 1,
+      filled: 0,
+    });
+    expect(mapping?.fields.find((f) => f.name === 'Colour')?.filled).toBeGreaterThan(0);
+    // The fixture's own date fields hold only the made-on date the import reads as empty.
+    for (const f of mapping?.fields ?? []) if (f.kind === 'time') expect(f.filled, f.name).toBe(0);
+    // Watts is on the type nowhere either: it has no value (counts what the import would add).
+    expect(mapping?.fields.find((f) => f.name === 'Watts')?.filled).toBe(0);
+  });
+});
+
 describe('inspectHomebox: what the choices step offers', () => {
   it('counts the prices, lists the locations that look like boxes and names the catch-all type', async () => {
     const boxes = await read('homebox-0.27.0-boxes.zip');

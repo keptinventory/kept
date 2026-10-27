@@ -198,7 +198,7 @@ export const HB_SEEDED_TAGS = [
  * - `hb_currency_unsupported`: the collection's currency isn't enabled on this server;
  * - `hb_needs_module`: a warranty, service or schedule whose Kept records don't exist yet; its
  *   text is kept in the thing's notes;
- * - `hb_location_in_item`: a location inside an item, which became a container;
+ * - `hb_location_in_item`: a location inside an item, which became a box;
  * - `hb_notifier_skipped`: notifiers are never imported (their URLs are credentials);
  * - `hb_seeded_skipped`: Homebox's seeded places and tags, empty and unused, left out;
  * - `hb_time_default`: a `time` field whose value is only its row's creation time, read as empty;

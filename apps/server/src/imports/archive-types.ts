@@ -60,7 +60,9 @@ export type HomeboxCollectionCounts = {
 /** What the Homebox choices step offers (web HomeboxMappingHints): names and counts only. */
 export type HomeboxMappingHints = {
   types: { id: string; name: string; items: number }[];
-  fields: { name: string; kind: HomeboxFieldKind; items: number }[];
+  /** `filled` from 1.13.1 (absent on an older inspection): the items holding a value; 0, and the
+   * field is left out (a field is added to a type for a value only). */
+  fields: { name: string; kind: HomeboxFieldKind; items: number; filled?: number }[];
   insuredItems: number;
   seededUnused: { places: string[]; tags: string[] };
   /** From 1.13.0 (absent on a run inspected before): how many items and maintenance entries carry

@@ -19,6 +19,7 @@ import {
   type HbEntityField,
   type HbEntityType,
   hbDate,
+  hbFieldValue,
 } from './format.js';
 import { keptIcon } from './icons.js';
 import type { HbLookups } from './lookups.js';
@@ -57,6 +58,8 @@ import {
 // - tags → tags with colours, flattened (each ancestor tag applied too); tag icons dropped;
 // - custom fields → the mapped type's field of the same normalised label and kind, else by the
 //   `fields` choice: added to the type (a built-in is customised first) or kept in the notes;
+//   a field is added for a value only, so one no item has a value for isn't added (the choices
+//   step says so, from the inspection's `filled`);
 // - `insured` → a yes/no "Insured" field on the type, per the `insured` choice;
 // - quantity 0, by the `zeroQuantity` choice: kept where the type is consumable, else archived
 //   as 1 (`keep_or_archive`); 1 (`one`, and a run saved without the choice); or left out
@@ -283,7 +286,7 @@ const MESSAGES: Partial<Record<ImportIssueCode, string>> = {
   hb_currency_unsupported:
     "This currency isn't turned on in Kept; the prices are kept in the notes.",
   hb_needs_module: "Kept can't hold this record here; its text is kept in the thing's notes.",
-  hb_location_in_item: 'A location inside an item became a container.',
+  hb_location_in_item: 'A location inside an item became a box.',
   hb_notifier_skipped: 'Notifiers are never imported: their addresses can hold passwords.',
   hb_seeded_skipped: "One of Homebox's starter places or tags, empty and unused, left out.",
   hb_time_default: 'A date Homebox filled in with the day the item was made; read as empty.',
@@ -908,17 +911,9 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
       const label = f.name.trim();
       if (!label) continue;
       const kind = HB_FIELD_KIND[f.type];
-      let value: unknown;
-      if (f.type === 'text') value = f.text_value || undefined;
-      else if (f.type === 'number') value = f.number_value ?? undefined;
-      else if (f.type === 'boolean') value = f.boolean_value;
-      else {
-        const gap = Math.abs(Date.parse(f.time_value) - Date.parse(f.created_at));
-        if (gap <= 1000) {
-          report.issue(ref, 'hb_time_default', { column: label });
-          value = undefined;
-        } else value = hbDate(f.time_value) ?? undefined;
-      }
+      const { value, defaulted } = hbFieldValue(f);
+      if (defaulted) report.issue(ref, 'hb_time_default', { column: label });
+      // No value: nothing to keep, and the field isn't added to the type for it (#320).
       if (value === undefined) continue;
       if (typeof value === 'number' && !Number.isInteger(value) && !numberNoted.has(label)) {
         numberNoted.add(label);
