@@ -622,3 +622,53 @@ describe('POST /api/v1/things/bulk-trash', () => {
     expect(back.map((r) => r.deleted_at)).toEqual([null, null]);
   });
 });
+
+describe('POST /api/v1/things/bulk-trash: the checks one thing’s trash makes', () => {
+  // #294: a place's Select mode sends its selection here, so it asks what one thing's trash asks.
+  const deletedAt = async (ids: string[]) =>
+    (
+      await own<{ deleted_at: Date | null }>(
+        db,
+        'SELECT deleted_at FROM public.things WHERE id = ANY ($1::uuid[])',
+        [ids],
+      )
+    ).map((r) => r.deleted_at);
+
+  it('a thing in a location the caller is not in stops the batch: 404, nothing trashed', async () => {
+    const kettle = await createThing(t, mo, home, { name: 'Kettle' });
+    const jack = await createThing(t, ann, garage, { name: 'Car jack' });
+    // mo is a member of Home only; Garage's thing is not found, and Home's stays put.
+    const refused = await bulkTrash(mo, { thingIds: [kettle.id, jack.id] });
+    expect(refused.statusCode).toBe(404);
+    expect(await deletedAt([kettle.id, jack.id])).toEqual([null, null]);
+    // An outsider finds nothing at all.
+    expect((await bulkTrash(bob, { thingIds: [kettle.id] })).statusCode).toBe(404);
+    expect(await deletedAt([kettle.id])).toEqual([null]);
+  });
+
+  it('asks first about something that is with someone, then trashes it when confirmed', async () => {
+    const [friend] = await own<{ id: string }>(
+      db,
+      `INSERT INTO public.people (owner_account_id, display_name) VALUES ($1, 'Sam') RETURNING id`,
+      [home.accountId],
+    );
+    const tent = await createThing(t, ann, home, { name: 'Tent' });
+    const stove = await createThing(t, ann, home, { name: 'Camp stove' });
+    ok(
+      await call(t, `/api/v1/things/${tent.id}/lend`, {
+        as: ann,
+        body: { person: { id: friend?.id } },
+      }),
+      201,
+    );
+    const refused = await bulkTrash(mo, { thingIds: [stove.id, tent.id] });
+    expect(refused.statusCode).toBe(409);
+    expect(refused.json()).toMatchObject({ code: 'on_loan', with: { person: 'Sam' } });
+    expect(await deletedAt([stove.id, tent.id])).toEqual([null, null]);
+
+    const res = await bulkTrash(mo, { thingIds: [stove.id, tent.id], onLoan: 'confirm' });
+    const body = ok(res) as unknown as { trashed: string[]; events: string[] };
+    expect(body.trashed.sort()).toEqual([stove.id, tent.id].sort());
+    expect(body.events).toHaveLength(2);
+  });
+});

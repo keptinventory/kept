@@ -629,6 +629,85 @@ describe('select and move', () => {
   });
 });
 
+describe('select and trash (#294)', () => {
+  const pick = async (user: Awaited<ReturnType<typeof renderApp>>['user'], names: string[]) => {
+    await list('Contents of Home');
+    await user.click(screen.getByRole('button', { name: 'Select' }));
+    for (const name of names) await user.click(screen.getByRole('checkbox', { name }));
+    await user.click(screen.getByRole('button', { name: 'Move to Trash' }));
+    return screen.findByRole('alertdialog', { name: `Send ${names.length} things to the Trash?` });
+  };
+
+  it('sends the selection to the Trash at once, and one Undo brings them all back', async () => {
+    const { user, mock } = await renderApp(`/loc/${IDS.home}`);
+    const dialog = await pick(user, ['Select Galaxy S23', 'Select Samsung TV, 55″']);
+    // Neither holds anything: no choice to make.
+    expect(within(dialog).queryByRole('radio')).toBeNull();
+    await user.click(within(dialog).getByRole('button', { name: 'Send to Trash' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', inventoryPaths.thingsBulkTrash)?.body).toEqual({
+        thingIds: [T.phone, T.tv],
+      }),
+    );
+    const toast = await screen.findByText('Sent 2 things to the Trash');
+    const deleted = () =>
+      mock.state.inventory.things
+        .filter((x) => x.id === T.phone || x.id === T.tv)
+        .map((x) => x.deletedAt);
+    expect(deleted().every(Boolean)).toBe(true);
+    // Selecting is over.
+    expect(screen.queryByRole('toolbar', { name: 'Selection' })).toBeNull();
+    const region = toast.closest('[role="alertdialog"], [role="region"]') as HTMLElement;
+    await user.click(within(region).getByRole('button', { name: 'Undo' }));
+    await waitFor(() =>
+      expect(
+        mock.calls.filter((c) => c.method === 'POST' && c.path === inventoryPaths.undoTogether),
+      ).toHaveLength(1),
+    );
+    expect(await screen.findByText('Undone')).toBeInTheDocument();
+    expect(deleted()).toEqual([null, null]);
+  });
+
+  it('asks what happens to what is inside a box first', async () => {
+    const { user, mock } = await renderApp(`/loc/${IDS.home}`);
+    const dialog = await pick(user, ['Select Galaxy S23', 'Select Cable box']);
+    await user.click(within(dialog).getByRole('radio', { name: "Trash what's inside too" }));
+    await user.click(within(dialog).getByRole('button', { name: 'Send to Trash' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', inventoryPaths.thingsBulkTrash)?.body).toEqual({
+        thingIds: [T.phone, T.cableBox],
+        contents: 'trash',
+      }),
+    );
+  });
+
+  it('asks first about something that is with someone, then sends it again confirmed', async () => {
+    const { user, mock } = await renderApp(`/loc/${IDS.home}`, {
+      setup: (m) =>
+        m.on('POST', inventoryPaths.thingsBulkTrash, ({ body }) =>
+          (body as { onLoan?: string }).onLoan === 'confirm'
+            ? { trashed: [T.phone, T.tv], moved: [], events: [] }
+            : new MockReply(409, {
+                error: 'It is with Sam.',
+                code: 'on_loan',
+                with: { person: 'Sam', thingId: T.tv, name: 'Samsung TV, 55″' },
+              }),
+        ),
+    });
+    const dialog = await pick(user, ['Select Galaxy S23', 'Select Samsung TV, 55″']);
+    await user.click(within(dialog).getByRole('button', { name: 'Send to Trash' }));
+    const ask = await screen.findByRole('alertdialog', { name: /This is with .*Sam/ });
+    await user.click(within(ask).getByRole('button', { name: 'Move to Trash anyway' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', inventoryPaths.thingsBulkTrash)?.body).toEqual({
+        thingIds: [T.phone, T.tv],
+        onLoan: 'confirm',
+      }),
+    );
+    expect(await screen.findByText('Sent 2 things to the Trash')).toBeInTheDocument();
+  });
+});
+
 describe('the place page', () => {
   it('shows the breadcrumb, the kind and counts, and the contents', async () => {
     await renderApp(`/p/${P.deskDrawer}`);

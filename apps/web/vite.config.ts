@@ -245,6 +245,9 @@ const ON_DEMAND_ENTRIES = [
   '/src/components/tags/editors.tsx',
   // 1.13.0 (#270): "Turn places into boxes" and a place's own order (places/sub-places-lazy.tsx).
   '/src/components/places/sub-places.tsx',
+  // #294: several things to the Trash at once (things/bulk-trash.tsx), from a place's Select and
+  // the spreadsheet; it reads and writes the server only.
+  '/src/components/things/bulk-trash.tsx',
   '/papaparse/papaparse.min.js',
   '/src/components/import/parse-config.ts',
 ];

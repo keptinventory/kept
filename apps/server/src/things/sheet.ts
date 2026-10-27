@@ -37,7 +37,7 @@ import { rowsOf, type ThingRow, ThingRowSchema } from './view.js';
 //                                               → {items: SheetRow[], next_cursor}
 // POST /api/v1/things/bulk-edit {edits: [{id, rowVersion, set}] (≤ 200)}
 //                                               → {results, rows, events}
-// POST /api/v1/things/bulk-trash {thingIds (≤ 200), contents?}
+// POST /api/v1/things/bulk-trash {thingIds (≤ 200), contents?, onLoan?}
 //                                               → {trashed, moved, events}
 //
 // - **Rows** are GET /things's rows (same filters, same keyset paging, no thumbnails) and the
@@ -196,6 +196,8 @@ export type BulkEditResult = z.infer<typeof BulkEditResultSchema>;
 export const BulkTrashBody = z.strictObject({
   thingIds: z.array(z.uuid()).min(1).max(BULK_MAX),
   contents: z.enum(['move', 'trash']).optional(),
+  /** Something with someone is trashed only when confirmed (1.14), as one thing's trash is. */
+  onLoan: z.literal('confirm').optional(),
 });
 export type BulkTrashBody = z.infer<typeof BulkTrashBody>;
 export const BulkTrashResultSchema = z.object({
