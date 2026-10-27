@@ -259,6 +259,7 @@ function LocationBody({ location }: { location: LocationDetail }) {
             aside: (
               <PlacesPanel
                 places={places}
+                boxes={tree.data?.boxes ?? []}
                 location={{ id: location.id, name, address: locationAddress(location) }}
               />
             ),
@@ -301,7 +302,9 @@ function LocationBody({ location }: { location: LocationDetail }) {
                 canEdit={canEdit}
               />
 
-              <div>{panel ? null : <PlaceTree places={places} />}</div>
+              <div>
+                {panel ? null : <PlaceTree places={places} boxes={tree.data?.boxes ?? []} />}
+              </div>
             </div>
           )}
         </>

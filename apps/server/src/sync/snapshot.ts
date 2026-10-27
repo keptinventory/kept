@@ -305,10 +305,11 @@ async function readPlaces({ client, out }: PageContext, q: Slice): Promise<Read>
     icon: string | null;
     is_unplaced: boolean;
     sort: number;
+    created_at: Date;
     deleted: boolean;
   }>(
     `SELECT p.id, p.location_id, p.parent_id, p.name, p.kind_key, p.icon, p.is_unplaced, p.sort,
-            p.deleted_at IS NOT NULL AS deleted
+            p.created_at, p.deleted_at IS NOT NULL AS deleted
        FROM public.places p
       WHERE ${w.where}
       ORDER BY ${w.order}
@@ -325,6 +326,7 @@ async function readPlaces({ client, out }: PageContext, q: Slice): Promise<Read>
       icon: r.icon,
       isUnplaced: r.is_unplaced,
       sort: r.sort,
+      createdAt: r.created_at.toISOString(),
       deleted: r.deleted,
     });
   }

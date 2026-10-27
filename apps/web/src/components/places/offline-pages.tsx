@@ -8,12 +8,19 @@
  *
  *   const off = useOfflinePage(query);   if (off) return <OfflineThingPage id={id} />;
  */
-import { can, type Role, type SnapPlace, type SnapTag, type SnapThing } from '@kept/shared';
+import {
+  can,
+  naturalCompare,
+  type Role,
+  type SnapPlace,
+  type SnapTag,
+  type SnapThing,
+} from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { isApiError } from '@/api/client';
-import type { PathStep, ThingRow, ThingTag } from '@/api/inventory/types';
+import type { BoxNode, PathStep, PlaceNode, ThingRow, ThingTag } from '@/api/inventory/types';
 import { placePath } from '@/components/capture/target';
 import { KeptExtras } from '@/components/device/kept-extras';
 import { ChevronEndIcon } from '@/components/icons';
@@ -31,6 +38,7 @@ import { useOffline } from '@/offline/provider';
 import type { OfflineStore } from '@/offline/store';
 import { usePlaceName } from './labels';
 import { PathText, rowLink, ThingRowView } from './rows';
+import { PlaceTree } from './tree';
 
 /**
  * Whether a page should answer from the phone: there is a copy, the page's own read has nothing,
@@ -94,6 +102,55 @@ function useCopy<T>(key: string, id: string, load: (store: OfflineStore) => Prom
     staleTime: 0,
     gcTime: 0,
   });
+}
+
+/**
+ * A location's place tree from the phone's copy, in the shapes the online tree takes: its places,
+ * and its boxes as leaves (a live container directly in a place, with what is in it counted), at
+ * most 50 per place, A to Z, as the server sends them.
+ */
+export async function offlineTree(
+  store: OfflineStore,
+  places: readonly SnapPlace[],
+): Promise<{ places: PlaceNode[]; boxes: BoxNode[] }> {
+  const live = places.filter((p) => !p.deleted);
+  const nodes: PlaceNode[] = [];
+  const boxes: BoxNode[] = [];
+  for (const p of live) {
+    const here = (await store.contentsOf({ placeId: p.id })).filter((x) => !x.deleted);
+    const mine: BoxNode[] = [];
+    for (const x of here) {
+      const inside = (await store.contentsOf({ containerId: x.id })).filter((c) => !c.deleted);
+      if (!x.isContainer && inside.length === 0) continue;
+      mine.push({
+        id: x.id,
+        placeId: p.id,
+        name: x.name,
+        icon: null,
+        shortCode: x.shortCode,
+        contentCount: inside.length,
+      });
+    }
+    // As the server sorts things: lower(name), then the id.
+    const key = (b: BoxNode) => (b.name ?? '').toLowerCase();
+    mine.sort((a, b) => naturalCompare(key(a), key(b)) || (a.id < b.id ? -1 : 1));
+    boxes.push(...mine.slice(0, 50));
+    nodes.push({
+      id: p.id,
+      parentId: p.parentId,
+      name: p.name,
+      kindKey: p.kindKey,
+      icon: p.icon,
+      sort: p.sort,
+      isUnplaced: p.isUnplaced,
+      shortCode: null,
+      thingCount: here.length,
+      childCount: live.filter((c) => c.parentId === p.id).length,
+      createdAt: p.createdAt ?? '',
+      boxCount: mine.length,
+    });
+  }
+  return { places: nodes, boxes };
 }
 
 async function copyOf(store: OfflineStore, locationId: string): Promise<Copy> {
@@ -240,6 +297,7 @@ export function OfflinePlacePage({ id }: { id: string }) {
         place,
         path: placePath(places, place.parentId).map(stepOf),
         children: places.filter((p) => p.parentId === id && !p.deleted),
+        tree: await offlineTree(store, places),
         things: things.filter((x) => !x.deleted && !x.containerId).map((x) => rowOf(x, [], tags)),
         ...(await copyOf(store, loc.id)),
       };
@@ -254,7 +312,7 @@ export function OfflinePlacePage({ id }: { id: string }) {
     );
   const found = q.data;
   if (!found) return <Missing title={t`Place`} />;
-  const { place, path, children, things, asOf, locationName } = found;
+  const { place, path, children, tree, things, asOf, locationName } = found;
   const name = placeName(stepOf(place));
   return (
     <Page title={<bdi>{name}</bdi>} back="/">
@@ -267,6 +325,7 @@ export function OfflinePlacePage({ id }: { id: string }) {
             <PathText path={path} />
           </span>
         ) : null}
+        <PlaceTree places={tree.places} boxes={tree.boxes} currentId={place.id} />
         {children.length ? (
           <Section title={<Trans>Places</Trans>}>
             <List aria-label={t`Places in ${name}`}>

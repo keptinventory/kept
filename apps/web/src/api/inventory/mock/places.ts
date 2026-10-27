@@ -1,4 +1,5 @@
 /** Mock handlers for places (task 13's routes). Task 25 extends these as its screens need. */
+import { comparePlaceSiblings, naturalCompare } from '@kept/shared';
 import type { MockState } from '../../mock/fixtures';
 import {
   err,
@@ -22,6 +23,7 @@ import type {
 } from '../types';
 import {
   accessOf,
+  boxNodesOf,
   contentsOf,
   derivedStateOf,
   type InventoryState,
@@ -68,9 +70,9 @@ export function placesRoutes(state: MockState): MockRoute[] {
       if (!access().visible(locationId)) return notFound();
       const places = inv()
         .places.filter((pl) => pl.locationId === locationId && !pl.deletedAt)
-        .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name))
-        .map((pl) => placeNodeOf(inv(), pl));
-      return { places };
+        .map((pl) => placeNodeOf(inv(), pl))
+        .sort(comparePlaceSiblings);
+      return { places, boxes: boxNodesOf(inv(), locationId) };
     }),
 
     route('POST', p.locationPlaces(':locationId'), ({ params, body }) => {
@@ -93,7 +95,7 @@ export function placesRoutes(state: MockState): MockRoute[] {
         custom: {},
         secrets: [],
         rowVersion: 1,
-        sort: inv().places.length,
+        sort: 0,
         deletedAt: null,
         trashBatchId: null,
         deletedBy: null,
@@ -116,8 +118,8 @@ export function placesRoutes(state: MockState): MockRoute[] {
       const children = inv()
         .places.filter((c) => c.parentId === pl.id && !c.deletedAt)
         .filter((c) => !q || matches(c.name, q))
-        .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name))
-        .map((c) => placeNodeOf(inv(), c));
+        .map((c) => placeNodeOf(inv(), c))
+        .sort(comparePlaceSiblings);
       let found = inv()
         .things.filter((t) => t.placeId === pl.id && !t.deletedAt)
         .filter((t) => !q || matches(t.name ?? '', q));
@@ -333,7 +335,7 @@ function contentsOrder(
         ? b.updatedAt.localeCompare(a.updatedAt)
         : sort === 'lastSeen'
           ? (b.lastSeenAt ?? '').localeCompare(a.lastSeenAt ?? '')
-          : (a.name ?? '').localeCompare(b.name ?? ''));
+          : naturalCompare(a.name ?? '', b.name ?? ''));
 }
 
 /** Defaults for a thing the mock creates from a place (convert-to-container). */

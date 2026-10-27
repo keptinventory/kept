@@ -56,8 +56,8 @@ describe('the location page', () => {
     expect(screen.getByRole('button', { name: 'Sort them' })).toBeInTheDocument();
     const rows = within(await list('Contents of Home')).getAllByRole('link');
     const names = rows.map((r) => r.textContent ?? '');
-    // Places first (never the Unplaced area as a row), then things.
-    expect(names[0]).toMatch(/^Living room/);
+    // Places first, A to Z (never the Unplaced area as a row), then things.
+    expect(names[0]).toMatch(/^Bedroom/);
     expect(names.findIndex((n) => n.startsWith('Kitchen'))).toBeLessThan(
       names.findIndex((n) => n.includes('Galaxy S23')),
     );

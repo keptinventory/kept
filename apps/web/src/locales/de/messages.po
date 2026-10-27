@@ -27228,3 +27228,11 @@ msgstr "Homebox v0.26.1 oder neuer (v0.27.0 empfohlen): Sammlung → Werkzeuge �
 #: src/components/connections/token-create.tsx
 msgid "On a home network without HTTPS, the person who runs this Kept can make one on the server: kept admin token create."
 msgstr "In einem Heimnetz ohne HTTPS kann die Person, die dieses Kept betreibt, eins auf dem Server erstellen: kept admin token create."
+
+#: src/components/places/contents-list.tsx
+msgid "Things: sort by"
+msgstr "Gegenstände: sortieren nach"
+
+#: src/components/places/tree.tsx
+msgid "{count, plural, one {+# box} other {+# boxes}}"
+msgstr "{count, plural, one {+# Kiste} other {+# Kisten}}"

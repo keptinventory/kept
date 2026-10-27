@@ -7,6 +7,7 @@ import {
   type ExportPdfOutcome,
   formatMoney,
   type Lifecycle,
+  naturalCompare,
   printedCode,
 } from '@kept/shared';
 import type pg from 'pg';
@@ -14,6 +15,7 @@ import type { Pools } from '../../db/pools.js';
 import { type Scope, withScope } from '../../db/scope.js';
 import { downloadName } from '../../files/views.js';
 import { notFound } from '../../http/errors.js';
+import { placeOrderSql } from '../../places/order.js';
 import {
   type GatheredThing,
   MAX_THINGS,
@@ -206,7 +208,6 @@ export async function buildReadableCopy(
   const intlLocale = lang === 'ar' ? 'ar-EG' : 'en-GB';
   const numberingSystem = digits === 'eastern' ? 'arab' : 'latn';
   const nf = new Intl.NumberFormat(intlLocale, { numberingSystem, maximumFractionDigits: 3 });
-  const collator = new Intl.Collator(lang, { numeric: true, sensitivity: 'base' });
   const reportOptions: ReportOptions = {
     filters: {
       placeIds: [],
@@ -237,8 +238,9 @@ export async function buildReadableCopy(
     if (!loc) throw notFound();
     const gate = await gateFor(tx, locationId, scope);
     const { rows: places } = await client.query<PlaceRow>(
-      `SELECT id, parent_id, name, is_unplaced FROM public.places
-        WHERE location_id = $1 ${options.trashed ? '' : 'AND deleted_at IS NULL'}`,
+      `SELECT p.id, p.parent_id, p.name, p.is_unplaced FROM public.places p
+        WHERE p.location_id = $1 ${options.trashed ? '' : 'AND p.deleted_at IS NULL'}
+        ORDER BY ${placeOrderSql('p')}`,
       [locationId],
     );
     const things: Collected[] = [];
@@ -362,7 +364,8 @@ export async function buildReadableCopy(
   };
 
   const byPlace = new Map<string, ReadableThing[]>();
-  const sorted = [...read.things].sort((a, b) => collator.compare(a.thing.name, b.thing.name));
+  // The app's order (places/order.ts): places come in it from the query, things are sorted here.
+  const sorted = [...read.things].sort((a, b) => naturalCompare(a.thing.name, b.thing.name));
   for (const c of sorted) {
     const list = byPlace.get(c.placeId) ?? [];
     list.push(viewThing(c));
@@ -377,9 +380,8 @@ export async function buildReadableCopy(
     children.set(parent, list);
   }
   for (const list of children.values()) {
-    list.sort((a, b) =>
-      a.is_unplaced !== b.is_unplaced ? (a.is_unplaced ? 1 : -1) : collator.compare(a.name, b.name),
-    );
+    // Stable: siblings keep the query's order, the Unplaced area goes last.
+    list.sort((a, b) => Number(a.is_unplaced) - Number(b.is_unplaced));
   }
   const count = (n: number) => words.thingCount(n, nf.format(n));
   const places: ReadablePlace[] = [];

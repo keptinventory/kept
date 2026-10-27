@@ -23,6 +23,7 @@ import {
 import { assertClientId, checkVersion, pageOf } from '../http/conventions.js';
 import { AppError, forbidden, invalid, notFound } from '../http/errors.js';
 import { requireCan, requireMembership } from '../locations/access.js';
+import { placeOrderSql, treeWalk } from '../places/order.js';
 import type { FileStorage } from '../storage/blob-store.js';
 
 // Renters' condition reports (1.x, D171, D174; D235). A report is one walk-through of a location,
@@ -411,23 +412,21 @@ async function startingRooms(
   client: pg.ClientBase,
   locationId: string,
 ): Promise<{ id: string; name: string }[]> {
-  const { rows } = await client.query<{ id: string; name: string; is_room: boolean }>(
-    `WITH RECURSIVE tree AS (
-       SELECT p.id, p.name, p.kind_key, ARRAY[p.sort::bigint] AS sorts, ARRAY[p.name] AS names,
-              0 AS depth
-         FROM public.places p
-        WHERE p.location_id = $1 AND p.parent_id IS NULL AND p.deleted_at IS NULL
-          AND NOT p.is_unplaced
-       UNION ALL
-       SELECT c.id, c.name, c.kind_key, t.sorts || c.sort::bigint, t.names || c.name, t.depth + 1
-         FROM public.places c JOIN tree t ON c.parent_id = t.id
-        WHERE c.location_id = $1 AND c.deleted_at IS NULL AND t.depth < 20
-     )
-     SELECT id, name, kind_key = 'room' AS is_room FROM tree
-      WHERE kind_key = 'room' OR depth = 0
-      ORDER BY sorts, names, id`,
+  // Every live place in sibling order, then walked depth first: the tree's own order.
+  const { rows: all } = await client.query<{
+    id: string;
+    parent_id: string | null;
+    name: string;
+    kind_key: string;
+  }>(
+    `SELECT p.id, p.parent_id, p.name, p.kind_key FROM public.places p
+      WHERE p.location_id = $1 AND p.deleted_at IS NULL AND NOT p.is_unplaced
+      ORDER BY ${placeOrderSql('p')}`,
     [locationId],
   );
+  const rows = treeWalk(all, { orphans: 'drop' })
+    .filter((r) => r.depth <= 20 && (r.kind_key === 'room' || r.depth === 0))
+    .map((r) => ({ id: r.id, name: r.name, is_room: r.kind_key === 'room' }));
   const rooms = rows.filter((r) => r.is_room);
   return (rooms.length > 0 ? rooms : rows).slice(0, MAX_CONDITION_ROOMS);
 }

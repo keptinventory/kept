@@ -549,6 +549,8 @@ export type SnapPlace = {
   icon: string | null;
   isUnplaced: boolean;
   sort: number;
+  /** When it was made (floors keep this order among siblings); absent in an older copy. */
+  createdAt?: string;
   deleted: boolean;
 };
 

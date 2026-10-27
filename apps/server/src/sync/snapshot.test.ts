@@ -455,6 +455,12 @@ describe('deltas', () => {
     expect(allOf(pages, 'places')).toEqual([
       expect.objectContaining({ id: shelf, name: 'Top shelf', deleted: false }),
     ]);
+    // When it was made: the phone orders floors among siblings by it, as the server does.
+    const [made] = await own<{ created_at: Date }>(
+      'SELECT created_at FROM public.places WHERE id = $1',
+      [shelf],
+    );
+    expect(allOf(pages, 'places')[0]?.createdAt).toBe(made?.created_at.toISOString());
     const changed = new Map(allOf(pages, 'things').map((x) => [x.id, x]));
     expect(changed.get(drill)?.lastSeenAt).toBe('2026-09-20T10:00:00.000Z');
     expect(changed.get(box)?.deleted).toBe(true);

@@ -11,6 +11,7 @@
  *   throws `StorageFullError` (persist.ts).
  */
 import {
+  comparePlaceSiblings,
   KEPT_VERSION,
   PAYLOAD_VERSION,
   type QueueItem,
@@ -215,7 +216,7 @@ export class DexieStore implements SyncStore {
   }
   async placesOf(locationId: string) {
     const rows = await this.db.places.where('locationId').equals(locationId).toArray();
-    return rows.sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name));
+    return rows.sort(comparePlaceSiblings);
   }
 
   async contentsOf(target: { placeId?: string; containerId?: string }) {

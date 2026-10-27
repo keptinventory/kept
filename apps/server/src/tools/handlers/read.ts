@@ -7,6 +7,7 @@ import { decodeCursor } from '../../http/conventions.js';
 import { invalid } from '../../http/errors.js';
 import { kitView } from '../../kits/service.js';
 import { listPaperwork } from '../../paperwork/library.js';
+import { placeOrderSql } from '../../places/order.js';
 import { SearchQuery } from '../../search/query.js';
 import { search } from '../../search/service.js';
 import { gateFor } from '../../serialize/gates.js';
@@ -403,8 +404,8 @@ async function thingsIn(op: Op, filter: { placeId: string } | { containerId: str
 
 async function childPlaces(op: Op, placeId: string): Promise<string[]> {
   const { rows } = await op.client.query<{ id: string }>(
-    `SELECT id FROM public.places WHERE parent_id = $1 AND deleted_at IS NULL
-      ORDER BY sort, lower(name), id`,
+    `SELECT p.id FROM public.places p WHERE p.parent_id = $1 AND p.deleted_at IS NULL
+      ORDER BY ${placeOrderSql('p')}`,
     [placeId],
   );
   return rows.map((r) => r.id);

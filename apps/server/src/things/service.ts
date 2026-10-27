@@ -19,9 +19,10 @@ import type { Scope, Tx } from '../db/scope.js';
 import { enqueueEmbed, enqueueEmbeds } from '../embeddings/job.js';
 import { assertClientId, checkVersion, decodeCursor, encodeCursor } from '../http/conventions.js';
 import { AppError, forbidden, invalid, notFound } from '../http/errors.js';
-import { filterOf, lowerIds, matchOf } from '../http/list-filters.js';
+import { filterOf, isNot, lowerIds, matchOf } from '../http/list-filters.js';
 import type { JobQueue } from '../jobs/queue.js';
 import { requireMembership } from '../locations/access.js';
+import { NATURAL, thingNameSql } from '../places/order.js';
 import { allocateShortId } from '../places/short-id.js';
 import { enqueueReindex } from '../search/jobs.js';
 import { STATE_SQL } from '../search/query.js';
@@ -1377,7 +1378,11 @@ export async function thingListWhere(
     const f = filterOf(lowerIds(values), name, q.not);
     if (f) where.push(matchOf(cond(`${p(f.values)}::uuid[]`), f.not));
   };
-  many(locationIds, 'locationId', (ids) => `t.location_id = ANY (${ids})`);
+  // One location, the common case: a plain equality, so the list reads things_name_sort_idx in
+  // order (places/order.test.ts).
+  if (locationIds.length === 1 && !isNot(q.not, 'locationId'))
+    where.push(`t.location_id = ${p(locationIds[0])}::uuid`);
+  else many(locationIds, 'locationId', (ids) => `t.location_id = ANY (${ids})`);
   if (q.placeId) where.push(`t.place_id = ${p(q.placeId)}::uuid`);
   if (q.containerId) where.push(`t.container_id = ${p(q.containerId)}::uuid`);
   many(q.typeId, 'typeId', (ids) => `t.type_id = ANY (${ids})`);
@@ -1442,7 +1447,7 @@ export function thingListOrder(q: Pick<ListQuery, 'group' | 'sort' | 'dir'>): {
       ? 't.updated_at'
       : q.sort === 'lastSeen'
         ? 't.last_seen_at'
-        : `lower(coalesce(t.name, '')) ${ICU}`;
+        : thingNameSql('t');
   return { group, sort, desc };
 }
 
@@ -1458,35 +1463,8 @@ export async function listThings(
   files: FileStorage | null,
   q: ListQuery,
 ): Promise<{ items: ThingRow[]; next_cursor: string | null }> {
-  const values: unknown[] = [];
-  const p = (v: unknown) => {
-    values.push(v);
-    return `$${values.length}`;
-  };
-  const where = await thingListWhere(client, q, p);
-  const { group, sort, desc } = thingListOrder(q);
-  const sortCast = q.sort === 'name' ? `::text ${ICU}` : '::timestamptz';
-
-  if (q.cursor) {
-    const parsed = ListCursor.safeParse(decodeCursor(q.cursor));
-    if (!parsed.success) throw invalid('The cursor is not valid; start again from the first page.');
-    const [g, s, lastId] = parsed.data;
-    const G = `${p(g)}::text ${ICU}`;
-    const S = `${p(s)}${sortCast}`;
-    const I = `${p(lastId)}::uuid`;
-    where.push(`(${group} > ${G}
-                 OR (${group} = ${G} AND (${sort} ${desc ? '<' : '>'} ${S}
-                                          OR (${sort} = ${S} AND t.id > ${I}))))`);
-  }
-
-  const { rows } = await client.query<{ id: string; g: string; s: string }>(
-    `SELECT t.id, ${group} AS g, (${sort})::text AS s
-       FROM public.things t LEFT JOIN public.types ty ON ty.id = t.type_id
-      WHERE ${where.join('\n        AND ')}
-      ORDER BY ${group}, ${sort} ${desc ? 'DESC' : 'ASC'}, t.id
-      LIMIT ${p(q.limit + 1)}`,
-    values,
-  );
+  const { text, values } = await listThingsSql(client, q);
+  const { rows } = await client.query<{ id: string; g: string; s: string }>(text, values);
   const page = rows.slice(0, q.limit);
   const last = page.at(-1);
   return {
@@ -1496,5 +1474,45 @@ export async function listThings(
       page.map((r) => r.id),
     ),
     next_cursor: rows.length > q.limit && last ? encodeCursor([last.g, last.s, last.id]) : null,
+  };
+}
+
+/** The SQL of one page of GET /things: `limit + 1` rows of the id, the group key and the sort key. */
+export async function listThingsSql(
+  client: pg.ClientBase,
+  q: ListQuery,
+): Promise<{ text: string; values: unknown[] }> {
+  const values: unknown[] = [];
+  const p = (v: unknown) => {
+    values.push(v);
+    return `$${values.length}`;
+  };
+  const where = await thingListWhere(client, q, p);
+  const { group, sort, desc } = thingListOrder(q);
+  const sortCast = q.sort === 'name' ? `::text ${NATURAL}` : '::timestamptz';
+
+  if (q.cursor) {
+    const parsed = ListCursor.safeParse(decodeCursor(q.cursor));
+    if (!parsed.success) throw invalid('The cursor is not valid; start again from the first page.');
+    const [g, s, lastId] = parsed.data;
+    const S = `${p(s)}${sortCast}`;
+    const I = `${p(lastId)}::uuid`;
+    if ((q.group ?? 'none') === 'none' && !desc) {
+      // No group, ascending: a row comparison the index answers as a range.
+      where.push(`(${sort}, t.id) > (${S}, ${I})`);
+    } else {
+      const G = `${p(g)}::text ${ICU}`;
+      where.push(`(${group} > ${G}
+                 OR (${group} = ${G} AND (${sort} ${desc ? '<' : '>'} ${S}
+                                          OR (${sort} = ${S} AND t.id > ${I}))))`);
+    }
+  }
+  return {
+    text: `SELECT t.id, ${group} AS g, (${sort})::text AS s
+       FROM public.things t LEFT JOIN public.types ty ON ty.id = t.type_id
+      WHERE ${where.join('\n        AND ')}
+      ORDER BY ${group}, ${sort} ${desc ? 'DESC' : 'ASC'}, t.id
+      LIMIT ${p(q.limit + 1)}`,
+    values,
   };
 }

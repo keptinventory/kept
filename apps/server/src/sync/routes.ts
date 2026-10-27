@@ -89,6 +89,7 @@ const SnapshotResponse = z.object({
         icon: z.string().nullable(),
         isUnplaced: z.boolean(),
         sort: z.number().int(),
+        createdAt: z.string().optional(),
         deleted: z.boolean(),
       }),
     ),

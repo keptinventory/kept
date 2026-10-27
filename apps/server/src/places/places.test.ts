@@ -219,6 +219,8 @@ describe('GET /api/v1/locations/:locationId/places (the tree)', () => {
         shortCode: 'ST4DY2',
         thingCount: 2,
         childCount: 1,
+        createdAt: expect.stringMatching(/^\d{4}-\d\d-\d\dT/),
+        boxCount: 0,
       });
       expect(byId.get(shelf)).toMatchObject({
         parentId: study,

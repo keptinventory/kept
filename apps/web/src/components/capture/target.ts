@@ -10,7 +10,7 @@
  * Everything here reads the phone's snapshot, so it works offline.
  */
 import type { SnapLocation, SnapPlace, SnapThing } from '@kept/shared';
-import { can } from '@kept/shared';
+import { can, comparePlaceSiblings } from '@kept/shared';
 import type { OfflineStore } from '@/offline/store';
 import type { Target } from './enqueue';
 
@@ -50,7 +50,7 @@ export function flattenPlaces(places: readonly SnapPlace[]): { place: SnapPlace;
     kids.set(parent, [...(kids.get(parent) ?? []), p]);
   }
   const order = (a: SnapPlace, b: SnapPlace) =>
-    Number(b.isUnplaced) - Number(a.isUnplaced) || a.sort - b.sort || a.name.localeCompare(b.name);
+    Number(b.isUnplaced) - Number(a.isUnplaced) || comparePlaceSiblings(a, b);
   const out: { place: SnapPlace; depth: number }[] = [];
   const walk = (p: SnapPlace, depth: number) => {
     out.push({ place: p, depth });
@@ -64,7 +64,7 @@ export function flattenPlaces(places: readonly SnapPlace[]): { place: SnapPlace;
 export const roomsOf = (places: readonly SnapPlace[]) =>
   places
     .filter((p) => !p.deleted && !p.isUnplaced && p.parentId === null)
-    .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name));
+    .sort(comparePlaceSiblings);
 
 /** A location with no things in any of its places yet. */
 export async function isNewHome(store: OfflineStore, places: readonly SnapPlace[]) {

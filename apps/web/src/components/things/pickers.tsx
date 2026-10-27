@@ -10,7 +10,7 @@
  */
 import { useLingui } from '@lingui/react/macro';
 import { useQuery } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { composeRenderProps, type Key, ListBoxItem } from 'react-aria-components';
 import {
   inventoryApi,
@@ -24,6 +24,7 @@ import type { MoveTarget, TypeNode } from '@/api/inventory/types';
 import { useLocations } from '@/api/queries';
 import type { LocationDetail, LocationSummary } from '@/api/types';
 import { CheckIcon } from '@/components/icons';
+import { flattenTree } from '@/components/places/tree';
 import { TypeIcon } from '@/components/type-icon';
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { useLocationName } from '@/lib/labels';
@@ -188,6 +189,9 @@ export function CurrencyPicker({
 
 export type WhereValue = { locationId: string; target: MoveTarget };
 
+/** Containers the picker reads at most: 10 pages of 200. */
+const MAX_CONTAINER_PAGES = 10;
+
 const keyOf = (t: MoveTarget) => ('placeId' in t ? `p:${t.placeId}` : `c:${t.containerId}`);
 const targetOf = (k: string): MoveTarget =>
   k.startsWith('p:') ? { placeId: k.slice(2) } : { containerId: k.slice(2) };
@@ -214,7 +218,14 @@ export function WherePicker({
   const locations = useLocations();
   const writable = (locations.data ?? []).filter((l) => l.role !== 'viewer');
   const places = usePlaces(value.locationId);
-  const things = useThings({ locationId: value.locationId, limit: 200 });
+  // The location's containers, every page: the server's container filter, so a box is offered
+  // however many other things the location has.
+  const things = useThings({ locationId: value.locationId, container: 1, limit: 200 });
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = things;
+  const pages = things.data?.pages.length ?? 0;
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage && pages < MAX_CONTAINER_PAGES) void fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, pages]);
 
   const tree = places.data?.places ?? [];
   const byPlace = new Map(tree.map((p) => [p.id, p]));
@@ -227,7 +238,7 @@ export function WherePicker({
     }
     return out;
   };
-  const placeOptions: IconOption[] = tree.map((p) => ({
+  const placeOptions: IconOption[] = flattenTree(tree).map(({ place: p }) => ({
     id: `p:${p.id}`,
     label: p.isUnplaced ? t`Unplaced` : p.name,
     icon: p.icon ?? 'lucide:map-pin',
