@@ -11,7 +11,8 @@ import { withSystem } from '../db/scope.js';
 // boot, as kept_system, under an advisory lock; its hash goes into instance_settings behind the
 // key's primary key, and only the process whose INSERT went in prints it, exactly
 // `KEPT SETUP CODE: XXX-XXX`, so it appears once in `docker logs` however many replicas start.
-// The migrate job never makes one. `KEPT_SETUP_CODE` presets it (app stores, D107). Using it
+// The migrate job never makes one. `KEPT_SETUP_CODE` presets it (app stores, D107, and `kept
+// init`), replacing a code an earlier boot stored while setup is still pending. Using it
 // (POST /api/v1/setup) deletes the hash; `kept admin setup-code` re-issues it while setup is
 // still pending.
 //
@@ -112,7 +113,19 @@ export async function ensureSetupCode(
   return withSystem(systemPool, async (_tx, client) => {
     await client.query('SELECT pg_advisory_xact_lock($1)', [SETUP_LOCK]);
     if (!(await setupNeeded(client))) return null;
-    const code = opts.preset !== undefined ? normaliseCrockford(opts.preset) : generateSetupCode();
+    if (opts.preset !== undefined) {
+      // The environment beats what an earlier boot stored: `kept init` run again before setup is
+      // finished prints a new code, and that one must work. Unchanged, nothing is printed again.
+      const code = normaliseCrockford(opts.preset);
+      if (setupCodeMatches(await readStoredSetupCode(client), code)) return null;
+      await client.query(
+        `INSERT INTO public.instance_settings (key, value) VALUES ($1, $2)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+        [SETUP_CODE_KEY, JSON.stringify(hashSetupCode(code))],
+      );
+      return formatSetupCode(code);
+    }
+    const code = generateSetupCode();
     const { rowCount } = await client.query(
       `INSERT INTO public.instance_settings (key, value) VALUES ($1, $2)
        ON CONFLICT (key) DO NOTHING`,

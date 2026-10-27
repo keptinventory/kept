@@ -15,7 +15,7 @@ For moving a whole server, or a household between servers, see also
 | Source | What it is |
 |---|---|
 | **A spreadsheet (CSV)** | One thing per row, with a header row naming the columns; also Homebox's own spreadsheet export |
-| **A Homebox export** | The ZIP from Homebox v0.26.1 or newer, v0.27.0 recommended (Collection settings → Export) |
+| **A Homebox export** | The ZIP from Homebox v0.26.1 or newer, v0.27.0 recommended (Collection → Tools → Backup & Restore → Create Backup → Download) |
 | **A Kept export** | A location exported from this Kept or another one |
 
 Every import is checked before anything is written: **Check the import** shows **What the import
@@ -67,7 +67,8 @@ are only imported if you match them to a type's field. For all of that, use the 
 ### A Homebox export
 
 Kept reads Homebox's own export ZIP, which holds everything, including the files. In Homebox,
-open **Collection settings → Export** and download the ZIP. It exists from Homebox v0.26: use
+open **Collection → Tools → Backup & Restore**, choose **Create Backup**, and **Download** the
+backup once it is listed. It exists from Homebox v0.26: use
 v0.26.1 or newer (v0.26.0's Docker image loses attachments), and v0.27.0 if you can. A Homebox
 older than v0.26 has no export: see
 [coming from an older Homebox](#coming-from-an-older-homebox). A ZIP without Homebox's
@@ -80,17 +81,41 @@ to v0.27.0, which doesn't have this limit.
 
 After the upload, Kept shows the collection and its export date. It goes into **A new location**
 or **A location you run**, where things already there stay and a
-re-run adds only what's new. **Connect to Homebox
+re-run adds only what's new. A new location is made when you press **Import**, not before: an
+import you leave at its check leaves nothing behind. **Connect to Homebox
 (optional)** reads the collection's currency, which the ZIP doesn't carry: give Homebox's address
-and an API key, or an email and password. They're used once and never stored. Then choose:
+and an API key, or an email and password. They're used once and never stored.
 
-- **Prices are in**: the currency. Choosing one relabels the amounts; it doesn't convert them.
+For a new location, **What to track** comes next: **Essentials** (rooms, boxes, labels and search),
+and on top of it, ticked, what the backup uses: **Prices on 10 things** turns on Money, **5
+warranties** turns on Warranties, **2 maintenance entries** turns on Schedules. Untick one and
+that data stays in the things' notes as text, which can't become records later. A backup without
+any of it starts with Essentials alone. **Also for Personal** gives your Personal location the
+same, so the menu only shows what you track. Change either any time in **Location settings → What
+to track**; turning something off never deletes anything.
+
+Then choose:
+
+- **Prices are in**: the currency, asked only when the backup has prices. Choosing one relabels the
+  amounts; it doesn't convert them.
 - **Archived items**: **Archived** (the default: archived in Kept too, still yours, put away),
   **In use**, or **Leave out**. An archived item with sale details ends sold.
+- **Items with quantity 0**: **Keep 0 or archive** (the default: a type you run out of keeps 0,
+  anything else comes in archived), **Set to 1**, or **Leave out**. Each one that comes in has
+  "Quantity in Homebox: 0" in its notes. An item that holds other items is never archived or left
+  out for its 0, and a location that becomes a box has no quantity to check.
 - **Add an "Insured" yes/no field**, and **Leave out Homebox's starter places and tags** (the
   eight rooms and six tags every new Homebox collection starts with, when they're unused).
+- **These look like boxes**: locations named like a box or bin (Box 01, Bin 2, Kiste 3…) that hold
+  no other location. Tick them, or **Choose all**, and they come in as boxes: things that hold
+  things, with their tags and what's in them. The rest come in as places.
 - **Custom fields**: for each, **Add to the type** or **Keep in notes**.
-- **Types**: match each Homebox type to a Kept type, or create it.
+- **Types**: for each Homebox type, a Kept type, **New type…** with a name you type, or **No
+  type**. Homebox 0.27's own types, `global.item` and `global.location`, read as **Item** and
+  **Location**, as in Homebox; the catch-all **Item** starts as **No type**.
+
+The check lists every entry that needs a look, each with what happened to it in words, and the
+import's page keeps that list after the import: open it from **Activity** (Ran an import).
 
 What comes over:
 
@@ -98,7 +123,7 @@ What comes over:
 |---|---|
 | Collection | One location |
 | Locations (nested) | Rooms and spots, keeping the tree |
-| Items | Things; an item holding others becomes a box |
+| Items | Things; an item holding others becomes a box, never its whole type |
 | Manufacturer, model, serial | Brand, model, serial |
 | Purchase date, shop and price | A purchase with its shop |
 | Warranty, lifetime warranty | A warranty |
@@ -110,7 +135,21 @@ What comes over:
 | Templates | Account templates, as far as they map |
 
 Notifiers, members and roles aren't imported. Where a module is off in the location, that
-record's text is kept in the thing's notes.
+record's text is kept in the thing's notes. A location's description isn't kept (places have no
+notes); the check names each one.
+
+#### Repairing an import made before 1.13.0
+
+Imports before Kept 1.13.0 turned a quantity of 0 into 1, made a whole type a box type when one of
+its items held another (so every thing of it opened on an empty Contents tab), and could create a
+type named `global.item`. Open the import from **Activity** (Ran an import): **Repair this import**
+lists what it can put right, by name:
+
+- **Archive the things that had quantity 0 in Homebox** (still in use, with quantity 1);
+- **Make the type an ordinary type again** (a thing that holds things stays a box);
+- **Rename `global.item` to Item**.
+
+Tick what you want and press **Repair**. One **Undo** takes it all back.
 
 **Old labels keep working.** Each Homebox asset ID (`000-001`) is remembered. Kept's scanner
 recognises a Homebox label and opens the imported thing; if you point the old Homebox hostname at
@@ -140,8 +179,8 @@ your Homebox stays as it is:
 
    The first start updates the database in one go. It also adds Homebox's eight starter rooms,
    which Kept leaves out by default when they're empty.
-3. **Sign in** with your usual account and open **Collection settings → Export**. Download the
-   ZIP.
+3. **Sign in** with your usual account and open **Collection → Tools → Backup & Restore**.
+   Choose **Create Backup**, then **Download** the backup once it is listed.
 4. **Import it into Kept** as [a Homebox export](#a-homebox-export).
 5. Stop the copy and delete it once the import is done.
 

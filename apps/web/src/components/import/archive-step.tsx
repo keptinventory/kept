@@ -21,6 +21,7 @@ import { ApiError, isApiError } from '@/api/client';
 import { portabilityPaths } from '@/api/portability/paths';
 import { portabilityApi } from '@/api/portability/queries';
 import type { ArchiveImportRun } from '@/api/portability/types';
+import { AiDisclosure } from '@/components/ai/disclosure';
 import { DocumentIcon } from '@/components/icons';
 import { Notice, useErrorText } from '@/components/page';
 import { useFileSize } from '@/components/portability/size';
@@ -338,12 +339,23 @@ export function ArchiveStep({
       ) : null}
 
       {source === 'homebox_zip' ? (
-        <Notice tone="info" title={<Trans>If Homebox says "Topic has been Shutdown"</Trans>}>
-          <Trans>
-            Restart Homebox and export again: v0.26 exports once each time it starts. v0.27.0
-            doesn't have this limit.
-          </Trans>
-        </Notice>
+        <div className="grid gap-2">
+          <Notice tone="info">
+            <Trans>
+              In Homebox, open Collection → Tools → Backup & Restore and choose Create Backup. When
+              the backup is listed, Download it: that .zip is the file.
+            </Trans>
+          </Notice>
+          {/* Only v0.26 hits this, and the ZIP doesn't say its version: folded, not hidden. */}
+          <AiDisclosure quiet title={<Trans>If Homebox says "Topic has been Shutdown"</Trans>}>
+            <p className="m-0 text-small text-ink-2">
+              <Trans>
+                Restart Homebox and export again: v0.26 exports once each time it starts. v0.27.0
+                doesn't have this limit.
+              </Trans>
+            </p>
+          </AiDisclosure>
+        </div>
       ) : (
         <Notice tone="info">
           <Trans>

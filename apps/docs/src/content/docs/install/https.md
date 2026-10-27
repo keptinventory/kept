@@ -36,9 +36,17 @@ KEPT_DOMAIN=kept.example.org
 KEPT_PUBLIC_URL=https://kept.example.org
 ```
 
+Caddy reads `docker/caddy/Caddyfile` next to `compose.yaml`. A checkout of the repository has it;
+an install from `compose.yaml` alone downloads it once:
+
 ```sh
+mkdir -p docker/caddy
+curl -fsSLo docker/caddy/Caddyfile https://raw.githubusercontent.com/keptinventory/kept/v1.13.0/docker/caddy/Caddyfile
 docker compose --profile https up -d
 ```
+
+Without the file, `docker compose --profile https up -d` stops with "bind source path does not
+exist". Any other proxy works instead; it forwards to Kept's port, as in the sections below.
 
 Caddy gets and renews the certificate and forwards everything to Kept. Compose gives Caddy a fixed
 address on its own network and passes that address to Kept as `KEPT_TRUSTED_PROXIES`, so Kept

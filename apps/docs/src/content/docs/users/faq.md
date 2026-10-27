@@ -69,12 +69,25 @@ its own members and roles; sharing the garage shares nothing else. One person ca
 locations, and everyone has a private Personal location. See
 [your first minutes](/users/first-run/#5-invite-people).
 
+## How is Kept different from Homebox?
+
+Both keep track of what you own and where it is. Kept also has:
+
+- **A 3D map** of your floors, rooms, shelves and boxes.
+- **Vehicles**: readings, services, fuel and their costs.
+- **Reminders** for warranties, services, loans and low stock.
+- **Offline use** on your phone, with labels you print and scan.
+- **AI, if you want it**: capture from a photo, and an MCP server for assistants.
+
+It imports a Homebox backup, so you can try it with your own things.
+
 ## Can I move from Homebox?
 
-Yes. From Homebox v0.26.1 or newer (v0.27.0 recommended), import its export ZIP, check what will
-happen, then import. Photos, receipts, warranties, maintenance and tags come over, and old Homebox
+Yes. From Homebox v0.26.1 or newer (v0.27.0 recommended), make a backup in Homebox (**Tools →
+Backup & Restore → Create Backup**), import that ZIP into Kept, check what will happen, then
+import. Photos, receipts, warranties, maintenance and tags come over, and old Homebox
 labels still scan. See [import and export](/users/import-export/#a-homebox-export). An older
-Homebox has no export ZIP: update a copy of it first, or import its spreadsheet. See
+Homebox has no backup Kept can read: update a copy of it first, or import its spreadsheet. See
 [coming from an older Homebox](/users/import-export/#coming-from-an-older-homebox).
 
 ## How do I back it up?
@@ -101,6 +114,10 @@ The GNU Affero General Public License, version 3 (AGPL-3.0). You can run, change
 you run a changed version for other people over a network, you must offer them its source. The
 text is in the repository's
 [LICENSE](https://github.com/keptinventory/kept/blob/main/LICENSE).
+
+## Is Kept free? Will it be paid?
+
+Self-hosted Kept is free and open source. Mobile and desktop apps and a cloud version are in progress.
 
 ## Is there a release?
 
