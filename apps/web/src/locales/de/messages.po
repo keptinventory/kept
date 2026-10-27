@@ -27366,3 +27366,39 @@ msgstr "Orte in Kisten umwandeln"
 #: src/routes/_app/p.$id.tsx
 msgid "Turn places into boxes…"
 msgstr "Orte in Kisten umwandeln…"
+
+#: src/components/import/entity-report.tsx
+msgid "Comes in, with a note"
+msgstr "Kommt an, mit einer Notiz"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Left out: no item has a value for it."
+msgstr "Ausgelassen: Kein Artikel hat einen Wert dafür."
+
+#: src/components/import/homebox-choices.tsx
+msgid "New type \"{typeName}\""
+msgstr "Neuer Typ „{typeName}“"
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it comes in as 1."
+msgstr "Menge 0 in Homebox; kommt mit 1 an."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it comes in archived."
+msgstr "Menge 0 in Homebox; kommt archiviert an."
+
+#: src/components/import/labels.ts
+msgid "It holds other items, so it comes in as a box."
+msgstr "Es enthält andere Artikel und kommt darum als Kiste an."
+
+#: src/components/import/labels.ts
+msgid "A location that comes in as a box, as chosen."
+msgstr "Ein Ort, der wie gewählt als Kiste ankommt."
+
+#: src/components/import/labels.ts
+msgid "A location inside an item becomes a box."
+msgstr "Ein Ort in einem Artikel wird zu einer Kiste."
+
+#: src/components/import/labels.ts
+msgid "A location inside an item became a box."
+msgstr "Ein Ort in einem Artikel wurde zu einer Kiste."

@@ -27366,3 +27366,39 @@ msgstr "Turn places into boxes"
 #: src/routes/_app/p.$id.tsx
 msgid "Turn places into boxes…"
 msgstr "Turn places into boxes…"
+
+#: src/components/import/entity-report.tsx
+msgid "Comes in, with a note"
+msgstr "Comes in, with a note"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Left out: no item has a value for it."
+msgstr "Left out: no item has a value for it."
+
+#: src/components/import/homebox-choices.tsx
+msgid "New type \"{typeName}\""
+msgstr "New type \"{typeName}\""
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it comes in as 1."
+msgstr "Quantity 0 in Homebox; it comes in as 1."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it comes in archived."
+msgstr "Quantity 0 in Homebox; it comes in archived."
+
+#: src/components/import/labels.ts
+msgid "It holds other items, so it comes in as a box."
+msgstr "It holds other items, so it comes in as a box."
+
+#: src/components/import/labels.ts
+msgid "A location that comes in as a box, as chosen."
+msgstr "A location that comes in as a box, as chosen."
+
+#: src/components/import/labels.ts
+msgid "A location inside an item becomes a box."
+msgstr "A location inside an item becomes a box."
+
+#: src/components/import/labels.ts
+msgid "A location inside an item became a box."
+msgstr "A location inside an item became a box."

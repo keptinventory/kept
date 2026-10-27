@@ -27366,3 +27366,39 @@ msgstr "Transformer des emplacements en boîtes"
 #: src/routes/_app/p.$id.tsx
 msgid "Turn places into boxes…"
 msgstr "Transformer des emplacements en boîtes…"
+
+#: src/components/import/entity-report.tsx
+msgid "Comes in, with a note"
+msgstr "Arrive, avec une note"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Left out: no item has a value for it."
+msgstr "Laissé de côté : aucun article n’a de valeur pour ce champ."
+
+#: src/components/import/homebox-choices.tsx
+msgid "New type \"{typeName}\""
+msgstr "Nouveau type « {typeName} »"
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it comes in as 1."
+msgstr "Quantité 0 dans Homebox ; il arrivera à 1."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it comes in archived."
+msgstr "Quantité 0 dans Homebox ; il arrivera archivé."
+
+#: src/components/import/labels.ts
+msgid "It holds other items, so it comes in as a box."
+msgstr "Il contient d’autres articles, il arrivera donc comme boîte."
+
+#: src/components/import/labels.ts
+msgid "A location that comes in as a box, as chosen."
+msgstr "Un emplacement qui arrivera comme boîte, comme choisi."
+
+#: src/components/import/labels.ts
+msgid "A location inside an item becomes a box."
+msgstr "Un emplacement à l'intérieur d'un article deviendra une boîte."
+
+#: src/components/import/labels.ts
+msgid "A location inside an item became a box."
+msgstr "Un emplacement à l'intérieur d'un article est devenu une boîte."
