@@ -45,6 +45,7 @@ import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
 import { toast } from '@/components/ui/toast';
 import { addressOf } from '@/lib/address';
+import { copyText } from '@/lib/clipboard';
 import { cn } from '@/lib/utils';
 import { useSetArchived } from './archive';
 import { useThingCtx } from './context';
@@ -78,7 +79,7 @@ export function useCopyLink() {
   return async () => {
     try {
       // The short-ID address when there is one (D208).
-      await navigator.clipboard.writeText(`${window.location.origin}/t/${addressOf(thing)}`);
+      await copyText(`${window.location.origin}/t/${addressOf(thing)}`);
       toast({ title: t`Link copied`, tone: 'ok' });
     } catch {
       toast({

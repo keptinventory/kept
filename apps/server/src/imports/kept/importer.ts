@@ -1,3 +1,4 @@
+import { AppError } from '../../http/errors.js';
 import type { ArchiveImporter } from '../archive-types.js';
 import { type KeptLoaded, keptReport, loadKept, totalOf } from './plan.js';
 import { inspectKept, openKeptArchive } from './read.js';
@@ -13,8 +14,12 @@ export const keptImporter: ArchiveImporter<KeptLoaded> = {
   open: (files, run) => openKeptArchive(files.blobs, run.id, Number(run.archive_bytes ?? 0)),
   inspect: (archive) => inspectKept(archive),
   load: (archive) => loadKept(archive),
-  dryRun: async (c, run, loaded) => ({
-    report: await keptReport(c.client, loaded, run.location_id),
-    total: totalOf(loaded.scan),
-  }),
+  dryRun: async (c, run, loaded) => {
+    // A Kept export's location is made when it is chosen: a check always has one.
+    if (!run.location_id) throw new AppError('import_target_needed', 409);
+    return {
+      report: await keptReport(c.client, loaded, run.location_id),
+      total: totalOf(loaded.scan),
+    };
+  },
 };

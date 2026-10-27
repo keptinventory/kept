@@ -158,6 +158,13 @@ const DE_ADMIN: Record<AdminAction, (locationName: string) => Message> = {
       `Die Person, die diese Kept-Instanz betreibt, hat „${name}“ an einen neuen Eigentümer übertragen. Du bleibst dort Admin.`,
     ],
   }),
+  'token-created': () => ({
+    subject: 'Für dein Konto wurde ein Token erstellt',
+    paragraphs: [
+      'Die Person, die diese Kept-Instanz betreibt, hat auf dem Server ein persönliches Token für dein Konto erstellt, für eine App wie Home Assistant oder einen KI-Assistenten. Es kann, was du kannst, an den Standorten, für die es erstellt wurde.',
+      'Wenn du es nicht angefragt hast, widerrufe es unter Einstellungen → Verbindungen.',
+    ],
+  }),
 };
 
 // KI-Limits (D206).

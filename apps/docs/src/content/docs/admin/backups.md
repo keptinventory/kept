@@ -54,13 +54,19 @@ next to it adds the owner login and, for a directory target, the mount on both:
 services:
   kept:
     environment:
-      KEPT_OWNER_DATABASE_URL: postgres://kept_owner:${KEPT_DB_OWNER_PASSWORD}@db:5432/kept
+      KEPT_OWNER_DATABASE_URL: postgres://kept_owner:${KEPT_DB_OWNER_PASSWORD:-}@db:5432/kept
+      KEPT_DB_OWNER_PASSWORD_FILE: /owner/kept_owner
     volumes:
+      - kept-owner:/owner:ro
       - /mnt/backup/kept:/backups
   migrate:
     volumes:
       - /mnt/backup/kept:/backups
 ```
+
+The owner's password comes from the `kept-owner` volume, where the bootstrap keeps it (an install
+from before 1.13.0 with `KEPT_DB_OWNER_PASSWORD` in `.env` uses that instead, and the file line
+does nothing).
 
 Then either set the target and the password on the screen, or lock them in `.env`
 (`KEPT_BACKUP_DIR=/backups`, `KEPT_BACKUP_PASSWORD=…`).

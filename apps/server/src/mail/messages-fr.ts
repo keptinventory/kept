@@ -165,6 +165,13 @@ const FR_ADMIN: Record<AdminAction, (locationName: string) => Message> = {
       `La personne qui gère cette instance de Kept a transféré « ${name} » à un nouveau propriétaire. Vous y restez ${FR_ROLE.admin}.`,
     ],
   }),
+  'token-created': () => ({
+    subject: 'Un jeton a été créé pour votre compte',
+    paragraphs: [
+      'La personne qui gère cette instance de Kept a créé un jeton personnel pour votre compte depuis le serveur, pour une application comme Home Assistant ou un assistant d’IA. Il peut faire ce que vous pouvez faire, dans les lieux pour lesquels il a été créé.',
+      'Si vous ne l’avez pas demandé, révoquez-le dans Paramètres → Connexions.',
+    ],
+  }),
 };
 
 // Plafonds d’IA (D206).

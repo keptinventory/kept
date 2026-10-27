@@ -31,7 +31,7 @@ reach instance admins in the app, by mail and by push; each is resolved when its
 ## Metrics
 
 Set `KEPT_METRICS_TOKEN` and `/metrics` serves Prometheus text to requests that send it as a bearer
-token (`Authorization: Bearer <token>`); without the variable, the path doesn't exist.
+token (`Authorization: Bearer <token>`); without the variable, the path doesn't exist. Compose passes the variable through from `.env`.
 
 | Metric | What |
 |---|---|
