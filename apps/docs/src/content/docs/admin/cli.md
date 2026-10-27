@@ -23,6 +23,8 @@ Two kinds of command need the serving container's volumes instead:
 - `recovery-kit` reads the keys from the config volume and prints them even with no database:
   `docker compose exec kept kept admin recovery-kit`. With `KEPT_OWNER_DATABASE_URL` (below) it
   also holds the backup repository, its password and its credentials.
+- `token create` needs the keys and the serving logins, which the `kept` container has:
+  `docker compose exec kept kept admin token create …` ([below](#a-token-from-the-server)).
 - `rotate-key`, `backup`, `restore` and `export` need the keys or the files as well as the owner
   login. Give the `kept` service `KEPT_OWNER_DATABASE_URL` in a `compose.override.yaml`
   ([as for backups](/admin/backups/#turning-it-on)), then run them in a one-off container:
@@ -38,6 +40,7 @@ Two kinds of command need the serving container's volumes instead:
 | `kept admin disable-user <login>` / `enable-user <login>` | Stops an account signing in (and ends its sessions), or lets it again. |
 | `kept admin transfer-ownership <locationId> <toUserId>` | Gives a location to another owner; the previous owner becomes an admin of it. |
 | `kept admin recovery-kit [--format text\|html] [--out <file>]` | The recovery kit to keep off the server: the keys, the backup repository and its credentials, the restore steps. See [the recovery kit](/admin/recovery-kit/). |
+| `kept admin token create --user <login> --scope read\|write --name <name>` | A personal token for MCP clients and Home Assistant, printed once; `--expires <days>`, `--location <id or name>` (repeatable), `--confirm-cross-location`. From 1.13.0. See [a token from the server](#a-token-from-the-server). |
 | `kept admin gen-key` | Prints a new key, for setting `KEPT_SECRET_KEY` or `KEPT_AUTH_SECRET` yourself. |
 | `kept admin rotate-key` | Makes a new secret key current and re-wraps every stored secret. `--resume` finishes an interrupted one; `--drop <version>` removes a retired key nothing uses. |
 | `kept admin backup` | Backs up now (a restic snapshot); `--list` lists the snapshots, and any older pre-restic backups; `--accept-size` accepts a much smaller backup as the new normal. See [backups](/admin/backups/). |
@@ -53,3 +56,30 @@ Two kinds of command need the serving container's volumes instead:
 | `kept admin config` | Prints the [configuration reference](/reference/configuration/) for this version. |
 
 `kept admin seed` exists for development and refuses to run in production.
+
+## A token from the server
+
+The app makes personal tokens only over HTTPS (Settings → Connections refuses over plain `http`).
+A Kept on a home network over `http` can still connect an AI app or
+[Home Assistant](/users/home-assistant/): the person who runs the server makes the token there.
+From 1.13.0:
+
+```sh
+docker compose exec kept kept admin token create \
+  --user ibrahim@example.com --scope read --name "Home Assistant"
+```
+
+- `--user` is the person the token acts for: their email address, or a managed account's username.
+  It can do what they can, and nothing more.
+- `--scope read` only reads; `--scope write` can also change things.
+- Without `--location`, it reaches every location the person belongs to, except those it can't:
+  a location that asks for two-factor (a token made here has no second factor; make that one in
+  Settings → Connections, over HTTPS) and, for a write token, those where they are a viewer. Each
+  one left out is named. `--location` (an id or a name, repeatable) picks them instead.
+- A write token across locations whose members differ stops with a warning, as in the app;
+  `--confirm-cross-location` makes it anyway.
+- `--expires <days>` ends it after that many days; without it, it works until revoked.
+
+It prints the token once, on the line starting `KEPT TOKEN:`, and the MCP server address. Kept keeps
+only a fingerprint of it. The person sees it in **Settings → Connections**, where they can revoke
+it, and is told by mail.

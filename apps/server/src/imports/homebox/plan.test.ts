@@ -4,6 +4,7 @@ import { type HomeboxChoices, newId } from '@kept/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { type TestFiles, testFiles } from '../../../test/files.js';
 import { importArchiveKey } from '../../storage/blob-store.js';
+import { inspectHomebox } from './inspect.js';
 import type { HbLookups } from './lookups.js';
 import { type HbOp, planHomebox, type ThingOp } from './plan.js';
 import { type HomeboxData, openHomebox, readHomebox } from './read.js';
@@ -233,7 +234,7 @@ describe('planHomebox over Home', () => {
     });
     expect(espresso.brand).toEqual({ create: 'Rocket' });
     expect(espresso.notes).toBe(
-      'Dual boiler\n\nDescale monthly.\nUse filtered water.\n\nWarranty: Two years, parts and labour',
+      'Dual boiler\n\nDescale monthly.\nUse filtered water.\n\nQuantity in Homebox: 0\nWarranty: Two years, parts and labour',
     );
     const phone = thing(plan.ops, 'Old phone');
     expect(phone.sold).toEqual({
@@ -268,7 +269,7 @@ describe('planHomebox over Home', () => {
     expect(fragile).toMatchObject({ target: { create: { colour: '#FF0000' } } });
   });
 
-  it('maps custom fields onto the type, a time field read as empty, numbers flagged as whole', () => {
+  it('maps custom fields onto the type, a time field read as empty, whole numbers not flagged', () => {
     const plan = planHomebox(home, choices(home), lookups());
     const espresso = thing(plan.ops, 'Espresso machine');
     expect(espresso.custom).toEqual({
@@ -279,7 +280,7 @@ describe('planHomebox over Home', () => {
     });
     const codes = issuesOf(plan, idOf(home, 'Espresso machine'));
     expect(codes).toContain('hb_time_default');
-    expect(codes).toContain('hb_number_integer');
+    expect(codes).not.toContain('hb_number_integer');
     const appliance = plan.ops.find(
       (o) =>
         o.op === 'type' &&
@@ -421,5 +422,338 @@ describe('planHomebox over بيت العائلة', () => {
     expect(remote.codes).toContain('000-005');
     expect(tv.serial).toBe('٠١٢٣٤٥');
     expect(plan.report.summary).toMatchObject({ things: 3, places: 2, containers: 1, services: 1 });
+  });
+});
+
+describe('planHomebox over a Homebox 0.27 upgrade (the boxes backup)', () => {
+  let boxes: HomeboxData;
+  let upgraded: HomeboxData;
+  const CONSUMABLE = '00000000-0000-7000-8000-0000000000c1';
+  const itemType = (data: HomeboxData) =>
+    [...data.types.values()].find((t) => t.name === 'global.item')?.id as string;
+  const located = (data: HomeboxData, name: string) =>
+    [...data.entities.values()].find(
+      (e) => e.name === name && data.types.get(e.entity_type_entities)?.is_location,
+    )?.id as string;
+  const rowOf = (plan: ReturnType<typeof planHomebox>, id: string) =>
+    plan.report.rows.find((r) => r.ref.id === id);
+  const typeOps = (ops: HbOp[]) =>
+    ops.filter((o): o is Extract<HbOp, { op: 'type' }> => o.op === 'type');
+
+  beforeAll(async () => {
+    boxes = await read('homebox-0.27.0-boxes.zip');
+    upgraded = await read('homebox-0.27.0-upgraded.zip');
+  });
+
+  it('reads every row of the backup', () => {
+    expect(boxes.bad).toEqual([]);
+    expect([...boxes.types.values()].map((t) => t.name).sort()).toEqual([
+      'global.item',
+      'global.location',
+    ]);
+  });
+
+  it('never creates a type named global.item or global.location', () => {
+    for (const data of [boxes, upgraded]) {
+      // Even when the choice names the key itself, as an older web would.
+      const plan = planHomebox(data, choices(data), lookups({ types: new Map() }));
+      const names = typeOps(plan.ops).map((o) =>
+        'create' in o.target ? o.target.create.name : '',
+      );
+      expect(names).toContain('Item');
+      expect(names.join()).not.toContain('global.');
+      expect(JSON.stringify(plan.report)).not.toContain('"name":"global.');
+    }
+  });
+
+  it('No type: things come in without a type, a holding one as a box', () => {
+    const plan = planHomebox(
+      boxes,
+      choices(boxes, { types: { [itemType(boxes)]: { none: true } } }),
+      lookups(),
+    );
+    expect(typeOps(plan.ops)).toEqual([]);
+    expect(thing(plan.ops, 'Hammer').type).toBeNull();
+    const tackle = thing(plan.ops, 'Tackle box');
+    expect(tackle.type).toEqual({ id: BOX });
+    expect(issuesOf(plan, idOf(boxes, 'Tackle box'))).toContain('hb_item_holds_things');
+    expect(plan.report.summary.types).toBe(0);
+  });
+
+  it('one item holding a location makes only that item a container, never its type', () => {
+    const plan = planHomebox(boxes, choices(boxes), lookups({ types: new Map() }));
+    const item = typeOps(plan.ops).find((o) => o.key === `type:${itemType(boxes)}`);
+    expect(item).toMatchObject({ target: { create: { name: 'Item' } }, container: false });
+    const tackle = thing(plan.ops, 'Tackle box');
+    expect(tackle.type).toEqual({ id: BOX });
+    expect(tackle.notes).toContain('Homebox type: Item');
+    expect(issuesOf(plan, idOf(boxes, 'Tackle box'))).toContain('hb_item_holds_things');
+    // Everything else keeps the created type.
+    expect(thing(plan.ops, 'Hammer').type).toEqual({ key: `type:${itemType(boxes)}` });
+    // The lure tray (a location inside the tackle box) is a box inside it, holding the lures.
+    const tray = thing(plan.ops, 'Lure tray');
+    expect(tray.where).toEqual({ container: { key: idOf(boxes, 'Tackle box') } });
+    expect(thing(plan.ops, 'Lures').where).toEqual({ container: { key: tray.key } });
+  });
+
+  it('a type whose every item holds something becomes a container type', () => {
+    // Desk lamp is the one item of Odd icon, a type this import creates; put the kettle in it.
+    const lamp = idOf(home, 'Desk lamp');
+    const kettle = idOf(home, 'Kettle');
+    const data: HomeboxData = {
+      ...home,
+      entities: new Map(
+        [...home.entities].map(([id, e]) => [
+          id,
+          id === kettle ? { ...e, entity_children: lamp } : e,
+        ]),
+      ),
+    };
+    const odd = [...home.types.values()].find((t) => t.name === 'Odd icon')?.id as string;
+    const plan = planHomebox(data, choices(data), lookups());
+    expect(typeOps(plan.ops).find((o) => o.key === `type:${odd}`)).toMatchObject({
+      container: true,
+    });
+    expect(thing(plan.ops, 'Desk lamp').type).toEqual({ key: `type:${odd}` });
+    expect(issuesOf(plan, lamp)).not.toContain('hb_item_holds_things');
+    // Tool's Toolbox holds the drill, but the drill and the screws don't hold anything.
+    expect(thing(plan.ops, 'Toolbox').type).toEqual({ id: BOX });
+  });
+
+  it('quantity 0: kept where the type is consumable, archived otherwise, with the note', () => {
+    const plan = planHomebox(
+      boxes,
+      choices(boxes, { zeroQuantity: 'keep_or_archive' }),
+      lookups({ types: new Map() }),
+    );
+    const batteries = thing(plan.ops, 'AA batteries');
+    expect(batteries).toMatchObject({ quantity: 1, archived: true });
+    expect(batteries.notes).toContain('Quantity in Homebox: 0');
+    expect(batteries.notes).toContain('Used the last ones in the smoke alarm');
+    expect(issuesOf(plan, idOf(boxes, 'AA batteries'))).toEqual(['hb_quantity_zero_archived']);
+    const zeroes = things(plan.ops).filter((t) => t.notes?.includes('Quantity in Homebox: 0'));
+    expect(zeroes.map((t) => t.name).sort()).toEqual([
+      'AA batteries',
+      'Candles',
+      'Gas canister',
+      'Grout',
+      'Lures',
+      'Spare light bulbs',
+      'Wrapping paper',
+      'Zip ties',
+    ]);
+    expect(zeroes.every((t) => t.archived && t.quantity === 1)).toBe(true);
+    // Mapped to a consumable type, 0 stays 0 and the thing stays in use.
+    const consumable = planHomebox(
+      boxes,
+      choices(boxes, {
+        zeroQuantity: 'keep_or_archive',
+        types: { [itemType(boxes)]: { typeId: CONSUMABLE } },
+      }),
+      lookups({
+        typeInfo: new Map([
+          [BOX, { builtin: true, caps: ['container'], fields: [] }],
+          [CONSUMABLE, { builtin: true, caps: ['consumable'], fields: [] }],
+        ]),
+      }),
+    );
+    expect(thing(consumable.ops, 'AA batteries')).toMatchObject({ quantity: 0, archived: false });
+    expect(thing(consumable.ops, 'AA batteries').notes).toContain('Quantity in Homebox: 0');
+    expect(issuesOf(consumable, idOf(boxes, 'AA batteries'))).toEqual(['hb_quantity_zero_kept']);
+  });
+
+  it('quantity 0: set to 1, or left out, as chosen; an old run without the choice keeps 1', () => {
+    const one = planHomebox(boxes, choices(boxes, { zeroQuantity: 'one' }), lookups());
+    expect(thing(one.ops, 'Candles')).toMatchObject({ quantity: 1, archived: false });
+    expect(thing(one.ops, 'Candles').notes).toContain('Quantity in Homebox: 0');
+    expect(issuesOf(one, idOf(boxes, 'Candles'))).toEqual(['hb_quantity_zero']);
+    const old = planHomebox(boxes, choices(boxes), lookups());
+    expect(thing(old.ops, 'Candles')).toMatchObject({ quantity: 1, archived: false });
+    const skip = planHomebox(boxes, choices(boxes, { zeroQuantity: 'skip' }), lookups());
+    expect(things(skip.ops).map((t) => t.name)).not.toContain('Candles');
+    expect(rowOf(skip, idOf(boxes, 'Candles'))).toMatchObject({
+      status: 'skipped',
+      issues: [expect.objectContaining({ code: 'hb_quantity_zero_skipped' })],
+    });
+    // What was inside a left-out item still comes in, in its place.
+    expect(skip.report.summary.things).toBe(one.report.summary.things - 8);
+  });
+
+  it('whole-number note absent for whole numbers, once per field otherwise', () => {
+    const plan = planHomebox(boxes, choices(boxes), lookups());
+    expect(issuesOf(plan, idOf(boxes, 'Pressure washer'))).not.toContain('hb_number_integer');
+    expect(issuesOf(plan, idOf(boxes, 'Dehumidifier'))).not.toContain('hb_number_integer');
+    const fractional: HomeboxData = {
+      ...boxes,
+      fields: boxes.fields.map((f) =>
+        f.name === 'Wattage' ? { ...f, number_value: (f.number_value ?? 0) + 0.5 } : f,
+      ),
+    };
+    const flagged = planHomebox(fractional, choices(fractional), lookups());
+    const rows = flagged.report.rows.filter((r) =>
+      r.issues.some((i) => i.code === 'hb_number_integer'),
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.issues.find((i) => i.code === 'hb_number_integer')?.column).toBe('Wattage');
+  });
+
+  it('the chosen box-like locations come in as boxes holding their items, with their tags', () => {
+    const chosen = [...boxes.entities.values()]
+      .filter((e) => /^Box \d\d$/.test(e.name))
+      .map((e) => e.id);
+    expect(chosen).toHaveLength(12);
+    const plan = planHomebox(boxes, choices(boxes, { boxes: chosen }), lookups());
+    const box12 = thing(plan.ops, 'Box 12');
+    expect(box12).toMatchObject({
+      type: { id: BOX },
+      where: { place: { key: located(boxes, 'Garage') } },
+    });
+    expect(box12.tags).toHaveLength(1);
+    expect(box12.codes.length).toBeGreaterThan(0);
+    expect(thing(plan.ops, 'Photo albums').where).toEqual({ container: { key: box12.key } });
+    expect(issuesOf(plan, box12.key)).toContain('hb_box_from_location');
+    expect(issuesOf(plan, box12.key)).not.toContain('hb_place_tags_dropped');
+    const places = plan.ops
+      .filter((o) => o.op === 'place')
+      .map((o) => (o as { name: string }).name);
+    expect(places.some((n) => n.startsWith('Box '))).toBe(false);
+    const without = planHomebox(boxes, choices(boxes), lookups());
+    expect(plan.report.summary.places).toBe(without.report.summary.places - 12);
+    expect(plan.report.summary.things).toBe(without.report.summary.things + 12);
+    // A location that holds another location can't be a box: it stays a place.
+    const shelfC = located(boxes, 'Shelf C');
+    const refused = planHomebox(boxes, choices(boxes, { boxes: [shelfC] }), lookups());
+    expect(refused.ops.some((o) => o.op === 'place' && o.key === shelfC)).toBe(true);
+  });
+
+  it("a location's dropped description is reported", () => {
+    const shed = located(boxes, 'Shed');
+    const data: HomeboxData = {
+      ...boxes,
+      entities: new Map(
+        [...boxes.entities].map(([id, e]) => [
+          id,
+          id === shed ? { ...e, description: 'Behind the garage' } : e,
+        ]),
+      ),
+    };
+    const plan = planHomebox(data, choices(data), lookups());
+    expect(issuesOf(plan, shed)).toEqual(['hb_place_notes_dropped']);
+    expect(issuesOf(planHomebox(boxes, choices(boxes), lookups()), shed)).toEqual([]);
+  });
+
+  it('every flagged row of the boxes backup says why, and names no internal key', () => {
+    const chosen = [...boxes.entities.values()]
+      .filter((e) => /^Box /.test(e.name))
+      .map((e) => e.id);
+    const plan = planHomebox(
+      boxes,
+      choices(boxes, {
+        zeroQuantity: 'keep_or_archive',
+        boxes: chosen,
+        types: { [itemType(boxes)]: { none: true } },
+      }),
+      lookups(),
+    );
+    for (const row of plan.report.rows) {
+      expect(row.issues.length).toBeGreaterThan(0);
+      for (const issue of row.issues) expect(issue.message).not.toBe(issue.code);
+    }
+    expect(JSON.stringify(plan.report)).not.toContain('global.');
+  });
+});
+
+describe('quantity 0 applies to Homebox items only', () => {
+  it('a location that becomes a thing comes in at 1, in use, with no note', () => {
+    // The Bits tray is a location inside the Toolbox; locations carry quantity 0 in the export.
+    const tray = idOf(home, 'Bits tray');
+    expect(home.entities.get(tray)?.quantity).toBe(0);
+    for (const zeroQuantity of ['keep_or_archive', 'one', 'skip'] as const) {
+      const plan = planHomebox(home, choices(home, { zeroQuantity }), lookups());
+      const op = thing(plan.ops, 'Bits tray');
+      expect(op).toMatchObject({ quantity: 1, archived: false });
+      expect(op.notes ?? '').not.toContain('Quantity in Homebox');
+      expect(issuesOf(plan, tray)).toEqual(['hb_location_in_item']);
+    }
+  });
+
+  it('a chosen box suggestion comes in at 1, in use, with no note', async () => {
+    const boxes = await read('homebox-0.27.0-boxes.zip');
+    const box = [...boxes.entities.values()].find((e) => e.name === 'Box 05');
+    if (!box) throw new Error('no Box 05');
+    const plan = planHomebox(
+      boxes,
+      choices(boxes, { zeroQuantity: 'keep_or_archive', boxes: [box.id] }),
+      lookups(),
+    );
+    const op = thing(plan.ops, 'Box 05');
+    expect(op).toMatchObject({ quantity: 1, archived: false });
+    expect(op.notes ?? '').not.toContain('Quantity in Homebox');
+  });
+
+  it('an item at 0 that holds things stays in use at 1, with the note, never archived or left out', () => {
+    // Toolbox holds the drill and the tray, and has quantity 0 (made through the API).
+    const toolbox = idOf(home, 'Toolbox');
+    expect(home.entities.get(toolbox)?.quantity).toBe(0);
+    const kept = planHomebox(home, choices(home, { zeroQuantity: 'keep_or_archive' }), lookups());
+    const op = thing(kept.ops, 'Toolbox');
+    expect(op).toMatchObject({ quantity: 1, archived: false });
+    expect(op.notes).toContain('Quantity in Homebox: 0');
+    expect(issuesOf(kept, toolbox)).toContain('hb_quantity_zero');
+    expect(issuesOf(kept, toolbox)).not.toContain('hb_quantity_zero_archived');
+    // Its contents stay inside it (the drill, at 0 itself, is archived in its box).
+    expect(thing(kept.ops, 'Cordless drill').where).toEqual({ container: { key: toolbox } });
+    const skip = planHomebox(home, choices(home, { zeroQuantity: 'skip' }), lookups());
+    expect(thing(skip.ops, 'Toolbox')).toMatchObject({ quantity: 1, archived: false });
+    // The drill, at 0 and holding nothing, is left out; the tray stays in the Toolbox.
+    expect(things(skip.ops).map((t) => t.name)).not.toContain('Cordless drill');
+    expect(thing(skip.ops, 'Bits tray').where).toEqual({ container: { key: toolbox } });
+  });
+});
+
+describe('inspectHomebox: what the choices step offers', () => {
+  it('counts the prices, lists the locations that look like boxes and names the catch-all type', async () => {
+    const boxes = await read('homebox-0.27.0-boxes.zip');
+    const mapping = inspectHomebox(boxes, null).collections[0]?.mapping;
+    // Twelve items with a price (the rowing machine sold, too) and one service with a cost.
+    expect(mapping?.prices).toBe(13);
+    expect(mapping?.zeroItems).toBe(8);
+    // What needs a module beyond Essentials: priced items, items with a warranty, maintenance.
+    expect(mapping?.pricedItems).toBe(12);
+    expect(mapping?.warrantyItems).toBe(5);
+    expect(mapping?.maintenance).toBe(2);
+    const found = mapping?.boxes ?? [];
+    expect(found.map((b) => b.name).sort()).toEqual([
+      'Bin 1',
+      'Bin 2',
+      ...Array.from({ length: 12 }, (_, i) => `Box ${String(i + 1).padStart(2, '0')}`),
+    ]);
+    expect(found.find((b) => b.name === 'Box 01')).toMatchObject({ path: ['Garage'], items: 2 });
+    expect(found.find((b) => b.name === 'Bin 2')).toMatchObject({
+      path: ['Basement', 'Shelf C'],
+      items: 1,
+    });
+    // Shelf C holds Bin 1 and 2, so it's no box; the lure tray is inside an item already.
+    expect(found.map((b) => b.name)).not.toContain('Lure tray');
+    const item = [...boxes.types.values()].find((t) => t.name === 'global.item')?.id;
+    expect(mapping?.catchAll).toBe(item);
+  });
+
+  it('names no catch-all for a backup whose types are its own, and no prices when there are none', async () => {
+    const family = await read('family');
+    const mapping = inspectHomebox(family, null).collections[0]?.mapping;
+    expect(mapping?.boxes).toEqual([]);
+    expect(mapping?.catchAll).toBeNull();
+    const free: HomeboxData = {
+      ...family,
+      entities: new Map(
+        [...family.entities].map(([id, e]) => [id, { ...e, purchase_price: 0, sold_price: 0 }]),
+      ),
+      maintenance: family.maintenance.map((m) => ({ ...m, cost: 0 })),
+    };
+    expect(inspectHomebox(free, null).collections[0]?.mapping?.prices).toBe(0);
+    const homeMapping = inspectHomebox(home, null).collections[0]?.mapping;
+    // Appliance holds the most items, but it is a real type: only Homebox's own `global.item` is one.
+    expect(homeMapping?.catchAll).toBeNull();
   });
 });

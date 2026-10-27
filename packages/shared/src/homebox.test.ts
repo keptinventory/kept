@@ -7,7 +7,10 @@ import {
   HomeboxCsvChoices,
   hbCsvLink,
   homeboxAssetCode,
+  homeboxModules,
+  homeboxTypeName,
   isHomeboxCsv,
+  looksLikeBox,
 } from './homebox.js';
 import { parseScan } from './scan.js';
 
@@ -48,6 +51,85 @@ describe('HomeboxChoices', () => {
     ).toBe(false);
     expect(HomeboxChoices.safeParse({ ...choices, seeded: undefined }).success).toBe(false);
   });
+});
+
+describe('HomeboxChoices from 1.13.0', () => {
+  it('still reads choices saved before: no quantity-0 choice, no boxes', () => {
+    const old = HomeboxChoices.parse(choices);
+    expect(old.zeroQuantity).toBeUndefined();
+    expect(old.boxes).toBeUndefined();
+  });
+
+  it('takes No type, the quantity-0 choice and the locations to bring in as boxes', () => {
+    const parsed = HomeboxChoices.parse({
+      ...choices,
+      types: { [TYPE]: { none: true } },
+      zeroQuantity: 'keep_or_archive',
+      boxes: [TYPE],
+    });
+    expect(parsed.types[TYPE]).toEqual({ none: true });
+    for (const zeroQuantity of ['keep_or_archive', 'one', 'skip'] as const) {
+      expect(HomeboxChoices.parse({ ...choices, zeroQuantity }).zeroQuantity).toBe(zeroQuantity);
+    }
+    expect(HomeboxChoices.safeParse({ ...choices, zeroQuantity: 'zero' }).success).toBe(false);
+    expect(
+      HomeboxChoices.safeParse({ ...choices, types: { [TYPE]: { none: false } } }).success,
+    ).toBe(false);
+    expect(HomeboxChoices.safeParse({ ...choices, boxes: ['Box 01'] }).success).toBe(false);
+  });
+});
+
+describe('homeboxTypeName', () => {
+  it("reads Homebox's own names for its two types, and leaves every other name as it is", () => {
+    expect(homeboxTypeName('global.item')).toBe('Item');
+    expect(homeboxTypeName('global.location')).toBe('Location');
+    expect(homeboxTypeName(' global.item ')).toBe('Item');
+    expect(homeboxTypeName('Power tool')).toBe('Power tool');
+    expect(homeboxTypeName('global.items')).toBe('global.items');
+  });
+});
+
+describe('homeboxModules', () => {
+  it('names the modules a backup has data for, with how many entries', () => {
+    expect(homeboxModules({ pricedItems: 10, warrantyItems: 5, maintenance: 1 })).toEqual([
+      { module: 'money', count: 10 },
+      { module: 'warranties', count: 5 },
+      { module: 'schedules', count: 1 },
+    ]);
+    expect(homeboxModules({ pricedItems: 0, warrantyItems: 2 })).toEqual([
+      { module: 'warranties', count: 2 },
+    ]);
+    // A backup with none of that data (or an inspection before 1.13.0): Essentials alone.
+    expect(homeboxModules({})).toEqual([]);
+  });
+});
+
+describe('looksLikeBox', () => {
+  it.each([
+    'Box 01',
+    'box',
+    'Bin 2',
+    'Crate A',
+    'Tote #3',
+    'Storage box', // a box word anywhere, as its own word
+    'Kiste 3',
+    'Karton Keller',
+    'Boîte à outils',
+    'Caisse 2',
+    'Scatola 4',
+    'Contenitore blu',
+    'صندوق ٢',
+    'علبة الأدوات',
+  ])('reads %s as a box', (name) => {
+    expect(looksLikeBox(name)).toBe(true);
+  });
+
+  it.each(['Boxing gloves', 'Kitchen', 'Bedroom', 'Shelf A', 'Toolbench', 'Inbox', ''])(
+    'reads %s as a place',
+    (name) => {
+      expect(looksLikeBox(name)).toBe(false);
+    },
+  );
 });
 
 describe('homeboxAssetCode', () => {

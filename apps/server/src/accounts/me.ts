@@ -210,7 +210,7 @@ export async function meRoutes(
 
 /** The user's live memberships in live locations that ask for two-factor, by name. kept_system
  * reads past row-level security, so the query names the user's own rows only. */
-async function hiddenForTwoFactor(
+export async function hiddenForTwoFactor(
   pools: Pick<Pools, 'system'>,
   userId: string,
 ): Promise<{ locationId: string; name: string; kind: z.infer<typeof LocationKind> }[]> {

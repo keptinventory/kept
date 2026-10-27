@@ -18655,10 +18655,6 @@ msgid "Nothing sent yet"
 msgstr "Rien envoyé pour l’instant"
 
 #: src/components/webhooks/words.tsx
-msgid "Off: every delivery failed for a day."
-msgstr "Désactivé : toutes les livraisons ont échoué pendant une journée."
-
-#: src/components/webhooks/words.tsx
 msgid "Off: the person who made it is no longer an admin here."
 msgstr "Désactivé : la personne qui l’a créé n’est plus admin ici."
 
@@ -25771,10 +25767,6 @@ msgstr "Les articles archivés ne sont pas importés, vendus compris."
 msgid "Coming from an older Homebox"
 msgstr "Venir d'un Homebox plus ancien"
 
-#: src/components/import/source-step.tsx
-msgid "Homebox v0.26.1 or newer (v0.27.0 recommended): Collection settings → Export. Older than v0.26: import its spreadsheet export, or update a copy of Homebox first."
-msgstr "Homebox v0.26.1 ou plus récent (v0.27.0 recommandée) : Paramètres de la collection → Exporter. Plus ancien que v0.26 : importez son export tableur, ou mettez d'abord une copie de Homebox à jour."
-
 #: src/components/import/mapping-step.tsx
 msgid "Import a Homebox export instead"
 msgstr "Importer plutôt un export Homebox"
@@ -26561,7 +26553,6 @@ msgstr "Tag {shown} retiré"
 msgid "Violet"
 msgstr "Violet"
 
-
 #: src/components/search/offline-results.tsx
 msgid "Offline, search uses the words, the location, the type and the tags. The other filters apply when you're back online."
 msgstr "Hors ligne, la recherche utilise les mots, le lieu, le type et les tags. Les autres filtres s’appliquent une fois de retour en ligne."
@@ -26990,3 +26981,250 @@ msgstr "Configurer la double authentification"
 #: src/components/two-factor-hidden.tsx
 msgid "Asks for two-factor: set it up to open it"
 msgstr "Exige la double authentification : configurez-la pour l’ouvrir"
+
+#: src/components/import/archive-run.tsx
+msgid "Nothing was imported, and no location was made."
+msgstr "Rien n'a été importé, et aucun lieu n'a été créé."
+
+#: src/components/import/archive-run.tsx
+msgid "What needed a look"
+msgstr "Ce qui demandait un coup d’œil"
+
+#: src/components/import/entity-report.tsx
+msgid "Imported, with a note"
+msgstr "Importé, avec une note"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Item"
+msgstr "Article"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Items with quantity 0"
+msgstr "Articles en quantité 0"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Keep 0 or archive"
+msgstr "Garder 0 ou archiver"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Set to 1"
+msgstr "Mettre à 1"
+
+#: src/components/import/homebox-choices.tsx
+msgid "{zeroItems, plural, one {# item has quantity 0.} other {# items have quantity 0.}}"
+msgstr "{zeroItems, plural, one {# article est en quantité 0.} other {# articles sont en quantité 0.}}"
+
+#: src/components/import/homebox-choices.tsx
+msgid "A type you run out of keeps 0; anything else comes in archived. The notes say \"Quantity in Homebox: 0\"."
+msgstr "Un type qui s’épuise garde 0 ; le reste arrive archivé. Les notes indiquent \"Quantity in Homebox: 0\"."
+
+#: src/components/import/homebox-choices.tsx
+msgid "They come in as 1, and the notes say \"Quantity in Homebox: 0\"."
+msgstr "Ils arrivent à 1, et les notes indiquent \"Quantity in Homebox: 0\"."
+
+#: src/components/import/homebox-choices.tsx
+msgid "They aren't imported. What's inside one comes in, in its place."
+msgstr "Ils ne sont pas importés. Ce qu’ils contiennent arrive à leur place."
+
+#: src/components/import/homebox-choices.tsx
+msgid "A new type"
+msgstr "Un nouveau type"
+
+#: src/components/import/homebox-choices.tsx
+msgid "No type keeps things as they are, without a type's fields. A new type is made with the name you give it."
+msgstr "« Aucun type » garde les objets tels quels, sans les champs d’un type. Un nouveau type est créé avec le nom que vous lui donnez."
+
+#: src/components/import/homebox-choices.tsx
+msgid "New type…"
+msgstr "Nouveau type…"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Name of the new type"
+msgstr "Nom du nouveau type"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Give the new type a name (at most {max} characters)."
+msgstr "Donnez un nom au nouveau type ({max} caractères au plus)."
+
+#: src/components/import/homebox-choices.tsx
+msgid "Chosen"
+msgstr "Choix"
+
+#: src/components/import/homebox-choices.tsx
+msgid "As boxes"
+msgstr "Comme boîtes"
+
+#: src/components/import/homebox-choices.tsx
+msgid "As places"
+msgstr "Comme emplacements"
+
+#: src/components/import/homebox-choices.tsx
+msgid "These look like boxes"
+msgstr "Ceux-ci ressemblent à des boîtes"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Ticked, they come in as boxes: things that hold things, carried with what's inside. The rest come in as places. You can change either later."
+msgstr "Cochés, ils arrivent comme boîtes : des objets qui contiennent des objets, transportés avec leur contenu. Les autres arrivent comme emplacements. Vous pourrez changer l’un ou l’autre plus tard."
+
+#: src/components/import/homebox-choices.tsx
+msgid "Choose none"
+msgstr "Ne rien choisir"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Choose all"
+msgstr "Tout choisir"
+
+#: src/components/import/homebox-choices.tsx
+msgid "{n} of {of} as boxes"
+msgstr "{n} sur {of} comme boîtes"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Locations that look like boxes"
+msgstr "Emplacements qui ressemblent à des boîtes"
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it came in as 1."
+msgstr "Quantité 0 dans Homebox ; il arrive à 1."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox, kept: its type is one you run out of."
+msgstr "Quantité 0 dans Homebox, gardée : son type s’épuise."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it came in archived."
+msgstr "Quantité 0 dans Homebox ; il arrive archivé."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox, left out."
+msgstr "Quantité 0 dans Homebox, laissé de côté."
+
+#: src/components/import/labels.ts
+msgid "It holds other items, so it came in as a box."
+msgstr "Il contient d’autres articles, il arrive donc comme boîte."
+
+#: src/components/import/labels.ts
+msgid "A location that came in as a box, as chosen."
+msgstr "Un emplacement arrivé comme boîte, comme choisi."
+
+#: src/components/import/labels.ts
+msgid "Its description isn't kept: places in Kept have no notes."
+msgstr "Sa description n’est pas gardée : les emplacements n’ont pas de notes dans Kept."
+
+#: src/components/import/repair.tsx
+msgid "{joined}, and {more} more"
+msgstr "{joined}, et {more} de plus"
+
+#: src/components/import/repair.tsx
+msgid "Repaired the import"
+msgstr "Import réparé"
+
+#: src/components/import/repair.tsx
+msgid "Repair this import"
+msgstr "Réparer cet import"
+
+#: src/components/import/repair.tsx
+msgid "It was imported before Kept read Homebox the way it does now. Choose what to put right; one Undo takes it all back."
+msgstr "Il a été importé avant que Kept ne lise Homebox comme maintenant. Choisissez quoi corriger ; une seule annulation défait le tout."
+
+#: src/components/import/repair.tsx
+msgid "{0, plural, one {Archive the # thing that had quantity 0 in Homebox} other {Archive the # things that had quantity 0 in Homebox}}"
+msgstr "{0, plural, one {Archiver l’objet qui avait la quantité 0 dans Homebox} other {Archiver les # objets qui avaient la quantité 0 dans Homebox}}"
+
+#: src/components/import/repair.tsx
+msgid "<0>{0}</0>: its things stop opening on an empty Contents tab. One that holds things stays a box."
+msgstr "<0>{0}</0> : ses objets ne s’ouvrent plus sur un onglet Contenu vide. Celui qui contient des objets reste une boîte."
+
+#: src/components/import/repair.tsx
+msgid "{0, plural, one {Make # type an ordinary type again} other {Make # types ordinary types again}}"
+msgstr "{0, plural, one {Refaire de # type un type ordinaire} other {Refaire de # types des types ordinaires}}"
+
+#: src/components/import/repair.tsx
+msgid "Rename <0>{0}</0> to <1>{to}</1>"
+msgstr "Renommer <0>{0}</0> en <1>{to}</1>"
+
+#: src/components/import/repair.tsx
+msgid "Repair"
+msgstr "Réparer"
+
+#: src/components/import/track-step.tsx
+msgid "Start with what you need; turn anything else on later in Location settings → What to track. Turning something off never deletes anything."
+msgstr "Commencez par ce dont vous avez besoin ; activez le reste plus tard dans Paramètres du lieu → Ce que vous suivez. Désactiver ne supprime jamais rien."
+
+#: src/components/import/track-step.tsx
+msgid "{prices, plural, one {The backup has # price. With Essentials it stays in the notes; Household keeps prices and warranties as their own records.} other {The backup has # prices. With Essentials they stay in the notes; Household keeps prices and warranties as their own records.}}"
+msgstr "{prices, plural, one {La sauvegarde contient # prix. Avec Essentiel, il reste dans les notes ; Foyer garde les prix et les garanties comme des fiches à part.} other {La sauvegarde contient # prix. Avec Essentiel, ils restent dans les notes ; Foyer garde les prix et les garanties comme des fiches à part.}}"
+
+#: src/components/import/track-step.tsx
+msgid "Also for Personal"
+msgstr "Aussi pour Personnel"
+
+#: src/components/import/track-step.tsx
+msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "Personnel, votre propre lieu, suit la même chose dès que l’import s’exécute. Le menu montre ce que suit chacun de vos lieux."
+
+#: src/components/history/labels.ts
+msgid "Repaired an import"
+msgstr "Import réparé"
+
+#: src/components/import/track-step.tsx
+msgid "And what the backup uses"
+msgstr "Et ce que la sauvegarde utilise"
+
+#: src/components/import/track-step.tsx
+msgid "Turns on {name}"
+msgstr "Active {name}"
+
+#: src/components/import/track-step.tsx
+msgid "{count, plural, one {Prices on # thing} other {Prices on # things}}"
+msgstr "{count, plural, one {Prix sur # objet} other {Prix sur # objets}}"
+
+#: src/components/import/track-step.tsx
+msgid "{count, plural, one {# warranty} other {# warranties}}"
+msgstr "{count, plural, one {# garantie} other {# garanties}}"
+
+#: src/components/import/track-step.tsx
+msgid "{count, plural, one {# maintenance entry} other {# maintenance entries}}"
+msgstr "{count, plural, one {# entrée d’entretien} other {# entrées d’entretien}}"
+
+#: src/components/import/track-step.tsx
+msgid "What's unticked stays in the things' notes as text. Notes can't become records later: to keep it as records, tick it now."
+msgstr "Ce qui n’est pas coché reste en texte dans les notes des objets. Les notes ne peuvent pas devenir des fiches plus tard : pour le garder en fiches, cochez-le maintenant."
+
+#: src/components/app-shell.tsx
+msgctxt "sidebar group"
+msgid "Tracking"
+msgstr "Suivi"
+
+#: src/components/app-shell.tsx
+msgctxt "sidebar group"
+msgid "Tools"
+msgstr "Outils"
+
+#: src/components/origin-mismatch.tsx
+#: src/components/page.tsx
+msgid "Open {expected}"
+msgstr "Ouvrir {expected}"
+
+#: src/components/origin-mismatch.tsx
+msgid "This Kept is set up for <0>{expected}</0>. Open it there."
+msgstr "Ce Kept est configuré pour <0>{expected}</0>. Ouvrez-le à cette adresse."
+
+#: src/components/page.tsx
+msgid "This Kept is set up for a different address. Open it at the address you were given."
+msgstr "Ce Kept est configuré pour une autre adresse. Ouvrez-le à l’adresse qu’on vous a donnée."
+
+#: src/components/page.tsx
+msgid "This Kept is set up for {address}. Open it there."
+msgstr "Ce Kept est configuré pour {address}. Ouvrez-le à cette adresse."
+
+#: src/components/import/archive-step.tsx
+msgid "In Homebox, open Collection → Tools → Backup & Restore and choose Create Backup. When the backup is listed, Download it: that .zip is the file."
+msgstr "Dans Homebox, ouvrez Collection → Outils → Sauvegarde et restauration et choisissez Créer une sauvegarde. Quand la sauvegarde apparaît dans la liste, choisissez Télécharger : ce fichier .zip est le bon."
+
+#: src/components/import/source-step.tsx
+msgid "Homebox v0.26.1 or newer (v0.27.0 recommended): Collection → Tools → Backup & Restore → Create Backup → Download. Older than v0.26: import its spreadsheet export, or update a copy of Homebox first."
+msgstr "Homebox v0.26.1 ou plus récent (v0.27.0 recommandée) : Collection → Outils → Sauvegarde et restauration → Créer une sauvegarde → Télécharger. Plus ancien que v0.26 : importez son export tableur, ou mettez d'abord une copie de Homebox à jour."
+
+#: src/components/connections/token-create.tsx
+msgid "On a home network without HTTPS, the person who runs this Kept can make one on the server: kept admin token create."
+msgstr "Sur un réseau domestique sans HTTPS, la personne qui gère ce Kept peut en créer un sur le serveur : kept admin token create."

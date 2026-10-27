@@ -3,7 +3,7 @@
  * for a CSV, a Homebox export or a Kept export (components/import/stepper.tsx). The URL holds the
  * location (`?location=`), an export chosen as the source (`?source=`), the import once it exists
  * (`?run=`), and the lists' state (search, the report's Status and Column filters, the Homebox
- * types' Match), so a reload keeps the report, the progress and Resume.
+ * types' Match, the box suggestions' Chosen), so a reload keeps the report, the progress and Resume.
  */
 import type { ArchiveSource } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
@@ -16,7 +16,7 @@ import { SettingsTabs } from '@/components/settings-tabs';
 import { listSearch } from '@/lib/url-state';
 
 export const Route = createFileRoute('/_app/settings/import')({
-  validateSearch: listSearch(['status', 'column', 'typeMatch'], {
+  validateSearch: listSearch(['status', 'column', 'typeMatch', 'boxChosen'], {
     location: z.optional(z.string()),
     run: z.optional(z.string()),
     source: z.optional(z.catch(z.optional(z.enum(['homebox_zip', 'kept_zip'])), undefined)),

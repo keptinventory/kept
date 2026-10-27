@@ -30,9 +30,10 @@ themselves are still pending, so it isn't yet confirmed which of them connect as
 - **Turn on "Connect ChatGPT or Claude" in each location the app should reach.** It is under
   **Location settings → What to track**, and is on in the **Complete** preset only. The owner and
   admins change it. In a location where it's off, a token or connector reaches nothing.
-- **Kept must be served over `https`.** Kept refuses to make a token when `KEPT_PUBLIC_URL` is
-  plain `http`, with "Serve Kept over https (KEPT_PUBLIC_URL) to do this; secrets aren't sent
-  over plain http." There is no setting to turn this off. See [HTTPS](/install/https/).
+- **The app makes tokens only over `https`.** Settings → Connections refuses to make a token when
+  `KEPT_PUBLIC_URL` is plain `http`. There is no setting to turn this off. See
+  [HTTPS](/install/https/). On a home network over `http`, the person who runs the server can
+  make one there instead: [`kept admin token create`](/admin/cli/#a-token-from-the-server).
 
 ## Make a personal token
 

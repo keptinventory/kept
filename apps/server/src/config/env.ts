@@ -5,6 +5,7 @@ import path from 'node:path';
 import { z } from 'zod';
 import { parseTrustedProxies } from '../auth/client-ip.js';
 import { isCrockford, normaliseCrockford } from '../crypto/crockford.js';
+import { completeDatabaseUrls } from './db-passwords.js';
 
 export type EnvErrorCode =
   | 'invalid_env'
@@ -97,6 +98,26 @@ const schema = z.object({
     .describe(
       'for `kept migrate` / `kept admin`, and on a worker with a backup target (the dump runs as kept_owner)',
     ),
+  // Read before this schema (config/db-passwords.ts): a database URL without a password takes it
+  // from its login's file. Compose's bootstrap service writes the files.
+  KEPT_DB_APP_PASSWORD_FILE: z
+    .string()
+    .optional()
+    .describe(
+      "`KEPT_DATABASE_URL`'s password when the URL has none: a file holding it on one line",
+    ),
+  KEPT_DB_AUTH_PASSWORD_FILE: z
+    .string()
+    .optional()
+    .describe("`KEPT_AUTH_DATABASE_URL`'s password when the URL has none (as above)"),
+  KEPT_DB_SYSTEM_PASSWORD_FILE: z
+    .string()
+    .optional()
+    .describe("`KEPT_SYSTEM_DATABASE_URL`'s password when the URL has none (as above)"),
+  KEPT_DB_OWNER_PASSWORD_FILE: z
+    .string()
+    .optional()
+    .describe("`KEPT_OWNER_DATABASE_URL`'s password when the URL has none (as above)"),
   KEPT_SECRET_KEY: z
     .string()
     .optional()
@@ -948,7 +969,7 @@ export async function loadEnv(
   source: Source = process.env,
   opts: LoadEnvOptions = {},
 ): Promise<Env> {
-  const parsed = schema.safeParse(withoutEmpty(source));
+  const parsed = schema.safeParse(withoutEmpty(completeDatabaseUrls(source)));
   if (!parsed.success) {
     throw new EnvError(`invalid environment: ${issuePaths(parsed.error)}`, 'invalid_env');
   }
@@ -1076,7 +1097,7 @@ const migrateSchema = z.object({ KEPT_OWNER_DATABASE_URL: postgresUrl() });
 /** `kept migrate` needs the owner login and nothing else: no keys, no config volume, none of
  * the runtime logins. It must work from a bare CI job or an init container. */
 export function loadMigrateEnv(source: Source = process.env): { ownerUrl: string } {
-  const parsed = migrateSchema.safeParse(withoutEmpty(source));
+  const parsed = migrateSchema.safeParse(withoutEmpty(completeDatabaseUrls(source)));
   if (!parsed.success) {
     throw new EnvError(
       `KEPT_OWNER_DATABASE_URL (a postgres:// URL) is required for \`kept migrate\`: ${issuePaths(parsed.error)}`,
@@ -1104,7 +1125,7 @@ export function loadAdminEnv(source: Source = process.env): {
   smtpUrl: string | undefined;
   smtpFrom: string | undefined;
 } {
-  const parsed = adminSchema.safeParse(withoutEmpty(source));
+  const parsed = adminSchema.safeParse(withoutEmpty(completeDatabaseUrls(source)));
   if (!parsed.success) {
     throw new EnvError(
       `KEPT_OWNER_DATABASE_URL (a postgres:// URL) is required for \`kept admin\`: ${issuePaths(parsed.error)}`,

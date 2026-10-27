@@ -32,14 +32,19 @@ const HOMEBOX_ZIP = fileURLToPath(
 );
 const PASSPHRASE = 'e2e passphrase for the export';
 
-/** From the upload's summary to "Imported into <name>": Next, the name, Next, check, import. */
-async function finishImport(page: Page, name: string) {
+/** From the upload's summary to "Imported into <name>": Next, the name, Next (and, for a Homebox
+ * export into a new location, What to track: Next), check, import. */
+async function finishImport(page: Page, name: string, homebox = false) {
   await page.getByRole('button', { name: 'Next', exact: true }).click();
   const target = page.getByRole('textbox', { name: 'Name', exact: true });
   await expect(target).toBeVisible();
   await target.fill(name);
   await axe(page, `the import's "Where it goes" (${name})`);
   await page.getByRole('button', { name: 'Next', exact: true }).click();
+  if (homebox) {
+    await expect(page.getByRole('heading', { name: 'What to track' })).toBeVisible();
+    await page.getByRole('button', { name: 'Next', exact: true }).click();
+  }
   await page.getByRole('button', { name: 'Check the import', exact: true }).click();
   const go = page.getByRole('button', { name: /^Import \d+ things?$/ });
   await expect(go).toBeVisible({ timeout: 60_000 });
@@ -64,7 +69,7 @@ test('a Homebox export imports into a new location, and its old label opens the 
   await expect(page.getByRole('button', { name: 'Next', exact: true })).toBeVisible({
     timeout: 60_000,
   });
-  await finishImport(page, 'Homebox home');
+  await finishImport(page, 'Homebox home', true);
 
   await page.getByRole('link', { name: 'See what was imported' }).click();
   await expect(page.getByRole('link', { name: 'Espresso machine' }).first()).toBeVisible();

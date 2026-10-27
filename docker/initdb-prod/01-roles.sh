@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
-# Kept's production database bootstrap (D186), run once by the pgvector/postgres image's
-# entrypoint when the data directory is empty (compose.yaml mounts this directory at
-# /docker-entrypoint-initdb.d).
+# Kept's production database bootstrap for installs made with compose.yaml before 1.13.0, run by
+# the pgvector/postgres image's entrypoint when the data directory is empty (those installs mount
+# this directory at /docker-entrypoint-initdb.d). Since 1.13.0 compose.yaml mounts nothing: its
+# bootstrap service (`kept bootstrap`) does the same on every start. scripts/smoke-image.sh still
+# runs this one.
 #
 # It creates the four logins and the extensions. Everything else (schemas, tables, grants,
 # policies) is `kept migrate`'s job, as kept_owner. Passwords come from the environment and are
 # passed to psql as variables (:'name' quotes them as SQL literals), so no password is ever
 # spliced into SQL text or written to a file. They are required: an unset one stops the init.
+# Like charts/kept/files/roles.sh it is idempotent: a login that exists gets its password reset
+# to the variable's, so running it again converges instead of failing.
 #
 # Unlike docker/initdb/01-roles.sql (dev), kept_owner gets no CREATEDB: that is for the test
 # suite's per-worker databases only.
@@ -19,16 +23,33 @@ set -euo pipefail
 
 db=${POSTGRES_DB:-kept}
 
-psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$db" \
+psql -v ON_ERROR_STOP=1 --no-psqlrc --username "$POSTGRES_USER" --dbname "$db" \
   -v owner_pw="$KEPT_DB_OWNER_PASSWORD" \
   -v app_pw="$KEPT_DB_APP_PASSWORD" \
   -v auth_pw="$KEPT_DB_AUTH_PASSWORD" \
   -v system_pw="$KEPT_DB_SYSTEM_PASSWORD" \
   -v db="$db" <<'SQL'
-CREATE ROLE kept_owner  LOGIN PASSWORD :'owner_pw'  NOSUPERUSER NOCREATEROLE NOCREATEDB NOBYPASSRLS;
-CREATE ROLE kept_app    LOGIN PASSWORD :'app_pw'    NOSUPERUSER NOCREATEROLE NOCREATEDB NOBYPASSRLS;
-CREATE ROLE kept_auth   LOGIN PASSWORD :'auth_pw'   NOSUPERUSER NOCREATEROLE NOCREATEDB NOBYPASSRLS;
-CREATE ROLE kept_system LOGIN PASSWORD :'system_pw' NOSUPERUSER NOCREATEROLE NOCREATEDB NOBYPASSRLS;
+SELECT NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'kept_owner')  AS make_owner,
+       NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'kept_app')    AS make_app,
+       NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'kept_auth')   AS make_auth,
+       NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'kept_system') AS make_system
+\gset
+\if :make_owner
+CREATE ROLE kept_owner  LOGIN NOSUPERUSER NOCREATEROLE NOCREATEDB NOBYPASSRLS;
+\endif
+\if :make_app
+CREATE ROLE kept_app    LOGIN NOSUPERUSER NOCREATEROLE NOCREATEDB NOBYPASSRLS;
+\endif
+\if :make_auth
+CREATE ROLE kept_auth   LOGIN NOSUPERUSER NOCREATEROLE NOCREATEDB NOBYPASSRLS;
+\endif
+\if :make_system
+CREATE ROLE kept_system LOGIN NOSUPERUSER NOCREATEROLE NOCREATEDB NOBYPASSRLS;
+\endif
+ALTER ROLE kept_owner  PASSWORD :'owner_pw';
+ALTER ROLE kept_app    PASSWORD :'app_pw';
+ALTER ROLE kept_auth   PASSWORD :'auth_pw';
+ALTER ROLE kept_system PASSWORD :'system_pw';
 -- Request connections can't run away or idle inside a transaction. kept_owner can't set these
 -- from a migration (no CREATEROLE), so they live with the roles, as in docker/initdb (dev).
 ALTER ROLE kept_app SET statement_timeout = '15s';

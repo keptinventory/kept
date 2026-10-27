@@ -397,9 +397,15 @@ function serviceRoute(e: HistoryEvent): {
 
 function entityRoute(
   e: HistoryEvent,
-): { to: '/t/$id' | '/p/$id' | '/loc/$id'; params: { id: string } } | { to: '/trash' } | null {
+):
+  | { to: '/t/$id' | '/p/$id' | '/loc/$id'; params: { id: string } }
+  | { to: '/trash' }
+  | { to: '/settings/import'; search: { run: string } }
+  | null {
   const id = e.entity.id;
   if (!id) return null;
+  // An import: its own page, with what needed a look and, for a Homebox one, its repair.
+  if (e.entity.type === 'import_run') return { to: '/settings/import', search: { run: id } };
   // Moved to Trash: its own page can't open it any more; Trash lists it, with Restore (D246's
   // route walk found Home's row opening "This isn't here any more").
   if (e.summaryKey === 'thing.trash' || e.summaryKey === 'place.trash') return { to: '/trash' };

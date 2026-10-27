@@ -17,8 +17,10 @@ sidebar:
    ```
 
    This removes `kept-db` (the database), `kept-data` (the files), `kept-config` (the generated
-   keys) and Caddy's certificates. Without `--volumes`, the data stays on the machine.
-3. Remove the image: `docker image rm kept:local` (or the released tag you ran).
+   keys and database passwords), `kept-owner` (the owner login's password) and Caddy's
+   certificates. Without `--volumes`, the data stays on the machine.
+3. Remove the image: `docker image rm ghcr.io/keptinventory/kept:<version>` (the tag you ran, or
+   `kept:local` for your own build), and `.env` next to `compose.yaml`.
 4. Outside the machine, remove what you set up for Kept yourself:
    - **the file bucket**, with `KEPT_STORAGE=s3` (and its old versions, if versioning was on);
    - **the backup**: the `restic` directory on the backup disk, the `restic/` prefix in the backup

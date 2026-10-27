@@ -1,4 +1,12 @@
-import { type HomeboxChoices, homeboxAssetCode, normalize } from '@kept/shared';
+import {
+  effectiveModules,
+  type HomeboxChoices,
+  homeboxAssetCode,
+  homeboxTypeName,
+  normalize,
+  type Preset,
+  presetModules,
+} from '@kept/shared';
 import type pg from 'pg';
 import type { Scope, Tx } from '../../db/scope.js';
 import { invalid } from '../../http/errors.js';
@@ -15,6 +23,11 @@ import type { HomeboxData } from './read.js';
 // and fields), tags, brands and vendors by normalised name, the location's places, the Homebox
 // source ids it already holds and the legacy codes the archive would add that are already taken.
 // Plain data, so the planner stays a pure function the tests run on the fixtures alone.
+//
+// For a new location that Import will make (loadPendingLookups), the location's part is what it
+// will be: its preset's modules, the caller's own account (which will own it), no places, codes or
+// earlier runs. That plan only answers the check's report: the job plans again against the
+// location once it exists.
 
 export type HbTypeInfo = {
   /** A built-in (owned by no account): adding a field first copies it into the account. */
@@ -78,27 +91,14 @@ export async function loadHomeboxLookups(
   const loc = locRows[0];
   if (!loc) throw invalid('The location is gone.');
 
-  const { rows: currencyRows } = await client.query<{ code: string }>(
-    'SELECT code FROM public.currencies WHERE enabled',
+  const sourceIds = new Map<string, string>();
+  const { rows: sourceRows } = await client.query<{ source_id: string; entity_id: string }>(
+    `SELECT source_id, entity_id FROM public.import_source_ids
+      WHERE location_id = $1 AND source = 'homebox'`,
+    [locationId],
   );
-
-  const types = new Map<string, string>();
-  await loadTypes(client, loc.owner_account_id, types);
-
-  const brands = new Map<string, string>();
-  const vendors = new Map<string, string>();
-  const tags = new Map<string, string>();
-  for (const [table, into] of [
-    ['brands', brands],
-    ['vendors', vendors],
-    ['tags', tags],
-  ] as const) {
-    const { rows } = await client.query<{ id: string; name: string }>(
-      `SELECT id, name FROM public.${table} WHERE owner_account_id = $1 ORDER BY created_at, id`,
-      [loc.owner_account_id],
-    );
-    for (const r of rows) if (!into.has(normalize(r.name))) into.set(normalize(r.name), r.id);
-  }
+  for (const r of sourceRows) sourceIds.set(r.source_id, r.entity_id);
+  const account = await accountLookups(client, loc.owner_account_id, data, choices, sourceIds);
 
   const places = new Map<string, Map<string, string>>();
   const { rows: placeRows } = await client.query<{
@@ -118,14 +118,6 @@ export async function loadHomeboxLookups(
     places.set(key, children);
   }
 
-  const sourceIds = new Map<string, string>();
-  const { rows: sourceRows } = await client.query<{ source_id: string; entity_id: string }>(
-    `SELECT source_id, entity_id FROM public.import_source_ids
-      WHERE location_id = $1 AND source = 'homebox'`,
-    [locationId],
-  );
-  for (const r of sourceRows) sourceIds.set(r.source_id, r.entity_id);
-
   const takenCodes = new Set<string>();
   const codes = candidateCodes(data);
   if (codes.length > 0) {
@@ -134,6 +126,57 @@ export async function loadHomeboxLookups(
       [locationId, codes],
     );
     for (const r of rows) takenCodes.add(r.code);
+  }
+
+  return {
+    ...account,
+    locationId,
+    accountId: loc.owner_account_id,
+    today: loc.today,
+    showMoney: gate.showMoney,
+    modules: gate.modules,
+    places,
+    unplacedId: await unplacedOf(client, locationId),
+    sourceIds,
+    takenCodes,
+    maxFileBytes,
+  };
+}
+
+type AccountLookups = Pick<
+  HbLookups,
+  'currencies' | 'types' | 'typeInfo' | 'boxBinTypeId' | 'tags' | 'brands' | 'vendors'
+>;
+
+/** What the plan reads from the account that owns (or will own) the location: the enabled
+ * currencies, its types with their capabilities and fields, its tags, brands and vendors. */
+async function accountLookups(
+  client: pg.ClientBase,
+  accountId: string,
+  data: HomeboxData,
+  choices: HomeboxChoices,
+  sourceIds: ReadonlyMap<string, string>,
+): Promise<AccountLookups> {
+  const { rows: currencyRows } = await client.query<{ code: string }>(
+    'SELECT code FROM public.currencies WHERE enabled',
+  );
+
+  const types = new Map<string, string>();
+  await loadTypes(client, accountId, types);
+
+  const brands = new Map<string, string>();
+  const vendors = new Map<string, string>();
+  const tags = new Map<string, string>();
+  for (const [table, into] of [
+    ['brands', brands],
+    ['vendors', vendors],
+    ['tags', tags],
+  ] as const) {
+    const { rows } = await client.query<{ id: string; name: string }>(
+      `SELECT id, name FROM public.${table} WHERE owner_account_id = $1 ORDER BY created_at, id`,
+      [accountId],
+    );
+    for (const r of rows) if (!into.has(normalize(r.name))) into.set(normalize(r.name), r.id);
   }
 
   const { rows: boxRows } = await client.query<{ id: string }>(
@@ -148,7 +191,9 @@ export async function loadHomeboxLookups(
   for (const t of data.types.values()) {
     const choice = choices.types[t.id];
     if (choice && 'typeId' in choice) candidates.add(choice.typeId.toLowerCase());
-    const byName = types.get(normalize(choice && 'create' in choice ? choice.create : t.name));
+    const byName = types.get(
+      normalize(homeboxTypeName(choice && 'create' in choice ? choice.create : t.name)),
+    );
     if (byName) candidates.add(byName);
     const earlier = sourceIds.get(`type:${t.id}`);
     if (earlier) candidates.add(earlier);
@@ -159,7 +204,7 @@ export async function loadHomeboxLookups(
       `SELECT id, owner_account_id IS NULL AS builtin FROM public.types
         WHERE id = ANY ($1::uuid[]) AND NOT is_field_group AND archived_at IS NULL
           AND (owner_account_id IS NULL OR owner_account_id = $2)`,
-      [[...candidates], loc.owner_account_id],
+      [[...candidates], accountId],
     );
     for (const r of rows) {
       const fields = await resolvedFields(client, r.id);
@@ -178,11 +223,6 @@ export async function loadHomeboxLookups(
   }
 
   return {
-    locationId,
-    accountId: loc.owner_account_id,
-    today: loc.today,
-    showMoney: gate.showMoney,
-    modules: gate.modules,
     currencies: new Set(currencyRows.map((r) => r.code.trim())),
     types,
     typeInfo,
@@ -190,10 +230,43 @@ export async function loadHomeboxLookups(
     tags,
     brands,
     vendors,
-    places,
-    unplacedId: await unplacedOf(client, locationId),
-    sourceIds,
-    takenCodes,
+  };
+}
+
+/** Never a row: a pending location has no Unplaced area yet, and its plan is never applied. */
+const NOT_YET = '00000000-0000-0000-0000-000000000000';
+
+/** The lookups for a new location Import will make: `preset` its modules, the caller's account,
+ * nothing in it yet. Money shows: its creator will own it. */
+export async function loadPendingLookups(
+  client: pg.ClientBase,
+  pending: { timezone: string; preset: Preset; modules?: readonly string[] },
+  data: HomeboxData,
+  choices: HomeboxChoices,
+  maxFileBytes: number,
+): Promise<HbLookups> {
+  const { rows } = await client.query<{ account: string | null; today: string }>(
+    `SELECT kept.current_owner_account_id() AS account,
+            (now() AT TIME ZONE $1)::date::text AS today`,
+    [pending.timezone],
+  );
+  const accountId = rows[0]?.account;
+  if (!accountId) throw invalid('This account has no locations yet.');
+  const modules = effectiveModules([...presetModules(pending.preset), ...(pending.modules ?? [])], {
+    providerResolved: false,
+  });
+  const account = await accountLookups(client, accountId, data, choices, new Map());
+  return {
+    ...account,
+    locationId: NOT_YET,
+    accountId,
+    today: rows[0]?.today as string,
+    showMoney: modules.has('money'),
+    modules,
+    places: new Map(),
+    unplacedId: NOT_YET,
+    sourceIds: new Map(),
+    takenCodes: new Set(),
     maxFileBytes,
   };
 }
