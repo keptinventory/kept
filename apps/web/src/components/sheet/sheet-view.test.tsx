@@ -64,7 +64,7 @@ function cellOf(grid: HTMLElement, rowName: string, header: string): HTMLElement
 }
 
 describe('where the sheet is offered', () => {
-  it('is the fourth layout on a desktop, and not offered on a phone', async () => {
+  it('sits before Map on a desktop (#207), and is not offered on a phone', async () => {
     await renderApp(`/loc/${IDS.home}`);
     await findHeading('Home');
     const layouts = await screen.findByRole('radiogroup', { name: 'Layout' });
@@ -72,7 +72,7 @@ describe('where the sheet is offered', () => {
       within(layouts)
         .getAllByRole('radio')
         .map((r) => r.closest('label')?.textContent),
-    ).toEqual(['List', 'Grid', 'Map', 'Table']);
+    ).toEqual(['List', 'Grid', 'Graph', 'Table', 'Map']);
   });
 
   it('shows the list on a phone, even with view=table in the address', async () => {

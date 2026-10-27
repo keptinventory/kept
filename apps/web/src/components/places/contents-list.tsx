@@ -553,13 +553,17 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
                 layouts: [
                   { value: 'list', label: t`List` },
                   { value: 'grid', label: t`Grid`, short: t`grid` },
-                  // 1.x (D237, M11): a location's map; its page draws it instead of this list.
+                  // #207: a location's graph; its page draws it instead of this list.
                   ...(parent.kind === 'location'
-                    ? [{ value: 'map', label: t`Map`, short: t`map` }]
+                    ? [{ value: 'graph', label: t`Graph`, short: t`graph` }]
                     : []),
                   // 1.x (D250): the spreadsheet view, on a screen wide enough for it.
                   ...(parent.kind === 'location' && sheetFits
                     ? [{ value: 'table', label: t`Table`, short: t`table` }]
+                    : []),
+                  // 1.x (D237, M11): a location's map; its page draws it instead of this list.
+                  ...(parent.kind === 'location'
+                    ? [{ value: 'map', label: t`Map`, short: t`map` }]
                     : []),
                 ],
               })}
