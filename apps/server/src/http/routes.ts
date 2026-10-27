@@ -22,6 +22,7 @@ import { fuelRoutes } from '../fuel/routes.js';
 import { historyRoutes } from '../history/routes.js';
 import { homeRoutes } from '../home/routes.js';
 import { archiveImportRoutes } from '../imports/archive.js';
+import { homeboxRepairRoutes } from '../imports/homebox/repair.js';
 import { lubeloggerRoutes } from '../imports/lubelogger.js';
 import { importRoutes } from '../imports/routes.js';
 import { inboxRoutes } from '../inbox/routes.js';
@@ -167,6 +168,7 @@ export const INVENTORY_ROUTE_MODULES = [
   // fills in its own file.
   exportRoutes,
   archiveImportRoutes,
+  homeboxRepairRoutes,
   enrichRoutes,
   consumableRoutes,
   // Step 6 (T2): tokens, MCP, OAuth connectors (and the root well-known paths), the assistant and

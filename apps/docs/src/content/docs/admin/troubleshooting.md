@@ -19,12 +19,15 @@ same checks apply to the pods.
 - **Checks you can run:** `kept admin backup verify`, `kept admin storage verify --store local`
   (or `s3`) and `kept admin config` ([the CLI](/admin/cli/)).
 
-## Compose stops with "set KEPT_PUBLIC_URL in .env"
+## `docker compose up` stops at the `bootstrap` service
 
-**Cause:** `compose.yaml` refuses to start without the five database passwords and
-`KEPT_PUBLIC_URL`; the message names the missing one.
+**Cause:** the one-shot `bootstrap` (`kept bootstrap`) couldn't set up the database logins. Its log
+says why: `docker compose logs bootstrap`. Common ones: the image is older than 1.13.0 and has no
+`bootstrap` command (set `KEPT_IMAGE` to 1.13.0 or later); or the database's loopback was set up to
+need a password, and `KEPT_DB_SUPERUSER_PASSWORD` in `.env` doesn't hold it.
 
-**Fix:** fill in `.env` from `compose.env.example` ([install](/install/compose/#1-fill-in-env)).
+**Fix:** correct what the line names and run `docker compose up -d` again; the bootstrap is safe to
+run any number of times.
 
 ## Kept exits at start with `kept: invalid environment: …` or another `kept:` line
 
@@ -33,6 +36,8 @@ process with one line naming it. Common ones:
 
 | The line says | Fix |
 |---|---|
+| `kept: invalid environment: KEPT_PUBLIC_URL` | Set the address: `docker compose run --rm init` ([install](/install/compose/#1-write-env)) |
+| `KEPT_DATABASE_URL has no password, and KEPT_DB_APP_PASSWORD_FILE: … does not exist` | The bootstrap hasn't run: start with `docker compose up -d`, which runs it first, not `docker compose up kept` alone |
 | `KEPT_SECRET_KEY and KEPT_AUTH_SECRET are set together or not at all` | Set both, or unset both to use the generated pair in the config volume |
 | `<path>/secrets.json exists but …; fix or restore it` | The generated keys file is damaged: put back the keys from [the recovery kit](/admin/recovery-kit/) |
 | `KEPT_BACKUP_DIR is inside KEPT_DATA_DIR …` | Point the backup at another disk |
@@ -45,10 +50,12 @@ Every variable is in the [configuration reference](/reference/configuration/).
 
 ## Changed a database password in `.env`, and now nothing connects
 
-**Cause:** the database passwords are read once, when the `kept-db` volume is first created.
-Changing `.env` later changes what Kept sends, not what Postgres expects.
+**Cause:** with Kept 1.13.0's `compose.yaml` this fixes itself: the bootstrap sets every login's
+password to the one in `.env` (or its file) on each `docker compose up -d`. It happens with an
+older `compose.yaml`, which set the passwords once, when the `kept-db` volume was first created.
 
-**Fix:** change the role's password in Postgres to match, then restart:
+**Fix:** use the current `compose.yaml` and run `docker compose up -d`. With the old one, change the
+role's password in Postgres to match, then restart:
 
 ```sh
 docker compose exec db psql -U postgres -c "ALTER ROLE kept_app PASSWORD '<the new password>'"

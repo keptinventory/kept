@@ -4,6 +4,7 @@
  */
 import { act, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { AppProviders } from '@/app-providers';
 import { ShareArrival } from '@/components/capture/share-arrival';
 import { toastQueue } from '@/components/ui/toast';
 import { MemoryStore, type SharedInto } from '@/offline/store';
@@ -228,8 +229,50 @@ describe('plain HTTP', () => {
     expect(screen.getByRole('status')).toHaveTextContent(
       'Camera, offline capture and install need HTTPS.',
     );
-    rerender(<InsecureBanner insecure={false} />);
+    rerender(
+      <AppProviders locale="en">
+        <InsecureBanner insecure={false} />
+      </AppProviders>,
+    );
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  const BRUCE = '01926f00-0000-7000-8000-00000000b001';
+  const LOUIS = '01926f00-0000-7000-8000-00000000b002';
+
+  it('can be dismissed, and stays dismissed for that person on this device', async () => {
+    localStorage.clear();
+    const first = await renderUI(<InsecureBanner insecure userId={BRUCE} />);
+    await first.user.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    first.unmount();
+
+    const again = await renderUI(<InsecureBanner insecure userId={BRUCE} />);
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    again.unmount();
+
+    // Someone else on the same browser still sees it.
+    await renderUI(<InsecureBanner insecure userId={LOUIS} />);
+    expect(screen.getByRole('status')).toHaveTextContent('need HTTPS');
+    localStorage.clear();
+  });
+
+  it('shows, and dismisses for the page, when storage is unavailable', async () => {
+    const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new DOMException('blocked', 'SecurityError');
+    });
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('blocked', 'SecurityError');
+    });
+    try {
+      const { user } = await renderUI(<InsecureBanner insecure userId={BRUCE} />);
+      expect(screen.getByRole('status')).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Dismiss' }));
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    } finally {
+      getItem.mockRestore();
+      setItem.mockRestore();
+    }
   });
 });
 

@@ -16,6 +16,8 @@ export type NewLocation = {
   name: string;
   kind: string;
   preset: Preset;
+  /** Modules on top of the preset's (an import's What to track). */
+  extraModules?: readonly string[] | undefined;
   timezone: string;
   /** Upper case, three letters; must be enabled. */
   currency: string;
@@ -58,7 +60,7 @@ export async function createLocation(c: CreateCtx, body: NewLocation): Promise<s
   await requireEnabledCurrency(client, body.currency);
   const rooms = [...new Set(body.rooms)];
   const languages = [...new Set(body.languages ?? [])];
-  const modules = presetModules(body.preset);
+  const modules = new Set<string>([...presetModules(body.preset), ...(body.extraModules ?? [])]);
 
   // Order matters under RLS: the location, then its owner membership (after which it is
   // visible and writable), then its places and module switches. No RETURNING on the location
@@ -109,4 +111,72 @@ export async function createLocation(c: CreateCtx, body: NewLocation): Promise<s
     requestId: c.requestId,
   });
   return id;
+}
+
+/** Checks a new location before it is made (an import's target, made only when Import runs):
+ * the caller may own one, its timezone and currency are usable. The timezone as it will be. */
+export async function checkNewLocation(
+  client: pg.ClientBase,
+  body: Pick<NewLocation, 'timezone' | 'currency'>,
+): Promise<string> {
+  const { rows: me } = await client.query<{ managed: boolean }>(
+    'SELECT managed FROM public.user_profiles WHERE user_id = kept.current_user_id()',
+  );
+  if (me[0]?.managed) {
+    throw forbidden('A managed account can only use locations it is invited to.');
+  }
+  const timezone = validTimeZone(body.timezone);
+  if (!timezone) throw invalid('Check body.timezone.');
+  await requireEnabledCurrency(client, body.currency);
+  return timezone;
+}
+
+/**
+ * Switches a location to `preset`, every module's switch with it, as "What to track" does
+ * (POST /locations/:id/modules with the whole state): an import offering the same choice for
+ * Personal. Turning a module off hides it and never deletes data. Audited `location.modules`.
+ */
+export async function switchPreset(
+  c: CreateCtx,
+  locationId: string,
+  preset: Preset,
+  extraModules: readonly string[] = [],
+): Promise<void> {
+  const { client, scope } = c;
+  const { rows } = await client.query<{ preset: string }>(
+    'SELECT preset FROM public.locations WHERE id = $1 FOR UPDATE',
+    [locationId],
+  );
+  const was = rows[0];
+  if (!was) throw notFound();
+  const { rows: on } = await client.query<{ module: string }>(
+    'SELECT module FROM public.location_modules WHERE location_id = $1 AND enabled ORDER BY module',
+    [locationId],
+  );
+  const wanted = [...new Set<string>([...presetModules(preset), ...extraModules])];
+  await client.query('UPDATE public.locations SET preset = $2, updated_at = now() WHERE id = $1', [
+    locationId,
+    preset,
+  ]);
+  await client.query(
+    `INSERT INTO public.location_modules (location_id, module, enabled, enabled_at)
+     SELECT $1, m, m = ANY($3::text[]), CASE WHEN m = ANY($3::text[]) THEN now() END
+       FROM unnest($2::text[]) AS m
+     ON CONFLICT (location_id, module) DO UPDATE
+       SET enabled = excluded.enabled,
+           enabled_at = CASE WHEN excluded.enabled AND NOT location_modules.enabled
+                             THEN now()
+                             WHEN excluded.enabled THEN location_modules.enabled_at END
+     WHERE location_modules.enabled IS DISTINCT FROM excluded.enabled`,
+    [locationId, [...MODULE_IDS], wanted],
+  );
+  await audited(c.tx, {
+    locationId,
+    actor: { type: 'user', id: scope.userId },
+    action: 'location.modules',
+    entity: { type: 'location', id: locationId },
+    before: { preset: was.preset, modules: on.map((r) => r.module) },
+    after: { preset, modules: wanted.sort() },
+    requestId: c.requestId,
+  });
 }

@@ -3,7 +3,7 @@
 // e2e/instances.ts). Run with the compiled server, the way production runs it:
 //
 //   node --conditions=kept-dist e2e/serve.mjs <name> <port> [--seed] [--ai-mock] [--https] [--owner]
-//     [--trust-proxy] [--mail] [--google]
+//     [--trust-proxy] [--mail] [--google] [--public-host=<name>]
 //
 // 1. Creates a scratch database `kept_e2e_<name>_<pid>` on the dev Postgres (localhost:5452,
 //    compose.dev.yaml), never the dev `kept` database, and migrates it as kept_owner.
@@ -32,6 +32,10 @@
 //    With --mail, the server mails through the dev Mailpit (compose.dev.yaml: SMTP on 1025, its
 //    API on 8025), where the sign-in specs read the security notices. With --google, it offers
 //    Google sign-in with made-up client credentials; no test asks Google for anything.
+//    With --public-host=<name> (the `insecure` project), the public URL is http://<name>:<port>
+//    instead of localhost: a home-network address, which the browser doesn't count as a secure
+//    context. The browser maps the name to 127.0.0.1 (--host-resolver-rules), so nothing is
+//    published beyond this machine.
 // 4. On SIGTERM or SIGINT (Playwright's gracefulShutdown), stops the server and drops the
 //    database. A database left behind by a run that was killed outright is dropped by the next
 //    run of the same instance.
@@ -49,7 +53,7 @@ const [name, portArg, ...flags] = process.argv.slice(2);
 const port = Number(portArg);
 if (!name || !/^[a-z-]+$/.test(name) || !Number.isInteger(port)) {
   console.error(
-    'usage: node --conditions=kept-dist e2e/serve.mjs <name> <port> [--seed] [--ai-mock] [--https] [--owner] [--trust-proxy] [--mail] [--google]',
+    'usage: node --conditions=kept-dist e2e/serve.mjs <name> <port> [--seed] [--ai-mock] [--https] [--owner] [--trust-proxy] [--mail] [--google] [--public-host=<name>]',
   );
   process.exit(2);
 }
@@ -60,6 +64,13 @@ const owner = flags.includes('--owner');
 const trustProxy = flags.includes('--trust-proxy');
 const mailpit = flags.includes('--mail');
 const google = flags.includes('--google');
+const publicHost = flags
+  .find((f) => f.startsWith('--public-host='))
+  ?.slice('--public-host='.length);
+if (publicHost !== undefined && !/^[a-z][a-z0-9.-]*$/.test(publicHost)) {
+  console.error(`serve.mjs: --public-host takes a host name, not ${publicHost}`);
+  process.exit(2);
+}
 // Behind the TLS proxy the server itself listens 1000 above the public port.
 const serverPort = tls ? port + 1000 : port;
 
@@ -224,7 +235,7 @@ const env = {
   KEPT_DATABASE_URL: url('kept_app'),
   KEPT_AUTH_DATABASE_URL: url('kept_auth'),
   KEPT_SYSTEM_DATABASE_URL: url('kept_system'),
-  KEPT_PUBLIC_URL: `${tls ? 'https' : 'http'}://localhost:${port}`,
+  KEPT_PUBLIC_URL: `${tls ? 'https' : 'http'}://${publicHost ?? 'localhost'}:${port}`,
   KEPT_SOURCE_URL: 'https://github.com/keptinventory/kept',
   KEPT_CONFIG_DIR: `${state}config`,
   KEPT_DATA_DIR: `${state}data`,

@@ -63,10 +63,29 @@ const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 /** `Authorization: Bearer kpt_…`: a personal token (tokens/verify.ts). */
 const PERSONAL_BEARER = /^Bearer\s+kpt_/i;
 
+const NOT_THIS_SITE = 'The request did not come from this site.';
+
+/**
+ * 403 `origin_mismatch`: a page at another address than KEPT_PUBLIC_URL's (http://127.0.0.1:8080
+ * when Kept is set up for http://kept.lan:8080, say). The body names the address Kept is set up
+ * for (`expectedOrigin`), which every label and mail already prints, so the page can say "Open it
+ * there" instead of "You don't have permission".
+ */
+export function originMismatch(expectedOrigin: string): AppError {
+  return new AppError(
+    'origin_mismatch',
+    403,
+    NOT_THIS_SITE,
+    { expectedOrigin },
+    `This Kept is set up for ${expectedOrigin}.`,
+  );
+}
+
 /**
  * CSRF (security review I4). A write that carries a cookie must come from Kept's own pages:
  * its `Origin` is the origin of KEPT_PUBLIC_URL, or, when the browser sent no usable Origin
- * (absent, or `null`), `Sec-Fetch-Site: same-origin`. Anything else is 403 `forbidden`, before
+ * (absent, or `null`), `Sec-Fetch-Site: same-origin`. Another Origin is 403 `origin_mismatch`
+ * (with the expected one); no usable Origin is 403 `forbidden`. Both come before
  * the session is looked up or the body is parsed, on every route: a `text/plain` or multipart
  * form posted from another site (a CORS "simple request", which no preflight stops) never
  * reaches a handler with the victim's cookie.
@@ -87,10 +106,10 @@ export function csrfHook(publicUrl: string) {
     const origin = req.headers.origin;
     if (origin && origin !== 'null') {
       if (origin === expected) return;
-    } else if (req.headers['sec-fetch-site'] === 'same-origin') {
-      return;
+      throw originMismatch(expected);
     }
-    throw new AppError('forbidden', 403, 'The request did not come from this site.');
+    if (req.headers['sec-fetch-site'] === 'same-origin') return;
+    throw new AppError('forbidden', 403, NOT_THIS_SITE);
   };
 }
 
@@ -251,6 +270,16 @@ function passkeyAnswer(body: Record<string, unknown>) {
   return { id, name: name ?? null, createdAt: createdAt ?? null, backedUp, deviceType };
 }
 
+/** Whether Better Auth refused the request's Origin (`INVALID_ORIGIN`, a 403), read from a copy. */
+async function refusedOrigin(res: Response): Promise<boolean> {
+  if (res.status !== 403) return false;
+  const body = (await res
+    .clone()
+    .json()
+    .catch(() => null)) as { code?: unknown } | null;
+  return body?.code === 'INVALID_ORIGIN';
+}
+
 /** The OAuth `error` code of a 400 from Better Auth, read from a copy of the response. */
 async function oauthErrorOf(res: Response): Promise<unknown> {
   if (res.status !== 400) return null;
@@ -299,6 +328,9 @@ export async function authRoutes(app: KeptApp, opts: AuthRoutesOptions): Promise
           if (found && found.user.twoFactorEnabled !== true) turningOn = found.user.id;
         }
         const res = await auth.handler(new Request(url, init));
+        // Better Auth's own Origin check (a sign-in has no cookie yet, so csrfHook left it):
+        // answered as Kept's, naming the address this Kept is set up for.
+        if (await refusedOrigin(res)) throw originMismatch(origin);
         if (turningOn && res.status === 200) {
           const { rows } = await pools.auth.query<{ on: boolean }>(
             'SELECT coalesce(two_factor_enabled, false) AS on FROM auth."user" WHERE id = $1',

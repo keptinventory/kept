@@ -98,7 +98,7 @@ export const HomeOverview = z.object({
 });
 export type HomeOverview = z.infer<typeof HomeOverview>;
 
-type Loc = { id: string; this_year: number; gate: Gate };
+type Loc = { id: string; this_year: number; personal: boolean; gate: Gate };
 type Flags = z.infer<typeof Counts>;
 const noFlags = (): Flags => ({
   overdue: 0,
@@ -110,8 +110,8 @@ const noFlags = (): Flags => ({
 });
 
 async function locationsOf(tx: Tx, client: pg.ClientBase, scope: Scope): Promise<Loc[]> {
-  const { rows } = await client.query<{ id: string; this_year: number }>(
-    `SELECT l.id, extract(year FROM now() AT TIME ZONE l.timezone)::int AS this_year
+  const { rows } = await client.query<{ id: string; this_year: number; personal: boolean }>(
+    `SELECT l.id, l.kind = 'personal' AS personal, extract(year FROM now() AT TIME ZONE l.timezone)::int AS this_year
        FROM public.locations l
       WHERE l.id IN (SELECT kept.visible_location_ids()) AND l.deleted_at IS NULL
       ORDER BY CASE WHEN l.kind = 'personal' THEN 0 ELSE 1 END, lower(l.name), l.id`,
@@ -414,7 +414,8 @@ export async function homeOverviewOf(
         value: valueView(total),
         included: [...shownIds],
         hiddenIn: withMoney.filter((l) => !l.gate.showMoney).map((l) => l.id),
-        moneyOff: ids.filter((id) => !moneyOn.has(id)),
+        // Personal starts with Essentials (no money): naming it would nudge every account.
+        moneyOff: locs.filter((l) => !l.personal && !moneyOn.has(l.id)).map((l) => l.id),
       };
     }
   }

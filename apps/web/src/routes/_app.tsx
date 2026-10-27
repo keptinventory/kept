@@ -13,6 +13,7 @@ import { useLocations, useMe, useSetupStatus } from '@/api/queries';
 import { MainShell, sidebarWidth, useHasInbox } from '@/components/app-shell';
 import { AccountDeletionPending } from '@/components/delete-account';
 import { AppLockGate } from '@/components/device/app-lock';
+import { OriginMismatchBanner } from '@/components/origin-mismatch';
 import { ErrorState, Skeleton } from '@/components/page';
 import { signedInGate } from '@/lib/signed-in-gate';
 import { cn } from '@/lib/utils';
@@ -98,7 +99,8 @@ function SignedInFrame() {
       <MainShell locations={locations.data ?? []} counts={counts}>
         {/* Try Kept (D246): a constant, so other builds drop the banner altogether. */}
         {TRY ? <TryBanner /> : null}
-        <InsecureBanner />
+        <OriginMismatchBanner />
+        <InsecureBanner userId={me.data.user.id} />
         <PwaStoreBridge />
         <Outlet />
       </MainShell>

@@ -78,7 +78,7 @@ function snapshot(userId: string): Promise<Snapshot> {
 }
 
 describe('ensureAccount()', () => {
-  it('creates the owner account, Personal location, owner membership, Unplaced area and profile', async () => {
+  it('creates the owner account, Personal location (Essentials), owner membership, Unplaced area and profile', async () => {
     const userId = await bareUser('fresh');
     const headers = new Headers({
       'accept-language': 'ar-EG,ar;q=0.9,en;q=0.8',
@@ -94,7 +94,7 @@ describe('ensureAccount()', () => {
         id: result.personalLocationId,
         kind: 'personal',
         name: 'Personal',
-        preset: 'household',
+        preset: 'essentials',
         timezone: 'Africa/Cairo',
         currency: 'EGP',
       },

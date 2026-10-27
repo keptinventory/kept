@@ -31,9 +31,11 @@ import { ScanButton } from '@/components/scan-button';
 import { openPalette } from '@/components/search/palette-host';
 import { Button, type ButtonSize, type ButtonVariant, buttonClass } from '@/components/ui/button';
 import { Tip } from '@/components/ui/tooltip';
+import { isolate } from '@/lib/bidi';
 import { useKeyHints } from '@/lib/key-hints';
 import { initialOf } from '@/lib/labels';
 import { useMediaQuery, WIDE } from '@/lib/media';
+import { expectedOriginOf, sameRouteAt } from '@/lib/origin-mismatch';
 import { cn } from '@/lib/utils';
 
 // ----- page header -----------------------------------------------------------------------------
@@ -497,6 +499,14 @@ export function useErrorText() {
         return t`Confirm your second factor to continue.`;
       case 'forbidden':
         return t`You don't have permission to do that.`;
+      case 'origin_mismatch': {
+        // Opened at another address than the one this Kept is set up for (KEPT_PUBLIC_URL).
+        const expected = expectedOriginOf(e);
+        if (!expected)
+          return t`This Kept is set up for a different address. Open it at the address you were given.`;
+        const address = isolate(expected);
+        return t`This Kept is set up for ${address}. Open it there.`;
+      }
       case 'not_found':
         return t`This isn't here any more, or you can't see it.`;
       case 'rate_limited':
@@ -556,12 +566,21 @@ export function useErrorText() {
 
 export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   const text = useErrorText();
+  const { t } = useLingui();
+  const expected = expectedOriginOf(error);
   return (
     <Notice
       tone="danger"
       title={<Trans>Couldn't load this</Trans>}
       action={
-        onRetry ? (
+        expected ? (
+          <a
+            href={sameRouteAt(expected)}
+            className="font-semibold text-ink underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-info"
+          >
+            {t`Open ${expected}`}
+          </a>
+        ) : onRetry ? (
           <Button size="small" variant="secondary" onPress={onRetry}>
             <Trans>Try again</Trans>
           </Button>
