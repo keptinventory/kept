@@ -241,6 +241,38 @@ describe('own codes on a thing or a place', () => {
   });
 });
 
+describe("a Homebox import's codes", () => {
+  it('lists the Homebox asset ID but not the Homebox UUID, which still scans', async () => {
+    const lamp = await createThing(t, ibrahim, home, { name: 'Desk lamp' });
+    const shelf = await place(db, home, 'Shelf B');
+    const uuid = 'a3f1c2d4-5b6e-4f70-8a9b-0c1d2e3f4a5b';
+    const placeUuid = 'b4e2d3c5-6c7f-4a81-9bac-1d2e3f4a5b6c';
+    await own(
+      db,
+      `INSERT INTO public.legacy_codes (location_id, source, source_collection, code, thing_id, place_id)
+       VALUES ($1, 'homebox', 'g1', '000-012', $2, NULL),
+              ($1, 'homebox', 'g1', upper($3), $2, NULL),
+              ($1, 'homebox', 'g1', upper($4), NULL, $5)`,
+      [home.id, lamp.id, uuid, placeUuid, shelf],
+    );
+    const listed = ok(await codes(ibrahim, 'things', lamp.id)) as unknown as {
+      codes: { code: string; source: string }[];
+    };
+    expect(listed.codes).toEqual([{ code: '000-012', source: 'homebox', sourceCollection: 'g1' }]);
+    const onPlace = ok(await codes(ibrahim, 'places', shelf)) as unknown as { codes: unknown[] };
+    expect(onPlace.codes).toEqual([]);
+    for (const [text, target] of [
+      [`https://homebox.lan/item/${uuid}`, { kind: 'thing', id: lamp.id }],
+      [`https://homebox.lan/location/${placeUuid}`, { kind: 'place', id: shelf }],
+    ] as const) {
+      expect(ok(await call(t, '/api/v1/scan/resolve', { as: talia, body: { text } }))).toEqual({
+        outcome: 'open',
+        target: { ...target, locationId: home.id },
+      });
+    }
+  });
+});
+
 describe('numbering and the format rule', () => {
   // catalogue: PUT /api/v1/locations/:locationId/own-codes
   it('owners and admins set the options (audited); a member is 403 and a stale If-Match 412', async () => {

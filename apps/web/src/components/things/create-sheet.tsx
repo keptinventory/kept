@@ -36,7 +36,6 @@ import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
 import { sep } from '@/lib/format';
 import { parseNumber } from './form-model';
-import { markFresh } from './fresh';
 import {
   CurrencyPicker,
   isChosen,
@@ -244,7 +243,6 @@ export function CreateThingSheet({
         }
       }
       await invalidate(created.id);
-      markFresh(created.id);
       toast({ title: t`Added ${created.name ?? ''}`, tone: 'ok' });
       const meter = created.meters?.[0];
       if (meter && canLog(created.locationId)) {

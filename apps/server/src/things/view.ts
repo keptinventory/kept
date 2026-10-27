@@ -21,6 +21,7 @@ import {
   fileViewOf,
 } from '../files/views.js';
 import { notFound } from '../http/errors.js';
+import { labelPrintedSql, shownCodeSql } from '../labels/printed-sql.js';
 import { type Estimate, EstimateSchema, estimatesOf } from '../meters/estimate.js';
 import { currentValueOf } from '../money/valuations.js';
 import { type CurrentValue, CurrentValueSchema } from '../money/view.js';
@@ -66,6 +67,8 @@ export type ThingRow = {
   id: string;
   locationId: string;
   shortCode: string | null;
+  /** It carries a printed label (labels/printed-sql.ts): lists show its code only then. */
+  labelPrinted: boolean;
   name: string | null;
   type: { id: string; icon: string; name: string | null; builtinKey: string | null } | null;
   quantity: number;
@@ -91,8 +94,8 @@ const firstThumb = (thing: string) => `(
 export const ROW_COLUMNS = `t.id, t.location_id, t.name, t.quantity::text AS quantity, t.lifecycle,
        t.location_uncertain, t.review_state, t.last_seen_at,
        ${pathSql('t.place_id', 't.container_id')} AS path,
-       (SELECT s.code FROM public.short_ids s
-         WHERE s.thing_id = t.id AND s.is_primary AND s.state = 'assigned' LIMIT 1) AS short_code,
+       ${shownCodeSql('thing_id', 't.id')} AS short_code,
+       ${labelPrintedSql('thing_id', 't.id')} AS label_printed,
        ty.id AS type_id, ty.icon AS type_icon, ty.name AS type_name,
        ty.builtin_key AS type_builtin_key,
        ${firstThumb('t.id')} AS thumb_file_id,
@@ -119,6 +122,7 @@ export type RowRecord = {
     shortCode?: string | null;
   }[];
   short_code: string | null;
+  label_printed: boolean;
   type_id: string | null;
   type_icon: string | null;
   type_name: string | null;
@@ -151,6 +155,7 @@ export async function rowOf(
     id: r.id,
     locationId: r.location_id,
     shortCode: r.short_code,
+    labelPrinted: r.label_printed === true,
     name: r.name,
     type:
       r.type_id && r.type_icon
@@ -858,6 +863,7 @@ export const ThingRowSchema = z.object({
   id: z.uuid(),
   locationId: z.uuid(),
   shortCode: z.string().nullable(),
+  labelPrinted: z.boolean(),
   name: z.string().nullable(),
   type: z
     .object({

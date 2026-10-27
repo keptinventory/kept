@@ -497,8 +497,10 @@ async function readCodes({ client, out }: PageContext, q: Slice): Promise<Read> 
     place_id: string | null;
     state: SnapCode['state'];
     is_primary: boolean;
+    printed_at: Date | null;
   }>(
-    `SELECT c.code, c.location_id, c.thing_id, c.place_id, c.state, c.is_primary
+    `SELECT c.code, c.location_id, c.thing_id, c.place_id, c.state, c.is_primary,
+            c.printed_at
        FROM public.short_ids c
       WHERE ${w.where}
       ORDER BY ${w.order}
@@ -513,6 +515,7 @@ async function readCodes({ client, out }: PageContext, q: Slice): Promise<Read> 
       placeId: r.place_id,
       state: r.state,
       isPrimary: r.is_primary,
+      ...(r.printed_at ? { printedAt: r.printed_at.toISOString() } : {}),
     });
   }
   return readOf(rows, (r) => [r.code]);

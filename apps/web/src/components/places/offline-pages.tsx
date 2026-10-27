@@ -56,6 +56,7 @@ function rowOf(t: SnapThing, path: PathStep[], tags: readonly SnapTag[] = []): T
     id: t.id,
     locationId: t.locationId,
     shortCode: t.shortCode,
+    labelPrinted: t.labelPrinted === true,
     name: t.name,
     type: null,
     quantity: Number(t.quantity) || 1,
@@ -192,11 +193,13 @@ export function OfflineThingPage({ id }: { id: string }) {
         <AsOf asOf={asOf} />
         <div className="grid gap-2">
           <span className="flex flex-wrap items-center gap-1.5">
-            <IdChip code={thing.shortCode} />
+            {/* As online: the tape of a printed label leads; a code with no label is quiet, last. */}
+            {row.labelPrinted ? <IdChip code={thing.shortCode} /> : null}
             {row.derivedState.map((s) => (
               <StatusPill key={s} state={s} />
             ))}
             {Number(thing.quantity) > 1 ? <Pill>× {f.num(Number(thing.quantity))}</Pill> : null}
+            {row.labelPrinted ? null : <IdChip code={thing.shortCode} variant="quiet" />}
           </span>
           {locationName || path.length ? (
             <span className="text-small text-ink-2 [overflow-wrap:anywhere]">

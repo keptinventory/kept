@@ -7,7 +7,7 @@ import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import type { MapAttentionKind, MapView } from '@/api/map/types';
 import { ThingCount } from '@/components/counts';
-import { printedCode } from '@/components/id-chip';
+import { IdChip, LabelTape } from '@/components/id-chip';
 import { useFormat } from '@/lib/format';
 import { useAttentionWords } from './card';
 import type { Contents, Plan } from './layout';
@@ -77,7 +77,7 @@ export function WhatsIn({
           {r.name}
           {r.kind === 'thing' && r.quantity !== 1 ? ` ×${f.num(r.quantity)}` : ''}
         </button>
-        {r.shortCode ? <small dir="ltr">{printedCode(r.shortCode)}</small> : null}
+        <LabelTape code={r.shortCode} printed={r.labelPrinted} />
         <span className="kmap-fill" />
         <Dots flags={r.flags} />
         <span className="kmap-c">{r.count !== null ? f.num(r.count) : ''}</span>
@@ -110,7 +110,7 @@ export function WhatsIn({
     <button type="button" onClick={() => onThing(c.id)}>
       {c.name}
       {c.quantity !== 1 ? ` ×${f.num(c.quantity)}` : ''}{' '}
-      {c.shortCode ? <small dir="ltr">{printedCode(c.shortCode)}</small> : null}
+      <LabelTape code={c.shortCode} printed={c.labelPrinted} />
       <Dots flags={c.flags} />
     </button>
   );
@@ -140,10 +140,10 @@ export function WhatsIn({
                         <span>{r.name}</span>
                         <small>
                           {r.where.join(' › ')}
-                          {r.shortCode ? (
+                          {r.shortCode && r.labelPrinted ? (
                             <>
                               {' '}
-                              · <bdi dir="ltr">{printedCode(r.shortCode)}</bdi>
+                              <IdChip code={r.shortCode} />
                             </>
                           ) : null}
                         </small>

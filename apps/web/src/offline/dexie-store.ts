@@ -44,13 +44,14 @@ import {
   type LocalBlob,
   legacyCodesByThing,
   legacyKey,
-  primaryCodeOf,
-  primaryCodes,
+  printedThings,
   type QueueEntry,
   type QueueState,
   reissuedHit,
   type SharedInto,
   type SyncNotice,
+  shownCodeOf,
+  shownCodes,
   termsOf,
   UNANSWERED,
   withQueuedTags,
@@ -158,21 +159,28 @@ export class DexieStore implements SyncStore {
             await db.extraDocs.where('locationId').equals(loc).delete();
             await db.keptOffline.delete(loc);
           }
-          // A code claimed since the thing's row was sent shows on it, and finds it (primaryCodeOf);
+          // A code claimed since the thing's row was sent shows on it, and finds it (shownCodeOf);
           // its legacy and own codes find it too (D208), whichever of them this page brought.
           const touched = [...new Set([...codeTouched(page), ...codeThings])];
           if (touched.length > 0) {
-            const primary = primaryCodes(await db.codes.where('thingId').anyOf(touched).toArray());
+            const touchedCodes = await db.codes.where('thingId').anyOf(touched).toArray();
+            const shown = shownCodes(touchedCodes);
+            const printed = printedThings(touchedCodes);
             const codes = legacyCodesByThing(
               await db.legacyCodes.where('thingId').anyOf(touched).toArray(),
             );
             const fixed: ThingRow[] = [];
             for (const row of await db.things.bulkGet(touched)) {
               if (!row) continue;
-              const t = { ...stripTerms(row), shortCode: primaryCodeOf(row, primary) };
+              const t = {
+                ...stripTerms(row),
+                shortCode: shownCodeOf(row, shown),
+                labelPrinted: printed.has(codesKey(row)),
+              };
               const terms = termsOf(t, codes.get(codesKey(t)));
               const same =
                 t.shortCode === row.shortCode &&
+                t.labelPrinted === (row.labelPrinted === true) &&
                 terms.length === row.terms.length &&
                 terms.every((w, i) => w === row.terms[i]);
               if (!same) fixed.push({ ...t, terms });

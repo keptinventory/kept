@@ -7,7 +7,7 @@ import Dexie from 'dexie';
 import { describe, expect, it, vi } from 'vitest';
 import { fakeIdb, makeDexieStore } from '@/test/dexie';
 import { firstPage, storeContract } from '@/test/store-contract';
-import { dbName, V1_STORES } from './db';
+import { dbName, V1_STORES, V5_STORES } from './db';
 import { StorageFullError } from './persist';
 
 storeContract('DexieStore (fake-indexeddb)', () => makeDexieStore());
@@ -54,7 +54,7 @@ describe('DexieStore', () => {
     expect((await s.thing(DRILL))?.name).toBe('Bosch drill');
   });
 
-  it('v3 rebuilds the terms in place with each thing’s legacy codes, keeping the copy', async () => {
+  it('a v2 copy, whose terms v3 rebuilt in place, now starts over at v6', async () => {
     const idb = fakeIdb();
     const userId = newId();
     // A phone that synced under v2: the drill's terms have no codes, its Homebox code is kept.
@@ -77,9 +77,46 @@ describe('DexieStore', () => {
     v2.close();
 
     const s = makeDexieStore(userId, idb);
-    expect(await s.cursor()).toBe('v2-cursor');
+    expect(await s.cursor()).toBeNull();
+    expect(await s.search('bosch', 10)).toEqual([]);
+    // The next sync brings the copy back, its terms with its codes.
+    await s.applySnapshot(firstPage());
     expect((await s.search('000-001', 10)).map((t) => t.id)).toEqual([DRILL]);
-    expect((await s.search('bosch', 10)).map((t) => t.id)).toEqual([DRILL]);
+  });
+
+  it('v6 starts the copy over, since its codes had no print status, and keeps the queue', async () => {
+    const idb = fakeIdb();
+    const userId = newId();
+    // A phone that synced under v5: codes without `printed`, a cursor, and a capture waiting.
+    const v5 = new Dexie(dbName(userId), idb);
+    v5.version(5).stores(V5_STORES);
+    await v5.table('things').put({ ...firstPage().changes.things[0], terms: ['bosch'] });
+    await v5.table('codes').bulkPut(firstPage().changes.codes);
+    await v5.table('meta').bulkPut([
+      { key: 'cursor', value: 'v5-cursor' },
+      { key: 'lastSyncAt', value: 1 },
+    ]);
+    await v5.table('tray').put({ thingId: DRILL, addedAt: 1 });
+    await v5.table('queue').add({
+      clientVersion: '0.1.0',
+      payloadVersion: 1,
+      clientId: 'c1',
+      idempotencyKey: 'move:c1',
+      op: 'move',
+      takenAt: '2026-09-27T11:06:00.000Z',
+      locationId: LOC,
+      payload: { thingIds: [DRILL], to: { placeId: GARAGE } },
+      state: 'pending',
+    });
+    v5.close();
+
+    const s = makeDexieStore(userId, idb);
+    expect(await s.cursor()).toBeNull();
+    expect(await s.thing(DRILL)).toBeUndefined();
+    expect(await s.db.codes.count()).toBe(0);
+    expect(await s.meta('lastSyncAt')).toBe(1);
+    expect(await s.tray()).toEqual([DRILL]);
+    expect(await s.db.queue.count()).toBe(1);
   });
 
   it('finds الكابل offline by its bare form كابل and by its Arabic alias', async () => {

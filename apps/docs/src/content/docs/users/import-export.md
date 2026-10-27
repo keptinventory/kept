@@ -151,9 +151,12 @@ lists what it can put right, by name:
 
 Tick what you want and press **Repair**. One **Undo** takes it all back.
 
-**Old labels keep working.** Each Homebox asset ID (`000-001`) is remembered. Kept's scanner
-recognises a Homebox label and opens the imported thing; if you point the old Homebox hostname at
-Kept, scanning with the phone's own camera works too.
+**Old labels keep working.** Each Homebox asset ID (`000-001`) is remembered and listed under
+**Your codes** on the thing. Kept's scanner recognises a Homebox label and opens the imported
+thing; if you point the old Homebox hostname at Kept, scanning with the phone's own camera works
+too. Homebox's long item and location IDs (the ones in its label links) are remembered for
+scanning but not listed. Imported things get Kept codes of their own, which stay out of lists until
+you print their labels.
 
 ### Coming from an older Homebox
 

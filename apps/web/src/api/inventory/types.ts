@@ -516,6 +516,8 @@ export type PlaceView = {
   isUnplaced: boolean;
   path: PathStep[];
   shortCode: string | null;
+  /** It carries a printed label: its page shows the amber tape, else a quiet code. */
+  labelPrinted: boolean;
   fields: ResolvedField[];
   custom: Record<string, unknown>;
   secrets: SecretSummary[];
@@ -580,6 +582,9 @@ export type ThingRow = {
   locationId: string;
   /** The primary short ID (D120), 6 Crockford characters, or null until allocated. */
   shortCode: string | null;
+  /** It carries a printed label ("Printed OK?" on one of its codes, or a claimed blank): lists
+   * show its code, as the amber tape, only then. */
+  labelPrinted: boolean;
   /** Null only while `derivedState` has `draft`. */
   name: string | null;
   type: TypeRef | null;

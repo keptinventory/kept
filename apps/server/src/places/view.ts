@@ -12,6 +12,7 @@ import { ATTACHMENT_SELECT, type AttachmentRow, attachmentViews } from '../files
 import { decodeCursor, encodeCursor } from '../http/conventions.js';
 import { invalid, notFound } from '../http/errors.js';
 import { filterOf, lowerIds, manyOf, matchOf, notOf } from '../http/list-filters.js';
+import { labelPrintedSql, shownCodeSql } from '../labels/printed-sql.js';
 import {
   derivedStatesOf,
   householdStateSql,
@@ -129,6 +130,8 @@ export const PlaceViewSchema = z.object({
   isUnplaced: z.boolean(),
   path: z.array(PathStepSchema),
   shortCode: z.string().nullable(),
+  /** It carries a printed label (labels/printed-sql.ts). */
+  labelPrinted: z.boolean(),
   fields: z.array(ResolvedFieldSchema),
   custom: z.record(z.string(), z.unknown()),
   secrets: z.array(SecretSummarySchema),
@@ -142,6 +145,7 @@ export const ThingRowSchema = z.object({
   id: z.uuid(),
   locationId: z.uuid(),
   shortCode: z.string().nullable(),
+  labelPrinted: z.boolean(),
   name: z.string().nullable(),
   type: z
     .object({
@@ -405,13 +409,17 @@ async function pathOfPlace(client: pg.ClientBase, placeId: string): Promise<Path
   }));
 }
 
-async function primaryCode(client: pg.ClientBase, placeId: string): Promise<string | null> {
-  const { rows } = await client.query<{ code: string }>(
-    `SELECT code FROM public.short_ids
-      WHERE place_id = $1 AND is_primary AND state = 'assigned' LIMIT 1`,
+/** The code the place shows (its printed label's, else its primary one), and whether it has one. */
+async function codeOf(
+  client: pg.ClientBase,
+  placeId: string,
+): Promise<{ shortCode: string | null; labelPrinted: boolean }> {
+  const { rows } = await client.query<{ code: string | null; printed: boolean }>(
+    `SELECT ${shownCodeSql('place_id', '$1::uuid')} AS code,
+            ${labelPrintedSql('place_id', '$1::uuid')} AS printed`,
     [placeId],
   );
-  return rows[0]?.code ?? null;
+  return { shortCode: rows[0]?.code ?? null, labelPrinted: rows[0]?.printed === true };
 }
 
 async function secretsOf(
@@ -490,7 +498,7 @@ export async function placeView(
     icon: place.icon,
     isUnplaced: place.isUnplaced,
     path: await pathOfPlace(client, place.id),
-    shortCode: await primaryCode(client, place.id),
+    ...(await codeOf(client, place.id)),
     fields,
     custom: customForView(gate, fields, place.custom),
     secrets: await secretsOf(client, gate, place.id, fields),
@@ -547,6 +555,7 @@ type RawThing = {
   loan_direction: 'out' | 'in' | null;
   last_seen_at: Date | null;
   short_code: string | null;
+  label_printed: boolean;
   type_id: string | null;
   type_icon: string | null;
   type_name: string | null;
@@ -657,9 +666,8 @@ export async function placeContents(
   const { rows } = await client.query<RawThing>(
     `SELECT t.id, t.location_id, t.name, t.quantity::text AS quantity, t.lifecycle,
             t.location_uncertain, t.review_state, t.last_seen_at,
-            (SELECT sc.code FROM public.short_ids sc
-              WHERE sc.thing_id = t.id AND sc.is_primary AND sc.state = 'assigned' LIMIT 1)
-              AS short_code,
+            ${shownCodeSql('thing_id', 't.id')} AS short_code,
+            ${labelPrintedSql('thing_id', 't.id')} AS label_printed,
             ty.id AS type_id, ty.icon AS type_icon, ty.name AS type_name,
             ty.builtin_key AS type_builtin_key,
             (SELECT a.file_id FROM public.attachments a
@@ -696,6 +704,7 @@ export async function placeContents(
       id: r.id,
       locationId: r.location_id,
       shortCode: r.short_code,
+      labelPrinted: r.label_printed === true,
       name: r.name,
       type:
         r.type_id && r.type_icon

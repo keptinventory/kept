@@ -106,6 +106,7 @@ export function movingMockRoutes(state: MockState): MockRoute[] {
       visible,
       name: visible && t ? t.name : null,
       shortCode: visible && t ? t.shortCode : null,
+      labelPrinted: visible && t?.labelPrinted === true,
       locationId: visible && t ? t.locationId : null,
       placeId: visible && t ? t.placeId : null,
       where: visible && t ? pathOf(t) : null,

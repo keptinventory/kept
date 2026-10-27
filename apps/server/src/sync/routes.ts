@@ -145,6 +145,7 @@ const SnapshotResponse = z.object({
         placeId: Uuid.nullable(),
         state: z.enum(['blank', 'assigned', 'retired']),
         isPrimary: z.boolean(),
+        printedAt: z.string().optional(),
       }),
     ),
     legacyCodes: z.array(

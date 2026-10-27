@@ -27228,3 +27228,7 @@ msgstr "Homebox v0.26.1 ou plus récent (v0.27.0 recommandée) : Collection → 
 #: src/components/connections/token-create.tsx
 msgid "On a home network without HTTPS, the person who runs this Kept can make one on the server: kept admin token create."
 msgstr "Sur un réseau domestique sans HTTPS, la personne qui gère ce Kept peut en créer un sur le serveur : kept admin token create."
+
+#: src/components/import/archive-run.tsx
+msgid "Open the map"
+msgstr "Ouvrir la carte"

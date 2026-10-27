@@ -209,14 +209,15 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
           </LinkButton>
         </div>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-          <IdChip code={place.shortCode} size="large" />
+          {/* Its printed label leads, as the tape; a code with no label waits quietly below. */}
+          {place.labelPrinted ? <IdChip code={place.shortCode} size="large" /> : null}
           <Breadcrumb
             location={{ id: location.id, name: locationName, address: locationAddress(location) }}
             path={place.path.slice(0, -1)}
             current={name}
           />
         </div>
-        <div className="flex items-center gap-2 text-small text-ink-2">
+        <div className="flex flex-wrap items-center gap-2 text-small text-ink-2">
           <TypeIcon icon={placeIcon(place)} className="size-4 text-ink-3" />
           {place.isUnplaced ? (
             <Trans>Things captured with no place yet</Trans>
@@ -229,6 +230,7 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
               />
             </>
           )}
+          {place.labelPrinted ? null : <IdChip code={place.shortCode} variant="quiet" />}
         </div>
       </div>
 
@@ -327,10 +329,6 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
         />
       </List>
 
-      {place.isUnplaced ? null : (
-        <OwnCodesSection kind="place" id={place.id} locationId={location.id} canEdit={canEdit} />
-      )}
-
       {map ? null : (
         <ContentsList
           parent={{ kind: 'place', id: place.id, locationId: location.id, name }}
@@ -345,6 +343,11 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
             </EmptyState>
           }
         />
+      )}
+
+      {/* Its own codes, after what's in it: names and contents come first. */}
+      {place.isUnplaced ? null : (
+        <OwnCodesSection kind="place" id={place.id} locationId={location.id} canEdit={canEdit} />
       )}
 
       {paperwork ? (
@@ -506,7 +509,9 @@ function LabelRow({ place, location }: { place: PlaceView; location: LocationDet
           icon={<QrIcon />}
           title={<Trans>Print its label</Trans>}
           subtitle={<Trans>For the shelf or door; a reprint has the same code</Trans>}
-          trailing={<IdChip code={place.shortCode} />}
+          trailing={
+            <IdChip code={place.shortCode} variant={place.labelPrinted ? 'tape' : 'quiet'} />
+          }
           onPress={() =>
             void navigate({ to: '/labels', search: { loc: location.id, places: place.id } })
           }

@@ -32,7 +32,9 @@ import type {
   Vendor,
 } from '../types';
 
-export type StoredPlace = Omit<PlaceView, 'path' | 'counts' | 'attachments'> & {
+export type StoredPlace = Omit<PlaceView, 'path' | 'counts' | 'attachments' | 'labelPrinted'> & {
+  /** A label of it was confirmed printed (the labels mock sets it). */
+  labelPrinted?: boolean;
   sort: number;
   deletedAt: string | null;
   trashBatchId: string | null;
@@ -40,7 +42,12 @@ export type StoredPlace = Omit<PlaceView, 'path' | 'counts' | 'attachments'> & {
 };
 
 /** A thing as the mock stores it: the view's own fields; `path` and counts are computed. */
-export type StoredThing = Omit<ThingView, 'path' | 'derivedState' | 'contentsCount' | 'links'> & {
+export type StoredThing = Omit<
+  ThingView,
+  'path' | 'derivedState' | 'contentsCount' | 'links' | 'labelPrinted'
+> & {
+  /** A label of it was confirmed printed or claimed (the labels mock sets it). */
+  labelPrinted?: boolean;
   links: { id: string; kind: ThingView['links'][number]['kind']; toThingId: string }[];
   deletedAt: string | null;
   trashBatchId: string | null;
@@ -166,6 +173,7 @@ export function rowOf(inv: InventoryState, t: StoredThing): ThingRow {
     id: t.id,
     locationId: t.locationId,
     shortCode: t.shortCode,
+    labelPrinted: t.labelPrinted === true,
     name: t.name,
     type: t.type,
     quantity: t.quantity,
@@ -230,6 +238,7 @@ export function placeViewOf(inv: InventoryState, p: StoredPlace): PlaceView {
   const node = placeNodeOf(inv, p);
   return {
     ...own,
+    labelPrinted: p.labelPrinted === true,
     path: placePath(inv, p.id),
     counts: { places: node.childCount, things: node.thingCount },
     attachments: inv.attachments.filter(

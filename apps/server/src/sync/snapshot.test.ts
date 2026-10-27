@@ -397,6 +397,27 @@ describe('deltas', () => {
     expect(pages.flatMap((p) => p.removed)).toEqual([]);
   });
 
+  it('carry a code whose label was printed, marked printed, so the phone shows the tape', async () => {
+    await own(
+      `INSERT INTO public.short_ids (code, location_id, thing_id, is_primary)
+       VALUES ('PR1234', $1, $2, false), ('NP2345', $1, $2, false)`,
+      [home.id, ladder],
+    );
+    const mark = await markNow();
+    const state: CursorState = { v: 1, w: { [home.id]: mark }, p: null };
+    const before = allOf((await directPull(louis, state)).pages, 'codes');
+    expect(before.find((c) => c.code === 'PR1234')).toBeUndefined();
+    await own(`UPDATE public.short_ids SET printed_at = now() WHERE code = 'PR1234'`);
+    const { pages } = await directPull(louis, state);
+    expect(allOf(pages, 'codes')).toEqual([
+      expect.objectContaining({ code: 'PR1234', thingId: ladder, printedAt: expect.any(String) }),
+    ]);
+    // An unprinted code leaves the key out.
+    const all = allOf((await pull(louis)).pages, 'codes');
+    expect(all.find((c) => c.code === 'NP2345')).not.toHaveProperty('printedAt');
+    expect(all.find((c) => c.code === 'PR1234')?.printedAt).toMatch(/^\d{4}-\d\d-\d\dT/);
+  });
+
   it('carry a thing whose tags changed, with its tag ids', async () => {
     const { cursor } = await pull(louis);
     const [g] = await own<{ id: string }>(

@@ -57,6 +57,7 @@ const ThingRow = z.object({
   id: z.uuid(),
   locationId: z.uuid(),
   shortCode: z.string().nullable(),
+  labelPrinted: z.boolean(),
   name: z.string().nullable(),
   type: z
     .object({

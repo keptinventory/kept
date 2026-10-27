@@ -7,6 +7,7 @@ import { mapPaths as p } from './paths';
 import type { LayoutBody, MapView } from './types';
 
 export const mapKeys = {
+  all: ['map'] as const,
   map: (locationId: string) => ['map', locationId] as const,
 };
 

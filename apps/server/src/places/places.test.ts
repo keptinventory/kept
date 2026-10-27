@@ -256,6 +256,7 @@ describe('POST /api/v1/locations/:locationId/places', () => {
       isUnplaced: false,
       path: [{ id, name: 'Garage', kind: 'place', isUnplaced: false, shortCode: null }],
       shortCode: null,
+      labelPrinted: false,
       fields: [],
       custom: {},
       secrets: [],

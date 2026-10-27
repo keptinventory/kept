@@ -571,6 +571,15 @@ export function ArchiveRunView({
         <Link to="/loc/$id" params={{ id: run.locationId }} className={buttonClass('secondary')}>
           <Trans>Open the location</Trans>
         </Link>
+        {/* Its places are laid out as rooms by themselves: the map is one step away. */}
+        <Link
+          to="/loc/$id"
+          params={{ id: run.locationId }}
+          search={{ view: 'map' } as never}
+          className={buttonClass('secondary')}
+        >
+          <Trans>Open the map</Trans>
+        </Link>
       </div>
       {source === 'homebox_zip' && run.startedAt ? <ImportRepair runId={run.id} /> : null}
       {run.report && run.report.rows.length > 0 ? (

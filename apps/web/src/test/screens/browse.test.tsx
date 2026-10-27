@@ -411,7 +411,7 @@ describe('a grid keeps places and things apart, in three sizes (#139)', () => {
     let ul = await contents();
     expect(ul).toHaveAttribute('data-tile-size', 'medium');
     expect(ul.className).toContain('grid-cols-2');
-    // Medium is today's tile: the name and the short ID.
+    // Medium is the name and the tape of a printed label (the demo's phone has one).
     const galaxy = () => within(ul).getByRole('link', { name: /Galaxy S23/ });
     expect(within(galaxy()).getByRole('img')).toBeInTheDocument();
 

@@ -33,7 +33,7 @@ import {
   SearchIcon,
   TrashIcon,
 } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import { KindIcon } from '@/components/kind-icon';
 import { useAllPlaceTrees } from '@/components/places/api';
 import { placeIcon, usePlaceName } from '@/components/places/labels';
@@ -385,7 +385,7 @@ export default function Palette({
                               {e.thing.derivedState.map((st) => (
                                 <StatusPill key={st} state={st} />
                               ))}
-                              <IdChip code={e.thing.shortCode} />
+                              <LabelTape code={e.thing.shortCode} printed={e.thing.labelPrinted} />
                             </span>
                           </>,
                         )

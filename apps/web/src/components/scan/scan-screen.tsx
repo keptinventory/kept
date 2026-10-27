@@ -24,7 +24,7 @@ import { appDetect } from '@/camera/scanner';
 import type { CameraEnv } from '@/camera/session';
 import { useHint } from '@/components/hints/use-hint';
 import { QrIcon, XIcon } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import { UnpackAnswer } from '@/components/moving/unpack-answer';
 import { usePlaceName } from '@/components/places/labels';
 import { Sheet } from '@/components/things/sheet';
@@ -470,7 +470,8 @@ function TrayAnswer({
         <div className="grid min-w-0 flex-1 gap-0.5">
           <div className="flex flex-wrap items-center gap-2">
             <bdi className="font-semibold [overflow-wrap:anywhere]">{name}</bdi>
-            {d?.shortCode ? <IdChip code={d.shortCode} /> : null}
+            {/* A Kept label was just read, or it has a printed one: the tape; else no code. */}
+            <LabelTape code={d?.shortCode ?? null} printed={res.code !== null || d?.labelPrinted} />
           </div>
           {where ? (
             <bdi className="text-small text-ink-3 [overflow-wrap:anywhere]">{where}</bdi>

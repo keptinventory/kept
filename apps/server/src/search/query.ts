@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { PAGE_MAX } from '../http/conventions.js';
 import { type Many, manyOf, matchOf, notOf } from '../http/list-filters.js';
 import { legacyCodeOf } from '../imports/csv.js';
+import { labelPrintedSql, shownCodeSql } from '../labels/printed-sql.js';
 import { tagMatchSql, tagsSql } from '../things/tag-sql.js';
 
 // The search SQL (D42). Everything here runs on the
@@ -206,6 +207,7 @@ export type ThingHit = {
     shortCode?: string | null;
   }[];
   short_code: string | null;
+  label_printed: boolean;
   type_id: string | null;
   type_icon: string | null;
   type_name: string | null;
@@ -435,8 +437,8 @@ export async function searchThings(
     SELECT t.id, t.location_id, t.name, t.quantity::text AS quantity, t.lifecycle,
            t.location_uncertain, t.review_state, t.last_seen_at, t.aliases,
            ${pathSql('t.place_id', 't.container_id')} AS path,
-           (SELECT s.code FROM public.short_ids s
-             WHERE s.thing_id = t.id AND s.is_primary AND s.state = 'assigned' LIMIT 1) AS short_code,
+           ${shownCodeSql('thing_id', 't.id')} AS short_code,
+           ${labelPrintedSql('thing_id', 't.id')} AS label_printed,
            ty.id AS type_id, ty.icon AS type_icon, ty.name AS type_name,
            ty.builtin_key AS type_builtin_key,
            ${firstThumb('t.id')} AS thumb_file_id,

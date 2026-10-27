@@ -2,7 +2,8 @@ import { screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AppProviders } from '@/app-providers';
 import { expectLogicalOnly, renderUI } from '@/test/render';
-import { IdChip } from './id-chip';
+import { IdChip, LabelTape } from './id-chip';
+import { markJustPrinted } from './labels/just-printed';
 import { StatusPill } from './status-pill';
 
 function reducedMotion(reduce: boolean) {
@@ -54,28 +55,17 @@ describe('IdChip', () => {
     expect(chip).not.toHaveClass('font-mono');
   });
 
-  it('"ID pending" in Arabic keeps logical CSS, and the code prints when it arrives', async () => {
+  it('"ID pending" in Arabic keeps logical CSS; the code that arrives is not printed yet', async () => {
     reducedMotion(false);
     const { rerender } = await renderUI(<IdChip code={null} pending />, { locale: 'ar' });
     expectLogicalOnly();
     rerender(
       <AppProviders locale="ar">
-        <IdChip code="7KQ4MZ" pending />
+        <IdChip code="7KQ4MZ" variant="quiet" pending />
       </AppProviders>,
     );
     const chip = screen.getByRole('img', { name: '7KQ4MZ' });
-    expect(chip).toHaveAttribute('data-printing', 'true');
-  });
-
-  it('animates like printed tape once, when the code arrives', async () => {
-    reducedMotion(false);
-    const { rerender } = await renderUI(<IdChip code={null} />);
-    rerender(
-      <AppProviders locale="en">
-        <IdChip code="7KQ4MZ" />
-      </AppProviders>,
-    );
-    expect(screen.getByRole('img')).toHaveAttribute('data-printing', 'true');
+    expect(chip).not.toHaveAttribute('data-printing');
   });
 
   it('does not animate a code that was already there, or under reduced motion', async () => {
@@ -88,10 +78,90 @@ describe('IdChip', () => {
     expect(screen.getByRole('img')).not.toHaveAttribute('data-printing');
   });
 
-  it('animates a fresh code on mount (a thing just created)', async () => {
+  it('animates a fresh code on mount', async () => {
     reducedMotion(false);
     await renderUI(<IdChip code="7KQ4MZ" fresh />);
     expect(screen.getByRole('img')).toHaveAttribute('data-printing', 'true');
+  });
+});
+
+describe('IdChip quiet: a code with no printed label', () => {
+  it('is small neutral mono, no amber, still named by the code and left to right', async () => {
+    reducedMotion(false);
+    await renderUI(<IdChip code="7KQ4MZ" variant="quiet" />, { locale: 'ar' });
+    const chip = screen.getByRole('img', { name: '7KQ4MZ' });
+    expect(chip).toHaveTextContent('7KQ‑4MZ');
+    expect(chip).toHaveAttribute('dir', 'ltr');
+    expect(chip).toHaveAttribute('data-variant', 'quiet');
+    expect(chip).toHaveClass('font-mono', 'text-ink-2');
+    expect(chip.className).not.toMatch(/amber|F0B03A/);
+    expectLogicalOnly();
+  });
+
+  it('the tape is amber, marked as the tape', async () => {
+    reducedMotion(false);
+    await renderUI(<IdChip code="7KQ4MZ" />);
+    expect(screen.getByRole('img')).toHaveAttribute('data-variant', 'tape');
+  });
+
+  it('prints like tape when it turns from quiet to tape on screen (a label just printed)', async () => {
+    reducedMotion(false);
+    const { rerender } = await renderUI(<IdChip code="7KQ4MZ" variant="quiet" />);
+    expect(screen.getByRole('img')).not.toHaveAttribute('data-printing');
+    rerender(
+      <AppProviders locale="en">
+        <IdChip code="7KQ4MZ" variant="tape" />
+      </AppProviders>,
+    );
+    expect(screen.getByRole('img')).toHaveAttribute('data-printing', 'true');
+  });
+
+  it('prints once on its next appearance after its label was confirmed printed', async () => {
+    reducedMotion(false);
+    markJustPrinted(['2HX9RB']);
+    const first = await renderUI(<IdChip code="2HX9RB" />);
+    expect(screen.getByRole('img')).toHaveAttribute('data-printing', 'true');
+    first.unmount();
+    await renderUI(<IdChip code="2HX9RB" />);
+    expect(screen.getByRole('img')).not.toHaveAttribute('data-printing');
+  });
+
+  it('a code arriving (an offline thing synced) does not print: printing is for labels', async () => {
+    reducedMotion(false);
+    const { rerender } = await renderUI(<IdChip code={null} pending />);
+    rerender(
+      <AppProviders locale="en">
+        <IdChip code="9KW4RP" pending />
+      </AppProviders>,
+    );
+    expect(screen.getByRole('img', { name: '9KW4RP' })).not.toHaveAttribute('data-printing');
+  });
+
+  it('a quiet code just printed elsewhere does not print (only the tape does)', async () => {
+    reducedMotion(false);
+    markJustPrinted(['K7Q3FM']);
+    await renderUI(<IdChip code="K7Q3FM" variant="quiet" />);
+    expect(screen.getByRole('img')).not.toHaveAttribute('data-printing');
+  });
+});
+
+describe('LabelTape: the code in a list, only when it has a printed label', () => {
+  it('shows nothing for a code with no printed label', async () => {
+    reducedMotion(false);
+    const { container } = await renderUI(<LabelTape code="7KQ4MZ" printed={false} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('shows the tape for a printed one', async () => {
+    reducedMotion(false);
+    await renderUI(<LabelTape code="7KQ4MZ" printed />);
+    expect(screen.getByRole('img', { name: '7KQ4MZ' })).toHaveAttribute('data-variant', 'tape');
+  });
+
+  it('shows "ID pending" for a thing that has no code yet, when asked', async () => {
+    reducedMotion(false);
+    await renderUI(<LabelTape code={null} printed={false} pending />);
+    expect(screen.getByRole('img', { name: 'ID pending' })).toBeInTheDocument();
   });
 });
 

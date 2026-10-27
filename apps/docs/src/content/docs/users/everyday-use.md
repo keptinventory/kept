@@ -140,6 +140,13 @@ When a new thing reaches the server it gets a short ID: six letters and digits, 
 never reused. Until then it shows **ID pending**. A label carries the ID as text and in a QR code
 that opens the thing. A label keeps its code for good, so a lost one reprints the same.
 
+Lists, search results and the ⌘K palette show a thing by its name. Its code shows there as amber
+label tape only once it has a printed label: a label confirmed with **Printed OK?**, or a blank
+label claimed for it. Amber means "this one is labelled". On its own page a thing or place
+without a printed label shows its code small and grey, after the rest; one with a label shows the
+tape. A thing with more than one label (a blank label claimed for it, say) shows the code of
+the one printed last. Search and the scanner find a thing by any of its codes.
+
 **Printing** (Labels in the menu, or **Label** on a thing): choose what to print (a selection,
 **Label everything unprinted** in a location or place, or a **Blank sheet**), choose the **Label
 stock**, pick where to start on a partly used sheet, and print from the browser. Stocks include A4
@@ -150,7 +157,8 @@ wraps and its type gets smaller, and one that still doesn't fit is listed before
 a link to rename it. The page is set to the sheet's paper with no margins, so the print dialog's
 defaults (scale 100 %) put every label in its cell.
 
-Afterwards, **Printed OK?** asks about the batch you just printed and records it. **Recent
+Afterwards, **Printed OK?** asks about the batch you just printed and records it; from then on
+those things and places show the amber tape. **Recent
 batches** shows what each one holds, when and where it was made and whether it printed; one not
 confirmed yet can be marked **Printed OK** or **Not printed** there, and reprints with the same
 codes. Printing the same things again while their sheet is unconfirmed offers that sheet

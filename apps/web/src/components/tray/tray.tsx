@@ -8,7 +8,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useState } from 'react';
 import { useOfferUndo } from '@/components/history/undo';
 import { QrIcon, XIcon } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import { Notice, useErrorText } from '@/components/page';
 import { MoveThingsDialog, type PickedPlace } from '@/components/places/move-picker';
 import { type Described, describeTarget } from '@/components/scan/describe';
@@ -129,7 +129,11 @@ export function TraySheet({
                       {'missing' in it ? t`Not on this phone` : (it.name ?? t`Unnamed`)}
                     </bdi>
                     {'missing' in it ? null : (
-                      <IdChip code={it.shortCode} pending={it.shortCode === null} />
+                      <LabelTape
+                        code={it.shortCode}
+                        printed={it.labelPrinted}
+                        pending={it.shortCode === null}
+                      />
                     )}
                   </div>
                   <Button

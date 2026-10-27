@@ -34,7 +34,7 @@ import {
 } from './store';
 
 /** The schema version. Raise it with a new `this.version(n).stores(…)` block, never edit v1. */
-export const DB_VERSION = 5;
+export const DB_VERSION = 6;
 
 /** v1's tables and indexes, unchanged in v2. */
 export const V1_STORES = {
@@ -93,8 +93,8 @@ export const V5_STORES = {
 export const EXTRAS_TABLES = ['extras', 'extraDocs', 'keptOffline'] as const;
 
 /**
- * The snapshot's copy: what a refused cursor (DexieStore.resetSnapshot) and the v2 upgrade
- * empty, and the meta `applySnapshot` writes from a page, which goes with it.
+ * The snapshot's copy: what a refused cursor (DexieStore.resetSnapshot) and the v2 and v6
+ * upgrades empty, and the meta `applySnapshot` writes from a page, which goes with it.
  */
 export const SNAPSHOT_TABLES = [
   'locations',
@@ -268,6 +268,17 @@ export class KeptDb extends Dexie {
     this.version(4).stores(V4_STORES);
     // v5: a scan session in progress, in tables of its own.
     this.version(5).stores(V5_STORES);
+    // v6: a code says whether its label was printed (SnapCode.printedAt), which decides where a
+    // thing shows the amber tape. A copy pulled before has no such flag, and a delta never
+    // resends a code that hasn't changed, so the copy starts over as in v2: the next sync pulls
+    // in full. The queue and its files, the tray, the notices, the shares, the app lock, the
+    // keep-offline extras and scan sessions stay.
+    this.version(6)
+      .stores(V5_STORES)
+      .upgrade(async (tx) => {
+        for (const table of SNAPSHOT_TABLES) await tx.table(table).clear();
+        await tx.table('meta').bulkDelete([...SNAPSHOT_META_KEYS]);
+      });
   }
 }
 

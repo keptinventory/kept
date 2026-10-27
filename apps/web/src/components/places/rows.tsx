@@ -9,7 +9,7 @@ import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import type { PathStep, PlaceNode, ThingRow } from '@/api/inventory/types';
 import { ChevronEndIcon } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import type { TileSize } from '@/components/list-surface';
 import { StatusPill } from '@/components/status-pill';
 import { TagChips } from '@/components/tags/chip';
@@ -174,9 +174,10 @@ export function ThingRowView({
               </span>
             ) : null}
           </span>
-          {thing.shortCode || thing.derivedState.length || showPath ? (
+          {/* Names first: the code shows only as the tape of a printed label. */}
+          {(thing.labelPrinted && thing.shortCode) || thing.derivedState.length || showPath ? (
             <span className="flex flex-wrap items-center gap-1.5">
-              <IdChip code={thing.shortCode} />
+              <LabelTape code={thing.shortCode} printed={thing.labelPrinted} />
               {thing.derivedState.map((s) => (
                 <StatusPill key={s} state={s} />
               ))}
@@ -198,7 +199,8 @@ export function PhotoTile({
   showPath = false,
 }: {
   thing: ThingRow;
-  /** #139: Small is the name alone, Medium adds the short ID, Large a wider photo and where. */
+  /** #139: Small is the name alone, Medium adds the tape of a printed label, Large a wider photo
+   * and where. */
   size?: TileSize;
   /** The list spans depths (a location's things): a Large tile says where each one is. */
   showPath?: boolean;
@@ -233,7 +235,7 @@ export function PhotoTile({
         {thing.name ? <bdi>{thing.name}</bdi> : <Trans>Untitled draft</Trans>}
       </span>
       {size === 'large' && showPath && thing.path.length ? <PathText path={thing.path} /> : null}
-      {size !== 'small' && thing.shortCode ? <IdChip code={thing.shortCode} /> : null}
+      {size !== 'small' ? <LabelTape code={thing.shortCode} printed={thing.labelPrinted} /> : null}
       {size !== 'small' ? <TagChips tags={thing.tags ?? []} /> : null}
     </Link>
   );

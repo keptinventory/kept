@@ -104,6 +104,29 @@ describe('a thing page offline', () => {
     ).toBeInTheDocument();
   });
 
+  it('shows an unlabelled code quietly, and a printed label as the tape, from the phone', async () => {
+    await offline('/t/7KQ4MZ');
+    await screen.findByRole('heading', { name: 'Bosch drill' }, { timeout: 3000 });
+    expect(screen.getByRole('img', { name: '7KQ4MZ' })).toHaveAttribute('data-variant', 'quiet');
+  });
+
+  it('shows the tape once the phone has the code printed', async () => {
+    const store = open.store as MemoryStore;
+    const page = firstPage({ nextCursor: 'cursor-2' });
+    page.changes = {
+      places: [],
+      things: [],
+      codes: page.changes.codes.map((c) =>
+        c.code === '7KQ4MZ' ? { ...c, printedAt: '2026-10-20T09:00:00.000Z' } : c,
+      ),
+      legacyCodes: [],
+    };
+    await store.applySnapshot(page);
+    await offline('/t/7KQ4MZ');
+    await screen.findByRole('heading', { name: 'Bosch drill' }, { timeout: 3000 });
+    expect(screen.getByRole('img', { name: '7KQ4MZ' })).toHaveAttribute('data-variant', 'tape');
+  });
+
   it("lists a container's contents from the phone", async () => {
     await offline(`/t/${BOX}`);
     await screen.findByRole('heading', { name: 'Box 3' }, { timeout: 3000 });

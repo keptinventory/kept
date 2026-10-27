@@ -1395,7 +1395,9 @@ export class MapEngine {
       if (it) {
         const n = this.info.countIn(it);
         sel = { type: 'item', id: it.id };
-        const code = it.shortCode ? ` <small>${esc(printed(it.shortCode))}</small>` : '';
+        // Names first: the code only for a printed label, as in every list.
+        const code =
+          it.labelPrinted && it.shortCode ? ` <small>${esc(printed(it.shortCode))}</small>` : '';
         const stairs = it.model === 'stairs' || it.model === 'stairwell';
         html = `<b>${esc(it.name)}</b>${code}${n !== null ? `<br>${esc(this.info.text.inside(n))}` : ''}${stairs ? `<br>${esc(this.info.text.changeFloor)}` : ''}`;
       }

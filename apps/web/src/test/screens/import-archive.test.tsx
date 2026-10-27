@@ -145,6 +145,11 @@ describe('a Homebox export', () => {
       'href',
       expect.stringContaining(`/loc/${IDS.garage}?f.importRun=`),
     );
+    // The rooms are laid out on the map already: one step to see them there.
+    expect(screen.getByRole('link', { name: 'Open the map' })).toHaveAttribute(
+      'href',
+      `/loc/${IDS.garage}?view=map`,
+    );
     // The enrichment offer: its cost first, nothing started until asked.
     expect(await screen.findByText(/about 2,000 tokens/)).toBeInTheDocument();
     expect(screen.getByText(/USD/)).toBeInTheDocument();

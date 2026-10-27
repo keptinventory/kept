@@ -31,7 +31,7 @@ import { PausedBanner } from '@/components/ai/paused-banner';
 import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
 import { CameraIcon, CheckIcon, InboxIcon } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import { ListSurface } from '@/components/list-surface';
 import { EmptyState, Notice } from '@/components/page';
 import { usePlaceName } from '@/components/places/labels';
@@ -601,7 +601,9 @@ function CompactRow({
         <span className="grid min-w-0 flex-1 gap-0.5">
           <span className="flex min-w-0 flex-wrap items-center gap-x-2 font-semibold text-[14px] text-ink">
             <bdi className="[overflow-wrap:anywhere]">{title}</bdi>
-            {item.thing?.shortCode ? <IdChip code={item.thing.shortCode} /> : null}
+            {item.thing ? (
+              <LabelTape code={item.thing.shortCode} printed={item.thing.labelPrinted} />
+            ) : null}
           </span>
           <span className="text-small text-ink-2 [overflow-wrap:anywhere]">{status}</span>
         </span>

@@ -77,7 +77,7 @@ export function PendingPrompt() {
             <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0">
               {list.map((r) => (
                 <li key={r.id} className="flex items-center gap-1.5 text-small">
-                  <IdChip code={r.shortCode} />
+                  <IdChip code={r.shortCode} variant="quiet" />
                   <bdi className="text-ink-2">{r.name ?? t`Unnamed`}</bdi>
                 </li>
               ))}

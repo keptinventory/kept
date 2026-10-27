@@ -2,7 +2,8 @@
  * "Printed OK?" after the print dialog, about the batch just sent to the printer (it says which:
  * "16 labels: 4K webcam, … and 13 more", made when): yes records the print date on the batch's
  * codes (`POST …/printed`, which keeps the first date), so "Label everything unprinted" and
- * Home's "Print your first label" stop counting them; no leaves everything as it was, to print
+ * Home's "Print your first label" stop counting them, and their things and places show the amber
+ * tape from then on (printing like tape the first time); no leaves everything as it was, to print
  * again. The first confirmed print shows the `labels.first_print` hint once (D138; T31's hint
  * system, components/hints/use-hint.ts): stick it on, then scan it. It opens by itself on
  * `hintAnchor` (the page's title), since the dialog just closed. Codes printed from "Print
@@ -15,6 +16,8 @@ import { type RefObject, useState } from 'react';
 import { captureApi, captureKeys } from '@/api/capture/queries';
 import type { LabelBatch } from '@/api/capture/types';
 import { inventoryKeys } from '@/api/inventory/queries';
+import { mapKeys } from '@/api/map/queries';
+import { movingKeys } from '@/api/moving/queries';
 import { useLocations } from '@/api/queries';
 import { hintDone, useHint, useHints } from '@/components/hints/use-hint';
 import { Notice, useErrorText } from '@/components/page';
@@ -24,6 +27,7 @@ import { toast } from '@/components/ui/toast';
 import { useFormat } from '@/lib/format';
 import { useOffline } from '@/offline/provider';
 import { useBatchSummary } from './batch-summary';
+import { markJustPrinted } from './just-printed';
 import { forgetPrintPending } from './pending-prompt';
 
 const FIRST_PRINT = 'labels.first_print';
@@ -37,12 +41,23 @@ export function useConfirmPrinted(batch: LabelBatch, onDone?: () => void) {
     mutationFn: () => captureApi.labelBatchPrinted(batch.id),
     onSuccess: async (next) => {
       qc.setQueryData(captureKeys.labels.batch(batch.id), next);
+      // Their codes are labels now: the next time each shows, it prints like tape, and every
+      // list, page, search and map reads them again to show the tape.
+      markJustPrinted(batch.labels.map((l) => l.code));
       await forgetPrintPending(
         offline,
         batch.labels.flatMap((l) => (l.targetId ? [l.targetId] : [])),
       );
       void qc.invalidateQueries({ queryKey: captureKeys.labels.all });
       void qc.invalidateQueries({ queryKey: inventoryKeys.home });
+      for (const queryKey of [
+        inventoryKeys.things.all,
+        inventoryKeys.places.all,
+        ['search'],
+        mapKeys.all,
+        movingKeys.all,
+      ])
+        void qc.invalidateQueries({ queryKey });
       onDone?.();
     },
     onError: (e) => toast({ title: errorText(e), tone: 'danger' }),

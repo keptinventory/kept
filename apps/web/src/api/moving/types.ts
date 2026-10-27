@@ -41,6 +41,8 @@ export type MoveBox = {
   visible: boolean;
   name: string | null;
   shortCode: string | null;
+  /** The box carries a printed label: the amber tape, else a quiet code. */
+  labelPrinted: boolean;
   /** Where the box is now. */
   locationId: string | null;
   placeId: string | null;

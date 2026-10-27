@@ -105,6 +105,8 @@ function ThingRef({
       )
     : (seen?.path ?? []);
   const code = live ? live.shortCode : (seen?.shortCode ?? null);
+  // The tape only for a printed label, as in every list; the link still goes by the code.
+  const printed = live?.labelPrinted === true;
   if (!name) return null;
   return (
     <li className="grid min-h-11 gap-1 border-line px-3 py-2.5 not-first:border-t">
@@ -134,7 +136,7 @@ function ThingRef({
           <PathText parts={path} />
         </span>
       ) : null}
-      {code ? (
+      {code && printed ? (
         <span className="flex">
           <IdChip code={code} />
         </span>

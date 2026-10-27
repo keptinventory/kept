@@ -124,6 +124,9 @@ function Gallery() {
           <IdChip code="7KQ4MZ" />
           <IdChip code="K7Q3FM" size="large" />
           <IdChip key={printKey} code="2HX9RB" fresh={printKey > 0} />
+          {/* A code with no printed label: quiet, never amber. */}
+          <IdChip code="5MT0QD" variant="quiet" />
+          <IdChip code="R00M4K" variant="quiet" size="large" />
           <Button size="small" variant="secondary" onPress={() => setPrintKey((k) => k + 1)}>
             <Trans>Print again</Trans>
           </Button>
