@@ -9,9 +9,11 @@
 // `<out>` is `.tmp/tour/` (git-ignored); `--out <dir>` changes it.
 //
 // The story, at 1280×800: Home, Home's things as a list (the type line under each name, a box's
-// count, the label tape only on printed labels), the 3D map and a room's card, the graph in 2D
-// (pick a room, go in, back up) and in 3D (it turns; pick a room), a thing's card and its page,
-// then a search for "cable". A drawn pointer moves between the steps and rings on each click.
+// count, the label tape only on printed labels), the 3D map on the ground floor and a room's card,
+// the graph in 2D (pick a room, go in, back up) and in 3D (it turns; upstairs forward, then the
+// ground floor and a room on it), a thing's card and its page, then a search for "cable". The
+// showcase's Home is on two floors (apps/web/src/api/mock/showcase.ts). A drawn pointer moves
+// between the steps and rings on each click; the map's start-up is cut (see the map step).
 //
 // Dev only, like scripts/capture-screens.mjs, and set up the same way: it builds the demo bundle
 // (`pnpm --filter @kept/web build:demo`; `--skip-build` reuses apps/web/dist-demo), serves it on a
@@ -179,6 +181,8 @@ mkdirSync(frames, { recursive: true });
 const shots = [];
 /** Each step of the story: its name and when it began (ms). */
 const steps = [];
+/** Stretches left out of the video (ms): from a click until what it opens has painted. */
+const cuts = [];
 
 const ctx = await browser.newContext({
   viewport: SIZE,
@@ -233,8 +237,10 @@ try {
     const now = await center(locator);
     if (Math.hypot(now.x - c.x, now.y - c.y) > 2) await glide(now.x, now.y, 120);
     await wait(rest);
+    const at = Date.now();
     await page.mouse.down();
     await page.mouse.up();
+    return at;
   }
   async function clickAt(x, y, { ms = 650, rest = 250 } = {}) {
     await glide(x, y, ms);
@@ -303,7 +309,7 @@ try {
   });
 
   step('home');
-  await wait(1300);
+  await wait(1200);
   await click(page.getByRole('link', { name: /^Home Apartment/ }));
   await settle();
 
@@ -320,9 +326,17 @@ try {
   await scrollTo(0, 700);
 
   step('map');
-  await click(option('Map'));
+  // Off camera from the click until the map has painted: WebGL starts in software in headless
+  // Chromium, which takes a second or two with the canvas still empty. Its labels are placed after
+  // its first frame, so a label showing means a painted map.
+  const cut = { from: await click(option('Map')) };
   await page.locator('.map-label', { hasText: /^Kitchen$/ }).waitFor();
-  await wait(1500);
+  await wait(400);
+  cut.to = Date.now();
+  cuts.push(cut);
+  // A frame now, so the video resumes on the painted map.
+  await page.mouse.move(pos.x + 1, pos.y);
+  await wait(1300);
   const kitchen = await page.locator('.map-label', { hasText: /^Kitchen$/ }).boundingBox();
   await clickAt(kitchen.x + kitchen.width / 2 - 30, kitchen.y + kitchen.height + 55, { ms: 800 });
   await wait(2000);
@@ -346,9 +360,15 @@ try {
   await click(option('3D'));
   await glide(470, 560, 700);
   // It turns slowly until it's touched.
-  await wait(2600);
-  await click(page.locator('.kgraph-main button[aria-label^="Kitchen,"]'), { ms: 800 });
-  await wait(1800);
+  await wait(2200);
+  // The floor stack: upstairs forward, then the ground floor, and a room on it.
+  const floor = (name) => page.locator('.kgraph-floors').getByRole('button', { name, exact: true });
+  await click(floor('Upstairs'));
+  await wait(1300);
+  await click(floor('Ground floor'), { ms: 400 });
+  await wait(1000);
+  await click(page.locator('.kgraph-main button[aria-label^="Kitchen,"]'), { ms: 700 });
+  await wait(1700);
 
   step('thing');
   // The picked room's card lists what's inside; pick a thing for its card, then open it.
@@ -376,11 +396,16 @@ try {
   server.close();
 }
 
-// The frames as a variable-rate video: each one shown until the next was painted.
-const kept = shots.filter((s) => s.at >= shots[0].at);
-const end = kept.at(-1).at + 300;
+// The frames as a variable-rate video: each one shown until the next was painted, the cuts left
+// out. `vt` is a moment's time in the video (ms).
+const kept = shots.filter((s) => !cuts.some((c) => s.at >= c.from && s.at < c.to));
+const vt = (ms) =>
+  ms - kept[0].at - cuts.reduce((sum, c) => sum + Math.max(0, Math.min(ms, c.to) - c.from), 0);
 const list = kept
-  .map((s, i) => `file '${s.file}'\nduration ${((kept[i + 1]?.at ?? end) - s.at) / 1000}`)
+  .map((s, i) => {
+    const next = kept[i + 1] ? vt(kept[i + 1].at) : vt(s.at) + 300;
+    return `file '${s.file}'\nduration ${(next - vt(s.at)) / 1000}`;
+  })
   .join('\n');
 writeFileSync(join(raw, 'list.txt'), `${list}\nfile '${kept.at(-1).file}'\n`);
 const ff = (...a) => {
@@ -427,7 +452,7 @@ ff(
 renameSync(tmp, `${root}${WEBP}`);
 
 // One frame per step, a moment before the next step begins.
-const offset = (ms) => Math.max(0, (ms - kept[0].at) / 1000);
+const offset = (ms) => Math.max(0, vt(ms) / 1000);
 for (const [i, s] of steps.slice(0, -1).entries()) {
   // The last step ends after the last painted frame: take that frame instead.
   const at = Math.min(offset(steps[i + 1].at), offset(kept.at(-1).at)) - 0.4;
