@@ -7,7 +7,7 @@
  */
 
 import { type ModuleId, TOUR_IDS, type TourId } from '@kept/shared';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
   createRootRoute,
@@ -281,10 +281,14 @@ const empty: Api = (method, url) => {
 
 async function renderTour({
   locations = OWNER_LOCS,
+  server = locations,
   missing = [],
   api = withThing,
 }: {
+  /** The list in the query cache when the tour starts. */
   locations?: LocationDetail[];
+  /** The list GET /locations answers. */
+  server?: LocationDetail[];
   missing?: string[];
   api?: Api;
 } = {}) {
@@ -301,6 +305,8 @@ async function renderTour({
       body = undefined;
     }
     calls.push({ method, url: String(url), body });
+    if (method === 'GET' && /\/locations\?/.test(String(url)))
+      return json({ locations: server, nextCursor: null });
     return json(api(method, String(url)));
   });
   const qc = new QueryClient({
@@ -710,6 +716,66 @@ describe('useTour', () => {
       await stepDialog(copy, 'things.where');
       expect(pathOf(router)).toBe('/t/HERE01');
       expect(calls.some((c) => c.method === 'POST')).toBe(false);
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'counts the chapters from the server’s list, not a cached one from before a module change',
+    async () => {
+      // The cache still has every module on; the server's list has only Labels (#314).
+      const all: ModuleId[] = ['moving', 'lending', 'schedules', 'paperwork', 'warranties'];
+      const { copy, calls } = await renderTour({
+        locations: [loc('loc-1', 'owner', ['labels', ...all])],
+        server: OWNER_LOCS,
+      });
+      expect(await startTour('basics')).toBe(true);
+      expect(await stepDialog(copy, 'basics.needs')).toHaveTextContent(
+        `Chapter 1 of ${CHAPTERS} · step 1 of ${BASICS.length}`,
+      );
+      expect(calls.filter((c) => c.method === 'GET' && /\/locations\?/.test(c.url))).toHaveLength(
+        1,
+      );
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'runs only the later of two starts asked for while the list was loading',
+    async () => {
+      const { copy, user, router } = await renderTour();
+      const start = probe.start;
+      if (!start) throw new Error('tour probe missing');
+      const [first, second] = await act(async () =>
+        Promise.all([start('basics'), start('settings')]),
+      );
+      expect([first, second]).toEqual([false, true]);
+      const d = await stepDialog(copy, 'settings.notifications');
+      expect(d).toHaveTextContent(`Chapter ${CHAPTERS} of ${CHAPTERS} · step 1 of`);
+      // Both waited on one fetch of the list; the first is not left running beside the second,
+      // whose own navigation doesn't end it.
+      await user.click(within(d).getByRole('button', { name: 'Next' }));
+      await stepDialog(copy, 'settings.locations');
+      expect(pathOf(router)).toBe('/settings/locations');
+      expect(tourRequests.running()).toBe('settings');
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'offline, counts the chapters from the cached list without asking the server',
+    async () => {
+      const { copy, calls } = await renderTour({ server: [] });
+      onlineManager.setOnline(false);
+      try {
+        expect(await startTour('basics')).toBe(true);
+        expect(await stepDialog(copy, 'basics.needs')).toHaveTextContent(
+          `Chapter 1 of ${CHAPTERS} · step 1 of ${BASICS.length}`,
+        );
+        expect(calls.some((c) => /\/locations\?/.test(c.url))).toBe(false);
+      } finally {
+        onlineManager.setOnline(true);
+      }
     },
     ENGINE_TIMEOUT,
   );

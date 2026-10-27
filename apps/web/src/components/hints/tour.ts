@@ -24,7 +24,7 @@
 
 import { type TourId, tourKey } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
-import { useQueryClient } from '@tanstack/react-query';
+import { onlineManager, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouter } from '@tanstack/react-router';
 import { createElement, useCallback, useEffect } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
@@ -593,16 +593,25 @@ export function useTour() {
   const start = useCallback(
     async (tourId: TourId, { returnFocus, context = {} }: TourStart = {}): Promise<boolean> => {
       if (current) abandon(current);
-      let locations = qc.getQueryData<LocationDetail[]>(keys.locations);
-      if (!locations) {
+      // The chapters come from the server's list as it is now, the one Help shows once it has
+      // loaded: a cached list can predate a module change (the phone's last-known copy, another
+      // device), and its chapters would not be Help's (#314). A fetch on its way is shared.
+      // Offline, or when the server can't be reached, the cached list; with none, what the
+      // routes show, with nothing writable and no modules.
+      const cached = qc.getQueryData<LocationDetail[]>(keys.locations);
+      let known = cached ?? [];
+      if (onlineManager.isOnline()) {
         try {
-          locations = await qc.fetchQuery({ queryKey: keys.locations, queryFn: listLocations });
+          known = await qc.fetchQuery({
+            queryKey: keys.locations,
+            queryFn: listLocations,
+            staleTime: 0,
+            ...(cached ? { retry: false } : {}),
+          });
         } catch {
-          // Offline at start: run what the routes show, with nothing writable and no modules.
-          locations = [];
+          // Keep `known`.
         }
       }
-      const known = locations ?? [];
       const chapters = availableTours(known);
       const at = chapters.findIndex((x) => x.tour.id === tourId);
       const first = chapters[at];
