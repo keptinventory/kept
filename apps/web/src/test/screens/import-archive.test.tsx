@@ -415,6 +415,18 @@ describe('a Homebox export, from 1.13.1 (#320)', () => {
     );
   });
 
+  it('matches what was typed with spaces around it, never "No matches"', async () => {
+    const { user } = await adjust();
+    const picker = screen.getByRole('combobox', { name: 'Kept type for Item' });
+    for (const text of ['Appliance  ', '  APPLIANCE']) {
+      await user.clear(picker);
+      await user.type(picker, text);
+      expect(await screen.findByRole('option', { name: 'Appliance' })).toBeInTheDocument();
+      expect(screen.queryByText('No matches')).toBeNull();
+      expect(screen.queryByRole('option', { name: /^New type "/ })).toBeNull();
+    }
+  });
+
   it('says a custom field no item has a value for is left out', async () => {
     await adjust();
     const fields = screen.getByRole('list', { name: 'Custom fields' });

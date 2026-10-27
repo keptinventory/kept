@@ -18,6 +18,7 @@
 import { HB_GLOBAL_TYPE_NAMES, type HomeboxChoices, naturalCompare } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { useMemo, useState } from 'react';
+import { useFilter } from 'react-aria-components';
 import { useCurrencies, useTypes } from '@/api/inventory/queries';
 import type { HomeboxConnection, HomeboxMappingHints } from '@/api/portability/types';
 import type { FilterDef } from '@/components/filters/types';
@@ -482,6 +483,9 @@ function TypePicker({
     ...keptTypes.map((k) => ({ id: k.id, label: k.name })),
   ];
   const [typed, setTyped] = useState('');
+  // The list filters on the trimmed text, as `known` matches it: "Appliance " still lists
+  // Appliance.
+  const { contains } = useFilter({ sensitivity: 'base' });
   const draft = typed.trim().slice(0, TYPE_NAME_MAX);
   const known = options.some((o) => fold(o.label) === fold(draft));
   const offer = `${NEW}:${draft}`;
@@ -501,6 +505,7 @@ function TypePicker({
             : created
       }
       onInputChange={setTyped}
+      defaultFilter={(text, input) => contains(text, input.trim())}
       onSelectionChange={(k) => {
         if (!k) return;
         const key = String(k);

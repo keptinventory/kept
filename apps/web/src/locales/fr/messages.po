@@ -27397,8 +27397,8 @@ msgstr "Un emplacement qui arrivera comme boîte, comme choisi."
 
 #: src/components/import/labels.ts
 msgid "A location inside an item becomes a box."
-msgstr "Un emplacement à l'intérieur d'un article deviendra une boîte."
+msgstr "Un emplacement à l’intérieur d’un article deviendra une boîte."
 
 #: src/components/import/labels.ts
 msgid "A location inside an item became a box."
-msgstr "Un emplacement à l'intérieur d'un article est devenu une boîte."
+msgstr "Un emplacement à l’intérieur d’un article est devenu une boîte."
