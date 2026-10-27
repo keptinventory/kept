@@ -72,6 +72,7 @@ const BoxSchema = z.object({
   visible: z.boolean(),
   name: z.string().nullable(),
   shortCode: z.string().nullable(),
+  labelPrinted: z.boolean(),
   locationId: z.uuid().nullable(),
   placeId: z.uuid().nullable(),
   where: z.string().nullable(),

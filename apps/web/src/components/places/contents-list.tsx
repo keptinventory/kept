@@ -146,7 +146,13 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
           }
         : { placeId: parent.id, ...params };
   const thingsQuery = useThingsQuery(isPlace ? {} : thingParams, !isPlace);
-  const tree = usePlaceTree(parent.kind === 'location' ? parent.locationId : '');
+  // A location's top places; and for a location or a place, the tree's box counts (#321). The
+  // place page has the same tree loaded for its side panel, so this asks for nothing new there.
+  const tree = usePlaceTree(parent.kind === 'container' ? '' : parent.locationId);
+  const boxCounts = useMemo(
+    () => new Map((tree.data?.boxes ?? []).map((b) => [b.id, b.contentCount])),
+    [tree.data],
+  );
 
   // Places are narrowed by the search text only; every filter is about things.
   const thingFilter = Object.keys(list.filters).length > 0;
@@ -350,7 +356,12 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
           ev.dataTransfer.effectAllowed = 'move';
         }}
       >
-        <ThingRowView thing={thing} showPath={parent.kind === 'location'} leading={checkbox} />
+        <ThingRowView
+          thing={thing}
+          showPath={parent.kind === 'location'}
+          leading={checkbox}
+          contentCount={boxCounts.get(thing.id)}
+        />
       </div>
     );
   };
@@ -514,6 +525,10 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
           // #209: under each thing's first tag, A to Z; untagged last.
           { value: 'tag', label: t`Tag`, short: t`by tag` },
         ]}
+        sortTitle={t`Things: sort by`}
+        // #321: Z to A turns the things around; places stay A to Z, or in the place's own order.
+        // Said only where places are listed.
+        {...(hasPlaces ? { sortNote: t`Places keep their own order.` } : {})}
         sorts={[
           { value: 'name', label: t`Name` },
           { value: 'updated', label: t`Changed`, kind: 'date' },

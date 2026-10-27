@@ -42,6 +42,7 @@ type RunView = {
   archiveReadyAt: string | null;
   inspect: Record<string, unknown> | null;
   choices: unknown;
+  newLocation: Record<string, unknown> | null;
   error: string | null;
   reason?: string;
   rowVersion: number;
@@ -219,7 +220,7 @@ describe('POST /api/v1/imports/:id/inspect', () => {
         counts: Record<string, number>;
         mapping: {
           types: { name: string; items: number }[];
-          fields: { name: string; kind: string; items: number }[];
+          fields: { name: string; kind: string; items: number; filled: number }[];
           insuredItems: number;
           seededUnused: { places: string[]; tags: string[] };
         };
@@ -250,10 +251,11 @@ describe('POST /api/v1/imports/:id/inspect', () => {
     expect(c?.mapping.types).toHaveLength(4);
     expect(c?.mapping.fields).toEqual(
       expect.arrayContaining([
-        { name: 'Colour', kind: 'text', items: 1 },
-        { name: 'Boiler size (ml)', kind: 'number', items: 1 },
-        { name: 'Plumbed in', kind: 'boolean', items: 1 },
-        { name: 'Installed', kind: 'time', items: 1 },
+        { name: 'Colour', kind: 'text', items: 1, filled: 1 },
+        { name: 'Boiler size (ml)', kind: 'number', items: 1, filled: 1 },
+        { name: 'Plumbed in', kind: 'boolean', items: 1, filled: 1 },
+        // Its one date is the day the row was made, which reads as empty: left out (#320).
+        { name: 'Installed', kind: 'time', items: 1, filled: 0 },
       ]),
     );
     expect(c?.mapping.insuredItems).toBe(1);
@@ -330,26 +332,134 @@ describe('POST /api/v1/imports/:id/inspect', () => {
 
 describe('POST /api/v1/imports/:id/target', () => {
   // catalogue: POST /api/v1/imports/:id/target
-  it('creates a new location in the caller’s account, with its Unplaced area, once', async () => {
+  it('keeps a Homebox import’s new location until Import makes it, with its preset, once', async () => {
     const id = await uploadArchive(t, ibrahim, homeZip);
-    const run = ok(await target(ibrahim, id, newLocation('From Homebox'))) as unknown as RunView;
+    ok(await inspect(ibrahim, id));
+    let run = ok(await target(ibrahim, id, newLocation('From Homebox'))) as unknown as RunView;
+    expect(run.locationId).toBeNull();
+    expect(run.newLocation).toMatchObject({
+      name: 'From Homebox',
+      preset: 'essentials',
+      alsoPersonal: false,
+    });
+    const made = () =>
+      own<{ id: string }>(db, `SELECT id FROM public.locations WHERE name = 'From Homebox'`);
+    expect(await made()).toEqual([]);
+    // Set once, pending or not.
+    expect((await target(ibrahim, id, { locationId: home.id })).statusCode).toBe(409);
+
+    // The choices and the check work against the location as it will be.
+    run = ok(
+      await call(t, `/api/v1/imports/${id}/choices`, {
+        as: ibrahim,
+        body: { choices },
+        headers: { 'if-match': String(run.rowVersion) },
+      }),
+    ) as unknown as RunView;
+    const checked = ok(await call(t, `/api/v1/imports/${id}/dry-run`, { as: ibrahim, body: {} }));
+    expect(
+      (checked as unknown as { report: { summary: { things: number } } }).report.summary.things,
+    ).toBe(8);
+    expect(await made()).toEqual([]);
+
+    // Import makes it, with Essentials, and the run goes there.
+    run = ok(
+      await call(t, `/api/v1/imports/${id}/run`, { as: ibrahim, body: {} }),
+      202,
+    ) as unknown as RunView;
+    expect(run.status).toBe('running');
+    expect(run.newLocation).toBeNull();
+    const [loc] = await own<{
+      id: string;
+      owner: string;
+      preset: string;
+      unplaced: number;
+      role: string;
+      money: boolean;
+    }>(
+      db,
+      `SELECT l.id, l.owner_account_id::text AS owner, l.preset,
+              (SELECT count(*)::int FROM public.places p WHERE p.location_id = l.id AND p.is_unplaced)
+                AS unplaced,
+              (SELECT m.role FROM public.memberships m WHERE m.location_id = l.id AND m.user_id = $1)
+                AS role,
+              (SELECT lm.enabled FROM public.location_modules lm
+                WHERE lm.location_id = l.id AND lm.module = 'money') AS money
+         FROM public.locations l WHERE l.name = 'From Homebox'`,
+      [ibrahim.userId],
+    );
+    expect(loc).toMatchObject({
+      owner: home.accountId,
+      preset: 'essentials',
+      unplaced: 1,
+      role: 'owner',
+      money: false,
+    });
+    expect(run.locationId).toBe(loc?.id);
+    const events = await runEvents(id);
+    expect(events.map((e) => e.action)).toEqual(
+      expect.arrayContaining(['import.target', 'import.start']),
+    );
+    expect(events.at(-1)).toMatchObject({ action: 'import.start', location_id: loc?.id });
+  });
+
+  it('switches Personal to the chosen preset too, when asked', async () => {
+    const id = await uploadArchive(t, ibrahim, homeZip);
+    ok(await inspect(ibrahim, id));
+    const body = newLocation('Everything');
+    let run = ok(
+      await target(ibrahim, id, {
+        newLocation: { ...body.newLocation, preset: 'complete', alsoPersonal: true },
+      }),
+    ) as unknown as RunView;
+    run = ok(
+      await call(t, `/api/v1/imports/${id}/choices`, {
+        as: ibrahim,
+        body: { choices },
+        headers: { 'if-match': String(run.rowVersion) },
+      }),
+    ) as unknown as RunView;
+    ok(await call(t, `/api/v1/imports/${id}/dry-run`, { as: ibrahim, body: {} }));
+    ok(await call(t, `/api/v1/imports/${id}/run`, { as: ibrahim, body: {} }), 202);
+    const presets = await own<{ kind: string; preset: string; moving: boolean | null }>(
+      db,
+      `SELECT l.kind, l.preset,
+              (SELECT lm.enabled FROM public.location_modules lm
+                WHERE lm.location_id = l.id AND lm.module = 'moving') AS moving
+         FROM public.locations l
+        WHERE l.owner_account_id = $1 AND (l.kind = 'personal' OR l.name = 'Everything')
+        ORDER BY l.kind`,
+      [home.accountId],
+    );
+    expect(presets).toEqual([
+      { kind: 'home', preset: 'complete', moving: true },
+      { kind: 'personal', preset: 'complete', moving: true },
+    ]);
+  });
+
+  it('leaves no location behind when an import into a new one is cancelled before it runs', async () => {
+    const id = await uploadArchive(t, ibrahim, homeZip);
+    ok(await target(ibrahim, id, newLocation('Never made')));
+    ok(await call(t, `/api/v1/imports/${id}/cancel`, { as: ibrahim, body: {} }));
+    expect(await own(db, `SELECT id FROM public.locations WHERE name = 'Never made'`)).toEqual([]);
+  });
+
+  it('makes a Kept export’s new location when it is chosen, as before', async () => {
+    const id = newId();
+    ok(await declareArchive(t, ibrahim, homeZip, { id, source: 'kept_zip' }), 201);
+    const run = ok(await target(ibrahim, id, newLocation('Kept copy'))) as unknown as RunView;
     expect(run.locationId).not.toBeNull();
-    const [loc] = await own<{ owner: string; unplaced: number; role: string }>(
+    expect(run.newLocation).toBeNull();
+    const [loc] = await own<{ owner: string; unplaced: number }>(
       db,
       `SELECT l.owner_account_id::text AS owner,
               (SELECT count(*)::int FROM public.places p WHERE p.location_id = l.id AND p.is_unplaced)
-                AS unplaced,
-              (SELECT m.role FROM public.memberships m WHERE m.location_id = l.id AND m.user_id = $2)
-                AS role
+                AS unplaced
          FROM public.locations l WHERE l.id = $1`,
-      [run.locationId, ibrahim.userId],
+      [run.locationId],
     );
-    expect(loc).toEqual({ owner: home.accountId, unplaced: 1, role: 'owner' });
-    const events = await runEvents(id);
-    expect(events.at(-1)).toMatchObject({ action: 'import.target', location_id: run.locationId });
-    // Set once.
-    const again = await target(ibrahim, id, { locationId: home.id });
-    expect(again.statusCode).toBe(409);
+    expect(loc).toEqual({ owner: home.accountId, unplaced: 1 });
+    expect((await target(ibrahim, id, { locationId: home.id })).statusCode).toBe(409);
   });
 
   it('takes an existing location from an admin (Bruce) but not a member (Louis: 403)', async () => {

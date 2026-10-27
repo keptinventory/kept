@@ -11,15 +11,16 @@
  */
 import { newId } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { Button as AriaButton, Form } from 'react-aria-components';
 import { captureApi } from '@/api/capture/queries';
 import type { ClaimBody, LabelClaimedDetails } from '@/api/capture/types';
 import { isApiError } from '@/api/client';
-import { inventoryApi } from '@/api/inventory/queries';
+import { inventoryApi, inventoryKeys } from '@/api/inventory/queries';
 import { BoxIcon, ChevronEndIcon, LinkIcon, SearchIcon, TagIcon } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { IdChip, LabelTape } from '@/components/id-chip';
+import { markJustPrinted } from '@/components/labels/just-printed';
 import { Notice, Pill, useErrorText } from '@/components/page';
 import type { PickedPlace } from '@/components/places/move-picker';
 import { Button } from '@/components/ui/button';
@@ -50,19 +51,25 @@ export function ClaimSheet({
 }: AnswerProps & { code: string; locationId: string }) {
   const { t } = useLingui();
   const errorText = useErrorText();
+  const qc = useQueryClient();
   const [s, setS] = useState<Step>({ step: 'choose' });
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const world = usePhoneWorld(store, [locationId]);
   const here = defaultPlace(world);
 
-  const claim = async (body: ClaimBody, label: string) => {
+  /** Claims the label for `body`; `primary` is the target's own code, when it has one. */
+  const claim = async (body: ClaimBody, label: string, primary: string | null = null) => {
     setBusy(true);
     setProblem(null);
     try {
       if (online) {
         try {
           const r = await captureApi.claim(code, body);
+          // A claimed blank is a printed label: what it went to shows the tape, printing once.
+          markJustPrinted([code, primary]);
+          void qc.invalidateQueries({ queryKey: inventoryKeys.things.all });
+          void qc.invalidateQueries({ queryKey: inventoryKeys.places.all });
           toast({ title: t`Label claimed for ${label}`, tone: 'ok' });
           onOpen({ kind: r.target.kind, id: r.target.id, locationId });
           return;
@@ -167,7 +174,7 @@ export function ClaimSheet({
           busy={busy}
           problem={problem}
           onCancel={() => setS({ step: 'choose' })}
-          onPick={(thing) => void claim({ thingId: thing.id }, thing.name ?? '')}
+          onPick={(thing) => void claim({ thingId: thing.id }, thing.name ?? '', thing.shortCode)}
         />
       </AnswerFrame>
     );
@@ -287,7 +294,12 @@ function NewBoxForm({
   );
 }
 
-type Hit = { id: string; name: string | null; shortCode: string | null };
+type Hit = {
+  id: string;
+  name: string | null;
+  shortCode: string | null;
+  labelPrinted?: boolean | undefined;
+};
 
 function AttachSearch({
   store,
@@ -354,7 +366,11 @@ function AttachSearch({
                   <bdi className="min-w-0 flex-1 font-semibold [overflow-wrap:anywhere]">
                     {h.name ?? t`Unnamed`}
                   </bdi>
-                  <IdChip code={h.shortCode} pending={h.shortCode === null} />
+                  <LabelTape
+                    code={h.shortCode}
+                    printed={h.labelPrinted}
+                    pending={h.shortCode === null}
+                  />
                 </AriaButton>
               </li>
             ))}

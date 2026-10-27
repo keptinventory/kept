@@ -31,6 +31,8 @@ export type Row = {
   kind: 'node' | 'thing';
   name: string;
   shortCode: string | null;
+  /** It carries a printed label: the list shows its code, as the tape, only then. */
+  labelPrinted?: boolean;
   quantity: number;
   /** Things under it (for a node). */
   count: number | null;
@@ -71,6 +73,7 @@ export function roomCards(
       kind: 'thing',
       name: t.name,
       shortCode: t.shortCode,
+      labelPrinted: t.labelPrinted === true,
       quantity: t.quantity,
       count: null,
       flags: flagsOf(c, t.id),
@@ -86,6 +89,7 @@ export function roomCards(
       kind: 'node',
       name: it.name,
       shortCode: it.shortCode,
+      labelPrinted: it.labelPrinted === true,
       quantity: it.quantity,
       count: allUnder(c, it.id).length,
       flags: flagsOf(c, it.id),
@@ -141,6 +145,8 @@ export type AttentionRow = {
   id: string;
   name: string;
   shortCode: string | null;
+  /** It carries a printed label: the list shows its code, as the tape, only then. */
+  labelPrinted?: boolean;
   /** Room, then the node it is in, outermost first. */
   where: string[];
   roomId: string;
@@ -281,6 +287,7 @@ export function attentionGroups(
         id: a.subjectId,
         name: subject.name,
         shortCode,
+        labelPrinted: subject.labelPrinted === true,
         where: path,
         roomId: room.id,
       });

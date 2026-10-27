@@ -70,6 +70,8 @@ export type Room = {
   levelKey: string;
   name: string;
   shortCode: string | null;
+  /** It carries a printed label: lists show its code, as the tape, only then. */
+  labelPrinted?: boolean;
   kindKey: string;
   x: number;
   z: number;
@@ -85,6 +87,8 @@ export type Item = {
   roomId: string;
   name: string;
   shortCode: string | null;
+  /** It carries a printed label: lists show its code, as the tape, only then. */
+  labelPrinted?: boolean;
   model: MapModelKey;
   x: number;
   z: number;
@@ -309,6 +313,7 @@ function roomOf(
     levelKey,
     name: r.name,
     shortCode: r.shortCode,
+    labelPrinted: r.labelPrinted === true,
     kindKey: r.kindKey,
     ...rect,
     kind,
@@ -327,6 +332,7 @@ function itemOf(n: MapNodeView, model: MapModelKey, x: number, z: number): Item 
     roomId: n.roomId,
     name: n.name,
     shortCode: n.shortCode,
+    labelPrinted: n.labelPrinted === true,
     model,
     x,
     z,
@@ -775,6 +781,7 @@ export function thingItem(x: MapThingView, room: Room, chosen: MapModelKey | nul
     roomId: room.id,
     name: x.name,
     shortCode: x.shortCode,
+    labelPrinted: x.labelPrinted === true,
     model,
     x: room.w / 2 - 0.3,
     z: room.d / 2 - 0.3,

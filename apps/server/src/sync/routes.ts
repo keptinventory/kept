@@ -1,5 +1,12 @@
 import { randomBytes } from 'node:crypto';
-import { LIFECYCLES, LOAN_DIRECTIONS, MODULE_IDS, ROLES, SYNC_LIMITS } from '@kept/shared';
+import {
+  CHILD_ORDERS,
+  LIFECYCLES,
+  LOAN_DIRECTIONS,
+  MODULE_IDS,
+  ROLES,
+  SYNC_LIMITS,
+} from '@kept/shared';
 import { z } from 'zod';
 import type { KeptApp } from '../http/app.js';
 import { invalid } from '../http/errors.js';
@@ -89,6 +96,8 @@ const SnapshotResponse = z.object({
         icon: z.string().nullable(),
         isUnplaced: z.boolean(),
         sort: z.number().int(),
+        createdAt: z.string().optional(),
+        childOrder: z.enum(CHILD_ORDERS).optional(),
         deleted: z.boolean(),
       }),
     ),
@@ -145,6 +154,7 @@ const SnapshotResponse = z.object({
         placeId: Uuid.nullable(),
         state: z.enum(['blank', 'assigned', 'retired']),
         isPrimary: z.boolean(),
+        printedAt: z.string().optional(),
       }),
     ),
     legacyCodes: z.array(

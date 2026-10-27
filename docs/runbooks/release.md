@@ -162,8 +162,11 @@ pull request.
    git switch -c release-X.Y.Z
    node scripts/changelog.mjs --version X.Y.Z --from vPREVIOUS --highlights .tmp/highlights-X.Y.Z.md \
      --write CHANGELOG.md   # no --from for the first; run again to replace the section
-   sed -i.bak -e 's/--branch v[0-9.]* /--branch vX.Y.Z /' -e 's|/kept:[0-9.]*|/kept:X.Y.Z|' README.md && rm README.md.bak
-   git commit -m "chore(release): X.Y.Z" -- CHANGELOG.md README.md
+   # The install pins: the tag in compose.yaml's download URL, and compose.yaml's default image.
+   PINS="README.md compose.yaml apps/docs/src/content/docs/install/compose.md apps/docs/src/content/docs/ar/install/compose.md apps/docs/src/content/docs/install/https.md"
+   for f in $PINS; do sed -i.bak -E -e 's|keptinventory/kept/v[0-9]+\.[0-9]+\.[0-9]+/|keptinventory/kept/vX.Y.Z/|g' \
+     -e 's|(ghcr\.io/keptinventory/kept):[0-9]+\.[0-9]+\.[0-9]+\}|\1:X.Y.Z}|g' "$f" && rm "$f.bak"; done
+   git commit -m "chore(release): X.Y.Z" -- CHANGELOG.md $PINS
    git push -u origin release-X.Y.Z
    gh pr create --base main --title "chore(release): X.Y.Z" --body "The X.Y.Z changelog section."
    gh pr merge --squash --delete-branch      # once the checks are green

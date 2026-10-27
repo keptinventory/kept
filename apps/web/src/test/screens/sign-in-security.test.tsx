@@ -22,6 +22,10 @@ const webauthn = vi.hoisted(() => ({
 }));
 vi.mock('@simplewebauthn/browser', () => webauthn);
 
+/** jsdom serves the page over http:; these tests are on https unless one says plain http. */
+const https = vi.hoisted(() => ({ plain: false }));
+vi.mock('@/lib/https', () => ({ servedOverHttp: () => https.plain }));
+
 const IPHONE =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
 
@@ -261,6 +265,24 @@ describe('adding a passkey', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Continue' }));
     expect(await within(await toasts()).findByText('Passkey added')).toBeInTheDocument();
     expect(mock.lastCall('POST', paths.myPasskeyConfirm)).toBeUndefined();
+  });
+
+  it('over plain HTTP says passkeys need HTTPS, and offers none', async () => {
+    https.plain = true;
+    vi.stubGlobal('PublicKeyCredential', undefined);
+    try {
+      await renderApp('/settings');
+      await section();
+      expect(screen.queryByRole('button', { name: 'Add a passkey' })).toBeNull();
+      expect(
+        screen.getByText(
+          "Passkeys need HTTPS. On a plain-HTTP address browsers don't offer them; put Kept on HTTPS to add one.",
+        ),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/This browser can't add a passkey/)).toBeNull();
+    } finally {
+      https.plain = false;
+    }
   });
 
   it('is not offered in a browser without passkeys', async () => {

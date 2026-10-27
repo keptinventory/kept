@@ -1,4 +1,5 @@
 /** Mock handlers for places (task 13's routes). Task 25 extends these as its screens need. */
+import { comparePlaceSiblings, naturalCompare, siblingOrder } from '@kept/shared';
 import type { MockState } from '../../mock/fixtures';
 import {
   err,
@@ -11,17 +12,21 @@ import {
 } from '../../mock/kit';
 import { inventoryPaths as p } from '../paths';
 import type {
+  ConvertChildResult,
+  ConvertChildrenBody,
   ConvertToContainerBody,
   CreatePlaceBody,
   DerivedState,
   MergePlaceBody,
   PlaceContents,
   PlaceView,
+  ReorderBody,
   TrashBody,
   UpdatePlaceBody,
 } from '../types';
 import {
   accessOf,
+  boxNodesOf,
   contentsOf,
   derivedStateOf,
   type InventoryState,
@@ -32,6 +37,7 @@ import {
   paginate,
   placeNodeOf,
   placeViewOf,
+  recordEvent,
   rowOf,
   type StoredPlace,
   type StoredThing,
@@ -43,6 +49,7 @@ import { narrow } from './filters';
 export function placesRoutes(state: MockState): MockRoute[] {
   const inv = () => state.inventory;
   const access = () => accessOf(state);
+  const me = () => ({ id: state.me.user.id, displayName: state.me.user.displayName });
   /** A live place the caller can see, or null (the server's 404 for both). */
   const visiblePlace = (id: string | undefined) => {
     const pl = livePlace(inv(), id ?? null);
@@ -60,6 +67,32 @@ export function placesRoutes(state: MockState): MockRoute[] {
     return kind ? { ...view, fields: kind.fields } : view;
   };
 
+  /** The place `pl` as a box thing with the same id, what was in it inside it. */
+  const toBox = (pl: StoredPlace, typeId: string | undefined) => {
+    const type = inv().types.find((t) => t.id === typeId) ?? null;
+    inv().things.push({
+      ...contentsTemplate(),
+      id: pl.id,
+      locationId: pl.locationId,
+      name: pl.name,
+      shortCode: pl.shortCode,
+      type: type
+        ? { id: type.id, icon: type.icon, name: type.name, builtinKey: type.builtinKey }
+        : null,
+      placeId:
+        pl.parentId ??
+        inv().places.find((x) => x.locationId === pl.locationId && x.isUnplaced)?.id ??
+        null,
+      isContainer: true,
+    });
+    for (const t of inv().things) {
+      if (t.placeId !== pl.id) continue;
+      t.placeId = null;
+      t.containerId = pl.id;
+    }
+    inv().places = inv().places.filter((x) => x.id !== pl.id);
+  };
+
   return [
     route('GET', p.locationPlaces(':locationId'), ({ params }) => {
       const gate = sessionGate(state);
@@ -68,9 +101,9 @@ export function placesRoutes(state: MockState): MockRoute[] {
       if (!access().visible(locationId)) return notFound();
       const places = inv()
         .places.filter((pl) => pl.locationId === locationId && !pl.deletedAt)
-        .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name))
-        .map((pl) => placeNodeOf(inv(), pl));
-      return { places };
+        .map((pl) => placeNodeOf(inv(), pl))
+        .sort(comparePlaceSiblings);
+      return { places, boxes: boxNodesOf(inv(), locationId) };
     }),
 
     route('POST', p.locationPlaces(':locationId'), ({ params, body }) => {
@@ -93,7 +126,7 @@ export function placesRoutes(state: MockState): MockRoute[] {
         custom: {},
         secrets: [],
         rowVersion: 1,
-        sort: inv().places.length,
+        sort: 0,
         deletedAt: null,
         trashBatchId: null,
         deletedBy: null,
@@ -116,8 +149,8 @@ export function placesRoutes(state: MockState): MockRoute[] {
       const children = inv()
         .places.filter((c) => c.parentId === pl.id && !c.deletedAt)
         .filter((c) => !q || matches(c.name, q))
-        .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name))
-        .map((c) => placeNodeOf(inv(), c));
+        .map((c) => placeNodeOf(inv(), c))
+        .sort(siblingOrder(pl.childOrder));
       let found = inv()
         .things.filter((t) => t.placeId === pl.id && !t.deletedAt)
         .filter((t) => !q || matches(t.name ?? '', q));
@@ -278,30 +311,71 @@ export function placesRoutes(state: MockState): MockRoute[] {
       const pl = visiblePlace(params.id);
       if (!pl) return notFound();
       if (!access().canWrite(pl.locationId)) return forbidden();
-      const typeId = (body as ConvertToContainerBody | undefined)?.typeId;
-      const type = inv().types.find((t) => t.id === typeId) ?? null;
-      inv().things.push({
-        ...contentsTemplate(),
-        id: pl.id,
-        locationId: pl.locationId,
-        name: pl.name,
-        shortCode: pl.shortCode,
-        type: type
-          ? { id: type.id, icon: type.icon, name: type.name, builtinKey: type.builtinKey }
-          : null,
-        placeId:
-          pl.parentId ??
-          inv().places.find((x) => x.locationId === pl.locationId && x.isUnplaced)?.id ??
-          null,
-        isContainer: true,
-      });
-      for (const t of inv().things) {
-        if (t.placeId !== pl.id) continue;
-        t.placeId = null;
-        t.containerId = pl.id;
-      }
-      inv().places = inv().places.filter((x) => x.id !== pl.id);
+      toBox(pl, (body as ConvertToContainerBody | undefined)?.typeId);
       return { thingId: pl.id };
+    }),
+
+    // Places inside a place as boxes, one row each, each with an undo (the server's
+    // convert-children-to-containers): the one Undo sends them all to undo-together.
+    route('POST', p.placeConvertChildren(':id'), ({ params, body }) => {
+      const parent = visiblePlace(params.id);
+      if (!parent) return notFound();
+      if (!access().canWrite(parent.locationId)) return forbidden();
+      const b = body as ConvertChildrenBody;
+      if (!b.placeIds?.length) return err(400, 'validation', 'Choose at least one place.');
+      const results: ConvertChildResult[] = [];
+      for (const id of [...new Set(b.placeIds)]) {
+        const pl = visiblePlace(id);
+        if (!pl || pl.parentId !== parent.id) {
+          results.push({ placeId: id, status: 'refused', reason: 'not_here' });
+          continue;
+        }
+        if (inv().places.some((c) => c.parentId === pl.id)) {
+          results.push({ placeId: id, status: 'refused', reason: 'has_places' });
+          continue;
+        }
+        const was = { ...pl };
+        toBox(pl, b.typeId);
+        recordEvent(inv(), me(), {
+          action: 'place.convert_to_container',
+          entity: { type: 'place', id: pl.id },
+          locationId: pl.locationId,
+          name: pl.name,
+          undo: () => {
+            inv().things = inv().things.filter((t) => t.id !== was.id);
+            for (const t of inv().things)
+              if (t.containerId === was.id)
+                Object.assign(t, { containerId: null, placeId: was.id });
+            inv().places.push(was);
+          },
+        });
+        results.push({ placeId: id, status: 'converted', thingId: pl.id });
+      }
+      return { results };
+    }),
+
+    route('POST', p.placeReorder(':id'), ({ params, body }) => {
+      const parent = visiblePlace(params.id);
+      if (!parent) return notFound();
+      if (!access().canWrite(parent.locationId)) return forbidden();
+      const b = body as ReorderBody;
+      const kids = inv()
+        .places.filter((c) => c.parentId === parent.id && !c.deletedAt)
+        .map((c) => placeNodeOf(inv(), c))
+        .sort(siblingOrder(parent.childOrder));
+      const order = kids.map((k) => k.id);
+      const i = order.indexOf(b.placeId);
+      if (i < 0) return notFound();
+      if (parent.childOrder !== 'custom')
+        return err(409, 'conflict', 'Switch the places here to Custom order first.');
+      const j = b.direction === 'up' ? i - 1 : i + 1;
+      if (j < 0 || j >= order.length) return { order };
+      [order[i], order[j]] = [order[j] as string, order[i] as string];
+      order.forEach((id, n) => {
+        const pl = inv().places.find((x) => x.id === id);
+        if (pl) pl.sort = n;
+      });
+      return { order };
     }),
 
     route('POST', p.placeLabel(':id'), ({ params }) => {
@@ -333,7 +407,7 @@ function contentsOrder(
         ? b.updatedAt.localeCompare(a.updatedAt)
         : sort === 'lastSeen'
           ? (b.lastSeenAt ?? '').localeCompare(a.lastSeenAt ?? '')
-          : (a.name ?? '').localeCompare(b.name ?? ''));
+          : naturalCompare(a.name ?? '', b.name ?? ''));
 }
 
 /** Defaults for a thing the mock creates from a place (convert-to-container). */

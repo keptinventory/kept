@@ -37,6 +37,8 @@ export type KeptDryRunSummary = {
   history: number;
   historyDropped: number;
   secrets: number;
+  /** Secret values the export left out (made without secrets): nothing to bring over. */
+  secretsWithheld: number;
   skipped: number;
   asText: number;
   members: { name: string; role: Role }[];
@@ -215,6 +217,7 @@ export async function keptReport(
       history: scan.history.within,
       historyDropped: scan.history.total - scan.history.within,
       secrets: manifest.includesSecrets ? manifest.secretsCount : 0,
+      secretsWithheld: manifest.includesSecrets ? 0 : (manifest.secretsWithheld ?? 0),
       skipped: scan.filesMissing.length,
       asText: 0,
       members: loaded.members,

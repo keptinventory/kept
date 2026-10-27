@@ -363,6 +363,8 @@ function place(
     deletedAt: null,
     trashBatchId: null,
     deletedBy: null,
+    // A fixed code is on a printed label, as a thing's is.
+    labelPrinted: !!extra.shortCode,
     ...extra,
   };
 }
@@ -456,7 +458,8 @@ function thing(
     trashBatchId: null,
     deletedBy: null,
   };
-  return { ...base, ...extra };
+  // A fixed code is on a printed label in the demo's story: lists show it as the amber tape.
+  return { ...base, labelPrinted: !!extra.shortCode, ...extra };
 }
 
 const tagRef = (id: string, name: string) => ({ id, name, colour: null });

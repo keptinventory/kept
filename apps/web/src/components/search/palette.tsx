@@ -33,10 +33,11 @@ import {
   SearchIcon,
   TrashIcon,
 } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import { KindIcon } from '@/components/kind-icon';
 import { useAllPlaceTrees } from '@/components/places/api';
 import { placeIcon, usePlaceName } from '@/components/places/labels';
+import { TypeText } from '@/components/places/rows';
 import { StatusPill } from '@/components/status-pill';
 import { TypeIcon } from '@/components/type-icon';
 import { CloseOnBack } from '@/components/ui/close-on-back';
@@ -370,7 +371,8 @@ export default function Palette({
                                 )}
                               </span>
                               <span className="text-small text-ink-2 [overflow-wrap:anywhere]">
-                                <bdi>{pathOf(e.thing)}</bdi>
+                                {/* #321: what it is, first on the line that says where. */}
+                                <TypeText thing={e.thing} before /> <bdi>{pathOf(e.thing)}</bdi>
                                 {e.thing.matchedAlias ? (
                                   <>
                                     {sep()}
@@ -383,9 +385,9 @@ export default function Palette({
                             </span>
                             <span className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
                               {e.thing.derivedState.map((st) => (
-                                <StatusPill key={st} state={st} />
+                                <StatusPill key={st} state={st} lifecycle={e.thing.lifecycle} />
                               ))}
-                              <IdChip code={e.thing.shortCode} />
+                              <LabelTape code={e.thing.shortCode} printed={e.thing.labelPrinted} />
                             </span>
                           </>,
                         )

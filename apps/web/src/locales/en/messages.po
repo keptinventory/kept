@@ -8301,6 +8301,10 @@ msgstr "Things found"
 msgid "Things in the same location, by brand and model or by name."
 msgstr "Things in the same location, by brand and model or by name."
 
+#: src/components/history/labels.ts
+msgid "Things moved"
+msgstr "Things moved"
+
 #: src/components/registries/registry-page.tsx
 msgid "Things show here when a purchase from here is recorded for them."
 msgstr "Things show here when a purchase from here is recorded for them."
@@ -8634,8 +8638,8 @@ msgid "Turn on two-factor"
 msgstr "Turn on two-factor"
 
 #: src/components/history/labels.ts
-msgid "Turned {name} into a container"
-msgstr "Turned {name} into a container"
+msgid "Turned {name} into a box"
+msgstr "Turned {name} into a box"
 
 #: src/components/history/labels.ts
 msgid "Turned {name} into a place"
@@ -18655,10 +18659,6 @@ msgid "Nothing sent yet"
 msgstr "Nothing sent yet"
 
 #: src/components/webhooks/words.tsx
-msgid "Off: every delivery failed for a day."
-msgstr "Off: every delivery failed for a day."
-
-#: src/components/webhooks/words.tsx
 msgid "Off: the person who made it is no longer an admin here."
 msgstr "Off: the person who made it is no longer an admin here."
 
@@ -23380,9 +23380,6 @@ msgstr "It's no longer here."
 msgid "Check the highlighted cells."
 msgstr "Check the highlighted cells."
 
-#: src/components/sheet/sheet-view.tsx
-msgid "Discard my change"
-msgstr "Discard my change"
 #: src/components/app-shell.tsx
 msgid "Moving"
 msgstr "Moving"
@@ -25771,10 +25768,6 @@ msgstr "Archived items aren't imported, sold ones included."
 msgid "Coming from an older Homebox"
 msgstr "Coming from an older Homebox"
 
-#: src/components/import/source-step.tsx
-msgid "Homebox v0.26.1 or newer (v0.27.0 recommended): Collection settings → Export. Older than v0.26: import its spreadsheet export, or update a copy of Homebox first."
-msgstr "Homebox v0.26.1 or newer (v0.27.0 recommended): Collection settings → Export. Older than v0.26: import its spreadsheet export, or update a copy of Homebox first."
-
 #: src/components/import/mapping-step.tsx
 msgid "Import a Homebox export instead"
 msgstr "Import a Homebox export instead"
@@ -26561,7 +26554,6 @@ msgstr "Took off {shown}"
 msgid "Violet"
 msgstr "Violet"
 
-
 #: src/components/search/offline-results.tsx
 msgid "Offline, search uses the words, the location, the type and the tags. The other filters apply when you're back online."
 msgstr "Offline, search uses the words, the location, the type and the tags. The other filters apply when you're back online."
@@ -26990,3 +26982,427 @@ msgstr "Set up two-factor"
 #: src/components/two-factor-hidden.tsx
 msgid "Asks for two-factor: set it up to open it"
 msgstr "Asks for two-factor: set it up to open it"
+
+#: src/components/import/archive-run.tsx
+msgid "Nothing was imported, and no location was made."
+msgstr "Nothing was imported, and no location was made."
+
+#: src/components/import/archive-run.tsx
+msgid "What needed a look"
+msgstr "What needed a look"
+
+#: src/components/import/entity-report.tsx
+msgid "Imported, with a note"
+msgstr "Imported, with a note"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Item"
+msgstr "Item"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Items with quantity 0"
+msgstr "Items with quantity 0"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Keep 0 or archive"
+msgstr "Keep 0 or archive"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Set to 1"
+msgstr "Set to 1"
+
+#: src/components/import/homebox-choices.tsx
+msgid "{zeroItems, plural, one {# item has quantity 0.} other {# items have quantity 0.}}"
+msgstr "{zeroItems, plural, one {# item has quantity 0.} other {# items have quantity 0.}}"
+
+#: src/components/import/homebox-choices.tsx
+msgid "A type you run out of keeps 0; anything else comes in archived. The notes say \"Quantity in Homebox: 0\"."
+msgstr "A type you run out of keeps 0; anything else comes in archived. The notes say \"Quantity in Homebox: 0\"."
+
+#: src/components/import/homebox-choices.tsx
+msgid "They come in as 1, and the notes say \"Quantity in Homebox: 0\"."
+msgstr "They come in as 1, and the notes say \"Quantity in Homebox: 0\"."
+
+#: src/components/import/homebox-choices.tsx
+msgid "They aren't imported. What's inside one comes in, in its place."
+msgstr "They aren't imported. What's inside one comes in, in its place."
+
+#: src/components/import/homebox-choices.tsx
+msgid "A new type"
+msgstr "A new type"
+
+#: src/components/import/homebox-choices.tsx
+msgid "No type keeps things as they are, without a type's fields. A new type is made with the name you give it."
+msgstr "No type keeps things as they are, without a type's fields. A new type is made with the name you give it."
+
+#: src/components/import/homebox-choices.tsx
+msgid "New type…"
+msgstr "New type…"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Name of the new type"
+msgstr "Name of the new type"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Give the new type a name (at most {max} characters)."
+msgstr "Give the new type a name (at most {max} characters)."
+
+#: src/components/import/homebox-choices.tsx
+msgid "Chosen"
+msgstr "Chosen"
+
+#: src/components/import/homebox-choices.tsx
+msgid "As boxes"
+msgstr "As boxes"
+
+#: src/components/import/homebox-choices.tsx
+msgid "As places"
+msgstr "As places"
+
+#: src/components/import/homebox-choices.tsx
+msgid "These look like boxes"
+msgstr "These look like boxes"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Ticked, they come in as boxes: things that hold things, carried with what's inside. The rest come in as places. You can change either later."
+msgstr "Ticked, they come in as boxes: things that hold things, carried with what's inside. The rest come in as places. You can change either later."
+
+#: src/components/import/homebox-choices.tsx
+msgid "Choose none"
+msgstr "Choose none"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Choose all"
+msgstr "Choose all"
+
+#: src/components/import/homebox-choices.tsx
+msgid "{n} of {of} as boxes"
+msgstr "{n} of {of} as boxes"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Locations that look like boxes"
+msgstr "Locations that look like boxes"
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it came in as 1."
+msgstr "Quantity 0 in Homebox; it came in as 1."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox, kept: its type is one you run out of."
+msgstr "Quantity 0 in Homebox, kept: its type is one you run out of."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it came in archived."
+msgstr "Quantity 0 in Homebox; it came in archived."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox, left out."
+msgstr "Quantity 0 in Homebox, left out."
+
+#: src/components/import/labels.ts
+msgid "It holds other items, so it came in as a box."
+msgstr "It holds other items, so it came in as a box."
+
+#: src/components/import/labels.ts
+msgid "A location that came in as a box, as chosen."
+msgstr "A location that came in as a box, as chosen."
+
+#: src/components/import/labels.ts
+msgid "Its description isn't kept: places in Kept have no notes."
+msgstr "Its description isn't kept: places in Kept have no notes."
+
+#: src/components/import/repair.tsx
+msgid "{joined}, and {more} more"
+msgstr "{joined}, and {more} more"
+
+#: src/components/import/repair.tsx
+msgid "Repaired the import"
+msgstr "Repaired the import"
+
+#: src/components/import/repair.tsx
+msgid "Repair this import"
+msgstr "Repair this import"
+
+#: src/components/import/repair.tsx
+msgid "It was imported before Kept read Homebox the way it does now. Choose what to put right; one Undo takes it all back."
+msgstr "It was imported before Kept read Homebox the way it does now. Choose what to put right; one Undo takes it all back."
+
+#: src/components/import/repair.tsx
+msgid "{0, plural, one {Archive the # thing that had quantity 0 in Homebox} other {Archive the # things that had quantity 0 in Homebox}}"
+msgstr "{0, plural, one {Archive the # thing that had quantity 0 in Homebox} other {Archive the # things that had quantity 0 in Homebox}}"
+
+#: src/components/import/repair.tsx
+msgid "<0>{0}</0>: its things stop opening on an empty Contents tab. One that holds things stays a box."
+msgstr "<0>{0}</0>: its things stop opening on an empty Contents tab. One that holds things stays a box."
+
+#: src/components/import/repair.tsx
+msgid "{0, plural, one {Make # type an ordinary type again} other {Make # types ordinary types again}}"
+msgstr "{0, plural, one {Make # type an ordinary type again} other {Make # types ordinary types again}}"
+
+#: src/components/import/repair.tsx
+msgid "Rename <0>{0}</0> to <1>{to}</1>"
+msgstr "Rename <0>{0}</0> to <1>{to}</1>"
+
+#: src/components/import/repair.tsx
+msgid "Repair"
+msgstr "Repair"
+
+#: src/components/import/track-step.tsx
+msgid "Start with what you need; turn anything else on later in Location settings → What to track. Turning something off never deletes anything."
+msgstr "Start with what you need; turn anything else on later in Location settings → What to track. Turning something off never deletes anything."
+
+#: src/components/import/track-step.tsx
+msgid "{prices, plural, one {The backup has # price. With Essentials it stays in the notes; Household keeps prices and warranties as their own records.} other {The backup has # prices. With Essentials they stay in the notes; Household keeps prices and warranties as their own records.}}"
+msgstr "{prices, plural, one {The backup has # price. With Essentials it stays in the notes; Household keeps prices and warranties as their own records.} other {The backup has # prices. With Essentials they stay in the notes; Household keeps prices and warranties as their own records.}}"
+
+#: src/components/import/track-step.tsx
+msgid "Also for Personal"
+msgstr "Also for Personal"
+
+#: src/components/import/track-step.tsx
+msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+
+#: src/components/history/labels.ts
+msgid "Repaired an import"
+msgstr "Repaired an import"
+
+#: src/components/import/track-step.tsx
+msgid "And what the backup uses"
+msgstr "And what the backup uses"
+
+#: src/components/import/track-step.tsx
+msgid "Turns on {name}"
+msgstr "Turns on {name}"
+
+#: src/components/import/track-step.tsx
+msgid "{count, plural, one {Prices on # thing} other {Prices on # things}}"
+msgstr "{count, plural, one {Prices on # thing} other {Prices on # things}}"
+
+#: src/components/import/track-step.tsx
+msgid "{count, plural, one {# warranty} other {# warranties}}"
+msgstr "{count, plural, one {# warranty} other {# warranties}}"
+
+#: src/components/import/track-step.tsx
+msgid "{count, plural, one {# maintenance entry} other {# maintenance entries}}"
+msgstr "{count, plural, one {# maintenance entry} other {# maintenance entries}}"
+
+#: src/components/import/track-step.tsx
+msgid "What's unticked stays in the things' notes as text. Notes can't become records later: to keep it as records, tick it now."
+msgstr "What's unticked stays in the things' notes as text. Notes can't become records later: to keep it as records, tick it now."
+
+#: src/components/app-shell.tsx
+msgctxt "sidebar group"
+msgid "Tracking"
+msgstr "Tracking"
+
+#: src/components/app-shell.tsx
+msgctxt "sidebar group"
+msgid "Tools"
+msgstr "Tools"
+
+#: src/components/origin-mismatch.tsx
+#: src/components/page.tsx
+msgid "Open {expected}"
+msgstr "Open {expected}"
+
+#: src/components/origin-mismatch.tsx
+msgid "This Kept is set up for <0>{expected}</0>. Open it there."
+msgstr "This Kept is set up for <0>{expected}</0>. Open it there."
+
+#: src/components/page.tsx
+msgid "This Kept is set up for a different address. Open it at the address you were given."
+msgstr "This Kept is set up for a different address. Open it at the address you were given."
+
+#: src/components/page.tsx
+msgid "This Kept is set up for {address}. Open it there."
+msgstr "This Kept is set up for {address}. Open it there."
+
+#: src/components/import/archive-step.tsx
+msgid "In Homebox, open Collection → Tools → Backup & Restore and choose Create Backup. When the backup is listed, Download it: that .zip is the file."
+msgstr "In Homebox, open Collection → Tools → Backup & Restore and choose Create Backup. When the backup is listed, Download it: that .zip is the file."
+
+#: src/components/import/source-step.tsx
+msgid "Homebox v0.26.1 or newer (v0.27.0 recommended): Collection → Tools → Backup & Restore → Create Backup → Download. Older than v0.26: import its spreadsheet export, or update a copy of Homebox first."
+msgstr "Homebox v0.26.1 or newer (v0.27.0 recommended): Collection → Tools → Backup & Restore → Create Backup → Download. Older than v0.26: import its spreadsheet export, or update a copy of Homebox first."
+
+#: src/components/connections/token-create.tsx
+msgid "On a home network without HTTPS, the person who runs this Kept can make one on the server: kept admin token create."
+msgstr "On a home network without HTTPS, the person who runs this Kept can make one on the server: kept admin token create."
+
+#: src/components/import/archive-run.tsx
+msgid "Open the map"
+msgstr "Open the map"
+
+#: src/components/places/contents-list.tsx
+msgid "Things: sort by"
+msgstr "Things: sort by"
+
+#: src/components/places/tree.tsx
+msgid "{count, plural, one {+# box} other {+# boxes}}"
+msgstr "{count, plural, one {+# box} other {+# boxes}}"
+
+#: src/components/private-address-link.tsx
+msgid "Allow private addresses in Admin → Settings"
+msgstr "Allow private addresses in Admin → Settings"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys need HTTPS. On a plain-HTTP address browsers don't offer them; put Kept on HTTPS to add one."
+msgstr "Passkeys need HTTPS. On a plain-HTTP address browsers don't offer them; put Kept on HTTPS to add one."
+
+#: src/components/import/entity-report.tsx
+msgid "{0, plural, one {secret value left out of the export} other {secret values left out of the export}}"
+msgstr "{0, plural, one {secret value left out of the export} other {secret values left out of the export}}"
+
+#: src/components/home/checklist.tsx
+msgid "Staying on my home network"
+msgstr "Staying on my home network"
+
+#: src/components/export/export-sheet.tsx
+msgid "Over plain HTTP, secret values stay out of the export. Each one is marked as left out, and the rest imports as usual."
+msgstr "Over plain HTTP, secret values stay out of the export. Each one is marked as left out, and the rest imports as usual."
+
+#: src/components/import/kept-choices.tsx
+msgid "Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to bring them over too, import this file at Kept’s HTTPS address."
+msgstr "Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to bring them over too, import this file at Kept’s HTTPS address."
+
+#: src/components/places/sub-places.tsx
+msgid "{0} moved to {1} of {2}"
+msgstr "{0} moved to {1} of {2}"
+
+#: src/components/places/sub-places.tsx
+msgid "{count, plural, one {# chosen} other {# chosen}}"
+msgstr "{count, plural, one {# chosen} other {# chosen}}"
+
+#: src/components/places/sub-places.tsx
+msgid "{count, plural, one {Turn # place into a box} other {Turn # places into boxes}}"
+msgstr "{count, plural, one {Turn # place into a box} other {Turn # places into boxes}}"
+
+#: src/components/places/sub-places.tsx
+msgid "{done, plural, one {Turned # place into a box} other {Turned # places into boxes}}"
+msgstr "{done, plural, one {Turned # place into a box} other {Turned # places into boxes}}"
+
+#: src/components/places/sub-places.tsx
+msgid "A place"
+msgstr "A place"
+
+#: src/components/places/sub-places.tsx
+msgid "A to Z, numbers in order. Floors keep the order they were made in."
+msgstr "A to Z, numbers in order. Floors keep the order they were made in."
+
+#: src/components/places/sub-places.tsx
+msgid "Choose places inside <0>{name}</0> to turn into boxes. A box is a thing: it moves with everything in it. Each keeps its ID, its label and what's in it, and one Undo turns them all back."
+msgstr "Choose places inside <0>{name}</0> to turn into boxes. A box is a thing: it moves with everything in it. Each keeps its ID, its label and what's in it, and one Undo turns them all back."
+
+#: src/routes/_app/p.$id.tsx
+msgid "Choose places inside it; one Undo turns them all back"
+msgstr "Choose places inside it; one Undo turns them all back"
+
+#: src/components/places/sub-places.tsx
+#: src/routes/_app/p.$id.tsx
+msgid "Custom order"
+msgstr "Custom order"
+
+#: src/components/places/sub-places.tsx
+msgid "It has places inside"
+msgstr "It has places inside"
+
+#: src/components/places/sub-places.tsx
+msgid "It has places inside: move them out first"
+msgstr "It has places inside: move them out first"
+
+#: src/components/places/sub-places.tsx
+msgid "It is no longer in {0}"
+msgstr "It is no longer in {0}"
+
+#: src/components/places/sub-places.tsx
+msgid "Move {0} down"
+msgstr "Move {0} down"
+
+#: src/components/places/sub-places.tsx
+msgid "Move {0} up"
+msgstr "Move {0} up"
+
+#: src/components/places/sub-places.tsx
+msgid "Move places up or down. Back to A to Z keeps this order for next time."
+msgstr "Move places up or down. Back to A to Z keeps this order for next time."
+
+#: src/components/places/sub-places.tsx
+msgid "No places match"
+msgstr "No places match"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Order of the places here"
+msgstr "Order of the places here"
+
+#: src/components/places/sub-places.tsx
+msgid "Order of the places in {0}"
+msgstr "Order of the places in {0}"
+
+#: src/components/history/labels.ts
+msgid "Order of the places inside"
+msgstr "Order of the places inside"
+
+#: src/components/places/sub-places-lazy.tsx
+msgid "Places inside"
+msgstr "Places inside"
+
+#: src/components/places/sub-places.tsx
+msgid "Places inside {0}"
+msgstr "Places inside {0}"
+
+#: src/components/history/labels.ts
+msgid "Put the places in {name} in a new order"
+msgstr "Put the places in {name} in a new order"
+
+#: src/components/places/sub-places.tsx
+msgid "Some places weren't turned into boxes"
+msgstr "Some places weren't turned into boxes"
+
+#: src/components/places/sub-places.tsx
+msgid "Turn places into boxes"
+msgstr "Turn places into boxes"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Turn places into boxes…"
+msgstr "Turn places into boxes…"
+
+#: src/components/import/entity-report.tsx
+msgid "Comes in, with a note"
+msgstr "Comes in, with a note"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Left out: no item has a value for it."
+msgstr "Left out: no item has a value for it."
+
+#: src/components/import/homebox-choices.tsx
+msgid "New type \"{typeName}\""
+msgstr "New type \"{typeName}\""
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it comes in as 1."
+msgstr "Quantity 0 in Homebox; it comes in as 1."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it comes in archived."
+msgstr "Quantity 0 in Homebox; it comes in archived."
+
+#: src/components/import/labels.ts
+msgid "It holds other items, so it comes in as a box."
+msgstr "It holds other items, so it comes in as a box."
+
+#: src/components/import/labels.ts
+msgid "A location that comes in as a box, as chosen."
+msgstr "A location that comes in as a box, as chosen."
+
+#: src/components/import/labels.ts
+msgid "A location inside an item becomes a box."
+msgstr "A location inside an item becomes a box."
+
+#: src/components/import/labels.ts
+msgid "A location inside an item became a box."
+msgstr "A location inside an item became a box."
+
+#: src/components/places/contents-list.tsx
+msgid "Places keep their own order."
+msgstr "Places keep their own order."

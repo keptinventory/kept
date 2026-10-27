@@ -28,7 +28,11 @@ export function LabelSheet({ isOpen, onClose }: { isOpen: boolean; onClose: () =
         <ModuleOff what={t`Labels & QR`} />
       ) : thing.shortCode ? (
         <div className="grid justify-items-start gap-3">
-          <IdChip code={thing.shortCode} size="large" />
+          <IdChip
+            code={thing.shortCode}
+            size="large"
+            variant={thing.labelPrinted ? 'tape' : 'quiet'}
+          />
           <p className="m-0 text-small text-ink-2">
             <Trans>
               This code stays with {thing.name ?? ''} for good, so a reprinted label still finds it.

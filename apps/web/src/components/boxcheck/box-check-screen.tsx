@@ -24,7 +24,7 @@ import { appDetect } from '@/camera/scanner';
 import type { CameraEnv } from '@/camera/session';
 import { undoEvents } from '@/components/history/undo';
 import { PlusIcon, QrIcon, XIcon } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { IdChip, LabelTape } from '@/components/id-chip';
 import { ErrorState, LoadingRows, Notice, useErrorText } from '@/components/page';
 import { queueItem, resolveScan, type ScanStore } from '@/components/scan/resolve';
 import { ScannerView } from '@/components/scan/scanner-view';
@@ -38,7 +38,12 @@ import { useHoldUpdates } from '@/pwa/register';
 import { Checklist, FoundElsewhere } from './checklist';
 import { type BoxData, canCheck, loadBox } from './load';
 
-type Extra = { id: string; name: string | null; shortCode: string | null };
+type Extra = {
+  id: string;
+  name: string | null;
+  shortCode: string | null;
+  labelPrinted?: boolean | undefined;
+};
 
 type Done =
   | { via: 'server'; result: BoxCheckResult }
@@ -206,7 +211,13 @@ export function BoxCheckScreen({
             <bdi>{name}</bdi>
           </h1>
         </div>
-        {data?.container.shortCode ? <IdChip code={data.container.shortCode} /> : null}
+        {/* The box's own code: the tape when its label is printed, else quietly. */}
+        {data?.container.shortCode ? (
+          <IdChip
+            code={data.container.shortCode}
+            variant={data.container.labelPrinted ? 'tape' : 'quiet'}
+          />
+        ) : null}
       </header>
       <div className="grid flex-1 content-start gap-3 overflow-y-auto px-3.5 py-3 md:px-5">
         {body}
@@ -425,13 +436,15 @@ function FoundSomethingElse({
       const t2 = store ? await store.thing(res.target.id) : undefined;
       let name = t2?.name ?? null;
       let shortCode = t2?.shortCode ?? res.code;
+      let labelPrinted = t2?.labelPrinted === true;
       if (!t2 && online) {
         const v = await inventoryApi.thing(res.target.id).catch(() => null);
         name = v?.name ?? null;
         shortCode = v?.shortCode ?? shortCode;
+        labelPrinted = v?.labelPrinted === true;
       }
       setScanning(false);
-      onAdd({ id: res.target.id, name, shortCode });
+      onAdd({ id: res.target.id, name, shortCode, labelPrinted });
       return;
     }
     setNote(t`That label isn't on a thing in your Kept.`);
@@ -474,13 +487,24 @@ function FoundSomethingElse({
             {hits.map((h) => (
               <li key={h.id}>
                 <AriaButton
-                  onPress={() => onAdd({ id: h.id, name: h.name, shortCode: h.shortCode })}
+                  onPress={() =>
+                    onAdd({
+                      id: h.id,
+                      name: h.name,
+                      shortCode: h.shortCode,
+                      labelPrinted: h.labelPrinted,
+                    })
+                  }
                   className="flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-[10px] border border-line bg-surface px-3 py-2 text-start outline-none data-focus-visible:outline-2 data-focus-visible:outline-info data-hovered:bg-sunken"
                 >
                   <bdi className="min-w-0 flex-1 font-semibold [overflow-wrap:anywhere]">
                     {h.name ?? t`Unnamed`}
                   </bdi>
-                  <IdChip code={h.shortCode} pending={h.shortCode === null} />
+                  <LabelTape
+                    code={h.shortCode}
+                    printed={h.labelPrinted}
+                    pending={h.shortCode === null}
+                  />
                 </AriaButton>
               </li>
             ))}

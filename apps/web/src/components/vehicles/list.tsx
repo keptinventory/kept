@@ -30,7 +30,7 @@ import {
   ClockIcon,
   DocumentIcon,
 } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import { ListSurface } from '@/components/list-surface';
 import { EmptyState, Notice, Pill } from '@/components/page';
 import { PathText, Tile } from '@/components/places/rows';
@@ -306,7 +306,7 @@ export function VehicleRowView({ vehicle }: { vehicle: VehicleRow }) {
           >
             <bdi>{name}</bdi>
           </Link>
-          <IdChip code={thing.shortCode} />
+          <LabelTape code={thing.shortCode} printed={thing.labelPrinted} />
           {thing.lifecycle !== 'in_use' ? <Pill>{lifecycle[thing.lifecycle]}</Pill> : null}
         </div>
         {thing.path.length ? <PathText path={thing.path} /> : null}

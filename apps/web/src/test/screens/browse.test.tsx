@@ -56,8 +56,8 @@ describe('the location page', () => {
     expect(screen.getByRole('button', { name: 'Sort them' })).toBeInTheDocument();
     const rows = within(await list('Contents of Home')).getAllByRole('link');
     const names = rows.map((r) => r.textContent ?? '');
-    // Places first (never the Unplaced area as a row), then things.
-    expect(names[0]).toMatch(/^Living room/);
+    // Places first, A to Z (never the Unplaced area as a row), then things.
+    expect(names[0]).toMatch(/^Bedroom/);
     expect(names.findIndex((n) => n.startsWith('Kitchen'))).toBeLessThan(
       names.findIndex((n) => n.includes('Galaxy S23')),
     );
@@ -411,7 +411,7 @@ describe('a grid keeps places and things apart, in three sizes (#139)', () => {
     let ul = await contents();
     expect(ul).toHaveAttribute('data-tile-size', 'medium');
     expect(ul.className).toContain('grid-cols-2');
-    // Medium is today's tile: the name and the short ID.
+    // Medium is the name and the tape of a printed label (the demo's phone has one).
     const galaxy = () => within(ul).getByRole('link', { name: /Galaxy S23/ });
     expect(within(galaxy()).getByRole('img')).toBeInTheDocument();
 
@@ -859,6 +859,90 @@ describe('the place page', () => {
   });
 });
 
+describe('what a row says about a box and a type (#321)', () => {
+  const rowOf = async (listName: string, name: RegExp) =>
+    within(await list(listName)).getByRole('link', { name });
+
+  it('a box in Things here says how many things are in it, as the tree does', async () => {
+    await renderApp(`/p/${P.hallwayCloset}`);
+    await findHeading('Hallway closet');
+    expect(await rowOf('Contents of Hallway closet', /Box 3/)).toHaveTextContent(/2 things$/);
+  });
+
+  it('shows the type as a quiet line under the name, first on the line it shares', async () => {
+    await renderApp(`/loc/${IDS.home}`);
+    await findHeading('Home');
+    const hdmi = await rowOf('Contents of Home', /HDMI cable, 2 m/);
+    const type = within(hdmi).getByText('Cable').closest<HTMLElement>('[data-thing-type]');
+    // The secondary text's grey, not the label tape's amber (#271).
+    expect(type).toHaveClass('text-small', 'text-ink-2');
+    expect(type?.className).not.toMatch(/amber|tape/);
+    // First on the tape, states and path line: the row is no taller than before.
+    const line = type?.parentElement;
+    expect(line?.firstElementChild).toBe(type);
+    expect(line).toHaveTextContent(/Cable.*Office.*Desk drawer.*Cable box/);
+  });
+
+  it('shows no type line for a thing without a type', async () => {
+    await renderApp(`/t/${T.box3}`);
+    const scarves = await rowOf('Contents of Box 3', /Winter scarves/);
+    expect(scarves.querySelector('[data-thing-type]')).toBeNull();
+  });
+
+  it('a Large tile shows the type too', async () => {
+    await renderApp(`/p/${P.deskDrawer}?view=grid&size=large`);
+    const tile = await rowOf('Contents of Desk drawer', /Cable box/);
+    expect(within(tile).getByText('Box / bin').closest('[data-thing-type]')).toHaveClass(
+      'text-ink-2',
+    );
+  });
+
+  it('a Large tile of a location says the type and where on one line', async () => {
+    await renderApp(`/loc/${IDS.home}?view=grid&size=large`);
+    const tile = await rowOf('Contents of Home', /HDMI cable, 2 m/);
+    const type = tile.querySelector('[data-thing-type]');
+    expect(type).toHaveTextContent(/^Cable/);
+    // Type first, then the path, in the one wrapping line.
+    expect(type?.parentElement?.firstElementChild).toBe(type);
+    expect(type?.parentElement).toHaveTextContent(/^Cable.*Office › Desk drawer › Cable box$/);
+  });
+
+  it('a Medium tile stays the name and its tape', async () => {
+    await renderApp(`/p/${P.deskDrawer}?view=grid`);
+    const medium = await rowOf('Contents of Desk drawer', /Cable box/);
+    expect(within(medium).queryByText('Box / bin')).toBeNull();
+  });
+
+  it('names a built-in type in the reader’s language, right to left', async () => {
+    await renderApp(`/p/${P.familyKitchen}`, { locale: 'ar' });
+    await findHeading('المطبخ');
+    const fridge = await rowOf('محتويات «المطبخ»', /ثلاجة توشيبا/);
+    expect(within(fridge).getByText('جهاز منزلي كبير')).toBeInTheDocument();
+    expectLogicalOnly();
+  });
+
+  it('Things: sort by says places keep their own order', async () => {
+    const { user } = await renderApp(`/p/${P.office}`);
+    await findHeading('Office');
+    await user.click(await screen.findByRole('button', { name: /^Display options/ }));
+    const sheet = await screen.findByRole('dialog', { name: 'Display' });
+    // The note describes the menu; the sort group's name stays its heading.
+    expect(within(sheet).getByRole('group', { name: 'Things: sort by' })).toBeInTheDocument();
+    expect(within(sheet).getByRole('menu')).toHaveAccessibleDescription(
+      'Places keep their own order.',
+    );
+  });
+
+  it('says nothing about places where there are none', async () => {
+    const { user } = await renderApp(`/p/${P.deskDrawer}`);
+    await findHeading('Desk drawer');
+    await user.click(await screen.findByRole('button', { name: /^Display options/ }));
+    const sheet = await screen.findByRole('dialog', { name: 'Display' });
+    expect(within(sheet).getByText('Things: sort by')).toBeInTheDocument();
+    expect(within(sheet).queryByText('Places keep their own order.')).toBeNull();
+  });
+});
+
 describe('place fields', () => {
   function withClosetFields(state = ownerScenario()) {
     for (const kinds of Object.values(state.inventory.placeKinds))
@@ -1141,5 +1225,27 @@ describe('inside a location', () => {
     expect(tree).toBeInTheDocument();
     const path = screen.getByRole('navigation', { name: /Where it is/ });
     expect(within(path).getByRole('link', { name: 'Office' })).toHaveAttribute('href', '/p/R00M4K');
+  });
+});
+
+describe('an ended thing in a list (#320)', () => {
+  it('says its lifecycle, the word its own page shows, never only "Ended"', async () => {
+    const state = ownerScenario();
+    const kettle = state.inventory.things.find((x) => x.id === T.kettle);
+    if (!kettle) throw new Error('fixture');
+    // As a Homebox item at quantity 0 comes in with "Keep 0 or archive": archived.
+    kettle.lifecycle = 'archived';
+    kettle.ended = null;
+    const { user } = await renderApp(`/p/${P.kitchen}`, { state });
+    await findHeading('Kitchen');
+    const row = (await screen.findByRole('link', { name: /Old kettle/ })).closest(
+      'li',
+    ) as HTMLElement;
+    expect(within(row).getByText('Archived')).toBeInTheDocument();
+    expect(within(row).queryByText('Ended')).toBeNull();
+    await user.click(within(row).getByRole('link', { name: /Old kettle/ }));
+    expect(await findHeading('Old kettle')).toBeInTheDocument();
+    expect(screen.getAllByText('Archived').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Ended')).toBeNull();
   });
 });

@@ -7,7 +7,7 @@ import Dexie from 'dexie';
 import { describe, expect, it, vi } from 'vitest';
 import { fakeIdb, makeDexieStore } from '@/test/dexie';
 import { firstPage, storeContract } from '@/test/store-contract';
-import { dbName, V1_STORES } from './db';
+import { dbName, V1_STORES, V5_STORES } from './db';
 import { StorageFullError } from './persist';
 
 storeContract('DexieStore (fake-indexeddb)', () => makeDexieStore());
@@ -54,7 +54,7 @@ describe('DexieStore', () => {
     expect((await s.thing(DRILL))?.name).toBe('Bosch drill');
   });
 
-  it('v3 rebuilds the terms in place with each thing’s legacy codes, keeping the copy', async () => {
+  it('a v2 copy, whose terms v3 rebuilt in place, now starts over at v6', async () => {
     const idb = fakeIdb();
     const userId = newId();
     // A phone that synced under v2: the drill's terms have no codes, its Homebox code is kept.
@@ -77,9 +77,46 @@ describe('DexieStore', () => {
     v2.close();
 
     const s = makeDexieStore(userId, idb);
-    expect(await s.cursor()).toBe('v2-cursor');
+    expect(await s.cursor()).toBeNull();
+    expect(await s.search('bosch', 10)).toEqual([]);
+    // The next sync brings the copy back, its terms with its codes.
+    await s.applySnapshot(firstPage());
     expect((await s.search('000-001', 10)).map((t) => t.id)).toEqual([DRILL]);
-    expect((await s.search('bosch', 10)).map((t) => t.id)).toEqual([DRILL]);
+  });
+
+  it('v6 starts the copy over, since its codes had no print status, and keeps the queue', async () => {
+    const idb = fakeIdb();
+    const userId = newId();
+    // A phone that synced under v5: codes without `printed`, a cursor, and a capture waiting.
+    const v5 = new Dexie(dbName(userId), idb);
+    v5.version(5).stores(V5_STORES);
+    await v5.table('things').put({ ...firstPage().changes.things[0], terms: ['bosch'] });
+    await v5.table('codes').bulkPut(firstPage().changes.codes);
+    await v5.table('meta').bulkPut([
+      { key: 'cursor', value: 'v5-cursor' },
+      { key: 'lastSyncAt', value: 1 },
+    ]);
+    await v5.table('tray').put({ thingId: DRILL, addedAt: 1 });
+    await v5.table('queue').add({
+      clientVersion: '0.1.0',
+      payloadVersion: 1,
+      clientId: 'c1',
+      idempotencyKey: 'move:c1',
+      op: 'move',
+      takenAt: '2026-09-27T11:06:00.000Z',
+      locationId: LOC,
+      payload: { thingIds: [DRILL], to: { placeId: GARAGE } },
+      state: 'pending',
+    });
+    v5.close();
+
+    const s = makeDexieStore(userId, idb);
+    expect(await s.cursor()).toBeNull();
+    expect(await s.thing(DRILL)).toBeUndefined();
+    expect(await s.db.codes.count()).toBe(0);
+    expect(await s.meta('lastSyncAt')).toBe(1);
+    expect(await s.tray()).toEqual([DRILL]);
+    expect(await s.db.queue.count()).toBe(1);
   });
 
   it('finds الكابل offline by its bare form كابل and by its Arabic alias', async () => {
@@ -213,12 +250,16 @@ describe('DexieStore', () => {
     expect(await s.pending()).toEqual([]);
   });
 
-  // Retried: most of this is fake-indexeddb's own cost (~0.9 s of structured clones and index
-  // upkeep alone), which a loaded machine can push past the bound once. A slow store fails 3 times.
-  it('applies a 10,000-thing snapshot page in under 1.5 s, 3 s on a CI runner (a jsdom sanity check, not the phone)', {
+  // What a jsdom run can show is the shape of the cost, not the phone's speed: a 10,000-thing page
+  // costs about ten times a 1,000-thing one (0.08 s and 0.75 s of CPU on a laptop, mostly
+  // fake-indexeddb's own structured clones and index upkeep). An absolute bound alone failed under
+  // full-suite load: CPU time stretches too when cores are shared (1.5–2.9 s seen for the 10,000).
+  // So both sizes are timed in the same run, each the best of a few, and their ratio must stay
+  // near linear (10×; quadratic work would be ~100×). The ceiling catches a store that turned
+  // uniformly slow, at several times the worst loaded run seen.
+  it('applies a 10,000-thing snapshot page in time linear in its size (a jsdom sanity check, not the phone)', {
     retry: 2,
   }, async () => {
-    const s = makeDexieStore();
     const base = firstPage();
     const things: SnapThing[] = Array.from({ length: 10_000 }, (_, i) => ({
       id: `01926f00-0000-7000-8000-${String(i).padStart(12, '0')}`,
@@ -238,20 +279,28 @@ describe('DexieStore', () => {
       isContainer: false,
       deleted: false,
     }));
+    // CPU time, not wall time: a worker waiting for a core is not a slow store. Each page goes to
+    // a fresh store, as a phone's first sync does.
+    const cpuMs = async (n: number) => {
+      const s = makeDexieStore();
+      const page = { ...base, changes: { ...base.changes, things: things.slice(0, n) } };
+      const cpu = process.cpuUsage();
+      await s.applySnapshot(page);
+      const used = process.cpuUsage(cpu);
+      expect(await s.db.things.count()).toBe(n);
+      return (used.user + used.system) / 1000;
+    };
     // Warm the JIT on a small page first: the phone's first sync isn't its first line of code.
-    await makeDexieStore().applySnapshot({
-      ...base,
-      changes: { ...base.changes, things: things.slice(0, 500) },
-    });
-    // CPU time, not wall time: the full suite shares the machine with other runs (load 30+ has
-    // been seen), and a starved worker waiting for a core is not a slow store.
-    const cpu = process.cpuUsage();
-    await s.applySnapshot({ ...base, changes: { ...base.changes, things } });
-    const used = process.cpuUsage(cpu);
-    const ms = (used.user + used.system) / 1000;
-    expect(await s.db.things.count()).toBe(10_000);
-    // A hosted CI runner's cores are slower than a laptop's: 1.7–2.0 s of CPU on GitHub's 2-vCPU
-    // runner (the first public ci run, 2026-10-07), so the bound there is twice the laptop's.
-    expect(ms).toBeLessThan(process.env.CI ? 3_000 : 1_500);
+    await cpuMs(500);
+    const small: number[] = [];
+    const large: number[] = [];
+    for (let round = 0; round < 2; round++) {
+      small.push(await cpuMs(1_000));
+      large.push(await cpuMs(10_000));
+    }
+    small.push(await cpuMs(1_000));
+    const best = Math.min(...large);
+    expect(best / Math.min(...small)).toBeLessThan(25);
+    expect(best).toBeLessThan(6_000);
   });
 });

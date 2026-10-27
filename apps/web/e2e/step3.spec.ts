@@ -253,9 +253,10 @@ test('offline capture: three things into Garage › Shelf A, found offline, name
       timeout: 5_000,
     });
   }).toPass({ timeout: 120_000, intervals: [3_000] });
-  // Each has its short ID now.
+  // Each has its short ID now: no longer "ID pending", and no tape until its label is printed.
   for (const a of await page.getByRole('article', { name: 'Thing', exact: true }).all()) {
-    await expect(a.getByRole('img', { name: /^[0-9A-Z]{6}$/ })).toBeVisible();
+    await expect(a.getByRole('img', { name: 'ID pending' })).toHaveCount(0);
+    await expect(a.getByRole('img', { name: /^[0-9A-Z]{6}$/ })).toHaveCount(0);
   }
   await axe(page, 'Inbox');
 
@@ -322,6 +323,7 @@ test('offline, the Search screen finds things kept on the phone', async ({ brows
   await page.getByRole('searchbox', { name: 'Search everything' }).fill('bosch drill');
   const drill = page.getByRole('link', { name: new RegExp(DRILL.name) }).first();
   await expect(drill).toBeVisible({ timeout: 15_000 });
+  // The seed's drill carries a printed label: the tape, from the phone's copy.
   await expect(drill.getByRole('img', { name: DRILL.code })).toBeVisible();
   await expect(page.getByText(/^On this phone · as of last sync, /)).toBeVisible();
   await expect(page.getByText('Documents need a connection')).toBeVisible();

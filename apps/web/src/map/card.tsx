@@ -282,7 +282,7 @@ function InsideList({
               {x.name}
               <Dots flags={flagsOf(contents, x.id)} />
             </span>
-            <small>{x.shortCode ? printedCode(x.shortCode) : ' '}</small>
+            <small>{x.labelPrinted && x.shortCode ? <IdChip code={x.shortCode} /> : ' '}</small>
             <span className="q">×{f.num(x.quantity)}</span>
           </button>
         </li>
@@ -309,6 +309,7 @@ export function MapCard(p: CardProps) {
     const node = plan.items.find((x) => x.id === p.inner);
     const name = node?.name ?? thing?.name ?? '';
     const code = node?.shortCode ?? thing?.shortCode ?? null;
+    const printed = node?.labelPrinted === true || thing?.labelPrinted === true;
     const where = whereOf(plan, view, p.inner).path;
     const back =
       p.sel.type === 'item'
@@ -329,7 +330,7 @@ export function MapCard(p: CardProps) {
           meta={
             <>
               <span>{where.join(' › ')}</span>
-              {code ? <IdChip code={code} /> : null}
+              {code ? <IdChip code={code} variant={printed ? 'tape' : 'quiet'} /> : null}
             </>
           }
           onClose={p.onClose}
@@ -450,7 +451,9 @@ export function MapCard(p: CardProps) {
                   <li key={x.id}>
                     <button type="button" onClick={() => p.onAdd(r.id, x)}>
                       <span>{x.name}</span>
-                      <small>{x.shortCode ? printedCode(x.shortCode) : ' '}</small>
+                      <small>
+                        {x.labelPrinted && x.shortCode ? <IdChip code={x.shortCode} /> : ' '}
+                      </small>
                       <span className="q">+</span>
                     </button>
                   </li>
@@ -476,7 +479,7 @@ export function MapCard(p: CardProps) {
                       <Dots flags={flagsOf(contents, i.id)} />
                     </span>
                     <small>
-                      {i.shortCode ? printedCode(i.shortCode) : ''}
+                      {i.labelPrinted && i.shortCode ? <IdChip code={i.shortCode} /> : ''}
                       {host ? (
                         <>
                           {' '}
@@ -629,7 +632,9 @@ export function MapCard(p: CardProps) {
       meta={
         <>
           <span>{meta}</span>
-          {it.shortCode ? <IdChip code={it.shortCode} /> : null}
+          {it.shortCode ? (
+            <IdChip code={it.shortCode} variant={it.labelPrinted ? 'tape' : 'quiet'} />
+          ) : null}
         </>
       }
       onClose={p.onClose}
@@ -710,7 +715,9 @@ export function MapCard(p: CardProps) {
                     {c.name}
                     <Dots flags={flagsOf(contents, c.id)} />
                   </span>
-                  <small>{c.shortCode ? printedCode(c.shortCode) : ' '}</small>
+                  <small>
+                    {c.labelPrinted && c.shortCode ? <IdChip code={c.shortCode} /> : ' '}
+                  </small>
                   <span className="q">{countIn(contents, c) ?? ''}</span>
                 </button>
               </li>

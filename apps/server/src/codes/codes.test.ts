@@ -12,7 +12,7 @@ import {
   own,
   place,
 } from '../../test/things.js';
-import { vetRule } from './format-rule.js';
+import { checkCodes, setTimeLimitsForTests, TIME_LIMITS, vetRule } from './format-rule.js';
 
 // Own codes through the front door. Ibrahim owns Home and Garage; in Home, Bruce is
 // an admin, Louis a member and Talia a viewer.
@@ -61,10 +61,24 @@ const ownCodes = async (thingId: string) =>
 
 const NUMBERING_OFF = { numbering: { enabled: false, prefix: '', pad: 4 }, rule: null };
 
+// The format rule's time limits are wall-clock: under full-suite load a worker waiting for a core
+// once took `HOME-[0-9]{4}` past the 10 ms vet (#312). Tests about what a rule allows get limits no
+// fast rule can miss; the test about slow patterns puts the real ones back (`realLimits`).
+let restoreLimits: () => void;
+const realLimits = async (fn: () => Promise<void>) => {
+  const widened = setTimeLimitsForTests(TIME_LIMITS);
+  try {
+    await fn();
+  } finally {
+    widened();
+  }
+};
+
 beforeAll(async () => {
   db = await testDb();
   await db.reset();
   t = await peopleApp(db);
+  restoreLimits = setTimeLimitsForTests({ vet: 5_000, check: 5_000 });
   ibrahim = await person(t, db, 'ibrahim');
   bruce = await person(t, db, 'bruce');
   louis = await person(t, db, 'louis');
@@ -77,6 +91,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  restoreLimits();
   await t.app.close();
 });
 
@@ -241,6 +256,38 @@ describe('own codes on a thing or a place', () => {
   });
 });
 
+describe("a Homebox import's codes", () => {
+  it('lists the Homebox asset ID but not the Homebox UUID, which still scans', async () => {
+    const lamp = await createThing(t, ibrahim, home, { name: 'Desk lamp' });
+    const shelf = await place(db, home, 'Shelf B');
+    const uuid = 'a3f1c2d4-5b6e-4f70-8a9b-0c1d2e3f4a5b';
+    const placeUuid = 'b4e2d3c5-6c7f-4a81-9bac-1d2e3f4a5b6c';
+    await own(
+      db,
+      `INSERT INTO public.legacy_codes (location_id, source, source_collection, code, thing_id, place_id)
+       VALUES ($1, 'homebox', 'g1', '000-012', $2, NULL),
+              ($1, 'homebox', 'g1', upper($3), $2, NULL),
+              ($1, 'homebox', 'g1', upper($4), NULL, $5)`,
+      [home.id, lamp.id, uuid, placeUuid, shelf],
+    );
+    const listed = ok(await codes(ibrahim, 'things', lamp.id)) as unknown as {
+      codes: { code: string; source: string }[];
+    };
+    expect(listed.codes).toEqual([{ code: '000-012', source: 'homebox', sourceCollection: 'g1' }]);
+    const onPlace = ok(await codes(ibrahim, 'places', shelf)) as unknown as { codes: unknown[] };
+    expect(onPlace.codes).toEqual([]);
+    for (const [text, target] of [
+      [`https://homebox.lan/item/${uuid}`, { kind: 'thing', id: lamp.id }],
+      [`https://homebox.lan/location/${placeUuid}`, { kind: 'place', id: shelf }],
+    ] as const) {
+      expect(ok(await call(t, '/api/v1/scan/resolve', { as: talia, body: { text } }))).toEqual({
+        outcome: 'open',
+        target: { ...target, locationId: home.id },
+      });
+    }
+  });
+});
+
 describe('numbering and the format rule', () => {
   // catalogue: PUT /api/v1/locations/:locationId/own-codes
   it('owners and admins set the options (audited); a member is 403 and a stale If-Match 412', async () => {
@@ -317,15 +364,24 @@ describe('numbering and the format rule', () => {
   });
 
   it('refuses a catastrophic pattern, one that won’t compile, and an example that doesn’t match', async () => {
-    const slow = await setSettings(bruce, home, {
-      numbering: { enabled: false, prefix: '', pad: 4 },
-      rule: { pattern: '(a+)+$', message: 'Letters only.', example: 'AAA' },
-    });
-    expect(slow.statusCode, slow.body).toBe(400);
-    expect(slow.json()).toMatchObject({ code: 'validation', reason: 'slow' });
-    expect(vetRule({ pattern: '(a+)+$', message: 'x', example: 'A' })).toMatchObject({
-      ok: false,
-      reason: 'slow',
+    // A catastrophic pattern never finishes, so it is slow at the real limits on any machine.
+    await realLimits(async () => {
+      const slow = await setSettings(bruce, home, {
+        numbering: { enabled: false, prefix: '', pad: 4 },
+        rule: { pattern: '(a+)+$', message: 'Letters only.', example: 'AAA' },
+      });
+      expect(slow.statusCode, slow.body).toBe(400);
+      expect(slow.json()).toMatchObject({ code: 'validation', reason: 'slow' });
+      expect(vetRule({ pattern: '(a+)+$', message: 'x', example: 'A' })).toMatchObject({
+        ok: false,
+        reason: 'slow',
+      });
+      // A save's check has its own limit: a code the vet's test strings didn't foresee can still
+      // run out of time, and only that code is `slow`.
+      expect(checkCodes({ pattern: '(a+)+$' }, [`${'A'.repeat(99)}!`, 'AAA'])).toEqual([
+        'slow',
+        'ok',
+      ]);
     });
     const broken = await setSettings(bruce, home, {
       ...NUMBERING_OFF,

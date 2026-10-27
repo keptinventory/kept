@@ -8,9 +8,15 @@
  * An archive whose declared sha256 starts with `bad` is read as hostile: inspect answers 400
  * `archive_invalid` with the reason `symlink`, and the run fails.
  */
-import { ARCHIVE_SOURCES, HomeboxChoices, PASSPHRASE_MIN, ZIP_LIMITS } from '@kept/shared';
+import {
+  ARCHIVE_SOURCES,
+  HomeboxChoices,
+  PASSPHRASE_MIN,
+  presetModules,
+  ZIP_LIMITS,
+} from '@kept/shared';
 import { capturePaths as cp } from '../../capture/paths';
-import { accessOf, newId, now, versionError } from '../../inventory/mock/db';
+import { accessOf, newId, now, recordEvent, versionError } from '../../inventory/mock/db';
 import type { MockState } from '../../mock/fixtures';
 import {
   err,
@@ -29,6 +35,7 @@ import type {
   CreateArchiveImportBody,
   EnrichEstimate,
   HomeboxConnectBody,
+  ImportRepairBody,
   ImportTargetBody,
 } from '../types';
 import { HOMEBOX_MAPPING, PORTABILITY_IDS, pt } from './state';
@@ -186,9 +193,21 @@ export function importRoutes(state: MockState): MockRoute[] {
     route('POST', p.importTarget(':id'), ({ params, body }) => {
       const run = visibleRun(params.id);
       if (!run) return notFound();
-      if (run.locationId) return err(409, 'conflict', 'This import already has its location.');
+      if (run.locationId || run.newLocation)
+        return err(409, 'conflict', 'This import already has its location.');
       const b = body as ImportTargetBody;
-      if ('locationId' in b) {
+      if ('newLocation' in b && run.source === 'homebox_zip') {
+        // As the server does from 1.13.0: the new location is made when the import runs.
+        run.newLocation = {
+          name: b.newLocation.name,
+          kind: b.newLocation.kind,
+          timezone: b.newLocation.timezone,
+          currency: b.newLocation.currency,
+          preset: b.newLocation.preset ?? 'essentials',
+          modules: b.newLocation.modules ?? [],
+          alsoPersonal: b.newLocation.alsoPersonal === true,
+        };
+      } else if ('locationId' in b) {
         if (run.source === 'kept_zip')
           return err(400, 'validation', 'A Kept export goes into a new location.');
         if (!access().visible(b.locationId)) return notFound();
@@ -279,6 +298,13 @@ export function importRoutes(state: MockState): MockRoute[] {
       const run = visibleRun(params.id);
       if (!run) return notFound();
       if (run.status !== 'done') return err(409, 'conflict', 'Finish the import first.');
+      // As the server (enrich/routes.ts): AI capture on in the run's location, else no offer.
+      const loc = state.locations.find((l) => l.id === run.locationId);
+      const ai =
+        loc?.effectiveModules?.includes('ai_capture') ??
+        (loc?.providerResolved === true && loc.modules.includes('ai_capture'));
+      if (!ai)
+        return err(400, 'ai_unavailable', 'Connect AI and turn on AI capture for this location.');
       const things = run.total ?? 0;
       const calls = Math.ceil(things / 20);
       const estimate: EnrichEstimate = {
@@ -291,6 +317,52 @@ export function importRoutes(state: MockState): MockRoute[] {
         provider: { kind: 'groq', model: 'qwen/qwen3.8-27b' },
       };
       return estimate;
+    }),
+
+    route('GET', p.importRepair(':id'), ({ params }) => {
+      const run = visibleRun(params.id);
+      if (!run) return notFound();
+      if (run.source !== 'homebox_zip' || !run.startedAt)
+        return err(409, 'conflict', 'Only a Homebox import that ran can be repaired.');
+      return s().repairs[run.id] ?? { zero: [], containerTypes: [], renames: [] };
+    }),
+
+    route('POST', p.importRepair(':id'), ({ params, body }) => {
+      const run = visibleRun(params.id);
+      if (!run?.locationId) return notFound();
+      const plan = s().repairs[run.id] ?? { zero: [], containerTypes: [], renames: [] };
+      const b = body as ImportRepairBody;
+      const before = structuredClone(plan);
+      const things = b.zero ? plan.zero : [];
+      const types = new Set([
+        ...(b.containerTypes ? plan.containerTypes.map((y) => y.typeId) : []),
+        ...(b.names ? plan.renames.map((y) => y.typeId) : []),
+      ]);
+      if (things.length === 0 && types.size === 0)
+        return err(400, 'validation', 'There is nothing to repair.');
+      const next = {
+        zero: b.zero ? [] : plan.zero,
+        containerTypes: b.containerTypes ? [] : plan.containerTypes,
+        renames: b.names ? [] : plan.renames,
+      };
+      s().repairs[run.id] = next;
+      const actor = { id: state.me.user.id, displayName: state.me.user.displayName };
+      const restore = () => {
+        s().repairs[run.id] = before;
+      };
+      let first = true;
+      for (const t of things.length > 0 ? things : [{ thingId: run.id, name: 'Import' }]) {
+        recordEvent(state.inventory, actor, {
+          action: things.length > 0 ? 'thing.lifecycle' : 'import.repair',
+          entity: { type: 'thing', id: t.thingId },
+          locationId: run.locationId,
+          name: t.name,
+          // One undo of all of them puts the whole repair back.
+          undo: first ? restore : () => {},
+        });
+        first = false;
+      }
+      return { repaired: { things: things.length, types: types.size }, plan: next };
     }),
 
     route('POST', p.importEnrich(':id'), ({ params }) => {
@@ -331,7 +403,7 @@ export function importRoutes(state: MockState): MockRoute[] {
       if (!find(params.id)) return PASS;
       const run = visibleRun(params.id);
       if (!run) return notFound();
-      if (!run.locationId)
+      if (!run.locationId && !run.newLocation)
         return err(409, 'import_target_needed', 'Choose where to import it first.');
       if (run.status !== 'draft' && run.status !== 'checked')
         return err(409, 'conflict', `This import is ${run.status}; a dry run is before it starts.`);
@@ -373,6 +445,7 @@ export function importRoutes(state: MockState): MockRoute[] {
                 history: 118,
                 historyDropped: 2,
                 secrets: run.secrets?.present ? 3 : 0,
+                secretsWithheld: run.secrets?.present ? 0 : 2,
                 skipped: 0,
                 asText: 0,
                 members: [{ name: 'Bruce', role: 'admin' }],
@@ -395,6 +468,32 @@ export function importRoutes(state: MockState): MockRoute[] {
           'conflict',
           run.status === 'draft' ? 'Run the dry run first.' : `This import is ${run.status}.`,
         );
+      const pending = run.newLocation;
+      if (pending) {
+        const home = state.locations.find((l) => l.kind !== 'personal') ?? state.locations[0];
+        if (!home) return err(409, 'conflict', 'No location to copy.');
+        const id = newId();
+        state.locations.push({
+          ...home,
+          id,
+          name: pending.name,
+          kind: pending.kind as typeof home.kind,
+          role: 'owner',
+          preset: pending.preset,
+          modules: [...new Set([...presetModules(pending.preset), ...pending.modules])],
+          timezone: pending.timezone,
+          currency: pending.currency,
+        });
+        if (pending.alsoPersonal) {
+          const personal = state.locations.find((l) => l.kind === 'personal');
+          if (personal) {
+            personal.preset = pending.preset;
+            personal.modules = [...new Set([...presetModules(pending.preset), ...pending.modules])];
+          }
+        }
+        run.locationId = id;
+        run.newLocation = null;
+      }
       run.status = 'running';
       run.startedAt ??= now();
       run.error = null;

@@ -7,6 +7,9 @@
  * given twice, with the warning that Kept can't recover it. The readable copy never holds them.
  *
  * Exports need a connection: offline, Export is disabled with the reason.
+ *
+ * Over plain HTTP the server refuses "Include secrets" (403 `https_required`), so the switch is
+ * off and disabled, and the sheet says the export leaves secret values out and marks each one.
  */
 import { newId } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -22,6 +25,7 @@ import { Combobox } from '@/components/ui/combobox';
 import { Dialog, DialogFooter, Modal } from '@/components/ui/dialog';
 import { Segmented } from '@/components/ui/segmented';
 import { Switch } from '@/components/ui/switch';
+import { servedOverHttp } from '@/lib/https';
 import { useLocationName } from '@/lib/labels';
 import { useOnline } from '@/lib/online';
 import { type Digits, type Locale, usePrefs } from '@/lib/prefs';
@@ -74,7 +78,8 @@ export function ExportSheet({
   const [failure, setFailure] = useState<string | null>(null);
   const location = locations.find((l) => l.id === locationId);
   const isOwner = location?.role === 'owner';
-  const withSecrets = !me && isOwner && secrets;
+  const plainHttp = servedOverHttp();
+  const withSecrets = !me && isOwner && secrets && !plainHttp;
   const set = (patch: Partial<ExportOptions>) => setOptions((o) => ({ ...o, ...patch }));
 
   const start = useMutation({
@@ -198,7 +203,7 @@ export function ExportSheet({
 
           {!me && isOwner ? (
             <div className="grid gap-3 rounded-[10px] border border-line p-3.5">
-              <Switch isSelected={secrets} onChange={setSecrets}>
+              <Switch isSelected={withSecrets} isDisabled={plainHttp} onChange={setSecrets}>
                 <Trans>Include secrets</Trans>
               </Switch>
               <p className="m-0 -mt-2 text-small text-ink-2">
@@ -206,7 +211,7 @@ export function ExportSheet({
                   Encrypted with a passphrase you choose. The readable copy never holds them.
                 </Trans>
               </p>
-              {secrets ? (
+              {withSecrets ? (
                 <>
                   <PassphraseFields value={pass} onChange={setPass} />
                   <Notice tone="warn">
@@ -218,6 +223,15 @@ export function ExportSheet({
                 </>
               ) : null}
             </div>
+          ) : null}
+
+          {plainHttp ? (
+            <Notice tone="info">
+              <Trans>
+                Over plain HTTP, secret values stay out of the export. Each one is marked as left
+                out, and the rest imports as usual.
+              </Trans>
+            </Notice>
           ) : null}
 
           {failure ? (

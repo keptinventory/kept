@@ -18,6 +18,7 @@
 import type {
   ActiveSourceType,
   ActivityKind,
+  ChildOrder,
   LedgerTask,
   ListSurface,
   LoanDirection,
@@ -479,8 +480,23 @@ export type PlaceNode = {
   shortCode: string | null;
   thingCount: number;
   childCount: number;
+  /** When it was made (ISO): floors among siblings keep this order. */
+  createdAt: string;
+  /** Its boxes, directly in it; the tree shows at most 50 of them. */
+  boxCount: number;
+  /** How the places inside it are ordered: A to Z (the default) or its own order. */
+  childOrder: ChildOrder;
 };
-export type PlacesResponse = { places: PlaceNode[] };
+/** A box in the place tree: a leaf under its place, with how many things are directly in it. */
+export type BoxNode = {
+  id: string;
+  placeId: string;
+  name: string | null;
+  icon: IconRef | null;
+  shortCode: string | null;
+  contentCount: number;
+};
+export type PlacesResponse = { places: PlaceNode[]; boxes: BoxNode[] };
 
 /**
  * A step of a breadcrumb. `kind` tells a place from a container thing; `isUnplaced` marks the
@@ -514,8 +530,12 @@ export type PlaceView = {
   kindKey: string;
   icon: IconRef | null;
   isUnplaced: boolean;
+  /** How the places inside it are ordered: A to Z (the default) or its own order. */
+  childOrder: ChildOrder;
   path: PathStep[];
   shortCode: string | null;
+  /** It carries a printed label: its page shows the amber tape, else a quiet code. */
+  labelPrinted: boolean;
   fields: ResolvedField[];
   custom: Record<string, unknown>;
   secrets: SecretSummary[];
@@ -539,6 +559,7 @@ export type UpdatePlaceBody = {
   kindKey?: string;
   icon?: IconRef | null;
   sort?: number;
+  childOrder?: ChildOrder;
   /** Null ⇒ the top level of the location (T25 decision 2). */
   parentId?: string | null;
   custom?: Record<string, unknown | null>;
@@ -567,6 +588,19 @@ export type RestoreResult = { restored: string[]; hint?: string };
 export type ConvertToContainerBody = { typeId?: string };
 export type ConvertToContainerResult = { thingId: string };
 
+/** POST /api/v1/places/:id/convert-children-to-containers: places directly inside it, as boxes
+ * in one step (at most 200). X-Kept-Audit-Event names an undoable event per box: one Undo sends
+ * them all to POST /api/v1/audit/undo. */
+export type ConvertChildrenBody = { placeIds: string[]; typeId?: string };
+export type ConvertChildResult =
+  | { placeId: string; status: 'converted'; thingId: string }
+  | { placeId: string; status: 'refused'; reason: 'has_places' | 'not_here' };
+export type ConvertChildrenResult = { results: ConvertChildResult[] };
+
+/** POST /api/v1/places/:id/reorder: one of its places a step up or down (Custom order only). */
+export type ReorderBody = { placeId: string; direction: 'up' | 'down' };
+export type ReorderResult = { order: string[] };
+
 /** POST /api/v1/places/:id/label (`labels` module; printing is step 3). */
 export type LabelResult = { code: string };
 
@@ -580,6 +614,9 @@ export type ThingRow = {
   locationId: string;
   /** The primary short ID (D120), 6 Crockford characters, or null until allocated. */
   shortCode: string | null;
+  /** It carries a printed label ("Printed OK?" on one of its codes, or a claimed blank): lists
+   * show its code, as the amber tape, only then. */
+  labelPrinted: boolean;
   /** Null only while `derivedState` has `draft`. */
   name: string | null;
   type: TypeRef | null;
@@ -1354,6 +1391,12 @@ export type HistoryEvent = {
    * "merged from <name>". `name` is the merged thing's, null when it had none.
    */
   mergedFrom?: { id: string; name: string | null };
+  /** #319: undone since (an undo names it), so the row offers no Undo; sent while its window is
+   * open (apps/server/src/history/service.ts undoneOf). */
+  undone?: boolean;
+  /** #319: where the row links instead of its entity, which is no longer what the event was
+   * about: the box a place became, the place a thing became, the place one was merged into. */
+  linkTo?: { type: 'thing' | 'place'; id: string; shortCode: string | null };
 };
 
 /** GET /api/v1/activity?locationId&actorId&entityType&from&to&cursor (global, D174). */

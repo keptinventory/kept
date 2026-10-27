@@ -139,7 +139,8 @@ export type AdminAction =
   | 'instance-admin-revoked'
   | 'password-reset-issued'
   | 'location-ownership-received'
-  | 'location-ownership-moved';
+  | 'location-ownership-moved'
+  | 'token-created';
 
 export type Mailer = { send: (mail: Mail) => Promise<void> };
 

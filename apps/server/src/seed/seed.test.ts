@@ -235,7 +235,8 @@ describe('kept admin seed --scenario households', () => {
       const all = async (sql: string) => (await c.query(sql)).rows;
       return {
         codes: await all(
-          `SELECT s.code, coalesce(t.name, p.name) AS name FROM public.short_ids s
+          `SELECT s.code, coalesce(t.name, p.name) AS name, s.printed_at IS NOT NULL AS printed
+             FROM public.short_ids s
              LEFT JOIN public.things t ON t.id = s.thing_id
              LEFT JOIN public.places p ON p.id = s.place_id WHERE s.is_primary ORDER BY s.code`,
         ),
@@ -300,14 +301,15 @@ describe('kept admin seed --scenario households', () => {
         ),
       };
     });
+    // The designs' codes are on printed labels in the story: they show as the amber tape.
     expect(facts.codes).toEqual(
       expect.arrayContaining([
-        { code: '3CB8WN', name: 'Cable box' },
-        { code: '7KQ4MZ', name: 'HDMI cable, 2 m' },
-        { code: '4VC7HD', name: 'Toyota Corolla' },
-        { code: '5MT0QD', name: 'Samsung TV, 55″' },
-        { code: '9RT2FK', name: 'Wi-Fi router' },
-        { code: '7SH2AA', name: 'Shelf A' },
+        { code: '3CB8WN', name: 'Cable box', printed: true },
+        { code: '7KQ4MZ', name: 'HDMI cable, 2 m', printed: true },
+        { code: '4VC7HD', name: 'Toyota Corolla', printed: true },
+        { code: '5MT0QD', name: 'Samsung TV, 55″', printed: true },
+        { code: '9RT2FK', name: 'Wi-Fi router', printed: true },
+        { code: '7SH2AA', name: 'Shelf A', printed: true },
       ]),
     );
     expect(facts.hdmi).toMatchObject({ container: 'Cable box' });

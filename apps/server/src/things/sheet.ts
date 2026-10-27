@@ -9,6 +9,7 @@ import {
 import { decodeCursor, encodeCursor, PAGE_MAX } from '../http/conventions.js';
 import { AppError, invalid, toErrorReply } from '../http/errors.js';
 import { callerMembership } from '../locations/access.js';
+import { NATURAL } from '../places/order.js';
 import { type Gate, gateFor, moneyProps } from '../serialize/gates.js';
 import { trashThing } from '../trash/service.js';
 import { typeCapabilities } from './fields.js';
@@ -210,8 +211,8 @@ export const BulkTrashResultSchema = z.object({
 /** The sort's expression and the cast its cursor value takes, over `things t` and `brands b`. */
 function sortOf(sort: SheetSort): { sql: string; cast: string; date: boolean } {
   const text = (col: string) => ({
-    sql: `lower(coalesce(${col}, '')) ${ICU}`,
-    cast: `::text ${ICU}`,
+    sql: `lower(coalesce(${col}, '')) ${NATURAL}`,
+    cast: `::text ${NATURAL}`,
     date: false,
   });
   switch (sort) {

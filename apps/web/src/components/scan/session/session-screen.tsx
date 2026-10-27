@@ -32,6 +32,7 @@ import {
   type SnapLocation,
   type SnapPlace,
   type SnapThing,
+  siblingOrder,
 } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -975,9 +976,10 @@ function SessionSetup({
       const depth = new Map<string, number>();
       const ordered: SnapPlace[] = [];
       const walk = (parent: string | null, d: number) => {
+        const order = parent ? world.places.get(parent)?.childOrder : 'name';
         for (const p of mine
           .filter((x) => (x.parentId ?? null) === parent)
-          .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name))) {
+          .sort(siblingOrder(order))) {
           depth.set(p.id, d);
           ordered.push(p);
           walk(p.id, d + 1);

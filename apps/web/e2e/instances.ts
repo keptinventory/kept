@@ -77,6 +77,15 @@ export const PORTABILITY_INSTANCE: TlsInstance = {
   https: true,
 };
 
+/** A Homebox 0.27 upgrade imported end to end (e2e/homebox-boxes.spec.ts), each project into a
+ * new location of its own. Key for KEPT_E2E_INSTANCES: `homebox`. */
+export const HOMEBOX_INSTANCE: TlsInstance = {
+  name: 'homebox',
+  port: 8203,
+  seed: true,
+  https: true,
+};
+
 /** Step 8 (e2e/step8.spec.ts): Admin → Backups (with the owner login a run needs), the app lock. */
 export const OPERATIONS_INSTANCE: TlsInstance = {
   name: 'operations',
@@ -118,6 +127,21 @@ export const SIGN_IN_MAIL_INSTANCE: Instance & {
   trustProxy: true,
   mail: true,
   google: true,
+};
+
+/**
+ * Kept on a home network over plain HTTP (e2e/insecure.spec.ts, the `insecure` project): its
+ * public URL is http://kept.lan:8213, which the browser maps to 127.0.0.1
+ * (`--host-resolver-rules`), so the page is not a secure context: no `crypto.subtle`, no
+ * `navigator.clipboard`, no service worker. Uploads and Copy must work there all the same, and
+ * the same Kept opened at http://127.0.0.1:8213 must say which address it is set up for. Seeded
+ * with `households`. Key for KEPT_E2E_INSTANCES: `lan`.
+ */
+export const LAN_INSTANCE: Instance & { publicHost: string } = {
+  name: 'lan',
+  port: 8213,
+  seed: true,
+  publicHost: 'kept.lan',
 };
 
 export const urlOf = (i: Instance & { https?: boolean }) =>

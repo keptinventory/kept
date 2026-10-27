@@ -18,6 +18,7 @@ import type { LoanDirection } from './household.js';
 import { ATTACHMENT_ROLES, type Lifecycle } from './inventory.js';
 import type { ModuleId } from './modules.js';
 import { BOX_STATES } from './moving.js';
+import type { ChildOrder } from './order.js';
 import type { Role } from './roles.js';
 import { SHORT_CODE } from './short-code.js';
 import { TAG_LIMITS } from './tags.js';
@@ -549,6 +550,10 @@ export type SnapPlace = {
   icon: string | null;
   isUnplaced: boolean;
   sort: number;
+  /** When it was made (floors keep this order among siblings); absent in an older copy. */
+  createdAt?: string;
+  /** How it orders the places inside it (A to Z or its own); absent in an older copy: A to Z. */
+  childOrder?: ChildOrder;
   deleted: boolean;
 };
 
@@ -574,6 +579,10 @@ export type SnapThing = {
   locationId: string;
   /** Null until the server allocates one at sync ("ID pending", D112). */
   shortCode: string | null;
+  /** On the phone only: one of its codes is printed (`SnapCode.printedAt`), so it shows the amber
+   * tape. The phone works it out from its codes, as it does `shortCode`; the server never sends
+   * it, since printing changes only the codes' rows. */
+  labelPrinted?: boolean;
   /** Null only for a draft. */
   name: string | null;
   /** Null for a thing without a type (a quick capture, an import). */
@@ -635,6 +644,10 @@ export type SnapCode = {
   placeId: string | null;
   state: 'blank' | 'assigned' | 'retired';
   isPrimary: boolean;
+  /** When its label was printed ("Printed OK?", or a claimed blank): the phone shows what carries
+   * it with the amber tape, and the newest printed code as its code. Left out when never printed;
+   * additive, so an older copy has none. */
+  printedAt?: string;
 };
 
 /** Keyed by location, source, collection and code (the table's primary key); `legacyCodeKey()`

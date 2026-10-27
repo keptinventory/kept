@@ -100,13 +100,35 @@ async function offlineSearch(path: string) {
 }
 
 describe('search offline', () => {
+  it('shows the amber tape on a thing whose label was printed, from the phone’s codes', async () => {
+    const store = open.store as MemoryStore;
+    const page = firstPage({ nextCursor: 'cursor-2' });
+    page.changes = {
+      places: [],
+      things: [],
+      codes: page.changes.codes.map((c) =>
+        c.code === '7KQ4MZ' ? { ...c, printedAt: '2026-10-20T09:00:00.000Z' } : c,
+      ),
+      legacyCodes: [],
+    };
+    await store.applySnapshot(page);
+    await offlineSearch('/search?q=bosch');
+    const list = await screen.findByRole('list', { name: 'Things found' }, { timeout: 3000 });
+    const drill = within(list).getByRole('link', { name: /Bosch drill/ });
+    expect(within(drill).getByRole('img', { name: '7KQ4MZ' })).toHaveAttribute(
+      'data-variant',
+      'tape',
+    );
+  });
+
   it('finds a thing on the phone by name, with where it is and how old the copy is', async () => {
     await offlineSearch('/search?q=bosch');
     const list = await screen.findByRole('list', { name: 'Things found' }, { timeout: 3000 });
     const drill = within(list).getByRole('link', { name: /Bosch drill/ });
     expect(drill).toHaveAttribute('href', '/t/7KQ4MZ');
     expect(drill.textContent).toContain('Home › Garage');
-    expect(within(drill).getByRole('img', { name: '7KQ4MZ' })).toBeInTheDocument();
+    // Its code has no printed label: the name is enough.
+    expect(within(drill).queryByRole('img', { name: '7KQ4MZ' })).toBeNull();
     expect(within(drill).getByText('Bosch').tagName).toBe('MARK');
     expect(screen.getByText(/^On this phone · as of last sync, /)).toBeInTheDocument();
     // Documents aren't on the phone.

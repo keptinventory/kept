@@ -109,7 +109,7 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
     scope: 'location',
     key: ['id'],
     fields:
-      'id:uuid parent_id:uuid name:text kind_key:text is_unplaced:bool deleted_at:ts created_at:ts updated_at:ts icon:text sort:int custom:json',
+      'id:uuid parent_id:uuid name:text kind_key:text is_unplaced:bool deleted_at:ts created_at:ts updated_at:ts icon:text sort:int child_order:text custom:json',
     omit: 'location_id row_version change_seq trash_batch_id created_by change_xid',
   },
   {

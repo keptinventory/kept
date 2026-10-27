@@ -9,7 +9,7 @@ import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import type { PathStep, PlaceNode, ThingRow } from '@/api/inventory/types';
 import { ChevronEndIcon } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import type { TileSize } from '@/components/list-surface';
 import { StatusPill } from '@/components/status-pill';
 import { TagChips } from '@/components/tags/chip';
@@ -17,7 +17,7 @@ import { TypeIcon } from '@/components/type-icon';
 import { addressOf } from '@/lib/address';
 import { sep, useFormat } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { placeIcon, usePlaceName } from './labels';
+import { placeIcon, usePlaceName, useTypeName } from './labels';
 
 export const rowLink =
   'flex min-h-[60px] min-w-0 flex-1 items-center gap-3 px-3.5 py-2 text-ink outline-none hover:bg-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-info';
@@ -73,6 +73,15 @@ export function PlaceRowView({ place, trailing }: { place: PlaceNode; trailing?:
   );
 }
 
+/** A box's "2 things", at the end of its row, as the place tree shows it (#321). */
+function BoxCount({ things }: { things: number }) {
+  return (
+    <span className="shrink-0 ps-2 text-small text-ink-3">
+      <Plural value={things} one="# thing" other="# things" />
+    </span>
+  );
+}
+
 /** A tile's link, its picture's box and its name, per size (#139); Medium is the 1.1 tile. */
 const tileLink =
   'grid content-start rounded-[10px] p-1 text-ink outline-none hover:bg-sunken focus-visible:outline-2 focus-visible:outline-info';
@@ -123,6 +132,28 @@ export function PlaceTile({ place, size = 'medium' }: { place: PlaceNode; size?:
   );
 }
 
+/** A thing's type, in the reader's language: the row's quiet secondary text, never the amber of a
+ * printed label's tape (#271). Nothing for a thing without a type. */
+export function TypeText({
+  thing,
+  before = false,
+}: {
+  thing: Pick<ThingRow, 'type'>;
+  before?: boolean;
+}) {
+  const typeName = useTypeName();
+  const name = typeName(thing.type);
+  if (!name) return null;
+  return (
+    <span data-thing-type="" className="text-small text-ink-2 [overflow-wrap:break-word]">
+      <bdi>{name}</bdi>
+      {/* Followed by the path ("Cable · Office › Desk drawer"): the language's separator, kept on
+          the type's line. */}
+      {before ? <span aria-hidden="true">{sep({ keep: true }).trimEnd()}</span> : null}
+    </span>
+  );
+}
+
 /** "Office › Desk drawer › Cable box". */
 export function PathText({ path }: { path: PathStep[] }) {
   const placeName = usePlaceName();
@@ -142,14 +173,20 @@ export function ThingRowView({
   thing,
   showPath = false,
   leading,
+  contentCount,
 }: {
   thing: ThingRow;
   /** The list spans depths (a location's things): say where each one is. */
   showPath?: boolean;
   /** A selection checkbox, before the link. */
   leading?: ReactNode;
+  /** A box's count of what is directly in it, as the place tree shows it (#321). */
+  contentCount?: number | undefined;
 }) {
   const f = useFormat();
+  const hasType = !!useTypeName()(thing.type);
+  const tape = !!(thing.labelPrinted && thing.shortCode);
+  const path = showPath && thing.path.length > 0;
   return (
     <div className="flex items-center">
       {leading}
@@ -174,18 +211,22 @@ export function ThingRowView({
               </span>
             ) : null}
           </span>
-          {thing.shortCode || thing.derivedState.length || showPath ? (
+          {/* Names first: the code shows only as the tape of a printed label. The type leads the
+              line (#321), so it adds no line of its own where the row has one. */}
+          {hasType || tape || thing.derivedState.length || path ? (
             <span className="flex flex-wrap items-center gap-1.5">
-              <IdChip code={thing.shortCode} />
+              <TypeText thing={thing} before={path && !tape && !thing.derivedState.length} />
+              <LabelTape code={thing.shortCode} printed={thing.labelPrinted} />
               {thing.derivedState.map((s) => (
-                <StatusPill key={s} state={s} />
+                <StatusPill key={s} state={s} lifecycle={thing.lifecycle} />
               ))}
-              {showPath && thing.path.length ? <PathText path={thing.path} /> : null}
+              {path ? <PathText path={thing.path} /> : null}
             </span>
           ) : null}
           {/* #209: every tag, wrapping (never cut off); the row is the link, so they aren't. */}
           <TagChips tags={thing.tags ?? []} />
         </span>
+        {contentCount === undefined ? null : <BoxCount things={contentCount} />}
       </Link>
     </div>
   );
@@ -198,11 +239,14 @@ export function PhotoTile({
   showPath = false,
 }: {
   thing: ThingRow;
-  /** #139: Small is the name alone, Medium adds the short ID, Large a wider photo and where. */
+  /** #139: Small is the name alone, Medium adds the tape of a printed label, Large a wider photo
+   * and where. */
   size?: TileSize;
   /** The list spans depths (a location's things): a Large tile says where each one is. */
   showPath?: boolean;
 }) {
+  const hasType = !!useTypeName()(thing.type);
+  const path = showPath && thing.path.length > 0;
   return (
     <Link
       to="/t/$id"
@@ -232,8 +276,14 @@ export function PhotoTile({
       >
         {thing.name ? <bdi>{thing.name}</bdi> : <Trans>Untitled draft</Trans>}
       </span>
-      {size === 'large' && showPath && thing.path.length ? <PathText path={thing.path} /> : null}
-      {size !== 'small' && thing.shortCode ? <IdChip code={thing.shortCode} /> : null}
+      {/* A Large tile's type and where it is share one wrapping line, type first, as in a row. */}
+      {size === 'large' && (hasType || path) ? (
+        <span className="flex flex-wrap items-center gap-1.5">
+          <TypeText thing={thing} before={path} />
+          {path ? <PathText path={thing.path} /> : null}
+        </span>
+      ) : null}
+      {size !== 'small' ? <LabelTape code={thing.shortCode} printed={thing.labelPrinted} /> : null}
       {size !== 'small' ? <TagChips tags={thing.tags ?? []} /> : null}
     </Link>
   );

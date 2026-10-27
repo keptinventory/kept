@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { Radio, RadioGroup } from 'react-aria-components';
 import { captureApi } from '@/api/capture/queries';
 import type { ThingRow } from '@/api/inventory/types';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import { Pill } from '@/components/page';
 import { PathText } from '@/components/places/rows';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,7 @@ function Side({ label, thing, by }: { label: string; thing: ThingRow; by?: strin
       <span className="eyebrow">{label}</span>
       <span className="flex flex-wrap items-center gap-x-2 gap-y-1 font-semibold text-[14px] text-ink">
         <bdi className="[overflow-wrap:anywhere]">{thing.name}</bdi>
-        <IdChip code={thing.shortCode} pending />
+        <LabelTape code={thing.shortCode} printed={thing.labelPrinted} pending />
       </span>
       {thing.path.length ? <PathText path={thing.path} /> : null}
       {by ? <bdi>{by}</bdi> : null}

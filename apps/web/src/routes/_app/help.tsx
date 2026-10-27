@@ -28,7 +28,7 @@ import {
   ShareIcon,
   WrenchIcon,
 } from '@/components/icons';
-import { IconTile, LinkButton, List, Page, Row, Section } from '@/components/page';
+import { IconTile, LinkButton, List, LoadingRows, Page, Row, Section } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/toast';
 import { useFormat } from '@/lib/format';
@@ -157,6 +157,15 @@ function ToursSection() {
   const locations = useLocations();
   const running = useRunningTour();
   const ref = useRef<HTMLButtonElement>(null);
+  // Not before the list has loaded: the chapters of no location at all are 7, where the tour,
+  // started a moment later from the loaded list, counts the person's 12 (#314). Offline with
+  // nothing cached the query pauses or fails, and these are the tour's offline chapters.
+  if (locations.data === undefined && locations.fetchStatus === 'fetching')
+    return (
+      <Section title={<Trans>The tour</Trans>}>
+        <LoadingRows rows={2} />
+      </Section>
+    );
   const chapters = availableTours(locations.data ?? []);
   const done = (id: TourId) =>
     !!hints.data?.hints.find((h) => h.key === tourKey(id) && h.dismissedAt);

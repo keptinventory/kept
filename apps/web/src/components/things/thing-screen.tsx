@@ -325,6 +325,9 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
   // 1.1: from 1280 px the location's places stay open beside the page, the nearest place marked.
   const placesPanel = useMediaQuery(DOCKED);
   const placeAt = [...thing.path].reverse().find((p) => p.kind === 'place');
+  // A box's own page marks the box in the tree; any other thing marks its nearest place.
+  const boxes = tree.data?.boxes ?? [];
+  const markedId = boxes.some((b) => b.id === thing.id) ? thing.id : placeAt?.id;
 
   return (
     <VehicleNavProvider value={{ go: goVehicleTab }}>
@@ -341,7 +344,8 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
               aside: (
                 <PlacesPanel
                   places={tree.data.places}
-                  {...(placeAt ? { currentId: placeAt.id } : {})}
+                  boxes={boxes}
+                  {...(markedId ? { currentId: markedId } : {})}
                   location={{
                     id: location.id,
                     name: locationName(location),
@@ -393,7 +397,10 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
           !placesPanel ? (
             <PlaceTree
               places={tree.data.places}
-              currentId={parent?.kind === 'place' ? parent.id : undefined}
+              boxes={boxes}
+              currentId={
+                markedId === thing.id ? thing.id : parent?.kind === 'place' ? parent.id : undefined
+              }
             />
           ) : null
         ) : null}

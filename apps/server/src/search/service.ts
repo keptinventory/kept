@@ -67,6 +67,8 @@ export type ThingRow = {
   id: string;
   locationId: string;
   shortCode: string | null;
+  /** It carries a printed label (labels/printed-sql.ts). */
+  labelPrinted: boolean;
   name: string | null;
   type: { id: string; icon: string; name: string | null; builtinKey: string | null } | null;
   quantity: number;
@@ -201,6 +203,7 @@ async function rowOf(
     id: h.id,
     locationId: h.location_id,
     shortCode: h.short_code,
+    labelPrinted: h.label_printed === true,
     name: h.name,
     type:
       h.type_id && h.type_icon

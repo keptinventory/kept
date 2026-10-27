@@ -409,6 +409,76 @@ export function storeContract(name: string, makeStore: () => OfflineStore | Prom
       expect((await s.thing(BOX))?.shortCode).toBe('B0X3QF');
     });
 
+    it('marks a thing whose code was printed labelPrinted, in every read, and when it is printed later', async () => {
+      const s = await makeStore();
+      const printedDrill = firstPage();
+      printedDrill.changes.codes = printedDrill.changes.codes.map((c) =>
+        c.code === '7KQ4MZ' ? { ...c, printedAt: '2026-10-20T09:00:00.000Z' } : c,
+      );
+      await s.applySnapshot(printedDrill);
+      expect((await s.thing(DRILL))?.labelPrinted).toBe(true);
+      expect((await s.thing(BOX))?.labelPrinted ?? false).toBe(false);
+      expect(
+        (await s.contentsOf({ placeId: GARAGE })).map((t) => [t.name, t.labelPrinted === true]),
+      ).toEqual([
+        ['Bosch drill', true],
+        ['Box 3', false],
+      ]);
+      expect((await s.search('bosch', 10)).map((t) => t.labelPrinted)).toEqual([true]);
+      // Printing only changes the codes rows: the box's own row isn't sent again.
+      await s.applySnapshot(
+        firstPage({
+          changes: {
+            places: [],
+            things: [],
+            codes: [
+              {
+                code: 'B0X3QF',
+                locationId: LOC,
+                thingId: BOX,
+                placeId: null,
+                state: 'assigned',
+                isPrimary: true,
+                printedAt: '2026-10-21T09:00:00.000Z',
+              },
+            ],
+            legacyCodes: [],
+          },
+          nextCursor: 'cursor-2',
+        }),
+      );
+      expect((await s.thing(BOX))?.labelPrinted).toBe(true);
+      expect((await s.thing(DRILL))?.labelPrinted).toBe(true);
+    });
+
+    it("shows a thing's newest printed code, else its primary one", async () => {
+      const s = await makeStore();
+      await s.applySnapshot(firstPage());
+      const code = (c: string, isPrimary: boolean, printedAt?: string) => ({
+        code: c,
+        locationId: LOC,
+        thingId: DRILL,
+        placeId: null,
+        state: 'assigned' as const,
+        isPrimary,
+        ...(printedAt ? { printedAt } : {}),
+      });
+      const page = (codes: ReturnType<typeof code>[], cursor: string) =>
+        firstPage({
+          changes: { places: [], things: [], codes, legacyCodes: [] },
+          nextCursor: cursor,
+        });
+      // A blank claimed onto the drill: the label on it, though its primary code stays.
+      await s.applySnapshot(page([code('C1A1MD', false, '2026-10-20T09:00:00.000Z')], 'c-2'));
+      expect(await s.thing(DRILL)).toMatchObject({ shortCode: 'C1A1MD', labelPrinted: true });
+      expect((await s.search('bosch', 10)).map((t) => t.shortCode)).toEqual(['C1A1MD']);
+      // Its own code printed later: the newer label is the one shown.
+      await s.applySnapshot(page([code('7KQ4MZ', true, '2026-10-22T09:00:00.000Z')], 'c-3'));
+      expect((await s.thing(DRILL))?.shortCode).toBe('7KQ4MZ');
+      // Both codes still find it.
+      expect(await s.byCode('C1A1MD')).toMatchObject({ kind: 'thing', id: DRILL });
+    });
+
     it("removes a tombstoned row only where it holds it, and that location's codes with it", async () => {
       const s = await makeStore();
       await s.applySnapshot(firstPage());

@@ -29,6 +29,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/toast';
 import { addressOf } from '@/lib/address';
 import { isolate } from '@/lib/bidi';
+import { copyText } from '@/lib/clipboard';
 import { useFormat } from '@/lib/format';
 import { useOnline } from '@/lib/online';
 import { usePoliteReminder } from './polite-reminder';
@@ -80,7 +81,7 @@ export function LoanRowView({
   const copyReminder = async () => {
     const text = reminder(loan);
     try {
-      await navigator.clipboard.writeText(text);
+      await copyText(text);
       toast({
         title: t`Reminder copied`,
         description: t`Send it however you like. Kept never sends it.`,

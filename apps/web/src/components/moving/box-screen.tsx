@@ -23,7 +23,7 @@ import type { Move, MoveBox } from '@/api/moving/types';
 import { useLocations } from '@/api/queries';
 import { loadBox } from '@/components/boxcheck/load';
 import { BoxIcon, DocumentIcon, HomeIcon, QrIcon, TagIcon, TruckIcon } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { IdChip, LabelTape } from '@/components/id-chip';
 import {
   EmptyState,
   ErrorState,
@@ -141,7 +141,9 @@ function BoxView({ move, box }: { move: Move; box: MoveBox }) {
         <div className="grid gap-2 rounded-xl border border-line bg-surface p-4">
           <div className="flex flex-wrap items-center gap-2">
             <Pill tone={STATE_TONES[box.state]}>{states[box.state]}</Pill>
-            {box.shortCode ? <IdChip code={box.shortCode} /> : null}
+            {box.shortCode ? (
+              <IdChip code={box.shortCode} variant={box.labelPrinted ? 'tape' : 'quiet'} />
+            ) : null}
             {box.name && box.name !== title ? (
               <bdi className="text-ink-2 [overflow-wrap:anywhere]">{box.name}</bdi>
             ) : null}
@@ -241,7 +243,7 @@ function BoxView({ move, box }: { move: Move; box: MoveBox }) {
                                 ×{f.num(l.quantity)}
                               </span>
                             ) : null}
-                            {l.shortCode ? <IdChip code={l.shortCode} /> : null}
+                            <LabelTape code={l.shortCode} printed={l.labelPrinted} />
                           </span>
                         }
                       />

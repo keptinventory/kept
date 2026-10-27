@@ -15,7 +15,7 @@ import { AiLine, useProviderName } from '@/components/ai/ai-line';
 import { useClock, usePausedUntil, usePauseReason } from '@/components/ai/paused-banner';
 import { WaitingForProvider } from '@/components/ai/status-line';
 import { useHint } from '@/components/hints/use-hint';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import { useTypeName } from '@/components/places/labels';
 import { PathText } from '@/components/places/rows';
 import { isChosen, TypePicker, WherePicker, type WhereValue } from '@/components/things/pickers';
@@ -298,7 +298,7 @@ function DraftCard({
       current={current}
       photo={thing.photos[0]}
       title={thing.name ? <bdi>{thing.name}</bdi> : <Trans>Unnamed thing</Trans>}
-      titleExtra={<IdChip code={thing.shortCode} pending />}
+      titleExtra={<LabelTape code={thing.shortCode} printed={thing.labelPrinted} pending />}
       meta={
         <>
           {facts.length ? (

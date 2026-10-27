@@ -35,6 +35,7 @@ import {
   openStepCount,
   useChecklistDismissed,
   useChecklistSync,
+  useHomeNetwork,
 } from '@/components/home/checklist';
 import { InsightsTeaser } from '@/components/home/insights-teaser';
 import {
@@ -73,6 +74,7 @@ function Home() {
   const home = useHome();
   const overview = useHomeOverview();
   const setDismissed = useChecklistDismissed();
+  const homeNetwork = useHomeNetwork();
   const f = useFormat();
   const hidden = useTwoFactorHidden();
   useChecklistSync(home.data);
@@ -105,7 +107,7 @@ function Home() {
   const inviteFor = shared.filter(
     (l) => canManage(l) && l.memberCount <= 1 && l.pendingInviteCount === 0,
   );
-  const open = home.data ? openStepCount(home.data, me.data, all) : 0;
+  const open = home.data ? openStepCount(home.data, me.data, all, homeNetwork.chosen) : 0;
   const dismissed = home.data?.checklist.dismissed ?? false;
   const metered = (home.data as HomeResponseV5 | undefined)?.meteredThings;
   const inbox = home.data?.counts?.inbox ?? 0;

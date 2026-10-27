@@ -100,6 +100,9 @@ export function useAddress(kind: AddressKind, param: string): Address {
     initialData: () => (uuid ? undefined : known.get(keyOf(kind, code))),
     staleTime: Number.POSITIVE_INFINITY,
     retry: false,
+    // It asks the phone's copy first, so it runs with no signal too: a paused query would leave
+    // a row tapped offline on "Loading" for good.
+    networkMode: 'always',
   });
   if (uuid) return { status: 'ready', id: param.toLowerCase() };
   if (query.data) return { status: 'ready', id: query.data };

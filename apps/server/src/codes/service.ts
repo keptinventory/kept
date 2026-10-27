@@ -62,7 +62,12 @@ async function locate(client: pg.ClientBase, target: Target): Promise<string> {
 
 const column = (target: Target) => (target.kind === 'thing' ? 'thing_id' : 'place_id');
 
-/** The legacy codes on `target`, own codes first, then by source and code. */
+/** A Homebox entity's UUID, kept as a legacy code so its old label still scans (`/item/<uuid>`),
+ * but never shown: nobody reads or types it. Its asset ID (`000-012`) is shown. */
+const HOMEBOX_UUID = `source = 'homebox'
+  AND code ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'`;
+
+/** The legacy codes on `target` worth showing, own codes first, then by source and code. */
 async function codesOf(client: pg.ClientBase, target: Target): Promise<OwnCode[]> {
   const { rows } = await client.query<{
     code: string;
@@ -70,7 +75,7 @@ async function codesOf(client: pg.ClientBase, target: Target): Promise<OwnCode[]
     source_collection: string;
   }>(
     `SELECT code, source, source_collection FROM public.legacy_codes
-      WHERE ${column(target)} = $1
+      WHERE ${column(target)} = $1 AND NOT (${HOMEBOX_UUID})
       ORDER BY source <> 'own', source, source_collection, code`,
     [target.id],
   );

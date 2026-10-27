@@ -48,6 +48,8 @@ export const UNDOABLE_ACTIONS: ReadonlySet<string> = new Set([
   'place.update',
   'place.move',
   'place.trash',
+  // Places turned into boxes several at once (places/undo.ts); a single conversion has no undo.
+  'place.convert_to_container',
   'thing.capture',
   'capture.batch_undo',
   'thing.extract',
@@ -87,6 +89,8 @@ export const UNDOABLE_ACTIONS: ReadonlySet<string> = new Set([
   // 1.x (D251): a moving box's state changed, and a box unpacked into its room (moving/).
   'move_box.update',
   'move_box.unpack',
+  // 1.13.0: the type changes of "Repair this import" (imports/homebox/repair.ts).
+  'import.repair',
 ]);
 
 /** How long the Undo toast stays: 10 s (D150). */
@@ -113,7 +117,9 @@ type Who = { meId: string | undefined; roleIn: (locationId: string | null) => st
 
 /** Whether Undo is worth offering on this event (the server has the last word). */
 export function isUndoable(e: HistoryEvent, who: Who, now = Date.now()): boolean {
-  if (!UNDOABLE_ACTIONS.has(e.action) || e.undo_of || e.movedInFromElsewhere) return false;
+  // An undo itself has no redo, and an event undone since (#319) would only answer "already undone".
+  if (!UNDOABLE_ACTIONS.has(e.action) || e.undo_of || e.undone || e.movedInFromElsewhere)
+    return false;
   if (!e.undoable_until || Date.parse(e.undoable_until) <= now) return false;
   const role = who.roleIn(e.location_id);
   if (!role || role === 'viewer') return false;

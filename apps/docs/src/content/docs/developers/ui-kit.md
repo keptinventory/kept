@@ -79,9 +79,14 @@ then run [`scripts/capture-screens.mjs`](https://github.com/keptinventory/kept/b
 so the screenshots on this site and the README hero show the new logo.
 
 The tape is also the one visual motif (D134): the `tape` utility in `index.css`, and the short-ID
-chip `IdChip` (`components/id-chip.tsx`), the same object as the printed label on a box. A chip
-is always left-to-right, even in Arabic; a thing captured offline shows a dashed "ID pending"
-chip until it syncs.
+chip `IdChip` (`components/id-chip.tsx`), the same object as the printed label on a box. Amber
+means a printed label, so the chip has two variants: `tape` (amber) for a thing or place with a
+printed label, a scanned label or a claimed blank, and `quiet` (small neutral mono) for a code
+with no printed label, on its own page or in a list of labels about to print. Lists, search
+results and the palette use `LabelTape`, which shows the tape only when `labelPrinted` is set and
+nothing otherwise. The tape runs out like printed tape once, after **Printed OK?** or a claim. A
+chip is always left-to-right, even in Arabic; a thing captured offline shows a dashed "ID
+pending" chip until it syncs.
 
 ## Components
 

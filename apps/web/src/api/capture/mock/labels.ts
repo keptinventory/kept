@@ -57,6 +57,13 @@ export function labelsRoutes(state: MockState): MockRoute[] {
     cap().codes.some((c) => c.code === code);
   const labelsOn = (locationId: string) =>
     state.locations.find((l) => l.id === locationId)?.modules.includes('labels') ?? false;
+  /** The thing or place now carries a printed label (StoredThing/StoredPlace.labelPrinted). */
+  const markLabelled = (target: { kind: 'thing' | 'place'; id: string }) => {
+    const rows: { id: string; labelPrinted?: boolean }[] =
+      target.kind === 'thing' ? inv().things : inv().places;
+    const row = rows.find((x) => x.id === target.id);
+    if (row) row.labelPrinted = true;
+  };
   const printedCodes = () =>
     new Set(
       cap()
@@ -245,6 +252,7 @@ export function labelsRoutes(state: MockState): MockRoute[] {
       batch.printedConfirmedAt ??= at;
       batch.dismissedAt = null;
       for (const l of batch.labels) {
+        if (l.targetId && l.kind !== 'blank') markLabelled({ kind: l.kind, id: l.targetId });
         const c = cap().codes.find((x) => x.code === l.code);
         if (c) c.printedAt ??= at;
         else if (l.targetId && l.kind !== 'blank')
@@ -364,6 +372,9 @@ export function labelsRoutes(state: MockState): MockRoute[] {
       if (!target) return notFound();
       code.state = 'assigned';
       code.target = target;
+      // A claimed blank is a printed label: what it went to shows the tape.
+      code.printedAt ??= now();
+      markLabelled(target);
       return { outcome: 'claimed', target: { kind: target.kind, id: target.id } };
     }),
   ];

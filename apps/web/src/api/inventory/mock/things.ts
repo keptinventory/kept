@@ -2,6 +2,7 @@
  * Mock handlers for things, moves, meters, purchases and secrets (tasks 12, 14, 15, 16, 19).
  * Task 26 extends these as its screens need.
  */
+import { naturalCompare } from '@kept/shared';
 import type { MockState } from '../../mock/fixtures';
 import {
   err,
@@ -177,6 +178,8 @@ export function thingsRoutes(state: MockState): MockRoute[] {
       rows = narrow(rows, query, 'brandId', (t, v) => t.brand?.id === v);
       if (f('vendorId')) rows = rows.filter((t) => t.purchase?.vendor?.id === f('vendorId'));
       if (f('lifecycle')) rows = rows.filter((t) => t.lifecycle === f('lifecycle'));
+      // Containers only, as the server's `container=1`: a container type, or something inside.
+      if (f('container') === '1') rows = rows.filter((t) => rowOf(inv(), t).isContainer);
       // D236: consumables only (a service line's "From stock" picker).
       if (f('consumable') === '1')
         rows = rows.filter((t) =>
@@ -204,7 +207,7 @@ export function thingsRoutes(state: MockState): MockRoute[] {
             ? b.updatedAt.localeCompare(a.updatedAt)
             : sort === 'lastSeen'
               ? (b.lastSeenAt ?? '').localeCompare(a.lastSeenAt ?? '')
-              : (a.name ?? '').localeCompare(b.name ?? '')),
+              : naturalCompare(a.name ?? '', b.name ?? '')),
       );
       const group = f('group');
       if (group === 'type')

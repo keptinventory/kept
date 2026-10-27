@@ -15,6 +15,8 @@ export type Described = {
   locationId: string;
   name: string | null;
   shortCode: string | null;
+  /** It carries a printed label: lists show its code, as the tape, only then. */
+  labelPrinted: boolean;
   isContainer: boolean;
   /** Where it is, root first; a step's name is null for the location's Unplaced area. */
   path: { name: string | null }[];
@@ -44,6 +46,7 @@ export async function describeTarget(
           locationId: t.locationId,
           name: t.name,
           shortCode: t.shortCode,
+          labelPrinted: t.labelPrinted === true,
           isContainer: t.isContainer,
           path,
           quantity: Number(t.quantity) || 1,
@@ -59,6 +62,7 @@ export async function describeTarget(
           locationId: p.locationId,
           name: p.isUnplaced ? null : p.name,
           shortCode: null,
+          labelPrinted: false,
           isContainer: true,
           path: placePath(places, p.parentId).map(snapStep),
           quantity: 1,
@@ -75,6 +79,7 @@ export async function describeTarget(
         locationId: t.locationId,
         name: t.name,
         shortCode: t.shortCode,
+        labelPrinted: t.labelPrinted,
         isContainer: t.isContainer,
         path: t.path.map(step),
         quantity: t.quantity,
@@ -87,6 +92,7 @@ export async function describeTarget(
       locationId: p.locationId,
       name: p.isUnplaced ? null : p.name,
       shortCode: p.shortCode,
+      labelPrinted: p.labelPrinted,
       isContainer: true,
       path: p.path.filter((s) => s.id !== p.id).map(step),
       quantity: 1,

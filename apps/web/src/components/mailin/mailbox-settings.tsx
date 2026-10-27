@@ -22,6 +22,7 @@ import {
   Section,
   useErrorText,
 } from '@/components/page';
+import { isPrivateAddressError, PrivateAddressLink } from '@/components/private-address-link';
 import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
 import { PasswordField } from '@/components/ui/password-field';
@@ -286,7 +287,11 @@ function MailboxForm({ locationId, box }: { locationId: string; box: Mailbox | n
           autoComplete="off"
         />
         {problem ? (
-          <Notice tone="danger" title={<Trans>Kept couldn't connect</Trans>}>
+          <Notice
+            tone="danger"
+            title={<Trans>Kept couldn't connect</Trans>}
+            action={isPrivateAddressError(save.error) ? <PrivateAddressLink /> : undefined}
+          >
             {problem}
           </Notice>
         ) : null}

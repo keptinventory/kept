@@ -1,4 +1,4 @@
-import { can, customSchema, type FieldDef, newId, type Role } from '@kept/shared';
+import { CHILD_ORDERS, can, customSchema, type FieldDef, newId, type Role } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
 import { actorOf } from '../audit/actor.js';
@@ -17,6 +17,7 @@ import {
   type Orphan,
   relocationOf,
 } from '../things/relocate.js';
+import { lastInCustomOrder, placeOrderSql } from './order.js';
 import { allocateShortId } from './short-id.js';
 import {
   findPlace,
@@ -133,14 +134,19 @@ export async function createPlace(
     if (parent.isUnplaced) throw conflict(UNDER_UNPLACED);
   }
   await c.client.query(
+    // Siblings read A to Z (places/order.ts), so `sort` stays 0, except for a floor: floors
+    // keep a position, and older ones hold 0, 1, 2…, so a new floor goes after its sibling floors.
     `INSERT INTO public.places (id, location_id, parent_id, name, kind_key, icon, sort, created_by)
      VALUES ($1, $2, $3, $4, $5, $6,
-             (SELECT coalesce(max(s.sort) + 1, 0) FROM public.places s
-               WHERE s.location_id = $2 AND s.parent_id IS NOT DISTINCT FROM $3::uuid
-                 AND NOT s.is_unplaced),
+             CASE WHEN $5 = 'floor' THEN
+               (SELECT coalesce(max(s.sort) + 1, 0) FROM public.places s
+                 WHERE s.location_id = $2 AND s.parent_id IS NOT DISTINCT FROM $3::uuid
+                   AND s.kind_key = 'floor' AND s.deleted_at IS NULL)
+             ELSE 0 END,
              $7)`,
     [id, locationId, parentId, body.name, body.kindKey, body.icon ?? null, c.scope.userId],
   );
+  await lastInCustomOrder(c.client, id);
   const created = await requirePlace(c.client, id);
   await audited(c.tx, {
     locationId,
@@ -169,6 +175,8 @@ export const UpdatePlaceBody = z
     kindKey: KIND_KEY.optional(),
     icon: ICON.nullable().optional(),
     sort: z.number().int().min(0).max(1_000_000).optional(),
+    /** How the places inside it are ordered: A to Z, or its own order (`sort`, places/order.ts). */
+    childOrder: z.enum(CHILD_ORDERS).optional(),
     /** null: the top level of the location (T25 decision 2). */
     parentId: z.uuid().nullable().optional(),
     /** A value per field key; null clears the key. */
@@ -297,11 +305,15 @@ export async function updatePlace(
   if (body.kindKey !== undefined) put('kind_key', body.kindKey);
   if (body.icon !== undefined) put('icon', body.icon);
   if (body.sort !== undefined) put('sort', body.sort);
+  if (body.childOrder !== undefined) put('child_order', body.childOrder);
   if (parentChanges) put('parent_id', body.parentId?.toLowerCase() ?? null, '::uuid');
   if (custom !== undefined) put('custom', JSON.stringify(custom), '::jsonb');
   if (sets.length > 0) {
     await c.client.query(`UPDATE public.places SET ${sets.join(', ')} WHERE id = $1`, values);
   }
+  // Moved into a place in Custom order, it goes last there: a `sort` sent in the same PATCH is
+  // overridden (Move up / Move down set the position afterwards).
+  if (parentChanges) await lastInCustomOrder(c.client, id);
   const after = await requirePlace(c.client, id);
 
   const image = (p: PlaceRow) => {
@@ -310,6 +322,7 @@ export async function updatePlace(
       kind_key: p.kindKey,
       icon: p.icon,
       sort: p.sort,
+      child_order: p.childOrder,
       parent_id: p.parentId,
     };
     // Custom is audited per key (plan "Custom-field audit"), so a money field is classed alone.
@@ -767,6 +780,169 @@ export async function convertToContainer(
   });
   await enqueueReindex(c.jobs, c.client, seen.locationId);
   return { thingId };
+}
+
+/** At most this many places a request turns into boxes. */
+export const CONVERT_MANY_MAX = 200;
+
+export const ConvertChildrenBody = z.object({
+  placeIds: z.array(z.uuid()).min(1).max(CONVERT_MANY_MAX),
+  typeId: z.uuid().optional(),
+});
+export type ConvertChildrenBody = z.infer<typeof ConvertChildrenBody>;
+
+/** Why a place wasn't turned into a box: it has places inside (a box holds things only, and a
+ * place in the trash under it counts, as the definer counts it), or it isn't a live place
+ * directly inside this one. */
+export const CONVERT_REFUSALS = ['has_places', 'not_here'] as const;
+
+export type ConvertChildResult =
+  | { placeId: string; status: 'converted'; thingId: string }
+  | { placeId: string; status: 'refused'; reason: (typeof CONVERT_REFUSALS)[number] };
+
+/**
+ * POST /api/v1/places/:id/convert-children-to-containers: places directly inside `parentId`
+ * turned into boxes in one step, under one tree lock, each answered on its own row. Each
+ * conversion is the single one's (kept.convert_place_to_container: the same id, its code, label,
+ * contents and attachments), audited `place.convert_to_container` with what it was as a place
+ * (kind, icon, position, its own order) and the box's row version (`box_version`: the audit leaves `row_version` out), undoable for 7 days: the web's
+ * one Undo sends every event to POST /api/v1/audit/undo, all or none (undo.ts).
+ */
+export async function convertChildren(
+  c: Ctx,
+  parentId: string,
+  body: ConvertChildrenBody,
+): Promise<{ results: ConvertChildResult[] }> {
+  const seen = await requirePlace(c.client, parentId);
+  const me = await requireMembership(c.client, seen.locationId);
+  requireCan(me.role, 'things.edit');
+  await lockTree(c.client, seen.locationId);
+  await requirePlace(c.client, parentId, { lock: true });
+  const ids = [...new Set(body.placeIds.map((id) => id.toLowerCase()))];
+  const { rows: found } = await c.client.query<{ id: string; has_places: boolean }>(
+    `SELECT p.id,
+            EXISTS (SELECT 1 FROM public.places k WHERE k.parent_id = p.id) AS has_places
+       FROM public.places p
+      WHERE p.id = ANY ($1::uuid[]) AND p.parent_id = $2 AND p.deleted_at IS NULL
+        AND NOT p.is_unplaced
+      FOR UPDATE OF p`,
+    [ids, parentId],
+  );
+  const here = new Map(found.map((r) => [r.id, r.has_places]));
+  const typeId = body.typeId?.toLowerCase() ?? null;
+  const results: ConvertChildResult[] = [];
+  for (const id of ids) {
+    const hasPlaces = here.get(id);
+    if (hasPlaces === undefined) {
+      results.push({ placeId: id, status: 'refused', reason: 'not_here' });
+      continue;
+    }
+    if (hasPlaces) {
+      results.push({ placeId: id, status: 'refused', reason: 'has_places' });
+      continue;
+    }
+    const before = await requirePlace(c.client, id);
+    const { rows: contents } = await c.client.query<{ id: string }>(
+      'SELECT id FROM public.things WHERE place_id = $1 AND deleted_at IS NULL',
+      [id],
+    );
+    const { rows } = await c.client.query<{ id: string }>(
+      'SELECT kept.convert_place_to_container($1, $2) AS id',
+      [id, typeId],
+    );
+    const thingId = rows[0]?.id ?? id;
+    const { rows: box } = await c.client.query<{ row_version: number }>(
+      'SELECT row_version FROM public.things WHERE id = $1',
+      [thingId],
+    );
+    await audited(c.tx, {
+      locationId: before.locationId,
+      actor: actor(c.scope),
+      action: 'place.convert_to_container',
+      entity: { type: 'place', id },
+      before: {
+        entity_type: 'place',
+        name: before.name,
+        parent_id: before.parentId,
+        kind_key: before.kindKey,
+        icon: before.icon,
+        sort: before.sort,
+        child_order: before.childOrder,
+      },
+      after: { entity_type: 'thing', thing_id: thingId, box_version: box[0]?.row_version ?? null },
+      subjects: [thingId, ...contents.map((r) => r.id)],
+      requestId: c.requestId,
+      undoableUntil: undoableUntil(),
+    });
+    results.push({ placeId: id, status: 'converted', thingId });
+  }
+  if (results.some((r) => r.status === 'converted')) {
+    await enqueueReindex(c.jobs, c.client, seen.locationId);
+  }
+  return { results };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Custom order: Move up / Move down among siblings
+// ---------------------------------------------------------------------------------------------
+
+export const ReorderBody = z.object({
+  placeId: z.uuid(),
+  direction: z.enum(['up', 'down']),
+});
+export type ReorderBody = z.infer<typeof ReorderBody>;
+
+/**
+ * POST /api/v1/places/:id/reorder: one of the places inside `parentId` moved one step up or
+ * down, while the parent is in Custom order (else 409). The parent's places are numbered
+ * 0, 1, 2… in the order they now show, so a later move is always one step; only the rows whose
+ * `sort` changes are written. Audited once on the parent, `place.reorder`, with the order before
+ * and after; not undoable (the opposite move is the undo). At an edge nothing changes.
+ */
+export async function reorderChild(
+  c: Ctx,
+  parentId: string,
+  body: ReorderBody,
+): Promise<{ order: string[] }> {
+  const seen = await requirePlace(c.client, parentId);
+  const me = await requireMembership(c.client, seen.locationId);
+  requireCan(me.role, 'things.edit');
+  await lockTree(c.client, seen.locationId);
+  const parent = await requirePlace(c.client, parentId, { lock: true });
+  const { rows } = await c.client.query<{ id: string; sort: number }>(
+    `SELECT p.id, p.sort FROM public.places p
+      WHERE p.parent_id = $1 AND p.deleted_at IS NULL
+      ORDER BY ${placeOrderSql('p')}`,
+    [parentId],
+  );
+  const before = rows.map((r) => r.id);
+  const i = before.indexOf(body.placeId.toLowerCase());
+  if (i < 0) throw notFound();
+  if (parent.childOrder !== 'custom') {
+    throw conflict('Switch the places here to Custom order first.');
+  }
+  const j = body.direction === 'up' ? i - 1 : i + 1;
+  if (j < 0 || j >= before.length) return { order: before };
+  const after = [...before];
+  [after[i], after[j]] = [after[j] as string, after[i] as string];
+  const sortOf = new Map(rows.map((r) => [r.id, r.sort]));
+  const changed = after.flatMap((id, n) => (sortOf.get(id) === n ? [] : [{ id, n }]));
+  await c.client.query(
+    `UPDATE public.places p SET sort = v.n
+       FROM unnest($1::uuid[], $2::int[]) AS v(id, n)
+      WHERE p.id = v.id AND p.parent_id = $3`,
+    [changed.map((x) => x.id), changed.map((x) => x.n), parentId],
+  );
+  await audited(c.tx, {
+    locationId: parent.locationId,
+    actor: actor(c.scope),
+    action: 'place.reorder',
+    entity: { type: 'place', id: parentId },
+    before: { order: before, moved: null },
+    after: { order: after, moved: body.placeId.toLowerCase() },
+    requestId: c.requestId,
+  });
+  return { order: after };
 }
 
 // ---------------------------------------------------------------------------------------------

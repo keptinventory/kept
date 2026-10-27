@@ -24,6 +24,7 @@ import {
 import { assertClientId, checkVersion, pageOf } from '../http/conventions.js';
 import { AppError, invalid, notFound } from '../http/errors.js';
 import { locationModuleSet } from '../http/modules.js';
+import { labelPrintedSql, shownCodeSql } from '../labels/printed-sql.js';
 import { requireCan, requireMembership } from '../locations/access.js';
 import { moveBackForUndo, moveThings } from '../things/move.js';
 import { type Ctx, insertThing, liveThing } from '../things/service.js';
@@ -173,6 +174,8 @@ export type MoveBoxView = {
   /** The container's name, short ID, location and where it is now; null when not visible. */
   name: string | null;
   shortCode: string | null;
+  /** The box carries a printed label (labels/printed-sql.ts). */
+  labelPrinted: boolean;
   locationId: string | null;
   placeId: string | null;
   /** "Kitchen › Shelf", where the box is now. */
@@ -269,6 +272,7 @@ type BoxRecord = {
   t_path: string | null;
   t_deleted: boolean | null;
   short_code: string | null;
+  label_printed: boolean;
   contents: number;
 };
 
@@ -279,9 +283,8 @@ const BOX_COLUMNS = `b.move_id, b.location_id, b.container_id, b.number, b.state
     d.name AS destination_name, d.location_id AS destination_location_id,
     t.id AS t_id, t.name AS t_name, t.location_id AS t_location_id, t.place_id AS t_place_id,
     t.container_id AS t_container_id, t.place_path AS t_path, t.deleted_at IS NOT NULL AS t_deleted,
-    (SELECT s.code FROM public.short_ids s
-      WHERE s.thing_id = b.container_id AND s.is_primary AND s.state = 'assigned' LIMIT 1)
-      AS short_code,
+    ${shownCodeSql('thing_id', 'b.container_id')} AS short_code,
+    ${labelPrintedSql('thing_id', 'b.container_id')} AS label_printed,
     (SELECT count(*) FROM public.things c
       WHERE c.container_id = b.container_id AND c.deleted_at IS NULL)::int AS contents`;
 const BOX_JOINS = `LEFT JOIN public.things t ON t.id = b.container_id
@@ -300,6 +303,7 @@ const boxView = (r: BoxRecord): MoveBoxView => {
     visible,
     name: visible ? r.t_name : null,
     shortCode: visible ? r.short_code : null,
+    labelPrinted: visible && r.label_printed === true,
     locationId: visible ? r.t_location_id : null,
     placeId: visible ? r.t_place_id : null,
     where: visible ? r.t_path : null,

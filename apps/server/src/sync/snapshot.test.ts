@@ -397,6 +397,27 @@ describe('deltas', () => {
     expect(pages.flatMap((p) => p.removed)).toEqual([]);
   });
 
+  it('carry a code whose label was printed, marked printed, so the phone shows the tape', async () => {
+    await own(
+      `INSERT INTO public.short_ids (code, location_id, thing_id, is_primary)
+       VALUES ('PR1234', $1, $2, false), ('NP2345', $1, $2, false)`,
+      [home.id, ladder],
+    );
+    const mark = await markNow();
+    const state: CursorState = { v: 1, w: { [home.id]: mark }, p: null };
+    const before = allOf((await directPull(louis, state)).pages, 'codes');
+    expect(before.find((c) => c.code === 'PR1234')).toBeUndefined();
+    await own(`UPDATE public.short_ids SET printed_at = now() WHERE code = 'PR1234'`);
+    const { pages } = await directPull(louis, state);
+    expect(allOf(pages, 'codes')).toEqual([
+      expect.objectContaining({ code: 'PR1234', thingId: ladder, printedAt: expect.any(String) }),
+    ]);
+    // An unprinted code leaves the key out.
+    const all = allOf((await pull(louis)).pages, 'codes');
+    expect(all.find((c) => c.code === 'NP2345')).not.toHaveProperty('printedAt');
+    expect(all.find((c) => c.code === 'PR1234')?.printedAt).toMatch(/^\d{4}-\d\d-\d\dT/);
+  });
+
   it('carry a thing whose tags changed, with its tag ids', async () => {
     const { cursor } = await pull(louis);
     const [g] = await own<{ id: string }>(
@@ -445,7 +466,9 @@ describe('deltas', () => {
     expect(allOf(pages, 'things')).toEqual([]);
     expect(allOf(pages, 'places')).toEqual([]);
 
-    await own(`UPDATE public.places SET name = 'Top shelf' WHERE id = $1`, [shelf]);
+    await own(`UPDATE public.places SET name = 'Top shelf', child_order = 'custom' WHERE id = $1`, [
+      shelf,
+    ]);
     await own('UPDATE public.things SET last_seen_at = $2 WHERE id = $1', [
       drill,
       '2026-09-20T10:00:00Z',
@@ -455,6 +478,14 @@ describe('deltas', () => {
     expect(allOf(pages, 'places')).toEqual([
       expect.objectContaining({ id: shelf, name: 'Top shelf', deleted: false }),
     ]);
+    // When it was made: the phone orders floors among siblings by it, as the server does.
+    const [made] = await own<{ created_at: Date }>(
+      'SELECT created_at FROM public.places WHERE id = $1',
+      [shelf],
+    );
+    expect(allOf(pages, 'places')[0]?.createdAt).toBe(made?.created_at.toISOString());
+    // How it orders the places inside it, so the phone's tree follows its own order.
+    expect(allOf(pages, 'places')[0]?.childOrder).toBe('custom');
     const changed = new Map(allOf(pages, 'things').map((x) => [x.id, x]));
     expect(changed.get(drill)?.lastSeenAt).toBe('2026-09-20T10:00:00.000Z');
     expect(changed.get(box)?.deleted).toBe(true);

@@ -16,6 +16,7 @@ import { ownerScenario } from '@/api/mock/fixtures';
 import { createMockApi } from '@/api/mock/server';
 import { closeAssistant, openAssistant } from '@/assistant/store';
 import { isSidebarShortcut, MainShell } from '@/components/app-shell';
+import { NAV_FOLDS_KEY, resetNavFolds } from '@/lib/nav-folds';
 import { SIDEBAR_KEY, setSidebarPref } from '@/lib/prefs';
 import { findHeading, renderApp } from '@/test/app';
 import { expectLogicalOnly, renderUI } from '@/test/render';
@@ -165,6 +166,151 @@ describe('where it starts', () => {
   });
 });
 
+describe('the groups', () => {
+  afterEach(() => {
+    localStorage.removeItem(NAV_FOLDS_KEY);
+    resetNavFolds();
+  });
+
+  const group = (name: string) => within(mainNav()).queryByRole('group', { name });
+
+  it('read Home and Inbox, Locations, Tracking, Tools, then the rest', async () => {
+    media(DESKTOP);
+    await renderApp('/');
+    await findHeading('Home');
+    await within(mainNav()).findByRole('link', { name: 'Labels' });
+    const nav = mainNav();
+    const headings = [...nav.querySelectorAll('[data-nav-heading]')].map((h) => h.textContent);
+    expect(headings).toEqual(['Locations', 'Tracking', 'Tools']);
+    const names = (g: HTMLElement | null) =>
+      within(g as HTMLElement)
+        .getAllByRole('link')
+        .map((l) => l.textContent);
+    expect(names(group('Tracking'))).toEqual([
+      'Schedules',
+      'Lending',
+      'Paperwork',
+      'Consumables',
+      'Vehicles',
+      'Insights',
+    ]);
+    expect(names(group('Tools'))).toEqual(['Labels', 'Counts']);
+    expect(names(group('Everything else'))).toEqual([
+      'Activity',
+      'Trash',
+      expect.stringMatching(/^Notifications/),
+      'Settings',
+      'Help',
+    ]);
+    // In the page's order: Inbox, then the locations' nav, then Tracking.
+    const inbox = within(nav).getByRole('link', { name: /^Inbox/ });
+    const locations = screen.getByRole('navigation', { name: 'Locations' });
+    expect(
+      inbox.compareDocumentPosition(locations) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      locations.compareDocumentPosition(group('Tracking') as HTMLElement) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('Tracking and Tools fold, and stay folded on this device', async () => {
+    media(DESKTOP);
+    const first = await renderApp('/');
+    await findHeading('Home');
+    const fold = await within(mainNav()).findByRole('button', { name: 'Tracking' });
+    expect(fold).toHaveAttribute('aria-expanded', 'true');
+    await first.user.click(fold);
+    expect(fold).toHaveAttribute('aria-expanded', 'false');
+    expect(within(mainNav()).queryByRole('link', { name: 'Schedules' })).toBeNull();
+    expect(within(mainNav()).getByRole('link', { name: 'Counts' })).toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem(NAV_FOLDS_KEY) ?? '[]')).toEqual(['tracking']);
+    first.unmount();
+
+    resetNavFolds();
+    const again = await renderApp('/');
+    await findHeading('Home');
+    expect(await within(mainNav()).findByRole('button', { name: 'Tracking' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+    expect(within(mainNav()).queryByRole('link', { name: 'Schedules' })).toBeNull();
+    await again.user.click(within(mainNav()).getByRole('button', { name: 'Tracking' }));
+    expect(await within(mainNav()).findByRole('link', { name: 'Schedules' })).toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem(NAV_FOLDS_KEY) ?? '[]')).toEqual([]);
+  });
+
+  it('start unfolded, and still fold, when storage is unavailable', async () => {
+    media(DESKTOP);
+    localStorage.setItem(NAV_FOLDS_KEY, JSON.stringify(['tools']));
+    resetNavFolds();
+    const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new DOMException('blocked', 'SecurityError');
+    });
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('blocked', 'SecurityError');
+    });
+    try {
+      const { user } = await renderApp('/');
+      await findHeading('Home');
+      const tools = await within(mainNav()).findByRole('button', { name: 'Tools' });
+      expect(tools).toHaveAttribute('aria-expanded', 'true');
+      await user.click(tools);
+      expect(tools).toHaveAttribute('aria-expanded', 'false');
+    } finally {
+      getItem.mockRestore();
+      setItem.mockRestore();
+    }
+  });
+
+  it("More on a phone lists the same groups, in the sidebar's order", async () => {
+    media([]);
+    await renderApp('/more');
+    await findHeading('More');
+    const list = async (name: string) =>
+      within(await screen.findByRole('list', { name }))
+        .getAllByRole('link')
+        .map((l) => l.textContent);
+    await screen.findByRole('list', { name: 'Tools' });
+    const sections = screen
+      .getAllByRole('heading', { level: 2 })
+      .map((h) => h.textContent)
+      .filter((h) => ['Locations', 'Tracking', 'Tools'].includes(h ?? ''));
+    expect(sections).toEqual(['Locations', 'Tracking', 'Tools']);
+    expect(await list('Tracking')).toEqual([
+      'Schedules',
+      'Lending',
+      'Paperwork',
+      'Consumables',
+      'Vehicles',
+      'Insights',
+    ]);
+    expect(await list('Tools')).toEqual(['Labels', 'Counts']);
+    expect(await list('Everything else')).toEqual([
+      'Activity',
+      'Trash',
+      'Notifications',
+      'Settings',
+      'Help',
+    ]);
+  });
+
+  it('Tracking is left out when no tracking module is on anywhere', async () => {
+    media(DESKTOP);
+    const state = ownerScenario();
+    state.locations = state.locations.map((l) => ({
+      ...l,
+      modules: l.modules.filter((m) => m === 'labels'),
+    }));
+    await renderApp('/', { state });
+    await findHeading('Home');
+    await within(mainNav()).findByRole('link', { name: 'Labels' });
+    expect(group('Tracking')).toBeNull();
+    expect(within(mainNav()).queryByRole('button', { name: 'Tracking' })).toBeNull();
+    expect(group('Tools')).not.toBeNull();
+  });
+});
+
 describe('the rail', () => {
   it('every entry keeps its accessible name, and shows it in a tooltip on keyboard focus', async () => {
     media(TABLET);
@@ -176,16 +322,20 @@ describe('the rail', () => {
     await within(mainNav()).findByRole('link', { name: /^Inbox \d+$/ });
     // And the notifications' unread count.
     await within(mainNav()).findByRole('link', { name: /^Notifications \d+$/ });
-    const links = within(mainNav()).getAllByRole('link');
-    expect(links.map((l) => l.textContent)).toEqual([
+    // Home and Inbox, the locations, then Tracking, Tools and the rest; the entries of each
+    // group in order (the locations' own links are checked below).
+    const entries = within(mainNav())
+      .getAllByRole('link')
+      .filter((l) => !l.closest('nav[aria-label="Locations"]'));
+    expect(entries.map((l) => l.textContent)).toEqual([
       'Home',
       expect.stringMatching(/^Inbox ?\d+$/),
-      'Vehicles',
       'Schedules',
       'Lending',
       'Paperwork',
       // The mock's Home has Consumables on since step 7 (T23's fixture).
       'Consumables',
+      'Vehicles',
       'Insights',
       'Labels',
       'Counts',
@@ -197,11 +347,10 @@ describe('the rail', () => {
     ]);
     const locations = screen.getByRole('navigation', { name: 'Locations' });
     expect(await within(locations).findByRole('link', { name: 'Garage' })).toBeInTheDocument();
+    // The rail has rules between the groups, not headings, and nothing to fold.
+    expect(within(mainNav()).queryByRole('button', { name: 'Tracking' })).toBeNull();
     // On the footer, the rail's last entry is a full 44 px target (UI review steps 6–8).
-    expect(within(locations).getByRole('link', { name: 'New location' })).toHaveClass(
-      'h-11',
-      'min-h-11',
-    );
+    expect(within(mainNav()).getByRole('link', { name: 'Help' })).toHaveClass('h-11', 'min-h-11');
 
     // Tab from the start: the square mark, Home, then Inbox.
     await user.tab();
@@ -213,15 +362,21 @@ describe('the rail', () => {
     expect(tip).toHaveTextContent('Inbox');
     expect(inbox).toHaveAttribute('aria-describedby', tip.id);
 
-    // Vehicles is a page since step 5: a plain link with its name in the tooltip.
-    await user.tab();
-    const vehicles = within(mainNav()).getByRole('link', { name: 'Vehicles' });
-    expect(vehicles).toHaveFocus();
-    expect(vehicles).not.toHaveAttribute('aria-disabled');
-    await waitFor(() => expect(screen.getByRole('tooltip')).toHaveTextContent(/^Vehicles$/));
+    // Then the locations, in the order they're listed, and New location.
+    const locationLinks = within(locations).getAllByRole('link');
+    for (const link of locationLinks) {
+      await user.tab();
+      expect(link).toHaveFocus();
+    }
 
-    // Insights is a page since 1.x, after Schedules, Lending, Paperwork and Consumables: a
-    // plain link with its name in the tooltip.
+    // Schedules opens Tracking: a plain link with its name in the tooltip.
+    await user.tab();
+    const schedules = within(mainNav()).getByRole('link', { name: 'Schedules' });
+    expect(schedules).toHaveFocus();
+    expect(schedules).not.toHaveAttribute('aria-disabled');
+    await waitFor(() => expect(screen.getByRole('tooltip')).toHaveTextContent(/^Schedules$/));
+
+    // Insights ends it, after Lending, Paperwork, Consumables and Vehicles.
     for (let i = 0; i < 5; i++) await user.tab();
     const insights = within(mainNav()).getByRole('link', { name: 'Insights' });
     expect(insights).toHaveFocus();

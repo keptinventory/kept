@@ -2,15 +2,21 @@
  * The PWA shell: the manifest, the worker's routing, the update prompt's gates,
  * the share target's hand-over and the diagnostics report.
  */
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { inventoryPaths } from '@/api/inventory/paths';
+import { inventoryKeys } from '@/api/inventory/queries';
+import { ownerScenario } from '@/api/mock/fixtures';
+import { createMockApi, type MockApi, MockReply } from '@/api/mock/server';
+import { AppProviders } from '@/app-providers';
 import { ShareArrival } from '@/components/capture/share-arrival';
 import { toastQueue } from '@/components/ui/toast';
 import { MemoryStore, type SharedInto } from '@/offline/store';
 import { expectLogicalOnly, renderUI } from '@/test/render';
 import manifestText from '../../public/manifest.webmanifest?raw';
 import { DiagnosticsPanel } from './diagnostics';
-import { InsecureBanner } from './insecure-banner';
+import { HTTP_BANNER_HINT, InsecureBanner, insecureBannerKey } from './insecure-banner';
 import { PROBE_KEYS, type ProbeKey, type ProbeResult, reportText } from './probes';
 import { addUpdateGate, Updates, uploadIdle } from './register';
 import { claimShare, SHARE_MAX_FILES, shareFromForm } from './share-target';
@@ -223,13 +229,118 @@ describe('share into Kept', () => {
 });
 
 describe('plain HTTP', () => {
+  const BRUCE = '01926f00-0000-7000-8000-00000000b001';
+  const LOUIS = '01926f00-0000-7000-8000-00000000b002';
+
+  /** The banner as the app shell has it: the person's hints come from the (mock) server. */
+  async function banner(props: { insecure?: boolean; userId?: string }, mock: MockApi) {
+    vi.stubGlobal('fetch', mock.fetch);
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const ui = (p: typeof props) => (
+      <QueryClientProvider client={client}>
+        <InsecureBanner {...p} />
+      </QueryClientProvider>
+    );
+    const result = await renderUI(ui(props));
+    return {
+      ...result,
+      client,
+      rerender: (p: typeof props) =>
+        result.rerender(<AppProviders locale="en">{ui(p)}</AppProviders>),
+    };
+  }
+  const hintsRead = (mock: MockApi) =>
+    waitFor(() => expect(mock.lastCall('GET', inventoryPaths.hints)).toBeDefined());
+
+  afterEach(() => {
+    localStorage.clear();
+    vi.unstubAllGlobals();
+  });
+
   it('shows what needs HTTPS, only on an insecure page', async () => {
-    const { rerender } = await renderUI(<InsecureBanner insecure />);
-    expect(screen.getByRole('status')).toHaveTextContent(
+    const mock = createMockApi(ownerScenario());
+    const { rerender } = await banner({ insecure: true, userId: BRUCE }, mock);
+    expect(await screen.findByRole('status')).toHaveTextContent(
       'Camera, offline capture and install need HTTPS.',
     );
-    rerender(<InsecureBanner insecure={false} />);
+    rerender({ insecure: false, userId: BRUCE });
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('a dismissal is the person’s, on every device: the http_banner hint (#321)', async () => {
+    const state = ownerScenario();
+    const mock = createMockApi(state);
+    const first = await banner({ insecure: true, userId: BRUCE }, mock);
+    await first.user.click(await screen.findByRole('button', { name: 'Dismiss' }));
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(mock.lastCall('PUT', inventoryPaths.hint(HTTP_BANNER_HINT))?.body).toEqual({
+      dismissed: true,
+    });
+    first.unmount();
+
+    // A new browser session, or another device: nothing on this one, the server remembers.
+    localStorage.clear();
+    const elsewhere = createMockApi(state);
+    const again = await banner({ insecure: true, userId: BRUCE }, elsewhere);
+    await hintsRead(elsewhere);
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    again.unmount();
+
+    // Someone else still sees it.
+    await banner({ insecure: true, userId: LOUIS }, createMockApi(ownerScenario()));
+    expect(await screen.findByRole('status')).toHaveTextContent('need HTTPS');
+  });
+
+  it('a dismissal kept on this device still hides it, and moves to the server once', async () => {
+    localStorage.setItem(insecureBannerKey(BRUCE), '1');
+    const mock = createMockApi(ownerScenario());
+    await banner({ insecure: true, userId: BRUCE }, mock);
+    await waitFor(() =>
+      expect(mock.lastCall('PUT', inventoryPaths.hint(HTTP_BANNER_HINT))?.body).toEqual({
+        dismissed: true,
+      }),
+    );
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('shows when the hints can’t be read (offline), and still dismisses', async () => {
+    const mock = createMockApi(ownerScenario());
+    mock.on(
+      'GET',
+      inventoryPaths.hints,
+      () => new MockReply(503, { error: 'x', code: 'internal' }),
+    );
+    const { user, client } = await banner({ insecure: true, userId: BRUCE }, mock);
+    await user.click(await screen.findByRole('button', { name: 'Dismiss' }));
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    // This device remembers it until the server can.
+    expect(localStorage.getItem(insecureBannerKey(BRUCE))).toBe('1');
+    // Nothing is sent, and the unknown hints stay unknown: a one-entry list in the cache would
+    // say every other first-use hint is due.
+    expect(mock.lastCall('PUT', inventoryPaths.hint(HTTP_BANNER_HINT))).toBeUndefined();
+    expect(client.getQueryData(inventoryKeys.hints)).toBeUndefined();
+    expect(client.getQueryState(inventoryKeys.hints)?.status).toBe('error');
+  });
+
+  it('shows, and dismisses for the page, when storage is unavailable', async () => {
+    const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new DOMException('blocked', 'SecurityError');
+    });
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('blocked', 'SecurityError');
+    });
+    try {
+      const { user } = await banner(
+        { insecure: true, userId: BRUCE },
+        createMockApi(ownerScenario()),
+      );
+      expect(await screen.findByRole('status')).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Dismiss' }));
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    } finally {
+      getItem.mockRestore();
+      setItem.mockRestore();
+    }
   });
 });
 

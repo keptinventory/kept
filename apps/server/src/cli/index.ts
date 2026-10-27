@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { realpathSync } from 'node:fs';
+import { chownSync, realpathSync, statSync } from 'node:fs';
+import { createInterface } from 'node:readline/promises';
 import { pathToFileURL } from 'node:url';
 import { KEPT_VERSION } from '@kept/shared';
 import { Command } from 'commander';
@@ -17,6 +18,7 @@ import { BackupError } from '../backup/nightly.js';
 import { PgToolError } from '../backup/pg-tools.js';
 import { migratePreUpgradeSnapshot } from '../backup/pre-upgrade.js';
 import { RestoreError } from '../backup/restore.js';
+import { applyDatabasePasswordFiles } from '../config/db-passwords.js';
 import { EnvError, loadAdminEnv, loadEnv, loadMigrateEnv } from '../config/env.js';
 import { renderEnvReference } from '../config/reference.js';
 import { generateKey } from '../crypto/envelope.js';
@@ -42,12 +44,15 @@ import {
   backupUnlockCommand,
   backupVerifyCommand,
 } from './backup.js';
+import { bootstrapDatabase } from './bootstrap.js';
 import { exportCommand } from './export.js';
+import { runInit } from './init.js';
 import { readableCommand } from './readable.js';
 import { recoveryKitCommand } from './recovery-kit.js';
 import { restoreCommand } from './restore.js';
 import { rotateKey } from './rotate-key.js';
 import { storageCopyCommand, storageVerifyCommand } from './storage.js';
+import { tokenCreateCommand } from './token.js';
 
 const stderrLog = {
   warn: (obj: object, msg?: string) => {
@@ -122,6 +127,68 @@ export function buildCli(): Command {
         log: (line) => process.stderr.write(`${line}\n`),
       });
       if (outcome.snapshot === 'taken') console.log('Pre-upgrade snapshot taken.');
+    });
+
+  program
+    .command('init')
+    .description(
+      'Write .env for a Compose install: asks the address Kept will be opened at, presets the setup code and shows it',
+    )
+    .option('--url <address>', 'the address, without being asked (e.g. http://kept.home.arpa:8080)')
+    .option('--dir <dir>', 'where .env goes (default: the current directory)')
+    .action(async (opts: { url?: string; dir?: string }) => {
+      const dir = opts.dir ?? process.cwd();
+      const rl = createInterface({ input: process.stdin, output: process.stdout });
+      try {
+        await runInit({
+          dir,
+          url: opts.url,
+          version: KEPT_VERSION,
+          io: {
+            interactive: process.stdin.isTTY === true,
+            ask: (question) => rl.question(question),
+            print: (line) => console.log(line),
+          },
+          // Compose's init service runs as root so it can write into a folder owned by the
+          // person who made it; the file is then theirs, not root's.
+          chownTo:
+            process.getuid?.() === 0
+              ? (file) => {
+                  const owner = statSync(dir);
+                  try {
+                    chownSync(file, owner.uid, owner.gid);
+                  } catch (err) {
+                    console.error(
+                      `kept: .env stays owned by root (${(err as NodeJS.ErrnoException).code}); sudo chown it to yourself`,
+                    );
+                  }
+                }
+              : undefined,
+        });
+      } finally {
+        rl.close();
+      }
+    });
+
+  program
+    .command('bootstrap')
+    .description(
+      "Create or update Kept's four database logins and its extensions, as the Postgres superuser (Compose's bootstrap service, on every start)",
+    )
+    .action(async () => {
+      // libpq's variables, as charts/kept/files/roles.sh reads them: PGHOST, PGPORT, PGUSER,
+      // PGPASSWORD (none over the db's own loopback, which the Postgres image trusts).
+      const database = process.env.PGDATABASE || 'kept';
+      await bootstrapDatabase({
+        env: process.env,
+        database,
+        connect: async () => {
+          const client = new pg.Client({ database, application_name: 'kept-bootstrap' });
+          await client.connect();
+          return client;
+        },
+        print: (line) => console.log(line),
+      });
     });
 
   // Instance administration from the server itself (D165, D190), as kept_owner: the way back in
@@ -374,6 +441,41 @@ export function buildCli(): Command {
       );
     });
 
+  // From 1.13.0: a personal token from the server, for MCP clients and Home Assistant on a Kept
+  // served over plain HTTP, where the app can't make one (cli/token.ts).
+  const token = admin
+    .command('token')
+    .description('Personal tokens for MCP clients and Home Assistant');
+  token
+    .command('create')
+    .description(
+      "Make a personal token for someone and print it once (run where the server's keys are: docker compose exec kept kept admin token create …)",
+    )
+    .requiredOption('--user <login>', "the email address, or a managed account's username")
+    .requiredOption('--scope <scope>', 'read, or write to let it change things too')
+    .requiredOption('--name <name>', 'what it is for, e.g. "Home Assistant"')
+    .option('--expires <days>', 'stop working after this many days (default: until revoked)')
+    .option(
+      '--location <id-or-name...>',
+      'only these locations (default: every location the token can reach)',
+    )
+    .option('--confirm-cross-location', 'make a write token across locations whose members differ')
+    .action(
+      async (opts: {
+        user: string;
+        scope: string;
+        name: string;
+        expires?: string;
+        location?: string[];
+        confirmCrossLocation?: boolean;
+      }) => {
+        process.exitCode = await tokenCreateCommand(process.env, opts, {
+          write: (line) => console.log(line),
+          warn: (line) => console.error(line),
+        });
+      },
+    );
+
   admin
     .command('gen-key')
     .description('Print a new 32-byte key as base64url, for KEPT_SECRET_KEY (§7.3)')
@@ -405,8 +507,11 @@ export function isEntrypoint(moduleUrl: string, argv1: string | undefined = proc
 
 // Only auto-run when this file is the process entrypoint, not when a test imports it.
 if (isEntrypoint(import.meta.url)) {
-  buildCli()
-    .parseAsync(process.argv)
+  // Password-less database URLs take their password from the bootstrap's files, before any
+  // command reads the environment (several read it raw).
+  Promise.resolve()
+    .then(() => applyDatabasePasswordFiles())
+    .then(() => buildCli().parseAsync(process.argv))
     .catch((err: unknown) => {
       console.error(
         err instanceof EnvError ||

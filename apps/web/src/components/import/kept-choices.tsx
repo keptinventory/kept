@@ -18,6 +18,7 @@ import { List, Notice, Pill, Row, useErrorText } from '@/components/page';
 import { Button, buttonClass } from '@/components/ui/button';
 import { PasswordField } from '@/components/ui/password-field';
 import { useFormat } from '@/lib/format';
+import { servedOverHttp } from '@/lib/https';
 import { useRoleLabels } from '@/lib/labels';
 import { CountTiles } from './step-chrome';
 
@@ -73,7 +74,9 @@ export function KeptInspectSummary({ kept }: { kept: KeptInspect }) {
   );
 }
 
-/** The export's secrets: the passphrase field, or "unlocked". */
+/** The export's secrets: the passphrase field, or "unlocked". Over plain HTTP the server
+ * refuses the passphrase (403 `https_required`), so the screen says so and asks for none: the
+ * import goes ahead without the secret values. */
 export function KeptSecrets({
   run,
   onRun,
@@ -102,6 +105,15 @@ export function KeptSecrets({
   });
 
   if (!run.secrets?.present) return null;
+  if (servedOverHttp() && !run.secrets.unlocked)
+    return (
+      <Notice tone="info" title={<Trans>It holds encrypted secrets</Trans>}>
+        <Trans>
+          Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to
+          bring them over too, import this file at Kept’s HTTPS address.
+        </Trans>
+      </Notice>
+    );
   if (run.secrets.unlocked)
     return (
       <Notice tone="ok" title={<Trans>The secrets will be imported</Trans>}>
