@@ -636,6 +636,6 @@
 .kgraph-node[data-kind="thing3d"]::before {
   content: "";
   position: absolute;
-  inset: -7px;
+  inset: -5px;
   border-radius: 50%;
 }

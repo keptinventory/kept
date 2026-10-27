@@ -226,7 +226,7 @@ function GraphBody({ tree, address, focusId }: GraphProps & { tree: GraphTree })
                 aria-current={n === focus ? 'location' : undefined}
                 onClick={() => {
                   setFocus(n.id);
-                  setPick({ type: 'node', node: n });
+                  setPick(beside ? { type: 'node', node: n } : null);
                 }}
               >
                 <bdi>{words.name(n)}</bdi>
