@@ -124,9 +124,14 @@ async function floorOf(stage: Locator, room: string): Promise<{ x: number; y: nu
 
 type Point = { x: number; y: number };
 
-/** One finger (real touch events, through the DevTools protocol): down, held `hold` ms, moved
- * by `by` in steps, up. */
-async function touchDrag(page: Page, from: Point, by: Point, hold = 0) {
+/**
+ * One finger (real touch events, through the DevTools protocol): down, then — once `ready` says
+ * so, for a hold — moved by `by` in steps, and up. Each protocol call is a round trip, a fifth of
+ * a second on a busy CI runner, so the moves and the lift are sent in one go (queued in order, not
+ * awaited one by one): awaited, twelve small moves took 2.4 s there, the map saw a finger held
+ * still for 350 ms and picked up the room a quick drag was meant only to pan past.
+ */
+async function touchDrag(page: Page, from: Point, by: Point, ready?: () => Promise<void>) {
   const cdp = await page.context().newCDPSession(page);
   const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', x: number, y: number) =>
     cdp.send('Input.dispatchTouchEvent', {
@@ -134,11 +139,13 @@ async function touchDrag(page: Page, from: Point, by: Point, hold = 0) {
       touchPoints: type === 'touchEnd' ? [] : [{ x, y }],
     });
   await touch('touchStart', from.x, from.y);
-  if (hold) await page.waitForTimeout(hold);
-  const steps = 12;
-  for (let i = 1; i <= steps; i++)
-    await touch('touchMove', from.x + (by.x * i) / steps, from.y + (by.y * i) / steps);
-  await touch('touchEnd', from.x + by.x, from.y + by.y);
+  await ready?.();
+  // Most of the way in the first move, so even one slow frame later the finger has clearly moved.
+  const rest: Promise<unknown>[] = [];
+  for (const k of [0.6, 0.7, 0.8, 0.9, 1])
+    rest.push(touch('touchMove', from.x + by.x * k, from.y + by.y * k));
+  rest.push(touch('touchEnd', from.x + by.x, from.y + by.y));
+  await Promise.all(rest);
   await cdp.detach();
 }
 
@@ -154,6 +161,13 @@ test('moves a room in Arrange: by its floor and the arrow keys, saved, undone, c
 }) => {
   test.setTimeout(180_000);
   const phone = test.info().project.name === 'phone';
+  // KEPT_E2E_CPU_SLOWDOWN=4 runs the page on a main thread 4× slower, like a busy CI runner or an
+  // old phone (Chromium's CPU throttling, through the DevTools protocol).
+  const slowdown = Number(process.env.KEPT_E2E_CPU_SLOWDOWN ?? 1);
+  if (slowdown > 1)
+    await (await page.context().newCDPSession(page)).send('Emulation.setCPUThrottlingRate', {
+      rate: slowdown,
+    });
   await signIn(page);
   const name = `Map rooms ${test.info().project.name}`;
   const made = await page.evaluate(async (n) => {
@@ -198,10 +212,18 @@ test('moves a room in Arrange: by its floor and the arrow keys, saved, undone, c
 
     // 1. The Hall, by its floor, up the screen: behind the others.
     if (phone) {
-      // A quick drag on a room moves the view, not the room.
+      // A quick drag on a room moves the view, not the room: nothing is picked up or selected.
+      const held = stage.locator('canvas[data-held-room]');
       await touchDrag(page, await floorOf(stage, 'Study'), { x: 0, y: 20 });
-      await page.waitForTimeout(300);
-      await touchDrag(page, await floorOf(stage, 'Hall'), { x: 0, y: -up }, 600);
+      await page.waitForTimeout(500);
+      await expect(held).toHaveCount(0);
+      await expect(stage.getByRole('heading', { name: 'Study' })).toHaveCount(0);
+      // A finger held on the Hall's floor picks it up (the map says which room it holds), then
+      // drags it.
+      await touchDrag(page, await floorOf(stage, 'Hall'), { x: 0, y: -up }, async () => {
+        await expect(held).toHaveCount(1);
+      });
+      await expect(held).toHaveCount(0);
     } else {
       await pick('Hall');
       await mouseDrag(page, await floorOf(stage, 'Hall'), { x: 0, y: -up });

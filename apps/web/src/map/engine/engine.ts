@@ -1656,7 +1656,7 @@ export class MapEngine {
       // A second finger: a pinch or a pan, never a drag (a room stays where it got to).
       if (this.drag?.type === 'room') {
         this.events.onHint(this.s.tool);
-        if (this.drag.held) this.emit();
+        if (this.drag.held) this.letGo();
       }
       this.drag = null;
       this.preview?.removeFromParent();
@@ -1704,7 +1704,8 @@ export class MapEngine {
   }
 
   /** A room's floor held still long enough (#301): the room is picked up, and glows; its card
-   * opens once it is put down. */
+   * opens once it is put down. The canvas says which room it holds (`data-held-room`), for the
+   * cursor and for a test to wait on. */
   private pickUp(): void {
     const h = this.hold;
     this.hold = null;
@@ -1713,6 +1714,14 @@ export class MapEngine {
     this.drag = { type: 'room', id: h.id, off: h.off, held: true };
     this.select({ type: 'room', id: h.id }, false);
     this.canvas.style.cursor = 'grabbing';
+    this.canvas.dataset.heldRoom = h.id;
+  }
+
+  /** A room picked up by a hold is put down: its card opens. */
+  private letGo(): void {
+    delete this.canvas.dataset.heldRoom;
+    this.canvas.style.cursor = '';
+    this.emit();
   }
 
   private dropHold(): void {
@@ -1924,7 +1933,7 @@ export class MapEngine {
         this.events.onHint(this.s.tool);
         this.canvas.style.cursor = '';
         // Picked up by a hold: now it is put down, its card opens.
-        if (d.held) this.emit();
+        if (d.held) this.letGo();
       }
       if (d.type === 'resize' || gesture.moved >= 6) {
         const keep = this.s.selected;
