@@ -199,7 +199,48 @@ type Words = {
   dueOn: (what: string, when: string) => string;
   overdue: (what: string, when: string) => string;
   dueWord: string;
-  facts: { quantity: string; brand: string; model: string; serial: string; condition: string };
+  facts: {
+    type: string;
+    quantity: string;
+    brand: string;
+    model: string;
+    serial: string;
+    condition: string;
+    tags: string;
+  };
+  noType: string;
+  /** The label's QR code, as the app's card names it. */
+  qrLabel: (code: string) => string;
+  placesIn: (n: number, f: string) => string;
+  /** The card's links into Kept: in the demo they lead to Install Kept. */
+  openPlace: string;
+  openThing: string;
+  photograph: string;
+  countRoom: string;
+  /** "What's in" under the map (apps/web/src/map/whats-in.tsx). */
+  list: {
+    title: (name: string) => string;
+    rooms: (n: number, f: string) => string;
+    floors: (n: number, f: string) => string;
+    /** After the bold count: "3 low". */
+    sum: Record<'low' | 'lent' | 'due', string>;
+    find: string;
+    findLabel: string;
+    show: string;
+    byRoom: string;
+    attention: string;
+    nothingHere: string;
+    nothingYet: string;
+    more: (f: string) => string;
+    fewer: string;
+  };
+  /** Cancel's question, and Done's Undo. */
+  confirm: { title: string; body: string; throwAway: string };
+  arranged: string;
+  undo: string;
+  undone: string;
+  /** The shape picker's footer (#171): before, the link, between, the link, after. */
+  shapesMore: [string, string, string, string, string];
   noPhoto: string;
   labelThing: string;
   labelPlace: string;
@@ -257,6 +298,10 @@ type Words = {
     putN: (n: number, f: string) => string;
     pick: string;
     onItNow: (names: string) => string;
+    /** A list longer than eight gets a search (put-on.tsx). */
+    findPlace: string;
+    findIn: (room: string) => string;
+    findThing: string;
   };
 };
 
@@ -358,12 +403,45 @@ export const WORDS: Record<Lang, Words> = {
     overdue: (what, when) => `${what}: overdue since ${when}`,
     dueWord: 'Due',
     facts: {
+      type: 'Type',
       quantity: 'Quantity',
       brand: 'Brand',
       model: 'Model',
       serial: 'Serial',
       condition: 'Condition',
+      tags: 'Tags',
     },
+    noType: 'No type',
+    qrLabel: (code) => `QR label for ${code}`,
+    placesIn: (n, f) => (n === 1 ? `${f} place in it` : `${f} places in it`),
+    openPlace: 'Open the place',
+    openThing: 'Open the thing',
+    photograph: 'Photograph this room',
+    countRoom: 'Count this room',
+    list: {
+      title: (name) => `What’s in ${name}`,
+      rooms: (n, f) => (n === 1 ? `${f} room` : `${f} rooms`),
+      floors: (n, f) => (n === 1 ? `${f} floor` : `${f} floors`),
+      sum: { low: 'low', lent: 'lent', due: 'due' },
+      find: 'Find a thing or a short ID',
+      findLabel: 'Find a thing',
+      show: 'Show',
+      byRoom: 'By room',
+      attention: 'Needs attention',
+      nothingHere: 'Nothing here.',
+      nothingYet: 'Nothing here yet.',
+      more: (f) => `Show ${f} more`,
+      fewer: 'Show fewer',
+    },
+    confirm: {
+      title: 'Throw away these changes?',
+      body: 'The map goes back to how it was.',
+      throwAway: 'Throw away',
+    },
+    arranged: 'Map arranged',
+    undo: 'Undo',
+    undone: 'Undone',
+    shapesMore: ['Missing a shape? ', 'Request it', ', or browse the ', 'shape library', '.'],
     noPhoto: 'No photo yet',
     labelThing: 'Label of this thing',
     labelPlace: 'Label of this place',
@@ -418,6 +496,9 @@ export const WORDS: Record<Lang, Words> = {
       putN: (_n, f) => `Put ${f} on it`,
       pick: 'Pick what goes on it',
       onItNow: (names) => `On it now: ${names}`,
+      findPlace: 'Find a place to put it',
+      findIn: (room) => `Find in ${room}`,
+      findThing: 'Find a thing to add',
     },
   },
   ar: {
@@ -519,12 +600,55 @@ export const WORDS: Record<Lang, Words> = {
     overdue: (what, when) => `${what}: متأخر منذ ${when}`,
     dueWord: 'مستحق',
     facts: {
+      type: 'النوع',
       quantity: 'الكمية',
       brand: 'العلامة التجارية',
       model: 'الطراز',
       serial: 'الرقم التسلسلي',
       condition: 'الحالة',
+      tags: 'الوسوم',
     },
+    noType: 'بلا نوع',
+    qrLabel: (code) => `ملصق QR لـ ${code}`,
+    placesIn: (n, f) =>
+      arPlural(n, f, [
+        'لا أماكن فيه',
+        'مكان واحد فيه',
+        'مكانان فيه',
+        '# أماكن فيه',
+        '# مكانًا فيه',
+        '# مكان فيه',
+      ]),
+    openPlace: 'فتح المكان',
+    openThing: 'افتح الشيء',
+    photograph: 'صوّر هذه الغرفة',
+    countRoom: 'عُدّ هذه الغرفة',
+    list: {
+      title: (name) => `ما في ${name}`,
+      rooms: (n, f) =>
+        arPlural(n, f, ['لا غرف', 'غرفة واحدة', 'غرفتان', '# غرف', '# غرفة', '# غرفة']),
+      floors: (n, f) =>
+        arPlural(n, f, ['لا طوابق', 'طابق واحد', 'طابقان', '# طوابق', '# طابقًا', '# طابق']),
+      sum: { low: 'على وشك النفاد', lent: 'مُعار', due: 'مستحق' },
+      find: 'ابحث عن شيء أو معرّف قصير',
+      findLabel: 'ابحث عن شيء',
+      show: 'العرض',
+      byRoom: 'حسب الغرفة',
+      attention: 'يحتاج انتباهًا',
+      nothingHere: 'لا شيء هنا.',
+      nothingYet: 'لا شيء هنا بعد.',
+      more: (f) => `عرض ${f} أخرى`,
+      fewer: 'عرض أقل',
+    },
+    confirm: {
+      title: 'التخلّي عن هذه التغييرات؟',
+      body: 'تعود الخريطة كما كانت.',
+      throwAway: 'تخلَّ عنها',
+    },
+    arranged: 'رُتّبت الخريطة',
+    undo: 'تراجع',
+    undone: 'تم التراجع',
+    shapesMore: ['ينقصك شكل؟ ', 'اطلبه', '، أو تصفّح ', 'مكتبة الأشكال', '.'],
     noPhoto: 'لا صورة بعد',
     labelThing: 'ملصق هذا الشيء',
     labelPlace: 'ملصق هذا المكان',
@@ -602,6 +726,9 @@ export const WORDS: Record<Lang, Words> = {
         ]),
       pick: 'اختر ما يوضع عليه',
       onItNow: (names) => `عليه الآن: ${names}`,
+      findPlace: 'ابحث عن مكان تضعه عليه',
+      findIn: (room) => `ابحث في ${room}`,
+      findThing: 'ابحث عن شيء لإضافته',
     },
   },
 };

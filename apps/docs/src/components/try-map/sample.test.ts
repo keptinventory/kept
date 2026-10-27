@@ -1,10 +1,12 @@
 import {
+  builtinTypeName,
   canCarry,
   footprintOf,
   isMapModel,
   type MapModelKey,
   rectsOverlap,
   seatHeight,
+  TAG_COLOURS,
   wallOfTurn,
 } from '@kept/shared';
 import { describe, expect, it } from 'vitest';
@@ -20,6 +22,7 @@ import {
   takeOff,
 } from '../../../../web/src/map/layout';
 import { offMapIn } from '../../../../web/src/map/list';
+import { PHOTOS } from './photos';
 import { sampleHome } from './sample';
 import { MODEL_NAMES } from './strings';
 
@@ -187,5 +190,29 @@ describe('the Try the map sample home', () => {
     }
     const kinds = new Set(en.view.attention.map((a) => a.kind));
     expect([...kinds].sort()).toEqual(['due', 'lent', 'low']);
+  });
+
+  it('prints labels on a few things, with types, tags and photos as Kept would show them', () => {
+    const all = [...en.view.nodes, ...en.view.things];
+    const printed = all.filter((x) => x.labelPrinted);
+    // Names first: a few have a label, most don't.
+    expect(printed.length).toBeGreaterThanOrEqual(5);
+    expect(printed.length).toBeLessThan(all.length / 4);
+    const facts = [...en.facts.values()];
+    for (const f of facts) if (f.type) expect(builtinTypeName(f.type, 'en'), f.type).toBeDefined();
+    const tags = facts.flatMap((f) => f.tags ?? []);
+    expect(tags.length).toBeGreaterThan(5);
+    // Palette colours only, and none the app's own violet.
+    const palette = new Set(Object.values(TAG_COLOURS));
+    for (const t of tags) {
+      expect(palette.has(t.colour)).toBe(true);
+      expect(t.colour).not.toBe(TAG_COLOURS.violet);
+    }
+    const photos = facts.flatMap((f) => (f.photo ? [f.photo] : []));
+    expect(new Set(photos)).toEqual(new Set(Object.keys(PHOTOS)));
+    // The same in Arabic, by name.
+    const arTags = [...ar.facts.values()].flatMap((f) => f.tags ?? []);
+    expect(arTags.map((t) => t.colour)).toEqual(tags.map((t) => t.colour));
+    expect(arTags.map((t) => t.name)).not.toEqual(tags.map((t) => t.name));
   });
 });

@@ -133,7 +133,7 @@ const t = {
   .kd-placeholder {
     display: grid;
     place-items: center;
-    height: clamp(420px, calc(100svh - 12rem), 860px);
+    height: max(320px, calc(100svh - var(--sl-nav-height, 4rem) - 1.5rem));
     border: 1px solid var(--line);
     border-radius: 12px;
     background: var(--paper);

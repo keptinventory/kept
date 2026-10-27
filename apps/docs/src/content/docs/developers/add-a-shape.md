@@ -104,3 +104,9 @@ node scripts/check-i18n.mjs
 The shared tests check every shape has a group and words; the web tests check the sprite has a
 cell and a height for every shape and that detailed models stay under their size; the docs test
 checks the shape library lists every shape. `pnpm docs:build` shows the library page.
+
+## The map's controls and Try the map
+
+A change to the map's controls, its card or What's in also updates
+[Try the map](/try/map/) (`apps/docs/src/components/try-map/demo.ts`): it draws the same engine,
+with those parts again in plain DOM, and `demo.test.ts` checks it still shows what the app shows.
