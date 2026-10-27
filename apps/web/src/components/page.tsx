@@ -145,16 +145,23 @@ export function Page({
         data-slot="page-body"
       >
         <SectionTabsContext.Provider value={countTabs}>
-          {aside ? (
-            <div className="grid min-w-0 grid-cols-[15rem_minmax(0,1fr)] items-start gap-6">
-              {/* Not an <aside>: beside the sidebar's, a second complementary landmark fails axe's
-                  landmark-unique; the panel's own <nav> names it. */}
+          {/* The same elements with or without the panel, so the page's body isn't mounted
+              again when the panel arrives after it (a selection, a typed search, an open sheet
+              would start over, #336): without it the wrappers are `display: contents`. */}
+          <div
+            className={
+              aside ? 'grid min-w-0 grid-cols-[15rem_minmax(0,1fr)] items-start gap-6' : 'contents'
+            }
+          >
+            {/* Not an <aside>: beside the sidebar's, a second complementary landmark fails axe's
+                landmark-unique; the panel's own <nav> names it. */}
+            {aside ? (
               <div className="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto">{aside}</div>
-              <div className="grid min-w-0 content-start gap-5">{children}</div>
+            ) : null}
+            <div className={aside ? 'grid min-w-0 content-start gap-5' : 'contents'}>
+              {children}
             </div>
-          ) : (
-            children
-          )}
+          </div>
         </SectionTabsContext.Provider>
       </div>
     </div>

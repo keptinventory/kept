@@ -5,13 +5,13 @@
  * The way back is on the box's own page (task 26's "Turn into a place").
  */
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { PlaceView } from '@/api/inventory/types';
 import { Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/toast';
-import { placeApi, useInvalidateBrowse } from './api';
+import { invalidateBrowse, placeApi } from './api';
 import { Sheet } from './sheet';
 
 export function ConvertToContainerDialog({
@@ -27,12 +27,14 @@ export function ConvertToContainerDialog({
 }) {
   const { t } = useLingui();
   const errorText = useErrorText();
-  const invalidate = useInvalidateBrowse();
+  const qc = useQueryClient();
   const name = place.name;
   const convert = useMutation({
     mutationFn: () => placeApi.convertToContainer(place.id, place.rowVersion),
-    onSuccess: async ({ thingId }) => {
-      await invalidate();
+    onSuccess: ({ thingId }) => {
+      // The place is gone (its id is the box's now): its own queries are not asked again, and
+      // the box opens at once while the lists refresh behind it (#336).
+      void invalidateBrowse(qc, { gone: place.id });
       toast({ title: t`${name} is a box now`, tone: 'ok' });
       onConverted(thingId);
     },

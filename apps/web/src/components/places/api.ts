@@ -8,6 +8,7 @@
  */
 import { siblingOrder } from '@kept/shared';
 import {
+  type Query,
   type QueryClient,
   useInfiniteQuery,
   useQueries,
@@ -64,10 +65,29 @@ export const placeApi = {
     api.post<MoveResult>(p.thingEmptyInto(thingId), body),
 };
 
-/** After any place or move write: everything that shows places, things or their counts. */
-export function invalidateBrowse(qc: QueryClient): Promise<unknown> {
+/** A place's own queries: its page, its contents and its history. */
+const ownQueries =
+  (id: string) =>
+  ({ queryKey: [root, part, of] }: Query): boolean =>
+    root === 'places' &&
+    of === id &&
+    (part === 'detail' || part === 'contents' || part === 'history');
+
+/**
+ * After any place or move write: everything that shows places, things or their counts.
+ * `gone` is a place the write ended (turned into a box): its own queries go stale without a
+ * refetch, which could only answer 404 and put "Couldn't load this" on the page still showing it.
+ */
+export function invalidateBrowse(
+  qc: QueryClient,
+  { gone }: { gone?: string } = {},
+): Promise<unknown> {
+  const own = gone ? ownQueries(gone) : () => false;
   return Promise.all([
-    qc.invalidateQueries({ queryKey: k.places.all }),
+    qc.invalidateQueries({ queryKey: k.places.all, predicate: (q) => !own(q) }),
+    ...(gone
+      ? [qc.invalidateQueries({ queryKey: k.places.all, predicate: own, refetchType: 'none' })]
+      : []),
     qc.invalidateQueries({ queryKey: k.things.all }),
     qc.invalidateQueries({ queryKey: k.home }),
     qc.invalidateQueries({ queryKey: keys.locations }),
