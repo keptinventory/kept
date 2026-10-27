@@ -27502,9 +27502,6 @@ msgstr "Où vous êtes dans le graphe"
 msgid "2D or 3D"
 msgstr "2D ou 3D"
 
-#: src/graph/graph-view.tsx
-msgid "2D"
-msgstr "2D"
 
 #: src/graph/graph-view.tsx
 msgid "Size shows how much is inside. Pick twice to go in; the path above takes you back."

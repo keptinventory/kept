@@ -27432,7 +27432,7 @@ msgid "Moved {room} right."
 msgstr "نُقل «{room}» إلى اليمين."
 #: src/components/places/contents-list.tsx
 msgid "Graph"
-msgstr "رسم شبكي"
+msgstr "رسم بياني"
 
 #: src/graph/card.tsx
 msgid "Selected"
@@ -27464,7 +27464,7 @@ msgstr "اعرضه على الخريطة"
 
 #: src/graph/floors-3d.tsx
 msgid "Graph of {0}"
-msgstr "الرسم الشبكي لـ{0}"
+msgstr "الرسم البياني لـ{0}"
 
 #: src/graph/floors-3d.tsx
 msgid "Rooms on no floor"
@@ -27492,19 +27492,16 @@ msgstr "اعرض البيت كاملًا"
 
 #: src/graph/graph-view.tsx
 msgid "The graph is drawn from Kept’s server. The list has everything offline."
-msgstr "يُرسم الرسم الشبكي من خادم Kept. والقائمة فيها كل شيء دون اتصال."
+msgstr "يُرسم الرسم البياني من خادم Kept. والقائمة فيها كل شيء دون اتصال."
 
 #: src/graph/graph-view.tsx
 msgid "Where you are in the graph"
-msgstr "مكانك في الرسم الشبكي"
+msgstr "مكانك في الرسم البياني"
 
 #: src/graph/graph-view.tsx
 msgid "2D or 3D"
 msgstr "ثنائي أو ثلاثي الأبعاد"
 
-#: src/graph/graph-view.tsx
-msgid "2D"
-msgstr "ثنائي الأبعاد"
 
 #: src/graph/graph-view.tsx
 msgid "Size shows how much is inside. Pick twice to go in; the path above takes you back."
@@ -27520,7 +27517,7 @@ msgstr "{more, plural, zero {لا أشياء أخرى غير مرسومة.} one 
 
 #: src/graph/graph-view.tsx
 msgid "In this graph"
-msgstr "في هذا الرسم الشبكي"
+msgstr "في هذا الرسم البياني"
 
 #: src/graph/graph-view.tsx
 msgid "In <0>{0}</0>"
@@ -27556,4 +27553,4 @@ msgstr "{count, plural, zero {لا مزيد في {where}} one {واحد آخر �
 
 #: src/components/places/contents-list.tsx
 msgid "graph"
-msgstr "رسم شبكي"
+msgstr "رسم بياني"
