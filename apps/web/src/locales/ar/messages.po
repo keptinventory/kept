@@ -27502,7 +27502,6 @@ msgstr "مكانك في الرسم البياني"
 msgid "2D or 3D"
 msgstr "ثنائي أو ثلاثي الأبعاد"
 
-
 #: src/graph/graph-view.tsx
 msgid "Size shows how much is inside. Pick twice to go in; the path above takes you back."
 msgstr "الحجم يبيّن كم بداخله. اختر مرتين للدخول، والمسار في الأعلى يعيدك."
@@ -27554,3 +27553,31 @@ msgstr "{count, plural, zero {لا مزيد في {where}} one {واحد آخر �
 #: src/components/places/contents-list.tsx
 msgid "graph"
 msgstr "رسم بياني"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Add a label code"
+msgstr "أضف رمز ملصق"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Scan a blank label you've stuck on it"
+msgstr "امسح ملصقًا فارغًا ألصقته عليه"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to an existing place"
+msgstr "اربطه بمكان موجود"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to <0>{0}</0>"
+msgstr "اربطه بـ«<0>{0}</0>»"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "A room, shelf or spot"
+msgstr "غرفة أو رف أو ركن"
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0> on this phone, until it syncs."
+msgstr "خُصّص لـ«<0>{label}</0>» على هذا الهاتف، حتى تتم المزامنة."
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0>."
+msgstr "خُصّص لـ«<0>{label}</0>»."

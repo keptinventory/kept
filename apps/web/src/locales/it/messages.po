@@ -27502,7 +27502,6 @@ msgstr "Dove sei nel grafo"
 msgid "2D or 3D"
 msgstr "2D o 3D"
 
-
 #: src/graph/graph-view.tsx
 msgid "Size shows how much is inside. Pick twice to go in; the path above takes you back."
 msgstr "La dimensione mostra quanto contiene. Scegli due volte per entrare; il percorso sopra ti riporta indietro."
@@ -27554,3 +27553,31 @@ msgstr "{count, plural, one {# altro in {where}} other {# altri in {where}}}"
 #: src/components/places/contents-list.tsx
 msgid "graph"
 msgstr "grafo"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Add a label code"
+msgstr "Aggiungi un codice etichetta"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Scan a blank label you've stuck on it"
+msgstr "Scansiona un’etichetta vuota che ci hai attaccato"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to an existing place"
+msgstr "Collegala a un luogo esistente"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to <0>{0}</0>"
+msgstr "Collegala a «<0>{0}</0>»"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "A room, shelf or spot"
+msgstr "Una stanza, uno scaffale o un punto"
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0> on this phone, until it syncs."
+msgstr "Assegnata a «<0>{label}</0>» su questo telefono, finché non si sincronizza."
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0>."
+msgstr "Assegnata a «<0>{label}</0>»."
