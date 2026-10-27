@@ -130,7 +130,10 @@ open the box.
 - **AI assistant and MCP server.** Ask in plain words; changes wait for your OK. Claude and other
   AI agents connect at `/mcp` ([how](https://keptinventory.info/users/mcp-clients/)).
 - **Backups you can read.** Nightly restic backups to a directory, S3 or SFTP, each with a copy
-  that opens in a browser without Kept; imports from Homebox and CSV, full exports.
+  that opens in a browser without Kept; imports from Homebox (a past import can be repaired) and
+  CSV, full exports.
+- **Your own network or HTTPS.** Works over plain http at home; an export with secret values needs
+  HTTPS.
 - **Five languages:** English, Arabic (right to left), French, German and Italian.
 
 <p align="center">
@@ -138,9 +141,6 @@ open the box.
 </p>
 
 ## Quick start: host it
-
-> These steps need Kept **1.13.0**, which isn't released yet ([what's left](https://github.com/keptinventory/kept/milestone/1)).
-> To install 1.12.5 now, follow [its quick start](https://github.com/keptinventory/kept/tree/v1.12.5#quick-start-host-it).
 
 Docker with Compose v2, on a machine with at least 2 GB of RAM and 2 CPU cores
 ([what it needs](https://keptinventory.info/install/hardware/)).
@@ -187,9 +187,6 @@ the Caddyfile in `docker/caddy/` ([HTTPS](https://keptinventory.info/install/htt
 
 ## What's next
 
-- **1.13.0, mid-November** ([milestone](https://github.com/keptinventory/kept/milestone/1)): Kept on a home
-  network over plain http, a Homebox import that speaks Homebox, places A–Z with boxes in the tree,
-  names before codes, and a four-step Docker Compose install.
 - **1.14.0, mid-December** ([milestone](https://github.com/keptinventory/kept/milestone/2)):
   [graph view](https://github.com/keptinventory/kept/issues/207) ·
   [move rooms on the map](https://github.com/keptinventory/kept/issues/301) ·
