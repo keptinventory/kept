@@ -91,6 +91,11 @@
 .kmap-tip[hidden] {
   display: none;
 }
+/* The bar, Arrange's tools and the card (#330): no box of its own on a wide map, where each is placed
+   on its own; a column where the card is a sheet at the bottom (below). */
+.kmap-stack {
+  display: contents;
+}
 .kmap-bar {
   position: absolute;
   inset-inline: 12px;
@@ -350,6 +355,11 @@ fieldset.kmap-floors {
   z-index: 3;
 }
 @media (min-width: 900px) {
+  /* #330: with a card open, Arrange's tools wrap short of it (12px + its 320px + its 68px), so
+     Cancel isn't half under the card. */
+  .kmap-stage[data-card="true"] .kmap-tools {
+    max-width: calc(100% - 412px);
+  }
   .kmap-panel {
     inset-inline-end: 68px;
     top: 110px;
@@ -360,10 +370,38 @@ fieldset.kmap-floors {
     overflow: auto;
   }
 }
+/* #330: where the card is a sheet at the bottom, the bar, Arrange's tools and the card stack in one
+   column over the map. The sheet stops below the tools, so Done and Cancel are never under it; with
+   a card open the tools' tips give way (the map they talk about is mostly under the card). */
 @media (max-width: 899px) {
+  .kmap-stack {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-block: 10px 8px;
+    padding-inline: 8px;
+    pointer-events: none;
+  }
+  .kmap-stack > .kmap-bar,
+  .kmap-stack > .kmap-tools {
+    position: static;
+    margin-inline: 4px;
+  }
+  .kmap-stack > .kmap-tools {
+    align-self: flex-start;
+    pointer-events: auto;
+  }
+  .kmap-stage[data-card="true"] .kmap-hint {
+    display: none;
+  }
   .kmap-panel {
-    inset-inline: 8px;
-    bottom: 8px;
+    position: relative;
+    margin-block-start: auto;
+    flex: 0 1 auto;
+    min-height: 0;
+    pointer-events: auto;
     border-radius: 14px;
     overflow: auto;
     max-height: 45%;
@@ -760,8 +798,7 @@ fieldset.kmap-floors {
     font-size: 11px;
   }
   .kmap-tools {
-    top: 100px;
-    max-width: calc(100% - 24px);
+    max-width: calc(100% - 8px);
   }
 }
 /* Below the map: what's in the location. */

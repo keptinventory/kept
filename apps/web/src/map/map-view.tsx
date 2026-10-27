@@ -773,133 +773,172 @@ function MapBody({
             <Trans>This browser can’t draw the map. The list below has everything on it.</Trans>
           </div>
         ) : null}
-        <div className="kmap-bar" data-map-reserve="top">
-          <nav data-map-obstacle className="kmap-crumb" aria-label={t`Where you are on the map`}>
-            <button type="button" onClick={() => engine?.showAll()}>
-              {name}
-            </button>
-            {!es.allFloors && levels.length > 1 ? (
-              <>
-                <span aria-hidden="true">›</span>
-                <button type="button" onClick={() => engine?.up()}>
-                  {levelName}
-                </button>
-              </>
-            ) : null}
-            {focusedRoom ? (
-              <>
-                <span aria-hidden="true">›</span>
-                <span>{focusedRoom.name}</span>
-              </>
-            ) : null}
-          </nav>
-          <fieldset
-            data-map-obstacle
-            data-tour="map-view"
-            className="kmap-seg"
-            aria-label={t`View`}
-          >
-            <button
-              type="button"
-              aria-pressed={!es.planView}
-              onClick={() => engine?.setPlanView(false)}
+        {/* #330: the controls along the top and the card. Where the card is a sheet at the
+            bottom (map.css), they stack in one column, so the card stops below Arrange's tools
+            and Done and Cancel stay reachable; on a wide map the column isn't a box at all. */}
+        <div className="kmap-stack">
+          <div className="kmap-bar" data-map-reserve="top">
+            <nav data-map-obstacle className="kmap-crumb" aria-label={t`Where you are on the map`}>
+              <button type="button" onClick={() => engine?.showAll()}>
+                {name}
+              </button>
+              {!es.allFloors && levels.length > 1 ? (
+                <>
+                  <span aria-hidden="true">›</span>
+                  <button type="button" onClick={() => engine?.up()}>
+                    {levelName}
+                  </button>
+                </>
+              ) : null}
+              {focusedRoom ? (
+                <>
+                  <span aria-hidden="true">›</span>
+                  <span>{focusedRoom.name}</span>
+                </>
+              ) : null}
+            </nav>
+            <fieldset
+              data-map-obstacle
+              data-tour="map-view"
+              className="kmap-seg"
+              aria-label={t`View`}
             >
-              <Trans>3D</Trans>
-            </button>
-            <button
-              type="button"
-              aria-pressed={es.planView}
-              onClick={() => engine?.setPlanView(true)}
-            >
-              <Trans>Plan</Trans>
-            </button>
-          </fieldset>
-          {data.canArrange ? (
-            es.arranging ? (
               <button
                 type="button"
-                className="kmap-btn primary"
-                disabled={saving}
-                onClick={() => void done()}
+                aria-pressed={!es.planView}
+                onClick={() => engine?.setPlanView(false)}
               >
-                {saving ? <Trans>Saving…</Trans> : <Trans>Done</Trans>}
-              </button>
-            ) : (
-              <button
-                type="button"
-                data-map-obstacle
-                data-tour="map-arrange"
-                className="kmap-btn"
-                onClick={() => void startArranging()}
-              >
-                <Trans>Arrange</Trans>
-              </button>
-            )
-          ) : null}
-          <fieldset
-            data-map-obstacle
-            data-tour="map-pins"
-            className="kmap-chips"
-            aria-label={t`Pins`}
-          >
-            {(['low', 'lent', 'due'] as const).map((k) => (
-              <button
-                key={k}
-                type="button"
-                className="kmap-chip"
-                aria-pressed={pins[k]}
-                onClick={() => setPins((p) => ({ ...p, [k]: !p[k] }))}
-              >
-                <span className={`kmap-dot ${k}`} aria-hidden="true" />
-                <span className="kmap-long">{pinWords[k].long}</span>
-                <span className="kmap-short">{pinWords[k].short}</span>
-              </button>
-            ))}
-          </fieldset>
-        </div>
-        {es.arranging ? (
-          <div className="kmap-tools" data-map-obstacle data-map-reserve="top">
-            <fieldset className="kmap-seg" aria-label={t`Arrange tool`}>
-              <button
-                type="button"
-                aria-pressed={es.tool === 'move'}
-                onClick={() => engine?.setTool('move')}
-              >
-                <Trans>Move</Trans>
+                <Trans>3D</Trans>
               </button>
               <button
                 type="button"
-                aria-pressed={es.tool === 'room'}
-                onClick={() => engine?.setTool('room')}
+                aria-pressed={es.planView}
+                onClick={() => engine?.setPlanView(true)}
               >
-                <Trans>Draw a room</Trans>
+                <Trans>Plan</Trans>
               </button>
             </fieldset>
-            <button type="button" className="kmap-btn" onClick={() => void addFloor()}>
-              <Trans>Add a floor</Trans>
-            </button>
-            <button type="button" className="kmap-btn" onClick={() => void cancelArranging()}>
-              <Trans>Cancel</Trans>
-            </button>
-            <div className="kmap-hint">{hints[hint]}</div>
-            {placedByKept.length > 0 ? (
-              // #194: things Kept put on the floor from room photos, to move where they stand.
-              <div className="kmap-hint">
-                <Trans>Placed by Kept from room photos: move them where they stand.</Trans>{' '}
-                {placedByKept.map((i) => (
-                  <button
-                    key={i.id}
-                    type="button"
-                    className="kmap-btn"
-                    onClick={() => showOnMap({ type: 'item', id: i.id })}
-                  >
-                    <bdi>{i.name}</bdi>
-                  </button>
-                ))}
-              </div>
+            {data.canArrange ? (
+              es.arranging ? (
+                <button
+                  type="button"
+                  className="kmap-btn primary"
+                  disabled={saving}
+                  onClick={() => void done()}
+                >
+                  {saving ? <Trans>Saving…</Trans> : <Trans>Done</Trans>}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  data-map-obstacle
+                  data-tour="map-arrange"
+                  className="kmap-btn"
+                  onClick={() => void startArranging()}
+                >
+                  <Trans>Arrange</Trans>
+                </button>
+              )
             ) : null}
+            <fieldset
+              data-map-obstacle
+              data-tour="map-pins"
+              className="kmap-chips"
+              aria-label={t`Pins`}
+            >
+              {(['low', 'lent', 'due'] as const).map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  className="kmap-chip"
+                  aria-pressed={pins[k]}
+                  onClick={() => setPins((p) => ({ ...p, [k]: !p[k] }))}
+                >
+                  <span className={`kmap-dot ${k}`} aria-hidden="true" />
+                  <span className="kmap-long">{pinWords[k].long}</span>
+                  <span className="kmap-short">{pinWords[k].short}</span>
+                </button>
+              ))}
+            </fieldset>
           </div>
-        ) : null}
+          {es.arranging ? (
+            <div className="kmap-tools" data-map-obstacle data-map-reserve="top">
+              <fieldset className="kmap-seg" aria-label={t`Arrange tool`}>
+                <button
+                  type="button"
+                  aria-pressed={es.tool === 'move'}
+                  onClick={() => engine?.setTool('move')}
+                >
+                  <Trans>Move</Trans>
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={es.tool === 'room'}
+                  onClick={() => engine?.setTool('room')}
+                >
+                  <Trans>Draw a room</Trans>
+                </button>
+              </fieldset>
+              <button type="button" className="kmap-btn" onClick={() => void addFloor()}>
+                <Trans>Add a floor</Trans>
+              </button>
+              <button type="button" className="kmap-btn" onClick={() => void cancelArranging()}>
+                <Trans>Cancel</Trans>
+              </button>
+              <div className="kmap-hint">{hints[hint]}</div>
+              {placedByKept.length > 0 ? (
+                // #194: things Kept put on the floor from room photos, to move where they stand.
+                <div className="kmap-hint">
+                  <Trans>Placed by Kept from room photos: move them where they stand.</Trans>{' '}
+                  {placedByKept.map((i) => (
+                    <button
+                      key={i.id}
+                      type="button"
+                      className="kmap-btn"
+                      onClick={() => showOnMap({ type: 'item', id: i.id })}
+                    >
+                      <bdi>{i.name}</bdi>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+          {sel ? (
+            <MapCard
+              sel={sel}
+              plan={plan}
+              view={data}
+              contents={contents}
+              level={plan.levels.find((l) => l.key === es.levelKey)}
+              focused={es.focused}
+              arranging={es.arranging}
+              inner={inner}
+              setInner={(id) => {
+                setInner(id);
+                if (id) setDetail(true);
+              }}
+              detail={detail}
+              setDetail={setDetail}
+              onClose={() => engine?.select(null)}
+              onSelect={(s) => engine?.select(s)}
+              onOpenRoom={(id) => engine?.drill(id)}
+              onGoLevel={(key) => engine?.setLevel(key)}
+              onTurn={(id) => engine?.turnItem(id)}
+              onShape={setShape}
+              onRemove={removeItem}
+              onRoomKind={(id, kind) => setRoom(id, { kind })}
+              onSurface={(id, surface) => setRoom(id, { surface })}
+              onAdd={addThing}
+              onPutOn={putThingOn}
+              onTakeOff={takeThingOff}
+              onAddOn={addOnIt}
+              onHeight={setHeight}
+              chosenShape={chosenShape}
+              here={scope?.placeId ?? null}
+            />
+          ) : null}
+        </div>
         <div className="kmap-ctl" data-map-obstacle data-map-reserve="bottom">
           {levels.length > 1 ? (
             <fieldset className="kmap-floors" aria-label={t`Floor`} data-tour="map-floors">
@@ -1018,40 +1057,6 @@ function MapBody({
             ) : null}
           </div>
         </div>
-        {sel ? (
-          <MapCard
-            sel={sel}
-            plan={plan}
-            view={data}
-            contents={contents}
-            level={plan.levels.find((l) => l.key === es.levelKey)}
-            focused={es.focused}
-            arranging={es.arranging}
-            inner={inner}
-            setInner={(id) => {
-              setInner(id);
-              if (id) setDetail(true);
-            }}
-            detail={detail}
-            setDetail={setDetail}
-            onClose={() => engine?.select(null)}
-            onSelect={(s) => engine?.select(s)}
-            onOpenRoom={(id) => engine?.drill(id)}
-            onGoLevel={(key) => engine?.setLevel(key)}
-            onTurn={(id) => engine?.turnItem(id)}
-            onShape={setShape}
-            onRemove={removeItem}
-            onRoomKind={(id, kind) => setRoom(id, { kind })}
-            onSurface={(id, surface) => setRoom(id, { surface })}
-            onAdd={addThing}
-            onPutOn={putThingOn}
-            onTakeOff={takeThingOff}
-            onAddOn={addOnIt}
-            onHeight={setHeight}
-            chosenShape={chosenShape}
-            here={scope?.placeId ?? null}
-          />
-        ) : null}
         <p className="sr-only" role="status" aria-live="polite">
           {said}
         </p>

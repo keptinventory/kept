@@ -563,7 +563,8 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
         </div>
       </div>`;
     const gl = glError ? `<div class="kd-glerror">${esc(w.glError)}</div>` : '';
-    return `${gl}<div class="kmap-bar" data-map-reserve="top">${crumb}${seg}${arrange}${chips}</div>${tools}${ctl}${readout}${card()}`;
+    // #330: the bar, Arrange's tools and the card in one column, as the app has them (map.css).
+    return `${gl}<div class="kmap-stack"><div class="kmap-bar" data-map-reserve="top">${crumb}${seg}${arrange}${chips}</div>${tools}${card()}</div>${ctl}${readout}`;
   }
 
   /** M9: the floor's rooms and what stands in them, for screen readers and keyboards. */

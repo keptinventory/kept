@@ -304,6 +304,28 @@ describe('Arrange', () => {
     expect(root.querySelector('.kd-toast')).toBeNull();
   });
 
+  it('keeps Done and Cancel above a card, in its column, and cancels with the card open (#330)', () => {
+    click(button('arrange'));
+    const first = engine().plan.rooms[0];
+    if (!first) throw new Error('a room');
+    engine().select({ type: 'room', id: first.id });
+    const panel = card();
+    if (!panel) throw new Error('a card');
+    // map.css stacks the column where the card is a sheet: the card last, below the tools.
+    const stack = panel.parentElement as HTMLElement;
+    expect(stack.className).toBe('kmap-stack');
+    expect(stack.lastElementChild).toBe(panel);
+    for (const k of ['done', 'cancel']) {
+      const b = button(k) as HTMLElement;
+      expect(stack.contains(b) && !panel.contains(b)).toBe(true);
+      expect(b.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+    engine().moveRoom(first.id, 3);
+    click(button('cancel'));
+    click(byText(dialog() as HTMLElement, 'button', 'Throw away'));
+    expect(engine().s.arranging).toBe(false);
+  });
+
   it('offers Undo on Done, which puts the map back as it was', () => {
     vi.useFakeTimers();
     click(button('arrange'));

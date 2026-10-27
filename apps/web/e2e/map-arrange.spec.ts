@@ -8,7 +8,8 @@
  *    desktop the Hall is selected, then dragged with the mouse. Done saves it a whole number of
  *    metres behind the others, over nothing;
  * 2. moves it a metre left with the arrow key, which says so; Done saves it, Undo puts it back;
- * 3. moves it again and Cancels: asked first, nothing saved.
+ * 3. moves it again and Cancels with the Hall's card still open (#330: on the phone the card used
+ *    to cover Cancel): asked first, nothing saved.
  *
  * No real device is touched: getUserMedia and getDisplayMedia reject, SpeechRecognition is gone
  * and geolocation refuses, before any page script. No permission is granted.
@@ -263,8 +264,29 @@ test('moves a room in Arrange: by its floor and the arrow keys, saved, undone, c
     await places.getByRole('button', { name: 'Hall', exact: true }).focus();
     await page.keyboard.press('ArrowLeft');
     await expect(stage.getByRole('status')).toHaveText(/Moved\W+Hall\W+left\./);
-    // On a phone the room's card lies over the second row of Arrange's tools, Cancel among them.
-    await stage.getByRole('button', { name: 'Close', exact: true }).click();
+    // #330: the room's card stays open, and Done and Cancel are not under it, not even an edge: on
+    // a phone the card is a sheet that stops below Arrange's tools (Cancel's row used to be under
+    // it); on the desktop the tools wrap short of the card (it used to cover Cancel's end).
+    const card = stage.locator('.kmap-panel');
+    await expect(card.getByRole('heading', { name: 'Hall' })).toBeVisible();
+    for (const name of ['Done', 'Cancel']) {
+      const button = stage.getByRole('button', { name, exact: true });
+      const reach = await button.evaluate((el) => {
+        const b = el.getBoundingClientRect();
+        const hit = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+        const panel = document.querySelector('.kmap-panel')?.getBoundingClientRect();
+        return {
+          hit: !!hit && el.contains(hit),
+          clear:
+            !panel ||
+            panel.top >= b.bottom ||
+            panel.bottom <= b.top ||
+            panel.left >= b.right ||
+            panel.right <= b.left,
+        };
+      });
+      expect(reach, name).toEqual({ hit: true, clear: true });
+    }
     await stage.getByRole('button', { name: 'Cancel', exact: true }).click();
     await page.getByRole('button', { name: 'Throw away', exact: true }).click();
     await expect(stage.getByRole('button', { name: 'Arrange', exact: true })).toBeVisible();
