@@ -139,6 +139,9 @@ open the box.
 
 ## Quick start: host it
 
+> These steps need Kept **1.13.0**, which isn't released yet ([what's left](https://github.com/keptinventory/kept/milestone/1)).
+> To install 1.12.5 now, follow [its quick start](https://github.com/keptinventory/kept/tree/v1.12.5#quick-start-host-it).
+
 Docker with Compose v2, on a machine with at least 2 GB of RAM and 2 CPU cores
 ([what it needs](https://keptinventory.info/install/hardware/)).
 
