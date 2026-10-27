@@ -1,10 +1,11 @@
 ---
 title: Testing
-description: How Kept's tests are organised, how the server's test databases are made, and what each step of the local CI gate runs.
+description: How Kept's tests are organised, how the server's test databases are made, and what each step of the CI gate runs, on GitHub and on your machine.
 ---
 
-Kept's gate is local: **`bash scripts/ci-local.sh` is the CI**. The hosted workflow runs only the
-half a runner can do without a database. Tests use [Vitest](https://vitest.dev/) everywhere,
+Every pull request runs the whole gate on GitHub Actions, as parallel jobs that are required to
+merge into `main`. Each job runs a slice of **`bash scripts/ci-local.sh`**, the same script you run,
+so a failure reproduces on your machine. Tests use [Vitest](https://vitest.dev/) everywhere,
 Testing Library in the web app, and Playwright for end to end. The rules are on this page and in
 [CONTRIBUTING.md](https://github.com/keptinventory/kept/blob/main/CONTRIBUTING.md).
 
@@ -138,7 +139,7 @@ not the full gate. Each step runs in a subshell that cleans up what it created.
 | `typecheck` | `pnpm typecheck` |
 | `unit` (fast only) | Every Vitest project except the server's: `pnpm exec vitest run --project '!@kept/server'` |
 | `compose` | Starts `compose.dev.yaml` with the `s3` profile (RustFS on 9452) |
-| `test` | `pnpm test`, every project, with the S3 tests required |
+| `test` | `pnpm test`, every project, with the S3 tests required; on GitHub only the server project, in three shards (`CI_VITEST_SHARD`), since `fast` covers the rest |
 | `drift` | `drizzle-kit generate` must find nothing to write, and `drizzle-kit check` must pass |
 | `licences` | `node scripts/check-licences.mjs`: every dependency's licence on the allowlist |
 | `attribution` | `scripts/check-attribution.sh` over the commits not yet on `origin/main` |
@@ -149,22 +150,39 @@ not the full gate. Each step runs in a subshell that cleans up what it created.
 | `portability` | The export → import round trip and the hostile-archive tests |
 | `backup` | Snapshot → restore round trip, the readable copy, the restic contract (fake restic unless `KEPT_TEST_RESTIC=1`) |
 | `perf` | The snapshot bench at 10,000 things, then `apps/server/test/perf`; results in `.tmp/perf/` |
-| `e2e` | Builds both apps and runs Playwright |
-| `images` | Builds the amd64 and arm64 images and smokes the arm64 one with `scripts/smoke-image.sh` |
+| `e2e` | Builds both apps and runs Playwright; on GitHub `CI_E2E_SHARD` runs one of three slices, or `audit` for `e2e/audit.spec.ts` alone |
+| `e2e-update` | Builds both apps and runs the update-migration spec (`step3-update.spec.ts`) on its own, so it runs exactly once |
+| `images` | Locally, builds the amd64 and arm64 images and smokes the arm64 one with `scripts/smoke-image.sh` and `scripts/smoke-compose.sh`; on GitHub each architecture's runner builds and smokes its own image |
 | `release-dry-run` | `scripts/release.sh --dry-run`; opt-in with `KEPT_RELEASE_DRY_RUN=1` |
 
-Run `--fast` and the tests you touched before a pull request. Run everything before a release, or
-after a change to the database, the image or the release. Run `perf` on a quiet machine.
+Run `--fast` and the tests you touched before a pull request; GitHub runs the rest. To reproduce a
+failing job, run its slice with `--only`. Run everything yourself after a change to the database,
+the image or the release. Run `perf` on a quiet machine.
 
 ## GitHub Actions
 
-`.github/workflows/ci.yml` is **inert while the repository is private**: every job is gated on
-`github.event.repository.private == false`. Once it is public, on pushes to `main` and on pull
-requests:
+`.github/workflows/ci.yml` runs on every pull request and every push to `main`, and nightly at
+02:17 UTC, when everything runs. `docs.yml` and `cla.yml` run beside it. Every job is gated on
+`github.event.repository.private == false`, so none of them runs while a repository is private.
 
-- **`fast`**: `pnpm install --frozen-lockfile`, `bash scripts/ci-local.sh --fast`, and
-  `node scripts/check-licences.mjs`;
-- **`attribution`** (pull requests): no AI attribution in any commit or in the description.
+These jobs are the required checks on `main`; a pull request merges only when all are green:
 
-Everything that needs Docker or a database stays in the local gate. Say in a pull request which
-ci-local steps you could not run.
+| Check | What it runs |
+|---|---|
+| `fast` | `ci-local.sh --fast` (lint, catalogues, typecheck, the unit tests of every project but the server's, the mock evaluation), then `scripts/check-licences.mjs`. A change to prose only runs `lint`, `catalogues` and `typecheck`. |
+| `db` | Green exactly when its two halves are: `db-test` (the server's tests on Postgres with pgvector and RustFS, in three shards) and `db-ops` (`drift`, `prod-boot`, `portability`, `backup`) |
+| `e2e` | Green exactly when its jobs are: `e2e-shard` (Playwright in three shards, plus the audit spec as a fourth job) and `e2e-update` |
+| `e2e-update` | The update-migration spec on its own |
+| `images-amd64` | The image built natively and smoked in full |
+| `images-arm64` | The same on an ARM runner. It builds on the nightly run and by hand only; on a pull request it is skipped |
+| `helm` | The chart's lint, golden renders and kubeconform, at the pinned Helm and kubeconform |
+| `attribution` | On a pull request: no AI attribution in any commit or in the description |
+| `build` (`docs.yml`) | The docs site, with its link check |
+| `cla` (`cla.yml`) | The contributor signed the [CLA](https://github.com/keptinventory/kept/blob/main/CLA.md); they sign once, by commenting on their first pull request |
+
+A `changes` job decides what a run needs. Prose-only and docs-only changes skip the heavy jobs
+(`db`, `e2e`, the images, `helm`), and a push to `main` whose tree is the one its pull request
+already passed runs nothing again. A decision that fails runs everything.
+
+`perf` is not a gate: `perf.yml` runs it nightly as a report, because timing limits on a shared
+runner are noise. Say in a pull request which ci-local steps you could not run.

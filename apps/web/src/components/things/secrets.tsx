@@ -15,6 +15,7 @@ import { Notice, Pill, Section, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { PasswordField } from '@/components/ui/password-field';
 import { toast } from '@/components/ui/toast';
+import { copyText } from '@/lib/clipboard';
 import { useFormat } from '@/lib/format';
 import { ModuleOff, useThingCtx } from './context';
 import { useFieldLabel } from './names';
@@ -142,7 +143,7 @@ function SecretRow({
   const copy = async () => {
     if (!revealed) return;
     try {
-      await navigator.clipboard.writeText(revealed.value);
+      await copyText(revealed.value);
       await thingApi.copied(thing.id, summary.fieldKey).catch(() => undefined);
       toast({ title: t`Copied · logged`, tone: 'ok' });
     } catch {

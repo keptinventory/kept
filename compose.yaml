@@ -1,24 +1,33 @@
-# Kept for self-hosters (D186, D193).
+# Kept for self-hosters. This file works on its own, without the repository:
 #
-#   cp compose.env.example .env      # then fill in the passwords and KEPT_PUBLIC_URL
-#   docker compose up -d             # Kept on http://<host>:8080
-#   docker compose --profile https up -d   # plus Caddy on 80/443 for KEPT_DOMAIN
-#   docker compose --profile ollama up -d  # plus Ollama, a local AI model server (D85; below)
+#   docker compose run --rm init           # asks the address you'll open Kept at; writes .env
+#   docker compose up -d                   # then open that address and enter the setup code
+#   docker compose --profile https up -d   # plus Caddy on 80/443 for KEPT_DOMAIN (Caddyfile below)
+#   docker compose --profile ollama up -d  # plus Ollama, a local AI model server (below)
 #
-# Start order: db (healthy) → migrate (one-shot `kept migrate`, exits 0) → kept.
-# First boot generates KEPT_SECRET_KEY and KEPT_AUTH_SECRET into the kept-config volume (D193)
-# unless .env sets both; `docker compose logs kept` says where. Back that volume up, or keep the
-# recovery kit: without them, secret values are unreadable.
+# Start order: db (healthy) → bootstrap (one-shot `kept bootstrap`: the four database logins and
+# the extensions) → migrate (one-shot `kept migrate`) → kept. Each step exits 0 before the next.
 #
-# (compose.dev.yaml is the developer database, not this.)
+# Database passwords: none to make. On the first start the bootstrap generates one per login:
+# kept_app, kept_auth and kept_system into the kept-config volume (the serving container reads
+# them there), kept_owner into the kept-owner volume (only migrate and the bootstrap mount it). On
+# every start it sets each login's password to that value, so nothing in .env can lock Postgres
+# out. An install made before 1.13.0 keeps the five KEPT_DB_*_PASSWORD lines in .env: set, they
+# are used as given and nothing is generated.
+#
+# First boot also generates KEPT_SECRET_KEY and KEPT_AUTH_SECRET into kept-config unless .env sets
+# both; `docker compose logs kept` says where. Keep the recovery kit (`docker compose exec kept
+# kept admin recovery-kit`): without the keys, secret values are unreadable.
+#
+# Needs Kept 1.13.0 or later (the bootstrap command). (compose.dev.yaml is the developer
+# database, not this.)
 name: kept
 
 x-kept-image: &kept-image
-  # Unset, the image is built from this checkout and tagged kept:local. Set KEPT_IMAGE to a released
-  # image (e.g. ghcr.io/keptinventory/kept:1.0.0) to use that instead (`docker compose pull`).
-  image: ${KEPT_IMAGE:-kept:local}
-  build:
-    context: .
+  # A released image; `kept init` pins the version it ran as in .env (KEPT_IMAGE), and an upgrade
+  # changes that line (`docker compose pull && docker compose up -d`). To run your own build, in a
+  # checkout: `docker build -t kept:local .` and KEPT_IMAGE=kept:local.
+  image: ${KEPT_IMAGE:-ghcr.io/keptinventory/kept:1.13.0}
   read_only: true
   tmpfs: [/tmp]
   cap_drop: [ALL]
@@ -64,27 +73,69 @@ services:
     # are a dump and restore (D186), never a tag bump.
     image: pgvector/pgvector:0.8.6-pg18-bookworm@sha256:2ba9ca5f2e7daa0f0e7723cba1ee9167bab54efd3640516a44ac1a928dd67e7a
     restart: unless-stopped
+    # The superuser's password is read once, when the volume is first made. Empty (any install
+    # made by `kept init`), a random one is made for that moment and kept nowhere: the superuser is
+    # reached only from inside this container, over its socket or its own loopback, which the image
+    # trusts (`docker compose exec db psql -U postgres`, and the bootstrap below). Over the network
+    # every login needs its password.
+    entrypoint:
+      - sh
+      - -c
+      - >-
+        if [ -z "$$POSTGRES_PASSWORD" ]; then
+        POSTGRES_PASSWORD=$$(od -An -N32 -tx1 /dev/urandom | tr -d ' \n'); export POSTGRES_PASSWORD;
+        fi; exec docker-entrypoint.sh "$$@"
+      - db
+    command: [postgres]
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${KEPT_DB_SUPERUSER_PASSWORD:?set KEPT_DB_SUPERUSER_PASSWORD in .env}
+      POSTGRES_PASSWORD: ${KEPT_DB_SUPERUSER_PASSWORD:-}
       POSTGRES_DB: kept
       TZ: UTC
-      # Read once, by docker/initdb-prod/01-roles.sh, on the first start of an empty volume.
-      KEPT_DB_OWNER_PASSWORD: ${KEPT_DB_OWNER_PASSWORD:?set KEPT_DB_OWNER_PASSWORD in .env}
-      KEPT_DB_APP_PASSWORD: ${KEPT_DB_APP_PASSWORD:?set KEPT_DB_APP_PASSWORD in .env}
-      KEPT_DB_AUTH_PASSWORD: ${KEPT_DB_AUTH_PASSWORD:?set KEPT_DB_AUTH_PASSWORD in .env}
-      KEPT_DB_SYSTEM_PASSWORD: ${KEPT_DB_SYSTEM_PASSWORD:?set KEPT_DB_SYSTEM_PASSWORD in .env}
     volumes:
       - kept-db:/var/lib/postgresql
-      - ./docker/initdb-prod:/docker-entrypoint-initdb.d:ro
     healthcheck:
       # Over TCP: during init the server listens on the socket only, so this passes only once
-      # the roles exist and the real server is up.
+      # the real server is up.
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d kept"]
       interval: 5s
       timeout: 5s
       retries: 30
     networks: [kept]
+
+  bootstrap:
+    <<: *kept-image
+    entrypoint: ["kept"]
+    command: ["bootstrap"]
+    restart: "no"
+    # In the db container's network namespace: 127.0.0.1 is the database's own loopback, where the
+    # Postgres image lets the superuser in. No other service shares it.
+    network_mode: service:db
+    environment:
+      PGHOST: 127.0.0.1
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGDATABASE: kept
+      # Only an install whose loopback isn't trusted needs it.
+      PGPASSWORD: ${KEPT_DB_SUPERUSER_PASSWORD:-}
+      # Set (installs made before 1.13.0): used as given and never written to a file. Empty: the
+      # file below, generated on the first start.
+      KEPT_DB_OWNER_PASSWORD: ${KEPT_DB_OWNER_PASSWORD:-}
+      KEPT_DB_APP_PASSWORD: ${KEPT_DB_APP_PASSWORD:-}
+      KEPT_DB_AUTH_PASSWORD: ${KEPT_DB_AUTH_PASSWORD:-}
+      KEPT_DB_SYSTEM_PASSWORD: ${KEPT_DB_SYSTEM_PASSWORD:-}
+      KEPT_DB_OWNER_PASSWORD_FILE: /owner/kept_owner
+      KEPT_DB_APP_PASSWORD_FILE: /config/database/kept_app
+      KEPT_DB_AUTH_PASSWORD_FILE: /config/database/kept_auth
+      KEPT_DB_SYSTEM_PASSWORD_FILE: /config/database/kept_system
+    volumes:
+      - kept-config:/config
+      - kept-owner:/owner
+    healthcheck:
+      disable: true
+    depends_on:
+      db:
+        condition: service_healthy
 
   migrate:
     <<: *kept-image
@@ -100,7 +151,9 @@ services:
     # KEPT_UPGRADE_SNAPSHOT=off skips it.
     environment:
       <<: *ops-env
-      KEPT_OWNER_DATABASE_URL: postgres://kept_owner:${KEPT_DB_OWNER_PASSWORD}@db:5432/kept
+      # Without a password in .env, the URL takes it from the owner's file.
+      KEPT_OWNER_DATABASE_URL: postgres://kept_owner:${KEPT_DB_OWNER_PASSWORD:-}@db:5432/kept
+      KEPT_DB_OWNER_PASSWORD_FILE: /owner/kept_owner
       KEPT_PUBLIC_URL: ${KEPT_PUBLIC_URL:-}
       KEPT_SMTP_URL: ${KEPT_SMTP_URL:-}
       KEPT_SMTP_FROM: ${KEPT_SMTP_FROM:-}
@@ -109,12 +162,15 @@ services:
       # restic's cache and the snapshot's scratch space live under /data (KEPT_DATA_DIR).
       - kept-data:/data
       - kept-config:/config:ro
+      - kept-owner:/owner:ro
       # - /mnt/backup/kept:/backups
     healthcheck:
       disable: true
     depends_on:
       db:
         condition: service_healthy
+      bootstrap:
+        condition: service_completed_successfully
     networks: [kept]
 
   kept:
@@ -122,10 +178,16 @@ services:
     restart: unless-stopped
     environment:
       <<: *ops-env
-      KEPT_DATABASE_URL: postgres://kept_app:${KEPT_DB_APP_PASSWORD}@db:5432/kept
-      KEPT_AUTH_DATABASE_URL: postgres://kept_auth:${KEPT_DB_AUTH_PASSWORD}@db:5432/kept
-      KEPT_SYSTEM_DATABASE_URL: postgres://kept_system:${KEPT_DB_SYSTEM_PASSWORD}@db:5432/kept
-      KEPT_PUBLIC_URL: ${KEPT_PUBLIC_URL:?set KEPT_PUBLIC_URL in .env}
+      # Without passwords in .env, each URL takes its password from the bootstrap's file.
+      KEPT_DATABASE_URL: postgres://kept_app:${KEPT_DB_APP_PASSWORD:-}@db:5432/kept
+      KEPT_AUTH_DATABASE_URL: postgres://kept_auth:${KEPT_DB_AUTH_PASSWORD:-}@db:5432/kept
+      KEPT_SYSTEM_DATABASE_URL: postgres://kept_system:${KEPT_DB_SYSTEM_PASSWORD:-}@db:5432/kept
+      KEPT_DB_APP_PASSWORD_FILE: /config/database/kept_app
+      KEPT_DB_AUTH_PASSWORD_FILE: /config/database/kept_auth
+      KEPT_DB_SYSTEM_PASSWORD_FILE: /config/database/kept_system
+      # Required; Kept refuses to start without it (`kept: invalid environment: KEPT_PUBLIC_URL`).
+      # Not `:?` here, so `docker compose run --rm init` works before .env exists.
+      KEPT_PUBLIC_URL: ${KEPT_PUBLIC_URL:-}
       # KEPT_SECRET_KEY and KEPT_AUTH_SECRET come with the backup variables above: both or
       # neither; unset, they are generated into kept-config on first boot (D193).
       # Only Caddy's fixed address (below) is believed about X-Forwarded-For. Nothing else ever
@@ -172,6 +234,8 @@ services:
       KEPT_UPDATE_CHECK: ${KEPT_UPDATE_CHECK:-}
       # Tracing to your own OpenTelemetry collector (D84): unset, nothing is loaded or sent.
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      # The bearer token that turns /metrics on: empty, the path doesn't exist.
+      KEPT_METRICS_TOKEN: ${KEPT_METRICS_TOKEN:-}
       # KEPT_SOURCE_URL is not set here: the image's default (its OCI source + revision, D147,
       # D186) applies. A fork that serves modified code adds KEPT_SOURCE_URL pointing at its own.
     volumes:
@@ -210,6 +274,28 @@ services:
   #   depends_on: { db: { condition: service_healthy }, migrate: { condition: service_completed_successfully } }
   #   networks: [kept]
 
+  init:
+    # `docker compose run --rm init` (`kept init`): asks the address and writes .env in this
+    # folder. `up` never starts it. The only service that sees this folder; it runs as root with
+    # just the two capabilities that create .env in a folder you own and hand the file to you,
+    # and no network.
+    profiles: [init]
+    image: ${KEPT_IMAGE:-ghcr.io/keptinventory/kept:1.13.0}
+    entrypoint: ["kept", "init"]
+    user: "0:0"
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE]
+    security_opt: [no-new-privileges:true]
+    network_mode: none
+    working_dir: /install
+    volumes:
+      - .:/install
+    restart: "no"
+    healthcheck:
+      disable: true
+
   caddy:
     profiles: [https]
     # Tag read from Docker Hub, pinned by its multi-arch index digest (D193: chosen at build
@@ -231,7 +317,16 @@ services:
       - "443:443"
       - "443:443/udp"
     volumes:
-      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # Besides .env, the one file a service reads from this folder, and only with the https
+      # profile. Without the repository: mkdir -p docker/caddy && curl -fsSLo docker/caddy/Caddyfile
+      # https://raw.githubusercontent.com/keptinventory/kept/v1.13.0/docker/caddy/Caddyfile
+      # Missing, the start stops with "bind source path does not exist" and creates nothing.
+      - type: bind
+        source: ./docker/caddy/Caddyfile
+        target: /etc/caddy/Caddyfile
+        read_only: true
+        bind:
+          create_host_path: false
       - caddy-data:/data
       - caddy-config:/config
     depends_on: [kept]
@@ -244,6 +339,8 @@ services:
     # then `docker compose exec ollama ollama pull <model>`. In Settings → AI, add an
     # OpenAI-compatible provider with the base URL http://ollama:11434/v1 (Compose's network;
     # Ollama ignores the API key) and the model you pulled. Nothing is published on the host.
+    # That address is a private one: turn on Admin → Settings → Allow private addresses first,
+    # or adding the provider is refused ("That address is on a private network").
     # Tag read from Docker Hub (the latest stable release on 2026-10-06), pinned by its
     # multi-arch index digest; about 3.8 GB (amd64) or 2.8 GB (arm64) to pull, before any model.
     profiles: [ollama]
@@ -267,6 +364,7 @@ volumes:
   kept-db: {}
   kept-data: {}
   kept-config: {}
+  kept-owner: {}
   caddy-data: {}
   caddy-config: {}
   ollama: {}

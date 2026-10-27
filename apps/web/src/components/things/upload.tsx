@@ -1,6 +1,6 @@
 /**
  * Uploads (task 17's wire format, D117, D157). A file is hashed in the browser first
- * (`crypto.subtle.digest('SHA-256')`), then sent as the raw body of `PUT /files/:id` with
+ * (lib/sha256.ts, which works over plain HTTP too), then sent as the raw body of `PUT /files/:id` with
  * `X-Kept-Sha256`, so the server can prove it stored the bytes untouched; then it is attached to
  * its subject with `POST /attachments`. The file id is chosen here (a UUIDv7), so a retry is a
  * replay the server answers with the same file.
@@ -30,12 +30,7 @@ import { CameraIcon } from '@/components/icons';
 import { useErrorText } from '@/components/page';
 import { Button, type ButtonVariant } from '@/components/ui/button';
 import { toast } from '@/components/ui/toast';
-
-/** The file's SHA-256 as 64 lower-case hex characters. */
-export async function sha256Hex(blob: Blob): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', await blob.arrayBuffer());
-  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
-}
+import { sha256Hex } from '@/lib/sha256';
 
 export function fileClassOf(mime: string): FileClass {
   if (mime.startsWith('image/')) return 'photo';

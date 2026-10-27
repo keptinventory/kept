@@ -570,6 +570,7 @@ export function useSummary() {
       'import.check': () => t`Checked an import`,
       'import.start': () => t`Started an import`,
       'import.run': () => t`Ran an import`,
+      'import.repair': () => t`Repaired an import`,
       'import.cancel': () => t`Cancelled an import`,
       'report.export_csv': () => t`Exported a report as a CSV`,
       'report.schedule': () => t`Scheduled a report`,

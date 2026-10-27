@@ -213,15 +213,12 @@ Document). A file Kept can't preview yet is kept anyway and marked **Preview una
 
 ## Search
 
+Full detail: [search](/users/search/).
+
 **Search** finds things by name, brand, serial, ID, place, or the words AI added as aliases, and
 groups results into things, places, people, shops and documents (with a snippet of the receipt
 text). Filters narrow by location, place, type, tag and state; **Saved searches** keep a filter
 set for you or a whole location. On a computer, ⌘K or Ctrl+K opens the same search from anywhere.
-
-On a phone, Search also works offline from the phone's copy, labelled **On this phone · as of
-last sync**. With an embeddings model, results "matched by meaning" join the keyword ones
-([AI providers](/users/ai-providers/#search-and-embeddings)).
-
 ## Moving things
 
 - **Move** on a thing picks the new place. Moving into another location you belong to warns who
@@ -237,134 +234,47 @@ last sync**. With an embeddings model, results "matched by meaning" join the key
 
 ## Vehicles and machines
 
-Any thing whose type is metered (a car, a generator, a boiler) has **Meters**: log a reading,
-log a service, and set schedules by date or by reading. **Vehicles** (Household and Complete)
-gathers the vehicles in one place, each with tabs for its overview, readings, services, documents,
-costs and, on Complete, fuel.
+Any thing whose type is metered (a car, a generator, a boiler) has **Meters**: log a reading, log
+a service, set schedules by date or by reading, and record fuel. **Vehicles** (Household and
+Complete) gathers the vehicles in one place, each with tabs for its overview, readings, services,
+documents, costs and, on Complete, fuel.
 
-- **Log a reading** works from Home, the vehicle, and offline. A reading that doesn't fit between
-  its neighbours is refused with the reason. A dashboard photo joins the vehicle's proof photos.
-- **Log a service**: date, the reading, the shop, the invoice (AI can fill the line items), the
-  line items with costs, and which schedules it completes; saving restarts their count.
-- **From stock** on a line (where Consumables is on) picks a consumable of the same location: the
-  oil filter on the shelf. Saving takes the line's quantity (1 when empty) off its count, and Kept
-  refuses more than is left. Editing the line, removing it, deleting the service or undoing any of
-  these puts the count right again; an invoice still being read takes nothing until you save it.
-  The consumable's **History** shows "Used Oil filter in a service of Corolla", with a link.
-  The assistant and MCP clients can do the same when they log a service ("used 4.5 litres of
-  the engine oil"); the assistant's confirm card shows each **From stock** line before anything
-  moves.
-- **Add starter schedules** adds the usual ones: oil change, tyre rotation, brake fluid, air filter.
-- **A one-off** (a date, no repeat) is done once you complete it: it leaves Due and Overdue on
-  Home, the agenda and the calendar, and **Schedules** lists it last as **Done** with the day.
-  Undo the completion, or delete that service, and it is due again; to do it again later, edit it
-  to repeat or add a new one.
-- **Read the card** reads a registration card in Label mode: VIN, plate and licence expiry.
-- **History report** makes a PDF for a period: odometer history with proof photos, services with
-  their invoices, fuel and documents, and costs only where you can see money.
+Full detail: [vehicles and machines](/users/vehicles/).
 
 ## Reminders and notifications
 
-Kept reminds you of schedules due, warranties running out and registration deadlines, documents
-and things that expire, overdue loans, meters not read lately, low stock, members joining and
+Kept reminds you of schedules due, warranties running out, registration deadlines, documents and
+things that expire, overdue loans, meters not read lately, low stock, members joining and
 leaving, and AI spending caps. Home's **Needs you** shows what's due or overdue; the bell opens
 the notification centre, where **Complete**, **Snooze**, **Renew** and **Mark returned** act in
-place.
+place. **Settings → Me → Notifications** chooses what reaches you and how, including a **Daily
+digest**, **Quiet hours** and a private **Calendar feed** link.
 
-**Settings → Me → Notifications** chooses what reaches you and how, a **Daily digest**, **Quiet
-hours**, and a private **Calendar feed** link for your calendar app. Push on a phone is covered in
-[the phone app](/users/phone-app/#notifications).
-
-**What reaches you** is one table. Rows are the kinds, grouped: due dates (schedules, warranties,
-registration deadlines, documents, things that expire, meters), lending, stock, people
-(members joining and leaving) and AI (spending caps, the monthly summary). Columns are your
-channels: **In Kept**, **Email**, **Push**, and a column for webhooks, ntfy, Telegram or Apprise
-once you've added one (every channel of that kind follows it). Membership and AI notices only go
-to Kept and email. Turning **In Kept** off for a kind turns it off everywhere: nothing else is
-sent for it. On a phone, each kind shows its channels as switches underneath.
-
-- **All locations** sets what you get everywhere, including locations you add later.
-- **Pick a location** to change it there only. A dot marks what's set for that location alone;
-  **Reset this location to all locations** clears those. A kind whose module is off there shows
-  as paused (its reminders wait until the module is back), and where you're a viewer you only get
-  members joining and leaving. Where you're a member, Kept starts with only the loans you record:
-  turn on what you want there.
-
-**ntfy**: add your server (`https://ntfy.sh` or your own) and a topic that's hard to guess, plus
-an access token if the topic needs one. **Telegram**: make a bot with @BotFather, send it a
-message, then add its token and your chat ID. **Apprise** (when your server has it): paste one or
-more Apprise URLs, like `discord://…`, to reach Discord, Slack, Matrix, Signal and more. Kept keeps
-all of these encrypted and never shows them again; **Test** sends one now.
-
-**Lending**: **Lend** a thing (or part of a quantity) to a member or a contact, with a due date and
-condition photos. Kept never messages the borrower; **Copy a reminder** gives you the text to send
-yourself. A box goes with everything inside it, each thing on its own line: see
-[Kits and hand-overs](/users/kits/).
+Full detail: [reminders and notifications](/users/reminders/).
 
 ## Sharing a location
 
 A location is shared by inviting people to it, each with a role and an optional end date
 ([invites and roles](/users/first-run/#5-invite-people)). Owners and admins manage the
 **Members** page in Location settings; anyone but the owner can **Leave this location**. Your
-Personal location is never shared.
+Personal location is never shared. **Share links** show someone without an account what's in a
+box, a place or a search, read-only.
 
-**Share links** show someone without an account what's in a box, a place or a search, read-only.
-Owners and admins make one from a box's **Actions → Share a read-only link**, a place's **Manage**
-section, or **Share this list** on Search (a search filtered to one location, without state or
-price filters). Choose how long it works: a day, a week, 30 days (the default), 90 days or a year.
-The link is shown once: copy it then.
-
-- **What they see:** each thing's name, photo, type, where it is, quantity, condition and notes,
-  A to Z. Never prices, serial numbers, secret fields, people, loans or documents. Things in the
-  Trash, drafts and things you sold or lost don't show.
-- **It stays current:** the page shows the box, place or search as it is when it's opened. A
-  search's link matches its words and its place, type and tag filters.
-- **Location settings → Share links** lists every link with its state and how often it was
-  opened. **Preview as recipient** shows the page; **Revoke** ends it at once. A link also stops
-  when it expires, and when the person who made it no longer runs the location.
-
-To hand someone a list on paper instead, print it (below).
+Full detail: [sharing a location](/users/sharing/).
 
 ## Reports: the inventory, insurance and claims
 
-- **Print inventory** on a location makes a PDF of its things grouped by place, with photos and
-  short IDs, optionally QR codes, ended things and the Trash. Prices appear only for people who can
-  see money. Anyone who can see the location can make one. **Email it to me** also mails the PDF
-  when it's ready, and **Send it again** mails the whole location every Monday or on the 1st of the
-  month; Settings → Me → Notifications lists these and stops them. A report over 10 MB isn't
-  attached: print it from Kept instead. Both are locked, with the reason under them, when the
-  server has no mail set up or your account has no email address.
-- **Insurance report** (where you can see money): every thing with its photo, brand, model,
-  serial, purchase date, price, current value and receipts, with totals per place and per currency,
-  as a PDF and a CSV. **Also total in** adds one converted total when your exchange rates cover
-  every currency.
-- **Incidents** record a burglary, fire, flood or loss: select things on a location's list, then
-  add them to an incident. A **claim pack** is a ZIP of the insurance report with every receipt,
-  invoice, photo and serial for the incident, shared with the insurer by a download link that
-  lasts 1 to 7 days, is shown once and can be revoked. Owners and admins make them.
+A location prints three documents: the inventory PDF, an insurance report with totals, and a
+claim pack for an incident.
+
+Full detail: [reports, insurance and claims](/users/reports/).
 
 ## Condition reports (renting)
 
+Full detail: [condition reports](/users/condition-reports/).
+
 **Condition reports** on a location's page record how a rented home was when you moved in, and
 when you moved out, for a deposit dispute.
-
-- **New report**: the location, **Move-in** or **Move-out**, and the day of the walk-through. It
-  starts with the location's rooms (places of the Room kind); add any it missed, or remove one.
-- **Each room**: Good, Fair, Poor or Damaged, a note, and up to 12 photos. Each photo shows when
-  Kept received it, in the location's time zone, and who added it; photos lose their location data
-  as all photos in Kept do.
-- **Finish** locks the report for good, with who finished it and when. Nothing in it can change
-  after, photos included. A report that isn't finished can be deleted by anyone who can change the
-  location; a finished one only by owners and admins.
-- **Compare with** puts the move-in beside the move-out, room by room (the same room by its place,
-  or by its name), the earlier one first.
-- **Make the PDF**: the report, or both side by side when you compare, in English or Arabic, with
-  or without photos. A report that isn't finished says so in the PDF.
-
-Everyone in the location can read the reports and make the PDF, viewers too; members and above
-record them. A Kept export of the location holds its reports and their photos; imported, a
-finished report is still finished and locked ([import and export](/users/import-export/)).
-
 ## Insights
 
 Full detail: [insights](/users/insights/).
