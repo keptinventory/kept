@@ -10,6 +10,7 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest';
 import { inventoryPaths } from '@/api/inventory/paths';
 import { firstRunScenario, ownerScenario } from '@/api/mock/fixtures';
+import { paths } from '@/api/paths';
 import { tourRequests } from '@/components/hints/tour-request';
 import { expectLogicalOnly } from '@/test/render';
 import { findHeading, pathOf, renderApp } from '../app';
@@ -83,6 +84,18 @@ describe('Help', () => {
     expect(within(basics).getByRole('button', { name: 'Start here' })).toBeInTheDocument();
     expect(screen.getByText('Vehicles & fuel').closest('li')).toHaveTextContent('3 steps');
     expectLogicalOnly();
+  });
+
+  it('lists no chapters until the locations have loaded', async () => {
+    // Before, it listed the 7 chapters of no location at all, and the tour started from one of
+    // them counted the person's 12 (#314).
+    await renderApp('/help', { setup: (m) => m.hang('GET', paths.locations) });
+    await findHeading('Help');
+    expect(screen.getByRole('heading', { name: 'The tour' })).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('main')).getByRole('status', { name: 'Loading' }),
+    ).toBeInTheDocument();
+    expect(tourRows()).toEqual([]);
   });
 
   it('continues the tour at the first chapter not finished yet', async () => {

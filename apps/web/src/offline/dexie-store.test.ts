@@ -250,12 +250,16 @@ describe('DexieStore', () => {
     expect(await s.pending()).toEqual([]);
   });
 
-  // Retried: most of this is fake-indexeddb's own cost (~0.9 s of structured clones and index
-  // upkeep alone), which a loaded machine can push past the bound once. A slow store fails 3 times.
-  it('applies a 10,000-thing snapshot page in under 1.5 s, 3 s on a CI runner (a jsdom sanity check, not the phone)', {
+  // What a jsdom run can show is the shape of the cost, not the phone's speed: a 10,000-thing page
+  // costs about ten times a 1,000-thing one (0.08 s and 0.75 s of CPU on a laptop, mostly
+  // fake-indexeddb's own structured clones and index upkeep). An absolute bound alone failed under
+  // full-suite load: CPU time stretches too when cores are shared (1.5–2.9 s seen for the 10,000).
+  // So both sizes are timed in the same run, each the best of a few, and their ratio must stay
+  // near linear (10×; quadratic work would be ~100×). The ceiling catches a store that turned
+  // uniformly slow, at several times the worst loaded run seen.
+  it('applies a 10,000-thing snapshot page in time linear in its size (a jsdom sanity check, not the phone)', {
     retry: 2,
   }, async () => {
-    const s = makeDexieStore();
     const base = firstPage();
     const things: SnapThing[] = Array.from({ length: 10_000 }, (_, i) => ({
       id: `01926f00-0000-7000-8000-${String(i).padStart(12, '0')}`,
@@ -275,20 +279,28 @@ describe('DexieStore', () => {
       isContainer: false,
       deleted: false,
     }));
+    // CPU time, not wall time: a worker waiting for a core is not a slow store. Each page goes to
+    // a fresh store, as a phone's first sync does.
+    const cpuMs = async (n: number) => {
+      const s = makeDexieStore();
+      const page = { ...base, changes: { ...base.changes, things: things.slice(0, n) } };
+      const cpu = process.cpuUsage();
+      await s.applySnapshot(page);
+      const used = process.cpuUsage(cpu);
+      expect(await s.db.things.count()).toBe(n);
+      return (used.user + used.system) / 1000;
+    };
     // Warm the JIT on a small page first: the phone's first sync isn't its first line of code.
-    await makeDexieStore().applySnapshot({
-      ...base,
-      changes: { ...base.changes, things: things.slice(0, 500) },
-    });
-    // CPU time, not wall time: the full suite shares the machine with other runs (load 30+ has
-    // been seen), and a starved worker waiting for a core is not a slow store.
-    const cpu = process.cpuUsage();
-    await s.applySnapshot({ ...base, changes: { ...base.changes, things } });
-    const used = process.cpuUsage(cpu);
-    const ms = (used.user + used.system) / 1000;
-    expect(await s.db.things.count()).toBe(10_000);
-    // A hosted CI runner's cores are slower than a laptop's: 1.7–2.0 s of CPU on GitHub's 2-vCPU
-    // runner (the first public ci run, 2026-10-07), so the bound there is twice the laptop's.
-    expect(ms).toBeLessThan(process.env.CI ? 3_000 : 1_500);
+    await cpuMs(500);
+    const small: number[] = [];
+    const large: number[] = [];
+    for (let round = 0; round < 2; round++) {
+      small.push(await cpuMs(1_000));
+      large.push(await cpuMs(10_000));
+    }
+    small.push(await cpuMs(1_000));
+    const best = Math.min(...large);
+    expect(best / Math.min(...small)).toBeLessThan(25);
+    expect(best).toBeLessThan(6_000);
   });
 });

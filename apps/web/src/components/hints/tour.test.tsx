@@ -7,7 +7,7 @@
  */
 
 import { type ModuleId, TOUR_IDS, type TourId } from '@kept/shared';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
   createRootRoute,
@@ -29,6 +29,7 @@ import { setDigits, setLocale } from '@/lib/prefs';
 import { renderUI } from '@/test/render';
 import { type HintCopy, useTourCopy, useTourStepCopy, useTourTitles } from './hint-copy';
 import {
+  FRESH_LIST_MS,
   findSectionAnchor,
   type TourStart,
   tourDeleter,
@@ -37,7 +38,7 @@ import {
 } from './tour';
 import { tourLedger } from './tour-ledger';
 import { tourRequests } from './tour-request';
-import { stopFor, TOURS } from './tours';
+import { availableTours, stopFor, TOURS } from './tours';
 import { hintSlot } from './use-hint';
 
 type Copy = { steps: Record<string, HintCopy>; titles: Record<TourId, string> };
@@ -281,10 +282,14 @@ const empty: Api = (method, url) => {
 
 async function renderTour({
   locations = OWNER_LOCS,
+  server = locations,
   missing = [],
   api = withThing,
 }: {
+  /** The list in the query cache when the tour starts. */
   locations?: LocationDetail[];
+  /** The list GET /locations answers, or `hang` for a server that never does. */
+  server?: LocationDetail[] | 'hang';
   missing?: string[];
   api?: Api;
 } = {}) {
@@ -301,6 +306,10 @@ async function renderTour({
       body = undefined;
     }
     calls.push({ method, url: String(url), body });
+    if (method === 'GET' && /\/locations\?/.test(String(url)))
+      return server === 'hang'
+        ? new Promise<Response>(() => {})
+        : json({ locations: server, nextCursor: null });
     return json(api(method, String(url)));
   });
   const qc = new QueryClient({
@@ -710,6 +719,112 @@ describe('useTour', () => {
       await stepDialog(copy, 'things.where');
       expect(pathOf(router)).toBe('/t/HERE01');
       expect(calls.some((c) => c.method === 'POST')).toBe(false);
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'counts the chapters from the server’s list, not a cached one from before a module change',
+    async () => {
+      // The cache still has every module on; the server's list has only Labels (#314).
+      const all: ModuleId[] = ['moving', 'lending', 'schedules', 'paperwork', 'warranties'];
+      const { copy, calls } = await renderTour({
+        locations: [loc('loc-1', 'owner', ['labels', ...all])],
+        server: OWNER_LOCS,
+      });
+      expect(await startTour('basics')).toBe(true);
+      expect(await stepDialog(copy, 'basics.needs')).toHaveTextContent(
+        `Chapter 1 of ${CHAPTERS} · step 1 of ${BASICS.length}`,
+      );
+      expect(calls.filter((c) => c.method === 'GET' && /\/locations\?/.test(c.url))).toHaveLength(
+        1,
+      );
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'runs only the later of two starts asked for while the list was loading',
+    async () => {
+      const { copy, user, router } = await renderTour();
+      const start = probe.start;
+      if (!start) throw new Error('tour probe missing');
+      const [first, second] = await act(async () =>
+        Promise.all([start('basics'), start('settings')]),
+      );
+      expect([first, second]).toEqual([false, true]);
+      const d = await stepDialog(copy, 'settings.notifications');
+      expect(d).toHaveTextContent(`Chapter ${CHAPTERS} of ${CHAPTERS} · step 1 of`);
+      // Both waited on one fetch of the list; the first is not left running beside the second,
+      // whose own navigation doesn't end it.
+      await user.click(within(d).getByRole('button', { name: 'Next' }));
+      await stepDialog(copy, 'settings.locations');
+      expect(pathOf(router)).toBe('/settings/locations');
+      expect(tourRequests.running()).toBe('settings');
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'runs one Basics when it is asked for twice while the list was loading',
+    async () => {
+      const { copy, user, router } = await renderTour();
+      const start = probe.start;
+      if (!start) throw new Error('tour probe missing');
+      const [first, second] = await act(async () =>
+        Promise.all([start('basics'), start('basics')]),
+      );
+      expect([first, second]).toEqual([false, true]);
+      await stepDialog(copy, 'basics.needs');
+      expect(document.querySelectorAll('.driver-popover')).toHaveLength(1);
+      // One run: Next moves one step, an arrow one more, and Escape leaves nothing open.
+      await user.click(screen.getByRole('button', { name: 'Next' }));
+      await stepDialog(copy, 'basics.locations');
+      act(() => {
+        fireEvent.keyDown(window, { key: 'ArrowRight' });
+      });
+      expect(await stepDialog(copy, 'basics.scan')).toHaveTextContent('step 3 of');
+      expect(pathOf(router)).toBe('/');
+      act(() => {
+        fireEvent.keyDown(window, { key: 'Escape' });
+      });
+      await waitFor(() => expect(document.querySelector('.driver-popover')).toBeNull());
+      expect(tourRequests.running()).toBeNull();
+      expect(hintSlot.get()).toBeNull();
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'starts from the cached list when the server doesn’t answer in time',
+    async () => {
+      const cached = [loc('loc-1', 'owner', ['labels', 'moving'])];
+      const { copy } = await renderTour({ locations: cached, server: 'hang' });
+      const t0 = performance.now();
+      expect(await startTour('basics')).toBe(true);
+      expect(performance.now() - t0).toBeLessThan(FRESH_LIST_MS + 2_000);
+      expect(await stepDialog(copy, 'basics.needs')).toHaveTextContent(
+        `Chapter 1 of ${availableTours(cached).length} · step 1 of`,
+      );
+      expect(availableTours(cached).length).toBe(CHAPTERS + 1);
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'offline, counts the chapters from the cached list without asking the server',
+    async () => {
+      const { copy, calls } = await renderTour({ server: [] });
+      onlineManager.setOnline(false);
+      try {
+        expect(await startTour('basics')).toBe(true);
+        expect(await stepDialog(copy, 'basics.needs')).toHaveTextContent(
+          `Chapter 1 of ${CHAPTERS} · step 1 of ${BASICS.length}`,
+        );
+        expect(calls.some((c) => /\/locations\?/.test(c.url))).toBe(false);
+      } finally {
+        onlineManager.setOnline(true);
+      }
     },
     ENGINE_TIMEOUT,
   );

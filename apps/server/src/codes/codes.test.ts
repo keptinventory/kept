@@ -12,7 +12,7 @@ import {
   own,
   place,
 } from '../../test/things.js';
-import { vetRule } from './format-rule.js';
+import { checkCodes, setTimeLimitsForTests, TIME_LIMITS, vetRule } from './format-rule.js';
 
 // Own codes through the front door. Ibrahim owns Home and Garage; in Home, Bruce is
 // an admin, Louis a member and Talia a viewer.
@@ -61,10 +61,24 @@ const ownCodes = async (thingId: string) =>
 
 const NUMBERING_OFF = { numbering: { enabled: false, prefix: '', pad: 4 }, rule: null };
 
+// The format rule's time limits are wall-clock: under full-suite load a worker waiting for a core
+// once took `HOME-[0-9]{4}` past the 10 ms vet (#312). Tests about what a rule allows get limits no
+// fast rule can miss; the test about slow patterns puts the real ones back (`realLimits`).
+let restoreLimits: () => void;
+const realLimits = async (fn: () => Promise<void>) => {
+  const widened = setTimeLimitsForTests(TIME_LIMITS);
+  try {
+    await fn();
+  } finally {
+    widened();
+  }
+};
+
 beforeAll(async () => {
   db = await testDb();
   await db.reset();
   t = await peopleApp(db);
+  restoreLimits = setTimeLimitsForTests({ vet: 5_000, check: 5_000 });
   ibrahim = await person(t, db, 'ibrahim');
   bruce = await person(t, db, 'bruce');
   louis = await person(t, db, 'louis');
@@ -77,6 +91,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  restoreLimits();
   await t.app.close();
 });
 
@@ -349,15 +364,24 @@ describe('numbering and the format rule', () => {
   });
 
   it('refuses a catastrophic pattern, one that won’t compile, and an example that doesn’t match', async () => {
-    const slow = await setSettings(bruce, home, {
-      numbering: { enabled: false, prefix: '', pad: 4 },
-      rule: { pattern: '(a+)+$', message: 'Letters only.', example: 'AAA' },
-    });
-    expect(slow.statusCode, slow.body).toBe(400);
-    expect(slow.json()).toMatchObject({ code: 'validation', reason: 'slow' });
-    expect(vetRule({ pattern: '(a+)+$', message: 'x', example: 'A' })).toMatchObject({
-      ok: false,
-      reason: 'slow',
+    // A catastrophic pattern never finishes, so it is slow at the real limits on any machine.
+    await realLimits(async () => {
+      const slow = await setSettings(bruce, home, {
+        numbering: { enabled: false, prefix: '', pad: 4 },
+        rule: { pattern: '(a+)+$', message: 'Letters only.', example: 'AAA' },
+      });
+      expect(slow.statusCode, slow.body).toBe(400);
+      expect(slow.json()).toMatchObject({ code: 'validation', reason: 'slow' });
+      expect(vetRule({ pattern: '(a+)+$', message: 'x', example: 'A' })).toMatchObject({
+        ok: false,
+        reason: 'slow',
+      });
+      // A save's check has its own limit: a code the vet's test strings didn't foresee can still
+      // run out of time, and only that code is `slow`.
+      expect(checkCodes({ pattern: '(a+)+$' }, [`${'A'.repeat(99)}!`, 'AAA'])).toEqual([
+        'slow',
+        'ok',
+      ]);
     });
     const broken = await setSettings(bruce, home, {
       ...NUMBERING_OFF,
