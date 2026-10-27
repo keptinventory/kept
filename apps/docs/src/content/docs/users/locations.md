@@ -16,6 +16,14 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
   in the app, offline, in exports and for AI apps. Floors keep the order they were made in: the
   first is the ground floor on the map. On a place, **Display → Things: sort by** orders its
   things; its places stay A to Z.
+- **Your own order:** on a place, **Manage → Order of the places here → Custom order** puts the
+  places inside it in the order you choose, with **Move up** and **Move down** on each (keyboard
+  too). **A to Z** comes back any time, and switching to **Custom order** again brings your order
+  back. The tree, the map, exports and AI apps follow it. A location's top level stays A to Z.
+- **Turn places into boxes…** on a place's **Manage** lists the places inside it: tick some, or
+  **Select all**, and they become boxes in one step, each keeping its ID, label and contents. A
+  place with places inside can't be ticked: a box holds things only. The toast's **Undo** turns
+  them all back into places, as they were; it stays in the history for 7 days.
 - **The place tree** (beside the page on a computer, **All places** on a phone) shows boxes under
   their place with how many things are in each, up to 50 a place, then **+N boxes**.
 - On a location, **Sort them** goes through Unplaced one thing at a time with a place picker.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { comparePlaceSiblings, naturalCompare } from './order.js';
+import { comparePlaceSiblings, naturalCompare, siblingOrder } from './order.js';
 
 type P = {
   id: string;
@@ -80,5 +80,37 @@ describe('comparePlaceSiblings', () => {
         .sort(comparePlaceSiblings)
         .map((r) => r.id),
     ).toEqual(['a', 'b']);
+  });
+});
+
+describe('a parent in Custom order', () => {
+  const kids = [
+    p('Box 10', { id: 'a', kindKey: 'zone', sort: 0 }),
+    p('Box 2', { id: 'b', kindKey: 'zone', sort: 2 }),
+    p('Attic', { id: 'c', kindKey: 'floor', sort: 1 }),
+  ];
+  const ids = (rows: P[], order: 'name' | 'custom') =>
+    [...rows].sort(siblingOrder(order)).map((r) => r.id);
+
+  it('orders the children by their position, floors included', () => {
+    expect(ids(kids, 'custom')).toEqual(['a', 'c', 'b']);
+  });
+
+  it('A to Z ignores the position of every place but floors', () => {
+    expect(ids(kids, 'name')).toEqual(['c', 'b', 'a']);
+    expect(ids(kids, 'name')).toEqual([...kids].sort(comparePlaceSiblings).map((r) => r.id));
+  });
+
+  it('places at the same position read A to Z', () => {
+    const level = kids.map((k) => ({ ...k, sort: 0, kindKey: 'zone' }));
+    expect([...level].sort(siblingOrder('custom')).map((r) => r.name)).toEqual([
+      'Attic',
+      'Box 2',
+      'Box 10',
+    ]);
+  });
+
+  it('reads no order as A to Z', () => {
+    expect([...kids].sort(siblingOrder(undefined)).map((r) => r.id)).toEqual(ids(kids, 'name'));
   });
 });

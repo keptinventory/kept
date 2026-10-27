@@ -22,7 +22,7 @@ import { AppError, forbidden, invalid, notFound } from '../http/errors.js';
 import { filterOf, isNot, lowerIds, matchOf } from '../http/list-filters.js';
 import type { JobQueue } from '../jobs/queue.js';
 import { requireMembership } from '../locations/access.js';
-import { NATURAL, thingNameSql } from '../places/order.js';
+import { lastInCustomOrder, NATURAL, thingNameSql } from '../places/order.js';
 import { allocateShortId } from '../places/short-id.js';
 import { enqueueReindex } from '../search/jobs.js';
 import { STATE_SQL } from '../search/query.js';
@@ -1277,6 +1277,7 @@ export async function convertToPlace(
     [id, body.parentId?.toLowerCase() ?? null],
   );
   const placeId = rows[0]?.id as string;
+  await lastInCustomOrder(client, placeId);
   const { rows: made } = await client.query<{
     name: string;
     parent_id: string | null;

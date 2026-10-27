@@ -27261,3 +27261,104 @@ msgstr "Over plain HTTP, secret values stay out of the export. Each one is marke
 #: src/components/import/kept-choices.tsx
 msgid "Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to bring them over too, import this file at Kept’s HTTPS address."
 msgstr "Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to bring them over too, import this file at Kept’s HTTPS address."
+
+#: src/components/places/sub-places.tsx
+msgid "{0} moved to {1} of {2}"
+msgstr "{0} moved to {1} of {2}"
+
+#: src/components/places/sub-places.tsx
+msgid "{count, plural, one {# chosen} other {# chosen}}"
+msgstr "{count, plural, one {# chosen} other {# chosen}}"
+
+#: src/components/places/sub-places.tsx
+msgid "{count, plural, one {Turn # place into a box} other {Turn # places into boxes}}"
+msgstr "{count, plural, one {Turn # place into a box} other {Turn # places into boxes}}"
+
+#: src/components/places/sub-places.tsx
+msgid "{done, plural, one {Turned # place into a box} other {Turned # places into boxes}}"
+msgstr "{done, plural, one {Turned # place into a box} other {Turned # places into boxes}}"
+
+#: src/components/places/sub-places.tsx
+msgid "A place"
+msgstr "A place"
+
+#: src/components/places/sub-places.tsx
+msgid "A to Z, numbers in order. Floors keep the order they were made in."
+msgstr "A to Z, numbers in order. Floors keep the order they were made in."
+
+#: src/components/places/sub-places.tsx
+msgid "Choose places inside <0>{name}</0> to turn into boxes. A box is a thing: it moves with everything in it. Each keeps its ID, its label and what's in it, and one Undo turns them all back."
+msgstr "Choose places inside <0>{name}</0> to turn into boxes. A box is a thing: it moves with everything in it. Each keeps its ID, its label and what's in it, and one Undo turns them all back."
+
+#: src/routes/_app/p.$id.tsx
+msgid "Choose places inside it; one Undo turns them all back"
+msgstr "Choose places inside it; one Undo turns them all back"
+
+#: src/components/places/sub-places.tsx
+#: src/routes/_app/p.$id.tsx
+msgid "Custom order"
+msgstr "Custom order"
+
+#: src/components/places/sub-places.tsx
+msgid "It has places inside"
+msgstr "It has places inside"
+
+#: src/components/places/sub-places.tsx
+msgid "It has places inside: move them out first"
+msgstr "It has places inside: move them out first"
+
+#: src/components/places/sub-places.tsx
+msgid "It is no longer in {0}"
+msgstr "It is no longer in {0}"
+
+#: src/components/places/sub-places.tsx
+msgid "Move {0} down"
+msgstr "Move {0} down"
+
+#: src/components/places/sub-places.tsx
+msgid "Move {0} up"
+msgstr "Move {0} up"
+
+#: src/components/places/sub-places.tsx
+msgid "Move places up or down. Back to A to Z keeps this order for next time."
+msgstr "Move places up or down. Back to A to Z keeps this order for next time."
+
+#: src/components/places/sub-places.tsx
+msgid "No places match"
+msgstr "No places match"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Order of the places here"
+msgstr "Order of the places here"
+
+#: src/components/places/sub-places.tsx
+msgid "Order of the places in {0}"
+msgstr "Order of the places in {0}"
+
+#: src/components/history/labels.ts
+msgid "Order of the places inside"
+msgstr "Order of the places inside"
+
+#: src/components/places/sub-places-lazy.tsx
+msgid "Places inside"
+msgstr "Places inside"
+
+#: src/components/places/sub-places.tsx
+msgid "Places inside {0}"
+msgstr "Places inside {0}"
+
+#: src/components/history/labels.ts
+msgid "Put the places in {name} in a new order"
+msgstr "Put the places in {name} in a new order"
+
+#: src/components/places/sub-places.tsx
+msgid "Some places weren't turned into boxes"
+msgstr "Some places weren't turned into boxes"
+
+#: src/components/places/sub-places.tsx
+msgid "Turn places into boxes"
+msgstr "Turn places into boxes"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Turn places into boxes…"
+msgstr "Turn places into boxes…"

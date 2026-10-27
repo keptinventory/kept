@@ -48,6 +48,8 @@ export const UNDOABLE_ACTIONS: ReadonlySet<string> = new Set([
   'place.update',
   'place.move',
   'place.trash',
+  // Places turned into boxes several at once (places/undo.ts); a single conversion has no undo.
+  'place.convert_to_container',
   'thing.capture',
   'capture.batch_undo',
   'thing.extract',

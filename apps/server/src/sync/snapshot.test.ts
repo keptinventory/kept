@@ -466,7 +466,9 @@ describe('deltas', () => {
     expect(allOf(pages, 'things')).toEqual([]);
     expect(allOf(pages, 'places')).toEqual([]);
 
-    await own(`UPDATE public.places SET name = 'Top shelf' WHERE id = $1`, [shelf]);
+    await own(`UPDATE public.places SET name = 'Top shelf', child_order = 'custom' WHERE id = $1`, [
+      shelf,
+    ]);
     await own('UPDATE public.things SET last_seen_at = $2 WHERE id = $1', [
       drill,
       '2026-09-20T10:00:00Z',
@@ -482,6 +484,8 @@ describe('deltas', () => {
       [shelf],
     );
     expect(allOf(pages, 'places')[0]?.createdAt).toBe(made?.created_at.toISOString());
+    // How it orders the places inside it, so the phone's tree follows its own order.
+    expect(allOf(pages, 'places')[0]?.childOrder).toBe('custom');
     const changed = new Map(allOf(pages, 'things').map((x) => [x.id, x]));
     expect(changed.get(drill)?.lastSeenAt).toBe('2026-09-20T10:00:00.000Z');
     expect(changed.get(box)?.deleted).toBe(true);

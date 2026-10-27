@@ -10,7 +10,7 @@
  * Everything here reads the phone's snapshot, so it works offline.
  */
 import type { SnapLocation, SnapPlace, SnapThing } from '@kept/shared';
-import { can, comparePlaceSiblings } from '@kept/shared';
+import { can, comparePlaceSiblings, siblingOrder } from '@kept/shared';
 import type { OfflineStore } from '@/offline/store';
 import type { Target } from './enqueue';
 
@@ -54,7 +54,8 @@ export function flattenPlaces(places: readonly SnapPlace[]): { place: SnapPlace;
   const out: { place: SnapPlace; depth: number }[] = [];
   const walk = (p: SnapPlace, depth: number) => {
     out.push({ place: p, depth });
-    for (const c of (kids.get(p.id) ?? []).sort(order)) walk(c, depth + 1);
+    // A place in Custom order lists its places in its own order.
+    for (const c of (kids.get(p.id) ?? []).sort(siblingOrder(p.childOrder))) walk(c, depth + 1);
   };
   for (const r of (kids.get(null) ?? []).sort(order)) walk(r, 0);
   return out;

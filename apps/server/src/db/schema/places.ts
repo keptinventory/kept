@@ -36,6 +36,9 @@ export const places = pgTable(
     /** `lucide:<name>` / `tabler:<name>` / `kept:<name>`; NULL shows the kind's icon. */
     icon: text('icon'),
     sort: integer('sort').notNull().default(0),
+    /** How the places inside it are ordered: 'name' (A to Z, places/order.ts) or 'custom' (by
+     * their `sort`). Switching back to A to Z keeps every `sort`. */
+    childOrder: text('child_order').notNull().default('name'),
     /** Values of the place kind's fields (D160), by key. Secret fields never land here. */
     custom: jsonb('custom').notNull().default(sql`'{}'::jsonb`),
     deletedAt: tstz('deleted_at'),
@@ -63,6 +66,7 @@ export const places = pgTable(
     check('places_unplaced_top_level_chk', sql`NOT is_unplaced OR parent_id IS NULL`),
     check('places_not_own_parent_chk', sql`parent_id IS NULL OR parent_id <> id`),
     check('places_custom_chk', sql`jsonb_typeof(custom) = 'object'`),
+    check('places_child_order_chk', sql`child_order IN ('name', 'custom')`),
     check('places_icon_chk', sql`icon IS NULL OR icon ~ '^(lucide|tabler|kept):[a-z0-9-]+$'`),
     index('places_parent_idx').on(t.locationId, t.parentId),
     // The purge walks trashed places oldest first, across locations (kept.purge_trash()).

@@ -18,6 +18,7 @@ import type { LoanDirection } from './household.js';
 import { ATTACHMENT_ROLES, type Lifecycle } from './inventory.js';
 import type { ModuleId } from './modules.js';
 import { BOX_STATES } from './moving.js';
+import type { ChildOrder } from './order.js';
 import type { Role } from './roles.js';
 import { SHORT_CODE } from './short-code.js';
 import { TAG_LIMITS } from './tags.js';
@@ -551,6 +552,8 @@ export type SnapPlace = {
   sort: number;
   /** When it was made (floors keep this order among siblings); absent in an older copy. */
   createdAt?: string;
+  /** How it orders the places inside it (A to Z or its own); absent in an older copy: A to Z. */
+  childOrder?: ChildOrder;
   deleted: boolean;
 };
 

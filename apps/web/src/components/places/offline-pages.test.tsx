@@ -154,6 +154,38 @@ describe('a place page offline', () => {
     expect(within(things).queryByRole('link', { name: /Desk lamp/ })).toBeNull();
   });
 
+  it("lists a place's places in its own order when it has one", async () => {
+    const store = open.store as MemoryStore;
+    const page = firstPage();
+    const peg = (id: string, name: string, sort: number) => ({
+      id,
+      locationId: HOME,
+      parentId: GARAGE,
+      name,
+      kindKey: 'zone',
+      icon: null,
+      isUnplaced: false,
+      sort,
+      deleted: false,
+    });
+    page.changes.places = page.changes.places.map((pl) =>
+      pl.id === GARAGE ? { ...pl, childOrder: 'custom' as const } : pl,
+    );
+    page.changes.places.push(
+      peg('01926f00-0000-7000-8000-0000000c0101', 'Peg 2', 1),
+      peg('01926f00-0000-7000-8000-0000000c0102', 'Peg 10', 0),
+    );
+    await store.applySnapshot(page);
+    await offline(`/p/${GARAGE}`);
+    await screen.findByRole('heading', { name: 'Garage' }, { timeout: 3000 });
+    const places = screen.getByRole('list', { name: 'Places in Garage' });
+    expect(
+      within(places)
+        .getAllByRole('link')
+        .map((l) => l.textContent),
+    ).toEqual(['Peg 10', 'Peg 2']);
+  });
+
   it('shows the place tree from the phone, with Box 3 as a leaf under the Garage', async () => {
     await offline(`/p/${GARAGE}`);
     await screen.findByRole('heading', { name: 'Garage' }, { timeout: 3000 });

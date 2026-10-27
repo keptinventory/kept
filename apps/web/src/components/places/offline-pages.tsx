@@ -15,6 +15,7 @@ import {
   type SnapPlace,
   type SnapTag,
   type SnapThing,
+  siblingOrder,
 } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery } from '@tanstack/react-query';
@@ -149,6 +150,7 @@ export async function offlineTree(
       childCount: live.filter((c) => c.parentId === p.id).length,
       createdAt: p.createdAt ?? '',
       boxCount: mine.length,
+      childOrder: p.childOrder ?? 'name',
     });
   }
   return { places: nodes, boxes };
@@ -299,7 +301,9 @@ export function OfflinePlacePage({ id }: { id: string }) {
       return {
         place,
         path: placePath(places, place.parentId).map(stepOf),
-        children: places.filter((p) => p.parentId === id && !p.deleted),
+        children: places
+          .filter((p) => p.parentId === id && !p.deleted)
+          .sort(siblingOrder(place.childOrder)),
         tree: await offlineTree(store, places),
         things: things.filter((x) => !x.deleted && !x.containerId).map((x) => rowOf(x, [], tags)),
         ...(await copyOf(store, loc.id)),

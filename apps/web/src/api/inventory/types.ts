@@ -18,6 +18,7 @@
 import type {
   ActiveSourceType,
   ActivityKind,
+  ChildOrder,
   LedgerTask,
   ListSurface,
   LoanDirection,
@@ -483,6 +484,8 @@ export type PlaceNode = {
   createdAt: string;
   /** Its boxes, directly in it; the tree shows at most 50 of them. */
   boxCount: number;
+  /** How the places inside it are ordered: A to Z (the default) or its own order. */
+  childOrder: ChildOrder;
 };
 /** A box in the place tree: a leaf under its place, with how many things are directly in it. */
 export type BoxNode = {
@@ -527,6 +530,8 @@ export type PlaceView = {
   kindKey: string;
   icon: IconRef | null;
   isUnplaced: boolean;
+  /** How the places inside it are ordered: A to Z (the default) or its own order. */
+  childOrder: ChildOrder;
   path: PathStep[];
   shortCode: string | null;
   /** It carries a printed label: its page shows the amber tape, else a quiet code. */
@@ -554,6 +559,7 @@ export type UpdatePlaceBody = {
   kindKey?: string;
   icon?: IconRef | null;
   sort?: number;
+  childOrder?: ChildOrder;
   /** Null ⇒ the top level of the location (T25 decision 2). */
   parentId?: string | null;
   custom?: Record<string, unknown | null>;
@@ -581,6 +587,19 @@ export type RestoreResult = { restored: string[]; hint?: string };
 /** POST /api/v1/places/:id/convert-to-container → the same id as a thing. */
 export type ConvertToContainerBody = { typeId?: string };
 export type ConvertToContainerResult = { thingId: string };
+
+/** POST /api/v1/places/:id/convert-children-to-containers: places directly inside it, as boxes
+ * in one step (at most 200). X-Kept-Audit-Event names an undoable event per box: one Undo sends
+ * them all to POST /api/v1/audit/undo. */
+export type ConvertChildrenBody = { placeIds: string[]; typeId?: string };
+export type ConvertChildResult =
+  | { placeId: string; status: 'converted'; thingId: string }
+  | { placeId: string; status: 'refused'; reason: 'has_places' | 'not_here' };
+export type ConvertChildrenResult = { results: ConvertChildResult[] };
+
+/** POST /api/v1/places/:id/reorder: one of its places a step up or down (Custom order only). */
+export type ReorderBody = { placeId: string; direction: 'up' | 'down' };
+export type ReorderResult = { order: string[] };
 
 /** POST /api/v1/places/:id/label (`labels` module; printing is step 3). */
 export type LabelResult = { code: string };

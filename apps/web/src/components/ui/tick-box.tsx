@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 
 export function TickBox({
   isSelected,
+  isIndeterminate,
   onChange,
   isDisabled,
   children,
@@ -17,6 +18,8 @@ export function TickBox({
   className,
 }: {
   isSelected: boolean;
+  /** Some of what it stands for is ticked ("Select all" over a partly ticked list). */
+  isIndeterminate?: boolean;
   onChange: (v: boolean) => void;
   isDisabled?: boolean;
   children: ReactNode;
@@ -26,6 +29,7 @@ export function TickBox({
   return (
     <Checkbox
       isSelected={isSelected}
+      isIndeterminate={isIndeterminate ?? false}
       onChange={onChange}
       isDisabled={isDisabled ?? false}
       className={cn(
@@ -33,16 +37,20 @@ export function TickBox({
         className,
       )}
     >
-      {({ isSelected: on }) => (
+      {({ isSelected: on, isIndeterminate: some }) => (
         <>
           <span
             aria-hidden="true"
             className={cn(
               'mt-0.5 grid size-5 shrink-0 place-items-center rounded-[5px] border-2 [&_svg]:size-3.5',
-              on ? 'border-ink bg-ink text-paper' : 'border-ink-3 bg-surface',
+              on || some ? 'border-ink bg-ink text-paper' : 'border-ink-3 bg-surface',
             )}
           >
-            {on ? <CheckIcon strokeWidth="3" /> : null}
+            {on ? (
+              <CheckIcon strokeWidth="3" />
+            ) : some ? (
+              <span className="block h-0.5 w-2.5 rounded-full bg-paper" />
+            ) : null}
           </span>
           <span className="grid min-w-0 flex-1 gap-0.5">
             <span className="[overflow-wrap:anywhere]">{children}</span>

@@ -27261,3 +27261,104 @@ msgstr "Über einfaches HTTP bleiben geheime Werte außerhalb des Exports. Jeder
 #: src/components/import/kept-choices.tsx
 msgid "Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to bring them over too, import this file at Kept’s HTTPS address."
 msgstr "Sie zu öffnen braucht HTTPS. Über einfaches HTTP wird alles andere ohne sie importiert; um sie mitzunehmen, importieren Sie diese Datei unter der HTTPS-Adresse von Kept."
+
+#: src/components/places/sub-places.tsx
+msgid "{0} moved to {1} of {2}"
+msgstr "{0} ist jetzt an Stelle {1} von {2}"
+
+#: src/components/places/sub-places.tsx
+msgid "{count, plural, one {# chosen} other {# chosen}}"
+msgstr "{count, plural, one {# ausgewählt} other {# ausgewählt}}"
+
+#: src/components/places/sub-places.tsx
+msgid "{count, plural, one {Turn # place into a box} other {Turn # places into boxes}}"
+msgstr "{count, plural, one {# Ort in eine Kiste umwandeln} other {# Orte in Kisten umwandeln}}"
+
+#: src/components/places/sub-places.tsx
+msgid "{done, plural, one {Turned # place into a box} other {Turned # places into boxes}}"
+msgstr "{done, plural, one {# Ort in eine Kiste umgewandelt} other {# Orte in Kisten umgewandelt}}"
+
+#: src/components/places/sub-places.tsx
+msgid "A place"
+msgstr "Ein Ort"
+
+#: src/components/places/sub-places.tsx
+msgid "A to Z, numbers in order. Floors keep the order they were made in."
+msgstr "A bis Z, Zahlen der Reihe nach. Etagen behalten die Reihenfolge, in der sie angelegt wurden."
+
+#: src/components/places/sub-places.tsx
+msgid "Choose places inside <0>{name}</0> to turn into boxes. A box is a thing: it moves with everything in it. Each keeps its ID, its label and what's in it, and one Undo turns them all back."
+msgstr "Wähle Orte in <0>{name}</0>, die zu Kisten werden sollen. Eine Kiste ist ein Ding: Sie wird mit allem darin bewegt. Jede behält ihre ID, ihr Etikett und ihren Inhalt, und ein einziges Rückgängig macht alle wieder zu Orten."
+
+#: src/routes/_app/p.$id.tsx
+msgid "Choose places inside it; one Undo turns them all back"
+msgstr "Orte darin wählen; ein einziges Rückgängig macht alle wieder zu Orten"
+
+#: src/components/places/sub-places.tsx
+#: src/routes/_app/p.$id.tsx
+msgid "Custom order"
+msgstr "Eigene Reihenfolge"
+
+#: src/components/places/sub-places.tsx
+msgid "It has places inside"
+msgstr "Darin sind Orte"
+
+#: src/components/places/sub-places.tsx
+msgid "It has places inside: move them out first"
+msgstr "Darin sind Orte: zuerst herausverschieben"
+
+#: src/components/places/sub-places.tsx
+msgid "It is no longer in {0}"
+msgstr "Nicht mehr in {0}"
+
+#: src/components/places/sub-places.tsx
+msgid "Move {0} down"
+msgstr "{0} nach unten"
+
+#: src/components/places/sub-places.tsx
+msgid "Move {0} up"
+msgstr "{0} nach oben"
+
+#: src/components/places/sub-places.tsx
+msgid "Move places up or down. Back to A to Z keeps this order for next time."
+msgstr "Orte nach oben oder unten verschieben. Zurück zu A bis Z behält diese Reihenfolge für das nächste Mal."
+
+#: src/components/places/sub-places.tsx
+msgid "No places match"
+msgstr "Keine passenden Orte"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Order of the places here"
+msgstr "Reihenfolge der Orte hier"
+
+#: src/components/places/sub-places.tsx
+msgid "Order of the places in {0}"
+msgstr "Reihenfolge der Orte in {0}"
+
+#: src/components/history/labels.ts
+msgid "Order of the places inside"
+msgstr "Reihenfolge der Orte darin"
+
+#: src/components/places/sub-places-lazy.tsx
+msgid "Places inside"
+msgstr "Orte darin"
+
+#: src/components/places/sub-places.tsx
+msgid "Places inside {0}"
+msgstr "Orte in {0}"
+
+#: src/components/history/labels.ts
+msgid "Put the places in {name} in a new order"
+msgstr "Orte in {name} neu angeordnet"
+
+#: src/components/places/sub-places.tsx
+msgid "Some places weren't turned into boxes"
+msgstr "Einige Orte wurden nicht in Kisten umgewandelt"
+
+#: src/components/places/sub-places.tsx
+msgid "Turn places into boxes"
+msgstr "Orte in Kisten umwandeln"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Turn places into boxes…"
+msgstr "Orte in Kisten umwandeln…"

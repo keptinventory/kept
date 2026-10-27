@@ -27261,3 +27261,104 @@ msgstr "En HTTP simple, les valeurs secrètes restent hors de l’export. Chacun
 #: src/components/import/kept-choices.tsx
 msgid "Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to bring them over too, import this file at Kept’s HTTPS address."
 msgstr "Les ouvrir demande HTTPS. En HTTP simple, tout le reste est importé sans eux ; pour les reprendre aussi, importez ce fichier à l’adresse HTTPS de Kept."
+
+#: src/components/places/sub-places.tsx
+msgid "{0} moved to {1} of {2}"
+msgstr "{0} déplacé en position {1} sur {2}"
+
+#: src/components/places/sub-places.tsx
+msgid "{count, plural, one {# chosen} other {# chosen}}"
+msgstr "{count, plural, one {# choisi} other {# choisis}}"
+
+#: src/components/places/sub-places.tsx
+msgid "{count, plural, one {Turn # place into a box} other {Turn # places into boxes}}"
+msgstr "{count, plural, one {Transformer # emplacement en boîte} other {Transformer # emplacements en boîtes}}"
+
+#: src/components/places/sub-places.tsx
+msgid "{done, plural, one {Turned # place into a box} other {Turned # places into boxes}}"
+msgstr "{done, plural, one {# emplacement transformé en boîte} other {# emplacements transformés en boîtes}}"
+
+#: src/components/places/sub-places.tsx
+msgid "A place"
+msgstr "Un emplacement"
+
+#: src/components/places/sub-places.tsx
+msgid "A to Z, numbers in order. Floors keep the order they were made in."
+msgstr "De A à Z, les nombres dans l'ordre. Les étages gardent l'ordre de leur création."
+
+#: src/components/places/sub-places.tsx
+msgid "Choose places inside <0>{name}</0> to turn into boxes. A box is a thing: it moves with everything in it. Each keeps its ID, its label and what's in it, and one Undo turns them all back."
+msgstr "Choisissez des emplacements dans <0>{name}</0> à transformer en boîtes. Une boîte est un objet : elle se déplace avec tout ce qu'elle contient. Chacune garde son ID, son étiquette et son contenu, et une seule annulation les rétablit toutes."
+
+#: src/routes/_app/p.$id.tsx
+msgid "Choose places inside it; one Undo turns them all back"
+msgstr "Choisissez des emplacements à l'intérieur ; une seule annulation les rétablit toutes"
+
+#: src/components/places/sub-places.tsx
+#: src/routes/_app/p.$id.tsx
+msgid "Custom order"
+msgstr "Ordre personnalisé"
+
+#: src/components/places/sub-places.tsx
+msgid "It has places inside"
+msgstr "Il contient des emplacements"
+
+#: src/components/places/sub-places.tsx
+msgid "It has places inside: move them out first"
+msgstr "Il contient des emplacements : déplacez-les d'abord"
+
+#: src/components/places/sub-places.tsx
+msgid "It is no longer in {0}"
+msgstr "Il n'est plus dans {0}"
+
+#: src/components/places/sub-places.tsx
+msgid "Move {0} down"
+msgstr "Descendre {0}"
+
+#: src/components/places/sub-places.tsx
+msgid "Move {0} up"
+msgstr "Monter {0}"
+
+#: src/components/places/sub-places.tsx
+msgid "Move places up or down. Back to A to Z keeps this order for next time."
+msgstr "Montez ou descendez les emplacements. Revenir à De A à Z garde cet ordre pour la prochaine fois."
+
+#: src/components/places/sub-places.tsx
+msgid "No places match"
+msgstr "Aucun emplacement ne correspond"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Order of the places here"
+msgstr "Ordre des emplacements ici"
+
+#: src/components/places/sub-places.tsx
+msgid "Order of the places in {0}"
+msgstr "Ordre des emplacements dans {0}"
+
+#: src/components/history/labels.ts
+msgid "Order of the places inside"
+msgstr "Ordre des emplacements à l'intérieur"
+
+#: src/components/places/sub-places-lazy.tsx
+msgid "Places inside"
+msgstr "Emplacements à l'intérieur"
+
+#: src/components/places/sub-places.tsx
+msgid "Places inside {0}"
+msgstr "Emplacements dans {0}"
+
+#: src/components/history/labels.ts
+msgid "Put the places in {name} in a new order"
+msgstr "Emplacements de {name} remis dans un nouvel ordre"
+
+#: src/components/places/sub-places.tsx
+msgid "Some places weren't turned into boxes"
+msgstr "Certains emplacements n'ont pas été transformés en boîtes"
+
+#: src/components/places/sub-places.tsx
+msgid "Turn places into boxes"
+msgstr "Transformer des emplacements en boîtes"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Turn places into boxes…"
+msgstr "Transformer des emplacements en boîtes…"

@@ -82,6 +82,7 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'place.create': (p) => `Added ${p.name}`,
   'place.update': (p) => `Edited ${p.name}`,
   'place.move': (p) => `Moved ${p.name}`,
+  'place.reorder': (p) => `Put the places in ${p.name} in a new order`,
   'place.trash': (p) => `Trashed ${p.name}`,
   'place.restore': (p) => `Restored ${p.name}`,
   'place.delete': (p) => `Deleted ${p.name} for good`,

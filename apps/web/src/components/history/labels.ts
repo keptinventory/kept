@@ -66,6 +66,8 @@ export function useFieldLabel() {
     kind_key: t`Kind`,
     icon: t`Icon`,
     sort: t`Order`,
+    child_order: t`Order of the places inside`,
+    box: t`Box`,
     review_state: t`Review`,
     // Purchases, registries, files, meters and saved views (their audit rows' columns).
     purchased_on: t`Bought on`,
@@ -226,6 +228,7 @@ export function useSummary() {
       'thing.retype': () => t`Changed the type of ${name}`,
       'thing.move': () => t`Moved ${name}`,
       'place.move': () => t`Moved ${name}`,
+      'place.reorder': () => t`Put the places in ${name} in a new order`,
       'thing.move.in': () => t`Moved in from another location`,
       'thing.move.out': () => t`Moved ${name} to another location`,
       'thing.trash': () => t`Trashed ${name}`,

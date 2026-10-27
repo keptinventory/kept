@@ -37,7 +37,7 @@ import { findPlace, type PlaceRow, placeKindOf } from './view.js';
 // `place.trash` (T20): the trashed batch comes back, and what the trash moved out goes back in
 // (undoPlaceTrash below).
 
-const COLUMNS = ['name', 'kind_key', 'icon', 'sort', 'parent_id'] as const;
+const COLUMNS = ['name', 'kind_key', 'icon', 'sort', 'child_order', 'parent_id'] as const;
 type Column = (typeof COLUMNS)[number];
 const IS_COLUMN = new Set<string>(COLUMNS);
 
@@ -48,6 +48,7 @@ function imageOf(p: PlaceRow, customKeys: readonly string[]): Record<string, unk
     kind_key: p.kindKey,
     icon: p.icon,
     sort: p.sort,
+    child_order: p.childOrder,
     parent_id: p.parentId,
   };
   for (const key of customKeys) out[`custom.${key}`] = p.custom[key] ?? null;
@@ -254,6 +255,109 @@ async function undoPlaceTrash(args: UndoArgs): Promise<void> {
   await enqueueReindex(args.deps.jobs, client, loc);
 }
 
+/**
+ * Undo of `place.convert_to_container`, for the conversions "Turn places into boxes" writes with
+ * an undo window (service.ts convertChildren; the single conversion writes none): the box becomes
+ * the place it was, under the same id and in the same parent, with its kind, icon, position and
+ * own order back; what is in the box goes back into the place, its code, label and attachments
+ * with it (kept.convert_container_to_place), and the place's fields the box set aside (its
+ * `archived_custom`) back in its fields. Refused while the box changed since the conversion (its
+ * row version: renamed, moved, given a brand…), when it is in the trash or gone, when the place
+ * it was in is gone, and when the kind it had is archived.
+ */
+async function undoConvert(args: UndoArgs): Promise<void> {
+  const { event, client } = args;
+  const id = event.entityId;
+  if (event.entityType !== 'place' || !id) throw notUndoable();
+  const loc = event.locationId;
+  const was = (field: string) => event.diff[field]?.before ?? null;
+  const box = event.diff.box_version?.after;
+  if (typeof box !== 'number' || !('kind_key' in event.diff)) throw notUndoable();
+  await lockTree(client, loc);
+  const { rows } = await client.query<{
+    location_id: string;
+    deleted: boolean;
+    row_version: number;
+    name: string | null;
+    custom: Record<string, unknown> | null;
+    archived_custom: Record<string, unknown> | null;
+  }>(
+    `SELECT location_id, deleted_at IS NOT NULL AS deleted, row_version, name, custom,
+            archived_custom
+       FROM public.things WHERE id = $1 FOR UPDATE`,
+    [id],
+  );
+  const thing = rows[0];
+  if (!thing || thing.location_id !== loc) {
+    throw conflict("Can't undo: that box no longer exists.");
+  }
+  if (thing.deleted) throw conflict("Can't undo: it is in the trash now.");
+  if (thing.row_version !== box) {
+    const who = await lastChangedBy(client, loc, { type: 'thing', id }, event.at);
+    throw undoConflict(['box'], who);
+  }
+  const parentId = was('parent_id') as string | null;
+  if (parentId) {
+    const under = await findPlace(client, parentId, { trashed: 'any' });
+    if (!under || under.locationId !== loc) {
+      throw conflict("Can't undo: the place it was in no longer exists.");
+    }
+    if (under.deletedAt) throw conflict("Can't undo: the place it was in is in the trash.");
+  }
+  const kindKey = String(was('kind_key') ?? 'room');
+  const { rows: owner } = await client.query<{ owner_account_id: string }>(
+    'SELECT owner_account_id FROM public.locations WHERE id = $1',
+    [loc],
+  );
+  const kind = await placeKindOf(client, owner[0]?.owner_account_id ?? '', kindKey);
+  if (!kind || kind.archivedAt) {
+    throw conflict("Can't undo: the place kind it had is archived or no longer exists.");
+  }
+  const { rows: inside } = await client.query<{ id: string }>(
+    'SELECT id FROM public.things WHERE container_id = $1 AND deleted_at IS NULL ORDER BY id',
+    [id],
+  );
+  try {
+    await client.query('SELECT kept.convert_container_to_place($1, $2)', [id, parentId]);
+  } catch (err) {
+    if ((err as { constraint?: string }).constraint === 'things_has_meters') {
+      throw undoConflict(['meters']);
+    }
+    throw err;
+  }
+  await client.query(
+    `UPDATE public.places
+        SET kind_key = $2, icon = $3, sort = $4, child_order = $5,
+            custom = coalesce($6::jsonb, '{}'::jsonb) || custom
+      WHERE id = $1`,
+    [
+      id,
+      kindKey,
+      was('icon'),
+      Number(was('sort') ?? 0),
+      was('child_order') === 'custom' ? 'custom' : 'name',
+      thing.archived_custom ? JSON.stringify(thing.archived_custom) : null,
+    ],
+  );
+  const after = (await findPlace(client, id)) as PlaceRow;
+  await args.audit({
+    action: 'place.convert_to_container',
+    entity: { type: 'place', id },
+    before: { entity_type: 'thing', thing_id: id },
+    after: {
+      entity_type: 'place',
+      name: after.name,
+      parent_id: after.parentId,
+      kind_key: after.kindKey,
+      icon: after.icon,
+      sort: after.sort,
+      child_order: after.childOrder,
+    },
+    subjects: inside.map((r) => r.id),
+  });
+  await enqueueReindex(args.deps.jobs, client, loc);
+}
+
 let registered = false;
 
 /** Registers the places' undo handlers (idempotent; places/routes.ts calls it). */
@@ -263,4 +367,5 @@ export function registerPlaceUndo(): void {
   registerUndo('place.update', undoPlace);
   registerUndo('place.move', undoPlace);
   registerUndo('place.trash', undoPlaceTrash);
+  registerUndo('place.convert_to_container', undoConvert);
 }

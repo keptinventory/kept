@@ -28,6 +28,7 @@ import { SubjectPaperwork } from '@/components/documents/subject-paperwork';
 import { useOfferUndo } from '@/components/history/undo';
 import {
   ActivityIcon,
+  ArrowUpDownIcon,
   BoxIcon,
   CameraIcon,
   ChevronEndIcon,
@@ -73,6 +74,7 @@ import { OfflinePlacePage, useOfflinePage } from '@/components/places/offline-pa
 import { PlaceFields } from '@/components/places/place-fields';
 import { PlaceCounts } from '@/components/places/rows';
 import { Sheet } from '@/components/places/sheet';
+import { BoxesSheet, OrderSheet } from '@/components/places/sub-places-lazy';
 import { TrashPlaceDialog } from '@/components/places/trash-contents-dialog';
 import { PlacesPanel, PlaceTree } from '@/components/places/tree';
 import { SortUnplaced } from '@/components/places/unplaced-sort';
@@ -148,7 +150,17 @@ function PlaceScreen({ id, param }: { id: string; param: string }) {
   return <PlaceBody key={place.data.id} place={place.data} location={location.data} />;
 }
 
-type Open = 'rename' | 'move' | 'merge' | 'convert' | 'trash' | 'sort' | 'share' | null;
+type Open =
+  | 'rename'
+  | 'move'
+  | 'merge'
+  | 'convert'
+  | 'boxes'
+  | 'order'
+  | 'trash'
+  | 'sort'
+  | 'share'
+  | null;
 
 function PlaceBody({ place, location }: { place: PlaceView; location: LocationDetail }) {
   const navigate = useNavigate();
@@ -391,6 +403,27 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
                 subtitle={<Trans>So it can be carried, with what's in it, as one thing</Trans>}
                 onPress={() => setOpen('convert')}
               />
+            ) : (
+              <ActionRow
+                icon={<BoxIcon />}
+                title={<Trans>Turn places into boxes…</Trans>}
+                subtitle={<Trans>Choose places inside it; one Undo turns them all back</Trans>}
+                onPress={() => setOpen('boxes')}
+              />
+            )}
+            {place.counts.places > 1 ? (
+              <ActionRow
+                icon={<ArrowUpDownIcon />}
+                title={<Trans>Order of the places here</Trans>}
+                subtitle={
+                  place.childOrder === 'custom' ? (
+                    <Trans>Custom order</Trans>
+                  ) : (
+                    <Trans>A to Z</Trans>
+                  )
+                }
+                onPress={() => setOpen('order')}
+              />
             ) : null}
             <LabelRow place={place} location={location} />
             {admin && location.kind !== 'personal' ? (
@@ -426,6 +459,8 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
         onOpenChange={(o) => !o && close()}
         onConverted={(thingId) => void navigate({ to: '/t/$id', params: { id: thingId } })}
       />
+      <BoxesSheet place={place} isOpen={open === 'boxes'} onClose={close} />
+      <OrderSheet place={place} isOpen={open === 'order'} onClose={close} />
       <TrashPlaceDialog
         place={place}
         isOpen={open === 'trash'}

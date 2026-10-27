@@ -221,6 +221,7 @@ describe('GET /api/v1/locations/:locationId/places (the tree)', () => {
         childCount: 1,
         createdAt: expect.stringMatching(/^\d{4}-\d\d-\d\dT/),
         boxCount: 0,
+        childOrder: 'name',
       });
       expect(byId.get(shelf)).toMatchObject({
         parentId: study,
@@ -256,6 +257,7 @@ describe('POST /api/v1/locations/:locationId/places', () => {
       kindKey: 'room',
       icon: 'lucide:warehouse',
       isUnplaced: false,
+      childOrder: 'name',
       path: [{ id, name: 'Garage', kind: 'place', isUnplaced: false, shortCode: null }],
       shortCode: null,
       labelPrinted: false,

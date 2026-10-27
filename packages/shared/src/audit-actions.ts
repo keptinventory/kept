@@ -200,6 +200,7 @@ export const AUDIT_ACTIONS = [
   'place.label',
   'place.merge',
   'place.move',
+  'place.reorder',
   'place.restore',
   'place.trash',
   'place.update',

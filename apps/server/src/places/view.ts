@@ -1,5 +1,7 @@
 import {
   ATTACHMENT_ROLES,
+  CHILD_ORDERS,
+  type ChildOrder,
   DERIVED_STATES,
   type DerivedState,
   FIELD_KINDS,
@@ -71,6 +73,8 @@ export const PlaceNodeSchema = z.object({
   createdAt: z.string(),
   /** Its live boxes, directly in it (the tree shows the first BOX_LEAVES of them). */
   boxCount: z.number().int(),
+  /** How the places inside it are ordered: A to Z, or its own order (places/order.ts). */
+  childOrder: z.enum(CHILD_ORDERS),
 });
 export type PlaceNode = z.infer<typeof PlaceNodeSchema>;
 
@@ -145,6 +149,7 @@ export const PlaceViewSchema = z.object({
   kindKey: z.string(),
   icon: z.string().nullable(),
   isUnplaced: z.boolean(),
+  childOrder: z.enum(CHILD_ORDERS),
   path: z.array(PathStepSchema),
   shortCode: z.string().nullable(),
   /** It carries a printed label (labels/printed-sql.ts). */
@@ -204,6 +209,7 @@ export type PlaceRow = {
   icon: string | null;
   sort: number;
   isUnplaced: boolean;
+  childOrder: ChildOrder;
   custom: Record<string, unknown>;
   deletedAt: Date | null;
   trashBatchId: string | null;
@@ -211,7 +217,8 @@ export type PlaceRow = {
 };
 
 const PLACE_COLUMNS = `p.id, p.location_id, l.owner_account_id, p.parent_id, p.name, p.kind_key,
-  p.icon, p.sort, p.is_unplaced, p.custom, p.deleted_at, p.trash_batch_id, p.row_version`;
+  p.icon, p.sort, p.is_unplaced, p.child_order, p.custom, p.deleted_at, p.trash_batch_id,
+  p.row_version`;
 
 type RawPlace = {
   id: string;
@@ -223,6 +230,7 @@ type RawPlace = {
   icon: string | null;
   sort: number;
   is_unplaced: boolean;
+  child_order: ChildOrder;
   custom: Record<string, unknown>;
   deleted_at: Date | null;
   trash_batch_id: string | null;
@@ -239,6 +247,7 @@ const placeRowOf = (r: RawPlace): PlaceRow => ({
   icon: r.icon,
   sort: r.sort,
   isUnplaced: r.is_unplaced,
+  childOrder: r.child_order,
   custom: r.custom ?? {},
   deletedAt: r.deleted_at,
   trashBatchId: r.trash_batch_id,
@@ -292,6 +301,7 @@ export async function unplacedOf(client: pg.ClientBase, locationId: string): Pro
 // ---------------------------------------------------------------------------------------------
 
 const NODE_COLUMNS = `p.id, p.parent_id, p.name, p.kind_key, p.icon, p.sort, p.is_unplaced,
+  p.child_order,
   (SELECT sc.code FROM public.short_ids sc
     WHERE sc.place_id = p.id AND sc.is_primary AND sc.state = 'assigned' LIMIT 1) AS short_code,
   (SELECT count(*) FROM public.things t
@@ -316,6 +326,7 @@ type RawNode = {
   child_count: number;
   created_at: Date;
   box_count: number;
+  child_order: ChildOrder;
 };
 
 const nodeOf = (r: RawNode): PlaceNode => ({
@@ -331,6 +342,7 @@ const nodeOf = (r: RawNode): PlaceNode => ({
   childCount: r.child_count,
   createdAt: r.created_at.toISOString(),
   boxCount: r.box_count,
+  childOrder: r.child_order,
 });
 
 /** Every live place of a location, flat (`parentId` makes the tree), in the tree's order. */
@@ -566,6 +578,7 @@ export async function placeView(
     kindKey: place.kindKey,
     icon: place.icon,
     isUnplaced: place.isUnplaced,
+    childOrder: place.childOrder,
     path: await pathOfPlace(client, place.id),
     ...(await codeOf(client, place.id)),
     fields,

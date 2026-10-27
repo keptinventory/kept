@@ -33,10 +33,15 @@ import type {
   Vendor,
 } from '../types';
 
-export type StoredPlace = Omit<PlaceView, 'path' | 'counts' | 'attachments' | 'labelPrinted'> & {
+export type StoredPlace = Omit<
+  PlaceView,
+  'path' | 'counts' | 'attachments' | 'labelPrinted' | 'childOrder'
+> & {
   /** A label of it was confirmed printed (the labels mock sets it). */
   labelPrinted?: boolean;
   sort: number;
+  /** Absent: A to Z. */
+  childOrder?: PlaceView['childOrder'];
   deletedAt: string | null;
   trashBatchId: string | null;
   deletedBy: string | null;
@@ -233,6 +238,7 @@ export function placeNodeOf(inv: InventoryState, p: StoredPlace): PlaceNode {
     childCount: inv.places.filter((c) => c.parentId === p.id && !c.deletedAt).length,
     createdAt: '',
     boxCount: boxesIn(inv, p.id).length,
+    childOrder: p.childOrder ?? 'name',
   };
 }
 
@@ -277,6 +283,7 @@ export function placeViewOf(inv: InventoryState, p: StoredPlace): PlaceView {
   return {
     ...own,
     labelPrinted: p.labelPrinted === true,
+    childOrder: p.childOrder ?? 'name',
     path: placePath(inv, p.id),
     counts: { places: node.childCount, things: node.thingCount },
     attachments: inv.attachments.filter(
@@ -337,6 +344,8 @@ const SENTENCES: Record<string, (name: string) => string> = {
   'place.create': (n) => `Added ${n}`,
   'place.update': (n) => `Edited ${n}`,
   'place.move': (n) => `Moved ${n}`,
+  'place.reorder': (n) => `Put the places in ${n} in a new order`,
+  'place.convert_to_container': (n) => `Turned ${n} into a container`,
   'place.trash': (n) => `Trashed ${n}`,
   undo: (n) => `Undid a change to ${n}`,
 };

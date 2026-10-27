@@ -217,6 +217,8 @@ const ON_DEMAND_ENTRIES = [
   // 1.x (#209): the tag picker, fetched the first time one opens (tags/lazy.tsx).
   '/src/components/tags/picker.tsx',
   '/src/components/tags/editors.tsx',
+  // 1.13.0 (#270): "Turn places into boxes" and a place's own order (places/sub-places-lazy.tsx).
+  '/src/components/places/sub-places.tsx',
   '/papaparse/papaparse.min.js',
   '/src/components/import/parse-config.ts',
 ];

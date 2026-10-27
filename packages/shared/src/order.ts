@@ -26,13 +26,27 @@ export type SiblingOrderFields = {
   createdAt?: string | undefined;
 };
 
+/** How a place orders the places inside it: A to Z (the default) or its own order (`sort`). */
+export const CHILD_ORDERS = ['name', 'custom'] as const;
+export type ChildOrder = (typeof CHILD_ORDERS)[number];
+
 /**
  * Two places with the same parent: the Unplaced area first (it is top level), then floors, by
  * `sort` then when they were made (the map
  * stacks them in this order, the first is the ground); every other place A to Z; the id last, so
  * the order never depends on how the rows arrived.
+ *
+ * `order` is the parent's: in Custom order its places go by `sort` first, and places at the same
+ * position fall back to the rule above. A to Z leaves `sort` as it is, so switching back to
+ * Custom brings the same order back.
  */
-export function comparePlaceSiblings(a: SiblingOrderFields, b: SiblingOrderFields): number {
+export function comparePlaceSiblings(
+  a: SiblingOrderFields,
+  b: SiblingOrderFields,
+  order: ChildOrder = 'name',
+): number {
+  if (order === 'custom' && !!a.isUnplaced === !!b.isUnplaced && a.sort !== b.sort)
+    return a.sort - b.sort;
   if (!!a.isUnplaced !== !!b.isUnplaced) return a.isUnplaced ? -1 : 1;
   const floorA = a.kindKey === 'floor';
   const floorB = b.kindKey === 'floor';
@@ -45,3 +59,9 @@ export function comparePlaceSiblings(a: SiblingOrderFields, b: SiblingOrderField
     );
   return naturalCompare(a.name, b.name) || byCodeUnits(a.id, b.id);
 }
+
+/** The sibling comparator for a parent's order (absent: A to Z), for `Array.sort`. */
+export const siblingOrder =
+  (order: ChildOrder | undefined) =>
+  (a: SiblingOrderFields, b: SiblingOrderFields): number =>
+    comparePlaceSiblings(a, b, order ?? 'name');

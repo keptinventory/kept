@@ -27261,3 +27261,104 @@ msgstr "عبر HTTP العادي تبقى القيم السرية خارج ال�
 #: src/components/import/kept-choices.tsx
 msgid "Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to bring them over too, import this file at Kept’s HTTPS address."
 msgstr "فتحها يحتاج إلى HTTPS. عبر HTTP العادي يُستورد كل شيء آخر بدونها؛ ولنقلها أيضًا، استورد هذا الملف من عنوان HTTPS الخاص بـ Kept."
+
+#: src/components/places/sub-places.tsx
+msgid "{0} moved to {1} of {2}"
+msgstr "نُقل {0} إلى الموضع {1} من {2}"
+
+#: src/components/places/sub-places.tsx
+msgid "{count, plural, one {# chosen} other {# chosen}}"
+msgstr "{count, plural, zero {لم يُختر أي مكان} one {مكان واحد مختار} two {مكانان مختاران} few {# أماكن مختارة} many {# مكانًا مختارًا} other {# مكان مختار}}"
+
+#: src/components/places/sub-places.tsx
+msgid "{count, plural, one {Turn # place into a box} other {Turn # places into boxes}}"
+msgstr "{count, plural, zero {لا أماكن لتحويلها} one {حوّل مكانًا واحدًا إلى صندوق} two {حوّل مكانين إلى صندوقين} few {حوّل # أماكن إلى صناديق} many {حوّل # مكانًا إلى صناديق} other {حوّل # مكان إلى صناديق}}"
+
+#: src/components/places/sub-places.tsx
+msgid "{done, plural, one {Turned # place into a box} other {Turned # places into boxes}}"
+msgstr "{done, plural, zero {لم يُحوَّل أي مكان} one {حُوِّل مكان واحد إلى صندوق} two {حُوِّل مكانان إلى صندوقين} few {حُوِّلت # أماكن إلى صناديق} many {حُوِّل # مكانًا إلى صناديق} other {حُوِّل # مكان إلى صناديق}}"
+
+#: src/components/places/sub-places.tsx
+msgid "A place"
+msgstr "مكان"
+
+#: src/components/places/sub-places.tsx
+msgid "A to Z, numbers in order. Floors keep the order they were made in."
+msgstr "من أ إلى ي، والأرقام بترتيبها. تبقى الطوابق بترتيب إنشائها."
+
+#: src/components/places/sub-places.tsx
+msgid "Choose places inside <0>{name}</0> to turn into boxes. A box is a thing: it moves with everything in it. Each keeps its ID, its label and what's in it, and one Undo turns them all back."
+msgstr "اختر أماكن داخل <0>{name}</0> لتحويلها إلى صناديق. الصندوق شيء: يُنقل مع كل ما فيه. يحتفظ كل منها بمعرّفه وملصقه وما فيه، وتراجع واحد يعيدها كلها."
+
+#: src/routes/_app/p.$id.tsx
+msgid "Choose places inside it; one Undo turns them all back"
+msgstr "اختر أماكن داخله؛ وتراجع واحد يعيدها كلها"
+
+#: src/components/places/sub-places.tsx
+#: src/routes/_app/p.$id.tsx
+msgid "Custom order"
+msgstr "ترتيب مخصص"
+
+#: src/components/places/sub-places.tsx
+msgid "It has places inside"
+msgstr "فيه أماكن"
+
+#: src/components/places/sub-places.tsx
+msgid "It has places inside: move them out first"
+msgstr "فيه أماكن: انقلها خارجه أولًا"
+
+#: src/components/places/sub-places.tsx
+msgid "It is no longer in {0}"
+msgstr "لم يعد في {0}"
+
+#: src/components/places/sub-places.tsx
+msgid "Move {0} down"
+msgstr "حرّك {0} إلى الأسفل"
+
+#: src/components/places/sub-places.tsx
+msgid "Move {0} up"
+msgstr "حرّك {0} إلى الأعلى"
+
+#: src/components/places/sub-places.tsx
+msgid "Move places up or down. Back to A to Z keeps this order for next time."
+msgstr "حرّك الأماكن إلى الأعلى أو الأسفل. العودة إلى من أ إلى ي تحفظ هذا الترتيب للمرة القادمة."
+
+#: src/components/places/sub-places.tsx
+msgid "No places match"
+msgstr "لا أماكن مطابقة"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Order of the places here"
+msgstr "ترتيب الأماكن هنا"
+
+#: src/components/places/sub-places.tsx
+msgid "Order of the places in {0}"
+msgstr "ترتيب الأماكن في {0}"
+
+#: src/components/history/labels.ts
+msgid "Order of the places inside"
+msgstr "ترتيب الأماكن داخله"
+
+#: src/components/places/sub-places-lazy.tsx
+msgid "Places inside"
+msgstr "الأماكن داخله"
+
+#: src/components/places/sub-places.tsx
+msgid "Places inside {0}"
+msgstr "الأماكن داخل {0}"
+
+#: src/components/history/labels.ts
+msgid "Put the places in {name} in a new order"
+msgstr "أُعيد ترتيب الأماكن في «{name}»"
+
+#: src/components/places/sub-places.tsx
+msgid "Some places weren't turned into boxes"
+msgstr "لم تُحوَّل بعض الأماكن إلى صناديق"
+
+#: src/components/places/sub-places.tsx
+msgid "Turn places into boxes"
+msgstr "تحويل أماكن إلى صناديق"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Turn places into boxes…"
+msgstr "تحويل أماكن إلى صناديق…"
