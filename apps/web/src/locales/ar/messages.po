@@ -27406,3 +27406,27 @@ msgstr "صار موقع داخل عنصر صندوقًا."
 #: src/components/places/contents-list.tsx
 msgid "Places keep their own order."
 msgstr "تبقى الأماكن بترتيبها الخاص."
+
+#: src/map/map-view.tsx
+msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. To move a room, hold its floor, then drag. Drag its amber corner to resize it."
+msgstr "اسحب أي شيء لنقله. ضع الأشياء الصغيرة على سطح أو مكتب أو رف أو صندوق، وأشياء الحائط تُعلَّق على أقرب حائط. لنقل غرفة، اضغط مطولًا على أرضيتها ثم اسحب. اسحب زاويتها الكهرمانية لتغيير حجمها."
+
+#: src/map/map-view.tsx
+msgid "Rooms can’t overlap."
+msgstr "لا يمكن أن تتداخل الغرف."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} up."
+msgstr "نُقل «{room}» إلى الأعلى."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} down."
+msgstr "نُقل «{room}» إلى الأسفل."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} left."
+msgstr "نُقل «{room}» إلى اليسار."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} right."
+msgstr "نُقل «{room}» إلى اليمين."

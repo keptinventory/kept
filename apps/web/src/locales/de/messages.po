@@ -27406,3 +27406,27 @@ msgstr "Ein Ort in einem Artikel wurde zu einer Kiste."
 #: src/components/places/contents-list.tsx
 msgid "Places keep their own order."
 msgstr "Orte behalten ihre eigene Reihenfolge."
+
+#: src/map/map-view.tsx
+msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. To move a room, hold its floor, then drag. Drag its amber corner to resize it."
+msgstr "Ziehen Sie etwas, um es zu verschieben. Kleine Dinge lassen sich auf eine Arbeitsfläche, einen Schreibtisch, ein Regal oder eine Kiste legen; Dinge für die Wand kommen an die nächste Wand. Um einen Raum zu verschieben, halten Sie seinen Boden gedrückt und ziehen Sie dann. Ziehen Sie seine bernsteinfarbene Ecke, um ihn zu vergrößern oder zu verkleinern."
+
+#: src/map/map-view.tsx
+msgid "Rooms can’t overlap."
+msgstr "Räume dürfen sich nicht überlappen."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} up."
+msgstr "{room} nach oben verschoben."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} down."
+msgstr "{room} nach unten verschoben."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} left."
+msgstr "{room} nach links verschoben."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} right."
+msgstr "{room} nach rechts verschoben."

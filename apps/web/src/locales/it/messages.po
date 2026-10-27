@@ -27406,3 +27406,27 @@ msgstr "Una posizione dentro un articolo è diventata una scatola."
 #: src/components/places/contents-list.tsx
 msgid "Places keep their own order."
 msgstr "I posti mantengono il proprio ordine."
+
+#: src/map/map-view.tsx
+msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. To move a room, hold its floor, then drag. Drag its amber corner to resize it."
+msgstr "Trascina qualunque cosa per spostarla. Appoggia le cose piccole su un piano, una scrivania, uno scaffale o una scatola; le cose da parete vanno sulla parete più vicina. Per spostare una stanza, tieni premuto il pavimento, poi trascina. Trascina l’angolo ambra per ridimensionarla."
+
+#: src/map/map-view.tsx
+msgid "Rooms can’t overlap."
+msgstr "Le stanze non possono sovrapporsi."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} up."
+msgstr "Spostato in alto: {room}."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} down."
+msgstr "Spostato in basso: {room}."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} left."
+msgstr "Spostato a sinistra: {room}."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} right."
+msgstr "Spostato a destra: {room}."
