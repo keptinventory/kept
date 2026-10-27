@@ -245,6 +245,8 @@ export function PhotoTile({
   /** The list spans depths (a location's things): a Large tile says where each one is. */
   showPath?: boolean;
 }) {
+  const hasType = !!useTypeName()(thing.type);
+  const path = showPath && thing.path.length > 0;
   return (
     <Link
       to="/t/$id"
@@ -274,8 +276,13 @@ export function PhotoTile({
       >
         {thing.name ? <bdi>{thing.name}</bdi> : <Trans>Untitled draft</Trans>}
       </span>
-      {size === 'large' ? <TypeText thing={thing} /> : null}
-      {size === 'large' && showPath && thing.path.length ? <PathText path={thing.path} /> : null}
+      {/* A Large tile's type and where it is share one wrapping line, type first, as in a row. */}
+      {size === 'large' && (hasType || path) ? (
+        <span className="flex flex-wrap items-center gap-1.5">
+          <TypeText thing={thing} before={path} />
+          {path ? <PathText path={thing.path} /> : null}
+        </span>
+      ) : null}
       {size !== 'small' ? <LabelTape code={thing.shortCode} printed={thing.labelPrinted} /> : null}
       {size !== 'small' ? <TagChips tags={thing.tags ?? []} /> : null}
     </Link>

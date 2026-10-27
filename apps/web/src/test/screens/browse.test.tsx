@@ -897,6 +897,16 @@ describe('what a row says about a box and a type (#321)', () => {
     );
   });
 
+  it('a Large tile of a location says the type and where on one line', async () => {
+    await renderApp(`/loc/${IDS.home}?view=grid&size=large`);
+    const tile = await rowOf('Contents of Home', /HDMI cable, 2 m/);
+    const type = tile.querySelector('[data-thing-type]');
+    expect(type).toHaveTextContent(/^Cable/);
+    // Type first, then the path, in the one wrapping line.
+    expect(type?.parentElement?.firstElementChild).toBe(type);
+    expect(type?.parentElement).toHaveTextContent(/^Cable.*Office › Desk drawer › Cable box$/);
+  });
+
   it('a Medium tile stays the name and its tape', async () => {
     await renderApp(`/p/${P.deskDrawer}?view=grid`);
     const medium = await rowOf('Contents of Desk drawer', /Cable box/);
@@ -916,8 +926,20 @@ describe('what a row says about a box and a type (#321)', () => {
     await findHeading('Office');
     await user.click(await screen.findByRole('button', { name: /^Display options/ }));
     const sheet = await screen.findByRole('dialog', { name: 'Display' });
+    // The note describes the menu; the sort group's name stays its heading.
+    expect(within(sheet).getByRole('group', { name: 'Things: sort by' })).toBeInTheDocument();
+    expect(within(sheet).getByRole('menu')).toHaveAccessibleDescription(
+      'Places keep their own order.',
+    );
+  });
+
+  it('says nothing about places where there are none', async () => {
+    const { user } = await renderApp(`/p/${P.deskDrawer}`);
+    await findHeading('Desk drawer');
+    await user.click(await screen.findByRole('button', { name: /^Display options/ }));
+    const sheet = await screen.findByRole('dialog', { name: 'Display' });
     expect(within(sheet).getByText('Things: sort by')).toBeInTheDocument();
-    expect(within(sheet).getByText('Places keep their own order.')).toBeInTheDocument();
+    expect(within(sheet).queryByText('Places keep their own order.')).toBeNull();
   });
 });
 

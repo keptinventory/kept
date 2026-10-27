@@ -527,7 +527,8 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
         ]}
         sortTitle={t`Things: sort by`}
         // #321: Z to A turns the things around; places stay A to Z, or in the place's own order.
-        {...(parent.kind === 'container' ? {} : { sortNote: t`Places keep their own order.` })}
+        // Said only where places are listed.
+        {...(hasPlaces ? { sortNote: t`Places keep their own order.` } : {})}
         sorts={[
           { value: 'name', label: t`Name` },
           { value: 'updated', label: t`Changed`, kind: 'date' },

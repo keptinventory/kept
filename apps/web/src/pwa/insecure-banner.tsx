@@ -85,7 +85,10 @@ export function InsecureBanner({
         onPress={() => {
           rememberDismissed(userId);
           setHidden(true);
-          void mark(HTTP_BANNER_HINT, { dismissed: true });
+          // Only onto hints that are known: marking writes the cache first, and an unread (failed)
+          // one would become a one-entry list that says every other first-use hint is due. The
+          // effect above uploads this dismissal once the hints can be read.
+          if (hints.isSuccess) void mark(HTTP_BANNER_HINT, { dismissed: true });
         }}
         className="size-9 shrink-0 [&_svg]:size-4"
       >

@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { inventoryPaths } from '@/api/inventory/paths';
+import { inventoryKeys } from '@/api/inventory/queries';
 import { ownerScenario } from '@/api/mock/fixtures';
 import { createMockApi, type MockApi, MockReply } from '@/api/mock/server';
 import { AppProviders } from '@/app-providers';
@@ -243,6 +244,7 @@ describe('plain HTTP', () => {
     const result = await renderUI(ui(props));
     return {
       ...result,
+      client,
       rerender: (p: typeof props) =>
         result.rerender(<AppProviders locale="en">{ui(p)}</AppProviders>),
     };
@@ -308,11 +310,16 @@ describe('plain HTTP', () => {
       inventoryPaths.hints,
       () => new MockReply(503, { error: 'x', code: 'internal' }),
     );
-    const { user } = await banner({ insecure: true, userId: BRUCE }, mock);
+    const { user, client } = await banner({ insecure: true, userId: BRUCE }, mock);
     await user.click(await screen.findByRole('button', { name: 'Dismiss' }));
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
     // This device remembers it until the server can.
     expect(localStorage.getItem(insecureBannerKey(BRUCE))).toBe('1');
+    // Nothing is sent, and the unknown hints stay unknown: a one-entry list in the cache would
+    // say every other first-use hint is due.
+    expect(mock.lastCall('PUT', inventoryPaths.hint(HTTP_BANNER_HINT))).toBeUndefined();
+    expect(client.getQueryData(inventoryKeys.hints)).toBeUndefined();
+    expect(client.getQueryState(inventoryKeys.hints)?.status).toBe('error');
   });
 
   it('shows, and dismisses for the page, when storage is unavailable', async () => {

@@ -17,7 +17,7 @@
  * from.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import {
   Button as AriaButton,
   Header,
@@ -139,6 +139,7 @@ export function DisplayButton({
   const { t } = useLingui();
   const wide = useMediaQuery(WIDE);
   const [open, setOpen] = useState(false);
+  const noteId = useId();
   const { sorts, groups, layouts, sizes } = options;
   const state = displayState(list, options);
   const { sort, kind, dir, group, groupDefault, layout, size, sizeDefault } = state;
@@ -187,6 +188,7 @@ export function DisplayButton({
   const menu = (autoFocus: boolean) => (
     <Menu
       aria-label={t`Display options`}
+      {...(options.sortNote && sorts?.length ? { 'aria-describedby': noteId } : {})}
       shouldCloseOnSelect={false}
       {...(autoFocus ? { autoFocus: 'first' as const } : {})}
       className="grid gap-px p-1 outline-none"
@@ -208,8 +210,14 @@ export function DisplayButton({
         >
           <Header className={headerClass}>
             {options.sortTitle ?? <Trans>Sort</Trans>}
+            {/* Seen under the heading, heard as the menu's description: the sort group's name
+                stays its heading. */}
             {options.sortNote ? (
-              <span className="mt-1 block font-normal text-small text-ink-3 normal-case tracking-normal">
+              <span
+                id={noteId}
+                aria-hidden="true"
+                className="mt-1 block font-normal text-small text-ink-3 normal-case tracking-normal"
+              >
                 {options.sortNote}
               </span>
             ) : null}
