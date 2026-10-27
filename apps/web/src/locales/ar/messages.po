@@ -18655,10 +18655,6 @@ msgid "Nothing sent yet"
 msgstr "لم يُرسل شيء بعد"
 
 #: src/components/webhooks/words.tsx
-msgid "Off: every delivery failed for a day."
-msgstr "متوقف: فشلت كل إرسالية لمدة يوم."
-
-#: src/components/webhooks/words.tsx
 msgid "Off: the person who made it is no longer an admin here."
 msgstr "متوقف: لم يعد من أنشأه مشرفًا هنا."
 

@@ -10,9 +10,6 @@ allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:
   - '@types/node@26.6.3'
-  - '@vitest/mocker@5.0.2'
-  - '@vitest/spy@5.0.2'
-  - vitest@5.0.2
   - '@aws-sdk/client-s3@3.1141.0'
   - '@aws-sdk/s3-request-presigner@3.1141.0'
   - '@ai-sdk/openai@4.0.78'

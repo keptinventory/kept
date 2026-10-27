@@ -145,11 +145,13 @@ in parallel jobs that are required to merge:
 |---|---|
 | `fast` | lint, the catalogues, typecheck, the unit tests, the mock evaluations, the licence allowlist |
 | `db` | the server's tests on Postgres with pgvector and RustFS, migration drift, a production boot, portability, backup |
-| `e2e` | Playwright against the built server |
+| `e2e` | Playwright against the built server, plus the update-migration spec |
+| `e2e-update` | the update-migration spec on its own |
 | `images-amd64`, `images-arm64` | the image built natively on each architecture and smoked |
 | `helm` | the chart's lint, render and schema check |
 | `attribution` | no AI attribution in the commits or the description |
 | `build` (`docs.yml`) | the docs site, with its link check |
+| `cla` (`cla.yml`) | the contributor has signed the CLA, once, by commenting on their first pull request |
 
 Performance runs nightly (`perf.yml`) as a report, not a gate: timings on a shared runner are
 noisy.
@@ -244,7 +246,8 @@ your work. Self-hosting stays free and open source.
 3. Open a pull request against `main`. Its **title is a Conventional Commit subject**: pull
    requests are squash-merged, the title becomes the commit on `main`, and your commits become its
    body. Fill in the template's checks.
-4. The required checks (`fast`, `attribution`, `build`) must pass and every review thread
+4. The required checks (`fast`, `db`, `e2e`, `e2e-update`, `images-amd64`, `images-arm64`, `helm`,
+   `attribution`, `build` and `cla`) must pass and every review thread
    must be resolved. History on `main` stays linear; the branch is deleted on merge.
 
 **Review.** The maintainer reviews every pull request. Expect questions
