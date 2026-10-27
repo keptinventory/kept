@@ -3,6 +3,79 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.13.0 (2026-10-27)
+
+### Highlights
+
+**Kept on a home network, and moving over from Homebox.** Before and now:
+
+| | Before | Now |
+|---|---|---|
+| Install | A git clone, five passwords you make yourself, and the setup code from the logs | `docker compose run --rm init` and one compose file: four steps, passwords generated, the setup code on screen (#272) |
+| Uploads over http | Photos and files fail on a home-network address | They upload (#267) |
+| Wrong address | "That email or username and password don't match." | The address this Kept is set up for, with a link (#267) |
+| Tokens on a home network | Need HTTPS, so AI apps and Home Assistant can't connect | `kept admin token create` on the server (#267) |
+| Export over http | Refused | Works without secret values; secrets still need HTTPS (#273) |
+| The http notice | Can't be dismissed; Get started never finishes | The banner can be dismissed; "Staying on my home network" finishes the step (#267, #273) |
+| Homebox instructions | "Collection settings → Export" | Collection → Tools → Backup & Restore → Create Backup → Download (#267) |
+| Homebox types | `global.item`; no "no type"; one box makes every item a box | Item and Location; No type or New type…; only the item that holds things becomes a box (#268) |
+| Import report | Flagged rows don't say why; quantity 0 becomes 1 | Every row says why; quantity 0: keep 0 or archive, set to 1, or leave out; the report stays in Activity; a past import can be repaired (#268) |
+| Boxes at import | Every location comes in as a place | Locations that look like boxes are offered as boxes (#268) |
+| Place order | Creation order; Box 10 before Box 2 | A–Z with numbers in order; floors keep their order; your own order where you want it (#269, #270) |
+| Many boxes at once | One at a time, no undo | Pick many, convert in one step, one Undo (#270) |
+| Boxes in the tree | Missing from the tree and the pickers | In the tree with a count of what's inside, up to 50 a place, then +N boxes; pickers and Move find them (#269) |
+| Codes in lists | An amber code on every row | Names first; the amber tape only on things with a printed label (#271) |
+| Sidebar | One long list with Locations far down; imports switch on the Household set (Money, Warranties, Schedules and more) | Home and Inbox, Locations, Tracking, Tools, then the rest; Tracking and Tools fold; imports and new accounts start with Essentials (#267, #268) |
+| Prices, warranties, maintenance at import | Money turned on for everyone | An import into a new location turns on only the modules your backup has data for, each shown with its count; untick any to keep it as notes (#268) |
+
+- **Require two-factor from the app.** Owners turn it on for a location in Members and see who still needs two-factor or a passkey. Members who haven't set one up are told why the location won't open, with a button to set it up.
+- **Label every place, not only things.** "Label everything here" asks Things or Places, and places that never had a label get their code and print with the rest.
+- **Clearer sign-in and offline sizes.** "Sign in with Google" reads with one space, and This device says "Nothing to download" or "Calculating…" instead of "About 0 byte".
+
+### Fixes
+
+- two-factor for a location from the app, labels for every place, sign-in and offline wording (#255) (6e722dd)
+
+### Other
+
+- Many places into boxes with one Undo, and a place's own order (#315, closes #270) (8767c56)
+- Names first: the amber tape only on things with a printed label (#311, closes #271) (1c2cde1)
+- Places A–Z with numbers in order, and boxes stay in the tree (#309, closes #269) (9215f22)
+- Your own data over http: export without secret values, and a home-network guide (#308, closes #273) (e6753bf)
+- Test: the audit money check ignores digits inside ids (#310) (ae28dee)
+- 1.13.0 small fixes: metrics token in Compose, webhook text, CI docs, Vitest 5.0.3 (#306, closes #297, #298, #299, #300) (0cf775c)
+- Discord release post: tables as bullet lines (#304) (70799ac)
+- README: what's next, by release (#305) (672b2c4)
+- FAQ: Homebox backup wording, how Kept differs from Homebox, free or paid (#302) (30dbd7c)
+- CLA check: let Dependabot's pull requests through (#291) (111e700)
+- README: the quick start needs 1.13.0 until it's released (#292) (a61c2bc)
+- CODEOWNERS: the maintainers team reviews every pull request (#290) (fb81ee4)
+- Home network over http: uploads, copy, the wrong-address message and tokens (#284, closes #267) (373a0fe)
+- Install with Docker Compose without a git clone or hand-made passwords (#285, closes #272) (5ec4e62)
+- The Homebox import speaks Homebox and can repair a past import (#286, closes #268) (fd79f3b)
+
+### Documentation
+
+- **users:** add a standalone photos and paperwork page (#283) (9ea9a57)
+- **users:** add a standalone short IDs and labels page (#282) (a7067eb)
+- **users:** add a standalone things page (#281) (03d4ec0)
+- **users:** add a standalone spreadsheet page (#280) (1ec7c33)
+- **users:** add a standalone locations page (#279) (15515b6)
+- **users:** add a standalone home page (#278) (cd2eaa0)
+- **users:** add a standalone insights page (#275) (e79f704)
+- **users:** add a standalone condition reports page (#274) (c930732)
+- **users:** add a standalone search page (#260) (26a549e)
+- **users:** add a standalone reports, insurance and claims page (#259) (c74ac36)
+- **users:** add a standalone sharing a location page (#258) (dcbc1f2)
+- **users:** add a standalone reminders and notifications page (#257) (a199fb4)
+- **users:** add a standalone vehicles and machines page (#256) (1ab83d7)
+- **readme:** what's next after 1.12.5 (#254) (dc08503)
+- **release:** the 1.12.5 record (#253) (32adc16)
+
+### Contributors
+
+@ibrahimroshdy · @oke3
+
 ## 1.12.5 (2026-10-21)
 
 ### Highlights
