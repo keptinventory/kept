@@ -101,6 +101,7 @@ const sidebar = [
     page('users/first-run'),
     page('users/home'),
     page('users/everyday-use'),
+    page('users/photos-paperwork'),
     page('users/short-ids'),
     page('users/things'),
     page('users/spreadsheet'),
