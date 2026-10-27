@@ -311,6 +311,8 @@ export async function updatePlace(
   if (sets.length > 0) {
     await c.client.query(`UPDATE public.places SET ${sets.join(', ')} WHERE id = $1`, values);
   }
+  // Moved into a place in Custom order, it goes last there: a `sort` sent in the same PATCH is
+  // overridden (Move up / Move down set the position afterwards).
   if (parentChanges) await lastInCustomOrder(c.client, id);
   const after = await requirePlace(c.client, id);
 

@@ -420,6 +420,59 @@ describe('POST /api/v1/places/:id/convert-children-to-containers', () => {
     ).toEqual([tub1, tub2].sort());
   });
 
+  it('refuses the Undo when a box was tagged or linked since, and changes nothing', async () => {
+    const shed = await newPlace('Potting shed', null, 'room');
+    const tray1 = await newPlace('Tray 1', shed);
+    const tray2 = await newPlace('Tray 2', shed);
+    const trowel = await createThing(t, louis, home, { name: 'Trowel', placeId: shed });
+    const tagged = auditIds(await convertMany(shed, [tray1]));
+    const linked = auditIds(await convertMany(shed, [tray2]));
+    // Neither bumps the box's row version: a tag and a link are rows of their own.
+    const [tag] = await own<{ id: string }>(
+      db,
+      `INSERT INTO public.tags (owner_account_id, name) VALUES ($1, 'Seeds') RETURNING id`,
+      [home.accountId],
+    );
+    await own(
+      db,
+      'INSERT INTO public.thing_tags (location_id, thing_id, tag_id) VALUES ($1, $2, $3)',
+      [home.id, tray1, tag?.id],
+    );
+    await own(
+      db,
+      `INSERT INTO public.thing_links (location_id, from_thing_id, to_thing_id, kind)
+       VALUES ($1, $2, $3, 'accessory_of')`,
+      [home.id, trowel.id, tray2],
+    );
+    const cases: [string[], string][] = [
+      [tagged, 'tags'],
+      [linked, 'links'],
+    ];
+    for (const [ids, field] of cases) {
+      const refused = await undoTogether(ids);
+      expect(refused.statusCode, refused.body).toBe(409);
+      expect(refused.json()).toMatchObject({
+        code: 'undo_refused',
+        reason: 'changed_since',
+        conflicts: [field],
+      });
+    }
+    const { boxes } = await tree();
+    expect(
+      boxes
+        .filter((b) => b.placeId === shed)
+        .map((b) => b.id)
+        .sort(),
+    ).toEqual([tray1, tray2].sort());
+    const [kept] = await own<{ tags: number; links: number }>(
+      db,
+      `SELECT (SELECT count(*) FROM public.thing_tags WHERE thing_id = $1)::int AS tags,
+              (SELECT count(*) FROM public.thing_links WHERE to_thing_id = $2)::int AS links`,
+      [tray1, tray2],
+    );
+    expect(kept).toEqual({ tags: 1, links: 1 });
+  });
+
   it('refuses a viewer (403) and a place that is not live (404); the single convert keeps no undo', async () => {
     const yard = await newPlace('Yard', null, 'room');
     const bin = await newPlace('Bin', yard);

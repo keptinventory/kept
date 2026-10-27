@@ -13,6 +13,7 @@ import { AppError, conflict } from '../http/errors.js';
 import { requireCan } from '../locations/access.js';
 import { enqueueReindex } from '../search/jobs.js';
 import { gateFor } from '../serialize/gates.js';
+import { conversionLosses } from '../things/losses.js';
 import {
   auditRelocations,
   ORPHAN_RETURNING,
@@ -262,7 +263,9 @@ async function undoPlaceTrash(args: UndoArgs): Promise<void> {
  * own order back; what is in the box goes back into the place, its code, label and attachments
  * with it (kept.convert_container_to_place), and the place's fields the box set aside (its
  * `archived_custom`) back in its fields. Refused while the box changed since the conversion (its
- * row version: renamed, moved, given a brand…), when it is in the trash or gone, when the place
+ * row version: renamed, moved, given a brand…), while it holds anything a place can't (tags,
+ * links and the rest of things/losses.ts, which don't move its version), when it is in the trash
+ * or gone, when the place
  * it was in is gone, and when the kind it had is archived.
  */
 async function undoConvert(args: UndoArgs): Promise<void> {
@@ -295,6 +298,13 @@ async function undoConvert(args: UndoArgs): Promise<void> {
   if (thing.row_version !== box) {
     const who = await lastChangedBy(client, loc, { type: 'thing', id }, event.at);
     throw undoConflict(['box'], who);
+  }
+  // A tag or a link is a row of its own (the box's version doesn't move), and the box's row goes:
+  // as for "Turn into a place", anything a place can't hold refuses the Undo, by name.
+  const losses = await conversionLosses(client, id);
+  if (losses.length > 0) {
+    const who = await lastChangedBy(client, loc, { type: 'thing', id }, event.at);
+    throw undoConflict(losses, who);
   }
   const parentId = was('parent_id') as string | null;
   if (parentId) {
