@@ -635,6 +635,32 @@ describe('Kept putting things on the map (#194)', () => {
   });
 });
 
+describe('a room moved in Arrange (#301)', () => {
+  it('needs only its new corner: its things stand in it as before, and Undo moves it back', async () => {
+    const v1 = (await json<{ version: string }>(putLayout(ola, fullLayout(null)))).version;
+    // The living room moved 3 m along and 2 m back; what stands in it is sent as it was, in the
+    // room's own centimetres.
+    const moved = fullLayout(v1);
+    moved.rooms[0] = { ...moved.rooms[0], x: 300, z: 200 } as (typeof moved.rooms)[number];
+    const res = await putLayout(max, moved);
+    expect(res.statusCode, res.body).toBe(200);
+    const map = await json<MapJson>(getMap(vic));
+    expect(map.rooms.find((r) => r.id === ids.living)?.layout).toMatchObject({ x: 300, z: 200 });
+    const box = map.nodes.find((n) => n.id === ids.box)?.layout;
+    expect(box).toMatchObject({ x: 200, z: 300 });
+    expect(map.nodes.find((n) => n.id === ids.tv)?.layout).toMatchObject({ hostId: ids.box });
+
+    const undo = await call(t, `/api/v1/audit/${String(res.headers['x-kept-audit-event'])}/undo`, {
+      as: max,
+      body: {},
+    });
+    expect(undo.statusCode, undo.body).toBe(200);
+    const back = await json<MapJson>(getMap(ola));
+    expect(back.rooms.find((r) => r.id === ids.living)?.layout).toMatchObject({ x: 0, z: 0 });
+    expect(back.nodes.find((n) => n.id === ids.box)?.layout).toMatchObject({ x: 200, z: 300 });
+  });
+});
+
 describe('undo of an arrange session', () => {
   it('puts the layout from before back, once, and not after someone arranged again', async () => {
     const r1 = await putLayout(ola, fullLayout(null));

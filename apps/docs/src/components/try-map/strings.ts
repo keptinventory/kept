@@ -153,7 +153,9 @@ type Words = {
   drawRoom: string;
   addFloor: string;
   cancel: string;
-  hints: Record<'move' | 'room' | 'overlap', string>;
+  hints: Record<'move' | 'room' | 'overlap' | 'blocked', string>;
+  /** #301: where an arrow key moved the selected room, for screen readers. */
+  movedRoom: Record<'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight', (room: string) => string>;
   floor: string;
   allFloors: string;
   all: string;
@@ -289,9 +291,16 @@ export const WORDS: Record<Lang, Words> = {
     addFloor: 'Add a floor',
     cancel: 'Cancel',
     hints: {
-      move: 'Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. Drag a room’s amber corner to resize it.',
+      move: 'Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. To move a room, hold its floor, then drag. Drag its amber corner to resize it.',
       room: 'Drag on empty ground to draw a new room on this floor.',
       overlap: 'Rooms can’t overlap. Draw on empty ground.',
+      blocked: 'Rooms can’t overlap.',
+    },
+    movedRoom: {
+      ArrowUp: (room) => `Moved ${room} up.`,
+      ArrowDown: (room) => `Moved ${room} down.`,
+      ArrowLeft: (room) => `Moved ${room} left.`,
+      ArrowRight: (room) => `Moved ${room} right.`,
     },
     floor: 'Floor',
     allFloors: 'All floors',
@@ -434,9 +443,16 @@ export const WORDS: Record<Lang, Words> = {
     addFloor: 'أضف طابقًا',
     cancel: 'إلغاء',
     hints: {
-      move: 'اسحب أي شيء لنقله. ضع الأشياء الصغيرة على سطح أو مكتب أو رف أو صندوق، وأشياء الحائط تُعلَّق على أقرب حائط. اسحب الزاوية الكهرمانية للغرفة لتغيير حجمها.',
+      move: 'اسحب أي شيء لنقله. ضع الأشياء الصغيرة على سطح أو مكتب أو رف أو صندوق، وأشياء الحائط تُعلَّق على أقرب حائط. لنقل غرفة، اضغط مطولًا على أرضيتها ثم اسحب. اسحب زاويتها الكهرمانية لتغيير حجمها.',
       room: 'اسحب على أرض فارغة لرسم غرفة جديدة في هذا الطابق.',
       overlap: 'لا يمكن أن تتداخل الغرف. ارسم على أرض فارغة.',
+      blocked: 'لا يمكن أن تتداخل الغرف.',
+    },
+    movedRoom: {
+      ArrowUp: (room) => `نُقل «${room}» إلى الأعلى.`,
+      ArrowDown: (room) => `نُقل «${room}» إلى الأسفل.`,
+      ArrowLeft: (room) => `نُقل «${room}» إلى اليسار.`,
+      ArrowRight: (room) => `نُقل «${room}» إلى اليمين.`,
     },
     floor: 'الطابق',
     allFloors: 'كل الطوابق',

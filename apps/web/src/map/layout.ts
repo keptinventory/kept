@@ -808,6 +808,69 @@ export function overlapsRoom(
   return rooms.some((o) => o.id !== skipId && o.levelKey === levelKey && rectsOverlap(rect, o));
 }
 
+// ---- Moving a room (#301) ------------------------------------------------------------------
+
+/** Metres a room moves at a time: whole metres, as it is drawn and resized. */
+export const ROOM_STEP = 1;
+
+/**
+ * Moves a room so its corner is at `to` (the map's own coordinates), snapped to whole metres, on
+ * its own floor, never over another room there. Where that spot is taken it slides along the one
+ * axis that is still free (along a neighbour's wall), else stays. What stands in it goes with it
+ * as it is: a room's things are kept in the room's own coordinates. True when it moved.
+ */
+export function moveRoom(rooms: readonly Room[], r: Room, to: { x: number; z: number }): boolean {
+  // `|| 0`: no −0 for a corner just left of zero.
+  const x = snap(to.x, ROOM_STEP) || 0;
+  const z = snap(to.z, ROOM_STEP) || 0;
+  for (const [cx, cz] of [
+    [x, z],
+    [x, r.z],
+    [r.x, z],
+  ] as const) {
+    if (cx === r.x && cz === r.z) continue;
+    if (overlapsRoom(rooms, { x: cx, z: cz, w: r.w, d: r.d }, r.id, r.levelKey)) continue;
+    r.x = cx;
+    r.z = cz;
+    return true;
+  }
+  return false;
+}
+
+export type Arrow = 'ArrowUp' | 'ArrowRight' | 'ArrowDown' | 'ArrowLeft';
+const ARROW_TURNS: Record<Arrow, number> = {
+  ArrowUp: 0,
+  ArrowRight: 1,
+  ArrowDown: 2,
+  ArrowLeft: 3,
+};
+export const isArrow = (key: string): key is Arrow => Object.hasOwn(ARROW_TURNS, key);
+
+/** Where an arrow key is a control's own (a field, a slider, a list, a dialog): the map leaves
+ * those alone (a selector, for `closest`). */
+export const OWN_ARROWS =
+  'input, textarea, select, [contenteditable], [role="slider"], [role="spinbutton"], [role="radio"], [role="radiogroup"], [role="listbox"], [role="option"], [role="menu"], [role="menuitem"], [role="combobox"], [role="tablist"], [role="tab"], [role="grid"], [role="dialog"], [role="alertdialog"], dialog';
+
+/**
+ * One step on the floor for an arrow key (#301), as the view is turned: Up is away from the
+ * viewer, Right to the right, along whichever of the floor's two axes is nearer. The four keys
+ * always go four different ways. `az` is the 3D view's turn (engine.ts: the camera sits towards
+ * (sin az, cos az) from what it looks at); the plan view looks down with −z up the screen.
+ */
+export function arrowStep(key: Arrow, az: number, planView: boolean): { dx: number; dz: number } {
+  // Away from the viewer as an angle on the floor (atan2 of z over x), in quarter turns. The
+  // map's usual view (π/4) sits exactly between two axes: Up goes to −z there, the back.
+  const away = planView ? -Math.PI / 2 : Math.atan2(-Math.cos(az), -Math.sin(az));
+  const q = Math.round(away / (Math.PI / 2) + 1e-6) + ARROW_TURNS[key];
+  const steps = [
+    { dx: ROOM_STEP, dz: 0 },
+    { dx: 0, dz: ROOM_STEP },
+    { dx: -ROOM_STEP, dz: 0 },
+    { dx: 0, dz: -ROOM_STEP },
+  ] as const;
+  return { ...(steps[((q % 4) + 4) % 4] ?? steps[0]) };
+}
+
 /** The room under a point on a level. */
 export function roomAt(
   rooms: readonly Room[],

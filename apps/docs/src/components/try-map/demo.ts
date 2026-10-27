@@ -7,7 +7,8 @@
  * auth and Lingui catalogues; this is that component's controls and card again in plain DOM, fed
  * by the sample instead of the server, so the page needs no framework and no app code beyond the
  * map's. Arrange works in memory: Done keeps the changes while the page is open, Cancel throws the
- * session away, and Reset puts the sample back. Nothing is saved or sent; only the Detailed models
+ * session away, and Reset puts the sample back. A selected room moves by its floor or, as in the
+ * app, by the arrow keys (#301). Nothing is saved or sent; only the Detailed models
  * choice is remembered, as the app remembers it.
  */
 import {
@@ -39,6 +40,7 @@ import type {
 import {
   type EngineState,
   type EngineStats,
+  type Hint,
   MapEngine,
   type Quality,
   type Tool,
@@ -53,7 +55,9 @@ import {
   flagsOf,
   holdersFor,
   type Item,
+  isArrow,
   type Level,
+  OWN_ARROWS,
   type Plan,
   planOf,
   putOn,
@@ -151,6 +155,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
         <div class="kmap-labels" aria-hidden="true"></div>
         <div class="kmap-tip" hidden></div>
         <div class="kd-overlay" data-slot="overlay"></div>
+        <p class="kd-sr" role="status" aria-live="polite" data-slot="said"></p>
       </section>
       <section class="kd-sr" data-slot="places" aria-label="${esc(w.placesHere)}"></section>
     </div>`;
@@ -160,6 +165,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
   const tip = host.querySelector<HTMLElement>('.kmap-tip') as HTMLElement;
   const overlay = host.querySelector<HTMLElement>('[data-slot="overlay"]') as HTMLElement;
   const places = host.querySelector<HTMLElement>('[data-slot="places"]') as HTMLElement;
+  const said = host.querySelector<HTMLElement>('[data-slot="said"]') as HTMLElement;
 
   // ---- State, as the app's MapBody keeps it ---------------------------------------------------
 
@@ -174,7 +180,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     arranging: false,
     tool: 'move',
   };
-  let hint: Tool | 'overlap' = 'move';
+  let hint: Hint = 'move';
   let dirty = false;
   let quality = storedQuality();
   let pins: Record<MapAttentionKind, boolean> = { low: true, lent: true, due: true };
@@ -1161,7 +1167,24 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     else return;
     render();
   };
+  /** #301: with a room selected in Arrange, an arrow key moves it a metre, as in the app
+   * (map-view.tsx), and says where it went. */
+  const nudge = (ev: KeyboardEvent): boolean => {
+    if (!engine || !es.arranging || es.selected?.type !== 'room') return false;
+    if (!isArrow(ev.key) || ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey) return false;
+    if ((ev.target as HTMLElement | null)?.closest?.(OWN_ARROWS)) return false;
+    const done = engine.nudgeRoom(ev.key);
+    if (!done) return false;
+    ev.preventDefault();
+    const words = done.moved
+      ? w.movedRoom[ev.key](`\u2068${done.room.name}\u2069`)
+      : w.hints.blocked;
+    // The same words again (a second step the same way) are said again: they differ by a space.
+    said.textContent = said.textContent === words ? `${words}\u00a0` : words;
+    return true;
+  };
   const onKey = (ev: KeyboardEvent) => {
+    if (nudge(ev)) return;
     if ((ev.target as HTMLElement | null)?.closest?.('input, textarea, dialog')) return;
     if (ev.key !== 'Escape' || !engine) return;
     if (inner) {

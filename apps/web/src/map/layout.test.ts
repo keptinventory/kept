@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { MapView } from '@/api/map/types';
 import {
   allUnder,
+  arrowStep,
   bodyOf,
   clampIn,
   contentsOf,
@@ -12,7 +13,9 @@ import {
   fp,
   hostAt,
   type Item,
+  isArrow,
   moveBy,
+  moveRoom,
   overlapsRoom,
   planOf,
   rehome,
@@ -380,6 +383,120 @@ describe('arranging', () => {
       Math.min(...body.rooms.filter((r) => r.id !== GARAGE && r.id !== BED).map((r) => r.x)),
     ).toBe(0);
     expect(body.nodes.find((n) => n.id === BOX)).toMatchObject({ model: 'box', hostId: null });
+  });
+});
+
+describe('moving a room (#301)', () => {
+  const plan = () => {
+    const p = planOf(view(), NAMES);
+    const room = (rid: string) => {
+      const r = p.rooms.find((x) => x.id === rid);
+      if (!r) throw new Error('fixture');
+      return r;
+    };
+    return { p, living: room(LIVING), kitchen: room(KITCHEN), balcony: room(BED) };
+  };
+
+  it('snaps its corner to whole metres', () => {
+    const { p, living } = plan();
+    // The auto layout puts the living room first, at 0, and the kitchen to its right.
+    expect([living.x, living.z]).toEqual([0, 0]);
+    expect(moveRoom(p.rooms, living, { x: -2.4, z: 3.6 })).toBe(true);
+    expect([living.x, living.z]).toEqual([-2, 4]);
+    // Less than half a metre is no move at all.
+    expect(moveRoom(p.rooms, living, { x: -2.3, z: 4.4 })).toBe(false);
+    expect([living.x, living.z]).toEqual([-2, 4]);
+  });
+
+  it('never goes over another room on its floor, and slides along it instead', () => {
+    const { p, living, kitchen } = plan();
+    // Straight onto the kitchen: refused, nothing moves.
+    expect(moveRoom(p.rooms, living, { x: kitchen.x, z: kitchen.z })).toBe(false);
+    expect([living.x, living.z]).toEqual([0, 0]);
+    // Towards it and down: it stops against the kitchen and goes down only.
+    expect(moveRoom(p.rooms, living, { x: 2, z: 2 })).toBe(true);
+    expect([living.x, living.z]).toEqual([0, 2]);
+    expect(overlapsRoom(p.rooms, living, living.id, living.levelKey)).toBe(false);
+    // Edge to edge is not overlapping.
+    expect(moveRoom(p.rooms, living, { x: -1, z: 0 })).toBe(true);
+    expect(moveRoom(p.rooms, living, { x: kitchen.x - living.w, z: 0 })).toBe(true);
+    expect(living.x + living.w).toBe(kitchen.x);
+  });
+
+  it('stays on its floor, where rooms of other floors are no obstacle', () => {
+    const { p, living, balcony } = plan();
+    // The balcony (first floor) lies over the ground floor's living room: it can still move there.
+    expect(rectsOverlap(balcony, living)).toBe(true);
+    expect(moveRoom(p.rooms, balcony, { x: 1, z: 1 })).toBe(true);
+    expect(balcony.levelKey).toBe(F1);
+    expect([balcony.x, balcony.z]).toEqual([1, 1]);
+  });
+
+  it('takes what stands in it along, things on things and all', () => {
+    const { p, living } = plan();
+    const box = p.items.find((i) => i.id === BOX);
+    if (!box) throw new Error('fixture');
+    const laptop: Item = { ...box, id: LAPTOP, model: 'laptop', on: BOX, x: box.x + 0.1 };
+    p.items.push(laptop);
+    const inRoom = [box, laptop].map((it) => ({ x: it.x, z: it.z }));
+    const onMap = () => [box, laptop].map((it) => ({ x: living.x + it.x, z: living.z + it.z }));
+    const before = onMap();
+    expect(moveRoom(p.rooms, living, { x: -3, z: 2 })).toBe(true);
+    for (const [i, a] of onMap().entries()) {
+      expect(a.x - (before[i]?.x ?? 0)).toBeCloseTo(-3);
+      expect(a.z - (before[i]?.z ?? 0)).toBeCloseTo(2);
+    }
+    // Their places in the room are as they were: nothing to save for them but the room.
+    expect([box, laptop].map((it) => ({ x: it.x, z: it.z }))).toEqual(inRoom);
+    expect(laptop.on).toBe(BOX);
+    const over = { x: living.x + box.x + 0.1, z: living.z + box.z + 0.1 };
+    expect(hostAt(p, G, over, { ...laptop, on: null })?.id).toBe(BOX);
+  });
+
+  it('saves only the room’s new corner; every floor still starts at zero', () => {
+    const { p, living, kitchen } = plan();
+    const nodesBefore = bodyOf(p, null).nodes;
+    const gap = kitchen.x - living.x;
+    expect(moveRoom(p.rooms, living, { x: -4, z: 0 })).toBe(true);
+    const body = bodyOf(p, 'v1');
+    expect(body.nodes).toEqual(nodesBefore);
+    const at = (rid: string) => body.rooms.find((r) => r.id === rid);
+    expect(at(LIVING)).toMatchObject({ x: 0, z: 0 });
+    expect(at(KITCHEN)?.x).toBe((gap + 4) * 100);
+  });
+
+  describe('a step for each arrow key', () => {
+    const all = (az: number, planView = false) =>
+      (['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'] as const).map((k) => {
+        const s = arrowStep(k, az, planView);
+        return `${s.dx},${s.dz}`;
+      });
+
+    it('goes up the screen to the back in the plan view, whatever the turn', () => {
+      expect(all(0, true)).toEqual(['0,-1', '1,0', '0,1', '-1,0']);
+      expect(all(2, true)).toEqual(['0,-1', '1,0', '0,1', '-1,0']);
+    });
+
+    it('goes the same ways in the usual 3D view', () => {
+      expect(all(Math.PI / 4)).toEqual(['0,-1', '1,0', '0,1', '-1,0']);
+    });
+
+    it('turns with the view, a quarter at a time', () => {
+      // A quarter turn left (the Turn left button): Up goes the way Left went.
+      expect(all(Math.PI / 4 + Math.PI / 2)).toEqual(['-1,0', '0,-1', '1,0', '0,1']);
+      expect(all(Math.PI / 4 - Math.PI / 2)).toEqual(['1,0', '0,1', '-1,0', '0,-1']);
+      expect(all(Math.PI / 4 + Math.PI)).toEqual(['0,1', '-1,0', '0,-1', '1,0']);
+    });
+
+    it('always goes four different ways, at any turn', () => {
+      for (let az = -7; az < 7; az += 0.137) expect(new Set(all(az)).size).toBe(4);
+    });
+
+    it('knows the arrow keys', () => {
+      expect(isArrow('ArrowLeft')).toBe(true);
+      expect(isArrow('Enter')).toBe(false);
+      expect(isArrow('toString')).toBe(false);
+    });
   });
 });
 

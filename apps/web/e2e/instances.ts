@@ -38,6 +38,9 @@ export const INSTANCES = {
   // preview against the print, "Printed OK?" and the duplicate-sheet offer, on a seeded instance
   // of its own.
   labels: { name: 'labels', port: 8202, seed: true },
+  // Moving a room in the map's Arrange (e2e/map-arrange.spec.ts, #301): each project arranges a
+  // location it makes, on a seeded instance of its own.
+  map: { name: 'map', port: 8204, seed: true },
 } as const satisfies Record<string, Instance>;
 
 /**

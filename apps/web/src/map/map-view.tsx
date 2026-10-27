@@ -7,7 +7,8 @@
  * the controls around it (the breadcrumb, 3D or plan, Arrange, the pin chips, the floor buttons
  * like a lift, zoom, turn and home), the card, "Places on this level" for screen readers (M9), and
  * "What's in …" below. Arrange edits a copy of the plan; Done saves the session in one PUT (and
- * moves anything dragged into another room there in Kept first), Cancel throws it away.
+ * moves anything dragged into another room there in Kept first), Cancel throws it away. With a
+ * room selected in Arrange, the arrow keys move it a metre at a time and say where it went (#301).
  *
  * On a place's page (`scope`, #190) the map opens on that place (./scope.ts): its floor, its room
  * focused, or its room with it (or what holds it) selected, with a note when it isn't drawn or
@@ -34,21 +35,25 @@ import { buttonClass } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/components/ui/toast';
+import { isolate } from '@/lib/bidi';
 import { useFormat } from '@/lib/format';
 import { type CardSel, MapCard } from './card';
 import {
   type EngineState,
   type EngineStats,
+  type Hint,
   MapEngine,
   type Quality,
-  type Tool,
 } from './engine/engine';
 import { modelStats } from './engine/models';
 import {
+  type Arrow,
   bodyOf,
   contentsOf,
   countIn,
   flagsOf,
+  isArrow,
+  OWN_ARROWS,
   type Plan,
   planOf,
   putOn,
@@ -214,7 +219,9 @@ function MapBody({
     arranging: false,
     tool: 'move',
   });
-  const [hint, setHint] = useState<Tool | 'overlap'>('move');
+  const [hint, setHint] = useState<Hint>('move');
+  /** What the last arrow key did to a room (#301), for screen readers. */
+  const [said, setSaid] = useState('');
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [quality, setQualityState] = useState<Quality>(storedQuality);
@@ -692,8 +699,32 @@ function MapBody({
     else showOnMap({ type: 'room', id: parent }, id);
   };
 
+  /** #301: where an arrow key moved the selected room, said on the screen's own terms. */
+  const movedWords: Record<Arrow, (room: string) => string> = {
+    ArrowUp: (room) => t`Moved ${room} up.`,
+    ArrowDown: (room) => t`Moved ${room} down.`,
+    ArrowLeft: (room) => t`Moved ${room} left.`,
+    ArrowRight: (room) => t`Moved ${room} right.`,
+  };
+  const nudge = (ev: KeyboardEvent): boolean => {
+    if (!isArrow(ev.key) || ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey) return false;
+    // Not from a control that has arrow keys of its own (a field, a slider, a list, a dialog).
+    if ((ev.target as HTMLElement | null)?.closest?.(OWN_ARROWS)) return false;
+    const done = engineRef.current?.nudgeRoom(ev.key);
+    if (!done) return false;
+    ev.preventDefault();
+    const words = done.moved
+      ? movedWords[ev.key](isolate(done.room.name))
+      : t`Rooms can’t overlap.`;
+    // The same words again (a second step the same way) are said again: they differ by a space.
+    setSaid((prev) => (prev === words ? `${words}\u00a0` : words));
+    return true;
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: nudge reads the engine through its ref
   useEffect(() => {
     const onKey = (ev: KeyboardEvent) => {
+      if (es.arranging && es.selected?.type === 'room' && nudge(ev)) return;
       if ((ev.target as HTMLElement | null)?.closest?.('input, textarea')) return;
       if (ev.key !== 'Escape') return;
       const e = engineRef.current;
@@ -704,7 +735,7 @@ function MapBody({
     };
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
-  }, [inner, detail, es.selected, es.focused]);
+  }, [inner, detail, es.selected, es.focused, es.arranging]);
 
   const levels = plan.levels;
   const placesHere = plan.rooms.filter((r) => r.levelKey === es.levelKey);
@@ -713,10 +744,11 @@ function MapBody({
     lent: { long: t`Lent out`, short: t`Lent` },
     due: { long: t`Due soon`, short: t`Due` },
   };
-  const hints: Record<Tool | 'overlap', string> = {
-    move: t`Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. Drag a room’s amber corner to resize it.`,
+  const hints: Record<Hint, string> = {
+    move: t`Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. To move a room, hold its floor, then drag. Drag its amber corner to resize it.`,
     room: t`Drag on empty ground to draw a new room on this floor.`,
     overlap: t`Rooms can’t overlap. Draw on empty ground.`,
+    blocked: t`Rooms can’t overlap.`,
   };
 
   return (
@@ -1015,6 +1047,9 @@ function MapBody({
             here={scope?.placeId ?? null}
           />
         ) : null}
+        <p className="sr-only" role="status" aria-live="polite">
+          {said}
+        </p>
       </section>
 
       {/* M9: the map for screen readers and keyboards, as a list beside it. */}
