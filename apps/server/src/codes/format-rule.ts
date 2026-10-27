@@ -11,7 +11,7 @@ import vm from 'node:vm';
 // interrupts even mid-backtrack:
 // - when the rule is set (`vetRule`): it must compile on its own (so it can't escape the
 //   anchors: `a)|(b` is refused), its example must match, and it must answer each of a set of
-//   long test strings within VET_MS, or it is refused as too slow;
+//   long test strings within the vet limit (TIME_LIMITS), or it is refused as too slow;
 // - on every check (`checkCodes`, a save or an import's rows): a check that runs out of time is
 //   treated as not matching, with its own reason, never as a pass.
 
@@ -22,13 +22,39 @@ export const CODE_MAX = 100;
 
 export type FormatRule = { pattern: string; message: string; example: string };
 
-/** Each test string must be answered within this many milliseconds when a rule is set. */
-export const VET_MS = 10;
-/** A save's check, and the fixed part of an import's batch. */
-const CHECK_MS = 50;
-/** Added per code of a batch, up to BATCH_MAX_MS. */
-const PER_CODE_MS = 2;
-const BATCH_MAX_MS = 5_000;
+/** The time limits, in milliseconds of wall-clock time (V8's watchdog). */
+export type TimeLimits = {
+  /** Each test string must be answered within this when a rule is set. */
+  vet: number;
+  /** A save's check, and the fixed part of an import's batch. */
+  check: number;
+  /** Added per code of a batch, up to `batchMax`. */
+  perCode: number;
+  batchMax: number;
+};
+
+export const TIME_LIMITS: Readonly<TimeLimits> = {
+  vet: 10,
+  check: 50,
+  perCode: 2,
+  batchMax: 5_000,
+};
+
+let limits: TimeLimits = { ...TIME_LIMITS };
+
+/**
+ * For tests only; production never calls it. A worker starved of CPU can stall even a trivially
+ * fast rule past the 10 ms vet, so a test about what a rule allows widens the limits, and a test
+ * about the limits themselves runs with TIME_LIMITS. Answers a function that puts back the limits
+ * it replaced.
+ */
+export function setTimeLimitsForTests(next: Partial<TimeLimits>): () => void {
+  const before = limits;
+  limits = { ...limits, ...next };
+  return () => {
+    limits = before;
+  };
+}
 
 const FLAGS = 'iu';
 
@@ -106,7 +132,7 @@ export function vetRule(rule: FormatRule): VetResult {
   const box = sandbox(re);
   for (const s of testStrings(rule)) {
     box.s = s;
-    if (timed<boolean>(TEST_SCRIPT, box, VET_MS) === null) {
+    if (timed<boolean>(TEST_SCRIPT, box, limits.vet) === null) {
       return {
         ok: false,
         reason: 'slow',
@@ -115,7 +141,7 @@ export function vetRule(rule: FormatRule): VetResult {
     }
   }
   box.s = rule.example.trim().toUpperCase();
-  if (timed<boolean>(TEST_SCRIPT, box, CHECK_MS) !== true) {
+  if (timed<boolean>(TEST_SCRIPT, box, limits.check) !== true) {
     return { ok: false, reason: 'example', hint: "The example doesn't match the pattern." };
   }
   return { ok: true };
@@ -131,7 +157,7 @@ export function checkCodes(rule: Pick<FormatRule, 'pattern'>, codes: readonly st
   // A stored rule was vetted when it was set; one that no longer compiles (a newer engine's
   // grammar) passes nothing.
   if (!re) return codes.map((): CodeCheck => 'mismatch');
-  const ms = Math.min(BATCH_MAX_MS, CHECK_MS + PER_CODE_MS * codes.length);
+  const ms = Math.min(limits.batchMax, limits.check + limits.perCode * codes.length);
   const box = sandbox(re);
   box.codes = [...codes];
   const batch = timed<boolean[]>(BATCH_SCRIPT, box, ms);
@@ -139,7 +165,7 @@ export function checkCodes(rule: Pick<FormatRule, 'pattern'>, codes: readonly st
   // The batch ran out of time: check one by one, so one slow code doesn't fail the rest.
   return codes.map((s): CodeCheck => {
     box.s = s;
-    const one = timed<boolean>(TEST_SCRIPT, box, CHECK_MS);
+    const one = timed<boolean>(TEST_SCRIPT, box, limits.check);
     return one === null ? 'slow' : one ? 'ok' : 'mismatch';
   });
 }
