@@ -57,7 +57,8 @@ Nothing to install, nothing saved.
 - **Map:** each location in 3D: floors, rooms, shelves and boxes, what's inside one tap away.
   Arranged by you, or laid out by Kept. Plan view, balconies and terraces
   ([the map](https://keptinventory.info/users/location-map/)).
-- **Graph** (coming in 1.14.0): a location's places, boxes and things as a graph, in 2D or 3D.
+- **Graph:** a location's places, boxes and things, in 2D or 3D. In the demo now; in releases
+  from 1.14.0.
 
 ### On a phone
 
