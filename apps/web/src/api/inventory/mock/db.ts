@@ -345,7 +345,7 @@ const SENTENCES: Record<string, (name: string) => string> = {
   'place.update': (n) => `Edited ${n}`,
   'place.move': (n) => `Moved ${n}`,
   'place.reorder': (n) => `Put the places in ${n} in a new order`,
-  'place.convert_to_container': (n) => `Turned ${n} into a container`,
+  'place.convert_to_container': (n) => `Turned ${n} into a box`,
   'place.trash': (n) => `Trashed ${n}`,
   undo: (n) => `Undid a change to ${n}`,
 };

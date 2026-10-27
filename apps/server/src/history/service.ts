@@ -102,6 +102,8 @@ export const HistoryEventSchema = z.object({
     )
     .optional(),
   movedInFromElsewhere: z.literal(true).optional(),
+  /** #319: undone since (an undo names it), so it offers no Undo; marked while its window is open. */
+  undone: z.literal(true).optional(),
   /** A thing's history: an event of a thing merged into it (D36), "merged from <name>". */
   mergedFrom: z.object({ id: z.uuid(), name: z.string().nullable() }).optional(),
   /** Step 6 (D206): an AI call about the thing (`action: 'ai.call'`). */
@@ -114,6 +116,7 @@ export type HistoryEvent = Omit<RenderedAuditEvent, 'actor' | 'entity'> &
     entity: { type: string; id: string | null; shortCode: string | null };
     mergedFrom?: { id: string; name: string | null };
     aiCall?: z.infer<typeof CallSummary> & { task: LedgerTask };
+    undone?: true;
   };
 
 export const HistoryPageSchema = z.object({
@@ -296,6 +299,55 @@ const rowOf = (r: EventRecord): AuditEventRow => ({
 /** Nobody's money, nothing but "changed": what an event is rendered with when the caller's
  * standing in its location can't be read (fail closed). */
 const CLOSED: AuditViewer = { role: 'viewer', moneyVisibleToViewers: false, moneyModule: false };
+
+/**
+ * #319: a conversion's diff is what the place (or the thing) was, kept for its undo to put back
+ * (places/undo.ts): stored as `before` with nothing `after`, it would read as changes ("Name →
+ * empty", "Kind zone → empty"). Its sentence says what happened ("Turned Crate into a box"), so
+ * the row keeps only what the conversion itself records: what a thing lost on becoming a place.
+ * The undo of one is the same action and reads the same way. The audit keeps the whole diff.
+ */
+const CONVERSION_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  'place.convert_to_container': [],
+  'thing.convert_to_place': ['discarded'],
+};
+
+/**
+ * #319: which of `events` were undone since (an undo row names them in `undo_of`), so their rows
+ * offer no Undo that would only answer "already undone" (the web's isUndoable). Only events whose
+ * window is still open: after it, no row offers Undo anyway. An undo is written inside its
+ * event's window, so the read stays within [the oldest such event, the latest window], by
+ * location (audit_events_location_at_idx) or, for an account's own events, by account.
+ */
+async function undoneOf(
+  client: pg.ClientBase,
+  events: readonly EventRecord[],
+): Promise<Set<string>> {
+  const now = Date.now();
+  const open = events.filter(
+    (e) => !e.undo_of && e.undoable_until && e.undoable_until.getTime() > now,
+  );
+  if (open.length === 0) return new Set();
+  const from = new Date(Math.min(...open.map((e) => e.at.getTime())));
+  const to = new Date(Math.max(...open.map((e) => (e.undoable_until as Date).getTime())));
+  const locations = [...new Set(open.flatMap((e) => (e.location_id ? [e.location_id] : [])))];
+  const accounts = [
+    ...new Set(
+      open.flatMap((e) => (!e.location_id && e.owner_account_id ? [e.owner_account_id] : [])),
+    ),
+  ];
+  const { rows } = await client.query<{ id: string }>(
+    `SELECT u.undo_of AS id FROM public.audit_events u
+      WHERE u.location_id = ANY ($2::uuid[]) AND u.at >= $3 AND u.at <= $4
+        AND u.undo_of = ANY ($1::uuid[])
+     UNION
+     SELECT u.undo_of FROM public.audit_events u
+      WHERE u.location_id IS NULL AND u.owner_account_id = ANY ($5::uuid[])
+        AND u.at >= $3 AND u.at <= $4 AND u.undo_of = ANY ($1::uuid[])`,
+    [open.map((e) => e.id), locations, from, to, accounts],
+  );
+  return new Set(rows.map((r) => r.id));
+}
 
 async function visibleLocations(client: pg.ClientBase): Promise<Set<string>> {
   const { rows } = await client.query<{ id: string }>(
@@ -630,6 +682,7 @@ async function renderEvents(
   const codes = await shortCodesOf(client, events);
   const tokens = await tokenActorsOf(client, scope, events);
   const extracted = await extractionsOf(client, events);
+  const undone = await undoneOf(client, events);
 
   return events.map((e) => {
     const row = rowOf(e);
@@ -672,6 +725,13 @@ async function renderEvents(
       const { layout: _layout, ...rest } = rendered.diff;
       rendered.diff = rest;
     }
+    // A conversion's snapshot is its undo's, not a change anyone made (#319).
+    const conversion = CONVERSION_FIELDS[e.action];
+    if (rendered.diff && conversion) {
+      rendered.diff = Object.fromEntries(
+        Object.entries(rendered.diff).filter(([field]) => conversion.includes(field)),
+      );
+    }
     return {
       ...rendered,
       actor: {
@@ -685,6 +745,7 @@ async function renderEvents(
         shortCode: movedOut ? null : (codes.get(`${e.entity_type}:${e.entity_id}`) ?? null),
       },
       ...summary,
+      ...(undone.has(e.id) ? { undone: true as const } : {}),
     };
   });
 }

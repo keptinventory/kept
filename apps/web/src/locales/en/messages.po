@@ -8634,8 +8634,8 @@ msgid "Turn on two-factor"
 msgstr "Turn on two-factor"
 
 #: src/components/history/labels.ts
-msgid "Turned {name} into a container"
-msgstr "Turned {name} into a container"
+msgid "Turned {name} into a box"
+msgstr "Turned {name} into a box"
 
 #: src/components/history/labels.ts
 msgid "Turned {name} into a place"

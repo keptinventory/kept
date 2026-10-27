@@ -1391,6 +1391,9 @@ export type HistoryEvent = {
    * "merged from <name>". `name` is the merged thing's, null when it had none.
    */
   mergedFrom?: { id: string; name: string | null };
+  /** #319: undone since (an undo names it), so the row offers no Undo; sent while its window is
+   * open (apps/server/src/history/service.ts undoneOf). */
+  undone?: boolean;
 };
 
 /** GET /api/v1/activity?locationId&actorId&entityType&from&to&cursor (global, D174). */

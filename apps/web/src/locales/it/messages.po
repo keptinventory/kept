@@ -8634,8 +8634,8 @@ msgid "Turn on two-factor"
 msgstr "Attiva la verifica in due passaggi"
 
 #: src/components/history/labels.ts
-msgid "Turned {name} into a container"
-msgstr "Trasformato in contenitore: {name}"
+msgid "Turned {name} into a box"
+msgstr "Trasformato in scatola: {name}"
 
 #: src/components/history/labels.ts
 msgid "Turned {name} into a place"

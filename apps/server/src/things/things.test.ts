@@ -1589,5 +1589,11 @@ describe('route security review: things', () => {
       (e) => e.action === 'thing.convert_to_place',
     );
     expect(converted?.diff).toMatchObject({ discarded: { after: ['purchase', 'serial', 'tags'] } });
+    // #319: Activity says what it lost, never the thing's own fields as "→ empty".
+    const feed = ok(
+      await call(t, `/api/v1/activity?locationId=${home.id}&limit=200`, { as: ann, method: 'GET' }),
+    ) as unknown as { items: { id: string; diff: Record<string, unknown> | null }[] };
+    const row = feed.items.find((e) => e.id === converted?.id);
+    expect(Object.keys(row?.diff ?? {})).toEqual(['discarded']);
   });
 });

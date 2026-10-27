@@ -87,7 +87,7 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'place.restore': (p) => `Restored ${p.name}`,
   'place.delete': (p) => `Deleted ${p.name} for good`,
   'place.merge': (p) => `Merged ${p.name} into another place`,
-  'place.convert_to_container': (p) => `Turned ${p.name} into a container`,
+  'place.convert_to_container': (p) => `Turned ${p.name} into a box`,
   'place.label': (p) => `Labelled ${p.name}`,
   'place.codes': (p) => `Changed the codes of ${p.name}`,
   // D236: a service line took the consumable off the shelf, or gave it back.

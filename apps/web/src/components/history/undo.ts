@@ -117,7 +117,9 @@ type Who = { meId: string | undefined; roleIn: (locationId: string | null) => st
 
 /** Whether Undo is worth offering on this event (the server has the last word). */
 export function isUndoable(e: HistoryEvent, who: Who, now = Date.now()): boolean {
-  if (!UNDOABLE_ACTIONS.has(e.action) || e.undo_of || e.movedInFromElsewhere) return false;
+  // An undo itself has no redo, and an event undone since (#319) would only answer "already undone".
+  if (!UNDOABLE_ACTIONS.has(e.action) || e.undo_of || e.undone || e.movedInFromElsewhere)
+    return false;
   if (!e.undoable_until || Date.parse(e.undoable_until) <= now) return false;
   const role = who.roleIn(e.location_id);
   if (!role || role === 'viewer') return false;

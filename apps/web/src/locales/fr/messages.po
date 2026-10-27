@@ -8634,8 +8634,8 @@ msgid "Turn on two-factor"
 msgstr "Activer la double authentification"
 
 #: src/components/history/labels.ts
-msgid "Turned {name} into a container"
-msgstr "Conversion de {name} en contenant"
+msgid "Turned {name} into a box"
+msgstr "Conversion de {name} en boîte"
 
 #: src/components/history/labels.ts
 msgid "Turned {name} into a place"

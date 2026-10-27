@@ -247,7 +247,7 @@ export function useSummary() {
       'thing.codes': () => t`Changed the codes of ${name}`,
       'place.codes': () => t`Changed the codes of ${name}`,
       'place.merge': () => t`Merged ${name} into another place`,
-      'place.convert_to_container': () => t`Turned ${name} into a container`,
+      'place.convert_to_container': () => t`Turned ${name} into a box`,
       'place.label': () => t`Labelled ${name}`,
       'attachment.create': () => t`Attached a file to ${name}`,
       'attachment.update': () => t`Changed a file on ${name}`,
