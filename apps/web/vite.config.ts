@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { getConfig } from '@lingui/conf';
 import { lingui, linguiTransformerBabelPreset } from '@lingui/vite-plugin';
@@ -20,6 +21,29 @@ const linguiConfig = getConfig({ configPath });
  * docs site's origin, and the page asks search engines not to index it.
  */
 const TRY = process.env.VITE_KEPT_TRY === '1';
+
+/**
+ * The version a demo build (`build:demo`, `build:try`) shows in its sidebar: KEPT_VERSION when set,
+ * else the release tag being built (GITHUB_REF_NAME on a tag run), else the last release tag in
+ * the checkout. Real builds keep KEPT_VERSION or 0.0.0-dev, as before; only a demo, which has no
+ * server to ask, reads the tag, so Try Kept and the docs' screenshots never say "0.0.0-dev".
+ */
+function demoVersion(): string | undefined {
+  if (process.env.VITE_KEPT_DEMO !== '1') return undefined;
+  const tag = (v: string | undefined) => /^v(\d+\.\d+\.\d+)$/.exec(v ?? '')?.[1];
+  const ref = tag(process.env.GITHUB_REF_NAME);
+  if (ref) return ref;
+  try {
+    const out = execFileSync('git', ['describe', '--tags', '--abbrev=0', '--match', 'v[0-9]*'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    return tag(out.trim());
+  } catch {
+    return undefined;
+  }
+}
+const KEPT_VERSION = process.env.KEPT_VERSION || demoVersion();
 const TRY_BASE = process.env.KEPT_TRY_BASE || '/try/kept/app/';
 function tryHtml(): Plugin {
   const swap = (html: string, from: RegExp, to: string) => {
@@ -415,10 +439,8 @@ export default defineConfig({
   // @kept/shared reads process.env.KEPT_VERSION for the server; the browser has no `process`, so
   // the build inlines it. The image's build sets it to the release's version (Dockerfile, D148),
   // so the client and its sync clientVersion say the real one; unset, KEPT_VERSION falls back to
-  // 0.0.0-dev as on the server.
+  // 0.0.0-dev as on the server (a demo build reads the release tag: demoVersion above).
   define: {
-    'process.env.KEPT_VERSION': process.env.KEPT_VERSION
-      ? JSON.stringify(process.env.KEPT_VERSION)
-      : 'undefined',
+    'process.env.KEPT_VERSION': KEPT_VERSION ? JSON.stringify(KEPT_VERSION) : 'undefined',
   },
 });

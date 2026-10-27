@@ -3,6 +3,7 @@
  * choice is kept per device, tablets start on the rail, every rail entry keeps its name and shows
  * it in a tooltip, and counts become badges.
  */
+import { KEPT_VERSION } from '@kept/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
@@ -397,7 +398,7 @@ describe('the rail', () => {
     // Keyboard focus (React Aria opens tooltips on focus when the last input was a key).
     await user.keyboard('{Shift}');
     act(() => source.focus());
-    expect(await screen.findByRole('tooltip')).toHaveTextContent('v0.1.0');
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(`v${KEPT_VERSION}`);
   });
 
   it('renders mirrored in Arabic with logical CSS only', async () => {

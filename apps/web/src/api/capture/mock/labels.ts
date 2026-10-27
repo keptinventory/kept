@@ -47,6 +47,15 @@ const BLANK_CAP = 1000;
 /** "Garage › Shelf A": the label's path line (unplaced areas included, as the server names them). */
 const pathText = (steps: PathStep[]) => steps.map((s) => s.name).join(' › ');
 
+/** Every code on a printed label in the mock (see `printedCodes` below); Home's count uses it too.
+ * Things only: a place's `labelPrinted` isn't read here, as the place fixtures' codes were never
+ * printed in the labels' story (its tests print them). */
+export function printedCodesOf(state: MockState): Set<string> {
+  const out = new Set(state.capture.codes.filter((c) => c.printedAt).map((c) => c.code));
+  for (const t of state.inventory.things) if (t.labelPrinted && t.shortCode) out.add(t.shortCode);
+  return out;
+}
+
 export function labelsRoutes(state: MockState): MockRoute[] {
   const inv = () => state.inventory;
   const cap = () => state.capture;
@@ -64,12 +73,10 @@ export function labelsRoutes(state: MockState): MockRoute[] {
     const row = rows.find((x) => x.id === target.id);
     if (row) row.labelPrinted = true;
   };
-  const printedCodes = () =>
-    new Set(
-      cap()
-        .codes.filter((c) => c.printedAt)
-        .map((c) => c.code),
-    );
+  /** The codes on a printed label: a code confirmed printed, or the code of a thing the fixtures
+   * say carries one (`labelPrinted`, what lists show as the tape). The server's rule is one table
+   * (labels/printed-sql.ts); the mock keeps the two in step here. */
+  const printedCodes = () => printedCodesOf(state);
 
   return [
     route('POST', p.labelBatches, ({ body }) => {

@@ -9,13 +9,18 @@
 //                                              gallery (apps/docs/src/components/landing/Gallery.astro):
 //                                              a room, search, capture, the Inbox, labels and more;
 //                                              the Arabic ones in بيت العائلة where it has the data
+//   apps/docs/src/assets/screens/list[-phone]-{light,dark}.webp   English: Home's things as a list,
+//                                              each with its type line, label tape and box count
 //   docs/assets/kept-hero-{light,dark}.webp    the README hero: the desktop home screen in a window
 //                                              frame with the phone in front (the docs site's hero
 //                                              art, apps/docs/src/components/Hero.astro), on a
 //                                              transparent background
 //
 // Desktop captures are a 1280×800 viewport, phones 390×844 (touch, mobile), both at 2× and then
-// stored at 1344 and 420 px wide: twice the largest size the docs site shows them at.
+// stored at 1344 and 420 px wide: twice the largest size the docs site shows them at. Every page
+// sees the same moment (SHOT_TIME, in the household's time zone), so a rerun changes only what
+// changed in the app, and the demo build says the release it shows (its version comes from the
+// last release tag, apps/web/vite.config.ts); a capture that says 0.0.0-dev stops the run.
 //
 // Dev only: it builds the demo bundle (`pnpm --filter @kept/web build:demo`, into the git-ignored
 // apps/web/dist-demo), serves it on a free local port, and drives headless Chromium from apps/web's
@@ -51,6 +56,13 @@ const ID = {
   threadArabic: '01926f00-0000-7000-8000-000000060003',
 };
 const FAMILY = `/loc/${ID.family}`;
+/** The moment every capture shows: dates, "12 days ago" and the like stay put between runs. */
+const SHOT_TIME = new Date('2026-10-27T09:00:00Z');
+const SHOT_ZONE = 'Africa/Cairo';
+/** The address every page is opened at, whatever port the build is served on: a label's QR code
+ * holds the page's origin, so a random port drew a different code on every run. HTTPS, so the
+ * page is a secure context (on plain http the app warns that capture and install need HTTPS). */
+const SHOT_ORIGIN = 'https://kept.test';
 
 /**
  * The docs home page's gallery, in its order: each screen's English and Arabic path. The Arabic
@@ -216,14 +228,32 @@ function stubCamera() {
   });
 }
 
-async function shot(name, path, { theme, lang, phone = false, top = false }) {
+/**
+ * `height`: a taller desktop viewport, for a page whose point sits just below 800 px.
+ * `scrollTo`: text whose element is scrolled to `scrollOffset` px below the top of its scroller
+ * (the page or the pane it sits in) before the capture, for a section below the fold.
+ */
+async function shot(
+  name,
+  path,
+  { theme, lang, phone = false, top = false, scrollTo = null, scrollOffset = 90, height = 800 },
+) {
   const ctx = await browser.newContext({
-    viewport: phone ? { width: 390, height: 844 } : { width: 1280, height: 800 },
+    viewport: phone ? { width: 390, height: 844 } : { width: 1280, height },
     deviceScaleFactor: 2,
     isMobile: phone,
     hasTouch: phone,
     colorScheme: theme,
     serviceWorkers: 'block',
+    locale: 'en-US',
+    timezoneId: SHOT_ZONE,
+    // Animations at rest: a pulsing hint caught mid-pulse differed between runs.
+    reducedMotion: 'reduce',
+  });
+  await ctx.clock.setFixedTime(SHOT_TIME);
+  await ctx.route(`${SHOT_ORIGIN}/**`, async (route) => {
+    const { pathname, search } = new URL(route.request().url());
+    await route.fulfill({ response: await route.fetch({ url: `${origin}${pathname}${search}` }) });
   });
   await ctx.addInitScript(stubCamera);
   try {
@@ -234,7 +264,7 @@ async function shot(name, path, { theme, lang, phone = false, top = false }) {
     // showcase=1 (src/demo.ts): Home's AI cap not reached, so no screen says "AI paused", and the
     // money in US dollars; the fixtures keep the pause and the pounds for the tests that check them.
     const query = `demo=owner&showcase=1&lang=${lang}&theme=${theme}${digits}`;
-    await page.goto(`${origin}${path}${path.includes('?') ? '&' : '?'}${query}`);
+    await page.goto(`${SHOT_ORIGIN}${path}${path.includes('?') ? '&' : '?'}${query}`);
     await page.waitForLoadState('networkidle');
     await page.evaluate(() => document.fonts.ready);
     // Let entrance transitions and lazily loaded screens settle.
@@ -246,6 +276,21 @@ async function shot(name, path, { theme, lang, phone = false, top = false }) {
       });
       await page.waitForTimeout(300);
     }
+    if (scrollTo) {
+      const target = page.getByText(scrollTo).first();
+      await target.evaluate((el, offset) => {
+        const scrolls = (e) =>
+          e.scrollHeight > e.clientHeight + 4 && /auto|scroll/.test(getComputedStyle(e).overflowY);
+        let s = el.parentElement;
+        while (s && s !== document.body && !scrolls(s)) s = s.parentElement;
+        if (!s || s === document.body) s = document.scrollingElement;
+        const top = s === document.scrollingElement ? 0 : s.getBoundingClientRect().top;
+        s.scrollTop += el.getBoundingClientRect().top - top - offset;
+      }, scrollOffset);
+      await page.waitForTimeout(400);
+    }
+    if (await page.getByText(/0\.0\.0-dev/).count())
+      throw new Error(`${name} ${theme}: the build says 0.0.0-dev (no release tag in reach)`);
     if (errors.length) throw new Error(`${name} ${theme}: ${errors.join('; ')}`);
     const dir = await page.evaluate(() => getComputedStyle(document.documentElement).direction);
     if ((lang === 'ar') !== (dir === 'rtl'))
@@ -313,8 +358,26 @@ async function hero(theme) {
 try {
   for (const theme of ['light', 'dark']) {
     await shot('home', '/', { theme, lang: 'en' });
-    await shot('thing', '/t/7KQ4MZ', { theme, lang: 'en' });
+    // 900 px tall, so its Tags show under the details with the label tape and path still on top.
+    await shot('thing', '/t/7KQ4MZ', { theme, lang: 'en', height: 900 });
     await shot('phone', '/', { theme, lang: 'en', phone: true });
+    // Home's things as a list: the type line under each name, the tape on a printed label, and
+    // how many things each box holds.
+    const things = /^Things\s*·/;
+    // Its Things heading just under the top bar (66 and 58 px), nothing of the places above it.
+    await shot('list', `/loc/${ID.home}?view=list`, {
+      theme,
+      lang: 'en',
+      scrollTo: things,
+      scrollOffset: 66,
+    });
+    await shot('list-phone', `/loc/${ID.home}?view=list`, {
+      theme,
+      lang: 'en',
+      phone: true,
+      scrollTo: things,
+      scrollOffset: 58,
+    });
     await shot('home-ar', FAMILY, { theme, lang: 'ar' });
     await shot('thing-ar', '/t/AR7HDM', { theme, lang: 'ar' });
     await shot('phone-ar', FAMILY, { theme, lang: 'ar', phone: true });

@@ -37,7 +37,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/kept-hero-dark.webp">
-    <img src="docs/assets/kept-hero-light.webp" alt="Kept's home screen on a desktop, with the same screen on a phone in front: what needs you, the get-started checklist and recent activity">
+    <img src="docs/assets/kept-hero-light.webp" alt="Kept's home screen on a desktop, with the same screen on a phone in front: the get-started checklist, what needs you, the locations and the shortcuts">
   </picture>
 </p>
 
@@ -54,6 +54,18 @@ Nothing to install, nothing saved.
 - **[Try the map](https://keptinventory.info/try/map/):** the 3D map, with a sample home.
 
 ## A look around
+
+### A location's things
+
+Names first, each with its type; a box says how much is inside; the amber tape only on things with
+a printed label.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/list-dark.webp">
+    <img src="apps/docs/src/assets/screens/list-light.webp" alt="Home's things in Kept: each name with its type underneath, boxes with how many things are inside, and the amber label tape only on things whose label was printed" width="720">
+  </picture>
+</p>
 
 ### The location map
 
@@ -74,29 +86,7 @@ by you, or laid out by Kept. Plan view, balconies and terraces, phones included
 Installs as an app. Capture, scan and search, offline too.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/phone-dark.webp">
-    <img src="apps/docs/src/assets/screens/phone-light.webp" alt="Kept's Home on a phone: Get started, the Needs you tiles and the shortcuts, above the tab bar with its Capture button" width="220">
-  </picture>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/search-phone-dark.webp">
-    <img src="apps/docs/src/assets/screens/search-phone-light.webp" alt="Searching for cable on a phone: the cable box and the HDMI cable, each with its path and label" width="220">
-  </picture>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/capture-phone-dark.webp">
-    <img src="apps/docs/src/assets/screens/capture-phone-light.webp" alt="The capture screen on a phone, its camera on a labelled box on the garage shelves" width="220">
-  </picture>
-</p>
-
-### A thing
-
-A short ID, where it is down to the box, its details, paperwork, value, loans and history.
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/thing-dark.webp">
-    <img src="apps/docs/src/assets/screens/thing-light.webp" alt="An HDMI cable in Kept: its short ID, its path Home › Office › Desk drawer › Cable box, and its details: type, quantity, tags and connectors" width="720">
-  </picture>
+  <img src="docs/assets/kept-demo-phone.webp" alt="Kept on a phone, in a short loop: Home, a location's list, the map with a room and a box's card, a search for cable, and the capture screen" width="300">
 </p>
 
 ### Labels
@@ -107,7 +97,7 @@ open the box.
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/labels-dark.webp">
-    <img src="apps/docs/src/assets/screens/labels-light.webp" alt="Printing labels: six things on an A4 sheet of 24, with the sheet preview" width="720">
+    <img src="apps/docs/src/assets/screens/labels-light.webp" alt="Printing labels: the six things in Home with no printed label, on an A4 sheet of 24, each label a QR code with its name, place and short ID" width="720">
   </picture>
 </p>
 
@@ -194,8 +184,7 @@ the Caddyfile in `docker/caddy/` ([HTTPS](https://keptinventory.info/install/htt
   [Select → Trash](https://github.com/keptinventory/kept/issues/294) ·
   [vehicle services you can open](https://github.com/keptinventory/kept/issues/296) ·
   [label-maker tape](https://github.com/keptinventory/kept/issues/303) ·
-  [two new shapes](https://github.com/keptinventory/kept/issues/240) ·
-  [a 2 GB machine](https://github.com/keptinventory/kept/issues/176)
+  [two new shapes](https://github.com/keptinventory/kept/issues/240)
 - **Later:** [mobile and desktop apps](https://github.com/keptinventory/kept/issues/169) ·
   [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197) ·
   [storage furniture templates](https://github.com/keptinventory/kept/issues/238) ·
