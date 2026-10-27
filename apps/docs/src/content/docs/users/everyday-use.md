@@ -11,61 +11,18 @@ installing, [try Kept](/try/kept/) with a sample household in your browser.
 
 ## Home
 
+Full detail: [home](/users/home/).
+
 Home is what needs you, then where things are. On a phone it is one column in this order; on a
 computer, locations and recent activity sit on the left, shortcuts and Insights on the right.
-
-- **Get started**: one line with your progress and the next step. The arrow opens the steps;
-  **×** hides it for good (Undo in the message; **Help → Get-started checklist** brings it back).
-  It goes away by itself when every step is done.
-- **Needs you**: six counts, always in the same place: **Overdue**, **Due**, **Expiring**, **Lent
-  out**, **Uncertain** and **Low stock**. A zero is greyed out, not hidden. **Borrowed in** and
-  **Long unseen** appear when they have something. On a computer each one names its most urgent
-  item. Tap one to open that list, already filtered. Lent out shows where Lending is on, Low
-  stock where Consumables is on.
-- **Shortcuts**: **Capture**, **Scan a label**, **Log a reading** (when something has a meter)
-  and **Add a thing**.
-- **Locations**: a card per location with a small map drawing, its things, places and value
-  (where Money is on and you can see amounts), and what is flagged there, such as "2 things need
-  a place" or "1 overdue". Tap a card to open the location.
-- **Recent activity**: the latest 3 on a phone, 5 on a computer; **Added**, **Moved** and
-  **Checked** narrow them, and **All activity** opens the full list. **Photos to review** shows
-  what waits in the Inbox.
-- **Insights** (where Money is on): what you spent on things this year so far, with the years
-  before it, and the value of what you own. Each currency on its own line, never converted. It
-  says which locations it leaves out.
-
-On your first day Home shows the welcome, **Create your first home** with the steps after it,
-your Personal location, and the shortcuts that already work.
-
 ## Locations, rooms and boxes
+
+Full detail: [locations, rooms and boxes](/users/locations/).
 
 Everything sits in a tree: a **location** (Home, Garage, a storage unit) holds **rooms and
 spots** ("room or spot" is Kept's word for any place), which hold **things**. A thing can be a
 **box or container** that holds other things, as deep as you like. Each location also has
 **Unplaced**, for things that don't have a place yet.
-
-- On a location, room or box, **Add here** adds a **Thing**, a **Box / container** or a **Room or
-  spot**.
-- Lists have a search box, **+ Filter**, saved **Views**, and a **Display** button for sort order
-  and grouping. Filters live in the address, so a filtered list can be bookmarked or shared.
-- On a location, **Sort them** goes through Unplaced one thing at a time with a place picker.
-- A box opened from its label shows a photo grid of what's inside.
-- A location's page switches between **List**, **Grid** and **Map**: the map shows the location in
-  3D, floor by floor, with its rooms, shelves and boxes ([The location map](/users/location-map/)).
-  On a computer, **Table** shows its things as a spreadsheet ([below](#the-spreadsheet-view)).
-- **Grid** shows a location's or room's places and things as tiles, under the same **Places** and
-  **Things** headings as List; each heading folds away. **Display → Size** picks **Small**,
-  **Medium** or **Large** tiles (3, 2 or 1 a row on a phone), and Kept remembers your size on that
-  device.
-- On a computer or tablet, the sidebar marks the location you're in: on its page, and on its
-  rooms, things, boxes and settings.
-
-![A location in Grid with Small tiles: the Places · 9 heading over the rooms, then the Things · 20+ heading over the things, six tiles a row, each with its name only](../../../assets/screens/grid-desktop-light.webp)
-
-![The same grid in the dark theme](../../../assets/screens/grid-desktop-dark.webp)
-
-Links use IDs, never the path, so moving a thing never breaks a link to it.
-
 ## The spreadsheet view
 
 On a computer (a window 1024 pixels wide or more), a location's **Table** shows every thing in it
@@ -213,15 +170,12 @@ Document). A file Kept can't preview yet is kept anyway and marked **Preview una
 
 ## Search
 
+Full detail: [search](/users/search/).
+
 **Search** finds things by name, brand, serial, ID, place, or the words AI added as aliases, and
 groups results into things, places, people, shops and documents (with a snippet of the receipt
 text). Filters narrow by location, place, type, tag and state; **Saved searches** keep a filter
 set for you or a whole location. On a computer, ⌘K or Ctrl+K opens the same search from anywhere.
-
-On a phone, Search also works offline from the phone's copy, labelled **On this phone · as of
-last sync**. With an embeddings model, results "matched by meaning" join the keyword ones
-([AI providers](/users/ai-providers/#search-and-embeddings)).
-
 ## Moving things
 
 - **Move** on a thing picks the new place. Moving into another location you belong to warns who
@@ -274,43 +228,13 @@ Full detail: [reports, insurance and claims](/users/reports/).
 
 ## Condition reports (renting)
 
+Full detail: [condition reports](/users/condition-reports/).
+
 **Condition reports** on a location's page record how a rented home was when you moved in, and
 when you moved out, for a deposit dispute.
-
-- **New report**: the location, **Move-in** or **Move-out**, and the day of the walk-through. It
-  starts with the location's rooms (places of the Room kind); add any it missed, or remove one.
-- **Each room**: Good, Fair, Poor or Damaged, a note, and up to 12 photos. Each photo shows when
-  Kept received it, in the location's time zone, and who added it; photos lose their location data
-  as all photos in Kept do.
-- **Finish** locks the report for good, with who finished it and when. Nothing in it can change
-  after, photos included. A report that isn't finished can be deleted by anyone who can change the
-  location; a finished one only by owners and admins.
-- **Compare with** puts the move-in beside the move-out, room by room (the same room by its place,
-  or by its name), the earlier one first.
-- **Make the PDF**: the report, or both side by side when you compare, in English or Arabic, with
-  or without photos. A report that isn't finished says so in the PDF.
-
-Everyone in the location can read the reports and make the PDF, viewers too; members and above
-record them. A Kept export of the location holds its reports and their photos; imported, a
-finished report is still finished and locked ([import and export](/users/import-export/)).
-
 ## Insights
+
+Full detail: [insights](/users/insights/).
 
 **Insights** (in the sidebar, and under More on a phone) shows, across your locations with Money
 on, or one location picked with the **Location** chip:
-
-- **Spending on things:** confirmed purchases by the year you bought them. A purchase counts its
-  total, or its priced lines when it has no total; one with neither is listed as having no amount.
-  This year is shown on its own, "so far", never as a bar beside full years.
-- **Value by place:** each thing in use at its latest valuation, per top-level place (a thing in a
-  box in a cupboard counts in the room). Things without a valuation are counted but add nothing:
-  Kept never guesses a value.
-- **Vehicle costs** (where Vehicles is on): fuel, service and fees across your vehicles for the
-  last 12 full months, and each vehicle's last two years and this year so far. The same figures as
-  a vehicle's Costs tab.
-- **Warranty coverage** (where Warranties & claims is on): how many things are under warranty,
-  ending soon, past their cover or without one, what ends soon, and the repairs resolved this year
-  and last.
-
-Amounts are per currency and never added across currencies or converted. Where money is hidden
-from you, Insights shows counts and says which locations' amounts it leaves out.

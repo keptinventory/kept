@@ -99,7 +99,10 @@ const sidebar = [
   group('Use Kept', 'استخدام Kept', [
     group('Install', 'التثبيت', dir('install')),
     page('users/first-run'),
+    page('users/home'),
     page('users/everyday-use'),
+    page('users/locations'),
+    page('users/search'),
     page('users/reminders'),
     page('users/vehicles'),
     page('users/tags'),
@@ -111,6 +114,7 @@ const sidebar = [
     page('users/kits'),
     page('users/sharing'),
     page('users/moving'),
+    page('users/condition-reports'),
     page('users/phone-app'),
     page('users/sign-in-security'),
     page('users/ai-providers'),
@@ -120,6 +124,7 @@ const sidebar = [
     page('users/dashboards'),
     page('users/paperless'),
     page('users/import-export'),
+    page('users/insights'),
     page('users/reports'),
     page('integrations'),
     group('Backups and restore', 'النسخ الاحتياطي والاستعادة', [
