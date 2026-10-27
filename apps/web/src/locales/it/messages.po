@@ -23376,9 +23376,6 @@ msgstr "Non è più qui."
 msgid "Check the highlighted cells."
 msgstr "Controlla le celle evidenziate."
 
-#: src/components/sheet/sheet-view.tsx
-msgid "Discard my change"
-msgstr "Scarta la mia modifica"
 #: src/components/app-shell.tsx
 msgid "Moving"
 msgstr "Trasloco"

@@ -23376,9 +23376,6 @@ msgstr "لم يعد هنا."
 msgid "Check the highlighted cells."
 msgstr "تحقق من الخلايا المميزة."
 
-#: src/components/sheet/sheet-view.tsx
-msgid "Discard my change"
-msgstr "تجاهل تغييري"
 #: src/components/app-shell.tsx
 msgid "Moving"
 msgstr "الانتقال"
