@@ -403,7 +403,11 @@ describe('the confirmation card', () => {
       ...list.args,
       items: Array.from({ length: 30 }, (_, i) => ({ name: `Jar ${i + 1}` })),
     };
-    list.expiresAt = new Date(Date.now() + 2500).toISOString();
+    // Expiry is wall-clock: one 2.5 s away ran out under full-suite load before the test had
+    // unticked Jar 2 (#312). It is a minute away, and the clock jumps past it once the card is
+    // narrowed. The test keeps the config's 20 s, like the rest of the file.
+    const expiry = Date.now() + 60_000;
+    list.expiresAt = new Date(expiry).toISOString();
     await assistantButton();
     act(() => showThread(A.thread.list));
     const s = await sheet();
@@ -411,10 +415,16 @@ describe('the confirmation card', () => {
     await user.click(within(s).getByRole('checkbox', { name: /Jar 1(?!\d)/ }));
     await user.click(within(s).getByRole('checkbox', { name: /Jar 2(?!\d)/ }));
     expect(within(s).getByRole('button', { name: 'Confirm 28' })).toBeInTheDocument();
-    expect(
-      await within(s).findByText('Expired · ask again', {}, { timeout: 5000 }),
-    ).toBeInTheDocument();
+    // Only Date: the card's own once-a-second tick, on real timers, reads the new time.
+    vi.useFakeTimers({ toFake: ['Date'], now: expiry + 1_000 });
+    try {
+      expect(
+        await within(s).findByText('Expired · ask again', {}, { timeout: 5000 }),
+      ).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
     expect(within(s).queryByRole('checkbox')).toBeNull();
     expect(within(s).queryByRole('button', { name: /^Confirm/ })).toBeNull();
-  }, 15_000);
+  });
 });
