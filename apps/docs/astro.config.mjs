@@ -100,6 +100,7 @@ const sidebar = [
     group('Install', 'التثبيت', dir('install')),
     page('users/first-run'),
     page('users/everyday-use'),
+    page('users/search'),
     page('users/reminders'),
     page('users/vehicles'),
     page('users/tags'),
@@ -109,6 +110,7 @@ const sidebar = [
     page('users/scanning-sessions'),
     page('users/counts'),
     page('users/kits'),
+    page('users/sharing'),
     page('users/moving'),
     page('users/phone-app'),
     page('users/sign-in-security'),
@@ -119,6 +121,7 @@ const sidebar = [
     page('users/dashboards'),
     page('users/paperless'),
     page('users/import-export'),
+    page('users/reports'),
     page('integrations'),
     group('Backups and restore', 'النسخ الاحتياطي والاستعادة', [
       page('admin/backups'),
