@@ -185,6 +185,29 @@ describe('the 2D graph', () => {
     expect(screen.getByRole('radiogroup', { name: 'Layout' })).toBeInTheDocument();
   });
 
+  it('opens on the new place when moving from one place’s graph to another’s', async () => {
+    const { router } = await renderApp(`/p/${P.office}?view=graph`);
+    await waitFor(() => expect(current()).toBe('Office'));
+    await act(() =>
+      router.navigate({ to: '/p/$id', params: { id: P.kitchen }, search: { view: 'graph' } }),
+    );
+    await findHeading('Kitchen');
+    await waitFor(() => expect(current()).toBe('Kitchen'));
+  });
+
+  it('leaves Escape to the Rooms · Boxes · All switch', async () => {
+    const { user } = await renderApp(`/p/${P.office}?view=graph`);
+    await waitFor(() => expect(current()).toBe('Office'));
+    const rooms = screen.getByRole('radio', { name: 'Rooms' });
+    rooms.focus();
+    await user.keyboard('{Escape}');
+    expect(current()).toBe('Office');
+    // From a node, Escape goes up.
+    (await node(/^Desk drawer, Spot/)).focus();
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(current()).toBe('Home'));
+  });
+
   it('has a text list of what it shows', async () => {
     await renderApp(`/loc/${IDS.home}?view=graph`);
     const list = await screen.findByRole('region', { name: 'In this graph' });

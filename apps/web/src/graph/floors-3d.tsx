@@ -26,7 +26,7 @@ import {
   useGestures,
   useSize,
 } from './canvas';
-import { declutter, type LabelBox, labelSize } from './declutter';
+import { declutter, type LabelBox, labelSize, type Obstacle } from './declutter';
 import {
   BASE_SIZE,
   type Camera,
@@ -148,6 +148,21 @@ export function Floors3D({
   const offFloor = (n: GNode) => floor !== 'all' && n.kind !== 'location' && floorOf(n) !== floor;
   const dimmed = (n: GNode) => (anyFocus && !focusSet.has(n.id)) || offFloor(n);
 
+  const layers = world.layers.map((l) => {
+    const c = project({ x: target.x * 0, y: l.y, z: 0 }, cam);
+    const key = l.floor ? l.floor.id : NO_FLOOR;
+    return {
+      ...l,
+      key,
+      c,
+      rw: FLOOR_RING * 2 * c.f * cam.scale,
+      rh: FLOOR_RING * 2 * c.f * cam.scale * Math.sin(pitch),
+    };
+  });
+  /** A floor's chip ends just before its ring, but never past the canvas's edge (phones). */
+  const chipX = (l: { c: Projected; rw: number }, name: string) =>
+    Math.max(labelSize(name, 13).w + 40, l.c.x - l.rw / 2 - 10);
+
   const zoomAt = (factor: number) =>
     setZoom((z) => Math.max(ZOOM.min, Math.min(ZOOM.max, z * factor)));
   const { dragging, handlers } = useGestures(stage, {
@@ -190,7 +205,28 @@ export function Floors3D({
         n === selected ? 0 : n.kind === 'location' ? 1 : n.parent === selected || tagged ? 2 : 3,
     });
   }
-  const shownLabels = declutter(boxes, { w, h });
+  // Nodes (not things' dots), floor chips and tag chips are never written over by a label.
+  const obstacles: Obstacle[] = [];
+  for (const n of nodes) {
+    const p = P.get(n.id);
+    if (!p || n.kind === 'thing' || n.kind === 'floor' || dimmed(n)) continue;
+    const s = sizeOf(n, p);
+    obstacles.push({ id: n.id, x: p.x - s / 2, y: p.y - s / 2, w: s, h: s });
+  }
+  for (const l of layers) {
+    if (!l.floor) continue;
+    const cw = labelSize(l.floor.name, 13).w + 40;
+    const x = chipX(l, l.floor.name);
+    obstacles.push({ id: l.floor.id, x: x - cw, y: l.c.y - 16, w: cw, h: 32 });
+  }
+  if (tagsOn)
+    for (const g of world.tags) {
+      const p = tagP.get(g.tag.id);
+      if (!p) continue;
+      const cw = labelSize(g.tag.name, 12.5).w + 18;
+      obstacles.push({ id: g.tag.id, x: p.x - cw / 2, y: p.y - 12, w: cw, h: 24 });
+    }
+  const shownLabels = declutter(boxes, { w, h }, 2, obstacles);
 
   const edges: { a: string; b: string; tag?: string; colour?: string | null }[] = [];
   for (const n of nodes)
@@ -201,22 +237,7 @@ export function Floors3D({
         if (shownIds.has(id))
           edges.push({ a: g.tag.id, b: id, tag: g.tag.id, colour: g.tag.colour });
 
-  const layers = world.layers.map((l) => {
-    const c = project({ x: target.x * 0, y: l.y, z: 0 }, cam);
-    const key = l.floor ? l.floor.id : NO_FLOOR;
-    return {
-      ...l,
-      key,
-      c,
-      rw: FLOOR_RING * 2 * c.f * cam.scale,
-      rh: FLOOR_RING * 2 * c.f * cam.scale * Math.sin(pitch),
-    };
-  });
   const floorIndex = new Map(tree.floors.map((fl, i) => [fl.id, i]));
-
-  /** A floor's chip ends just before its ring, but never past the canvas's edge (phones). */
-  const chipX = (l: { c: Projected; rw: number }, name: string) =>
-    Math.max(labelSize(name, 13).w + 40, l.c.x - l.rw / 2 - 10);
 
   const nodeStyle = (n: GNode, p: Projected, s: number): CSSProperties => ({
     width: s,

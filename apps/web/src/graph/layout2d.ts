@@ -87,6 +87,9 @@ export function layout2D(opts: {
   selected: GNode | null;
   depth: Depth;
   tags: GraphTag[] | null;
+  /** On-screen pixels per world unit (the view's scale): below 1, chips keep further apart in
+   * world units, since they keep their size on screen. */
+  px?: number;
 }): Layout2D {
   const { focus, depth } = opts;
   const cx = WORLD.w / 2;
@@ -219,12 +222,31 @@ export function layout2D(opts: {
       for (const k of n.children) walk(k);
     };
     walk(focus);
-    // The focus, its label below and its pins above are taken: a chip never sits on them.
-    const used: { x: number; y: number }[] = [
-      { x: cx, y: cy },
-      { x: cx, y: cy + 48 },
-      { x: cx + 34, y: cy - 34 },
+    // A chip keeps clear of the focus (its label below, its pins above), of the other nodes and
+    // their labels, and of the other chips. Sizes are on-screen ones, turned into world units.
+    const u = Math.max(1, 1 / (opts.px ?? 1));
+    /** `weight`: how bad covering it is (the focus and its name most of all). */
+    type Box = { x: number; y: number; hw: number; hh: number; weight?: number };
+    const chipW = 50 * u;
+    const chipH = 14 * u;
+    const taken: Box[] = [
+      { x: cx, y: cy + 8 * u, hw: 40 * u, hh: 48 * u, weight: 10 },
+      { x: cx + 34 * u, y: cy - 34 * u, hw: 18 * u, hh: 8 * u, weight: 10 },
     ];
+    for (const p of placed) {
+      if (p === placed[0]) continue;
+      // The node, and its label below it.
+      taken.push({ x: p.x, y: p.y + 10 * u, hw: 22 * u, hh: 26 * u });
+    }
+    const hits = (x: number, y: number) => {
+      // Never past the canvas's edge: a chip there would be cut off.
+      if (x - chipW < 0 || x + chipW > WORLD.w || y - chipH < 0 || y + chipH > WORLD.h) return 1e6;
+      let n = 0;
+      for (const o of taken)
+        if (Math.abs(o.x - x) < o.hw + chipW && Math.abs(o.y - y) < o.hh + chipH)
+          n += o.weight ?? 1;
+      return n;
+    };
     for (const tag of opts.tags) {
       const targets = byTag.get(tag.id);
       if (!targets?.size) continue;
@@ -235,25 +257,27 @@ export function layout2D(opts: {
       const dy = my - cy;
       const d = Math.sqrt(dx * dx + dy * dy) || 1;
       const toward = d < 1 ? -Math.PI / 2 : Math.atan2(dy, dx);
-      // Toward its things, between the focus and the first ring; a chip that would sit on another
-      // (or on the focus) turns a little either way, then moves out, so none hides another.
-      const free = (x: number, y: number) =>
-        !used.some((u) => Math.abs(u.x - x) < 78 && Math.abs(u.y - y) < 28);
+      // Toward its things, between the focus and the first ring; where that is taken, it turns a
+      // little either way and then moves out, past the outer ring if it must; with no free spot,
+      // the least crowded one.
       let x = cx + r1 * 0.55 * Math.cos(toward);
       let y = cy + r1 * 0.55 * Math.sin(toward);
-      search: for (const reach of [0.55, 0.8, 1.05, 1.3]) {
+      let best = Number.POSITIVE_INFINITY;
+      search: for (const reach of [0.55, 0.8, 1.05, 1.3, 1.6, 2.0, 2.4]) {
         for (const turn of [0, 0.3, -0.3, 0.6, -0.6, 0.9, -0.9]) {
           const tx = cx + r1 * reach * Math.cos(toward + turn);
           const ty = cy + r1 * reach * Math.sin(toward + turn);
-          if (free(tx, ty)) {
+          const n = hits(tx, ty);
+          if (n < best) {
+            best = n;
             x = tx;
             y = ty;
-            break search;
           }
+          if (n === 0) break search;
         }
       }
       const a = Math.atan2(y - cy, x - cx);
-      used.push({ x, y });
+      taken.push({ x, y, hw: chipW, hh: chipH });
       const id = `tag:${tag.id}`;
       const count = [...targets.values()].reduce((s, n) => s + n, 0);
       add({ type: 'tag', id, tag, count, x, y, a, size: 28 });

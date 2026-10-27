@@ -4,7 +4,7 @@ import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead } from '../http/write.js';
 import { GraphViewSchema, graphView } from './view.js';
 
-// The graph view (#207). The web's contract is apps/web/src/graph/api.ts.
+// The graph view (#207). The web's contract is apps/web/src/api/graph/{types,paths}.ts.
 //
 // GET /api/v1/locations/:id/graph → GraphView (every role that sees the location; read only)
 

@@ -219,6 +219,69 @@ describe('GET /api/v1/locations/:id/graph', () => {
     expect(r.statusCode).toBe(404);
   });
 
+  it('leaves out trashed and archived things, and an archived thing’s loan puts no pin', async () => {
+    const trashed = await thingOf(home, 'Old kettle', { placeId: ids.living });
+    await sql('UPDATE public.things SET deleted_at = now() WHERE id = $1', [trashed]);
+    const archived = await thingOf(home, 'Given-away tent', { placeId: ids.garage });
+    await sql(
+      `UPDATE public.things SET lifecycle = 'given_away', ended_on = current_date WHERE id = $1`,
+      [archived],
+    );
+    const murdock = (
+      await sql<{ id: string }>(
+        `SELECT id FROM public.people WHERE owner_account_id = $1 AND display_name = 'Murdock'`,
+        [home.accountId],
+      )
+    )[0]?.id;
+    await sql(
+      `INSERT INTO public.loans (location_id, thing_id, direction, person_id, started_at, created_by)
+       VALUES ($1, $2, 'out', $3, now(), $4)`,
+      [home.id, archived, murdock, ola.userId],
+    );
+    try {
+      const g = await json<GraphJson>(getGraph(ola));
+      const names = g.things.map((x) => x.name);
+      expect(names).not.toContain('Old kettle');
+      expect(names).not.toContain('Given-away tent');
+      expect(g.counts.find((c) => c.holderId === ids.garage)?.things).toBe(1);
+      expect(g.attention.some((a) => a.subjectId === archived)).toBe(false);
+      expect(g.attention.filter((a) => a.kind === 'lent')).toEqual([
+        { subjectId: ids.drill, holderId: ids.shelf, kind: 'lent' },
+      ]);
+    } finally {
+      await sql('DELETE FROM public.loans WHERE thing_id = $1', [archived]);
+      await sql('DELETE FROM public.things WHERE id = ANY ($1::uuid[])', [[trashed, archived]]);
+    }
+  });
+
+  it('puts no low-stock pins with Consumables off, and no lent-out pins with Lending off', async () => {
+    await sql(
+      `INSERT INTO public.location_modules (location_id, module, enabled)
+       VALUES ($1, 'consumables', false), ($1, 'lending', false)
+       ON CONFLICT (location_id, module) DO UPDATE SET enabled = false`,
+      [home.id],
+    );
+    try {
+      const g = await json<GraphJson>(getGraph(ola));
+      expect(g.attention.filter((a) => a.kind === 'low' || a.kind === 'lent')).toEqual([]);
+    } finally {
+      // The complete preset had both on, as rows of their own.
+      await sql(
+        `UPDATE public.location_modules SET enabled = true
+          WHERE location_id = $1 AND module IN ('consumables', 'lending')`,
+        [home.id],
+      );
+    }
+    // Back on, the pins come back.
+    const again = await json<GraphJson>(getGraph(ola));
+    expect(again.attention.map((a) => a.kind).sort()).toEqual(['lent', 'low']);
+  });
+
+  it('refuses an id that is not one', async () => {
+    const r = await call(t, '/api/v1/locations/not-a-uuid/graph', { as: ola });
+    expect(r.statusCode).toBe(400);
+  });
+
   it('stops at the cap, and still counts what is past it in its holder', async () => {
     const attic = await placeOf(bobs, 'Attic', null);
     await sql(

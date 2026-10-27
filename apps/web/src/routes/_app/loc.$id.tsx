@@ -255,7 +255,7 @@ function LocationBody({ location }: { location: LocationDetail }) {
       back="/"
       wide
       tour={{ id: layout === 'map' ? 'map' : 'things', context: { locationId: location.id } }}
-      {...(panel && places.length > 1 && layout !== 'table' && layout !== 'graph'
+      {...(panel && places.length > 1 && layout !== 'table'
         ? {
             aside: (
               <PlacesPanel

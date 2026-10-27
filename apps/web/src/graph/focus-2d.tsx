@@ -11,7 +11,7 @@ import type { GraphTag } from '@/api/graph/types';
 import { tagStyle } from '@/components/tags/palette';
 import { useFormat } from '@/lib/format';
 import { Glyph, HouseCtl, useGestures, useSize } from './canvas';
-import { declutter, type LabelBox, labelSize } from './declutter';
+import { declutter, type LabelBox, labelSize, type Obstacle } from './declutter';
 import { layout2D, type Placed2D, WORLD } from './layout2d';
 import { type Depth, flagKinds, type GNode, type GraphTree } from './tree';
 import type { GraphWords } from './words';
@@ -52,12 +52,12 @@ export function Focus2D({
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset on a change of focus only
   useEffect(() => setView({ zoom: 1, x: 0, y: 0 }), [focus.id]);
 
-  const layout = useMemo(
-    () => layout2D({ focus, selected, depth, tags: tagsOn ? tree.tags : null }),
-    [focus, selected, depth, tagsOn, tree.tags],
-  );
   const fit = w && h ? Math.min(w / WORLD.w, h / WORLD.h) : 1;
   const k = fit * view.zoom;
+  const layout = useMemo(
+    () => layout2D({ focus, selected, depth, tags: tagsOn ? tree.tags : null, px: k }),
+    [focus, selected, depth, tagsOn, tree.tags, k],
+  );
   // Nodes keep a size a finger can hit (24 px at least) whatever the zoom.
   const nodeK = Math.max(0.8, Math.min(1.15, k));
   const sx = (x: number) => (x - WORLD.w / 2) * k + w / 2 + view.x;
@@ -114,7 +114,16 @@ export function Focus2D({
       p.ring === 0 ? 0 : p.node === selected ? 1 : p.ring === 1 ? 2 + (68 - p.size) / 100 : 4;
     boxes.push(box);
   }
-  const shown = declutter(boxes, { w, h });
+  // Nodes and tag chips are never written over by another node's label.
+  const obstacles: Obstacle[] = layout.placed.map((p) => {
+    if (p.type === 'tag') {
+      const cw = labelSize(p.tag.name, 12.5).w + 18;
+      return { id: p.id, x: sx(p.x) - cw / 2, y: sy(p.y) - 12, w: cw, h: 24 };
+    }
+    const s = px(p);
+    return { id: p.id, x: sx(p.x) - s / 2, y: sy(p.y) - s / 2, w: s, h: s };
+  });
+  const shown = declutter(boxes, { w, h }, 2, obstacles);
 
   const nodeStyle = (p: Placed2D): CSSProperties => {
     const s = px(p);

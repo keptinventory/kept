@@ -65,7 +65,8 @@ export default function LocationGraph(props: GraphProps) {
     if (q.error) return <ErrorState error={q.error} onRetry={() => void q.refetch()} />;
     return <LoadingRows rows={3} />;
   }
-  return <GraphBody key={props.locationId} tree={tree} {...props} />;
+  // Keyed by the place too: moving from one place's graph to another's opens on the new place.
+  return <GraphBody key={`${props.locationId}:${props.focusId ?? ''}`} tree={tree} {...props} />;
 }
 
 /** Whether the card has room beside the graph (1200 px and wider). */
@@ -82,6 +83,10 @@ function useBeside(): boolean {
   }, []);
   return wide;
 }
+
+/** Controls whose Escape is their own: the graph doesn't close or go up from them. */
+const OWN_KEYS =
+  '[role="radiogroup"], [role="switch"], [role="menu"], [role="listbox"], [role="dialog"], input, textarea';
 
 type Dim = '2d' | '3d';
 const dimKey = (userId: string) => `kept.graph.dim.${userId}`;
@@ -173,6 +178,8 @@ function GraphBody({ tree, address, focusId }: GraphProps & { tree: GraphTree })
   };
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key !== 'Escape') return;
+    // A control with keys of its own (the switches, a menu, a field) keeps its Escape.
+    if (e.target instanceof Element && e.target.closest(OWN_KEYS)) return;
     if (pick) setPick(null);
     else if (focus.parent) up();
     else return;
@@ -269,9 +276,11 @@ function GraphBody({ tree, address, focusId }: GraphProps & { tree: GraphTree })
           oneRow
           value={dim}
           onChange={setDim}
+          // "2D" and "3D" as they are in every language: short enough for one row on a phone
+          // (the map's own 3D button keeps its translated word).
           options={[
-            { id: '2d', label: t`2D` },
-            { id: '3d', label: t`3D` },
+            { id: '2d', label: '2D' },
+            { id: '3d', label: '3D' },
           ]}
         />
       </div>

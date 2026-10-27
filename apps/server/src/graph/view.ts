@@ -136,7 +136,8 @@ export async function graphView(
     const { rows } = await client.query<{ id: string; holder_id: string | null }>(
       `SELECT t.id, coalesce(t.container_id, t.place_id) AS holder_id
          FROM public.things t
-        WHERE t.location_id = $1 AND t.deleted_at IS NULL AND t.id = ANY ($2::uuid[])`,
+        WHERE t.location_id = $1 AND t.deleted_at IS NULL AND t.lifecycle = 'in_use'
+          AND t.review_state <> 'draft' AND t.id = ANY ($2::uuid[])`,
       [locationId, [...new Set(unknown)]],
     );
     for (const r of rows) holder.set(r.id, r.holder_id);
