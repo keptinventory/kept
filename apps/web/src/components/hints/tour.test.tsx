@@ -29,6 +29,7 @@ import { setDigits, setLocale } from '@/lib/prefs';
 import { renderUI } from '@/test/render';
 import { type HintCopy, useTourCopy, useTourStepCopy, useTourTitles } from './hint-copy';
 import {
+  FRESH_LIST_MS,
   findSectionAnchor,
   type TourStart,
   tourDeleter,
@@ -37,7 +38,7 @@ import {
 } from './tour';
 import { tourLedger } from './tour-ledger';
 import { tourRequests } from './tour-request';
-import { stopFor, TOURS } from './tours';
+import { availableTours, stopFor, TOURS } from './tours';
 import { hintSlot } from './use-hint';
 
 type Copy = { steps: Record<string, HintCopy>; titles: Record<TourId, string> };
@@ -287,8 +288,8 @@ async function renderTour({
 }: {
   /** The list in the query cache when the tour starts. */
   locations?: LocationDetail[];
-  /** The list GET /locations answers. */
-  server?: LocationDetail[];
+  /** The list GET /locations answers, or `hang` for a server that never does. */
+  server?: LocationDetail[] | 'hang';
   missing?: string[];
   api?: Api;
 } = {}) {
@@ -306,7 +307,9 @@ async function renderTour({
     }
     calls.push({ method, url: String(url), body });
     if (method === 'GET' && /\/locations\?/.test(String(url)))
-      return json({ locations: server, nextCursor: null });
+      return server === 'hang'
+        ? new Promise<Response>(() => {})
+        : json({ locations: server, nextCursor: null });
     return json(api(method, String(url)));
   });
   const qc = new QueryClient({
@@ -758,6 +761,52 @@ describe('useTour', () => {
       await stepDialog(copy, 'settings.locations');
       expect(pathOf(router)).toBe('/settings/locations');
       expect(tourRequests.running()).toBe('settings');
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'runs one Basics when it is asked for twice while the list was loading',
+    async () => {
+      const { copy, user, router } = await renderTour();
+      const start = probe.start;
+      if (!start) throw new Error('tour probe missing');
+      const [first, second] = await act(async () =>
+        Promise.all([start('basics'), start('basics')]),
+      );
+      expect([first, second]).toEqual([false, true]);
+      await stepDialog(copy, 'basics.needs');
+      expect(document.querySelectorAll('.driver-popover')).toHaveLength(1);
+      // One run: Next moves one step, an arrow one more, and Escape leaves nothing open.
+      await user.click(screen.getByRole('button', { name: 'Next' }));
+      await stepDialog(copy, 'basics.locations');
+      act(() => {
+        fireEvent.keyDown(window, { key: 'ArrowRight' });
+      });
+      expect(await stepDialog(copy, 'basics.scan')).toHaveTextContent('step 3 of');
+      expect(pathOf(router)).toBe('/');
+      act(() => {
+        fireEvent.keyDown(window, { key: 'Escape' });
+      });
+      await waitFor(() => expect(document.querySelector('.driver-popover')).toBeNull());
+      expect(tourRequests.running()).toBeNull();
+      expect(hintSlot.get()).toBeNull();
+    },
+    ENGINE_TIMEOUT,
+  );
+
+  it(
+    'starts from the cached list when the server doesn’t answer in time',
+    async () => {
+      const cached = [loc('loc-1', 'owner', ['labels', 'moving'])];
+      const { copy } = await renderTour({ locations: cached, server: 'hang' });
+      const t0 = performance.now();
+      expect(await startTour('basics')).toBe(true);
+      expect(performance.now() - t0).toBeLessThan(FRESH_LIST_MS + 2_000);
+      expect(await stepDialog(copy, 'basics.needs')).toHaveTextContent(
+        `Chapter 1 of ${availableTours(cached).length} · step 1 of`,
+      );
+      expect(availableTours(cached).length).toBe(CHAPTERS + 1);
     },
     ENGINE_TIMEOUT,
   );
