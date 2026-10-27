@@ -8,6 +8,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { connectionsMock } from '@/api/connections/mock/state';
+import { connectionsPaths } from '@/api/connections/paths';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { inventoryPaths } from '@/api/inventory/paths';
 import { type MockState, ownerScenario } from '@/api/mock/fixtures';
@@ -71,6 +72,22 @@ describe('Connections', () => {
     expect(document.body.textContent).not.toContain(secret);
     const list = screen.getByRole('list', { name: 'Tokens and connected apps' });
     expect(await within(list).findByText('Laptop')).toBeInTheDocument();
+  });
+
+  it("over plain HTTP, says the server's command line can make the token", async () => {
+    const { user } = await renderApp('/settings/connections', {
+      setup: (m) =>
+        m.on('POST', connectionsPaths.tokens, () =>
+          err(403, 'https_required', 'This needs a secure (https) connection to Kept.'),
+        ),
+    });
+    await user.click(await screen.findByRole('button', { name: 'New token' }));
+    const sheet = within(await screen.findByRole('dialog', { name: 'New token' }));
+    await user.type(sheet.getByRole('textbox', { name: 'Name' }), 'Home Assistant');
+    await user.click(sheet.getByRole('button', { name: 'Make token' }));
+    expect(
+      await sheet.findByText(/This needs a secure \(HTTPS\) connection.*kept admin token create/),
+    ).toBeInTheDocument();
   });
 
   it('asks again before a write token for two locations', async () => {

@@ -27,6 +27,7 @@ const MESSAGES: Record<ErrorCode, string> = {
   unauthenticated: 'Sign in to continue.',
   mfa_required: 'Confirm your second factor to continue.',
   forbidden: "You don't have permission to do that.",
+  origin_mismatch: 'This Kept is set up for a different address.',
   not_found: 'Not found.',
   conflict: 'That conflicts with the current state.',
   precondition_failed: 'This changed since you opened it.',

@@ -237,69 +237,23 @@ last sync**. With an embeddings model, results "matched by meaning" join the key
 
 ## Vehicles and machines
 
-Any thing whose type is metered (a car, a generator, a boiler) has **Meters**: log a reading,
-log a service, and set schedules by date or by reading. **Vehicles** (Household and Complete)
-gathers the vehicles in one place, each with tabs for its overview, readings, services, documents,
-costs and, on Complete, fuel.
+Any thing whose type is metered (a car, a generator, a boiler) has **Meters**: log a reading, log
+a service, set schedules by date or by reading, and record fuel. **Vehicles** (Household and
+Complete) gathers the vehicles in one place, each with tabs for its overview, readings, services,
+documents, costs and, on Complete, fuel.
 
-- **Log a reading** works from Home, the vehicle, and offline. A reading that doesn't fit between
-  its neighbours is refused with the reason. A dashboard photo joins the vehicle's proof photos.
-- **Log a service**: date, the reading, the shop, the invoice (AI can fill the line items), the
-  line items with costs, and which schedules it completes; saving restarts their count.
-- **From stock** on a line (where Consumables is on) picks a consumable of the same location: the
-  oil filter on the shelf. Saving takes the line's quantity (1 when empty) off its count, and Kept
-  refuses more than is left. Editing the line, removing it, deleting the service or undoing any of
-  these puts the count right again; an invoice still being read takes nothing until you save it.
-  The consumable's **History** shows "Used Oil filter in a service of Corolla", with a link.
-  The assistant and MCP clients can do the same when they log a service ("used 4.5 litres of
-  the engine oil"); the assistant's confirm card shows each **From stock** line before anything
-  moves.
-- **Add starter schedules** adds the usual ones: oil change, tyre rotation, brake fluid, air filter.
-- **A one-off** (a date, no repeat) is done once you complete it: it leaves Due and Overdue on
-  Home, the agenda and the calendar, and **Schedules** lists it last as **Done** with the day.
-  Undo the completion, or delete that service, and it is due again; to do it again later, edit it
-  to repeat or add a new one.
-- **Read the card** reads a registration card in Label mode: VIN, plate and licence expiry.
-- **History report** makes a PDF for a period: odometer history with proof photos, services with
-  their invoices, fuel and documents, and costs only where you can see money.
+Full detail: [vehicles and machines](/users/vehicles/).
 
 ## Reminders and notifications
 
-Kept reminds you of schedules due, warranties running out and registration deadlines, documents
-and things that expire, overdue loans, meters not read lately, low stock, members joining and
+Kept reminds you of schedules due, warranties running out, registration deadlines, documents and
+things that expire, overdue loans, meters not read lately, low stock, members joining and
 leaving, and AI spending caps. Home's **Needs you** shows what's due or overdue; the bell opens
 the notification centre, where **Complete**, **Snooze**, **Renew** and **Mark returned** act in
-place.
+place. **Settings → Me → Notifications** chooses what reaches you and how, including a **Daily
+digest**, **Quiet hours** and a private **Calendar feed** link.
 
-**Settings → Me → Notifications** chooses what reaches you and how, a **Daily digest**, **Quiet
-hours**, and a private **Calendar feed** link for your calendar app. Push on a phone is covered in
-[the phone app](/users/phone-app/#notifications).
-
-**What reaches you** is one table. Rows are the kinds, grouped: due dates (schedules, warranties,
-registration deadlines, documents, things that expire, meters), lending, stock, people
-(members joining and leaving) and AI (spending caps, the monthly summary). Columns are your
-channels: **In Kept**, **Email**, **Push**, and a column for webhooks, ntfy, Telegram or Apprise
-once you've added one (every channel of that kind follows it). Membership and AI notices only go
-to Kept and email. Turning **In Kept** off for a kind turns it off everywhere: nothing else is
-sent for it. On a phone, each kind shows its channels as switches underneath.
-
-- **All locations** sets what you get everywhere, including locations you add later.
-- **Pick a location** to change it there only. A dot marks what's set for that location alone;
-  **Reset this location to all locations** clears those. A kind whose module is off there shows
-  as paused (its reminders wait until the module is back), and where you're a viewer you only get
-  members joining and leaving. Where you're a member, Kept starts with only the loans you record:
-  turn on what you want there.
-
-**ntfy**: add your server (`https://ntfy.sh` or your own) and a topic that's hard to guess, plus
-an access token if the topic needs one. **Telegram**: make a bot with @BotFather, send it a
-message, then add its token and your chat ID. **Apprise** (when your server has it): paste one or
-more Apprise URLs, like `discord://…`, to reach Discord, Slack, Matrix, Signal and more. Kept keeps
-all of these encrypted and never shows them again; **Test** sends one now.
-
-**Lending**: **Lend** a thing (or part of a quantity) to a member or a contact, with a due date and
-condition photos. Kept never messages the borrower; **Copy a reminder** gives you the text to send
-yourself. A box goes with everything inside it, each thing on its own line: see
-[Kits and hand-overs](/users/kits/).
+Full detail: [reminders and notifications](/users/reminders/).
 
 ## Sharing a location
 

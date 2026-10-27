@@ -103,8 +103,9 @@ A branch ruleset "main" on the default branch:
 
 - **changes only through pull requests**, 0 approvals required (a solo maintainer can't approve his
   own pull request), all review conversations resolved, squash the only merge method;
-- **required status checks**, from the GitHub Actions app only: `fast` and `attribution`
-  (`ci.yml`'s job ids) and `build` (`docs.yml`), with the branch up to date before merging. The
+- **required status checks**, from the GitHub Actions app only: `fast`, `db`, `e2e`,
+  `e2e-update`, `images-amd64`, `images-arm64`, `helm` and `attribution` (`ci.yml`'s job ids),
+  `build` (`docs.yml`) and `cla` (`cla.yml`), with the branch up to date before merging. The
   script checks each name against the workflow file and stops if a job was renamed;
 - **linear history**; **no force-push**; **no deletion**;
 - **no bypass**: the maintainer works through pull requests too. `--allow-admin-bypass` adds the

@@ -13,7 +13,10 @@
  *
  * Two projects, phone (375×780) and desktop (1280×800). Each runs the step-1 flow on its own
  * fresh instance, because first-run setup happens once per instance, and the sign-in tests on its
- * own seeded instance (e2e/instances.ts).
+ * own seeded instance (e2e/instances.ts). A third, `insecure`, runs e2e/insecure.spec.ts alone, at
+ * both sizes, on a Kept whose address is http://kept.lan:<port>: Chromium maps kept.lan to
+ * 127.0.0.1 (`--host-resolver-rules`), so the page is plain HTTP on a network name, not a secure
+ * context, as on a home network.
  *
  * Chromium runs with a fake camera playing e2e/fixtures/camera-thing.y4m
  * (e2e/camera.ts), and step3.spec.ts runs on the `capture` instance, whose AI is the mock.
@@ -26,8 +29,10 @@ import { defineConfig, devices } from '@playwright/test';
 import { CAPTURE_INSTANCE, fakeCameraArgs } from './e2e/camera';
 import {
   ASSISTANT_INSTANCE,
+  HOMEBOX_INSTANCE,
   INSTANCES,
   type Instance,
+  LAN_INSTANCE,
   OPERATIONS_INSTANCE,
   PORTABILITY_INSTANCE,
   SIGN_IN_INSTANCE,
@@ -73,6 +78,7 @@ type Served = Instance & {
   trustProxy?: boolean;
   mail?: boolean;
   google?: boolean;
+  publicHost?: string;
 };
 
 /** Every instance, by key: step 1–2's, step 3's capture instance, step 5's vehicles and steps
@@ -83,9 +89,11 @@ const ALL: Record<string, Served> = {
   vehicles: VEHICLES_INSTANCE,
   assistant: ASSISTANT_INSTANCE,
   portability: PORTABILITY_INSTANCE,
+  homebox: HOMEBOX_INSTANCE,
   operations: OPERATIONS_INSTANCE,
   signIn: SIGN_IN_INSTANCE,
   signInMail: SIGN_IN_MAIL_INSTANCE,
+  lan: LAN_INSTANCE,
 };
 
 /** The instances to start: all, or those KEPT_E2E_INSTANCES names (e.g. `capture`). */
@@ -101,7 +109,7 @@ function selected(): Served[] {
 }
 
 const server = (i: Served) => ({
-  command: `node --conditions=kept-dist e2e/serve.mjs ${i.name} ${i.port}${i.seed ? ' --seed' : ''}${i.aiMock ? ' --ai-mock' : ''}${i.https ? ' --https' : ''}${i.owner ? ' --owner' : ''}${i.trustProxy ? ' --trust-proxy' : ''}${i.mail ? ' --mail' : ''}${i.google ? ' --google' : ''}`,
+  command: `node --conditions=kept-dist e2e/serve.mjs ${i.name} ${i.port}${i.seed ? ' --seed' : ''}${i.aiMock ? ' --ai-mock' : ''}${i.https ? ' --https' : ''}${i.owner ? ' --owner' : ''}${i.trustProxy ? ' --trust-proxy' : ''}${i.mail ? ' --mail' : ''}${i.google ? ' --google' : ''}${i.publicHost ? ` --public-host=${i.publicHost}` : ''}`,
   url: `${urlOf(i)}/readyz`,
   // The --https instances' certificate is self-signed, made for the run.
   ignoreHTTPSErrors: !!i.https,
@@ -127,17 +135,20 @@ const serveAll = (list: Served[]) => ({
   url: `http://localhost:${SERVE_ALL_PORT}/readyz`,
   env: {
     KEPT_E2E_SERVE: JSON.stringify(
-      list.map(({ name, port, seed, aiMock, https, owner, trustProxy, mail, google }) => ({
-        name,
-        port,
-        seed,
-        aiMock,
-        https,
-        owner,
-        trustProxy,
-        mail,
-        google,
-      })),
+      list.map(
+        ({ name, port, seed, aiMock, https, owner, trustProxy, mail, google, publicHost }) => ({
+          name,
+          port,
+          seed,
+          aiMock,
+          https,
+          owner,
+          trustProxy,
+          mail,
+          google,
+          publicHost,
+        }),
+      ),
     ),
   },
   reuseExistingServer: false,
@@ -148,14 +159,20 @@ const serveAll = (list: Served[]) => ({
   gracefulShutdown: { signal: 'SIGTERM' as const, timeout: 30_000 },
 });
 
+/** The spec only the `insecure` project runs (on a non-secure origin). */
+const INSECURE_SPEC = 'insecure.spec.ts';
+
+/** KEPT_E2E_IGNORE's files (a comma list): CI runs e2e/audit.spec.ts as a job of its own. */
+const ignored = (process.env.KEPT_E2E_IGNORE ?? '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 export default defineConfig({
   testDir: './e2e',
   // KEPT_E2E_IGNORE (a comma list of spec files) leaves those files out. CI runs e2e/audit.spec.ts
   // as a job of its own and shards the rest without it (scripts/ci-local.sh's e2e step).
-  testIgnore: (process.env.KEPT_E2E_IGNORE ?? '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean),
+  testIgnore: ignored,
   outputDir: '../../.tmp/e2e/results',
   fullyParallel: false,
   forbidOnly: true,
@@ -186,6 +203,7 @@ export default defineConfig({
         baseURL: urlOf(INSTANCES.phone),
         launchOptions: { args: fakeCameraArgs() },
       },
+      testIgnore: [...ignored, INSECURE_SPEC],
     },
     {
       name: 'desktop',
@@ -195,6 +213,26 @@ export default defineConfig({
         viewport: { width: 1280, height: 800 },
         baseURL: urlOf(INSTANCES.desktop),
         launchOptions: { args: fakeCameraArgs() },
+      },
+      testIgnore: [...ignored, INSECURE_SPEC],
+    },
+    {
+      // Plain HTTP on a network name (http://kept.lan:<port>), not a secure context. The spec sets
+      // the phone and desktop sizes itself.
+      name: 'insecure',
+      testMatch: INSECURE_SPEC,
+      testIgnore: ignored,
+      use: {
+        ...devices['Desktop Chrome'],
+        ...browser,
+        viewport: { width: 1280, height: 800 },
+        baseURL: `http://${LAN_INSTANCE.publicHost}:${LAN_INSTANCE.port}`,
+        launchOptions: {
+          args: [
+            ...fakeCameraArgs(),
+            `--host-resolver-rules=MAP ${LAN_INSTANCE.publicHost} 127.0.0.1`,
+          ],
+        },
       },
     },
   ],

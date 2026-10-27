@@ -96,6 +96,7 @@ export const AUDIT_ACTIONS = [
   'import.homebox_connect',
   'import.inspect',
   'import.passphrase',
+  'import.repair',
   'import.run',
   'import.start',
   'import.target',
