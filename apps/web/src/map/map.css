@@ -400,7 +400,8 @@ fieldset.kmap-floors {
     position: relative;
     margin-block-start: auto;
     flex: 0 1 auto;
-    min-height: 0;
+    /* It shrinks under the tools, but never to a sliver (a short landscape phone). */
+    min-height: min(120px, 45%);
     pointer-events: auto;
     border-radius: 14px;
     overflow: auto;

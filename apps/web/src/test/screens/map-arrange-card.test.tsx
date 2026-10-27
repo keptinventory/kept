@@ -134,7 +134,7 @@ describe('Arrange with a card open (#330)', () => {
     // In the column's flow, pushed to the bottom, and shrunk rather than laid over the tools.
     expect(panel).toMatch(/position: relative/);
     expect(panel).toMatch(/margin-block-start: auto/);
-    expect(panel).toMatch(/min-height: 0/);
+    expect(panel).toMatch(/min-height: min\(120px, 45%\)/);
     expect(panel).not.toMatch(/(^|\s)(top|bottom|inset[\w-]*):/);
     expect(rule('.kmap-stage[data-card="true"] .kmap-hint', narrow)).toMatch(/display: none/);
   });
