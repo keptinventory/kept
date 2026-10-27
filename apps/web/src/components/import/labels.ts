@@ -178,7 +178,19 @@ export function useIssueText() {
       case 'hb_quantity_rounded':
         return t`Counted one by one in Kept; Homebox's quantity is kept in the notes.`;
       case 'hb_quantity_zero':
-        return t`Quantity 0 became 1: Homebox gives 0 when none was set.`;
+        return t`Quantity 0 in Homebox; it came in as 1.`;
+      case 'hb_quantity_zero_kept':
+        return t`Quantity 0 in Homebox, kept: its type is one you run out of.`;
+      case 'hb_quantity_zero_archived':
+        return t`Quantity 0 in Homebox; it came in archived.`;
+      case 'hb_quantity_zero_skipped':
+        return t`Quantity 0 in Homebox, left out.`;
+      case 'hb_item_holds_things':
+        return t`It holds other items, so it came in as a box.`;
+      case 'hb_box_from_location':
+        return t`A location that came in as a box, as chosen.`;
+      case 'hb_place_notes_dropped':
+        return t`Its description isn't kept: places in Kept have no notes.`;
       case 'hb_number_integer':
         return t`Homebox keeps numbers whole, so any decimals were already lost there.`;
       case 'hb_icon_dropped':

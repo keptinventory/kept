@@ -10,6 +10,7 @@ import { type ReactNode, useCallback } from 'react';
 import type { LoanRow } from '@/api/household/types';
 import { daysBetween } from '@/components/schedules/access';
 import { toast } from '@/components/ui/toast';
+import { copyText } from '@/lib/clipboard';
 import { useFormat } from '@/lib/format';
 import { usePoliteReminder } from './polite-reminder';
 
@@ -93,7 +94,7 @@ export function useCopyPoliteReminder() {
     async (loan: LoanRow) => {
       const text = reminder(loan);
       try {
-        await navigator.clipboard.writeText(text);
+        await copyText(text);
         toast({
           title: t`Reminder copied`,
           description: t`Send it however you like. Kept never sends it.`,

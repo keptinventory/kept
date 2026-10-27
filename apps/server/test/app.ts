@@ -20,6 +20,10 @@ export type TestApp = {
 export type TestAppOptions = {
   publicUrl?: string;
   rateLimitEnabled?: boolean;
+  /** Better Auth's own Origin check, as in production (Better Auth turns it off under tests). */
+  authOriginCheck?: boolean;
+  /** The key personal tokens are HMAC'd with; random when omitted. */
+  tokenKey?: Buffer;
   onScope?: Parameters<typeof buildApp>[0]['onScope'];
   onUserCreated?: AuthDeps['onUserCreated'];
   jobs?: Parameters<typeof buildApp>[0]['jobs'];
@@ -58,6 +62,7 @@ export async function testApp(db: TestDb, opts: TestAppOptions = {}): Promise<Te
   const auth = testAuth(db, {
     env: { KEPT_PUBLIC_URL: publicUrl } as AuthDeps['env'],
     ...(opts.rateLimitEnabled !== undefined ? { rateLimitEnabled: opts.rateLimitEnabled } : {}),
+    ...(opts.authOriginCheck !== undefined ? { originCheck: opts.authOriginCheck } : {}),
     ...(opts.onUserCreated ? { onUserCreated: opts.onUserCreated } : {}),
     ...(opts.mailConfigured ? { enrolmentNeedsVerifiedEmail: true } : {}),
     ...(opts.oauth ? { oauth: opts.oauth } : {}),
@@ -90,6 +95,7 @@ export async function testApp(db: TestDb, opts: TestAppOptions = {}): Promise<Te
     ...(opts.logger ? { logger: opts.logger } : {}),
     ...(opts.ai ? { ai: opts.ai } : {}),
     ...(opts.notify ? { notify: opts.notify } : {}),
+    ...(opts.tokenKey ? { tokenKey: opts.tokenKey } : {}),
   });
   await opts.routes?.(app);
   await app.ready();

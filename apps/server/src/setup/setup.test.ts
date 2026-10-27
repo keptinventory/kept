@@ -99,6 +99,22 @@ describe('the setup code', () => {
     ).rejects.toThrow(/KEPT_SETUP_CODE/);
   });
 
+  it('KEPT_SETUP_CODE replaces a code still pending, and is returned only when it changed', async () => {
+    const generated = (await ensureSetupCode(db.pools.system)) as string;
+    expect(generated).toMatch(/^[0-9A-HJKMNP-TV-Z]{3}-[0-9A-HJKMNP-TV-Z]{3}$/);
+    const preset = generated === 'KPT-2X9' ? 'KPT-2X8' : 'KPT-2X9';
+    expect(await ensureSetupCode(db.pools.system, { preset })).toBe(preset);
+    expect(setupCodeMatches(await storedCode(), preset)).toBe(true);
+    expect(setupCodeMatches(await storedCode(), generated)).toBe(false);
+    // The same preset on the next boot changes nothing and prints nothing.
+    expect(await ensureSetupCode(db.pools.system, { preset: preset.toLowerCase() })).toBeNull();
+    const res = await call(t, '/api/v1/setup', { body: firstAccount(preset) });
+    expect(res.statusCode).toBe(201);
+    // Set up: a preset is ignored.
+    expect(await ensureSetupCode(db.pools.system, { preset })).toBeNull();
+    expect(await storedCode()).toBeNull();
+  });
+
   it('is not made once the instance has an instance admin', async () => {
     const code = (await ensureSetupCode(db.pools.system)) as string;
     const res = await call(t, '/api/v1/setup', { body: firstAccount(code) });

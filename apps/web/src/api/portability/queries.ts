@@ -34,6 +34,9 @@ import type {
   HomeboxConnectBody,
   HomeboxConnection,
   ImportChoicesBody,
+  ImportRepairBody,
+  ImportRepairPlan,
+  ImportRepairResult,
   ImportTargetBody,
   PutStockRuleBody,
   StockRule,
@@ -46,6 +49,7 @@ export const portabilityKeys = {
     one: (id: string) => ['exports', 'one', id] as const,
   },
   enrichEstimate: (runId: string) => ['imports', runId, 'enrich-estimate'] as const,
+  repair: (runId: string) => ['imports', runId, 'repair'] as const,
   consumables: {
     all: ['consumables'] as const,
     list: (params: ConsumablesParams) => ['consumables', 'list', params] as const,
@@ -80,6 +84,10 @@ export const portabilityApi = {
     api.post<ArchiveImportRun>(p.importChoices(id), body, ifMatch(rowVersion)),
   homeboxConnect: (id: string, body: HomeboxConnectBody) =>
     api.post<HomeboxConnection>(p.importHomeboxConnect(id), body),
+  repairPlan: (id: string) => api.get<ImportRepairPlan>(p.importRepair(id)),
+  /** The repairs; their events come back for one Undo. */
+  repair: (id: string, body: ImportRepairBody): Promise<Written<ImportRepairResult>> =>
+    requestWritten<ImportRepairResult>(p.importRepair(id), { method: 'POST', body }),
   importPassphrase: (id: string, passphrase: string) =>
     api.post<ArchiveImportRun>(p.importPassphrase(id), { passphrase }),
   archiveDryRun: (id: string) =>
@@ -186,3 +194,12 @@ export const useConsumables = (params: ConsumablesParams, enabled = true) =>
     initialPageParam: undefined as string | undefined,
     getNextPageParam: nextCursor,
   });
+
+/** What repairing a Homebox import that ran would change (null while it can't be asked). */
+export function useImportRepair(runId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: k.repair(runId),
+    queryFn: () => portabilityApi.repairPlan(runId),
+    enabled,
+  });
+}

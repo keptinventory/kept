@@ -64,6 +64,14 @@ jobs:
                 // ($s | section("What\u0027s changed") | if . then gsub("<details>[\\s\\S]*?</details>"; "") else null end)
                 // ($body | split("\nBuilt ")[0] | split("\n") | map(select(test("^## [0-9]") | not)) | join("\n"))
               | split("\n")
+              # Discord shows no Markdown tables: a table row becomes a bullet, "• **What**: before → now",
+              # and its header and |---| rows go.
+              | map(select(test("^\\|[-: |]+\\|$") | not))
+              | map(if test("^\\|") then
+                    ([split("|")[1:-1][] | gsub("^\\s+|\\s+$"; "")]) as $c
+                    | if ($c[0] == "" or $c[1] == "Before") then empty
+                      else "• **\($c[0])**: \($c[1]) → \($c[2])" end
+                  else . end)
               | map(if test("^### ") then "**" + .[4:] + "**"
                     elif test("^## ") then "__**" + .[3:] + "**__" else . end)
               | join("\n") | gsub("\n{3,}"; "\n\n") | gsub("^\\s+|\\s+$"; "")) as $notes

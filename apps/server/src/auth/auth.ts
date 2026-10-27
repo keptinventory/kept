@@ -58,6 +58,9 @@ export type AuthDeps = {
   mail: AuthMail;
   /** Defaults to on. Better Auth enables it only when NODE_ENV=production otherwise. */
   rateLimitEnabled?: boolean;
+  /** Better Auth's own Origin check. It is on in production and off by Better Auth's default
+   * under NODE_ENV=test; a test that needs the production answer turns it on. */
+  originCheck?: boolean;
   /** Runs after a user row is committed (Better Auth's `databaseHooks.user.create.after`):
    * `ensureAccount()`. `headers` are the creating request's, when there was one.
    * A failure is reported to `onBackgroundError`, never to the sign-up: the per-request check
@@ -348,6 +351,7 @@ export function createAuth(deps: AuthDeps) {
       // walks X-Forwarded-For without knowing the socket, so a client connecting directly could
       // still pick its address. The proxy walk happens before the header is set.
       ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
+      ...(deps.originCheck !== undefined ? { disableOriginCheck: !deps.originCheck } : {}),
     },
     rateLimit: {
       enabled: deps.rateLimitEnabled ?? true,
