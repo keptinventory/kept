@@ -273,21 +273,10 @@ Full detail: [sharing a location](/users/sharing/).
 
 ## Reports: the inventory, insurance and claims
 
-- **Print inventory** on a location makes a PDF of its things grouped by place, with photos and
-  short IDs, optionally QR codes, ended things and the Trash. Prices appear only for people who can
-  see money. Anyone who can see the location can make one. **Email it to me** also mails the PDF
-  when it's ready, and **Send it again** mails the whole location every Monday or on the 1st of the
-  month; Settings → Me → Notifications lists these and stops them. A report over 10 MB isn't
-  attached: print it from Kept instead. Both are locked, with the reason under them, when the
-  server has no mail set up or your account has no email address.
-- **Insurance report** (where you can see money): every thing with its photo, brand, model,
-  serial, purchase date, price, current value and receipts, with totals per place and per currency,
-  as a PDF and a CSV. **Also total in** adds one converted total when your exchange rates cover
-  every currency.
-- **Incidents** record a burglary, fire, flood or loss: select things on a location's list, then
-  add them to an incident. A **claim pack** is a ZIP of the insurance report with every receipt,
-  invoice, photo and serial for the incident, shared with the insurer by a download link that
-  lasts 1 to 7 days, is shown once and can be revoked. Owners and admins make them.
+A location prints three documents: the inventory PDF, an insurance report with totals, and a
+claim pack for an incident.
+
+Full detail: [reports, insurance and claims](/users/reports/).
 
 ## Condition reports (renting)
 

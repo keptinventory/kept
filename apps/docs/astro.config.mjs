@@ -120,6 +120,7 @@ const sidebar = [
     page('users/dashboards'),
     page('users/paperless'),
     page('users/import-export'),
+    page('users/reports'),
     page('integrations'),
     group('Backups and restore', 'النسخ الاحتياطي والاستعادة', [
       page('admin/backups'),
