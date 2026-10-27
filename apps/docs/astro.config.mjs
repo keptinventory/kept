@@ -99,6 +99,7 @@ const sidebar = [
   group('Use Kept', 'استخدام Kept', [
     group('Install', 'التثبيت', dir('install')),
     page('users/first-run'),
+    page('users/home'),
     page('users/everyday-use'),
     page('users/search'),
     page('users/reminders'),
