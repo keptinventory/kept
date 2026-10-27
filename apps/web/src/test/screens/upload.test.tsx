@@ -9,7 +9,8 @@ import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { inventoryPaths as p } from '@/api/inventory/paths';
 import { IDS, ownerScenario } from '@/api/mock/fixtures';
 import { createMockApi, MockReply } from '@/api/mock/server';
-import { fileClassOf, putFile, sha256Hex, uploadAndAttach } from '@/components/things/upload';
+import { fileClassOf, putFile, uploadAndAttach } from '@/components/things/upload';
+import { sha256Hex } from '@/lib/sha256';
 import { findHeading, renderApp } from '@/test/app';
 
 // Whole-app renders under a parallel run can pass the 5 s default.

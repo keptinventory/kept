@@ -52,6 +52,7 @@ import {
 import { Button, buttonClass } from '@/components/ui/button';
 import { toast } from '@/components/ui/toast';
 import { isolate } from '@/lib/bidi';
+import { copyText } from '@/lib/clipboard';
 import { sep, useFormat } from '@/lib/format';
 import { useLocationName, useRoleLabels } from '@/lib/labels';
 import { useOnline } from '@/lib/online';
@@ -423,7 +424,7 @@ function LoanActions({
     if (!loan) return;
     const text = reminder({ ...loan, thing: { name } });
     try {
-      await navigator.clipboard.writeText(text);
+      await copyText(text);
       toast({
         title: t`Reminder copied`,
         description: t`Send it however you like. Kept never sends it.`,

@@ -16,6 +16,7 @@
  * injectable for tests.
  */
 import { type CaptureMode, newId, PHOTO_POLICY } from '@kept/shared';
+import { sha256Hex } from '@/lib/sha256';
 import type { LocalBlob } from '@/offline/store';
 
 export const JPEG_QUALITY = { thing: 0.85, evidence: 0.92, display: 0.85 } as const;
@@ -118,12 +119,6 @@ export async function fromFile(
   } finally {
     if (typeof ImageBitmap !== 'undefined' && img.source instanceof ImageBitmap) img.source.close();
   }
-}
-
-/** The file's SHA-256 as 64 lower-case hex characters (`X-Kept-Sha256`). */
-export async function sha256Hex(blob: Blob): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', await blob.arrayBuffer());
-  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 /**
