@@ -13,7 +13,7 @@ Caddy من أجل HTTPS. تحتاج إلى Docker مع إضافة Compose، وإ
 
 ```sh
 mkdir kept && cd kept
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.13.0/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.13.1/compose.yaml
 docker compose run --rm init
 docker compose up -d
 ```

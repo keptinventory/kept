@@ -3,6 +3,30 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.13.1 (2026-10-27)
+
+### Highlights
+
+- **A thing's type under its name.** Lists, Large tiles, search and the palette show the type in quiet grey ("Furniture"), and a box's row says how many things are in it.
+- **Activity reads right after Turn places into boxes.** Plain rows instead of "Name → empty", "box" instead of "container", no Undo on what was already undone, and links that open the box (or the place it was merged into).
+- **Homebox import polish.** Suggested boxes A to Z, a typed name becomes a new type, the check step speaks ahead ("comes in archived"), an empty custom field is named as left out, and an ended thing says "Archived" or "Sold" everywhere.
+- **Small fixes.** The HTTPS strip stays dismissed on every device, filter chips stay on one line, the sort menu says places keep their own order, the tour counts the same chapters as Help, and four tests no longer fail under load.
+
+### Other
+
+- Box counts in lists, the type under a thing's name, and small UI fixes (#326, closes #321) (acf1988)
+- Homebox import: A to Z boxes, typed type names, wording ahead, empty fields said (#325, closes #320) (ed142c2)
+- Four load-proof tests, and the tour counts the same chapters as Help (#324, closes #312, #314) (5c6ab3e)
+- Activity after Turn places into boxes: plain rows, "box", no dead Undo, links that open (#323, closes #319) (5dcace5)
+
+### Documentation
+
+- **release:** the 1.13.0 record (#318) (59cf813)
+
+### Contributors
+
+@ibrahimroshdy
+
 ## 1.13.0 (2026-10-27)
 
 ### Highlights
