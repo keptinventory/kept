@@ -95,6 +95,14 @@ function seed(state: MockState, s: Store): void {
   const home = box.locationId;
   const office = INV_IDS.place.office;
   const living = INV_IDS.place.livingRoom;
+  /** A part's own type (they're copied from the phone, which isn't a camera or a tripod). */
+  const typed = (typeId: string | null): Pick<StoredThing, 'type' | 'fields'> => {
+    const ty = typeId ? inv.types.find((x) => x.id === typeId) : undefined;
+    return ty
+      ? { type: { id: ty.id, icon: ty.icon, name: ty.name, builtinKey: ty.builtinKey }, fields: [] }
+      : { type: null, fields: [] };
+  };
+  const Y = INV_IDS.type;
   const make = (over: Partial<StoredThing> & { id: string; name: string }, from = part) => {
     if (inv.things.some((t) => t.id === over.id)) return;
     inv.things.push({
@@ -125,6 +133,7 @@ function seed(state: MockState, s: Store): void {
       shortCode: 'C4MBAG',
       placeId: office,
       containerId: null,
+      labelPrinted: true,
     },
     box,
   );
@@ -134,6 +143,9 @@ function seed(state: MockState, s: Store): void {
     shortCode: 'B0DY7X',
     placeId: null,
     containerId: KIT_IDS.bag,
+    ...typed(Y.electronics),
+    // New in the bag: its label isn't printed yet (Labels lists it as unprinted).
+    labelPrinted: false,
   });
   make({
     id: KIT_IDS.lens,
@@ -141,6 +153,8 @@ function seed(state: MockState, s: Store): void {
     shortCode: 'WDE7NS',
     placeId: null,
     containerId: KIT_IDS.bag,
+    ...typed(Y.electronics),
+    labelPrinted: false,
   });
   make({
     id: KIT_IDS.battery,
@@ -148,6 +162,8 @@ function seed(state: MockState, s: Store): void {
     shortCode: 'BATT2R',
     placeId: living,
     containerId: null,
+    ...typed(Y.batteries),
+    labelPrinted: false,
   });
   make(
     {
@@ -156,6 +172,7 @@ function seed(state: MockState, s: Store): void {
       shortCode: 'TRC4SE',
       placeId: office,
       containerId: null,
+      labelPrinted: true,
     },
     box,
   );
@@ -166,6 +183,8 @@ function seed(state: MockState, s: Store): void {
     placeId: null,
     containerId: KIT_IDS.tripodKit,
     condition: 'fair',
+    ...typed(null),
+    labelPrinted: false,
   });
   make({
     id: KIT_IDS.head,
@@ -173,6 +192,8 @@ function seed(state: MockState, s: Store): void {
     shortCode: 'TRHEAD',
     placeId: null,
     containerId: KIT_IDS.tripodKit,
+    ...typed(null),
+    labelPrinted: false,
   });
   s.kits.push({
     thingId: KIT_IDS.bag,

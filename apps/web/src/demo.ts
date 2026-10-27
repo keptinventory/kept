@@ -17,11 +17,10 @@
  */
 
 import { withinAiCap } from '@/api/capture/mock/state';
-import { ensureSeeded } from '@/api/household/mock/db';
 import { inDollars } from '@/api/mock/dollars';
 import { type MockState, type ScenarioName, scenarios } from '@/api/mock/fixtures';
 import { createMockApi } from '@/api/mock/server';
-import { ensureVehiclesSeeded } from '@/api/vehicles/mock/state';
+import { showcaseHousehold } from '@/api/mock/showcase';
 import { DIGITS_KEY, LOCALE_KEY, setDigits, setThemePref, THEME_KEY } from '@/lib/prefs';
 import { guardServerFiles } from '@/try/files';
 import { TRY } from '@/try/flag';
@@ -83,13 +82,11 @@ export function installDemo(): void {
     inDollars(state);
   }
   if ((params.get('lang') ?? localStorageLang()) === 'ar') arabise(state);
-  // Try Kept: the whole household from the first page, whatever a visitor opens first (the
-  // fixtures add the borrowed ladder and the vehicles on the first request that needs them, so
-  // the tests' counts stay put; a link straight to one must open it too).
-  if (TRY) {
-    ensureSeeded(state);
-    ensureVehiclesSeeded(state);
-  }
+  // The showcase (Try Kept is one): the whole household from the first page, whatever opens first
+  // (the fixtures add the borrowed ladder, the vehicles and the kits on the first request that
+  // needs them, so the tests' counts stay put; a link straight to one must open it too), so the
+  // docs' screenshots don't depend on the order they're taken in (api/mock/showcase.ts).
+  if (showcase) showcaseHousehold(state);
   const mock = createMockApi(state);
   // Try Kept: the docs page's `?lang=…&theme=…` were applied above; the address keeps only the
   // route, so a reload or Reset doesn't apply them over a choice made in the app since.

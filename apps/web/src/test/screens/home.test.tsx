@@ -4,6 +4,7 @@
  * review, the Insights teaser; today, day one, a viewer, Money off, a phone width, Arabic) and the
  * app frame.
  */
+import { KEPT_VERSION } from '@kept/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { householdPaths as hp } from '@/api/household/paths';
@@ -875,7 +876,7 @@ describe('the frame', () => {
     await renderApp('/');
     const links = await screen.findAllByRole('link', { name: 'Source code' });
     expect(links[0]).toHaveAttribute('href', 'https://github.com/keptinventory/kept/tree/3f9ed1d');
-    expect(screen.getAllByText('v0.1.0').length).toBeGreaterThan(0);
+    expect(screen.getAllByText(`v${KEPT_VERSION}`).length).toBeGreaterThan(0);
   });
 
   it('keeps the image’s third-party notices out of the footer, even when the server serves them', async () => {
