@@ -138,10 +138,8 @@ describe('the location you are in', () => {
     await router.navigate({ to: '/' });
     await findHeading('Home');
     await waitFor(() => expect(marked()).toEqual([]));
-    expect(within(mainNav()).getByRole('link', { name: 'Home' })).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
+    // The Home entry, not the location called Home (the Locations list sits inside Main).
+    expect(mainNav().querySelector('[data-nav="home"]')).toHaveAttribute('aria-current', 'page');
 
     await router.navigate({ to: '/search' });
     await findHeading('Search');

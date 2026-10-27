@@ -322,7 +322,9 @@ export function overviewOf(state: MockState): HomeOverview {
             hiddenIn: locations
               .filter((l) => l.modules.includes('money') && !showsMoney(state, l.id))
               .map((l) => l.id),
-            moneyOff: locations.filter((l) => !l.modules.includes('money')).map((l) => l.id),
+            moneyOff: locations
+              .filter((l) => l.kind !== 'personal' && !l.modules.includes('money'))
+              .map((l) => l.id),
           }
         : null,
   };

@@ -154,6 +154,13 @@ const IT_ADMIN: Record<AdminAction, (locationName: string) => Message> = {
       `Chi gestisce questa istanza di Kept ha trasferito «${name}» a un nuovo proprietario. Tu ne resti membro come amministratore.`,
     ],
   }),
+  'token-created': () => ({
+    subject: 'È stato creato un token per il tuo account',
+    paragraphs: [
+      'Chi gestisce questa istanza di Kept ha creato sul server un token personale per il tuo account, per un’app come Home Assistant o un assistente IA. Può fare ciò che puoi fare tu, nei luoghi per cui è stato creato.',
+      'Se non l’hai chiesto tu, revocalo in Impostazioni → Connessioni.',
+    ],
+  }),
 };
 
 // Limiti di IA (D206).

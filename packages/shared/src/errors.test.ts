@@ -19,6 +19,7 @@ describe('ErrorCode', () => {
       'unauthenticated',
       'mfa_required',
       'forbidden',
+      'origin_mismatch',
       'not_found',
       'conflict',
       'precondition_failed',

@@ -8,6 +8,9 @@ export const ErrorCode = Object.freeze({
   unauthenticated: 'unauthenticated',
   mfa_required: 'mfa_required',
   forbidden: 'forbidden',
+  /** A write from a page at another address than KEPT_PUBLIC_URL's (403): Kept's own origin check
+   * or Better Auth's. The body's `expectedOrigin` is the address this Kept is set up for. */
+  origin_mismatch: 'origin_mismatch',
   not_found: 'not_found',
   conflict: 'conflict',
   precondition_failed: 'precondition_failed',

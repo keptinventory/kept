@@ -20,6 +20,10 @@ The Compose file passes the common ones through from `.env`; the rest go in a
 | `KEPT_AUTH_DATABASE_URL` |  | `kept_auth` login (required) |
 | `KEPT_SYSTEM_DATABASE_URL` |  | `kept_system` login (required: workers, and the setup code at web boot) |
 | `KEPT_OWNER_DATABASE_URL` |  | for `kept migrate` / `kept admin`, and on a worker with a backup target (the dump runs as kept_owner) |
+| `KEPT_DB_APP_PASSWORD_FILE` |  | `KEPT_DATABASE_URL`'s password when the URL has none: a file holding it on one line |
+| `KEPT_DB_AUTH_PASSWORD_FILE` |  | `KEPT_AUTH_DATABASE_URL`'s password when the URL has none (as above) |
+| `KEPT_DB_SYSTEM_PASSWORD_FILE` |  | `KEPT_SYSTEM_DATABASE_URL`'s password when the URL has none (as above) |
+| `KEPT_DB_OWNER_PASSWORD_FILE` |  | `KEPT_OWNER_DATABASE_URL`'s password when the URL has none (as above) |
 | `KEPT_SECRET_KEY` |  | generated on first boot if unset (D193); set both or neither; see §7.3 |
 | `KEPT_AUTH_SECRET` |  | generated on first boot if unset (D193); set both or neither; see §7.3 |
 | `KEPT_SECRET_KEY_VERSION` |  | the version of `KEPT_SECRET_KEY`: `1` when unset; `kept admin rotate-key` says what to set (§7.3) |
