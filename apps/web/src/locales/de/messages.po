@@ -18655,10 +18655,6 @@ msgid "Nothing sent yet"
 msgstr "Noch nichts gesendet"
 
 #: src/components/webhooks/words.tsx
-msgid "Off: every delivery failed for a day."
-msgstr "Aus: jede Zustellung ist einen Tag lang fehlgeschlagen."
-
-#: src/components/webhooks/words.tsx
 msgid "Off: the person who made it is no longer an admin here."
 msgstr "Aus: die Person, die ihn erstellt hat, ist hier kein Admin mehr."
 

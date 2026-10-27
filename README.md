@@ -139,6 +139,9 @@ open the box.
 
 ## Quick start: host it
 
+> These steps need Kept **1.13.0**, which isn't released yet ([what's left](https://github.com/keptinventory/kept/milestone/1)).
+> To install 1.12.5 now, follow [its quick start](https://github.com/keptinventory/kept/tree/v1.12.5#quick-start-host-it).
+
 Docker with Compose v2, on a machine with at least 2 GB of RAM and 2 CPU cores
 ([what it needs](https://keptinventory.info/install/hardware/)).
 
@@ -184,9 +187,22 @@ the Caddyfile in `docker/caddy/` ([HTTPS](https://keptinventory.info/install/htt
 
 ## What's next
 
-- **Now:** [run comfortably on a 2 GB machine](https://github.com/keptinventory/kept/issues/176)
-- **Next:** [cube shelf](https://github.com/keptinventory/kept/issues/240) and [narrow bookcase](https://github.com/keptinventory/kept/issues/241) map shapes
-- **Later:** [mobile apps](https://github.com/keptinventory/kept/issues/169) · [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197) · [graph view](https://github.com/keptinventory/kept/issues/207) · [storage furniture templates](https://github.com/keptinventory/kept/issues/238)
+- **1.13.0, mid-November** ([milestone](https://github.com/keptinventory/kept/milestone/1)): Kept on a home
+  network over plain http, a Homebox import that speaks Homebox, places A–Z with boxes in the tree,
+  names before codes, and a four-step Docker Compose install.
+- **1.14.0, mid-December** ([milestone](https://github.com/keptinventory/kept/milestone/2)):
+  [graph view](https://github.com/keptinventory/kept/issues/207) ·
+  [move rooms on the map](https://github.com/keptinventory/kept/issues/301) ·
+  [full-screen photos](https://github.com/keptinventory/kept/issues/295) ·
+  [Select → Trash](https://github.com/keptinventory/kept/issues/294) ·
+  [vehicle services you can open](https://github.com/keptinventory/kept/issues/296) ·
+  [label-maker tape](https://github.com/keptinventory/kept/issues/303) ·
+  [two new shapes](https://github.com/keptinventory/kept/issues/240) ·
+  [a 2 GB machine](https://github.com/keptinventory/kept/issues/176)
+- **Later:** [mobile and desktop apps](https://github.com/keptinventory/kept/issues/169) ·
+  [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197) ·
+  [storage furniture templates](https://github.com/keptinventory/kept/issues/238) ·
+  [a Home Assistant app](https://github.com/keptinventory/kept/issues/289)
 
 [Full roadmap →](https://github.com/orgs/keptinventory/projects/1) · 👍 the themes you want most.
 
