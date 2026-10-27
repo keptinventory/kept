@@ -503,6 +503,7 @@ describe('POST /api/v1/places/:id/convert-children-to-containers', () => {
     diff: Record<string, unknown> | null;
     undo_of: string | null;
     undone?: true;
+    linkTo?: { type: string; id: string; shortCode: string | null };
     summary: string;
     summaryKey: string;
   };
@@ -541,6 +542,38 @@ describe('POST /api/v1/places/:id/convert-children-to-containers', () => {
       kind_key: { before: 'zone' },
       child_order: { before: 'custom' },
     });
+  });
+
+  it('#319: a conversion row links to the box it is now, and to the place again once undone', async () => {
+    const shed = await newPlace('Tool shed', null, 'room');
+    const crate = await newPlace('Seed crate', shed);
+    const tin = await newPlace('Paint tin', shed);
+    const { code } = ok(
+      await call(t, `/api/v1/places/${crate}/label`, { as: louis, body: {} }),
+    ) as unknown as { code: string };
+    const res = await convertMany(shed, [crate]);
+    expect(
+      (await call(t, `/api/v1/places/${tin}/convert-to-container`, { as: louis, body: {} }))
+        .statusCode,
+    ).toBe(200);
+    // The place's own page is gone: a link to /p/<id> lands on "not found".
+    expect(
+      (await call(t, `/api/v1/places/${crate}`, { as: louis, method: 'GET' })).statusCode,
+    ).toBe(404);
+    const tinBox = await get<{ shortCode: string | null }>(`/api/v1/things/${tin}`);
+    expect((await activity(crate))[0]?.linkTo).toEqual({
+      type: 'thing',
+      id: crate,
+      shortCode: code,
+    });
+    expect((await activity(tin))[0]?.linkTo).toEqual({
+      type: 'thing',
+      id: tin,
+      shortCode: tinBox.shortCode,
+    });
+
+    expect((await undoTogether(auditIds(res))).statusCode).toBe(200);
+    for (const row of await activity(crate)) expect(row.linkTo).toBeUndefined();
   });
 
   it('#319: after the one Undo, no conversion row offers Undo again, and the undo reads plainly', async () => {

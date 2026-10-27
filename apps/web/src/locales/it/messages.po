@@ -8301,6 +8301,10 @@ msgstr "Oggetti trovati"
 msgid "Things in the same location, by brand and model or by name."
 msgstr "Oggetti nello stesso luogo, per marca e modello o per nome."
 
+#: src/components/history/labels.ts
+msgid "Things moved"
+msgstr "Oggetti spostati"
+
 #: src/components/registries/registry-page.tsx
 msgid "Things show here when a purchase from here is recorded for them."
 msgstr "Gli oggetti compaiono qui quando registri per loro un acquisto da questo venditore."

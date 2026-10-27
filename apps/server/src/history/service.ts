@@ -104,6 +104,11 @@ export const HistoryEventSchema = z.object({
   movedInFromElsewhere: z.literal(true).optional(),
   /** #319: undone since (an undo names it), so it offers no Undo; marked while its window is open. */
   undone: z.literal(true).optional(),
+  /** #319: where the row links instead of its entity, which is no longer what the event was
+   * about: the box a place became, the place a thing became, the place one was merged into. */
+  linkTo: z
+    .object({ type: z.enum(['thing', 'place']), id: z.uuid(), shortCode: z.string().nullable() })
+    .optional(),
   /** A thing's history: an event of a thing merged into it (D36), "merged from <name>". */
   mergedFrom: z.object({ id: z.uuid(), name: z.string().nullable() }).optional(),
   /** Step 6 (D206): an AI call about the thing (`action: 'ai.call'`). */
@@ -117,7 +122,10 @@ export type HistoryEvent = Omit<RenderedAuditEvent, 'actor' | 'entity'> &
     mergedFrom?: { id: string; name: string | null };
     aiCall?: z.infer<typeof CallSummary> & { task: LedgerTask };
     undone?: true;
+    linkTo?: LinkTo;
   };
+
+export type LinkTo = { type: 'thing' | 'place'; id: string; shortCode: string | null };
 
 export const HistoryPageSchema = z.object({
   items: z.array(HistoryEventSchema),
@@ -301,16 +309,86 @@ const rowOf = (r: EventRecord): AuditEventRow => ({
 const CLOSED: AuditViewer = { role: 'viewer', moneyVisibleToViewers: false, moneyModule: false };
 
 /**
- * #319: a conversion's diff is what the place (or the thing) was, kept for its undo to put back
- * (places/undo.ts): stored as `before` with nothing `after`, it would read as changes ("Name →
- * empty", "Kind zone → empty"). Its sentence says what happened ("Turned Crate into a box"), so
- * the row keeps only what the conversion itself records: what a thing lost on becoming a place.
- * The undo of one is the same action and reads the same way. The audit keeps the whole diff.
+ * #319: the diff of an event after which its place or thing is no longer one (turned into a box
+ * or a place, merged into another place) is what it was, kept for its undo or the record: stored
+ * as `before` with nothing `after`, it would read as changes ("Name → empty", "Kind zone →
+ * empty"). Its sentence says what happened ("Turned Crate into a box"), so the row keeps only
+ * what the event itself records: what a thing lost on becoming a place, where a merged place
+ * went and how many things went with it. The undo of a conversion is the same action and reads
+ * the same way. The audit keeps the whole diff.
  */
-const CONVERSION_FIELDS: Readonly<Record<string, readonly string[]>> = {
+const OWN_FIELDS: Readonly<Record<string, readonly string[]>> = {
   'place.convert_to_container': [],
   'thing.convert_to_place': ['discarded'],
+  'place.merge': ['merged_into', 'things_moved'],
 };
+
+/**
+ * #319: what such an event's entity became, as its stored diff says: the box (the same id), the
+ * place (the same id), the place it was merged into. Not for the undo of a conversion, after which
+ * the entity is what it was.
+ */
+const BECAME: Readonly<Record<string, { type: LinkTo['type']; field: string }>> = {
+  'place.convert_to_container': { type: 'thing', field: 'thing_id' },
+  'thing.convert_to_place': { type: 'place', field: 'place_id' },
+  'place.merge': { type: 'place', field: 'merged_into' },
+};
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * #319: the rows that link somewhere other than their entity, by event id: an event in BECAME
+ * whose entity is no longer there as what it was (its page would be "not found"), when what it
+ * became is there, as the caller may see it. Read now, not from the event alone: a box turned
+ * back into a place (an Undo, or "Turn into a place" later) links to the place again.
+ */
+async function linksOf(
+  client: pg.ClientBase,
+  events: readonly EventRecord[],
+): Promise<Map<string, LinkTo>> {
+  const wanted: { event: string; entity: string; to: LinkTo['type']; id: string }[] = [];
+  for (const e of events) {
+    const rule = BECAME[e.action];
+    if (!rule || e.undo_of || !e.entity_id) continue;
+    const after = (e.diff as Record<string, { after?: unknown }> | null)?.[rule.field]?.after;
+    if (typeof after !== 'string' || !UUID.test(after)) continue;
+    wanted.push({
+      event: e.id,
+      entity: `${e.entity_type}:${e.entity_id}`,
+      to: rule.type,
+      id: after.toLowerCase(),
+    });
+  }
+  if (wanted.length === 0) return new Map();
+  const ids = (type: string) => [
+    ...new Set(
+      wanted.flatMap((w) => [
+        ...(w.to === type ? [w.id] : []),
+        ...(w.entity.startsWith(`${type}:`) ? [w.entity.slice(type.length + 1)] : []),
+      ]),
+    ),
+  ];
+  const { rows } = await client.query<{ key: string; code: string | null }>(
+    `SELECT 'place:' || p.id AS key,
+            (SELECT s.code FROM public.short_ids s
+              WHERE s.place_id = p.id AND s.is_primary AND s.state = 'assigned' LIMIT 1) AS code
+       FROM public.places p WHERE p.id = ANY ($1::uuid[])
+     UNION ALL
+     SELECT 'thing:' || t.id,
+            (SELECT s.code FROM public.short_ids s
+              WHERE s.thing_id = t.id AND s.is_primary AND s.state = 'assigned' LIMIT 1)
+       FROM public.things t WHERE t.id = ANY ($2::uuid[])`,
+    [ids('place'), ids('thing')],
+  );
+  const there = new Map(rows.map((r) => [r.key, r.code]));
+  const out = new Map<string, LinkTo>();
+  for (const w of wanted) {
+    const key = `${w.to}:${w.id}`;
+    if (there.has(w.entity) || !there.has(key)) continue;
+    out.set(w.event, { type: w.to, id: w.id, shortCode: there.get(key) ?? null });
+  }
+  return out;
+}
 
 /**
  * #319: which of `events` were undone since (an undo row names them in `undo_of`), so their rows
@@ -683,6 +761,7 @@ async function renderEvents(
   const tokens = await tokenActorsOf(client, scope, events);
   const extracted = await extractionsOf(client, events);
   const undone = await undoneOf(client, events);
+  const links = await linksOf(client, events);
 
   return events.map((e) => {
     const row = rowOf(e);
@@ -725,13 +804,14 @@ async function renderEvents(
       const { layout: _layout, ...rest } = rendered.diff;
       rendered.diff = rest;
     }
-    // A conversion's snapshot is its undo's, not a change anyone made (#319).
-    const conversion = CONVERSION_FIELDS[e.action];
-    if (rendered.diff && conversion) {
+    // What a converted or merged place or thing was is the record's, not a change (#319).
+    const kept = OWN_FIELDS[e.action];
+    if (rendered.diff && kept) {
       rendered.diff = Object.fromEntries(
-        Object.entries(rendered.diff).filter(([field]) => conversion.includes(field)),
+        Object.entries(rendered.diff).filter(([field]) => kept.includes(field)),
       );
     }
+    const linkTo = links.get(e.id);
     return {
       ...rendered,
       actor: {
@@ -746,6 +826,7 @@ async function renderEvents(
       },
       ...summary,
       ...(undone.has(e.id) ? { undone: true as const } : {}),
+      ...(linkTo ? { linkTo } : {}),
     };
   });
 }

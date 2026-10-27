@@ -8301,6 +8301,10 @@ msgstr "الأشياء التي عُثر عليها"
 msgid "Things in the same location, by brand and model or by name."
 msgstr "أغراض في الموقع نفسه، حسب العلامة والطراز أو الاسم."
 
+#: src/components/history/labels.ts
+msgid "Things moved"
+msgstr "الأشياء المنقولة"
+
 #: src/components/registries/registry-page.tsx
 msgid "Things show here when a purchase from here is recorded for them."
 msgstr "تظهر الأشياء هنا عندما يُسجَّل لها شراء من هنا."

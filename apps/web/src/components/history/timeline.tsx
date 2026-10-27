@@ -409,6 +409,13 @@ function entityRoute(
   // Moved to Trash: its own page can't open it any more; Trash lists it, with Restore (D246's
   // route walk found Home's row opening "This isn't here any more").
   if (e.summaryKey === 'thing.trash' || e.summaryKey === 'place.trash') return { to: '/trash' };
+  // #319: a place turned into a box (a thing into a place, a place merged away) is no longer at
+  // its own page: the server says where it is now.
+  if (e.linkTo)
+    return {
+      to: e.linkTo.type === 'thing' ? '/t/$id' : '/p/$id',
+      params: { id: addressOf(e.linkTo) },
+    };
   // The short address when the row names one (D208), so the page needn't replace it on arrival.
   const address = addressOf({ id, shortCode: e.entity.shortCode ?? null });
   if (e.entity.type === 'thing') return { to: '/t/$id', params: { id: address } };

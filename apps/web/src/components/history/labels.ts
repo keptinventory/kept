@@ -108,6 +108,8 @@ export function useFieldLabel() {
     converted_from: t`Made from`,
     converted_to: t`Turned into`,
     discarded: t`Removed with it`,
+    // A merge's count of the things that went into the place it joined (#319).
+    things_moved: t`Things moved`,
     short_code: t`Label ID`,
     own_codes: t`Your codes`,
     // Step 4's records (T29): warranties, claims, valuations, loans, schedules, services,
