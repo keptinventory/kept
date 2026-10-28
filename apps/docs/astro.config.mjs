@@ -131,6 +131,7 @@ const sidebar = [
     page('users/import-export'),
     page('users/insights'),
     page('users/reports'),
+    page('users/webhooks'),
     page('integrations'),
     group('Backups and restore', 'النسخ الاحتياطي والاستعادة', [
       page('admin/backups'),

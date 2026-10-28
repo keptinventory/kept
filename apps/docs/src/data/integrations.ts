@@ -472,7 +472,7 @@ export const integrationGroups: IntegrationGroup[] = [
       {
         id: 'webhooks',
         icon: 'webhook',
-        href: '/users/everyday-use/#reminders-and-notifications',
+        href: '/users/webhooks/',
         code: ['apps/server/src/notify/webhook.ts', 'apps/server/src/webhooks/'],
         en: {
           name: 'Webhooks',
