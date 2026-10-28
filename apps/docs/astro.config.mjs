@@ -162,6 +162,7 @@ const sidebar = [
     page('developers/contributing'),
     page('developers/data-model'),
     page('developers/rls'),
+    page('developers/security'),
     page('developers/migrations'),
     page('developers/auth'),
     page('developers/api'),
