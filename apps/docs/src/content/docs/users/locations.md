@@ -35,7 +35,10 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
   `turn_into_boxes`, [MCP clients](/users/mcp-clients/)). The assistant shows a card to confirm
   first; Undo works as in the app.
 - **The place tree** (beside the page on a computer, **All places** on a phone) shows boxes under
-  their place with how many things are in each, up to 50 a place, then **+N boxes**.
+  their place with how many things are in each, up to 50 a place, then **+N boxes**. The arrow
+  beside a place folds what's under it; **Fold all** and **Open all** do every place at once.
+  Kept remembers your folds for your account, on every device. The places above the page you're
+  on stay open.
 - On a location, **Sort them** goes through Unplaced one thing at a time with a place picker.
 - A box opened from its label shows a photo grid of what's inside.
 - **Layouts:** a location's page switches between **List**, **Grid**, **Graph**, **Table** and
