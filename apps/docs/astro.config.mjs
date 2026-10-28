@@ -145,6 +145,7 @@ const sidebar = [
     page('admin/upgrades'),
     page('admin/verify-release'),
     page('admin/observability'),
+    page('admin/monitoring'),
     page('admin/recovery-kit'),
     page('admin/security-model'),
     page('admin/storage'),
