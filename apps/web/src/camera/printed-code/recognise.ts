@@ -139,19 +139,21 @@ export function components(
     const rb = find(b);
     if (ra !== rb) parent[Math.max(ra, rb)] = Math.min(ra, rb);
   };
+  // The four neighbours already seen, refilled for each ink pixel: one buffer a frame, so a
+  // frame makes no garbage per pixel.
+  const seen = new Int32Array(4);
   for (let y = 0; y < height; y++)
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
       if (!mask[i]) continue;
       let label = 0;
-      // The four neighbours already seen: west, north-west, north, north-east.
-      const seen = [
-        x > 0 ? labels[i - 1] : 0,
-        x > 0 && y > 0 ? labels[i - width - 1] : 0,
-        y > 0 ? labels[i - width] : 0,
-        x < width - 1 && y > 0 ? labels[i - width + 1] : 0,
-      ];
-      for (const s of seen) {
+      // West, north-west, north, north-east.
+      seen[0] = x > 0 ? (labels[i - 1] as number) : 0;
+      seen[1] = x > 0 && y > 0 ? (labels[i - width - 1] as number) : 0;
+      seen[2] = y > 0 ? (labels[i - width] as number) : 0;
+      seen[3] = x < width - 1 && y > 0 ? (labels[i - width + 1] as number) : 0;
+      for (let k = 0; k < 4; k++) {
+        const s = seen[k] as number;
         if (!s) continue;
         if (!label) label = s;
         else if (s !== label) join(label, s);
