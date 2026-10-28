@@ -397,6 +397,16 @@ const schema = z.object({
     .describe(
       "`1` only in the Home Assistant app's image: Kept trusts Home Assistant's ingress (from the Supervisor's address only) and says it runs as an app",
     ),
+  // Set by the app's start script only when the Supervisor is 2026.10.4 or later, which removes a
+  // client's X-Remote-User-Groups and sets its own (home-assistant/supervisor #7398); before
+  // that, the header could be the client's, so setup without the code stays off.
+  KEPT_HA_TRUST_GROUPS: z
+    .enum(['0', '1'])
+    .default('0')
+    .transform((value) => value === '1')
+    .describe(
+      "`1` only from the Home Assistant app's start script, on a Supervisor that sets the user's groups itself: a Home Assistant administrator sets Kept up through ingress without the code",
+    ),
   // https served by Kept itself, e.g. with Home Assistant's own certificate from /ssl. Both or
   // neither; a renewed certificate is read at the next start.
   KEPT_TLS_CERT_FILE: z

@@ -54,7 +54,7 @@ import { bearerHook } from '../tokens/verify.js';
 import { LIBRARY_STYLE_HASHES } from './csp-styles.js';
 import { toErrorReply } from './errors.js';
 import { type BuildInfo, healthRoutes } from './health.js';
-import { ingressFraming, ingressHook } from './ingress.js';
+import { ingressCookieHeader, ingressFraming, ingressHook } from './ingress.js';
 import { dbModuleLoader, type ModuleLoader, modulePreHandler } from './modules.js';
 import { registerInventoryRoutes } from './routes.js';
 import { shareGuard, shareRoutes } from './share.js';
@@ -81,6 +81,7 @@ export type AppEnv = Pick<Env, 'KEPT_PUBLIC_URL'> &
       | 'KEPT_UPDATE_CHECK'
       | 'KEPT_ERROR_DSN'
       | 'KEPT_HA'
+      | 'KEPT_HA_TRUST_GROUPS'
     >
   >;
 
@@ -226,6 +227,15 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
   // Home Assistant ingress (D273): decided once, from the socket and the Supervisor's headers,
   // before anything reads the request. Outside app mode (KEPT_HA) it is null for every request.
   app.addHook('onRequest', ingressHook(opts.env.KEPT_HA === true));
+  // Kept on https behind a plain-http Home Assistant: its cookies went out without the __Secure-
+  // prefix (http/ingress.ts scopeCookieToIngress); Better Auth reads them under their own names.
+  if (opts.env.KEPT_HA === true && https) {
+    app.addHook('onRequest', async (req) => {
+      if (req.ingress && !req.ingress.secure && req.headers.cookie) {
+        req.headers.cookie = ingressCookieHeader(req.headers.cookie, true);
+      }
+    });
+  }
 
   // A share-target POST the service worker didn't catch: redirected before the CSRF check and
   // before its body is read (http/share.ts).

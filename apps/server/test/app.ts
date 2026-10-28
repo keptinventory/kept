@@ -59,6 +59,8 @@ export type TestAppOptions = {
   web?: Parameters<typeof buildApp>[0]['web'];
   /** KEPT_HA=1: the Home Assistant app's mode (D272, D273). */
   appMode?: boolean;
+  /** KEPT_HA_TRUST_GROUPS=1: the Supervisor sets X-Remote-User-Groups itself (≥ 2026.10.4). */
+  haTrustGroups?: boolean;
   /** KEPT_TRUSTED_PROXIES; default none. */
   trustedProxies?: readonly string[];
 };
@@ -81,6 +83,7 @@ export async function testApp(db: TestDb, opts: TestAppOptions = {}): Promise<Te
       KEPT_PUBLIC_URL: publicUrl,
       KEPT_TRUSTED_PROXIES: opts.trustedProxies ?? [],
       ...(opts.appMode ? { KEPT_HA: true } : {}),
+      ...(opts.haTrustGroups ? { KEPT_HA_TRUST_GROUPS: true } : {}),
       ...(opts.signupOpenEnv !== undefined ? { KEPT_SIGNUP_OPEN: opts.signupOpenEnv } : {}),
     },
     pools: db.pools as Pools,

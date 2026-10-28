@@ -42,7 +42,9 @@ import {
 // code and lifts that instance-wide lockout.
 // In the Home Assistant app (D272, D273) GET also says `homeAssistant: {codeNeeded}`, and a
 // request through ingress from a member of Home Assistant's `system-admin` group sets up without
-// the code: Home Assistant has already signed that person in as its administrator. The audit row
+// the code: Home Assistant has already signed that person in as its administrator. Only with
+// KEPT_HA_TRUST_GROUPS: the start script sets it on a Supervisor (2026.10.4+) that removes a
+// client's X-Remote-User-Groups and sets its own; on an older one a member could claim the group. The audit row
 // names their Home Assistant user id. A setup through ingress must carry Home Assistant's Origin.
 
 export const SETUP_ATTEMPTS_PER_IP = 10;
@@ -65,6 +67,9 @@ export type SetupDeps = {
 export async function setupRoutes(app: KeptApp, deps: SetupDeps): Promise<void> {
   const { auth, pools, trustedProxies } = deps;
   const appMode = app.env.KEPT_HA === true;
+  // Only where the Supervisor sets X-Remote-User-Groups itself (KEPT_HA_TRUST_GROUPS).
+  const haAdmin = (ctx: Parameters<typeof isHomeAssistantAdmin>[0]) =>
+    app.env.KEPT_HA_TRUST_GROUPS === true && isHomeAssistantAdmin(ctx);
 
   app.get(
     '/api/v1/setup',
@@ -91,7 +96,7 @@ export async function setupRoutes(app: KeptApp, deps: SetupDeps): Promise<void> 
         needed: await setupNeeded(pools.system),
         ...(oidc.configured && !oidc.error && oidc.name ? { oidc: { name: oidc.name } } : {}),
         ...(googleStatus().configured ? { google: true } : {}),
-        ...(appMode ? { homeAssistant: { codeNeeded: !isHomeAssistantAdmin(req.ingress) } } : {}),
+        ...(appMode ? { homeAssistant: { codeNeeded: !haAdmin(req.ingress) } } : {}),
       };
     },
   );
@@ -109,7 +114,7 @@ export async function setupRoutes(app: KeptApp, deps: SetupDeps): Promise<void> 
     async (req, reply) => {
       // Through ingress the page is Home Assistant's: its Origin, nothing else.
       if (req.ingress) assertSameOrigin(req, req.ingress.origin);
-      const viaHomeAssistant = isHomeAssistantAdmin(req.ingress) ? req.ingress?.haUser : null;
+      const viaHomeAssistant = haAdmin(req.ingress) ? req.ingress?.haUser : null;
       if (!(await setupNeeded(pools.system))) throw conflict('Kept is already set up.');
       const headers = authHeaders(req, trustedProxies);
       const ip = requestClientIp(headers);

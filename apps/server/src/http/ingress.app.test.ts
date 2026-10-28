@@ -24,7 +24,8 @@ const TOKEN = 'Xy7_dT9-kLmN0pQrStUvWxYz0123456789abcdEFGH';
 const PREFIX = `/api/hassio_ingress/${TOKEN}`;
 const HA = 'http://homeassistant.local:8123';
 const HA_HTTPS = 'https://ha.example.org';
-const PROXIES = [HA_CORE_ADDRESS, HA_SUPERVISOR_ADDRESS];
+// As the app's start script sets it: the Supervisor only; Core is a hop behind it (proxiesFor).
+const PROXIES = [HA_SUPERVISOR_ADDRESS];
 
 const INDEX = `<!doctype html>
 <html lang="en"><head>
@@ -172,7 +173,12 @@ describe('app mode (KEPT_HA=1) on the port: unchanged too', () => {
     await expectUnchanged(
       t,
       HA_SUPERVISOR_ADDRESS,
-      viaIngress({ 'x-ingress-path': '/api/hassio_ingress/../../evil' }, ADMIN),
+      // Not ingress, so Core isn't skipped as a hop: a client address of its own per request,
+      // or every sign-in here would share Core's.
+      viaIngress(
+        { 'x-ingress-path': '/api/hassio_ingress/../../evil', 'x-forwarded-for': freshIp() },
+        ADMIN,
+      ),
     );
   });
 });
@@ -310,7 +316,14 @@ describe('first-run setup in app mode (§8.4)', () => {
   let code: string;
   beforeEach(async () => {
     await db.reset();
-    t = await testApp(db, { authOriginCheck: true, web, appMode: true, trustedProxies: PROXIES });
+    // The start script sets KEPT_HA_TRUST_GROUPS only on a Supervisor that sets the groups header.
+    t = await testApp(db, {
+      authOriginCheck: true,
+      web,
+      appMode: true,
+      haTrustGroups: true,
+      trustedProxies: PROXIES,
+    });
     code = (await ensureSetupCode(db.pools.system)) as string;
     expect(code).toBeTruthy();
   });
@@ -392,6 +405,68 @@ describe('first-run setup in app mode (§8.4)', () => {
     );
     expect(res.statusCode).toBe(403);
     expect(res.json()).toMatchObject({ code: 'origin_mismatch' });
+  });
+});
+
+describe('first-run setup on a Supervisor older than 2026.10.4 (no KEPT_HA_TRUST_GROUPS)', () => {
+  it("needs the code even for 'system-admin': that Supervisor passes a client's groups header on", async () => {
+    await db.reset();
+    const t = await testApp(db, { web, appMode: true, trustedProxies: PROXIES });
+    try {
+      await ensureSetupCode(db.pools.system);
+      const status = await fromSupervisor(t, {
+        url: '/api/v1/setup',
+        headers: viaIngress({}, ADMIN),
+      });
+      expect(status.json()).toMatchObject({ needed: true, homeAssistant: { codeNeeded: true } });
+      const res = await fromSupervisor(t, {
+        method: 'POST',
+        url: '/api/v1/setup',
+        headers: { ...viaIngress({}, ADMIN), origin: HA },
+        payload: {
+          email: `first-${randomUUID()}@example.com`,
+          password: PASSWORD,
+          displayName: 'F',
+        },
+      });
+      expect(res.statusCode).toBe(400);
+    } finally {
+      await t.app.close();
+    }
+  });
+});
+
+describe('Kept on https, Home Assistant on plain http (ingress)', () => {
+  it('signs in with plain cookies on the prefix, and reads them back', async () => {
+    const t = await testApp(db, {
+      authOriginCheck: true,
+      web,
+      appMode: true,
+      trustedProxies: PROXIES,
+      publicUrl: 'https://kept.example.org',
+    });
+    try {
+      const email = await signedUpEmail(t);
+      const res = await signIn(t, email, { ...viaIngress(), origin: HA }, HA_SUPERVISOR_ADDRESS);
+      expect(res.statusCode).toBe(200);
+      const cookies = setCookies(res);
+      expect(cookies.length).toBeGreaterThan(0);
+      for (const c of cookies) {
+        expect(c).not.toMatch(/; Secure(;|$)/);
+        expect(c).not.toMatch(/^__(Secure|Host)-/);
+        expect(c).toContain(`; Path=${PREFIX}/`);
+      }
+      const me = await fromSupervisor(t, {
+        url: '/api/v1/me',
+        headers: { ...viaIngress(), cookie: jar(res) },
+      });
+      expect(me.statusCode).toBe(200);
+      // On the port, the same server keeps its __Secure- cookies.
+      const port = await signIn(t, email, { origin: t.publicUrl }, freshIp());
+      for (const c of setCookies(port)) expect(c).toMatch(/^__Secure-/);
+    } finally {
+      await t.app.close();
+    }
   });
 });
 

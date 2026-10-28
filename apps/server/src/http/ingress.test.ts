@@ -1,7 +1,12 @@
+import type { FastifyRequest } from 'fastify';
 import { describe, expect, it } from 'vitest';
+import { CLIENT_IP_HEADER } from '../auth/client-ip.js';
+import { authHeaders } from '../auth/http.js';
 import {
   HA_ADMIN_GROUP,
+  HA_CORE_ADDRESS,
   HA_SUPERVISOR_ADDRESS,
+  ingressCookieHeader,
   isHomeAssistantAdmin,
   readIngress,
   scopeCookieToIngress,
@@ -166,5 +171,68 @@ describe('scopeCookieToIngress()', () => {
     expect(scopeCookieToIngress('a=b; Domain=example.org; Path=/', ctx)).toBe(
       `a=b; Path=${PREFIX}/`,
     );
+  });
+});
+
+describe('scopeCookieToIngress() when Home Assistant is plain http', () => {
+  const ctx = { prefix: PREFIX, origin: 'http://ha.local:8123', secure: false, haUser: null };
+
+  it('drops Secure and the __Secure-/__Host- prefixes, which an http page would never get back', () => {
+    expect(
+      scopeCookieToIngress('__Secure-better-auth.session_token=x; Path=/; HttpOnly; Secure', ctx),
+    ).toBe(`better-auth.session_token=x; Path=${PREFIX}/; HttpOnly`);
+    expect(scopeCookieToIngress('__Host-a=b; Path=/; Secure', ctx)).toBe(`a=b; Path=${PREFIX}/`);
+  });
+});
+
+describe('ingressCookieHeader()', () => {
+  it('gives Better Auth its __Secure- names back when it uses secure cookies', () => {
+    expect(
+      ingressCookieHeader(
+        'better-auth.session_token=x; other=1; better-auth.dont_remember=y',
+        true,
+      ),
+    ).toBe('__Secure-better-auth.session_token=x; other=1; __Secure-better-auth.dont_remember=y');
+  });
+
+  it('leaves the header alone when Better Auth uses plain cookies, or names already prefixed', () => {
+    expect(ingressCookieHeader('better-auth.session_token=x', false)).toBe(
+      'better-auth.session_token=x',
+    );
+    expect(ingressCookieHeader('__Secure-better-auth.session_token=x', true)).toBe(
+      '__Secure-better-auth.session_token=x',
+    );
+  });
+});
+
+describe('the client address behind ingress (KEPT_TRUSTED_PROXIES = the Supervisor only)', () => {
+  const trusted = [HA_SUPERVISOR_ADDRESS];
+  const request = (remoteAddress: string, xff: string, ingressCtx: unknown) =>
+    ({
+      headers: { 'x-forwarded-for': xff },
+      socket: { remoteAddress },
+      ingress: ingressCtx,
+    }) as unknown as FastifyRequest;
+  const ctx = { prefix: PREFIX, origin: 'http://ha.local:8123', secure: false, haUser: null };
+
+  it("skips Core's hop behind the Supervisor: the client is the browser", () => {
+    const h = authHeaders(
+      request(HA_SUPERVISOR_ADDRESS, `198.51.100.7, ${HA_CORE_ADDRESS}`, ctx),
+      trusted,
+    );
+    expect(h.get(CLIENT_IP_HEADER)).toBe('198.51.100.7');
+  });
+
+  it('never trusts Core as a direct peer', () => {
+    const h = authHeaders(request(HA_CORE_ADDRESS, '198.51.100.7', null), trusted);
+    expect(h.get(CLIENT_IP_HEADER)).toBe(HA_CORE_ADDRESS);
+  });
+
+  it("doesn't skip Core's address for a request that isn't ingress", () => {
+    const h = authHeaders(
+      request(HA_SUPERVISOR_ADDRESS, `198.51.100.7, ${HA_CORE_ADDRESS}`, null),
+      trusted,
+    );
+    expect(h.get(CLIENT_IP_HEADER)).toBe(HA_CORE_ADDRESS);
   });
 });

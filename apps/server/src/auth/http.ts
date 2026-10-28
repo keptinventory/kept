@@ -7,7 +7,7 @@ import type { Pools } from '../db/pools.js';
 import type { Scope } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
 import { AppError, invalid, unauthenticated } from '../http/errors.js';
-import { scopeCookieToIngress } from '../http/ingress.js';
+import { proxiesFor, scopeCookieToIngress } from '../http/ingress.js';
 import { AUTH_BASE_PATH, type Auth } from './auth.js';
 import { authRequestHeaders, ClientIpError, requestClientIp } from './client-ip.js';
 import { INGRESS_ORIGIN_HEADER } from './ingress-origin.js';
@@ -141,7 +141,7 @@ export function authHeaders(req: FastifyRequest, trustedProxies: readonly string
     const headers = authRequestHeaders({
       headers: req.headers,
       remoteAddress: req.socket.remoteAddress,
-      trustedProxies,
+      trustedProxies: proxiesFor(req, trustedProxies),
     });
     // Hop-by-hop and framing headers describe this connection, not the Request we build.
     for (const name of ['host', 'connection', 'content-length', 'transfer-encoding', 'expect']) {

@@ -5,9 +5,13 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 // Home Assistant ingress (D273). Inside Home Assistant, Kept is shown at
 // `<Home Assistant>/api/hassio_ingress/<token>/`: the browser talks to Home Assistant, Core passes
 // the request to the Supervisor, and the Supervisor to Kept, from 172.30.32.2 only, with the
-// prefix stripped and named in X-Ingress-Path. Core sets X-Forwarded-Host and -Proto
-// (homeassistant/components/hassio/ingress.py `_init_header`); the Supervisor sets the
-// X-Remote-User-* headers after removing any the client sent (supervisor/api/ingress.py).
+// prefix stripped and named in X-Ingress-Path. Core passes on the X-Forwarded-Host and -Proto the
+// request came with, and sets them from its own request only when there are none
+// (homeassistant/components/hassio/ingress.py `_init_header`): behind a proxy in front of Home
+// Assistant they are that proxy's, so a TLS-terminating proxy must send `X-Forwarded-Proto: https`
+// for Kept to see https. From 2026.10.4 the Supervisor removes any X-Remote-User-* the client
+// sent and sets its own (supervisor/api/ingress.py, #7398); setup trusts the groups only then
+// (KEPT_HA_TRUST_GROUPS).
 //
 // One rule decides whether a request came that way, and everything ingress changes keys off it:
 // the page's <base href>, framing, the expected Origin, the cookie's Path, no service worker, and
@@ -156,7 +160,11 @@ export async function ingressFraming(req: FastifyRequest, reply: FastifyReply, p
  * Kept's session is sent to Kept's own requests only, never to the rest of Home Assistant.
  */
 export function scopeCookieToIngress(line: string, ctx: IngressContext): string {
-  const [pair = '', ...attrs] = line.split(';');
+  const [rawPair = '', ...attrs] = line.split(';');
+  // Home Assistant on plain http: a Secure cookie, or one named __Secure-/__Host-, never comes back
+  // from an http page (Better Auth names and marks them so when KEPT_PUBLIC_URL is https). Plain
+  // here; ingressCookieHeader() gives Better Auth its names back on the way in.
+  const pair = ctx.secure ? rawPair : rawPair.trim().replace(/^__(?:Secure|Host)-/, '');
   const kept: string[] = [];
   let hasPath = false;
   let hasSecure = false;
@@ -170,10 +178,51 @@ export function scopeCookieToIngress(line: string, ctx: IngressContext): string 
       kept.push(`Path=${ctx.prefix}/`);
       continue;
     }
-    if (name === 'secure') hasSecure = true;
+    if (name === 'secure') {
+      if (!ctx.secure) continue;
+      hasSecure = true;
+    }
     kept.push(attr);
   }
   if (!hasPath) kept.push(`Path=${ctx.prefix}/`);
   if (ctx.secure && !hasSecure) kept.push('Secure');
   return [pair.trim(), ...kept].join('; ');
+}
+
+/** Better Auth's cookie names start with this (its default `cookiePrefix`). */
+const BETTER_AUTH_COOKIE = /^better-auth\./;
+
+/**
+ * The Cookie header of an ingress request as Better Auth must read it: when Better Auth uses secure
+ * cookies (KEPT_PUBLIC_URL is https) but Home Assistant is plain http, scopeCookieToIngress() sent
+ * its cookies without the `__Secure-` prefix, so the prefix goes back on here. Otherwise unchanged.
+ */
+export function ingressCookieHeader(cookie: string, secureCookies: boolean): string {
+  if (!secureCookies) return cookie;
+  return cookie
+    .split(';')
+    .map((part) => {
+      const trimmed = part.trim();
+      return BETTER_AUTH_COOKIE.test(trimmed) ? `__Secure-${trimmed}` : trimmed;
+    })
+    .join('; ');
+}
+
+const withCore = new WeakMap<readonly string[], readonly string[]>();
+
+/**
+ * The proxies to believe for a request. Behind ingress the chain is browser → Core (172.30.32.1) →
+ * the Supervisor (172.30.32.2) → Kept, and X-Forwarded-For ends `<browser>, 172.30.32.1`. The app
+ * trusts only the Supervisor (KEPT_TRUSTED_PROXIES); Core's address is skipped as a hop only for a
+ * request that passed the ingress check, so a direct request from Core (the integration) keeps
+ * Core's own address.
+ */
+export function proxiesFor(req: FastifyRequest, trusted: readonly string[]): readonly string[] {
+  if (!req.ingress) return trusted;
+  let list = withCore.get(trusted);
+  if (!list) {
+    list = Object.freeze([...trusted, HA_CORE_ADDRESS]);
+    withCore.set(trusted, list);
+  }
+  return list;
 }
