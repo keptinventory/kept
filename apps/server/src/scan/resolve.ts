@@ -1,7 +1,9 @@
 import {
   CODE_FIELD_MAX,
   can,
+  isProductCode,
   parseScan,
+  productCodeForms,
   SCAN_SESSION_LIMITS,
   type ScanResult,
   serialsOf,
@@ -43,7 +45,9 @@ import { callerMembership } from '../locations/access.js';
 // Every query is an equality on an indexed key (short_ids' primary key, legacy_codes(source,
 // code) and its primary key, things(location_id, barcode) and things(location_id, serial)),
 // which PostgreSQL treats as leakproof, so RLS keeps the index. A serial is matched exactly, as
-// stored: the scanned text is what is printed on the thing.
+// stored: the scanned text is what is printed on the thing. A product barcode is matched on each
+// of its spellings (`productCodeForms`: a UPC-A's 12 digits and the 13 an iPhone reads, a UPC-E's
+// 8), still an equality on the index (`= ANY`).
 
 export const ResolveScanBody = z.object({
   text: z.string().max(2048),
@@ -179,18 +183,18 @@ async function byLegacy(
 
 /**
  * Things the caller sees that carry the code: as their serial number (any of `serials`) or as
- * their barcode. A serial names one unit, so serial matches win over barcode ones; one match
+ * their barcode (any of `barcodes`, one product code's spellings). A serial names one unit, so serial matches win over barcode ones; one match
  * opens it, several ask which. The stored text is compared as it is (a thing's barcode and serial
  * are what was scanned or typed for it).
  */
 async function byThingCode(
   client: pg.ClientBase,
-  barcode: string | null,
+  barcodes: readonly string[],
   serials: readonly string[],
 ): Promise<ScanOutcome | null> {
-  const code = barcode && barcode.length <= CODE_FIELD_MAX.barcode ? barcode : null;
+  const codes = barcodes.filter((b) => b && b.length <= CODE_FIELD_MAX.barcode);
   const wanted = serials.filter((s) => s && s.length <= CODE_FIELD_MAX.serial);
-  if (!code && wanted.length === 0) return null;
+  if (codes.length === 0 && wanted.length === 0) return null;
   const { rows } = await client.query<{
     id: string;
     location_id: string;
@@ -202,10 +206,10 @@ async function byThingCode(
             coalesce(t.serial = ANY ($2::text[]), false) AS by_serial
        FROM public.things t
        JOIN public.locations l ON l.id = t.location_id
-      WHERE (t.barcode = $1 OR t.serial = ANY ($2::text[])) AND t.deleted_at IS NULL
+      WHERE (t.barcode = ANY ($1::text[]) OR t.serial = ANY ($2::text[])) AND t.deleted_at IS NULL
       ORDER BY l.name, t.name, t.id
       LIMIT 50`,
-    [code, wanted],
+    [codes, wanted],
   );
   const hits = rows.some((r) => r.by_serial) ? rows.filter((r) => r.by_serial) : rows;
   const [only] = hits;
@@ -242,6 +246,8 @@ const RESOLVERS: {
     scan: Extract<ScanResult, { kind: K }>,
     text: string,
     deps: ResolveDeps,
+    /** The reader's format, as sent (none when typed). */
+    format: string | undefined,
   ) => Promise<ScanOutcome>;
 } = {
   // A Kept label whose code was taken on this server when its export was imported here: the old
@@ -253,15 +259,22 @@ const RESOLVERS: {
     MISS,
   homebox: async (client, scan) =>
     (await byLegacy(client, legacyCodeOf(scan.assetId ?? scan.uuid ?? ''), ['homebox'])) ?? MISS,
-  barcode: async (client, scan, text, deps) =>
+  barcode: async (client, scan, text, deps, format) =>
     (await anyLegacy(client, text)) ??
-    (await byThingCode(client, scan.code, serialsOf(scan))) ?? {
+    (await byThingCode(
+      client,
+      isProductCode(scan) ? productCodeForms(scan.code, format) : [scan.code],
+      serialsOf(scan),
+    )) ?? {
       outcome: 'barcode',
       barcode: { code: scan.code, lookupEnabled: await deps.lookupEnabled() },
     },
   other: async (client, scan, text) =>
     (await anyLegacy(client, text)) ??
-    (await byThingCode(client, scan.text, [scan.text])) ?? { outcome: 'not_kept', text: scan.text },
+    (await byThingCode(client, [scan.text], [scan.text])) ?? {
+      outcome: 'not_kept',
+      text: scan.text,
+    },
 };
 
 export const ResolveScanBatchBody = z.object({
@@ -294,6 +307,7 @@ export async function resolveScan(
     s: ScanResult,
     t: string,
     d: ResolveDeps,
+    f: string | undefined,
   ) => Promise<ScanOutcome>;
-  return resolve(client, scan, text, deps);
+  return resolve(client, scan, text, deps, body.format);
 }

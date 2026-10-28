@@ -186,6 +186,23 @@ describe('the wasm scanner on fixture images', () => {
     });
   });
 
+  // zxing-cpp 3 writes both as 13 digits (UPC-E 01234565 as upc_e "0012345000065", UPC-A
+  // 036000291452 as ean_13 "0036000291452"); a thing keeps the digits printed under the bars.
+  it.each([
+    ['UPCE', '01234565', 'upc_e'],
+    ['UPCE', '11234562', 'upc_e'],
+    ['UPCA', '036000291452', 'upc_a'],
+  ])('reads a %s %s as printed', async (writeAs, code, symbology) => {
+    const [read] = await detector().detect(await written(code, writeAs));
+    expect(read?.rawValue).toHaveLength(13);
+    expect(parseScan(read?.rawValue ?? '', read?.format)).toEqual({
+      kind: 'barcode',
+      code,
+      symbology,
+      field: 'barcode',
+    });
+  });
+
   it.each([
     ['DataMatrix', 'data_matrix', 'SN-4417-QX', { field: 'either' }],
     ['Code39', 'code_39', 'AT-00417', { field: 'either', prefer: 'serial' }],

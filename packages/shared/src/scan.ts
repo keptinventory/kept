@@ -11,7 +11,8 @@
  * - **GS1 codes** (a Data Matrix or Code 128 on electronics and cartons, or brackets typed by
  *   hand): the GTIN (AI 01) is the barcode and the serial (AI 21) the serial.
  * - **Product barcodes:** EAN-8, EAN-13, UPC-A and UPC-E with a valid check digit, an ITF-14
- *   carton code, Codabar and Code 128.
+ *   carton code, Codabar and Code 128. A UPC-A or UPC-E is kept as printed under its bars (12 or
+ *   8 digits), whether the reader gave those or the 13 digits zxing-cpp 3 writes for both.
  * - **Asset tags and other codes:** Code 39 and Code 93 are most often asset tags, so a serial
  *   number first; plain Data Matrix, PDF417 and Aztec text could be either, so the person picks.
  *   A code goes only where it fits: a serial holds 100 characters, a barcode 64.
@@ -33,7 +34,8 @@ export type ScanResult =
     }
   | {
       kind: 'barcode';
-      /** The code as a thing keeps it: a GS1 code's GTIN (shortened, `gtinShort`), else as read. */
+      /** The code as a thing keeps it: a GS1 code's GTIN (shortened, `gtinShort`), a UPC-A or
+       * UPC-E as printed (`productCodeForms` matches its other spellings), else as read. */
       code: string;
       /** The BarcodeDetector format it was read in, or `gs1` for a GS1 code typed in brackets. */
       symbology: string;
@@ -92,6 +94,73 @@ export function upcEToUpcA(upcE: string): string | null {
   else if (last === 4) body = `${m.slice(0, 4)}00000${m[4]}`;
   else body = `${m.slice(0, 5)}0000${m[5]}`;
   return `${ns}${body}${check}`;
+}
+
+/**
+ * A UPC-A (12 digits, number system 0 or 1) compressed to the UPC-E that expands to it, or null
+ * when it has none. Each of UPC-E's four zero-suppression rules is tried and the one whose
+ * expansion gives the UPC-A back wins (at most one does).
+ */
+export function upcAToUpcE(upcA: string): string | null {
+  if (!/^[01]\d{11}$/.test(upcA)) return null;
+  const ns = upcA[0] as string;
+  const b = upcA.slice(1, 11);
+  const check = upcA[11] as string;
+  for (const m of [
+    `${b.slice(0, 2)}${b.slice(7, 10)}${b[2]}`,
+    `${b.slice(0, 3)}${b.slice(8, 10)}3`,
+    `${b.slice(0, 4)}${b[9]}4`,
+    `${b.slice(0, 5)}${b[9]}`,
+  ]) {
+    const upcE = `${ns}${m}${check}`;
+    if (upcEToUpcA(upcE) === upcA) return upcE;
+  }
+  return null;
+}
+
+/**
+ * A UPC-A as printed under its bars (12 digits) from the 12 digits or the 13 an EAN reader gives
+ * (zxing-cpp 3 writes UPC-A and UPC-E "as 13-digit numbers as required by the standard": an
+ * EAN-13 whose first digit is 0). Null when it isn't one, or its check digit fails.
+ */
+function upcAOf(text: string): string | null {
+  const a = text.length === 13 && text.startsWith('0') ? text.slice(1) : text;
+  return /^\d{12}$/.test(a) && gtinValid(a) ? a : null;
+}
+
+/** A UPC-E as printed (8 digits) from its 8 digits, or from its UPC-A's 12 or 13. */
+function upcEOf(text: string): string | null {
+  if (text.length === 8) {
+    const a = upcEToUpcA(text);
+    return a !== null && gtinValid(a) ? text : null;
+  }
+  const a = upcAOf(text);
+  return a === null ? null : upcAToUpcE(a);
+}
+
+/**
+ * Every spelling a thing's barcode may be kept under for the same product code: a UPC-A as its
+ * 12 digits and as the 13 an iPhone read for it, and as its UPC-E when it has one; a UPC-E as its
+ * 8 digits and its UPC-A's. A thing keeps the code as scanned or typed, so a scan matches on any
+ * of these. `format` is the reader's: 8 digits read as an EAN-8 are only that; typed (no format),
+ * 8 digits that pass both check digits are tried both ways. Any other code is itself alone.
+ */
+export function productCodeForms(code: string, format?: string): string[] {
+  const forms = new Set([code]);
+  if (!/^\d+$/.test(code)) return [code];
+  let upcA: string | null = null;
+  if (code.length === 12 || code.length === 13) upcA = upcAOf(code);
+  else if (code.length === 8 && format !== 'ean_8') {
+    const a = upcEToUpcA(code);
+    upcA = a !== null && gtinValid(a) ? a : null;
+  }
+  if (upcA) {
+    forms.add(upcA);
+    forms.add(`0${upcA}`);
+    const upcE = upcAToUpcE(upcA);
+    if (upcE) forms.add(upcE);
+  }
+  return [...forms];
 }
 
 /**
@@ -270,31 +339,37 @@ function placed(
 }
 
 function productBarcode(text: string, format?: string): ScanResult | null {
-  const ok = (symbology: string): ScanResult => ({
+  const ok = (code: string, symbology: string): ScanResult => ({
     kind: 'barcode',
-    code: text,
+    code,
     symbology,
     field: 'barcode',
   });
+  /** A valid EAN-13; one that starts with 0 is a UPC-A, kept as its 12 printed digits. */
+  const ean13 = () => {
+    if (!(text.length === 13 && gtinValid(text))) return null;
+    return text.startsWith('0') ? ok(text.slice(1), 'upc_a') : ok(text, 'ean_13');
+  };
   switch (format) {
     case 'ean_13':
-      return text.length === 13 && gtinValid(text) ? ok('ean_13') : null;
+      return ean13();
     case 'ean_8':
-      return text.length === 8 && gtinValid(text) ? ok('ean_8') : null;
-    case 'upc_a':
-      return text.length === 12 && gtinValid(text) ? ok('upc_a') : null;
+      return text.length === 8 && gtinValid(text) ? ok(text, 'ean_8') : null;
+    case 'upc_a': {
+      const a = upcAOf(text);
+      return a !== null ? ok(a, 'upc_a') : null;
+    }
     case 'upc_e': {
-      const a = upcEToUpcA(text);
-      return a !== null && gtinValid(a) ? ok('upc_e') : null;
+      const e = upcEOf(text);
+      return e !== null ? ok(e, 'upc_e') : null;
     }
   }
   if (!/^\d+$/.test(text)) return null;
-  if (text.length === 13) return gtinValid(text) ? ok('ean_13') : null;
-  if (text.length === 12) return gtinValid(text) ? ok('upc_a') : null;
+  if (text.length === 13) return ean13();
+  if (text.length === 12) return gtinValid(text) ? ok(text, 'upc_a') : null;
   if (text.length === 8) {
-    if (gtinValid(text)) return ok('ean_8');
-    const a = upcEToUpcA(text);
-    return a !== null && gtinValid(a) ? ok('upc_e') : null;
+    if (gtinValid(text)) return ok(text, 'ean_8');
+    return upcEOf(text) !== null ? ok(text, 'upc_e') : null;
   }
   return null;
 }

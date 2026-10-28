@@ -5,7 +5,13 @@
  * missing, forbidden or retired code and for another household's blank (D137). Opening doesn't
  * mark anything seen: the client calls `POST /things/:id/seen` afterwards (D40).
  */
-import { parseScan, SCAN_SESSION_LIMITS, serialsOf } from '@kept/shared';
+import {
+  isProductCode,
+  parseScan,
+  productCodeForms,
+  SCAN_SESSION_LIMITS,
+  serialsOf,
+} from '@kept/shared';
 import { storedCode } from '../../inventory/mock/codes';
 import { accessOf, liveThing, newId, now } from '../../inventory/mock/db';
 import type { MockState } from '../../mock/fixtures';
@@ -26,10 +32,16 @@ export function scanRoutes(state: MockState): MockRoute[] {
 
   /** As the server: things you can see with the code as their serial (those win) or barcode;
    * one opens, several ask which. */
-  const byThingCode = (barcode: string, serials: readonly string[]): ScanOutcome | null => {
+  const byThingCode = (
+    barcodes: readonly string[],
+    serials: readonly string[],
+  ): ScanOutcome | null => {
     const live = inv().things.filter((x) => !x.deletedAt && access().visible(x.locationId));
     const bySerial = live.filter((x) => !!x.serial && serials.includes(x.serial));
-    const on = bySerial.length > 0 ? bySerial : live.filter((x) => x.barcode === barcode);
+    const on =
+      bySerial.length > 0
+        ? bySerial
+        : live.filter((x) => !!x.barcode && barcodes.includes(x.barcode));
     const [one] = on;
     if (on.length === 1 && one)
       return { outcome: 'open', target: { kind: 'thing', id: one.id, locationId: one.locationId } };
@@ -136,13 +148,16 @@ export function scanRoutes(state: MockState): MockRoute[] {
       }
       case 'barcode':
         return (
-          byThingCode(scan.code, serialsOf(scan)) ?? {
+          byThingCode(
+            isProductCode(scan) ? productCodeForms(scan.code, b.format) : [scan.code],
+            serialsOf(scan),
+          ) ?? {
             outcome: 'barcode',
             barcode: { code: scan.code, lookupEnabled: cap().barcodeLookup },
           }
         );
       default:
-        return byThingCode(scan.text, [scan.text]) ?? { outcome: 'not_kept', text: scan.text };
+        return byThingCode([scan.text], [scan.text]) ?? { outcome: 'not_kept', text: scan.text };
     }
   };
 
