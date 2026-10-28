@@ -2,17 +2,23 @@
 # The Home Assistant app's start (D272; the app spec's §5.2): Kept and Postgres 18 in one container,
 # everything that lasts under /data, which Home Assistant keeps across updates and backs up.
 #
-#   1. the options (/data/options.json) and Kept's address, as Kept's environment (options.mjs);
+#   1. the options (/data/options.json), Kept's address and the Supervisor's version, as Kept's
+#      environment (options.mjs); then SUPERVISOR_TOKEN is dropped, before anything else starts;
 #   2. /data's folders re-owned on every start: a restored backup comes back owned by root;
 #   3. no database yet: restore from /data/backup/kept.pgdump when a backup brought one, else a new
-#      cluster (initdb);
+#      cluster (initdb). A restore is one transaction under a marker (.restore-pending): a start
+#      that finds the marker wipes the half-made database and restores again;
 #   4. Postgres as `postgres`, on 127.0.0.1 and a socket only root and postgres can reach;
 #   5. `kept bootstrap` as root (the four logins, their passwords into files under /data);
-#   6. a restore's pg_restore, then `kept migrate` as Kept's user with the owner login;
-#   7. SUPERVISOR_TOKEN dropped, then Kept as uid 10001;
-#   8. on TERM: Kept first, then `pg_ctl stop -m fast` (a signal through runuser never reached
-#      Postgres in the spike, T6); if either process exits, the other is stopped and the script
-#      exits non-zero, so the Supervisor's watchdog restarts the app.
+#   6. a restore's pg_restore, then `kept migrate` as Kept's user with the owner login, from a copy
+#      removed before Kept starts (the serving process never holds the owner login, as in Compose,
+#      where only migrate mounts /owner);
+#   7. Kept as uid 10001;
+#   8. on TERM: Kept first, then a dump for the next backup (kept-ha-backup: the Supervisor runs
+#      backup_pre only while the app runs, so a backup of a stopped app holds its last stop's
+#      dump), then `pg_ctl stop -m fast` (a signal through runuser never reached Postgres in the
+#      spike, T6); if either process exits, the other is stopped and the script exits non-zero, so
+#      the Supervisor's watchdog restarts the app.
 #
 # Postgres's settings are for a small machine beside Home Assistant (spec §5.2). KEPT_HA_DEMO is set
 # only by the test-only local app (homeassistant/.test/kept-demo): a person can't set an
@@ -25,6 +31,7 @@ PGBIN=/usr/lib/postgresql/18/bin
 PGDATA=$DATA/postgres
 SOCKET=/run/postgresql
 DUMP=$DATA/backup/kept.pgdump
+RESTORE_MARK=$DATA/.restore-pending
 KEPT_USER=kept
 
 log() { printf 'app: %s\n' "$*"; }
@@ -38,15 +45,20 @@ node /usr/local/lib/kept-ha/options.mjs --options "$DATA/options.json" >/run/kep
 # shellcheck source=/dev/null
 . /run/kept-ha/env
 rm -f /run/kept-ha/env
+# The Supervisor's token was needed for that alone: nothing started after this line gets it.
+unset SUPERVISOR_TOKEN HASSIO_TOKEN
 
 # 2. Ownership, every start (the spike's T11: Supervisor 2026.10.5 restores files as root). /data
 # itself is root's and only traversable, so postgres and Kept each reach their own folder and
-# nothing else; options.json (it may hold the mail password) is root's alone.
+# nothing else; options.json (it may hold the mail password) and the owner login's password are
+# root's alone.
 chown root:root "$DATA"
 chmod 0711 "$DATA"
 [[ ! -f $DATA/options.json ]] || chmod 0600 "$DATA/options.json"
 install -d -m 0700 "$DATA/kept" "$DATA/config" "$DATA/owner" "$DATA/backup" "$PGDATA"
-chown -R "$KEPT_USER:$KEPT_USER" "$DATA/kept" "$DATA/config" "$DATA/owner"
+chown -R "$KEPT_USER:$KEPT_USER" "$DATA/kept" "$DATA/config"
+chown -R root:root "$DATA/owner"
+chmod -R go-rwx "$DATA/owner"
 chown -R postgres:postgres "$DATA/backup"
 [[ $(stat -c %U "$PGDATA") == postgres ]] || chown -R postgres:postgres "$PGDATA"
 chmod 0700 "$PGDATA"
@@ -57,9 +69,16 @@ install -d -m 0700 -o postgres -g postgres "$SOCKET"
 # 3. A database, made or restored.
 restore=
 fresh=
+if [[ -e $RESTORE_MARK ]]; then
+  # A restore that didn't finish left a half-made database: start it again from the dump.
+  [[ -s $DUMP ]] || { log "a restore didn't finish and its dump is gone: restore the backup again"; exit 1; }
+  log "the last restore didn't finish: restoring again"
+  find "$PGDATA" -mindepth 1 -delete
+fi
 if [[ ! -s $PGDATA/PG_VERSION ]]; then
   if [[ -s $DUMP ]]; then
     restore=1
+    touch "$RESTORE_MARK"
     log "no database, but a backup brought one: restoring it"
   fi
   # What an interrupted first start left behind.
@@ -105,30 +124,36 @@ env PGHOST="$SOCKET" PGUSER=postgres PGDATABASE=kept \
   KEPT_DB_AUTH_PASSWORD_FILE="$DATA/config/database/kept_auth" \
   KEPT_DB_SYSTEM_PASSWORD_FILE="$DATA/config/database/kept_system" \
   kept bootstrap
-chown -R "$KEPT_USER:$KEPT_USER" "$DATA/config" "$DATA/owner"
+chown -R "$KEPT_USER:$KEPT_USER" "$DATA/config"
+chmod -R go-rwx "$DATA/owner"
 
-# 6. A restore, then the migrations.
+# 6. A restore (one transaction: all of it or none), then the migrations.
 if [[ -n $restore ]]; then
   as_postgres "$PGBIN/pg_restore" -h "$SOCKET" -U postgres -d kept --clean --if-exists \
-    --exit-on-error "$DUMP"
+    --single-transaction --exit-on-error "$DUMP"
+  rm -f "$RESTORE_MARK"
   log "database restored from the backup"
 fi
 
-# Kept's environment: its three runtime logins over 127.0.0.1 (passwords from their files), the
-# owner login for migrate alone, Home Assistant's ingress proxies (Core, then the Supervisor).
-unset SUPERVISOR_TOKEN HASSIO_TOKEN
+# Kept's environment: its three runtime logins over 127.0.0.1 (passwords from their files) and the
+# Supervisor as its one trusted proxy (Core's hop behind it is skipped for an ingress request only,
+# apps/server/src/http/ingress.ts proxiesFor).
 export KEPT_DATABASE_URL=postgres://kept_app:@127.0.0.1:5432/kept
 export KEPT_AUTH_DATABASE_URL=postgres://kept_auth:@127.0.0.1:5432/kept
 export KEPT_SYSTEM_DATABASE_URL=postgres://kept_system:@127.0.0.1:5432/kept
 export KEPT_DB_APP_PASSWORD_FILE=$DATA/config/database/kept_app
 export KEPT_DB_AUTH_PASSWORD_FILE=$DATA/config/database/kept_auth
 export KEPT_DB_SYSTEM_PASSWORD_FILE=$DATA/config/database/kept_system
-export KEPT_TRUSTED_PROXIES=172.30.32.1,172.30.32.2
+export KEPT_TRUSTED_PROXIES=172.30.32.2
 export KEPT_LOG_FORMAT=pretty
 export KEPT_PORT=8080
 
+# The owner login for migrate alone: a copy Kept's user can read, removed before Kept starts.
+install -d -m 0700 -o "$KEPT_USER" -g "$KEPT_USER" /run/kept-ha/owner
+install -m 0400 -o "$KEPT_USER" -g "$KEPT_USER" "$DATA/owner/kept_owner" /run/kept-ha/owner/kept_owner
 as_kept env KEPT_OWNER_DATABASE_URL=postgres://kept_owner:@127.0.0.1:5432/kept \
-  KEPT_DB_OWNER_PASSWORD_FILE="$DATA/owner/kept_owner" kept migrate
+  KEPT_DB_OWNER_PASSWORD_FILE=/run/kept-ha/owner/kept_owner kept migrate
+rm -rf /run/kept-ha/owner
 
 # 7. Kept. As Postgres above: $! is node itself, so TERM reaches it.
 setpriv --reuid="$KEPT_USER" --regid="$KEPT_USER" --init-groups -- node --import /app/apps/server/dist/observability/tracing.js /app/apps/server/dist/main.js &
@@ -138,6 +163,11 @@ stop() {
   log "stopping"
   kill -TERM "$kept_pid" 2>/dev/null || true
   wait "$kept_pid" 2>/dev/null || true
+  # The dump a backup of the stopped app will hold (no backup_pre runs then), while Postgres still
+  # answers; a failed one leaves the previous dump in place.
+  if "$PGBIN/pg_isready" -q -h "$SOCKET" -U postgres; then
+    /usr/local/bin/kept-ha-backup || log "no fresh dump at stop; the last one stays"
+  fi
   stop_postgres
   log "stopped"
 }
@@ -151,10 +181,7 @@ if [[ ${KEPT_HA_DEMO:-} == households && -n $fresh && -z $restore ]]; then
       sleep 1
     done
     log "TEST ONLY: loading the households demo data (KEPT_HA_DEMO)"
-    as_kept env NODE_ENV=development \
-      KEPT_OWNER_DATABASE_URL=postgres://kept_owner:@127.0.0.1:5432/kept \
-      KEPT_DB_OWNER_PASSWORD_FILE="$DATA/owner/kept_owner" \
-      kept admin seed --scenario households >/dev/null &&
+    as_kept env NODE_ENV=development kept admin seed --scenario households >/dev/null &&
       log "TEST ONLY: demo data loaded; every password is kept-seed-password"
   ) &
 fi

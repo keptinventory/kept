@@ -1,15 +1,19 @@
 # Kept
 
+> **Not available yet.** The app is in testing and isn't listed in the repository yet.
+
 Kept and its own database (Postgres 18) in one app. Everything it keeps is in the app's data,
 which Home Assistant backs up. Guide: <https://keptinventory.info/install/home-assistant/>.
+Needs Home Assistant OS with Supervisor 2026.10.4 or later.
 
 ## First start
 
 1. **Start**, then wait for the **Log** tab to show `KEPT SETUP CODE: XXX-XXX` and
    `Kept is at http://…`.
 2. **Open Web UI**. Kept opens inside Home Assistant.
-3. A Home Assistant administrator sets Kept up without the code. Anyone else types the code from
-   the Log tab.
+3. A Home Assistant administrator who opens Kept from Home Assistant sets it up without the code
+   (Supervisor 2026.10.4 or later: earlier ones can't vouch for who is an administrator, so the
+   code is needed). Anyone else types the code from the Log tab.
 4. Create Kept's first account. Kept has its own accounts: people sign in to Kept once, also inside
    Home Assistant.
 
@@ -47,7 +51,9 @@ port or on Home Assistant itself:
 | Passkeys, the camera, installing the phone app, push | no | yes |
 
 Inside Home Assistant, Kept counts as https only when Home Assistant itself is served over https.
-Passkeys belong to Kept's own address: sign in with one there.
+With a proxy in front of Home Assistant that ends TLS, that proxy must send
+`X-Forwarded-Proto: https`, or Kept sees plain http. Passkeys belong to Kept's own address: sign in
+with one there.
 
 ## The Kept integration
 
@@ -57,10 +63,15 @@ over https. Automatic setup of the integration from the app comes later.
 
 ## Backups and restore
 
-- Home Assistant's backups include Kept: the database (as a dump taken at backup time), photos and
-  files, and Kept's keys. Keep Home Assistant's backup encryption on: the backup holds the keys.
+- Home Assistant's backups include Kept: the database as a dump, photos and files, and Kept's keys.
+  Keep Home Assistant's backup encryption on: the backup holds the keys.
+- The dump is taken when the backup starts while Kept runs. Home Assistant doesn't ask a stopped app
+  for one, so a backup taken while Kept is stopped holds the dump Kept wrote when it last stopped
+  cleanly. If Kept crashed instead, that is the dump of the last backup or clean stop: start Kept
+  before backing up when you can.
 - Restoring the app's backup brings Kept back as it was; the app restores the database on its
-  first start, which takes a little longer.
+  first start, which takes a little longer. A restore that is cut short is started again on the next
+  start.
 - Kept's own backups (Admin → Backups) need the database owner's login, which the app keeps from
   the running server. Home Assistant's backups are the backup here.
 

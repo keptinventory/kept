@@ -124,3 +124,32 @@ describe('shellExports()', () => {
     expect(() => shellExports({ 'A;rm': 'x' })).toThrow();
   });
 });
+
+// D273, review finding 3: the Supervisor removes a client's X-Remote-User-Groups and sets its own
+// from 2026.10.4 (home-assistant/supervisor #7398). Setup without the code trusts that header, so
+// it is on only from that version.
+describe('setup without the code, by Supervisor version', () => {
+  // `/info`'s `supervisor` (every app may read /info; /supervisor/info needs hassio_api).
+  const env = (version) =>
+    appEnv({ options: {}, info: { ...info, supervisor: version }, self }).env;
+
+  it('is on from 2026.10.4', () => {
+    for (const v of ['2026.10.4', '2026.10.5', '2026.11.0', '2027.1.0', '2026.10.5.dev2810']) {
+      expect(env(v).KEPT_HA_TRUST_GROUPS, v).toBe('1');
+    }
+  });
+
+  it('is off before it, and when the version is unknown', () => {
+    for (const v of ['2026.10.3', '2026.9.9', '2025.12.0', 'dev', '', undefined]) {
+      expect(env(v), String(v)).not.toHaveProperty('KEPT_HA_TRUST_GROUPS');
+    }
+    expect(appEnv({ options: {}, info: null, self }).env).not.toHaveProperty(
+      'KEPT_HA_TRUST_GROUPS',
+    );
+  });
+
+  it('says so in the log when it stays off', () => {
+    const { lines } = appEnv({ options: {}, info: { ...info, supervisor: '2026.10.3' }, self });
+    expect(lines.join('\n')).toMatch(/2026\.10\.4/);
+  });
+});

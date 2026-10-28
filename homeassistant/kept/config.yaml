@@ -1,7 +1,8 @@
 # Kept as a Home Assistant app (D272, D273): Kept and its own Postgres in one container, built from
 # the kept repository's Dockerfile (`--target ha`) as ghcr.io/keptinventory/kept-ha:<version>.
-# `version` is always Kept's own release, bumped by the release PR (scripts/release/ha-app.mjs);
-# the image is published before the version that names it reaches main.
+# `version` is always Kept's own release. It is bumped only by the release record's pull request,
+# after ghcr.io/keptinventory/kept-ha:<version> is published (scripts/release/ha-app.mjs): Home
+# Assistant reads main, so this never names an image that doesn't exist yet.
 name: Kept
 version: "1.14.1"
 slug: kept
@@ -22,13 +23,15 @@ timeout: 60
 ports:
   8080/tcp: 8080
 webui: "[PROTO:ssl]://[HOST]:[PORT:8080]/"
-# The port accepts connections. TCP, not /readyz over http: with `ssl` on, the port speaks https.
-watchdog: "tcp://[HOST]:[PORT:8080]"
-# Hot: Kept keeps serving. backup_pre dumps the database to /data/backup; the live cluster is left
-# out; backup_post removes the dump again. A restore brings the dump back and the start restores it.
+# Kept and its database answer. The Supervisor fills in http or https (the `ssl` option) and
+# doesn't check the certificate.
+watchdog: "[PROTO:ssl]://[HOST]:[PORT:8080]/readyz"
+# Hot: Kept keeps serving. backup_pre dumps the database to /data/backup and the live cluster is
+# left out. The dump stays: the Supervisor runs backup_pre only while the app runs, so a backup of a
+# stopped app holds the dump the app wrote when it stopped. A restore brings the dump back and the
+# start restores it.
 backup: hot
 backup_pre: /usr/local/bin/kept-ha-backup
-backup_post: /usr/local/bin/kept-ha-backup --post
 backup_exclude:
   - "postgres/*"
   - "kept/.cache/*"

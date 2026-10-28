@@ -35,10 +35,26 @@ function originOnly(value) {
   }
 }
 
+/** The first Supervisor that removes a client's X-Remote-User-Groups and sets its own
+ * (home-assistant/supervisor #7398): setup without the code trusts that header. */
+export const TRUSTED_GROUPS_SUPERVISOR = [2026, 10, 4];
+
+/** Whether `version` (`YYYY.M.P`, maybe with a suffix) is at least `min`; false when unreadable. */
+export function atLeast(version, min) {
+  const m = /^(\d+)\.(\d+)\.(\d+)/.exec(typeof version === 'string' ? version : '');
+  if (!m) return false;
+  for (let i = 0; i < 3; i++) {
+    const a = Number(m[i + 1]);
+    if (a !== min[i]) return a > min[i];
+  }
+  return true;
+}
+
 /**
  * The environment Kept gets from the options, and the lines to log.
- * `info` is the Supervisor's `/info` data, `self` its `/addons/self/info` data; either may be null
- * (the Supervisor didn't answer): then the defaults hold.
+ * `info` is the Supervisor's `/info` data (host name, and the Supervisor's own version), `self` its
+ * `/addons/self/info` data; either may be null (the Supervisor didn't answer): then the defaults
+ * hold. Both are open to every app; `/supervisor/info` would need `hassio_api`.
  */
 export function appEnv({ options, info, self }) {
   const opts = options ?? {};
@@ -82,6 +98,14 @@ export function appEnv({ options, info, self }) {
   if (portOff) {
     lines.push(
       "Kept's port is off (Configuration → Network): labels, phones and mail links need it. Inside Home Assistant, Kept still opens from the sidebar.",
+    );
+  }
+
+  if (atLeast(info?.supervisor, TRUSTED_GROUPS_SUPERVISOR)) {
+    env.KEPT_HA_TRUST_GROUPS = '1';
+  } else {
+    lines.push(
+      `Setup without the code for a Home Assistant administrator needs Supervisor ${TRUSTED_GROUPS_SUPERVISOR.join('.')} or later (this one: ${info?.supervisor || 'unknown'}); the setup code is needed.`,
     );
   }
 

@@ -22,10 +22,9 @@ environment:
 ports:
   8080/tcp: 8080
 webui: "http://[HOST]:[PORT:8080]/"
-watchdog: "tcp://[HOST]:[PORT:8080]"
+watchdog: "http://[HOST]:[PORT:8080]/readyz"
 backup: hot
 backup_pre: /usr/local/bin/kept-ha-backup
-backup_post: /usr/local/bin/kept-ha-backup --post
 backup_exclude:
   - "postgres/*"
   - "kept/.cache/*"

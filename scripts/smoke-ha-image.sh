@@ -12,10 +12,13 @@
 #   3. Postgres listens on 127.0.0.1 only, runs as `postgres`; Kept runs as 10001 and holds no
 #      SUPERVISOR_TOKEN;
 #   4. the third-party notices name the Postgres server and pgvector;
-#   5. backup_pre writes /data/backup/kept.pgdump (owned by postgres); backup_post removes it;
-#   6. a stop takes under 5 s and Postgres logs a clean shutdown; a second start makes no new
+#   5. backup_pre writes /data/backup/kept.pgdump (owned by postgres), and it stays; Kept's user
+#      can't read the owner login's password;
+#   6. a stop writes a fresh dump, takes under 10 s and Postgres logs a clean shutdown; a second
+#      start makes no new
 #      database and prints no new setup code;
 #   7. restore: with /data/postgres gone, /data owned by root (as a restore leaves it) and a dump in
+#      /data/backup, the start restores it; a restore left unfinished (its marker) is done again;
 #      /data/backup, the start restores it: the instance set up before is still set up.
 # BOOT_TIMEOUT (seconds, default 180) bounds each wait. Everything it creates is removed on exit.
 set -euo pipefail
@@ -97,7 +100,9 @@ stop() {
   local took=$((SECONDS - t0))
   logs=$(docker logs "$app" 2>&1)
   docker rm "$app" >/dev/null
-  ((took < 5)) || fail "the stop took ${took}s (Postgres or Kept didn't stop on TERM)"
+  # Kept stops, a dump for the next backup is written, Postgres stops.
+  ((took < 10)) || fail "the stop took ${took}s (Postgres or Kept didn't stop on TERM)"
+  grep -q '^app: database dumped for the backup' <<<"$logs" || fail "the stop wrote no dump"
   grep -q 'database system is shut down' <<<"$logs" || fail "Postgres did not log a clean shutdown"
   grep -q '^app: stopped$' <<<"$logs" || fail "the start script did not finish its stop"
   echo "stopped in ${took}s, Postgres shut down cleanly"
@@ -174,6 +179,9 @@ kept_pid=$(docker exec "$app" node -e '
 docker exec --privileged "$app" sh -c "tr '\0' '\n' </proc/$kept_pid/environ" >/tmp/kept-ha-smoke-env.$$ || fail "can't read Kept's environment"
 if grep -q '^SUPERVISOR_TOKEN=' /tmp/kept-ha-smoke-env.$$; then rm -f /tmp/kept-ha-smoke-env.$$; fail "the kept process holds SUPERVISOR_TOKEN"; fi
 grep -q '^KEPT_HA=1$' /tmp/kept-ha-smoke-env.$$ || { rm -f /tmp/kept-ha-smoke-env.$$; fail "the kept process has no KEPT_HA=1"; }
+grep -q '^KEPT_TRUSTED_PROXIES=172.30.32.2$' /tmp/kept-ha-smoke-env.$$ || { rm -f /tmp/kept-ha-smoke-env.$$; fail "Kept trusts more than the Supervisor"; }
+# No Supervisor here to say its version: setup without the code stays off.
+if grep -q '^KEPT_HA_TRUST_GROUPS=' /tmp/kept-ha-smoke-env.$$; then rm -f /tmp/kept-ha-smoke-env.$$; fail "KEPT_HA_TRUST_GROUPS without a Supervisor"; fi
 rm -f /tmp/kept-ha-smoke-env.$$
 # Kept is the start script's own child, and the start script is the init's (PID 1): TERM goes
 # init → script → Kept and Postgres, with no subshell in between to swallow it.
@@ -196,15 +204,17 @@ status=$(curl -s -o /dev/null -w '%{http_code}' -H 'content-type: application/js
   fail "setup is still needed after POST"
 echo "set up"
 
-step "backup_pre and backup_post"
+step "backup_pre, and the owner login out of Kept's reach"
 docker exec "$app" /usr/local/bin/kept-ha-backup
 docker exec "$app" test -s /data/backup/kept.pgdump || fail "no dump after backup_pre"
 dump_owner=$(docker exec "$app" stat -c %U /data/backup/kept.pgdump)
 [[ $dump_owner == postgres ]] || fail "the dump is owned by $dump_owner"
 docker exec "$app" sh -c 'cp /data/backup/kept.pgdump /data/kept.pgdump.keep'
-docker exec "$app" /usr/local/bin/kept-ha-backup --post
-docker exec "$app" test ! -e /data/backup/kept.pgdump || fail "backup_post left the dump"
-echo "dumped, then removed"
+if docker exec --user 10001 "$app" cat /data/owner/kept_owner >/dev/null 2>&1; then
+  fail "Kept's user can read the owner login's password"
+fi
+docker exec "$app" test ! -e /run/kept-ha/owner || fail "migrate's copy of the owner password is still there"
+echo "dumped (the dump stays); the owner login is root's alone"
 
 step "stop, and a second start on the same /data"
 stop
@@ -232,4 +242,16 @@ status=$(curl -s -o /dev/null -w '%{http_code}' -H 'content-type: application/js
   -d '{"email":"smoke@example.com","password":"correct horse battery"}' "$base/api/v1/auth/sign-in/email")
 [[ $status == 200 ]] || fail "sign-in after the restore answered $status"
 echo "restored: set up, and the same password signs in"
+stop
+
+step "a restore that didn't finish is done again"
+on_data sh -c 'touch /data/.restore-pending'
+start
+logs=$(docker logs "$app" 2>&1)
+grep -q "^app: the last restore didn't finish: restoring again$" <<<"$logs" || fail "no retry line"
+grep -q '^app: database restored from the backup$' <<<"$logs" || fail "the retried restore didn't finish"
+on_data test ! -e /data/.restore-pending || fail "the marker is still there"
+[[ $(curl -fsS "$base/api/v1/setup") == '{"needed":false,"homeAssistant":{"codeNeeded":true}}' ]] ||
+  fail "the restored-again instance is not set up"
+echo "restored again from the dump"
 stop
