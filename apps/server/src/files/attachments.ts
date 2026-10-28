@@ -88,6 +88,8 @@ const SUBJECT_TABLES: Readonly<Record<SubjectColumn, string>> = {
   expiring_document_id: 'public.expiring_documents WHERE id = $1 AND location_id = $2',
   fuel_entry_id: 'public.fuel_entries WHERE id = $1 AND location_id = $2',
   condition_room_id: 'public.condition_report_rooms WHERE id = $1 AND location_id = $2',
+  // A floor plan's upload is attached only by POST …/floor-plans, under review (D266): never here.
+  floor_plan_id: 'public.floor_plans WHERE id = $1 AND location_id = $2 AND false',
 };
 
 /** The subject's table and id, for the existence check; null for the location itself. */

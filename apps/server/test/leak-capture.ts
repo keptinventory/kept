@@ -162,6 +162,39 @@ export async function fillCapture(c: pg.ClientBase, t: Tenant, label: string): P
      VALUES ($1, 'room', $2, $3)`,
     [t.locationId, room, t.userId],
   );
+  // Floor plan to map (1.14.3, D266): a plan under review, its upload (under review, on the
+  // plan) and its extraction.
+  const planFile = newId();
+  await c.query(
+    `INSERT INTO public.files (id, location_id, storage_key, sha256, bytes, mime, class,
+                               derivative_state, created_by)
+     VALUES ($1, $2, $3, $4, 10, 'image/png', 'photo', 'ready', $5)`,
+    [
+      planFile,
+      t.locationId,
+      `f/${t.locationId}/${planFile}`,
+      createHash('sha256').update(`${label} floor plan`).digest('hex'),
+      t.userId,
+    ],
+  );
+  const plan = newId();
+  await c.query(
+    `INSERT INTO public.floor_plans (id, location_id, status, result, created_by)
+     VALUES ($1, $2, 'ready', '{"drafts": {"rooms": []}}', $3)`,
+    [plan, t.locationId, t.userId],
+  );
+  const planUpload = await one(
+    `INSERT INTO public.attachments (location_id, file_id, floor_plan_id, role, in_review,
+                                     created_by)
+     VALUES ($1, $2, $3, 'document', true, $4) RETURNING id`,
+    [t.locationId, planFile, plan, t.userId],
+  );
+  await c.query(
+    `INSERT INTO public.extractions (location_id, attachment_id, floor_plan_id, mode, status,
+                                     requested_by)
+     VALUES ($1, $2, $3, 'plan', 'succeeded', $4)`,
+    [t.locationId, planUpload, plan, t.userId],
+  );
   const template = newId();
   await c.query(
     `INSERT INTO public.templates (id, owner_account_id, name, payload, created_by)

@@ -113,6 +113,7 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.purge_orphan_files(timestamp with time zone,timestamp with time zone,integer)': SYSTEM_ONLY,
   'kept.purchase_lines_used_elsewhere(uuid,uuid[])': APP_ONLY,
   'kept.purge_trash(timestamp with time zone,integer)': SYSTEM_ONLY,
+  'kept.discard_stale_floor_plans(timestamp with time zone,integer)': SYSTEM_ONLY,
   'kept.recovery_kit_acknowledged()': APP_ONLY,
   'kept.refresh_thing_doc()': OWNER_ONLY,
   'kept.refresh_thing_cover()': OWNER_ONLY,

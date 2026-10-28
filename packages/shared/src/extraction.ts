@@ -11,7 +11,7 @@
 
 import { z } from 'zod';
 import type { ReasoningLevel } from './ai.js';
-import type { CaptureMode } from './capture.js';
+import type { ExtractionMode } from './capture.js';
 import { SERVICE_LINE_KINDS } from './household.js';
 
 /** `extractions.status` (`waiting_provider` is D206's: the provider's rate limit, an open
@@ -160,13 +160,61 @@ export const ReadingExtraction = z.object({
   display: z.enum(['digital', 'analog']).optional(),
 });
 
+/** A plan room's kind: map.ts's MAP_ROOM_KINDS, written out here so the capture code's chunk
+ * never pulls in the map's (floor-plan.test.ts checks they agree). */
+export const PLAN_ROOM_KINDS = ['room', 'balcony', 'terrace', 'garden'] as const;
+
+/** A floor plan (D266): at most this many floors, rooms, doors and corners a room. */
+export const PLAN_LIMITS = Object.freeze({ floors: 6, rooms: 60, doors: 40, corners: 12 });
+
+const point = z.tuple([unit, unit]);
+/** A box with some size, inside the image. */
+const planBox = bbox.refine(
+  ([x, y, w, h]) => w > 0 && h > 0 && x + w <= 1.0001 && y + h <= 1.0001,
+  'a box inside the image',
+);
+
+/** One room as the model reads it off a plan: it transcribes, never computes (spec §10.2). */
+export const PlanRoom = z.object({
+  /** The label as printed, in its own language. */
+  name: conf(text(120)).optional(),
+  /** An index into `floors`; one out of range is the first floor (floor-plan.ts). */
+  floor: z.number().int().min(0).max(99).optional(),
+  box: planBox,
+  /** The inside corners in order, when the room isn't a plain rectangle or the plan is drawn
+   * at an angle. */
+  corners: z.array(point).min(4).max(PLAN_LIMITS.corners).optional(),
+  /** The size printed for this room, copied exactly with its units. */
+  size_text: conf(text(40)).optional(),
+  kind: z.enum(PLAN_ROOM_KINDS).optional(),
+});
+
+/** PLAN (D266): the rooms of a floor plan, the floors they are on, and what gives the scale. */
+export const PlanExtraction = z.object({
+  is_plan: z.boolean(),
+  floors: z
+    .array(z.object({ label: conf(text(80)) }))
+    .max(PLAN_LIMITS.floors)
+    .optional(),
+  rooms: z.array(PlanRoom).max(PLAN_LIMITS.rooms).optional(),
+  scale_bar: z.object({ from: point, to: point, text: text(20) }).optional(),
+  doors: z
+    .array(z.object({ box: planBox }))
+    .max(PLAN_LIMITS.doors)
+    .optional(),
+  /** The plan had more rooms than the list could hold. */
+  more: z.boolean().optional(),
+});
+export type PlanExtraction = z.output<typeof PlanExtraction>;
+
 export const EXTRACTION_SCHEMAS = Object.freeze({
   thing: ThingExtraction,
   receipt: ReceiptExtraction,
   label: LabelExtraction,
   reading: ReadingExtraction,
   room: RoomExtraction,
-} satisfies Record<CaptureMode, z.ZodType>);
+  plan: PlanExtraction,
+} satisfies Record<ExtractionMode, z.ZodType>);
 
 export type ThingExtraction = z.output<typeof ThingExtraction>;
 export type ReceiptExtraction = z.output<typeof ReceiptExtraction>;
@@ -212,12 +260,14 @@ export function aliasSuggestionLanguage(field: string): string | null {
 }
 
 /** The JSON allowance per mode, before reasoning. */
-export const MAX_OUTPUT_TOKENS: Readonly<Record<CaptureMode, number>> = Object.freeze({
+export const MAX_OUTPUT_TOKENS: Readonly<Record<ExtractionMode, number>> = Object.freeze({
   thing: 700,
   receipt: 2500,
   label: 600,
   reading: 200,
   room: 8000,
+  // About 100 tokens a room with its corners, 60 rooms at most (spec §10.1).
+  plan: 6000,
 });
 
 /** Reasoning tokens billed against `maxOutputTokens`. */
@@ -230,7 +280,7 @@ export const REASONING_ALLOWANCE: Readonly<Record<ReasoningLevel, number>> = Obj
 });
 
 /** The `maxOutputTokens` sent: JSON allowance plus reasoning allowance. A `length` stop fails. */
-export function outputTokenCap(mode: CaptureMode, reasoning: ReasoningLevel): number {
+export function outputTokenCap(mode: ExtractionMode, reasoning: ReasoningLevel): number {
   return MAX_OUTPUT_TOKENS[mode] + REASONING_ALLOWANCE[reasoning];
 }
 

@@ -273,6 +273,7 @@ describe('model defaults and reference figures', () => {
       'enrich_aliases',
       'extract_room',
       'extract_room_merge',
+      'extract_plan',
     ]);
     expect(LEDGER_OUTCOMES).toEqual([
       'ok',
@@ -299,6 +300,7 @@ describe('model defaults and reference figures', () => {
     ['enrich_aliases', 'extraction'],
     ['extract_room', 'extraction'],
     ['extract_room_merge', 'extraction'],
+    ['extract_plan', 'extraction'],
     ['assistant_turn', 'assistant'],
     ['assistant_followup', 'assistant'],
     ['embed_query', 'embeddings'],

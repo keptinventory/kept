@@ -85,8 +85,8 @@ const { engines, FakeEngine } = vi.hoisted(() => {
       r.z += dz;
       this.events.onChange();
     }
-    nudgeRoom(key: string) {
-      this.calls.push(`nudge ${key}`);
+    nudgeRoom(key: string, fine = false) {
+      this.calls.push(`nudge ${key}${fine ? ' fine' : ''}`);
       const sel = this.s.selected;
       const r = sel?.type === 'room' ? this.plan.rooms.find((x) => x.id === sel.id) : undefined;
       if (!this.s.arranging || !r) return null;
@@ -221,14 +221,19 @@ describe('moving a room in Arrange (#301)', () => {
     await user.click(find);
     await user.keyboard('{ArrowLeft}');
     expect(e.calls.filter((c) => c.startsWith('nudge'))).toEqual([]);
-    // Modified keys are the browser's.
+    // Alt, Ctrl and Cmd are the browser's; Shift is the 10 cm step (D267).
     find.blur();
-    await user.keyboard('{Shift>}{ArrowLeft}{/Shift}');
+    await user.keyboard('{Alt>}{ArrowLeft}{/Alt}');
     expect(e.calls.filter((c) => c.startsWith('nudge'))).toEqual([]);
+    await user.keyboard('{Shift>}{ArrowLeft}{/Shift}');
+    expect(e.calls.filter((c) => c.startsWith('nudge'))).toEqual(['nudge ArrowLeft fine']);
+    await waitFor(() => expect(said()).toBe('Moved Kitchen left.'));
+    e.calls.length = 0;
 
     act(() => e.setArranging(false));
     await user.keyboard('{ArrowLeft}');
     expect(e.calls.filter((c) => c.startsWith('nudge'))).toEqual([]);
-    expect(said()).toBe('');
+    // Nothing more was said than the Shift step.
+    expect(said()).toBe('Moved Kitchen left.');
   });
 });

@@ -16,6 +16,7 @@ export * from './embeddings.js';
 export * from './errors.js';
 export * from './extraction.js';
 export * from './field-convert.js';
+export * from './floor-plan.js';
 export * from './fuel.js';
 export * from './hints.js';
 export * from './homebox.js';

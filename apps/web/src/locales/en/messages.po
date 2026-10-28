@@ -27997,3 +27997,235 @@ msgstr "Kind of {title}"
 #: src/components/history/labels.ts
 msgid "Paperless document changed"
 msgstr "Paperless document changed"
+
+#: src/components/history/labels.ts
+msgid "Read a floor plan"
+msgstr "Read a floor plan"
+
+#: src/components/history/labels.ts
+msgid "Discarded a floor plan"
+msgstr "Discarded a floor plan"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Added # room from a floor plan} other {Added # rooms from a floor plan}}"
+msgstr "{count, plural, one {Added # room from a floor plan} other {Added # rooms from a floor plan}}"
+
+#: src/components/ai/labels.ts
+msgid "Floor plans"
+msgstr "Floor plans"
+
+#: src/map/map-view.tsx
+msgid "{n, plural, one {Added # room from the plan} other {Added # rooms from the plan}}"
+msgstr "{n, plural, one {Added # room from the plan} other {Added # rooms from the plan}}"
+
+#: src/map/map-view.tsx
+msgid "Someone arranged this map since you started. Load it again; your rooms stay to add."
+msgstr "Someone arranged this map since you started. Load it again; your rooms stay to add."
+
+#: src/map/map-view.tsx
+msgid "Discard this plan?"
+msgstr "Discard this plan?"
+
+#: src/map/map-view.tsx
+msgid "Nothing is added. The plan is deleted."
+msgstr "Nothing is added. The plan is deleted."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Couldn’t read this plan."
+msgstr "Couldn’t read this plan."
+
+#: src/map/map-view.tsx
+msgid "Dashed rooms are from the plan and not added yet. Drag to move one; drag its corner to resize it."
+msgstr "Dashed rooms are from the plan and not added yet. Drag to move one; drag its corner to resize it."
+
+#: src/map/map-view.tsx
+msgid "{0, plural, one {Add # room} other {Add # rooms}}"
+msgstr "{0, plural, one {Add # room} other {Add # rooms}}"
+
+#: src/map/map-view.tsx
+msgid "Show the plan"
+msgstr "Show the plan"
+
+#: src/map/map-view.tsx
+msgid "Turn the rooms"
+msgstr "Turn the rooms"
+
+#: src/map/map-view.tsx
+msgid "From a plan"
+msgstr "From a plan"
+
+#: src/map/map-view.tsx
+msgid "<0>{room}</0>, from the plan, not added, {w} by {d} metres"
+msgstr "<0>{room}</0>, from the plan, not added, {w} by {d} metres"
+
+#: src/map/floor-plan/notices.tsx
+msgid "No rooms on the map yet"
+msgstr "No rooms on the map yet"
+
+#: src/map/floor-plan/notices.tsx
+msgid "Start from a floor plan, or draw the rooms yourself."
+msgstr "Start from a floor plan, or draw the rooms yourself."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Start from a floor plan"
+msgstr "Start from a floor plan"
+
+#: src/map/floor-plan/notices.tsx
+msgid "For a PDF, try a screenshot of the plan."
+msgstr "For a PDF, try a screenshot of the plan."
+
+#: src/map/floor-plan/notices.tsx
+msgid "This doesn’t look like a floor plan."
+msgstr "This doesn’t look like a floor plan."
+
+#: src/map/floor-plan/notices.tsx
+msgid "No rooms found on this plan."
+msgstr "No rooms found on this plan."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Draw rooms yourself"
+msgstr "Draw rooms yourself"
+
+#: src/map/floor-plan/notices.tsx
+msgid "A floor plan is ready to check."
+msgstr "A floor plan is ready to check."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Check it"
+msgstr "Check it"
+
+#: src/map/floor-plan/notices.tsx
+msgid "Reading the plan…"
+msgstr "Reading the plan…"
+
+#: src/map/floor-plan/notices.tsx
+msgid "You can leave; the plan waits on the map."
+msgstr "You can leave; the plan waits on the map."
+
+#: src/map/floor-plan/panel.tsx
+msgid "<0>{room}</0> is…"
+msgstr "<0>{room}</0> is…"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Width (m)"
+msgstr "Width (m)"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Depth (m)"
+msgstr "Depth (m)"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Rescale"
+msgstr "Rescale"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from {room}’s size"
+msgstr "Scale from {room}’s size"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Sizes from the plan: {n} of {m} rooms agree"
+msgstr "Sizes from the plan: {n} of {m} rooms agree"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from the plan’s scale bar"
+msgstr "Scale from the plan’s scale bar"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from the doors, taken as 80 cm wide: check one room"
+msgstr "Scale from the doors, taken as 80 cm wide: check one room"
+
+#: src/map/floor-plan/panel.tsx
+msgid "No sizes on the plan: these are a guess"
+msgstr "No sizes on the plan: these are a guess"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Rooms from the plan"
+msgstr "Rooms from the plan"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Set a room’s size"
+msgstr "Set a room’s size"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Kept read the first 60 rooms. Add the rest by drawing."
+msgstr "Kept read the first 60 rooms. Add the rest by drawing."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Keep the plan with <0>{location}</0>"
+msgstr "Keep the plan with <0>{location}</0>"
+
+#: src/map/floor-plan/panel.tsx
+msgid "A new floor"
+msgstr "A new floor"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under 1 m: too small for the map."
+msgstr "Under 1 m: too small for the map."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Already on the map."
+msgstr "Already on the map."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Uses your <0>{existing}</0>"
+msgstr "Uses your <0>{existing}</0>"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Make a new room"
+msgstr "Make a new room"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Not a rectangle: drawn as its largest part."
+msgstr "Not a rectangle: drawn as its largest part."
+
+#: src/map/floor-plan/panel.tsx
+msgid "The plan says <0>{size}</0>."
+msgstr "The plan says <0>{size}</0>."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Name unclear on the plan."
+msgstr "Name unclear on the plan."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Add {room}"
+msgstr "Add {room}"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "A photo, a screenshot or a PDF of a plan. Kept reads the rooms and their sizes; you check them before anything is added."
+msgstr "A photo, a screenshot or a PDF of a plan. Kept reads the rooms and their sizes; you check them before anything is added."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Use a sample floor plan"
+msgstr "Use a sample floor plan"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Choose a file"
+msgstr "Choose a file"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "The plan you chose"
+msgstr "The plan you chose"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Turn the plan a quarter turn"
+msgstr "Turn the plan a quarter turn"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Only the first page is read."
+msgstr "Only the first page is read."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Up to ~{tokens} tokens"
+msgstr "Up to ~{tokens} tokens"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Kept sends the plan, without its location data, to <0>{name}</0>. It is deleted when you finish, unless you keep it."
+msgstr "Kept sends the plan, without its location data, to <0>{name}</0>. It is deleted when you finish, unless you keep it."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Read the plan"
+msgstr "Read the plan"
+
+#: src/map/map-view.tsx
+msgid "Someone else added or discarded this plan."
+msgstr "Someone else added or discarded this plan."

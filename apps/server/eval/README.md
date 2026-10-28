@@ -197,3 +197,28 @@ Put in the key variable your `.env` holds and models your key can call (`DEFAULT
   model ships. Add your own phrasings.
 - `score.test.ts` in each folder runs the scoring maths and the whole harness on the mock in the
   normal test run.
+
+## Floor plans (plans.ts)
+
+A floor plan (D266) is scored as rooms, not fields: `plans.ts` sends each plan as the worker does
+(the 3,072 px re-encode, the plan prompt in use), drafts the answer with `@kept/shared`'s
+`draftRooms`, and compares the proposals with the plan's true rooms: rooms found by name, the size
+error (the larger of width and depth, either way round), the centre error from the floor's corner,
+and proposals that match nothing.
+
+**The pass bar before a release:** every room found and the median size error at most 30 cm. Below
+it, the feature ships behind its review only (the review is there either way).
+
+```sh
+# The mock: the eight invented plans (packages/shared/src/floor-plan.fixtures.ts), answered from
+# their own truth. This checks the harness and the pipeline, never a model.
+pnpm --filter @kept/server exec tsx eval/plans.ts
+
+# A real provider, with the maintainer's key (about USD 0.01 a plan, an estimate). `--dir` adds
+# plans he drew or owns: <id>.png beside <id>.truth.json ({"rooms": [{name, floor, x, z, w, d}]}
+# in metres from the floor's corner). No third-party plan is committed.
+( set -a; . ./.env; set +a; KEPT_EVAL_API_KEY="$KEPT_DEV_GROQ_API_KEY" \
+    pnpm --filter @kept/server exec tsx eval/plans.ts --provider groq --model qwen/qwen3.8-27b )
+```
+
+The real run has not been made yet: how well a model reads a plan is unmeasured.

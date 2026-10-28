@@ -345,6 +345,8 @@ const HOUSEHOLD_SHARED = [
   '/node_modules/three/',
   '/packages/shared/src/map.ts',
   '/packages/shared/src/map-shapes.ts',
+  // A floor plan's geometry (1.14.3, D266): only the map's review and the server use it.
+  '/packages/shared/src/floor-plan.ts',
   // @visx/text's CSS calc() reducer.
   '/node_modules/balanced-match/',
   '/node_modules/reduce-function-call/',

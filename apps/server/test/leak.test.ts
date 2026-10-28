@@ -246,6 +246,8 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
     definer: true,
   },
   'kept.purge_trash(timestamp with time zone,integer)': { roles: SYS, definer: true },
+  // (0163) The purge's door for floor plan reviews nobody finished (D266).
+  'kept.discard_stale_floor_plans(timestamp with time zone,integer)': { roles: SYS, definer: true },
   'kept.reindex_location(uuid)': { roles: SYS, definer: true },
   // (0024, security review of Phase A) Adding contact details past the contacts' own policy (a
   // field's owner-only policy); the member link on a person must see memberships the caller can't.
@@ -1685,7 +1687,7 @@ describe('request path (kept_app): room photos under review', () => {
       await asOwner(db, (c) =>
         c.query<{ id: string; file_id: string; thing_id: string }>(
           `SELECT id, file_id, thing_id FROM public.attachments
-            WHERE location_id = $1 AND in_review`,
+            WHERE location_id = $1 AND in_review AND thing_id IS NOT NULL`,
           [b.locationId],
         ),
       )
