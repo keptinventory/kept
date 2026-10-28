@@ -54,7 +54,7 @@ In this order, stopping at the first failure (D87, D186, D187):
    key. It needs the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets; a release already out is
    copied with **Run workflow** on `dockerhub` and its version.
 9. the **Discord announcement** (`discord.yml`): the Highlights (else What's changed, unfolded parts only) posted to
-   #announcements through the `DISCORD_RELEASES_WEBHOOK` secret, pinging Release pings for a final
+   #releases through the `DISCORD_RELEASES_WEBHOOK` secret, pinging Release pings for a final
    release; **Run workflow** on `discord` with a tag posts one again.
 
 Nothing is tagged until both architectures passed and the signature verified, so a failed run
