@@ -19213,6 +19213,14 @@ msgid "Adjust stock"
 msgstr "Ajuster le stock"
 
 #: src/assistant/confirm-card.tsx
+msgid "One up"
+msgstr "Un cran plus haut"
+
+#: src/assistant/confirm-card.tsx
+msgid "One down"
+msgstr "Un cran plus bas"
+
+#: src/assistant/confirm-card.tsx
 msgid "Field"
 msgstr "Champ"
 
@@ -22226,6 +22234,14 @@ msgid "Bookshelf"
 msgstr "Bibliothèque"
 
 #: src/map/labels.ts
+msgid "Cube storage"
+msgstr "Étagère à cases"
+
+#: src/map/labels.ts
+msgid "Tall bookcase"
+msgstr "Grande bibliothèque"
+
+#: src/map/labels.ts
 msgid "Floor lamp"
 msgstr "Lampadaire"
 
@@ -24575,8 +24591,33 @@ msgid "On the wall"
 msgstr "Au mur"
 
 #: src/map/height.tsx
+#: src/map/size.tsx
 msgid "Height"
 msgstr "Hauteur"
+
+#: src/map/size.tsx
+msgid "Cubes across"
+msgstr "Cases en largeur"
+
+#: src/map/size.tsx
+msgid "Cubes up"
+msgstr "Cases en hauteur"
+
+#: src/map/size.tsx
+msgid "Turn on its side"
+msgstr "Coucher sur le côté"
+
+#: src/map/size.tsx
+msgid "Width"
+msgstr "Largeur"
+
+#: src/map/size.tsx
+msgid "Depth"
+msgstr "Profondeur"
+
+#: src/map/size.tsx
+msgid "Levels"
+msgstr "Niveaux"
 
 #: src/map/height.tsx
 msgid "Lower"
@@ -27593,3 +27634,27 @@ msgstr "Non reconnu : {text}"
 #: src/components/scan/session/session-screen.tsx
 msgid "Check later: {text}"
 msgstr "À vérifier plus tard : {text}"
+
+#: src/components/services/service-sheet.tsx
+msgid "Delete this service?"
+msgstr "Supprimer cet entretien ?"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "Edit the service"
+msgstr "Modifier l’entretien"
+
+#: src/components/services/service-sheet.tsx
+msgid "Its lines and invoice go too. Schedules it completed count from the service before. You can undo this."
+msgstr "Ses lignes et sa facture partent aussi. Les échéances qu’il terminait repartent de l’entretien précédent. Vous pouvez annuler."
+
+#: src/components/services/service-sheet.tsx
+msgid "Logged by"
+msgstr "Enregistré par"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "They have prices you can't see, so they stay as they are."
+msgstr "Elles ont des prix que vous ne voyez pas : elles restent telles quelles."
+
+#: src/components/moving/sheets-printed.tsx
+msgid "Check that a code on the sheets scans. Yes records today as their print date, so the boxes show their label."
+msgstr "Vérifiez qu'un code des feuilles se scanne. Oui enregistre aujourd'hui comme date d'impression, et les boîtes affichent leur étiquette."

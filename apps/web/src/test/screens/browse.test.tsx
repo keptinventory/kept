@@ -40,6 +40,21 @@ function asRole(role: 'viewer' | 'member' | 'admin', state: MockState = ownerSce
 
 const list = (name: string | RegExp) => screen.findByRole('list', { name });
 
+/** GETs of a place's page or contents after the POST to `write` that ended it. */
+function asksAgain(
+  mock: { calls: { method: string; path: string }[] },
+  write: string,
+  id: string,
+): string[] {
+  const at = mock.calls.findIndex((c) => c.method === 'POST' && c.path === write);
+  expect(at).toBeGreaterThan(-1);
+  const gone = [inventoryPaths.place(id), inventoryPaths.placeContents(id)];
+  return mock.calls
+    .slice(at + 1)
+    .filter((c) => c.method === 'GET' && gone.includes(c.path))
+    .map((c) => c.path);
+}
+
 describe('the location page', () => {
   it('shows Add here, the Unplaced card, then places before things with their paths', async () => {
     await renderApp(`/loc/${IDS.home}`);
@@ -783,6 +798,8 @@ describe('the place page', () => {
     );
     await waitFor(() => expect(pathOf(router)).toBe(`/loc/home-0000b002`));
     expect(await screen.findByText('Kitchen is in the trash')).toBeInTheDocument();
+    // Kitchen is in the trash: its page and contents aren't asked for again (a 404, #336).
+    expect(asksAgain(mock, inventoryPaths.placeTrash(P.kitchen), P.kitchen)).toEqual([]);
   });
 
   it('trash them too, and Undo restores the batch', async () => {
@@ -841,6 +858,9 @@ describe('the place page', () => {
       }),
     );
     await waitFor(() => expect(pathOf(router)).toBe(`/p/${P.livingRoom}`));
+    await findHeading('Living room');
+    // Bedroom is gone: its page and contents aren't asked for again (a 404, #336).
+    expect(asksAgain(mock, inventoryPaths.placeMergeInto(P.bedroom), P.bedroom)).toEqual([]);
   });
 
   it('turns a place with no places inside into a box, keeping its id', async () => {

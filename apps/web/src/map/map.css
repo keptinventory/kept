@@ -663,6 +663,12 @@ fieldset.kmap-floors {
   font: 400 12.5px / 1.35 var(--sans);
   color: var(--ink-3);
 }
+/* #240, #241: a sized shape's numbers, one field under another like Height. */
+.kmap-size {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
 .kshape-thumb {
   display: block;
   flex: none;

@@ -9,10 +9,11 @@ that opens the thing. A label keeps its code for good, so a lost one reprints th
 
 Lists, search results and the ⌘K palette show a thing by its name. Its code shows there as amber
 label tape only once it has a printed label: a label confirmed with **Printed OK?**, or a blank
-label claimed for it. Amber means "this one is labelled". On its own page a thing or place
+label claimed for it. A moving box's contents sheet counts too, once confirmed the same way ([Moving
+house](/users/moving/)). Amber means "this one is labelled". On its own page a thing or place
 without a printed label shows its code small and grey, after the rest; one with a label shows the
-tape. A thing with more than one label (a blank label claimed for it, say) shows the code of
-the one printed last. Search and the scanner find a thing by any of its codes.
+tape. A thing with more than one label (a blank label claimed for it, say) shows the code of the one
+printed last. Search and the scanner find a thing by any of its codes.
 
 ## Printing
 

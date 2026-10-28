@@ -46,6 +46,26 @@ nas: { w: 0.2, d: 0.22, h: 0.17, kind: 'thing', small: true },
 
 The key is stored in a location's layout, so never rename or remove one once it has shipped.
 
+## A shape sized by its numbers
+
+The cube shelf sized by its grid (`cube_grid`) and the bookcase with levels (`bookcase`) are drawn
+from numbers someone sets on the card, not from one size. A node's stored model carries them after
+the key, so the layout's format, the API and the database stay as they were:
+
+| Model | Means |
+|---|---|
+| `cube_grid` | 2 cubes across, 2 up: its catalogue entry's size |
+| `cube_grid_4x1` | 4 across, 1 up (a 1 × 4 lying down) |
+| `bookcase` | 80 × 28 × 202 cm, 6 levels |
+| `bookcase_60x28x150_4` | 60 × 28 × 150 cm (width, depth, height), 4 levels |
+
+`sizedOf` reads the numbers (null for anything else, out of range, or spelled another way: the
+first size is only ever the bare key), `sizedKey` writes them, `mapModel` gives the size and
+`baseModel` the catalogue key, which the names, the groups and the pictures use.
+`apps/web/src/map/engine/sized.ts` turns the numbers into boards and the spaces between them, and
+`apps/web/src/map/size.tsx` is the card's fields. A new sized shape goes in all of these, and in
+`isMapModel`'s tests and the server's layout test.
+
 ## Words in five languages
 
 `SHAPE_WORDS` lists what people call the thing, lower case, in English, Arabic, French, German and

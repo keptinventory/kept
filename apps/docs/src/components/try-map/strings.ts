@@ -36,6 +36,8 @@ export const MODEL_NAMES: Record<MapModelKey, Two> = {
   watering_can: ['Watering can', 'مرشة ري'],
   tv: ['TV', 'تلفاز'],
   bookshelf: ['Bookshelf', 'مكتبة كتب'],
+  cube_grid: ['Cube storage', 'وحدة تخزين مكعبات'],
+  bookcase: ['Tall bookcase', 'مكتبة طويلة'],
   lamp: ['Floor lamp', 'مصباح أرضي'],
   counter: ['Kitchen counter', 'سطح مطبخ'],
   sink: ['Sink counter', 'سطح بحوض'],

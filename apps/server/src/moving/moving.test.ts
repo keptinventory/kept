@@ -65,6 +65,7 @@ type Box = {
   state: string;
   name: string | null;
   shortCode: string | null;
+  labelPrinted: boolean;
   visible: boolean;
   locationId: string | null;
   placeId: string | null;
@@ -775,4 +776,109 @@ describe('the contents sheets', () => {
     },
     60_000,
   );
+});
+
+describe('"Printed OK?" after the contents sheets', () => {
+  type Printed = { codes: string[] };
+  const printed = (as: Person, moveId: string, body: object = {}) =>
+    call(t, `/api/v1/moves/${moveId}/sheets/printed`, { as, body });
+  const codeRow = async (code: string) =>
+    (
+      await own<{ printed_at: Date | null }>(
+        db,
+        'SELECT printed_at FROM public.short_ids WHERE code = $1',
+        [code],
+      )
+    )[0];
+
+  // catalogue: POST /api/v1/moves/:id/sheets/printed
+  it('records the print date on the codes the sheets carry, once, and audits labels.printed', async () => {
+    const move = await start(louis, { name: 'Sheets printed', toLocationId: house.id });
+    const one = await newBox(louis, move.id);
+    const two = await newBox(louis, move.id);
+    expect((await read(louis, move.id)).boxes.map((b) => b.labelPrinted)).toEqual([false, false]);
+
+    // One box's sheet: that box only.
+    const first = ok(
+      await printed(louis, move.id, { containerIds: [one.containerId] }),
+    ) as unknown as Printed;
+    expect(first.codes).toEqual([one.shortCode]);
+    expect((await read(louis, move.id)).boxes.map((b) => b.labelPrinted)).toEqual([true, false]);
+    const at = (await codeRow(one.shortCode as string))?.printed_at;
+    expect(at).toBeInstanceOf(Date);
+    const events = await eventsOf(db, flat.id, move.id);
+    const audit = events.filter((e) => e.action === 'labels.printed');
+    expect(audit).toHaveLength(1);
+    expect(audit[0]?.actor_id).toBe(louis.userId);
+    const subjects = await own<{ thing_id: string }>(
+      db,
+      'SELECT thing_id FROM public.audit_event_subjects WHERE event_id = $1',
+      [audit[0]?.id],
+    );
+    expect(subjects.map((s) => s.thing_id)).toEqual([one.containerId]);
+
+    // Every box: the other one now; the first keeps its date and isn't audited again.
+    const all = ok(await printed(louis, move.id)) as unknown as Printed;
+    expect(all.codes).toEqual([two.shortCode]);
+    expect((await read(louis, move.id)).boxes.map((b) => b.labelPrinted)).toEqual([true, true]);
+    expect((await codeRow(one.shortCode as string))?.printed_at).toEqual(at);
+    const again = ok(await printed(louis, move.id)) as unknown as Printed;
+    expect(again.codes).toEqual([]);
+    const after = (await eventsOf(db, flat.id, move.id)).filter(
+      (e) => e.action === 'labels.printed',
+    );
+    expect(after).toHaveLength(2);
+  });
+
+  it('refuses a viewer and a move they can’t see, and leaves out a box of another move', async () => {
+    const move = await start(louis, { name: 'Sheets, who' });
+    const box = await newBox(louis, move.id);
+    expect((await printed(talia, move.id)).statusCode).toBe(403);
+    expect((await printed(louis, newId())).statusCode).toBe(404);
+    const stranger = await person(t, db, 'peter');
+    expect((await printed(stranger, move.id)).statusCode).toBe(404);
+    expect((await read(louis, move.id)).boxes[0]?.labelPrinted).toBe(false);
+    // A box of another move isn't this one's.
+    const other = await start(louis, { name: 'Sheets, other' });
+    const res = ok(
+      await printed(louis, other.id, { containerIds: [box.containerId] }),
+    ) as unknown as Printed;
+    expect(res.codes).toEqual([]);
+  });
+
+  it('across locations: a box in a location the caller only views, or can’t see, stays unprinted', async () => {
+    const bruce = await person(t, db, 'bruce');
+    const alfred = await person(t, db, 'alfred');
+    await join(db, flat.id, bruce.userId, 'member');
+    await join(db, house.id, bruce.userId, 'viewer');
+    await join(db, flat.id, alfred.userId, 'member');
+    const move = await start(louis, { name: 'Sheets, across', toLocationId: house.id });
+    const here = await newBox(louis, move.id);
+    const there = await newBox(louis, move.id, { destinationPlaceId: kitchen });
+    ok(
+      await call(t, `/api/v1/moves/${move.id}/boxes/${there.containerId}/unpack`, {
+        as: louis,
+        body: {},
+      }),
+    );
+    expect((await thingRow(there.containerId))?.location_id).toBe(house.id);
+
+    // Alfred doesn't see House, Bruce only views it: each marks the box in Flat only.
+    const a = ok(await printed(alfred, move.id)) as unknown as Printed;
+    expect(a.codes).toEqual([here.shortCode]);
+    const b = ok(await printed(bruce, move.id)) as unknown as Printed;
+    expect(b.codes).toEqual([]);
+    expect((await codeRow(there.shortCode as string))?.printed_at).toBeNull();
+    expect(
+      (await eventsOf(db, house.id, move.id)).filter((e) => e.action === 'labels.printed'),
+    ).toHaveLength(0);
+
+    // Louis is a member of both: the box in House is marked, audited in House.
+    const l = ok(await printed(louis, move.id)) as unknown as Printed;
+    expect(l.codes).toEqual([there.shortCode]);
+    expect((await codeRow(there.shortCode as string))?.printed_at).toBeInstanceOf(Date);
+    expect(
+      (await eventsOf(db, house.id, move.id)).filter((e) => e.action === 'labels.printed'),
+    ).toHaveLength(1);
+  });
 });

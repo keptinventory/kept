@@ -18,6 +18,7 @@ import type pg from 'pg';
 import type { Scope, Tx } from '../db/scope.js';
 import { withScope } from '../db/scope.js';
 import { AppError, notFound } from '../http/errors.js';
+import { findPlace, type PlaceRow, requirePlace } from '../places/view.js';
 import { viewOf } from '../things/view.js';
 import { runTool, unavailable as unavailableRefusal } from '../tools/context.js';
 import { placeRefOf, thingRefOf } from '../tools/output.js';
@@ -26,11 +27,13 @@ import { findRef, typeNamed } from '../tools/resolve.js';
 import type { ToolDeps } from '../tools/types.js';
 import { PROPOSAL_COLUMNS, type ProposalRow } from './threads.js';
 
-/** Write tools whose If-Match is the thing's own row version (the card's `before.rowVersion`). */
-const THING_VERSIONED: ReadonlySet<string> = new Set([
+/** Write tools whose If-Match is their subject's own row version (the card's
+ * `before.rowVersion`): the thing's, or update_place's place's (#313). */
+const VERSIONED: ReadonlySet<string> = new Set([
   'update_thing',
   'move_thing',
   'adjust_stock',
+  'update_place',
 ]);
 
 // Write proposals (D22, D123, D179, D213). The model never runs a write: each write
@@ -42,8 +45,8 @@ const THING_VERSIONED: ReadonlySet<string> = new Set([
 // call follows.
 //
 // `before` is `{callId, rowVersion?, fields?}`: the model's call id (to answer it in the thread),
-// and for a tool about one thing, that thing's version and the fields the card shows, as they were
-// when proposed.
+// and for a tool about one thing (or update_place's place), its version and the fields the card
+// shows, as they were when proposed.
 
 export const argsHash = (args: unknown): string =>
   createHash('sha256').update(canonicalJson(args)).digest('hex');
@@ -121,15 +124,24 @@ async function refsOf(
 ): Promise<{
   refs: Record<string, ProposalRef>;
   thing: Awaited<ReturnType<typeof viewOf>> | null;
+  place: PlaceRow | null;
 }> {
   const refs: Record<string, ProposalRef> = {
     [location.id]: { kind: 'location', name: location.name, path: [] },
   };
   let thing: Awaited<ReturnType<typeof viewOf>> | null = null;
+  let place: PlaceRow | null = null;
   const raws: { key: string; raw: string }[] = [];
   for (const key of REF_ARGS) {
     const v = args[key];
     if (typeof v === 'string') raws.push({ key, raw: v });
+  }
+  // update_place: the place it goes inside, and where it is now (#313); turn_into_boxes: each
+  // place it names.
+  const fields = args.fields as Record<string, unknown> | undefined;
+  if (typeof fields?.parent_id === 'string') raws.push({ key: 'parent_id', raw: fields.parent_id });
+  if (Array.isArray(args.place_ids)) {
+    for (const raw of args.place_ids) if (typeof raw === 'string') raws.push({ key: 'place', raw });
   }
   // add_thing: each item's place, a new place's parent, and the type its name matches (none
   // when Kept knows no such type: the card says "not set").
@@ -192,9 +204,18 @@ async function refsOf(
       };
       refs[raw] = r;
       refs[found.id] = r;
+      if (key === 'place_id') {
+        place = await requirePlace(client, found.id);
+        // The place it is inside now, for the card's "from" when it moves.
+        const at = place.parentId;
+        if (at && !refs[at]) {
+          const up = await placeRefOf(client, at);
+          refs[at] = { kind: 'place', id: at, name: up.untrusted.name, path: up.untrusted.path };
+        }
+      }
     }
   }
-  return { refs, thing };
+  return { refs, thing, place };
 }
 
 /** Kept's own bookkeeping in `before`, never a field the card compares. */
@@ -246,6 +267,28 @@ function beforeOf(
   return out;
 }
 
+/** update_place's `before`: the place's version and each field the call changes, as it is (the
+ * web's confirm-rows.ts reads them in the tool's words). */
+function placeBeforeOf(
+  callId: string,
+  args: Record<string, unknown>,
+  place: PlaceRow,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { callId, rowVersion: place.rowVersion };
+  const asked = (args.fields ?? {}) as Record<string, unknown>;
+  if ('name' in asked) out.name = place.name;
+  if ('kind' in asked) out.kind = place.kindKey;
+  if ('parent_id' in asked || args.move !== undefined) out.parent_id = place.parentId;
+  if ('child_order' in asked) out.child_order = place.childOrder;
+  if ('custom' in asked) {
+    const custom: Record<string, unknown> = {};
+    for (const k of Object.keys((asked.custom ?? {}) as object))
+      custom[k] = place.custom[k] ?? null;
+    out.custom = custom;
+  }
+  return out;
+}
+
 /** The fields of `before` the card compares (bookkeeping left out). */
 function comparable(before: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(Object.entries(before).filter(([k]) => !BOOKKEEPING.has(k)));
@@ -280,7 +323,11 @@ export async function propose(
       viewerOf: location.name,
     };
   }
-  const { refs, thing } = await refsOf(tx, client, scope, p.args, location);
+  const { refs, thing, place } = await refsOf(tx, client, scope, p.args, location);
+  const before =
+    p.tool === 'update_place' && place
+      ? placeBeforeOf(p.callId, p.args, place)
+      : beforeOf(p.callId, p.tool, p.args, thing);
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO public.assistant_proposals
        (user_id, thread_id, turn_id, location_id, batch_id, tool, args, args_hash, before, refs,
@@ -296,7 +343,7 @@ export async function propose(
       p.tool,
       JSON.stringify(p.args),
       argsHash(p.args),
-      JSON.stringify(beforeOf(p.callId, p.tool, p.args, thing)),
+      JSON.stringify(before),
       JSON.stringify(refs),
       new Date(p.now.getTime() + PROPOSAL_TTL_MS),
     ],
@@ -408,14 +455,19 @@ export function argsWithEdits(
   return kept.length ? { ...args, items: kept } : null;
 }
 
-/** Who last changed a thing, for a conflict ("changed by Bruce"), from its newest audit event. */
-async function changedBy(client: pg.ClientBase, thingId: string): Promise<string> {
+/** Who last changed a thing or a place, for a conflict ("changed by Bruce"), from its newest
+ * audit event. */
+async function changedBy(
+  client: pg.ClientBase,
+  id: string,
+  entityType: 'thing' | 'place' = 'thing',
+): Promise<string> {
   const { rows } = await client.query<{ name: string | null }>(
     `SELECT p.display_name AS name FROM public.audit_events e
        LEFT JOIN public.user_profiles p ON p.user_id = e.actor_id
-      WHERE e.entity_type = 'thing' AND e.entity_id = $1
+      WHERE e.entity_type = $2 AND e.entity_id = $1
       ORDER BY e.id DESC LIMIT 1`,
-    [thingId],
+    [id, entityType],
   );
   return rows[0]?.name ?? '';
 }
@@ -427,9 +479,23 @@ async function conflictOf(
   scope: Scope,
   row: ProposalRow,
 ): Promise<ConfirmResultRow['conflict']> {
+  const before = comparable(row.before);
+  if (row.tool === 'update_place') {
+    const at =
+      typeof row.args.place_id === 'string' ? await findRef(client, row.args.place_id) : null;
+    const now = at?.kind === 'place' ? await findPlace(client, at.id) : null;
+    if (!at || !now) return { field: 'place', before: null, now: null, by: '' };
+    const current = comparable(placeBeforeOf('', row.args, now));
+    const by = await changedBy(client, at.id, 'place');
+    for (const [field, was] of Object.entries(before)) {
+      if (canonicalJson(was) !== canonicalJson(current[field] ?? null)) {
+        return { field, before: was, now: current[field] ?? null, by };
+      }
+    }
+    return { field: 'rowVersion', before: row.before.rowVersion, now: now.rowVersion, by };
+  }
   const ref =
     typeof row.args.thing_id === 'string' ? await findRef(client, row.args.thing_id) : null;
-  const before = comparable(row.before);
   if (ref?.kind !== 'thing') return { field: 'thing', before: null, now: null, by: '' };
   const now = await viewOf(tx, client, scope, null, ref.id);
   const current = comparable(beforeOf('', row.tool as ToolName, row.args, now));
@@ -537,9 +603,10 @@ export async function confirmProposals(
       continue;
     }
     const row = c.row;
-    // The card's before holds the thing's version; only the tools that write the thing's own row
-    // check it. return_thing and update_claim match ifMatch against the loan's or the claim's.
-    const rowVersion = THING_VERSIONED.has(row.tool) ? row.before.rowVersion : undefined;
+    // The card's before holds the thing's (or the place's) version; only the tools that write
+    // that row check it. return_thing and update_claim match ifMatch against the loan's or the
+    // claim's.
+    const rowVersion = VERSIONED.has(row.tool) ? row.before.rowVersion : undefined;
     const env = (await runTool(
       {
         deps: deps.tools,

@@ -3,7 +3,7 @@
  * in them, or what needs attention (low stock, lent out, due soon), with a search, a floor
  * filter and Show more. Pure, so the filters are tested without the map.
  */
-import { canBeCarried, fitsOn, type MapModelKey } from '@kept/shared';
+import { canBeCarried, fitsOn, type MapShapeKey } from '@kept/shared';
 import type { MapAttention, MapAttentionKind, MapView } from '@/api/map/types';
 import {
   allUnder,
@@ -199,7 +199,7 @@ export function offMapIn(
 }
 
 /** A shape someone chose for a thing in this session, or that it has on the saved map. */
-export type ChosenShape = (id: string) => MapModelKey | null;
+export type ChosenShape = (id: string) => MapShapeKey | null;
 
 /**
  * Add on it's second list (#152): the holder's room's things that aren't on the map yet, directly

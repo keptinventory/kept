@@ -166,6 +166,28 @@ describe('arrangements in words (#140)', () => {
     ]);
   });
 
+  it('says a sized shape was resized, and a change of shape by the shapes’ own codes (#240, #241)', () => {
+    expect(
+      text(
+        arrangeLines(
+          [n('shelf', { model: 'cube_grid' }), n('desk', { model: 'bookcase' })],
+          [n('shelf', { model: 'cube_grid_4x1' }), n('desk', { model: 'bookcase_60x28x150_4' })],
+          names,
+        ),
+      ),
+    ).toEqual(['map.resize {"name":"Corner desk"}', 'map.resize {"name":"Shelf 2"}']);
+    // The web says a shape by its code, so the numbers stay out of it.
+    expect(
+      text(
+        arrangeLines(
+          [n('shelf', { model: 'cube_grid_3x2' })],
+          [n('shelf', { model: 'sofa' })],
+          names,
+        ),
+      ),
+    ).toEqual(['map.shape {"name":"Shelf 2","from":"cube_grid","to":"sofa","vocab":"model"}']);
+  });
+
   it('says what changed in a room', () => {
     expect(
       text(

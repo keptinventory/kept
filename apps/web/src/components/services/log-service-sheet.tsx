@@ -28,6 +28,12 @@
  * Where money is hidden, an invoice can't make a draft (an invoice is money): it is uploaded and
  * attached to the record once it exists, as the record's `invoice`, as step 4 did.
  *
+ * **Edit the service (#296).** Given a saved `record`, the same form opens filled in, and Save
+ * sends only what changed (`PATCH /service-records/:id`, If-Match), with Undo; new invoice pages
+ * attach after it. It never makes a draft, and Completes ticks only what the record completed.
+ * Where money is hidden and a line has a price, the lines stay as they are: replacing them would
+ * drop prices the person can't see.
+ *
  * **From stock (D236).** Where Consumables is on, a line can say which consumable of the location
  * it used ("Oil filter · 4 left"); picking one names the line after it when it has no words yet.
  * Saving takes the line's quantity (1 when empty) off that thing's count; a draft takes nothing
@@ -40,7 +46,13 @@ import { useEffect, useRef, useState } from 'react';
 import { Checkbox, CheckboxGroup, FileTrigger, Label } from 'react-aria-components';
 import { api, isApiError } from '@/api/client';
 import { householdApi, useSubjectSchedules } from '@/api/household/queries';
-import type { CreateServiceRecordBody, ServiceLineInput, SubjectRef } from '@/api/household/types';
+import type {
+  CreateServiceRecordBody,
+  GatedMoney,
+  ServiceLineInput,
+  SubjectRef,
+  UpdateServiceRecordBody,
+} from '@/api/household/types';
 import { inventoryPaths } from '@/api/inventory/paths';
 import { inventoryApi, inventoryKeys } from '@/api/inventory/queries';
 import { useServiceRecord, vehiclesApi } from '@/api/vehicles/queries';
@@ -83,6 +95,7 @@ export function LogServiceSheet({
   locationId,
   completes = [],
   draft = null,
+  record = null,
   onClose,
 }: {
   open: boolean;
@@ -94,6 +107,8 @@ export function LogServiceSheet({
   completes?: string[];
   /** A draft to finish (the Services tab's "Finish logging"). */
   draft?: ServiceRecordV5 | null;
+  /** A saved service to edit (the service's Edit, #296). */
+  record?: ServiceRecordV5 | null;
   onClose: () => void;
 }) {
   const { t } = useLingui();
@@ -103,12 +118,13 @@ export function LogServiceSheet({
       onOpenChange={(o) => {
         if (!o) onClose();
       }}
-      title={t`Log a service`}
+      title={record ? t`Edit the service` : t`Log a service`}
     >
       {open && subject ? (
         <LogServiceForm
-          key={draft?.id ?? 'new'}
+          key={record?.id ?? draft?.id ?? 'new'}
           draft={draft}
+          edit={record}
           subject={subject}
           {...(subjectRef ? { subjectRef } : {})}
           locationId={locationId}
@@ -159,6 +175,13 @@ const lineOf = (l: SuggestedLine): Line => ({
   consumableThingId: null,
 });
 
+/** A visible amount, or '' (none, or hidden). */
+const amountIn = (m: GatedMoney | null): string => (m && 'amount' in m ? m.amount : '');
+/** What a line holds, to tell whether the person changed the lines. */
+const linesKey = (ls: readonly Line[]) => JSON.stringify(ls.map(({ key: _, ...rest }) => rest));
+/** Two typed numbers that mean the same: "51392" and "51392.0", or both empty. */
+const sameNumber = (a: string, b: string) => (a && b ? Number(a) === Number(b) : a === b);
+
 /** The line a schedule matches (`matchSchedules`), or null. */
 function matchingLine(
   s: { id: string; name: string },
@@ -173,6 +196,7 @@ function LogServiceForm({
   locationId,
   completes: initial,
   draft: given,
+  edit,
   onClose,
 }: {
   subject: LogServiceSubject;
@@ -180,6 +204,7 @@ function LogServiceForm({
   locationId: string;
   completes: string[];
   draft: ServiceRecordV5 | null;
+  edit: ServiceRecordV5 | null;
   onClose: () => void;
 }) {
   const { t } = useLingui();
@@ -223,27 +248,50 @@ function LogServiceForm({
   const schedules = useSubjectSchedules(subject);
   const active = schedulesOn ? (schedules.data?.items ?? []).filter((s) => s.active) : [];
 
-  const [servicedOn, setServicedOn] = useState<string | null>(given?.servicedOn ?? access.today);
+  const [servicedOn, setServicedOn] = useState<string | null>(
+    (edit ?? given)?.servicedOn ?? access.today,
+  );
   const [meterId, setMeterId] = useState<string | null>(null);
   const meter = meters.find((m) => m.id === meterId) ?? meters[0] ?? null;
-  const [reading, setReading] = useState('');
+  const [reading, setReading] = useState(() => (edit?.reading ? asTyped(edit.reading.value) : ''));
   const [proof, setProof] = useState<Upload | null>(null);
-  const [vendor, setVendor] = useState(emptyVendor);
+  const [vendor, setVendor] = useState(() =>
+    edit?.vendor ? { id: edit.vendor.id, text: edit.vendor.name } : emptyVendor,
+  );
   const [invoices, setInvoices] = useState<Upload[]>(() =>
-    (given?.invoices ?? []).map((a, i) => ({
+    ((edit ?? given)?.invoices ?? []).map((a, i) => ({
       key: a.id,
       name: t`Invoice page ${i + 1}`,
       fileId: a.file?.id ?? null,
       inDraft: true,
     })),
   );
-  const [lines, setLines] = useState<Line[]>([]);
-  const [total, setTotal] = useState('');
-  const [currency, setCurrency] = useState<string | null>(access.location?.currency ?? null);
-  const [ticked, setTicked] = useState<string[]>(initial);
+  const [lines, setLines] = useState<Line[]>(() =>
+    (edit?.lines ?? []).map((l) => ({
+      key: l.id,
+      kind: l.kind,
+      description: l.description,
+      quantity: l.quantity ? asTyped(l.quantity) : '',
+      cost: amountIn(l.unitCost) ? asTyped(amountIn(l.unitCost)) : '',
+      consumableThingId: l.consumable?.id ?? null,
+    })),
+  );
+  const [linesAtStart] = useState(() => linesKey(lines));
+  /** Hidden prices on the record's lines: replacing the lines would drop them, so they stay. */
+  const linesLocked = !!edit && !access.money && edit.lines.some((l) => l.unitCost !== null);
+  const [total, setTotal] = useState(() =>
+    edit && amountIn(edit.total) ? asTyped(amountIn(edit.total)) : '',
+  );
+  const [currency, setCurrency] = useState<string | null>(
+    (edit?.total && 'currency' in edit.total ? edit.total.currency : null) ??
+      access.location?.currency ??
+      null,
+  );
+  const completedAtStart = edit ? edit.completes.map((c) => c.scheduleId) : initial;
+  const [ticked, setTicked] = useState<string[]>(completedAtStart);
   /** Schedules the person ticked or unticked: a matching line no longer moves them. */
-  const touched = useRef(new Set<string>(initial));
-  const [notes, setNotes] = useState('');
+  const touched = useRef(new Set<string>(completedAtStart));
+  const [notes, setNotes] = useState(edit?.notes ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const clear = (key: string) => setErrors(({ [key]: _, ...rest }) => rest);
@@ -253,7 +301,8 @@ function LogServiceForm({
   const [draftState, setDraftState] = useState<'none' | 'making' | 'made' | 'failed'>(
     given ? 'made' : 'none',
   );
-  const drafting = access.money && draftState !== 'failed';
+  // An edit never makes a draft: its new invoice pages attach once it is saved.
+  const drafting = access.money && draftState !== 'failed' && !edit;
   const record = useServiceRecord(draftState === 'made' ? draftId : '');
   const rec: ServiceRecordV5 | null = record.data ?? given;
   const read = invoiceReadOf(rec);
@@ -326,10 +375,11 @@ function LogServiceForm({
     .map((s) => s.id)
     .join(',');
   useEffect(() => {
-    if (!matchKey) return;
+    // An edit ticks what the record completed, and nothing by itself.
+    if (!matchKey || edit) return;
     const ids = matchKey.split(',').filter((id) => !touched.current.has(id));
     if (ids.length) setTicked((xs) => [...new Set([...xs, ...ids])]);
-  }, [matchKey]);
+  }, [matchKey, edit]);
 
   const upload = async (file: File, onDone: (fileId: string) => void) => {
     try {
@@ -396,7 +446,7 @@ function LogServiceForm({
     setErrors(next);
     if (Object.keys(next).length) return;
     const confirming = draftState === 'made';
-    const id = confirming ? draftId : newId();
+    const id = edit ? edit.id : confirming ? draftId : newId();
     const record: CreateServiceRecordBody = {
       id,
       subject,
@@ -421,7 +471,13 @@ function LogServiceForm({
     // The write's audit events, for the toast's Undo (D150).
     let auditEvents: readonly string[] = [];
     try {
-      if (confirming) {
+      if (edit) {
+        ({ auditEvents } = await householdApi.updateServiceRecord(
+          edit.id,
+          changesOf(edit, record, value),
+          edit.rowVersion,
+        ));
+      } else if (confirming) {
         const { id: _id, subject: _subject, ...rest } = record;
         ({ auditEvents } = await vehiclesApi.confirmService(draftId, rest, rec?.rowVersion ?? 1));
       } else ({ auditEvents } = await householdApi.createServiceRecord(record));
@@ -453,7 +509,7 @@ function LogServiceForm({
     }
     offerUndo(
       {
-        title: t`Service logged`,
+        title: edit ? t`Service changed` : t`Service logged`,
         ...(unattached
           ? { description: t`The invoice didn't attach. Add it again from the service.` }
           : {}),
@@ -463,6 +519,32 @@ function LogServiceForm({
     await invalidate();
     setBusy(false);
     onClose();
+  };
+
+  /** An edit's PATCH body: only the fields that differ from the record (#296). */
+  const changesOf = (
+    was: ServiceRecordV5,
+    now: CreateServiceRecordBody,
+    value: string | null,
+  ): UpdateServiceRecordBody => {
+    const out: UpdateServiceRecordBody = {};
+    if (now.servicedOn !== was.servicedOn) out.servicedOn = now.servicedOn;
+    if (now.reading && value && !sameNumber(value, was.reading?.value ?? ''))
+      out.reading = { meterId: now.reading.meterId, value };
+    const v = vendorInput(vendor);
+    if (v ? !('id' in v) || v.id !== was.vendor?.id : was.vendor) out.vendor = v ?? null;
+    if (!linesLocked && linesKey(lines) !== linesAtStart) out.lines = now.lines ?? [];
+    if (access.money) {
+      if (!sameNumber(now.total ?? '', amountIn(was.total))) out.total = now.total ?? null;
+      const wasCurrency = was.total && 'currency' in was.total ? was.total.currency : null;
+      if (now.currency && (now.currency !== wasCurrency || out.total || out.lines))
+        out.currency = now.currency;
+    }
+    const sorted = (xs: readonly string[]) => [...xs].sort().join(',');
+    if (schedulesOn && sorted(ticked) !== sorted(completedAtStart)) out.completes = ticked;
+    const typedNotes = notes.trim();
+    if (typedNotes !== (was.notes ?? '')) out.notes = typedNotes || null;
+    return out;
   };
 
   /** A 409 `not_enough_stock` said on the lines that use that thing, or null. */
@@ -564,36 +646,39 @@ function LogServiceForm({
             inputProps={{ inputMode: 'decimal', dir: 'ltr' }}
             {...(errors.reading ? { errorMessage: errors.reading, isInvalid: true } : {})}
           />
-          <div className="flex flex-wrap items-center gap-2">
-            <FileTrigger
-              acceptedFileTypes={['image/*']}
-              onSelect={(files) => {
-                const file = files?.[0];
-                if (!file) return;
-                const key = newId();
-                setProof({ key, name: file.name, fileId: null });
-                void upload(file, (fileId) =>
-                  setProof((p) => (p?.key === key ? { ...p, fileId } : p)),
-                ).then((ok) => {
-                  if (!ok) setProof(null);
-                });
-              }}
-            >
-              <Button variant="secondary" size="small">
-                <CameraIcon className="size-4" />
-                {proof ? <Trans>Replace the photo</Trans> : <Trans>Photo of the meter</Trans>}
-              </Button>
-            </FileTrigger>
-            {proof ? (
-              <span className="text-small text-ink-2 [overflow-wrap:anywhere]">
-                {proof.fileId ? (
-                  <Trans>Photo added. It joins the odometer proof strip.</Trans>
-                ) : (
-                  <Trans>Uploading…</Trans>
-                )}
-              </span>
-            ) : null}
-          </div>
+          {/* An edit changes the reading's value only; its photo stays as it was. */}
+          {edit ? null : (
+            <div className="flex flex-wrap items-center gap-2">
+              <FileTrigger
+                acceptedFileTypes={['image/*']}
+                onSelect={(files) => {
+                  const file = files?.[0];
+                  if (!file) return;
+                  const key = newId();
+                  setProof({ key, name: file.name, fileId: null });
+                  void upload(file, (fileId) =>
+                    setProof((p) => (p?.key === key ? { ...p, fileId } : p)),
+                  ).then((ok) => {
+                    if (!ok) setProof(null);
+                  });
+                }}
+              >
+                <Button variant="secondary" size="small">
+                  <CameraIcon className="size-4" />
+                  {proof ? <Trans>Replace the photo</Trans> : <Trans>Photo of the meter</Trans>}
+                </Button>
+              </FileTrigger>
+              {proof ? (
+                <span className="text-small text-ink-2 [overflow-wrap:anywhere]">
+                  {proof.fileId ? (
+                    <Trans>Photo added. It joins the odometer proof strip.</Trans>
+                  ) : (
+                    <Trans>Uploading…</Trans>
+                  )}
+                </span>
+              ) : null}
+            </div>
+          )}
         </div>
       ) : null}
 
@@ -668,10 +753,16 @@ function LogServiceForm({
         <legend className="mb-1 p-0 font-medium text-[14px] text-ink">
           <Trans>Line items</Trans>
         </legend>
+        {linesLocked ? (
+          <p className="m-0 text-small text-ink-2">
+            <Trans>They have prices you can't see, so they stay as they are.</Trans>
+          </p>
+        ) : null}
         {lines.map((l, i) => (
           <fieldset
             key={l.key}
             aria-label={t`Line ${i + 1}`}
+            disabled={linesLocked}
             className="m-0 grid min-w-0 gap-2 rounded-[10px] border border-line p-3"
           >
             <div className="grid gap-2 md:grid-cols-[9rem_1fr]">
@@ -746,7 +837,7 @@ function LogServiceForm({
           variant="secondary"
           size="small"
           className="justify-self-start"
-          isDisabled={lines.length >= 50}
+          isDisabled={lines.length >= 50 || linesLocked}
           onPress={() => setLines((ls) => [...ls, newLine()])}
         >
           <PlusIcon className="size-4" />

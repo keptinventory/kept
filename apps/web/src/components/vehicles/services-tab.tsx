@@ -2,8 +2,10 @@
  * A vehicle's Services tab: its service
  * records on the `services` surface (date, vendor, line kind, drafts), drafts first. A draft (an
  * invoice attached, not yet saved) says so, with **Finish logging**, which opens Log a service on
- * it, and **Discard draft** (step 4's DELETE; a draft isn't undoable, so it asks first). **Log a
- * service** opens the sheet for this vehicle.
+ * it, and **Discard draft** (step 4's DELETE; a draft isn't undoable, so it asks first). A saved
+ * service opens (#296): all of it, notes included, with Edit and Delete (with Undo) for whoever
+ * may change it (components/services/service-sheet.tsx, loaded on demand). **Log a service**
+ * opens the sheet for this vehicle.
  *
  * Plugs into the vehicle page through ./slots.tsx as `VehicleServices` (no props: the thing comes
  * from `useThingCtx()`). Service records carry money, so offline the tab says it needs a
@@ -11,7 +13,8 @@
  */
 import { SERVICE_LINE_KINDS } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
+import { Button as AriaButton } from 'react-aria-components';
 import { householdApi } from '@/api/household/queries';
 import { inventoryApi } from '@/api/inventory/queries';
 import { useVehicleServiceRecords } from '@/api/vehicles/queries';
@@ -24,14 +27,30 @@ import { EmptyState, Notice, Section, useErrorText } from '@/components/page';
 import { accessOf, useInvalidateHousehold } from '@/components/schedules/access';
 import { useServiceLineLabels } from '@/components/services/labels';
 import { LogServiceSheet } from '@/components/services/log-service-sheet';
+import type { ServiceSheetProps } from '@/components/services/service-sheet';
 import { useThingCtx } from '@/components/things/context';
 import { useLocationAccountId } from '@/components/things/pickers';
+import { Sheet } from '@/components/things/sheet';
 import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
 import { toast } from '@/components/ui/toast';
 import { useOnline } from '@/lib/online';
 import { type ListState, useListState } from '@/lib/url-state';
 import { ServiceLine } from './recent-services';
+
+/** Offline before its first load, the service's chunk can't come: the sheet says why. */
+function ServiceUnavailable({ onClose }: ServiceSheetProps) {
+  const { t } = useLingui();
+  return (
+    <Sheet isOpen onOpenChange={(o) => !o && onClose()} title={t`Service`}>
+      <Notice title={t`Needs a connection`} />
+    </Sheet>
+  );
+}
+
+const ServiceSheet = lazy(() =>
+  import('@/components/services/service-sheet').catch(() => ({ default: ServiceUnavailable })),
+);
 
 /** The URL's list state as `GET /things/:id/service-records` reads it (the `services` surface). */
 export function servicesParams(list: ListState): ServiceRecordsParams {
@@ -66,7 +85,15 @@ export function VehicleServices() {
   const access = accessOf(location);
   const canLog = access.can('logs.add');
   const query = useVehicleServiceRecords(thing.id, servicesParams(list));
-  const [open, setOpen] = useState<{ draft: ServiceRecordV5 | null } | null>(null);
+  const [open, setOpen] = useState<{
+    draft: ServiceRecordV5 | null;
+    record?: ServiceRecordV5;
+  } | null>(null);
+  /** The saved service open, by id: the list's copy, so it follows edits and Undo. */
+  const [viewing, setViewing] = useState<string | null>(null);
+  const viewed = viewing
+    ? query.data?.pages.flatMap((p) => p.items).find((r) => r.id === viewing)
+    : undefined;
 
   const filters: FilterDef[] = [
     f.date('when', t`Date`),
@@ -147,7 +174,12 @@ export function VehicleServices() {
               onFinish={() => setOpen({ draft: r })}
             />
           ) : (
-            <ServiceLine record={r} />
+            <AriaButton
+              className="block w-full cursor-pointer text-start outline-none data-hovered:bg-sunken data-focus-visible:outline-2 data-focus-visible:-outline-offset-2 data-focus-visible:outline-info"
+              onPress={() => setViewing(r.id)}
+            >
+              <ServiceLine record={r} />
+            </AriaButton>
           )
         }
         empty={
@@ -169,8 +201,23 @@ export function VehicleServices() {
           }}
           locationId={thing.locationId}
           draft={open?.draft ?? null}
+          record={open?.record ?? null}
           onClose={() => setOpen(null)}
         />
+      ) : null}
+      {viewed ? (
+        <Suspense fallback={null}>
+          <ServiceSheet
+            record={viewed}
+            location={location}
+            me={me}
+            onClose={() => setViewing(null)}
+            onEdit={(record) => {
+              setViewing(null);
+              setOpen({ draft: null, record });
+            }}
+          />
+        </Suspense>
       ) : null}
     </Section>
   );

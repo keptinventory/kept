@@ -19213,6 +19213,14 @@ msgid "Adjust stock"
 msgstr "Adjust stock"
 
 #: src/assistant/confirm-card.tsx
+msgid "One up"
+msgstr "One up"
+
+#: src/assistant/confirm-card.tsx
+msgid "One down"
+msgstr "One down"
+
+#: src/assistant/confirm-card.tsx
 msgid "Field"
 msgstr "Field"
 
@@ -22226,6 +22234,14 @@ msgid "Bookshelf"
 msgstr "Bookshelf"
 
 #: src/map/labels.ts
+msgid "Cube storage"
+msgstr "Cube storage"
+
+#: src/map/labels.ts
+msgid "Tall bookcase"
+msgstr "Tall bookcase"
+
+#: src/map/labels.ts
 msgid "Floor lamp"
 msgstr "Floor lamp"
 
@@ -24575,8 +24591,33 @@ msgid "On the wall"
 msgstr "On the wall"
 
 #: src/map/height.tsx
+#: src/map/size.tsx
 msgid "Height"
 msgstr "Height"
+
+#: src/map/size.tsx
+msgid "Cubes across"
+msgstr "Cubes across"
+
+#: src/map/size.tsx
+msgid "Cubes up"
+msgstr "Cubes up"
+
+#: src/map/size.tsx
+msgid "Turn on its side"
+msgstr "Turn on its side"
+
+#: src/map/size.tsx
+msgid "Width"
+msgstr "Width"
+
+#: src/map/size.tsx
+msgid "Depth"
+msgstr "Depth"
+
+#: src/map/size.tsx
+msgid "Levels"
+msgstr "Levels"
 
 #: src/map/height.tsx
 msgid "Lower"
@@ -27593,3 +27634,27 @@ msgstr "Not matched: {text}"
 #: src/components/scan/session/session-screen.tsx
 msgid "Check later: {text}"
 msgstr "Check later: {text}"
+
+#: src/components/services/service-sheet.tsx
+msgid "Delete this service?"
+msgstr "Delete this service?"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "Edit the service"
+msgstr "Edit the service"
+
+#: src/components/services/service-sheet.tsx
+msgid "Its lines and invoice go too. Schedules it completed count from the service before. You can undo this."
+msgstr "Its lines and invoice go too. Schedules it completed count from the service before. You can undo this."
+
+#: src/components/services/service-sheet.tsx
+msgid "Logged by"
+msgstr "Logged by"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "They have prices you can't see, so they stay as they are."
+msgstr "They have prices you can't see, so they stay as they are."
+
+#: src/components/moving/sheets-printed.tsx
+msgid "Check that a code on the sheets scans. Yes records today as their print date, so the boxes show their label."
+msgstr "Check that a code on the sheets scans. Yes records today as their print date, so the boxes show their label."

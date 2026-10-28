@@ -19,8 +19,8 @@
  */
 import {
   isMapModel,
-  type MapModelKey,
   type MapRoomKind,
+  type MapShapeKey,
   type MapSurface,
   ROOM_KIND_SURFACE,
 } from '@kept/shared';
@@ -469,12 +469,12 @@ function MapBody({
   }
 
   /** Shapes someone picked in this session, kept if the thing goes off the map and back on. */
-  const chosen = useRef(new Map<string, MapModelKey>());
+  const chosen = useRef(new Map<string, MapShapeKey>());
 
   /** D249: a shape someone chose stays (in this session, or on the saved map); otherwise the
    * first suggestion from its type and name, said on the card ("from its type") when Kept is
    * sure, a guess to check when not. */
-  const chosenShape = (id: string): MapModelKey | null => {
+  const chosenShape = (id: string): MapShapeKey | null => {
     const stored = data.nodes.find((n) => n.id === id)?.layout?.model;
     return chosen.current.get(id) ?? (isMapModel(stored) ? stored : null);
   };
@@ -487,7 +487,7 @@ function MapBody({
     engineRef.current?.select({ type: 'item', id: x.id });
   }
 
-  function setShape(id: string, model: MapModelKey) {
+  function setShape(id: string, model: MapShapeKey) {
     mutate((p) => {
       const it = p.items.find((i) => i.id === id);
       if (!it) return;

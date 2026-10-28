@@ -4,13 +4,15 @@
  * chosen, a state per box, and unpacking, which moves the box (and so what is inside it) into its
  * room. Viewers read; members and above write; a done move takes no box changes (409
  * `move_done`). A state change and an unpack record an undoable event, so the Undo toast works.
- * The contents sheets are a run on the inventory report's mock (`GET /reports/:id`).
+ * The contents sheets are a run on the inventory report's mock (`GET /reports/:id`); "Printed OK?"
+ * after them gives each box on them a printed label (`labelPrinted`), where the caller writes.
  */
 import {
   type BoxState,
   boxName,
   countBoxes,
   MAX_MOVE_BOXES,
+  MAX_SHEET_BOXES,
   type MoveStatus,
   newId,
 } from '@kept/shared';
@@ -27,6 +29,7 @@ import type {
   Move,
   MoveBox,
   MoveRow,
+  SheetsPrintedBody,
   UnpackBody,
   UpdateBoxBody,
   UpdateMoveBody,
@@ -391,6 +394,30 @@ export function movingMockRoutes(state: MockState): MockRoute[] {
       const m = find(b.moveId);
       if (!m) return notFound();
       return reply(202, queueReportRun(state, { locationId: m.locationId }, m.boxes.length));
+    }),
+
+    route('POST', p.sheetsPrinted(':id'), ({ params, body }) => {
+      const m = find(params.id ?? '');
+      if (!m) return notFound();
+      if (!on(m.locationId)) return err(409, 'module_off', 'Moving mode is off here.');
+      if (!access().canWrite(m.locationId)) return forbidden();
+      const only = (body as SheetsPrintedBody | undefined)?.containerIds;
+      if (only && (only.length < 1 || only.length > MAX_SHEET_BOXES))
+        return err(400, 'validation', `containerIds: 1 to ${MAX_SHEET_BOXES}.`);
+      const codes: string[] = [];
+      // The boxes the sheets print, as the server reads them: in number order, the first
+      // MAX_SHEET_BOXES of them.
+      const sheet = [...m.boxes]
+        .sort((x, y) => x.number - y.number)
+        .filter((b) => (!only || only.includes(b.containerId)) && liveThing(inv(), b.containerId))
+        .slice(0, MAX_SHEET_BOXES);
+      for (const b of sheet) {
+        const t = liveThing(inv(), b.containerId);
+        if (!t?.shortCode || t.labelPrinted || !access().canWrite(t.locationId)) continue;
+        t.labelPrinted = true;
+        codes.push(t.shortCode);
+      }
+      return { codes };
     }),
   ];
 }

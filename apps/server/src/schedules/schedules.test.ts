@@ -822,6 +822,48 @@ describe('service records (core)', () => {
     ).toHaveLength(1);
   });
 
+  it('a viewer, another household and a member of another location change no service (#296)', async () => {
+    const car = await newCar('Guarded');
+    const record = ok(
+      await post(louis, '/api/v1/service-records', {
+        subject: { thingId: car.thing.id },
+        servicedOn: today,
+        notes: 'Louis’s',
+      }),
+      201,
+    );
+    const url = `/api/v1/service-records/${record.id}`;
+    // Talia reads it (a viewer reads services) but may not change it.
+    expect((await call(t, url, { as: talia })).statusCode).toBe(200);
+    expect((await patch(talia, url, { notes: 'x' }, 1)).statusCode).toBe(403);
+    expect((await del(talia, url, 1)).statusCode).toBe(403);
+    // Alfred's household can't see it at all: 404, not 403.
+    expect((await patch(alfred, url, { notes: 'x' }, 1)).statusCode).toBe(404);
+    expect((await del(alfred, url, 1)).statusCode).toBe(404);
+    // Bruce is an admin of Home, not a member of the Garage: its services are out of his reach.
+    const saw = await createThing(t, ibrahim, garage, { name: 'Bench saw' });
+    const there = ok(
+      await post(louis, '/api/v1/service-records', {
+        subject: { thingId: saw.id },
+        servicedOn: today,
+      }),
+      201,
+    );
+    const thereUrl = `/api/v1/service-records/${there.id}`;
+    expect((await patch(bruce, thereUrl, { notes: 'x' }, 1)).statusCode).toBe(404);
+    expect((await del(bruce, thereUrl, 1)).statusCode).toBe(404);
+    const rows = await own(
+      db,
+      `SELECT notes, row_version FROM public.service_records
+        WHERE id = ANY ($1::uuid[]) ORDER BY notes NULLS FIRST`,
+      [[record.id, there.id]],
+    );
+    expect(rows).toEqual([
+      { notes: null, row_version: 1 },
+      { notes: 'Louis’s', row_version: 1 },
+    ]);
+  });
+
   it('lists a place’s services, newest first, paged', async () => {
     const hall = await place(db, home, 'Hall');
     for (const back of [3, 2, 1]) {

@@ -428,6 +428,46 @@ describe('PUT /api/v1/locations/:id/layout', () => {
     expect((await putLayout(ola, overlapping)).statusCode).toBe(200);
   });
 
+  it('stores a cube shelf’s grid and a bookcase’s size in the model, and refuses others (#240, #241)', async () => {
+    const base = fullLayout(null);
+    const sized = {
+      ...base,
+      nodes: [
+        { ...base.nodes[0], model: 'cube_grid_4x1' },
+        { ...base.nodes[1], model: 'bookcase_60x28x150_4' },
+      ],
+    };
+    const res = await putLayout(max, sized);
+    expect(res.statusCode, res.body).toBe(200);
+    const map = await json<MapJson>(getMap(vic));
+    expect(map.nodes.find((n) => n.id === ids.shelf)?.layout?.model).toBe('cube_grid_4x1');
+    expect(map.nodes.find((n) => n.id === ids.box)?.layout?.model).toBe('bookcase_60x28x150_4');
+    // Its first size is the bare key; the fixed cube shelf and bookshelf are as they were.
+    const fixed = {
+      ...base,
+      version: (res.json() as { version: string }).version,
+      nodes: [
+        { ...base.nodes[0], model: 'cube_grid' },
+        { ...base.nodes[1], model: 'bookcase' },
+      ],
+    };
+    const again = await putLayout(max, fixed);
+    expect(again.statusCode, again.body).toBe(200);
+    const version = (again.json() as { version: string }).version;
+    for (const model of [
+      'cube_grid_2x2',
+      'cube_grid_9x1',
+      'cube_grid_0x3',
+      'bookcase_80x28x202_6',
+      'bookcase_80x28x40_3',
+      'cube_shelf_2x2',
+    ]) {
+      const bad = { ...base, version, nodes: [{ ...base.nodes[0], model }] };
+      const r = await putLayout(ola, bad);
+      expect(r.statusCode, model).toBe(400);
+    }
+  });
+
   it('refuses two rooms of one floor that overlap (409 rooms_overlap)', async () => {
     const study = await placeOf(home, 'Study', ids.ground);
     try {

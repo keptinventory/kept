@@ -20,6 +20,7 @@ import {
   startMoveTool,
   unpackBoxTool,
 } from './handlers/moving.js';
+import { turnIntoBoxesTool, updatePlaceTool } from './handlers/places.js';
 import {
   capabilities,
   findDocuments,
@@ -64,6 +65,9 @@ const HANDLERS: HandlerTable = {
   move_thing: moveThing,
   mark_seen: markSeenTool,
   create_place: createPlaceTool,
+  // 1.x (#313): the place form and Turn places into boxes.
+  update_place: updatePlaceTool,
+  turn_into_boxes: turnIntoBoxesTool,
   attach_link: attachLink,
   log_reading: logReading,
   // Step 4's services (lending, schedules, warranties and claims, the agenda).

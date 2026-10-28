@@ -18,9 +18,11 @@ import {
   deleteMove,
   listMoves,
   MovesQuery,
+  markSheetsPrinted,
   moveView,
   registerMovingUndo,
   removeBox,
+  SheetsPrintedBody,
   UnpackBody,
   UpdateBoxBody,
   UpdateMoveBody,
@@ -33,7 +35,8 @@ import {
 // contract is apps/web/src/api/moving/types.ts. Every route but the list is in the Moving mode
 // module of the move's location (404 `module_off` to read, 409 to write); the list leaves out
 // moves of locations where it is off. The contents sheets are a report run
-// (POST /api/v1/reports/move, reports/routes.ts). Offline, the phone sends the `move_box` op
+// (POST /api/v1/reports/move, reports/routes.ts); "Printed OK?" after them marks the boxes' codes
+// printed (POST /api/v1/moves/:id/sheets/printed, #307). Offline, the phone sends the `move_box` op
 // (sync/handlers/move-box.ts) and packs with the ordinary `move` op.
 
 const Params = z.object({ id: z.uuid() });
@@ -257,6 +260,27 @@ export async function movingRoutes(app: KeptApp, deps: InventoryDeps): Promise<v
             req.body ?? {},
           )
         ).box,
+      })),
+  );
+
+  app.post(
+    '/api/v1/moves/:id/sheets/printed',
+    {
+      config: byMove,
+      schema: {
+        params: Params,
+        body: SheetsPrintedBody,
+        response: { 200: z.object({ codes: z.array(z.string()) }) },
+      },
+    },
+    (req, reply) =>
+      scopedWrite(pools, req, reply, async (tx, client, scope) => ({
+        status: 200,
+        body: await markSheetsPrinted(
+          ctxOf(tx, client, scope, req.id),
+          req.params.id,
+          req.body ?? {},
+        ),
       })),
   );
 

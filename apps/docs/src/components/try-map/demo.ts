@@ -14,6 +14,7 @@
  * choice is remembered, as the app remembers it.
  */
 import {
+  baseModel,
   builtinTypeName,
   canBeCarried,
   capacityOf,
@@ -408,7 +409,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     const meta = cardPath(plan, view, it).join(' › ');
     const levels = plan.levels;
     const li = levels.findIndex((l) => l.key === room?.levelKey);
-    const stairs = STAIR_MODELS.has(it.model)
+    const stairs = STAIR_MODELS.has(baseModel(it.model))
       ? [levels[li + 1], levels[li - 1]].filter((l): l is Level => !!l)
       : [];
     const within = KINDS.map(
@@ -451,7 +452,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
           .join('')}</div></div>`
       : '';
     const shape = es.arranging
-      ? `<div class="kmap-shape"><span>${esc(w.shapeLine(pick(MODEL_NAMES[it.model]), it.shapeFrom))}</span>${btn(
+      ? `<div class="kmap-shape"><span>${esc(w.shapeLine(pick(MODEL_NAMES[baseModel(it.model)]), it.shapeFrom))}</span>${btn(
           'shapes',
           it.shapeFrom === 'guess' ? w.pickShape : w.change,
           it.shapeFrom === 'guess' ? 'primary' : '',
@@ -482,7 +483,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       <div class="kmap-card-head">
         ${photo(it.subject === 'thing' ? it.id : null)}
         <div class="kd-col kd-small">
-          <span>${esc(pick(MODEL_NAMES[it.model]))}${n !== null ? ` · ${esc(w.thingsInside(n, f.num(n)))}` : ''}</span>
+          <span>${esc(pick(MODEL_NAMES[baseModel(it.model)]))}${n !== null ? ` · ${esc(w.thingsInside(n, f.num(n)))}` : ''}</span>
           <span class="kd-wrap">${esc(meta)}</span>
           ${it.hang === undefined ? '' : `<span>${esc(w.height.onWall(f.num(it.hang)))}</span>`}
           ${placesLine}
@@ -717,7 +718,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     return dlg;
   }
   const putRow = (it: Item, sub: string, selected = false, disabled = false) =>
-    `<div role="option" class="kput-option" tabindex="-1" data-id="${esc(it.id)}" aria-selected="${selected}"${disabled ? ' aria-disabled="true"' : ''}>${thumb(it.model, 44)}<span class="kput-text"><span>${esc(it.name)}</span><small>${esc(sub)}</small></span></div>`;
+    `<div role="option" class="kput-option" tabindex="-1" data-id="${esc(it.id)}" aria-selected="${selected}"${disabled ? ' aria-disabled="true"' : ''}>${thumb(baseModel(it.model), 44)}<span class="kput-text"><span>${esc(it.name)}</span><small>${esc(sub)}</small></span></div>`;
   /** Arrow keys, Home and End move through a listbox's options. */
   function listKeys(list: HTMLElement, onPick: (el: HTMLElement) => void) {
     const opts = () =>
@@ -802,7 +803,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     const current = it.on ? plan.items.find((x) => x.id === it.on) : undefined;
     const sub = (h: Item) => {
       const on = h.on ? plan.items.find((x) => x.id === h.on)?.name : undefined;
-      return on ? w.put.shapeOn(names[h.model], on) : names[h.model];
+      return on ? w.put.shapeOn(names[baseModel(h.model)], on) : names[baseModel(h.model)];
     };
     const now = current
       ? `<div class="kput-now"><span>${esc(w.put.onNow(current.name))}</span><button type="button" class="kmap-btn" data-put="off">${esc(w.put.takeOff)}</button></div>`
@@ -855,7 +856,9 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       ? `<p class="kput-cap">${esc(full ? w.put.full(max, f.num(max)) : w.put.left(left, f.num(left)))}</p>`
       : '';
     const sub = (c: Item) =>
-      c.shortCode ? `${names[c.model]} · ${printedCode(c.shortCode)}` : names[c.model];
+      c.shortCode
+        ? `${names[baseModel(c.model)]} · ${printedCode(c.shortCode)}`
+        : names[baseModel(c.model)];
     const group = (label: string, list: Item[], heading: boolean) =>
       list.length
         ? `<div role="group" class="kput-section" aria-label="${esc(label)}">${heading ? `<div class="kput-head" aria-hidden="true">${esc(label)}</div>` : ''}${list.map((c) => putRow(c, sub(c))).join('')}</div>`

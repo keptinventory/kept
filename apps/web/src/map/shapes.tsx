@@ -11,8 +11,10 @@
  * form for asking for one (#171), and the docs' shape library lists them all.
  */
 import {
+  baseModel,
   MAP_MODEL_KEYS,
   type MapModelKey,
+  type MapShapeKey,
   SHAPE_GROUP,
   SHAPE_GROUPS,
   type ShapeFrom,
@@ -91,12 +93,14 @@ export function ShapeField({
 }: {
   item: Pick<Item, 'id' | 'name' | 'model'> & { shapeFrom?: ShapeFrom | undefined };
   input: ShapeInput;
-  onShape: (id: string, model: MapModelKey) => void;
+  onShape: (id: string, model: MapShapeKey) => void;
 }) {
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
   const names = useModelNames();
-  const shape = names[item.model];
+  // A sized shape (#240, #241) is its catalogue shape at a size of its own.
+  const base = baseModel(item.model);
+  const shape = names[base];
   const guess = item.shapeFrom === 'guess';
   const line =
     item.shapeFrom === 'type'
@@ -122,11 +126,12 @@ export function ShapeField({
           isOpen
           onOpenChange={setOpen}
           name={item.name}
-          value={item.model}
+          value={base}
           input={input}
           onPick={(m) => {
             setOpen(false);
-            if (m !== item.model || item.shapeFrom) onShape(item.id, m);
+            // Picking the shape it has keeps its size.
+            if (m !== base || item.shapeFrom) onShape(item.id, m === base ? item.model : m);
           }}
         />
       ) : null}

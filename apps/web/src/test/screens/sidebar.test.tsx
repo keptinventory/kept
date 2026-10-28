@@ -55,6 +55,29 @@ afterEach(() => {
   setSidebarPref('auto');
 });
 
+describe('one Main navigation at any width', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('from 768 px it is the sidebar: the phone tab bar is not there at all', async () => {
+    media(TABLET);
+    await renderApp('/');
+    await findHeading('Home');
+    // Hidden by CSS alone, the tab bar was a second landmark named "Main" whenever that CSS
+    // didn't hide it (axe landmark-unique on desktop).
+    const navs = screen.getAllByRole('navigation', { name: 'Main', hidden: true });
+    expect(navs).toHaveLength(1);
+    expect(navs[0]).toHaveAttribute('data-tour', 'nav-entries');
+    expect(document.querySelector('[data-tab-bar]')).toBeNull();
+  });
+
+  it('below 768 px the tab bar is there', async () => {
+    media([]);
+    await renderApp('/');
+    await findHeading('Home');
+    expect(document.querySelector('[data-tab-bar]')).not.toBeNull();
+  });
+});
+
 describe('folding the sidebar', () => {
   it('the foot button folds it to the rail and back, and remembers the choice', async () => {
     media(DESKTOP);

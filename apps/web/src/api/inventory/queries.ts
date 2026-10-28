@@ -8,7 +8,7 @@
  * URL state (lib/url-state.ts) as part of the key.
  */
 import type { ListSurface } from '@kept/shared';
-import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, type Query, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { api, ifMatch, written } from '../client';
 import { inventoryPaths as p, qs, type RegistryPathKind } from './paths';
 import type {
@@ -153,6 +153,17 @@ export const inventoryKeys = {
   hints: ['hints'] as const,
 };
 const k = inventoryKeys;
+
+/**
+ * One place's or thing's own queries: its page, contents, history, attachments, all keyed
+ * `['places' | 'things', part, id, …]`. After a write that ends it (merged, trashed, turned into
+ * the other kind) they go stale without a refetch: asked again they could only answer 404, and the
+ * page still showing it would say "Couldn't load this" until the next one opened (#336).
+ */
+export const ownQueries =
+  (id: string) =>
+  ({ queryKey }: Query): boolean =>
+    (queryKey[0] === 'places' || queryKey[0] === 'things') && queryKey[2] === id;
 
 // ----- fetchers --------------------------------------------------------------------------------
 

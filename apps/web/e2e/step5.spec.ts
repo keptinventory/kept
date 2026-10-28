@@ -8,6 +8,8 @@
  * 3. A misfit by sync: offline, a reading below the latest; online, it waits in the Inbox.
  * 4. Service from an invoice: Log a service, the fixture invoice read by AI into three suggested
  *    lines (a draft), Confirm all, Save confirms it, Undo from the toast makes it a draft again.
+ * 4b. A saved service (#296): opened from the Services tab with its notes, Edit saves a change,
+ *    Delete asks and is gone, Undo brings it back.
  * 5. Fuel: two full fills and a partial between them give the car's consumption.
  * 6. Starter schedules on a new car: four, and their distance due points read as estimated dates
  *    once the odometer has two readings.
@@ -418,6 +420,58 @@ test('Log a service from an invoice: AI suggests the lines on a draft, Save conf
   await expect(page.getByText('Undone').first()).toBeVisible();
   await expect.poll(async () => (await services()).map((s) => s.reviewState)).toEqual(['draft']);
   await axe(page, 'Services tab');
+  await context.close();
+});
+
+test('a saved service opens with its notes; Edit saves a change, Delete is undone', async ({
+  browser,
+}) => {
+  test.setTimeout(180_000);
+  const { context, page } = await person(browser, 'ibrahim@kept.test');
+  const car = await newCar(page, 'Mazda 3');
+  type Service = { id: string; notes: string | null };
+  const made = await api(page).post<Service>('/api/v1/service-records', {
+    subject: { thingId: car.id },
+    servicedOn: today(),
+    lines: [{ kind: 'part', description: 'Wiper blades' }],
+    notes: 'The driver side streaked.',
+  });
+  const services = async () =>
+    (await api(page).get<{ items: Service[] }>(`/api/v1/things/${car.id}/service-records`)).items;
+
+  await page.goto(`/t/${car.id}?tab=services`);
+  await expect(page.getByRole('heading', { name: 'Mazda 3', level: 1 })).toBeVisible();
+  await page.getByRole('button', { name: /Wiper blades/ }).click();
+  const view = page.getByRole('dialog', { name: 'Service' });
+  await expect(view.getByText('The driver side streaked.')).toBeVisible();
+  await axe(page, 'A saved service');
+
+  await view.getByRole('button', { name: 'Edit', exact: true }).click();
+  const form = page.getByRole('dialog', { name: 'Edit the service' });
+  await expect(form.getByRole('textbox', { name: 'What' })).toHaveValue('Wiper blades');
+  await form.getByRole('textbox', { name: 'Notes' }).fill('Both blades replaced.');
+  await form.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByText('Service changed').first()).toBeVisible();
+  await expect
+    .poll(async () => (await services()).map((s) => [s.id, s.notes]))
+    .toEqual([[made.id, 'Both blades replaced.']]);
+
+  await page.getByRole('button', { name: /Wiper blades/ }).click();
+  await page
+    .getByRole('dialog', { name: 'Service' })
+    .getByRole('button', { name: 'Delete' })
+    .click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Delete' }).click();
+  await expect(page.getByText('Service deleted').first()).toBeVisible();
+  await expect.poll(async () => (await services()).length).toBe(0);
+  // The delete's own toast: the edit's may still be up, and undoing it now would be refused.
+  await page
+    .getByRole('alertdialog', { name: 'Service deleted' })
+    .getByRole('button', { name: 'Undo', exact: true })
+    .click();
+  await expect(page.getByText('Undone').first()).toBeVisible();
+  await expect.poll(async () => (await services()).map((s) => s.id)).toEqual([made.id]);
+  await expect(page.getByRole('button', { name: /Wiper blades/ })).toBeVisible();
   await context.close();
 });
 

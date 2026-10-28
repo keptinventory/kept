@@ -19,6 +19,7 @@ import {
   overlapsRoom,
   planOf,
   rehome,
+  reshape,
   roomAt,
   standingOn,
   turn,
@@ -517,5 +518,48 @@ describe('contents and pins', () => {
     expect(flagsOf(c, BOX)).toEqual(['low']);
     expect(flagsOf(c, LIVING)).toEqual(['low']);
     expect(flagsOf(c, SHELF)).toEqual([]);
+  });
+});
+
+describe('sized shapes (#240, #241)', () => {
+  it('saves a new grid or size as the model, and reads it back the same size', () => {
+    const p = planOf(view(), NAMES);
+    const shelf = p.items.find((i) => i.id === SHELF);
+    const desk = p.items.find((i) => i.id === DESK);
+    if (!shelf || !desk) throw new Error('fixture');
+    reshape(p.items, p.rooms, shelf, 'cube_grid_4x2');
+    reshape(p.items, p.rooms, desk, 'bookcase_60x30x150_4');
+    expect(fp(shelf)).toEqual({ w: 1.47, d: 0.39 });
+    const body = bodyOf(p, 'v1');
+    const saved = (nid: string) => body.nodes.find((x) => x.id === nid);
+    expect(saved(SHELF)?.model).toBe('cube_grid_4x2');
+    expect(saved(DESK)?.model).toBe('bookcase_60x30x150_4');
+    // The map reads the saved layout back: the same models, the same footprints.
+    const layout = (nid: string) => {
+      const s = saved(nid);
+      if (!s) throw new Error(nid);
+      return { x: s.x, z: s.z, rot: s.rot, model: s.model, hostId: s.hostId, height: null };
+    };
+    const back = planOf(
+      view({
+        nodes: view().nodes.map((x) =>
+          x.id === SHELF || x.id === DESK ? { ...x, layout: layout(x.id) } : x,
+        ),
+      }),
+      NAMES,
+    );
+    const again = (nid: string) => back.items.find((i) => i.id === nid);
+    expect(again(SHELF)?.model).toBe('cube_grid_4x2');
+    expect(fp(again(DESK) as Item)).toEqual({ w: 0.6, d: 0.3 });
+  });
+
+  it('keeps a grown shelf inside its room, and what stands on it on top', () => {
+    const p = planOf(view(), NAMES);
+    const room = p.rooms.find((r) => r.id === LIVING);
+    const shelf = p.items.find((i) => i.id === SHELF);
+    if (!room || !shelf) throw new Error('fixture');
+    shelf.x = room.w - 1;
+    reshape(p.items, p.rooms, shelf, 'cube_grid_8x1');
+    expect(shelf.x + fp(shelf).w).toBeLessThanOrEqual(room.w);
   });
 });

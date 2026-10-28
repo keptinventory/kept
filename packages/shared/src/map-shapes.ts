@@ -18,7 +18,7 @@
  *
  * Auto layout (layout.ts) keeps `guessModel` in map.ts, so nothing already drawn changes shape.
  */
-import { MAP_MODEL_KEYS, type MapModelKey } from './map.js';
+import { MAP_MODEL_KEYS, type MapModelKey, type MapShapeKey } from './map.js';
 
 export const SHAPE_GROUPS = [
   'furniture',
@@ -61,6 +61,8 @@ export const SHAPE_GROUP: Readonly<Record<MapModelKey, ShapeGroup>> = {
   watering_can: 'outdoor',
   tv: 'electronics',
   bookshelf: 'storage',
+  cube_grid: 'storage',
+  bookcase: 'storage',
   lamp: 'furniture',
   counter: 'kitchen',
   sink: 'kitchen',
@@ -250,15 +252,9 @@ export const SHAPE_WORDS: Readonly<Record<MapModelKey, readonly string[]>> = {
     'طاولة تلفزيون',
     'وحدة تلفزيون',
   ],
-  cube_shelf: [
-    'cube shelf',
-    'display shelf',
-    'kallax',
-    'étagère à cases',
-    'würfelregal',
-    'libreria a cubi',
-    'رف مكعبات',
-  ],
+  // A cube shelf's family word is shared with the one sized by its grid (#240), which has the
+  // grid unit's own words.
+  cube_shelf: ['cube shelf', 'display shelf', 'رف مكعبات'],
   tall_plant: [
     'tall plant',
     'tree',
@@ -481,6 +477,47 @@ export const SHAPE_WORDS: Readonly<Record<MapModelKey, readonly string[]>> = {
     'libreria',
     'مكتبة',
     'مكتبة كتب',
+  ],
+  /** #240: the family's word "cube shelf", then the grid unit's own. */
+  cube_grid: [
+    'cube shelf',
+    'رف مكعبات',
+    'cube storage',
+    'cube organizer',
+    'cube organiser',
+    'cube shelving',
+    'kallax',
+    'kallax regal',
+    'expedit',
+    'étagère cube',
+    'étagère à cases',
+    'würfelregal',
+    'scaffale a cubi',
+    'libreria a cubi',
+    'وحدة تخزين مكعبات',
+    'مكعبات تخزين',
+  ],
+  /** #241: the bookshelf's words, shared, then a tall narrow one's own. */
+  bookcase: [
+    'bookshelf',
+    'bookcase',
+    'bibliothèque',
+    'bücherregal',
+    'libreria',
+    'مكتبة',
+    'مكتبة كتب',
+    'tall bookcase',
+    'narrow bookcase',
+    'tall bookshelf',
+    'billy',
+    'billy regal',
+    'grande bibliothèque',
+    'bibliothèque étroite',
+    'hohes bücherregal',
+    'schmales bücherregal',
+    'libreria alta',
+    'libreria stretta',
+    'مكتبة طويلة',
   ],
   lamp: [
     'lamp',
@@ -1523,6 +1560,9 @@ export const SHAPE_WORD_LANGS: Readonly<Record<'fr' | 'de' | 'it', readonly stri
     'télé',
     'écran',
     'bibliothèque',
+    'étagère cube',
+    'grande bibliothèque',
+    'bibliothèque étroite',
     'lampadaire',
     'lampe',
     'plan de travail',
@@ -1712,6 +1752,10 @@ export const SHAPE_WORD_LANGS: Readonly<Record<'fr' | 'de' | 'it', readonly stri
     'fernsehen',
     'bildschirm',
     'bücherregal',
+    'kallax regal',
+    'billy regal',
+    'hohes bücherregal',
+    'schmales bücherregal',
     'stehlampe',
     'lampe',
     'arbeitsplatte',
@@ -1889,6 +1933,9 @@ export const SHAPE_WORD_LANGS: Readonly<Record<'fr' | 'de' | 'it', readonly stri
     'televisione',
     'schermo',
     'libreria',
+    'scaffale a cubi',
+    'libreria alta',
+    'libreria stretta',
     'lampada',
     'lampada da terra',
     'piantana',
@@ -2480,8 +2527,8 @@ export function suggestShapes(input: ShapeInput, limit = 6): ShapeSuggestions {
  */
 export function shapeOnAdd(
   input: ShapeInput,
-  chosen: MapModelKey | null = null,
-): { model: MapModelKey; from: ShapeFrom | 'chosen' } {
+  chosen: MapShapeKey | null = null,
+): { model: MapShapeKey; from: ShapeFrom | 'chosen' } {
   if (chosen) return { model: chosen, from: 'chosen' };
   const { shapes, confident } = suggestShapes(input);
   const first = shapes[0] as ShapeSuggestion;

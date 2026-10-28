@@ -2,7 +2,8 @@
  * Moving mode against the real server, on its own seeded `moving` instance
  * (e2e/instances.ts): the owner turns Moving mode on in the Garage, starts a move to Home, adds a
  * numbered box going to Home's kitchen, packs a thing into it, prints the contents sheets (the
- * PDF is made by the server's job), then unpacks the box by its label from Scan to unpack: the
+ * PDF is made by the server's job) and confirms them printed (the box's code is a label then),
+ * then unpacks the box by its label from Scan to unpack: the
  * box is in Home's kitchen afterwards, with the thing still inside it.
  *
  * No real device is touched: getUserMedia and getDisplayMedia reject (so the scanner leads with
@@ -99,6 +100,7 @@ type Box = {
   number: number;
   state: string;
   shortCode: string | null;
+  labelPrinted: boolean;
   locationId: string | null;
   placeId: string | null;
   destination: { name: string } | null;
@@ -174,6 +176,17 @@ test('pack a box, print its contents sheet, and unpack it by its label into the 
   const sheets = page.getByRole('dialog');
   await sheets.getByRole('button', { name: 'Make the PDF' }).click();
   await expect(sheets.getByText('Your PDF is ready')).toBeVisible({ timeout: 90_000 });
+  // "Printed OK?" for the box on the sheets (#307): yes, and the box's code is a label now.
+  expect(box.labelPrinted).toBe(false);
+  await sheets
+    .getByRole('region', { name: 'Printed OK?' })
+    .getByRole('button', { name: 'Yes, printed OK' })
+    .click();
+  await expect(sheets.getByRole('region', { name: 'Printed OK?' })).toBeHidden({ timeout: SLOW });
+  await expect(async () => {
+    const now = await api(page).get<{ boxes: Box[] }>(`/api/v1/moves/${moveId}`);
+    expect(now.boxes[0]?.labelPrinted).toBe(true);
+  }).toPass({ timeout: SLOW, intervals: [1_000] });
   await sheets.getByRole('button', { name: 'Close', exact: true }).last().click();
   await expect(sheets).toBeHidden();
 

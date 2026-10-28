@@ -19213,6 +19213,14 @@ msgid "Adjust stock"
 msgstr "تعديل المخزون"
 
 #: src/assistant/confirm-card.tsx
+msgid "One up"
+msgstr "خطوة لأعلى"
+
+#: src/assistant/confirm-card.tsx
+msgid "One down"
+msgstr "خطوة لأسفل"
+
+#: src/assistant/confirm-card.tsx
 msgid "Field"
 msgstr "حقل"
 
@@ -22226,6 +22234,14 @@ msgid "Bookshelf"
 msgstr "مكتبة كتب"
 
 #: src/map/labels.ts
+msgid "Cube storage"
+msgstr "وحدة تخزين مكعبات"
+
+#: src/map/labels.ts
+msgid "Tall bookcase"
+msgstr "مكتبة طويلة"
+
+#: src/map/labels.ts
 msgid "Floor lamp"
 msgstr "مصباح أرضي"
 
@@ -24575,8 +24591,33 @@ msgid "On the wall"
 msgstr "على الحائط"
 
 #: src/map/height.tsx
+#: src/map/size.tsx
 msgid "Height"
 msgstr "الارتفاع"
+
+#: src/map/size.tsx
+msgid "Cubes across"
+msgstr "مكعبات بالعرض"
+
+#: src/map/size.tsx
+msgid "Cubes up"
+msgstr "مكعبات بالارتفاع"
+
+#: src/map/size.tsx
+msgid "Turn on its side"
+msgstr "اقلبه على جانبه"
+
+#: src/map/size.tsx
+msgid "Width"
+msgstr "العرض"
+
+#: src/map/size.tsx
+msgid "Depth"
+msgstr "العمق"
+
+#: src/map/size.tsx
+msgid "Levels"
+msgstr "عدد الرفوف"
 
 #: src/map/height.tsx
 msgid "Lower"
@@ -27593,3 +27634,27 @@ msgstr "غير مطابق: {text}"
 #: src/components/scan/session/session-screen.tsx
 msgid "Check later: {text}"
 msgstr "تحقّق لاحقًا: {text}"
+
+#: src/components/services/service-sheet.tsx
+msgid "Delete this service?"
+msgstr "أتحذف هذه الصيانة؟"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "Edit the service"
+msgstr "تعديل الصيانة"
+
+#: src/components/services/service-sheet.tsx
+msgid "Its lines and invoice go too. Schedules it completed count from the service before. You can undo this."
+msgstr "تُحذف معها بنودها وفاتورتها، وتعود المواعيد التي أنجزتها إلى الصيانة التي قبلها. يمكنك التراجع عن ذلك."
+
+#: src/components/services/service-sheet.tsx
+msgid "Logged by"
+msgstr "سجّلها"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "They have prices you can't see, so they stay as they are."
+msgstr "فيها أسعار لا تراها، فتبقى كما هي."
+
+#: src/components/moving/sheets-printed.tsx
+msgid "Check that a code on the sheets scans. Yes records today as their print date, so the boxes show their label."
+msgstr "تحقق من أن رمزًا على الأوراق يُمسح. «نعم» يسجّل اليوم تاريخًا لطباعتها، فتظهر ملصقات الصناديق."

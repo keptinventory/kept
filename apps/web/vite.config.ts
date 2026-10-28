@@ -248,6 +248,11 @@ const ON_DEMAND_ENTRIES = [
   // #294: several things to the Trash at once (things/bulk-trash.tsx), from a place's Select and
   // the spreadsheet; it reads and writes the server only.
   '/src/components/things/bulk-trash.tsx',
+  // #296: one saved service, opened from a vehicle's Services tab (vehicles/services-tab.tsx).
+  '/src/components/services/service-sheet.tsx',
+  // #307: a move's contents sheets and "Printed OK?" after them (moving/sheets.tsx opens it); it
+  // reads and writes the server only.
+  '/src/components/moving/contents-sheets.tsx',
   '/papaparse/papaparse.min.js',
   '/src/components/import/parse-config.ts',
 ];

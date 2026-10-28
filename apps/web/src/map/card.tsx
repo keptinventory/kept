@@ -8,12 +8,13 @@
  * A thing on a wall's card sets how high it hangs (Height, #138); it doesn't turn.
  */
 import {
+  baseModel,
   canBeCarried,
   carryOf,
   MAP_ROOM_KINDS,
   MAP_SURFACES,
-  type MapModelKey,
   type MapRoomKind,
+  type MapShapeKey,
   type MapSurface,
   STAIR_MODELS,
 } from '@kept/shared';
@@ -48,6 +49,7 @@ import {
 import { type ChosenShape, matches, offMapIn, whereOf } from './list';
 import { AddOnSheet, PutOnSheet } from './put-on';
 import { ShapeField, shapeInputOf } from './shapes';
+import { SizeFields } from './size';
 import { cardPath } from './where';
 
 export type CardSel = { type: 'room' | 'item'; id: string };
@@ -70,7 +72,7 @@ export type CardProps = {
   onOpenRoom: (roomId: string) => void;
   onGoLevel: (key: string) => void;
   onTurn: (id: string) => void;
-  onShape: (id: string, model: MapModelKey) => void;
+  onShape: (id: string, model: MapShapeKey) => void;
   onRemove: (id: string) => void;
   onRoomKind: (id: string, kind: MapRoomKind) => void;
   onSurface: (id: string, surface: MapSurface) => void;
@@ -507,7 +509,7 @@ export function MapCard(p: CardProps) {
   const meta = cardPath(plan, view, it).join(' › ');
   const levels = plan.levels;
   const li = levels.findIndex((l) => l.key === room?.levelKey);
-  const stairs = STAIR_MODELS.has(it.model)
+  const stairs = STAIR_MODELS.has(baseModel(it.model))
     ? [levels[li + 1], levels[li - 1]].filter((l): l is Level => !!l)
     : [];
   const within = (['low', 'lent', 'due'] as const)
@@ -655,6 +657,7 @@ export function MapCard(p: CardProps) {
   const shape = p.arranging ? (
     <>
       <ShapeField item={it} input={shapeInputOf(view, it)} onShape={p.onShape} />
+      <SizeFields model={it.model} onModel={(m) => p.onShape(it.id, m)} />
       {it.hang === undefined ? null : (
         <HeightField item={it} onHeight={(h) => p.onHeight(it.id, h)} />
       )}
@@ -679,7 +682,7 @@ export function MapCard(p: CardProps) {
         {it.subject === 'thing' ? <ThingPhoto id={it.id} /> : <Photo url={null} />}
         <div className="grid min-w-0 gap-1 text-[13px] text-ink-2">
           <span>
-            {models[it.model]}
+            {models[baseModel(it.model)]}
             {n !== null ? (
               <>
                 {' · '}

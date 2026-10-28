@@ -21,7 +21,7 @@ import type { ReactNode } from 'react';
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from 'react-aria-components';
 import { isApiError } from '@/api/client';
 import { inventoryApi } from '@/api/inventory/queries';
-import { thingApi } from '@/api/inventory/thing-api';
+import { thingApi, useThingGone } from '@/api/inventory/thing-api';
 import type { ConversionLoss, ConvertToPlaceConflict } from '@/api/inventory/types';
 import {
   ArchiveIcon,
@@ -200,6 +200,7 @@ export function useRunAction(openSheet: (s: SheetName) => void) {
   const errorText = useErrorText();
   const copyLink = useCopyLink();
   const trashThing = useTrashThing(openSheet);
+  const gone = useThingGone();
   const scanStore = useScanStore();
   const setArchived = useSetArchived();
   const losses: Record<ConversionLoss, string> = {
@@ -314,7 +315,9 @@ export function useRunAction(openSheet: (s: SheetName) => void) {
             if (!again) return;
             r = await thingApi.convertToPlace(thing.id, thing.rowVersion, { discard: true });
           }
-          await refresh();
+          // The thing is gone (its id is the place's now): not asked for again, and the place
+          // opens at once while the lists refresh behind it (#336).
+          gone(thing.id);
           await navigate({ to: '/p/$id', params: { id: r.placeId } });
           return;
         }

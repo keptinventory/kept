@@ -24,6 +24,10 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
   **Select all**, and they become boxes in one step, each keeping its ID, label and contents. A
   place with places inside can't be ticked: a box holds things only. The toast's **Undo** turns
   them all back into places, as they were; it stays in the history for 7 days.
+- **The assistant and AI apps** can do the same: rename a place, change its kind, move it, set
+  its fields and the order of the places in it, and turn places into boxes (`update_place` and
+  `turn_into_boxes`, [MCP clients](/users/mcp-clients/)). The assistant shows a card to confirm
+  first; Undo works as in the app.
 - **The place tree** (beside the page on a computer, **All places** on a phone) shows boxes under
   their place with how many things are in each, up to 50 a place, then **+N boxes**.
 - On a location, **Sort them** goes through Unplaced one thing at a time with a place picker.

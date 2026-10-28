@@ -136,6 +136,8 @@ higher. The part of Kept a tool needs is the name under **What to track**.
 | `move_thing` | change | | Move a thing, or some of a quantity, to another place or container. |
 | `mark_seen` | change | | I just saw this thing where Kept says it is. |
 | `create_place` | change | | Add a place under another place, or at the top of the location. |
+| `update_place` | change | | Change a place as its page does: rename it, change its kind, move it into another place or to the top, set its fields, and the order of the places in it (A to Z or Custom order, then Move up or Move down). Undo for 7 days, except a move up or down: the opposite move undoes it. |
+| `turn_into_boxes` | change | | Turn places into boxes, as **Turn places into boxes** does. Each keeps its ID, label and what's in it; one with places inside stays a place, and so does one at the top of the location (turn that one in Kept). One Undo turns them all back. |
 | `attach_link` | change | | A link that opens Kept's capture sheet to add a photo, receipt or document. |
 | `log_reading` | change | | Record a meter reading: odometer, hours, electricity. |
 | `lend_thing` | change | Lending | Lend a thing to someone, with an optional due date. A box or a kit goes with everything in it, each on its own line. |
@@ -146,7 +148,7 @@ higher. The part of Kept a tool needs is the name under **What to track**.
 | `add_warranty` | change | Receipts and warranties | Record a warranty: its kind, and when it ends or how many months. |
 | `open_claim` | change | Receipts and warranties | Open a warranty claim for a thing. |
 | `update_claim` | change | Receipts and warranties | Change a claim's status or reference. |
-| `log_service` | change | | Record a service: date, who did it, total, lines (each may use stock from a consumable), and the schedules it completes. |
+| `log_service` | change | | Record a service: date, who did it, total, lines (each may use stock from a consumable), the schedules it completes, and notes. |
 | `log_fuel` | change | Fuel | Record a fill-up: amount, unit, cost, whether full, and the odometer. |
 | `adjust_stock` | change | Things you run out of | Add to or take from a consumable's stock. |
 | `list_tags` | read | | Which tags there are, with how many things have each. |

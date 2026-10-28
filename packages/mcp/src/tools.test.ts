@@ -56,6 +56,9 @@ const TABLE: Record<
   // Tags (1.x, #209).
   list_tags: ['read', null, '1.x'],
   tag_things: ['write', null, '1.x'],
+  // Places (1.x, #313): the app's place form, and Turn places into boxes.
+  update_place: ['write', null, '1.x'],
+  turn_into_boxes: ['write', null, '1.x'],
 };
 
 const MCP_ONLY = [
@@ -72,7 +75,7 @@ describe('TOOL_DEFS', () => {
   it('is exactly the plan’s table: scope, module and step', () => {
     expect(Object.keys(TOOL_DEFS).sort()).toEqual(Object.keys(TABLE).sort());
     for (const [name, d] of defs) expect([d.scope, d.module, d.since]).toEqual(TABLE[name]);
-    expect(TOOL_NAMES).toHaveLength(36);
+    expect(TOOL_NAMES).toHaveLength(38);
   });
 
   it('offers every tool at both doors but Moving mode’s, which only MCP is offered', () => {
@@ -192,6 +195,35 @@ describe('TOOL_DEFS', () => {
     expect(
       input.safeParse(line({ consumable_thing_id: 'H4M9TR', consumed_quantity: 1.2345 })).success,
     ).toBe(false);
+  });
+
+  it('update_place: the place form’s fields, a step up or down, never nothing', () => {
+    const input = TOOL_DEFS.update_place.input;
+    const ok = (v: object) => input.safeParse({ place_id: 'H4M9TR', ...v }).success;
+    expect(ok({ fields: { name: 'Shelf A', kind: 'closet' } })).toBe(true);
+    expect(ok({ fields: { parent_id: null } })).toBe(true);
+    expect(ok({ fields: { parent_id: 'K7D2QX', child_order: 'custom' } })).toBe(true);
+    expect(ok({ fields: { custom: { width_cm: 80, colour: null } } })).toBe(true);
+    expect(ok({ move: 'up' })).toBe(true);
+    expect(ok({ fields: { child_order: 'custom' }, move: 'down' })).toBe(true);
+    expect(ok({})).toBe(false);
+    expect(ok({ fields: {} })).toBe(false);
+    expect(ok({ move: 'left' })).toBe(false);
+    expect(ok({ fields: { child_order: 'newest' } })).toBe(false);
+    expect(ok({ fields: { name: '' } })).toBe(false);
+    expect(ok({ fields: { name: 'x'.repeat(121) } })).toBe(false);
+    // A step is not idempotent: asked twice, it moves twice.
+    expect(TOOL_DEFS.update_place.annotations.idempotentHint).toBe(false);
+  });
+
+  it('turn_into_boxes: 1 to 50 places, each answered: a box, or why it stays a place', () => {
+    const input = TOOL_DEFS.turn_into_boxes.input;
+    expect(input.safeParse({ place_ids: ['H4M9TR'] }).success).toBe(true);
+    expect(input.safeParse({ place_ids: [] }).success).toBe(false);
+    expect(input.safeParse({ place_ids: Array(51).fill('H4M9TR') }).success).toBe(false);
+    const refused = TOOL_DEFS.turn_into_boxes.output.shape.refused.element.shape;
+    expect(refused.reason.options).toEqual(['has_places', 'top_level', 'not_here']);
+    expect(Object.keys(refused.place.shape.untrusted.shape)).toEqual(['name', 'path']);
   });
 
   it('refuses an empty update and a zero stock delta', () => {

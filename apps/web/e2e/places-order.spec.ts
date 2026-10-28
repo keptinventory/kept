@@ -20,9 +20,9 @@
  */
 import { type Locator, type Page, test } from '@playwright/test';
 import { HOMEBOX_INSTANCE } from './instances';
-import { axe, expect, IBRAHIM, people } from './tls-people';
+import { attemptName, axe, expect, IBRAHIM, people } from './tls-people';
 
-const { BASE, person, api } = people(HOMEBOX_INSTANCE);
+const { BASE, person, api, dropLocation } = people(HOMEBOX_INSTANCE);
 
 test.use({ baseURL: BASE, ignoreHTTPSErrors: true });
 
@@ -112,8 +112,7 @@ test('places read A to Z, boxes stay in the tree, and Move puts a thing into a b
   browser,
 }) => {
   test.setTimeout(180_000);
-  const info = test.info();
-  const name = `Elm Road ${info.project.name} ${info.repeatEachIndex + 1} try ${info.retry + 1}`;
+  const name = attemptName('Elm Road');
   const { context, page } = await person(browser, IBRAHIM);
   // Made inside the try, so a failure partway through setup still deletes it.
   let loc: string | undefined;
@@ -176,20 +175,8 @@ test('places read A to Z, boxes stay in the tree, and Move puts a thing into a b
     );
     expect(inside.items.map((x) => x.name)).toContain(thing);
   } finally {
-    // Gone with everything in it (the Trash keeps it for its grace period), retry or not.
-    // Best effort: a failed delete is noted, never put in place of the test's own error.
-    if (loc) {
-      const res = await page.request
-        .delete(`/api/v1/locations/${loc}`, {
-          headers: { origin: BASE, 'idempotency-key': crypto.randomUUID() },
-        })
-        .catch((e: unknown) => e as Error);
-      if (res instanceof Error || !res.ok())
-        info.annotations.push({
-          type: 'cleanup',
-          description: `delete ${name}: ${res instanceof Error ? res.message : `${res.status()} ${await res.text()}`}`,
-        });
-    }
+    // Gone with everything in it, retry or not.
+    await dropLocation(page, { id: loc, name });
     await context.close();
   }
 });

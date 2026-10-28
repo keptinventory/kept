@@ -25,9 +25,9 @@ import {
   isWallModel,
   levelShort,
   MAP_LIMITS,
-  type MapModelKey,
   type MapRect,
   type MapRoomKind,
+  type MapShapeKey,
   type MapSurface,
   type MapWall,
   mapModel,
@@ -89,7 +89,7 @@ export type Item = {
   shortCode: string | null;
   /** It carries a printed label: lists show its code, as the tape, only then. */
   labelPrinted?: boolean;
-  model: MapModelKey;
+  model: MapShapeKey;
   x: number;
   z: number;
   rot: number;
@@ -123,7 +123,7 @@ export function fp(item: Pick<Item, 'model' | 'rot'>): { w: number; d: number } 
   return footprintOf(item.model, item.rot);
 }
 
-const modelOf = (n: MapNodeView): MapModelKey =>
+const modelOf = (n: MapNodeView): MapShapeKey =>
   n.layout?.model && isMapModel(n.layout.model)
     ? n.layout.model
     : guessModel({
@@ -205,7 +205,7 @@ export function planOf(view: MapView, names: PlanNames): Plan {
     }
     loose.forEach((n, i) => {
       const p = at[i] ?? { x: WALL, z: WALL };
-      items.push(itemOf(n, models[i] as MapModelKey, p.x, p.z));
+      items.push(itemOf(n, models[i] as MapShapeKey, p.x, p.z));
     });
   }
   // Stand only on something that is on the map, can carry it and has room for it (an arm holds
@@ -321,7 +321,7 @@ function roomOf(
   };
 }
 
-function itemOf(n: MapNodeView, model: MapModelKey, x: number, z: number): Item {
+function itemOf(n: MapNodeView, model: MapShapeKey, x: number, z: number): Item {
   const height = n.layout?.height;
   return {
     ...(typeof height === 'number' && isWallModel(model)
@@ -608,7 +608,7 @@ export function freeSpot(
 }
 
 /** A monitor arm (#151): it clamps at the back edge of a top, facing the top's way. */
-export const clampsAtBack = (model: MapModelKey): boolean => carryOf(model) === 'arm';
+export const clampsAtBack = (model: MapShapeKey): boolean => carryOf(model) === 'arm';
 
 /** Across a holder only: an arm's free place or an edge's free spot (null when an arm is full). */
 export function freeAlong(
@@ -770,7 +770,7 @@ export function dropOn(
  * the first suggestion from its type and name (`shapeFrom` says which, or that it is a guess),
  * in the middle of the room, unturned, on nothing.
  */
-export function thingItem(x: MapThingView, room: Room, chosen: MapModelKey | null = null): Item {
+export function thingItem(x: MapThingView, room: Room, chosen: MapShapeKey | null = null): Item {
   const { model, from } = shapeOnAdd(
     { name: x.name, typeKey: x.typeKey, typeName: x.typeName, isContainer: x.isContainer },
     chosen,
@@ -1023,7 +1023,7 @@ export function reshape(
   items: readonly Item[],
   rooms: readonly Room[],
   it: Item,
-  model: MapModelKey,
+  model: MapShapeKey,
 ): void {
   const room = rooms.find((r) => r.id === it.roomId);
   if (!room) return;
