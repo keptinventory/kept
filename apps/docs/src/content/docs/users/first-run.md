@@ -135,7 +135,7 @@ steps each:
 |---|---|
 | Basics | Home, your locations, Scan, Search, and where everything else is |
 | Things & places | adding to a location, what's in it, and a thing's page |
-| The 3D map | the List / Grid / Map switch, 3D or plan, pins, floors and Arrange |
+| The 3D map | the layout switch (List, Grid, Graph, Table, Map), 3D or plan, pins, floors and Arrange |
 | Capture & Inbox | picking what you capture, the shutter, and reviewing what Kept read |
 | Scanning | a scan session: count, pack or move, where, and what Finish changes |
 | Search & labels | the search field, saved views, printing labels and Scan |

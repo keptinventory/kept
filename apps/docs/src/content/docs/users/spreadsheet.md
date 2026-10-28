@@ -24,7 +24,10 @@ as a row, for tidying up many things at once. Phones keep the lists.
 - **Select rows** with the box at the start of each row, **Space**, **Shift+↑/↓**,
   **Shift-click** for a range or **⌘/Ctrl-click** for one more. Then **Move to…** (a room, spot
   or box in this location), **Tags…** (add or remove), **Set a field…** or **Send to Trash**.
-  Moving, tags and fields wait for **Save** like any other change; the Trash happens at once.
+  Moving, tags and fields wait for **Save** like any other change; the Trash happens at once,
+  up to 200 at a time, after asking what happens to what's inside a box and about anything lent
+  out. The list's own **Select** has the same **Move to Trash**
+  ([Locations, rooms and boxes](/users/locations/)).
 - **Undo**: after a save, one **Undo** takes back every change in it. After **Send to Trash**,
   one Undo brings them all back.
 - **Someone else changed a row** since you opened the table: the other rows save, and that one
@@ -40,6 +43,6 @@ change it.
 
 ## Related
 
-- The locations page (Locations, rooms and boxes) for the tree the rows point at.
+- [Locations, rooms and boxes](/users/locations/) for the tree the rows point at.
 - [Import and export](/users/import-export/) for bringing many things in, and CSV export.
 - [Everyday use](/users/everyday-use/) for the wider picture.

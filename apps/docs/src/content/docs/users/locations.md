@@ -1,6 +1,6 @@
 ---
 title: Locations, rooms and boxes
-description: "The tree everything sits in: locations, rooms and spots, boxes and containers, Unplaced, and the List, Grid and Map views of a place."
+description: "The tree everything sits in: locations, rooms and spots, boxes and containers, Unplaced, a location's layouts (List, Grid, Graph, Table, Map), and Select for many things at once."
 ---
 
 Everything sits in a tree: a **location** (Home, Garage, a storage unit) holds **rooms and
@@ -12,6 +12,12 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
   spot**.
 - Lists have a search box, **+ Filter**, saved **Views**, and a **Display** button for sort order
   and grouping. Filters live in the address, so a filtered list can be bookmarked or shared.
+- **Select** (beside the search box, for anyone who can edit things) ticks things in the list of a
+  location, place or box. Then: **Move**, **Pick up** (into the tray), **Print labels**, **Add
+  tags…** or **Remove tags…**, **Add to incident** and **Claim pack** (owners and admins, where
+  Receipts and warranties is on), or **Move to Trash**. Move to Trash takes up to 200 at a time
+  and needs a connection. It asks first what happens to what's inside a box (move it out, or
+  trash it too) and about anything lent out, then one **Undo** brings them all back.
 - **Order:** places and things read A to Z with numbers in order (Box 2 before Box 10), the same
   in the app, offline, in exports and for AI apps. Floors keep the order they were made in: the
   first is the ground floor on the map. On a place, **Display → Things: sort by** orders its
@@ -32,9 +38,14 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
   their place with how many things are in each, up to 50 a place, then **+N boxes**.
 - On a location, **Sort them** goes through Unplaced one thing at a time with a place picker.
 - A box opened from its label shows a photo grid of what's inside.
-- A location's page switches between **List**, **Grid** and **Map**: the map shows the location in
-  3D, floor by floor, with its rooms, shelves and boxes ([The location map](/users/location-map/)).
-  On a computer, **Table** shows its things as a spreadsheet.
+- **Layouts:** a location's page switches between **List**, **Grid**, **Graph**, **Table** and
+  **Map**, each with its icon. **Graph** draws the location as a graph of its floors, rooms, boxes
+  and things, in 2D or 3D ([The graph](/users/graph/)). **Table** shows its things as a spreadsheet,
+  on a screen 1024 px wide or more ([The spreadsheet view](/users/spreadsheet/)), so a phone shows
+  List · Grid · Graph · Map. **Map** shows the location in 3D, floor by floor, with its rooms,
+  shelves and boxes ([The location map](/users/location-map/)). The list's **Display** menu offers
+  the same choice. A place's own page (not Unplaced) has the switch too, without Table. Kept
+  remembers the layout for each location and each place on that device.
 - **Grid** shows a location's or room's places and things as tiles, under the same **Places** and
   **Things** headings as List; each heading folds away. **Display → Size** picks **Small**,
   **Medium** or **Large** tiles (3, 2 or 1 a row on a phone), and Kept remembers your size on that

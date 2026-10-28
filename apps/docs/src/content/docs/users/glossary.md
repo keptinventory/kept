@@ -45,6 +45,11 @@ box on a shelf. A container is a thing, not a place.
 is kept, with what was found and what was missing. Also called a stocktake.
 [Counts and stocktakes](/users/counts/)
 
+## G
+
+**Graph**: one of a location's layouts: its floors, rooms, boxes and things as nodes and links, in
+2D or 3D, with pins for what needs attention. [The graph](/users/graph/)
+
 ## H
 
 **Hand-over**: lending a box with everything inside it: one record, with a line for the box and
@@ -74,6 +79,14 @@ it, and the kit still knows. [Kits and hand-overs](/users/kits/#kits)
 
 ## L
 
+**Label stock**: what labels are printed on: an A4 or Letter sheet, a label-printer roll, or
+label-maker tape. Narrow tape has no room for a QR code; the scanner reads its printed short ID
+instead. [Short IDs and labels](/users/short-ids/)
+
+**Layout**: how a location's page shows what's in it: **List**, **Grid**, **Graph**, **Table** (on
+a computer) or **Map**. Kept remembers the choice per location on each device.
+[Locations, rooms and boxes](/users/locations/)
+
 **Lending**: recording that a thing, or part of a quantity, is with someone, with a due date, its
 condition and photos.
 
@@ -85,6 +98,9 @@ own members, roles, modules, time zone and currency.
 **Managed account**: an account with a username and no email, for a child or a parent, made by a
 location's owner or an admin. A location holds at most 20.
 [People without email](/users/first-run/#people-without-email)
+
+**Map**: one of a location's layouts: the location in 3D, floor by floor, with its rooms, shelves
+and boxes, which members and above arrange. [The location map](/users/location-map/)
 
 **MCP** (Model Context Protocol): how an AI app such as Claude connects to Kept to find and change
 things, within your role. [Connect an AI client](/users/mcp-clients/)
