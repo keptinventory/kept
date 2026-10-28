@@ -1,0 +1,53 @@
+# Home Assistant's ingress, mimicked (scripts/ha-ingress-e2e.sh; D273). The browser opens Home
+# Assistant's page at `/`, which frames Kept at /api/hassio_ingress/<token>/ (frontend
+# ha-panel-app.ts), on Home Assistant's own origin. Core and the Supervisor then do what this does:
+# strip the prefix, name it in X-Ingress-Path, set X-Forwarded-Host and -Proto (Core), append Core's
+# address to X-Forwarded-For (the Supervisor), set the X-Remote-User-* headers of the signed-in
+# Home Assistant user, and send the request to the app from 172.30.32.2 (this container's address).
+# Two apps, as two installs would be: `fresh` (first-run setup) and `demo` (the households data).
+# A test picks the Home Assistant user with X-Test-Ha-User (admin, member or none) and a client
+# address with X-Test-Client; both are removed before Kept sees the request. Any other path is a
+# 404, so a request the page makes outside the prefix fails the test.
+{
+	admin off
+	auto_https off
+}
+
+(ingress) {
+	reverse_proxy {args[0]}:8080 {
+		header_up X-Ingress-Path /api/hassio_ingress/{args[1]}
+		header_up X-Hass-Source core.ingress
+		header_up X-Forwarded-For "{http.request.header.X-Test-Client}, 172.30.32.1"
+		header_up X-Remote-User-Id {ha_id}
+		header_up X-Remote-User-Name {ha_name}
+		header_up X-Remote-User-Groups {ha_groups}
+		header_up -X-Test-Ha-User
+		header_up -X-Test-Client
+	}
+}
+
+:80 {
+	map {http.request.header.X-Test-Ha-User} {ha_id} {ha_name} {ha_groups} {
+		member 0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e member system-users
+		none "" "" ""
+		default 9f8e7d6c5b4a39281706f5e4d3c2b1a0 owner system-admin,system-users
+	}
+
+	handle_path /api/hassio_ingress/{$KEPT_HA_FRESH_TOKEN}/* {
+		import ingress kept-fresh {$KEPT_HA_FRESH_TOKEN}
+	}
+	handle_path /api/hassio_ingress/{$KEPT_HA_DEMO_TOKEN}/* {
+		import ingress kept-demo {$KEPT_HA_DEMO_TOKEN}
+	}
+	handle /fresh {
+		header Content-Type "text/html; charset=utf-8"
+		respond `<!doctype html><title>Home Assistant</title><h1>Home Assistant</h1><iframe id="kept" title="Kept" src="/api/hassio_ingress/{$KEPT_HA_FRESH_TOKEN}/" style="width:100%;height:85vh;border:0"></iframe>` 200
+	}
+	handle /demo {
+		header Content-Type "text/html; charset=utf-8"
+		respond `<!doctype html><title>Home Assistant</title><h1>Home Assistant</h1><iframe id="kept" title="Kept" src="/api/hassio_ingress/{$KEPT_HA_DEMO_TOKEN}/" style="width:100%;height:85vh;border:0"></iframe>` 200
+	}
+	handle {
+		respond "Home Assistant mimic: not an ingress path" 404
+	}
+}
