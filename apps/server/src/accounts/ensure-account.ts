@@ -147,7 +147,7 @@ async function ensureInScope(
       after: {
         kind: 'personal',
         name: 'Personal',
-        preset: 'household',
+        preset: 'essentials',
         timezone: row.timezone,
         currency: row.currency,
       },

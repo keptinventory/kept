@@ -5,7 +5,8 @@
  *
  * Choosing a place in another location asks the server who would lose sight of the thing
  * (`POST /things/move/preview`) and says so before anything moves ("Alfred and 2 others will lose
- * sight of it"). Places are the only targets here; a container is reached from its own page.
+ * sight of it"). Moving things can also go into a box: boxes sit under their place, as in the
+ * tree (`withBoxes`); re-parenting and merging places offer places only.
  *
  * The options are a radio group, so arrow keys move through them (mirrored in Arabic) and a
  * screen reader hears "radio, 3 of 12".
@@ -17,7 +18,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { type ReactNode, useId, useMemo, useState } from 'react';
 import { Radio, RadioGroup } from 'react-aria-components';
 import { inventoryApi } from '@/api/inventory/queries';
-import type { MovePreview, PlaceNode } from '@/api/inventory/types';
+import type { BoxNode, MovePreview, MoveTarget, PlaceNode } from '@/api/inventory/types';
 import { useOfferUndo } from '@/components/history/undo';
 import { SearchIcon } from '@/components/icons';
 import { LoadingRows, Notice, useErrorText } from '@/components/page';
@@ -35,9 +36,19 @@ import {
 } from './api';
 import { placeIcon, usePlaceName } from './labels';
 import { Sheet } from './sheet';
-import { flattenTree, indentStyle } from './tree';
+import { indentStyle, treeEntries } from './tree';
 
-export type PickedPlace = { placeId: string; locationId: string; name: string };
+/** Where to: a place, or a box (`containerId`, with `placeId` the place it is in). */
+export type PickedPlace = {
+  placeId: string;
+  locationId: string;
+  name: string;
+  containerId?: string;
+};
+
+/** The move's target for the API. */
+export const targetOfPick = (p: PickedPlace): MoveTarget =>
+  p.containerId ? { containerId: p.containerId } : { placeId: p.placeId };
 
 /** Every word of the query starts a word of the name (D42's normalisation, both forms). */
 export function placeMatches(name: string, query: string): boolean {
@@ -54,6 +65,8 @@ export function placeMatches(name: string, query: string): boolean {
 type Option = {
   value: string;
   place: PlaceNode;
+  /** A box under `place`, when this option is the box. */
+  box?: BoxNode;
   location: LocationTree['location'];
   depth: number;
   /** Shown under the name in search results and the recent group. */
@@ -68,8 +81,11 @@ export function PlacePicker({
   value,
   onChange,
   firstLocationId,
+  withBoxes = false,
 }: {
   label: string;
+  /** Boxes as targets too, each under its place, except these things (what is being moved). */
+  withBoxes?: boolean | { except: ReadonlySet<string> };
   /** This location's places come first (where the things are now). */
   firstLocationId?: string;
   /** Only these locations (a re-parent or merge stays in its location). Default: all writable. */
@@ -95,17 +111,34 @@ export function PlacePicker({
       (a, b) =>
         Number(b.location.id === firstLocationId) - Number(a.location.id === firstLocationId),
     );
-  const all: Option[] = usable.flatMap((tr) =>
-    flattenTree(tr.places, { ...(exclude ? { exclude } : {}), includeUnplaced }).map((row) => ({
-      value: row.place.id,
-      place: row.place,
-      location: tr.location,
-      depth: row.depth,
-      where: [locationName(tr.location), ...pathNames(tr.places, row.place.id).slice(0, -1)].join(
-        ' › ',
-      ),
-    })),
-  );
+  const except = typeof withBoxes === 'object' ? withBoxes.except : null;
+  const all: Option[] = usable.flatMap((tr) => {
+    const byId = new Map(tr.places.map((pl) => [pl.id, pl]));
+    const boxes = withBoxes ? tr.boxes.filter((b) => !except?.has(b.id)) : [];
+    return treeEntries(tr.places, boxes, {
+      ...(exclude ? { exclude } : {}),
+      includeUnplaced,
+    }).flatMap((row): Option[] => {
+      if (row.kind === 'more') return [];
+      const place = row.kind === 'box' ? byId.get(row.box.placeId) : row.place;
+      if (!place) return [];
+      const names = pathNames(tr.places, place.id);
+      return [
+        {
+          value: row.kind === 'box' ? `box:${row.box.id}` : place.id,
+          place,
+          ...(row.kind === 'box' ? { box: row.box } : {}),
+          location: tr.location,
+          depth: row.depth,
+          where: [
+            locationName(tr.location),
+            ...(row.kind === 'box' ? names : names.slice(0, -1)),
+          ].join(' › '),
+        },
+      ];
+    });
+  });
+  const optionName = (o: Option) => (o.box ? (o.box.name ?? t`Untitled`) : nameOf(o.place));
   const byId = new Map(all.map((o) => [o.value, o]));
   const recent = q
     ? []
@@ -113,7 +146,7 @@ export function PlacePicker({
         .map((id) => byId.get(id))
         .filter((o): o is Option => !!o)
         .map((o) => ({ ...o, value: `recent:${o.value}` }));
-  const matching = q ? all.filter((o) => placeMatches(nameOf(o.place), q)) : all;
+  const matching = q ? all.filter((o) => placeMatches(optionName(o), q)) : all;
 
   // The radio that was pressed: a place can be both in Recent and in its location's tree.
   const [raw, setRaw] = useState<string | null>(null);
@@ -121,10 +154,15 @@ export function PlacePicker({
     const o = byId.get(v.replace(/^recent:/, ''));
     if (!o) return;
     setRaw(v);
-    onChange({ placeId: o.place.id, locationId: o.location.id, name: nameOf(o.place) });
+    onChange({
+      placeId: o.place.id,
+      locationId: o.location.id,
+      name: optionName(o),
+      ...(o.box ? { containerId: o.box.id } : {}),
+    });
   };
-  const selected =
-    value && raw?.replace(/^recent:/, '') === value.placeId ? raw : (value?.placeId ?? null);
+  const chosen = value ? (value.containerId ? `box:${value.containerId}` : value.placeId) : null;
+  const selected = chosen && raw?.replace(/^recent:/, '') === chosen ? raw : chosen;
 
   const radio = (o: Option, flat: boolean) => (
     <Radio
@@ -142,9 +180,12 @@ export function PlacePicker({
           >
             {isSelected ? <span className="size-2.5 rounded-full bg-ink" /> : null}
           </span>
-          <TypeIcon icon={placeIcon(o.place)} className="size-4 text-ink-3" />
+          <TypeIcon
+            icon={o.box ? (o.box.icon ?? 'lucide:package') : placeIcon(o.place)}
+            className="size-4 text-ink-3"
+          />
           <span className="grid min-w-0 flex-1">
-            <bdi className="[overflow-wrap:anywhere]">{nameOf(o.place)}</bdi>
+            <bdi className="[overflow-wrap:anywhere]">{optionName(o)}</bdi>
             {flat && o.where ? (
               <span className="text-small font-normal text-ink-3 [overflow-wrap:anywhere]">
                 {o.where}
@@ -242,8 +283,8 @@ export function useLosesSightText() {
 export function CrossLocationWarning({ thingIds, to }: { thingIds: string[]; to: PickedPlace }) {
   const losesSight = useLosesSightText();
   const preview = useQuery({
-    queryKey: ['move-preview', thingIds, to.placeId],
-    queryFn: () => inventoryApi.movePreview({ thingIds, to: { placeId: to.placeId } }),
+    queryKey: ['move-preview', thingIds, to.containerId ?? to.placeId],
+    queryFn: () => inventoryApi.movePreview({ thingIds, to: targetOfPick(to) }),
   });
   if (!preview.data) return null;
   const d = preview.data;
@@ -334,10 +375,9 @@ export function MoveThingsForm({
   const offerUndo = useOfferUndo();
   const [to, setTo] = useState<PickedPlace | null>(null);
   const move = useMutation({
-    mutationFn: (target: PickedPlace) =>
-      inventoryApi.move({ thingIds, to: { placeId: target.placeId } }),
+    mutationFn: (target: PickedPlace) => inventoryApi.move({ thingIds, to: targetOfPick(target) }),
     onSuccess: async ({ auditEvents }, target) => {
-      rememberPlace(target.placeId);
+      if (!target.containerId) rememberPlace(target.placeId);
       await invalidate();
       const where = target.name;
       // A bulk move records one event per thing; Undo reverses them all (D150).
@@ -371,6 +411,7 @@ export function MoveThingsForm({
         value={to}
         onChange={setTo}
         firstLocationId={fromLocationId}
+        withBoxes={{ except: new Set(thingIds) }}
         {...(exclude ? { exclude } : {})}
       />
       {to && cross ? <CrossLocationWarning thingIds={thingIds} to={to} /> : null}

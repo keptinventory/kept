@@ -12,6 +12,7 @@ import { isApiError } from '@/api/client';
 import { portabilityApi } from '@/api/portability/queries';
 import type { ArchiveInspect, HomeboxConnection } from '@/api/portability/types';
 import { Notice, useErrorText } from '@/components/page';
+import { isPrivateAddressError, PrivateAddressLink } from '@/components/private-address-link';
 import { Button } from '@/components/ui/button';
 import { PasswordField } from '@/components/ui/password-field';
 import { Segmented } from '@/components/ui/segmented';
@@ -239,7 +240,11 @@ export function HomeboxConnect({
         <Trans>Used once to read Homebox, never stored.</Trans>
       </p>
       {error ? (
-        <Notice tone="danger" title={<Trans>Couldn't connect</Trans>}>
+        <Notice
+          tone="danger"
+          title={<Trans>Couldn't connect</Trans>}
+          action={isPrivateAddressError(connect.error) ? <PrivateAddressLink /> : undefined}
+        >
           {error}
         </Notice>
       ) : null}

@@ -359,6 +359,7 @@ export function sheetRoutes(state: MockState): MockRoute[] {
           name: e.summaryParams.name ?? '',
         });
         done.undo_of = e.id;
+        e.undone = true;
         Object.assign(done, summaryOf('undo', e.summaryParams.name ?? ''));
         undone.push({ undoOf: e.id, eventId: done.id });
       }

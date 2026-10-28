@@ -1,41 +1,70 @@
 /**
  * A Homebox import's choices before the check (D146):
- * the currency (the ZIP has none: the connection's, else the target's; another
- * enabled one relabels the amounts, it doesn't convert them), archived items, the "Insured"
- * field, Homebox's empty starter places and tags, each Homebox type mapped to a Kept type or
- * created, and each custom field added to its type or kept in the notes. Saved on the run with
- * If-Match (POST …/choices), then checked.
+ * the currency, asked only when the backup holds an amount (the ZIP has no currency: the
+ * connection's, else the target's; another enabled one relabels the amounts, it doesn't convert
+ * them), archived items, items with quantity 0 (kept where the type is one you run out of and
+ * archived otherwise, set to 1, or left out), the "Insured" field, Homebox's empty starter places
+ * and tags, the locations that look like boxes (brought in as boxes when ticked), each Homebox
+ * type mapped to a Kept type, a new one named here, or no type, and each custom field added to its
+ * type or kept in the notes. Saved on the run with If-Match (POST …/choices), then checked.
  *
- * The types are a list-standard list (search, a Match filter, pages), in the URL like the report.
+ * Homebox 0.27's own names for its two types, `global.item` and `global.location`, read as
+ * "Item" and "Location" here, as they do in Homebox; its catch-all type defaults to No type.
+ *
+ * The types and the boxes are list-standard lists (search, a filter, pages), in the URL. The boxes
+ * read A to Z, numbers in order, as every place list does (naturalCompare), not in the backup's
+ * order. A name typed into a type's picker is offered as a new type of that name.
  */
-import type { HomeboxChoices } from '@kept/shared';
+import { HB_GLOBAL_TYPE_NAMES, type HomeboxChoices, naturalCompare } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { useFilter } from 'react-aria-components';
 import { useCurrencies, useTypes } from '@/api/inventory/queries';
 import type { HomeboxConnection, HomeboxMappingHints } from '@/api/portability/types';
 import type { FilterDef } from '@/components/filters/types';
 import { ListSurface } from '@/components/list-surface';
 import { List, Notice, Row } from '@/components/page';
 import { useTypeName } from '@/components/things/names';
+import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { Segmented } from '@/components/ui/segmented';
 import { Switch } from '@/components/ui/switch';
+import { TextField } from '@/components/ui/text-field';
+import { TickBox } from '@/components/ui/tick-box';
 import { useFormat } from '@/lib/format';
 import { isNot, useListState } from '@/lib/url-state';
 import { useMemoryPages } from './memory-list';
 
-const CREATE = '__create__';
+const NEW = '__new__';
+const NONE = '__none__';
 const fold = (s: string) => s.trim().toLocaleLowerCase();
+const TYPE_NAME_MAX = 80;
 
 type KeptType = { id: string; name: string };
 
+/** A Homebox type's name as a person reads it: Homebox 0.27's `global.item` is "Item". */
+export function useHomeboxTypeName() {
+  const { t } = useLingui();
+  const words: Record<string, string> = {
+    'global.item': t`Item`,
+    'global.location': t`Location`,
+  };
+  return (name: string): string => {
+    const trimmed = name.trim();
+    return trimmed in HB_GLOBAL_TYPE_NAMES ? (words[trimmed] ?? trimmed) : trimmed;
+  };
+}
+
 /** The choices first offered: the connection's currency when it's enabled here, else the
- * target's; each type matched to a Kept type of the same name, else created; every field added
- * to its type; archived items left out; the Insured field; empty starter rows left out. */
+ * target's; Homebox's catch-all type as No type, each other type matched to a Kept type of the
+ * same name, else a new one with its name; every field added to its type; archived items
+ * archived; quantity 0 kept or archived; no location brought in as a box until ticked; the
+ * Insured field; empty starter rows left out. */
 export function initialChoices(
   hints: HomeboxMappingHints | undefined,
   keptTypes: readonly KeptType[],
   currency: string,
+  typeName: (name: string) => string = (n) => n.trim(),
 ): HomeboxChoices {
   const byName = new Map(keptTypes.map((y) => [fold(y.name), y.id]));
   return {
@@ -45,13 +74,22 @@ export function initialChoices(
     fields: Object.fromEntries((hints?.fields ?? []).map((f) => [f.name, 'add_to_type' as const])),
     types: Object.fromEntries(
       (hints?.types ?? []).map((y) => {
-        const match = byName.get(fold(y.name));
-        return [y.id, match ? { typeId: match } : { create: y.name.trim().slice(0, 80) }];
+        if (y.id === hints?.catchAll) return [y.id, { none: true as const }];
+        const name = typeName(y.name);
+        const match = byName.get(fold(name));
+        return [y.id, match ? { typeId: match } : { create: name.slice(0, TYPE_NAME_MAX) }];
       }),
     ),
     insured: 'field',
     seeded: 'skip_unused',
+    zeroQuantity: 'keep_or_archive',
+    boxes: [],
   };
+}
+
+/** Whether the choices can be sent: every new type has a name. */
+export function choicesComplete(choices: HomeboxChoices): boolean {
+  return Object.values(choices.types).every((c) => !('create' in c) || c.create.trim() !== '');
 }
 
 /** The account's types as the combobox lists them (field groups aren't types you pick). */
@@ -96,39 +134,45 @@ export function HomeboxChoicesStep({
     seeded,
   );
 
+  // Asked only when the backup holds an amount (an inspection before 1.13.0 doesn't say: asked).
+  const prices = hints?.prices === undefined || hints.prices > 0;
+  const zeroItems = hints?.zeroItems;
+
   return (
     <div className="grid gap-6">
-      <div className="grid gap-2">
-        <Combobox
-          label={t`Prices are in`}
-          items={enabled.map((c) => ({ id: c.code, label: c.code, description: c.name }))}
-          selectedKey={choices.currency}
-          onSelectionChange={(k) => {
-            if (k) set({ currency: String(k) });
-          }}
-          description={
-            fromConnection && !connectionOff && choices.currency === fromConnection
-              ? t`From the connection to Homebox. Choosing another relabels the amounts; it doesn't convert them.`
-              : t`Homebox's export has no currency. Choosing one relabels the amounts; it doesn't convert them.`
-          }
-        />
-        {connectionOff ? (
-          <Notice tone="warn">
-            <Trans>
-              Homebox's currency, <bdi dir="ltr">{fromConnection}</bdi>, isn't turned on in Kept. An
-              instance admin can turn it on in Admin → Currencies.
-            </Trans>
-          </Notice>
-        ) : null}
-        {locationCurrency !== choices.currency ? (
-          <p className="m-0 text-small text-ink-2">
-            <Trans>
-              This location counts in <bdi dir="ltr">{locationCurrency}</bdi>; prices in another
-              currency are kept as they are.
-            </Trans>
-          </p>
-        ) : null}
-      </div>
+      {prices ? (
+        <div className="grid gap-2">
+          <Combobox
+            label={t`Prices are in`}
+            items={enabled.map((c) => ({ id: c.code, label: c.code, description: c.name }))}
+            selectedKey={choices.currency}
+            onSelectionChange={(k) => {
+              if (k) set({ currency: String(k) });
+            }}
+            description={
+              fromConnection && !connectionOff && choices.currency === fromConnection
+                ? t`From the connection to Homebox. Choosing another relabels the amounts; it doesn't convert them.`
+                : t`Homebox's export has no currency. Choosing one relabels the amounts; it doesn't convert them.`
+            }
+          />
+          {connectionOff ? (
+            <Notice tone="warn">
+              <Trans>
+                Homebox's currency, <bdi dir="ltr">{fromConnection}</bdi>, isn't turned on in Kept.
+                An instance admin can turn it on in Admin → Currencies.
+              </Trans>
+            </Notice>
+          ) : null}
+          {locationCurrency !== choices.currency ? (
+            <p className="m-0 text-small text-ink-2">
+              <Trans>
+                This location counts in <bdi dir="ltr">{locationCurrency}</bdi>; prices in another
+                currency are kept as they are.
+              </Trans>
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       <Segmented<HomeboxChoices['archived']>
         label={t`Archived items`}
@@ -140,6 +184,42 @@ export function HomeboxChoicesStep({
           { id: 'skip', label: t`Leave out` },
         ]}
       />
+
+      {zeroItems === undefined || zeroItems > 0 ? (
+        <div className="grid gap-1">
+          <Segmented<NonNullable<HomeboxChoices['zeroQuantity']>>
+            label={t`Items with quantity 0`}
+            value={choices.zeroQuantity ?? 'keep_or_archive'}
+            onChange={(zeroQuantity) => set({ zeroQuantity })}
+            options={[
+              { id: 'keep_or_archive', label: t`Keep 0 or archive` },
+              { id: 'one', label: t`Set to 1` },
+              { id: 'skip', label: t`Leave out` },
+            ]}
+          />
+          <p className="m-0 text-small text-ink-2">
+            {zeroItems ? (
+              <>
+                <Plural
+                  value={zeroItems}
+                  one="# item has quantity 0."
+                  other="# items have quantity 0."
+                />{' '}
+              </>
+            ) : null}
+            {(choices.zeroQuantity ?? 'keep_or_archive') === 'keep_or_archive' ? (
+              <Trans>
+                A type you run out of keeps 0; anything else comes in archived. The notes say
+                "Quantity in Homebox: 0".
+              </Trans>
+            ) : (choices.zeroQuantity ?? 'keep_or_archive') === 'one' ? (
+              <Trans>They come in as 1, and the notes say "Quantity in Homebox: 0".</Trans>
+            ) : (
+              <Trans>They aren't imported. What's inside one comes in, in its place.</Trans>
+            )}
+          </p>
+        </div>
+      ) : null}
 
       {insured > 0 ? (
         <div className="grid gap-1">
@@ -175,6 +255,10 @@ export function HomeboxChoicesStep({
         </div>
       ) : null}
 
+      {hints?.boxes && hints.boxes.length > 0 ? (
+        <BoxSuggestions boxes={hints.boxes} choices={choices} onChange={onChange} />
+      ) : null}
+
       {hints && hints.types.length > 0 ? (
         <TypeMapping
           types={hints.types}
@@ -202,16 +286,23 @@ export function HomeboxChoicesStep({
                     </>
                   }
                 >
-                  <Segmented<'add_to_type' | 'notes'>
-                    aria-label={t`What happens to ${field.name}`}
-                    className="pt-1.5"
-                    value={choices.fields[field.name] ?? 'add_to_type'}
-                    onChange={(v) => set({ fields: { ...choices.fields, [field.name]: v } })}
-                    options={[
-                      { id: 'add_to_type', label: t`Add to the type` },
-                      { id: 'notes', label: t`Keep in notes` },
-                    ]}
-                  />
+                  {/* A field is added for a value only (plan.ts): say so rather than drop it. */}
+                  {field.filled === 0 ? (
+                    <p className="m-0 pt-1.5 text-small text-ink-2">
+                      <Trans>Left out: no item has a value for it.</Trans>
+                    </p>
+                  ) : (
+                    <Segmented<'add_to_type' | 'notes'>
+                      aria-label={t`What happens to ${field.name}`}
+                      className="pt-1.5"
+                      value={choices.fields[field.name] ?? 'add_to_type'}
+                      onChange={(v) => set({ fields: { ...choices.fields, [field.name]: v } })}
+                      options={[
+                        { id: 'add_to_type', label: t`Add to the type` },
+                        { id: 'notes', label: t`Keep in notes` },
+                      ]}
+                    />
+                  )}
                 </Row>
               </li>
             ))}
@@ -245,6 +336,10 @@ function FieldKind({ kind }: { kind: string }) {
 }
 
 type TypeRow = HomeboxMappingHints['types'][number];
+type TypeState = 'matched' | 'create' | 'none';
+
+const stateOf = (c: HomeboxChoices['types'][string] | undefined): TypeState =>
+  !c ? 'create' : 'typeId' in c ? 'matched' : 'none' in c ? 'none' : 'create';
 
 function TypeMapping({
   types,
@@ -258,22 +353,29 @@ function TypeMapping({
   keptTypes: readonly KeptType[];
 }) {
   const { t } = useLingui();
+  const f = useFormat();
+  const typeName = useHomeboxTypeName();
   const [list] = useListState();
-  const matched = (y: TypeRow) => {
-    const c = choices.types[y.id];
-    return !!c && 'typeId' in c;
-  };
   const wanted = list.filters.typeMatch ?? [];
   const not = isNot(list, 'typeMatch');
   const q = fold(list.q);
   const rows = types.filter((y) => {
-    const state = matched(y) ? 'matched' : 'create';
+    const state = stateOf(choices.types[y.id]);
     if (wanted.length && wanted.includes(state) === not) return false;
-    return !q || fold(y.name).includes(q);
+    return !q || fold(typeName(y.name)).includes(q) || fold(y.name).includes(q);
   });
-  const nMatched = types.filter(matched).length;
+  const count = (state: TypeState) =>
+    types.filter((y) => stateOf(choices.types[y.id]) === state).length;
+  // The rows read their choice as they render: the list is keyed on the choices only while the
+  // Match filter depends on them, so picking or naming a type keeps the field's focus.
   const query = useMemoryPages(
-    ['hb-types', q, wanted, not, JSON.stringify(choices.types)],
+    [
+      'hb-types',
+      q,
+      wanted,
+      not,
+      wanted.length ? types.map((y) => stateOf(choices.types[y.id])).join() : '',
+    ],
     rows,
     50,
   );
@@ -286,18 +388,28 @@ function TypeMapping({
       values: {
         from: 'static',
         options: [
-          { value: 'matched', label: t`A Kept type`, count: nMatched },
-          { value: 'create', label: t`Created`, count: types.length - nMatched },
+          { value: 'matched', label: t`A Kept type`, count: count('matched') },
+          { value: 'create', label: t`A new type`, count: count('create') },
+          { value: 'none', label: t`No type`, count: count('none') },
         ],
       },
     },
   ];
+  const setType = (id: string, next: HomeboxChoices['types'][string]) =>
+    onChange({ ...choices, types: { ...choices.types, [id]: next } });
+  const max = f.num(TYPE_NAME_MAX);
 
   return (
     <section className="grid gap-2" aria-labelledby="hb-types">
       <h3 id="hb-types" className="m-0 font-semibold text-[17px]">
         <Trans>Types</Trans>
       </h3>
+      <p className="m-0 text-small text-ink-2">
+        <Trans>
+          No type keeps things as they are, without a type's fields. A new type is made with the
+          name you give it.
+        </Trans>
+      </p>
       <ListSurface<TypeRow>
         label={t`Homebox types`}
         search={{ label: t`Search Homebox types`, placeholder: t`Search` }}
@@ -307,34 +419,213 @@ function TypeMapping({
         empty={null}
         renderRow={(y) => {
           const c = choices.types[y.id];
-          const name = y.name;
+          const name = typeName(y.name);
+          const state = stateOf(c);
+          const draft = c && 'create' in c ? c.create : '';
           return (
-            <div className="grid gap-2 px-3.5 py-2.5 sm:grid-cols-[1fr_minmax(0,18rem)] sm:items-center">
+            <div className="grid gap-2 px-3.5 py-2.5 sm:grid-cols-[1fr_minmax(0,18rem)] sm:items-start">
               <span className="grid gap-0.5">
                 <bdi className="font-semibold [overflow-wrap:anywhere]">{name}</bdi>
                 <span className="text-small text-ink-2">
                   <Plural value={y.items} one="# item" other="# items" />
                 </span>
               </span>
-              <Combobox
-                aria-label={t`Kept type for ${name}`}
-                items={[
-                  { id: CREATE, label: t`Create "${name}"` },
-                  ...keptTypes.map((k) => ({ id: k.id, label: k.name })),
-                ]}
-                selectedKey={c && 'typeId' in c ? c.typeId : CREATE}
-                onSelectionChange={(k) => {
-                  if (!k) return;
-                  const next =
-                    String(k) === CREATE
-                      ? { create: name.trim().slice(0, 80) }
-                      : { typeId: String(k) };
-                  onChange({ ...choices, types: { ...choices.types, [y.id]: next } });
-                }}
-              />
+              <span className="grid gap-2">
+                <TypePicker
+                  name={name}
+                  choice={c}
+                  keptTypes={keptTypes}
+                  onChange={(next) => setType(y.id, next)}
+                />
+                {state === 'create' ? (
+                  <TextField
+                    label={t`Name of the new type`}
+                    value={draft}
+                    onChange={(v) => setType(y.id, { create: v.slice(0, TYPE_NAME_MAX) })}
+                    isRequired
+                    isInvalid={draft.trim() === ''}
+                    errorMessage={t`Give the new type a name (at most ${max} characters).`}
+                  />
+                ) : null}
+              </span>
             </div>
           );
         }}
+      />
+    </section>
+  );
+}
+
+/** A Homebox type's Kept type: No type, New type… (named below), a Kept type, or a name typed
+ * here that no choice has, offered as a new type of that name (#320): the same as New type… and
+ * typing the name. */
+function TypePicker({
+  name,
+  choice,
+  keptTypes,
+  onChange,
+}: {
+  name: string;
+  choice: HomeboxChoices['types'][string] | undefined;
+  keptTypes: readonly KeptType[];
+  onChange: (next: HomeboxChoices['types'][string]) => void;
+}) {
+  const { t } = useLingui();
+  const state = stateOf(choice);
+  // A new type's entry is keyed and labelled by its name ("New type "Gadgets""), so choosing a
+  // typed name changes the selection even while a new type is already chosen.
+  const newType = (typeName: string) => t`New type "${typeName}"`;
+  const making = choice && 'create' in choice ? choice.create.trim() : '';
+  const created = making ? `${NEW}:${making}` : NEW;
+  const options = [
+    { id: NONE, label: t`No type` },
+    { id: created, label: making ? newType(making) : t`New type…` },
+    ...keptTypes.map((k) => ({ id: k.id, label: k.name })),
+  ];
+  const [typed, setTyped] = useState('');
+  // The list filters on the trimmed text, as `known` matches it: "Appliance " still lists
+  // Appliance.
+  const { contains } = useFilter({ sensitivity: 'base' });
+  const draft = typed.trim().slice(0, TYPE_NAME_MAX);
+  const known = options.some((o) => fold(o.label) === fold(draft));
+  const offer = `${NEW}:${draft}`;
+  const items =
+    draft && !known && offer !== created
+      ? [...options, { id: offer, label: newType(draft) }]
+      : options;
+  return (
+    <Combobox
+      aria-label={t`Kept type for ${name}`}
+      items={items}
+      selectedKey={
+        state === 'matched' && choice && 'typeId' in choice
+          ? choice.typeId
+          : state === 'none'
+            ? NONE
+            : created
+      }
+      onInputChange={setTyped}
+      defaultFilter={(text, input) => contains(text, input.trim())}
+      onSelectionChange={(k) => {
+        if (!k) return;
+        const key = String(k);
+        if (key === NONE) onChange({ none: true });
+        else if (key === offer) onChange({ create: draft });
+        else if (key === created) onChange({ create: name.slice(0, TYPE_NAME_MAX) });
+        else onChange({ typeId: key });
+      }}
+    />
+  );
+}
+
+type BoxRow = NonNullable<HomeboxMappingHints['boxes']>[number];
+
+/** The locations whose names read as boxes: ticked ones come in as boxes (things that hold
+ * things) instead of places. */
+function BoxSuggestions({
+  boxes,
+  choices,
+  onChange,
+}: {
+  boxes: NonNullable<HomeboxMappingHints['boxes']>;
+  choices: HomeboxChoices;
+  onChange: (choices: HomeboxChoices) => void;
+}) {
+  const { t } = useLingui();
+  const f = useFormat();
+  const [list] = useListState();
+  const chosen = new Set(choices.boxes ?? []);
+  const wanted = list.filters.boxChosen ?? [];
+  const not = isNot(list, 'boxChosen');
+  const pathOf = (b: BoxRow) => b.path.join(' › ');
+  const sorted = useMemo(
+    () =>
+      [...boxes].sort(
+        (a, b) =>
+          naturalCompare(a.name, b.name) || naturalCompare(a.path.join('/'), b.path.join('/')),
+      ),
+    [boxes],
+  );
+  const rows = sorted.filter((b) => {
+    const state = chosen.has(b.id) ? 'yes' : 'no';
+    return !(wanted.length && wanted.includes(state) === not);
+  });
+  const query = useMemoryPages(
+    ['hb-boxes', wanted, not, wanted.length ? [...chosen].join() : ''],
+    rows,
+    50,
+  );
+  const filters: FilterDef[] = [
+    {
+      key: 'boxChosen',
+      label: t`Chosen`,
+      kind: 'multi',
+      hideZero: true,
+      values: {
+        from: 'static',
+        options: [
+          { value: 'yes', label: t`As boxes`, count: chosen.size },
+          { value: 'no', label: t`As places`, count: boxes.length - chosen.size },
+        ],
+      },
+    },
+  ];
+  const setAll = (ids: string[]) => onChange({ ...choices, boxes: ids });
+  const all = chosen.size === boxes.length;
+  const n = f.num(chosen.size);
+  const of = f.num(boxes.length);
+
+  return (
+    <section className="grid gap-2" aria-labelledby="hb-boxes">
+      <h3 id="hb-boxes" className="m-0 font-semibold text-[17px]">
+        <Trans>These look like boxes</Trans>
+      </h3>
+      <p className="m-0 text-small text-ink-2">
+        <Trans>
+          Ticked, they come in as boxes: things that hold things, carried with what's inside. The
+          rest come in as places. You can change either later.
+        </Trans>
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="secondary" onPress={() => setAll(all ? [] : boxes.map((b) => b.id))}>
+          {all ? <Trans>Choose none</Trans> : <Trans>Choose all</Trans>}
+        </Button>
+        <span className="text-small text-ink-2">
+          <Trans>
+            {n} of {of} as boxes
+          </Trans>
+        </span>
+      </div>
+      <ListSurface<BoxRow>
+        label={t`Locations that look like boxes`}
+        // The page's search is the types list's; this one is short enough to tick through.
+        search={false}
+        filters={filters}
+        query={query}
+        getKey={(b) => b.id}
+        empty={null}
+        renderRow={(b) => (
+          <div className="px-3.5">
+            <TickBox
+              isSelected={chosen.has(b.id)}
+              onChange={(on) => {
+                const next = new Set(chosen);
+                if (on) next.add(b.id);
+                else next.delete(b.id);
+                setAll(boxes.map((x) => x.id).filter((id) => next.has(id)));
+              }}
+              description={
+                <>
+                  <bdi>{pathOf(b)}</bdi>
+                  {f.sep}
+                  <Plural value={b.items} one="# item" other="# items" />
+                </>
+              }
+            >
+              <bdi className="font-medium">{b.name}</bdi>
+            </TickBox>
+          </div>
+        )}
       />
     </section>
   );

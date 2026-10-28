@@ -9,7 +9,7 @@ import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import type { PlaceNode, ThingRow } from '@/api/inventory/types';
 import { CheckCircleIcon } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import { LoadingRows } from '@/components/page';
 import { TypeIcon } from '@/components/type-icon';
 import { Button } from '@/components/ui/button';
@@ -113,7 +113,7 @@ export function SortUnplaced({
                 <span className="font-semibold text-[16px] [overflow-wrap:anywhere]">
                   {current.name ? <bdi>{current.name}</bdi> : <Trans>Untitled draft</Trans>}
                 </span>
-                <IdChip code={current.shortCode} />
+                <LabelTape code={current.shortCode} printed={current.labelPrinted} />
               </span>
             </div>
             <MoveThingsForm

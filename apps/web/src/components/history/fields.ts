@@ -33,6 +33,9 @@ const HIDDEN = new Set([
   'version',
   'row_version',
   'meter_version',
+  // A conversion's box version (for its undo) and a reorder's list of places.
+  'box_version',
+  'order',
   'created_via',
   'moved',
   'trashed',

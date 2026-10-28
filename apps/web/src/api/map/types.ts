@@ -33,6 +33,9 @@ export type MapRoomView = {
   id: string;
   name: string;
   shortCode: string | null;
+  /** It carries a printed label: the amber tape, else no code in a list. Optional: an older
+   * server leaves it out (no tape then). */
+  labelPrinted?: boolean;
   levelId: string | null;
   kindKey: string;
   layout: MapRoomLayout | null;
@@ -43,6 +46,9 @@ export type MapNodeView = {
   subject: 'place' | 'thing';
   name: string;
   shortCode: string | null;
+  /** It carries a printed label: the amber tape, else no code in a list. Optional: an older
+   * server leaves it out (no tape then). */
+  labelPrinted?: boolean;
   roomId: string;
   /** The nearest room or node above it in Kept's tree. */
   parentId: string;
@@ -57,6 +63,9 @@ export type MapThingView = {
   id: string;
   name: string;
   shortCode: string | null;
+  /** It carries a printed label: the amber tape, else no code in a list. Optional: an older
+   * server leaves it out (no tape then). */
+  labelPrinted?: boolean;
   quantity: number;
   parentId: string;
   /** Its built-in type (its own or its nearest built-in parent's), for its shape (D249). */

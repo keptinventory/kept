@@ -336,6 +336,42 @@ export const MapIcon = (p: IconProps) => (
   </Svg>
 );
 
+/** The List layout: three rows, each with its bullet. */
+export const ListIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M9 6h12M9 12h12M9 18h12" />
+    <path d="M4 6h.01M4 12h.01M4 18h.01" />
+  </Svg>
+);
+
+/** The Grid layout: four tiles. */
+export const GridIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+    <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+    <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+    <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+  </Svg>
+);
+
+/** The Graph layout (#207): three nodes and the links between them. */
+export const GraphIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="6" cy="6" r="2.5" />
+    <circle cx="18" cy="7" r="2.5" />
+    <circle cx="12" cy="18" r="2.5" />
+    <path d="M8.5 6.2l7 .6M7.2 8.3l3.6 7.4M16.8 9.3l-3.6 6.5" />
+  </Svg>
+);
+
+/** The Table layout: a sheet's rows and its first column. */
+export const TableIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <path d="M3 10h18M3 15h18M10 4v16" />
+  </Svg>
+);
+
 /** A cog: eight teeth on a ring around a centre hole (D239: the rays read as a sun). */
 export const GearIcon = (p: IconProps) => (
   <Svg {...p}>

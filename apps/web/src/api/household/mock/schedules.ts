@@ -406,10 +406,34 @@ export function schedulesRoutes(state: MockState): MockRoute[] {
       if (stale) return reply(stale.status, stale.body);
       const b = body as UpdateServiceRecordBody;
       const before = { ...r };
+      // What the body names, shaped as a create shapes it; lines and completes replace.
+      const shaped = newRecord(
+        {
+          servicedOn: b.servicedOn ?? r.servicedOn,
+          subject: r.subject,
+          ...(b.vendor ? { vendor: b.vendor } : {}),
+          ...(b.lines ? { lines: b.lines } : {}),
+          ...(b.completes ? { completes: b.completes } : {}),
+          currency: b.currency ?? r.total?.currency ?? 'EGP',
+        },
+        r.locationId,
+      );
       if (b.servicedOn !== undefined) r.servicedOn = b.servicedOn;
       if (b.notes !== undefined) r.notes = b.notes;
       if (b.total !== undefined)
-        r.total = { amount: b.total, currency: b.currency ?? r.total?.currency ?? 'EGP' };
+        r.total =
+          b.total === null
+            ? null
+            : { amount: b.total, currency: b.currency ?? r.total?.currency ?? 'EGP' };
+      if (b.vendor !== undefined) r.vendor = shaped.vendor;
+      if (b.lines !== undefined) r.lines = shaped.lines;
+      if (b.completes !== undefined) r.completes = shaped.completes;
+      if (b.reading)
+        r.reading = {
+          id: r.reading?.id ?? newId(),
+          value: b.reading.value,
+          unit: r.reading?.unit ?? '',
+        };
       r.rowVersion += 1;
       recordHouseholdEvent(state, {
         action: 'service_record.update',

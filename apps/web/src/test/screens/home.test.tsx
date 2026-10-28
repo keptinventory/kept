@@ -4,6 +4,7 @@
  * review, the Insights teaser; today, day one, a viewer, Money off, a phone width, Arabic) and the
  * app frame.
  */
+import { KEPT_VERSION } from '@kept/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { householdPaths as hp } from '@/api/household/paths';
@@ -199,7 +200,7 @@ describe('Home', () => {
   });
 
   it('day one: the welcome, the steps after it, the Personal card, three shortcuts and an empty Recent', async () => {
-    await renderApp('/', { state: firstRunScenario() });
+    const { user } = await renderApp('/', { state: firstRunScenario() });
     expect(await findHeading('Welcome, Ibrahim')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Create your first home/ })).toHaveAttribute(
       'href',
@@ -222,8 +223,10 @@ describe('Home', () => {
       await within(recent).findByText('Nothing yet. What you add, move and check shows here.'),
     ).toBeInTheDocument();
     expect(within(recent).queryByRole('link', { name: 'All activity' })).not.toBeInTheDocument();
-    // Over plain HTTP the admin still hears about HTTPS.
+    // Over plain HTTP the admin still hears about HTTPS, and can say they're staying home.
     expect(screen.getByText('Put Kept on HTTPS')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Staying on my home network' }));
+    await waitFor(() => expect(screen.queryByText('Put Kept on HTTPS')).not.toBeInTheDocument());
   });
 
   it('a new location gets an Invite card, and the cards list every location', async () => {
@@ -349,6 +352,45 @@ describe('Home: Get started', () => {
       'aria-expanded',
       'true',
     );
+  });
+
+  it('"Staying on my home network" completes the HTTPS step, on the server', async () => {
+    const { user, mock } = await renderApp('/');
+    const started = await startedRegion();
+    expect(within(started).getByText('3 of 7 done')).toBeInTheDocument();
+    const items = await openSteps(user);
+    const https = items[0] as HTMLElement;
+    expect(https).toHaveTextContent('Put Kept on HTTPS');
+    await user.click(within(https).getByRole('button', { name: 'Staying on my home network' }));
+    await waitFor(() =>
+      expect(mock.lastCall('PUT', p.hint('checklist.home_network'))?.body).toEqual({
+        dismissed: true,
+      }),
+    );
+    expect(within(started).getByText('4 of 7 done')).toBeInTheDocument();
+    const after = within(started).getAllByRole('listitem');
+    expect(after[0]).toHaveTextContent('Print your first label');
+    expect(after.at(-1)).toHaveTextContent('Staying on my home network');
+    expect(within(started).queryByRole('button', { name: 'Staying on my home network' })).toBe(
+      null,
+    );
+  });
+
+  it('a home network chosen on another phone counts as done here', async () => {
+    const { user } = await renderApp('/', {
+      setup: (m) => {
+        m.state.inventory.hints.push({
+          key: 'checklist.home_network',
+          seenAt: '2026-10-20T09:00:00.000Z',
+          dismissedAt: '2026-10-20T09:00:00.000Z',
+        });
+      },
+    });
+    await waitFor(async () =>
+      expect(within(await startedRegion()).getByText('4 of 7 done')).toBeInTheDocument(),
+    );
+    const items = await openSteps(user);
+    expect(items[0]).toHaveTextContent('Print your first label');
   });
 
   it('over HTTPS there is no HTTPS step', async () => {
@@ -834,7 +876,7 @@ describe('the frame', () => {
     await renderApp('/');
     const links = await screen.findAllByRole('link', { name: 'Source code' });
     expect(links[0]).toHaveAttribute('href', 'https://github.com/keptinventory/kept/tree/3f9ed1d');
-    expect(screen.getAllByText('v0.1.0').length).toBeGreaterThan(0);
+    expect(screen.getAllByText(`v${KEPT_VERSION}`).length).toBeGreaterThan(0);
   });
 
   it('keeps the image’s third-party notices out of the footer, even when the server serves them', async () => {

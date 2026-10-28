@@ -363,6 +363,8 @@ function place(
     deletedAt: null,
     trashBatchId: null,
     deletedBy: null,
+    // A fixed code is on a printed label, as a thing's is.
+    labelPrinted: !!extra.shortCode,
     ...extra,
   };
 }
@@ -456,7 +458,9 @@ function thing(
     trashBatchId: null,
     deletedBy: null,
   };
-  return { ...base, ...extra };
+  // A fixed code is on a printed label in the demo's story (lists show it as the amber tape),
+  // unless the fixture says otherwise; Labels' "unprinted" reads the same flag (capture/mock/labels).
+  return { ...base, labelPrinted: !!extra.shortCode, ...extra };
 }
 
 const tagRef = (id: string, name: string) => ({ id, name, colour: null });
@@ -583,6 +587,8 @@ function things(all: TypeDetail[]): StoredThing[] {
       { placeId: P.bedroom },
       {
         shortCode: '5AFE9K',
+        // Its code isn't on a label yet: Labels' "unprinted" lists it, and lists show no tape.
+        labelPrinted: false,
         isContainer: true,
         secrets: [{ fieldKey: 'combination', label: null, set: true, canReveal: true }],
       },

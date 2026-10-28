@@ -6,6 +6,7 @@
  * Every write invalidates places, things and home: a move or a trash changes counts, paths and
  * the Unplaced number on Home at once, and the lists are cheap to refetch.
  */
+import { siblingOrder } from '@kept/shared';
 import {
   type QueryClient,
   useInfiniteQuery,
@@ -13,15 +14,19 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { api, ifMatch } from '@/api/client';
+import { api, ifMatch, written } from '@/api/client';
 import { inventoryPaths as p } from '@/api/inventory/paths';
 import {
   type ContentsParams,
   inventoryApi,
   inventoryKeys as k,
   nextCursor,
+  ownQueries,
 } from '@/api/inventory/queries';
 import type {
+  BoxNode,
+  ConvertChildrenBody,
+  ConvertChildrenResult,
   ConvertToContainerBody,
   ConvertToContainerResult,
   EmptyIntoBody,
@@ -30,6 +35,8 @@ import type {
   MoveResult,
   PlaceNode,
   PlaceView,
+  ReorderBody,
+  ReorderResult,
   ThingListParams,
 } from '@/api/inventory/types';
 import { keys, useLocations } from '@/api/queries';
@@ -48,16 +55,30 @@ export const placeApi = {
   },
   convertToContainer: (id: string, rowVersion: number, body: ConvertToContainerBody = {}) =>
     api.post<ConvertToContainerResult>(p.placeConvertToContainer(id), body, ifMatch(rowVersion)),
+  /** Places inside `id` as boxes, one row each; `auditEvents` are what one Undo reverses. */
+  convertChildren: (id: string, body: ConvertChildrenBody) =>
+    written.post<ConvertChildrenResult>(p.placeConvertChildren(id), body),
+  /** One of its places a step up or down, while `id` is in Custom order. */
+  reorder: (id: string, body: ReorderBody) => api.post<ReorderResult>(p.placeReorder(id), body),
   label: (id: string) => api.post<LabelResult>(p.placeLabel(id)),
   emptyInto: (thingId: string, body: EmptyIntoBody) =>
     api.post<MoveResult>(p.thingEmptyInto(thingId), body),
 };
 
-/** After any place or move write: everything that shows places, things or their counts. */
-export function invalidateBrowse(qc: QueryClient): Promise<unknown> {
+/**
+ * After any place or move write: everything that shows places, things or their counts.
+ * `gone` is a place the write ended (merged, trashed, turned into a box): its own queries go stale
+ * without a refetch (`ownQueries`), so the page can move on at once.
+ */
+export function invalidateBrowse(
+  qc: QueryClient,
+  { gone }: { gone?: string } = {},
+): Promise<unknown> {
+  const own = gone ? ownQueries(gone) : () => false;
   return Promise.all([
-    qc.invalidateQueries({ queryKey: k.places.all }),
-    qc.invalidateQueries({ queryKey: k.things.all }),
+    qc.invalidateQueries({ queryKey: k.places.all, predicate: (q) => !own(q) }),
+    qc.invalidateQueries({ queryKey: k.things.all, predicate: (q) => !own(q) }),
+    ...(gone ? [qc.invalidateQueries({ predicate: own, refetchType: 'none' })] : []),
     qc.invalidateQueries({ queryKey: k.home }),
     qc.invalidateQueries({ queryKey: keys.locations }),
   ]);
@@ -65,7 +86,7 @@ export function invalidateBrowse(qc: QueryClient): Promise<unknown> {
 
 export function useInvalidateBrowse() {
   const qc = useQueryClient();
-  return () => invalidateBrowse(qc);
+  return (opts?: { gone?: string }) => invalidateBrowse(qc, opts);
 }
 
 /**
@@ -104,6 +125,7 @@ export const usePlaceTree = (locationId: string) =>
 export type LocationTree = {
   location: { id: string; name: string; kind: LocationKind; role: Role };
   places: PlaceNode[];
+  boxes: BoxNode[];
 };
 
 /**
@@ -128,6 +150,7 @@ export function useAllPlaceTrees(): { trees: LocationTree[]; isPending: boolean 
             {
               location: { id: l.id, name: l.name, kind: l.kind, role: l.role },
               places: data.places,
+              boxes: data.boxes ?? [],
             },
           ]
         : [];
@@ -135,16 +158,17 @@ export function useAllPlaceTrees(): { trees: LocationTree[]; isPending: boolean 
   };
 }
 
-/** Children by parent id, sorted the way the server sorts (sort, then name). */
-export function childrenOf(places: PlaceNode[]): Map<string | null, PlaceNode[]> {
-  const out = new Map<string | null, PlaceNode[]>();
+/** Children by parent id, sorted the way the server sorts (floors in their order, then A to Z;
+ * a parent in Custom order by its own order). */
+export function childrenOf<P extends PlaceNode>(places: P[]): Map<string | null, P[]> {
+  const out = new Map<string | null, P[]>();
+  const orderOf = new Map(places.map((pl) => [pl.id, pl.childOrder]));
   for (const pl of places) {
     const list = out.get(pl.parentId) ?? [];
     list.push(pl);
     out.set(pl.parentId, list);
   }
-  for (const list of out.values())
-    list.sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name));
+  for (const [parent, list] of out) list.sort(siblingOrder(parent ? orderOf.get(parent) : 'name'));
   return out;
 }
 

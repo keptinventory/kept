@@ -68,6 +68,10 @@ export type ListSurfaceProps<T> = {
   surface?: Surface;
   groups?: GroupDef[];
   sorts?: SortDef[];
+  /** The Display menu's heading over the sorts (default "Sort"). */
+  sortTitle?: string;
+  /** A quiet line under that heading: what the sort leaves alone (#321). */
+  sortNote?: string;
   /** Layouts (D211: a container's list or photos); the route must declare `view`. */
   layouts?: LayoutDef[];
   /** Tile sizes for the layout on screen (#139); the route must declare `size`. */
@@ -111,6 +115,8 @@ export function ListSurface<T>({
   surface,
   groups,
   sorts,
+  sortTitle,
+  sortNote,
   layouts,
   sizes,
   defaultSize,
@@ -165,6 +171,8 @@ export function ListSurface<T>({
                 options={{
                   ...(groups ? { groups } : {}),
                   ...(sorts ? { sorts } : {}),
+                  ...(sortTitle ? { sortTitle } : {}),
+                  ...(sortNote ? { sortNote } : {}),
                   ...(layouts ? { layouts } : {}),
                   ...(sizes?.length ? { sizes } : {}),
                   ...(defaultSize ? { defaultSize } : {}),

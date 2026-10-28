@@ -145,6 +145,9 @@ export async function waysInLeft(
 }
 const CHANGE_PASSWORD_PATH = '/change-password';
 const MAGIC_LINK_VERIFY_PATH = '/magic-link/verify';
+/** Better Auth's verification identifier for a magic link is `magic-link:<stored token>`
+ * (better-auth/plugins/magic-link, where it isn't exported). */
+const MAGIC_LINK_IDENTIFIER_PREFIX = 'magic-link:';
 
 /** Enrolling a passkey or TOTP. D197: once mail is delivered, an unverified address may not. */
 export const ENROLMENT_PATHS = new Set([
@@ -371,17 +374,23 @@ export function keptSecurity(opts: KeptSecurityOptions): BetterAuthPlugin {
         {
           // D197's magic-link clause (before): whose link is this, and is their address still
           // unverified? The token is stored hashed (magicLink storeToken: 'hashed', SHA-256
-          // base64url), and findVerificationValue() applies the identifier hashing itself.
+          // base64url) under Better Auth's `magic-link:` prefix (1.7.7, GHSA-965c-763c-88jm),
+          // and findVerificationValue() applies the identifier hashing itself.
           matcher: (ctx) => ctx.path === MAGIC_LINK_VERIFY_PATH,
           handler: createAuthMiddleware(async (ctx) => {
             const token = (ctx.query as { token?: unknown } | undefined)?.token;
             if (typeof token !== 'string' || !token) return;
             const stored = createHash('sha256').update(token).digest('base64url');
-            const found = await ctx.context.internalAdapter.findVerificationValue(stored);
+            const found = await ctx.context.internalAdapter.findVerificationValue(
+              `${MAGIC_LINK_IDENTIFIER_PREFIX}${stored}`,
+            );
             if (!found) return;
             let email: unknown;
             try {
-              email = (JSON.parse(found.value) as { email?: unknown }).email;
+              const record = JSON.parse(found.value) as { type?: unknown; email?: unknown };
+              // Only a magic link's own record: another flow's row is never read as one.
+              if (record.type !== 'magic-link') return;
+              email = record.email;
             } catch {
               return;
             }

@@ -1,8 +1,8 @@
 /**
- * The thing's header: the photos, the ID chip, the full path, the
- * derived-state pills and the lifecycle when it has ended. The name is the page's heading. User
- * text is isolated (`<bdi>`, `dir="auto"`), so an Arabic box name inside an English path keeps
- * its shape; the ID chip is always left to right.
+ * The thing's header: the photos, its code (the tape of a printed label, else quietly), the full
+ * path, the derived-state pills and the lifecycle when it has ended. The name is the page's
+ * heading. User text is isolated (`<bdi>`, `dir="auto"`), so an Arabic box name inside an English
+ * path keeps its shape; the code is always left to right.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
@@ -23,7 +23,6 @@ import { useLocationName } from '@/lib/labels';
 import { cn } from '@/lib/utils';
 import { useSetArchived } from './archive';
 import { useThingCtx } from './context';
-import { useFresh } from './fresh';
 import { useLifecycleLabels } from './labels';
 import { useTypeName } from './names';
 import { PhotoCarousel } from './photos';
@@ -85,7 +84,6 @@ export function ThingHeader() {
   const fmt = useFormat();
   const lifecycle = useLifecycleLabels();
   const typeName = useTypeName();
-  const fresh = useFresh(thing.id);
   const loanText = useLoanText();
   const setArchived = useSetArchived();
   return (
@@ -93,11 +91,13 @@ export function ThingHeader() {
       <PhotoCarousel />
       <div className="grid content-start gap-2.5">
         <div className="flex flex-wrap items-center gap-2">
-          <IdChip code={thing.shortCode} size="large" fresh={fresh} />
+          {/* Its printed label leads, as the tape; a code with no label waits quietly last. */}
+          {thing.labelPrinted ? <IdChip code={thing.shortCode} size="large" /> : null}
           <span className="inline-flex items-center gap-1.5 text-small text-ink-2">
             <TypeIcon icon={thing.type?.icon} className="size-4" />
             {typeName(thing.type)}
           </span>
+          {thing.labelPrinted ? null : <IdChip code={thing.shortCode} variant="quiet" />}
         </div>
         <ThingPath
           path={thing.path}

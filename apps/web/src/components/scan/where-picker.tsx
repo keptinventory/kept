@@ -3,6 +3,9 @@
  * barcode, the carrying tray offline): the places of the locations you can add to, from the phone's
  * snapshot so it works offline. With nothing on the phone yet (first open, or a browser without
  * IndexedDB) it is step 2's server-backed place picker instead.
+ *
+ * `existing` (a blank label attached to a place, #329): searchable by name, no Unplaced area, and
+ * nothing chosen until the person chooses, so one tap never claims the wrong place.
  */
 import { can, type SnapLocation, type SnapPlace } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
@@ -11,7 +14,8 @@ import { Label, Radio, RadioGroup } from 'react-aria-components';
 import type { LocationKind } from '@/api/types';
 import { flattenPlaces, lastPlaceIn } from '@/components/capture/target';
 import { usePlaceName } from '@/components/places/labels';
-import { type PickedPlace, PlacePicker } from '@/components/places/move-picker';
+import { type PickedPlace, PlacePicker, placeMatches } from '@/components/places/move-picker';
+import { TextField } from '@/components/ui/text-field';
 import { useLocationName } from '@/lib/labels';
 import type { OfflineStore } from '@/offline/store';
 
@@ -60,25 +64,28 @@ export function WherePicker({
   locationIds,
   value,
   onChange,
+  existing = false,
 }: {
   store: OfflineStore | null;
   label: string;
   locationIds?: readonly string[];
   value: PickedPlace | null;
   onChange: (picked: PickedPlace) => void;
+  existing?: boolean;
 }) {
   const world = usePhoneWorld(store, locationIds);
   const placeName = usePlaceName();
   const locationName = useLocationName();
   const { t } = useLingui();
+  const [q, setQ] = useState('');
 
   // Start from the default once the phone's places are read.
   useEffect(() => {
-    if (!value && world) {
+    if (!value && world && !existing) {
       const d = defaultPlace(world);
       if (d) onChange(d);
     }
-  }, [world, value, onChange]);
+  }, [world, value, onChange, existing]);
 
   if (world && world.locations.length === 0) {
     return (
@@ -86,45 +93,55 @@ export function WherePicker({
         label={label}
         value={value}
         onChange={onChange}
+        includeUnplaced={!existing}
         {...(locationIds ? { locationIds: [...locationIds] } : {})}
       />
     );
   }
   if (!world) return <div className="min-h-24" aria-busy="true" />;
   return (
-    <RadioGroup
-      value={value?.placeId ?? null}
-      onChange={(id) => {
-        for (const l of world.locations) {
-          const p = world.places[l.id]?.find((x) => x.id === id);
-          if (p) onChange({ placeId: p.id, locationId: l.id, name: placeName(p) });
-        }
-      }}
-      className="grid gap-2"
-    >
-      <Label className="font-medium text-small text-ink">{label}</Label>
-      <div className="grid max-h-72 gap-3 overflow-y-auto">
-        {world.locations.map((loc) => (
-          <div key={loc.id} className="grid gap-1">
-            <div className="px-1 font-semibold text-[12.5px] text-ink-3 uppercase tracking-[0.06em]">
-              <bdi>{locationName({ kind: loc.kind as LocationKind, name: loc.name })}</bdi>
+    <>
+      {existing ? <TextField label={t`Search`} type="search" value={q} onChange={setQ} /> : null}
+      <RadioGroup
+        value={value?.placeId ?? null}
+        onChange={(id) => {
+          for (const l of world.locations) {
+            const p = world.places[l.id]?.find((x) => x.id === id);
+            if (p) onChange({ placeId: p.id, locationId: l.id, name: placeName(p) });
+          }
+        }}
+        className="grid gap-2"
+      >
+        <Label className="font-medium text-small text-ink">{label}</Label>
+        <div className="grid max-h-72 gap-3 overflow-y-auto">
+          {world.locations.map((loc) => (
+            <div key={loc.id} className="grid gap-1">
+              <div className="px-1 font-semibold text-[12.5px] text-ink-3 uppercase tracking-[0.06em]">
+                <bdi>{locationName({ kind: loc.kind as LocationKind, name: loc.name })}</bdi>
+              </div>
+              <div className="grid overflow-hidden rounded-[10px] border border-line bg-surface">
+                {flattenPlaces(world.places[loc.id] ?? [])
+                  .filter(
+                    ({ place }) => !existing || (!place.isUnplaced && placeMatches(place.name, q)),
+                  )
+                  .map(({ place, depth }) => (
+                    <Radio
+                      key={place.id}
+                      value={place.id}
+                      aria-label={placeName(place) || t`Unplaced`}
+                      style={{ paddingInlineStart: `${0.875 + depth * 1.25}rem` }}
+                      className="flex min-h-11 cursor-pointer items-center gap-2 border-line py-2 pe-3.5 text-[15px] text-ink outline-none not-first:border-t data-focus-visible:outline-2 data-focus-visible:-outline-offset-2 data-focus-visible:outline-info data-hovered:bg-sunken data-selected:bg-sunken data-selected:font-semibold"
+                    >
+                      <bdi className="min-w-0 flex-1 [overflow-wrap:anywhere]">
+                        {placeName(place)}
+                      </bdi>
+                    </Radio>
+                  ))}
+              </div>
             </div>
-            <div className="grid overflow-hidden rounded-[10px] border border-line bg-surface">
-              {flattenPlaces(world.places[loc.id] ?? []).map(({ place, depth }) => (
-                <Radio
-                  key={place.id}
-                  value={place.id}
-                  aria-label={placeName(place) || t`Unplaced`}
-                  style={{ paddingInlineStart: `${0.875 + depth * 1.25}rem` }}
-                  className="flex min-h-11 cursor-pointer items-center gap-2 border-line py-2 pe-3.5 text-[15px] text-ink outline-none not-first:border-t data-focus-visible:outline-2 data-focus-visible:-outline-offset-2 data-focus-visible:outline-info data-hovered:bg-sunken data-selected:bg-sunken data-selected:font-semibold"
-                >
-                  <bdi className="min-w-0 flex-1 [overflow-wrap:anywhere]">{placeName(place)}</bdi>
-                </Radio>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </RadioGroup>
+          ))}
+        </div>
+      </RadioGroup>
+    </>
   );
 }

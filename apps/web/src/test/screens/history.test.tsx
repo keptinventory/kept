@@ -296,6 +296,89 @@ describe('activity', () => {
     ).toHaveTextContent('Kept');
   });
 
+  it('#319: a place turned into a box reads as a box, and offers no Undo once undone', async () => {
+    const state = ownerScenario();
+    const box = (n: number, name: string, undone: boolean) => ({
+      id: `01926f00-0000-7000-8000-0000000e319${n}`,
+      at: new Date(Date.now() - 60_000 * n).toISOString(),
+      location_id: INV_IDS.loc.garage,
+      action: 'place.convert_to_container',
+      actor: { type: 'user' as const, id: state.me.user.id, displayName: 'Ibrahim' },
+      entity: { type: 'place', id: T.pump },
+      root_thing_id: null,
+      diff: {},
+      undo_of: null,
+      undoable_until: new Date(Date.now() + 86_400_000).toISOString(),
+      summaryKey: 'place.convert_to_container',
+      summaryParams: { name },
+      summary: 'English, never shown',
+      ...(undone ? { undone: true } : {}),
+    });
+    state.inventory.events.push(box(1, 'Crate A', true), box(2, 'Crate B', false));
+    await renderApp('/activity', { state });
+    const list = await feed();
+    const undone = within(list).getByRole('article', { name: 'Turned Crate A into a box' });
+    expect(within(undone).queryByRole('button', { name: /^Undo/ })).toBeNull();
+    const open = within(list).getByRole('article', { name: 'Turned Crate B into a box' });
+    expect(
+      within(open).getByRole('button', { name: 'Undo: Turned Crate B into a box' }),
+    ).toBeInTheDocument();
+  });
+
+  it('#319: a converted or merged row links to what it is now, and says how many things moved', async () => {
+    const state = ownerScenario();
+    const gone = '01926f00-0000-7000-8000-0000000e3199';
+    const kitchen = '01926f00-0000-7000-8000-0000000e3198';
+    type Extra = {
+      action: string;
+      summaryKey: string;
+      summaryParams: Record<string, string>;
+      diff?: Record<string, { before: unknown; after: unknown; class: 'plain' }>;
+      linkTo: { type: 'thing' | 'place'; id: string; shortCode: string | null };
+    };
+    const row = (n: number, e: Extra) => ({
+      id: `01926f00-0000-7000-8000-0000000e318${n}`,
+      at: new Date(Date.now() - 60_000 * n).toISOString(),
+      location_id: INV_IDS.loc.garage,
+      actor: { type: 'user' as const, id: state.me.user.id, displayName: 'Ibrahim' },
+      entity: { type: 'place', id: gone, shortCode: null },
+      root_thing_id: null,
+      diff: {},
+      undo_of: null,
+      undoable_until: null,
+      summary: 'English, never shown',
+      ...e,
+    });
+    state.inventory.events.push(
+      row(1, {
+        action: 'place.convert_to_container',
+        summaryKey: 'place.convert_to_container',
+        summaryParams: { name: 'Seed crate' },
+        linkTo: { type: 'thing', id: gone, shortCode: 'K7D2QX' },
+      }),
+      row(2, {
+        action: 'place.merge',
+        summaryKey: 'place.merge',
+        summaryParams: { name: 'Kitchen (dup)' },
+        diff: {
+          merged_into: { before: null, after: kitchen, class: 'plain' },
+          things_moved: { before: null, after: 3, class: 'plain' },
+        },
+        linkTo: { type: 'place', id: kitchen, shortCode: null },
+      }),
+    );
+    await renderApp('/activity', { state });
+    const list = await feed();
+    const box = within(list).getByRole('article', { name: 'Turned Seed crate into a box' });
+    expect(within(box).getByRole('link')).toHaveAttribute('href', '/t/K7D2QX');
+    const merged = within(list).getByRole('article', {
+      name: 'Merged Kitchen (dup) into another place',
+    });
+    expect(within(merged).getByRole('link')).toHaveAttribute('href', `/p/${kitchen}`);
+    expect(merged.textContent).toContain('Things moved3');
+    expect(merged.textContent).not.toMatch(/Merged into|[0-9a-f]{8}-[0-9a-f]{4}-/);
+  });
+
   it("leaves out an audit row's internal columns, and reads sizes and label IDs as people do", async () => {
     const state = ownerScenario();
     const event = (n: number, action: string, diff: Record<string, unknown>) => ({

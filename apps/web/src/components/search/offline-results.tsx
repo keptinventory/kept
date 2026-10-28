@@ -79,6 +79,7 @@ function rowOf(t: SnapThing, path: PathStep[], tags: readonly SnapTag[] = []): T
     id: t.id,
     locationId: t.locationId,
     shortCode: t.shortCode,
+    labelPrinted: t.labelPrinted === true,
     name: t.name,
     type: null,
     quantity: Number(t.quantity) || 1,

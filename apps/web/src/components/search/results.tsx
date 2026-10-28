@@ -34,11 +34,11 @@ import type {
 } from '@/api/inventory/types';
 import { useLocations } from '@/api/queries';
 import { BuildingIcon, ChevronEndIcon, PersonIcon, SearchIcon } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import { ListSurface } from '@/components/list-surface';
 import { EmptyState, List, Section } from '@/components/page';
 import { placeIcon, usePlaceName } from '@/components/places/labels';
-import { rowLink, Tile } from '@/components/places/rows';
+import { rowLink, Tile, TypeText } from '@/components/places/rows';
 import { StatusPill } from '@/components/status-pill';
 import { TagChips } from '@/components/tags/chip';
 import { TypeIcon } from '@/components/type-icon';
@@ -409,6 +409,8 @@ export function ThingResult({
           </span>
         ) : null}
         <span className="flex items-center gap-2 text-small text-ink-2">
+          {/* #321: what it is, first on the line that says where. */}
+          <TypeText thing={thing} before />
           {thing.containerThumbUrl ? (
             <img
               src={thing.containerThumbUrl}
@@ -419,11 +421,11 @@ export function ThingResult({
           ) : null}
           <FullPath location={locationName} steps={thing.path} />
         </span>
-        {thing.shortCode || thing.derivedState.length || pending ? (
+        {(thing.labelPrinted && thing.shortCode) || thing.derivedState.length || pending ? (
           <span className="flex flex-wrap items-center gap-1.5">
-            <IdChip code={thing.shortCode} pending={pending} />
+            <LabelTape code={thing.shortCode} printed={thing.labelPrinted} pending={pending} />
             {thing.derivedState.map((s) => (
-              <StatusPill key={s} state={s} />
+              <StatusPill key={s} state={s} lifecycle={thing.lifecycle} />
             ))}
           </span>
         ) : null}

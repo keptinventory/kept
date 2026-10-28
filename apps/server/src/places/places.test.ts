@@ -219,6 +219,9 @@ describe('GET /api/v1/locations/:locationId/places (the tree)', () => {
         shortCode: 'ST4DY2',
         thingCount: 2,
         childCount: 1,
+        createdAt: expect.stringMatching(/^\d{4}-\d\d-\d\dT/),
+        boxCount: 0,
+        childOrder: 'name',
       });
       expect(byId.get(shelf)).toMatchObject({
         parentId: study,
@@ -254,8 +257,10 @@ describe('POST /api/v1/locations/:locationId/places', () => {
       kindKey: 'room',
       icon: 'lucide:warehouse',
       isUnplaced: false,
+      childOrder: 'name',
       path: [{ id, name: 'Garage', kind: 'place', isUnplaced: false, shortCode: null }],
       shortCode: null,
+      labelPrinted: false,
       fields: [],
       custom: {},
       secrets: [],
@@ -1019,6 +1024,21 @@ describe('POST /api/v1/places/:id/merge-into', () => {
     const [event] = (await auditEvents(home.id, 'place.merge')).slice(-1);
     expect(event?.diff).toMatchObject({ merged_into: { after: kitchen } });
     expect(sent.some((j) => j.name === 'reindex')).toBe(true);
+
+    // #319: Activity says where it went and what moved, never "Name Kitchen (dup) → empty", and
+    // links to the place it joined: its own page is gone.
+    const feed = await ok<{ items: Record<string, unknown>[] }>(
+      api(ola, 'GET', `/api/v1/activity?locationId=${home.id}&limit=200`),
+    );
+    const row = feed.items.find(
+      (e) => e.action === 'place.merge' && (e.entity as { id: string }).id === dup,
+    );
+    expect(row?.diff).toEqual({
+      merged_into: { before: null, after: kitchen, class: 'plain' },
+      things_moved: { before: null, after: 1, class: 'plain' },
+    });
+    expect(row?.summary).toBe('Merged Kitchen (dup) into another place');
+    expect(row?.linkTo).toEqual({ type: 'place', id: kitchen, shortCode: dst.shortCode ?? null });
   });
 
   it('refuses a target elsewhere (404) and one inside the source (409)', async () => {

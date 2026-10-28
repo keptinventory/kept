@@ -51,6 +51,19 @@ describe('log_service rows', () => {
       v: ['Oil change', 'Oil filter', 'Check-up'],
     });
   });
+
+  it('shows the notes the service is logged with (#296)', () => {
+    const [row] = rowsOf(
+      proposal(
+        { thing_id: CAR, serviced_on: '2026-10-14', notes: 'Wipers squeak in the rain.' },
+        { [CAR]: { kind: 'thing', name: 'Corolla', path: [] } },
+      ),
+    );
+    expect(row?.fields.find((f) => f.key === 'notes')?.after).toEqual({
+      t: 'text',
+      v: 'Wipers squeak in the rain.',
+    });
+  });
 });
 
 describe('add_thing rows', () => {
@@ -165,6 +178,105 @@ describe('tag_things rows', () => {
       target: null,
       count: { n: 2 },
       fields: [{ key: 'tags', after: { t: 'list', v: ['+ Camping', '− Old'] } }],
+    });
+  });
+});
+
+describe('update_place rows (#313)', () => {
+  const SHELF = '0192f0c3-7c55-7000-8000-000000000006';
+  const HALL = '0192f0c3-7c55-7000-8000-000000000007';
+  const STUDY = '0192f0c3-7c55-7000-8000-000000000008';
+  const refs: Proposal['refs'] = {
+    [SHELF]: { kind: 'place', name: 'Window shelf', path: ['Home', 'Study'] },
+    [HALL]: { kind: 'place', name: 'Hall', path: ['Home'] },
+    [STUDY]: { kind: 'place', name: 'Study', path: ['Home'] },
+  };
+  const change = (args: Record<string, unknown>, before: Record<string, unknown>) =>
+    rowsOf({ ...proposal({ place_id: SHELF, ...args }, refs), tool: 'update_place', before });
+
+  it('shows each field of the place form as it was and as it will be', () => {
+    const [row] = change(
+      {
+        fields: {
+          name: 'Book shelf',
+          kind: 'closet',
+          parent_id: HALL,
+          child_order: 'custom',
+          custom: { width_cm: 80 },
+        },
+      },
+      { name: 'Window shelf', kind: 'room', parent_id: STUDY, child_order: 'name' },
+    );
+    expect(row).toMatchObject({
+      verb: 'change',
+      target: { kind: 'place', id: SHELF, name: 'Window shelf' },
+    });
+    expect(row?.fields).toEqual([
+      {
+        key: 'name',
+        before: { t: 'text', v: 'Window shelf' },
+        after: { t: 'text', v: 'Book shelf' },
+      },
+      {
+        key: 'kind',
+        before: { t: 'placeKind', v: 'room' },
+        after: { t: 'placeKind', v: 'closet' },
+      },
+      {
+        key: 'under',
+        before: { t: 'path', v: ['Home', 'Study'] },
+        after: { t: 'path', v: ['Home', 'Hall'] },
+      },
+      {
+        key: 'order',
+        before: { t: 'childOrder', v: 'name' },
+        after: { t: 'childOrder', v: 'custom' },
+      },
+      { key: 'custom', after: { t: 'text', v: 'width_cm: 80' } },
+    ]);
+  });
+
+  it('the top of the location is the location itself; a step up or down is its own row', () => {
+    const [top] = change({ fields: { parent_id: null } }, { parent_id: STUDY });
+    expect(top?.fields).toEqual([
+      {
+        key: 'under',
+        before: { t: 'path', v: ['Home', 'Study'] },
+        after: { t: 'path', v: ['Home'] },
+      },
+    ]);
+    const [up] = change({ move: 'up' }, { parent_id: STUDY });
+    expect(up?.fields).toEqual([{ key: 'step', after: { t: 'step', v: 'up' } }]);
+    // Values Kept doesn't know are left out, never shown as the model wrote them.
+    const [odd] = change({ move: 'sideways', fields: { child_order: 'newest' } }, {});
+    expect(odd?.fields).toEqual([]);
+  });
+});
+
+describe('turn_into_boxes rows (#313)', () => {
+  const A = '0192f0c3-7c55-7000-8000-000000000009';
+  const B = '0192f0c3-7c55-7000-8000-00000000000a';
+  const refs: Proposal['refs'] = {
+    [A]: { kind: 'place', name: 'Blue crate', path: ['Home', 'Landing'] },
+    [B]: { kind: 'place', name: 'Red crate', path: ['Home', 'Landing'] },
+  };
+  const boxes = (ids: string[]) =>
+    rowsOf({ ...proposal({ place_ids: ids }, refs), tool: 'turn_into_boxes' });
+
+  it('one place: the place itself', () => {
+    expect(boxes([A])[0]).toMatchObject({
+      verb: 'box',
+      target: { kind: 'place', id: A, name: 'Blue crate' },
+      fields: [],
+    });
+  });
+
+  it('several: how many, and each place by name', () => {
+    expect(boxes([A, B])[0]).toMatchObject({
+      verb: 'boxes',
+      target: null,
+      count: { n: 2 },
+      fields: [{ key: 'places', after: { t: 'list', v: ['Blue crate', 'Red crate'] } }],
     });
   });
 });

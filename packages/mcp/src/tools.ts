@@ -29,6 +29,7 @@ import {
   ATTACHMENT_ROLES,
   BOX_STATES,
   BUILTIN_PLACE_KINDS,
+  CHILD_ORDERS,
   CLAIM_STATUSES,
   CONDITIONS,
   DERIVED_STATES,
@@ -750,6 +751,87 @@ export const TOOL_DEFS = Object.freeze({
     }),
     output: writeResult.extend({ place: placeRef }),
   }),
+  // 1.x (#313): the app's place form (Rename, Move, its fields, Order of the places here) and
+  // Turn places into boxes, through their routes' operations, with the app's undo.
+  update_place: tool({
+    name: 'update_place',
+    title: 'Change a place',
+    description:
+      'Change a place: its name, kind, the place it is inside, its fields, or how the places in it are ordered. `move` puts it one step up or down where its parent is in Custom order.',
+    scope: 'write',
+    module: null,
+    since: '1.x',
+    input: z
+      .object({
+        location_id: locationId,
+        place_id: idOrCode,
+        fields: z
+          .object({
+            name: shortText(120),
+            kind: z
+              .string()
+              .max(40)
+              .describe(`A place kind: ${BUILTIN_PLACE_KINDS.join(', ')} or the account’s own`),
+            parent_id: idOrCode
+              .nullable()
+              .describe('The place it goes inside; null: the top of the location'),
+            child_order: z
+              .enum(CHILD_ORDERS)
+              .describe('The places inside it: `name` A to Z, or `custom`, their own order'),
+            custom: z
+              .record(z.string().max(64), z.unknown())
+              .describe('Its kind’s own fields, by key; null clears one'),
+          })
+          .partial()
+          .optional(),
+        move: z
+          .enum(['up', 'down'])
+          .optional()
+          .describe(
+            'One step up or down among the places beside it; their parent must be in Custom order',
+          ),
+      })
+      .refine((i) => Object.keys(i.fields ?? {}).length > 0 || i.move !== undefined, {
+        message: 'a field or a move',
+        path: ['fields'],
+      }),
+    output: writeResult.extend({
+      place: placeRef,
+      changed_fields: z.array(z.string()),
+      order: z
+        .array(uuid)
+        .optional()
+        .describe('After a move: the places beside it, in their order now'),
+    }),
+  }),
+  turn_into_boxes: tool({
+    name: 'turn_into_boxes',
+    title: 'Turn places into boxes',
+    description:
+      'Turn places into boxes, so each moves with what is in it. Each keeps its id, label and contents; one with places inside stays a place. One Undo turns them all back.',
+    scope: 'write',
+    module: null,
+    since: '1.x',
+    input: z.object({
+      location_id: locationId,
+      place_ids: z.array(idOrCode).min(1).max(50),
+    }),
+    output: writeResult.extend({
+      /** One undoable event per box (one Undo undoes all). */
+      audit_event_ids: z.array(uuid),
+      boxes: z.array(thingRef).describe('Each box: the same id as the place it was'),
+      refused: z.array(
+        z.object({
+          place: placeRef,
+          reason: z
+            .enum(['has_places', 'top_level', 'not_here'])
+            .describe(
+              '`has_places`: places inside it (a box holds things only); `top_level`: at the top of the location, turned into a box in Kept itself; `not_here`: it changed meanwhile',
+            ),
+        }),
+      ),
+    }),
+  }),
   attach_link: tool({
     name: 'attach_link',
     title: 'Add a photo or document',
@@ -956,7 +1038,7 @@ export const TOOL_DEFS = Object.freeze({
     name: 'log_service',
     title: 'Log a service',
     description:
-      'Record a service done on a thing or a place: the date, who did it, the total, the lines (each may use stock from a consumable), and which schedules it completes.',
+      'Record a service done on a thing or a place: the date, who did it, the total, the lines (each may use stock from a consumable), which schedules it completes, and notes.',
     scope: 'write',
     module: null,
     since: 5,
@@ -996,6 +1078,7 @@ export const TOOL_DEFS = Object.freeze({
         .max(50)
         .optional(),
       completes: z.array(uuid).max(20).optional(),
+      notes: z.string().trim().max(5000).optional().describe('What else to remember about it'),
     }),
     output: writeResult.extend({ service_id: uuid }),
   }),

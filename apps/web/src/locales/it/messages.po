@@ -8301,6 +8301,10 @@ msgstr "Oggetti trovati"
 msgid "Things in the same location, by brand and model or by name."
 msgstr "Oggetti nello stesso luogo, per marca e modello o per nome."
 
+#: src/components/history/labels.ts
+msgid "Things moved"
+msgstr "Oggetti spostati"
+
 #: src/components/registries/registry-page.tsx
 msgid "Things show here when a purchase from here is recorded for them."
 msgstr "Gli oggetti compaiono qui quando registri per loro un acquisto da questo venditore."
@@ -8634,8 +8638,8 @@ msgid "Turn on two-factor"
 msgstr "Attiva la verifica in due passaggi"
 
 #: src/components/history/labels.ts
-msgid "Turned {name} into a container"
-msgstr "Trasformato in contenitore: {name}"
+msgid "Turned {name} into a box"
+msgstr "Trasformato in scatola: {name}"
 
 #: src/components/history/labels.ts
 msgid "Turned {name} into a place"
@@ -18655,10 +18659,6 @@ msgid "Nothing sent yet"
 msgstr "Ancora niente inviato"
 
 #: src/components/webhooks/words.tsx
-msgid "Off: every delivery failed for a day."
-msgstr "Disattivato: ogni consegna è fallita per un giorno."
-
-#: src/components/webhooks/words.tsx
 msgid "Off: the person who made it is no longer an admin here."
 msgstr "Disattivato: chi l’ha creato non è più amministratore qui."
 
@@ -19211,6 +19211,14 @@ msgstr "Registra rifornimento"
 #: src/assistant/confirm-card.tsx
 msgid "Adjust stock"
 msgstr "Regola scorte"
+
+#: src/assistant/confirm-card.tsx
+msgid "One up"
+msgstr "Una posizione su"
+
+#: src/assistant/confirm-card.tsx
+msgid "One down"
+msgstr "Una posizione giù"
 
 #: src/assistant/confirm-card.tsx
 msgid "Field"
@@ -22226,6 +22234,14 @@ msgid "Bookshelf"
 msgstr "Libreria"
 
 #: src/map/labels.ts
+msgid "Cube storage"
+msgstr "Scaffale a cubi"
+
+#: src/map/labels.ts
+msgid "Tall bookcase"
+msgstr "Libreria alta"
+
+#: src/map/labels.ts
 msgid "Floor lamp"
 msgstr "Lampada da terra"
 
@@ -23380,9 +23396,6 @@ msgstr "Non è più qui."
 msgid "Check the highlighted cells."
 msgstr "Controlla le celle evidenziate."
 
-#: src/components/sheet/sheet-view.tsx
-msgid "Discard my change"
-msgstr "Scarta la mia modifica"
 #: src/components/app-shell.tsx
 msgid "Moving"
 msgstr "Trasloco"
@@ -24578,8 +24591,33 @@ msgid "On the wall"
 msgstr "A parete"
 
 #: src/map/height.tsx
+#: src/map/size.tsx
 msgid "Height"
 msgstr "Altezza"
+
+#: src/map/size.tsx
+msgid "Cubes across"
+msgstr "Cubi in larghezza"
+
+#: src/map/size.tsx
+msgid "Cubes up"
+msgstr "Cubi in altezza"
+
+#: src/map/size.tsx
+msgid "Turn on its side"
+msgstr "Metti di lato"
+
+#: src/map/size.tsx
+msgid "Width"
+msgstr "Larghezza"
+
+#: src/map/size.tsx
+msgid "Depth"
+msgstr "Profondità"
+
+#: src/map/size.tsx
+msgid "Levels"
+msgstr "Ripiani"
 
 #: src/map/height.tsx
 msgid "Lower"
@@ -25771,10 +25809,6 @@ msgstr "Gli articoli archiviati non vengono importati, venduti compresi."
 msgid "Coming from an older Homebox"
 msgstr "Arrivare da un Homebox precedente"
 
-#: src/components/import/source-step.tsx
-msgid "Homebox v0.26.1 or newer (v0.27.0 recommended): Collection settings → Export. Older than v0.26: import its spreadsheet export, or update a copy of Homebox first."
-msgstr "Homebox v0.26.1 o successivo (consigliata la v0.27.0): Impostazioni della collezione → Esporta. Precedente alla v0.26: importa la sua esportazione in foglio di calcolo, oppure aggiorna prima una copia di Homebox."
-
 #: src/components/import/mapping-step.tsx
 msgid "Import a Homebox export instead"
 msgstr "Importa invece un'esportazione di Homebox"
@@ -26561,7 +26595,6 @@ msgstr "Tag {shown} rimosso"
 msgid "Violet"
 msgstr "Viola"
 
-
 #: src/components/search/offline-results.tsx
 msgid "Offline, search uses the words, the location, the type and the tags. The other filters apply when you're back online."
 msgstr "Offline, la ricerca usa le parole, il luogo, il tipo e i tag. Gli altri filtri si applicano quando torni online."
@@ -26990,3 +27023,638 @@ msgstr "Imposta la verifica in due passaggi"
 #: src/components/two-factor-hidden.tsx
 msgid "Asks for two-factor: set it up to open it"
 msgstr "Richiede la verifica in due passaggi: impostala per aprirlo"
+
+#: src/components/import/archive-run.tsx
+msgid "Nothing was imported, and no location was made."
+msgstr "Non è stato importato nulla e nessun luogo è stato creato."
+
+#: src/components/import/archive-run.tsx
+msgid "What needed a look"
+msgstr "Cosa richiedeva un controllo"
+
+#: src/components/import/entity-report.tsx
+msgid "Imported, with a note"
+msgstr "Importato, con una nota"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Item"
+msgstr "Articolo"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Items with quantity 0"
+msgstr "Articoli con quantità 0"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Keep 0 or archive"
+msgstr "Mantieni 0 o archivia"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Set to 1"
+msgstr "Imposta a 1"
+
+#: src/components/import/homebox-choices.tsx
+msgid "{zeroItems, plural, one {# item has quantity 0.} other {# items have quantity 0.}}"
+msgstr "{zeroItems, plural, one {# articolo ha quantità 0.} other {# articoli hanno quantità 0.}}"
+
+#: src/components/import/homebox-choices.tsx
+msgid "A type you run out of keeps 0; anything else comes in archived. The notes say \"Quantity in Homebox: 0\"."
+msgstr "Un tipo che si esaurisce mantiene 0; il resto arriva archiviato. Le note riportano \"Quantity in Homebox: 0\"."
+
+#: src/components/import/homebox-choices.tsx
+msgid "They come in as 1, and the notes say \"Quantity in Homebox: 0\"."
+msgstr "Arrivano con 1, e le note riportano \"Quantity in Homebox: 0\"."
+
+#: src/components/import/homebox-choices.tsx
+msgid "They aren't imported. What's inside one comes in, in its place."
+msgstr "Non vengono importati. Ciò che contengono arriva al loro posto."
+
+#: src/components/import/homebox-choices.tsx
+msgid "A new type"
+msgstr "Un nuovo tipo"
+
+#: src/components/import/homebox-choices.tsx
+msgid "No type keeps things as they are, without a type's fields. A new type is made with the name you give it."
+msgstr "\"Nessun tipo\" lascia le cose come sono, senza i campi di un tipo. Un nuovo tipo viene creato con il nome che gli dai."
+
+#: src/components/import/homebox-choices.tsx
+msgid "New type…"
+msgstr "Nuovo tipo…"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Name of the new type"
+msgstr "Nome del nuovo tipo"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Give the new type a name (at most {max} characters)."
+msgstr "Dai un nome al nuovo tipo (al massimo {max} caratteri)."
+
+#: src/components/import/homebox-choices.tsx
+msgid "Chosen"
+msgstr "Scelta"
+
+#: src/components/import/homebox-choices.tsx
+msgid "As boxes"
+msgstr "Come scatole"
+
+#: src/components/import/homebox-choices.tsx
+msgid "As places"
+msgstr "Come posti"
+
+#: src/components/import/homebox-choices.tsx
+msgid "These look like boxes"
+msgstr "Questi sembrano scatole"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Ticked, they come in as boxes: things that hold things, carried with what's inside. The rest come in as places. You can change either later."
+msgstr "Spuntati, arrivano come scatole: cose che contengono cose, spostate con ciò che c’è dentro. Gli altri arrivano come posti. Puoi cambiare entrambi in seguito."
+
+#: src/components/import/homebox-choices.tsx
+msgid "Choose none"
+msgstr "Non scegliere nessuno"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Choose all"
+msgstr "Scegli tutti"
+
+#: src/components/import/homebox-choices.tsx
+msgid "{n} of {of} as boxes"
+msgstr "{n} di {of} come scatole"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Locations that look like boxes"
+msgstr "Posti che sembrano scatole"
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it came in as 1."
+msgstr "Quantità 0 in Homebox; è arrivato con 1."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox, kept: its type is one you run out of."
+msgstr "Quantità 0 in Homebox, mantenuta: il suo tipo si esaurisce."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it came in archived."
+msgstr "Quantità 0 in Homebox; è arrivato archiviato."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox, left out."
+msgstr "Quantità 0 in Homebox, escluso."
+
+#: src/components/import/labels.ts
+msgid "It holds other items, so it came in as a box."
+msgstr "Contiene altri articoli, quindi è arrivato come scatola."
+
+#: src/components/import/labels.ts
+msgid "A location that came in as a box, as chosen."
+msgstr "Un posto arrivato come scatola, come scelto."
+
+#: src/components/import/labels.ts
+msgid "Its description isn't kept: places in Kept have no notes."
+msgstr "La sua descrizione non viene mantenuta: i posti in Kept non hanno note."
+
+#: src/components/import/repair.tsx
+msgid "{joined}, and {more} more"
+msgstr "{joined} e altri {more}"
+
+#: src/components/import/repair.tsx
+msgid "Repaired the import"
+msgstr "Importazione riparata"
+
+#: src/components/import/repair.tsx
+msgid "Repair this import"
+msgstr "Ripara questa importazione"
+
+#: src/components/import/repair.tsx
+msgid "It was imported before Kept read Homebox the way it does now. Choose what to put right; one Undo takes it all back."
+msgstr "È stato importato prima che Kept leggesse Homebox come fa ora. Scegli cosa correggere; un solo Annulla riporta tutto indietro."
+
+#: src/components/import/repair.tsx
+msgid "{0, plural, one {Archive the # thing that had quantity 0 in Homebox} other {Archive the # things that had quantity 0 in Homebox}}"
+msgstr "{0, plural, one {Archivia la cosa che aveva quantità 0 in Homebox} other {Archivia le # cose che avevano quantità 0 in Homebox}}"
+
+#: src/components/import/repair.tsx
+msgid "<0>{0}</0>: its things stop opening on an empty Contents tab. One that holds things stays a box."
+msgstr "<0>{0}</0>: le sue cose non si aprono più su una scheda Contenuto vuota. Una che contiene cose resta una scatola."
+
+#: src/components/import/repair.tsx
+msgid "{0, plural, one {Make # type an ordinary type again} other {Make # types ordinary types again}}"
+msgstr "{0, plural, one {Rendi # tipo di nuovo un tipo normale} other {Rendi # tipi di nuovo tipi normali}}"
+
+#: src/components/import/repair.tsx
+msgid "Rename <0>{0}</0> to <1>{to}</1>"
+msgstr "Rinomina <0>{0}</0> in <1>{to}</1>"
+
+#: src/components/import/repair.tsx
+msgid "Repair"
+msgstr "Ripara"
+
+#: src/components/import/track-step.tsx
+msgid "Start with what you need; turn anything else on later in Location settings → What to track. Turning something off never deletes anything."
+msgstr "Inizia da ciò che ti serve; attiva il resto più tardi in Impostazioni del luogo → Cosa monitorare. Disattivare non elimina mai nulla."
+
+#: src/components/import/track-step.tsx
+msgid "{prices, plural, one {The backup has # price. With Essentials it stays in the notes; Household keeps prices and warranties as their own records.} other {The backup has # prices. With Essentials they stay in the notes; Household keeps prices and warranties as their own records.}}"
+msgstr "{prices, plural, one {Il backup contiene # prezzo. Con Essenziali resta nelle note; Famiglia tiene prezzi e garanzie come voci a sé.} other {Il backup contiene # prezzi. Con Essenziali restano nelle note; Famiglia tiene prezzi e garanzie come voci a sé.}}"
+
+#: src/components/import/track-step.tsx
+msgid "Also for Personal"
+msgstr "Anche per Personale"
+
+#: src/components/import/track-step.tsx
+msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "Personale, il tuo luogo, monitora lo stesso da quando parte l’importazione. Il menu mostra ciò che monitora uno qualsiasi dei tuoi luoghi."
+
+#: src/components/history/labels.ts
+msgid "Repaired an import"
+msgstr "Importazione riparata"
+
+#: src/components/import/track-step.tsx
+msgid "And what the backup uses"
+msgstr "E ciò che usa il backup"
+
+#: src/components/import/track-step.tsx
+msgid "Turns on {name}"
+msgstr "Attiva {name}"
+
+#: src/components/import/track-step.tsx
+msgid "{count, plural, one {Prices on # thing} other {Prices on # things}}"
+msgstr "{count, plural, one {Prezzi su # cosa} other {Prezzi su # cose}}"
+
+#: src/components/import/track-step.tsx
+msgid "{count, plural, one {# warranty} other {# warranties}}"
+msgstr "{count, plural, one {# garanzia} other {# garanzie}}"
+
+#: src/components/import/track-step.tsx
+msgid "{count, plural, one {# maintenance entry} other {# maintenance entries}}"
+msgstr "{count, plural, one {# voce di manutenzione} other {# voci di manutenzione}}"
+
+#: src/components/import/track-step.tsx
+msgid "What's unticked stays in the things' notes as text. Notes can't become records later: to keep it as records, tick it now."
+msgstr "Ciò che non è spuntato resta come testo nelle note delle cose. Le note non possono diventare voci in seguito: per tenerlo come voci, spuntalo ora."
+
+#: src/components/app-shell.tsx
+msgctxt "sidebar group"
+msgid "Tracking"
+msgstr "Monitoraggio"
+
+#: src/components/app-shell.tsx
+msgctxt "sidebar group"
+msgid "Tools"
+msgstr "Strumenti"
+
+#: src/components/origin-mismatch.tsx
+#: src/components/page.tsx
+msgid "Open {expected}"
+msgstr "Apri {expected}"
+
+#: src/components/origin-mismatch.tsx
+msgid "This Kept is set up for <0>{expected}</0>. Open it there."
+msgstr "Questo Kept è configurato per <0>{expected}</0>. Aprilo lì."
+
+#: src/components/page.tsx
+msgid "This Kept is set up for a different address. Open it at the address you were given."
+msgstr "Questo Kept è configurato per un altro indirizzo. Aprilo dall’indirizzo che ti è stato dato."
+
+#: src/components/page.tsx
+msgid "This Kept is set up for {address}. Open it there."
+msgstr "Questo Kept è configurato per {address}. Aprilo lì."
+
+#: src/components/import/archive-step.tsx
+msgid "In Homebox, open Collection → Tools → Backup & Restore and choose Create Backup. When the backup is listed, Download it: that .zip is the file."
+msgstr "In Homebox, apri Collezione → Strumenti → Backup & Ripristino e scegli Crea backup. Quando il backup compare nell’elenco, scaricalo con Download: quel file .zip è quello giusto."
+
+#: src/components/import/source-step.tsx
+msgid "Homebox v0.26.1 or newer (v0.27.0 recommended): Collection → Tools → Backup & Restore → Create Backup → Download. Older than v0.26: import its spreadsheet export, or update a copy of Homebox first."
+msgstr "Homebox v0.26.1 o successivo (consigliata la v0.27.0): Collezione → Strumenti → Backup & Ripristino → Crea backup → Download. Precedente alla v0.26: importa la sua esportazione in foglio di calcolo, oppure aggiorna prima una copia di Homebox."
+
+#: src/components/connections/token-create.tsx
+msgid "On a home network without HTTPS, the person who runs this Kept can make one on the server: kept admin token create."
+msgstr "Su una rete domestica senza HTTPS, chi gestisce questo Kept può crearne uno sul server: kept admin token create."
+
+#: src/components/import/archive-run.tsx
+msgid "Open the map"
+msgstr "Apri la mappa"
+
+#: src/components/places/contents-list.tsx
+msgid "Things: sort by"
+msgstr "Oggetti: ordina per"
+
+#: src/components/places/tree.tsx
+msgid "{count, plural, one {+# box} other {+# boxes}}"
+msgstr "{count, plural, one {+# scatola} other {+# scatole}}"
+
+#: src/components/private-address-link.tsx
+msgid "Allow private addresses in Admin → Settings"
+msgstr "Consenti gli indirizzi privati in Admin → Impostazioni"
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys need HTTPS. On a plain-HTTP address browsers don't offer them; put Kept on HTTPS to add one."
+msgstr "Le passkey richiedono HTTPS. Su un indirizzo HTTP semplice i browser non le offrono; metti Kept su HTTPS per aggiungerne una."
+
+#: src/components/import/entity-report.tsx
+msgid "{0, plural, one {secret value left out of the export} other {secret values left out of the export}}"
+msgstr "{0, plural, one {valore segreto lasciato fuori dall’esportazione} other {valori segreti lasciati fuori dall’esportazione}}"
+
+#: src/components/home/checklist.tsx
+msgid "Staying on my home network"
+msgstr "Resto sulla mia rete di casa"
+
+#: src/components/export/export-sheet.tsx
+msgid "Over plain HTTP, secret values stay out of the export. Each one is marked as left out, and the rest imports as usual."
+msgstr "Su HTTP semplice i valori segreti restano fuori dall’esportazione. Ognuno è segnato come lasciato fuori, e il resto si importa come sempre."
+
+#: src/components/import/kept-choices.tsx
+msgid "Opening them needs HTTPS. Over plain HTTP everything else is imported without them; to bring them over too, import this file at Kept’s HTTPS address."
+msgstr "Aprirli richiede HTTPS. Su HTTP semplice tutto il resto si importa senza di loro; per portarli anche, importa questo file all’indirizzo HTTPS di Kept."
+
+#: src/components/places/sub-places.tsx
+msgid "{0} moved to {1} of {2}"
+msgstr "{0} spostato in posizione {1} di {2}"
+
+#: src/components/places/sub-places.tsx
+msgid "{count, plural, one {# chosen} other {# chosen}}"
+msgstr "{count, plural, one {# scelto} other {# scelti}}"
+
+#: src/components/places/sub-places.tsx
+msgid "{count, plural, one {Turn # place into a box} other {Turn # places into boxes}}"
+msgstr "{count, plural, one {Trasforma # posto in scatola} other {Trasforma # posti in scatole}}"
+
+#: src/components/places/sub-places.tsx
+msgid "{done, plural, one {Turned # place into a box} other {Turned # places into boxes}}"
+msgstr "{done, plural, one {# posto trasformato in scatola} other {# posti trasformati in scatole}}"
+
+#: src/components/places/sub-places.tsx
+msgid "A place"
+msgstr "Un posto"
+
+#: src/components/places/sub-places.tsx
+msgid "A to Z, numbers in order. Floors keep the order they were made in."
+msgstr "Dalla A alla Z, numeri in ordine. I piani mantengono l'ordine in cui sono stati creati."
+
+#: src/components/places/sub-places.tsx
+msgid "Choose places inside <0>{name}</0> to turn into boxes. A box is a thing: it moves with everything in it. Each keeps its ID, its label and what's in it, and one Undo turns them all back."
+msgstr "Scegli i posti dentro <0>{name}</0> da trasformare in scatole. Una scatola è un oggetto: si sposta con tutto ciò che contiene. Ognuna mantiene il suo ID, la sua etichetta e il suo contenuto, e un solo Annulla le riporta tutte indietro."
+
+#: src/routes/_app/p.$id.tsx
+msgid "Choose places inside it; one Undo turns them all back"
+msgstr "Scegli i posti al suo interno; un solo Annulla li riporta tutti indietro"
+
+#: src/components/places/sub-places.tsx
+#: src/routes/_app/p.$id.tsx
+msgid "Custom order"
+msgstr "Ordine personalizzato"
+
+#: src/components/places/sub-places.tsx
+msgid "It has places inside"
+msgstr "Contiene dei posti"
+
+#: src/components/places/sub-places.tsx
+msgid "It has places inside: move them out first"
+msgstr "Contiene dei posti: spostali prima fuori"
+
+#: src/components/places/sub-places.tsx
+msgid "It is no longer in {0}"
+msgstr "Non è più in {0}"
+
+#: src/components/places/sub-places.tsx
+msgid "Move {0} down"
+msgstr "Sposta {0} giù"
+
+#: src/components/places/sub-places.tsx
+msgid "Move {0} up"
+msgstr "Sposta {0} su"
+
+#: src/components/places/sub-places.tsx
+msgid "Move places up or down. Back to A to Z keeps this order for next time."
+msgstr "Sposta i posti su o giù. Tornare a Dalla A alla Z conserva questo ordine per la prossima volta."
+
+#: src/components/places/sub-places.tsx
+msgid "No places match"
+msgstr "Nessun posto corrisponde"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Order of the places here"
+msgstr "Ordine dei posti qui"
+
+#: src/components/places/sub-places.tsx
+msgid "Order of the places in {0}"
+msgstr "Ordine dei posti in {0}"
+
+#: src/components/history/labels.ts
+msgid "Order of the places inside"
+msgstr "Ordine dei posti all'interno"
+
+#: src/components/places/sub-places-lazy.tsx
+msgid "Places inside"
+msgstr "Posti all'interno"
+
+#: src/components/places/sub-places.tsx
+msgid "Places inside {0}"
+msgstr "Posti dentro {0}"
+
+#: src/components/history/labels.ts
+msgid "Put the places in {name} in a new order"
+msgstr "Posti in {name} rimessi in un nuovo ordine"
+
+#: src/components/places/sub-places.tsx
+msgid "Some places weren't turned into boxes"
+msgstr "Alcuni posti non sono stati trasformati in scatole"
+
+#: src/components/places/sub-places.tsx
+msgid "Turn places into boxes"
+msgstr "Trasforma posti in scatole"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Turn places into boxes…"
+msgstr "Trasforma posti in scatole…"
+
+#: src/components/import/entity-report.tsx
+msgid "Comes in, with a note"
+msgstr "Arriva, con una nota"
+
+#: src/components/import/homebox-choices.tsx
+msgid "Left out: no item has a value for it."
+msgstr "Escluso: nessun articolo ha un valore per questo campo."
+
+#: src/components/import/homebox-choices.tsx
+msgid "New type \"{typeName}\""
+msgstr "Nuovo tipo \"{typeName}\""
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it comes in as 1."
+msgstr "Quantità 0 in Homebox; arriverà con 1."
+
+#: src/components/import/labels.ts
+msgid "Quantity 0 in Homebox; it comes in archived."
+msgstr "Quantità 0 in Homebox; arriverà archiviato."
+
+#: src/components/import/labels.ts
+msgid "It holds other items, so it comes in as a box."
+msgstr "Contiene altri articoli, quindi arriverà come scatola."
+
+#: src/components/import/labels.ts
+msgid "A location that comes in as a box, as chosen."
+msgstr "Un posto che arriverà come scatola, come scelto."
+
+#: src/components/import/labels.ts
+msgid "A location inside an item becomes a box."
+msgstr "Una posizione dentro un articolo diventerà una scatola."
+
+#: src/components/import/labels.ts
+msgid "A location inside an item became a box."
+msgstr "Una posizione dentro un articolo è diventata una scatola."
+
+#: src/components/places/contents-list.tsx
+msgid "Places keep their own order."
+msgstr "I posti mantengono il proprio ordine."
+
+#: src/map/map-view.tsx
+msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. To move a room, hold its floor, then drag. Drag its amber corner to resize it."
+msgstr "Trascina qualunque cosa per spostarla. Appoggia le cose piccole su un piano, una scrivania, uno scaffale o una scatola; le cose da parete vanno sulla parete più vicina. Per spostare una stanza, tieni premuto il pavimento, poi trascina. Trascina l’angolo ambra per ridimensionarla."
+
+#: src/map/map-view.tsx
+msgid "Rooms can’t overlap."
+msgstr "Le stanze non possono sovrapporsi."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} up."
+msgstr "Spostato in alto: {room}."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} down."
+msgstr "Spostato in basso: {room}."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} left."
+msgstr "Spostato a sinistra: {room}."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} right."
+msgstr "Spostato a destra: {room}."
+#: src/components/places/contents-list.tsx
+msgid "Graph"
+msgstr "Grafo"
+
+#: src/graph/card.tsx
+msgid "Selected"
+msgstr "Selezionato"
+
+#: src/graph/card.tsx
+msgid "{0} in <0>{1}</0>"
+msgstr "{0} in <0>{1}</0>"
+
+#: src/graph/card.tsx
+msgid "Tagged"
+msgstr "Con questo tag"
+
+#: src/graph/card.tsx
+msgid "{0} inside"
+msgstr "{0} all’interno"
+
+#: src/graph/card.tsx
+msgid "Inside it"
+msgstr "Dentro"
+
+#: src/graph/card.tsx
+msgid "Go in"
+msgstr "Entra"
+
+#: src/graph/card.tsx
+msgid "Show on the map"
+msgstr "Mostra sulla mappa"
+
+#: src/graph/floors-3d.tsx
+msgid "Graph of {0}"
+msgstr "Grafo di {0}"
+
+#: src/graph/floors-3d.tsx
+msgid "Rooms on no floor"
+msgstr "Stanze senza piano"
+
+#: src/graph/floors-3d.tsx
+msgid "Stop turning"
+msgstr "Ferma la rotazione"
+
+#: src/graph/floors-3d.tsx
+msgid "Turn slowly"
+msgstr "Ruota lentamente"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from higher"
+msgstr "Guarda dall’alto"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from lower"
+msgstr "Guarda dal basso"
+
+#: src/graph/floors-3d.tsx
+msgid "Show the whole house"
+msgstr "Mostra tutta la casa"
+
+#: src/graph/graph-view.tsx
+msgid "The graph is drawn from Kept’s server. The list has everything offline."
+msgstr "Il grafo è disegnato dal server di Kept. L’elenco ha tutto anche offline."
+
+#: src/graph/graph-view.tsx
+msgid "Where you are in the graph"
+msgstr "Dove sei nel grafo"
+
+#: src/graph/graph-view.tsx
+msgid "2D or 3D"
+msgstr "2D o 3D"
+
+#: src/graph/graph-view.tsx
+msgid "Size shows how much is inside. Pick twice to go in; the path above takes you back."
+msgstr "La dimensione mostra quanto contiene. Scegli due volte per entrare; il percorso sopra ti riporta indietro."
+
+#: src/graph/graph-view.tsx
+msgid "It turns slowly until you touch it. Drag to turn it; pick a room to bring it forward."
+msgstr "Ruota lentamente finché non lo tocchi. Trascina per ruotarlo; scegli una stanza per metterla in primo piano."
+
+#: src/graph/graph-view.tsx
+msgid "{more, plural, one {# more thing is counted in its place but not drawn.} other {# more things are counted in their places but not drawn.}}"
+msgstr "{more, plural, one {# altro oggetto è contato al suo posto ma non disegnato.} other {# altri oggetti sono contati al loro posto ma non disegnati.}}"
+
+#: src/graph/graph-view.tsx
+msgid "In this graph"
+msgstr "In questo grafo"
+
+#: src/graph/graph-view.tsx
+msgid "In <0>{0}</0>"
+msgstr "In <0>{0}</0>"
+
+#: src/graph/words.ts
+msgid "low on stock"
+msgstr "scorte basse"
+
+#: src/graph/words.ts
+msgid "lent out"
+msgstr "prestato"
+
+#: src/graph/words.ts
+msgid "due soon"
+msgstr "in scadenza"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# low on stock} other {# low on stock}}"
+msgstr "{count, plural, one {# con scorte basse} other {# con scorte basse}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# lent out} other {# lent out}}"
+msgstr "{count, plural, one {# prestato} other {# prestati}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# due soon} other {# due soon}}"
+msgstr "{count, plural, one {# in scadenza} other {# in scadenza}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# more in {where}} other {# more in {where}}}"
+msgstr "{count, plural, one {# altro in {where}} other {# altri in {where}}}"
+
+#: src/components/places/contents-list.tsx
+msgid "graph"
+msgstr "grafo"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Add a label code"
+msgstr "Aggiungi un codice etichetta"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Scan a blank label you've stuck on it"
+msgstr "Scansiona un’etichetta vuota che ci hai attaccato"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to an existing place"
+msgstr "Collegala a un luogo esistente"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to <0>{0}</0>"
+msgstr "Collegala a «<0>{0}</0>»"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "A room, shelf or spot"
+msgstr "Una stanza, uno scaffale o un punto"
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0> on this phone, until it syncs."
+msgstr "Assegnata a «<0>{label}</0>» su questo telefono, finché non si sincronizza."
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0>."
+msgstr "Assegnata a «<0>{label}</0>»."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Blank label {code}"
+msgstr "Etichetta vuota {code}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Not matched: {text}"
+msgstr "Non abbinato: {text}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Check later: {text}"
+msgstr "Da controllare dopo: {text}"
+
+#: src/components/services/service-sheet.tsx
+msgid "Delete this service?"
+msgstr "Eliminare questo intervento?"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "Edit the service"
+msgstr "Modifica l’intervento"
+
+#: src/components/services/service-sheet.tsx
+msgid "Its lines and invoice go too. Schedules it completed count from the service before. You can undo this."
+msgstr "Anche righe e fattura vengono eliminate. Le pianificazioni che completava ripartono dall’intervento precedente. Puoi annullare."
+
+#: src/components/services/service-sheet.tsx
+msgid "Logged by"
+msgstr "Registrato da"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "They have prices you can't see, so they stay as they are."
+msgstr "Hanno prezzi che non puoi vedere, quindi restano come sono."
+
+#: src/components/moving/sheets-printed.tsx
+msgid "Check that a code on the sheets scans. Yes records today as their print date, so the boxes show their label."
+msgstr "Controlla che un codice sui fogli si scansioni. Sì registra oggi come data di stampa, e le scatole mostrano la loro etichetta."

@@ -60,14 +60,15 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       ar: 'إيصال|وصل|فاتورة|دليل|كتيب|مستند|وثيقة|ورق',
     },
   },
+  // #313: changing a place (its name, kind, parent, order) and turning places into boxes.
   places: {
-    tools: ['create_place', 'attach_link'],
+    tools: ['create_place', 'update_place', 'turn_into_boxes', 'attach_link'],
     words: {
-      en: 'place|room|shelf|shelves|drawer|cupboard|cabinet|zone|create|photo|picture|scan|link|attach',
-      fr: 'pièce|étagère|tiroir|placard|armoire|créer|lien',
-      de: 'raum|zimmer|regal|schublade|schrank|anlegen|erstell|foto|bild',
-      it: 'stanza|scaffal|cassetto|armadio|crea|collegamento',
-      ar: 'غرفة|رف|درج|خزانة|دولاب|مكان|أنشئ|صورة|رابط',
+      en: 'place|room|shelf|shelves|drawer|cupboard|cabinet|zone|create|photo|picture|scan|link|attach|rename|into a box|into boxes|custom order|move up|move down',
+      fr: 'pièce|étagère|tiroir|placard|armoire|créer|lien|renommer|en boîte|en boîtes|ordre',
+      de: 'raum|zimmer|regal|schublade|schrank|anlegen|erstell|foto|bild|umbenenn|in kisten|in eine kiste|reihenfolge',
+      it: 'stanza|scaffal|cassetto|armadio|crea|collegamento|rinomin|in scatol|ordine',
+      ar: 'غرفة|رف|درج|خزانة|دولاب|مكان|أنشئ|صورة|رابط|تسمية|صندوق|صناديق|ترتيب',
     },
   },
   schedules: {

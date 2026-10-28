@@ -2,11 +2,14 @@
  * Log a service with the invoice read, and a vehicle's Services tab: attaching an
  * invoice makes a draft whose suggestions Confirm all takes into the lines; Completes pre-ticks
  * the schedule a line matches; Save confirms the draft with If-Match; a bare `$` asks which
- * dollars with neither chosen; a draft lists first with Finish logging and Discard draft; the
- * offline variant; RTL.
+ * dollars with neither chosen; a draft lists first with Finish logging and Discard draft; a saved
+ * service opens to all of it (#296), with Edit (only what changed, If-Match) and Delete with Undo
+ * for those who may change it, and neither for a viewer; the offline variant; RTL.
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { hh } from '@/api/household/mock/db';
+import { householdPaths } from '@/api/household/paths';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { IDS, ownerScenario } from '@/api/mock/fixtures';
 import { ensureVehiclesSeeded, VEHICLE_IDS } from '@/api/vehicles/mock';
@@ -27,6 +30,7 @@ vi.mock('@/components/vehicles/slots', async (original) => ({
 // the Services tab: the first two tests timed out on "Log a service" that way.
 beforeAll(async () => {
   await import('@/components/vehicles/vehicle-sections');
+  await import('@/components/services/service-sheet');
 }, 120_000);
 
 afterEach(() => {
@@ -35,6 +39,10 @@ afterEach(() => {
 });
 
 const CAR = INV_IDS.thing.car;
+const BRAKES = VEHICLE_IDS.serviceRecord.brakePads;
+
+/** A saved service's row on the Services tab, which opens it. */
+const findService = (name: RegExp) => screen.findByRole('button', { name }, { timeout: 10_000 });
 
 function aiState() {
   const state = ownerScenario();
@@ -158,6 +166,104 @@ describe('the Services tab', () => {
     await first.user.click(row.getByRole('button', { name: 'Finish logging' }));
     const sheet = within(await screen.findByRole('dialog', { name: 'Log a service' }));
     expect(await sheet.findByText('Read by AI: 3 lines, total matches')).toBeInTheDocument();
+  });
+
+  it('opens a saved service: all of it, notes included', async () => {
+    const state = aiState();
+    const pads = hh(state).serviceRecords.find((r) => r.id === BRAKES);
+    if (pads) pads.notes = 'The left pad squeaked before.';
+    const { user } = await renderApp(`/t/${CAR}?tab=services`, { state });
+    await user.click(await findService(/Front brake pads/));
+    const sheet = within(await screen.findByRole('dialog', { name: 'Service' }));
+    expect(await sheet.findByText('The left pad squeaked before.')).toBeInTheDocument();
+    for (const text of ['Front brake pads', 'Brake disc skim', 'City Service Centre', 'Bruce'])
+      expect(sheet.getAllByText(text, { exact: false }).length).toBeGreaterThan(0);
+    expect(sheet.getByText(/51,392/)).toBeInTheDocument();
+    expect(sheet.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+    expect(sheet.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+  });
+
+  it('edits a saved service: the form is filled in, Save sends what changed with If-Match', async () => {
+    const state = aiState();
+    const pads = hh(state).serviceRecords.find((r) => r.id === BRAKES);
+    if (pads) pads.notes = 'Squeaked.';
+    const { user, mock } = await renderApp(`/t/${CAR}?tab=services`, { state });
+    await user.click(await findService(/Front brake pads/));
+    const view = within(await screen.findByRole('dialog', { name: 'Service' }));
+    await user.click(view.getByRole('button', { name: 'Edit' }));
+    const form = within(await screen.findByRole('dialog', { name: 'Edit the service' }));
+    expect(
+      form.getAllByRole('textbox', { name: 'What' }).map((x) => (x as HTMLInputElement).value),
+    ).toEqual(['Front brake pads', 'Brake disc skim', 'Labour']);
+    const notes = form.getByRole('textbox', { name: 'Notes' });
+    expect(notes).toHaveValue('Squeaked.');
+    await user.clear(notes);
+    await user.type(notes, 'Squeaked, now quiet.');
+    await user.click(form.getByRole('button', { name: 'Save' }));
+    expect((await screen.findAllByText('Service changed')).length).toBeGreaterThan(0);
+    expect(await screen.findByRole('button', { name: 'Undo' })).toBeInTheDocument();
+    const call = mock.lastCall('PATCH', householdPaths.serviceRecord(BRAKES));
+    expect(call?.headers?.['if-match']).toBeTruthy();
+    // Only what changed: the lines, the total and the rest stay as they were.
+    expect(call?.body).toEqual({ notes: 'Squeaked, now quiet.' });
+    expect(mock.lastCall('POST', householdPaths.serviceRecords)).toBeUndefined();
+  });
+
+  it('where money is hidden, an edit keeps the priced lines as they are', async () => {
+    const state = aiState();
+    const garage = state.locations.find((l) => l.id === IDS.garage);
+    if (garage) {
+      garage.modules = garage.modules.filter((m) => m !== 'money');
+      if (garage.effectiveModules)
+        garage.effectiveModules = garage.effectiveModules.filter((m) => m !== 'money');
+    }
+    const { user, mock } = await renderApp(`/t/${CAR}?tab=services`, { state });
+    await user.click(await findService(/Front brake pads/));
+    const view = within(await screen.findByRole('dialog', { name: 'Service' }));
+    await user.click(view.getByRole('button', { name: 'Edit' }));
+    const form = within(await screen.findByRole('dialog', { name: 'Edit the service' }));
+    expect(
+      form.getByText("They have prices you can't see, so they stay as they are."),
+    ).toBeInTheDocument();
+    expect(form.getAllByRole('textbox', { name: 'What' })[0]).toBeDisabled();
+    await user.type(form.getByRole('textbox', { name: 'Notes' }), 'Checked.');
+    await user.click(form.getByRole('button', { name: 'Save' }));
+    await waitFor(() =>
+      expect(mock.lastCall('PATCH', householdPaths.serviceRecord(BRAKES))?.body).toEqual({
+        notes: 'Checked.',
+      }),
+    );
+  });
+
+  it('deletes a saved service after asking, with Undo bringing it back', async () => {
+    const { user, mock } = await renderApp(`/t/${CAR}?tab=services`, { state: aiState() });
+    await user.click(await findService(/Front brake pads/));
+    const view = within(await screen.findByRole('dialog', { name: 'Service' }));
+    await user.click(view.getByRole('button', { name: 'Delete' }));
+    const ask = within(await screen.findByRole('alertdialog'));
+    expect(ask.getByText('Delete this service?')).toBeInTheDocument();
+    await user.click(ask.getByRole('button', { name: 'Delete' }));
+    expect((await screen.findAllByText('Service deleted')).length).toBeGreaterThan(0);
+    const call = mock.lastCall('DELETE', householdPaths.serviceRecord(BRAKES));
+    expect(call?.headers?.['if-match']).toBeTruthy();
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Service' })).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByRole('button', { name: /Front brake pads/ })).toBeNull(),
+    );
+    await user.click(await screen.findByRole('button', { name: 'Undo' }));
+    expect(await findService(/Front brake pads/)).toBeInTheDocument();
+  });
+
+  it('a viewer opens a service but cannot edit or delete it', async () => {
+    const state = aiState();
+    const garage = state.locations.find((l) => l.id === IDS.garage);
+    if (garage) garage.role = 'viewer';
+    const { user } = await renderApp(`/t/${CAR}?tab=services`, { state });
+    await user.click(await findService(/Front brake pads/));
+    const sheet = within(await screen.findByRole('dialog', { name: 'Service' }));
+    expect(await sheet.findByText('Brake disc skim', { exact: false })).toBeInTheDocument();
+    expect(sheet.queryByRole('button', { name: 'Edit' })).toBeNull();
+    expect(sheet.queryByRole('button', { name: 'Delete' })).toBeNull();
   });
 
   it('offline: Log a service says it needs a connection and cannot save', async () => {

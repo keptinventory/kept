@@ -11,7 +11,7 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { CheckCircleIcon, CloudOffIcon, LinkIcon, QrIcon } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { IdChip, LabelTape } from '@/components/id-chip';
 import { Pill } from '@/components/page';
 import { usePlaceName } from '@/components/places/labels';
 import { Button } from '@/components/ui/button';
@@ -98,6 +98,8 @@ export type AnswerProps = {
   onAgain: () => void;
   onDone: () => void;
   onQueued?: () => void;
+  /** A blank label scanned from a place's "Add a label" (#329): that place is offered first. */
+  forPlace?: string | undefined;
 };
 
 export function ScanAnswer(props: AnswerProps) {
@@ -180,7 +182,11 @@ export function ScanAnswer(props: AnswerProps) {
                 </bdi>
               ) : null}
               <div className="flex flex-wrap items-center gap-2">
-                <IdChip code={d.shortCode} pending={d.shortCode === null} />
+                <LabelTape
+                  code={d.shortCode}
+                  printed={d.labelPrinted}
+                  pending={d.shortCode === null}
+                />
                 {props.seen ? (
                   <Pill tone="ok" icon={<CheckCircleIcon />}>
                     <Trans>Seen just now</Trans>

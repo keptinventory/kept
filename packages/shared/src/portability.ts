@@ -144,7 +144,8 @@ export const EXPORT_FILE_PATH =
  * - `data/<entity>.ndjson`: one object per line, camelCase, ids as on the exporting server. Each
  *   entity's fields are the export registry's (apps/server/src/exports/registry.ts), whose zod
  *   schemas the Kept importer reads them with (exports/format.ts `entitySchema()`). A row whose
- *   money the exporter couldn't see carries `moneyHidden: true` and no money fields.
+ *   money the exporter couldn't see carries `moneyHidden: true` and no money fields. In an export
+ *   without secrets, a thing or place with a secret value carries `secretsWithheld: [fieldKey…]`.
  * - `files/<fileId>.<ext>`: each original an attachment (or a thing's cover) references,
  *   byte-identical (D117), the extension from its sniffed type (so a browser opens it from the
  *   readable copy). The manifest lists each with its `path`, SHA-256, size and type; an importer
@@ -224,6 +225,9 @@ export type ExportManifest = {
   includesSecrets: boolean;
   /** How many values `secrets.json` holds (0 without it). */
   secretsCount: number;
+  /** Without `secrets.json`: how many secret values were left out. Each thing and place that had
+   * one names its field keys in `secretsWithheld` (never a value). Absent in older exports. */
+  secretsWithheld?: number;
   /** Names and roles only, "people to invite" on import; never an email. */
   members: { name: string; role: string }[];
   files: { id: string; path: string; sha256: string; bytes: number; mime: string }[];

@@ -40,8 +40,9 @@ export function SourceStep({
           title: <Trans>A Homebox export</Trans>,
           body: (
             <Trans>
-              Homebox v0.26.1 or newer (v0.27.0 recommended): Collection settings → Export. Older
-              than v0.26: import its spreadsheet export, or update a copy of Homebox first.
+              Homebox v0.26.1 or newer (v0.27.0 recommended): Collection → Tools → Backup & Restore
+              → Create Backup → Download. Older than v0.26: import its spreadsheet export, or update
+              a copy of Homebox first.
             </Trans>
           ),
         },

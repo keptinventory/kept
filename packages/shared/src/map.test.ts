@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BOOKCASE,
+  baseModel,
+  bookcaseMaxLevels,
+  CUBE_GRID,
   canBeCarried,
   canCarry,
   canHost,
@@ -27,6 +31,9 @@ import {
   rectsOverlap,
   seatFor,
   seatHeight,
+  sizedCacheSize,
+  sizedKey,
+  sizedOf,
   snapStep,
   turnOffset,
   turnOfWall,
@@ -379,5 +386,116 @@ describe('things on a wall (#138)', () => {
     expect(seatFor('hooks', 'item')).toBeGreaterThanOrEqual(0);
     expect(seatFor('wall_shelf', 'succulent')).toBe(seatHeight('wall_shelf'));
     expect(seatFor('desk', 'laptop')).toBe(0.74);
+  });
+});
+
+describe('shapes drawn from their numbers (#240, #241)', () => {
+  const size = (key: Parameters<typeof mapModel>[0]) => {
+    const m = mapModel(key);
+    return [m.w, m.d, m.h ?? 0].map((v) => Math.round(v * 100));
+  };
+
+  it('keeps a small cache however many sizes are asked for (keys come from requests)', () => {
+    for (let w = 30; w <= 240; w++)
+      for (const d of [15, 30, 60])
+        mapModel(sizedKey({ base: 'bookcase', w, d, h: 202, levels: 6 }));
+    expect(sizedCacheSize()).toBeLessThanOrEqual(256);
+  });
+
+  it('sizes a cube shelf by its grid: 33 cm cubes, 39 cm deep (the issue’s table)', () => {
+    expect(CUBE_GRID).toMatchObject({ cube: 33, depth: 39 });
+    // Across × up: 1 × 4 standing, 4 × 1 lying, 2 × 4 both ways, then the squares.
+    expect(size(sizedKey({ base: 'cube_grid', across: 1, up: 4 }))).toEqual([42, 39, 147]);
+    expect(size(sizedKey({ base: 'cube_grid', across: 4, up: 1 }))).toEqual([147, 39, 42]);
+    expect(size(sizedKey({ base: 'cube_grid', across: 2, up: 4 }))).toEqual([77, 39, 147]);
+    expect(size(sizedKey({ base: 'cube_grid', across: 4, up: 2 }))).toEqual([147, 39, 77]);
+    expect(size('cube_grid')).toEqual([77, 39, 77]);
+    expect(size(sizedKey({ base: 'cube_grid', across: 3, up: 3 }))).toEqual([112, 39, 112]);
+    expect(size(sizedKey({ base: 'cube_grid', across: 4, up: 4 }))).toEqual([147, 39, 147]);
+    expect(size(sizedKey({ base: 'cube_grid', across: 5, up: 5 }))).toEqual([182, 39, 182]);
+  });
+
+  it('sizes a bookcase by its width, depth and height, 80 × 28 × 202 cm with 6 levels at first', () => {
+    expect(BOOKCASE.start).toEqual({ w: 80, d: 28, h: 202, levels: 6 });
+    expect(size('bookcase')).toEqual([80, 28, 202]);
+    expect(sizedOf('bookcase')).toEqual({ base: 'bookcase', w: 80, d: 28, h: 202, levels: 6 });
+    const low = sizedKey({ base: 'bookcase', w: 40, d: 28, h: 106, levels: 3 });
+    expect(low).toBe('bookcase_40x28x106_3');
+    expect(size(low)).toEqual([40, 28, 106]);
+  });
+
+  it('keeps its numbers in the stored model, one spelling per size, the first size bare', () => {
+    const grid = sizedKey({ base: 'cube_grid', across: 3, up: 2 });
+    expect(grid).toBe('cube_grid_3x2');
+    expect(sizedOf(grid)).toEqual({ base: 'cube_grid', across: 3, up: 2 });
+    expect(sizedKey({ base: 'cube_grid', across: 2, up: 2 })).toBe('cube_grid');
+    expect(sizedOf('cube_grid')).toEqual({ base: 'cube_grid', across: 2, up: 2 });
+    expect(sizedKey({ base: 'bookcase', w: 80, d: 28, h: 202, levels: 6 })).toBe('bookcase');
+    // Round trip: a key read back gives the same key.
+    for (const key of ['cube_grid', 'cube_grid_1x4', 'bookcase', 'bookcase_60x40x150_4']) {
+      const s = sizedOf(key);
+      expect(s, key).not.toBeNull();
+      if (s) expect(sizedKey(s)).toBe(key);
+    }
+    expect(baseModel('cube_grid_3x2')).toBe('cube_grid');
+    expect(baseModel('bookcase_60x40x150_4')).toBe('bookcase');
+    expect(baseModel('sofa')).toBe('sofa');
+    expect(sizedOf('sofa')).toBeNull();
+    // Fits the database's check on map_nodes.model.
+    for (const key of [grid, 'bookcase_240x60x300_12'])
+      expect(key).toMatch(/^[a-z][a-z0-9_]{0,39}$/);
+  });
+
+  it('accepts a sized model as a model, and nothing out of range or spelled another way', () => {
+    for (const key of [
+      'cube_grid',
+      'cube_grid_1x1',
+      'cube_grid_8x8',
+      'bookcase',
+      'bookcase_30x15x40_2',
+    ])
+      expect(isMapModel(key), key).toBe(true);
+    for (const key of [
+      'cube_grid_2x2', // the first size is spelled bare
+      'cube_grid_0x2',
+      'cube_grid_9x1',
+      'cube_grid_02x3',
+      'cube_grid_3x',
+      'cube_grid_3x2_1',
+      'bookcase_80x28x202_6',
+      'bookcase_80x28x202_0',
+      'bookcase_29x28x202_6',
+      'bookcase_80x28x301_6',
+      'bookcase_80x14x202_6',
+      'bookcase_80x28x40_3', // three levels in 40 cm
+      'bookcase_080x28x202_6',
+      'cube_shelf_2x2',
+      'bookshelf_80x28x202_6',
+    ])
+      expect(isMapModel(key), key).toBe(false);
+    expect(bookcaseMaxLevels(202)).toBe(12);
+    expect(bookcaseMaxLevels(40)).toBe(2);
+  });
+
+  it('turns, carries and snaps a sized shape by its own size', () => {
+    expect(footprintOf('cube_grid_4x1', 90)).toEqual({ w: 0.39, d: 1.47 });
+    // Small things stand on a cube shelf (it doubles as a sideboard), not on a bookcase.
+    expect(carryOf('cube_grid_2x1')).toBe('top');
+    expect(fitsOn('cube_grid', 'succulent')).toBe(true);
+    expect(carryOf('bookcase_60x40x150_4')).toBeNull();
+    expect(mapModel('bookcase_60x40x150_4')).toMatchObject({ kind: 'storage', holds: true });
+    expect(snapStep('cube_grid_3x3')).toBe(0.1);
+  });
+
+  it('leaves the fixed cube shelf and bookshelf as they were', () => {
+    expect(mapModel('cube_shelf')).toMatchObject({
+      w: 1.08,
+      d: 0.37,
+      h: 1.56,
+      glb: 'wooden_display_shelves_01',
+    });
+    expect(mapModel('bookshelf')).toMatchObject({ w: 1.2, d: 0.35 });
+    expect(sizedOf('cube_shelf')).toBeNull();
+    expect(sizedOf('bookshelf')).toBeNull();
   });
 });

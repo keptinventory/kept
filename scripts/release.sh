@@ -185,10 +185,11 @@ note "version $version is newer than ${last_tag:-every tag (there are none)}"
 if [[ -n $last_tag && $(git rev-list -n1 "$last_tag") == "$commit" ]]; then
   die "v$version is $last_tag's commit (${commit:0:12}): nothing changed since, so there is nothing to release"
 fi
-# The README's quick start installs this version: it stayed on 1.0.0 through five releases, one of
-# them a security fix. Bump both pins (the clone's --branch and KEPT_IMAGE) before tagging.
-if ! grep -qF -- "--branch v$version " README.md || ! grep -qF "/kept:$version|" README.md; then
-  [[ -n $dry ]] || die "README.md's quick start doesn't install $version: set its --branch v$version and kept:$version first"
+# The quick start installs this version: it stayed on 1.0.0 through five releases, one of them a
+# security fix. Since 1.13.0 it downloads compose.yaml from the tag, and compose.yaml's default
+# image is the release: bump both pins (README's v$version/compose.yaml and kept:$version}).
+if ! grep -qF "/kept/v$version/compose.yaml" README.md || ! grep -qF "/kept:$version}" compose.yaml; then
+  [[ -n $dry ]] || die "README.md's quick start doesn't install $version: set its v$version/compose.yaml and compose.yaml's kept:$version first"
   warn "README.md's quick start doesn't install $version (a dry run goes on)"
 fi
 if [[ -n $unsigned ]]; then

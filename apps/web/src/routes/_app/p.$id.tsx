@@ -28,6 +28,7 @@ import { SubjectPaperwork } from '@/components/documents/subject-paperwork';
 import { useOfferUndo } from '@/components/history/undo';
 import {
   ActivityIcon,
+  ArrowUpDownIcon,
   BoxIcon,
   CameraIcon,
   ChevronEndIcon,
@@ -73,6 +74,7 @@ import { OfflinePlacePage, useOfflinePage } from '@/components/places/offline-pa
 import { PlaceFields } from '@/components/places/place-fields';
 import { PlaceCounts } from '@/components/places/rows';
 import { Sheet } from '@/components/places/sheet';
+import { BoxesSheet, OrderSheet } from '@/components/places/sub-places-lazy';
 import { TrashPlaceDialog } from '@/components/places/trash-contents-dialog';
 import { PlacesPanel, PlaceTree } from '@/components/places/tree';
 import { SortUnplaced } from '@/components/places/unplaced-sort';
@@ -85,6 +87,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { Segmented } from '@/components/ui/segmented';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
+import { LocationGraphLazy } from '@/graph/lazy';
 import { addressOf, locationAddress, useAddress, useCanonicalAddress } from '@/lib/address';
 import { isolate } from '@/lib/bidi';
 import { sep } from '@/lib/format';
@@ -148,7 +151,17 @@ function PlaceScreen({ id, param }: { id: string; param: string }) {
   return <PlaceBody key={place.data.id} place={place.data} location={location.data} />;
 }
 
-type Open = 'rename' | 'move' | 'merge' | 'convert' | 'trash' | 'sort' | 'share' | null;
+type Open =
+  | 'rename'
+  | 'move'
+  | 'merge'
+  | 'convert'
+  | 'boxes'
+  | 'order'
+  | 'trash'
+  | 'sort'
+  | 'share'
+  | null;
 
 function PlaceBody({ place, location }: { place: PlaceView; location: LocationDetail }) {
   const navigate = useNavigate();
@@ -176,6 +189,8 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
     !place.isUnplaced && (location.effectiveModules ?? location.modules).includes('paperwork');
   const remembered = useRememberedLayout(location.id, place.id);
   const map = !place.isUnplaced && remembered === 'map';
+  // #207: the graph, focused on this place.
+  const graph = !place.isUnplaced && remembered === 'graph';
 
   return (
     <Page
@@ -188,6 +203,7 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
             aside: (
               <PlacesPanel
                 places={tree.data.places}
+                boxes={tree.data.boxes ?? []}
                 currentId={place.id}
                 location={{
                   id: location.id,
@@ -209,14 +225,15 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
           </LinkButton>
         </div>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-          <IdChip code={place.shortCode} size="large" />
+          {/* Its printed label leads, as the tape; a code with no label waits quietly below. */}
+          {place.labelPrinted ? <IdChip code={place.shortCode} size="large" /> : null}
           <Breadcrumb
             location={{ id: location.id, name: locationName, address: locationAddress(location) }}
             path={place.path.slice(0, -1)}
             current={name}
           />
         </div>
-        <div className="flex items-center gap-2 text-small text-ink-2">
+        <div className="flex flex-wrap items-center gap-2 text-small text-ink-2">
           <TypeIcon icon={placeIcon(place)} className="size-4 text-ink-3" />
           {place.isUnplaced ? (
             <Trans>Things captured with no place yet</Trans>
@@ -229,6 +246,7 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
               />
             </>
           )}
+          {place.labelPrinted ? null : <IdChip code={place.shortCode} variant="quiet" />}
         </div>
       </div>
 
@@ -251,8 +269,17 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
         />
       ) : null}
 
-      {!panel && !map && tree.data?.places ? (
-        <PlaceTree places={tree.data.places} currentId={place.id} />
+      {graph ? (
+        <LocationGraphLazy
+          locationId={location.id}
+          name={locationName}
+          address={locationAddress(location)}
+          focusId={place.id}
+        />
+      ) : null}
+
+      {!panel && !map && !graph && tree.data?.places ? (
+        <PlaceTree places={tree.data.places} boxes={tree.data.boxes ?? []} currentId={place.id} />
       ) : null}
 
       {canEdit ? (
@@ -327,11 +354,7 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
         />
       </List>
 
-      {place.isUnplaced ? null : (
-        <OwnCodesSection kind="place" id={place.id} locationId={location.id} canEdit={canEdit} />
-      )}
-
-      {map ? null : (
+      {map || graph ? null : (
         <ContentsList
           parent={{ kind: 'place', id: place.id, locationId: location.id, name }}
           canEdit={canEdit}
@@ -345,6 +368,11 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
             </EmptyState>
           }
         />
+      )}
+
+      {/* Its own codes, after what's in it: names and contents come first. */}
+      {place.isUnplaced ? null : (
+        <OwnCodesSection kind="place" id={place.id} locationId={location.id} canEdit={canEdit} />
       )}
 
       {paperwork ? (
@@ -387,6 +415,27 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
                 subtitle={<Trans>So it can be carried, with what's in it, as one thing</Trans>}
                 onPress={() => setOpen('convert')}
               />
+            ) : (
+              <ActionRow
+                icon={<BoxIcon />}
+                title={<Trans>Turn places into boxes…</Trans>}
+                subtitle={<Trans>Choose places inside it; one Undo turns them all back</Trans>}
+                onPress={() => setOpen('boxes')}
+              />
+            )}
+            {place.counts.places > 1 ? (
+              <ActionRow
+                icon={<ArrowUpDownIcon />}
+                title={<Trans>Order of the places here</Trans>}
+                subtitle={
+                  place.childOrder === 'custom' ? (
+                    <Trans>Custom order</Trans>
+                  ) : (
+                    <Trans>A to Z</Trans>
+                  )
+                }
+                onPress={() => setOpen('order')}
+              />
             ) : null}
             <LabelRow place={place} location={location} />
             {admin && location.kind !== 'personal' ? (
@@ -422,6 +471,8 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
         onOpenChange={(o) => !o && close()}
         onConverted={(thingId) => void navigate({ to: '/t/$id', params: { id: thingId } })}
       />
+      <BoxesSheet place={place} isOpen={open === 'boxes'} onClose={close} />
+      <OrderSheet place={place} isOpen={open === 'order'} onClose={close} />
       <TrashPlaceDialog
         place={place}
         isOpen={open === 'trash'}
@@ -499,6 +550,15 @@ function LabelRow({ place, location }: { place: PlaceView; location: LocationDet
       }
     />
   );
+  // #329: a pre-printed blank stuck on the shelf or door, claimed for this place by scanning it.
+  const blank = (
+    <ActionRow
+      icon={<QrIcon />}
+      title={<Trans>Add a label code</Trans>}
+      subtitle={<Trans>Scan a blank label you've stuck on it</Trans>}
+      onPress={() => void navigate({ to: '/scan', search: { place: place.id } })}
+    />
+  );
   if (place.shortCode)
     return (
       <>
@@ -506,11 +566,14 @@ function LabelRow({ place, location }: { place: PlaceView; location: LocationDet
           icon={<QrIcon />}
           title={<Trans>Print its label</Trans>}
           subtitle={<Trans>For the shelf or door; a reprint has the same code</Trans>}
-          trailing={<IdChip code={place.shortCode} />}
+          trailing={
+            <IdChip code={place.shortCode} variant={place.labelPrinted ? 'tape' : 'quiet'} />
+          }
           onPress={() =>
             void navigate({ to: '/labels', search: { loc: location.id, places: place.id } })
           }
         />
+        {blank}
         {everything}
       </>
     );
@@ -522,6 +585,7 @@ function LabelRow({ place, location }: { place: PlaceView; location: LocationDet
         subtitle={<Trans>A short code for the printed label on the shelf or door</Trans>}
         onPress={() => label.mutate()}
       />
+      {blank}
       {everything}
     </>
   );

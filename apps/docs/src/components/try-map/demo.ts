@@ -7,10 +7,15 @@
  * auth and Lingui catalogues; this is that component's controls and card again in plain DOM, fed
  * by the sample instead of the server, so the page needs no framework and no app code beyond the
  * map's. Arrange works in memory: Done keeps the changes while the page is open, Cancel throws the
- * session away, and Reset puts the sample back. Nothing is saved or sent; only the Detailed models
+ * session away, and Reset puts the sample back. A selected room moves by its floor or, as in the
+ * app, by the arrow keys (#301). It shows what the app shows (#301): What's in under the map,
+ * names first (the amber tape only on a printed label), the card's type, tags, photo and label QR,
+ * Cancel's question and Done's Undo; the links into Kept lead to Install Kept. Nothing is saved or sent; only the Detailed models
  * choice is remembered, as the app remembers it.
  */
 import {
+  baseModel,
+  builtinTypeName,
   canBeCarried,
   capacityOf,
   carryOf,
@@ -36,9 +41,11 @@ import type {
   MapAttentionKind,
   MapThingView,
 } from '../../../../web/src/api/map/types';
+import { qrPath } from '../../../../web/src/components/ui/qr-path';
 import {
   type EngineState,
   type EngineStats,
+  type Hint,
   MapEngine,
   type Quality,
   type Tool,
@@ -53,7 +60,9 @@ import {
   flagsOf,
   holdersFor,
   type Item,
+  isArrow,
   type Level,
+  OWN_ARROWS,
   type Plan,
   planOf,
   putOn,
@@ -65,14 +74,24 @@ import {
   takeOff,
   thingItem,
 } from '../../../../web/src/map/layout';
-import { addOn, matches, offMapFor, offMapIn, whereOf } from '../../../../web/src/map/list';
+import {
+  addOn,
+  type ListQuery,
+  matches,
+  offMapFor,
+  offMapIn,
+  whereOf,
+} from '../../../../web/src/map/list';
 // Inline, not imported as stylesheets: Astro would link those from every page of the site.
 import mapCss from '../../../../web/src/map/map.css?inline';
+import { SHAPE_LIBRARY_URL, SHAPE_REQUEST_URL } from '../../../../web/src/map/shape-links';
 // D249: the shape picker's pictures, the app's own sprite (fetched when the picker first opens).
 import spriteUrl from '../../../../web/src/map/thumbs/shapes.webp?url';
 import { THUMB_CELLS, THUMB_COLS } from '../../../../web/src/map/thumbs/sprite';
 import { cardPath } from '../../../../web/src/map/where';
 import demoCss from './demo.css?inline';
+import { esc, idChip, labelTape } from './html';
+import { PHOTOS } from './photos';
 import { sampleHome } from './sample';
 import {
   formatter,
@@ -83,17 +102,18 @@ import {
   SURFACE_NAMES,
   WORDS,
 } from './strings';
+import { whatsInHtml } from './whats-in';
 
 const QUALITY_KEY = 'kept.map.quality';
 /** The Height field's step, in metres (apps/web/src/map/height.tsx). */
 const HEIGHT_STEP = 0.05;
 const KINDS = ['low', 'lent', 'due'] as const;
-
-const esc = (s: unknown) =>
-  String(s ?? '').replace(
-    /[&<>"']/g,
-    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] ?? c,
-  );
+/** A list longer than this gets a search (apps/web/src/map/put-on.tsx). */
+const SEARCH_FROM = 8;
+/** How long Done's Undo stays (apps/web/src/components/history/undo.ts UNDO_TOAST_MS). */
+const UNDO_MS = 10_000;
+/** The address a printed label carries is its own Kept's (D120); the sample's is a stand-in. */
+const LABEL_ORIGIN = 'https://kept.example';
 
 const clone = (p: Plan): Plan => ({
   levels: p.levels.map((l) => ({ ...l })),
@@ -151,8 +171,11 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
         <div class="kmap-labels" aria-hidden="true"></div>
         <div class="kmap-tip" hidden></div>
         <div class="kd-overlay" data-slot="overlay"></div>
+        <p class="kd-sr" role="status" aria-live="polite" data-slot="said"></p>
       </section>
       <section class="kd-sr" data-slot="places" aria-label="${esc(w.placesHere)}"></section>
+      <section class="kd-list" data-slot="list" aria-labelledby="kd-whats-in"></section>
+      <div class="kd-toasts" data-slot="toasts"></div>
     </div>`;
   const stage = host.querySelector<HTMLElement>('.kmap-stage') as HTMLElement;
   const canvas = host.querySelector<HTMLCanvasElement>('canvas') as HTMLCanvasElement;
@@ -160,6 +183,9 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
   const tip = host.querySelector<HTMLElement>('.kmap-tip') as HTMLElement;
   const overlay = host.querySelector<HTMLElement>('[data-slot="overlay"]') as HTMLElement;
   const places = host.querySelector<HTMLElement>('[data-slot="places"]') as HTMLElement;
+  const said = host.querySelector<HTMLElement>('[data-slot="said"]') as HTMLElement;
+  const list = host.querySelector<HTMLElement>('[data-slot="list"]') as HTMLElement;
+  const toasts = host.querySelector<HTMLElement>('[data-slot="toasts"]') as HTMLElement;
 
   // ---- State, as the app's MapBody keeps it ---------------------------------------------------
 
@@ -174,7 +200,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     arranging: false,
     tool: 'move',
   };
-  let hint: Tool | 'overlap' = 'move';
+  let hint: Hint = 'move';
   let dirty = false;
   let quality = storedQuality();
   let pins: Record<MapAttentionKind, boolean> = { low: true, lent: true, due: true };
@@ -186,6 +212,9 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
   let selKey = '';
   let seq = 0;
   let engine: MapEngine | null = null;
+  /** What's in: its search, floor and grouping, and the cards showing all their rows. */
+  let query: ListQuery = { q: '', floor: 'all', show: 'room' };
+  let opened = new Set<string>();
 
   // ---- Words for a thing ---------------------------------------------------------------------
 
@@ -201,10 +230,6 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
   };
   const dots = (flags: MapAttentionKind[]) =>
     flags.map((k) => `<span class="kmap-dot ${k}" aria-hidden="true"></span>`).join('');
-  const chip = (code: string | null) =>
-    code
-      ? `<bdi dir="ltr" role="img" aria-label="${esc(code)}" class="kd-id"><span aria-hidden="true">${esc(printedCode(code))}</span></bdi>`
-      : '';
   const statusRows = (rows: MapAttention[]) =>
     rows.length
       ? `<div class="kmap-status">${rows
@@ -214,15 +239,42 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
           )
           .join('')}</div>`
       : '';
-  const idBlock = (code: string | null, place: boolean) =>
-    code
-      ? `<div class="kmap-idrow kd-idrow"><div class="kd-idtext"><span class="kmap-sub">${esc(place ? w.labelPlace : w.labelThing)}</span><span class="kmap-code" dir="ltr">${esc(printedCode(code))}</span></div></div>`
-      : '';
+  /** The label: Kept's own QR (the address a printed label carries) and the short ID, as the
+   * app's card draws them (the QR from the same code, components/ui/qr-path.ts). */
+  const idBlock = (code: string | null, place: boolean) => {
+    if (!code) return '';
+    const url = `${LABEL_ORIGIN}/l/${code}`;
+    const printed = printedCode(code);
+    const qr = qrPath(url);
+    return `<div class="kmap-idrow">
+      <div class="kmap-qr"><svg role="img" aria-label="${esc(w.qrLabel(printed))}" viewBox="0 0 ${qr.n} ${qr.n}" width="72" height="72" shape-rendering="crispEdges"><rect width="${qr.n}" height="${qr.n}" fill="#FFFFFF"/><path d="${qr.d}" fill="#1C1B19"/></svg></div>
+      <div class="kd-idtext"><span class="kmap-sub">${esc(place ? w.labelPlace : w.labelThing)}</span><span class="kmap-code" dir="ltr">${esc(printed)}</span><small class="kd-url" dir="ltr">${esc(url.replace(/^https?:\/\//, ''))}</small></div>
+    </div>`;
+  };
+  /** A tag as the app's chip (components/tags/chip.tsx): its colour's dot, on a tint of it. */
+  const tagChips = (tags: { name: string; colour: string }[]) =>
+    `<span class="kd-tags">${tags
+      .map(
+        (g) =>
+          `<span class="kd-tag" style="--tag:${esc(g.colour)}"><span class="kd-tag-dot" aria-hidden="true"></span><bdi>${esc(g.name)}</bdi></span>`,
+      )
+      .join('')}</span>`;
+  /** A thing's photo, or the camera of one not taken yet. */
+  const photo = (id: string | null) => {
+    const key = id ? sample.facts.get(id)?.photo : undefined;
+    return key
+      ? `<div class="kmap-photo kd-has-photo"><img src="${esc(PHOTOS[key])}" alt="" width="64" height="64"></div>`
+      : `<div class="kmap-photo" title="${esc(w.noPhoto)}">${ICON.camera}</div>`;
+  };
+  /** The card's links into Kept: here they lead to Install Kept. */
+  const kept = (label: string) =>
+    `<a class="kmap-btn" href="${esc(installHref)}">${esc(label)}</a>`;
   const factsOf = (id: string) => {
     const x = sample.facts.get(id);
     if (!x) return '';
     // [label, value as HTML]
     const rows: [string, string][] = [];
+    rows.push([w.facts.type, esc(x.type ? (builtinTypeName(x.type, lang) ?? w.noType) : w.noType)]);
     if (x.quantity !== undefined && x.quantity !== 1)
       rows.push([w.facts.quantity, esc(f.num(x.quantity))]);
     if (x.brand) rows.push([w.facts.brand, esc(x.brand)]);
@@ -230,10 +282,10 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     if (x.serial)
       rows.push([w.facts.serial, `<span dir="ltr" class="kd-mono">${esc(x.serial)}</span>`]);
     if (x.condition) rows.push([w.facts.condition, esc(x.condition)]);
-    if (!rows.length) return '';
+    // #209: its tags.
+    if (x.tags?.length) rows.push([w.facts.tags, tagChips(x.tags)]);
     return `<dl class="kmap-facts">${rows.map(([a, b]) => `<dt>${esc(a)}</dt><dd>${b}</dd>`).join('')}</dl>`;
   };
-  const install = `<a class="kmap-btn" href="${esc(installHref)}">${esc(w.install)}</a>`;
   const head = (title: string, meta: string) =>
     `<div class="kmap-peek"><div class="kd-col"><h2>${esc(title)}</h2><div class="kmap-meta">${meta}</div></div><button type="button" class="kmap-x" data-act="close" data-k="close" aria-label="${esc(w.close)}">×</button></div>`;
   /** #138: Height, as the app's (apps/web/src/map/height.tsx): − and + by 5 cm, arrow keys, or a
@@ -264,7 +316,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     return `<ul class="kmap-inv">${rows
       .map(
         (x) =>
-          `<li><button type="button" data-act="inner" data-arg="${esc(x.id)}" data-k="inner:${esc(x.id)}"><span>${esc(x.name)}${dots(flagsOf(contents, x.id))}</span><small>${x.shortCode ? esc(printedCode(x.shortCode)) : ' '}</small><span class="q">×${esc(f.num(x.quantity))}</span></button></li>`,
+          `<li><button type="button" data-act="inner" data-arg="${esc(x.id)}" data-k="inner:${esc(x.id)}"><span>${esc(x.name)}${dots(flagsOf(contents, x.id))}</span><small>${labelTape(x.shortCode, x.labelPrinted) || ' '}</small><span class="q">×${esc(f.num(x.quantity))}</span></button></li>`,
       )
       .join('')}</ul>`;
   }
@@ -279,6 +331,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       const node = plan.items.find((x) => x.id === inner);
       const title = node?.name ?? thing?.name ?? '';
       const code = node?.shortCode ?? thing?.shortCode ?? null;
+      const printed = node?.labelPrinted === true || thing?.labelPrinted === true;
       const where = whereOf(plan, view, inner).path;
       const back =
         sel.type === 'item'
@@ -286,11 +339,11 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
           : rooms.get(sel.id)?.name;
       return `<aside data-map-obstacle class="kmap-panel full" aria-live="polite">
         <div class="kmap-row"><button type="button" class="kmap-btn ghost" data-act="back" data-k="back"><span class="kd-flip" aria-hidden="true">‹</span> ${esc(back ?? '')}</button></div>
-        ${head(title, `<span>${esc(where.join(' › '))}</span>${chip(code)}`)}
+        ${head(title, `<span>${esc(where.join(' › '))}</span>${idChip(code, printed)}`)}
         ${statusRows(contents.rows.get(inner) ?? [])}
         ${idBlock(code, false)}
         ${factsOf(inner)}
-        <div class="kmap-row kmap-open">${install}</div>
+        <div class="kmap-row kmap-open">${kept(w.openThing)}</div>
       </aside>`;
     }
 
@@ -307,7 +360,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
         `<span>${esc(w.size(f.num(Math.round(r.w * 10) / 10), f.num(Math.round(r.d * 10) / 10)))}</span>`,
         `<span>${esc(w.things(total, f.num(total)))}</span>`,
       ].join('');
-      let body = `<div class="kmap-row">${es.focused === r.id ? '' : btn('drill', w.open, 'primary', r.id)}${full ? '' : btn('detail', w.whatsHere(f.num(inside.length)))}</div>`;
+      let body = `<div class="kmap-row">${es.focused === r.id ? '' : btn('drill', w.open, 'primary', r.id)}${full ? '' : btn('detail', w.whatsHere(f.num(inside.length)))}${kept(w.openPlace)}${es.arranging ? '' : kept(w.photograph)}${kept(w.countRoom)}</div>`;
       if (es.arranging) {
         const addable = offMapIn(plan, view, r.id)
           .filter((x) => matches(adding, x.name, x.shortCode))
@@ -329,7 +382,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
               ? `<ul class="kmap-inv">${addable
                   .map(
                     (x) =>
-                      `<li><button type="button" data-act="add" data-arg="${esc(x.id)}" data-k="add:${esc(x.id)}"><span>${esc(x.name)}</span><small>${x.shortCode ? esc(printedCode(x.shortCode)) : ' '}</small><span class="q">+</span></button></li>`,
+                      `<li><button type="button" data-act="add" data-arg="${esc(x.id)}" data-k="add:${esc(x.id)}"><span>${esc(x.name)}</span><small>${labelTape(x.shortCode, x.labelPrinted) || ' '}</small><span class="q">+</span></button></li>`,
                   )
                   .join('')}</ul>`
               : `<p class="kmap-empty">${esc(w.everythingOnMap)}</p>`
@@ -340,7 +393,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
           .map((i) => {
             const n = countIn(contents, i);
             const on = i.on ? plan.items.find((x) => x.id === i.on)?.name : null;
-            return `<li><button type="button" data-act="select" data-arg="${esc(i.id)}" data-k="select:${esc(i.id)}"><span>${esc(i.name)}${dots(flagsOf(contents, i.id))}</span><small>${i.shortCode ? esc(printedCode(i.shortCode)) : ''}${on ? ` · ${esc(w.onHost(on))}` : ''}</small><span class="q">${n !== null ? esc(f.num(n)) : ''}</span></button></li>`;
+            return `<li><button type="button" data-act="select" data-arg="${esc(i.id)}" data-k="select:${esc(i.id)}"><span>${esc(i.name)}${dots(flagsOf(contents, i.id))}</span><small>${labelTape(i.shortCode, i.labelPrinted)}${on ? ` · ${esc(w.onHost(on))}` : ''}</small><span class="q">${n !== null ? esc(f.num(n)) : ''}</span></button></li>`;
           })
           .join('')}</ul>`;
       }
@@ -356,7 +409,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     const meta = cardPath(plan, view, it).join(' › ');
     const levels = plan.levels;
     const li = levels.findIndex((l) => l.key === room?.levelKey);
-    const stairs = STAIR_MODELS.has(it.model)
+    const stairs = STAIR_MODELS.has(baseModel(it.model))
       ? [levels[li + 1], levels[li - 1]].filter((l): l is Level => !!l)
       : [];
     const within = KINDS.map(
@@ -386,7 +439,10 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       ${es.arranging && !it.auto ? btn('remove', w.takeOff, '', it.id) : ''}
       ${detail ? btn('less', w.less, 'ghost') : ''}
     </div>`;
-    const headEl = head(it.name, `<span>${esc(meta)}</span>${chip(it.shortCode)}`);
+    const headEl = head(
+      it.name,
+      `<span>${esc(meta)}</span>${idChip(it.shortCode, it.labelPrinted === true)}`,
+    );
     const insideLine = within.length
       ? `<div class="kmap-status"><div>${within
           .map(
@@ -396,7 +452,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
           .join('')}</div></div>`
       : '';
     const shape = es.arranging
-      ? `<div class="kmap-shape"><span>${esc(w.shapeLine(pick(MODEL_NAMES[it.model]), it.shapeFrom))}</span>${btn(
+      ? `<div class="kmap-shape"><span>${esc(w.shapeLine(pick(MODEL_NAMES[baseModel(it.model)]), it.shapeFrom))}</span>${btn(
           'shapes',
           it.shapeFrom === 'guess' ? w.pickShape : w.change,
           it.shapeFrom === 'guess' ? 'primary' : '',
@@ -406,6 +462,8 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     if (!detail) {
       return `<aside data-map-obstacle class="kmap-panel" aria-live="polite">${headEl}${statusRows(own)}${insideLine}${buttons}${shape}</aside>`;
     }
+    const places = it.subject === 'place' ? (sample.facts.get(it.id)?.places ?? 0) : 0;
+    const placesLine = places ? `<span>${esc(w.placesIn(places, f.num(places)))}</span>` : '';
     const insideSection =
       n !== null
         ? `<div class="kmap-sub">${esc(w.insideN(f.num(n)))}</div>
@@ -416,18 +474,19 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       ? `<div class="kmap-sub">${esc(w.onIt)}</div><ul class="kmap-inv">${onIt
           .map(
             (c) =>
-              `<li><button type="button" data-act="select" data-arg="${esc(c.id)}" data-k="select:${esc(c.id)}"><span>${esc(c.name)}${dots(flagsOf(contents, c.id))}</span><small>${c.shortCode ? esc(printedCode(c.shortCode)) : ' '}</small><span class="q">${esc(countIn(contents, c) ?? '')}</span></button></li>`,
+              `<li><button type="button" data-act="select" data-arg="${esc(c.id)}" data-k="select:${esc(c.id)}"><span>${esc(c.name)}${dots(flagsOf(contents, c.id))}</span><small>${labelTape(c.shortCode, c.labelPrinted) || ' '}</small><span class="q">${esc(countIn(contents, c) ?? '')}</span></button></li>`,
           )
           .join('')}</ul>`
       : '';
     return `<aside data-map-obstacle class="kmap-panel full" aria-live="polite">
       ${headEl}
       <div class="kmap-card-head">
-        <div class="kmap-photo" title="${esc(w.noPhoto)}">${ICON.camera}</div>
+        ${photo(it.subject === 'thing' ? it.id : null)}
         <div class="kd-col kd-small">
-          <span>${esc(pick(MODEL_NAMES[it.model]))}${n !== null ? ` · ${esc(w.thingsInside(n, f.num(n)))}` : ''}</span>
+          <span>${esc(pick(MODEL_NAMES[baseModel(it.model)]))}${n !== null ? ` · ${esc(w.thingsInside(n, f.num(n)))}` : ''}</span>
           <span class="kd-wrap">${esc(meta)}</span>
           ${it.hang === undefined ? '' : `<span>${esc(w.height.onWall(f.num(it.hang)))}</span>`}
+          ${placesLine}
         </div>
       </div>
       ${statusRows(own)}
@@ -435,7 +494,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       ${shape}
       ${idBlock(it.shortCode, it.subject === 'place' || it.isContainer)}
       ${it.subject === 'thing' ? factsOf(it.id) : ''}
-      <div class="kmap-row kmap-open">${install}</div>
+      <div class="kmap-row kmap-open">${kept(it.subject === 'thing' ? w.openThing : w.openPlace)}</div>
       ${onItSection}
       ${insideSection}
     </aside>`;
@@ -505,7 +564,8 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
         </div>
       </div>`;
     const gl = glError ? `<div class="kd-glerror">${esc(w.glError)}</div>` : '';
-    return `${gl}<div class="kmap-bar" data-map-reserve="top">${crumb}${seg}${arrange}${chips}</div>${tools}${ctl}${readout}${card()}`;
+    // #330: the bar, Arrange's tools and the card in one column, as the app has them (map.css).
+    return `${gl}<div class="kmap-stack"><div class="kmap-bar" data-map-reserve="top">${crumb}${seg}${arrange}${chips}</div>${tools}${card()}</div>${ctl}${readout}`;
   }
 
   /** M9: the floor's rooms and what stands in them, for screen readers and keyboards. */
@@ -528,20 +588,30 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       .join('')}</ul>`;
   }
 
-  /** Redraws the controls and the card, keeping the focus (and a search's caret) where it was. */
-  function render(): void {
+  /** Redraws `into`, keeping the focus (and a search's caret) where it was. */
+  function redraw(into: HTMLElement, html: string): void {
     const active = document.activeElement as HTMLElement | null;
-    const key = active && overlay.contains(active) ? active.dataset.k : undefined;
+    const key = active && into.contains(active) ? active.dataset.k : undefined;
     const caret = active instanceof HTMLInputElement ? active.selectionStart : null;
-    stage.dataset.card = es.selected ? 'true' : 'false';
-    overlay.innerHTML = controls();
-    places.innerHTML = placesList();
+    into.innerHTML = html;
     if (key) {
-      const el = overlay.querySelector<HTMLElement>(`[data-k="${CSS.escape(key)}"]`);
+      const el = into.querySelector<HTMLElement>(`[data-k="${CSS.escape(key)}"]`);
       el?.focus({ preventScroll: true });
       if (el instanceof HTMLInputElement && caret !== null) el.setSelectionRange(caret, caret);
     }
+  }
+
+  /** Redraws the controls and the card. */
+  function render(): void {
+    stage.dataset.card = es.selected ? 'true' : 'false';
+    redraw(overlay, controls());
+    places.innerHTML = placesList();
     resetButton.hidden = !changed();
+  }
+
+  /** Redraws What's in: when its own controls change, and when the plan does. */
+  function renderList(): void {
+    redraw(list, whatsInHtml({ name, plan, view, contents, query, opened, w, f, attentionWords }));
   }
 
   const resetButton = root.querySelector<HTMLButtonElement>(
@@ -648,10 +718,11 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     return dlg;
   }
   const putRow = (it: Item, sub: string, selected = false, disabled = false) =>
-    `<div role="option" class="kput-option" tabindex="-1" data-id="${esc(it.id)}" aria-selected="${selected}"${disabled ? ' aria-disabled="true"' : ''}>${thumb(it.model, 44)}<span class="kput-text"><span>${esc(it.name)}</span><small>${esc(sub)}</small></span></div>`;
+    `<div role="option" class="kput-option" tabindex="-1" data-id="${esc(it.id)}" aria-selected="${selected}"${disabled ? ' aria-disabled="true"' : ''}>${thumb(baseModel(it.model), 44)}<span class="kput-text"><span>${esc(it.name)}</span><small>${esc(sub)}</small></span></div>`;
   /** Arrow keys, Home and End move through a listbox's options. */
   function listKeys(list: HTMLElement, onPick: (el: HTMLElement) => void) {
-    const opts = () => [...list.querySelectorAll<HTMLElement>('[role="option"]')];
+    const opts = () =>
+      [...list.querySelectorAll<HTMLElement>('[role="option"]')].filter((o) => !o.hidden);
     const first = opts()[0];
     if (first) first.tabIndex = 0;
     list.addEventListener('click', (ev) => {
@@ -678,6 +749,52 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     });
   }
 
+  /**
+   * A list longer than eight gets a search (put-on.tsx): typing hides the options that don't
+   * match by name or short ID, and says so when none does.
+   */
+  function searchable(dlg: HTMLDialogElement, count: number, label: string, room: string) {
+    const lb = dlg.querySelector<HTMLElement>('[role="listbox"]');
+    if (!lb || count <= SEARCH_FROM) return;
+    const input = document.createElement('input');
+    input.type = 'search';
+    input.className = 'kmap-input';
+    input.enterKeyHint = 'search';
+    input.setAttribute('aria-label', label);
+    input.placeholder = w.put.findIn(room);
+    const none = document.createElement('p');
+    none.className = 'kmap-empty';
+    none.hidden = true;
+    none.textContent = w.nothingMatches;
+    lb.before(input);
+    lb.after(none);
+    input.addEventListener('input', () => {
+      const q = input.value;
+      let shown = 0;
+      for (const o of lb.querySelectorAll<HTMLElement>('[role="option"]')) {
+        const it = plan.items.find((x) => x.id === o.dataset.id);
+        const thing = it ? undefined : view.things.find((x) => x.id === o.dataset.id);
+        const name = it?.name ?? thing?.name ?? '';
+        const code = it?.shortCode ?? thing?.shortCode ?? null;
+        o.hidden = !matches(q, name, code);
+        if (!o.hidden) shown++;
+      }
+      for (const g of lb.querySelectorAll<HTMLElement>('[role="group"]'))
+        g.hidden = !g.querySelector('[role="option"]:not([hidden])');
+      none.hidden = shown > 0;
+      // The first one shown is the one Tab reaches.
+      const all = [...lb.querySelectorAll<HTMLElement>('[role="option"]')];
+      for (const o of all) o.tabIndex = -1;
+      const first = all.find((o) => !o.hidden);
+      if (first) first.tabIndex = 0;
+    });
+    input.addEventListener('keydown', (ev) => {
+      if (ev.key !== 'ArrowDown') return;
+      ev.preventDefault();
+      lb.querySelector<HTMLElement>('[role="option"][tabindex="0"]')?.focus();
+    });
+  }
+
   function openPutOn(id: string) {
     const it = plan.items.find((x) => x.id === id);
     if (!it) return;
@@ -686,7 +803,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     const current = it.on ? plan.items.find((x) => x.id === it.on) : undefined;
     const sub = (h: Item) => {
       const on = h.on ? plan.items.find((x) => x.id === h.on)?.name : undefined;
-      return on ? w.put.shapeOn(names[h.model], on) : names[h.model];
+      return on ? w.put.shapeOn(names[baseModel(h.model)], on) : names[baseModel(h.model)];
     };
     const now = current
       ? `<div class="kput-now"><span>${esc(w.put.onNow(current.name))}</span><button type="button" class="kmap-btn" data-put="off">${esc(w.put.takeOff)}</button></div>`
@@ -695,6 +812,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       ? `<div class="kput-list" role="listbox" aria-label="${esc(w.put.list)}">${holders.map((h) => putRow(h, sub(h))).join('')}</div>`
       : `<p class="kmap-empty">${esc(current ? w.put.nothingElse(room) : w.put.nothing(room))}</p>`;
     const dlg = sheet(w.put.putTitle(it.name), now + list, `puton:${id}`);
+    searchable(dlg, holders.length, w.put.findPlace, room);
     dlg.querySelector('[data-put="off"]')?.addEventListener('click', () => {
       dlg.close();
       mutate((p) => {
@@ -738,7 +856,9 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       ? `<p class="kput-cap">${esc(full ? w.put.full(max, f.num(max)) : w.put.left(left, f.num(left)))}</p>`
       : '';
     const sub = (c: Item) =>
-      c.shortCode ? `${names[c.model]} · ${printedCode(c.shortCode)}` : names[c.model];
+      c.shortCode
+        ? `${names[baseModel(c.model)]} · ${printedCode(c.shortCode)}`
+        : names[baseModel(c.model)];
     const group = (label: string, list: Item[], heading: boolean) =>
       list.length
         ? `<div role="group" class="kput-section" aria-label="${esc(label)}">${heading ? `<div class="kput-head" aria-hidden="true">${esc(label)}</div>` : ''}${list.map((c) => putRow(c, sub(c))).join('')}</div>`
@@ -754,6 +874,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       `${cap}${body}${onNow ? `<p class="kput-cap">${esc(w.put.onItNow(onNow))}</p>` : ''}`,
       `addon:${id}`,
     );
+    if (!full) searchable(dlg, things.length + offMap.length, w.put.findThing, room);
     const picked = new Set<string>();
     const add = dlg.querySelector<HTMLButtonElement>('[data-put="add"]');
     const refresh = () => {
@@ -825,12 +946,71 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
 
   function endArranging(keep: boolean) {
     if (!engine) return;
+    const before = clone(saved);
+    const offerUndo = keep && dirty;
     if (keep) saved = clone(engine.plan);
     engine.setArranging(false);
     if (!keep) engine.setPlan(clone(saved));
     plan = clone(saved);
     dirty = false;
     render();
+    renderList();
+    // Done offers Undo, as the app's toast does: the map as it was before the session.
+    if (offerUndo)
+      toast(w.arranged, () => {
+        saved = before;
+        plan = clone(saved);
+        engine?.select(null, false);
+        engine?.setPlan(clone(saved));
+        render();
+        renderList();
+        toast(w.undone);
+      });
+  }
+
+  /** Cancel: asked first when something changed (the app's useConfirm), never window.confirm. */
+  function cancelArranging() {
+    if (!dirty) return endArranging(false);
+    const dlg = document.createElement('dialog');
+    dlg.className = 'kd-shapes kd-confirm';
+    dlg.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    dlg.setAttribute('role', 'alertdialog');
+    dlg.setAttribute('aria-labelledby', 'kd-confirm-title');
+    dlg.setAttribute('aria-describedby', 'kd-confirm-body');
+    dlg.innerHTML = `<h2 id="kd-confirm-title">${esc(w.confirm.title)}</h2>
+      <p id="kd-confirm-body">${esc(w.confirm.body)}</p>
+      <div class="kd-confirm-actions"><button type="button" class="kmap-btn" data-confirm="no" autofocus>${esc(w.cancel)}</button><button type="button" class="kmap-btn danger" data-confirm="yes">${esc(w.confirm.throwAway)}</button></div>`;
+    let yes = false;
+    dlg.querySelector('[data-confirm="no"]')?.addEventListener('click', () => dlg.close());
+    dlg.querySelector('[data-confirm="yes"]')?.addEventListener('click', () => {
+      yes = true;
+      dlg.close();
+    });
+    dlg.addEventListener('close', () => {
+      dlg.remove();
+      if (yes) endArranging(false);
+      else overlay.querySelector<HTMLElement>('[data-k="cancel:"]')?.focus();
+    });
+    root.append(dlg);
+    dlg.showModal();
+    dlg.querySelector<HTMLElement>('[data-confirm="no"]')?.focus();
+  }
+
+  let toastTimer: number | undefined;
+  /** A toast at the foot of the window, as the app's: a title, and an action (Undo) if any. */
+  function toast(title: string, undo?: () => void) {
+    window.clearTimeout(toastTimer);
+    toasts.innerHTML = `<div class="kd-toast" role="status"><span>${esc(title)}</span>${undo ? `<button type="button" class="kd-toast-act" data-toast="undo">${esc(w.undo)}</button>` : ''}<button type="button" class="kmap-x" data-toast="close" aria-label="${esc(w.close)}">×</button></div>`;
+    const close = () => {
+      window.clearTimeout(toastTimer);
+      toasts.innerHTML = '';
+    };
+    toasts.querySelector('[data-toast="close"]')?.addEventListener('click', close);
+    toasts.querySelector('[data-toast="undo"]')?.addEventListener('click', () => {
+      close();
+      undo?.();
+    });
+    toastTimer = window.setTimeout(close, UNDO_MS);
   }
 
   function reset() {
@@ -844,7 +1024,9 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       engine.setPlan(clone(saved));
       engine.setLevel(saved.levels[0]?.key ?? '_');
     }
+    toasts.innerHTML = '';
     render();
+    renderList();
   }
 
   function setQuality(q: Quality) {
@@ -858,7 +1040,10 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     render();
   }
 
-  const showOnMap = (target: { type: 'room' | 'item'; id: string }) => {
+  const showOnMap = (
+    target: { type: 'room' | 'item'; id: string },
+    innerId: string | null = null,
+  ) => {
     if (!engine) return;
     const roomId =
       target.type === 'room' ? target.id : plan.items.find((i) => i.id === target.id)?.roomId;
@@ -866,7 +1051,23 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     if (room && (es.allFloors || room.levelKey !== es.levelKey)) engine.setLevel(room.levelKey);
     else if (es.focused && es.focused !== roomId) engine.up();
     engine.select(target);
+    if (innerId) {
+      inner = innerId;
+      detail = true;
+      render();
+    }
     stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  /** A What's in row: a node shows itself; a thing shows the node or room it is in, with its card
+   * (map-view.tsx pickThing). */
+  const pickThing = (id: string) => {
+    if (plan.items.some((i) => i.id === id)) return showOnMap({ type: 'item', id });
+    const thing = view.things.find((x) => x.id === id);
+    if (!thing) return;
+    const parent = thing.parentId;
+    if (plan.items.some((i) => i.id === parent)) showOnMap({ type: 'item', id: parent }, id);
+    else showOnMap({ type: 'room', id: parent }, id);
   };
 
   // ---- The shape picker (apps/web/src/map/shapes.tsx), as a native modal dialog ---------------
@@ -901,7 +1102,8 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     dlg.setAttribute('aria-labelledby', 'kd-shapes-title');
     dlg.innerHTML = `<div class="kd-shapes-head"><h2 id="kd-shapes-title">${esc(w.shapeFor(it.name))}</h2><button type="button" class="kmap-x" data-shapes="close" aria-label="${esc(w.close)}">×</button></div>
       <input type="search" class="kmap-input" enterkeyhint="search" aria-label="${esc(w.findShape)}" placeholder="${esc(w.findShapeHint)}">
-      <div class="kshape-list" role="listbox" aria-label="${esc(w.shapes)}"></div>`;
+      <div class="kshape-list" role="listbox" aria-label="${esc(w.shapes)}"></div>
+      <p class="kshape-more">${esc(w.shapesMore[0])}<a href="${esc(SHAPE_REQUEST_URL)}" target="_blank" rel="noopener noreferrer">${esc(w.shapesMore[1])}</a>${esc(w.shapesMore[2])}<a href="${esc(SHAPE_LIBRARY_URL)}" target="_blank" rel="noopener noreferrer">${esc(w.shapesMore[3])}</a>${esc(w.shapesMore[4])}</p>`;
     const search = dlg.querySelector('input') as HTMLInputElement;
     const list = dlg.querySelector<HTMLElement>('[role="listbox"]') as HTMLElement;
     const option = (m: MapModelKey) =>
@@ -1047,6 +1249,17 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
         pins = { ...pins, [arg]: !pins[arg as MapAttentionKind] };
         e?.setPins(pins);
         return render();
+      case 'list-more':
+        opened = new Set(opened);
+        if (opened.has(arg)) opened.delete(arg);
+        else opened.add(arg);
+        return renderList();
+      case 'list-floor':
+        query = { ...query, floor: arg };
+        return renderList();
+      case 'list-show':
+        query = { ...query, show: arg === 'attention' ? 'attention' : 'room' };
+        return renderList();
     }
     if (!e) return;
     switch (el.dataset.act) {
@@ -1064,7 +1277,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       case 'done':
         return endArranging(true);
       case 'cancel':
-        return endArranging(false);
+        return cancelArranging();
       case 'tool':
         return e.setTool(arg as Tool);
       case 'floor':
@@ -1126,6 +1339,10 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
         return showOnMap({ type: 'room', id: arg });
       case 'show-item':
         return showOnMap({ type: 'item', id: arg });
+      case 'list-room':
+        return showOnMap({ type: 'room', id: arg });
+      case 'list-thing':
+        return pickThing(arg);
     }
   };
   /** A typed height, in either language's digits, with a comma or the Arabic decimal mark. */
@@ -1156,12 +1373,35 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
   };
   const onInput = (ev: Event) => {
     const el = ev.target as HTMLInputElement;
+    if (el.dataset.input === 'list-q') {
+      query = { ...query, q: el.value };
+      return renderList();
+    }
     if (el.dataset.input === 'filter') filter = el.value;
     else if (el.dataset.input === 'adding') adding = el.value;
     else return;
     render();
   };
+  /** #301: with a room selected in Arrange, an arrow key moves it a metre, as in the app
+   * (map-view.tsx), and says where it went. */
+  const nudge = (ev: KeyboardEvent): boolean => {
+    if (!engine || ev.defaultPrevented || !es.arranging || es.selected?.type !== 'room')
+      return false;
+    if (!isArrow(ev.key) || ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey) return false;
+    if ((ev.target as HTMLElement | null)?.closest?.(OWN_ARROWS)) return false;
+    const done = engine.nudgeRoom(ev.key);
+    if (!done) return false;
+    ev.preventDefault();
+    const words = done.moved
+      ? w.movedRoom[ev.key](`\u2068${done.room.name}\u2069`)
+      : w.hints.blocked;
+    // A held key moves the room on but is said once. The same words again (a second step the
+    // same way) are said again: they differ by a space.
+    if (!ev.repeat) said.textContent = said.textContent === words ? `${words}\u00a0` : words;
+    return true;
+  };
   const onKey = (ev: KeyboardEvent) => {
+    if (nudge(ev)) return;
     if ((ev.target as HTMLElement | null)?.closest?.('input, textarea, dialog')) return;
     if (ev.key !== 'Escape' || !engine) return;
     if (inner) {
@@ -1179,8 +1419,21 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
   root.addEventListener('keydown', onHeightKey);
   addEventListener('keydown', onKey);
 
+  // The map fills the window below the site's own bar, as the app fills the screen down to its
+  // tab bar (map-view.tsx): the whole map and its controls in view at once, on a phone too.
+  const size = () => {
+    const tall = window.visualViewport?.height ?? window.innerHeight;
+    const bar = document.querySelector<HTMLElement>('header.header');
+    const top = bar && getComputedStyle(bar).position !== 'static' ? bar.offsetHeight : 0;
+    stage.style.height = `${Math.max(320, Math.round(tall - top - 24))}px`;
+  };
+  size();
+  window.addEventListener('resize', size);
+  window.visualViewport?.addEventListener('resize', size);
+
   // The controls are drawn before the engine is made, so its first fit leaves them clear.
   render();
+  renderList();
   try {
     engine = new MapEngine({
       stage,
@@ -1219,6 +1472,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
           dirty = true;
           if (engine) plan = clone(engine.plan);
           render();
+          renderList();
         },
         onDrawRoom: drawRoom,
         onHint: (h) => {
@@ -1253,6 +1507,9 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     root.removeEventListener('change', onChange);
     root.removeEventListener('keydown', onHeightKey);
     removeEventListener('keydown', onKey);
+    window.removeEventListener('resize', size);
+    window.visualViewport?.removeEventListener('resize', size);
+    window.clearTimeout(toastTimer);
     engine?.dispose();
     style.remove();
   };

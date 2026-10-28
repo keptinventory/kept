@@ -47,6 +47,15 @@ const BLANK_CAP = 1000;
 /** "Garage › Shelf A": the label's path line (unplaced areas included, as the server names them). */
 const pathText = (steps: PathStep[]) => steps.map((s) => s.name).join(' › ');
 
+/** Every code on a printed label in the mock (see `printedCodes` below); Home's count uses it too.
+ * Things only: a place's `labelPrinted` isn't read here, as the place fixtures' codes were never
+ * printed in the labels' story (its tests print them). */
+export function printedCodesOf(state: MockState): Set<string> {
+  const out = new Set(state.capture.codes.filter((c) => c.printedAt).map((c) => c.code));
+  for (const t of state.inventory.things) if (t.labelPrinted && t.shortCode) out.add(t.shortCode);
+  return out;
+}
+
 export function labelsRoutes(state: MockState): MockRoute[] {
   const inv = () => state.inventory;
   const cap = () => state.capture;
@@ -57,12 +66,17 @@ export function labelsRoutes(state: MockState): MockRoute[] {
     cap().codes.some((c) => c.code === code);
   const labelsOn = (locationId: string) =>
     state.locations.find((l) => l.id === locationId)?.modules.includes('labels') ?? false;
-  const printedCodes = () =>
-    new Set(
-      cap()
-        .codes.filter((c) => c.printedAt)
-        .map((c) => c.code),
-    );
+  /** The thing or place now carries a printed label (StoredThing/StoredPlace.labelPrinted). */
+  const markLabelled = (target: { kind: 'thing' | 'place'; id: string }) => {
+    const rows: { id: string; labelPrinted?: boolean }[] =
+      target.kind === 'thing' ? inv().things : inv().places;
+    const row = rows.find((x) => x.id === target.id);
+    if (row) row.labelPrinted = true;
+  };
+  /** The codes on a printed label: a code confirmed printed, or the code of a thing the fixtures
+   * say carries one (`labelPrinted`, what lists show as the tape). The server's rule is one table
+   * (labels/printed-sql.ts); the mock keeps the two in step here. */
+  const printedCodes = () => printedCodesOf(state);
 
   return [
     route('POST', p.labelBatches, ({ body }) => {
@@ -245,6 +259,7 @@ export function labelsRoutes(state: MockState): MockRoute[] {
       batch.printedConfirmedAt ??= at;
       batch.dismissedAt = null;
       for (const l of batch.labels) {
+        if (l.targetId && l.kind !== 'blank') markLabelled({ kind: l.kind, id: l.targetId });
         const c = cap().codes.find((x) => x.code === l.code);
         if (c) c.printedAt ??= at;
         else if (l.targetId && l.kind !== 'blank')
@@ -364,6 +379,9 @@ export function labelsRoutes(state: MockState): MockRoute[] {
       if (!target) return notFound();
       code.state = 'assigned';
       code.target = target;
+      // A claimed blank is a printed label: what it went to shows the tape.
+      code.printedAt ??= now();
+      markLabelled(target);
       return { outcome: 'claimed', target: { kind: target.kind, id: target.id } };
     }),
   ];

@@ -64,7 +64,9 @@ export function UnpackAnswer({
             <div className="grid min-w-0 flex-1 gap-0.5">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-semibold">{boxTitle(box.number)}</span>
-                {box.shortCode ? <IdChip code={box.shortCode} /> : null}
+                {box.shortCode ? (
+                  <IdChip code={box.shortCode} variant={box.labelPrinted ? 'tape' : 'quiet'} />
+                ) : null}
                 <Pill tone={STATE_TONES[box.state]}>{states[box.state]}</Pill>
               </div>
               {box.name && box.name !== boxTitle(box.number) ? (

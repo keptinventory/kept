@@ -12,8 +12,8 @@ import {
   MAP_LIMITS,
   MAP_ROOM_KINDS,
   MAP_SURFACES,
-  type MapModelKey,
   type MapRect,
+  type MapShapeKey,
   mToCm,
   offWall,
   placeInRoom,
@@ -219,7 +219,7 @@ async function checkedImage(
     }
   }
 
-  const models = new Map<string, MapModelKey>();
+  const models = new Map<string, MapShapeKey>();
   const hosts = new Map<string, string>();
   for (const n of body.nodes) {
     const id = n.id.toLowerCase();
@@ -265,7 +265,7 @@ async function checkedImage(
     const hostModel = models.get(host);
     if (!hostModel) throw refuse(`Check nodes: ${id} stands on ${host}, which is not on the map.`);
     if (!carryOf(hostModel)) throw refuse(`Check nodes: nothing can stand on ${host}.`);
-    if (!canCarry(hostModel, models.get(id) as MapModelKey)) {
+    if (!canCarry(hostModel, models.get(id) as MapShapeKey)) {
       throw refuse(`Check nodes: ${host} can't carry ${id}.`);
     }
     const n = (carried.get(host) ?? 0) + 1;
@@ -286,7 +286,7 @@ async function checkedImage(
 function checkWall(
   id: string,
   n: z.infer<typeof NodeBody>,
-  model: MapModelKey,
+  model: MapShapeKey,
   height: number,
   room: { w: number; d: number } | undefined,
 ): void {
@@ -394,7 +394,7 @@ export async function addNodes(
   }
   const wanted = new Map<
     string,
-    { id: string; model: MapModelKey; subject: 'place' | 'thing' }[]
+    { id: string; model: MapShapeKey; subject: 'place' | 'thing' }[]
   >();
   for (const n of body.nodes) {
     const id = n.id.toLowerCase();

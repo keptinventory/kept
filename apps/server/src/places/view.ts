@@ -1,5 +1,7 @@
 import {
   ATTACHMENT_ROLES,
+  CHILD_ORDERS,
+  type ChildOrder,
   DERIVED_STATES,
   type DerivedState,
   FIELD_KINDS,
@@ -12,6 +14,7 @@ import { ATTACHMENT_SELECT, type AttachmentRow, attachmentViews } from '../files
 import { decodeCursor, encodeCursor } from '../http/conventions.js';
 import { invalid, notFound } from '../http/errors.js';
 import { filterOf, lowerIds, manyOf, matchOf, notOf } from '../http/list-filters.js';
+import { labelPrintedSql, shownCodeSql } from '../labels/printed-sql.js';
 import {
   derivedStatesOf,
   householdStateSql,
@@ -32,6 +35,7 @@ import {
   tagsOfRow,
   tagsSql,
 } from '../things/tag-sql.js';
+import { placeOrderSql, thingNameSql } from './order.js';
 
 // What the API shows of places (D45, D118, D160): the shapes of the web contract
 // (apps/web/src/api/inventory/types.ts: PlaceNode, PlaceView, PlaceContents, ThingRow), plus the
@@ -65,8 +69,26 @@ export const PlaceNodeSchema = z.object({
   shortCode: z.string().nullable(),
   thingCount: z.number().int(),
   childCount: z.number().int(),
+  /** When it was made: floors among siblings keep this order (places/order.ts). */
+  createdAt: z.string(),
+  /** Its live boxes, directly in it (the tree shows the first BOX_LEAVES of them). */
+  boxCount: z.number().int(),
+  /** How the places inside it are ordered: A to Z, or its own order (places/order.ts). */
+  childOrder: z.enum(CHILD_ORDERS),
 });
 export type PlaceNode = z.infer<typeof PlaceNodeSchema>;
+
+/** A box in the tree: a leaf under its place, with how many things are directly inside. */
+export const BoxNodeSchema = z.object({
+  id: z.uuid(),
+  placeId: z.uuid(),
+  name: z.string().nullable(),
+  /** Its type's icon; null shows a box. */
+  icon: z.string().nullable(),
+  shortCode: z.string().nullable(),
+  contentCount: z.number().int(),
+});
+export type BoxNode = z.infer<typeof BoxNodeSchema>;
 
 export const ResolvedFieldSchema = z.object({
   id: z.uuid(),
@@ -127,8 +149,11 @@ export const PlaceViewSchema = z.object({
   kindKey: z.string(),
   icon: z.string().nullable(),
   isUnplaced: z.boolean(),
+  childOrder: z.enum(CHILD_ORDERS),
   path: z.array(PathStepSchema),
   shortCode: z.string().nullable(),
+  /** It carries a printed label (labels/printed-sql.ts). */
+  labelPrinted: z.boolean(),
   fields: z.array(ResolvedFieldSchema),
   custom: z.record(z.string(), z.unknown()),
   secrets: z.array(SecretSummarySchema),
@@ -142,6 +167,7 @@ export const ThingRowSchema = z.object({
   id: z.uuid(),
   locationId: z.uuid(),
   shortCode: z.string().nullable(),
+  labelPrinted: z.boolean(),
   name: z.string().nullable(),
   type: z
     .object({
@@ -183,6 +209,7 @@ export type PlaceRow = {
   icon: string | null;
   sort: number;
   isUnplaced: boolean;
+  childOrder: ChildOrder;
   custom: Record<string, unknown>;
   deletedAt: Date | null;
   trashBatchId: string | null;
@@ -190,7 +217,8 @@ export type PlaceRow = {
 };
 
 const PLACE_COLUMNS = `p.id, p.location_id, l.owner_account_id, p.parent_id, p.name, p.kind_key,
-  p.icon, p.sort, p.is_unplaced, p.custom, p.deleted_at, p.trash_batch_id, p.row_version`;
+  p.icon, p.sort, p.is_unplaced, p.child_order, p.custom, p.deleted_at, p.trash_batch_id,
+  p.row_version`;
 
 type RawPlace = {
   id: string;
@@ -202,6 +230,7 @@ type RawPlace = {
   icon: string | null;
   sort: number;
   is_unplaced: boolean;
+  child_order: ChildOrder;
   custom: Record<string, unknown>;
   deleted_at: Date | null;
   trash_batch_id: string | null;
@@ -218,6 +247,7 @@ const placeRowOf = (r: RawPlace): PlaceRow => ({
   icon: r.icon,
   sort: r.sort,
   isUnplaced: r.is_unplaced,
+  childOrder: r.child_order,
   custom: r.custom ?? {},
   deletedAt: r.deleted_at,
   trashBatchId: r.trash_batch_id,
@@ -271,12 +301,17 @@ export async function unplacedOf(client: pg.ClientBase, locationId: string): Pro
 // ---------------------------------------------------------------------------------------------
 
 const NODE_COLUMNS = `p.id, p.parent_id, p.name, p.kind_key, p.icon, p.sort, p.is_unplaced,
+  p.child_order,
   (SELECT sc.code FROM public.short_ids sc
     WHERE sc.place_id = p.id AND sc.is_primary AND sc.state = 'assigned' LIMIT 1) AS short_code,
   (SELECT count(*) FROM public.things t
     WHERE t.place_id = p.id AND t.deleted_at IS NULL)::int AS thing_count,
   (SELECT count(*) FROM public.places c
-    WHERE c.parent_id = p.id AND c.deleted_at IS NULL)::int AS child_count`;
+    WHERE c.parent_id = p.id AND c.deleted_at IS NULL)::int AS child_count,
+  p.created_at,
+  (SELECT count(*) FROM public.things t
+    WHERE t.place_id = p.id AND t.deleted_at IS NULL
+      AND ${isContainerSql('t.id', 't.type_id')})::int AS box_count`;
 
 type RawNode = {
   id: string;
@@ -289,6 +324,9 @@ type RawNode = {
   short_code: string | null;
   thing_count: number;
   child_count: number;
+  created_at: Date;
+  box_count: number;
+  child_order: ChildOrder;
 };
 
 const nodeOf = (r: RawNode): PlaceNode => ({
@@ -302,6 +340,9 @@ const nodeOf = (r: RawNode): PlaceNode => ({
   shortCode: r.short_code,
   thingCount: r.thing_count,
   childCount: r.child_count,
+  createdAt: r.created_at.toISOString(),
+  boxCount: r.box_count,
+  childOrder: r.child_order,
 });
 
 /** Every live place of a location, flat (`parentId` makes the tree), in the tree's order. */
@@ -309,10 +350,54 @@ export async function placeNodes(client: pg.ClientBase, locationId: string): Pro
   const { rows } = await client.query<RawNode>(
     `SELECT ${NODE_COLUMNS} FROM public.places p
       WHERE p.location_id = $1 AND p.deleted_at IS NULL
-      ORDER BY p.sort, lower(p.name), p.id`,
+      ORDER BY ${placeOrderSql('p')}`,
     [locationId],
   );
   return rows.map(nodeOf);
+}
+
+/** How many boxes the tree shows under one place; `boxCount` says how many more there are. */
+export const BOX_LEAVES = 50;
+
+/**
+ * The boxes of a location's tree: live things directly in a place (not inside another box) that
+ * are containers (their type, or something inside them), at most BOX_LEAVES per place, in the
+ * things' name order.
+ */
+export async function boxNodes(client: pg.ClientBase, locationId: string): Promise<BoxNode[]> {
+  const { rows } = await client.query<{
+    id: string;
+    place_id: string;
+    name: string | null;
+    icon: string | null;
+    short_code: string | null;
+    content_count: number;
+  }>(
+    `SELECT b.id, b.place_id, b.name, b.icon, b.short_code, b.content_count
+       FROM (SELECT t.id, t.place_id, t.name, ty.icon,
+                    (SELECT sc.code FROM public.short_ids sc
+                      WHERE sc.thing_id = t.id AND sc.is_primary AND sc.state = 'assigned' LIMIT 1)
+                      AS short_code,
+                    (SELECT count(*) FROM public.things c
+                      WHERE c.container_id = t.id AND c.deleted_at IS NULL)::int AS content_count,
+                    row_number() OVER (PARTITION BY t.place_id
+                                       ORDER BY ${thingNameSql('t')}, t.id) AS n
+               FROM public.things t
+               LEFT JOIN public.types ty ON ty.id = t.type_id
+              WHERE t.location_id = $1 AND t.deleted_at IS NULL AND t.place_id IS NOT NULL
+                AND ${isContainerSql('t.id', 't.type_id')}) b
+      WHERE b.n <= ${BOX_LEAVES}
+      ORDER BY b.place_id, b.n`,
+    [locationId],
+  );
+  return rows.map((r) => ({
+    id: r.id,
+    placeId: r.place_id,
+    name: r.name,
+    icon: r.icon,
+    shortCode: r.short_code,
+    contentCount: r.content_count,
+  }));
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -405,13 +490,17 @@ async function pathOfPlace(client: pg.ClientBase, placeId: string): Promise<Path
   }));
 }
 
-async function primaryCode(client: pg.ClientBase, placeId: string): Promise<string | null> {
-  const { rows } = await client.query<{ code: string }>(
-    `SELECT code FROM public.short_ids
-      WHERE place_id = $1 AND is_primary AND state = 'assigned' LIMIT 1`,
+/** The code the place shows (its printed label's, else its primary one), and whether it has one. */
+async function codeOf(
+  client: pg.ClientBase,
+  placeId: string,
+): Promise<{ shortCode: string | null; labelPrinted: boolean }> {
+  const { rows } = await client.query<{ code: string | null; printed: boolean }>(
+    `SELECT ${shownCodeSql('place_id', '$1::uuid')} AS code,
+            ${labelPrintedSql('place_id', '$1::uuid')} AS printed`,
     [placeId],
   );
-  return rows[0]?.code ?? null;
+  return { shortCode: rows[0]?.code ?? null, labelPrinted: rows[0]?.printed === true };
 }
 
 async function secretsOf(
@@ -489,8 +578,9 @@ export async function placeView(
     kindKey: place.kindKey,
     icon: place.icon,
     isUnplaced: place.isUnplaced,
+    childOrder: place.childOrder,
     path: await pathOfPlace(client, place.id),
-    shortCode: await primaryCode(client, place.id),
+    ...(await codeOf(client, place.id)),
     fields,
     custom: customForView(gate, fields, place.custom),
     secrets: await secretsOf(client, gate, place.id, fields),
@@ -547,6 +637,7 @@ type RawThing = {
   loan_direction: 'out' | 'in' | null;
   last_seen_at: Date | null;
   short_code: string | null;
+  label_printed: boolean;
   type_id: string | null;
   type_icon: string | null;
   type_name: string | null;
@@ -590,7 +681,7 @@ export async function placeContents(
   if (q) placeWhere.push(nameHas('p.name', pp.add(q)));
   const { rows: placeRows } = await client.query<RawNode>(
     `SELECT ${NODE_COLUMNS} FROM public.places p WHERE ${placeWhere.join(' AND ')}
-      ORDER BY p.sort, lower(p.name), p.id`,
+      ORDER BY ${placeOrderSql('p')}`,
     pp.values,
   );
 
@@ -635,7 +726,7 @@ export async function placeContents(
         : `''`;
   const sortCol =
     sort === 'updated' ? 't.updated_at' : sort === 'lastSeen' ? 't.last_seen_at' : null;
-  const s = sortCol ? `${sortCol}::text` : `lower(coalesce(t.name, ''))`;
+  const s = sortCol ? `${sortCol}::text` : thingNameSql('t');
   // D211: the name A to Z and the dates newest first, unless `dir` turns them around.
   const desc = query.dir ? query.dir === 'desc' : sortCol !== null;
 
@@ -657,9 +748,8 @@ export async function placeContents(
   const { rows } = await client.query<RawThing>(
     `SELECT t.id, t.location_id, t.name, t.quantity::text AS quantity, t.lifecycle,
             t.location_uncertain, t.review_state, t.last_seen_at,
-            (SELECT sc.code FROM public.short_ids sc
-              WHERE sc.thing_id = t.id AND sc.is_primary AND sc.state = 'assigned' LIMIT 1)
-              AS short_code,
+            ${shownCodeSql('thing_id', 't.id')} AS short_code,
+            ${labelPrintedSql('thing_id', 't.id')} AS label_printed,
             ty.id AS type_id, ty.icon AS type_icon, ty.name AS type_name,
             ty.builtin_key AS type_builtin_key,
             (SELECT a.file_id FROM public.attachments a
@@ -696,6 +786,7 @@ export async function placeContents(
       id: r.id,
       locationId: r.location_id,
       shortCode: r.short_code,
+      labelPrinted: r.label_printed === true,
       name: r.name,
       type:
         r.type_id && r.type_icon

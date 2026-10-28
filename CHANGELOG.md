@@ -3,6 +3,135 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.14.0 (2026-10-28)
+
+### Highlights
+
+- **Graph view.** A location's floors, rooms, boxes and things as a graph, in 2D or 3D, each floor a layer of its own. Pick a node for its card, pick it again to go in, and the path above takes you back. Every node is a button with its kind, count and flags, and a text list mirrors the graph. The view switch is now List · Grid · Graph · Table · Map, each with an icon (#207).
+- **Move a room on the map.** In Arrange, drag a room (on a phone, hold its floor first) and everything in it moves with it. It snaps to whole metres, never overlaps another room, and arrow keys move it too. On a phone the card no longer covers Cancel (#301, #330).
+- **Try the map shows what the app shows.** What's in under the map, names first with the tape only on printed labels, and the same card as the app (#301).
+- **A blank label on a place you already have.** Scan it and choose Attach to an existing place, claim it at the end of a scan session, or start from a place's page with Add a label code (#329).
+- **Move several things to the Trash.** Select mode in a place's list has Move to Trash, with one Undo for all of them. Something lent out asks first, in the spreadsheet too (#294).
+- **Security.** better-auth 1.7.13 fixes a critical advisory where an OAuth state could be used as a magic link to sign in as someone else (GHSA-965c-763c-88jm), and 28 Dependabot alerts are fixed (zod, fastify, undici, nodemailer, fast-uri). Update soon.
+- **Small fixes.** A scan session's Last reads no longer shows empty rows for unmatched codes, the edit form's conflict sheet names every field again, and turning a place into a box opens the box at once instead of flashing "Couldn't load this".
+
+### Other
+
+- Move several things to the Trash at once, and the README tour (#341, closes #294) (9fd3cbc)
+- Scan: attach a blank label to a place you already have (#340, closes #329, reported by @fabienlege) (8eb63b8)
+- Places A to Z e2e: its own location every attempt (#339, closes #336) (9eb64f2)
+- Map Arrange on a phone: the card no longer covers Cancel (#338, closes #330) (9a32ff1)
+- Graph view: a location as a graph, in 2D and 3D (#337, closes #207) (9252c88)
+- Map: move a room in Arrange, and Try the map shows what the app shows (#331, closes #301) (5a67981)
+- Security: better-auth 1.7.13 (OAuth state as a magic link, OAuth Proxy, rate limits) (#335) (eff339f)
+- README and docs screenshots for 1.13.1, and a new README set (#334) (e54a008)
+- Security: fix the 28 Dependabot alerts (zod, fastify, undici, nodemailer, fast-uri) (#333) (0a5dd75)
+
+### Documentation
+
+- **release:** the 1.13.1 record (#328) (33ac3c7)
+
+### Contributors
+
+@ibrahimroshdy
+
+## 1.13.1 (2026-10-27)
+
+### Highlights
+
+- **A thing's type under its name.** Lists, Large tiles, search and the palette show the type in quiet grey ("Furniture"), and a box's row says how many things are in it.
+- **Activity reads right after Turn places into boxes.** Plain rows instead of "Name → empty", "box" instead of "container", no Undo on what was already undone, and links that open the box (or the place it was merged into).
+- **Homebox import polish.** Suggested boxes A to Z, a typed name becomes a new type, the check step speaks ahead ("comes in archived"), an empty custom field is named as left out, and an ended thing says "Archived" or "Sold" everywhere.
+- **Small fixes.** The HTTPS strip stays dismissed on every device, filter chips stay on one line, the sort menu says places keep their own order, the tour counts the same chapters as Help, and four tests no longer fail under load.
+
+### Other
+
+- Box counts in lists, the type under a thing's name, and small UI fixes (#326, closes #321) (acf1988)
+- Homebox import: A to Z boxes, typed type names, wording ahead, empty fields said (#325, closes #320) (ed142c2)
+- Four load-proof tests, and the tour counts the same chapters as Help (#324, closes #312, #314) (5c6ab3e)
+- Activity after Turn places into boxes: plain rows, "box", no dead Undo, links that open (#323, closes #319) (5dcace5)
+
+### Documentation
+
+- **release:** the 1.13.0 record (#318) (59cf813)
+
+### Contributors
+
+@ibrahimroshdy
+
+## 1.13.0 (2026-10-27)
+
+### Highlights
+
+**Kept on a home network, and moving over from Homebox.** Before and now:
+
+| | Before | Now |
+|---|---|---|
+| Install | A git clone, five passwords you make yourself, and the setup code from the logs | `docker compose run --rm init` and one compose file: four steps, passwords generated, the setup code on screen (#272) |
+| Uploads over http | Photos and files fail on a home-network address | They upload (#267) |
+| Wrong address | "That email or username and password don't match." | The address this Kept is set up for, with a link (#267) |
+| Tokens on a home network | Need HTTPS, so AI apps and Home Assistant can't connect | `kept admin token create` on the server (#267) |
+| Export over http | Refused | Works without secret values; secrets still need HTTPS (#273) |
+| The http notice | Can't be dismissed; Get started never finishes | The banner can be dismissed; "Staying on my home network" finishes the step (#267, #273) |
+| Homebox instructions | "Collection settings → Export" | Collection → Tools → Backup & Restore → Create Backup → Download (#267) |
+| Homebox types | `global.item`; no "no type"; one box makes every item a box | Item and Location; No type or New type…; only the item that holds things becomes a box (#268) |
+| Import report | Flagged rows don't say why; quantity 0 becomes 1 | Every row says why; quantity 0: keep 0 or archive, set to 1, or leave out; the report stays in Activity; a past import can be repaired (#268) |
+| Boxes at import | Every location comes in as a place | Locations that look like boxes are offered as boxes (#268) |
+| Place order | Creation order; Box 10 before Box 2 | A–Z with numbers in order; floors keep their order; your own order where you want it (#269, #270) |
+| Many boxes at once | One at a time, no undo | Pick many, convert in one step, one Undo (#270) |
+| Boxes in the tree | Missing from the tree and the pickers | In the tree with a count of what's inside, up to 50 a place, then +N boxes; pickers and Move find them (#269) |
+| Codes in lists | An amber code on every row | Names first; the amber tape only on things with a printed label (#271) |
+| Sidebar | One long list with Locations far down; imports switch on the Household set (Money, Warranties, Schedules and more) | Home and Inbox, Locations, Tracking, Tools, then the rest; Tracking and Tools fold; imports and new accounts start with Essentials (#267, #268) |
+| Prices, warranties, maintenance at import | Money turned on for everyone | An import into a new location turns on only the modules your backup has data for, each shown with its count; untick any to keep it as notes (#268) |
+
+- **Require two-factor from the app.** Owners turn it on for a location in Members and see who still needs two-factor or a passkey. Members who haven't set one up are told why the location won't open, with a button to set it up.
+- **Label every place, not only things.** "Label everything here" asks Things or Places, and places that never had a label get their code and print with the rest.
+- **Clearer sign-in and offline sizes.** "Sign in with Google" reads with one space, and This device says "Nothing to download" or "Calculating…" instead of "About 0 byte".
+
+### Fixes
+
+- two-factor for a location from the app, labels for every place, sign-in and offline wording (#255) (6e722dd)
+
+### Other
+
+- Many places into boxes with one Undo, and a place's own order (#315, closes #270) (8767c56)
+- Names first: the amber tape only on things with a printed label (#311, closes #271) (1c2cde1)
+- Places A–Z with numbers in order, and boxes stay in the tree (#309, closes #269) (9215f22)
+- Your own data over http: export without secret values, and a home-network guide (#308, closes #273) (e6753bf)
+- Test: the audit money check ignores digits inside ids (#310) (ae28dee)
+- 1.13.0 small fixes: metrics token in Compose, webhook text, CI docs, Vitest 5.0.3 (#306, closes #297, #298, #299, #300) (0cf775c)
+- Discord release post: tables as bullet lines (#304) (70799ac)
+- README: what's next, by release (#305) (672b2c4)
+- FAQ: Homebox backup wording, how Kept differs from Homebox, free or paid (#302) (30dbd7c)
+- CLA check: let Dependabot's pull requests through (#291) (111e700)
+- README: the quick start needs 1.13.0 until it's released (#292) (a61c2bc)
+- CODEOWNERS: the maintainers team reviews every pull request (#290) (fb81ee4)
+- Home network over http: uploads, copy, the wrong-address message and tokens (#284, closes #267) (373a0fe)
+- Install with Docker Compose without a git clone or hand-made passwords (#285, closes #272) (5ec4e62)
+- The Homebox import speaks Homebox and can repair a past import (#286, closes #268) (fd79f3b)
+
+### Documentation
+
+- **users:** add a standalone photos and paperwork page (#283) (9ea9a57)
+- **users:** add a standalone short IDs and labels page (#282) (a7067eb)
+- **users:** add a standalone things page (#281) (03d4ec0)
+- **users:** add a standalone spreadsheet page (#280) (1ec7c33)
+- **users:** add a standalone locations page (#279) (15515b6)
+- **users:** add a standalone home page (#278) (cd2eaa0)
+- **users:** add a standalone insights page (#275) (e79f704)
+- **users:** add a standalone condition reports page (#274) (c930732)
+- **users:** add a standalone search page (#260) (26a549e)
+- **users:** add a standalone reports, insurance and claims page (#259) (c74ac36)
+- **users:** add a standalone sharing a location page (#258) (dcbc1f2)
+- **users:** add a standalone reminders and notifications page (#257) (a199fb4)
+- **users:** add a standalone vehicles and machines page (#256) (1ab83d7)
+- **readme:** what's next after 1.12.5 (#254) (dc08503)
+- **release:** the 1.12.5 record (#253) (32adc16)
+
+### Contributors
+
+@ibrahimroshdy · @oke3
+
 ## 1.12.5 (2026-10-21)
 
 ### Highlights

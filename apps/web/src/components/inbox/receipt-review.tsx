@@ -19,7 +19,7 @@ import type {
   ReceiptLineAction,
 } from '@/api/capture/types';
 import { inventoryApi } from '@/api/inventory/queries';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import { Notice, Pill } from '@/components/page';
 import { CurrencyPicker, RegistryPicker } from '@/components/things/pickers';
 import { useMoney } from '@/components/things/values';
@@ -384,7 +384,7 @@ function LineReview({
           <LineOption key={th.id} value={`link:${th.id}`}>
             <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <bdi className="[overflow-wrap:anywhere]">{th.name}</bdi>
-              <IdChip code={th.shortCode} pending />
+              <LabelTape code={th.shortCode} printed={th.labelPrinted} pending />
             </span>
             <small className="block text-small text-ink-3">
               {th.match === 'brand_model' ? (

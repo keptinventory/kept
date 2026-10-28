@@ -32,25 +32,28 @@ const word = z.optional(z.catch(z.string(), ''));
 
 /**
  * A location's page: the contents list's keys, `size`, `view` with the map (1.x, D237, M11) and the
- * spreadsheet (`table`, 1.x, D250), and the
+ * spreadsheet (`table`, 1.x, D250), the graph (`graph`, #207, `dim` its 2D or 3D), and the
  * map's own list: `find` (its search), `floor` (a floor's id, `_` for rooms on no floor), `show`
  * (`attention` for what needs it) and `debug` (`map` shows the map's measurements).
  */
 export const locationSearch = listSearch(CONTENTS_FILTERS, {
-  view: z.optional(z.catch(z.enum(['list', 'photos', 'grid', 'map', 'table']), 'list')),
+  view: z.optional(z.catch(z.enum(['list', 'photos', 'grid', 'graph', 'map', 'table']), 'list')),
   size,
   find: word,
   floor: word,
   show: z.optional(z.catch(z.enum(['room', 'attention']), 'room')),
   debug: word,
+  /** #207: the graph in 2D (the default) or 3D. */
+  dim: z.optional(z.catch(z.enum(['2d', '3d']), '2d')),
 });
 
 /** A place's page (#190): a location's keys without the spreadsheet; its map opens on the place. */
 export const placeSearch = listSearch(CONTENTS_FILTERS, {
-  view: z.optional(z.catch(z.enum(['list', 'photos', 'grid', 'map']), 'list')),
+  view: z.optional(z.catch(z.enum(['list', 'photos', 'grid', 'graph', 'map']), 'list')),
   size,
   find: word,
   floor: word,
   show: z.optional(z.catch(z.enum(['room', 'attention']), 'room')),
   debug: word,
+  dim: z.optional(z.catch(z.enum(['2d', '3d']), '2d')),
 });

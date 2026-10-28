@@ -24,7 +24,7 @@
 
 import { type TourId, tourKey } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
-import { useQueryClient } from '@tanstack/react-query';
+import { onlineManager, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouter } from '@tanstack/react-router';
 import { createElement, useCallback, useEffect } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
@@ -222,6 +222,11 @@ type Run = {
 
 // One run at a time, whichever Help row or Show me started it.
 let current: Run | null = null;
+/** Counts starts: of two asked for while the locations list loads, the later one runs. */
+let starts = 0;
+
+/** How long a start waits for a fresh locations list when it has a cached one to fall back on. */
+export const FRESH_LIST_MS = 2_500;
 
 /**
  * driver.js, once its chunk has loaded. Every later step uses it at once: a fresh `import()` of a
@@ -593,16 +598,37 @@ export function useTour() {
   const start = useCallback(
     async (tourId: TourId, { returnFocus, context = {} }: TourStart = {}): Promise<boolean> => {
       if (current) abandon(current);
-      let locations = qc.getQueryData<LocationDetail[]>(keys.locations);
-      if (!locations) {
+      const ticket = ++starts;
+      // The chapters come from the server's list as it is now, the one Help shows once it has
+      // loaded: a cached list can predate a module change (the phone's last-known copy, another
+      // device), and its chapters would not be Help's (#314). A fetch on its way is shared.
+      // Offline, when the server can't be reached, or when it hasn't answered within
+      // FRESH_LIST_MS, the cached list (the fetch goes on and refreshes it); with none, what the
+      // routes show, with nothing writable and no modules.
+      const cached = qc.getQueryData<LocationDetail[]>(keys.locations);
+      let known = cached ?? [];
+      if (onlineManager.isOnline()) {
+        const fresh = qc.fetchQuery({
+          queryKey: keys.locations,
+          queryFn: listLocations,
+          staleTime: 0,
+          ...(cached ? { retry: false } : {}),
+        });
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        const late = new Promise<LocationDetail[]>((resolve) => {
+          if (cached) timer = setTimeout(() => resolve(cached), FRESH_LIST_MS);
+        });
         try {
-          locations = await qc.fetchQuery({ queryKey: keys.locations, queryFn: listLocations });
+          known = await Promise.race([fresh, late]);
         } catch {
-          // Offline at start: run what the routes show, with nothing writable and no modules.
-          locations = [];
+          // Keep `known`.
+        } finally {
+          clearTimeout(timer);
         }
+        // A start asked for while this one waited takes over; nothing of this one was shown.
+        if (ticket !== starts) return false;
+        if (current) abandon(current);
       }
-      const known = locations ?? [];
       const chapters = availableTours(known);
       const at = chapters.findIndex((x) => x.tour.id === tourId);
       const first = chapters[at];

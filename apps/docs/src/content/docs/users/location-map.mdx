@@ -8,11 +8,12 @@ import clipMp4 from '../../../assets/clips/map-add-tv.mp4?url';
 import clipPoster from '../../../assets/clips/map-add-tv-poster.webp?url';
 import clipWebm from '../../../assets/clips/map-add-tv.webm?url';
 
-A location's page has three layouts: **List**, **Grid** and **Map**. The map draws the location
-in 3D: each floor, its rooms, and the shelves, cupboards and boxes in them. Tap anything to see
-what it is, where it is and what's inside. List stays the default; Kept remembers your choice for
-each location on each device. In Map, the map leads and fills the screen; the location's
-buttons (Print inventory, Print labels and the rest), **Add here** and **Unplaced** follow it.
+A location's page has five layouts: **List**, **Grid**, [**Graph**](/users/graph/), **Table** and
+**Map**. The map draws the location in 3D: each floor, its rooms, and the shelves, cupboards and
+boxes in them. Tap anything to see what it is, where it is and what's inside. List stays the
+default; Kept remembers your choice for each location on each device. In Map, the map leads and
+fills the screen; the location's buttons (Print inventory, Print labels and the rest), **Add
+here** and **Unplaced** follow it.
 
 A floor's or a room's page has **Map** too: the same map, opened on that place. A floor opens on
 that floor, a room opens inside it with its card, and a shelf or cupboard is selected in its room.
@@ -43,8 +44,8 @@ shelf or box shows once you zoom in far enough. The thing you selected always ke
 
 Everything else is counted: a shelf says how many things are on it, and its card lists them.
 Nobody has to arrange anything first. Rooms nobody arranged are laid out side by side in the
-order of the places list, and what stands in them in rows. A room called "Garden", "Balcony" or
-"Terrace" is drawn as one.
+order of the places list, and what stands in them in rows; **Arrange** moves them where they
+really are. A room called "Garden", "Balcony" or "Terrace" is drawn as one.
 
 Pins show what needs attention: **Low stock** (Consumables), **Lent out** (Lending) and **Due soon**
 (schedules, warranties and documents). A pin sits on the shelf or box that holds the thing. The
@@ -77,10 +78,11 @@ keeps every wall.
 
 ## The card
 
-Tapping something opens a short card: its name, where it is, its short ID and anything due.
+Tapping something opens a short card: its name, where it is, its short ID (as amber tape when it
+has a printed label) and anything due.
 **Details** adds its photo, its label (the same QR code a printed label carries), its facts and
 **Open the thing** or **Open the place**. **Inside** lists what's in it; tap one to see it. With a
-mouse, hovering shows the name and short ID without a click.
+mouse, hovering shows the name, and the short ID of a labelled thing, without a click.
 
 Where it is reads from the room in: "Open space › Desk 3" for a laptop kept in Desk 3 and
 standing on it. On a short window or a phone the details scroll inside the card, and **Open**
@@ -105,7 +107,11 @@ Owners, admins and members can arrange a location; viewers see it as arranged. *
   another room to move it there in Kept too. Small things move a centimetre at a time, other
   things 5 cm and furniture 10 cm; on a desk or shelf they line up with its edges. On a computer,
   hold **Alt** (**Option** on a Mac) to drag freely.
-- Drag a room's **amber corner** to resize it. Rooms on a floor can't overlap.
+- Hold a room's floor, then drag, to move the room with everything in it: furniture, shelves,
+  boxes and what stands on them. A quick drag on a room still moves the view. Once a room is
+  selected, drag it straight away, or move it with the arrow keys. Drag a room's **amber corner**
+  to resize it. Rooms move and resize a whole metre at a time, stay on their floor and can't
+  overlap.
 - **Draw a room** on empty ground. It becomes a new place on that floor straight away.
 - **Add a floor** adds a place of the kind Floor, with one room in it.
 - Select a room to set its **kind** (room, balcony, terrace, garden) and its **floor** (wood, tiles,
@@ -153,6 +159,10 @@ members can do it.
    Tap a shape to use it. Every shape, with its size and words, is in the
    [shape library](/users/map-shapes/); **Missing a shape? Request it** under the shapes opens a
    GitHub form to ask for one.
+   Two shapes take their size from you: a **Cube storage** shelf has **Cubes across** and
+   **Cubes up** on its card (2 × 2 at first; **Turn on its side** lays a 1 × 4 down as a 4 × 1),
+   and a **Tall bookcase** has its **Width**, **Depth** and **Height** in centimetres and its
+   **Levels** (80 × 28 × 202 cm with 6 at first). The map draws each cube and each level.
 7. Drag the thing where it stands. Small things can stand on a desk, counter, shelf or box.
    **Turn** turns it a quarter.
 8. Tap **Done**. The toast offers **Undo** for ten minutes. **Cancel** before Done throws the whole

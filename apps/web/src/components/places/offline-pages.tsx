@@ -8,12 +8,20 @@
  *
  *   const off = useOfflinePage(query);   if (off) return <OfflineThingPage id={id} />;
  */
-import { can, type Role, type SnapPlace, type SnapTag, type SnapThing } from '@kept/shared';
+import {
+  can,
+  naturalCompare,
+  type Role,
+  type SnapPlace,
+  type SnapTag,
+  type SnapThing,
+  siblingOrder,
+} from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { isApiError } from '@/api/client';
-import type { PathStep, ThingRow, ThingTag } from '@/api/inventory/types';
+import type { BoxNode, PathStep, PlaceNode, ThingRow, ThingTag } from '@/api/inventory/types';
 import { placePath } from '@/components/capture/target';
 import { KeptExtras } from '@/components/device/kept-extras';
 import { ChevronEndIcon } from '@/components/icons';
@@ -31,6 +39,7 @@ import { useOffline } from '@/offline/provider';
 import type { OfflineStore } from '@/offline/store';
 import { usePlaceName } from './labels';
 import { PathText, rowLink, ThingRowView } from './rows';
+import { PlaceTree } from './tree';
 
 /**
  * Whether a page should answer from the phone: there is a copy, the page's own read has nothing,
@@ -56,6 +65,7 @@ function rowOf(t: SnapThing, path: PathStep[], tags: readonly SnapTag[] = []): T
     id: t.id,
     locationId: t.locationId,
     shortCode: t.shortCode,
+    labelPrinted: t.labelPrinted === true,
     name: t.name,
     type: null,
     quantity: Number(t.quantity) || 1,
@@ -96,6 +106,56 @@ function useCopy<T>(key: string, id: string, load: (store: OfflineStore) => Prom
   });
 }
 
+/**
+ * A location's place tree from the phone's copy, in the shapes the online tree takes: its places,
+ * and its boxes as leaves (a live container directly in a place, with what is in it counted), at
+ * most 50 per place, A to Z, as the server sends them.
+ */
+export async function offlineTree(
+  store: OfflineStore,
+  places: readonly SnapPlace[],
+): Promise<{ places: PlaceNode[]; boxes: BoxNode[] }> {
+  const live = places.filter((p) => !p.deleted);
+  const nodes: PlaceNode[] = [];
+  const boxes: BoxNode[] = [];
+  for (const p of live) {
+    const here = (await store.contentsOf({ placeId: p.id })).filter((x) => !x.deleted);
+    const mine: BoxNode[] = [];
+    for (const x of here) {
+      const inside = (await store.contentsOf({ containerId: x.id })).filter((c) => !c.deleted);
+      if (!x.isContainer && inside.length === 0) continue;
+      mine.push({
+        id: x.id,
+        placeId: p.id,
+        name: x.name,
+        icon: null,
+        shortCode: x.shortCode,
+        contentCount: inside.length,
+      });
+    }
+    // As the server sorts things: lower(name), then the id.
+    const key = (b: BoxNode) => (b.name ?? '').toLowerCase();
+    mine.sort((a, b) => naturalCompare(key(a), key(b)) || (a.id < b.id ? -1 : 1));
+    boxes.push(...mine.slice(0, 50));
+    nodes.push({
+      id: p.id,
+      parentId: p.parentId,
+      name: p.name,
+      kindKey: p.kindKey,
+      icon: p.icon,
+      sort: p.sort,
+      isUnplaced: p.isUnplaced,
+      shortCode: null,
+      thingCount: here.length,
+      childCount: live.filter((c) => c.parentId === p.id).length,
+      createdAt: p.createdAt ?? '',
+      boxCount: mine.length,
+      childOrder: p.childOrder ?? 'name',
+    });
+  }
+  return { places: nodes, boxes };
+}
+
 async function copyOf(store: OfflineStore, locationId: string): Promise<Copy> {
   const [asOf, locations] = await Promise.all([store.asOf(), store.locations()]);
   return { asOf, locationName: locations.find((l) => l.id === locationId)?.name ?? null };
@@ -126,12 +186,22 @@ function Missing({ title }: { title: string }) {
   );
 }
 
-function ThingList({ label, rows }: { label: string; rows: ThingRow[] }) {
+function ThingList({
+  label,
+  rows,
+  boxes = [],
+}: {
+  label: string;
+  rows: ThingRow[];
+  /** The tree's boxes: a box's row says how many things are in it, as online (#321). */
+  boxes?: BoxNode[];
+}) {
+  const counts = new Map(boxes.map((b) => [b.id, b.contentCount]));
   return (
     <List aria-label={label}>
       {rows.map((r) => (
         <li key={r.id}>
-          <ThingRowView thing={r} />
+          <ThingRowView thing={r} contentCount={counts.get(r.id)} />
         </li>
       ))}
     </List>
@@ -192,11 +262,13 @@ export function OfflineThingPage({ id }: { id: string }) {
         <AsOf asOf={asOf} />
         <div className="grid gap-2">
           <span className="flex flex-wrap items-center gap-1.5">
-            <IdChip code={thing.shortCode} />
+            {/* As online: the tape of a printed label leads; a code with no label is quiet, last. */}
+            {row.labelPrinted ? <IdChip code={thing.shortCode} /> : null}
             {row.derivedState.map((s) => (
-              <StatusPill key={s} state={s} />
+              <StatusPill key={s} state={s} lifecycle={row.lifecycle} />
             ))}
             {Number(thing.quantity) > 1 ? <Pill>× {f.num(Number(thing.quantity))}</Pill> : null}
+            {row.labelPrinted ? null : <IdChip code={thing.shortCode} variant="quiet" />}
           </span>
           {locationName || path.length ? (
             <span className="text-small text-ink-2 [overflow-wrap:anywhere]">
@@ -239,7 +311,10 @@ export function OfflinePlacePage({ id }: { id: string }) {
       return {
         place,
         path: placePath(places, place.parentId).map(stepOf),
-        children: places.filter((p) => p.parentId === id && !p.deleted),
+        children: places
+          .filter((p) => p.parentId === id && !p.deleted)
+          .sort(siblingOrder(place.childOrder)),
+        tree: await offlineTree(store, places),
         things: things.filter((x) => !x.deleted && !x.containerId).map((x) => rowOf(x, [], tags)),
         ...(await copyOf(store, loc.id)),
       };
@@ -254,7 +329,7 @@ export function OfflinePlacePage({ id }: { id: string }) {
     );
   const found = q.data;
   if (!found) return <Missing title={t`Place`} />;
-  const { place, path, children, things, asOf, locationName } = found;
+  const { place, path, children, tree, things, asOf, locationName } = found;
   const name = placeName(stepOf(place));
   return (
     <Page title={<bdi>{name}</bdi>} back="/">
@@ -267,6 +342,7 @@ export function OfflinePlacePage({ id }: { id: string }) {
             <PathText path={path} />
           </span>
         ) : null}
+        <PlaceTree places={tree.places} boxes={tree.boxes} currentId={place.id} />
         {children.length ? (
           <Section title={<Trans>Places</Trans>}>
             <List aria-label={t`Places in ${name}`}>
@@ -285,7 +361,7 @@ export function OfflinePlacePage({ id }: { id: string }) {
         ) : null}
         {things.length ? (
           <Section title={<Trans>Things</Trans>}>
-            <ThingList label={t`Things in ${name}`} rows={things} />
+            <ThingList label={t`Things in ${name}`} rows={things} boxes={tree.boxes} />
           </Section>
         ) : (
           <p className="m-0 text-small text-ink-2">

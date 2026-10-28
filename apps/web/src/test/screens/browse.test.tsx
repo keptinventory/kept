@@ -18,6 +18,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { inventoryPaths } from '@/api/inventory/paths';
 import { IDS, type MockState, ownerScenario } from '@/api/mock/fixtures';
+import { PASS } from '@/api/mock/kit';
 import { createMockApi, MockReply } from '@/api/mock/server';
 import { AppProviders } from '@/app-providers';
 import { ContentsList, contentsSearch } from '@/components/places/contents-list';
@@ -39,6 +40,21 @@ function asRole(role: 'viewer' | 'member' | 'admin', state: MockState = ownerSce
 
 const list = (name: string | RegExp) => screen.findByRole('list', { name });
 
+/** GETs of a place's page or contents after the POST to `write` that ended it. */
+function asksAgain(
+  mock: { calls: { method: string; path: string }[] },
+  write: string,
+  id: string,
+): string[] {
+  const at = mock.calls.findIndex((c) => c.method === 'POST' && c.path === write);
+  expect(at).toBeGreaterThan(-1);
+  const gone = [inventoryPaths.place(id), inventoryPaths.placeContents(id)];
+  return mock.calls
+    .slice(at + 1)
+    .filter((c) => c.method === 'GET' && gone.includes(c.path))
+    .map((c) => c.path);
+}
+
 describe('the location page', () => {
   it('shows Add here, the Unplaced card, then places before things with their paths', async () => {
     await renderApp(`/loc/${IDS.home}`);
@@ -56,8 +72,8 @@ describe('the location page', () => {
     expect(screen.getByRole('button', { name: 'Sort them' })).toBeInTheDocument();
     const rows = within(await list('Contents of Home')).getAllByRole('link');
     const names = rows.map((r) => r.textContent ?? '');
-    // Places first (never the Unplaced area as a row), then things.
-    expect(names[0]).toMatch(/^Living room/);
+    // Places first, A to Z (never the Unplaced area as a row), then things.
+    expect(names[0]).toMatch(/^Bedroom/);
     expect(names.findIndex((n) => n.startsWith('Kitchen'))).toBeLessThan(
       names.findIndex((n) => n.includes('Galaxy S23')),
     );
@@ -411,7 +427,7 @@ describe('a grid keeps places and things apart, in three sizes (#139)', () => {
     let ul = await contents();
     expect(ul).toHaveAttribute('data-tile-size', 'medium');
     expect(ul.className).toContain('grid-cols-2');
-    // Medium is today's tile: the name and the short ID.
+    // Medium is the name and the tape of a printed label (the demo's phone has one).
     const galaxy = () => within(ul).getByRole('link', { name: /Galaxy S23/ });
     expect(within(galaxy()).getByRole('img')).toBeInTheDocument();
 
@@ -628,6 +644,85 @@ describe('select and move', () => {
   });
 });
 
+describe('select and trash (#294)', () => {
+  const pick = async (user: Awaited<ReturnType<typeof renderApp>>['user'], names: string[]) => {
+    await list('Contents of Home');
+    await user.click(screen.getByRole('button', { name: 'Select' }));
+    for (const name of names) await user.click(screen.getByRole('checkbox', { name }));
+    await user.click(screen.getByRole('button', { name: 'Move to Trash' }));
+    return screen.findByRole('alertdialog', { name: `Send ${names.length} things to the Trash?` });
+  };
+
+  it('sends the selection to the Trash at once, and one Undo brings them all back', async () => {
+    const { user, mock } = await renderApp(`/loc/${IDS.home}`);
+    const dialog = await pick(user, ['Select Galaxy S23', 'Select Samsung TV, 55″']);
+    // Neither holds anything: no choice to make.
+    expect(within(dialog).queryByRole('radio')).toBeNull();
+    await user.click(within(dialog).getByRole('button', { name: 'Send to Trash' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', inventoryPaths.thingsBulkTrash)?.body).toEqual({
+        thingIds: [T.phone, T.tv],
+      }),
+    );
+    const toast = await screen.findByText('Sent 2 things to the Trash');
+    const deleted = () =>
+      mock.state.inventory.things
+        .filter((x) => x.id === T.phone || x.id === T.tv)
+        .map((x) => x.deletedAt);
+    expect(deleted().every(Boolean)).toBe(true);
+    // Selecting is over.
+    expect(screen.queryByRole('toolbar', { name: 'Selection' })).toBeNull();
+    const region = toast.closest('[role="alertdialog"], [role="region"]') as HTMLElement;
+    await user.click(within(region).getByRole('button', { name: 'Undo' }));
+    await waitFor(() =>
+      expect(
+        mock.calls.filter((c) => c.method === 'POST' && c.path === inventoryPaths.undoTogether),
+      ).toHaveLength(1),
+    );
+    expect(await screen.findByText('Undone')).toBeInTheDocument();
+    expect(deleted()).toEqual([null, null]);
+  });
+
+  it('asks what happens to what is inside a box first', async () => {
+    const { user, mock } = await renderApp(`/loc/${IDS.home}`);
+    const dialog = await pick(user, ['Select Galaxy S23', 'Select Cable box']);
+    await user.click(within(dialog).getByRole('radio', { name: "Trash what's inside too" }));
+    await user.click(within(dialog).getByRole('button', { name: 'Send to Trash' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', inventoryPaths.thingsBulkTrash)?.body).toEqual({
+        thingIds: [T.phone, T.cableBox],
+        contents: 'trash',
+      }),
+    );
+  });
+
+  it('asks first about something that is with someone, then sends it again confirmed', async () => {
+    const { user, mock } = await renderApp(`/loc/${IDS.home}`, {
+      setup: (m) =>
+        m.on('POST', inventoryPaths.thingsBulkTrash, ({ body }) =>
+          (body as { onLoan?: string }).onLoan === 'confirm'
+            ? { trashed: [T.phone, T.tv], moved: [], events: [] }
+            : new MockReply(409, {
+                error: 'It is with Sam.',
+                code: 'on_loan',
+                with: { person: 'Sam', thingId: T.tv, name: 'Samsung TV, 55″' },
+              }),
+        ),
+    });
+    const dialog = await pick(user, ['Select Galaxy S23', 'Select Samsung TV, 55″']);
+    await user.click(within(dialog).getByRole('button', { name: 'Send to Trash' }));
+    const ask = await screen.findByRole('alertdialog', { name: /This is with .*Sam/ });
+    await user.click(within(ask).getByRole('button', { name: 'Move to Trash anyway' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', inventoryPaths.thingsBulkTrash)?.body).toEqual({
+        thingIds: [T.phone, T.tv],
+        onLoan: 'confirm',
+      }),
+    );
+    expect(await screen.findByText('Sent 2 things to the Trash')).toBeInTheDocument();
+  });
+});
+
 describe('the place page', () => {
   it('shows the breadcrumb, the kind and counts, and the contents', async () => {
     await renderApp(`/p/${P.deskDrawer}`);
@@ -703,6 +798,8 @@ describe('the place page', () => {
     );
     await waitFor(() => expect(pathOf(router)).toBe(`/loc/home-0000b002`));
     expect(await screen.findByText('Kitchen is in the trash')).toBeInTheDocument();
+    // Kitchen is in the trash: its page and contents aren't asked for again (a 404, #336).
+    expect(asksAgain(mock, inventoryPaths.placeTrash(P.kitchen), P.kitchen)).toEqual([]);
   });
 
   it('trash them too, and Undo restores the batch', async () => {
@@ -761,6 +858,9 @@ describe('the place page', () => {
       }),
     );
     await waitFor(() => expect(pathOf(router)).toBe(`/p/${P.livingRoom}`));
+    await findHeading('Living room');
+    // Bedroom is gone: its page and contents aren't asked for again (a 404, #336).
+    expect(asksAgain(mock, inventoryPaths.placeMergeInto(P.bedroom), P.bedroom)).toEqual([]);
   });
 
   it('turns a place with no places inside into a box, keeping its id', async () => {
@@ -775,6 +875,27 @@ describe('the place page', () => {
       ).toBeTruthy(),
     );
     await waitFor(() => expect(pathOf(router)).toBe(`/t/${P.deskDrawer}`));
+  });
+
+  it('opens the box straight away, without asking for the place it was (#336)', async () => {
+    const { user, mock, router } = await renderApp(`/p/${P.deskDrawer}`);
+    await findHeading('Desk drawer');
+    await user.click(screen.getByRole('button', { name: /^Turn into a box/ }));
+    const dialog = await screen.findByRole('dialog', { name: 'Turn Desk drawer into a box?' });
+    await user.click(within(dialog).getByRole('button', { name: 'Turn into a box' }));
+    await waitFor(() => expect(pathOf(router)).toBe(`/t/${P.deskDrawer}`));
+    await findHeading('Desk drawer');
+    // The place is gone: asked for again it answers 404, and the page said "Couldn't load this"
+    // until the box opened.
+    const convert = mock.calls.findIndex(
+      (c) => c.method === 'POST' && c.path === inventoryPaths.placeConvertToContainer(P.deskDrawer),
+    );
+    expect(convert).toBeGreaterThan(-1);
+    const gone = [inventoryPaths.place(P.deskDrawer), inventoryPaths.placeContents(P.deskDrawer)];
+    expect(
+      mock.calls.slice(convert + 1).filter((c) => c.method === 'GET' && gone.includes(c.path)),
+    ).toEqual([]);
+    expect(screen.queryByText("Couldn't load this")).not.toBeInTheDocument();
   });
 
   it('a place with places inside is not offered as a box', async () => {
@@ -856,6 +977,90 @@ describe('the place page', () => {
     expect(
       await screen.findByText("This isn't here any more, or you can't see it."),
     ).toBeInTheDocument();
+  });
+});
+
+describe('what a row says about a box and a type (#321)', () => {
+  const rowOf = async (listName: string, name: RegExp) =>
+    within(await list(listName)).getByRole('link', { name });
+
+  it('a box in Things here says how many things are in it, as the tree does', async () => {
+    await renderApp(`/p/${P.hallwayCloset}`);
+    await findHeading('Hallway closet');
+    expect(await rowOf('Contents of Hallway closet', /Box 3/)).toHaveTextContent(/2 things$/);
+  });
+
+  it('shows the type as a quiet line under the name, first on the line it shares', async () => {
+    await renderApp(`/loc/${IDS.home}`);
+    await findHeading('Home');
+    const hdmi = await rowOf('Contents of Home', /HDMI cable, 2 m/);
+    const type = within(hdmi).getByText('Cable').closest<HTMLElement>('[data-thing-type]');
+    // The secondary text's grey, not the label tape's amber (#271).
+    expect(type).toHaveClass('text-small', 'text-ink-2');
+    expect(type?.className).not.toMatch(/amber|tape/);
+    // First on the tape, states and path line: the row is no taller than before.
+    const line = type?.parentElement;
+    expect(line?.firstElementChild).toBe(type);
+    expect(line).toHaveTextContent(/Cable.*Office.*Desk drawer.*Cable box/);
+  });
+
+  it('shows no type line for a thing without a type', async () => {
+    await renderApp(`/t/${T.box3}`);
+    const scarves = await rowOf('Contents of Box 3', /Winter scarves/);
+    expect(scarves.querySelector('[data-thing-type]')).toBeNull();
+  });
+
+  it('a Large tile shows the type too', async () => {
+    await renderApp(`/p/${P.deskDrawer}?view=grid&size=large`);
+    const tile = await rowOf('Contents of Desk drawer', /Cable box/);
+    expect(within(tile).getByText('Box / bin').closest('[data-thing-type]')).toHaveClass(
+      'text-ink-2',
+    );
+  });
+
+  it('a Large tile of a location says the type and where on one line', async () => {
+    await renderApp(`/loc/${IDS.home}?view=grid&size=large`);
+    const tile = await rowOf('Contents of Home', /HDMI cable, 2 m/);
+    const type = tile.querySelector('[data-thing-type]');
+    expect(type).toHaveTextContent(/^Cable/);
+    // Type first, then the path, in the one wrapping line.
+    expect(type?.parentElement?.firstElementChild).toBe(type);
+    expect(type?.parentElement).toHaveTextContent(/^Cable.*Office › Desk drawer › Cable box$/);
+  });
+
+  it('a Medium tile stays the name and its tape', async () => {
+    await renderApp(`/p/${P.deskDrawer}?view=grid`);
+    const medium = await rowOf('Contents of Desk drawer', /Cable box/);
+    expect(within(medium).queryByText('Box / bin')).toBeNull();
+  });
+
+  it('names a built-in type in the reader’s language, right to left', async () => {
+    await renderApp(`/p/${P.familyKitchen}`, { locale: 'ar' });
+    await findHeading('المطبخ');
+    const fridge = await rowOf('محتويات «المطبخ»', /ثلاجة توشيبا/);
+    expect(within(fridge).getByText('جهاز منزلي كبير')).toBeInTheDocument();
+    expectLogicalOnly();
+  });
+
+  it('Things: sort by says places keep their own order', async () => {
+    const { user } = await renderApp(`/p/${P.office}`);
+    await findHeading('Office');
+    await user.click(await screen.findByRole('button', { name: /^Display options/ }));
+    const sheet = await screen.findByRole('dialog', { name: 'Display' });
+    // The note describes the menu; the sort group's name stays its heading.
+    expect(within(sheet).getByRole('group', { name: 'Things: sort by' })).toBeInTheDocument();
+    expect(within(sheet).getByRole('menu')).toHaveAccessibleDescription(
+      'Places keep their own order.',
+    );
+  });
+
+  it('says nothing about places where there are none', async () => {
+    const { user } = await renderApp(`/p/${P.deskDrawer}`);
+    await findHeading('Desk drawer');
+    await user.click(await screen.findByRole('button', { name: /^Display options/ }));
+    const sheet = await screen.findByRole('dialog', { name: 'Display' });
+    expect(within(sheet).getByText('Things: sort by')).toBeInTheDocument();
+    expect(within(sheet).queryByText('Places keep their own order.')).toBeNull();
   });
 });
 
@@ -1116,6 +1321,43 @@ describe('inside a location', () => {
     }
   });
 
+  it('from 1280 px a selection made before the outline arrives stays made', async () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({
+      matches: ['(min-width: 768px)', '(min-width: 1024px)', '(min-width: 1280px)'].includes(q),
+      media: q,
+      onchange: null,
+      addEventListener() {},
+      removeEventListener() {},
+      addListener() {},
+      removeListener() {},
+      dispatchEvent: () => false,
+    }));
+    let release = () => {};
+    const held = new Promise<void>((done) => {
+      release = done;
+    });
+    try {
+      // The outline's places held back, as on a slow server: the place and its list come first.
+      const { user } = await renderApp(`/p/${P.kitchen}`, {
+        setup: (mock) =>
+          mock.on('GET', inventoryPaths.locationPlaces(':id'), async () => {
+            await held;
+            return PASS;
+          }),
+      });
+      await findHeading('Kitchen');
+      await user.click(await screen.findByRole('button', { name: 'Select' }));
+      const boxes = screen.getAllByRole('checkbox', { name: /^Select / });
+      expect(boxes.length).toBeGreaterThan(0);
+      release();
+      await screen.findByRole('navigation', { name: 'Places in Home' });
+      // The page's body moved beside the outline without starting again (#336).
+      expect(screen.getAllByRole('checkbox', { name: /^Select / })).toHaveLength(boxes.length);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('a top-level place links back to the location', async () => {
     await renderApp(`/p/${P.office}`);
     await findHeading('Office');
@@ -1141,5 +1383,27 @@ describe('inside a location', () => {
     expect(tree).toBeInTheDocument();
     const path = screen.getByRole('navigation', { name: /Where it is/ });
     expect(within(path).getByRole('link', { name: 'Office' })).toHaveAttribute('href', '/p/R00M4K');
+  });
+});
+
+describe('an ended thing in a list (#320)', () => {
+  it('says its lifecycle, the word its own page shows, never only "Ended"', async () => {
+    const state = ownerScenario();
+    const kettle = state.inventory.things.find((x) => x.id === T.kettle);
+    if (!kettle) throw new Error('fixture');
+    // As a Homebox item at quantity 0 comes in with "Keep 0 or archive": archived.
+    kettle.lifecycle = 'archived';
+    kettle.ended = null;
+    const { user } = await renderApp(`/p/${P.kitchen}`, { state });
+    await findHeading('Kitchen');
+    const row = (await screen.findByRole('link', { name: /Old kettle/ })).closest(
+      'li',
+    ) as HTMLElement;
+    expect(within(row).getByText('Archived')).toBeInTheDocument();
+    expect(within(row).queryByText('Ended')).toBeNull();
+    await user.click(within(row).getByRole('link', { name: /Old kettle/ }));
+    expect(await findHeading('Old kettle')).toBeInTheDocument();
+    expect(screen.getAllByText('Archived').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Ended')).toBeNull();
   });
 });

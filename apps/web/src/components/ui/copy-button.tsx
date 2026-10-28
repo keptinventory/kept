@@ -1,10 +1,11 @@
 /**
- * Copies text and says so. The clipboard API needs a secure context; over HTTP it can fail.
+ * Copies text and says so (lib/clipboard.ts: also over plain HTTP, where the Clipboard API is missing).
  * `iconOnly`: just the icon, `label` as its accessible name and tooltip (D198).
  */
 import { useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import { CheckIcon, CopyIcon } from '@/components/icons';
+import { copyText } from '@/lib/clipboard';
 import { Button, type ButtonSize, type ButtonVariant } from './button';
 import { toast } from './toast';
 import { Tip } from './tooltip';
@@ -34,7 +35,7 @@ export function CopyButton({
       aria-label={iconOnly ? label : undefined}
       onPress={async () => {
         try {
-          await navigator.clipboard.writeText(text);
+          await copyText(text);
           setCopied(true);
           toast({ title: t`Copied`, tone: 'ok' });
           setTimeout(() => setCopied(false), 2000);

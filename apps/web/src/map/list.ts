@@ -3,7 +3,7 @@
  * in them, or what needs attention (low stock, lent out, due soon), with a search, a floor
  * filter and Show more. Pure, so the filters are tested without the map.
  */
-import { canBeCarried, fitsOn, type MapModelKey } from '@kept/shared';
+import { canBeCarried, fitsOn, type MapShapeKey } from '@kept/shared';
 import type { MapAttention, MapAttentionKind, MapView } from '@/api/map/types';
 import {
   allUnder,
@@ -31,6 +31,8 @@ export type Row = {
   kind: 'node' | 'thing';
   name: string;
   shortCode: string | null;
+  /** It carries a printed label: the list shows its code, as the tape, only then. */
+  labelPrinted?: boolean;
   quantity: number;
   /** Things under it (for a node). */
   count: number | null;
@@ -71,6 +73,7 @@ export function roomCards(
       kind: 'thing',
       name: t.name,
       shortCode: t.shortCode,
+      labelPrinted: t.labelPrinted === true,
       quantity: t.quantity,
       count: null,
       flags: flagsOf(c, t.id),
@@ -86,6 +89,7 @@ export function roomCards(
       kind: 'node',
       name: it.name,
       shortCode: it.shortCode,
+      labelPrinted: it.labelPrinted === true,
       quantity: it.quantity,
       count: allUnder(c, it.id).length,
       flags: flagsOf(c, it.id),
@@ -141,6 +145,8 @@ export type AttentionRow = {
   id: string;
   name: string;
   shortCode: string | null;
+  /** It carries a printed label: the list shows its code, as the tape, only then. */
+  labelPrinted?: boolean;
   /** Room, then the node it is in, outermost first. */
   where: string[];
   roomId: string;
@@ -193,7 +199,7 @@ export function offMapIn(
 }
 
 /** A shape someone chose for a thing in this session, or that it has on the saved map. */
-export type ChosenShape = (id: string) => MapModelKey | null;
+export type ChosenShape = (id: string) => MapShapeKey | null;
 
 /**
  * Add on it's second list (#152): the holder's room's things that aren't on the map yet, directly
@@ -281,6 +287,7 @@ export function attentionGroups(
         id: a.subjectId,
         name: subject.name,
         shortCode,
+        labelPrinted: subject.labelPrinted === true,
         where: path,
         roomId: room.id,
       });

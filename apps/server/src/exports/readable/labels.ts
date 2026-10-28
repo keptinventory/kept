@@ -38,6 +38,7 @@ export type ReadableWords = {
   pdfLeftOut: (max: string) => string;
   pdfFailed: string;
   moneyHidden: string;
+  secretsWithheld: string;
   empty: string;
   fileRole: Record<string, string>;
   conditions: Record<Condition, string>;
@@ -69,6 +70,8 @@ const EN: Omit<ReadableWords, 'thingCount' | 'unplaced' | 'trashed' | 'serial' |
     `The inventory report (PDF) was left out: it holds at most ${max} things. Every thing is listed below and in things.csv.`,
   pdfFailed: 'The inventory report (PDF) could not be made this time. Every thing is listed below.',
   moneyHidden: 'Prices are left out: they are hidden from the person who exported this.',
+  secretsWithheld:
+    'Secret values are left out: this export was made without them. The data files name each field that had one.',
   empty: 'Nothing here.',
   fileRole: {
     photo: 'Photo',
@@ -120,6 +123,8 @@ const AR: typeof EN = {
     `لم يُضمَّن تقرير الجرد (PDF): يتسع لـ ${max} شيء على الأكثر. كل الأشياء مدرجة أدناه وفي things.csv.`,
   pdfFailed: 'تعذّر إنشاء تقرير الجرد (PDF) هذه المرة. كل الأشياء مدرجة أدناه.',
   moneyHidden: 'الأسعار غير مضمّنة: إنها مخفية عن الشخص الذي صدّر هذه النسخة.',
+  secretsWithheld:
+    'القيم السرية غير مضمّنة: صُدّرت هذه النسخة بدونها. ملفات البيانات تذكر كل حقل كانت له قيمة.',
   empty: 'لا شيء هنا.',
   fileRole: {
     photo: 'صورة',

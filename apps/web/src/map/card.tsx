@@ -8,12 +8,13 @@
  * A thing on a wall's card sets how high it hangs (Height, #138); it doesn't turn.
  */
 import {
+  baseModel,
   canBeCarried,
   carryOf,
   MAP_ROOM_KINDS,
   MAP_SURFACES,
-  type MapModelKey,
   type MapRoomKind,
+  type MapShapeKey,
   type MapSurface,
   STAIR_MODELS,
 } from '@kept/shared';
@@ -48,6 +49,7 @@ import {
 import { type ChosenShape, matches, offMapIn, whereOf } from './list';
 import { AddOnSheet, PutOnSheet } from './put-on';
 import { ShapeField, shapeInputOf } from './shapes';
+import { SizeFields } from './size';
 import { cardPath } from './where';
 
 export type CardSel = { type: 'room' | 'item'; id: string };
@@ -70,7 +72,7 @@ export type CardProps = {
   onOpenRoom: (roomId: string) => void;
   onGoLevel: (key: string) => void;
   onTurn: (id: string) => void;
-  onShape: (id: string, model: MapModelKey) => void;
+  onShape: (id: string, model: MapShapeKey) => void;
   onRemove: (id: string) => void;
   onRoomKind: (id: string, kind: MapRoomKind) => void;
   onSurface: (id: string, surface: MapSurface) => void;
@@ -282,7 +284,7 @@ function InsideList({
               {x.name}
               <Dots flags={flagsOf(contents, x.id)} />
             </span>
-            <small>{x.shortCode ? printedCode(x.shortCode) : ' '}</small>
+            <small>{x.labelPrinted && x.shortCode ? <IdChip code={x.shortCode} /> : ' '}</small>
             <span className="q">×{f.num(x.quantity)}</span>
           </button>
         </li>
@@ -309,6 +311,7 @@ export function MapCard(p: CardProps) {
     const node = plan.items.find((x) => x.id === p.inner);
     const name = node?.name ?? thing?.name ?? '';
     const code = node?.shortCode ?? thing?.shortCode ?? null;
+    const printed = node?.labelPrinted === true || thing?.labelPrinted === true;
     const where = whereOf(plan, view, p.inner).path;
     const back =
       p.sel.type === 'item'
@@ -329,7 +332,7 @@ export function MapCard(p: CardProps) {
           meta={
             <>
               <span>{where.join(' › ')}</span>
-              {code ? <IdChip code={code} /> : null}
+              {code ? <IdChip code={code} variant={printed ? 'tape' : 'quiet'} /> : null}
             </>
           }
           onClose={p.onClose}
@@ -450,7 +453,9 @@ export function MapCard(p: CardProps) {
                   <li key={x.id}>
                     <button type="button" onClick={() => p.onAdd(r.id, x)}>
                       <span>{x.name}</span>
-                      <small>{x.shortCode ? printedCode(x.shortCode) : ' '}</small>
+                      <small>
+                        {x.labelPrinted && x.shortCode ? <IdChip code={x.shortCode} /> : ' '}
+                      </small>
                       <span className="q">+</span>
                     </button>
                   </li>
@@ -476,7 +481,7 @@ export function MapCard(p: CardProps) {
                       <Dots flags={flagsOf(contents, i.id)} />
                     </span>
                     <small>
-                      {i.shortCode ? printedCode(i.shortCode) : ''}
+                      {i.labelPrinted && i.shortCode ? <IdChip code={i.shortCode} /> : ''}
                       {host ? (
                         <>
                           {' '}
@@ -504,7 +509,7 @@ export function MapCard(p: CardProps) {
   const meta = cardPath(plan, view, it).join(' › ');
   const levels = plan.levels;
   const li = levels.findIndex((l) => l.key === room?.levelKey);
-  const stairs = STAIR_MODELS.has(it.model)
+  const stairs = STAIR_MODELS.has(baseModel(it.model))
     ? [levels[li + 1], levels[li - 1]].filter((l): l is Level => !!l)
     : [];
   const within = (['low', 'lent', 'due'] as const)
@@ -629,7 +634,9 @@ export function MapCard(p: CardProps) {
       meta={
         <>
           <span>{meta}</span>
-          {it.shortCode ? <IdChip code={it.shortCode} /> : null}
+          {it.shortCode ? (
+            <IdChip code={it.shortCode} variant={it.labelPrinted ? 'tape' : 'quiet'} />
+          ) : null}
         </>
       }
       onClose={p.onClose}
@@ -650,6 +657,7 @@ export function MapCard(p: CardProps) {
   const shape = p.arranging ? (
     <>
       <ShapeField item={it} input={shapeInputOf(view, it)} onShape={p.onShape} />
+      <SizeFields model={it.model} onModel={(m) => p.onShape(it.id, m)} />
       {it.hang === undefined ? null : (
         <HeightField item={it} onHeight={(h) => p.onHeight(it.id, h)} />
       )}
@@ -674,7 +682,7 @@ export function MapCard(p: CardProps) {
         {it.subject === 'thing' ? <ThingPhoto id={it.id} /> : <Photo url={null} />}
         <div className="grid min-w-0 gap-1 text-[13px] text-ink-2">
           <span>
-            {models[it.model]}
+            {models[baseModel(it.model)]}
             {n !== null ? (
               <>
                 {' · '}
@@ -710,7 +718,9 @@ export function MapCard(p: CardProps) {
                     {c.name}
                     <Dots flags={flagsOf(contents, c.id)} />
                   </span>
-                  <small>{c.shortCode ? printedCode(c.shortCode) : ' '}</small>
+                  <small>
+                    {c.labelPrinted && c.shortCode ? <IdChip code={c.shortCode} /> : ' '}
+                  </small>
                   <span className="q">{countIn(contents, c) ?? ''}</span>
                 </button>
               </li>

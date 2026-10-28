@@ -477,6 +477,8 @@ export function trashRoutes(state: MockState): MockRoute[] {
         },
       );
       done.undo_of = e.id;
+      // The server marks an undone event (#319): its row offers no Undo again.
+      e.undone = true;
       Object.assign(done, summaryOf('undo', e.summaryParams.name ?? ''));
       return { undoOf: e.id, eventId: done.id };
     }),

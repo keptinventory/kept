@@ -110,13 +110,16 @@ export type OAuthConsentResult = { redirectTo: string };
 
 // ----- location webhooks -------------------------------------------------------------------------
 
+export type WebhookOffReason = Exclude<WebhookDisabledReason, 'failing'>;
+
 export type WebhookRow = {
   id: string;
   url: string;
   events: WebhookEvent[];
   active: boolean;
   failingSince: string | null;
-  disabledReason: WebhookDisabledReason | null;
+  /** Why it is off. A failing webhook keeps running and shows `failingSince`; it is never switched off for failing. */
+  disabledReason: WebhookOffReason | null;
   createdBy: { id: string; displayName: string };
   lastDelivery?: { status: WebhookDeliveryStatus; at: string; httpStatus: number | null };
   rowVersion: number;

@@ -24,6 +24,7 @@ import { isApiError } from '@/api/client';
 import { useMe } from '@/api/queries';
 import { CheckCircleIcon, KeyIcon, XIcon } from '@/components/icons';
 import { Notice, useErrorText } from '@/components/page';
+import { isPrivateAddressError, PrivateAddressLink } from '@/components/private-address-link';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
@@ -226,6 +227,9 @@ export function PasteKey({
             {...(error ? { errorMessage: error } : {})}
             isInvalid={!!error}
           />
+          {error && isPrivateAddressError(save.error) ? (
+            <PrivateAddressLink className="justify-self-start text-small font-semibold text-ink underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-info" />
+          ) : null}
           <div className="flex flex-wrap items-center gap-2">
             <Button type="submit" isDisabled={!online || !key.trim()} isPending={save.isPending}>
               <Trans>Save and test</Trans>

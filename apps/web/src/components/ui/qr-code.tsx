@@ -4,7 +4,7 @@
  * with a quiet zone, whatever the theme: scanners need the contrast.
  */
 import { useMemo } from 'react';
-import { encode } from 'uqr';
+import { qrPath } from './qr-path';
 
 export function QrCode({
   value,
@@ -17,16 +17,7 @@ export function QrCode({
   size?: number;
   className?: string;
 }) {
-  const { d, n } = useMemo(() => {
-    const qr = encode(value, { ecc: 'M', border: 2 });
-    let path = '';
-    qr.data.forEach((row, y) => {
-      row.forEach((on, x) => {
-        if (on) path += `M${x} ${y}h1v1h-1z`;
-      });
-    });
-    return { d: path, n: qr.size };
-  }, [value]);
+  const { d, n } = useMemo(() => qrPath(value), [value]);
   return (
     <svg
       role="img"

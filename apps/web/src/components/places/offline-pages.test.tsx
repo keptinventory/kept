@@ -10,6 +10,7 @@ import { MemoryStore } from '@/offline/store';
 import type { SyncStatus } from '@/offline/sync-engine';
 import { renderApp } from '@/test/app';
 import { firstPage, snapThing } from '@/test/store-contract';
+import { offlineTree } from './offline-pages';
 
 const HOME = '01926f00-0000-7000-8000-00000000b002';
 const GARAGE = '01926f00-0000-7000-8000-0000000c0011';
@@ -104,6 +105,29 @@ describe('a thing page offline', () => {
     ).toBeInTheDocument();
   });
 
+  it('shows an unlabelled code quietly, and a printed label as the tape, from the phone', async () => {
+    await offline('/t/7KQ4MZ');
+    await screen.findByRole('heading', { name: 'Bosch drill' }, { timeout: 3000 });
+    expect(screen.getByRole('img', { name: '7KQ4MZ' })).toHaveAttribute('data-variant', 'quiet');
+  });
+
+  it('shows the tape once the phone has the code printed', async () => {
+    const store = open.store as MemoryStore;
+    const page = firstPage({ nextCursor: 'cursor-2' });
+    page.changes = {
+      places: [],
+      things: [],
+      codes: page.changes.codes.map((c) =>
+        c.code === '7KQ4MZ' ? { ...c, printedAt: '2026-10-20T09:00:00.000Z' } : c,
+      ),
+      legacyCodes: [],
+    };
+    await store.applySnapshot(page);
+    await offline('/t/7KQ4MZ');
+    await screen.findByRole('heading', { name: 'Bosch drill' }, { timeout: 3000 });
+    expect(screen.getByRole('img', { name: '7KQ4MZ' })).toHaveAttribute('data-variant', 'tape');
+  });
+
   it("lists a container's contents from the phone", async () => {
     await offline(`/t/${BOX}`);
     await screen.findByRole('heading', { name: 'Box 3' }, { timeout: 3000 });
@@ -128,5 +152,74 @@ describe('a place page offline', () => {
     expect(within(things).getByRole('link', { name: /Box 3/ })).toBeInTheDocument();
     // The lamp is inside Box 3, not on the Garage's floor.
     expect(within(things).queryByRole('link', { name: /Desk lamp/ })).toBeNull();
+  });
+
+  it("lists a place's places in its own order when it has one", async () => {
+    const store = open.store as MemoryStore;
+    const page = firstPage();
+    const peg = (id: string, name: string, sort: number) => ({
+      id,
+      locationId: HOME,
+      parentId: GARAGE,
+      name,
+      kindKey: 'zone',
+      icon: null,
+      isUnplaced: false,
+      sort,
+      deleted: false,
+    });
+    page.changes.places = page.changes.places.map((pl) =>
+      pl.id === GARAGE ? { ...pl, childOrder: 'custom' as const } : pl,
+    );
+    page.changes.places.push(
+      peg('01926f00-0000-7000-8000-0000000c0101', 'Peg 2', 1),
+      peg('01926f00-0000-7000-8000-0000000c0102', 'Peg 10', 0),
+    );
+    await store.applySnapshot(page);
+    await offline(`/p/${GARAGE}`);
+    await screen.findByRole('heading', { name: 'Garage' }, { timeout: 3000 });
+    const places = screen.getByRole('list', { name: 'Places in Garage' });
+    expect(
+      within(places)
+        .getAllByRole('link')
+        .map((l) => l.textContent),
+    ).toEqual(['Peg 10', 'Peg 2']);
+  });
+
+  it('shows the place tree from the phone, with Box 3 as a leaf under the Garage', async () => {
+    await offline(`/p/${GARAGE}`);
+    await screen.findByRole('heading', { name: 'Garage' }, { timeout: 3000 });
+    const garage = screen.getAllByRole('link', { name: 'Garage' })[0] as HTMLElement;
+    // The tree's leaf, and (#321) its row in the place's things, with the same count.
+    const things = screen.getByRole('list', { name: 'Things in Garage' });
+    const [box, row] = screen.getAllByRole('link', { name: /^Box 3\s*1 thing$/ }) as [
+      HTMLElement,
+      HTMLElement,
+    ];
+    expect(things.contains(box)).toBe(false);
+    expect(things.contains(row)).toBe(true);
+    expect(box).toHaveAttribute('href', expect.stringMatching(/^\/t\//));
+    // After its place, in document order.
+    expect(garage.compareDocumentPosition(box) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('orders boxes whose names differ only in case as the server does: by id', async () => {
+    const store = open.store as MemoryStore;
+    const page = firstPage();
+    const first = '01926f00-0000-7000-8000-0000000d0101';
+    const second = '01926f00-0000-7000-8000-0000000d0102';
+    page.changes.places = [];
+    page.changes.things = [
+      // The server sorts lower(name), then the id: "crate" and "Crate" tie, the lower id first.
+      snapThing(second, HOME, 'crate', { placeId: GARAGE, isContainer: true }),
+      snapThing(first, HOME, 'Crate', { placeId: GARAGE, isContainer: true }),
+    ];
+    await store.applySnapshot(page);
+    const places = await store.placesOf(HOME);
+    const { boxes } = await offlineTree(store, places);
+    expect(boxes.filter((b) => b.id === first || b.id === second).map((b) => b.id)).toEqual([
+      first,
+      second,
+    ]);
   });
 });

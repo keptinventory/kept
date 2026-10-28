@@ -5,10 +5,11 @@
  * detailed models are off). Sizes are metres; a model is built in a group with its corner at the
  * origin, width along x and depth along z.
  */
-import type { MapModelKey, MapSurface } from '@kept/shared';
-import { mapModel } from '@kept/shared';
+import type { MapShapeKey, MapSurface, SizedShape } from '@kept/shared';
+import { mapModel, sizedOf } from '@kept/shared';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { sizedParts } from './sized';
 
 // ---- Surfaces drawn in the browser: no downloads ----------------------------------------------
 
@@ -1421,8 +1422,42 @@ export function drawnModels(F: Materials): Record<string, Build> {
   return BUILD;
 }
 
-/** A plain block for a model with no drawing of its own. */
-export function block(g: THREE.Group, key: MapModelKey, F: Materials): void {
+/**
+ * A sized shape (#240, #241) from its boards (sized.ts): a white cube shelf, open at the back, or
+ * an oak bookcase with books on each level but the top one.
+ */
+function sized(g: THREE.Group, s: SizedShape, F: Materials): void {
+  const { boards, spaces } = sizedParts(s);
+  const cubes = s.base === 'cube_grid';
+  for (const b of boards) {
+    const m = cubes ? F.white : b.part === 'back' ? F.oakDark : F.oak;
+    rb(g, b.w, b.h, b.d, b.x, b.y, b.z, m, b.part === 'back' ? 0 : 0.003);
+  }
+  if (cubes) return;
+  const books = [F.booksA, F.booksB, F.booksC, F.booksD, F.booksE, F.booksF];
+  spaces.slice(0, -1).forEach((sp, level) => {
+    const x0 = sp.x - sp.w / 2;
+    const floor = sp.y - sp.h / 2;
+    let x = x0 + 0.02;
+    let i = level * 5;
+    while (x < x0 + sp.w * 0.8) {
+      const bw = 0.025 + ((i * 7) % 5) * 0.008;
+      const bh = Math.min(sp.h - 0.02, 0.2 + ((i * 3) % 4) * 0.025);
+      const bd = Math.max(0.05, sp.d - 0.04);
+      rb(g, bw, bh, bd, x + bw / 2, floor + bh / 2, sp.z + 0.02, books[i % 6] ?? F.booksA, 0.004);
+      x += bw + 0.003;
+      i++;
+    }
+  });
+}
+
+/** A plain block for a model with no drawing of its own; a sized shape from its numbers. */
+export function block(g: THREE.Group, key: MapShapeKey, F: Materials): void {
+  const s = sizedOf(key);
+  if (s) {
+    sized(g, s, F);
+    return;
+  }
   const m = mapModel(key);
   const h = m.h ?? 0.6;
   rb(

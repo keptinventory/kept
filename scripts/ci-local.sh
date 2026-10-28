@@ -663,6 +663,8 @@ step_images() {
   if [[ -n ${CI:-} ]]; then
     docker buildx build --build-arg "REVISION=$revision" -t kept:ci --load .
     bash scripts/smoke-image.sh kept:ci
+    # The Compose install from compose.yaml alone, on the same image.
+    bash scripts/smoke-compose.sh kept:ci
     return 0
   fi
   docker buildx build --platform linux/amd64 --build-arg "REVISION=$revision" -t kept:ci-amd64 .
@@ -672,6 +674,7 @@ step_images() {
     return 1
   fi
   bash scripts/smoke-image.sh kept:ci-arm64
+  bash scripts/smoke-compose.sh kept:ci-arm64
 }
 
 # The laptop release's dry run (step 8 T17): scripts/release.sh --dry-run builds both platforms

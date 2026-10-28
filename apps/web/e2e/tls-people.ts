@@ -34,6 +34,15 @@ export const MOCK_KEY = 'gsk_e2e-mock-provider-not-a-real-key';
 export const onlyOn = (project: 'phone' | 'desktop') =>
   test.skip(test.info().project.name !== project, `runs in the ${project} project`);
 
+/**
+ * A name of this attempt's own, for what it makes: `<base> <project> <repeat> try <retry>`. A
+ * retry then starts from nothing instead of reading what the failed attempt left (#336).
+ */
+export function attemptName(base: string): string {
+  const info = test.info();
+  return `${base} ${info.project.name} ${info.repeatEachIndex + 1} try ${info.retry + 1}`;
+}
+
 export function people(instance: TlsInstance) {
   const BASE = urlOf(instance);
   const stateDir = path.join(stateDirOf(instance), 'sessions');
@@ -108,6 +117,33 @@ export function people(instance: TlsInstance) {
     return loc.id;
   }
 
+  /**
+   * Deletes a location a test made, with everything in it (the Trash keeps it for its grace
+   * period), by its id or, when an import made it, by its attempt's own name (`attemptName`).
+   * Best effort, for a `finally`: a failure is noted on the test, never put in place of its own
+   * error, and a location that was never made is nothing to delete.
+   */
+  async function dropLocation(page: Page, which: { id?: string; name?: string }) {
+    const note = (description: string) =>
+      test.info().annotations.push({ type: 'cleanup', description });
+    try {
+      let id = which.id;
+      if (!id && which.name) {
+        const res = await page.request.get('/api/v1/locations');
+        if (!res.ok()) return note(`list locations: ${res.status()} ${await res.text()}`);
+        const { locations } = (await res.json()) as { locations: { id: string; name: string }[] };
+        id = locations.find((l) => l.name === which.name)?.id;
+      }
+      if (!id) return;
+      const res = await page.request.delete(`/api/v1/locations/${id}`, {
+        headers: { origin: BASE, 'idempotency-key': crypto.randomUUID() },
+      });
+      if (!res.ok()) note(`delete ${which.name ?? id}: ${res.status()} ${await res.text()}`);
+    } catch (e) {
+      note(`delete ${which.name ?? which.id}: ${(e as Error).message}`);
+    }
+  }
+
   /** A thing by its exact name, through search. */
   async function thingId(page: Page, name: string): Promise<string> {
     const res = await api(page).get<{ things: { items: { id: string; name: string }[] } }>(
@@ -123,7 +159,7 @@ export function people(instance: TlsInstance) {
     await api(page).post(`/api/v1/locations/${locId}/modules`, { module, enabled: true });
   }
 
-  return { BASE, storageFor, person, api, locationId, thingId, moduleOn };
+  return { BASE, storageFor, person, api, locationId, thingId, moduleOn, dropLocation };
 }
 
 export async function axe(page: Page, where: string) {

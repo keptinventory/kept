@@ -15,6 +15,7 @@
  * snapshot brings the real row. A queued `move` shows the thing in its new place.
  */
 import {
+  comparePlaceSiblings,
   legacyCodeKey,
   normalize,
   PAYLOAD_VERSION,
@@ -261,12 +262,17 @@ export class MemoryStore implements OfflineStore {
       if (r.entityType === 'legacy_code') this.legacy.delete(r.entityId);
     }
     for (const gone of page.revokedLocationIds) this.dropLocation(gone);
-    // A code claimed since the thing's row was sent shows on the thing (primaryCodeOf).
-    const primary = primaryCodes(this.codes.values());
+    // A code claimed or printed since the thing's row was sent shows on the thing
+    // (shownCodeOf, printedThings).
+    const shown = shownCodes(this.codes.values());
+    const printed = printedThings(this.codes.values());
     for (const id of codeTouched(page)) {
       const t = this.things.get(id);
-      const code = t ? primaryCodeOf(t, primary) : null;
-      if (t && code !== t.shortCode) this.things.set(id, { ...t, shortCode: code });
+      if (!t) continue;
+      const code = shownCodeOf(t, shown);
+      const labelPrinted = printed.has(codesKey(t));
+      if (code !== t.shortCode || labelPrinted !== (t.labelPrinted === true))
+        this.things.set(id, { ...t, shortCode: code, labelPrinted });
     }
     this.meta = { cursor: page.nextCursor, asOf: page.asOf };
   }
@@ -286,7 +292,7 @@ export class MemoryStore implements OfflineStore {
   async placesOf(locationId: string) {
     return [...this.places.values()]
       .filter((p) => p.locationId === locationId)
-      .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name));
+      .sort(comparePlaceSiblings);
   }
   async contentsOf(target: { placeId?: string; containerId?: string }) {
     return this.view().filter((t) =>
@@ -475,21 +481,46 @@ export class MemoryStore implements OfflineStore {
 }
 
 /**
- * The code a thing shows and is found by (the ID chip, search, a scan, the tray): its primary
- * code in the snapshot's codes, else the row's own `shortCode`. `SnapThing.shortCode` is the
- * primary code as of the last time the thing's row was sent, and claiming a code changes only
- * the codes rows, so both stores write this onto the things a page touched.
+ * The code a thing shows and is found by (the ID chip, search, a scan, the tray): its label's code
+ * in the snapshot's codes (the newest printed one, else its primary code), else the row's own
+ * `shortCode`. `SnapThing.shortCode` is the primary code as of the last time the thing's row was
+ * sent, and claiming or printing a code changes only the codes rows, so both stores write this
+ * onto the things a page touched.
  */
-export function primaryCodeOf(t: SnapThing, primary: ReadonlyMap<string, SnapCode>) {
-  const c = primary.get(t.id);
+export function shownCodeOf(t: SnapThing, shown: ReadonlyMap<string, SnapCode>) {
+  const c = shown.get(t.id);
   return c && c.locationId === t.locationId ? c.code : t.shortCode;
 }
 
-/** Assigned primary codes by the thing they belong to. */
-export function primaryCodes(codes: Iterable<SnapCode>): Map<string, SnapCode> {
+/** Each thing's shown code: its most recently printed code, else its assigned primary one. */
+export function shownCodes(codes: Iterable<SnapCode>): Map<string, SnapCode> {
   const out = new Map<string, SnapCode>();
+  const rank = (c: SnapCode) => c.printedAt ?? (c.isPrimary ? '' : null);
+  for (const c of codes) {
+    if (c.thingId === null || c.state !== 'assigned') continue;
+    const mine = rank(c);
+    if (mine === null) continue;
+    const had = out.get(c.thingId);
+    const theirs = had ? rank(had) : null;
+    // Ties go as the server breaks them: the primary code, then the lowest code.
+    const wins =
+      theirs === null ||
+      mine > theirs ||
+      (mine === theirs &&
+        had !== undefined &&
+        ((c.isPrimary && !had.isPrimary) || (c.isPrimary === had.isPrimary && c.code < had.code)));
+    if (wins) out.set(c.thingId, c);
+  }
+  return out;
+}
+
+/** Things with a printed label (`SnapCode.printedAt` on any of their codes), under `codesKey()`:
+ * a code left behind in a location the thing has moved out of doesn't count. */
+export function printedThings(codes: Iterable<SnapCode>): Set<string> {
+  const out = new Set<string>();
   for (const c of codes)
-    if (c.thingId !== null && c.isPrimary && c.state === 'assigned') out.set(c.thingId, c);
+    if (c.thingId !== null && c.state === 'assigned' && c.printedAt)
+      out.add(codesKey({ locationId: c.locationId, id: c.thingId }));
   return out;
 }
 

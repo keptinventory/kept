@@ -7,6 +7,7 @@ import { assertClientId, encodeCursor, type PageRequest } from '../http/conventi
 import { AppError, invalid, notFound, pgErrorOf } from '../http/errors.js';
 import { allocateShortId, SHORT_ID_TRIES } from '../places/short-id.js';
 import { type Ctx, requireRole } from '../things/service.js';
+import { shownCodeSql } from './printed-sql.js';
 
 // Label batches (D43, D44, D45, D97, D137, D172, D175, D185).
 // The web contract is apps/web/src/api/capture/types.ts "labels".
@@ -288,7 +289,9 @@ async function requirePlace(client: pg.ClientBase, locationId: string, placeId: 
   if (!rowCount) throw notFound();
 }
 
-/** Listed things or places: their primary codes, in the order given, and what was left out. */
+/** Listed things or places: the codes they show (their label's, else their primary one;
+ * labels/printed-sql.ts), in the order given, and what was left out. A reprint carries the code
+ * the tape shows. */
 async function pickListed(
   ctx: Ctx & { locationId: string },
   table: 'things' | 'places',
@@ -298,12 +301,10 @@ async function pickListed(
   const unique = [...new Set(ids.map((i) => i.toLowerCase()))];
   const col = table === 'things' ? 'thing_id' : 'place_id';
   const { rows } = await client.query<{ id: string; code: string | null; here: boolean }>(
-    `SELECT x.id, s.code::text AS code,
+    `SELECT x.id, ${shownCodeSql(col, 'x.id')}::text AS code,
             (x.location_id = $2 AND x.deleted_at IS NULL) AS here
        FROM unnest($1::uuid[]) WITH ORDINALITY u(id, n)
        JOIN public.${table} x ON x.id = u.id
-       LEFT JOIN public.short_ids s
-              ON s.${col} = x.id AND s.state = 'assigned' AND s.is_primary
       ORDER BY u.n`,
     [unique, locationId],
   );

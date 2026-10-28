@@ -12,6 +12,8 @@ export type BoxLine = {
   id: string;
   name: string | null;
   shortCode: string | null;
+  /** It carries a printed label: the list shows its code, as the tape, only then. */
+  labelPrinted: boolean;
   /** What the record says is there. */
   quantity: number;
   /** The same, as the decimal string the op sends back (D183). */
@@ -22,7 +24,13 @@ export type BoxLine = {
 };
 
 export type BoxData = {
-  container: { id: string; name: string | null; shortCode: string | null; locationId: string };
+  container: {
+    id: string;
+    name: string | null;
+    shortCode: string | null;
+    labelPrinted: boolean;
+    locationId: string;
+  };
   lines: BoxLine[];
   from: 'server' | 'phone';
   /** The phone's answer is "as of last sync" (D188). */
@@ -44,11 +52,18 @@ async function fromServer(id: string): Promise<BoxData> {
     cursor = next.next_cursor;
   }
   return {
-    container: { id: box.id, name: box.name, shortCode: box.shortCode, locationId: box.locationId },
+    container: {
+      id: box.id,
+      name: box.name,
+      shortCode: box.shortCode,
+      labelPrinted: box.labelPrinted,
+      locationId: box.locationId,
+    },
     lines: rows.map((r) => ({
       id: r.id,
       name: r.name,
       shortCode: r.shortCode,
+      labelPrinted: r.labelPrinted,
       quantity: r.quantity,
       expected: String(r.quantity),
       isContainer: r.isContainer,
@@ -69,6 +84,7 @@ async function fromPhone(id: string, store: OfflineStore): Promise<BoxData | nul
       id: r.id,
       name: r.name,
       shortCode: r.shortCode,
+      labelPrinted: r.labelPrinted === true,
       quantity: Number(r.quantity) || 1,
       expected: r.quantity,
       isContainer: r.isContainer,
@@ -76,7 +92,13 @@ async function fromPhone(id: string, store: OfflineStore): Promise<BoxData | nul
     });
   }
   return {
-    container: { id: box.id, name: box.name, shortCode: box.shortCode, locationId: box.locationId },
+    container: {
+      id: box.id,
+      name: box.name,
+      shortCode: box.shortCode,
+      labelPrinted: box.labelPrinted === true,
+      locationId: box.locationId,
+    },
     lines,
     from: 'phone',
     asOf: await store.asOf(),

@@ -351,6 +351,14 @@ describe('where printing starts', () => {
     expect(await screen.findByRole('img', { name: 'R00M4K' })).toBeInTheDocument();
   });
 
+  it("a place's Add a label code opens the scanner for that place (#329)", async () => {
+    const { user, router } = await renderApp(`/p/${INV_IDS.place.office}`);
+    await findHeading('Office');
+    await user.click(screen.getByRole('button', { name: /^Add a label code/ }));
+    await waitFor(() => expect(pathOf(router)).toBe('/scan'));
+    expect(router.state.location.search).toEqual({ place: INV_IDS.place.office });
+  });
+
   it('"Label everything here" offers things or places; places lists every place inside, never-labelled ones too', async () => {
     vi.spyOn(window, 'print').mockImplementation(() => {});
     const office = INV_IDS.place.office;

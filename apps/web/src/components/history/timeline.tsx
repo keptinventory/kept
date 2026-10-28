@@ -397,12 +397,25 @@ function serviceRoute(e: HistoryEvent): {
 
 function entityRoute(
   e: HistoryEvent,
-): { to: '/t/$id' | '/p/$id' | '/loc/$id'; params: { id: string } } | { to: '/trash' } | null {
+):
+  | { to: '/t/$id' | '/p/$id' | '/loc/$id'; params: { id: string } }
+  | { to: '/trash' }
+  | { to: '/settings/import'; search: { run: string } }
+  | null {
   const id = e.entity.id;
   if (!id) return null;
+  // An import: its own page, with what needed a look and, for a Homebox one, its repair.
+  if (e.entity.type === 'import_run') return { to: '/settings/import', search: { run: id } };
   // Moved to Trash: its own page can't open it any more; Trash lists it, with Restore (D246's
   // route walk found Home's row opening "This isn't here any more").
   if (e.summaryKey === 'thing.trash' || e.summaryKey === 'place.trash') return { to: '/trash' };
+  // #319: a place turned into a box (a thing into a place, a place merged away) is no longer at
+  // its own page: the server says where it is now.
+  if (e.linkTo)
+    return {
+      to: e.linkTo.type === 'thing' ? '/t/$id' : '/p/$id',
+      params: { id: addressOf(e.linkTo) },
+    };
   // The short address when the row names one (D208), so the page needn't replace it on arrival.
   const address = addressOf({ id, shortCode: e.entity.shortCode ?? null });
   if (e.entity.type === 'thing') return { to: '/t/$id', params: { id: address } };

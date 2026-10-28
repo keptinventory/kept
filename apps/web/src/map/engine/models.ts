@@ -3,7 +3,7 @@
  * shipped as .glb files under /assets/ with a long cache (models/NOTICE.txt). Each is fetched the
  * first time a floor in view needs it, then shared by every copy. Never precached.
  */
-import { type MapModelKey, mapModel } from '@kept/shared';
+import { type MapShapeKey, mapModel } from '@kept/shared';
 import * as THREE from 'three';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -53,18 +53,18 @@ function prepare(root: THREE.Object3D, rotFix: number): THREE.Group {
 }
 
 /** The ready model of a catalogue key, or undefined (none, not loaded yet, or failed). */
-export function readyModel(key: MapModelKey): THREE.Group | undefined {
+export function readyModel(key: MapShapeKey): THREE.Group | undefined {
   const glb = mapModel(key).glb;
   return glb ? ready.get(glb) : undefined;
 }
 
-export const hasGlb = (key: MapModelKey): boolean => {
+export const hasGlb = (key: MapShapeKey): boolean => {
   const glb = mapModel(key).glb;
   return !!glb && glb in URLS;
 };
 
 /** Starts loading a catalogue key's model; resolves when it is ready (or failed). */
-export function loadModel(key: MapModelKey): Promise<void> {
+export function loadModel(key: MapShapeKey): Promise<void> {
   const m = mapModel(key);
   const glb = m.glb;
   const url = glb ? URLS[glb] : undefined;
@@ -95,12 +95,12 @@ export function loadModel(key: MapModelKey): Promise<void> {
   return p;
 }
 
-export const isLoading = (key: MapModelKey): boolean => {
+export const isLoading = (key: MapShapeKey): boolean => {
   const glb = mapModel(key).glb;
   return !!glb && loads.has(glb) && !ready.has(glb);
 };
 
-export const wasRequested = (key: MapModelKey): boolean => {
+export const wasRequested = (key: MapShapeKey): boolean => {
   const glb = mapModel(key).glb;
   return !!glb && loads.has(glb);
 };

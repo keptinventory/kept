@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { getConfig } from '@lingui/conf';
 import { lingui, linguiTransformerBabelPreset } from '@lingui/vite-plugin';
@@ -20,6 +21,29 @@ const linguiConfig = getConfig({ configPath });
  * docs site's origin, and the page asks search engines not to index it.
  */
 const TRY = process.env.VITE_KEPT_TRY === '1';
+
+/**
+ * The version a demo build (`build:demo`, `build:try`) shows in its sidebar: KEPT_VERSION when set,
+ * else the release tag being built (GITHUB_REF_NAME on a tag run), else the last release tag in
+ * the checkout. Real builds keep KEPT_VERSION or 0.0.0-dev, as before; only a demo, which has no
+ * server to ask, reads the tag, so Try Kept and the docs' screenshots never say "0.0.0-dev".
+ */
+function demoVersion(): string | undefined {
+  if (process.env.VITE_KEPT_DEMO !== '1') return undefined;
+  const tag = (v: string | undefined) => /^v(\d+\.\d+\.\d+)$/.exec(v ?? '')?.[1];
+  const ref = tag(process.env.GITHUB_REF_NAME);
+  if (ref) return ref;
+  try {
+    const out = execFileSync('git', ['describe', '--tags', '--abbrev=0', '--match', 'v[0-9]*'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    return tag(out.trim());
+  } catch {
+    return undefined;
+  }
+}
+const KEPT_VERSION = process.env.KEPT_VERSION || demoVersion();
 const TRY_BASE = process.env.KEPT_TRY_BASE || '/try/kept/app/';
 function tryHtml(): Plugin {
   const swap = (html: string, from: RegExp, to: string) => {
@@ -80,6 +104,8 @@ const HOUSEHOLD_SECTIONS = [
   // 1.x (D237): the location map, with three.js and its engine; its .glb models are plain assets
   // under assets/ (fingerprinted, a year's cache), never precached either (the glob below).
   '/src/map/map-view.tsx',
+  // #207: the graph view, its layouts and both pictures; its CSS goes with it (assetFileNames).
+  '/src/graph/graph-view.tsx',
 ];
 /** Route components (TanStack's split chunks) that read the server and load on demand. */
 const HOUSEHOLD_ROUTES = [
@@ -217,6 +243,16 @@ const ON_DEMAND_ENTRIES = [
   // 1.x (#209): the tag picker, fetched the first time one opens (tags/lazy.tsx).
   '/src/components/tags/picker.tsx',
   '/src/components/tags/editors.tsx',
+  // 1.13.0 (#270): "Turn places into boxes" and a place's own order (places/sub-places-lazy.tsx).
+  '/src/components/places/sub-places.tsx',
+  // #294: several things to the Trash at once (things/bulk-trash.tsx), from a place's Select and
+  // the spreadsheet; it reads and writes the server only.
+  '/src/components/things/bulk-trash.tsx',
+  // #296: one saved service, opened from a vehicle's Services tab (vehicles/services-tab.tsx).
+  '/src/components/services/service-sheet.tsx',
+  // #307: a move's contents sheets and "Printed OK?" after them (moving/sheets.tsx opens it); it
+  // reads and writes the server only.
+  '/src/components/moving/contents-sheets.tsx',
   '/papaparse/papaparse.min.js',
   '/src/components/import/parse-config.ts',
 ];
@@ -391,9 +427,13 @@ export default defineConfig({
     rolldownOptions: {
       output: {
         chunkFileNames: chunkFileName,
-        // driver.js's CSS goes with its chunk (ON_DEMAND_ENTRIES), and the map's with its own.
+        // driver.js's CSS goes with its chunk (ON_DEMAND_ENTRIES), and the map's and the graph's
+        // with their own.
         assetFileNames: (asset) =>
-          asset.names.some((n) => n.startsWith('driver-kit') || n.startsWith('map-view'))
+          asset.names.some(
+            (n) =>
+              n.startsWith('driver-kit') || n.startsWith('map-view') || n.startsWith('graph-view'),
+          )
             ? 'assets/household/[name]-[hash][extname]'
             : 'assets/[name]-[hash][extname]',
       },
@@ -413,10 +453,8 @@ export default defineConfig({
   // @kept/shared reads process.env.KEPT_VERSION for the server; the browser has no `process`, so
   // the build inlines it. The image's build sets it to the release's version (Dockerfile, D148),
   // so the client and its sync clientVersion say the real one; unset, KEPT_VERSION falls back to
-  // 0.0.0-dev as on the server.
+  // 0.0.0-dev as on the server (a demo build reads the release tag: demoVersion above).
   define: {
-    'process.env.KEPT_VERSION': process.env.KEPT_VERSION
-      ? JSON.stringify(process.env.KEPT_VERSION)
-      : 'undefined',
+    'process.env.KEPT_VERSION': KEPT_VERSION ? JSON.stringify(KEPT_VERSION) : 'undefined',
   },
 });

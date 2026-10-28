@@ -11,8 +11,10 @@
  * form for asking for one (#171), and the docs' shape library lists them all.
  */
 import {
+  baseModel,
   MAP_MODEL_KEYS,
   type MapModelKey,
+  type MapShapeKey,
   SHAPE_GROUP,
   SHAPE_GROUPS,
   type ShapeFrom,
@@ -35,14 +37,12 @@ import { Sheet } from '@/components/things/sheet';
 import { TextField } from '@/components/ui/text-field';
 import { useModelNames, useShapeGroupNames } from './labels';
 import type { Item } from './layout';
+import { SHAPE_LIBRARY_URL, SHAPE_REQUEST_URL } from './shape-links';
 import spriteUrl from './thumbs/shapes.webp?url';
 import { THUMB_CELLS, THUMB_COLS } from './thumbs/sprite';
 
-/** The GitHub issue form that asks for a new shape (.github/ISSUE_TEMPLATE/shape-request.yml). */
-export const SHAPE_REQUEST_URL =
-  'https://github.com/keptinventory/kept/issues/new?template=shape-request.yml';
-/** Every shape with its picture, size and words, on the docs site (apps/docs, users/map-shapes). */
-export const SHAPE_LIBRARY_URL = 'https://keptinventory.info/users/map-shapes/';
+// The footer's two links, shared with the docs' Try the map (shape-links.ts).
+export { SHAPE_LIBRARY_URL, SHAPE_REQUEST_URL } from './shape-links';
 
 /** The search's language: the reader's, by its first subtag ("fr-CA" is French). */
 const shapeLang = (locale: string): ShapeLang => {
@@ -93,12 +93,14 @@ export function ShapeField({
 }: {
   item: Pick<Item, 'id' | 'name' | 'model'> & { shapeFrom?: ShapeFrom | undefined };
   input: ShapeInput;
-  onShape: (id: string, model: MapModelKey) => void;
+  onShape: (id: string, model: MapShapeKey) => void;
 }) {
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
   const names = useModelNames();
-  const shape = names[item.model];
+  // A sized shape (#240, #241) is its catalogue shape at a size of its own.
+  const base = baseModel(item.model);
+  const shape = names[base];
   const guess = item.shapeFrom === 'guess';
   const line =
     item.shapeFrom === 'type'
@@ -124,11 +126,12 @@ export function ShapeField({
           isOpen
           onOpenChange={setOpen}
           name={item.name}
-          value={item.model}
+          value={base}
           input={input}
           onPick={(m) => {
             setOpen(false);
-            if (m !== item.model || item.shapeFrom) onShape(item.id, m);
+            // Picking the shape it has keeps its size.
+            if (m !== base || item.shapeFrom) onShape(item.id, m === base ? item.model : m);
           }}
         />
       ) : null}

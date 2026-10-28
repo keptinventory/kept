@@ -7,14 +7,29 @@ sidebar:
 
 ## Upgrading
 
-With Compose, point `KEPT_IMAGE` at the new release (or pull a newer checkout and rebuild) and:
+With Compose, point `KEPT_IMAGE` in `.env` at the new release and:
 
 ```sh
-docker compose pull      # a released image
+docker compose pull
 docker compose up -d
 ```
 
-Built from a checkout instead, rebuild after `git pull`: `docker compose up -d --build`.
+Your own build from a checkout instead: `git pull`, `docker build -t kept:local .`, then
+`docker compose up -d` with `KEPT_IMAGE=kept:local`.
+
+A release can change `compose.yaml` too; its notes say so. Download the release's file over yours
+(`curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v<version>/compose.yaml`); `.env`
+stays as it is.
+
+### Install without a clone (1.13.0)
+
+Since 1.13.0 `compose.yaml` needs no copy of the repository and no database passwords: a one-shot
+`bootstrap` service makes the logins on every start. An install made before keeps working as it
+is: its five `KEPT_DB_*_PASSWORD` lines in `.env` are used as given
+([an install from before 1.13.0](/install/compose/#an-install-from-before-1130)). Two things to
+know: an empty `KEPT_IMAGE` no longer builds the checkout (it runs the release `compose.yaml`
+names), and the nightly backup's `compose.override.yaml` reads the owner's password from the
+`kept-owner` volume once `.env` no longer holds it ([backups](/admin/backups/#turning-it-on)).
 
 The one-shot `migrate` service runs `kept migrate` first: the migrations apply **once, under a
 database lock**, before the new version serves a request. Kept's migrations only add (a column or

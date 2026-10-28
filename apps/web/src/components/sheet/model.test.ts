@@ -30,6 +30,7 @@ function row(over: Partial<SheetRow> = {}): SheetRow {
     id: 'a',
     locationId: 'loc',
     shortCode: 'K7D2QX',
+    labelPrinted: false,
     name: 'Drill',
     type: null,
     quantity: 1,

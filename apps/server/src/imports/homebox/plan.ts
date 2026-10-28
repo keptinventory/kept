@@ -3,6 +3,7 @@ import {
   HB_FIELD_KIND,
   type HomeboxChoices,
   homeboxAssetCode,
+  homeboxTypeName,
   type ImportIssue,
   type ImportIssueCode,
   type ImportIssueParams,
@@ -18,6 +19,7 @@ import {
   type HbEntityField,
   type HbEntityType,
   hbDate,
+  hbFieldValue,
 } from './format.js';
 import { keptIcon } from './icons.js';
 import type { HbLookups } from './lookups.js';
@@ -38,11 +40,17 @@ import {
 //
 // - each collection → the run's location; location-type entities → places, keeping the tree
 //   (top-level a room, below it a zone, as the CSV import makes them); a location inside an item
-//   → a container thing (`hb_location_in_item`), because places can't sit inside things;
-// - other entities → things; one holding others is a container: its type gets the `container`
-//   capability when this import creates it, else the thing is a "Box / bin";
+//   → a container thing (`hb_location_in_item`), because places can't sit inside things; a
+//   location the `boxes` choice names, holding no other location, → a "Box / bin" thing in its
+//   place, with its tags (`hb_box_from_location`); a place's description isn't kept
+//   (`hb_place_notes_dropped`);
+// - other entities → things; one holding others is a container. It comes in as a "Box / bin",
+//   its Homebox type in the notes (`hb_item_holds_things`), unless its type is a container type
+//   already, or is one this import creates whose every item holds something (that type then gets
+//   the `container` capability). One box never makes a whole type a container type;
 // - entity types → Kept types by the `types` choice (or by normalised name), else created, with
-//   icons dropped (`hb_icon_dropped`);
+//   icons dropped (`hb_icon_dropped`), or none (`{none: true}`); v0.27's `global.item` and
+//   `global.location` read as "Item" and "Location", never as the key;
 // - description, a blank line, then notes; manufacturer → brand, model, serial;
 // - purchase date, from and price → a one-line purchase (D115) in the `currency` choice, its
 //   vendor by name; warranty expiry or lifetime → a warranty from the purchase date; sold → the
@@ -50,9 +58,14 @@ import {
 // - tags → tags with colours, flattened (each ancestor tag applied too); tag icons dropped;
 // - custom fields → the mapped type's field of the same normalised label and kind, else by the
 //   `fields` choice: added to the type (a built-in is customised first) or kept in the notes;
+//   a field is added for a value only, so one no item has a value for isn't added (the choices
+//   step says so, from the inspection's `filled`);
 // - `insured` → a yes/no "Insured" field on the type, per the `insured` choice;
-// - quantity 0 → 1 (`hb_quantity_zero`); fractional kept (D183) unless the type counts one by
-//   one (serialized, metered: `hb_quantity_rounded`, the original in the notes);
+// - quantity 0, by the `zeroQuantity` choice: kept where the type is consumable, else archived
+//   as 1 (`keep_or_archive`); 1 (`one`, and a run saved without the choice); or left out
+//   (`skip`); "Quantity in Homebox: 0" in the notes of every one that comes in; fractional kept
+//   (D183) unless the type counts one by one (serialized, metered: `hb_quantity_rounded`, the
+//   original in the notes); a number field's value that isn't whole is noted once per field;
 // - archived → Kept's `archived` lifecycle (a sold one ends sold), in use, or skipped
 //   (`hb_archived_skipped`), by the `archived` choice;
 // - Homebox's seeded places and tags, empty and unused, skipped by default (`hb_seeded_skipped`);
@@ -260,14 +273,20 @@ const INSURED_LABEL = 'Insured';
 const MESSAGES: Partial<Record<ImportIssueCode, string>> = {
   hb_archived_skipped: 'Archived in Homebox, left out.',
   hb_quantity_rounded: "Counted one by one in Kept; Homebox's quantity is kept in the notes.",
-  hb_quantity_zero: 'Quantity 0 became 1: Homebox gives 0 when none was set.',
+  hb_quantity_zero: 'Quantity 0 in Homebox; it came in as 1.',
+  hb_quantity_zero_kept: 'Quantity 0 in Homebox, kept: its type is one you run out of.',
+  hb_quantity_zero_archived: 'Quantity 0 in Homebox; it came in archived.',
+  hb_quantity_zero_skipped: 'Quantity 0 in Homebox, left out.',
+  hb_item_holds_things: 'It holds other items, so it came in as a box.',
+  hb_box_from_location: 'A location that came in as a box, as chosen.',
+  hb_place_notes_dropped: "Its description isn't kept: places in Kept have no notes.",
   hb_number_integer: 'Homebox keeps numbers whole, so any decimals were already lost there.',
   hb_icon_dropped: "Kept has no icon like Homebox's; the type's own icon is used.",
   hb_template_partial: "A Kept template can't hold money or secrets; the rest is imported.",
   hb_currency_unsupported:
     "This currency isn't turned on in Kept; the prices are kept in the notes.",
   hb_needs_module: "Kept can't hold this record here; its text is kept in the thing's notes.",
-  hb_location_in_item: 'A location inside an item became a container.',
+  hb_location_in_item: 'A location inside an item became a box.',
   hb_notifier_skipped: 'Notifiers are never imported: their addresses can hold passwords.',
   hb_seeded_skipped: "One of Homebox's starter places or tags, empty and unused, left out.",
   hb_time_default: 'A date Homebox filled in with the day the item was made; read as empty.',
@@ -455,17 +474,31 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
     list.push(e);
     children.set(p.id, list);
   }
-  /** A place in Kept: a location whose ancestors are all locations. */
+  /** The locations chosen to come in as boxes: each inside a location, holding none. */
+  const boxes = new Set<string>();
+  for (const id of choices.boxes ?? []) {
+    const e = data.entities.get(id.toLowerCase());
+    const p = e ? parentOf(e) : null;
+    if (!e || !p || !isLocation(data, e) || !isLocation(data, p)) continue;
+    if ((children.get(e.id) ?? []).some((c) => isLocation(data, c))) continue;
+    boxes.add(e.id);
+  }
+  /** A place in Kept: a location whose ancestors are all locations, and not a chosen box. */
   const placeLike = new Map<string, boolean>();
   const isPlace = (e: HbEntity): boolean => {
     const known = placeLike.get(e.id);
     if (known !== undefined) return known;
     placeLike.set(e.id, false); // a cycle reads as "not a place"
     const p = parentOf(e);
-    const value = isLocation(data, e) && (!p || isPlace(p));
+    const value = isLocation(data, e) && !boxes.has(e.id) && (!p || isPlace(p));
     placeLike.set(e.id, value);
     return value;
   };
+  const zeroQuantity = choices.zeroQuantity ?? 'one';
+  /** An item (never a location: those carry no quantity) with quantity 0. */
+  const isZero = (e: HbEntity) => !isLocation(data, e) && Math.round(e.quantity * 1000) / 1000 <= 0;
+  /** Whether anything sits inside `e` in Homebox. */
+  const holdsAny = (e: HbEntity) => (children.get(e.id) ?? []).length > 0;
 
   const seeded = seededUnused(data);
   const skipped = new Set<string>();
@@ -479,6 +512,9 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
       skipped.add(e.id);
     } else if (e.archived && choices.archived === 'skip') {
       report.issue(ref, 'hb_archived_skipped', { status: 'skipped' });
+      skipped.add(e.id);
+    } else if (!done(e.id) && zeroQuantity === 'skip' && isZero(e) && !holdsAny(e)) {
+      report.issue(ref, 'hb_quantity_zero_skipped', { status: 'skipped' });
       skipped.add(e.id);
     } else if (done(e.id)) {
       report.issue(ref, 'already_imported', { status: 'skipped' });
@@ -513,6 +549,15 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
     const p = keptParent(e);
     if (p && !isPlace(p)) holds.add(p.id);
   }
+  /** Per Homebox type: how many of its items come in, and how many of those hold others. */
+  const ofType = new Map<string, { items: number; holding: number }>();
+  for (const e of plannedThings) {
+    if (isLocation(data, e)) continue;
+    const n = ofType.get(e.entity_type_entities) ?? { items: 0, holding: 0 };
+    n.items += 1;
+    if (holds.has(e.id)) n.holding += 1;
+    ofType.set(e.entity_type_entities, n);
+  }
 
   // --- legacy codes -----------------------------------------------------------------------------
   const codesOf = (e: HbEntity): string[] => {
@@ -532,12 +577,14 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
 
   // --- types ------------------------------------------------------------------------------------
   const typeStates = new Map<string, TypeState>();
-  const typeState = (t: HbEntityType): TypeState => {
+  /** The Kept type a Homebox type becomes, or null for "No type". */
+  const typeState = (t: HbEntityType): TypeState | null => {
+    const choice = choices.types[t.id];
+    if (choice && 'none' in choice) return null;
     const known = typeStates.get(t.id);
     if (known) return known;
     const key = `type:${t.id}`;
-    const choice = choices.types[t.id];
-    const name = (choice && 'create' in choice ? choice.create : t.name).trim();
+    const name = homeboxTypeName(choice && 'create' in choice ? choice.create : t.name);
     const candidates = [
       look.sourceIds.get(key),
       choice && 'typeId' in choice ? choice.typeId.toLowerCase() : undefined,
@@ -551,7 +598,7 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
         op: {
           op: 'type',
           key,
-          name: t.name,
+          name: homeboxTypeName(t.name),
           target: { id: existing },
           customise: false,
           container: false,
@@ -570,15 +617,16 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
       };
     } else {
       const icon = keptIcon(t.icon);
+      const shown = homeboxTypeName(t.name);
       if (icon.dropped) {
-        report.issue({ kind: 'entity', id: t.id, name: t.name }, 'hb_icon_dropped');
+        report.issue({ kind: 'entity', id: t.id, name: shown }, 'hb_icon_dropped');
       }
       state = {
         op: {
           op: 'type',
           key,
-          name: t.name,
-          target: { create: { name: (name || t.name).slice(0, TYPE_NAME_MAX), icon: icon.icon } },
+          name: shown,
+          target: { create: { name: (name || shown).slice(0, TYPE_NAME_MAX), icon: icon.icon } },
           customise: false,
           container: false,
           fields: [],
@@ -685,6 +733,9 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
     // #209: only things have tags in Kept; a location's are named in the report, not lost silently.
     if ((tagsOfEntity.get(e.id) ?? []).length > 0)
       report.issue(entityRef(e), 'hb_place_tags_dropped');
+    // Places have no notes column: a location's description and notes are named, not lost.
+    if (e.description?.trim() || e.notes?.trim())
+      report.issue(entityRef(e), 'hb_place_notes_dropped');
     ops.places.push({ op: 'place', key: e.id, name, parent: parentRef, existingId, codes });
     if (!existingId) summary.places += 1;
     summary.legacyCodes += codes.length;
@@ -705,6 +756,8 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
   }
   const warrantyKeys = new Set<string>();
   const purchaseKeys = new Set<string>();
+  /** The number fields already noted as not whole: once per field, not per item. */
+  const numberNoted = new Set<string>();
   const schedulesOn = look.modules.has('schedules');
 
   for (const e of plannedThings) {
@@ -731,21 +784,26 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
     let state: TypeState | null = null;
     let type: Ref | null = null;
     let caps: string[] = [];
+    const asBox = () => {
+      if (!look.boxBinTypeId) return;
+      type = { id: look.boxBinTypeId };
+      caps = look.typeInfo.get(look.boxBinTypeId)?.caps ?? ['container'];
+    };
     if (locationInItem) {
-      report.issue(ref, 'hb_location_in_item');
-      if (look.boxBinTypeId) {
-        type = { id: look.boxBinTypeId };
-        caps = look.typeInfo.get(look.boxBinTypeId)?.caps ?? ['container'];
-      }
+      report.issue(ref, boxes.has(e.id) ? 'hb_box_from_location' : 'hb_location_in_item');
+      asBox();
     } else if (hbType) {
       state = typeState(hbType);
-      if (holds.has(e.id) && !state.caps.includes('container')) {
-        if (state.created) state.op.container = true;
-        else if (look.boxBinTypeId) {
-          // The mapped type can't hold things: a box, its Homebox type kept in the notes.
-          text(`Homebox type: ${hbType.name}`);
-          type = { id: look.boxBinTypeId };
-          caps = look.typeInfo.get(look.boxBinTypeId)?.caps ?? ['container'];
+      if (holds.has(e.id) && !state?.caps.includes('container')) {
+        const n = ofType.get(hbType.id);
+        if (state?.created && n && n.holding === n.items) {
+          // Every item of a type this import makes holds something: a container type.
+          state.op.container = true;
+        } else if (look.boxBinTypeId) {
+          // Only this item holds things: it comes in as a box, its Homebox type in the notes.
+          if (state) text(`Homebox type: ${homeboxTypeName(hbType.name)}`);
+          report.issue(ref, 'hb_item_holds_things');
+          asBox();
           state = null;
         }
       }
@@ -755,7 +813,7 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
         caps = [...state.caps, ...(state.op.container ? ['container'] : [])];
       }
     }
-    if (holds.has(e.id)) summary.containers += 1;
+    if (holds.has(e.id) || boxes.has(e.id)) summary.containers += 1;
 
     // Name, brand, model, serial.
     let name = e.name.trim();
@@ -803,13 +861,29 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
       serial = null;
     }
 
-    // Quantity (D10, D183).
-    let quantity = Math.round(e.quantity * 1000) / 1000;
-    if (quantity <= 0) {
-      quantity = 1;
-      report.issue(ref, 'hb_quantity_zero');
-    }
+    // Quantity (D10, D183), and 0 by the `zeroQuantity` choice. A location that becomes a thing
+    // has no quantity of its own: 1, in use. An item holding others is never archived or left
+    // out for its 0 (its contents would be put away with it): 1, in use, with the note.
+    let quantity = locationInItem ? 1 : Math.round(e.quantity * 1000) / 1000;
     const oneByOne = caps.includes('serialized') || caps.includes('metered');
+    let zeroArchived = false;
+    if (quantity <= 0) {
+      extra.push('Quantity in Homebox: 0');
+      if (holds.has(e.id)) {
+        quantity = 1;
+        report.issue(ref, 'hb_quantity_zero', { status: 'text', column: 'quantity' });
+      } else if (zeroQuantity === 'keep_or_archive' && caps.includes('consumable') && !oneByOne) {
+        quantity = 0;
+        report.issue(ref, 'hb_quantity_zero_kept');
+      } else if (zeroQuantity === 'keep_or_archive') {
+        quantity = 1;
+        zeroArchived = true;
+        report.issue(ref, 'hb_quantity_zero_archived', { status: 'text', column: 'quantity' });
+      } else {
+        quantity = 1;
+        report.issue(ref, 'hb_quantity_zero', { status: 'text', column: 'quantity' });
+      }
+    }
     if (quantity !== 1 && oneByOne) {
       text(`Quantity in Homebox: ${e.quantity}`);
       report.issue(ref, 'hb_quantity_rounded', { status: 'text', column: 'quantity' });
@@ -833,24 +907,18 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
 
     // Custom fields, and insured.
     const custom: Record<string, unknown> = {};
-    let integer = false;
     for (const f of fieldsOf.get(e.id) ?? []) {
       const label = f.name.trim();
       if (!label) continue;
       const kind = HB_FIELD_KIND[f.type];
-      let value: unknown;
-      if (f.type === 'text') value = f.text_value || undefined;
-      else if (f.type === 'number') value = f.number_value ?? undefined;
-      else if (f.type === 'boolean') value = f.boolean_value;
-      else {
-        const gap = Math.abs(Date.parse(f.time_value) - Date.parse(f.created_at));
-        if (gap <= 1000) {
-          report.issue(ref, 'hb_time_default', { column: label });
-          value = undefined;
-        } else value = hbDate(f.time_value) ?? undefined;
-      }
+      const { value, defaulted } = hbFieldValue(f);
+      if (defaulted) report.issue(ref, 'hb_time_default', { column: label });
+      // No value: nothing to keep, and the field isn't added to the type for it (#320).
       if (value === undefined) continue;
-      if (f.type === 'number') integer = true;
+      if (typeof value === 'number' && !Number.isInteger(value) && !numberNoted.has(label)) {
+        numberNoted.add(label);
+        report.issue(ref, 'hb_number_integer', { column: label });
+      }
       const shown = typeof value === 'boolean' ? (value ? 'yes' : 'no') : String(value);
       const asNotes = (code?: ImportIssueCode) => {
         text(`${label}: ${shown}`);
@@ -888,7 +956,6 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
       }
       custom[key] = value;
     }
-    if (integer) report.issue(ref, 'hb_number_integer');
     if (e.insured && choices.insured === 'field') {
       if (state) {
         let key = fieldFor(state, INSURED_LABEL, 'boolean');
@@ -1029,7 +1096,7 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
       custom,
       purchase,
       sold,
-      archived: e.archived && choices.archived === 'archived' && sold === null,
+      archived: ((e.archived && choices.archived === 'archived') || zeroArchived) && sold === null,
       codes,
     });
     summary.things += 1;

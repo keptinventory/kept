@@ -244,7 +244,8 @@ export function BatchBuilder({
                     key={l.code}
                     className="flex min-w-0 items-center gap-2.5 border-line px-3 py-2 not-first:border-t sm:nth-2:border-t-0 sm:even:border-s"
                   >
-                    <IdChip code={l.code} />
+                    {/* Not printed yet: the code quietly; amber is for a printed label. */}
+                    <IdChip code={l.code} variant="quiet" />
                     <bdi className="min-w-0 text-small text-ink-2 [overflow-wrap:anywhere]">
                       {l.name ?? ''}
                     </bdi>

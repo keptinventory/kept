@@ -39,6 +39,8 @@ export type ArchiveRunRow = {
   archive_sha256: string | null;
   archive_ready_at: Date | null;
   inspect: Record<string, unknown> | null;
+  /** A Homebox import's new location until Import makes it (archive.ts PendingLocation). */
+  new_location: unknown;
   /** Whether a passphrase-derived key is sealed on the run; the key itself is never read
    * by the routes. */
   has_key: boolean;
@@ -58,9 +60,26 @@ export type HomeboxCollectionCounts = {
 /** What the Homebox choices step offers (web HomeboxMappingHints): names and counts only. */
 export type HomeboxMappingHints = {
   types: { id: string; name: string; items: number }[];
-  fields: { name: string; kind: HomeboxFieldKind; items: number }[];
+  /** `filled` from 1.13.1 (absent on an older inspection): the items holding a value; 0, and the
+   * field is left out (a field is added to a type for a value only). */
+  fields: { name: string; kind: HomeboxFieldKind; items: number; filled?: number }[];
   insuredItems: number;
   seededUnused: { places: string[]; tags: string[] };
+  /** From 1.13.0 (absent on a run inspected before): how many items and maintenance entries carry
+   * an amount, so the currency is asked only when there is one. */
+  prices?: number;
+  /** From 1.13.0: what needs a module beyond Essentials (shared homeboxModules): items with a
+   * price, items with a warranty, maintenance entries. */
+  pricedItems?: number;
+  warrantyItems?: number;
+  maintenance?: number;
+  /** From 1.13.0: how many items have quantity 0, so the quantity-0 choice is offered only then. */
+  zeroItems?: number;
+  /** From 1.13.0: the locations that read as boxes (looksLikeBox), each inside another location and
+   * holding none, with the names of the locations above it and how many items it holds. */
+  boxes?: { id: string; name: string; path: string[]; items: number }[];
+  /** From 1.13.0: the type that is Homebox's own catch-all (`global.item`), or null. */
+  catchAll?: string | null;
 };
 
 export type HomeboxInspect = {
@@ -128,6 +147,8 @@ export type KeptDryRunSummary = {
   history: number;
   historyDropped: number;
   secrets: number;
+  /** Secret values the export left out (made without secrets). */
+  secretsWithheld: number;
   skipped: number;
   asText: number;
   members: { name: string; role: Role }[];
@@ -152,7 +173,8 @@ export type ArchiveCtx = {
  * - `inspect`, on the opened archive, outside any transaction: the manifest and counts;
  * - `load`, outside any transaction, before a dry run: everything the plan reads from the
  *   archive (never a file's bytes);
- * - `dryRun`, in the request's transaction against the run's target, writing nothing: the report
+ * - `dryRun`, in the request's transaction against the run's target (for a Homebox import into a
+ *   new location, against that location as it will be made), writing nothing: the report
  *   (summary, and only the rows with issues) and how many steps the job will take (`total`).
  * Archive rule refusals are ArchiveError (portability/zip/limits.ts); an entry that isn't what
  * the format says is ArchiveContentError. The route maps both.
@@ -162,9 +184,10 @@ export type ArchiveImporter<Loaded = unknown> = {
   job: 'import-homebox' | 'import-kept';
   inspect(archive: OpenArchive, run: ArchiveRunRow): Promise<ArchiveInspect>;
   load(archive: OpenArchive, run: ArchiveRunRow): Promise<Loaded>;
+  /** `run.location_id` is null only for a Homebox import whose new location Import will make. */
   dryRun(
     c: ArchiveCtx,
-    run: ArchiveRunRow & { location_id: string },
+    run: ArchiveRunRow,
     loaded: Loaded,
   ): Promise<{ report: ArchiveDryRunReport; total: number }>;
   /** Opens the uploaded archive with this format's expected names. */

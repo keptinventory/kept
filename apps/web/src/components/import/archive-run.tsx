@@ -1,8 +1,12 @@
 /**
  * An archive import once its run exists: what's in it (with the
- * optional Homebox connection, or a Kept export's passphrase) → where it goes → the Homebox
- * choices → the check's report → progress → the summary, with "See what was imported" (the
- * location's things filtered by this run, `f.importRun`) and the offer to add search words.
+ * optional Homebox connection, or a Kept export's passphrase) → where it goes (for a Homebox
+ * export into a new location, then what it tracks, Essentials chosen) → the Homebox choices →
+ * the check's report → progress → the summary, with "See what was imported" (the location's
+ * things filtered by this run, `f.importRun`), what needed a look (the stored report, so Activity
+ * can bring it back), "Repair this import" for one that ran before 1.13.0, and the offer to add
+ * search words. A Homebox import's new location is made when Import runs (`newLocation` until
+ * then).
  *
  * Where it is comes from the run itself (`GET /imports/:id`, step 3's route, polled while it
  * runs), so a reload lands on the same step; only the connection's answer, the target being
@@ -36,12 +40,20 @@ import { useOnline } from '@/lib/online';
 import { ARCHIVE_STEPS } from './archive-step';
 import { EnrichOffer } from './enrich-offer';
 import { ArchiveReportSummary, EntityReport } from './entity-report';
-import { HomeboxChoicesStep, initialChoices, useKeptTypes } from './homebox-choices';
+import {
+  choicesComplete,
+  HomeboxChoicesStep,
+  initialChoices,
+  useHomeboxTypeName,
+  useKeptTypes,
+} from './homebox-choices';
 import { HomeboxConnect, HomeboxInspectSummary } from './inspect-step';
 import { KeptInspectSummary, KeptSecrets, PeopleToInvite } from './kept-choices';
 import { useRefusalText } from './labels';
+import { ImportRepair } from './repair';
 import { StepFooter, StepHeader } from './step-chrome';
 import { initialTarget, type TargetDraft, TargetStep, targetBody } from './target-step';
+import { extraModules, initialTrack, type TrackDraft, TrackStep } from './track-step';
 import { isStale } from './upload-step';
 
 const POLL_MS = 1500;
@@ -124,7 +136,13 @@ export function ArchiveRunView({
   }, [needsInspect, inspect]);
 
   const location = importable.find((l) => l.id === run?.locationId);
-  const keptTypes = useKeptTypes(location?.ownerAccountId);
+  // A new location Import will make is the caller's own account's, like their Personal one.
+  const pending = run?.locationId ? null : (run?.newLocation ?? null);
+  const own = importable.find((l) => l.kind === 'personal');
+  const keptTypes = useKeptTypes(
+    location?.ownerAccountId ?? (pending ? own?.ownerAccountId : undefined),
+  );
+  const typeName = useHomeboxTypeName();
 
   const target = useMutation({
     mutationFn: (body: NonNullable<ReturnType<typeof targetBody>>) =>
@@ -161,8 +179,10 @@ export function ArchiveRunView({
   });
   const start = useMutation({
     mutationFn: () => captureApi.runImport(runId),
-    onSuccess: (next) => {
+    onSuccess: async (next) => {
       setFailure(null);
+      // A new location is made now: the locations it goes into are read again.
+      if (run?.newLocation) await qc.invalidateQueries({ queryKey: keys.locations });
       put(next as unknown as ArchiveImportRun);
       void query.refetch();
     },
@@ -188,7 +208,7 @@ export function ArchiveRunView({
     </Notice>
   ) : null;
   const again = () => go({ source });
-  const name = location ? locationName(location) : '';
+  const name = location ? locationName(location) : (pending?.name ?? '');
 
   // ----- refused, or never fully uploaded -----
   if (run.status === 'failed' && (run.error === 'archive_invalid' || !run.inspect)) {
@@ -249,7 +269,7 @@ export function ArchiveRunView({
     ins.source === 'kept_zip' ? ins.kept.locationName : (ins.collections[0]?.name ?? '');
 
   // ----- before the target: what's in it, then where it goes -----
-  if (!run.locationId) {
+  if (!run.locationId && !pending) {
     if (stage !== 'target') {
       return (
         <div className="grid gap-5">
@@ -302,7 +322,7 @@ export function ArchiveRunView({
     return (
       <div className="grid gap-5">
         <StepHeader step={5} total={total} title={<Trans>A few choices, before the check</Trans>} />
-        {!location || !keptTypes ? (
+        {(!location && !pending) || !keptTypes ? (
           <LoadingRows rows={4} />
         ) : (
           <ChoicesPane
@@ -312,7 +332,11 @@ export function ArchiveRunView({
               initialChoices(
                 hints,
                 keptTypes,
-                connection?.collections[0]?.currency ?? location.currency,
+                connection?.collections[0]?.currency ??
+                  location?.currency ??
+                  pending?.currency ??
+                  'USD',
+                typeName,
               )
             }
             render={(choices, setChoices) => (
@@ -322,7 +346,7 @@ export function ArchiveRunView({
                   choices={choices}
                   onChange={setChoices}
                   keptTypes={keptTypes}
-                  locationCurrency={location.currency}
+                  locationCurrency={location?.currency ?? pending?.currency ?? choices.currency}
                   connection={connection}
                 />
                 {failureNotice}
@@ -334,7 +358,7 @@ export function ArchiveRunView({
                   ) : null}
                   <span className="flex-1" />
                   <Button
-                    isDisabled={!online}
+                    isDisabled={!online || !choicesComplete(choices)}
                     isPending={check.isPending}
                     onPress={() => check.mutate(choices)}
                   >
@@ -376,7 +400,9 @@ export function ArchiveRunView({
     );
   }
 
-  const invite = { to: '/settings/location/$id/invite' as const, params: { id: run.locationId } };
+  const invite = run.locationId
+    ? { to: '/settings/location/$id/invite' as const, params: { id: run.locationId } }
+    : undefined;
   const people = peopleOf(run.report, connection);
 
   // ----- the report -----
@@ -388,7 +414,7 @@ export function ArchiveRunView({
         <ArchiveReportSummary report={run.report} />
         {failureNotice}
         <EntityReport report={run.report} reportKey={`${run.id}:${run.rowVersion}`} />
-        <PeopleToInvite people={people} inviteHref={invite} />
+        <PeopleToInvite people={people} {...(invite ? { inviteHref: invite } : {})} />
         <StepFooter>
           {source === 'homebox_zip' ? (
             <Button variant="secondary" onPress={() => setStage('choices')}>
@@ -499,6 +525,20 @@ export function ArchiveRunView({
 
   // ----- done or cancelled -----
   const cancelled = run.status === 'cancelled';
+  if (!run.locationId) {
+    // Cancelled before it ran into a new location: nothing was made.
+    return (
+      <div className="grid gap-5">
+        <StepHeader step={6} total={total} title={<Trans>Done</Trans>} />
+        <Notice tone="info" title={<Trans>Import cancelled</Trans>}>
+          <Trans>Nothing was imported, and no location was made.</Trans>
+        </Notice>
+        <Button variant="ghost" className="justify-self-start" onPress={() => go({})}>
+          <Trans>Import something else</Trans>
+        </Button>
+      </div>
+    );
+  }
   return (
     <div className="grid gap-5">
       <StepHeader step={6} total={total} title={<Trans>Done</Trans>} />
@@ -531,9 +571,27 @@ export function ArchiveRunView({
         <Link to="/loc/$id" params={{ id: run.locationId }} className={buttonClass('secondary')}>
           <Trans>Open the location</Trans>
         </Link>
+        {/* Its places are laid out as rooms by themselves: the map is one step away. */}
+        <Link
+          to="/loc/$id"
+          params={{ id: run.locationId }}
+          search={{ view: 'map' } as never}
+          className={buttonClass('secondary')}
+        >
+          <Trans>Open the map</Trans>
+        </Link>
       </div>
-      {!cancelled ? <EnrichOffer runId={run.id} /> : null}
-      <PeopleToInvite people={people} inviteHref={invite} />
+      {source === 'homebox_zip' && run.startedAt ? <ImportRepair runId={run.id} /> : null}
+      {run.report && run.report.rows.length > 0 ? (
+        <EntityReport
+          report={run.report}
+          reportKey={`${run.id}:done`}
+          title={<Trans>What needed a look</Trans>}
+          when="after"
+        />
+      ) : null}
+      {!cancelled ? <EnrichOffer runId={run.id} locationId={run.locationId} /> : null}
+      <PeopleToInvite people={people} {...(invite ? { inviteHref: invite } : {})} />
       <Button variant="ghost" className="justify-self-start" onPress={() => go({})}>
         <Trans>Import something else</Trans>
       </Button>
@@ -602,7 +660,44 @@ function TargetPane({
 }) {
   const kind = run.inspect?.source === 'kept_zip' ? run.inspect.kept.kind : undefined;
   const [draft, setDraft] = useState<TargetDraft>(() => initialTarget(originalName, kind));
+  const hints =
+    run.inspect?.source === 'homebox_zip' ? run.inspect.collections[0]?.mapping : undefined;
+  const [track, setTrack] = useState<TrackDraft>(() => initialTrack(hints));
+  const [tracking, setTracking] = useState(false);
   const body = targetBody(draft);
+  // A Homebox export into a new location asks what it tracks next.
+  const asksTrack = run.source === 'homebox_zip' && draft.mode === 'new';
+  if (tracking && asksTrack && body && 'newLocation' in body) {
+    return (
+      <div className="grid gap-5">
+        <StepHeader step={4} total={ARCHIVE_STEPS} title={<Trans>What to track</Trans>} />
+        <TrackStep draft={track} onChange={setTrack} hints={hints} />
+        {failureNotice}
+        <StepFooter>
+          <Button variant="secondary" onPress={() => setTracking(false)}>
+            <Trans>Back</Trans>
+          </Button>
+          <span className="flex-1" />
+          <Button
+            isDisabled={!online}
+            isPending={isPending}
+            onPress={() =>
+              onNext({
+                newLocation: {
+                  ...body.newLocation,
+                  preset: track.preset,
+                  modules: extraModules(track),
+                  alsoPersonal: track.alsoPersonal,
+                },
+              })
+            }
+          >
+            <Trans>Next</Trans>
+          </Button>
+        </StepFooter>
+      </div>
+    );
+  }
   return (
     <div className="grid gap-5">
       <StepHeader step={4} total={ARCHIVE_STEPS} title={<Trans>Where it goes</Trans>} />
@@ -623,7 +718,8 @@ function TargetPane({
           isDisabled={!body || !online}
           isPending={isPending}
           onPress={() => {
-            if (body) onNext(body);
+            if (asksTrack) setTracking(true);
+            else if (body) onNext(body);
           }}
         >
           <Trans>Next</Trans>

@@ -69,10 +69,18 @@ const thingsOf = (ids: readonly string[]) =>
     [ids],
   );
 
+// Ten at a time: each draft is three round trips (a POST /things and two writes), and one after
+// another the 50 of the first test took 3.2 s of its 6.4 s alone, which a loaded full suite
+// stretched past the 20 s test timeout (#312). Ten at once take about 1 s.
 async function drafts(n: number, loc: Loc = home, as: Person = ibrahim): Promise<Draft[]> {
   const batchId = newId();
   const out: Draft[] = [];
-  for (let i = 0; i < n; i++) out.push(await draft(t, db, as, loc, { name: `Jar ${i}`, batchId }));
+  for (let i = 0; i < n; i += 10) {
+    const chunk = Array.from({ length: Math.min(10, n - i) }, (_, j) =>
+      draft(t, db, as, loc, { name: `Jar ${i + j}`, batchId }),
+    );
+    out.push(...(await Promise.all(chunk)));
+  }
   return out;
 }
 

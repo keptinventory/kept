@@ -6,15 +6,20 @@ import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 import { requireMembership } from '../locations/access.js';
 import {
+  CONVERT_REFUSALS,
   ConvertBody,
+  ConvertChildrenBody,
   CreatePlaceBody,
   type Ctx,
+  convertChildren,
   convertToContainer,
   createPlace,
   deletePlace,
   labelPlace,
   MergeBody,
   mergePlace,
+  ReorderBody,
+  reorderChild,
   restorePlace,
   TrashBody,
   trashPlace,
@@ -23,6 +28,8 @@ import {
 } from './service.js';
 import { registerPlaceUndo } from './undo.js';
 import {
+  BoxNodeSchema,
+  boxNodes,
   ContentsQuery,
   PlaceContentsSchema,
   PlaceNodeSchema,
@@ -37,12 +44,13 @@ import {
 // apps/web/src/api/inventory/{types,paths}.ts (PlaceNode, PlaceView, PlaceContents, TrashBody,
 // TrashResult, RestoreResult, ConvertToContainerResult, LabelResult).
 //
-// GET    /api/v1/locations/:locationId/places     → {places: PlaceNode[]}
+// GET    /api/v1/locations/:locationId/places     → {places: PlaceNode[], boxes: BoxNode[]}
 // POST   /api/v1/locations/:locationId/places     {id?, parentId?, name, kindKey, icon?} → 201 PlaceView
 // GET    /api/v1/places/:id                       → PlaceView
 // GET    /api/v1/places/:id/contents?q&type*&tag*&state*&brand*&belongsTo*&not*&group&sort&dir
 //        &limit&cursor → PlaceContents (`*`: repeatable, "is any of"; `not` names those "none of", D205)
-// PATCH  /api/v1/places/:id (If-Match)            {name?, kindKey?, icon?, sort?, parentId?, custom?}
+// PATCH  /api/v1/places/:id (If-Match)            {name?, kindKey?, icon?, sort?, childOrder?,
+//                                                  parentId?, custom?}
 // POST   /api/v1/places/:id/trash                 {contents?, moveTo?} → TrashResult, or 409
 //                                                  contents_choice_required with {counts}
 // POST   /api/v1/places/:id/restore               → {restored, hint?}
@@ -51,6 +59,12 @@ import {
 //                                                  target's → PlaceView of the target
 // POST   /api/v1/places/:id/convert-to-container  {typeId?}, If-Match optional → {thingId} (the
 //                                                  same id, Q14)
+// POST   /api/v1/places/:id/convert-children-to-containers {placeIds (≤ 200), typeId?} →
+//        {results: [{placeId, status: 'converted', thingId} | {placeId, status: 'refused',
+//        reason: 'has_places' | 'not_here'}]}; X-Kept-Audit-Event names one undoable
+//        `place.convert_to_container` per box, undone together through POST /api/v1/audit/undo
+// POST   /api/v1/places/:id/reorder               {placeId, direction: 'up' | 'down'} → {order}
+//                                                  (the place in Custom order, else 409)
 // POST   /api/v1/places/:id/label                 (labels module) → {code}
 //
 // PATCH's `place.update` and `place.move` events are undoable for 7 days through
@@ -87,14 +101,19 @@ export async function placeRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
     {
       schema: {
         params: LocationParams,
-        response: { 200: z.object({ places: z.array(PlaceNodeSchema) }) },
+        response: {
+          200: z.object({ places: z.array(PlaceNodeSchema), boxes: z.array(BoxNodeSchema) }),
+        },
       },
     },
     (req) =>
       scopedRead(pools, req, async (_tx, client) => {
         const locationId = req.params.locationId.toLowerCase();
         await requireMembership(client, locationId);
-        return { places: await placeNodes(client, locationId) };
+        return {
+          places: await placeNodes(client, locationId),
+          boxes: await boxNodes(client, locationId),
+        };
       }),
   );
 
@@ -218,6 +237,63 @@ export async function placeRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
         ),
       }));
     },
+  );
+
+  app.post(
+    '/api/v1/places/:id/convert-children-to-containers',
+    {
+      schema: {
+        params: Params,
+        body: ConvertChildrenBody,
+        response: {
+          200: z.object({
+            results: z.array(
+              z.union([
+                z.object({
+                  placeId: z.uuid(),
+                  status: z.literal('converted'),
+                  thingId: z.uuid(),
+                }),
+                z.object({
+                  placeId: z.uuid(),
+                  status: z.literal('refused'),
+                  reason: z.enum(CONVERT_REFUSALS),
+                }),
+              ]),
+            ),
+          }),
+        },
+      },
+    },
+    (req, reply) =>
+      scopedWrite(pools, req, reply, async (tx, client, scope) => ({
+        status: 200,
+        body: await convertChildren(
+          ctx(tx, client, scope, req.id),
+          req.params.id.toLowerCase(),
+          req.body,
+        ),
+      })),
+  );
+
+  app.post(
+    '/api/v1/places/:id/reorder',
+    {
+      schema: {
+        params: Params,
+        body: ReorderBody,
+        response: { 200: z.object({ order: z.array(z.uuid()) }) },
+      },
+    },
+    (req, reply) =>
+      scopedWrite(pools, req, reply, async (tx, client, scope) => ({
+        status: 200,
+        body: await reorderChild(
+          ctx(tx, client, scope, req.id),
+          req.params.id.toLowerCase(),
+          req.body,
+        ),
+      })),
   );
 
   app.post(

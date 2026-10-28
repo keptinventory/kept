@@ -246,7 +246,9 @@ export function FilterStrip({ filters, surface, search, display, children }: Fil
             role="toolbar"
             aria-label={t`Filters in use`}
             onKeyDown={onChipsKey}
-            className="flex min-w-0 flex-wrap items-center gap-1.5 md:flex-[2_1_0%]"
+            // Sized by its chips (#321): a zero basis squeezed them into a narrow column beside the
+            // search box, a chip four lines tall at 1280 px. Now the row wraps instead.
+            className="flex min-w-0 flex-wrap items-center gap-1.5 md:flex-[2_1_auto]"
           >
             {active.map((def) => (
               <Chip
@@ -365,7 +367,8 @@ function Chip({
           onClick={onOpen}
           className={cn(chipBase, 'rounded-s-full py-1 ps-3 pe-2 text-start hover:bg-ink/90')}
         >
-          <span className="min-w-0 [overflow-wrap:anywhere]">
+          {/* Wraps between words, and inside one only when a word is wider than the row. */}
+          <span className="min-w-0 [overflow-wrap:break-word]">
             {not ? (
               <Trans>
                 {label}: not {summary}
@@ -499,7 +502,13 @@ function SearchBox({
     <form
       className={cn(
         'relative min-w-0',
-        end ? 'flex-1' : fullRow ? 'basis-full' : 'basis-full md:min-w-64 md:flex-[1_1_16rem]',
+        // Beside its end controls the box keeps room for its words (#321: a chip beside it took
+        // all but "Search H"); a chip that doesn't fit then wraps to the next line.
+        end
+          ? 'flex-1 md:min-w-48'
+          : fullRow
+            ? 'basis-full'
+            : 'basis-full md:min-w-64 md:flex-[1_1_16rem]',
       )}
       onSubmit={(e) => {
         e.preventDefault();
@@ -563,7 +572,9 @@ function SearchBox({
     <div
       className={cn(
         'flex min-w-0 basis-full items-center gap-2',
-        !fullRow && 'md:min-w-64 md:flex-[1_1_16rem]',
+        // Never narrower than the box's room and its end controls (#321: a chip beside it
+        // covered Export); what doesn't fit beside it wraps to the next line.
+        !fullRow && 'md:min-w-min md:flex-[1_1_16rem]',
       )}
     >
       {box}

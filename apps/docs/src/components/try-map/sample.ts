@@ -14,6 +14,8 @@ import {
   type MapSurface,
   mToCm,
   ROOM_KIND_SURFACE,
+  TAG_COLOURS,
+  type TagColourKey,
 } from '@kept/shared';
 import type {
   MapAttention,
@@ -24,16 +26,73 @@ import type {
 } from '../../../../web/src/api/map/types';
 import { type Lang, MODEL_NAMES, type Two } from './strings';
 
-/** What a thing's Details show: the facts Kept would read from the thing. */
+/** A built-in type's key (@kept/shared builtin-types.ts); sample.test.ts checks each is one. */
+type BuiltinTypeKey = string;
+
+/** A tag as the card shows it: its name and its palette colour (#209). */
+export type SampleTag = { id: string; name: string; colour: string };
+
+/** The sample's photos (photos.ts): a few things have one, as Kept would show it. */
+export type PhotoKey = 'sofa' | 'armchair' | 'coffee_table' | 'tall_plant' | 'drill' | 'ac_unit';
+
+/** What a card's Details show: the facts Kept would read from the thing or place. */
 export type Facts = {
   brand?: string;
   model?: string;
   serial?: string;
   condition?: string;
   quantity?: number;
+  /** Its type, a built-in one (@kept/shared builtin-types); none shows "No type". */
+  type?: BuiltinTypeKey;
+  tags?: SampleTag[];
+  photo?: PhotoKey;
+  /** A place: how many places are in it (the app reads it from the place, not the map). */
+  places?: number;
 };
 
 export type Sample = { view: MapView; facts: Map<string, Facts>; location: string };
+
+type TagKey = 'electronics' | 'warranty' | 'tools' | 'moving' | 'kids' | 'seasonal' | 'garden';
+/** The sample's tags: none violet, so none reads as the app's own colour. */
+const TAGS: Record<TagKey, { name: Two; colour: TagColourKey }> = {
+  electronics: { name: ['Electronics', 'إلكترونيات'], colour: 'cyan' },
+  warranty: { name: ['Under warranty', 'تحت الضمان'], colour: 'blue' },
+  tools: { name: ['Tools', 'عُدّة'], colour: 'orange' },
+  moving: { name: ['Moving', 'نقل'], colour: 'brown' },
+  kids: { name: ['Kids', 'أطفال'], colour: 'pink' },
+  seasonal: { name: ['Seasonal', 'موسمي'], colour: 'amber' },
+  garden: { name: ['Garden', 'حديقة'], colour: 'green' },
+};
+
+/** A thing's type from its shape, where one is plain; anything else has no type. */
+const TYPE_OF: Partial<Record<MapModelKey, BuiltinTypeKey>> = {
+  wall_tv: 'tv_display',
+  monitor: 'tv_display',
+  laptop: 'computer',
+  webcam: 'electronics',
+  earbuds: 'electronics',
+  coffee_machine: 'small_appliance',
+  microwave: 'small_appliance',
+  fridge: 'large_appliance',
+  washer: 'large_appliance',
+  ac_unit: 'appliance',
+  drill: 'power_tool',
+  car: 'car',
+  bike: 'bicycle',
+  box: 'box_bin',
+  cardboard: 'box_bin',
+  crate: 'box_bin',
+  basket: 'box_bin',
+  sofa: 'furniture',
+  armchair: 'furniture',
+  coffee_table: 'furniture',
+  bed: 'furniture',
+  dining: 'furniture',
+  dining_chair: 'furniture',
+  chair: 'furniture',
+  lamp: 'furniture',
+  table_lamp: 'furniture',
+};
 
 type Due = { title: Two; days: number };
 type Lent = { who: Two; days: number };
@@ -45,6 +104,8 @@ type Content = {
   min?: number;
   lent?: Lent;
   due?: Due;
+  type?: BuiltinTypeKey;
+  tags?: TagKey[];
 };
 type Extra = {
   name?: Two;
@@ -57,6 +118,12 @@ type Extra = {
   lent?: Lent;
   /** #138: a thing on a wall, how high its middle hangs (metres). */
   height?: number;
+  /** It carries a printed label: lists show its code as the amber tape (names first). */
+  printed?: boolean;
+  type?: BuiltinTypeKey;
+  tags?: TagKey[];
+  photo?: PhotoKey;
+  places?: number;
 };
 
 const LIKE_NEW: Two = ['Like new', 'كالجديد'];
@@ -105,6 +172,16 @@ const C = (name: Two, qty = 1, extra: Omit<Content, 'name' | 'qty'> = {}): Conte
 
 export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
   const pick = (two: Two) => (lang === 'ar' ? two[1] : two[0]);
+  const tagsOf = (keys: TagKey[] | undefined) =>
+    keys?.length
+      ? {
+          tags: keys.map((k) => ({
+            id: `tag-${k}`,
+            name: pick(TAGS[k].name),
+            colour: TAG_COLOURS[TAGS[k].colour],
+          })),
+        }
+      : {};
   const dayOf = (days: number) => {
     const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + days);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -202,6 +279,7 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
       subject: place ? 'place' : 'thing',
       name,
       shortCode,
+      labelPrinted: extra.printed === true,
       roomId,
       parentId: roomId,
       kindKey: place ? 'shelf' : null,
@@ -222,13 +300,19 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
         id,
         name,
         shortCode,
+        labelPrinted: extra.printed === true,
         quantity: 1,
         parentId: roomId,
         typeKey: null,
         typeName: null,
         isContainer: container,
       });
+    const type = extra.type ?? (place ? undefined : TYPE_OF[model]);
     facts.set(id, {
+      ...(type ? { type } : {}),
+      ...tagsOf(extra.tags),
+      ...(extra.photo ? { photo: extra.photo } : {}),
+      ...(extra.places ? { places: extra.places } : {}),
       ...(extra.brand ? { brand: extra.brand } : {}),
       ...(extra.model ? { model: extra.model } : {}),
       ...(extra.serial ? { serial: extra.serial } : {}),
@@ -249,7 +333,12 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
         typeName: null,
         isContainer: false,
       });
-      facts.set(cid, { quantity: qty, ...(c.brand ? { brand: c.brand } : {}) });
+      facts.set(cid, {
+        quantity: qty,
+        ...(c.type ? { type: c.type } : {}),
+        ...tagsOf(c.tags),
+        ...(c.brand ? { brand: c.brand } : {}),
+      });
       if (c.min !== undefined && qty < c.min) {
         attention.push({
           subjectId: cid,
@@ -276,12 +365,16 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
   const stand = add('r1', 'tv_stand', 1.6, 0.15, 0, {
     brand: 'Home Centre',
     contents: [
-      C(['PS5 controller', 'يد تحكم PS5'], 2, { brand: 'Sony' }),
-      C(['HDMI cable 2 m', 'كابل HDMI ‏2 م'], 3),
+      C(['PS5 controller', 'يد تحكم PS5'], 2, {
+        brand: 'Sony',
+        type: 'console',
+        tags: ['electronics'],
+      }),
+      C(['HDMI cable 2 m', 'كابل HDMI ‏2 م'], 3, { type: 'cable' }),
       C(['Apple TV remote', 'ريموت Apple TV'], 1, { brand: 'Apple' }),
       C(['Soundbar remote', 'ريموت مكبر الصوت']),
       C(['Blu-ray: Dune', 'بلو راي: Dune']),
-      C(['AA batteries', 'بطاريات AA'], 4, { min: 6 }),
+      C(['AA batteries', 'بطاريات AA'], 4, { min: 6, type: 'batteries' }),
     ],
   });
   // #138: the TV on the wall behind the stand (the −z wall, 10 cm thick), at eye level, its
@@ -292,13 +385,23 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
     model: 'QA55Q60C, 55″',
     serial: 'Q60C-0X55-7731',
     cond: LIKE_NEW,
+    tags: ['electronics', 'warranty'],
     due: { title: ['Register the warranty', 'تسجيل الضمان'], days: 13 },
     height: 1.2,
   });
-  add('r1', 'sofa', 1.9, 3.7, 180, { brand: 'Chesterfield', model: 'Leather 2-seat', cond: GOOD });
-  const table = add('r1', 'coffee_table', 2.2, 2.6, 0, { brand: 'IKEA', model: 'Lisabo' });
+  add('r1', 'sofa', 1.9, 3.7, 180, {
+    brand: 'Chesterfield',
+    model: 'Leather 2-seat',
+    cond: GOOD,
+    photo: 'sofa',
+  });
+  const table = add('r1', 'coffee_table', 2.2, 2.6, 0, {
+    brand: 'IKEA',
+    model: 'Lisabo',
+    photo: 'coffee_table',
+  });
   on(table, 'succulent', 0.15, 0.2, { name: ['Haworthia', 'هاوورثيا'] });
-  add('r1', 'armchair', 0.2, 2.0, 270, { brand: 'Kave Home' });
+  add('r1', 'armchair', 0.2, 2.0, 270, { brand: 'Kave Home', photo: 'armchair' });
   // #138: a floating shelf on the −x wall over the armchair, a small cactus on it.
   const wallShelf = add('r1', 'wall_shelf', 0.1, 2.0, 270, {
     name: ['Floating shelf', 'رف عائم'],
@@ -322,13 +425,17 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
     ],
   });
   add('r1', 'tall_plant', 0.2, 0.2, 0, {
+    photo: 'tall_plant',
+    tags: ['garden'],
     due: { title: ['Water the plant', 'سقي النبتة'], days: 1 },
   });
   add('r1', 'lamp', 5.4, 4.4, 0, { brand: 'IKEA', model: 'Hektar' });
   add('r1', 'box', 0.3, 4.4, 0, {
     name: ['Games box', 'صندوق الألعاب'],
+    printed: true,
+    tags: ['kids'],
     contents: [
-      C(['Catan', 'كاتان'], 1, { lent: { who: ['Bruce', 'بروس'], days: 5 } }),
+      C(['Catan', 'كاتان'], 1, { lent: { who: ['Bruce', 'بروس'], days: 5 }, tags: ['kids'] }),
       C(['Monopoly', 'مونوبولي']),
       C(['Uno', 'أونو']),
       C(['Chess set', 'طقم شطرنج']),
@@ -402,7 +509,7 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
       C(['Notebooks', 'دفاتر'], 4),
       C(['Pens', 'أقلام'], 12),
       C(['Stapler', 'دبّاسة']),
-      C(['USB-C charger 65 W', 'شاحن USB-C ‏65 واط'], 2, { brand: 'Anker' }),
+      C(['USB-C charger 65 W', 'شاحن USB-C ‏65 واط'], 2, { brand: 'Anker', type: 'charger' }),
       C(['Passport folder', 'ملف جوازات السفر']),
     ],
   });
@@ -411,6 +518,7 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
     brand: 'Dell',
     model: 'U2723QE, 27″',
     serial: 'CN-0U27-23QE',
+    tags: ['electronics'],
   });
   // #137: a webcam clipped to the monitor's top edge, on its line (3 cm in front of its middle).
   on(monitor, 'webcam', 0.26, 0.11, {
@@ -425,6 +533,8 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
     model: 'M3, 15″',
     serial: 'FVFG2M3LQ6L4',
     cond: LIKE_NEW,
+    printed: true,
+    tags: ['electronics', 'warranty'],
   });
   add('r3', 'chair', 1.75, 1.0, 0, { brand: 'Herman Miller', model: 'Sayl' });
   add('r3', 'cabinet', 0.15, 0.15, 0, {
@@ -448,6 +558,8 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
   });
   add('r3', 'box', 3.2, 3.45, 0, {
     name: ['Cable box', 'صندوق الكابلات'],
+    printed: true,
+    tags: ['electronics'],
     contents: [
       C(['HDMI cable', 'كابل HDMI'], 4),
       C(['USB-C cable', 'كابل USB-C'], 6),
@@ -528,6 +640,9 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
     name: ['Bosch drill', 'مثقاب Bosch'],
     brand: 'Bosch',
     model: 'GSR 12V-15',
+    printed: true,
+    photo: 'drill',
+    tags: ['tools'],
     lent: { who: ['Bruce', 'بروس'], days: 2 },
   });
   add('r6', 'tool_cart', 5.5, 2.0, 0, {
@@ -550,8 +665,10 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
   });
   add('r6', 'crate', 4.9, 5.45, 0, {
     name: ['Camping crate', 'صندوق التخييم'],
+    printed: true,
+    tags: ['seasonal'],
     contents: [
-      C(['Tent', 'خيمة'], 1, { brand: 'Coleman' }),
+      C(['Tent', 'خيمة'], 1, { brand: 'Coleman', tags: ['seasonal'] }),
       C(['Sleeping bag', 'كيس نوم'], 2),
       C(['Camping stove', 'موقد تخييم']),
       C(['Head torch', 'كشاف رأس'], 2),
@@ -568,6 +685,8 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
   });
   add('r6', 'box', 3.3, 5.4, 0, {
     name: ['Holiday box', 'صندوق الزينة'],
+    printed: true,
+    tags: ['seasonal'],
     contents: [
       C(['String lights', 'أضواء زينة'], 3),
       C(['Lanterns', 'فوانيس'], 4),
@@ -592,8 +711,9 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
   add('r7', 'wardrobe', 2.3, 4.3, 180, {
     brand: 'IKEA',
     model: 'Pax',
+    places: 3,
     contents: [
-      C(['Winter jacket', 'جاكيت شتوي'], 3),
+      C(['Winter jacket', 'جاكيت شتوي'], 3, { tags: ['seasonal'] }),
       C(['Suit', 'بدلة'], 2),
       C(['Bed linen set', 'طقم مفارش سرير'], 4),
       C(['Shoes (pairs)', 'أحذية (أزواج)'], 8),
@@ -650,15 +770,19 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
   // ---- Storage room --------------------------------------------------------------------------
   add('r11', 'metal_shelf', 0.15, 0.15, 0, {
     name: ['Shelf A', 'الرف أ'],
+    printed: true,
+    places: 4,
     contents: [
       C(['Light bulbs E27', 'لمبات E27'], 6),
-      C(['Batteries AA', 'بطاريات AA'], 8, { min: 12 }),
+      C(['Batteries AA', 'بطاريات AA'], 8, { min: 12, type: 'batteries' }),
       C(['Extension lead', 'وصلة كهرباء'], 3),
-      C(['First-aid kit', 'حقيبة إسعافات أولية']),
+      C(['First-aid kit', 'حقيبة إسعافات أولية'], 1, { type: 'first_aid_kit' }),
     ],
   });
   add('r11', 'metal_shelf', 0.85, 0.15, 0, {
     name: ['Shelf B', 'الرف ب'],
+    printed: true,
+    places: 4,
     contents: [
       C(['Toilet paper (packs)', 'مناديل حمّام (عبوات)'], 2, { min: 3 }),
       C(['Kitchen roll', 'مناديل مطبخ'], 4),
@@ -667,6 +791,8 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
   });
   add('r11', 'metal_shelf', 1.55, 0.15, 0, {
     name: ['Shelf C', 'الرف ج'],
+    printed: true,
+    places: 4,
     contents: [
       C(['Suitcase, large', 'حقيبة سفر كبيرة'], 1, { brand: 'Samsonite' }),
       C(['Travel pillow', 'وسادة سفر'], 2),
@@ -675,6 +801,8 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
   });
   const moving = add('r11', 'cardboard', 0.4, 2.6, 0, {
     name: ['Moving box 1', 'صندوق النقل 1'],
+    printed: true,
+    tags: ['moving'],
     contents: [
       C(['Old phones', 'هواتف قديمة'], 3),
       C(['Chargers', 'شواحن'], 7),
@@ -683,14 +811,20 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
   });
   on(moving, 'cardboard', 0, 0, {
     name: ['Moving box 2', 'صندوق النقل 2'],
+    printed: true,
+    tags: ['moving'],
     contents: [C(['Winter scarves', 'أوشحة شتوية'], 5), C(['Gloves (pairs)', 'قفازات (أزواج)'], 3)],
   });
   add('r11', 'cardboard', 1.0, 2.6, 0, {
     name: ['Moving box 3', 'صندوق النقل 3'],
+    printed: true,
+    tags: ['moving', 'kids'],
     contents: [C(['Baby clothes', 'ملابس أطفال'], 18), C(['Toys', 'ألعاب'], 9)],
   });
   add('r11', 'crate', 2.6, 0.2, 0, {
     name: ['Tools crate', 'صندوق العدة'],
+    printed: true,
+    tags: ['tools'],
     contents: [
       C(['Spare tiles', 'بلاط احتياطي'], 12),
       C(['Grout', 'روبة']),
@@ -710,6 +844,8 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
   });
   add('r12', 'ac_unit', 3.2, 0.15, 0, {
     name: ['AC unit, living room', 'وحدة تكييف غرفة المعيشة'],
+    photo: 'ac_unit',
+    tags: ['warranty'],
     brand: 'Carrier',
     model: 'Optimax 2.25 HP',
     due: { title: ['Clean the filters', 'تنظيف الفلاتر'], days: 15 },

@@ -21,11 +21,14 @@ import type {
   ExportRun,
   HomeboxDryRunSummary,
   HomeboxMappingHints,
+  ImportRepairPlan,
   StockRule,
 } from '../types';
 
 export type PortabilityState = {
   archiveRuns: ArchiveImportRun[];
+  /** What repairing each Homebox run that ran would change (GET …/repair). */
+  repairs: Record<string, ImportRepairPlan>;
   exports: ExportRun[];
   stockRules: StockRule[];
   /** Per field id, per location id: the raw values a conversion would move. */
@@ -37,6 +40,8 @@ export type PortabilityState = {
 /** Stable ids for the fixtures, for tests and the demo. */
 export const PORTABILITY_IDS = {
   homeboxRun: '01926f00-0000-7000-8000-0000000d7001',
+  /** A Homebox import that ran before 1.13.0: quantity 0 became 1, `global.item` a box type. */
+  homeboxDone: '01926f00-0000-7000-8000-0000000d7003',
   keptRun: '01926f00-0000-7000-8000-0000000d7002',
   export: {
     queued: '01926f00-0000-7000-8000-0000000d7101',
@@ -49,20 +54,42 @@ export const PORTABILITY_IDS = {
   passphrase: 'correct horse battery',
 } as const;
 
-/** What a Homebox collection's choices step offers (HomeboxMappingHints): three types, two
- * custom fields, three insured items and the seeded places and tags left empty. */
+/** What a Homebox collection's choices step offers (HomeboxMappingHints): four types, three
+ * custom fields (one with no value), three insured items, the seeded places and tags left empty
+ * and four locations that look like boxes. */
 export const HOMEBOX_MAPPING: HomeboxMappingHints = {
   types: [
     { id: '0192a000-0000-7000-8000-00000000c101', name: 'Power Tools', items: 6 },
     { id: '0192a000-0000-7000-8000-00000000c102', name: 'Electronics', items: 4 },
     { id: '0192a000-0000-7000-8000-00000000c103', name: 'Kitchen gear', items: 2 },
+    { id: '0192a000-0000-7000-8000-00000000c104', name: 'global.item', items: 9 },
   ],
   fields: [
-    { name: 'Voltage', kind: 'text', items: 5 },
-    { name: 'Warranty card no.', kind: 'text', items: 1 },
+    { name: 'Voltage', kind: 'text', items: 5, filled: 5 },
+    { name: 'Warranty card no.', kind: 'text', items: 1, filled: 1 },
+    // Its one value is Homebox's unset date: no item has a value, so it's left out (#320).
+    { name: 'Last defrosted', kind: 'time', items: 1, filled: 0 },
   ],
   insuredItems: 3,
   seededUnused: { places: ['Attic', 'Basement', 'Office'], tags: ['IOT', 'Servers'] },
+  prices: 4,
+  pricedItems: 4,
+  warrantyItems: 2,
+  maintenance: 1,
+  zeroItems: 2,
+  // In the backup's order, not A to Z: the choices step sorts them (#320).
+  boxes: [
+    { id: '0192a000-0000-7000-8000-00000000c204', name: 'Box 10', path: ['Garage'], items: 1 },
+    { id: '0192a000-0000-7000-8000-00000000c201', name: 'Box 01', path: ['Garage'], items: 2 },
+    {
+      id: '0192a000-0000-7000-8000-00000000c203',
+      name: 'Bin 1',
+      path: ['Basement', 'Shelf C'],
+      items: 0,
+    },
+    { id: '0192a000-0000-7000-8000-00000000c202', name: 'Box 2', path: ['Garage'], items: 1 },
+  ],
+  catchAll: '0192a000-0000-7000-8000-00000000c104',
 };
 
 const DAY = 86_400_000;
@@ -219,7 +246,71 @@ function seed(state: MockState): PortabilityState {
         },
         secrets: { present: true, unlocked: false },
       }),
+      run({
+        id: PORTABILITY_IDS.homeboxDone,
+        source: 'homebox_zip',
+        sourceVersion: 'v0.27.0',
+        locationId: IDS.garage,
+        status: 'done',
+        archiveReadyAt: null,
+        bytes: 0,
+        sha256: '',
+        inspect: {
+          source: 'homebox_zip',
+          sourceVersion: 'v0.27.0',
+          collections: [
+            {
+              id: '0192a000-0000-7000-8000-00000000c002',
+              counts: {
+                entities: 79,
+                locations: 36,
+                attachments: 3,
+                maintenance: 2,
+                tags: 10,
+                types: 2,
+              },
+              mapping: HOMEBOX_MAPPING,
+            },
+          ],
+        },
+        progress: 91,
+        total: 91,
+        startedAt: at(-3),
+        finishedAt: at(-3),
+        report: {
+          source: 'homebox_zip',
+          summary: { ...HOMEBOX_SUMMARY, things: 44, places: 31 },
+          rows: [
+            {
+              status: 'ok',
+              ref: {
+                kind: 'entity',
+                id: '0192a000-0000-7000-8000-00000000c301',
+                name: 'AA batteries',
+              },
+              issues: [{ column: '', code: 'hb_quantity_zero', message: 'hb_quantity_zero' }],
+            },
+            {
+              status: 'ok',
+              ref: { kind: 'entity', id: '0192a000-0000-7000-8000-00000000c302', name: 'Candles' },
+              issues: [{ column: '', code: 'hb_quantity_zero', message: 'hb_quantity_zero' }],
+            },
+          ],
+        },
+      }),
     ],
+    repairs: {
+      [PORTABILITY_IDS.homeboxDone]: {
+        zero: [
+          { thingId: INV_IDS.thing.batteries, name: 'AA batteries' },
+          { thingId: '0192a000-0000-7000-8000-00000000c401', name: 'Candles' },
+        ],
+        containerTypes: [{ typeId: '0192a000-0000-7000-8000-00000000c501', name: 'Item' }],
+        renames: [
+          { typeId: '0192a000-0000-7000-8000-00000000c501', name: 'global.item', to: 'item' },
+        ],
+      },
+    },
     exports: [
       exportRun({ id: E.queued, status: 'queued', createdAt: at(0) }),
       exportRun({

@@ -3,10 +3,12 @@ import {
   type BoxCounts,
   type BoxState,
   boxName,
+  can,
   countBoxes,
   MAX_BOX_PREFIX,
   MAX_MOVE_BOXES,
   MAX_MOVE_NAME,
+  MAX_SHEET_BOXES,
   MOVE_STATUSES,
   type MoveStatus,
 } from '@kept/shared';
@@ -24,7 +26,8 @@ import {
 import { assertClientId, checkVersion, pageOf } from '../http/conventions.js';
 import { AppError, invalid, notFound } from '../http/errors.js';
 import { locationModuleSet } from '../http/modules.js';
-import { requireCan, requireMembership } from '../locations/access.js';
+import { labelPrintedSql, shownCodeSql } from '../labels/printed-sql.js';
+import { callerMembership, requireCan, requireMembership } from '../locations/access.js';
 import { moveBackForUndo, moveThings } from '../things/move.js';
 import { type Ctx, insertThing, liveThing } from '../things/service.js';
 
@@ -61,6 +64,7 @@ import { type Ctx, insertThing, liveThing } from '../things/service.js';
 // PATCH  /api/v1/moves/:id/boxes/:containerId                    → MoveBox
 // POST   /api/v1/moves/:id/boxes/:containerId/unpack             → MoveBox
 // DELETE /api/v1/moves/:id/boxes/:containerId                    → 204
+// POST   /api/v1/moves/:id/sheets/printed {containerIds?}        → {codes} ("Printed OK?", #307)
 // GET    /api/v1/move-boxes/:containerId                         → MoveBox & {move} (open moves first)
 //
 // The MCP tools (tools/handlers/moving.ts) call these same functions, packIntoBox() included.
@@ -173,6 +177,8 @@ export type MoveBoxView = {
   /** The container's name, short ID, location and where it is now; null when not visible. */
   name: string | null;
   shortCode: string | null;
+  /** The box carries a printed label (labels/printed-sql.ts). */
+  labelPrinted: boolean;
   locationId: string | null;
   placeId: string | null;
   /** "Kitchen › Shelf", where the box is now. */
@@ -269,6 +275,7 @@ type BoxRecord = {
   t_path: string | null;
   t_deleted: boolean | null;
   short_code: string | null;
+  label_printed: boolean;
   contents: number;
 };
 
@@ -279,9 +286,8 @@ const BOX_COLUMNS = `b.move_id, b.location_id, b.container_id, b.number, b.state
     d.name AS destination_name, d.location_id AS destination_location_id,
     t.id AS t_id, t.name AS t_name, t.location_id AS t_location_id, t.place_id AS t_place_id,
     t.container_id AS t_container_id, t.place_path AS t_path, t.deleted_at IS NOT NULL AS t_deleted,
-    (SELECT s.code FROM public.short_ids s
-      WHERE s.thing_id = b.container_id AND s.is_primary AND s.state = 'assigned' LIMIT 1)
-      AS short_code,
+    ${shownCodeSql('thing_id', 'b.container_id')} AS short_code,
+    ${labelPrintedSql('thing_id', 'b.container_id')} AS label_printed,
     (SELECT count(*) FROM public.things c
       WHERE c.container_id = b.container_id AND c.deleted_at IS NULL)::int AS contents`;
 const BOX_JOINS = `LEFT JOIN public.things t ON t.id = b.container_id
@@ -300,6 +306,7 @@ const boxView = (r: BoxRecord): MoveBoxView => {
     visible,
     name: visible ? r.t_name : null,
     shortCode: visible ? r.short_code : null,
+    labelPrinted: visible && r.label_printed === true,
     locationId: visible ? r.t_location_id : null,
     placeId: visible ? r.t_place_id : null,
     where: visible ? r.t_path : null,
@@ -887,6 +894,86 @@ export async function removeBox(ctx: WriteCtx, moveId: string, containerId: stri
     subjects: [box.container_id],
     requestId: ctx.requestId,
   });
+}
+
+// ---------------------------------------------------------------------------------------------
+// "Printed OK?" after the contents sheets (#307)
+// ---------------------------------------------------------------------------------------------
+
+export const SheetsPrintedBody = z
+  .object({ containerIds: z.array(z.uuid()).min(1).max(MAX_SHEET_BOXES).optional() })
+  .strict();
+export type SheetsPrintedBody = z.infer<typeof SheetsPrintedBody>;
+
+/**
+ * POST /api/v1/moves/:id/sheets/printed: the contents sheets of these boxes (omitted: every box)
+ * printed, each with its box's QR code, so those codes are labels now, as "Printed OK?" on a label
+ * batch makes them (labels/service.ts markPrinted): `printed_at` set on the codes the sheets carry
+ * (each box's primary code, the boxes reports/move/gather.ts prints), the first date kept, and
+ * `labels.printed` audited once per location, on the move, the boxes its subjects. Only where the
+ * caller may print labels (`labels.use`, members and above): 403 for a viewer of the move's
+ * location, and a box now in a location they only view or can't see is left as it was. Nothing
+ * new to mark changes and audits nothing. Answers the codes it marked, in the boxes' order.
+ */
+export async function markSheetsPrinted(
+  ctx: WriteCtx,
+  moveId: string,
+  body: SheetsPrintedBody,
+): Promise<{ codes: string[] }> {
+  const { client } = ctx;
+  const move = await findMove(client, moveId);
+  if (!move) throw notFound();
+  const me = await requireMembership(client, move.location_id);
+  requireCan(me.role, 'labels.use', VIEWERS_READ);
+  const containerIds = body.containerIds
+    ? [...new Set(body.containerIds.map((x) => x.toLowerCase()))]
+    : null;
+  const { rows } = await client.query<{ location_id: string; code: string }>(
+    `SELECT x.location_id, x.code FROM (
+       SELECT b.number, t.location_id,
+              (SELECT s.code::text FROM public.short_ids s
+                WHERE s.thing_id = b.container_id AND s.is_primary AND s.state = 'assigned'
+                LIMIT 1) AS code
+         FROM public.move_boxes b
+         JOIN public.things t ON t.id = b.container_id AND t.deleted_at IS NULL
+        WHERE b.move_id = $1 AND ($2::uuid[] IS NULL OR b.container_id = ANY ($2::uuid[]))
+        ORDER BY b.number
+        LIMIT ${MAX_SHEET_BOXES}
+     ) x
+     WHERE x.code IS NOT NULL
+     ORDER BY x.number`,
+    [move.id, containerIds],
+  );
+  const byLocation = new Map<string, string[]>();
+  for (const r of rows)
+    byLocation.set(r.location_id, [...(byLocation.get(r.location_id) ?? []), r.code]);
+  const marked = new Set<string>();
+  for (const [locationId, list] of byLocation) {
+    const role =
+      locationId === move.location_id
+        ? me.role
+        : (await callerMembership(client, locationId))?.role;
+    if (!role || !can(role, 'labels.use')) continue;
+    const { rows: now } = await client.query<{ code: string; thing_id: string }>(
+      `UPDATE public.short_ids SET printed_at = now()
+        WHERE code = ANY ($1::text[]) AND printed_at IS NULL
+        RETURNING code::text AS code, thing_id`,
+      [list],
+    );
+    if (now.length === 0) continue;
+    for (const r of now) marked.add(r.code);
+    await audited(ctx.tx, {
+      locationId,
+      actor: actorOf(ctx.scope),
+      action: 'labels.printed',
+      entity: { type: 'move', id: move.id },
+      before: { printed_at: null },
+      after: { printed_at: true, codes: now.length },
+      subjects: now.map((r) => r.thing_id),
+      requestId: ctx.requestId,
+    });
+  }
+  return { codes: rows.map((r) => r.code).filter((c) => marked.has(c)) };
 }
 
 // ---------------------------------------------------------------------------------------------

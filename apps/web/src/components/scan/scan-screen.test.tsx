@@ -320,6 +320,66 @@ describe('scan outcomes, online', () => {
     expect(onOpen).toHaveBeenCalledWith({ kind: 'thing', id: T.box3, locationId: L.home });
   });
 
+  it('a blank label is attached to an existing place, found by name, and opens it (#329)', async () => {
+    const store = await serverHomeOnPhone();
+    const { user, onOpen } = await renderScan({ store });
+    await scan(BLANK_CODES[0]);
+    await user.click(await screen.findByRole('button', { name: /Attach to an existing place/ }));
+    // Nothing is chosen for the person, and the Unplaced area isn't a place to label.
+    expect(screen.getByRole('button', { name: 'Claim' })).toBeDisabled();
+    expect(screen.queryByRole('radio', { name: 'Unplaced' })).toBeNull();
+    await user.type(screen.getByRole('searchbox', { name: 'Search' }), 'hall');
+    await user.click(screen.getByRole('radio', { name: 'Hallway closet' }));
+    await user.click(screen.getByRole('button', { name: 'Claim' }));
+    await waitFor(() =>
+      expect(onOpen).toHaveBeenCalledWith({
+        kind: 'place',
+        id: P.hallwayCloset,
+        locationId: L.home,
+      }),
+    );
+    expect(mock.state.capture.codes.find((c) => c.code === BLANK_CODES[0])).toMatchObject({
+      state: 'assigned',
+      target: { kind: 'place', id: P.hallwayCloset },
+    });
+  });
+
+  it("from a place's Add a label code, a blank is offered for that place first", async () => {
+    const store = await serverHomeOnPhone();
+    const { user, onOpen } = await renderScan({ store, forPlace: P.hallwayCloset });
+    await scan(BLANK_CODES[2]);
+    await user.click(await screen.findByRole('button', { name: /Attach to Hallway closet/ }));
+    await waitFor(() =>
+      expect(onOpen).toHaveBeenCalledWith({
+        kind: 'place',
+        id: P.hallwayCloset,
+        locationId: L.home,
+      }),
+    );
+  });
+
+  it('a place claim another phone won first names what has the label', async () => {
+    const store = await serverHomeOnPhone();
+    const { user, onOpen } = await renderScan({ store });
+    await scan(BLANK_CODES[1]);
+    await user.click(await screen.findByRole('button', { name: /Attach to an existing place/ }));
+    await user.click(screen.getByRole('radio', { name: 'Hallway closet' }));
+    const c = mock.state.capture.codes.find((x) => x.code === BLANK_CODES[1]);
+    if (!c) throw new Error('fixture');
+    c.state = 'assigned';
+    c.target = { kind: 'place', id: P.homeUnplaced, name: 'Garden shed' };
+    await user.click(screen.getByRole('button', { name: 'Claim' }));
+    expect(
+      await screen.findByText(
+        (_, el) =>
+          el?.tagName === 'P' &&
+          el.textContent === 'This label was claimed on another phone for “Garden shed”.',
+      ),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Open that place' }));
+    expect(onOpen).toHaveBeenCalledWith({ kind: 'place', id: P.homeUnplaced, locationId: L.home });
+  });
+
   it('an old Homebox label says what it was (and marks it seen); a shared asset ID asks which', async () => {
     const { user, onOpen } = await renderScan();
     await scan(`http://homebox.lan/a/${HOMEBOX_ASSET.unique}`);
@@ -491,6 +551,22 @@ describe('scan outcomes, offline', () => {
     expect((await store.pending())[0]?.payload).toEqual({
       code: 'B7NK4X',
       target: { thingId: DRILL },
+    });
+    expect(mock.calls).toHaveLength(0);
+  });
+
+  it('a blank label on this phone is attached to a place offline, pending until it syncs', async () => {
+    const store = await phone();
+    const { user } = await renderScan({ store, online: false });
+    await scan('B7NK4X');
+    await user.click(await screen.findByRole('button', { name: /Attach to an existing place/ }));
+    await user.type(screen.getByRole('searchbox', { name: 'Search' }), 'shelf');
+    await user.click(screen.getByRole('radio', { name: 'Shelf A' }));
+    await user.click(screen.getByRole('button', { name: 'Claim' }));
+    await waitFor(async () => expect(await pendingOps(store)).toEqual(['claim_label']));
+    expect((await store.pending())[0]?.payload).toEqual({
+      code: 'B7NK4X',
+      target: { placeId: SHELF },
     });
     expect(mock.calls).toHaveLength(0);
   });

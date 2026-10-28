@@ -23,6 +23,8 @@ import type {
   ImportIssue,
   ImportIssueRef,
   ImportRunStatus,
+  ModuleId,
+  Preset,
   ProviderKind,
   Role,
 } from '@kept/shared';
@@ -65,6 +67,9 @@ export type ArchiveImportRun = {
   inspect: ArchiveInspect | null;
   /** The Homebox dry-run choices (POST …/choices); null until set, and for a Kept export. */
   choices: HomeboxChoices | null;
+  /** A Homebox import's new location until Import makes it (1.13.0): `locationId` stays null
+   * until then. Null for an existing location, once made, and for a Kept export. */
+  newLocation?: PendingLocation | null;
   /** A Kept export with secrets: whether the passphrase was given and checked (POST …/passphrase). */
   secrets: { present: boolean; unlocked: boolean } | null;
   progress: number;
@@ -101,9 +106,60 @@ export type HomeboxCollectionCounts = {
  */
 export type HomeboxMappingHints = {
   types: { id: string; name: string; items: number }[];
-  fields: { name: string; kind: HomeboxFieldKind; items: number }[];
+  /** `filled` from 1.13.1 (absent on an older inspection): the items holding a value; 0, and the
+   * field is left out (a field is added to a type for a value only). */
+  fields: { name: string; kind: HomeboxFieldKind; items: number; filled?: number }[];
   insuredItems: number;
   seededUnused: { places: string[]; tags: string[] };
+  /** From 1.13.0 (absent on an older inspection): how many amounts the backup holds; the
+   * currency is asked only when there are some. */
+  prices?: number;
+  /** From 1.13.0: what needs a module beyond Essentials (homeboxModules in @kept/shared): items
+   * with a price, items with a warranty, maintenance entries. */
+  pricedItems?: number;
+  warrantyItems?: number;
+  maintenance?: number;
+  /** From 1.13.0: how many items have quantity 0 (the quantity-0 choice is offered only then). */
+  zeroItems?: number;
+  /** From 1.13.0: the locations whose names read as boxes, inside another location and holding
+   * none, with the names above them and how many items each holds. */
+  boxes?: { id: string; name: string; path: string[]; items: number }[];
+  /** From 1.13.0: Homebox's catch-all type (`global.item`), which defaults to No type. */
+  catchAll?: string | null;
+};
+
+/** A new location as a Homebox import keeps it until Import makes it. */
+export type PendingLocation = {
+  name: string;
+  kind: string;
+  timezone: string;
+  currency: string;
+  languages?: string[];
+  preset: Preset;
+  /** Modules on top of the preset: what the backup uses, as ticked. */
+  modules: ModuleId[];
+  alsoPersonal: boolean;
+};
+
+/** GET /api/v1/imports/:id/repair: what repairing a Homebox import that ran would change. */
+export type ImportRepairPlan = {
+  /** Things that were 0 in Homebox and came in as 1: archived. */
+  zero: { thingId: string; name: string }[];
+  /** Types this import made a container type: the capability goes. */
+  containerTypes: { typeId: string; name: string }[];
+  /** Types this import named `global.item` / `global.location`: renamed. */
+  renames: { typeId: string; name: string; to: 'item' | 'location' }[];
+};
+
+/** POST /api/v1/imports/:id/repair. Its events come back in X-Kept-Audit-Event: one Undo. */
+export type ImportRepairBody = {
+  zero?: boolean;
+  containerTypes?: boolean;
+  names?: { item: string; location: string };
+};
+export type ImportRepairResult = {
+  repaired: { things: number; types: number };
+  plan: ImportRepairPlan;
 };
 
 /** POST /api/v1/imports/:id/inspect: what the archive holds, read from its manifest and row
@@ -149,6 +205,12 @@ export type ImportTargetBody =
         timezone: string;
         currency: string;
         languages?: string[];
+        /** A Homebox import (1.13.0): what it tracks (Essentials unless chosen), and whether
+         * Personal switches to the same when it runs. Made when Import runs. */
+        preset?: Preset;
+        /** Modules on top of the preset: what the backup uses, as ticked in What to track. */
+        modules?: ModuleId[];
+        alsoPersonal?: boolean;
       };
     };
 
@@ -214,6 +276,8 @@ export type KeptDryRunSummary = {
   historyDropped: number;
   /** Secret values in the export; imported only with the passphrase. */
   secrets: number;
+  /** Secret values an export made without secrets left out (absent from older servers). */
+  secretsWithheld?: number;
   skipped: number;
   asText: number;
   /** People to invite (names and roles). */

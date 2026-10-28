@@ -27,6 +27,9 @@ import { photoJpeg, sha256Hex } from './photos.js';
 // - a thing's board code: a thing gets a random code when it is made and no route chooses one
 //   before step 3's labels, so the seed relabels it (relabelThing(), below): the random code
 //   stays as a secondary code, the designs' becomes primary, audited as `thing.label`.
+// A fixed code, a thing's or a place's, is then marked printed (markLabelPrinted()): in the
+// story its label is on the box or the shelf, so lists show it as the amber tape. A random code
+// stays unprinted, as a newly made thing's is.
 
 export type StockContext = {
   client: Client;
@@ -349,6 +352,7 @@ export async function stockHouseholds(ctx: StockContext): Promise<StockSummary[]
             return true;
           });
           if (made) ctx.made();
+          await asPerson(owner, (_tx, c) => markLabelPrinted(c, code, placeId));
         }
         if (spec.children) await walk(spec.children, id, here);
       }
@@ -465,6 +469,10 @@ export async function stockHouseholds(ctx: StockContext): Promise<StockSummary[]
         );
         if (got !== code) ctx.note(`${spec.name}: the code ${code} is taken; it got ${got}.`);
         ctx.made();
+      }
+      if (spec.code) {
+        const code = spec.code;
+        await asPerson(owner, (_tx, c) => markLabelPrinted(c, code, id));
       }
       if (spec.photo && v.photos.length === 0 && ctx.hasFiles) {
         const fileId = await upload(owner, locationId, spec.photo, 'photo');
@@ -687,6 +695,19 @@ function firstThen(code: string): () => string {
     first = false;
     return code;
   };
+}
+
+/** Marks a fixed code's label printed, once (the first date stays, as "Printed OK?" keeps it). */
+async function markLabelPrinted(
+  client: pg.PoolClient,
+  code: string,
+  ownerId: string,
+): Promise<void> {
+  await client.query(
+    `UPDATE public.short_ids SET printed_at = coalesce(printed_at, now())
+      WHERE code = $1 AND state = 'assigned' AND (thing_id = $2 OR place_id = $2)`,
+    [code, ownerId],
+  );
 }
 
 /**

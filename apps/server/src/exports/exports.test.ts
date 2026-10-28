@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { mkdir, utimes } from 'node:fs/promises';
+import { mkdir, rm, utimes, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import {
   EXPORT_ENTITIES,
@@ -20,6 +20,7 @@ import {
   uniqueJpeg,
   upload,
 } from '../../test/files.js';
+import { stageKeptRun } from '../../test/kept-export.js';
 import {
   auditOf,
   call,
@@ -40,6 +41,10 @@ import {
   setDisplayName,
 } from '../../test/things.js';
 import { fixedSecretKeys, keyringOf } from '../crypto/keyring.js';
+import { withScope } from '../db/scope.js';
+import { runKeptImport } from '../imports/kept/job.js';
+import { keptDryRun } from '../imports/kept/plan.js';
+import { openKeptArchive } from '../imports/kept/read.js';
 import { runJob } from '../jobs/boss.js';
 import {
   checkSecretsFile,
@@ -342,8 +347,12 @@ describe('a location export', () => {
     expect(file?.path).toMatch(EXPORT_FILE_PATH);
     expect(sha256(zip.get(file?.path ?? '') as Buffer)).toBe(photoSha);
     expect(file?.sha256).toBe(photoSha);
-    // No secret anywhere, and no secrets file.
+    // No secret anywhere, and no secrets file; the safe says its value was left out.
     expect(zip.has('secrets.json')).toBe(false);
+    expect(lines(zip, 'data/things.ndjson').find((r) => r.id === safe)?.secretsWithheld).toEqual([
+      'combination',
+    ]);
+    expect(manifest.secretsWithheld).toBe(1);
     for (const [name, bytes] of zip) expect(bytes.includes(SECRET), name).toBe(false);
     // The history says a secret changed, never what to.
     const secretEvents = lines(zip, 'data/history.ndjson').filter((e) =>
@@ -402,6 +411,11 @@ describe('a location export', () => {
     expect(() => decryptSecrets(wrong, file, id)).toThrow(PassphraseWrongError);
     const manifest = JSON.parse(text(zip, 'manifest.json')) as ExportManifest;
     expect(manifest).toMatchObject({ includesSecrets: true, secretsCount: 1 });
+    // With the secrets in it, nothing is marked as left out.
+    expect(manifest.secretsWithheld ?? 0).toBe(0);
+    expect(lines(zip, 'data/things.ndjson').some((r) => r.secretsWithheld !== undefined)).toBe(
+      false,
+    );
     const audit = (await auditOf(db, home.id)).filter((e) => e.action === 'export.secrets');
     expect(audit.at(-1)?.diff).toBeTruthy();
     expect(JSON.stringify(audit)).not.toContain(SECRET);
@@ -672,22 +686,163 @@ describe('the purge', () => {
 });
 
 describe('over plain http', () => {
-  it('refuses to start an export: 403 https_required, and no run is made', async () => {
-    const plain = await peopleApp(db, { files });
-    try {
-      const who = await person(plain, db, 'plain');
-      const res = await call(plain, '/api/v1/exports', {
+  // A Kept whose public URL is http: an export without secret values is the person's own data and
+  // goes ahead; one with secrets, or anything carrying a passphrase, is refused first. The
+  // archive is read whole: no secret value, and no ciphertext, in any entry or entry name.
+  const VALUE = 'PLAIN-HTTP-COMBINATION-9031';
+  let plain: TestApp;
+  let who: Person;
+  let lan: Loc;
+  let lanSafe: string;
+
+  beforeAll(async () => {
+    plain = await peopleApp(db, { sent, files, secretKeys: keys });
+    who = await person(plain, db, 'plain');
+    lan = await createLocation(plain, db, who, 'complete', 'Study flat');
+    lanSafe = (
+      await createThing(plain, who, lan, { name: 'Safe', typeId: await builtinType(db, 'safe') })
+    ).id;
+    const put = await call(plain, `/api/v1/things/${lanSafe}/secrets/combination`, {
+      as: who,
+      method: 'PUT',
+      body: { value: VALUE },
+    });
+    // Setting a value over http is allowed; showing it is not.
+    expect(put.statusCode, put.body).toBe(204);
+    ok(
+      await call(plain, '/api/v1/things', {
         as: who,
-        body: { scope: { locationId: who.personalLocationId } },
-      });
-      expect(res.statusCode).toBe(403);
+        body: { locationId: lan.id, placeId: lan.unplacedId, name: 'Corner desk' },
+      }),
+      201,
+    );
+  });
+
+  afterAll(async () => {
+    await plain?.app.close();
+  });
+
+  const plainExport = (body: Record<string, unknown>) =>
+    call(plain, '/api/v1/exports', { as: who, body });
+
+  it('refuses an export with secrets, or one carrying a passphrase: 403 https_required, no run', async () => {
+    const bodies = [
+      {
+        scope: { locationId: lan.id },
+        includeSecrets: true,
+        passphrase: PASS,
+        passphraseAgain: PASS,
+      },
+      { scope: { locationId: lan.id }, includeSecrets: true },
+      { scope: { locationId: lan.id }, passphrase: PASS, passphraseAgain: PASS },
+      { scope: { me: true }, passphrase: PASS },
+    ];
+    for (const body of bodies) {
+      const res = await plainExport(body);
+      expect(res.statusCode, JSON.stringify(body)).toBe(403);
       expect(res.json()).toMatchObject({ code: 'https_required' });
-      const runs = await own(db, 'SELECT 1 FROM public.export_runs WHERE created_by = $1', [
-        who.userId,
+      expect(res.body).not.toContain(PASS);
+    }
+    const runs = await own(db, 'SELECT 1 FROM public.export_runs WHERE created_by = $1', [
+      who.userId,
+    ]);
+    expect(runs).toHaveLength(0);
+  });
+
+  it('starts "Export my data" without secret values: 202', async () => {
+    const res = await plainExport({ scope: { me: true }, options: { readable: false } });
+    expect(res.statusCode, res.body).toBe(202);
+    expect(res.json()).toMatchObject({ scope: 'me', includesSecrets: false });
+  });
+
+  it('exports a location without its secret values, each one marked as left out', async () => {
+    const res = await plainExport({ scope: { locationId: lan.id }, options: { pdf: false } });
+    expect(res.statusCode, res.body).toBe(202);
+    const { id } = res.json() as ExportRunView;
+    const outcome = await buildExport(deps(), { userId: who.userId, mfa: false }, { exportId: id });
+    expect(outcome.status, JSON.stringify(outcome)).toBe('done');
+
+    const chunks: Buffer[] = [];
+    for await (const c of await files.blobs.stream(exportKey(id))) chunks.push(c as Buffer);
+    const raw = Buffer.concat(chunks);
+    const zip = await unzip(raw);
+    // The value, and the sealed value as stored, are nowhere: not in an entry, not in a name.
+    const [stored] = await own<{ c: unknown }>(
+      db,
+      'SELECT ciphertext AS c FROM public.secret_values WHERE thing_id = $1',
+      [lanSafe],
+    );
+    const sealed = JSON.stringify(stored?.c);
+    expect(sealed.length).toBeGreaterThan(10);
+    expect(raw.includes(VALUE)).toBe(false);
+    for (const [name, bytes] of zip) {
+      expect(name.includes(VALUE), name).toBe(false);
+      expect(bytes.includes(VALUE), name).toBe(false);
+      expect(bytes.includes(sealed), name).toBe(false);
+    }
+    expect(zip.has('secrets.json')).toBe(false);
+
+    // The safe says which value was left out; nothing else does.
+    const things = lines(zip, 'data/things.ndjson');
+    expect(things.find((r) => r.id === lanSafe)?.secretsWithheld).toEqual(['combination']);
+    expect(things.filter((r) => r.secretsWithheld !== undefined)).toHaveLength(1);
+    const manifest = ManifestSchema.parse(JSON.parse(text(zip, 'manifest.json')));
+    expect(manifest).toMatchObject({ includesSecrets: false, secretsCount: 0, secretsWithheld: 1 });
+    expect(text(zip, 'readable/index.html')).toContain('Secret values are left out');
+
+    // It imports into another location as any export does: the safe without its value.
+    const at = path.join(files.tmpDir, `plain-export-${id}.zip`);
+    await mkdir(files.tmpDir, { recursive: true });
+    await writeFile(at, raw);
+    try {
+      const target = await createLocation(plain, db, who, 'complete', 'Study flat copy');
+      const runId = await stageKeptRun(
+        db,
+        files,
+        { file: at, bytes: raw.length, sha256: sha256(raw), manifest },
+        { userId: who.userId, locationId: target.id, status: 'checked' },
+      );
+      const report = await withScope(
+        db.pools.app,
+        { userId: who.userId, mfa: false },
+        async (_tx, c) => {
+          const archive = await openKeptArchive(files.blobs, runId, raw.length);
+          try {
+            return await keptDryRun(c, archive, target.id);
+          } finally {
+            archive.close();
+          }
+        },
+      );
+      expect(report.summary).toMatchObject({ things: 2, secrets: 0, secretsWithheld: 1 });
+      await own(
+        db,
+        `UPDATE public.import_runs SET status = 'running', started_at = now() WHERE id = $1`,
+        [runId],
+      );
+      await runKeptImport(
+        { pools: db.pools, files, keys, log },
+        { userId: who.userId, mfa: false },
+        runId,
+      );
+      const [run] = await own<{ status: string; error: string | null }>(
+        db,
+        'SELECT status, error FROM public.import_runs WHERE id = $1',
+        [runId],
+      );
+      expect(run).toEqual({ status: 'done', error: null });
+      const names = await own<{ name: string }>(
+        db,
+        'SELECT name FROM public.things WHERE location_id = $1 ORDER BY name',
+        [target.id],
+      );
+      expect(names.map((n) => n.name)).toEqual(['Corner desk', 'Safe']);
+      const values = await own(db, 'SELECT 1 FROM public.secret_values WHERE location_id = $1', [
+        target.id,
       ]);
-      expect(runs).toHaveLength(0);
+      expect(values).toHaveLength(0);
     } finally {
-      await plain.app.close();
+      await rm(at, { force: true });
     }
   });
 });

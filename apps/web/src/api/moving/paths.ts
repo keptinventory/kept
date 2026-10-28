@@ -17,6 +17,8 @@ export const movingPaths = {
     `${V1}/moves/${seg(id)}/boxes/${seg(containerId)}/unpack`,
   boxOf: (containerId: string) => `${V1}/move-boxes/${seg(containerId)}`,
   sheets: `${V1}/reports/move`,
+  /** "Printed OK?" after the contents sheets (#307). */
+  sheetsPrinted: (id: string) => `${V1}/moves/${seg(id)}/sheets/printed`,
 };
 
 export const MOVING_METHODS: Record<keyof typeof movingPaths, readonly string[]> = {
@@ -28,4 +30,5 @@ export const MOVING_METHODS: Record<keyof typeof movingPaths, readonly string[]>
   unpack: ['POST'],
   boxOf: ['GET'],
   sheets: ['POST'],
+  sheetsPrinted: ['POST'],
 };

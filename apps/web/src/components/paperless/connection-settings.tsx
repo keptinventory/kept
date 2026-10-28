@@ -11,6 +11,7 @@ import { isApiError } from '@/api/client';
 import { paperlessApi, paperlessKeys, usePaperlessConnection } from '@/api/paperless/queries';
 import type { PaperlessConnection } from '@/api/paperless/types';
 import { ErrorState, List, LoadingRows, Notice, Section, useErrorText } from '@/components/page';
+import { isPrivateAddressError, PrivateAddressLink } from '@/components/private-address-link';
 import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
 import { PasswordField } from '@/components/ui/password-field';
@@ -214,7 +215,11 @@ function ConnectionForm({
           isRequired={!connection}
         />
         {problem ? (
-          <Notice tone="danger" title={<Trans>Kept couldn't connect</Trans>}>
+          <Notice
+            tone="danger"
+            title={<Trans>Kept couldn't connect</Trans>}
+            action={isPrivateAddressError(save.error) ? <PrivateAddressLink /> : undefined}
+          >
             {problem}
           </Notice>
         ) : null}

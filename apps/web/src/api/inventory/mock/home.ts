@@ -5,6 +5,7 @@
  * screens' tests expect; the server ticks it from printed codes.
  */
 import { isLow } from '@kept/shared';
+import { printedCodesOf } from '../../capture/mock/labels';
 import {
   agendaItems,
   ensureSeeded,
@@ -104,7 +105,7 @@ export function homeRoutes(state: MockState): MockRoute[] {
           access.canWrite(i.locationId) &&
           !(i.thingId && inv().things.find((t) => t.id === i.thingId)?.deletedAt),
       ).length;
-      const printedSet = new Set(state.capture.codes.filter((c) => c.printedAt).map((c) => c.code));
+      const printedSet = printedCodesOf(state);
       const unprintedLabels = things.filter(
         (t) => t.shortCode && !printedSet.has(t.shortCode),
       ).length;
@@ -322,7 +323,9 @@ export function overviewOf(state: MockState): HomeOverview {
             hiddenIn: locations
               .filter((l) => l.modules.includes('money') && !showsMoney(state, l.id))
               .map((l) => l.id),
-            moneyOff: locations.filter((l) => !l.modules.includes('money')).map((l) => l.id),
+            moneyOff: locations
+              .filter((l) => l.kind !== 'personal' && !l.modules.includes('money'))
+              .map((l) => l.id),
           }
         : null,
   };

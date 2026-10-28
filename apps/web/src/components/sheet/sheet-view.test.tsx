@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { inventoryPaths } from '@/api/inventory/paths';
 import { IDS, type MockState, ownerScenario } from '@/api/mock/fixtures';
+import { MockReply } from '@/api/mock/server';
 import { findHeading, renderApp } from '@/test/app';
 import { expectLogicalOnly } from '@/test/render';
 
@@ -64,7 +65,7 @@ function cellOf(grid: HTMLElement, rowName: string, header: string): HTMLElement
 }
 
 describe('where the sheet is offered', () => {
-  it('is the fourth layout on a desktop, and not offered on a phone', async () => {
+  it('sits before Map on a desktop (#207), and is not offered on a phone', async () => {
     await renderApp(`/loc/${IDS.home}`);
     await findHeading('Home');
     const layouts = await screen.findByRole('radiogroup', { name: 'Layout' });
@@ -72,7 +73,7 @@ describe('where the sheet is offered', () => {
       within(layouts)
         .getAllByRole('radio')
         .map((r) => r.closest('label')?.textContent),
-    ).toEqual(['List', 'Grid', 'Map', 'Table']);
+    ).toEqual(['List', 'Grid', 'Graph', 'Table', 'Map']);
   });
 
   it('shows the list on a phone, even with view=table in the address', async () => {
@@ -228,6 +229,36 @@ describe('bulk actions', () => {
     });
     // Their staged tags went with them.
     expect(screen.queryByRole('region', { name: 'Changes' })).toBeNull();
+  });
+});
+
+describe('bulk trash of something with someone (#294)', () => {
+  it('asks first, then sends it again confirmed, as one thing’s trash does', async () => {
+    const { grid, user, mock } = await openSheet({
+      setup: (m) =>
+        m.on('POST', inventoryPaths.thingsBulkTrash, ({ body }) =>
+          (body as { onLoan?: string }).onLoan === 'confirm'
+            ? { trashed: [T.batteries], moved: [], events: [] }
+            : new MockReply(409, {
+                error: 'It is with Sam.',
+                code: 'on_loan',
+                with: { person: 'Sam', thingId: T.batteries, name: 'AA batteries' },
+              }),
+        ),
+    });
+    await user.click(cellOf(grid, 'AA batteries', 'Name'));
+    await user.keyboard(' ');
+    const bar = screen.getByRole('toolbar', { name: 'Selection' });
+    await user.click(within(bar).getByRole('button', { name: 'Send to Trash' }));
+    const confirm = await screen.findByRole('alertdialog', { name: 'Send 1 thing to the Trash?' });
+    await user.click(within(confirm).getByRole('button', { name: 'Send to Trash' }));
+    const ask = await screen.findByRole('alertdialog', { name: /This is with .*Sam/ });
+    await user.click(within(ask).getByRole('button', { name: 'Move to Trash anyway' }));
+    expect(await screen.findByText('Sent 1 thing to the Trash')).toBeInTheDocument();
+    expect(mock.lastCall('POST', inventoryPaths.thingsBulkTrash)?.body).toEqual({
+      thingIds: [T.batteries],
+      onLoan: 'confirm',
+    });
   });
 });
 

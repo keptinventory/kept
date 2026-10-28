@@ -17,10 +17,13 @@ stop working:
 Kept also marks its cookies `Secure` and sends HSTS.
 
 Some things Kept refuses outright while `KEPT_PUBLIC_URL` is `http:`, even on `localhost`, because
-they hand out or change a secret: showing a secret value, starting an export, making an access
-token, connecting an app with OAuth, downloading the recovery kit, and changing or testing the
-backup settings. Sessions are also shorter over HTTP. While Kept is served over HTTP, the Get
-started checklist on Home puts "Put Kept on HTTPS" first.
+they hand out or change a secret: showing a secret value, an export with secret values, opening
+an export's secrets when importing it, making an access token in the browser, connecting an app
+with OAuth, downloading the recovery kit, and changing or testing the backup settings. An export
+without secret values works, and so does an import without them. Sessions are also shorter over
+HTTP. While Kept is served over HTTP, the Get started checklist on Home puts "Put Kept on HTTPS"
+first, until an admin chooses "Staying on my home network". Everything that works over plain HTTP,
+in one table: [Kept on a home network](/install/home-network/).
 
 Whichever way you choose, set `KEPT_PUBLIC_URL` to the `https://` address people will open, and
 restart Kept.
@@ -36,9 +39,17 @@ KEPT_DOMAIN=kept.example.org
 KEPT_PUBLIC_URL=https://kept.example.org
 ```
 
+Caddy reads `docker/caddy/Caddyfile` next to `compose.yaml`. A checkout of the repository has it;
+an install from `compose.yaml` alone downloads it once:
+
 ```sh
+mkdir -p docker/caddy
+curl -fsSLo docker/caddy/Caddyfile https://raw.githubusercontent.com/keptinventory/kept/v1.14.0/docker/caddy/Caddyfile
 docker compose --profile https up -d
 ```
+
+Without the file, `docker compose --profile https up -d` stops with "bind source path does not
+exist". Any other proxy works instead; it forwards to Kept's port, as in the sections below.
 
 Caddy gets and renews the certificate and forwards everything to Kept. Compose gives Caddy a fixed
 address on its own network and passes that address to Kept as `KEPT_TRUSTED_PROXIES`, so Kept

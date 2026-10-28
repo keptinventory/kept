@@ -19,9 +19,11 @@ import { exportRoutes } from '../exports/routes.js';
 import { extractionRoutes } from '../extraction/routes.js';
 import { fileRoutes } from '../files/routes.js';
 import { fuelRoutes } from '../fuel/routes.js';
+import { graphRoutes } from '../graph/routes.js';
 import { historyRoutes } from '../history/routes.js';
 import { homeRoutes } from '../home/routes.js';
 import { archiveImportRoutes } from '../imports/archive.js';
+import { homeboxRepairRoutes } from '../imports/homebox/repair.js';
 import { lubeloggerRoutes } from '../imports/lubelogger.js';
 import { importRoutes } from '../imports/routes.js';
 import { inboxRoutes } from '../inbox/routes.js';
@@ -167,6 +169,7 @@ export const INVENTORY_ROUTE_MODULES = [
   // fills in its own file.
   exportRoutes,
   archiveImportRoutes,
+  homeboxRepairRoutes,
   enrichRoutes,
   consumableRoutes,
   // Step 6 (T2): tokens, MCP, OAuth connectors (and the root well-known paths), the assistant and
@@ -196,6 +199,8 @@ export const INVENTORY_ROUTE_MODULES = [
   insightsRoutes,
   // 1.x (D237): the location map and its arrange session.
   mapRoutes,
+  // #207: the graph view's read.
+  graphRoutes,
   // 1.x (D251): moving mode, its moves and their boxes.
   movingRoutes,
   // 1.12 (#168): scan sessions, saved by their sync ops; read back here.

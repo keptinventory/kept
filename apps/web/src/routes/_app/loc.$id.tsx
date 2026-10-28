@@ -55,6 +55,7 @@ import {
   useTwoFactorHidden,
 } from '@/components/two-factor-hidden';
 import { buttonClass } from '@/components/ui/button';
+import { LocationGraphLazy } from '@/graph/lazy';
 import { locationAddress, locationIdOf, useCanonicalLocationAddress } from '@/lib/address';
 import { sep, useFormat } from '@/lib/format';
 import { useKindLabels, useLocationName, usePresetCopy, useRoleLabels } from '@/lib/labels';
@@ -259,20 +260,30 @@ function LocationBody({ location }: { location: LocationDetail }) {
             aside: (
               <PlacesPanel
                 places={places}
+                boxes={tree.data?.boxes ?? []}
                 location={{ id: location.id, name, address: locationAddress(location) }}
               />
             ),
           }
         : {})}
     >
-      {layout === 'map' ? (
+      {layout === 'map' || layout === 'graph' ? (
         <>
-          {/* D237: the map leads, under a one-line header; the rest follows it. */}
+          {/* D237: the map leads, under a one-line header; the rest follows it. So does the
+              graph (#207). */}
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <div className="text-ink-2">{meta}</div>
             <LayoutSwitch />
           </div>
-          <LocationMapLazy locationId={location.id} name={name} />
+          {layout === 'map' ? (
+            <LocationMapLazy locationId={location.id} name={name} />
+          ) : (
+            <LocationGraphLazy
+              locationId={location.id}
+              name={name}
+              address={locationAddress(location)}
+            />
+          )}
           {header}
           {addHere}
           {unplacedCard}
@@ -301,7 +312,9 @@ function LocationBody({ location }: { location: LocationDetail }) {
                 canEdit={canEdit}
               />
 
-              <div>{panel ? null : <PlaceTree places={places} />}</div>
+              <div>
+                {panel ? null : <PlaceTree places={places} boxes={tree.data?.boxes ?? []} />}
+              </div>
             </div>
           )}
         </>

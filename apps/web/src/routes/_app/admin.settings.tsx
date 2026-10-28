@@ -227,7 +227,7 @@ function SettingsPage() {
         </Section>
       ) : null}
 
-      <Section title={<Trans>Private addresses</Trans>}>
+      <Section id="private-addresses" title={<Trans>Private addresses</Trans>}>
         <List>
           <li className="grid gap-2 px-3.5 py-2">
             <Switch

@@ -18,6 +18,7 @@ describe('HINT_KEYS', () => {
   it('include the key Home reads', () => {
     expect(isHintKey('installed_standalone')).toBe(true);
     expect(isHintKey('capture.mode_strip')).toBe(true);
+    expect(isHintKey('http_banner')).toBe(true);
     expect(isHintKey('nope')).toBe(false);
   });
 

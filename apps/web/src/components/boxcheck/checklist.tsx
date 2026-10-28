@@ -8,7 +8,7 @@ import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Checkbox } from 'react-aria-components';
 import { AlertIcon, BoxIcon, CheckIcon, XIcon } from '@/components/icons';
-import { IdChip } from '@/components/id-chip';
+import { LabelTape } from '@/components/id-chip';
 import { Button } from '@/components/ui/button';
 import { CountStepper } from './count-stepper';
 import type { BoxLine } from './load';
@@ -82,7 +82,11 @@ export function Checklist({
                   </>
                 )}
               </Checkbox>
-              <IdChip code={line.shortCode} pending={line.shortCode === null} />
+              <LabelTape
+                code={line.shortCode}
+                printed={line.labelPrinted}
+                pending={line.shortCode === null}
+              />
             </div>
             {ticked && counted(line) ? (
               <div className="grid gap-1 ps-9">
@@ -115,7 +119,12 @@ export function FoundElsewhere({
   items,
   onRemove,
 }: {
-  items: readonly { id: string; name: string | null; shortCode: string | null }[];
+  items: readonly {
+    id: string;
+    name: string | null;
+    shortCode: string | null;
+    labelPrinted?: boolean | undefined;
+  }[];
   onRemove: (id: string) => void;
 }) {
   const { t } = useLingui();
@@ -134,7 +143,11 @@ export function FoundElsewhere({
             <bdi className="min-w-0 flex-1 font-semibold [overflow-wrap:anywhere]">
               {it.name ?? t`Unnamed`}
             </bdi>
-            <IdChip code={it.shortCode} pending={it.shortCode === null} />
+            <LabelTape
+              code={it.shortCode}
+              printed={it.labelPrinted}
+              pending={it.shortCode === null}
+            />
             <Button
               variant="ghost"
               size="icon"

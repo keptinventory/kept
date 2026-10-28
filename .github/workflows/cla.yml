@@ -39,6 +39,7 @@ jobs:
           path-to-signatures: signatures/version1/cla.json
           path-to-document: ${{ github.server_url }}/${{ github.repository }}/blob/main/CLA.md
           branch: cla-signatures
-          # The maintainer holds the copyright already. Add the Renovate and Weblate bot accounts
-          # by their exact logins when those apps are enabled (D187, a maintainer step).
-          allowlist: ibrahimroshdy
+          # The maintainer holds the copyright already, and Dependabot's update PRs carry no
+          # authored work. Add the Renovate and Weblate bot accounts by their exact logins when
+          # those apps are enabled (D187, a maintainer step).
+          allowlist: ibrahimroshdy,dependabot[bot]

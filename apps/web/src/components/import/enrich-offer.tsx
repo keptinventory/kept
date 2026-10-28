@@ -2,23 +2,29 @@
  * After an archive import, the offer to add search words with AI (D41, D69,
  * D206): the estimate first ("About 40,000 tokens · ≈ USD 0.03 · paid by Home", or "cost unknown"
  * when the model has no price), and nothing runs until the person asks: off by default. The money
- * is left out where the server hid it. With no AI here (the estimate refused), there is no offer.
+ * is left out where the server hid it. With no AI here there is no offer, and nothing is asked:
+ * the estimate is read only where AI capture is on in the run's location for the caller (the
+ * server's own rule, enrich/routes.ts; a refusal still shows nothing).
  */
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { portabilityApi, useEnrichEstimate } from '@/api/portability/queries';
+import { useLocation } from '@/api/queries';
 import { useApproxCost, useProviderName } from '@/components/ai/labels';
 import { AssistantIcon } from '@/components/icons';
 import { Notice, useErrorText } from '@/components/page';
+import { accessOf } from '@/components/schedules/access';
 import { Button } from '@/components/ui/button';
 import { useFormat } from '@/lib/format';
 
-export function EnrichOffer({ runId }: { runId: string }) {
+export function EnrichOffer({ runId, locationId }: { runId: string; locationId: string }) {
   const { t } = useLingui();
   const f = useFormat();
   const errorText = useErrorText();
-  const estimate = useEnrichEstimate(runId);
+  const access = accessOf(useLocation(locationId).data);
+  const aiOn = access.can('ai.capture') && access.moduleOn('ai_capture');
+  const estimate = useEnrichEstimate(aiOn ? runId : null);
   const approx = useApproxCost();
   const providerName = useProviderName();
   const [started, setStarted] = useState(false);

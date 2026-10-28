@@ -78,6 +78,7 @@ describe('archive imports', () => {
   });
 
   it('declares, uploads, inspects, targets a new location, dry-runs and runs a Kept export', async () => {
+    const state = use();
     const id = '01926f00-0000-7000-8000-0000000d7999';
     const draft = await api.createArchiveImport({
       id,
@@ -111,6 +112,12 @@ describe('archive imports', () => {
     let run = await api.archiveRun(id);
     for (let i = 0; i < 5 && run.status === 'running'; i++) run = await api.archiveRun(id);
     expect(run.status).toBe('done');
+    // No AI in the new location: no estimate, as the server answers (enrich/routes.ts).
+    expect((await fail(api.enrichEstimate(id))).code).toBe('ai_unavailable');
+    const made = state.locations.find((l) => l.id === targeted.locationId);
+    if (!made) throw new Error('no new location');
+    made.modules = [...made.modules, 'ai_capture'];
+    made.providerResolved = true;
     const estimate = await api.enrichEstimate(id);
     expect(estimate).toMatchObject({
       calls: Math.ceil(estimate.things / 20),

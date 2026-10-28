@@ -310,6 +310,7 @@ describe('GET /api/v1/search', () => {
             'derivedState',
             'id',
             'isContainer',
+            'labelPrinted',
             'lastSeenAt',
             'lifecycle',
             'locationId',
