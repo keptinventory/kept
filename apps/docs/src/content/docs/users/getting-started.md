@@ -1,79 +1,29 @@
 ---
 title: Getting started
-description: "A short path from a fresh Kept to your first thing."
+description: "The short path from nothing to your first thing in Kept, with a link to the full page for each step."
 ---
 
-This is the short version. The full walkthrough is in [your first minutes](/users/first-run/),
-and the install guide is [Install with Docker Compose](/install/compose/).
+The short path, one step per line. Each step links to the page with the detail.
 
-## 1. Configure and start Kept
+1. **Install it.** Docker with the Compose plugin, on a machine with 2 GB of RAM and 2 CPU cores.
+   Download `compose.yaml`, then `docker compose run --rm init` (it asks for the address you'll
+   open Kept at and writes `.env`) and `docker compose up -d`. No copy of the repository and no
+   passwords to make. [Install with Docker Compose](/install/compose/)
+2. **Claim the server.** Open the address, type the setup code `init` showed, and create the first
+   account: it becomes the instance admin.
+   [Claim the server](/users/first-run/#1-claim-the-server-with-the-setup-code)
+3. **Keep the keys.** Print the recovery kit and keep it off the server.
+   [The recovery kit](/admin/recovery-kit/)
+4. **Create your first home.** A name, its kind, its rooms, and a preset for what it tracks.
+   [Create your first home](/users/first-run/#3-create-your-first-home)
+5. **Add a thing.** **Capture** on a phone, or **Add here** on a room or box on a computer.
+   [Add your first thing](/users/first-run/#4-add-your-first-thing)
+6. **Invite someone.** A link or a QR code with a role (admin, member or viewer); nobody needs an
+   email address. [Invite people](/users/first-run/#5-invite-people)
+7. **Put it on HTTPS**, so phones allow the camera, installing Kept, offline use and push.
+   [HTTPS](/install/https/), or [Kept on a home network](/install/home-network/) for what works
+   without it
+8. **Connect AI**, if you want it: Kept works without. [AI providers](/users/ai-providers/)
 
-You need Docker with the Compose plugin, and a machine with at least 2 GB of RAM and 2 CPU cores.
-
-```sh
-git clone https://github.com/keptinventory/kept.git && cd kept
-cp compose.env.example .env
-```
-
-Edit `.env` before starting:
-
-- **Five database passwords**: `KEPT_DB_SUPERUSER_PASSWORD`, `KEPT_DB_OWNER_PASSWORD`,
-  `KEPT_DB_APP_PASSWORD`, `KEPT_DB_AUTH_PASSWORD` and `KEPT_DB_SYSTEM_PASSWORD`. Generate each one
-  with `openssl rand -hex 32`.
-- **`KEPT_PUBLIC_URL`**: the address your browser opens, for example `http://localhost:8080` on the
-  same machine.
-
-Then start it:
-
-```sh
-docker compose up -d
-```
-
-Compose refuses to start until those values are set. The [install guide](/install/compose/) covers
-the rest, including HTTPS.
-
-## 2. Claim the server
-
-Kept prints a one-time setup code in its logs. Find it with:
-
-```sh
-docker compose logs kept | grep "KEPT SETUP CODE"
-```
-
-Open `KEPT_PUBLIC_URL` in your browser. Enter the six characters (the dash is optional), then create
-your account: name, email, and a password of at least 8 characters. This account is the instance
-admin.
-
-## 3. Create your first home
-
-Choose **Create your first home**. Pick a name (Home, Garage, Storage unit) and a kind. The kind's
-template fills in rooms and spots, which you can rename, remove or add to. Every location also has
-**Unplaced** for things without a place yet.
-
-## 4. Add your first thing
-
-On the location, choose **Add here**, then **Thing**. Give it a name and a place, then add a photo,
-a receipt or a warranty if you have them.
-
-## 5. Invite someone
-
-After you create a location, Home shows **Invite people to …**. Choose a role (owner, admin, member or
-viewer). Nobody needs an email address: the invite link works once, for 7 days, and can be shown as
-a QR code. See [invites and roles](/users/first-run/#5-invite-people).
-
-## 6. Put Kept on your phone
-
-Installing Kept to a phone's home screen, and using the camera, need HTTPS. Set that up first; see
-[HTTPS](/install/https/). Then follow [Kept on your phone](/users/phone-app/#install-it).
-
-## 7. Connect AI (optional)
-
-Kept works without AI. To name things from photos, read receipts and search by meaning, add a provider
-under **Settings → AI**, with your own key. Groq is the recommended starting point. See
-[AI providers](/users/ai-providers/).
-
-## What's next
-
-- [Everyday use](/users/everyday-use/) for the full tour.
-- [Your first minutes](/users/first-run/) for the detailed walkthrough.
-- [FAQ](/users/faq/) for common questions.
+Then: [Everyday use](/users/everyday-use/) for the tour, the [FAQ](/users/faq/) for common
+questions, and [Common problems](/users/troubleshooting/) when something doesn't work.
