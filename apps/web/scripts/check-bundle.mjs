@@ -33,10 +33,11 @@ const baselinePath = join(web, 'bundle-baseline.json');
 /** 25 KB gzip over the baseline. */
 export const BUDGET = 25 * 1024;
 /**
- * The precache, excluding the scanner's wasm: "3 MB" in the unit Serwist's build log prints
- * (KiB), so the figure after "precache entries" is what this compares. T0 measured about 2.4 MB.
+ * The precache, excluding the scanner's wasm, in the unit Serwist's build log prints (KiB), so the
+ * figure after "precache entries" is what this compares. T0 measured about 2.4 MB; 3072 KiB until
+ * 1.14.1, when the app reached 3071 KiB and every feature fought for the last few hundred bytes.
  */
-export const PRECACHE_BUDGET = 3 * 1024 * 1024;
+export const PRECACHE_BUDGET = 3500 * 1024;
 /** The scanner's wasm, precached so scanning works offline on iOS (D101); 1.09 MB in T0. */
 export const WASM_BUDGET = 1_200_000;
 const WASM = /(?:^|\/)zxing_reader[^/]*\.wasm$/;

@@ -44,7 +44,7 @@ The service worker is built with [Serwist](https://serwist.pages.dev/) by `@serw
   taps Reload and nothing is uploading (`pwa/update-prompt.tsx`).
 
 `apps/web/scripts/check-bundle.mjs` runs after every `vite build` and fails it when the precache
-is over **3 MiB without the wasm** (`PRECACHE_BUDGET`), the wasm is over `WASM_BUDGET`, or an
+is over **3,500 KiB without the wasm** (`PRECACHE_BUDGET`), the wasm is over `WASM_BUDGET`, or an
 icon chunk, a catalogue or anything authenticated slipped into the precache.
 
 ## Screens that need a connection
