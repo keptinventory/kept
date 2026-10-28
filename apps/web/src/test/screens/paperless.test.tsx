@@ -78,23 +78,44 @@ describe('Location settings → Paperless', () => {
 describe("a thing's Paperless documents", () => {
   it('shows nothing where the location has no Paperless', async () => {
     await renderApp(`/t/${TV}`);
-    await screen.findAllByText(/Paperwork/);
-    expect(screen.queryByText('From Paperless-ngx')).toBeNull();
+    await screen.findByRole('button', { name: 'Add a file' });
+    expect(screen.queryByRole('button', { name: 'Link from Paperless' })).toBeNull();
   });
 
-  it('lists the linked ones, links more through the picker, copies one, and unlinks', async () => {
+  it('are in the one Paperwork list, linked from beside Add a file; copied and unlinked there', async () => {
     const state = ownerScenario();
     seedPaperless(state, IDS.home, { links: [{ subject: { thingId: TV }, documentIds: [13] }] });
+    // A file in Kept beside it: a receipt.
+    state.inventory.attachments.push({
+      id: '01926f00-0000-7000-8000-0at000000099',
+      role: 'receipt',
+      sort: 0,
+      file: null,
+      url: 'https://shop.example/receipt/7',
+      subject: { thingId: TV },
+      createdBy: { displayName: state.me.user.displayName },
+      rowVersion: 1,
+      locationId: IDS.home,
+    });
     const { user, mock } = await renderApp(`/t/${TV}`, { state });
-    const block = await screen.findByTestId('paperless-documents');
-    const list = within(block).getByRole('list', { name: 'Paperless documents' });
-    expect(within(list).getByText('Bosch GSB 18V manual')).toBeInTheDocument();
+    const list = await screen.findByRole('list', { name: 'Paperwork' });
+    expect(await within(list).findByText('Bosch GSB 18V manual')).toBeInTheDocument();
+    // One list: the file first, then the linked document.
+    const items = within(list).getAllByRole('listitem');
+    expect(items).toHaveLength(2);
+    expect(within(items[0] as HTMLElement).getByText('Receipt')).toBeInTheDocument();
+    expect(within(items[1] as HTMLElement).getByText('Bosch GSB 18V manual')).toBeInTheDocument();
     expect(within(list).getByRole('link', { name: 'Open in Paperless' })).toHaveAttribute(
       'href',
       'https://paperless.example.com/documents/13',
     );
+    expect(screen.queryByText('From Paperless-ngx')).toBeNull();
 
-    await user.click(within(block).getByRole('button', { name: 'Link from Paperless' }));
+    // "Link from Paperless" beside "Add a file".
+    const add = screen.getByRole('button', { name: 'Add a file' });
+    const linkButton = screen.getByRole('button', { name: 'Link from Paperless' });
+    expect(add.parentElement?.parentElement).toBe(linkButton.parentElement);
+    await user.click(linkButton);
     const dialog = await screen.findByRole('dialog', { name: /Link from Paperless to/ });
     expect(await within(dialog).findByText('Drill warranty card')).toBeInTheDocument();
     // Already linked: ticked and shown as such.
@@ -113,9 +134,9 @@ describe("a thing's Paperless documents", () => {
       thingId: TV,
       documentIds: [14],
     });
-    expect(await within(block).findByText('Drill warranty card')).toBeInTheDocument();
+    expect(await within(list).findByText('Drill warranty card')).toBeInTheDocument();
 
-    const row = within(block).getByText('Drill warranty card').closest('li') as HTMLElement;
+    const row = within(list).getByText('Drill warranty card').closest('li') as HTMLElement;
     await user.click(within(row).getByRole('button', { name: 'Copy into Kept' }));
     expect(await within(row).findByText('Copied into Kept')).toBeInTheDocument();
 
@@ -123,7 +144,61 @@ describe("a thing's Paperless documents", () => {
     const confirm = await screen.findByRole('alertdialog');
     expect(within(confirm).getByText(/the copy in Kept stays/)).toBeInTheDocument();
     await user.click(within(confirm).getByRole('button', { name: 'Unlink' }));
-    await waitFor(() => expect(within(block).queryByText('Drill warranty card')).toBeNull());
+    await waitFor(() => expect(within(list).queryByText('Drill warranty card')).toBeNull());
     expectLogicalOnly();
+  });
+
+  it('have a kind that can be changed, as a file is added as one, and the Kind filter narrows them', async () => {
+    const state = ownerScenario();
+    seedPaperless(state, IDS.home, { links: [{ subject: { thingId: TV }, documentIds: [13] }] });
+    const { user, mock } = await renderApp(`/t/${TV}`, { state });
+    const list = await screen.findByRole('list', { name: 'Paperwork' });
+    await within(list).findByText('Bosch GSB 18V manual');
+    const kind = within(list).getByRole('button', { name: /Kind of Bosch GSB 18V manual/ });
+    expect(kind).toHaveTextContent('Manual');
+    await user.click(kind);
+    await user.click(await screen.findByRole('option', { name: 'Warranty' }));
+    const patched = () =>
+      mock.calls.find((c) => c.method === 'PATCH' && c.path.startsWith(paperlessPaths.links()));
+    await waitFor(() => expect(patched()).toBeTruthy());
+    expect(patched()?.body).toEqual({ kind: 'warranty_doc' });
+    expect(patched()?.headers['if-match']).toBe('1');
+    await waitFor(() =>
+      expect(
+        within(list).getByRole('button', { name: /Kind of Bosch GSB 18V manual/ }),
+      ).toHaveTextContent('Warranty'),
+    );
+  });
+
+  it('can be seen but not changed by a viewer', async () => {
+    const state = ownerScenario();
+    const home = state.locations.find((l) => l.id === IDS.home);
+    if (home) home.role = 'viewer';
+    seedPaperless(state, IDS.home, { links: [{ subject: { thingId: TV }, documentIds: [13] }] });
+    await renderApp(`/t/${TV}`, { state });
+    const list = await screen.findByRole('list', { name: 'Paperwork' });
+    expect(await within(list).findByText('Bosch GSB 18V manual')).toBeInTheDocument();
+    expect(within(list).queryByRole('button', { name: /Kind of/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Link from Paperless' })).toBeNull();
+  });
+});
+
+describe("a place's Paperless documents", () => {
+  it('are in its Paperwork list, linked from beside Add document', async () => {
+    const state = ownerScenario();
+    const living = INV_IDS.place.livingRoom;
+    seedPaperless(state, IDS.home, {
+      links: [{ subject: { placeId: living }, documentIds: [22] }],
+    });
+    await renderApp(`/p/${living}`, { state });
+    const list = await screen.findByRole('list', { name: /^Paperwork of/ });
+    expect(await within(list).findByText('Home insurance policy 2026')).toBeInTheDocument();
+    expect(screen.queryByText(/No documents in/)).toBeNull();
+    expect(
+      within(list).getByRole('button', { name: /Kind of Home insurance policy 2026/ }),
+    ).toHaveTextContent('Document');
+    const add = screen.getByRole('button', { name: 'Add document' });
+    const linkButton = screen.getByRole('button', { name: 'Link from Paperless' });
+    expect(add.closest('.flex-wrap')).toBe(linkButton.closest('.flex-wrap'));
   });
 });

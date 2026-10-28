@@ -17,8 +17,18 @@ export type PaperlessError =
   | 'too_large'
   | 'failed';
 
-/** What a document is, in Kept's paperwork roles: Paperless's document type or tags say so. */
+/** What a document is, in Kept's paperwork roles: Paperless's document type or tags say so when
+ * it is linked; after that the link's kind is the person's to change (#347). */
 export type PaperlessKind = 'receipt' | 'invoice' | 'manual' | 'warranty_doc' | 'document';
+
+/** The kinds a link may have, in the order the kind picker lists them. */
+export const PAPERLESS_KINDS: readonly PaperlessKind[] = [
+  'manual',
+  'warranty_doc',
+  'receipt',
+  'invoice',
+  'document',
+];
 
 export type PaperlessConnection = {
   id: string;
@@ -86,8 +96,13 @@ export type PaperlessLink = {
   openUrl: string;
   createdBy: { id: string; displayName: string };
   createdAt: string;
+  /** For PATCH /api/v1/paperless-links/:id (If-Match). */
+  rowVersion: number;
 };
 
 export type PaperlessLinks = { connected: boolean; url: string | null; items: PaperlessLink[] };
 
 export type PaperlessLinkBody = PaperlessSubject & { documentIds: number[] };
+
+/** PATCH /api/v1/paperless-links/:id (If-Match) → PaperlessLink. */
+export type PaperlessLinkKindBody = { kind: PaperlessKind };

@@ -28,7 +28,7 @@ export const PAPERLESS_METHODS: Record<keyof typeof paperlessPaths, readonly str
   documents: ['GET'],
   documentThumb: ['GET'],
   links: ['GET', 'POST'],
-  link: ['DELETE'],
+  link: ['PATCH', 'DELETE'],
   linkThumb: ['GET'],
   linkPreview: ['GET'],
   linkCopy: ['POST'],

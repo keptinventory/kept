@@ -7,23 +7,28 @@
  * Controls follow the role rules: "Add document" for members and above (`attachments.add`), "Add
  * expiring document", Renew and Remove for those who may edit things (`things.edit`); a viewer
  * reads. Offline, adding says "Needs a connection". The section shows only while Paperwork is on
- * in the location: off, the documents rest with the module (D162). A place's section also shows
- * the documents linked from the location's Paperless-ngx (1.x, D248).
+ * in the location: off, the documents rest with the module (D162). A place's list also holds the
+ * documents linked from the location's Paperless-ngx (1.x, D248), after its files, with "Link
+ * from Paperless" beside "Add document" (#347).
  */
 import { can, type Role } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { householdApi, householdKeys, useDocuments, usePaperwork } from '@/api/household/queries';
 import type { ExpiringDocument, PaperworkRow, SubjectInput } from '@/api/household/types';
 import type { AttachmentSubject } from '@/api/inventory/types';
-import { usePaperlessLinks } from '@/api/paperless/queries';
 import { useOfferUndo } from '@/components/history/undo';
 import { ClockIcon, DocumentIcon } from '@/components/icons';
 import { OverflowActions } from '@/components/inbox/overflow-actions';
 import { List, Pill, Row, Section, useErrorText } from '@/components/page';
-import { PaperlessDocuments } from '@/components/paperless/documents';
+import {
+  LinkFromPaperless,
+  PaperlessDownNotice,
+  PaperlessLinkRow,
+  usePaperlessPaperwork,
+} from '@/components/paperless/documents';
 import { FileOpenButton } from '@/components/paperwork/rows';
 import { useRoleLabels } from '@/components/things/labels';
 import { UploadButton } from '@/components/things/upload';
@@ -67,13 +72,20 @@ export function SubjectPaperwork({
   const canAddFile = can(role, 'attachments.add');
   const canEdit = can(role, 'things.edit');
   const original = role !== 'viewer';
-  const empty = documents.length === 0 && plain.length === 0;
   // 1.x (D248): a place's documents linked from Paperless-ngx (a location's own paperwork has
   // none: a link is on a thing or a place).
-  const placeSubject = { placeId: subject.type === 'place' ? subject.placeId : '' };
-  const paperless = usePaperlessLinks(placeSubject, subject.type === 'place');
-  const linked = (paperless.data?.items.length ?? 0) > 0;
-  if (empty && !linked && !canAddFile && !canEdit) return null;
+  const placeId = subject.type === 'place' ? subject.placeId : '';
+  const placeSubject = useMemo(() => ({ placeId }), [placeId]);
+  const paperless = usePaperlessPaperwork(placeSubject, subject.locationId, {
+    enabled: subject.type === 'place',
+  });
+  const links = paperless.items;
+  const empty = documents.length === 0 && plain.length === 0 && links.length === 0;
+  if (empty && !canAddFile && !canEdit) return null;
+  const onCopied = () => {
+    void qc.invalidateQueries({ queryKey: householdKeys.paperwork.all });
+    onChanged?.();
+  };
 
   const upload: AttachmentSubject =
     subject.type === 'place' ? { placeId: subject.placeId } : { location: true };
@@ -102,6 +114,13 @@ export function SubjectPaperwork({
               </Button>
             )
           ) : null}
+          {canAddFile && paperless.connected ? (
+            <LinkFromPaperless
+              subject={placeSubject}
+              locationId={subject.locationId}
+              name={subject.name}
+            />
+          ) : null}
           {canEdit ? (
             <Button variant="secondary" isDisabled={!online} onPress={() => setAdding(true)}>
               <ClockIcon className="size-4" />
@@ -116,6 +135,7 @@ export function SubjectPaperwork({
         </div>
       ) : null}
 
+      {paperless.down && paperless.linked ? <PaperlessDownNotice error={paperless.error} /> : null}
       {empty ? (
         <p className="m-0 rounded-[10px] border border-dashed border-line px-4 py-4 text-small text-ink-2">
           {subject.type === 'place' ? (
@@ -147,6 +167,17 @@ export function SubjectPaperwork({
               <FileRow row={r} original={original} />
             </li>
           ))}
+          {links.map((l) => (
+            <li key={l.id}>
+              <PaperlessLinkRow
+                link={l}
+                role={role}
+                name={subject.name}
+                subject={placeSubject}
+                onCopied={onCopied}
+              />
+            </li>
+          ))}
         </List>
       )}
       {more ? (
@@ -157,19 +188,6 @@ export function SubjectPaperwork({
         >
           <Trans>All of it in Paperwork</Trans>
         </Link>
-      ) : null}
-
-      {subject.type === 'place' ? (
-        <PaperlessDocuments
-          subject={placeSubject}
-          locationId={subject.locationId}
-          role={role}
-          name={subject.name}
-          onCopied={() => {
-            void qc.invalidateQueries({ queryKey: householdKeys.paperwork.all });
-            onChanged?.();
-          }}
-        />
       ) : null}
 
       <AddDocumentSheet

@@ -184,6 +184,7 @@ export const AUDIT_ACTIONS = [
   'paperless_link.copy',
   'paperless_link.create',
   'paperless_link.delete',
+  'paperless_link.update',
   'passkey.add',
   'passkey.remove',
   'passkey.rename',

@@ -414,6 +414,7 @@ export function useSummary() {
       'paperless_link.create': () => t`Paperless document linked`,
       'paperless_link.delete': () => t`Paperless document unlinked`,
       'paperless_link.copy': () => t`Paperless document copied into Kept`,
+      'paperless_link.update': () => t`Paperless document changed`,
       'purchase.reextract': () => t`Receipt read again`,
       'thing.enrich': () => t`Other names added`,
       'import.enrich': () => t`Other names requested for an import`,

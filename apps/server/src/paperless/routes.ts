@@ -8,6 +8,7 @@ import sharp from 'sharp';
 import { z } from 'zod';
 import { allowPrivateAddresses } from '../ai/runtime.js';
 import { audited } from '../audit/audited.js';
+import { lastChangedBy } from '../audit/undo.js';
 import { rateLimited, requireScope } from '../auth/http.js';
 import { limiterKey, reserveInWindow } from '../auth/sign-in-limiter.js';
 import type { Sealed } from '../crypto/envelope.js';
@@ -19,6 +20,7 @@ import { ingestFile } from '../files/ingest.js';
 import { receive } from '../files/upload.js';
 import { isMoneyRole } from '../files/views.js';
 import type { KeptApp } from '../http/app.js';
+import { checkVersion, requireIfMatch } from '../http/conventions.js';
 import { AppError, conflict, forbidden, invalid, notFound } from '../http/errors.js';
 import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
@@ -59,6 +61,7 @@ import { kindOf } from './kinds.js';
 // GET    /api/v1/locations/:id/paperless/documents/:documentId/thumb      → image/jpeg
 // GET    /api/v1/paperless-links?thingId|placeId  → {connected, items: PaperlessLink[]}
 // POST   /api/v1/paperless-links {thingId|placeId, documentIds} → 201 {items}
+// PATCH  /api/v1/paperless-links/:id {kind} (If-Match) → PaperlessLink (#347)
 // DELETE /api/v1/paperless-links/:id              → 204
 // GET    /api/v1/paperless-links/:id/thumb        → image/jpeg
 // GET    /api/v1/paperless-links/:id/preview      → the document, as a download (members and up)
@@ -75,6 +78,9 @@ import { kindOf } from './kinds.js';
 //   does (D117, D157), to members and up only.
 // - Receipts and invoices are money (security review #10): where the caller's gate hides money,
 //   links of those kinds are left out, and their thumbnails, previews and copies are 404s.
+// - A link's kind starts as Paperless's document type or tags say (kinds.ts); after that it is the
+//   person's to change, as an attachment's role is (the same permissions: your own as a member,
+//   anyone's as an admin), and "Copy into Kept" copies in the link's kind.
 // - Paperless down, or the token revoked: the link list never calls Paperless, so the cached
 //   titles show; the status route says what is wrong.
 
@@ -147,8 +153,12 @@ const LinkView = z.object({
   openUrl: z.string(),
   createdBy: z.object({ id: z.uuid(), displayName: z.string() }),
   createdAt: Iso,
+  /** For PATCH /api/v1/paperless-links/:id (If-Match). */
+  rowVersion: z.number().int(),
 });
 type LinkView = z.infer<typeof LinkView>;
+
+const KindBody = z.object({ kind: z.enum(PAPERLESS_KINDS) }).strict();
 
 const SubjectQuery = z
   .object({ thingId: z.uuid().optional(), placeId: z.uuid().optional() })
@@ -195,13 +205,14 @@ type LinkRow = {
   created_by: string;
   creator_name: string | null;
   created_at: Date;
+  row_version: number;
   base_url: string;
 };
 
 const LINK_SELECT = `SELECT l.id, l.location_id, l.connection_id, l.thing_id, l.place_id,
          l.document_id, l.title, l.kind, l.type_name, l.correspondent, l.created_on::text,
          l.copied_attachment_id, l.created_by, p.display_name AS creator_name, l.created_at,
-         c.base_url
+         l.row_version, c.base_url
     FROM public.paperless_links l
     JOIN public.paperless_connections c ON c.id = l.connection_id
     LEFT JOIN public.user_profiles p ON p.user_id = l.created_by`;
@@ -224,6 +235,7 @@ function linkView(r: LinkRow): LinkView {
     openUrl: openUrlOf(r.base_url, r.document_id),
     createdBy: { id: r.created_by, displayName: r.creator_name ?? '' },
     createdAt: r.created_at.toISOString(),
+    rowVersion: r.row_version,
   };
 }
 
@@ -302,6 +314,39 @@ async function requireAdder(client: pg.ClientBase, locationId: string): Promise<
 }
 
 const WRITERS = new Set<Role>(['owner', 'admin', 'member']);
+
+/** 403 unless the caller may change or unlink this link: as for an attachment
+ * (files/attachments.ts), their own as a member and up, anyone's as an owner or admin. */
+async function requireLinkChanger(
+  client: pg.ClientBase,
+  row: LinkRow,
+  userId: string,
+  doing: 'change' | 'unlink',
+): Promise<void> {
+  const { role } = await requireMembership(client, row.location_id);
+  const own = row.created_by === userId;
+  if (can(role, own ? 'attachments.delete-own' : 'attachments.delete-any')) return;
+  throw forbidden(
+    own
+      ? doing === 'unlink'
+        ? 'Viewers can see linked documents but not unlink them.'
+        : 'Viewers can see linked documents but not change them.'
+      : doing === 'unlink'
+        ? 'Only owners and admins unlink a document someone else linked.'
+        : 'Only owners and admins change a document someone else linked.',
+  );
+}
+
+/** 409 `module_off` for a receipt or invoice where the caller's gate hides money. */
+function refuseHiddenMoney(kind: PaperlessKind, showMoney: boolean): void {
+  if (isMoneyRole(kind) && !showMoney) {
+    throw new AppError(
+      'module_off',
+      409,
+      'Receipts and invoices show money, which is hidden for you in this location.',
+    );
+  }
+}
 
 /** A link the caller can see, money-gated: 404 otherwise. */
 async function readLink(tx: Tx, client: pg.ClientBase, scope: Scope, id: string): Promise<LinkRow> {
@@ -777,13 +822,7 @@ export async function paperlessRoutes(app: KeptApp, deps: InventoryDeps): Promis
         let n = count[0]?.n ?? 0;
         for (const [i, doc] of docs.entries()) {
           const w = words[i] as Cached;
-          if (isMoneyRole(w.kind) && !gate.showMoney) {
-            throw new AppError(
-              'module_off',
-              409,
-              'Receipts and invoices show money, which is hidden for you in this location.',
-            );
-          }
+          refuseHiddenMoney(w.kind, gate.showMoney);
           if (n >= MAX_LINKS_PER_SUBJECT) {
             throw conflict(
               `A ${subject.kind} holds at most ${MAX_LINKS_PER_SUBJECT} Paperless documents.`,
@@ -837,18 +876,59 @@ export async function paperlessRoutes(app: KeptApp, deps: InventoryDeps): Promis
     },
   );
 
+  // A link's kind, set as an attachment's role is (PATCH /api/v1/attachments/:id): the same
+  // permissions, If-Match, the money gate both ways, and an audit row on the thing (#347).
+  app.patch(
+    '/api/v1/paperless-links/:id',
+    { schema: { params: IdParams, body: KindBody, response: { 200: LinkView } } },
+    (req, reply) => {
+      const expected = requireIfMatch(req);
+      return scopedWrite(pools, req, reply, async (tx, client, scope) => {
+        const id = req.params.id.toLowerCase();
+        // Seen first (a link the caller can't see, or a hidden receipt, is a 404), then locked
+        // while it is checked and changed, so two PATCHes from one version can't both pass.
+        const seen = await readLink(tx, client, scope, id);
+        await requireLinkChanger(client, seen, scope.userId, 'change');
+        await client.query('SELECT 1 FROM public.paperless_links WHERE id = $1 FOR UPDATE', [id]);
+        const before = await readLink(tx, client, scope, id);
+        const { showMoney } = await gateFor(tx, before.location_id, scope);
+        refuseHiddenMoney(req.body.kind, showMoney);
+        if (before.row_version !== expected) {
+          const by = await lastChangedBy(client, before.location_id, {
+            type: 'paperless_link',
+            id,
+          });
+          checkVersion(
+            { rowVersion: before.row_version },
+            expected,
+            ['kind'],
+            by ? { displayName: by } : null,
+          );
+        }
+        await client.query('UPDATE public.paperless_links SET kind = $2 WHERE id = $1', [
+          id,
+          req.body.kind,
+        ]);
+        const after = await readLink(tx, client, scope, id);
+        await audited(tx, {
+          locationId: after.location_id,
+          actor: { type: 'user', id: scope.userId },
+          action: 'paperless_link.update',
+          entity: { type: 'paperless_link', id },
+          before: { kind: before.kind },
+          after: { kind: after.kind },
+          ...(after.thing_id ? { subjects: [after.thing_id], rootThingId: after.thing_id } : {}),
+          requestId: req.id,
+        });
+        return { status: 200, body: linkView(after) };
+      });
+    },
+  );
+
   app.delete('/api/v1/paperless-links/:id', { schema: { params: IdParams } }, (req, reply) =>
     scopedWrite(pools, req, reply, async (tx, client, scope) => {
       const row = await readLink(tx, client, scope, req.params.id.toLowerCase());
-      const { role } = await requireMembership(client, row.location_id);
-      const own = row.created_by === scope.userId;
-      if (!can(role, own ? 'attachments.delete-own' : 'attachments.delete-any')) {
-        throw forbidden(
-          own
-            ? 'Viewers can see linked documents but not unlink them.'
-            : 'Only owners and admins unlink a document someone else linked.',
-        );
-      }
+      await requireLinkChanger(client, row, scope.userId, 'unlink');
       await client.query('DELETE FROM public.paperless_links WHERE id = $1', [row.id]);
       await audited(tx, {
         locationId: row.location_id,
@@ -1006,20 +1086,20 @@ export async function paperlessRoutes(app: KeptApp, deps: InventoryDeps): Promis
               subject: fresh.thing_id
                 ? { thingId: fresh.thing_id }
                 : { placeId: fresh.place_id as string },
-              role: words.kind,
+              // The link's kind: Paperless's when it was linked, or what someone set since.
+              role: fresh.kind,
             },
             req.id,
           );
           await c.query(
             `UPDATE public.paperless_links
-                SET copied_attachment_id = $2, title = $3, kind = $4, type_name = $5,
-                    correspondent = $6, created_on = $7, refreshed_at = now()
+                SET copied_attachment_id = $2, title = $3, type_name = $4,
+                    correspondent = $5, created_on = $6, refreshed_at = now()
               WHERE id = $1`,
             [
               fresh.id,
               attachment.id,
               words.title,
-              words.kind,
               words.typeName,
               words.correspondent,
               words.createdOn,
@@ -1032,7 +1112,7 @@ export async function paperlessRoutes(app: KeptApp, deps: InventoryDeps): Promis
             entity: { type: 'paperless_link', id: fresh.id },
             before: { copied_attachment_id: null },
             after: {
-              ...linkImage({ ...fresh, title: words.title, kind: words.kind }),
+              ...linkImage({ ...fresh, title: words.title }),
               copied_attachment_id: attachment.id,
             },
             ...(fresh.thing_id ? { subjects: [fresh.thing_id], rootThingId: fresh.thing_id } : {}),

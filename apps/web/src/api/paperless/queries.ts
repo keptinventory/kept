@@ -2,7 +2,7 @@
  * Paperless-ngx's fetchers, keys and hooks (1.x, D248) over ./types.ts and ./paths.ts.
  */
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { api } from '../client';
+import { api, ifMatch } from '../client';
 import { paperlessPaths as p } from './paths';
 import type {
   PaperlessCheck,
@@ -11,6 +11,7 @@ import type {
   PaperlessConnectionResponse,
   PaperlessLink,
   PaperlessLinkBody,
+  PaperlessLinkKindBody,
   PaperlessLinks,
   PaperlessSearch,
   PaperlessStatus,
@@ -52,6 +53,13 @@ export const paperlessApi = {
     ),
   links: (s: PaperlessSubject) => api.get<PaperlessLinks>(`${p.links()}?${subjectQuery(s)}`),
   link: (body: PaperlessLinkBody) => api.post<{ items: PaperlessLink[] }>(p.links(), body),
+  /** A link's kind, changed as an attachment's role is (#347). */
+  setKind: (id: string, rowVersion: number, kind: PaperlessLinkKindBody['kind']) =>
+    api.patch<PaperlessLink>(
+      p.link(id),
+      { kind } satisfies PaperlessLinkKindBody,
+      ifMatch(rowVersion),
+    ),
   unlink: (id: string) => api.del(p.link(id)),
   copy: (id: string) => api.post<{ link: PaperlessLink; attachmentId: string }>(p.linkCopy(id)),
 };

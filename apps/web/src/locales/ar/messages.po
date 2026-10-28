@@ -27985,3 +27985,15 @@ msgstr "استخدم {N} للرقم، أو {ROW} و{COL}."
 #: src/components/templates/place-template-list.tsx
 msgid "Use {N}, or {ROW} and {COL}, so each one gets its own code."
 msgstr "استخدم {N}، أو {ROW} و{COL}، ليأخذ كل واحد رمزه."
+
+#: src/components/paperless/documents.tsx
+msgid "Couldn't change its kind"
+msgstr "تعذّر تغيير نوعه"
+
+#: src/components/paperless/documents.tsx
+msgid "Kind of {title}"
+msgstr "نوع «{title}»"
+
+#: src/components/history/labels.ts
+msgid "Paperless document changed"
+msgstr "عُدّل مستند من Paperless"
