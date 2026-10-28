@@ -39,7 +39,8 @@ import { UploadButton } from './upload';
 /** A row of the Paperwork list: a file in Kept, or a document linked from Paperless. */
 type PaperworkItem = { type: 'file'; file: AttachmentView } | { type: 'link'; link: PaperlessLink };
 
-/** The files' pages with the links after the files of the last page loaded, for ListSurface. */
+/** The files' pages with the links after the last file, for ListSurface. While more files are
+ * still to load the links wait, so Load more doesn't move them and its focus lands on a new file. */
 function useWithLinks(
   query: UseInfiniteQueryResult<InfiniteData<Page<AttachmentView>>>,
   links: readonly PaperlessLink[],
@@ -52,7 +53,7 @@ function useWithLinks(
         ...pg,
         items: [
           ...pg.items.map((file): PaperworkItem => ({ type: 'file', file })),
-          ...(i === (pages?.length ?? 0) - 1
+          ...(i === (pages?.length ?? 0) - 1 && !query.hasNextPage
             ? links.map((link): PaperworkItem => ({ type: 'link', link }))
             : []),
         ],
