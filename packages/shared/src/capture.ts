@@ -9,6 +9,11 @@
 export const CAPTURE_MODES = ['thing', 'receipt', 'label', 'reading', 'room'] as const;
 export type CaptureMode = (typeof CAPTURE_MODES)[number];
 
+/** What the `extract` job reads (`extractions.mode`): the camera's modes, and a floor plan
+ * (D266), which is read on the map, never from the strip. */
+export const EXTRACTION_MODES = [...CAPTURE_MODES, 'plan'] as const;
+export type ExtractionMode = (typeof EXTRACTION_MODES)[number];
+
 export type PhotoPolicy =
   | { readonly keepOriginal: false; readonly shrinkTo: number }
   | { readonly keepOriginal: true; readonly displayTo: number };

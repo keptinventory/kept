@@ -27997,3 +27997,19 @@ msgstr "Type de {title}"
 #: src/components/history/labels.ts
 msgid "Paperless document changed"
 msgstr "Document Paperless modifié"
+
+#: src/components/history/labels.ts
+msgid "Read a floor plan"
+msgstr "Plan d’étage lu"
+
+#: src/components/history/labels.ts
+msgid "Discarded a floor plan"
+msgstr "Plan d’étage abandonné"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Added # room from a floor plan} other {Added # rooms from a floor plan}}"
+msgstr "{count, plural, one {# pièce ajoutée depuis un plan d’étage} other {# pièces ajoutées depuis un plan d’étage}}"
+
+#: src/components/ai/labels.ts
+msgid "Floor plans"
+msgstr "Plans d’étage"

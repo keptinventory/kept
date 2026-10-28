@@ -27997,3 +27997,19 @@ msgstr "Kind of {title}"
 #: src/components/history/labels.ts
 msgid "Paperless document changed"
 msgstr "Paperless document changed"
+
+#: src/components/history/labels.ts
+msgid "Read a floor plan"
+msgstr "Read a floor plan"
+
+#: src/components/history/labels.ts
+msgid "Discarded a floor plan"
+msgstr "Discarded a floor plan"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Added # room from a floor plan} other {Added # rooms from a floor plan}}"
+msgstr "{count, plural, one {Added # room from a floor plan} other {Added # rooms from a floor plan}}"
+
+#: src/components/ai/labels.ts
+msgid "Floor plans"
+msgstr "Floor plans"

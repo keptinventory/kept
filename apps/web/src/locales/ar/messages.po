@@ -27997,3 +27997,19 @@ msgstr "نوع «{title}»"
 #: src/components/history/labels.ts
 msgid "Paperless document changed"
 msgstr "عُدّل مستند من Paperless"
+
+#: src/components/history/labels.ts
+msgid "Read a floor plan"
+msgstr "قُرئ مخطط طابق"
+
+#: src/components/history/labels.ts
+msgid "Discarded a floor plan"
+msgstr "تُجوهل مخطط طابق"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Added # room from a floor plan} other {Added # rooms from a floor plan}}"
+msgstr "{count, plural, zero {لم تُضف غرف من مخطط طابق} one {أُضيفت غرفة واحدة من مخطط طابق} two {أُضيفت غرفتان من مخطط طابق} few {أُضيفت # غرف من مخطط طابق} many {أُضيفت # غرفة من مخطط طابق} other {أُضيفت # غرفة من مخطط طابق}}"
+
+#: src/components/ai/labels.ts
+msgid "Floor plans"
+msgstr "مخططات الطوابق"
