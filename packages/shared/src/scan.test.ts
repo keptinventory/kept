@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { gtinShort, gtinValid, parseGs1, parseScan, upcEToUpcA } from './scan.js';
+import {
+  gtinShort,
+  gtinValid,
+  parseGs1,
+  parseScan,
+  productCodeForms,
+  upcAToUpcE,
+  upcEToUpcA,
+} from './scan.js';
 
 describe('parseScan: Kept labels (D120, §2.4)', () => {
   it.each([
@@ -99,6 +107,80 @@ describe('parseScan: product barcodes', () => {
   });
 });
 
+describe('parseScan: UPC-A and UPC-E, however the reader writes them', () => {
+  // zxing-cpp 3 (the wasm reader every iPhone uses) writes UPC-A and UPC-E as 13 digits, and a
+  // UPC-A among the app's formats comes back as `ean_13`. These are its real outputs (zxing-wasm
+  // 3.1.3 through barcode-detector 3.2.2, the codes drawn by zxing's own writer). Native readers
+  // and people give the 8 and 12 digits printed under the bars. Each is kept as printed.
+  it.each([
+    // [what the reader gave, its format, kept as, named]
+    ['0012345000065', 'upc_e', '01234565', 'upc_e'], // UPC-E 01234565
+    ['0112345000062', 'upc_e', '11234562', 'upc_e'], // UPC-E 11234562 (number system 1)
+    ['0042100005264', 'upc_e', '04252614', 'upc_e'], // UPC-E 04252614
+    ['042100005264', 'upc_e', '04252614', 'upc_e'], // its UPC-A, 12 digits
+    ['04252614', 'upc_e', '04252614', 'upc_e'],
+    ['0036000291452', 'ean_13', '036000291452', 'upc_a'], // UPC-A 036000291452, among all formats
+    ['0123456789012', 'ean_13', '123456789012', 'upc_a'], // UPC-A 123456789012
+    ['0036000291452', 'upc_a', '036000291452', 'upc_a'], // UPC-A asked for alone
+    ['036000291452', 'upc_a', '036000291452', 'upc_a'],
+    ['0036000291452', undefined, '036000291452', 'upc_a'], // typed with its leading 0
+  ])('%s (%s) → %s', (text, format, code, symbology) => {
+    expect(parseScan(text, format)).toEqual({ kind: 'barcode', code, symbology, field: 'barcode' });
+  });
+
+  it('still checks the check digit in every form', () => {
+    expect(parseScan('0012345000066', 'upc_e').kind).toBe('other');
+    expect(parseScan('042100005265', 'upc_e').kind).toBe('other');
+    expect(parseScan('0036000291453', 'ean_13').kind).toBe('other');
+    expect(parseScan('0036000291453', 'upc_a').kind).toBe('other');
+    expect(parseScan('1036000291452', 'upc_a').kind).toBe('other'); // a UPC-A has no other 13th
+  });
+
+  it('refuses a UPC-E whose UPC-A has no UPC-E form', () => {
+    expect(parseScan('0036000291452', 'upc_e').kind).toBe('other');
+  });
+
+  it('leaves an EAN-13 that is not a UPC-A as it is', () => {
+    expect(parseScan('4006381333931', 'ean_13')).toMatchObject({
+      code: '4006381333931',
+      symbology: 'ean_13',
+    });
+  });
+});
+
+describe('productCodeForms: the spellings one product code is kept under', () => {
+  it('matches a UPC-A typed as 12 digits and read as 13', () => {
+    expect(productCodeForms('036000291452').sort()).toEqual(['0036000291452', '036000291452']);
+    expect(productCodeForms('0036000291452').sort()).toEqual(['0036000291452', '036000291452']);
+  });
+
+  it('matches a UPC-E as printed, as its UPC-A and as the 13 digits read for it', () => {
+    expect(productCodeForms('01234565', 'upc_e').sort()).toEqual([
+      '0012345000065',
+      '012345000065',
+      '01234565',
+    ]);
+    expect(productCodeForms('012345000065').sort()).toEqual([
+      '0012345000065',
+      '012345000065',
+      '01234565',
+    ]);
+  });
+
+  it('reads 8 typed digits both ways, and an EAN-8 read as one only as itself', () => {
+    // 01234565 passes both check digits: an EAN-8, or a UPC-E.
+    expect(productCodeForms('01234565')).toContain('012345000065');
+    expect(productCodeForms('01234565', 'ean_8')).toEqual(['01234565']);
+    expect(productCodeForms('96385074')).toEqual(['96385074']);
+  });
+
+  it('leaves any other code alone', () => {
+    expect(productCodeForms('4006381333931')).toEqual(['4006381333931']);
+    expect(productCodeForms('AT-00417')).toEqual(['AT-00417']);
+    expect(productCodeForms('0036000291453')).toEqual(['0036000291453']); // bad check digit
+  });
+});
+
 describe('check digits', () => {
   it('validates GTIN-8/12/13 and expands UPC-E', () => {
     expect(gtinValid('4006381333931')).toBe(true);
@@ -110,6 +192,18 @@ describe('check digits', () => {
     expect(upcEToUpcA('04252614')).toBe('042100005264');
     expect(upcEToUpcA('01234505')).toBe('012000003455');
     expect(upcEToUpcA('21234565')).toBeNull(); // number system 2 has no UPC-E
+  });
+
+  it('compresses a UPC-A to its UPC-E when it has one', () => {
+    expect(upcAToUpcE('042100005264')).toBe('04252614');
+    expect(upcAToUpcE('012000003455')).toBe('01234505');
+    expect(upcAToUpcE('012345000065')).toBe('01234565');
+    expect(upcAToUpcE('112345000062')).toBe('11234562');
+    expect(upcAToUpcE('036000291452')).toBeNull();
+    expect(upcAToUpcE('212345000065')).toBeNull(); // number system 2 has no UPC-E
+    for (const e of ['04252614', '01234505', '01234565', '11234562', '01230004', '01234037']) {
+      expect(upcAToUpcE(upcEToUpcA(e) as string)).toBe(e);
+    }
   });
 });
 

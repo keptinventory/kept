@@ -183,6 +183,17 @@ describe('a count', () => {
     expect(other.kind).toBe('unmatched');
   });
 
+  it('matches a UPC however it was typed or read: 12 digits kept, 13 read by an iPhone', () => {
+    const cereal = thing({ barcode: '036000291452' });
+    const soap = thing({ barcode: '0123456789012' }); // saved from an older iPhone scan
+    let s = counting([cereal, soap]);
+    const bc = (code: string) => answer({ outcome: 'barcode', code, lookupEnabled: null });
+    const first = read(s, '0036000291452', bc('036000291452'), member, 'ean_13');
+    expect(first.kind).toBe('found');
+    s = first.session;
+    expect(read(s, '123456789012', bc('123456789012'), member).kind).toBe('found');
+  });
+
   it('takes the candidate on the expected list when a code matches several things', () => {
     const kettle = thing();
     const res = {

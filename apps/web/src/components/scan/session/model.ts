@@ -26,8 +26,10 @@
  */
 import {
   can,
+  isProductCode,
   newId,
   parseScan,
+  productCodeForms,
   type QueueItem,
   type Role,
   SCAN_SESSION_LIMITS,
@@ -459,9 +461,10 @@ export function addRead(
   const scan = parseScan(input.text, input.format);
   if (scan.kind === 'barcode' && s.mode === 'count') {
     const found = foundIds(s);
-    const match = (indexOf(s.expected).byBarcode.get(scan.code) ?? []).find(
-      (t) => !found.has(t.id),
-    );
+    // Any spelling of the code a thing may keep (a UPC-A's 12 digits or the 13 an iPhone read).
+    const forms = isProductCode(scan) ? productCodeForms(scan.code, input.format) : [scan.code];
+    const { byBarcode } = indexOf(s.expected);
+    const match = forms.flatMap((code) => byBarcode.get(code) ?? []).find((t) => !found.has(t.id));
     if (match) return ofThing(match);
   }
 

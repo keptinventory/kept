@@ -103,14 +103,24 @@ export function csrfHook(publicUrl: string) {
     // A personal token's request ignores cookies (tokens/verify.ts): no ambient authority to
     // abuse, and another site can't set Authorization without a CORS preflight Kept never answers.
     if (PERSONAL_BEARER.test(String(req.headers.authorization ?? ''))) return;
-    const origin = req.headers.origin;
-    if (origin && origin !== 'null') {
-      if (origin === expected) return;
-      throw originMismatch(expected);
-    }
-    if (req.headers['sec-fetch-site'] === 'same-origin') return;
-    throw new AppError('forbidden', 403, NOT_THIS_SITE);
+    assertFromThisSite(req, expected);
   };
+}
+
+/**
+ * csrfHook's rule for one request, cookie or not: its `Origin` is `expected` (else 403
+ * `origin_mismatch`), or with no usable Origin, `Sec-Fetch-Site: same-origin` (else 403
+ * `forbidden`). First-run setup applies it too: it carries no cookie, but it makes the instance
+ * admin and signs them in, so it must come from Kept's own setup page.
+ */
+export function assertFromThisSite(req: FastifyRequest, expected: string): void {
+  const origin = req.headers.origin;
+  if (origin && origin !== 'null') {
+    if (origin === expected) return;
+    throw originMismatch(expected);
+  }
+  if (req.headers['sec-fetch-site'] === 'same-origin') return;
+  throw new AppError('forbidden', 403, NOT_THIS_SITE);
 }
 
 /** The scope of a route that required a session. */

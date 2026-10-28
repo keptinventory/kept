@@ -287,6 +287,41 @@ describe('POST /api/v1/scan/resolve', () => {
       barcode: { code: '4006381333931', lookupEnabled: false },
     });
   });
+
+  it('finds a UPC-A or UPC-E thing however the code was typed or read', async () => {
+    await setting('barcode_lookup', false);
+    // Typed from the label (12 digits); an iPhone reads the same symbol as ean_13, 13 digits.
+    const cereal = await createThing(t, ibrahim, home, {
+      name: 'Cereal',
+      barcode: '036000291452',
+    });
+    const opens = {
+      outcome: 'open',
+      target: { kind: 'thing', id: cereal.id, locationId: home.id },
+    };
+    expect(ok(await resolve(ibrahim, '0036000291452', 'ean_13'))).toEqual(opens);
+    expect(ok(await resolve(ibrahim, '0036000291452', 'upc_a'))).toEqual(opens);
+    expect(ok(await resolve(ibrahim, '036000291452'))).toEqual(opens);
+    // Saved from an older iPhone scan, as its 13 digits; typed later from the label.
+    const soap = await createThing(t, ibrahim, home, { name: 'Soap', barcode: '0123456789012' });
+    expect(ok(await resolve(ibrahim, '123456789012'))).toMatchObject({ target: { id: soap.id } });
+    // A UPC-E typed as printed (8 digits): zxing's 13 digits and the UPC-A find it.
+    const gum = await createThing(t, ibrahim, home, { name: 'Gum', barcode: '04252614' });
+    expect(ok(await resolve(ibrahim, '0042100005264', 'upc_e'))).toMatchObject({
+      target: { id: gum.id },
+    });
+    expect(ok(await resolve(ibrahim, '042100005264', 'upc_a'))).toMatchObject({
+      target: { id: gum.id },
+    });
+    // A new UPC-E is named as printed, for the new thing and the lookup.
+    expect(ok(await resolve(ibrahim, '0012345000065', 'upc_e'))).toEqual({
+      outcome: 'barcode',
+      barcode: { code: '01234565', lookupEnabled: false },
+    });
+    // Another household's thing never.
+    await createThing(t, bruce, garage, { name: 'Bruce’s cereal', barcode: '0036000291452' });
+    expect(ok(await resolve(talia, '036000291452', 'upc_a'))).toEqual(opens);
+  });
 });
 
 describe('POST /api/v1/scan/resolve: serial numbers and asset tags', () => {
@@ -372,13 +407,13 @@ describe('POST /api/v1/scan/resolve-batch', () => {
       await batch(talia, [
         { text: `https://kept.example/l/${lamp.shortCode}`, format: 'qr_code' },
         { text: '5000112637922X' },
-        { text: '0000000000000', format: 'ean_13' },
+        { text: '0000000000000', format: 'ean_13' }, // a UPC-A, read as 13 digits
       ]),
     );
     expect(body.results).toEqual([
       { outcome: 'open', target: { kind: 'thing', id: lamp.id, locationId: home.id } },
       { outcome: 'not_kept', text: '5000112637922X' },
-      { outcome: 'barcode', barcode: { code: '0000000000000', lookupEnabled: false } },
+      { outcome: 'barcode', barcode: { code: '000000000000', lookupEnabled: false } },
     ]);
   });
 
