@@ -1221,7 +1221,7 @@ function MapBody({
               <div className="kmap-hint">{hints[hint]}</div>
               {planAi.ai.kind !== 'on' && !planOpen ? (
                 <div id="kplan-blocked" className="kmap-hint">
-                  <BlockedLine ai={planAi.ai} />
+                  <BlockedLine ai={planAi.ai} announce={false} />
                 </div>
               ) : null}
               {planOpen ? (

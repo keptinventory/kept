@@ -53,12 +53,13 @@ export function usePlanAi(
   return { ai: { kind: 'on' }, provider: s?.providerKind ?? null };
 }
 
-/** Why a plan can't be read here: the same three lines as the room tray. */
-export function BlockedLine({ ai }: { ai: PlanAi }) {
+/** Why a plan can't be read here: the same three lines as the room tray. Announced as a status
+ * on the empty map; in Arrange's tools it is From a plan's description instead. */
+export function BlockedLine({ ai, announce = true }: { ai: PlanAi; announce?: boolean }) {
   const fmt = useFormat();
   if (ai.kind === 'on') return null;
   return (
-    <p className="kplan-note" role="status">
+    <p className="kplan-note" {...(announce ? { role: 'status' } : {})}>
       {ai.kind === 'off' ? (
         <Trans>
           AI capture is off in <bdi>{ai.location}</bdi>. An owner or admin can turn it on.
