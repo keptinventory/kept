@@ -7,8 +7,10 @@ import type { Pools } from '../db/pools.js';
 import type { Scope } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
 import { AppError, invalid, unauthenticated } from '../http/errors.js';
+import { scopeCookieToIngress } from '../http/ingress.js';
 import { AUTH_BASE_PATH, type Auth } from './auth.js';
 import { authRequestHeaders, ClientIpError, requestClientIp } from './client-ip.js';
+import { INGRESS_ORIGIN_HEADER } from './ingress-origin.js';
 import { gateSession, type ResolvedSession, resolveSession } from './session.js';
 import { limiterKey, reserveInWindow } from './sign-in-limiter.js';
 
@@ -97,20 +99,33 @@ export function originMismatch(expectedOrigin: string): AppError {
  * left to the route.
  */
 export function csrfHook(publicUrl: string) {
-  const expected = new URL(publicUrl).origin;
+  const publicOrigin = new URL(publicUrl).origin;
   return async function checkRequestOrigin(req: FastifyRequest) {
     if (SAFE_METHODS.has(req.method) || !req.headers.cookie) return;
     // A personal token's request ignores cookies (tokens/verify.ts): no ambient authority to
     // abuse, and another site can't set Authorization without a CORS preflight Kept never answers.
     if (PERSONAL_BEARER.test(String(req.headers.authorization ?? ''))) return;
-    const origin = req.headers.origin;
-    if (origin && origin !== 'null') {
-      if (origin === expected) return;
-      throw originMismatch(expected);
-    }
-    if (req.headers['sec-fetch-site'] === 'same-origin') return;
-    throw new AppError('forbidden', 403, NOT_THIS_SITE);
+    assertSameOrigin(req, expectedOrigin(req, publicOrigin));
   };
+}
+
+/** The origin a write must come from: Home Assistant's under ingress (D273), else KEPT_PUBLIC_URL's.
+ * A cross-site page can't make a request look like ingress: the Supervisor's address is the socket,
+ * and Home Assistant's own `ingress_session` cookie is SameSite=Strict. */
+export function expectedOrigin(req: FastifyRequest, publicOrigin: string): string {
+  return req.ingress ? req.ingress.origin : publicOrigin;
+}
+
+/** The Origin rule itself: the expected origin, or, with no usable Origin, `Sec-Fetch-Site:
+ * same-origin`. */
+export function assertSameOrigin(req: FastifyRequest, expected: string): void {
+  const origin = req.headers.origin;
+  if (origin && origin !== 'null') {
+    if (origin === expected) return;
+    throw originMismatch(expected);
+  }
+  if (req.headers['sec-fetch-site'] === 'same-origin') return;
+  throw new AppError('forbidden', 403, NOT_THIS_SITE);
 }
 
 /** The scope of a route that required a session. */
@@ -132,6 +147,8 @@ export function authHeaders(req: FastifyRequest, trustedProxies: readonly string
     for (const name of ['host', 'connection', 'content-length', 'transfer-encoding', 'expect']) {
       headers.delete(name);
     }
+    headers.delete(INGRESS_ORIGIN_HEADER);
+    if (req.ingress) headers.set(INGRESS_ORIGIN_HEADER, req.ingress.origin);
     return headers;
   } catch (err) {
     if (err instanceof ClientIpError) {
@@ -141,9 +158,13 @@ export function authHeaders(req: FastifyRequest, trustedProxies: readonly string
   }
 }
 
-/** Copies Set-Cookie (each one separately) from a Better Auth response onto the reply. */
+/** Copies Set-Cookie (each one separately) from a Better Auth response onto the reply. Under
+ * ingress each is scoped to the prefix (http/ingress.ts), so the session never reaches the rest of
+ * Home Assistant. */
 export function forwardCookies(reply: FastifyReply, headers: Headers | null | undefined): void {
-  const cookies = headers?.getSetCookie() ?? [];
+  const ingress = reply.request.ingress;
+  const set = headers?.getSetCookie() ?? [];
+  const cookies = ingress ? set.map((line) => scopeCookieToIngress(line, ingress)) : set;
   if (cookies.length === 0) return;
   const existing = reply.getHeader('set-cookie');
   const before = existing === undefined ? [] : Array.isArray(existing) ? existing : [existing];
@@ -329,8 +350,9 @@ export async function authRoutes(app: KeptApp, opts: AuthRoutesOptions): Promise
         }
         const res = await auth.handler(new Request(url, init));
         // Better Auth's own Origin check (a sign-in has no cookie yet, so csrfHook left it):
-        // answered as Kept's, naming the address this Kept is set up for.
-        if (await refusedOrigin(res)) throw originMismatch(origin);
+        // answered as Kept's, naming the address this Kept is set up for (Home Assistant's,
+        // under ingress).
+        if (await refusedOrigin(res)) throw originMismatch(expectedOrigin(req, origin));
         if (turningOn && res.status === 200) {
           const { rows } = await pools.auth.query<{ on: boolean }>(
             'SELECT coalesce(two_factor_enabled, false) AS on FROM auth."user" WHERE id = $1',

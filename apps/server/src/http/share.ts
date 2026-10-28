@@ -15,18 +15,24 @@ import type { KeptApp } from './app.js';
 export const SHARE_PATH = '/share';
 export const SHARE_UNAVAILABLE = '/capture?share=unavailable';
 
+/** Where the share goes back to: the capture screen, under the ingress prefix when there is one
+ * (D273; the ingress hook runs before this one). */
+function unavailable(req: FastifyRequest): string {
+  return `${req.ingress?.prefix ?? ''}${SHARE_UNAVAILABLE}`;
+}
+
 /** Answers `POST /share` with 303 before anything else looks at the request. */
 export async function shareGuard(req: FastifyRequest, reply: FastifyReply) {
   if (req.method !== 'POST') return;
   const pathname = req.url.split('?')[0];
   if (pathname !== SHARE_PATH) return;
-  return reply.code(303).header('location', SHARE_UNAVAILABLE).send();
+  return reply.code(303).header('location', unavailable(req)).send();
 }
 
 /** The route itself, so the share target is a known, public route (the route catalogue's
  * ALLOWLIST: redirect only). shareGuard() answers first; the handler is its twin. */
 export async function shareRoutes(app: KeptApp): Promise<void> {
-  app.post(SHARE_PATH, { schema: { hide: true }, config: { auth: 'none' } }, async (_req, reply) =>
-    reply.code(303).header('location', SHARE_UNAVAILABLE).send(),
+  app.post(SHARE_PATH, { schema: { hide: true }, config: { auth: 'none' } }, async (req, reply) =>
+    reply.code(303).header('location', unavailable(req)).send(),
   );
 }

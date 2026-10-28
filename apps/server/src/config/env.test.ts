@@ -834,6 +834,33 @@ describe('the VAPID settings', () => {
   });
 });
 
+describe('KEPT_HA and KEPT_TLS_* (the Home Assistant app, D272)', () => {
+  const load = async (extra: Record<string, string>) =>
+    loadEnv({ ...validEnv, ...extra }, { configDir: await unusedConfigDir() });
+
+  it('reads app mode as a boolean, off unless the image sets it', async () => {
+    expect((await load({})).KEPT_HA).toBe(false);
+    expect((await load({ KEPT_HA: '1' })).KEPT_HA).toBe(true);
+    await expect(load({ KEPT_HA: 'yes' })).rejects.toMatchObject({ code: 'invalid_env' });
+  });
+
+  it('takes the certificate and key files together, or neither', async () => {
+    const env = await load({
+      KEPT_TLS_CERT_FILE: '/ssl/fullchain.pem',
+      KEPT_TLS_KEY_FILE: '/ssl/privkey.pem',
+    });
+    expect(env.KEPT_TLS_CERT_FILE).toBe('/ssl/fullchain.pem');
+    await expect(load({ KEPT_TLS_CERT_FILE: '/ssl/fullchain.pem' })).rejects.toMatchObject({
+      code: 'tls_files_partial',
+      message: expect.stringContaining('KEPT_TLS_KEY_FILE is missing'),
+    });
+    await expect(load({ KEPT_TLS_KEY_FILE: '/ssl/privkey.pem' })).rejects.toMatchObject({
+      code: 'tls_files_partial',
+      message: expect.stringContaining('KEPT_TLS_CERT_FILE is missing'),
+    });
+  });
+});
+
 describe('embeddings and OIDC (S6.7)', () => {
   const load = async (extra: Record<string, string>, available?: () => boolean) =>
     loadEnv(

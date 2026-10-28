@@ -54,6 +54,7 @@ import { bearerHook } from '../tokens/verify.js';
 import { LIBRARY_STYLE_HASHES } from './csp-styles.js';
 import { toErrorReply } from './errors.js';
 import { type BuildInfo, healthRoutes } from './health.js';
+import { ingressFraming, ingressHook } from './ingress.js';
 import { dbModuleLoader, type ModuleLoader, modulePreHandler } from './modules.js';
 import { registerInventoryRoutes } from './routes.js';
 import { shareGuard, shareRoutes } from './share.js';
@@ -79,6 +80,7 @@ export type AppEnv = Pick<Env, 'KEPT_PUBLIC_URL'> &
       | 'KEPT_BARCODE_CONTACT'
       | 'KEPT_UPDATE_CHECK'
       | 'KEPT_ERROR_DSN'
+      | 'KEPT_HA'
     >
   >;
 
@@ -135,6 +137,8 @@ export type AppOptions = {
   /** Web push's setup (notify/vapid.ts createPushSource), and in tests how a push
    * or a webhook leaves the process. Omitted: push reports unavailable. */
   notify?: Pick<NotifyDeps, 'push' | 'transport' | 'appriseUrl'> | null;
+  /** https served by Kept itself (KEPT_TLS_CERT_FILE, KEPT_TLS_KEY_FILE): the PEM contents. */
+  tls?: { cert: Buffer; key: Buffer } | null;
 };
 
 export type KeptApp = FastifyInstance<
@@ -183,7 +187,10 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
     genReqId: () => newId(),
     // Proxies are resolved per use from KEPT_TRUSTED_PROXIES (auth/client-ip.ts), not here.
     trustProxy: false,
-  }).withTypeProvider<ZodTypeProvider>();
+    // Kept's own https (the Home Assistant app's `ssl` option); the KeptApp type stays the
+    // http one: the routes see the same request and reply either way.
+    ...(opts.tls ? { https: { cert: opts.tls.cert, key: opts.tls.key } } : {}),
+  }).withTypeProvider<ZodTypeProvider>() as unknown as KeptApp;
 
   if (opts.onRoute) {
     const onRoute = opts.onRoute;
@@ -210,10 +217,15 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
   app.decorateRequest('scope', null);
   app.decorateRequest('authSession', null);
   app.decorateRequest('token', null);
+  app.decorateRequest('ingress', null);
 
   app.addHook('onRequest', async (req, reply) => {
     reply.header('x-request-id', req.id);
   });
+
+  // Home Assistant ingress (D273): decided once, from the socket and the Supervisor's headers,
+  // before anything reads the request. Outside app mode (KEPT_HA) it is null for every request.
+  app.addHook('onRequest', ingressHook(opts.env.KEPT_HA === true));
 
   // A share-target POST the service worker didn't catch: redirected before the CSRF check and
   // before its body is read (http/share.ts).
@@ -269,6 +281,8 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
     // browsers out of an instance that has no certificate.
     strictTransportSecurity: https ? { maxAge: 31_536_000, includeSubDomains: false } : false,
   });
+  // Under ingress only, Home Assistant's own page frames Kept (same origin, D273).
+  app.addHook('onSend', ingressFraming);
 
   await app.register(swagger, {
     openapi: {

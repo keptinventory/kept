@@ -55,6 +55,12 @@ export type TestAppOptions = {
   oauth?: AuthDeps['oauth'];
   /** Google sign-in, configured as KEPT_GOOGLE_CLIENT_ID and _SECRET would. */
   google?: AuthDeps['google'];
+  /** The built web bundle to serve (http/web.ts loadWebBundle); omitted, the API only. */
+  web?: Parameters<typeof buildApp>[0]['web'];
+  /** KEPT_HA=1: the Home Assistant app's mode (D272, D273). */
+  appMode?: boolean;
+  /** KEPT_TRUSTED_PROXIES; default none. */
+  trustedProxies?: readonly string[];
 };
 
 export async function testApp(db: TestDb, opts: TestAppOptions = {}): Promise<TestApp> {
@@ -67,12 +73,14 @@ export async function testApp(db: TestDb, opts: TestAppOptions = {}): Promise<Te
     ...(opts.mailConfigured ? { enrolmentNeedsVerifiedEmail: true } : {}),
     ...(opts.oauth ? { oauth: opts.oauth } : {}),
     ...(opts.google ? { google: opts.google } : {}),
+    ...(opts.appMode ? { ingress: true } : {}),
   });
   const mail: Mail[] = [];
   const app = await buildApp({
     env: {
       KEPT_PUBLIC_URL: publicUrl,
-      KEPT_TRUSTED_PROXIES: [],
+      KEPT_TRUSTED_PROXIES: opts.trustedProxies ?? [],
+      ...(opts.appMode ? { KEPT_HA: true } : {}),
       ...(opts.signupOpenEnv !== undefined ? { KEPT_SIGNUP_OPEN: opts.signupOpenEnv } : {}),
     },
     pools: db.pools as Pools,
@@ -96,6 +104,7 @@ export async function testApp(db: TestDb, opts: TestAppOptions = {}): Promise<Te
     ...(opts.ai ? { ai: opts.ai } : {}),
     ...(opts.notify ? { notify: opts.notify } : {}),
     ...(opts.tokenKey ? { tokenKey: opts.tokenKey } : {}),
+    ...(opts.web ? { web: opts.web } : {}),
   });
   await opts.routes?.(app);
   await app.ready();

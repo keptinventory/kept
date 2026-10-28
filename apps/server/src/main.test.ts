@@ -1,5 +1,8 @@
+import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { createServer } from 'node:http';
+import { request as httpsRequest } from 'node:https';
 import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -83,6 +86,71 @@ describe('startKept()', () => {
       expect((await fetch(`http://127.0.0.1:${port}/healthz`)).status).toBe(200);
     } finally {
       await kept.stop();
+    }
+  });
+
+  it('web: serves https itself with KEPT_TLS_CERT_FILE and KEPT_TLS_KEY_FILE', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'kept-tls-'));
+    try {
+      execFileSync(
+        'openssl',
+        [
+          'req',
+          '-x509',
+          '-newkey',
+          'ec',
+          '-pkeyopt',
+          'ec_paramgen_curve:prime256v1',
+          '-nodes',
+          '-keyout',
+          path.join(dir, 'key.pem'),
+          '-out',
+          path.join(dir, 'cert.pem'),
+          '-days',
+          '1',
+          '-subj',
+          '/CN=127.0.0.1',
+          '-addext',
+          'subjectAltName=IP:127.0.0.1',
+        ],
+        { stdio: 'ignore' },
+      );
+      const env = await loadEnv(
+        {
+          KEPT_DATABASE_URL: db.urls.app,
+          KEPT_AUTH_DATABASE_URL: db.urls.auth,
+          KEPT_SYSTEM_DATABASE_URL: db.urls.system,
+          // http here only so the OAuth provider (on with an https address) stays off in a test
+          // that stops at once; the server's own scheme is the certificate's.
+          KEPT_PUBLIC_URL: 'http://kept.test',
+          KEPT_ROLE: 'web',
+          KEPT_LOG_LEVEL: 'silent',
+          KEPT_TLS_CERT_FILE: path.join(dir, 'cert.pem'),
+          KEPT_TLS_KEY_FILE: path.join(dir, 'key.pem'),
+        },
+        { configDir },
+      );
+      const kept = await startKept(env, { host: '127.0.0.1', port: 0, logger: silent() });
+      try {
+        expect(kept.address).toMatch(/^https:\/\/127\.0\.0\.1:\d+$/);
+        const status = await new Promise<number>((resolve, reject) => {
+          const req = httpsRequest(
+            `${kept.address}/healthz`,
+            { ca: readFileSync(path.join(dir, 'cert.pem')) },
+            (res) => {
+              res.resume();
+              resolve(res.statusCode ?? 0);
+            },
+          );
+          req.on('error', reject);
+          req.end();
+        });
+        expect(status).toBe(200);
+      } finally {
+        await kept.stop();
+      }
+    } finally {
+      await rm(dir, { recursive: true, force: true });
     }
   });
 

@@ -15,6 +15,7 @@ import { type OAuthServerOptions, oauthPlugins } from '../oauth/plugin.js';
 import { CLIENT_IP_HEADER } from './client-ip.js';
 import { isUndeliverableEmail } from './emails.js';
 import type { GoogleConfig } from './google.js';
+import { INGRESS_ORIGIN_HEADER } from './ingress-origin.js';
 import {
   ACCOUNT_OPTIONS,
   type AuthOidc,
@@ -84,6 +85,9 @@ export type AuthDeps = {
   /** 1.2 (D226): Google sign-in, when KEPT_GOOGLE_CLIENT_ID and _SECRET are set, with the invite
    * doors its first sign-in claims (auth/google.ts). Absent: no Google. */
   google?: (GoogleConfig & { invites: OidcInvites }) | null;
+  /** D273: the Home Assistant app (KEPT_HA). Better Auth then also trusts Home Assistant's origin
+   * for an ingress request. Absent or false: only KEPT_PUBLIC_URL's. */
+  ingress?: boolean;
   /** Kept as the OAuth server for MCP connectors (oauth/plugin.ts). Absent: on
    * with an https public URL, off otherwise; null: off. Off, `/mcp` takes personal tokens only. */
   oauth?: OAuthServerOptions | null;
@@ -259,6 +263,17 @@ export function createAuth(deps: AuthDeps) {
     appName: 'Kept',
     baseURL: env.KEPT_PUBLIC_URL,
     basePath: AUTH_BASE_PATH,
+    // KEPT_PUBLIC_URL's origin always; in the Home Assistant app, for an ingress request, also
+    // Home Assistant's, which auth/http.ts authHeaders() puts in INGRESS_ORIGIN_HEADER from
+    // req.ingress (D273), after removing any the client sent. Outside app mode: not set at all.
+    ...(deps.ingress
+      ? {
+          trustedOrigins: (request?: Request) => {
+            const ingress = request?.headers.get(INGRESS_ORIGIN_HEADER);
+            return ingress ? [ingress] : [];
+          },
+        }
+      : {}),
     secret: env.KEPT_AUTH_SECRET,
     database: drizzleAdapter(drizzle(pool, { schema: betterAuthTables }), {
       provider: 'pg',

@@ -98,11 +98,44 @@ export async function webRoutes(app: FastifyInstance, bundle: WebBundle): Promis
 const NOT_SPA =
   /^\/(?:(?:api|assets|\.well-known)(?:\/|$)|mcp(?:\/|$)|(?:sw\.js|manifest\.webmanifest)$)/;
 
+/** The built page's `<base href="/">` (apps/web/index.html): its assets are relative to it. */
+const BASE_TAG = /<base href="\/"\s*\/?>/;
+const MANIFEST_LINK = /\n?[ \t]*<link rel="manifest"[^>]*>/;
+
+/** An attribute value, escaped. */
+const attr = (value: string) =>
+  value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
+/**
+ * index.html as an ingress request gets it (D273): `<base href>` is the ingress prefix, so every
+ * asset and the router resolve under it; no web app manifest (nothing installs from inside Home
+ * Assistant); and two meta tags the page reads: that it runs under ingress (no service worker),
+ * and Kept's own address, for the links people copy, print or scan. The inline scripts are not
+ * touched, so their CSP hashes still match.
+ */
+export function ingressIndexHtml(html: string, prefix: string, publicUrl: string): string {
+  const meta =
+    `<base href="${attr(prefix)}/" />\n    <meta name="kept-ingress" content="1" />\n` +
+    `    <meta name="kept-public-url" content="${attr(new URL(publicUrl).origin)}" />`;
+  const based = BASE_TAG.test(html)
+    ? html.replace(BASE_TAG, meta)
+    : html.replace(/<head>/i, `<head>\n    ${meta}`);
+  return based.replace(MANIFEST_LINK, '');
+}
+
 /** Sends index.html for a client-side route, or returns false when the request isn't one. */
 export function spaFallback(bundle: WebBundle, req: FastifyRequest, reply: FastifyReply): boolean {
   if (req.method !== 'GET' && req.method !== 'HEAD') return false;
   const pathname = req.url.split('?')[0] ?? '/';
   if (NOT_SPA.test(pathname)) return false;
+  if (req.ingress) {
+    // Per Home Assistant session's prefix: never stored by a cache in between.
+    reply.code(200).type('text/html; charset=utf-8').header('cache-control', 'no-store');
+    reply.send(
+      ingressIndexHtml(bundle.indexHtml, req.ingress.prefix, req.server.env.KEPT_PUBLIC_URL),
+    );
+    return true;
+  }
   reply.code(200).type('text/html; charset=utf-8').header('cache-control', 'no-cache');
   reply.send(bundle.indexHtml);
   return true;
