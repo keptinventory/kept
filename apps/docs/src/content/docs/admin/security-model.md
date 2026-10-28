@@ -91,7 +91,8 @@ the actions that reveal or change a secret ([HTTPS](/install/https/)). Sensitive
 the password again, or a sign-in in the last ten minutes.
 
 **Requests from other sites** are refused: a write that carries Kept's cookie must come from the
-origin of `KEPT_PUBLIC_URL`, or it gets 403 before the session is even read. The pages are served
+origin of `KEPT_PUBLIC_URL`, or it gets 403 before the session is even read. So must first-run
+setup, which has no cookie yet, before its setup code is tried. The pages are served
 with a `default-src 'self'` content security policy, may not be framed, and get HSTS when the
 public URL is HTTPS.
 

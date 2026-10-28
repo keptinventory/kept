@@ -392,7 +392,13 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
     await signUpRoutes(app, people);
     await inviteRoutes(app, { ...people, publicUrl });
     await managedRoutes(app, { auth, pools: opts.pools, jobs, trustedProxies });
-    await setupRoutes(app, { auth, pools: opts.pools, trustedProxies, log: app.log });
+    await setupRoutes(app, {
+      auth,
+      pools: opts.pools,
+      publicUrl: opts.env.KEPT_PUBLIC_URL,
+      trustedProxies,
+      log: app.log,
+    });
     await adminRoutes(app, {
       pools: opts.pools,
       mailer,

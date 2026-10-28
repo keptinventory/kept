@@ -243,6 +243,40 @@ describe('GET/POST /api/v1/setup', () => {
     expect(users.rows).toHaveLength(1);
   });
 
+  it('takes setup only from Kept’s own pages, before the code is tried (CSRF)', async () => {
+    const code = (await ensureSetupCode(db.pools.system)) as string;
+    const post = (headers: Record<string, string>) =>
+      t.app.inject({
+        method: 'POST',
+        url: '/api/v1/setup',
+        headers,
+        remoteAddress: freshIp(),
+        payload: firstAccount(code),
+      });
+    const hint = 'The request did not come from this site.';
+    const cross = await post({ origin: 'https://evil.example', 'sec-fetch-site': 'cross-site' });
+    expect(cross.statusCode).toBe(403);
+    expect(cross.json()).toMatchObject({
+      code: 'origin_mismatch',
+      hint,
+      expectedOrigin: new URL(t.publicUrl).origin,
+    });
+    const noOrigin: Record<string, string>[] = [
+      { origin: 'null', 'sec-fetch-site': 'cross-site' },
+      {},
+    ];
+    for (const headers of noOrigin) {
+      const refused = await post(headers);
+      expect(refused.statusCode).toBe(403);
+      expect(refused.json()).toMatchObject({ code: 'forbidden', hint });
+    }
+    const users = await asOwner(db, (c) => c.query('SELECT count(*)::int AS n FROM auth."user"'));
+    expect(users.rows[0].n).toBe(0);
+    expect(setupCodeMatches(await storedCode(), code)).toBe(true);
+    // A browser that sends no Origin but says same-origin is Kept's own page.
+    expect((await post({ 'sec-fetch-site': 'same-origin' })).statusCode).toBe(201);
+  });
+
   it('checks the password before spending an attempt', async () => {
     const code = (await ensureSetupCode(db.pools.system)) as string;
     const res = await call(t, '/api/v1/setup', { body: firstAccount(code, { password: 'short' }) });

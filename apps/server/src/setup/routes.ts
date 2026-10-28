@@ -8,7 +8,13 @@ import type { Auth } from '../auth/auth.js';
 import { requestClientIp } from '../auth/client-ip.js';
 import { isUndeliverableEmail } from '../auth/emails.js';
 import { googleStatus } from '../auth/google.js';
-import { ANONYMOUS_BODY_LIMIT, authHeaders, forwardCookies, rateLimited } from '../auth/http.js';
+import {
+  ANONYMOUS_BODY_LIMIT,
+  assertFromThisSite,
+  authHeaders,
+  forwardCookies,
+  rateLimited,
+} from '../auth/http.js';
 import { oidcStatus } from '../auth/oidc.js';
 import { clearSignInFailures, limiterKey, reserveWithLockout } from '../auth/sign-in-limiter.js';
 import type { Pools } from '../db/pools.js';
@@ -33,6 +39,9 @@ import {
 // Wrong codes: 10 per client IP, then 15 minutes locked out; and 200 across all IPs in the same
 // shape, so a botnet can't walk the code space (30 bits). `kept admin setup-code` re-issues the
 // code and lifts that instance-wide lockout.
+// The POST carries no cookie, so csrfHook leaves it, but it must still come from Kept's own setup
+// page: the same Origin rule (auth/http.ts assertFromThisSite) runs before anything else, so a
+// page on another site can't make the first admin, and its attempts never count against the code.
 
 export const SETUP_ATTEMPTS_PER_IP = 10;
 export const SETUP_ATTEMPTS_ALL = 200;
@@ -43,12 +52,15 @@ const SetupBody = NewAccount.extend({ code: z.string().trim().min(1).max(32) });
 export type SetupDeps = {
   auth: Auth;
   pools: Pools;
+  /** KEPT_PUBLIC_URL: the setup page's origin. */
+  publicUrl: string;
   trustedProxies: readonly string[];
   log: FastifyBaseLogger;
 };
 
 export async function setupRoutes(app: KeptApp, deps: SetupDeps): Promise<void> {
   const { auth, pools, trustedProxies } = deps;
+  const origin = new URL(deps.publicUrl).origin;
 
   app.get(
     '/api/v1/setup',
@@ -87,6 +99,7 @@ export async function setupRoutes(app: KeptApp, deps: SetupDeps): Promise<void> 
       },
     },
     async (req, reply) => {
+      assertFromThisSite(req, origin);
       if (!(await setupNeeded(pools.system))) throw conflict('Kept is already set up.');
       const headers = authHeaders(req, trustedProxies);
       const ip = requestClientIp(headers);
