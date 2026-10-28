@@ -139,6 +139,34 @@ describe('renderSection and insertSection', () => {
     expect(renderSection('1.3.0', '2026-10-21', commits)).not.toContain('Highlights');
   });
 
+  it('takes a picture or a clip for a highlight, and keeps it out of view on GitHub', () => {
+    // What's new in Kept shows each highlight as a slide: a line `![icon](file)` right after a
+    // bullet names its media in apps/web/public/whats-new/X.Y.Z/ (scripts/record-whats-new.mjs).
+    const highlights = parseHighlights(
+      '- **Furniture.** A bookcase in one step (#238).\n  ![places](furniture.mp4)\n' +
+        '- **Homebox.** Fixed.\n![](homebox.webp)\n- **No picture.** Just words.\n',
+    );
+    const text = renderSection('1.14.1', '2026-10-28', [], { highlights });
+    // A comment, so the CHANGELOG on GitHub, the release page and the Discord post show no
+    // broken image; the web build reads it back (apps/web/src/whats-new/highlights.ts).
+    expect(text).toContain(
+      '- **Furniture.** A bookcase in one step (#238).\n  <!-- whats-new ![places](furniture.mp4) -->\n' +
+        '- **Homebox.** Fixed.\n  <!-- whats-new ![](homebox.webp) -->\n- **No picture.** Just words.\n',
+    );
+    expect(text).not.toMatch(/^\s*!\[/m);
+  });
+
+  it('refuses media it can’t show: before any bullet, two for one, or a name that isn’t a file', () => {
+    expect(() => parseHighlights('![](a.webp)\n- **One.** x')).toThrow(/before any bullet/);
+    expect(() => parseHighlights('- **One.** x\n![](a.webp)\n![](b.webp)')).toThrow(/one picture/);
+    expect(() => parseHighlights('- **One.** x\n![](../a.webp)')).toThrow(/media name/);
+    expect(() => parseHighlights('- **One.** x\n![](a.gif)')).toThrow(/media name/);
+    expect(() => parseHighlights('- **One.** x\n![Big Icon](a.webp)')).toThrow(/media name/);
+    expect(() => parseHighlights('- **One.** x\n![](https://example.org/a.webp)')).toThrow(
+      /media name/,
+    );
+  });
+
   it('refuses a highlights file with no bullets or with headings of its own', () => {
     expect(() => parseHighlights('\n\n')).toThrow(/no bullets/);
     expect(() => parseHighlights('Just a sentence.')).toThrow(/no bullets/);

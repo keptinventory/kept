@@ -411,6 +411,8 @@ export default defineConfig({
           'assets/locales/**',
           'assets/household/**',
           'sw.js',
+          // What's new's pictures and clips (whats-new-plugin.ts): fetched when the card opens.
+          'whats-new/**',
           // Font subsets Kept never renders: its languages are Latin-script and Arabic (D204).
           'assets/ibm-plex-*-{cyrillic,cyrillic-ext,greek,vietnamese}-*.woff2',
         ],

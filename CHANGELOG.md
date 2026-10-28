@@ -28,12 +28,19 @@ subjects when a release is cut (`scripts/release.sh`).
 ### Highlights
 
 - **Furniture with compartments.** Add here → Furniture with compartments makes a cube shelf, bookcase, chest or shelving unit and every compartment in it in one step, upright or on its side, with codes from the furniture's own code and one Undo (#238).
+  <!-- whats-new ![places](furniture.mp4) -->
 - **Label-maker tape, and codes with no QR.** Labels print on 9, 12, 18 and 24 mm tape, and Scan reads a printed code when there's no QR, offline, asking first when it isn't sure (#303).
+  <!-- whats-new ![labels](labels.webp) -->
 - **Coming from Homebox, fixed.** A sold date alone no longer marks things Sold, and Repair this import puts them back; Paperless links come in as Paperless links; type a new brand right in the Brand field (#346, #347, #349).
+  <!-- whats-new ![import](homebox.webp) -->
 - **Paperless in the Paperwork list.** Linked documents sit with your files, Link from Paperless is next to Add a file, and a linked document's kind can be changed (#347).
+  <!-- whats-new ![paperwork](paperless.webp) -->
 - **Open things you logged.** A vehicle's saved service opens with its notes, to edit or delete with Undo; a photo opens full screen; moving-box sheets ask Printed OK? so packed boxes get the tape (#296, #295, #307).
+  <!-- whats-new ![vehicles](services.mp4) -->
 - **A shorter tour, and What's new.** Help's tour is a compact list that covers the graph, Select and Arrange, and after an update Kept shows once what's new.
+  <!-- whats-new ![help](tour.mp4) -->
 - **Shapes, AI apps and fixes.** Cube storage and a tall bookcase on the map; AI apps can edit places and turn them into boxes; no "Couldn't load this" flash after Turn into a room, merge or trash (#240, #241, #313).
+  <!-- whats-new ![map](shapes.mp4) -->
 
 ### Features
 

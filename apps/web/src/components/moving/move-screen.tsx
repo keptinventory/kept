@@ -373,13 +373,7 @@ function BoardView({ board }: { board: Board }) {
   const asOf = board.asOf ? f.dateTime(board.asOf) : '';
 
   return (
-    <Page
-      title={<bdi>{move.name}</bdi>}
-      back="/moving"
-      eyebrow={route}
-      wide
-      tour={{ id: 'moving', context: { move: move.id } }}
-    >
+    <Page title={<bdi>{move.name}</bdi>} back="/moving" eyebrow={route} wide>
       <div className="grid gap-4">
         <p className="m-0 text-small text-ink-2 md:hidden">{route}</p>
         {board.from === 'phone' ? (

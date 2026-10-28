@@ -557,6 +557,20 @@ export const StarIcon = (p: IconProps) => (
   </Svg>
 );
 
+/** Play a clip (What's new's slides). */
+export const PlayIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M8 5.5v13l10.5-6.5z" />
+  </Svg>
+);
+
+/** Pause a clip (What's new's slides). */
+export const PauseIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M9 5.5v13M15 5.5v13" />
+  </Svg>
+);
+
 /** The photo library (capture's Gallery, D140). */
 export const GalleryIcon = (p: IconProps) => (
   <Svg {...p}>

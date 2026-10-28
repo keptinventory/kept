@@ -215,7 +215,6 @@ export function MovesScreen() {
     <Page
       title={t`Moving`}
       wide
-      tour="moving"
       actions={
         writable.length ? (
           <Button

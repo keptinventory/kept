@@ -12,7 +12,8 @@
 // refactors and spikes are left out: they change nothing a person running Kept sees.
 //
 // --highlights puts a hand-written file of bullets at the top of the section, under Highlights.
-// Without it there is no Highlights section: nothing is ever written for you.
+// Without it there is no Highlights section: nothing is ever written for you. A line
+// `![icon](file)` under a bullet names its picture or clip for What's new in Kept (parseHighlights).
 //
 // GitHub is asked (`gh api graphql`, read-only) who wrote each pull request and which issues it
 // closed, by whom: "closes #N, reported by @x" goes on the change's line, and a Contributors line
@@ -94,12 +95,48 @@ export function classify({ hash, subject, body = '' }) {
   };
 }
 
-/** A highlights file's text, checked: bullets only (continuation lines allowed), no headings. */
+/**
+ * A highlight's picture or clip for What's new in Kept: a line `![icon](file)` right after its
+ * bullet (indented or not). `file` is a name in apps/web/public/whats-new/X.Y.Z/ (a .webp picture,
+ * or an .mp4 clip with a .webp poster of the same name: scripts/record-whats-new.mjs makes both);
+ * `icon` names the app's area, shown when the media can't be (offline, or none): apps/web's
+ * whats-new/highlights.ts reads the same syntax back.
+ */
+const MEDIA_LINE = /^\s*!\[([^\]]*)\]\(([^)]*)\)\s*$/;
+export const MEDIA_NAME = /^[a-z0-9][a-z0-9-]*\.(?:webp|mp4)$/;
+const ICON_NAME = /^[a-z-]*$/;
+
+/**
+ * A highlights file's text, checked: bullets only (continuation lines allowed), no headings, and
+ * at most one media line per bullet, after it. The media lines become HTML comments,
+ * `<!-- whats-new ![icon](file) -->`, under their bullet: invisible in the CHANGELOG on GitHub,
+ * on the release page and in the Discord post, where a relative image would be a broken one.
+ */
 export function parseHighlights(text) {
   const body = text.replace(/\r\n/g, '\n').trim();
   if (/^#/m.test(body)) throw new Error('the highlights file has a heading: bullets only');
   if (!/^- \S/m.test(body)) throw new Error('the highlights file has no bullets ("- ...")');
-  return body;
+  let bullet = false;
+  let media = false;
+  const lines = body.split('\n').map((line) => {
+    if (line.startsWith('- ')) {
+      bullet = true;
+      media = false;
+      return line;
+    }
+    const m = MEDIA_LINE.exec(line);
+    if (!m) return line;
+    const [, icon, file] = m;
+    if (!bullet) throw new Error(`media before any bullet: ${line.trim()}`);
+    if (media) throw new Error(`one picture or clip per highlight: ${line.trim()}`);
+    if (!MEDIA_NAME.test(file) || !ICON_NAME.test(icon))
+      throw new Error(
+        `bad media name ${line.trim()}: ![icon](name.webp|name.mp4), a file in apps/web/public/whats-new/X.Y.Z/`,
+      );
+    media = true;
+    return `  <!-- whats-new ![${icon}](${file}) -->`;
+  });
+  return lines.join('\n');
 }
 
 const isBot = (author) =>

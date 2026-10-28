@@ -79,6 +79,21 @@ The short version of the runbook's "Each release":
    No highlights file, no Highlights section: nothing is written for you. Running it again
    replaces the version's section.
 
+   **What's new in Kept** shows each highlight as a slide. A line `![icon](file)` right under a
+   bullet gives it a picture (`.webp`) or a short clip (`.mp4`); `icon` names the app's area
+   (`places`, `labels`, `import`, `paperwork`, `vehicles`, `help`, `map`, …), shown when the
+   media can't be. The changelog keeps it as a comment, so GitHub, the release page and Discord
+   show no broken image. The files come from the demo build, with a recipe per release in
+   `scripts/whats-new/X.Y.Z.json`, and are committed with the section:
+
+   ```sh
+   node scripts/record-whats-new.mjs --version X.Y.Z
+   git add apps/web/public/whats-new/X.Y.Z scripts/whats-new/X.Y.Z.json
+   ```
+
+   Clips stay under 400 KB, posters under 60 KB, pictures under 120 KB; they are fetched when
+   the card opens, never precached. A highlight without media shows its area's icon.
+
 2. Wait for the `ci` workflow to pass on that commit on main. It is the gate (D222): every
    step of `scripts/ci-local.sh` except perf, as required jobs. The release workflow's preflight
    refuses a tag whose commit hasn't passed it.

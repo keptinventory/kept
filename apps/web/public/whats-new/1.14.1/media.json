@@ -1,0 +1,38 @@
+{
+  "furniture.mp4": {
+    "width": 960,
+    "height": 600,
+    "poster": "furniture.webp",
+    "webm": "furniture.webm"
+  },
+  "homebox.webp": {
+    "width": 960,
+    "height": 600
+  },
+  "labels.webp": {
+    "width": 960,
+    "height": 600
+  },
+  "paperless.webp": {
+    "width": 960,
+    "height": 600
+  },
+  "services.mp4": {
+    "width": 960,
+    "height": 600,
+    "poster": "services.webp",
+    "webm": "services.webm"
+  },
+  "shapes.mp4": {
+    "width": 960,
+    "height": 600,
+    "poster": "shapes.webp",
+    "webm": "shapes.webm"
+  },
+  "tour.mp4": {
+    "width": 960,
+    "height": 600,
+    "poster": "tour.webp",
+    "webm": "tour.webm"
+  }
+}
