@@ -27680,8 +27680,8 @@ msgid "Done ({done})"
 msgstr "Erledigt ({done})"
 
 #: src/components/hints/hint-copy.ts
-msgid "One chapter per section. Tap one to start there, or tap Show me on its page."
-msgstr "Ein Kapitel pro Bereich. Tippe auf eines, um dort zu beginnen, oder auf seiner Seite auf Zeig es mir."
+msgid "One chapter per section. Tap one to start there."
+msgstr "Ein Kapitel pro Bereich. Tippe auf eines, um dort zu beginnen."
 
 #: src/components/hints/hint-copy.ts
 msgid "Move it, lend it, print its label or move it to the Trash."
@@ -27742,6 +27742,18 @@ msgstr "Jede Wartung mit ihren Kosten. Tippe auf eine, um sie ganz zu öffnen, m
 #: src/components/hints/hint-copy.ts
 msgid "Graph & 3D map"
 msgstr "Graph & 3D-Karte"
+
+#: src/components/whats-new.tsx
+msgid "Play"
+msgstr "Abspielen"
+
+#: src/components/whats-new.tsx
+msgid "Slide {n} of {total}: {title}"
+msgstr "Folie {n} von {total}: {title}"
+
+#: src/components/whats-new.tsx
+msgid "Slide {n} of {total}"
+msgstr "Folie {n} von {total}"
 
 #: src/components/whats-new.tsx
 msgid "What's new in Kept"

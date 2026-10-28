@@ -79,6 +79,27 @@ The short version of the runbook's "Each release":
    No highlights file, no Highlights section: nothing is written for you. Running it again
    replaces the version's section.
 
+   **What's new in Kept** shows each highlight as a slide. A line `![icon](file)` right under a
+   bullet gives it a picture (`.webp`) or a short clip (`.mp4`); `icon` names the app's area
+   (`places`, `labels`, `import`, `paperwork`, `vehicles`, `help`, `map`, …), shown when the
+   media can't be. The changelog keeps it as a comment, so GitHub, the release page and Discord
+   show no broken image. Before the changelog step, make the media from the demo build with a
+   recipe, `scripts/whats-new/X.Y.Z.json` (its format and an example:
+   `scripts/whats-new/README.md`), then remove the previous release's folder and recipe, so the
+   tree holds one release's media (a shallow clone gets the whole tree; history keeps the rest):
+
+   ```sh
+   node scripts/record-whats-new.mjs --version X.Y.Z
+   node scripts/whats-new-keep.mjs --version X.Y.Z
+   git add -A apps/web/public/whats-new scripts/whats-new
+   ```
+
+   Commit these with the changelog section, in the release pull request. `changelog.mjs` stops
+   when a highlight names a file that isn't in `apps/web/public/whats-new/X.Y.Z/` with its
+   `media.json` entry, and so does the release image's build. Clips stay under 400 KB, posters under 60 KB, pictures under
+   120 KB; they are fetched when the card opens, never precached. A highlight without media shows
+   its area's icon.
+
 2. Wait for the `ci` workflow to pass on that commit on main. It is the gate (D222): every
    step of `scripts/ci-local.sh` except perf, as required jobs. The release workflow's preflight
    refuses a tag whose commit hasn't passed it.

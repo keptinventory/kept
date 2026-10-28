@@ -3,14 +3,14 @@
  * section the person has), listed compactly under the progress and Take the tour or Continue the
  * tour (the first unfinished chapter): each row, with its number and step count, starts its
  * chapter, and the chapters done fold away under Done (N); a chapter's last step offers the next
- * one; a page's Show me starts its chapter right there; the Get-started checklist comes back from
- * here; install and share-into notes per platform (iPhone has no share target); the diagnostics
- * link.
+ * one; no page has a Show me in its top bar (1.14.3), so Help is where a chapter starts; the
+ * Get-started checklist comes back from here; install and share-into notes per platform (iPhone
+ * has no share target); the diagnostics link.
  */
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { inventoryPaths } from '@/api/inventory/paths';
-import { firstRunScenario, ownerScenario } from '@/api/mock/fixtures';
+import { ownerScenario } from '@/api/mock/fixtures';
 import { paths } from '@/api/paths';
 import { tourRequests } from '@/components/hints/tour-request';
 import { expectLogicalOnly } from '@/test/render';
@@ -215,15 +215,13 @@ describe('Help', () => {
     );
   }, 60000);
 
-  it('Show me on a section’s page starts its chapter there, and offers the next at its end', async () => {
-    const { user, router } = await renderApp('/lending');
-    await findHeading('Lending');
-    await user.click(await screen.findByRole('button', { name: 'Show me' }));
+  it('starts a section’s chapter from Help, and offers the next at its end', async () => {
+    const { user, router } = await renderApp('/help');
+    await findHeading('Help');
+    await user.click(await screen.findByRole('button', { name: 'Lending' }));
     const first = await screen.findByRole('dialog', { name: 'Loans' });
     expect(first).toHaveTextContent('Chapter 7 of 12 · step 1 of');
     expect(pathOf(router)).toBe('/lending');
-    // While it runs, Show me stands down.
-    expect(screen.getByRole('button', { name: 'Show me' })).toBeDisabled();
     // Next through the chapter: its last step has Continue in place of Next.
     for (let k = 1; k <= 5; k++) {
       const d = screen.getByRole('dialog');
@@ -239,10 +237,23 @@ describe('Help', () => {
     );
   }, 60000);
 
-  it('has no Show me where the section’s tour isn’t one this person has', async () => {
-    await renderApp('/lending', { state: firstRunScenario() });
-    await findHeading('Lending');
+  // 1.14.3: the top bar keeps to the page's own tools; the tour starts from Help.
+  it.each([
+    ['/', 'Home'],
+    ['/lending', 'Lending'],
+    ['/schedules', 'Schedules'],
+    ['/paperwork', 'Paperwork'],
+    ['/vehicles', 'Vehicles'],
+    ['/search', 'Search'],
+    ['/labels', 'Labels'],
+    ['/inbox', 'Inbox'],
+    ['/counts', 'Counts'],
+    ['/settings', 'Settings'],
+  ])('has no Show me in the top bar of %s', async (path, title) => {
+    await renderApp(path);
+    await findHeading(title);
     expect(screen.queryByRole('button', { name: 'Show me' })).toBeNull();
+    expect(document.querySelector('header [data-show-me]')).toBeNull();
   });
 
   it('in Arabic the arrows follow the reading direction, and the steps use its digits', async () => {

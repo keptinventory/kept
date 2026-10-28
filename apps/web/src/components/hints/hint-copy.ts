@@ -73,10 +73,7 @@ export function useTourStepCopy(): Record<string, HintCopy> {
       t`Everything else`,
       t`Every section, one click away. A module shows here once it's on in one of your locations.`,
     ),
-    'basics.tours': e(
-      t`The tour`,
-      t`One chapter per section. Tap one to start there, or tap Show me on its page.`,
-    ),
+    'basics.tours': e(t`The tour`, t`One chapter per section. Tap one to start there.`),
 
     'things.add': e(t`Add here`, t`Add a thing, a box or a room to this location.`),
     'things.contents': e(t`What's here`, t`Everything in this location. Tap a thing to open it.`),
