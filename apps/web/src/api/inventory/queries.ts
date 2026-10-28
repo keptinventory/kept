@@ -190,6 +190,9 @@ export const inventoryApi = {
     accountId: string,
     body: CreateRegistryBody[K],
   ) => api.post<CreateRegistryResult<K>>(p.accountRegistry(accountId, kind), body),
+  /** A brand by the name typed in a thing's form (#349): found, or made (members too). */
+  brandByName: (locationId: string, name: string) =>
+    api.post<{ item: RegistryItem['brands'] }>(p.locationBrands(locationId), { name }),
   currencies: (all = false) =>
     api.get<CurrenciesResponse>(p.currencies + qs({ all: all ? 1 : undefined })),
   purchase: (id: string) => api.get<PurchaseView>(p.purchase(id)),

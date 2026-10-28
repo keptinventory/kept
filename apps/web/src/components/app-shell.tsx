@@ -68,6 +68,7 @@ import { SyncStatus } from '@/components/sync-status';
 import { useTwoFactorHidden } from '@/components/two-factor-hidden';
 import { Button } from '@/components/ui/button';
 import { Tip } from '@/components/ui/tooltip';
+import { WhatsNewHost } from '@/components/whats-new';
 import { locationAddress } from '@/lib/address';
 import { sep } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
@@ -796,6 +797,8 @@ export function MainShell({
           {wide ? null : <TabBar />}
           <PaletteHost />
           <TourHostMount />
+          {/* After an update: that release's highlights, once per person (whats-new.tsx). */}
+          <WhatsNewHost />
         </div>
       </HintsProvider>
     </OfflineProvider>

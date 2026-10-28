@@ -2,7 +2,7 @@
  * Label geometry: where each label lands per stock, the start cell on a part-used
  * sheet, how many pages a batch takes, the `@page` rule, and that the code always fits its column.
  */
-import { LABEL_STOCKS, labelStock } from '@kept/shared';
+import { hasQr, isTape, LABEL_STOCKS, labelStock } from '@kept/shared';
 import { describe, expect, it } from 'vitest';
 import type { LabelCellContent } from '@/api/capture/types';
 import { cellMetrics, directionOfText, pageCss, pagesFor, placeLabels, rowColOf } from './layout';
@@ -48,8 +48,10 @@ describe('pageCss', () => {
     expect(pageCss(labelStock('letter_30_67x25'))).toBe('@page { size: letter; margin: 0; }');
   });
 
-  it("a roll's page is the label itself", () => {
+  it("a roll's page is the label itself, and so is a tape label's", () => {
     expect(pageCss(labelStock('thermal_50x30'))).toBe('@page { size: 50mm 30mm; margin: 0; }');
+    const tape = labelStock('tape_12');
+    expect(pageCss(tape)).toBe(`@page { size: ${tape.cell.w}mm 12mm; margin: 0; }`);
   });
 });
 
@@ -95,18 +97,41 @@ describe('cellMetrics', () => {
   it.each(LABEL_STOCKS.map((s) => [s.key] as const))('%s: the parts fit the cell', (key) => {
     const stock = labelStock(key);
     const m = cellMetrics(stock);
-    expect(m.pad * 3 + m.qr + m.text).toBeCloseTo(stock.cell.w, 5);
+    expect(m.pad * 3 + m.qr + m.codeColumn + m.text).toBeCloseTo(stock.cell.w, 5);
     expect(m.qr).toBeLessThanOrEqual(stock.cell.h - 2 * m.pad + 1e-9);
-    // Seven mono characters at 0.66 em (the advance plus the tracking) fit the column.
-    expect(m.code * 7 * 0.66).toBeLessThanOrEqual(m.text + 1e-9);
-    // A QR module stays at or above 0.4 mm for a 40-character URL (version 3, 37 modules).
-    expect(m.qr / 37).toBeGreaterThanOrEqual(0.4);
+    // Seven mono characters at 0.66 em (the advance plus the tracking) fit their column.
+    expect(m.code * 7 * 0.66).toBeLessThanOrEqual((m.codeColumn || m.text) + 1e-9);
+    expect(m.code).toBeLessThanOrEqual(stock.cell.h - 2 * m.pad + 1e-9);
+    if (hasQr(stock)) {
+      // A QR module stays at or above 0.4 mm for a 40-character URL (version 3, 37 modules).
+      expect(m.qr / 37).toBeGreaterThanOrEqual(0.4);
+      expect(m.codeColumn).toBe(0);
+    } else expect(m.qr).toBe(0);
   });
 
-  it('prints names and paths except on the compact stock', () => {
+  it('prints names and paths except on the compact stock; tape prints the name only', () => {
     expect(LABEL_STOCKS.filter((s) => cellMetrics(s).compact).map((s) => s.key)).toEqual([
       'a4_65_38x21',
     ]);
+    expect(LABEL_STOCKS.filter((s) => !cellMetrics(s).place).map((s) => s.key)).toEqual([
+      'tape_9',
+      'tape_12',
+      'tape_18',
+      'tape_24',
+      'a4_65_38x21',
+    ]);
+  });
+
+  it('sets the code large on tape: its capitals at least a fifth of the tape wide', () => {
+    for (const stock of LABEL_STOCKS.filter(isTape)) {
+      const m = cellMetrics(stock);
+      // Plex Mono's capitals are 0.698 em tall.
+      expect(m.code * 0.698).toBeGreaterThanOrEqual(stock.cell.h / 5);
+      // Narrow tape: no QR; the code takes its own column before the name.
+      expect(m.codeColumn > 0).toBe(!hasQr(stock));
+    }
+    // 12 mm tape: capitals of 3.5 mm or more, about 14 pt.
+    expect(cellMetrics(labelStock('tape_12')).code * 0.698).toBeGreaterThanOrEqual(3.5);
   });
 });
 

@@ -169,7 +169,7 @@ These jobs are the required checks on `main`; a pull request merges only when al
 
 | Check | What it runs |
 |---|---|
-| `fast` | `ci-local.sh --fast` (lint, catalogues, typecheck, the unit tests of every project but the server's, the mock evaluation), then `scripts/check-licences.mjs`. A change to prose only runs `lint`, `catalogues` and `typecheck`. |
+| `fast` | `ci-local.sh --fast` (lint, catalogues, typecheck, the unit tests of every project but the server's, the mock evaluation), then `scripts/check-licences.mjs`. A change to prose only runs `lint`, `catalogues` and `typecheck`; a change to the docs site only (`apps/docs/`) runs those and the docs site's own tests (`@kept/docs`). |
 | `db` | Green exactly when its two halves are: `db-test` (the server's tests on Postgres with pgvector and RustFS, in three shards) and `db-ops` (`drift`, `prod-boot`, `portability`, `backup`) |
 | `e2e` | Green exactly when its jobs are: `e2e-shard` (Playwright in three shards, plus the audit spec as a fourth job) and `e2e-update` |
 | `e2e-update` | The update-migration spec on its own |
@@ -180,9 +180,10 @@ These jobs are the required checks on `main`; a pull request merges only when al
 | `build` (`docs.yml`) | The docs site, with its link check |
 | `cla` (`cla.yml`) | The contributor signed the [CLA](https://github.com/keptinventory/kept/blob/main/CLA.md); they sign once, by commenting on their first pull request |
 
-A `changes` job decides what a run needs. Prose-only and docs-only changes skip the heavy jobs
-(`db`, `e2e`, the images, `helm`), and a push to `main` whose tree is the one its pull request
-already passed runs nothing again. A decision that fails runs everything.
+A `changes` job (`scripts/ci-changes.sh`, tested by `scripts/ci-changes.test.mjs`) decides what a
+run needs. Prose-only and docs-only changes skip the heavy jobs (`db`, `e2e`, the images, `helm`),
+and a push to `main` whose tree is the one its pull request already passed runs nothing again. A
+decision that fails runs everything.
 
 `perf` is not a gate: `perf.yml` runs it nightly as a report, because timing limits on a shared
 runner are noise. Say in a pull request which ci-local steps you could not run.

@@ -3,17 +3,27 @@
  * as a filter in the URL (`f.role`), under the thing's warranties and their coverage bars (step 4,
  * T20: components/warranties).
  * Originals open only for members and above (D117); viewers get the display copy.
- * 1.x (D248): below the files, the documents linked from the location's Paperless-ngx.
+ * 1.x (D248, #347): the documents linked from the location's Paperless-ngx are in the same list,
+ * after the files, and "Link from Paperless" sits beside "Add a file". The Kind filter narrows
+ * both. The links come in one request (at most 50 a thing), so they ride on the files' pages: on
+ * the last one loaded.
  */
 import { ATTACHMENT_ROLES } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useState } from 'react';
+import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
 import { thingApi, useInvalidateThing, useThingAttachments } from '@/api/inventory/thing-api';
-import type { AttachmentRole, AttachmentView } from '@/api/inventory/types';
+import type { AttachmentRole, AttachmentView, Page } from '@/api/inventory/types';
+import type { PaperlessLink } from '@/api/paperless/types';
 import { DocumentIcon, ShareIcon, TrashIcon } from '@/components/icons';
 import { ListSurface } from '@/components/list-surface';
 import { EmptyState, Row, Section, useErrorText } from '@/components/page';
-import { PaperlessDocuments } from '@/components/paperless/documents';
+import {
+  LinkFromPaperless,
+  PaperlessDownNotice,
+  PaperlessLinkRow,
+  usePaperlessPaperwork,
+} from '@/components/paperless/documents';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { useConfirm } from '@/components/ui/confirm';
@@ -26,6 +36,37 @@ import { useRoleLabels } from './labels';
 import { useAttachmentFile } from './purchase-section';
 import { UploadButton } from './upload';
 
+/** A row of the Paperwork list: a file in Kept, or a document linked from Paperless. */
+type PaperworkItem = { type: 'file'; file: AttachmentView } | { type: 'link'; link: PaperlessLink };
+
+/** The files' pages with the links after the last file, for ListSurface. While more files are
+ * still to load the links wait, so Load more doesn't move them and its focus lands on a new file. */
+function useWithLinks(
+  query: UseInfiniteQueryResult<InfiniteData<Page<AttachmentView>>>,
+  links: readonly PaperlessLink[],
+): UseInfiniteQueryResult<InfiniteData<Page<PaperworkItem>>> {
+  return useMemo(() => {
+    const pages = query.data?.pages;
+    const data = query.data && {
+      ...query.data,
+      pages: (pages ?? []).map((pg, i) => ({
+        ...pg,
+        items: [
+          ...pg.items.map((file): PaperworkItem => ({ type: 'file', file })),
+          ...(i === (pages?.length ?? 0) - 1 && !query.hasNextPage
+            ? links.map((link): PaperworkItem => ({ type: 'link', link }))
+            : []),
+        ],
+      })),
+    };
+    // The same query, its pages holding both kinds of row: ListSurface reads only `data` and the
+    // query's own state and calls (pending, error, refetch, the next page).
+    return { ...query, data } as unknown as UseInfiniteQueryResult<
+      InfiniteData<Page<PaperworkItem>>
+    >;
+  }, [query, links]);
+}
+
 export function PaperworkSection() {
   const { thing, can, moduleOn, role: myRole } = useThingCtx();
   const { t } = useLingui();
@@ -35,6 +76,11 @@ export function PaperworkSection() {
   const query = useThingAttachments(thing.id, role);
   const invalidate = useInvalidateThing();
   const [uploadRole, setUploadRole] = useState<AttachmentRole>('document');
+  const subject = useMemo(() => ({ thingId: thing.id }), [thing.id]);
+  const paperless = usePaperlessPaperwork(subject, thing.locationId, { kind: role });
+  const rows = useWithLinks(query, paperless.items);
+  const name = thing.name ?? '';
+  const hasRows = (query.data?.pages[0]?.items.length ?? 0) > 0 || paperless.linked;
   return (
     <Section
       title={
@@ -55,21 +101,27 @@ export function PaperworkSection() {
               if (k) setUploadRole(String(k) as AttachmentRole);
             }}
           />
-          <UploadButton
-            locationId={thing.locationId}
-            subject={{ thingId: thing.id }}
-            attachAs={uploadRole}
-            label={t`Add a file`}
-            onUploaded={() => void invalidate(thing.id)}
-          />
+          <div className="flex flex-wrap items-end gap-2">
+            <UploadButton
+              locationId={thing.locationId}
+              subject={{ thingId: thing.id }}
+              attachAs={uploadRole}
+              label={t`Add a file`}
+              onUploaded={() => void invalidate(thing.id)}
+            />
+            {paperless.connected ? (
+              <LinkFromPaperless subject={subject} locationId={thing.locationId} name={name} />
+            ) : null}
+          </div>
         </div>
       ) : null}
-      <ListSurface<AttachmentView>
+      {paperless.down && paperless.linked ? <PaperlessDownNotice error={paperless.error} /> : null}
+      <ListSurface<PaperworkItem>
         label={t`Paperwork`}
         search={false}
         filters={
           // Kind chips once there is something to narrow (or a kind is already chosen).
-          (query.data?.pages[0]?.items.length ?? 0) === 0 && !role
+          !hasRows && !role
             ? []
             : [
                 {
@@ -86,23 +138,26 @@ export function PaperworkSection() {
                 },
               ]
         }
-        query={query}
-        getKey={(a) => a.id}
-        renderRow={(a) => <AttachmentRow attachment={a} />}
+        query={rows}
+        getKey={(r) => (r.type === 'file' ? r.file.id : r.link.id)}
+        renderRow={(r) =>
+          r.type === 'file' ? (
+            <AttachmentRow attachment={r.file} />
+          ) : (
+            <PaperlessLinkRow
+              link={r.link}
+              role={myRole}
+              name={name}
+              subject={subject}
+              onCopied={() => void invalidate(thing.id)}
+            />
+          )
+        }
         empty={
           <EmptyState icon={<DocumentIcon />} title={<Trans>No paperwork yet</Trans>}>
             <Trans>Receipts, manuals and warranty cards live here, as the originals.</Trans>
           </EmptyState>
         }
-      />
-      {/* 1.x (D248): documents linked from the location's Paperless-ngx, when it has one. */}
-      <PaperlessDocuments
-        subject={{ thingId: thing.id }}
-        locationId={thing.locationId}
-        role={myRole}
-        name={thing.name ?? ''}
-        kind={role}
-        onCopied={() => void invalidate(thing.id)}
       />
     </Section>
   );

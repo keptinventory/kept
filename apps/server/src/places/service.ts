@@ -56,7 +56,7 @@ export const KIND_KEY = z.string().regex(/^[a-z][a-z0-9_]{0,39}$/);
 export const ICON = z.string().regex(/^(lucide|tabler|kept):[a-z0-9-]+$/);
 
 /** Places, like the definers, serialise tree changes per location (0005, 0021). */
-async function lockTree(client: pg.ClientBase, locationId: string): Promise<void> {
+export async function lockTree(client: pg.ClientBase, locationId: string): Promise<void> {
   await client.query(`SELECT pg_advisory_xact_lock(hashtext('kept.places'), hashtext($1::text))`, [
     locationId,
   ]);
@@ -64,7 +64,7 @@ async function lockTree(client: pg.ClientBase, locationId: string): Promise<void
 
 /** The live place `id` names as a parent or destination, in `locationId`: 404 otherwise (a place
  * elsewhere is as absent as one that doesn't exist). */
-async function requireParent(
+export async function requireParent(
   client: pg.ClientBase,
   locationId: string,
   id: string,
@@ -74,11 +74,14 @@ async function requireParent(
   return parent;
 }
 
-const UNDER_UNPLACED =
+export const UNDER_UNPLACED =
   "Places can't go inside the Unplaced area; it holds things only. Choose another place.";
 
-async function requireKind(client: pg.ClientBase, ownerAccountId: string, key: string) {
-  const kind = await placeKindOf(client, ownerAccountId, key);
+/** The kind a new or changed place may take. The account's archived copy of a built-in kind
+ * gives way to the built-in, which is still offered (built-in templates name built-in keys). */
+export async function requireKind(client: pg.ClientBase, ownerAccountId: string, key: string) {
+  let kind = await placeKindOf(client, ownerAccountId, key);
+  if (kind?.archivedAt) kind = await placeKindOf(client, null, key);
   if (!kind || kind.archivedAt)
     throw invalid(`Check body.kindKey: there is no place kind "${key}".`);
   return kind;

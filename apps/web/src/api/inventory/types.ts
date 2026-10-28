@@ -113,7 +113,15 @@ export type Capability =
   | 'expires';
 
 /** D33. Account place kinds add their own keys. */
-export type BuiltinPlaceKind = 'floor' | 'room' | 'zone' | 'closet';
+export type BuiltinPlaceKind =
+  | 'floor'
+  | 'room'
+  | 'zone'
+  | 'closet'
+  | 'furniture'
+  | 'cube'
+  | 'shelf'
+  | 'drawer';
 
 /**
  * A thing's derived states (D119): step 2's uncertain, draft and ended, and step 4's lent and
@@ -1613,3 +1621,70 @@ export type ReportRun = {
   createdAt: string;
   expiresAt: string;
 };
+
+// ---------------------------------------------------------------------------------------------
+// Place templates (#238; apps/server/src/templates/place-templates.ts). The layout, counting order
+// and patterns are packages/shared place-templates.ts.
+// ---------------------------------------------------------------------------------------------
+
+export type PlaceTemplateLayout =
+  | { kind: 'grid'; across: number; up: number }
+  | { kind: 'levels'; count: number }
+  | { kind: 'drawers'; count: number };
+
+/** An account's place template, as GET /place-templates?locationId lists it. */
+export type PlaceTemplate = {
+  id: string;
+  name: string;
+  layout: PlaceTemplateLayout;
+  kindKey: string;
+  compartmentKindKey: string;
+  /** e.g. "Cube {n}". */
+  compartmentName: string;
+  /** e.g. "{parent}-F{col:02}{row:02}". */
+  codePattern: string | null;
+};
+
+/** The admin view (GET /accounts/:accountId/place-templates). */
+export type AccountPlaceTemplate = PlaceTemplate & {
+  locations: { id: string; name: string }[];
+  rowVersion: number;
+};
+
+export type PlaceTemplateBody = {
+  name: string;
+  layout: PlaceTemplateLayout;
+  kindKey: string;
+  compartmentKindKey: string;
+  compartmentName: string;
+  codePattern?: string | null;
+  locationIds: string[];
+};
+
+/** POST /locations/:locationId/places/from-template. */
+export type FromTemplateBody = {
+  id?: string;
+  parentId?: string | null;
+  template: { builtin: string } | { id: string };
+  name: string;
+  orientation?: 'upright' | 'side';
+  count?: number;
+  compartmentName?: string;
+  code?: string;
+  codePattern?: string | null;
+};
+
+export type FromTemplateResult = {
+  place: PlaceView;
+  compartments: {
+    id: string;
+    name: string;
+    n: number;
+    row: number;
+    col: number;
+    code: string | null;
+  }[];
+};
+
+/** A refused code: 400 `rule` or `duplicate`, 409 `taken`, in the error body's `failed`. */
+export type FailedCode = { code: string; reason: 'rule' | 'duplicate' | 'taken' };

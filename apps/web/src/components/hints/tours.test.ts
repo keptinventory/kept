@@ -16,6 +16,7 @@ import {
   MAP_ANCHOR_WAIT_MS,
   resumeAt,
   stepsFor,
+  stopFor,
   TOURS,
   tourById,
 } from './tours';
@@ -46,16 +47,48 @@ describe('TOURS', () => {
     }
   });
 
-  it('gives the step that opens the map longer to find its control, and only that one', () => {
-    const map = tourById('map').steps.filter((s) => s.search?.view === 'map');
-    expect(map[0]?.id).toBe('view');
-    // A page's anchor gets 3 s (tour.ts GUIDED_ANCHOR_WAIT_MS); the map's chunk takes longer cold.
+  it('gives the steps that open the graph and the map longer to find their control, and only those', () => {
+    const slow = tourById('map').steps.filter((s) => s.wait !== undefined);
+    // The first step on each on-demand view: its chunk takes longer cold.
+    expect(slow.map((s) => [s.id, s.search?.view])).toEqual([
+      ['graph', 'graph'],
+      ['view', 'map'],
+    ]);
+    // A page's anchor gets 3 s (tour.ts GUIDED_ANCHOR_WAIT_MS).
     expect(MAP_ANCHOR_WAIT_MS).toBeGreaterThan(3000);
-    expect(map[0]?.wait).toBe(MAP_ANCHOR_WAIT_MS);
-    // The rest find the map there: a control not shown (one floor) is passed over quickly.
+    for (const step of slow) expect(step.wait).toBe(MAP_ANCHOR_WAIT_MS);
+    // The rest find the view there: a control not shown (one floor) is passed over quickly.
     for (const tour of TOURS)
       for (const step of tour.steps)
-        if (step !== map[0]) expect(step.wait, `${tour.id}.${step.id}`).toBeUndefined();
+        if (!slow.includes(step)) expect(step.wait, `${tour.id}.${step.id}`).toBeUndefined();
+  });
+
+  it('walks today’s app: the five views, the graph, Select, a vehicle’s services', () => {
+    const steps = (id: Parameters<typeof tourById>[0]) => tourById(id).steps.map((s) => s.id);
+    // List · Grid · Graph · Table · Map: the switch first, then the graph, then the map.
+    expect(steps('map')).toEqual(['layout', 'graph', 'view', 'pins', 'floors', 'arrange']);
+    // Table is only from 1024 px (SHEET, map/remembered.tsx): there, and only there, the switch's
+    // stop names it. A tablet's sidebar layout (768–1023 px) has no Table, so no Table words.
+    const layout = tourById('map').steps[0];
+    if (!layout) throw new Error('no layout step');
+    expect(stopFor(layout, 'phone').copyId).toBeUndefined();
+    expect(stopFor(layout, 'wide').copyId).toBeUndefined();
+    expect(stopFor(layout, 'sheet').copyId).toBe('map.layout-table');
+    // Select in a place's list: Move, Print labels, Move to Trash. It changes things.
+    const select = tourById('search').steps.find((s) => s.id === 'select');
+    expect(select).toMatchObject({ to: '/loc/$id', anchors: ['contents-select'], writes: true });
+    expect(steps('search')).toEqual(['field', 'views', 'select', 'labels', 'scan']);
+    // A saved service opens (#296).
+    expect(steps('vehicles')).toEqual(['list', 'add', 'log', 'services', 'fuel']);
+  });
+
+  it('takes a step’s wide stop from 768 px, and its own 1024 px stop over it', () => {
+    // Basics' More: the sidebar's stop from 768 px, the same at 1024 px (no stop of its own).
+    const more = tourById('basics').steps.find((s) => s.id === 'more');
+    if (!more) throw new Error('no More step');
+    expect(stopFor(more, 'phone').to).toBe('/more');
+    expect(stopFor(more, 'wide').copyId).toBe('basics.more-wide');
+    expect(stopFor(more, 'sheet').copyId).toBe('basics.more-wide');
   });
 
   it('names a subject for every `$id` route', () => {
@@ -97,14 +130,14 @@ describe('tour gating', () => {
       'settings',
     ]);
     // Labels is one step of Search & labels, not its own tour.
-    expect(stepIds('search', none)).toEqual(['field', 'views', 'scan']);
+    expect(stepIds('search', none)).toEqual(['field', 'views', 'select', 'scan']);
   });
 
   it('follows a module that is on in any one location', () => {
     const two = [loc('a', 'owner'), loc('b', 'member', ['lending', 'vehicles'])];
     expect(ids(two)).toEqual(expect.arrayContaining(['lending', 'vehicles']));
     // Fuel is off: the vehicle tour has no fuel step.
-    expect(stepIds('vehicles', two)).toEqual(['list', 'add', 'log']);
+    expect(stepIds('vehicles', two)).toEqual(['list', 'add', 'log', 'services']);
   });
 
   it('keeps Paperwork & warranties for either module, the claim step for warranties only', () => {

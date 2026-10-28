@@ -564,6 +564,39 @@ describe('create sheet', () => {
     expect(await screen.findByText('Added USB-C cable')).toBeInTheDocument();
   });
 
+  it('adds a brand typed in the Brand field (#349)', async () => {
+    const { user, mock } = await renderApp(`/t/${T.cableBox}`);
+    await findHeading('Cable box');
+    await user.click(screen.getByRole('button', { name: 'Add a thing' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Add a thing' });
+    await user.type(within(dialog).getByLabelText('Name'), 'Turntable');
+    const brand = within(dialog).getByRole('combobox', { name: 'Brand' });
+    await user.type(brand, 'Brennan Audio');
+    await user.click(await screen.findByRole('option', { name: 'Add “Brennan Audio”' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', p.locationBrands(IDS.home))?.body).toEqual({
+        name: 'Brennan Audio',
+      }),
+    );
+    await waitFor(() => expect(brand).toHaveValue('Brennan Audio'));
+    await user.click(within(dialog).getByRole('button', { name: 'Add' }));
+    await waitFor(() => expect(mock.lastCall('POST', p.things)?.body).toHaveProperty('brandId'));
+    expect(mock.lastCall('POST', p.things)?.body).toMatchObject({
+      name: 'Turntable',
+      brandId: expect.any(String),
+    });
+  });
+
+  it('offers no "Add" for a brand that is already there, whatever its case', async () => {
+    const { user } = await renderApp(`/t/${T.cableBox}`);
+    await findHeading('Cable box');
+    await user.click(screen.getByRole('button', { name: 'Add a thing' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Add a thing' });
+    await user.type(within(dialog).getByRole('combobox', { name: 'Brand' }), 'samsung');
+    expect(await screen.findByRole('option', { name: 'Samsung' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /^Add “/ })).toBeNull();
+  });
+
   it('hides quantity for a serialized type and the purchase without Money', async () => {
     const s = withHome((h) => Object.assign(h, { modules: [] }));
     const { user } = await renderApp(`/t/${T.cableBox}`, { state: s });
@@ -574,6 +607,30 @@ describe('create sheet', () => {
     await user.type(within(dialog).getByRole('combobox', { name: 'Type' }), 'Phone');
     await user.click(await screen.findByRole('option', { name: /^Phone/ }));
     expect(within(dialog).queryByLabelText('Quantity')).toBeNull();
+  });
+});
+
+describe('the Brand field in Edit (#349)', () => {
+  it('takes a new brand: Add “…” makes it, and Save sends its id', async () => {
+    const { user, mock } = await renderApp(`/t/${T.tv}`);
+    await findHeading('Samsung TV, 55″');
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    const form = await screen.findByRole('form', { name: 'Edit Samsung TV, 55″' });
+    const brand = within(form).getByRole('combobox', { name: 'Brand' });
+    await waitFor(() => expect(brand).toHaveValue('Samsung'));
+    await user.clear(brand);
+    await user.type(brand, 'Brennan Audio');
+    expect(screen.queryByText('No matches')).toBeNull();
+    await user.click(await screen.findByRole('option', { name: 'Add “Brennan Audio”' }));
+    await waitFor(() => expect(brand).toHaveValue('Brennan Audio'));
+    await user.click(within(form).getByRole('button', { name: 'Save' }));
+    await waitFor(() =>
+      expect(mock.lastCall('PATCH', p.thing(T.tv))?.body).toMatchObject({
+        brandId: expect.any(String),
+      }),
+    );
+    const sent = mock.lastCall('PATCH', p.thing(T.tv))?.body as { brandId: string };
+    expect(sent.brandId).not.toBe(INV_IDS.brand.samsung);
   });
 });
 

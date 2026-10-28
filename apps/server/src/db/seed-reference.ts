@@ -62,6 +62,10 @@ export const BUILTIN_PLACE_KIND_ICONS: Readonly<Record<BuiltinPlaceKind, string>
   room: 'lucide:door-open',
   zone: 'lucide:square-dashed',
   closet: 'tabler:hanger',
+  furniture: 'lucide:library-big',
+  cube: 'lucide:grid-2x2',
+  shelf: 'lucide:rows-3',
+  drawer: 'lucide:archive',
 });
 
 /** Parents and field groups before the types that name them. */

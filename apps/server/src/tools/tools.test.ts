@@ -1022,6 +1022,63 @@ describe('parity with the routes', () => {
     expect(await placeRow(viaTool.place.id)).toEqual(await placeRow(route.id));
   });
 
+  it('create_place with a template ≡ POST /locations/:id/places/from-template, one undo', async () => {
+    const route = ok(
+      await call(t, `/api/v1/locations/${home.id}/places/from-template`, {
+        as: louis,
+        body: {
+          template: { builtin: 'cube_2x4' },
+          name: 'Cube shelf',
+          orientation: 'side',
+          code: 'KS01',
+          codePattern: '{parent}-{col}{row}',
+        },
+      }),
+      201,
+    );
+    const viaTool = await data(louis, 'create_place', {
+      location_id: home.id,
+      name: 'Cube shelf',
+      template: 'cube_2x4',
+      orientation: 'side',
+      code: 'KS02',
+      code_pattern: '{parent}-{col}{row}',
+    });
+    expect(viaTool.compartments).toBe(8);
+    expect(viaTool.place).toMatchObject({ kind: 'furniture', untrusted: { name: 'Cube shelf' } });
+    const inside = (id: string) =>
+      own<Record<string, unknown>>(
+        db,
+        `SELECT p.name, p.kind_key, p.sort, p.cell, g.code
+           FROM public.places p
+           LEFT JOIN public.legacy_codes g ON g.place_id = p.id AND g.source = 'own'
+          WHERE p.parent_id = $1 ORDER BY p.sort`,
+        [id],
+      );
+    const fromRoute = await inside((route.place as { id: string }).id);
+    const fromTool = await inside(viaTool.place.id);
+    expect(fromTool).toHaveLength(8);
+    expect(fromTool.map((r) => ({ ...r, code: String(r.code).replace('KS02', 'KS01') }))).toEqual(
+      fromRoute,
+    );
+    expect(fromTool[1]).toMatchObject({ name: 'Cube 2', code: 'KS02-21' });
+    // The tool's write is the app's: one undoable event, undone together.
+    ok(await call(t, `/api/v1/audit/${viaTool.audit_event_id}/undo`, { as: louis, body: {} }));
+    const left = await own(
+      db,
+      'SELECT 1 FROM public.places WHERE (id = $1 OR parent_id = $1) AND deleted_at IS NULL',
+      [viaTool.place.id],
+    );
+    expect(left).toHaveLength(0);
+    // An unknown template is refused in words.
+    const bad = await tool(louis, 'create_place', {
+      location_id: home.id,
+      name: 'Wardrobe',
+      template: 'wardrobe',
+    });
+    expect(isToolError(bad) ? bad.hint : null).toMatch(/cube_4x4/);
+  });
+
   it('update_thing ≡ PATCH /things/:id, mark_seen ≡ POST …/seen, move_thing ≡ POST /things/move', async () => {
     const a = await createThing(t, ibrahim, home, { name: 'Radio' });
     const b = await createThing(t, ibrahim, home, { name: 'Radio' });

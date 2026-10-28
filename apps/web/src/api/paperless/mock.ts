@@ -136,6 +136,7 @@ function linkOf(
     openUrl: `${url}/documents/${documentId}`,
     createdBy: { id: state.me.user.id, displayName: state.me.user.displayName },
     createdAt: new Date().toISOString(),
+    rowVersion: 1,
   };
 }
 
@@ -292,6 +293,15 @@ export function paperlessMockRoutes(state: MockState): MockRoute[] {
         items.push(link);
       }
       return reply(201, { items });
+    }),
+    route('PATCH', p.link(':id'), ({ params, body, headers }) => {
+      const link = storeOf(state).links.find((l) => l.id === params.id);
+      if (!link) return notFound();
+      if (Number(headers['if-match']) !== link.rowVersion)
+        return err(412, 'precondition_failed', 'Reload to see the latest version.');
+      link.kind = (body as { kind: PaperlessKind }).kind;
+      link.rowVersion += 1;
+      return reply(200, link);
     }),
     route('DELETE', p.link(':id'), ({ params }) => {
       const s = storeOf(state);

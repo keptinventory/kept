@@ -9,6 +9,10 @@
  *
  * Inside a container only Thing and Box are offered (a place can't sit inside a box), and the
  * Unplaced area holds things only.
+ *
+ * "Room or spot" also offers furniture with compartments (#238): a cube shelf, a bookcase or a
+ * chest made from a template with a place for each cube, shelf or drawer (furniture.tsx, on
+ * demand).
  */
 
 import { effectiveModules } from '@kept/shared';
@@ -30,10 +34,11 @@ import { Segmented } from '@/components/ui/segmented';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
 import { useInvalidateBrowse } from './api';
+import { FurnitureForm } from './furniture-lazy';
 import { PLACE_KIND_ICONS, PLACE_KINDS, usePlaceKindLabels } from './labels';
 import { Sheet } from './sheet';
 
-type Kind = 'thing' | 'box' | 'place' | 'borrowed';
+type Kind = 'thing' | 'box' | 'place' | 'furniture' | 'borrowed';
 
 export type AddHereProps = {
   locationId: string;
@@ -126,7 +131,23 @@ export function AddHere({ locationId, thingTarget, placeParentId, hereName }: Ad
           title={t`Add a room or spot to ${hereName}`}
         >
           {({ close }) => (
-            <AddPlaceForm locationId={locationId} parentId={placeParentId} onDone={close} />
+            <AddPlaceForm
+              locationId={locationId}
+              parentId={placeParentId}
+              onDone={close}
+              onFurniture={() => setOpen('furniture')}
+            />
+          )}
+        </Sheet>
+      ) : null}
+      {canPlace ? (
+        <Sheet
+          isOpen={open === 'furniture'}
+          onOpenChange={(o) => !o && setOpen(null)}
+          title={t`Add furniture to ${hereName}`}
+        >
+          {({ close }) => (
+            <FurnitureForm locationId={locationId} parentId={placeParentId} onDone={close} />
           )}
         </Sheet>
       ) : null}
@@ -221,10 +242,13 @@ function AddPlaceForm({
   locationId,
   parentId,
   onDone,
+  onFurniture,
 }: {
   locationId: string;
   parentId: string | null;
   onDone: () => void;
+  /** #238: a cube shelf, bookcase or chest with its compartments, from a template. */
+  onFurniture: () => void;
 }) {
   const { t } = useLingui();
   const errorText = useErrorText();
@@ -284,6 +308,10 @@ function AddPlaceForm({
           ),
         }))}
       />
+      <Button variant="ghost" className="justify-self-start" onPress={onFurniture}>
+        <TypeIcon icon="lucide:library-big" className="size-4" />
+        <Trans>Furniture with compartments…</Trans>
+      </Button>
       {create.error ? <Notice tone="danger">{errorText(create.error)}</Notice> : null}
       <DialogFooter>
         <Button variant="secondary" onPress={onDone}>

@@ -13,7 +13,7 @@ mounted at `/api/v1/auth/*`.
 | Method | How | Notes |
 |---|---|---|
 | Email and password | Better Auth's `emailAndPassword` | A reset link carries its token in the URL `#fragment`; the web page posts it. Reset revokes every session |
-| Magic link | `magicLink` plugin, 15 minutes | Signs in existing accounts only. Consumed by Kept's `POST /api/v1/auth/magic-link/verify`, never by a GET a mail scanner could follow; only a hash of the token is stored |
+| Magic link | `magicLink` plugin, 15 minutes | Signs in existing accounts only. Consumed by Kept's `POST /api/v1/auth/magic-link/verify`, never by a GET a mail scanner could follow; only a hash of the token is stored, as `magic-link:<hash>`, apart from a social sign-in's `auth-state:` records, so an OAuth `state` is never accepted as a magic link (better-auth 1.7.7 and later, GHSA-965c-763c-88jm; `auth/magic-link-oauth-state.test.ts`) |
 | Passkey | `@better-auth/passkey`, relying party = the public URL's host | A passkey with user verification counts as two factors |
 | Managed account | `username` plugin | A username and password, no real email (below) |
 | OIDC | `genericOAuth`, when `KEPT_OIDC_ISSUER` is set and boot-time discovery worked | The account key is `sub`, never the email; linking is explicit only |

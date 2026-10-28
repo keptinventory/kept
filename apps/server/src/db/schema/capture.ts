@@ -268,12 +268,15 @@ export const templates = pgTable(
     name: text('name').notNull(),
     typeId: uuid('type_id').references(() => types.id, { onDelete: 'set null' }),
     payload: jsonb('payload').notNull().default(sql`'{}'::jsonb`),
+    /** What it makes (#238): a thing (quick add) or a place with its compartments. */
+    appliesTo: text('applies_to').notNull().default('thing'),
     createdBy: uuid('created_by').notNull(),
     archivedAt: tstz('archived_at'),
     ...mutable(),
   },
   (t) => [
     unique('templates_owner_account_id_uq').on(t.ownerAccountId, t.id),
+    check('templates_applies_to_chk', sql`applies_to IN ('thing', 'place')`),
     check('templates_name_chk', sql`char_length(name) BETWEEN 1 AND 80`),
     check('templates_payload_chk', sql`jsonb_typeof(payload) = 'object'`),
     index('templates_type_idx').on(t.typeId),

@@ -583,7 +583,7 @@ describe('place kinds', () => {
         .map((k) => k.builtinKey)
         .filter(Boolean)
         .sort(),
-    ).toEqual(['closet', 'floor', 'room', 'zone']);
+    ).toEqual(['closet', 'cube', 'drawer', 'floor', 'furniture', 'room', 'shelf', 'zone']);
     const res = await call(t, `/api/v1/accounts/${bobAccount}/place-kinds`, {
       as: adam,
       body: { key: 'shed', name: 'Shed', icon: 'lucide:warehouse' },

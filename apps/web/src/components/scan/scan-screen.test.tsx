@@ -19,6 +19,7 @@ import { type MockState, ownerScenario } from '@/api/mock/fixtures';
 import { createMockApi, type MockApi } from '@/api/mock/server';
 import { seedMove } from '@/api/moving/mock';
 import type { Detected } from '@/camera/label-recogniser';
+import { PRINTED_CODE } from '@/camera/printed-text';
 import type { CameraEnv } from '@/camera/session';
 import { BoxCheckScreen } from '@/components/boxcheck/box-check-screen';
 import { pickUp } from '@/components/tray/use-tray';
@@ -590,6 +591,74 @@ describe('scan outcomes, offline', () => {
       screen.getByText('Nothing in the locations you belong to has this label.'),
     ).toBeInTheDocument();
     expect(await store.notices()).toEqual([]);
+  });
+});
+
+/** What the scanner "read" from a label's printed code, with no QR (#303). */
+async function scanPrinted(code: string, sure: boolean) {
+  await waitFor(() => expect(feed.current).not.toBeNull());
+  await act(async () => feed.current?.([{ rawValue: code, format: PRINTED_CODE, sure }]));
+}
+
+describe('a printed code with no QR (#303)', () => {
+  it('a sure read of a real code opens it as a QR does, and says what was read', async () => {
+    const { onOpen } = await renderScan();
+    await scanPrinted('B0X3QF', true);
+    await waitFor(() =>
+      expect(onOpen).toHaveBeenCalledWith({ kind: 'thing', id: T.cableBox, locationId: L.home }),
+    );
+    expect(toastQueue.visibleToasts.map((t) => t.content.title)).toContain(
+      'Read \u2068B0X\u20113QF\u2069 from the printed code',
+    );
+    // Sent as the bare code: the server never sees a format it doesn't know.
+    expect(mock.lastCall('POST', '/api/v1/scan/resolve')?.body).toEqual({ text: 'B0X3QF' });
+  });
+
+  it('an unsure read asks first, showing the code and what it opens', async () => {
+    const { user, onOpen } = await renderScan();
+    await scanPrinted('B0X3QF', false);
+    const sheet = await screen.findByRole('region', { name: 'Scan result' });
+    expect(within(sheet).getByRole('heading', { name: 'Is this the code?' })).toBeInTheDocument();
+    expect(within(sheet).getByRole('img', { name: 'B0X3QF' })).toBeInTheDocument();
+    expect(onOpen).not.toHaveBeenCalled();
+    await user.click(within(sheet).getByRole('button', { name: /^Open / }));
+    await waitFor(() =>
+      expect(onOpen).toHaveBeenCalledWith({ kind: 'thing', id: T.cableBox, locationId: L.home }),
+    );
+  });
+
+  it('a read that matches no label never opens anything: scan again or type it', async () => {
+    const { user, onOpen } = await renderScan();
+    await scanPrinted('ZZZZZZ', true);
+    const sheet = await screen.findByRole('region', { name: 'Scan result' });
+    expect(within(sheet).getByRole('heading', { name: 'Check the code' })).toBeInTheDocument();
+    expect(within(sheet).getByText('None of your labels has this code.')).toBeInTheDocument();
+    expect(within(sheet).getByRole('img', { name: 'ZZZZZZ' })).toBeInTheDocument();
+    await user.click(within(sheet).getByRole('button', { name: 'Type the code' }));
+    expect(await screen.findByRole('textbox', { name: 'Code on the label' })).toBeInTheDocument();
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  it('offline, a code on this phone opens; one it does not have waits for nothing', async () => {
+    const store = await phone();
+    const { onOpen } = await renderScan({ store, online: false });
+    await scanPrinted('7KQ4MZ', true);
+    await waitFor(() =>
+      expect(onOpen).toHaveBeenCalledWith({ kind: 'thing', id: DRILL, locationId: HOME }),
+    );
+    await act(async () => feed.current?.([]));
+    const other = await renderScan({ store, online: false });
+    await scanPrinted('ZZZZZY', true);
+    const sheets = await screen.findAllByRole('region', { name: 'Scan result' });
+    expect(
+      within(sheets[sheets.length - 1] as HTMLElement).getByText(
+        "This phone doesn't have this code.",
+      ),
+    ).toBeInTheDocument();
+    // A misread is never kept to check later, as an unknown QR would be.
+    expect(await store.notices()).toEqual([]);
+    expect(other.onOpen).not.toHaveBeenCalled();
+    expect(mock.calls).toHaveLength(0);
   });
 });
 

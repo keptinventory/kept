@@ -200,6 +200,8 @@ export function useIssueText(when: 'before' | 'after' = 'after') {
         return before
           ? t`A location that comes in as a box, as chosen.`
           : t`A location that came in as a box, as chosen.`;
+      case 'hb_sold_date_only':
+        return t`A sold date with no buyer or price isn't a sale: it stays in use, with the date in its notes.`;
       case 'hb_place_notes_dropped':
         return t`Its description isn't kept: places in Kept have no notes.`;
       case 'hb_number_integer':

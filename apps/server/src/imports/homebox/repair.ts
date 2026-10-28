@@ -2,8 +2,8 @@
  * Repairing a Homebox import that already ran (1.13.0), from what it stored: its report
  * (`import_runs.dry_run_report`) and what it made (`import_source_ids`). Imports before 1.13.0
  * turned a quantity of 0 into 1, gave a whole created type the container capability when one of
- * its items held another, and could create a type named `global.item`. Three repairs, each
- * chosen on its own:
+ * its items held another, and could create a type named `global.item`; imports before 1.14.1
+ * ended a thing sold on a sold date alone (#346). Four repairs, each chosen on its own:
  * - `zero`: the things whose report row says `hb_quantity_zero` (0 in Homebox, imported as 1),
  *   still in use with quantity 1, are archived; never a location that became a thing, nor a
  *   thing holding others;
@@ -11,13 +11,17 @@
  *   still have the container capability lose it. A thing with contents stays a container: in Kept
  *   a thing that holds things is one;
  * - `names`: the types this run created still named `global.item` or `global.location` are
- *   renamed, to the words the person reads ("Item" and "Location" in their language).
+ *   renamed, to the words the person reads ("Item" and "Location" in their language);
+ * - `sold`: the things this run ended sold with no buyer and no price (none in the notes either,
+ *   where a price went when money was off), whose lifecycle nobody has changed since, are brought
+ *   back into use.
  *
  * GET  /api/v1/imports/:id/repair  → RepairPlan (what each repair would touch, by name)
- * POST /api/v1/imports/:id/repair  {zero?, containerTypes?, names?: {item, location}} → result
+ * POST /api/v1/imports/:id/repair  {zero?, containerTypes?, names?: {item, location}, sold?}
+ *                                   → result
  *
  * Who: the location's owners and admins (`location.export-import`, as for the import). Undo: the
- * archived things each write an undoable `thing.lifecycle`, and the type changes one undoable
+ * archived and unsold things each write an undoable `thing.lifecycle`, and the type changes one undoable
  * `import.repair` event on the run; the web undoes them together (POST /audit/undo), so the whole
  * repair has one Undo. The repair's own audit row names the things and types it changed.
  */
@@ -38,11 +42,16 @@ import { updateType } from '../../types/service.js';
 import type { UpdateTypeBody } from '../../types/view.js';
 import { workableRun } from '../archive.js';
 import type { ArchiveRunRow } from '../archive-types.js';
+import { soldNoteLines } from './plan.js';
+
+/** A thing's notes hold at most this many characters (things/validate.ts). */
+const NOTES_MAX = 5000;
 
 export type RepairPlan = {
   zero: { thingId: string; name: string }[];
   containerTypes: { typeId: string; name: string }[];
   renames: { typeId: string; name: string; to: 'item' | 'location' }[];
+  sold: { thingId: string; name: string }[];
 };
 
 const Params = z.object({ id: z.uuid() });
@@ -51,6 +60,7 @@ const RepairBody = z.strictObject({
   zero: z.boolean().optional(),
   containerTypes: z.boolean().optional(),
   names: z.strictObject({ item: Name, location: Name }).optional(),
+  sold: z.boolean().optional(),
 });
 type RepairBody = z.infer<typeof RepairBody>;
 
@@ -60,6 +70,7 @@ const PlanView = z.object({
   renames: z.array(
     z.object({ typeId: z.uuid(), name: z.string(), to: z.enum(['item', 'location']) }),
   ),
+  sold: z.array(z.object({ thingId: z.uuid(), name: z.string() })),
 });
 const RepairResult = z.object({
   repaired: z.object({ things: z.number().int(), types: z.number().int() }),
@@ -130,8 +141,26 @@ export async function repairPlanOf(
       ORDER BY y.name, y.id`,
     [run.location_id, run.id],
   );
+  // Ended sold by this run on a date alone: no buyer, no price, no "Sold to:"/"Sold for:" line the
+  // run wrote to the notes instead, and no lifecycle change since but the run's own.
+  const { rows: sold } = await client.query<{ id: string; name: string }>(
+    `SELECT t.id, t.name FROM public.import_source_ids s
+       JOIN public.things t ON t.id = s.entity_id
+      WHERE s.location_id = $1 AND s.source = 'homebox' AND s.entity_type = 'thing'
+        AND s.run_id = $2 AND t.deleted_at IS NULL AND t.lifecycle = 'sold'
+        AND t.ended_to IS NULL AND t.ended_price IS NULL
+        AND position('Sold to: ' IN coalesce(t.notes, '')) = 0
+        AND position('Sold for: ' IN coalesce(t.notes, '')) = 0
+        AND NOT EXISTS (SELECT 1 FROM public.audit_events e
+                         WHERE e.entity_type = 'thing' AND e.entity_id = t.id
+                           AND e.action = 'thing.lifecycle'
+                           AND e.request_id IS DISTINCT FROM 'import:' || $2::text)
+      ORDER BY t.name, t.id`,
+    [run.location_id, run.id],
+  );
   return {
     zero: zero.map((r) => ({ thingId: r.id, name: r.name })),
+    sold: sold.map((r) => ({ thingId: r.id, name: r.name })),
     containerTypes: types
       .filter((y) => y.container)
       .map((y) => ({ typeId: y.id, name: homeboxTypeName(y.name) })),
@@ -176,6 +205,7 @@ export async function applyRepair(
 ): Promise<{ things: number; types: number }> {
   const plan = await repairPlanOf(c.client, run);
   const things = body.zero ? plan.zero : [];
+  const unsold = body.sold ? plan.sold : [];
   const patches = new Map<string, UpdateTypeBody>();
   if (body.containerTypes) {
     const images = await typeImages(
@@ -197,7 +227,9 @@ export async function applyRepair(
       });
     }
   }
-  if (things.length === 0 && patches.size === 0) throw invalid('There is nothing to repair.');
+  if (things.length === 0 && unsold.length === 0 && patches.size === 0) {
+    throw invalid('There is nothing to repair.');
+  }
 
   const ctx = { ...c };
   for (const t of things) {
@@ -205,6 +237,29 @@ export async function applyRepair(
       lifecycle: 'archived',
     });
   }
+  for (const t of unsold) {
+    // Back in use clears the end, so its date and notes go into the notes in the same write, as
+    // an import now writes them; the one thing.lifecycle event's Undo puts both back.
+    const { rows } = await c.client.query<{
+      ended_on: string | null;
+      ended_notes: string | null;
+      notes: string | null;
+    }>('SELECT ended_on::text, ended_notes, notes FROM public.things WHERE id = $1', [t.thingId]);
+    const was = rows[0];
+    const lines = soldNoteLines(was?.ended_on ?? null, was?.ended_notes);
+    const notes =
+      lines.length > 0
+        ? [was?.notes, lines.join('\n')].filter(Boolean).join('\n\n').slice(0, NOTES_MAX)
+        : undefined;
+    await setLifecycle(
+      ctx,
+      t.thingId,
+      await versionOf(c.client, 'things', t.thingId),
+      { lifecycle: 'in_use' },
+      notes,
+    );
+  }
+  const changed = [...things, ...unsold].map((t) => t.thingId);
   const before = await typeImages(c.client, [...patches.keys()]);
   const writeCtx = {
     tx: c.tx,
@@ -228,13 +283,13 @@ export async function applyRepair(
     action: 'import.repair',
     entity: { type: 'import_run', id: run.id },
     before: { types: image(before), things: null },
-    after: { types: image(after), things: things.map((t) => t.thingId) },
-    subjects: things.map((t) => t.thingId),
+    after: { types: image(after), things: changed },
+    subjects: changed,
     requestId: c.requestId,
     // Only type changes are this event's to undo; the things have their own events.
     undoableUntil: patches.size > 0 ? undoableUntil() : null,
   });
-  return { things: things.length, types: patches.size };
+  return { things: changed.length, types: patches.size };
 }
 
 /** Undo of a repair's type changes: each type back to its name and capabilities, unless it was

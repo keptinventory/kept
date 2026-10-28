@@ -1,26 +1,24 @@
 ---
 title: Webhooks
-description: "Signed, value-free POSTs to your own server when things change: which events, how deliveries are signed, what a delivery shows, and how to make a new secret."
+description: "Signed POSTs to your own server when things change: the events, the payload, checking the signature, deliveries and retries, and the secret."
 ---
 
-A **webhook** is Kept posting to a URL you choose when something happens in a location: a thing
-is added, moved or trashed, a reading is logged, a reminder comes due. The POST is signed, so
-your server can tell it came from Kept, and it carries ids and the names of the fields that
-changed, never the values. To see the thing itself, your server fetches it from the API with
-its own token.
+A **webhook** is Kept posting to an address you choose when something happens in a location: a
+thing is added, moved or trashed, a reading is logged, a reminder comes due. Each POST is signed,
+so your server can tell it came from Kept. It carries ids and the names of the fields that
+changed, never their values: to see the thing itself, your server fetches it from the
+[API](/api/) with its own token.
 
-Owners and admins add a location's webhooks in **Location settings → Webhooks**. Everyone else
-doesn't see the tab. **Settings → Connections** also lists the webhooks you manage, one section
-per location.
+Owners and admins manage a location's webhooks in **Location settings → Webhooks**: **Add
+webhook**, the address, and the events it takes. **Settings → Connections** lists the webhooks you
+manage across your locations.
 
-## What it sends
+## The events
 
-Each webhook picks the events it listens to; Kept sends only those. The events, in plain words:
-
-| Event | Fires |
+| Event | Sent when |
 |---|---|
 | `thing.created` | A thing is added |
-| `thing.updated` | A thing is changed (including its codes) |
+| `thing.updated` | A thing is changed |
 | `thing.moved` | A thing is moved |
 | `thing.trashed` | A thing goes to Trash |
 | `thing.restored` | A thing comes back from Trash |
@@ -28,69 +26,83 @@ Each webhook picks the events it listens to; Kept sends only those. The events, 
 | `reading.logged` | A meter reading is logged |
 | `reminder.due` | A reminder is due |
 
-Every payload has the same shape: an event id, the event name, when it happened, the location,
-the entity (its type and id), the list of changed field names, and who caused it (a person, a
-token, or the system). There is also a **Test** ping, which sends a `ping` event with nothing
-behind it: use it to check your endpoint accepts Kept.
+Every payload has the same fields:
 
-## How your server checks it came from Kept
+```json
+{
+  "id": "evt_…",
+  "event": "thing.updated",
+  "occurred_at": "2026-10-03T09:12:44.000Z",
+  "location_id": "…",
+  "entity": { "type": "thing", "id": "…" },
+  "changed_fields": ["…"],
+  "actor": { "type": "user", "id": "…" }
+}
+```
 
-Every delivery carries a **`Kept-Signature`** header:
+`entity.type` is `thing`, `reading` or `reminder` (`webhook` for a test); `changed_fields` names
+the fields a write changed, and is empty for a reminder; `actor.type` is `user`, `token` or
+`system`.
+
+**Send a test** posts a `ping` event, sent once and not retried, and shows the status your server
+answered with: the quickest way to check a new address.
+
+## Checking the signature
+
+Every delivery carries a `Kept-Signature` header:
 
 ```
 Kept-Signature: t=1792700000,v1=<64 hex characters>
 ```
 
-`v1` is an HMAC-SHA256 of `"<t>.<body>"` (the timestamp, a dot, then the exact request body),
-signed with the webhook's secret. Check that the timestamp is fresh, compute the same HMAC with
-the secret, and compare it to `v1` in constant time. The dialog that shows the secret also has a
-ready-made **Check a delivery (Node.js)** snippet that does exactly this.
+`t` is when it was signed (Unix seconds). `v1` is an HMAC-SHA256, with the webhook's secret, of
+`<t>.<body>`: the timestamp, a dot, then the exact request body. Your server computes the same
+HMAC, compares it with `v1` in constant time, and refuses an old `t` (more than five minutes,
+say). The secret's dialog has a ready-made **Check a delivery (Node.js)** snippet.
 
-The secret is shown once, when the webhook is created: **copy it now**. Kept keeps it (every
-delivery is signed with it) but never shows it again; make a new one if it is lost. **New
-secret** replaces it: the current secret stops working at once, so deliveries fail to verify
-until your server has the new one.
+## The secret
 
-## What a delivery shows
+The signing secret is shown once, when the webhook is made: copy it then. Kept keeps it sealed to
+sign with, and never shows it again. Lost it? **New secret** makes another; the current one stops
+working at once, so deliveries fail to verify until your server has the new one.
 
-The webhook's **Deliveries** list holds one row per delivery, with its number of attempts, from
-the last 30 days. Each row shows when it was sent, the receiver's HTTP status (or *no answer*),
-and what it took to get there.
+## Deliveries
 
-A delivery is one of four states:
+Each webhook's **Deliveries** lists the last 30 days, newest first: one row per delivery, with its
+state, the status your server answered (or none) and how many attempts it took.
 
 - **Waiting to send**: queued.
-- **Delivered**: your server answered 2xx. Anything else is retried; redirects are refused, and
-  the request times out after 10 seconds.
-- **Failed, trying again**: the send failed or came back wrong; Kept retries it.
-- **Gave up**: after 10 attempts spread over 24 hours, Kept stops trying.
+- **Delivered**: your server answered with a 2xx status.
+- **Failed, trying again**: any other answer, no answer within 10 seconds, or a redirect (Kept
+  doesn't follow redirects). Kept tries again.
+- **Gave up**: 10 attempts over about 24 hours all failed.
 
-At most 10 deliveries go out per second for a location, so a burst of changes won't flood your
-server. A webhook whose last retry gave up is marked **Failing since** the date it started, and
-the instance admins hear about it; a later success clears the mark on its own. The webhook
-keeps trying when the next event comes.
+At most 10 deliveries a second go out per location, so a burst of changes doesn't flood your
+server.
 
-A webhook stops when the person who made it is no longer an admin in the location, or when an
-admin turns it off. Deleting one is final: Kept stops posting to it and its deliveries are
-forgotten.
+When a delivery gives up, the webhook is marked **Failing since** that date and instance admins get
+an alert. It keeps sending; the next delivery that gets through clears the mark.
+
+A webhook is switched **Off** when an owner or admin turns it off, or when the person who made it
+is no longer an admin of the location. Deleting one is final: Kept stops sending to it and its
+deliveries are forgotten.
 
 ## Your own webhook, for reminders
 
-A location's webhooks are one thing; a **personal webhook** is another. In **Settings → Me →
-Notifications** you can add a webhook as one of your own channels, next to email, push, ntfy,
-Telegram or Apprise. It gets one POST per reminder: ids, the reminder's kind and source type,
-the due date, and a link back to Kept, signed the same way, with a secret that is shown once and
-kept encrypted. A failed send is retried up to 10 times over about 24 hours; if none get
-through, the channel is marked **Failing since** and Kept emails you once. **Send a test** sends
-one now. A person can have up to five.
+Separate from a location's webhooks, **Settings → Me → Notifications** can add a webhook as one of
+your own channels, next to email, push, ntfy, Telegram and Apprise ([reminders](/users/reminders/)).
+It gets one POST per reminder (`reminder.due`) with ids, the reminder's kind, its source type and
+due date, the thing, place or location it's about, and a link back to Kept: no names or values.
+It is signed the same way, with a secret shown once.
 
-## Addresses on your network
+A failed send is retried up to 10 times over about 24 hours; if none gets through, the channel is
+marked **Failing since** and Kept emails you once. **Test** sends one now. You can have up to five.
 
-By default Kept refuses to post to private addresses (`192.168.x.x` and friends), so a webhook
-cannot be aimed at your router or another service on the server's network. An instance admin
-can allow this in **Admin → Settings** (**Allow private addresses**), which is meant for a
-server you host yourself: the same switch also lets an AI provider, the Homebox import and
-OIDC sign-in reach that network, so turn it on knowing who can add those.
+## Addresses on your own network
 
-A webhook's **Send a test** shows the status your endpoint answered with, which is the quickest
-way to check a new URL before trusting it.
+Kept refuses to post to private addresses (such as `192.168.x.x`), so a webhook can't be aimed at a
+router or another service on the server's network. An instance admin can allow them in
+**Admin → Sign-up** (**Allow private addresses**), for a receiver you host yourself, such as Home
+Assistant. The same switch lets an AI provider, a Homebox import and an OIDC sign-in reach that
+network, so turn it on knowing who can add those. See the
+[security model](/admin/security-model/#outbound-requests-ssrf).

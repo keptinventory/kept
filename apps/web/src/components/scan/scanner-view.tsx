@@ -96,7 +96,11 @@ export function ScannerView({
         if (prev && prev.text === first.rawValue && at - prev.at < REPEAT_MS) return;
         last.current = { text: first.rawValue, at };
         buzz();
-        readRef.current({ text: first.rawValue, format: first.format });
+        readRef.current({
+          text: first.rawValue,
+          format: first.format,
+          ...(first.sure !== undefined ? { sure: first.sure } : {}),
+        });
       },
       {
         onUnavailable: () => {

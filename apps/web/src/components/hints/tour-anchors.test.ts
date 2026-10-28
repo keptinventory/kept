@@ -67,7 +67,7 @@ function screenSources(entry: string, depth = 6): Map<string, string> {
 const written = (anchor: string) => `data-tour="${anchor}"`;
 
 /** Every stop a tour can make, on both layouts. */
-const STOPS = (['phone', 'wide'] as TourLayout[]).flatMap((layout) =>
+const STOPS = (['phone', 'wide', 'sheet'] as TourLayout[]).flatMap((layout) =>
   TOURS.flatMap((tour) =>
     tour.steps.map((step) => ({
       layout,

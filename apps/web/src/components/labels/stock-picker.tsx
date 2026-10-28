@@ -1,10 +1,10 @@
 /**
- * Choosing the label stock (D44): the rolls a label printer takes and
+ * Choosing the label stock (D44): the rolls a label printer takes, label-maker tape (#303) and
  * the office sheets, as radio cards. Sizes follow the digit setting (D143); the names are the
  * app's own words, never a maker's logo (D172). The last stock used is remembered on this
  * browser, since a household has one printer.
  */
-import { isSheet, LABEL_STOCKS, type LabelStock } from '@kept/shared';
+import { hasQr, isSheet, isTape, LABEL_STOCKS, type LabelStock } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import { ChoiceCards } from '@/components/ui/segmented';
@@ -42,6 +42,15 @@ export function useStockText() {
   };
   return (stock: LabelStock): { title: string; detail: string } => {
     const cell = size(stock.cell.w, stock.cell.h);
+    if (isTape(stock)) {
+      const width = fmt.num(stock.cell.h);
+      return {
+        title: t`${width} mm tape`,
+        detail: hasQr(stock)
+          ? t`Label maker · QR code, short ID and name`
+          : t`Label maker · short ID large, and the name`,
+      };
+    }
     if (!isSheet(stock))
       return { title: t`${cell} roll`, detail: t`Label printer · one label per thing` };
     const n = stock.cols * stock.rows;

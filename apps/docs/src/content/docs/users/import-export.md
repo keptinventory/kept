@@ -54,7 +54,7 @@ import would drop:
 | Homebox column | Kept |
 |---|---|
 | `HB.asset_id`, and the item's link in `HB.url` (v0.13 and later) | Old labels: a printed Homebox label opens the thing |
-| `HB.sold_*` | The thing ended as sold, with its date, buyer, notes and price |
+| `HB.sold_*` | With a buyer or a price: the thing ended as sold, with its date, buyer, notes and price. A sold date alone stays in the notes |
 | `HB.archived` | Your choice: **Archived** (the default), **In use**, or **Leave out**. One with a sale ends sold |
 | `HB.warranty_expires`, `HB.lifetime_warranty` | A warranty from the purchase date, where Warranties is on |
 | `HB.warranty_details`, `HB.insured` | Lines in the notes |
@@ -99,7 +99,7 @@ Then choose:
 - **Prices are in**: the currency, asked only when the backup has prices. Choosing one relabels the
   amounts; it doesn't convert them.
 - **Archived items**: **Archived** (the default: archived in Kept too, still yours, put away),
-  **In use**, or **Leave out**. An archived item with sale details ends sold.
+  **In use**, or **Leave out**. An archived item with a buyer or a price ends sold.
 - **Items with quantity 0**: **Keep 0 or archive** (the default: a type you run out of keeps 0,
   anything else comes in archived), **Set to 1**, or **Leave out**. Each one that comes in has
   "Quantity in Homebox: 0" in its notes. An item that holds other items is never archived or left
@@ -127,9 +127,10 @@ What comes over:
 | Manufacturer, model, serial | Brand, model, serial |
 | Purchase date, shop and price | A purchase with its shop |
 | Warranty, lifetime warranty | A warranty |
-| Sold details | The thing ended as sold, with its date, price, buyer and notes |
+| Sold details | With a buyer or a price (more than 0): the thing ended as sold, with its date, price, buyer and notes. A sold date alone isn't a sale: the thing stays in use, the date in its notes |
 | Tags | Tags with their colours (nested tags flattened) |
 | Photos, manuals, receipts, warranty files | Photos, manuals, the purchase's receipt, the warranty's document |
+| Links | Links. A link to a document of the [Paperless-ngx](/users/paperless/) the location is connected to (the same address) comes in as a Paperless link, as **Link from Paperless** makes; connect Paperless before you import |
 | Completed maintenance | Service records |
 | Scheduled maintenance | One-off schedules |
 | Templates | Account templates, as far as they map |
@@ -138,16 +139,23 @@ Notifiers, members and roles aren't imported. Where a module is off in the locat
 record's text is kept in the thing's notes. A location's description isn't kept (places have no
 notes); the check names each one.
 
-#### Repairing an import made before 1.13.0
+Homebox writes dates nobody typed: some upgrades fill empty date fields, and a backup can carry
+an empty date as the last day of year 0. Kept reads a date before the year 1000 as no date, and a
+sale needs a buyer or a price.
+
+#### Repairing an earlier import
 
 Imports before Kept 1.13.0 turned a quantity of 0 into 1, made a whole type a box type when one of
 its items held another (so every thing of it opened on an empty Contents tab), and could create a
-type named `global.item`. Open the import from **Activity** (Ran an import): **Repair this import**
-lists what it can put right, by name:
+type named `global.item`. Imports before 1.14.1 ended a thing sold when Homebox had only a sold
+date. Open the import from **Activity** (Ran an import): **Repair this import** lists what it can
+put right, by name:
 
 - **Archive the things that had quantity 0 in Homebox** (still in use, with quantity 1);
 - **Make the type an ordinary type again** (a thing that holds things stays a box);
-- **Rename `global.item` to Item**.
+- **Rename `global.item` to Item**;
+- **Put the things marked sold on a date alone back in use**: sold with no buyer and no price, and
+  not changed since. An item archived in Homebox comes back in use too: archive it again by hand.
 
 Tick what you want and press **Repair**. One **Undo** takes it all back.
 

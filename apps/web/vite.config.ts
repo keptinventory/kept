@@ -8,6 +8,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, type Plugin } from 'vite';
+import { whatsNewPlugin } from './whats-new-plugin';
 
 // Explicit, because the root `vitest` run starts from the repo root, where Lingui would look.
 // The macro plugin gets the resolved config too: the preset doesn't pass it on.
@@ -45,6 +46,8 @@ function demoVersion(): string | undefined {
 }
 const KEPT_VERSION = process.env.KEPT_VERSION || demoVersion();
 const TRY_BASE = process.env.KEPT_TRY_BASE || '/try/kept/app/';
+/** What's new in Kept: this version's Highlights from the changelog (whats-new-plugin.ts). */
+const CHANGELOG = fileURLToPath(new URL('../../CHANGELOG.md', import.meta.url));
 function tryHtml(): Plugin {
   const swap = (html: string, from: RegExp, to: string) => {
     if (!from.test(html)) throw new Error(`index.html: ${from} not found for the Try build`);
@@ -245,6 +248,8 @@ const ON_DEMAND_ENTRIES = [
   '/src/components/tags/editors.tsx',
   // 1.13.0 (#270): "Turn places into boxes" and a place's own order (places/sub-places-lazy.tsx).
   '/src/components/places/sub-places.tsx',
+  // #238: furniture with its compartments from a place template (places/furniture-lazy.tsx).
+  '/src/components/places/furniture.tsx',
   // #294: several things to the Trash at once (things/bulk-trash.tsx), from a place's Select and
   // the spreadsheet; it reads and writes the server only.
   '/src/components/things/bulk-trash.tsx',
@@ -271,6 +276,9 @@ const HOUSEHOLD_SHARED = [
   '/src/components/tags/bulk-tags.tsx',
   '/src/components/tags/capture-tags.tsx',
   '/src/components/tags/tags-field.tsx',
+  // #238: the furniture form, which Settings → Account → Templates shares (its names).
+  '/src/components/places/furniture.tsx',
+  '/packages/shared/src/place-templates.ts',
   // Account settings' registry lists (and a tag's page, which shares one of its helpers).
   '/src/components/registries/registry-list.tsx',
   '/src/components/agenda/agenda-row.tsx',
@@ -379,6 +387,7 @@ export default defineConfig({
     lingui({ configPath }),
     babel({ presets: [linguiTransformerBabelPreset({ linguiConfig }, { configPath })] }),
     tailwindcss(),
+    whatsNewPlugin({ version: KEPT_VERSION ?? '0.0.0-dev', changelog: CHANGELOG }),
     ...(TRY ? [tryHtml()] : []),
     // The service worker: src/sw.ts is
     // built to dist/sw.js with the precache manifest injected. The precache is the shell, the

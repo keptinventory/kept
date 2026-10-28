@@ -140,86 +140,89 @@ export function VehicleServices() {
   ];
 
   return (
-    <Section
-      title={<Trans>Services</Trans>}
-      action={
-        canLog ? (
-          <Button size="small" onPress={() => setOpen({ draft: null })}>
-            <Trans>Log a service</Trans>
-          </Button>
-        ) : undefined
-      }
-    >
-      {!online ? (
-        <Notice tone="warn" title={t`Needs a connection`}>
-          <Trans>Services have money in them. A reading alone can be logged offline.</Trans>
-        </Notice>
-      ) : null}
-      <ListSurface<ServiceRecordV5>
-        label={t`Services`}
-        search={{ label: t`Search services`, placeholder: t`Search lines, vendor, notes` }}
-        filters={filters}
-        surface="services"
-        sorts={[
-          { value: 'servicedOn', label: t`Date`, kind: 'date' },
-          { value: 'total', label: t`Total` },
-        ]}
-        query={query}
-        getKey={(r) => r.id}
-        renderRow={(r) =>
-          r.reviewState === 'draft' ? (
-            <DraftRow
-              record={r}
-              mine={r.loggedBy.displayName === me}
-              onFinish={() => setOpen({ draft: r })}
-            />
-          ) : (
-            <AriaButton
-              className="block w-full cursor-pointer text-start outline-none data-hovered:bg-sunken data-focus-visible:outline-2 data-focus-visible:-outline-offset-2 data-focus-visible:outline-info"
-              onPress={() => setViewing(r.id)}
-            >
-              <ServiceLine record={r} />
-            </AriaButton>
-          )
+    // The guided tour points here (components/hints/tours.ts, #296).
+    <div data-tour="vehicle-services" className="grid min-w-0">
+      <Section
+        title={<Trans>Services</Trans>}
+        action={
+          canLog ? (
+            <Button size="small" onPress={() => setOpen({ draft: null })}>
+              <Trans>Log a service</Trans>
+            </Button>
+          ) : undefined
         }
-        empty={
-          <EmptyState icon={<WrenchIcon />} title={<Trans>No services yet</Trans>}>
-            <Trans>Log a service with its invoice, and it shows here with what it cost.</Trans>
-          </EmptyState>
-        }
-      />
-      {canLog ? (
-        <LogServiceSheet
-          open={open !== null}
-          subject={{ thingId: thing.id }}
-          subjectRef={{
-            type: 'thing',
-            id: thing.id,
-            name: thing.name ?? '',
-            path: '',
-            shortCode: thing.shortCode,
-          }}
-          locationId={thing.locationId}
-          draft={open?.draft ?? null}
-          record={open?.record ?? null}
-          onClose={() => setOpen(null)}
+      >
+        {!online ? (
+          <Notice tone="warn" title={t`Needs a connection`}>
+            <Trans>Services have money in them. A reading alone can be logged offline.</Trans>
+          </Notice>
+        ) : null}
+        <ListSurface<ServiceRecordV5>
+          label={t`Services`}
+          search={{ label: t`Search services`, placeholder: t`Search lines, vendor, notes` }}
+          filters={filters}
+          surface="services"
+          sorts={[
+            { value: 'servicedOn', label: t`Date`, kind: 'date' },
+            { value: 'total', label: t`Total` },
+          ]}
+          query={query}
+          getKey={(r) => r.id}
+          renderRow={(r) =>
+            r.reviewState === 'draft' ? (
+              <DraftRow
+                record={r}
+                mine={r.loggedBy.displayName === me}
+                onFinish={() => setOpen({ draft: r })}
+              />
+            ) : (
+              <AriaButton
+                className="block w-full cursor-pointer text-start outline-none data-hovered:bg-sunken data-focus-visible:outline-2 data-focus-visible:-outline-offset-2 data-focus-visible:outline-info"
+                onPress={() => setViewing(r.id)}
+              >
+                <ServiceLine record={r} />
+              </AriaButton>
+            )
+          }
+          empty={
+            <EmptyState icon={<WrenchIcon />} title={<Trans>No services yet</Trans>}>
+              <Trans>Log a service with its invoice, and it shows here with what it cost.</Trans>
+            </EmptyState>
+          }
         />
-      ) : null}
-      {viewed ? (
-        <Suspense fallback={null}>
-          <ServiceSheet
-            record={viewed}
-            location={location}
-            me={me}
-            onClose={() => setViewing(null)}
-            onEdit={(record) => {
-              setViewing(null);
-              setOpen({ draft: null, record });
+        {canLog ? (
+          <LogServiceSheet
+            open={open !== null}
+            subject={{ thingId: thing.id }}
+            subjectRef={{
+              type: 'thing',
+              id: thing.id,
+              name: thing.name ?? '',
+              path: '',
+              shortCode: thing.shortCode,
             }}
+            locationId={thing.locationId}
+            draft={open?.draft ?? null}
+            record={open?.record ?? null}
+            onClose={() => setOpen(null)}
           />
-        </Suspense>
-      ) : null}
-    </Section>
+        ) : null}
+        {viewed ? (
+          <Suspense fallback={null}>
+            <ServiceSheet
+              record={viewed}
+              location={location}
+              me={me}
+              onClose={() => setViewing(null)}
+              onEdit={(record) => {
+                setViewing(null);
+                setOpen({ draft: null, record });
+              }}
+            />
+          </Suspense>
+        ) : null}
+      </Section>
+    </div>
   );
 }
 

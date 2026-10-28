@@ -2402,6 +2402,10 @@ msgstr "Couldn't load this"
 msgid "Couldn't look that up. Try again."
 msgstr "Couldn't look that up. Try again."
 
+#: src/components/scan/scan-screen.tsx
+msgid "Read {shown} from the printed code"
+msgstr "Read {shown} from the printed code"
+
 #: src/components/reports/progress.tsx
 msgid "Couldn't make the PDF"
 msgstr "Couldn't make the PDF"
@@ -4031,6 +4035,30 @@ msgstr "It was used, revoked, or it's more than 7 days old. Ask the person who s
 #: src/components/scan/outcome-sheet.tsx
 msgid "It will check when you're online."
 msgstr "It will check when you're online."
+
+#: src/components/scan/outcome-sheet.tsx
+msgid "Check the code"
+msgstr "Check the code"
+
+#: src/components/scan/outcome-sheet.tsx
+msgid "This phone doesn't have this code."
+msgstr "This phone doesn't have this code."
+
+#: src/components/scan/outcome-sheet.tsx
+msgid "None of your labels has this code."
+msgstr "None of your labels has this code."
+
+#: src/components/scan/outcome-sheet.tsx
+msgid "Is this the code?"
+msgstr "Is this the code?"
+
+#: src/components/scan/outcome-sheet.tsx
+msgid "Read from the printed text, not a QR code. Check it against the label."
+msgstr "Read from the printed text, not a QR code. Check it against the label."
+
+#: src/components/scan/outcome-sheet.tsx
+msgid "That's the code"
+msgstr "That's the code"
 
 #: src/routes/_app/settings.index.tsx
 msgid "It will need your password or passkey to get back in."
@@ -12050,6 +12078,18 @@ msgstr "{cell} roll"
 #: src/components/labels/stock-picker.tsx
 msgid "Label printer · one label per thing"
 msgstr "Label printer · one label per thing"
+
+#: src/components/labels/stock-picker.tsx
+msgid "{width} mm tape"
+msgstr "{width} mm tape"
+
+#: src/components/labels/stock-picker.tsx
+msgid "Label maker · QR code, short ID and name"
+msgstr "Label maker · QR code, short ID and name"
+
+#: src/components/labels/stock-picker.tsx
+msgid "Label maker · short ID large, and the name"
+msgstr "Label maker · short ID large, and the name"
 
 #: src/components/labels/stock-picker.tsx
 msgid "{paper} sheet · {count}"
@@ -24695,10 +24735,6 @@ msgstr "Choose how reminders reach you: in Kept, by email, push or a channel."
 msgid "Choose what reaches you, and how: in Kept, by email, push or a channel."
 msgstr "Choose what reaches you, and how: in Kept, by email, push or a channel."
 
-#: src/components/hints/hint-copy.ts
-msgid "Details, paperwork, history and the rest, each in its own tab."
-msgstr "Details, paperwork, history and the rest, each in its own tab."
-
 #: src/components/sheet/sheet-view.tsx
 msgid "Discard my change"
 msgstr "Discard my change"
@@ -24706,10 +24742,6 @@ msgstr "Discard my change"
 #: src/components/hints/hint-copy.ts
 msgid "Download a location or all your data, with its photos and documents."
 msgstr "Download a location or all your data, with its photos and documents."
-
-#: src/components/hints/hint-copy.ts
-msgid "Draw rooms, add a floor and put things where they really are."
-msgstr "Draw rooms, add a floor and put things where they really are."
 
 #: src/components/hints/hint-copy.ts
 msgid "Drop the file here, or choose it. Nothing is saved until you check it."
@@ -24772,10 +24804,6 @@ msgid "Keep leaves everything where it is. Discard removes only what the tour ad
 msgstr "Keep leaves everything where it is. Discard removes only what the tour added: a thing goes to Trash for 30 days, a sample move is deleted. Your activity history stays either way."
 
 #: src/components/hints/hint-copy.ts
-msgid "List, Grid or Map"
-msgstr "List, Grid or Map"
-
-#: src/components/hints/hint-copy.ts
 msgid "Log a reading, a service or fuel from here."
 msgstr "Log a reading, a service or fuel from here."
 
@@ -24786,10 +24814,6 @@ msgstr "Log it"
 #: src/components/hints/hint-copy.ts
 msgid "Mark what's running low, lent out or due, on the map."
 msgstr "Mark what's running low, lent out or due, on the map."
-
-#: src/components/hints/hint-copy.ts
-msgid "Move it, lend it, print its label or put it in Trash."
-msgstr "Move it, lend it, print its label or put it in Trash."
 
 #: src/components/hints/hint-copy.ts
 msgid "Name the move and say where it's going."
@@ -24820,20 +24844,12 @@ msgid "Pick a floor, or All for the whole building."
 msgstr "Pick a floor, or All for the whole building."
 
 #: src/components/hints/hint-copy.ts
-msgid "Pick how this location is shown. Map draws it floor by floor."
-msgstr "Pick how this location is shown. Map draws it floor by floor."
-
-#: src/components/hints/hint-copy.ts
 msgid "Pick what it is, then add the file to the thing it belongs to."
 msgstr "Pick what it is, then add the file to the thing it belongs to."
 
 #: src/components/hints/hint-copy.ts
 msgid "Pick where it comes from: a spreadsheet, Homebox or another Kept."
 msgstr "Pick where it comes from: a spreadsheet, Homebox or another Kept."
-
-#: src/components/hints/hint-copy.ts
-msgid "Print a sheet for everything still without a label."
-msgstr "Print a sheet for everything still without a label."
 
 #: src/components/hints/hint-copy.ts
 msgid "Receipts, manuals and warranty cards from every thing and room."
@@ -24902,14 +24918,6 @@ msgstr "Tap Mark returned when it comes back."
 #: src/components/hints/hint-copy.ts
 msgid "Tap Scan and point the camera at a Kept label. What it's on opens."
 msgstr "Tap Scan and point the camera at a Kept label. What it's on opens."
-
-#: src/components/hints/hint-copy.ts
-msgid "Tap Scan and point the camera at a label to open what it's on."
-msgstr "Tap Scan and point the camera at a label to open what it's on."
-
-#: src/components/hints/hint-copy.ts
-msgid "The 3D map"
-msgstr "The 3D map"
 
 #: src/components/hints/hint-copy.ts
 msgid "The file"
@@ -25767,14 +25775,6 @@ msgstr "Next: {chapter}"
 #: src/routes/_app/help.tsx
 msgid "One after another, on the real screens. Stop any time."
 msgstr "One after another, on the real screens. Stop any time."
-
-#: src/components/hints/hint-copy.ts
-msgid "One chapter per section. Start at any of them here, or tap Show me on its page."
-msgstr "One chapter per section. Start at any of them here, or tap Show me on its page."
-
-#: src/routes/_app/help.tsx
-msgid "Start here"
-msgstr "Start here"
 
 #: src/components/hints/hint-copy.ts
 msgid "Stop here"
@@ -27658,3 +27658,342 @@ msgstr "They have prices you can't see, so they stay as they are."
 #: src/components/moving/sheets-printed.tsx
 msgid "Check that a code on the sheets scans. Yes records today as their print date, so the boxes show their label."
 msgstr "Check that a code on the sheets scans. Yes records today as their print date, so the boxes show their label."
+
+#: src/components/import/labels.ts
+msgid "A sold date with no buyer or price isn't a sale: it stays in use, with the date in its notes."
+msgstr "A sold date with no buyer or price isn't a sale: it stays in use, with the date in its notes."
+
+#: src/components/import/repair.tsx
+msgid "{0, plural, one {Put the # thing marked sold on a date alone back in use} other {Put the # things marked sold on a date alone back in use}}"
+msgstr "{0, plural, one {Put the # thing marked sold on a date alone back in use} other {Put the # things marked sold on a date alone back in use}}"
+
+#: src/components/things/pickers.tsx
+msgid "Add “{typed}”"
+msgstr "Add “{typed}”"
+
+#: src/routes/_app/help.tsx
+msgid "Chapters done"
+msgstr "Chapters done"
+
+#: src/routes/_app/help.tsx
+msgid "Done ({done})"
+msgstr "Done ({done})"
+
+#: src/components/hints/hint-copy.ts
+msgid "One chapter per section. Tap one to start there, or tap Show me on its page."
+msgstr "One chapter per section. Tap one to start there, or tap Show me on its page."
+
+#: src/components/hints/hint-copy.ts
+msgid "Move it, lend it, print its label or move it to the Trash."
+msgstr "Move it, lend it, print its label or move it to the Trash."
+
+#: src/components/hints/hint-copy.ts
+msgid "Details, paperwork, history and the rest, each in its own tab. Tap a photo to see it full screen."
+msgstr "Details, paperwork, history and the rest, each in its own tab. Tap a photo to see it full screen."
+
+#: src/components/hints/hint-copy.ts
+msgid "List, Grid, Graph or Map"
+msgstr "List, Grid, Graph or Map"
+
+#: src/components/hints/hint-copy.ts
+msgid "Pick how this location is shown. Graph shows what's inside what; Map draws it floor by floor."
+msgstr "Pick how this location is shown. Graph shows what's inside what; Map draws it floor by floor."
+
+#: src/components/hints/hint-copy.ts
+msgid "List, Grid, Graph, Table or Map"
+msgstr "List, Grid, Graph, Table or Map"
+
+#: src/components/hints/hint-copy.ts
+msgid "Pick how this location is shown. Table, on a wide screen, works like a spreadsheet."
+msgstr "Pick how this location is shown. Table, on a wide screen, works like a spreadsheet."
+
+#: src/components/hints/hint-copy.ts
+msgid "Graph, in 2D or 3D"
+msgstr "Graph, in 2D or 3D"
+
+#: src/components/hints/hint-copy.ts
+msgid "Floors, rooms, boxes and things as a graph. Pick one for its card, pick it again to go in."
+msgstr "Floors, rooms, boxes and things as a graph. Pick one for its card, pick it again to go in."
+
+#: src/components/hints/hint-copy.ts
+msgid "Draw rooms and add a floor. Drag a room to move it, with everything in it."
+msgstr "Draw rooms and add a floor. Drag a room to move it, with everything in it."
+
+#: src/components/hints/hint-copy.ts
+msgid "Select several"
+msgstr "Select several"
+
+#: src/components/hints/hint-copy.ts
+msgid "Select things in a list to move them, print their labels or move them to the Trash."
+msgstr "Select things in a list to move them, print their labels or move them to the Trash."
+
+#: src/components/hints/hint-copy.ts
+msgid "Print a sheet for everything still without a label, or a blank sheet to name later."
+msgstr "Print a sheet for everything still without a label, or a blank sheet to name later."
+
+#: src/components/hints/hint-copy.ts
+msgid "Point the camera at a label to open what it's on. A blank one can go on a thing or place you have."
+msgstr "Point the camera at a label to open what it's on. A blank one can go on a thing or place you have."
+
+#: src/components/hints/hint-copy.ts
+msgid "Every service with what it cost. Tap one to open all of it, with its invoice."
+msgstr "Every service with what it cost. Tap one to open all of it, with its invoice."
+
+#: src/components/hints/hint-copy.ts
+msgid "Graph & 3D map"
+msgstr "Graph & 3D map"
+
+#: src/components/whats-new.tsx
+msgid "What's new in Kept"
+msgstr "What's new in Kept"
+
+#: src/components/whats-new.tsx
+msgid "Version <0>{version}</0>"
+msgstr "Version <0>{version}</0>"
+
+#: src/components/whats-new.tsx
+msgid "The release notes are in English."
+msgstr "The release notes are in English."
+
+#: src/components/whats-new.tsx
+msgid "Full release notes"
+msgstr "Full release notes"
+
+#: src/routes/_app/help.tsx
+msgid "Version <0>{version}</0>: its highlights."
+msgstr "Version <0>{version}</0>: its highlights."
+
+#: src/components/whats-new.tsx
+msgid "Highlights"
+msgstr "Highlights"
+
+#: src/components/templates/place-template-list.tsx
+msgid "{across} × {up} cubes"
+msgstr "{across} × {up} cubes"
+
+#: src/components/places/furniture.tsx
+msgid "{across} across, {up} up, counted from the top left, row by row"
+msgstr "{across} across, {up} up, counted from the top left, row by row"
+
+#: src/components/places/furniture.tsx
+msgid "{code} doesn't follow this location's code rule: {message}"
+msgstr "{code} doesn't follow this location's code rule: {message}"
+
+#: src/components/places/furniture.tsx
+msgid "{code} doesn't follow this location's code rule."
+msgstr "{code} doesn't follow this location's code rule."
+
+#: src/components/places/furniture.tsx
+msgid "{code} is already on something else here."
+msgstr "{code} is already on something else here."
+
+#: src/components/places/furniture.tsx
+msgid "{code} would be on two places. Change the code pattern."
+msgstr "{code} would be on two places. Change the code pattern."
+
+#: src/components/places/furniture.tsx
+msgid "{inside, plural, one {With # place inside} other {With # places inside}}"
+msgstr "{inside, plural, one {With # place inside} other {With # places inside}}"
+
+#: src/components/templates/place-template-list.tsx
+msgid "{count, plural, one {# shelf} other {# shelves}}"
+msgstr "{count, plural, one {# shelf} other {# shelves}}"
+
+#: src/components/templates/place-template-list.tsx
+msgid "{count, plural, one {# drawer} other {# drawers}}"
+msgstr "{count, plural, one {# drawer} other {# drawers}}"
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "{N} is the number, {ROW} and {COL} where it sits."
+msgstr "{N} is the number, {ROW} and {COL} where it sits."
+
+#: src/components/places/furniture.tsx
+msgid "{PARENT} is its own code; {PADDED} pads to two digits."
+msgstr "{PARENT} is its own code; {PADDED} pads to two digits."
+
+#: src/components/templates/place-template-list.tsx
+msgid "A grid is 1 to {side} across and up, at most {most} cubes; shelves and drawers 1 to {count}."
+msgstr "A grid is 1 to {side} across and up, at most {most} cubes; shelves and drawers 1 to {count}."
+
+#: src/components/templates/place-template-list.tsx
+msgid "Across"
+msgstr "Across"
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Add furniture to {hereName}"
+msgstr "Add furniture to {hereName}"
+
+#: src/components/places/furniture.tsx
+msgid "Bookcase"
+msgstr "Bookcase"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Built in: {builtins}."
+msgstr "Built in: {builtins}."
+
+#: src/components/places/furniture.tsx
+msgid "Choose 1 to {max}."
+msgstr "Choose 1 to {max}."
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "Compartment codes (optional)"
+msgstr "Compartment codes (optional)"
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "Compartment names"
+msgstr "Compartment names"
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "Compartments"
+msgstr "Compartments"
+
+#: src/components/places/labels.ts
+msgid "Cube"
+msgstr "Cube"
+
+#: src/components/places/furniture.tsx
+msgid "Cube {n}"
+msgstr "Cube {n}"
+
+#: src/components/places/furniture.tsx
+msgid "Cube shelf {across} × {up}"
+msgstr "Cube shelf {across} × {up}"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Cubes"
+msgstr "Cubes"
+
+#: src/components/places/labels.ts
+msgid "Drawer"
+msgstr "Drawer"
+
+#: src/components/places/furniture.tsx
+msgid "Drawer {n}"
+msgstr "Drawer {n}"
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "Drawers"
+msgstr "Drawers"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Edit place template"
+msgstr "Edit place template"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Furniture already made from it stays as it is."
+msgstr "Furniture already made from it stays as it is."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Furniture with compartments…"
+msgstr "Furniture with compartments…"
+
+#: src/components/places/furniture.tsx
+msgid "Give it a name, like Cube shelf 01."
+msgstr "Give it a name, like Cube shelf 01."
+
+#: src/components/templates/place-template-list.tsx
+msgid "Give it a name, like Wide cube shelf."
+msgstr "Give it a name, like Wide cube shelf."
+
+#: src/components/places/furniture.tsx
+msgid "Give the furniture its own code first: these codes start with it."
+msgstr "Give the furniture its own code first: these codes start with it."
+
+#: src/components/places/furniture.tsx
+msgid "How it stands"
+msgstr "How it stands"
+
+#: src/components/places/furniture.tsx
+msgid "Its own code (optional)"
+msgstr "Its own code (optional)"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Kind of each compartment"
+msgstr "Kind of each compartment"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Kind of the furniture"
+msgstr "Kind of the furniture"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Make one for furniture you have more than one of, with its compartments, their names and their codes."
+msgstr "Make one for furniture you have more than one of, with its compartments, their names and their codes."
+
+#: src/components/templates/place-template-list.tsx
+msgid "Members of these locations can make furniture from it."
+msgstr "Members of these locations can make furniture from it."
+
+#: src/components/templates/place-template-list.tsx
+msgid "New place template"
+msgstr "New place template"
+
+#: src/components/templates/place-template-list.tsx
+msgid "No place templates of your own yet"
+msgstr "No place templates of your own yet"
+
+#: src/components/places/furniture.tsx
+msgid "On its side"
+msgstr "On its side"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Place templates"
+msgstr "Place templates"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Search place templates"
+msgstr "Search place templates"
+
+#: src/components/places/labels.ts
+msgid "Shelf"
+msgstr "Shelf"
+
+#: src/components/places/furniture.tsx
+msgid "Shelf {n}"
+msgstr "Shelf {n}"
+
+#: src/components/places/furniture.tsx
+msgid "Shelving unit"
+msgstr "Shelving unit"
+
+#: src/components/places/furniture.tsx
+msgid "Template"
+msgstr "Template"
+
+#: src/routes/_app/settings.account.templates.tsx
+msgid "Templates for"
+msgstr "Templates for"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Up, standing upright"
+msgstr "Up, standing upright"
+
+#: src/components/places/furniture.tsx
+msgid "Upright"
+msgstr "Upright"
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "Use {N} for the number, or {ROW} and {COL}."
+msgstr "Use {N} for the number, or {ROW} and {COL}."
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "Use {N}, or {ROW} and {COL}, so each one gets its own code."
+msgstr "Use {N}, or {ROW} and {COL}, so each one gets its own code."
+
+#: src/components/paperless/documents.tsx
+msgid "Couldn't change its kind"
+msgstr "Couldn't change its kind"
+
+#: src/components/paperless/documents.tsx
+msgid "Kind of {title}"
+msgstr "Kind of {title}"
+
+#: src/components/history/labels.ts
+msgid "Paperless document changed"
+msgstr "Paperless document changed"

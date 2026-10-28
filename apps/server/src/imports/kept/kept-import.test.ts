@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
-import { EXPORT_PATHS, type ExportEntity } from '@kept/shared';
+import { EXPORT_PATHS, type ExportEntity, newId } from '@kept/shared';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { TestApp } from '../../../test/app.js';
 import { type TestDb, testDb } from '../../../test/db.js';
@@ -676,5 +676,61 @@ describe('resuming and refusing', () => {
     );
     expect(refused).toBeInstanceOf(ArchiveError);
     expect((refused as ArchiveError).reason).toBe('symlink');
+  });
+});
+
+describe('templates', () => {
+  it('match by name and what they apply to, so a place template is not taken for a thing one', async () => {
+    const target = await newTarget('Home, with furniture');
+    // The export's account has a place template; the target account a thing template of the
+    // same name.
+    const furniture = newId();
+    const theirs = newId();
+    await own(
+      db,
+      `INSERT INTO public.templates (id, owner_account_id, name, payload, applies_to, created_by)
+       VALUES ($1, $2, 'Cube shelf', $3, 'place', $4)`,
+      [
+        furniture,
+        home.accountId,
+        JSON.stringify({
+          layout: { kind: 'grid', across: 2, up: 2 },
+          kindKey: 'furniture',
+          compartmentKindKey: 'cube',
+          compartmentName: 'Cube {n}',
+        }),
+        ibrahim.userId,
+      ],
+    );
+    await own(
+      db,
+      `INSERT INTO public.templates (id, owner_account_id, name, payload, created_by)
+       VALUES ($1, $2, 'Cube shelf', '{}', $3)`,
+      [theirs, target.accountId, alfred.userId],
+    );
+    const forged = await forgeKeptExport(db, {
+      userId: ibrahim.userId,
+      locationId: home.id,
+      files,
+    });
+    try {
+      const runId = await stageKeptRun(db, files, forged, {
+        userId: alfred.userId,
+        locationId: target.id,
+      });
+      await runKeptImport(deps(), scopeOf(alfred), runId);
+      expect(await runOf(runId)).toMatchObject({ status: 'done', error: null });
+      const made = await own<{ id: string; applies_to: string }>(
+        db,
+        `SELECT id, applies_to FROM public.templates
+          WHERE owner_account_id = $1 AND name = 'Cube shelf' ORDER BY applies_to`,
+        [target.accountId],
+      );
+      expect(made.map((m) => m.applies_to)).toEqual(['place', 'thing']);
+      expect(made[1]?.id).toBe(theirs);
+    } finally {
+      await forged.cleanup();
+      await own(db, 'DELETE FROM public.templates WHERE id = $1', [furniture]);
+    }
   });
 });

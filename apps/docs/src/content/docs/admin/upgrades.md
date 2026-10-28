@@ -21,6 +21,13 @@ A release can change `compose.yaml` too; its notes say so. Download the release'
 (`curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v<version>/compose.yaml`); `.env`
 stays as it is.
 
+### Sign-in links (1.14.0)
+
+1.14.0 moves Kept to better-auth 1.7.13, which fixes an advisory where an OAuth sign-in's state
+could be used as a magic link to sign in as someone else (GHSA-965c-763c-88jm). A magic link
+mailed, or a Google or OIDC sign-in started, before the upgrade no longer works: ask for a new
+link, or sign in again.
+
 ### Install without a clone (1.13.0)
 
 Since 1.13.0 `compose.yaml` needs no copy of the repository and no database passwords: a one-shot

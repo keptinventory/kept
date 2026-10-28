@@ -8,6 +8,7 @@ import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 import type { WriteCtx } from './account.js';
 import {
+  brandByName,
   createItem,
   deleteItem,
   getContact,
@@ -41,12 +42,14 @@ import {
 // GET  /api/v1/accounts/:accountId/{brands|vendors|people|tags}?q&limit&cursor
 //                                                              → {items, next_cursor}
 // POST /api/v1/accounts/:accountId/{kind}                      → 201 {item, possibleDuplicates}
+// POST /api/v1/locations/:id/brands {name}                     → 201 {item} made, 200 found (#349)
 // GET | PATCH (If-Match) | DELETE /api/v1/{kind}/:id
 // POST /api/v1/{kind}/:id/merge-into {targetId}                → {repointed}
 // GET | PUT /api/v1/people/:id/contact                         (D177: 404 unless visible)
 
 const Id = z.object({ id: z.uuid() });
 const AccountParams = z.object({ accountId: z.uuid() });
+const BrandByName = z.strictObject({ name: z.string().trim().min(1).max(120) });
 
 /** The context a registry or type write runs with. */
 export function writeCtx(
@@ -73,6 +76,30 @@ export async function registryRoutes(app: KeptApp, deps: InventoryDeps): Promise
   app.get('/api/v1/accounts', { schema: { response: { 200: AccountsSchema } } }, async (req) => ({
     accounts: await scopedRead(pools, req, (_tx, client) => listAccounts(client)),
   }));
+
+  // A thing's form adds a brand by the name typed (#349): members too, as capture does.
+  app.post(
+    '/api/v1/locations/:id/brands',
+    {
+      schema: {
+        params: Id,
+        body: BrandByName,
+        response: {
+          200: z.object({ item: ItemSchema.brands }),
+          201: z.object({ item: ItemSchema.brands }),
+        },
+      },
+    },
+    (req, reply) =>
+      scopedWrite(pools, req, reply, async (tx, client, scope) => {
+        const { item, created } = await brandByName(
+          writeCtx(deps, req, tx, client, scope),
+          req.params.id.toLowerCase(),
+          req.body.name,
+        );
+        return { status: created ? 201 : 200, body: { item } };
+      }),
+  );
 
   for (const kind of REGISTRY_KINDS) {
     const item = ItemSchema[kind];

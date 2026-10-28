@@ -502,12 +502,12 @@ export const integrationGroups: IntegrationGroup[] = [
         en: {
           name: 'QR labels',
           title: 'Labels and QR codes',
-          body: 'A4 sheets, Letter (Avery 5160 layout), label-printer rolls.',
+          body: 'A4 sheets, Letter (Avery 5160 layout), label-printer rolls, label-maker tape.',
         },
         ar: {
           name: 'ملصقات QR',
           title: 'الملصقات ورموز QR',
-          body: 'أوراق A4 وLetter (بتخطيط Avery 5160) ولفّات طابعات الملصقات.',
+          body: 'أوراق A4 وLetter (بتخطيط Avery 5160) ولفّات طابعات الملصقات وشريط طابعات الملصقات.',
         },
       },
       {

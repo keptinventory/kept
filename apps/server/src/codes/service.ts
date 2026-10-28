@@ -158,6 +158,14 @@ async function settingsRow(client: pg.ClientBase, locationId: string) {
   return rows[0] ?? null;
 }
 
+/** The location's format rule for own codes, if it has one. */
+export async function ruleFor(
+  client: pg.ClientBase,
+  locationId: string,
+): Promise<FormatRule | null> {
+  return ruleOf(await settingsRow(client, locationId));
+}
+
 const ruleOf = (r: SettingsRow | null): FormatRule | null =>
   r?.rule_pattern && r.rule_message && r.rule_example
     ? { pattern: r.rule_pattern, message: r.rule_message, example: r.rule_example }

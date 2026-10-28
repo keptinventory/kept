@@ -98,9 +98,9 @@ const dir = (directory) => [{ autogenerate: { directory } }];
 const sidebar = [
   group('Use Kept', 'استخدام Kept', [
     group('Install', 'التثبيت', dir('install')),
+    page('users/getting-started'),
     page('users/first-run'),
     page('users/home'),
-    page('users/getting-started'),
     page('users/everyday-use'),
     page('users/photos-paperwork'),
     page('users/short-ids'),
@@ -141,8 +141,8 @@ const sidebar = [
       page('admin/read-with-restic'),
       page('admin/move-server'),
     ]),
-    page('users/faq'),
     page('users/troubleshooting'),
+    page('users/faq'),
     page('users/glossary'),
   ]),
   group('Run Kept', 'تشغيل Kept', [
@@ -160,15 +160,15 @@ const sidebar = [
     page('admin/uninstall'),
   ]),
   group('Build on Kept', 'التطوير', [
+    page('developers/contributing'),
     page('developers/architecture'),
     page('developers/monorepo'),
     page('developers/local-setup'),
-    page('developers/contributing'),
     page('developers/data-model'),
     page('developers/rls'),
-    page('developers/security'),
     page('developers/migrations'),
     page('developers/auth'),
+    page('developers/security'),
     page('developers/api'),
     page('developers/offline-sync'),
     page('developers/ai-providers'),
@@ -236,7 +236,10 @@ export default defineConfig({
         '../web/src/styles/tokens.css',
         './src/styles/kept.css',
       ],
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/keptinventory/kept' }],
+      social: [
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/keptinventory/kept' },
+        { icon: 'discord', label: 'Discord', href: 'https://discord.gg/g4WCXPfuNv' },
+      ],
       plugins: [
         // fr/de/it are fallback pages by design, so links into them must not fail. The API
         // reference is injected routes the validator can't see, so links to it aren't checked

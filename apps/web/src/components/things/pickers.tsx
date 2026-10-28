@@ -9,8 +9,8 @@
  * other account you can see.
  */
 import { useLingui } from '@lingui/react/macro';
-import { useQuery } from '@tanstack/react-query';
-import { type ReactNode, useEffect } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { type ReactNode, useEffect, useState } from 'react';
 import { composeRenderProps, type Key, ListBoxItem } from 'react-aria-components';
 import {
   inventoryApi,
@@ -24,9 +24,11 @@ import type { MoveTarget, TypeNode } from '@/api/inventory/types';
 import { useLocations } from '@/api/queries';
 import type { LocationDetail, LocationSummary } from '@/api/types';
 import { CheckIcon } from '@/components/icons';
+import { useErrorText } from '@/components/page';
 import { flattenTree } from '@/components/places/tree';
 import { TypeIcon } from '@/components/type-icon';
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
+import { toast } from '@/components/ui/toast';
 import { useLocationName } from '@/lib/labels';
 import { cn } from '@/lib/utils';
 import { useTypeName } from './names';
@@ -137,28 +139,70 @@ function useRegistry(kind: 'brands' | 'vendors', accountId: string) {
   });
 }
 
+/** The "Add “…”" option's key: never an id. */
+const ADD = '__add__';
+
+const sameName = (a: string, b: string) =>
+  a.trim().localeCompare(b.trim(), undefined, { sensitivity: 'base' }) === 0;
+
+/**
+ * A brand or shop of the account. With `addIn` (a location you edit things in), a brand that
+ * isn't there yet can be typed: "Add “…”" finds or makes it (POST /locations/:id/brands, #349),
+ * as capture and the assistant do, and picks it.
+ */
 export function RegistryPicker({
   kind,
   accountId,
   value,
   onChange,
   label,
+  addIn,
 }: {
   kind: 'brands' | 'vendors';
   accountId: string;
   value: string | null;
   onChange: (id: string | null) => void;
   label: ReactNode;
+  addIn?: string;
 }) {
   const { t } = useLingui();
+  const qc = useQueryClient();
+  const errorText = useErrorText();
   const q = useRegistry(kind, accountId);
   const items = (q.data?.items ?? []).map((x) => ({ id: x.id, label: x.name }));
+  const chosen = items.find((i) => i.id === value)?.label ?? '';
+  const [input, setInput] = useState(chosen);
+  // The chosen name fills the box once it is known, and again when the value changes.
+  useEffect(() => setInput(chosen), [chosen]);
+  const typed = input.trim();
+  const canAdd =
+    kind === 'brands' && !!addIn && typed !== '' && !items.some((i) => sameName(i.label, typed));
+  const add = useMutation({
+    mutationFn: (name: string) => inventoryApi.brandByName(addIn as string, name),
+    onSuccess: ({ item }) => {
+      qc.setQueryData(['registry', kind, accountId, { limit: 200 }], (old: typeof q.data) =>
+        old && !old.items.some((x) => x.id === item.id)
+          ? { ...old, items: [...old.items, item] }
+          : old,
+      );
+      void qc.invalidateQueries({ queryKey: ['registry', kind] });
+      setInput(item.name);
+      onChange(item.id);
+    },
+    onError: (e) => toast({ title: errorText(e), tone: 'danger' }),
+  });
   return (
     <Combobox
       label={label}
-      items={items}
+      items={canAdd ? [...items, { id: ADD, label: t`Add “${typed}”` }] : items}
       selectedKey={value}
-      onSelectionChange={(k) => onChange(k ? String(k) : null)}
+      inputValue={input}
+      onInputChange={setInput}
+      onSelectionChange={(k) => {
+        if (k === ADD) add.mutate(typed);
+        else onChange(k ? String(k) : null);
+      }}
+      isDisabled={add.isPending}
       placeholder={kind === 'brands' ? t`Search brands` : t`Search shops`}
     />
   );

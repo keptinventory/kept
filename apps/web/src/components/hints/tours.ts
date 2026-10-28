@@ -22,8 +22,9 @@ import type { ModuleId, TourId } from '@kept/shared';
 import type { LocationDetail } from '@/api/types';
 import type { LogicalSide } from './placement';
 
-/** The two shells: the phone's tab bar, or the sidebar from 768 px (lib/media.ts WIDE). */
-export type TourLayout = 'phone' | 'wide';
+/** The phone's tab bar; the sidebar from 768 px (lib/media.ts WIDE); and from 1024 px
+ * (SHEET), where a location's Table view is (map/remembered.tsx). */
+export type TourLayout = 'phone' | 'wide' | 'sheet';
 
 /** What a `$id` route opens. */
 export type TourSubject = 'location' | 'thing' | 'vehicle' | 'move' | 'adminLocation' | 'kit';
@@ -51,6 +52,8 @@ export type TourStep = TourStop & {
   writes?: boolean;
   modules?: readonly ModuleId[];
   wide?: TourStop;
+  /** The stop from 1024 px (SHEET), over `wide`: what only a computer has (the Table view). */
+  sheet?: TourStop;
 };
 
 export type Tour = {
@@ -68,11 +71,12 @@ const thing = (id: string, anchor: string, more: Partial<TourStep> = {}): TourSt
 });
 
 /**
- * How long the step that opens the Map waits for its control. The map is a large chunk loaded on
- * demand, and its controls render only once it and the location's plan are in: on a slow phone
- * that is longer than a page takes, and passing over every Map step would end the chapter with
- * nothing shown. The steps after it find the map already there, and keep the engine's own wait:
- * a control that is not shown (one floor, no floor picker) is passed over as quickly as anywhere.
+ * How long the steps that open the Graph and the Map wait for their control. Each is a large chunk
+ * loaded on demand, and its controls render only once it and the location's data are in: on a
+ * slow phone that is longer than a page takes, and passing over every Map step would end the
+ * chapter with nothing shown. The steps after the map's first find it already there, and keep the
+ * engine's own wait: a control that is not shown (one floor, no floor picker) is passed over as
+ * quickly as anywhere.
  */
 export const MAP_ANCHOR_WAIT_MS = 10000;
 
@@ -129,9 +133,26 @@ export const TOURS: readonly Tour[] = [
     ],
   },
   {
+    // Graph & 3D map: the view switch (List · Grid · Graph · Table · Map, #207; Table only from
+    // 1024 px, so that width's stop says so), the graph, then the map.
     id: 'map',
     steps: [
-      { id: 'layout', to: '/loc/$id', needs: 'location', anchors: ['location-layout'] },
+      {
+        id: 'layout',
+        to: '/loc/$id',
+        needs: 'location',
+        anchors: ['location-layout'],
+        // Table is in the switch only from 1024 px: a tablet's sidebar layout gets the phone's words.
+        sheet: { to: '/loc/$id', anchors: ['location-layout'], copyId: 'map.layout-table' },
+      },
+      {
+        id: 'graph',
+        to: '/loc/$id',
+        needs: 'location',
+        search: { view: 'graph' },
+        anchors: ['graph-dim'],
+        wait: MAP_ANCHOR_WAIT_MS,
+      },
       onMap('view', 'map-view', { wait: MAP_ANCHOR_WAIT_MS }),
       onMap('pins', 'map-pins'),
       onMap('floors', 'map-floors'),
@@ -175,6 +196,15 @@ export const TOURS: readonly Tour[] = [
     steps: [
       { id: 'field', to: '/search', anchors: ['search-field'] },
       { id: 'views', to: '/search', anchors: ['list-views'] },
+      // #294: Select in a place's list: Move, Print labels, Move to Trash with one Undo.
+      {
+        id: 'select',
+        to: '/loc/$id',
+        needs: 'location',
+        search: { view: 'list' },
+        anchors: ['contents-select'],
+        writes: true,
+      },
       { id: 'labels', to: '/labels', anchors: ['labels-print'], modules: ['labels'], writes: true },
       { id: 'scan', to: '/search', anchors: ['scan-button'] },
     ],
@@ -235,6 +265,14 @@ export const TOURS: readonly Tour[] = [
         anchors: ['thing-actions'],
         writes: true,
       },
+      // #296: a saved service opens, all of it.
+      {
+        id: 'services',
+        to: '/t/$id',
+        needs: 'vehicle',
+        search: { tab: 'services' },
+        anchors: ['vehicle-services'],
+      },
       {
         id: 'fuel',
         to: '/t/$id',
@@ -275,9 +313,10 @@ export const TOURS: readonly Tour[] = [
   },
 ];
 
-/** The stop a step makes on `layout`. */
+/** The stop a step makes on `layout`: from 1024 px its `sheet` stop, else its `wide` one. */
 export function stopFor(step: TourStep, layout: TourLayout): TourStop {
-  return layout === 'wide' && step.wide ? step.wide : step;
+  if (layout === 'sheet' && step.sheet) return step.sheet;
+  return layout !== 'phone' && step.wide ? step.wide : step;
 }
 
 /** What gating needs: the modules on anywhere, and whether anything is writable. */

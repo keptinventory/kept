@@ -10,5 +10,11 @@
     "declaration": false,
     "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["src", "vite.config.ts", "vitest.config.ts", "lingui.config.ts"]
+  "include": [
+    "src",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "lingui.config.ts",
+    "whats-new-plugin.ts"
+  ]
 }

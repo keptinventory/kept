@@ -36,6 +36,9 @@ import { Aliases, checkCustom, checkQuantity, fitsField } from '../things/valida
 // dropped rather than failing the create.
 //
 // Audit: account-level rows (`template.create`, `template.update`, `template.delete`).
+//
+// Place templates (#238) share the table, `applies_to = 'place'`, with their own routes and
+// payload (place-templates.ts); every read and write here is of thing templates only.
 
 /** Field kinds a template may hold a value of (D177: never money or secrets). */
 const TEMPLATE_KINDS = new Set(['text', 'number', 'url', 'select', 'boolean']);
@@ -123,7 +126,7 @@ const SELECT = `SELECT t.id, t.owner_account_id, t.name, t.type_id, ty.icon AS t
                   FROM public.templates t LEFT JOIN public.types ty ON ty.id = t.type_id`;
 
 /** The caller administers every location the template is shared with (0038's UPDATE policy). */
-const EDITABLE = `t.owner_account_id IN (SELECT kept.admin_account_ids())
+export const EDITABLE = `t.owner_account_id IN (SELECT kept.admin_account_ids())
   AND NOT EXISTS (SELECT 1 FROM public.template_locations tl
                    WHERE tl.template_id = t.id
                      AND tl.location_id NOT IN (SELECT kept.admin_location_ids()))`;
@@ -254,7 +257,7 @@ async function checkType(client: pg.ClientBase, accountId: string, typeId: strin
 
 /** The locations to share into: 404 for one the caller can't see or of another account, 403
  * for one they don't administer. Answers them deduplicated, lower-cased. */
-async function checkLocations(
+export async function checkLocations(
   client: pg.ClientBase,
   accountId: string,
   locationIds: readonly string[],
@@ -276,7 +279,7 @@ async function checkLocations(
 // Reads
 // ---------------------------------------------------------------------------------------------
 
-async function locationsOf(
+export async function locationsOf(
   client: pg.ClientBase,
   templateIds: readonly string[],
 ): Promise<Map<string, { id: string; name: string }[]>> {
@@ -332,7 +335,7 @@ async function accountViewsOf(client: pg.ClientBase, rows: readonly Row[]) {
 export async function listUsable(client: pg.ClientBase, locationId: string): Promise<Template[]> {
   const { rows } = await client.query<Row>(
     `${SELECT}
-      WHERE t.archived_at IS NULL
+      WHERE t.archived_at IS NULL AND t.applies_to = 'thing'
         AND EXISTS (SELECT 1 FROM public.template_locations tl
                      WHERE tl.template_id = t.id AND tl.location_id = $1
                        AND tl.location_id IN (SELECT kept.writable_location_ids()))
@@ -352,7 +355,8 @@ export async function listAccount(
   await requireAccount(client, accountId);
   const { rows } = await client.query<Row>(
     `${SELECT}
-      WHERE t.owner_account_id = $1 AND t.archived_at IS NULL AND ${EDITABLE}
+      WHERE t.owner_account_id = $1 AND t.archived_at IS NULL AND t.applies_to = 'thing'
+        AND ${EDITABLE}
       ORDER BY t.name COLLATE "und-x-icu", t.id`,
     [accountId],
   );
@@ -457,7 +461,8 @@ async function editable(client: pg.ClientBase, id: string): Promise<Row> {
   const { rows } = await client.query<Row & { can_edit: boolean }>(
     `SELECT t.id, t.owner_account_id, t.name, t.type_id, t.payload, t.row_version,
             (${EDITABLE}) AS can_edit
-       FROM public.templates t WHERE t.id = $1 AND t.archived_at IS NULL`,
+       FROM public.templates t
+      WHERE t.id = $1 AND t.archived_at IS NULL AND t.applies_to = 'thing'`,
     [id],
   );
   const seen = rows[0];
@@ -671,7 +676,7 @@ export async function applyTemplate<T extends TemplateFields>(
     payload: Record<string, unknown>;
   }>(
     `SELECT t.name, t.type_id, t.payload FROM public.templates t
-      WHERE t.id = $1 AND t.archived_at IS NULL
+      WHERE t.id = $1 AND t.archived_at IS NULL AND t.applies_to = 'thing'
         AND EXISTS (SELECT 1 FROM public.template_locations tl
                      WHERE tl.template_id = t.id AND tl.location_id = $2
                        AND tl.location_id IN (SELECT kept.writable_location_ids()))`,

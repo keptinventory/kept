@@ -1,8 +1,9 @@
 /**
- * Fitting a label's name and place into the text column beside its QR, never cutting them: the
- * text wraps at spaces (a word wider than the column breaks between letters, so a CJK name or one
- * long word still wraps), and when the lines are taller than the label the font steps down, 0.1 mm
- * at a time, to the readable minimum (2.2 mm for the name, 2.0 mm for the place, about 6 pt).
+ * Fitting a label's name and place into the text column beside its QR (on narrow tape, beside its
+ * code), never cutting them: the text wraps at spaces (a word wider than the column breaks between
+ * letters, so a CJK name or one long word still wraps), and when the lines are taller than the
+ * label the font steps down, 0.1 mm at a time, to the readable minimum (2.2 mm for the name,
+ * 2.0 mm for the place, about 6 pt).
  * A label that still doesn't fit at the minimum is reported (`fits: false`, `labelsTooLong`) so
  * the builder can list it before anything prints; its text is never dropped or ended with "…".
  *
@@ -88,20 +89,24 @@ export function fitLabel(
 ): LabelFit {
   const m = cellMetrics(stock);
   const name = text.name?.trim() ?? '';
-  const path = text.path?.trim() ?? '';
+  const path = m.place ? (text.path?.trim() ?? '') : '';
   if (m.compact || (!name && !path)) return { name: null, path: null, fits: true };
   const width = m.text * SLACK;
   const room = stock.cell.h - 2 * m.pad;
   const gap = m.pad * 0.6;
+  // The code heads the text column, except on narrow tape, where it has a column of its own.
+  const above = m.codeColumn ? 0 : m.code;
   for (let k = 0; ; k++) {
     const ns = k === 0 ? m.name : Math.max(NAME_MIN, floor2(m.name - STEP * k));
     const ps = k === 0 ? m.path : Math.max(PATH_MIN, floor2(m.path - STEP * k * (m.path / m.name)));
     const nl = name ? wrapLines(name, width, (s) => measure(s, ns, 600)) : [];
     const pl = path ? wrapLines(path, width, (s) => measure(s, ps, 400)) : [];
-    const height =
-      m.code +
-      (nl.length ? gap + nl.length * ns * FIT_LINE_HEIGHT : 0) +
-      (pl.length ? gap + pl.length * ps * FIT_LINE_HEIGHT : 0);
+    let height = above;
+    for (const [lines, size] of [
+      [nl, ns],
+      [pl, ps],
+    ] as const)
+      if (lines.length) height += (height > 0 ? gap : 0) + lines.length * size * FIT_LINE_HEIGHT;
     const fits = height <= room + 1e-9;
     if (fits || (ns <= NAME_MIN && ps <= PATH_MIN)) {
       return {

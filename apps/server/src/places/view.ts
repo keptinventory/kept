@@ -408,11 +408,11 @@ export type PlaceKind = { id: string; key: string; archivedAt: Date | null };
 
 /**
  * The place kind a key names in a location: the location's owner account's own kind, else the
- * built-in one. Null when neither exists.
+ * built-in one (only the built-in when `ownerAccountId` is null). Null when neither exists.
  */
 export async function placeKindOf(
   client: pg.ClientBase,
-  ownerAccountId: string,
+  ownerAccountId: string | null,
   key: string,
 ): Promise<PlaceKind | null> {
   const { rows } = await client.query<{ id: string; key: string; archived_at: Date | null }>(

@@ -14,6 +14,10 @@ several at a time, and counted once. Use it to:
 A session holds up to 5,000 labels and works with no signal once the phone has opened a session
 online: the screen is fetched the first time it's used, then kept on the phone.
 
+A session reads QR codes and barcodes. A label with no QR code (narrow label-maker tape) opens
+from **Scan** one at a time instead, by its printed short ID ([scanning a code with no QR
+code](/users/short-ids/#scanning-a-code-with-no-qr-code)).
+
 ## Start a session
 
 - **Scan → Start a session**, then choose what to do and where.

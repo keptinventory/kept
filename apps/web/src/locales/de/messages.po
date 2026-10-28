@@ -2402,6 +2402,10 @@ msgstr "Konnte nicht geladen werden"
 msgid "Couldn't look that up. Try again."
 msgstr "Das ließ sich nicht nachschlagen. Versuch es noch einmal."
 
+#: src/components/scan/scan-screen.tsx
+msgid "Read {shown} from the printed code"
+msgstr "{shown} aus dem gedruckten Code gelesen"
+
 #: src/components/reports/progress.tsx
 msgid "Couldn't make the PDF"
 msgstr "Das PDF konnte nicht erstellt werden"
@@ -4031,6 +4035,30 @@ msgstr "Sie wurde bereits verwendet, widerrufen oder ist älter als 7 Tage. Bitt
 #: src/components/scan/outcome-sheet.tsx
 msgid "It will check when you're online."
 msgstr "Es wird geprüft, sobald du online bist."
+
+#: src/components/scan/outcome-sheet.tsx
+msgid "Check the code"
+msgstr "Code prüfen"
+
+#: src/components/scan/outcome-sheet.tsx
+msgid "This phone doesn't have this code."
+msgstr "Dieser Code ist nicht auf diesem Telefon."
+
+#: src/components/scan/outcome-sheet.tsx
+msgid "None of your labels has this code."
+msgstr "Keines deiner Etiketten hat diesen Code."
+
+#: src/components/scan/outcome-sheet.tsx
+msgid "Is this the code?"
+msgstr "Ist das der Code?"
+
+#: src/components/scan/outcome-sheet.tsx
+msgid "Read from the printed text, not a QR code. Check it against the label."
+msgstr "Aus dem gedruckten Text gelesen, nicht aus einem QR-Code. Vergleiche ihn mit dem Etikett."
+
+#: src/components/scan/outcome-sheet.tsx
+msgid "That's the code"
+msgstr "Das ist der Code"
 
 #: src/routes/_app/settings.index.tsx
 msgid "It will need your password or passkey to get back in."
@@ -12050,6 +12078,18 @@ msgstr "Rolle {cell}"
 #: src/components/labels/stock-picker.tsx
 msgid "Label printer · one label per thing"
 msgstr "Etikettendrucker · ein Etikett pro Ding"
+
+#: src/components/labels/stock-picker.tsx
+msgid "{width} mm tape"
+msgstr "Schriftband {width} mm"
+
+#: src/components/labels/stock-picker.tsx
+msgid "Label maker · QR code, short ID and name"
+msgstr "Beschriftungsgerät · QR-Code, Kurz-ID und Name"
+
+#: src/components/labels/stock-picker.tsx
+msgid "Label maker · short ID large, and the name"
+msgstr "Beschriftungsgerät · Kurz-ID groß, dazu der Name"
 
 #: src/components/labels/stock-picker.tsx
 msgid "{paper} sheet · {count}"
@@ -24695,10 +24735,6 @@ msgstr "Wähle, wie Erinnerungen dich erreichen: in Kept, per E-Mail, Push oder 
 msgid "Choose what reaches you, and how: in Kept, by email, push or a channel."
 msgstr "Wähle, was dich erreicht und wie: in Kept, per E-Mail, Push oder über einen Kanal."
 
-#: src/components/hints/hint-copy.ts
-msgid "Details, paperwork, history and the rest, each in its own tab."
-msgstr "Details, Unterlagen, Verlauf und der Rest, jeweils in einem eigenen Tab."
-
 #: src/components/sheet/sheet-view.tsx
 msgid "Discard my change"
 msgstr "Meine Änderung verwerfen"
@@ -24706,10 +24742,6 @@ msgstr "Meine Änderung verwerfen"
 #: src/components/hints/hint-copy.ts
 msgid "Download a location or all your data, with its photos and documents."
 msgstr "Lade einen Standort oder alle deine Daten herunter, mit Fotos und Dokumenten."
-
-#: src/components/hints/hint-copy.ts
-msgid "Draw rooms, add a floor and put things where they really are."
-msgstr "Zeichne Räume, füge eine Etage hinzu und setze Dinge dorthin, wo sie wirklich sind."
 
 #: src/components/hints/hint-copy.ts
 msgid "Drop the file here, or choose it. Nothing is saved until you check it."
@@ -24772,10 +24804,6 @@ msgid "Keep leaves everything where it is. Discard removes only what the tour ad
 msgstr "Behalten lässt alles, wo es ist. Verwerfen entfernt nur, was die Tour hinzugefügt hat: Ein Gegenstand kommt für 30 Tage in den Papierkorb, ein Beispiel-Umzug wird gelöscht. Dein Aktivitätenverlauf bleibt so oder so."
 
 #: src/components/hints/hint-copy.ts
-msgid "List, Grid or Map"
-msgstr "Liste, Raster oder Karte"
-
-#: src/components/hints/hint-copy.ts
 msgid "Log a reading, a service or fuel from here."
 msgstr "Erfasse hier einen Zählerstand, eine Wartung oder das Tanken."
 
@@ -24786,10 +24814,6 @@ msgstr "Erfassen"
 #: src/components/hints/hint-copy.ts
 msgid "Mark what's running low, lent out or due, on the map."
 msgstr "Markiere auf der Karte, was knapp wird, verliehen oder fällig ist."
-
-#: src/components/hints/hint-copy.ts
-msgid "Move it, lend it, print its label or put it in Trash."
-msgstr "Verschiebe ihn, verleihe ihn, drucke sein Etikett oder lege ihn in den Papierkorb."
 
 #: src/components/hints/hint-copy.ts
 msgid "Name the move and say where it's going."
@@ -24820,20 +24844,12 @@ msgid "Pick a floor, or All for the whole building."
 msgstr "Wähle eine Etage oder Alle für das ganze Gebäude."
 
 #: src/components/hints/hint-copy.ts
-msgid "Pick how this location is shown. Map draws it floor by floor."
-msgstr "Wähle, wie dieser Standort angezeigt wird. Die Karte zeigt ihn Etage für Etage."
-
-#: src/components/hints/hint-copy.ts
 msgid "Pick what it is, then add the file to the thing it belongs to."
 msgstr "Wähle, was es ist, und füge die Datei dann dem Gegenstand hinzu, zu dem sie gehört."
 
 #: src/components/hints/hint-copy.ts
 msgid "Pick where it comes from: a spreadsheet, Homebox or another Kept."
 msgstr "Wähle die Quelle: eine Tabelle, Homebox oder ein anderes Kept."
-
-#: src/components/hints/hint-copy.ts
-msgid "Print a sheet for everything still without a label."
-msgstr "Drucke einen Bogen für alles, was noch kein Etikett hat."
 
 #: src/components/hints/hint-copy.ts
 msgid "Receipts, manuals and warranty cards from every thing and room."
@@ -24902,14 +24918,6 @@ msgstr "Tippe auf Als zurückgegeben markieren, wenn es zurück ist."
 #: src/components/hints/hint-copy.ts
 msgid "Tap Scan and point the camera at a Kept label. What it's on opens."
 msgstr "Tippe auf Scannen und richte die Kamera auf ein Kept-Etikett. Was es trägt, öffnet sich."
-
-#: src/components/hints/hint-copy.ts
-msgid "Tap Scan and point the camera at a label to open what it's on."
-msgstr "Tippe auf Scannen und richte die Kamera auf ein Etikett, um zu öffnen, worauf es klebt."
-
-#: src/components/hints/hint-copy.ts
-msgid "The 3D map"
-msgstr "Die 3D-Karte"
 
 #: src/components/hints/hint-copy.ts
 msgid "The file"
@@ -25767,14 +25775,6 @@ msgstr "Als Nächstes: {chapter}"
 #: src/routes/_app/help.tsx
 msgid "One after another, on the real screens. Stop any time."
 msgstr "Ein Kapitel nach dem anderen, auf den echten Bildschirmen. Hör jederzeit auf."
-
-#: src/components/hints/hint-copy.ts
-msgid "One chapter per section. Start at any of them here, or tap Show me on its page."
-msgstr "Ein Kapitel pro Bereich. Beginne hier bei jedem davon oder tippe auf seiner Seite auf Zeig es mir."
-
-#: src/routes/_app/help.tsx
-msgid "Start here"
-msgstr "Hier starten"
 
 #: src/components/hints/hint-copy.ts
 msgid "Stop here"
@@ -27658,3 +27658,342 @@ msgstr "Sie enthalten Preise, die du nicht sehen kannst, und bleiben deshalb, wi
 #: src/components/moving/sheets-printed.tsx
 msgid "Check that a code on the sheets scans. Yes records today as their print date, so the boxes show their label."
 msgstr "Prüfe, ob sich ein Code auf den Blättern scannen lässt. Ja speichert heute als Druckdatum, und die Kisten zeigen ihr Etikett."
+
+#: src/components/import/labels.ts
+msgid "A sold date with no buyer or price isn't a sale: it stays in use, with the date in its notes."
+msgstr "Ein Verkaufsdatum ohne Käufer und Preis ist kein Verkauf: Das Ding bleibt in Gebrauch, das Datum steht in seinen Notizen."
+
+#: src/components/import/repair.tsx
+msgid "{0, plural, one {Put the # thing marked sold on a date alone back in use} other {Put the # things marked sold on a date alone back in use}}"
+msgstr "{0, plural, one {Das Ding, das nur wegen eines Datums als verkauft gilt, wieder in Gebrauch nehmen} other {Die # Dinge, die nur wegen eines Datums als verkauft gelten, wieder in Gebrauch nehmen}}"
+
+#: src/components/things/pickers.tsx
+msgid "Add “{typed}”"
+msgstr "„{typed}“ hinzufügen"
+
+#: src/routes/_app/help.tsx
+msgid "Chapters done"
+msgstr "Erledigte Kapitel"
+
+#: src/routes/_app/help.tsx
+msgid "Done ({done})"
+msgstr "Erledigt ({done})"
+
+#: src/components/hints/hint-copy.ts
+msgid "One chapter per section. Tap one to start there, or tap Show me on its page."
+msgstr "Ein Kapitel pro Bereich. Tippe auf eines, um dort zu beginnen, oder auf seiner Seite auf Zeig es mir."
+
+#: src/components/hints/hint-copy.ts
+msgid "Move it, lend it, print its label or move it to the Trash."
+msgstr "Verschiebe ihn, verleihe ihn, drucke sein Etikett oder lege ihn in den Papierkorb."
+
+#: src/components/hints/hint-copy.ts
+msgid "Details, paperwork, history and the rest, each in its own tab. Tap a photo to see it full screen."
+msgstr "Details, Unterlagen, Verlauf und der Rest, jeweils in einem eigenen Tab. Tippe auf ein Foto, um es im Vollbild zu sehen."
+
+#: src/components/hints/hint-copy.ts
+msgid "List, Grid, Graph or Map"
+msgstr "Liste, Raster, Graph oder Karte"
+
+#: src/components/hints/hint-copy.ts
+msgid "Pick how this location is shown. Graph shows what's inside what; Map draws it floor by floor."
+msgstr "Wähle, wie dieser Standort angezeigt wird. Der Graph zeigt, was worin ist; die Karte zeigt ihn Etage für Etage."
+
+#: src/components/hints/hint-copy.ts
+msgid "List, Grid, Graph, Table or Map"
+msgstr "Liste, Raster, Graph, Tabelle oder Karte"
+
+#: src/components/hints/hint-copy.ts
+msgid "Pick how this location is shown. Table, on a wide screen, works like a spreadsheet."
+msgstr "Wähle, wie dieser Standort angezeigt wird. Die Tabelle funktioniert auf einem breiten Bildschirm wie eine Tabellenkalkulation."
+
+#: src/components/hints/hint-copy.ts
+msgid "Graph, in 2D or 3D"
+msgstr "Graph, in 2D oder 3D"
+
+#: src/components/hints/hint-copy.ts
+msgid "Floors, rooms, boxes and things as a graph. Pick one for its card, pick it again to go in."
+msgstr "Etagen, Räume, Kisten und Dinge als Graph. Wähle eines für seine Karte, wähle es noch einmal, um hineinzugehen."
+
+#: src/components/hints/hint-copy.ts
+msgid "Draw rooms and add a floor. Drag a room to move it, with everything in it."
+msgstr "Zeichne Räume und füge eine Etage hinzu. Ziehe einen Raum, um ihn mit allem darin zu verschieben."
+
+#: src/components/hints/hint-copy.ts
+msgid "Select several"
+msgstr "Mehrere auswählen"
+
+#: src/components/hints/hint-copy.ts
+msgid "Select things in a list to move them, print their labels or move them to the Trash."
+msgstr "Wähle Dinge in einer Liste aus, um sie zu verschieben, ihre Etiketten zu drucken oder sie in den Papierkorb zu legen."
+
+#: src/components/hints/hint-copy.ts
+msgid "Print a sheet for everything still without a label, or a blank sheet to name later."
+msgstr "Drucke einen Bogen für alles, was noch kein Etikett hat, oder einen leeren Bogen, den du später benennst."
+
+#: src/components/hints/hint-copy.ts
+msgid "Point the camera at a label to open what it's on. A blank one can go on a thing or place you have."
+msgstr "Richte die Kamera auf ein Etikett, um zu öffnen, worauf es klebt. Ein leeres kann an ein Ding oder einen Ort, den du schon hast."
+
+#: src/components/hints/hint-copy.ts
+msgid "Every service with what it cost. Tap one to open all of it, with its invoice."
+msgstr "Jede Wartung mit ihren Kosten. Tippe auf eine, um sie ganz zu öffnen, mit ihrer Rechnung."
+
+#: src/components/hints/hint-copy.ts
+msgid "Graph & 3D map"
+msgstr "Graph & 3D-Karte"
+
+#: src/components/whats-new.tsx
+msgid "What's new in Kept"
+msgstr "Neu in Kept"
+
+#: src/components/whats-new.tsx
+msgid "Version <0>{version}</0>"
+msgstr "Version <0>{version}</0>"
+
+#: src/components/whats-new.tsx
+msgid "The release notes are in English."
+msgstr "Die Versionshinweise sind auf Englisch."
+
+#: src/components/whats-new.tsx
+msgid "Full release notes"
+msgstr "Alle Versionshinweise"
+
+#: src/routes/_app/help.tsx
+msgid "Version <0>{version}</0>: its highlights."
+msgstr "Version <0>{version}</0>: das Wichtigste."
+
+#: src/components/whats-new.tsx
+msgid "Highlights"
+msgstr "Das Wichtigste"
+
+#: src/components/templates/place-template-list.tsx
+msgid "{across} × {up} cubes"
+msgstr "{across} × {up} Fächer"
+
+#: src/components/places/furniture.tsx
+msgid "{across} across, {up} up, counted from the top left, row by row"
+msgstr "{across} breit, {up} hoch, gezählt von oben links, Reihe für Reihe"
+
+#: src/components/places/furniture.tsx
+msgid "{code} doesn't follow this location's code rule: {message}"
+msgstr "{code} folgt nicht der Code-Regel dieses Standorts: {message}"
+
+#: src/components/places/furniture.tsx
+msgid "{code} doesn't follow this location's code rule."
+msgstr "{code} folgt nicht der Code-Regel dieses Standorts."
+
+#: src/components/places/furniture.tsx
+msgid "{code} is already on something else here."
+msgstr "{code} ist hier schon an etwas anderem."
+
+#: src/components/places/furniture.tsx
+msgid "{code} would be on two places. Change the code pattern."
+msgstr "{code} wäre an zwei Plätzen. Ändere das Code-Muster."
+
+#: src/components/places/furniture.tsx
+msgid "{inside, plural, one {With # place inside} other {With # places inside}}"
+msgstr "{inside, plural, one {Mit # Platz darin} other {Mit # Plätzen darin}}"
+
+#: src/components/templates/place-template-list.tsx
+msgid "{count, plural, one {# shelf} other {# shelves}}"
+msgstr "{count, plural, one {# Regalboden} other {# Regalböden}}"
+
+#: src/components/templates/place-template-list.tsx
+msgid "{count, plural, one {# drawer} other {# drawers}}"
+msgstr "{count, plural, one {# Schublade} other {# Schubladen}}"
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "{N} is the number, {ROW} and {COL} where it sits."
+msgstr "{N} ist die Nummer, {ROW} und {COL} die Stelle."
+
+#: src/components/places/furniture.tsx
+msgid "{PARENT} is its own code; {PADDED} pads to two digits."
+msgstr "{PARENT} ist sein eigener Code; {PADDED} füllt auf zwei Ziffern auf."
+
+#: src/components/templates/place-template-list.tsx
+msgid "A grid is 1 to {side} across and up, at most {most} cubes; shelves and drawers 1 to {count}."
+msgstr "Ein Raster hat 1 bis {side} in Breite und Höhe, höchstens {most} Fächer; Regalböden und Schubladen 1 bis {count}."
+
+#: src/components/templates/place-template-list.tsx
+msgid "Across"
+msgstr "Breit"
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Add furniture to {hereName}"
+msgstr "Möbel zu {hereName} hinzufügen"
+
+#: src/components/places/furniture.tsx
+msgid "Bookcase"
+msgstr "Bücherregal"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Built in: {builtins}."
+msgstr "Eingebaut: {builtins}."
+
+#: src/components/places/furniture.tsx
+msgid "Choose 1 to {max}."
+msgstr "Wähle 1 bis {max}."
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "Compartment codes (optional)"
+msgstr "Codes der Fächer (optional)"
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "Compartment names"
+msgstr "Namen der Fächer"
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "Compartments"
+msgstr "Fächer"
+
+#: src/components/places/labels.ts
+msgid "Cube"
+msgstr "Fach"
+
+#: src/components/places/furniture.tsx
+msgid "Cube {n}"
+msgstr "Fach {n}"
+
+#: src/components/places/furniture.tsx
+msgid "Cube shelf {across} × {up}"
+msgstr "Fachregal {across} × {up}"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Cubes"
+msgstr "Fächer"
+
+#: src/components/places/labels.ts
+msgid "Drawer"
+msgstr "Schublade"
+
+#: src/components/places/furniture.tsx
+msgid "Drawer {n}"
+msgstr "Schublade {n}"
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "Drawers"
+msgstr "Schubladen"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Edit place template"
+msgstr "Möbelvorlage bearbeiten"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Furniture already made from it stays as it is."
+msgstr "Möbel, die schon damit angelegt wurden, bleiben, wie sie sind."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Furniture with compartments…"
+msgstr "Möbel mit Fächern …"
+
+#: src/components/places/furniture.tsx
+msgid "Give it a name, like Cube shelf 01."
+msgstr "Gib einen Namen ein, z. B. Fachregal 01."
+
+#: src/components/templates/place-template-list.tsx
+msgid "Give it a name, like Wide cube shelf."
+msgstr "Gib einen Namen ein, z. B. Breites Fachregal."
+
+#: src/components/places/furniture.tsx
+msgid "Give the furniture its own code first: these codes start with it."
+msgstr "Gib dem Möbel zuerst einen eigenen Code: Diese Codes beginnen damit."
+
+#: src/components/places/furniture.tsx
+msgid "How it stands"
+msgstr "Wie es steht"
+
+#: src/components/places/furniture.tsx
+msgid "Its own code (optional)"
+msgstr "Eigener Code (optional)"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Kind of each compartment"
+msgstr "Art jedes Fachs"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Kind of the furniture"
+msgstr "Art des Möbels"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Make one for furniture you have more than one of, with its compartments, their names and their codes."
+msgstr "Lege eine für Möbel an, die du mehrfach hast, mit ihren Fächern, deren Namen und Codes."
+
+#: src/components/templates/place-template-list.tsx
+msgid "Members of these locations can make furniture from it."
+msgstr "Mitglieder dieser Standorte können damit Möbel anlegen."
+
+#: src/components/templates/place-template-list.tsx
+msgid "New place template"
+msgstr "Neue Möbelvorlage"
+
+#: src/components/templates/place-template-list.tsx
+msgid "No place templates of your own yet"
+msgstr "Noch keine eigenen Möbelvorlagen"
+
+#: src/components/places/furniture.tsx
+msgid "On its side"
+msgstr "Liegend"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Place templates"
+msgstr "Möbelvorlagen"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Search place templates"
+msgstr "Möbelvorlagen durchsuchen"
+
+#: src/components/places/labels.ts
+msgid "Shelf"
+msgstr "Regalboden"
+
+#: src/components/places/furniture.tsx
+msgid "Shelf {n}"
+msgstr "Regalboden {n}"
+
+#: src/components/places/furniture.tsx
+msgid "Shelving unit"
+msgstr "Regal"
+
+#: src/components/places/furniture.tsx
+msgid "Template"
+msgstr "Vorlage"
+
+#: src/routes/_app/settings.account.templates.tsx
+msgid "Templates for"
+msgstr "Vorlagen für"
+
+#: src/components/templates/place-template-list.tsx
+msgid "Up, standing upright"
+msgstr "Hoch, aufrecht stehend"
+
+#: src/components/places/furniture.tsx
+msgid "Upright"
+msgstr "Aufrecht"
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "Use {N} for the number, or {ROW} and {COL}."
+msgstr "Nimm {N} für die Nummer, oder {ROW} und {COL}."
+
+#: src/components/places/furniture.tsx
+#: src/components/templates/place-template-list.tsx
+msgid "Use {N}, or {ROW} and {COL}, so each one gets its own code."
+msgstr "Nimm {N}, oder {ROW} und {COL}, damit jedes einen eigenen Code bekommt."
+
+#: src/components/paperless/documents.tsx
+msgid "Couldn't change its kind"
+msgstr "Die Art konnte nicht geändert werden"
+
+#: src/components/paperless/documents.tsx
+msgid "Kind of {title}"
+msgstr "Art von {title}"
+
+#: src/components/history/labels.ts
+msgid "Paperless document changed"
+msgstr "Paperless-Dokument geändert"

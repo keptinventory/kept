@@ -1,154 +1,212 @@
 ---
 title: Glossary
-description: "Terms used throughout Kept, explained in plain language."
+description: "The words Kept uses in its own way, in plain language."
 ---
 
-Kept uses a few words in specific ways. This page defines them.
+Kept uses a few words in its own way. This page says what each one means and where to read more.
 
 ## A
 
-**Admin:** a role in a location. Can invite and remove members and viewers, change settings and
+**Admin**: a role in a location. Can invite and remove members and viewers, change settings and
 modules, import and export, make share links and claim packs, and delete permanently. Only the
-owner grants or removes admins.
+owner grants or removes admins. [The roles](/users/first-run/#the-roles)
 
-**AI provider:** a service (Groq, OpenAI, Anthropic, Google, OpenRouter, or a local Ollama server)
-that Kept calls to name things from photos, read receipts, search by meaning, and run the
-assistant. You bring your own key.
+**AI provider**: the service Kept calls to name things from photos, read receipts, run the
+assistant and, with an embeddings model, search by meaning: Groq, OpenAI, Anthropic, Google,
+OpenRouter, or an OpenAI-compatible server such as Ollama. You bring your own key.
+[AI providers](/users/ai-providers/)
 
 ## B
 
-**Backup:** a nightly encrypted restic snapshot of the database, files and a readable copy of
-every location, to another disk, an S3 bucket or an SFTP server.
+**Backup**: a nightly restic snapshot of the database, the files and a readable copy, encrypted
+with a password you choose and sent to another disk, an S3 bucket or an SFTP server.
+[Backups](/admin/backups/)
 
-**Box / container:** a thing that holds other things. Boxes can nest: a box inside a box inside a
-room.
+**Box**: see Container.
 
 ## C
 
-**Capture:** taking a photo of a thing so Kept can identify it. Captured things wait in the Inbox
-until they're named.
+**Capture**: adding a thing by taking its photo. With an AI provider, Kept names it from the photo;
+without one, it waits in the Inbox for a name.
 
-**Claim pack:** a ZIP of the insurance report with every receipt, invoice, photo and serial for an
-incident, shared with the insurer by a download link.
+**Claim pack**: a ZIP of the insurance report with every receipt, invoice, photo and serial for an
+incident, shared with the insurer by a download link. [Reports](/users/reports/)
 
-**Condition report:** a record of how a rented home was when you moved in and when you moved out,
-for a deposit dispute.
+**Compartment**: a place inside furniture made from a place template: a cube, a shelf or a
+drawer, with its own name, label and, if you like, its own code.
+[Furniture with compartments](/users/locations/#furniture-with-compartments)
 
-**Consumable:** a thing tracked by quantity (screws, oil, batteries). Used in services via
-**From stock**.
+**Condition report**: a record of how a rented home was when you moved in and when you moved out,
+for a deposit dispute. [Condition reports](/users/condition-reports/)
+
+**Consumable**: a thing counted by quantity, such as screws, oil or batteries, with a minimum that
+raises a low-stock reminder. A service can take one **From stock**.
+
+**Container**: a thing that holds other things, such as a box or a bag. Containers nest, a box in a
+box on a shelf. A container is a thing, not a place.
+
+**Count**: counting a place, or checking a box, against what Kept expects to be there. Every count
+is kept, with what was found and what was missing. Also called a stocktake.
+[Counts and stocktakes](/users/counts/)
+
+## F
+
+**Furniture**: a place kind for storage furniture added with its compartments in one step: a cube
+shelf, a bookcase, a chest of drawers. Furniture drawn on the map, such as a desk, is a thing with
+a shape instead. [Furniture with compartments](/users/locations/#furniture-with-compartments)
+
+## G
+
+**Graph**: one of a location's layouts: its floors, rooms, boxes and things as nodes and links, in
+2D or 3D, with pins for what needs attention. [The graph](/users/graph/)
 
 ## H
 
-**Hand-over:** lending a box with everything inside it, each thing on its own line. The box keeps
-a parts list of what should be in it.
+**Hand-over**: lending a box with everything inside it: one record, with a line for the box and
+one for each thing in it, each coming back on its own. [Kits and hand-overs](/users/kits/)
 
 ## I
 
-**Incident:** a record of a burglary, fire, flood or loss, with the things affected.
+**Inbox**: where things wait for you: captures without a name, what AI read that needs a look,
+receipts from email-in, readings that look off, and phone changes that need a decision.
 
-**Inbox:** the review queue. Captured things wait here to be named, AI-suggested values wait to
-be accepted, and anything Kept isn't sure about lands here for a look.
+**Incident**: a burglary, fire, flood or loss, with the things it affected.
+[Reports](/users/reports/#incidents-and-claim-packs)
 
-**Insurance report:** a PDF and CSV of every thing with its photo, brand, model, serial, purchase
+**Instance**: one running Kept server, with its accounts and locations.
+
+**Instance admin**: a person who runs the server: users, sign-up, backups. An instance admin can't
+see inside a location unless invited to it.
+
+**Insurance report**: a PDF and a CSV of every thing with its photo, brand, model, serial, purchase
 date, price, current value and receipts, with totals per place and per currency.
-
-**Instance:** one running Kept server. An instance can hold many locations (homes, garages,
-storage units).
-
-**Instance admin:** the person who runs the server: users, sign-up, backups. An instance admin
-can't see inside anyone's home unless they're invited.
+[Reports](/users/reports/#insurance-report)
 
 ## K
 
-**Kit:** a container with a parts list of what should be in it. Lending one out is a hand-over.
+**Kit**: a container with a parts list of what should be in it. Move a part out, lend it or lose
+it, and the kit still knows. [Kits and hand-overs](/users/kits/#kits)
 
 ## L
 
-**Location:** a home, garage, storage unit, office or other place you track. Each location has
-its own members, roles, modules and settings.
+**Label stock**: what labels are printed on: an A4 or Letter sheet, a label-printer roll, or
+label-maker tape. Narrow tape (9 and 12 mm) has no room for a QR code; **Scan** reads its printed
+short ID instead. [Printing](/users/short-ids/#printing)
 
-**Lending:** giving a thing (or part of a quantity) to a member or a contact, with a due date and
-condition photos.
+**Layout**: how a location's page shows what's in it: **List**, **Grid**, **Graph**, **Table** (on
+a computer) or **Map**. Kept remembers the choice per location on each device.
+[Locations, rooms and boxes](/users/locations/)
+
+**Lending**: recording that a thing, or part of a quantity, is with someone, with a due date, its
+condition and photos.
+
+**Location**: a home, garage, storage unit, office or any other place you keep things. Each has its
+own members, roles, modules, time zone and currency.
 
 ## M
 
-**Managed account:** an account for someone without email (like a child), made by the location's
-owner or an admin.
+**Managed account**: an account with a username and no email, for a child or a parent, made by a
+location's owner or an admin. A location holds at most 20.
+[People without email](/users/first-run/#people-without-email)
 
-**MCP (Model Context Protocol):** a way to connect an AI client (Claude Desktop, ChatGPT) to
-Kept's data.
+**Map**: one of a location's layouts: the location in 3D, floor by floor, with its rooms, shelves
+and boxes, which members and above arrange. [The location map](/users/location-map/)
 
-**Member:** a role in a location. Can add, edit, move, lend and trash things, log readings and
+**MCP** (Model Context Protocol): how an AI app such as Claude connects to Kept to find and change
+things, within your role. [Connect an AI client](/users/mcp-clients/)
+
+**Meters**: readings, services and schedules, for a thing whose type has a meter: a car, a
+generator, a boiler. [Vehicles and machines](/users/vehicles/)
+
+**Member**: a role in a location. Can add, edit, move, lend and trash things, log readings and
 services, print labels, and use AI capture. Money is visible.
 
-**Meters:** readings, services and schedules for anything with a meter: a car, a generator, a
-boiler.
+**Module**: a part of Kept switched on or off per location, such as Lending or Vehicles.
+[Modules and presets](/users/modules/)
 
 ## N
 
-**Needs you:** Home's six counts: Overdue, Due, Expiring, Lent out, Uncertain and Low stock.
+**Needs you**: Home's counts of what wants attention: Overdue, Due, Expiring, Lent out, Uncertain
+and Low stock. [Home](/users/home/)
 
 ## O
 
-**Owner:** the role that holds a location. Everything an admin can do, plus two-factor rules,
+**Owner**: the role that holds a location. Everything an admin can do, plus two-factor rules,
 transfer and deletion. There is one owner.
 
 ## P
 
-**Personal location:** your private location, created automatically. Never shared, no members, no
-invites, no share links.
+**Personal location**: your own location, made with your account. It's never shared: no members,
+invites or share links.
 
-**Place:** a room or spot inside a location — a room, a shelf, a drawer, a floor. A box is a
-thing, not a place.
+**Place**: a room or a spot inside a location: a floor, a room, a shelf, a drawer. A box is a
+container, not a place.
 
-**Preset:** a set of modules turned on for a location: Essentials, Household or Complete.
+**Place template**: furniture and its compartments as one recipe: the layout (cubes across and
+up, shelves or drawers), the kinds, the names and a code pattern. Kept has cube shelves, a
+bookcase, a chest of drawers and a shelving unit; an account adds its own under **Settings →
+Account → Templates → Furniture**.
+[Furniture with compartments](/users/locations/#furniture-with-compartments)
+
+**Preset**: the set of modules a location starts with: Essentials, Household or Complete.
+[Modules and presets](/users/modules/)
 
 ## R
 
-**Reading:** a meter reading (odometer, hour meter) logged for a vehicle or machine.
+**Reading**: a meter's value at a moment, such as an odometer or an hour meter.
 
-**Recovery kit:** everything needed to bring Kept back on a new server: the secret keys, the
-backup's location, its password and storage keys, and the restore steps. To print or save.
+**Recovery kit**: the server's keys, the backup's repository and credentials, and the restore
+steps, to print or save somewhere other than the server. Without it, a backup can't bring back AI
+keys or stored passwords. [The recovery kit](/admin/recovery-kit/)
 
-**RLS (row-level security):** the database mechanism that keeps households apart: every query is
-scoped to the signed-in person.
+**RLS** (row-level security): the database rules that keep locations apart: every request sees
+only what the signed-in person may see. [Row-level security](/developers/rls/)
 
 ## S
 
-**Schedule:** a reminder to do something again, by date or by reading (oil change, tyre rotation).
+**Schedule**: something to do again, by date or by reading, such as an oil change.
+[Reminders](/users/reminders/)
 
-**Secret field:** a field on a thing, such as a password or a code, that's encrypted and hidden
-until someone allowed to reveal it does. Each reveal is logged.
+**Secret field**: a field on a thing, such as a Wi-Fi password or a door code, stored encrypted and
+hidden until someone allowed to reveals it. Each reveal is logged.
 
-**Share link:** a read-only link showing what's in a box, place or search, without an account.
+**Share link**: a read-only link to what's in a box, a place or a search, for someone without an
+account. [Share links](/users/sharing/#share-links)
 
-**Short ID:** the six-character identifier on every thing and place, used for labels and search.
+**Short ID**: the six-character code every thing and place has, like `7KQ-4MZ`, printed on its
+label. [Short IDs and labels](/users/short-ids/)
 
-**Stocktake / count:** counting what's in a place and comparing with what Kept thinks is there.
-See [counts and stocktakes](/users/counts/).
+**Stocktake**: see Count.
 
 ## T
 
-**Thing:** anything you track: a tool, a document, a vehicle, a box.
+**Tape**: the amber label tape a code shows as once it has a printed label. Label-maker tape is a
+label stock. [Short IDs and labels](/users/short-ids/)
 
-**Trash:** where deleted things go. They're kept for 30 days; members and above can restore them,
-and admins can delete them for good.
+**Thing**: anything you keep track of: a drill, a car, a box of cables.
+
+**Trash**: where trashed things wait for 30 days. Members and above restore them; admins delete
+them for good.
 
 ## U
 
-**Unplaced:** the place inside a location for things that don't have a place yet.
+**Unplaced**: the spot every location has for things that don't have a place yet.
 
 ## V
 
-**Vehicle:** a thing whose type is Vehicle or under it — a car, motorbike, bicycle or generator.
-Readings, services and schedules; on Complete, fuel tracking. A boiler has Meters but isn't a
-vehicle.
+**Vehicle**: a thing whose type is Vehicle or a type under it: a car, a motorbike, a bicycle, a
+generator. Vehicles get readings, services and schedules, and fuel on Complete. A boiler has
+Meters but isn't a vehicle. [Vehicles and machines](/users/vehicles/)
 
-**Viewer:** a role in a location. Can look and search only. Money is hidden unless the location
+**Viewer**: a role in a location. Can look and search only. Money is hidden unless the location
 allows viewers to see it; the assistant answers but can't change anything.
+
+## W
+
+**What's new**: the card after Kept is updated, with that release's highlights, once per person;
+**Help** shows it again. [Take a tour](/users/first-run/#7-take-a-tour)
 
 ## Related
 
-- [Everyday use](/users/everyday-use/) for how things work.
-- [First run](/users/first-run/) for getting started.
+- [Your first minutes](/users/first-run/) for getting started.
 - [FAQ](/users/faq/) for common questions.

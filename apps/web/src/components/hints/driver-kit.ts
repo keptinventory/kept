@@ -156,7 +156,7 @@ export type TourSpec = {
     /** "2 of 4", in the reader's digits. */
     progress: (current: number, total: number) => string;
   };
-  /** A line under the words, at a chapter's end: "Next: The 3D map". */
+  /** A line under the words, at a chapter's end: "Next: Graph & 3D map". */
   upNext?: string;
   /** A second way out beside the done button, at a chapter's end: "Stop here". */
   stop?: { label: string; onPress: () => void };

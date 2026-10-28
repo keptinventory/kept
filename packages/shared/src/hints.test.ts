@@ -7,6 +7,8 @@ import {
   TOUR_SECTION_IDS,
   tourKey,
   tourProgressKey,
+  WHATS_NEW_PREFIX,
+  whatsNewKey,
 } from './hints.js';
 
 describe('HINT_KEYS', () => {
@@ -34,5 +36,15 @@ describe('HINT_KEYS', () => {
     expect(isHintKey('help.tour_seen')).toBe(true);
     for (const id of TOUR_SECTION_IDS) expect(isHintKey(tourProgressKey(id))).toBe(true);
     expect(isHintKey('help.tour.vehicles')).toBe(false);
+  });
+});
+
+describe('whatsNewKey', () => {
+  it('names one key per version, within the user_hints key CHECK', () => {
+    expect(whatsNewKey('1.14.1')).toBe('whats_new.1.14.1');
+    expect(whatsNewKey('1.14.1').startsWith(WHATS_NEW_PREFIX)).toBe(true);
+    expect(whatsNewKey('0.0.0-dev')).toMatch(/^[a-z0-9_.:-]{1,64}$/);
+    // Not a fixed key: the server takes only its own version's (home/service.ts).
+    expect(isHintKey(whatsNewKey('1.14.1'))).toBe(false);
   });
 });

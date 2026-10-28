@@ -260,6 +260,7 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'paperless_link.create': () => 'Paperless document linked',
   'paperless_link.delete': () => 'Paperless document unlinked',
   'paperless_link.copy': () => 'Paperless document copied into Kept',
+  'paperless_link.update': () => 'Paperless document changed',
   'purchase.reextract': () => 'Receipt read again',
   'thing.enrich': () => 'Other names added',
   'import.enrich': () => 'Other names requested for an import',

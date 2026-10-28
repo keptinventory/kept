@@ -592,6 +592,30 @@ describe('copying and unlinking', () => {
     expect(ok(await linksOf(louis, `thingId=${drill.id}`)).items).toEqual([]);
   });
 
+  it('copies in the kind the link was given, not the one Paperless names', async () => {
+    ok(await connect(bruce));
+    const [l] = ok(await link(louis, { thingId: drill.id, documentIds: [13] }), 201)
+      .items as Json[];
+    const set = await call(t, `/api/v1/paperless-links/${l?.id}`, {
+      as: louis,
+      method: 'PATCH',
+      body: { kind: 'warranty_doc' },
+      headers: { 'if-match': String(l?.rowVersion) },
+    });
+    expect(set.statusCode, set.body).toBe(200);
+    const copied = ok(
+      await call(t, `/api/v1/paperless-links/${l?.id}/copy`, { as: louis, method: 'POST' }),
+      201,
+    );
+    expect(copied.link).toMatchObject({ kind: 'warranty_doc' });
+    const [att] = await own<{ role: string }>(
+      db,
+      'SELECT role FROM public.attachments WHERE id = $1',
+      [copied.attachmentId],
+    );
+    expect(att?.role).toBe('warranty_doc');
+  });
+
   it('drops a thing’s links when it moves to another location (its documents stay behind)', async () => {
     ok(await connect(bruce));
     const box = await createThing(t, ibrahim, home, { name: 'Toolbox' });
@@ -605,5 +629,102 @@ describe('copying and unlinking', () => {
     expect(
       await own(db, 'SELECT id FROM public.paperless_links WHERE thing_id = $1', [box.id]),
     ).toEqual([]);
+  });
+});
+
+describe('the kind of a link', () => {
+  const setKind = (as: Person, l: Json | undefined, kind: string, version?: unknown) =>
+    call(t, `/api/v1/paperless-links/${l?.id}`, {
+      as,
+      method: 'PATCH',
+      body: { kind },
+      headers: { 'if-match': String(version ?? l?.rowVersion) },
+    });
+
+  // catalogue: PATCH /api/v1/paperless-links/:id
+  it('is changed as an attachment’s is: your own as a member, anyone’s as an admin, audited', async () => {
+    ok(await connect(bruce));
+    const [mine] = ok(await link(louis, { thingId: drill.id, documentIds: [13] }), 201)
+      .items as Json[];
+    const [theirs] = ok(await link(bruce, { thingId: drill.id, documentIds: [14] }), 201)
+      .items as Json[];
+    expect(mine).toMatchObject({ kind: 'manual', rowVersion: 1 });
+
+    const changed = ok(await setKind(louis, mine, 'warranty_doc'));
+    expect(changed).toMatchObject({ id: mine?.id, kind: 'warranty_doc', rowVersion: 2 });
+    const events = await audit(['paperless_link']);
+    expect(events.at(-1)).toMatchObject({
+      action: 'paperless_link.update',
+      entity_id: mine?.id,
+      diff: { kind: { before: 'manual', after: 'warranty_doc' } },
+    });
+    const [onThing] = await own<{ id: string }>(
+      db,
+      `SELECT e.id FROM public.audit_events e
+         JOIN public.audit_event_subjects s ON s.event_id = e.id
+        WHERE e.entity_id = $1 AND e.action = 'paperless_link.update' AND s.thing_id = $2`,
+      [mine?.id, drill.id],
+    );
+    expect(onThing).toBeDefined();
+    expect(ok(await linksOf(louis, `thingId=${drill.id}`)).items).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: mine?.id, kind: 'warranty_doc' })]),
+    );
+
+    // Stale, or no If-Match at all.
+    expect((await setKind(louis, mine, 'document', 1)).statusCode).toBe(412);
+    const bare = await call(t, `/api/v1/paperless-links/${mine?.id}`, {
+      as: louis,
+      method: 'PATCH',
+      body: { kind: 'document' },
+    });
+    expect(bare.statusCode).toBe(428);
+    // Only a kind an attachment has; and nothing else of the link.
+    expect((await setKind(louis, mine, 'photo', 2)).statusCode).toBe(400);
+    const title = await call(t, `/api/v1/paperless-links/${mine?.id}`, {
+      as: louis,
+      method: 'PATCH',
+      body: { kind: 'manual', title: 'Mine now' },
+      headers: { 'if-match': '2' },
+    });
+    expect(title.statusCode).toBe(400);
+
+    // Someone else's: an admin's to change, not a member's; never a viewer's or an outsider's.
+    expect((await setKind(louis, theirs, 'manual')).statusCode).toBe(403);
+    expect((await setKind(talia, mine, 'manual', 2)).statusCode).toBe(403);
+    expect((await setKind(alfred, mine, 'manual', 2)).statusCode).toBe(404);
+    expect(ok(await setKind(bruce, theirs, 'manual'))).toMatchObject({ kind: 'manual' });
+  });
+
+  it('follows the money gate: a receipt is made or changed only where money shows', async () => {
+    ok(await connect(bruce));
+    const made = ok(await link(louis, { thingId: drill.id, documentIds: [12, 13] }), 201)
+      .items as Json[];
+    const receipt = made.find((l) => l.kind === 'receipt');
+    const manual = made.find((l) => l.kind === 'manual');
+    // Where money shows, a manual becomes a receipt.
+    const asReceipt = ok(await setKind(louis, manual, 'receipt'));
+    // With the Money module off, money shows to nobody: no new receipt, and an existing one is
+    // as absent as it is from the list.
+    await own(
+      db,
+      `INSERT INTO public.location_modules (location_id, module, enabled) VALUES ($1, 'money', false)
+       ON CONFLICT (location_id, module) DO UPDATE SET enabled = false`,
+      [home.id],
+    );
+    try {
+      const [other] = ok(await link(louis, { thingId: drill.id, documentIds: [14] }), 201)
+        .items as Json[];
+      const refused = await setKind(louis, other, 'invoice');
+      expect(refused.statusCode, refused.body).toBe(409);
+      expect(refused.json()).toMatchObject({ code: 'module_off' });
+      expect((await setKind(louis, receipt, 'document')).statusCode).toBe(404);
+      expect((await setKind(louis, asReceipt, 'document')).statusCode).toBe(404);
+    } finally {
+      await own(
+        db,
+        `UPDATE public.location_modules SET enabled = true WHERE location_id = $1 AND module = 'money'`,
+        [home.id],
+      );
+    }
   });
 });

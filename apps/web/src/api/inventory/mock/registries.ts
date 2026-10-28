@@ -603,6 +603,35 @@ export function registriesRoutes(state: MockState): MockRoute[] {
       return reply(201, created);
     }),
 
+    // A brand by name for a thing's form (#349): the account's, or a new one; members too.
+    route('POST', p.locationBrands(':locationId'), ({ params, body }) => {
+      const locationId = params.locationId ?? '';
+      const role = roleIn(state.locations, locationId);
+      if (!role) return notFound();
+      if (role === 'viewer') return forbidden();
+      const accountId = inv().accountOf[locationId] ?? inv().accounts.find((a) => a.isOwn)?.id;
+      const name = String((body as { name?: string }).name ?? '').trim();
+      if (!name || !accountId) return err(400, 'validation', 'A name is needed.');
+      const found = inv().brands.find(
+        (b) =>
+          (b.ownerAccountId === accountId || b.ownerAccountId === null) &&
+          fold(b.name) === fold(name),
+      );
+      if (found) return reply(200, { item: found });
+      const item = {
+        id: newId(),
+        ownerAccountId: accountId,
+        rowVersion: 1,
+        name,
+        website: null,
+        supportPhone: null,
+        claimUrl: null,
+        defaultWarrantyMonths: null,
+      };
+      inv().brands.push(item);
+      return reply(201, { item });
+    }),
+
     // ----- brands, vendors, people, tags -----
     ...KINDS.flatMap((kind) => {
       const all = () => inv()[kind] as RegistryItem[typeof kind][];

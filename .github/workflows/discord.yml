@@ -1,4 +1,4 @@
-# A release announced in the Discord server's #announcements, through the webhook in the
+# A release announced in the Discord server's #releases, through the webhook in the
 # DISCORD_RELEASES_WEBHOOK secret. release.yml calls it after the GitHub release is published (a
 # release made by a workflow's token starts no `release` event); `release: published` covers one
 # published by hand, and Run workflow posts an existing release again.

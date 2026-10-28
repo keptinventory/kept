@@ -10,6 +10,9 @@ tracks: **Details**, **Paperwork and warranties**, **Value**, **Meters**, **Loan
 - **Edit** opens the fields in place. If someone else changed the same field since you opened it,
   Kept shows both values and asks: **Keep mine**, **Keep theirs** or **Edit**. Fields only one of
   you changed merge without asking.
+- **Brand**: pick one of the account's brands, or type a new name and choose **Add “…”**. Anyone
+  who edits things can add one; owners and admins rename and merge them under **Settings → Account
+  → Brands**.
 - **Actions** has Move, Lend, Label, Split, Duplicate, Save as template, Mark seen, Not here,
   Change lifecycle (sold, given away, thrown out), Archive, Re-type, Convert to a room or spot,
   and Move to Trash.

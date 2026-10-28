@@ -164,6 +164,7 @@ export function SessionScreen({
   const [names, setNames] = useState<Record<string, string>>({});
   const [spoken, setSpoken] = useState('');
   const announce = useMemo(() => announceEvery(2000, setSpoken), []);
+  useEffect(() => announce.cancel, [announce]);
   const meId = useMe().data?.user.id ?? null;
 
   // ----- the phone's world and any session already on it ----------------------------------------

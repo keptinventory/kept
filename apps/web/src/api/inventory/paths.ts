@@ -31,6 +31,8 @@ export const inventoryPaths = {
   accountRegistry: (accountId: string, kind: RegistryPathKind) =>
     `${V1}/accounts/${seg(accountId)}/${kind}`,
   registryItem: (kind: RegistryPathKind, id: string) => `${V1}/${kind}/${seg(id)}`,
+  /** POST `{name}`: the account's brand of that name, or a new one, for a thing here (#349). */
+  locationBrands: (locationId: string) => `${V1}/locations/${seg(locationId)}/brands`,
   registryMergeInto: (kind: RegistryPathKind, id: string) => `${V1}/${kind}/${seg(id)}/merge-into`,
   personContact: (id: string) => `${V1}/people/${seg(id)}/contact`,
 
@@ -51,6 +53,13 @@ export const inventoryPaths = {
   placeConvertToContainer: (id: string) => `${V1}/places/${seg(id)}/convert-to-container`,
   placeConvertChildren: (id: string) => `${V1}/places/${seg(id)}/convert-children-to-containers`,
   placeReorder: (id: string) => `${V1}/places/${seg(id)}/reorder`,
+  /** #238: furniture and its compartments from a place template, in one step. */
+  placesFromTemplate: (locationId: string) =>
+    `${V1}/locations/${seg(locationId)}/places/from-template`,
+  /** GET `?locationId`: the account's place templates usable there. */
+  placeTemplates: `${V1}/place-templates`,
+  placeTemplate: (id: string) => `${V1}/place-templates/${seg(id)}`,
+  accountPlaceTemplates: (accountId: string) => `${V1}/accounts/${seg(accountId)}/place-templates`,
   placeLabel: (id: string) => `${V1}/places/${seg(id)}/label`,
   placeHistory: (id: string) => `${V1}/places/${seg(id)}/history`,
   placeAttachments: (id: string) => `${V1}/places/${seg(id)}/attachments`,
@@ -169,6 +178,10 @@ export const METHODS: Record<keyof typeof inventoryPaths, readonly Method[]> = {
   typeFieldArchive: ['POST'],
   placeConvertChildren: ['POST'],
   placeReorder: ['POST'],
+  placesFromTemplate: ['POST'],
+  placeTemplates: ['GET'],
+  placeTemplate: ['PATCH', 'DELETE'],
+  accountPlaceTemplates: ['GET', 'POST'],
   typeFieldRestore: ['POST'],
   accountPlaceKinds: ['GET', 'POST'],
   placeKind: ['PATCH'],
@@ -176,6 +189,7 @@ export const METHODS: Record<keyof typeof inventoryPaths, readonly Method[]> = {
   placeKindCustomise: ['POST'],
   accountRegistry: ['GET', 'POST'],
   registryItem: ['GET', 'PATCH', 'DELETE'],
+  locationBrands: ['POST'],
   registryMergeInto: ['POST'],
   personContact: ['GET', 'PUT'],
   currencies: ['GET'],

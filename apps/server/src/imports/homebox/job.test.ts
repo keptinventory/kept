@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import yauzl from 'yauzl';
 import type { TestApp } from '../../../test/app.js';
 import { homeboxFixture, homeboxZip, uploadArchive } from '../../../test/archive-imports.js';
 import { type TestDb, testDb } from '../../../test/db.js';
@@ -12,6 +13,7 @@ import {
   type RecordedJob,
 } from '../../../test/people.js';
 import { createLocation, type Loc, ok, own } from '../../../test/things.js';
+import { forgeZip } from '../../../test/zip-forge.js';
 import type { Scope } from '../../db/scope.js';
 import { runJob } from '../../jobs/boss.js';
 import { importArchiveKey } from '../../storage/blob-store.js';
@@ -630,6 +632,100 @@ describe('a step that fails after making a brand (review finding, 2026-10-14)', 
         await own(db, 'DROP TRIGGER test_fail_fridge ON public.things');
         await own(db, 'DROP FUNCTION public.test_fail_fridge()');
       }
+    },
+    LONG,
+  );
+});
+
+/** Every entry of a ZIP in memory, its bytes inflated. */
+function unzipped(bytes: Buffer): Promise<{ name: string; data: Buffer }[]> {
+  return new Promise((resolve, reject) => {
+    yauzl.fromBuffer(bytes, { lazyEntries: true }, (err, z) => {
+      if (err || !z) return reject(err);
+      const out: { name: string; data: Buffer }[] = [];
+      z.on('entry', (e: yauzl.Entry) => {
+        z.openReadStream(e, (err2, stream) => {
+          if (err2 || !stream) return reject(err2);
+          const chunks: Buffer[] = [];
+          stream.on('data', (c: Buffer) => chunks.push(c));
+          stream.on('end', () => {
+            out.push({ name: e.fileName, data: Buffer.concat(chunks) });
+            z.readEntry();
+          });
+        });
+      });
+      z.on('end', () => resolve(out));
+      z.on('error', reject);
+      z.readEntry();
+    });
+  });
+}
+
+describe('a Homebox link to a Paperless-ngx document (#347)', () => {
+  it(
+    "comes in as a Paperless link where the location's Paperless has it, a plain link elsewhere",
+    async () => {
+      // Home's one link attachment (Manufacturer page, a manual) pointed at a Paperless document.
+      const entries = (await unzipped(homeZip)).map((e) => {
+        if (e.name !== 'attachments.json') return e;
+        const rows = JSON.parse(e.data.toString('utf8')) as { title: string; path: string }[];
+        for (const r of rows) {
+          if (r.title === 'Manufacturer page') {
+            r.path = 'https://paperless.example.com/documents/123/details';
+          }
+        }
+        return { ...e, data: Buffer.from(JSON.stringify(rows)) };
+      });
+      const zip = forgeZip(entries);
+      const runInto = async (loc: Loc) => {
+        const { id } = await prepare(ibrahim, loc, zip);
+        await start(ibrahim, id);
+        await runHomeboxImport(jobDeps(), scopeOf(ibrahim), id);
+        expect(await statusOf(id)).toMatchObject({ status: 'done', error: null });
+        return id;
+      };
+      const linksIn = (loc: Loc) =>
+        own<{ document_id: number; title: string; kind: string; name: string }>(
+          db,
+          `SELECT l.document_id, l.title, l.kind, t.name FROM public.paperless_links l
+             JOIN public.things t ON t.id = l.thing_id WHERE l.location_id = $1`,
+          [loc.id],
+        );
+      const urlsIn = async (loc: Loc) =>
+        (
+          await own<{ url: string }>(
+            db,
+            'SELECT url FROM public.attachments WHERE location_id = $1 AND url IS NOT NULL',
+            [loc.id],
+          )
+        ).map((r) => r.url);
+
+      const den = await createLocation(t, db, ibrahim, 'complete', 'Den');
+      await own(
+        db,
+        `INSERT INTO public.paperless_connections (location_id, base_url, config_ciphertext,
+                                                   key_version, created_by)
+         VALUES ($1, 'https://paperless.example.com', '{}'::jsonb, 1, $2)`,
+        [den.id, ibrahim.userId],
+      );
+      const id = await runInto(den);
+      expect(await linksIn(den)).toEqual([
+        { document_id: 123, title: 'Manufacturer page', kind: 'manual', name: 'Espresso machine' },
+      ]);
+      expect(await urlsIn(den)).toEqual([]);
+      const [event] = await own<{ n: number }>(
+        db,
+        `SELECT count(*)::int AS n FROM public.audit_events
+          WHERE location_id = $1 AND action = 'paperless_link.create' AND request_id = $2`,
+        [den.id, `import:${id}`],
+      );
+      expect(event?.n).toBe(1);
+
+      // No Paperless here: today's link attachment.
+      const shed = await createLocation(t, db, ibrahim, 'complete', 'Shed');
+      await runInto(shed);
+      expect(await linksIn(shed)).toEqual([]);
+      expect(await urlsIn(shed)).toEqual(['https://paperless.example.com/documents/123/details']);
     },
     LONG,
   );

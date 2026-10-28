@@ -1067,14 +1067,30 @@ export async function planRow(
     if (details) extra.push(`Warranty: ${details}`);
     if (parseBoolean(hbGet('HB.insured')) === true) extra.push('Insured: yes');
 
-    // A sale ends it sold; an archived item is archived when so chosen.
+    // A sale (a buyer or a price) ends it sold; an archived item is archived when so chosen. A
+    // date alone isn't a sale: Homebox fills empty dates on some upgrades (#346), so it is kept
+    // as text and the thing stays as it is.
     const soldDateColumn = hbGet('HB.sold_time') ? 'HB.sold_time' : 'HB.sold_date';
     const soldOnRaw = hbGet(soldDateColumn);
     const soldTo = hbGet('HB.sold_to');
     const soldPriceRaw = hbGet('HB.sold_price');
     const soldPrice = soldPriceRaw ? parsePrice(soldPriceRaw) : null;
     const soldPriced = soldPrice !== null && Number(soldPrice) > 0;
-    if (soldOnRaw || soldTo || soldPriced) {
+    if (!soldTo && !soldPriced) {
+      if (soldOnRaw) {
+        asText(
+          ctx,
+          soldDateColumn,
+          soldOnRaw,
+          'hb_sold_date_only',
+          'A sold date with no buyer or price: still in use, the date is in the notes.',
+        );
+      }
+      const soldNotes = hbGet('HB.sold_notes');
+      if (soldNotes)
+        ctx.text.push({ column: 'HB.sold_notes', line: `HB.sold_notes: ${soldNotes}` });
+    }
+    if (soldTo || soldPriced) {
       const sold: HomeboxEnded = { lifecycle: 'sold' };
       const soldOn = soldOnRaw ? parseCsvDate(soldOnRaw, 'YYYY-MM-DD') : null;
       if (soldOn && soldOn <= lookups.today) sold.endedOn = soldOn;

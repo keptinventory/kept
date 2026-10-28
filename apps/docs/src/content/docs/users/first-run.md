@@ -134,26 +134,26 @@ steps each:
 | Chapter | What it shows |
 |---|---|
 | Basics | Home, your locations, Scan, Search, and where everything else is |
-| Things & places | adding to a location, what's in it, and a thing's page |
-| The 3D map | the List / Grid / Map switch, 3D or plan, pins, floors and Arrange |
+| Things & places | adding to a location, what's in it, and a thing's page and its tabs |
+| Graph & 3D map | the List · Grid · Graph · Table · Map switch (Table on a computer), the graph in 2D or 3D, 3D or plan, pins, floors and Arrange, where a room moves with what's in it |
 | Capture & Inbox | picking what you capture, the shutter, and reviewing what Kept read |
 | Scanning | a scan session: count, pack or move, where, and what Finish changes |
-| Search & labels | the search field, saved views, printing labels and Scan |
+| Search & labels | the search field, saved views, Select (move, print labels, Move to Trash), printing labels and Scan, which can put a blank label on a place you have |
 | Moving | starting a move, its boxes, and where they are |
 | Lending | what's lent out, Mark returned, and Lend on a thing |
 | Schedules & reminders | a new schedule, what's due, Complete, and how reminders reach you |
 | Paperwork & warranties | the paperwork library, what's expiring, adding a file, claims |
-| Vehicles & fuel | the vehicles list, logging a reading or a service, and fuel |
+| Vehicles & fuel | the vehicles list, logging a reading or a service, the services you can open, and fuel |
 | Import & export | where an import comes from, the file, and exporting |
 | Settings & sharing | notifications, your locations, inviting people, what to track |
 
 Only the chapters you have are listed: a module's chapter shows while it's on in one of your
 locations, and a viewer gets no steps that change anything.
 
-- **Take the tour** starts at the first chapter. Once some are done it reads **Continue the tour**
-  and picks up at the first chapter you haven't finished.
-- Each chapter's row shows its number of steps, or **Done**, and **Start here** starts the tour
-  at that chapter.
+- At the top: how many chapters are done, with a thin bar, and **Take the tour**. Once some are
+  done it reads **Continue the tour** and picks up at the first chapter you haven't finished.
+- Below it, one short row per chapter: its number and its steps. Tap a row to start the tour at
+  that chapter. Finished chapters fold away under **Done (N)**; open it to replay one.
 - Each section's page also has a small **Show me** beside its title that starts its chapter
   right there.
 - The popover shows where you are: "Chapter 3 of 12 · step 2 of 5".
@@ -172,6 +172,11 @@ locations, and a viewer gets no steps that change anything.
 
 A few one-time hints also appear the first time you use Capture, Scan, the Inbox's suggested
 values or Labels.
+
+After Kept is updated, a small **What's new in Kept** card lists that release's highlights, once
+per release for each person, on every device. It never shows on a new account, or over Capture or
+Scan; **Got it** puts it away, and **Help → What's new** shows it again. The highlights are in
+English in every language, with a link to the full release notes on GitHub.
 
 :::tip[Keep the keys]
 Before the first AI key, secret value or backup, Kept waits until the instance admin has saved the

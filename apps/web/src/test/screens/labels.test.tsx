@@ -163,6 +163,39 @@ describe('the batch builder', () => {
   });
 });
 
+describe('label-maker tape', () => {
+  it('narrow tape previews the code large and the name beside it, with no QR', async () => {
+    const { user } = await renderApp(`/labels?loc=${IDS.home}&things=${T.hdmiCable}`);
+    await user.click(await screen.findByRole('radio', { name: /12 mm tape/ }));
+    expect(
+      screen.getByRole('radio', { name: /12 mm tape/ }).closest('label')?.textContent,
+    ).toContain('Label maker · short ID large, and the name');
+    expect(screen.queryByRole('radio', { name: /^Label 1,/ })).toBeNull();
+    expect(screen.getByText('Label preview')).toBeInTheDocument();
+    const label = document.querySelector('div[data-slot="label"]') as HTMLElement;
+    expect(label.querySelector('[data-slot="label-qr"]')).toBeNull();
+    expect(within(label).getByText('7KQ‑4MZ')).toBeInTheDocument();
+    // The name, wrapped over as many lines as it needs beside the code.
+    const name = label.querySelector('[data-slot="label-name"]');
+    expect([...(name?.children ?? [])].map((l) => l.textContent).join(' ')).toBe('HDMI cable, 2 m');
+    expect(label.querySelector('[data-slot="label-place"]')).toBeNull();
+    // Printed size, scaled: 50 × 12 mm.
+    const size = label.parentElement as HTMLElement;
+    expect(size.style.inlineSize).toBe('50mm');
+    expect(size.style.blockSize).toBe('12mm');
+  });
+
+  it('wide tape keeps the QR', async () => {
+    const { user } = await renderApp(`/labels?loc=${IDS.home}&things=${T.hdmiCable}`);
+    await user.click(await screen.findByRole('radio', { name: /24 mm tape/ }));
+    expect(
+      screen.getByRole('radio', { name: /24 mm tape/ }).closest('label')?.textContent,
+    ).toContain('Label maker · QR code, short ID and name');
+    const label = document.querySelector('div[data-slot="label"]') as HTMLElement;
+    await waitFor(() => expect(label.querySelector('[data-slot="label-qr"] path')).not.toBeNull());
+  });
+});
+
 describe('one batch, the right one', () => {
   it('one Print makes one batch: no second dry run after the create', async () => {
     const print = vi.spyOn(window, 'print').mockImplementation(() => {});
@@ -468,6 +501,22 @@ describe('the print view', () => {
     ).toEqual(['Print', 'Share as images']);
     expect(actions).toHaveClass('grid-cols-2', 'md:flex-row-reverse');
     expect(screen.getByRole('link', { name: 'Back to labels' })).toBeInTheDocument();
+  });
+
+  it('prints tape one label a page at its size, the code with no QR', async () => {
+    const state = ownerScenario();
+    state.capture.labelBatches.unshift(batch({ stock: 'tape_12' }));
+    await renderApp('/labels/01926f00-0000-7000-8000-000000100099', { state });
+    const sheet = await screen.findByRole('region', { name: 'Sheet 1 of 1' });
+    expect(sheet.style.inlineSize).toBe('50mm');
+    expect(sheet.style.blockSize).toBe('11.9mm');
+    expect(within(sheet).getByText('AR7‑HDM')).toBeInTheDocument();
+    expect(within(sheet).getByText('كابل HDMI')).toBeInTheDocument();
+    expect(sheet.querySelector('[data-slot="label-qr"]')).toBeNull();
+    expect(screen.getByText('12 mm tape')).toBeInTheDocument();
+    expect(
+      screen.getByText('In the print dialog choose your label printer and this label size.'),
+    ).toBeInTheDocument();
   });
 
   it('on a compact stock prints only the QR and the code', async () => {

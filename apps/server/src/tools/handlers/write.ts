@@ -1,5 +1,5 @@
 import type { PlaceRef, ThingRef, ToolOutput } from '@kept/mcp';
-import { type ModuleId, normalize, parseAmount } from '@kept/shared';
+import { BUILTIN_PLACE_TEMPLATE_KEYS, type ModuleId, normalize, parseAmount } from '@kept/shared';
 import { undoableEventIds } from '../../audit/audited.js';
 import { undoableUntil } from '../../audit/undo.js';
 import { deleteStockRule, putStockRule } from '../../consumables/service.js';
@@ -10,6 +10,7 @@ import { createPlace } from '../../places/service.js';
 import { unplacedOf } from '../../places/view.js';
 import { todayIn } from '../../schedules/service.js';
 import { vendorFor } from '../../schedules/services.js';
+import { createFromTemplate, FromTemplateBody } from '../../templates/place-templates.js';
 import { moveThings } from '../../things/move.js';
 import { insertThing, liveThing, markSeen, updateThing } from '../../things/service.js';
 import type { UpdateBody } from '../../things/validate.js';
@@ -391,12 +392,43 @@ export const markSeenTool: Handler<'mark_seen'> = {
   },
 };
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export const createPlaceTool: Handler<'create_place'> = {
   action: 'things.edit',
   subjectLocation: (client, input) => locationOfRef(client, input.parent_id),
   run: async (op, input) => {
     const loc = locationOf(op);
     const parentId = input.parent_id ? await placeIn(op.client, loc.id, input.parent_id) : null;
+    if (input.template !== undefined) {
+      // #238: furniture and its compartments, as the app's "Furniture with compartments" makes
+      // them, with its one undoable event.
+      const template = UUID.test(input.template)
+        ? { id: input.template.toLowerCase() }
+        : { builtin: input.template };
+      const body = FromTemplateBody.safeParse({
+        template,
+        name: input.name,
+        parentId,
+        ...(input.orientation ? { orientation: input.orientation } : {}),
+        ...(input.count !== undefined ? { count: input.count } : {}),
+        ...(input.code !== undefined ? { code: input.code } : {}),
+        ...(input.code_pattern !== undefined ? { codePattern: input.code_pattern } : {}),
+      });
+      if (!body.success) {
+        throw invalid(
+          `Check template: one of ${BUILTIN_PLACE_TEMPLATE_KEYS.join(', ')}, or a template id; and code_pattern's placeholders.`,
+        );
+      }
+      const made = await createFromTemplate(op, loc.id, body.data);
+      return {
+        data: {
+          ...(await writeResult(op, 'place', made.place.id)),
+          place: await placeRefOf(op.client, made.place.id),
+          compartments: made.compartments.length,
+        },
+      };
+    }
     const created = await createPlace(
       op,
       loc.id,

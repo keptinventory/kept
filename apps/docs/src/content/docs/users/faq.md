@@ -83,10 +83,15 @@ It imports a Homebox backup, so you can try it with your own things.
 
 ## Can I move from Homebox?
 
-Yes. From Homebox v0.26.1 or newer (v0.27.0 recommended), make a backup in Homebox (**Tools →
-Backup & Restore → Create Backup**), import that ZIP into Kept, check what will happen, then
+Yes. From Homebox v0.26.1 or newer (v0.27.0 recommended), make a backup in Homebox (**Collection →
+Tools → Backup & Restore → Create Backup**, then **Download**), import that ZIP into Kept, check what will happen, then
 import. Photos, receipts, warranties, maintenance and tags come over, and old Homebox
-labels still scan. See [import and export](/users/import-export/#a-homebox-export). An older
+labels still scan. An item comes in sold only when Homebox has a buyer or a price for it (a sold
+date alone stays in its notes), and archived items come in **Archived** unless you choose **In
+use** or **Leave out**. Connect [Paperless-ngx](/users/paperless/) first and Homebox's links to
+its documents come in as Paperless links. See
+[import and export](/users/import-export/#a-homebox-export); an import made before 1.14.1 can be
+[repaired](/users/import-export/#repairing-an-earlier-import). An older
 Homebox has no backup Kept can read: update a copy of it first, or import its spreadsheet. See
 [coming from an older Homebox](/users/import-export/#coming-from-an-older-homebox).
 

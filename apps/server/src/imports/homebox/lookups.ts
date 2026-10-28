@@ -55,6 +55,8 @@ export type HbLookups = {
   /** Live places by parent ('' for the top) and normalised name. */
   places: Map<string, Map<string, string>>;
   unplacedId: string;
+  /** The location's Paperless-ngx connection (its root, as saved), or null (#347). */
+  paperless?: { baseUrl: string } | null;
   /** `import_source_ids` (source `homebox`) already in the location: source id → entity id. */
   sourceIds: Map<string, string>;
   /** Legacy codes the archive would add that the location already has, under any source. */
@@ -128,11 +130,18 @@ export async function loadHomeboxLookups(
     for (const r of rows) takenCodes.add(r.code);
   }
 
+  // A link to one of its documents comes in as a Paperless link (#347).
+  const { rows: paperless } = await client.query<{ base_url: string }>(
+    'SELECT base_url FROM public.paperless_connections WHERE location_id = $1',
+    [locationId],
+  );
+
   return {
     ...account,
     locationId,
     accountId: loc.owner_account_id,
     today: loc.today,
+    paperless: paperless[0] ? { baseUrl: paperless[0].base_url } : null,
     showMoney: gate.showMoney,
     modules: gate.modules,
     places,

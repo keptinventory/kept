@@ -262,6 +262,7 @@ export function EditForm({ editor }: { editor: ThingEditor }) {
         label={t`Brand`}
         value={v.brandId}
         onChange={(id) => editor.change('brandId', id)}
+        addIn={thing.locationId}
       />
       <div className="grid gap-3.5 md:grid-cols-2">
         <TextField

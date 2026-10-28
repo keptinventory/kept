@@ -1,12 +1,17 @@
 ---
 title: Photos, receipts, manuals and warranties
-description: "Photos on the thing, files under Paperwork, capture modes that fill in a receipt or a label, Email-in, and how claims show what a warranty saved."
+description: "Photos on the thing and full screen, files under Paperwork, capture modes that fill in a receipt or a label, Email-in, and how claims show what a warranty saved."
 ---
 
 Photos go on the thing; everything else goes under **Paperwork**, kept as the original file:
 **Add a file**, then say what it is (Receipt, Invoice, Manual, Warranty, Registration, Proof,
 Document). A file Kept can't preview yet is kept anyway and marked **Preview unavailable**.
 
+- **A photo full screen:** tap the photo at the top of a thing's page. Swipe, the arrow keys, or
+  **Previous photo** and **Next photo** go through its photos. **+** (Zoom in) or a double-click
+  shows the photo at its full size, to pan around; **−** (Zoom out) fits it to the screen again.
+  On a phone a pinch uses the browser's own zoom. **×** (Close), Escape or Back closes it, and the
+  page stays on the photo you left at. A photo already on the page opens offline too.
 - **Capture's modes** (Thing, Receipt, Label, Reading): with AI connected, a receipt fills in the
   purchase, a label fills in brand, model and serial, and suggested values wait in the **Inbox**
   for you to accept. Prices, dates and serials are never accepted for you.

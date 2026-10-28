@@ -34,13 +34,15 @@ empty to keep the saved one.
 
 ## Link documents
 
-On a thing's page, under **Paperwork**, or on a place's page, **Link from Paperless** opens a
-search of your Paperless: words from the title or the text, a correspondent, a type or a tag, as
+On a thing's page, under **Paperwork**, **Link from Paperless** sits beside **Add a file** (on a
+place's page, beside **Add document**). It opens a search of your Paperless: words from the title or the text, a correspondent, a type or a tag, as
 Paperless's own search finds them. Tick one or more and **Link**.
 
-Each linked document shows its thumbnail, its title, its kind, Paperless's type and
-correspondent, and its date, with:
+Linked documents are in the same Paperwork list as the files. Each shows its thumbnail, its title,
+Paperless's type and correspondent, and its date, with:
 
+- **Kind**: *Manual*, *Warranty*, *Receipt*, *Invoice* or *Document*. Change it when Paperless's
+  type doesn't say what the document is.
 - **Open in Paperless**: the document's page in Paperless, in a new tab.
 - **Download**: the document, through Kept. Members and up.
 - **Copy into Kept**: see below.
@@ -48,7 +50,15 @@ correspondent, and its date, with:
 
 The kind comes from the document's type in Paperless, then its tags: *Receipt*, *Invoice*,
 *Manual* and *Warranty* (and the same words in French, German, Italian and Arabic) are
-recognised, anything else is a document. The **Kind** filter in Paperwork narrows these too.
+recognised, anything else is a document. After that the kind is yours to change, and **Copy
+into Kept** copies the document in that kind. The **Kind** filter in Paperwork narrows the files
+and the linked documents together.
+
+**From a [Homebox import](/users/import-export/#a-homebox-export):** a Homebox link to one of
+your Paperless documents (`…/documents/123`, or the API's `…/api/documents/123/download/`) at the
+address this location is connected to comes in as a linked document on the thing or place, with
+Homebox's title and its attachment type as the kind. Connect Paperless before you import; any
+other link stays a plain link.
 
 ## Linked or copied
 
@@ -69,11 +79,11 @@ download (its archived PDF when it made one), checked and sized like an upload.
 |---|---|---|---|
 | See linked documents and thumbnails | ✓ | ✓ | ✓ |
 | Search Paperless, link, copy, download | | ✓ | ✓ |
-| Unlink | | Their own | Any |
+| Change the kind, unlink | | Their own | Any |
 | Connect, change, disconnect | | | ✓ |
 
 Receipts and invoices are money: where money is hidden for you in a location, linked receipts and
-invoices are hidden too.
+invoices are hidden too, and you can't make a linked document one.
 
 A [personal token](/users/mcp-clients/#make-a-personal-token) reads a thing's or place's links
 (`GET /api/v1/paperless-links?thingId=…`), never the connection, a search, a thumbnail or a

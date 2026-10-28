@@ -139,7 +139,7 @@ describe('the built-in library (seed-reference)', () => {
     ]);
   });
 
-  it('seeds the four built-in place kinds', async () => {
+  it('seeds the eight built-in place kinds', async () => {
     const { rows } = await asOwner(db, (c) =>
       c.query(
         `SELECT key, icon, name FROM public.place_kinds WHERE owner_account_id IS NULL ORDER BY key`,
@@ -147,8 +147,12 @@ describe('the built-in library (seed-reference)', () => {
     );
     expect(rows).toEqual([
       { key: 'closet', icon: 'tabler:hanger', name: null },
+      { key: 'cube', icon: 'lucide:grid-2x2', name: null },
+      { key: 'drawer', icon: 'lucide:archive', name: null },
       { key: 'floor', icon: 'lucide:layers', name: null },
+      { key: 'furniture', icon: 'lucide:library-big', name: null },
       { key: 'room', icon: 'lucide:door-open', name: null },
+      { key: 'shelf', icon: 'lucide:rows-3', name: null },
       { key: 'zone', icon: 'lucide:square-dashed', name: null },
     ]);
   });
