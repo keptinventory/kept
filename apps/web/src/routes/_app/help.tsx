@@ -168,7 +168,11 @@ function ToursSection() {
   // Not before the list has loaded: the chapters of no location at all are 7, where the tour,
   // started a moment later from the loaded list, counts the person's 12 (#314). Offline with
   // nothing cached the query pauses or fails, and these are the tour's offline chapters.
-  if (locations.data === undefined && locations.fetchStatus === 'fetching')
+  // Nor before the hints say which chapters are done: listed first, a done chapter would then jump
+  // into Done (N) under the person's finger. Offline or refused, the list shows without them.
+  const loading = (q: { data: unknown; fetchStatus: string }) =>
+    q.data === undefined && q.fetchStatus === 'fetching';
+  if (loading(locations) || loading(hints))
     return (
       <Section title={<Trans>The tour</Trans>}>
         <LoadingRows rows={2} />

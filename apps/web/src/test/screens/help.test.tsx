@@ -120,6 +120,18 @@ describe('Help', () => {
     expect(tourRows()).toEqual([]);
   });
 
+  it('lists no chapters until it knows which are done, so none jumps into Done (N)', async () => {
+    const state = ownerScenario();
+    const at = new Date().toISOString();
+    state.inventory.hints.push({ key: 'help.tours.basics', seenAt: at, dismissedAt: at });
+    await renderApp('/help', { state, setup: (m) => m.hang('GET', inventoryPaths.hints) });
+    await findHeading('Help');
+    expect(screen.getByRole('heading', { name: 'The tour' })).toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 200));
+    expect(tourRows()).toEqual([]);
+    expect(screen.queryByRole('button', { name: 'Basics' })).toBeNull();
+  });
+
   it('folds the chapters done away, and continues at the first one not done', async () => {
     const state = ownerScenario();
     const at = new Date().toISOString();
