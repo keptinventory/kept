@@ -13,7 +13,6 @@ import { z } from 'zod';
 import type { ReasoningLevel } from './ai.js';
 import type { ExtractionMode } from './capture.js';
 import { SERVICE_LINE_KINDS } from './household.js';
-import { MAP_ROOM_KINDS } from './map.js';
 
 /** `extractions.status` (`waiting_provider` is D206's: the provider's rate limit, an open
  * breaker or a rejected key, never a budget). The database CHECK reads this list (0037). */
@@ -161,6 +160,10 @@ export const ReadingExtraction = z.object({
   display: z.enum(['digital', 'analog']).optional(),
 });
 
+/** A plan room's kind: map.ts's MAP_ROOM_KINDS, written out here so the capture code's chunk
+ * never pulls in the map's (floor-plan.test.ts checks they agree). */
+export const PLAN_ROOM_KINDS = ['room', 'balcony', 'terrace', 'garden'] as const;
+
 /** A floor plan (D266): at most this many floors, rooms, doors and corners a room. */
 export const PLAN_LIMITS = Object.freeze({ floors: 6, rooms: 60, doors: 40, corners: 12 });
 
@@ -183,7 +186,7 @@ export const PlanRoom = z.object({
   corners: z.array(point).min(4).max(PLAN_LIMITS.corners).optional(),
   /** The size printed for this room, copied exactly with its units. */
   size_text: conf(text(40)).optional(),
-  kind: z.enum(MAP_ROOM_KINDS).optional(),
+  kind: z.enum(PLAN_ROOM_KINDS).optional(),
 });
 
 /** PLAN (D266): the rooms of a floor plan, the floors they are on, and what gives the scale. */

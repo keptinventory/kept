@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { estimateImageTokens, PROVIDER_KINDS } from './ai.js';
-import { MAX_OUTPUT_TOKENS, PLAN_LIMITS, PlanExtraction, parseLenient } from './extraction.js';
+import {
+  MAX_OUTPUT_TOKENS,
+  PLAN_LIMITS,
+  PLAN_ROOM_KINDS,
+  PlanExtraction,
+  parseLenient,
+} from './extraction.js';
 import {
   type AnswerOpts,
   answerFor,
@@ -21,7 +27,7 @@ import {
   planEstimate,
   turnDrafts,
 } from './floor-plan.js';
-import { firstOverlap, MAP_LIMITS, type MapRect, mToCm } from './map.js';
+import { firstOverlap, MAP_LIMITS, MAP_ROOM_KINDS, type MapRect, mToCm } from './map.js';
 
 const close = (a: number, b: number, tol = 0.011) => Math.abs(a - b) <= tol;
 const pair = (v: [number, number] | null) => v?.map((x) => Math.round(x * 100) / 100) ?? null;
@@ -686,6 +692,10 @@ describe('PlanExtraction with parseLenient', () => {
     expect(r?.dropped).toEqual([]);
     expect(r?.value.rooms?.[0]?.corners).toHaveLength(4);
   });
+});
+
+describe('a plan room’s kinds', () => {
+  it('are the map’s room kinds', () => expect([...PLAN_ROOM_KINDS]).toEqual([...MAP_ROOM_KINDS]));
 });
 
 describe('planEstimate (§10.5)', () => {
