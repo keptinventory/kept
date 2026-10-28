@@ -1,4 +1,5 @@
 import { newId } from '@kept/shared';
+import type { LightMyRequestResponse } from 'fastify';
 import type pg from 'pg';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
@@ -15,6 +16,7 @@ let t: TestApp;
 let ola: Person;
 let vic: Person;
 let bob: Person;
+let ann: Person;
 let home: string;
 let bobs: string;
 let bedroom: string;
@@ -59,18 +61,41 @@ async function folds(as: Person, locationId: string): Promise<string[]> {
   return (res.json() as { placeIds: string[] }).placeIds;
 }
 
-const putFolds = (as: Person, locationId: string, placeIds: string[]) =>
-  call(t, url(locationId), { as, method: 'PUT', body: { placeIds } });
+type Delta = { fold?: string[]; open?: string[] };
+
+const putFolds = (as: Person, locationId: string, delta: Delta) =>
+  call(t, url(locationId), { as, method: 'PUT', body: { fold: [], open: [], ...delta } });
+
+/** Opens everything `as` folded in `locationId`, as "Open all" does. */
+const openAll = async (as: Person, locationId: string) =>
+  putFolds(as, locationId, { open: await folds(as, locationId) });
+
+async function makeToken(who: Person, scope: 'read' | 'write', locationIds: string[]) {
+  const res = await call(t, '/api/v1/tokens', {
+    as: who,
+    body: { name: 'Home Assistant', scope, locationIds },
+  });
+  expect(res.statusCode, res.body).toBe(201);
+  return (res.json() as { secret: string }).secret;
+}
+
+const bearer = (secret: string, path: string, body?: unknown): Promise<LightMyRequestResponse> =>
+  call(t, path, {
+    ...(body === undefined ? {} : { method: 'PUT', body }),
+    headers: { authorization: `Bearer ${secret}` },
+  });
 
 beforeAll(async () => {
   db = await testDb();
   await db.reset();
-  t = await peopleApp(db);
+  t = await peopleApp(db, { publicUrl: 'https://kept.example' });
   ola = await person(t, db, 'ola');
   vic = await person(t, db, 'vic');
   bob = await person(t, db, 'bob');
+  ann = await person(t, db, 'ann');
   home = await createLocation(ola, 'Home');
   await join(db, home, vic.userId, 'viewer');
+  await join(db, home, ann.userId, 'member');
   bobs = await createLocation(bob, 'Bob home');
   bedroom = await place(home, 'Bedroom');
   underBed = await place(home, 'Under bed', bedroom);
@@ -82,17 +107,24 @@ describe('GET and PUT /api/v1/locations/:locationId/place-folds', () => {
   it('starts with nothing folded, and needs a session', async () => {
     expect(await folds(ola, home)).toEqual([]);
     expect((await call(t, url(home))).statusCode).toBe(401);
-    expect((await putFolds({ ...ola, cookie: '' }, home, [bedroom])).statusCode).toBe(401);
+    expect((await putFolds({ ...ola, cookie: '' }, home, { fold: [bedroom] })).statusCode).toBe(
+      401,
+    );
   });
 
   // Not audited: the PUT is on test/route-catalogue.test.ts's allowlist.
-  it('replaces the set each time, the same on every device, and writes no audit row', async () => {
-    expect((await putFolds(ola, home, [underBed, bedroom])).statusCode).toBe(204);
+  it('folds and opens only the places it names, keeping the rest, and writes no audit row', async () => {
+    expect((await putFolds(ola, home, { fold: [underBed, bedroom] })).statusCode).toBe(204);
     expect((await folds(ola, home)).sort()).toEqual([bedroom, underBed].sort());
-    // "Open all" sends an empty set; a toggle sends the whole new set.
-    expect((await putFolds(ola, home, [wardrobe])).statusCode).toBe(204);
-    expect(await folds(ola, home)).toEqual([wardrobe]);
-    expect((await putFolds(ola, home, [])).statusCode).toBe(204);
+    // A device that never read the folds sends only its own change: the others stay.
+    expect((await putFolds(ola, home, { fold: [wardrobe], open: [underBed] })).statusCode).toBe(
+      204,
+    );
+    expect((await folds(ola, home)).sort()).toEqual([bedroom, wardrobe].sort());
+    // Folding a folded place, or opening an open one, changes nothing.
+    expect((await putFolds(ola, home, { fold: [bedroom], open: [underBed] })).statusCode).toBe(204);
+    expect((await folds(ola, home)).sort()).toEqual([bedroom, wardrobe].sort());
+    await openAll(ola, home);
     expect(await folds(ola, home)).toEqual([]);
     const audit = await own(
       `SELECT action FROM public.audit_events WHERE actor_id = $1 AND action LIKE 'place%'`,
@@ -101,49 +133,88 @@ describe('GET and PUT /api/v1/locations/:locationId/place-folds', () => {
     expect(audit).toEqual([]);
   });
 
+  it('two changes sent at the same moment are both kept', async () => {
+    const [a, b] = await Promise.all([
+      putFolds(ola, home, { fold: [bedroom] }),
+      putFolds(ola, home, { fold: [underBed] }),
+    ]);
+    expect([a?.statusCode, b?.statusCode]).toEqual([204, 204]);
+    expect((await folds(ola, home)).sort()).toEqual([bedroom, underBed].sort());
+    await openAll(ola, home);
+  });
+
   it("is each person's own: a viewer folds too, and sees only their own folds", async () => {
-    await putFolds(ola, home, [bedroom]);
-    expect((await putFolds(vic, home, [underBed])).statusCode).toBe(204);
+    await putFolds(ola, home, { fold: [bedroom] });
+    expect((await putFolds(vic, home, { fold: [underBed] })).statusCode).toBe(204);
     expect(await folds(vic, home)).toEqual([underBed]);
     expect(await folds(ola, home)).toEqual([bedroom]);
-    await putFolds(ola, home, []);
-    await putFolds(vic, home, []);
+    await openAll(ola, home);
+    await openAll(vic, home);
   });
 
   it("drops ids that aren't places in the location, and keeps the other location's folds", async () => {
-    expect((await putFolds(bob, bobs, [bobsShed])).statusCode).toBe(204);
+    expect((await putFolds(bob, bobs, { fold: [bobsShed] })).statusCode).toBe(204);
     // Bob's shed sent with Home's places, and an id that is no place at all.
-    expect((await putFolds(ola, home, [bedroom, bobsShed, newId()])).statusCode).toBe(204);
+    expect(
+      (await putFolds(ola, home, { fold: [bedroom, bobsShed, newId()], open: [bobsShed] }))
+        .statusCode,
+    ).toBe(400);
+    expect((await putFolds(ola, home, { fold: [bedroom, bobsShed, newId()] })).statusCode).toBe(
+      204,
+    );
+    expect((await putFolds(ola, home, { open: [bobsShed] })).statusCode).toBe(204);
     expect(await folds(ola, home)).toEqual([bedroom]);
     expect(await folds(bob, bobs)).toEqual([bobsShed]);
-    await putFolds(ola, home, []);
+    await openAll(ola, home);
   });
 
   it("is a 404 in a location the caller isn't in, and a 400 for a body that isn't ids", async () => {
     expect((await call(t, url(bobs), { as: ola })).statusCode).toBe(404);
-    expect((await putFolds(ola, bobs, [bobsShed])).statusCode).toBe(404);
+    expect((await putFolds(ola, bobs, { open: [bobsShed] })).statusCode).toBe(404);
     expect(await folds(bob, bobs)).toEqual([bobsShed]);
-    expect(
-      (await call(t, url(home), { as: ola, method: 'PUT', body: { placeIds: ['x'] } })).statusCode,
-    ).toBe(400);
-    expect(
-      (await call(t, url(home), { as: ola, method: 'PUT', body: { placeIds: [], more: 1 } }))
-        .statusCode,
-    ).toBe(400);
+    const put = (body: unknown) => call(t, url(home), { as: ola, method: 'PUT', body });
+    expect((await put({ fold: ['x'], open: [] })).statusCode).toBe(400);
+    expect((await put({ fold: [], open: [], more: 1 })).statusCode).toBe(400);
+    // The old whole-set body is refused, so a stale tab can't erase the others.
+    expect((await put({ placeIds: [] })).statusCode).toBe(400);
+    const many = Array.from({ length: 5001 }, () => newId());
+    expect((await put({ fold: many, open: [] })).statusCode).toBe(400);
+    expect((await put({ fold: [], open: many })).statusCode).toBe(400);
   });
 
-  it('a deleted place takes its fold with it, and a member who left no longer reads theirs', async () => {
+  it('is closed to personal tokens, read or write, on both routes', async () => {
+    for (const scope of ['read', 'write'] as const) {
+      const secret = await makeToken(ola, scope, [home]);
+      const get = await bearer(secret, url(home));
+      expect(get.statusCode, get.body).toBe(403);
+      expect((get.json() as { code: string }).code).toBe('token_scope');
+      const put = await bearer(secret, url(home), { fold: [bedroom], open: [] });
+      expect(put.statusCode, put.body).toBe(403);
+      expect((put.json() as { code: string }).code).toBe('token_scope');
+    }
+    expect(await folds(ola, home)).toEqual([]);
+  });
+
+  it('a deleted place takes its fold with it', async () => {
     const attic = await place(home, 'Attic');
-    await putFolds(vic, home, [attic, bedroom]);
+    await putFolds(vic, home, { fold: [attic, bedroom] });
     await own('DELETE FROM public.places WHERE id = $1', [attic]);
     expect(await folds(vic, home)).toEqual([bedroom]);
+    await openAll(vic, home);
+  });
+
+  it("leaving a location drops your folds there, and keeps everyone else's", async () => {
+    await putFolds(ann, home, { fold: [bedroom, underBed] });
+    await putFolds(ola, home, { fold: [wardrobe] });
     await own('DELETE FROM public.memberships WHERE location_id = $1 AND user_id = $2', [
       home,
-      vic.userId,
+      ann.userId,
     ]);
-    expect((await call(t, url(home), { as: vic })).statusCode).toBe(404);
-    // Row-level security, not only the route: their row is there, and out of their sight.
-    const rows = await own('SELECT 1 FROM public.place_folds WHERE user_id = $1', [vic.userId]);
-    expect(rows).toHaveLength(1);
+    expect((await call(t, url(home), { as: ann })).statusCode).toBe(404);
+    expect(await own('SELECT 1 FROM public.place_folds WHERE user_id = $1', [ann.userId])).toEqual(
+      [],
+    );
+    expect(await folds(ola, home)).toEqual([wardrobe]);
+    await openAll(ola, home);
   });
 });

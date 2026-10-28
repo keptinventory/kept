@@ -362,6 +362,8 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.stale_import_runs(timestamp with time zone,integer)': SYSTEM_ONLY,
   'kept.clear_import_run(uuid)': SYSTEM_ONLY,
   'kept.end_portability_runs_in(uuid,uuid)': OWNER_ONLY,
+  // Migration 0164 (#358): leaving a location drops the person's folds in its place tree.
+  'kept.drop_place_folds_in(uuid,uuid)': OWNER_ONLY,
   // Migration 0083: a running Kept import's history and label codes, and their owner-only checks.
   'kept.import_history(uuid,jsonb)': APP_ONLY,
   'kept.adopt_short_code(uuid,character,text,uuid,uuid)': APP_ONLY,
