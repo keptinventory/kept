@@ -7,7 +7,7 @@
  *
  * 1. **Claim** (one short transaction): the extraction, locked; gone or no longer writable → done.
  *    Only `queued`, `paused_budget`, `waiting_provider` (a re-sent pause) and a `running` one left
- *    behind by a crashed worker (untouched for the job's 90 s expiry) run; anything else was
+ *    behind by a crashed worker (untouched for the job's 150 s expiry) run; anything else was
  *    superseded or replayed. AI capture must be effective in the location and allowed to the
  *    person (`ai.capture`), else `no_provider`: the capture stays an ordinary draft (D19). On, but
  *    with no provider resolving: `waiting_provider` / `no_provider` until one is connected. Then

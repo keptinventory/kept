@@ -1,7 +1,7 @@
 /**
  * The `enrich-aliases` tenant job (D41, D69, D214). Sent by
  * POST /api/v1/imports/:id/enrich in the requester's scope, with `{runId, jobId}` only; each run
- * of the job is **one batch, one model call** (its policy is extraction's: 90 s, two retries),
+ * of the job is **one batch, one model call** (its policy is extraction's: 150 s, two retries),
  * and it sends itself again for the next batch with the id it stopped after. The run's state is
  * `import_runs.inspect.enrich` (no migration: the run's own summary column, kept_app's to write
  * for the location's owners and admins), which the estimate route answers with.
