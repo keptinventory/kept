@@ -18,6 +18,12 @@ one-time reset link on the server with `kept admin reset-password` ([the CLI](/a
 A managed account (a username, no email) gets a new one-time code instead, from whoever made the
 account or the location's owner ([people without email](/users/first-run/#people-without-email)).
 
+### A sign-in link doesn't work
+
+A link from **Email me a sign-in link** works once, for 15 minutes: ask for a new one. A link
+mailed before your Kept was upgraded to 1.14.0 no longer works at all, nor does a Google or OIDC
+sign-in started before it ([upgrades](/admin/upgrades/#sign-in-links-1140)).
+
 ### My passkey doesn't work
 
 - **Passkeys need HTTPS.** On a plain `http://` address the browser offers none
@@ -99,7 +105,8 @@ What AI fills in is a suggestion. Open the thing and correct the name, brand, mo
 
 Make sure the label is flat and well lit, and clean the camera lens. **Type the code** takes the six
 characters printed under the QR code, with or without the dash. A worn label reprints with the same
-code ([Short IDs and labels](/users/short-ids/)).
+code ([Short IDs and labels](/users/short-ids/)). A label on narrow label-maker tape has no QR code:
+hold **Scan** on its printed short ID, or type it.
 
 ## AI
 
@@ -131,7 +138,8 @@ Set a monthly limit under **Settings → AI → Advanced → Limits**, choose a 
 ### Something doesn't work offline
 
 Working offline needs Kept installed from an HTTPS address. Browsing, search and capture work
-without a connection; editing details, the assistant, reports and anything with money need one.
+without a connection; editing details, the assistant, reports, the map, the graph and anything
+with money need one.
 The full list: [what works offline](/users/phone-app/#what-works-offline).
 
 ## Getting help
