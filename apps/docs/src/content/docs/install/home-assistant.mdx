@@ -6,6 +6,8 @@ sidebar:
   label: Home Assistant
 ---
 
+import HomeAssistantButton from '../../../components/HomeAssistantButton.astro';
+
 :::caution[Not available yet]
 The Home Assistant app is being tested and isn't in the repository's app list yet. Until it is,
 install Kept [with Docker Compose](/install/compose/) and connect it with the
@@ -17,7 +19,7 @@ Docker Compose, no passwords to make, and Home Assistant's backups include it.
 
 ## Install
 
-[![Open your Home Assistant instance and show the add app repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fkeptinventory%2Fkept)
+<HomeAssistantButton />
 
 1. **Settings → Apps → Install app → ⋮ → Repositories**, add
    `https://github.com/keptinventory/kept` (or use the button above).
@@ -26,13 +28,14 @@ Docker Compose, no passwords to make, and Home Assistant's backups include it.
 
 | You need | |
 |---|---|
-| Home Assistant OS | Apps need the Supervisor: not Home Assistant Container or Core |
+| Home Assistant OS | Apps need the Supervisor: not Home Assistant Container or Core. Supervisor 2026.10.4 or later |
 | `aarch64` or `amd64` | A Raspberry Pi 4 or 5 on 64-bit, a mini PC, a VM |
 | 4 GB of memory | 2 GB works with few other apps; Kept with its database uses about 250–320 MB idle |
 
 ## First start
 
-- A Home Assistant **administrator** who opens Kept from Home Assistant sets it up without a code.
+- A Home Assistant **administrator** who opens Kept from Home Assistant sets it up without a code
+  (Supervisor 2026.10.4 or later; before that the code is needed).
 - Anyone else types the setup code from the app's **Log** tab (`KEPT SETUP CODE: XXX-XXX`).
 - Kept has its own accounts. People sign in to Kept once, also inside Home Assistant; household
   members don't need to be Home Assistant administrators to use it from the sidebar.
@@ -62,14 +65,17 @@ then don't open.
 | Passkeys, the camera, installing the phone app, push | no | yes |
 
 Inside Home Assistant, Kept counts as https only when Home Assistant itself is served over https.
-Passkeys belong to Kept's own address: sign in with one there. More on
+A proxy in front of Home Assistant that ends TLS must send `X-Forwarded-Proto: https`, or Kept sees
+plain http. Passkeys belong to Kept's own address: sign in with one there. More on
 [the home network](/install/home-network/).
 
 ## Backups and updates
 
-- **Backups:** Home Assistant's backups include Kept: the database (dumped at backup time), photos,
-  files and Kept's keys. Keep Home Assistant's backup encryption on. Restoring the backup brings
-  Kept back; the first start after a restore takes a little longer.
+- **Backups:** Home Assistant's backups include Kept: the database as a dump, photos, files and
+  Kept's keys. Keep Home Assistant's backup encryption on. Restoring the backup brings Kept back;
+  the first start after a restore takes a little longer.
+- **A backup while Kept is stopped** holds the dump Kept wrote when it last stopped cleanly: Home
+  Assistant asks only a running app for a fresh one. After a crash, start Kept before backing up.
 - **Kept's own backups** (Admin → Backups) aren't available in the app: they need the database
   owner's login, which the app keeps from the running server.
 - **Updates:** the app's version is Kept's. An update keeps Kept's data and upgrades its database
