@@ -16,6 +16,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useState } from 'react';
 import { Radio, RadioGroup } from 'react-aria-components';
 import type { LabelCellContent } from '@/api/capture/types';
+import { publicOrigin } from '@/lib/base-path';
 import { isolate } from '@/lib/bidi';
 import { useFormat } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -26,7 +27,7 @@ import type { Encode } from './qr';
 
 /** A blank label's stand-in before the batch gives it a code: the same layout, a sample code. */
 export function blankSample(): LabelCellContent {
-  const origin = typeof window === 'undefined' ? '' : window.location.origin;
+  const origin = publicOrigin();
   return { code: '000000', url: `${origin}/l/000000`, kind: 'blank' };
 }
 

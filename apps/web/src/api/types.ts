@@ -43,6 +43,9 @@ export type SetupStatus = {
   oidc?: { name: string } | null;
   /** 1.2 (D226): "Sign in with Google" is offered. */
   google?: boolean;
+  /** D272: only in the Home Assistant app. `codeNeeded: false` for a Home Assistant
+   * administrator through ingress, who sets up without the code (D273). */
+  homeAssistant?: { codeNeeded: boolean };
 };
 
 /** One way into the account, as Better Auth lists it (never its tokens). `id` is Better Auth's
@@ -53,7 +56,8 @@ export type SignInMethod = {
   accountId: string;
   createdAt: string;
 };
-export type SetupBody = { code: string; email: string; password: string; displayName: string };
+/** `code` is left out only by a Home Assistant administrator through ingress (D273). */
+export type SetupBody = { code?: string; email: string; password: string; displayName: string };
 export type SetupResult = { userId: string };
 
 /** POST /api/v1/auth/sign-up: always 202 `{next: 'sign-in'}`, taken address or not. */
@@ -515,6 +519,8 @@ export type AdminAlert = {
 export type AdminStatus = {
   version: string;
   dbOk: boolean;
+  /** D272: present (true) only when Kept runs as the Home Assistant app. */
+  homeAssistant?: true;
   alerts: number;
   recoveryKitAcknowledged: boolean;
   /** `configured: false`: KEPT_SMTP_URL is unset, so no link, invite or alert mail goes out. */

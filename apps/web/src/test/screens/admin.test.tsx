@@ -249,6 +249,19 @@ describe('Instance admin', () => {
     expect(screen.getByText('Kept safe')).toBeInTheDocument();
   });
 
+  it('Status: says when Kept runs as a Home Assistant app, and only then', async () => {
+    const state = ownerScenario();
+    state.admin.status.homeAssistant = true;
+    await renderApp('/admin/status', { state });
+    expect(await screen.findByText('Running as a Home Assistant app')).toBeInTheDocument();
+  });
+
+  it('Status: says nothing about Home Assistant on other installs', async () => {
+    await renderApp('/admin/status');
+    expect(await screen.findByText('Database')).toBeInTheDocument();
+    expect(screen.queryByText('Running as a Home Assistant app')).toBeNull();
+  });
+
   it('Status: says when mail is not configured', async () => {
     const state = ownerScenario();
     state.admin.status.mail = { configured: false };

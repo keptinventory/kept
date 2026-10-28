@@ -31,6 +31,7 @@ import { IdChip, printedCode } from '@/components/id-chip';
 import { TagChips } from '@/components/tags/chip';
 import { useTypeName } from '@/components/things/names';
 import { QrCode } from '@/components/ui/qr-code';
+import { publicOrigin } from '@/lib/base-path';
 import { useFormat } from '@/lib/format';
 import { HeightField } from './height';
 import { useModelNames, useRoomKindNames, useSurfaceNames } from './labels';
@@ -143,7 +144,7 @@ function StatusRows({ rows }: { rows: MapAttention[] }) {
 function IdBlock({ code, place }: { code: string | null; place: boolean }) {
   const { t } = useLingui();
   if (!code) return null;
-  const url = `${window.location.origin}/l/${code}`;
+  const url = `${publicOrigin()}/l/${code}`;
   const printed = printedCode(code);
   return (
     <div className="kmap-idrow">

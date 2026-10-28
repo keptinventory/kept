@@ -208,6 +208,11 @@ function StatusPage() {
           </Trans>
         </Notice>
       )}
+      {s.homeAssistant ? (
+        <Notice tone="info">
+          <Trans>Running as a Home Assistant app</Trans>
+        </Notice>
+      ) : null}
       <OpsNotices s={s} />
       {s.reminders !== undefined ? <RemindersNotice reminders={s.reminders} /> : null}
       <RecoveryKitNotice acknowledged={s.recoveryKitAcknowledged} />

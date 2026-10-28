@@ -6,6 +6,7 @@
  * connection" instead of a generic error.
  */
 import { type ErrorCode, isErrorCode } from '@kept/shared';
+import { withBaseDeep } from '@/lib/base-path';
 import { asOrigin, noteOriginMismatch } from '@/lib/origin-mismatch';
 
 export type ApiErrorCode = ErrorCode | 'offline';
@@ -186,7 +187,8 @@ async function send<T>(path: string, opts: RequestOptions): Promise<{ body: T; r
   if (!res.ok) throw await toApiError(res);
   if (res.status === 204) return { body: undefined as T, res };
   const text = await res.text();
-  return { body: (text ? JSON.parse(text) : undefined) as T, res };
+  // Under Home Assistant ingress the server's `/f/…` file URLs go under the prefix (D273).
+  return { body: withBaseDeep((text ? JSON.parse(text) : undefined) as T), res };
 }
 
 export async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {

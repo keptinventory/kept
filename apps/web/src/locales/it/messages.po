@@ -27997,3 +27997,15 @@ msgstr "Tipo di {title}"
 #: src/components/history/labels.ts
 msgid "Paperless document changed"
 msgstr "Documento Paperless modificato"
+
+#: src/routes/setup.tsx
+msgid "Set up by a Home Assistant administrator"
+msgstr "Configurato da un amministratore di Home Assistant"
+
+#: src/routes/setup.tsx
+msgid "Your setup code is on the app's Log tab in Home Assistant."
+msgstr "Il codice di configurazione è nella scheda «Registro» dell’app in Home Assistant."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Running as a Home Assistant app"
+msgstr "In esecuzione come app di Home Assistant"

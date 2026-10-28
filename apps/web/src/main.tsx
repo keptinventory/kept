@@ -4,6 +4,12 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createQueryClient } from '@/api/queries';
 import { activateLocale, i18n } from '@/i18n/i18n';
+import {
+  ingressBase,
+  installIngressPrefixing,
+  routerBasepath,
+  underIngress,
+} from '@/lib/base-path';
 import { initialLocale, setLocale, storedDigits, watchSystemTheme } from '@/lib/prefs';
 import { captureInstallPrompt } from '@/pwa/install';
 import { registerServiceWorker } from '@/pwa/register';
@@ -22,14 +28,27 @@ try {
   sessionStorage.removeItem('kept.bootRetry');
 } catch {}
 
+// Home Assistant ingress (D273): server paths go under the page's prefix, before anything fetches.
+// Elsewhere a no-op.
+installIngressPrefixing();
+
 const queryClient = createQueryClient();
 // Try Kept (D246, try/flag.ts) is served from a static host's sub-path with one index.html: hash
 // history keeps every route, and a reload of one, inside that page.
+// Under Home Assistant ingress the app lives under the prefix the server put in <base href>.
 const router = createRouter({
   routeTree,
   context: { queryClient },
-  ...(TRY ? { history: createHashHistory() } : {}),
+  ...(TRY ? { history: createHashHistory() } : { basepath: routerBasepath() }),
 });
+
+/** Under ingress nothing installs: a worker left at the prefix's scope (none is ever registered
+ * there) would only serve stale pages inside Home Assistant. */
+async function dropIngressWorkers(): Promise<void> {
+  const scope = `${location.origin}${ingressBase()}/`;
+  const regs = (await navigator.serviceWorker?.getRegistrations?.()) ?? [];
+  await Promise.all(regs.filter((r) => r.scope.startsWith(scope)).map((r) => r.unregister()));
+}
 
 declare module '@tanstack/react-router' {
   interface Register {
@@ -48,11 +67,15 @@ async function start() {
   // The service worker exists only in a build (vite.config.ts); it registers only in a secure
   // context (pwa/register.ts). The install prompt is caught before the browser offers its own.
   // Try Kept (D246) installs nothing: no worker, no install prompt.
-  if (!TRY) captureInstallPrompt();
+  // Under Home Assistant ingress (D273) neither: no worker, no manifest, no install; offline and
+  // the installed app are Kept's own address's job.
+  const ingress = underIngress();
+  if (!TRY && !ingress) captureInstallPrompt();
   // A share link's page (`/s/<token>`, D233) is for someone without an account: no offline app
   // is installed for them.
-  if (import.meta.env.PROD && !TRY && !window.location.pathname.startsWith('/s/'))
+  if (import.meta.env.PROD && !TRY && !ingress && !window.location.pathname.startsWith('/s/'))
     registerServiceWorker();
+  if (ingress) void dropIngressWorkers().catch(() => undefined);
   const locale = initialLocale();
   // Offline, a catalogue that was never loaded online isn't cached (sw.ts): fall back to English,
   // then to no catalogue, so the shell still renders.

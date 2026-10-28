@@ -29,6 +29,7 @@ import { LinkButton, Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { PasswordField } from '@/components/ui/password-field';
 import { TextField } from '@/components/ui/text-field';
+import { publicOrigin, underIngress } from '@/lib/base-path';
 import { nextSearch } from '@/lib/next';
 import { expectedOriginOf } from '@/lib/origin-mismatch';
 
@@ -67,6 +68,17 @@ const WRONG_CREDENTIALS = new Set([
 ]);
 
 const looksLikeEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+
+/** A passkey belongs to Kept's own host name (its rpID). Under Home Assistant ingress (D273) the
+ * page is on Home Assistant's, so passkey sign-in is offered only when the two are the same. */
+function passkeysHere(): boolean {
+  if (!underIngress()) return true;
+  try {
+    return new URL(publicOrigin()).hostname === window.location.hostname;
+  } catch {
+    return false;
+  }
+}
 
 function SignInPage() {
   const { t } = useLingui();
@@ -268,7 +280,7 @@ function SignInPage() {
           <MailIcon />
           <Trans>Email me a sign-in link</Trans>
         </Button>
-        {passkeysSupported() ? (
+        {passkeysSupported() && passkeysHere() ? (
           <Button
             variant="secondary"
             isPending={passkey$.isPending}
