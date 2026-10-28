@@ -52,6 +52,7 @@ jobs:
   #           (strict up-to-date + squash make them identical), so nothing runs twice
   #   unit    fast's unit tests and evaluations (scripts/ci-changes.sh: false for prose only)
   #   heavy   db, e2e, the images and helm (false for prose and the docs site only)
+  #   docs    the docs site is all that changed: fast runs only its tests (@kept/docs)
   changes:
     if: github.event.repository.private == false
     runs-on: ubuntu-latest
@@ -64,6 +65,7 @@ jobs:
       reused: ${{ steps.decide.outputs.reused }}
       unit: ${{ steps.decide.outputs.unit }}
       heavy: ${{ steps.decide.outputs.heavy }}
+      docs: ${{ steps.decide.outputs.docs }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -116,8 +118,11 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # lint, catalogues, typecheck, the unit tests (no database) and the mock evaluation.
-      - if: needs.changes.outputs.unit != 'false'
+      - if: needs.changes.outputs.unit != 'false' && needs.changes.outputs.docs != 'true'
         run: bash scripts/ci-local.sh --fast
+      # The docs site only: the checks that read every file, and the docs site's own tests.
+      - if: needs.changes.outputs.docs == 'true'
+        run: bash scripts/ci-local.sh --only lint,catalogues,typecheck && pnpm exec vitest run --project @kept/docs
       # Prose only (scripts/ci-changes.sh): the checks that read every file, no unit tests.
       - if: needs.changes.outputs.unit == 'false'
         run: bash scripts/ci-local.sh --only lint,catalogues,typecheck
