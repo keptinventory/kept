@@ -20,7 +20,7 @@ import { type LabelStock, printedCode } from '@kept/shared';
 import { useMemo } from 'react';
 import type { LabelCellContent } from '@/api/capture/types';
 import { FIT_LINE_HEIGHT, type FittedText, fitLabel, type TextMeasure } from './fit';
-import { cellMetrics, LABEL_MONO, LABEL_SANS, mm, PLACE_INK } from './layout';
+import { CODE_TRACKING, cellMetrics, LABEL_MONO, LABEL_SANS, mm, PLACE_INK } from './layout';
 import { type Encode, qrMatrix, qrPath } from './qr';
 
 export function LabelCell({
@@ -55,7 +55,7 @@ export function LabelCell({
         fontFamily: LABEL_MONO,
         fontSize: mm(m.code),
         lineHeight: 1,
-        letterSpacing: '0.06em',
+        letterSpacing: `${CODE_TRACKING}em`,
       }}
     >
       {printedCode(label.code)}

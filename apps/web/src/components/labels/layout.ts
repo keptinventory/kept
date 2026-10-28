@@ -104,6 +104,9 @@ export const PATH_MIN = 2.0;
 /** The place line's ink: near-black, so it reads on paper. */
 export const PLACE_INK = '#222222';
 
+/** The space between the code's characters, in em: the HTML label and the PNG both set it. */
+export const CODE_TRACKING = 0.06;
+
 /** Plex Mono's advance is 0.6 em; the code is set 0.06 em apart, 7 characters with the hyphen. */
 const CODE_EM = 7 * 0.66;
 

@@ -62,10 +62,12 @@ type Text = {
   direction: string;
   align: string;
   font: string;
+  letterSpacing: string;
 };
 
-/** A context that paints rectangles into RGBA pixels and records text. */
-function raster(width: number, height: number) {
+/** A context that paints rectangles into RGBA pixels and records text. Without `letterSpacing`
+ * it stands for a browser whose canvas has none. */
+function raster(width: number, height: number, { letterSpacing = true } = {}) {
   const px = new Uint8ClampedArray(width * height * 4).fill(128);
   const texts: Text[] = [];
   const ctx = {
@@ -74,6 +76,7 @@ function raster(width: number, height: number) {
     textAlign: 'start' as CanvasTextAlign,
     textBaseline: 'alphabetic' as CanvasTextBaseline,
     direction: 'inherit' as CanvasDirection,
+    ...(letterSpacing ? { letterSpacing: '0px' } : {}),
     fillRect(x: number, y: number, w: number, h: number) {
       const v = this.fillStyle === '#FFFFFF' ? 255 : 0;
       for (let yy = Math.max(0, y); yy < Math.min(height, y + h); yy++)
@@ -86,7 +89,15 @@ function raster(width: number, height: number) {
         }
     },
     fillText(text: string, x: number, y: number) {
-      texts.push({ text, x, y, direction: this.direction, align: this.textAlign, font: this.font });
+      texts.push({
+        text,
+        x,
+        y,
+        direction: this.direction,
+        align: this.textAlign,
+        font: this.font,
+        letterSpacing: (this as { letterSpacing?: string }).letterSpacing ?? '0px',
+      });
     },
     measureText(text: string) {
       const size = Number(/(\d+)px/.exec(this.font)?.[1] ?? 10);
@@ -190,6 +201,7 @@ describe('tape', () => {
         drawText(ink, face, {
           text: t.text.replace('\u2011', '-'),
           size,
+          letterSpacing: Number.parseFloat(t.letterSpacing) / size,
           x: t.x + margin,
           y: t.y + margin + size * 1.025,
         });
@@ -200,6 +212,35 @@ describe('tape', () => {
       const read = readPrintedCode({ width: ink.width, height: ink.height, data });
       expect(read).toMatchObject({ code: 'K7D2QX', sure: true });
     }
+  });
+});
+
+describe('the code is set 0.06 em apart, as on the HTML label', () => {
+  const sizeOf = (t: Text) => Number(/(\d+)px/.exec(t.font)?.[1]);
+
+  it.each(['thermal_50x30', 'tape_12'] as const)('%s: through the canvas letterSpacing', (key) => {
+    const stock = labelStock(key);
+    const { width, height } = labelPixelSize(stock);
+    const { ctx, texts } = raster(width, height);
+    drawLabel(ctx, stock, label(), qrMatrix(encode, label().url));
+    const code = texts.find((t) => t.text === '7KQ‑4MZ') as Text;
+    expect(Number.parseFloat(code.letterSpacing)).toBeCloseTo(sizeOf(code) * 0.06, 5);
+    // Nothing else is spaced out.
+    for (const t of texts.filter((x) => x !== code)) expect(t.letterSpacing).toBe('0px');
+  });
+
+  it('one character at a time where the canvas has no letterSpacing', () => {
+    const stock = labelStock('tape_12');
+    const { width, height } = labelPixelSize(stock);
+    const { ctx, texts } = raster(width, height, { letterSpacing: false });
+    drawLabel(ctx, stock, label({ name: 'Spare keys' }), []);
+    const chars = texts.slice(0, 7);
+    expect(chars.map((t) => t.text).join('')).toBe('7KQ‑4MZ');
+    const size = sizeOf(chars[0] as Text);
+    // The stand-in measures 0.55 em a character.
+    for (let i = 1; i < chars.length; i++)
+      expect((chars[i] as Text).x - (chars[i - 1] as Text).x).toBeCloseTo(size * (0.55 + 0.06), 5);
+    expect(texts[7]?.text).toBe('Spare keys');
   });
 });
 
