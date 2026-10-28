@@ -140,6 +140,7 @@ const sidebar = [
       page('admin/move-server'),
     ]),
     page('users/faq'),
+    page('users/glossary'),
   ]),
   group('Run Kept', 'تشغيل Kept', [
     page('reference/configuration'),
@@ -162,6 +163,7 @@ const sidebar = [
     page('developers/contributing'),
     page('developers/data-model'),
     page('developers/rls'),
+    page('developers/security'),
     page('developers/migrations'),
     page('developers/auth'),
     page('developers/api'),
