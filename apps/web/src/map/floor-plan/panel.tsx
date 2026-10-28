@@ -17,6 +17,7 @@ import {
   Input,
   NumberField,
 } from 'react-aria-components';
+import { ChevronEndIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogFooter, Modal } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/field';
@@ -225,7 +226,7 @@ function FloorGroup(props: PanelProps & { floorIndex: number }) {
         <span className="kplan-floor-name">
           <bdi>{label}</bdi>
         </span>
-        <span aria-hidden="true">→</span>
+        <ChevronEndIcon aria-hidden="true" className="mb-3 size-4 shrink-0 text-ink-3" />
         <Select
           className="min-w-0 flex-1"
           label={t`Floor`}
