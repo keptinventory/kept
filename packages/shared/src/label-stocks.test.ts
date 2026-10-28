@@ -1,16 +1,39 @@
 import { describe, expect, it } from 'vitest';
-import { cellsFor, isSheet, LABEL_STOCKS, labelStock } from './label-stocks.js';
+import { cellsFor, hasQr, isSheet, isTape, LABEL_STOCKS, labelStock } from './label-stocks.js';
 
 describe('LABEL_STOCKS', () => {
-  it('has the six stocks, in order', () => {
+  it('has the ten stocks, in order', () => {
     expect(LABEL_STOCKS.map((s) => s.key)).toEqual([
       'thermal_50x30',
       'thermal_40x30',
       'thermal_62x29',
+      'tape_9',
+      'tape_12',
+      'tape_18',
+      'tape_24',
       'a4_24_70x37',
       'a4_65_38x21',
       'letter_30_67x25',
     ]);
+  });
+
+  it('has label-maker tape 9, 12, 18 and 24 mm wide: one label per thing, a QR from 18 mm', () => {
+    const tapes = LABEL_STOCKS.filter(isTape);
+    expect(tapes.map((s) => [s.key, s.cell.h, hasQr(s)])).toEqual([
+      ['tape_9', 9, false],
+      ['tape_12', 12, false],
+      ['tape_18', 18, true],
+      ['tape_24', 24, true],
+    ]);
+    for (const s of tapes) {
+      expect(isSheet(s)).toBe(false);
+      expect(s.content).toBe('tape');
+      // A label as long as a short code needs, and never longer than a hand's width.
+      expect(s.cell.w).toBeGreaterThanOrEqual(36);
+      expect(s.cell.w).toBeLessThanOrEqual(64);
+      expect(s.page).toEqual(s.cell);
+    }
+    expect(LABEL_STOCKS.filter((s) => !isTape(s)).every(hasQr)).toBe(true);
   });
 
   it.each(LABEL_STOCKS.map((s) => [s.key, s] as const))('%s fits its page', (_key, s) => {

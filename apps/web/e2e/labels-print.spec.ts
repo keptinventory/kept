@@ -541,3 +541,67 @@ test('"Label everything here" in a room, as places: the sheet lists the room and
   expect(batch.labels.find((l) => l.name === `Study ${tag}`)?.code).toBe(after.shortCode);
   await context.close();
 });
+
+test('12 mm tape (#303): one 50 × 12 mm page a label, the code and the name, no QR, and the preview is the print', async ({
+  browser,
+}) => {
+  test.setTimeout(120_000);
+  const { context, page } = await person(browser, 3);
+  const home = await homeId(page);
+  const names = ['Spare keys', 'Bike lock key'];
+  const { shelf } = await shelfWith(page, home, names);
+  await page.goto(`/labels?loc=${home}&unprinted=1&place=${shelf}`);
+  const stocks = page.getByRole('radiogroup', { name: 'Label stock' });
+  // The card itself, as a finger taps it (the radio inside is visually hidden).
+  await stocks.getByText('12 mm tape', { exact: true }).click();
+  await expect(stocks.getByRole('radio', { name: /^12 mm tape/ })).toBeChecked();
+  await expect(page.getByRole('button', { name: 'Print 2 labels' })).toBeEnabled();
+  await page.evaluate(() => document.fonts.ready);
+  // The builder's preview: the first label, at its printed proportions, no QR.
+  const preview = page.locator('div[data-slot="label"]');
+  await expect(preview).toHaveCount(1);
+  await expect(preview.locator('[data-slot="label-qr"]')).toHaveCount(0);
+  const previewText = await preview.textContent();
+
+  await page.getByRole('button', { name: 'Print 2 labels' }).click();
+  await expect(page.getByRole('region', { name: 'Sheet 1 of 2' })).toBeVisible();
+  const ask = page.getByRole('dialog', { name: 'Printed OK?' });
+  await ask.getByRole('button', { name: 'No, print again' }).click();
+  await expect(ask).toBeHidden();
+  const printed = page.locator('section[data-slot="sheet"] div[data-slot="label"]');
+  await expect(printed).toHaveCount(2);
+  // The print's first label is the preview's.
+  expect(await printed.first().textContent()).toBe(previewText);
+  expect(
+    await page.evaluate(() =>
+      document.adoptedStyleSheets.flatMap((s) => Array.from(s.cssRules, (r) => r.cssText)),
+    ),
+  ).toContainEqual(expect.stringMatching(/@page\s*\{\s*size: 50mm 12mm;\s*margin: 0(px)?;\s*\}/i));
+
+  // Each label prints on a page of its own at the label's size, its code as text, no QR.
+  await page.evaluate(() => document.fonts.ready);
+  const pdf = await page.pdf({ preferCSSPageSize: true });
+  test.info().attachments.push({ name: 'tape.pdf', contentType: 'application/pdf', body: pdf });
+  const doc = await getDocument({ data: new Uint8Array(pdf), useSystemFonts: false }).promise;
+  expect(doc.numPages).toBe(2);
+  const id = new URL(page.url()).pathname.split('/').pop() as string;
+  const batch = (await (await page.request.get(`/api/v1/labels/batches/${id}`)).json()) as {
+    stock: string;
+    labels: { code: string; name: string }[];
+  };
+  expect(batch.stock).toBe('tape_12');
+  for (let p = 1; p <= 2; p++) {
+    const one = await doc.getPage(p);
+    const [, , wPt, hPt] = one.view as [number, number, number, number];
+    expect(Math.abs(wPt * MM_PER_PT - 50)).toBeLessThan(0.5);
+    expect(Math.abs(hPt * MM_PER_PT - 12)).toBeLessThan(0.5);
+    const text = squash(
+      (await one.getTextContent()).items.map((i) => ('str' in i ? i.str : '')).join(' '),
+    );
+    const label = batch.labels[p - 1] as { code: string; name: string };
+    expect(text.replace(/\s/g, '')).toContain(label.code.slice(0, 3));
+    expect(text.replace(/\s/g, '')).toContain(label.code.slice(3));
+    expect(text).toContain(label.name);
+  }
+  await context.close();
+});

@@ -31,7 +31,8 @@ export type LabelContext = Pick<
   'fillRect' | 'fillText' | 'measureText' | 'font' | 'fillStyle' | 'textAlign' | 'textBaseline'
 > & { direction: CanvasDirection };
 
-/** Draws one label: white ground, the QR, the code, and on full stocks the name and path. */
+/** Draws one label: white ground, the QR (if the stock has one), the code, and the name and
+ * place where the stock prints them. */
 export function drawLabel(
   ctx: LabelContext,
   stock: LabelStock,
@@ -44,33 +45,43 @@ export function drawLabel(
   ctx.fillStyle = '#FFFFFF';
   ctx.fillRect(0, 0, width, height);
 
-  // The QR on whole pixels per module, centred in its square, so no module blurs.
+  // The QR on whole pixels per module, centred in its square, so no module blurs. Narrow tape has
+  // none: the code takes its place, in a column of its own.
   const side = pxOf(m.qr);
-  const n = matrix.length;
-  const unit = Math.max(1, Math.floor(side / n));
-  const qx = pad + Math.floor((side - unit * n) / 2);
-  const qy = Math.floor((height - unit * n) / 2);
-  ctx.fillStyle = '#000000';
-  matrix.forEach((row, y) => {
-    row.forEach((on, x) => {
-      if (on) ctx.fillRect(qx + x * unit, qy + y * unit, unit, unit);
+  if (m.qr > 0) {
+    const n = matrix.length;
+    const unit = Math.max(1, Math.floor(side / n));
+    const qx = pad + Math.floor((side - unit * n) / 2);
+    const qy = Math.floor((height - unit * n) / 2);
+    ctx.fillStyle = '#000000';
+    matrix.forEach((row, y) => {
+      row.forEach((on, x) => {
+        if (on) ctx.fillRect(qx + x * unit, qy + y * unit, unit, unit);
+      });
     });
-  });
+  }
 
-  const x0 = pad + side + pad;
+  const beside = m.codeColumn > 0;
+  const x0 = beside ? pad + pxOf(m.codeColumn) + pad : pad + side + pad;
   const textWidth = pxOf(m.text);
   const code = pxOf(m.code);
   type Block = { lines: string[]; step: number; font: string; color: string; rtl: boolean };
   const blocks: Block[] = [];
   ctx.textBaseline = 'top';
   ctx.font = `600 ${code}px ${LABEL_MONO}`;
-  blocks.push({
+  const codeBlock: Block = {
     lines: [printedCode(label.code)],
     step: code,
     font: ctx.font,
     color: '#000000',
     rtl: false,
-  });
+  };
+  if (beside) {
+    ctx.fillStyle = '#000000';
+    ctx.direction = 'ltr';
+    ctx.textAlign = 'left';
+    ctx.fillText(printedCode(label.code), pad, Math.round((height - code) / 2));
+  } else blocks.push(codeBlock);
   // The same lines and sizes as the HTML label (fit.ts), measured on this canvas.
   const measure: TextMeasure = (text, size, weight = 600) => {
     ctx.font = `${weight} 100px ${LABEL_SANS}`;
@@ -95,7 +106,8 @@ export function drawLabel(
   // Centred as a block beside the QR, like the HTML label.
   const gap = Math.round(pad * 0.6);
   const total =
-    blocks.reduce((sum, b) => sum + b.step * b.lines.length, 0) + gap * (blocks.length - 1);
+    blocks.reduce((sum, b) => sum + b.step * b.lines.length, 0) +
+    gap * Math.max(0, blocks.length - 1);
   let y = Math.max(pad, Math.round((height - total) / 2));
   for (const b of blocks) {
     ctx.font = b.font;

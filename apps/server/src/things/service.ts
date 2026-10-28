@@ -865,12 +865,15 @@ export async function writeThingUpdates(ctx: Ctx, updates: readonly BatchUpdate[
 /** POST /api/v1/things/:id/lifecycle (If-Match). `in_use` clears the end fields ("found", D119).
  * A caller whose gate hides money keeps whatever end price is stored while the thing stays ended,
  * and may not bring back into use a thing with an end price (409 module_off): either would erase
- * an amount it can't see. */
+ * an amount it can't see. `inUseNotes` (server callers only, never the route's body) sets the
+ * notes in the same write when it comes back in use, so the one event undoes both: the Homebox
+ * repair keeps the end it clears there (#346). */
 export async function setLifecycle(
   ctx: Ctx,
   id: string,
   expected: number,
   body: LifecycleBody,
+  inUseNotes?: string,
 ): Promise<ThingView> {
   const { client, tx, scope } = ctx;
   const thing = await writableThing(client, id, 'things.edit');
@@ -885,9 +888,10 @@ export async function setLifecycle(
     if (!gate.showMoney && before.ended_price !== null) throw moneyOff();
     await client.query(
       `UPDATE public.things SET lifecycle = 'in_use', ended_on = NULL, ended_price = NULL,
-              ended_currency = NULL, ended_to = NULL, ended_notes = NULL
+              ended_currency = NULL, ended_to = NULL, ended_notes = NULL,
+              notes = CASE WHEN $2::boolean THEN $3 ELSE notes END
         WHERE id = $1`,
-      [id],
+      [id, inUseNotes !== undefined, inUseNotes ?? null],
     );
   } else {
     const priced = body.endedPrice !== undefined || body.endedCurrency !== undefined;

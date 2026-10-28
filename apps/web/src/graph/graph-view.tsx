@@ -272,6 +272,8 @@ function GraphBody({ tree, address, focusId }: GraphProps & { tree: GraphTree })
         ) : null}
         <Segmented<Dim>
           aria-label={t`2D or 3D`}
+          // The guided tour points here (components/hints/tours.ts, the Graph & 3D map chapter).
+          data-tour="graph-dim"
           className="kgraph-seg dim"
           oneRow
           value={dim}

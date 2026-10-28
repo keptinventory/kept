@@ -5,6 +5,9 @@
  * - Point the camera at a label or a barcode; each read is resolved (./resolve.ts): the phone
  *   first, then the server. A Kept label for something you can see opens it at once and marks it
  *   seen (D40); every other outcome answers in a sheet over the camera.
+ * - **A printed code with no QR** (narrow tape, #303): read from its text on the phone
+ *   (camera/printed-text.ts). A clear read of a real code opens it as a QR does, and a toast says
+ *   what was read; anything else shows the code read and asks (`PrintedCodeAnswer`).
  * - "Type the code" is always there (and leads when the camera or the decoder can't be used).
  * - **Tray mode** (`?tray=1`, "Scan destination"): a scanned thing is picked up; a scanned place
  *   or box is where everything carried goes, in one move with Undo (D175).
@@ -17,12 +20,13 @@
  * Service-worker updates wait while it is open. The device (camera, decoder, connection) is
  * injectable for tests.
  */
+import { printedCode } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from 'react-aria-components';
 import type { Detect } from '@/camera/label-recogniser';
-import { appDetect } from '@/camera/scanner';
+import { PRINTED_CODE, scanDetect } from '@/camera/printed-text';
 import type { CameraEnv } from '@/camera/session';
 import { useHint } from '@/components/hints/use-hint';
 import { QrIcon, XIcon } from '@/components/icons';
@@ -37,12 +41,13 @@ import { TrayIcon } from '@/components/tray/tray-icon';
 import { useTray } from '@/components/tray/use-tray';
 import { Button as UiButton } from '@/components/ui/button';
 import { toast } from '@/components/ui/toast';
+import { isolate } from '@/lib/bidi';
 import { useOnline } from '@/lib/online';
 import type { SyncNotice } from '@/offline/store';
 import { useHoldUpdates } from '@/pwa/register';
 import { type Described, describeTarget } from './describe';
 import { ManualCode } from './manual-code';
-import { AnswerFrame, ScanAnswer } from './outcome-sheet';
+import { AnswerFrame, PrintedCodeAnswer, ScanAnswer } from './outcome-sheet';
 import {
   markSeen,
   pendingScans,
@@ -88,6 +93,8 @@ type Answer = {
   forTray?: boolean;
   /** Unpack mode: a box of the move to unpack. */
   forUnpack?: boolean;
+  /** A code read from its printed text that can't simply open (#303): what was read. */
+  printed?: string;
 };
 
 const darkBtn =
@@ -105,7 +112,7 @@ export function ScanScreen({
   sessionOpen = false,
   online: onlineProp,
   camera,
-  detect = appDetect(),
+  detect = scanDetect(),
   server,
 }: ScanScreenProps) {
   const { t } = useLingui();
@@ -151,12 +158,28 @@ export function ScanScreen({
   );
 
   const handle = useCallback(
-    async (read: Read) => {
+    async (read: Read, confirmed = false) => {
       if (busyRef.current) return;
       busyRef.current = true;
       setBusy(true);
       try {
-        const res = await resolveScan(read, deps());
+        // A code read from its printed text (#303) is looked up as the bare code it is.
+        const printed = read.format === PRINTED_CODE;
+        const res = await resolveScan(printed ? { text: read.text } : read, deps());
+        if (printed && !confirmed) {
+          // It opens as a QR does only when it was read clearly and is a real code; anything
+          // else shows what was read and asks, so a misread never opens the wrong thing.
+          const real = res.outcome === 'open' || res.outcome === 'claim';
+          if (!real || !read.sure) {
+            const described =
+              res.outcome === 'open' ? await describeTarget(res.target, { store, online }) : null;
+            setAnswer({ res, described, printed: read.text });
+            setManual(false);
+            return;
+          }
+          const shown = isolate(printedCode(read.text));
+          toast({ title: t`Read ${shown} from the printed code` });
+        }
         if (res.outcome === 'not_on_phone') {
           await rememberPendingScan(store, res.text);
           void readPending();
@@ -297,6 +320,22 @@ export function ScanScreen({
             onQueued={onQueued}
             onAgain={again}
             onOpen={(target) => openTarget(target)}
+          />
+        ) : answer?.printed ? (
+          <PrintedCodeAnswer
+            res={answer.res}
+            code={answer.printed}
+            described={answer.described ?? null}
+            onConfirm={() => {
+              const text = answer.printed ?? '';
+              setAnswer(null);
+              void handle({ text, format: PRINTED_CODE }, true);
+            }}
+            onAgain={again}
+            onType={() => {
+              setAnswer(null);
+              setManual(true);
+            }}
           />
         ) : answer?.forTray ? (
           <TrayAnswer

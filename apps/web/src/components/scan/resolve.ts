@@ -74,7 +74,9 @@ export type Resolution =
   | { outcome: 'not_kept'; text: string }
   | { outcome: 'not_on_phone'; text: string; code: string | null };
 
-export type Read = { text: string; format?: string };
+/** What was read: its text, the format it was read in, and for a code read from its printed
+ * text (camera/printed-text.ts), whether every character matched clearly. */
+export type Read = { text: string; format?: string; sure?: boolean };
 
 /** What a barcode scan read, for a new thing (@kept/shared `parseScan`): its format, where the
  * code goes (absent: the barcode), the likelier field when either will do, a GS1 serial. */

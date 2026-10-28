@@ -1,8 +1,9 @@
 import { newId, normalize } from '@kept/shared';
 import type pg from 'pg';
+import { audited } from '../../audit/audited.js';
 import type { Scope, Tx } from '../../db/scope.js';
 import { createAttachment } from '../../files/attachments.js';
-import { AppError } from '../../http/errors.js';
+import { AppError, conflict } from '../../http/errors.js';
 import type { JobQueue } from '../../jobs/queue.js';
 import { createPlace } from '../../places/service.js';
 import { createItem } from '../../registries/service.js';
@@ -321,6 +322,45 @@ export async function applyOp(c: ApplyCtx, op: HbOp): Promise<Applied> {
         c.requestId,
       );
       await remember(c, op.key, 'attachment', id);
+      return {};
+    }
+    case 'paperless_link': {
+      // The record "Link from Paperless" makes (paperless/routes.ts), with Homebox's title and
+      // kind as its cache. Not remembered in import_source_ids: the link is unique per subject and
+      // document, so a resumed run makes nothing twice.
+      const owner = 'thing' in op.owner ? op.owner.thing : op.owner.place;
+      const ownerId = resolve(c, owner);
+      const column = 'thing' in op.owner ? 'thing_id' : 'place_id';
+      const { rows: conn } = await c.client.query<{ id: string }>(
+        'SELECT id FROM public.paperless_connections WHERE location_id = $1',
+        [c.locationId],
+      );
+      if (!conn[0]) throw conflict('Paperless is no longer connected to this location.');
+      const { rows } = await c.client.query<{ id: string }>(
+        `INSERT INTO public.paperless_links (location_id, connection_id, ${column}, document_id,
+                                             title, kind, created_by)
+         VALUES ($1, $2, $3, $4, $5, $6, kept.current_user_id())
+         ON CONFLICT (${column}, document_id) DO NOTHING
+         RETURNING id`,
+        [c.locationId, conn[0].id, ownerId, op.documentId, op.title, op.kind],
+      );
+      const id = rows[0]?.id;
+      if (id) {
+        await audited(c.tx, {
+          locationId: c.locationId,
+          actor: { type: 'user', id: c.scope.userId },
+          action: 'paperless_link.create',
+          entity: { type: 'paperless_link', id },
+          after: {
+            paperless_document_id: op.documentId,
+            title: op.title,
+            kind: op.kind,
+            [column]: ownerId,
+          },
+          ...('thing' in op.owner ? { subjects: [ownerId], rootThingId: ownerId } : {}),
+          requestId: c.requestId,
+        });
+      }
       return {};
     }
     case 'service': {

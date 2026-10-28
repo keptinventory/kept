@@ -204,7 +204,9 @@ export const HB_SEEDED_TAGS = [
  * - `hb_time_default`: a `time` field whose value is only its row's creation time, read as empty;
  * - `hb_location_row`: a spreadsheet row that is a Homebox location (v0.26 on lists them), left
  *   out: places come from the items' location column;
- * - `hb_place_tags_dropped`: a location's tags, not kept: in Kept only things have tags (#209).
+ * - `hb_place_tags_dropped`: a location's tags, not kept: in Kept only things have tags (#209);
+ * - `hb_sold_date_only`: a sold date with no buyer and no price, which isn't a sale (Homebox
+ *   fills empty dates on some upgrades, #346): the thing stays in use, the date is in its notes.
  */
 export const HB_ISSUE_CODES = [
   'hb_archived_skipped',
@@ -228,6 +230,8 @@ export const HB_ISSUE_CODES = [
   'hb_item_holds_things',
   'hb_box_from_location',
   'hb_place_notes_dropped',
+  // 1.14.2
+  'hb_sold_date_only',
 ] as const;
 export type HomeboxIssueCode = (typeof HB_ISSUE_CODES)[number];
 

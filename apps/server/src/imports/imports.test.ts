@@ -850,6 +850,29 @@ describe('a Homebox spreadsheet export (the Homebox preset)', () => {
   );
 
   it(
+    'a sold date with no buyer or price is no sale: in use, the date in the notes (#346)',
+    async () => {
+      const col = (name: string) => OLD.columns.indexOf(name);
+      const rows = OLD.rows.map((r) => {
+        if (r[col('HB.name')] !== 'HD webcam') return r;
+        const out = [...r];
+        out[col('HB.sold_time')] = '1901-12-13';
+        out[col('HB.sold_price')] = '0';
+        return out;
+      });
+      const loc = await createLocation(t, db, ann, 'household', 'Homebox, a lone sold date');
+      const { report } = await importHomebox(loc, { ...OLD, rows }, 'archived');
+      const webcam = byName(await endedIn(loc), 'HD webcam');
+      expect(webcam).toMatchObject({ lifecycle: 'in_use', ended_on: null });
+      expect(webcam?.notes).toContain('HB.sold_time: 1901-12-13');
+      const codes = report.rows.flatMap((r) => r.issues.map((i) => i.code));
+      expect(codes).toContain('hb_sold_date_only');
+      expect(byName(await endedIn(loc), 'Old laptop')).toMatchObject({ lifecycle: 'sold' });
+    },
+    LONG,
+  );
+
+  it(
     'reads a v0.27.0 spreadsheet: its location rows left out, the item UUID an old link opens',
     async () => {
       const loc = await createLocation(t, db, ann, 'household', 'From Homebox v0.27.0');

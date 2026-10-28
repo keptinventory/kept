@@ -7,10 +7,13 @@
  */
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { LABEL_STOCKS, labelStock } from '@kept/shared';
+import { hasQr, LABEL_STOCKS, labelStock } from '@kept/shared';
 import { encode } from 'uqr';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { LabelCellContent } from '@/api/capture/types';
+import { readPrintedCode } from '@/camera/printed-code/recognise';
+import { drawText, plane } from '@/test/font-raster';
+import { loadMono, loadSans } from '@/test/printed-code-glyphs';
 import { drawLabel, type LabelContext, labelPixelSize } from './png';
 import { qrMatrix } from './qr';
 
@@ -52,7 +55,14 @@ beforeAll(async () => {
   });
 });
 
-type Text = { text: string; x: number; y: number; direction: string; align: string };
+type Text = {
+  text: string;
+  x: number;
+  y: number;
+  direction: string;
+  align: string;
+  font: string;
+};
 
 /** A context that paints rectangles into RGBA pixels and records text. */
 function raster(width: number, height: number) {
@@ -76,7 +86,7 @@ function raster(width: number, height: number) {
         }
     },
     fillText(text: string, x: number, y: number) {
-      texts.push({ text, x, y, direction: this.direction, align: this.textAlign });
+      texts.push({ text, x, y, direction: this.direction, align: this.textAlign, font: this.font });
     },
     measureText(text: string) {
       const size = Number(/(\d+)px/.exec(this.font)?.[1] ?? 10);
@@ -101,6 +111,10 @@ describe('labelPixelSize', () => {
       thermal_50x30: { width: 591, height: 354 },
       thermal_40x30: { width: 472, height: 354 },
       thermal_62x29: { width: 732, height: 343 },
+      tape_9: { width: 472, height: 106 },
+      tape_12: { width: 591, height: 142 },
+      tape_18: { width: 591, height: 213 },
+      tape_24: { width: 709, height: 283 },
       a4_24_70x37: { width: 827, height: 437 },
       a4_65_38x21: { width: 450, height: 250 },
       letter_30_67x25: { width: 788, height: 300 },
@@ -109,7 +123,7 @@ describe('labelPixelSize', () => {
 });
 
 describe('drawLabel', () => {
-  it.each(LABEL_STOCKS.map((s) => [s.key] as const))(
+  it.each(LABEL_STOCKS.filter(hasQr).map((s) => [s.key] as const))(
     '%s: the scanner reads the QR back',
     async (key) => {
       const stock = labelStock(key);
@@ -140,6 +154,52 @@ describe('drawLabel', () => {
     const { ctx, texts } = raster(width, height);
     drawLabel(ctx, stock, label(), qrMatrix(encode, label().url));
     expect(texts.map((t) => t.text)).toEqual(['7KQ‑4MZ']);
+  });
+});
+
+describe('tape', () => {
+  it('narrow tape prints no QR: the code first, large, then the name beside it', () => {
+    const stock = labelStock('tape_12');
+    const { width, height } = labelPixelSize(stock);
+    const { ctx, image, texts } = raster(width, height);
+    drawLabel(ctx, stock, label({ name: 'Spare keys' }), qrMatrix(encode, label().url));
+    expect(image.data.some((v, i) => i % 4 === 0 && v === 0)).toBe(false);
+    expect(texts.map((t) => t.text)).toEqual(['7KQ‑4MZ', 'Spare keys']);
+    const [code, name] = texts as [Text, Text];
+    expect(Number(/(\d+)px/.exec(code.font)?.[1])).toBeGreaterThanOrEqual(60);
+    expect(name.x).toBeGreaterThan(code.x + 7 * 0.6 * Number(/(\d+)px/.exec(code.font)?.[1]));
+  });
+
+  it("the phone's scanner reads a narrow tape label back by its printed code", () => {
+    // The PNG's text drawn in the label's own faces; the non-breaking hyphen comes from a
+    // fallback face (Plex Mono has none), drawn here as Plex Mono's hyphen.
+    const mono = loadMono();
+    const sans = loadSans();
+    for (const key of ['tape_9', 'tape_12'] as const) {
+      const stock = labelStock(key);
+      const { width, height } = labelPixelSize(stock);
+      const { ctx, texts } = raster(width, height);
+      drawLabel(ctx, stock, label({ code: 'K7D2QX', name: 'Spare keys' }), []);
+      // The label as a photo would hold it: on a table, with room around it.
+      const margin = 60;
+      const ink = plane(width + 2 * margin, height + 2 * margin);
+      for (const t of texts) {
+        const size = Number(/(\d+)px/.exec(t.font)?.[1]);
+        const face = t.font.includes('Mono') ? mono : sans;
+        // `top` baseline: the em box's top; Plex's ascender is 1.025 em.
+        drawText(ink, face, {
+          text: t.text.replace('\u2011', '-'),
+          size,
+          x: t.x + margin,
+          y: t.y + margin + size * 1.025,
+        });
+      }
+      const data = new Uint8ClampedArray(ink.width * ink.height);
+      for (let i = 0; i < data.length; i++)
+        data[i] = 235 - 215 * Math.min(1, ink.data[i] as number);
+      const read = readPrintedCode({ width: ink.width, height: ink.height, data });
+      expect(read).toMatchObject({ code: 'K7D2QX', sure: true });
+    }
   });
 });
 

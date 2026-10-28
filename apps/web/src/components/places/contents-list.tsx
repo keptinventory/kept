@@ -525,7 +525,13 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
                 end: (
                   <span className="flex items-center gap-2">
                     {canEdit ? (
-                      <Button size="small" variant="secondary" onPress={() => setSelecting(true)}>
+                      <Button
+                        size="small"
+                        variant="secondary"
+                        // The guided tour points here (components/hints/tours.ts, #294).
+                        data-tour="contents-select"
+                        onPress={() => setSelecting(true)}
+                      >
                         <Trans>Select</Trans>
                       </Button>
                     ) : null}

@@ -38,13 +38,14 @@ function expectInColumn(lines: readonly string[], size: number, width: number) {
   for (const line of lines) expect(measure(line, size)).toBeLessThanOrEqual(width + 1e-9);
 }
 
-/** The height the label's text takes, as LabelCell lays it out. */
+/** The height the label's text takes, as LabelCell lays it out (the code beside it on tape). */
 function heightOf(stock = a4, fit: ReturnType<typeof fitLabel>) {
   const m = cellMetrics(stock);
   const gap = m.pad * 0.6;
-  let h = m.code;
+  let h = m.codeColumn ? 0 : m.code;
   for (const part of [fit.name, fit.path]) {
-    if (part && part.lines.length > 0) h += gap + part.lines.length * part.size * FIT_LINE_HEIGHT;
+    if (part && part.lines.length > 0)
+      h += (h > 0 ? gap : 0) + part.lines.length * part.size * FIT_LINE_HEIGHT;
   }
   return h;
 }
@@ -154,6 +155,30 @@ describe('fitLabel', () => {
   it('a compact stock prints no name or place, so there is nothing to fit', () => {
     const fit = fitLabel(labelStock('a4_65_38x21'), { name: 'x '.repeat(200) }, measure);
     expect(fit).toMatchObject({ name: null, path: null, fits: true });
+  });
+
+  it('on narrow tape the name wraps beside the code, within the band, and the place never prints', () => {
+    const tape = labelStock('tape_12');
+    const m = cellMetrics(tape);
+    const fit = fitLabel(
+      tape,
+      { name: 'Spare keys for the shed', path: 'Garage › Hooks' },
+      measure,
+    );
+    expect(fit.fits).toBe(true);
+    expect(fit.path).toBeNull();
+    expect(fit.name?.lines.join(' ')).toBe('Spare keys for the shed');
+    expectInColumn(fit.name?.lines ?? [], fit.name?.size ?? 0, m.text);
+    expect(heightOf(tape, fit)).toBeLessThanOrEqual(tape.cell.h - 2 * m.pad + 1e-9);
+  });
+
+  it('a long name on tape steps down, and is listed when it still does not fit', () => {
+    const tape = labelStock('tape_9');
+    const name = 'Very long name for a tiny label '.repeat(3).trim();
+    const fit = fitLabel(tape, { name }, measure);
+    expect(fit.fits).toBe(false);
+    expect(fit.name?.size).toBe(NAME_MIN);
+    expect(fit.name?.lines.join(' ')).toBe(name);
   });
 
   it('a label with no name or place fits', () => {

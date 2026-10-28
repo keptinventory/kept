@@ -29,6 +29,7 @@ import { setDigits, setLocale } from '@/lib/prefs';
 import { renderUI } from '@/test/render';
 import { type HintCopy, useTourCopy, useTourStepCopy, useTourTitles } from './hint-copy';
 import {
+  currentLayout,
   FRESH_LIST_MS,
   findSectionAnchor,
   type TourStart,
@@ -74,12 +75,12 @@ describe('the tour popover labels', () => {
   }
 
   for (const [locale, line, chapter, next] of [
-    ['en', 'Chapter 3 of 12 · step 2 of 5', 'The 3D map', 'Next: The 3D map'],
+    ['en', 'Chapter 3 of 12 · step 2 of 5', 'Graph & 3D map', 'Next: Graph & 3D map'],
     [
       'ar',
       'الفصل ٣ من ١٢، الخطوة ٢ من ٥',
-      'الخريطة ثلاثية الأبعاد',
-      'التالي: الخريطة ثلاثية الأبعاد',
+      'الرسم البياني والخريطة ثلاثية الأبعاد',
+      'التالي: الرسم البياني والخريطة ثلاثية الأبعاد',
     ],
   ] as const) {
     it(`reads the chapter and the step in ${locale}, in its digits and separator`, async () => {
@@ -98,6 +99,36 @@ describe('the tour popover labels', () => {
   }
 });
 
+describe('the layout a stop is chosen by', () => {
+  const at = (width: number) =>
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: Number(/min-width:\s*(\d+)px/.exec(query)?.[1] ?? Infinity) <= width,
+      media: query,
+      addEventListener() {},
+      removeEventListener() {},
+    }));
+  const layoutStep = TOURS.find((t) => t.id === 'map')?.steps[0];
+
+  it('says no Table on a tablet’s sidebar layout, where the switch has none (800 px)', () => {
+    at(800);
+    expect(currentLayout()).toBe('wide');
+    if (!layoutStep) throw new Error('no layout step');
+    expect(stopFor(layoutStep, currentLayout()).copyId).toBeUndefined();
+  });
+
+  it('names Table from 1024 px, where the switch has it (1280 px)', () => {
+    at(1280);
+    expect(currentLayout()).toBe('sheet');
+    if (!layoutStep) throw new Error('no layout step');
+    expect(stopFor(layoutStep, currentLayout()).copyId).toBe('map.layout-table');
+  });
+
+  it('is the phone below 768 px', () => {
+    at(390);
+    expect(currentLayout()).toBe('phone');
+  });
+});
+
 describe('the tours’ copy', () => {
   it('has a title for every tour and words for every step on both layouts, in en and ar', async () => {
     for (const locale of ['en', 'ar'] as const) {
@@ -105,7 +136,7 @@ describe('the tours’ copy', () => {
       for (const id of TOUR_IDS) expect(copy.titles[id], `${locale} ${id}`).toBeTruthy();
       for (const tour of TOURS)
         for (const step of tour.steps)
-          for (const layout of ['phone', 'wide'] as const) {
+          for (const layout of ['phone', 'wide', 'sheet'] as const) {
             const key = stopFor(step, layout).copyId ?? `${tour.id}.${step.id}`;
             expect(copy.steps[key]?.title, `${locale} ${key} title`).toBeTruthy();
             expect(copy.steps[key]?.description, `${locale} ${key}`).toBeTruthy();
@@ -360,7 +391,7 @@ afterEach(() => {
 });
 
 const BASICS = ['needs', 'locations', 'scan', 'search', 'more', 'tours'];
-/** OWNER_LOCS's chapters: Basics, Things & places, The 3D map, Capture & Inbox, Scanning,
+/** OWNER_LOCS's chapters: Basics, Things & places, Graph & 3D map, Capture & Inbox, Scanning,
  * Search & labels, Import & export and Settings & sharing (no module tours but Labels' step). */
 const CHAPTERS = 8;
 const BASICS_PATHS = ['/', '/', '/', '/search', '/more', '/help'];
@@ -460,11 +491,11 @@ describe('useTour', () => {
         await user.click(within(d).getByRole('button', { name: 'Next' }));
       }
       const tabs = await stepDialog(copy, 'things.tabs');
-      expect(tabs).toHaveTextContent('Next: The 3D map');
+      expect(tabs).toHaveTextContent('Next: Graph & 3D map');
       await user.click(within(tabs).getByRole('button', { name: 'Continue' }));
       // No Keep/Discard between chapters: the run goes on, the sample still in its ledger.
       expect(await stepDialog(copy, 'map.layout')).toHaveTextContent(
-        `Chapter 3 of ${CHAPTERS} · step 1 of 5`,
+        `Chapter 3 of ${CHAPTERS} · step 1 of 6`,
       );
       expect(screen.queryByRole('dialog', { name: 'Keep what you added?' })).toBeNull();
       expect(tourLedger.list()).toEqual([{ kind: 'thing', id: 't-new' }]);

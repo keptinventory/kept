@@ -4,6 +4,7 @@ import { type HomeboxChoices, newId } from '@kept/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { type TestFiles, testFiles } from '../../../test/files.js';
 import { importArchiveKey } from '../../storage/blob-store.js';
+import type { HbEntity } from './format.js';
 import { inspectHomebox } from './inspect.js';
 import type { HbLookups } from './lookups.js';
 import { type HbOp, planHomebox, type ThingOp } from './plan.js';
@@ -147,6 +148,8 @@ describe('planHomebox over Home', () => {
       // Two photos, a manual, a warranty, a receipt and fridge.jpg; the .docx and .txt refused.
       attachments: 6,
       links: 1,
+      // No Paperless connected: the link stays a link.
+      paperlessLinks: 0,
       // Tech, Audio, مطبخ, Fragile (the seeded six are unused and skipped).
       tags: 4,
       // Gadget isn't used (its one item is archived); Odd icon is new.
@@ -801,5 +804,139 @@ describe('inspectHomebox: what the choices step offers', () => {
     const homeMapping = inspectHomebox(home, null).collections[0]?.mapping;
     // Appliance holds the most items, but it is a real type: only Homebox's own `global.item` is one.
     expect(homeMapping?.catchAll).toBeNull();
+  });
+});
+
+describe('a sale is a buyer or a price, never a date alone (#346)', () => {
+  /** Home with `patch` on the named entity. */
+  const withEntity = (name: string, patch: Partial<HbEntity>): HomeboxData => ({
+    ...home,
+    entities: new Map(
+      [...home.entities].map(([id, e]) => [id, e.name === name ? { ...e, ...patch } : e]),
+    ),
+  });
+
+  it("reads Go's zero time in the server's own zone as no date, west of UTC too", () => {
+    // pgx hands a timestamptz back in the server's zone (Homebox's types.DateFromDBTime), so an
+    // unset date in a backup made at UTC−5 is the last evening of year 0, not 0001-01-01.
+    const zero = '0000-12-31T19:03:58-04:56';
+    const data = withEntity('Desk lamp', {
+      sold_date: zero,
+      purchase_date: zero,
+      warranty_expires: zero,
+    });
+    const plan = planHomebox(data, choices(data), lookups());
+    const lamp = thing(plan.ops, 'Desk lamp');
+    expect(lamp.sold).toBeNull();
+    expect(lamp.purchase).toBeNull();
+    expect(lamp.notes ?? '').not.toContain('0000');
+    // Its quantity of 0 is the fixture's own; nothing is said about the dates.
+    expect(issuesOf(plan, idOf(data, 'Desk lamp'))).toEqual(['hb_quantity_zero']);
+  });
+
+  it('keeps a sold date with no buyer and no price in the notes, in use', () => {
+    const data = withEntity('Desk lamp', {
+      sold_date: '1901-12-13T00:00:00Z',
+      sold_notes: 'Box in the attic',
+      sold_price: 0,
+      sold_to: '',
+    });
+    const plan = planHomebox(data, choices(data), lookups());
+    const lamp = thing(plan.ops, 'Desk lamp');
+    expect(lamp.sold).toBeNull();
+    expect(lamp.archived).toBe(false);
+    expect(lamp.notes).toContain('Sold on: 1901-12-13');
+    expect(lamp.notes).toContain('Sold notes: Box in the attic');
+    expect(issuesOf(plan, idOf(data, 'Desk lamp'))).toEqual([
+      'hb_quantity_zero',
+      'hb_sold_date_only',
+    ]);
+  });
+
+  it('a price of 0 and nothing else is no sale, and adds nothing to the notes', () => {
+    const plan = planHomebox(home, choices(home), lookups());
+    for (const t of things(plan.ops)) expect(t.sold, t.name).toBeNull();
+    expect(thing(plan.ops, 'Desk lamp').notes ?? '').not.toContain('Sold');
+  });
+
+  it('a buyer alone, or a price alone, is still a sale', () => {
+    const byBuyer = withEntity('Desk lamp', { sold_to: 'A neighbour' });
+    expect(thing(planHomebox(byBuyer, choices(byBuyer), lookups()).ops, 'Desk lamp').sold).toEqual({
+      endedTo: 'A neighbour',
+    });
+    const byPrice = withEntity('Desk lamp', { sold_price: 15, sold_date: '2025-03-02T00:00:00Z' });
+    expect(thing(planHomebox(byPrice, choices(byPrice), lookups()).ops, 'Desk lamp').sold).toEqual({
+      endedOn: '2025-03-02',
+      endedPrice: '15',
+      endedCurrency: 'SAR',
+    });
+  });
+});
+
+describe('a Homebox link to a Paperless-ngx document (#347)', () => {
+  const LINK = 'Manufacturer page';
+  /** Home with the link attachment pointing at `url`. */
+  const linking = (url: string): HomeboxData => ({
+    ...home,
+    attachments: home.attachments.map((a) => (a.title === LINK ? { ...a, path: url } : a)),
+  });
+  const connected = (baseUrl: string) => lookups({ paperless: { baseUrl } });
+  const linkOps = (plan: ReturnType<typeof planHomebox>) =>
+    plan.ops.filter((o) => o.op === 'paperless_link');
+  const plain = (plan: ReturnType<typeof planHomebox>) =>
+    plan.ops.filter((o) => o.op === 'attachment' && o.title === LINK);
+
+  it("comes in as a Paperless link where the location's Paperless has that address", () => {
+    const data = linking('https://Paperless.example.com/documents/123/details');
+    const plan = planHomebox(data, choices(data), connected('https://paperless.example.com'));
+    expect(linkOps(plan)).toEqual([
+      {
+        op: 'paperless_link',
+        key: expect.any(String),
+        owner: { thing: { key: idOf(data, 'Espresso machine') } },
+        documentId: 123,
+        title: LINK,
+        kind: 'manual',
+      },
+    ]);
+    expect(plain(plan)).toEqual([]);
+    expect(plan.report.summary).toMatchObject({ paperlessLinks: 1 });
+  });
+
+  it("reads Paperless's own document addresses, under a path prefix too", () => {
+    const root = 'https://home.example.com/paperless';
+    for (const [url, id] of [
+      [`${root}/documents/7`, 7],
+      [`${root}/documents/7/notes`, 7],
+      [`${root}/api/documents/8/download/`, 8],
+      [`${root}/api/documents/9/preview/?original=true`, 9],
+      [`${root}/api/documents/10/`, 10],
+    ] as const) {
+      const data = linking(url);
+      const plan = planHomebox(data, choices(data), connected(root));
+      expect(
+        linkOps(plan).map((o) => o.op === 'paperless_link' && o.documentId),
+        url,
+      ).toEqual([id]);
+    }
+  });
+
+  it('stays a plain link when Paperless is not connected, or the address is not its document', () => {
+    const doc = linking('https://paperless.example.com/documents/123/details');
+    const off = planHomebox(doc, choices(doc), lookups());
+    expect(linkOps(off)).toEqual([]);
+    expect(plain(off)).toHaveLength(1);
+    for (const [url, base] of [
+      ['https://other.example.com/documents/123', 'https://paperless.example.com'],
+      ['http://paperless.example.com/documents/123', 'https://paperless.example.com'],
+      ['https://paperless.example.com/documents/?tags__id=4', 'https://paperless.example.com'],
+      ['https://paperless.example.com/documents/0', 'https://paperless.example.com'],
+      ['https://example.com/documents/5', 'https://example.com/paperless'],
+    ] as const) {
+      const data = linking(url);
+      const plan = planHomebox(data, choices(data), connected(base));
+      expect(linkOps(plan), url).toEqual([]);
+      expect(plain(plan), url).toHaveLength(1);
+    }
   });
 });

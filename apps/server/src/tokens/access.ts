@@ -50,6 +50,7 @@ export const TOKEN_ROUTES: Readonly<Record<string, Exclude<TokenAccess, 'none'>>
   'GET /api/v1/accounts/:accountId/brands': 'read',
   'GET /api/v1/brands/:id': 'read',
   'POST /api/v1/accounts/:accountId/brands': 'write',
+  'POST /api/v1/locations/:id/brands': 'write',
   // Search, codes and the activity feed.
   'GET /api/v1/search': 'read',
   'GET /api/v1/codes/:code': 'read',

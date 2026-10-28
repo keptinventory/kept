@@ -1,4 +1,11 @@
-import { ACTIVE_SOURCE_TYPES, HINT_KEYS, type ModuleId, type Preset } from '@kept/shared';
+import {
+  ACTIVE_SOURCE_TYPES,
+  HINT_KEYS,
+  KEPT_VERSION,
+  type ModuleId,
+  type Preset,
+  whatsNewKey,
+} from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
 import { agendaCountsBySource } from '../agenda/query.js';
@@ -356,9 +363,14 @@ export async function homeOf(client: pg.ClientBase): Promise<HomeResponse> {
 
 export const HINT_KEY = /^[a-z0-9_.:-]{1,64}$/;
 
-/** The hint keys a person may store (security review #34): @kept/shared's HINT_KEYS and the
- * checklist's dismissal. Anything else is a 400, so user_hints can't grow without bound. */
-export const ALLOWED_HINTS: ReadonlySet<string> = new Set<string>([...HINT_KEYS, CHECKLIST_HINT]);
+/** The hint keys a person may store (security review #34): @kept/shared's HINT_KEYS, the
+ * checklist's dismissal, and What's new for this server's own version (one key per release, never
+ * one a client makes up). Anything else is a 400, so user_hints can't grow without bound. */
+export const ALLOWED_HINTS: ReadonlySet<string> = new Set<string>([
+  ...HINT_KEYS,
+  CHECKLIST_HINT,
+  whatsNewKey(KEPT_VERSION),
+]);
 
 export const HintSchema = z.object({
   key: z.string(),

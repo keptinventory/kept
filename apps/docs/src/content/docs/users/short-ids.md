@@ -1,6 +1,6 @@
 ---
 title: Short IDs and labels
-description: "Six-character IDs, printing labels on sheets and rolls, what the scanner does with every code it reads, and which code Kept keeps where."
+description: "Six-character IDs, printing labels on sheets, rolls and label-maker tape, what the scanner does with every code it reads, scanning a code with no QR code, and which code Kept keeps where."
 ---
 
 When a new thing reaches the server it gets a short ID: six letters and digits, like `7KQ-4MZ`,
@@ -19,13 +19,29 @@ printed last. Search and the scanner find a thing by any of its codes.
 
 **Printing** (Labels in the menu, or **Label** on a thing): choose what to print (a selection,
 **Label everything unprinted** in a location or place, or a **Blank sheet**), choose the **Label
-stock**, pick where to start on a partly used sheet, and print from the browser. Stocks include A4
-sheets of 24 and 65 labels, a Letter sheet in the Avery 5160 layout, and 50 × 30, 40 × 30 and
-62 × 29 mm rolls for label printers. The **Sheet preview** is the print itself, smaller: the same
+stock**, pick where to start on a partly used sheet, and print from the browser. The **Sheet
+preview** is the print itself, smaller: the same
 QR codes, names and places, broken over the same lines. A name is never cut short: a long one
 wraps and its type gets smaller, and one that still doesn't fit is listed before you print, with
 a link to rename it. The page is set to the sheet's paper with no margins, so the print dialog's
 defaults (scale 100 %) put every label in its cell.
+
+The label stocks:
+
+| Stock | Size | Each label |
+|---|---|---|
+| A4 sheet, 24 labels | 70 × 37 mm, 3 × 8 | QR code, short ID, name and place |
+| A4 sheet, 65 labels | 38 × 21 mm, 5 × 13 | QR code and short ID |
+| Letter sheet, 30 labels (Avery 5160 layout) | 67 × 25 mm, 3 × 10 | QR code, short ID, name and place |
+| Label printer rolls | 50 × 30, 40 × 30 and 62 × 29 mm | QR code, short ID, name and place |
+| Label-maker tape, 9 and 12 mm (Brother TZe and similar) | 40 and 50 mm long | Short ID in large type, and the name. No QR code |
+| Label-maker tape, 18 and 24 mm | 50 and 60 mm long | QR code, short ID in large type, and the name |
+
+Rolls and tape print one label per page, at the label's size: in the print dialog, choose your
+label printer and that size. For a label-maker app that takes images, **Share as images** makes one
+PNG per label. Narrow tape has no room for a QR code that scans, so it carries the short ID large
+instead: the scanner reads it from the text ([Scanning a code with no QR
+code](#scanning-a-code-with-no-qr-code)).
 
 Afterwards, **Printed OK?** asks about the batch you just printed and records it; from then on
 those things and places show the amber tape. **Recent
@@ -74,6 +90,24 @@ online: the phone's offline copy holds no serial numbers. GS1 codes typed with b
 
 A worn label, or no camera: **Type the code**. The Capture camera recognises Kept labels too, and
 offers to open that box or capture into it.
+
+### Scanning a code with no QR code
+
+A label with no QR code (narrow tape) scans by its printed short ID. Point **Scan** at the code, so
+it fills about a third of the camera's width, and hold still for a moment: Kept reads the six
+characters from the text and opens the thing, as it would from a QR code, and a message says which
+code it read.
+
+- **On the phone, offline too.** The reading happens on the phone; the picture is never sent
+  anywhere. It works without a connection for anything in the phone's copy.
+- **Never a wrong thing.** Kept opens a code only when it read every character clearly, twice in a
+  row, and the code is one of yours. When it isn't sure, it shows the code it read and what it
+  opens, and asks **Is this the code?** before opening it. A code that matches none of your
+  labels opens nothing: **Scan again**, or **Type the code**.
+- **Kept's own print only.** It reads the short ID as Kept prints it, in its own typeface. A code
+  typed into a label maker by hand, in the label maker's font, may not read: type it instead.
+
+Scanning sessions and the box check read QR codes and barcodes, not printed codes.
 
 ## Related
 

@@ -340,6 +340,13 @@ describe('a Homebox export, from 1.13.0', () => {
     expect(
       screen.getByRole('checkbox', { name: /Make 1 type an ordinary type again/ }),
     ).toBeChecked();
+    // #346: a sold date alone ended things sold before 1.14.2.
+    expect(
+      screen.getByRole('checkbox', {
+        name: /Put the 1 thing marked sold on a date alone back in use/,
+      }),
+    ).toBeChecked();
+    expect(screen.getByText('Desk lamp')).toBeInTheDocument();
     const rename = screen.getByRole('checkbox', { name: /Rename .?global\.item.? to .?Item/ });
     await user.click(rename);
     await user.click(rename);
@@ -349,6 +356,7 @@ describe('a Homebox export, from 1.13.0', () => {
         zero: true,
         containerTypes: true,
         names: { item: 'Item', location: 'Location' },
+        sold: true,
       }),
     );
     const toast = await screen.findByText('Repaired the import');

@@ -3,6 +3,7 @@ import type pg from 'pg';
 import { undoableUntil } from '../audit/undo.js';
 import { assertClientId, checkVersion, pageOf, paginate } from '../http/conventions.js';
 import { AppError, invalid, notFound } from '../http/errors.js';
+import { requireCan, requireMembership } from '../locations/access.js';
 import {
   auditRegistry,
   lastChangedBy,
@@ -16,6 +17,7 @@ import {
   COLUMNS,
   ENTITY,
   type Item,
+  type ItemOf,
   imageOf,
   itemOf,
   NAME_COLUMN,
@@ -267,6 +269,48 @@ export async function createItem(
     item,
     possibleDuplicates: near.map((r) => ({ id: r.id, name: r.name, similarity: Number(r.sim) })),
   };
+}
+
+/**
+ * A brand by name for a thing in `locationId` (#349): the account's brand of that name (after
+ * kept.normalize()), or a new one. Anyone who edits things there may, as capture and the assistant
+ * do (kept.ai_ensure_brand, the members' door); a brand made is audited like createItem's.
+ */
+export async function brandByName(
+  ctx: Ctx,
+  locationId: string,
+  name: string,
+): Promise<{ item: ItemOf<'brands'>; created: boolean }> {
+  const { client } = ctx;
+  const { role } = await requireMembership(client, locationId);
+  requireCan(role, 'things.edit', 'Viewers can see brands but not add them.');
+  const { rows: loc } = await client.query<{ account: string }>(
+    'SELECT owner_account_id AS account FROM public.locations WHERE id = $1',
+    [locationId],
+  );
+  const accountId = loc[0]?.account as string;
+  const { rows: found } = await client.query<Row>(
+    `SELECT * FROM public.brands
+      WHERE owner_account_id = $1 AND kept.normalize(name) = kept.normalize($2)`,
+    [accountId, name],
+  );
+  const brand = (row: Row) => itemOf('brands', row) as ItemOf<'brands'>;
+  if (found[0]) return { item: brand(found[0]), created: false };
+  const { rows } = await client.query<{ id: string }>('SELECT kept.ai_ensure_brand($1, $2) AS id', [
+    locationId,
+    name,
+  ]);
+  const item = brand(await rowOf(client, 'brands', rows[0]?.id as string));
+  await auditRegistry(ctx.tx, {
+    accountId,
+    userId: ctx.userId,
+    tokenId: ctx.tokenId,
+    action: 'brand.create',
+    entity: { type: 'brand', id: item.id },
+    after: imageOf(item),
+    requestId: ctx.requestId,
+  });
+  return { item, created: true };
 }
 
 export async function updateItem(

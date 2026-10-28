@@ -93,8 +93,20 @@ export const CAPABILITIES = [
 ] as const;
 export type Capability = (typeof CAPABILITIES)[number];
 
-/** The built-in sub-place kinds (D33); accounts add custom ones. */
-export const BUILTIN_PLACE_KINDS = ['floor', 'room', 'zone', 'closet'] as const;
+/**
+ * The built-in sub-place kinds (D33); accounts add custom ones. Furniture and its cubes, shelves
+ * and drawers came with place templates (#238, place-templates.ts).
+ */
+export const BUILTIN_PLACE_KINDS = [
+  'floor',
+  'room',
+  'zone',
+  'closet',
+  'furniture',
+  'cube',
+  'shelf',
+  'drawer',
+] as const;
 export type BuiltinPlaceKind = (typeof BUILTIN_PLACE_KINDS)[number];
 
 /**

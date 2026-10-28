@@ -13,6 +13,7 @@
 import { IconEngine, IconHanger } from '@tabler/icons-react';
 import {
   AlarmSmoke,
+  Archive,
   Baby,
   BatteryFull,
   Bike,
@@ -31,9 +32,11 @@ import {
   Funnel,
   Gamepad2,
   Gem,
+  Grid2x2,
   HardHat,
   Laptop,
   Layers,
+  LibraryBig,
   type LucideIcon,
   MapPin,
   Medal,
@@ -44,6 +47,7 @@ import {
   PlugZap,
   Refrigerator,
   Router,
+  Rows3,
   ShieldPlus,
   ShoppingBasket,
   Smartphone,
@@ -128,6 +132,10 @@ export const STATIC_ICONS: Record<string, IconComponent> = {
   'lucide:door-open': lucide(DoorOpen),
   'lucide:square-dashed': lucide(SquareDashed),
   'tabler:hanger': IconHanger as unknown as IconComponent,
+  'lucide:library-big': lucide(LibraryBig),
+  'lucide:grid-2x2': lucide(Grid2x2),
+  'lucide:rows-3': lucide(Rows3),
+  'lucide:archive': lucide(Archive),
   'lucide:circle-dashed': lucide(CircleDashed),
   // generic fallbacks
   'lucide:box': lucide(Box),

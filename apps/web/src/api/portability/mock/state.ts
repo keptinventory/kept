@@ -309,6 +309,7 @@ function seed(state: MockState): PortabilityState {
         renames: [
           { typeId: '0192a000-0000-7000-8000-00000000c501', name: 'global.item', to: 'item' },
         ],
+        sold: [{ thingId: '0192a000-0000-7000-8000-00000000c402', name: 'Desk lamp' }],
       },
     },
     exports: [

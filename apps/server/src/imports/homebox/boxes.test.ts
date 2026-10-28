@@ -194,7 +194,7 @@ describe('a Homebox 0.27 upgrade into a new location', () => {
       expect(things.filter((x) => x.builtin === 'box_bin').map((x) => x.name)).toHaveLength(16);
       // Nothing to repair in an import made this way.
       const plan = ok(await call(t, `/api/v1/imports/${run.id}/repair`, { as: ibrahim }));
-      expect(plan).toEqual({ zero: [], containerTypes: [], renames: [] });
+      expect(plan).toEqual({ zero: [], containerTypes: [], renames: [], sold: [] });
     },
     LONG,
   );
@@ -351,6 +351,126 @@ describe('repairing a past import: what is never archived', () => {
       expect(names).not.toContain('Bits tray');
       expect(names).not.toContain('Toolbox');
       expect(names).toEqual(expect.arrayContaining(['Espresso machine', 'Cordless drill']));
+    },
+    LONG,
+  );
+});
+
+describe('repairing a past import: things it ended sold on a date alone (#346)', () => {
+  it(
+    'brings them back into use; never a real sale, one whose price went to the notes, or one changed since',
+    async () => {
+      const den = await createLocation(t, db, ibrahim, 'household', 'Den');
+      zip = await homeboxZip('home');
+      const run = await importBoxes(ibrahim, { locationId: den.id }, () => ({
+        archived: 'in_use',
+      }));
+      zip = await homeboxFixture('homebox-0.27.0-boxes.zip');
+      // Before 1.14.2 a sold date alone (here one an upgrade filled in) ended the thing sold.
+      await own(
+        db,
+        `UPDATE public.things SET lifecycle = 'sold', ended_on = '1901-12-13'
+          WHERE location_id = $1 AND name IN ('Desk lamp', 'Kettle', 'Fridge', 'Espresso machine')`,
+        [den.id],
+      );
+      // Homebox's sold notes came in on the sale; the Kettle's own notes are known.
+      await own(
+        db,
+        `UPDATE public.things SET ended_notes = 'Box in the attic', notes = 'Descale monthly.'
+          WHERE location_id = $1 AND name = 'Kettle'`,
+        [den.id],
+      );
+      const ended = async () =>
+        (
+          await own<{
+            lifecycle: string;
+            ended_on: string | null;
+            ended_notes: string | null;
+            notes: string | null;
+          }>(
+            db,
+            `SELECT lifecycle, ended_on::text, ended_notes, notes FROM public.things
+              WHERE location_id = $1 AND name = 'Kettle'`,
+            [den.id],
+          )
+        )[0];
+      // A sale whose price went to the notes (money off) is still a sale.
+      await own(
+        db,
+        `UPDATE public.things SET notes = coalesce(notes || E'\n', '') || 'Sold for: 40 SAR'
+          WHERE location_id = $1 AND name = 'Fridge'`,
+        [den.id],
+      );
+      // Ended sold again by hand since: the person's word, left alone.
+      const [espresso] = await own<{ id: string; row_version: number }>(
+        db,
+        `SELECT id, row_version FROM public.things WHERE location_id = $1 AND name = 'Espresso machine'`,
+        [den.id],
+      );
+      ok(
+        await call(t, `/api/v1/things/${espresso?.id}/lifecycle`, {
+          as: ibrahim,
+          headers: { 'if-match': String(espresso?.row_version) },
+          body: { lifecycle: 'sold', endedOn: '2026-01-05' },
+        }),
+      );
+      const plan = ok(
+        await call(t, `/api/v1/imports/${run.id}/repair`, { as: ibrahim }),
+      ) as unknown as { sold: { name: string }[] };
+      expect(plan.sold.map((x) => x.name)).toEqual(['Desk lamp', 'Kettle']);
+      // The import's own lifecycle event doesn't count as a change: the Old phone (ended sold by
+      // the run itself) is listed once its buyer and price are gone.
+      await own(
+        db,
+        `UPDATE public.things SET ended_to = NULL, ended_price = NULL, ended_currency = NULL
+          WHERE location_id = $1 AND name = 'Old phone'`,
+        [den.id],
+      );
+      const again = ok(
+        await call(t, `/api/v1/imports/${run.id}/repair`, { as: ibrahim }),
+      ) as unknown as { sold: { name: string }[] };
+      expect(again.sold.map((x) => x.name)).toEqual(['Desk lamp', 'Kettle', 'Old phone']);
+      await own(
+        db,
+        `UPDATE public.things SET ended_to = 'Murdock' WHERE location_id = $1 AND name = 'Old phone'`,
+        [den.id],
+      );
+
+      const res = await call(t, `/api/v1/imports/${run.id}/repair`, {
+        as: ibrahim,
+        body: { sold: true },
+      });
+      expect(res.statusCode, res.body).toBe(200);
+      expect(res.json()).toMatchObject({ repaired: { things: 2, types: 0 }, plan: { sold: [] } });
+      const after = await thingsIn(den.id);
+      const state = (name: string) => after.find((x) => x.name === name)?.lifecycle;
+      expect([state('Desk lamp'), state('Kettle')]).toEqual(['in_use', 'in_use']);
+      // Nothing is lost: the date and Homebox's sold notes move into the notes, as an import
+      // now writes them.
+      expect(await ended()).toEqual({
+        lifecycle: 'in_use',
+        ended_on: null,
+        ended_notes: null,
+        notes: 'Descale monthly.\n\nSold on: 1901-12-13\nSold notes: Box in the attic',
+      });
+      expect(after.find((x) => x.name === 'Desk lamp')?.notes).toContain('Sold on: 1901-12-13');
+      expect([state('Fridge'), state('Espresso machine'), state('Old phone')]).toEqual([
+        'sold',
+        'sold',
+        'sold',
+      ]);
+      const ids = String(res.headers['x-kept-audit-event'] ?? '')
+        .split(',')
+        .map((x) => x.trim())
+        .filter(Boolean);
+      const undo = await call(t, '/api/v1/audit/undo', { as: ibrahim, body: { eventIds: ids } });
+      expect(undo.statusCode, undo.body).toBe(200);
+      expect(await ended()).toEqual({
+        lifecycle: 'sold',
+        ended_on: '1901-12-13',
+        ended_notes: 'Box in the attic',
+        notes: 'Descale monthly.',
+      });
     },
     LONG,
   );

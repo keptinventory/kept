@@ -151,6 +151,43 @@ describe('GET /api/v1/accounts', () => {
 });
 
 describe('brands', () => {
+  // catalogue: POST /api/v1/locations/:id/brands
+  it('a thing form adds a brand by name: a member makes one, audited; the same name finds it (#349)', async () => {
+    const res = await call(t, `/api/v1/locations/${home}/brands`, {
+      as: mel,
+      body: { name: '  Brennan Audio ' },
+    });
+    expect(res.statusCode, res.body).toBe(201);
+    const { item } = res.json() as { item: { id: string; name: string; ownerAccountId: string } };
+    expect(item).toMatchObject({ name: 'Brennan Audio', ownerAccountId: bobAccount });
+    expect(await accountAudit(bobAccount, item.id)).toMatchObject([
+      { action: 'brand.create', location_id: null, actor_id: mel.userId },
+    ]);
+
+    // The account's own brand, whatever the case: found, not made again, no new audit row.
+    const again = await call(t, `/api/v1/locations/${home}/brands`, {
+      as: adam,
+      body: { name: 'brennan audio' },
+    });
+    expect(again.statusCode, again.body).toBe(200);
+    expect((again.json() as { item: { id: string } }).item.id).toBe(item.id);
+    expect(await accountAudit(bobAccount, item.id)).toHaveLength(1);
+
+    // A viewer can't; nor can anyone outside the location.
+    expect(
+      (await call(t, `/api/v1/locations/${home}/brands`, { as: vic, body: { name: 'Vex' } }))
+        .statusCode,
+    ).toBe(403);
+    expect(
+      (await call(t, `/api/v1/locations/${cabin}/brands`, { as: mel, body: { name: 'Vex' } }))
+        .statusCode,
+    ).toBe(404);
+    expect(
+      (await call(t, `/api/v1/locations/${home}/brands`, { as: mel, body: { name: '   ' } }))
+        .statusCode,
+    ).toBe(400);
+  });
+
   // catalogue: POST /api/v1/accounts/:accountId/brands
   it('an admin creates one, audited on the account; a member or viewer gets 403', async () => {
     const { item, possibleDuplicates } = await create<{ name: string; ownerAccountId: string }>(

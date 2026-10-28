@@ -126,7 +126,7 @@ function LocationBody({ location }: { location: LocationDetail }) {
   const places = tree.data?.places ?? [];
   const unplaced = places.find((pl) => pl.isUnplaced) ?? null;
   const access = accessOf(location);
-  // 1.x (D237, M11): List, Grid or Map, remembered per person and location; List by default.
+  // 1.x (D237, M11): List, Grid, Graph, Table or Map, remembered per person and location; List by default.
   // 1.x (D250): Table, the spreadsheet view, from 1024 px; narrower, the list shows instead.
   const remembered = useRememberedLayout(location.id);
   const sheetFits = useMediaQuery(SHEET);
@@ -254,7 +254,10 @@ function LocationBody({ location }: { location: LocationDetail }) {
       title={name}
       back="/"
       wide
-      tour={{ id: layout === 'map' ? 'map' : 'things', context: { locationId: location.id } }}
+      tour={{
+        id: layout === 'map' || layout === 'graph' ? 'map' : 'things',
+        context: { locationId: location.id },
+      }}
       {...(panel && places.length > 1 && layout !== 'table'
         ? {
             aside: (

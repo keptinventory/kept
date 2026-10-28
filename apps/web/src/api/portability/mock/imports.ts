@@ -324,16 +324,16 @@ export function importRoutes(state: MockState): MockRoute[] {
       if (!run) return notFound();
       if (run.source !== 'homebox_zip' || !run.startedAt)
         return err(409, 'conflict', 'Only a Homebox import that ran can be repaired.');
-      return s().repairs[run.id] ?? { zero: [], containerTypes: [], renames: [] };
+      return s().repairs[run.id] ?? { zero: [], containerTypes: [], renames: [], sold: [] };
     }),
 
     route('POST', p.importRepair(':id'), ({ params, body }) => {
       const run = visibleRun(params.id);
       if (!run?.locationId) return notFound();
-      const plan = s().repairs[run.id] ?? { zero: [], containerTypes: [], renames: [] };
+      const plan = s().repairs[run.id] ?? { zero: [], containerTypes: [], renames: [], sold: [] };
       const b = body as ImportRepairBody;
       const before = structuredClone(plan);
-      const things = b.zero ? plan.zero : [];
+      const things = [...(b.zero ? plan.zero : []), ...(b.sold ? plan.sold : [])];
       const types = new Set([
         ...(b.containerTypes ? plan.containerTypes.map((y) => y.typeId) : []),
         ...(b.names ? plan.renames.map((y) => y.typeId) : []),
@@ -344,6 +344,7 @@ export function importRoutes(state: MockState): MockRoute[] {
         zero: b.zero ? [] : plan.zero,
         containerTypes: b.containerTypes ? [] : plan.containerTypes,
         renames: b.names ? [] : plan.renames,
+        sold: b.sold ? [] : plan.sold,
       };
       s().repairs[run.id] = next;
       const actor = { id: state.me.user.id, displayName: state.me.user.displayName };

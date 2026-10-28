@@ -1,4 +1,4 @@
-import { HINT_KEYS, newId, randomShortCode } from '@kept/shared';
+import { HINT_KEYS, KEPT_VERSION, newId, randomShortCode, whatsNewKey } from '@kept/shared';
 import type pg from 'pg';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
@@ -559,6 +559,19 @@ describe('hints: GET /api/v1/me/hints, PUT /api/v1/me/hints/:key', () => {
     }
     expect((await putHint(ann, 'camera', {})).statusCode).toBe(400);
     expect((await putHint(ann, 'camera', { seen: 'yes' })).statusCode).toBe(400);
+  });
+
+  // catalogue: PUT /api/v1/me/hints/:key
+  it('records What’s new for this server’s version only, so the table can’t grow without bound', async () => {
+    const mine = whatsNewKey(KEPT_VERSION);
+    expect((await putHint(ann, mine, { dismissed: true })).statusCode).toBe(204);
+    expect(await hints(ann)).toEqual([
+      expect.objectContaining({ key: mine, dismissedAt: expect.any(String) }),
+    ]);
+    for (const other of ['whats_new.9.9.9', 'whats_new.1.0.0', 'whats_new.']) {
+      if (other === mine) continue;
+      expect((await putHint(ann, other, { dismissed: true })).statusCode, other).toBe(400);
+    }
   });
 
   it('keeps each person’s hints their own (RLS)', async () => {

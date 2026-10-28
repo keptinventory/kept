@@ -363,11 +363,12 @@ describe('a places batch', () => {
 
     const first = ok(await batch(ibrahim, { ...body, dryRun: true }));
     const labels = first.labels as Batch['labels'];
-    expect(labels.map((l) => l.name)).toEqual(['Bottom shelf', 'Den', 'Top shelf']);
+    // In the tree's order: the place, then the places inside it (#238).
+    expect(labels.map((l) => l.name)).toEqual(['Den', 'Bottom shelf', 'Top shelf']);
     expect(first.excluded).toEqual({ pending: 0, other: 0 });
     const codes = new Map((await codesOf([den, top, bottom])).map((r) => [r.place_id, r.code]));
     expect(codes.get(top)).toBe(topCode);
-    expect(labels.map((l) => l.code)).toEqual([codes.get(bottom), codes.get(den), topCode]);
+    expect(labels.map((l) => l.code)).toEqual([codes.get(den), codes.get(bottom), topCode]);
     // Each new code is audited as a place's own label is.
     const events = await auditActions(loc.id, 'place.label');
     expect(events.map((e) => [e.entity_id, e.actor_id]).sort()).toEqual(

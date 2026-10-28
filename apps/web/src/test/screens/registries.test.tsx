@@ -373,20 +373,21 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
 });
 
 describe('place kinds', { timeout: 20_000 }, () => {
+  // Shelf is a built-in kind since #238, so a new kind is a Bay.
   it('makes a kind and gives it a field with the same field sheet', async () => {
     const { user, mock } = await renderApp('/settings/account/place-kinds');
     await screen.findByRole('list', { name: 'Place kinds' }, { timeout: 3000 });
     await user.click(screen.getByRole('button', { name: 'New kind' }));
     const dialog = await screen.findByRole('dialog', { name: 'New place kind' });
-    await user.type(within(dialog).getByRole('textbox', { name: 'Name' }), 'Shelf');
+    await user.type(within(dialog).getByRole('textbox', { name: 'Name' }), 'Bay');
     await user.click(within(dialog).getByRole('button', { name: 'Make the kind' }));
     await waitFor(() =>
       expect(mock.lastCall('POST', p.accountPlaceKinds(A.ibrahim))?.body).toMatchObject({
-        key: 'shelf',
-        name: 'Shelf',
+        key: 'bay',
+        name: 'Bay',
       }),
     );
-    const shelf = await editor('Shelf');
+    const shelf = await editor('Bay');
     await user.click(within(shelf).getByRole('button', { name: 'Add a field' }));
     const add = await screen.findByRole('dialog', { name: 'Add a field' });
     await user.type(within(add).getByRole('textbox', { name: 'Label' }), 'Width');
@@ -404,7 +405,7 @@ describe('place kinds', { timeout: 20_000 }, () => {
       }),
     );
     expect(
-      await within(await editor('Shelf')).findByText('Width', { selector: 'bdi' }),
+      await within(await editor('Bay')).findByText('Width', { selector: 'bdi' }),
     ).toBeInTheDocument();
   });
 

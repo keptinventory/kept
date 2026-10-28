@@ -1,7 +1,8 @@
 /**
  * "Repair this import": a Homebox import that already ran, put right from what it stored (GET
  * /imports/:id/repair). Imports before 1.13.0 turned a quantity of 0 into 1, made a whole type a
- * box type when one of its items held another, and could name a type `global.item`. Each repair
+ * box type when one of its items held another, and could name a type `global.item`; before
+ * 1.14.2 a sold date alone ended a thing sold (#346). Each repair
  * is ticked on its own, the things and types it touches are named, and the whole repair has one
  * Undo (its events undone together). Shown on the import's own page, which Activity links to.
  */
@@ -25,7 +26,9 @@ export function ImportRepair({ runId }: { runId: string }) {
   const plan = useImportRepair(runId, true);
   if (!plan.data) return null;
   const p = plan.data;
-  if (p.zero.length + p.containerTypes.length + p.renames.length === 0) return null;
+  if (p.zero.length + p.containerTypes.length + p.renames.length + p.sold.length === 0) {
+    return null;
+  }
   return <RepairForm runId={runId} plan={p} />;
 }
 
@@ -39,6 +42,7 @@ function RepairForm({ runId, plan }: { runId: string; plan: ImportRepairPlan }) 
   const [zero, setZero] = useState(plan.zero.length > 0);
   const [boxTypes, setBoxTypes] = useState(plan.containerTypes.length > 0);
   const [rename, setRename] = useState(plan.renames.length > 0);
+  const [unsold, setUnsold] = useState(plan.sold.length > 0);
   const names = (list: string[]) => {
     const shown = list.slice(0, NAMES_SHOWN);
     const more = list.length - shown.length;
@@ -53,6 +57,7 @@ function RepairForm({ runId, plan }: { runId: string; plan: ImportRepairPlan }) 
         ...(rename && plan.renames.length
           ? { names: { item: typeName('global.item'), location: typeName('global.location') } }
           : {}),
+        ...(unsold && plan.sold.length ? { sold: true } : {}),
       };
       return portabilityApi.repair(runId, body);
     },
@@ -66,7 +71,8 @@ function RepairForm({ runId, plan }: { runId: string; plan: ImportRepairPlan }) 
   const chosen =
     (zero && plan.zero.length > 0) ||
     (boxTypes && plan.containerTypes.length > 0) ||
-    (rename && plan.renames.length > 0);
+    (rename && plan.renames.length > 0) ||
+    (unsold && plan.sold.length > 0);
 
   return (
     <section
@@ -93,6 +99,19 @@ function RepairForm({ runId, plan }: { runId: string; plan: ImportRepairPlan }) 
               value={plan.zero.length}
               one="Archive the # thing that had quantity 0 in Homebox"
               other="Archive the # things that had quantity 0 in Homebox"
+            />
+          </TickBox>
+        ) : null}
+        {plan.sold.length > 0 ? (
+          <TickBox
+            isSelected={unsold}
+            onChange={setUnsold}
+            description={<bdi>{names(plan.sold.map((x) => x.name))}</bdi>}
+          >
+            <Plural
+              value={plan.sold.length}
+              one="Put the # thing marked sold on a date alone back in use"
+              other="Put the # things marked sold on a date alone back in use"
             />
           </TickBox>
         ) : null}

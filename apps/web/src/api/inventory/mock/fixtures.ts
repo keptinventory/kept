@@ -9,6 +9,7 @@
  */
 import type { LocationDetail } from '../../types';
 import type {
+  BuiltinPlaceKind,
   Capability,
   FieldKind,
   HistoryEvent,
@@ -318,7 +319,7 @@ const typeRef = (all: TypeDetail[], id: string): TypeRef => {
 };
 
 function placeKinds(accountId: string): PlaceKindNode[] {
-  const kind = (n: number, key: 'floor' | 'room' | 'zone' | 'closet', icon: string) => ({
+  const kind = (n: number, key: BuiltinPlaceKind, icon: string) => ({
     id: `01926f00-0000-7000-8000-0000000fb${accountId.slice(-1)}${String(n).padStart(2, '0')}`,
     key,
     builtinKey: key,
@@ -333,6 +334,11 @@ function placeKinds(accountId: string): PlaceKindNode[] {
     kind(2, 'room', 'lucide:door-open'),
     kind(3, 'zone', 'lucide:square-dashed'),
     kind(4, 'closet', 'tabler:hanger'),
+    // #238: furniture made from a place template, and its compartments.
+    kind(5, 'furniture', 'lucide:library-big'),
+    kind(6, 'cube', 'lucide:grid-2x2'),
+    kind(7, 'shelf', 'lucide:rows-3'),
+    kind(8, 'drawer', 'lucide:archive'),
   ];
 }
 

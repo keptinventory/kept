@@ -41,6 +41,12 @@ export const places = pgTable(
     childOrder: text('child_order').notNull().default('name'),
     /** Values of the place kind's fields (D160), by key. Secret fields never land here. */
     custom: jsonb('custom').notNull().default(sql`'{}'::jsonb`),
+    /** Furniture made from a place template (#238): its size and how it stands, and the
+     * patterns it was named and coded with, `{kind, across, up | count, orientation,
+     * compartmentName, codePattern}` (packages/shared place-templates.ts). */
+    layout: jsonb('layout'),
+    /** A compartment of that furniture: where it sits on the grid as it stands, `{row, col}`. */
+    cell: jsonb('cell'),
     deletedAt: tstz('deleted_at'),
     /** Places and things trashed in one action share it, so they are restored together (D162). */
     trashBatchId: uuid('trash_batch_id'),
@@ -67,6 +73,8 @@ export const places = pgTable(
     check('places_not_own_parent_chk', sql`parent_id IS NULL OR parent_id <> id`),
     check('places_custom_chk', sql`jsonb_typeof(custom) = 'object'`),
     check('places_child_order_chk', sql`child_order IN ('name', 'custom')`),
+    check('places_layout_chk', sql`layout IS NULL OR jsonb_typeof(layout) = 'object'`),
+    check('places_cell_chk', sql`cell IS NULL OR jsonb_typeof(cell) = 'object'`),
     check('places_icon_chk', sql`icon IS NULL OR icon ~ '^(lucide|tabler|kept):[a-z0-9-]+$'`),
     index('places_parent_idx').on(t.locationId, t.parentId),
     // The purge walks trashed places oldest first, across locations (kept.purge_trash()).

@@ -5,6 +5,7 @@ import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { assertClientId, encodeCursor, type PageRequest } from '../http/conventions.js';
 import { AppError, invalid, notFound, pgErrorOf } from '../http/errors.js';
+import { placeOrderSql, treeWalk } from '../places/order.js';
 import { allocateShortId, SHORT_ID_TRIES } from '../places/short-id.js';
 import { type Ctx, requireRole } from '../things/service.js';
 import { shownCodeSql } from './printed-sql.js';
@@ -377,16 +378,20 @@ async function pickUnprinted(
           WHERE ${unprinted('thing_id', 't')}
           ORDER BY t.place_path COLLATE "und-x-icu", t.name COLLATE "und-x-icu", t.id`
       : `${subtree}
-         SELECT p.id, s.code::text AS code
+         SELECT p.id, p.parent_id, s.code::text AS code
            FROM sub JOIN public.places p ON p.id = sub.id
            LEFT JOIN public.short_ids s
                   ON s.place_id = p.id AND s.state = 'assigned' AND s.is_primary
           WHERE NOT p.is_unplaced AND ${unprinted('place_id', 'p')}
-          ORDER BY p.name COLLATE "und-x-icu", p.id`;
-  const { rows: all } = await client.query<{ id: string; code: string | null }>(sql, [
-    locationId,
-    placeId,
-  ]);
+          ORDER BY ${placeOrderSql('p')}`;
+  const { rows: found } = await client.query<{
+    id: string;
+    parent_id: string | null;
+    code: string | null;
+  }>(sql, [locationId, placeId]);
+  // Places in the tree's order, each followed by the places inside it (#238: a cube shelf's
+  // labels come out Cube 1, Cube 2… as it counts them).
+  const all = table === 'places' ? treeWalk(found) : found;
   if (table === 'places') {
     // A place with no code gets one, those that fit in the batch.
     const kept = all.slice(0, MAX_BATCH);
@@ -395,7 +400,7 @@ async function pickUnprinted(
     return { codes, subjects: [], pending: 0, other: all.length - kept.length };
   }
   // A thing with no code yet is `pending`.
-  const rows = all.filter((r): r is { id: string; code: string } => r.code !== null);
+  const rows = all.filter((r): r is (typeof all)[number] & { code: string } => r.code !== null);
   const kept = rows.slice(0, MAX_BATCH);
   return {
     codes: kept.map((r) => r.code),

@@ -51,6 +51,15 @@ export type TourSectionId = (typeof TOUR_SECTION_IDS)[number];
 export const tourProgressKey = <S extends TourSectionId>(section: S): `help.tour.${S}` =>
   `help.tour.${section}`;
 
+/**
+ * What's new in Kept (web components/whats-new.tsx): one key per version, `whats_new.<version>`,
+ * recorded once the person has seen that version's card (or, on a first run, without showing it).
+ * Not one of HINT_KEYS: the server takes only its own version's key, so user_hints holds at most
+ * one row per release a person used.
+ */
+export const WHATS_NEW_PREFIX = 'whats_new.';
+export const whatsNewKey = (version: string): string => `${WHATS_NEW_PREFIX}${version}`;
+
 export const HINT_KEYS = [
   'capture.mode_strip',
   'inbox.suggested',

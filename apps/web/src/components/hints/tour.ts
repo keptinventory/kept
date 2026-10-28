@@ -1,11 +1,11 @@
 /**
  * The tour engine for Help's tour (tours.ts): one tour in chapters, started from Help (Take the
- * tour, Continue the tour, a chapter's Start here) or a page's Show me, never on launch. One run
+ * tour, Continue the tour, a chapter's row) or a page's Show me, never on launch. One run
  * at a time, whichever button started it.
  *
  * - A run starts at a chapter and walks on through the chapters after it that the person has.
- *   A chapter's last step names the next ("Next: The 3D map"): Continue goes straight into its
- *   first step, Stop here ends the run. The last chapter ends with Done.
+ *   A chapter's last step names the next ("Next: Graph & 3D map"): Continue goes straight into
+ *   its first step, Stop here ends the run. The last chapter ends with Done.
  * - The popover counts both: "Chapter 3 of 12 · step 2 of 5". Back stays inside the chapter.
  * - Each step names the route it opens and the `data-tour="<anchor>"` it points at, per layout
  *   where they differ. The first anchor on screen wins; a step whose anchor never shows (a
@@ -34,7 +34,7 @@ import { deleteLocation, listLocations } from '@/api/locations';
 import { movingApi } from '@/api/moving/queries';
 import { keys } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
-import { WIDE } from '@/lib/media';
+import { SHEET, WIDE } from '@/lib/media';
 import type { Shown } from './driver-kit';
 import { useTourCopy, useTourStepCopy, useTourTitles } from './hint-copy';
 import { pageIsRtl, prefersReducedMotion } from './placement';
@@ -57,6 +57,7 @@ import { hintSlot, useMarkHint } from './use-hint';
 /** The layout on screen now (jsdom has no matchMedia: the phone's). */
 export function currentLayout(): TourLayout {
   try {
+    if (window.matchMedia(SHEET).matches) return 'sheet';
     return window.matchMedia(WIDE).matches ? 'wide' : 'phone';
   } catch {
     return 'phone';

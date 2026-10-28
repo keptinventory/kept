@@ -7,10 +7,13 @@
  * - open (a Kept code) → the caller has already opened it; only an old label shows here (5c);
  * - claim → claim-sheet.tsx; several old labels → legacy-picker.tsx; a product → barcode-sheet.tsx;
  * - not in your Kept · not on this phone · not a Kept label → what it is, Scan again, Done.
+ *
+ * A code read from its printed text with no QR (#303) answers here only when it can't simply
+ * open: `PrintedCodeAnswer`.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
-import { CheckCircleIcon, CloudOffIcon, LinkIcon, QrIcon } from '@/components/icons';
+import { CheckCircleIcon, CloudOffIcon, LinkIcon, QrIcon, QuestionIcon } from '@/components/icons';
 import { IdChip, LabelTape } from '@/components/id-chip';
 import { Pill } from '@/components/page';
 import { usePlaceName } from '@/components/places/labels';
@@ -221,5 +224,85 @@ function ReadText({ text }: { text: string }) {
     >
       {text}
     </p>
+  );
+}
+
+/**
+ * A code read from its printed text (#303) that the scanner won't open on its own: what was read,
+ * always. One that matches a label of yours but wasn't read clearly asks first ("Is this the
+ * code?", with what it opens); one that matches nothing never opens anything: scan again, or type
+ * it. A misread is never kept to check later, as an unknown QR is.
+ */
+export function PrintedCodeAnswer({
+  res,
+  code,
+  described,
+  onConfirm,
+  onAgain,
+  onType,
+}: {
+  res: Resolution;
+  code: string;
+  described: Described | null;
+  /** It is the code: carry on as if it had been read clearly. */
+  onConfirm: () => void;
+  onAgain: () => void;
+  onType: () => void;
+}) {
+  const { t } = useLingui();
+  const placeName = usePlaceName();
+  const real = res.outcome === 'open' || res.outcome === 'claim';
+  if (!real) {
+    return (
+      <AnswerFrame label={t`Scan result`} onCamera>
+        <Headline icon={<QuestionIcon />} title={<Trans>Check the code</Trans>} />
+        <p className="m-0 text-ink-2">
+          {res.outcome === 'not_on_phone' ? (
+            <Trans>This phone doesn't have this code.</Trans>
+          ) : (
+            <Trans>None of your labels has this code.</Trans>
+          )}
+        </p>
+        <LabelLine code={code} />
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant="secondary" onPress={onAgain}>
+            <Trans>Scan again</Trans>
+          </Button>
+          <Button onPress={onType}>
+            <Trans>Type the code</Trans>
+          </Button>
+        </div>
+      </AnswerFrame>
+    );
+  }
+  const name = described?.name ?? null;
+  return (
+    <AnswerFrame label={t`Scan result`} onCamera>
+      <Headline icon={<QuestionIcon />} title={<Trans>Is this the code?</Trans>} />
+      <p className="m-0 text-ink-2">
+        <Trans>Read from the printed text, not a QR code. Check it against the label.</Trans>
+      </p>
+      <LabelLine code={code} />
+      {described ? (
+        <div className="grid gap-1 rounded-lg border border-line p-3">
+          <bdi className="font-semibold [overflow-wrap:anywhere]">{described.name}</bdi>
+          {described.path.length ? (
+            <bdi className="text-small text-ink-3 [overflow-wrap:anywhere]">
+              {described.path
+                .map((s) => s.name ?? placeName({ name: '', isUnplaced: true }))
+                .join(' › ')}
+            </bdi>
+          ) : null}
+        </div>
+      ) : null}
+      <div className="grid grid-cols-2 gap-2">
+        <Button variant="secondary" onPress={onAgain}>
+          <Trans>Scan again</Trans>
+        </Button>
+        <Button onPress={onConfirm}>
+          {res.outcome === 'claim' ? t`That's the code` : name ? t`Open ${name}` : t`Open`}
+        </Button>
+      </div>
+    </AnswerFrame>
   );
 }

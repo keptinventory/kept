@@ -149,6 +149,8 @@ export type ImportRepairPlan = {
   containerTypes: { typeId: string; name: string }[];
   /** Types this import named `global.item` / `global.location`: renamed. */
   renames: { typeId: string; name: string; to: 'item' | 'location' }[];
+  /** Things this import ended sold on a sold date alone (before 1.14.2, #346): back in use. */
+  sold: { thingId: string; name: string }[];
 };
 
 /** POST /api/v1/imports/:id/repair. Its events come back in X-Kept-Audit-Event: one Undo. */
@@ -156,6 +158,7 @@ export type ImportRepairBody = {
   zero?: boolean;
   containerTypes?: boolean;
   names?: { item: string; location: string };
+  sold?: boolean;
 };
 export type ImportRepairResult = {
   repaired: { things: number; types: number };
@@ -254,6 +257,9 @@ export type HomeboxDryRunSummary = {
   schedules: number;
   attachments: number;
   links: number;
+  /** Links to a document of the location's Paperless-ngx, made Paperless links (#347); runs
+   * checked before 1.14.2 have none. */
+  paperlessLinks?: number;
   tags: number;
   types: number;
   fieldsAdded: number;

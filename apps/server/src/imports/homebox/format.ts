@@ -222,11 +222,14 @@ export type HbTagEntity = z.infer<typeof TagEntity>;
 export const GO_ZERO_TIME = '0001-01-01T00:00:00Z';
 
 /** A Homebox date (midnight UTC) as Kept's `YYYY-MM-DD`: the UTC date part, never a local-time
- * conversion. Null for none (null, or Go's zero time). */
+ * conversion. Null for none: null, or Go's zero time in any zone. Homebox's Postgres driver hands
+ * a date back in the server's zone (its types.DateFromDBTime), so west of UTC an unset date reads
+ * `0000-12-31T19:03:58-04:56`; any year before 1000 is no date, as Homebox's own web app reads it
+ * (its `validDate`). */
 export function hbDate(value: string | null | undefined): string | null {
   if (!value || value.startsWith('0001-01-01')) return null;
   const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return null;
+  if (Number.isNaN(d.getTime()) || d.getUTCFullYear() < 1000) return null;
   return d.toISOString().slice(0, 10);
 }
 

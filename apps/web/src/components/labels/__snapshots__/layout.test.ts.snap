@@ -84,6 +84,94 @@ exports[`placeLabels per stock > letter_30_67x25: the first page, cell by cell 1
 }
 `;
 
+exports[`placeLabels per stock > tape_9: the first page, cell by cell 1`] = `
+{
+  "cells": 1,
+  "first": {
+    "cell": 0,
+    "col": 0,
+    "row": 0,
+    "x": 0,
+    "y": 0,
+  },
+  "last": {
+    "cell": 0,
+    "col": 0,
+    "row": 0,
+    "x": 0,
+    "y": 0,
+  },
+  "page": "@page { size: 40mm 9mm; margin: 0; }",
+  "second": undefined,
+}
+`;
+
+exports[`placeLabels per stock > tape_12: the first page, cell by cell 1`] = `
+{
+  "cells": 1,
+  "first": {
+    "cell": 0,
+    "col": 0,
+    "row": 0,
+    "x": 0,
+    "y": 0,
+  },
+  "last": {
+    "cell": 0,
+    "col": 0,
+    "row": 0,
+    "x": 0,
+    "y": 0,
+  },
+  "page": "@page { size: 50mm 12mm; margin: 0; }",
+  "second": undefined,
+}
+`;
+
+exports[`placeLabels per stock > tape_18: the first page, cell by cell 1`] = `
+{
+  "cells": 1,
+  "first": {
+    "cell": 0,
+    "col": 0,
+    "row": 0,
+    "x": 0,
+    "y": 0,
+  },
+  "last": {
+    "cell": 0,
+    "col": 0,
+    "row": 0,
+    "x": 0,
+    "y": 0,
+  },
+  "page": "@page { size: 50mm 18mm; margin: 0; }",
+  "second": undefined,
+}
+`;
+
+exports[`placeLabels per stock > tape_24: the first page, cell by cell 1`] = `
+{
+  "cells": 1,
+  "first": {
+    "cell": 0,
+    "col": 0,
+    "row": 0,
+    "x": 0,
+    "y": 0,
+  },
+  "last": {
+    "cell": 0,
+    "col": 0,
+    "row": 0,
+    "x": 0,
+    "y": 0,
+  },
+  "page": "@page { size: 60mm 24mm; margin: 0; }",
+  "second": undefined,
+}
+`;
+
 exports[`placeLabels per stock > thermal_40x30: the first page, cell by cell 1`] = `
 {
   "cells": 1,

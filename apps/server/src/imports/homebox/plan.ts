@@ -71,7 +71,8 @@ import {
 // - Homebox's seeded places and tags, empty and unused, skipped by default (`hb_seeded_skipped`);
 // - attachments: photo (the primary first), manual, warranty → the warranty's document, receipt
 //   → the purchase's receipt, attachment → document; thumbnails skipped; links → link
-//   attachments; a type Kept doesn't keep → `file_type_refused`, listed;
+//   attachments, or a Paperless link (#347) where the link is a document of the Paperless-ngx the
+//   location is connected to; a type Kept doesn't keep → `file_type_refused`, listed;
 // - maintenance done → a service record; only scheduled → a one-off schedule;
 // - templates → account templates, best effort (`hb_template_partial`);
 // - dates are the UTC date part; a `time` field within a second of its row's creation is empty
@@ -171,6 +172,17 @@ export type AttachmentOp = {
   url: string | null;
 };
 
+/** A Homebox link to a document of the location's Paperless-ngx: the link "Link from Paperless"
+ * makes (#347), with Homebox's title and its type as the kind until Paperless is next asked. */
+export type PaperlessLinkOp = {
+  op: 'paperless_link';
+  key: string;
+  owner: { thing: Ref } | { place: Ref };
+  documentId: number;
+  title: string;
+  kind: 'receipt' | 'manual' | 'warranty_doc' | 'document';
+};
+
 export type ServiceOp = {
   op: 'service';
   key: string;
@@ -210,6 +222,7 @@ export type HbOp =
   | ThingOp
   | WarrantyOp
   | AttachmentOp
+  | PaperlessLinkOp
   | ServiceOp
   | ScheduleOp
   | TemplateOp;
@@ -290,6 +303,7 @@ const MESSAGES: Partial<Record<ImportIssueCode, string>> = {
   hb_notifier_skipped: 'Notifiers are never imported: their addresses can hold passwords.',
   hb_seeded_skipped: "One of Homebox's starter places or tags, empty and unused, left out.",
   hb_time_default: 'A date Homebox filled in with the day the item was made; read as empty.',
+  hb_sold_date_only: 'A sold date with no buyer or price: still in use, the date is in the notes.',
   hb_place_tags_dropped: "Its tags aren't kept: in Kept only things have tags.",
   already_imported: 'Already imported by an earlier import, so it is skipped.',
   no_name: "No name, so it's skipped.",
@@ -335,6 +349,43 @@ function colourOf(color: string): string | null {
     return `#${[...c.slice(1)].map((x) => x + x).join('')}`.toUpperCase();
   }
   return NAMED_COLOURS[c] ?? null;
+}
+
+/** The notes lines a sold date and sold notes become when they aren't a sale (#346): the import
+ * writes them, and the repair moves an earlier import's end date and notes into them. */
+export function soldNoteLines(on: string | null, notes: string | null | undefined): string[] {
+  return [on ? `Sold on: ${on}` : null, notes ? `Sold notes: ${notes}` : null].filter(
+    (x): x is string => x !== null,
+  );
+}
+
+/** A Paperless subject holds at most this many links (paperless/routes.ts). */
+const PAPERLESS_MAX_LINKS = 50;
+
+/**
+ * The Paperless-ngx document a link opens, when it is one of `baseUrl`'s (the connection's root,
+ * as paperlessRoot() saves it): the web app's `documents/<id>` and `documents/<id>/<section>`, or
+ * the API's `api/documents/<id>/` and its `download`, `preview`, `thumb` and `metadata`. The same
+ * scheme, host and port, under the root's path; anything else is null.
+ */
+export function paperlessDocumentOf(url: string, baseUrl: string): number | null {
+  let u: URL;
+  let root: URL;
+  try {
+    u = new URL(url);
+    root = new URL(baseUrl);
+  } catch {
+    return null;
+  }
+  if (u.origin !== root.origin) return null;
+  const prefix = root.pathname.replace(/\/+$/, '');
+  if (u.pathname !== prefix && !u.pathname.startsWith(`${prefix}/`)) return null;
+  const rest = u.pathname.slice(prefix.length);
+  const m =
+    /^\/documents\/(\d{1,9})(?:\/[a-z]+)?\/?$/.exec(rest) ??
+    /^\/api\/documents\/(\d{1,9})\/(?:(?:download|preview|thumb|metadata)\/?)?$/.exec(rest);
+  const id = m ? Number(m[1]) : 0;
+  return id > 0 ? id : null;
 }
 
 const isHttp = (url: string) => {
@@ -407,6 +458,7 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
     things: [] as ThingOp[],
     warranties: [] as WarrantyOp[],
     attachments: [] as AttachmentOp[],
+    paperless: [] as PaperlessLinkOp[],
     maintenance: [] as (ServiceOp | ScheduleOp)[],
     templates: [] as TemplateOp[],
   };
@@ -420,6 +472,7 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
     schedules: 0,
     attachments: 0,
     links: 0,
+    paperlessLinks: 0,
     tags: 0,
     types: 0,
     fieldsAdded: 0,
@@ -1039,10 +1092,14 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
     }
     if (e.warranty_details) extra.push(`Warranty: ${e.warranty_details}`);
 
-    // Sold.
+    // Sold: a buyer or a price says so. Homebox has no sold state, and writes dates nobody typed
+    // (an upgrade fills empty ones, #346), so a date alone is kept in the notes, in use.
     let sold: ThingOp['sold'] = null;
     const soldOn = hbDate(e.sold_date);
-    if (soldOn || e.sold_to || e.sold_price > 0) {
+    if (!e.sold_to && !(e.sold_price > 0)) {
+      for (const line of soldNoteLines(soldOn, e.sold_notes)) text(line);
+      if (soldOn) report.issue(ref, 'hb_sold_date_only', { status: 'text', column: 'sold_date' });
+    } else {
       sold = {};
       if (soldOn && soldOn <= look.today) sold.endedOn = soldOn;
       if (e.sold_to) {
@@ -1113,6 +1170,7 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
     return isPlace(e) ? { place: { key: e.id } } : { thing: { key: e.id } };
   };
   const firstPhoto = new Set<string>();
+  const paperlessPer = new Map<string, number>();
   const attachments = [...data.attachments].sort((a, b) => Number(b.primary) - Number(a.primary));
   for (const a of attachments) {
     if (a.type === 'thumbnail') continue;
@@ -1138,6 +1196,21 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
       const url = a.path.trim();
       if (!isHttp(url) || url.length > URL_MAX) {
         report.issue(ref, 'not_link', { status: 'skipped' });
+        continue;
+      }
+      const documentId = look.paperless ? paperlessDocumentOf(url, look.paperless.baseUrl) : null;
+      const n = paperlessPer.get(entity) ?? 0;
+      if (documentId && n < PAPERLESS_MAX_LINKS) {
+        paperlessPer.set(entity, n + 1);
+        ops.paperless.push({
+          op: 'paperless_link',
+          key: a.id,
+          owner,
+          documentId,
+          title: a.title.trim().slice(0, 300) || url.slice(0, 300),
+          kind: role === 'photo' ? 'document' : (role as PaperlessLinkOp['kind']),
+        });
+        summary.paperlessLinks += 1;
         continue;
       }
       ops.attachments.push({ ...base, title: a.title, file: null, url });
@@ -1318,6 +1391,7 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
       ...ops.things,
       ...ops.warranties,
       ...ops.attachments,
+      ...ops.paperless,
       ...ops.maintenance,
       ...ops.templates,
     ],

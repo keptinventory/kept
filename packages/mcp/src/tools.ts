@@ -29,6 +29,7 @@ import {
   ATTACHMENT_ROLES,
   BOX_STATES,
   BUILTIN_PLACE_KINDS,
+  BUILTIN_PLACE_TEMPLATE_KEYS,
   CHILD_ORDERS,
   CLAIM_STATUSES,
   CONDITIONS,
@@ -41,6 +42,8 @@ import {
   MOVE_STATUSES,
   type ModuleId,
   normaliseInputCode,
+  PLACE_LAYOUT_LIMITS,
+  PLACE_ORIENTATIONS,
   ROLES,
   WARRANTY_KINDS,
 } from '@kept/shared';
@@ -735,7 +738,7 @@ export const TOOL_DEFS = Object.freeze({
     name: 'create_place',
     title: 'Add a place',
     description:
-      'Add a place (a room, a shelf, a zone) under another place, or at the top of the location.',
+      'Add a place inside another, or at the top of the location. `template` adds furniture and its compartments.',
     scope: 'write',
     module: null,
     since: 6,
@@ -748,8 +751,21 @@ export const TOOL_DEFS = Object.freeze({
         .max(40)
         .optional()
         .describe(`A place kind: ${BUILTIN_PLACE_KINDS.join(', ')} or the account’s own`),
+      // #238: the app's "Furniture with compartments", with the same fields.
+      template: z
+        .string()
+        .max(80)
+        .optional()
+        .describe(`${BUILTIN_PLACE_TEMPLATE_KEYS.join(', ')} or a template id`),
+      orientation: z.enum(PLACE_ORIENTATIONS).optional(),
+      count: z.number().int().min(1).max(PLACE_LAYOUT_LIMITS.count).optional(),
+      code: z.string().max(100).optional(),
+      code_pattern: z.string().max(100).nullable().optional(),
     }),
-    output: writeResult.extend({ place: placeRef }),
+    output: writeResult.extend({
+      place: placeRef,
+      compartments: z.number().int().optional(),
+    }),
   }),
   // 1.x (#313): the app's place form (Rename, Move, its fields, Order of the places here) and
   // Turn places into boxes, through their routes' operations, with the app's undo.

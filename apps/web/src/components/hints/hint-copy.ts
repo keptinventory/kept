@@ -75,26 +75,37 @@ export function useTourStepCopy(): Record<string, HintCopy> {
     ),
     'basics.tours': e(
       t`The tour`,
-      t`One chapter per section. Start at any of them here, or tap Show me on its page.`,
+      t`One chapter per section. Tap one to start there, or tap Show me on its page.`,
     ),
 
     'things.add': e(t`Add here`, t`Add a thing, a box or a room to this location.`),
     'things.contents': e(t`What's here`, t`Everything in this location. Tap a thing to open it.`),
     'things.where': e(t`Where it is`, t`The place it's in. Tap to go back there.`),
-    'things.actions': e(t`Actions`, t`Move it, lend it, print its label or put it in Trash.`),
+    'things.actions': e(t`Actions`, t`Move it, lend it, print its label or move it to the Trash.`),
     'things.tabs': e(
       t`Its sections`,
-      t`Details, paperwork, history and the rest, each in its own tab.`,
+      t`Details, paperwork, history and the rest, each in its own tab. Tap a photo to see it full screen.`,
     ),
 
     'map.layout': e(
-      t`List, Grid or Map`,
-      t`Pick how this location is shown. Map draws it floor by floor.`,
+      t`List, Grid, Graph or Map`,
+      t`Pick how this location is shown. Graph shows what's inside what; Map draws it floor by floor.`,
+    ),
+    'map.layout-table': e(
+      t`List, Grid, Graph, Table or Map`,
+      t`Pick how this location is shown. Table, on a wide screen, works like a spreadsheet.`,
+    ),
+    'map.graph': e(
+      t`Graph, in 2D or 3D`,
+      t`Floors, rooms, boxes and things as a graph. Pick one for its card, pick it again to go in.`,
     ),
     'map.view': e(t`3D or plan`, t`Turn the map in 3D, or look straight down at the plan.`),
     'map.pins': e(t`Pins`, t`Mark what's running low, lent out or due, on the map.`),
     'map.floors': e(t`Floors`, t`Pick a floor, or All for the whole building.`),
-    'map.arrange': e(t`Arrange`, t`Draw rooms, add a floor and put things where they really are.`),
+    'map.arrange': e(
+      t`Arrange`,
+      t`Draw rooms and add a floor. Drag a room to move it, with everything in it.`,
+    ),
 
     'capture.mode': e(
       t`What you're capturing`,
@@ -145,10 +156,17 @@ export function useTourStepCopy(): Record<string, HintCopy> {
       t`Type part of a name, a brand, a serial or a short ID. Filters narrow it down.`,
     ),
     'search.views': e(t`Views`, t`Save a search with its filters, and open it again in one tap.`),
-    'search.labels': e(t`Print labels`, t`Print a sheet for everything still without a label.`),
+    'search.select': e(
+      t`Select several`,
+      t`Select things in a list to move them, print their labels or move them to the Trash.`,
+    ),
+    'search.labels': e(
+      t`Print labels`,
+      t`Print a sheet for everything still without a label, or a blank sheet to name later.`,
+    ),
     'search.scan': e(
       t`Scan a label`,
-      t`Tap Scan and point the camera at a label to open what it's on.`,
+      t`Point the camera at a label to open what it's on. A blank one can go on a thing or place you have.`,
     ),
 
     'moving.start': e(t`Start a move`, t`Name the move and say where it's going.`),
@@ -194,6 +212,10 @@ export function useTourStepCopy(): Record<string, HintCopy> {
     'vehicles.list': e(t`Vehicles`, t`Each vehicle with its last reading and what's due next.`),
     'vehicles.add': e(t`Add a vehicle`, t`Add a car, a motorbike or a generator.`),
     'vehicles.log': e(t`Log it`, t`Log a reading, a service or fuel from here.`),
+    'vehicles.services': e(
+      t`Services`,
+      t`Every service with what it cost. Tap one to open all of it, with its invoice.`,
+    ),
     'vehicles.fuel': e(t`Fuel`, t`Every fill or charge, with what it cost and how far it went.`),
 
     'import-export.source': e(
@@ -231,7 +253,7 @@ export function useTourTitles(): Record<TourId, string> {
   return {
     basics: t`Basics`,
     things: t`Things & places`,
-    map: t`The 3D map`,
+    map: t`Graph & 3D map`,
     capture: t`Capture & Inbox`,
     scanning: t`Scanning`,
     search: t`Search & labels`,

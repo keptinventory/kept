@@ -7,7 +7,8 @@ import { useLingui } from '@lingui/react/macro';
 import type { BuiltinPlaceKind, PlaceNode, TypeRef } from '@/api/inventory/types';
 import { usePrefs } from '@/lib/prefs';
 
-/** The four built-in kinds, in the order the "Room or spot" sheet offers them. */
+/** The built-in kinds the "Room or spot" sheet offers, in its order; furniture and its
+ * compartments come from a place template (#238). */
 export const PLACE_KINDS: readonly BuiltinPlaceKind[] = ['room', 'zone', 'closet', 'floor'];
 
 /** Their icons (the static set in components/type-icon.tsx, as the server seeds them). */
@@ -16,6 +17,11 @@ export const PLACE_KIND_ICONS: Record<string, string> = {
   room: 'lucide:door-open',
   zone: 'lucide:square-dashed',
   closet: 'tabler:hanger',
+  // #238: furniture made from a place template, and its compartments.
+  furniture: 'lucide:library-big',
+  cube: 'lucide:grid-2x2',
+  shelf: 'lucide:rows-3',
+  drawer: 'lucide:archive',
 };
 
 /** The icon a place shows: its own, its kind's, or the Unplaced area's dashed circle (D118). */
@@ -26,7 +32,16 @@ export function placeIcon(place: Pick<PlaceNode, 'icon' | 'kindKey' | 'isUnplace
 
 export function usePlaceKindLabels(): Record<BuiltinPlaceKind, string> {
   const { t } = useLingui();
-  return { floor: t`Floor`, room: t`Room`, zone: t`Spot`, closet: t`Closet` };
+  return {
+    floor: t`Floor`,
+    room: t`Room`,
+    zone: t`Spot`,
+    closet: t`Closet`,
+    furniture: t`Furniture`,
+    cube: t`Cube`,
+    shelf: t`Shelf`,
+    drawer: t`Drawer`,
+  };
 }
 
 /** A place's kind as a word; an account's own kind key is shown as it is. */

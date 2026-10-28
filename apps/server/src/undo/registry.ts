@@ -12,6 +12,7 @@ import {
 } from '../audit/undo.js';
 import { AppError, conflict, notFound } from '../http/errors.js';
 import { gateFor } from '../serialize/gates.js';
+import { undoFurnitureCreate } from '../templates/place-templates.js';
 import { undoFields } from '../things/undo.js';
 
 // In-app undo's step-3 handlers (T20; D150, D124; plan Q23), registered with audit/undo.ts.
@@ -25,7 +26,8 @@ import { undoFields } from '../things/undo.js';
 // - thing.extract, purchase.extract: here (the AI's applied fields, T10's apply.ts);
 // - thing.create, place.create, reading.create: here, for step 6's tools (T9, D58, D124), which
 //   write their creates undoable; a create from the app's own screens is written without a
-//   window and never reaches these.
+//   window and never reaches these, except furniture made from a place template (#238), whose
+//   one Undo takes its compartments with it.
 // Secret-class diffs are never undoable (audited() writes them without a window, and the route
 // refuses them), and registry events (account-level) never reach the route. There is no redo.
 
@@ -264,8 +266,10 @@ async function undoThingCreate(args: UndoArgs): Promise<void> {
   });
 }
 
-/** `place.create`: the place goes to the trash, if it is still empty. */
+/** `place.create`: the place goes to the trash, if it is still empty. Furniture made from a
+ * template (#238) goes with its compartments (templates/place-templates.ts). */
 async function undoPlaceCreate(args: UndoArgs): Promise<void> {
+  if (Array.isArray(args.event.diff.compartments?.after)) return undoFurnitureCreate(args);
   const { client, event } = args;
   const id = event.entityId;
   if (event.entityType !== 'place' || !id) throw notUndoable();

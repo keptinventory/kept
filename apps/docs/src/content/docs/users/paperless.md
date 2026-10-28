@@ -50,6 +50,11 @@ The kind comes from the document's type in Paperless, then its tags: *Receipt*, 
 *Manual* and *Warranty* (and the same words in French, German, Italian and Arabic) are
 recognised, anything else is a document. The **Kind** filter in Paperwork narrows these too.
 
+**From a Homebox import:** a Homebox link to one of your Paperless documents (`…/documents/123`,
+or the API's `…/api/documents/123/download/`) at the address this location is connected to comes
+in as a linked document, with Homebox's title and its attachment type as the kind. Connect
+Paperless before you import; any other link stays a plain link.
+
 ## Linked or copied
 
 | | Linked | Copied into Kept |

@@ -128,6 +128,8 @@ export type HomeboxDryRunSummary = {
   schedules: number;
   attachments: number;
   links: number;
+  /** Links to a document of the location's Paperless-ngx, made Paperless links (#347). */
+  paperlessLinks: number;
   tags: number;
   types: number;
   fieldsAdded: number;

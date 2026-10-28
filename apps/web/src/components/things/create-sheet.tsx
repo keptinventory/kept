@@ -370,6 +370,7 @@ export function CreateThingSheet({
           label={t`Brand`}
           value={brandId}
           onChange={setBrandId}
+          addIn={where.locationId}
         />
         <TagsField
           accountId={accountId}

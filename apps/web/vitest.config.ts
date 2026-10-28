@@ -4,18 +4,24 @@ import { lingui, linguiTransformerBabelPreset } from '@lingui/vite-plugin';
 import babel from '@rolldown/plugin-babel';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
+import { whatsNewPlugin } from './whats-new-plugin';
 
 // Explicit, because the root `vitest` run starts from the repo root, where Lingui would look.
 // The macro plugin gets the resolved config too: the preset doesn't pass it on.
 const configPath = fileURLToPath(new URL('./lingui.config.ts', import.meta.url));
 const linguiConfig = getConfig({ configPath });
 
-// No router or Tailwind plugins here: component tests need JSX, the Lingui macro and PO imports.
+// No router or Tailwind plugins here: component tests need JSX, the Lingui macro and PO imports,
+// and What's new's virtual module (a development version: no card; its tests mock a release).
 export default defineConfig({
   plugins: [
     react(),
     lingui({ configPath }),
     babel({ presets: [linguiTransformerBabelPreset({ linguiConfig }, { configPath })] }),
+    whatsNewPlugin({
+      version: '0.0.0-dev',
+      changelog: fileURLToPath(new URL('../../CHANGELOG.md', import.meta.url)),
+    }),
   ],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
