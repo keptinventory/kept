@@ -395,7 +395,7 @@ const schema = z.object({
     .default('0')
     .transform((value) => value === '1')
     .describe(
-      "`1` only in the Home Assistant app's image: Kept trusts Home Assistant's ingress (from 172.30.32.2 only) and says it runs as an app",
+      "`1` only in the Home Assistant app's image: Kept trusts Home Assistant's ingress (from the Supervisor's address only) and says it runs as an app",
     ),
   // https served by Kept itself, e.g. with Home Assistant's own certificate from /ssl. Both or
   // neither; a renewed certificate is read at the next start.

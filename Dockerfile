@@ -6,6 +6,8 @@
 #     --build-arg REVISION=$(git rev-parse HEAD) --build-arg VERSION=1.2.3 -t kept:dev .
 #
 # One image for every role (KEPT_ROLE = all · web · worker) and for the one-shot `kept migrate`.
+# `--target ha` builds the Home Assistant app's image instead (D272, at the end of this file): Kept
+# with its own Postgres 18 and pgvector, published as ghcr.io/keptinventory/kept-ha.
 # It runs as uid 10001 (user `kept`) with a read-only root filesystem: the only writable paths are
 # /data (local file storage), /config (first-boot keys, D193), /owner (the database owner's
 # password, which Compose's bootstrap writes and only migrate mounts) and /tmp.
@@ -119,8 +121,11 @@ ADD --checksum=sha256:6f08a01a9fab5b24e139a09f15cc24a73087c7bc09e3bacf099fdf2d76
     https://raw.githubusercontent.com/restic/restic/v0.19.1/LICENSE /restic-LICENSE
 
 # ---------------------------------------------------------------------------------------------
-# The operating system the runtime gets, flattened into one layer below.
-FROM ${NODE_IMAGE} AS os
+# The operating system the runtime gets, flattened into one layer below. `os-base` is what both
+# images share (PGDG, the Postgres 18 client, ssh, restic, the kept user); `os` then purges Perl for
+# the `kept` image, and `ha-os` adds the Postgres server for the Home Assistant app instead (D272):
+# the server needs Perl, so the purge can only ever come after a server install, never before it.
+FROM ${NODE_IMAGE} AS os-base
 
 # pg_dump and pg_restore for backups and `kept admin backup | restore` (D207). They must be
 # the database's major version, 18 (an older pg_dump refuses a newer server), and Debian
@@ -149,17 +154,6 @@ RUN chmod 0644 /usr/share/keyrings/pgdg.asc \
  && apt-get install -y --no-install-recommends \
       postgresql-client-18=18.6-1.pgdg12+2 \
       openssh-client=1:9.2p1-2+deb12u10 \
- && dpkg --purge --force-depends perl libperl5.36 perl-modules-5.36 \
- && for f in /usr/bin/*; do \
-      [ "$(readlink "$f")" = ../share/postgresql-common/pg_wrapper ] || continue; \
-      if [ -x "/usr/lib/postgresql/18/bin/${f##*/}" ]; then \
-        ln -sfn "/usr/lib/postgresql/18/bin/${f##*/}" "$f"; \
-      else \
-        rm -f "$f"; \
-      fi; \
-    done \
- && /usr/bin/pg_dump --version | grep -q '(PostgreSQL) 18\.' \
- && /usr/bin/pg_restore --version | grep -q '(PostgreSQL) 18\.' \
  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* /var/log/apt /var/log/dpkg.log
 
 COPY --from=restic /restic /usr/local/bin/restic
@@ -183,12 +177,51 @@ RUN groupadd --gid 10001 kept \
  && chown 10001:10001 /data /config /owner \
  && chmod 0700 /data /config /owner
 
+# The `kept` image's OS: Perl purged, the version-picking wrappers pointed at version 18 (above).
+FROM os-base AS os
+RUN dpkg --purge --force-depends perl libperl5.36 perl-modules-5.36 \
+ && for f in /usr/bin/*; do \
+      [ "$(readlink "$f")" = ../share/postgresql-common/pg_wrapper ] || continue; \
+      if [ -x "/usr/lib/postgresql/18/bin/${f##*/}" ]; then \
+        ln -sfn "/usr/lib/postgresql/18/bin/${f##*/}" "$f"; \
+      else \
+        rm -f "$f"; \
+      fi; \
+    done \
+ && /usr/bin/pg_dump --version | grep -q '(PostgreSQL) 18\.' \
+ && /usr/bin/pg_restore --version | grep -q '(PostgreSQL) 18\.' \
+ && rm -f /var/log/dpkg.log
+
+# ---------------------------------------------------------------------------------------------
+# The Home Assistant app's OS (D272): Postgres 18 and pgvector beside Kept, in one container. The
+# server, postgresql-common and pgvector come from the same PGDG repository and key as the client,
+# each pinned to the version in bookworm-pgdg's index for both amd64 and arm64 (read 2026-10-28:
+# postgresql-18 18.6-1.pgdg12+2, the client's own; postgresql-18-pgvector 0.8.7-1.pgdg12+1;
+# postgresql-common 293.pgdg12+1, Architecture: all). Perl and locales come back as their
+# dependencies. postgresql-common is installed first and told to make no cluster: the app's start
+# script makes its own under /data (docker/ha/kept-ha-start), and nothing may live outside /data.
+FROM os-base AS ha-os
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends postgresql-common=293.pgdg12+1 \
+ && sed -ri 's/#(create_main_cluster) .*$/\1 = false/' /etc/postgresql-common/createcluster.conf \
+ && apt-get install -y --no-install-recommends \
+      postgresql-18=18.6-1.pgdg12+2 \
+      postgresql-18-pgvector=0.8.7-1.pgdg12+1 \
+ && /usr/lib/postgresql/18/bin/postgres --version | grep -q '(PostgreSQL) 18\.' \
+ && test -f /usr/share/postgresql/18/extension/vector.control \
+ && test ! -e /var/lib/postgresql/18/main \
+ && rm -rf /var/lib/apt/lists/* /var/cache/apt/* /var/log/apt /var/log/dpkg.log
+# The start and backup scripts and the options reader (docker/ha/). Root runs them: the start
+# script drops to `postgres` for the database and to 10001 for Kept.
+COPY --chmod=0755 docker/ha/kept-ha-start docker/ha/kept-ha-backup /usr/local/bin/
+COPY --chmod=0644 docker/ha/options.mjs /usr/local/lib/kept-ha/options.mjs
+
 # ---------------------------------------------------------------------------------------------
 # Third-party notices (D151): generated from this architecture's own pruned
 # node_modules, the OS packages above, Node's and restic's licences. It also fails the build when
 # a shipped package's licence is off the runtime allowlist (scripts/check-licences.mjs), so the
 # licence scan covers exactly what the image ships.
-FROM os AS notices
+FROM scratch AS notices-inputs
 # Node.js's LICENSE at the base image's tag: the base image doesn't ship it. Its SHA-256 was
 # computed from that file on 2026-10-06 (157,609 bytes).
 ADD --checksum=sha256:5888dbb9a1d2b18f2c3e6c5f6af1b39de658372b402a0577b002777f14c62ace \
@@ -196,28 +229,28 @@ ADD --checksum=sha256:5888dbb9a1d2b18f2c3e6c5f6af1b39de658372b402a0577b002777f14
 COPY --from=prod-deps /src/node_modules /notices/node_modules
 COPY --from=build /src/apps/server/assets/fonts/*-OFL.txt /notices/fonts/
 COPY --from=build /src/apps/web/src/map/models/NOTICE.txt /notices/map-models-NOTICE.txt
+
+FROM os AS notices
+COPY --from=notices-inputs /notices /notices
 ARG VERSION=0.0.0-dev
 ARG TARGETARCH
-# Standard licence texts for packages that ship none: Debian's common-licenses, and MIT and ISC
-# from SPDX's license-list-data v3.29.0 (docker/licence-texts/, which Debian doesn't hold).
-RUN --mount=type=bind,source=scripts/third-party-notices.mjs,target=/notices/bin/third-party-notices.mjs \
+RUN --mount=type=bind,source=docker/notices.sh,target=/notices/bin/notices.sh \
+    --mount=type=bind,source=scripts/third-party-notices.mjs,target=/notices/bin/third-party-notices.mjs \
     --mount=type=bind,source=scripts/check-licences.mjs,target=/notices/bin/check-licences.mjs \
     --mount=type=bind,source=docker/licence-texts,target=/notices/texts \
-    dpkg-query -W -f '${Package}\t${Version}\n' >/notices/dpkg.tsv \
- && node /notices/bin/third-party-notices.mjs \
-      --store /notices/node_modules/.pnpm \
-      --texts /notices/texts --texts /usr/share/common-licenses \
-      --dpkg /notices/dpkg.tsv --dpkg-docs /usr/share/doc \
-      --node-licence /notices/node-LICENSE \
-      --node-version "$(node -p process.versions.node)" \
-      --restic-licence /usr/share/doc/restic/LICENSE \
-      --restic-version "$(restic version | cut -d' ' -f2)" \
-      --extra "IBM Plex Sans (the inventory report's font)|OFL-1.1|/notices/fonts/IBMPlexSans-OFL.txt" \
-      --extra "IBM Plex Sans Arabic (the inventory report's font)|OFL-1.1|/notices/fonts/IBMPlexSansArabic-OFL.txt" \
-      --extra "IBM Plex Mono (the inventory report's font)|OFL-1.1|/notices/fonts/IBMPlexMono-OFL.txt" \
-      --extra "Poly Haven models (the location map's furniture, plants and AC units)|CC0-1.0|/notices/map-models-NOTICE.txt" \
-      --version "${VERSION}" --arch "${TARGETARCH}" \
-      --out /THIRD-PARTY-NOTICES.txt
+    sh /notices/bin/notices.sh "${VERSION}" "${TARGETARCH}"
+
+# The same for the Home Assistant app's image, over its own OS's packages (the Postgres server,
+# pgvector, Perl, locales and what they bring).
+FROM ha-os AS ha-notices
+COPY --from=notices-inputs /notices /notices
+ARG VERSION=0.0.0-dev
+ARG TARGETARCH
+RUN --mount=type=bind,source=docker/notices.sh,target=/notices/bin/notices.sh \
+    --mount=type=bind,source=scripts/third-party-notices.mjs,target=/notices/bin/third-party-notices.mjs \
+    --mount=type=bind,source=scripts/check-licences.mjs,target=/notices/bin/check-licences.mjs \
+    --mount=type=bind,source=docker/licence-texts,target=/notices/texts \
+    sh /notices/bin/notices.sh "${VERSION}" "${TARGETARCH}"
 
 # ---------------------------------------------------------------------------------------------
 FROM scratch AS runtime
@@ -287,3 +320,70 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
 # The tracing preload (D84) loads no OpenTelemetry package unless OTEL_EXPORTER_OTLP_ENDPOINT
 # is set; it has to run before fastify and pg load, so it is an --import, not an import.
 ENTRYPOINT ["node", "--import", "/app/apps/server/dist/observability/tracing.js", "/app/apps/server/dist/main.js"]
+
+# ---------------------------------------------------------------------------------------------
+# The Home Assistant app (D272): `docker buildx build --target ha`, published as
+# ghcr.io/keptinventory/kept-ha:<Kept's version>. Kept, Postgres 18 and pgvector in one container
+# the Supervisor manages; everything that lasts is under /data, which Home Assistant keeps across
+# updates and puts in its backups (homeassistant/kept/config.yaml). The start script runs as root,
+# makes or restores the database, and runs Postgres as `postgres` and Kept as 10001
+# (docker/ha/kept-ha-start). It declares no VOLUME: under the Supervisor one would become an
+# anonymous volume, lost on every update (the spike's T8). The `io.hass.*` labels are what the
+# Supervisor reads; `io.hass.arch` is Home Assistant's name for the architecture.
+FROM scratch AS ha-arch-amd64
+LABEL io.hass.arch="amd64"
+FROM scratch AS ha-arch-arm64
+LABEL io.hass.arch="aarch64"
+
+FROM ha-arch-${TARGETARCH} AS ha
+COPY --from=ha-os / /
+
+ARG VERSION=0.0.0-dev
+ARG REVISION=
+ARG SOURCE=https://github.com/keptinventory/kept
+
+LABEL org.opencontainers.image.title="Kept for Home Assistant" \
+      org.opencontainers.image.description="Kept, a home inventory you can self-host, as a Home Assistant app with its own database" \
+      org.opencontainers.image.licenses="AGPL-3.0-only" \
+      org.opencontainers.image.source="${SOURCE}" \
+      org.opencontainers.image.revision="${REVISION}" \
+      org.opencontainers.image.version="${VERSION}" \
+      io.hass.version="${VERSION}" \
+      io.hass.type="app"
+
+# As the runtime's, with the app's own: KEPT_HA=1 (app mode: the one ingress check, D273), the
+# config and the files under /data.
+ENV NODE_ENV=production \
+    KEPT_VERSION="${VERSION}" \
+    KEPT_REVISION="${REVISION}" \
+    KEPT_SOURCE_URL="${SOURCE}${REVISION:+/tree/${REVISION}}" \
+    KEPT_HA=1 \
+    KEPT_CONFIG_DIR=/data/config \
+    KEPT_DATA_DIR=/data/kept \
+    KEPT_RESTIC_BIN=/usr/local/bin/restic \
+    HOME=/tmp \
+    PATH=/usr/lib/postgresql/18/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+WORKDIR /app
+COPY --from=prod-deps /src/node_modules ./node_modules
+COPY --from=prod-deps /src/apps/server/node_modules ./apps/server/node_modules
+COPY --from=prod-deps /src/packages/shared/node_modules ./packages/shared/node_modules
+COPY --from=prod-deps /src/packages/mcp/node_modules ./packages/mcp/node_modules
+COPY --from=build /src/package.json ./package.json
+COPY --from=build /src/apps/server/package.json ./apps/server/package.json
+COPY --from=build /src/apps/server/dist ./apps/server/dist
+COPY --from=build /src/apps/server/assets ./apps/server/assets
+COPY --from=build /src/apps/server/migrations ./apps/server/migrations
+COPY --from=build /src/packages/shared/package.json ./packages/shared/package.json
+COPY --from=build /src/packages/shared/dist ./packages/shared/dist
+COPY --from=build /src/packages/mcp/package.json ./packages/mcp/package.json
+COPY --from=build /src/packages/mcp/dist ./packages/mcp/dist
+COPY --from=build /src/apps/web/dist ./apps/web/dist
+COPY LICENSE ./LICENSE
+COPY --from=ha-notices /THIRD-PARTY-NOTICES.txt ./THIRD-PARTY-NOTICES.txt
+
+# Root: the start script owns the processes (homeassistant/kept/config.yaml sets `init: true`, so
+# Docker's init is PID 1 and passes the stop signal on).
+USER 0:0
+EXPOSE 8080
+ENTRYPOINT ["/usr/local/bin/kept-ha-start"]

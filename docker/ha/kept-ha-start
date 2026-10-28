@@ -1,0 +1,166 @@
+#!/bin/bash
+# The Home Assistant app's start (D272; the app spec's §5.2): Kept and Postgres 18 in one container,
+# everything that lasts under /data, which Home Assistant keeps across updates and backs up.
+#
+#   1. the options (/data/options.json) and Kept's address, as Kept's environment (options.mjs);
+#   2. /data's folders re-owned on every start: a restored backup comes back owned by root;
+#   3. no database yet: restore from /data/backup/kept.pgdump when a backup brought one, else a new
+#      cluster (initdb);
+#   4. Postgres as `postgres`, on 127.0.0.1 and a socket only root and postgres can reach;
+#   5. `kept bootstrap` as root (the four logins, their passwords into files under /data);
+#   6. a restore's pg_restore, then `kept migrate` as Kept's user with the owner login;
+#   7. SUPERVISOR_TOKEN dropped, then Kept as uid 10001;
+#   8. on TERM: Kept first, then `pg_ctl stop -m fast` (a signal through runuser never reached
+#      Postgres in the spike, T6); if either process exits, the other is stopped and the script
+#      exits non-zero, so the Supervisor's watchdog restarts the app.
+#
+# Postgres's settings are for a small machine beside Home Assistant (spec §5.2). KEPT_HA_DEMO is set
+# only by the test-only local app (homeassistant/.test/kept-demo): a person can't set an
+# app's environment from Home Assistant.
+set -euo pipefail
+umask 077
+
+DATA=/data
+PGBIN=/usr/lib/postgresql/18/bin
+PGDATA=$DATA/postgres
+SOCKET=/run/postgresql
+DUMP=$DATA/backup/kept.pgdump
+KEPT_USER=kept
+
+log() { printf 'app: %s\n' "$*"; }
+as_postgres() { setpriv --reuid=postgres --regid=postgres --init-groups -- "$@"; }
+as_kept() { setpriv --reuid="$KEPT_USER" --regid="$KEPT_USER" --init-groups -- "$@"; }
+psql_su() { "$PGBIN/psql" -h "$SOCKET" -U postgres -v ON_ERROR_STOP=1 -qAt "$@"; }
+
+# 1. The options and the address. The values go through a root-only file, never argv.
+install -d -m 0700 /run/kept-ha
+node /usr/local/lib/kept-ha/options.mjs --options "$DATA/options.json" >/run/kept-ha/env
+# shellcheck source=/dev/null
+. /run/kept-ha/env
+rm -f /run/kept-ha/env
+
+# 2. Ownership, every start (the spike's T11: Supervisor 2026.10.5 restores files as root). /data
+# itself is root's and only traversable, so postgres and Kept each reach their own folder and
+# nothing else; options.json (it may hold the mail password) is root's alone.
+chown root:root "$DATA"
+chmod 0711 "$DATA"
+[[ ! -f $DATA/options.json ]] || chmod 0600 "$DATA/options.json"
+install -d -m 0700 "$DATA/kept" "$DATA/config" "$DATA/owner" "$DATA/backup" "$PGDATA"
+chown -R "$KEPT_USER:$KEPT_USER" "$DATA/kept" "$DATA/config" "$DATA/owner"
+chown -R postgres:postgres "$DATA/backup"
+[[ $(stat -c %U "$PGDATA") == postgres ]] || chown -R postgres:postgres "$PGDATA"
+chmod 0700 "$PGDATA"
+# The socket's folder: Postgres writes its socket there; only root (the bootstrap and the backup)
+# and postgres connect through it. Kept itself connects over 127.0.0.1 with its own logins.
+install -d -m 0700 -o postgres -g postgres "$SOCKET"
+
+# 3. A database, made or restored.
+restore=
+fresh=
+if [[ ! -s $PGDATA/PG_VERSION ]]; then
+  if [[ -s $DUMP ]]; then
+    restore=1
+    log "no database, but a backup brought one: restoring it"
+  fi
+  # What an interrupted first start left behind.
+  find "$PGDATA" -mindepth 1 -delete
+  as_postgres "$PGBIN/initdb" -D "$PGDATA" -U postgres --auth-local=peer --auth-host=scram-sha-256 \
+    -E UTF8 --locale=C.UTF-8 >/dev/null
+  fresh=1
+  log "database created"
+fi
+# Root reaches the superuser over the socket only, through this ident map; nothing else can.
+if ! grep -q '^local all postgres peer map=boot' "$PGDATA/pg_hba.conf"; then
+  sed -i '1i local all postgres peer map=boot' "$PGDATA/pg_hba.conf"
+  printf 'boot root postgres\nboot postgres postgres\n' >>"$PGDATA/pg_ident.conf"
+fi
+
+# 4. Postgres. setpriv straight from this shell (not through the function, which would run in a
+# subshell), and setpriv execs: so $! is Postgres itself.
+setpriv --reuid=postgres --regid=postgres --init-groups -- "$PGBIN/postgres" -D "$PGDATA" \
+  -c listen_addresses=127.0.0.1 -c port=5432 -c unix_socket_directories="$SOCKET" \
+  -c shared_buffers=64MB -c max_connections=50 -c work_mem=4MB -c maintenance_work_mem=64MB \
+  -c effective_cache_size=256MB -c wal_level=minimal -c max_wal_senders=0 &
+pg_pid=$!
+for _ in $(seq 120); do
+  "$PGBIN/pg_isready" -q -h "$SOCKET" -U postgres && break
+  kill -0 "$pg_pid" 2>/dev/null || { log "Postgres did not start"; exit 1; }
+  sleep 0.5
+done
+"$PGBIN/pg_isready" -q -h "$SOCKET" -U postgres || { log "Postgres did not answer in 60 s"; exit 1; }
+[[ $(psql_su -d postgres -c "SELECT 1 FROM pg_database WHERE datname = 'kept'") == 1 ]] ||
+  psql_su -d postgres -c 'CREATE DATABASE kept' >/dev/null
+
+stop_postgres() {
+  as_postgres "$PGBIN/pg_ctl" -D "$PGDATA" stop -m fast -w -t 50 >/dev/null 2>&1 ||
+    kill -INT "$pg_pid" 2>/dev/null || true
+  wait "$pg_pid" 2>/dev/null || true
+}
+trap 'log "stopping"; stop_postgres; log "stopped"; exit 0' TERM INT
+
+# 5. The four logins and the extensions, as the superuser (root, through the ident map).
+env PGHOST="$SOCKET" PGUSER=postgres PGDATABASE=kept \
+  KEPT_DB_OWNER_PASSWORD_FILE="$DATA/owner/kept_owner" \
+  KEPT_DB_APP_PASSWORD_FILE="$DATA/config/database/kept_app" \
+  KEPT_DB_AUTH_PASSWORD_FILE="$DATA/config/database/kept_auth" \
+  KEPT_DB_SYSTEM_PASSWORD_FILE="$DATA/config/database/kept_system" \
+  kept bootstrap
+chown -R "$KEPT_USER:$KEPT_USER" "$DATA/config" "$DATA/owner"
+
+# 6. A restore, then the migrations.
+if [[ -n $restore ]]; then
+  as_postgres "$PGBIN/pg_restore" -h "$SOCKET" -U postgres -d kept --clean --if-exists \
+    --exit-on-error "$DUMP"
+  log "database restored from the backup"
+fi
+
+# Kept's environment: its three runtime logins over 127.0.0.1 (passwords from their files), the
+# owner login for migrate alone, Home Assistant's ingress proxies (Core, then the Supervisor).
+unset SUPERVISOR_TOKEN HASSIO_TOKEN
+export KEPT_DATABASE_URL=postgres://kept_app:@127.0.0.1:5432/kept
+export KEPT_AUTH_DATABASE_URL=postgres://kept_auth:@127.0.0.1:5432/kept
+export KEPT_SYSTEM_DATABASE_URL=postgres://kept_system:@127.0.0.1:5432/kept
+export KEPT_DB_APP_PASSWORD_FILE=$DATA/config/database/kept_app
+export KEPT_DB_AUTH_PASSWORD_FILE=$DATA/config/database/kept_auth
+export KEPT_DB_SYSTEM_PASSWORD_FILE=$DATA/config/database/kept_system
+export KEPT_TRUSTED_PROXIES=172.30.32.1,172.30.32.2
+export KEPT_LOG_FORMAT=pretty
+export KEPT_PORT=8080
+
+as_kept env KEPT_OWNER_DATABASE_URL=postgres://kept_owner:@127.0.0.1:5432/kept \
+  KEPT_DB_OWNER_PASSWORD_FILE="$DATA/owner/kept_owner" kept migrate
+
+# 7. Kept. As Postgres above: $! is node itself, so TERM reaches it.
+setpriv --reuid="$KEPT_USER" --regid="$KEPT_USER" --init-groups -- node --import /app/apps/server/dist/observability/tracing.js /app/apps/server/dist/main.js &
+kept_pid=$!
+
+stop() {
+  log "stopping"
+  kill -TERM "$kept_pid" 2>/dev/null || true
+  wait "$kept_pid" 2>/dev/null || true
+  stop_postgres
+  log "stopped"
+}
+trap 'stop; exit 0' TERM INT
+
+# The test-only demo data: once, on a database this start made.
+if [[ ${KEPT_HA_DEMO:-} == households && -n $fresh && -z $restore ]]; then
+  (
+    for _ in $(seq 120); do
+      node -e 'fetch("http://127.0.0.1:8080/readyz").then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))' && break
+      sleep 1
+    done
+    log "TEST ONLY: loading the households demo data (KEPT_HA_DEMO)"
+    as_kept env NODE_ENV=development \
+      KEPT_OWNER_DATABASE_URL=postgres://kept_owner:@127.0.0.1:5432/kept \
+      KEPT_DB_OWNER_PASSWORD_FILE="$DATA/owner/kept_owner" \
+      kept admin seed --scenario households >/dev/null &&
+      log "TEST ONLY: demo data loaded; every password is kept-seed-password"
+  ) &
+fi
+
+# 8. Until either process exits, or the Supervisor stops the app.
+wait -n "$kept_pid" "$pg_pid" || true
+log "a process exited"
+stop
+exit 1

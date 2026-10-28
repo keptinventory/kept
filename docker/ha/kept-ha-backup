@@ -1,0 +1,36 @@
+#!/bin/bash
+# The Home Assistant app's backup_pre and backup_post (D272; the app spec's §10.2).
+#
+# Home Assistant backs the app up hot: Kept keeps serving. Before, this writes a consistent dump of
+# the database to /data/backup/kept.pgdump (pg_dump as the superuser over the socket, to a temporary
+# file, then renamed), and the live cluster (/data/postgres) is left out of the backup
+# (config.yaml `backup_exclude`). A failed dump exits non-zero, so the backup fails where the person
+# sees it instead of saving one without the database. After (`--post`), the dump is removed: it is in
+# the backup now, and keeping it would hold a second copy of the database on the disk. When the app
+# starts with no database and a dump (a restore), kept-ha-start restores from it.
+#
+#   kept-ha-backup          before the backup
+#   kept-ha-backup --post   after it
+set -euo pipefail
+umask 077
+
+DIR=/data/backup
+DUMP=$DIR/kept.pgdump
+
+if [[ ${1:-} == --post ]]; then
+  rm -f "$DUMP" "$DUMP.tmp"
+  exit 0
+fi
+
+install -d -m 0700 -o postgres -g postgres "$DIR"
+rm -f "$DUMP.tmp"
+start=$(date +%s)
+if ! setpriv --reuid=postgres --regid=postgres --init-groups -- \
+  /usr/lib/postgresql/18/bin/pg_dump -h /run/postgresql -U postgres -d kept -Fc -f "$DUMP.tmp"; then
+  rm -f "$DUMP.tmp"
+  echo "app: the database dump for the backup failed" >&2
+  exit 1
+fi
+mv -f "$DUMP.tmp" "$DUMP"
+sync "$DUMP"
+echo "app: database dumped for the backup in $(($(date +%s) - start)) s ($(du -h "$DUMP" | cut -f1))"
