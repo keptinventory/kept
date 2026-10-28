@@ -32,6 +32,12 @@ export function routerBasepath(): string {
   return ingressBase() || '/';
 }
 
+/** An in-app path (`/things/abc`, as the router names it) for the browser's own history, which
+ * knows nothing of the router's basepath: under the prefix inside Home Assistant. */
+export function appHref(path: string): string {
+  return `${ingressBase()}${path}`;
+}
+
 /** A root-relative server path under the prefix; any other URL, and every URL outside
  * ingress, as it is. */
 export function withBase(url: string): string {

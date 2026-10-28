@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  appHref,
   ingressBase,
   installIngressPrefixing,
   publicOrigin,
@@ -34,6 +35,7 @@ describe('outside ingress (every normal install)', () => {
     expect(underIngress()).toBe(false);
     expect(ingressBase()).toBe('');
     expect(routerBasepath()).toBe('/');
+    expect(appHref('/things/abc')).toBe('/things/abc');
     expect(withBase('/api/v1/me')).toBe('/api/v1/me');
     const json = { thumbUrl: '/f/abc', nested: [{ url: '/f/def' }] };
     expect(withBaseDeep(json)).toBe(json);
@@ -51,6 +53,11 @@ describe('outside ingress (every normal install)', () => {
 
 describe('under ingress', () => {
   beforeEach(() => page({ ingress: true, publicUrl: 'http://homeassistant.local:8080' }));
+
+  it('puts an in-app path under the prefix for a raw history push', () => {
+    expect(appHref('/')).toBe(`${PREFIX}/`);
+    expect(appHref('/things/abc#x')).toBe(`${PREFIX}/things/abc#x`);
+  });
 
   it('reads the prefix from <base href>', () => {
     expect(underIngress()).toBe(true);
