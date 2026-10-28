@@ -3,6 +3,44 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.14.1 (2026-10-28)
+
+### Highlights
+
+- **Furniture with compartments.** Add here → Furniture with compartments makes a cube shelf, bookcase, chest or shelving unit and every compartment in it in one step, upright or on its side, with codes from the furniture's own code and one Undo (#238).
+- **Label-maker tape, and codes with no QR.** Labels print on 9, 12, 18 and 24 mm tape, and Scan reads a printed code when there's no QR, offline, asking first when it isn't sure (#303).
+- **Coming from Homebox, fixed.** A sold date alone no longer marks things Sold, and Repair this import puts them back; Paperless links come in as Paperless links; type a new brand right in the Brand field (#346, #347, #349).
+- **Paperless in the Paperwork list.** Linked documents sit with your files, Link from Paperless is next to Add a file, and a linked document's kind can be changed (#347).
+- **Open things you logged.** A vehicle's saved service opens with its notes, to edit or delete with Undo; a photo opens full screen; moving-box sheets ask Printed OK? so packed boxes get the tape (#296, #295, #307).
+- **A shorter tour, and What's new.** Help's tour is a compact list that covers the graph, Select and Arrange, and after an update Kept shows once what's new.
+- **Shapes, AI apps and fixes.** Cube storage and a tall bookcase on the map; AI apps can edit places and turn them into boxes; no "Couldn't load this" flash after Turn into a room, merge or trash (#240, #241, #313).
+
+### Features
+
+- **web:** open a thing's photo full screen (#295) (#332, closes #295, reported by @ibrahimroshdy) (18dd2a0)
+
+### Other
+
+- 1.14.1: Homebox import fixes, label-maker tape, furniture with compartments, Help and What's new (#351, closes #303, #346, #347, #349, reported by @jpbaril) (ad201f3)
+- Web: the precache budget is 3,500 KiB, and docs-only CI runs the docs tests (#350) (c1c8f60)
+- 1.14.1: vehicle services you can open, moving-box labels, MCP place edits, two new shapes (#345, closes #240, #241, #296, #307, #313, reported by @strausmann) (7144721)
+
+### Documentation
+
+- **users:** add a user-facing troubleshooting guide (#261) (f174218)
+- **users:** add a webhooks page (#277) (c03c84b)
+- **users:** add a modules and presets page (#276) (51cf7b4)
+- **admin:** add a monitoring setup guide (#266) (c1e6db9)
+- **users:** add a glossary of terms (#264) (7914bc9)
+- **developers:** add a security guide for developers (#263) (9c2c9bd)
+- **developers:** add a contributing guide to the docs site (#262) (332b5a5)
+- **users:** add a getting started quick-start guide (#265) (6cbdac9)
+- **release:** the 1.14.0 record (#344) (db65b70)
+
+### Contributors
+
+@canblmz1 · @ibrahimroshdy · @oke3
+
 ## 1.14.0 (2026-10-28)
 
 ### Highlights
