@@ -2,12 +2,13 @@ import { sql } from 'drizzle-orm';
 import { boolean, check, index, jsonb, pgTable, primaryKey, text, uuid } from 'drizzle-orm/pg-core';
 import { user } from './auth.js';
 import { id, mutable, tstz } from './common.js';
+import { places } from './places.js';
 import { locations } from './tenancy.js';
 
 // A user's own things beside the inventory (D42, D138, D205): saved views
 // of a list, optionally shared with a location, each person's pinned and default views per list,
-// and which hints they have seen. Row-level security is in 0020 (saved_views, user_hints) and
-// 0034 (saved_view_prefs).
+// which hints they have seen, and the places they folded in the places outline. Row-level
+// security is in 0020 (saved_views, user_hints), 0034 (saved_view_prefs) and 0162 (place_folds).
 
 /** A list's name as `saved_views.surface` and `saved_view_prefs.surface` store it (D205);
  * @kept/shared's LIST_SURFACES is the set the app accepts. */
@@ -75,5 +76,24 @@ export const userHints = pgTable(
   (t) => [
     primaryKey({ name: 'user_hints_pk', columns: [t.userId, t.hintKey] }),
     check('user_hints_key_chk', sql`hint_key ~ '^[a-z0-9_.:-]{1,64}$'`),
+  ],
+);
+
+/** The places a person folded in a location's places outline (#358), one row each, so the outline
+ * opens the same on every device. Folding is the person's own view: not audited, and a place
+ * that goes (or a person) takes its rows with it. */
+export const placeFolds = pgTable(
+  'place_folds',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    placeId: uuid('place_id')
+      .notNull()
+      .references(() => places.id, { onDelete: 'cascade' }),
+  },
+  (t) => [
+    primaryKey({ name: 'place_folds_pk', columns: [t.userId, t.placeId] }),
+    index('place_folds_place_idx').on(t.placeId),
   ],
 );

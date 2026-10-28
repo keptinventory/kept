@@ -555,7 +555,7 @@ async function fileRefs(
   });
 }
 
-/** `me.json`: the person's profile, preferences, hints and saved views. */
+/** `me.json`: the person's profile, preferences, hints, saved views and folded places. */
 async function readMe(client: pg.ClientBase): Promise<Record<string, unknown>> {
   const all = async (sql: string) => (await client.query(sql)).rows;
   const [profile] = await all(
@@ -589,6 +589,11 @@ async function readMe(client: pg.ClientBase): Promise<Record<string, unknown>> {
     savedViewPrefs: await all(
       `SELECT surface, default_view_id AS "defaultViewId", pinned
          FROM public.saved_view_prefs WHERE user_id = kept.current_user_id() ORDER BY surface`,
+    ),
+    // #358: the places folded in the places outline, those the person can still see.
+    placeFolds: await all(
+      `SELECT place_id AS "placeId" FROM public.place_folds
+        WHERE user_id = kept.current_user_id() ORDER BY place_id`,
     ),
   };
 }
