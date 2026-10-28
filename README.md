@@ -120,7 +120,7 @@ Docker with Compose v2, on a machine with at least 2 GB of RAM and 2 CPU cores
 
 ```sh
 mkdir kept && cd kept
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.1/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.2/compose.yaml
 docker compose run --rm init
 docker compose up -d
 ```
