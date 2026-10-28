@@ -77,8 +77,11 @@ export async function requireParent(
 export const UNDER_UNPLACED =
   "Places can't go inside the Unplaced area; it holds things only. Choose another place.";
 
+/** The kind a new or changed place may take. The account's archived copy of a built-in kind
+ * gives way to the built-in, which is still offered (built-in templates name built-in keys). */
 export async function requireKind(client: pg.ClientBase, ownerAccountId: string, key: string) {
-  const kind = await placeKindOf(client, ownerAccountId, key);
+  let kind = await placeKindOf(client, ownerAccountId, key);
+  if (kind?.archivedAt) kind = await placeKindOf(client, null, key);
   if (!kind || kind.archivedAt)
     throw invalid(`Check body.kindKey: there is no place kind "${key}".`);
   return kind;

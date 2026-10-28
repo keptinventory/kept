@@ -577,6 +577,36 @@ describe('who may', () => {
   });
 });
 
+describe('an archived copy of a built-in kind', () => {
+  it('falls back to the built-in kind, so built-in templates still work', async () => {
+    // Alfred's account customised the built-in shelf, then archived its copy.
+    const copy = newId();
+    await own(
+      db,
+      `INSERT INTO public.place_kinds (id, owner_account_id, key, icon, archived_at)
+       VALUES ($1, $2, 'shelf', 'lucide:rows-3', now())`,
+      [copy, family.accountId],
+    );
+    try {
+      const res = await fromTemplate(alfred, family, {
+        template: { builtin: 'bookcase' },
+        name: 'مكتبة',
+        count: 2,
+      });
+      const out = made(res);
+      expect((await rows(out.place.id)).map((k) => k.kind_key)).toEqual(['shelf', 'shelf']);
+      // A kind the account never had, built-in or its own, is still refused.
+      const none = await call(t, `/api/v1/locations/${family.id}/places`, {
+        as: alfred,
+        body: { name: 'لا', kindKey: 'no-such-kind' },
+      });
+      expect(none.statusCode).toBe(400);
+    } finally {
+      await own(db, 'DELETE FROM public.place_kinds WHERE id = $1', [copy]);
+    }
+  });
+});
+
 describe('the account’s own place templates', () => {
   // catalogue: POST /api/v1/accounts/:accountId/place-templates
   it('are made by admins, shared into locations, and used by members there', async () => {
