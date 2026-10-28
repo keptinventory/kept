@@ -2,7 +2,14 @@
  * The location map's types (1.x, D237), as `apps/server/src/map/{view,service}.ts` answer them.
  * Layout positions and sizes are whole centimetres; the map draws in metres.
  */
-import type { MapRoomKind, MapSurface } from '@kept/shared';
+import type {
+  ExtractionStatus,
+  FloorPlanStatus,
+  MapRoomKind,
+  MapSurface,
+  PlanDrafts,
+  PlanExtraction,
+} from '@kept/shared';
 
 export type MapRoomLayout = {
   x: number;
@@ -94,6 +101,9 @@ export type MapView = {
   locationId: string;
   canArrange: boolean;
   version: string | null;
+  /** 1.14.3 (D266): floor plans being read or waiting for review, newest first; members and up
+   * only (absent from an older server). */
+  openPlans?: OpenPlan[];
   levels: MapLevelView[];
   rooms: MapRoomView[];
   nodes: MapNodeView[];
@@ -116,4 +126,59 @@ export type LayoutBody = {
     /** #138: centimetres, for a thing on a wall; null for everything standing. */
     height: number | null;
   }[];
+};
+
+// ---- Floor plan to map (1.14.3, D266; apps/server/src/map/floor-plans.ts) ----------------------
+
+export type OpenPlan = { id: string; status: FloorPlanStatus };
+
+/** GET /api/v1/floor-plans/:id */
+export type FloorPlanView = {
+  id: string;
+  locationId: string;
+  status: FloorPlanStatus;
+  turn: number;
+  keepPlan: boolean;
+  createdAt: string;
+  /** The read's latest attempt. */
+  read: {
+    status: ExtractionStatus;
+    reason: string | null;
+    pausedUntil: string | null;
+    attempt: number;
+  } | null;
+  /** The upload, for the underlay (POST /api/v1/files/:id/url) while the review is open. */
+  file: { id: string; attachmentId: string; mime: string } | null;
+  /** The image the model read, which its boxes are fractions of. */
+  image: { w: number; h: number } | null;
+  answer: PlanExtraction | null;
+  drafts: PlanDrafts | null;
+};
+
+/** POST /api/v1/locations/:id/floor-plans */
+export type StartPlanBody = { fileId: string; sha256?: string; turn?: 0 | 90 | 180 | 270 };
+
+/** POST /api/v1/floor-plans/:id/apply: whole centimetres, MAP_LIMITS. */
+export type ApplyPlanBody = {
+  version: string | null;
+  keepPlan: boolean;
+  floors: { key: string; id: string | null; name: string }[];
+  rooms: {
+    key: string;
+    floorKey: string | null;
+    placeId: string | null;
+    name: string;
+    kind: MapRoomKind;
+    surface: MapSurface;
+    x: number;
+    z: number;
+    w: number;
+    d: number;
+  }[];
+};
+
+export type ApplyPlanResult = {
+  version: string | null;
+  rooms: { key: string; id: string }[];
+  floors: { key: string; id: string }[];
 };

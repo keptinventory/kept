@@ -9,6 +9,7 @@ import {
   contentsOf,
   countIn,
   defaultKind,
+  drawnRect,
   flagsOf,
   fp,
   hostAt,
@@ -20,6 +21,7 @@ import {
   planOf,
   rehome,
   reshape,
+  resizeRoom,
   roomAt,
   standingOn,
   turn,
@@ -387,6 +389,56 @@ describe('arranging', () => {
   });
 });
 
+describe('resizing and drawing a room on the 10 cm grid (D267)', () => {
+  const room = (over: Partial<Parameters<typeof resizeRoom>[1]> = {}) => ({
+    id: 'r',
+    levelKey: 'g',
+    name: 'WC',
+    shortCode: null,
+    kindKey: 'room',
+    x: 0,
+    z: 0,
+    w: 1.6,
+    d: 2.1,
+    kind: 'room' as const,
+    surface: 'tile' as const,
+    ...over,
+  });
+
+  it('keeps a plan’s 1.6 × 2.1 m WC as it is, and resizes it to the 10 cm', () => {
+    const wc = room();
+    // Its corner held still: nothing changes (the old rule made it 2 × 2 on the first touch).
+    expect(resizeRoom([wc], wc, { x: 1.62, z: 2.08 })).toBe(false);
+    expect([wc.w, wc.d]).toEqual([1.6, 2.1]);
+    expect(resizeRoom([wc], wc, { x: 1.86, z: 2.31 })).toBe(true);
+    expect([wc.w, wc.d]).toEqual([1.9, 2.3]);
+  });
+
+  it('is never under 1 m a side, the map’s minimum', () => {
+    const wc = room();
+    resizeRoom([wc], wc, { x: 0.2, z: 0.4 });
+    expect([wc.w, wc.d]).toEqual([1, 1]);
+  });
+
+  it('never grows over a neighbour, and keeps the side that still fits', () => {
+    const wc = room();
+    const hall = room({ id: 'h', x: 2, w: 2, d: 2 });
+    expect(resizeRoom([wc, hall], wc, { x: 2.5, z: 2.5 })).toBe(true);
+    expect([wc.w, wc.d]).toEqual([1.6, 2.5]);
+  });
+
+  it('draws on the grid, from a 1 m minimum', () => {
+    expect(drawnRect({ x: 0.04, z: 1.02 }, { x: 2.37, z: 3.11 })).toEqual({
+      x: 0,
+      z: 1,
+      w: 2.4,
+      d: 2.1,
+    });
+    expect(drawnRect({ x: 3, z: 3 }, { x: 3.2, z: 3.1 })).toEqual({ x: 3, z: 3, w: 1, d: 1 });
+    expect(drawnRect({ x: 3, z: 3 }, { x: 1.04, z: 0.96 })).toEqual({ x: 1, z: 1, w: 2, d: 2 });
+  });
+});
+
 describe('moving a room (#301)', () => {
   const plan = () => {
     const p = planOf(view(), NAMES);
@@ -398,15 +450,21 @@ describe('moving a room (#301)', () => {
     return { p, living: room(LIVING), kitchen: room(KITCHEN), balcony: room(BED) };
   };
 
-  it('snaps its corner to whole metres', () => {
+  it('snaps its corner to the 10 cm grid (D267)', () => {
     const { p, living } = plan();
     // The auto layout puts the living room first, at 0, and the kitchen to its right.
     expect([living.x, living.z]).toEqual([0, 0]);
-    expect(moveRoom(p.rooms, living, { x: -2.4, z: 3.6 })).toBe(true);
-    expect([living.x, living.z]).toEqual([-2, 4]);
-    // Less than half a metre is no move at all.
-    expect(moveRoom(p.rooms, living, { x: -2.3, z: 4.4 })).toBe(false);
-    expect([living.x, living.z]).toEqual([-2, 4]);
+    expect(moveRoom(p.rooms, living, { x: -2.44, z: 3.62 })).toBe(true);
+    expect([living.x, living.z]).toEqual([-2.4, 3.6]);
+    // Less than 5 cm is no move at all.
+    expect(moveRoom(p.rooms, living, { x: -2.42, z: 3.63 })).toBe(false);
+    expect([living.x, living.z]).toEqual([-2.4, 3.6]);
+    // A plan's room off whole metres keeps its walls: nudged 30 cm, it moves 30 cm (the spike's
+    // Bathroom jumped from 5.5 to 6 under the old 1 m step).
+    living.x = 5.5;
+    living.z = 5.7;
+    expect(moveRoom(p.rooms, living, { x: 5.8, z: 5.7 })).toBe(true);
+    expect([living.x, living.z]).toEqual([5.8, 5.7]);
   });
 
   it('never goes over another room on its floor, and slides along it instead', () => {
@@ -491,6 +549,12 @@ describe('moving a room (#301)', () => {
 
     it('always goes four different ways, at any turn', () => {
       for (let az = -7; az < 7; az += 0.137) expect(new Set(all(az)).size).toBe(4);
+    });
+
+    it('moves a metre by default, and 10 cm with Shift (D267)', () => {
+      expect(arrowStep('ArrowRight', 0, true)).toEqual({ dx: 1, dz: 0 });
+      expect(arrowStep('ArrowRight', 0, true, 0.1)).toEqual({ dx: 0.1, dz: 0 });
+      expect(arrowStep('ArrowUp', 0, true, 0.1)).toEqual({ dx: 0, dz: -0.1 });
     });
 
     it('knows the arrow keys', () => {
