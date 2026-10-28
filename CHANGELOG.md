@@ -3,6 +3,26 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.14.2 (2026-10-28)
+
+### Highlights
+
+- **UPC barcodes scan on iPhone.** UPC-E codes, common on small packs, read again on every iPhone, and a product typed as 12 digits matches the same product scanned as 13. Things saved from earlier scans are still found.
+- **First-run setup takes requests from Kept's own page only.** Another site can no longer try setup codes, and a refused attempt doesn't use one up.
+- **Honest docs on location positions.** A location's position comes from a Kept export today; setting it in the app is coming.
+
+### Other
+
+- 1.14.2: UPC barcodes on iPhone, first-run setup from Kept only, honest location-position docs (#354) (adea716)
+
+### Documentation
+
+- **release:** the 1.14.1 record (#353) (82bb24d)
+
+### Contributors
+
+@ibrahimroshdy
+
 ## 1.14.1 (2026-10-28)
 
 ### Highlights
