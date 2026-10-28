@@ -647,9 +647,21 @@ export async function applyRow(c: ApplyCtx, entity: ExportEntity, row: Row): Pro
     case 'brands':
     case 'vendors':
     case 'tags':
-    case 'templates':
       return matchOrMake(c, def, row, () =>
         findInAccount(c, byName(def.table), [c.accountId, row.name]),
+      );
+    case 'templates':
+      // A thing template and a place template may share a name (an export before 1.14 has
+      // only thing templates).
+      return matchOrMake(c, def, row, () =>
+        findInAccount(
+          c,
+          `SELECT id FROM public.templates
+            WHERE owner_account_id = $1 AND kept.normalize(name) = kept.normalize($2)
+              AND applies_to = $3
+            ORDER BY id LIMIT 1`,
+          [c.accountId, row.name, row.appliesTo === 'place' ? 'place' : 'thing'],
+        ),
       );
     case 'people':
       return matchOrMake(c, def, row, () =>
