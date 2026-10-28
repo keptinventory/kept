@@ -289,6 +289,13 @@ export async function brandByName(
     [locationId],
   );
   const accountId = loc[0]?.account as string;
+  // Two first adds of one name at once (two people on the same form) would both find nothing and
+  // both report a brand made. Held to the transaction's end, this lock lets one look, make and
+  // commit before the other looks; the other then finds it (200, no audit row).
+  await client.query(
+    `SELECT pg_advisory_xact_lock(hashtext('kept.brands'), hashtext($1::text || kept.normalize($2)))`,
+    [accountId, name],
+  );
   const { rows: found } = await client.query<Row>(
     `SELECT * FROM public.brands
       WHERE owner_account_id = $1 AND kept.normalize(name) = kept.normalize($2)`,

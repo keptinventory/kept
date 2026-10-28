@@ -188,6 +188,20 @@ describe('brands', () => {
     ).toBe(400);
   });
 
+  it('two first adds of one brand at once make it once: one 201 and one audit row, the other 200', async () => {
+    for (const name of ['Corvane', 'Halvard Tools', 'Ostrel']) {
+      const both = await Promise.all(
+        [mel, adam].map((as) =>
+          call(t, `/api/v1/locations/${home}/brands`, { as, body: { name } }),
+        ),
+      );
+      expect(both.map((r) => r.statusCode).sort(), name).toEqual([200, 201]);
+      const [a, b] = both.map((r) => (r.json() as { item: { id: string } }).item.id);
+      expect(a).toBe(b);
+      expect(await accountAudit(bobAccount, a as string), name).toHaveLength(1);
+    }
+  });
+
   // catalogue: POST /api/v1/accounts/:accountId/brands
   it('an admin creates one, audited on the account; a member or viewer gets 403', async () => {
     const { item, possibleDuplicates } = await create<{ name: string; ownerAccountId: string }>(
