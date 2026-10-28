@@ -106,7 +106,8 @@ What AI fills in is a suggestion. Open the thing and correct the name, brand, mo
 Make sure the label is flat and well lit, and clean the camera lens. **Type the code** takes the six
 characters printed under the QR code, with or without the dash. A worn label reprints with the same
 code ([Short IDs and labels](/users/short-ids/)). A label on narrow label-maker tape has no QR code:
-hold **Scan** on its printed short ID, or type it.
+hold **Scan** on its printed short ID, or type it
+([scanning a code with no QR code](/users/short-ids/#scanning-a-code-with-no-qr-code)).
 
 ## AI
 

@@ -4,8 +4,9 @@ description: "Six-character IDs, printing labels on sheets, rolls and label-make
 ---
 
 When a new thing reaches the server it gets a short ID: six letters and digits, like `7KQ-4MZ`,
-never reused. Until then it shows **ID pending**. A label carries the ID as text and in a QR code
-that opens the thing. A label keeps its code for good, so a lost one reprints the same.
+never reused. Until then it shows **ID pending**. A label carries the ID as text and, on every
+stock but narrow label-maker tape, in a QR code that opens the thing. A label keeps its code for
+good, so a lost one reprints the same.
 
 Lists, search results and the ⌘K palette show a thing by its name. Its code shows there as amber
 label tape only once it has a printed label: a label confirmed with **Printed OK?**, or a blank
@@ -57,6 +58,7 @@ instead of a new one. Things whose ID is still pending can't be printed yet.
 | You scan | Kept |
 |---|---|
 | A Kept label for something you can see | Opens it and marks it seen just now |
+| A Kept code printed with no QR code (narrow tape) | Opens it, read from the text, or asks **Is this the code?** first when the read isn't clear ([below](#scanning-a-code-with-no-qr-code)) |
 | A blank label | Offers **New box here**, **Attach to an existing thing** or **Attach to an existing place** (a room, shelf or spot) |
 | A product barcode | Offers to add it as a new thing; with barcode lookup turned on by the admin, it's named from Open Food Facts, Open Products Facts or Open Beauty Facts |
 | A serial number or asset tag that a thing has | Opens that thing |
@@ -107,7 +109,8 @@ code it read.
 - **Kept's own print only.** It reads the short ID as Kept prints it, in its own typeface. A code
   typed into a label maker by hand, in the label maker's font, may not read: type it instead.
 
-Scanning sessions and the box check read QR codes and barcodes, not printed codes.
+Only **Scan** reads printed codes. Scanning sessions, the box check and the Capture camera read
+QR codes and barcodes only.
 
 ## Related
 

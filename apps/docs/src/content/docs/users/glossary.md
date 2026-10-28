@@ -32,6 +32,10 @@ without one, it waits in the Inbox for a name.
 **Claim pack**: a ZIP of the insurance report with every receipt, invoice, photo and serial for an
 incident, shared with the insurer by a download link. [Reports](/users/reports/)
 
+**Compartment**: a place inside furniture made from a place template: a cube, a shelf or a
+drawer, with its own name, label and, if you like, its own code.
+[Furniture with compartments](/users/locations/#furniture-with-compartments)
+
 **Condition report**: a record of how a rented home was when you moved in and when you moved out,
 for a deposit dispute. [Condition reports](/users/condition-reports/)
 
@@ -44,6 +48,12 @@ box on a shelf. A container is a thing, not a place.
 **Count**: counting a place, or checking a box, against what Kept expects to be there. Every count
 is kept, with what was found and what was missing. Also called a stocktake.
 [Counts and stocktakes](/users/counts/)
+
+## F
+
+**Furniture**: a place kind for storage furniture added with its compartments in one step: a cube
+shelf, a bookcase, a chest of drawers. Furniture drawn on the map, such as a desk, is a thing with
+a shape instead. [Furniture with compartments](/users/locations/#furniture-with-compartments)
 
 ## G
 
@@ -80,8 +90,8 @@ it, and the kit still knows. [Kits and hand-overs](/users/kits/#kits)
 ## L
 
 **Label stock**: what labels are printed on: an A4 or Letter sheet, a label-printer roll, or
-label-maker tape. Narrow tape has no room for a QR code; the scanner reads its printed short ID
-instead. [Short IDs and labels](/users/short-ids/)
+label-maker tape. Narrow tape (9 and 12 mm) has no room for a QR code; **Scan** reads its printed
+short ID instead. [Printing](/users/short-ids/#printing)
 
 **Layout**: how a location's page shows what's in it: **List**, **Grid**, **Graph**, **Table** (on
 a computer) or **Map**. Kept remembers the choice per location on each device.
@@ -132,6 +142,12 @@ invites or share links.
 **Place**: a room or a spot inside a location: a floor, a room, a shelf, a drawer. A box is a
 container, not a place.
 
+**Place template**: furniture and its compartments as one recipe: the layout (cubes across and
+up, shelves or drawers), the kinds, the names and a code pattern. Kept has cube shelves, a
+bookcase, a chest of drawers and a shelving unit; an account adds its own under **Settings →
+Account → Templates → Furniture**.
+[Furniture with compartments](/users/locations/#furniture-with-compartments)
+
 **Preset**: the set of modules a location starts with: Essentials, Household or Complete.
 [Modules and presets](/users/modules/)
 
@@ -164,6 +180,9 @@ label. [Short IDs and labels](/users/short-ids/)
 
 ## T
 
+**Tape**: the amber label tape a code shows as once it has a printed label. Label-maker tape is a
+label stock. [Short IDs and labels](/users/short-ids/)
+
 **Thing**: anything you keep track of: a drill, a car, a box of cables.
 
 **Trash**: where trashed things wait for 30 days. Members and above restore them; admins delete
@@ -181,6 +200,11 @@ Meters but isn't a vehicle. [Vehicles and machines](/users/vehicles/)
 
 **Viewer**: a role in a location. Can look and search only. Money is hidden unless the location
 allows viewers to see it; the assistant answers but can't change anything.
+
+## W
+
+**What's new**: the card after Kept is updated, with that release's highlights, once per person;
+**Help** shows it again. [Take a tour](/users/first-run/#7-take-a-tour)
 
 ## Related
 

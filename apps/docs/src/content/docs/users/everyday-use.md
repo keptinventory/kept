@@ -41,8 +41,9 @@ tracks: **Details**, **Paperwork and warranties**, **Value**, **Meters**, **Loan
 Full detail: [short IDs and labels](/users/short-ids/).
 
 When a new thing reaches the server it gets a short ID: six letters and digits, like `7KQ-4MZ`,
-never reused. Until then it shows **ID pending**. A label carries the ID as text and in a QR code
-that opens the thing. A label keeps its code for good, so a lost one reprints the same.
+never reused. Until then it shows **ID pending**. A label carries the ID as text and, on every
+stock but narrow label-maker tape, in a QR code that opens the thing. A label keeps its code for
+good, so a lost one reprints the same.
 ## Photos, receipts, manuals and warranties
 
 Full detail: [photos, receipts, manuals and warranties](/users/photos-paperwork/).

@@ -67,7 +67,8 @@ place inside it, with its own name, label and, if you like, its own code.
 - **Add here → Room or spot → Furniture with compartments…** makes the furniture and all its
   compartments in one step. Pick a template: a cube shelf 1 × 4, 2 × 2, 2 × 4, 4 × 4 or 2 × 8,
   a bookcase (6 shelves), a chest of drawers (9) or a shelving unit (4). Change the number of
-  shelves or drawers before you add it.
+  shelves or drawers before you add it. The furniture's kind is **Furniture**; its compartments
+  are **Cube**, **Shelf** or **Drawer**.
 - **How it stands:** a cube shelf that isn't square can stand **Upright** or lie **On its side**.
   A 2 × 4 upright is 4 rows of 2; on its side, 2 rows of 4. The compartments are built as it
   stands.
@@ -75,9 +76,9 @@ place inside it, with its own name, label and, if you like, its own code.
   to Cube 16; a 2 × 4 on its side has 1 to 4 on the top row and 5 to 8 below. The sheet shows the
   numbers before you add it. **Compartment names** take `{n}` for the number, `{row}` and
   `{col}` for where it sits.
-- **Codes:** give the furniture **Its own code** (`KX01`) and a pattern for the compartments,
-  such as `{parent}-F{col:02}{row:02}`: `{parent}` is the furniture's code, `{col:02}` the column
-  with two digits. A 4 × 4 then gets `KX01-F0101` to `KX01-F0404`. Each code is checked against
+- **Codes:** **Its own code** gives the furniture a code (`KX01`), and **Compartment codes** a
+  pattern for the compartments, such as `{parent}-F{col:02}{row:02}`: `{parent}` is the
+  furniture's code, `{col:02}` the column with two digits. A 4 × 4 then gets `KX01-F0101` to `KX01-F0404`. Each code is checked against
   the location's format rule (**Settings → the location → General → Your own codes**) and
   against the codes already there; if one doesn't fit, nothing is made and Kept names the code.
   Scanning or searching a code finds its compartment.
@@ -90,7 +91,7 @@ place inside it, with its own name, label and, if you like, its own code.
   the code pattern, shared with the locations you choose. Owners and admins make them; anyone who
   can add places uses them.
 - **AI apps** can do the same: `create_place` takes a `template`
-  ([MCP clients](/users/mcp-clients/)).
+  ([MCP clients](/users/mcp-clients/#the-tools)).
 
 ## Related
 

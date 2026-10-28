@@ -99,7 +99,7 @@ Then choose:
 - **Prices are in**: the currency, asked only when the backup has prices. Choosing one relabels the
   amounts; it doesn't convert them.
 - **Archived items**: **Archived** (the default: archived in Kept too, still yours, put away),
-  **In use**, or **Leave out**. An archived item with sale details ends sold.
+  **In use**, or **Leave out**. An archived item with a buyer or a price ends sold.
 - **Items with quantity 0**: **Keep 0 or archive** (the default: a type you run out of keeps 0,
   anything else comes in archived), **Set to 1**, or **Leave out**. Each one that comes in has
   "Quantity in Homebox: 0" in its notes. An item that holds other items is never archived or left
@@ -147,7 +147,7 @@ sale needs a buyer or a price.
 
 Imports before Kept 1.13.0 turned a quantity of 0 into 1, made a whole type a box type when one of
 its items held another (so every thing of it opened on an empty Contents tab), and could create a
-type named `global.item`. Imports before 1.14.2 ended a thing sold when Homebox had only a sold
+type named `global.item`. Imports before 1.14.1 ended a thing sold when Homebox had only a sold
 date. Open the import from **Activity** (Ran an import): **Repair this import** lists what it can
 put right, by name:
 
