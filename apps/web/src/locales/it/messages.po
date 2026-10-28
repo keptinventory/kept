@@ -28225,3 +28225,7 @@ msgstr "Kept invia la pianta, senza i dati di posizione, a <0>{name}</0>. Viene 
 #: src/map/floor-plan/start-sheet.tsx
 msgid "Read the plan"
 msgstr "Leggi la pianta"
+
+#: src/map/map-view.tsx
+msgid "Someone else added or discarded this plan."
+msgstr "Qualcun altro ha aggiunto o scartato questa pianta."

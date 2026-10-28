@@ -28225,3 +28225,7 @@ msgstr "Kept sends the plan, without its location data, to <0>{name}</0>. It is 
 #: src/map/floor-plan/start-sheet.tsx
 msgid "Read the plan"
 msgstr "Read the plan"
+
+#: src/map/map-view.tsx
+msgid "Someone else added or discarded this plan."
+msgstr "Someone else added or discarded this plan."

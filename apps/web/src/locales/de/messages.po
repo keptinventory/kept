@@ -28225,3 +28225,7 @@ msgstr "Kept sendet den Grundriss ohne seine Standortdaten an <0>{name}</0>. Er 
 #: src/map/floor-plan/start-sheet.tsx
 msgid "Read the plan"
 msgstr "Grundriss lesen"
+
+#: src/map/map-view.tsx
+msgid "Someone else added or discarded this plan."
+msgstr "Jemand anderes hat diesen Grundriss hinzugefügt oder verworfen."

@@ -28004,7 +28004,7 @@ msgstr "قُرئ مخطط طابق"
 
 #: src/components/history/labels.ts
 msgid "Discarded a floor plan"
-msgstr "تُجوهل مخطط طابق"
+msgstr "أُلغي مخطط طابق"
 
 #: src/components/history/labels.ts
 msgid "{count, plural, one {Added # room from a floor plan} other {Added # rooms from a floor plan}}"
@@ -28225,3 +28225,7 @@ msgstr "يرسل Kept المخطط، دون بيانات موقعه، إلى <0>
 #: src/map/floor-plan/start-sheet.tsx
 msgid "Read the plan"
 msgstr "اقرأ المخطط"
+
+#: src/map/map-view.tsx
+msgid "Someone else added or discarded this plan."
+msgstr "أضاف شخص آخر غرف هذا المخطط أو ألغاه."
