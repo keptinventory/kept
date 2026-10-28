@@ -572,6 +572,10 @@ describe('hints: GET /api/v1/me/hints, PUT /api/v1/me/hints/:key', () => {
       if (other === mine) continue;
       expect((await putHint(ann, other, { dismissed: true })).statusCode, other).toBe(400);
     }
+    // One audited dismissal, of this version's key; the refused ones wrote nothing.
+    const audit = await hintAudit(ann);
+    expect(audit.map((e) => e.action)).toEqual(['hint.dismiss']);
+    expect(Object.keys(audit[0]?.diff ?? {})).toEqual([mine]);
   });
 
   it('keeps each person’s hints their own (RLS)', async () => {
