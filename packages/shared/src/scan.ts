@@ -99,7 +99,8 @@ export function upcEToUpcA(upcE: string): string | null {
 /**
  * A UPC-A (12 digits, number system 0 or 1) compressed to the UPC-E that expands to it, or null
  * when it has none. Each of UPC-E's four zero-suppression rules is tried and the one whose
- * expansion gives the UPC-A back wins (at most one does).
+ * expansion gives the UPC-A back wins: several can, and the first in GS1's order is the one
+ * printed (the others are UPC-Es GS1 never issues).
  */
 export function upcAToUpcE(upcA: string): string | null {
   if (!/^[01]\d{11}$/.test(upcA)) return null;
@@ -150,7 +151,7 @@ export function productCodeForms(code: string, format?: string): string[] {
   if (!/^\d+$/.test(code)) return [code];
   let upcA: string | null = null;
   if (code.length === 12 || code.length === 13) upcA = upcAOf(code);
-  else if (code.length === 8 && format !== 'ean_8') {
+  else if (code.length === 8 && (!format || format === 'upc_e')) {
     const a = upcEToUpcA(code);
     upcA = a !== null && gtinValid(a) ? a : null;
   }
