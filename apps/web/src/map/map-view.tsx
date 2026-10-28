@@ -858,11 +858,19 @@ function MapBody({
       const reason = isApiError(err)
         ? (err.details as { reason?: string } | undefined)?.reason
         : undefined;
-      if (reason === 'arranged_since') {
+      if (reason === 'arranged_since' || reason === 'changed_since') {
+        // The map changed under the review (an arrange, or a room it would use was put on the
+        // map or moved): loaded again, the rooms placed on it, names and choices kept.
         setReviewMessage(
           t`Someone arranged this map since you started. Load it again; your rooms stay to add.`,
         );
         placeAgain.current = true;
+        await refresh();
+      } else if (reason === 'not_ready') {
+        // Someone else added this plan's rooms, or discarded it, meanwhile.
+        endReview();
+        setPlanId(null);
+        toast({ title: t`Someone else added or discarded this plan.`, tone: 'danger' });
         await refresh();
       } else if (reason === 'rooms_overlap') {
         setReviewMessage(t`Rooms can’t overlap.`);
