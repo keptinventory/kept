@@ -84,12 +84,16 @@ export function feel(signal: Signal, { audio, vibrate }: Devices = pageDevices()
   }
 }
 
-/** Says `text` now, then at most once per `ms`: the last text asked for is said at the end. */
-export function announceEvery(ms: number, say: (text: string) => void): (text: string) => void {
+/** Says `text` now, then at most once per `ms`: the last text asked for is said at the end.
+ * `cancel()` drops what is waiting, for when the screen closes. */
+export function announceEvery(
+  ms: number,
+  say: (text: string) => void,
+): ((text: string) => void) & { cancel: () => void } {
   let last = Number.NEGATIVE_INFINITY;
   let waiting: string | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;
-  return (text) => {
+  const announce = (text: string) => {
     const now = Date.now();
     if (now - last >= ms && !timer) {
       last = now;
@@ -107,6 +111,13 @@ export function announceEvery(ms: number, say: (text: string) => void): (text: s
       Math.max(0, ms - (now - last)),
     );
   };
+  return Object.assign(announce, {
+    cancel: () => {
+      if (timer) clearTimeout(timer);
+      timer = null;
+      waiting = null;
+    },
+  });
 }
 
 type WakeLockSentinelLike = { release: () => Promise<void> };

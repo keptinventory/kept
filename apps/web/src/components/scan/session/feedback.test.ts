@@ -50,4 +50,16 @@ describe('feedback', () => {
     expect(say.mock.calls.map((c) => c[0])).toEqual(['1 of 40', '3 of 40']);
     vi.useRealTimers();
   });
+
+  it('says nothing more once cancelled (the screen has closed)', () => {
+    vi.useFakeTimers();
+    const say = vi.fn();
+    const announce = announceEvery(2000, say);
+    announce('1 of 40');
+    announce('2 of 40');
+    announce.cancel();
+    vi.advanceTimersByTime(2000);
+    expect(say.mock.calls.map((c) => c[0])).toEqual(['1 of 40']);
+    vi.useRealTimers();
+  });
 });
