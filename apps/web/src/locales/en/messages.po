@@ -27748,6 +27748,10 @@ msgid "Play"
 msgstr "Play"
 
 #: src/components/whats-new.tsx
+msgid "Slide {n} of {total}: {title}"
+msgstr "Slide {n} of {total}: {title}"
+
+#: src/components/whats-new.tsx
 msgid "Slide {n} of {total}"
 msgstr "Slide {n} of {total}"
 

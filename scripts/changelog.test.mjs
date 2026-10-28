@@ -1,10 +1,11 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
+  checkMedia,
   classify,
   gatherGitHub,
   ghFetcher,
@@ -165,6 +166,36 @@ describe('renderSection and insertSection', () => {
     expect(() => parseHighlights('- **One.** x\n![](https://example.org/a.webp)')).toThrow(
       /media name/,
     );
+  });
+
+  it('refuses media the release doesn’t have: no file in its folder, or no media.json entry', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'kept-media-'));
+    try {
+      const folder = path.join(dir, 'apps/web/public/whats-new/2.0.0');
+      execFileSync('mkdir', ['-p', folder]);
+      for (const f of ['shelves.mp4', 'shelves.webp', 'orphan.webp']) {
+        writeFileSync(path.join(folder, f), 'x');
+      }
+      writeFileSync(
+        path.join(folder, 'media.json'),
+        JSON.stringify({
+          'shelves.mp4': { width: 960, height: 600, poster: 'shelves.webp' },
+          'missing.webp': { width: 960, height: 600 },
+        }),
+      );
+      const ok = parseHighlights('- **A.** b\n  ![places](shelves.mp4)\n- **C.** d\n');
+      expect(() => checkMedia(ok, '2.0.0', dir)).not.toThrow();
+      const noFile = parseHighlights('- **A.** b\n  ![](missing.webp)\n');
+      expect(() => checkMedia(noFile, '2.0.0', dir)).toThrow(
+        /missing\.webp.*apps\/web\/public\/whats-new\/2\.0\.0/,
+      );
+      const noEntry = parseHighlights('- **A.** b\n  ![](orphan.webp)\n');
+      expect(() => checkMedia(noEntry, '2.0.0', dir)).toThrow(/orphan\.webp.*media\.json/);
+      // A release with no media named needs no folder.
+      expect(() => checkMedia(parseHighlights('- **A.** b'), '2.0.1', dir)).not.toThrow();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it('refuses a highlights file with no bullets or with headings of its own', () => {
@@ -348,6 +379,16 @@ describe('changelog.mjs over a fixture history', () => {
     commit('Tidy the spike folder');
   });
   afterAll(() => rmSync(dir, { recursive: true, force: true }));
+
+  it('stops when a highlight names media the release folder doesn’t have, writing nothing', () => {
+    const file = path.join(dir, 'CHANGELOG-media.md');
+    const highlights = path.join(dir, 'highlights-media.md');
+    writeFileSync(highlights, '- **Snapshots.** Restic every night.\n  ![](snapshots.mp4)\n');
+    const r = run('--version', '1.0.0', '--highlights', highlights, '--write', file);
+    expect(r.status).toBe(1);
+    expect(r.stderr).toMatch(/snapshots\.mp4/);
+    expect(existsSync(file)).toBe(false);
+  });
 
   it('writes the section since the tag, grouped, into CHANGELOG.md, the same on a second run', () => {
     const file = path.join(dir, 'CHANGELOG.md');

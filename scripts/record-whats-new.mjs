@@ -10,6 +10,10 @@
 //   apps/web/public/whats-new/<version>/media.json    each file's size and a clip's poster, which
 //                                                     the build reads (apps/web/whats-new-plugin.ts)
 //
+// Then `node scripts/whats-new-keep.mjs --version <version>` removes the earlier releases' folders
+// and recipes: the tree holds one release's media. The recipe's format, with an example:
+// scripts/whats-new/README.md.
+//
 // What to record is the release's recipe, scripts/whats-new/<version>.json: per highlight, its
 // file (the name its `![icon](file)` line in .tmp/notes/highlights-<version>.md gives), the page
 // it opens, the steps that set it up off camera and the steps it records, and the part of the

@@ -387,7 +387,12 @@ export default defineConfig({
     lingui({ configPath }),
     babel({ presets: [linguiTransformerBabelPreset({ linguiConfig }, { configPath })] }),
     tailwindcss(),
-    whatsNewPlugin({ version: KEPT_VERSION ?? '0.0.0-dev', changelog: CHANGELOG }),
+    whatsNewPlugin({
+      version: KEPT_VERSION ?? '0.0.0-dev',
+      changelog: CHANGELOG,
+      // A release image's build fails on a highlight's missing media; a demo shows its icon.
+      strict: process.env.VITE_KEPT_DEMO !== '1',
+    }),
     ...(TRY ? [tryHtml()] : []),
     // The service worker: src/sw.ts is
     // built to dist/sw.js with the precache manifest injected. The precache is the shell, the

@@ -194,8 +194,18 @@ function Showcase({
   const primary = useRef<HTMLButtonElement>(null);
   const videos = useRef<(HTMLVideoElement | null)[]>([]);
   const last = index === slides.length - 1;
+  const total = f.num(slides.length);
 
-  const go = (to: number) => setIndex(Math.max(0, Math.min(slides.length - 1, to)));
+  // What a screen reader hears after each move (nothing on opening: the dialog says enough).
+  const [said, setSaid] = useState('');
+  const go = (to: number) => {
+    const i = Math.max(0, Math.min(slides.length - 1, to));
+    if (i === index) return;
+    setIndex(i);
+    const n = f.num(i + 1);
+    const title = slides[i]?.title ?? '';
+    setSaid(t`Slide ${n} of ${total}: ${title}`);
+  };
   const next = () => go(index + 1);
   const back = () => {
     // Back goes away on the first slide: the focus moves on to Next, not to the page.
@@ -234,6 +244,12 @@ function Showcase({
   useEffect(() => {
     const onKeyDown = (e: globalThis.KeyboardEvent) => {
       if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      // An arrow typed into a field moves its caret, not the slides.
+      const el = e.target as HTMLElement | null;
+      if (
+        el?.closest?.('input, textarea, select, [contenteditable]:not([contenteditable="false"])')
+      )
+        return;
       if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
       e.preventDefault();
       if ((e.key === 'ArrowRight') !== rtl) keys.current.next();
@@ -266,7 +282,6 @@ function Showcase({
   };
 
   const offset = (rtl ? 1 : -1) * index * 100 || 0;
-  const total = f.num(slides.length);
   const english = i18n.locale === 'en';
 
   return (
@@ -275,6 +290,9 @@ function Showcase({
         <Trans>
           Version <span className="ltr tabular-nums">{version}</span>
         </Trans>
+      </p>
+      <p className="sr-only" aria-live="polite">
+        {said}
       </p>
       <section aria-label={t`Highlights`} className="grid min-w-0 gap-1">
         <div
@@ -532,6 +550,7 @@ function SlideMedia({
           width={media.width}
           height={media.height}
           alt=""
+          loading={shown ? 'eager' : 'lazy'}
           decoding="async"
           onLoad={() => setLoaded(true)}
           onError={() => setFailed(true)}

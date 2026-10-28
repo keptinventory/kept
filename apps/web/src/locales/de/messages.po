@@ -27748,6 +27748,10 @@ msgid "Play"
 msgstr "Abspielen"
 
 #: src/components/whats-new.tsx
+msgid "Slide {n} of {total}: {title}"
+msgstr "Folie {n} von {total}: {title}"
+
+#: src/components/whats-new.tsx
 msgid "Slide {n} of {total}"
 msgstr "Folie {n} von {total}"
 

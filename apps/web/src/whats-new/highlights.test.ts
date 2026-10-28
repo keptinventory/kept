@@ -245,36 +245,64 @@ describe('the virtual module', () => {
     }
   });
 
-  it('ships only this version’s media folder in the build', async () => {
+  it('ships only this version’s media folder in a build', async () => {
     const { dir, changelog, media } = fixture();
     const out = path.join(dir, 'dist');
-    try {
+    const built = (v: string) => existsSync(path.join(out, 'whats-new', v));
+    const make = () => {
       mkdirSync(path.join(out, 'whats-new', '3.0.0'), { recursive: true });
       mkdirSync(path.join(out, 'whats-new', '2.9.0'), { recursive: true });
+    };
+    try {
+      make();
       const plugin = whatsNewPlugin({ version: '3.0.0', changelog, media });
-      plugin.configResolved({ root: dir, build: { outDir: 'dist' } });
+      plugin.configResolved({ command: 'build', root: dir, build: { outDir: 'dist' } });
       plugin.closeBundle();
-      expect(existsSync(path.join(out, 'whats-new', '3.0.0'))).toBe(true);
-      expect(existsSync(path.join(out, 'whats-new', '2.9.0'))).toBe(false);
+      expect(built('3.0.0')).toBe(true);
+      expect(built('2.9.0')).toBe(false);
       // A development build ships none.
       const dev = whatsNewPlugin({ version: '0.0.0-dev', changelog, media });
-      dev.configResolved({ root: dir, build: { outDir: 'dist' } });
+      dev.configResolved({ command: 'build', root: dir, build: { outDir: 'dist' } });
       dev.closeBundle();
       expect(existsSync(path.join(out, 'whats-new'))).toBe(false);
+      // The dev server and vitest build nothing: an earlier build's output stays as it is.
+      make();
+      const serve = whatsNewPlugin({ version: '0.0.0-dev', changelog, media });
+      serve.configResolved({ command: 'serve', root: dir, build: { outDir: 'dist' } });
+      serve.closeBundle();
+      expect(built('3.0.0')).toBe(true);
+      expect(built('2.9.0')).toBe(true);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
   });
 
-  it('reads the real CHANGELOG.md: 1.14.1’s seven slides, each with its media', async () => {
+  it('fails a release build whose highlight names media the folder doesn’t have', async () => {
+    const { dir, changelog, media } = fixture();
+    try {
+      const strict = whatsNewPlugin({ version: '3.0.0', changelog, media, strict: true });
+      strict.configResolved({ command: 'build', root: dir, build: { outDir: 'dist' } });
+      await expect(async () =>
+        strict.load(String(strict.resolveId('virtual:kept-whats-new'))),
+      ).rejects.toThrow(/missing\.mp4/);
+      // The dev server, a demo or a test build keeps the words and the icon.
+      const serve = whatsNewPlugin({ version: '3.0.0', changelog, media, strict: true });
+      serve.configResolved({ command: 'serve', root: dir, build: { outDir: 'dist' } });
+      expect((await loadOf(serve)).slides[2].media).toBeNull();
+      const lenient = whatsNewPlugin({ version: '3.0.0', changelog, media });
+      lenient.configResolved({ command: 'build', root: dir, build: { outDir: 'dist' } });
+      expect((await loadOf(lenient)).slides[2].media).toBeNull();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('reads the real CHANGELOG.md: 1.14.1’s seven slides, released without media', async () => {
     const release = await loadOf(whatsNewPlugin({ version: '1.14.1', changelog: CHANGELOG }));
     expect(release.version).toBe('1.14.1');
     expect(release.slides).toHaveLength(7);
     expect(release.slides[0].title).toBe('Furniture with compartments');
-    for (const slide of release.slides) {
-      expect(slide.media, slide.title).not.toBeNull();
-      expect(slide.media.width).toBeGreaterThan(0);
-    }
+    for (const slide of release.slides) expect(slide.media, slide.title).toBeNull();
     // Nothing of other releases rides along.
     expect(JSON.stringify(release)).not.toContain('Graph view');
   });

@@ -7,11 +7,11 @@
  * Only that one release goes into the bundle, a few hundred bytes, so the card's words work offline
  * and cost the precache next to nothing. Its media are files in public/whats-new/<version>/,
  * described by that folder's media.json (scripts/record-whats-new.mjs writes both): their size, so
- * nothing jumps as they load, and a clip's poster. They are served as plain files, fetched when the
+ * nothing jumps as they load, a clip's poster and its WebM. They are served as plain files, fetched when the
  * card opens and never precached (vite.config.ts's globIgnores; scripts/check-bundle.mjs fails a
- * build that does). A media name with no file, or no entry in media.json, leaves its slide with the
- * icon and a warning. The build ships only this version's folder: closeBundle removes the others
- * from the output.
+ * build that does). A media name with no file, or no entry in media.json, fails a release build
+ * (`strict`); elsewhere it leaves its slide with the icon and a warning. A build ships only this
+ * version's folder: closeBundle removes the others from its output.
  *
  * A development build (0.0.0-dev), a version without Highlights, or a checkout without a readable
  * changelog builds no slides, and the app shows no card.
@@ -47,20 +47,28 @@ function mediaIndex(dir: string): Record<string, MediaEntry> {
 const sized = (e: MediaEntry | undefined): e is MediaEntry =>
   !!e && Number.isInteger(e.width) && e.width > 0 && Number.isInteger(e.height) && e.height > 0;
 
-/** A highlight's media, checked against the folder: null when it isn't there to show. */
-function mediaOf(file: string, version: string, media: string): SlideMedia | null {
+/**
+ * A highlight's media, checked against the folder: null when it isn't there to show, with a
+ * warning, or `missing` throws (a release build: a named file that isn't there is a mistake).
+ */
+function mediaOf(
+  file: string,
+  version: string,
+  media: string,
+  missing: (why: string) => void,
+): SlideMedia | null {
   const dir = path.join(media, version);
   const entry = mediaIndex(dir)[file];
   const src = `${FOLDER}/${version}/${file}`;
   const here = (f: string) => existsSync(path.join(dir, f));
   if (!sized(entry) || !here(file)) {
-    console.warn(`What's new ${version}: no ${file} in ${FOLDER}/${version} (or media.json)`);
+    missing(`What's new ${version}: no ${file} in ${FOLDER}/${version} (or media.json)`);
     return null;
   }
   const { width, height } = entry;
   if (!file.endsWith('.mp4')) return { kind: 'image', src, width, height };
   if (!entry.poster || !here(entry.poster)) {
-    console.warn(`What's new ${version}: ${file} has no poster`);
+    missing(`What's new ${version}: ${file} has no poster`);
     return null;
   }
   const poster = `${FOLDER}/${version}/${entry.poster}`;
@@ -69,7 +77,12 @@ function mediaOf(file: string, version: string, media: string): SlideMedia | nul
 }
 
 /** The slides, or none: a changelog that is missing or can't be read never fails a build. */
-function slidesFrom(changelog: string, version: string, media: string): Slide[] {
+function slidesFrom(
+  changelog: string,
+  version: string,
+  media: string,
+  missing: (why: string) => void,
+): Slide[] {
   if (!isReleaseVersion(version)) return [];
   let text: string;
   try {
@@ -80,7 +93,7 @@ function slidesFrom(changelog: string, version: string, media: string): Slide[] 
   return highlightEntries(text, version).map(({ text: line, icon, file }) => ({
     ...slideText(line),
     icon,
-    media: file ? mediaOf(file, version, media) : null,
+    media: file ? mediaOf(file, version, media, missing) : null,
   }));
 }
 
@@ -88,16 +101,28 @@ export function whatsNewPlugin({
   version,
   changelog,
   media = PUBLIC_MEDIA,
+  strict = false,
 }: {
   version: string;
   changelog: string;
   /** Where each version's media folder is (public/whats-new); tests pass their own. */
   media?: string;
+  /**
+   * A release build (vite.config.ts: not a demo): a highlight naming media its folder doesn't have
+   * fails the build. The dev server, demos and tests keep the slide's words and its icon.
+   */
+  strict?: boolean;
 }) {
   let outDir: string | null = null;
+  let command: 'build' | 'serve' = 'serve';
   return {
     name: 'kept-whats-new',
-    configResolved(config: { root: string; build: { outDir: string } }): void {
+    configResolved(config: {
+      command: 'build' | 'serve';
+      root: string;
+      build: { outDir: string };
+    }): void {
+      command = config.command;
       outDir = path.resolve(config.root, config.build.outDir);
     },
     resolveId(id: string): string | null {
@@ -105,11 +130,17 @@ export function whatsNewPlugin({
     },
     load(id: string): string | null {
       if (id !== RESOLVED) return null;
-      return `export default ${JSON.stringify({ version, slides: slidesFrom(changelog, version, media) })};`;
+      const missing = (why: string) => {
+        if (strict && command === 'build') throw new Error(why);
+        console.warn(why);
+      };
+      const slides = slidesFrom(changelog, version, media, missing);
+      return `export default ${JSON.stringify({ version, slides })};`;
     },
     /** The output keeps this version's media only (Vite copies every version's from public/). */
     closeBundle(): void {
-      if (!outDir) return;
+      // Only a build has output of its own: the dev server and vitest leave dist/ alone.
+      if (!outDir || command !== 'build') return;
       const built = path.join(outDir, FOLDER);
       if (!existsSync(built)) return;
       if (!isReleaseVersion(version)) {

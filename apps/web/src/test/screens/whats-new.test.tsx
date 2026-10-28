@@ -140,12 +140,19 @@ describe("What's new", () => {
     );
     expectLogicalOnly();
 
+    // A picture on a slide not shown loads when it comes near (lazily).
+    expect(document.querySelector('img[src$="paperwork.webp"]')).toHaveAttribute('loading', 'lazy');
+    // Nothing announced on opening; each move says where it is, for a screen reader.
+    const live = dialog.querySelector('[aria-live="polite"]') as HTMLElement;
+    expect(live).toHaveTextContent(/^$/);
     await user.click(within(dialog).getByRole('button', { name: 'Next' }));
     expect(current()).toHaveAccessibleName('Slide 2 of 3');
+    expect(live).toHaveTextContent('Slide 2 of 3: Paperwork');
     expect(within(current()).getByRole('heading', { name: 'Paperwork' })).toBeInTheDocument();
     const image = current().querySelector('img');
     expect(image).toHaveAttribute('src', '/whats-new/9.4.2/paperwork.webp');
     expect(image).toHaveAttribute('width', '960');
+    expect(image).toHaveAttribute('loading', 'eager');
     await user.click(within(dialog).getByRole('button', { name: 'Back' }));
     expect(current()).toHaveAccessibleName('Slide 1 of 3');
 
@@ -185,6 +192,12 @@ describe("What's new", () => {
     fireEvent.pointerMove(viewport, { clientX: 220, clientY: 205, pointerId: 1 });
     fireEvent.pointerUp(viewport, { clientX: 150, clientY: 205, pointerId: 1 });
     expect(current()).toHaveAccessibleName('Slide 2 of 3');
+    // An arrow key typed into a field is the field's.
+    const field = document.createElement('input');
+    dialog.append(field);
+    act(() => void fireEvent.keyDown(field, { key: 'ArrowRight' }));
+    expect(current()).toHaveAccessibleName('Slide 2 of 3');
+    field.remove();
     // A short drag, or one that is mostly up and down, stays.
     fireEvent.pointerDown(viewport, { clientX: 300, clientY: 200, pointerId: 2, button: 0 });
     fireEvent.pointerUp(viewport, { clientX: 285, clientY: 320, pointerId: 2 });
@@ -337,6 +350,9 @@ describe("What's new", () => {
     // Forward is towards the left in Arabic: the left arrow, and a swipe towards the right.
     act(() => void fireEvent.keyDown(slide(), { key: 'ArrowLeft' }));
     expect(slide()).toHaveAccessibleName('الشريحة ٢ من ٣');
+    expect(dialog.querySelector('[aria-live="polite"]')).toHaveTextContent(
+      'الشريحة ٢ من ٣: Paperwork',
+    );
     act(() => void fireEvent.keyDown(slide(), { key: 'ArrowRight' }));
     expect(slide()).toHaveAccessibleName('الشريحة ١ من ٣');
     const viewport = document.querySelector('[data-slides]') as HTMLElement;

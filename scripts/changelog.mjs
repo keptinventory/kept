@@ -13,7 +13,9 @@
 //
 // --highlights puts a hand-written file of bullets at the top of the section, under Highlights.
 // Without it there is no Highlights section: nothing is ever written for you. A line
-// `![icon](file)` under a bullet names its picture or clip for What's new in Kept (parseHighlights).
+// `![icon](file)` under a bullet names its picture or clip for What's new in Kept (parseHighlights);
+// each must be in apps/web/public/whats-new/X.Y.Z/ with its media.json entry (checkMedia), run from
+// the repository's root.
 //
 // GitHub is asked (`gh api graphql`, read-only) who wrote each pull request and which issues it
 // closed, by whom: "closes #N, reported by @x" goes on the change's line, and a Contributors line
@@ -25,6 +27,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const CONVENTIONAL = /^(?<type>[a-z][a-z0-9]*)(?:\((?<scope>[^)]*)\))?(?<bang>!)?: (?<subject>.+)$/;
@@ -137,6 +140,44 @@ export function parseHighlights(text) {
     return `  <!-- whats-new ![${icon}](${file}) -->`;
   });
   return lines.join('\n');
+}
+
+/** Where a release's media are, relative to the repository (apps/web/whats-new-plugin.ts). */
+export const MEDIA_DIR = 'apps/web/public/whats-new';
+
+/**
+ * Every media name in `highlights` (parseHighlights' text) is a file in the release's folder,
+ * `MEDIA_DIR/<version>/` under `root`, with its media.json entry (and a clip's poster): a name
+ * that isn't would ship a slide with only its icon. Throws one error naming them all.
+ */
+export function checkMedia(highlights, version, root) {
+  const folder = path.join(root, MEDIA_DIR, version);
+  const where = `${MEDIA_DIR}/${version}`;
+  const names = [...highlights.matchAll(/<!-- whats-new !\[[^\]]*\]\(([^)]+)\) -->/g)].map(
+    (m) => m[1],
+  );
+  if (!names.length) return;
+  let index = {};
+  try {
+    index = JSON.parse(readFileSync(path.join(folder, 'media.json'), 'utf8'));
+  } catch {
+    index = {};
+  }
+  const problems = [];
+  for (const name of names) {
+    const entry = index[name];
+    if (!existsSync(path.join(folder, name))) problems.push(`${name} is not in ${where}/`);
+    else if (!entry) problems.push(`${name} has no entry in ${where}/media.json`);
+    else if (
+      name.endsWith('.mp4') &&
+      !(entry.poster && existsSync(path.join(folder, entry.poster)))
+    )
+      problems.push(`${name} has no poster in ${where}/`);
+  }
+  if (problems.length)
+    throw new Error(
+      `media the release doesn't have (node scripts/record-whats-new.mjs --version ${version}): ${problems.join('; ')}`,
+    );
 }
 
 const isBot = (author) =>
@@ -318,6 +359,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     if (opts.highlights) {
       if (!existsSync(opts.highlights)) throw new Error(`no highlights file ${opts.highlights}`);
       highlights = parseHighlights(readFileSync(opts.highlights, 'utf8'));
+      checkMedia(highlights, opts.version, process.cwd());
     }
     const commits = readCommits(opts.from, opts.to ?? 'HEAD');
     const github = await gatherGitHub(commits, ghFetcher({ repo: opts.repo ?? REPO }));
