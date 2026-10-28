@@ -27810,7 +27810,7 @@ msgstr "{N} هو الرقم، و{ROW} و{COL} موضعه."
 
 #: src/components/places/furniture.tsx
 msgid "{PARENT} is its own code; {PADDED} pads to two digits."
-msgstr "{PARENT} هو رمزه هو؛ و{PADDED} يكمل إلى خانتين."
+msgstr "{PARENT} هو رمز قطعة الأثاث نفسها، و{PADDED} يكمل الرقم إلى خانتين."
 
 #: src/components/templates/place-template-list.tsx
 msgid "A grid is 1 to {side} across and up, at most {most} cubes; shelves and drawers 1 to {count}."
