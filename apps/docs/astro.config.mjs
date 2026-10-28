@@ -139,6 +139,7 @@ const sidebar = [
       page('admin/move-server'),
     ]),
     page('users/faq'),
+    page('users/troubleshooting'),
   ]),
   group('Run Kept', 'تشغيل Kept', [
     page('reference/configuration'),
