@@ -27997,3 +27997,15 @@ msgstr "Type de {title}"
 #: src/components/history/labels.ts
 msgid "Paperless document changed"
 msgstr "Document Paperless modifié"
+
+#: src/components/places/tree.tsx
+msgid "What's in {name}"
+msgstr "Contenu de {name}"
+
+#: src/components/places/tree.tsx
+msgid "Fold all"
+msgstr "Tout replier"
+
+#: src/components/places/tree.tsx
+msgid "Open all"
+msgstr "Tout déplier"

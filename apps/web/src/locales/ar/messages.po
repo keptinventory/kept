@@ -27997,3 +27997,15 @@ msgstr "نوع «{title}»"
 #: src/components/history/labels.ts
 msgid "Paperless document changed"
 msgstr "عُدّل مستند من Paperless"
+
+#: src/components/places/tree.tsx
+msgid "What's in {name}"
+msgstr "ما في {name}"
+
+#: src/components/places/tree.tsx
+msgid "Fold all"
+msgstr "طيّ الكل"
+
+#: src/components/places/tree.tsx
+msgid "Open all"
+msgstr "توسيع الكل"

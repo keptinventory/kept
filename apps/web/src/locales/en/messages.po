@@ -27997,3 +27997,15 @@ msgstr "Kind of {title}"
 #: src/components/history/labels.ts
 msgid "Paperless document changed"
 msgstr "Paperless document changed"
+
+#: src/components/places/tree.tsx
+msgid "What's in {name}"
+msgstr "What's in {name}"
+
+#: src/components/places/tree.tsx
+msgid "Fold all"
+msgstr "Fold all"
+
+#: src/components/places/tree.tsx
+msgid "Open all"
+msgstr "Open all"
