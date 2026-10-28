@@ -45,6 +45,8 @@ export const inventoryPaths = {
 
   // ----- places (task 13) -----
   locationPlaces: (locationId: string) => `${V1}/locations/${seg(locationId)}/places`,
+  /** GET `{placeIds}`, PUT `{placeIds}` → 204: the places you folded in the outline (#358). */
+  placeFolds: (locationId: string) => `${V1}/locations/${seg(locationId)}/place-folds`,
   place: (id: string) => `${V1}/places/${seg(id)}`,
   placeContents: (id: string) => `${V1}/places/${seg(id)}/contents`,
   placeTrash: (id: string) => `${V1}/places/${seg(id)}/trash`,
@@ -198,6 +200,7 @@ export const METHODS: Record<keyof typeof inventoryPaths, readonly Method[]> = {
   purchase: ['GET', 'PATCH', 'DELETE'],
   purchaseLineLink: ['POST', 'DELETE'],
   locationPlaces: ['GET', 'POST'],
+  placeFolds: ['GET', 'PUT'],
   place: ['GET', 'PATCH', 'DELETE'],
   placeContents: ['GET'],
   placeTrash: ['POST'],

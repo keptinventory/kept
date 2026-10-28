@@ -505,6 +505,8 @@ export type BoxNode = {
   contentCount: number;
 };
 export type PlacesResponse = { places: PlaceNode[]; boxes: BoxNode[] };
+/** GET and PUT /api/v1/locations/:id/place-folds (#358): the places you folded in the outline. */
+export type PlaceFolds = { placeIds: string[] };
 
 /**
  * A step of a breadcrumb. `kind` tells a place from a container thing; `isUnplaced` marks the

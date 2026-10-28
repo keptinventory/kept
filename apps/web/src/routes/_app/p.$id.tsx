@@ -279,7 +279,12 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
       ) : null}
 
       {!panel && !map && !graph && tree.data?.places ? (
-        <PlaceTree places={tree.data.places} boxes={tree.data.boxes ?? []} currentId={place.id} />
+        <PlaceTree
+          places={tree.data.places}
+          boxes={tree.data.boxes ?? []}
+          currentId={place.id}
+          locationId={location.id}
+        />
       ) : null}
 
       {canEdit ? (

@@ -342,7 +342,12 @@ export function OfflinePlacePage({ id }: { id: string }) {
             <PathText path={path} />
           </span>
         ) : null}
-        <PlaceTree places={tree.places} boxes={tree.boxes} currentId={place.id} />
+        <PlaceTree
+          places={tree.places}
+          boxes={tree.boxes}
+          currentId={place.id}
+          locationId={place.locationId}
+        />
         {children.length ? (
           <Section title={<Trans>Places</Trans>}>
             <List aria-label={t`Places in ${name}`}>

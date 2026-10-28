@@ -316,7 +316,13 @@ function LocationBody({ location }: { location: LocationDetail }) {
               />
 
               <div>
-                {panel ? null : <PlaceTree places={places} boxes={tree.data?.boxes ?? []} />}
+                {panel ? null : (
+                  <PlaceTree
+                    places={places}
+                    boxes={tree.data?.boxes ?? []}
+                    locationId={location.id}
+                  />
+                )}
               </div>
             </div>
           )}

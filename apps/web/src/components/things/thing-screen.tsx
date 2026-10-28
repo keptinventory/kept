@@ -398,6 +398,7 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
             <PlaceTree
               places={tree.data.places}
               boxes={boxes}
+              locationId={location.id}
               currentId={
                 markedId === thing.id ? thing.id : parent?.kind === 'place' ? parent.id : undefined
               }
