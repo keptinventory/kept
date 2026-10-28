@@ -91,6 +91,17 @@ describe('findScale', () => {
     expect(s.mPerPx).toBeCloseTo(0.05);
   });
 
+  it('two printed sizes that disagree: the first is kept, never a scale of nothing', () => {
+    const s = findScale({
+      rooms: [
+        { wPx: 400, hPx: 400, size: [4, 4] },
+        { wPx: 300, hPx: 400, size: [9, 9] },
+      ],
+    });
+    expect(s).toMatchObject({ from: 'sizes', agree: 1, of: 2 });
+    expect(s.mPerPx).toBeCloseTo(0.01);
+  });
+
   it('then a scale bar, then doors, then a labelled guess', () => {
     const bare = rooms.map((r) => ({ ...r, size: null }));
     expect(findScale({ rooms: bare, bar: { px: 200, metres: 5 } })).toMatchObject({
@@ -320,6 +331,24 @@ describe('draftRooms on the invented plans', () => {
     // Its largest part: 7 × 3.5 m (the top bar), within a grid step or two.
     expect(close(l?.w ?? 0, 7, 0.3)).toBe(true);
     expect(close(l?.d ?? 0, 3.5, 0.3)).toBe(true);
+  });
+
+  it('says where the image lies under each floor’s rooms (the underlay)', () => {
+    const { p, drafts } = run(CASES[0] as Case);
+    const img = drafts.images[0];
+    const size = sentSize(p);
+    expect(img?.w).toBeCloseTo(size.w * drafts.scale.mPerPx, 6);
+    expect(img?.h).toBeCloseTo(size.h * drafts.scale.mPerPx, 6);
+    // The kitchen's box on the image, placed by the image, is where its draft is (within the
+    // tidy pass and the grid).
+    const answer = answerFor(p, size.w, size.h, { noise: 0.01, corners: 'none' });
+    const i = (answer.rooms ?? []).findIndex((r) => r.name?.value === 'Kitchen');
+    const box = answer.rooms?.[i]?.box as [number, number, number, number];
+    const k = drafts.rooms[i];
+    const left = (img?.cx ?? 0) - (img?.w ?? 0) / 2 + box[0] * (img?.w ?? 0);
+    const top = (img?.cz ?? 0) - (img?.h ?? 0) / 2 + box[1] * (img?.h ?? 0);
+    expect(Math.abs(left - (k?.x ?? 0))).toBeLessThan(0.25);
+    expect(Math.abs(top - (k?.z ?? 0))).toBeLessThan(0.25);
   });
 
   it('two floors: each from its own corner, labels as printed', () => {

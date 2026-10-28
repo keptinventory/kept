@@ -227,8 +227,16 @@ export function findScale(input: {
     r.size && r.wPx > 0 && r.hPx > 0 ? [pairUp(r, r.size).s] : [],
   );
   if (each.length > 0) {
+    // The median, and the sizes within 15 % of it; when none is (two that disagree), the largest
+    // group that agrees with one of them, the first on a tie.
     const m = median(each);
-    const agree = each.filter((s) => Math.abs(s / m - 1) <= 0.15);
+    let agree = each.filter((s) => Math.abs(s / m - 1) <= 0.15);
+    if (agree.length === 0) {
+      for (const c of each) {
+        const near = each.filter((s) => Math.abs(s / c - 1) <= 0.15);
+        if (near.length > agree.length) agree = near;
+      }
+    }
     return { mPerPx: median(agree), from: 'sizes', agree: agree.length, of: each.length };
   }
   if (input.bar && input.bar.px > 0 && input.bar.metres > 0) {
@@ -282,6 +290,12 @@ export type PlanDrafts = {
   /** One per floor the plan shows, in its order (at least one when there are rooms). */
   floors: { label: string | null }[];
   rooms: PlanDraft[];
+  /**
+   * Where the image lies in each floor's metres (index: the floor), for the review's underlay:
+   * its middle's position and its size, before any turn, and its tilt (the straightening, in
+   * degrees). A room's draft and its box on the image line up through these.
+   */
+  images: { cx: number; cz: number; w: number; h: number }[];
 };
 
 type Pt = [number, number];
@@ -582,15 +596,23 @@ export function draftRooms(
   snapAll(live);
   separate(live);
   // Each floor's rooms start at its corner again (a cut or a move may have changed it).
+  const moved = new Map<number, { x: number; z: number }>();
   for (const f of new Set(live.filter((r) => !r.skip).map((r) => r.floor))) {
     const here = live.filter((r) => !r.skip && r.floor === f);
     const mx = Math.min(...here.map((r) => r.x));
     const mz = Math.min(...here.map((r) => r.z));
+    moved.set(f, { x: mx, z: mz });
     for (const r of here) {
       r.x = grid(r.x - mx);
       r.z = grid(r.z - mz);
     }
   }
+  // The image's middle is (0, 0) in the straightened pixel frame.
+  const images = floors.map((_, f) => {
+    const o = origin.get(f) ?? { x: 0, z: 0 };
+    const m = moved.get(f) ?? { x: 0, z: 0 };
+    return { cx: (0 - o.x) * k - m.x, cz: (0 - o.z) * k - m.z, w: W * k, h: H * k };
+  });
 
   const drafts: PlanDraft[] = px.map((p, i) => {
     const g = live[i] as Live;
@@ -633,6 +655,7 @@ export function draftRooms(
     skewDeg: (skew * 180) / Math.PI,
     floors: rooms.length > 0 || labels.length > 0 ? floors : [],
     rooms: drafts,
+    images: rooms.length > 0 || labels.length > 0 ? images : [],
   };
 }
 
