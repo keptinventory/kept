@@ -32,6 +32,17 @@ export function routerBasepath(): string {
   return ingressBase() || '/';
 }
 
+/**
+ * A link to a section of this page. With `<base href>` in index.html a bare `#id` resolves against
+ * the base (the home page, `/` or the ingress prefix), not the page, so a plain `href="#id"`
+ * navigates away; this names the page itself: `<path><query>#id`, the prefix included.
+ * scripts/check-web-api-paths.mjs fails on a bare `href="#…"`.
+ */
+export function hashHref(id: string): string {
+  if (typeof location === 'undefined') return `#${id}`;
+  return `${location.pathname}${location.search}#${id}`;
+}
+
 /** An in-app path (`/things/abc`, as the router names it) for the browser's own history, which
  * knows nothing of the router's basepath: under the prefix inside Home Assistant. */
 export function appHref(path: string): string {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { rawApiPaths } from './check-web-api-paths.mjs';
+import { bareHashLinks, rawApiPaths } from './check-web-api-paths.mjs';
 
 // D273: under Home Assistant ingress every server path goes under a prefix. The web app names its
 // server paths in its paths modules; a raw '/api/…' literal anywhere else is one more place to keep
@@ -36,5 +36,20 @@ describe('rawApiPaths()', () => {
         "// GET '/api/v1/me'\n * `/api/v1/accounts` lists",
       ),
     ).toEqual([]);
+  });
+});
+
+// With <base href> in index.html, a bare `#id` link resolves against the base (the home page),
+// not the page: lib/base-path.ts hashHref() names the page itself.
+describe('bareHashLinks()', () => {
+  it('finds href="#…" and href={`#…`} in the web app', () => {
+    expect(bareHashLinks('apps/web/src/x.tsx', '<a href="#ai-key">')).toEqual([1]);
+    expect(bareHashLinks('apps/web/src/x.tsx', 'x\n<a href={`#thing-${x}`}>')).toEqual([2]);
+    expect(bareHashLinks('apps/web/src/x.tsx', "<a href={'#channels'}>")).toEqual([1]);
+  });
+
+  it('lets hashHref() and tests through', () => {
+    expect(bareHashLinks('apps/web/src/x.tsx', "<a href={hashHref('ai-key')}>")).toEqual([]);
+    expect(bareHashLinks('apps/web/src/x.test.tsx', '<a href="#x">')).toEqual([]);
   });
 });

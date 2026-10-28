@@ -39,6 +39,7 @@ import {
   vehicleTabOrder,
 } from '@/components/vehicles/vehicle-tabs';
 import { addressOf, locationAddress } from '@/lib/address';
+import { hashHref } from '@/lib/base-path';
 import { isolate } from '@/lib/bidi';
 import { useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
@@ -447,7 +448,7 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
               {tabs.map((x) => (
                 <a
                   key={x}
-                  href={`#thing-${x}`}
+                  href={hashHref(`thing-${x}`)}
                   className={cn(
                     'inline-flex min-h-9 shrink-0 items-center whitespace-nowrap rounded-full border border-line bg-surface px-3 text-[13px] font-medium text-ink-2 outline-none hover:text-ink focus-visible:outline-2 focus-visible:outline-info',
                     x === current && 'border-ink text-ink',

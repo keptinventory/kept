@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   appHref,
+  hashHref,
   ingressBase,
   installIngressPrefixing,
   publicOrigin,
@@ -40,6 +41,14 @@ describe('outside ingress (every normal install)', () => {
     const json = { thumbUrl: '/f/abc', nested: [{ url: '/f/def' }] };
     expect(withBaseDeep(json)).toBe(json);
     expect(publicOrigin()).toBe(window.location.origin);
+  });
+
+  it('links to a section of this page, not the home page <base href> points at', () => {
+    history.replaceState(null, '', '/things/abc?tab=1');
+    expect(hashHref('thing-history')).toBe('/things/abc?tab=1#thing-history');
+    // What a bare "#x" would resolve to under <base href="/">: the home page.
+    expect(new URL('#x', document.baseURI).pathname).toBe('/');
+    expect(new URL(hashHref('x'), document.baseURI).pathname).toBe('/things/abc');
   });
 
   it('installs no fetch or XMLHttpRequest wrapper', () => {
@@ -90,6 +99,12 @@ describe('under ingress', () => {
       list: [{ url: `${PREFIX}/f/def`, other: 42, none: null }],
       external: 'https://s3.example/f/x',
     });
+  });
+
+  it('links to a section of this page under the prefix', () => {
+    history.replaceState(null, '', `${PREFIX}/settings/ai`);
+    expect(hashHref('ai-key')).toBe(`${PREFIX}/settings/ai#ai-key`);
+    expect(new URL(hashHref('ai-key'), document.baseURI).pathname).toBe(`${PREFIX}/settings/ai`);
   });
 
   it('names Kept’s own address for links people copy, not Home Assistant’s', () => {

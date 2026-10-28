@@ -135,7 +135,16 @@ test.describe
       await expect(first).toBeVisible();
       await first.click();
       await expect(page).toHaveURL(new RegExp(`${DEMO}/`));
-      // The thing's images came from under the prefix and loaded (the server's /f/ URLs).
+      // A section tab is an in-page link: it stays on this thing, under the prefix (not the home
+    // page <base href> points at).
+    const thingPath = new URL(page.url()).pathname;
+    const tab = page.getByRole('navigation', { name: 'Sections' }).getByRole('link').last();
+    if (await tab.count()) {
+      await tab.click();
+      expect(new URL(page.url()).pathname).toBe(thingPath);
+      expect(new URL(page.url()).hash).toMatch(/^#thing-/);
+    }
+    // The thing's images came from under the prefix and loaded (the server's /f/ URLs).
       await page.waitForLoadState('networkidle');
       const images = await page.evaluate(() =>
         [...document.images]
