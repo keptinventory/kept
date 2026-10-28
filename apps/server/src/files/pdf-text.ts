@@ -233,6 +233,22 @@ export const PDF_RENDER_PX = 2560;
 /** The render child's memory limit: drawing a page holds its raster (measured 195–261 MB at
  * 3,072 px on the spike's builder's PDF). Raised for render mode only. */
 export const PDF_RENDER_MEMORY_MB = 384;
+/** The render child's wall-clock limit, render mode only: the spike measured a cold first render
+ * at 24.5 s (3,072 px; about 1.2 s once warm at 2,560 px), past text mode's 20 s. A slow render
+ * plus a slow model call can outlast the extract job's 90 s expiry; its retry may then read the
+ * plan a second time, and the plan's result is still written once (writePlanRead). */
+export const PDF_RENDER_TIMEOUT_MS = 45_000;
+
+/** Render mode's limits: its own, unless a caller (a test) gives others. */
+export function renderLimits(opts: { timeoutMs?: number; memoryMb?: number } = {}): {
+  timeoutMs: number;
+  memoryMb: number;
+} {
+  return {
+    timeoutMs: opts.timeoutMs ?? PDF_RENDER_TIMEOUT_MS,
+    memoryMb: opts.memoryMb ?? PDF_RENDER_MEMORY_MB,
+  };
+}
 
 export type PdfRenderResult =
   | { status: 'rendered'; png: Buffer; text: string; pages: number; width: number; height: number }
@@ -248,11 +264,7 @@ export async function renderPdfPage(
   const r = await runLimited(
     opts.worker ?? PDF_WORKER,
     ['--render', file, out, String(opts.longSide ?? PDF_RENDER_PX), String(maxChars)],
-    {
-      memoryMb: opts.memoryMb ?? PDF_RENDER_MEMORY_MB,
-      timeoutMs: opts.timeoutMs ?? PDF_TIMEOUT_MS,
-      stdoutMax: maxChars * 8 + 4096,
-    },
+    { ...renderLimits(opts), stdoutMax: maxChars * 8 + 4096 },
   );
   try {
     const failed = failureOf(r);

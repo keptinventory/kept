@@ -11,8 +11,9 @@
 // Render mode (1.14.3, D266: a floor plan sent as a PDF) draws the first page only, its long
 // side at `longSide` pixels, with unpdf's renderPageAsImage on @napi-rs/canvas (MIT; prebuilt
 // native binaries for amd64 and arm64), writes the PNG to `out.png` and reads that page's text.
-// The parent gives it a higher memory limit than text mode (pdf-text.ts PDF_RENDER_MEMORY_MB):
-// drawing a page holds its raster and decoded images. Nothing else is rendered or kept.
+// The parent gives it more memory and more time than text mode (pdf-text.ts renderLimits: 384 MB,
+// 45 s): drawing a page holds its raster and decoded images, and a cold first render is slow.
+// Nothing else is rendered or kept.
 //
 // The parser is unpdf's build of PDF.js (unpdf MIT, PDF.js Apache-2.0): pure JavaScript, no
 // native code, no eval, the same on amd64 and arm64. Pages are read in order and the reading

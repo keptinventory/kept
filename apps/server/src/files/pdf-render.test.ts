@@ -4,7 +4,15 @@ import path from 'node:path';
 import sharp from 'sharp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { encryptedPdf, textPdf } from '../../test/pdf.js';
-import { PDF_RENDER_MEMORY_MB, PDF_RENDER_PX, renderPdfPage } from './pdf-text.js';
+import {
+  PDF_MEMORY_MB,
+  PDF_RENDER_MEMORY_MB,
+  PDF_RENDER_PX,
+  PDF_RENDER_TIMEOUT_MS,
+  PDF_TIMEOUT_MS,
+  renderLimits,
+  renderPdfPage,
+} from './pdf-text.js';
 
 // A floor plan sent as a PDF (D266): its first page drawn in the PDF worker's render mode, in a
 // child limited to 20 s and 384 MB, with that page's text. Nothing is stored here; the extract job
@@ -48,6 +56,16 @@ describe('renderPdfPage', () => {
     const file = await fileOf('one.pdf', textPdf([['Plan']]));
     const r = await renderPdfPage(file, { memoryMb: 24 });
     expect(r.status).toBe('memory');
+  });
+
+  it('gives a first page longer than reading text takes, render mode only', () => {
+    // A cold render measured 24.5 s at 3,072 px (the spike): render mode waits 45 s; reading a
+    // PDF's text keeps its 20 s and 256 MB.
+    expect(PDF_TIMEOUT_MS).toBe(20_000);
+    expect(PDF_MEMORY_MB).toBe(256);
+    expect(PDF_RENDER_TIMEOUT_MS).toBe(45_000);
+    expect(renderLimits()).toEqual({ timeoutMs: 45_000, memoryMb: 384 });
+    expect(renderLimits({ timeoutMs: 5, memoryMb: 24 })).toEqual({ timeoutMs: 5, memoryMb: 24 });
   });
 
   it('says so for an encrypted PDF and for one that isn’t a PDF', async () => {
