@@ -44,7 +44,7 @@ an install from `compose.yaml` alone downloads it once:
 
 ```sh
 mkdir -p docker/caddy
-curl -fsSLo docker/caddy/Caddyfile https://raw.githubusercontent.com/keptinventory/kept/v1.13.1/docker/caddy/Caddyfile
+curl -fsSLo docker/caddy/Caddyfile https://raw.githubusercontent.com/keptinventory/kept/v1.14.0/docker/caddy/Caddyfile
 docker compose --profile https up -d
 ```
 

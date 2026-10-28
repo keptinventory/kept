@@ -3,6 +3,38 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.14.0 (2026-10-28)
+
+### Highlights
+
+- **Graph view.** A location's floors, rooms, boxes and things as a graph, in 2D or 3D, each floor a layer of its own. Pick a node for its card, pick it again to go in, and the path above takes you back. Every node is a button with its kind, count and flags, and a text list mirrors the graph. The view switch is now List · Grid · Graph · Table · Map, each with an icon (#207).
+- **Move a room on the map.** In Arrange, drag a room (on a phone, hold its floor first) and everything in it moves with it. It snaps to whole metres, never overlaps another room, and arrow keys move it too. On a phone the card no longer covers Cancel (#301, #330).
+- **Try the map shows what the app shows.** What's in under the map, names first with the tape only on printed labels, and the same card as the app (#301).
+- **A blank label on a place you already have.** Scan it and choose Attach to an existing place, claim it at the end of a scan session, or start from a place's page with Add a label code (#329).
+- **Move several things to the Trash.** Select mode in a place's list has Move to Trash, with one Undo for all of them. Something lent out asks first, in the spreadsheet too (#294).
+- **Security.** better-auth 1.7.13 fixes a critical advisory where an OAuth state could be used as a magic link to sign in as someone else (GHSA-965c-763c-88jm), and 28 Dependabot alerts are fixed (zod, fastify, undici, nodemailer, fast-uri). Update soon.
+- **Small fixes.** A scan session's Last reads no longer shows empty rows for unmatched codes, the edit form's conflict sheet names every field again, and turning a place into a box opens the box at once instead of flashing "Couldn't load this".
+
+### Other
+
+- Move several things to the Trash at once, and the README tour (#341, closes #294) (9fd3cbc)
+- Scan: attach a blank label to a place you already have (#340, closes #329, reported by @fabienlege) (8eb63b8)
+- Places A to Z e2e: its own location every attempt (#339, closes #336) (9eb64f2)
+- Map Arrange on a phone: the card no longer covers Cancel (#338, closes #330) (9a32ff1)
+- Graph view: a location as a graph, in 2D and 3D (#337, closes #207) (9252c88)
+- Map: move a room in Arrange, and Try the map shows what the app shows (#331, closes #301) (5a67981)
+- Security: better-auth 1.7.13 (OAuth state as a magic link, OAuth Proxy, rate limits) (#335) (eff339f)
+- README and docs screenshots for 1.13.1, and a new README set (#334) (e54a008)
+- Security: fix the 28 Dependabot alerts (zod, fastify, undici, nodemailer, fast-uri) (#333) (0a5dd75)
+
+### Documentation
+
+- **release:** the 1.13.1 record (#328) (33ac3c7)
+
+### Contributors
+
+@ibrahimroshdy
+
 ## 1.13.1 (2026-10-27)
 
 ### Highlights

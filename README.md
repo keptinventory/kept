@@ -57,7 +57,7 @@ Nothing to install, nothing saved.
 - **Map:** each location in 3D: floors, rooms, shelves and boxes, what's inside one tap away.
   Arranged by you, or laid out by Kept. Plan view, balconies and terraces
   ([the map](https://keptinventory.info/users/location-map/)).
-- **Graph:** a location's places, boxes and things, in 2D or 3D. Coming in 1.14.0.
+- **Graph:** a location's places, boxes and things, in 2D or 3D.
 
 ### On a phone
 
@@ -120,7 +120,7 @@ Docker with Compose v2, on a machine with at least 2 GB of RAM and 2 CPU cores
 
 ```sh
 mkdir kept && cd kept
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.13.1/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.0/compose.yaml
 docker compose run --rm init
 docker compose up -d
 ```
@@ -160,13 +160,11 @@ the Caddyfile in `docker/caddy/` ([HTTPS](https://keptinventory.info/install/htt
 
 ## What's next
 
-- **1.14.0, mid-December** ([milestone](https://github.com/keptinventory/kept/milestone/2)):
-  [graph view](https://github.com/keptinventory/kept/issues/207) ·
-  [move rooms on the map](https://github.com/keptinventory/kept/issues/301) ·
+- **1.14.1** ([milestone](https://github.com/keptinventory/kept/milestone/4)):
   [full-screen photos](https://github.com/keptinventory/kept/issues/295) ·
-  [Select → Trash](https://github.com/keptinventory/kept/issues/294) ·
   [vehicle services you can open](https://github.com/keptinventory/kept/issues/296) ·
-  [label-maker tape](https://github.com/keptinventory/kept/issues/303) ·
+  [moving-box labels get the tape](https://github.com/keptinventory/kept/issues/307) ·
+  [MCP: edit a place](https://github.com/keptinventory/kept/issues/313) ·
   [two new shapes](https://github.com/keptinventory/kept/issues/240)
 - **Later:** [mobile and desktop apps](https://github.com/keptinventory/kept/issues/169) ·
   [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197) ·

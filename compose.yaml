@@ -27,7 +27,7 @@ x-kept-image: &kept-image
   # A released image; `kept init` pins the version it ran as in .env (KEPT_IMAGE), and an upgrade
   # changes that line (`docker compose pull && docker compose up -d`). To run your own build, in a
   # checkout: `docker build -t kept:local .` and KEPT_IMAGE=kept:local.
-  image: ${KEPT_IMAGE:-ghcr.io/keptinventory/kept:1.13.1}
+  image: ${KEPT_IMAGE:-ghcr.io/keptinventory/kept:1.14.0}
   read_only: true
   tmpfs: [/tmp]
   cap_drop: [ALL]
@@ -280,7 +280,7 @@ services:
     # just the two capabilities that create .env in a folder you own and hand the file to you,
     # and no network.
     profiles: [init]
-    image: ${KEPT_IMAGE:-ghcr.io/keptinventory/kept:1.13.1}
+    image: ${KEPT_IMAGE:-ghcr.io/keptinventory/kept:1.14.0}
     entrypoint: ["kept", "init"]
     user: "0:0"
     read_only: true
@@ -319,7 +319,7 @@ services:
     volumes:
       # Besides .env, the one file a service reads from this folder, and only with the https
       # profile. Without the repository: mkdir -p docker/caddy && curl -fsSLo docker/caddy/Caddyfile
-      # https://raw.githubusercontent.com/keptinventory/kept/v1.13.1/docker/caddy/Caddyfile
+      # https://raw.githubusercontent.com/keptinventory/kept/v1.14.0/docker/caddy/Caddyfile
       # Missing, the start stops with "bind source path does not exist" and creates nothing.
       - type: bind
         source: ./docker/caddy/Caddyfile
