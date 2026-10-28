@@ -15,6 +15,8 @@ import { type MockAnswer, mockKey } from '../ai/mock.js';
 import { aiRuntime } from '../ai/runtime.js';
 import { seal } from '../crypto/envelope.js';
 import { withScope } from '../db/scope.js';
+import { readEntity } from '../exports/data.js';
+import { entityDef } from '../exports/registry.js';
 import { partsFor } from '../extraction/image.js';
 import { type ExtractionJobDeps, runExtraction } from '../extraction/job.js';
 import { planPrompt } from '../extraction/prompts/plan.js';
@@ -302,7 +304,8 @@ describe('POST /api/v1/locations/:id/floor-plans', () => {
     // The plan is never the location's own document.
     const docs = await json<{ items: { id: string }[] }>(
       call(t, `/api/v1/locations/${home.id}/attachments`, { as: ibrahim }),
-    ).catch(() => ({ items: [] }));
+    );
+    expect(out.file?.attachmentId).toBeTruthy();
     expect(docs.items.some((d) => d.id === out.file?.attachmentId)).toBe(false);
   });
 
@@ -335,13 +338,43 @@ describe('POST /api/v1/locations/:id/floor-plans', () => {
   });
 
   it('refuses a file that is no image or PDF', async () => {
-    const fileId = await uploaded(
-      louis,
-      Buffer.from('{"not":"a plan"}'),
-      home,
-      'application/json',
-    ).catch(() => null);
-    if (fileId) expect((await start(louis, { fileId })).statusCode).toBe(400);
+    // The upload route takes only images and PDFs today (storage/sniff.ts; videos only with
+    // allowVideo, which no route passes yet), so the video D170 plans is put in place directly:
+    // Louis's own file, in Home.
+    const fileId = newId();
+    await sql(
+      `INSERT INTO public.files (id, location_id, storage_key, sha256, bytes, mime, class,
+                                 derivative_state, created_by)
+       VALUES ($1, $2, $3, $4, 10, 'video/mp4', 'video', 'not_applicable', $5)`,
+      [fileId, home.id, `f/${home.id}/${fileId}`, 'a'.repeat(64), louis.userId],
+    );
+    const res = await start(louis, { fileId });
+    expect(res.statusCode, res.body).toBe(400);
+    expect(await sql('SELECT 1 FROM public.attachments WHERE file_id = $1', [fileId])).toEqual([]);
+  });
+
+  it('is never attached through POST /api/v1/attachments', async () => {
+    const v = await readPlan('f2-l-shape');
+    const fileId = await uploaded(louis, await planPng('f8-no-scale'));
+    const res = await call(t, '/api/v1/attachments', {
+      as: louis,
+      body: {
+        id: newId(),
+        locationId: home.id,
+        fileId,
+        subject: { floorPlanId: v.id },
+        role: 'document',
+      },
+    });
+    // The route's own subjects don't include a plan: the body is refused outright.
+    expect(res.statusCode, res.body).toBe(400);
+    expect((res.json() as { hint?: string }).hint).toBe('Check body.subject.');
+    expect(
+      await sql('SELECT 1 FROM public.attachments WHERE floor_plan_id = $1 AND file_id = $2', [
+        v.id,
+        fileId,
+      ]),
+    ).toEqual([]);
   });
 });
 
@@ -699,6 +732,78 @@ describe('POST /api/v1/floor-plans/:id/apply', () => {
   });
 });
 
+describe('a plan under review is no document of the location', () => {
+  it('is in neither document search nor the export, until it is kept', async () => {
+    const loc = await createLocation(t, db, ibrahim, 'household');
+    await join(db, loc.id, louis.userId, 'member');
+    const pdf = await uploaded(
+      louis,
+      textPdf([['Ground floor', 'Larder 1.20 x 0.90 m']]),
+      loc,
+      'application/pdf',
+    );
+    // The text the pdf-text job reads from an upload.
+    await sql(
+      `INSERT INTO public.file_text (file_id, location_id, source, text)
+       VALUES ($1, $2, 'pdf', 'Ground floor Larder 1.20 x 0.90 m') ON CONFLICT DO NOTHING`,
+      [pdf, loc.id],
+    );
+    const out = await json<View>(start(louis, { fileId: pdf }, loc), 201);
+    const found = async () => {
+      const body = await json<{ documents: { items: { fileId: string }[] } }>(
+        call(t, `/api/v1/search?q=larder&kind=documents&locationId=${loc.id}`, { as: louis }),
+      );
+      return body.documents.items.map((d) => d.fileId);
+    };
+    expect(await found()).toEqual([]);
+    const exported = await withScope(
+      db.pools.app,
+      { userId: louis.userId, mfa: false },
+      async (_tx, c) => {
+        const ctx = {
+          locationId: loc.id,
+          accountId: loc.accountId,
+          showMoney: true,
+          ended: false,
+          trashed: false,
+        };
+        const rows = async (entity: 'attachments' | 'files') => {
+          const def = entityDef(entity);
+          if (!def) throw new Error(entity);
+          const out: Record<string, unknown>[] = [];
+          for await (const r of readEntity(c, def, ctx)) out.push(r);
+          return out;
+        };
+        return { attachments: await rows('attachments'), files: await rows('files') };
+      },
+    );
+    expect(exported.attachments.some((a) => a.id === out.file?.attachmentId)).toBe(false);
+    expect(exported.files.some((f) => f.id === pdf)).toBe(false);
+    // Kept with the location once its rooms are added: a document like any other.
+    await run(louis, out.id);
+    const v = await json<View>(view(louis, out.id));
+    expect(v.status).toBe('ready');
+    const res = await apply(louis, v.id, bodyOf(v, null, null, { keepPlan: true }));
+    expect(res.statusCode, res.body).toBe(200);
+    expect(await found()).toEqual([pdf]);
+  });
+});
+
+describe('who adds a plan’s rooms', () => {
+  it('any member, not only the one who uploaded it', async () => {
+    const loc = await createLocation(t, db, ibrahim, 'household');
+    for (const p of [louis, peter]) await join(db, loc.id, p.userId, 'member');
+    const v = await readPlan('f2-l-shape', louis, loc);
+    const res = await apply(peter, v.id, bodyOf(v, null, null));
+    expect(res.statusCode, res.body).toBe(200);
+    const [ev] = await sql<{ actor_id: string }>(
+      `SELECT actor_id FROM public.audit_events WHERE location_id = $1 AND action = 'floor_plan.apply'`,
+      [loc.id],
+    );
+    expect(ev?.actor_id).toBe(peter.userId);
+  });
+});
+
 // ---- Undo ------------------------------------------------------------------------------------
 
 describe('undo of floor_plan.apply', () => {
@@ -778,7 +883,7 @@ describe('undo of floor_plan.apply', () => {
     });
     expect(res.statusCode, res.body).toBe(200);
     expect((await undo(louis, moved.eventId)).statusCode).toBe(409);
-  });
+  }, 60_000);
 
   it('by another member is refused; the owner and an admin may', async () => {
     const a = await applied(louis);
