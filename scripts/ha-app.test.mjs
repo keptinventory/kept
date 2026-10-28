@@ -63,3 +63,16 @@ describe('bumpChangelog()', () => {
     expect(bumpChangelog(done, '1.15.0', ROOT_CHANGELOG)).toBe(done);
   });
 });
+
+describe('the Dockerfile', () => {
+  it('keeps the kept image as its last stage, so a build without --target is unchanged', async () => {
+    const { readFileSync } = await import('node:fs');
+    const stages = [
+      ...readFileSync(new URL('../Dockerfile', import.meta.url), 'utf8').matchAll(
+        /^FROM\s+\S+\s+AS\s+(\S+)/gm,
+      ),
+    ].map((m) => m[1]);
+    expect(stages.at(-1)).toBe('runtime');
+    expect(stages).toContain('ha');
+  });
+});

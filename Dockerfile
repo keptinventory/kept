@@ -253,6 +253,74 @@ RUN --mount=type=bind,source=docker/notices.sh,target=/notices/bin/notices.sh \
     sh /notices/bin/notices.sh "${VERSION}" "${TARGETARCH}"
 
 # ---------------------------------------------------------------------------------------------
+# The Home Assistant app (D272): `docker buildx build --target ha`, published as
+# ghcr.io/keptinventory/kept-ha:<Kept's version>. Kept, Postgres 18 and pgvector in one container
+# the Supervisor manages; everything that lasts is under /data, which Home Assistant keeps across
+# updates and puts in its backups (homeassistant/kept/config.yaml). The start script runs as root,
+# makes or restores the database, and runs Postgres as `postgres` and Kept as 10001
+# (docker/ha/kept-ha-start). It declares no VOLUME: under the Supervisor one would become an
+# anonymous volume, lost on every update (the spike's T8). The `io.hass.*` labels are what the
+# Supervisor reads; `io.hass.arch` is Home Assistant's name for the architecture. It sits before
+# `runtime`, which stays the last stage: a build without --target is the `kept` image.
+FROM scratch AS ha-arch-amd64
+LABEL io.hass.arch="amd64"
+FROM scratch AS ha-arch-arm64
+LABEL io.hass.arch="aarch64"
+
+FROM ha-arch-${TARGETARCH} AS ha
+COPY --from=ha-os / /
+
+ARG VERSION=0.0.0-dev
+ARG REVISION=
+ARG SOURCE=https://github.com/keptinventory/kept
+
+LABEL org.opencontainers.image.title="Kept for Home Assistant" \
+      org.opencontainers.image.description="Kept, a home inventory you can self-host, as a Home Assistant app with its own database" \
+      org.opencontainers.image.licenses="AGPL-3.0-only" \
+      org.opencontainers.image.source="${SOURCE}" \
+      org.opencontainers.image.revision="${REVISION}" \
+      org.opencontainers.image.version="${VERSION}" \
+      io.hass.version="${VERSION}" \
+      io.hass.type="app"
+
+# As the runtime's, with the app's own: KEPT_HA=1 (app mode: the one ingress check, D273), the
+# config and the files under /data.
+ENV NODE_ENV=production \
+    KEPT_VERSION="${VERSION}" \
+    KEPT_REVISION="${REVISION}" \
+    KEPT_SOURCE_URL="${SOURCE}${REVISION:+/tree/${REVISION}}" \
+    KEPT_HA=1 \
+    KEPT_CONFIG_DIR=/data/config \
+    KEPT_DATA_DIR=/data/kept \
+    KEPT_RESTIC_BIN=/usr/local/bin/restic \
+    HOME=/tmp \
+    PATH=/usr/lib/postgresql/18/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+WORKDIR /app
+COPY --from=prod-deps /src/node_modules ./node_modules
+COPY --from=prod-deps /src/apps/server/node_modules ./apps/server/node_modules
+COPY --from=prod-deps /src/packages/shared/node_modules ./packages/shared/node_modules
+COPY --from=prod-deps /src/packages/mcp/node_modules ./packages/mcp/node_modules
+COPY --from=build /src/package.json ./package.json
+COPY --from=build /src/apps/server/package.json ./apps/server/package.json
+COPY --from=build /src/apps/server/dist ./apps/server/dist
+COPY --from=build /src/apps/server/assets ./apps/server/assets
+COPY --from=build /src/apps/server/migrations ./apps/server/migrations
+COPY --from=build /src/packages/shared/package.json ./packages/shared/package.json
+COPY --from=build /src/packages/shared/dist ./packages/shared/dist
+COPY --from=build /src/packages/mcp/package.json ./packages/mcp/package.json
+COPY --from=build /src/packages/mcp/dist ./packages/mcp/dist
+COPY --from=build /src/apps/web/dist ./apps/web/dist
+COPY LICENSE ./LICENSE
+COPY --from=ha-notices /THIRD-PARTY-NOTICES.txt ./THIRD-PARTY-NOTICES.txt
+
+# Root: the start script owns the processes (homeassistant/kept/config.yaml sets `init: true`, so
+# Docker's init is PID 1 and passes the stop signal on).
+USER 0:0
+EXPOSE 8080
+ENTRYPOINT ["/usr/local/bin/kept-ha-start"]
+
+# ---------------------------------------------------------------------------------------------
 FROM scratch AS runtime
 COPY --from=os / /
 
@@ -320,70 +388,3 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
 # The tracing preload (D84) loads no OpenTelemetry package unless OTEL_EXPORTER_OTLP_ENDPOINT
 # is set; it has to run before fastify and pg load, so it is an --import, not an import.
 ENTRYPOINT ["node", "--import", "/app/apps/server/dist/observability/tracing.js", "/app/apps/server/dist/main.js"]
-
-# ---------------------------------------------------------------------------------------------
-# The Home Assistant app (D272): `docker buildx build --target ha`, published as
-# ghcr.io/keptinventory/kept-ha:<Kept's version>. Kept, Postgres 18 and pgvector in one container
-# the Supervisor manages; everything that lasts is under /data, which Home Assistant keeps across
-# updates and puts in its backups (homeassistant/kept/config.yaml). The start script runs as root,
-# makes or restores the database, and runs Postgres as `postgres` and Kept as 10001
-# (docker/ha/kept-ha-start). It declares no VOLUME: under the Supervisor one would become an
-# anonymous volume, lost on every update (the spike's T8). The `io.hass.*` labels are what the
-# Supervisor reads; `io.hass.arch` is Home Assistant's name for the architecture.
-FROM scratch AS ha-arch-amd64
-LABEL io.hass.arch="amd64"
-FROM scratch AS ha-arch-arm64
-LABEL io.hass.arch="aarch64"
-
-FROM ha-arch-${TARGETARCH} AS ha
-COPY --from=ha-os / /
-
-ARG VERSION=0.0.0-dev
-ARG REVISION=
-ARG SOURCE=https://github.com/keptinventory/kept
-
-LABEL org.opencontainers.image.title="Kept for Home Assistant" \
-      org.opencontainers.image.description="Kept, a home inventory you can self-host, as a Home Assistant app with its own database" \
-      org.opencontainers.image.licenses="AGPL-3.0-only" \
-      org.opencontainers.image.source="${SOURCE}" \
-      org.opencontainers.image.revision="${REVISION}" \
-      org.opencontainers.image.version="${VERSION}" \
-      io.hass.version="${VERSION}" \
-      io.hass.type="app"
-
-# As the runtime's, with the app's own: KEPT_HA=1 (app mode: the one ingress check, D273), the
-# config and the files under /data.
-ENV NODE_ENV=production \
-    KEPT_VERSION="${VERSION}" \
-    KEPT_REVISION="${REVISION}" \
-    KEPT_SOURCE_URL="${SOURCE}${REVISION:+/tree/${REVISION}}" \
-    KEPT_HA=1 \
-    KEPT_CONFIG_DIR=/data/config \
-    KEPT_DATA_DIR=/data/kept \
-    KEPT_RESTIC_BIN=/usr/local/bin/restic \
-    HOME=/tmp \
-    PATH=/usr/lib/postgresql/18/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
-WORKDIR /app
-COPY --from=prod-deps /src/node_modules ./node_modules
-COPY --from=prod-deps /src/apps/server/node_modules ./apps/server/node_modules
-COPY --from=prod-deps /src/packages/shared/node_modules ./packages/shared/node_modules
-COPY --from=prod-deps /src/packages/mcp/node_modules ./packages/mcp/node_modules
-COPY --from=build /src/package.json ./package.json
-COPY --from=build /src/apps/server/package.json ./apps/server/package.json
-COPY --from=build /src/apps/server/dist ./apps/server/dist
-COPY --from=build /src/apps/server/assets ./apps/server/assets
-COPY --from=build /src/apps/server/migrations ./apps/server/migrations
-COPY --from=build /src/packages/shared/package.json ./packages/shared/package.json
-COPY --from=build /src/packages/shared/dist ./packages/shared/dist
-COPY --from=build /src/packages/mcp/package.json ./packages/mcp/package.json
-COPY --from=build /src/packages/mcp/dist ./packages/mcp/dist
-COPY --from=build /src/apps/web/dist ./apps/web/dist
-COPY LICENSE ./LICENSE
-COPY --from=ha-notices /THIRD-PARTY-NOTICES.txt ./THIRD-PARTY-NOTICES.txt
-
-# Root: the start script owns the processes (homeassistant/kept/config.yaml sets `init: true`, so
-# Docker's init is PID 1 and passes the stop signal on).
-USER 0:0
-EXPOSE 8080
-ENTRYPOINT ["/usr/local/bin/kept-ha-start"]
