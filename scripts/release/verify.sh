@@ -67,3 +67,27 @@ release_notices() {
     warn "the image has no /app/THIRD-PARTY-NOTICES.txt (D151); a real release refuses this"
   fi
 }
+
+# The Home Assistant app's image (D272), each architecture in $smoke_arches by digest, with the
+# commit's own scripts/smoke-ha-image.sh: first start, the setup code, backup_pre and _post, a clean
+# stop, a second start and a restore from the dump. Its io.hass.version must be this version.
+release_verify_ha() {
+  say "4b. smoke the Home Assistant app's image (${smoke_arches// / + }) by digest"
+  local arch digest ref log got smoke=$work/src/scripts/smoke-ha-image.sh
+  for arch in $smoke_arches; do
+    digest=ha_${arch}_digest
+    digest=${!digest}
+    ref=$ha_registry@$digest
+    docker pull --quiet --platform "linux/$arch" "$ref" >/dev/null
+    cleanup_cmds+=("docker image rm '$ref'")
+    got=$(docker image inspect -f '{{index .Config.Labels "io.hass.version"}}' "$ref")
+    [[ $got == "$version" ]] || die "linux/$arch Home Assistant image says io.hass.version '$got', expected '$version'"
+    log=$work/smoke-ha-$arch.log
+    note "smoke linux/$arch ($ref); log $log"
+    BOOT_TIMEOUT=${KEPT_RELEASE_BOOT_TIMEOUT:-300} bash "$smoke" "$ref" >"$log" 2>&1 || {
+      tail -n 30 "$log" >&2
+      die "the linux/$arch Home Assistant smoke failed"
+    }
+    note "linux/$arch Home Assistant image: smoke PASS"
+  done
+}

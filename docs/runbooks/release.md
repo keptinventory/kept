@@ -129,6 +129,11 @@ both packages public (the old M4); the run then signs into the public transparen
 (`KEPT_RELEASE_TLOG=1` when the repository is public) and the release notes drop
 `--insecure-ignore-tlog`.
 
+**W3b. The Home Assistant app's package (D272).** The first release with `homeassistant/kept/`
+on main also pushes `ghcr.io/keptinventory/kept-ha`, by the same `GITHUB_TOKEN`; GHCR makes a
+first push private. Make it public once (the package's settings → Change visibility), or Home
+Assistant can't pull it: the Supervisor pulls without a login.
+
 **W4. Push `main`.** The tagged commit must be on `origin/main`, and a tag push runs the
 `release.yml` **in the tagged commit**, so the commit that adds it must be pushed before the first
 tag. Actions must stay enabled for the repository (it is, with "all actions" allowed: read
@@ -166,7 +171,13 @@ pull request.
    PINS="README.md compose.yaml apps/docs/src/content/docs/install/compose.md apps/docs/src/content/docs/ar/install/compose.md apps/docs/src/content/docs/install/https.md"
    for f in $PINS; do sed -i.bak -E -e 's|keptinventory/kept/v[0-9]+\.[0-9]+\.[0-9]+/|keptinventory/kept/vX.Y.Z/|g' \
      -e 's|(ghcr\.io/keptinventory/kept):[0-9]+\.[0-9]+\.[0-9]+\}|\1:X.Y.Z}|g' "$f" && rm "$f.bak"; done
-   git commit -m "chore(release): X.Y.Z" -- CHANGELOG.md $PINS
+   # The Home Assistant app's version is always Kept's (D272): its config.yaml and changelog.
+   HA=
+   if [ -f scripts/release/ha-app.mjs ] && [ -f homeassistant/kept/config.yaml ]; then
+     node scripts/release/ha-app.mjs bump X.Y.Z
+     HA="homeassistant/kept/config.yaml homeassistant/kept/CHANGELOG.md homeassistant/.test/kept-demo/config.yaml"
+   fi
+   git commit -m "chore(release): X.Y.Z" -- CHANGELOG.md $PINS $HA
    git push -u origin release-X.Y.Z
    gh pr create --base main --title "chore(release): X.Y.Z" --body "The X.Y.Z changelog section."
    gh pr merge --squash --delete-branch      # once the checks are green

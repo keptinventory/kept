@@ -148,6 +148,30 @@ describe('release.sh refuses', { timeout: 30_000 }, () => {
     expect(r.out).toContain("README.md's quick start doesn't install 1.4.0");
   });
 
+  it("a version the Home Assistant app's config.yaml doesn't name (D272)", () => {
+    mkdirSync(path.join(dir, 'homeassistant/kept'), { recursive: true });
+    writeFileSync(
+      path.join(dir, 'homeassistant/kept/config.yaml'),
+      'name: Kept\nversion: "1.2.0"\n',
+    );
+    git('add', 'homeassistant');
+    git('commit', '-q', '-m', 'feat: the app');
+    let r = release('1.3.0');
+    expect(r.status).not.toBe(0);
+    expect(r.out).toContain(
+      'homeassistant/kept/config.yaml is version 1.2.0, not 1.3.0: node scripts/release/ha-app.mjs bump 1.3.0',
+    );
+    writeFileSync(
+      path.join(dir, 'homeassistant/kept/config.yaml'),
+      'name: Kept\nversion: "1.3.0"\n',
+    );
+    git('commit', '-q', '-am', 'chore(release): 1.3.0');
+    r = release('1.3.0');
+    // Past that check (it stops later, at the gate).
+    expect(r.out).not.toContain('homeassistant/kept/config.yaml is version');
+    expect(r.out).toContain('no gate record');
+  });
+
   it('a dirty tree', () => {
     writeFileSync(path.join(dir, 'stray.txt'), 'x');
     const r = release('1.3.0');
