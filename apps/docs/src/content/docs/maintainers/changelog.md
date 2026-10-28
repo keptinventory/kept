@@ -3,8 +3,8 @@ title: The changelog
 description: How CHANGELOG.md is generated from conventional commit subjects, what it leaves out, and how a release uses it.
 ---
 
-[`CHANGELOG.md`](https://github.com/ibrahimroshdy/kept/blob/main/CHANGELOG.md) is written by
-[`scripts/changelog.mjs`](https://github.com/ibrahimroshdy/kept/blob/main/scripts/changelog.mjs)
+[`CHANGELOG.md`](https://github.com/keptinventory/kept/blob/main/CHANGELOG.md) is written by
+[`scripts/changelog.mjs`](https://github.com/keptinventory/kept/blob/main/scripts/changelog.mjs)
 from the commits' subjects when a release is cut. Newest release first; one section per release.
 D187 names release-please as the eventual tool once releases run from GitHub; until then this
 script writes the file, and release-please would start from it.
@@ -76,7 +76,7 @@ node scripts/changelog.mjs --version X.Y.Z [--from <ref>] [--to <ref>] [--date Y
 
 ## In a release
 
-The [runbook](https://github.com/ibrahimroshdy/kept/blob/main/docs/runbooks/release.md) writes the
+The [runbook](https://github.com/keptinventory/kept/blob/main/docs/runbooks/release.md) writes the
 section before the gate and commits it on its own, so the release builds the commit that holds it:
 
 ```sh
@@ -94,7 +94,7 @@ anything is built, and becomes the top of the GitHub release's notes.
 
 ## The test
 
-[`scripts/changelog.test.mjs`](https://github.com/ibrahimroshdy/kept/blob/main/scripts/changelog.test.mjs)
+[`scripts/changelog.test.mjs`](https://github.com/keptinventory/kept/blob/main/scripts/changelog.test.mjs)
 checks the grouping and hiding, internal scopes behind the scenes, breaking changes on a hidden
 type, unconventional subjects under Other, the highlights, the closed issues and the Contributors
 line from a fake GitHub (no network), GitHub failing, the placement and replacement of a section,
