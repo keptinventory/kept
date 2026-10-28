@@ -107,6 +107,7 @@ const sidebar = [
     page('users/things'),
     page('users/spreadsheet'),
     page('users/locations'),
+    page('users/modules'),
     page('users/search'),
     page('users/reminders'),
     page('users/vehicles'),
@@ -132,6 +133,7 @@ const sidebar = [
     page('users/import-export'),
     page('users/insights'),
     page('users/reports'),
+    page('users/webhooks'),
     page('integrations'),
     group('Backups and restore', 'النسخ الاحتياطي والاستعادة', [
       page('admin/backups'),
