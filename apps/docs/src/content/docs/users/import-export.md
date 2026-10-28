@@ -200,7 +200,8 @@ Photos added before Homebox recorded file types come through too: Kept checks ea
 ### A Kept export
 
 A Kept export always comes in as **a new location**, with its things, places, files, condition
-reports, moves and history. If it holds secret values, **Open the secrets** with the passphrase chosen when it was exported;
+reports, moves and history, and the location's position if it has one (for
+[Suggest where I am](/users/phone-app/#camera-gallery-and-scanning)). If it holds secret values, **Open the secrets** with the passphrase chosen when it was exported;
 without it, everything else is imported. Opening them needs HTTPS: over plain HTTP the import
 screen says so and imports the rest. **People to invite** lists who shared the location;
 nobody is invited by the import, so invite each person yourself.
