@@ -73,6 +73,11 @@ some. Under **This month**, a bar per limit shows the spend so far.
 - **Room photos** (Room mode): one call per photo listing up to 60 objects, and for several
   photos one short text-only call that merges them. The objects become drafts in the room, each
   with its own picture ([Room photos](/users/room-photos/)).
+- **Floor plans** (the location map's **Start from a floor plan**): one call per plan, reading
+  its rooms, their labels and printed sizes; Kept works out the sizes and places itself, and you
+  check them before anything is added ([the location map](/users/location-map/#start-from-a-floor-plan)).
+  The sheet shows the most a read can take before it is sent: about 11,000 tokens on Groq, an
+  estimate.
 - **The assistant** answers from your inventory within your role, and each tool it uses adds a
   call. Changes it proposes show as a confirmation card that you approve; for viewers it is
   read-only.
@@ -122,6 +127,11 @@ Kept's own summary, shown beside each provider:
 > Only a copy of the photo with location and camera data removed, never the original. The fixed
 > instructions and your location's languages. For the assistant, your question and the inventory
 > it looks up, within your role. Never secret fields.
+
+A floor plan sends the same kind of copy (a PDF's first page drawn as a picture, with that page's
+text) and none of your location, room or floor names; the plan's own text is sent as data, and
+nothing Kept keeps from the answer is a name, an address or a number from the plan other than its
+rooms' labels and sizes.
 
 Under it, Kept summarises what the provider says it does with API data (training, retention) and
 links its policy. A server you run yourself keeps what you let it keep.
