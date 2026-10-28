@@ -28013,3 +28013,215 @@ msgstr "{count, plural, one {# pièce ajoutée depuis un plan d’étage} other 
 #: src/components/ai/labels.ts
 msgid "Floor plans"
 msgstr "Plans d’étage"
+
+#: src/map/map-view.tsx
+msgid "{n, plural, one {Added # room from the plan} other {Added # rooms from the plan}}"
+msgstr "{n, plural, one {# pièce ajoutée depuis le plan} other {# pièces ajoutées depuis le plan}}"
+
+#: src/map/map-view.tsx
+msgid "Someone arranged this map since you started. Load it again; your rooms stay to add."
+msgstr "Quelqu’un a arrangé ce plan depuis que vous avez commencé. Rechargez-le ; vos pièces restent prêtes à ajouter."
+
+#: src/map/map-view.tsx
+msgid "Discard this plan?"
+msgstr "Abandonner ce plan ?"
+
+#: src/map/map-view.tsx
+msgid "Nothing is added. The plan is deleted."
+msgstr "Rien n’est ajouté. Le plan est supprimé."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Couldn’t read this plan."
+msgstr "Impossible de lire ce plan."
+
+#: src/map/map-view.tsx
+msgid "Dashed rooms are from the plan and not added yet. Drag to move one; drag its corner to resize it."
+msgstr "Les pièces en pointillés viennent du plan et ne sont pas encore ajoutées. Faites-en glisser une pour la déplacer ; faites glisser son coin pour la redimensionner."
+
+#: src/map/map-view.tsx
+msgid "{0, plural, one {Add # room} other {Add # rooms}}"
+msgstr "{0, plural, one {Ajouter # pièce} other {Ajouter # pièces}}"
+
+#: src/map/map-view.tsx
+msgid "Show the plan"
+msgstr "Afficher le plan"
+
+#: src/map/map-view.tsx
+msgid "Turn the rooms"
+msgstr "Tourner les pièces"
+
+#: src/map/map-view.tsx
+msgid "From a plan"
+msgstr "Depuis un plan"
+
+#: src/map/map-view.tsx
+msgid "<0>{room}</0>, from the plan, not added, {w} by {d} metres"
+msgstr "<0>{room}</0>, du plan, pas ajoutée, {w} sur {d} mètres"
+
+#: src/map/floor-plan/notices.tsx
+msgid "No rooms on the map yet"
+msgstr "Aucune pièce sur le plan pour l’instant"
+
+#: src/map/floor-plan/notices.tsx
+msgid "Start from a floor plan, or draw the rooms yourself."
+msgstr "Partez d’un plan d’étage, ou dessinez les pièces vous-même."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Start from a floor plan"
+msgstr "Partir d’un plan d’étage"
+
+#: src/map/floor-plan/notices.tsx
+msgid "For a PDF, try a screenshot of the plan."
+msgstr "Pour un PDF, essayez une capture d’écran du plan."
+
+#: src/map/floor-plan/notices.tsx
+msgid "This doesn’t look like a floor plan."
+msgstr "Cela ne ressemble pas à un plan d’étage."
+
+#: src/map/floor-plan/notices.tsx
+msgid "No rooms found on this plan."
+msgstr "Aucune pièce trouvée sur ce plan."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Draw rooms yourself"
+msgstr "Dessiner les pièces vous-même"
+
+#: src/map/floor-plan/notices.tsx
+msgid "A floor plan is ready to check."
+msgstr "Un plan d’étage est prêt à vérifier."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Check it"
+msgstr "Le vérifier"
+
+#: src/map/floor-plan/notices.tsx
+msgid "Reading the plan…"
+msgstr "Lecture du plan…"
+
+#: src/map/floor-plan/notices.tsx
+msgid "You can leave; the plan waits on the map."
+msgstr "Vous pouvez partir ; le plan vous attend sur la carte."
+
+#: src/map/floor-plan/panel.tsx
+msgid "<0>{room}</0> is…"
+msgstr "<0>{room}</0> mesure…"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Width (m)"
+msgstr "Largeur (m)"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Depth (m)"
+msgstr "Profondeur (m)"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Rescale"
+msgstr "Remettre à l’échelle"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from {room}’s size"
+msgstr "Échelle d’après la taille de {room}"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Sizes from the plan: {n} of {m} rooms agree"
+msgstr "Tailles du plan : {n} pièces sur {m} concordent"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from the plan’s scale bar"
+msgstr "Échelle d’après la barre d’échelle du plan"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from the doors, taken as 80 cm wide: check one room"
+msgstr "Échelle d’après les portes, supposées larges de 80 cm : vérifiez une pièce"
+
+#: src/map/floor-plan/panel.tsx
+msgid "No sizes on the plan: these are a guess"
+msgstr "Aucune taille sur le plan : ce sont des estimations"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Rooms from the plan"
+msgstr "Pièces du plan"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Set a room’s size"
+msgstr "Indiquer la taille d’une pièce"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Kept read the first 60 rooms. Add the rest by drawing."
+msgstr "Kept a lu les 60 premières pièces. Ajoutez le reste en les dessinant."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Keep the plan with <0>{location}</0>"
+msgstr "Garder le plan avec <0>{location}</0>"
+
+#: src/map/floor-plan/panel.tsx
+msgid "A new floor"
+msgstr "Un nouvel étage"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under 1 m: too small for the map."
+msgstr "Moins de 1 m : trop petite pour le plan."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Already on the map."
+msgstr "Déjà sur le plan."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Uses your <0>{existing}</0>"
+msgstr "Utilise votre pièce <0>{existing}</0>"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Make a new room"
+msgstr "Créer une nouvelle pièce"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Not a rectangle: drawn as its largest part."
+msgstr "Pas un rectangle : dessinée selon sa plus grande partie."
+
+#: src/map/floor-plan/panel.tsx
+msgid "The plan says <0>{size}</0>."
+msgstr "Le plan indique <0>{size}</0>."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Name unclear on the plan."
+msgstr "Nom peu lisible sur le plan."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Add {room}"
+msgstr "Ajouter {room}"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "A photo, a screenshot or a PDF of a plan. Kept reads the rooms and their sizes; you check them before anything is added."
+msgstr "Une photo, une capture d’écran ou un PDF d’un plan. Kept lit les pièces et leurs tailles ; vous les vérifiez avant que rien ne soit ajouté."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Use a sample floor plan"
+msgstr "Utiliser un plan d’exemple"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Choose a file"
+msgstr "Choisir un fichier"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "The plan you chose"
+msgstr "Le plan choisi"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Turn the plan a quarter turn"
+msgstr "Tourner le plan d’un quart de tour"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Only the first page is read."
+msgstr "Seule la première page est lue."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Up to ~{tokens} tokens"
+msgstr "Jusqu’à ~{tokens} jetons"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Kept sends the plan, without its location data, to <0>{name}</0>. It is deleted when you finish, unless you keep it."
+msgstr "Kept envoie le plan, sans ses données de localisation, à <0>{name}</0>. Il est supprimé quand vous avez fini, sauf si vous le gardez."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Read the plan"
+msgstr "Lire le plan"
