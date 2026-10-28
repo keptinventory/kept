@@ -1,4 +1,4 @@
-import type { SummaryLine } from '@kept/shared';
+import { baseModel, isMapModel, type SummaryLine } from '@kept/shared';
 
 // An arrange session in words (#140): the stored before/after layouts (map/service.ts LayoutImage)
 // compared node by node, one line per change, so the activity row says "Put HD webcam on Corner
@@ -34,6 +34,9 @@ export function layoutOf(value: unknown): ArrangedNode[] | null {
 }
 
 const isRoom = (n: ArrangedNode) => n.s === 'place' && n.kind !== null;
+
+/** A node's shape as the web names it: a sized shape's key without its numbers. */
+const shapeOf = (model: string | null) => (model && isMapModel(model) ? baseModel(model) : model);
 
 /** Every change between two layouts, rooms first, then the rest, each in name order. */
 export function arrangeLines(
@@ -99,13 +102,15 @@ export function arrangeLines(
     if (a.rot !== b.rot && !(b.host && a.host === b.host && hostShifted(b))) {
       out.push({ key: 'map.turn', params: { name } });
     }
-    if (a.model !== b.model && a.model && b.model) {
-      out.push({
-        key: 'map.shape',
-        params: { name, from: a.model, to: b.model, vocab: 'model' },
-      });
+    const from = shapeOf(a.model);
+    const to = shapeOf(b.model);
+    if (from !== to && from && to) {
+      out.push({ key: 'map.shape', params: { name, from, to, vocab: 'model' } });
     }
-    if (a.w !== b.w || a.d !== b.d) out.push({ key: 'map.resize', params: { name } });
+    // A room's new size, or a sized shape's (#240, #241: a cube shelf's grid, a bookcase's size).
+    if (a.w !== b.w || a.d !== b.d || (from === to && a.model !== b.model)) {
+      out.push({ key: 'map.resize', params: { name } });
+    }
     if (a.kind !== b.kind && a.kind && b.kind) {
       out.push({ key: 'map.kind', params: { name, from: a.kind, to: b.kind, vocab: 'kind' } });
     }

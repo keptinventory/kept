@@ -804,3 +804,68 @@ describe('suggestShapes: homelab gear and server racks (#171)', () => {
         expect(shapeWordsByLang(k)[lang].length, `${k} ${lang}`).toBeGreaterThan(0);
   });
 });
+
+describe('a cube shelf sized by its grid and a bookcase with levels (#240, #241)', () => {
+  it.each([
+    ['Kallax', 'cube_grid'],
+    ['IKEA Kallax 2x4', 'cube_grid'],
+    ['Kallax-Regal', 'cube_grid'],
+    ['Expedit', 'cube_grid'],
+    ['Cube storage', 'cube_grid'],
+    ['Cube organizer', 'cube_grid'],
+    ['Würfelregal', 'cube_grid'],
+    ['Étagère cube', 'cube_grid'],
+    ['Scaffale a cubi', 'cube_grid'],
+    ['وحدة تخزين مكعبات', 'cube_grid'],
+    ['Billy', 'bookcase'],
+    ['Billy bookcase', 'bookcase'],
+    ['Billy-Regal', 'bookcase'],
+    ['Tall bookcase', 'bookcase'],
+    ['Narrow bookcase', 'bookcase'],
+    ['Hohes Bücherregal', 'bookcase'],
+    ['Libreria alta', 'bookcase'],
+    ['مكتبة طويلة', 'bookcase'],
+  ] as const)('%s gets the %s, given by itself', (name, model) => {
+    const s = suggestShapes({ name });
+    expect(s.shapes[0]).toMatchObject({ model, from: 'name' });
+    expect(s.confident).toBe(true);
+  });
+
+  it('suggests both cube shelves for a plain cube shelf, and both bookcases for a bookcase', () => {
+    for (const [name, pair] of [
+      ['Cube shelf', ['cube_grid', 'cube_shelf']],
+      ['Bookcase', ['bookcase', 'bookshelf']],
+      ['Bookshelf', ['bookcase', 'bookshelf']],
+      ['Bücherregal', ['bookcase', 'bookshelf']],
+      ['Bibliothèque', ['bookcase', 'bookshelf']],
+    ] as const) {
+      const s = suggestShapes({ name });
+      expect(s.confident, name).toBe(false);
+      expect(
+        s.shapes
+          .slice(0, 2)
+          .map((x) => x.model)
+          .sort(),
+        name,
+      ).toEqual([...pair].sort());
+    }
+    // The fixed display shelf keeps its own word.
+    expect(shapeOnAdd({ name: 'Display shelf' })).toEqual({ model: 'cube_shelf', from: 'name' });
+  });
+
+  it('finds them by search in five languages, with storage', () => {
+    expect(searchShapes('kallax')[0]).toBe('cube_grid');
+    expect(searchShapes('cube stor')[0]).toBe('cube_grid');
+    expect(searchShapes('würfel', {}, 'de')[0]).toBe('cube_grid');
+    expect(searchShapes('étagère cube', {}, 'fr')[0]).toBe('cube_grid');
+    expect(searchShapes('scaffale a cubi', {}, 'it')[0]).toBe('cube_grid');
+    expect(searchShapes('billy')[0]).toBe('bookcase');
+    expect(searchShapes('tall book')[0]).toBe('bookcase');
+    expect(searchShapes('bookcase')).toEqual(expect.arrayContaining(['bookcase', 'bookshelf']));
+    expect(SHAPE_GROUP.cube_grid).toBe('storage');
+    expect(SHAPE_GROUP.bookcase).toBe('storage');
+    for (const k of ['cube_grid', 'bookcase'] as const)
+      for (const lang of ['en', 'ar', 'fr', 'de', 'it'] as const)
+        expect(shapeWordsByLang(k)[lang].length, `${k} ${lang}`).toBeGreaterThan(0);
+  });
+});

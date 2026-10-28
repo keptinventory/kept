@@ -18,6 +18,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { inventoryPaths } from '@/api/inventory/paths';
 import { IDS, type MockState, ownerScenario } from '@/api/mock/fixtures';
+import { PASS } from '@/api/mock/kit';
 import { createMockApi, MockReply } from '@/api/mock/server';
 import { AppProviders } from '@/app-providers';
 import { ContentsList, contentsSearch } from '@/components/places/contents-list';
@@ -38,6 +39,21 @@ function asRole(role: 'viewer' | 'member' | 'admin', state: MockState = ownerSce
 }
 
 const list = (name: string | RegExp) => screen.findByRole('list', { name });
+
+/** GETs of a place's page or contents after the POST to `write` that ended it. */
+function asksAgain(
+  mock: { calls: { method: string; path: string }[] },
+  write: string,
+  id: string,
+): string[] {
+  const at = mock.calls.findIndex((c) => c.method === 'POST' && c.path === write);
+  expect(at).toBeGreaterThan(-1);
+  const gone = [inventoryPaths.place(id), inventoryPaths.placeContents(id)];
+  return mock.calls
+    .slice(at + 1)
+    .filter((c) => c.method === 'GET' && gone.includes(c.path))
+    .map((c) => c.path);
+}
 
 describe('the location page', () => {
   it('shows Add here, the Unplaced card, then places before things with their paths', async () => {
@@ -628,6 +644,85 @@ describe('select and move', () => {
   });
 });
 
+describe('select and trash (#294)', () => {
+  const pick = async (user: Awaited<ReturnType<typeof renderApp>>['user'], names: string[]) => {
+    await list('Contents of Home');
+    await user.click(screen.getByRole('button', { name: 'Select' }));
+    for (const name of names) await user.click(screen.getByRole('checkbox', { name }));
+    await user.click(screen.getByRole('button', { name: 'Move to Trash' }));
+    return screen.findByRole('alertdialog', { name: `Send ${names.length} things to the Trash?` });
+  };
+
+  it('sends the selection to the Trash at once, and one Undo brings them all back', async () => {
+    const { user, mock } = await renderApp(`/loc/${IDS.home}`);
+    const dialog = await pick(user, ['Select Galaxy S23', 'Select Samsung TV, 55″']);
+    // Neither holds anything: no choice to make.
+    expect(within(dialog).queryByRole('radio')).toBeNull();
+    await user.click(within(dialog).getByRole('button', { name: 'Send to Trash' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', inventoryPaths.thingsBulkTrash)?.body).toEqual({
+        thingIds: [T.phone, T.tv],
+      }),
+    );
+    const toast = await screen.findByText('Sent 2 things to the Trash');
+    const deleted = () =>
+      mock.state.inventory.things
+        .filter((x) => x.id === T.phone || x.id === T.tv)
+        .map((x) => x.deletedAt);
+    expect(deleted().every(Boolean)).toBe(true);
+    // Selecting is over.
+    expect(screen.queryByRole('toolbar', { name: 'Selection' })).toBeNull();
+    const region = toast.closest('[role="alertdialog"], [role="region"]') as HTMLElement;
+    await user.click(within(region).getByRole('button', { name: 'Undo' }));
+    await waitFor(() =>
+      expect(
+        mock.calls.filter((c) => c.method === 'POST' && c.path === inventoryPaths.undoTogether),
+      ).toHaveLength(1),
+    );
+    expect(await screen.findByText('Undone')).toBeInTheDocument();
+    expect(deleted()).toEqual([null, null]);
+  });
+
+  it('asks what happens to what is inside a box first', async () => {
+    const { user, mock } = await renderApp(`/loc/${IDS.home}`);
+    const dialog = await pick(user, ['Select Galaxy S23', 'Select Cable box']);
+    await user.click(within(dialog).getByRole('radio', { name: "Trash what's inside too" }));
+    await user.click(within(dialog).getByRole('button', { name: 'Send to Trash' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', inventoryPaths.thingsBulkTrash)?.body).toEqual({
+        thingIds: [T.phone, T.cableBox],
+        contents: 'trash',
+      }),
+    );
+  });
+
+  it('asks first about something that is with someone, then sends it again confirmed', async () => {
+    const { user, mock } = await renderApp(`/loc/${IDS.home}`, {
+      setup: (m) =>
+        m.on('POST', inventoryPaths.thingsBulkTrash, ({ body }) =>
+          (body as { onLoan?: string }).onLoan === 'confirm'
+            ? { trashed: [T.phone, T.tv], moved: [], events: [] }
+            : new MockReply(409, {
+                error: 'It is with Sam.',
+                code: 'on_loan',
+                with: { person: 'Sam', thingId: T.tv, name: 'Samsung TV, 55″' },
+              }),
+        ),
+    });
+    const dialog = await pick(user, ['Select Galaxy S23', 'Select Samsung TV, 55″']);
+    await user.click(within(dialog).getByRole('button', { name: 'Send to Trash' }));
+    const ask = await screen.findByRole('alertdialog', { name: /This is with .*Sam/ });
+    await user.click(within(ask).getByRole('button', { name: 'Move to Trash anyway' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', inventoryPaths.thingsBulkTrash)?.body).toEqual({
+        thingIds: [T.phone, T.tv],
+        onLoan: 'confirm',
+      }),
+    );
+    expect(await screen.findByText('Sent 2 things to the Trash')).toBeInTheDocument();
+  });
+});
+
 describe('the place page', () => {
   it('shows the breadcrumb, the kind and counts, and the contents', async () => {
     await renderApp(`/p/${P.deskDrawer}`);
@@ -703,6 +798,8 @@ describe('the place page', () => {
     );
     await waitFor(() => expect(pathOf(router)).toBe(`/loc/home-0000b002`));
     expect(await screen.findByText('Kitchen is in the trash')).toBeInTheDocument();
+    // Kitchen is in the trash: its page and contents aren't asked for again (a 404, #336).
+    expect(asksAgain(mock, inventoryPaths.placeTrash(P.kitchen), P.kitchen)).toEqual([]);
   });
 
   it('trash them too, and Undo restores the batch', async () => {
@@ -761,6 +858,9 @@ describe('the place page', () => {
       }),
     );
     await waitFor(() => expect(pathOf(router)).toBe(`/p/${P.livingRoom}`));
+    await findHeading('Living room');
+    // Bedroom is gone: its page and contents aren't asked for again (a 404, #336).
+    expect(asksAgain(mock, inventoryPaths.placeMergeInto(P.bedroom), P.bedroom)).toEqual([]);
   });
 
   it('turns a place with no places inside into a box, keeping its id', async () => {
@@ -775,6 +875,27 @@ describe('the place page', () => {
       ).toBeTruthy(),
     );
     await waitFor(() => expect(pathOf(router)).toBe(`/t/${P.deskDrawer}`));
+  });
+
+  it('opens the box straight away, without asking for the place it was (#336)', async () => {
+    const { user, mock, router } = await renderApp(`/p/${P.deskDrawer}`);
+    await findHeading('Desk drawer');
+    await user.click(screen.getByRole('button', { name: /^Turn into a box/ }));
+    const dialog = await screen.findByRole('dialog', { name: 'Turn Desk drawer into a box?' });
+    await user.click(within(dialog).getByRole('button', { name: 'Turn into a box' }));
+    await waitFor(() => expect(pathOf(router)).toBe(`/t/${P.deskDrawer}`));
+    await findHeading('Desk drawer');
+    // The place is gone: asked for again it answers 404, and the page said "Couldn't load this"
+    // until the box opened.
+    const convert = mock.calls.findIndex(
+      (c) => c.method === 'POST' && c.path === inventoryPaths.placeConvertToContainer(P.deskDrawer),
+    );
+    expect(convert).toBeGreaterThan(-1);
+    const gone = [inventoryPaths.place(P.deskDrawer), inventoryPaths.placeContents(P.deskDrawer)];
+    expect(
+      mock.calls.slice(convert + 1).filter((c) => c.method === 'GET' && gone.includes(c.path)),
+    ).toEqual([]);
+    expect(screen.queryByText("Couldn't load this")).not.toBeInTheDocument();
   });
 
   it('a place with places inside is not offered as a box', async () => {
@@ -1195,6 +1316,43 @@ describe('inside a location', () => {
       expect(
         screen.queryByText((_, el) => el?.tagName === 'SUMMARY' && el.textContent === 'All places'),
       ).toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('from 1280 px a selection made before the outline arrives stays made', async () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({
+      matches: ['(min-width: 768px)', '(min-width: 1024px)', '(min-width: 1280px)'].includes(q),
+      media: q,
+      onchange: null,
+      addEventListener() {},
+      removeEventListener() {},
+      addListener() {},
+      removeListener() {},
+      dispatchEvent: () => false,
+    }));
+    let release = () => {};
+    const held = new Promise<void>((done) => {
+      release = done;
+    });
+    try {
+      // The outline's places held back, as on a slow server: the place and its list come first.
+      const { user } = await renderApp(`/p/${P.kitchen}`, {
+        setup: (mock) =>
+          mock.on('GET', inventoryPaths.locationPlaces(':id'), async () => {
+            await held;
+            return PASS;
+          }),
+      });
+      await findHeading('Kitchen');
+      await user.click(await screen.findByRole('button', { name: 'Select' }));
+      const boxes = screen.getAllByRole('checkbox', { name: /^Select / });
+      expect(boxes.length).toBeGreaterThan(0);
+      release();
+      await screen.findByRole('navigation', { name: 'Places in Home' });
+      // The page's body moved beside the outline without starting again (#336).
+      expect(screen.getAllByRole('checkbox', { name: /^Select / })).toHaveLength(boxes.length);
     } finally {
       vi.unstubAllGlobals();
     }

@@ -19,8 +19,8 @@
  *
  * With `canEdit`, things can be selected and moved together (D45), picked up together into the
  * carrying tray (D175, design frame 7a: the tray is on this phone, so it works offline), or sent
- * to "Print labels"; an owner or admin can also add them to an incident or make a claim pack
- * of them (D158). On a pointer device a thing can
+ * to "Print labels", or moved to the Trash with one Undo (#294); an owner or admin can also add
+ * them to an incident or make a claim pack of them (D158). On a pointer device a thing can
  * be dragged onto a place row; the move picker does the same without dragging (WCAG 2.5.7).
  */
 import { can } from '@kept/shared';
@@ -28,7 +28,7 @@ import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type InfiniteData, type UseInfiniteQueryResult, useMutation } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { type DragEvent, type ReactNode, useMemo, useState } from 'react';
+import { type DragEvent, lazy, type ReactNode, Suspense, useMemo, useState } from 'react';
 import { inventoryApi } from '@/api/inventory/queries';
 import type { Page, PlaceNode, ThingListParams, ThingRow } from '@/api/inventory/types';
 import { useLocations } from '@/api/queries';
@@ -44,6 +44,7 @@ import { EmptyState, Notice, useErrorText } from '@/components/page';
 import { useScanStore } from '@/components/scan/use-scan-store';
 import { tagGroupOf } from '@/components/tags/chip';
 import { BulkTagButtons } from '@/components/tags/lazy';
+import type { BulkTrashButton as BulkTrash } from '@/components/things/bulk-trash';
 import { useLocationAccountId } from '@/components/things/pickers';
 import { TrayIcon } from '@/components/tray/tray-icon';
 import { pickUp } from '@/components/tray/use-tray';
@@ -88,6 +89,13 @@ type Entry = { kind: 'place'; place: PlaceNode } | { kind: 'thing'; thing: Thing
 type EntryQuery = UseInfiniteQueryResult<InfiniteData<Page<Entry>>>;
 
 const DRAG_TYPE = 'application/x-kept-thing';
+
+// #294: "Move to Trash" for the selection, on demand: it needs the server anyway.
+const BulkTrashButton = lazy(() =>
+  import('@/components/things/bulk-trash')
+    .then((m) => ({ default: m.BulkTrashButton }))
+    .catch(() => ({ default: (() => null) as unknown as typeof BulkTrash })),
+);
 
 export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps) {
   const { t } = useLingui();
@@ -233,6 +241,7 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
     !!here &&
     (here.effectiveModules ?? here.modules).includes('warranties') &&
     can(here.role, 'incidents.manage');
+  const canTrash = !!here && can(here.role, 'things.trash');
   const online = useOnline();
   const [incidentFor, setIncidentFor] = useState<string[]>([]);
 
@@ -483,6 +492,15 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
             locationId={parent.locationId}
             onDone={stopSelecting}
           />
+          {canTrash ? (
+            <Suspense fallback={null}>
+              <BulkTrashButton
+                thingIds={[...selected]}
+                holdsThings={things.some((x) => x.isContainer && selected.has(x.id))}
+                onDone={stopSelecting}
+              />
+            </Suspense>
+          ) : null}
           <Button size="small" variant="ghost" onPress={stopSelecting}>
             <Trans>Done</Trans>
           </Button>
@@ -553,13 +571,17 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
                 layouts: [
                   { value: 'list', label: t`List` },
                   { value: 'grid', label: t`Grid`, short: t`grid` },
-                  // 1.x (D237, M11): a location's map; its page draws it instead of this list.
+                  // #207: a location's graph; its page draws it instead of this list.
                   ...(parent.kind === 'location'
-                    ? [{ value: 'map', label: t`Map`, short: t`map` }]
+                    ? [{ value: 'graph', label: t`Graph`, short: t`graph` }]
                     : []),
                   // 1.x (D250): the spreadsheet view, on a screen wide enough for it.
                   ...(parent.kind === 'location' && sheetFits
                     ? [{ value: 'table', label: t`Table`, short: t`table` }]
+                    : []),
+                  // 1.x (D237, M11): a location's map; its page draws it instead of this list.
+                  ...(parent.kind === 'location'
+                    ? [{ value: 'map', label: t`Map`, short: t`map` }]
                     : []),
                 ],
               })}

@@ -39,7 +39,9 @@ into its room.
 - **Print labels** prints a label for every box (any label sheet Kept supports). Stick one on
   each box, on a side you will see in a stack.
 - **Contents sheets** makes a PDF with a page per box: its number, the room it goes to, what's
-  inside and its code. Tape it to the box; the code on it scans like the label.
+  inside and its code. Tape it to the box; the code on it scans like the label. Once it has
+  printed, **Printed OK?** under the PDF records it, and those boxes show their code as amber
+  label tape, as a label printed from **Print labels** does.
 
 ## 3. In the van
 
@@ -93,6 +95,7 @@ and Undo as here. A read-only connection lists moves and boxes, and which ones a
 |---|---|---|---|
 | See moves and their boxes | Yes | Yes | Yes |
 | Make the contents sheets | Yes | Yes | Yes |
+| Confirm the contents sheets printed | | Yes | Yes |
 | Start a move, add boxes, pack, mark and unpack | | Yes | Yes |
 | Delete a move (its boxes stay, as boxes) | | Yes | Yes |
 

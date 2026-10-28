@@ -20,9 +20,10 @@
   letter-spacing: 0;
   text-transform: none;
 }
-/* The app fills the screen down to its tab bar; here, most of the window. */
+/* The app fills the screen down to its tab bar; here, the window below the site's bar (demo.ts
+   sets it from the visual viewport). */
 .kd-map .kmap-stage {
-  height: clamp(420px, calc(100svh - 12rem), 860px);
+  height: max(320px, calc(100svh - var(--sl-nav-height, 4rem) - 1.5rem));
 }
 .kd-overlay {
   display: contents;
@@ -73,14 +74,123 @@
   padding: 4px 6px 3px;
   box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.12);
 }
-/* The label without its QR code: the demo prints no labels. */
-.kd-idrow {
-  grid-template-columns: minmax(0, 1fr);
+/* A code with no printed label: small neutral mono (IdChip's `quiet`). */
+.kd-id.quiet {
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  color: var(--ink-2);
+  font: 400 12px / 1 var(--mono);
+  letter-spacing: 0.04em;
 }
 .kd-idtext {
   display: grid;
   gap: 4px;
   min-width: 0;
+}
+.kd-url {
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+.kmap-photo.kd-has-photo {
+  border-style: solid;
+}
+/* A tag chip (components/tags/chip.tsx): its colour's dot, on a tint of it, in light and dark. */
+.kd-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.kd-tag {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--tag) 45%, var(--line));
+  background: color-mix(in oklab, var(--tag) 14%, var(--surface));
+  padding: 2px 8px;
+  color: var(--ink);
+  font-size: 12.5px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.kd-tag-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--tag);
+}
+/* What's in, under the map (whats-in.ts): the app's header row and tools; the cards are
+   map.css's own (.kmap-rcard). */
+.kd-list {
+  display: grid;
+  gap: 12px;
+}
+.kd-list-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+.kd-map .kd-title {
+  margin: 0;
+  font: 600 20px / 1.3 var(--sans);
+}
+.kd-map .kd-h3 {
+  margin: 0;
+  font: 600 16px / 1.3 var(--sans);
+}
+.kd-list-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.kd-list-find {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+/* Done's Undo (the app's toast): at the foot of the window. */
+.kd-toasts {
+  position: fixed;
+  inset-inline: 16px;
+  inset-block-end: 16px;
+  z-index: 50;
+  display: grid;
+  justify-items: center;
+  pointer-events: none;
+}
+.kd-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding-block: 6px;
+  padding-inline: 14px 6px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font: 500 14px / 1.3 var(--sans);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.18);
+}
+.kd-toast-act {
+  min-height: 40px;
+  padding-inline: 8px;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: 600 14px / 1 var(--sans);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.kd-toast-act:focus-visible,
+.kd-tag:focus-visible {
+  outline: 2px solid var(--info);
 }
 /* Detailed models: the app's Switch (components/ui/switch.tsx). */
 .kd-switch {
@@ -181,7 +291,7 @@
 }
 .kd-shapes[open] {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 12px;
 }
 .kd-shapes::backdrop {
@@ -228,6 +338,37 @@
 }
 @media (max-width: 600px) {
   .kd-put {
+    top: auto;
+    bottom: 0;
+    height: auto;
+    max-height: calc(var(--kd-vv-h, 100dvh) * 0.92);
+  }
+}
+/* Cancel's question (the app's useConfirm): a small dialog, never the browser's own. */
+.kd-confirm {
+  width: min(26rem, calc(100% - 2rem));
+}
+.kd-confirm[open] {
+  grid-template-rows: auto;
+}
+.kd-confirm p {
+  margin: 0;
+  color: var(--ink-2);
+}
+.kd-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.kd-map .kmap-btn.danger,
+.kd-confirm .kmap-btn.danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+@media (max-width: 600px) {
+  .kd-confirm {
     top: auto;
     bottom: 0;
     height: auto;

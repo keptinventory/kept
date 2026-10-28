@@ -98,6 +98,8 @@ export type AnswerProps = {
   onAgain: () => void;
   onDone: () => void;
   onQueued?: () => void;
+  /** A blank label scanned from a place's "Add a label" (#329): that place is offered first. */
+  forPlace?: string | undefined;
 };
 
 export function ScanAnswer(props: AnswerProps) {

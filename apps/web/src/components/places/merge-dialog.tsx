@@ -51,8 +51,10 @@ function MergeForm({
   const [target, setTarget] = useState<PickedPlace | null>(null);
   const merge = useMutation({
     mutationFn: (to: PickedPlace) => placeApi.mergeInto(place.id, to.placeId, place.rowVersion),
-    onSuccess: async (_view, to) => {
-      await invalidate();
+    onSuccess: (_view, to) => {
+      // This place is gone: its own queries aren't asked again (a 404), and the place it went
+      // into opens at once while the lists refresh behind it (#336).
+      void invalidate({ gone: place.id });
       const from = place.name;
       const into = to.name;
       toast({ title: t`Merged ${from} into ${into}`, tone: 'ok' });

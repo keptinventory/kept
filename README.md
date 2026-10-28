@@ -6,15 +6,14 @@
 </p>
 
 <p align="center">
-  A self-hosted, open-source inventory of everything you own and where it is,<br>
-  with its paperwork and its history.
+  A self-hosted, open-source inventory of everything you own and where it is.
 </p>
 
 <!--
   One style for every badge: flat-square, the kit's ink-2 (#55524C) label and amber (#F0B03A)
   value (apps/web/src/styles/tokens.css). Release and CI are live (shields.io reads GitHub): CI
   turns red when the ci workflow fails on main. Both read public data, so they render once the
-  repository is public.
+  repository is public. Discord counts the members of the invite's server, live.
 -->
 <p align="center">
   <a href="https://github.com/keptinventory/kept/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/keptinventory/kept?sort=semver&display_name=tag&style=flat-square&label=release&labelColor=55524C&color=F0B03A"></a>
@@ -23,21 +22,14 @@
   <a href="https://keptinventory.info/"><img alt="Documentation" src="https://img.shields.io/badge/docs-keptinventory.info-F0B03A?style=flat-square&labelColor=55524C&label=docs"></a>
   <a href="https://github.com/orgs/keptinventory/packages/container/package/kept"><img alt="Container image: ghcr.io/keptinventory/kept" src="https://img.shields.io/badge/image-ghcr.io%2Fkeptinventory%2Fkept-F0B03A?style=flat-square&labelColor=55524C"></a>
   <a href="https://hub.docker.com/r/keptinventory/kept"><img alt="Docker Hub: keptinventory/kept" src="https://img.shields.io/badge/docker%20hub-keptinventory%2Fkept-2496ED?style=flat-square&labelColor=55524C&logo=docker&logoColor=white"></a>
-  <a href="https://discord.gg/g4WCXPfuNv"><img alt="Discord: join the chat" src="https://img.shields.io/badge/discord-join%20the%20chat-5865F2?style=flat-square&labelColor=55524C&logo=discord&logoColor=white"></a>
+  <a href="https://discord.gg/g4WCXPfuNv"><img alt="Discord members" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fdiscord.com%2Fapi%2Fv10%2Finvites%2Fg4WCXPfuNv%3Fwith_counts%3Dtrue&query=%24.approximate_member_count&label=discord&suffix=%20members&style=flat-square&logo=discord&logoColor=white&color=5865F2&labelColor=55524C"></a>
   <a href="CONTRIBUTING.md#sign-the-cla-once"><img alt="CLA: sign once" src="https://img.shields.io/badge/CLA-sign%20once-F0B03A?style=flat-square&labelColor=55524C"></a>
-</p>
-
-<p align="center">
-  <a href="https://keptinventory.info/try/kept/"><b>Try Kept</b></a> ·
-  <a href="https://keptinventory.info/try/map/"><b>Try the map</b></a> ·
-  <a href="#quick-start-host-it"><b>Host it</b></a> ·
-  <a href="https://keptinventory.info/"><b>Docs</b></a>
 </p>
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/kept-hero-dark.webp">
-    <img src="docs/assets/kept-hero-light.webp" alt="Kept's home screen on a desktop, with the same screen on a phone in front: what needs you, the get-started checklist and recent activity">
+    <img src="docs/assets/kept-hero-light.webp" alt="Kept's home screen on a desktop, with the same screen on a phone in front: the get-started checklist, what needs you, the locations and the shortcuts">
   </picture>
 </p>
 
@@ -46,56 +38,37 @@ those, with receipts, manuals, warranties and history. Self-hosted, on your own 
 Nothing leaves it unless you turn it on: no telemetry, the update check off by default, the AI
 provider yours to choose.
 
-## Try it in your browser
+## Try it
 
 Nothing to install, nothing saved.
 
 - **[Try Kept](https://keptinventory.info/try/kept/):** the whole app, with a sample household.
 - **[Try the map](https://keptinventory.info/try/map/):** the 3D map, with a sample home.
+- **[Host it](#quick-start-host-it):** Docker Compose or Kubernetes.
 
 ## A look around
 
-### The location map
-
-Each location as a 3D map: floors, rooms, shelves and boxes, what's inside one tap away. Arranged
-by you, or laid out by Kept. Plan view, balconies and terraces, phones included
-([the map](https://keptinventory.info/users/location-map/)).
-
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/map-desktop-dark.webp">
-    <img src="apps/docs/src/assets/screens/map-desktop-light.webp" alt="A home on Kept's 3D location map: rooms with their floors and walls, the place tree beside it, and the List · Grid · Map switch" width="720">
-  </picture>
-  <img src="docs/assets/kept-map-phone-light.webp" alt="The location map on a phone, with a thing's card at the bottom" width="200">
+  <img src="docs/assets/kept-tour.webp" alt="A tour of Kept on a desktop: Home; Home's things as a list, each with its type, boxes with their counts and the label tape on printed labels; the 3D map with the kitchen's card; the graph in 2D, going into the office and back; the graph in 3D, turning, with the kitchen picked; AA batteries' card and page; a search for cable that opens the HDMI cable" width="720">
 </p>
+
+- **List:** names first, each with its type; a box says how much is inside; the amber tape only
+  on things with a printed label.
+- **Map:** each location in 3D: floors, rooms, shelves and boxes, what's inside one tap away.
+  Arranged by you, or laid out by Kept. Plan view, balconies and terraces
+  ([the map](https://keptinventory.info/users/location-map/)).
+- **Graph:** a location's places, boxes and things, in 2D or 3D.
 
 ### On a phone
 
 Installs as an app. Capture, scan and search, offline too.
 
 <p align="center">
+  <img src="docs/assets/kept-demo-phone.webp" alt="Kept on a phone, in a short loop: Home, a location's list, the map with a room and a box's card, a search for cable, and the capture screen" width="240">
+  <img src="docs/assets/kept-map-phone-light.webp" alt="The location map on a phone, with a thing's card at the bottom" width="240">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/phone-dark.webp">
-    <img src="apps/docs/src/assets/screens/phone-light.webp" alt="Kept's Home on a phone: Get started, the Needs you tiles and the shortcuts, above the tab bar with its Capture button" width="220">
-  </picture>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/search-phone-dark.webp">
-    <img src="apps/docs/src/assets/screens/search-phone-light.webp" alt="Searching for cable on a phone: the cable box and the HDMI cable, each with its path and label" width="220">
-  </picture>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/capture-phone-dark.webp">
-    <img src="apps/docs/src/assets/screens/capture-phone-light.webp" alt="The capture screen on a phone, its camera on a labelled box on the garage shelves" width="220">
-  </picture>
-</p>
-
-### A thing
-
-A short ID, where it is down to the box, its details, paperwork, value, loans and history.
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/thing-dark.webp">
-    <img src="apps/docs/src/assets/screens/thing-light.webp" alt="An HDMI cable in Kept: its short ID, its path Home › Office › Desk drawer › Cable box, and its details: type, quantity, tags and connectors" width="720">
+    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/list-phone-dark.webp">
+    <img src="apps/docs/src/assets/screens/list-phone-light.webp" alt="Home's things on a phone: each name with its type underneath, boxes with their counts, the label tape on printed labels" width="240">
   </picture>
 </p>
 
@@ -107,7 +80,7 @@ open the box.
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/screens/labels-dark.webp">
-    <img src="apps/docs/src/assets/screens/labels-light.webp" alt="Printing labels: six things on an A4 sheet of 24, with the sheet preview" width="720">
+    <img src="apps/docs/src/assets/screens/labels-light.webp" alt="Printing labels: the six things in Home with no printed label, on an A4 sheet of 24, each label a QR code with its name, place and short ID" width="720">
   </picture>
 </p>
 
@@ -147,7 +120,7 @@ Docker with Compose v2, on a machine with at least 2 GB of RAM and 2 CPU cores
 
 ```sh
 mkdir kept && cd kept
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.13.1/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.0/compose.yaml
 docker compose run --rm init
 docker compose up -d
 ```
@@ -187,15 +160,12 @@ the Caddyfile in `docker/caddy/` ([HTTPS](https://keptinventory.info/install/htt
 
 ## What's next
 
-- **1.14.0, mid-December** ([milestone](https://github.com/keptinventory/kept/milestone/2)):
-  [graph view](https://github.com/keptinventory/kept/issues/207) ·
-  [move rooms on the map](https://github.com/keptinventory/kept/issues/301) ·
+- **1.14.1** ([milestone](https://github.com/keptinventory/kept/milestone/4)):
   [full-screen photos](https://github.com/keptinventory/kept/issues/295) ·
-  [Select → Trash](https://github.com/keptinventory/kept/issues/294) ·
   [vehicle services you can open](https://github.com/keptinventory/kept/issues/296) ·
-  [label-maker tape](https://github.com/keptinventory/kept/issues/303) ·
-  [two new shapes](https://github.com/keptinventory/kept/issues/240) ·
-  [a 2 GB machine](https://github.com/keptinventory/kept/issues/176)
+  [moving-box labels get the tape](https://github.com/keptinventory/kept/issues/307) ·
+  [MCP: edit a place](https://github.com/keptinventory/kept/issues/313) ·
+  [two new shapes](https://github.com/keptinventory/kept/issues/240)
 - **Later:** [mobile and desktop apps](https://github.com/keptinventory/kept/issues/169) ·
   [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197) ·
   [storage furniture templates](https://github.com/keptinventory/kept/issues/238) ·
@@ -224,3 +194,15 @@ Kept is free software under the GNU Affero General Public License, version 3
 ([`LICENSE`](LICENSE)), and every feature ships in it: nothing is held back. If you run a modified
 Kept for other people, you must offer them its source. The image carries the third-party notices
 of everything inside it, served at `/notices.txt`.
+
+## Star history
+
+<p align="center">
+  <a href="https://www.star-history.com/?repos=keptinventory%2Fkept&type=date&logscale=&releases=&legend=bottom-right">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=keptinventory/kept&type=date&theme=dark&legend=bottom-right">
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=keptinventory/kept&type=date&legend=bottom-right">
+      <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=keptinventory/kept&type=date&legend=bottom-right" width="600">
+    </picture>
+  </a>
+</p>

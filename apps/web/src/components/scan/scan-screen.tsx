@@ -10,6 +10,8 @@
  *   or box is where everything carried goes, in one move with Undo (D175).
  * - **Unpack mode** (`?unpack=<move id>`, "Scan to unpack", D251): a scanned box of that move opens
  *   the unpack panel (components/moving/unpack-answer.tsx): choose its room, Unpack, next box.
+ * - **For a place** (`?place=<id>`, a place's "Add a label", #329): a blank label offers that place
+ *   first.
  * - A code read offline that the phone doesn't know is kept, and checked here once online.
  *
  * Service-worker updates wait while it is open. The device (camera, decoder, connection) is
@@ -60,6 +62,8 @@ export type ScanScreenProps = {
   tray?: boolean;
   /** Unpacking this move's boxes (`?unpack=<move id>`, D251). */
   unpack?: string | undefined;
+  /** A place's "Add a label" (`?place=<id>`): a blank label offers it first. */
+  forPlace?: string | undefined;
   onExit: () => void;
   /** Go to what a scan opened (the route navigates; marking seen is done here). Settles when the navigation does, so the caller can close up after it commits. */
   onOpen: (target: ScanTarget) => void | Promise<void>;
@@ -93,6 +97,7 @@ export function ScanScreen({
   store,
   tray: trayAsked = false,
   unpack,
+  forPlace,
   onExit,
   onOpen,
   onQueued,
@@ -351,6 +356,7 @@ export function ScanScreen({
             onOpen={(target) => openTarget(target, answer.seen === true)}
             onAgain={again}
             onDone={onExit}
+            forPlace={forPlace}
             {...(onQueued ? { onQueued } : {})}
           />
         ) : null}

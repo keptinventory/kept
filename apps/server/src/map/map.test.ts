@@ -428,6 +428,46 @@ describe('PUT /api/v1/locations/:id/layout', () => {
     expect((await putLayout(ola, overlapping)).statusCode).toBe(200);
   });
 
+  it('stores a cube shelf’s grid and a bookcase’s size in the model, and refuses others (#240, #241)', async () => {
+    const base = fullLayout(null);
+    const sized = {
+      ...base,
+      nodes: [
+        { ...base.nodes[0], model: 'cube_grid_4x1' },
+        { ...base.nodes[1], model: 'bookcase_60x28x150_4' },
+      ],
+    };
+    const res = await putLayout(max, sized);
+    expect(res.statusCode, res.body).toBe(200);
+    const map = await json<MapJson>(getMap(vic));
+    expect(map.nodes.find((n) => n.id === ids.shelf)?.layout?.model).toBe('cube_grid_4x1');
+    expect(map.nodes.find((n) => n.id === ids.box)?.layout?.model).toBe('bookcase_60x28x150_4');
+    // Its first size is the bare key; the fixed cube shelf and bookshelf are as they were.
+    const fixed = {
+      ...base,
+      version: (res.json() as { version: string }).version,
+      nodes: [
+        { ...base.nodes[0], model: 'cube_grid' },
+        { ...base.nodes[1], model: 'bookcase' },
+      ],
+    };
+    const again = await putLayout(max, fixed);
+    expect(again.statusCode, again.body).toBe(200);
+    const version = (again.json() as { version: string }).version;
+    for (const model of [
+      'cube_grid_2x2',
+      'cube_grid_9x1',
+      'cube_grid_0x3',
+      'bookcase_80x28x202_6',
+      'bookcase_80x28x40_3',
+      'cube_shelf_2x2',
+    ]) {
+      const bad = { ...base, version, nodes: [{ ...base.nodes[0], model }] };
+      const r = await putLayout(ola, bad);
+      expect(r.statusCode, model).toBe(400);
+    }
+  });
+
   it('refuses two rooms of one floor that overlap (409 rooms_overlap)', async () => {
     const study = await placeOf(home, 'Study', ids.ground);
     try {
@@ -632,6 +672,32 @@ describe('Kept putting things on the map (#194)', () => {
       model: 'plant',
       placedByKept: false,
     });
+  });
+});
+
+describe('a room moved in Arrange (#301)', () => {
+  it('needs only its new corner: its things stand in it as before, and Undo moves it back', async () => {
+    const v1 = (await json<{ version: string }>(putLayout(ola, fullLayout(null)))).version;
+    // The living room moved 3 m along and 2 m back; what stands in it is sent as it was, in the
+    // room's own centimetres.
+    const moved = fullLayout(v1);
+    moved.rooms[0] = { ...moved.rooms[0], x: 300, z: 200 } as (typeof moved.rooms)[number];
+    const res = await putLayout(max, moved);
+    expect(res.statusCode, res.body).toBe(200);
+    const map = await json<MapJson>(getMap(vic));
+    expect(map.rooms.find((r) => r.id === ids.living)?.layout).toMatchObject({ x: 300, z: 200 });
+    const box = map.nodes.find((n) => n.id === ids.box)?.layout;
+    expect(box).toMatchObject({ x: 200, z: 300 });
+    expect(map.nodes.find((n) => n.id === ids.tv)?.layout).toMatchObject({ hostId: ids.box });
+
+    const undo = await call(t, `/api/v1/audit/${String(res.headers['x-kept-audit-event'])}/undo`, {
+      as: max,
+      body: {},
+    });
+    expect(undo.statusCode, undo.body).toBe(200);
+    const back = await json<MapJson>(getMap(ola));
+    expect(back.rooms.find((r) => r.id === ids.living)?.layout).toMatchObject({ x: 0, z: 0 });
+    expect(back.nodes.find((n) => n.id === ids.box)?.layout).toMatchObject({ x: 200, z: 300 });
   });
 });
 

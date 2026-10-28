@@ -102,8 +102,10 @@ function TrashForm({
             ? { contents: 'trash' }
             : { contents: 'move', ...(target ? { moveTo: { placeId: target.placeId } } : {}) },
       ),
-    onSuccess: async ({ body, auditEvents }) => {
-      await invalidate();
+    onSuccess: ({ body, auditEvents }) => {
+      // In the trash: its own queries aren't asked again (a 404), and the page moves on at once
+      // while the lists refresh behind it (#336).
+      void invalidate({ gone: place.id });
       const name = place.name;
       // Undo is `place.trash`'s audit undo, which also puts moved contents back; a server that
       // recorded nothing undoable gets a plain restore from Trash.

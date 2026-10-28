@@ -19213,6 +19213,14 @@ msgid "Adjust stock"
 msgstr "Adjust stock"
 
 #: src/assistant/confirm-card.tsx
+msgid "One up"
+msgstr "One up"
+
+#: src/assistant/confirm-card.tsx
+msgid "One down"
+msgstr "One down"
+
+#: src/assistant/confirm-card.tsx
 msgid "Field"
 msgstr "Field"
 
@@ -22226,6 +22234,14 @@ msgid "Bookshelf"
 msgstr "Bookshelf"
 
 #: src/map/labels.ts
+msgid "Cube storage"
+msgstr "Cube storage"
+
+#: src/map/labels.ts
+msgid "Tall bookcase"
+msgstr "Tall bookcase"
+
+#: src/map/labels.ts
 msgid "Floor lamp"
 msgstr "Floor lamp"
 
@@ -24575,8 +24591,33 @@ msgid "On the wall"
 msgstr "On the wall"
 
 #: src/map/height.tsx
+#: src/map/size.tsx
 msgid "Height"
 msgstr "Height"
+
+#: src/map/size.tsx
+msgid "Cubes across"
+msgstr "Cubes across"
+
+#: src/map/size.tsx
+msgid "Cubes up"
+msgstr "Cubes up"
+
+#: src/map/size.tsx
+msgid "Turn on its side"
+msgstr "Turn on its side"
+
+#: src/map/size.tsx
+msgid "Width"
+msgstr "Width"
+
+#: src/map/size.tsx
+msgid "Depth"
+msgstr "Depth"
+
+#: src/map/size.tsx
+msgid "Levels"
+msgstr "Levels"
 
 #: src/map/height.tsx
 msgid "Lower"
@@ -27406,3 +27447,214 @@ msgstr "A location inside an item became a box."
 #: src/components/places/contents-list.tsx
 msgid "Places keep their own order."
 msgstr "Places keep their own order."
+
+#: src/map/map-view.tsx
+msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. To move a room, hold its floor, then drag. Drag its amber corner to resize it."
+msgstr "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. To move a room, hold its floor, then drag. Drag its amber corner to resize it."
+
+#: src/map/map-view.tsx
+msgid "Rooms can’t overlap."
+msgstr "Rooms can’t overlap."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} up."
+msgstr "Moved {room} up."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} down."
+msgstr "Moved {room} down."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} left."
+msgstr "Moved {room} left."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} right."
+msgstr "Moved {room} right."
+#: src/components/places/contents-list.tsx
+msgid "Graph"
+msgstr "Graph"
+
+#: src/graph/card.tsx
+msgid "Selected"
+msgstr "Selected"
+
+#: src/graph/card.tsx
+msgid "{0} in <0>{1}</0>"
+msgstr "{0} in <0>{1}</0>"
+
+#: src/graph/card.tsx
+msgid "Tagged"
+msgstr "Tagged"
+
+#: src/graph/card.tsx
+msgid "{0} inside"
+msgstr "{0} inside"
+
+#: src/graph/card.tsx
+msgid "Inside it"
+msgstr "Inside it"
+
+#: src/graph/card.tsx
+msgid "Go in"
+msgstr "Go in"
+
+#: src/graph/card.tsx
+msgid "Show on the map"
+msgstr "Show on the map"
+
+#: src/graph/floors-3d.tsx
+msgid "Graph of {0}"
+msgstr "Graph of {0}"
+
+#: src/graph/floors-3d.tsx
+msgid "Rooms on no floor"
+msgstr "Rooms on no floor"
+
+#: src/graph/floors-3d.tsx
+msgid "Stop turning"
+msgstr "Stop turning"
+
+#: src/graph/floors-3d.tsx
+msgid "Turn slowly"
+msgstr "Turn slowly"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from higher"
+msgstr "Look from higher"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from lower"
+msgstr "Look from lower"
+
+#: src/graph/floors-3d.tsx
+msgid "Show the whole house"
+msgstr "Show the whole house"
+
+#: src/graph/graph-view.tsx
+msgid "The graph is drawn from Kept’s server. The list has everything offline."
+msgstr "The graph is drawn from Kept’s server. The list has everything offline."
+
+#: src/graph/graph-view.tsx
+msgid "Where you are in the graph"
+msgstr "Where you are in the graph"
+
+#: src/graph/graph-view.tsx
+msgid "2D or 3D"
+msgstr "2D or 3D"
+
+#: src/graph/graph-view.tsx
+msgid "Size shows how much is inside. Pick twice to go in; the path above takes you back."
+msgstr "Size shows how much is inside. Pick twice to go in; the path above takes you back."
+
+#: src/graph/graph-view.tsx
+msgid "It turns slowly until you touch it. Drag to turn it; pick a room to bring it forward."
+msgstr "It turns slowly until you touch it. Drag to turn it; pick a room to bring it forward."
+
+#: src/graph/graph-view.tsx
+msgid "{more, plural, one {# more thing is counted in its place but not drawn.} other {# more things are counted in their places but not drawn.}}"
+msgstr "{more, plural, one {# more thing is counted in its place but not drawn.} other {# more things are counted in their places but not drawn.}}"
+
+#: src/graph/graph-view.tsx
+msgid "In this graph"
+msgstr "In this graph"
+
+#: src/graph/graph-view.tsx
+msgid "In <0>{0}</0>"
+msgstr "In <0>{0}</0>"
+
+#: src/graph/words.ts
+msgid "low on stock"
+msgstr "low on stock"
+
+#: src/graph/words.ts
+msgid "lent out"
+msgstr "lent out"
+
+#: src/graph/words.ts
+msgid "due soon"
+msgstr "due soon"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# low on stock} other {# low on stock}}"
+msgstr "{count, plural, one {# low on stock} other {# low on stock}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# lent out} other {# lent out}}"
+msgstr "{count, plural, one {# lent out} other {# lent out}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# due soon} other {# due soon}}"
+msgstr "{count, plural, one {# due soon} other {# due soon}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# more in {where}} other {# more in {where}}}"
+msgstr "{count, plural, one {# more in {where}} other {# more in {where}}}"
+
+#: src/components/places/contents-list.tsx
+msgid "graph"
+msgstr "graph"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Add a label code"
+msgstr "Add a label code"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Scan a blank label you've stuck on it"
+msgstr "Scan a blank label you've stuck on it"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to an existing place"
+msgstr "Attach to an existing place"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to <0>{0}</0>"
+msgstr "Attach to <0>{0}</0>"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "A room, shelf or spot"
+msgstr "A room, shelf or spot"
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0> on this phone, until it syncs."
+msgstr "Claimed for <0>{label}</0> on this phone, until it syncs."
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0>."
+msgstr "Claimed for <0>{label}</0>."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Blank label {code}"
+msgstr "Blank label {code}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Not matched: {text}"
+msgstr "Not matched: {text}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Check later: {text}"
+msgstr "Check later: {text}"
+
+#: src/components/services/service-sheet.tsx
+msgid "Delete this service?"
+msgstr "Delete this service?"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "Edit the service"
+msgstr "Edit the service"
+
+#: src/components/services/service-sheet.tsx
+msgid "Its lines and invoice go too. Schedules it completed count from the service before. You can undo this."
+msgstr "Its lines and invoice go too. Schedules it completed count from the service before. You can undo this."
+
+#: src/components/services/service-sheet.tsx
+msgid "Logged by"
+msgstr "Logged by"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "They have prices you can't see, so they stay as they are."
+msgstr "They have prices you can't see, so they stay as they are."
+
+#: src/components/moving/sheets-printed.tsx
+msgid "Check that a code on the sheets scans. Yes records today as their print date, so the boxes show their label."
+msgstr "Check that a code on the sheets scans. Yes records today as their print date, so the boxes show their label."

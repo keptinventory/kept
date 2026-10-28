@@ -29,7 +29,13 @@ export type Val =
   | { t: 'type'; id: string; name: string }
   /** add_thing: no type; `word` is what the model said when Kept knows no such type. */
   | { t: 'notSet'; word?: string }
-  | { t: 'condition'; v: Condition };
+  | { t: 'condition'; v: Condition }
+  /** update_place (#313): a place kind's key (a built-in one is named in the reader's words). */
+  | { t: 'placeKind'; v: string }
+  /** update_place: how the places inside it are listed. */
+  | { t: 'childOrder'; v: 'name' | 'custom' }
+  /** update_place: one step up or down in its parent's Custom order. */
+  | { t: 'step'; v: 'up' | 'down' };
 
 export type FieldKey =
   | 'from'
@@ -76,7 +82,10 @@ export type FieldKey =
   | 'shop'
   | 'expires'
   | 'keepAtLeast'
-  | 'manual';
+  | 'manual'
+  | 'order'
+  | 'step'
+  | 'places';
 
 export type Field = { key: FieldKey; before?: Val; after: Val };
 
@@ -99,6 +108,8 @@ export type Verb =
   | 'service'
   | 'fuel'
   | 'stock'
+  | 'box'
+  | 'boxes'
   | 'other';
 
 export type Target =
@@ -325,6 +336,38 @@ export function rowsOf(p: Proposal): CardRow[] {
         push('custom', { t: 'text', v: `${k}: ${v === null ? '' : String(v)}` });
       return [{ ...base, verb: 'change', target: target(a.thing_id), fields }];
     }
+    case 'update_place': {
+      // #313: the place form's fields, each as it was (`before`) and as it will be.
+      const f = rec(a.fields);
+      const kind = (v: unknown): Val | undefined => {
+        const s = str(v);
+        return s ? { t: 'placeKind', v: s } : undefined;
+      };
+      const inside = (v: unknown): Val | undefined =>
+        v === null ? (here ? { t: 'path', v: [here] } : undefined) : pathOf(v);
+      const order = (v: unknown): Val | undefined =>
+        v === 'name' || v === 'custom' ? { t: 'childOrder', v } : undefined;
+      if ('name' in f) push('name', text(f.name), text(b.name));
+      if ('kind' in f) push('kind', kind(f.kind), kind(b.kind));
+      if ('parent_id' in f) push('under', inside(f.parent_id), inside(b.parent_id));
+      if ('child_order' in f) push('order', order(f.child_order), order(b.child_order));
+      for (const [k, v] of Object.entries(rec(f.custom)))
+        push('custom', { t: 'text', v: `${k}: ${v === null ? '' : String(v)}` });
+      if (a.move === 'up' || a.move === 'down') push('step', { t: 'step', v: a.move });
+      return [{ ...base, verb: 'change', target: target(a.place_id), fields }];
+    }
+    case 'turn_into_boxes': {
+      const ids = Array.isArray(a.place_ids)
+        ? a.place_ids.filter((x): x is string => typeof x === 'string')
+        : [];
+      if (ids.length === 1) return [{ ...base, verb: 'box', target: target(ids[0]), fields }];
+      const names = ids.flatMap((id) => {
+        const r = ref(id);
+        return r ? [r.name] : [];
+      });
+      if (names.length) push('places', { t: 'list', v: names });
+      return [{ ...base, verb: 'boxes', target: null, count: { n: ids.length }, fields }];
+    }
     case 'mark_seen':
       return [{ ...base, verb: 'seen', target: target(a.thing_id), fields }];
     case 'create_place':
@@ -426,6 +469,7 @@ export function rowsOf(p: Proposal): CardRow[] {
         const name = ref(l.consumable_thing_id)?.name;
         push('stock', { t: 'take', n: num(l.consumed_quantity) ?? 1, ...(name ? { name } : {}) });
       }
+      push('notes', text(a.notes));
       return [{ ...base, verb: 'service', target: target(a.thing_id ?? a.place_id), fields }];
     }
     case 'log_fuel': {

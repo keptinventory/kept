@@ -458,7 +458,8 @@ function thing(
     trashBatchId: null,
     deletedBy: null,
   };
-  // A fixed code is on a printed label in the demo's story: lists show it as the amber tape.
+  // A fixed code is on a printed label in the demo's story (lists show it as the amber tape),
+  // unless the fixture says otherwise; Labels' "unprinted" reads the same flag (capture/mock/labels).
   return { ...base, labelPrinted: !!extra.shortCode, ...extra };
 }
 
@@ -586,6 +587,8 @@ function things(all: TypeDetail[]): StoredThing[] {
       { placeId: P.bedroom },
       {
         shortCode: '5AFE9K',
+        // Its code isn't on a label yet: Labels' "unprinted" lists it, and lists show no tape.
+        labelPrinted: false,
         isContainer: true,
         secrets: [{ fieldKey: 'combination', label: null, set: true, canReveal: true }],
       },

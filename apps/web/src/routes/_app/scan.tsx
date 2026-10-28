@@ -1,7 +1,7 @@
 /**
  * Scan (D137, D175): the scanner with its six outcomes, "Type the code",
  * the carrying tray (`?tray=1`, "Scan destination"), and a move's "Scan to unpack"
- * (`?unpack=<move id>`, D251). The screen is
+ * (`?unpack=<move id>`, D251), and a place's "Add a label" (`?place=<id>`, #329). The screen is
  * components/scan/scan-screen.tsx; this route gives it the person's offline store and navigates
  * to what a scan opens. A box opened by its label leads with its photo grid (D195).
  *
@@ -17,9 +17,10 @@ import { useSessionPersist } from '@/components/scan/session/use-persist';
 import { useKick, useScanStore } from '@/components/scan/use-scan-store';
 
 export const Route = createFileRoute('/_app/scan')({
-  validateSearch: (s: Record<string, unknown>): { tray?: 1; unpack?: string } => {
-    if (typeof s.unpack === 'string' && /^[0-9a-f-]{36}$/i.test(s.unpack))
-      return { unpack: s.unpack };
+  validateSearch: (s: Record<string, unknown>): { tray?: 1; unpack?: string; place?: string } => {
+    const id = (v: unknown) => typeof v === 'string' && /^[0-9a-f-]{36}$/i.test(v);
+    if (id(s.unpack)) return { unpack: s.unpack as string };
+    if (id(s.place)) return { place: s.place as string };
     return s.tray === 1 || s.tray === '1' ? { tray: 1 } : {};
   },
   component: ScanPage,
@@ -27,7 +28,7 @@ export const Route = createFileRoute('/_app/scan')({
 
 function ScanPage() {
   const { t } = useLingui();
-  const { tray, unpack } = Route.useSearch();
+  const { tray, unpack, place } = Route.useSearch();
   const store = useScanStore();
   const kick = useKick();
   const navigate = useNavigate();
@@ -72,6 +73,7 @@ function ScanPage() {
       store={store}
       tray={tray === 1}
       unpack={unpack}
+      forPlace={place}
       onExit={exit}
       onOpen={open}
       onQueued={kick}

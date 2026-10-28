@@ -19213,6 +19213,14 @@ msgid "Adjust stock"
 msgstr "تعديل المخزون"
 
 #: src/assistant/confirm-card.tsx
+msgid "One up"
+msgstr "خطوة لأعلى"
+
+#: src/assistant/confirm-card.tsx
+msgid "One down"
+msgstr "خطوة لأسفل"
+
+#: src/assistant/confirm-card.tsx
 msgid "Field"
 msgstr "حقل"
 
@@ -22226,6 +22234,14 @@ msgid "Bookshelf"
 msgstr "مكتبة كتب"
 
 #: src/map/labels.ts
+msgid "Cube storage"
+msgstr "وحدة تخزين مكعبات"
+
+#: src/map/labels.ts
+msgid "Tall bookcase"
+msgstr "مكتبة طويلة"
+
+#: src/map/labels.ts
 msgid "Floor lamp"
 msgstr "مصباح أرضي"
 
@@ -24575,8 +24591,33 @@ msgid "On the wall"
 msgstr "على الحائط"
 
 #: src/map/height.tsx
+#: src/map/size.tsx
 msgid "Height"
 msgstr "الارتفاع"
+
+#: src/map/size.tsx
+msgid "Cubes across"
+msgstr "مكعبات بالعرض"
+
+#: src/map/size.tsx
+msgid "Cubes up"
+msgstr "مكعبات بالارتفاع"
+
+#: src/map/size.tsx
+msgid "Turn on its side"
+msgstr "اقلبه على جانبه"
+
+#: src/map/size.tsx
+msgid "Width"
+msgstr "العرض"
+
+#: src/map/size.tsx
+msgid "Depth"
+msgstr "العمق"
+
+#: src/map/size.tsx
+msgid "Levels"
+msgstr "عدد الرفوف"
 
 #: src/map/height.tsx
 msgid "Lower"
@@ -27406,3 +27447,214 @@ msgstr "صار موقع داخل عنصر صندوقًا."
 #: src/components/places/contents-list.tsx
 msgid "Places keep their own order."
 msgstr "تبقى الأماكن بترتيبها الخاص."
+
+#: src/map/map-view.tsx
+msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. To move a room, hold its floor, then drag. Drag its amber corner to resize it."
+msgstr "اسحب أي شيء لنقله. ضع الأشياء الصغيرة على سطح أو مكتب أو رف أو صندوق، وأشياء الحائط تُعلَّق على أقرب حائط. لنقل غرفة، اضغط مطولًا على أرضيتها ثم اسحب. اسحب زاويتها الكهرمانية لتغيير حجمها."
+
+#: src/map/map-view.tsx
+msgid "Rooms can’t overlap."
+msgstr "لا يمكن أن تتداخل الغرف."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} up."
+msgstr "نُقل «{room}» إلى الأعلى."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} down."
+msgstr "نُقل «{room}» إلى الأسفل."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} left."
+msgstr "نُقل «{room}» إلى اليسار."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} right."
+msgstr "نُقل «{room}» إلى اليمين."
+#: src/components/places/contents-list.tsx
+msgid "Graph"
+msgstr "رسم بياني"
+
+#: src/graph/card.tsx
+msgid "Selected"
+msgstr "المحدد"
+
+#: src/graph/card.tsx
+msgid "{0} in <0>{1}</0>"
+msgstr "{0} في <0>{1}</0>"
+
+#: src/graph/card.tsx
+msgid "Tagged"
+msgstr "الموسومة"
+
+#: src/graph/card.tsx
+msgid "{0} inside"
+msgstr "{0} في الداخل"
+
+#: src/graph/card.tsx
+msgid "Inside it"
+msgstr "بداخله"
+
+#: src/graph/card.tsx
+msgid "Go in"
+msgstr "ادخل"
+
+#: src/graph/card.tsx
+msgid "Show on the map"
+msgstr "اعرضه على الخريطة"
+
+#: src/graph/floors-3d.tsx
+msgid "Graph of {0}"
+msgstr "الرسم البياني لـ{0}"
+
+#: src/graph/floors-3d.tsx
+msgid "Rooms on no floor"
+msgstr "غرف بلا طابق"
+
+#: src/graph/floors-3d.tsx
+msgid "Stop turning"
+msgstr "أوقف الدوران"
+
+#: src/graph/floors-3d.tsx
+msgid "Turn slowly"
+msgstr "دوّره ببطء"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from higher"
+msgstr "انظر من أعلى"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from lower"
+msgstr "انظر من أسفل"
+
+#: src/graph/floors-3d.tsx
+msgid "Show the whole house"
+msgstr "اعرض البيت كاملًا"
+
+#: src/graph/graph-view.tsx
+msgid "The graph is drawn from Kept’s server. The list has everything offline."
+msgstr "يُرسم الرسم البياني من خادم Kept. والقائمة فيها كل شيء دون اتصال."
+
+#: src/graph/graph-view.tsx
+msgid "Where you are in the graph"
+msgstr "مكانك في الرسم البياني"
+
+#: src/graph/graph-view.tsx
+msgid "2D or 3D"
+msgstr "ثنائي أو ثلاثي الأبعاد"
+
+#: src/graph/graph-view.tsx
+msgid "Size shows how much is inside. Pick twice to go in; the path above takes you back."
+msgstr "الحجم يبيّن كم بداخله. اختر مرتين للدخول، والمسار في الأعلى يعيدك."
+
+#: src/graph/graph-view.tsx
+msgid "It turns slowly until you touch it. Drag to turn it; pick a room to bring it forward."
+msgstr "يدور ببطء حتى تلمسه. اسحب لتدويره، واختر غرفة لتبرزها."
+
+#: src/graph/graph-view.tsx
+msgid "{more, plural, one {# more thing is counted in its place but not drawn.} other {# more things are counted in their places but not drawn.}}"
+msgstr "{more, plural, zero {لا أشياء أخرى غير مرسومة.} one {شيء واحد آخر محسوب في مكانه لكنه غير مرسوم.} two {شيئان آخران محسوبان في مكانيهما لكنهما غير مرسومين.} few {# أشياء أخرى محسوبة في أماكنها لكنها غير مرسومة.} many {# شيئًا آخر محسوبًا في أماكنه لكنه غير مرسوم.} other {# شيء آخر محسوب في أماكنه لكنه غير مرسوم.}}"
+
+#: src/graph/graph-view.tsx
+msgid "In this graph"
+msgstr "في هذا الرسم البياني"
+
+#: src/graph/graph-view.tsx
+msgid "In <0>{0}</0>"
+msgstr "في <0>{0}</0>"
+
+#: src/graph/words.ts
+msgid "low on stock"
+msgstr "مخزونه منخفض"
+
+#: src/graph/words.ts
+msgid "lent out"
+msgstr "مُعار"
+
+#: src/graph/words.ts
+msgid "due soon"
+msgstr "يحين قريبًا"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# low on stock} other {# low on stock}}"
+msgstr "{count, plural, zero {لا شيء منخفض المخزون} one {شيء واحد منخفض المخزون} two {شيئان منخفضا المخزون} few {# أشياء منخفضة المخزون} many {# شيئًا منخفض المخزون} other {# شيء منخفض المخزون}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# lent out} other {# lent out}}"
+msgstr "{count, plural, zero {لا شيء مُعار} one {شيء واحد مُعار} two {شيئان مُعاران} few {# أشياء مُعارة} many {# شيئًا مُعارًا} other {# شيء مُعار}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# due soon} other {# due soon}}"
+msgstr "{count, plural, zero {لا شيء يحين قريبًا} one {شيء واحد يحين قريبًا} two {شيئان يحينان قريبًا} few {# أشياء تحين قريبًا} many {# شيئًا يحين قريبًا} other {# شيء يحين قريبًا}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# more in {where}} other {# more in {where}}}"
+msgstr "{count, plural, zero {لا مزيد في {where}} one {واحد آخر في {where}} two {اثنان آخران في {where}} few {# أخرى في {where}} many {# أخرى في {where}} other {# أخرى في {where}}}"
+
+#: src/components/places/contents-list.tsx
+msgid "graph"
+msgstr "رسم بياني"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Add a label code"
+msgstr "أضف رمز ملصق"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Scan a blank label you've stuck on it"
+msgstr "امسح ملصقًا فارغًا ألصقته عليه"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to an existing place"
+msgstr "اربطه بمكان موجود"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to <0>{0}</0>"
+msgstr "اربطه بـ«<0>{0}</0>»"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "A room, shelf or spot"
+msgstr "غرفة أو رف أو ركن"
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0> on this phone, until it syncs."
+msgstr "خُصّص لـ«<0>{label}</0>» على هذا الهاتف، حتى تتم المزامنة."
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0>."
+msgstr "خُصّص لـ«<0>{label}</0>»."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Blank label {code}"
+msgstr "ملصق فارغ {code}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Not matched: {text}"
+msgstr "غير مطابق: {text}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Check later: {text}"
+msgstr "تحقّق لاحقًا: {text}"
+
+#: src/components/services/service-sheet.tsx
+msgid "Delete this service?"
+msgstr "أتحذف هذه الصيانة؟"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "Edit the service"
+msgstr "تعديل الصيانة"
+
+#: src/components/services/service-sheet.tsx
+msgid "Its lines and invoice go too. Schedules it completed count from the service before. You can undo this."
+msgstr "تُحذف معها بنودها وفاتورتها، وتعود المواعيد التي أنجزتها إلى الصيانة التي قبلها. يمكنك التراجع عن ذلك."
+
+#: src/components/services/service-sheet.tsx
+msgid "Logged by"
+msgstr "سجّلها"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "They have prices you can't see, so they stay as they are."
+msgstr "فيها أسعار لا تراها، فتبقى كما هي."
+
+#: src/components/moving/sheets-printed.tsx
+msgid "Check that a code on the sheets scans. Yes records today as their print date, so the boxes show their label."
+msgstr "تحقق من أن رمزًا على الأوراق يُمسح. «نعم» يسجّل اليوم تاريخًا لطباعتها، فتظهر ملصقات الصناديق."

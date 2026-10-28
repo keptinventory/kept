@@ -133,6 +133,7 @@ export const logServiceTool: Handler<'log_service'> = {
       ...(currency ? { currency } : {}),
       lines,
       ...(input.completes?.length ? { completes: input.completes } : {}),
+      ...(input.notes ? { notes: input.notes } : {}),
     }).catch((err: unknown) => {
       throw stockRefusal(err, lines);
     });

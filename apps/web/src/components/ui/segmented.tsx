@@ -31,8 +31,13 @@ export function Segmented<K extends string>({
   value,
   onChange,
   className,
+  oneRow = false,
   ...props
-}: Common<K> & { options: readonly SegmentedOption<K>[] }) {
+}: Common<K> & {
+  options: readonly SegmentedOption<K>[];
+  /** Keep every option in one row on a phone too (short labels with an icon, #207). */
+  oneRow?: boolean;
+}) {
   return (
     <RadioGroup
       data-slot="segmented"
@@ -51,7 +56,8 @@ export function Segmented<K extends string>({
       <div
         className={cn(
           'grid auto-cols-fr grid-flow-col gap-px overflow-hidden rounded-lg border border-line bg-line',
-          twoColumnsOnPhone(options) &&
+          !oneRow &&
+            twoColumnsOnPhone(options) &&
             'max-sm:grid-flow-row max-sm:grid-cols-2 max-sm:[&>:last-child:nth-child(odd)]:col-span-2',
         )}
       >

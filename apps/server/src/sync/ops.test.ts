@@ -375,6 +375,49 @@ describe('POST /api/v1/sync/ops', () => {
     expect((await eventsOf(db, home.id, box)).map((e) => e.action)).toContain('label.claim');
   });
 
+  it('claims a blank label for a place offline; one claimed first is a label_claim for review (#329)', async () => {
+    const pantry = await place(db, home, 'Pantry');
+    const cellar = await place(db, home, 'Cellar');
+    const code = randomShortCode();
+    await own(
+      db,
+      `INSERT INTO public.short_ids (code, location_id, state, is_primary)
+       VALUES ($1, $2, 'blank', false)`,
+      [code, home.id],
+    );
+    const claimFor = (placeId: string) =>
+      op(
+        'claim_label',
+        home.id,
+        { code, target: { placeId } },
+        { idempotencyKey: `claim:${code}:${placeId}` },
+      );
+    const [won] = await sent(t, louis, [claimFor(pantry)]);
+    expect(won).toMatchObject({
+      outcome: 'applied',
+      entity: { type: 'place', id: pantry, shortCode: code },
+    });
+    // Another phone claimed the same label for another place meanwhile.
+    const [lost] = await sent(t, ibrahim, [claimFor(cellar)]);
+    expect(lost).toMatchObject({
+      outcome: 'needs_review',
+      reason: 'already_claimed',
+      entity: { type: 'place', id: cellar },
+    });
+    const items = await own<{ kind: string; thing_id: string | null; payload: unknown }>(
+      db,
+      'SELECT kind, thing_id, payload FROM public.inbox_items WHERE id = $1',
+      [(lost as { inboxItemId?: string }).inboxItemId],
+    );
+    expect(items).toEqual([
+      {
+        kind: 'label_claim',
+        thing_id: null,
+        payload: { claimedFor: { kind: 'place', id: pantry, name: 'Pantry' } },
+      },
+    ]);
+  });
+
   it('drops a box check whose counted thing has left the box since, saying who moved it', async () => {
     const boxType = await builtinType(db, 'box_bin');
     const box = await createThing(t, ibrahim, home, { name: 'Box 3', typeId: boxType });

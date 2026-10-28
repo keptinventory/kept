@@ -25,6 +25,16 @@ A service record holds the visit to the shop:
 - **Line items** with their costs.
 - **Schedules completed**: saving restarts their count.
 - **From stock** lines (below).
+- **Notes**.
+
+On a vehicle's **Services** tab, tap a service to open it: everything it holds, notes included.
+
+- **Edit** opens the same form, filled in. Saving changes only what you changed.
+- **Delete** asks first, then offers **Undo**. Its lines and invoice go with it; the schedules it
+  completed count from the service before.
+- Who can: the person who logged it, and the location's owner and admins. A viewer can open it,
+  not change it.
+- An invoice still being read is a **draft**: **Finish logging** or **Discard draft**.
 
 ## From stock
 

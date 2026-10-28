@@ -2,7 +2,8 @@
  * The spreadsheet's bulk actions and its Columns choice (1.x, D250). Move, Tags and "Set a field"
  * stage the change on every selected row, to be checked and saved with "Save N changes" (D128);
  * Send to Trash is done at once, with Undo (D150), after an in-app confirmation that asks what
- * happens to what is inside a box (D45). Never a native select or window.confirm.
+ * happens to what is inside a box (D45): things/bulk-trash.tsx, shared with a place's Select.
+ * Never a native select or window.confirm.
  */
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -17,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { DatePicker } from '@/components/ui/date-picker';
 import { DialogFooter } from '@/components/ui/dialog';
-import { ChoiceCards, Segmented } from '@/components/ui/segmented';
+import { Segmented } from '@/components/ui/segmented';
 import { Select, SelectItem } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
 import { TickBox } from '@/components/ui/tick-box';
@@ -232,65 +233,6 @@ export function SetFieldDialog({
             onPress={() => field && onApply(field, field.edit === 'date' ? (value ?? null) : value)}
           >
             <Trans>Set</Trans>
-          </Button>
-        </DialogFooter>
-      </div>
-    </Sheet>
-  );
-}
-
-/** Send to Trash: what happens to what is inside a box is asked first (D45). */
-export function TrashDialog({
-  count,
-  holdsThings,
-  isPending,
-  onClose,
-  onConfirm,
-}: {
-  count: number;
-  holdsThings: boolean;
-  isPending: boolean;
-  onClose: () => void;
-  onConfirm: (contents: 'move' | 'trash' | undefined) => void;
-}) {
-  const { t } = useLingui();
-  const [contents, setContents] = useState<'move' | 'trash'>('move');
-  return (
-    <Sheet
-      isOpen
-      role="alertdialog"
-      isDismissable={false}
-      onOpenChange={(o) => !o && onClose()}
-      title={plural(count, {
-        one: 'Send # thing to the Trash?',
-        other: 'Send # things to the Trash?',
-      })}
-    >
-      <div className="grid gap-4">
-        {holdsThings ? (
-          <ChoiceCards<'move' | 'trash'>
-            label={t`Some of them hold things`}
-            value={contents}
-            onChange={setContents}
-            options={[
-              { id: 'move', title: t`Move what's inside out, to where each one is` },
-              { id: 'trash', title: t`Trash what's inside too` },
-            ]}
-          />
-        ) : null}
-        <p className="m-0 text-small text-ink-2">
-          <Trans>They stay in the Trash for 30 days. Undo brings them all back.</Trans>
-        </p>
-        <DialogFooter>
-          <Button variant="secondary" onPress={onClose}>
-            <Trans>Cancel</Trans>
-          </Button>
-          <Button
-            variant="danger"
-            isPending={isPending}
-            onPress={() => onConfirm(holdsThings ? contents : undefined)}
-          >
-            <Trans>Send to Trash</Trans>
           </Button>
         </DialogFooter>
       </div>

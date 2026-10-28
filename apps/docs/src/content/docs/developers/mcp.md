@@ -44,6 +44,7 @@ User-written strings in outputs sit under an `untrusted` key. Lists default to 2
 | `move_thing` | write | core |
 | `mark_seen` | write | core |
 | `create_place` | write | core |
+| `update_place`, `turn_into_boxes` | write | core |
 | `attach_link` | write | core |
 | `log_reading` | write | core |
 | `log_service` | write | core |
@@ -64,6 +65,18 @@ minimum (its own route). `apps/server/src/tools/fields-parity.test.ts` fails whe
 a field the tools don't take; its exclusions (the client id, the per-item location, the template
 shortcut) say why. The handlers write through `insertThing()` and `updateThing()`, so the money
 gate, the type's custom-field validation and the audit are the routes' own.
+
+**A place's form.** `update_place` takes what the place page changes: its name and kind
+(Rename), the place it is inside (Move; `null` is the top of the location), its kind's fields, and
+`child_order` (Order of the places here); `move: 'up' | 'down'` is Move up / Move down in its
+parent's Custom order. It calls `updatePlace()` and `reorderChild()` in
+`apps/server/src/places/service.ts`, so the role check, If-Match (the assistant's card sends the
+place's version), the custom-field validation and the audit are the route's own: `place.update` or
+`place.move`, undoable, and `place.reorder`, not (the opposite step is its undo). `turn_into_boxes`
+groups the places by their parent and calls `convertChildren()` for each, the operation behind
+"Turn places into boxes": one undoable `place.convert_to_container` per box, undone together by
+`POST /api/v1/audit/undo`. A place at the top of a location is refused (`top_level`): the app's
+single conversion has no Undo.
 
 **No tool trashes, deletes, merges, transfers ownership, reveals a secret, uploads a file or runs
 SQL** (D58, D63, D124). `packages/mcp/src/tools.test.ts` walks the names and fails on one that

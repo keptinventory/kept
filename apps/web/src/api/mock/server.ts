@@ -12,6 +12,7 @@ import { AUDIT_EVENT_HEADER } from '../client';
 import { conditionMockRoutes } from '../condition/mock';
 import { connectionsMockRoutes } from '../connections/mock';
 import { countsMockRoutes } from '../counts/mock';
+import { graphMockRoutes } from '../graph/mock';
 import { householdMockRoutes } from '../household/mock';
 import { insightsMockRoutes } from '../insights/mock';
 import { inventoryMockRoutes } from '../inventory/mock';
@@ -617,6 +618,8 @@ export function createMockApi(state: MockState): MockApi {
   for (const r of insightsMockRoutes(state)) add(r.method, r.template, r.handler);
   // ----- 1.x: the location map and its arrange session (D237) -------------------------------------
   for (const r of mapMockRoutes(state)) add(r.method, r.template, r.handler);
+  // ----- #207: the graph view's read ------------------------------------------------------------
+  for (const r of graphMockRoutes(state)) add(r.method, r.template, r.handler);
   // ----- 1.x: moving mode, its moves and boxes (D251) --------------------------------------------
   for (const r of movingMockRoutes(state)) add(r.method, r.template, r.handler);
   // 1.x (D250): the spreadsheet view, last: a later route is tried first, so GET things/:id (the

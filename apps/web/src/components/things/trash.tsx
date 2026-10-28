@@ -7,7 +7,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { isApiError } from '@/api/client';
-import { thingApi } from '@/api/inventory/thing-api';
+import { thingApi, useThingGone } from '@/api/inventory/thing-api';
 import type { TrashBody } from '@/api/inventory/types';
 import { useOfferUndo } from '@/components/history/undo';
 import { useOnLoanConfirm } from '@/components/lending/on-loan';
@@ -36,13 +36,15 @@ export function isContentsChoice(e: unknown): boolean {
  * nothing undoable gets a plain restore from Trash.
  */
 function useAfterTrash() {
-  const { thing, refresh } = useThingCtx();
+  const { thing } = useThingCtx();
   const { t } = useLingui();
   const navigate = useNavigate();
   const offerUndo = useOfferUndo();
+  const gone = useThingGone();
   return async (auditEvents: readonly string[]) => {
     const parent = thing.path.at(-1);
-    await refresh();
+    // In Trash: not asked for again (a 404), and the page moves on at once (#336).
+    gone(thing.id);
     offerUndo({ title: t`${thing.name ?? t`Untitled`} is in Trash` }, auditEvents, {
       thingId: thing.id,
       fallback: () => thingApi.restore(thing.id),

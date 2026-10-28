@@ -215,6 +215,10 @@ async function tlsProxy() {
       req.pipe(upstream);
     },
   );
+  // Idle connections stay open as long as the server behind keeps them (Fastify's 72 s), not
+  // Node's 5 s: at 5 s a test's API request reusing its idle connection could meet the proxy
+  // closing it, and fail with "socket hang up" (#336).
+  server.keepAliveTimeout = 72_000;
   await new Promise((resolve, reject) => {
     server.once('error', reject);
     server.listen(port, 'localhost', resolve);

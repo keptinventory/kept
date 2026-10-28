@@ -3,6 +3,7 @@
  * choice is kept per device, tablets start on the rail, every rail entry keeps its name and shows
  * it in a tooltip, and counts become badges.
  */
+import { KEPT_VERSION } from '@kept/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
@@ -52,6 +53,29 @@ const mainNav = () =>
 afterEach(() => {
   // prefs.ts keeps the resolved state in memory across renders in one file.
   setSidebarPref('auto');
+});
+
+describe('one Main navigation at any width', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('from 768 px it is the sidebar: the phone tab bar is not there at all', async () => {
+    media(TABLET);
+    await renderApp('/');
+    await findHeading('Home');
+    // Hidden by CSS alone, the tab bar was a second landmark named "Main" whenever that CSS
+    // didn't hide it (axe landmark-unique on desktop).
+    const navs = screen.getAllByRole('navigation', { name: 'Main', hidden: true });
+    expect(navs).toHaveLength(1);
+    expect(navs[0]).toHaveAttribute('data-tour', 'nav-entries');
+    expect(document.querySelector('[data-tab-bar]')).toBeNull();
+  });
+
+  it('below 768 px the tab bar is there', async () => {
+    media([]);
+    await renderApp('/');
+    await findHeading('Home');
+    expect(document.querySelector('[data-tab-bar]')).not.toBeNull();
+  });
 });
 
 describe('folding the sidebar', () => {
@@ -397,7 +421,7 @@ describe('the rail', () => {
     // Keyboard focus (React Aria opens tooltips on focus when the last input was a key).
     await user.keyboard('{Shift}');
     act(() => source.focus());
-    expect(await screen.findByRole('tooltip')).toHaveTextContent('v0.1.0');
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(`v${KEPT_VERSION}`);
   });
 
   it('renders mirrored in Arabic with logical CSS only', async () => {

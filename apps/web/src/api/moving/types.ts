@@ -83,6 +83,10 @@ export type UpdateBoxBody = { state?: BoxState; destinationPlaceId?: string | nu
 export type UnpackBody = { placeId?: string };
 
 /** POST /api/v1/reports/move: a page per box, or only these boxes. */
+/** POST /moves/:id/sheets/printed: these boxes' sheets printed (omitted: every box); answers the
+ * codes it marked printed (#307). */
+export type SheetsPrintedBody = { containerIds?: string[] };
+
 export type ContentsSheetsBody = {
   moveId: string;
   containerIds?: string[];

@@ -1016,7 +1016,12 @@ export type BulkEditResult = {
   /** The undoable events the saved rows wrote, for POST /api/v1/audit/undo. */
   events: string[];
 };
-export type BulkTrashBody = { thingIds: string[]; contents?: 'move' | 'trash' };
+export type BulkTrashBody = {
+  thingIds: string[];
+  contents?: 'move' | 'trash';
+  /** Something with someone goes only when confirmed (409 `on_loan` otherwise, 1.14). */
+  onLoan?: 'confirm';
+};
 export type BulkTrashResult = { trashed: string[]; moved: string[]; events: string[] };
 
 /** POST /api/v1/things/:id/empty-into ("Empty Box 3 into Box 5", D45). */

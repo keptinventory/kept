@@ -21,6 +21,7 @@ import {
   inventoryApi,
   inventoryKeys as k,
   nextCursor,
+  ownQueries,
 } from '@/api/inventory/queries';
 import type {
   BoxNode,
@@ -64,11 +65,20 @@ export const placeApi = {
     api.post<MoveResult>(p.thingEmptyInto(thingId), body),
 };
 
-/** After any place or move write: everything that shows places, things or their counts. */
-export function invalidateBrowse(qc: QueryClient): Promise<unknown> {
+/**
+ * After any place or move write: everything that shows places, things or their counts.
+ * `gone` is a place the write ended (merged, trashed, turned into a box): its own queries go stale
+ * without a refetch (`ownQueries`), so the page can move on at once.
+ */
+export function invalidateBrowse(
+  qc: QueryClient,
+  { gone }: { gone?: string } = {},
+): Promise<unknown> {
+  const own = gone ? ownQueries(gone) : () => false;
   return Promise.all([
-    qc.invalidateQueries({ queryKey: k.places.all }),
-    qc.invalidateQueries({ queryKey: k.things.all }),
+    qc.invalidateQueries({ queryKey: k.places.all, predicate: (q) => !own(q) }),
+    qc.invalidateQueries({ queryKey: k.things.all, predicate: (q) => !own(q) }),
+    ...(gone ? [qc.invalidateQueries({ predicate: own, refetchType: 'none' })] : []),
     qc.invalidateQueries({ queryKey: k.home }),
     qc.invalidateQueries({ queryKey: keys.locations }),
   ]);
@@ -76,7 +86,7 @@ export function invalidateBrowse(qc: QueryClient): Promise<unknown> {
 
 export function useInvalidateBrowse() {
   const qc = useQueryClient();
-  return () => invalidateBrowse(qc);
+  return (opts?: { gone?: string }) => invalidateBrowse(qc, opts);
 }
 
 /**

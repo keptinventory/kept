@@ -103,6 +103,22 @@ describe('log_service', () => {
     expect(forTalia[0]?.tools).not.toContain('log_service');
   });
 
+  it('takes the notes, as the form does (#296)', async () => {
+    const thing = await car('Notes car');
+    const out = await data(louis, 'log_service', {
+      location_id: home.id,
+      thing_id: thing,
+      serviced_on: await today(),
+      notes: '  Wipers squeak in the rain.  ',
+    });
+    const [row] = await own<{ notes: string | null }>(
+      db,
+      'SELECT notes FROM public.service_records WHERE id = $1',
+      [out.service_id],
+    );
+    expect(row).toEqual({ notes: 'Wipers squeak in the rain.' });
+  });
+
   it('logs a confirmed service with its vendor, lines and total, completing a schedule, undoable', async () => {
     const thing = await car('Service car');
     const schedule = ok(

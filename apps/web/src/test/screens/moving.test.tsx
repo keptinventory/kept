@@ -1,8 +1,8 @@
 /**
  * Moving mode: starting a move, adding a numbered box, marking it in
  * transit from its page, unpacking a packed box into its room (everything inside goes too),
- * choosing a box's room with no signal, the still-to-unpack list, what a viewer sees, and the
- * board in Arabic.
+ * choosing a box's room with no signal, the still-to-unpack list, what a viewer sees, "Printed
+ * OK?" after the contents sheets (#307), and the board in Arabic.
  */
 import type { SnapPlace } from '@kept/shared';
 import { act, screen, waitFor, within } from '@testing-library/react';
@@ -76,6 +76,13 @@ function seeded(state = withMoving()): MockState {
       },
     ],
   });
+  return state;
+}
+
+/** Neither box's code is on a label yet. */
+function unlabelled(state: MockState): MockState {
+  for (const x of state.inventory.things)
+    if (x.id === T.box3 || x.id === T.cableBox) x.labelPrinted = false;
   return state;
 }
 
@@ -255,6 +262,129 @@ describe('Moving', () => {
     expect(screen.queryByRole('button', { name: 'Scan to unpack' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Add a box' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Delete the move' })).toBeNull();
+  });
+
+  it('asks "Printed OK?" once the contents sheets are made; Yes gives every box on them the tape', async () => {
+    const state = unlabelled(seeded());
+    const { user, mock } = await renderApp(`/moving/${MOVE}`, { state });
+    await findHeading('Spring clear-out');
+    await user.click(screen.getByRole('button', { name: 'Contents sheets' }));
+    const sheet = await screen.findByRole('dialog');
+    // Not before the PDF is there.
+    expect(within(sheet).queryByRole('region', { name: 'Printed OK?' })).toBeNull();
+    await user.click(await within(sheet).findByRole('button', { name: 'Make the PDF' }));
+    await within(sheet).findByText('Your PDF is ready', {}, { timeout: 8000 });
+    const ask = await within(sheet).findByRole('region', { name: 'Printed OK?' });
+    await user.click(within(ask).getByRole('button', { name: 'Yes, printed OK' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', movingPaths.sheetsPrinted(MOVE))?.body).toEqual({}),
+    );
+    expect(await screen.findByText('Marked as printed')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(within(sheet).queryByRole('region', { name: 'Printed OK?' })).toBeNull(),
+    );
+    const things = state.inventory.things;
+    expect(things.find((x) => x.id === T.box3)?.labelPrinted).toBe(true);
+    expect(things.find((x) => x.id === T.cableBox)?.labelPrinted).toBe(true);
+  });
+
+  it('a move of more boxes than the sheets hold: Yes sends no ids, and the server marks the boxes it printed', async () => {
+    const state = unlabelled(withMoving());
+    const template = state.inventory.things.find((x) => x.id === T.box3);
+    if (!template) throw new Error('fixture');
+    const boxes = Array.from({ length: 201 }, (_, i) => {
+      const n = i + 1;
+      const id = `01926f00-0000-7000-8000-${String(n).padStart(12, '0')}`;
+      state.inventory.things.push({
+        ...template,
+        id,
+        name: `Box ${n}`,
+        shortCode: `MV${String(n).padStart(4, '0')}`,
+        labelPrinted: false,
+      });
+      return {
+        containerId: id,
+        number: n,
+        state: 'packed' as const,
+        stateAt: '2026-10-10T09:05:00Z',
+        stateBy: { displayName: 'Ibrahim' },
+        destinationPlaceId: null,
+        rowVersion: 1,
+      };
+    });
+    seedMove(state, {
+      id: MOVE,
+      locationId: IDS.home,
+      toLocationId: null,
+      name: 'Spring clear-out',
+      status: 'active',
+      createdBy: { displayName: 'Ibrahim' },
+      createdAt: '2026-10-10T09:00:00Z',
+      finishedAt: null,
+      rowVersion: 1,
+      boxes,
+    });
+    const { user, mock } = await renderApp(`/moving/${MOVE}`, { state });
+    await findHeading('Spring clear-out');
+    await user.click(screen.getByRole('button', { name: 'Contents sheets' }));
+    const sheet = await screen.findByRole('dialog');
+    await user.click(await within(sheet).findByRole('button', { name: 'Make the PDF' }));
+    const ask = await within(sheet).findByRole(
+      'region',
+      { name: 'Printed OK?' },
+      { timeout: 8000 },
+    );
+    await user.click(within(ask).getByRole('button', { name: 'Yes, printed OK' }));
+    expect(await screen.findByText('Marked as printed')).toBeInTheDocument();
+    expect(mock.lastCall('POST', movingPaths.sheetsPrinted(MOVE))?.body).toEqual({});
+    const printed = state.inventory.things.filter(
+      (x) => x.shortCode?.startsWith('MV') && x.labelPrinted,
+    );
+    // The sheets hold the first 200 boxes; the 201st keeps a quiet code.
+    expect(printed).toHaveLength(200);
+    expect(state.inventory.things.find((x) => x.shortCode === 'MV0201')?.labelPrinted).toBe(false);
+  });
+
+  it('a box’s own contents sheet confirms that box only, and its code turns to tape', async () => {
+    const state = unlabelled(seeded());
+    const { user, mock } = await renderApp(`/moving/${MOVE}/boxes/${T.box3}`, { state });
+    await findHeading('Box 1');
+    expect(await screen.findByRole('img', { name: 'B0X3AA' })).toHaveAttribute(
+      'data-variant',
+      'quiet',
+    );
+    await user.click(screen.getByRole('button', { name: 'Contents sheet' }));
+    const sheet = await screen.findByRole('dialog');
+    await user.click(await within(sheet).findByRole('button', { name: 'Make the PDF' }));
+    const ask = await within(sheet).findByRole(
+      'region',
+      { name: 'Printed OK?' },
+      { timeout: 8000 },
+    );
+    await user.click(within(ask).getByRole('button', { name: 'Yes, printed OK' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', movingPaths.sheetsPrinted(MOVE))?.body).toEqual({
+        containerIds: [T.box3],
+      }),
+    );
+    const close = within(sheet).getAllByRole('button', { name: 'Close' });
+    await user.click(close[close.length - 1] as HTMLElement);
+    await waitFor(() =>
+      expect(screen.getByRole('img', { name: 'B0X3AA' })).toHaveAttribute('data-variant', 'tape'),
+    );
+    expect(state.inventory.things.find((x) => x.id === T.cableBox)?.labelPrinted).toBe(false);
+  });
+
+  it('a viewer gets a box’s contents sheet without "Printed OK?"', async () => {
+    const state = unlabelled(seeded(withMoving(memberScenario())));
+    for (const l of state.locations) if (l.id === IDS.home) l.role = 'viewer';
+    const { user } = await renderApp(`/moving/${MOVE}/boxes/${T.box3}`, { state });
+    await findHeading('Box 1');
+    await user.click(screen.getByRole('button', { name: 'Contents sheet' }));
+    const sheet = await screen.findByRole('dialog');
+    await user.click(await within(sheet).findByRole('button', { name: 'Make the PDF' }));
+    await within(sheet).findByText('Your PDF is ready', {}, { timeout: 8000 });
+    expect(within(sheet).queryByRole('region', { name: 'Printed OK?' })).toBeNull();
   });
 
   it('reads right to left in Arabic, with logical CSS only', async () => {

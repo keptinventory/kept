@@ -3,7 +3,7 @@
  * is fixed here and nowhere else.
  *
  * Where each one comes from:
- * - AUTH: Better Auth 1.7.6 endpoints (checked in node_modules/better-auth and
+ * - AUTH: Better Auth 1.7.13 endpoints (checked in node_modules/better-auth and
  *   @better-auth/passkey), mounted at /api/v1/auth by apps/server/src/auth/auth.ts.
  * - KEPT: Kept's own routes, checked against the routes the server registers
  *   (apps/server/src: each area's routes.ts, accounts/me.ts, auth/me.ts, auth/email-change.ts).

@@ -776,6 +776,11 @@ export function MainShell({
   children: ReactNode;
 }) {
   const main = useRef<HTMLElement>(null);
+  // The phone's tab bar isn't rendered from 768 px, where the sidebar is the one navigation
+  // named "Main": hidden by CSS alone, it was a second one whenever that CSS didn't apply, and axe
+  // failed landmark-unique on desktop now and then. `md:hidden` stays for the moment a resize
+  // crosses the line, before this state follows it.
+  const wide = useMediaQuery(WIDE);
   return (
     <OfflineProvider>
       <HintsProvider>
@@ -788,7 +793,7 @@ export function MainShell({
           {/* The assistant: docked here from 768 px, a sheet below (D24; assistant/host.tsx). */}
           <AssistantHost />
           <PullToRefresh target={main} />
-          <TabBar />
+          {wide ? null : <TabBar />}
           <PaletteHost />
           <TourHostMount />
         </div>

@@ -6,7 +6,7 @@
  * picture and its name. Map only: nothing moves in Kept, and the arrange session's Done and Undo
  * cover it like any other change.
  */
-import { capacityOf, carryOf } from '@kept/shared';
+import { baseModel, capacityOf, carryOf } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { useMemo, useState } from 'react';
 import {
@@ -35,7 +35,7 @@ const SEARCH_FROM = 8;
 function Row({ it, sub }: { it: Item; sub: string }) {
   return (
     <ListBoxItem id={it.id} textValue={it.name} className="kput-option">
-      <ShapeThumb model={it.model} size={44} />
+      <ShapeThumb model={baseModel(it.model)} size={44} />
       <span className="kput-text">
         <Text slot="label">{it.name}</Text>
         <Text slot="description" elementType="small">
@@ -70,7 +70,7 @@ export function PutOnSheet({
   const rows = holders.filter((h) => matches(query, h.name, h.shortCode));
   const subOf = (h: Item) => {
     const on = h.on ? plan.items.find((i) => i.id === h.on)?.name : undefined;
-    const shape = names[h.model];
+    const shape = names[baseModel(h.model)];
     return on ? t`${shape} · on ${on}` : shape;
   };
   return (
@@ -169,7 +169,9 @@ export function AddOnSheet({
   // An arm takes no more than its places: the rest can't be picked once they are taken.
   const disabled = limited && picked.size >= left ? rows.filter((c) => !picked.has(c.id)) : [];
   const sub = (c: Item) =>
-    c.shortCode ? `${names[c.model]} · ${printedCode(c.shortCode)}` : names[c.model];
+    c.shortCode
+      ? `${names[baseModel(c.model)]} · ${printedCode(c.shortCode)}`
+      : names[baseModel(c.model)];
   const n = picked.size;
   const onNow = childrenOn(plan.items, host.id)
     .map((c) => c.name)

@@ -9,10 +9,11 @@ that opens the thing. A label keeps its code for good, so a lost one reprints th
 
 Lists, search results and the ⌘K palette show a thing by its name. Its code shows there as amber
 label tape only once it has a printed label: a label confirmed with **Printed OK?**, or a blank
-label claimed for it. Amber means "this one is labelled". On its own page a thing or place
+label claimed for it. A moving box's contents sheet counts too, once confirmed the same way ([Moving
+house](/users/moving/)). Amber means "this one is labelled". On its own page a thing or place
 without a printed label shows its code small and grey, after the rest; one with a label shows the
-tape. A thing with more than one label (a blank label claimed for it, say) shows the code of
-the one printed last. Search and the scanner find a thing by any of its codes.
+tape. A thing with more than one label (a blank label claimed for it, say) shows the code of the one
+printed last. Search and the scanner find a thing by any of its codes.
 
 ## Printing
 
@@ -40,13 +41,20 @@ instead of a new one. Things whose ID is still pending can't be printed yet.
 | You scan | Kept |
 |---|---|
 | A Kept label for something you can see | Opens it and marks it seen just now |
-| A blank label | Offers **New box here** or **Attach to an existing thing** |
+| A blank label | Offers **New box here**, **Attach to an existing thing** or **Attach to an existing place** (a room, shelf or spot) |
 | A product barcode | Offers to add it as a new thing; with barcode lookup turned on by the admin, it's named from Open Food Facts, Open Products Facts or Open Beauty Facts |
 | A serial number or asset tag that a thing has | Opens that thing |
 | A barcode a thing has | Opens that thing; several things ask which |
 | A code nothing has yet | Names its type and offers to add it as a new thing, keeping the code as its barcode or its serial number |
 | A Homebox label, after a [Homebox import](/users/import-export/) | Opens the imported thing |
 | Anything else | Says it isn't a Kept label |
+
+A label claimed for a place shows on it as amber tape, like one printed for it. Claiming works
+offline: it waits on the phone until it syncs, and if another phone claimed the same label first
+you're told what has it. Members, admins and owners can claim; viewers can't.
+
+To label a place you've already stuck a blank on, open the place and choose **Add a label code**
+(under Manage): the scanner opens, and the blank you scan offers that place first.
 
 The codes Kept reads, and where a new thing keeps them:
 

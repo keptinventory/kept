@@ -589,8 +589,11 @@ export type CreateServiceRecordBody = {
   completes?: string[];
   notes?: string;
 };
-/** PATCH /api/v1/service-records/:id (proposed: the create's fields bar the subject). */
-export type UpdateServiceRecordBody = Partial<Omit<CreateServiceRecordBody, 'id' | 'subject'>>;
+/** PATCH /api/v1/service-records/:id (If-Match): the fields that change; `lines` and `completes`
+ * replace the record's, `null` clears the vendor, the total or the notes. */
+export type UpdateServiceRecordBody = Partial<
+  Omit<CreateServiceRecordBody, 'id' | 'subject' | 'vendor' | 'total' | 'notes'>
+> & { vendor?: ByIdOrName | null; total?: string | null; notes?: string | null };
 
 // ----- the paperwork library and expiring documents --------------------------------------------
 

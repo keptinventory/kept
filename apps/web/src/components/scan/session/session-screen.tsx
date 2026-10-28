@@ -141,6 +141,7 @@ export function SessionScreen({
   now = () => new Date().toISOString(),
 }: SessionScreenProps) {
   const { t } = useLingui();
+  const readLabel = useReadLabel();
   const fmt = useFormat();
   const placeName = usePlaceName();
   const locName = useLocationName();
@@ -659,6 +660,7 @@ export function SessionScreen({
           whereOf={whereOf}
           roles={roles}
           onUpdate={commit}
+          onQueued={onQueued}
           finishOffline={finishNeedsConnection(session) && !online}
           onBack={() => {
             commit({ ...session, paused: false });
@@ -780,7 +782,7 @@ export function SessionScreen({
             return (
               <li key={r.key} className="flex flex-wrap items-baseline gap-x-2 text-[14px]">
                 <bdi className={`font-medium ${KIND_TEXT[r.kind] ?? 'text-[#BDB7AC]'}`}>
-                  {r.name ?? readLabel(r, t)}
+                  {r.name ?? readLabel(r)}
                 </bdi>
                 {where ? (
                   <span className="text-[#BDB7AC] text-[13px]">
@@ -837,18 +839,25 @@ export function SessionScreen({
   );
 }
 
-/** A read with no thing behind it, by what it is. */
-export function readLabel(r: SessionRead, t: ReturnType<typeof useLingui>['t']): string {
-  switch (r.kind) {
-    case 'unmatched':
-      return r.code ? t`Blank label ${r.code}` : t`Not matched: ${r.text}`;
-    case 'not_in_your_kept':
-      return t`Not in your Kept`;
-    case 'check_later':
-      return t`Check later: ${r.text}`;
-    default:
-      return r.text;
-  }
+/**
+ * A read with no thing behind it, by what it is. A hook: the macro `t` compiles only where it is
+ * bound to the macro's useLingui(), never as a `t` passed in (that one answered "").
+ */
+function useReadLabel(): (r: SessionRead) => string {
+  const { t } = useLingui();
+  return (r) => {
+    const { code, text } = r;
+    switch (r.kind) {
+      case 'unmatched':
+        return code ? t`Blank label ${code}` : t`Not matched: ${text}`;
+      case 'not_in_your_kept':
+        return t`Not in your Kept`;
+      case 'check_later':
+        return t`Check later: ${text}`;
+      default:
+        return text;
+    }
+  };
 }
 
 // ----- setup -------------------------------------------------------------------------------------

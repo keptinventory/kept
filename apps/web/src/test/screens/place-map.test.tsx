@@ -148,7 +148,7 @@ beforeEach(() => {
 });
 
 describe("a place's layouts", () => {
-  it('offers List, Grid and Map on a room, and no Table', async () => {
+  it('offers List, Grid, Graph and Map on a room, and no Table', async () => {
     await renderApp(`/p/${P.kitchen}`);
     await findHeading('Kitchen');
     const layouts = await screen.findByRole('radiogroup', { name: 'Layout' });
@@ -156,7 +156,7 @@ describe("a place's layouts", () => {
       within(layouts)
         .getAllByRole('radio')
         .map((r) => r.closest('label')?.textContent),
-    ).toEqual(['List', 'Grid', 'Map']);
+    ).toEqual(['List', 'Grid', 'Graph', 'Map']);
     expect(screen.queryByRole('region', { name: /^Map of/ })).not.toBeInTheDocument();
   });
 

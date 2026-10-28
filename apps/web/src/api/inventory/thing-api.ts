@@ -3,11 +3,16 @@
  * screens call that ./queries.ts doesn't already have. Kept in its own module so the parallel web
  * tasks never edit the same file; the paths still come from ./paths.ts only.
  */
-import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  type QueryClient,
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { api, ifMatch, written } from '../client';
 import { inventoryPaths as p, qs } from './paths';
-import { inventoryKeys as keys, nextCursor } from './queries';
+import { inventoryKeys as keys, nextCursor, ownQueries } from './queries';
 import type {
   AttachmentView,
   ConvertToPlaceBody,
@@ -120,21 +125,44 @@ export const useTypeDetail = (id: string | null) =>
     enabled: !!id,
   });
 
+/**
+ * Everything a thing write can change: the thing, the lists, search and history. `gone` is a
+ * thing the write ended (trashed, turned into a place): its own queries go stale without a refetch
+ * (`ownQueries`), so the page can move on at once.
+ */
+function invalidateThing(qc: QueryClient, id?: string, gone?: string): Promise<unknown> {
+  const own = gone ? ownQueries(gone) : () => false;
+  const rest = (queryKey: readonly unknown[]) =>
+    qc.invalidateQueries({ queryKey, predicate: (q) => !own(q) });
+  return Promise.all([
+    rest(keys.things.all),
+    rest(keys.places.all),
+    ...(gone ? [qc.invalidateQueries({ predicate: own, refetchType: 'none' })] : []),
+    qc.invalidateQueries({ queryKey: ['search'] }),
+    qc.invalidateQueries({ queryKey: keys.home }),
+    qc.invalidateQueries({ queryKey: ['meters'] }),
+    qc.invalidateQueries({ queryKey: ['activity'] }),
+    ...(id ? [qc.invalidateQueries({ queryKey: keys.things.history(id) })] : []),
+  ]);
+}
+
 /** Invalidate everything a thing write can change: the thing, the lists, search and history. */
 export function useInvalidateThing() {
   const qc = useQueryClient();
   return useCallback(
     async (id?: string) => {
-      await Promise.all([
-        qc.invalidateQueries({ queryKey: keys.things.all }),
-        qc.invalidateQueries({ queryKey: keys.places.all }),
-        qc.invalidateQueries({ queryKey: ['search'] }),
-        qc.invalidateQueries({ queryKey: keys.home }),
-        qc.invalidateQueries({ queryKey: ['meters'] }),
-        qc.invalidateQueries({ queryKey: ['activity'] }),
-        ...(id ? [qc.invalidateQueries({ queryKey: keys.things.history(id) })] : []),
-      ]);
+      await invalidateThing(qc, id);
     },
     [qc],
   );
+}
+
+/**
+ * After a write that ended the thing `id` (trashed, turned into a place): the lists refresh, and
+ * the thing itself isn't asked for again, which could only answer 404 and put "Couldn't load
+ * this" on its page before the next one opens (#336). Not awaited: navigate at once.
+ */
+export function useThingGone() {
+  const qc = useQueryClient();
+  return useCallback((id: string) => void invalidateThing(qc, undefined, id), [qc]);
 }

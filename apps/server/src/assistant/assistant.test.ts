@@ -893,6 +893,133 @@ describe('writes are proposals the person confirms', () => {
     ).toEqual([{ q: '5' }]);
   });
 
+  // #313: a place card holds the place's version and fields as they were; confirming runs it with
+  // that If-Match, and a place changed meanwhile is a conflict, as a thing's card is.
+  async function proposePlace(input: Record<string, unknown>, question: string) {
+    const { turnId } = await ask(louis, question, { kind: 'location', id: home.id });
+    script.push(calls({ id: 'pl1', name: 'update_place', input }));
+    expect(await run(louis, turnId)).toEqual({ status: 'done' });
+    const [p] = await own<{
+      id: string;
+      batch_id: string;
+      args_hash: string;
+      before: Record<string, unknown>;
+      refs: Record<string, { kind: string; name: string }>;
+    }>(
+      db,
+      'SELECT id, batch_id, args_hash, before, refs FROM public.assistant_proposals WHERE turn_id = $1',
+      [turnId],
+    );
+    if (!p) throw new Error('no proposal');
+    return p;
+  }
+
+  const confirmOne = (p: { id: string; batch_id: string; args_hash: string }, requestId: string) =>
+    confirmProposals(
+      { tools: loop.tools },
+      scopeOf(louis),
+      { batchId: p.batch_id, proposals: [{ id: p.id, argsHash: p.args_hash }] },
+      requestId,
+      'en',
+    );
+
+  it('an update_place card: the place as it was, then changed as Louis, undoable', async () => {
+    const hall = await place(db, home, 'Front hall');
+    const shelf = await place(db, home, 'Window shelf');
+    const p = await proposePlace(
+      { place_id: shelf, fields: { name: 'Book shelf', parent_id: hall, child_order: 'custom' } },
+      'Rename the window shelf to Book shelf and put it in the hall',
+    );
+    expect(p.before).toMatchObject({
+      callId: 'pl1',
+      rowVersion: expect.any(Number),
+      name: 'Window shelf',
+      parent_id: null,
+      child_order: 'name',
+    });
+    expect(p.refs[shelf]).toMatchObject({ kind: 'place', name: 'Window shelf' });
+    expect(p.refs[hall]).toMatchObject({ kind: 'place', name: 'Front hall' });
+    const r = await confirmOne(p, 'req-place');
+    expect(r.results[0]).toMatchObject({
+      status: 'confirmed',
+      audit: { eventId: expect.any(String) },
+    });
+    const [now] = await own<{ name: string; parent_id: string; child_order: string }>(
+      db,
+      'SELECT name, parent_id, child_order FROM public.places WHERE id = $1',
+      [shelf],
+    );
+    expect(now).toEqual({ name: 'Book shelf', parent_id: hall, child_order: 'custom' });
+    const [event] = await own<{ action: string; actor_id: string; undoable_until: Date | null }>(
+      db,
+      'SELECT action, actor_id, undoable_until FROM public.audit_events WHERE id = $1',
+      [r.results[0]?.audit?.eventId],
+    );
+    expect(event).toMatchObject({ action: 'place.update', actor_id: louis.userId });
+    expect(event?.undoable_until).not.toBeNull();
+  });
+
+  it('a place Bruce renamed meanwhile is a conflict naming him, not applied', async () => {
+    const shelf = await place(db, home, 'Garden shelf');
+    const p = await proposePlace(
+      { place_id: shelf, fields: { name: 'Seed shelf' } },
+      'Rename the garden shelf to Seed shelf',
+    );
+    const view = ok(await call(t, `/api/v1/places/${shelf}`, { as: bruce })) as unknown as {
+      rowVersion: number;
+    };
+    ok(
+      await call(t, `/api/v1/places/${shelf}`, {
+        as: bruce,
+        method: 'PATCH',
+        body: { name: 'Garden shelf (Bruce)' },
+        headers: { 'if-match': String(view.rowVersion) },
+      }),
+    );
+    const r = await confirmOne(p, 'req-place-conflict');
+    expect(r.results[0]).toMatchObject({
+      status: 'conflict',
+      conflict: { field: 'name', now: 'Garden shelf (Bruce)', by: 'Bruce' },
+    });
+    const [now] = await own<{ name: string }>(db, 'SELECT name FROM public.places WHERE id = $1', [
+      shelf,
+    ]);
+    expect(now?.name).toBe('Garden shelf (Bruce)');
+  });
+
+  it('a turn_into_boxes card names each place; confirmed, every box’s event is the one Undo', async () => {
+    const cupboard = await place(db, home, 'Landing cupboard');
+    const a = await place(db, home, 'Blue crate', cupboard);
+    const b = await place(db, home, 'Red crate', cupboard);
+    const { turnId } = await ask(louis, 'Turn the crates in the landing cupboard into boxes', {
+      kind: 'location',
+      id: home.id,
+    });
+    script.push(calls({ id: 'bx1', name: 'turn_into_boxes', input: { place_ids: [a, b] } }));
+    expect(await run(louis, turnId)).toEqual({ status: 'done' });
+    const [p] = await own<{
+      id: string;
+      batch_id: string;
+      args_hash: string;
+      refs: Record<string, { kind: string; name: string }>;
+    }>(
+      db,
+      'SELECT id, batch_id, args_hash, refs FROM public.assistant_proposals WHERE turn_id = $1',
+      [turnId],
+    );
+    if (!p) throw new Error('no proposal');
+    expect(p.refs[a]).toMatchObject({ kind: 'place', name: 'Blue crate' });
+    expect(p.refs[b]).toMatchObject({ kind: 'place', name: 'Red crate' });
+    const r = await confirmOne(p, 'req-boxes');
+    expect(r.results[0]?.status).toBe('confirmed');
+    expect(r.results[0]?.audit?.eventIds).toHaveLength(2);
+    expect(
+      await own(db, 'SELECT id FROM public.things WHERE id = ANY ($1::uuid[]) ORDER BY name', [
+        [a, b],
+      ]),
+    ).toEqual([{ id: a }, { id: b }]);
+  });
+
   it('Talia, a viewer of Home: told she can’t change it there, and a write the model tries gets the fixed sentence, no card', async () => {
     // GAP (reported): the step-3 doors let only writers' accounts pay (kept.ai_provider_reachable,
     // kept.ai_payer_reachable: writable_account_ids), so a viewer's turn in Home can't use Home's

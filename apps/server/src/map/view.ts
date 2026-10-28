@@ -265,7 +265,7 @@ export async function nodeRows(client: pg.ClientBase, locationId: string): Promi
   return rows;
 }
 
-async function attentionOf(
+export async function attentionOf(
   tx: Tx,
   client: pg.ClientBase,
   locationId: string,

@@ -5,6 +5,7 @@
  * and the demo mode. Every scenario is a fresh object, so a test can mutate it freely.
  */
 
+import { KEPT_VERSION } from '@kept/shared';
 import { type CaptureState, captureFixtures } from '../capture/mock/state';
 import { type HouseholdState, householdFixtures } from '../household/mock/state';
 import type { InventoryState } from '../inventory/mock/db';
@@ -459,8 +460,9 @@ function base(): MockState {
     totpCode: '123456',
     magicToken: MAGIC_TOKEN,
     backupCodes: ['a1b2c-d3e4f', 'g5h6j-k7m8n', 'p9q1r-s2t3v', 'w4x5y-z6a7b', 'c8d9e-f1g2h'],
+    // The build's own version, as the server reports its own (a demo build: the release tag).
     version: {
-      version: '0.1.0',
+      version: KEPT_VERSION,
       revision: '3f9ed1d',
       source: 'https://github.com/keptinventory/kept/tree/3f9ed1d',
     },
@@ -564,7 +566,7 @@ function base(): MockState {
         },
       ],
       status: {
-        version: '0.1.0',
+        version: KEPT_VERSION,
         dbOk: true,
         alerts: 1,
         recoveryKitAcknowledged: false,

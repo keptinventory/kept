@@ -19213,6 +19213,14 @@ msgid "Adjust stock"
 msgstr "Regola scorte"
 
 #: src/assistant/confirm-card.tsx
+msgid "One up"
+msgstr "Una posizione su"
+
+#: src/assistant/confirm-card.tsx
+msgid "One down"
+msgstr "Una posizione giù"
+
+#: src/assistant/confirm-card.tsx
 msgid "Field"
 msgstr "Campo"
 
@@ -22226,6 +22234,14 @@ msgid "Bookshelf"
 msgstr "Libreria"
 
 #: src/map/labels.ts
+msgid "Cube storage"
+msgstr "Scaffale a cubi"
+
+#: src/map/labels.ts
+msgid "Tall bookcase"
+msgstr "Libreria alta"
+
+#: src/map/labels.ts
 msgid "Floor lamp"
 msgstr "Lampada da terra"
 
@@ -24575,8 +24591,33 @@ msgid "On the wall"
 msgstr "A parete"
 
 #: src/map/height.tsx
+#: src/map/size.tsx
 msgid "Height"
 msgstr "Altezza"
+
+#: src/map/size.tsx
+msgid "Cubes across"
+msgstr "Cubi in larghezza"
+
+#: src/map/size.tsx
+msgid "Cubes up"
+msgstr "Cubi in altezza"
+
+#: src/map/size.tsx
+msgid "Turn on its side"
+msgstr "Metti di lato"
+
+#: src/map/size.tsx
+msgid "Width"
+msgstr "Larghezza"
+
+#: src/map/size.tsx
+msgid "Depth"
+msgstr "Profondità"
+
+#: src/map/size.tsx
+msgid "Levels"
+msgstr "Ripiani"
 
 #: src/map/height.tsx
 msgid "Lower"
@@ -27406,3 +27447,214 @@ msgstr "Una posizione dentro un articolo è diventata una scatola."
 #: src/components/places/contents-list.tsx
 msgid "Places keep their own order."
 msgstr "I posti mantengono il proprio ordine."
+
+#: src/map/map-view.tsx
+msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. To move a room, hold its floor, then drag. Drag its amber corner to resize it."
+msgstr "Trascina qualunque cosa per spostarla. Appoggia le cose piccole su un piano, una scrivania, uno scaffale o una scatola; le cose da parete vanno sulla parete più vicina. Per spostare una stanza, tieni premuto il pavimento, poi trascina. Trascina l’angolo ambra per ridimensionarla."
+
+#: src/map/map-view.tsx
+msgid "Rooms can’t overlap."
+msgstr "Le stanze non possono sovrapporsi."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} up."
+msgstr "Spostato in alto: {room}."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} down."
+msgstr "Spostato in basso: {room}."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} left."
+msgstr "Spostato a sinistra: {room}."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} right."
+msgstr "Spostato a destra: {room}."
+#: src/components/places/contents-list.tsx
+msgid "Graph"
+msgstr "Grafo"
+
+#: src/graph/card.tsx
+msgid "Selected"
+msgstr "Selezionato"
+
+#: src/graph/card.tsx
+msgid "{0} in <0>{1}</0>"
+msgstr "{0} in <0>{1}</0>"
+
+#: src/graph/card.tsx
+msgid "Tagged"
+msgstr "Con questo tag"
+
+#: src/graph/card.tsx
+msgid "{0} inside"
+msgstr "{0} all’interno"
+
+#: src/graph/card.tsx
+msgid "Inside it"
+msgstr "Dentro"
+
+#: src/graph/card.tsx
+msgid "Go in"
+msgstr "Entra"
+
+#: src/graph/card.tsx
+msgid "Show on the map"
+msgstr "Mostra sulla mappa"
+
+#: src/graph/floors-3d.tsx
+msgid "Graph of {0}"
+msgstr "Grafo di {0}"
+
+#: src/graph/floors-3d.tsx
+msgid "Rooms on no floor"
+msgstr "Stanze senza piano"
+
+#: src/graph/floors-3d.tsx
+msgid "Stop turning"
+msgstr "Ferma la rotazione"
+
+#: src/graph/floors-3d.tsx
+msgid "Turn slowly"
+msgstr "Ruota lentamente"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from higher"
+msgstr "Guarda dall’alto"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from lower"
+msgstr "Guarda dal basso"
+
+#: src/graph/floors-3d.tsx
+msgid "Show the whole house"
+msgstr "Mostra tutta la casa"
+
+#: src/graph/graph-view.tsx
+msgid "The graph is drawn from Kept’s server. The list has everything offline."
+msgstr "Il grafo è disegnato dal server di Kept. L’elenco ha tutto anche offline."
+
+#: src/graph/graph-view.tsx
+msgid "Where you are in the graph"
+msgstr "Dove sei nel grafo"
+
+#: src/graph/graph-view.tsx
+msgid "2D or 3D"
+msgstr "2D o 3D"
+
+#: src/graph/graph-view.tsx
+msgid "Size shows how much is inside. Pick twice to go in; the path above takes you back."
+msgstr "La dimensione mostra quanto contiene. Scegli due volte per entrare; il percorso sopra ti riporta indietro."
+
+#: src/graph/graph-view.tsx
+msgid "It turns slowly until you touch it. Drag to turn it; pick a room to bring it forward."
+msgstr "Ruota lentamente finché non lo tocchi. Trascina per ruotarlo; scegli una stanza per metterla in primo piano."
+
+#: src/graph/graph-view.tsx
+msgid "{more, plural, one {# more thing is counted in its place but not drawn.} other {# more things are counted in their places but not drawn.}}"
+msgstr "{more, plural, one {# altro oggetto è contato al suo posto ma non disegnato.} other {# altri oggetti sono contati al loro posto ma non disegnati.}}"
+
+#: src/graph/graph-view.tsx
+msgid "In this graph"
+msgstr "In questo grafo"
+
+#: src/graph/graph-view.tsx
+msgid "In <0>{0}</0>"
+msgstr "In <0>{0}</0>"
+
+#: src/graph/words.ts
+msgid "low on stock"
+msgstr "scorte basse"
+
+#: src/graph/words.ts
+msgid "lent out"
+msgstr "prestato"
+
+#: src/graph/words.ts
+msgid "due soon"
+msgstr "in scadenza"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# low on stock} other {# low on stock}}"
+msgstr "{count, plural, one {# con scorte basse} other {# con scorte basse}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# lent out} other {# lent out}}"
+msgstr "{count, plural, one {# prestato} other {# prestati}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# due soon} other {# due soon}}"
+msgstr "{count, plural, one {# in scadenza} other {# in scadenza}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# more in {where}} other {# more in {where}}}"
+msgstr "{count, plural, one {# altro in {where}} other {# altri in {where}}}"
+
+#: src/components/places/contents-list.tsx
+msgid "graph"
+msgstr "grafo"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Add a label code"
+msgstr "Aggiungi un codice etichetta"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Scan a blank label you've stuck on it"
+msgstr "Scansiona un’etichetta vuota che ci hai attaccato"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to an existing place"
+msgstr "Collegala a un luogo esistente"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to <0>{0}</0>"
+msgstr "Collegala a «<0>{0}</0>»"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "A room, shelf or spot"
+msgstr "Una stanza, uno scaffale o un punto"
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0> on this phone, until it syncs."
+msgstr "Assegnata a «<0>{label}</0>» su questo telefono, finché non si sincronizza."
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0>."
+msgstr "Assegnata a «<0>{label}</0>»."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Blank label {code}"
+msgstr "Etichetta vuota {code}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Not matched: {text}"
+msgstr "Non abbinato: {text}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Check later: {text}"
+msgstr "Da controllare dopo: {text}"
+
+#: src/components/services/service-sheet.tsx
+msgid "Delete this service?"
+msgstr "Eliminare questo intervento?"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "Edit the service"
+msgstr "Modifica l’intervento"
+
+#: src/components/services/service-sheet.tsx
+msgid "Its lines and invoice go too. Schedules it completed count from the service before. You can undo this."
+msgstr "Anche righe e fattura vengono eliminate. Le pianificazioni che completava ripartono dall’intervento precedente. Puoi annullare."
+
+#: src/components/services/service-sheet.tsx
+msgid "Logged by"
+msgstr "Registrato da"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "They have prices you can't see, so they stay as they are."
+msgstr "Hanno prezzi che non puoi vedere, quindi restano come sono."
+
+#: src/components/moving/sheets-printed.tsx
+msgid "Check that a code on the sheets scans. Yes records today as their print date, so the boxes show their label."
+msgstr "Controlla che un codice sui fogli si scansioni. Sì registra oggi come data di stampa, e le scatole mostrano la loro etichetta."

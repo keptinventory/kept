@@ -19213,6 +19213,14 @@ msgid "Adjust stock"
 msgstr "Ajuster le stock"
 
 #: src/assistant/confirm-card.tsx
+msgid "One up"
+msgstr "Un cran plus haut"
+
+#: src/assistant/confirm-card.tsx
+msgid "One down"
+msgstr "Un cran plus bas"
+
+#: src/assistant/confirm-card.tsx
 msgid "Field"
 msgstr "Champ"
 
@@ -22226,6 +22234,14 @@ msgid "Bookshelf"
 msgstr "Bibliothèque"
 
 #: src/map/labels.ts
+msgid "Cube storage"
+msgstr "Étagère à cases"
+
+#: src/map/labels.ts
+msgid "Tall bookcase"
+msgstr "Grande bibliothèque"
+
+#: src/map/labels.ts
 msgid "Floor lamp"
 msgstr "Lampadaire"
 
@@ -24575,8 +24591,33 @@ msgid "On the wall"
 msgstr "Au mur"
 
 #: src/map/height.tsx
+#: src/map/size.tsx
 msgid "Height"
 msgstr "Hauteur"
+
+#: src/map/size.tsx
+msgid "Cubes across"
+msgstr "Cases en largeur"
+
+#: src/map/size.tsx
+msgid "Cubes up"
+msgstr "Cases en hauteur"
+
+#: src/map/size.tsx
+msgid "Turn on its side"
+msgstr "Coucher sur le côté"
+
+#: src/map/size.tsx
+msgid "Width"
+msgstr "Largeur"
+
+#: src/map/size.tsx
+msgid "Depth"
+msgstr "Profondeur"
+
+#: src/map/size.tsx
+msgid "Levels"
+msgstr "Niveaux"
 
 #: src/map/height.tsx
 msgid "Lower"
@@ -27406,3 +27447,214 @@ msgstr "Un emplacement à l’intérieur d’un article est devenu une boîte."
 #: src/components/places/contents-list.tsx
 msgid "Places keep their own order."
 msgstr "Les emplacements gardent leur propre ordre."
+
+#: src/map/map-view.tsx
+msgid "Drag anything to move it. Drop small things on a counter, desk, shelf or box; wall things go on the nearest wall. To move a room, hold its floor, then drag. Drag its amber corner to resize it."
+msgstr "Faites glisser un élément pour le déplacer. Posez les petits objets sur un plan de travail, un bureau, une étagère ou une boîte ; les objets muraux vont sur le mur le plus proche. Pour déplacer une pièce, appuyez longuement sur son sol, puis faites glisser. Faites glisser son coin ambré pour la redimensionner."
+
+#: src/map/map-view.tsx
+msgid "Rooms can’t overlap."
+msgstr "Les pièces ne peuvent pas se chevaucher."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} up."
+msgstr "{room} déplacé vers le haut."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} down."
+msgstr "{room} déplacé vers le bas."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} left."
+msgstr "{room} déplacé vers la gauche."
+
+#: src/map/map-view.tsx
+msgid "Moved {room} right."
+msgstr "{room} déplacé vers la droite."
+#: src/components/places/contents-list.tsx
+msgid "Graph"
+msgstr "Graphe"
+
+#: src/graph/card.tsx
+msgid "Selected"
+msgstr "Sélection"
+
+#: src/graph/card.tsx
+msgid "{0} in <0>{1}</0>"
+msgstr "{0} dans <0>{1}</0>"
+
+#: src/graph/card.tsx
+msgid "Tagged"
+msgstr "Avec ce tag"
+
+#: src/graph/card.tsx
+msgid "{0} inside"
+msgstr "{0} à l’intérieur"
+
+#: src/graph/card.tsx
+msgid "Inside it"
+msgstr "Dedans"
+
+#: src/graph/card.tsx
+msgid "Go in"
+msgstr "Entrer"
+
+#: src/graph/card.tsx
+msgid "Show on the map"
+msgstr "Voir sur la carte"
+
+#: src/graph/floors-3d.tsx
+msgid "Graph of {0}"
+msgstr "Graphe de {0}"
+
+#: src/graph/floors-3d.tsx
+msgid "Rooms on no floor"
+msgstr "Pièces sans étage"
+
+#: src/graph/floors-3d.tsx
+msgid "Stop turning"
+msgstr "Arrêter de tourner"
+
+#: src/graph/floors-3d.tsx
+msgid "Turn slowly"
+msgstr "Tourner lentement"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from higher"
+msgstr "Regarder de plus haut"
+
+#: src/graph/floors-3d.tsx
+msgid "Look from lower"
+msgstr "Regarder de plus bas"
+
+#: src/graph/floors-3d.tsx
+msgid "Show the whole house"
+msgstr "Afficher toute la maison"
+
+#: src/graph/graph-view.tsx
+msgid "The graph is drawn from Kept’s server. The list has everything offline."
+msgstr "Le graphe est dessiné à partir du serveur de Kept. La liste a tout hors ligne."
+
+#: src/graph/graph-view.tsx
+msgid "Where you are in the graph"
+msgstr "Où vous êtes dans le graphe"
+
+#: src/graph/graph-view.tsx
+msgid "2D or 3D"
+msgstr "2D ou 3D"
+
+#: src/graph/graph-view.tsx
+msgid "Size shows how much is inside. Pick twice to go in; the path above takes you back."
+msgstr "La taille montre ce qu’il contient. Choisissez deux fois pour entrer ; le chemin au-dessus vous ramène."
+
+#: src/graph/graph-view.tsx
+msgid "It turns slowly until you touch it. Drag to turn it; pick a room to bring it forward."
+msgstr "Il tourne lentement jusqu’à ce que vous le touchiez. Faites glisser pour le tourner ; choisissez une pièce pour la mettre en avant."
+
+#: src/graph/graph-view.tsx
+msgid "{more, plural, one {# more thing is counted in its place but not drawn.} other {# more things are counted in their places but not drawn.}}"
+msgstr "{more, plural, one {# objet de plus est compté à sa place mais pas dessiné.} other {# objets de plus sont comptés à leur place mais pas dessinés.}}"
+
+#: src/graph/graph-view.tsx
+msgid "In this graph"
+msgstr "Dans ce graphe"
+
+#: src/graph/graph-view.tsx
+msgid "In <0>{0}</0>"
+msgstr "Dans <0>{0}</0>"
+
+#: src/graph/words.ts
+msgid "low on stock"
+msgstr "stock bas"
+
+#: src/graph/words.ts
+msgid "lent out"
+msgstr "prêté"
+
+#: src/graph/words.ts
+msgid "due soon"
+msgstr "bientôt dû"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# low on stock} other {# low on stock}}"
+msgstr "{count, plural, one {# en stock bas} other {# en stock bas}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# lent out} other {# lent out}}"
+msgstr "{count, plural, one {# prêté} other {# prêtés}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# due soon} other {# due soon}}"
+msgstr "{count, plural, one {# bientôt dû} other {# bientôt dus}}"
+
+#: src/graph/words.ts
+msgid "{count, plural, one {# more in {where}} other {# more in {where}}}"
+msgstr "{count, plural, one {# de plus dans {where}} other {# de plus dans {where}}}"
+
+#: src/components/places/contents-list.tsx
+msgid "graph"
+msgstr "graphe"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Add a label code"
+msgstr "Ajouter un code d’étiquette"
+
+#: src/routes/_app/p.$id.tsx
+msgid "Scan a blank label you've stuck on it"
+msgstr "Scannez une étiquette vierge que vous y avez collée"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to an existing place"
+msgstr "L’attacher à un lieu existant"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "Attach to <0>{0}</0>"
+msgstr "L’attacher à « <0>{0}</0> »"
+
+#: src/components/scan/claim-sheet.tsx
+msgid "A room, shelf or spot"
+msgstr "Une pièce, une étagère ou un emplacement"
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0> on this phone, until it syncs."
+msgstr "Attribuée à « <0>{label}</0> » sur ce téléphone, en attendant la synchronisation."
+
+#: src/components/scan/session/summary.tsx
+msgid "Claimed for <0>{label}</0>."
+msgstr "Attribuée à « <0>{label}</0> »."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Blank label {code}"
+msgstr "Étiquette vierge {code}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Not matched: {text}"
+msgstr "Non reconnu : {text}"
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Check later: {text}"
+msgstr "À vérifier plus tard : {text}"
+
+#: src/components/services/service-sheet.tsx
+msgid "Delete this service?"
+msgstr "Supprimer cet entretien ?"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "Edit the service"
+msgstr "Modifier l’entretien"
+
+#: src/components/services/service-sheet.tsx
+msgid "Its lines and invoice go too. Schedules it completed count from the service before. You can undo this."
+msgstr "Ses lignes et sa facture partent aussi. Les échéances qu’il terminait repartent de l’entretien précédent. Vous pouvez annuler."
+
+#: src/components/services/service-sheet.tsx
+msgid "Logged by"
+msgstr "Enregistré par"
+
+#: src/components/services/log-service-sheet.tsx
+msgid "They have prices you can't see, so they stay as they are."
+msgstr "Elles ont des prix que vous ne voyez pas : elles restent telles quelles."
+
+#: src/components/moving/sheets-printed.tsx
+msgid "Check that a code on the sheets scans. Yes records today as their print date, so the boxes show their label."
+msgstr "Vérifiez qu'un code des feuilles se scanne. Oui enregistre aujourd'hui comme date d'impression, et les boîtes affichent leur étiquette."

@@ -39,6 +39,18 @@ function withHome(patch: (home: MockState['locations'][number]) => void): MockSt
   return s;
 }
 
+type Calls = { calls: { method: string; path: string }[] };
+const postIndex = (mock: Calls, path: string) =>
+  mock.calls.findIndex((c) => c.method === 'POST' && c.path === path);
+/** GETs of a thing's own addresses (its page, history, attachments…) after the call at `from`. */
+const asksAgain = (mock: Calls, id: string, from: number) =>
+  mock.calls
+    .slice(from + 1)
+    .filter(
+      (c) => c.method === 'GET' && (c.path === p.thing(id) || c.path.startsWith(`${p.thing(id)}/`)),
+    )
+    .map((c) => c.path);
+
 /** user-event installs its own clipboard; read what was written there. */
 const copied = () => navigator.clipboard.readText();
 
@@ -253,6 +265,55 @@ describe('the action menu', () => {
       }),
     );
     await waitFor(() => expect(pathOf(router)).toBe(`/p/${INV_IDS.place.hallwayCloset}`));
+  });
+
+  it('Convert to a room or spot opens the place at once, without asking for the box again', async () => {
+    const { user, mock, router } = await renderApp(`/t/${T.box3}`);
+    await findHeading('Box 3');
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Convert to a room or spot' }));
+    const confirm = await screen.findByRole('alertdialog', {
+      name: 'Turn Box 3 into a room or spot?',
+    });
+    await user.click(within(confirm).getByRole('button', { name: 'Convert' }));
+    // The place keeps the box's id and ID: its page, at that ID.
+    await waitFor(() => expect(pathOf(router)).toBe('/p/B0X3AA'));
+    await findHeading('Box 3');
+    // The box is gone (its id is the place's now): asked for again it answers 404, and the page
+    // said "Couldn't load this" until the place opened (#336).
+    const at = postIndex(mock, p.thingConvertToPlace(T.box3));
+    expect(at).toBeGreaterThan(-1);
+    expect(asksAgain(mock, T.box3, at)).toEqual([]);
+    expect(screen.queryByText("Couldn't load this")).not.toBeInTheDocument();
+  });
+
+  it('Move to Trash goes back to where it was, without asking for the thing again', async () => {
+    const { user, mock, router } = await renderApp(`/t/${T.drill}`);
+    await findHeading('Bosch drill, 18 V');
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Move to Trash' }));
+    const confirm = await screen.findByRole('alertdialog', {
+      name: 'Move Bosch drill, 18 V to Trash?',
+    });
+    await user.click(within(confirm).getByRole('button', { name: 'Move to Trash' }));
+    await waitFor(() => expect(pathOf(router)).toMatch(/^\/p\//));
+    const at = postIndex(mock, p.thingTrash(T.drill));
+    expect(at).toBeGreaterThan(-1);
+    expect(asksAgain(mock, T.drill, at)).toEqual([]);
+    expect(screen.queryByText("Couldn't load this")).not.toBeInTheDocument();
+  });
+
+  it('a box trashed with its contents moved out is not asked for again', async () => {
+    const { user, mock, router } = await renderApp(`/t/${T.box3}`);
+    await findHeading('Box 3');
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Move to Trash' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Box 3 has things in it' });
+    await user.click(within(dialog).getByRole('button', { name: /Move them to Hallway closet/ }));
+    await waitFor(() => expect(pathOf(router)).toBe(`/p/${INV_IDS.place.hallwayCloset}`));
+    const at = postIndex(mock, p.thingTrash(T.box3));
+    expect(at).toBeGreaterThan(-1);
+    expect(asksAgain(mock, T.box3, at)).toEqual([]);
   });
 
   it('Move offers the things the server marks as containers, whatever their type', async () => {

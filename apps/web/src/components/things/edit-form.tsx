@@ -213,6 +213,7 @@ export function EditForm({ editor }: { editor: ThingEditor }) {
   const { t } = useLingui();
   const conditions = useConditionLabels();
   const fieldLabel = useFieldLabel();
+  const names = useFieldNames();
   const accountId = useLocationAccountId(location);
   const type = useTypeDetail(thing.type?.id ?? null);
   const caps = type.data?.resolvedCapabilities ?? [];
@@ -350,7 +351,7 @@ export function EditForm({ editor }: { editor: ThingEditor }) {
         display={(path, value) => (
           <FormValueText path={path} value={value} fields={session.base.fields} />
         )}
-        label={(path) => labelOf(path, session.base.fields, fieldLabel, t)}
+        label={(path) => labelOf(path, session.base.fields, fieldLabel, names)}
       />
     </form>
   );
@@ -360,13 +361,22 @@ function labelOf(
   path: string,
   fields: readonly ResolvedField[],
   fieldLabel: (f: ResolvedField) => string,
-  t: ReturnType<typeof useLingui>['t'],
+  names: Record<string, string>,
 ): string {
   if (path.startsWith('custom.')) {
     const f = fields.find((x) => x.key === path.slice(7));
     return f ? fieldLabel(f) : path.slice(7);
   }
-  const names: Record<string, string> = {
+  return names[path] ?? path;
+}
+
+/**
+ * The form's own fields by path, for the conflict sheet. A hook: the macro `t` compiles only where
+ * it is bound to the macro's useLingui(), never as a `t` passed in (that one answered "").
+ */
+function useFieldNames(): Record<string, string> {
+  const { t } = useLingui();
+  return {
     name: t`Name`,
     quantity: t`Quantity`,
     brandId: t`Brand`,
@@ -379,7 +389,6 @@ function labelOf(
     manualUrl: t`Manual`,
     expiresOn: t`Expires on`,
   };
-  return names[path] ?? path;
 }
 
 /** A form value as text, for the conflict sheet. */

@@ -57,6 +57,7 @@ import { AlertIcon, ArrowUpDownIcon, CheckIcon, ChevronDownIcon } from '@/compon
 import { ErrorState, LoadingRows, useErrorText } from '@/components/page';
 import { invalidateBrowse, usePlaceTree } from '@/components/places/api';
 import { accessOf } from '@/components/schedules/access';
+import { BULK_TRASH_MAX, TrashDialog, useBulkTrash } from '@/components/things/bulk-trash';
 import { useConditionLabels } from '@/components/things/labels';
 import { useTypeName } from '@/components/things/names';
 import { useLocationAccountId, useTypeOptions } from '@/components/things/pickers';
@@ -69,7 +70,7 @@ import { useLocationName } from '@/lib/labels';
 import { directionOf, usePrefs } from '@/lib/prefs';
 import { firstOf, useListState } from '@/lib/url-state';
 import { cn } from '@/lib/utils';
-import { ColumnsDialog, MoveDialog, SetFieldDialog, TagsDialog, TrashDialog } from './bulk';
+import { ColumnsDialog, MoveDialog, SetFieldDialog, TagsDialog } from './bulk';
 import { type After, CellEditor, POPOVER_EDITORS } from './editors';
 import { useColumnLabels, useSheetMessages } from './labels';
 import {
@@ -103,8 +104,6 @@ import {
 export const ROW = 40;
 const SELECT_WIDTH = 44;
 const PAGE = 100;
-/** The server's limit on one bulk trash. */
-const TRASH_MAX = 200;
 
 type Item = { kind: 'group'; key: string; label: ReactNode } | { kind: 'row'; row: SheetRow };
 
@@ -118,6 +117,7 @@ export default function SheetView({ location }: { location: LocationDetail }) {
   const confirm = useConfirm();
   const errorText = useErrorText();
   const offerUndo = useOfferUndo();
+  const bulkTrash = useBulkTrash();
   const labels = useColumnLabels();
   const messages = useSheetMessages();
   const typeName = useTypeName();
@@ -617,7 +617,9 @@ export default function SheetView({ location }: { location: LocationDetail }) {
     setTrashing(true);
     try {
       const ids = selectedRows.map((r) => r.id);
-      const r = await inventoryApi.bulkTrash({ thingIds: ids, ...(contents ? { contents } : {}) });
+      // With someone: asked first, as one thing's trash asks (1.14).
+      const r = await bulkTrash(ids, contents);
+      if (!r) return;
       setStaged((s) => unstage(s, r.trashed));
       setSelection(NO_SELECTION);
       setDialog(null);
@@ -964,7 +966,7 @@ export default function SheetView({ location }: { location: LocationDetail }) {
           <Button
             size="small"
             variant="secondary"
-            isDisabled={selection.ids.size > TRASH_MAX}
+            isDisabled={selection.ids.size > BULK_TRASH_MAX}
             onPress={() => setDialog('trash')}
           >
             <Trans>Send to Trash</Trans>
@@ -972,7 +974,7 @@ export default function SheetView({ location }: { location: LocationDetail }) {
           <Button size="small" variant="ghost" onPress={() => setSelection(NO_SELECTION)}>
             <Trans>Clear</Trans>
           </Button>
-          {selection.ids.size > TRASH_MAX ? (
+          {selection.ids.size > BULK_TRASH_MAX ? (
             <p className="m-0 basis-full ps-1 text-small text-ink-2">
               <Trans>Send at most 200 to the Trash at a time.</Trans>
             </p>

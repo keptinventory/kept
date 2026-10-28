@@ -87,6 +87,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { Segmented } from '@/components/ui/segmented';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
+import { LocationGraphLazy } from '@/graph/lazy';
 import { addressOf, locationAddress, useAddress, useCanonicalAddress } from '@/lib/address';
 import { isolate } from '@/lib/bidi';
 import { sep } from '@/lib/format';
@@ -188,6 +189,8 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
     !place.isUnplaced && (location.effectiveModules ?? location.modules).includes('paperwork');
   const remembered = useRememberedLayout(location.id, place.id);
   const map = !place.isUnplaced && remembered === 'map';
+  // #207: the graph, focused on this place.
+  const graph = !place.isUnplaced && remembered === 'graph';
 
   return (
     <Page
@@ -266,7 +269,16 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
         />
       ) : null}
 
-      {!panel && !map && tree.data?.places ? (
+      {graph ? (
+        <LocationGraphLazy
+          locationId={location.id}
+          name={locationName}
+          address={locationAddress(location)}
+          focusId={place.id}
+        />
+      ) : null}
+
+      {!panel && !map && !graph && tree.data?.places ? (
         <PlaceTree places={tree.data.places} boxes={tree.data.boxes ?? []} currentId={place.id} />
       ) : null}
 
@@ -342,7 +354,7 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
         />
       </List>
 
-      {map ? null : (
+      {map || graph ? null : (
         <ContentsList
           parent={{ kind: 'place', id: place.id, locationId: location.id, name }}
           canEdit={canEdit}
@@ -538,6 +550,15 @@ function LabelRow({ place, location }: { place: PlaceView; location: LocationDet
       }
     />
   );
+  // #329: a pre-printed blank stuck on the shelf or door, claimed for this place by scanning it.
+  const blank = (
+    <ActionRow
+      icon={<QrIcon />}
+      title={<Trans>Add a label code</Trans>}
+      subtitle={<Trans>Scan a blank label you've stuck on it</Trans>}
+      onPress={() => void navigate({ to: '/scan', search: { place: place.id } })}
+    />
+  );
   if (place.shortCode)
     return (
       <>
@@ -552,6 +573,7 @@ function LabelRow({ place, location }: { place: PlaceView; location: LocationDet
             void navigate({ to: '/labels', search: { loc: location.id, places: place.id } })
           }
         />
+        {blank}
         {everything}
       </>
     );
@@ -563,6 +585,7 @@ function LabelRow({ place, location }: { place: PlaceView; location: LocationDet
         subtitle={<Trans>A short code for the printed label on the shelf or door</Trans>}
         onPress={() => label.mutate()}
       />
+      {blank}
       {everything}
     </>
   );

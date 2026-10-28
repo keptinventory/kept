@@ -21,6 +21,10 @@
  * Walls (#138): a model with `wall` hangs on a room's wall (a wall TV, a shelf, a clock), its back
  * to the wall it faces away from, at a height: `wall` is where its middle hangs until someone
  * says otherwise. Which wall comes from its turn (wallOfTurn); the layout stores the height.
+ *
+ * Sized shapes (#240, #241): a cube shelf and a bookcase are drawn from their numbers, which a
+ * node's stored model carries after the shape's key (SizedModelKey). Every other model has one
+ * size, its catalogue entry's.
  */
 
 export const MAP_ROOM_KINDS = ['room', 'balcony', 'terrace', 'garden'] as const;
@@ -200,6 +204,11 @@ export const MAP_MODELS = {
   // Drawn: modern appliances and pieces the free library doesn't have.
   tv: { w: 1.24, d: 0.26, kind: 'thing', mount: { on: 'edge', h: 0.83, z: 0 } },
   bookshelf: { w: 1.2, d: 0.35, kind: 'storage', holds: true },
+  // Sized shapes (#240, #241): these are their first sizes; a node's model can carry others.
+  /** A cube shelf drawn from its grid: 2 cubes across and 2 up. Small things stand on top. */
+  cube_grid: { w: 0.77, d: 0.39, h: 0.77, kind: 'storage', top: 0.77, holds: true },
+  /** A bookcase drawn from its size, 80 × 28 × 202 cm, with 6 levels. */
+  bookcase: { w: 0.8, d: 0.28, h: 2.02, kind: 'storage', holds: true },
   lamp: { w: 0.4, d: 0.4, kind: 'thing' },
   counter: { w: 1.8, d: 0.62, kind: 'furniture', top: 0.92, holds: true },
   sink: { w: 1.2, d: 0.62, kind: 'furniture', top: 0.92, holds: true },
@@ -338,14 +347,144 @@ export const MAP_MODELS = {
   item: { w: 0.4, d: 0.3, h: 0.3, kind: 'thing', small: true },
 } as const satisfies Record<string, MapModel>;
 
+/** A shape in the catalogue (the picker, the names, the pictures). */
 export type MapModelKey = keyof typeof MAP_MODELS;
 export const MAP_MODEL_KEYS = Object.keys(MAP_MODELS) as MapModelKey[];
 
-export const isMapModel = (key: unknown): key is MapModelKey =>
-  typeof key === 'string' && Object.hasOwn(MAP_MODELS, key);
+// ---- Sized shapes (#240, #241) -----------------------------------------------------------------
 
-/** A model's numbers, widened (the catalogue is `as const`). */
-export const mapModel = (key: MapModelKey): MapModel => MAP_MODELS[key] as MapModel;
+/**
+ * A cube shelf's grid, `across` × `up` cubes (lying down is the same unit with the numbers
+ * swapped: 1 × 4 standing, 4 × 1 lying); a bookcase's width, depth and height in centimetres and
+ * its levels, the spaces things stand in, the bottom one included.
+ */
+export type SizedShape =
+  | { base: 'cube_grid'; across: number; up: number }
+  | { base: 'bookcase'; w: number; d: number; h: number; levels: number };
+
+/**
+ * A sized shape as a node stores it, its numbers after its key: `cube_grid_3x2` (3 across, 2 up),
+ * `bookcase_60x28x106_3` (centimetres, then levels). Its first size is the bare key. One spelling
+ * per size, so the layout's format, the API and the database's check stay as they were.
+ */
+export type SizedModelKey =
+  | `cube_grid_${number}x${number}`
+  | `bookcase_${number}x${number}x${number}_${number}`;
+
+/** What a node's model may be: a catalogue shape, or a sized shape with its numbers. */
+export type MapShapeKey = MapModelKey | SizedModelKey;
+
+/** A cube shelf in centimetres: 33 cm cubes between 2 cm dividers in a 4.5 cm frame, 39 cm
+ * deep, so n cubes measure 35n + 7 (2 × 2 is 77 × 39 × 77, 4 × 4 is 147 × 39 × 147). */
+export const CUBE_GRID = {
+  cube: 33,
+  divider: 2,
+  frame: 4.5,
+  depth: 39,
+  max: 8,
+  start: { across: 2, up: 2 },
+} as const;
+
+/** A bookcase's limits in centimetres, and its first size. */
+export const BOOKCASE = {
+  w: [30, 240],
+  d: [15, 60],
+  h: [40, 300],
+  levels: [1, 12],
+  start: { w: 80, d: 28, h: 202, levels: 6 },
+} as const;
+
+/** A cube shelf's side in centimetres for `n` cubes. */
+export const cubeRunCm = (n: number): number =>
+  2 * CUBE_GRID.frame + n * CUBE_GRID.cube + (n - 1) * CUBE_GRID.divider;
+
+/** How many levels a bookcase this high (cm) can have: one every 15 cm at most. */
+export const bookcaseMaxLevels = (h: number): number =>
+  Math.max(BOOKCASE.levels[0], Math.min(BOOKCASE.levels[1], Math.floor(h / 15)));
+
+const within = (v: number, [lo, hi]: readonly [number, number]) =>
+  Number.isInteger(v) && v >= lo && v <= hi;
+
+/** Whether a sized shape's numbers are in range (any spelling aside). */
+function sizedOk(s: SizedShape): boolean {
+  if (s.base === 'cube_grid')
+    return within(s.across, [1, CUBE_GRID.max]) && within(s.up, [1, CUBE_GRID.max]);
+  return (
+    within(s.w, BOOKCASE.w) &&
+    within(s.d, BOOKCASE.d) &&
+    within(s.h, BOOKCASE.h) &&
+    within(s.levels, [BOOKCASE.levels[0], bookcaseMaxLevels(s.h)])
+  );
+}
+
+const isStart = (s: SizedShape): boolean => {
+  if (s.base === 'cube_grid')
+    return s.across === CUBE_GRID.start.across && s.up === CUBE_GRID.start.up;
+  const a = BOOKCASE.start;
+  return s.w === a.w && s.d === a.d && s.h === a.h && s.levels === a.levels;
+};
+
+/** A sized shape's stored model: its bare key at its first size. */
+export function sizedKey(s: SizedShape): MapShapeKey {
+  if (isStart(s)) return s.base;
+  return s.base === 'cube_grid'
+    ? `cube_grid_${s.across}x${s.up}`
+    : `bookcase_${s.w}x${s.d}x${s.h}_${s.levels}`;
+}
+
+const SIZED_KEY =
+  /^(cube_grid|bookcase)_([1-9][0-9]{0,2})x([1-9][0-9]{0,2})(?:x([1-9][0-9]{0,2})_([1-9][0-9]?))?$/;
+
+/** A sized shape's numbers from a stored model (a bare key gives its first size), or null for
+ * any other model and for numbers out of range or spelled another way. */
+export function sizedOf(key: string): SizedShape | null {
+  if (key === 'cube_grid') return { base: 'cube_grid', ...CUBE_GRID.start };
+  if (key === 'bookcase') return { base: 'bookcase', ...BOOKCASE.start };
+  const m = SIZED_KEY.exec(key);
+  if (!m) return null;
+  const [, base, a, b, c, levels] = m;
+  const s: SizedShape | null =
+    base === 'cube_grid' && c === undefined
+      ? { base, across: Number(a), up: Number(b) }
+      : base === 'bookcase' && c !== undefined
+        ? { base, w: Number(a), d: Number(b), h: Number(c), levels: Number(levels) }
+        : null;
+  return s && sizedOk(s) && sizedKey(s) === key ? s : null;
+}
+
+/** The catalogue shape a stored model is (a sized shape's key without its numbers). */
+export const baseModel = (key: MapShapeKey): MapModelKey =>
+  Object.hasOwn(MAP_MODELS, key) ? (key as MapModelKey) : (sizedOf(key)?.base ?? 'item');
+
+/** A sized shape's model: its catalogue entry at its own size. */
+function sizedModel(s: SizedShape): MapModel {
+  if (s.base === 'bookcase')
+    return { ...MAP_MODELS.bookcase, w: s.w / 100, d: s.d / 100, h: s.h / 100 };
+  const h = cubeRunCm(s.up) / 100;
+  return { ...MAP_MODELS.cube_grid, w: cubeRunCm(s.across) / 100, h, top: h };
+}
+
+const SIZED = new Map<string, MapModel>();
+/** Keys come from requests too: the cache starts over past this, never growing with them. */
+const SIZED_MAX = 256;
+/** How many sized models are cached (tests). */
+export const sizedCacheSize = () => SIZED.size;
+
+export const isMapModel = (key: unknown): key is MapShapeKey =>
+  typeof key === 'string' && (Object.hasOwn(MAP_MODELS, key) || sizedOf(key) !== null);
+
+/** A model's numbers, widened (the catalogue is `as const`); a sized shape's at its size. */
+export function mapModel(key: MapShapeKey): MapModel {
+  if (Object.hasOwn(MAP_MODELS, key)) return MAP_MODELS[key as MapModelKey] as MapModel;
+  let m = SIZED.get(key);
+  if (!m) {
+    const s = sizedOf(key);
+    m = s ? sizedModel(s) : MAP_MODELS.item;
+    if (SIZED.size >= SIZED_MAX) SIZED.clear();
+    SIZED.set(key, m);
+  }
+  return m;
+}
 
 /** Models that lead up or down a floor: their card offers the floors next to theirs. */
 export const STAIR_MODELS: ReadonlySet<MapModelKey> = new Set(['stairs', 'stairwell']);
@@ -364,7 +503,7 @@ export const MAP_LIMITS = {
 } as const;
 
 /** A footprint (metres) after a quarter turn. */
-export function footprintOf(key: MapModelKey, rot: number): { w: number; d: number } {
+export function footprintOf(key: MapShapeKey, rot: number): { w: number; d: number } {
   const m = mapModel(key);
   return rot % 180 ? { w: m.d, d: m.w } : { w: m.w, d: m.d };
 }
@@ -389,11 +528,11 @@ export function firstOverlap(rects: readonly MapRect[]): [number, number] | null
 }
 
 /** A model something small can stand on (a counter, a desk, a shelf top, a box). */
-export const canHost = (key: MapModelKey): boolean => mapModel(key).top !== undefined;
+export const canHost = (key: MapShapeKey): boolean => mapModel(key).top !== undefined;
 
 /** Only things and small storage go on top of something; never a wall thing,
  * which hangs on its wall (#138). */
-export const canStandOn = (key: MapModelKey): boolean => {
+export const canStandOn = (key: MapShapeKey): boolean => {
   const m = mapModel(key);
   return m.wall === undefined && (m.kind === 'thing' || m.small === true);
 };
@@ -402,7 +541,7 @@ export type MapCarry = 'top' | 'edge' | 'arm' | 'hook';
 
 /** How a model carries things (#137, #138): on its top, on a screen's edge, on an arm, from its
  * hooks, or not at all. */
-export function carryOf(key: MapModelKey): MapCarry | null {
+export function carryOf(key: MapShapeKey): MapCarry | null {
   const m = mapModel(key);
   if (m.top !== undefined) return 'top';
   return m.mount?.on ?? null;
@@ -417,7 +556,7 @@ export const EDGE_FIT = { d: 0.12, h: 0.2 } as const;
 export const HOOK_FIT = { h: 0.6, unknown: 0.3 } as const;
 
 /** Whether `host` can carry `child` (the server's check and the web's). */
-export function canCarry(host: MapModelKey, child: MapModelKey): boolean {
+export function canCarry(host: MapShapeKey, child: MapShapeKey): boolean {
   const h = mapModel(host);
   const c = mapModel(child);
   if (h.top !== undefined) return canStandOn(child);
@@ -448,20 +587,20 @@ export function canCarry(host: MapModelKey, child: MapModelKey): boolean {
 }
 
 /** How many things a holder carries at most: an arm one per place, anything else no limit. */
-export function capacityOf(key: MapModelKey): number {
+export function capacityOf(key: MapShapeKey): number {
   const m = mapModel(key).mount;
   return m?.on === 'arm' ? m.slots.length : Number.POSITIVE_INFINITY;
 }
 
 /** The height what a holder carries stands at, above the holder's own base. */
-export function seatHeight(key: MapModelKey): number {
+export function seatHeight(key: MapShapeKey): number {
   const m = mapModel(key);
   return m.top ?? m.mount?.h ?? 0;
 }
 
 /** Where a carried thing's base is, above its holder's base: at the holder's seat, or, hung from
  * a hook (#138), so that its top is at the hook line. */
-export function seatFor(host: MapModelKey, child: MapModelKey): number {
+export function seatFor(host: MapShapeKey, child: MapShapeKey): number {
   const m = mapModel(host).mount;
   if (m?.on === 'hook') return Math.max(0, m.h - (mapModel(child).h ?? HOOK_FIT.unknown));
   return seatHeight(host);
@@ -472,7 +611,7 @@ export function seatFor(host: MapModelKey, child: MapModelKey): number {
  * it can carry it, and on a top it fits inside the top's footprint either way round. Dragging
  * keeps the looser canCarry, as before.
  */
-export function fitsOn(host: MapModelKey, child: MapModelKey): boolean {
+export function fitsOn(host: MapShapeKey, child: MapShapeKey): boolean {
   if (!canCarry(host, child)) return false;
   if (carryOf(host) !== 'top') return true;
   const h = mapModel(host);
@@ -481,7 +620,7 @@ export function fitsOn(host: MapModelKey, child: MapModelKey): boolean {
 }
 
 /** Whether a model could be carried by some holder from a list (it gets Put on…). */
-export const canBeCarried = (key: MapModelKey): boolean =>
+export const canBeCarried = (key: MapShapeKey): boolean =>
   mapModel(key).small === true ||
   MAP_MODEL_KEYS.some((h) => carryOf(h) === 'arm' && canCarry(h, key));
 
@@ -506,7 +645,7 @@ export function unturnOffset(x: number, z: number, rot: number): { x: number; z:
  * The drag's grid (#137): about a centimetre for small things (a webcam moves a centimetre, not a
  * webcam), 5 cm for things, 10 cm for furniture and storage, as before. In metres.
  */
-export function snapStep(key: MapModelKey): number {
+export function snapStep(key: MapShapeKey): number {
   const m = mapModel(key);
   if (m.small || Math.max(m.w, m.d) < 0.3) return 0.01;
   return m.kind === 'thing' ? 0.05 : 0.1;
@@ -519,7 +658,7 @@ export const WALL_MODELS: readonly MapModelKey[] = MAP_MODEL_KEYS.filter(
   (k) => mapModel(k).wall !== undefined,
 );
 
-export const isWallModel = (key: MapModelKey): boolean => mapModel(key).wall !== undefined;
+export const isWallModel = (key: MapShapeKey): boolean => mapModel(key).wall !== undefined;
 
 /** A room's four walls: the side of the room each stands on. */
 export type MapWall = '-x' | '+x' | '-z' | '+z';
@@ -533,13 +672,13 @@ export const HANG_TOP = 3;
 
 /** Where a wall thing's middle may hang: its bottom on the floor at the lowest, its top at
  * HANG_TOP at the highest. Metres. */
-export function hangRange(key: MapModelKey): { min: number; max: number } {
+export function hangRange(key: MapShapeKey): { min: number; max: number } {
   const half = (mapModel(key).h ?? 0.3) / 2;
   return { min: half, max: HANG_TOP - half };
 }
 
 /** A height in the range, to the centimetre. */
-export function clampHang(key: MapModelKey, h: number): number {
+export function clampHang(key: MapShapeKey, h: number): number {
   const r = hangRange(key);
   return Math.round(Math.min(r.max, Math.max(r.min, h)) * 100) / 100;
 }
@@ -575,7 +714,7 @@ export function nearestWall(room: { w: number; d: number }, p: { x: number; z: n
  */
 export function wallSpot(
   room: { w: number; d: number },
-  key: MapModelKey,
+  key: MapShapeKey,
   wall: MapWall,
   along: number,
 ): { x: number; z: number } {
@@ -592,7 +731,7 @@ export function wallSpot(
  * the server's check of a thing on a wall. */
 export function offWall(
   room: { w: number; d: number },
-  key: MapModelKey,
+  key: MapShapeKey,
   node: { x: number; z: number; rot: number },
 ): number {
   const wall = wallOfTurn(node.rot);

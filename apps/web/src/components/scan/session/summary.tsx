@@ -12,6 +12,9 @@
  * counted lists its things under "Not counted: Back shelf" with "I checked it"; a thing counted
  * in number has − and + on its row and, short, "Mark the rest not here"; in a shared count, what
  * others found is listed as theirs, and finishing needs a connection.
+ *
+ * Unmatched blank labels can each be claimed here (#329), for a new box, a thing or a place, with
+ * the scanner's claim sheet: a walk can label many places, then claim them all at Finish.
  */
 import type { Role } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
@@ -27,6 +30,7 @@ import { TextField } from '@/components/ui/text-field';
 import { TickBox } from '@/components/ui/tick-box';
 import { toast } from '@/components/ui/toast';
 import { useFormat } from '@/lib/format';
+import { type ClaimDone, ClaimSheet } from '../claim-sheet';
 import type { ScanStore } from '../resolve';
 import {
   type Choices,
@@ -61,6 +65,7 @@ export function SessionSummary({
   onDone,
   onUpdate,
   onOpenCount,
+  onQueued,
   finishOffline = false,
 }: {
   session: Session;
@@ -79,6 +84,8 @@ export function SessionSummary({
   onOpenCount?: () => Promise<void>;
   /** A shared count, offline: finishing it needs a connection. */
   finishOffline?: boolean;
+  /** After a claim was queued: the sync engine's kick. */
+  onQueued?: (() => void) | undefined;
 }) {
   const { t } = useLingui();
   const fmt = useFormat();
@@ -469,14 +476,22 @@ export function SessionSummary({
       {group(
         t`Unmatched (${n(sum.unmatched.length)})`,
         sum.unmatched.length,
-        <>
-          <Rows items={sum.unmatched} render={(r) => <bdi dir="ltr">{r.code ?? r.text}</bdi>} />
-          {sum.unmatched.some((r) => r.code) ? (
-            <p className="m-0 text-ink-3 text-small">
-              <Trans>Blank labels can be claimed from Scan, one at a time.</Trans>
-            </p>
-          ) : null}
-        </>,
+        <Rows
+          items={sum.unmatched}
+          render={(r) =>
+            editable && r.code && r.locationId ? (
+              <BlankRow
+                code={r.code}
+                locationId={r.locationId}
+                store={store}
+                online={online}
+                onQueued={onQueued}
+              />
+            ) : (
+              <bdi dir="ltr">{r.code ?? r.text}</bdi>
+            )
+          }
+        />,
       )}
       {group(
         t`Not in your Kept (${n(sum.notInYourKept.length)})`,
@@ -552,6 +567,73 @@ function Rows<T>({ items, render }: { items: readonly T[]; render: (item: T) => 
         </Button>
       ) : null}
     </>
+  );
+}
+
+/** An unmatched blank label: Claim opens the scanner's claim sheet under it; then what it came to. */
+function BlankRow({
+  code,
+  locationId,
+  store,
+  online,
+  onQueued,
+}: {
+  code: string;
+  locationId: string;
+  store: ScanStore | null;
+  online: boolean;
+  onQueued?: (() => void) | undefined;
+}) {
+  const [open, setOpen] = useState(false);
+  const [done, setDone] = useState<ClaimDone | null>(null);
+  const other = done && 'claimedFor' in done ? done.claimedFor : null;
+  const label = done && 'label' in done ? done.label : '';
+  return (
+    <div className="grid gap-1.5">
+      <span className="flex flex-wrap items-center justify-between gap-2">
+        <bdi dir="ltr">{code}</bdi>
+        {open || done ? null : (
+          <Button size="small" variant="secondary" onPress={() => setOpen(true)}>
+            <Trans>Claim</Trans>
+          </Button>
+        )}
+      </span>
+      {other ? (
+        <p className="m-0 text-ink-2 text-small">
+          <Trans>
+            This label was claimed on another phone for “<bdi>{other.name}</bdi>”.
+          </Trans>
+        </p>
+      ) : done ? (
+        <p role="status" className="m-0 text-ink-2 text-small">
+          {'queued' in done && done.queued ? (
+            <Trans>
+              Claimed for <bdi>{label}</bdi> on this phone, until it syncs.
+            </Trans>
+          ) : (
+            <Trans>
+              Claimed for <bdi>{label}</bdi>.
+            </Trans>
+          )}
+        </p>
+      ) : open ? (
+        <ClaimSheet
+          code={code}
+          locationId={locationId}
+          store={store}
+          online={online}
+          onCamera={false}
+          // Nothing opens from the summary: onClaimed answers every outcome.
+          onOpen={() => {}}
+          onAgain={() => setOpen(false)}
+          onClaimed={(d) => {
+            setDone(d);
+            setOpen(false);
+          }}
+          {...(onQueued ? { onQueued } : {})}
+        />
+      ) : null}
+    </div>
   );
 }
 

@@ -40,6 +40,7 @@ import {
   ShieldCheckIcon,
 } from '@/components/icons';
 import { useErrorText } from '@/components/page';
+import { usePlaceKindName } from '@/components/places/labels';
 import { useConditionLabels } from '@/components/things/labels';
 import {
   TypePicker,
@@ -107,6 +108,8 @@ function useVerbLabels(): Record<Verb, string> {
     service: t`Log service`,
     fuel: t`Log fill-up`,
     stock: t`Adjust stock`,
+    box: t`Turn into a box`,
+    boxes: t`Turn places into boxes`,
     other: t`Change`,
   };
 }
@@ -205,6 +208,12 @@ function useFieldLabels(): (key: FieldKey, verb: Verb) => string {
         return t`Keep at least`;
       case 'manual':
         return t`Manual`;
+      case 'order':
+        return t`Order`;
+      case 'step':
+        return t`Move`;
+      case 'places':
+        return t`Places`;
     }
   };
 }
@@ -214,6 +223,7 @@ function ValueView({ v }: { v: Val }) {
   const f = useFormat();
   const money = useMoney();
   const conditions = useConditionLabels();
+  const kindName = usePlaceKindName();
   switch (v.t) {
     case 'unplaced':
       return <span>{t`Unplaced`}</span>;
@@ -233,6 +243,12 @@ function ValueView({ v }: { v: Val }) {
       );
     case 'condition':
       return <span>{conditions[v.v]}</span>;
+    case 'placeKind':
+      return <bdi>{kindName(v.v)}</bdi>;
+    case 'childOrder':
+      return <span>{v.v === 'custom' ? t`Custom order` : t`A to Z`}</span>;
+    case 'step':
+      return <span>{v.v === 'up' ? t`One up` : t`One down`}</span>;
     case 'text':
       return v.v ? <bdi>{v.v}</bdi> : <span className="text-ink-3">{t`Nothing`}</span>;
     case 'path':
@@ -715,6 +731,11 @@ export function ConfirmCard({
       qc.invalidateQueries({ predicate: (q) => q.queryKey[0] !== 'assistant' }),
     ]);
 
+  /** #313: the words "Turn places into boxes" says in the app, for the boxes made (one event
+   * each: a place that stayed a place made none). */
+  const turned = (done: number) =>
+    plural(done, { one: 'Turned # place into a box', other: 'Turned # places into boxes' });
+
   /** "Moved 2× HDMI cable to Garage › Box 3", "Added Drill, Ladder and 2× Paint can". */
   const summary = (done: CardRow[]): string => {
     const nameOf = (r: CardRow) => {
@@ -768,12 +789,18 @@ export function ConfirmCard({
         (r) => ticked.has(r.key) && confirmed.some((c) => c.id === r.proposalId),
       );
       if (confirmed.length) {
-        const title = summary(done);
         const events = confirmed.flatMap((r) =>
           r.audit ? (r.audit.eventIds ?? [r.audit.eventId]) : [],
         );
+        // Boxes come back as places all together or not at all, as the app's one Undo does.
+        const together = done.every((r) => r.verb === 'box' || r.verb === 'boxes');
+        const title = together ? turned(events.length) : summary(done);
         const thing = done.find((r) => r.target?.kind === 'thing')?.target;
-        offerUndo({ title }, events, thing && 'id' in thing ? { thingId: thing.id } : {});
+        offerUndo(
+          { title },
+          events,
+          together ? { together } : thing && 'id' in thing ? { thingId: thing.id } : {},
+        );
         setOutcome({ kind: 'done', title });
       }
       if (conflicts.length) setOutcome({ kind: 'conflict', conflicts });

@@ -1,22 +1,22 @@
 /**
- * A location's layout, remembered (1.x, D237, M11): List, Grid or Map is the address's `view`
- * (D223), and Kept remembers the last one per person and location on this device, so a location
- * someone keeps as a map opens as one. A place's page remembers its own (#190): Map on one room
+ * A location's layout, remembered (1.x, D237, M11): List, Grid, Graph (#207), Table or Map is the
+ * address's `view` (D223), and Kept remembers the last one per person and location on this device,
+ * so a location someone keeps as a map opens as one. A place's page remembers its own (#190): Map on one room
  * doesn't turn every other room, or the location's page, into a map. List stays the default.
- * Small and precached: the map itself loads on demand (./lazy.tsx).
+ * Small and precached: the map and the graph load on demand (./lazy.tsx, graph/lazy.tsx).
  */
 import { useLingui } from '@lingui/react/macro';
 import { useNavigate, useSearch } from '@tanstack/react-router';
-import { useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { useMe } from '@/api/queries';
-import { MapIcon } from '@/components/icons';
+import { GraphIcon, GridIcon, ListIcon, MapIcon, TableIcon } from '@/components/icons';
 import { Segmented } from '@/components/ui/segmented';
 import { SHEET, useMediaQuery } from '@/lib/media';
 
-/** 1.x (D250): `table`, the spreadsheet view, on a screen 1024 px wide or more. */
-export type LocationLayout = 'list' | 'grid' | 'map' | 'table';
+/** 1.x (D250): `table`, the spreadsheet view, on a screen 1024 px wide or more. #207: `graph`. */
+export type LocationLayout = 'list' | 'grid' | 'graph' | 'map' | 'table';
 
-const LAYOUTS: readonly string[] = ['grid', 'map', 'table'];
+const LAYOUTS: readonly string[] = ['grid', 'graph', 'map', 'table'];
 const layoutOf = (v: unknown): LocationLayout =>
   typeof v === 'string' && LAYOUTS.includes(v) ? (v as LocationLayout) : 'list';
 
@@ -89,8 +89,8 @@ export function useRememberedLayout(locationId: string, placeId?: string): Locat
   return view;
 }
 
-/** List · Grid · Map (· Table on a wide screen) above the map, where the list's Display menu
- * isn't. A place's page has no Table (`table={false}`). */
+/** List · Grid · Graph (· Table on a wide screen) · Map, each with its icon (#207), above the
+ * map, where the list's Display menu isn't. A place's page has no Table (`table={false}`). */
 export function LayoutSwitch({ table = true }: { table?: boolean } = {}) {
   const { t } = useLingui();
   const navigate = useNavigate();
@@ -107,7 +107,8 @@ export function LayoutSwitch({ table = true }: { table?: boolean } = {}) {
       aria-label={t`Layout`}
       // The guided tour points here (components/hints/tour.ts, D242).
       data-tour="location-layout"
-      className={wide ? 'w-full max-w-sm' : 'w-full max-w-xs'}
+      className={wide ? 'w-full max-w-md' : 'w-full max-w-sm'}
+      oneRow
       value={value}
       onChange={(v) =>
         void navigate({
@@ -116,21 +117,48 @@ export function LayoutSwitch({ table = true }: { table?: boolean } = {}) {
         })
       }
       options={[
-        { id: 'list', label: t`List` },
-        { id: 'grid', label: t`Grid` },
+        { id: 'list', label: <Option icon={<ListIcon className={ICON} />}>{t`List`}</Option> },
+        { id: 'grid', label: <Option icon={<GridIcon className={ICON} />}>{t`Grid`}</Option> },
+        { id: 'graph', label: <Option icon={<GraphIcon className={ICON} />}>{t`Graph`}</Option> },
+        ...(wide
+          ? [
+              {
+                id: 'table' as const,
+                label: <Option icon={<TableIcon className={ICON} />}>{t`Table`}</Option>,
+              },
+            ]
+          : []),
         {
           id: 'map',
           label: (
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-md px-1 ${shine ? 'kept-shine' : ''}`}
-            >
-              <MapIcon className="size-4 shrink-0" />
+            <Option icon={<MapIcon className={ICON} />} shine={shine}>
               {t`Map`}
-            </span>
+            </Option>
           ),
         },
-        ...(wide ? [{ id: 'table' as const, label: t`Table` }] : []),
       ]}
     />
+  );
+}
+
+const ICON = 'size-4 shrink-0';
+
+/** A layout's icon and name, side by side; Map shines until a map was first opened here. */
+function Option({
+  icon,
+  shine = false,
+  children,
+}: {
+  icon: ReactNode;
+  shine?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-md px-1 ${shine ? 'kept-shine' : ''}`}
+    >
+      {icon}
+      {children}
+    </span>
   );
 }

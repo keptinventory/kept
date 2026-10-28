@@ -10,9 +10,10 @@
  * - Everything on a floor is drawn as one BatchedMesh per material; the selected or hovered
  *   thing (and whatever stands on it) shows its own body instead, so it can glow or move. Focus
  *   on a room fades everything else through the batches' faded copies.
- * - Arrange: drag things (onto counters, desks, shelves and boxes), drag a room's amber corner
- *   to resize it, draw a room on empty ground, turn a thing. Changes go into the plan; the
- *   React side saves the session.
+ * - Arrange: drag things (onto counters, desks, shelves and boxes), move a room with everything
+ *   in it by its floor (#301: hold it, or drag it once selected; a quick drag on a room still
+ *   pans), drag a room's amber corner to resize it, draw a room on empty ground, turn a thing. Changes go into the plan; the React side saves the
+ *   session.
  * - Walls (#138): a wall thing hangs on the wall its turn puts at its back, at its height; a
  *   wall stands behind it (on any side), tall enough, and drops with what hangs on it as the view
  *   turns (walls.ts). Dragged, it goes to the nearest wall. In the plan view it is a thin strip
@@ -25,6 +26,8 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { MapAttentionKind } from '@/api/map/types';
 import { declutter, LABEL_PRIORITY, type Rect } from '../declutter';
 import {
+  type Arrow,
+  arrowStep,
   baseOf,
   canPutOn,
   childrenOn,
@@ -37,6 +40,7 @@ import {
   hostAt,
   type Item,
   moveBy,
+  moveRoom,
   overlapsRoom,
   type Plan,
   type Room,
@@ -66,6 +70,9 @@ import { hasGlb, loadModel, modelStats, readyModel, wasRequested } from './model
 export type Sel = { type: 'room' | 'item'; id: string };
 export type Tool = 'move' | 'room';
 export type Quality = 'detailed' | 'simple';
+/** The arrange hint: the tool's, `overlap` while a drawn room would overlap, `blocked` while a
+ * moved room stops against another (#301). */
+export type Hint = Tool | 'overlap' | 'blocked';
 
 export type EngineState = {
   levelKey: string;
@@ -113,8 +120,8 @@ export type EngineEvents = {
   onChange: () => void;
   /** A room was drawn on empty ground (metres, on this floor). */
   onDrawRoom: (rect: { x: number; z: number; w: number; d: number }, levelKey: string) => void;
-  /** The arrange hint to show (`overlap` while a drawn room would overlap). */
-  onHint: (hint: Tool | 'overlap') => void;
+  /** The arrange hint to show. */
+  onHint: (hint: Hint) => void;
   onStats?: (s: EngineStats) => void;
 };
 
@@ -123,6 +130,8 @@ type Slot = { bm: THREE.BatchedMesh; id: number; fade: boolean };
 type Batches = { list: THREE.BatchedMesh[]; slots: Map<string, Slot[]> };
 
 const GAP = 5.4;
+/** How long a room's floor is held still before it is picked up to move (#301), ms. */
+const HOLD_MS = 350;
 /** How deep a wall thing is drawn in the plan view, along its wall (metres): a strip. */
 const STRIP = 0.05;
 /** A room's walls, in the order they are built. */
@@ -240,8 +249,11 @@ export class MapEngine {
   private drag:
     | { type: 'item'; id: string; off: THREE.Vector3 }
     | { type: 'resize'; id: string }
+    | { type: 'room'; id: string; off: THREE.Vector3; held?: boolean }
     | { type: 'draw'; from: THREE.Vector3; rect?: { x: number; z: number; w: number; d: number } }
     | null = null;
+  /** A press on a room's floor that picks the room up if it is held still (#301). */
+  private hold: { id: string; off: THREE.Vector3; timer: number } | null = null;
   private preview: THREE.Mesh | null = null;
   private readonly ray = new THREE.Raycaster();
   private readonly plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
@@ -344,6 +356,7 @@ export class MapEngine {
 
   dispose(): void {
     this.disposed = true;
+    this.dropHold();
     for (const off of this.cleanup) off();
     for (const b of this.floorBatches.values()) for (const bm of b.list) bm.dispose();
     this.renderer.dispose();
@@ -1412,7 +1425,13 @@ export class MapEngine {
       const rc = this.stage.getBoundingClientRect();
       this.tip.style.transform = `translate(${x - rc.left + 14}px, ${y - rc.top + 14}px)`;
     }
-    this.canvas.style.cursor = p && p.type !== 'room' ? 'pointer' : '';
+    // #301: in Arrange the selected room can be picked up by its floor.
+    const grab =
+      this.s.arranging &&
+      this.s.tool === 'move' &&
+      p?.type === 'room' &&
+      same(this.s.selected, { type: 'room', id: p.id });
+    this.canvas.style.cursor = grab ? 'grab' : p && p.type !== 'room' ? 'pointer' : '';
   };
 
   private setHover(sel: Sel | null): void {
@@ -1453,6 +1472,33 @@ export class MapEngine {
     turn(this.plan.items, this.plan.rooms, it);
     this.changed();
     this.select({ type: 'item', id }, false);
+  }
+
+  /**
+   * Arrange, from the keyboard (#301): the selected room one step the way an arrow key points, as
+   * the view is turned (layout.ts arrowStep). Null when no room is selected while arranging;
+   * `moved: false` when another room is in the way.
+   */
+  nudgeRoom(key: Arrow): { room: Room; moved: boolean } | null {
+    const sel = this.s.selected;
+    const r = this.s.arranging && sel?.type === 'room' ? this.roomOf(sel.id) : undefined;
+    if (!r) return null;
+    const { dx, dz } = arrowStep(key, this.view.az, this.s.planView);
+    const moved = moveRoom(this.plan.rooms, r, { x: r.x + dx, z: r.z + dz });
+    if (moved) {
+      this.placeRoom(r);
+      this.events.onChange();
+    }
+    return { room: r, moved };
+  }
+
+  /** A room moved (#301): its walls, floor and grid go with it, and everything in it, whose
+   * places are the room's own; the floor's batches are made again where they now stand. */
+  private placeRoom(r: Room): void {
+    this.roomGroups.get(r.id)?.position.set(r.x, 0, r.z);
+    for (const it of this.plan.items) if (it.roomId === r.id) this.placeItem(it);
+    this.batchFloor(r.levelKey);
+    this.request();
   }
 
   /** The plan changed under the engine (a room's kind, a model, a thing added or removed). */
@@ -1554,6 +1600,10 @@ export class MapEngine {
       this.tip.hidden = true;
     });
     on(c, 'pointerdown', (e) => this.down(e));
+    // A held finger is a room picked up (#301), not the browser's menu.
+    on(c, 'contextmenu', (e) => {
+      if (this.s.arranging) e.preventDefault();
+    });
     on(c, 'pointermove', (e) => this.move(e));
     on(c, 'pointerup', (e) => this.end(e));
     on(c, 'pointercancel', (e) => this.end(e));
@@ -1590,6 +1640,7 @@ export class MapEngine {
       // A pointer that is already gone can't be captured; the gesture still works.
     }
     this.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    this.dropHold();
     this.tw = null;
     this.busy++;
     this.tip.hidden = true;
@@ -1602,6 +1653,11 @@ export class MapEngine {
       prev: this.snapshot(),
     };
     if (this.pts.size > 1) {
+      // A second finger: a pinch or a pan, never a drag (a room stays where it got to).
+      if (this.drag?.type === 'room') {
+        this.events.onHint(this.s.tool);
+        if (this.drag.held) this.letGo();
+      }
       this.drag = null;
       this.preview?.removeFromParent();
       this.preview = null;
@@ -1618,7 +1674,17 @@ export class MapEngine {
     }
     const p = this.pick(e.clientX, e.clientY);
     if (p?.type === 'handle') this.drag = { type: 'resize', id: p.id };
-    else if (p?.type === 'item') {
+    else if (p?.type === 'room') {
+      // #301: a selected room moves by its floor at once; any room does once its floor is held
+      // still. A quick drag on a room pans the view, so one finger still moves about a map full
+      // of rooms (and a phone's card, open over the map, isn't needed first).
+      const r = this.roomOf(p.id);
+      const off = r ? new THREE.Vector3(r.x - g.x, 0, r.z - g.z) : null;
+      if (r && off && same(this.s.selected, { type: 'room', id: r.id }))
+        this.drag = { type: 'room', id: r.id, off };
+      else if (r && off)
+        this.hold = { id: r.id, off, timer: window.setTimeout(() => this.pickUp(), HOLD_MS) };
+    } else if (p?.type === 'item') {
       const grp = this.itemGroups.get(p.id);
       const it = this.itemOf(p.id);
       // #138: a thing on a wall moves in the plane at its own height, so it follows the pointer
@@ -1637,6 +1703,33 @@ export class MapEngine {
     }
   }
 
+  /** A room's floor held still long enough (#301): the room is picked up, and glows; its card
+   * opens once it is put down. The canvas says which room it holds (`data-held-room`), for the
+   * cursor and for a test to wait on. */
+  private pickUp(): void {
+    const h = this.hold;
+    this.hold = null;
+    if (!h || !this.gesture || this.pts.size !== 1 || this.gesture.moved >= 6) return;
+    if (!this.s.arranging || this.s.tool !== 'move') return;
+    this.drag = { type: 'room', id: h.id, off: h.off, held: true };
+    this.select({ type: 'room', id: h.id }, false);
+    this.canvas.style.cursor = 'grabbing';
+    this.canvas.dataset.heldRoom = h.id;
+  }
+
+  /** A room picked up by a hold is put down: its card opens. */
+  private letGo(): void {
+    delete this.canvas.dataset.heldRoom;
+    this.canvas.style.cursor = '';
+    this.emit();
+  }
+
+  private dropHold(): void {
+    if (!this.hold) return;
+    window.clearTimeout(this.hold.timer);
+    this.hold = null;
+  }
+
   private move(e: PointerEvent): void {
     if (!this.pts.has(e.pointerId) || !this.gesture) return;
     this.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -1644,6 +1737,8 @@ export class MapEngine {
       this.gesture.moved,
       Math.hypot(e.clientX - this.gesture.sx, e.clientY - this.gesture.sy),
     );
+    // Moved before the hold picked the room up: a pan.
+    if (this.hold && this.gesture.moved >= 6) this.dropHold();
     if (this.drag && this.pts.size === 1) {
       // Alt (Option) held drags freely, to the centimetre (#137).
       this.dragTo(e.clientX, e.clientY, e.altKey);
@@ -1735,6 +1830,19 @@ export class MapEngine {
       for (const t of [it, ...standingOn(this.plan.items, it.id).map((id) => this.itemOf(id))])
         this.placeItem(t);
       if (this.s.selected?.id !== it.id) this.select({ type: 'item', id: it.id });
+    } else if (drag.type === 'room') {
+      // Like a thing, it waits for a real drag: a tap on the selected room stays a tap. Picked up
+      // by a hold, it follows from the first move.
+      if (!drag.held && this.gesture.moved < 6) return;
+      const r = this.roomOf(drag.id);
+      if (!r) return;
+      const want = { x: g.x + drag.off.x, z: g.z + drag.off.z };
+      if (moveRoom(this.plan.rooms, r, want)) {
+        this.placeRoom(r);
+        this.events.onChange();
+      }
+      const short = Math.abs(want.x - r.x) > 0.5 || Math.abs(want.z - r.z) > 0.5;
+      this.events.onHint(short ? 'blocked' : this.s.tool);
     } else if (drag.type === 'resize') {
       const r = this.roomOf(drag.id);
       if (!r) return;
@@ -1800,6 +1908,7 @@ export class MapEngine {
   private end(e: PointerEvent): void {
     if (!this.pts.has(e.pointerId) || !this.gesture) return;
     this.pts.delete(e.pointerId);
+    this.dropHold();
     this.busy = Math.max(0, this.busy - 1);
     const gesture = this.gesture;
     if (this.drag && !this.pts.size) {
@@ -1820,7 +1929,13 @@ export class MapEngine {
         this.request();
         return;
       }
-      if (d.type === 'resize' || (d.type === 'item' && gesture.moved >= 6)) {
+      if (d.type === 'room') {
+        this.events.onHint(this.s.tool);
+        this.canvas.style.cursor = '';
+        // Picked up by a hold: now it is put down, its card opens.
+        if (d.held) this.letGo();
+      }
+      if (d.type === 'resize' || gesture.moved >= 6) {
         const keep = this.s.selected;
         this.rebuild();
         if (keep) this.select(keep, false);
