@@ -26,12 +26,14 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { MapAttentionKind } from '@/api/map/types';
 import { declutter, LABEL_PRIORITY, type Rect } from '../declutter';
 import {
+  ARROW_STEP,
   type Arrow,
   arrowStep,
   baseOf,
   canPutOn,
   childrenOn,
   clampIn,
+  drawnRect,
   dropOn,
   facingAz,
   fp,
@@ -43,8 +45,10 @@ import {
   moveRoom,
   overlapsRoom,
   type Plan,
+  ROOM_STEP,
   type Room,
   rehome,
+  resizeRoom,
   roomAt,
   screensFacing,
   snap,
@@ -68,6 +72,18 @@ import {
 import { hasGlb, loadModel, modelStats, readyModel, wasRequested } from './models';
 
 export type Sel = { type: 'room' | 'item'; id: string };
+/** A floor plan's image under its proposals (D266): the map's metres, its middle and size, its
+ * quarter turns and its straightening (degrees). */
+export type Underlay = {
+  url: string;
+  levelKey: string;
+  cx: number;
+  cz: number;
+  w: number;
+  h: number;
+  quarter: number;
+  skewDeg: number;
+};
 export type Tool = 'move' | 'room';
 export type Quality = 'detailed' | 'simple';
 /** The arrange hint: the tool's, `overlap` while a drawn room would overlap, `blocked` while a
@@ -250,11 +266,21 @@ export class MapEngine {
     | { type: 'item'; id: string; off: THREE.Vector3 }
     | { type: 'resize'; id: string }
     | { type: 'room'; id: string; off: THREE.Vector3; held?: boolean }
-    | { type: 'draw'; from: THREE.Vector3; rect?: { x: number; z: number; w: number; d: number } }
+    | {
+        type: 'draw';
+        from: THREE.Vector3;
+        rect?: { x: number; z: number; w: number; d: number };
+        big?: boolean;
+      }
     | null = null;
   /** A press on a room's floor that picks the room up if it is held still (#301). */
   private hold: { id: string; off: THREE.Vector3; timer: number } | null = null;
   private preview: THREE.Mesh | null = null;
+  /** Checking a floor plan (D266): only its proposed rooms move; the rest stands still. */
+  private reviewing = false;
+  /** The plan images under the proposals, in the plan view (D266). */
+  private underlays: Underlay[] = [];
+  private readonly underlayTextures = new Map<string, THREE.Texture>();
   private readonly ray = new THREE.Raycaster();
   private readonly plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   private readonly cleanup: (() => void)[] = [];
@@ -460,6 +486,10 @@ export class MapEngine {
 
   private buildRoom(r: Room): void {
     this.roomGroups.get(r.id)?.removeFromParent();
+    if (r.proposed) {
+      this.buildProposal(r);
+      return;
+    }
     const F = this.F;
     const g = new THREE.Group();
     g.position.set(r.x, 0, r.z);
@@ -564,12 +594,118 @@ export class MapEngine {
     g.add(grid);
     const h = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), this.handleMat);
     h.position.set(r.w, 0.22, r.d);
+    h.visible = this.s.arranging && !r.locked;
+    h.userData.pick = { type: 'handle', id: r.id } satisfies Pick;
+    g.add(h);
+    this.handles.set(r.id, h);
+    this.levelGroups.get(r.levelKey)?.add(g);
+    this.roomGroups.set(r.id, g);
+  }
+
+  /**
+   * A floor plan's proposed room (D266): not a room yet, so no walls and no floor of its own; a
+   * translucent violet floor and a dashed violet outline ("dashed means not confirmed", violet is
+   * AI's), the metre grid and the amber corner to resize it by.
+   */
+  private buildProposal(r: Room): void {
+    const g = new THREE.Group();
+    g.position.set(r.x, 0, r.z);
+    g.userData = { type: 'room', id: r.id };
+    const pick: Pick = { type: 'room', id: r.id };
+    const violet = css('--violet') || '#5B3CC4';
+    const soft = css('--violet-soft') || '#EEEAFD';
+    const fill = new THREE.Mesh(
+      new THREE.BoxGeometry(r.w, 0.02, r.d),
+      new THREE.MeshBasicMaterial({
+        color: soft,
+        transparent: true,
+        opacity: 0.55,
+        depthWrite: false,
+      }),
+    );
+    fill.position.set(r.w / 2, 0.012, r.d / 2);
+    fill.userData.pick = pick;
+    fill.renderOrder = 2;
+    g.add(fill);
+    const edge = new THREE.BufferGeometry().setFromPoints(
+      [
+        [0, 0],
+        [r.w, 0],
+        [r.w, r.d],
+        [0, r.d],
+        [0, 0],
+      ].map(([x, z]) => new THREE.Vector3(x, 0.03, z)),
+    );
+    const line = new THREE.Line(
+      edge,
+      new THREE.LineDashedMaterial({ color: violet, dashSize: 0.25, gapSize: 0.15 }),
+    );
+    line.computeLineDistances();
+    line.renderOrder = 3;
+    g.add(line);
+    const pts: number[] = [];
+    for (let x = 0; x <= r.w; x++) pts.push(x, 0.02, 0, x, 0.02, r.d);
+    for (let z = 0; z <= r.d; z++) pts.push(0, 0.02, z, r.w, 0.02, z);
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    const grid = new THREE.LineSegments(geo, this.gridMat);
+    grid.userData.grid = true;
+    grid.visible = this.s.arranging || this.s.planView;
+    g.add(grid);
+    const h = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), this.handleMat);
+    h.position.set(r.w, 0.22, r.d);
     h.visible = this.s.arranging;
     h.userData.pick = { type: 'handle', id: r.id } satisfies Pick;
     g.add(h);
     this.handles.set(r.id, h);
     this.levelGroups.get(r.levelKey)?.add(g);
     this.roomGroups.set(r.id, g);
+  }
+
+  /** The plan images, each a plane at the found scale under its floor's proposals, drawn in the
+   * plan view only at 35% (D266). The texture comes from the plan's own signed URL. */
+  private buildUnderlays(): void {
+    for (const u of this.underlays) {
+      const level = this.levelGroups.get(u.levelKey);
+      if (!level) continue;
+      let tex = this.underlayTextures.get(u.url);
+      if (!tex) {
+        tex = new THREE.TextureLoader().load(u.url, () => this.request());
+        tex.colorSpace = THREE.SRGBColorSpace;
+        this.underlayTextures.set(u.url, tex);
+      }
+      const plane = new THREE.Mesh(
+        new THREE.PlaneGeometry(u.w, u.h),
+        new THREE.MeshBasicMaterial({
+          map: tex,
+          transparent: true,
+          opacity: 0.35,
+          depthWrite: false,
+        }),
+      );
+      plane.rotation.x = -Math.PI / 2;
+      plane.renderOrder = 1;
+      const holder = new THREE.Group();
+      holder.position.set(u.cx, 0.006, u.cz);
+      // A quarter turn clockwise as the plan view shows it, and the plan's straightening.
+      holder.rotation.y = -(u.quarter * Math.PI) / 2 + (u.skewDeg * Math.PI) / 180;
+      holder.add(plane);
+      holder.userData.underlay = true;
+      holder.visible = this.s.planView;
+      level.add(holder);
+    }
+  }
+
+  /** The plan images under a floor plan's proposals (D266), or none. */
+  setUnderlays(list: readonly Underlay[]): void {
+    this.underlays = [...list];
+    this.rebuild();
+  }
+
+  /** Checking a floor plan (D266): only proposals move, and nothing new is drawn. */
+  setReviewing(on: boolean): void {
+    this.reviewing = on;
+    if (on) this.setTool('move');
   }
 
   private buildItem(it: Item): void {
@@ -826,6 +962,7 @@ export class MapEngine {
       this.levelGroups.set(l.key, g);
     }
     for (const r of this.plan.rooms) this.buildRoom(r);
+    this.buildUnderlays();
     this.built.clear();
     this.applyLevels();
     this.applyColours();
@@ -988,9 +1125,12 @@ export class MapEngine {
     const s = b.getSize(new THREE.Vector3());
     const w = this.stage.clientWidth || 1;
     const full = this.stage.clientHeight || 1;
-    // Frame it in the part of the map the top bar and the bottom controls leave clear.
+    // Frame it in the part of the map the top bar and the bottom controls leave clear, and, in
+    // the plan view, beside a panel standing at one side (a floor plan's review, D266).
     const { top, bottom } = this.reserved();
+    const side = this.s.planView ? this.sideReserved() : { west: 0, east: 0 };
     const h = Math.max(80, full - top - bottom);
+    const wClear = Math.max(80, w - side.west - side.east);
     const ext = this.s.planView
       ? { x: s.x, y: s.z }
       : {
@@ -1001,7 +1141,7 @@ export class MapEngine {
       0.2,
       Math.min(
         10,
-        (this.view.span * (w / full)) / (ext.x * 1.08),
+        (this.view.span * (wClear / full)) / (ext.x * 1.08),
         (this.view.span * (h / full)) / (ext.y * 1.1),
       ),
     );
@@ -1014,8 +1154,25 @@ export class MapEngine {
           0,
           -Math.cos(az ?? this.view.az),
         ).multiplyScalar(units / Math.sin(ELEV));
-    const target = new THREE.Vector3(c.x, this.s.allFloors ? c.y - 1 : 0, c.z).add(away);
+    const across = ((this.view.span / zoom) * ((side.east - side.west) / 2)) / full;
+    const target = new THREE.Vector3(c.x + across, this.s.allFloors ? c.y - 1 : 0, c.z).add(away);
     this.tween({ target, zoom, ...(az === undefined ? {} : { az }) }, animate);
+  }
+
+  /** A tall panel at one side of the map (`data-map-side`): the width it covers on the canvas's
+   * west or east side (the canvas is never mirrored; in Arabic the panel is on its west). */
+  private sideReserved(): { west: number; east: number } {
+    const s = this.stage.getBoundingClientRect();
+    let west = 0;
+    let east = 0;
+    for (const el of this.stage.querySelectorAll<HTMLElement>('[data-map-side]')) {
+      const r = el.getBoundingClientRect();
+      if (!r.width || r.width > s.width * 0.6 || r.height < s.height / 2) continue;
+      if (r.x - s.x > s.width / 2) east = Math.max(east, s.x + s.width - r.x + 8);
+      else if (s.x + s.width - (r.x + r.width) > s.width / 2)
+        west = Math.max(west, r.x + r.width - s.x + 8);
+    }
+    return { west, east };
   }
 
   fitLevel = (animate = true): void =>
@@ -1450,7 +1607,7 @@ export class MapEngine {
   setArranging(on: boolean): void {
     if (on && this.s.allFloors) this.setLevel(this.s.levelKey);
     this.s.arranging = on;
-    for (const h of this.handles.values()) h.visible = on;
+    for (const [id, h] of this.handles) h.visible = on && !this.roomOf(id)?.locked;
     for (const g of this.roomGroups.values()) {
       for (const c of g.children) if (c.userData.grid) c.visible = on || this.s.planView;
     }
@@ -1479,11 +1636,12 @@ export class MapEngine {
    * the view is turned (layout.ts arrowStep). Null when no room is selected while arranging;
    * `moved: false` when another room is in the way.
    */
-  nudgeRoom(key: Arrow): { room: Room; moved: boolean } | null {
+  nudgeRoom(key: Arrow, fine = false): { room: Room; moved: boolean } | null {
     const sel = this.s.selected;
     const r = this.s.arranging && sel?.type === 'room' ? this.roomOf(sel.id) : undefined;
-    if (!r) return null;
-    const { dx, dz } = arrowStep(key, this.view.az, this.s.planView);
+    if (!r || r.locked) return null;
+    // D267: Shift-arrow moves it 10 cm, an arrow a metre.
+    const { dx, dz } = arrowStep(key, this.view.az, this.s.planView, fine ? ROOM_STEP : ARROW_STEP);
     const moved = moveRoom(this.plan.rooms, r, { x: r.x + dx, z: r.z + dz });
     if (moved) {
       this.placeRoom(r);
@@ -1668,11 +1826,13 @@ export class MapEngine {
     this.plane.constant = 0;
     const g = this.groundAt(e.clientX, e.clientY);
     if (!g) return;
-    if (this.s.tool === 'room') {
+    if (this.s.tool === 'room' && !this.reviewing) {
       this.drag = { type: 'draw', from: g };
       return;
     }
     const p = this.pick(e.clientX, e.clientY);
+    // A room already on the map stands still while a plan is checked, and so does what is in it.
+    if (this.reviewing && (p?.type === 'item' || this.roomOf(p?.id)?.locked)) return;
     if (p?.type === 'handle') this.drag = { type: 'resize', id: p.id };
     else if (p?.type === 'room') {
       // #301: a selected room moves by its floor at once; any room does once its floor is held
@@ -1846,19 +2006,8 @@ export class MapEngine {
     } else if (drag.type === 'resize') {
       const r = this.roomOf(drag.id);
       if (!r) return;
-      const w = Math.max(2, Math.round(g.x - r.x));
-      const d = Math.max(2, Math.round(g.z - r.z));
-      for (const [cw, cd] of [
-        [w, d],
-        [w, r.d],
-        [r.w, d],
-      ] as const) {
-        if (!overlapsRoom(this.plan.rooms, { x: r.x, z: r.z, w: cw, d: cd }, r.id, r.levelKey)) {
-          r.w = cw;
-          r.d = cd;
-          break;
-        }
-      }
+      // D267: to the 10 cm, at least a metre a side, never over a neighbour.
+      if (!resizeRoom(this.plan.rooms, r, { x: g.x, z: g.z })) return;
       for (const it of this.plan.items.filter((i) => i.roomId === r.id && !i.on)) {
         const bx = it.x;
         const bz = it.z;
@@ -1878,11 +2027,9 @@ export class MapEngine {
       this.events.onChange();
     } else if (drag.type === 'draw') {
       const a = drag.from;
-      const x0 = Math.floor(Math.min(a.x, g.x));
-      const z0 = Math.floor(Math.min(a.z, g.z));
-      const x1 = Math.ceil(Math.max(a.x, g.x));
-      const z1 = Math.ceil(Math.max(a.z, g.z));
-      drag.rect = { x: x0, z: z0, w: Math.max(1, x1 - x0), d: Math.max(1, z1 - z0) };
+      // D267: on the 10 cm grid; a drag shorter than a metre either way draws nothing.
+      drag.rect = drawnRect(a, g);
+      drag.big = Math.abs(g.x - a.x) >= 0.95 && Math.abs(g.z - a.z) >= 0.95;
       if (!this.preview) {
         this.preview = new THREE.Mesh(
           new THREE.BoxGeometry(1, 0.2, 1),
@@ -1918,12 +2065,7 @@ export class MapEngine {
         this.preview?.removeFromParent();
         this.preview = null;
         this.events.onHint(this.s.tool);
-        if (
-          d.rect &&
-          d.rect.w >= 2 &&
-          d.rect.d >= 2 &&
-          !overlapsRoom(this.plan.rooms, d.rect, null, this.s.levelKey)
-        ) {
+        if (d.rect && d.big && !overlapsRoom(this.plan.rooms, d.rect, null, this.s.levelKey)) {
           this.events.onDrawRoom(d.rect, this.s.levelKey);
         }
         this.request();
@@ -1961,7 +2103,10 @@ export class MapEngine {
         if (lvl) this.setLevel(lvl);
         return;
       }
-      const sel: Sel | null = p && p.type !== 'handle' ? { type: p.type, id: p.id } : null;
+      const still =
+        this.reviewing && (p?.type === 'item' || (p?.type === 'room' && this.roomOf(p.id)?.locked));
+      const sel: Sel | null =
+        p && p.type !== 'handle' && !still ? { type: p.type, id: p.id } : null;
       const key = sel ? `${sel.type}:${sel.id}` : '';
       const now = performance.now();
       if (sel && key === this.lastTap.key && now - this.lastTap.t < 320) {
@@ -1988,6 +2133,9 @@ export class MapEngine {
     }
     for (const g of this.roomGroups.values()) {
       for (const c of g.children) if (c.userData.grid) c.visible = on || this.s.arranging;
+    }
+    for (const g of this.levelGroups.values()) {
+      for (const c of g.children) if (c.userData.underlay) c.visible = on;
     }
     this.renderer.shadowMap.enabled = !on && this.shadows;
     this.scene.traverse((o) => {

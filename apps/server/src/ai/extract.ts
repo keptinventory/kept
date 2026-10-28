@@ -7,8 +7,8 @@
  */
 import {
   type AiTask,
-  type CaptureMode,
   EXTRACTION_SCHEMAS,
+  type ExtractionMode,
   type LedgerTask,
   MAX_OUTPUT_TOKENS,
   outputTokenCap,
@@ -31,13 +31,13 @@ import {
   wireSchema,
 } from './wire.js';
 
-export type Extracted<M extends CaptureMode> = {
+export type Extracted<M extends ExtractionMode> = {
   value: z.output<(typeof EXTRACTION_SCHEMAS)[M]>;
   /** Dotted paths parseLenient removed (for the call log and the evaluation harness). */
   dropped: string[];
 };
 
-export type ExtractRequest<M extends CaptureMode> = {
+export type ExtractRequest<M extends ExtractionMode> = {
   mode: M;
   /** GPS-free sources only: the display derivative or an in-memory re-encode. */
   images: ImageInput[];
@@ -57,7 +57,7 @@ export type ExtractRequest<M extends CaptureMode> = {
   schema?: 'service-invoice' | 'thing-many';
 };
 
-export type ExtractResult<M extends CaptureMode> =
+export type ExtractResult<M extends ExtractionMode> =
   | CallResult<Extracted<M>>
   | { status: 'no_provider' };
 
@@ -68,7 +68,7 @@ export function allowanceLevel(r: Reasoning): ReasoningLevel {
 
 export const EXTRACTION_TASK: AiTask = 'extraction';
 
-export async function extract<M extends CaptureMode>(
+export async function extract<M extends ExtractionMode>(
   rt: AiRuntime,
   req: ExtractRequest<M>,
 ): Promise<ExtractResult<M>> {

@@ -335,10 +335,6 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
         title={<bdi dir="auto">{thing.name ?? t`Untitled`}</bdi>}
         back={back}
         wide
-        tour={{
-          id: asVehicle ? 'vehicles' : 'things',
-          context: { locationId: location.id, thing: addressOf(thing) },
-        }}
         {...(placesPanel && tree.data?.places
           ? {
               aside: (

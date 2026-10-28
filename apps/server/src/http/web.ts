@@ -90,13 +90,13 @@ export async function webRoutes(app: FastifyInstance, bundle: WebBundle): Promis
   });
 }
 
-/** Paths that never get the SPA: the API (JSON 404s), fingerprinted assets (a missing asset
- * is a real 404, not a page), the service worker and manifest (a build without them must
+/** Paths that never get the SPA: the API (JSON 404s), fingerprinted assets and What's new's
+ * pictures and clips (a missing one is a real 404, not a page: the card shows its icon), the service worker and manifest (a build without them must
  * not register index.html as a worker or read it as a manifest), and step 6's machine paths:
  * `/.well-known/…` (OAuth discovery, T12) and `/mcp` (T11), which a client must never read as
  * a page. */
 const NOT_SPA =
-  /^\/(?:(?:api|assets|\.well-known)(?:\/|$)|mcp(?:\/|$)|(?:sw\.js|manifest\.webmanifest)$)/;
+  /^\/(?:(?:api|assets|whats-new|\.well-known)(?:\/|$)|mcp(?:\/|$)|(?:sw\.js|manifest\.webmanifest)$)/;
 
 /** Sends index.html for a client-side route, or returns false when the request isn't one. */
 export function spaFallback(bundle: WebBundle, req: FastifyRequest, reply: FastifyReply): boolean {

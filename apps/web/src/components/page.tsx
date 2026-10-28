@@ -17,7 +17,6 @@ import {
 import { Focusable } from 'react-aria-components';
 import { type ApiError, isApiError } from '@/api/client';
 import { AssistantButton } from '@/assistant/button';
-import { type PageTour, ShowMe } from '@/components/hints/show-me';
 import {
   AlertIcon,
   CameraIcon,
@@ -68,11 +67,8 @@ export function Page({
   children,
   wide = false,
   fill = wide,
-  tour,
 }: {
   title: ReactNode;
-  /** The section's chapter of the tour: a quiet Show me beside the title starts it here. */
-  tour?: PageTour;
   /** Where the back arrow goes. Phones show it; the desktop has the sidebar. */
   back?: LinkProps['to'] | { to: LinkProps['to']; params?: Record<string, string> };
   actions?: ReactNode;
@@ -110,18 +106,9 @@ export function Page({
         ) : null}
         <div className={cn('grid min-w-0 flex-1 gap-0.5', !backTarget && 'ps-1')}>
           {eyebrow ? <div className="hidden text-small text-ink-3 md:block">{eyebrow}</div> : null}
-          {tour ? (
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
-              <h1 className="m-0 font-semibold text-title text-ink [overflow-wrap:anywhere]">
-                {title}
-              </h1>
-              <ShowMe tour={tour} />
-            </div>
-          ) : (
-            <h1 className="m-0 font-semibold text-title text-ink [overflow-wrap:anywhere]">
-              {title}
-            </h1>
-          )}
+          <h1 className="m-0 font-semibold text-title text-ink [overflow-wrap:anywhere]">
+            {title}
+          </h1>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <ScanButton />

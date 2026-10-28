@@ -246,7 +246,7 @@ describe('policies and schedules', () => {
       retryLimit: 2,
       retryDelay: 20,
       retryBackoff: true,
-      expireInSeconds: 90,
+      expireInSeconds: 150,
     });
     expect(JOB_POLICIES['import-csv']).toEqual({
       retryLimit: 0,

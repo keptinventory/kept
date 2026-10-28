@@ -142,6 +142,9 @@ importers:
       '@myriaddreamin/typst-ts-node-compiler':
         specifier: 0.7.0
         version: 0.7.0
+      '@napi-rs/canvas':
+        specifier: 1.0.12
+        version: 1.0.12
       '@openrouter/ai-sdk-provider':
         specifier: 3.1.0
         version: 3.1.0(ai@7.0.116(zod@4.6.6))(zod@4.6.6)
@@ -7672,7 +7675,6 @@ snapshots:
       '@napi-rs/canvas-linux-x64-musl': 1.0.12
       '@napi-rs/canvas-win32-arm64-msvc': 1.0.12
       '@napi-rs/canvas-win32-x64-msvc': 1.0.12
-    optional: true
 
   '@napi-rs/wasm-runtime@1.2.4(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
     dependencies:

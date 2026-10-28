@@ -1,6 +1,7 @@
-import type { CaptureMode } from '@kept/shared';
+import type { ExtractionMode } from '@kept/shared';
 import type { BuiltPrompt, PromptContext } from './common.js';
 import { PROMPT_VERSION as LABEL_VERSION, labelPrompt } from './label.js';
+import { PROMPT_VERSION as PLAN_VERSION, planPrompt } from './plan.js';
 import { PROMPT_VERSION as READING_VERSION, readingPrompt } from './reading.js';
 import {
   PROMPT_VERSION as RECEIPT_VERSION,
@@ -20,12 +21,13 @@ export type { BuiltPrompt, PromptContext } from './common.js';
 export { THING_MANY_VERSION };
 
 /** Each mode's prompt version in use, as `llm_calls.prompt_version` stores it. */
-export const PROMPT_VERSIONS: Readonly<Record<CaptureMode, string>> = Object.freeze({
+export const PROMPT_VERSIONS: Readonly<Record<ExtractionMode, string>> = Object.freeze({
   thing: THING_VERSION,
   receipt: RECEIPT_VERSION,
   label: LABEL_VERSION,
   reading: READING_VERSION,
   room: ROOM_VERSION,
+  plan: PLAN_VERSION,
 });
 
 /**
@@ -33,17 +35,18 @@ export const PROMPT_VERSIONS: Readonly<Record<CaptureMode, string>> = Object.fre
  * selectable so the evaluation harness (T11) can compare them on the same photos; the worker
  * always uses `PROMPT_VERSIONS`.
  */
-export const PROMPT_CHOICES: Readonly<Record<CaptureMode, readonly string[]>> = Object.freeze({
+export const PROMPT_CHOICES: Readonly<Record<ExtractionMode, readonly string[]>> = Object.freeze({
   thing: [THING_VERSION, THING_MANY_VERSION],
   receipt: RECEIPT_VERSIONS,
   label: [LABEL_VERSION],
   reading: [READING_VERSION],
   room: [ROOM_VERSION],
+  plan: [PLAN_VERSION],
 });
 
 /** The prompt for `mode`: the version in use, or `version` when given (T11). An unknown version
  * throws: a report must never name a prompt that wasn't the one sent. */
-export function promptFor(mode: CaptureMode, ctx: PromptContext, version?: string): BuiltPrompt {
+export function promptFor(mode: ExtractionMode, ctx: PromptContext, version?: string): BuiltPrompt {
   const v = version ?? PROMPT_VERSIONS[mode];
   if (!PROMPT_CHOICES[mode].includes(v)) {
     throw new Error(`no ${mode} prompt ${v}; choices: ${PROMPT_CHOICES[mode].join(', ')}`);
@@ -59,5 +62,7 @@ export function promptFor(mode: CaptureMode, ctx: PromptContext, version?: strin
       return readingPrompt(ctx);
     case 'room':
       return roomPrompt(ctx);
+    case 'plan':
+      return planPrompt(ctx);
   }
 }

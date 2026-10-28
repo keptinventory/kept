@@ -59,7 +59,7 @@ function ExportPage() {
         : null);
 
   return (
-    <Page title={t`Export`} tour="import-export">
+    <Page title={t`Export`}>
       <SettingsTabs />
       {locations.isPending ? (
         <LoadingRows rows={3} />

@@ -8,7 +8,7 @@ import { locations } from './tenancy.js';
 // A user's own things beside the inventory (D42, D138, D205): saved views
 // of a list, optionally shared with a location, each person's pinned and default views per list,
 // which hints they have seen, and the places they folded in the places outline. Row-level
-// security is in 0020 (saved_views, user_hints), 0034 (saved_view_prefs) and 0162 (place_folds).
+// security is in 0020 (saved_views, user_hints), 0034 (saved_view_prefs) and 0164 (place_folds).
 
 /** A list's name as `saved_views.surface` and `saved_view_prefs.surface` store it (D205);
  * @kept/shared's LIST_SURFACES is the set the app accepts. */

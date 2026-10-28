@@ -12,7 +12,10 @@
 // refactors and spikes are left out: they change nothing a person running Kept sees.
 //
 // --highlights puts a hand-written file of bullets at the top of the section, under Highlights.
-// Without it there is no Highlights section: nothing is ever written for you.
+// Without it there is no Highlights section: nothing is ever written for you. A line
+// `![icon](file)` under a bullet names its picture or clip for What's new in Kept (parseHighlights);
+// each must be in apps/web/public/whats-new/X.Y.Z/ with its media.json entry (checkMedia), run from
+// the repository's root.
 //
 // GitHub is asked (`gh api graphql`, read-only) who wrote each pull request and which issues it
 // closed, by whom: "closes #N, reported by @x" goes on the change's line, and a Contributors line
@@ -24,6 +27,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const CONVENTIONAL = /^(?<type>[a-z][a-z0-9]*)(?:\((?<scope>[^)]*)\))?(?<bang>!)?: (?<subject>.+)$/;
@@ -94,12 +98,86 @@ export function classify({ hash, subject, body = '' }) {
   };
 }
 
-/** A highlights file's text, checked: bullets only (continuation lines allowed), no headings. */
+/**
+ * A highlight's picture or clip for What's new in Kept: a line `![icon](file)` right after its
+ * bullet (indented or not). `file` is a name in apps/web/public/whats-new/X.Y.Z/ (a .webp picture,
+ * or an .mp4 clip with a .webp poster of the same name: scripts/record-whats-new.mjs makes both);
+ * `icon` names the app's area, shown when the media can't be (offline, or none): apps/web's
+ * whats-new/highlights.ts reads the same syntax back.
+ */
+const MEDIA_LINE = /^\s*!\[([^\]]*)\]\(([^)]*)\)\s*$/;
+export const MEDIA_NAME = /^[a-z0-9][a-z0-9-]*\.(?:webp|mp4)$/;
+const ICON_NAME = /^[a-z-]*$/;
+
+/**
+ * A highlights file's text, checked: bullets only (continuation lines allowed), no headings, and
+ * at most one media line per bullet, after it. The media lines become HTML comments,
+ * `<!-- whats-new ![icon](file) -->`, under their bullet: invisible in the CHANGELOG on GitHub,
+ * on the release page and in the Discord post, where a relative image would be a broken one.
+ */
 export function parseHighlights(text) {
   const body = text.replace(/\r\n/g, '\n').trim();
   if (/^#/m.test(body)) throw new Error('the highlights file has a heading: bullets only');
   if (!/^- \S/m.test(body)) throw new Error('the highlights file has no bullets ("- ...")');
-  return body;
+  let bullet = false;
+  let media = false;
+  const lines = body.split('\n').map((line) => {
+    if (line.startsWith('- ')) {
+      bullet = true;
+      media = false;
+      return line;
+    }
+    const m = MEDIA_LINE.exec(line);
+    if (!m) return line;
+    const [, icon, file] = m;
+    if (!bullet) throw new Error(`media before any bullet: ${line.trim()}`);
+    if (media) throw new Error(`one picture or clip per highlight: ${line.trim()}`);
+    if (!MEDIA_NAME.test(file) || !ICON_NAME.test(icon))
+      throw new Error(
+        `bad media name ${line.trim()}: ![icon](name.webp|name.mp4), a file in apps/web/public/whats-new/X.Y.Z/`,
+      );
+    media = true;
+    return `  <!-- whats-new ![${icon}](${file}) -->`;
+  });
+  return lines.join('\n');
+}
+
+/** Where a release's media are, relative to the repository (apps/web/whats-new-plugin.ts). */
+export const MEDIA_DIR = 'apps/web/public/whats-new';
+
+/**
+ * Every media name in `highlights` (parseHighlights' text) is a file in the release's folder,
+ * `MEDIA_DIR/<version>/` under `root`, with its media.json entry (and a clip's poster): a name
+ * that isn't would ship a slide with only its icon. Throws one error naming them all.
+ */
+export function checkMedia(highlights, version, root) {
+  const folder = path.join(root, MEDIA_DIR, version);
+  const where = `${MEDIA_DIR}/${version}`;
+  const names = [...highlights.matchAll(/<!-- whats-new !\[[^\]]*\]\(([^)]+)\) -->/g)].map(
+    (m) => m[1],
+  );
+  if (!names.length) return;
+  let index = {};
+  try {
+    index = JSON.parse(readFileSync(path.join(folder, 'media.json'), 'utf8'));
+  } catch {
+    index = {};
+  }
+  const problems = [];
+  for (const name of names) {
+    const entry = index[name];
+    if (!existsSync(path.join(folder, name))) problems.push(`${name} is not in ${where}/`);
+    else if (!entry) problems.push(`${name} has no entry in ${where}/media.json`);
+    else if (
+      name.endsWith('.mp4') &&
+      !(entry.poster && existsSync(path.join(folder, entry.poster)))
+    )
+      problems.push(`${name} has no poster in ${where}/`);
+  }
+  if (problems.length)
+    throw new Error(
+      `media the release doesn't have (node scripts/record-whats-new.mjs --version ${version}): ${problems.join('; ')}`,
+    );
 }
 
 const isBot = (author) =>
@@ -281,6 +359,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     if (opts.highlights) {
       if (!existsSync(opts.highlights)) throw new Error(`no highlights file ${opts.highlights}`);
       highlights = parseHighlights(readFileSync(opts.highlights, 'utf8'));
+      checkMedia(highlights, opts.version, process.cwd());
     }
     const commits = readCommits(opts.from, opts.to ?? 'HEAD');
     const github = await gatherGitHub(commits, ghFetcher({ repo: opts.repo ?? REPO }));

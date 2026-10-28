@@ -6,7 +6,8 @@ CREATE TABLE "place_folds" (
 --> statement-breakpoint
 ALTER TABLE "place_folds" ADD CONSTRAINT "place_folds_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "auth"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "place_folds" ADD CONSTRAINT "place_folds_place_id_places_id_fk" FOREIGN KEY ("place_id") REFERENCES "public"."places"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "place_folds_place_idx" ON "place_folds" USING btree ("place_id");--> statement-breakpoint
+CREATE INDEX "place_folds_place_idx" ON "place_folds" USING btree ("place_id");
+--> statement-breakpoint
 -- Folded places in the places outline (#358, 1.14.3). Above, drizzle's part: place_folds
 -- (src/db/schema/user.ts), one row per place a person folded. Below, row-level security as
 -- saved_view_prefs (0034): a person's own rows, and only for places they can see (places' own

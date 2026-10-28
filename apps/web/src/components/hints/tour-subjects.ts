@@ -1,13 +1,13 @@
 /**
  * What a tour step's `$id` opens (tours.ts `needs`), found when the step is reached:
  *
- * - a **location**: the page's own (Show me), else the first shared one, else Personal;
- * - a **thing**: the page's own, else the first in that location, else ONE sample made in its
+ * - a **location**: the request's own (its context), else the first shared one, else Personal;
+ * - a **thing**: the request's own, else the first in that location, else ONE sample made in its
  *   Unplaced ("Sample: Cordless drill") where the person can add things;
- * - a **vehicle**: the page's own, else the first one. None means the step is skipped (the tour's step before it
+ * - a **vehicle**: the request's own, else the first one. None means the step is skipped (the tour's step before it
  *   points at Add a vehicle);
  * - a **kit** (1.14): the first kit in that location; none means the step is skipped;
- * - a **move**: the page's own, else the first, else ONE sample move with no boxes
+ * - a **move**: the request's own, else the first, else ONE sample move with no boxes
  *   ("Sample: Move") in a location with Moving on where the person can add;
  * - a **location you manage** (owner or admin, not Personal): its UUID, as location settings take.
  *
@@ -25,7 +25,10 @@ import { addressOf, locationAddress } from '@/lib/address';
 import { tourLedger } from './tour-ledger';
 import type { TourSubject } from './tours';
 
-/** Where Show me was pressed: the subjects that page is about. */
+/**
+ * What a tour request is about. Page headers passed it until 1.14.3, when their Show me went;
+ * Help and a scan session's Show me pass none, so a chapter opens the first shared location.
+ */
 export type TourContext = { locationId?: string; thing?: string; move?: string };
 
 /** The names a sample gets, in the person's language. */

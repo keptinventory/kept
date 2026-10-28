@@ -24,14 +24,20 @@ import {
   type MapSurface,
   ROOM_KIND_SURFACE,
 } from '@kept/shared';
+import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { isApiError } from '@/api/client';
 import { inventoryApi, inventoryKeys } from '@/api/inventory/queries';
-import { mapApi, mapKeys, useLocationMap } from '@/api/map/queries';
-import type { MapAttentionKind, MapView as MapData, MapThingView } from '@/api/map/types';
+import { mapApi, mapKeys, useFloorPlan, useLocationMap } from '@/api/map/queries';
+import type {
+  FloorPlanView,
+  MapAttentionKind,
+  MapView as MapData,
+  MapThingView,
+} from '@/api/map/types';
 import { useOfferUndo } from '@/components/history/undo';
 import { ErrorState, LoadingRows, Notice, useErrorText } from '@/components/page';
 import { buttonClass } from '@/components/ui/button';
@@ -47,8 +53,26 @@ import {
   type Hint,
   MapEngine,
   type Quality,
+  type Underlay,
 } from './engine/engine';
 import { modelStats } from './engine/models';
+import { BlockedLine, EmptyMap, PlanState, usePlanAi } from './floor-plan/notices';
+import { PlanPanel } from './floor-plan/panel';
+import {
+  addCount,
+  applyBodyOf,
+  editProposal,
+  fromEngine,
+  moveFloor,
+  type Proposal,
+  proposalRooms,
+  proposedLevels,
+  type Review,
+  rescale,
+  startReview,
+  turnRooms,
+} from './floor-plan/review';
+import { StartPlanSheet } from './floor-plan/start-sheet';
 import {
   type Arrow,
   bodyOf,
@@ -240,6 +264,36 @@ function MapBody({
   const [glError, setGlError] = useState(false);
   const [version, setVersion] = useState(data.version);
 
+  // ---- Floor plan to map (1.14.3, D266) -------------------------------------------------------
+  const planAi = usePlanAi(locationId, name);
+  const [startOpen, setStartOpen] = useState(false);
+  const [planId, setPlanId] = useState<string | null>(data.openPlans?.[0]?.id ?? null);
+  const openPlan = useFloorPlan(planId);
+  const [review, setReviewState] = useState<Review | null>(null);
+  const reviewRef = useRef<Review | null>(null);
+  reviewRef.current = review;
+  /** A change the engine made itself (a drag): not pushed back into it. */
+  const fromEngineChange = useRef(false);
+  /** After a conflict, the map is loaded again and the review placed on it. */
+  const placeAgain = useRef(false);
+  /** The level to show once the review's plan (with any new floor) is in the engine. */
+  const levelAfter = useRef<string | null>(null);
+  const [keepPlan, setKeepPlan] = useState(false);
+  const [showPlan, setShowPlan] = useState(true);
+  const [underlayUrl, setUnderlayUrl] = useState<string | null>(null);
+  const [reviewMessage, setReviewMessage] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  /** The image picked in this session, per plan: the underlay before the server's display is. */
+  const previews = useRef(new Map<string, string>());
+  const reviewWords = useMemo(
+    () => ({ room: (n: number) => t`Room ${n}`, floor: (n: number) => t`Floor ${n}` }),
+    [t],
+  );
+  const setReview = (r: Review | null, fromEngine = false) => {
+    fromEngineChange.current = fromEngine;
+    setReviewState(r);
+  };
+
   const words = useMemo(
     () => ({
       onIt: (x: string) => t`on it: ${x}`,
@@ -327,6 +381,12 @@ function MapBody({
             onChange: () => {
               setDirty(true);
               setPlanState(clone(made.plan));
+              // A proposal dragged or resized: back into the review, not pushed again.
+              const r = reviewRef.current;
+              if (r) {
+                const next = fromEngine(r, made.plan.rooms);
+                if (next !== r) setReview(next, true);
+              }
             },
             onDrawRoom: (rect, levelKey) => void drawRoom(rect, levelKey),
             onHint: setHint,
@@ -378,6 +438,87 @@ function MapBody({
   useEffect(() => {
     engineRef.current?.setPins(pins);
   }, [pins]);
+
+  // A plan someone opened (here or on another visit) comes back with the map.
+  useEffect(() => {
+    if (planId === null && data.openPlans?.[0]) setPlanId(data.openPlans[0].id);
+  }, [data.openPlans, planId]);
+
+  /** The server's map with the review's proposals on it: the rest stands still (spec §5.3). */
+  const composed = useCallback(
+    (r: Review) => {
+      const base = clone(serverPlan);
+      const used = new Set(r.proposals.flatMap((p) => (p.on && p.use ? [p.use] : [])));
+      base.rooms = base.rooms.filter((x) => !used.has(x.id)).map((x) => ({ ...x, locked: true }));
+      base.items = base.items.filter((i) => !used.has(i.roomId));
+      const floors = base.levels.filter((l) => l.id !== null).length;
+      base.levels = [...base.levels, ...proposedLevels(r, reviewWords, floors)];
+      base.rooms.push(...proposalRooms(r));
+      return base;
+    },
+    [serverPlan, reviewWords],
+  );
+
+  // The review into the engine: its proposals, and the plan image under them in the plan view.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: pushed on the review's own changes
+  useEffect(() => {
+    const e = engineRef.current;
+    if (!e || !review) return;
+    if (fromEngineChange.current) {
+      fromEngineChange.current = false;
+      return;
+    }
+    const keep = e.state.selected;
+    e.setPlan(composed(review));
+    const turn = (openPlan.data?.turn ?? 0) / 90;
+    const odd = turn % 2 === 1;
+    const underlays: Underlay[] =
+      showPlan && underlayUrl
+        ? review.underlays.map((u) => ({
+            url: underlayUrl,
+            levelKey: u.levelKey,
+            cx: u.cx,
+            cz: u.cz,
+            w: odd ? u.h : u.w,
+            h: odd ? u.w : u.h,
+            quarter: u.quarter + turn,
+            skewDeg: u.skewDeg,
+          }))
+        : [];
+    e.setUnderlays(underlays);
+    if (levelAfter.current) {
+      e.setLevel(levelAfter.current);
+      levelAfter.current = null;
+      // The plan's rooms and the floor's own, framed together.
+      e.home();
+    }
+    if (keep && e.plan.rooms.some((x) => x.id === keep.id)) e.select(keep, false);
+  }, [review, showPlan, underlayUrl]);
+
+  // After a conflict: the map as it is now, the rooms placed on it again, names and choices kept.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only when the server's map changes
+  useEffect(() => {
+    const r = reviewRef.current;
+    const view = openPlan.data;
+    if (!placeAgain.current || !r || !view) return;
+    placeAgain.current = false;
+    setVersion(data.version);
+    const fresh = startReview(
+      view,
+      serverPlan,
+      data,
+      engineRef.current?.state.levelKey ?? '_',
+      reviewWords,
+    );
+    if (!fresh) return;
+    const was = new Map(r.proposals.map((p) => [p.key, p]));
+    let next: Review = { ...fresh, quarter: r.quarter };
+    for (const p of fresh.proposals) {
+      const old = was.get(p.key);
+      if (old) next = editProposal(next, p.key, { on: old.on, name: old.name, kind: old.kind });
+    }
+    setReview(next);
+  }, [serverPlan, data.version]);
 
   const engine = engineRef.current;
   const levelName = plan.levels.find((l) => l.key === es.levelKey)?.name ?? '';
@@ -644,6 +785,140 @@ function MapBody({
     }
   }
 
+  // ---- Floor plan to map (D266) -------------------------------------------------------------
+
+  async function beginReview(view: FloorPlanView) {
+    const e = engineRef.current;
+    if (!e) return;
+    const r = startReview(view, serverPlan, data, es.levelKey, reviewWords);
+    if (!r) return;
+    let url = previews.current.get(view.id) ?? null;
+    if (!url && view.file?.mime.startsWith('image/')) {
+      try {
+        url = (await inventoryApi.fileUrl(view.file.id, 'display')).url;
+      } catch {
+        url = null;
+      }
+    }
+    setUnderlayUrl(url);
+    setShowPlan(true);
+    setKeepPlan(false);
+    setReviewMessage(null);
+    setDirty(false);
+    e.select(null);
+    e.setReviewing(true);
+    e.setArranging(true);
+    e.setPlanView(true, false);
+    levelAfter.current = r.floors[0]?.levelKey ?? null;
+    setReview(r);
+  }
+
+  function endReview() {
+    const e = engineRef.current;
+    setReview(null);
+    setUnderlayUrl(null);
+    setReviewMessage(null);
+    if (!e) return;
+    e.setReviewing(false);
+    e.setUnderlays([]);
+    e.setArranging(false);
+    e.setPlan(clone(serverPlan));
+    setDirty(false);
+  }
+
+  const nameOfLevel = (key: string) => plan.levels.find((l) => l.key === key)?.name ?? '';
+
+  async function addRooms() {
+    const r = reviewRef.current;
+    if (!r) return;
+    setAdding(true);
+    setReviewMessage(null);
+    const floors = serverPlan.levels.filter((l) => l.id !== null).length;
+    try {
+      const saved = await mapApi.applyPlan(
+        r.planId,
+        applyBodyOf(r, version, keepPlan, reviewWords, floors, nameOfLevel),
+      );
+      const n = addCount(r);
+      setVersion(saved.body.version);
+      endReview();
+      setPlanId(null);
+      offerUndo(
+        {
+          title: plural(n, {
+            one: 'Added # room from the plan',
+            other: 'Added # rooms from the plan',
+          }),
+        },
+        saved.auditEvents,
+        { onUndone: () => void refresh() },
+      );
+      await refresh();
+    } catch (err) {
+      const reason = isApiError(err)
+        ? (err.details as { reason?: string } | undefined)?.reason
+        : undefined;
+      if (reason === 'arranged_since' || reason === 'changed_since') {
+        // The map changed under the review (an arrange, or a room it would use was put on the
+        // map or moved): loaded again, the rooms placed on it, names and choices kept.
+        setReviewMessage(
+          t`Someone arranged this map since you started. Load it again; your rooms stay to add.`,
+        );
+        placeAgain.current = true;
+        await refresh();
+      } else if (reason === 'not_ready') {
+        // Someone else added this plan's rooms, or discarded it, meanwhile.
+        endReview();
+        setPlanId(null);
+        toast({ title: t`Someone else added or discarded this plan.`, tone: 'danger' });
+        await refresh();
+      } else if (reason === 'rooms_overlap') {
+        setReviewMessage(t`Rooms can’t overlap.`);
+      } else {
+        toast({ title: t`Couldn’t save the map`, description: errorText(err), tone: 'danger' });
+      }
+    } finally {
+      setAdding(false);
+    }
+  }
+
+  async function discardPlan() {
+    const id = planId;
+    if (!id) return;
+    if (
+      !(await confirm({
+        title: t`Discard this plan?`,
+        body: t`Nothing is added. The plan is deleted.`,
+        confirmLabel: t`Discard`,
+        destructive: true,
+      }))
+    )
+      return;
+    try {
+      await mapApi.discardPlan(id);
+      if (reviewRef.current) endReview();
+      setPlanId(null);
+      void qc.invalidateQueries({ queryKey: mapKeys.map(locationId) });
+    } catch (err) {
+      toast({ title: t`Couldn’t save the map`, description: errorText(err), tone: 'danger' });
+    }
+  }
+
+  async function retryPlan() {
+    const id = planId;
+    if (!id) return;
+    try {
+      qc.setQueryData(mapKeys.plan(id), await mapApi.retryPlan(id));
+    } catch (err) {
+      toast({ title: t`Couldn’t read this plan.`, description: errorText(err), tone: 'danger' });
+    }
+  }
+
+  const editReview = (fn: (r: Review) => Review) => {
+    const r = reviewRef.current;
+    if (r) setReview(fn(r));
+  };
+
   function setQuality(q: Quality) {
     setQualityState(q);
     try {
@@ -711,10 +986,11 @@ function MapBody({
   };
   const nudge = (ev: KeyboardEvent): boolean => {
     if (ev.defaultPrevented) return false;
-    if (!isArrow(ev.key) || ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey) return false;
+    if (!isArrow(ev.key) || ev.altKey || ev.ctrlKey || ev.metaKey) return false;
     // Not from a control that has arrow keys of its own (a field, a slider, a list, a dialog).
     if ((ev.target as HTMLElement | null)?.closest?.(OWN_ARROWS)) return false;
-    const done = engineRef.current?.nudgeRoom(ev.key);
+    // D267: Shift-arrow moves the room 10 cm, an arrow a metre.
+    const done = engineRef.current?.nudgeRoom(ev.key, ev.shiftKey);
     if (!done) return false;
     ev.preventDefault();
     const words = done.moved
@@ -755,6 +1031,19 @@ function MapBody({
     overlap: t`Rooms can’t overlap. Draw on empty ground.`,
     blocked: t`Rooms can’t overlap.`,
   };
+  const reviewHint = t`Dashed rooms are from the plan and not added yet. Drag to move one; drag its corner to resize it.`;
+  const planOpen =
+    openPlan.data && ['reading', 'ready', 'failed'].includes(openPlan.data.status)
+      ? openPlan.data
+      : null;
+  const emptyMap =
+    !review && !es.arranging && data.canArrange && data.rooms.length === 0 && !planOpen;
+  const proposalsHere = review
+    ? review.proposals.filter(
+        (p: Proposal) =>
+          p.on && !p.skip && (review.floors[p.floor]?.levelKey ?? '_') === es.levelKey,
+      )
+    : [];
 
   return (
     <div className="kmap grid gap-6">
@@ -762,7 +1051,7 @@ function MapBody({
       <section
         className="kmap-stage"
         ref={stageRef}
-        data-card={sel ? 'true' : 'false'}
+        data-card={sel || review ? 'true' : 'false'}
         aria-label={t`Map of ${name}`}
       >
         <canvas ref={canvasRef} />
@@ -819,7 +1108,20 @@ function MapBody({
               </button>
             </fieldset>
             {data.canArrange ? (
-              es.arranging ? (
+              review ? (
+                <button
+                  type="button"
+                  className="kmap-btn primary"
+                  disabled={adding || addCount(review) === 0}
+                  onClick={() => void addRooms()}
+                >
+                  {adding ? (
+                    <Trans>Saving…</Trans>
+                  ) : (
+                    plural(addCount(review), { one: 'Add # room', other: 'Add # rooms' })
+                  )}
+                </button>
+              ) : es.arranging ? (
                 <button
                   type="button"
                   className="kmap-btn primary"
@@ -861,7 +1163,35 @@ function MapBody({
               ))}
             </fieldset>
           </div>
-          {es.arranging ? (
+          {review ? (
+            <div className="kmap-tools" data-map-obstacle data-map-reserve="top">
+              <fieldset className="kmap-seg" aria-label={t`Arrange tool`}>
+                <button type="button" aria-pressed="true">
+                  <Trans>Move</Trans>
+                </button>
+              </fieldset>
+              {underlayUrl ? (
+                <Switch
+                  className="kmap-switch min-h-11 gap-2 text-[13px]"
+                  isSelected={showPlan}
+                  onChange={setShowPlan}
+                >
+                  <Trans>Show the plan</Trans>
+                </Switch>
+              ) : null}
+              <button
+                type="button"
+                className="kmap-btn"
+                onClick={() => editReview((r) => turnRooms(r, serverPlan))}
+              >
+                <Trans>Turn the rooms</Trans>
+              </button>
+              <button type="button" className="kmap-btn" onClick={() => void discardPlan()}>
+                <Trans>Discard</Trans>
+              </button>
+              <div className="kmap-hint">{reviewHint}</div>
+            </div>
+          ) : es.arranging ? (
             <div className="kmap-tools" data-map-obstacle data-map-reserve="top">
               <fieldset className="kmap-seg" aria-label={t`Arrange tool`}>
                 <button
@@ -882,10 +1212,36 @@ function MapBody({
               <button type="button" className="kmap-btn" onClick={() => void addFloor()}>
                 <Trans>Add a floor</Trans>
               </button>
+              {!planOpen ? (
+                <button
+                  type="button"
+                  className="kmap-btn"
+                  disabled={planAi.ai.kind !== 'on'}
+                  aria-describedby={planAi.ai.kind !== 'on' ? 'kplan-blocked' : undefined}
+                  onClick={() => setStartOpen(true)}
+                >
+                  <Trans>From a plan</Trans>
+                </button>
+              ) : null}
               <button type="button" className="kmap-btn" onClick={() => void cancelArranging()}>
                 <Trans>Cancel</Trans>
               </button>
               <div className="kmap-hint">{hints[hint]}</div>
+              {planAi.ai.kind !== 'on' && !planOpen ? (
+                <div id="kplan-blocked" className="kmap-hint">
+                  <BlockedLine ai={planAi.ai} announce={false} />
+                </div>
+              ) : null}
+              {planOpen ? (
+                <PlanState
+                  plan={planOpen}
+                  onCheck={() => void beginReview(planOpen)}
+                  onRetry={() => void retryPlan()}
+                  onDiscard={() => void discardPlan()}
+                  onChoose={() => setStartOpen(true)}
+                  onDraw={() => engine?.setTool('room')}
+                />
+              ) : null}
               {placedByKept.length > 0 ? (
                 // #194: things Kept put on the floor from room photos, to move where they stand.
                 <div className="kmap-hint">
@@ -903,8 +1259,47 @@ function MapBody({
                 </div>
               ) : null}
             </div>
+          ) : planOpen ? (
+            <div className="kmap-tools" data-map-obstacle data-map-reserve="top">
+              <PlanState
+                plan={planOpen}
+                onCheck={() => void beginReview(planOpen)}
+                onRetry={() => void retryPlan()}
+                onDiscard={() => void discardPlan()}
+                onChoose={() => setStartOpen(true)}
+                onDraw={() => {
+                  void startArranging();
+                  engine?.setTool('room');
+                }}
+              />
+            </div>
           ) : null}
-          {sel ? (
+          {review ? (
+            <PlanPanel
+              review={review}
+              location={name}
+              levels={serverPlan.levels}
+              newFloorName={(i) =>
+                reviewWords.floor(serverPlan.levels.filter((l) => l.id).length + i + 1)
+              }
+              selected={es.selected?.type === 'room' ? es.selected.id : null}
+              onSelect={(key) => {
+                const fl = review.proposals.find((p) => p.key === key);
+                const lvl = fl ? review.floors[fl.floor]?.levelKey : undefined;
+                if (lvl && lvl !== es.levelKey) engine?.setLevel(lvl);
+                engine?.select({ type: 'room', id: key });
+              }}
+              onEdit={(key, change) => editReview((r) => editProposal(r, key, change))}
+              onFloor={(index, levelKey) => {
+                editReview((r) => moveFloor(r, serverPlan, index, levelKey));
+                levelAfter.current = levelKey;
+              }}
+              onRescale={(key, w, d) => editReview((r) => rescale(r, serverPlan, key, w, d))}
+              keepPlan={keepPlan}
+              onKeepPlan={setKeepPlan}
+              message={reviewMessage}
+            />
+          ) : sel ? (
             <MapCard
               sel={sel}
               plan={plan}
@@ -939,6 +1334,13 @@ function MapBody({
             />
           ) : null}
         </div>
+        {emptyMap ? (
+          <EmptyMap
+            ai={planAi.ai}
+            onStart={() => setStartOpen(true)}
+            onArrange={() => void startArranging()}
+          />
+        ) : null}
         <div className="kmap-ctl" data-map-obstacle data-map-reserve="bottom">
           {levels.length > 1 ? (
             <fieldset className="kmap-floors" aria-label={t`Floor`} data-tour="map-floors">
@@ -1096,8 +1498,37 @@ function MapBody({
               </li>
             );
           })}
+          {proposalsHere.map((p) => {
+            const room = p.name;
+            const w = f.num(Math.round(p.w * 10) / 10);
+            const d = f.num(Math.round(p.d * 10) / 10);
+            return (
+              <li key={p.key}>
+                <button
+                  type="button"
+                  className="kmap-nm"
+                  onClick={() => engine?.select({ type: 'room', id: p.key })}
+                >
+                  <Trans>
+                    <bdi>{room}</bdi>, from the plan, not added, {w} by {d} metres
+                  </Trans>
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </section>
+      <StartPlanSheet
+        isOpen={startOpen}
+        onOpenChange={setStartOpen}
+        locationId={locationId}
+        provider={planAi.provider}
+        onStarted={(view, preview) => {
+          if (preview) previews.current.set(view.id, preview);
+          qc.setQueryData(mapKeys.plan(view.id), view);
+          setPlanId(view.id);
+        }}
+      />
 
       <WhatsIn
         name={name}

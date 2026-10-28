@@ -37,6 +37,8 @@ export function useTaskLabel(): (task: LedgerTask) => string {
         return t`Room photo`;
       case 'extract_room_merge':
         return t`Room photos merged`;
+      case 'extract_plan':
+        return t`Floor plans`;
     }
   };
 }

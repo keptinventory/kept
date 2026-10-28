@@ -74,6 +74,18 @@ const base = {
 describe('composeBody', () => {
   const body = composeBody(base);
 
+  it('leaves the highlights’ media names off the release page (What’s new reads them)', () => {
+    const withMedia = section.replace(
+      '(#239).\n',
+      '(#239).\n  <!-- whats-new ![settings](passkeys.mp4) -->\n',
+    );
+    const page = composeBody({ ...base, section: withMedia });
+    expect(page).not.toMatch(/whats-new|passkeys\.mp4/);
+    expect(page).toContain(
+      '- **Passkeys in Settings.** Add, rename and remove them (#239).\n- **Labels print what you see.**',
+    );
+  });
+
   it('lays the page out in order: highlights, changes, upgrade, contributors, link, record', () => {
     const order = [
       '## Highlights\n',
@@ -260,6 +272,22 @@ describe.skipIf(!hasJq)("discord.yml's payload", () => {
         '[Full release notes](https://github.com/keptinventory/kept/releases/tag/v1.4.0)',
       ),
     ).toBe(true);
+  });
+
+  it('posts no picture or clip that names a highlight’s media', () => {
+    const withMedia = section.replace(
+      '(#239).\n',
+      '(#239).\n  <!-- whats-new ![settings](passkeys.mp4) -->\n',
+    );
+    const text = payload(composeBody({ ...base, section: withMedia })).embeds[0].description;
+    expect(text).not.toMatch(/whats-new|passkeys\.mp4|<!--/);
+    expect(text).toContain(
+      '- **Passkeys in Settings.** Add, rename and remove them (#239).\n- **Labels',
+    );
+    // Even a release body edited by hand with a bare image line.
+    expect(
+      payload('## Highlights\n\n- **A.** b\n  ![](a.webp)\n').embeds[0].description,
+    ).not.toMatch(/a\.webp|!\[/);
   });
 
   it("posts what's changed without the folded parts when there are no highlights", () => {

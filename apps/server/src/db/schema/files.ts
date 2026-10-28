@@ -16,6 +16,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { id, mutable, textEnum, tstz } from './common.js';
 import { conditionReportRooms } from './condition.js';
+import { floorPlans } from './floor-plans.js';
 import { fuelEntries } from './fuel.js';
 import { loans } from './lending.js';
 import { meterReadings } from './meters.js';
@@ -145,6 +146,8 @@ export const attachments = pgTable(
     fuelEntryId: uuid('fuel_entry_id'),
     /** 1.x (D235): a condition report room's photo (role `photo`). */
     conditionRoomId: uuid('condition_room_id'),
+    /** 1.14.3 (D266): a floor plan's upload while it is reviewed (role `document`, under review). */
+    floorPlanId: uuid('floor_plan_id'),
     role: attachmentRole.col().notNull(),
     sort: integer('sort').notNull().default(0),
     /**
@@ -163,7 +166,8 @@ export const attachments = pgTable(
       'attachments_one_subject_chk',
       sql`num_nonnulls(thing_id, place_id, purchase_id, meter_reading_id, warranty_id, claim_id,
                        loan_id, incident_id, valuation_id, service_record_id,
-                       expiring_document_id, fuel_entry_id, condition_room_id) <= 1`,
+                       expiring_document_id, fuel_entry_id, condition_room_id,
+                       floor_plan_id) <= 1`,
     ),
     check(
       'attachments_url_chk',
@@ -208,6 +212,7 @@ export const attachments = pgTable(
         ['expiring_document', t.expiringDocumentId, expiringDocuments],
         ['fuel_entry', t.fuelEntryId, fuelEntries],
         ['condition_room', t.conditionRoomId, conditionReportRooms],
+        ['floor_plan', t.floorPlanId, floorPlans],
       ] as const
     ).flatMap(([name, column, parent]) => [
       foreignKey({

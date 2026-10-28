@@ -34,7 +34,7 @@ function ImportPage() {
   };
   const navigate = useNavigate();
   return (
-    <Page title={t`Import`} tour="import-export">
+    <Page title={t`Import`}>
       <SettingsTabs />
       <ImportStepper
         locationParam={search.location}

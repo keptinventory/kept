@@ -43,7 +43,7 @@ function LocationsSettings() {
   const nameOf = useLocationName();
   const hidden = useTwoFactorHidden();
   return (
-    <Page title={t`Settings`} tour="settings">
+    <Page title={t`Settings`}>
       <SettingsTabs />
       {locations.isPending ? (
         <LoadingRows />

@@ -91,6 +91,8 @@ export const UNDOABLE_ACTIONS: ReadonlySet<string> = new Set([
   'move_box.unpack',
   // 1.13.0: the type changes of "Repair this import" (imports/homebox/repair.ts).
   'import.repair',
+  // 1.14.3 (D266): a floor plan's rooms added, as one event (map/floor-plans.ts).
+  'floor_plan.apply',
 ]);
 
 /** How long the Undo toast stays: 10 s (D150). */

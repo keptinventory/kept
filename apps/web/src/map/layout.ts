@@ -18,6 +18,7 @@ import {
   carryOf,
   clampHang,
   cmToM,
+  defaultRoomKind,
   fitsOn,
   footprintOf,
   guessModel,
@@ -79,6 +80,11 @@ export type Room = {
   d: number;
   kind: MapRoomKind;
   surface: MapSurface;
+  /** A floor plan's proposed room, not added yet (D266): drawn dashed and violet, never saved by
+   * Arrange's Done (bodyOf leaves it out). Its id is its key in the review (`plan:{i}`). */
+  proposed?: boolean;
+  /** Not editable in this session: a room that is already on the map while a plan is checked. */
+  locked?: boolean;
 };
 
 export type Item = {
@@ -292,14 +298,9 @@ export function planOf(view: MapView, names: PlanNames): Plan {
   return { levels, rooms, items };
 }
 
-/** A room nobody arranged: a garden, balcony or terrace by its name, else a room. */
-export function defaultKind(name: string): MapRoomKind {
-  const n = name.toLowerCase();
-  if (/\b(garden|yard|lawn)\b/.test(n)) return 'garden';
-  if (/\bbalcon/.test(n)) return 'balcony';
-  if (/\b(terrace|roof|patio|deck)\b/.test(n)) return 'terrace';
-  return 'room';
-}
+/** A room nobody arranged: a garden, balcony or terrace by its name, else a room (shared since
+ * a floor plan's rooms use it too, D266). */
+export const defaultKind = (name: string): MapRoomKind => defaultRoomKind(name);
 
 function roomOf(
   r: MapView['rooms'][number],
@@ -810,19 +811,26 @@ export function overlapsRoom(
 
 // ---- Moving a room (#301) ------------------------------------------------------------------
 
-/** Metres a room moves at a time: whole metres, as it is drawn and resized. */
-export const ROOM_STEP = 1;
+/** Metres a room moves, is resized and drawn by (D267): 10 cm, so a floor plan's rooms keep
+ * their walls (it was whole metres). */
+export const ROOM_STEP = 0.1;
+/** An arrow key moves a selected room a metre; Shift-arrow, ROOM_STEP (#301, D267). */
+export const ARROW_STEP = 1;
+/** The smallest side a room is resized or drawn to: the map's own minimum (MAP_LIMITS.minRoom). */
+export const MIN_ROOM = MAP_LIMITS.minRoom / 100;
+
+/** On the room grid, without float dust (0.30000000000000004). */
+const onGrid = (v: number) => Math.round(v / ROOM_STEP) / Math.round(1 / ROOM_STEP) || 0;
 
 /**
- * Moves a room so its corner is at `to` (the map's own coordinates), snapped to whole metres, on
+ * Moves a room so its corner is at `to` (the map's own coordinates), snapped to the room grid, on
  * its own floor, never over another room there. Where that spot is taken it slides along the one
  * axis that is still free (along a neighbour's wall), else stays. What stands in it goes with it
  * as it is: a room's things are kept in the room's own coordinates. True when it moved.
  */
 export function moveRoom(rooms: readonly Room[], r: Room, to: { x: number; z: number }): boolean {
-  // `|| 0`: no −0 for a corner just left of zero.
-  const x = snap(to.x, ROOM_STEP) || 0;
-  const z = snap(to.z, ROOM_STEP) || 0;
+  const x = onGrid(to.x);
+  const z = onGrid(to.z);
   for (const [cx, cz] of [
     [x, z],
     [x, r.z],
@@ -835,6 +843,48 @@ export function moveRoom(rooms: readonly Room[], r: Room, to: { x: number; z: nu
     return true;
   }
   return false;
+}
+
+/**
+ * A room's far corner dragged to `corner` (D267): its sides on the room grid, at least MIN_ROOM,
+ * never over another room on its floor (it keeps whichever side still fits). True when it
+ * changed.
+ */
+export function resizeRoom(
+  rooms: readonly Room[],
+  r: Room,
+  corner: { x: number; z: number },
+): boolean {
+  const w = Math.max(MIN_ROOM, onGrid(corner.x - r.x));
+  const d = Math.max(MIN_ROOM, onGrid(corner.z - r.z));
+  for (const [cw, cd] of [
+    [w, d],
+    [w, r.d],
+    [r.w, d],
+  ] as const) {
+    if (cw === r.w && cd === r.d) return false;
+    if (!overlapsRoom(rooms, { x: r.x, z: r.z, w: cw, d: cd }, r.id, r.levelKey)) {
+      r.w = cw;
+      r.d = cd;
+      return true;
+    }
+  }
+  return false;
+}
+
+/** The rectangle a drag on empty ground draws (D267): on the room grid, at least MIN_ROOM. */
+export function drawnRect(
+  from: { x: number; z: number },
+  to: { x: number; z: number },
+): { x: number; z: number; w: number; d: number } {
+  const x = onGrid(Math.min(from.x, to.x));
+  const z = onGrid(Math.min(from.z, to.z));
+  return {
+    x,
+    z,
+    w: Math.max(MIN_ROOM, onGrid(onGrid(Math.max(from.x, to.x)) - x)),
+    d: Math.max(MIN_ROOM, onGrid(onGrid(Math.max(from.z, to.z)) - z)),
+  };
 }
 
 export type Arrow = 'ArrowUp' | 'ArrowRight' | 'ArrowDown' | 'ArrowLeft';
@@ -857,16 +907,21 @@ export const OWN_ARROWS =
  * always go four different ways. `az` is the 3D view's turn (engine.ts: the camera sits towards
  * (sin az, cos az) from what it looks at); the plan view looks down with −z up the screen.
  */
-export function arrowStep(key: Arrow, az: number, planView: boolean): { dx: number; dz: number } {
+export function arrowStep(
+  key: Arrow,
+  az: number,
+  planView: boolean,
+  step: number = ARROW_STEP,
+): { dx: number; dz: number } {
   // Away from the viewer as an angle on the floor (atan2 of z over x), in quarter turns. The
   // map's usual view (π/4) sits exactly between two axes: Up goes to −z there, the back.
   const away = planView ? -Math.PI / 2 : Math.atan2(-Math.cos(az), -Math.sin(az));
   const q = Math.round(away / (Math.PI / 2) + 1e-6) + ARROW_TURNS[key];
   const steps = [
-    { dx: ROOM_STEP, dz: 0 },
-    { dx: 0, dz: ROOM_STEP },
-    { dx: -ROOM_STEP, dz: 0 },
-    { dx: 0, dz: -ROOM_STEP },
+    { dx: step, dz: 0 },
+    { dx: 0, dz: step },
+    { dx: -step, dz: 0 },
+    { dx: 0, dz: -step },
   ] as const;
   return { ...(steps[((q % 4) + 4) % 4] ?? steps[0]) };
 }
@@ -947,7 +1002,7 @@ export function rehome(items: readonly Item[], it: Item, from: Room, to: Room): 
 export function bodyOf(plan: Plan, version: string | null): LayoutBody {
   const shift = new Map<string, { x: number; z: number }>();
   for (const l of plan.levels) {
-    const here = plan.rooms.filter((r) => r.levelKey === l.key);
+    const here = plan.rooms.filter((r) => r.levelKey === l.key && !r.proposed);
     if (!here.length) continue;
     shift.set(l.key, {
       x: Math.min(0, ...here.map((r) => r.x)),
@@ -955,18 +1010,20 @@ export function bodyOf(plan: Plan, version: string | null): LayoutBody {
     });
   }
   const cm = (m: number, min: number, max: number) => Math.min(max, Math.max(min, mToCm(m)));
-  const rooms = plan.rooms.map((r) => {
-    const s = shift.get(r.levelKey) ?? { x: 0, z: 0 };
-    return {
-      id: r.id,
-      x: cm(r.x - s.x, 0, MAP_LIMITS.maxCoord),
-      z: cm(r.z - s.z, 0, MAP_LIMITS.maxCoord),
-      w: cm(r.w, MAP_LIMITS.minRoom, MAP_LIMITS.maxRoom),
-      d: cm(r.d, MAP_LIMITS.minRoom, MAP_LIMITS.maxRoom),
-      kind: r.kind,
-      surface: r.surface,
-    };
-  });
+  const rooms = plan.rooms
+    .filter((r) => !r.proposed)
+    .map((r) => {
+      const s = shift.get(r.levelKey) ?? { x: 0, z: 0 };
+      return {
+        id: r.id,
+        x: cm(r.x - s.x, 0, MAP_LIMITS.maxCoord),
+        z: cm(r.z - s.z, 0, MAP_LIMITS.maxCoord),
+        w: cm(r.w, MAP_LIMITS.minRoom, MAP_LIMITS.maxRoom),
+        d: cm(r.d, MAP_LIMITS.minRoom, MAP_LIMITS.maxRoom),
+        kind: r.kind,
+        surface: r.surface,
+      };
+    });
   const nodes = plan.items.map((i) => ({
     id: i.id,
     x: cm(i.x, 0, MAP_LIMITS.maxCoord),

@@ -1,5 +1,5 @@
 {
-  "id": "aaf07be4-4225-439f-8761-3788020843f3",
+  "id": "e2314b3c-0a6e-49bf-816d-02c3feef708d",
   "prevId": "42220aeb-71e7-4a33-bb73-3f581e04c39f",
   "version": "7",
   "dialect": "postgresql",
@@ -1796,7 +1796,7 @@
       "checkConstraints": {
         "llm_calls_task_chk": {
           "name": "llm_calls_task_chk",
-          "value": "\"task\" IN ('extract_thing', 'extract_receipt', 'extract_label', 'extract_reading', 'assistant_turn', 'assistant_followup', 'embed_thing', 'embed_query', 'connection_test', 'enrich_aliases', 'extract_room', 'extract_room_merge')"
+          "value": "\"task\" IN ('extract_thing', 'extract_receipt', 'extract_label', 'extract_reading', 'assistant_turn', 'assistant_followup', 'embed_thing', 'embed_query', 'connection_test', 'enrich_aliases', 'extract_room', 'extract_room_merge', 'extract_plan')"
         },
         "llm_calls_outcome_chk": {
           "name": "llm_calls_outcome_chk",
@@ -5273,6 +5273,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "floor_plan_id": {
+          "name": "floor_plan_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "mode": {
           "name": "mode",
           "type": "text",
@@ -5377,6 +5383,22 @@
           ],
           "isUnique": false,
           "where": "room_capture_id IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "extractions_floor_plan_idx": {
+          "name": "extractions_floor_plan_idx",
+          "columns": [
+            {
+              "expression": "floor_plan_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "floor_plan_id IS NOT NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -5571,6 +5593,21 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "cascade"
+        },
+        "extractions_floor_plan_fk": {
+          "name": "extractions_floor_plan_fk",
+          "tableFrom": "extractions",
+          "tableTo": "floor_plans",
+          "columnsFrom": [
+            "location_id",
+            "floor_plan_id"
+          ],
+          "columnsTo": [
+            "location_id",
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -5596,7 +5633,7 @@
       "checkConstraints": {
         "extractions_mode_chk": {
           "name": "extractions_mode_chk",
-          "value": "\"mode\" IN ('thing', 'receipt', 'label', 'reading', 'room')"
+          "value": "\"mode\" IN ('thing', 'receipt', 'label', 'reading', 'room', 'plan')"
         },
         "extractions_status_chk": {
           "name": "extractions_status_chk",
@@ -7226,6 +7263,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "floor_plan_id": {
+          "name": "floor_plan_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "role": {
           "name": "role",
           "type": "text",
@@ -7406,6 +7449,21 @@
           "columns": [
             {
               "expression": "condition_room_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "attachments_floor_plan_idx": {
+          "name": "attachments_floor_plan_idx",
+          "columns": [
+            {
+              "expression": "floor_plan_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -7715,6 +7773,21 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "cascade"
+        },
+        "attachments_floor_plan_fk": {
+          "name": "attachments_floor_plan_fk",
+          "tableFrom": "attachments",
+          "tableTo": "floor_plans",
+          "columnsFrom": [
+            "location_id",
+            "floor_plan_id"
+          ],
+          "columnsTo": [
+            "location_id",
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -7740,7 +7813,7 @@
         },
         "attachments_one_subject_chk": {
           "name": "attachments_one_subject_chk",
-          "value": "num_nonnulls(thing_id, place_id, purchase_id, meter_reading_id, warranty_id, claim_id,\n                       loan_id, incident_id, valuation_id, service_record_id,\n                       expiring_document_id, fuel_entry_id, condition_room_id) <= 1"
+          "value": "num_nonnulls(thing_id, place_id, purchase_id, meter_reading_id, warranty_id, claim_id,\n                       loan_id, incident_id, valuation_id, service_record_id,\n                       expiring_document_id, fuel_entry_id, condition_room_id,\n                       floor_plan_id) <= 1"
         },
         "attachments_url_chk": {
           "name": "attachments_url_chk",
@@ -8046,6 +8119,156 @@
         "files_size_chk": {
           "name": "files_size_chk",
           "value": "(width IS NULL OR width > 0) AND (height IS NULL OR height > 0)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.floor_plans": {
+      "name": "floor_plans",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "uuidv7()"
+        },
+        "location_id": {
+          "name": "location_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'reading'"
+        },
+        "turn": {
+          "name": "turn",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "keep_plan": {
+          "name": "keep_plan",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "result": {
+          "name": "result",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "applied_event_id": {
+          "name": "applied_event_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "row_version": {
+          "name": "row_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "change_seq": {
+          "name": "change_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "floor_plans_location_idx": {
+          "name": "floor_plans_location_idx",
+          "columns": [
+            {
+              "expression": "location_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "floor_plans_location_id_locations_id_fk": {
+          "name": "floor_plans_location_id_locations_id_fk",
+          "tableFrom": "floor_plans",
+          "tableTo": "locations",
+          "columnsFrom": [
+            "location_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "floor_plans_location_id_uq": {
+          "name": "floor_plans_location_id_uq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "location_id",
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "floor_plans_status_chk": {
+          "name": "floor_plans_status_chk",
+          "value": "\"status\" IN ('reading', 'ready', 'failed', 'off', 'applied', 'discarded')"
+        },
+        "floor_plans_turn_chk": {
+          "name": "floor_plans_turn_chk",
+          "value": "turn IN (0, 90, 180, 270)"
+        },
+        "floor_plans_result_chk": {
+          "name": "floor_plans_result_chk",
+          "value": "result IS NULL OR jsonb_typeof(result) = 'object'"
         }
       },
       "isRLSEnabled": false
@@ -22808,83 +23031,6 @@
           "value": "count >= 0"
         }
       },
-      "isRLSEnabled": false
-    },
-    "public.place_folds": {
-      "name": "place_folds",
-      "schema": "",
-      "columns": {
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "place_id": {
-          "name": "place_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "place_folds_place_idx": {
-          "name": "place_folds_place_idx",
-          "columns": [
-            {
-              "expression": "place_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "place_folds_user_id_user_id_fk": {
-          "name": "place_folds_user_id_user_id_fk",
-          "tableFrom": "place_folds",
-          "tableTo": "user",
-          "schemaTo": "auth",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "place_folds_place_id_places_id_fk": {
-          "name": "place_folds_place_id_places_id_fk",
-          "tableFrom": "place_folds",
-          "tableTo": "places",
-          "columnsFrom": [
-            "place_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "place_folds_pk": {
-          "name": "place_folds_pk",
-          "columns": [
-            "user_id",
-            "place_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.saved_view_prefs": {

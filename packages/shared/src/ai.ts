@@ -353,6 +353,8 @@ export const LEDGER_TASKS = [
   // A room photo's objects, and the merge of a room capture's photos (text only).
   'extract_room',
   'extract_room_merge',
+  // 1.14.3 (D266): the rooms of a floor plan, read on the map.
+  'extract_plan',
 ] as const;
 export type LedgerTask = (typeof LEDGER_TASKS)[number];
 
