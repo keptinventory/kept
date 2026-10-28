@@ -7,7 +7,7 @@ import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
 import { type TestFiles, testFiles, upload } from '../../test/files.js';
 import { notAPlanPng, planPng } from '../../test/floor-plans.js';
-import { textPdf } from '../../test/pdf.js';
+import { encryptedPdf, textPdf } from '../../test/pdf.js';
 import { call, join, type Person, peopleApp, person, type RecordedJob } from '../../test/people.js';
 import { createLocation, type Loc, own } from '../../test/things.js';
 import { providerKeyAad } from '../ai/db-keys.js';
@@ -413,6 +413,15 @@ describe('the plan read (the extract job, mock provider)', () => {
     expect(
       (await call(t, `/api/v1/floor-plans/${out.id}/retry`, { as: louis, body: {} })).statusCode,
     ).toBe(409);
+  });
+
+  it('fails, with its reason, a PDF whose first page can’t be drawn', async () => {
+    const pdf = await uploaded(louis, encryptedPdf(), home, 'application/pdf');
+    const out = await json<View>(start(louis, { fileId: pdf }), 201);
+    const r = await run(louis, out.id);
+    expect(r).toEqual({ status: 'failed', reason: 'pdf_render' });
+    const v = await json<View>(view(louis, out.id));
+    expect(v).toMatchObject({ status: 'failed', read: { status: 'failed', reason: 'pdf_render' } });
   });
 
   it('pauses at a budget cap and stays reading', async () => {
