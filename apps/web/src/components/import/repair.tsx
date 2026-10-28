@@ -2,7 +2,7 @@
  * "Repair this import": a Homebox import that already ran, put right from what it stored (GET
  * /imports/:id/repair). Imports before 1.13.0 turned a quantity of 0 into 1, made a whole type a
  * box type when one of its items held another, and could name a type `global.item`; before
- * 1.14.2 a sold date alone ended a thing sold (#346). Each repair
+ * 1.14.1 a sold date alone ended a thing sold (#346). Each repair
  * is ticked on its own, the things and types it touches are named, and the whole repair has one
  * Undo (its events undone together). Shown on the import's own page, which Activity links to.
  */

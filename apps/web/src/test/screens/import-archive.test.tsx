@@ -340,7 +340,7 @@ describe('a Homebox export, from 1.13.0', () => {
     expect(
       screen.getByRole('checkbox', { name: /Make 1 type an ordinary type again/ }),
     ).toBeChecked();
-    // #346: a sold date alone ended things sold before 1.14.2.
+    // #346: a sold date alone ended things sold before 1.14.1.
     expect(
       screen.getByRole('checkbox', {
         name: /Put the 1 thing marked sold on a date alone back in use/,

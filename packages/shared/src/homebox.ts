@@ -230,7 +230,7 @@ export const HB_ISSUE_CODES = [
   'hb_item_holds_things',
   'hb_box_from_location',
   'hb_place_notes_dropped',
-  // 1.14.2
+  // 1.14.1
   'hb_sold_date_only',
 ] as const;
 export type HomeboxIssueCode = (typeof HB_ISSUE_CODES)[number];

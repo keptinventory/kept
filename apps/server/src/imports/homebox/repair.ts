@@ -2,7 +2,7 @@
  * Repairing a Homebox import that already ran (1.13.0), from what it stored: its report
  * (`import_runs.dry_run_report`) and what it made (`import_source_ids`). Imports before 1.13.0
  * turned a quantity of 0 into 1, gave a whole created type the container capability when one of
- * its items held another, and could create a type named `global.item`; imports before 1.14.2
+ * its items held another, and could create a type named `global.item`; imports before 1.14.1
  * ended a thing sold on a sold date alone (#346). Four repairs, each chosen on its own:
  * - `zero`: the things whose report row says `hb_quantity_zero` (0 in Homebox, imported as 1),
  *   still in use with quantity 1, are archived; never a location that became a thing, nor a

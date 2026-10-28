@@ -149,7 +149,7 @@ export type ImportRepairPlan = {
   containerTypes: { typeId: string; name: string }[];
   /** Types this import named `global.item` / `global.location`: renamed. */
   renames: { typeId: string; name: string; to: 'item' | 'location' }[];
-  /** Things this import ended sold on a sold date alone (before 1.14.2, #346): back in use. */
+  /** Things this import ended sold on a sold date alone (before 1.14.1, #346): back in use. */
   sold: { thingId: string; name: string }[];
 };
 
@@ -258,7 +258,7 @@ export type HomeboxDryRunSummary = {
   attachments: number;
   links: number;
   /** Links to a document of the location's Paperless-ngx, made Paperless links (#347); runs
-   * checked before 1.14.2 have none. */
+   * checked before 1.14.1 have none. */
   paperlessLinks?: number;
   tags: number;
   types: number;

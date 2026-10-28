@@ -366,7 +366,7 @@ describe('repairing a past import: things it ended sold on a date alone (#346)',
         archived: 'in_use',
       }));
       zip = await homeboxFixture('homebox-0.27.0-boxes.zip');
-      // Before 1.14.2 a sold date alone (here one an upgrade filled in) ended the thing sold.
+      // Before 1.14.1 a sold date alone (here one an upgrade filled in) ended the thing sold.
       await own(
         db,
         `UPDATE public.things SET lifecycle = 'sold', ended_on = '1901-12-13'
