@@ -236,7 +236,10 @@ export default defineConfig({
         '../web/src/styles/tokens.css',
         './src/styles/kept.css',
       ],
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/keptinventory/kept' }],
+      social: [
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/keptinventory/kept' },
+        { icon: 'discord', label: 'Discord', href: 'https://discord.gg/g4WCXPfuNv' },
+      ],
       plugins: [
         // fr/de/it are fallback pages by design, so links into them must not fail. The API
         // reference is injected routes the validator can't see, so links to it aren't checked

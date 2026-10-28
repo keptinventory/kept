@@ -1,0 +1,12 @@
+# The links shown above the issue forms. Blank issues stay allowed.
+blank_issues_enabled: true
+contact_links:
+  - name: A question or an idea
+    url: https://github.com/keptinventory/kept/discussions
+    about: Ask in Discussions; ideas start there too.
+  - name: Help on Discord
+    url: https://discord.gg/g4WCXPfuNv
+    about: Post in #help, one problem per post, with your Kept version and how you run it.
+  - name: A security problem
+    url: https://github.com/keptinventory/kept/security/policy
+    about: Report it privately, never in a public issue.

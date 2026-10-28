@@ -11,8 +11,9 @@ part goes deeper.
 
 1. **Ask first, for anything larger than a fix.** Questions and ideas go to
    [Discussions](https://github.com/keptinventory/kept/discussions); a bug to
-   [an issue](https://github.com/keptinventory/kept/issues/new/choose). Kept is maintainer-led, so
-   the work should fit its design before you write it.
+   [an issue](https://github.com/keptinventory/kept/issues/new/choose); to talk it through, #contributing
+   on [Discord](https://discord.gg/g4WCXPfuNv). Kept is maintainer-led, so the work should fit its
+   design before you write it.
 2. **Set up a development copy.** [Local setup](/developers/local-setup/): the database, the mail
    catcher, seed data and the mock AI provider.
 3. **Make the change**, following the rules CONTRIBUTING.md lists; each one has a check that fails.

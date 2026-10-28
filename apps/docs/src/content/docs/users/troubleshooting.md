@@ -148,6 +148,8 @@ The full list: [what works offline](/users/phone-app/#what-works-offline).
 - **Questions and ideas:** [Discussions](https://github.com/keptinventory/kept/discussions)
 - **A bug:** [an issue](https://github.com/keptinventory/kept/issues/new/choose), with what you did
   and what you saw
-- **Chat:** [Discord](https://discord.gg/g4WCXPfuNv)
+- **Help on Discord:** [the Kept server](https://discord.gg/g4WCXPfuNv), in #help: one problem per
+  post, your Kept version and how you run it (Docker Compose, Kubernetes), what happened, and logs
+  with secrets and personal details blurred
 - **A security problem:** privately, never in a public issue
   ([SECURITY.md](https://github.com/keptinventory/kept/blob/main/SECURITY.md))

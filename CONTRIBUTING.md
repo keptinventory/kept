@@ -4,7 +4,8 @@ Thank you for wanting to help. Kept is a self-hosted inventory that households t
 records for years, so most of the rules below are about not losing or leaking anyone's data.
 
 The project is maintainer-led. For anything larger than a fix, open a discussion or an issue first,
-so the work fits Kept's design before you write it. The docs site's
+so the work fits Kept's design before you write it. To talk it through first, there's #contributing
+on [Discord](https://discord.gg/g4WCXPfuNv). The docs site's
 Developers section goes deeper than this page; this page is what you need to send a pull request.
 
 On the docs site:
