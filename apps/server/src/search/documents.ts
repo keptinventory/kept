@@ -181,6 +181,8 @@ export async function searchDocuments(
     '(t.id IS NULL OR t.deleted_at IS NULL)',
     '(pl.id IS NULL OR pl.deleted_at IS NULL)',
     '(a.meter_reading_id IS NULL OR mt.deleted_at IS NULL)',
+    // A floor plan's upload while it is reviewed (D266) is no document of the location's.
+    'a.floor_plan_id IS NULL',
   ];
   if (opts.location?.values.length) {
     where.push(

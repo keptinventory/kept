@@ -37,7 +37,7 @@
 import {
   aliasSuggestionField,
   BUILTIN_TYPES,
-  type CaptureMode,
+  type ExtractionMode,
   newId,
   normalize,
 } from '@kept/shared';
@@ -71,7 +71,9 @@ export type ExtractionRow = {
   meter_id: string | null;
   /** A draft service record's invoice, read on the RECEIPT path. */
   service_record_id: string | null;
-  mode: CaptureMode;
+  /** PLAN (D266): the floor plan read; its result goes there, never into a draft. */
+  floor_plan_id?: string | null;
+  mode: ExtractionMode;
   attempt: number;
   status: string;
   requested_by: string;

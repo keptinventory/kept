@@ -13,8 +13,8 @@
  * with the zod schema itself, one bad optional field loses the whole answer.
  */
 import {
-  type CaptureMode,
   EXTRACTION_SCHEMAS,
+  type ExtractionMode,
   RoomMerge,
   ServiceInvoiceExtraction,
   ThingManyExtraction,
@@ -91,7 +91,7 @@ function receiptRequired(simple: JSONSchema7): JSONSchema7 {
 const cache = new Map<string, JSONSchema7>();
 
 /** The provider-portable JSON Schema for a mode. */
-export function wireSchema(mode: CaptureMode, variant: WireVariant = WIRE_IN_USE): JSONSchema7 {
+export function wireSchema(mode: ExtractionMode, variant: WireVariant = WIRE_IN_USE): JSONSchema7 {
   const v = mode === 'receipt' ? variant : 'simple';
   const id = `${mode}:${v}`;
   let s = cache.get(id);
@@ -139,7 +139,7 @@ export const WIRE_TAGS: Readonly<Record<WireVariant, string | null>> = Object.fr
 /** `prompt_version` as the ledger stores it: the prompt's version plus the wire variant's tag. */
 export function ledgerPromptVersion(
   version: string,
-  mode: CaptureMode,
+  mode: ExtractionMode,
   variant: WireVariant = WIRE_IN_USE,
 ): string {
   const sent = mode === 'receipt' ? variant : 'simple';
@@ -148,7 +148,7 @@ export function ledgerPromptVersion(
 }
 
 /** The structured-output name each mode is sent under (`kept_receipt` …); the mock reads it. */
-export const wireName = (mode: CaptureMode) => `kept_${mode}` as const;
+export const wireName = (mode: ExtractionMode) => `kept_${mode}` as const;
 
 /** THING with several things in the photo (1.4, D230): each object with its box, sent under
  * THING's name (`kept_thing`), as the ledger task is THING's. */

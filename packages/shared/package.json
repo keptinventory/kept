@@ -13,7 +13,8 @@
       },
       "default": "./src/index.ts"
     },
-    "./normalize.vectors.json": "./src/normalize.vectors.json"
+    "./normalize.vectors.json": "./src/normalize.vectors.json",
+    "./floor-plan.fixtures": "./src/floor-plan.fixtures.ts"
   },
   "publishConfig": {
     "exports": {

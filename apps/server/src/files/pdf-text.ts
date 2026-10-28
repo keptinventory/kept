@@ -35,7 +35,8 @@ import type { FileStorage } from '../storage/blob-store.js';
 // in the lockfile (PDF.js 6.1.200 inside, Apache-2.0), pure JavaScript with no eval, the same on
 // amd64 and arm64. poppler-utils is not in the image; in its Debian bookworm base (read from the
 // image's own apt index, 2026-09-29) it is 22.12.0-2+deb12u3 and brings 32 packages, GPL.
-// Rasterising pages (thumbnails, OCR of scans) stays deferred to 1.x (D97, D209).
+// Rasterising pages for thumbnails or OCR of scans stays deferred (D97, D209). The one page
+// drawn is a floor plan's first (renderPdfPage, D266), in the same kind of child, sent and dropped.
 
 /** Wall-clock limit of one parse. */
 export const PDF_TIMEOUT_MS = 20_000;
@@ -98,24 +99,29 @@ export function storableText(text: string, max = PDF_TEXT_MAX): string {
 
 type Exit = { code: number | null; signal: NodeJS.Signals | null; error?: Error };
 
-/**
- * Reads the text of the PDF at `file` in a limited child process. Never throws for anything the
- * file does, and always settles, whatever the child does: it is SIGKILLed at the limits.
- */
-export async function readPdfText(file: string, opts: PdfTextOptions = {}): Promise<PdfTextResult> {
-  const timeoutMs = opts.timeoutMs ?? PDF_TIMEOUT_MS;
-  const memoryMb = opts.memoryMb ?? PDF_MEMORY_MB;
-  const maxChars = opts.maxChars ?? PDF_TEXT_MAX;
+type Limited = {
+  killedFor: 'timeout' | 'memory' | 'output' | null;
+  exit: Exit;
+  stdout: string;
+  stderr: string;
+};
 
-  const child = spawn(
-    process.execPath,
-    [`--max-old-space-size=${memoryMb}`, opts.worker ?? PDF_WORKER, file, String(maxChars)],
+/** Runs the worker with `args` in a child limited to `memoryMb` and `timeoutMs`, killed past
+ * either (or past `stdoutMax` of output). Always settles. */
+async function runLimited(
+  worker: string,
+  args: readonly string[],
+  limits: { memoryMb: number; timeoutMs: number; stdoutMax: number },
+): Promise<Limited> {
+  const { memoryMb, timeoutMs, stdoutMax } = limits;
+  const child = spawn(process.execPath, [`--max-old-space-size=${memoryMb}`, worker, ...args], {
     // No inherited environment: the child needs none of the server's settings or secrets.
-    { stdio: ['ignore', 'pipe', 'pipe'], env: { PATH: process.env.PATH ?? '' } },
-  );
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: { PATH: process.env.PATH ?? '' },
+  });
   let stdout = '';
   let stderr = '';
-  let killedFor: 'timeout' | 'memory' | 'output' | null = null;
+  let killedFor: Limited['killedFor'] = null;
   const kill = (why: 'timeout' | 'memory' | 'output') => {
     if (killedFor) return;
     killedFor = why;
@@ -124,7 +130,7 @@ export async function readPdfText(file: string, opts: PdfTextOptions = {}): Prom
   child.stdout.setEncoding('utf8');
   child.stdout.on('data', (chunk: string) => {
     stdout += chunk;
-    if (stdout.length > STDOUT_MAX) kill('output');
+    if (stdout.length > stdoutMax) kill('output');
   });
   child.stderr.setEncoding('utf8');
   child.stderr.on('data', (chunk: string) => {
@@ -162,34 +168,116 @@ export async function readPdfText(file: string, opts: PdfTextOptions = {}): Prom
     clearInterval(poll);
     if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
   }
+  return { killedFor, exit, stdout, stderr };
+}
 
-  if (killedFor === 'timeout') return { status: 'timeout' };
-  if (killedFor === 'memory') return { status: 'memory' };
-  if (killedFor === 'output') return { status: 'unreadable', reason: 'output' };
-  if (exit.error) return { status: 'unreadable', reason: `spawn: ${exit.error.message}` };
-  if (exit.code === 4) return { status: 'encrypted' };
-  if (exit.code !== 0) {
+/** What a child that didn't answer with exit 0 means. */
+function failureOf(r: Limited): PdfTextResult | null {
+  if (r.killedFor === 'timeout') return { status: 'timeout' };
+  if (r.killedFor === 'memory') return { status: 'memory' };
+  if (r.killedFor === 'output') return { status: 'unreadable', reason: 'output' };
+  if (r.exit.error) return { status: 'unreadable', reason: `spawn: ${r.exit.error.message}` };
+  if (r.exit.code === 4) return { status: 'encrypted' };
+  if (r.exit.code !== 0) {
     // V8 aborts when its heap is full; a SIGKILL we didn't send is the OOM killer's.
-    if (exit.signal === 'SIGKILL' || /heap out of memory/i.test(stderr)) {
+    if (r.exit.signal === 'SIGKILL' || /heap out of memory/i.test(r.stderr)) {
       return { status: 'memory' };
     }
     return {
       status: 'unreadable',
-      reason: `${exit.code ?? exit.signal}: ${stderr.trim().slice(0, 300)}`,
+      reason: `${r.exit.code ?? r.exit.signal}: ${r.stderr.trim().slice(0, 300)}`,
     };
   }
+  return null;
+}
+
+/** The child's last stdout line as JSON, or null. */
+function lastJson<T>(stdout: string): T | null {
   // The last line is the result; PDF.js may have printed something before it.
   const line = stdout.trimEnd().split('\n').at(-1) ?? '';
-  let parsed: { pages?: unknown; text?: unknown; truncated?: unknown };
   try {
-    parsed = JSON.parse(line) as typeof parsed;
+    return JSON.parse(line) as T;
   } catch {
-    return { status: 'unreadable', reason: 'no result' };
+    return null;
   }
+}
+
+/**
+ * Reads the text of the PDF at `file` in a limited child process. Never throws for anything the
+ * file does, and always settles, whatever the child does: it is SIGKILLed at the limits.
+ */
+export async function readPdfText(file: string, opts: PdfTextOptions = {}): Promise<PdfTextResult> {
+  const maxChars = opts.maxChars ?? PDF_TEXT_MAX;
+  const r = await runLimited(opts.worker ?? PDF_WORKER, [file, String(maxChars)], {
+    memoryMb: opts.memoryMb ?? PDF_MEMORY_MB,
+    timeoutMs: opts.timeoutMs ?? PDF_TIMEOUT_MS,
+    stdoutMax: STDOUT_MAX,
+  });
+  const failed = failureOf(r);
+  if (failed) return failed;
+  const parsed = lastJson<{ pages?: unknown; text?: unknown; truncated?: unknown }>(r.stdout);
+  if (!parsed) return { status: 'unreadable', reason: 'no result' };
   const pages = typeof parsed.pages === 'number' ? parsed.pages : 0;
   const text = storableText(typeof parsed.text === 'string' ? parsed.text : '', maxChars);
   if (text === '') return { status: 'empty', pages };
   return { status: 'text', text, pages, truncated: parsed.truncated === true };
+}
+
+// ---------------------------------------------------------------------------------------------
+// A floor plan's first page (1.14.3, D266)
+// ---------------------------------------------------------------------------------------------
+
+/** The long side a PDF plan's first page is drawn at (spec §10.3: below the 3,072 px the image is
+ * sent at, so a cold render fits the time limit). */
+export const PDF_RENDER_PX = 2560;
+/** The render child's memory limit: drawing a page holds its raster (measured 195–261 MB at
+ * 3,072 px on the spike's builder's PDF). Raised for render mode only. */
+export const PDF_RENDER_MEMORY_MB = 384;
+
+export type PdfRenderResult =
+  | { status: 'rendered'; png: Buffer; text: string; pages: number; width: number; height: number }
+  | Exclude<PdfTextResult, { status: 'text' } | { status: 'empty' }>;
+
+/** Draws the first page of the PDF at `file` as a PNG, in the limited child (render mode). */
+export async function renderPdfPage(
+  file: string,
+  opts: PdfTextOptions & { longSide?: number } = {},
+): Promise<PdfRenderResult> {
+  const out = `${file}.page1.png`;
+  const maxChars = opts.maxChars ?? 4000;
+  const r = await runLimited(
+    opts.worker ?? PDF_WORKER,
+    ['--render', file, out, String(opts.longSide ?? PDF_RENDER_PX), String(maxChars)],
+    {
+      memoryMb: opts.memoryMb ?? PDF_RENDER_MEMORY_MB,
+      timeoutMs: opts.timeoutMs ?? PDF_TIMEOUT_MS,
+      stdoutMax: maxChars * 8 + 4096,
+    },
+  );
+  try {
+    const failed = failureOf(r);
+    if (failed) return failed as PdfRenderResult;
+    const parsed = lastJson<{ pages?: unknown; width?: unknown; height?: unknown; text?: unknown }>(
+      r.stdout,
+    );
+    if (!parsed) return { status: 'unreadable', reason: 'no result' };
+    const png = await readFile(out);
+    return {
+      status: 'rendered',
+      png,
+      text: storableText(typeof parsed.text === 'string' ? parsed.text : '', maxChars),
+      pages: typeof parsed.pages === 'number' ? parsed.pages : 1,
+      width: typeof parsed.width === 'number' ? parsed.width : 0,
+      height: typeof parsed.height === 'number' ? parsed.height : 0,
+    };
+  } catch (e) {
+    return {
+      status: 'unreadable',
+      reason: `render: ${String((e as Error).message).slice(0, 200)}`,
+    };
+  } finally {
+    await rm(out, { force: true });
+  }
 }
 
 // ---------------------------------------------------------------------------------------------

@@ -69,6 +69,8 @@ export const OMIT_REASONS: Readonly<Record<string, string>> = Object.freeze({
     "this server's hint for its next arrange; an imported map is as it was arranged (#194)",
   in_review:
     "this server's Room card state; the card isn't exported, its photos travel as their place's (#194)",
+  floor_plan_id:
+    'a floor plan under review is not exported, nor its upload (D266); a kept plan is a location document',
 });
 
 export type EntityDef = Readonly<{
@@ -233,9 +235,11 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
       'id:uuid sha256:text bytes:int mime:text class:text has_gps:bool width:int height:int created_at:ts',
     omit: 'location_id storage_key derivative_state created_by attached_at',
     // Only the originals the exported rows reference (D117): an attachment's (a condition
-    // report's photos included, D238), or a thing's cover.
+    // report's photos included, D238), or a thing's cover. A floor plan under review isn't one
+    // (D266): its file travels only once it is kept as the location's document.
     where: `(x.id IN (SELECT a.file_id FROM public.attachments a
-                       WHERE a.location_id = $1 AND a.file_id IS NOT NULL AND {thingOk:a.thing_id})
+                       WHERE a.location_id = $1 AND a.file_id IS NOT NULL
+                         AND a.floor_plan_id IS NULL AND {thingOk:a.thing_id})
              OR x.id IN (SELECT t.cover_file_id FROM public.things t
                           WHERE t.location_id = $1 AND {thingOk:t.id}))`,
   },
@@ -246,8 +250,11 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
     key: ['id'],
     fields:
       'id:uuid file_id:uuid url:text thing_id:uuid place_id:uuid purchase_id:uuid meter_reading_id:uuid role:text sort:int created_at:ts updated_at:ts warranty_id:uuid claim_id:uuid loan_id:uuid incident_id:uuid valuation_id:uuid service_record_id:uuid expiring_document_id:uuid fuel_entry_id:uuid condition_room_id:uuid',
-    omit: 'location_id created_by row_version change_seq in_review',
+    omit: 'location_id created_by row_version change_seq in_review floor_plan_id',
     thingRefs: ['x.thing_id'],
+    // A floor plan's upload under review (D266) isn't exported: it would import as the
+    // location's own document.
+    where: 'x.floor_plan_id IS NULL',
   },
   {
     entity: 'meters',
@@ -639,6 +646,8 @@ export const NOT_EXPORTED: Readonly<Record<string, string>> = Object.freeze({
   import_source_ids: "this server's bookkeeping",
   extractions: 'derived from the attachments by AI',
   room_captures: 'AI work on room photos waiting for review; the photos travel with their place',
+  floor_plans:
+    'AI work on a floor plan waiting for review; the rooms it adds travel as places and map nodes',
   file_derivatives: 'derived: thumbnails are re-made from the originals',
   file_text: 'derived: text read from the PDFs',
   inbox_items: 'open decisions, re-made by the importer',

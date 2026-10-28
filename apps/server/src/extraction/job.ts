@@ -34,7 +34,14 @@
  */
 import { mkdtemp, rm } from 'node:fs/promises';
 import path from 'node:path';
-import { type CaptureMode, can, type Role, type RoomExtraction } from '@kept/shared';
+import {
+  type CaptureMode,
+  can,
+  type ExtractionMode,
+  type PlanExtraction,
+  type Role,
+  type RoomExtraction,
+} from '@kept/shared';
 import type pg from 'pg';
 import sharp from 'sharp';
 import { FOREVER } from '../ai/breaker.js';
@@ -51,6 +58,7 @@ import { lockBlobKeys } from '../files/blob-locks.js';
 import { defineJob, type JobDefinition, type JobMeta } from '../jobs/boss.js';
 import { JOB_POLICIES } from '../jobs/policies.js';
 import type { SystemJobDeps } from '../jobs/system.js';
+import { endPlanRead, planTurnOf, renderPdfForPlan, writePlanRead } from '../map/floor-plans.js';
 import { finishRoom } from '../room/finish.js';
 import { checkRoom } from '../room/objects.js';
 import { derivativeKey, type FileStorage, originalKey } from '../storage/blob-store.js';
@@ -110,7 +118,8 @@ export class RetryExtraction extends Error {
 }
 
 const EXTRACTION_COLUMNS = `e.id, e.location_id, e.attachment_id, e.thing_id, e.purchase_id,
-  e.meter_id, e.service_record_id, e.mode, e.attempt, e.status, e.requested_by, e.created_at`;
+  e.meter_id, e.service_record_id, e.floor_plan_id, e.mode, e.attempt, e.status, e.requested_by,
+  e.created_at`;
 
 type Claimed = {
   ex: ExtractionRow;
@@ -122,6 +131,8 @@ type Claimed = {
   thingId: string | null;
   /** THING (#209): the account's tags the model may pick from, most used first. */
   tags: string[];
+  /** PLAN (D266): the quarter turn the plan is read at. */
+  planTurn: number;
 };
 
 async function roleIn(client: pg.ClientBase, locationId: string): Promise<Role | null> {
@@ -339,6 +350,7 @@ async function claim(
             [ex.location_id],
           )
         : { rows: [] };
+    const planTurn = ex.floor_plan_id ? await planTurnOf(client, ex.floor_plan_id) : 0;
     return {
       ex,
       files,
@@ -346,6 +358,7 @@ async function claim(
       languages,
       meter,
       thingId,
+      planTurn,
       tags: tags.map((r) => r.name),
       checkCtx: {
         timezone: loc[0]?.timezone ?? 'UTC',
@@ -465,6 +478,17 @@ export async function runExtraction(
   job?: JobMeta,
 ): Promise<RunOutcome> {
   const outcome = await runOne(deps, scope, extractionId, job);
+  if (outcome.status === 'failed' || outcome.status === 'no_provider') {
+    // A floor plan whose read ended without a result says so on the map (D266).
+    await withScope(deps.pools.app, scope, async (_tx, client) => {
+      const { rows } = await client.query<{ floor_plan_id: string | null }>(
+        'SELECT floor_plan_id FROM public.extractions WHERE id = $1',
+        [extractionId],
+      );
+      const plan = rows[0]?.floor_plan_id;
+      if (plan) await endPlanRead(client, plan, outcome.status === 'failed' ? 'failed' : 'off');
+    });
+  }
   if (['read', 'failed', 'no_provider'].includes(outcome.status)) {
     const room = await withScope(deps.pools.app, scope, async (_tx, client) => {
       const { rows } = await client.query<{ room_capture_id: string | null }>(
@@ -494,21 +518,34 @@ async function runOne(
   if ('status' in claimed) return claimed;
   const { ex } = claimed;
   const ai = deps.ai as AiDeps;
-  const mode: CaptureMode = ex.mode;
+  const mode: ExtractionMode = ex.mode;
+  const plan = mode === 'plan';
   // A draft service record's invoice, read on the RECEIPT path.
   const invoice = mode === 'receipt' && ex.service_record_id !== null;
 
-  let result: CallResult<Extracted<CaptureMode>> | { status: 'no_provider' };
+  let result: CallResult<Extracted<ExtractionMode>> | { status: 'no_provider' };
   let sent: { attachmentIds: string[]; fromDisplay: boolean[] };
   // Several things in one THING photo (D230): asked for only when the admin turned it on.
   const many = mode === 'thing' && (await multiItemOn(deps.pools));
   let image: ImageInput | undefined;
   try {
     if (!deps.files) throw new Error('extraction: the worker has no file storage');
+    const storage = deps.files;
     const parts = await partsFor(mode, claimed.files, {
-      blobs: deps.files.blobs,
+      blobs: storage.blobs,
       textOf: async (fileId) => claimed.texts.get(fileId) ?? null,
+      ...(plan
+        ? {
+            turn: claimed.planTurn,
+            renderPdf: (fileId: string) => renderPdfForPlan(storage, ex.location_id, fileId),
+          }
+        : {}),
     });
+    if (plan && parts.images.length === 0) {
+      // A plan is read from its image: a PDF whose first page can't be drawn won't be on a retry.
+      const pdf = claimed.files.some((f) => f.mime === 'application/pdf');
+      return await fail(deps, scope, ex.id, pdf ? 'pdf_render' : 'no_image', false, job, null);
+    }
     if (parts.images.length === 0 && parts.documentText === undefined) {
       // Nothing to send. A PDF whose text isn't read yet may have it on a retry.
       const pdfWaiting = claimed.files.some((f) => f.mime === 'application/pdf');
@@ -591,6 +628,36 @@ async function runOne(
   }
 
   const ok = result;
+  if (plan) {
+    const img = image;
+    const stored = await withScope(deps.pools.app, scope, async (_tx, client) => {
+      const { rows } = await client.query<{ status: string }>(
+        'SELECT status FROM public.extractions WHERE id = $1 FOR UPDATE',
+        [ex.id],
+      );
+      if (rows[0]?.status !== 'running' || !img || !ex.floor_plan_id) return null;
+      const read = await writePlanRead(client, ex.floor_plan_id, {
+        answer: ok.value.value as PlanExtraction,
+        image: { w: img.width, h: img.height },
+        dropped: ok.value.dropped,
+        promptVersion: PROMPT_VERSIONS.plan,
+      });
+      await setStatus(client, ex.id, {
+        status: 'succeeded',
+        callId: ok.callId,
+        result: {
+          mode,
+          promptVersion: PROMPT_VERSIONS.plan,
+          attachmentIds: sent.attachmentIds,
+          rooms: read.drafts.rooms.length,
+          dropped: ok.value.dropped,
+        },
+      });
+      return read;
+    });
+    if (!stored) return { status: 'skipped', why: 'not_runnable' };
+    return { status: 'read', callId: ok.callId, objects: stored.drafts.rooms.length };
+  }
   if (mode === 'room') {
     const read = checkRoom(ok.value.value as RoomExtraction, claimed.checkCtx, ok.value.dropped);
     const stored = await withScope(deps.pools.app, scope, async (_tx, client) => {
