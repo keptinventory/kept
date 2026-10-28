@@ -1,13 +1,14 @@
 #!/usr/bin/env node
-// The Home Assistant app's version is always Kept's (D272). The release PR runs
+// The Home Assistant app's version is always Kept's (D272). The release record's pull request
+// (docs/runbooks/release.md, "Each release", step 4) runs
 //
 //   node scripts/release/ha-app.mjs bump X.Y.Z
 //
-// after scripts/changelog.mjs wrote CHANGELOG.md's X.Y.Z section: it sets `version` in
-// homeassistant/kept/config.yaml (and in the test-only demo app's), and puts X.Y.Z on top of
+// once ghcr.io/keptinventory/kept-ha:X.Y.Z is published, never before: Home Assistant reads `main`,
+// so homeassistant/kept/config.yaml must never name a version whose image isn't out. It sets
+// `version` there (and in the test-only demo app's), and puts X.Y.Z on top of
 // homeassistant/kept/CHANGELOG.md with that release's highlights, which Home Assistant shows when
-// the update is offered. scripts/release.sh refuses a version the app's config.yaml doesn't name, so
-// the image `ghcr.io/keptinventory/kept-ha:X.Y.Z` and the version that asks for it ship together.
+// the update is offered.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 

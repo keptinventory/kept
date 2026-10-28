@@ -1,7 +1,0 @@
-# Home Assistant's app repository (D272): this repository is one. Settings → Apps → Install app →
-# ⋮ → Repositories → https://github.com/keptinventory/kept lists the app in homeassistant/kept/.
-# The Supervisor treats every config.(json|yaml|yml) outside a dot folder as an app, so that folder
-# holds the only one (scripts/check-ha-app.mjs keeps it so).
-name: Kept
-url: https://github.com/keptinventory/kept
-maintainer: Ibrahim Roshdy <22573766+ibrahimroshdy@users.noreply.github.com>

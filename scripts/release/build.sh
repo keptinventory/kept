@@ -214,3 +214,16 @@ release_merge_ha() {
   [[ $got == "$ha_index_digest" ]] || die "the registry holds $got for $ha_index_digest"
   note "index $ha_index_digest (linux/amd64 $ha_amd64_digest, linux/arm64 $ha_arm64_digest)"
 }
+
+# A Home Assistant image an earlier run of this version published (release.sh stage 1): its digests,
+# read from the registry, for the record. Nothing is built, signed or tagged again.
+release_ha_published() {
+  say "3b. $ha_registry:$version is already published: reading its digests"
+  local raw
+  docker buildx imagetools inspect --raw "$ha_registry:$version" >"$work/ha-index-published.json"
+  ha_index_digest=$(manifest_digest "$work/ha-index-published.json")
+  raw=$(<"$work/ha-index-published.json")
+  ha_amd64_digest=$(platform_digest "$raw" amd64)
+  ha_arm64_digest=$(platform_digest "$raw" arm64)
+  note "index $ha_index_digest (linux/amd64 $ha_amd64_digest, linux/arm64 $ha_arm64_digest)"
+}

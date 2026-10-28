@@ -39,8 +39,9 @@
 #      (release/verify.sh);
 #   5. cosign-sign the index digest and every manifest under it, then verify (release/sign.sh);
 #   6. tag X.Y.Z, and X.Y and X when this is the newest final release of that line, all from the
-#      signed digest; never `latest`; then verify by tag (release/sign.sh); the Home Assistant app's
-#      image gets X.Y.Z only (its config.yaml names that exact version, which stage 1 checks);
+#      signed digest; never `latest`; then verify by tag (release/sign.sh). The Home Assistant app's
+#      image is tagged first, X.Y.Z only; a re-run after a failure later on finds it published and
+#      keeps it (stage 1);
 #   7. package the chart as version X.Y.Z with appVersion X.Y.Z (the chart's version is always the
 #      release's; the committed Chart.yaml stays 0.0.0-dev) and the image pinned by digest,
 #      push it beside the image as an OCI artifact, sign its pushed digest (release/chart.sh);
@@ -194,16 +195,9 @@ if ! grep -qF "/kept/v$version/compose.yaml" README.md || ! grep -qF "/kept:$ver
   [[ -n $dry ]] || die "README.md's quick start doesn't install $version: set its v$version/compose.yaml and compose.yaml's kept:$version first"
   warn "README.md's quick start doesn't install $version (a dry run goes on)"
 fi
-# The Home Assistant app (D272) asks for ghcr.io/keptinventory/kept-ha:<its version>, always Kept's:
-# the release PR bumps it (scripts/release/ha-app.mjs). Checked only once the app is in the tree.
-ha_config=homeassistant/kept/config.yaml
-if [[ -f $ha_config ]]; then
-  ha_version=$(sed -n 's/^version: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' "$ha_config" | head -n 1)
-  if [[ $ha_version != "$version" ]]; then
-    [[ -n $dry ]] || die "$ha_config is version ${ha_version:-none}, not $version: node scripts/release/ha-app.mjs bump $version"
-    warn "$ha_config is version ${ha_version:-none}, not $version (a dry run goes on)"
-  fi
-fi
+# The Home Assistant app (D272) is not bumped here: Home Assistant reads main, so its config.yaml
+# names a version only once that version's kept-ha image is published. The release record bumps it
+# (scripts/release/ha-app.mjs, docs/runbooks/release.md "The record").
 if [[ -n $unsigned ]]; then
   why=$(node scripts/release/version.mjs unsigned "$version" 2>&1) || die "$why"
   warn "UNSIGNED release (KEPT_RELEASE_UNSIGNED=1): no cosign signature on the image or the chart; the record says so"
@@ -353,6 +347,7 @@ it_builder=(--builder "$builder")
 [[ $registry =~ ^[a-z0-9.-]+(:[0-9]+)?(/[a-z0-9._-]+)+$ ]] || die "'$registry' is not an image path (host/owner/name)"
 # The Home Assistant app's image (D272) sits beside the main one: ghcr.io/keptinventory/kept-ha.
 ha_registry=${registry}-ha
+ha_published=
 
 source_url=${KEPT_RELEASE_SOURCE:-$(git remote get-url origin 2>/dev/null || true)}
 source_url=${source_url%.git}
@@ -366,8 +361,12 @@ if [[ -z $dry ]]; then
   if docker buildx imagetools inspect "$registry:$version" >/dev/null 2>&1; then
     die "$registry:$version is already published: release a newer version"
   fi
+  # The Home Assistant image is tagged first (stage 6). Published while the main image isn't: a
+  # run that stopped between the two. Resume: keep that image as it is (a tag is never moved),
+  # build, sign and tag the rest.
   if docker buildx imagetools inspect "$ha_registry:$version" >/dev/null 2>&1; then
-    die "$ha_registry:$version is already published: release a newer version"
+    ha_published=1
+    warn "$ha_registry:$version is already published by an earlier run: kept as it is, the rest goes on"
   fi
   if [[ -n $helm ]] && "$helm" show chart "oci://$chart_repo/kept" --version "$version" >/dev/null 2>&1; then
     die "chart $version is already published at $chart_repo/kept: release a newer version"
@@ -415,44 +414,46 @@ source scripts/release/notes.sh
 if [[ -n $arch ]]; then
   # A build job: this platform built and smoked natively, its digests to the publish job; the
   # same for the Home Assistant app's image.
-  release_build    # sets index_digest and ${arch}_digest
-  release_build_ha # sets ha_index_digest and ha_${arch}_digest
+  release_build # sets index_digest and ${arch}_digest
+  [[ -n $ha_published ]] || release_build_ha # sets ha_index_digest and ha_${arch}_digest
   release_verify
-  release_verify_ha
+  [[ -n $ha_published ]] || release_verify_ha
   say "9. outputs for the publish job"
   manifest_var=${arch}_digest
   ha_manifest_var=ha_${arch}_digest
   {
     echo "${arch}_index=$index_digest"
     echo "${arch}_manifest=${!manifest_var}"
-    echo "ha_${arch}_index=$ha_index_digest"
-    echo "ha_${arch}_manifest=${!ha_manifest_var}"
+    echo "ha_${arch}_index=${ha_index_digest:-}"
+    echo "ha_${arch}_manifest=${!ha_manifest_var:-}"
   } >>"${GITHUB_OUTPUT:-$work/outputs.txt}"
-  note "linux/$arch $index_digest (manifest ${!manifest_var}), Home Assistant $ha_index_digest, smoked; nothing tagged"
+  note "linux/$arch $index_digest (manifest ${!manifest_var}), Home Assistant ${ha_index_digest:-already published}, smoked; nothing tagged"
   exit 0
 fi
 
 if [[ -n $publish ]]; then
   release_export_src # the chart comes from the commit
   release_merge      # sets index_digest, amd64_digest, arm64_digest
-  release_merge_ha   # sets ha_index_digest, ha_amd64_digest, ha_arm64_digest
+  if [[ -n $ha_published ]]; then release_ha_published; else release_merge_ha; fi
 else
-  release_build    # sets index_digest, amd64_digest, arm64_digest
-  release_build_ha # sets ha_index_digest, ha_amd64_digest, ha_arm64_digest
+  release_build # sets index_digest, amd64_digest, arm64_digest
+  if [[ -n $ha_published ]]; then release_ha_published; else release_build_ha; fi
   [[ -n $dry ]] && cleanup_cmds+=("rm -rf '$work/src'")
   release_verify
-  release_verify_ha
+  [[ -n $ha_published ]] || release_verify_ha
 fi
 release_notices
 if [[ -n $unsigned ]]; then
   say "5. NOT signed (KEPT_RELEASE_UNSIGNED=1): the index, its manifests and the chart get no signature"
 else
   say "5. sign the index and every manifest under it, before any tag"
+  [[ -n $ha_published ]] || release_sign_digest "$ha_registry@$ha_index_digest" --recursive
   release_sign_digest "$registry@$index_digest" --recursive
-  release_sign_digest "$ha_registry@$ha_index_digest" --recursive
 fi
-release_tags    # sets image_tags
-release_tag_ha
+# The Home Assistant image first: if a later stage fails, a re-run finds it published and resumes
+# (stage 1), and the main image's tags, which a re-run would refuse, aren't made yet.
+[[ -n $ha_published ]] || release_tag_ha
+release_tags # sets image_tags
 release_chart   # sets chart_ref, chart_digest
 release_notes   # sets notes_file
 
