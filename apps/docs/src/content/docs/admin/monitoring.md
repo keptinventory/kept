@@ -1,101 +1,84 @@
 ---
 title: Prometheus and Grafana
-description: "Set up Prometheus and Grafana to monitor Kept: scrape /metrics, build dashboards, and alert on what matters."
+description: "Scrape Kept's /metrics with Prometheus, chart it in Grafana, and alert on backups, disk and restarts."
 ---
 
-This page walks through setting up external monitoring for Kept using Prometheus and Grafana.
-For the metrics Kept exposes, logs, and optional tracing, see [Monitoring](/admin/observability/).
+A walkthrough for watching Kept with Prometheus and Grafana. The metrics themselves, the health
+checks, logs and tracing are on [Monitoring](/admin/observability/).
 
-## Prerequisites
+## 1. Turn on `/metrics`
 
-- Kept running with `KEPT_METRICS_TOKEN` set.
-- A Prometheus instance that can reach Kept's `/metrics` endpoint.
-- Grafana (optional, for dashboards and alerts).
-
-## 1. Expose the metrics endpoint
-
-Generate the token in a shell (`.env` doesn't run `$( )` itself):
+Make a token in a shell:
 
 ```sh
 openssl rand -hex 32
 ```
 
-Paste the value into your `.env`:
-
-```
-KEPT_METRICS_TOKEN=<pasted value>
-```
-
-Then `docker compose up -d` so Kept picks it up. The `/metrics` endpoint is now available at
-`http://<your-kept-host>:8080/metrics` and requires the token as a bearer:
+and paste the value into `.env` beside `compose.yaml`:
 
 ```sh
-curl -H "Authorization: Bearer $KEPT_METRICS_TOKEN" http://localhost:8080/metrics
+KEPT_METRICS_TOKEN=<the value>
 ```
 
-Without the variable, the path doesn't exist.
+`.env` is read as it is, so `$(openssl …)` there would be taken literally. Then apply it:
 
-## 2. Configure Prometheus
+```sh
+docker compose up -d
+```
 
-Save the same token value to a file Prometheus can read, then use the `authorization:` block:
+Compose passes the variable to Kept. Without it, `/metrics` doesn't exist. Check it answers:
+
+```sh
+curl -H "Authorization: Bearer <the value>" http://localhost:8080/metrics
+```
+
+On Kubernetes, put `KEPT_METRICS_TOKEN` in a Secret and name it in the chart's
+`metrics.tokenSecret` ([Kubernetes](/install/kubernetes/)).
+
+## 2. Scrape it
+
+Save the token in a file Prometheus can read, such as `/etc/prometheus/kept-token`, and add a job:
 
 ```yaml
 scrape_configs:
   - job_name: kept
     metrics_path: /metrics
-    scheme: http
     authorization:
       type: Bearer
-      credentials_file: /path/to/kept_metrics_token
+      credentials_file: /etc/prometheus/kept-token
     static_configs:
       - targets: ['kept:8080']
 ```
 
-If Kept is behind a reverse proxy, use the proxy's address instead of `kept:8080`.
+`kept:8080` is Kept's service on the Compose network; from elsewhere, use the address and port
+Prometheus reaches Kept at. Reload Prometheus: its targets page should show `kept` as up.
 
-Reload Prometheus. The targets page should show `kept` as up.
+## 3. What to watch
 
-## 3. Key metrics to watch
+| Metric | Watch for |
+|---|---|
+| `kept_process_uptime_seconds` | Falls back to a small number when the process restarts |
+| `kept_process_resident_memory_bytes` | Growth towards the container's memory limit |
+| `kept_db_pool_connections{state="waiting"}` | Above 0 for more than a minute: requests waiting for the database |
+| `kept_backup_last_success_timestamp_seconds` | Older than 36 hours (0 means no good backup yet) |
+| `kept_backup_last_run_status{status="failed"}` | 1: the last backup failed |
+| `kept_disk_used_ratio{volume="data"}` | Above 0.85 |
+| `kept_update_available` | 1: a newer release. Stays 0 unless the update check is on ([upgrades](/admin/upgrades/)) |
 
-| Metric | What to watch | Alert when |
-|---|---|---|
-| `kept_process_uptime_seconds` | Process restarts | Resets to a small number (restart) |
-| `kept_process_resident_memory_bytes` | Memory growth | Exceeds 80% of container limit |
-| `kept_db_pool_connections{state="waiting"}` | Database pressure | > 0 for more than 1 minute |
-| `kept_backup_last_success_timestamp_seconds` | Backup freshness | Older than 36 hours, the app's own stale line |
-| `kept_backup_last_run_status{status="failed"}` | Backup failures | = 1 |
-| `kept_disk_used_ratio{volume="data"}` | Disk space | > 0.85 |
-| `kept_update_available` | New releases | = 1; only changes when the update check is on |
+The backup and disk figures come from an hourly check, so they can be up to an hour old.
 
-## 4. Grafana dashboards
+## 4. Grafana
 
-Import the following panels:
+A dashboard with a panel per row:
 
-### Build info
-- **Stat**: `kept_build_info`: shows version and revision.
+- **Stat**: `kept_build_info`, by its `version` label.
+- **Time series**: `kept_process_uptime_seconds` and `kept_process_resident_memory_bytes`.
+- **Time series**: `kept_db_pool_connections`, by `pool` and `state`.
+- **Stat**: `time() - kept_backup_last_success_timestamp_seconds`, the backup's age in seconds.
+- **Stat**: `kept_backup_last_run_status`, by `status`.
+- **Gauge**: `kept_disk_used_ratio{volume="data"}`, from 0 to 1.
 
-### Uptime and memory
-- **Time series**: `kept_process_uptime_seconds`: process uptime; it resets to a small number
-  after a restart, not to 0.
-- **Time series**: `kept_process_resident_memory_bytes`: memory usage.
-
-### Database
-- **Time series**: `kept_db_pool_connections` grouped by `pool` and `state`: connection pool health.
-
-### Backups
-- **Stat**: `time() - kept_backup_last_success_timestamp_seconds`: seconds since last good backup.
-- **Stat**: `kept_backup_last_run_status`: last run's status.
-
-### Disk
-- **Gauge**: `kept_disk_used_ratio{volume="data"}`: data disk usage (0–1).
-
-### Updates
-- **Stat**: `kept_update_available`: 1 when a newer release exists and the update check is
-  turned on.
-
-## 5. Alerting rules
-
-Example Prometheus alerting rules:
+## 5. Alerts
 
 ```yaml
 groups:
@@ -107,31 +90,32 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Kept is down"
+          summary: Kept is down
 
       - alert: KeptBackupStale
-        expr: kept_backup_last_success_timestamp_seconds > 0 and time() - kept_backup_last_success_timestamp_seconds > 129600
+        expr: >-
+          kept_backup_last_success_timestamp_seconds > 0
+          and time() - kept_backup_last_success_timestamp_seconds > 36 * 3600
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: "Kept backup is older than 36 hours"
+          summary: Kept's last good backup is more than 36 hours old
 
       - alert: KeptBackupFailed
         expr: kept_backup_last_run_status{status="failed"} == 1
-        for: 1m
         labels:
           severity: critical
         annotations:
-          summary: "Kept backup failed"
+          summary: Kept's last backup failed
 
-      - alert: KeptDiskFull
+      - alert: KeptDiskFilling
         expr: kept_disk_used_ratio{volume="data"} > 0.85
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: "Kept data disk is over 85% full"
+          summary: Kept's data disk is over 85% full
 
       - alert: KeptUpdateAvailable
         expr: kept_update_available == 1
@@ -139,11 +123,15 @@ groups:
         labels:
           severity: info
         annotations:
-          summary: "A new Kept release is available"
+          summary: A new Kept release is available
 ```
+
+The 36 hours and 85% match Kept's own admin alerts
+([watching backups](/admin/backups/#watching-it)). The `> 0` keeps the stale-backup rule quiet on a
+Kept that hasn't made its first backup: the metric is 0 until then.
 
 ## Related
 
-- [Monitoring](/admin/observability/) for the metrics reference, health checks, logs and tracing.
-- [Backups](/admin/backups/) for backup configuration.
-- [Troubleshooting](/admin/troubleshooting/) for common problems.
+- [Monitoring](/admin/observability/): health checks, metrics, logs, tracing and error reporting.
+- [Backups](/admin/backups/) for turning backups on.
+- [Troubleshooting](/admin/troubleshooting/) when an alert fires.
