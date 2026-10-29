@@ -87,6 +87,7 @@ export const PRIVATE_IPV4_ALLOWED = new Map([
   ['apps/server/src/http/ingress.ts', "Home Assistant's Supervisor and Core addresses"],
   ['docker/ha/kept-ha-start', "Home Assistant's Supervisor and Core, Kept's trusted proxies"],
   ['scripts/ha-ingress-e2e.sh', "the ingress e2e's copy of Home Assistant's network"],
+  ['scripts/smoke-ha-image.sh', "checks Kept trusts the Supervisor's address alone"],
   ['apps/web/e2e-ha/Caddyfile', "the ingress mimic, at the Supervisor's address"],
 ]);
 
