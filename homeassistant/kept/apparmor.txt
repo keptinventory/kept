@@ -2,7 +2,10 @@
 
 # Kept's Home Assistant app (D272). In complain mode until the Home Assistant OS run reads its
 # audit log (`journalctl _TRANSPORT="audit" -g 'apparmor="ALLOWED"'`) after using every feature,
-# then enforced (the security guide's method).
+# then enforced (the security guide's method). The rules marked "complain run" cover what the
+# 2026-10-29 run on aarch64 logged (setup, a backup, an uninstall and restore, a reboot). The
+# launch (docs/runbooks/release.md, W3b) drops `complain` only after a run in enforce mode shows
+# zero denials.
 profile kept flags=(attach_disconnected,mediate_deleted,complain) {
   #include <abstractions/base>
   #include <abstractions/nameservice>
@@ -16,6 +19,8 @@ profile kept flags=(attach_disconnected,mediate_deleted,complain) {
   capability setgid,
   capability setuid,
   capability kill,
+  # Complain run: install, chmod and sed in the start script keep or set modes on root's files.
+  capability fsetid,
 
   network inet stream,
   network inet6 stream,
@@ -39,9 +44,16 @@ profile kept flags=(attach_disconnected,mediate_deleted,complain) {
   /{usr/,}sbin/** ix,
   /usr/lib/postgresql/18/bin/* ix,
   /usr/lib/postgresql/18/lib/** mr,
+  # Complain run: sharp's native module and its libvips, mapped by Kept (photo resizing). arm64
+  # was logged; x64 is the same package for amd64.
+  # Quoted, so no "@" is read as the start of a variable (@{...}).
+  "/app/node_modules/.pnpm/@img+sharp-linux-{arm64,x64}@*/node_modules/@img/sharp-linux-{arm64,x64}/lib/*.node" mr,
+  "/app/node_modules/.pnpm/@img+sharp-libvips-linux-{arm64,x64}@*/node_modules/@img/sharp-libvips-linux-{arm64,x64}/lib/lib*.so*" mr,
 
   # Read-only: the app, the system, Home Assistant's certificates.
   /app/** r,
+  # Complain run: find (the start script's) opens its working directory, /app.
+  /app/ r,
   /usr/** r,
   /etc/** r,
   /ssl/** r,
@@ -52,11 +64,21 @@ profile kept flags=(attach_disconnected,mediate_deleted,complain) {
   /sys/devices/system/** r,
 
   # Everything that lasts, and what doesn't.
-  /data/ r,
+  # Complain run: the start script chowns and chmods /data itself (AppArmor's `w` on it); it
+  # creates nothing there through this rule, since a new file is checked by its own path.
+  /data/ rw,
   /data/** rwk,
+  # Complain run: atomic writes (a temporary file, then a link to the final name) for Kept's keys,
+  # the database logins' passwords and the owner login's.
+  /data/config/** l,
+  /data/owner/* l,
   /tmp/** rwlk,
   /run/** rwk,
   /dev/shm/** rwk,
+  # Complain run: Postgres's main shared memory is an anonymous shared mapping (shared_memory_type
+  # mmap, Linux's default). It has no path of its own, and under attach_disconnected AppArmor names
+  # it "/". This rule is that one path, not a glob: it grants nothing under /.
+  / rw,
   /dev/null rw,
   /dev/zero r,
   /dev/urandom r,

@@ -148,6 +148,12 @@ maintainer: Ibrahim Roshdy <22573766+ibrahimroshdy@users.noreply.github.com>
 The same pull request removes the "Not available yet" cautions from `homeassistant/kept/DOCS.md`
 and the docs site's `install/home-assistant.md`.
 
+The app's AppArmor profile (`homeassistant/kept/apparmor.txt`) ships in `complain` mode until
+then. The launch removes `complain` only after a Home Assistant OS VM run with the profile
+enforced (setup, a backup, an uninstall and restore, a reboot, photo uploads) shows zero denials:
+`journalctl _TRANSPORT="audit" -g 'apparmor="DENIED"'` empty for the app's profile. A denial is
+a missing rule: add the narrowest one and run again.
+
 **W4. Push `main`.** The tagged commit must be on `origin/main`, and a tag push runs the
 `release.yml` **in the tagged commit**, so the commit that adds it must be pushed before the first
 tag. Actions must stay enabled for the repository (it is, with "all actions" allowed: read
