@@ -5,7 +5,7 @@ description: "The short path from nothing to your first thing in Kept, with a li
 
 The short path, one step per line. Each step links to the page with the detail.
 
-1. **Install it.** Docker with the Compose plugin; tested on 2 GB of RAM and 2 CPU cores.
+1. **Install it.** Docker with the Compose plugin; tested on 1 GB of RAM and one CPU core.
    Download `compose.yaml`, then `docker compose run --rm init` (it asks for the address you'll
    open Kept at and writes `.env`) and `docker compose up -d`. No copy of the repository and no
    passwords to make. [Install with Docker Compose](/install/compose/)

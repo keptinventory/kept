@@ -52,13 +52,13 @@ See [Kept on your phone](/users/phone-app/#install-it) and [HTTPS](/install/http
 ## Does it run on arm64, or a Raspberry Pi?
 
 The images are built for amd64 and arm64, so ARM servers and Docker on Apple Silicon run them. A
-Raspberry Pi with 2 GB or more will probably work, but no release is tested on one. Kept is tested
-on 2 GB of RAM and 2 CPU cores (arm64). See [what was tested](/install/hardware/).
+Raspberry Pi with 1 GB or more will probably work, but no release is tested on one. Kept is tested
+on 1 GB of RAM and one or two CPU cores (arm64). See [what was tested](/install/hardware/).
 
 ## How many people can use one Kept?
 
 Kept is sized by things rather than people: its targets are 10,000 things in a location and
-50,000 in an instance; the 2 GB test used 3,000 in one location. People join a location by invite,
+50,000 in an instance; the 1 GB test used 3,000 in one location. People join a location by invite,
 and each location can also hold up to 20 managed accounts for people without email. See [what it needs](/install/hardware/) and
 [inviting people](/users/first-run/#5-invite-people).
 

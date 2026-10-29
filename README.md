@@ -115,8 +115,8 @@ open the box.
 
 ## Quick start: host it
 
-Docker with Compose v2. Tested on 2 GB of RAM and 2 CPU cores: Kept and its database use about
-200–400 MB, a backup about 500 MB more while it runs
+Docker with Compose v2. Tested on 1 GB of RAM and one CPU core, a backup during photo uploads
+included; Kept and its database use about 200–400 MB
 ([what was tested](https://keptinventory.info/install/hardware/)).
 
 ```sh

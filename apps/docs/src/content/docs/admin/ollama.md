@@ -11,7 +11,7 @@ on your own hardware, so nothing leaves it; Kept talks to it as an **OpenAI-comp
 
 :::caution[Not tested]
 Ollama hasn't been measured with Kept. A model shares the machine's memory with Kept, so plan for
-more than the [2 GB Kept is tested on](/install/hardware/), and expect a small model to be slower
+more than the [1 GB Kept is tested on](/install/hardware/), and expect a small model to be slower
 and less accurate than a hosted one at reading receipts.
 :::
 
