@@ -1,12 +1,12 @@
 #include <tunables/global>
 
-# Kept's Home Assistant app (D272). In complain mode until the Home Assistant OS run reads its
-# audit log (`journalctl _TRANSPORT="audit" -g 'apparmor="ALLOWED"'`) after using every feature,
-# then enforced (the security guide's method). The rules marked "complain run" cover what the
-# 2026-10-29 run on aarch64 logged (setup, a backup, an uninstall and restore, a reboot). The
-# launch (docs/runbooks/release.md, W3b) drops `complain` only after a run in enforce mode shows
-# zero denials.
-profile kept flags=(attach_disconnected,mediate_deleted,complain) {
+# Kept's Home Assistant app (D272). Enforced. The rules marked "complain run" cover what a
+# complain-mode run on Home Assistant OS 18.4 (aarch64, 2026-10-29) logged: setup, a backup, an
+# uninstall and restore, a reboot. The same VM then ran the profile enforced through two updates,
+# a restart, a backup and photo uploads with zero denials
+# (`journalctl _TRANSPORT="audit" -g 'apparmor="DENIED"'`). A denial is a missing rule: add the
+# narrowest one, run it in complain mode, then enforced again.
+profile kept flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
   #include <abstractions/nameservice>
   #include <abstractions/openssl>
