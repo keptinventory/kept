@@ -198,7 +198,9 @@ pg_user=$(docker exec "$app" sh -c 'stat -c %U /data/postgres')
 [[ $pg_user == postgres ]] || fail "/data/postgres is owned by $pg_user"
 
 step "set up the instance (the code from the log), so a restore has something to keep"
-status=$(curl -s -o /dev/null -w '%{http_code}' -H 'content-type: application/json' -H "origin: $base" \
+# Setup must come from Kept's own page (1.14.2): the Origin is Kept's address, as for sign-in below.
+status=$(curl -s -o /dev/null -w '%{http_code}' -H 'content-type: application/json' \
+  -H 'origin: http://homeassistant.local:8080' \
   -d "{\"code\":\"$code\",\"email\":\"smoke@example.com\",\"password\":\"correct horse battery\",\"displayName\":\"Smoke\"}" \
   "$base/api/v1/setup")
 [[ $status == 201 ]] || fail "setup answered $status"
