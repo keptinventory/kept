@@ -3,6 +3,31 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.14.3 (2026-10-29)
+
+### Highlights
+
+- **Floor plan to map.** Upload a plan and Kept drafts its rooms; you check them, then add them with one Undo.
+  <!-- whats-new ![map](floor-plan.webp) -->
+- **Fold places in the place tree.** Fold a place, or all of them; the path to your page stays open (#358).
+  <!-- whats-new ![places](place-folds.mp4) -->
+- **Runs on 1 GB.** Tested on 1 GB of memory with one core; a backup now needs about half the memory (#176).
+  <!-- whats-new ![settings](backups.webp) -->
+- **Coming to Home Assistant.** Kept as an app in Home Assistant's sidebar, backed up with Home Assistant; it shows up there once its listing is added.
+  <!-- whats-new ![map](home-assistant.webp) -->
+
+### Other
+
+- 1.14.3: floor plan to map, What's new with pictures, fold places (#358), runs on 1 GB (#176), the Home Assistant app (#359, closes #176, #358) (dad0fd5)
+
+### Documentation
+
+- **release:** the 1.14.2 record (#356) (a645e2e)
+
+### Contributors
+
+@ibrahimroshdy
+
 ## 1.14.2 (2026-10-28)
 
 ### Highlights
