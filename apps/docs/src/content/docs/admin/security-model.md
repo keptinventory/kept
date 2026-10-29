@@ -136,7 +136,7 @@ Imports and uploads are treated as hostile. The defaults:
 | Limit | Default |
 |---|---|
 | Import ZIP | 5 GB uncompressed, 100:1 compression per entry, 200,000 entries, no symlinks |
-| Images | decoded up to 100 megapixels, one at a time under 3 GB of RAM |
+| Images | decoded up to 100 megapixels, one at a time under 3 GB of RAM or a container limit under 3 GB |
 | PDFs | parsed in a child process, 20 s and 256 MB |
 | Uploads | `KEPT_MAX_FILE_MB` (25 MB by default), refused before the body is read |
 

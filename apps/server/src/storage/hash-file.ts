@@ -11,8 +11,22 @@ export const HASH_CHUNK_BYTES = 1024 * 1024;
 /** The buffer the last hash finished with; a hash running at the same time takes its own. */
 let spare: Buffer | null = null;
 
-export async function hashFileBytes(file: string): Promise<{ sha256: string; bytes: number }> {
-  const fh = await open(file, 'r');
+/** What hashFileBytes needs of an open file (fs/promises' FileHandle; tests pass their own). */
+export type HashableFile = {
+  read(
+    buffer: Buffer,
+    offset: number,
+    length: number,
+    position: null,
+  ): Promise<{ bytesRead: number }>;
+  close(): Promise<void>;
+};
+
+export async function hashFileBytes(
+  file: string,
+  openFile: (file: string, flags: 'r') => Promise<HashableFile> = open,
+): Promise<{ sha256: string; bytes: number }> {
+  const fh = await openFile(file, 'r');
   const buf = spare ?? Buffer.allocUnsafeSlow(HASH_CHUNK_BYTES);
   spare = null;
   try {

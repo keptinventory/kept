@@ -666,7 +666,7 @@ export type HostInfo = { arch: string; totalMemBytes: number };
 
 const SMALL_HOST_BYTES = 3 * 1024 ** 3;
 
-/** D209: one image at a time on a small host (the 2 GB floor), two anywhere else. */
+/** D209: one image at a time on a small host (under 3 GB), two anywhere else. */
 export function defaultImageConcurrency(totalMemBytes: number): number {
   return totalMemBytes < SMALL_HOST_BYTES ? 1 : 2;
 }

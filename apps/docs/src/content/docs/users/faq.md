@@ -52,7 +52,7 @@ See [Kept on your phone](/users/phone-app/#install-it) and [HTTPS](/install/http
 ## Does it run on arm64, or a Raspberry Pi?
 
 The images are built for amd64 and arm64, so ARM servers and Docker on Apple Silicon run them. A
-Raspberry Pi with 1 GB or more will probably work, but no release is tested on one. Kept is tested
+Raspberry Pi with 1 GB or more may fit, slower; no release is tested on one. Kept is tested
 on 1 GB of RAM and one or two CPU cores (arm64). See [what was tested](/install/hardware/).
 
 ## How many people can use one Kept?

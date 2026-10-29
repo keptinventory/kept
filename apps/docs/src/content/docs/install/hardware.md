@@ -24,7 +24,7 @@ passed there, a backup during photo uploads included. 2 GB leaves room to spare.
 |---|---|---|---|---|
 | 1 GB, 2 cores (3 runs) | passed | passed | passed | 730–745 MB |
 | 1 GB, 1 core | passed | passed | passed | 740 MB |
-| 768 MB, 1 core | passed | out of memory | passed on its own (one run) | — |
+| 768 MB, 1 core | passed until the backup ran out of memory; 9 uploads and both PDFs failed while Kept restarted | out of memory | passed on its own (one run) | — |
 
 Peaks are memory that can't be given back (page cache not counted), for the whole machine, Docker
 included. Out of memory, the system killed Kept's process and Docker restarted it.
@@ -40,17 +40,17 @@ included. Out of memory, the system killed Kept's process and Docker restarted i
 
 - **1 GB, 1 or 2 cores:** tested, every run passed, with about 150 MB to spare at the peak.
 - **2 GB:** room to spare, for other services beside Kept.
-- **768 MB:** Kept and its scheduled backup ran; a manual backup while photos uploaded ran out of
-  memory. Not recommended.
+- **768 MB:** Kept ran, and so did Back up now (the scheduled backup's path); `kept admin backup`
+  while photos uploaded ran out of memory. Not recommended.
 
 ## Raspberry Pi
 
-Not tested on one. The arm64 image is the one these tests ran, so a Pi with 1 GB or more will
-probably behave like the 1 GB rows, but no release is tested on a Pi.
+Not tested on one. The arm64 image is the one these tests ran, so a Pi with 1 GB or more may fit
+like the 1 GB rows; expect it to be slower. No release is tested on a Pi.
 
 ## What's heavy
 
-- **Backups.** `kept admin backup` adds about 300 MB while it runs, the scheduled backup about
+- **Backups.** `kept admin backup` adds about 300–400 MB while it runs, the scheduled backup about
   150 MB; restic itself about 100 MB of that.
 - **Photo resizing.** Each upload is resized as it arrives. Under 3 GB of RAM, or a container limit
   under 3 GB, Kept resizes one at a time, else two (`KEPT_IMAGE_CONCURRENCY` overrides it). Memory

@@ -26,7 +26,42 @@ describe('hashFileBytes', () => {
     expect(await hashFileBytes(file)).toEqual({ sha256: sha(bytes), bytes: size });
   });
 
-  it('keeps files apart when several are hashed at once (the reused buffer is never shared)', async () => {
+  it("keeps files apart when several are hashed at once: a read finishing late never sees another file's bytes", async () => {
+    // Stand-in files whose reads interleave by design: each read writes its bytes into the buffer
+    // it was given at once, but resolves only when the test says so. A starts reading, then B
+    // starts and writes into its buffer, then A's read resolves. Were the buffer shared, A would
+    // hash B's bytes.
+    const contents: Record<string, Buffer> = { a: Buffer.from('aaaa'), b: Buffer.from('bbbb') };
+    const pending: (() => void)[] = [];
+    const openFile = async (name: string) => {
+      let done = false;
+      return {
+        read: (buf: Buffer) => {
+          if (done) return Promise.resolve({ bytesRead: 0, buffer: buf });
+          done = true;
+          const bytes = contents[name] as Buffer;
+          bytes.copy(buf);
+          return new Promise<{ bytesRead: number; buffer: Buffer }>((resolve) =>
+            pending.push(() => resolve({ bytesRead: bytes.length, buffer: buf })),
+          );
+        },
+        close: async () => {},
+      };
+    };
+    const tick = () => new Promise((r) => setImmediate(r));
+    const a = hashFileBytes('a', openFile);
+    await tick();
+    const b = hashFileBytes('b', openFile);
+    await tick();
+    expect(pending).toHaveLength(2);
+    pending.shift()?.(); // A's read resolves after B wrote
+    await tick();
+    pending.shift()?.();
+    expect(await a).toEqual({ sha256: sha(contents.a as Buffer), bytes: 4 });
+    expect(await b).toEqual({ sha256: sha(contents.b as Buffer), bytes: 4 });
+  });
+
+  it('hashes real files at once correctly', async () => {
     const files = await Promise.all(
       [3, 2, 1].map(async (n) => {
         const bytes = randomBytes(HASH_CHUNK_BYTES * n + n);

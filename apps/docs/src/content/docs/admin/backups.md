@@ -84,7 +84,11 @@ sudo chmod 700 /mnt/backup/kept
 - **When:** every night at the time set in Admin → Backups, `HH:MM` in UTC (default `02:30`).
   A new time applies from the next night, with no restart; `KEPT_BACKUP_TIME` fixes it instead.
 - **Back up now** runs one at once; pressing it again while that one waits or runs is refused
-  ("A backup is already running") rather than queued twice.
+  ("A backup is already running") rather than queued twice. A backup cut off by a restart or by
+  running out of memory doesn't block it; the next run marks that one interrupted.
+- **On a small machine** (under 4 GB, or a container limit under 4 GB) restic runs on at most two
+  cores with a soft memory limit; `GOMAXPROCS` and `GOMEMLIMIT` in Kept's environment (with Compose,
+  a `compose.override.yaml`) override both.
 - **How long they're kept:** the newest snapshot of each of the last **7 days, 4 weeks and 6
   months** (`KEPT_BACKUP_KEEP_DAILY`, `_WEEKLY`, `_MONTHLY`). The alpha's `KEPT_BACKUP_KEEP` is
   read as the daily count for one release. Snapshots taken before an upgrade keep their last 3.
