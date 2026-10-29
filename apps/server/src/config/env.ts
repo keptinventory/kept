@@ -1,11 +1,11 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { link, mkdir, open, readFile, unlink } from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { z } from 'zod';
 import { parseTrustedProxies } from '../auth/client-ip.js';
 import { isCrockford, normaliseCrockford } from '../crypto/crockford.js';
 import { completeDatabaseUrls } from './db-passwords.js';
+import { effectiveMemoryBytes } from './host.js';
 
 export type EnvErrorCode =
   | 'invalid_env'
@@ -195,7 +195,9 @@ const schema = z.object({
     .min(1)
     .max(32)
     .optional()
-    .describe('images resized at once, process-wide; default 1 with under 3 GB of RAM, else 2'),
+    .describe(
+      'images resized at once, process-wide; default 1 under 3 GB of RAM or a container limit under 3 GB, else 2',
+    ),
   // Only read when KEPT_STORAGE=s3; then the bucket and both credentials are required.
   KEPT_S3_ENDPOINT: httpUrl()
     .optional()
@@ -1039,7 +1041,8 @@ export async function loadEnv(
       );
     }
   }
-  const host = opts.host ?? { arch: process.arch, totalMemBytes: os.totalmem() };
+  // The container's limit when it has one (config/host.ts): os.totalmem() is the host's RAM.
+  const host = opts.host ?? { arch: process.arch, totalMemBytes: effectiveMemoryBytes() };
 
   // D147: outside dev, the image sets KEPT_SOURCE_URL from its OCI labels; refuse to boot
   // without it so a production deploy is never silently unattributed.

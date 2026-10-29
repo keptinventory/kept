@@ -41,7 +41,7 @@ The Compose file passes the common ones through from `.env`; the rest go in a
 | `KEPT_CONFIG_DIR` | `/config` | config volume; holds only the generated secret keys |
 | `KEPT_DATA_DIR` | `/data` | data volume; local file storage |
 | `KEPT_MAX_FILE_MB` | `25` | largest file one upload may be, in MB (§3.4) |
-| `KEPT_IMAGE_CONCURRENCY` |  | images resized at once, process-wide; default 1 with under 3 GB of RAM, else 2 |
+| `KEPT_IMAGE_CONCURRENCY` |  | images resized at once, process-wide; default 1 under 3 GB of RAM or a container limit under 3 GB, else 2 |
 | `KEPT_S3_ENDPOINT` |  | S3 endpoint URL; empty for AWS itself (e.g. `http://rustfs:9000`) |
 | `KEPT_S3_PUBLIC_ENDPOINT` |  | S3 endpoint the browser reaches, for presigned URLs; empty: `KEPT_S3_ENDPOINT` (e.g. `https://files.example.com`) |
 | `KEPT_S3_REGION` | `us-east-1` | S3 region |

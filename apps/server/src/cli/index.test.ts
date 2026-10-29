@@ -32,6 +32,31 @@ afterAll(async () => {
 });
 
 describe('kept CLI', () => {
+  it("loads no command's code until that command runs: the seed and the HTTP app stay out of `kept admin backup`", async () => {
+    // The seed builds a whole Kept app in-process; loaded by every command, it cost each
+    // `kept admin …` about 44 MiB more memory before any work (1.14.2, measured).
+    const hook = path.join(scratch, 'list-modules.mjs');
+    await writeFile(
+      hook,
+      `import { registerHooks } from 'node:module';
+const seen = [];
+registerHooks({ resolve(s, c, next) { const r = next(s, c); if (r.url.includes('/apps/server/src/') && !seen.includes(r.url)) seen.push(r.url); return r; } });
+process.on('exit', () => process.stderr.write('MODULES ' + JSON.stringify(seen) + '\\n'));
+`,
+    );
+    const { stderr } = await run(
+      process.execPath,
+      ['--import', hook, '--import', 'tsx', entry, 'admin', 'backup', '--help'],
+      { cwd: serverRoot, env: { PATH: process.env.PATH ?? '' } },
+    );
+    const line = stderr.split('\n').find((l) => l.startsWith('MODULES '));
+    const loaded: string[] = JSON.parse(line?.slice('MODULES '.length) ?? '[]');
+    expect(loaded.some((u) => u.endsWith('/cli/index.ts'))).toBe(true);
+    expect(
+      loaded.filter((u) => /\/src\/(seed\/(index|households)|http\/app)\.ts$/.test(u)),
+    ).toEqual([]);
+  });
+
   it('registers migrate and admin config commands', () => {
     const program = buildCli();
     const names = program.commands.map((c) => c.name());

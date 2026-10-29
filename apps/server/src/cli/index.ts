@@ -27,14 +27,9 @@ import { runMigrations } from '../db/migrate.js';
 import { closePools, createPools } from '../db/pools.js';
 import { logMailer, type Mailer } from '../mail/mailer.js';
 import { createMailer, profileLocaleLookup } from '../mail/transport.js';
-import { formatSeedReport, SeedError } from '../seed/households.js';
-import {
-  assertSeedAllowed,
-  runSeed,
-  SCENARIOS,
-  type Scenario,
-  SeedRefused,
-} from '../seed/index.js';
+// The seed builds a whole Kept app (seed/index.ts): loaded only by `kept admin seed`, so every
+// other command starts without it (about 44 MiB less, measured on 1.14.2).
+import { SCENARIOS, type Scenario } from '../seed/scenarios.js';
 import { setupCodeLine } from '../setup/setup-code.js';
 import { createFileStorage } from '../storage/create.js';
 import { backfillPdfTextCommand } from './backfill-pdf-text.js';
@@ -262,6 +257,8 @@ export function buildCli(): Command {
     .option('--scenario <name>', `one of: ${SCENARIOS.join(', ')}`, 'households')
     .option('--things <n>', 'bench: things in the largest location', '10000')
     .action(async (opts: { scenario: string; things: string }) => {
+      const { assertSeedAllowed, runSeed } = await import('../seed/index.js');
+      const { formatSeedReport, SeedError } = await import('../seed/households.js');
       assertSeedAllowed(process.env.NODE_ENV);
       if (!(SCENARIOS as readonly string[]).includes(opts.scenario)) {
         throw new SeedError(`unknown scenario ${opts.scenario}; one of: ${SCENARIOS.join(', ')}`);
@@ -505,6 +502,12 @@ export function isEntrypoint(moduleUrl: string, argv1: string | undefined = proc
   }
 }
 
+/** The seed's refusals (seed/client.ts SeedError, seed/index.ts SeedRefused), by name: the seed's
+ * modules are loaded only when it runs. */
+function isSeedError(err: unknown): err is Error {
+  return err instanceof Error && (err.name === 'SeedError' || err.name === 'SeedRefused');
+}
+
 // Only auto-run when this file is the process entrypoint, not when a test imports it.
 if (isEntrypoint(import.meta.url)) {
   // Password-less database URLs take their password from the bootstrap's files, before any
@@ -520,8 +523,7 @@ if (isEntrypoint(import.meta.url)) {
           err instanceof RestoreError ||
           err instanceof ExportError ||
           err instanceof PgToolError ||
-          err instanceof SeedError ||
-          err instanceof SeedRefused
+          isSeedError(err)
           ? `kept: ${err.message}`
           : err,
       );

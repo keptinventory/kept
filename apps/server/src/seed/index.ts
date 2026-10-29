@@ -15,8 +15,9 @@ import { type SeedReport, seedHouseholds } from './households.js';
 // Later steps add their own (vehicles, loans, warranties, expiring things, all five currencies:
 // D152).
 
-export const SCENARIOS = ['households', 'bench'] as const;
-export type Scenario = (typeof SCENARIOS)[number];
+import { SCENARIOS, type Scenario } from './scenarios.js';
+
+export { SCENARIOS, type Scenario };
 
 export class SeedRefused extends Error {
   constructor(message: string) {
