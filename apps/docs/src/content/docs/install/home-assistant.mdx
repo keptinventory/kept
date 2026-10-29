@@ -29,11 +29,11 @@ imports, Paperless, several people.
 | First account | A Home Assistant admin sets up without the code | The setup code from Kept's log |
 | Settings | The app's **Configuration** tab | `.env` or the chart's values |
 | Offline, installing the phone app, push | Kept's own address over https; not in the sidebar | Over https |
-| Passkeys, OIDC, Google | Kept's own address (over https for passkeys) | Kept's address |
+| Passkeys, OIDC, Google | Kept's own address (https for passkeys; https and a public domain name for Google) | Kept's address |
 | Backups | Home Assistant's backups; off the box through its [backup locations](https://www.home-assistant.io/common-tasks/general/backups/) | Kept's own nightly backups: restic to a folder, S3 or SFTP |
 | Photos and files | In the app's data | On disk, or S3 |
 
-- **The app:** you already run Home Assistant OS or Supervised (it needs the Supervisor).
+- **The app:** you already run Home Assistant OS.
 - **Compose or Kubernetes:** anything else; or photos and files on S3; or Kept's own off-box
   backups.
 
@@ -73,13 +73,18 @@ also serves Kept on **port 8080**. The **Log** tab names it, for example
 | https on Kept's port | Serves the port over https with Home Assistant's certificate from `/ssl` (from the DuckDNS or Let's Encrypt apps). Restart the app after the certificate renews. |
 | Outgoing mail | An `smtps://` URL: sign-in links, invites and reminders by mail. |
 | OIDC, Google | Sign-in with your own identity provider or with Google. Empty: off. |
+| Apprise server | The Apprise API server for Apprise notification channels. Empty: none. |
 | Sign-up | `true` or `false` locks it open or closed; unset, an admin decides. |
 | Upload limit (MB) | 1 to 2048; default 25. |
 
 The provider sends people back to Kept's own address, never to Home Assistant. Redirect URL to
 register: `<Kept's address>/api/v1/auth/callback/oidc` for OIDC,
 `<Kept's address>/api/v1/auth/callback/google` for Google. The **Log** tab prints it once the
-sign-in is on. Inside Home Assistant, **Sign in with …** opens Kept's address in a new tab.
+sign-in is configured. Inside Home Assistant, **Sign in with …** opens Kept's address in a new tab.
+
+Google refuses a redirect URL on http, on a `.local` name or on an IP address
+([Google's rules](https://developers.google.com/identity/protocols/oauth2/web-server#uri-validation)): set **Kept's address** to https with a public domain name,
+for example a DuckDNS name with **https on Kept's port**. The **Log** tab warns when it won't do.
 
 Turning port 8080 off (Configuration → Network) leaves only the sidebar: labels and the phone app
 then don't open.
@@ -109,7 +114,8 @@ plain http. Passkeys belong to Kept's own address: sign in with one there. More 
 - **Off the box:** add a network share or a cloud location in Home Assistant's backup settings
   ([Home Assistant's backups](https://www.home-assistant.io/common-tasks/general/backups/)).
 - **Updates:** the app's version is Kept's. An update keeps Kept's data and upgrades its database
-  on start.
+  on start. Turn on **Keep backup of the last version** in Home Assistant's update dialog: Kept's
+  own pre-upgrade snapshot is off in the app.
 
 ## The integration
 

@@ -182,10 +182,10 @@ describe('sign-in, sign-up and uploads', () => {
       self,
     });
     expect(lines).toContain(
-      'OIDC sign-in is on. Redirect URL to register: https://kept.example.org/api/v1/auth/callback/oidc',
+      'OIDC sign-in is configured. Redirect URL to register: https://kept.example.org/api/v1/auth/callback/oidc',
     );
     expect(lines).toContain(
-      'Google sign-in is on. Redirect URL to register: https://kept.example.org/api/v1/auth/callback/google',
+      'Google sign-in is configured. Redirect URL to register: https://kept.example.org/api/v1/auth/callback/google',
     );
   });
 
@@ -205,6 +205,52 @@ describe('sign-in, sign-up and uploads', () => {
     expect(env).not.toHaveProperty('KEPT_OIDC_ISSUER');
     expect(env).not.toHaveProperty('KEPT_OIDC_CLIENT_ID');
     expect(lines.join('\n')).toMatch(/OIDC sign-in is off/);
+  });
+
+  it('refuses an issuer zod would refuse: http(s) and two slashes, or Kept would not boot', () => {
+    for (const bad of ['http:foo', 'https:/id.example.org', 'HTTPS:id.example.org']) {
+      const { env, lines } = run({ ...oidc, oidc_issuer: bad });
+      expect(env, bad).not.toHaveProperty('KEPT_OIDC_ISSUER');
+      expect(lines.join('\n')).toMatch(/OIDC sign-in is off/);
+    }
+    expect(run({ ...oidc, oidc_issuer: 'HTTPS://id.example.org' }).env.KEPT_OIDC_ISSUER).toBe(
+      'HTTPS://id.example.org',
+    );
+  });
+
+  it('warns that Google refuses a redirect URL on http, a .local name or an IP address', () => {
+    const at = (public_url) => appEnv({ options: { ...google, public_url }, info, self }).lines;
+    for (const url of [
+      'http://kept.example.org',
+      'https://homeassistant.local:8080',
+      'https://192.168.1.20:8080',
+      'https://[fd00::1]:8080',
+    ]) {
+      expect(at(url).join('\n'), url).toMatch(
+        /Google refuses this redirect URL: .*https.*public domain name.*Kept's address/,
+      );
+    }
+    // The derived address is http://homeassistant.local:8080: warned too.
+    expect(run(google).lines.join('\n')).toMatch(/Google refuses this redirect URL/);
+    expect(at('https://kept.example.org').join('\n')).not.toMatch(/Google refuses/);
+    // Only when Google is on.
+    expect(
+      appEnv({ options: { public_url: 'http://x.local' }, info, self }).lines.join('\n'),
+    ).not.toMatch(/Google/);
+  });
+
+  it('passes the Apprise API server, an http(s) URL, and never logs it', () => {
+    const url = 'https://user:apprise-s3cret@apprise.example.org:8000';
+    const { env, lines } = run({ apprise_url: ` ${url} ` });
+    expect(env.KEPT_APPRISE_URL).toBe(url);
+    expect(lines.join('\n')).not.toContain('apprise-s3cret');
+    expect(run({ apprise_url: '' }).env).not.toHaveProperty('KEPT_APPRISE_URL');
+    for (const bad of ['apprise.lan:8000', 'ftp://apprise.lan', 'http:apprise.lan']) {
+      const out = run({ apprise_url: bad });
+      expect(out.env, bad).not.toHaveProperty('KEPT_APPRISE_URL');
+      expect(out.lines.join('\n')).toMatch(/Apprise server is ignored/);
+      expect(out.lines.join('\n')).not.toContain(bad);
+    }
   });
 
   it('drops a provider name over 60 characters, as Kept would refuse it', () => {

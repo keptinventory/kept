@@ -72,5 +72,7 @@ schema:
   oidc_scopes: "str?"
   google_client_id: "str?"
   google_client_secret: "password?"
+  # The Apprise API server; "password?" because its URL may carry a login.
+  apprise_url: "password?"
   signup_open: "list(true|false)?"
   max_file_mb: "int(1,2048)?"

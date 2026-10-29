@@ -133,6 +133,17 @@ export function appEnv({ options, info, self }) {
 
   signIn(opts, env, lines);
 
+  // Apprise channels (D232) go through this Apprise API server; unset, nobody can add one. It may
+  // carry a login, so its value is never in a log line.
+  const apprise = text(opts.apprise_url);
+  if (apprise && httpUrl(apprise)) {
+    env.KEPT_APPRISE_URL = apprise;
+  } else if (apprise) {
+    lines.push(
+      'The Apprise server is ignored: it must be an http(s) URL, like http://apprise:8000.',
+    );
+  }
+
   // Unset: Admin → Settings decides; set, it locks sign-up open or closed.
   const signup = String(opts.signup_open ?? '').trim();
   if (signup === 'true' || signup === 'false') env.KEPT_SIGNUP_OPEN = signup;
@@ -185,7 +196,7 @@ function signIn(opts, env, lines) {
       const value = text(opts[option]);
       if (value) env[variable] = value;
     }
-    lines.push(`OIDC sign-in is on. Redirect URL to register: ${callbackUrl(env, 'oidc')}`);
+    lines.push(`OIDC sign-in is configured. Redirect URL to register: ${callbackUrl(env, 'oidc')}`);
   } else if (issuer && clientId) {
     lines.push(
       'OIDC sign-in is off: the issuer must be an http(s) URL, as its discovery document states it.',
@@ -199,7 +210,14 @@ function signIn(opts, env, lines) {
   if (googleId && googleSecret) {
     env.KEPT_GOOGLE_CLIENT_ID = googleId;
     env.KEPT_GOOGLE_CLIENT_SECRET = googleSecret;
-    lines.push(`Google sign-in is on. Redirect URL to register: ${callbackUrl(env, 'google')}`);
+    lines.push(
+      `Google sign-in is configured. Redirect URL to register: ${callbackUrl(env, 'google')}`,
+    );
+    if (!googleAccepts(env.KEPT_PUBLIC_URL)) {
+      lines.push(
+        'Google refuses this redirect URL: it needs Kept\'s address on https with a public domain name, not http, a .local name or an IP address. Set "Kept\'s address" to one (for example a DuckDNS name, with "https on Kept\'s port").',
+      );
+    }
   } else if (googleId || googleSecret) {
     lines.push('Google sign-in is off: it needs both the client id and the client secret.');
   }
@@ -209,8 +227,28 @@ function signIn(opts, env, lines) {
 const callbackUrl = (env, provider) =>
   new URL(`/api/v1/auth/callback/${provider}`, env.KEPT_PUBLIC_URL).toString();
 
-/** Whether `value` is an http(s) URL. */
+/**
+ * Whether Google takes `<address>/api/v1/auth/callback/google` as a redirect URI: https, and a
+ * host that is a domain name, not `.local` or an IP address (Google's OAuth 2.0 web server
+ * guide's redirect URI rules; localhost aside, which no Home Assistant address is).
+ */
+function googleAccepts(address) {
+  try {
+    const { protocol, hostname } = new URL(address);
+    if (protocol !== 'https:') return false;
+    const host = hostname.toLowerCase();
+    if (host.endsWith('.local') || host.startsWith('[')) return false;
+    return !/^\d{1,3}(?:\.\d{1,3}){3}$/.test(host);
+  } catch {
+    return false;
+  }
+}
+
+/** Whether `value` is an http(s) URL as Kept's own check takes one (zod's `z.url()` with an
+ * http(s) protocol): the scheme and `//`, so `http:foo` is refused here, not by a Kept that then
+ * won't start. */
 function httpUrl(value) {
+  if (!/^https?:\/\//i.test(value)) return false;
   try {
     const url = new URL(value);
     return url.protocol === 'http:' || url.protocol === 'https:';

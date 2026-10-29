@@ -18,11 +18,11 @@ imports, Paperless, several people.
 | First account | A Home Assistant admin sets up without the code | The setup code from Kept's log |
 | Settings | This app's **Configuration** tab | `.env` or the chart's values |
 | Offline, installing the phone app, push | Kept's own address over https; not in the sidebar | Over https |
-| Passkeys, OIDC, Google | Kept's own address (over https for passkeys) | Kept's address |
+| Passkeys, OIDC, Google | Kept's own address (https for passkeys; https and a public domain name for Google) | Kept's address |
 | Backups | Home Assistant's backups; off the box through its backup locations | Kept's own nightly backups: restic to a folder, S3 or SFTP |
 | Photos and files | In this app's data | On disk, or S3 |
 
-- **This app:** you already run Home Assistant OS or Supervised (it needs the Supervisor).
+- **This app:** you already run Home Assistant OS.
 - **Compose or Kubernetes:** anything else; or photos and files on S3; or Kept's own off-box
   backups. Guide: <https://keptinventory.info/install/compose/>.
 
@@ -60,7 +60,8 @@ phone app then don't open.
 | Certificate file, Private key file | `fullchain.pem`, `privkey.pem` | File names in `/ssl`. |
 | OIDC issuer, client id, client secret | empty: off | Sign-in with your own identity provider. Issuer and client id turn it on; the secret is for a confidential client. |
 | OIDC button name, sign-up by email domain or group, groups claim, scopes | `OIDC`, invite only, `groups`, `openid email profile` | As Kept's `KEPT_OIDC_*` settings. Domains and groups are comma-separated. |
-| Google client id, Google client secret | empty: off | Sign-in with Google, both set. Existing accounts and invited people only. |
+| Google client id, Google client secret | empty: off | Sign-in with Google, both set. Existing accounts and invited people only. Needs Kept's address on https with a public domain name. |
+| Apprise server | empty: no Apprise channels | The Apprise API server Apprise notification channels go through, like `http://apprise:8000`. |
 | Sign-up | unset: an admin decides (Admin → Sign-up) | `true` or `false` locks sign-up open or closed. |
 | Upload limit (MB) | `25` | The largest file one upload may be, 1 to 2048. |
 
@@ -70,7 +71,7 @@ two) is left out, and the **Log** tab says why: Kept still starts, with that sig
 ### OIDC and Google sign-in
 
 The provider sends people back to Kept's own address, never to Home Assistant. Register this
-redirect URL at the provider; the **Log** tab prints it once the sign-in is on:
+redirect URL at the provider; the **Log** tab prints it once the sign-in is configured:
 
 | Sign-in | Redirect URL |
 |---|---|
@@ -79,6 +80,11 @@ redirect URL at the provider; the **Log** tab prints it once the sign-in is on:
 
 For example `https://kept.example.org/api/v1/auth/callback/oidc`. Inside Home Assistant, the
 **Sign in with …** button opens Kept's own address in a new tab: sign in there.
+
+**Google** refuses a redirect URL on http, on a `.local` name or on an IP address
+([Google's rules](https://developers.google.com/identity/protocols/oauth2/web-server#uri-validation)). Set **Kept's address** to https with a public domain name,
+for example a DuckDNS name with **https on Kept's port**. The **Log** tab warns when the address
+won't do.
 
 ## What needs https
 
@@ -121,10 +127,12 @@ over https. Automatic setup of the integration from the app comes later.
 
 ## Updates
 
-An update replaces the app's image; Kept's data stays and its database is upgraded on start. Kept
-refuses to start on a database a newer Kept made: restore the backup Home Assistant took before
-the update instead. A future Postgres major version will come as its own update, which stops
-automatic updates until you start it.
+Turn on **Keep backup of the last version** in Home Assistant's update dialog: Kept's own
+pre-upgrade snapshot is off in the app, so that backup is the way back. An update replaces the
+app's image; Kept's data stays and its database is upgraded on start. Kept refuses to start on a
+database a newer Kept made: restore the backup Home Assistant took before the update instead. A
+future Postgres major version will come as its own update, which stops automatic updates until you
+start it.
 
 ## Limits
 

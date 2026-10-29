@@ -65,11 +65,18 @@ configuration:
     name: Google client id
     description: >-
       Sign-in with Google, with an OAuth client from Google Cloud. Set with the secret, Google
-      sign-in is on, for existing accounts and invited people only. Redirect URL to register:
-      Kept's address followed by /api/v1/auth/callback/google.
+      sign-in is on, for existing accounts and invited people only. Google needs Kept's address on
+      https with a public domain name (not http, .local or an IP address): set Kept's address,
+      for example a DuckDNS name with https on Kept's port. Redirect URL to register: Kept's
+      address followed by /api/v1/auth/callback/google.
   google_client_secret:
     name: Google client secret
     description: The OAuth client's secret.
+  apprise_url:
+    name: Apprise server
+    description: >-
+      The Apprise API server Apprise notification channels go through, like
+      http://apprise:8000. Empty: people can't add Apprise channels.
   signup_open:
     name: Sign-up
     description: >-
