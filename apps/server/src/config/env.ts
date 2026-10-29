@@ -397,7 +397,7 @@ const schema = z.object({
     .default('0')
     .transform((value) => value === '1')
     .describe(
-      "`1` only in the Home Assistant app's image: Kept trusts Home Assistant's ingress (from the Supervisor's address only) and says it runs as an app",
+      "`1` only in the Home Assistant app's image: Kept trusts Home Assistant's ingress (from the Supervisor's address only) and says it runs as an app; Kept's own backups and the pre-upgrade snapshot are off",
     ),
   // Set by the app's start script only when the Supervisor is 2026.10.4 or later, which removes a
   // client's X-Remote-User-Groups and sets its own (home-assistant/supervisor #7398); before

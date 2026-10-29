@@ -77,6 +77,8 @@ pre-upgrade snapshots are kept.
 - No backup target: Kept migrates anyway, logs it loudly, and Admin → Status says it was "upgraded
   without a backup" until the next good backup.
 - `KEPT_UPGRADE_SNAPSHOT=off` (or `kept migrate --skip-snapshot`) skips it on purpose.
+- The [Home Assistant app](/install/home-assistant/) never takes one: Home Assistant's backup
+  before the update is the way back.
 - A brand-new database never takes one.
 
 For this to work, the `migrate` service needs the keys and the backup settings as well as the owner
