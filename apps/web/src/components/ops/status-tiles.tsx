@@ -96,7 +96,7 @@ export function OpsNotices({ s }: { s: StatusPageData }) {
           </Trans>
         </Notice>
       ) : null}
-      {backup?.configured && backup.stale ? (
+      {backup?.configured && backup.stale && !app ? (
         <Notice
           tone="warn"
           title={
@@ -118,7 +118,7 @@ export function OpsNotices({ s }: { s: StatusPageData }) {
           </Trans>
         </Notice>
       ) : null}
-      {backup?.sameVolume ? (
+      {backup?.sameVolume && !app ? (
         <Notice tone="warn" title={<Trans>Backups are on the same disk as your data</Trans>}>
           <Trans>
             If that disk fails, the backups go with it. Point the backup at another disk.

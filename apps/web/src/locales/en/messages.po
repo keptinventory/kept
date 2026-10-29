@@ -31,6 +31,10 @@ msgstr "Home Assistant backs up Kept: the database, photos and files, and Kept's
 msgid "Settings → System → Backups"
 msgstr "Settings → System → Backups"
 
+#: src/components/ops/backup-target-form.tsx
+msgid "Home Assistant backs up Kept here: take or schedule backups in Home Assistant."
+msgstr "Home Assistant backs up Kept here: take or schedule backups in Home Assistant."
+
 #: src/components/ops/status-tiles.tsx
 msgid "Take or schedule them in Home Assistant → {place}."
 msgstr "Take or schedule them in Home Assistant → {place}."

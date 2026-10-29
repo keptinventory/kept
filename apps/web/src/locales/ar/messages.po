@@ -31,6 +31,10 @@ msgstr "يأخذ Home Assistant نسخًا احتياطية من Kept: قاعد�
 msgid "Settings → System → Backups"
 msgstr "الإعدادات ← النظام ← النسخ الاحتياطية"
 
+#: src/components/ops/backup-target-form.tsx
+msgid "Home Assistant backs up Kept here: take or schedule backups in Home Assistant."
+msgstr "هنا يأخذ Home Assistant نسخًا احتياطية من Kept: أنشئ النسخ الاحتياطية أو جدولها في Home Assistant."
+
 #: src/components/ops/status-tiles.tsx
 msgid "Take or schedule them in Home Assistant → {place}."
 msgstr "أنشئها أو جدولها في Home Assistant ← {place}."
