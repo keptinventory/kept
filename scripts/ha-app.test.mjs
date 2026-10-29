@@ -76,3 +76,33 @@ describe('the Dockerfile', () => {
     expect(stages).toContain('ha');
   });
 });
+
+// docker/ha/kept-ha-start: what Postgres starts with (D272). Postgres's processes never inherit a
+// secret the app's options put in the environment, and it asks for no huge pages: an anonymous
+// MAP_HUGETLB attempt is what AppArmor logged as a mapping named "/" (homeassistant/kept/apparmor.txt).
+describe('kept-ha-start', () => {
+  it('starts Postgres, and initdb, without the options’ secrets and without huge pages', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { SECRET_VARIABLES } = await import('../docker/ha/options.mjs');
+    const start = readFileSync(new URL('../docker/ha/kept-ha-start', import.meta.url), 'utf8');
+    // The command that starts the server, joined across its continuation lines.
+    const joined = start.replace(/\\\n\s*/g, ' ');
+    const server = joined.split('\n').find((l) => /"\$PGBIN\/postgres" -D/.test(l)) ?? '';
+    const initdb = joined.split('\n').find((l) => /"\$PGBIN\/initdb"/.test(l)) ?? '';
+    expect(server).toMatch(/-c huge_pages=off/);
+    expect(initdb).toMatch(/-c huge_pages=off/);
+    expect(SECRET_VARIABLES).toEqual(
+      expect.arrayContaining([
+        'KEPT_SMTP_URL',
+        'KEPT_OIDC_CLIENT_SECRET',
+        'KEPT_GOOGLE_CLIENT_SECRET',
+        'KEPT_APPRISE_URL',
+      ]),
+    );
+    const unset = /^PG_ENV_UNSET=\(([^)]*)\)/m.exec(start)?.[1] ?? '';
+    for (const name of SECRET_VARIABLES) expect(unset.split(/\s+/), name).toContain(name);
+    // Every way Postgres's binaries are run goes through it.
+    expect(server).toMatch(/env "\$\{PG_ENV_UNSET\[@\]\}"/);
+    expect(start).toMatch(/as_postgres\(\) \{ env "\$\{PG_ENV_UNSET\[@\]\}" setpriv/);
+  });
+});

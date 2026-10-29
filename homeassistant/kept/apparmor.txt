@@ -19,8 +19,10 @@ profile kept flags=(attach_disconnected,mediate_deleted,complain) {
   capability setgid,
   capability setuid,
   capability kill,
-  # Complain run: install, chmod and sed in the start script keep or set modes on root's files.
-  capability fsetid,
+  # Complain run: install, chmod and sed in the start script asked for fsetid (keeping a set-group-ID
+  # bit on a file whose group isn't theirs). Refused, the kernel only clears that bit, which nothing
+  # here uses: so it is denied, quietly, rather than allowed.
+  deny capability fsetid,
 
   network inet stream,
   network inet6 stream,
@@ -75,9 +77,14 @@ profile kept flags=(attach_disconnected,mediate_deleted,complain) {
   /tmp/** rwlk,
   /run/** rwk,
   /dev/shm/** rwk,
-  # Complain run: Postgres's main shared memory is an anonymous shared mapping (shared_memory_type
-  # mmap, Linux's default). It has no path of its own, and under attach_disconnected AppArmor names
-  # it "/". This rule is that one path, not a glob: it grants nothing under /.
+  # Complain run, 11 times, logged as:
+  #   apparmor="ALLOWED" operation="file_mmap" class="file" profile="local_kept" name="/"
+  #   comm="postgres" requested_mask="wr" denied_mask="wr"
+  # A shared mapping with no path of its own, which attach_disconnected names "/". Likely
+  # Postgres's anonymous MAP_HUGETLB attempt (huge_pages=try, the default), now off in
+  # kept-ha-start (`-c huge_pages=off`, for initdb too). This rule stays until the next enforced
+  # run shows whether the mapping still happens: it is that one exact path, not a glob, and grants
+  # nothing under /. If that run logs no "/", it goes.
   / rw,
   /dev/null rw,
   /dev/zero r,

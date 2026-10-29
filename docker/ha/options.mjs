@@ -21,6 +21,15 @@ const SSL_DIR = '/ssl';
 /** A file name inside /ssl: no directory part, no dot-dot. */
 const SSL_FILE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
+/** The variables this writes that hold a secret (a password, a client secret, a login in a URL).
+ * kept-ha-start starts Postgres without them (its PG_ENV_UNSET; scripts/ha-app.test.mjs). */
+export const SECRET_VARIABLES = [
+  'KEPT_SMTP_URL',
+  'KEPT_OIDC_CLIENT_SECRET',
+  'KEPT_GOOGLE_CLIENT_SECRET',
+  'KEPT_APPRISE_URL',
+];
+
 /** Kept's bounds for KEPT_MAX_FILE_MB (apps/server/src/config/env.ts). */
 const MAX_FILE_MB = [1, 2048];
 /** The OIDC options: any of them set without a working issuer and client id is said in the log. */

@@ -35,7 +35,10 @@ RESTORE_MARK=$DATA/.restore-pending
 KEPT_USER=kept
 
 log() { printf 'app: %s\n' "$*"; }
-as_postgres() { setpriv --reuid=postgres --regid=postgres --init-groups -- "$@"; }
+# Postgres's binaries run without the secrets the options exported (options.mjs SECRET_VARIABLES):
+# a server process has no use for them.
+PG_ENV_UNSET=(-u KEPT_SMTP_URL -u KEPT_OIDC_CLIENT_SECRET -u KEPT_GOOGLE_CLIENT_SECRET -u KEPT_APPRISE_URL)
+as_postgres() { env "${PG_ENV_UNSET[@]}" setpriv --reuid=postgres --regid=postgres --init-groups -- "$@"; }
 as_kept() { setpriv --reuid="$KEPT_USER" --regid="$KEPT_USER" --init-groups -- "$@"; }
 psql_su() { "$PGBIN/psql" -h "$SOCKET" -U postgres -v ON_ERROR_STOP=1 -qAt "$@"; }
 
@@ -84,7 +87,7 @@ if [[ ! -s $PGDATA/PG_VERSION ]]; then
   # What an interrupted first start left behind.
   find "$PGDATA" -mindepth 1 -delete
   as_postgres "$PGBIN/initdb" -D "$PGDATA" -U postgres --auth-local=peer --auth-host=scram-sha-256 \
-    -E UTF8 --locale=C.UTF-8 >/dev/null
+    -E UTF8 --locale=C.UTF-8 -c huge_pages=off >/dev/null
   fresh=1
   log "database created"
 fi
@@ -94,9 +97,11 @@ if ! grep -q '^local all postgres peer map=boot' "$PGDATA/pg_hba.conf"; then
   printf 'boot root postgres\nboot postgres postgres\n' >>"$PGDATA/pg_ident.conf"
 fi
 
-# 4. Postgres. setpriv straight from this shell (not through the function, which would run in a
-# subshell), and setpriv execs: so $! is Postgres itself.
-setpriv --reuid=postgres --regid=postgres --init-groups -- "$PGBIN/postgres" -D "$PGDATA" \
+# 4. Postgres. env and setpriv straight from this shell (not through the function, which would run
+# in a subshell), and both exec: so $! is Postgres itself. No huge pages: the app's memory is small,
+# and an anonymous MAP_HUGETLB attempt is what AppArmor logged as a mapping named "/" (apparmor.txt).
+env "${PG_ENV_UNSET[@]}" setpriv --reuid=postgres --regid=postgres --init-groups -- "$PGBIN/postgres" -D "$PGDATA" \
+  -c huge_pages=off \
   -c listen_addresses=127.0.0.1 -c port=5432 -c unix_socket_directories="$SOCKET" \
   -c shared_buffers=64MB -c max_connections=50 -c work_mem=4MB -c maintenance_work_mem=64MB \
   -c effective_cache_size=256MB -c wal_level=minimal -c max_wal_senders=0 &
