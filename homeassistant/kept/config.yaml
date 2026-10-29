@@ -4,7 +4,7 @@
 # after ghcr.io/keptinventory/kept-ha:<version> is published (scripts/release/ha-app.mjs): Home
 # Assistant reads main, so this never names an image that doesn't exist yet.
 name: Kept
-version: "1.14.1"
+version: "1.14.3"
 slug: kept
 description: A home inventory. Where things are, what they are, what's due.
 url: https://keptinventory.info/install/home-assistant/

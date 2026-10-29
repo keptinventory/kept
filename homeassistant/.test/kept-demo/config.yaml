@@ -6,7 +6,7 @@
 # Local apps. A person can't set an app's environment from Home Assistant, so a normal install never
 # loads it.
 name: Kept (demo data)
-version: "1.14.1"
+version: "1.14.3"
 slug: kept_demo
 description: TEST ONLY. Kept with demo data on its first start.
 image: ghcr.io/keptinventory/kept-ha
