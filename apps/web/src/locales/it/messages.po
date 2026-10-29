@@ -2275,6 +2275,7 @@ msgid "Contents"
 msgstr "Contenuto"
 
 #: src/components/places/contents-list.tsx
+#: src/components/places/tree.tsx
 msgid "Contents of {name}"
 msgstr "Contenuto di {name}"
 
@@ -28242,9 +28243,6 @@ msgstr "Leggi la pianta"
 msgid "Someone else added or discarded this plan."
 msgstr "Qualcun altro ha aggiunto o scartato questa pianta."
 
-#: src/components/places/tree.tsx
-msgid "What's in {name}"
-msgstr "Contenuto di {name}"
 
 #: src/components/places/tree.tsx
 msgid "Fold all"
