@@ -43,9 +43,10 @@ export const PRECACHE_BUDGET = 3500 * 1024;
 export const WASM_BUDGET = 1_200_000;
 const WASM = /(?:^|\/)zxing_reader[^/]*\.wasm$/;
 
-/** The entry script's path relative to dist/, read from the built index.html. */
+/** The entry script's path relative to dist/, read from the built index.html (relative, `./`,
+ * since the build's base is relative, D273; absolute `/` in older builds). */
 export function entryOf(indexHtml) {
-  const m = /<script[^>]*type="module"[^>]*src="\/([^"]+\.js)"/.exec(indexHtml);
+  const m = /<script[^>]*type="module"[^>]*src="(?:\.\/|\/)([^"]+\.js)"/.exec(indexHtml);
   if (!m?.[1]) throw new Error('no module entry script in dist/index.html');
   return m[1];
 }

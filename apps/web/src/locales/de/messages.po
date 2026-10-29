@@ -28243,7 +28243,6 @@ msgstr "Grundriss lesen"
 msgid "Someone else added or discarded this plan."
 msgstr "Jemand anderes hat diesen Grundriss hinzugefügt oder verworfen."
 
-
 #: src/components/places/tree.tsx
 msgid "Fold all"
 msgstr "Alle einklappen"
@@ -28251,3 +28250,15 @@ msgstr "Alle einklappen"
 #: src/components/places/tree.tsx
 msgid "Open all"
 msgstr "Alle ausklappen"
+
+#: src/routes/setup.tsx
+msgid "Set up by a Home Assistant administrator"
+msgstr "Eingerichtet von einem Home-Assistant-Admin"
+
+#: src/routes/setup.tsx
+msgid "Your setup code is on the app's Log tab in Home Assistant."
+msgstr "Der Einrichtungscode steht im Tab „Protokoll“ der App in Home Assistant."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Running as a Home Assistant app"
+msgstr "Läuft als Home-Assistant-App"

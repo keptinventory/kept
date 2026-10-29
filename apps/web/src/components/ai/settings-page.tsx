@@ -25,6 +25,7 @@ import { useLocations, useMe } from '@/api/queries';
 import { ChartIcon } from '@/components/icons';
 import { ErrorState, List, LoadingRows, Notice, Section } from '@/components/page';
 import { Button } from '@/components/ui/button';
+import { hashHref } from '@/lib/base-path';
 import { useLocationName } from '@/lib/labels';
 import { Advanced } from './advanced';
 import { CapBars } from './cap-bars';
@@ -197,7 +198,10 @@ function KeySettings({ scope, provider }: { scope: ProviderScope; provider: AiPr
         <KeyTrouble
           status={trouble}
           action={
-            <a href="#ai-key" className="font-semibold text-ink underline underline-offset-2">
+            <a
+              href={hashHref('ai-key')}
+              className="font-semibold text-ink underline underline-offset-2"
+            >
               <Trans>Replace key</Trans>
             </a>
           }

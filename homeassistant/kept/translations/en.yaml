@@ -1,0 +1,31 @@
+configuration:
+  public_url:
+    name: Kept's address
+    description: >-
+      The address phones, printed labels and mail links use, like
+      http://homeassistant.local:8080 or https://kept.example.org. Empty: Home Assistant's host
+      name and this app's port. No path.
+  log_level:
+    name: Log detail
+    description: How much Kept writes to the Log tab.
+  smtp_url:
+    name: Outgoing mail
+    description: >-
+      An smtp:// or smtps:// URL with the account, like smtps://user:password@mail.example.org.
+      Empty: Kept sends no mail.
+  smtp_from:
+    name: Mail sender
+    description: The From of Kept's mail, like Kept <kept@example.org>.
+  ssl:
+    name: https on Kept's port
+    description: >-
+      Serve Kept's port over https with Home Assistant's certificate from /ssl. Tokens, passkeys,
+      the camera and the installable app need https. Restart the app after the certificate renews.
+  certfile:
+    name: Certificate file
+    description: The certificate's file name in /ssl.
+  keyfile:
+    name: Private key file
+    description: The private key's file name in /ssl.
+network:
+  8080/tcp: Kept's own address, for phones, labels and mail links

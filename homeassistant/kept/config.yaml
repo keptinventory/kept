@@ -1,0 +1,61 @@
+# Kept as a Home Assistant app (D272, D273): Kept and its own Postgres in one container, built from
+# the kept repository's Dockerfile (`--target ha`) as ghcr.io/keptinventory/kept-ha:<version>.
+# `version` is always Kept's own release. It is bumped only by the release record's pull request,
+# after ghcr.io/keptinventory/kept-ha:<version> is published (scripts/release/ha-app.mjs): Home
+# Assistant reads main, so this never names an image that doesn't exist yet.
+name: Kept
+version: "1.14.1"
+slug: kept
+description: A home inventory. Where things are, what they are, what's due.
+url: https://keptinventory.info/install/home-assistant/
+image: ghcr.io/keptinventory/kept-ha
+arch:
+  - aarch64
+  - amd64
+init: true
+startup: application
+# Until the Home Assistant OS sign-off of ingress (the app spec's Q9).
+stage: experimental
+# Seconds the Supervisor waits after TERM: Kept stops first, then Postgres (`pg_ctl stop -m fast`).
+timeout: 60
+# Kept's own address: labels, phones, mail links and MCP clients need one that works outside a
+# Home Assistant session (spec §7). A person can turn it off in the Network section.
+ports:
+  8080/tcp: 8080
+webui: "[PROTO:ssl]://[HOST]:[PORT:8080]/"
+# Kept and its database answer. The Supervisor fills in http or https (the `ssl` option) and
+# doesn't check the certificate.
+watchdog: "[PROTO:ssl]://[HOST]:[PORT:8080]/readyz"
+# Hot: Kept keeps serving. backup_pre dumps the database to /data/backup and the live cluster is
+# left out. The dump stays: the Supervisor runs backup_pre only while the app runs, so a backup of a
+# stopped app holds the dump the app wrote when it stopped. A restore brings the dump back and the
+# start restores it.
+backup: hot
+backup_pre: /usr/local/bin/kept-ha-backup
+backup_exclude:
+  - "postgres/*"
+  - "kept/.cache/*"
+# Ingress (D273): Kept inside Home Assistant, in the sidebar. Uploads up to Kept's 25 MB limit are
+# streamed. Household members use Kept too and sign in to Kept themselves (Q5).
+ingress: true
+ingress_port: 8080
+ingress_stream: true
+panel_icon: mdi:package-variant-closed
+panel_title: Kept
+panel_admin: false
+# Home Assistant's certificates, read-only, for the `ssl` option (https on the port).
+map:
+  - type: ssl
+options:
+  log_level: info
+  ssl: false
+  certfile: fullchain.pem
+  keyfile: privkey.pem
+schema:
+  public_url: "url?"
+  log_level: "list(debug|info|warn|error)"
+  smtp_url: "password?"
+  smtp_from: "str?"
+  ssl: bool
+  certfile: str
+  keyfile: str

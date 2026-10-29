@@ -35,6 +35,7 @@ import { Button, buttonClass } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
 import { Select, SelectItem } from '@/components/ui/select';
 import { toast } from '@/components/ui/toast';
+import { withBase } from '@/lib/base-path';
 import { sep, useFormat } from '@/lib/format';
 import { useOnline } from '@/lib/online';
 import { PaperlessPicker } from './picker';
@@ -52,7 +53,7 @@ export function PaperlessThumb({ src }: { src: string }) {
   }
   return (
     <img
-      src={src}
+      src={withBase(src)}
       alt=""
       loading="lazy"
       onError={() => setFailed(true)}
@@ -265,7 +266,7 @@ export function PaperlessLinkRow({
         </a>
         {writer ? (
           <a
-            href={paperlessPaths.linkPreview(l.id)}
+            href={withBase(paperlessPaths.linkPreview(l.id))}
             className={buttonClass('ghost', 'small')}
             download
           >

@@ -40,12 +40,21 @@ const normaliseCode = (raw: string) =>
 
 function SetupPage() {
   const status = useSetupStatus();
-  const [step, setStep] = useState(1);
+  // The Home Assistant app (D272): a Home Assistant administrator through ingress sets up
+  // without the code (D273); everyone else enters it from the app's Log tab.
+  const homeAssistant = status.data?.homeAssistant;
+  const codeless = homeAssistant?.codeNeeded === false;
+  const [chosenStep, setStep] = useState<number | null>(null);
+  const step = chosenStep ?? (codeless ? 2 : 1);
   const [code, setCode] = useState('');
   const [codeError, setCodeError] = useState<string | undefined>();
   const { t } = useLingui();
 
-  const labels = [t`Setup code`, t`First account`, t`Instance options`];
+  const labels = [
+    codeless ? t`Set up by a Home Assistant administrator` : t`Setup code`,
+    t`First account`,
+    t`Instance options`,
+  ];
   const steps: FrameStep[] = labels.map((label, i) => ({
     label,
     state: i + 1 < step ? 'done' : i + 1 === step ? 'current' : 'todo',
@@ -69,6 +78,7 @@ function SetupPage() {
       <CodeStep
         steps={steps}
         eyebrow={eyebrow}
+        homeAssistant={!!homeAssistant}
         code={code}
         error={codeError}
         onChange={(v) => {
@@ -87,8 +97,8 @@ function SetupPage() {
       <AccountStep
         steps={steps}
         eyebrow={eyebrow}
-        code={normaliseCode(code)}
-        onBack={() => setStep(1)}
+        code={codeless ? null : normaliseCode(code)}
+        onBack={codeless ? null : () => setStep(1)}
         onBadCode={() => {
           setCodeError(t`That setup code isn't right. Check the server's logs.`);
           setStep(1);
@@ -104,11 +114,14 @@ type StepProps = { steps: FrameStep[]; eyebrow: React.ReactNode };
 function CodeStep({
   steps,
   eyebrow,
+  homeAssistant,
   code,
   error,
   onChange,
   onNext,
 }: StepProps & {
+  /** The Home Assistant app: the code is on its Log tab, not in Docker's or kubectl's logs. */
+  homeAssistant: boolean;
   code: string;
   error: string | undefined;
   onChange: (v: string) => void;
@@ -137,7 +150,13 @@ function CodeStep({
           onNext();
         }}
       >
-        <SetupCodeHelp />
+        {homeAssistant ? (
+          <Notice tone="info">
+            <Trans>Your setup code is on the app's Log tab in Home Assistant.</Trans>
+          </Notice>
+        ) : (
+          <SetupCodeHelp />
+        )}
         <TextField
           label={t`Setup code`}
           value={code}
@@ -168,12 +187,16 @@ function CodeStep({
         </Notice>
       </form>
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
-        <span className="text-small text-ink-3">
-          <Trans>
-            Lost the logs? Issue a new one with{' '}
-            <code className="ltr whitespace-nowrap">kept admin setup-code</code>.
-          </Trans>
-        </span>
+        {homeAssistant ? (
+          <span />
+        ) : (
+          <span className="text-small text-ink-3">
+            <Trans>
+              Lost the logs? Issue a new one with{' '}
+              <code className="ltr whitespace-nowrap">kept admin setup-code</code>.
+            </Trans>
+          </span>
+        )}
         <Button type="submit" form="setup-code">
           <Trans>Continue</Trans>
         </Button>
@@ -190,8 +213,10 @@ function AccountStep({
   onBadCode,
   onDone,
 }: StepProps & {
-  code: string;
-  onBack: () => void;
+  /** Null: set up by a Home Assistant administrator, without the code. */
+  code: string | null;
+  /** Null when there is no code step to go back to. */
+  onBack: (() => void) | null;
   onBadCode: () => void;
   onDone: () => void;
 }) {
@@ -214,7 +239,7 @@ function AccountStep({
     mutationFn: async () => {
       await completeSetup({
         // Canonical form: 6 characters, upper case, no dash (the server normalises too).
-        code,
+        ...(code === null ? {} : { code }),
         email: email.trim(),
         password,
         displayName: displayName.trim(),
@@ -289,9 +314,11 @@ function AccountStep({
         {formError ? <Notice tone="danger">{formError}</Notice> : null}
       </form>
       <div className="flex items-center justify-end gap-2 border-t border-line pt-4">
-        <Button variant="secondary" onPress={onBack}>
-          <Trans>Back</Trans>
-        </Button>
+        {onBack ? (
+          <Button variant="secondary" onPress={onBack}>
+            <Trans>Back</Trans>
+          </Button>
+        ) : null}
         <Button type="submit" form="setup-account" isPending={create.isPending}>
           <Trans>Create account</Trans>
         </Button>

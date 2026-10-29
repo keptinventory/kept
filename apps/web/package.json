@@ -12,7 +12,7 @@
     "preview:demo": "vite preview --outDir dist-demo",
     "build:try": "VITE_KEPT_DEMO=1 VITE_KEPT_TRY=1 vite build --outDir dist-try",
     "e2e": "playwright test",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p e2e",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p e2e && tsc --noEmit -p e2e-ha",
     "i18n:extract": "lingui extract --clean",
     "check:bundle": "node scripts/check-bundle.mjs",
     "icons": "node ../../scripts/render-icons.mjs",

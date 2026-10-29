@@ -28243,7 +28243,6 @@ msgstr "Leggi la pianta"
 msgid "Someone else added or discarded this plan."
 msgstr "Qualcun altro ha aggiunto o scartato questa pianta."
 
-
 #: src/components/places/tree.tsx
 msgid "Fold all"
 msgstr "Comprimi tutto"
@@ -28251,3 +28250,15 @@ msgstr "Comprimi tutto"
 #: src/components/places/tree.tsx
 msgid "Open all"
 msgstr "Espandi tutto"
+
+#: src/routes/setup.tsx
+msgid "Set up by a Home Assistant administrator"
+msgstr "Configurato da un amministratore di Home Assistant"
+
+#: src/routes/setup.tsx
+msgid "Your setup code is on the app's Log tab in Home Assistant."
+msgstr "Il codice di configurazione è nella scheda «Registro» dell’app in Home Assistant."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Running as a Home Assistant app"
+msgstr "In esecuzione come app di Home Assistant"

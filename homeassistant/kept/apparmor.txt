@@ -1,0 +1,64 @@
+#include <tunables/global>
+
+# Kept's Home Assistant app (D272). In complain mode until the Home Assistant OS run reads its
+# audit log (`journalctl _TRANSPORT="audit" -g 'apparmor="ALLOWED"'`) after using every feature,
+# then enforced (the security guide's method).
+profile kept flags=(attach_disconnected,mediate_deleted,complain) {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/openssl>
+
+  # The start script re-owns /data and drops to postgres and to Kept's user (setpriv).
+  capability chown,
+  capability dac_override,
+  capability dac_read_search,
+  capability fowner,
+  capability setgid,
+  capability setuid,
+  capability kill,
+
+  network inet stream,
+  network inet6 stream,
+  network inet dgram,
+  network inet6 dgram,
+  network unix,
+
+  signal (send,receive) peer=@{profile_name},
+  signal (receive) peer=unconfined,
+
+  # Docker's init (config.yaml `init: true`), the start and backup scripts, the shell tools they use.
+  /sbin/docker-init ix,
+  /dev/init ix,
+  /usr/local/bin/kept-ha-start rix,
+  /usr/local/bin/kept-ha-backup rix,
+  /usr/local/bin/kept rix,
+  /usr/local/bin/node ix,
+  /usr/local/bin/restic ix,
+  /usr/bin/ssh ix,
+  /{usr/,}bin/** ix,
+  /{usr/,}sbin/** ix,
+  /usr/lib/postgresql/18/bin/* ix,
+  /usr/lib/postgresql/18/lib/** mr,
+
+  # Read-only: the app, the system, Home Assistant's certificates.
+  /app/** r,
+  /usr/** r,
+  /etc/** r,
+  /ssl/** r,
+  /usr/local/lib/kept-ha/** r,
+  /var/lib/postgresql/** r,
+  /proc/** r,
+  /sys/fs/cgroup/** r,
+  /sys/devices/system/** r,
+
+  # Everything that lasts, and what doesn't.
+  /data/ r,
+  /data/** rwk,
+  /tmp/** rwlk,
+  /run/** rwk,
+  /dev/shm/** rwk,
+  /dev/null rw,
+  /dev/zero r,
+  /dev/urandom r,
+  /dev/tty rw,
+}

@@ -73,6 +73,8 @@ export function formerHostHook(system: pg.Pool, publicUrl: string): onRequestAsy
   const target = new URL(publicUrl);
   const base = publicUrl.replace(/\/+$/, '');
   return async function formerHost(req: FastifyRequest, reply: FastifyReply) {
+    // Under Home Assistant ingress the Host is Home Assistant's, never a former address of Kept's.
+    if (req.ingress) return;
     const host = hostOf(req);
     if (!host || host === target.hostname.toLowerCase()) return;
     const hosts = await formerHosts(system);

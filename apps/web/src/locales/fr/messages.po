@@ -28243,7 +28243,6 @@ msgstr "Lire le plan"
 msgid "Someone else added or discarded this plan."
 msgstr "Quelqu’un d’autre a ajouté ou abandonné ce plan."
 
-
 #: src/components/places/tree.tsx
 msgid "Fold all"
 msgstr "Tout replier"
@@ -28251,3 +28250,15 @@ msgstr "Tout replier"
 #: src/components/places/tree.tsx
 msgid "Open all"
 msgstr "Tout déplier"
+
+#: src/routes/setup.tsx
+msgid "Set up by a Home Assistant administrator"
+msgstr "Configuré par un administrateur Home Assistant"
+
+#: src/routes/setup.tsx
+msgid "Your setup code is on the app's Log tab in Home Assistant."
+msgstr "Le code de configuration se trouve dans l’onglet « Journal » de l’application, dans Home Assistant."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Running as a Home Assistant app"
+msgstr "Fonctionne comme application Home Assistant"

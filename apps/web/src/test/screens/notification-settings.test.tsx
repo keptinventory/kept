@@ -379,9 +379,10 @@ describe('what reaches you', () => {
       screen.queryByRole('switch', { name: 'AI monthly summary by Push in all locations' }),
     ).toBeNull();
     expect(screen.queryByRole('switch', { name: /by Telegram in/ })).toBeNull();
+    // This page's own #channels, not the home page's (<base href>, lib/base-path.ts hashHref).
     expect(screen.getByRole('link', { name: 'Add more channels' })).toHaveAttribute(
       'href',
-      '#channels',
+      `${location.pathname}${location.search}#channels`,
     );
   });
 

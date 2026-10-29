@@ -142,3 +142,88 @@ platform_digest() { # <index json> <arch>
     process.stdout.write(m?.digest ?? "");
   ' "$1" "$2"
 }
+
+# ---------------------------------------------------------------------------------------------
+# The Home Assistant app's image (D272): the same commit and Dockerfile, `--target ha`, pushed BY
+# DIGEST to $ha_registry (ghcr.io/keptinventory/kept-ha) beside the main image. Its layers below the
+# app (build, prod-deps) come from the same builder cache, so it costs the Postgres server's layer
+# and one more push. Sets ha_index_digest and ha_amd64_digest and/or ha_arm64_digest.
+release_build_ha() {
+  say "3b. build the Home Assistant app's image (${platforms//,/ + }), push by digest to $ha_registry"
+  local src=$work/src meta=$work/build-ha-metadata.json log=$work/build-ha.log attempt rc cache=()
+  [[ -n ${KEPT_RELEASE_CACHE_FROM:-} ]] && cache+=(--cache-from "$KEPT_RELEASE_CACHE_FROM")
+  local tmo=()
+  [[ -n ${CI:-} ]] && command -v timeout >/dev/null && tmo=(timeout --kill-after=30s "${KEPT_RELEASE_BUILD_TIMEOUT:-15m}")
+  for attempt in 1 2; do
+    rc=0
+    ${tmo[@]+"${tmo[@]}"} docker buildx build --builder "$builder" --platform "$platforms" --target ha \
+      --build-arg "VERSION=$version" --build-arg "REVISION=$commit" --build-arg "SOURCE=$source_url" \
+      --sbom=true --provenance=mode=min --metadata-file "$meta" ${cache[@]+"${cache[@]}"} \
+      --output "type=image,name=$ha_registry,push-by-digest=true,name-canonical=true,push=true" \
+      "$src" >"$log" 2>&1 || rc=$?
+    ((rc == 0)) && break
+    tail -n 25 "$log" >&2
+    if ((attempt == 1)) && { ((rc == 124 || rc == 137)) || grep -Eq 'ETIMEDOUT|ECONNRESET|i/o timeout|failed to push|unexpected status from (PUT|POST|PATCH|HEAD) request' "$log"; }; then
+      warn "the Home Assistant image's build or push failed (exit $rc); retrying once"
+      continue
+    fi
+    die "the Home Assistant image's build failed (log: $log)"
+  done
+  ha_index_digest=$(node -e 'const m = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(m["containerimage.digest"] ?? "")' "$meta")
+  [[ $ha_index_digest =~ ^sha256:[0-9a-f]{64}$ ]] || die "no index digest in $meta"
+  local raw p arch
+  raw=$(docker buildx imagetools inspect --builder "$builder" --raw "$ha_registry@$ha_index_digest")
+  note "index $ha_index_digest"
+  for p in ${platforms//,/ }; do
+    arch=${p#linux/}
+    printf -v "ha_${arch}_digest" '%s' "$(platform_digest "$raw" "$arch")"
+    p=ha_${arch}_digest
+    [[ -n ${!p} ]] || die "the Home Assistant index has no $p manifest"
+    note "linux/$arch ${!p}"
+  done
+}
+
+# --publish: the Home Assistant image's two smoked digests (KEPT_RELEASE_HA_<ARCH>_INDEX and
+# _MANIFEST) joined into one index by digest, as release_merge does for the main image.
+release_merge_ha() {
+  say "3b. join the Home Assistant app's two architectures, push by digest to $ha_registry"
+  local arch var srcs=() raw got
+  for arch in amd64 arm64; do
+    var=KEPT_RELEASE_HA_$(upper "$arch")_INDEX
+    [[ ${!var:-} =~ ^sha256:[0-9a-f]{64}$ ]] || die "$var must be the $arch build job's Home Assistant index digest, not '${!var:-}'"
+    srcs+=("$ha_registry@${!var}")
+  done
+  docker buildx imagetools create --dry-run "${srcs[@]}" >"$work/ha-index.json" 2>"$work/ha-merge.log" || {
+    cat "$work/ha-merge.log" >&2
+    die "imagetools create --dry-run failed (Home Assistant image)"
+  }
+  ha_index_digest=$(manifest_digest "$work/ha-index.json" strip-newline)
+  raw=$(<"$work/ha-index.json")
+  for arch in amd64 arm64; do
+    var=KEPT_RELEASE_HA_$(upper "$arch")_MANIFEST
+    got=$(platform_digest "$raw" "$arch")
+    [[ -n $got && $got == "${!var:-}" ]] || die "the joined Home Assistant index has linux/$arch '$got', but the build job smoked '${!var:-}'"
+    printf -v "ha_${arch}_digest" '%s' "$got"
+  done
+  docker buildx imagetools create -t "$ha_registry@$ha_index_digest" "${srcs[@]}" >"$work/ha-merge.log" 2>&1 || {
+    cat "$work/ha-merge.log" >&2
+    die "imagetools create failed (Home Assistant image)"
+  }
+  docker buildx imagetools inspect --raw "$ha_registry@$ha_index_digest" >"$work/ha-index-pushed.json"
+  got=$(manifest_digest "$work/ha-index-pushed.json")
+  [[ $got == "$ha_index_digest" ]] || die "the registry holds $got for $ha_index_digest"
+  note "index $ha_index_digest (linux/amd64 $ha_amd64_digest, linux/arm64 $ha_arm64_digest)"
+}
+
+# A Home Assistant image an earlier run of this version published (release.sh stage 1): its digests,
+# read from the registry, for the record. Nothing is built, signed or tagged again.
+release_ha_published() {
+  say "3b. $ha_registry:$version is already published: reading its digests"
+  local raw
+  docker buildx imagetools inspect --raw "$ha_registry:$version" >"$work/ha-index-published.json"
+  ha_index_digest=$(manifest_digest "$work/ha-index-published.json")
+  raw=$(<"$work/ha-index-published.json")
+  ha_amd64_digest=$(platform_digest "$raw" amd64)
+  ha_arm64_digest=$(platform_digest "$raw" arm64)
+  note "index $ha_index_digest (linux/amd64 $ha_amd64_digest, linux/arm64 $ha_arm64_digest)"
+}
