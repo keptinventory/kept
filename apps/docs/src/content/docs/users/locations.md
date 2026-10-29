@@ -38,7 +38,7 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
   their place with how many things are in each, up to 50 a place, then **+N boxes**. The arrow
   beside a place folds what's under it; **Fold all** and **Open all** do every place at once.
   Kept remembers your folds for your account, on every device. The places above the page you're
-  on stay open.
+  on stay open, even after **Fold all**.
 - On a location, **Sort them** goes through Unplaced one thing at a time with a place picker.
 - A box opened from its label shows a photo grid of what's inside.
 - **Layouts:** a location's page switches between **List**, **Grid**, **Graph**, **Table** and
