@@ -20,7 +20,7 @@ function InboxPage() {
   const { t } = useLingui();
   const offline = useOffline();
   return (
-    <Page title={t`Inbox`} wide tour="capture">
+    <Page title={t`Inbox`} wide>
       <div>
         <InboxList local={offline?.store ?? null} />
       </div>

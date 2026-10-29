@@ -152,7 +152,6 @@ function SchedulesPage() {
     <Page
       title={t`Schedules`}
       wide
-      tour="schedules"
       actions={
         canAdd ? (
           <Button

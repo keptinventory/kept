@@ -154,8 +154,8 @@ locations, and a viewer gets no steps that change anything.
   done it reads **Continue the tour** and picks up at the first chapter you haven't finished.
 - Below it, one short row per chapter: its number and its steps. Tap a row to start the tour at
   that chapter. Finished chapters fold away under **Done (N)**; open it to replay one.
-- Each section's page also has a small **Show me** beside its title that starts its chapter
-  right there.
+- The tour starts from Help. The top bar of a page keeps to that page's own tools; a scan
+  session's **Start a session** has a small **Show me** for its chapter.
 - The popover shows where you are: "Chapter 3 of 12 · step 2 of 5".
 - **Next** moves on, **Back** goes back within the chapter, the arrow keys do both, and **Esc**
   or **×** closes it.
@@ -173,10 +173,14 @@ locations, and a viewer gets no steps that change anything.
 A few one-time hints also appear the first time you use Capture, Scan, the Inbox's suggested
 values or Labels.
 
-After Kept is updated, a small **What's new in Kept** card lists that release's highlights, once
-per release for each person, on every device. It never shows on a new account, or over Capture or
-Scan; **Got it** puts it away, and **Help → What's new** shows it again. The highlights are in
-English in every language, with a link to the full release notes on GitHub.
+After Kept is updated, **What's new in Kept** shows that release's highlights, once per release
+for each person, on every device: one per slide, with a picture or a short clip, its title and a
+line. **Next** and **Back**, the dots, the arrow keys or a swipe move between them; the last
+slide's **Got it** puts it away, and **Help → What's new** shows it again. Clips play muted and
+can be paused; with reduced motion turned on they stay still until you press **Play**. Offline, a
+slide shows its section's icon in place of its picture. It never shows on a new account, or over
+Capture or Scan. The highlights are in English in every language, with a link to the full release
+notes on GitHub.
 
 :::tip[Keep the keys]
 Before the first AI key, secret value or backup, Kept waits until the instance admin has saved the

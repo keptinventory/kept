@@ -86,6 +86,8 @@ export type InventoryState = {
   savedViewPrefs: Record<string, SavedViewPrefs>;
   events: HistoryEvent[];
   hints: Hint[];
+  /** The places you folded in each location's outline (#358), by location id. */
+  placeFolds?: Record<string, string[]>;
   checklistDismissed: boolean;
   secrets: Record<string, string>;
   /**

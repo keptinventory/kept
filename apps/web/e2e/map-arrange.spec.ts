@@ -5,8 +5,8 @@
  *
  * 1. moves the Hall by its floor away from the others: on the phone a quick drag on a room pans
  *    (nothing moves), and a finger held on the Hall picks it up (real touch events); on the
- *    desktop the Hall is selected, then dragged with the mouse. Done saves it a whole number of
- *    metres behind the others, over nothing;
+ *    desktop the Hall is selected, then dragged with the mouse. Done saves it on the 10 cm grid
+ *    (D267) at least a metre behind the others, over nothing;
  * 2. moves it a metre left with the arrow key, which says so; Done saves it, Undo puts it back;
  * 3. moves it again and Cancels with the Hall's card still open (#330: on the phone the card used
  *    to cover Cancel): asked first, nothing saved.
@@ -239,9 +239,9 @@ test('moves a room in Arrange: by its floor and the arrow keys, saved, undone, c
     const first = roomsOf(await mapOf(page, id));
     const { Hall: hall, Kitchen: kitchen, Study: study } = first;
     if (!hall || !kitchen || !study) throw new Error('three rooms');
-    // A whole number of metres behind the others, which stayed in their row, over nothing.
+    // On the 10 cm grid (D267), behind the others, which stayed in their row, over nothing.
     expect(kitchen.z - hall.z).toBeGreaterThanOrEqual(100);
-    expect((kitchen.z - hall.z) % 100).toBe(0);
+    expect((kitchen.z - hall.z) % 10).toBe(0);
     expect(study.z).toBe(kitchen.z);
     expect(overlap(hall, kitchen) || overlap(hall, study)).toBe(false);
 

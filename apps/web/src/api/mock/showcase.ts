@@ -8,6 +8,8 @@
  * Its draft has a name too: an untitled draft sorts first in every list by name (as on the server),
  * so the Home list the README shows opened on "Untitled draft". The tests keep the untitled one.
  *
+ * The Garage is connected to the mock Paperless-ngx, with the drill's receipt and manual linked.
+ *
  * Home is on two floors, so the map and the graph show floors as a house has them: the living
  * room, kitchen and hallway closet on the ground floor, the bedroom and the office upstairs. The
  * tests' Home has no floors.
@@ -16,8 +18,9 @@ import { ensureSeeded } from '../household/mock/db';
 import { seedKitSample } from '../household/mock/handovers';
 import type { StoredPlace } from '../inventory/mock/db';
 import { INV_IDS } from '../inventory/mock/fixtures';
+import { seedPaperless } from '../paperless/mock';
 import { ensureVehiclesSeeded } from '../vehicles/mock/state';
-import type { MockState } from './fixtures';
+import { IDS, type MockState } from './fixtures';
 
 export const SHOWCASE_DRAFT_NAME = 'Desk lamp';
 
@@ -70,4 +73,9 @@ export function showcaseHousehold(state: MockState): void {
   const draft = state.inventory.things.find((t) => t.id === INV_IDS.thing.draft);
   if (draft && draft.name === null) draft.name = SHOWCASE_DRAFT_NAME;
   homeOnTwoFloors(state);
+  // 1.14.1's What's new shows Paperless in the Paperwork list: the Garage is connected to the
+  // mock Paperless, and the drill has its receipt and manual from there.
+  seedPaperless(state, IDS.garage, {
+    links: [{ subject: { thingId: INV_IDS.thing.drill }, documentIds: [12, 13] }],
+  });
 }

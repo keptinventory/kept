@@ -57,6 +57,8 @@ function tryHtml(): Plugin {
     name: 'kept-try-html',
     transformIndexHtml(html) {
       let out = swap(html, /\n\s*<link rel="manifest"[^>]*>/, '');
+      // The Try build's URLs are absolute under its own base: no <base href="/"> (D246).
+      out = swap(out, /\n\s*<!--\n\s*Every URL below[\s\S]*?-->\n\s*<base href="\/" \/>/, '');
       out = swap(
         out,
         /<title>Kept<\/title>/,
@@ -345,6 +347,8 @@ const HOUSEHOLD_SHARED = [
   '/node_modules/three/',
   '/packages/shared/src/map.ts',
   '/packages/shared/src/map-shapes.ts',
+  // A floor plan's geometry (1.14.3, D266): only the map's review and the server use it.
+  '/packages/shared/src/floor-plan.ts',
   // @visx/text's CSS calc() reducer.
   '/node_modules/balanced-match/',
   '/node_modules/reduce-function-call/',
@@ -371,8 +375,11 @@ const chunkFileName = (chunk: { facadeModuleId: string | null; moduleIds: string
 };
 
 // The router plugin must run before react() so it can split route files (TanStack docs).
-export default defineConfig({
-  base: TRY ? TRY_BASE : '/',
+export default defineConfig(({ command }) => ({
+  // Relative in a build (D273): index.html's <base href> decides where the assets are, `/` on
+  // every install and the ingress prefix inside Home Assistant (apps/server/src/http/web.ts);
+  // chunks load relative to their own module. The dev server and the Try build keep absolute ones.
+  base: TRY ? TRY_BASE : command === 'build' ? './' : '/',
   plugins: [
     tanstackRouter({
       target: 'react',
@@ -387,7 +394,12 @@ export default defineConfig({
     lingui({ configPath }),
     babel({ presets: [linguiTransformerBabelPreset({ linguiConfig }, { configPath })] }),
     tailwindcss(),
-    whatsNewPlugin({ version: KEPT_VERSION ?? '0.0.0-dev', changelog: CHANGELOG }),
+    whatsNewPlugin({
+      version: KEPT_VERSION ?? '0.0.0-dev',
+      changelog: CHANGELOG,
+      // A release image's build fails on a highlight's missing media; a demo shows its icon.
+      strict: process.env.VITE_KEPT_DEMO !== '1',
+    }),
     ...(TRY ? [tryHtml()] : []),
     // The service worker: src/sw.ts is
     // built to dist/sw.js with the precache manifest injected. The precache is the shell, the
@@ -411,6 +423,8 @@ export default defineConfig({
           'assets/locales/**',
           'assets/household/**',
           'sw.js',
+          // What's new's pictures and clips (whats-new-plugin.ts): fetched when the card opens.
+          'whats-new/**',
           // Font subsets Kept never renders: its languages are Latin-script and Arabic (D204).
           'assets/ibm-plex-*-{cyrillic,cyrillic-ext,greek,vietnamese}-*.woff2',
         ],
@@ -466,4 +480,4 @@ export default defineConfig({
   define: {
     'process.env.KEPT_VERSION': KEPT_VERSION ? JSON.stringify(KEPT_VERSION) : 'undefined',
   },
-});
+}));

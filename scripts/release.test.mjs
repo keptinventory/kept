@@ -148,6 +148,20 @@ describe('release.sh refuses', { timeout: 30_000 }, () => {
     expect(r.out).toContain("README.md's quick start doesn't install 1.4.0");
   });
 
+  it('not a Home Assistant app version: the record bumps that, after the image is out (D272)', () => {
+    mkdirSync(path.join(dir, 'homeassistant/kept'), { recursive: true });
+    writeFileSync(
+      path.join(dir, 'homeassistant/kept/config.yaml'),
+      'name: Kept\nversion: "1.2.0"\n',
+    );
+    git('add', 'homeassistant');
+    git('commit', '-q', '-m', 'feat: the app');
+    const r = release('1.3.0');
+    expect(r.out).not.toContain('homeassistant/kept/config.yaml');
+    // Past every version check (it stops later, at the gate).
+    expect(r.out).toContain('no gate record');
+  });
+
   it('a dirty tree', () => {
     writeFileSync(path.join(dir, 'stray.txt'), 'x');
     const r = release('1.3.0');

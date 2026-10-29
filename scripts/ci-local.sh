@@ -14,7 +14,7 @@
 #   bash scripts/ci-local.sh --list           print the step names
 #
 # Steps: install lint catalogues typecheck compose test drift licences attribution docs helm
-# prod-boot eval portability backup perf e2e images release-dry-run
+# prod-boot eval portability backup perf e2e images ha release-dry-run
 # (`pnpm lint` already runs scripts/check-logical-css.mjs and scripts/check-i18n.mjs, the web
 # catalogues holding every source message, through Lingui's API in memory. `catalogues` runs the
 # real `lingui extract` CLI into a scratch copy and fails on a new msgid or an empty translation.)
@@ -44,7 +44,7 @@ set -euo pipefail
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$repo"
 
-ALL_STEPS=(install lint catalogues typecheck compose test drift licences attribution docs helm prod-boot eval portability backup perf e2e e2e-update images release-dry-run)
+ALL_STEPS=(install lint catalogues typecheck compose test drift licences attribution docs helm prod-boot eval portability backup perf e2e e2e-update images ha release-dry-run)
 FAST_STEPS=(lint catalogues typecheck unit eval)
 
 DEV_COMPOSE=(docker compose -f compose.dev.yaml)
@@ -675,6 +675,27 @@ step_images() {
   fi
   bash scripts/smoke-image.sh kept:ci-arm64
   bash scripts/smoke-compose.sh kept:ci-arm64
+}
+
+# The Home Assistant app's image (D272, D273): built for this machine's platform (the runner's on
+# GitHub; arm64 natively on the laptop), smoked (scripts/smoke-ha-image.sh: first start, the setup
+# code, backup_pre/_post, a clean stop, a restore from the dump), then driven by Playwright through
+# the ingress mimic (scripts/ha-ingress-e2e.sh: a proxy at the Supervisor's address, a prefix,
+# its frame).
+step_ha() {
+  ensure_docker_config
+  local revision tag=kept-ha:ci platform=()
+  revision=$(git rev-parse HEAD)
+  [[ -n ${CI:-} ]] || platform=(--platform linux/arm64)
+  docker buildx build ${platform[@]+"${platform[@]}"} --target ha --build-arg "REVISION=$revision" \
+    -t "$tag" --load .
+  bash scripts/smoke-ha-image.sh "$tag"
+  if [[ -n ${CI:-} && $(uname -s) == Linux ]]; then
+    pnpm --filter @kept/web exec playwright install --with-deps chromium
+  else
+    pnpm --filter @kept/web exec playwright install chromium
+  fi
+  bash scripts/ha-ingress-e2e.sh "$tag"
 }
 
 # The laptop release's dry run (step 8 T17): scripts/release.sh --dry-run builds both platforms

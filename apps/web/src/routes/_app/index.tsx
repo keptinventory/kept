@@ -160,7 +160,7 @@ function Home() {
   );
 
   return (
-    <Page title={t`Home`} wide tour="basics">
+    <Page title={t`Home`} wide>
       <div className="@container/home">
         <div className="grid items-start gap-5 @min-[860px]/home:grid-cols-[minmax(0,1fr)_316px] @min-[860px]/home:gap-x-6">
           <div className={cn('order-0 -mb-1.5 font-medium text-[13.5px] text-ink-2', FULL)}>

@@ -18,6 +18,7 @@ release_notes() {
     verify_lines="docker buildx imagetools inspect $registry:$version --format '{{json .Manifest}}'   # its \"digest\" is $index_digest"
   else
     verify_lines="cosign verify --key cosign.pub$tlog_flag $registry:$version"$'\n'
+    verify_lines+="cosign verify --key cosign.pub$tlog_flag $ha_registry:$version"$'\n'
     verify_lines+="cosign verify --key cosign.pub$tlog_flag $chart_repo/kept@$chart_digest"
     [[ -z $tlog_flag ]] ||
       tlog_note=$'\n''`--insecure-ignore-tlog`: this release was signed without the public transparency log (the repository was private, plan Q14).'
@@ -40,6 +41,16 @@ $unsigned_note
 Tags, all pointing at that digest (there is never a \`latest\`):
 
 $tag_lines
+## The Home Assistant app's image
+
+\`$ha_registry@$ha_index_digest\`, tagged \`$ha_registry:$version\` only (the app's config.yaml
+names that version), each platform smoked by digest (\`scripts/smoke-ha-image.sh\`).
+
+| Platform | Manifest |
+|---|---|
+| linux/amd64 | \`$ha_amd64_digest\` |
+| linux/arm64 | \`$ha_arm64_digest\` |
+
 ## The chart
 
 \`oci://$chart_ref\` (\`$chart_digest\`), appVersion $version, its image pinned by the digest above.

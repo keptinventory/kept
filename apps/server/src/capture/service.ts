@@ -4,6 +4,7 @@ import {
   type CaptureMode,
   CreateThingPayload,
   can,
+  type ExtractionMode,
   newId,
   type Role,
 } from '@kept/shared';
@@ -264,12 +265,14 @@ export async function attachFiles(
 type ExtractionTarget = {
   locationId: string;
   attachmentId: string;
-  mode: CaptureMode;
+  mode: ExtractionMode;
   thingId?: string;
   purchaseId?: string;
   meterId?: string;
   /** ROOM: the room capture the photo is one of. */
   roomCaptureId?: string;
+  /** PLAN (D266): the floor plan the upload is. */
+  floorPlanId?: string;
   /** A photo read again: its next attempt (1 by default). */
   attempt?: number;
 };
@@ -288,9 +291,9 @@ export async function queueExtraction(
   const status = ai === 'on' ? 'queued' : 'waiting_provider';
   await ctx.client.query(
     `INSERT INTO public.extractions (id, location_id, attachment_id, thing_id, purchase_id,
-                                     meter_id, room_capture_id, mode, requested_by, status,
-                                     status_reason, attempt)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, kept.current_user_id(), $9, $10, $11)`,
+                                     meter_id, room_capture_id, floor_plan_id, mode, requested_by,
+                                     status, status_reason, attempt)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $12, $8, kept.current_user_id(), $9, $10, $11)`,
     [
       id,
       t.locationId,
@@ -303,6 +306,7 @@ export async function queueExtraction(
       status,
       ai === 'on' ? null : NO_PROVIDER,
       t.attempt ?? 1,
+      t.floorPlanId ?? null,
     ],
   );
   if (ai === 'on') {

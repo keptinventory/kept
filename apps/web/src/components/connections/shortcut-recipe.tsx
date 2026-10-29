@@ -17,8 +17,10 @@ import { LinkButton, Notice } from '@/components/page';
 import { Sheet } from '@/components/places/sheet';
 import { CopyButton } from '@/components/ui/copy-button';
 import { Select, SelectItem } from '@/components/ui/select';
+import { publicOrigin } from '@/lib/base-path';
 
-const origin = () => (typeof location === 'undefined' ? '' : location.origin);
+// Kept's own address, never Home Assistant's under ingress (D273).
+const origin = () => publicOrigin();
 
 export function ShortcutRecipeSheet({
   isOpen,

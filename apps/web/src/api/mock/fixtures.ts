@@ -28,6 +28,8 @@ import { type SignInMockState, signInFixtures } from './sign-in';
 
 export type MockState = {
   setupNeeded: boolean;
+  /** D272: the Home Assistant app's setup status (absent on other installs). */
+  homeAssistant?: { codeNeeded: boolean };
   setupCode: string;
   signedIn: boolean;
   mfaPending: boolean;

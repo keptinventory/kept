@@ -499,14 +499,26 @@ describe('a location export', () => {
 
 describe('export my data', () => {
   it('exports the Personal location with me.json', async () => {
+    // A place folded in the place tree (#358) is the person's own, so it is in me.json.
+    const shelf = await place(db, { id: louis.personalLocationId } as Loc, 'Shelf');
+    const folded = await call(t, `/api/v1/locations/${louis.personalLocationId}/place-folds`, {
+      as: louis,
+      method: 'PUT',
+      body: { fold: [shelf], open: [] },
+    });
+    expect(folded.statusCode, folded.body).toBe(204);
     const { id, outcome } = await exported(louis, {
       scope: { me: true },
       options: { readable: false },
     });
     expect(outcome.status, JSON.stringify(outcome)).toBe('done');
     const zip = await zipOf(id);
-    const me = JSON.parse(text(zip, 'me.json')) as { profile: unknown };
+    const me = JSON.parse(text(zip, 'me.json')) as {
+      profile: unknown;
+      placeFolds: { placeId: string }[];
+    };
     expect(me.profile).toBeTruthy();
+    expect(me.placeFolds).toEqual([{ placeId: shelf }]);
     expect(text(zip, 'me.json')).not.toMatch(/token|session/i);
     expect(zip.has('my-ai-calls.csv')).toBe(true);
     const manifest = JSON.parse(text(zip, 'manifest.json')) as ExportManifest;

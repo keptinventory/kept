@@ -57,6 +57,8 @@ export const SUBJECT_COLUMNS = [
   ['fuel_entry_id', 'fuelEntryId'],
   // 1.x (D235): a condition report room's photo.
   ['condition_room_id', 'conditionRoomId'],
+  // 1.14.3 (D266): a floor plan's upload while it is reviewed; never the location's own.
+  ['floor_plan_id', 'floorPlanId'],
 ] as const;
 export type SubjectColumn = (typeof SUBJECT_COLUMNS)[number][0];
 export type SubjectKey = (typeof SUBJECT_COLUMNS)[number][1];

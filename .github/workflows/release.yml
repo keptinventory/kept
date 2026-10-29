@@ -13,7 +13,8 @@
 #   build      one per architecture, in parallel, each on a runner of that architecture
 #              (`ubuntu-24.04` x64, `ubuntu-24.04-arm`; both offered to private repositories):
 #              `release.sh --ci --arch <a>` builds that platform natively, pushes it BY DIGEST
-#              (no tag) with its SBOM and provenance, pulls it back and smokes it natively;
+#              (no tag) with its SBOM and provenance, pulls it back and smokes it natively; the
+#              same for the Home Assistant app's image (ghcr.io/keptinventory/kept-ha, D272);
 #   publish    `release.sh --ci --publish` joins the two smoked digests into one index by digest
 #              (`imagetools create`: no layer is rebuilt, so the published manifests are the
 #              smoked ones), signs it, tags X.Y.Z (X.Y, X), pushes the chart and writes the
@@ -133,7 +134,8 @@ jobs:
           - arch: arm64
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 40
+    # The Home Assistant app's image and its smoke add some minutes to each leg.
+    timeout-minutes: 50
     permissions:
       contents: read
       packages: write # GHCR: the image by digest, and the layer cache
@@ -143,6 +145,11 @@ jobs:
       amd64_manifest: ${{ steps.release.outputs.amd64_manifest }}
       arm64_index: ${{ steps.release.outputs.arm64_index }}
       arm64_manifest: ${{ steps.release.outputs.arm64_manifest }}
+      # The Home Assistant app's image (Dockerfile --target ha, ghcr.io/keptinventory/kept-ha, D272).
+      ha_amd64_index: ${{ steps.release.outputs.ha_amd64_index }}
+      ha_amd64_manifest: ${{ steps.release.outputs.ha_amd64_manifest }}
+      ha_arm64_index: ${{ steps.release.outputs.ha_arm64_index }}
+      ha_arm64_manifest: ${{ steps.release.outputs.ha_arm64_manifest }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -243,6 +250,10 @@ jobs:
           KEPT_RELEASE_AMD64_MANIFEST: ${{ needs.build.outputs.amd64_manifest }}
           KEPT_RELEASE_ARM64_INDEX: ${{ needs.build.outputs.arm64_index }}
           KEPT_RELEASE_ARM64_MANIFEST: ${{ needs.build.outputs.arm64_manifest }}
+          KEPT_RELEASE_HA_AMD64_INDEX: ${{ needs.build.outputs.ha_amd64_index }}
+          KEPT_RELEASE_HA_AMD64_MANIFEST: ${{ needs.build.outputs.ha_amd64_manifest }}
+          KEPT_RELEASE_HA_ARM64_INDEX: ${{ needs.build.outputs.ha_arm64_index }}
+          KEPT_RELEASE_HA_ARM64_MANIFEST: ${{ needs.build.outputs.ha_arm64_manifest }}
         run: bash scripts/release.sh "$VERSION" --ci --publish
 
       - name: The GitHub release

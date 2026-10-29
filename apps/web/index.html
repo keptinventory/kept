@@ -2,6 +2,12 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
+    <!--
+      Every URL below and in the build is relative to this (vite.config.ts `base: './'`). The server
+      rewrites it to Home Assistant's ingress prefix for a request through ingress (D273,
+      apps/server/src/http/web.ts); everywhere else it stays `/`, also in the precached copy.
+    -->
+    <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <title>Kept</title>

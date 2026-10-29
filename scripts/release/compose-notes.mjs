@@ -18,6 +18,8 @@ import { pathToFileURL } from 'node:url';
 /** Section groups folded away under "Documentation and behind the scenes". */
 export const FOLDED = ['Documentation', 'Behind the scenes'];
 const MIGRATION = /^apps\/server\/migrations\/[^/]+\.sql$/;
+/** A highlight's media line, as changelog.mjs writes it (or bare, as the highlights file has it). */
+const WHATS_NEW_MEDIA = /^\s*(?:<!-- whats-new .*-->|!\[[^\]]*\]\([^)]*\))\s*$/;
 
 /** A CHANGELOG section → { preamble, groups: [[title, text]] }, its "## X.Y.Z (date)" line dropped. */
 export function parseSection(section) {
@@ -53,7 +55,12 @@ export function composeBody({
   const out = [];
   const block = (...lines) => out.push(...lines, '');
 
-  const highlights = take('Highlights');
+  // A highlight's media for What's new in Kept (a `<!-- whats-new … -->` line, changelog.mjs) is
+  // the app's, not the page's.
+  const highlights = take('Highlights')
+    ?.split('\n')
+    .filter((l) => !WHATS_NEW_MEDIA.test(l))
+    .join('\n');
   if (highlights) block('## Highlights', '', highlights);
 
   block("## What's changed");

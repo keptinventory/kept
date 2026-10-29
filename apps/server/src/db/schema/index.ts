@@ -10,6 +10,7 @@ export * from './consumables.js';
 export * from './currencies.js';
 export * from './embeddings.js';
 export * from './files.js';
+export * from './floor-plans.js';
 export * from './fuel.js';
 export * from './imports.js';
 export * from './kits.js';

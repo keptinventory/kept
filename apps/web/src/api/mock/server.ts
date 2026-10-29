@@ -89,11 +89,15 @@ export function createMockApi(state: MockState): MockApi {
 
   // ----- meta, setup, auth ---------------------------------------------------------------------
   add('GET', paths.version, () => state.version);
-  add('GET', paths.setup, () => ({ needed: state.setupNeeded }));
+  add('GET', paths.setup, () => ({
+    needed: state.setupNeeded,
+    ...(state.homeAssistant ? { homeAssistant: state.homeAssistant } : {}),
+  }));
   add('POST', paths.setup, ({ body }) => {
     const b = body as SetupBody;
     if (!state.setupNeeded) return err(409, 'conflict', 'Kept is already set up.');
-    if (b.code.replace(/-/g, '').toUpperCase() !== state.setupCode)
+    const codeless = state.homeAssistant?.codeNeeded === false;
+    if (!codeless && (b.code ?? '').replace(/-/g, '').toUpperCase() !== state.setupCode)
       return err(400, 'setup_code_invalid', 'The setup code is not valid.');
     state.setupNeeded = false;
     state.me.user.displayName = b.displayName;

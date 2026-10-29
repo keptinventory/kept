@@ -22,7 +22,7 @@ function CountsRoute() {
   const { t } = useLingui();
   if (useChildMatches().length > 0) return <Outlet />;
   return (
-    <Page title={t`Counts`} wide tour="scanning">
+    <Page title={t`Counts`} wide>
       <div data-tour="counts-list">
         <CountsList />
       </div>

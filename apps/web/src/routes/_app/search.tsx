@@ -68,7 +68,7 @@ function SearchPage() {
   ];
 
   return (
-    <Page title={t`Search`} fill tour="search">
+    <Page title={t`Search`} fill>
       <div data-tour="search-field">
         <FilterStrip
           filters={filters}

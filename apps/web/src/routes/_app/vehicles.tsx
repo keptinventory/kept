@@ -26,7 +26,7 @@ function VehiclesPage() {
   const { t } = useLingui();
   const module = useModuleAnywhere('vehicles');
   return (
-    <Page title={t`Vehicles`} wide tour="vehicles">
+    <Page title={t`Vehicles`} wide>
       {module.loaded && !module.on ? (
         <EmptyState icon={<CarIcon />} title={<Trans>Vehicles is off in your locations</Trans>}>
           <Trans>

@@ -613,3 +613,10 @@ starlight-lang-select select {
 :root:not([data-theme="light"]) .kd-only-light {
   display: none;
 }
+
+/* ---------------------------------------------------------------- Home Assistant button row */
+
+/* Under the integrations wall on the landing page (components/HomeAssistantButton.astro). */
+.kd-ha-row {
+  margin-block: 1rem 0;
+}

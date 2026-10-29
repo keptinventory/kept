@@ -1,4 +1,9 @@
-import { CAPTURE_MODES, EXTRACTION_STATUSES, INBOX_KINDS, INBOX_RESOLUTIONS } from '@kept/shared';
+import {
+  EXTRACTION_MODES,
+  EXTRACTION_STATUSES,
+  INBOX_KINDS,
+  INBOX_RESOLUTIONS,
+} from '@kept/shared';
 import { sql } from 'drizzle-orm';
 import {
   char,
@@ -17,6 +22,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { id, mutable, textEnum, tstz } from './common.js';
 import { attachments, files } from './files.js';
+import { floorPlans } from './floor-plans.js';
 import { meterReadings, meters } from './meters.js';
 import { purchases } from './purchases.js';
 import { types } from './registries.js';
@@ -33,7 +39,7 @@ import { things } from './things.js';
 /** Postgres full-text vector (as in things.ts). */
 const tsvector = customType<{ data: string }>({ dataType: () => 'tsvector' });
 
-const mode = textEnum('mode', CAPTURE_MODES);
+const mode = textEnum('mode', EXTRACTION_MODES);
 const status = textEnum('status', EXTRACTION_STATUSES);
 
 /**
@@ -57,6 +63,8 @@ export const extractions = pgTable(
     serviceRecordId: uuid('service_record_id'),
     /** ROOM: the room capture this photo is one of; set at insert only. */
     roomCaptureId: uuid('room_capture_id'),
+    /** PLAN (D266): the floor plan this reads; set at insert only. */
+    floorPlanId: uuid('floor_plan_id'),
     mode: mode.col().notNull(),
     attempt: integer('attempt').notNull().default(1),
     status: status.col().notNull().default('queued'),
@@ -130,6 +138,14 @@ export const extractions = pgTable(
     index('extractions_room_capture_idx')
       .on(t.roomCaptureId)
       .where(sql`room_capture_id IS NOT NULL`),
+    foreignKey({
+      name: 'extractions_floor_plan_fk',
+      columns: [t.locationId, t.floorPlanId],
+      foreignColumns: [floorPlans.locationId, floorPlans.id],
+    })
+      .onUpdate('cascade')
+      .onDelete('cascade'),
+    index('extractions_floor_plan_idx').on(t.floorPlanId).where(sql`floor_plan_id IS NOT NULL`),
     // One live attempt per attachment: a second queue of the same photo is refused (23505).
     uniqueIndex('extractions_live_uq')
       .on(t.attachmentId)

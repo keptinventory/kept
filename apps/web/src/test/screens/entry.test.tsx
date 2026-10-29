@@ -56,6 +56,36 @@ describe('first-run setup', () => {
     ).toBeInTheDocument();
   });
 
+  it('in the Home Assistant app, says the code is on the app’s Log tab', async () => {
+    const state = setupScenario();
+    state.homeAssistant = { codeNeeded: true };
+    await renderApp('/setup', { state });
+    await findHeading('Enter the setup code');
+    expect(
+      screen.getByText("Your setup code is on the app's Log tab in Home Assistant."),
+    ).toBeInTheDocument();
+    // Docker, Compose and kubectl don't apply inside Home Assistant.
+    expect(screen.queryByRole('heading', { name: 'Where to find it' })).toBeNull();
+  });
+
+  it('a Home Assistant administrator through ingress sets up without the code', async () => {
+    const state = setupScenario();
+    state.homeAssistant = { codeNeeded: false };
+    const { user, mock } = await renderApp('/setup', { state });
+    await findHeading('Create the first account');
+    expect(screen.getByText('Set up by a Home Assistant administrator')).toBeInTheDocument();
+    await user.type(screen.getByLabelText('Your name'), 'Ibrahim');
+    await user.type(screen.getByLabelText('Email'), 'ibrahim@example.com');
+    await user.type(screen.getByLabelText('Password'), 'correct horse battery');
+    await user.click(screen.getByRole('button', { name: 'Create account' }));
+    await findHeading('How should this Kept work?');
+    expect(mock.lastCall('POST', paths.setup)?.body).toEqual({
+      email: 'ibrahim@example.com',
+      password: 'correct horse battery',
+      displayName: 'Ibrahim',
+    });
+  });
+
   it('validates the account fields', async () => {
     const { user } = await renderApp('/setup', { state: setupScenario() });
     await findHeading('Enter the setup code');

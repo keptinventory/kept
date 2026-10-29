@@ -20,7 +20,8 @@ export type EnvErrorCode =
   | 'vapid_keys_partial'
   | 'embeddings_unavailable'
   | 'oidc_incomplete'
-  | 'google_incomplete';
+  | 'google_incomplete'
+  | 'tls_files_partial';
 
 export class EnvError extends Error {
   readonly code: EnvErrorCode;
@@ -389,6 +390,37 @@ const schema = z.object({
     .max(65535)
     .default(8080)
     .describe('the port the server listens on'),
+  // D272, D273: the Home Assistant app's image sets it; nothing else should. It turns on the one
+  // ingress check (http/ingress.ts) and the app's own lines on the setup page and Status.
+  KEPT_HA: z
+    .enum(['0', '1'])
+    .default('0')
+    .transform((value) => value === '1')
+    .describe(
+      "`1` only in the Home Assistant app's image: Kept trusts Home Assistant's ingress (from the Supervisor's address only) and says it runs as an app",
+    ),
+  // Set by the app's start script only when the Supervisor is 2026.10.4 or later, which removes a
+  // client's X-Remote-User-Groups and sets its own (home-assistant/supervisor #7398); before
+  // that, the header could be the client's, so setup without the code stays off.
+  KEPT_HA_TRUST_GROUPS: z
+    .enum(['0', '1'])
+    .default('0')
+    .transform((value) => value === '1')
+    .describe(
+      "`1` only from the Home Assistant app's start script, on a Supervisor that sets the user's groups itself: a Home Assistant administrator sets Kept up through ingress without the code",
+    ),
+  // https served by Kept itself, e.g. with Home Assistant's own certificate from /ssl. Both or
+  // neither; a renewed certificate is read at the next start.
+  KEPT_TLS_CERT_FILE: z
+    .string()
+    .optional()
+    .describe(
+      'optional; a PEM certificate (chain) file: Kept serves https itself on `KEPT_PORT`; with `KEPT_TLS_KEY_FILE`',
+    ),
+  KEPT_TLS_KEY_FILE: z
+    .string()
+    .optional()
+    .describe("optional; the certificate's PEM private key file; with `KEPT_TLS_CERT_FILE`"),
   KEPT_ALLOW_DOWNGRADE: z
     .enum(['0', '1'])
     .default('0')
@@ -1020,6 +1052,15 @@ export async function loadEnv(
     throw new EnvError(
       `KEPT_VAPID_PUBLIC_KEY and KEPT_VAPID_PRIVATE_KEY are set together or not at all; ${missing} is missing`,
       'vapid_keys_partial',
+    );
+  }
+
+  // https served by Kept itself takes the certificate and its key together.
+  if (Boolean(env.KEPT_TLS_CERT_FILE) !== Boolean(env.KEPT_TLS_KEY_FILE)) {
+    const missing = env.KEPT_TLS_CERT_FILE ? 'KEPT_TLS_KEY_FILE' : 'KEPT_TLS_CERT_FILE';
+    throw new EnvError(
+      `KEPT_TLS_CERT_FILE and KEPT_TLS_KEY_FILE are set together or not at all; ${missing} is missing`,
+      'tls_files_partial',
     );
   }
 

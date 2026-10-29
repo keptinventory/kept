@@ -153,6 +153,8 @@ const AdminStatus = z.object({
   google: z.object({ configured: z.boolean(), callbackUrl: z.string().nullable() }).optional(),
   /** Step 6 (D207): semantic search's index and its source (embeddings/status.ts). */
   embeddings: EmbeddingsStatusSchema.optional(),
+  /** D272: "Running as a Home Assistant app" (KEPT_HA); absent on every other install. */
+  homeAssistant: z.literal(true).optional(),
 });
 
 const Locked = <T extends z.ZodType>(value: T) => z.object({ value, locked: z.boolean() });
@@ -714,6 +716,7 @@ export async function adminRoutes(app: KeptApp, deps: AdminDeps): Promise<void> 
           oidc: oidcStatus(),
           google: googleStatus(),
           connectors: connectorsStatus(env.KEPT_PUBLIC_URL),
+          ...(env.KEPT_HA ? { homeAssistant: true as const } : {}),
         };
         try {
           const failedLastDay =

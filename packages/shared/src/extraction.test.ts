@@ -70,9 +70,9 @@ describe('schemas', () => {
     ).toBe(true);
   });
 
-  it('has a schema per capture mode', () => {
+  it('has a schema per extraction mode (the capture modes and a floor plan)', () => {
     expect(Object.keys(EXTRACTION_SCHEMAS).sort()).toEqual(
-      ['label', 'reading', 'receipt', 'room', 'thing'].sort(),
+      ['label', 'plan', 'reading', 'receipt', 'room', 'thing'].sort(),
     );
   });
 
@@ -216,6 +216,7 @@ describe('token caps', () => {
       label: 600,
       reading: 200,
       room: 8000,
+      plan: 6000,
     });
     expect(REASONING_ALLOWANCE).toEqual({
       none: 0,

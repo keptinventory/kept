@@ -1,6 +1,6 @@
 /**
  * The tour engine for Help's tour (tours.ts): one tour in chapters, started from Help (Take the
- * tour, Continue the tour, a chapter's row) or a page's Show me, never on launch. One run
+ * tour, Continue the tour, a chapter's row) or a scan session's Show me, never on launch. One run
  * at a time, whichever button started it.
  *
  * - A run starts at a chapter and walks on through the chapters after it that the person has.

@@ -1,4 +1,4 @@
-import { can, MAP_ROOM_KINDS, MAP_SURFACES } from '@kept/shared';
+import { can, FLOOR_PLAN_STATUSES, MAP_ROOM_KINDS, MAP_SURFACES } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
 import type { Tx } from '../db/scope.js';
@@ -55,6 +55,9 @@ export const MapViewSchema = z.object({
   /** When the layout was last arranged (the arrange session's stamp), or null. A PUT sends it
    * back, so two people arranging at once can't overwrite each other unseen. */
   version: z.string().nullable(),
+  /** 1.14.3 (D266): floor plans being read or waiting for review, newest first (members and up;
+   * row-level security hides them from everyone else). */
+  openPlans: z.array(z.object({ id: z.uuid(), status: z.enum(FLOOR_PLAN_STATUSES) })),
   levels: z.array(z.object({ id: z.uuid().nullable(), name: z.string().nullable() })),
   rooms: z.array(
     z.object({
@@ -526,6 +529,7 @@ export async function mapView(tx: Tx, client: pg.ClientBase, locationId: string)
     locationId,
     canArrange: can(me.role, 'things.edit'),
     version: versionOf(nodes),
+    openPlans: await openPlansOf(client, locationId),
     levels,
     rooms: roomList.map(([id, levelId]) => {
       const p = tree.places.get(id) as PlaceRow;
@@ -544,4 +548,18 @@ export async function mapView(tx: Tx, client: pg.ClientBase, locationId: string)
     more,
     attention: await attentionOf(tx, client, locationId),
   };
+}
+
+/** The location's open plans, newest first, for the map's notice (members and up: RLS). */
+export async function openPlansOf(
+  client: pg.ClientBase,
+  locationId: string,
+): Promise<{ id: string; status: (typeof FLOOR_PLAN_STATUSES)[number] }[]> {
+  const { rows } = await client.query<{ id: string; status: (typeof FLOOR_PLAN_STATUSES)[number] }>(
+    `SELECT id, status FROM public.floor_plans
+      WHERE location_id = $1 AND status IN ('reading', 'ready', 'failed', 'off')
+      ORDER BY created_at DESC, id DESC LIMIT 5`,
+    [locationId],
+  );
+  return rows;
 }

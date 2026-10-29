@@ -8,7 +8,7 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "lint": "biome check . && node scripts/check-logical-css.mjs && node scripts/check-i18n.mjs && node scripts/check-no-local-paths.mjs",
+    "lint": "biome check . && node scripts/check-logical-css.mjs && node scripts/check-i18n.mjs && node scripts/check-no-local-paths.mjs && node scripts/check-ha-app.mjs && node scripts/check-web-api-paths.mjs",
     "format": "biome format --write .",
     "typecheck": "tsc -p tsconfig.json && pnpm -r --parallel typecheck",
     "test": "vitest run",

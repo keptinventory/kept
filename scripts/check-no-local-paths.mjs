@@ -83,6 +83,12 @@ export const PRIVATE_IPV4_ALLOWED = new Map([
   ['compose.yaml', "Kept's own Compose network"],
   ['apps/docs/src/content/docs/install/https.md', "Kept's own Compose network"],
   ['apps/docs/src/content/docs/install/reverse-proxy.md', 'an example proxy address'],
+  // D273: Home Assistant's own internal network, where ingress comes from (the Supervisor and Core).
+  ['apps/server/src/http/ingress.ts', "Home Assistant's Supervisor and Core addresses"],
+  ['docker/ha/kept-ha-start', "Home Assistant's Supervisor and Core, Kept's trusted proxies"],
+  ['scripts/ha-ingress-e2e.sh', "the ingress e2e's copy of Home Assistant's network"],
+  ['scripts/smoke-ha-image.sh', "checks Kept trusts the Supervisor's address alone"],
+  ['apps/web/e2e-ha/Caddyfile', "the ingress mimic, at the Supervisor's address"],
 ]);
 
 export function privateIpv4Allowed(file) {

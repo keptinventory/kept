@@ -14,6 +14,9 @@
 //   apps/docs/src/assets/logo.svg          the docs site's logo (= the app's favicon)
 //   docs/assets/kept-lockup-light.svg      the README lockup, on GitHub's light page
 //   docs/assets/kept-lockup-dark.svg       the same, on GitHub's dark page
+//   homeassistant/kept/icon.png            the Home Assistant app's icon, 128, the hole cut out
+//   homeassistant/kept/logo.png            its logo, 256×100: the lockup on a paper label, so it
+//                                          reads on Home Assistant's light and dark themes alike
 //
 // The geometry matches AppMark and BrandLockup in apps/web/src/components/brand.tsx. Dev only: run
 // it after changing either, and commit the outputs (`node scripts/render-icons.mjs`).
@@ -88,6 +91,23 @@ export function lockupSvg({ ink, height = 64 } = {}) {
   ].join('');
 }
 
+/** The Home Assistant app's logo (D272): the lockup in the kit's ink on a rounded paper label,
+ * `width`×`height`. Home Assistant shows it on its light and its dark theme. */
+export function haLogoSvg({ width = 256, height = 100 } = {}) {
+  const pad = 14;
+  const h = height - pad * 2;
+  const w = +((h * LOCKUP_W) / 64).toFixed(1);
+  const x = +((width - w) / 2).toFixed(1);
+  return [
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
+    `<rect x="1" y="1" width="${width - 2}" height="${height - 2}" rx="14" fill="${HOLE}" stroke="#E4E1D8" stroke-width="2"/>`,
+    `<svg x="${x}" y="${pad}" width="${w}" height="${h}" viewBox="0 0 ${LOCKUP_W} 64">`,
+    markArt(HOLE),
+    `<g fill="#1C1B19">${WORDMARK}</g>`,
+    '</svg></svg>',
+  ].join('');
+}
+
 /** Writes beside the target and renames into place, so a tracked file is never half-written. */
 function write(rel, data) {
   const file = join(root, rel);
@@ -119,6 +139,15 @@ async function main() {
   // The README's lockup, in the kit's ink for each GitHub theme (light: --ink; dark: dark --ink).
   write('docs/assets/kept-lockup-light.svg', `${lockupSvg({ ink: '#1C1B19', height: 80 })}\n`);
   write('docs/assets/kept-lockup-dark.svg', `${lockupSvg({ ink: '#F2EFE9', height: 80 })}\n`);
+  // The Home Assistant app (homeassistant/kept): the mark with its hole cut out, and the logo.
+  await png(markSvg(), 128, 'homeassistant/kept/icon.png');
+  write(
+    'homeassistant/kept/logo.png',
+    await sharp(Buffer.from(haLogoSvg()), { density: 144 })
+      .resize(256, 100)
+      .png({ compressionLevel: 9 })
+      .toBuffer(),
+  );
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) await main();

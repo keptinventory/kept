@@ -10,11 +10,15 @@
  *   never stored. An original the server can't decode (HEIC, D36/D99) uses the phone-made
  *   `display` instead.
  * - A PDF receipt sends its extracted text (`file_text`) and no image.
+ * - PLAN (D266): the evidence re-encode of the plan, turned by the plan's quarter turn. A PDF plan's
+ *   first page is rendered in the sandboxed PDF worker (files/pdf-text.ts `renderPdfPage`), never
+ *   stored, and re-encoded the same way; its page text (at most PLAN_TEXT_MAX characters) goes
+ *   with it as document text.
  *
  * callModel checks every image part again (no EXIF, no XMP) and throws on a violation.
  */
 import type { Readable } from 'node:stream';
-import type { CaptureMode } from '@kept/shared';
+import type { ExtractionMode } from '@kept/shared';
 import sharp from 'sharp';
 import type { ImageInput } from '../ai/call.js';
 import {
@@ -32,6 +36,8 @@ export const THING_MAX_PX = 2048;
 const JPEG_QUALITY = 85;
 /** Receipt pages sent in one call. */
 export const MAX_RECEIPT_PAGES = 4;
+/** A PDF plan's own text sent with it (spec §10.1). */
+export const PLAN_TEXT_MAX = 4000;
 
 export type SourceFile = {
   attachmentId: string;
@@ -54,6 +60,10 @@ export type PartsDeps = {
   blobs: BlobStore;
   /** A PDF's extracted text (file_text), or null when there is none yet. */
   textOf: (fileId: string) => Promise<string | null>;
+  /** PLAN: the quarter turn the plan is read at. */
+  turn?: number;
+  /** PLAN: a PDF's first page as a PNG, and its text, rendered in the sandboxed worker. */
+  renderPdf?: (fileId: string) => Promise<{ png: Buffer; text: string } | null>;
 };
 
 async function readAll(stream: Readable): Promise<Buffer> {
@@ -77,12 +87,13 @@ export async function reencode(
   bytes: Buffer,
   max: number,
   attachmentId?: string,
+  /** A quarter turn clockwise, after the photo is upright (a plan scanned sideways). */
+  turn = 0,
 ): Promise<ImageInput | null> {
   try {
-    const { data, info } = await sharp(bytes, {
-      limitInputPixels: LIMIT_INPUT_PIXELS,
-      autoOrient: true,
-    })
+    const upright = sharp(bytes, { limitInputPixels: LIMIT_INPUT_PIXELS, autoOrient: true });
+    const turned = turn ? sharp(await upright.rotate(turn).toBuffer()) : upright;
+    const { data, info } = await turned
       .resize({ width: max, height: max, fit: 'inside', withoutEnlargement: true })
       .flatten({ background: '#ffffff' })
       .jpeg({ quality: JPEG_QUALITY })
@@ -120,13 +131,33 @@ async function display(blobs: BlobStore, f: SourceFile): Promise<ImageInput | nu
 
 /** The parts for one extraction. `files` are the attachments to send, in order. */
 export async function partsFor(
-  mode: CaptureMode,
+  mode: ExtractionMode,
   files: readonly SourceFile[],
   deps: PartsDeps,
 ): Promise<BuiltParts> {
   const out: BuiltParts = { images: [], fromDisplay: [], missing: [] };
   const texts: string[] = [];
   for (const f of files) {
+    if (mode === 'plan') {
+      const turn = deps.turn ?? 0;
+      let img: ImageInput | null = null;
+      if (f.mime === 'application/pdf') {
+        const page = deps.renderPdf ? await deps.renderPdf(f.fileId) : null;
+        if (page) {
+          img = await reencode(page.png, EVIDENCE_MAX_PX, f.attachmentId, turn);
+          const text = page.text.trim().slice(0, PLAN_TEXT_MAX);
+          if (text) texts.push(text);
+        }
+      } else if (f.mime.startsWith('image/')) {
+        const original = await blob(deps.blobs, originalKey(f.locationId, f.fileId));
+        img = original ? await reencode(original, EVIDENCE_MAX_PX, f.attachmentId, turn) : null;
+      }
+      if (img) {
+        out.images.push(img);
+        out.fromDisplay.push(false);
+      } else out.missing.push(f.attachmentId);
+      continue;
+    }
     if (f.mime === 'application/pdf') {
       const text = mode === 'receipt' ? await deps.textOf(f.fileId) : null;
       if (text?.trim()) texts.push(text.trim());

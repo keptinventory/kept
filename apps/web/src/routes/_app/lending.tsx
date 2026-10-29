@@ -149,7 +149,7 @@ function LendingPage() {
   ];
 
   return (
-    <Page title={t`Lending`} wide tour="lending">
+    <Page title={t`Lending`} wide>
       {module.loaded && !module.on ? (
         <EmptyState icon={<HandoffIcon />} title={<Trans>Lending is off in your locations</Trans>}>
           <Trans>

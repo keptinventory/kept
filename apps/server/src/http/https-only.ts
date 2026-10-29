@@ -27,10 +27,13 @@ export function assertHttps(publicUrl: string): void {
   }
 }
 
-/** A preHandler for a route (or a plugin's hooks) that must not run over plain HTTP. */
+/** A preHandler for a route (or a plugin's hooks) that must not run over plain HTTP. A Home
+ * Assistant ingress request (D273) is secure exactly when Home Assistant is (X-Forwarded-Proto
+ * https, plan Q4), whatever KEPT_PUBLIC_URL says: the browser's connection is to Home Assistant. */
 export function requireHttps(publicUrl: string): preHandlerAsyncHookHandler {
   const https = isHttps(publicUrl);
-  return async () => {
-    if (!https) assertHttps(publicUrl);
+  return async (req) => {
+    const secure = req.ingress ? req.ingress.secure : https;
+    if (!secure) assertHttps(publicUrl);
   };
 }

@@ -97,6 +97,8 @@ export function seedPaperless(
   } = {},
 ): void {
   const s = storeOf(state);
+  // Once per location: the showcase seeds on every request that sets it up.
+  if (s.connections.has(locationId)) return;
   const url = opts.url ?? 'https://paperless.example.com';
   s.connections.set(locationId, {
     connection: {

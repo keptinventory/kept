@@ -15,6 +15,7 @@ import { keys } from '@/api/queries';
 import { KeyIcon } from '@/components/icons';
 import { Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
+import { publicOrigin, underIngress } from '@/lib/base-path';
 import { leave } from '@/lib/leave';
 
 /** The configured provider's name, or null when OIDC is off (or the server predates it). */
@@ -68,7 +69,17 @@ export function OidcSignInButton({
   });
   return (
     <div className="grid gap-2">
-      <Button variant="secondary" isPending={start.isPending} onPress={() => start.mutate()}>
+      <Button
+        variant="secondary"
+        isPending={start.isPending}
+        onPress={() =>
+          // Under Home Assistant ingress (D273) the provider returns to Kept's own address, not to
+          // Home Assistant: sign in there, in a tab of its own.
+          underIngress()
+            ? window.open(`${publicOrigin()}/signin`, '_blank', 'noopener')
+            : start.mutate()
+        }
+      >
         <KeyIcon />
         {/* One flex item: the button's gap between the words and the name read as two spaces. */}
         <span>

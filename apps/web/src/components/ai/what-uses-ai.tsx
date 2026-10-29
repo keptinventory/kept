@@ -12,6 +12,7 @@ import { Plural, Trans } from '@lingui/react/macro';
 import { useAiExplain } from '@/api/capture/queries';
 import type { AiExplain, AiScope } from '@/api/capture/types';
 import { ErrorState, LoadingRows, Section } from '@/components/page';
+import { hashHref } from '@/lib/base-path';
 import { sep, useFormat } from '@/lib/format';
 import { useActionLabel, useApproxCost, useTokens } from './labels';
 
@@ -140,7 +141,7 @@ function ExplainBody({ explain, whatIsSentId }: { explain: AiExplain; whatIsSent
       ) : null}
       {whatIsSentId ? (
         <a
-          href={`#${whatIsSentId}`}
+          href={hashHref(whatIsSentId)}
           className="justify-self-start font-semibold text-small text-ink underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-info"
         >
           <Trans>What is sent to the provider</Trans>

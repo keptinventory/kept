@@ -1,0 +1,66 @@
+---
+/**
+ * "Add Kept to Home Assistant": Home Assistant's own My link, which opens the person's Home
+ * Assistant at Settings → Apps → Repositories with Kept's repository filled in (D272). In Home
+ * Assistant's blue (#18BCF2) with its logo (simple-icons `homeassistant` 16.36.0, CC0-1.0), the
+ * words and the logo in a dark ink: white on that blue is under 3:1. The label is the page's
+ * language; the logo is decoration (the link's name is the label).
+ */
+const MY_LINK =
+  'https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fkeptinventory%2Fkept';
+
+const labels: Record<string, string> = {
+  en: 'Add Kept to Home Assistant',
+  ar: 'أضف Kept إلى Home Assistant',
+  fr: 'Ajouter Kept à Home Assistant',
+  de: 'Kept zu Home Assistant hinzufügen',
+  it: 'Aggiungi Kept a Home Assistant',
+};
+const lang = Astro.locals.starlightRoute?.lang ?? 'en';
+const label = labels[lang] ?? labels.en;
+---
+
+<!-- not-content: Starlight's Markdown link colour and underline stay off it. -->
+<span class="not-content"><a class="kd-ha-button" href={MY_LINK} rel="noopener">
+  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+    <path
+      fill="currentColor"
+      d="M22.939 10.627 13.061.749a1.505 1.505 0 0 0-2.121 0l-9.879 9.878C.478 11.21 0 12.363 0 13.187v9c0 .826.675 1.5 1.5 1.5h9.227l-4.063-4.062a2.034 2.034 0 0 1-.664.113c-1.13 0-2.05-.92-2.05-2.05s.92-2.05 2.05-2.05 2.05.92 2.05 2.05c0 .233-.041.456-.113.665l3.163 3.163V9.928a2.05 2.05 0 0 1-1.15-1.84c0-1.13.92-2.05 2.05-2.05s2.05.92 2.05 2.05a2.05 2.05 0 0 1-1.15 1.84v8.127l3.146-3.146A2.051 2.051 0 0 1 18 12.239c1.13 0 2.05.92 2.05 2.05s-.92 2.05-2.05 2.05c-.25 0-.488-.047-.709-.13L12.9 20.602v3.088h9.6c.825 0 1.5-.675 1.5-1.5v-9c0-.825-.477-1.977-1.061-2.561z"
+    ></path>
+  </svg>
+  <span>{label}</span>
+</a></span>
+
+<style>
+  .kd-ha-button {
+    --kd-ha-blue: #18bcf2;
+    --kd-ha-ink: #04212e;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-block-size: 2.75rem;
+    padding-block: 0.5rem;
+    padding-inline: 0.875rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--kd-ha-blue) 80%, black);
+    border-radius: 10px;
+    background: var(--kd-ha-blue);
+    color: var(--kd-ha-ink);
+    font: 600 0.9375rem / 1.2 var(--sans);
+    text-decoration: none;
+    box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.12);
+  }
+  :global(:root:lang(ar)) .kd-ha-button {
+    font-family: var(--arabic);
+  }
+  .kd-ha-button svg {
+    flex: none;
+  }
+  .kd-ha-button:hover {
+    background: color-mix(in srgb, var(--kd-ha-blue) 88%, white);
+    color: var(--kd-ha-ink);
+  }
+  .kd-ha-button:focus-visible {
+    outline: 2px solid var(--info);
+    outline-offset: 2px;
+  }
+</style>

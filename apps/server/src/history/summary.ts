@@ -287,6 +287,11 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'thing.capture': (p) => `Captured ${p.name} from a photo`,
   'room.capture': (p) => `Photographed ${p.name} for Kept to list what is in it`,
   'map.place': (p) => `Put ${p.name} on the map`,
+  // 1.14.3 (D266): a floor plan read, dropped, or its rooms added (one row for all of them).
+  'floor_plan.read': () => 'Read a floor plan',
+  'floor_plan.discard': () => 'Discarded a floor plan',
+  'floor_plan.apply': (p) =>
+    plural(p.count, 'Added # room from a floor plan', 'Added # rooms from a floor plan'),
   'thing.capture.reading': (p) => `Logged a reading of ${p.name} from a photo`,
   'thing.extract': (p) => `Filled in ${p.name} from a photo`,
   'thing.reextract': (p) => `Read the photo of ${p.name} again`,
@@ -650,6 +655,9 @@ export function summarise(event: RenderedAuditEvent, ctx: SummaryContext): Summa
     }
     if (key.startsWith('label_batch.create')) {
       params.count = String(countOf(afterOf(event, 'code_count')) ?? 0);
+    }
+    if (key === 'floor_plan.apply') {
+      params.count = String(countOf(afterOf(event, 'rooms')) ?? 0);
     }
   }
   return {

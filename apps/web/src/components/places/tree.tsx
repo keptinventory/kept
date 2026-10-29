@@ -5,17 +5,26 @@
  * Boxes are leaves under their place, after its child places: a box icon, the name and how many
  * things are in it; what is inside stays on the box's page. A place shows at most 50 boxes (the
  * server's cap), then "+N boxes" to its own page, where the list has them all.
+ *
+ * Both outlines fold each place with something under it (#358, fold.ts): the person's folds are
+ * kept on the server, and the path to the page they are on stays open. The move picker uses
+ * treeEntries as it is and never folds.
  */
 import { comparePlaceSiblings } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
+import { useId, useMemo, useState } from 'react';
 import type { BoxNode, PlaceNode } from '@/api/inventory/types';
 import { ChevronDownIcon } from '@/components/icons';
 import { TypeIcon } from '@/components/type-icon';
+import { Button } from '@/components/ui/button';
 import { addressOf } from '@/lib/address';
+import { cn } from '@/lib/utils';
 import { childrenOf } from './api';
+import { foldableIds, isFoldedAll, keptOpen, nestEntries, type TreeItem } from './fold';
 import { placeIcon, usePlaceName } from './labels';
+import { usePlaceFolds } from './use-place-folds';
 
 export type TreeRow = { place: PlaceNode; depth: number };
 
@@ -82,16 +91,145 @@ export const indentStyle = (depth: number) => ({
   paddingInlineStart: `${0.875 + depth * 1.25}rem`,
 });
 
+/** A row's indent: the fold button's slot starts it, so the place icons line up under it. */
+const rowIndent = (depth: number) => ({ paddingInlineStart: `${0.25 + depth * 1.25}rem` });
+
+/** How the two outlines draw a row: the collapsed one at phone size, the docked panel denser. */
+const LOOKS = {
+  outline: {
+    row: 'flex min-h-10 items-stretch hover:bg-sunken',
+    fold: 'size-10',
+    link: 'flex min-h-10 min-w-0 flex-1 items-center gap-2 pe-3.5 text-[14px] text-ink-2 outline-none hover:text-ink focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-info aria-[current=page]:font-semibold aria-[current=page]:text-ink',
+  },
+  panel: {
+    row: 'flex min-h-9 items-stretch rounded-lg hover:bg-sunken has-[[aria-current=page]]:bg-sunken',
+    // The panel shows from 1280 px; a coarse pointer there (an iPad) still gets 40 px.
+    fold: 'h-9 w-8 pointer-coarse:size-10',
+    link: 'flex min-h-9 min-w-0 flex-1 items-center gap-2 rounded-lg pe-3.5 text-[14px] text-ink-2 outline-none hover:text-ink focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-info aria-[current=page]:font-semibold aria-[current=page]:text-ink',
+  },
+} as const;
+type Look = (typeof LOOKS)[keyof typeof LOOKS];
+
+const NONE: ReadonlySet<string> = new Set();
+
+/**
+ * The outline's folds (#358): the person's, from the server, with the path to the page they are on
+ * kept open. A place on that path folds only when they fold it on this page.
+ */
+function useFolding(
+  places: PlaceNode[],
+  boxes: readonly BoxNode[],
+  currentId: string | undefined,
+  locationId: string | undefined,
+  entries: TreeEntry[],
+) {
+  const { folded, change } = usePlaceFolds(locationId);
+  const path = useMemo(() => keptOpen(places, boxes, currentId), [places, boxes, currentId]);
+  const foldable = useMemo(() => foldableIds(entries), [entries]);
+  const [released, setReleased] = useState<{ at: string | undefined; ids: ReadonlySet<string> }>({
+    at: currentId,
+    ids: NONE,
+  });
+  const here = released.at === currentId ? released.ids : NONE;
+  const isOpen = (id: string) => !folded.has(id) || (path.has(id) && !here.has(id));
+  const toggle = (id: string) => {
+    if (!isOpen(id)) return change({ open: [id] });
+    if (path.has(id)) setReleased({ at: currentId, ids: new Set(here).add(id) });
+    change({ fold: [id] });
+  };
+  const allFolded = isFoldedAll(folded, foldable);
+  // Fold all keeps the path to this page open, even a place on it folded here by hand.
+  const foldAll = () => {
+    setReleased({ at: currentId, ids: NONE });
+    if (allFolded) change({ open: [...new Set([...folded, ...foldable])] });
+    else change({ fold: foldable });
+  };
+  return { isOpen, toggle, foldable, allFolded, foldAll };
+}
+type Folding = ReturnType<typeof useFolding>;
+
+/** "Fold all", or "Open all" once every place is folded (the path to this page stays open). */
+function FoldAll({ folding, className }: { folding: Folding; className?: string }) {
+  if (folding.foldable.length === 0) return null;
+  return (
+    <Button variant="ghost" size="small" onPress={folding.foldAll} className={className}>
+      {folding.allFolded ? <Trans>Open all</Trans> : <Trans>Fold all</Trans>}
+    </Button>
+  );
+}
+
+/** The rows, nested as the places are: a place's fold button opens and closes its own list. */
+function Rows({
+  items,
+  currentId,
+  folding,
+  look,
+}: {
+  items: TreeItem[];
+  currentId: string | undefined;
+  folding: Folding;
+  look: Look;
+}) {
+  const { t } = useLingui();
+  const nameOf = usePlaceName();
+  const uid = useId();
+  return items.map(({ entry, children }) => {
+    const id = keyOf(entry);
+    const folds = entry.kind === 'place' && children.length > 0;
+    const open = !folds || folding.isOpen(entry.place.id);
+    const groupId = `${uid}-${id}`;
+    const name = entry.kind === 'place' ? nameOf(entry.place) : '';
+    return (
+      <li key={id}>
+        <div className={look.row} style={rowIndent(entry.depth)}>
+          {folds ? (
+            <button
+              type="button"
+              aria-expanded={open}
+              aria-controls={groupId}
+              aria-label={t`Contents of ${name}`}
+              onClick={() => folding.toggle(entry.place.id)}
+              className={cn(
+                'grid shrink-0 place-items-center rounded-lg text-ink-3 outline-none hover:text-ink focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-info',
+                look.fold,
+              )}
+            >
+              <ChevronDownIcon
+                aria-hidden="true"
+                className={cn('size-4 transition-transform', !open && '-rotate-90 rtl:rotate-90')}
+              />
+            </button>
+          ) : (
+            <span aria-hidden="true" className={cn('shrink-0', look.fold)} />
+          )}
+          <EntryLink row={entry} currentId={currentId} className={look.link} />
+        </div>
+        {folds ? (
+          <ul id={groupId} hidden={!open} className="m-0 grid list-none p-0">
+            {open ? (
+              <Rows items={children} currentId={currentId} folding={folding} look={look} />
+            ) : null}
+          </ul>
+        ) : null}
+      </li>
+    );
+  });
+}
+
 export function PlaceTree({
   places,
   boxes = [],
   currentId,
+  locationId,
 }: {
   places: PlaceNode[];
   boxes?: readonly BoxNode[];
   currentId?: string;
+  /** Whose folds to read and keep (#358). */
+  locationId: string;
 }) {
-  const rows = treeEntries(places, boxes);
+  const rows = useMemo(() => treeEntries(places, boxes), [places, boxes]);
+  const folding = useFolding(places, boxes, currentId, locationId, rows);
   if (rows.length <= 1) return null;
   return (
     <details className="group rounded-[10px] border border-line bg-surface">
@@ -99,17 +237,19 @@ export function PlaceTree({
         <ChevronDownIcon className="size-4 -rotate-90 text-ink-3 transition-transform group-open:rotate-0 rtl:rotate-90 rtl:group-open:rotate-0" />
         <Trans>All places</Trans>
       </summary>
-      <ul className="m-0 grid list-none border-t border-line p-0 py-1">
-        {rows.map((row) => (
-          <li key={keyOf(row)}>
-            <EntryLink
-              row={row}
-              currentId={currentId}
-              className="flex min-h-10 items-center gap-2 pe-3.5 text-[14px] text-ink-2 outline-none hover:bg-sunken hover:text-ink focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-info aria-[current=page]:font-semibold aria-[current=page]:text-ink"
-            />
-          </li>
-        ))}
-      </ul>
+      <div className="border-t border-line py-1">
+        <div className="flex justify-end px-1.5">
+          <FoldAll folding={folding} className="min-h-10" />
+        </div>
+        <ul className="m-0 grid list-none p-0">
+          <Rows
+            items={nestEntries(rows)}
+            currentId={currentId}
+            folding={folding}
+            look={LOOKS.outline}
+          />
+        </ul>
+      </div>
     </details>
   );
 }
@@ -117,7 +257,8 @@ export function PlaceTree({
 /**
  * The location's places as a panel beside the page (1.1, the maintainer's "railing" sidebar):
  * always open, the location heading it and the current place marked. Pages show it from 1280 px
- * (`useMediaQuery(DOCKED)`), and the collapsed outline below that.
+ * (`useMediaQuery(DOCKED)`), and the collapsed outline below that. Each place folds (#358), and
+ * the header folds or opens them all.
  */
 export function PlacesPanel({
   places,
@@ -131,28 +272,29 @@ export function PlacesPanel({
   location: { id: string; name: string; address?: string };
 }) {
   const { t } = useLingui();
-  const rows = treeEntries(places, boxes);
+  const rows = useMemo(() => treeEntries(places, boxes), [places, boxes]);
+  const folding = useFolding(places, boxes, currentId, location.id, rows);
   const name = location.name;
   return (
     <nav aria-label={t`Places in ${name}`} className="grid gap-1">
-      <Link
-        to="/loc/$id"
-        params={{ id: location.address ?? location.id }}
-        aria-current={currentId === undefined ? 'page' : undefined}
-        className="flex min-h-10 items-center rounded-lg px-3.5 font-semibold text-[14px] text-ink outline-none hover:bg-sunken focus-visible:outline-2 focus-visible:outline-info aria-[current=page]:bg-sunken"
-      >
-        <bdi className="[overflow-wrap:anywhere]">{name}</bdi>
-      </Link>
+      <div className="flex items-center gap-1">
+        <Link
+          to="/loc/$id"
+          params={{ id: location.address ?? location.id }}
+          aria-current={currentId === undefined ? 'page' : undefined}
+          className="flex min-h-10 min-w-0 flex-1 items-center rounded-lg px-3.5 font-semibold text-[14px] text-ink outline-none hover:bg-sunken focus-visible:outline-2 focus-visible:outline-info aria-[current=page]:bg-sunken"
+        >
+          <bdi className="[overflow-wrap:anywhere]">{name}</bdi>
+        </Link>
+        <FoldAll folding={folding} className="shrink-0 pointer-coarse:min-h-10" />
+      </div>
       <ul className="m-0 grid list-none p-0">
-        {rows.map((row) => (
-          <li key={keyOf(row)}>
-            <EntryLink
-              row={row}
-              currentId={currentId}
-              className="flex min-h-9 items-center gap-2 rounded-lg pe-3.5 text-[14px] text-ink-2 outline-none hover:bg-sunken hover:text-ink focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-info aria-[current=page]:bg-sunken aria-[current=page]:font-semibold aria-[current=page]:text-ink"
-            />
-          </li>
-        ))}
+        <Rows
+          items={nestEntries(rows)}
+          currentId={currentId}
+          folding={folding}
+          look={LOOKS.panel}
+        />
       </ul>
     </nav>
   );
@@ -173,7 +315,6 @@ function EntryLink({
 }) {
   const { t } = useLingui();
   const nameOf = usePlaceName();
-  const style = indentStyle(row.depth);
   if (row.kind === 'box') {
     const { box } = row;
     const n = box.contentCount;
@@ -182,7 +323,6 @@ function EntryLink({
         to="/t/$id"
         params={{ id: addressOf(box) }}
         aria-current={box.id === currentId ? 'page' : undefined}
-        style={style}
         className={className}
       >
         <TypeIcon icon={box.icon ?? 'lucide:package'} className="size-4 shrink-0 text-ink-3" />
@@ -196,7 +336,7 @@ function EntryLink({
   if (row.kind === 'more') {
     const count = row.count;
     return (
-      <Link to="/p/$id" params={{ id: addressOf(row.place) }} style={style} className={className}>
+      <Link to="/p/$id" params={{ id: addressOf(row.place) }} className={className}>
         <span className="text-small text-ink-3">
           {plural(count, { one: '+# box', other: '+# boxes' })}
         </span>
@@ -209,7 +349,6 @@ function EntryLink({
       to="/p/$id"
       params={{ id: addressOf(place) }}
       aria-current={place.id === currentId ? 'page' : undefined}
-      style={style}
       className={className}
     >
       <TypeIcon icon={placeIcon(place)} className="size-4 shrink-0 text-ink-3" />

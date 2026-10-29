@@ -2275,6 +2275,7 @@ msgid "Contents"
 msgstr "Inhalt"
 
 #: src/components/places/contents-list.tsx
+#: src/components/places/tree.tsx
 msgid "Contents of {name}"
 msgstr "Inhalt von {name}"
 
@@ -27684,8 +27685,8 @@ msgid "Done ({done})"
 msgstr "Erledigt ({done})"
 
 #: src/components/hints/hint-copy.ts
-msgid "One chapter per section. Tap one to start there, or tap Show me on its page."
-msgstr "Ein Kapitel pro Bereich. Tippe auf eines, um dort zu beginnen, oder auf seiner Seite auf Zeig es mir."
+msgid "One chapter per section. Tap one to start there."
+msgstr "Ein Kapitel pro Bereich. Tippe auf eines, um dort zu beginnen."
 
 #: src/components/hints/hint-copy.ts
 msgid "Move it, lend it, print its label or move it to the Trash."
@@ -27746,6 +27747,18 @@ msgstr "Jede Wartung mit ihren Kosten. Tippe auf eine, um sie ganz zu öffnen, m
 #: src/components/hints/hint-copy.ts
 msgid "Graph & 3D map"
 msgstr "Graph & 3D-Karte"
+
+#: src/components/whats-new.tsx
+msgid "Play"
+msgstr "Abspielen"
+
+#: src/components/whats-new.tsx
+msgid "Slide {n} of {total}: {title}"
+msgstr "Folie {n} von {total}: {title}"
+
+#: src/components/whats-new.tsx
+msgid "Slide {n} of {total}"
+msgstr "Folie {n} von {total}"
 
 #: src/components/whats-new.tsx
 msgid "What's new in Kept"
@@ -28001,3 +28014,255 @@ msgstr "Art von {title}"
 #: src/components/history/labels.ts
 msgid "Paperless document changed"
 msgstr "Paperless-Dokument geändert"
+
+#: src/components/history/labels.ts
+msgid "Read a floor plan"
+msgstr "Grundriss gelesen"
+
+#: src/components/history/labels.ts
+msgid "Discarded a floor plan"
+msgstr "Grundriss verworfen"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Added # room from a floor plan} other {Added # rooms from a floor plan}}"
+msgstr "{count, plural, one {# Raum aus einem Grundriss hinzugefügt} other {# Räume aus einem Grundriss hinzugefügt}}"
+
+#: src/components/ai/labels.ts
+msgid "Floor plans"
+msgstr "Grundrisse"
+
+#: src/map/map-view.tsx
+msgid "{n, plural, one {Added # room from the plan} other {Added # rooms from the plan}}"
+msgstr "{n, plural, one {# Raum aus dem Grundriss hinzugefügt} other {# Räume aus dem Grundriss hinzugefügt}}"
+
+#: src/map/map-view.tsx
+msgid "Someone arranged this map since you started. Load it again; your rooms stay to add."
+msgstr "Jemand hat diese Karte angeordnet, seit du begonnen hast. Lade sie neu; deine Räume bleiben zum Hinzufügen."
+
+#: src/map/map-view.tsx
+msgid "Discard this plan?"
+msgstr "Diesen Grundriss verwerfen?"
+
+#: src/map/map-view.tsx
+msgid "Nothing is added. The plan is deleted."
+msgstr "Es wird nichts hinzugefügt. Der Grundriss wird gelöscht."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Couldn’t read this plan."
+msgstr "Dieser Grundriss ließ sich nicht lesen."
+
+#: src/map/map-view.tsx
+msgid "Dashed rooms are from the plan and not added yet. Drag to move one; drag its corner to resize it."
+msgstr "Gestrichelte Räume stammen aus dem Grundriss und sind noch nicht hinzugefügt. Ziehe einen, um ihn zu verschieben; ziehe an seiner Ecke, um die Größe zu ändern."
+
+#: src/map/map-view.tsx
+msgid "{0, plural, one {Add # room} other {Add # rooms}}"
+msgstr "{0, plural, one {# Raum hinzufügen} other {# Räume hinzufügen}}"
+
+#: src/map/map-view.tsx
+msgid "Show the plan"
+msgstr "Grundriss zeigen"
+
+#: src/map/map-view.tsx
+msgid "Turn the rooms"
+msgstr "Räume drehen"
+
+#: src/map/map-view.tsx
+msgid "From a plan"
+msgstr "Aus einem Grundriss"
+
+#: src/map/map-view.tsx
+msgid "<0>{room}</0>, from the plan, not added, {w} by {d} metres"
+msgstr "<0>{room}</0>, aus dem Grundriss, nicht hinzugefügt, {w} mal {d} Meter"
+
+#: src/map/floor-plan/notices.tsx
+msgid "No rooms on the map yet"
+msgstr "Noch keine Räume auf der Karte"
+
+#: src/map/floor-plan/notices.tsx
+msgid "Start from a floor plan, or draw the rooms yourself."
+msgstr "Beginne mit einem Grundriss oder zeichne die Räume selbst."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Start from a floor plan"
+msgstr "Mit einem Grundriss beginnen"
+
+#: src/map/floor-plan/notices.tsx
+msgid "For a PDF, try a screenshot of the plan."
+msgstr "Bei einem PDF versuche es mit einem Bildschirmfoto des Grundrisses."
+
+#: src/map/floor-plan/notices.tsx
+msgid "This doesn’t look like a floor plan."
+msgstr "Das sieht nicht nach einem Grundriss aus."
+
+#: src/map/floor-plan/notices.tsx
+msgid "No rooms found on this plan."
+msgstr "Auf diesem Grundriss wurden keine Räume gefunden."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Draw rooms yourself"
+msgstr "Räume selbst zeichnen"
+
+#: src/map/floor-plan/notices.tsx
+msgid "A floor plan is ready to check."
+msgstr "Ein Grundriss ist bereit zum Prüfen."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Check it"
+msgstr "Prüfen"
+
+#: src/map/floor-plan/notices.tsx
+msgid "Reading the plan…"
+msgstr "Grundriss wird gelesen …"
+
+#: src/map/floor-plan/notices.tsx
+msgid "You can leave; the plan waits on the map."
+msgstr "Du kannst weggehen; der Grundriss wartet auf der Karte."
+
+#: src/map/floor-plan/panel.tsx
+msgid "<0>{room}</0> is…"
+msgstr "<0>{room}</0> ist …"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Width (m)"
+msgstr "Breite (m)"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Depth (m)"
+msgstr "Tiefe (m)"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Rescale"
+msgstr "Neu skalieren"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from {room}’s size"
+msgstr "Maßstab aus der Größe von {room}"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Sizes from the plan: {n} of {m} rooms agree"
+msgstr "Größen aus dem Grundriss: {n} von {m} Räumen stimmen überein"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from the plan’s scale bar"
+msgstr "Maßstab aus der Maßstabsleiste des Grundrisses"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from the doors, taken as 80 cm wide: check one room"
+msgstr "Maßstab aus den Türen, je 80 cm breit angenommen: prüfe einen Raum"
+
+#: src/map/floor-plan/panel.tsx
+msgid "No sizes on the plan: these are a guess"
+msgstr "Keine Größen auf dem Grundriss: das sind Schätzungen"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Rooms from the plan"
+msgstr "Räume aus dem Grundriss"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Set a room’s size"
+msgstr "Größe eines Raums angeben"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Kept read the first 60 rooms. Add the rest by drawing."
+msgstr "Kept hat die ersten 60 Räume gelesen. Füge den Rest durch Zeichnen hinzu."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Keep the plan with <0>{location}</0>"
+msgstr "Grundriss bei <0>{location}</0> behalten"
+
+#: src/map/floor-plan/panel.tsx
+msgid "A new floor"
+msgstr "Ein neues Stockwerk"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under 1 m: too small for the map."
+msgstr "Unter 1 m: zu klein für die Karte."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Already on the map."
+msgstr "Schon auf der Karte."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Uses your <0>{existing}</0>"
+msgstr "Nutzt deinen Raum <0>{existing}</0>"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Make a new room"
+msgstr "Neuen Raum anlegen"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Not a rectangle: drawn as its largest part."
+msgstr "Kein Rechteck: als größter Teil gezeichnet."
+
+#: src/map/floor-plan/panel.tsx
+msgid "The plan says <0>{size}</0>."
+msgstr "Auf dem Grundriss steht <0>{size}</0>."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Name unclear on the plan."
+msgstr "Name auf dem Grundriss unklar."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Add {room}"
+msgstr "{room} hinzufügen"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "A photo, a screenshot or a PDF of a plan. Kept reads the rooms and their sizes; you check them before anything is added."
+msgstr "Ein Foto, ein Bildschirmfoto oder ein PDF eines Grundrisses. Kept liest die Räume und ihre Größen; du prüfst sie, bevor etwas hinzugefügt wird."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Use a sample floor plan"
+msgstr "Beispiel-Grundriss verwenden"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Choose a file"
+msgstr "Datei wählen"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "The plan you chose"
+msgstr "Der gewählte Grundriss"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Turn the plan a quarter turn"
+msgstr "Grundriss um eine Vierteldrehung drehen"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Only the first page is read."
+msgstr "Nur die erste Seite wird gelesen."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Up to ~{tokens} tokens"
+msgstr "Bis zu ~{tokens} Tokens"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Kept sends the plan, without its location data, to <0>{name}</0>. It is deleted when you finish, unless you keep it."
+msgstr "Kept sendet den Grundriss ohne seine Standortdaten an <0>{name}</0>. Er wird gelöscht, wenn du fertig bist, außer du behältst ihn."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Read the plan"
+msgstr "Grundriss lesen"
+
+#: src/map/map-view.tsx
+msgid "Someone else added or discarded this plan."
+msgstr "Jemand anderes hat diesen Grundriss hinzugefügt oder verworfen."
+
+#: src/components/places/tree.tsx
+msgid "Fold all"
+msgstr "Alle einklappen"
+
+#: src/components/places/tree.tsx
+msgid "Open all"
+msgstr "Alle ausklappen"
+
+#: src/routes/setup.tsx
+msgid "Set up by a Home Assistant administrator"
+msgstr "Eingerichtet von einem Home-Assistant-Admin"
+
+#: src/routes/setup.tsx
+msgid "Your setup code is on the app's Log tab in Home Assistant."
+msgstr "Der Einrichtungscode steht im Tab „Protokoll“ der App in Home Assistant."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Running as a Home Assistant app"
+msgstr "Läuft als Home-Assistant-App"

@@ -254,10 +254,6 @@ function LocationBody({ location }: { location: LocationDetail }) {
       title={name}
       back="/"
       wide
-      tour={{
-        id: layout === 'map' || layout === 'graph' ? 'map' : 'things',
-        context: { locationId: location.id },
-      }}
       {...(panel && places.length > 1 && layout !== 'table'
         ? {
             aside: (
@@ -316,7 +312,13 @@ function LocationBody({ location }: { location: LocationDetail }) {
               />
 
               <div>
-                {panel ? null : <PlaceTree places={places} boxes={tree.data?.boxes ?? []} />}
+                {panel ? null : (
+                  <PlaceTree
+                    places={places}
+                    boxes={tree.data?.boxes ?? []}
+                    locationId={location.id}
+                  />
+                )}
               </div>
             </div>
           )}
