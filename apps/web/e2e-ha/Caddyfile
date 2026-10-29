@@ -5,6 +5,9 @@
 # address to X-Forwarded-For (the Supervisor), set the X-Remote-User-* headers of the signed-in
 # Home Assistant user, and send the request to the app from 172.30.32.2 (this container's address).
 # Two apps, as two installs would be: `fresh` (first-run setup) and `demo` (the households data).
+# It is also the Supervisor's API, as far as the app's start reads it (`http://supervisor`, the
+# network alias it has): /info names a Supervisor of 2026.10.5, which sets the user's groups itself,
+# so a Home Assistant administrator may set Kept up without the code (KEPT_HA_TRUST_GROUPS).
 # A test picks the Home Assistant user with X-Test-Ha-User (admin, member or none) and a client
 # address with X-Test-Client; both are removed before Kept sees the request. Any other path is a
 # 404, so a request the page makes outside the prefix fails the test.
@@ -50,4 +53,15 @@
 	handle {
 		respond "Home Assistant mimic: not an ingress path" 404
 	}
+}
+
+http://supervisor {
+	header Content-Type application/json
+	handle /info {
+		respond `{"result":"ok","data":{"supervisor":"2026.10.5","hostname":"homeassistant"}}` 200
+	}
+	handle /addons/self/info {
+		respond `{"result":"ok","data":{"network":{"8080/tcp":8080}}}` 200
+	}
+	respond `{"result":"error"}` 404
 }

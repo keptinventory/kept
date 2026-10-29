@@ -77,6 +77,7 @@ start() {
   # As the Supervisor runs an app: Docker's init, no capabilities added. SUPERVISOR_TOKEN is set
   # (to a value no Supervisor knows) so the check below proves Kept doesn't inherit it.
   docker run -d --name "$app" --init -v "$vol:/data" -e SUPERVISOR_TOKEN=smoke-not-a-token \
+    -e KEPT_HA_TRUST_GROUPS=1 \
     -p 127.0.0.1::8080 "$image" >/dev/null
   port=$(docker port "$app" 8080/tcp | sed -n '1s/.*://p')
   [[ -n $port ]] || fail "no published port"
@@ -180,8 +181,9 @@ docker exec --privileged "$app" sh -c "tr '\0' '\n' </proc/$kept_pid/environ" >/
 if grep -q '^SUPERVISOR_TOKEN=' /tmp/kept-ha-smoke-env.$$; then rm -f /tmp/kept-ha-smoke-env.$$; fail "the kept process holds SUPERVISOR_TOKEN"; fi
 grep -q '^KEPT_HA=1$' /tmp/kept-ha-smoke-env.$$ || { rm -f /tmp/kept-ha-smoke-env.$$; fail "the kept process has no KEPT_HA=1"; }
 grep -q '^KEPT_TRUSTED_PROXIES=172.30.32.2$' /tmp/kept-ha-smoke-env.$$ || { rm -f /tmp/kept-ha-smoke-env.$$; fail "Kept trusts more than the Supervisor"; }
-# No Supervisor here to say its version: setup without the code stays off.
-if grep -q '^KEPT_HA_TRUST_GROUPS=' /tmp/kept-ha-smoke-env.$$; then rm -f /tmp/kept-ha-smoke-env.$$; fail "KEPT_HA_TRUST_GROUPS without a Supervisor"; fi
+# No Supervisor here to say its version: setup without the code stays off, even though the
+# container was started with KEPT_HA_TRUST_GROUPS=1 (see start()).
+grep -q '^KEPT_HA_TRUST_GROUPS=0$' /tmp/kept-ha-smoke-env.$$ || { rm -f /tmp/kept-ha-smoke-env.$$; fail "KEPT_HA_TRUST_GROUPS isn't 0 without a Supervisor"; }
 rm -f /tmp/kept-ha-smoke-env.$$
 # Kept is the start script's own child, and the start script is the init's (PID 1): TERM goes
 # init → script → Kept and Postgres, with no subshell in between to swallow it.

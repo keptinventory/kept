@@ -66,12 +66,13 @@ start_kept() { # <name> <alias> <ip> [env…]
   docker run -d --name "$name" --init --network "$net" --network-alias "$alias" --ip "$ip" \
     -v "$name:/data" "$@" "$image" >/dev/null
 }
-start_kept "$fresh" kept-fresh 172.30.33.10
-start_kept "$demo" kept-demo 172.30.33.11 -e KEPT_HA_DEMO=households
-
-docker run -d --name "$proxy" --network "$net" --ip 172.30.32.2 -p 127.0.0.1::80 \
+# The proxy first: it is also the Supervisor the apps ask for its version as they start.
+docker run -d --name "$proxy" --network "$net" --network-alias supervisor --ip 172.30.32.2 -p 127.0.0.1::80 \
   -e KEPT_HA_FRESH_TOKEN="$fresh_token" -e KEPT_HA_DEMO_TOKEN="$demo_token" \
   -v "$repo/apps/web/e2e-ha/Caddyfile:/etc/caddy/Caddyfile:ro" "$CADDY_IMAGE" >/dev/null
+start_kept "$fresh" kept-fresh 172.30.33.10 -e SUPERVISOR_TOKEN=mimic
+start_kept "$demo" kept-demo 172.30.33.11 -e SUPERVISOR_TOKEN=mimic -e KEPT_HA_DEMO=households
+
 port=$(docker port "$proxy" 80/tcp | sed -n '1s/.*://p')
 [[ -n $port ]] || fail "the proxy published no port"
 # localhost, not 127.0.0.1: a host name, as Home Assistant's address is.

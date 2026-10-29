@@ -104,6 +104,8 @@ export function appEnv({ options, info, self }) {
   if (atLeast(info?.supervisor, TRUSTED_GROUPS_SUPERVISOR)) {
     env.KEPT_HA_TRUST_GROUPS = '1';
   } else {
+    // Always written, so a value the container was started with never gets through.
+    env.KEPT_HA_TRUST_GROUPS = '0';
     lines.push(
       `Setup without the code for a Home Assistant administrator needs Supervisor ${TRUSTED_GROUPS_SUPERVISOR.join('.')} or later (this one: ${info?.supervisor || 'unknown'}); the setup code is needed.`,
     );
