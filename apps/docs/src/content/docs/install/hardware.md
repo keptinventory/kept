@@ -51,7 +51,8 @@ like the 1 GB rows; expect it to be slower. No release is tested on a Pi.
 ## What's heavy
 
 - **Backups.** `kept admin backup` adds about 300–400 MB while it runs, the scheduled backup about
-  150 MB; restic itself about 100 MB of that.
+  150 MB; restic itself about 100 MB of that. Not in the
+  [Home Assistant app](/install/home-assistant/): Home Assistant's backups run instead.
 - **Photo resizing.** Each upload is resized as it arrives. Under 3 GB of RAM, or a container limit
   under 3 GB, Kept resizes one at a time, else two (`KEPT_IMAGE_CONCURRENCY` overrides it). Memory
   rises by about 150 MB over the first photos and stays there.

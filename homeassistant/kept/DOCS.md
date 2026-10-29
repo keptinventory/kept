@@ -6,6 +6,26 @@ Kept and its own database (Postgres 18) in one app. Everything it keeps is in th
 which Home Assistant backs up. Guide: <https://keptinventory.info/install/home-assistant/>.
 Needs Home Assistant OS with Supervisor 2026.10.4 or later.
 
+## The app or a normal install?
+
+Same Kept, same version, same features: things, places, the map and graph, scan, labels, AI, MCP,
+imports, Paperless, several people.
+
+| | This app | Compose or Kubernetes |
+|---|---|---|
+| Opens | Home Assistant's sidebar, and Kept's own address (port 8080) | Kept's own address |
+| Install, update | Home Assistant's app store | `docker compose`, `helm` |
+| First account | A Home Assistant admin sets up without the code | The setup code from Kept's log |
+| Settings | This app's **Configuration** tab | `.env` or the chart's values |
+| Offline, installing the phone app, push | Kept's own address over https; not in the sidebar | Over https |
+| Passkeys, OIDC, Google | Kept's own address (over https for passkeys) | Kept's address |
+| Backups | Home Assistant's backups; off the box through its backup locations | Kept's own nightly backups: restic to a folder, S3 or SFTP |
+| Photos and files | In this app's data | On disk, or S3 |
+
+- **This app:** you already run Home Assistant OS or Supervised (it needs the Supervisor).
+- **Compose or Kubernetes:** anything else; or photos and files on S3; or Kept's own off-box
+  backups. Guide: <https://keptinventory.info/install/compose/>.
+
 ## First start
 
 1. **Start**, then wait for the **Log** tab to show `KEPT SETUP CODE: XXX-XXX` and
@@ -93,8 +113,11 @@ over https. Automatic setup of the integration from the app comes later.
 - Restoring the app's backup brings Kept back as it was; the app restores the database on its
   first start, which takes a little longer. A restore that is cut short is started again on the next
   start.
-- Kept's own backups (Admin → Backups) need the database owner's login, which the app keeps from
-  the running server. Home Assistant's backups are the backup here.
+- Kept's own backups need the database owner's login, which the app keeps from the running
+  server. Home Assistant's backups are the backup here: Admin → Backups says so and links to
+  **Settings → System → Backups**.
+- Off the box: add a network share or a cloud location in Home Assistant's backup settings
+  (<https://www.home-assistant.io/common-tasks/general/backups/>).
 
 ## Updates
 
