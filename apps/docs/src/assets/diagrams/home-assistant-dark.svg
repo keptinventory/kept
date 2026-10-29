@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="340" viewBox="0 0 960 340" role="img" aria-label="Kept on your server, or as the Home Assistant app; the Kept integration inside Home Assistant reads it every 5 minutes and sends readings back; it feeds dashboards, automations and the calendar">
+<defs><marker id="adark" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1L9 5L0 9z" fill="#9A948A"/></marker></defs>
+<rect width="960" height="340" rx="20" fill="#151412"/>
+<rect x="24" y="92" width="236" height="196" rx="14" fill="#1E1C19" stroke="#34302A" stroke-width="1"/>
+<rect x="44" y="112" width="32" height="32" rx="7" fill="#F0B03A"/><circle cx="51.5" cy="119.5" r="2.6" fill="#1E1C19"/>
+<text x="60" y="135" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="18" font-weight="700" fill="#2E2100" text-anchor="middle">K</text>
+<text x="88" y="135" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="21" font-weight="700" fill="#F2EFE9" text-anchor="start">Kept</text>
+<text x="44" y="170" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="500" fill="#9A948A" text-anchor="start">Your server, or the Kept app</text>
+<circle cx="50" cy="192" r="4.5" fill="#F97066"/>
+<text x="64" y="196" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="500" fill="#BDB7AC" text-anchor="start">Overdue</text>
+<text x="236" y="196" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#F2EFE9" text-anchor="end">2</text>
+<circle cx="50" cy="216" r="4.5" fill="#F0B03A"/>
+<text x="64" y="220" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="500" fill="#BDB7AC" text-anchor="start">Due</text>
+<text x="236" y="220" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#F2EFE9" text-anchor="end">1</text>
+<circle cx="50" cy="240" r="4.5" fill="#F28A4E"/>
+<text x="64" y="244" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="500" fill="#BDB7AC" text-anchor="start">Expiring</text>
+<text x="236" y="244" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#F2EFE9" text-anchor="end">1</text>
+<circle cx="50" cy="264" r="4.5" fill="#7FA8EE"/>
+<text x="64" y="268" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="500" fill="#BDB7AC" text-anchor="start">Lent out</text>
+<text x="236" y="268" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#F2EFE9" text-anchor="end">1</text>
+<rect x="364" y="16" width="572" height="300" rx="20" fill="#26231F" stroke="#34302A" stroke-width="1"/>
+<text x="388" y="50" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="17" font-weight="700" fill="#F2EFE9" text-anchor="start">Home Assistant</text>
+<rect x="522" y="34" width="150" height="22" rx="11" fill="none" stroke="#34302A"/>
+<text x="597" y="49.5" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" font-weight="500" fill="#9A948A" text-anchor="middle">only if you run it</text>
+<rect x="392" y="92" width="252" height="196" rx="14" fill="#1E1C19" stroke="#F0B03A" stroke-width="2"/>
+<text x="412" y="124" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="17" font-weight="700" fill="#F2EFE9" text-anchor="start">Kept integration</text>
+<text x="412" y="146" font-family="'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="500" fill="#F4C165" text-anchor="start">kept-homeassistant · HACS</text>
+<path d="M412 167H624" stroke="#34302A"/>
+<text x="412" y="184" font-family="'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="500" fill="#BDB7AC" text-anchor="start">sensor.home_overdue</text>
+<text x="624" y="184" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#F2EFE9" text-anchor="end">2</text>
+<path d="M412 193H624" stroke="#34302A"/>
+<text x="412" y="210" font-family="'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="500" fill="#BDB7AC" text-anchor="start">sensor.home_due</text>
+<text x="624" y="210" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#F2EFE9" text-anchor="end">1</text>
+<path d="M412 219H624" stroke="#34302A"/>
+<text x="412" y="236" font-family="'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="500" fill="#BDB7AC" text-anchor="start">calendar.home_due_dates</text>
+<path d="M412 245H624" stroke="#34302A"/>
+<text x="412" y="262" font-family="'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="500" fill="#BDB7AC" text-anchor="start">kept.log_reading</text>
+<rect x="692" y="100" width="220" height="52" rx="12" fill="#1E1C19" stroke="#34302A" stroke-width="1"/>
+<g transform="translate(712 116)"><g fill="none" stroke="#BDB7AC" stroke-width="1.8"><rect x="0" y="0" width="8" height="8" rx="2"/><rect x="12" y="0" width="8" height="8" rx="2"/><rect x="0" y="12" width="8" height="8" rx="2"/><rect x="12" y="12" width="8" height="8" rx="2"/></g></g>
+<text x="746" y="131" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="600" fill="#F2EFE9" text-anchor="start">Dashboards</text>
+<path d="M644 190C666.0 190,666.0 126,688 126" stroke="#9A948A" stroke-width="1.75" fill="none" marker-end="url(#adark)"/>
+<rect x="692" y="164" width="220" height="52" rx="12" fill="#1E1C19" stroke="#34302A" stroke-width="1"/>
+<g transform="translate(712 180)"><path d="M11 0L2 12h7l-2 8 9-12H9z" fill="none" stroke="#BDB7AC" stroke-width="1.8" stroke-linejoin="round"/></g>
+<text x="746" y="195" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="600" fill="#F2EFE9" text-anchor="start">Automations · alerts</text>
+<path d="M644 190C666.0 190,666.0 190,688 190" stroke="#9A948A" stroke-width="1.75" fill="none" marker-end="url(#adark)"/>
+<rect x="692" y="228" width="220" height="52" rx="12" fill="#1E1C19" stroke="#34302A" stroke-width="1"/>
+<g transform="translate(712 244)"><g fill="none" stroke="#BDB7AC" stroke-width="1.8"><rect x="0" y="3" width="20" height="17" rx="3"/><path d="M0 9h20M6 0v5M14 0v5"/></g></g>
+<text x="746" y="259" font-family="'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="600" fill="#F2EFE9" text-anchor="start">Calendar</text>
+<path d="M644 190C666.0 190,666.0 254,688 254" stroke="#9A948A" stroke-width="1.75" fill="none" marker-end="url(#adark)"/>
+<path d="M262 160H388" stroke="#9A948A" stroke-width="1.75" fill="none" marker-end="url(#adark)"/>
+<rect x="273.0" y="124" width="104" height="24" rx="12" fill="#1E1C19" stroke="#34302A"/><text x="325" y="140.5" font-family="'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="500" fill="#BDB7AC" text-anchor="middle">every 5 min</text>
+<path d="M390 226H264" stroke="#9A948A" stroke-width="1.75" fill="none" marker-end="url(#adark)"/>
+<rect x="267.0" y="238" width="116" height="24" rx="12" fill="#1E1C19" stroke="#34302A"/><text x="325" y="254.5" font-family="'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="500" fill="#BDB7AC" text-anchor="middle">readings back</text>
+<text x="24" y="312" font-family="'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="500" fill="#9A948A" text-anchor="start">Token: read-only for the sensors,</text>
+<text x="24" y="329" font-family="'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="500" fill="#9A948A" text-anchor="start">read + change for the actions</text>
+</svg>

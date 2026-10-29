@@ -146,6 +146,8 @@ the Caddyfile in `docker/caddy/` ([HTTPS](https://keptinventory.info/install/htt
   up with Home Assistant's backups ([install as a Home Assistant app](https://keptinventory.info/install/home-assistant/)):
 
   <a href="https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fkeptinventory%2Fkept"><img alt="Add Kept to Home Assistant" src="https://img.shields.io/badge/add%20Kept%20to-Home%20Assistant-18BCF2?style=for-the-badge&labelColor=55524C&logo=homeassistant&logoColor=white"></a>
+
+  Sensors and the calendar come from the separate integration ([Works with](#works-with)).
 - **Kubernetes:** the Helm chart, `oci://ghcr.io/keptinventory/charts/kept`, signed and published
   with each release ([install on Kubernetes](https://keptinventory.info/install/kubernetes/)).
 - **Verify the image:** `cosign verify --key cosign.pub <image>:<version>`, with `cosign.pub` from
@@ -161,6 +163,13 @@ the Caddyfile in `docker/caddy/` ([HTTPS](https://keptinventory.info/install/htt
 
 - **Home Assistant:** the [kept-homeassistant](https://github.com/keptinventory/kept-homeassistant)
   integration, a HACS custom repository ([setup](https://keptinventory.info/users/home-assistant/)).
+  The app runs Kept; the integration brings it into Home Assistant. App users turn on the app's
+  **https on Kept's port** option first ([the app and the integration](https://keptinventory.info/users/home-assistant/#the-app-and-the-integration)).
+
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/diagrams/home-assistant-dark.svg">
+    <img src="apps/docs/src/assets/diagrams/home-assistant-light.svg" alt="Kept, on your server or as the Home Assistant app, and the Kept integration inside Home Assistant: it reads Kept every 5 minutes, sends readings back, and feeds dashboards, automations and the calendar" width="720">
+  </picture>
 - **Paperless-ngx:** receipts, manuals and warranty cards linked to things
   ([setup](https://keptinventory.info/users/paperless/)).
 - **The rest:** [integrations](https://keptinventory.info/integrations/).
