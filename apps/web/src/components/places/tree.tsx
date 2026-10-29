@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { addressOf } from '@/lib/address';
 import { cn } from '@/lib/utils';
 import { childrenOf } from './api';
-import { foldableIds, isFoldedAll, keptOpen, nestEntries, type TreeItem, toggleFold } from './fold';
+import { foldableIds, isFoldedAll, keptOpen, nestEntries, type TreeItem } from './fold';
 import { placeIcon, usePlaceName } from './labels';
 import { usePlaceFolds } from './use-place-folds';
 
@@ -103,7 +103,8 @@ const LOOKS = {
   },
   panel: {
     row: 'flex min-h-9 items-stretch rounded-lg hover:bg-sunken has-[[aria-current=page]]:bg-sunken',
-    fold: 'h-9 w-8',
+    // The panel shows from 1280 px; a coarse pointer there (an iPad) still gets 40 px.
+    fold: 'h-9 w-8 pointer-coarse:size-10',
     link: 'flex min-h-9 min-w-0 flex-1 items-center gap-2 rounded-lg pe-3.5 text-[14px] text-ink-2 outline-none hover:text-ink focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-info aria-[current=page]:font-semibold aria-[current=page]:text-ink',
   },
 } as const;
@@ -122,7 +123,7 @@ function useFolding(
   locationId: string | undefined,
   entries: TreeEntry[],
 ) {
-  const { folded, setFolded } = usePlaceFolds(locationId);
+  const { folded, change } = usePlaceFolds(locationId);
   const path = useMemo(() => keptOpen(places, boxes, currentId), [places, boxes, currentId]);
   const foldable = useMemo(() => foldableIds(entries), [entries]);
   const [released, setReleased] = useState<{ at: string | undefined; ids: ReadonlySet<string> }>({
@@ -132,14 +133,16 @@ function useFolding(
   const here = released.at === currentId ? released.ids : NONE;
   const isOpen = (id: string) => !folded.has(id) || (path.has(id) && !here.has(id));
   const toggle = (id: string) => {
-    if (!isOpen(id)) return setFolded(toggleFold(folded, id));
+    if (!isOpen(id)) return change({ open: [id] });
     if (path.has(id)) setReleased({ at: currentId, ids: new Set(here).add(id) });
-    setFolded(new Set(folded).add(id));
+    change({ fold: [id] });
   };
   const allFolded = isFoldedAll(folded, foldable);
+  // Fold all keeps the path to this page open, even a place on it folded here by hand.
   const foldAll = () => {
     setReleased({ at: currentId, ids: NONE });
-    setFolded(allFolded ? NONE : new Set(foldable));
+    if (allFolded) change({ open: [...new Set([...folded, ...foldable])] });
+    else change({ fold: foldable });
   };
   return { isOpen, toggle, foldable, allFolded, foldAll };
 }
@@ -184,7 +187,7 @@ function Rows({
               type="button"
               aria-expanded={open}
               aria-controls={groupId}
-              aria-label={t`What's in ${name}`}
+              aria-label={t`Contents of ${name}`}
               onClick={() => folding.toggle(entry.place.id)}
               className={cn(
                 'grid shrink-0 place-items-center rounded-lg text-ink-3 outline-none hover:text-ink focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-info',
@@ -283,7 +286,7 @@ export function PlacesPanel({
         >
           <bdi className="[overflow-wrap:anywhere]">{name}</bdi>
         </Link>
-        <FoldAll folding={folding} className="shrink-0" />
+        <FoldAll folding={folding} className="shrink-0 pointer-coarse:min-h-10" />
       </div>
       <ul className="m-0 grid list-none p-0">
         <Rows

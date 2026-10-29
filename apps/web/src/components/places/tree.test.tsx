@@ -55,24 +55,41 @@ const PLACES = [
 ];
 const BOXES = [box('box-1', 'under-bed', 'Winter clothes'), box('box-2', 'under-bed', 'Shoes')];
 
-type Sent = { method: string; body: unknown };
+type Change = { fold: string[]; open: string[] };
 
-/** The server's folds for LOC, answering GET and PUT, recording each PUT. */
-function stubFolds(initial: string[] = []) {
-  let stored = initial;
-  const puts: Sent[] = [];
+/**
+ * The server's folds for LOC, answering GET and PUT as the server does (a PUT is a change),
+ * recording each PUT. `holdGet`: the GET reads the folds at once and answers when it resolves,
+ * as a slow read does. `failPuts`: every PUT is refused, once `holdPut` resolves.
+ */
+function stubFolds(
+  initial: string[] = [],
+  {
+    holdGet,
+    holdPut,
+    failPuts = false,
+  }: { holdGet?: Promise<void>; holdPut?: Promise<void>; failPuts?: boolean } = {},
+) {
+  const stored = new Set(initial);
+  const puts: Change[] = [];
   vi.stubGlobal('fetch', async (input: string, init: RequestInit = {}) => {
     if (input !== `/api/v1/locations/${LOC}/place-folds`)
       return new Response(null, { status: 404 });
     if (init.method === 'PUT') {
-      const body = JSON.parse(String(init.body)) as { placeIds: string[] };
-      puts.push({ method: 'PUT', body });
-      stored = body.placeIds;
+      const body = JSON.parse(String(init.body)) as Change;
+      puts.push(body);
+      await holdPut;
+      if (failPuts)
+        return Response.json({ code: 'unavailable', message: 'Try again.' }, { status: 503 });
+      for (const id of body.open) stored.delete(id);
+      for (const id of body.fold) stored.add(id);
       return new Response(null, { status: 204 });
     }
-    return Response.json({ placeIds: stored });
+    const snapshot = [...stored];
+    await holdGet;
+    return Response.json({ placeIds: snapshot });
   });
-  return { puts, stored: () => stored };
+  return { puts, stored: () => [...stored].sort() };
 }
 
 async function mount(ui: ReactNode, locale: Locale = 'en') {
@@ -105,7 +122,7 @@ const panel = (currentId?: string) => (
   />
 );
 
-const foldOf = (name: string) => screen.getByRole('button', { name: `What's in ${name}` });
+const foldOf = (name: string) => screen.getByRole('button', { name: `Contents of ${name}` });
 const shown = (name: RegExp | string) => screen.queryByRole('link', { name });
 
 afterEach(() => {
@@ -122,8 +139,8 @@ describe('the docked places panel folds each place', () => {
       const controls = button.getAttribute('aria-controls') ?? '';
       expect(document.getElementById(controls)).not.toBeNull();
     }
-    expect(screen.queryByRole('button', { name: "What's in Office" })).toBeNull();
-    expect(screen.queryByRole('button', { name: "What's in Wardrobe" })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Contents of Office' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Contents of Wardrobe' })).toBeNull();
     expectLogicalOnly();
   });
 
@@ -142,15 +159,68 @@ describe('the docked places panel folds each place', () => {
     expect(shown('+1 box')).toBeNull();
     // Its siblings and parent stay.
     expect(shown('Wardrobe')).toBeInTheDocument();
-    await waitFor(() =>
-      expect(server.puts).toEqual([{ method: 'PUT', body: { placeIds: ['under-bed'] } }]),
-    );
+    // Sent as a change: only Under bed, never the whole set.
+    await waitFor(() => expect(server.puts).toEqual([{ fold: ['under-bed'], open: [] }]));
 
     foldOf('Under bed').focus();
     await user.keyboard('{Enter}');
     expect(foldOf('Under bed')).toHaveAttribute('aria-expanded', 'true');
     expect(shown(/Winter clothes/)).toBeInTheDocument();
     await waitFor(() => expect(server.stored()).toEqual([]));
+    expect(server.puts.at(-1)).toEqual({ fold: [], open: ['under-bed'] });
+  });
+
+  it("a fold made before the server's folds arrive keeps them, and shows them when they do", async () => {
+    let release = () => {};
+    const holdGet = new Promise<void>((done) => {
+      release = done;
+    });
+    const server = stubFolds(['wardrobe-shelf', 'bedroom'], { holdGet });
+    const { user } = await mount(panel('box-1'));
+    // Bedroom is on the path to Box 1, so it is open; the server's folds haven't come yet.
+    await user.click(foldOf('Under bed'));
+    await waitFor(() =>
+      expect(server.stored()).toEqual(['bedroom', 'under-bed', 'wardrobe-shelf']),
+    );
+    release();
+    // The read began before the fold landed; the fold stays on top of what it says.
+    await waitFor(() => expect(foldOf('Under bed')).toHaveAttribute('aria-expanded', 'false'));
+    expect(foldOf('Bedroom')).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('two quick folds are both kept', async () => {
+    const server = stubFolds();
+    const { user } = await mount(panel());
+    await user.click(foldOf('Under bed'));
+    await user.click(foldOf('Bedroom'));
+    await waitFor(() => expect(server.stored()).toEqual(['bedroom', 'under-bed']));
+    expect(server.puts).toEqual([
+      { fold: ['under-bed'], open: [] },
+      { fold: ['bedroom'], open: [] },
+    ]);
+  });
+
+  it('a fold the server refuses is undone on the page', async () => {
+    let refuse = () => {};
+    const holdPut = new Promise<void>((done) => {
+      refuse = done;
+    });
+    const server = stubFolds([], { failPuts: true, holdPut });
+    const { user } = await mount(panel());
+    await user.click(foldOf('Under bed'));
+    // Folded at once, before the server answers.
+    expect(foldOf('Under bed')).toHaveAttribute('aria-expanded', 'false');
+    await waitFor(() => expect(server.puts).toHaveLength(1));
+    refuse();
+    await waitFor(() => expect(foldOf('Under bed')).toHaveAttribute('aria-expanded', 'true'));
+    expect(shown(/Winter clothes/)).toBeInTheDocument();
+  });
+
+  it('gives a coarse pointer 40 px targets, as an iPad at 1280 px', async () => {
+    stubFolds();
+    await mount(panel());
+    expect(foldOf('Under bed')).toHaveClass('pointer-coarse:size-10');
+    expect(screen.getByRole('button', { name: 'Fold all' })).toHaveClass('pointer-coarse:min-h-10');
   });
 
   it('folding a parent hides everything under it, however deep', async () => {
@@ -189,10 +259,7 @@ describe('the docked places panel folds each place', () => {
     const { user } = await mount(panel('wardrobe'));
     await user.click(screen.getByRole('button', { name: 'Fold all' }));
     await waitFor(() =>
-      expect(server.puts.at(-1)).toEqual({
-        method: 'PUT',
-        body: { placeIds: ['bedroom', 'under-bed'] },
-      }),
+      expect(server.puts.at(-1)).toEqual({ fold: ['bedroom', 'under-bed'], open: [] }),
     );
     // Bedroom holds the page you're on, so it stays open; Under bed folds.
     expect(shown('Wardrobe')).toBeInTheDocument();
@@ -200,6 +267,7 @@ describe('the docked places panel folds each place', () => {
 
     await user.click(screen.getByRole('button', { name: 'Open all' }));
     await waitFor(() => expect(server.stored()).toEqual([]));
+    expect(server.puts.at(-1)?.fold).toEqual([]);
     expect(shown(/Winter clothes/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Fold all' })).toBeInTheDocument();
   });

@@ -4,7 +4,7 @@
  * own through the API, named for the project, the run and the retry, and deletes it at the end
  * (its folds go with its places), so a retry starts from nothing (#336):
  *
- * - Bedroom › Under bed holds Box 1 … Box 3. On the Office's page, "What's in Under bed" folds the
+ * - Bedroom › Under bed holds Box 1 … Box 3. On the Office's page, "Contents of Under bed" folds the
  *   boxes away; after a reload it is still folded, as the server keeps it for the person;
  * - on Box 2's own page Under bed is open again (the path to the page stays open), Box 2 marked;
  * - Fold all and Open all do every place, and the server agrees.
@@ -97,7 +97,7 @@ test('a place folds its boxes away, stays folded after a reload, and opens on it
     await page.goto(`/p/${office.id}`);
     await expect(page.getByRole('heading', { name: 'Office', level: 1 })).toBeVisible();
     let tree = await placeTree(page, name);
-    const fold = () => tree.getByRole('button', { name: "What's in Under bed" });
+    const fold = () => tree.getByRole('button', { name: 'Contents of Under bed' });
     await expect(tree.getByRole('link', { name: /^Box 2/ })).toBeVisible();
     await fold().click();
     await expect(fold()).toHaveAttribute('aria-expanded', 'false');

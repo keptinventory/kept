@@ -33,22 +33,6 @@ export function foldableIds(entries: readonly TreeEntry[]): string[] {
   return out;
 }
 
-/** The rows left showing when the places in `closed` are folded. */
-export function visibleEntries(
-  entries: readonly TreeEntry[],
-  closed: ReadonlySet<string>,
-): TreeEntry[] {
-  const out: TreeEntry[] = [];
-  let hideBelow: number | null = null;
-  for (const e of entries) {
-    if (hideBelow !== null && e.depth > hideBelow) continue;
-    hideBelow = null;
-    out.push(e);
-    if (e.kind === 'place' && closed.has(e.place.id)) hideBelow = e.depth;
-  }
-  return out;
-}
-
 /**
  * The places kept open for the page you are on: a place's ancestors, or a box's place and its
  * ancestors. Empty on the location page (no `currentId`) and for an id the tree doesn't have.
@@ -69,13 +53,6 @@ export function keptOpen(
     at = parentOf.get(at);
   }
   return out;
-}
-
-/** `folded` with `id` folded if it was open, or opened if it was folded. */
-export function toggleFold(folded: ReadonlySet<string>, id: string): Set<string> {
-  const next = new Set(folded);
-  if (!next.delete(id)) next.add(id);
-  return next;
 }
 
 /** Whether every place that folds is folded (the header then offers "Open all"). */

@@ -20,6 +20,7 @@ import type {
   MergePlaceBody,
   PlaceContents,
   PlaceFolds,
+  PlaceFoldsChange,
   PlaceView,
   ReorderBody,
   TrashBody,
@@ -115,12 +116,22 @@ export function placesRoutes(state: MockState): MockRoute[] {
       if (!access().visible(locationId)) return notFound();
       return { placeIds: inv().placeFolds?.[locationId] ?? [] } satisfies PlaceFolds;
     }),
+    // A change, as the server takes it: fold these, open those, leave the rest.
     route('PUT', p.placeFolds(':locationId'), ({ params, body }) => {
+      const gate = sessionGate(state);
+      if (gate) return gate;
       const locationId = params.locationId ?? '';
       if (!access().visible(locationId)) return notFound();
-      const ids = new Set((body as PlaceFolds).placeIds);
-      const here = inv().places.filter((pl) => pl.locationId === locationId && ids.has(pl.id));
-      inv().placeFolds = { ...inv().placeFolds, [locationId]: here.map((pl) => pl.id) };
+      const { fold, open } = body as PlaceFoldsChange;
+      const here = new Set(
+        inv()
+          .places.filter((pl) => pl.locationId === locationId)
+          .map((pl) => pl.id),
+      );
+      const next = new Set(inv().placeFolds?.[locationId] ?? []);
+      for (const id of open) next.delete(id);
+      for (const id of fold) if (here.has(id)) next.add(id);
+      inv().placeFolds = { ...inv().placeFolds, [locationId]: [...next] };
       return reply(204);
     }),
 

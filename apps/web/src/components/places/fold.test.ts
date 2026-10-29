@@ -4,14 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { BoxNode, PlaceNode } from '@/api/inventory/types';
-import {
-  foldableIds,
-  isFoldedAll,
-  keptOpen,
-  nestEntries,
-  toggleFold,
-  visibleEntries,
-} from './fold';
+import { foldableIds, isFoldedAll, keptOpen, nestEntries } from './fold';
 import { type TreeEntry, treeEntries } from './tree';
 
 const place = (id: string, parentId: string | null, extra: Partial<PlaceNode> = {}): PlaceNode => ({
@@ -64,30 +57,6 @@ describe('foldableIds', () => {
   });
 });
 
-describe('visibleEntries', () => {
-  it('shows every row when nothing is folded', () => {
-    expect(visibleEntries(entries, new Set()).map(label)).toEqual(entries.map(label));
-  });
-
-  it("hides a folded place's boxes and its '+N boxes' row, and keeps the place", () => {
-    expect(visibleEntries(entries, new Set(['under-bed'])).map(label)).toEqual([
-      'unplaced',
-      'bedroom',
-      'under-bed',
-      'wardrobe',
-      'office',
-    ]);
-  });
-
-  it('hides everything under a folded place, however deep', () => {
-    expect(visibleEntries(entries, new Set(['bedroom'])).map(label)).toEqual([
-      'unplaced',
-      'bedroom',
-      'office',
-    ]);
-  });
-});
-
 describe('nestEntries', () => {
   it('puts each row under its place: child places first, then its boxes, then "+N boxes"', () => {
     const tree = nestEntries(entries);
@@ -124,14 +93,7 @@ describe('keptOpen: the path to the page you are on', () => {
   });
 });
 
-describe('toggleFold and isFoldedAll', () => {
-  it('folds an open place and opens a folded one, without changing the set it was given', () => {
-    const before = new Set(['bedroom']);
-    expect([...toggleFold(before, 'under-bed')].sort()).toEqual(['bedroom', 'under-bed']);
-    expect([...toggleFold(before, 'bedroom')]).toEqual([]);
-    expect([...before]).toEqual(['bedroom']);
-  });
-
+describe('isFoldedAll', () => {
   it('is all folded only when every foldable place is', () => {
     expect(isFoldedAll(new Set(['bedroom']), ['bedroom', 'under-bed'])).toBe(false);
     expect(isFoldedAll(new Set(['bedroom', 'under-bed', 'gone']), ['bedroom', 'under-bed'])).toBe(
