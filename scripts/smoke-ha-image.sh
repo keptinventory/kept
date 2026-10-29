@@ -213,7 +213,7 @@ docker exec "$app" sh -c 'cp /data/backup/kept.pgdump /data/kept.pgdump.keep'
 if docker exec --user 10001 "$app" cat /data/owner/kept_owner >/dev/null 2>&1; then
   fail "Kept's user can read the owner login's password"
 fi
-docker exec "$app" test ! -e /run/kept-ha/owner || fail "migrate's copy of the owner password is still there"
+docker exec "$app" test ! -e /run/kept-owner || fail "migrate's copy of the owner password is still there"
 echo "dumped (the dump stays); the owner login is root's alone"
 
 step "stop, and a second start on the same /data"

@@ -149,11 +149,11 @@ export KEPT_LOG_FORMAT=pretty
 export KEPT_PORT=8080
 
 # The owner login for migrate alone: a copy Kept's user can read, removed before Kept starts.
-install -d -m 0700 -o "$KEPT_USER" -g "$KEPT_USER" /run/kept-ha/owner
-install -m 0400 -o "$KEPT_USER" -g "$KEPT_USER" "$DATA/owner/kept_owner" /run/kept-ha/owner/kept_owner
+install -d -m 0700 -o "$KEPT_USER" -g "$KEPT_USER" /run/kept-owner
+install -m 0400 -o "$KEPT_USER" -g "$KEPT_USER" "$DATA/owner/kept_owner" /run/kept-owner/kept_owner
 as_kept env KEPT_OWNER_DATABASE_URL=postgres://kept_owner:@127.0.0.1:5432/kept \
-  KEPT_DB_OWNER_PASSWORD_FILE=/run/kept-ha/owner/kept_owner kept migrate
-rm -rf /run/kept-ha/owner
+  KEPT_DB_OWNER_PASSWORD_FILE=/run/kept-owner/kept_owner kept migrate
+rm -rf /run/kept-owner
 
 # 7. Kept. As Postgres above: $! is node itself, so TERM reaches it.
 setpriv --reuid="$KEPT_USER" --regid="$KEPT_USER" --init-groups -- node --import /app/apps/server/dist/observability/tracing.js /app/apps/server/dist/main.js &
