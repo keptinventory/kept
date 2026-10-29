@@ -41,7 +41,7 @@ The Compose file passes the common ones through from `.env`; the rest go in a
 | `KEPT_CONFIG_DIR` | `/config` | config volume; holds only the generated secret keys |
 | `KEPT_DATA_DIR` | `/data` | data volume; local file storage |
 | `KEPT_MAX_FILE_MB` | `25` | largest file one upload may be, in MB (§3.4) |
-| `KEPT_IMAGE_CONCURRENCY` |  | images resized at once, process-wide; default 1 with under 3 GB of RAM, else 2 |
+| `KEPT_IMAGE_CONCURRENCY` |  | images resized at once, process-wide; default 1 under 3 GB of RAM or a container limit under 3 GB, else 2 |
 | `KEPT_S3_ENDPOINT` |  | S3 endpoint URL; empty for AWS itself (e.g. `http://rustfs:9000`) |
 | `KEPT_S3_PUBLIC_ENDPOINT` |  | S3 endpoint the browser reaches, for presigned URLs; empty: `KEPT_S3_ENDPOINT` (e.g. `https://files.example.com`) |
 | `KEPT_S3_REGION` | `us-east-1` | S3 region |
@@ -78,6 +78,10 @@ The Compose file passes the common ones through from `.env`; the rest go in a
 | `KEPT_RESTIC_CACHE_DIR` |  | restic's cache, never backed up; default `<KEPT_DATA_DIR>/.cache/restic` |
 | `KEPT_UPDATE_CHECK` |  | `true` · `false`; when set, locks "Check for new versions" (GitHub releases, off by default, D65) on or off |
 | `KEPT_PORT` | `8080` | the port the server listens on |
+| `KEPT_HA` |  | `1` only in the Home Assistant app's image: Kept trusts Home Assistant's ingress (from the Supervisor's address only) and says it runs as an app; Kept's own backups and the pre-upgrade snapshot are off |
+| `KEPT_HA_TRUST_GROUPS` |  | `1` only from the Home Assistant app's start script, on a Supervisor that sets the user's groups itself: a Home Assistant administrator sets Kept up through ingress without the code |
+| `KEPT_TLS_CERT_FILE` |  | optional; a PEM certificate (chain) file: Kept serves https itself on `KEPT_PORT`; with `KEPT_TLS_KEY_FILE` |
+| `KEPT_TLS_KEY_FILE` |  | optional; the certificate's PEM private key file; with `KEPT_TLS_CERT_FILE` |
 | `KEPT_ALLOW_DOWNGRADE` |  | `1`: start on a database more than one release ahead of this image, audited; for a restore runbook only (plan Q9) |
 | `KEPT_UPGRADE_SNAPSHOT` | `auto` | `auto` · `off`: whether `kept migrate` takes a database snapshot before migrating a populated database (plan Q8) |
 | `KEPT_VAPID_PUBLIC_KEY` |  | web push: overrides the generated key pair; set both or neither |

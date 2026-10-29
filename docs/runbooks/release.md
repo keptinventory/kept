@@ -129,6 +129,32 @@ both packages public (the old M4); the run then signs into the public transparen
 (`KEPT_RELEASE_TLOG=1` when the repository is public) and the release notes drop
 `--insecure-ignore-tlog`.
 
+**W3b. The Home Assistant app's package, and the launch (D272).** Every release from the one
+that carries the `ha` target also pushes `ghcr.io/keptinventory/kept-ha`, by the same
+`GITHUB_TOKEN`; GHCR makes a first push private. Make it public once (the package's settings →
+Change visibility), or Home Assistant can't pull it: the Supervisor pulls without a login.
+
+The launch is `repository.yaml` at the repository's root: without it the Supervisor doesn't load
+the repository, so `homeassistant/kept/` can sit on `main` unlisted. It goes in with the first
+release record (step 4 of "Each release") after `kept-ha:X.Y.Z` is published, made public, and
+the Home Assistant OS sign-off passed, in the same pull request that bumps the app to X.Y.Z:
+
+```yaml
+name: Kept
+url: https://github.com/keptinventory/kept
+maintainer: Ibrahim Roshdy <22573766+ibrahimroshdy@users.noreply.github.com>
+```
+
+The same pull request removes the "Not available yet" cautions from `homeassistant/kept/DOCS.md`
+and the docs site's `install/home-assistant.md`.
+
+The app's AppArmor profile (`homeassistant/kept/apparmor.txt`) is enforced (since 1.14.3, after a
+Home Assistant OS VM run with zero denials through setup, backups, an uninstall and restore, a
+reboot, updates and photo uploads). A change that adds a feature touching files, processes or
+capabilities is checked the same way before release: `journalctl _TRANSPORT="audit" -g
+'apparmor="DENIED"'` empty for the app's profile. A denial is a missing rule: add the narrowest one
+and run again.
+
 **W4. Push `main`.** The tagged commit must be on `origin/main`, and a tag push runs the
 `release.yml` **in the tagged commit**, so the commit that adds it must be pushed before the first
 tag. Actions must stay enabled for the repository (it is, with "all actions" allowed: read
@@ -191,10 +217,19 @@ pull request.
 4. When it is green, the release record into the repository (it is also on the GitHub release), by
    a pull request:
 
+   The same pull request moves the Home Assistant app to X.Y.Z (D272): Home Assistant reads `main`,
+   so `homeassistant/kept/config.yaml` names a version only once its `kept-ha` image is published,
+   which is now.
+
    ```sh
    git switch -c release-record-X.Y.Z
    gh release download vX.Y.Z -R keptinventory/kept -p 'X.Y.Z.md' -D docs/releases
-   git add docs/releases/X.Y.Z.md && git commit -m "docs(release): the X.Y.Z record"
+   HA=
+   if [ -f homeassistant/kept/config.yaml ]; then
+     node scripts/release/ha-app.mjs bump X.Y.Z
+     HA="homeassistant/kept/config.yaml homeassistant/kept/CHANGELOG.md homeassistant/.test/kept-demo/config.yaml"
+   fi
+   git add docs/releases/X.Y.Z.md $HA && git commit -m "docs(release): the X.Y.Z record"
    git push -u origin release-record-X.Y.Z
    gh pr create --fill --base main && gh pr merge --squash --delete-branch
    ```

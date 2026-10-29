@@ -44,6 +44,10 @@ export type BlobStore = {
   /** Removes the blob; removing one that isn't there is not an error. */
   delete(key: string): Promise<void>;
   exists(key: string): Promise<boolean>;
+  /** The blob's SHA-256 and size, read without a stream where the store can (local files:
+   * storage/hash-file.ts). Absent: hash `stream(key)`. BlobNotFoundError when there is no such
+   * blob. */
+  hash?(key: string): Promise<{ sha256: string; bytes: number }>;
   /** A URL the browser can fetch without a session: local → /f/<token>; S3 → presigned. */
   signedUrl(key: string, opts: SignedUrlOptions): Promise<string>;
 };

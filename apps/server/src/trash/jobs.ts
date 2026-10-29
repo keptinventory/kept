@@ -1,4 +1,4 @@
-import { SYNC_LIMITS } from '@kept/shared';
+import { FLOOR_PLAN_FILE, SYNC_LIMITS } from '@kept/shared';
 import type pg from 'pg';
 import { withSystem } from '../db/scope.js';
 import { defineJob, type JobDefinition } from '../jobs/boss.js';
@@ -18,6 +18,9 @@ import type { BlobStore } from '../storage/blob-store.js';
 // 2b. kept.purge_deleted_accounts(10), again while a round fills its limit: accounts past their
 //    30 days before deletion (D225), with their Personal location and any of their own still in
 //    grace, then the sign-in user and what is only theirs. It returns the storage keys too.
+// 2c. kept.discard_stale_floor_plans(now() - 30 days, 500), again while a round fills its limit
+//    (1.14.3, D266): floor plan reviews nobody finished are discarded and their uploads let go,
+//    so step 3 removes the files a day later.
 // 3. kept.purge_orphan_files(now() - 1 day, now() - 90 days, 500), again while a round returns
 //    keys: files no attachment holds. One attached once and let go (the files of what step 1
 //    purged) goes after a day; one never attached may be a phone's upload whose op is still
@@ -32,6 +35,8 @@ import type { BlobStore } from '../storage/blob-store.js';
 
 /** How long something stays in the trash before it is purged (D162). */
 export const TRASH_DAYS = 30;
+/** How long a floor plan review may stay open before the purge discards it (spec §10.3). */
+export const FLOOR_PLAN_DAYS = FLOOR_PLAN_FILE.staleDays;
 
 const TRASH_BATCH = 500;
 const LOCATION_BATCH = 10;
@@ -42,6 +47,8 @@ const MAX_ROUNDS = 100;
 
 export type PurgeReport = {
   trashed: number;
+  /** Floor plan reviews nobody finished, discarded. */
+  floorPlans: number;
   locations: number;
   accounts: number;
   blobs: number;
@@ -75,6 +82,7 @@ async function deleteBlobs(deps: PurgeDeps, keys: readonly string[], failed: str
 export async function runPurge(deps: PurgeDeps): Promise<PurgeReport> {
   const report: PurgeReport = {
     trashed: 0,
+    floorPlans: 0,
     locations: 0,
     accounts: 0,
     blobs: 0,
@@ -91,6 +99,18 @@ export async function runPurge(deps: PurgeDeps): Promise<PurgeReport> {
       return rows[0]?.n ?? 0;
     });
     report.trashed += n;
+    if (n < TRASH_BATCH) break;
+  }
+
+  for (let round = 0; round < MAX_ROUNDS; round++) {
+    const n = await once(deps.pools, async (c) => {
+      const { rows } = await c.query<{ n: number }>(
+        `SELECT kept.discard_stale_floor_plans(now() - make_interval(days => $1), $2) AS n`,
+        [FLOOR_PLAN_DAYS, TRASH_BATCH],
+      );
+      return rows[0]?.n ?? 0;
+    });
+    report.floorPlans += n;
     if (n < TRASH_BATCH) break;
   }
 
@@ -162,6 +182,7 @@ export function trashJobs(deps: SystemJobDeps): JobDefinition[] {
         deps.log.info(
           {
             trashed: report.trashed,
+            floorPlans: report.floorPlans,
             locations: report.locations,
             blobs: report.blobs,
             failedBlobs: report.failedBlobs.length,

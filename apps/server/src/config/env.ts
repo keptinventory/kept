@@ -1,11 +1,11 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { link, mkdir, open, readFile, unlink } from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { z } from 'zod';
 import { parseTrustedProxies } from '../auth/client-ip.js';
 import { isCrockford, normaliseCrockford } from '../crypto/crockford.js';
 import { completeDatabaseUrls } from './db-passwords.js';
+import { effectiveMemoryBytes } from './host.js';
 
 export type EnvErrorCode =
   | 'invalid_env'
@@ -20,7 +20,8 @@ export type EnvErrorCode =
   | 'vapid_keys_partial'
   | 'embeddings_unavailable'
   | 'oidc_incomplete'
-  | 'google_incomplete';
+  | 'google_incomplete'
+  | 'tls_files_partial';
 
 export class EnvError extends Error {
   readonly code: EnvErrorCode;
@@ -195,7 +196,9 @@ const schema = z.object({
     .min(1)
     .max(32)
     .optional()
-    .describe('images resized at once, process-wide; default 1 with under 3 GB of RAM, else 2'),
+    .describe(
+      'images resized at once, process-wide; default 1 under 3 GB of RAM or a container limit under 3 GB, else 2',
+    ),
   // Only read when KEPT_STORAGE=s3; then the bucket and both credentials are required.
   KEPT_S3_ENDPOINT: httpUrl()
     .optional()
@@ -387,6 +390,37 @@ const schema = z.object({
     .max(65535)
     .default(8080)
     .describe('the port the server listens on'),
+  // D272, D273: the Home Assistant app's image sets it; nothing else should. It turns on the one
+  // ingress check (http/ingress.ts) and the app's own lines on the setup page and Status.
+  KEPT_HA: z
+    .enum(['0', '1'])
+    .default('0')
+    .transform((value) => value === '1')
+    .describe(
+      "`1` only in the Home Assistant app's image: Kept trusts Home Assistant's ingress (from the Supervisor's address only) and says it runs as an app; Kept's own backups and the pre-upgrade snapshot are off",
+    ),
+  // Set by the app's start script only when the Supervisor is 2026.10.4 or later, which removes a
+  // client's X-Remote-User-Groups and sets its own (home-assistant/supervisor #7398); before
+  // that, the header could be the client's, so setup without the code stays off.
+  KEPT_HA_TRUST_GROUPS: z
+    .enum(['0', '1'])
+    .default('0')
+    .transform((value) => value === '1')
+    .describe(
+      "`1` only from the Home Assistant app's start script, on a Supervisor that sets the user's groups itself: a Home Assistant administrator sets Kept up through ingress without the code",
+    ),
+  // https served by Kept itself, e.g. with Home Assistant's own certificate from /ssl. Both or
+  // neither; a renewed certificate is read at the next start.
+  KEPT_TLS_CERT_FILE: z
+    .string()
+    .optional()
+    .describe(
+      'optional; a PEM certificate (chain) file: Kept serves https itself on `KEPT_PORT`; with `KEPT_TLS_KEY_FILE`',
+    ),
+  KEPT_TLS_KEY_FILE: z
+    .string()
+    .optional()
+    .describe("optional; the certificate's PEM private key file; with `KEPT_TLS_CERT_FILE`"),
   KEPT_ALLOW_DOWNGRADE: z
     .enum(['0', '1'])
     .default('0')
@@ -664,7 +698,7 @@ export type HostInfo = { arch: string; totalMemBytes: number };
 
 const SMALL_HOST_BYTES = 3 * 1024 ** 3;
 
-/** D209: one image at a time on a small host (the 2 GB floor), two anywhere else. */
+/** D209: one image at a time on a small host (under 3 GB), two anywhere else. */
 export function defaultImageConcurrency(totalMemBytes: number): number {
   return totalMemBytes < SMALL_HOST_BYTES ? 1 : 2;
 }
@@ -1021,6 +1055,15 @@ export async function loadEnv(
     );
   }
 
+  // https served by Kept itself takes the certificate and its key together.
+  if (Boolean(env.KEPT_TLS_CERT_FILE) !== Boolean(env.KEPT_TLS_KEY_FILE)) {
+    const missing = env.KEPT_TLS_CERT_FILE ? 'KEPT_TLS_KEY_FILE' : 'KEPT_TLS_CERT_FILE';
+    throw new EnvError(
+      `KEPT_TLS_CERT_FILE and KEPT_TLS_KEY_FILE are set together or not at all; ${missing} is missing`,
+      'tls_files_partial',
+    );
+  }
+
   // The nightly backup's target; the owner login is needed where the job runs.
   checkBackupEnv(parsed.data, env.KEPT_ROLE !== 'web');
   // The alpha's count is read as the daily count for one release.
@@ -1039,7 +1082,8 @@ export async function loadEnv(
       );
     }
   }
-  const host = opts.host ?? { arch: process.arch, totalMemBytes: os.totalmem() };
+  // The container's limit when it has one (config/host.ts): os.totalmem() is the host's RAM.
+  const host = opts.host ?? { arch: process.arch, totalMemBytes: effectiveMemoryBytes() };
 
   // D147: outside dev, the image sets KEPT_SOURCE_URL from its OCI labels; refuse to boot
   // without it so a production deploy is never silently unattributed.

@@ -182,6 +182,8 @@ export function useBackupErrorText() {
         return t`Download the recovery kit first.`;
       case 'restic_failed':
         return t`The backup tool couldn't open the repository. Test says why.`;
+      case 'home_assistant_backups':
+        return t`Home Assistant backs up Kept here: take or schedule backups in Home Assistant.`;
       default:
         return base(e);
     }

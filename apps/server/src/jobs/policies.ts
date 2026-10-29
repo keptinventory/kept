@@ -43,10 +43,10 @@ export const JOB_POLICIES = {
   purge: { ...MAINTENANCE, expireInSeconds: 1800 },
   'notify-owner-new-member': MAIL,
   'send-invite-mail': MAIL,
-  // Step 3. Extraction: two retries for a provider's brief outage, and 90 s,
-  // enough for one model call (callModel's own timeout is shorter) but short enough that a hung
-  // provider frees the slot.
-  extract: { retryLimit: 2, retryDelay: 20, retryBackoff: true, expireInSeconds: 90 },
+  // Step 3. Extraction: two retries for a provider's brief outage, and 150 s: a floor plan's
+  // PDF page may take 45 s to draw before its one model call (callModel stops at 80 s), so the
+  // longest honest attempt fits; a hung provider is still cut off by callModel's own timeout.
+  extract: { retryLimit: 2, retryDelay: 20, retryBackoff: true, expireInSeconds: 150 },
   // A CSV import is resumable: a failure is shown and resumed by the person, never retried
   // behind their back; 10,000 rows take a while.
   'import-csv': { retryLimit: 0, retryDelay: 0, retryBackoff: false, expireInSeconds: 7200 },
@@ -96,7 +96,7 @@ export const JOB_POLICIES = {
   'import-homebox': { retryLimit: 0, retryDelay: 0, retryBackoff: false, expireInSeconds: 7200 },
   'import-kept': { retryLimit: 0, retryDelay: 0, retryBackoff: false, expireInSeconds: 7200 },
   // Alias enrichment after an import: model calls like extraction's, so its policy.
-  'enrich-aliases': { retryLimit: 2, retryDelay: 20, retryBackoff: true, expireInSeconds: 90 },
+  'enrich-aliases': { retryLimit: 2, retryDelay: 20, retryBackoff: true, expireInSeconds: 150 },
   // Daily: abandoned import runs and their archives, after 7 days.
   'prune-imports': MAINTENANCE,
   // Step 6. An assistant turn: one retry, resuming after the last stored step so a

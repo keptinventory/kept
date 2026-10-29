@@ -1,6 +1,7 @@
 import { spawn as nodeSpawn } from 'node:child_process';
 import { lstat, readdir } from 'node:fs/promises';
 import path from 'node:path';
+import { type HostResources, hostResources } from '../../config/host.js';
 import {
   BackupError as BackupErrorMessage,
   BackupSummary,
@@ -52,7 +53,12 @@ import {
 // - stderr is kept to a bounded buffer and scrubbed of every value of the repository's
 //   environment before it reaches an error or a log;
 // - TZ=UTC in the child: `backup --time` is written in UTC, and `forget` buckets days, weeks and
-//   months in UTC whatever the host's zone (KEPT_BACKUP_TIME is UTC too).
+//   months in UTC whatever the host's zone (KEPT_BACKUP_TIME is UTC too);
+// - Go's runtime sized for a small machine (goRuntimeEnv): under 4 GiB of memory Kept may use,
+//   GOMAXPROCS at most 2 and a soft GOMEMLIMIT from that memory, unless the operator set either;
+//   from 4 GiB up, Go's defaults, so big hosts keep full speed. restic's memory follows its
+//   worker count: 277 MiB peak with 10 cores, 105 MiB with 2, for the same backup of 2,054 files
+//   (1.14.2, measured), 3.5 s against 4.4 s.
 
 export type ResticCliOptions = {
   /** KEPT_RESTIC_BIN, else `restic` on PATH (the image puts the pinned one there). */
@@ -64,6 +70,8 @@ export type ResticCliOptions = {
   timeouts?: { quick?: number; long?: number };
   /** The process environment the child's minimal one is picked from (tests). */
   baseEnv?: Readonly<Record<string, string | undefined>>;
+  /** The CPUs and memory goRuntimeEnv sizes Go for (tests). Default: this process's. */
+  host?: HostResources;
   /** child_process.spawn, or a spy around it (the argv test). */
   spawn?: typeof nodeSpawn;
   /** Text lines restic printed that weren't JSON (warnings, retries), already scrubbed. */
@@ -89,6 +97,43 @@ const PASSED_ENV = [
 ] as const;
 
 type Outcome = { code: number | null; stdout: string; stderr: string; timedOut: boolean };
+
+/** Under this much memory Kept caps restic's Go runtime; from it up, restic runs at Go's own
+ * defaults (every core), as fast as before. */
+export const RESTIC_SMALL_MACHINE_BYTES = 4 * 1024 ** 3;
+/** At most this many Go threads run restic's work at once on a small machine. */
+export const RESTIC_MAX_PROCS = 2;
+const MiB = 1024 * 1024;
+/** GOMEMLIMIT: this share of the memory Kept may use, kept within the bounds below. A soft
+ * limit: Go collects harder near it and never fails a backup for crossing it. */
+const GO_MEMORY_SHARE = 0.15;
+const GO_MEMORY_MIN_MIB = 96;
+const GO_MEMORY_MAX_MIB = 512;
+
+type GoEnv = Partial<Record<'GOMAXPROCS' | 'GOMEMLIMIT', string>>;
+
+/** GOMAXPROCS and GOMEMLIMIT for the restic child: the operator's own when set; else, on a
+ * machine under RESTIC_SMALL_MACHINE_BYTES, the small-machine caps; else none. */
+export function goRuntimeEnv(
+  base: Readonly<Record<string, string | undefined>>,
+  host: HostResources = hostResources(),
+): GoEnv {
+  const env: GoEnv = {};
+  if (base.GOMAXPROCS) env.GOMAXPROCS = base.GOMAXPROCS;
+  if (base.GOMEMLIMIT) env.GOMEMLIMIT = base.GOMEMLIMIT;
+  const small =
+    Number.isFinite(host.memBytes) &&
+    host.memBytes > 0 &&
+    host.memBytes < RESTIC_SMALL_MACHINE_BYTES;
+  if (!small) return env;
+  const cpus = Number.isFinite(host.cpus) ? Math.floor(host.cpus) : 1;
+  env.GOMAXPROCS ??= String(Math.max(1, Math.min(cpus, RESTIC_MAX_PROCS)));
+  env.GOMEMLIMIT ??= `${Math.min(
+    GO_MEMORY_MAX_MIB,
+    Math.max(GO_MEMORY_MIN_MIB, Math.floor((host.memBytes / MiB) * GO_MEMORY_SHARE)),
+  )}MiB`;
+  return env;
+}
 
 const REASONS: Record<number, ResticErrorReason> = {
   1: 'failed',
@@ -385,6 +430,7 @@ export class ResticCli implements Restic {
     }
     env.HOME ??= '/tmp';
     env.TZ = 'UTC';
+    Object.assign(env, goRuntimeEnv(base, this.opts.host));
     if (this.opts.cacheDir) env.RESTIC_CACHE_DIR = this.opts.cacheDir;
     if (repo) {
       Object.assign(env, repo.env);

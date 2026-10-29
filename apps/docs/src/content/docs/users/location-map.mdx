@@ -109,12 +109,13 @@ Owners, admins and members can arrange a location; viewers see it as arranged. *
   hold **Alt** (**Option** on a Mac) to drag freely.
 - **Move a room** with everything in it: furniture, shelves, boxes and what stands on them. With
   a mouse, select the room, then drag it. On a phone, hold its floor for a moment, then drag; a
-  quick swipe still moves the view. With a room selected, each arrow key moves it a metre, in the
-  direction the view is turned, and a screen reader hears where it went ("Moved Bedroom left.").
-  Drag a room's **amber corner** to resize it. Rooms move and resize a whole metre at a time and
-  stay on their floor; one that would overlap another room slides along it instead ("Rooms can't
-  overlap.").
+  quick swipe still moves the view. With a room selected, each arrow key moves it a metre in the
+  direction the view is turned, and **Shift** with an arrow key 10 cm; a screen reader hears where
+  it went ("Moved Bedroom left."). Drag a room's **amber corner** to resize it. Rooms move,
+  resize and are drawn 10 cm at a time, at least a metre a side, and stay on their floor; one that
+  would overlap another room slides along it instead ("Rooms can't overlap.").
 - **Draw a room** on empty ground. It becomes a new place on that floor straight away.
+- **From a plan** reads a floor plan's rooms (below).
 - **Add a floor** adds a place of the kind Floor, with one room in it.
 - Select a room to set its **kind** (room, balcony, terrace, garden) and its **floor** (wood, tiles,
   concrete, deck, grass), or to **put a thing of that room on the map**.
@@ -287,8 +288,9 @@ it.
 
 ### In a location with no rooms yet
 
-An office or a storage unit often starts with everything in **Unplaced** and no rooms, so its map
-is empty ground.
+An office or a storage unit often starts with everything in **Unplaced** and no rooms. Its map
+says **No rooms on the map yet**, with **Start from a floor plan** (next section) and
+**Arrange**. To draw the rooms yourself:
 
 1. Open the location, choose **Map** and tap **Arrange**.
 2. Choose **Draw a room** and drag on the empty ground. The room is a new place in Kept straight
@@ -297,6 +299,67 @@ is empty ground.
 4. Give the things a place in that room. On the location, **Sort them** goes through Unplaced one
    thing at a time with a place picker; or open a thing and use **Actions → Move**.
 5. Back on the map, put them on it as above: **Arrange**, the room, **Put on the map**.
+
+### Start from a floor plan
+
+A floor plan already shows a home's rooms, their names and their sizes: an estate agent's sheet, a
+builder's PDF, a screenshot of a listing, a photo of a sketch. Kept can read it and draft the rooms
+for you to check. Nothing is added until you say so.
+
+Owners, admins and members can start one, where AI capture is on and a provider that reads photos
+is set up ([AI providers](/users/ai-providers/)). Otherwise the map says why, in the same words as
+Capture's Room mode, and offers **Arrange** alone.
+
+1. On an empty map tap **Start from a floor plan**; on any map, **Arrange → From a plan**.
+2. **Choose a file** (a JPEG, PNG, WebP, HEIC or GIF image, or a PDF) or **Take a photo** of a
+   paper plan. **Turn** it a quarter turn at a time if it is sideways. Of a PDF, only the first
+   page is read.
+3. The sheet says about how many tokens the read can take and which provider reads it. Tap
+   **Read the plan**.
+4. The map says **Reading the plan…**. You can leave: the plan waits on the map, and any member
+   sees **A floor plan is ready to check** when it is read. Tap **Check it**.
+
+**What is sent, and what is kept.** Kept sends one copy of the plan to your provider, re-encoded
+without its location or camera data (for a PDF, its first page drawn as a picture, with that
+page's text), and nothing from Kept itself: no location, room or floor names. The upload stays
+with the plan while you check it, seen by members and up only, and is deleted when you add the
+rooms or discard the plan, unless you tick **Keep the plan with** the location, which keeps it as
+one of the location's documents. A plan nobody finishes is discarded after 30 days.
+
+**Checking it.** The map switches to **Plan** and shows the plan's rooms as **dashed violet**
+outlines: dashed means not added yet, violet means AI read it. With **Show the plan** on, the plan
+itself lies under them, so you can see whether each outline sits on the room it names. Rooms
+already on the map stand still while you check. The panel, **Rooms from the plan**, lists every
+room with:
+
+- a switch to add it or leave it out;
+- its **name** as printed (an unlabelled room is called Room 1, Room 2 and so on), which you can
+  change;
+- its **size**, to the 10 cm, and its **kind** (room, balcony, terrace, garden);
+- at most one note, for example **The plan says 4.00 x 8.40 m.** (tap it to use the printed
+  size), **Not a rectangle: drawn as its largest part.**, **Under 1 m: too small for the map.**,
+  **Already on the map.** or **Uses your Kitchen**, when a room of that name was in Kept but not
+  on the map yet (**Make a new room** makes one instead).
+
+Each of the plan's floors has a **Floor** picker: one of yours, or a new floor made when you add
+the rooms. Drag a dashed room to move it, or its amber corner to resize it; the arrow keys move a
+selected one a metre and **Shift** with an arrow key 10 cm. **Turn the rooms** turns them all a
+quarter turn, for a plan drawn sideways.
+
+**The scale.** The line under the panel's heading says where the sizes came from: the sizes
+printed on the plan (and how many of them agree), its scale bar, its doors (taken as 80 cm wide),
+or nothing at all, when **these are a guess**. If the sizes look wrong, tap **Set a room's size**,
+type one room's real width and depth, and **Rescale**: every room is redrawn from it.
+
+**Adding them.** **Add 5 rooms** (the count of rooms switched on) makes the rooms, and any new
+floors, as ordinary places, and puts them on the map beside what was there. The toast offers
+**Undo**, which takes them all off the map and puts the rooms it made in the trash, as long as
+nothing was put in them and none was renamed or moved since. History shows one line: **Added 5
+rooms from a floor plan**. **Discard** throws the plan away; nothing is added.
+
+How well a model reads a plan depends on the plan and the model: check every room against the plan
+before adding. Walls, doors and windows aren't drawn, and a room that isn't a rectangle becomes its
+largest rectangle.
 
 ### What Unplaced means here
 

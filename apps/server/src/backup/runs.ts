@@ -79,17 +79,39 @@ export const GOOD_RUN_SQL = `(status = 'ok' OR (status = 'warning'
  * an older `running` row is a crashed run, not a running one. */
 export const RUNNING_FOR_AT_MOST_HOURS = 4;
 
-/** Whether a snapshot-making run is under way (the `409 backup_running` check). */
+/** pg_try_advisory_lock key of a running backup ('kbup'): a session lock every snapshot run
+ * holds while it works (nightly.ts runSnapshot), released by its exit however it ends. */
+export const BACKUP_LOCK_KEY = 0x6b627570;
+
+/** SQL: whether some session holds the backup lock now. A bigint key below 2^31 is classid 0,
+ * objid the key, objsubid 1 in pg_locks, which every role can read. */
+const LOCK_HELD_SQL = `EXISTS (SELECT 1 FROM pg_locks
+    WHERE locktype = 'advisory'
+      AND database = (SELECT oid FROM pg_database WHERE datname = current_database())
+      AND classid = 0 AND objid = ${BACKUP_LOCK_KEY} AND objsubid = 1 AND granted)`;
+
+/** Whether a run holds the backup lock now (`kept admin backup unlock` refuses then). */
+export async function backupLockHeld(client: Pick<pg.ClientBase, 'query'>): Promise<boolean> {
+  const { rows } = await client.query<{ held: boolean }>(`SELECT ${LOCK_HELD_SQL} AS held`);
+  return rows[0]?.held === true;
+}
+
+/** Whether a snapshot-making run is under way (the `409 backup_running` check): a `running`
+ * row while the backup lock is held. A row whose process died (an OOM kill) holds no lock, so it
+ * doesn't block; the next run marks it `backup_interrupted`. */
 export async function backupRunning(client: Pick<pg.ClientBase, 'query'>): Promise<boolean> {
   const { rows } = await client.query<{ running: boolean }>(
     `SELECT EXISTS (
        SELECT 1 FROM public.backup_runs
         WHERE status = 'running' AND kind = ANY($1::text[])
-          AND started_at > now() - make_interval(hours => $2)) AS running`,
+          AND started_at > now() - make_interval(hours => $2)) AND ${LOCK_HELD_SQL} AS running`,
     [SNAPSHOT_KINDS, RUNNING_FOR_AT_MOST_HOURS],
   );
   return rows[0]?.running === true;
 }
+
+/** An `active` backup job younger than this counts even before its run takes the lock. */
+const ACTIVE_GRACE = "interval '2 minutes'";
 
 /**
  * Whether a `backup` job waits in pg-boss or is being worked: a "Run now" the worker hasn't
@@ -104,6 +126,9 @@ export async function backupQueued(system: Pick<pg.Pool, 'query'>): Promise<bool
         WHERE name = 'backup' AND state IN ('created', 'retry', 'active')
           -- A future start is tomorrow's nightly, unless it is a failed run waiting to retry.
           AND (state = 'retry' OR start_after <= now())
+          -- An active job is being worked only while its run holds the lock, or in the moments
+          -- before it takes it; past that, the worker died with it (pg-boss expires it later).
+          AND (state <> 'active' OR started_on > now() - ${ACTIVE_GRACE} OR ${LOCK_HELD_SQL})
           AND created_on > now() - make_interval(hours => $1)) AS queued`,
     [RUNNING_FOR_AT_MOST_HOURS],
   );

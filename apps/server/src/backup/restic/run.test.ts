@@ -1,10 +1,10 @@
-import { chmod, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { BackupSummary, messagesOf, splitLines } from './json.js';
 import { ResticError, type ResticRepo } from './restic.js';
-import { ResticCli } from './run.js';
+import { goRuntimeEnv, ResticCli } from './run.js';
 
 // The real wrapper's own promises, against stand-in restic scripts that print
 // what restic 0.19.1 printed in a trial run: exit codes,
@@ -121,5 +121,64 @@ describe('ResticCli', () => {
     expect((await readFile(log, 'utf8')).trim()).toBe(
       '--json forget --host kept --group-by host --tag kept,nightly --keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune',
     );
+  });
+});
+
+describe("restic's Go runtime", () => {
+  const MiB = 1024 * 1024;
+  const GiB = 1024 * MiB;
+
+  it('on a machine under 4 GiB: GOMAXPROCS at most 2 and a soft GOMEMLIMIT from the memory Kept may use', () => {
+    expect(goRuntimeEnv({}, { cpus: 10, memBytes: 3 * GiB })).toEqual({
+      GOMAXPROCS: '2',
+      GOMEMLIMIT: '460MiB',
+    });
+    expect(goRuntimeEnv({}, { cpus: 1, memBytes: 1 * GiB })).toEqual({
+      GOMAXPROCS: '1',
+      GOMEMLIMIT: '153MiB',
+    });
+    expect(goRuntimeEnv({}, { cpus: 2, memBytes: 512 * MiB })).toEqual({
+      GOMAXPROCS: '2',
+      GOMEMLIMIT: '96MiB',
+    });
+  });
+
+  it('from 4 GiB up, or when the memory is unknown, leaves Go its own defaults: full speed', () => {
+    expect(goRuntimeEnv({}, { cpus: 10, memBytes: 4 * GiB })).toEqual({});
+    expect(goRuntimeEnv({}, { cpus: 10, memBytes: 16 * GiB })).toEqual({});
+    expect(goRuntimeEnv({}, { cpus: 10, memBytes: Number.NaN })).toEqual({});
+    expect(goRuntimeEnv({}, { cpus: 10, memBytes: Number.POSITIVE_INFINITY })).toEqual({});
+  });
+
+  it("keeps the operator's own GOMAXPROCS and GOMEMLIMIT, on any machine", () => {
+    expect(
+      goRuntimeEnv({ GOMAXPROCS: '8', GOMEMLIMIT: '1GiB' }, { cpus: 10, memBytes: 512 * MiB }),
+    ).toEqual({ GOMAXPROCS: '8', GOMEMLIMIT: '1GiB' });
+    expect(goRuntimeEnv({ GOMAXPROCS: '1' }, { cpus: 10, memBytes: 16 * GiB })).toEqual({
+      GOMAXPROCS: '1',
+    });
+  });
+
+  it('reaches the restic child: capped on a small machine, unset on a big one', async () => {
+    const out = path.join(dir, 'go-env.txt');
+    const bin = await script(
+      'go-env.sh',
+      `printf '%s|%s' "$GOMAXPROCS" "$GOMEMLIMIT" > '${out}'\necho '[]'`,
+    );
+    const env = { PATH: '/usr/bin:/bin' };
+    await new ResticCli({ bin, baseEnv: env, host: { cpus: 4, memBytes: 2 * GiB } }).snapshots(
+      repo,
+    );
+    expect(await readFile(out, 'utf8')).toBe('2|307MiB');
+    await new ResticCli({ bin, baseEnv: env, host: { cpus: 4, memBytes: 8 * GiB } }).snapshots(
+      repo,
+    );
+    expect(await readFile(out, 'utf8')).toBe('|');
+    await new ResticCli({
+      bin,
+      baseEnv: { ...env, GOMAXPROCS: '3' },
+      host: { cpus: 4, memBytes: 8 * GiB },
+    }).snapshots(repo);
+    expect(await readFile(out, 'utf8')).toBe('3|');
   });
 });

@@ -1,9 +1,9 @@
 import { randomBytes } from 'node:crypto';
 import { mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import os, { tmpdir } from 'node:os';
 import path from 'node:path';
 import { inspect } from 'node:util';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import webpush from 'web-push';
 import {
   backupKeepOf,
@@ -350,6 +350,22 @@ describe('loadEnv: files and storage', () => {
       { configDir: await unusedConfigDir(), host: { arch: 'arm64', totalMemBytes: 2 * GB } },
     );
     expect(set.KEPT_IMAGE_CONCURRENCY).toBe(4);
+  });
+
+  it("KEPT_IMAGE_CONCURRENCY's default follows a container's memory limit, not the host's RAM", async () => {
+    const limit = vi.spyOn(process, 'constrainedMemory');
+    try {
+      limit.mockReturnValue(1 * GB);
+      const capped = await loadEnv(validEnv, { configDir: await unusedConfigDir() });
+      expect(capped.KEPT_IMAGE_CONCURRENCY).toBe(1);
+      if (os.totalmem() >= 3 * GB) {
+        limit.mockReturnValue(0);
+        const unlimited = await loadEnv(validEnv, { configDir: await unusedConfigDir() });
+        expect(unlimited.KEPT_IMAGE_CONCURRENCY).toBe(2);
+      }
+    } finally {
+      limit.mockRestore();
+    }
   });
 
   it.each(['0', '1.5', '64'])('rejects KEPT_IMAGE_CONCURRENCY=%s', async (value) => {
@@ -831,6 +847,33 @@ describe('the VAPID settings', () => {
       }),
     ).toBe('mailto:kept@example.org');
     expect(vapidSubject({ ...base, KEPT_PUBLIC_URL: 'http://localhost:5173' })).toBeNull();
+  });
+});
+
+describe('KEPT_HA and KEPT_TLS_* (the Home Assistant app, D272)', () => {
+  const load = async (extra: Record<string, string>) =>
+    loadEnv({ ...validEnv, ...extra }, { configDir: await unusedConfigDir() });
+
+  it('reads app mode as a boolean, off unless the image sets it', async () => {
+    expect((await load({})).KEPT_HA).toBe(false);
+    expect((await load({ KEPT_HA: '1' })).KEPT_HA).toBe(true);
+    await expect(load({ KEPT_HA: 'yes' })).rejects.toMatchObject({ code: 'invalid_env' });
+  });
+
+  it('takes the certificate and key files together, or neither', async () => {
+    const env = await load({
+      KEPT_TLS_CERT_FILE: '/ssl/fullchain.pem',
+      KEPT_TLS_KEY_FILE: '/ssl/privkey.pem',
+    });
+    expect(env.KEPT_TLS_CERT_FILE).toBe('/ssl/fullchain.pem');
+    await expect(load({ KEPT_TLS_CERT_FILE: '/ssl/fullchain.pem' })).rejects.toMatchObject({
+      code: 'tls_files_partial',
+      message: expect.stringContaining('KEPT_TLS_KEY_FILE is missing'),
+    });
+    await expect(load({ KEPT_TLS_KEY_FILE: '/ssl/privkey.pem' })).rejects.toMatchObject({
+      code: 'tls_files_partial',
+      message: expect.stringContaining('KEPT_TLS_CERT_FILE is missing'),
+    });
   });
 });
 

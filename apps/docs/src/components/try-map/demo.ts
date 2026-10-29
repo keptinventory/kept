@@ -1382,14 +1382,14 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
     else return;
     render();
   };
-  /** #301: with a room selected in Arrange, an arrow key moves it a metre, as in the app
-   * (map-view.tsx), and says where it went. */
+  /** #301: with a room selected in Arrange, an arrow key moves it a metre and Shift-arrow 10 cm
+   * (D267), as in the app (map-view.tsx), and says where it went. */
   const nudge = (ev: KeyboardEvent): boolean => {
     if (!engine || ev.defaultPrevented || !es.arranging || es.selected?.type !== 'room')
       return false;
-    if (!isArrow(ev.key) || ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey) return false;
+    if (!isArrow(ev.key) || ev.altKey || ev.ctrlKey || ev.metaKey) return false;
     if ((ev.target as HTMLElement | null)?.closest?.(OWN_ARROWS)) return false;
-    const done = engine.nudgeRoom(ev.key);
+    const done = engine.nudgeRoom(ev.key, ev.shiftKey);
     if (!done) return false;
     ev.preventDefault();
     const words = done.moved

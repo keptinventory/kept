@@ -128,7 +128,6 @@ function PaperworkPage() {
     <Page
       title={t`Paperwork`}
       wide
-      tour="paperwork"
       actions={
         <LinkButton to="/expiring" size="small" variant="secondary" data-tour="paperwork-expiring">
           <ClockIcon className="size-4" />

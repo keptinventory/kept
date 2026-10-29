@@ -1,0 +1,90 @@
+configuration:
+  public_url:
+    name: Kept's address
+    description: >-
+      The address phones, printed labels and mail links use, like
+      http://homeassistant.local:8080 or https://kept.example.org. Empty: Home Assistant's host
+      name and this app's port. No path.
+  log_level:
+    name: Log detail
+    description: How much Kept writes to the Log tab.
+  smtp_url:
+    name: Outgoing mail
+    description: >-
+      An smtp:// or smtps:// URL with the account, like smtps://user:password@mail.example.org.
+      Empty: Kept sends no mail.
+  smtp_from:
+    name: Mail sender
+    description: The From of Kept's mail, like Kept <kept@example.org>.
+  ssl:
+    name: https on Kept's port
+    description: >-
+      Serve Kept's port over https with Home Assistant's certificate from /ssl. Tokens, passkeys,
+      the camera and the installable app need https. Restart the app after the certificate renews.
+  certfile:
+    name: Certificate file
+    description: The certificate's file name in /ssl.
+  keyfile:
+    name: Private key file
+    description: The private key's file name in /ssl.
+  oidc_issuer:
+    name: OIDC issuer
+    description: >-
+      Sign-in with your own identity provider: the issuer URL exactly as its discovery document
+      states it. Set with the client id, OIDC sign-in is on.
+      Redirect URL to register: Kept's address followed by /api/v1/auth/callback/oidc.
+  oidc_client_id:
+    name: OIDC client id
+    description: The client id from the identity provider.
+  oidc_client_secret:
+    name: OIDC client secret
+    description: The client secret, for a confidential client. Empty for a public client.
+  oidc_name:
+    name: OIDC button name
+    description: >-
+      The provider's name on "Sign in with …", 60 characters at most. Empty: OIDC.
+  oidc_autoprovision_domains:
+    name: OIDC sign-up by email domain
+    description: >-
+      Comma-separated email domains (exact, no subdomains) whose people get an account on their
+      first sign-in. Empty: invite only.
+  oidc_autoprovision_groups:
+    name: OIDC sign-up by group
+    description: >-
+      Comma-separated groups (exact) whose members get an account on their first sign-in. Empty:
+      invite only.
+  oidc_groups_claim:
+    name: OIDC groups claim
+    description: >-
+      The ID token claim that holds the groups. Empty: groups.
+  oidc_scopes:
+    name: OIDC scopes
+    description: >-
+      The scopes asked for, space-separated. Empty: openid email profile.
+  google_client_id:
+    name: Google client id
+    description: >-
+      Sign-in with Google, with an OAuth client from Google Cloud. Set with the secret, Google
+      sign-in is on, for existing accounts and invited people only. Google needs Kept's address on
+      https with a public domain name (not http, .local or an IP address): set Kept's address,
+      for example a DuckDNS name with https on Kept's port. Redirect URL to register: Kept's
+      address followed by /api/v1/auth/callback/google.
+  google_client_secret:
+    name: Google client secret
+    description: The OAuth client's secret.
+  apprise_url:
+    name: Apprise server
+    description: >-
+      The Apprise API server Apprise notification channels go through, like
+      http://apprise:8000. Empty: people can't add Apprise channels.
+  signup_open:
+    name: Sign-up
+    description: >-
+      true locks sign-up open, false locks it closed (invites only); the admin setting then shows
+      as locked. Unset: an admin decides in Kept (Admin → Sign-up).
+  max_file_mb:
+    name: Upload limit (MB)
+    description: >-
+      The largest file one upload may be, 1 to 2048. Empty: 25.
+network:
+  8080/tcp: Kept's own address, for phones, labels and mail links

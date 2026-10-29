@@ -151,6 +151,9 @@ describe('serving the web bundle', () => {
       ['GET', '/api/v1/nothing-here'],
       ['GET', '/api'],
       ['GET', '/assets/gone-123.js'],
+      // What's new's media (apps/web/public/whats-new/): a missing clip is a 404, not the page.
+      ['GET', '/whats-new/9.9.9/gone.mp4'],
+      ['GET', '/whats-new'],
       ['POST', '/locations'],
     ] as const) {
       const res = await app.inject({ method, url });

@@ -8,7 +8,8 @@
 // everything a phone downloads on install, under PRECACHE_BUDGET without the scanner's wasm, the
 // wasm on its own under WASM_BUDGET, index.html precached at its current content, and nothing
 // authenticated, no icon chunk (per-icon or the DynamicIcon map) and no Lingui catalogue in it:
-// those are cached on first use (vite.config.ts, sw.ts).
+// those are cached on first use (vite.config.ts, sw.ts). Nor What's new's pictures and clips
+// (public/whats-new/): fetched when the card opens.
 //
 // The on-demand rule for new screens: the precache holds only what the offline promise needs
 // (the shell, Home, browsing places and things, capture, the inbox, scan and old
@@ -42,9 +43,10 @@ export const PRECACHE_BUDGET = 3500 * 1024;
 export const WASM_BUDGET = 1_200_000;
 const WASM = /(?:^|\/)zxing_reader[^/]*\.wasm$/;
 
-/** The entry script's path relative to dist/, read from the built index.html. */
+/** The entry script's path relative to dist/, read from the built index.html (relative, `./`,
+ * since the build's base is relative, D273; absolute `/` in older builds). */
 export function entryOf(indexHtml) {
-  const m = /<script[^>]*type="module"[^>]*src="\/([^"]+\.js)"/.exec(indexHtml);
+  const m = /<script[^>]*type="module"[^>]*src="(?:\.\/|\/)([^"]+\.js)"/.exec(indexHtml);
   if (!m?.[1]) throw new Error('no module entry script in dist/index.html');
   return m[1];
 }
@@ -85,6 +87,8 @@ export function checkPrecache(dist) {
       problems.push(`icon chunk precached (sw.ts caches these on first use): ${e.url}`);
     if (e.url.startsWith('assets/locales/') || /(?:^|\/)messages-[^/]*\.js$/.test(e.url))
       problems.push(`catalogue precached (sw.ts caches the one in use): ${e.url}`);
+    if (e.url.startsWith('whats-new/'))
+      problems.push(`What's new media precached (loaded when the card opens): ${e.url}`);
     // A precached chunk may load an on-demand one (`import(…)`), never import it statically:
     // offline before its first use, the precached chunk itself would fail to load.
     if (e.url.endsWith('.js') && STATIC_HOUSEHOLD.test(readFileSync(join(dist, e.url), 'utf8')))

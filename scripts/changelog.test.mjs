@@ -1,10 +1,11 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
+  checkMedia,
   classify,
   gatherGitHub,
   ghFetcher,
@@ -137,6 +138,64 @@ describe('renderSection and insertSection', () => {
       '### Highlights\n\n- **Labels print what you see.** The preview is the sheet.\n- **Branded emails.** A logo\n  in every email.\n\n### Features',
     );
     expect(renderSection('1.3.0', '2026-10-21', commits)).not.toContain('Highlights');
+  });
+
+  it('takes a picture or a clip for a highlight, and keeps it out of view on GitHub', () => {
+    // What's new in Kept shows each highlight as a slide: a line `![icon](file)` right after a
+    // bullet names its media in apps/web/public/whats-new/X.Y.Z/ (scripts/record-whats-new.mjs).
+    const highlights = parseHighlights(
+      '- **Furniture.** A bookcase in one step (#238).\n  ![places](furniture.mp4)\n' +
+        '- **Homebox.** Fixed.\n![](homebox.webp)\n- **No picture.** Just words.\n',
+    );
+    const text = renderSection('1.14.1', '2026-10-28', [], { highlights });
+    // A comment, so the CHANGELOG on GitHub, the release page and the Discord post show no
+    // broken image; the web build reads it back (apps/web/src/whats-new/highlights.ts).
+    expect(text).toContain(
+      '- **Furniture.** A bookcase in one step (#238).\n  <!-- whats-new ![places](furniture.mp4) -->\n' +
+        '- **Homebox.** Fixed.\n  <!-- whats-new ![](homebox.webp) -->\n- **No picture.** Just words.\n',
+    );
+    expect(text).not.toMatch(/^\s*!\[/m);
+  });
+
+  it('refuses media it can’t show: before any bullet, two for one, or a name that isn’t a file', () => {
+    expect(() => parseHighlights('![](a.webp)\n- **One.** x')).toThrow(/before any bullet/);
+    expect(() => parseHighlights('- **One.** x\n![](a.webp)\n![](b.webp)')).toThrow(/one picture/);
+    expect(() => parseHighlights('- **One.** x\n![](../a.webp)')).toThrow(/media name/);
+    expect(() => parseHighlights('- **One.** x\n![](a.gif)')).toThrow(/media name/);
+    expect(() => parseHighlights('- **One.** x\n![Big Icon](a.webp)')).toThrow(/media name/);
+    expect(() => parseHighlights('- **One.** x\n![](https://example.org/a.webp)')).toThrow(
+      /media name/,
+    );
+  });
+
+  it('refuses media the release doesn’t have: no file in its folder, or no media.json entry', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'kept-media-'));
+    try {
+      const folder = path.join(dir, 'apps/web/public/whats-new/2.0.0');
+      execFileSync('mkdir', ['-p', folder]);
+      for (const f of ['shelves.mp4', 'shelves.webp', 'orphan.webp']) {
+        writeFileSync(path.join(folder, f), 'x');
+      }
+      writeFileSync(
+        path.join(folder, 'media.json'),
+        JSON.stringify({
+          'shelves.mp4': { width: 960, height: 600, poster: 'shelves.webp' },
+          'missing.webp': { width: 960, height: 600 },
+        }),
+      );
+      const ok = parseHighlights('- **A.** b\n  ![places](shelves.mp4)\n- **C.** d\n');
+      expect(() => checkMedia(ok, '2.0.0', dir)).not.toThrow();
+      const noFile = parseHighlights('- **A.** b\n  ![](missing.webp)\n');
+      expect(() => checkMedia(noFile, '2.0.0', dir)).toThrow(
+        /missing\.webp.*apps\/web\/public\/whats-new\/2\.0\.0/,
+      );
+      const noEntry = parseHighlights('- **A.** b\n  ![](orphan.webp)\n');
+      expect(() => checkMedia(noEntry, '2.0.0', dir)).toThrow(/orphan\.webp.*media\.json/);
+      // A release with no media named needs no folder.
+      expect(() => checkMedia(parseHighlights('- **A.** b'), '2.0.1', dir)).not.toThrow();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it('refuses a highlights file with no bullets or with headings of its own', () => {
@@ -320,6 +379,16 @@ describe('changelog.mjs over a fixture history', () => {
     commit('Tidy the spike folder');
   });
   afterAll(() => rmSync(dir, { recursive: true, force: true }));
+
+  it('stops when a highlight names media the release folder doesn’t have, writing nothing', () => {
+    const file = path.join(dir, 'CHANGELOG-media.md');
+    const highlights = path.join(dir, 'highlights-media.md');
+    writeFileSync(highlights, '- **Snapshots.** Restic every night.\n  ![](snapshots.mp4)\n');
+    const r = run('--version', '1.0.0', '--highlights', highlights, '--write', file);
+    expect(r.status).toBe(1);
+    expect(r.stderr).toMatch(/snapshots\.mp4/);
+    expect(existsSync(file)).toBe(false);
+  });
 
   it('writes the section since the tag, grouped, into CHANGELOG.md, the same on a second run', () => {
     const file = path.join(dir, 'CHANGELOG.md');

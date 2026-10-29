@@ -12,9 +12,10 @@ import { useLingui } from '@lingui/react/macro';
 import { useLocation } from '@tanstack/react-router';
 import { useState } from 'react';
 import { LabelLink } from '@/components/scan/label-link';
+import { publicOrigin } from '@/lib/base-path';
 
 /** The label's URL as printed, on this host (only the path matters: D120, D146). */
-export function legacyLabelUrl(pathname: string, origin = window.location.origin): string {
+export function legacyLabelUrl(pathname: string, origin = publicOrigin()): string {
   return new URL(pathname, origin).href;
 }
 

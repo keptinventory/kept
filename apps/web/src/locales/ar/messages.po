@@ -18,6 +18,27 @@ msgstr " و"
 msgid ", "
 msgstr "، "
 
+#: src/components/ops/status-tiles.tsx
+#: src/routes/_app/admin.backups.tsx
+msgid "Home Assistant backs up Kept"
+msgstr "يأخذ Home Assistant نسخًا احتياطية من Kept"
+
+#: src/routes/_app/admin.backups.tsx
+msgid "Home Assistant backs up Kept: the database, photos and files, and Kept's keys. Take or schedule backups in Home Assistant → {place}."
+msgstr "يأخذ Home Assistant نسخًا احتياطية من Kept: قاعدة البيانات والصور والملفات ومفاتيح Kept. أنشئ النسخ الاحتياطية أو جدولها في Home Assistant ← {place}."
+
+#: src/components/ops/home-assistant-backups.tsx
+msgid "Settings → System → Backups"
+msgstr "الإعدادات ← النظام ← النسخ الاحتياطية"
+
+#: src/components/ops/backup-target-form.tsx
+msgid "Home Assistant backs up Kept here: take or schedule backups in Home Assistant."
+msgstr "هنا يأخذ Home Assistant نسخًا احتياطية من Kept: أنشئ النسخ الاحتياطية أو جدولها في Home Assistant."
+
+#: src/components/ops/status-tiles.tsx
+msgid "Take or schedule them in Home Assistant → {place}."
+msgstr "أنشئها أو جدولها في Home Assistant ← {place}."
+
 #: src/components/home/checklist.tsx
 msgid "Any provider that offers SMTP works, such as your email provider's app password or a sending service. Admin → Status shows Sending once it's on."
 msgstr "أي مزوّد يقدّم SMTP يصلح، مثل كلمة مرور تطبيق من مزوّد بريدك أو خدمة إرسال. تعرض الإدارة ← الحالة «يُرسل» عند تشغيله."
@@ -2275,6 +2296,7 @@ msgid "Contents"
 msgstr "المحتويات"
 
 #: src/components/places/contents-list.tsx
+#: src/components/places/tree.tsx
 msgid "Contents of {name}"
 msgstr "محتويات «{name}»"
 
@@ -20473,6 +20495,10 @@ msgid "The database dump failed. The server's log has the details."
 msgstr "فشل تفريغ قاعدة البيانات. التفاصيل في سجل الخادم."
 
 #: src/components/ops/ops-words.ts
+msgid "The backup stopped before it finished: the server restarted or ran out of memory. The next backup runs as usual."
+msgstr "توقّفت النسخة الاحتياطية قبل أن تكتمل: أُعيد تشغيل الخادم أو نفدت ذاكرته. تجري النسخة الاحتياطية التالية كالمعتاد."
+
+#: src/components/ops/ops-words.ts
 msgid "The database dump tool doesn't match the database's version. Use Kept's own image."
 msgstr "أداة تفريغ قاعدة البيانات لا تطابق إصدار قاعدة البيانات. استخدم صورة Kept نفسها."
 
@@ -27680,8 +27706,8 @@ msgid "Done ({done})"
 msgstr "مُنجز ({done})"
 
 #: src/components/hints/hint-copy.ts
-msgid "One chapter per section. Tap one to start there, or tap Show me on its page."
-msgstr "فصل لكل قسم. اضغط أحدها لتبدأ منه، أو اضغط أرِني في صفحته."
+msgid "One chapter per section. Tap one to start there."
+msgstr "فصل لكل قسم. اضغط أحدها لتبدأ منه."
 
 #: src/components/hints/hint-copy.ts
 msgid "Move it, lend it, print its label or move it to the Trash."
@@ -27742,6 +27768,18 @@ msgstr "كل صيانة بتكلفتها. اضغط واحدة لتفتحها ك�
 #: src/components/hints/hint-copy.ts
 msgid "Graph & 3D map"
 msgstr "الرسم البياني والخريطة ثلاثية الأبعاد"
+
+#: src/components/whats-new.tsx
+msgid "Play"
+msgstr "تشغيل"
+
+#: src/components/whats-new.tsx
+msgid "Slide {n} of {total}: {title}"
+msgstr "الشريحة {n} من {total}: {title}"
+
+#: src/components/whats-new.tsx
+msgid "Slide {n} of {total}"
+msgstr "الشريحة {n} من {total}"
 
 #: src/components/whats-new.tsx
 msgid "What's new in Kept"
@@ -27997,3 +28035,255 @@ msgstr "نوع «{title}»"
 #: src/components/history/labels.ts
 msgid "Paperless document changed"
 msgstr "عُدّل مستند من Paperless"
+
+#: src/components/history/labels.ts
+msgid "Read a floor plan"
+msgstr "قُرئ مخطط طابق"
+
+#: src/components/history/labels.ts
+msgid "Discarded a floor plan"
+msgstr "أُلغي مخطط طابق"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Added # room from a floor plan} other {Added # rooms from a floor plan}}"
+msgstr "{count, plural, zero {لم تُضف غرف من مخطط طابق} one {أُضيفت غرفة واحدة من مخطط طابق} two {أُضيفت غرفتان من مخطط طابق} few {أُضيفت # غرف من مخطط طابق} many {أُضيفت # غرفة من مخطط طابق} other {أُضيفت # غرفة من مخطط طابق}}"
+
+#: src/components/ai/labels.ts
+msgid "Floor plans"
+msgstr "مخططات الطوابق"
+
+#: src/map/map-view.tsx
+msgid "{n, plural, one {Added # room from the plan} other {Added # rooms from the plan}}"
+msgstr "{n, plural, zero {لم تُضف غرف من المخطط} one {أُضيفت غرفة واحدة من المخطط} two {أُضيفت غرفتان من المخطط} few {أُضيفت # غرف من المخطط} many {أُضيفت # غرفة من المخطط} other {أُضيفت # غرفة من المخطط}}"
+
+#: src/map/map-view.tsx
+msgid "Someone arranged this map since you started. Load it again; your rooms stay to add."
+msgstr "رتّب أحدٌ هذه الخريطة منذ بدأت. حمّلها من جديد؛ تبقى غرفك جاهزة للإضافة."
+
+#: src/map/map-view.tsx
+msgid "Discard this plan?"
+msgstr "أتتجاهل هذا المخطط؟"
+
+#: src/map/map-view.tsx
+msgid "Nothing is added. The plan is deleted."
+msgstr "لا يُضاف شيء، ويُحذف المخطط."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Couldn’t read this plan."
+msgstr "تعذّرت قراءة هذا المخطط."
+
+#: src/map/map-view.tsx
+msgid "Dashed rooms are from the plan and not added yet. Drag to move one; drag its corner to resize it."
+msgstr "الغرف المتقطّعة الحدود من المخطط ولم تُضف بعد. اسحب غرفة لتنقلها، واسحب ركنها لتغيّر مقاسها."
+
+#: src/map/map-view.tsx
+msgid "{0, plural, one {Add # room} other {Add # rooms}}"
+msgstr "{0, plural, zero {لا غرف للإضافة} one {أضف غرفة واحدة} two {أضف غرفتين} few {أضف # غرف} many {أضف # غرفة} other {أضف # غرفة}}"
+
+#: src/map/map-view.tsx
+msgid "Show the plan"
+msgstr "أظهر المخطط"
+
+#: src/map/map-view.tsx
+msgid "Turn the rooms"
+msgstr "أدر الغرف"
+
+#: src/map/map-view.tsx
+msgid "From a plan"
+msgstr "من مخطط"
+
+#: src/map/map-view.tsx
+msgid "<0>{room}</0>, from the plan, not added, {w} by {d} metres"
+msgstr "<0>{room}</0>، من المخطط، لم تُضف، {w} في {d} متر"
+
+#: src/map/floor-plan/notices.tsx
+msgid "No rooms on the map yet"
+msgstr "لا غرف على الخريطة بعد"
+
+#: src/map/floor-plan/notices.tsx
+msgid "Start from a floor plan, or draw the rooms yourself."
+msgstr "ابدأ من مخطط طابق، أو ارسم الغرف بنفسك."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Start from a floor plan"
+msgstr "ابدأ من مخطط طابق"
+
+#: src/map/floor-plan/notices.tsx
+msgid "For a PDF, try a screenshot of the plan."
+msgstr "إن كان ملف PDF، فجرّب لقطة شاشة للمخطط."
+
+#: src/map/floor-plan/notices.tsx
+msgid "This doesn’t look like a floor plan."
+msgstr "لا يبدو هذا مخطط طابق."
+
+#: src/map/floor-plan/notices.tsx
+msgid "No rooms found on this plan."
+msgstr "لم توجد غرف في هذا المخطط."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Draw rooms yourself"
+msgstr "ارسم الغرف بنفسك"
+
+#: src/map/floor-plan/notices.tsx
+msgid "A floor plan is ready to check."
+msgstr "مخطط طابق جاهز للمراجعة."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Check it"
+msgstr "راجعه"
+
+#: src/map/floor-plan/notices.tsx
+msgid "Reading the plan…"
+msgstr "يُقرأ المخطط…"
+
+#: src/map/floor-plan/notices.tsx
+msgid "You can leave; the plan waits on the map."
+msgstr "يمكنك المغادرة؛ ينتظرك المخطط على الخريطة."
+
+#: src/map/floor-plan/panel.tsx
+msgid "<0>{room}</0> is…"
+msgstr "مقاس <0>{room}</0>…"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Width (m)"
+msgstr "العرض (م)"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Depth (m)"
+msgstr "العمق (م)"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Rescale"
+msgstr "أعد القياس"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from {room}’s size"
+msgstr "المقياس من مقاس {room}"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Sizes from the plan: {n} of {m} rooms agree"
+msgstr "المقاسات من المخطط: {n} من {m} متّفقة"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from the plan’s scale bar"
+msgstr "المقياس من شريط مقياس المخطط"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from the doors, taken as 80 cm wide: check one room"
+msgstr "المقياس من الأبواب، بعرض ٨٠ سم لكلٍّ منها: راجع غرفة واحدة"
+
+#: src/map/floor-plan/panel.tsx
+msgid "No sizes on the plan: these are a guess"
+msgstr "لا مقاسات في المخطط: هذه تقديرات"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Rooms from the plan"
+msgstr "غرف من المخطط"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Set a room’s size"
+msgstr "حدّد مقاس غرفة"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Kept read the first 60 rooms. Add the rest by drawing."
+msgstr "قرأ Kept أول ٦٠ غرفة. أضف الباقي بالرسم."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Keep the plan with <0>{location}</0>"
+msgstr "احتفظ بالمخطط مع <0>{location}</0>"
+
+#: src/map/floor-plan/panel.tsx
+msgid "A new floor"
+msgstr "طابق جديد"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under 1 m: too small for the map."
+msgstr "أقل من ١ م: أصغر من أن تظهر على الخريطة."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Already on the map."
+msgstr "على الخريطة بالفعل."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Uses your <0>{existing}</0>"
+msgstr "تستخدم «<0>{existing}</0>» لديك"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Make a new room"
+msgstr "أنشئ غرفة جديدة"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Not a rectangle: drawn as its largest part."
+msgstr "ليست مستطيلًا: رُسم أكبر جزء منها."
+
+#: src/map/floor-plan/panel.tsx
+msgid "The plan says <0>{size}</0>."
+msgstr "يذكر المخطط <0>{size}</0>."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Name unclear on the plan."
+msgstr "الاسم غير واضح في المخطط."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Add {room}"
+msgstr "أضف {room}"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "A photo, a screenshot or a PDF of a plan. Kept reads the rooms and their sizes; you check them before anything is added."
+msgstr "صورة أو لقطة شاشة أو ملف PDF لمخطط. يقرأ Kept الغرف ومقاساتها، وتراجعها أنت قبل أن يُضاف أي شيء."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Use a sample floor plan"
+msgstr "استخدم مخطط طابق تجريبيًا"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Choose a file"
+msgstr "اختر ملفًا"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "The plan you chose"
+msgstr "المخطط الذي اخترته"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Turn the plan a quarter turn"
+msgstr "أدر المخطط ربع دورة"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Only the first page is read."
+msgstr "تُقرأ الصفحة الأولى فقط."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Up to ~{tokens} tokens"
+msgstr "حتى ~{tokens} رمز"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Kept sends the plan, without its location data, to <0>{name}</0>. It is deleted when you finish, unless you keep it."
+msgstr "يرسل Kept المخطط، دون بيانات موقعه، إلى <0>{name}</0>. ويُحذف حين تنتهي، إلا إن احتفظت به."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Read the plan"
+msgstr "اقرأ المخطط"
+
+#: src/map/map-view.tsx
+msgid "Someone else added or discarded this plan."
+msgstr "أضاف شخص آخر غرف هذا المخطط أو ألغاه."
+
+#: src/components/places/tree.tsx
+msgid "Fold all"
+msgstr "طيّ الكل"
+
+#: src/components/places/tree.tsx
+msgid "Open all"
+msgstr "توسيع الكل"
+
+#: src/routes/setup.tsx
+msgid "Set up by a Home Assistant administrator"
+msgstr "يُعِدّه مسؤول Home Assistant"
+
+#: src/routes/setup.tsx
+msgid "Your setup code is on the app's Log tab in Home Assistant."
+msgstr "رمز الإعداد في تبويب «السجل» الخاص بالتطبيق في Home Assistant."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Running as a Home Assistant app"
+msgstr "يعمل كتطبيق في Home Assistant"

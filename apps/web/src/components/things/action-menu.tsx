@@ -45,6 +45,7 @@ import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
 import { toast } from '@/components/ui/toast';
 import { addressOf } from '@/lib/address';
+import { publicOrigin } from '@/lib/base-path';
 import { copyText } from '@/lib/clipboard';
 import { cn } from '@/lib/utils';
 import { useSetArchived } from './archive';
@@ -79,7 +80,8 @@ export function useCopyLink() {
   return async () => {
     try {
       // The short-ID address when there is one (D208).
-      await copyText(`${window.location.origin}/t/${addressOf(thing)}`);
+      // Kept's own address, never Home Assistant's under ingress (D273).
+      await copyText(`${publicOrigin()}/t/${addressOf(thing)}`);
       toast({ title: t`Link copied`, tone: 'ok' });
     } catch {
       toast({

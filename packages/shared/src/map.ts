@@ -41,6 +41,16 @@ export const ROOM_KIND_SURFACE: Readonly<Record<MapRoomKind, MapSurface>> = {
   garden: 'grass',
 };
 
+/** A room nobody gave a kind: a garden, balcony or terrace by its name, else a room (the map's
+ * auto layout, and a floor plan's rooms, D266). */
+export function defaultRoomKind(name: string): MapRoomKind {
+  const n = name.toLowerCase();
+  if (/\b(garden|yard|lawn)\b/.test(n)) return 'garden';
+  if (/\bbalcon/.test(n)) return 'balcony';
+  if (/\b(terrace|roof|patio|deck)\b/.test(n)) return 'terrace';
+  return 'room';
+}
+
 export const MAP_TURNS = [0, 90, 180, 270] as const;
 export type MapTurn = (typeof MAP_TURNS)[number];
 

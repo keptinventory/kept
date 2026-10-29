@@ -3,12 +3,17 @@
  * settings, the form's write-only and locked fields, the recovery kit's gate, Test, Run now, the
  * runs list's filters in the URL, plain HTTP, a member, and Arabic.
  */
-import { screen, waitFor, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { renderHook, screen, waitFor, within } from '@testing-library/react';
+import type { ReactNode } from 'react';
+import { afterEach, describe, expect, it } from 'vitest';
+import { ApiError } from '@/api/client';
 import { memberScenario, ownerScenario } from '@/api/mock/fixtures';
 import { reply } from '@/api/mock/kit';
 import { ops, setOpsScenario } from '@/api/ops/mock/state';
 import { opsPaths } from '@/api/ops/paths';
+import { AppProviders } from '@/app-providers';
+import { useBackupErrorText } from '@/components/ops/backup-target-form';
+import { activateLocale } from '@/i18n/i18n';
 import { renderApp } from '@/test/app';
 import { expectLogicalOnly } from '@/test/render';
 
@@ -176,6 +181,57 @@ describe('Admin → Backups', () => {
     ops(state).updates = { ...ops(state).updates, locked: true };
     await renderApp('/admin/settings', { state });
     expect(await screen.findByRole('switch', { name: /Check for new versions/ })).toBeDisabled();
+  });
+
+  describe('in the Home Assistant app', () => {
+    const appState = () => {
+      const state = ownerScenario();
+      state.admin.status.homeAssistant = true;
+      return state;
+    };
+    afterEach(() => {
+      document.head.querySelector('meta[name="kept-ingress"]')?.remove();
+    });
+
+    it('says Home Assistant backs Kept up, with no target, Test, Run now or runs', async () => {
+      await renderApp('/admin/backups', { state: appState() });
+      expect(await screen.findByText('Home Assistant backs up Kept')).toBeInTheDocument();
+      expect(
+        screen.getByText(/the database, photos and files, and Kept's keys/),
+      ).toBeInTheDocument();
+      for (const name of ['Edit', 'Test', 'Run now', 'Save']) {
+        expect(screen.queryByRole('button', { name })).not.toBeInTheDocument();
+      }
+      expect(screen.queryByText('Runs')).not.toBeInTheDocument();
+      expect(screen.queryByText('No backup configured')).not.toBeInTheDocument();
+      expect(screen.queryByText(/Last good backup/)).not.toBeInTheDocument();
+      // On Kept's own address Home Assistant's address isn't known: the words, no link.
+      expect(screen.getByText(/Settings → System → Backups/)).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /Settings → System → Backups/ })).toBeNull();
+    });
+
+    it('puts the refusal in words, should a request still get one', async () => {
+      await activateLocale('en');
+      const wrapper = ({ children }: { children: ReactNode }) => (
+        <AppProviders locale="en">{children}</AppProviders>
+      );
+      const { result } = renderHook(() => useBackupErrorText(), { wrapper });
+      const refusal = new ApiError(409, 'home_assistant_backups', 'x');
+      expect(result.current(refusal)).toBe(
+        'Home Assistant backs up Kept here: take or schedule backups in Home Assistant.',
+      );
+    });
+
+    it('links to Home Assistant’s backups in the top window from the sidebar', async () => {
+      const meta = document.createElement('meta');
+      meta.name = 'kept-ingress';
+      meta.content = '1';
+      document.head.append(meta);
+      await renderApp('/admin/backups', { state: appState() });
+      const link = await screen.findByRole('link', { name: 'Settings → System → Backups' });
+      expect(link).toHaveAttribute('href', `${window.location.origin}/config/backup`);
+      expect(link).toHaveAttribute('target', '_top');
+    });
   });
 
   it('is for instance admins only', async () => {

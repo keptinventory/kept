@@ -27,14 +27,9 @@ import { runMigrations } from '../db/migrate.js';
 import { closePools, createPools } from '../db/pools.js';
 import { logMailer, type Mailer } from '../mail/mailer.js';
 import { createMailer, profileLocaleLookup } from '../mail/transport.js';
-import { formatSeedReport, SeedError } from '../seed/households.js';
-import {
-  assertSeedAllowed,
-  runSeed,
-  SCENARIOS,
-  type Scenario,
-  SeedRefused,
-} from '../seed/index.js';
+// The seed builds a whole Kept app (seed/index.ts): loaded only by `kept admin seed`, so every
+// other command starts without it (about 44 MiB less, measured on 1.14.2).
+import { SCENARIOS, type Scenario } from '../seed/scenarios.js';
 import { setupCodeLine } from '../setup/setup-code.js';
 import { createFileStorage } from '../storage/create.js';
 import { backfillPdfTextCommand } from './backfill-pdf-text.js';
@@ -99,6 +94,20 @@ function cliMailer(env: ReturnType<typeof loadAdminEnv>): Mailer {
   };
 }
 
+/**
+ * Whether `kept migrate` skips the pre-upgrade snapshot: `--skip-snapshot`,
+ * KEPT_UPGRADE_SNAPSHOT=off, or the Home Assistant app (KEPT_HA=1, D272). The app has no target to
+ * snapshot to (Admin → Backups refuses one: Home Assistant's backups hold Kept, and Home Assistant
+ * offers one before an update), so a snapshot would only log "NO BACKUP IS CONFIGURED" and leave
+ * Admin → Status saying it upgraded without a backup, on every update.
+ */
+export function skipUpgradeSnapshot(
+  flag: boolean | undefined,
+  raw: Record<string, string | undefined>,
+): boolean {
+  return flag === true || raw.KEPT_UPGRADE_SNAPSHOT === 'off' || raw.KEPT_HA === '1';
+}
+
 export function buildCli(): Command {
   const program = new Command();
   program.name('kept').description('Kept operator CLI');
@@ -119,7 +128,7 @@ export function buildCli(): Command {
       // backup credentials with them).
       const { ownerUrl } = loadMigrateEnv();
       const raw = process.env;
-      const skip = opts.skipSnapshot === true || raw.KEPT_UPGRADE_SNAPSHOT === 'off';
+      const skip = skipUpgradeSnapshot(opts.skipSnapshot, raw);
       const outcome = await runMigrations(ownerUrl, {
         release: { version: KEPT_VERSION, revision: raw.KEPT_REVISION ?? null },
         allowDowngrade: opts.allowDowngrade === true || raw.KEPT_ALLOW_DOWNGRADE === '1',
@@ -262,6 +271,8 @@ export function buildCli(): Command {
     .option('--scenario <name>', `one of: ${SCENARIOS.join(', ')}`, 'households')
     .option('--things <n>', 'bench: things in the largest location', '10000')
     .action(async (opts: { scenario: string; things: string }) => {
+      const { assertSeedAllowed, runSeed } = await import('../seed/index.js');
+      const { formatSeedReport, SeedError } = await import('../seed/households.js');
       assertSeedAllowed(process.env.NODE_ENV);
       if (!(SCENARIOS as readonly string[]).includes(opts.scenario)) {
         throw new SeedError(`unknown scenario ${opts.scenario}; one of: ${SCENARIOS.join(', ')}`);
@@ -505,6 +516,12 @@ export function isEntrypoint(moduleUrl: string, argv1: string | undefined = proc
   }
 }
 
+/** The seed's refusals (seed/client.ts SeedError, seed/index.ts SeedRefused), by name: the seed's
+ * modules are loaded only when it runs. */
+function isSeedError(err: unknown): err is Error {
+  return err instanceof Error && (err.name === 'SeedError' || err.name === 'SeedRefused');
+}
+
 // Only auto-run when this file is the process entrypoint, not when a test imports it.
 if (isEntrypoint(import.meta.url)) {
   // Password-less database URLs take their password from the bootstrap's files, before any
@@ -520,8 +537,7 @@ if (isEntrypoint(import.meta.url)) {
           err instanceof RestoreError ||
           err instanceof ExportError ||
           err instanceof PgToolError ||
-          err instanceof SeedError ||
-          err instanceof SeedRefused
+          isSeedError(err)
           ? `kept: ${err.message}`
           : err,
       );

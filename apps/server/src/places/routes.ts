@@ -5,6 +5,7 @@ import { locationOfPlace } from '../http/modules.js';
 import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 import { requireMembership } from '../locations/access.js';
+import { placeFoldRoutes } from './folds.js';
 import {
   CONVERT_REFUSALS,
   ConvertBody,
@@ -67,6 +68,8 @@ import {
 //                                                  (the place in Custom order, else 409)
 // POST   /api/v1/places/:id/label                 (labels module) → {code}
 //
+// GET/PUT /api/v1/locations/:locationId/place-folds: the outline's folds (#358), folds.ts.
+//
 // PATCH's `place.update` and `place.move` events are undoable for 7 days through
 // POST /api/v1/audit/:eventId/undo (undo.ts registers their handlers).
 
@@ -89,6 +92,8 @@ function optionalIfMatch(req: Parameters<typeof requireIfMatch>[0]): number | nu
 export async function placeRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools, jobs, files } = deps;
   registerPlaceUndo();
+  // #358: the person's folded places in the outline (folds.ts).
+  await placeFoldRoutes(app, deps);
   const ctx = (
     tx: Ctx['tx'],
     client: Ctx['client'],

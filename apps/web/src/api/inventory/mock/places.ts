@@ -19,6 +19,8 @@ import type {
   DerivedState,
   MergePlaceBody,
   PlaceContents,
+  PlaceFolds,
+  PlaceFoldsChange,
   PlaceView,
   ReorderBody,
   TrashBody,
@@ -104,6 +106,33 @@ export function placesRoutes(state: MockState): MockRoute[] {
         .map((pl) => placeNodeOf(inv(), pl))
         .sort(comparePlaceSiblings);
       return { places, boxes: boxNodesOf(inv(), locationId) };
+    }),
+
+    // #358: the outline's folds, the server's way: a member's own, and only the location's places.
+    route('GET', p.placeFolds(':locationId'), ({ params }) => {
+      const gate = sessionGate(state);
+      if (gate) return gate;
+      const locationId = params.locationId ?? '';
+      if (!access().visible(locationId)) return notFound();
+      return { placeIds: inv().placeFolds?.[locationId] ?? [] } satisfies PlaceFolds;
+    }),
+    // A change, as the server takes it: fold these, open those, leave the rest.
+    route('PUT', p.placeFolds(':locationId'), ({ params, body }) => {
+      const gate = sessionGate(state);
+      if (gate) return gate;
+      const locationId = params.locationId ?? '';
+      if (!access().visible(locationId)) return notFound();
+      const { fold, open } = body as PlaceFoldsChange;
+      const here = new Set(
+        inv()
+          .places.filter((pl) => pl.locationId === locationId)
+          .map((pl) => pl.id),
+      );
+      const next = new Set(inv().placeFolds?.[locationId] ?? []);
+      for (const id of open) next.delete(id);
+      for (const id of fold) if (here.has(id)) next.add(id);
+      inv().placeFolds = { ...inv().placeFolds, [locationId]: [...next] };
+      return reply(204);
     }),
 
     route('POST', p.locationPlaces(':locationId'), ({ params, body }) => {

@@ -66,3 +66,24 @@ release_tags() {
     fi
   done
 }
+
+# The Home Assistant app's image (D272) gets one tag, X.Y.Z: the app's config.yaml names exactly
+# that, and a Home Assistant update is always to an exact version. Signed like the main image.
+release_tag_ha() {
+  say "6b. tag $ha_registry:$version from $ha_index_digest"
+  local got
+  docker buildx imagetools create ${it_builder[@]+"${it_builder[@]}"} -t "$ha_registry:$version" \
+    "$ha_registry@$ha_index_digest" >"$work/tag-ha.log" 2>&1 || {
+    cat "$work/tag-ha.log" >&2
+    die "imagetools create failed (Home Assistant image)"
+  }
+  got=$(docker buildx imagetools inspect ${it_builder[@]+"${it_builder[@]}"} --format '{{json .Manifest}}' "$ha_registry:$version" |
+    node -e 'let s = ""; process.stdin.on("data", (d) => (s += d)).on("end", () => process.stdout.write(JSON.parse(s).digest ?? ""))')
+  [[ $got == "$ha_index_digest" ]] || die "$ha_registry:$version points at $got, not $ha_index_digest"
+  if [[ -n ${unsigned:-} ]]; then
+    note "$ha_registry:$version → $ha_index_digest (unsigned)"
+  else
+    release_verify_signature "$ha_registry:$version"
+    note "$ha_registry:$version → $ha_index_digest, signature verified"
+  fi
+}

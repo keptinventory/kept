@@ -39,6 +39,7 @@ import { Combobox } from '@/components/ui/combobox';
 import { Segmented } from '@/components/ui/segmented';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/components/ui/toast';
+import { hashHref } from '@/lib/base-path';
 import { useLocationName, useModuleLabels } from '@/lib/labels';
 import { useMediaQuery, WIDE } from '@/lib/media';
 import { useOnline } from '@/lib/online';
@@ -360,7 +361,7 @@ export function KindsByLocation({ settings }: { settings: NotificationSettings }
       )}
 
       <p className="m-0 text-small">
-        <a href="#channels" className="text-info underline-offset-2 hover:underline">
+        <a href={hashHref('channels')} className="text-info underline-offset-2 hover:underline">
           <Trans>Add more channels</Trans>
         </a>
       </p>

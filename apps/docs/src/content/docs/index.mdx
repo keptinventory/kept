@@ -25,6 +25,7 @@ import Section from '../../components/landing/Section.astro';
 import Cards from '../../components/landing/Cards.astro';
 import Opened from '../../components/landing/Opened.astro';
 import Integrations from '../../components/landing/Integrations.astro';
+import HomeAssistantButton from '../../components/HomeAssistantButton.astro';
 import Gallery from '../../components/landing/Gallery.astro';
 import LoopClip from '../../components/landing/LoopClip.astro';
 import clipDarkMp4 from '../../assets/clips/map-add-tv-short-dark.mp4?url';
@@ -91,6 +92,7 @@ import clipWebm from '../../assets/clips/map-add-tv-short.webm?url';
 
 <Section eyebrow="Integrations" title="What feeds into Kept" id="integrations">
   <Integrations />
+  <p class="kd-ha-row"><HomeAssistantButton /></p>
 </Section>
 
 <Section eyebrow="A look around" title="The screens" id="screens">
@@ -119,7 +121,7 @@ import clipWebm from '../../assets/clips/map-add-tv-short.webm?url';
     heading="h3"
     items={[
       { icon: 'license', title: 'Open source', body: 'AGPL-3.0. Code and releases on GitHub.', href: 'https://github.com/keptinventory/kept' },
-      { icon: 'server', title: 'Self-hosted', body: 'One container, Postgres. 2 GB RAM, 2 cores.', href: '/install/hardware/' },
+      { icon: 'server', title: 'Self-hosted', body: 'One container, Postgres. Tested on 1 GB, 1 core.', href: '/install/hardware/' },
       { icon: 'private', title: 'No telemetry', body: 'AI optional. Your provider, or none.', href: '/admin/security-model/#what-leaves-the-server' },
       { icon: 'signature', title: 'Signed releases', body: 'cosign signatures and an SBOM.', href: '/admin/verify-release/' },
       { icon: 'backup', title: 'Nightly backups', body: 'Encrypted restic. Disk, S3 or SFTP.', href: '/admin/backups/' },

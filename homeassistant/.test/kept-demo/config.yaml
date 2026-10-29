@@ -1,0 +1,40 @@
+# TEST ONLY, never listed (a dot folder: the Supervisor skips it, and so does
+# scripts/check-ha-app.mjs). The Kept app with the `households` demo data loaded on its first start
+# (KEPT_HA_DEMO, docker/ha/kept-ha-start): four locations, 62 things, a car, loans; every password
+# is kept-seed-password. For the Home Assistant OS test run and the clip (the app spec's §15.2, Q10):
+# copy this folder to /addons/kept-demo on the test machine and install "Kept (demo data)" from
+# Local apps. A person can't set an app's environment from Home Assistant, so a normal install never
+# loads it.
+name: Kept (demo data)
+version: "1.14.1"
+slug: kept_demo
+description: TEST ONLY. Kept with demo data on its first start.
+image: ghcr.io/keptinventory/kept-ha
+arch:
+  - aarch64
+  - amd64
+init: true
+startup: application
+stage: experimental
+timeout: 60
+environment:
+  KEPT_HA_DEMO: households
+ports:
+  8080/tcp: 8080
+webui: "http://[HOST]:[PORT:8080]/"
+watchdog: "http://[HOST]:[PORT:8080]/readyz"
+backup: hot
+backup_pre: /usr/local/bin/kept-ha-backup
+backup_exclude:
+  - "postgres/*"
+  - "kept/.cache/*"
+ingress: true
+ingress_port: 8080
+ingress_stream: true
+panel_icon: mdi:package-variant-closed
+panel_admin: false
+options:
+  log_level: info
+schema:
+  public_url: "url?"
+  log_level: "list(debug|info|warn|error)"

@@ -6,6 +6,7 @@
 import { describe, expect, it } from 'vitest';
 import { seedKitSample } from '../household/mock/handovers';
 import { INV_IDS } from '../inventory/mock/fixtures';
+import { paperlessPaths } from '../paperless/paths';
 import { ensureVehiclesSeeded } from '../vehicles/mock/state';
 import { IDS, ownerScenario } from './fixtures';
 import { SHOWCASE_DRAFT_NAME, SHOWCASE_FLOORS, showcaseHousehold } from './showcase';
@@ -65,5 +66,19 @@ describe('showcaseHousehold', () => {
       expect(parentOf(state, id)).toBe(SHOWCASE_FLOORS.upstairs);
     // What sits inside a room stays in it.
     expect(parentOf(state, P.deskDrawer)).toBe(P.office);
+  });
+
+  it('connects the Garage to Paperless once, with the drill’s two documents', async () => {
+    const state = ownerScenario();
+    showcaseHousehold(state);
+    showcaseHousehold(state);
+    const { createMockApi } = await import('./server');
+    const api = createMockApi(state);
+    const res = await api.fetch(
+      `${paperlessPaths.links()}?thingId=${encodeURIComponent(INV_IDS.thing.drill)}`,
+    );
+    const body = (await res.json()) as { connected: boolean; items: { title: string }[] };
+    expect(body.connected).toBe(true);
+    expect(body.items.map((l) => l.title)).toEqual(['Bosch drill receipt', 'Bosch GSB 18V manual']);
   });
 });

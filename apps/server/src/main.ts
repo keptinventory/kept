@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { KEPT_VERSION } from '@kept/shared';
 import type { FastifyBaseLogger } from 'fastify';
@@ -309,6 +310,7 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
         mail: authMail(mailer),
         onUserCreated: accounts.onUserCreated,
         enrolmentNeedsVerifiedEmail: mail.configured,
+        ingress: env.KEPT_HA,
         revokeTokensOnClaim: (userId) => revokeTokensOnClaim(pools.system, userId),
         onBackgroundError: (err, what) =>
           logger.error({ err, what }, 'auth background task failed'),
@@ -324,10 +326,20 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
             }),
         },
       });
+      // https served by Kept itself (the Home Assistant app's `ssl` option): read once at start,
+      // so a renewed certificate needs a restart.
+      const tls =
+        env.KEPT_TLS_CERT_FILE && env.KEPT_TLS_KEY_FILE
+          ? {
+              cert: await readFile(env.KEPT_TLS_CERT_FILE),
+              key: await readFile(env.KEPT_TLS_KEY_FILE),
+            }
+          : null;
       app = await buildApp({
         env,
         pools,
         logger,
+        tls,
         build: opts.build ?? { version: KEPT_VERSION, revision: process.env.KEPT_REVISION ?? null },
         web,
         auth,

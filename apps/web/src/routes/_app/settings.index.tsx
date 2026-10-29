@@ -63,7 +63,7 @@ function MePage() {
   const { via, error } = Route.useSearch();
   const user = me.data?.user;
   return (
-    <Page title={t`Settings`} tour="settings">
+    <Page title={t`Settings`}>
       <SettingsTabs />
       {user ? (
         <div className="flex items-center gap-3 rounded-[10px] border border-line bg-surface p-3.5">

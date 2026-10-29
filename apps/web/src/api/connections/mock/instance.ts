@@ -78,6 +78,7 @@ export function instanceMockRoutes(state: MockState): MockRoute[] {
       needed: state.setupNeeded,
       oidc: s().oidc.configured && s().oidc.name ? { name: s().oidc.name } : null,
       ...(s().google.configured ? { google: true } : {}),
+      ...(state.homeAssistant ? { homeAssistant: state.homeAssistant } : {}),
     })),
     // Better Auth's generic-OAuth start: `{provider, callbackURL, errorCallbackURL}`
     // → `{url}` at the IdP. The mock's IdP is a placeholder; tests stub the navigation.

@@ -33,6 +33,7 @@ import { PgToolError, type PgTools, redact } from './pg-tools.js';
 import { openRepo } from './restic/repo.js';
 import { type Restic, ResticError } from './restic/restic.js';
 import {
+  BACKUP_LOCK_KEY,
   BACKUP_RUN_COLUMNS,
   type BackupRunRow,
   backupRunOf,
@@ -76,8 +77,8 @@ import { sizeCheck, watchedRows } from './size-check.js';
 // recorded as codes. Secret values are in the dump as the sealed ciphertexts they are in the
 // database; the recovery kit's keys open them after a restore.
 
-/** pg_try_advisory_lock key of a running backup ('kbup'). */
-export const BACKUP_LOCK_KEY = 0x6b627570;
+// The lock and its check live in runs.ts (the routes read them too); re-exported here.
+export { BACKUP_LOCK_KEY, backupLockHeld } from './runs.js';
 
 /** The stable directory a snapshot adds beside the files: KEPT_DATA_DIR/backup. */
 export const BACKUP_DIR_NAME = 'backup';
@@ -224,24 +225,21 @@ export async function runSnapshot(deps: SnapshotDeps, opts: SnapshotOptions): Pr
   }
 }
 
-/** Whether a run holds the backup lock now (`kept admin backup unlock` refuses then). */
-export async function backupLockHeld(client: pg.ClientBase): Promise<boolean> {
-  const { rows } = await client.query<{ held: boolean }>(
-    `SELECT EXISTS (SELECT 1 FROM pg_locks
-                     WHERE locktype = 'advisory' AND database = (SELECT oid FROM pg_database
-                                                                  WHERE datname = current_database())
-                       AND classid = 0 AND objid = $1 AND objsubid = 1 AND granted) AS held`,
-    [BACKUP_LOCK_KEY],
-  );
-  return rows[0]?.held === true;
-}
-
 async function recorded(
   deps: SnapshotDeps,
   opts: SnapshotOptions,
   client: pg.Client,
 ): Promise<BackupRun> {
   const version = deps.version ?? KEPT_VERSION;
+  // This run holds the backup lock, so any other snapshot row still `running` is a run whose
+  // process died without finishing it (an OOM kill, a power cut): it is failed, as interrupted.
+  // A retried "Run now" takes its own row back to running just below.
+  await client.query(
+    `UPDATE public.backup_runs
+        SET status = 'failed', error = 'backup_interrupted', finished_at = now()
+      WHERE status = 'running' AND kind = ANY($1::text[])`,
+    [SNAPSHOT_KINDS],
+  );
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO public.backup_runs (id, kind, status, storage_mode, target, from_version,
                                      to_version)

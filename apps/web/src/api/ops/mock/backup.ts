@@ -17,7 +17,7 @@ import type { MockState } from '../../mock/fixtures';
 import { err, type MockRoute, reply, route } from '../../mock/kit';
 import { opsPaths as p } from '../paths';
 import type { BackupRun, BackupTargetView } from '../types';
-import { adminGate, httpsGate } from './guard';
+import { adminGate, homeAssistantGate, httpsGate } from './guard';
 import { OPS_IDS, ops } from './state';
 
 const viewOf = (t: BackupTargetInput, prev: BackupTargetView | null): BackupTargetView => {
@@ -76,7 +76,7 @@ export function backupRoutes(state: MockState): MockRoute[] {
     route('GET', p.backup, () => adminGate(state) ?? s().settings),
 
     route('PUT', p.backup, ({ body, headers }) => {
-      const gate = adminGate(state) ?? httpsGate(state);
+      const gate = adminGate(state) ?? homeAssistantGate(state) ?? httpsGate(state);
       if (gate) return gate;
       if (!s().kit.acknowledgedAt) {
         return err(409, 'recovery_kit_required', 'Save the recovery kit first.');
@@ -127,7 +127,7 @@ export function backupRoutes(state: MockState): MockRoute[] {
     }),
 
     route('POST', p.backupTest, ({ body }) => {
-      const gate = adminGate(state) ?? httpsGate(state);
+      const gate = adminGate(state) ?? homeAssistantGate(state) ?? httpsGate(state);
       if (gate) return gate;
       if (!s().settings.configured) {
         return err(409, 'backup_not_configured', 'Backups are not set up yet.');
@@ -137,7 +137,7 @@ export function backupRoutes(state: MockState): MockRoute[] {
     }),
 
     route('POST', p.backupRun, () => {
-      const gate = adminGate(state);
+      const gate = adminGate(state) ?? homeAssistantGate(state);
       if (gate) return gate;
       if (!s().settings.configured) {
         return err(409, 'backup_not_configured', 'Backups are not set up yet.');

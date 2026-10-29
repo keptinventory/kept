@@ -97,6 +97,21 @@ export const DEFAULT_MOCK_OUTPUTS: Record<string, unknown> = {
     ],
   },
   kept_room_merge: { groups: [] },
+  // A floor plan (D266): three invented rooms on one floor, one with its printed size, no corners.
+  kept_plan: {
+    is_plan: true,
+    floors: [{ label: c('Ground floor') }],
+    rooms: [
+      {
+        name: c('Living room'),
+        floor: 0,
+        box: [0.1, 0.1, 0.5, 0.4],
+        size_text: c('5.00 x 4.00 m'),
+      },
+      { name: c('Kitchen'), floor: 0, box: [0.6, 0.1, 0.3, 0.4] },
+      { name: c('Bedroom'), floor: 0, box: [0.1, 0.5, 0.4, 0.4] },
+    ],
+  },
   kept_test: { colour: 'red' },
   // Alias enrichment's batch answer, schema-valid and empty (enrich/prompt.ts).
   kept_aliases: { items: [] },

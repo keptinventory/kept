@@ -25,6 +25,7 @@ import Section from '../../../components/landing/Section.astro';
 import Cards from '../../../components/landing/Cards.astro';
 import Opened from '../../../components/landing/Opened.astro';
 import Integrations from '../../../components/landing/Integrations.astro';
+import HomeAssistantButton from '../../../components/HomeAssistantButton.astro';
 import Gallery from '../../../components/landing/Gallery.astro';
 import LoopClip from '../../../components/landing/LoopClip.astro';
 import clipDarkMp4 from '../../../assets/clips/map-add-tv-short-dark.mp4?url';
@@ -91,6 +92,7 @@ import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
 
 <Section eyebrow="التكاملات" title="ما الذي يصبّ في Kept" id="integrations">
   <Integrations />
+  <p class="kd-ha-row"><HomeAssistantButton /></p>
 </Section>
 
 <Section eyebrow="جولة" title="الشاشات" id="screens">
@@ -118,7 +120,7 @@ import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
     heading="h3"
     items={[
       { icon: 'license', title: 'مفتوح المصدر', body: 'AGPL-3.0. الشيفرة والإصدارات على GitHub.', href: 'https://github.com/keptinventory/kept' },
-      { icon: 'server', title: 'تستضيفه بنفسك', body: 'حاوية وPostgres. ٢ غيغابايت ونواتان.', href: '/ar/install/hardware/' },
+      { icon: 'server', title: 'تستضيفه بنفسك', body: 'حاوية وPostgres. جُرِّب على ١ غيغابايت ونواة واحدة.', href: '/ar/install/hardware/' },
       { icon: 'private', title: 'بلا قياس عن بُعد', body: 'الذكاء الاصطناعي اختياري. مزوّدك، أو لا شيء.', href: '/ar/admin/security-model/#what-leaves-the-server' },
       { icon: 'signature', title: 'إصدارات موقّعة', body: 'توقيع cosign على كل صورة، ومعها SBOM.', href: '/ar/admin/verify-release/' },
       { icon: 'backup', title: 'نسخ احتياطي ليلي', body: 'restic مشفّر. قرص أو S3 أو SFTP.', href: '/ar/admin/backups/' },

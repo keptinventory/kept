@@ -209,6 +209,11 @@ export async function fillInventory(
     `INSERT INTO public.user_hints (user_id, hint_key, dismissed) VALUES ($1, 'home.checklist', true)`,
     [t.userId],
   );
+  // The places outline's folds (#358): the room, folded.
+  await c.query(`INSERT INTO public.place_folds (user_id, place_id) VALUES ($1, $2)`, [
+    t.userId,
+    room,
+  ]);
   // Generated reports (task 32): one of the location, one of the account.
   await c.query(
     `INSERT INTO public.report_runs (user_id, location_id, location_ids, status)

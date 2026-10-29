@@ -81,6 +81,8 @@ export function useRunWords() {
         return t`There is no repository at the target yet. Test creates one.`;
       case 'pg_version_mismatch':
         return t`The database dump tool doesn't match the database's version. Use Kept's own image.`;
+      case 'backup_interrupted':
+        return t`The backup stopped before it finished: the server restarted or ran out of memory. The next backup runs as usual.`;
       case 'pg_tool_failed':
         return t`The database dump failed. The server's log has the details.`;
       default:

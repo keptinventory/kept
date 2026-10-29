@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto';
-import { createReadStream, createWriteStream } from 'node:fs';
-import { stat } from 'node:fs/promises';
+import { createWriteStream } from 'node:fs';
 import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import type pg from 'pg';
 import type { BlobStore } from '../storage/blob-store.js';
+import { hashFileBytes } from '../storage/hash-file.js';
 
 // What a backup (and an export) records about the database and the files it copied: the
 // row count of every table Kept owns, read in the same snapshot pg_dump dumped, and every blob the
@@ -102,18 +102,18 @@ export async function extensionsOf(client: pg.ClientBase): Promise<string[]> {
   return rows.map((r) => r.extname);
 }
 
-/** SHA-256 and size of a local file. */
+/** SHA-256 and size of a local file, through one reused buffer (storage/hash-file.ts). */
 export async function hashFile(file: string): Promise<{ sha256: string; bytes: number }> {
-  const hash = createHash('sha256');
-  await pipeline(createReadStream(file), hash);
-  return { sha256: hash.digest('hex'), bytes: (await stat(file)).size };
+  return hashFileBytes(file);
 }
 
-/** A blob's SHA-256 and size, streamed from the file store (nothing written). */
+/** A blob's SHA-256 and size from the file store (nothing written): the store's own hash where
+ * it has one (local files, no stream), else streamed (S3). */
 export async function hashBlob(
   blobs: BlobStore,
   key: string,
 ): Promise<{ sha256: string; bytes: number }> {
+  if (blobs.hash) return blobs.hash(key);
   const hash = createHash('sha256');
   let bytes = 0;
   for await (const chunk of await blobs.stream(key)) {

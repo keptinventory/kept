@@ -16,3 +16,14 @@ export function httpsGate(state: MockState): MockReply | null {
     ? null
     : err(403, 'https_required', 'This needs a secure (https) connection to Kept.');
 }
+
+/** D272: 409 `home_assistant_backups` in the Home Assistant app, before anything that backs up. */
+export function homeAssistantGate(state: MockState): MockReply | null {
+  return state.admin.status.homeAssistant
+    ? err(
+        409,
+        'home_assistant_backups',
+        "Home Assistant backs up Kept here; Kept's own backups are off.",
+      )
+    : null;
+}

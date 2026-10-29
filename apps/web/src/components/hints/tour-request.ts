@@ -1,5 +1,5 @@
 /**
- * How Help and a page's Show me ask for a tour, without loading the engine: a request goes in
+ * How Help and a scan session's Show me ask for a tour, without loading the engine: a request goes in
  * this small store, and the one tour host the app shell mounts on the first request
  * (tour.ts `TourHost`, loaded on demand) runs it. The host reports which tour is on screen here,
  * so a button can stand down while one runs.

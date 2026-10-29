@@ -10,6 +10,7 @@ import {
   type BlobStore,
   type SignedUrlOptions,
 } from './blob-store.js';
+import { hashFileBytes } from './hash-file.js';
 import type { UrlSigner } from './signed-url.js';
 
 // The local driver (KEPT_STORAGE=local, the default): blobs are files under
@@ -74,6 +75,15 @@ export class LocalBlobStore implements BlobStore {
       throw err;
     }
     return createReadStream(file, range ? { start: range.start, end: range.end } : {});
+  }
+
+  async hash(key: string): Promise<{ sha256: string; bytes: number }> {
+    try {
+      return await hashFileBytes(this.#pathOf(key));
+    } catch (err) {
+      if (isMissing(err)) throw new BlobNotFoundError();
+      throw err;
+    }
   }
 
   async delete(key: string) {

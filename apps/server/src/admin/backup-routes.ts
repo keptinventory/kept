@@ -68,6 +68,11 @@ import { markRecoveryKitStale, requireRecoveryKitAck } from '../setup/recovery-k
 // GET  /api/v1/admin/backup/runs?kind&status&q&cursor → BackupRunsPage
 // GET  /api/v1/admin/backup/snapshots  → BackupSnapshotsPage (restic snapshots, cached 5 min)
 //
+// In the Home Assistant app (KEPT_HA, D272) the PUT, the test and Run now answer 409
+// home_assistant_backups first: the serving process never holds the database owner's login a
+// backup needs, and Home Assistant's backups hold the database, the files and the keys instead.
+// The reads stay, so the page loads.
+//
 // "Run now" sends the `backup` system job with `{kind: 'manual', runId}`; the worker's backup
 // (backup/nightly.ts) records its run under that id, so the 202's row is the one the list shows
 // next. The 202 body is that row as it starts (`running`), not read back: backup_runs is written
@@ -163,6 +168,17 @@ const escapeLike = (value: string) => value.replace(/[\\%_]/g, (c) => `\\${c}`);
 export async function backupRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools } = deps;
   const httpsOnly = requireHttps(deps.env.KEPT_PUBLIC_URL);
+  const appMode = deps.env.KEPT_HA === true;
+  /** Before anything else on a route that would back up: refused in the Home Assistant app. */
+  const notInApp = async () => {
+    if (appMode) {
+      throw new AppError(
+        'home_assistant_backups',
+        409,
+        "Home Assistant's backups hold Kept here: Settings → System → Backups in Home Assistant.",
+      );
+    }
+  };
 
   /** The settings with their secrets opened (the keyring), or 409 backup_not_configured. */
   async function resolved(client: pg.ClientBase) {
@@ -201,7 +217,7 @@ export async function backupRoutes(app: KeptApp, deps: InventoryDeps): Promise<v
 
     admin.put(
       '/api/v1/admin/backup',
-      { preHandler: httpsOnly, schema: { body: PutBody } },
+      { preHandler: [notInApp, httpsOnly], schema: { body: PutBody } },
       async (req): Promise<BackupSettingsView> => {
         const expected = requireIfMatch(req);
         const { password } = req.body;
@@ -249,7 +265,7 @@ export async function backupRoutes(app: KeptApp, deps: InventoryDeps): Promise<v
 
     admin.post(
       '/api/v1/admin/backup/test',
-      { preHandler: httpsOnly, schema: { body: BackupTestInput.optional() } },
+      { preHandler: [notInApp, httpsOnly], schema: { body: BackupTestInput.optional() } },
       async (req): Promise<BackupTestResult> => {
         const init = req.body?.init === true;
         const { settings } = await scopedRead(pools, req, (_tx, client) => resolved(client));
@@ -283,7 +299,7 @@ export async function backupRoutes(app: KeptApp, deps: InventoryDeps): Promise<v
       },
     );
 
-    admin.post('/api/v1/admin/backup/run', async (req, reply) =>
+    admin.post('/api/v1/admin/backup/run', { preHandler: notInApp }, async (req, reply) =>
       scopedWrite(pools, req, reply, async (tx, client) => {
         const overlay = backupEnvOverlay(rawEnv);
         const { stored } = await readStoredBackupSettings(client);

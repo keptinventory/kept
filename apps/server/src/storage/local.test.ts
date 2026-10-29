@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -149,6 +150,18 @@ describe('LocalBlobStore', () => {
     await store.delete(key);
     expect(await store.exists(key)).toBe(false);
     await expect(store.stream(key)).rejects.toBeInstanceOf(BlobNotFoundError);
+  });
+
+  it('hashes a blob from its file through one reused buffer, and a missing one is BlobNotFoundError', async () => {
+    const key = originalKey(newId(), newId());
+    await store.put(key, await upload('hello, kept'), { contentType: 'image/jpeg', bytes: 11 });
+    expect(await store.hash(key)).toEqual({
+      sha256: createHash('sha256').update('hello, kept').digest('hex'),
+      bytes: 11,
+    });
+    await store.delete(key);
+    await expect(store.hash(key)).rejects.toBeInstanceOf(BlobNotFoundError);
+    await expect(store.hash('../escape')).rejects.toThrow(/key/);
   });
 
   it('signs a /f/<token> URL that verifies back to the key and its headers', async () => {

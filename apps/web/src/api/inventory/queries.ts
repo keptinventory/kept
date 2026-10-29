@@ -133,6 +133,9 @@ export const inventoryKeys = {
       ['places', 'contents', id, params] as const,
     history: (id: string) => ['places', 'history', id] as const,
   },
+  /** The places you folded in a location's outline (#358): outside `places`, so a browse
+   * refresh doesn't ask for them again. */
+  placeFolds: (locationId: string) => ['place-folds', locationId] as const,
   things: {
     all: ['things'] as const,
     list: (params: ThingListParams = {}) => ['things', 'list', params] as const,

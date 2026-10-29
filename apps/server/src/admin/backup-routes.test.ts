@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { Writable } from 'node:stream';
+import pg from 'pg';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
@@ -13,6 +14,7 @@ import {
 } from '../../test/people.js';
 import { asOwner, ownerTx } from '../../test/tenancy.js';
 import { FakeRestic } from '../backup/restic/fake.js';
+import { BACKUP_LOCK_KEY } from '../backup/runs.js';
 import type { ResolvedBackupSettings } from '../backup/settings.js';
 import { fixedSecretKeys, keyringOf } from '../crypto/keyring.js';
 import { createLogger } from '../http/logger.js';
@@ -98,6 +100,18 @@ beforeEach(async () => {
     await c.query('DELETE FROM public.backup_runs');
   });
 });
+
+/** Holds the backup's advisory lock on its own session while `fn` runs, as a live run does. */
+async function withBackupLock<T>(fn: () => Promise<T>): Promise<T> {
+  const holder = new pg.Client({ connectionString: db.urls.owner });
+  await holder.connect();
+  try {
+    await holder.query('SELECT pg_advisory_lock($1)', [BACKUP_LOCK_KEY]);
+    return await fn();
+  } finally {
+    await holder.end();
+  }
+}
 
 const acknowledgeKit = () =>
   ownerTx(db, (c) =>
@@ -362,8 +376,24 @@ describe('test, run, runs and snapshots', () => {
         [run.id],
       ),
     );
-    const busy = await call(t, '/api/v1/admin/backup/run', { as: ibrahim, body: {} });
-    expect([busy.statusCode, busy.json().code]).toEqual([409, 'backup_running']);
+    // The run holds the backup lock while it works (backup/nightly.ts runSnapshot).
+    await withBackupLock(async () => {
+      const busy = await call(t, '/api/v1/admin/backup/run', { as: ibrahim, body: {} });
+      expect([busy.statusCode, busy.json().code]).toEqual([409, 'backup_running']);
+    });
+  });
+
+  it("a `running` row whose process died (no backup lock held) doesn't block Run now", async () => {
+    await configure();
+    // What an OOM-killed backup leaves: the row says running, nothing holds the lock.
+    await ownerTx(db, (c) =>
+      c.query(
+        `INSERT INTO public.backup_runs (kind, storage_mode, target, started_at)
+         VALUES ('nightly', 'local', 'directory /mnt/nas/kept', now() - interval '10 minutes')`,
+      ),
+    );
+    const res = await call(t, '/api/v1/admin/backup/run', { as: ibrahim, body: {} });
+    expect(res.statusCode).toBe(202);
   });
 
   it('refuses a second Run now while the first waits in the queue, before its run row exists', async () => {
@@ -392,6 +422,30 @@ describe('test, run, runs and snapshots', () => {
       );
       const retrying = await call(t, '/api/v1/admin/backup/run', { as: ibrahim, body: {} });
       expect([retrying.statusCode, retrying.json().code]).toEqual([409, 'backup_running']);
+      // Being worked, fresh: refused. Worked for more than two minutes with nobody holding the
+      // backup lock: its process died (an OOM kill), so it no longer blocks.
+      await asOwner(db, (c) =>
+        c.query(
+          `UPDATE pgboss.job SET state = 'active', start_after = now(), started_on = now()
+            WHERE id = $1`,
+          [jobId],
+        ),
+      );
+      const active = await call(t, '/api/v1/admin/backup/run', { as: ibrahim, body: {} });
+      expect([active.statusCode, active.json().code]).toEqual([409, 'backup_running']);
+      await asOwner(db, (c) =>
+        c.query(`UPDATE pgboss.job SET started_on = now() - interval '10 minutes' WHERE id = $1`, [
+          jobId,
+        ]),
+      );
+      await withBackupLock(async () => {
+        const working = await call(t, '/api/v1/admin/backup/run', { as: ibrahim, body: {} });
+        expect([working.statusCode, working.json().code]).toEqual([409, 'backup_running']);
+      });
+      const stale = await call(t, '/api/v1/admin/backup/run', { as: ibrahim, body: {} });
+      expect(stale.statusCode).toBe(202);
+      await asOwner(db, (c) => c.query(`DELETE FROM public.backup_runs`));
+      sent.length = 0;
       // Once it's done, Run now works again.
       await asOwner(db, (c) =>
         c.query(`UPDATE pgboss.job SET state = 'completed' WHERE id = $1`, [jobId]),
@@ -473,5 +527,55 @@ describe('GET /api/v1/admin/status', () => {
         `DELETE FROM public.instance_settings WHERE key IN ('disk_status', 'upgrade_without_snapshot')`,
       ),
     );
+  });
+});
+
+// The Home Assistant app (KEPT_HA, D272): the serving process never holds the database owner's
+// login, so Kept's own backups can't run there; Home Assistant's backups are the backup. The
+// target, the test and Run now refuse up front with one code the page puts in words, instead of
+// failing deep inside restic or the worker.
+describe('in the Home Assistant app', () => {
+  let ha: TestApp;
+  let admin: Person;
+
+  beforeAll(async () => {
+    ha = await peopleApp(db, { publicUrl: HTTPS, sent, secretKeys: keys, appMode: true });
+    admin = await person(ha, db, 'ha-admin');
+    await ownerTx(db, (c) =>
+      c.query('INSERT INTO public.instance_admins (user_id) VALUES ($1)', [admin.userId]),
+    );
+  });
+
+  it('409 home_assistant_backups for the target, the test and Run now', async () => {
+    await acknowledgeKit();
+    for (const [url, method] of [
+      ['/api/v1/admin/backup', 'PUT'],
+      ['/api/v1/admin/backup/test', 'POST'],
+      ['/api/v1/admin/backup/run', 'POST'],
+    ] as const) {
+      const res = await call(ha, url, {
+        as: admin,
+        method,
+        body: method === 'PUT' ? body() : {},
+        headers: { 'if-match': '0' },
+      });
+      expect([url, res.statusCode, res.json().code]).toEqual([url, 409, 'home_assistant_backups']);
+    }
+    expect(sent.filter((j) => j.name === 'backup')).toEqual([]);
+    const saved = await ownerTx(db, (c) =>
+      c.query(`SELECT 1 FROM public.instance_settings WHERE key = 'backup'`),
+    );
+    expect(saved.rowCount).toBe(0);
+  });
+
+  it('still answers 404 to anyone who is not an instance admin', async () => {
+    const other = await person(ha, db, 'ha-member');
+    const res = await call(ha, '/api/v1/admin/backup/run', { as: other, body: {} });
+    expect(res.statusCode).toBe(404);
+  });
+
+  it('still reads the settings and the runs, for the page', async () => {
+    expect((await call(ha, '/api/v1/admin/backup', { as: admin })).statusCode).toBe(200);
+    expect((await call(ha, '/api/v1/admin/backup/runs', { as: admin })).statusCode).toBe(200);
   });
 });

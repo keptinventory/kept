@@ -10,8 +10,9 @@
  * 3. A middle chapter's row starts it, and Continue at its end goes straight into the next one.
  * 4. Stop here, then Continue the tour picks up at the first chapter not done.
  * 5. A tap outside the highlight reaches the page: it follows the link, and the tour ends there.
- * 6. Show me on an empty location starts Things & places there: it makes one sample thing, and
- *    Discard at the end puts exactly that in the Trash.
+ * 6. Help's Things & places, on an empty location (the first shared one), makes one sample thing,
+ *    and Discard at the end puts exactly that in the Trash. (No page has a Show me in its top bar
+ *    since 1.14.3.)
  * 7. The Graph & 3D map chapter points at the view switch, the graph's 2D or 3D and the map's own
  *    controls (WebGL runs in Chromium here, not jsdom).
  *
@@ -367,13 +368,15 @@ test('lets a tap outside the highlight through to the page', async ({ browser })
   await context.close();
 });
 
-test('Show me on an empty location makes one sample, and Discard trashes only that', async ({
+test('Things & places on an empty location makes one sample, and Discard trashes only that', async ({
   browser,
 }) => {
   const { context, page } = await person(browser);
   await page.goto('/help');
-  // An empty location of this run's own, through the app's own endpoint, removed at the end.
-  const name = `Tour shed ${project()}`;
+  // An empty location of this run's own, through the app's own endpoint, removed at the end. Its
+  // name sorts it first among the shared ones (the server lists them by name), so Help's chapter
+  // opens it: the tour's location is the first shared one (tour-subjects.ts).
+  const name = `0 Tour shed ${project()}`;
   const made = await page.evaluate(async (n) => {
     const res = await fetch('/api/v1/locations', {
       method: 'POST',
@@ -392,9 +395,8 @@ test('Show me on an empty location makes one sample, and Discard trashes only th
   expect(made.status, JSON.stringify(made.body)).toBe(201);
   const locationId = made.body.id;
   try {
-    await page.goto(`/loc/${locationId}`);
+    await fromHelp(page, 'things');
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();
-    await page.getByRole('button', { name: 'Show me', exact: true }).click();
     const seen: string[] = [];
     for (let k = 0; k < 5; k++) {
       await expect(popover(page)).toBeVisible();

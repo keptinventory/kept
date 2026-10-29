@@ -2,6 +2,7 @@
 # Smoke test for a built Kept image (task 29; L103; D147, D186, D193).
 #
 #   bash scripts/smoke-image.sh <image>        e.g. kept:dev, kept:ci-arm64
+#   bash scripts/smoke-image.sh <image> --ha   the Home Assistant app's image (smoke-ha-image.sh)
 #
 # Runs the image the way compose.yaml does, against a throwaway Postgres bootstrapped by
 # docker/initdb-prod (so the production roles script is exercised too), on its own network with
@@ -36,8 +37,10 @@
 # Docker Desktop credential helper can hang without a desktop session).
 set -euo pipefail
 
-image=${1:?usage: smoke-image.sh <image>}
+image=${1:?usage: smoke-image.sh <image> [--ha]}
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+# The Home Assistant app's image (Dockerfile --target ha, D272) has its own smoke.
+if [[ ${2:-} == --ha ]]; then exec bash "$repo/scripts/smoke-ha-image.sh" "$image"; fi
 export DOCKER_CONFIG=${DOCKER_CONFIG:-/tmp/kept-docker-config}
 
 # Same pinned image as compose.yaml.

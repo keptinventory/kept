@@ -11,7 +11,8 @@
 
 <!--
   One style for every badge: flat-square, the kit's ink-2 (#55524C) label and amber (#F0B03A)
-  value (apps/web/src/styles/tokens.css). Release and CI are live (shields.io reads GitHub): CI
+  value (apps/web/src/styles/tokens.css); a badge for another product takes that product's colour
+  and logo (Docker's blue, Discord's, Home Assistant's #18BCF2). Release and CI are live (shields.io reads GitHub): CI
   turns red when the ci workflow fails on main. Both read public data, so they render once the
   repository is public. Discord counts the members of the invite's server, live.
 -->
@@ -22,6 +23,7 @@
   <a href="https://keptinventory.info/"><img alt="Documentation" src="https://img.shields.io/badge/docs-keptinventory.info-F0B03A?style=flat-square&labelColor=55524C&label=docs"></a>
   <a href="https://github.com/orgs/keptinventory/packages/container/package/kept"><img alt="Container image: ghcr.io/keptinventory/kept" src="https://img.shields.io/badge/image-ghcr.io%2Fkeptinventory%2Fkept-F0B03A?style=flat-square&labelColor=55524C"></a>
   <a href="https://hub.docker.com/r/keptinventory/kept"><img alt="Docker Hub: keptinventory/kept" src="https://img.shields.io/badge/docker%20hub-keptinventory%2Fkept-2496ED?style=flat-square&labelColor=55524C&logo=docker&logoColor=white"></a>
+  <a href="https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fkeptinventory%2Fkept"><img alt="Add Kept to Home Assistant" src="https://img.shields.io/badge/home%20assistant-add%20Kept-18BCF2?style=flat-square&labelColor=55524C&logo=homeassistant&logoColor=white"></a>
   <a href="https://discord.gg/g4WCXPfuNv"><img alt="Discord members" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fdiscord.com%2Fapi%2Fv10%2Finvites%2Fg4WCXPfuNv%3Fwith_counts%3Dtrue&query=%24.approximate_member_count&label=discord&suffix=%20members&style=flat-square&logo=discord&logoColor=white&color=5865F2&labelColor=55524C"></a>
   <a href="CONTRIBUTING.md#sign-the-cla-once"><img alt="CLA: sign once" src="https://img.shields.io/badge/CLA-sign%20once-F0B03A?style=flat-square&labelColor=55524C"></a>
 </p>
@@ -115,8 +117,9 @@ open the box.
 
 ## Quick start: host it
 
-Docker with Compose v2, on a machine with at least 2 GB of RAM and 2 CPU cores
-([what it needs](https://keptinventory.info/install/hardware/)).
+Docker with Compose v2. Tested on 1 GB of RAM and one CPU core, a backup during photo uploads
+included; Kept and its database use about 200–400 MB
+([what was tested](https://keptinventory.info/install/hardware/)).
 
 ```sh
 mkdir kept && cd kept
@@ -139,6 +142,10 @@ The camera, installing the app, push and location need HTTPS:
 the Caddyfile in `docker/caddy/` ([HTTPS](https://keptinventory.info/install/https/)). Every step in full:
 [the install guide](https://keptinventory.info/install/compose/).
 
+- **Home Assistant:** on Home Assistant OS, Kept installs as an app with its own database, backed
+  up with Home Assistant's backups ([install as a Home Assistant app](https://keptinventory.info/install/home-assistant/)):
+
+  <a href="https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fkeptinventory%2Fkept"><img alt="Add Kept to Home Assistant" src="https://img.shields.io/badge/add%20Kept%20to-Home%20Assistant-18BCF2?style=for-the-badge&labelColor=55524C&logo=homeassistant&logoColor=white"></a>
 - **Kubernetes:** the Helm chart, `oci://ghcr.io/keptinventory/charts/kept`, signed and published
   with each release ([install on Kubernetes](https://keptinventory.info/install/kubernetes/)).
 - **Verify the image:** `cosign verify --key cosign.pub <image>:<version>`, with `cosign.pub` from
@@ -163,8 +170,7 @@ the Caddyfile in `docker/caddy/` ([HTTPS](https://keptinventory.info/install/htt
 - **Next:** [compartments on the 3D map](https://github.com/keptinventory/kept/issues/238)
 - **Later:** [mobile and desktop apps](https://github.com/keptinventory/kept/issues/169) ·
   [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197) ·
-  [storage furniture templates](https://github.com/keptinventory/kept/issues/238) ·
-  [a Home Assistant app](https://github.com/keptinventory/kept/issues/289)
+  [storage furniture templates](https://github.com/keptinventory/kept/issues/238)
 
 [Full roadmap →](https://github.com/orgs/keptinventory/projects/1) · 👍 the themes you want most.
 

@@ -83,6 +83,8 @@ const ALLOWLIST: Record<string, string> = {
     'answers 405 only: the MCP endpoint is stateless, so there is no session to end and nothing changes',
   'POST /share':
     'redirect only; SW handles share-in: a share the service worker missed is answered 303 to /capture?share=unavailable before its body is read, and nothing is stored (http/share.ts, Q26)',
+  'PUT /api/v1/locations/:locationId/place-folds':
+    "which places the caller folded in the places outline (#358): the caller's own view, seen by no one else, and no change to the household's data (places/folds.ts)",
 };
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));

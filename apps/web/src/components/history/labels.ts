@@ -442,6 +442,13 @@ export function useSummary() {
       'thing.capture': () => t`Captured ${name} from a photo`,
       'room.capture': () => t`Photographed ${name} for Kept to list what is in it`,
       'map.place': () => t`Put ${name} on the map`,
+      'floor_plan.read': () => t`Read a floor plan`,
+      'floor_plan.discard': () => t`Discarded a floor plan`,
+      'floor_plan.apply': () =>
+        plural(count, {
+          one: 'Added # room from a floor plan',
+          other: 'Added # rooms from a floor plan',
+        }),
       'thing.capture.reading': () => t`Logged a reading of ${name} from a photo`,
       'thing.extract': () => t`Filled in ${name} from a photo`,
       'thing.reextract': () => t`Read the photo of ${name} again`,

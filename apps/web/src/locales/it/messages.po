@@ -18,6 +18,27 @@ msgstr " e "
 msgid ", "
 msgstr ", "
 
+#: src/components/ops/status-tiles.tsx
+#: src/routes/_app/admin.backups.tsx
+msgid "Home Assistant backs up Kept"
+msgstr "Home Assistant esegue il backup di Kept"
+
+#: src/routes/_app/admin.backups.tsx
+msgid "Home Assistant backs up Kept: the database, photos and files, and Kept's keys. Take or schedule backups in Home Assistant → {place}."
+msgstr "Home Assistant esegue il backup di Kept: il database, le foto e i file, e le chiavi di Kept. Crea o pianifica i backup in Home Assistant → {place}."
+
+#: src/components/ops/home-assistant-backups.tsx
+msgid "Settings → System → Backups"
+msgstr "Impostazioni → Sistema → Backup"
+
+#: src/components/ops/backup-target-form.tsx
+msgid "Home Assistant backs up Kept here: take or schedule backups in Home Assistant."
+msgstr "Qui Home Assistant esegue il backup di Kept: crea o pianifica i backup in Home Assistant."
+
+#: src/components/ops/status-tiles.tsx
+msgid "Take or schedule them in Home Assistant → {place}."
+msgstr "Creali o pianificali in Home Assistant → {place}."
+
 #: src/components/home/checklist.tsx
 msgid "Any provider that offers SMTP works, such as your email provider's app password or a sending service. Admin → Status shows Sending once it's on."
 msgstr "Va bene qualsiasi provider con SMTP, ad esempio una password per app del tuo provider di posta o un servizio di invio. Admin → Stato mostra «Invio attivo» quando è attivo."
@@ -2275,6 +2296,7 @@ msgid "Contents"
 msgstr "Contenuto"
 
 #: src/components/places/contents-list.tsx
+#: src/components/places/tree.tsx
 msgid "Contents of {name}"
 msgstr "Contenuto di {name}"
 
@@ -20473,6 +20495,10 @@ msgid "The database dump failed. The server's log has the details."
 msgstr "Il dump del database non è riuscito. I dettagli sono nel log del server."
 
 #: src/components/ops/ops-words.ts
+msgid "The backup stopped before it finished: the server restarted or ran out of memory. The next backup runs as usual."
+msgstr "Il backup si è interrotto prima di finire: il server è stato riavviato o ha esaurito la memoria. Il prossimo backup si svolge come sempre."
+
+#: src/components/ops/ops-words.ts
 msgid "The database dump tool doesn't match the database's version. Use Kept's own image."
 msgstr "Lo strumento di dump non corrisponde alla versione del database. Usa l'immagine di Kept."
 
@@ -27680,8 +27706,8 @@ msgid "Done ({done})"
 msgstr "Completati ({done})"
 
 #: src/components/hints/hint-copy.ts
-msgid "One chapter per section. Tap one to start there, or tap Show me on its page."
-msgstr "Un capitolo per sezione. Toccane uno per iniziare da lì, oppure tocca Mostrami sulla sua pagina."
+msgid "One chapter per section. Tap one to start there."
+msgstr "Un capitolo per sezione. Toccane uno per iniziare da lì."
 
 #: src/components/hints/hint-copy.ts
 msgid "Move it, lend it, print its label or move it to the Trash."
@@ -27742,6 +27768,18 @@ msgstr "Ogni manutenzione con il suo costo. Toccane una per aprirla tutta, con l
 #: src/components/hints/hint-copy.ts
 msgid "Graph & 3D map"
 msgstr "Grafo e mappa 3D"
+
+#: src/components/whats-new.tsx
+msgid "Play"
+msgstr "Riproduci"
+
+#: src/components/whats-new.tsx
+msgid "Slide {n} of {total}: {title}"
+msgstr "Diapositiva {n} di {total}: {title}"
+
+#: src/components/whats-new.tsx
+msgid "Slide {n} of {total}"
+msgstr "Diapositiva {n} di {total}"
 
 #: src/components/whats-new.tsx
 msgid "What's new in Kept"
@@ -27997,3 +28035,255 @@ msgstr "Tipo di {title}"
 #: src/components/history/labels.ts
 msgid "Paperless document changed"
 msgstr "Documento Paperless modificato"
+
+#: src/components/history/labels.ts
+msgid "Read a floor plan"
+msgstr "Pianta letta"
+
+#: src/components/history/labels.ts
+msgid "Discarded a floor plan"
+msgstr "Pianta scartata"
+
+#: src/components/history/labels.ts
+msgid "{count, plural, one {Added # room from a floor plan} other {Added # rooms from a floor plan}}"
+msgstr "{count, plural, one {# stanza aggiunta da una pianta} other {# stanze aggiunte da una pianta}}"
+
+#: src/components/ai/labels.ts
+msgid "Floor plans"
+msgstr "Piante"
+
+#: src/map/map-view.tsx
+msgid "{n, plural, one {Added # room from the plan} other {Added # rooms from the plan}}"
+msgstr "{n, plural, one {# stanza aggiunta dalla pianta} other {# stanze aggiunte dalla pianta}}"
+
+#: src/map/map-view.tsx
+msgid "Someone arranged this map since you started. Load it again; your rooms stay to add."
+msgstr "Qualcuno ha sistemato questa mappa da quando hai iniziato. Ricaricala; le tue stanze restano da aggiungere."
+
+#: src/map/map-view.tsx
+msgid "Discard this plan?"
+msgstr "Scartare questa pianta?"
+
+#: src/map/map-view.tsx
+msgid "Nothing is added. The plan is deleted."
+msgstr "Non viene aggiunto nulla. La pianta viene eliminata."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Couldn’t read this plan."
+msgstr "Impossibile leggere questa pianta."
+
+#: src/map/map-view.tsx
+msgid "Dashed rooms are from the plan and not added yet. Drag to move one; drag its corner to resize it."
+msgstr "Le stanze tratteggiate vengono dalla pianta e non sono ancora aggiunte. Trascinane una per spostarla; trascina il suo angolo per ridimensionarla."
+
+#: src/map/map-view.tsx
+msgid "{0, plural, one {Add # room} other {Add # rooms}}"
+msgstr "{0, plural, one {Aggiungi # stanza} other {Aggiungi # stanze}}"
+
+#: src/map/map-view.tsx
+msgid "Show the plan"
+msgstr "Mostra la pianta"
+
+#: src/map/map-view.tsx
+msgid "Turn the rooms"
+msgstr "Ruota le stanze"
+
+#: src/map/map-view.tsx
+msgid "From a plan"
+msgstr "Da una pianta"
+
+#: src/map/map-view.tsx
+msgid "<0>{room}</0>, from the plan, not added, {w} by {d} metres"
+msgstr "<0>{room}</0>, dalla pianta, non aggiunta, {w} per {d} metri"
+
+#: src/map/floor-plan/notices.tsx
+msgid "No rooms on the map yet"
+msgstr "Ancora nessuna stanza sulla mappa"
+
+#: src/map/floor-plan/notices.tsx
+msgid "Start from a floor plan, or draw the rooms yourself."
+msgstr "Parti da una pianta o disegna tu le stanze."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Start from a floor plan"
+msgstr "Parti da una pianta"
+
+#: src/map/floor-plan/notices.tsx
+msgid "For a PDF, try a screenshot of the plan."
+msgstr "Per un PDF, prova con uno screenshot della pianta."
+
+#: src/map/floor-plan/notices.tsx
+msgid "This doesn’t look like a floor plan."
+msgstr "Non sembra una pianta."
+
+#: src/map/floor-plan/notices.tsx
+msgid "No rooms found on this plan."
+msgstr "Nessuna stanza trovata in questa pianta."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Draw rooms yourself"
+msgstr "Disegna tu le stanze"
+
+#: src/map/floor-plan/notices.tsx
+msgid "A floor plan is ready to check."
+msgstr "Una pianta è pronta da controllare."
+
+#: src/map/floor-plan/notices.tsx
+msgid "Check it"
+msgstr "Controllala"
+
+#: src/map/floor-plan/notices.tsx
+msgid "Reading the plan…"
+msgstr "Lettura della pianta…"
+
+#: src/map/floor-plan/notices.tsx
+msgid "You can leave; the plan waits on the map."
+msgstr "Puoi uscire; la pianta ti aspetta sulla mappa."
+
+#: src/map/floor-plan/panel.tsx
+msgid "<0>{room}</0> is…"
+msgstr "<0>{room}</0> misura…"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Width (m)"
+msgstr "Larghezza (m)"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Depth (m)"
+msgstr "Profondità (m)"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Rescale"
+msgstr "Riscala"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from {room}’s size"
+msgstr "Scala dalla misura di {room}"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Sizes from the plan: {n} of {m} rooms agree"
+msgstr "Misure dalla pianta: {n} stanze su {m} concordano"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from the plan’s scale bar"
+msgstr "Scala dalla barra di scala della pianta"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from the doors, taken as 80 cm wide: check one room"
+msgstr "Scala dalle porte, considerate larghe 80 cm: controlla una stanza"
+
+#: src/map/floor-plan/panel.tsx
+msgid "No sizes on the plan: these are a guess"
+msgstr "Nessuna misura sulla pianta: sono stime"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Rooms from the plan"
+msgstr "Stanze dalla pianta"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Set a room’s size"
+msgstr "Indica la misura di una stanza"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Kept read the first 60 rooms. Add the rest by drawing."
+msgstr "Kept ha letto le prime 60 stanze. Aggiungi le altre disegnandole."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Keep the plan with <0>{location}</0>"
+msgstr "Tieni la pianta con <0>{location}</0>"
+
+#: src/map/floor-plan/panel.tsx
+msgid "A new floor"
+msgstr "Un nuovo piano"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under 1 m: too small for the map."
+msgstr "Sotto 1 m: troppo piccola per la mappa."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Already on the map."
+msgstr "Già sulla mappa."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Uses your <0>{existing}</0>"
+msgstr "Usa la tua stanza <0>{existing}</0>"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Make a new room"
+msgstr "Crea una nuova stanza"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Not a rectangle: drawn as its largest part."
+msgstr "Non è un rettangolo: disegnata come la sua parte più grande."
+
+#: src/map/floor-plan/panel.tsx
+msgid "The plan says <0>{size}</0>."
+msgstr "La pianta indica <0>{size}</0>."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Name unclear on the plan."
+msgstr "Nome poco chiaro sulla pianta."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Add {room}"
+msgstr "Aggiungi {room}"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "A photo, a screenshot or a PDF of a plan. Kept reads the rooms and their sizes; you check them before anything is added."
+msgstr "Una foto, uno screenshot o un PDF di una pianta. Kept legge le stanze e le loro misure; le controlli tu prima che venga aggiunto qualcosa."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Use a sample floor plan"
+msgstr "Usa una pianta di esempio"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Choose a file"
+msgstr "Scegli un file"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "The plan you chose"
+msgstr "La pianta che hai scelto"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Turn the plan a quarter turn"
+msgstr "Ruota la pianta di un quarto di giro"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Only the first page is read."
+msgstr "Viene letta solo la prima pagina."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Up to ~{tokens} tokens"
+msgstr "Fino a ~{tokens} token"
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Kept sends the plan, without its location data, to <0>{name}</0>. It is deleted when you finish, unless you keep it."
+msgstr "Kept invia la pianta, senza i dati di posizione, a <0>{name}</0>. Viene eliminata quando hai finito, a meno che tu non la tenga."
+
+#: src/map/floor-plan/start-sheet.tsx
+msgid "Read the plan"
+msgstr "Leggi la pianta"
+
+#: src/map/map-view.tsx
+msgid "Someone else added or discarded this plan."
+msgstr "Qualcun altro ha aggiunto o scartato questa pianta."
+
+#: src/components/places/tree.tsx
+msgid "Fold all"
+msgstr "Comprimi tutto"
+
+#: src/components/places/tree.tsx
+msgid "Open all"
+msgstr "Espandi tutto"
+
+#: src/routes/setup.tsx
+msgid "Set up by a Home Assistant administrator"
+msgstr "Configurato da un amministratore di Home Assistant"
+
+#: src/routes/setup.tsx
+msgid "Your setup code is on the app's Log tab in Home Assistant."
+msgstr "Il codice di configurazione è nella scheda «Registro» dell’app in Home Assistant."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Running as a Home Assistant app"
+msgstr "In esecuzione come app di Home Assistant"
