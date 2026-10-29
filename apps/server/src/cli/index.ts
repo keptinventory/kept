@@ -94,6 +94,20 @@ function cliMailer(env: ReturnType<typeof loadAdminEnv>): Mailer {
   };
 }
 
+/**
+ * Whether `kept migrate` skips the pre-upgrade snapshot: `--skip-snapshot`,
+ * KEPT_UPGRADE_SNAPSHOT=off, or the Home Assistant app (KEPT_HA=1, D272). The app has no target to
+ * snapshot to (Admin → Backups refuses one: Home Assistant's backups hold Kept, and Home Assistant
+ * offers one before an update), so a snapshot would only log "NO BACKUP IS CONFIGURED" and leave
+ * Admin → Status saying it upgraded without a backup, on every update.
+ */
+export function skipUpgradeSnapshot(
+  flag: boolean | undefined,
+  raw: Record<string, string | undefined>,
+): boolean {
+  return flag === true || raw.KEPT_UPGRADE_SNAPSHOT === 'off' || raw.KEPT_HA === '1';
+}
+
 export function buildCli(): Command {
   const program = new Command();
   program.name('kept').description('Kept operator CLI');
@@ -114,7 +128,7 @@ export function buildCli(): Command {
       // backup credentials with them).
       const { ownerUrl } = loadMigrateEnv();
       const raw = process.env;
-      const skip = opts.skipSnapshot === true || raw.KEPT_UPGRADE_SNAPSHOT === 'off';
+      const skip = skipUpgradeSnapshot(opts.skipSnapshot, raw);
       const outcome = await runMigrations(ownerUrl, {
         release: { version: KEPT_VERSION, revision: raw.KEPT_REVISION ?? null },
         allowDowngrade: opts.allowDowngrade === true || raw.KEPT_ALLOW_DOWNGRADE === '1',

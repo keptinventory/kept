@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/toast';
 import { useFormat } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { HomeAssistantBackupsPlace } from './home-assistant-backups';
 import { useRunWords, useSize } from './ops-words';
 
 const DAY = 86_400_000;
@@ -74,9 +75,12 @@ export function OpsNotices({ s }: { s: StatusPageData }) {
   const from = backup?.upgradeWithoutSnapshot?.fromVersion ?? '';
   const to = backup?.upgradeWithoutSnapshot?.toVersion ?? '';
   const newer = release?.rolledBackFrom ?? '';
+  // The Home Assistant app (D272): Home Assistant's backups hold Kept, so Kept's own backup
+  // warnings say nothing true there.
+  const app = s.homeAssistant === true;
   return (
     <>
-      {backup && !backup.configured ? (
+      {backup && !backup.configured && !app ? (
         <Notice
           tone="warn"
           title={<Trans>No backup configured</Trans>}
@@ -121,7 +125,7 @@ export function OpsNotices({ s }: { s: StatusPageData }) {
           </Trans>
         </Notice>
       ) : null}
-      {backup?.upgradeWithoutSnapshot ? (
+      {backup?.upgradeWithoutSnapshot && !app ? (
         <Notice
           tone="warn"
           title={
@@ -150,6 +154,20 @@ export function OpsNotices({ s }: { s: StatusPageData }) {
         </Notice>
       ) : null}
     </>
+  );
+}
+
+/** The Home Assistant app's backups tile: Home Assistant's backups, and where they are. */
+function HomeAssistantBackupsTile() {
+  const place = <HomeAssistantBackupsPlace />;
+  return (
+    <Tile
+      label={<Trans>Backups</Trans>}
+      ok={null}
+      detail={<Trans>Take or schedule them in Home Assistant → {place}.</Trans>}
+    >
+      <Trans>Home Assistant backs up Kept</Trans>
+    </Tile>
   );
 }
 
@@ -479,9 +497,11 @@ function UpdatesTile({ updates }: { updates: UpdateCheckState }) {
 
 /** The step-8 tiles, in the frame's order; each only when the server sent its field. */
 export function OpsTiles({ s, kitTile }: { s: StatusPageData; kitTile: ReactNode }) {
-  const backup = s.backup;
+  // In the Home Assistant app, Kept's own backup, drill and repository check don't run.
+  const backup = s.homeAssistant ? undefined : s.backup;
   return (
     <>
+      {s.homeAssistant ? <HomeAssistantBackupsTile /> : null}
       {backup ? <BackupsTile backup={backup} /> : null}
       {backup ? <DrillTile backup={backup} /> : null}
       {backup ? <VerifyTile backup={backup} /> : null}

@@ -4,7 +4,7 @@
  * wording, in English and Arabic.
  */
 import { screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { ownerScenario } from '@/api/mock/fixtures';
 import { ops, setOpsScenario } from '@/api/ops/mock/state';
 import type { UpdateCheckError } from '@/api/ops/types';
@@ -60,6 +60,51 @@ describe('Admin → Status: backups and operations', () => {
       '/admin/backups',
     );
     expect(screen.queryByText('File bucket versioning')).not.toBeInTheDocument();
+  });
+
+  describe('in the Home Assistant app', () => {
+    const appState = () => {
+      const state = ownerScenario();
+      setOpsScenario(state, 'unconfigured');
+      state.admin.status.homeAssistant = true;
+      // A database an earlier app version upgraded without Kept's own snapshot.
+      ops(state).status.backup.upgradeWithoutSnapshot = {
+        fromVersion: '1.14.2',
+        toVersion: '1.14.3',
+        at: new Date(Date.now() - DAY).toISOString(),
+      };
+      return state;
+    };
+    afterEach(() => {
+      document.head.querySelector('meta[name="kept-ingress"]')?.remove();
+    });
+
+    it('says Home Assistant backs up Kept, and warns of no missing backup', async () => {
+      await renderApp('/admin/status', { state: appState() });
+      expect(await screen.findByText('Home Assistant backs up Kept')).toBeInTheDocument();
+      expect(screen.queryByText('No backup configured')).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Set up backups' })).not.toBeInTheDocument();
+      expect(screen.queryByText(/without a backup/)).not.toBeInTheDocument();
+      // Kept's own restic checks don't run in the app.
+      expect(screen.queryByText('Restore drill')).not.toBeInTheDocument();
+      expect(screen.queryByText('Repository check')).not.toBeInTheDocument();
+      // On Kept's own address: the words, no link.
+      expect(
+        screen.getByText(/in Home Assistant → Settings → System → Backups/),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Settings → System → Backups' })).toBeNull();
+    });
+
+    it('links to Home Assistant’s backups in the top window from the sidebar', async () => {
+      const meta = document.createElement('meta');
+      meta.name = 'kept-ingress';
+      meta.content = '1';
+      document.head.append(meta);
+      await renderApp('/admin/status', { state: appState() });
+      const link = await screen.findByRole('link', { name: 'Settings → System → Backups' });
+      expect(link).toHaveAttribute('href', `${window.location.origin}/config/backup`);
+      expect(link).toHaveAttribute('target', '_top');
+    });
   });
 
   it('warns when the backups are on the data’s disk', async () => {

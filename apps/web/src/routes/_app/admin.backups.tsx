@@ -23,11 +23,11 @@ import {
   TestButton,
   useTargetWords,
 } from '@/components/ops/backup-target-form';
+import { HomeAssistantBackupsPlace } from '@/components/ops/home-assistant-backups';
 import { useSize } from '@/components/ops/ops-words';
 import { SnapshotsList } from '@/components/ops/snapshots-list';
 import { ErrorState, LoadingRows, Notice, Pill, Section } from '@/components/page';
 import { Button } from '@/components/ui/button';
-import { homeAssistantHref } from '@/lib/base-path';
 import { useFormat } from '@/lib/format';
 import { listSearch } from '@/lib/url-state';
 
@@ -131,21 +131,12 @@ function Summary({
  * ingress, Home Assistant's backups page is a link in the top window; on Kept's own address the
  * words alone, since Home Assistant's address isn't known there. */
 function HomeAssistantBackups() {
-  const href = homeAssistantHref('/config/backup');
-  const where = <Trans>Settings → System → Backups</Trans>;
+  const place = <HomeAssistantBackupsPlace />;
   return (
     <Notice tone="info" title={<Trans>Home Assistant backs up Kept</Trans>}>
       <Trans>
         Home Assistant backs up Kept: the database, photos and files, and Kept's keys. Take or
-        schedule backups in Home Assistant →{' '}
-        {href ? (
-          <a href={href} target="_top" className="underline underline-offset-2">
-            {where}
-          </a>
-        ) : (
-          where
-        )}
-        .
+        schedule backups in Home Assistant → {place}.
       </Trans>
     </Notice>
   );

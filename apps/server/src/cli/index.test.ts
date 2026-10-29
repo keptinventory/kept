@@ -8,7 +8,7 @@ import { promisify } from 'node:util';
 import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { testDb } from '../../test/db.js';
-import { buildCli } from './index.js';
+import { buildCli, skipUpgradeSnapshot } from './index.js';
 
 const run = promisify(execFile);
 const serverRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -255,5 +255,22 @@ process.on('exit', () => process.stderr.write('MODULES ' + JSON.stringify(seen) 
         stderr: expect.stringContaining('KEPT_OWNER_DATABASE_URL'),
       });
     });
+  });
+});
+
+// `kept migrate`'s pre-upgrade snapshot is Kept's own backup. In the Home Assistant app (KEPT_HA)
+// there is none to take (no target can be set), and Home Assistant offers its own backup before an
+// update; without this, every update would log "NO BACKUP IS CONFIGURED" and leave Admin → Status
+// saying it upgraded without a backup.
+describe('skipUpgradeSnapshot()', () => {
+  it('skips with --skip-snapshot, KEPT_UPGRADE_SNAPSHOT=off, or in the Home Assistant app', () => {
+    expect(skipUpgradeSnapshot(true, {})).toBe(true);
+    expect(skipUpgradeSnapshot(undefined, { KEPT_UPGRADE_SNAPSHOT: 'off' })).toBe(true);
+    expect(skipUpgradeSnapshot(undefined, { KEPT_HA: '1' })).toBe(true);
+  });
+
+  it('takes it everywhere else', () => {
+    expect(skipUpgradeSnapshot(undefined, {})).toBe(false);
+    expect(skipUpgradeSnapshot(false, { KEPT_UPGRADE_SNAPSHOT: 'auto', KEPT_HA: '0' })).toBe(false);
   });
 });
