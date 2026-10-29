@@ -4,7 +4,7 @@
  * runs list's filters in the URL, plain HTTP, a member, and Arabic.
  */
 import { screen, waitFor, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { memberScenario, ownerScenario } from '@/api/mock/fixtures';
 import { reply } from '@/api/mock/kit';
 import { ops, setOpsScenario } from '@/api/ops/mock/state';
@@ -176,6 +176,45 @@ describe('Admin → Backups', () => {
     ops(state).updates = { ...ops(state).updates, locked: true };
     await renderApp('/admin/settings', { state });
     expect(await screen.findByRole('switch', { name: /Check for new versions/ })).toBeDisabled();
+  });
+
+  describe('in the Home Assistant app', () => {
+    const appState = () => {
+      const state = ownerScenario();
+      state.admin.status.homeAssistant = true;
+      return state;
+    };
+    afterEach(() => {
+      document.head.querySelector('meta[name="kept-ingress"]')?.remove();
+    });
+
+    it('says Home Assistant backs Kept up, with no target, Test, Run now or runs', async () => {
+      await renderApp('/admin/backups', { state: appState() });
+      expect(await screen.findByText('Home Assistant backs up Kept')).toBeInTheDocument();
+      expect(
+        screen.getByText(/the database, photos and files, and Kept's keys/),
+      ).toBeInTheDocument();
+      for (const name of ['Edit', 'Test', 'Run now', 'Save']) {
+        expect(screen.queryByRole('button', { name })).not.toBeInTheDocument();
+      }
+      expect(screen.queryByText('Runs')).not.toBeInTheDocument();
+      expect(screen.queryByText('No backup configured')).not.toBeInTheDocument();
+      expect(screen.queryByText(/Last good backup/)).not.toBeInTheDocument();
+      // On Kept's own address Home Assistant's address isn't known: the words, no link.
+      expect(screen.getByText(/Settings → System → Backups/)).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /Settings → System → Backups/ })).toBeNull();
+    });
+
+    it('links to Home Assistant’s backups in the top window from the sidebar', async () => {
+      const meta = document.createElement('meta');
+      meta.name = 'kept-ingress';
+      meta.content = '1';
+      document.head.append(meta);
+      await renderApp('/admin/backups', { state: appState() });
+      const link = await screen.findByRole('link', { name: 'Settings → System → Backups' });
+      expect(link).toHaveAttribute('href', `${window.location.origin}/config/backup`);
+      expect(link).toHaveAttribute('target', '_top');
+    });
   });
 
   it('is for instance admins only', async () => {

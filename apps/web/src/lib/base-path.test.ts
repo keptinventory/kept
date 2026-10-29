@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   appHref,
   hashHref,
+  homeAssistantHref,
   ingressBase,
   installIngressPrefixing,
   publicOrigin,
@@ -41,6 +42,8 @@ describe('outside ingress (every normal install)', () => {
     const json = { thumbUrl: '/f/abc', nested: [{ url: '/f/def' }] };
     expect(withBaseDeep(json)).toBe(json);
     expect(publicOrigin()).toBe(window.location.origin);
+    // Kept's own address isn't Home Assistant's: no link to one of its pages.
+    expect(homeAssistantHref('/config/backup')).toBeNull();
   });
 
   it('links to a section of this page, not the home page <base href> points at', () => {
@@ -109,6 +112,12 @@ describe('under ingress', () => {
 
   it('names Kept’s own address for links people copy, not Home Assistant’s', () => {
     expect(publicOrigin()).toBe('http://homeassistant.local:8080');
+  });
+
+  it('links to a page of Home Assistant’s own at its origin, outside the prefix', () => {
+    const href = homeAssistantHref('/config/backup');
+    expect(href).toBe(`${window.location.origin}/config/backup`);
+    expect(new URL(href ?? '').pathname.startsWith(PREFIX)).toBe(false);
   });
 
   it('wraps fetch and XMLHttpRequest so every server path goes under the prefix', async () => {

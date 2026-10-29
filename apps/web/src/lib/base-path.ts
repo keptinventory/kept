@@ -91,6 +91,17 @@ export function publicOrigin(): string {
   return typeof location === 'undefined' ? '' : location.origin;
 }
 
+/**
+ * A page of Home Assistant's own (`/config/backup`), for a link that leaves Kept: under ingress the
+ * page's origin is Home Assistant's, and the path is outside the prefix, so the link names the
+ * origin and opens in the top window (target="_top"), Home Assistant's frontend, not Kept's frame.
+ * Null everywhere else: on Kept's own address, Home Assistant's address isn't known.
+ */
+export function homeAssistantHref(path: string): string | null {
+  if (!underIngress() || typeof location === 'undefined') return null;
+  return new URL(path, location.origin).toString();
+}
+
 let installed = false;
 
 /**

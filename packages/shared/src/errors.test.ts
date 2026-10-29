@@ -94,6 +94,7 @@ describe('ErrorCode', () => {
       'backup_running',
       'backup_target_unreachable',
       'backup_password_weak',
+      'home_assistant_backups',
       'setting_locked',
       'restic_failed',
       'https_required',
@@ -132,7 +133,7 @@ describe('ErrorCode', () => {
   });
 
   it('gives every operations code an English sentence', () => {
-    expect(Object.keys(OPS_ERROR_MESSAGES)).toHaveLength(9);
+    expect(Object.keys(OPS_ERROR_MESSAGES)).toHaveLength(10);
     for (const [code, message] of Object.entries(OPS_ERROR_MESSAGES)) {
       expect(isErrorCode(code)).toBe(true);
       expect(message).toMatch(/^[A-Z].+\.$/);

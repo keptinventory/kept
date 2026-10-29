@@ -529,3 +529,53 @@ describe('GET /api/v1/admin/status', () => {
     );
   });
 });
+
+// The Home Assistant app (KEPT_HA, D272): the serving process never holds the database owner's
+// login, so Kept's own backups can't run there; Home Assistant's backups are the backup. The
+// target, the test and Run now refuse up front with one code the page puts in words, instead of
+// failing deep inside restic or the worker.
+describe('in the Home Assistant app', () => {
+  let ha: TestApp;
+  let admin: Person;
+
+  beforeAll(async () => {
+    ha = await peopleApp(db, { publicUrl: HTTPS, sent, secretKeys: keys, appMode: true });
+    admin = await person(ha, db, 'ha-admin');
+    await ownerTx(db, (c) =>
+      c.query('INSERT INTO public.instance_admins (user_id) VALUES ($1)', [admin.userId]),
+    );
+  });
+
+  it('409 home_assistant_backups for the target, the test and Run now', async () => {
+    await acknowledgeKit();
+    for (const [url, method] of [
+      ['/api/v1/admin/backup', 'PUT'],
+      ['/api/v1/admin/backup/test', 'POST'],
+      ['/api/v1/admin/backup/run', 'POST'],
+    ] as const) {
+      const res = await call(ha, url, {
+        as: admin,
+        method,
+        body: method === 'PUT' ? body() : {},
+        headers: { 'if-match': '0' },
+      });
+      expect([url, res.statusCode, res.json().code]).toEqual([url, 409, 'home_assistant_backups']);
+    }
+    expect(sent.filter((j) => j.name === 'backup')).toEqual([]);
+    const saved = await ownerTx(db, (c) =>
+      c.query(`SELECT 1 FROM public.instance_settings WHERE key = 'backup'`),
+    );
+    expect(saved.rowCount).toBe(0);
+  });
+
+  it('still answers 404 to anyone who is not an instance admin', async () => {
+    const other = await person(ha, db, 'ha-member');
+    const res = await call(ha, '/api/v1/admin/backup/run', { as: other, body: {} });
+    expect(res.statusCode).toBe(404);
+  });
+
+  it('still reads the settings and the runs, for the page', async () => {
+    expect((await call(ha, '/api/v1/admin/backup', { as: admin })).statusCode).toBe(200);
+    expect((await call(ha, '/api/v1/admin/backup/runs', { as: admin })).statusCode).toBe(200);
+  });
+});

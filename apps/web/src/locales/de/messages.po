@@ -18,6 +18,18 @@ msgstr " und "
 msgid ", "
 msgstr ", "
 
+#: src/routes/_app/admin.backups.tsx
+msgid "Home Assistant backs up Kept"
+msgstr "Home Assistant sichert Kept"
+
+#: src/routes/_app/admin.backups.tsx
+msgid "Home Assistant backs up Kept: the database, photos and files, and Kept's keys. Take or schedule backups in Home Assistant → {0}."
+msgstr "Home Assistant sichert Kept: die Datenbank, Fotos und Dateien sowie Kepts Schlüssel. Sicherungen erstellen oder planen Sie in Home Assistant → {0}."
+
+#: src/routes/_app/admin.backups.tsx
+msgid "Settings → System → Backups"
+msgstr "Einstellungen → System → Backups"
+
 #: src/components/home/checklist.tsx
 msgid "Any provider that offers SMTP works, such as your email provider's app password or a sending service. Admin → Status shows Sending once it's on."
 msgstr "Jeder Anbieter mit SMTP funktioniert, etwa ein App-Passwort Ihres E-Mail-Anbieters oder ein Versanddienst. Admin → Status zeigt „Versand aktiv“, sobald es läuft."

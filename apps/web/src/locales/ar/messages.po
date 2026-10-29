@@ -18,6 +18,18 @@ msgstr " و"
 msgid ", "
 msgstr "، "
 
+#: src/routes/_app/admin.backups.tsx
+msgid "Home Assistant backs up Kept"
+msgstr "يأخذ Home Assistant نسخًا احتياطية من Kept"
+
+#: src/routes/_app/admin.backups.tsx
+msgid "Home Assistant backs up Kept: the database, photos and files, and Kept's keys. Take or schedule backups in Home Assistant → {0}."
+msgstr "يأخذ Home Assistant نسخًا احتياطية من Kept: قاعدة البيانات والصور والملفات ومفاتيح Kept. أنشئ النسخ الاحتياطية أو جدولها في Home Assistant ← {0}."
+
+#: src/routes/_app/admin.backups.tsx
+msgid "Settings → System → Backups"
+msgstr "الإعدادات ← النظام ← النسخ الاحتياطية"
+
 #: src/components/home/checklist.tsx
 msgid "Any provider that offers SMTP works, such as your email provider's app password or a sending service. Admin → Status shows Sending once it's on."
 msgstr "أي مزوّد يقدّم SMTP يصلح، مثل كلمة مرور تطبيق من مزوّد بريدك أو خدمة إرسال. تعرض الإدارة ← الحالة «يُرسل» عند تشغيله."

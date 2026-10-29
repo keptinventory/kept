@@ -5,6 +5,11 @@
  * snapshots, read-only (snapshots-list.tsx). Inside the admin frame (admin.tsx), which says "For
  * instance admins" to anyone else; its chunk loads on demand from assets/household/
  * (vite.config.ts), and offline the frame's error screen says "Needs a connection".
+ *
+ * In the Home Assistant app (D272; `homeAssistant` on GET /admin/status, as Admin → Status reads)
+ * Kept's own backups can't run: the serving process never holds the database owner's login, and the
+ * server answers 409 `home_assistant_backups` to the target, Test and Run now. The page says so
+ * and points at Home Assistant's backups instead, with no form, runs or snapshots.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { createFileRoute } from '@tanstack/react-router';
@@ -22,6 +27,7 @@ import { useSize } from '@/components/ops/ops-words';
 import { SnapshotsList } from '@/components/ops/snapshots-list';
 import { ErrorState, LoadingRows, Notice, Pill, Section } from '@/components/page';
 import { Button } from '@/components/ui/button';
+import { homeAssistantHref } from '@/lib/base-path';
 import { useFormat } from '@/lib/format';
 import { listSearch } from '@/lib/url-state';
 
@@ -121,12 +127,38 @@ function Summary({
   );
 }
 
+/** The app's backups are Home Assistant's: what they hold, and where to take or schedule one. Under
+ * ingress, Home Assistant's backups page is a link in the top window; on Kept's own address the
+ * words alone, since Home Assistant's address isn't known there. */
+function HomeAssistantBackups() {
+  const href = homeAssistantHref('/config/backup');
+  const where = <Trans>Settings → System → Backups</Trans>;
+  return (
+    <Notice tone="info" title={<Trans>Home Assistant backs up Kept</Trans>}>
+      <Trans>
+        Home Assistant backs up Kept: the database, photos and files, and Kept's keys. Take or
+        schedule backups in Home Assistant →{' '}
+        {href ? (
+          <a href={href} target="_top" className="underline underline-offset-2">
+            {where}
+          </a>
+        ) : (
+          where
+        )}
+        .
+      </Trans>
+    </Notice>
+  );
+}
+
 function AdminBackupsPage() {
   const { t } = useLingui();
   const settings = useBackupSettings();
   const status = useOpsStatus();
   const [editing, setEditing] = useState(false);
-  if (settings.isPending) return <LoadingRows rows={3} label={t`Loading backups`} />;
+  if (settings.isPending || status.isPending)
+    return <LoadingRows rows={3} label={t`Loading backups`} />;
+  if (status.data?.homeAssistant) return <HomeAssistantBackups />;
   if (settings.error)
     return <ErrorState error={settings.error} onRetry={() => void settings.refetch()} />;
   const view = settings.data;

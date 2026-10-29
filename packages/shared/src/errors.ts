@@ -161,6 +161,8 @@ export const ErrorCode = Object.freeze({
   backup_target_unreachable: 'backup_target_unreachable',
   /** A backup password shorter than BACKUP_PASSWORD_MIN. */
   backup_password_weak: 'backup_password_weak',
+  /** In the Home Assistant app (KEPT_HA) Kept's own backups can't run: Home Assistant's do (409). */
+  home_assistant_backups: 'home_assistant_backups',
   /** A setting the server's environment fixes was changed (D186). */
   setting_locked: 'setting_locked',
   /** Restic failed; the body's `reason` is a RESTIC_ERROR_REASONS code. */
@@ -344,6 +346,7 @@ export type OpsErrorCode =
   | 'backup_running'
   | 'backup_target_unreachable'
   | 'backup_password_weak'
+  | 'home_assistant_backups'
   | 'setting_locked'
   | 'restic_failed'
   | 'https_required'
@@ -356,6 +359,7 @@ export const OPS_ERROR_MESSAGES: Readonly<Record<OpsErrorCode, string>> = Object
   backup_running: 'A backup is already running.',
   backup_target_unreachable: "Kept can't reach the backup storage.",
   backup_password_weak: 'Use a backup password of at least 12 characters.',
+  home_assistant_backups: "Home Assistant backs up Kept here; Kept's own backups are off.",
   setting_locked: "This is set by the server's environment and can't be changed here.",
   restic_failed: 'The backup tool failed.',
   https_required: 'This needs a secure (https) connection to Kept.',

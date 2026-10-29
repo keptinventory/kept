@@ -145,6 +145,13 @@ describe('Admin → Backups', () => {
     expect((await fail(api.runBackup())).code).toBe('backup_not_configured');
   });
 
+  it('refuses the target, Test and Run now in the Home Assistant app (409)', async () => {
+    state.admin.status.homeAssistant = true;
+    expect((await fail(api.testBackup())).code).toBe('home_assistant_backups');
+    expect((await fail(api.runBackup())).code).toBe('home_assistant_backups');
+    await expect(api.backup()).resolves.toBeTruthy();
+  });
+
   it('is not there for someone who isn’t an instance admin (404)', async () => {
     use(memberScenario());
     expect((await fail(api.backup())).status).toBe(404);
