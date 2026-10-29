@@ -131,7 +131,9 @@ facts=$(docker exec "$app" node -e '
     try {
       const cmd = fs.readFileSync(`/proc/${pid}/cmdline`, "utf8").split("\0").filter(Boolean);
       const uid = /^Uid:\s+(\d+)/m.exec(fs.readFileSync(`/proc/${pid}/status`, "utf8"))[1];
-      out.procs.push({ pid, uid, cmd: cmd.slice(0, 3).join(" ") });
+      // The whole command line: under emulation (amd64 on an arm64 host) an emulator comes first
+      // and repeats the program path, so the first few words are not the program arguments.
+      out.procs.push({ pid, uid, cmd: cmd.join(" ") });
     } catch {}
   }
   for (const f of ["/proc/net/tcp", "/proc/net/tcp6"]) {
