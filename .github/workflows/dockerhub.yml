@@ -1,5 +1,6 @@
 # The Docker Hub copy of a release: scripts/mirror-dockerhub.sh copies the published GHCR index to
-# docker.io/keptinventory/kept (the same digest, no rebuild), with X.Y and X where GHCR has them,
+# docker.io/keptinventory/kept, and the Home Assistant app's image to docker.io/keptinventory/kept-ha
+# (the same digest, no rebuild), with X.Y and X where GHCR has them,
 # and signs the copy with the release key. Called by release.yml after the release is published;
 # by hand (Run workflow) for a release that is already out.
 #
@@ -71,6 +72,14 @@ jobs:
         run: |
           [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || { echo "::error::not a version: $VERSION"; exit 1; }
           bash scripts/mirror-dockerhub.sh "$VERSION"
+          # The Home Assistant app's image (from 1.14.3) goes to its own repository the same way;
+          # an older release has none, so only kept is copied.
+          if docker buildx imagetools inspect "ghcr.io/keptinventory/kept-ha:$VERSION" >/dev/null 2>&1; then
+            KEPT_MIRROR_SRC=ghcr.io/keptinventory/kept-ha KEPT_MIRROR_DST=docker.io/keptinventory/kept-ha \
+              bash scripts/mirror-dockerhub.sh "$VERSION"
+          else
+            echo "no ghcr.io/keptinventory/kept-ha:$VERSION: only kept is copied"
+          fi
 
       - name: Remove the key and the logins
         if: always()
