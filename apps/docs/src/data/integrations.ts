@@ -439,6 +439,20 @@ export const integrationGroups: IntegrationGroup[] = [
         },
       },
       {
+        id: 'home-assistant-app',
+        icon: 'server',
+        href: '/install/home-assistant/',
+        code: ['homeassistant/kept/', 'docker/ha/'],
+        en: {
+          name: 'Home Assistant app',
+          body: "Installs from Home Assistant's app store. In the sidebar, in Home Assistant's backups.",
+        },
+        ar: {
+          name: 'تطبيق Home Assistant',
+          body: 'يُثبَّت من متجر تطبيقات Home Assistant. في الشريط الجانبي، وضمن نسخ Home Assistant الاحتياطية.',
+        },
+      },
+      {
         id: 'home-assistant',
         icon: 'places',
         href: '/users/home-assistant/',
@@ -446,6 +460,7 @@ export const integrationGroups: IntegrationGroup[] = [
         code: ['apps/server/src/home/summary.ts', 'apps/server/src/tokens/access.ts'],
         en: {
           name: 'Home Assistant',
+          title: 'Home Assistant integration',
           body: "Overdue, due and expiring per location, each vehicle's next service. Odometer readings sent back.",
         },
         ar: {

@@ -1,7 +1,5 @@
 # Kept
 
-> **Not available yet.** The app is in testing and isn't listed in the repository yet.
-
 Kept and its own database (Postgres 18) in one app. Everything it keeps is in the app's data,
 which Home Assistant backs up. Guide: <https://keptinventory.info/install/home-assistant/>.
 Needs Home Assistant OS with Supervisor 2026.10.4 or later.
