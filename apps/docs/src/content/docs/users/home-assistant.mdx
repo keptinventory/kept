@@ -3,6 +3,10 @@ title: Home Assistant
 description: "Kept in Home Assistant: sensors for what's overdue, due and expiring, each vehicle's reading and next service, a calendar, and odometer readings sent back."
 ---
 
+import { Image } from 'astro:assets';
+import diagramLight from '../../../assets/diagrams/home-assistant-light.svg';
+import diagramDark from '../../../assets/diagrams/home-assistant-dark.svg';
+
 The Kept integration for [Home Assistant](https://www.home-assistant.io/) shows what needs you in
 each location and sends readings back, such as the odometer a car integration already knows. It
 reads Kept with a [personal token](/users/mcp-clients/#make-a-personal-token).
@@ -12,6 +16,18 @@ installed with [HACS](https://hacs.xyz/) as a custom repository.
 
 Optional: only if you already run [Home Assistant](https://www.home-assistant.io/installation/).
 Kept works the same without it.
+
+## The app and the integration
+
+<Image src={diagramLight} alt="Kept, on your server or as the Home Assistant app, and the Kept integration inside Home Assistant: the integration reads Kept every 5 minutes and sends readings back, and its sensors, calendar and actions feed dashboards, automations and the calendar" class="kd-only-light" />
+<Image src={diagramDark} alt="Kept, on your server or as the Home Assistant app, and the Kept integration inside Home Assistant: the integration reads Kept every 5 minutes and sends readings back, and its sensors, calendar and actions feed dashboards, automations and the calendar" class="kd-only-dark" />
+
+- **The app** runs Kept on Home Assistant OS ([install it](/install/home-assistant/)). Kept on
+  your own server works the same.
+- **The integration** brings Kept into Home Assistant: the sensors, the calendar and the actions.
+  Only an integration can add entities, so the app can't.
+- **App users turn on https first:** the app's **https on Kept's port** option. Kept makes tokens
+  only over https.
 
 ## Before you start
 
