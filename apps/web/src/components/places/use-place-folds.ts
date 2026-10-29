@@ -7,12 +7,15 @@
  *   read arrives, after it failed, or from a tab whose read is old can't erase the other folds.
  * - The cache changes first; changes go one at a time per location, in order.
  * - A read that started before a change arrives without it: the change is put back on top.
- * - A change the server refuses, or that can't be sent (offline), is undone on the page, unless
- *   a later change has touched the same place since.
+ * - A change the server refuses (a 4xx) is undone on the page, unless a later change has touched
+ *   the same place since.
+ * - A change that couldn't be sent (offline, a network error, a 5xx) stays on the page and waits,
+ *   with the ones after it, in order: they go when the browser is back online (the `online`
+ *   event, lib/online.ts's signal), or with the next fold.
  */
 import { type QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
-import { api } from '@/api/client';
+import { ApiError, api } from '@/api/client';
 import { inventoryPaths as p } from '@/api/inventory/paths';
 import { inventoryKeys } from '@/api/inventory/queries';
 import type { PlaceFolds, PlaceFoldsChange } from '@/api/inventory/types';
@@ -23,8 +26,10 @@ type Sent = { seq: number; change: PlaceFoldsChange; failed: boolean };
 
 /** Each location's recent changes, in order, so a read can put the newer ones back on top. */
 const log = new Map<string, Sent[]>();
-/** The last request sent per location: the next one waits for it. */
-const sending = new Map<string, Promise<unknown>>();
+/** Each location's changes not yet taken by the server, oldest first. */
+const queue = new Map<string, { sent: Sent; before: ReadonlySet<string>; qc: QueryClient }[]>();
+/** The locations whose queue is being sent now. */
+const pumping = new Set<string>();
 let seq = 0;
 const KEEP = 200;
 
@@ -58,6 +63,40 @@ function undo(qc: QueryClient, locationId: string, sent: Sent, before: ReadonlyS
   });
 }
 
+/** A refusal from the server: the change will never be taken, so it is undone. */
+const refused = (err: unknown) => err instanceof ApiError && err.status >= 400 && err.status < 500;
+
+/**
+ * Sends a location's waiting changes one at a time, in order. A refused one is undone and the
+ * rest go on; one that can't be sent stops the queue there until the next try.
+ */
+async function pump(locationId: string): Promise<void> {
+  if (pumping.has(locationId)) return;
+  pumping.add(locationId);
+  try {
+    const waiting = queue.get(locationId) ?? [];
+    while (waiting.length) {
+      const head = waiting[0] as (typeof waiting)[number];
+      try {
+        await api.put<void>(p.placeFolds(locationId), head.sent.change);
+      } catch (err) {
+        if (!refused(err)) return;
+        head.sent.failed = true;
+        undo(head.qc, locationId, head.sent, head.before);
+      }
+      waiting.shift();
+    }
+  } finally {
+    pumping.delete(locationId);
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => {
+    for (const [locationId, waiting] of queue) if (waiting.length) void pump(locationId);
+  });
+}
+
 export function usePlaceFolds(locationId: string | undefined): {
   folded: ReadonlySet<string>;
   change: (change: Partial<PlaceFoldsChange>) => void;
@@ -86,14 +125,11 @@ export function usePlaceFolds(locationId: string | undefined): {
       qc.setQueryData<PlaceFolds>(key, (old) => ({
         placeIds: applied(old?.placeIds ?? [], body),
       }));
-      const send = (sending.get(id) ?? Promise.resolve())
-        .catch(() => {})
-        .then(() => api.put<void>(p.placeFolds(id), body))
-        .catch(() => {
-          sent.failed = true;
-          undo(qc, id, sent, before);
-        });
-      sending.set(id, send);
+      // In place: a queue being sent picks it up after the ones before it.
+      const waiting = queue.get(id) ?? [];
+      waiting.push({ sent, before, qc });
+      queue.set(id, waiting);
+      void pump(id);
     },
     [id, qc],
   );

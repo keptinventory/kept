@@ -60,7 +60,8 @@ type Change = { fold: string[]; open: string[] };
 /**
  * The server's folds for LOC, answering GET and PUT as the server does (a PUT is a change),
  * recording each PUT. `holdGet`: the GET reads the folds at once and answers when it resolves,
- * as a slow read does. `failPuts`: every PUT is refused, once `holdPut` resolves.
+ * as a slow read does. `failPuts`: every PUT is refused (a 400), once `holdPut` resolves.
+ * `net.offline`: a PUT can't be sent at all, as with no connection (fetch rejects).
  */
 function stubFolds(
   initial: string[] = [],
@@ -68,7 +69,13 @@ function stubFolds(
     holdGet,
     holdPut,
     failPuts = false,
-  }: { holdGet?: Promise<void>; holdPut?: Promise<void>; failPuts?: boolean } = {},
+    net = { offline: false },
+  }: {
+    holdGet?: Promise<void>;
+    holdPut?: Promise<void>;
+    failPuts?: boolean;
+    net?: { offline: boolean };
+  } = {},
 ) {
   const stored = new Set(initial);
   const puts: Change[] = [];
@@ -76,11 +83,12 @@ function stubFolds(
     if (input !== `/api/v1/locations/${LOC}/place-folds`)
       return new Response(null, { status: 404 });
     if (init.method === 'PUT') {
+      if (net.offline) throw new TypeError('Failed to fetch');
       const body = JSON.parse(String(init.body)) as Change;
       puts.push(body);
       await holdPut;
       if (failPuts)
-        return Response.json({ code: 'unavailable', message: 'Try again.' }, { status: 503 });
+        return Response.json({ code: 'validation', message: 'Not a place.' }, { status: 400 });
       for (const id of body.open) stored.delete(id);
       for (const id of body.fold) stored.add(id);
       return new Response(null, { status: 204 });
@@ -200,7 +208,7 @@ describe('the docked places panel folds each place', () => {
     ]);
   });
 
-  it('a fold the server refuses is undone on the page', async () => {
+  it('a fold the server refuses (a 4xx) is undone on the page', async () => {
     let refuse = () => {};
     const holdPut = new Promise<void>((done) => {
       refuse = done;
@@ -214,6 +222,36 @@ describe('the docked places panel folds each place', () => {
     refuse();
     await waitFor(() => expect(foldOf('Under bed')).toHaveAttribute('aria-expanded', 'true'));
     expect(shown(/Winter clothes/)).toBeInTheDocument();
+  });
+
+  it('a fold made offline stays on the page, and goes to the server, in order, once back online', async () => {
+    const net = { offline: true };
+    const server = stubFolds([], { net });
+    const { user } = await mount(panel());
+    await user.click(foldOf('Under bed'));
+    await user.click(foldOf('Bedroom'));
+    await user.click(foldOf('Bedroom'));
+    // Nothing reached the server, and the page keeps the folds.
+    await new Promise((done) => setTimeout(done, 50));
+    expect(server.puts).toEqual([]);
+    expect(foldOf('Under bed')).toHaveAttribute('aria-expanded', 'false');
+    expect(foldOf('Bedroom')).toHaveAttribute('aria-expanded', 'true');
+
+    net.offline = false;
+    window.dispatchEvent(new Event('online'));
+    await waitFor(() =>
+      expect(server.puts).toEqual([
+        { fold: ['under-bed'], open: [] },
+        { fold: ['bedroom'], open: [] },
+        { fold: [], open: ['bedroom'] },
+      ]),
+    );
+    expect(server.stored()).toEqual(['under-bed']);
+    // Sent once: another online event sends nothing more.
+    window.dispatchEvent(new Event('online'));
+    await new Promise((done) => setTimeout(done, 50));
+    expect(server.puts).toHaveLength(3);
+    expect(foldOf('Under bed')).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('gives a coarse pointer 40 px targets, as an iPad at 1280 px', async () => {
