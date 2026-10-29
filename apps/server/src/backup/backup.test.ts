@@ -526,6 +526,32 @@ describe('a retried "Run now"', () => {
   });
 });
 
+describe('an interrupted run', () => {
+  it('a run that finds a `running` row left behind (its process died) marks it backup_interrupted', async () => {
+    const leftover = newId();
+    await asOwner(db, (c) =>
+      c.query(
+        `INSERT INTO public.backup_runs (id, kind, storage_mode, target, started_at)
+         VALUES ($1, 'nightly', 'local', 'directory /x', now() - interval '1 hour')`,
+        [leftover],
+      ),
+    );
+    const run = await runSnapshot(depsFor(new FakeRestic(), path.join(scratch, 'interrupted')), {
+      kind: 'manual',
+    });
+    expect(run.status).toBe('ok');
+    const [row] = await runsOf(`id = '${leftover}'`);
+    expect(row).toMatchObject({ status: 'failed', error: 'backup_interrupted' });
+    const finished = await asOwner(db, (c) =>
+      c.query<{ finished: boolean }>(
+        'SELECT finished_at IS NOT NULL AS finished FROM public.backup_runs WHERE id = $1',
+        [leftover],
+      ),
+    );
+    expect(finished.rows[0]?.finished).toBe(true);
+  });
+});
+
 describe('one run at a time', () => {
   it('a second run while one holds the lock is refused and records nothing', async () => {
     const holder = new pg.Client({ connectionString: db.urls.owner });

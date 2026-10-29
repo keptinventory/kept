@@ -20473,6 +20473,10 @@ msgid "The database dump failed. The server's log has the details."
 msgstr "Il dump del database non è riuscito. I dettagli sono nel log del server."
 
 #: src/components/ops/ops-words.ts
+msgid "The backup stopped before it finished: the server restarted or ran out of memory. The next backup runs as usual."
+msgstr "Il backup si è interrotto prima di finire: il server è stato riavviato o ha esaurito la memoria. Il prossimo backup si svolge come sempre."
+
+#: src/components/ops/ops-words.ts
 msgid "The database dump tool doesn't match the database's version. Use Kept's own image."
 msgstr "Lo strumento di dump non corrisponde alla versione del database. Usa l'immagine di Kept."
 

@@ -20473,6 +20473,10 @@ msgid "The database dump failed. The server's log has the details."
 msgstr "فشل تفريغ قاعدة البيانات. التفاصيل في سجل الخادم."
 
 #: src/components/ops/ops-words.ts
+msgid "The backup stopped before it finished: the server restarted or ran out of memory. The next backup runs as usual."
+msgstr "توقّفت النسخة الاحتياطية قبل أن تكتمل: أُعيد تشغيل الخادم أو نفدت ذاكرته. تجري النسخة الاحتياطية التالية كالمعتاد."
+
+#: src/components/ops/ops-words.ts
 msgid "The database dump tool doesn't match the database's version. Use Kept's own image."
 msgstr "أداة تفريغ قاعدة البيانات لا تطابق إصدار قاعدة البيانات. استخدم صورة Kept نفسها."
 
