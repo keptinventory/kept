@@ -14,7 +14,7 @@ Four steps, with no copy of the repository and no passwords to make:
 
 ```sh
 mkdir kept && cd kept
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.2/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.3/compose.yaml
 docker compose run --rm init
 docker compose up -d
 ```

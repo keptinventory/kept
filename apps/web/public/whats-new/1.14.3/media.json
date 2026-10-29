@@ -1,0 +1,20 @@
+{
+  "backups.webp": {
+    "width": 960,
+    "height": 600
+  },
+  "floor-plan.webp": {
+    "width": 960,
+    "height": 600
+  },
+  "place-folds.mp4": {
+    "width": 960,
+    "height": 600,
+    "poster": "place-folds.webp",
+    "webm": "place-folds.webm"
+  },
+  "home-assistant.webp": {
+    "width": 960,
+    "height": 600
+  }
+}

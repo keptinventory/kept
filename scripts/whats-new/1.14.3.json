@@ -1,0 +1,39 @@
+{
+  "media": [
+    {
+      "file": "floor-plan.webp",
+      "path": "/#/loc/01926f00-0000-7000-8000-00000000b001?view=map",
+      "setup": [
+        { "click": { "role": "button", "name": "Start from a floor plan" } },
+        { "waitFor": { "role": "dialog", "name": "Start from a floor plan" } }
+      ],
+      "steps": [
+        { "click": { "role": "button", "name": "Use a sample floor plan" } },
+        { "waitFor": { "role": "img", "name": "The plan you chose" } },
+        { "wait": 600 }
+      ],
+      "crop": [296, 116, 720, 450]
+    },
+    {
+      "file": "place-folds.mp4",
+      "path": "/p/01926f00-0000-7000-8000-0000000c0003",
+      "steps": [
+        { "click": { "role": "button", "name": "Contents of Office" } },
+        { "wait": 900 },
+        { "click": { "role": "button", "name": "Contents of Hallway closet" } },
+        { "wait": 900 },
+        { "click": { "role": "button", "name": "Fold all" } },
+        { "wait": 1300 },
+        { "click": { "role": "button", "name": "Open all" } },
+        { "wait": 900 }
+      ],
+      "crop": [248, 80, 800, 500]
+    },
+    {
+      "file": "backups.webp",
+      "path": "/admin/backups",
+      "steps": [{ "waitFor": { "text": "/^Last good backup/" } }],
+      "crop": [256, 322, 640, 400]
+    }
+  ]
+}
