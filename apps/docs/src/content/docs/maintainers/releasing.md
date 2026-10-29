@@ -51,7 +51,8 @@ In this order, stopping at the first failure (D87, D186, D187):
    Contributors; the full changelog link; and the release record, folded;
 8. the **Docker Hub copy** (`dockerhub.yml`, `scripts/mirror-dockerhub.sh`): the same index copied
    by digest to `docker.io/keptinventory/kept` with the same tags, and signed there with the same
-   key. It needs the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets; a release already out is
+   key; from 1.14.3 the Home Assistant app's image goes to `docker.io/keptinventory/kept-ha` the same
+   way. It needs the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets; a release already out is
    copied with **Run workflow** on `dockerhub` and its version.
 9. the **Discord announcement** (`discord.yml`): the Highlights (else What's changed, unfolded parts only) posted to
    #releases through the `DISCORD_RELEASES_WEBHOOK` secret, pinging Release pings for a final
