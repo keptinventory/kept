@@ -10,6 +10,7 @@
 # file and COSIGN_PASSWORD is its password (both as in scripts/release.sh); KEPT_RELEASE_TLOG=1
 # signs into the public transparency log, as releases of the public repository do.
 # KEPT_MIRROR_UNSIGNED=1 copies without signing (a release that went out unsigned).
+# KEPT_MIRROR_SRC and KEPT_MIRROR_DST name another image (dockerhub.yml copies kept-ha this way).
 # For a dry run against a local registry: KEPT_MIRROR_DST, KEPT_MIRROR_PUB (the throwaway public
 # key) and KEPT_MIRROR_HTTP=1.
 #
