@@ -115,8 +115,9 @@ open the box.
 
 ## Quick start: host it
 
-Docker with Compose v2, on a machine with at least 2 GB of RAM and 2 CPU cores
-([what it needs](https://keptinventory.info/install/hardware/)).
+Docker with Compose v2. Tested on 2 GB of RAM and 2 CPU cores: Kept and its database use about
+200–400 MB, a backup about 500 MB more while it runs
+([what was tested](https://keptinventory.info/install/hardware/)).
 
 ```sh
 mkdir kept && cd kept

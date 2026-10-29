@@ -6,8 +6,9 @@ sidebar:
 ---
 
 Docker Compose is the way to run Kept on one machine: Kept itself, Postgres 18 with pgvector, and,
-if you want it, Caddy for HTTPS. You need Docker with the Compose plugin, and a machine with at
-least 2 GB of RAM and 2 CPU cores ([what it needs](/install/hardware/)).
+if you want it, Caddy for HTTPS. You need Docker with the Compose plugin. Tested on a machine with
+2 GB of RAM and 2 CPU cores; Kept and its database use about 200–400 MB of it
+([what was tested](/install/hardware/)).
 
 Four steps, with no copy of the repository and no passwords to make:
 

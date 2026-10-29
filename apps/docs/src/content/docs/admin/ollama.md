@@ -9,10 +9,10 @@ Kept's AI features (filling things in from photos and receipts, the assistant, s
 work with whichever provider a location's owner connects in **Settings → AI**. Ollama runs the model
 on your own hardware, so nothing leaves it; Kept talks to it as an **OpenAI-compatible** provider.
 
-:::caution[Needs more than the floor]
-Ollama on the [2 GB floor](/install/hardware/) hasn't been measured yet. Until it is, plan for a
-machine with more memory than Kept alone needs, and expect a small model to be slower and less
-accurate than a hosted one at reading receipts.
+:::caution[Not tested]
+Ollama hasn't been measured with Kept. A model shares the machine's memory with Kept, so plan for
+more than the [2 GB Kept is tested on](/install/hardware/), and expect a small model to be slower
+and less accurate than a hosted one at reading receipts.
 :::
 
 ## Setting it up
