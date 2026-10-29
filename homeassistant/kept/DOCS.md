@@ -38,6 +38,27 @@ phone app then don't open.
 | Mail sender | `Kept <no-reply@your host>` | The From of Kept's mail. |
 | https on Kept's port | off | Serve the port over https with a certificate in `/ssl` (the DuckDNS or Let's Encrypt apps put one there). Restart the app after the certificate renews. |
 | Certificate file, Private key file | `fullchain.pem`, `privkey.pem` | File names in `/ssl`. |
+| OIDC issuer, client id, client secret | empty: off | Sign-in with your own identity provider. Issuer and client id turn it on; the secret is for a confidential client. |
+| OIDC button name, sign-up by email domain or group, groups claim, scopes | `OIDC`, invite only, `groups`, `openid email profile` | As Kept's `KEPT_OIDC_*` settings. Domains and groups are comma-separated. |
+| Google client id, Google client secret | empty: off | Sign-in with Google, both set. Existing accounts and invited people only. |
+| Sign-up | unset: an admin decides (Admin → Sign-up) | `true` or `false` locks sign-up open or closed. |
+| Upload limit (MB) | `25` | The largest file one upload may be, 1 to 2048. |
+
+An option Kept would refuse (an OIDC issuer without its client id, Google with only one of its
+two) is left out, and the **Log** tab says why: Kept still starts, with that sign-in off.
+
+### OIDC and Google sign-in
+
+The provider sends people back to Kept's own address, never to Home Assistant. Register this
+redirect URL at the provider; the **Log** tab prints it once the sign-in is on:
+
+| Sign-in | Redirect URL |
+|---|---|
+| OIDC | `<Kept's address>/api/v1/auth/callback/oidc` |
+| Google | `<Kept's address>/api/v1/auth/callback/google` |
+
+For example `https://kept.example.org/api/v1/auth/callback/oidc`. Inside Home Assistant, the
+**Sign in with …** button opens Kept's own address in a new tab: sign in there.
 
 ## What needs https
 

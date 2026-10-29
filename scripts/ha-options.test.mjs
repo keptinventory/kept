@@ -114,6 +114,162 @@ describe('appEnv()', () => {
   });
 });
 
+// The sign-in, sign-up and upload options, under Kept's own rules (apps/server/src/config/env.ts):
+// what Kept would refuse at boot is left out and said in the Log tab, so the app still starts.
+describe('sign-in, sign-up and uploads', () => {
+  const run = (options) => appEnv({ options, info, self });
+  const oidc = {
+    oidc_issuer: 'https://id.example.org/realms/home',
+    oidc_client_id: 'kept',
+    oidc_client_secret: 'oidc-s3cret-value',
+  };
+  const google = {
+    google_client_id: '123.apps.googleusercontent.com',
+    google_client_secret: 'google-s3cret-value',
+  };
+
+  it('passes none of them when unset or empty', () => {
+    const empty = {
+      oidc_issuer: '',
+      oidc_client_id: ' ',
+      oidc_client_secret: '',
+      oidc_name: '',
+      oidc_autoprovision_domains: '',
+      oidc_autoprovision_groups: '',
+      oidc_groups_claim: '',
+      oidc_scopes: '',
+      google_client_id: '',
+      google_client_secret: '',
+    };
+    for (const options of [{}, empty]) {
+      const { env, lines } = run(options);
+      expect(Object.keys(env).filter((k) => /OIDC|GOOGLE|SIGNUP|MAX_FILE/.test(k))).toEqual([]);
+      expect(lines.join('\n')).not.toMatch(/OIDC|Google|sign-up|upload/i);
+    }
+  });
+
+  it('turns OIDC on with the issuer and the client id, and passes its other options', () => {
+    const { env } = run({
+      ...oidc,
+      oidc_name: ' Authentik ',
+      oidc_autoprovision_domains: 'example.org, example.net',
+      oidc_autoprovision_groups: 'kept-users',
+      oidc_groups_claim: 'roles',
+      oidc_scopes: 'openid email profile groups',
+    });
+    expect(env).toMatchObject({
+      KEPT_OIDC_ISSUER: 'https://id.example.org/realms/home',
+      KEPT_OIDC_CLIENT_ID: 'kept',
+      KEPT_OIDC_CLIENT_SECRET: 'oidc-s3cret-value',
+      KEPT_OIDC_NAME: 'Authentik',
+      KEPT_OIDC_AUTOPROVISION_DOMAINS: 'example.org, example.net',
+      KEPT_OIDC_AUTOPROVISION_GROUPS: 'kept-users',
+      KEPT_OIDC_GROUPS_CLAIM: 'roles',
+      KEPT_OIDC_SCOPES: 'openid email profile groups',
+    });
+  });
+
+  it('a public client needs no secret', () => {
+    const { env } = run({ oidc_issuer: oidc.oidc_issuer, oidc_client_id: 'kept' });
+    expect(env.KEPT_OIDC_CLIENT_ID).toBe('kept');
+    expect(env).not.toHaveProperty('KEPT_OIDC_CLIENT_SECRET');
+  });
+
+  it('names the redirect URL to register, on Kept’s own address', () => {
+    const { lines } = appEnv({
+      options: { ...oidc, ...google, public_url: 'https://kept.example.org' },
+      info,
+      self,
+    });
+    expect(lines).toContain(
+      'OIDC sign-in is on. Redirect URL to register: https://kept.example.org/api/v1/auth/callback/oidc',
+    );
+    expect(lines).toContain(
+      'Google sign-in is on. Redirect URL to register: https://kept.example.org/api/v1/auth/callback/google',
+    );
+  });
+
+  it('leaves OIDC off, and says why, without the issuer or the client id', () => {
+    for (const options of [
+      { oidc_issuer: oidc.oidc_issuer, oidc_client_secret: 'x' },
+      { oidc_client_id: 'kept', oidc_name: 'Authentik' },
+    ]) {
+      const { env, lines } = run(options);
+      expect(Object.keys(env).filter((k) => k.startsWith('KEPT_OIDC_'))).toEqual([]);
+      expect(lines.join('\n')).toMatch(/OIDC sign-in is off: it needs .*issuer.* and .*client id/);
+    }
+  });
+
+  it('refuses an issuer that is not an http(s) URL', () => {
+    const { env, lines } = run({ ...oidc, oidc_issuer: 'ftp://id.example.org' });
+    expect(env).not.toHaveProperty('KEPT_OIDC_ISSUER');
+    expect(env).not.toHaveProperty('KEPT_OIDC_CLIENT_ID');
+    expect(lines.join('\n')).toMatch(/OIDC sign-in is off/);
+  });
+
+  it('drops a provider name over 60 characters, as Kept would refuse it', () => {
+    const { env, lines } = run({ ...oidc, oidc_name: 'x'.repeat(61) });
+    expect(env.KEPT_OIDC_ISSUER).toBe(oidc.oidc_issuer);
+    expect(env).not.toHaveProperty('KEPT_OIDC_NAME');
+    expect(lines.join('\n')).toMatch(/60/);
+    expect(run({ ...oidc, oidc_name: 'x'.repeat(60) }).env.KEPT_OIDC_NAME).toHaveLength(60);
+  });
+
+  it('turns Google on only with the client id and the secret together', () => {
+    expect(run(google).env).toMatchObject({
+      KEPT_GOOGLE_CLIENT_ID: google.google_client_id,
+      KEPT_GOOGLE_CLIENT_SECRET: google.google_client_secret,
+    });
+    for (const options of [
+      { google_client_id: google.google_client_id },
+      { google_client_secret: google.google_client_secret },
+    ]) {
+      const { env, lines } = run(options);
+      expect(Object.keys(env).filter((k) => k.startsWith('KEPT_GOOGLE_'))).toEqual([]);
+      expect(lines.join('\n')).toMatch(/Google sign-in is off: it needs .*client id and .*secret/);
+    }
+  });
+
+  it('never names a client secret or the mail password in a log line, whatever else is wrong', () => {
+    const secrets = ['oidc-s3cret-value', 'google-s3cret-value', 'mail-s3cret-value'];
+    for (const options of [
+      { ...oidc, ...google, smtp_url: 'smtps://kept:mail-s3cret-value@mail.example.org' },
+      { oidc_client_secret: 'oidc-s3cret-value', google_client_secret: 'google-s3cret-value' },
+      {
+        ...oidc,
+        oidc_issuer: 'not a url',
+        google_client_id: '',
+        ...{ google_client_secret: 'google-s3cret-value' },
+      },
+      { ...oidc, oidc_name: 'y'.repeat(70), public_url: 'http://bad/path' },
+    ]) {
+      const log = run(options).lines.join('\n');
+      for (const secret of secrets) expect(log).not.toContain(secret);
+    }
+  });
+
+  it('locks sign-up open or closed only when set', () => {
+    expect(run({ signup_open: 'true' }).env.KEPT_SIGNUP_OPEN).toBe('true');
+    expect(run({ signup_open: 'false' }).env.KEPT_SIGNUP_OPEN).toBe('false');
+    expect(run({ signup_open: true }).env.KEPT_SIGNUP_OPEN).toBe('true');
+    for (const value of [undefined, '', 'yes', 'unset']) {
+      expect(run({ signup_open: value }).env, String(value)).not.toHaveProperty('KEPT_SIGNUP_OPEN');
+    }
+  });
+
+  it('passes the upload limit within Kept’s bounds, 1 to 2048 MB', () => {
+    expect(run({ max_file_mb: 100 }).env.KEPT_MAX_FILE_MB).toBe('100');
+    expect(run({ max_file_mb: 1 }).env.KEPT_MAX_FILE_MB).toBe('1');
+    expect(run({ max_file_mb: 2048 }).env.KEPT_MAX_FILE_MB).toBe('2048');
+    for (const value of [0, 2049, 12.5, 'lots', -3]) {
+      const { env, lines } = run({ max_file_mb: value });
+      expect(env, String(value)).not.toHaveProperty('KEPT_MAX_FILE_MB');
+      expect(lines.join('\n')).toMatch(/upload limit/);
+    }
+    expect(run({}).env).not.toHaveProperty('KEPT_MAX_FILE_MB');
+  });
+});
+
 describe('shellExports()', () => {
   it('quotes every value for the shell, whatever it holds', () => {
     expect(shellExports({ A: 'it\'s $HOME `x` "q"', B: 'plain' })).toBe(

@@ -35,8 +35,8 @@ backup_pre: /usr/local/bin/kept-ha-backup
 backup_exclude:
   - "postgres/*"
   - "kept/.cache/*"
-# Ingress (D273): Kept inside Home Assistant, in the sidebar. Uploads up to Kept's 25 MB limit are
-# streamed. Household members use Kept too and sign in to Kept themselves (Q5).
+# Ingress (D273): Kept inside Home Assistant, in the sidebar. Uploads up to Kept's limit (25 MB, or
+# the max_file_mb option) are streamed. Household members use Kept too and sign in to Kept themselves (Q5).
 ingress: true
 ingress_port: 8080
 ingress_stream: true
@@ -59,3 +59,18 @@ schema:
   ssl: bool
   certfile: str
   keyfile: str
+  # Sign-in, sign-up and uploads, under Kept's own rules (apps/server/src/config/env.ts); what Kept
+  # would refuse is left out by options.mjs and said in the Log tab. Not offered on purpose: S3 file
+  # storage and Kept's own backups (Home Assistant's backups are the backup here).
+  oidc_issuer: "url?"
+  oidc_client_id: "str?"
+  oidc_client_secret: "password?"
+  oidc_name: "str(,60)?"
+  oidc_autoprovision_domains: "str?"
+  oidc_autoprovision_groups: "str?"
+  oidc_groups_claim: "str?"
+  oidc_scopes: "str?"
+  google_client_id: "str?"
+  google_client_secret: "password?"
+  signup_open: "list(true|false)?"
+  max_file_mb: "int(1,2048)?"

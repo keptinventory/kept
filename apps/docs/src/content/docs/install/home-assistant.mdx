@@ -52,6 +52,14 @@ also serves Kept on **port 8080**. The **Log** tab names it, for example
 | Kept's address | Set it when `homeassistant.local` doesn't resolve on your network, or the port changed. `http(s)://host[:port]`, no path. |
 | https on Kept's port | Serves the port over https with Home Assistant's certificate from `/ssl` (from the DuckDNS or Let's Encrypt apps). Restart the app after the certificate renews. |
 | Outgoing mail | An `smtps://` URL: sign-in links, invites and reminders by mail. |
+| OIDC, Google | Sign-in with your own identity provider or with Google. Empty: off. |
+| Sign-up | `true` or `false` locks it open or closed; unset, an admin decides. |
+| Upload limit (MB) | 1 to 2048; default 25. |
+
+The provider sends people back to Kept's own address, never to Home Assistant. Redirect URL to
+register: `<Kept's address>/api/v1/auth/callback/oidc` for OIDC,
+`<Kept's address>/api/v1/auth/callback/google` for Google. The **Log** tab prints it once the
+sign-in is on. Inside Home Assistant, **Sign in with …** opens Kept's address in a new tab.
 
 Turning port 8080 off (Configuration → Network) leaves only the sidebar: labels and the phone app
 then don't open.

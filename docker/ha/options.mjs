@@ -21,6 +21,20 @@ const SSL_DIR = '/ssl';
 /** A file name inside /ssl: no directory part, no dot-dot. */
 const SSL_FILE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
+/** Kept's bounds for KEPT_MAX_FILE_MB (apps/server/src/config/env.ts). */
+const MAX_FILE_MB = [1, 2048];
+/** The OIDC options: any of them set without a working issuer and client id is said in the log. */
+const OIDC_OPTIONS = [
+  'oidc_issuer',
+  'oidc_client_id',
+  'oidc_client_secret',
+  'oidc_name',
+  'oidc_autoprovision_domains',
+  'oidc_autoprovision_groups',
+  'oidc_groups_claim',
+  'oidc_scopes',
+];
+
 const text = (value) => (typeof value === 'string' ? value.trim() : '');
 
 /** An http(s) origin with no path, query or fragment, without a trailing slash; else null. */
@@ -116,7 +130,93 @@ export function appEnv({ options, info, self }) {
   if (smtpUrl) env.KEPT_SMTP_URL = smtpUrl;
   const smtpFrom = text(opts.smtp_from);
   if (smtpFrom) env.KEPT_SMTP_FROM = smtpFrom;
+
+  signIn(opts, env, lines);
+
+  // Unset: Admin → Settings decides; set, it locks sign-up open or closed.
+  const signup = String(opts.signup_open ?? '').trim();
+  if (signup === 'true' || signup === 'false') env.KEPT_SIGNUP_OPEN = signup;
+
+  const maxFile = opts.max_file_mb;
+  if (maxFile !== undefined && maxFile !== null && maxFile !== '') {
+    const mb = Number(maxFile);
+    if (Number.isInteger(mb) && mb >= MAX_FILE_MB[0] && mb <= MAX_FILE_MB[1]) {
+      env.KEPT_MAX_FILE_MB = String(mb);
+    } else {
+      lines.push(
+        `The upload limit is ignored: a whole number of MB from ${MAX_FILE_MB[0]} to ${MAX_FILE_MB[1]}. Kept's default (25 MB) holds.`,
+      );
+    }
+  }
   return { env, lines };
+}
+
+/**
+ * OIDC and Google sign-in, under Kept's own rules (apps/server/src/config/env.ts): OIDC needs an
+ * http(s) issuer and a client id, Google its client id and secret together, the provider's name is
+ * at most 60 characters. What Kept would refuse at boot is left out and said in the log, so the app
+ * still starts, with that sign-in off. Empty is unset. No log line holds a client secret.
+ *
+ * The provider sends people back to Kept's own address, never to ingress: the line that says a
+ * sign-in is on names the redirect URL to register (apps/server/src/auth/oidc.ts, google.ts).
+ */
+function signIn(opts, env, lines) {
+  const issuer = text(opts.oidc_issuer);
+  const clientId = text(opts.oidc_client_id);
+  const anyOidc = OIDC_OPTIONS.some((name) => text(opts[name]));
+  if (issuer && clientId && httpUrl(issuer)) {
+    env.KEPT_OIDC_ISSUER = issuer;
+    env.KEPT_OIDC_CLIENT_ID = clientId;
+    const secret = text(opts.oidc_client_secret);
+    if (secret) env.KEPT_OIDC_CLIENT_SECRET = secret;
+    const name = text(opts.oidc_name);
+    if (name.length > 60) {
+      lines.push('The OIDC sign-in name is ignored: 60 characters at most. "OIDC" holds.');
+    } else if (name) {
+      env.KEPT_OIDC_NAME = name;
+    }
+    const passed = {
+      oidc_autoprovision_domains: 'KEPT_OIDC_AUTOPROVISION_DOMAINS',
+      oidc_autoprovision_groups: 'KEPT_OIDC_AUTOPROVISION_GROUPS',
+      oidc_groups_claim: 'KEPT_OIDC_GROUPS_CLAIM',
+      oidc_scopes: 'KEPT_OIDC_SCOPES',
+    };
+    for (const [option, variable] of Object.entries(passed)) {
+      const value = text(opts[option]);
+      if (value) env[variable] = value;
+    }
+    lines.push(`OIDC sign-in is on. Redirect URL to register: ${callbackUrl(env, 'oidc')}`);
+  } else if (issuer && clientId) {
+    lines.push(
+      'OIDC sign-in is off: the issuer must be an http(s) URL, as its discovery document states it.',
+    );
+  } else if (anyOidc) {
+    lines.push('OIDC sign-in is off: it needs both the issuer and the client id.');
+  }
+
+  const googleId = text(opts.google_client_id);
+  const googleSecret = text(opts.google_client_secret);
+  if (googleId && googleSecret) {
+    env.KEPT_GOOGLE_CLIENT_ID = googleId;
+    env.KEPT_GOOGLE_CLIENT_SECRET = googleSecret;
+    lines.push(`Google sign-in is on. Redirect URL to register: ${callbackUrl(env, 'google')}`);
+  } else if (googleId || googleSecret) {
+    lines.push('Google sign-in is off: it needs both the client id and the client secret.');
+  }
+}
+
+/** Kept's callback for a provider (Better Auth's `/callback/<provider id>` under AUTH_BASE_PATH). */
+const callbackUrl = (env, provider) =>
+  new URL(`/api/v1/auth/callback/${provider}`, env.KEPT_PUBLIC_URL).toString();
+
+/** Whether `value` is an http(s) URL. */
+function httpUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
 }
 
 /** `export NAME='value'` lines, each value single-quoted for a POSIX shell. */

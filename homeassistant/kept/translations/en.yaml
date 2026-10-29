@@ -27,5 +27,57 @@ configuration:
   keyfile:
     name: Private key file
     description: The private key's file name in /ssl.
+  oidc_issuer:
+    name: OIDC issuer
+    description: >-
+      Sign-in with your own identity provider: the issuer URL exactly as its discovery document
+      states it. Set with the client id, OIDC sign-in is on.
+      Redirect URL to register: Kept's address followed by /api/v1/auth/callback/oidc.
+  oidc_client_id:
+    name: OIDC client id
+    description: The client id from the identity provider.
+  oidc_client_secret:
+    name: OIDC client secret
+    description: The client secret, for a confidential client. Empty for a public client.
+  oidc_name:
+    name: OIDC button name
+    description: >-
+      The provider's name on "Sign in with …", 60 characters at most. Empty: OIDC.
+  oidc_autoprovision_domains:
+    name: OIDC sign-up by email domain
+    description: >-
+      Comma-separated email domains (exact, no subdomains) whose people get an account on their
+      first sign-in. Empty: invite only.
+  oidc_autoprovision_groups:
+    name: OIDC sign-up by group
+    description: >-
+      Comma-separated groups (exact) whose members get an account on their first sign-in. Empty:
+      invite only.
+  oidc_groups_claim:
+    name: OIDC groups claim
+    description: >-
+      The ID token claim that holds the groups. Empty: groups.
+  oidc_scopes:
+    name: OIDC scopes
+    description: >-
+      The scopes asked for, space-separated. Empty: openid email profile.
+  google_client_id:
+    name: Google client id
+    description: >-
+      Sign-in with Google, with an OAuth client from Google Cloud. Set with the secret, Google
+      sign-in is on, for existing accounts and invited people only. Redirect URL to register:
+      Kept's address followed by /api/v1/auth/callback/google.
+  google_client_secret:
+    name: Google client secret
+    description: The OAuth client's secret.
+  signup_open:
+    name: Sign-up
+    description: >-
+      true locks sign-up open, false locks it closed (invites only); the admin setting then shows
+      as locked. Unset: an admin decides in Kept (Admin → Sign-up).
+  max_file_mb:
+    name: Upload limit (MB)
+    description: >-
+      The largest file one upload may be, 1 to 2048. Empty: 25.
 network:
   8080/tcp: Kept's own address, for phones, labels and mail links
