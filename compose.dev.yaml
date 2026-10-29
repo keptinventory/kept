@@ -1,4 +1,6 @@
 name: kept-dev
+# Ports are published on 127.0.0.1 only: the dev database, mail and S3 have well-known passwords
+# and must not answer on the LAN or a tailnet.
 services:
   db:
     image: pgvector/pgvector:0.8.6-pg18-bookworm
@@ -10,7 +12,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: kept
       TZ: UTC
-    ports: ["5452:5432"]
+    ports: ["127.0.0.1:5452:5432"]
     volumes:
       - kept-dev-db:/var/lib/postgresql
       - ./docker/initdb:/docker-entrypoint-initdb.d:ro
@@ -20,7 +22,7 @@ services:
       retries: 30
   mail:
     image: axllent/mailpit:v1.31.2
-    ports: ["8025:8025", "1025:1025"]
+    ports: ["127.0.0.1:8025:8025", "127.0.0.1:1025:1025"]
   # S3-compatible storage for the S3 driver (T18, Q18). Only with `--profile s3`, so a plain
   # `docker compose up` stays Postgres + Mailpit. Path-style only (no RUSTFS_SERVER_DOMAINS), so
   # clients set KEPT_S3_FORCE_PATH_STYLE=true. Dev credentials, never used anywhere else. The
@@ -31,7 +33,7 @@ services:
     environment:
       RUSTFS_ACCESS_KEY: kept-dev
       RUSTFS_SECRET_KEY: kept-dev-secret
-    ports: ["9452:9000"]
+    ports: ["127.0.0.1:9452:9000"]
     volumes:
       - kept-dev-s3:/data
     healthcheck:

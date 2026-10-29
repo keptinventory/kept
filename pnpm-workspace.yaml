@@ -22,6 +22,9 @@ overrides:
   'esbuild@<0.25.0': 0.25.12
   'fast-uri@>=3.0.0 <3.1.9': ^3.1.9
   'fast-uri@>=4.0.0 <4.2.3': ^4.2.3
+  # GHSA (Dependabot #71–#75): seroval ≤1.6.10 via @tanstack/router-core; 1.6.11 is the patched 1.6 release.
+  'seroval@<1.6.11': 1.6.11
+  'seroval-plugins@<1.6.11': 1.6.11
   'undici@>=7.0.0 <7.30.1': ^7.30.1
   'undici@>=8.0.0 <8.12.2': ^8.12.2
   # @serwist/build and @serwist/vite pin zod exactly (4.4.3; still 4.6.5 in 9.5.13, their latest).
