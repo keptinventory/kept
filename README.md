@@ -216,3 +216,5 @@ of everything inside it, served at `/notices.txt`.
     </picture>
   </a>
 </p>
+
+Created by [Ibrahim Roshdy](https://github.com/ibrahimroshdy) · AGPL-3.0

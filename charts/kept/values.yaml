@@ -150,8 +150,8 @@ ingress:
     enabled: false
     secretName: ""
 
-# The server's resources (KEPT_ROLE=all, or web when split). Defaults sized for the 2 GB floor
-# (D209) beside the bundled Postgres; inferred until V5 measures them.
+# The server's resources (KEPT_ROLE=all, or web when split). The 1.14.3 small-machine tests
+# (install/hardware) fit these: Kept peaked near 610 MiB during a backup with photo uploads.
 resources:
   requests:
     cpu: 100m
