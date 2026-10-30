@@ -34,7 +34,7 @@ included. Out of memory, the system killed Kept's process and Docker restarted i
 - **Real data:** on an amd64 home server, Kept 206 MB and Postgres 119 MB (one reading).
 - **Speed** (medians): a list page 30–40 ms, a search 50–70 ms, a photo upload 0.3–0.4 s, the map
   of the 3,000-thing location 0.4–0.5 s.
-- **Not tested yet:** a real VM, amd64 at these sizes, 512 MB, local AI.
+- **Not tested yet:** a real VM, amd64 at these sizes, 512 MB, local AI. Testing and performance testing are ongoing: [#379](https://github.com/keptinventory/kept/issues/379).
 
 ## What it means
 
