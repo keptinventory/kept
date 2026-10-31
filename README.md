@@ -88,22 +88,34 @@ open the box.
 
 ## What it does
 
+Every feature, with its page: [all features](https://keptinventory.info/users/features/).
+
 - **Inventory.** Locations, places, boxes and things, with photos, documents, tags, custom fields,
   quantities, saved views, search, an archive for what you no longer use and a trash you can
   restore from.
+- **3D map and graph.** Each location in 3D, started from a floor plan if you have one; its
+  places and things as a graph ([the map](https://keptinventory.info/users/location-map/)).
+- **Labels and scanning.** Print label sheets with a short ID and a QR code; scan one to open the
+  box it is on. Scan sessions count a shelf, pack a box or move a pile in one go.
+- **Lending and borrowing.** Who has what and when it's due back; borrowers need no account.
+  Reminders before and after the due date, and one list of everything out
+  ([lending](https://keptinventory.info/users/lending/)).
+- **Kits and hand-overs.** Lend a box with everything in it; each thing comes back on its own
+  record ([kits](https://keptinventory.info/users/kits/)).
+- **Moving house.** Numbered boxes, a label and a contents sheet for each, tracked in the van,
+  unpacked by scanning ([moving](https://keptinventory.info/users/moving/)).
+- **Reminders.** Warranties, services, documents, loans and low stock: in the app, by mail, push,
+  ntfy, Telegram and a calendar feed.
+- **Vehicles and machines.** Readings, services, fuel and running costs.
+- **The household.** Shared locations with roles and end dates, share links, stocktakes,
+  condition reports, an insurance report and insights.
 - **Capture.** Photograph a thing, a receipt, a label or a whole room, online or offline; your AI
   provider (OpenAI, Anthropic, Google, OpenRouter, Groq, or an OpenAI-compatible server such as
   Ollama) suggests the details and you confirm them. Without one, you type them.
-- **Labels and scanning.** Print label sheets with a short ID and a QR code; scan one to open the
-  box it is on. Scan sessions count a shelf, pack a box or move a pile in one go.
-- **The household.** Shared locations with roles, lending, kits that go out and come back as one,
-  stocktakes, schedules, warranties, paperwork and an insurance report; reminders in the app, by
-  mail, by push and in a calendar feed.
-- **Moving house.** Numbered boxes, a label and a contents sheet for each, tracked in the van,
-  unpacked by scanning ([moving](https://keptinventory.info/users/moving/)).
-- **Vehicles and machines.** Readings, services, fuel and running costs.
 - **AI assistant and MCP server.** Ask in plain words; changes wait for your OK. Claude and other
   AI agents connect at `/mcp` ([how](https://keptinventory.info/users/mcp-clients/)).
+- **Home Assistant.** Install Kept as a Home Assistant app; an integration brings what's due into
+  dashboards and automations ([Home Assistant](https://keptinventory.info/users/home-assistant/)).
 - **Backups you can read.** Nightly restic backups to a directory, S3 or SFTP, each with a copy
   that opens in a browser without Kept; imports from Homebox (a past import can be repaired) and
   CSV, full exports.
