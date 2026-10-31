@@ -39,7 +39,10 @@ describe('CSV import', () => {
   it('maps Arabic headers, checks, translates the reasons, and imports', async () => {
     const { user, mock } = await openWithFile(ARABIC);
     expect(await findHeading('Match the columns')).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: 'الاسم goes to' })).toHaveValue('Name');
+    // The suggested mapping fills in after the step shows; wait for it rather than read it once.
+    await waitFor(() =>
+      expect(screen.getByRole('combobox', { name: 'الاسم goes to' })).toHaveValue('Name'),
+    );
     expect(screen.getByRole('combobox', { name: 'المكان goes to' })).toHaveValue(
       'Place (a path like Garage > Shelf A)',
     );
