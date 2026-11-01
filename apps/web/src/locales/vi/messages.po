@@ -8478,3 +8478,3003 @@ msgstr "Nhập một địa chỉ email, hoặc để trống."
 
 msgid "Former addresses"
 msgstr "Các địa chỉ cũ"
+
+msgid "Look up products Kept doesn't know by their barcode"
+msgstr "Tra cứu sản phẩm mà Kept chưa biết bằng mã vạch của chúng"
+
+msgid "None. Kept answers only at its own address."
+msgstr "Không có. Kept chỉ trả lời tại địa chỉ của chính nó."
+
+msgid "Off. A scanned product barcode finds only what Kept already holds."
+msgstr "Tắt. Mã vạch sản phẩm đã quét chỉ tìm được những gì Kept đã có."
+
+msgid "Old host name"
+msgstr "Tên máy chủ cũ"
+
+msgid "On. A scanned product barcode Kept doesn't know is looked up in Open Food Facts, Open Products Facts and Open Beauty Facts. Only the barcode is sent."
+msgstr "Bật. Mã vạch sản phẩm đã quét mà Kept chưa biết sẽ được tra cứu trong Open Food Facts, Open Products Facts và Open Beauty Facts. Chỉ mã vạch được gửi đi."
+
+msgid "Only the name, like kept.home.example."
+msgstr "Chỉ tên, ví dụ kept.home.example."
+
+msgid "Remove {host}"
+msgstr "Xóa {host}"
+
+msgid "Save contact"
+msgstr "Lưu liên hệ"
+
+msgid "That is this server's own address."
+msgstr "Đó là địa chỉ của chính máy chủ này."
+
+msgid "That name is already listed."
+msgstr "Tên đó đã được liệt kê."
+
+msgid "The databases ask each app for a contact. Kept sends this email with each lookup, and nothing else about you."
+msgstr "Các cơ sở dữ liệu yêu cầu mỗi ứng dụng cung cấp một liên hệ. Kept gửi email này kèm mỗi lần tra cứu, và không gửi gì khác về bạn."
+
+msgid "When Kept moves to a new address, list the old names here and point them at this server. A label printed under an old address still opens: the request is sent to this one."
+msgstr "Khi Kept chuyển sang địa chỉ mới, hãy liệt kê các tên cũ tại đây và trỏ chúng về máy chủ này. Nhãn in dưới địa chỉ cũ vẫn mở được: yêu cầu sẽ được gửi tới máy chủ này."
+
+msgid "{n, plural, one {Picked up # thing} other {Picked up # things}}"
+msgstr "{n, plural, one {Đã lấy # đồ vật} other {Đã lấy # đồ vật}}"
+
+msgid "Choose things"
+msgstr "Chọn đồ vật"
+
+msgid "Couldn't pick them up on this phone."
+msgstr "Không thể lấy chúng trên điện thoại này."
+
+msgid "<0>{name}</0> · <1>{meter}</1>"
+msgstr "<0>{name}</0> · <1>{meter}</1>"
+
+msgid "<0>{name}</0> · <1>{meterLabel}</1> (<2>{unit}</2>)"
+msgstr "<0>{name}</0> · <1>{meterLabel}</1> (<2>{unit}</2>)"
+
+msgid "A reading goes on the thing whose meter it is, with the photo as proof. Only things with a meter are listed."
+msgstr "Chỉ số được ghi vào đồ vật có đồng hồ đó, kèm ảnh làm bằng chứng. Chỉ những đồ vật có đồng hồ mới được liệt kê."
+
+msgid "A reading needs a meter: a car's odometer, a generator's hours. Add one on the thing's page, under Meters, then read it here. Until then, take the photo in Thing mode."
+msgstr "Chỉ số cần có đồng hồ: đồng hồ công-tơ-mét của ô tô, số giờ của máy phát điện. Thêm một đồng hồ trên trang của đồ vật, trong mục Meters, rồi đọc chỉ số tại đây. Trước đó, hãy chụp ảnh ở chế độ Thing."
+
+msgid "Choose what was read"
+msgstr "Chọn chỉ số đã đọc"
+
+msgid "Couldn't check which things have a meter"
+msgstr "Không thể kiểm tra đồ vật nào có đồng hồ"
+
+msgid "Finding things with a meter…"
+msgstr "Đang tìm đồ vật có đồng hồ…"
+
+msgid "Nothing here has a meter yet"
+msgstr "Chưa có gì ở đây có đồng hồ"
+
+msgid "Only things with a meter · tap to change"
+msgstr "Chỉ đồ vật có đồng hồ · chạm để thay đổi"
+
+msgid "Reading {meter} of {name}. Change"
+msgstr "Chỉ số {meter} của {name}. Thay đổi"
+
+msgid "What was read?"
+msgstr "Chỉ số nào đã được đọc?"
+
+msgid "Private addresses"
+msgstr "Địa chỉ riêng tư"
+
+msgid "Allow private addresses"
+msgstr "Cho phép địa chỉ riêng tư"
+
+msgid "On. An OpenAI-compatible AI provider can be on this server's own network, like a model you run at home."
+msgstr "Bật. Nhà cung cấp AI tương thích OpenAI có thể nằm trên chính mạng của máy chủ này, ví dụ một mô hình bạn tự chạy tại nhà."
+
+msgid "Off. An AI provider's address must be on the public internet."
+msgstr "Tắt. Địa chỉ của nhà cung cấp AI phải nằm trên internet công cộng."
+
+msgid "Only for a server you host yourself. While this is on, anyone who can add an AI provider, and any location's admin through a webhook, can make this server send requests to machines on its network, such as your router or other services. A webhook's test shows the status they answer with. The Homebox import and OIDC sign-in can reach that network too."
+msgstr "Chỉ dành cho máy chủ bạn tự lưu trữ. Khi bật tính năng này, bất kỳ ai có thể thêm nhà cung cấp AI, và quản trị viên của bất kỳ địa điểm nào thông qua webhook, đều có thể khiến máy chủ này gửi yêu cầu tới các máy trong mạng của nó, chẳng hạn bộ định tuyến hoặc các dịch vụ khác. Kiểm tra của webhook hiển thị mã trạng thái mà chúng trả lời. Tính năng nhập Homebox và đăng nhập OIDC cũng có thể truy cập mạng đó."
+
+msgid "That address is on a private network. On a self-hosted server, an instance admin can allow private addresses in Admin → Settings."
+msgstr "Địa chỉ đó nằm trên mạng riêng tư. Trên máy chủ tự lưu trữ, quản trị viên hệ thống có thể cho phép địa chỉ riêng tư trong Admin → Settings."
+
+msgid "A change couldn't apply: <0>{name}</0> was trashed by <1>{by}</1>."
+msgstr "Không thể áp dụng thay đổi: <0>{name}</0> đã bị <1>{by}</1> đưa vào thùng rác."
+
+msgid "A change couldn't apply: <0>{name}</0> was moved by <1>{by}</1>."
+msgstr "Không thể áp dụng thay đổi: <0>{name}</0> đã bị <1>{by}</1> di chuyển."
+
+msgid "A change couldn't apply: <0>{name}</0> was removed by <1>{by}</1>."
+msgstr "Không thể áp dụng thay đổi: <0>{name}</0> đã bị <1>{by}</1> xóa."
+
+msgid "{unexplained, plural, one {# change needs a look} other {# changes need a look}}"
+msgstr "{unexplained, plural, one {# thay đổi cần xem lại} other {# thay đổi cần xem lại}}"
+
+msgid "{0} For example: <0/>"
+msgstr "{0} Ví dụ: <0/>"
+
+msgid "A code that doesn't match is refused when it's added or imported. Changing the rule never changes the codes you have."
+msgstr "Mã không khớp sẽ bị từ chối khi được thêm hoặc nhập. Thay đổi quy tắc không bao giờ làm thay đổi các mã bạn đã có."
+
+msgid "A regular expression the whole code must match. Capital and small letters count as the same."
+msgstr "Biểu thức chính quy mà toàn bộ mã phải khớp. Chữ hoa và chữ thường được coi là như nhau."
+
+msgid "Add a code"
+msgstr "Thêm mã"
+
+msgid "An old label's code (from another app)"
+msgstr "Mã của nhãn cũ (từ ứng dụng khác)"
+
+msgid "Change {code}"
+msgstr "Thay đổi {code}"
+
+msgid "Change {value}"
+msgstr "Thay đổi {value}"
+
+msgid "Changed {code} to {to}"
+msgstr "Đã đổi {code} thành {to}"
+
+msgid "Changed the codes of {name}"
+msgstr "Đã thay đổi mã của {name}"
+
+msgid "Check codes against a format rule"
+msgstr "Kiểm tra mã theo quy tắc định dạng"
+
+msgid "Check the code: 1 to 100 characters."
+msgstr "Kiểm tra mã: từ 1 đến 100 ký tự."
+
+msgid "Code"
+msgstr "Mã"
+
+msgid "Codes that don't match the rule"
+msgstr "Các mã không khớp quy tắc"
+
+msgid "Codes that don't match the rule ({count})"
+msgstr "Các mã không khớp quy tắc ({count})"
+
+msgid "Digits"
+msgstr "Chữ số"
+
+msgid "Doesn't match this location's format rule ({rule}); kept in the notes."
+msgstr "Không khớp quy tắc định dạng của địa điểm này ({rule}); giữ trong ghi chú."
+
+msgid "Each new thing here gets the next code, which is never given out again, even after it's removed. Its short ID stays as it is."
+msgstr "Mỗi đồ vật mới tại đây sẽ nhận mã tiếp theo, mã này không bao giờ được cấp lại, ngay cả sau khi bị xóa. ID ngắn của nó vẫn giữ nguyên."
+
+msgid "Every code here matches the rule"
+msgstr "Mọi mã tại đây đều khớp quy tắc"
+
+msgid "Example"
+msgstr "Ví dụ"
+
+msgid "For example: <0/>"
+msgstr "Ví dụ: <0/>"
+
+msgid "From an import"
+msgstr "Từ lần nhập"
+
+msgid "From Homebox"
+msgstr "Từ Homebox"
+
+msgid "In plain words, for whoever types the code."
+msgstr "Bằng lời đơn giản, dành cho người nhập mã."
+
+msgid "Kept can't read this pattern. Check its brackets."
+msgstr "Kept không đọc được mẫu này. Hãy kiểm tra dấu ngoặc của nó."
+
+msgid "Message when a code doesn't match"
+msgstr "Thông báo khi mã không khớp"
+
+msgid "Next number: <0/>"
+msgstr "Số tiếp theo: <0/>"
+
+msgid "None yet. Add a code you already use, like the number on an asset sticker, to find this by it too."
+msgstr "Chưa có mã nào. Hãy thêm mã bạn đã dùng, ví dụ số trên nhãn tài sản, để tìm đồ vật này bằng mã đó nữa."
+
+msgid "Number new things automatically"
+msgstr "Tự động đánh số cho đồ vật mới"
+
+msgid "Open what has it"
+msgstr "Mở đồ vật có mã đó"
+
+msgid "Pattern"
+msgstr "Mẫu"
+
+msgid "Prefix"
+msgstr "Tiền tố"
+
+msgid "Remove {value}"
+msgstr "Xóa {value}"
+
+msgid "Removed {value}"
+msgstr "Đã xóa {value}"
+
+msgid "The example doesn't match the pattern."
+msgstr "Ví dụ không khớp mẫu."
+
+msgid "The format rule took too long to check this code."
+msgstr "Quy tắc định dạng mất quá lâu để kiểm tra mã này."
+
+msgid "The next numbered code, {0}, doesn't match the format rule. Change the prefix or the rule."
+msgstr "Mã đánh số tiếp theo, {0}, không khớp quy tắc định dạng. Hãy thay đổi tiền tố hoặc quy tắc."
+
+msgid "The next thing gets <0/>."
+msgstr "Đồ vật tiếp theo nhận <0/>."
+
+msgid "This code is already on something else here."
+msgstr "Mã này đã có trên đồ vật khác tại đây."
+
+msgid "This location doesn't number its codes."
+msgstr "Địa điểm này không đánh số cho mã của nó."
+
+msgid "This pattern takes too long to check on a long code. Make it simpler, for example without a repeat inside a repeat."
+msgstr "Mẫu này mất quá lâu để kiểm tra trên mã dài. Hãy đơn giản hóa nó, ví dụ không lặp trong lặp."
+
+msgid "Your codes"
+msgstr "Mã của bạn"
+
+msgid "Your own code (checked against your format rule)"
+msgstr "Mã của riêng bạn (được kiểm tra theo quy tắc định dạng của bạn)"
+
+msgid "Your own codes"
+msgstr "Các mã của riêng bạn"
+
+msgid "Documents"
+msgstr "Tài liệu"
+
+msgid "Documents need a connection"
+msgstr "Tài liệu cần kết nối"
+
+msgid "Their text isn't kept on this phone. They're searched again when you're back online."
+msgstr "Văn bản của chúng không được giữ trên điện thoại này. Chúng sẽ được tìm lại khi bạn trực tuyến trở lại."
+
+msgid "{where} already has the code {code}, on {holder}. Change or remove it on one of them, then move again."
+msgstr "{where} đã có mã {code}, trên {holder}. Hãy thay đổi hoặc xóa mã trên một trong hai nơi, rồi di chuyển lại."
+
+msgid "{where} already has the code {code}. Change or remove it on one of them, then move again."
+msgstr "{where} đã có mã {code}. Hãy thay đổi hoặc xóa mã trên một trong hai nơi, rồi di chuyển lại."
+
+msgid "{unread, plural, one {# unread notification} other {# unread notifications}}"
+msgstr "{unread, plural, one {# thông báo chưa đọc} other {# thông báo chưa đọc}}"
+
+msgid "A report of your things with their prices, values and receipts, and a pack of the originals to send with a claim."
+msgstr "Báo cáo về đồ vật của bạn kèm giá, giá trị và biên lai, cùng bộ bản gốc để gửi kèm yêu cầu bồi thường."
+
+msgid "Claim pack"
+msgstr "Gói yêu cầu bồi thường"
+
+msgid "Exchange rates"
+msgstr "Tỷ giá hối đoái"
+
+msgid "Expiring"
+msgstr "Sắp hết hạn"
+
+msgid "How Kept reaches you"
+msgstr "Cách Kept liên hệ với bạn"
+
+msgid "Incident"
+msgstr "Sự cố"
+
+msgid "Incidents"
+msgstr "Các sự cố"
+
+msgid "Insurance report"
+msgstr "Báo cáo bảo hiểm"
+
+msgid "Reminders and alerts"
+msgstr "Nhắc nhở và cảnh báo"
+
+msgid "Reminders that are due, loans that are overdue, and news about your locations, with the next step one tap away."
+msgstr "Các nhắc nhở đến hạn, các khoản cho mượn quá hạn, và tin tức về các địa điểm của bạn, với bước tiếp theo chỉ cách một lần chạm."
+
+msgid "Report"
+msgstr "Báo cáo"
+
+msgid "What your insurer asks for"
+msgstr "Những gì công ty bảo hiểm của bạn yêu cầu"
+
+msgid "Open PDF"
+msgstr "Mở PDF"
+
+msgid "Share"
+msgstr "Chia sẻ"
+
+msgid "Couldn't share the PDF. Try again."
+msgstr "Không thể chia sẻ PDF. Hãy thử lại."
+
+msgid "Couldn't share the label images. Try again."
+msgstr "Không chia sẻ được ảnh nhãn. Thử lại."
+
+msgid "Couldn't share the CSV. Try again."
+msgstr "Không chia sẻ được tệp CSV. Thử lại."
+
+msgid "Your CSV is ready"
+msgstr "Tệp CSV của bạn đã sẵn sàng"
+
+msgid "Share it to save it to Files or send it on."
+msgstr "Chia sẻ nó để lưu vào Tệp hoặc gửi tiếp."
+
+msgid "This browser can't save files here. Open Kept in Safari to export it."
+msgstr "Trình duyệt này không lưu được tệp tại đây. Mở Kept trong Safari để xuất tệp."
+
+msgid "This file can't be shared from the installed app"
+msgstr "Tệp này không chia sẻ được từ ứng dụng đã cài đặt"
+
+msgid "Open Kept in Safari to download it."
+msgstr "Mở Kept trong Safari để tải tệp xuống."
+
+msgid "Couldn't get the file ready. Try again."
+msgstr "Không chuẩn bị được tệp. Thử lại."
+
+msgid "The file is still on its way. Try again in a moment."
+msgstr "Tệp vẫn đang được gửi đến. Thử lại sau giây lát."
+
+msgid "Couldn't share the file. Try again."
+msgstr "Không chia sẻ được tệp. Thử lại."
+
+msgid "Kept can't reach its database right now. Try again in a minute."
+msgstr "Hiện Kept không kết nối được với cơ sở dữ liệu. Thử lại sau một phút."
+
+msgid "{0, plural, one {# day overdue} other {# days overdue}}"
+msgstr "{0, plural, one {# ngày quá hạn} other {# ngày quá hạn}}"
+
+msgid "{0, plural, one {Every month} other {Every # months}}"
+msgstr "{0, plural, one {Mỗi tháng} other {Mỗi # tháng}}"
+
+msgid "{0} lent out · {1} borrowed · {2} overdue"
+msgstr "{0} đã cho mượn · {1} đã mượn · {2} quá hạn"
+
+msgid "{0} overdue · {1} due"
+msgstr "{0} quá hạn · {1} đến hạn"
+
+msgid "{0}, {1}"
+msgstr "{0}, {1}"
+
+msgid "{days} or at {at}"
+msgstr "{days} hoặc vào {at}"
+
+msgid "{late, plural, one {# day overdue} other {# days overdue}}"
+msgstr "{late, plural, one {# ngày quá hạn} other {# ngày quá hạn}}"
+
+msgid "{months, plural, one {Every {every} or # month} other {Every {every} or # months}}"
+msgstr "{months, plural, one {Mỗi {every} hoặc # tháng} other {Mỗi {every} hoặc # tháng}}"
+
+msgid "{n, plural, one {In # day} other {In # days}}"
+msgstr "{n, plural, one {Trong # ngày} other {Trong # ngày}}"
+
+msgid "{since} to {back} · returned"
+msgstr "{since} đến {back} · đã trả"
+
+msgid "10% of the interval past the due reading, unless you change it."
+msgstr "10% khoảng thời gian sau chỉ số đến hạn, trừ khi bạn thay đổi."
+
+msgid "A date"
+msgstr "Một ngày"
+
+msgid "A new vendor: it's added to your list when you save."
+msgstr "Nhà cung cấp mới: tên này sẽ được thêm vào danh sách của bạn khi bạn lưu."
+
+msgid "A reading"
+msgstr "Một chỉ số"
+
+msgid "A room or spot, like the kitchen for its boiler, or a thing."
+msgstr "Một phòng hoặc vị trí, như nhà bếp cho nồi hơi của nó, hoặc một đồ vật."
+
+msgid "A whole number of days."
+msgstr "Một số nguyên ngày."
+
+msgid "A whole number of months, 1 or more."
+msgstr "Một số nguyên tháng, từ 1 trở lên."
+
+msgid "Add a line"
+msgstr "Thêm một dòng"
+
+msgid "Add a service or a check that comes round, like the boiler every year or the car every 10,000 km, and Kept reminds you before it's due."
+msgstr "Thêm một dịch vụ hoặc lần kiểm tra định kỳ, như bảo dưỡng nồi hơi mỗi năm hoặc ô tô mỗi 10.000 km, và Kept sẽ nhắc bạn trước khi đến hạn."
+
+msgid "Add line items or an invoice"
+msgstr "Thêm các dòng mục hoặc một hóa đơn"
+
+msgid "An owner or admin turns it on in the location's settings, under What to track."
+msgstr "Chủ sở hữu hoặc quản trị viên bật tính năng này trong cài đặt của địa điểm, mục Những gì cần theo dõi."
+
+msgid "An owner or admin turns them on in the location's settings, under What to track."
+msgstr "Chủ sở hữu hoặc quản trị viên bật chúng trong cài đặt của địa điểm, mục Những gì cần theo dõi."
+
+msgid "At {at}"
+msgstr "Vào {at}"
+
+msgid "At most 50 lines."
+msgstr "Tối đa 50 dòng."
+
+msgid "Boiler service"
+msgstr "Bảo dưỡng nồi hơi"
+
+msgid "Borrowed from {personLink}"
+msgstr "Mượn từ {personLink}"
+
+msgid "by location"
+msgstr "theo địa điểm"
+
+msgid "by person"
+msgstr "theo người"
+
+msgid "by thing or place"
+msgstr "theo đồ vật hoặc địa điểm"
+
+msgid "Choose what it's for."
+msgstr "Chọn mục đích của nó."
+
+msgid "Complete {0}"
+msgstr "Hoàn thành {0}"
+
+msgid "Completes"
+msgstr "Hoàn thành"
+
+msgid "Copy a polite reminder"
+msgstr "Sao chép một lời nhắc lịch sự"
+
+msgid "Cost each"
+msgstr "Chi phí mỗi cái"
+
+msgid "Couldn't complete it"
+msgstr "Không hoàn thành được"
+
+msgid "Couldn't copy it. Here it is to copy by hand:"
+msgstr "Không sao chép được. Đây là nội dung để bạn sao chép thủ công:"
+
+msgid "Couldn't mark it returned"
+msgstr "Không đánh dấu đã trả được"
+
+msgid "Couldn't save the service"
+msgstr "Không lưu được dịch vụ"
+
+msgid "Couldn't skip it"
+msgstr "Không bỏ qua được"
+
+msgid "Couldn't snooze it"
+msgstr "Không hoãn nhắc được"
+
+msgid "Couldn't unsnooze it"
+msgstr "Không bỏ hoãn nhắc được"
+
+msgid "Delete {0}?"
+msgstr "Xóa {0}?"
+
+msgid "Direction"
+msgstr "Hướng"
+
+msgid "Done on"
+msgstr "Hoàn thành vào"
+
+msgid "Done: {0}"
+msgstr "Đã xong: {0}"
+
+msgid "Due"
+msgstr "Đến hạn"
+
+msgid "Due {day}"
+msgstr "Đến hạn {day}"
+
+msgid "Due on"
+msgstr "Đến hạn vào"
+
+msgid "Due today"
+msgstr "Đến hạn hôm nay"
+
+msgid "Enter a number, like 10000."
+msgstr "Nhập một số, ví dụ 10000."
+
+msgid "Enter a number, like 2 or 380."
+msgstr "Nhập một số, ví dụ 2 hoặc 380."
+
+msgid "Enter a number, like 60250."
+msgstr "Nhập một số, ví dụ 60250."
+
+msgid "Every … {0}"
+msgstr "Mỗi … {0}"
+
+msgid "Every … months"
+msgstr "Mỗi … tháng"
+
+msgid "Every {every}"
+msgstr "Mỗi {every}"
+
+msgid "Fluid"
+msgstr "Chất lỏng"
+
+msgid "For"
+msgstr "Cho"
+
+msgid "Give it a name, like \"Boiler service\"."
+msgstr "Đặt tên cho nó, ví dụ \"Boiler service\"."
+
+msgid "Has from us"
+msgstr "Đang giữ đồ của chúng tôi"
+
+msgid "Hi {person}, a friendly reminder about the {thing} I lent you on {since}. Could you bring it back when you're done with it? Thank you!"
+msgstr "Chào {person}, lời nhắc thân thiện về {thing} mình đã cho bạn mượn vào {since}. Bạn có thể mang trả lại khi dùng xong không? Cảm ơn bạn!"
+
+msgid "Hi {person}, a friendly reminder about the {thing} I lent you on {since}. It was due back on {due}. Could you bring it back when you can? Thank you!"
+msgstr "Chào {person}, lời nhắc thân thiện về {thing} mình đã cho bạn mượn vào {since}. Hạn trả là {due}. Bạn có thể mang trả lại khi tiện không? Cảm ơn bạn!"
+
+msgid "In: borrowed"
+msgstr "Vào: đã mượn"
+
+msgid "Its reminders stop. The services it recorded stay on their thing or place."
+msgstr "Các lời nhắc của nó sẽ dừng. Các dịch vụ đã ghi vẫn nằm trên đồ vật hoặc địa điểm tương ứng."
+
+msgid "Labour"
+msgstr "Nhân công"
+
+msgid "Last done"
+msgstr "Lần làm gần nhất"
+
+msgid "Last done {day}"
+msgstr "Lần làm gần nhất {day}"
+
+msgid "Latest first"
+msgstr "Mới nhất trước"
+
+msgid "Lend a thing from its page, and it shows here with who has it and when it's due back."
+msgstr "Cho mượn một đồ vật từ trang của nó, và nó sẽ hiện ở đây kèm người đang giữ và hạn trả lại."
+
+msgid "Lending is off in your locations"
+msgstr "Tính năng cho mượn đang tắt ở các địa điểm của bạn"
+
+msgid "Lent to {personLink}"
+msgstr "Đã cho {personLink} mượn"
+
+msgid "Lent to us"
+msgstr "Đã cho chúng tôi mượn"
+
+msgid "Line {0}"
+msgstr "Dòng {0}"
+
+msgid "Line items"
+msgstr "Các dòng mục"
+
+msgid "Loading loans"
+msgstr "Đang tải các khoản mượn"
+
+msgid "Loans"
+msgstr "Các khoản mượn"
+
+msgid "Loans with {name} that ended"
+msgstr "Các khoản mượn với {name} đã kết thúc"
+
+msgid "Log a service"
+msgstr "Ghi một dịch vụ"
+
+msgid "Mark returned"
+msgstr "Đánh dấu đã trả"
+
+msgid "Needs a connection: completing, snoozing and changing schedules wait until you're back online."
+msgstr "Cần kết nối: việc hoàn thành, hoãn nhắc và thay đổi lịch sẽ chờ đến khi bạn trở lại trực tuyến."
+
+msgid "Needs a connection: it has money. A reading alone can be logged offline."
+msgstr "Cần kết nối: mục này có tiền. Riêng chỉ số có thể ghi ngoại tuyến."
+
+msgid "Needs a connection: marking things returned waits until you're back online."
+msgstr "Cần kết nối: việc đánh dấu đồ vật đã trả sẽ chờ đến khi bạn trở lại trực tuyến."
+
+msgid "New schedule"
+msgstr "Lịch mới"
+
+msgid "No due date yet"
+msgstr "Chưa có ngày đến hạn"
+
+msgid "No match: this name is added as a new vendor"
+msgstr "Không khớp: tên này sẽ được thêm làm nhà cung cấp mới"
+
+msgid "Not done this time"
+msgstr "Lần này chưa làm"
+
+msgid "Not in the future."
+msgstr "Không phải trong tương lai."
+
+msgid "Nothing lent or borrowed"
+msgstr "Không có gì cho mượn hay mượn"
+
+msgid "Nothing scheduled"
+msgstr "Không có lịch nào"
+
+msgid "Once"
+msgstr "Một lần"
+
+msgid "Once, on {day}"
+msgstr "Một lần, vào {day}"
+
+msgid "Optional: count on a meter too, whichever comes first."
+msgstr "Không bắt buộc: cũng tính theo đồng hồ, tùy cái nào đến trước."
+
+msgid "Optional."
+msgstr "Không bắt buộc."
+
+msgid "Optional. Checked against the readings before and after it."
+msgstr "Không bắt buộc. Được đối chiếu với các chỉ số trước và sau nó."
+
+msgid "Optional. It was due at {dueAt}."
+msgstr "Không bắt buộc. Đã đến hạn vào {dueAt}."
+
+msgid "Optional. Pick one, or type a new name."
+msgstr "Không bắt buộc. Chọn một cái, hoặc gõ tên mới."
+
+msgid "Optional. The count starts here; today if you leave it."
+msgstr "Không bắt buộc. Đếm bắt đầu từ đây; nếu để trống thì là hôm nay."
+
+msgid "Out now"
+msgstr "Đang cho mượn"
+
+msgid "Out: lent"
+msgstr "Đang ở ngoài: đã cho mượn"
+
+msgid "Overdue"
+msgstr "Quá hạn"
+
+msgid "Part"
+msgstr "Bộ phận"
+
+msgid "Photo added"
+msgstr "Đã thêm ảnh"
+
+msgid "Photo of the meter"
+msgstr "Ảnh chụp đồng hồ"
+
+msgid "Photo or file"
+msgstr "Ảnh hoặc tệp"
+
+msgid "Pick a day after today."
+msgstr "Chọn một ngày sau hôm nay."
+
+msgid "Pick the day it was done."
+msgstr "Chọn ngày đã thực hiện."
+
+msgid "Pick the day it's due."
+msgstr "Chọn ngày đến hạn."
+
+msgid "Remind me, days before"
+msgstr "Nhắc tôi trước, số ngày"
+
+msgid "Reminder copied"
+msgstr "Đã sao chép lời nhắc"
+
+msgid "Remove {0}"
+msgstr "Xóa {0}"
+
+msgid "Remove this line"
+msgstr "Xóa dòng này"
+
+msgid "Repeats"
+msgstr "Lặp lại"
+
+msgid "Replace the photo"
+msgstr "Thay ảnh"
+
+msgid "Returned"
+msgstr "Đã trả lại"
+
+msgid "Saved {0}"
+msgstr "Đã lưu {0}"
+
+msgid "Saving restarts its count"
+msgstr "Lưu sẽ tính lại từ đầu"
+
+msgid "Say what it was."
+msgstr "Nói rõ đó là gì."
+
+msgid "Schedules are off in your locations"
+msgstr "Lịch trình đã tắt trong các địa điểm của bạn"
+
+msgid "Search by name or thing"
+msgstr "Tìm theo tên hoặc đồ vật"
+
+msgid "Search by thing or person"
+msgstr "Tìm theo đồ vật hoặc người"
+
+msgid "Search loans"
+msgstr "Tìm các khoản cho mượn"
+
+msgid "Search rooms, spots and things"
+msgstr "Tìm phòng, vị trí và đồ vật"
+
+msgid "Search schedules"
+msgstr "Tìm lịch trình"
+
+msgid "Send it however you like. Kept never sends it."
+msgstr "Gửi nó bằng cách nào tùy bạn. Kept không bao giờ gửi nó."
+
+msgid "Service logged"
+msgstr "Đã ghi nhận bảo dưỡng"
+
+msgid "Set how often: every so many months or units, or a date."
+msgstr "Đặt tần suất: mỗi bao nhiêu tháng hoặc đơn vị, hoặc một ngày."
+
+msgid "Since"
+msgstr "Từ"
+
+msgid "Since {since} · due {due}"
+msgstr "Từ {since} · hạn {due}"
+
+msgid "Since {since} · no due date"
+msgstr "Từ {since} · không có ngày đến hạn"
+
+msgid "Skip once"
+msgstr "Bỏ qua một lần"
+
+msgid "Skipping {0} once"
+msgstr "Bỏ qua {0} một lần"
+
+msgid "Skipping once"
+msgstr "Bỏ qua một lần"
+
+msgid "Snooze"
+msgstr "Hoãn"
+
+msgid "Snooze {0}"
+msgstr "Hoãn {0}"
+
+msgid "Snooze until"
+msgstr "Hoãn đến"
+
+msgid "Snooze until, {0}"
+msgstr "Hoãn đến, {0}"
+
+msgid "Snoozed until {at}"
+msgstr "Đã hoãn đến {at}"
+
+msgid "Snoozed until {day}"
+msgstr "Đã hoãn đến {day}"
+
+msgid "Snoozed until {said}"
+msgstr "Đã hoãn đến {said}"
+
+msgid "Soonest first"
+msgstr "Sớm nhất trước"
+
+msgid "The invoice didn't attach. Add it again from the service."
+msgstr "Hóa đơn không đính kèm được. Thêm lại từ mục bảo dưỡng."
+
+msgid "The lines add up to {0}; that's the total unless you type one."
+msgstr "Các dòng cộng lại thành {0}; đó là tổng trừ khi bạn tự nhập một tổng."
+
+msgid "The lines add up to {0}. Check the total or the lines."
+msgstr "Các dòng cộng lại thành {0}. Kiểm tra tổng hoặc các dòng."
+
+msgid "the thing"
+msgstr "đồ vật"
+
+msgid "Thing or place"
+msgstr "Đồ vật hoặc địa điểm"
+
+msgid "Unsnooze"
+msgstr "Bỏ hoãn"
+
+msgid "Unsnoozed {0}"
+msgstr "Đã bỏ hoãn {0}"
+
+msgid "Until"
+msgstr "Đến"
+
+msgid "Upcoming"
+msgstr "Sắp tới"
+
+msgid "What"
+msgstr "Cái gì"
+
+msgid "What {name} has from us"
+msgstr "{name} đang giữ gì của chúng ta"
+
+msgid "What {name} lent us"
+msgstr "{name} đã cho chúng ta mượn gì"
+
+msgid "{earlier, plural, one {# earlier term} other {# earlier terms}}"
+msgstr "{earlier, plural, one {# kỳ hạn trước} other {# kỳ hạn trước}}"
+
+msgid "{name}, file {0}"
+msgstr "{name}, tệp {0}"
+
+msgid "{title} for {0}"
+msgstr "{title} cho {0}"
+
+msgid "A whole number of days, from 0 to {max}."
+msgstr "Một số nguyên ngày, từ 0 đến {max}."
+
+msgid "A word inside, or what it's for"
+msgstr "Một từ trong đó, hoặc công dụng của nó"
+
+msgid "Add document"
+msgstr "Thêm tài liệu"
+
+msgid "Add expiring document"
+msgstr "Thêm tài liệu có hạn"
+
+msgid "All of it in Paperwork"
+msgstr "Tất cả trong Giấy tờ"
+
+msgid "Borrowed in"
+msgstr "Đã mượn vào"
+
+msgid "by state"
+msgstr "theo trạng thái"
+
+msgid "Card cover"
+msgstr "Bìa thẻ"
+
+msgid "Contract"
+msgstr "Hợp đồng"
+
+msgid "Due at {value} {unit}"
+msgstr "Đến hạn ở {value} {unit}"
+
+msgid "Due back {day}"
+msgstr "Hạn trả {day}"
+
+msgid "Expired {day}"
+msgstr "Đã hết hạn {day}"
+
+msgid "Expires {day}"
+msgstr "Hết hạn {day}"
+
+msgid "Expiring document for {subjectName}"
+msgstr "Tài liệu sắp hết hạn cho {subjectName}"
+
+msgid "Expiry"
+msgstr "Hết hạn"
+
+msgid "Extended warranty"
+msgstr "Bảo hành mở rộng"
+
+msgid "File {0}"
+msgstr "Tệp {0}"
+
+msgid "First term"
+msgstr "Kỳ hạn đầu tiên"
+
+msgid "grid"
+msgstr "lưới"
+
+msgid "Grid"
+msgstr "Lưới"
+
+msgid "Inspection"
+msgstr "Kiểm tra"
+
+msgid "Insurance"
+msgstr "Bảo hiểm"
+
+msgid "Insurance cover"
+msgstr "Phạm vi bảo hiểm"
+
+msgid "Its reminders stop. You can undo this for 7 days."
+msgstr "Lời nhắc của nó sẽ dừng. Bạn có thể hoàn tác trong 7 ngày."
+
+msgid "Keep the name under {0} characters."
+msgstr "Giữ tên dưới {0} ký tự."
+
+msgid "Later"
+msgstr "Sau"
+
+msgid "Lease"
+msgstr "Hợp đồng thuê"
+
+msgid "Lent out"
+msgstr "Đã cho mượn"
+
+msgid "Licence"
+msgstr "Giấy phép"
+
+msgid "Like Home insurance, or the flat's lease"
+msgstr "Như bảo hiểm nhà, hoặc hợp đồng thuê căn hộ"
+
+msgid "Maker's warranty"
+msgstr "Bảo hành của nhà sản xuất"
+
+msgid "Name it, like Building inspection."
+msgstr "Đặt tên, ví dụ Kiểm tra tòa nhà."
+
+msgid "New term runs out on"
+msgstr "Kỳ hạn mới hết vào"
+
+msgid "No documents for <0>{0}</0> yet: the lease or the deed, the home insurance, utility contracts."
+msgstr "Chưa có tài liệu nào cho <0>{0}</0>: hợp đồng thuê hoặc sổ đỏ, bảo hiểm nhà, hợp đồng tiện ích."
+
+msgid "No documents in <0>{0}</0> yet: the manual of a built-in oven, the boiler's certificate."
+msgstr "Chưa có tài liệu nào trong <0>{0}</0>: hướng dẫn sử dụng lò nướng âm tủ, chứng nhận của nồi hơi."
+
+msgid "Nothing runs out soon"
+msgstr "Không có gì sắp hết hạn"
+
+msgid "Open {what}"
+msgstr "Mở {what}"
+
+msgid "Open Lending"
+msgstr "Mở mục Cho mượn"
+
+msgid "Open Schedules"
+msgstr "Mở mục Lịch trình"
+
+msgid "Paperwork is off in every location. An admin turns it on in What to track."
+msgstr "Giấy tờ đang tắt ở mọi địa điểm. Quản trị viên bật nó trong mục Cần theo dõi."
+
+msgid "Paperwork of {0}"
+msgstr "Giấy tờ của {0}"
+
+msgid "Pick the day it runs out."
+msgstr "Chọn ngày nó hết hạn."
+
+msgid "Pick the day the new term runs out."
+msgstr "Chọn ngày thời hạn mới hết hạn."
+
+msgid "Ran out"
+msgstr "Đã hết hạn"
+
+msgid "Ran out {day}"
+msgstr "Đã hết hạn {day}"
+
+msgid "Receipts, manuals and warranty cards added to things, and the lease or insurance added to a location or a room, all show here."
+msgstr "Biên lai, hướng dẫn sử dụng và thẻ bảo hành thêm vào đồ vật, cùng hợp đồng thuê hoặc bảo hiểm thêm vào một địa điểm hoặc phòng, đều hiển thị ở đây."
+
+msgid "Register the warranty by {day}"
+msgstr "Đăng ký bảo hành trước {day}"
+
+msgid "Remove {name}?"
+msgstr "Xóa {name}?"
+
+msgid "Removed {name}"
+msgstr "Đã xóa {name}"
+
+msgid "Renew"
+msgstr "Gia hạn"
+
+msgid "Renew {name}"
+msgstr "Gia hạn {name}"
+
+msgid "Renewed {name}"
+msgstr "Đã gia hạn {name}"
+
+msgid "Runs out {day}"
+msgstr "Hết hạn {day}"
+
+msgid "Runs out on"
+msgstr "Hết hạn vào"
+
+msgid "Runs out soon"
+msgstr "Sắp hết hạn"
+
+msgid "Search your paperwork"
+msgstr "Tìm kiếm giấy tờ của bạn"
+
+msgid "Share {what}"
+msgstr "Chia sẻ {what}"
+
+msgid "Store warranty"
+msgstr "Lưu bảo hành"
+
+msgid "The new term has to end after the current one."
+msgstr "Thời hạn mới phải kết thúc sau thời hạn hiện tại."
+
+msgid "The old term stays in its history."
+msgstr "Thời hạn cũ vẫn nằm trong lịch sử của nó."
+
+msgid "Things that expire"
+msgstr "Những thứ hết hạn"
+
+msgid "This document was renewed or removed since. Refresh to see it now."
+msgstr "Tài liệu này đã được gia hạn hoặc xóa kể từ đó. Làm mới để xem ngay bây giờ."
+
+msgid "Warranties"
+msgstr "Bảo hành"
+
+msgid "Warranties, documents like the lease or the home insurance, and things with an expiry date show here, soonest first."
+msgstr "Bảo hành, tài liệu như hợp đồng thuê hoặc bảo hiểm nhà, và những thứ có ngày hết hạn hiển thị ở đây, sắp hết hạn nhất trước."
+
+msgid "Warranty ends {day}"
+msgstr "Bảo hành kết thúc {day}"
+
+msgid "Whole locations"
+msgstr "Toàn bộ địa điểm"
+
+msgid "{0, plural, one {# document} other {# documents}}"
+msgstr "{0, plural, one {# tài liệu} other {# tài liệu}}"
+
+msgid "{0, plural, one {# year} other {# years}}"
+msgstr "{0, plural, one {# năm} other {# năm}}"
+
+msgid "{0} · overdue"
+msgstr "{0} · quá hạn"
+
+msgid "{0} from {started}"
+msgstr "{0} từ {started}"
+
+msgid "{0}: {1} (from the brand)"
+msgstr "{0}: {1} (từ thương hiệu)"
+
+msgid "{0}: {1} (from the type)"
+msgstr "{0}: {1} (từ loại)"
+
+msgid "{0}: a closed claim reopens only with Undo, from its history."
+msgstr "{0}: yêu cầu đã đóng chỉ mở lại được bằng Hoàn tác, từ lịch sử của nó."
+
+msgid "{count, plural, one {the only valuation} other {latest of # valuations}}"
+msgstr "{count, plural, one {định giá duy nhất} other {mới nhất trong # định giá}}"
+
+msgid "{months, plural, one {# month} other {# months}}"
+msgstr "{months, plural, one {# tháng} other {# tháng}}"
+
+msgid "{n, plural, one {Due in # day} other {Due in # days}}"
+msgstr "{n, plural, one {Đến hạn trong # ngày} other {Đến hạn trong # ngày}}"
+
+msgid "{source} by <0>{by}</0> · {on} · {latestOf}"
+msgstr "{source} bởi <0>{by}</0> · {on} · {latestOf}"
+
+msgid "+ New person: {typed}"
+msgstr "+ Người mới: {typed}"
+
+msgid "<0>{0}</0>, where it was"
+msgstr "<0>{0}</0>, nơi nó từng ở"
+
+msgid "A borrowed thing"
+msgstr "Một đồ vật đã mượn"
+
+msgid "A claim needs the day it was opened."
+msgstr "Một yêu cầu cần ngày nó được mở."
+
+msgid "A new person: added to your people when you save. Kept never contacts them."
+msgstr "Một người mới: được thêm vào danh sách người của bạn khi bạn lưu. Kept không bao giờ liên hệ với họ."
+
+msgid "A phone number, an email or a web page."
+msgstr "Một số điện thoại, một email hoặc một trang web."
+
+msgid "A service or a check that comes round: Kept reminds you before it's due."
+msgstr "Một dịch vụ hoặc lần kiểm tra định kỳ: Kept nhắc bạn trước khi đến hạn."
+
+msgid "A term"
+msgstr "Một thời hạn"
+
+msgid "A value needs a currency."
+msgstr "Một giá trị cần một loại tiền tệ."
+
+msgid "A value needs a date."
+msgstr "Một giá trị cần một ngày."
+
+msgid "A warranty covers one thing: split this one first to add one."
+msgstr "Một bảo hành chỉ áp dụng cho một đồ vật: hãy tách bảo hành này trước để thêm một bảo hành."
+
+msgid "A warranty needs a start date."
+msgstr "Một bảo hành cần ngày bắt đầu."
+
+msgid "A whole number of months, from 1 to 600."
+msgstr "Một số tháng nguyên, từ 1 đến 600."
+
+msgid "Add a valuation"
+msgstr "Thêm định giá"
+
+msgid "Add a warranty"
+msgstr "Thêm bảo hành"
+
+msgid "An end date on or after the start."
+msgstr "Ngày kết thúc vào hoặc sau ngày bắt đầu."
+
+msgid "An estimate, an appraisal or the insurer's figure: the latest one is its value."
+msgstr "Một ước tính, một thẩm định hoặc con số của bên bảo hiểm: con số mới nhất là giá trị của nó."
+
+msgid "Appraisal"
+msgstr "Thẩm định"
+
+msgid "At"
+msgstr "Tại"
+
+msgid "At <0>{0}</0>"
+msgstr "Tại <0>{0}</0>"
+
+msgid "Attach a job card or photo"
+msgstr "Đính kèm thẻ công việc hoặc ảnh"
+
+msgid "Attach the card or certificate"
+msgstr "Đính kèm thẻ hoặc giấy chứng nhận"
+
+msgid "Back from {0}"
+msgstr "Đã được trả lại từ {0}"
+
+msgid "Borrowed"
+msgstr "Đã mượn"
+
+msgid "Borrowed from"
+msgstr "Đã mượn từ"
+
+msgid "Borrowed from {0}"
+msgstr "Đã mượn từ {0}"
+
+msgid "Borrowed thing"
+msgstr "Đồ vật đã mượn"
+
+msgid "Bought {0} for {1}"
+msgstr "Đã mua {0} với giá {1}"
+
+msgid "Bought {0} for {1}, <0>{2}</0>"
+msgstr "Đã mua {0} với giá {1}, <0>{2}</0>"
+
+msgid "Change the due date"
+msgstr "Đổi ngày đến hạn"
+
+msgid "Choose where it goes."
+msgstr "Chọn nơi nó sẽ đến."
+
+msgid "Claim contact"
+msgstr "Liên hệ yêu cầu"
+
+msgid "Claim details"
+msgstr "Chi tiết yêu cầu"
+
+msgid "Claim opened"
+msgstr "Yêu cầu đã mở"
+
+msgid "Claim progress"
+msgstr "Tiến trình yêu cầu"
+
+msgid "Claim removed"
+msgstr "Yêu cầu đã xóa"
+
+msgid "Claim saved"
+msgstr "Yêu cầu đã lưu"
+
+msgid "Claim: {0}"
+msgstr "Yêu cầu: {0}"
+
+msgid "Claims"
+msgstr "Yêu cầu"
+
+msgid "Claims · {0}"
+msgstr "Yêu cầu · {0}"
+
+msgid "claims:"
+msgstr "yêu cầu:"
+
+msgid "Clear it for no due date."
+msgstr "Xóa để không có ngày đến hạn."
+
+msgid "Closed on"
+msgstr "Đã đóng vào"
+
+msgid "Condition at lending"
+msgstr "Tình trạng lúc cho mượn"
+
+msgid "Condition photos"
+msgstr "Ảnh tình trạng"
+
+msgid "contact, no account"
+msgstr "liên hệ, không có tài khoản"
+
+msgid "Covered by the warranty"
+msgstr "Được bảo hành"
+
+msgid "Covered for life, from {from}"
+msgstr "Được bảo hành trọn đời, từ {from}"
+
+msgid "Covered from {from} to {until}; today is {pct} of the way"
+msgstr "Được bảo hành từ {from} đến {until}; hôm nay đã đi được {pct} chặng đường"
+
+msgid "Covered to {0}"
+msgstr "Được bảo hành đến {0}"
+
+msgid "Covered until"
+msgstr "Được bảo hành đến"
+
+msgid "Credit card cover"
+msgstr "Bảo hiểm thẻ tín dụng"
+
+msgid "current"
+msgstr "hiện tại"
+
+msgid "Document {0}"
+msgstr "Tài liệu {0}"
+
+msgid "Due back"
+msgstr "Đến hạn trả lại"
+
+msgid "Due date changed"
+msgstr "Ngày đến hạn đã đổi"
+
+msgid "Earlier loans"
+msgstr "Các lần mượn trước"
+
+msgid "Edit the valuation"
+msgstr "Sửa định giá"
+
+msgid "Edit the warranty"
+msgstr "Chỉnh sửa bảo hành"
+
+msgid "Ended {0}"
+msgstr "Đã kết thúc {0}"
+
+msgid "Ends {0}"
+msgstr "Kết thúc {0}"
+
+msgid "Estimate"
+msgstr "Ước tính"
+
+msgid "For a claim recorded by mistake. You can undo this for 7 days."
+msgstr "Đối với yêu cầu bảo hành ghi nhầm. Bạn có thể hoàn tác trong 7 ngày."
+
+msgid "For a loan recorded by mistake: it's as if it never happened. You can undo this for 7 days."
+msgstr "Đối với khoản cho mượn ghi nhầm: coi như chưa từng xảy ra. Bạn có thể hoàn tác trong 7 ngày."
+
+msgid "for life, from {started}"
+msgstr "trọn đời, từ {started}"
+
+msgid "from {started}"
+msgstr "từ {started}"
+
+msgid "From {who} since {since}"
+msgstr "Từ {who} kể từ {since}"
+
+msgid "From {who} since {since} · due back {due}"
+msgstr "Từ {who} kể từ {since} · hạn trả {due}"
+
+msgid "From the purchase date; change it if it started later."
+msgstr "Từ ngày mua; đổi lại nếu nó bắt đầu muộn hơn."
+
+msgid "Give it back to {0}"
+msgstr "Trả lại cho {0}"
+
+msgid "Given back to {0}"
+msgstr "Đã trả lại cho {0}"
+
+msgid "Gone for repair"
+msgstr "Đã gửi đi sửa chữa"
+
+msgid "How long"
+msgstr "Trong bao lâu"
+
+msgid "How many"
+msgstr "Bao nhiêu"
+
+msgid "In repair"
+msgstr "Đang sửa chữa"
+
+msgid "Insurer's value"
+msgstr "Giá trị theo bảo hiểm"
+
+msgid "It belongs to {0}: it leaves your counts and totals, and stays in its history."
+msgstr "Nó thuộc về {0}: nó sẽ rời khỏi số lượng và tổng số của bạn, và vẫn còn trong lịch sử của nó."
+
+msgid "It's in repair: lend it once it's back."
+msgstr "Nó đang sửa chữa: hãy cho mượn khi nó đã về."
+
+msgid "Kept never contacts them."
+msgstr "Kept không bao giờ liên hệ với họ."
+
+msgid "Kept never messages {0}; the reminder text is yours to send."
+msgstr "Kept không bao giờ nhắn tin cho {0}; nội dung nhắc nhở là của bạn để gửi."
+
+msgid "Kept reminds you on {0}. It never messages {1}; the reminder text is yours to send."
+msgstr "Kept nhắc bạn vào {0}. Kept không bao giờ nhắn tin cho {1}; nội dung nhắc nhở là của bạn để gửi."
+
+msgid "Lend"
+msgstr "Cho mượn"
+
+msgid "Lend {0}"
+msgstr "Cho mượn {0}"
+
+msgid "Lend it to a member or a contact, with a due date if you like."
+msgstr "Cho một thành viên hoặc một liên hệ mượn, kèm ngày hẹn trả nếu bạn muốn."
+
+msgid "Lend to"
+msgstr "Cho mượn cho"
+
+msgid "Lent by"
+msgstr "Cho mượn bởi"
+
+msgid "Lent to"
+msgstr "Đã cho mượn cho"
+
+msgid "Lent to {0}"
+msgstr "Đã cho mượn cho {0}"
+
+msgid "Lifetime"
+msgstr "Trọn đời"
+
+msgid "Loading the claims"
+msgstr "Đang tải các yêu cầu bảo hành"
+
+msgid "Loading the defaults"
+msgstr "Đang tải các mặc định"
+
+msgid "Loading the loans"
+msgstr "Đang tải các khoản cho mượn"
+
+msgid "Loading the schedules"
+msgstr "Đang tải các lịch trình"
+
+msgid "Loading the value"
+msgstr "Đang tải giá trị"
+
+msgid "Loading the warranties"
+msgstr "Đang tải các bảo hành"
+
+msgid "Loan"
+msgstr "Khoản cho mượn"
+
+msgid "Loan removed"
+msgstr "Đã xóa khoản cho mượn"
+
+msgid "Loans · {0} open"
+msgstr "Các khoản cho mượn · {0} đang mở"
+
+msgid "Longest cover"
+msgstr "Phạm vi bảo hành dài nhất"
+
+msgid "Manufacturer warranty"
+msgstr "Bảo hành của nhà sản xuất"
+
+msgid "Member of this location"
+msgstr "Thành viên của địa điểm này"
+
+msgid "Months"
+msgstr "Tháng"
+
+msgid "New claim"
+msgstr "Yêu cầu bảo hành mới"
+
+msgid "No claims"
+msgstr "Không có yêu cầu bảo hành"
+
+msgid "No default term on this brand or type."
+msgstr "Không có thời hạn mặc định cho thương hiệu hoặc loại này."
+
+msgid "No photos."
+msgstr "Không có ảnh."
+
+msgid "No value recorded"
+msgstr "Chưa ghi giá trị"
+
+msgid "No warranties yet"
+msgstr "Chưa có bảo hành"
+
+msgid "No warranty"
+msgstr "Không có bảo hành"
+
+msgid "Not lent out"
+msgstr "Chưa cho mượn"
+
+msgid "Not registered yet · register by {deadline}"
+msgstr "Chưa đăng ký · đăng ký trước {deadline}"
+
+msgid "Of {0}. Lending some splits them off; they merge back when returned."
+msgstr "Của {0}. Cho mượn một phần sẽ tách chúng ra; chúng sẽ gộp lại khi được trả."
+
+msgid "On loan"
+msgstr "Đang cho mượn"
+
+msgid "Open the claim"
+msgstr "Mở yêu cầu bảo hành"
+
+msgid "Opened"
+msgstr "Đã mở"
+
+msgid "Opened {0}"
+msgstr "Đã mở {0}"
+
+msgid "Optional. Kept reminds you before this day."
+msgstr "Không bắt buộc. Kept nhắc bạn trước ngày này."
+
+msgid "Optional. Kept reminds you when it's due back."
+msgstr "Không bắt buộc. Kept nhắc bạn khi đến hạn trả."
+
+msgid "Optional. Kept reminds you, never them, when it's overdue."
+msgstr "Không bắt buộc. Kept nhắc bạn, không nhắc họ, khi quá hạn."
+
+msgid "Optional. Shown as \"Warranty saved you\" when the repair cost nothing."
+msgstr "Không bắt buộc. Hiển thị là \"Bảo hành đã giúp bạn tiết kiệm\" khi việc sửa chữa không tốn chi phí."
+
+msgid "Paperwork and warranties"
+msgstr "Giấy tờ và bảo hành"
+
+msgid "Purchase price"
+msgstr "Giá mua"
+
+msgid "Put them back with the rest"
+msgstr "Đặt chúng lại cùng với phần còn lại"
+
+msgid "Recorded by"
+msgstr "Được ghi bởi"
+
+msgid "Reference"
+msgstr "Tham chiếu"
+
+msgid "Register by"
+msgstr "Đăng ký trước"
+
+msgid "Registered with the maker"
+msgstr "Đã đăng ký với nhà sản xuất"
+
+msgid "Rejected"
+msgstr "Đã từ chối"
+
+msgid "Rejected {0}"
+msgstr "Đã từ chối {0}"
+
+msgid "Remove this claim?"
+msgstr "Xóa yêu cầu bảo hành này?"
+
+msgid "Remove this loan"
+msgstr "Xóa khoản cho mượn này"
+
+msgid "Remove this loan?"
+msgstr "Xóa khoản cho mượn này?"
+
+msgid "Remove this valuation?"
+msgstr "Xóa định giá này?"
+
+msgid "Remove this warranty?"
+msgstr "Xóa bảo hành này?"
+
+msgid "Resolved {0}"
+msgstr "Đã giải quyết {0}"
+
+msgid "Returned late"
+msgstr "Trả muộn"
+
+msgid "Returns to"
+msgstr "Trả về cho"
+
+msgid "Somewhere else"
+msgstr "Ở nơi khác"
+
+msgid "Starts"
+msgstr "Bắt đầu"
+
+msgid "Still here"
+msgstr "Vẫn ở đây"
+
+msgid "The brand's claim page"
+msgstr "Trang yêu cầu bảo hành của thương hiệu"
+
+msgid "The maker, the shop or the insurer."
+msgstr "Nhà sản xuất, cửa hàng hoặc công ty bảo hiểm."
+
+msgid "The maker's, the shop's, an extended one: each with its own end date."
+msgstr "Của nhà sản xuất, của cửa hàng, hoặc bảo hành mở rộng: mỗi loại có ngày kết thúc riêng."
+
+msgid "The one that covers longest."
+msgstr "Loại có thời hạn bảo hiểm dài nhất."
+
+msgid "The value falls back to the one before it. You can undo this for 7 days."
+msgstr "Giá trị sẽ trở về mức trước đó. Bạn có thể hoàn tác trong 7 ngày."
+
+msgid "Type (optional)"
+msgstr "Loại (không bắt buộc)"
+
+msgid "Update"
+msgstr "Cập nhật"
+
+msgid "Update the claim"
+msgstr "Cập nhật yêu cầu bảo hành"
+
+msgid "uses Kept"
+msgstr "dùng Kept"
+
+msgid "Uses Kept"
+msgstr "Dùng Kept"
+
+msgid "Usually in"
+msgstr "Thường ở"
+
+msgid "Valuation added"
+msgstr "Đã thêm định giá"
+
+msgid "Valuation removed"
+msgstr "Đã xóa định giá"
+
+msgid "Valuation saved"
+msgstr "Đã lưu định giá"
+
+msgid "Valuations"
+msgstr "Định giá"
+
+msgid "Value"
+msgstr "Giá trị"
+
+msgid "Valued on"
+msgstr "Định giá vào"
+
+msgid "Warranties · {0}"
+msgstr "Bảo hành · {0}"
+
+msgid "Warranty added"
+msgstr "Đã thêm bảo hành"
+
+msgid "Warranty contact:"
+msgstr "Liên hệ bảo hành:"
+
+msgid "Warranty removed"
+msgstr "Đã xóa bảo hành"
+
+msgid "Warranty saved"
+msgstr "Đã lưu bảo hành"
+
+msgid "Warranty saved you {saved}"
+msgstr "Bảo hành đã giúp bạn tiết kiệm {saved}"
+
+msgid "What is it called?"
+msgstr "Nó tên là gì?"
+
+msgid "What it would have cost"
+msgstr "Chi phí đáng lẽ phải trả"
+
+msgid "What you paid"
+msgstr "Số tiền bạn đã trả"
+
+msgid "What's wrong"
+msgstr "Có vấn đề gì"
+
+msgid "When it breaks, open a claim: Kept fills in the warranty that covers longest and remembers where it went for repair."
+msgstr "Khi nó hỏng, hãy mở yêu cầu bảo hành: Kept sẽ điền bảo hành có thời hạn dài nhất và ghi nhớ nơi nó được mang đi sửa."
+
+msgid "Where it goes"
+msgstr "Nó sẽ đi đâu"
+
+msgid "Where it is now"
+msgstr "Hiện nó ở đâu"
+
+msgid "Where it usually is"
+msgstr "Thường nó ở đâu"
+
+msgid "Where it was"
+msgstr "Trước đây nó ở đâu"
+
+msgid "Where to claim"
+msgstr "Nơi yêu cầu bảo hành"
+
+msgid "Who is it going to?"
+msgstr "Nó sẽ giao cho ai?"
+
+msgid "Who lent it to you?"
+msgstr "Ai đã cho bạn mượn nó?"
+
+msgid "With {who} since {since}"
+msgstr "Đang ở chỗ {who} từ {since}"
+
+msgid "With {who} since {since} · due {due}"
+msgstr "Đang ở chỗ {who} từ {since} · hạn trả {due}"
+
+msgid "search word ({language})"
+msgstr "từ tìm kiếm ({language})"
+
+msgid "Details need a connection."
+msgstr "Cần có kết nối để xem chi tiết."
+
+msgid "From {who}"
+msgstr "Từ {who}"
+
+msgid "From {who} · due back {due}"
+msgstr "Từ {who} · hạn trả lại {due}"
+
+msgid "Inside {0}"
+msgstr "Bên trong {0}"
+
+msgid "It isn't in this phone's copy. It opens when you're back online."
+msgstr "Nó không có trong bản sao trên điện thoại này. Nó sẽ mở khi bạn trở lại trực tuyến."
+
+msgid "Nothing here in this phone's copy."
+msgstr "Không có gì ở đây trong bản sao trên điện thoại này."
+
+msgid "Places in {name}"
+msgstr "Các địa điểm trong {name}"
+
+msgid "Things in {name}"
+msgstr "Các đồ vật trong {name}"
+
+msgid "With {who}"
+msgstr "Đang ở chỗ {who}"
+
+msgid "With {who} · due {due}"
+msgstr "Đang ở chỗ {who} · hạn {due}"
+
+msgid "{browser} on {os}"
+msgstr "{browser} trên {os}"
+
+msgid "{MAX_CALENDAR_FEEDS, plural, one {# link is the most. Revoke one to make another.} other {# links are the most. Revoke one to make another.}}"
+msgstr "{MAX_CALENDAR_FEEDS, plural, one {# liên kết là tối đa. Hãy thu hồi một liên kết để tạo liên kết khác.} other {# liên kết là tối đa. Hãy thu hồi một liên kết để tạo liên kết khác.}}"
+
+msgid "{MAX_WEBHOOK_CHANNELS, plural, one {You have # webhook, the most Kept allows.} other {You have # webhooks, the most Kept allows.}}"
+msgstr "{MAX_WEBHOOK_CHANNELS, plural, one {Bạn có # webhook, mức tối đa Kept cho phép.} other {Bạn có # webhook, mức tối đa Kept cho phép.}}"
+
+msgid "{unreadText} unread"
+msgstr "{unreadText} chưa đọc"
+
+msgid "{who} joined {where}"
+msgstr "{who} đã tham gia {where}"
+
+msgid "{who} no longer has access to {where}"
+msgstr "{who} không còn quyền truy cập {where}"
+
+msgid "A device"
+msgstr "Một thiết bị"
+
+msgid "A private link your calendar app subscribes to: what's due and what runs out, as all-day events, from a month back to 13 months ahead. Titles and dates only, never money."
+msgstr "Một liên kết riêng tư mà ứng dụng lịch của bạn đăng ký: những việc đến hạn và sắp hết hạn, dưới dạng sự kiện cả ngày, từ một tháng trước đến 13 tháng sau. Chỉ có tiêu đề và ngày, không bao giờ có tiền bạc."
+
+msgid "Add a webhook"
+msgstr "Thêm webhook"
+
+msgid "AI monthly summary"
+msgstr "Tóm tắt AI hàng tháng"
+
+msgid "AI reached this month's cap"
+msgstr "AI đã chạm giới hạn tháng này"
+
+msgid "AI spending caps"
+msgstr "Giới hạn chi tiêu AI"
+
+msgid "AI used 80% of this month's cap"
+msgstr "AI đã dùng 80% giới hạn tháng này"
+
+msgid "Allow notifications for Kept in this browser's settings, then try again."
+msgstr "Hãy cho phép thông báo cho Kept trong cài đặt của trình duyệt này, rồi thử lại."
+
+msgid "Browser"
+msgstr "Trình duyệt"
+
+msgid "Calendar feed"
+msgstr "Nguồn cấp lịch"
+
+msgid "Calendar links"
+msgstr "Liên kết lịch"
+
+msgid "Calendars subscribed to it stop updating. A new link can be made any time."
+msgstr "Các lịch đã đăng ký nó sẽ ngừng cập nhật. Bạn có thể tạo liên kết mới bất cứ lúc nào."
+
+msgid "Checked {at} · {n} new"
+msgstr "Đã kiểm tra lúc {at} · {n} mới"
+
+msgid "Complete {heading}"
+msgstr "Hoàn thành {heading}"
+
+msgid "Copy a reminder"
+msgstr "Sao chép một lời nhắc"
+
+msgid "Copy a reminder for {heading}"
+msgstr "Sao chép lời nhắc cho {heading}"
+
+msgid "Copy the link"
+msgstr "Sao chép liên kết"
+
+msgid "Copy the link now"
+msgstr "Sao chép liên kết ngay"
+
+msgid "Copy the secret"
+msgstr "Sao chép bí mật"
+
+msgid "Copy the signing secret now"
+msgstr "Sao chép khóa ký ngay"
+
+msgid "Couldn't create a link"
+msgstr "Không tạo được liên kết"
+
+msgid "Couldn't mark it read"
+msgstr "Không đánh dấu đã đọc được"
+
+msgid "Couldn't revoke it"
+msgstr "Không thu hồi được"
+
+msgid "Couldn't save that"
+msgstr "Không lưu được"
+
+msgid "Couldn't send a test"
+msgstr "Không gửi được bản thử"
+
+msgid "Couldn't turn notifications on"
+msgstr "Không bật được thông báo"
+
+msgid "Couldn't turn them off"
+msgstr "Không tắt chúng được"
+
+msgid "Create a link"
+msgstr "Tạo liên kết"
+
+msgid "Daily digest"
+msgstr "Bản tin hàng ngày"
+
+msgid "Digest and quiet hours"
+msgstr "Bản tin và giờ yên lặng"
+
+msgid "Documents running out"
+msgstr "Tài liệu sắp hết hạn"
+
+msgid "Downloads"
+msgstr "Tải xuống"
+
+msgid "Due and coming up"
+msgstr "Đến hạn và sắp tới"
+
+msgid "Due at {value}"
+msgstr "Đến hạn lúc {value}"
+
+msgid "Email and the notification centre still reach you."
+msgstr "Email và trung tâm thông báo vẫn liên lạc được với bạn."
+
+msgid "Enter the full address, starting with https://"
+msgstr "Nhập địa chỉ đầy đủ, bắt đầu bằng https://"
+
+msgid "Everything lands in the notification centre. These reach you outside Kept as well."
+msgstr "Mọi thứ đều vào trung tâm thông báo. Những thứ này cũng đến với bạn ngoài Kept."
+
+msgid "Failed jobs shows why it stopped; if the worker isn't running, start it again. The next good check resolves this alert."
+msgstr "Công việc thất bại cho biết vì sao nó dừng; nếu worker không chạy, hãy khởi động lại. Lần kiểm tra tốt tiếp theo sẽ gỡ cảnh báo này."
+
+msgid "Failing since {since}"
+msgstr "Lỗi từ {since}"
+
+msgid "For your own automations: Kept posts a signed message when something is due, with ids and dates only, never names."
+msgstr "Cho các tự động hóa của riêng bạn: Kept đăng một thông báo đã ký khi có việc đến hạn, chỉ gồm id và ngày, không bao giờ có tên."
+
+msgid "How to install"
+msgstr "Cách cài đặt"
+
+msgid "In Kept"
+msgstr "Trong Kept"
+
+msgid "It answered {code}."
+msgstr "Nó đã trả lời {code}."
+
+msgid "It couldn't be reached."
+msgstr "Không liên lạc được với nó."
+
+msgid "It's no longer there."
+msgstr "Nó không còn ở đó nữa."
+
+msgid "Kept last checked for due reminders {lastOk}. Until it checks again, nobody gets new reminders."
+msgstr "Kept kiểm tra lời nhắc đến hạn lần cuối lúc {lastOk}. Cho đến khi kiểm tra lại, không ai nhận được lời nhắc mới."
+
+msgid "Kept sends at most 5 tests an hour, across all your channels and devices. Try again later."
+msgstr "Kept gửi tối đa 5 bản thử mỗi giờ, trên tất cả kênh và thiết bị của bạn. Hãy thử lại sau."
+
+msgid "Kept shows it only this once. Anyone with it can read the titles and dates."
+msgstr "Kept chỉ hiển thị nó một lần duy nhất này. Bất kỳ ai có nó đều có thể đọc tiêu đề và ngày."
+
+msgid "Kept shows it only this once. Your receiver checks each message's Kept-Signature header with it."
+msgstr "Kept chỉ hiển thị nó một lần duy nhất này. Bộ nhận của bạn kiểm tra tiêu đề Kept-Signature của mỗi thông báo bằng nó."
+
+msgid "Kept stops posting to it. Its secret can't be used again."
+msgstr "Kept ngừng đăng lên nó. Bí mật của nó không dùng lại được."
+
+msgid "Last fetched {fetched}"
+msgstr "Lấy lần cuối lúc {fetched}"
+
+msgid "Last month's AI use, sent to your email."
+msgstr "Mức dùng AI tháng trước, gửi tới email của bạn."
+
+msgid "Link made {made}"
+msgstr "Liên kết tạo lúc {made}"
+
+msgid "Locations that require two-factor are left out of the feed. Google Calendar fetches the link from Google's servers, so it works there only when Kept can be reached from the internet."
+msgstr "Các địa điểm yêu cầu xác thực hai lớp sẽ không có trong nguồn cấp. Google Calendar lấy liên kết từ máy chủ của Google, vì vậy nó chỉ hoạt động ở đó khi Kept có thể truy cập được từ internet."
+
+msgid "Mail isn't configured on this server, so no email goes out yet."
+msgstr "Mail chưa được cấu hình trên máy chủ này, vì vậy chưa có email nào được gửi đi."
+
+msgid "Mail isn't configured on this server."
+msgstr "Mail chưa được cấu hình trên máy chủ này."
+
+msgid "Mark all read"
+msgstr "Đánh dấu tất cả đã đọc"
+
+msgid "Members joining and leaving"
+msgstr "Thành viên tham gia và rời đi"
+
+msgid "Needs a connection: completing, snoozing, returning and marking read wait until you're back online."
+msgstr "Cần có kết nối: việc hoàn thành, tạm hoãn, trả lại và đánh dấu đã đọc sẽ chờ đến khi bạn trở lại trực tuyến."
+
+msgid "No check for due reminders has finished yet, so nobody gets reminders."
+msgstr "Chưa có lần kiểm tra lời nhắc đến hạn nào hoàn tất, vì vậy không ai nhận được lời nhắc."
+
+msgid "No longer due"
+msgstr "Không còn đến hạn"
+
+msgid "Not checked yet"
+msgstr "Chưa kiểm tra"
+
+msgid "Not fetched yet"
+msgstr "Chưa lấy dữ liệu"
+
+msgid "Nothing is pushed or emailed in these hours; it waits until they end."
+msgstr "Trong những giờ này không có gì được đẩy hay gửi email; nó sẽ chờ đến khi hết giờ đó."
+
+msgid "Nothing new"
+msgstr "Không có gì mới"
+
+msgid "Notification settings"
+msgstr "Cài đặt thông báo"
+
+msgid "Notifications are blocked"
+msgstr "Thông báo đang bị chặn"
+
+msgid "Notifications are blocked for Kept in this browser's settings. Allow them there, then come back."
+msgstr "Thông báo cho Kept đang bị chặn trong cài đặt của trình duyệt này. Hãy cho phép chúng ở đó, rồi quay lại."
+
+msgid "Notifications are on for this device"
+msgstr "Thông báo đang bật cho thiết bị này"
+
+msgid "On iPhone and iPad, notifications work only from the installed app. Add Kept to your Home Screen, open it from there and turn them on. Until then, email reaches you."
+msgstr "Trên iPhone và iPad, thông báo chỉ hoạt động từ ứng dụng đã cài đặt. Hãy thêm Kept vào Màn hình chính, mở từ đó và bật thông báo. Cho đến lúc đó, email vẫn gửi tới bạn."
+
+msgid "Once a month: what AI did for you and what it used."
+msgstr "Mỗi tháng một lần: AI đã làm gì cho bạn và đã dùng những gì."
+
+msgid "Open {heading}"
+msgstr "Mở {heading}"
+
+msgid "Optional, to tell your webhooks apart."
+msgstr "Không bắt buộc, để phân biệt các webhook của bạn."
+
+msgid "Overdue loans"
+msgstr "Các khoản cho mượn quá hạn"
+
+msgid "Push"
+msgstr "Thông báo đẩy"
+
+msgid "Push is on"
+msgstr "Thông báo đẩy đang bật"
+
+msgid "Push isn't set up on this server. Email and the notification centre still work."
+msgstr "Thông báo đẩy chưa được thiết lập trên máy chủ này. Email và trung tâm thông báo vẫn hoạt động."
+
+msgid "Push needs HTTPS. Over plain HTTP, email and the notification centre still work."
+msgstr "Thông báo đẩy cần HTTPS. Trên HTTP thường, email và trung tâm thông báo vẫn hoạt động."
+
+msgid "Push on since {added}"
+msgstr "Đã bật thông báo đẩy từ {added}"
+
+msgid "Push on since {added} · last delivered {last}"
+msgstr "Đã bật thông báo đẩy từ {added} · lần gửi gần nhất {last}"
+
+msgid "Quiet hours"
+msgstr "Giờ yên lặng"
+
+msgid "Quiet hours can't start and end at the same time."
+msgstr "Giờ yên lặng không thể bắt đầu và kết thúc cùng một lúc."
+
+msgid "Reminders have stopped going out"
+msgstr "Nhắc nhở đã ngừng gửi"
+
+msgid "Reminders pop up here even when Kept is closed. Your browser asks first."
+msgstr "Nhắc nhở vẫn hiện ở đây ngay cả khi Kept đã đóng. Trình duyệt của bạn sẽ hỏi trước."
+
+msgid "Remove {name}"
+msgstr "Xóa {name}"
+
+msgid "Remove the webhook {name}?"
+msgstr "Xóa webhook {name}?"
+
+msgid "Renew {heading}"
+msgstr "Gia hạn {heading}"
+
+msgid "Revoke the link made {made}"
+msgstr "Thu hồi liên kết đã tạo {made}"
+
+msgid "Revoke this calendar link?"
+msgstr "Thu hồi liên kết lịch này?"
+
+msgid "Revoked"
+msgstr "Đã thu hồi"
+
+msgid "Role: {role}"
+msgstr "Vai trò: {role}"
+
+msgid "Schedules due"
+msgstr "Lịch trình đến hạn"
+
+msgid "Send a test email"
+msgstr "Gửi email thử"
+
+msgid "Send a test notification to {name}"
+msgstr "Gửi thông báo thử tới {name}"
+
+msgid "Send a test notification to this device"
+msgstr "Gửi thông báo thử tới thiết bị này"
+
+msgid "Send a test to {name}"
+msgstr "Gửi bản thử tới {name}"
+
+msgid "Snooze {heading}"
+msgstr "Tạm hoãn {heading}"
+
+msgid "Stop notifications on {name}?"
+msgstr "Dừng thông báo trên {name}?"
+
+msgid "Test sent"
+msgstr "Đã gửi bản thử"
+
+msgid "That device stops receiving push from Kept. Turn it on again from the device itself."
+msgstr "Thiết bị đó sẽ ngừng nhận thông báo đẩy từ Kept. Hãy bật lại từ chính thiết bị đó."
+
+msgid "The mail server didn't take it. Try again later."
+msgstr "Máy chủ thư đã không nhận nó. Hãy thử lại sau."
+
+msgid "The test didn't arrive"
+msgstr "Bản thử đã không tới"
+
+msgid "This browser can't receive notifications from Kept. Email still reaches you."
+msgstr "Trình duyệt này không thể nhận thông báo từ Kept. Email vẫn gửi tới bạn."
+
+msgid "Times are in <0>{zone}</0>, your time zone."
+msgstr "Giờ hiển thị theo <0>{zone}</0>, múi giờ của bạn."
+
+msgid "Turn off"
+msgstr "Tắt"
+
+msgid "Turn off notifications on this device?"
+msgstr "Tắt thông báo trên thiết bị này?"
+
+msgid "Unread"
+msgstr "Chưa đọc"
+
+msgid "Unread:"
+msgstr "Chưa đọc:"
+
+msgid "Warranties running out"
+msgstr "Bảo hành sắp hết"
+
+msgid "Warranty · {on}"
+msgstr "Bảo hành · {on}"
+
+msgid "Warranty registration · {on}"
+msgstr "Đăng ký bảo hành · {on}"
+
+msgid "Warranty registration deadlines"
+msgstr "Hạn đăng ký bảo hành"
+
+msgid "Was due {day}"
+msgstr "Đã đến hạn {day}"
+
+msgid "Was due back {day}"
+msgstr "Đã đến hạn trả {day}"
+
+msgid "Was: {role}"
+msgstr "Trước đây: {role}"
+
+msgid "Webhook"
+msgstr "Webhook"
+
+msgid "Webhooks"
+msgstr "Webhook"
+
+msgid "What's coming up arrives together, once a day."
+msgstr "Những việc sắp tới sẽ gửi gộp lại, mỗi ngày một lần."
+
+msgid "Where Kept posts. Only its host is shown after this."
+msgstr "Nơi Kept gửi tới. Sau bước này chỉ hiển thị máy chủ của nó."
+
+msgid "Your account has no email address, so Kept tells you here, in the app."
+msgstr "Tài khoản của bạn không có địa chỉ email, vì vậy Kept sẽ thông báo cho bạn tại đây, trong ứng dụng."
+
+msgid "Your account has no email address."
+msgstr "Tài khoản của bạn không có địa chỉ email."
+
+msgid "Your claim pack is ready"
+msgstr "Gói hồ sơ bồi thường của bạn đã sẵn sàng"
+
+msgid "Your insurance report is ready"
+msgstr "Báo cáo bảo hiểm của bạn đã sẵn sàng"
+
+msgid "Your monthly AI summary"
+msgstr "Tóm tắt AI hàng tháng của bạn"
+
+msgid "Your personal AI"
+msgstr "AI cá nhân của bạn"
+
+msgid "{0, plural, one {# claim} other {# claims}}"
+msgstr "{0, plural, one {# yêu cầu bồi thường} other {# yêu cầu bồi thường}}"
+
+msgid "{0, plural, one {# thing in {where}} other {# things in {where}}}"
+msgstr "{0, plural, one {# đồ vật trong {where}} other {# đồ vật trong {where}}}"
+
+msgid "{0, plural, one {Added # thing to {name}} other {Added # things to {name}}}"
+msgstr "{0, plural, one {Đã thêm # đồ vật vào {name}} other {Đã thêm # đồ vật vào {name}}}"
+
+msgid "{0, plural, one {Downloaded # time} other {Downloaded # times}}"
+msgstr "{0, plural, one {Đã tải xuống # lần} other {Đã tải xuống # lần}}"
+
+msgid "{0, plural, one {Ended # thing} other {Ended # things}}"
+msgstr "{0, plural, one {Đã kết thúc # đồ vật} other {Đã kết thúc # đồ vật}}"
+
+msgid "{0, plural, one {The thing still in use ends on the day of the incident. It leaves your counts and totals, and stays in the history.} other {The # things still in use end on the day of the incident. They leave your counts and totals, and stay in the history.}}"
+msgstr "{0, plural, one {Đồ vật vẫn đang dùng sẽ kết thúc vào ngày xảy ra sự cố. Nó sẽ rời khỏi số lượng và tổng số của bạn, và vẫn ở trong lịch sử.} other {Các # đồ vật vẫn đang dùng sẽ kết thúc vào ngày xảy ra sự cố. Chúng sẽ rời khỏi số lượng và tổng số của bạn, và vẫn ở trong lịch sử.}}"
+
+msgid "{0, plural, one {The thing you chose leaves your counts and totals, and stays in the history.} other {The # things you chose leave your counts and totals, and stay in the history.}}"
+msgstr "{0, plural, one {Đồ vật bạn đã chọn sẽ rời khỏi số lượng và tổng số của bạn, và vẫn ở trong lịch sử.} other {Các # đồ vật bạn đã chọn sẽ rời khỏi số lượng và tổng số của bạn, và vẫn ở trong lịch sử.}}"
+
+msgid "{d, plural, one {# day} other {# days}}"
+msgstr "{d, plural, one {# ngày} other {# ngày}}"
+
+msgid "{kind} on {day}"
+msgstr "{kind} vào {day}"
+
+msgid "{n, plural, one {Add # thing to an incident} other {Add # things to an incident}}"
+msgstr "{n, plural, one {Thêm # đồ vật vào một sự cố} other {Thêm # đồ vật vào một sự cố}}"
+
+msgid "{size}, kept until {keptUntil}."
+msgstr "{size}, giữ đến {keptUntil}."
+
+msgid "1 {from} is worth"
+msgstr "1 {from} có giá trị"
+
+msgid "A claim pack carries prices and documents, so only owners and admins make it."
+msgstr "Gói hồ sơ bồi thường mang theo giá và tài liệu, vì vậy chỉ chủ sở hữu và quản trị viên mới tạo được nó."
+
+msgid "A new incident"
+msgstr "Một sự cố mới"
+
+msgid "A new link stops the old one working."
+msgstr "Liên kết mới sẽ khiến liên kết cũ ngừng hoạt động."
+
+msgid "A number above 0, with at most 8 decimals, like 48.65."
+msgstr "Một số lớn hơn 0, tối đa 8 chữ số thập phân, ví dụ 48.65."
+
+msgid "A PDF for your insurer: each thing with its photo, brand, model, serial, purchase date and price, current value and receipts, with totals per room and per currency."
+msgstr "Một tệp PDF cho công ty bảo hiểm của bạn: mỗi đồ vật kèm ảnh, thương hiệu, mẫu mã, số sê-ri, ngày mua và giá, giá trị hiện tại và biên lai, kèm tổng theo từng phòng và từng loại tiền tệ."
+
+msgid "A rate is missing, so there's no converted total"
+msgstr "Thiếu một tỉ giá, vì vậy không có tổng đã quy đổi"
+
+msgid "A thing"
+msgstr "Một đồ vật"
+
+msgid "A ZIP for your insurer: the insurance report, every receipt and invoice as you uploaded it, the photos, and a list of serial numbers. You share it with a link that expires."
+msgstr "Một tệp ZIP cho công ty bảo hiểm của bạn: báo cáo bảo hiểm, mọi biên lai và hóa đơn như bạn đã tải lên, các ảnh, và danh sách số sê-ri. Bạn chia sẻ nó bằng một liên kết có thời hạn."
+
+msgid "Add a document"
+msgstr "Thêm tài liệu"
+
+msgid "Add a rate"
+msgstr "Thêm tỉ giá"
+
+msgid "Add exchange rates"
+msgstr "Thêm tỉ giá hối đoái"
+
+msgid "Add one when you want totals in several currencies turned into one, like USD to EGP."
+msgstr "Thêm một tỉ giá khi bạn muốn các tổng bằng nhiều loại tiền tệ được quy đổi thành một, ví dụ USD sang EGP."
+
+msgid "Add them to"
+msgstr "Thêm chúng vào"
+
+msgid "Add to incident"
+msgstr "Thêm vào sự cố"
+
+msgid "Also total in (optional)"
+msgstr "Cũng tính tổng bằng (không bắt buộc)"
+
+msgid "An owner or admin records a burglary, fire, flood or loss here."
+msgstr "Chủ sở hữu hoặc quản trị viên ghi lại một vụ trộm, cháy, lụt hoặc mất mát tại đây."
+
+msgid "Anyone with the link can download what you paid, your receipts and the serial numbers, without signing in, until it expires or you revoke it. Passwords and codes are never in it."
+msgstr "Bất kỳ ai có liên kết đều có thể tải xuống những gì bạn đã trả, biên lai và số sê-ri của bạn mà không cần đăng nhập, cho đến khi nó hết hạn hoặc bạn thu hồi nó. Mật khẩu và mã không bao giờ có trong đó."
+
+msgid "Applies from"
+msgstr "Áp dụng từ"
+
+msgid "As of"
+msgstr "Tính đến"
+
+msgid "Back to this location's incidents"
+msgstr "Quay lại các sự cố của địa điểm này"
+
+msgid "Burglary"
+msgstr "Trộm cắp"
+
+msgid "Change the rate"
+msgstr "Đổi tỉ giá"
+
+msgid "Change the rate from {day}"
+msgstr "Đổi tỉ giá từ {day}"
+
+msgid "Choose a location."
+msgstr "Chọn một địa điểm."
+
+msgid "Choose the currency you convert from."
+msgstr "Chọn loại tiền tệ bạn quy đổi từ đó."
+
+msgid "Choose the currency you convert to."
+msgstr "Chọn loại tiền tệ bạn quy đổi sang."
+
+msgid "Choose two different currencies."
+msgstr "Chọn hai loại tiền tệ khác nhau."
+
+msgid "Choose what goes in it"
+msgstr "Chọn nội dung đưa vào"
+
+msgid "Claims under {name}"
+msgstr "Các yêu cầu bồi thường thuộc {name}"
+
+msgid "Copy it now: Kept shows it only this once."
+msgstr "Sao chép ngay: Kept chỉ hiển thị mã này một lần duy nhất."
+
+msgid "Couldn't check on the claim pack"
+msgstr "Không kiểm tra được gói hồ sơ bồi thường"
+
+msgid "Couldn't make the claim pack"
+msgstr "Không tạo được gói hồ sơ bồi thường"
+
+msgid "Create link"
+msgstr "Tạo liên kết"
+
+msgid "Delete the {pair} rate from {day}?"
+msgstr "Xóa tỷ giá {pair} từ ngày {day}?"
+
+msgid "Delete the rate from {day}"
+msgstr "Xóa tỷ giá từ ngày {day}"
+
+msgid "Documents for {name}"
+msgstr "Tài liệu của {name}"
+
+msgid "Edit the incident"
+msgstr "Sửa sự cố"
+
+msgid "Fire"
+msgstr "Cháy"
+
+msgid "Flood"
+msgstr "Lũ lụt"
+
+msgid "For <0>{0}</0>"
+msgstr "Cho <0>{0}</0>"
+
+msgid "For <0>{incidentName}</0>"
+msgstr "Cho <0>{incidentName}</0>"
+
+msgid "For <0>{what}</0>"
+msgstr "Cho <0>{what}</0>"
+
+msgid "For the insurer"
+msgstr "Cho công ty bảo hiểm"
+
+msgid "From {0} to {1}. To change the pair or the day, add a new rate."
+msgstr "Từ {0} đến {1}. Để đổi cặp tiền tệ hoặc ngày, hãy thêm một tỷ giá mới."
+
+msgid "From {day} · by <0>{who}</0>"
+msgstr "Từ ngày {day} · bởi <0>{who}</0>"
+
+msgid "Gathering the files…"
+msgstr "Đang thu thập các tệp…"
+
+msgid "Get the ZIP"
+msgstr "Lấy tệp ZIP"
+
+msgid "How much one unit is worth in the other."
+msgstr "Một đơn vị tiền này đáng giá bao nhiêu tiền kia."
+
+msgid "I understand the link shares prices and documents"
+msgstr "Tôi hiểu rằng liên kết này chia sẻ giá cả và tài liệu"
+
+msgid "If something is stolen, burnt, flooded or lost, record it here, or select the things in a location's list and choose Add to incident."
+msgstr "Nếu có thứ gì bị trộm, cháy, ngập nước hoặc mất, hãy ghi nhận tại đây, hoặc chọn các đồ vật trong danh sách của một địa điểm rồi chọn Thêm vào sự cố."
+
+msgid "Include photos"
+msgstr "Bao gồm ảnh"
+
+msgid "Insurer: <0>{0}</0>"
+msgstr "Công ty bảo hiểm: <0>{0}</0>"
+
+msgid "Insurer's reference"
+msgstr "Mã tham chiếu của công ty bảo hiểm"
+
+msgid "Insurer's reference (optional)"
+msgstr "Mã tham chiếu của công ty bảo hiểm (không bắt buộc)"
+
+msgid "It can't be in the future."
+msgstr "Không được là ngày trong tương lai."
+
+msgid "It stops working at once, for everyone who has it. You can make a new one."
+msgstr "Nó ngừng hoạt động ngay lập tức, đối với mọi người đang có nó. Bạn có thể tạo một liên kết mới."
+
+msgid "It's kept for 7 days. Make a new one from the incident or the selection."
+msgstr "Liên kết được giữ trong 7 ngày. Tạo liên kết mới từ sự cố hoặc từ lựa chọn."
+
+msgid "Keep the notes under {NOTES_MAX} characters."
+msgstr "Giữ ghi chú dưới {NOTES_MAX} ký tự."
+
+msgid "Kept converts only with a rate you entered, never an estimate. Add one dated on or before the report's day, or make the report without a converted total."
+msgstr "Kept chỉ quy đổi bằng tỷ giá bạn đã nhập, không bao giờ ước tính. Hãy thêm một tỷ giá có ngày vào hoặc trước ngày báo cáo, hoặc lập báo cáo mà không có tổng đã quy đổi."
+
+msgid "Kept converts totals only with a rate you entered here, for that pair or its inverse. It never estimates one, and never goes through a third currency: without a rate, totals stay per currency."
+msgstr "Kept chỉ quy đổi tổng bằng tỷ giá bạn đã nhập tại đây, cho cặp tiền đó hoặc cặp nghịch đảo của nó. Kept không bao giờ ước tính tỷ giá, và không bao giờ quy đổi qua một loại tiền tệ thứ ba: nếu không có tỷ giá, các tổng vẫn giữ nguyên theo từng loại tiền tệ."
+
+msgid "Kept until {keptUntil}."
+msgstr "Giữ đến {keptUntil}."
+
+msgid "Kind or reference"
+msgstr "Loại hoặc mã tham chiếu"
+
+msgid "last {lastDownload}"
+msgstr "lần cuối {lastDownload}"
+
+msgid "Link expires {linkExpires}"
+msgstr "Liên kết hết hạn {linkExpires}"
+
+msgid "Link lasts"
+msgstr "Thời hạn liên kết"
+
+msgid "Link revoked"
+msgstr "Liên kết đã bị thu hồi"
+
+msgid "Loss"
+msgstr "Mất mát"
+
+msgid "Make a claim pack from an incident's page, or select things in a location's list and choose Claim pack."
+msgstr "Tạo gói hồ sơ bồi thường từ trang của một sự cố, hoặc chọn các đồ vật trong danh sách của một địa điểm rồi chọn Gói hồ sơ bồi thường."
+
+msgid "Make another"
+msgstr "Tạo thêm một cái nữa"
+
+msgid "Make the claim pack"
+msgstr "Tạo gói hồ sơ bồi thường"
+
+msgid "Making the claim pack"
+msgstr "Đang tạo gói hồ sơ bồi thường"
+
+msgid "Mark these destroyed"
+msgstr "Đánh dấu những thứ này là đã bị phá hủy"
+
+msgid "Mark these lost"
+msgstr "Đánh dấu những thứ này là đã mất"
+
+msgid "Mark these stolen"
+msgstr "Đánh dấu những thứ này là đã bị trộm"
+
+msgid "Missing rates"
+msgstr "Thiếu tỷ giá"
+
+msgid "Needs a connection: recording an incident waits until you're back online."
+msgstr "Cần có kết nối: việc ghi nhận sự cố sẽ chờ đến khi bạn trở lại trực tuyến."
+
+msgid "New incident"
+msgstr "Sự cố mới"
+
+msgid "New link"
+msgstr "Liên kết mới"
+
+msgid "No exchange rates yet"
+msgstr "Chưa có tỷ giá hối đoái nào"
+
+msgid "No incidents"
+msgstr "Không có sự cố nào"
+
+msgid "No link yet. Nobody can download it until you make one."
+msgstr "Chưa có liên kết nào. Không ai có thể tải xuống cho đến khi bạn tạo một liên kết."
+
+msgid "No location to report on"
+msgstr "Không có địa điểm nào để báo cáo"
+
+msgid "No report for this incident"
+msgstr "Không có báo cáo nào cho sự cố này"
+
+msgid "Not downloaded yet"
+msgstr "Chưa được tải xuống"
+
+msgid "Notes (optional)"
+msgstr "Ghi chú (không bắt buộc)"
+
+msgid "Nothing yet. In the location's list, choose Select, pick the things, then Add to incident."
+msgstr "Chưa có gì. Trong danh sách của địa điểm, chọn Chọn, chọn các đồ vật, rồi chọn Thêm vào sự cố."
+
+msgid "Only an owner or admin makes one"
+msgstr "Chỉ chủ sở hữu hoặc quản trị viên mới tạo được"
+
+msgid "Only an owner or admin of this account changes its rates."
+msgstr "Chỉ chủ sở hữu hoặc quản trị viên của tài khoản này mới thay đổi được tỷ giá của nó."
+
+msgid "Pick the day it applies from."
+msgstr "Chọn ngày bắt đầu áp dụng."
+
+msgid "Pick the day it happened."
+msgstr "Chọn ngày xảy ra sự cố."
+
+msgid "Police reference"
+msgstr "Mã tham chiếu của cảnh sát"
+
+msgid "Police reference (optional)"
+msgstr "Mã tham chiếu của cảnh sát (không bắt buộc)"
+
+msgid "Police: <0>{0}</0>"
+msgstr "Cảnh sát: <0>{0}</0>"
+
+msgid "Rate"
+msgstr "Tỷ giá"
+
+msgid "Rate added"
+msgstr "Đã thêm tỷ giá"
+
+msgid "Rate changed"
+msgstr "Đã đổi tỷ giá"
+
+msgid "Rate deleted"
+msgstr "Đã xóa tỷ giá"
+
+msgid "Record"
+msgstr "Ghi nhận"
+
+msgid "Recorded {name}"
+msgstr "Đã ghi nhận {name}"
+
+msgid "Revoke the link?"
+msgstr "Thu hồi liên kết?"
+
+msgid "Search incidents"
+msgstr "Tìm kiếm sự cố"
+
+msgid "Share the ZIP"
+msgstr "Chia sẻ tệp ZIP"
+
+msgid "Take {0} out of the incident"
+msgstr "Đưa {0} ra khỏi sự cố"
+
+msgid "Take out"
+msgstr "Loại ra"
+
+msgid "The insurance report needs Money on in a location, and a role that sees prices there."
+msgstr "Báo cáo bảo hiểm cần bật Money trong một địa điểm, và một vai trò có thể xem giá ở đó."
+
+msgid "The insurance report needs Money on in its location, and a role that sees prices."
+msgstr "Báo cáo bảo hiểm cần bật Money trong địa điểm của nó, và một vai trò có thể xem giá."
+
+msgid "The things stay as they are; only the incident and its references go. You can undo this for 7 days from the history."
+msgstr "Các đồ vật vẫn giữ nguyên; chỉ sự cố và các tham chiếu của nó bị xóa. Bạn có thể hoàn tác việc này trong 7 ngày từ lịch sử."
+
+msgid "This browser can't save files here. Open Kept in Safari to download it."
+msgstr "Trình duyệt này không thể lưu tệp tại đây. Mở Kept trong Safari để tải xuống."
+
+msgid "This claim pack has expired"
+msgstr "Gói hồ sơ bồi thường này đã hết hạn"
+
+msgid "This includes prices and documents"
+msgstr "Nội dung này bao gồm giá cả và tài liệu"
+
+msgid "Took {what} out of {name}"
+msgstr "Đã đưa {what} ra khỏi {name}"
+
+msgid "Totals from that day use the rate before it, or show per currency."
+msgstr "Các tổng từ ngày đó dùng tỷ giá trước đó, hoặc hiển thị theo từng loại tiền tệ."
+
+msgid "Totals stay per currency; this adds one converted with your exchange rates."
+msgstr "Các tổng vẫn giữ theo từng loại tiền tệ; mục này cộng thêm một tổng đã quy đổi bằng tỷ giá hối đoái của bạn."
+
+msgid "Until a newer rate for the same pair."
+msgstr "Cho đến khi có tỷ giá mới hơn cho cùng cặp tiền tệ."
+
+msgid "Values are the latest on or before this day."
+msgstr "Các giá trị là mới nhất vào hoặc trước ngày này."
+
+msgid "What happened"
+msgstr "Đã xảy ra chuyện gì"
+
+msgid "What it affected"
+msgstr "Những gì bị ảnh hưởng"
+
+msgid "Your link"
+msgstr "Liên kết của bạn"
+
+msgid "{0, plural, one {# location} other {# locations}}"
+msgstr "{0, plural, one {# địa điểm} other {# địa điểm}}"
+
+msgid "Find an account by its owner"
+msgstr "Tìm tài khoản theo chủ sở hữu của nó"
+
+msgid "Limit an account"
+msgstr "Giới hạn một tài khoản"
+
+msgid "Consumables"
+msgstr "Vật tư tiêu hao"
+
+msgid "Export"
+msgstr "Xuất"
+
+msgid "Logo of {name}"
+msgstr "Logo của {name}"
+
+msgid "Remove the logo?"
+msgstr "Xóa logo?"
+
+msgid "The brand's icon shows instead."
+msgstr "Thay vào đó sẽ hiển thị biểu tượng của thương hiệu."
+
+msgid "Replace the logo"
+msgstr "Thay logo"
+
+msgid "Add a logo"
+msgstr "Thêm logo"
+
+msgid "Remove the logo"
+msgstr "Xóa logo"
+
+msgid "PNG, JPEG, WebP or SVG, up to 2 MB."
+msgstr "PNG, JPEG, WebP hoặc SVG, tối đa 2 MB."
+
+msgid "Connections"
+msgstr "Kết nối"
+
+msgid "Ask about your things"
+msgstr "Hỏi về đồ vật của bạn"
+
+msgid "Ask where something is or what's due, or ask for a change you confirm before it's made. Your conversations are private to you."
+msgstr "Hỏi một thứ ở đâu hoặc sắp đến hạn gì, hoặc yêu cầu một thay đổi mà bạn xác nhận trước khi thực hiện. Các cuộc trò chuyện của bạn chỉ riêng bạn biết."
+
+msgid "Connect other apps"
+msgstr "Kết nối ứng dụng khác"
+
+msgid "Connect an app"
+msgstr "Kết nối một ứng dụng"
+
+msgid "Warranty changed"
+msgstr "Đã thay đổi bảo hành"
+
+msgid "Claim changed"
+msgstr "Đã thay đổi yêu cầu nhận"
+
+msgid "Claim deleted"
+msgstr "Đã xóa yêu cầu nhận"
+
+msgid "Valuation changed"
+msgstr "Đã thay đổi định giá"
+
+msgid "Valuation deleted"
+msgstr "Đã xóa định giá"
+
+msgid "Loan added"
+msgstr "Đã thêm khoản cho mượn"
+
+msgid "Loan changed"
+msgstr "Đã thay đổi khoản cho mượn"
+
+msgid "Loan returned"
+msgstr "Đã trả lại khoản cho mượn"
+
+msgid "Loan deleted"
+msgstr "Đã xóa khoản cho mượn"
+
+msgid "Schedule added"
+msgstr "Đã thêm lịch trình"
+
+msgid "Schedule changed"
+msgstr "Đã thay đổi lịch trình"
+
+msgid "Schedule deleted"
+msgstr "Đã xóa lịch trình"
+
+msgid "Schedule snoozed"
+msgstr "Đã tạm hoãn lịch trình"
+
+msgid "Snooze cleared"
+msgstr "Đã xóa tạm hoãn"
+
+msgid "Next one skipped"
+msgstr "Đã bỏ qua lần tiếp theo"
+
+msgid "Service changed"
+msgstr "Đã thay đổi dịch vụ"
+
+msgid "Service deleted"
+msgstr "Đã xóa dịch vụ"
+
+msgid "Document added"
+msgstr "Đã thêm tài liệu"
+
+msgid "Document changed"
+msgstr "Đã thay đổi tài liệu"
+
+msgid "Document renewed"
+msgstr "Đã gia hạn tài liệu"
+
+msgid "Document deleted"
+msgstr "Đã xóa tài liệu"
+
+msgid "Incident recorded"
+msgstr "Đã ghi nhận sự cố"
+
+msgid "Incident changed"
+msgstr "Đã thay đổi sự cố"
+
+msgid "Incident's things changed"
+msgstr "Đồ vật của sự cố đã thay đổi"
+
+msgid "Incident deleted"
+msgstr "Đã xóa sự cố"
+
+msgid "Exchange rate set"
+msgstr "Đã đặt tỷ giá hối đoái"
+
+msgid "Exchange rate deleted"
+msgstr "Đã xóa tỷ giá hối đoái"
+
+msgid "Brand logo changed"
+msgstr "Đã thay đổi logo thương hiệu"
+
+msgid "Brand logo removed"
+msgstr "Đã xóa logo thương hiệu"
+
+msgid "Ends on"
+msgstr "Kết thúc vào"
+
+msgid "Term (months)"
+msgstr "Thời hạn (tháng)"
+
+msgid "Opened on"
+msgstr "Mở vào"
+
+msgid "Covered"
+msgstr "Được bảo hành"
+
+msgid "Days of notice"
+msgstr "Số ngày báo trước"
+
+msgid "Notice on the meter"
+msgstr "Thông báo trên đồng hồ"
+
+msgid "Every (months)"
+msgstr "Mỗi (tháng)"
+
+msgid "Every (on the meter)"
+msgstr "Mỗi (trên đồng hồ)"
+
+msgid "Counted from"
+msgstr "Tính từ"
+
+msgid "Counted from the reading"
+msgstr "Tính từ chỉ số"
+
+msgid "Snoozed until"
+msgstr "Tạm hoãn đến"
+
+msgid "Snoozed until the reading"
+msgstr "Tạm hoãn đến chỉ số"
+
+msgid "Skip the next one"
+msgstr "Bỏ qua lần tiếp theo"
+
+msgid "Active"
+msgstr "Đang hoạt động"
+
+msgid "Title"
+msgstr "Tiêu đề"
+
+msgid "Happened on"
+msgstr "Xảy ra vào"
+
+msgid "Insurer reference"
+msgstr "Mã tham chiếu của bên bảo hiểm"
+
+msgid "Past {at}"
+msgstr "Đã qua {at}"
+
+msgid "Kept exports at most five lists an hour. Try again later."
+msgstr "Kept xuất tối đa năm danh sách mỗi giờ. Hãy thử lại sau."
+
+msgid "Export or print this list"
+msgstr "Xuất hoặc in danh sách này"
+
+msgid "Export view (CSV)"
+msgstr "Xuất chế độ xem (CSV)"
+
+msgid "The things in this list, as a spreadsheet"
+msgstr "Các đồ vật trong danh sách này, dưới dạng bảng tính"
+
+msgid "A PDF of this list, up to {0} things"
+msgstr "Một PDF của danh sách này, tối đa {0} đồ vật"
+
+msgid "Print this list"
+msgstr "In danh sách này"
+
+msgid "Reading the list…"
+msgstr "Đang đọc danh sách…"
+
+msgid "Narrow the list to {0} things to print it."
+msgstr "Thu hẹp danh sách xuống còn {0} đồ vật để in."
+
+msgid "There's nothing in this list to print."
+msgstr "Không có gì trong danh sách này để in."
+
+msgid "CSV"
+msgstr "CSV"
+
+msgid "Homebox export"
+msgstr "Xuất Homebox"
+
+msgid "Homebox"
+msgstr "Homebox"
+
+msgid "Kept export"
+msgstr "Xuất Kept"
+
+msgid "LubeLogger CSV"
+msgstr "CSV LubeLogger"
+
+msgid "Imported by"
+msgstr "Được nhập bởi"
+
+msgid "Why it needs a look"
+msgstr "Vì sao cần xem lại"
+
+msgid "Claim · open"
+msgstr "Yêu cầu nhận · đang mở"
+
+msgid "Claim · closed"
+msgstr "Yêu cầu nhận · đã đóng"
+
+msgid "{provider} warranty"
+msgstr "Bảo hành {provider}"
+
+msgid "Bought {first}, covered from {from} to {until}; today is {pct} of the way"
+msgstr "Mua {first}, được bảo hành từ {from} đến {until}; hôm nay đã đi được {pct} chặng đường"
+
+msgid "Meters not read lately"
+msgstr "Các đồng hồ lâu chưa đọc chỉ số"
+
+msgid "Readings due"
+msgstr "Chỉ số đến hạn"
+
+msgid "Reading needed"
+msgstr "Cần đọc chỉ số"
+
+msgid "Reading due {day}"
+msgstr "Chỉ số đến hạn {day}"
+
+msgid "Reading needed · {on}"
+msgstr "Cần đọc chỉ số · {on}"
+
+msgid "{0, plural, one {# earlier term} other {# earlier terms}}"
+msgstr "{0, plural, one {# kỳ hạn trước} other {# kỳ hạn trước}}"
+
+msgid "{0, plural, one {a month, over the last month} other {a month, over the last # months}}"
+msgstr "{0, plural, one {một tháng, trong tháng qua} other {một tháng, trong # tháng qua}}"
+
+msgid "{0, plural, one {the last full fill} other {the last # full fills}}"
+msgstr "{0, plural, one {lần đổ đầy gần nhất} other {# lần đổ đầy gần nhất}}"
+
+msgid "{amount} per {u}"
+msgstr "{amount} cho mỗi {u}"
+
+msgid "{amount}/{unit}"
+msgstr "{amount}/{unit}"
+
+msgid "{days, plural, one {Due in # day} other {Due in # days}}"
+msgstr "{days, plural, one {Đến hạn sau # ngày} other {Đến hạn sau # ngày}}"
+
+msgid "{lead, plural, one {Reminds # day before} other {Reminds # days before}}"
+msgstr "{lead, plural, one {Nhắc trước # ngày} other {Nhắc trước # ngày}}"
+
+msgid "{price} per {unit}"
+msgstr "{price} cho mỗi {unit}"
+
+msgid "{v} {u} an hour"
+msgstr "{v} {u} mỗi giờ"
+
+msgid "{v} kWh/100 km"
+msgstr "{v} kWh/100 km"
+
+msgid "{v} L/100 km"
+msgstr "{v} L/100 km"
+
+msgid "{v} mi/kWh"
+msgstr "{v} mi/kWh"
+
+msgid "{v} mpg"
+msgstr "{v} mpg"
+
+msgid "≈ {amount}"
+msgstr "≈ {amount}"
+
+msgid "A missed fill-up breaks the count. Consumption shows again after two full fills with odometer readings."
+msgstr "Bỏ lỡ một lần đổ xăng sẽ làm gián đoạn việc đếm. Mức tiêu thụ sẽ hiển thị lại sau hai lần đổ đầy kèm chỉ số công-tơ-mét."
+
+msgid "A new station: it's added to your vendors when you save."
+msgstr "Một trạm mới: nó sẽ được thêm vào các nhà cung cấp của bạn khi bạn lưu."
+
+msgid "A PDF of <0>{0}</0>'s history: the odometer readings with their photos, every service with its lines and invoices, the fuel summary and the documents."
+msgstr "Một PDF về lịch sử của <0>{0}</0>: các chỉ số công-tơ-mét kèm ảnh, mọi lần bảo dưỡng kèm chi tiết và hóa đơn, tổng kết nhiên liệu và các tài liệu."
+
+msgid "All of it"
+msgstr "Tất cả"
+
+msgid "Amount"
+msgstr "Số tiền"
+
+msgid "Amount, {0}"
+msgstr "Số tiền, {0}"
+
+msgid "by month"
+msgstr "theo tháng"
+
+msgid "by unit"
+msgstr "theo đơn vị"
+
+msgid "Charge"
+msgstr "Sạc điện"
+
+msgid "Consumption"
+msgstr "Mức tiêu thụ"
+
+msgid "Consumption is measured from one full fill to the next; this one counts in the next full's."
+msgstr "Mức tiêu thụ được đo từ lần đổ đầy này sang lần đổ đầy tiếp theo; lần đổ này được tính vào lần đổ đầy tiếp theo."
+
+msgid "Consumption needs the odometer on the fills. Add it when you log fuel."
+msgstr "Mức tiêu thụ cần chỉ số công-tơ-mét trên các lần đổ. Hãy thêm khi bạn ghi nhiên liệu."
+
+msgid "Consumption needs two full fills in the same unit, with no fill in another unit between them."
+msgstr "Mức tiêu thụ cần hai lần đổ đầy cùng đơn vị, không có lần đổ nào khác đơn vị xen giữa."
+
+msgid "Consumption needs two full fills with odometer readings."
+msgstr "Mức tiêu thụ cần hai lần đổ đầy có chỉ số công-tơ-mét."
+
+msgid "Consumption skips the gap, so it stays right."
+msgstr "Mức tiêu thụ bỏ qua khoảng trống đó, nên vẫn đúng."
+
+msgid "Consumption, {0}"
+msgstr "Mức tiêu thụ, {0}"
+
+msgid "Cost (optional)"
+msgstr "Chi phí (tùy chọn)"
+
+msgid "Cost:"
+msgstr "Chi phí:"
+
+msgid "Costs"
+msgstr "Chi phí"
+
+msgid "Costs appear only for readers who can see money."
+msgstr "Chi phí chỉ hiện với người xem được tiền."
+
+msgid "Costs appear only if you can see money. You can't in this location, so this one has none."
+msgstr "Chi phí chỉ hiện khi bạn xem được tiền. Bạn không xem được ở địa điểm này, nên mục này không có chi phí."
+
+msgid "Costs:"
+msgstr "Chi phí:"
+
+msgid "Couldn't log the fuel"
+msgstr "Không ghi được nhiên liệu"
+
+msgid "Documents of {name}"
+msgstr "Tài liệu của {name}"
+
+msgid "Enter a number, like 52340."
+msgstr "Nhập một số, ví dụ 52340."
+
+msgid "Enter how much, like 40 or 38.5."
+msgstr "Nhập số lượng, ví dụ 40 hoặc 38.5."
+
+msgid "Expired"
+msgstr "Đã hết hạn"
+
+msgid "expires {day}"
+msgstr "hết hạn {day}"
+
+msgid "Fill"
+msgstr "Lần đổ"
+
+msgid "Fills and charges"
+msgstr "Các lần đổ và sạc điện"
+
+msgid "Find a station"
+msgstr "Tìm trạm"
+
+msgid "From and to"
+msgstr "Từ và đến"
+
+msgid "Fuel & charging"
+msgstr "Nhiên liệu & sạc điện"
+
+msgid "Fuel logged"
+msgstr "Đã ghi nhiên liệu"
+
+msgid "fuel only"
+msgstr "chỉ nhiên liệu"
+
+msgid "Full"
+msgstr "Đầy"
+
+msgid "Full fill"
+msgstr "Đổ đầy"
+
+msgid "Full tank"
+msgstr "Đầy bình"
+
+msgid "gal"
+msgstr "gal"
+
+msgid "History report"
+msgstr "Báo cáo lịch sử"
+
+msgid "I missed a fill-up before this one"
+msgstr "Tôi đã bỏ sót một lần đổ trước lần này"
+
+msgid "Include"
+msgstr "Bao gồm"
+
+msgid "Issued {issued}"
+msgstr "Phát hành {issued}"
+
+msgid "Issued on (optional)"
+msgstr "Ngày phát hành (tùy chọn)"
+
+msgid "Issued on or before the day it runs out."
+msgstr "Phát hành vào hoặc trước ngày hết hạn."
+
+msgid "Its odometer reading goes with it. You can undo this."
+msgstr "Chỉ số công-tơ-mét đi kèm cũng sẽ bị xóa theo. Bạn có thể hoàn tác thao tác này."
+
+msgid "kWh"
+msgstr "kWh"
+
+msgid "L"
+msgstr "L"
+
+msgid "Latest:"
+msgstr "Mới nhất:"
+
+msgid "Litres"
+msgstr "Lít"
+
+msgid "Loading the documents"
+msgstr "Đang tải tài liệu"
+
+msgid "Log fuel"
+msgstr "Ghi nhiên liệu"
+
+msgid "Log fuel after a fill-up or a charge to see consumption and the cost per km."
+msgstr "Ghi nhiên liệu sau mỗi lần đổ hoặc sạc để xem mức tiêu thụ và chi phí mỗi km."
+
+msgid "Missed a fill-up before this one"
+msgstr "Đã bỏ sót một lần đổ trước lần này"
+
+msgid "Month"
+msgstr "Tháng"
+
+msgid "Needs a connection: it has money."
+msgstr "Cần kết nối: mục này có dữ liệu tiền."
+
+msgid "No fills yet"
+msgstr "Chưa có lần đổ nào"
+
+msgid "No fills yet. Log one to start the consumption and the cost per km."
+msgstr "Chưa có lần đổ nào. Hãy ghi một lần để bắt đầu tính mức tiêu thụ và chi phí mỗi km."
+
+msgid "No match: this name is added as a new station"
+msgstr "Không khớp: tên này được thêm làm trạm mới"
+
+msgid "Odometer, {0}"
+msgstr "Công-tơ-mét, {0}"
+
+msgid "Partial"
+msgstr "Đổ một phần"
+
+msgid "Photo of the odometer"
+msgstr "Ảnh công-tơ-mét"
+
+msgid "Pick the day."
+msgstr "Chọn ngày."
+
+msgid "Price per {u}, {0}"
+msgstr "Giá mỗi {u}, {0}"
+
+msgid "Proof photos"
+msgstr "Ảnh bằng chứng"
+
+msgid "Pump receipt"
+msgstr "Biên lai cây xăng"
+
+msgid "Read in LABEL mode: VIN, plate and licence expiry"
+msgstr "Đọc ở chế độ NHÃN: VIN, biển số và ngày hết hạn giấy phép"
+
+msgid "Read the card"
+msgstr "Đọc thẻ"
+
+msgid "Remove the fill of {what} on {day}?"
+msgstr "Xóa lần đổ của {what} vào {day}?"
+
+msgid "Removed the fill of {what}"
+msgstr "Đã xóa lần đổ của {what}"
+
+msgid "Replace the receipt"
+msgstr "Thay biên lai"
+
+msgid "Search stations"
+msgstr "Tìm trạm"
+
+msgid "Show as table"
+msgstr "Hiển thị dạng bảng"
+
+msgid "Station"
+msgstr "Trạm"
+
+msgid "The odometer reading looks off, so it waits in your Inbox for a look."
+msgstr "Chỉ số công-tơ-mét có vẻ không đúng, nên nó chờ trong Hộp thư đến để bạn xem lại."
+
+msgid "The odometer reading waits for review"
+msgstr "Chỉ số công-tơ-mét đang chờ xem xét"
+
+msgid "The start has to be on or before the end."
+msgstr "Ngày bắt đầu phải vào hoặc trước ngày kết thúc."
+
+msgid "To full"
+msgstr "Đổ đầy"
+
+msgid "US gallons"
+msgstr "Gallon Mỹ"
+
+msgid "Use the arrow keys to move between points."
+msgstr "Dùng phím mũi tên để di chuyển giữa các điểm."
+
+msgid "Valid"
+msgstr "Hợp lệ"
+
+msgid "vehicle document"
+msgstr "tài liệu xe"
+
+msgid "{0, plural, one {# day} other {# days}}"
+msgstr "{0, plural, one {# ngày} other {# ngày}}"
+
+msgid "{count, plural, one {# line} other {# lines}}"
+msgstr "{count, plural, one {# dòng} other {# dòng}}"
+
+msgid "{typed} {unit} is lower than {before} {unit} on {on}. Readings can't go down: check the digits, or record that the meter was replaced."
+msgstr "{typed} {unit} thấp hơn {before} {unit} vào {on}. Chỉ số không thể giảm: hãy kiểm tra các chữ số, hoặc ghi nhận rằng đồng hồ đã được thay."
+
+msgid "A new meter starts again from 0. Kept adds what the old one had reached, so the history keeps going up."
+msgstr "Đồng hồ mới bắt đầu lại từ 0. Kept cộng thêm mức đồng hồ cũ đã đạt tới, nên lịch sử vẫn tiếp tục tăng."
+
+msgid "Add the first reading"
+msgstr "Thêm chỉ số đầu tiên"
+
+msgid "AI is paused here, so the invoice waits to be read. Type the lines, or come back later."
+msgstr "AI đang tạm dừng ở đây, nên hóa đơn chờ được đọc. Hãy nhập các dòng, hoặc quay lại sau."
+
+msgid "Canadian dollars (CAD)"
+msgstr "Đô la Canada (CAD)"
+
+msgid "Confirm all"
+msgstr "Xác nhận tất cả"
+
+msgid "Couldn't discard the draft"
+msgstr "Không hủy được bản nháp"
+
+msgid "Couldn't read the invoice"
+msgstr "Không đọc được hóa đơn"
+
+msgid "Couldn't upload the photo"
+msgstr "Không tải lên được ảnh"
+
+msgid "Discard draft"
+msgstr "Hủy bản nháp"
+
+msgid "Discard this draft?"
+msgstr "Hủy bản nháp này?"
+
+msgid "Draft discarded"
+msgstr "Đã hủy bản nháp"
+
+msgid "Drafts only"
+msgstr "Chỉ bản nháp"
+
+msgid "Due {0}"
+msgstr "Đến hạn {0}"
+
+msgid "Due at {0} {1}"
+msgstr "Đến hạn lúc {0} {1}"
+
+msgid "Enter the number on the meter, like 53000, or leave it empty."
+msgstr "Nhập số trên đồng hồ, ví dụ 53000, hoặc để trống."
+
+msgid "Enter the reading it carries on from, like 51220."
+msgstr "Nhập chỉ số mà nó tiếp nối, ví dụ 51220."
+
+msgid "Enter the reading, like 53000 or 53000.5."
+msgstr "Nhập chỉ số, ví dụ 53000 hoặc 53000.5."
+
+msgid "Finding things with a meter"
+msgstr "Tìm đồ vật có đồng hồ"
+
+msgid "Finish logging"
+msgstr "Hoàn tất ghi nhật ký"
+
+msgid "Fits: {delta} {unit} since {before} {unit} on {on}, about {perDay} {unit} a day."
+msgstr "Khớp: {delta} {unit} kể từ {before} {unit} vào {on}, khoảng {perDay} {unit} mỗi ngày."
+
+msgid "Fits: {delta} {unit} since {before} {unit} on {on}."
+msgstr "Khớp: {delta} {unit} kể từ {before} {unit} vào {on}."
