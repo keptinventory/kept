@@ -8,8 +8,8 @@
 import { useSyncExternalStore } from 'react';
 
 export type ThemePref = 'light' | 'dark' | 'system';
-/** D204: the five launch languages. Arabic is the only right-to-left one. */
-export type Locale = 'en' | 'ar' | 'fr' | 'de' | 'it';
+/** D204: the six launch languages. Arabic is the only right-to-left one. */
+export type Locale = 'en' | 'ar' | 'fr' | 'de' | 'it' | 'vi';
 /** D143: in Arabic, Western (0123) or Eastern Arabic (٠١٢٣) digits. Other languages are always Western. */
 export type Digits = 'western' | 'eastern';
 /** D203: page content in the readable column (the default) or across the whole space. */
@@ -19,7 +19,7 @@ export const THEME_KEY = 'kept.theme';
 export const LOCALE_KEY = 'kept.locale';
 export const DIGITS_KEY = 'kept.digits';
 export const WIDTH_KEY = 'kept.width';
-export const LOCALES: readonly Locale[] = ['en', 'ar', 'fr', 'de', 'it'];
+export const LOCALES: readonly Locale[] = ['en', 'ar', 'fr', 'de', 'it', 'vi'];
 
 export function isLocale(value: unknown): value is Locale {
   return typeof value === 'string' && (LOCALES as readonly string[]).includes(value);
@@ -87,7 +87,7 @@ export function storedThemePref(): ThemePref {
   return v === 'light' || v === 'dark' ? v : 'system';
 }
 
-/** The stored language, else the browser's if it is one of the five, else English. */
+/** The stored language, else the browser's if it is one of the six, else English. */
 export function initialLocale(): Locale {
   const v = read(LOCALE_KEY);
   if (isLocale(v)) return v;

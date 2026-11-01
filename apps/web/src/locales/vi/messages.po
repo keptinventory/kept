@@ -1,0 +1,80 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-09-26 04:23+0300\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: vi\n"
+
+msgid " and "
+msgstr " và "
+
+msgid ", "
+msgstr ", "
+
+msgid "Home Assistant backs up Kept"
+msgstr "Home Assistant sao lưu Kept"
+
+msgid "Home Assistant backs up Kept: the database, photos and files, and Kept's keys. Take or schedule backups in Home Assistant → {place}."
+msgstr "Home Assistant sao lưu Kept: cơ sở dữ liệu, ảnh, tệp và khóa của Kept. Tạo hoặc lên lịch sao lưu trong Home Assistant → {place}."
+
+msgid "Settings → System → Backups"
+msgstr "Cài đặt → Hệ thống → Sao lưu"
+
+msgid "Home Assistant backs up Kept here: take or schedule backups in Home Assistant."
+msgstr "Home Assistant sao lưu Kept tại đây: tạo hoặc lên lịch sao lưu trong Home Assistant."
+
+msgid "Take or schedule them in Home Assistant → {place}."
+msgstr "Tạo hoặc lên lịch chúng trong Home Assistant → {place}."
+
+msgid "Location name"
+msgstr "Tên địa điểm"
+
+msgid "Renamed to {trimmed}"
+msgstr "Đã đổi tên thành {trimmed}"
+
+msgid "Set up email"
+msgstr "Thiết lập email"
+
+msgid "Without it, Kept sends no sign-in links, password resets, email invites or reminders."
+msgstr "Không có nó, Kept sẽ không gửi liên kết đăng nhập, đặt lại mật khẩu, lời mời qua email hay nhắc nhở."
+
+msgid "Any provider that offers SMTP works, such as your email provider's app password or a sending service. Admin → Status shows Sending once it's on."
+msgstr "Bất kỳ nhà cung cấp nào hỗ trợ SMTP cũng dùng được, chẳng hạn mật khẩu ứng dụng của nhà cung cấp email hoặc một dịch vụ gửi thư. Admin → Trạng thái sẽ hiển thị Đang gửi khi tính năng được bật."
+
+msgid "the sender, for example <0>Kept <kept@example.org></0>"
+msgstr "người gửi, ví dụ <0>Kept <kept@example.org></0>"
+
+msgid "your mail server, for example <0>smtps://user:password@smtp.example.org:465</0>"
+msgstr "máy chủ thư của bạn, ví dụ <0>smtps://user:password@smtp.example.org:465</0>"
+
+msgid "(a place)"
+msgstr "(một địa điểm)"
+
+msgid "(a thing)"
+msgstr "(một đồ vật)"
+
+msgid "(empty)"
+msgstr "(trống)"
+
+msgid "(in use)"
+msgstr "(đang dùng)"
+
+msgid "(changed)"
+msgstr "(đã thay đổi)"
+
+msgid "(this one)"
+msgstr "(cái này)"
+
+msgid "{0, plural, one {# capture} other {# captures}}"
+msgstr "{0, plural, one {# lần chụp} other {# lần chụp}}"
+
+msgid "{0, plural, one {# photo} other {# photos}}"
+msgstr "{0, plural, one {# ảnh} other {# ảnh}}"
+
+msgid "{0, plural, one {# place} other {# places}}"
+msgstr "{0, plural, one {# địa điểm} other {# địa điểm}}"
+
+msgid "{0, plural, =0 {no fields} one {# field} other {# fields}}"
+msgstr "{0, plural, =0 {không có trường} one {# trường} other {# trường}}"
