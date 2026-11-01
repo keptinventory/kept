@@ -528,3 +528,153 @@ msgstr "<0>{entity}</0> đã bị đưa vào thùng rác bởi <1>{by}</1>."
 
 msgid "<0>{seen}</0> receipt"
 msgstr "Biên lai <0>{seen}</0>"
+
+msgid "<0>{thingName}</0> · {meterName}"
+msgstr "<0>{thingName}</0> · {meterName}"
+
+msgid "<0>{timezone} · {currency}</0> from this device. Change these and single modules in Location settings."
+msgstr "<0>{timezone} · {currency}</0> từ thiết bị này. Hãy thay đổi các mục này và từng mô-đun trong Cài đặt địa điểm."
+
+msgid "<0>{vendor}</0> receipt"
+msgstr "Biên lai <0>{vendor}</0>"
+
+msgid "<0>Asset {legacy}</0> is on more than one thing you brought from Homebox. Pick the one in your hands."
+msgstr "<0>Tài sản {legacy}</0> đang ở trên nhiều đồ vật bạn mang từ Homebox. Hãy chọn cái bạn đang cầm trên tay."
+
+msgid "1 line to link"
+msgstr "1 dòng cần liên kết"
+
+msgid "3 to 32 characters: lowercase letters, digits, dot, dash or underscore."
+msgstr "Từ 3 đến 32 ký tự: chữ thường, chữ số, dấu chấm, dấu gạch ngang hoặc dấu gạch dưới."
+
+msgid "6 characters, printed as <0>KEPT SETUP CODE: K7Q-2M9</0>. The dash is optional; case doesn't matter."
+msgstr "6 ký tự, in dưới dạng <0>KEPT SETUP CODE: K7Q-2M9</0>. Dấu gạch ngang không bắt buộc; không phân biệt chữ hoa/thường."
+
+msgid "6-digit code"
+msgstr "Mã 6 chữ số"
+
+msgid "A bigger jump than it could make"
+msgstr "Một bước nhảy lớn hơn mức nó có thể thực hiện"
+
+msgid "a box"
+msgstr "một hộp"
+
+msgid "A box is a thing: it can be moved, with everything in it, in one step. <0>{name}</0> keeps its ID and label, and what's in it stays in it."
+msgstr "Một hộp cũng là một đồ vật: nó có thể được di chuyển, cùng với mọi thứ bên trong, chỉ trong một bước. <0>{name}</0> giữ nguyên ID và nhãn, và những gì bên trong vẫn ở trong đó."
+
+msgid "a brand"
+msgstr "một thương hiệu"
+
+msgid "A change couldn't apply"
+msgstr "Một thay đổi không thể áp dụng được"
+
+msgid "A change made offline couldn't apply"
+msgstr "Một thay đổi thực hiện ngoại tuyến không thể áp dụng được"
+
+msgid "A computer: the camera icon in the address bar, then Allow."
+msgstr "Máy tính: biểu tượng máy ảnh trên thanh địa chỉ, rồi chọn Cho phép."
+
+msgid "A contact, without a Kept account"
+msgstr "Một liên hệ, không cần tài khoản Kept"
+
+msgid "A copy without the serial or purchase."
+msgstr "Một bản sao không có số sê-ri hoặc thông tin mua hàng."
+
+msgid "A few uploads are already on their way. Try this one again in a moment."
+msgstr "Một vài tệp tải lên đã đang trên đường đi. Hãy thử lại cái này sau một lát."
+
+msgid "A few you'd hate to lose track of: a charger, the drill, the passports."
+msgstr "Một vài thứ bạn không muốn mất dấu: một bộ sạc, máy khoan, hộ chiếu."
+
+msgid "a field"
+msgstr "một trường"
+
+msgid "A field group"
+msgstr "Một nhóm trường"
+
+msgid "A Kept code is 6 letters and digits, like 7KQ‑4MZ."
+msgstr "Mã Kept gồm 6 chữ cái và chữ số, ví dụ 7KQ-4MZ."
+
+msgid "A key is a lower-case word in English letters, digits and _, starting with a letter."
+msgstr "Khóa là một từ viết thường gồm chữ cái tiếng Anh, chữ số và _, bắt đầu bằng một chữ cái."
+
+msgid "A kind needs a name."
+msgstr "Một loại cần có tên."
+
+msgid "A link or a QR code; nobody needs email."
+msgstr "Một liên kết hoặc mã QR; không ai cần email."
+
+msgid "A location always needs an owner. Transfer it first."
+msgstr "Một địa điểm luôn cần có chủ sở hữu. Hãy chuyển giao nó trước."
+
+msgid "A name is needed."
+msgstr "Cần có tên."
+
+msgid "A new shop instead"
+msgstr "Một cửa hàng mới thay thế"
+
+msgid "A new version is ready"
+msgstr "Một phiên bản mới đã sẵn sàng"
+
+msgid "A number, like 52340."
+msgstr "Một con số, ví dụ 52340."
+
+msgid "A number, like 53100."
+msgstr "Một con số, ví dụ 53100."
+
+msgid "A number, like 5800.00."
+msgstr "Một con số, ví dụ 5800.00."
+
+msgid "A PDF of the things here, grouped by place, with their photos and short IDs. Prices are in it only where you can see them."
+msgstr "Một tệp PDF về các đồ vật ở đây, nhóm theo địa điểm, kèm ảnh và ID ngắn của chúng. Giá chỉ có trong đó ở những nơi bạn có thể xem."
+
+msgid "a person"
+msgstr "một người"
+
+msgid "a place"
+msgstr "một địa điểm"
+
+msgid "A place can't keep meter readings. Remove its meters first."
+msgstr "Một địa điểm không thể lưu chỉ số đồng hồ. Hãy xóa các đồng hồ của nó trước."
+
+msgid "a place kind"
+msgstr "một loại địa điểm"
+
+msgid "A price needs a currency."
+msgstr "Một mức giá cần có tiền tệ."
+
+msgid "A product"
+msgstr "Một sản phẩm"
+
+msgid "A product barcode"
+msgstr "Mã vạch sản phẩm"
+
+msgid "A report holds at most {max} things. Choose some places, types or tags to make it smaller."
+msgstr "Một báo cáo chứa tối đa {max} đồ vật. Hãy chọn một số địa điểm, loại hoặc thẻ để làm nó nhỏ hơn."
+
+msgid "A short code for the printed label on the shelf or door"
+msgstr "Một mã ngắn cho nhãn in trên kệ hoặc cửa"
+
+msgid "A similar name was already here. An admin can merge them if they're the same."
+msgstr "Một tên tương tự đã có ở đây. Quản trị viên có thể hợp nhất chúng nếu chúng giống nhau."
+
+msgid "A similar name was already here. If they're the same, merge them."
+msgstr "Một tên tương tự đã có ở đây. Nếu chúng giống nhau, hãy hợp nhất chúng."
+
+msgid "a tag"
+msgstr "một thẻ"
+
+msgid "a thing"
+msgstr "một đồ vật"
+
+msgid "A thing needs a name."
+msgstr "Một đồ vật cần có tên."
+
+msgid "A to Z"
+msgstr "Từ A đến Z"
+
+msgid "a type"
+msgstr "một loại"
+
+msgid "A type can't sit inside itself or a type below it. Pick a parent outside this branch."
+msgstr "Một loại không thể nằm trong chính nó hoặc một loại bên dưới nó. Hãy chọn một loại cha ngoài nhánh này."
