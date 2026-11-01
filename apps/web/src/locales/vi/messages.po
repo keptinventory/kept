@@ -78,3 +78,153 @@ msgstr "{0, plural, one {# địa điểm} other {# địa điểm}}"
 
 msgid "{0, plural, =0 {no fields} one {# field} other {# fields}}"
 msgstr "{0, plural, =0 {không có trường} one {# trường} other {# trường}}"
+
+msgid "Set these where Kept's other settings live (the .env file with Docker Compose; with the Helm chart, the URL in the secret named by smtp.existingSecret and the sender in smtp.from), then restart Kept:"
+msgstr "Đặt các giá trị này ở nơi các cài đặt khác của Kept nằm (tệp .env khi dùng Docker Compose; với Helm chart, URL trong secret có tên smtp.existingSecret và người gửi trong smtp.from), rồi khởi động lại Kept:"
+
+msgid "the request was more than the plan allows in one minute"
+msgstr "yêu cầu vượt quá giới hạn gói cho phép trong một phút"
+
+msgid "…this one"
+msgstr "…cái này"
+
+msgid "· inherited"
+msgstr "· được kế thừa"
+
+msgid "“{clash}” is already a field of this type, one it inherits from, or one below it. Pick another key."
+msgstr "“{clash}” đã là một trường của loại này, một trường nó kế thừa, hoặc một trường bên dưới nó. Hãy chọn khóa khác."
+
+msgid "“<0>{0}</0>” can mean more than one currency. Which was it?"
+msgstr "“<0>{0}</0>” có thể là nhiều loại tiền tệ. Đó là loại nào?"
+
+msgid "“$” alone can mean US or Canadian dollars. Which was it?"
+msgstr "Riêng “$” có thể là đô la Mỹ hoặc đô la Canada. Đó là loại nào?"
+
+msgid "{0, plural, one {# chosen} other {# chosen}}"
+msgstr "{0, plural, one {# đã chọn} other {# đã chọn}}"
+
+msgid "{0, plural, one {# line} other {# lines}}"
+msgstr "{0, plural, one {# dòng} other {# dòng}}"
+
+msgid "{0, plural, one {# moved in} other {# moved in}}"
+msgstr "{0, plural, one {# đã chuyển vào} other {# đã chuyển vào}}"
+
+msgid "{0, plural, one {# not here} other {# not here}}"
+msgstr "{0, plural, one {# không ở đây} other {# không ở đây}}"
+
+msgid "{0, plural, one {# of them} other {# of them}}"
+msgstr "{0, plural, one {# trong số đó} other {# trong số đó}}"
+
+msgid "{0, plural, one {# other change goes too.} other {# other changes go too.}}"
+msgstr "{0, plural, one {# thay đổi khác cũng được chuyển theo.} other {# thay đổi khác cũng được chuyển theo.}}"
+
+msgid "{0, plural, one {# partly here: the rest is marked not here} other {# partly here: the rest is marked not here}}"
+msgstr "{0, plural, one {# ở đây một phần: phần còn lại được đánh dấu là không ở đây} other {# ở đây một phần: phần còn lại được đánh dấu là không ở đây}}"
+
+msgid "{0, plural, one {# scan from while you were offline} other {# scans from while you were offline}}"
+msgstr "{0, plural, one {# lần quét từ khi ngoại tuyến} other {# lần quét từ khi ngoại tuyến}}"
+
+msgid "{0, plural, one {# seen} other {# seen}}"
+msgstr "{0, plural, one {# đã thấy} other {# đã thấy}}"
+
+msgid "{0, plural, one {# thing uses it} other {# things use it}}"
+msgstr "{0, plural, one {# đồ vật dùng nó} other {# đồ vật dùng nó}}"
+
+msgid "{0, plural, one {# thing} other {# things}}"
+msgstr "{0, plural, one {# đồ vật} other {# đồ vật}}"
+
+msgid "{0, plural, one {Also affects # location you can't see.} other {Also affects # locations you can't see.}}"
+msgstr "{0, plural, one {Cũng ảnh hưởng đến # địa điểm bạn không thấy.} other {Cũng ảnh hưởng đến # địa điểm bạn không thấy.}}"
+
+msgid "{0, plural, one {Box inside · # thing, not opened} other {Box inside · # things, not opened}}"
+msgstr "{0, plural, one {Hộp bên trong · # đồ vật, chưa mở} other {Hộp bên trong · # đồ vật, chưa mở}}"
+
+msgid "{0, plural, one {Carrying #} other {Carrying #}}"
+msgstr "{0, plural, one {Đang mang #} other {Đang mang #}}"
+
+msgid "{0, plural, one {Kept # file} other {Kept # files}}"
+msgstr "{0, plural, one {Kept # tệp} other {Kept # tệp}}"
+
+msgid "{0, plural, one {Move # here} other {Move # here}}"
+msgstr "{0, plural, one {Chuyển # vào đây} other {Chuyển # vào đây}}"
+
+msgid "{0, plural, one {Move # thing to…} other {Move # things to…}}"
+msgstr "{0, plural, one {Chuyển # đồ vật đến…} other {Chuyển # đồ vật đến…}}"
+
+msgid "{0, plural, one {Moved # thing to {1}} other {Moved # things to {2}}}"
+msgstr "{0, plural, one {Đã chuyển # đồ vật đến {1}} other {Đã chuyển # đồ vật đến {2}}}"
+
+msgid "{0, plural, one {Moved # thing to {where}} other {Moved # things to {where}}}"
+msgstr "{0, plural, one {Đã chuyển # đồ vật đến {where}} other {Đã chuyển # đồ vật đến {where}}}"
+
+msgid "{0, plural, one {Name # unnamed photo} other {Name # unnamed photos}}"
+msgstr "{0, plural, one {Đặt tên cho # ảnh chưa đặt tên} other {Đặt tên cho # ảnh chưa đặt tên}}"
+
+msgid "{0, plural, one {raised once} other {raised # times}}"
+msgstr "{0, plural, one {đã tăng một lần} other {đã tăng # lần}}"
+
+msgid "{0, plural, one {Show everyone's (#)} other {Show everyone's (#)}}"
+msgstr "{0, plural, one {Hiển thị của mọi người (#)} other {Hiển thị của mọi người (#)}}"
+
+msgid "{0} {unit} doesn't fit the readings around it"
+msgstr "{0} {unit} không khớp với các chỉ số xung quanh nó"
+
+msgid "{0} {unit} is higher than {1} on {2}"
+msgstr "{0} {unit} cao hơn {1} vào {2}"
+
+msgid "{0} {unit} is lower than {1} on {2}"
+msgstr "{0} {unit} thấp hơn {1} vào {2}"
+
+msgid "{0} × {price}"
+msgstr "{0} × {price}"
+
+msgid "{0} and {1} others will lose sight of it."
+msgstr "{0} và {1} người khác sẽ không còn thấy nó."
+
+msgid "{0} couldn't be changed"
+msgstr "{0} không thể thay đổi được"
+
+msgid "{0} has things in it"
+msgstr "{0} có đồ vật bên trong"
+
+msgid "{0} is in Trash"
+msgstr "{0} đang ở Thùng rác"
+
+msgid "{0} months"
+msgstr "{0} tháng"
+
+msgid "{0} more fields for this type are empty. Edit to fill them in."
+msgstr "{0} trường nữa của loại này còn trống. Hãy sửa để điền vào."
+
+msgid "{0} of {1} ticked"
+msgstr "{0} trên {1} đã đánh dấu"
+
+msgid "{0} on"
+msgstr "{0} đang bật"
+
+msgid "{0} stays on: a location uses it."
+msgstr "{0} vẫn bật: một địa điểm đang dùng nó."
+
+msgid "{0} stays on: it's one of the five defaults."
+msgstr "{0} vẫn bật: nó là một trong năm mặc định."
+
+msgid "{0} things are inside. What should happen to them?"
+msgstr "{0} đồ vật ở bên trong. Nên làm gì với chúng?"
+
+msgid "{0} to review"
+msgstr "{0} cần xem lại"
+
+msgid "{0} will lose sight of it."
+msgstr "{0} sẽ không còn thấy nó."
+
+msgid "{0}'s account"
+msgstr "Tài khoản của {0}"
+
+msgid "{alerts} open"
+msgstr "{alerts} đang mở"
+
+msgid "{browser} on {where}"
+msgstr "{browser} trên {where}"
+
+msgid "{captured, plural, one {# captured} other {# captured}}"
+msgstr "{captured, plural, one {# đã chụp} other {# đã chụp}}"
