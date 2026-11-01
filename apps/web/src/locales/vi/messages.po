@@ -828,3 +828,153 @@ msgstr "Đã thêm {added}"
 
 msgid "Added {name}"
 msgstr "Đã thêm {name}"
+
+msgid "Added {typed}"
+msgstr "Đã thêm {typed}"
+
+msgid "Added {value}"
+msgstr "Đã thêm {value}"
+
+msgid "Added <0>{0}</0>. Is it <1>{1}</1>, already here?"
+msgstr "Đã thêm <0>{0}</0>. Nó có phải là <1>{1}</1>, đã có ở đây không?"
+
+msgid "Added 3 things"
+msgstr "Đã thêm 3 đồ vật"
+
+msgid "Added a new thing"
+msgstr "Đã thêm một đồ vật mới"
+
+msgid "Added to your shops when you accept."
+msgstr "Được thêm vào các cửa hàng của bạn khi bạn chấp nhận."
+
+msgid "Address"
+msgstr "Địa chỉ"
+
+msgid "Adds fuel, things you run out of, passwords and codes, moving house, and \"Connect ChatGPT or Claude\"."
+msgstr "Thêm nhiên liệu, những thứ bạn dùng hết, mật khẩu và mã, chuyển nhà, và “Kết nối ChatGPT hoặc Claude”."
+
+msgid "Adds receipts and warranties, reminders, lending, paperwork and vehicles."
+msgstr "Thêm biên lai và bảo hành, nhắc nhở, cho mượn, giấy tờ và phương tiện."
+
+msgid "Admin"
+msgstr "Quản trị viên"
+
+msgid "Admin"
+msgstr "Quản trị viên"
+
+msgid "admin in {n}"
+msgstr "quản trị viên trong {n}"
+
+msgid "Admins"
+msgstr "Quản trị viên"
+
+msgid "Admins"
+msgstr "Quản trị viên"
+
+msgid "Admins manage members, viewers and settings. Only the owner changes admins."
+msgstr "Quản trị viên quản lý thành viên, người xem và cài đặt. Chỉ chủ sở hữu mới thay đổi quản trị viên."
+
+msgid "After this, signing in asks for a 6-digit code from an authenticator app (1Password, Google Authenticator, Aegis…) as well as your password or sign-in link."
+msgstr "Sau bước này, khi đăng nhập sẽ yêu cầu mã 6 chữ số từ ứng dụng xác thực (1Password, Google Authenticator, Aegis…) cùng với mật khẩu hoặc liên kết đăng nhập của bạn."
+
+msgid "AI"
+msgstr "AI"
+
+msgid "AI and barcode lookup can be connected later, from Settings. Kept works without them."
+msgstr "AI và tra cứu mã vạch có thể kết nối sau, từ Cài đặt. Kept vẫn hoạt động mà không cần chúng."
+
+msgid "AI assistant"
+msgstr "Trợ lý AI"
+
+msgid "AI capture"
+msgstr "Chụp bằng AI"
+
+msgid "AI capture and the assistant"
+msgstr "Chụp bằng AI và trợ lý"
+
+msgid "AI capture and the assistant come on in any preset once an AI provider is connected."
+msgstr "Chụp bằng AI và trợ lý sẽ bật trong mọi preset khi đã kết nối nhà cung cấp AI."
+
+msgid "AI in this location"
+msgstr "AI trong địa điểm này"
+
+msgid "AI is paused"
+msgstr "AI đã tạm dừng"
+
+msgid "AI isn't working here · ask {0}"
+msgstr "AI không hoạt động ở đây · hãy hỏi {0}"
+
+msgid "AI isn't working here · ask an admin"
+msgstr "AI không hoạt động ở đây · hãy hỏi quản trị viên"
+
+msgid "AI paused"
+msgstr "AI đã tạm dừng"
+
+msgid "AI paused until {when}"
+msgstr "AI tạm dừng đến {when}"
+
+msgid "AI settings"
+msgstr "Cài đặt AI"
+
+msgid "AI usage"
+msgstr "Mức sử dụng AI"
+
+msgid "Alerts"
+msgstr "Cảnh báo"
+
+msgid "Aliases for imported things"
+msgstr "Tên gọi khác cho các đồ vật đã nhập"
+
+msgid "All"
+msgstr "Tất cả"
+
+msgid "All activity"
+msgstr "Tất cả hoạt động"
+
+msgid "All filters"
+msgstr "Tất cả bộ lọc"
+
+msgid "All place kinds"
+msgstr "Tất cả loại địa điểm"
+
+msgid "All places"
+msgstr "Tất cả địa điểm"
+
+msgid "All reviewed"
+msgstr "Tất cả đã xem lại"
+
+msgid "All types"
+msgstr "Tất cả loại"
+
+msgid "Already claimed"
+msgstr "Đã được nhận"
+
+msgid "Already in Kept"
+msgstr "Đã có trong Kept"
+
+msgid "Also called"
+msgstr "Còn được gọi là"
+
+msgid "Always on: one of the five defaults"
+msgstr "Luôn bật: một trong năm mặc định"
+
+msgid "Always there, for things that don't have a place yet"
+msgstr "Luôn có sẵn, cho những đồ vật chưa có chỗ"
+
+msgid "An invite link works once, for 7 days. Unused ones show here."
+msgstr "Một liên kết mời chỉ dùng được một lần, trong 7 ngày. Các liên kết chưa dùng sẽ hiển thị ở đây."
+
+msgid "Android"
+msgstr "Android"
+
+msgid "Android: tap the icon beside the address, then Permissions › Camera › Allow."
+msgstr "Android: chạm vào biểu tượng bên cạnh địa chỉ, rồi chọn Quyền › Máy ảnh › Cho phép."
+
+msgid "Another app is using the camera. Close it, then come back."
+msgstr "Một ứng dụng khác đang dùng máy ảnh. Hãy đóng nó, rồi quay lại."
+
+msgid "Another place"
+msgstr "Một địa điểm khác"
+
+msgid "Answering"
+msgstr "Đang trả lời"
