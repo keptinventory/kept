@@ -378,3 +378,153 @@ msgstr "{others, plural, one {{first} và # người khác sẽ không còn th�
 
 msgid "{others, plural, one {with # other} other {with # others}}"
 msgstr "{others, plural, one {với # người khác} other {với # người khác}}"
+
+msgid "{person} signs in with the username below and this one-time code, then chooses their own password. You never see it. The code works once, for 30 minutes."
+msgstr "{person} đăng nhập bằng tên người dùng bên dưới và mã dùng một lần này, rồi tự chọn mật khẩu. Bạn không bao giờ thấy mã đó. Mã chỉ dùng được một lần, trong 30 phút."
+
+msgid "{place} asks everyone for two-factor. They can join now; {place} stays hidden for them until they add a passkey or an authenticator."
+msgstr "{place} yêu cầu mọi người dùng xác thực hai yếu tố. Họ có thể tham gia ngay; {place} vẫn ẩn với họ cho đến khi họ thêm passkey hoặc ứng dụng xác thực."
+
+msgid "{places, plural, one {# place} other {# places}}"
+msgstr "{places, plural, one {# địa điểm} other {# địa điểm}}"
+
+msgid "{provider} isn't answering · retrying at {0}"
+msgstr "{provider} không phản hồi · đang thử lại lúc {0}"
+
+msgid "{provider} rejected the key · Replace it in AI settings"
+msgstr "{provider} đã từ chối khóa · Hãy thay nó trong cài đặt AI"
+
+msgid "{repointed, plural, one {# thing changed type.} other {# things changed type.}}"
+msgstr "{repointed, plural, one {# đồ vật đã đổi loại.} other {# đồ vật đã đổi loại.}}"
+
+msgid "{repointed, plural, one {# thing updated.} other {# things updated.}}"
+msgstr "{repointed, plural, one {# đồ vật đã cập nhật.} other {# đồ vật đã cập nhật.}}"
+
+msgid "{role} invite"
+msgstr "Lời mời {role}"
+
+msgid "{role} until {until}"
+msgstr "{role} đến {until}"
+
+msgid "{seen} receipt"
+msgstr "Biên lai {seen}"
+
+msgid "{synced, plural, one {# synced} other {# synced}}"
+msgstr "{synced, plural, one {# đã đồng bộ} other {# đã đồng bộ}}"
+
+msgid "{target} belongs to someone else's account: its type, tags and purchase are copied there."
+msgstr "{target} thuộc về tài khoản của người khác: loại, thẻ và thông tin mua hàng của nó được sao chép sang đó."
+
+msgid "{thingName} · {meterName}"
+msgstr "{thingName} · {meterName}"
+
+msgid "{things, plural, one {# thing} other {# things}}"
+msgstr "{things, plural, one {# đồ vật} other {# đồ vật}}"
+
+msgid "{unnamed, plural, one {and # more} other {and # more}}"
+msgstr "{unnamed, plural, one {và # mục nữa} other {và # mục nữa}}"
+
+msgid "{unplaced, plural, one {# thing needs a place} other {# things need a place}}"
+msgstr "{unplaced, plural, one {# đồ vật cần một chỗ} other {# đồ vật cần một chỗ}}"
+
+msgid "{unsynced, plural, one {# capture hasn't synced. Signing out deletes it.} other {# captures haven't synced. Signing out deletes them.}}"
+msgstr "{unsynced, plural, one {# lần chụp chưa đồng bộ. Đăng xuất sẽ xóa nó.} other {# lần chụp chưa đồng bộ. Đăng xuất sẽ xóa chúng.}}"
+
+msgid "{v} receipt"
+msgstr "Biên lai {v}"
+
+msgid "{vendor} receipt"
+msgstr "Biên lai {vendor}"
+
+msgid "{waiting, plural, one {# waiting to sync} other {# waiting to sync}}"
+msgstr "{waiting, plural, one {# đang chờ đồng bộ} other {# đang chờ đồng bộ}}"
+
+msgid "{waiting, plural, one {Open to finish syncing (#).} other {Open to finish syncing (#).}}"
+msgstr "{waiting, plural, one {Mở ra để hoàn tất đồng bộ (#).} other {Mở ra để hoàn tất đồng bộ (#).}}"
+
+msgid "{when} · {count} captured · <0>{where}</0>"
+msgstr "{when} · {count} đã chụp · <0>{where}</0>"
+
+msgid "{who} (you)"
+msgstr "{who} (bạn)"
+
+msgid "{who} can disable accounts, change sign-up and see failed jobs and alerts, but not other people's locations. They get an email about it."
+msgstr "{who} có thể vô hiệu hóa tài khoản, thay đổi đăng ký và xem các công việc thất bại và cảnh báo, nhưng không xem được địa điểm của người khác. Họ sẽ nhận được email về việc này."
+
+msgid "{who} can sign in again. They get an email about it."
+msgstr "{who} có thể đăng nhập lại. Họ sẽ nhận được email về việc này."
+
+msgid "{who} changed it to <0>{theirs}</0>; you have <1>{mine}</1>."
+msgstr "{who} đã đổi nó thành <0>{theirs}</0>; bạn có <1>{mine}</1>."
+
+msgid "{who} changed these since you opened them"
+msgstr "{who} đã thay đổi những thứ này kể từ khi bạn mở chúng"
+
+msgid "{who} changed this since you opened it"
+msgstr "{who} đã thay đổi thứ này kể từ khi bạn mở nó"
+
+msgid "{who} changed this type since you opened it. Reload to see their change, then make yours again."
+msgstr "{who} đã thay đổi loại này kể từ khi bạn mở nó. Hãy tải lại để xem thay đổi của họ, rồi thực hiện lại thay đổi của bạn."
+
+msgid "{who} is no longer an instance admin"
+msgstr "{who} không còn là quản trị viên của instance nữa"
+
+msgid "{who} is now an instance admin. They get an email about it."
+msgstr "{who} giờ là quản trị viên của instance. Họ sẽ nhận được email về việc này."
+
+msgid "{who} is signed out everywhere and can't sign in until you enable the account again. Their locations and things stay. They get an email about it."
+msgstr "{who} đã đăng xuất ở mọi nơi và không thể đăng nhập cho đến khi bạn bật lại tài khoản. Các địa điểm và đồ vật của họ vẫn còn. Họ sẽ nhận được email về việc này."
+
+msgid "{who} is signed out on every device and sets a new password with the code. Any earlier code stops working."
+msgstr "{who} đã đăng xuất trên mọi thiết bị và đặt mật khẩu mới bằng mã. Mọi mã trước đó sẽ ngừng hoạt động."
+
+msgid "{who} keeps their own locations and things, and loses this admin area. They get an email about it."
+msgstr "{who} giữ lại các địa điểm và đồ vật của riêng họ, và mất khu vực quản trị này. Họ sẽ nhận được email về việc này."
+
+msgid "{who} loses access straight away. What {who} added stays. Their webhooks, share links and exports for {place} stop working."
+msgstr "{who} mất quyền truy cập ngay lập tức. Những gì {who} đã thêm vẫn còn. Webhook, liên kết chia sẻ và bản xuất của họ cho {place} sẽ ngừng hoạt động."
+
+msgid "{who} removed from {place}"
+msgstr "{who} đã bị xóa khỏi {place}"
+
+msgid "{who} signs in with their username and this code, then chooses a new password. It is shown only now. Works once, until {validUntil}."
+msgstr "{who} đăng nhập bằng tên người dùng và mã này, rồi chọn mật khẩu mới. Mã chỉ hiển thị ngay lúc này. Chỉ dùng được một lần, đến {validUntil}."
+
+msgid "{who}'s"
+msgstr "Phiên bản của {who}"
+
+msgid "{who}'s monthly cap reached"
+msgstr "Đã đạt giới hạn tháng của {who}"
+
+msgid "{who}'s monthly token limit reached"
+msgstr "Đã đạt giới hạn token tháng của {who}"
+
+msgid "+ page to this receipt"
+msgstr "+ trang vào biên lai này"
+
+msgid "+ photo to this thing"
+msgstr "+ ảnh vào đồ vật này"
+
+msgid "× {0}"
+msgstr "× {0}"
+
+msgid "<0>{0}</0> · {when}"
+msgstr "<0>{0}</0> · {when}"
+
+msgid "<0>{0}</0> has {inside} inside. What should happen to them?"
+msgstr "<0>{0}</0> có {inside} bên trong. Nên làm gì với chúng?"
+
+msgid "<0>{0}</0> is already in this list"
+msgstr "<0>{0}</0> đã có trong danh sách này"
+
+msgid "<0>{0}</0> is empty"
+msgstr "<0>{0}</0> đang trống"
+
+msgid "<0>{0}</0> selected"
+msgstr "<0>{0}</0> đã chọn"
+
+msgid "<0>{entity}</0> was trashed by <1>{by}</1>."
+msgstr "<0>{entity}</0> đã bị đưa vào thùng rác bởi <1>{by}</1>."
+
+msgid "<0>{seen}</0> receipt"
+msgstr "Biên lai <0>{seen}</0>"
