@@ -74,13 +74,6 @@ you save. **I missed a fill-up before this one** marks a gap, so consumption sta
 consumption is measured from one full fill to the next, and shows again after two full fills with
 odometer readings.
 
-## Units
-
-- **Odometer**: a new vehicle's odometer counts in **km**; a generator's meter counts hours. A
-  meter's unit can't be changed yet once it's created.
-- **Readings and fuel amounts** are kept exactly as entered and never converted.
-- **Fuel use** is shown as L/100 km, or kWh/100 km for a charge; per hour on an hours meter.
-
 ## Costs
 
 A vehicle's **Costs** tab shows its fuel, service and fee costs. Insights
