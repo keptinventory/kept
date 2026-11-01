@@ -678,3 +678,153 @@ msgstr "một loại"
 
 msgid "A type can't sit inside itself or a type below it. Pick a parent outside this branch."
 msgstr "Một loại không thể nằm trong chính nó hoặc một loại bên dưới nó. Hãy chọn một loại cha ngoài nhánh này."
+
+msgid "A type inherits the capabilities and fields of the types it sits inside."
+msgstr "Một loại kế thừa các khả năng và trường của các loại mà nó nằm trong."
+
+msgid "A type needs a name."
+msgstr "Một loại cần có tên."
+
+msgid "A type sets the icon, capabilities and fields of the things that use it, and the types inside it inherit them. Built-in types come ready; customise one, or make your own."
+msgstr "Một loại đặt biểu tượng, khả năng và trường cho các đồ vật dùng nó, và các loại bên trong nó kế thừa chúng. Các loại tích hợp sẵn đã có sẵn; hãy tùy chỉnh một loại, hoặc tự tạo loại của bạn."
+
+msgid "a vendor"
+msgstr "một nhà cung cấp"
+
+msgid "Accept"
+msgstr "Chấp nhận"
+
+msgid "Accept {0} names"
+msgstr "Chấp nhận {0} tên"
+
+msgid "Accept names"
+msgstr "Chấp nhận tên"
+
+msgid "Accept the receipt"
+msgstr "Chấp nhận biên lai"
+
+msgid "Accept the selected names"
+msgstr "Chấp nhận các tên đã chọn"
+
+msgid "Accepted {display}"
+msgstr "Đã chấp nhận {display}"
+
+msgid "Accepted {n} names"
+msgstr "Đã chấp nhận {n} tên"
+
+msgid "Accepted the receipt"
+msgstr "Đã chấp nhận biên lai"
+
+msgid "Access"
+msgstr "Quyền truy cập"
+
+msgid "Accessory of"
+msgstr "Phụ kiện của"
+
+msgid "Account"
+msgstr "Tài khoản"
+
+msgid "Account settings · Types"
+msgstr "Cài đặt tài khoản · Các loại"
+
+msgid "Account-wide"
+msgstr "Toàn tài khoản"
+
+msgid "Acquired from"
+msgstr "Mua từ"
+
+msgid "Actions"
+msgstr "Hành động"
+
+msgid "Actions for {name}"
+msgstr "Hành động cho {name}"
+
+msgid "Active {active} · signed in {since}"
+msgstr "Đang hoạt động {active} · đã đăng nhập từ {since}"
+
+msgid "Active {when}"
+msgstr "Đang hoạt động {when}"
+
+msgid "Activity"
+msgstr "Hoạt động"
+
+msgid "Add"
+msgstr "Thêm"
+
+msgid "Add 3 things"
+msgstr "Thêm 3 đồ vật"
+
+msgid "Add a box to {hereName}"
+msgstr "Thêm một hộp vào {hereName}"
+
+msgid "Add a brand"
+msgstr "Thêm một thương hiệu"
+
+msgid "Add a field"
+msgstr "Thêm một trường"
+
+msgid "Add a file"
+msgstr "Thêm một tệp"
+
+msgid "Add a group"
+msgstr "Thêm một nhóm"
+
+msgid "Add a person"
+msgstr "Thêm một người"
+
+msgid "Add a photo"
+msgstr "Thêm một ảnh"
+
+msgid "Add a room or spot to {hereName}"
+msgstr "Thêm một phòng hoặc vị trí vào {hereName}"
+
+msgid "Add a shop or service"
+msgstr "Thêm một cửa hàng hoặc dịch vụ"
+
+msgid "Add a tag"
+msgstr "Thêm một thẻ"
+
+msgid "Add a thing"
+msgstr "Thêm một đồ vật"
+
+msgid "Add a thing to {hereName}"
+msgstr "Thêm một đồ vật vào {hereName}"
+
+msgid "Add as"
+msgstr "Thêm dưới dạng"
+
+msgid "Add as a new thing"
+msgstr "Thêm dưới dạng một đồ vật mới"
+
+msgid "Add here"
+msgstr "Thêm tại đây"
+
+msgid "Add photos from your files with Gallery in Capture."
+msgstr "Thêm ảnh từ tệp của bạn bằng Thư viện trong Chụp."
+
+msgid "Add room or spot"
+msgstr "Thêm phòng hoặc vị trí"
+
+msgid "Add someone without email"
+msgstr "Thêm người không cần email"
+
+msgid "Add the first photo"
+msgstr "Thêm ảnh đầu tiên"
+
+msgid "Add the people things belong to, and who you lend to."
+msgstr "Thêm những người mà đồ vật thuộc về, và những người bạn cho mượn."
+
+msgid "Add the rooms and spots you'll put things in. Change them any time."
+msgstr "Thêm các phòng và vị trí bạn sẽ đặt đồ vật vào. Thay đổi chúng bất cứ lúc nào."
+
+msgid "Add what's inside, so you can find it without opening it."
+msgstr "Thêm những gì bên trong, để bạn có thể tìm thấy nó mà không cần mở ra."
+
+msgid "Added {0}"
+msgstr "Đã thêm {0}"
+
+msgid "Added {added}"
+msgstr "Đã thêm {added}"
+
+msgid "Added {name}"
+msgstr "Đã thêm {name}"
