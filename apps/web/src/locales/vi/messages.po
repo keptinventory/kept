@@ -978,3 +978,1503 @@ msgstr "Một địa điểm khác"
 
 msgid "Answering"
 msgstr "Đang trả lời"
+
+msgid "Anyone with the address can create an account"
+msgstr "Bất kỳ ai có địa chỉ đều có thể tạo tài khoản"
+
+msgid "Apartment"
+msgstr "Căn hộ"
+
+msgid "Apply"
+msgstr "Áp dụng"
+
+msgid "Archive"
+msgstr "Lưu trữ"
+
+msgid "Archive {0}"
+msgstr "Lưu trữ {0}"
+
+msgid "Archive or delete this home."
+msgstr "Lưu trữ hoặc xóa nhà này."
+
+msgid "Archived fields"
+msgstr "Các trường đã lưu trữ"
+
+msgid "Archived fields · {0}"
+msgstr "Các trường đã lưu trữ · {0}"
+
+msgid "Archived fields · values are kept"
+msgstr "Các trường đã lưu trữ · giá trị vẫn được giữ"
+
+msgid "As a room or spot it can't keep its {lost}. They are removed; its history stays."
+msgstr "Là một phòng hoặc vị trí, nó không thể giữ {lost} của nó. Chúng sẽ bị xóa; lịch sử của nó vẫn còn."
+
+msgid "As of last sync, {asOf}"
+msgstr "Tính đến lần đồng bộ gần nhất, {asOf}"
+
+msgid "Ask <0>{manager}</0> to resume"
+msgstr "Hãy hỏi <0>{manager}</0> để tiếp tục"
+
+msgid "Ask an admin"
+msgstr "Hỏi quản trị viên"
+
+msgid "Ask an admin of {name} if something here should change."
+msgstr "Hãy hỏi quản trị viên của {name} nếu có gì ở đây cần thay đổi."
+
+msgid "Ask an admin of this location to turn it on."
+msgstr "Hãy hỏi quản trị viên của địa điểm này để bật nó."
+
+msgid "Ask the assistant"
+msgstr "Hỏi trợ lý"
+
+msgid "Ask your instance admin to download the recovery kit first."
+msgstr "Hãy hỏi quản trị viên instance của bạn để tải bộ khôi phục trước."
+
+msgid "Asked for on new edits only; things saved before aren't flagged."
+msgstr "Chỉ yêu cầu đối với các chỉnh sửa mới; những thứ đã lưu trước đó không bị gắn cờ."
+
+msgid "Asset {0}"
+msgstr "Tài sản {0}"
+
+msgid "Assistant"
+msgstr "Trợ lý"
+
+msgid "At least 12 characters."
+msgstr "Ít nhất 12 ký tự."
+
+msgid "At least 8 characters."
+msgstr "Ít nhất 8 ký tự."
+
+msgid "At least 8 characters. A few unrelated words is easy to remember."
+msgstr "Ít nhất 8 ký tự. Một vài từ không liên quan nhau thì dễ nhớ."
+
+msgid "At most {max} characters."
+msgstr "Tối đa {max} ký tự."
+
+msgid "At most 200 characters."
+msgstr "Tối đa 200 ký tự."
+
+msgid "Attach to an existing thing"
+msgstr "Đính kèm vào một đồ vật đã có"
+
+msgid "Attached a file to {name}"
+msgstr "Đã đính kèm một tệp vào {name}"
+
+msgid "Attachments"
+msgstr "Tệp đính kèm"
+
+msgid "Back"
+msgstr "Quay lại"
+
+msgid "Back in use"
+msgstr "Đã dùng lại"
+
+msgid "Back to editing"
+msgstr "Quay lại chỉnh sửa"
+
+msgid "Back to Home"
+msgstr "Quay lại Trang chủ"
+
+msgid "Back to sign in"
+msgstr "Quay lại đăng nhập"
+
+msgid "Background work is keeping up. A job that fails every retry shows up here."
+msgstr "Công việc nền đang theo kịp. Một công việc thất bại ở mọi lần thử lại sẽ hiển thị ở đây."
+
+msgid "Backup code"
+msgstr "Mã sao lưu"
+
+msgid "Balcony"
+msgstr "Ban công"
+
+msgid "Barcode"
+msgstr "Mã vạch"
+
+msgid "Barcode scanner"
+msgstr "Máy quét mã vạch"
+
+msgid "Batch undone"
+msgstr "Đã hoàn tác hàng loạt"
+
+msgid "Bathroom"
+msgstr "Phòng tắm"
+
+msgid "Bedroom"
+msgstr "Phòng ngủ"
+
+msgid "Belongs to"
+msgstr "Thuộc về"
+
+msgid "Belongs to {name}"
+msgstr "Thuộc về {name}"
+
+msgid "Best match first"
+msgstr "Kết quả khớp nhất trước"
+
+msgid "Between 1 and {0}."
+msgstr "Từ 1 đến {0}."
+
+msgid "Blank label"
+msgstr "Nhãn trống"
+
+msgid "Bought"
+msgstr "Đã mua"
+
+msgid "Bought from {name}"
+msgstr "Mua từ {name}"
+
+msgid "Bought on"
+msgstr "Mua vào"
+
+msgid "Box / container"
+msgstr "Hộp / thùng chứa"
+
+msgid "Box 3"
+msgstr "Hộp 3"
+
+msgid "Box check"
+msgstr "Kiểm tra hộp"
+
+msgid "Box check · in progress"
+msgstr "Kiểm tra hộp · đang thực hiện"
+
+msgid "Box check done"
+msgstr "Kiểm tra hộp xong"
+
+msgid "Box inside · not opened"
+msgstr "Hộp bên trong · chưa mở"
+
+msgid "Boxes"
+msgstr "Các hộp"
+
+msgid "brand"
+msgstr "thương hiệu"
+
+msgid "Brand"
+msgstr "Thương hiệu"
+
+msgid "Brand added"
+msgstr "Đã thêm thương hiệu"
+
+msgid "brand and model match"
+msgstr "thương hiệu và mẫu khớp nhau"
+
+msgid "Brand changed"
+msgstr "Thương hiệu đã thay đổi"
+
+msgid "Brand deleted"
+msgstr "Thương hiệu đã xóa"
+
+msgid "Brand merged"
+msgstr "Thương hiệu đã hợp nhất"
+
+msgid "Brands"
+msgstr "Các thương hiệu"
+
+msgid "Brands are added here, or while you add a thing."
+msgstr "Thương hiệu được thêm ở đây, hoặc khi bạn thêm một đồ vật."
+
+msgid "Bring it back"
+msgstr "Mang nó trở lại"
+
+msgid "British pound"
+msgstr "Bảng Anh"
+
+msgid "Broken"
+msgstr "Hỏng"
+
+msgid "Browsers only allow the camera, installing the app, push notifications and location on a secure address. Two ways to get one:"
+msgstr "Trình duyệt chỉ cho phép máy ảnh, cài đặt ứng dụng, thông báo đẩy và vị trí trên một địa chỉ an toàn. Có hai cách để có một địa chỉ như vậy:"
+
+msgid "Built in"
+msgstr "Tích hợp sẵn"
+
+msgid "Built in · Customise it to rename it or give it fields"
+msgstr "Tích hợp sẵn · Tùy chỉnh nó để đổi tên hoặc thêm trường"
+
+msgid "Built in · read-only · its fields are listed above"
+msgstr "Tích hợp sẵn · chỉ đọc · các trường của nó được liệt kê ở trên"
+
+msgid "Built in · read-only until you customise it"
+msgstr "Tích hợp sẵn · chỉ đọc cho đến khi bạn tùy chỉnh nó"
+
+msgid "Built-in field group · read-only"
+msgstr "Nhóm trường tích hợp sẵn · chỉ đọc"
+
+msgid "Built-in types are customised first: use Customise to make an editable copy."
+msgstr "Các loại tích hợp sẵn được tùy chỉnh trước: hãy dùng Tùy chỉnh để tạo một bản sao có thể chỉnh sửa."
+
+msgid "Built-in types are shared by everyone on this server. Customise makes your account's own copy: your things of this type move to it, the built-in types below it come along, and then you can change its name, icon, capabilities and fields."
+msgstr "Các loại tích hợp sẵn được mọi người trên máy chủ này dùng chung. Tùy chỉnh sẽ tạo bản sao riêng cho tài khoản của bạn: các đồ vật thuộc loại này của bạn sẽ chuyển sang đó, các loại tích hợp sẵn bên dưới nó cũng đi cùng, và sau đó bạn có thể thay đổi tên, biểu tượng, khả năng và trường của nó."
+
+msgid "Bundled with"
+msgstr "Đi kèm với"
+
+msgid "Buttons"
+msgstr "Các nút"
+
+msgid "By {by} · link expires {expires}"
+msgstr "Bởi {by} · liên kết hết hạn {expires}"
+
+msgid "by {groupName}"
+msgstr "bởi {groupName}"
+
+msgid "by kind"
+msgstr "theo loại địa điểm"
+
+msgid "by type"
+msgstr "theo loại"
+
+msgid "Cables"
+msgstr "Cáp"
+
+msgid "Came from"
+msgstr "Đến từ"
+
+msgid "Camera"
+msgstr "Máy ảnh"
+
+msgid "Camera access is off for Kept."
+msgstr "Quyền truy cập máy ảnh cho Kept đang tắt."
+
+msgid "Camera view"
+msgstr "Chế độ xem máy ảnh"
+
+msgid "Camera, offline capture and install need HTTPS."
+msgstr "Máy ảnh, chụp ngoại tuyến và cài đặt cần HTTPS."
+
+msgid "Camping box"
+msgstr "Hộp cắm trại"
+
+msgid "Can carry warranties."
+msgstr "Có thể mang theo bảo hành."
+
+msgid "Can hold other things, like a box or a car."
+msgstr "Có thể chứa các đồ vật khác, như một hộp hoặc một chiếc xe."
+
+msgid "Can hold several values"
+msgstr "Có thể giữ nhiều giá trị"
+
+msgid "Can't scan it?"
+msgstr "Không quét được?"
+
+msgid "Can't undo: {who} changed {field} since"
+msgstr "Không thể hoàn tác: {who} đã thay đổi {field} kể từ đó"
+
+msgid "Can't undo: {who} changed it since"
+msgstr "Không thể hoàn tác: {who} đã thay đổi nó kể từ đó"
+
+msgid "Can't undo: it changed since"
+msgstr "Không thể hoàn tác: nó đã thay đổi kể từ đó"
+
+msgid "Can't undo: it's more than 7 days old"
+msgstr "Không thể hoàn tác: nó đã hơn 7 ngày tuổi"
+
+msgid "Canadian dollar"
+msgstr "Đô la Canada"
+
+msgid "Cancel"
+msgstr "Hủy"
+
+msgid "Capabilities"
+msgstr "Khả năng"
+
+msgid "Capture"
+msgstr "Chụp"
+
+msgid "Capture done"
+msgstr "Đã chụp xong"
+
+msgid "Capture into"
+msgstr "Chụp vào"
+
+msgid "Capture into {name}"
+msgstr "Chụp vào {name}"
+
+msgid "Capture mode"
+msgstr "Chế độ chụp"
+
+msgid "Captured into <0>{locationName}</0>, no place yet"
+msgstr "Đã chụp vào <0>{locationName}</0>, chưa có chỗ"
+
+msgid "Captured."
+msgstr "Đã chụp."
+
+msgid "Captures from another account are on this phone"
+msgstr "Các lần chụp từ một tài khoản khác đang ở trên điện thoại này"
+
+msgid "Captures that haven't synced are deleted from this phone. Synced drafts from this batch go to the trash."
+msgstr "Các lần chụp chưa đồng bộ sẽ bị xóa khỏi điện thoại này. Các bản nháp đã đồng bộ từ đợt này sẽ vào thùng rác."
+
+msgid "Capturing into {path}. Change place"
+msgstr "Đang chụp vào {path}. Đổi chỗ"
+
+msgid "Cards and tabs"
+msgstr "Thẻ và tab"
+
+msgid "carousel"
+msgstr "carousel"
+
+msgid "Centered"
+msgstr "Căn giữa"
+
+msgid "Change"
+msgstr "Thay đổi"
+
+msgid "Change email"
+msgstr "Đổi email"
+
+msgid "Change icon"
+msgstr "Đổi biểu tượng"
+
+msgid "Change lifecycle"
+msgstr "Đổi vòng đời"
+
+msgid "Change lifecycle…"
+msgstr "Đổi vòng đời…"
+
+msgid "Change photo"
+msgstr "Đổi ảnh"
+
+msgid "Change the name or the kind of place"
+msgstr "Đổi tên hoặc loại địa điểm"
+
+msgid "Change the type"
+msgstr "Đổi loại"
+
+msgid "Change type"
+msgstr "Đổi loại"
+
+msgid "Change your email"
+msgstr "Đổi email của bạn"
+
+msgid "Changed"
+msgstr "Đã thay đổi"
+
+msgid "changed · value not recorded"
+msgstr "đã thay đổi · giá trị không được ghi lại"
+
+msgid "Changed a file on {name}"
+msgstr "Đã thay đổi một tệp trên {name}"
+
+msgid "Changed since you opened it"
+msgstr "Đã thay đổi kể từ khi bạn mở nó"
+
+msgid "Changed the status of {name}"
+msgstr "Đã thay đổi trạng thái của {name}"
+
+msgid "Changed the type of {name}"
+msgstr "Đã thay đổi loại của {name}"
+
+msgid "Changes to this place show here, newest first."
+msgstr "Các thay đổi đối với địa điểm này hiển thị ở đây, mới nhất trước."
+
+msgid "Changes to this thing show here, newest first."
+msgstr "Các thay đổi đối với đồ vật này hiển thị ở đây, mới nhất trước."
+
+msgid "Check now"
+msgstr "Kiểm tra ngay"
+
+msgid "Check the camera, offline support and storage, and copy a report."
+msgstr "Kiểm tra máy ảnh, hỗ trợ ngoại tuyến và bộ nhớ, rồi sao chép một báo cáo."
+
+msgid "Check this device"
+msgstr "Kiểm tra thiết bị này"
+
+msgid "Check your email"
+msgstr "Kiểm tra email của bạn"
+
+msgid "Checks what this phone or browser can do: the camera, offline support, storage and install. Nothing is sent; you copy the report yourself. The camera check asks for permission."
+msgstr "Kiểm tra xem điện thoại hoặc trình duyệt này làm được gì: máy ảnh, hỗ trợ ngoại tuyến, bộ nhớ và cài đặt. Không có gì được gửi đi; bạn tự sao chép báo cáo. Việc kiểm tra máy ảnh sẽ hỏi quyền."
+
+msgid "Choices"
+msgstr "Lựa chọn"
+
+msgid "Choose a date"
+msgstr "Chọn một ngày"
+
+msgid "Choose a new password"
+msgstr "Chọn một mật khẩu mới"
+
+msgid "Choose a place"
+msgstr "Chọn một địa điểm"
+
+msgid "Choose an icon"
+msgstr "Chọn một biểu tượng"
+
+msgid "Choose an item to review it here."
+msgstr "Chọn một mục để xem lại nó ở đây."
+
+msgid "Choose another place"
+msgstr "Chọn một địa điểm khác"
+
+msgid "Choose one of your shops"
+msgstr "Chọn một trong các cửa hàng của bạn"
+
+msgid "Choose photos"
+msgstr "Chọn ảnh"
+
+msgid "Choose the currency."
+msgstr "Chọn tiền tệ."
+
+msgid "Choose the date on the receipt."
+msgstr "Chọn ngày trên biên lai."
+
+msgid "Choose the last day."
+msgstr "Chọn ngày cuối cùng."
+
+msgid "Choose the shop."
+msgstr "Chọn cửa hàng."
+
+msgid "Choose the thing each linked line is."
+msgstr "Chọn đồ vật mà mỗi dòng đã liên kết là."
+
+msgid "Choose what happens to what's inside"
+msgstr "Chọn điều gì xảy ra với những gì bên trong"
+
+msgid "Choose where it is."
+msgstr "Chọn nơi nó ở."
+
+msgid "Claim"
+msgstr "Nhận"
+
+msgid "Claim it"
+msgstr "Nhận nó"
+
+msgid "Claim this label"
+msgstr "Nhận nhãn này"
+
+msgid "Clear"
+msgstr "Xóa"
+
+msgid "Clear all"
+msgstr "Xóa tất cả"
+
+msgid "Clear recent searches"
+msgstr "Xóa các tìm kiếm gần đây"
+
+msgid "Clear search"
+msgstr "Xóa tìm kiếm"
+
+msgid "Clear selection"
+msgstr "Xóa lựa chọn"
+
+msgid "close"
+msgstr "đóng"
+
+msgid "Close"
+msgstr "Đóng"
+
+msgid "Close box check"
+msgstr "Đóng kiểm tra hộp"
+
+msgid "Close scanner"
+msgstr "Đóng máy quét"
+
+msgid "Closed. People join through an invite, or you add a managed account."
+msgstr "Đã đóng. Mọi người tham gia qua lời mời, hoặc bạn thêm một tài khoản được quản lý."
+
+msgid "Closet"
+msgstr "Tủ quần áo"
+
+msgid "Code on the label"
+msgstr "Mã trên nhãn"
+
+msgid "Collapse sidebar"
+msgstr "Thu gọn thanh bên"
+
+msgid "colour"
+msgstr "màu sắc"
+
+msgid "Colour"
+msgstr "Màu sắc"
+
+msgid "Colour tokens"
+msgstr "Mã màu"
+
+msgid "Coming soon"
+msgstr "Sắp ra mắt"
+
+msgid "Compares your position with your locations on this phone. It is never sent or kept."
+msgstr "So sánh vị trí của bạn với các địa điểm của bạn trên điện thoại này. Nó không bao giờ được gửi đi hay lưu lại."
+
+msgid "Complete"
+msgstr "Hoàn thành"
+
+msgid "Computer"
+msgstr "Máy tính"
+
+msgid "Condition"
+msgstr "Tình trạng"
+
+msgid "Condition when lent"
+msgstr "Tình trạng khi cho mượn"
+
+msgid "Condition when returned"
+msgstr "Tình trạng khi trả lại"
+
+msgid "Confirm"
+msgstr "Xác nhận"
+
+msgid "Confirm it's you"
+msgstr "Xác nhận đó là bạn"
+
+msgid "Confirm it's you. Signed in with a passkey only? Sign out and back in, then change your email within 10 minutes."
+msgstr "Xác nhận đó là bạn. Chỉ đăng nhập bằng passkey? Hãy đăng xuất rồi đăng nhập lại, sau đó đổi email trong vòng 10 phút."
+
+msgid "Confirm or reject each suggested value first (Y or N)."
+msgstr "Hãy xác nhận hoặc từ chối từng giá trị gợi ý trước (Y hoặc N)."
+
+msgid "Confirm or reject each suggested value first."
+msgstr "Hãy xác nhận hoặc từ chối từng giá trị gợi ý trước."
+
+msgid "Confirm the email change"
+msgstr "Xác nhận việc đổi email"
+
+msgid "Confirm the suggested value"
+msgstr "Xác nhận giá trị gợi ý"
+
+msgid "Confirm your email address first"
+msgstr "Hãy xác nhận địa chỉ email của bạn trước"
+
+msgid "Confirm your second factor to continue."
+msgstr "Xác nhận yếu tố thứ hai của bạn để tiếp tục."
+
+msgid "Confirmed"
+msgstr "Đã xác nhận"
+
+msgid "Connect an AI provider"
+msgstr "Kết nối một nhà cung cấp AI"
+
+msgid "Connect ChatGPT or Claude"
+msgstr "Kết nối ChatGPT hoặc Claude"
+
+msgid "Connected AI"
+msgstr "AI đã kết nối"
+
+msgid "Consumable"
+msgstr "Hàng tiêu dùng"
+
+msgid "Contact"
+msgstr "Liên hệ"
+
+msgid "Contact details changed"
+msgstr "Thông tin liên hệ đã thay đổi"
+
+msgid "Contact for {name}"
+msgstr "Liên hệ cho {name}"
+
+msgid "Contact saved"
+msgstr "Đã lưu liên hệ"
+
+msgid "Container"
+msgstr "Vật chứa"
+
+msgid "Content width"
+msgstr "Chiều rộng nội dung"
+
+msgid "Contents"
+msgstr "Nội dung"
+
+msgid "Contents of {name}"
+msgstr "Nội dung của {name}"
+
+msgid "Continue"
+msgstr "Tiếp tục"
+
+msgid "Convert"
+msgstr "Chuyển đổi"
+
+msgid "Convert and lose these?"
+msgstr "Chuyển đổi và mất những thứ này?"
+
+msgid "Convert anyway"
+msgstr "Vẫn chuyển đổi"
+
+msgid "Convert to a room or spot"
+msgstr "Chuyển thành phòng hoặc vị trí"
+
+msgid "Copied"
+msgstr "Đã sao chép"
+
+msgid "Copied · logged"
+msgstr "Đã sao chép · đã ghi log"
+
+msgid "Copy"
+msgstr "Sao chép"
+
+msgid "Copy all codes"
+msgstr "Sao chép tất cả mã"
+
+msgid "Copy code"
+msgstr "Sao chép mã"
+
+msgid "Copy key"
+msgstr "Sao chép khóa"
+
+msgid "Copy link"
+msgstr "Sao chép liên kết"
+
+msgid "Copy report"
+msgstr "Sao chép báo cáo"
+
+msgid "Copy the address from the address bar."
+msgstr "Sao chép địa chỉ từ thanh địa chỉ."
+
+msgid "Copy the code"
+msgstr "Sao chép mã"
+
+msgid "Cordless drill"
+msgstr "Máy khoan không dây"
+
+msgid "Cordless drill with two batteries and the long charger"
+msgstr "Máy khoan không dây với hai pin và bộ sạc dài"
+
+msgid "cost unknown"
+msgstr "không rõ chi phí"
+
+msgid "Couldn't add it"
+msgstr "Không thể thêm nó"
+
+msgid "Couldn't change it"
+msgstr "Không thể thay đổi nó"
+
+msgid "Couldn't change the reading"
+msgstr "Không thể thay đổi chỉ số"
+
+msgid "Couldn't change the type"
+msgstr "Không thể thay đổi loại"
+
+msgid "Couldn't check on the PDF"
+msgstr "Không thể kiểm tra trên PDF"
+
+msgid "Couldn't copy"
+msgstr "Không thể sao chép"
+
+msgid "Couldn't finish the check"
+msgstr "Không thể hoàn tất kiểm tra"
+
+msgid "Couldn't link them"
+msgstr "Không thể liên kết chúng"
+
+msgid "Couldn't load the choices. Try again in a moment."
+msgstr "Không thể tải các lựa chọn. Hãy thử lại sau một lát."
+
+msgid "Couldn't load this"
+msgstr "Không thể tải thứ này"
+
+msgid "Couldn't look that up. Try again."
+msgstr "Không thể tra cứu. Hãy thử lại."
+
+msgid "Read {shown} from the printed code"
+msgstr "Đọc {shown} từ mã in"
+
+msgid "Couldn't make the PDF"
+msgstr "Không thể tạo PDF"
+
+msgid "Couldn't move it"
+msgstr "Không thể di chuyển nó"
+
+msgid "Couldn't move them. Try again."
+msgstr "Không thể di chuyển chúng. Hãy thử lại."
+
+msgid "Couldn't open it"
+msgstr "Không thể mở nó"
+
+msgid "Couldn't open this invite"
+msgstr "Không thể mở lời mời này"
+
+msgid "Couldn't read the photo"
+msgstr "Không thể đọc ảnh"
+
+msgid "Couldn't read this photo (provider error)"
+msgstr "Không thể đọc ảnh này (lỗi nhà cung cấp)"
+
+msgid "Couldn't read this photo (the answer made no sense)"
+msgstr "Không thể đọc ảnh này (câu trả lời không hợp lý)"
+
+msgid "Couldn't read this photo (the answer was cut off)"
+msgstr "Không thể đọc ảnh này (câu trả lời bị cắt ngắn)"
+
+msgid "Couldn't read this photo (the provider refused it)"
+msgstr "Không thể đọc ảnh này (nhà cung cấp đã từ chối)"
+
+msgid "Couldn't read this photo (the provider took too long)"
+msgstr "Không thể đọc ảnh này (nhà cung cấp mất quá lâu)"
+
+msgid "Couldn't remove it"
+msgstr "Không thể xóa nó"
+
+msgid "Couldn't remove the link"
+msgstr "Không thể xóa liên kết"
+
+msgid "Couldn't reveal {label}"
+msgstr "Không thể hiển thị {label}"
+
+msgid "Couldn't save"
+msgstr "Không thể lưu"
+
+msgid "Couldn't save {label}"
+msgstr "Không thể lưu {label}"
+
+msgid "Couldn't save that capture"
+msgstr "Không thể lưu lần chụp đó"
+
+msgid "Couldn't sync"
+msgstr "Không thể đồng bộ"
+
+msgid "Couldn't trash it"
+msgstr "Không thể chuyển nó vào thùng rác"
+
+msgid "Couldn't undo that"
+msgstr "Không thể hoàn tác việc đó"
+
+msgid "Couldn't undo the synced ones"
+msgstr "Không thể hoàn tác các mục đã đồng bộ"
+
+msgid "Couldn't upload {0}"
+msgstr "Không thể tải lên {0}"
+
+msgid "Create"
+msgstr "Tạo"
+
+msgid "Create {displayName}"
+msgstr "Tạo {displayName}"
+
+msgid "Create a new thing from this line"
+msgstr "Tạo một đồ vật mới từ dòng này"
+
+msgid "Create account"
+msgstr "Tạo tài khoản"
+
+msgid "Create account and join"
+msgstr "Tạo tài khoản và tham gia"
+
+msgid "Create an account and join"
+msgstr "Tạo tài khoản và tham gia"
+
+msgid "Create invite link"
+msgstr "Tạo liên kết mời"
+
+msgid "Create the first account"
+msgstr "Tạo tài khoản đầu tiên"
+
+msgid "Create your first home"
+msgstr "Tạo ngôi nhà đầu tiên của bạn"
+
+msgid "Created {created}"
+msgstr "Đã tạo {created}"
+
+msgid "Created a home"
+msgstr "Đã tạo một ngôi nhà"
+
+msgid "Currencies"
+msgstr "Tiền tệ"
+
+msgid "Currencies people can pick for locations and prices. The five defaults, and any currency a location uses, stay on."
+msgstr "Các loại tiền tệ mọi người có thể chọn cho địa điểm và giá cả. Năm mặc định, và bất kỳ loại tiền tệ nào một địa điểm dùng, vẫn bật."
+
+msgid "currency"
+msgstr "tiền tệ"
+
+msgid "Currency"
+msgstr "Tiền tệ"
+
+msgid "Custom range"
+msgstr "Khoảng tùy chỉnh"
+
+msgid "Customise"
+msgstr "Tùy chỉnh"
+
+msgid "Customise makes this account's own copy: every place of this kind uses it, and you can rename it and give it fields."
+msgstr "Tùy chỉnh tạo bản sao riêng của tài khoản này: mọi địa điểm thuộc loại này đều dùng nó, và bạn có thể đổi tên nó và thêm trường cho nó."
+
+msgid "Customised from the built-in type"
+msgstr "Đã tùy chỉnh từ loại tích hợp sẵn"
+
+msgid "Danger zone"
+msgstr "Vùng nguy hiểm"
+
+msgid "Dark"
+msgstr "Tối"
+
+msgid "Database"
+msgstr "Cơ sở dữ liệu"
+
+msgid "Date"
+msgstr "Ngày"
+
+msgid "Date on the receipt"
+msgstr "Ngày trên biên lai"
+
+msgid "Default"
+msgstr "Mặc định"
+
+msgid "Default warranty (months)"
+msgstr "Bảo hành mặc định (tháng)"
+
+msgid "Delete"
+msgstr "Xóa"
+
+msgid "Delete {0}"
+msgstr "Xóa {0}"
+
+msgid "Delete {name}"
+msgstr "Xóa {name}"
+
+msgid "Delete {name} for good?"
+msgstr "Xóa {name} vĩnh viễn?"
+
+msgid "Delete {name} permanently"
+msgstr "Xóa {name} vĩnh viễn"
+
+msgid "Delete {name}?"
+msgstr "Xóa {name}?"
+
+msgid "Delete permanently"
+msgstr "Xóa vĩnh viễn"
+
+msgid "Delete the saved search {name}?"
+msgstr "Xóa tìm kiếm đã lưu {name}?"
+
+msgid "Delete the saved view {name}?"
+msgstr "Xóa chế độ xem đã lưu {name}?"
+
+msgid "Delete them"
+msgstr "Xóa chúng"
+
+msgid "Deleted {0}"
+msgstr "Đã xóa {0}"
+
+msgid "Deleted {deletedOn} · gone for good on {purgeOn}"
+msgstr "Đã xóa {deletedOn} · sẽ mất vĩnh viễn vào {purgeOn}"
+
+msgid "Deleted {name}"
+msgstr "Đã xóa {name}"
+
+msgid "Deleted {name} for good"
+msgstr "Đã xóa {name} vĩnh viễn"
+
+msgid "Deleted by"
+msgstr "Đã xóa bởi"
+
+msgid "Description"
+msgstr "Mô tả"
+
+msgid "Design system"
+msgstr "Hệ thống thiết kế"
+
+msgid "Destroyed"
+msgstr "Đã hủy"
+
+msgid "Details"
+msgstr "Chi tiết"
+
+msgid "Device"
+msgstr "Thiết bị"
+
+msgid "Diagnostics"
+msgstr "Chẩn đoán"
+
+msgid "Diagnostics results"
+msgstr "Kết quả chẩn đoán"
+
+msgid "Dialog, confirm and toast"
+msgstr "Hộp thoại, xác nhận và thông báo"
+
+msgid "Did you mean"
+msgstr "Ý bạn là"
+
+msgid "Digits in Arabic"
+msgstr "Chữ số trong tiếng Ả Rập"
+
+msgid "Disable"
+msgstr "Tắt"
+
+msgid "Disable {who}?"
+msgstr "Tắt {who}?"
+
+msgid "Disabled"
+msgstr "Đã tắt"
+
+msgid "Discard"
+msgstr "Hủy bỏ"
+
+msgid "Discard {count} drafts?"
+msgstr "Hủy {count} bản nháp?"
+
+msgid "Discard {display}?"
+msgstr "Hủy {display}?"
+
+msgid "Discard or dismiss"
+msgstr "Hủy bỏ hoặc đóng"
+
+msgid "Discard this job?"
+msgstr "Hủy công việc này?"
+
+msgid "Discard this reading?"
+msgstr "Hủy chỉ số này?"
+
+msgid "Discarded"
+msgstr "Đã hủy"
+
+msgid "Discarded {display}"
+msgstr "Đã hủy {display}"
+
+msgid "Discarded {x} drafts"
+msgstr "Đã hủy {x} bản nháp"
+
+msgid "Discarded the reading"
+msgstr "Đã hủy chỉ số"
+
+msgid "Dismiss"
+msgstr "Đóng"
+
+msgid "Dismissed"
+msgstr "Đã đóng"
+
+msgid "Display"
+msgstr "Hiển thị"
+
+msgid "Display options"
+msgstr "Tùy chọn hiển thị"
+
+msgid "Display options: sorted by {sortName}, {dirName}"
+msgstr "Tùy chọn hiển thị: sắp xếp theo {sortName}, {dirName}"
+
+msgid "Disposed of"
+msgstr "Đã thanh lý"
+
+msgid "Document"
+msgstr "Tài liệu"
+
+msgid "Doesn't work"
+msgstr "Không hoạt động"
+
+msgid "Done"
+msgstr "Xong"
+
+msgid "Done. {who} gets an email about it."
+msgstr "Xong. {who} sẽ nhận được email về việc này."
+
+msgid "Download"
+msgstr "Tải xuống"
+
+msgid "Draft"
+msgstr "Bản nháp"
+
+msgid "Drafts"
+msgstr "Bản nháp"
+
+msgid "Drafts without a name, or with values to confirm, are left for you to review."
+msgstr "Các bản nháp không có tên, hoặc có giá trị cần xác nhận, sẽ được để lại cho bạn xem lại."
+
+msgid "Duplicate"
+msgstr "Nhân bản"
+
+msgid "Duplicated"
+msgstr "Đã nhân bản"
+
+msgid "Duplicated {name}"
+msgstr "Đã nhân bản {name}"
+
+msgid "Duplicates"
+msgstr "Bản trùng lặp"
+
+msgid "e.g. Cordless drill"
+msgstr "VD: Máy khoan không dây"
+
+msgid "e.g. Home"
+msgstr "VD: Nhà"
+
+msgid "Each one is saved and findable on this phone now. AI fills in details after sync; anything that needs you lands in the Inbox."
+msgstr "Mỗi mục đều đã được lưu và có thể tìm thấy trên điện thoại này ngay bây giờ. AI sẽ điền chi tiết sau khi đồng bộ; bất cứ thứ gì cần bạn sẽ vào Hộp thư đến."
+
+msgid "Each one is saved and findable on this phone now. Unnamed ones wait in the Inbox for a name."
+msgstr "Mỗi mục đều đã được lưu và có thể tìm thấy trên điện thoại này ngay bây giờ. Những mục chưa có tên sẽ chờ trong Hộp thư đến để được đặt tên."
+
+msgid "Each owner's locations share one set of types and lists."
+msgstr "Các địa điểm của mỗi chủ sở hữu dùng chung một bộ loại và danh sách."
+
+msgid "Edit"
+msgstr "Sửa"
+
+msgid "Edit {0}"
+msgstr "Sửa {0}"
+
+msgid "Edit {name}"
+msgstr "Sửa {name}"
+
+msgid "Edit on {0}"
+msgstr "Sửa trên {0}"
+
+msgid "Edit the reading"
+msgstr "Sửa chỉ số"
+
+msgid "Edited {name}"
+msgstr "Đã sửa {name}"
+
+msgid "Egyptian pound"
+msgstr "Bảng Ai Cập"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Email me a sign-in link"
+msgstr "Gửi cho tôi liên kết đăng nhập qua email"
+
+msgid "Email me when something is due"
+msgstr "Gửi email cho tôi khi có thứ gì đến hạn"
+
+msgid "Email or username"
+msgstr "Email hoặc tên người dùng"
+
+msgid "Email-change links work once, for an hour. <0>Start again from Settings</0>."
+msgstr "Liên kết đổi email chỉ dùng được một lần, trong một giờ. <0>Bắt đầu lại từ Cài đặt</0>."
+
+msgid "empty"
+msgstr "trống"
+
+msgid "Empty"
+msgstr "Trống"
+
+msgid "Enable"
+msgstr "Bật"
+
+msgid "Enable {who}?"
+msgstr "Bật {who}?"
+
+msgid "end details"
+msgstr "kết thúc chi tiết"
+
+msgid "Ended"
+msgstr "Đã kết thúc"
+
+msgid "Ended on"
+msgstr "Kết thúc vào"
+
+msgid "Ended with"
+msgstr "Kết thúc với"
+
+msgid "Enter a backup code."
+msgstr "Nhập mã dự phòng."
+
+msgid "Enter a number, 0 or more."
+msgstr "Nhập một số, từ 0 trở lên."
+
+msgid "Enter a number."
+msgstr "Nhập một số."
+
+msgid "Enter a web address starting with https://."
+msgstr "Nhập địa chỉ web bắt đầu bằng https://."
+
+msgid "Enter a whole number, 0 or more."
+msgstr "Nhập một số nguyên, từ 0 trở lên."
+
+msgid "Enter an amount, like 1250 or 1250.50."
+msgstr "Nhập một số tiền, ví dụ 1250 hoặc 1250.50."
+
+msgid "Enter an email address, like name@example.com."
+msgstr "Nhập địa chỉ email, ví dụ name@example.com."
+
+msgid "Enter an email address."
+msgstr "Nhập địa chỉ email."
+
+msgid "Enter one of the backup codes you saved when you turned on two-factor."
+msgstr "Nhập một trong các mã dự phòng bạn đã lưu khi bật xác thực hai yếu tố."
+
+msgid "Enter the 6 digits."
+msgstr "Nhập 6 chữ số."
+
+msgid "Enter the 6-digit code from your authenticator app."
+msgstr "Nhập mã 6 chữ số từ ứng dụng xác thực của bạn."
+
+msgid "Enter the setup code"
+msgstr "Nhập mã thiết lập"
+
+msgid "Enter their name."
+msgstr "Nhập tên của họ."
+
+msgid "Enter this key in the app instead:"
+msgstr "Thay vào đó, nhập khóa này trong ứng dụng:"
+
+msgid "Enter your email address to get a sign-in link."
+msgstr "Nhập địa chỉ email của bạn để nhận liên kết đăng nhập."
+
+msgid "Enter your email address to reset your password."
+msgstr "Nhập địa chỉ email của bạn để đặt lại mật khẩu."
+
+msgid "Enter your email or username."
+msgstr "Nhập email hoặc tên người dùng của bạn."
+
+msgid "Enter your name."
+msgstr "Nhập tên của bạn."
+
+msgid "Enter your password to confirm it's you."
+msgstr "Nhập mật khẩu của bạn để xác nhận đó là bạn."
+
+msgid "Enter your password."
+msgstr "Nhập mật khẩu của bạn."
+
+msgid "Enter your username."
+msgstr "Nhập tên người dùng của bạn."
+
+msgid "Essentials"
+msgstr "Thiết yếu"
+
+msgid "Euro"
+msgstr "Euro"
+
+msgid "Every addition, move and edit in the locations you belong to shows here, newest first."
+msgstr "Mọi lần thêm, di chuyển và sửa trong các địa điểm bạn thuộc về đều hiển thị ở đây, mới nhất trước."
+
+msgid "Every control Kept's screens are built from, on React Aria. Switch the theme and the language above: everything here should mirror cleanly."
+msgstr "Mọi thành phần điều khiển mà các màn hình của Kept được xây dựng từ đó, trên React Aria. Hãy chuyển giao diện và ngôn ngữ ở trên: mọi thứ ở đây đều phải hiển thị đối xứng một cách rõ ràng."
+
+msgid "Every device {who} is signed in on is signed out. They get an email about it."
+msgstr "Mọi thiết bị mà {who} đang đăng nhập đều sẽ đăng xuất. Họ sẽ nhận được email về việc này."
+
+msgid "Every result, with filters"
+msgstr "Mọi kết quả, kèm bộ lọc"
+
+msgid "Every room or spot has a kind. Give your own kinds fields, like a shelf's width or an air filter's size, and every place of that kind can record them."
+msgstr "Mỗi phòng hoặc vị trí đều có một loại. Hãy thêm trường cho các loại của riêng bạn, như chiều rộng của kệ hoặc kích thước của bộ lọc không khí, và mọi địa điểm thuộc loại đó đều có thể ghi lại chúng."
+
+msgid "Every step is done."
+msgstr "Mọi bước đã xong."
+
+msgid "Every value carries over."
+msgstr "Mọi giá trị đều được giữ lại."
+
+msgid "Everyone in {where}"
+msgstr "Mọi người trong {where}"
+
+msgid "Everyone who could be an admin already is. Managed and disabled accounts can't be admins."
+msgstr "Mọi người có thể làm quản trị viên thì đã là quản trị viên rồi. Các tài khoản được quản lý và đã tắt không thể làm quản trị viên."
+
+msgid "Everyone's"
+msgstr "Của mọi người"
+
+msgid "Everyone's · {0}"
+msgstr "Của mọi người · {0}"
+
+msgid "Everything else"
+msgstr "Mọi thứ khác"
+
+msgid "Everything in <0>{name}</0> moves into the place you choose, and <1>{name}</1> goes away. Its history stays with the things."
+msgstr "Mọi thứ trong <0>{name}</0> sẽ chuyển vào địa điểm bạn chọn, và <1>{name}</1> sẽ biến mất. Lịch sử của nó vẫn ở với các đồ vật."
+
+msgid "Everything in Essentials"
+msgstr "Mọi thứ trong Thiết yếu"
+
+msgid "Everything in Household"
+msgstr "Mọi thứ trong Hộ gia đình"
+
+msgid "Everything inside goes with it, and comes back with it on Restore."
+msgstr "Mọi thứ bên trong sẽ đi cùng với nó, và quay lại cùng với nó khi Khôi phục."
+
+msgid "Everything is searched again when you're back online."
+msgstr "Mọi thứ sẽ được tìm kiếm lại khi bạn trở lại trực tuyến."
+
+msgid "Everything that points at <0>{from}</0> will point at the one you choose, and <1>{from}</1> goes away. Its history stays with the things."
+msgstr "Mọi thứ trỏ tới <0>{from}</0> sẽ trỏ tới mục bạn chọn, và <1>{from}</1> sẽ biến mất. Lịch sử của nó vẫn ở với các đồ vật."
+
+msgid "Expand sidebar"
+msgstr "Mở rộng thanh bên"
+
+msgid "Expires"
+msgstr "Hết hạn"
+
+msgid "Expires on"
+msgstr "Hết hạn vào"
+
+msgid "Failed {when} after {attempts} attempts"
+msgstr "Thất bại {when} sau {attempts} lần thử"
+
+msgid "Failed jobs"
+msgstr "Công việc thất bại"
+
+msgid "Failed jobs are rising"
+msgstr "Số công việc thất bại đang tăng"
+
+msgid "Fair"
+msgstr "Khá"
+
+msgid "Field added"
+msgstr "Đã thêm trường"
+
+msgid "Field archived"
+msgstr "Trường đã lưu trữ"
+
+msgid "Field changed"
+msgstr "Trường đã thay đổi"
+
+msgid "Field groups"
+msgstr "Nhóm trường"
+
+msgid "Field restored"
+msgstr "Trường đã khôi phục"
+
+msgid "Fields"
+msgstr "Các trường"
+
+msgid "Fields to archive"
+msgstr "Các trường cần lưu trữ"
+
+msgid "File"
+msgstr "Tệp"
+
+msgid "File type"
+msgstr "Loại tệp"
+
+msgid "File uploaded"
+msgstr "Tệp đã tải lên"
+
+msgid "Fill in by hand"
+msgstr "Điền bằng tay"
+
+msgid "Filled in by AI and accepted: {acceptedList}."
+msgstr "Đã được AI điền và chấp nhận: {acceptedList}."
+
+msgid "Filter"
+msgstr "Bộ lọc"
+
+msgid "Filter by"
+msgstr "Lọc theo"
+
+msgid "Filters"
+msgstr "Các bộ lọc"
+
+msgid "Filters in use"
+msgstr "Các bộ lọc đang dùng"
+
+msgid "Find"
+msgstr "Tìm"
+
+msgid "Find a brand"
+msgstr "Tìm một thương hiệu"
+
+msgid "Find a filter"
+msgstr "Tìm một bộ lọc"
+
+msgid "Find a location"
+msgstr "Tìm một địa điểm"
+
+msgid "Find a person"
+msgstr "Tìm một người"
+
+msgid "Find a place"
+msgstr "Tìm một chỗ"
+
+msgid "Find a tag"
+msgstr "Tìm một thẻ"
+
+msgid "Find a type"
+msgstr "Tìm một loại"
+
+msgid "Find a value"
+msgstr "Tìm một giá trị"
+
+msgid "Find anything you've kept"
+msgstr "Tìm bất cứ thứ gì bạn đã giữ"
+
+msgid "Finding things: rooms, boxes, labels and search."
+msgstr "Tìm đồ vật: phòng, hộp, nhãn và tìm kiếm."
+
+msgid "Finding where you are…"
+msgstr "Đang xác định vị trí của bạn…"
+
+msgid "Fine-tune"
+msgstr "Tinh chỉnh"
+
+msgid "Finish check"
+msgstr "Hoàn tất kiểm tra"
+
+msgid "Finish setup"
+msgstr "Hoàn tất thiết lập"
+
+msgid "First {first} · last {last}"
+msgstr "Lần đầu {first} · lần cuối {last}"
+
+msgid "First account"
+msgstr "Tài khoản đầu tiên"
+
+msgid "Fix the reading"
+msgstr "Sửa chỉ số"
+
+msgid "Fixed the reading"
+msgstr "Đã sửa chỉ số"
+
+msgid "Floor"
+msgstr "Tầng"
+
+msgid "Follows this device’s light or dark setting."
+msgstr "Theo cài đặt sáng hoặc tối của thiết bị này."
+
+msgid "For a child or a parent with no email: they sign in with a username. You can reset their password later; they can add an email to take it over."
+msgstr "Đối với trẻ em hoặc cha mẹ không có email: họ đăng nhập bằng tên người dùng. Bạn có thể đặt lại mật khẩu của họ sau; họ có thể thêm email để tiếp quản tài khoản."
+
+msgid "For an account someone made for you. Enter your username and the code they gave you, then choose your password. The code works once."
+msgstr "Đối với tài khoản người khác đã tạo cho bạn. Nhập tên người dùng và mã họ đã đưa cho bạn, rồi chọn mật khẩu của bạn. Mã chỉ dùng được một lần."
+
+msgid "For information"
+msgstr "Để biết thông tin"
+
+msgid "For instance admins"
+msgstr "Dành cho quản trị viên instance"
+
+msgid "Forgot their password? A new code lets them set another."
+msgstr "Quên mật khẩu của họ? Một mã mới cho phép họ đặt mật khẩu khác."
+
+msgid "Forgot your password?"
+msgstr "Quên mật khẩu của bạn?"
+
+msgid "Found"
+msgstr "Đã tìm thấy"
+
+msgid "Found here · moves into this box"
+msgstr "Tìm thấy ở đây · chuyển vào hộp này"
+
+msgid "Found here, from elsewhere"
+msgstr "Tìm thấy ở đây, từ nơi khác"
+
+msgid "Found it, or got it back: the end details are cleared."
+msgstr "Đã tìm thấy, hoặc đã lấy lại: các chi tiết cuối sẽ bị xóa."
+
+msgid "Found something else"
+msgstr "Đã tìm thấy thứ khác"
+
+msgid "From"
+msgstr "Từ"
+
+msgid "From {0}"
+msgstr "Từ {0}"
+
+msgid "From {from}"
+msgstr "Từ {from}"
+
+msgid "From {from} · inherited"
+msgstr "Từ {from} · được kế thừa"
+
+msgid "From the {kindLabel} template. Rename, remove or add; change them any time."
+msgstr "Từ mẫu {kindLabel}. Đổi tên, xóa hoặc thêm; thay đổi chúng bất cứ lúc nào."
+
+msgid "From the label · tap to change"
+msgstr "Từ nhãn · chạm để thay đổi"
+
+msgid "From this phone, as of last sync {0}"
+msgstr "Từ điện thoại này, tính đến lần đồng bộ cuối {0}"
+
+msgid "from this phone, as of last sync {asOf}"
+msgstr "từ điện thoại này, tính đến lần đồng bộ cuối {asOf}"
+
+msgid "Front"
+msgstr "Mặt trước"
+
+msgid "Fuel"
+msgstr "Nhiên liệu"
+
+msgid "Fuel station"
+msgstr "Trạm xăng"
+
+msgid "Full width"
+msgstr "Chiều rộng đầy đủ"
+
+msgid "Full width gives lists and tables the whole screen. Text and forms keep a readable width."
+msgstr "Chiều rộng đầy đủ cho danh sách và bảng toàn bộ màn hình. Văn bản và biểu mẫu giữ chiều rộng dễ đọc."
+
+msgid "Gallery"
+msgstr "Thư viện"
+
+msgid "Garage"
+msgstr "Gara"
+
+msgid "Garage › Wall shelf › Blue bin"
+msgstr "Gara › Kệ tường › Thùng xanh"
+
+msgid "General"
+msgstr "Chung"
+
+msgid "Get started"
+msgstr "Bắt đầu"
+
+msgid "Get-started checklist"
+msgstr "Danh sách kiểm tra bắt đầu"
+
+msgid "Give {person} this code"
+msgstr "Đưa cho {person} mã này"
+
+msgid "Give {who} a new one-time code?"
+msgstr "Cấp cho {who} một mã dùng một lần mới?"
+
+msgid "Give {who} this code"
+msgstr "Đưa cho {who} mã này"
+
+msgid "Give it a label ID"
+msgstr "Đặt cho nó một ID nhãn"
+
+msgid "Give it a name, like Cables or This week."
+msgstr "Đặt tên cho nó, ví dụ Cables hoặc This week."
+
+msgid "Give it a name, like Home or Garage."
+msgstr "Đặt tên cho nó, ví dụ Home hoặc Garage."
+
+msgid "Give it a name, like Shelf A or Balcony."
+msgstr "Đặt tên cho nó, ví dụ Shelf A hoặc Balcony."
+
+msgid "Give it a name."
+msgstr "Đặt tên cho nó."
+
+msgid "Give the box a name, like Box 3."
+msgstr "Đặt tên cho hộp, ví dụ Box 3."
+
+msgid "Give the box a name."
+msgstr "Đặt tên cho hộp."
+
+msgid "Give the field a label, like Screen size."
+msgstr "Đặt nhãn cho trường, ví dụ Screen size."
+
+msgid "Give the kind a name, like Shelf or Bay."
+msgstr "Đặt tên cho loại, ví dụ Shelf hoặc Bay."
+
+msgid "Give the type a name, like Board game."
+msgstr "Đặt tên cho loại, ví dụ Board game."
+
+msgid "Give these a place"
+msgstr "Đặt chỗ cho những thứ này"
+
+msgid "Given away"
+msgstr "Đã cho đi"
+
+msgid "Given to"
+msgstr "Đã đưa cho"
+
+msgid "Go to Home"
+msgstr "Đến Trang chủ"
+
+msgid "Go to Kept"
+msgstr "Đến Kept"
+
+msgid "Go to Settings"
+msgstr "Đến Cài đặt"
+
+msgid "Go to sign in"
+msgstr "Đến đăng nhập"
+
+msgid "Goes for good on {purge}"
+msgstr "Bị xóa vĩnh viễn vào {purge}"
+
+msgid "Good"
+msgstr "Tốt"
+
+msgid "Got it"
+msgstr "Đã hiểu"
+
+msgid "Groq listed it at USD {input} per million input tokens and {output} per million output tokens on {listed}. You can change it in the price table."
+msgstr "Groq niêm yết giá USD {input} cho mỗi triệu token đầu vào và {output} cho mỗi triệu token đầu ra vào {listed}. Bạn có thể thay đổi giá trong bảng giá."
+
+msgid "Group"
+msgstr "Nhóm"
+
+msgid "Hallway"
+msgstr "Hành lang"
