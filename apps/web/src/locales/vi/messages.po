@@ -6978,3 +6978,1503 @@ msgstr "Mỗi ảnh đã chụp"
 
 msgid "Each captured photo will appear here with what it cost."
 msgstr "Mỗi ảnh đã chụp sẽ hiện ở đây kèm chi phí của nó."
+
+msgid "Each label or nameplate photo"
+msgstr "Mỗi ảnh nhãn hoặc biển tên"
+
+msgid "Each meter reading"
+msgstr "Mỗi chỉ số đồng hồ"
+
+msgid "Each receipt (up to 4 pages in one call)"
+msgstr "Mỗi biên lai (tối đa 4 trang trong một lần gọi)"
+
+msgid "Empty: the input rate."
+msgstr "Trống: giá đầu vào."
+
+msgid "Empty: the output rate."
+msgstr "Trống: giá đầu ra."
+
+msgid "Enter an amount above zero."
+msgstr "Nhập một số tiền lớn hơn 0."
+
+msgid "Every call"
+msgstr "Mỗi lần gọi"
+
+msgid "Export CSV"
+msgstr "Xuất CSV"
+
+msgid "Fill from {0}'s listing"
+msgstr "Điền từ danh mục của {0}"
+
+msgid "Find a model"
+msgstr "Tìm một mô hình"
+
+msgid "Find a thing"
+msgstr "Tìm một đồ vật"
+
+msgid "finish reason <0>{0}</0>"
+msgstr "lý do kết thúc <0>{0}</0>"
+
+msgid "For {0}, as chosen under Advanced."
+msgstr "Đối với {0}, như đã chọn trong Nâng cao."
+
+msgid "For example, 100 photos and 20 receipts a month ≈ 120 calls."
+msgstr "Ví dụ, 100 ảnh và 20 biên lai mỗi tháng ≈ 120 lần gọi."
+
+msgid "From the listing"
+msgstr "Từ danh mục"
+
+msgid "From the provider's listing of {0}. Check it, then save."
+msgstr "Từ danh mục của nhà cung cấp về {0}. Kiểm tra rồi lưu."
+
+msgid "from this server"
+msgstr "từ máy chủ này"
+
+msgid "from you"
+msgstr "từ bạn"
+
+msgid "from your account"
+msgstr "từ tài khoản của bạn"
+
+msgid "From your last 30 days, for actions you've used at least 5 times."
+msgstr "Từ 30 ngày qua của bạn, đối với các thao tác bạn đã dùng ít nhất 5 lần."
+
+msgid "from your own use once you've tried it"
+msgstr "từ cách dùng của chính bạn sau khi bạn đã thử"
+
+msgid "Get a Groq key"
+msgstr "Lấy khóa Groq"
+
+msgid "Has an image"
+msgstr "Có hình ảnh"
+
+msgid "Hidden in this location"
+msgstr "Ẩn trong vị trí này"
+
+msgid "High"
+msgstr "Cao"
+
+msgid "How {name} keeps and uses what it receives is set by its own terms for API customers."
+msgstr "Cách {name} lưu giữ và sử dụng những gì nhận được do điều khoản riêng của nó dành cho khách hàng API quy định."
+
+msgid "How it went"
+msgstr "Diễn biến ra sao"
+
+msgid "Images"
+msgstr "Hình ảnh"
+
+msgid "In Kept's test on {date}, it read receipts, labels and nameplates correctly for the least money of any model measured:"
+msgstr "Trong thử nghiệm của Kept vào {date}, nó đọc biên lai, nhãn và biển tên chính xác với chi phí thấp nhất trong các mô hình đã đo:"
+
+msgid "Input {0} · output {1} per million tokens"
+msgstr "Đầu vào {0} · đầu ra {1} cho mỗi triệu token"
+
+msgid "Input, per million tokens"
+msgstr "Đầu vào, cho mỗi triệu token"
+
+msgid "Inside the account's {0}"
+msgstr "Bên trong {0} của tài khoản"
+
+msgid "Invalid answer"
+msgstr "Câu trả lời không hợp lệ"
+
+msgid "Keep paused"
+msgstr "Giữ tạm dừng"
+
+msgid "Kept (background)"
+msgstr "Kept (nền)"
+
+msgid "Kept can't tell which provider this key is for. Choose it under Advanced."
+msgstr "Kept không biết khóa này dành cho nhà cung cấp nào. Chọn nhà cung cấp trong Nâng cao."
+
+msgid "Kept estimated {0} before sending."
+msgstr "Kept đã ước tính {0} trước khi gửi."
+
+msgid "Kept fills in {0}'s address."
+msgstr "Kept điền địa chỉ của {0}."
+
+msgid "Kept reads the provider from the key. It sends the key to the server once and never shows it again."
+msgstr "Kept đọc nhà cung cấp từ khóa. Nó gửi khóa lên máy chủ một lần và không bao giờ hiển thị lại."
+
+msgid "Key saved"
+msgstr "Đã lưu khóa"
+
+msgid "Key saved · <0>••••{0}</0> · never shown again"
+msgstr "Đã lưu khóa · <0>••••{0}</0> · không bao giờ hiển thị lại"
+
+msgid "Keyword only (no embeddings model)"
+msgstr "Chỉ từ khóa (không có mô hình embeddings)"
+
+msgid "Label or nameplate"
+msgstr "Nhãn hoặc biển tên"
+
+msgid "Last 3 months"
+msgstr "3 tháng qua"
+
+msgid "Last month"
+msgstr "Tháng trước"
+
+msgid "Limit a person"
+msgstr "Giới hạn một người"
+
+msgid "Limit removed"
+msgstr "Đã xóa giới hạn"
+
+msgid "Limit saved"
+msgstr "Đã lưu giới hạn"
+
+msgid "Limits"
+msgstr "Giới hạn"
+
+msgid "Listed {0}"
+msgstr "Đã niêm yết {0}"
+
+msgid "Looks like a {0} key."
+msgstr "Trông giống khóa {0}."
+
+msgid "Low (the default)"
+msgstr "Thấp (mặc định)"
+
+msgid "Measured by Kept on {0} with Groq · <0>{1}</0>"
+msgstr "Kept đo vào {0} với Groq · <0>{1}</0>"
+
+msgid "Medium"
+msgstr "Trung bình"
+
+msgid "Meter reading"
+msgstr "Chỉ số đồng hồ"
+
+msgid "Minimal"
+msgstr "Tối thiểu"
+
+msgid "Model or request id"
+msgstr "Mô hình hoặc id yêu cầu"
+
+msgid "Models"
+msgstr "Mô hình"
+
+msgid "Models saved"
+msgstr "Đã lưu mô hình"
+
+msgid "Money a month"
+msgstr "Tiền mỗi tháng"
+
+msgid "Monthly caps"
+msgstr "Giới hạn hàng tháng"
+
+msgid "Monthly limit set"
+msgstr "Đã đặt giới hạn hàng tháng"
+
+msgid "More reasoning can read harder photos, and costs more output tokens."
+msgstr "Suy luận nhiều hơn có thể đọc được những ảnh khó hơn, và tốn nhiều token đầu ra hơn."
+
+msgid "My AI usage"
+msgstr "Mức dùng AI của tôi"
+
+msgid "New price version"
+msgstr "Phiên bản giá mới"
+
+msgid "New version"
+msgstr "Phiên bản mới"
+
+msgid "No AI calls yet"
+msgstr "Chưa có lần gọi AI nào"
+
+msgid "No budget: the monthly caps above apply."
+msgstr "Không có ngân sách: áp dụng các giới hạn hàng tháng ở trên."
+
+msgid "No closer key was set, so it fell back to this one."
+msgstr "Không có khóa gần hơn được đặt, nên nó dùng lại khóa này."
+
+msgid "no cost"
+msgstr "không tốn chi phí"
+
+msgid "No limit"
+msgstr "Không giới hạn"
+
+msgid "No location"
+msgstr "Không có vị trí"
+
+msgid "No location · {person}"
+msgstr "Không có vị trí · {person}"
+
+msgid "No monthly limit. Set one under Advanced."
+msgstr "Không có giới hạn hàng tháng. Đặt một giới hạn trong Nâng cao."
+
+msgid "No price from now"
+msgstr "Không có giá từ nay"
+
+msgid "No prices yet: an instance admin adds them. Until then, cost is unknown."
+msgstr "Chưa có giá: quản trị viên hệ thống sẽ thêm giá. Cho đến lúc đó, chi phí chưa rõ."
+
+msgid "No prices yet. Without one, calls are counted in tokens and their cost is unknown."
+msgstr "Chưa có giá. Nếu không có giá, các lần gọi được tính bằng token và chi phí của chúng chưa rõ."
+
+msgid "None known"
+msgstr "Không có thông tin"
+
+msgid "Not sent"
+msgstr "Chưa gửi"
+
+msgid "Not sent: Kept held it back, so nothing was used."
+msgstr "Chưa gửi: Kept đã giữ lại, nên không dùng gì cả."
+
+msgid "Not set: name things by hand"
+msgstr "Chưa đặt: đặt tên đồ vật thủ công"
+
+msgid "Nothing is capped unless you choose. At 80% you get a warning; at the limit AI pauses until the 1st, and captures still save."
+msgstr "Không gì bị giới hạn trừ khi bạn chọn. Ở mức 80% bạn nhận được cảnh báo; khi chạm giới hạn, AI tạm dừng đến ngày 1, và ảnh chụp vẫn được lưu."
+
+msgid "Nothing is paused that you can resume."
+msgstr "Không có gì đang tạm dừng mà bạn có thể tiếp tục."
+
+msgid "Nothing is sent to the provider until you resume. Captures still save, and their naming waits."
+msgstr "Không gì được gửi đến nhà cung cấp cho đến khi bạn tiếp tục. Ảnh chụp vẫn được lưu, và việc đặt tên cho chúng sẽ chờ."
+
+msgid "Nothing: it wasn't sent."
+msgstr "Không gì cả: nó chưa được gửi."
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Only a copy of the photo with location and camera data removed, never the original. The fixed instructions and your location's languages. For the assistant, your question and the inventory it looks up, within your role. Never secret fields."
+msgstr "Chỉ một bản sao của ảnh đã xóa dữ liệu vị trí và máy ảnh, không bao giờ là ảnh gốc. Các hướng dẫn cố định và ngôn ngữ của vị trí của bạn. Đối với trợ lý, câu hỏi của bạn và kho đồ mà nó tra cứu, trong phạm vi vai trò của bạn. Không bao giờ là trường bí mật."
+
+msgid "Only a copy with the location and camera data removed. Kept never keeps it."
+msgstr "Chỉ một bản sao đã xóa dữ liệu vị trí và máy ảnh. Kept không bao giờ giữ nó."
+
+msgid "Only where the provider bills images apart from tokens."
+msgstr "Chỉ ở nơi nhà cung cấp tính phí hình ảnh tách riêng khỏi token."
+
+msgid "Open the status page"
+msgstr "Mở trang trạng thái"
+
+msgid "Open the thing"
+msgstr "Mở đồ vật"
+
+msgid "Open the thing it read"
+msgstr "Mở đồ vật mà nó đã đọc"
+
+msgid "OpenAI-compatible"
+msgstr "Tương thích OpenAI"
+
+msgid "OpenAI-compatible (Ollama, LM Studio, …)"
+msgstr "Tương thích OpenAI (Ollama, LM Studio, …)"
+
+msgid "Optional. A token cap also counts calls whose cost is unknown."
+msgstr "Tùy chọn. Giới hạn token cũng tính cả các lần gọi chưa rõ chi phí."
+
+msgid "Other attempts of this request"
+msgstr "Các lần thử khác của yêu cầu này"
+
+msgid "Other providers work as well: OpenAI, Anthropic, Google, OpenRouter, or your own OpenAI-compatible server. Paste their key, or choose one under Advanced."
+msgstr "Các nhà cung cấp khác cũng hoạt động: OpenAI, Anthropic, Google, OpenRouter, hoặc máy chủ tương thích OpenAI của riêng bạn. Dán khóa của họ, hoặc chọn một nhà cung cấp trong Nâng cao."
+
+msgid "Outcome"
+msgstr "Kết quả"
+
+msgid "Outcomes"
+msgstr "Kết quả"
+
+msgid "Output, per million tokens"
+msgstr "Đầu ra, cho mỗi triệu token"
+
+msgid "Over budget"
+msgstr "Vượt ngân sách"
+
+msgid "Paid by"
+msgstr "Thanh toán bởi"
+
+msgid "Paste the new key"
+msgstr "Dán khóa mới"
+
+msgid "Paste your key"
+msgstr "Dán khóa của bạn"
+
+msgid "Pause AI"
+msgstr "Tạm dừng AI"
+
+msgid "Pause AI?"
+msgstr "Tạm dừng AI?"
+
+msgid "Paused"
+msgstr "Đã tạm dừng"
+
+msgid "Per image (optional)"
+msgstr "Mỗi hình ảnh (tùy chọn)"
+
+msgid "Period"
+msgstr "Kỳ"
+
+msgid "photos and receipts"
+msgstr "ảnh và biên lai"
+
+msgid "Photos and receipts"
+msgstr "Ảnh và biên lai"
+
+msgid "Photos: not read"
+msgstr "Ảnh: chưa đọc"
+
+msgid "Pick another"
+msgstr "Chọn cái khác"
+
+msgid "Price saved as version {0}"
+msgstr "Giá đã lưu thành phiên bản {0}"
+
+msgid "Prices"
+msgstr "Giá"
+
+msgid "Provider"
+msgstr "Nhà cung cấp"
+
+msgid "Provider error"
+msgstr "Lỗi nhà cung cấp"
+
+msgid "Raise and resume"
+msgstr "Tăng và tiếp tục"
+
+msgid "Raise the cap to ({0})"
+msgstr "Tăng giới hạn lên ({0})"
+
+msgid "Raise the limit to (tokens)"
+msgstr "Tăng giới hạn lên (token)"
+
+msgid "Rate-limited"
+msgstr "Bị giới hạn tốc độ"
+
+msgid "Re-run extraction"
+msgstr "Chạy lại trích xuất"
+
+msgid "reasoning {0}"
+msgstr "suy luận {0}"
+
+msgid "Reasoning effort"
+msgstr "Mức suy luận"
+
+msgid "Reasoning, per million (optional)"
+msgstr "Suy luận, mỗi triệu (tùy chọn)"
+
+msgid "Recommended"
+msgstr "Được đề xuất"
+
+msgid "Recommended: Groq"
+msgstr "Đề xuất: Groq"
+
+msgid "Refresh list"
+msgstr "Làm mới danh sách"
+
+msgid "Refreshing…"
+msgstr "Đang làm mới…"
+
+msgid "Refused"
+msgstr "Bị từ chối"
+
+msgid "Remove the cap"
+msgstr "Xóa giới hạn"
+
+msgid "Remove this limit?"
+msgstr "Xóa giới hạn này?"
+
+msgid "Replace key"
+msgstr "Thay khóa"
+
+msgid "Replaced"
+msgstr "Đã thay"
+
+msgid "Resume"
+msgstr "Tiếp tục"
+
+msgid "Resume AI"
+msgstr "Tiếp tục AI"
+
+msgid "Resume now"
+msgstr "Tiếp tục ngay"
+
+msgid "Run Test to check photos"
+msgstr "Chạy Kiểm tra để kiểm tra ảnh"
+
+msgid "Save a key first: Kept then loads the provider's models to choose from."
+msgstr "Lưu khóa trước: sau đó Kept sẽ tải các mô hình của nhà cung cấp để bạn chọn."
+
+msgid "Save and test"
+msgstr "Lưu và kiểm tra"
+
+msgid "Save limit"
+msgstr "Lưu giới hạn"
+
+msgid "Save models"
+msgstr "Lưu mô hình"
+
+msgid "Save price"
+msgstr "Lưu giá"
+
+msgid "Saving adds a new version from now. Calls already costed keep their price."
+msgstr "Lưu sẽ thêm phiên bản mới từ bây giờ. Các lần gọi đã tính chi phí vẫn giữ giá cũ."
+
+msgid "search"
+msgstr "tìm kiếm"
+
+msgid "Search AI calls"
+msgstr "Tìm kiếm các lần gọi AI"
+
+msgid "Search index"
+msgstr "Chỉ mục tìm kiếm"
+
+msgid "Semantic search"
+msgstr "Tìm kiếm ngữ nghĩa"
+
+msgid "Set {0} a month"
+msgstr "Đặt {0} mỗi tháng"
+
+msgid "Set {0} tokens a month"
+msgstr "Đặt {0} token mỗi tháng"
+
+msgid "Set a limit"
+msgstr "Đặt giới hạn"
+
+msgid "Set a limit for {0}"
+msgstr "Đặt giới hạn cho {0}"
+
+msgid "Set a monthly limit?"
+msgstr "Đặt giới hạn hàng tháng?"
+
+msgid "Set a price in Admin → AI"
+msgstr "Đặt giá trong Quản trị viên → AI"
+
+msgid "Show as a table"
+msgstr "Hiển thị dạng bảng"
+
+msgid "Show earlier versions"
+msgstr "Hiển thị các phiên bản trước"
+
+msgid "Since {0}"
+msgstr "Từ {0}"
+
+msgid "so far"
+msgstr "đến nay"
+
+msgid "Stop pricing"
+msgstr "Dừng tính giá"
+
+msgid "Stop pricing {0}?"
+msgstr "Dừng tính giá {0}?"
+
+msgid "Structured answers"
+msgstr "Câu trả lời có cấu trúc"
+
+msgid "Structured answers: not given"
+msgstr "Câu trả lời có cấu trúc: không có"
+
+msgid "Task"
+msgstr "Tác vụ"
+
+msgid "Test"
+msgstr "Kiểm tra"
+
+msgid "Test connection"
+msgstr "Kiểm tra kết nối"
+
+msgid "Test needs a connection"
+msgstr "Kiểm tra cần có kết nối"
+
+msgid "Test used {0} tokens with <0>{1}</0>"
+msgstr "Kiểm tra đã dùng {0} token với <0>{1}</0>"
+
+msgid "Tests"
+msgstr "Các lần kiểm tra"
+
+msgid "That currency isn't turned on. An instance admin can add it."
+msgstr "Loại tiền tệ này chưa được bật. Quản trị viên hệ thống có thể thêm nó."
+
+msgid "That was a test with made-up photos; Kept's evaluation with real photos checks it again. Groq has no embeddings model, so semantic search needs another provider or stays keyword only. On the key tier Kept measured, Groq reads {low}–{high} photos a minute; Kept paces to it, so a {photos}-photo session is named over {fromMin}–{toMin} minutes while you carry on."
+msgstr "Đó chỉ là lần kiểm tra với ảnh giả; Kept sẽ kiểm tra lại bằng ảnh thật khi đánh giá. Groq không có mô hình embeddings, nên tìm kiếm ngữ nghĩa cần một nhà cung cấp khác hoặc chỉ dùng từ khóa. Trên gói khóa mà Kept đã đo, Groq đọc {low}–{high} ảnh mỗi phút; Kept điều chỉnh tốc độ theo đó, nên một phiên {photos} ảnh kéo dài {fromMin}–{toMin} phút trong khi bạn tiếp tục làm việc."
+
+msgid "That was already undone"
+msgstr "Việc đó đã được hoàn tác rồi"
+
+msgid "The account"
+msgstr "Tài khoản"
+
+msgid "the account's key"
+msgstr "khóa của tài khoản"
+
+msgid "The account's lower cap applies first."
+msgstr "Giới hạn thấp hơn của tài khoản được áp dụng trước."
+
+msgid "the answer was cut off"
+msgstr "câu trả lời bị cắt ngang"
+
+msgid "the answer wasn't in the shape Kept asked for"
+msgstr "câu trả lời không đúng định dạng Kept yêu cầu"
+
+msgid "The cheapest reliable result in Kept's test: about USD {perReceipt} a receipt, with <0>{0}</0>. On the key tier Kept measured, Groq reads {low}–{high} photos a minute; Kept paces to it."
+msgstr "Kết quả đáng tin cậy rẻ nhất trong bài kiểm tra của Kept: khoảng USD {perReceipt} mỗi biên lai, với <0>{0}</0>. Trên gói khóa mà Kept đã đo, Groq đọc {low}–{high} ảnh mỗi phút; Kept điều chỉnh tốc độ theo đó."
+
+msgid "The first AI key is a secret Kept must be able to recover. Save the recovery kit on the status page, then paste the key again."
+msgstr "Khóa AI đầu tiên là một bí mật mà Kept phải có thể khôi phục. Hãy lưu bộ khôi phục trên trang trạng thái, rồi dán lại khóa."
+
+msgid "The listing has no prices Kept can use."
+msgstr "Bảng giá không có mức giá nào Kept có thể dùng."
+
+msgid "the monthly cap was reached"
+msgstr "đã đạt giới hạn hàng tháng"
+
+msgid "the monthly token limit was reached"
+msgstr "đã đạt giới hạn token hàng tháng"
+
+msgid "The person who runs this server needs to save the recovery kit before the first AI key. Ask them, then paste the key again."
+msgstr "Người vận hành máy chủ này cần lưu bộ khôi phục trước khóa AI đầu tiên. Hãy hỏi họ, rồi dán lại khóa."
+
+msgid "the provider asked Kept to slow down"
+msgstr "nhà cung cấp yêu cầu Kept giảm tốc độ"
+
+msgid "the provider couldn't be reached"
+msgstr "không thể kết nối tới nhà cung cấp"
+
+msgid "the provider declined it"
+msgstr "nhà cung cấp đã từ chối"
+
+msgid "the provider had an error"
+msgstr "nhà cung cấp gặp lỗi"
+
+msgid "the provider refused the request"
+msgstr "nhà cung cấp đã từ chối yêu cầu"
+
+msgid "the provider rejected the key"
+msgstr "nhà cung cấp đã từ chối khóa"
+
+msgid "the provider timed out"
+msgstr "nhà cung cấp đã hết thời gian chờ"
+
+msgid "the provider's content filter declined it"
+msgstr "bộ lọc nội dung của nhà cung cấp đã từ chối"
+
+msgid "the provider's quota is used up"
+msgstr "hạn mức của nhà cung cấp đã dùng hết"
+
+msgid "the provider's rate limit was reached"
+msgstr "đã đạt giới hạn tốc độ của nhà cung cấp"
+
+msgid "The test didn't run"
+msgstr "Lần kiểm tra đã không chạy"
+
+msgid "The whole account"
+msgstr "Toàn bộ tài khoản"
+
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. Your Personal location uses your personal key if you add one."
+msgstr "Khóa này thanh toán cho tất cả các Home của <0>{ownerName}</0>: <1>{list}</1>. Địa điểm Cá nhân của bạn sẽ dùng khóa cá nhân của bạn nếu bạn thêm một khóa."
+
+msgid "This key pays for the homes your account owns."
+msgstr "Khóa này thanh toán cho các Home mà tài khoản của bạn sở hữu."
+
+msgid "This model can't read photos here. Pick another under Advanced."
+msgstr "Mô hình này không đọc được ảnh ở đây. Hãy chọn mô hình khác trong mục Nâng cao."
+
+msgid "This month"
+msgstr "Tháng này"
+
+msgid "This provider has no embeddings model: search stays keyword only."
+msgstr "Nhà cung cấp này không có mô hình embeddings: tìm kiếm vẫn chỉ dùng từ khóa."
+
+msgid "This provider lists no chat model."
+msgstr "Nhà cung cấp này không liệt kê mô hình trò chuyện nào."
+
+msgid "This provider lists no model that reads photos."
+msgstr "Nhà cung cấp này không liệt kê mô hình nào đọc được ảnh."
+
+msgid "This server, overall"
+msgstr "Máy chủ này, tổng thể"
+
+msgid "this server's key"
+msgstr "khóa của máy chủ này"
+
+msgid "This server's key"
+msgstr "Khóa của máy chủ này"
+
+msgid "This server's key pays for every location and person with no closer key. Limit what each account may spend below."
+msgstr "Khóa của máy chủ này trả cho mọi địa điểm và người dùng không có khóa gần hơn. Hãy giới hạn mức chi của từng tài khoản bên dưới."
+
+msgid "Time"
+msgstr "Thời gian"
+
+msgid "Timed out"
+msgstr "Đã hết thời gian chờ"
+
+msgid "To"
+msgstr "Đến"
+
+msgid "today's AI budget was used up"
+msgstr "ngân sách AI hôm nay đã dùng hết"
+
+msgid "Tokens"
+msgstr "Token"
+
+msgid "Tokens a day"
+msgstr "Token mỗi ngày"
+
+msgid "Tokens a minute"
+msgstr "Token mỗi phút"
+
+msgid "Tokens a month"
+msgstr "Token mỗi tháng"
+
+msgid "Tokens are counted; the cost shows once an instance admin sets a price."
+msgstr "Token được đếm; chi phí sẽ hiện khi quản trị viên hệ thống đặt giá."
+
+msgid "Tokens are counted; the cost shows once the model has a price."
+msgstr "Token được đếm; chi phí sẽ hiện khi mô hình đã có giá."
+
+msgid "Tokens by day"
+msgstr "Token theo ngày"
+
+msgid "Tokens by day, stacked by task"
+msgstr "Token theo ngày, xếp chồng theo tác vụ"
+
+msgid "tokens vary"
+msgstr "token khác nhau"
+
+msgid "Using"
+msgstr "Đang dùng"
+
+msgid "Version {0}"
+msgstr "Phiên bản {0}"
+
+msgid "Waiting for {provider} · about {secs} s"
+msgstr "Đang chờ {provider} · khoảng {secs} giây"
+
+msgid "What for"
+msgstr "Để làm gì"
+
+msgid "What is sent to {name}"
+msgstr "Những gì được gửi tới {name}"
+
+msgid "What is sent to the provider"
+msgstr "Những gì được gửi tới nhà cung cấp"
+
+msgid "What it belongs to opens, with what's inside. A worn label, or no camera? Type the code instead."
+msgstr "Mở ra thứ nó thuộc về, cùng với những gì bên trong. Nhãn đã mờ, hoặc không có máy ảnh? Hãy nhập mã thay vào đó."
+
+msgid "What uses AI in Kept"
+msgstr "Những gì dùng AI trong Kept"
+
+msgid "Where and who"
+msgstr "Ở đâu và của ai"
+
+msgid "Where your key lives"
+msgstr "Khóa của bạn nằm ở đâu"
+
+msgid "Who pays for AI"
+msgstr "Ai trả tiền cho AI"
+
+msgid "Whose usage"
+msgstr "Mức dùng của ai"
+
+msgid "Why: {0}"
+msgstr "Lý do: {0}"
+
+msgid "Why?"
+msgstr "Tại sao?"
+
+msgid "Your key"
+msgstr "Khóa của bạn"
+
+msgid "Your limit in <0>{0}</0>'s account"
+msgstr "Giới hạn của bạn trong tài khoản của <0>{0}</0>"
+
+msgid "Your own key is for Personal, your private threads, and questions that span owners."
+msgstr "Khóa của riêng bạn dùng cho Cá nhân, các luồng riêng tư của bạn và các câu hỏi liên quan đến nhiều chủ sở hữu."
+
+msgid "Your personal key"
+msgstr "Khóa cá nhân của bạn"
+
+msgid "{0, plural, one {own code} other {own codes}}"
+msgstr "{0, plural, one {mã riêng} other {mã riêng}}"
+
+msgid "{0, plural, one {place to make} other {places to make}}"
+msgstr "{0, plural, one {địa điểm cần tạo} other {địa điểm cần tạo}}"
+
+msgid "{0, plural, one {purchase to record} other {purchases to record}}"
+msgstr "{0, plural, one {lần mua cần ghi} other {lần mua cần ghi}}"
+
+msgid "{0, plural, one {row skipped} other {rows skipped}}"
+msgstr "{0, plural, one {hàng đã bỏ qua} other {hàng đã bỏ qua}}"
+
+msgid "{0, plural, one {row with cells kept as text} other {rows with cells kept as text}}"
+msgstr "{0, plural, one {hàng có ô được giữ dạng văn bản} other {hàng có ô được giữ dạng văn bản}}"
+
+msgid "{0, plural, one {thing to add} other {things to add}}"
+msgstr "{0, plural, one {đồ vật cần thêm} other {đồ vật cần thêm}}"
+
+msgid "{column} goes to"
+msgstr "{column} sẽ vào"
+
+msgid "{done} of {of} rows"
+msgstr "{done} trên {of} hàng"
+
+msgid "{fieldName} is already {earlier}. One column each."
+msgstr "{fieldName} đã là {earlier}. Mỗi cột một trường."
+
+msgid "{rows, plural, one {# row. Say what each column is; the guesses come from the headers.} other {# rows. Say what each column is; the guesses come from the headers.}}"
+msgstr "{rows, plural, one {# hàng. Hãy cho biết mỗi cột là gì; các phỏng đoán dựa trên tiêu đề.} other {# hàng. Hãy cho biết mỗi cột là gì; các phỏng đoán dựa trên tiêu đề.}}"
+
+msgid "{things, plural, one {Import # thing} other {Import # things}}"
+msgstr "{things, plural, one {Nhập # đồ vật} other {Nhập # đồ vật}}"
+
+msgid "{total, plural, one {# row} other {# rows}}"
+msgstr "{total, plural, one {# hàng} other {# hàng}}"
+
+msgid "<0>{0}</0> into <1>{name}</1>"
+msgstr "<0>{0}</0> vào <1>{name}</1>"
+
+msgid "A few choices"
+msgstr "Một vài lựa chọn"
+
+msgid "A place name is longer than {max} characters; kept in the notes."
+msgstr "Tên địa điểm dài hơn {max} ký tự; được giữ trong ghi chú."
+
+msgid "A price needs a purchase date; kept in the notes."
+msgstr "Giá cần có ngày mua; được giữ trong ghi chú."
+
+msgid "A purchase needs a price; kept in the notes."
+msgstr "Lần mua cần có giá; được giữ trong ghi chú."
+
+msgid "A quote in row {quoteRow} is never closed, so the rows after it may be read wrongly. Check the file if the values look odd."
+msgstr "Dấu ngoặc kép ở hàng {quoteRow} không được đóng, nên các hàng sau nó có thể bị đọc sai. Hãy kiểm tra tệp nếu các giá trị trông lạ."
+
+msgid "A spreadsheet (CSV)"
+msgstr "Một bảng tính (CSV)"
+
+msgid "A type's field: {key}"
+msgstr "Trường của một loại: {key}"
+
+msgid "A type's field…"
+msgstr "Trường của một loại…"
+
+msgid "Adjust mapping"
+msgstr "Điều chỉnh ánh xạ"
+
+msgid "All {rows} rows are done. Rows that were skipped in the check were left out; cells kept as text are in each thing's notes."
+msgstr "Tất cả {rows} hàng đã xong. Các hàng bị bỏ qua trong bước kiểm tra đã bị loại ra; các ô được giữ dạng văn bản nằm trong ghi chú của từng đồ vật."
+
+msgid "Already imported by an earlier import, so it's skipped."
+msgstr "Đã được nhập bởi một lần nhập trước đó, nên nó bị bỏ qua."
+
+msgid "Also where a row goes when its place isn't made."
+msgstr "Cũng là nơi một hàng sẽ vào khi địa điểm của nó chưa được tạo."
+
+msgid "An import takes at most {limit} rows. Split the file and import each part."
+msgstr "Một lần nhập nhận tối đa {limit} hàng. Hãy tách tệp và nhập từng phần."
+
+msgid "As the type's field is written in Settings → Account → Types, like warranty_months."
+msgstr "Như trường của loại được viết trong Cài đặt → Tài khoản → Loại, ví dụ warranty_months."
+
+msgid "Cancel the import"
+msgstr "Hủy lần nhập"
+
+msgid "Cancel the import?"
+msgstr "Hủy lần nhập?"
+
+msgid "Cancelled"
+msgstr "Đã hủy"
+
+msgid "Check the import"
+msgstr "Kiểm tra lần nhập"
+
+msgid "Check the import first, then import."
+msgstr "Kiểm tra lần nhập trước, rồi mới nhập."
+
+msgid "Checked"
+msgstr "Đã kiểm tra"
+
+msgid "Choose a CSV file"
+msgstr "Chọn một tệp CSV"
+
+msgid "Choose a CSV file, or drop one here. It's read on this device first; nothing is imported until you've checked it."
+msgstr "Chọn một tệp CSV, hoặc thả một tệp vào đây. Tệp được đọc trên thiết bị này trước; chưa có gì được nhập cho đến khi bạn kiểm tra xong."
+
+msgid "Choose the file"
+msgstr "Chọn tệp"
+
+msgid "Choose the location first."
+msgstr "Chọn địa điểm trước."
+
+msgid "Choose which column is the name: every thing needs one."
+msgstr "Chọn cột nào là tên: mọi đồ vật đều cần một tên."
+
+msgid "Column"
+msgstr "Cột"
+
+msgid "Column {n}"
+msgstr "Cột {n}"
+
+msgid "Columns"
+msgstr "Các cột"
+
+msgid "Dates are written as"
+msgstr "Ngày được viết dạng"
+
+msgid "Don't import"
+msgstr "Đừng nhập"
+
+msgid "Empty in every row"
+msgstr "Trống trong mọi hàng"
+
+msgid "Field key"
+msgstr "Khóa trường"
+
+msgid "For rows whose currency column is empty."
+msgstr "Cho các hàng mà cột tiền tệ bị trống."
+
+msgid "Import another file"
+msgstr "Nhập tệp khác"
+
+msgid "Import cancelled"
+msgstr "Đã hủy nhập"
+
+msgid "Import from"
+msgstr "Nhập từ"
+
+msgid "Import into"
+msgstr "Nhập vào"
+
+msgid "Imported"
+msgstr "Đã nhập"
+
+msgid "Imported into {locationName}"
+msgstr "Đã nhập vào {locationName}"
+
+msgid "Imported rows"
+msgstr "Các hàng đã nhập"
+
+msgid "Importing"
+msgstr "Đang nhập"
+
+msgid "Importing adds things to a location, so it's for its owners and admins. Ask one of them, or import into a location of your own."
+msgstr "Nhập sẽ thêm đồ vật vào một địa điểm, nên việc này dành cho chủ sở hữu và quản trị viên của địa điểm đó. Hãy hỏi một trong số họ, hoặc nhập vào một địa điểm của riêng bạn."
+
+msgid "Importing into {locationName}"
+msgstr "Đang nhập vào {locationName}"
+
+msgid "Importing…"
+msgstr "Đang nhập…"
+
+msgid "In any of Kept's languages. Off, the type is kept in the notes."
+msgstr "Bằng bất kỳ ngôn ngữ nào của Kept. Khi tắt, loại được giữ trong ghi chú."
+
+msgid "It hasn't moved for a while. What it already imported stays."
+msgstr "Nó đã không tiến triển một lúc rồi. Những gì nó đã nhập vẫn còn."
+
+msgid "It stopped after {rows} rows. What it imported before stopping stays in {locationName}."
+msgstr "Nó đã dừng sau {rows} hàng. Những gì nó đã nhập trước khi dừng vẫn ở trong {locationName}."
+
+msgid "It stops after the rows it's working on. Things it already imported stay; import the file again later and those rows are skipped."
+msgstr "Nó sẽ dừng sau các hàng đang xử lý. Những đồ vật đã nhập vẫn còn; hãy nhập lại tệp sau và các hàng đó sẽ bị bỏ qua."
+
+msgid "Keep importing"
+msgstr "Tiếp tục nhập"
+
+msgid "Longer than {max} characters; kept in the notes."
+msgstr "Dài hơn {max} ký tự; được giữ trong ghi chú."
+
+msgid "Longer than a brand name can be ({max} characters); kept in the notes."
+msgstr "Dài hơn mức tên thương hiệu cho phép ({max} ký tự); được giữ trong ghi chú."
+
+msgid "Longer than a shop name can be ({max} characters); kept in the notes."
+msgstr "Dài hơn tên cửa hàng cho phép ({max} ký tự); giữ trong ghi chú."
+
+msgid "Lowercase letters, digits and _, starting with a letter."
+msgstr "Chữ thường, chữ số và dấu _, bắt đầu bằng một chữ cái."
+
+msgid "Make the places the file names that don't exist yet"
+msgstr "Tạo các địa điểm mà tệp nhắc đến nhưng chưa có"
+
+msgid "Manual link"
+msgstr "Liên kết thủ công"
+
+msgid "Mapped"
+msgstr "Đã khớp"
+
+msgid "Match the columns"
+msgstr "Khớp các cột"
+
+msgid "Match the type column to your types by name"
+msgstr "Khớp cột loại với các loại của bạn theo tên"
+
+msgid "Money is turned off in this location; kept in the notes."
+msgstr "Tiền tệ đã tắt ở địa điểm này; giữ trong ghi chú."
+
+msgid "No column is a currency, so every price is in this one."
+msgstr "Không có cột nào là tiền tệ, nên mọi giá đều dùng loại này."
+
+msgid "No column is a place, so every row goes here."
+msgstr "Không có cột nào là địa điểm, nên mọi hàng đều vào đây."
+
+msgid "No name, so it's skipped."
+msgstr "Không có tên nên bị bỏ qua."
+
+msgid "No such place, and new places aren't made; it goes to the default place."
+msgstr "Không có địa điểm như vậy và không tạo địa điểm mới; nó vào địa điểm mặc định."
+
+msgid "No type has this name; kept in the notes."
+msgstr "Không có loại nào mang tên này; giữ trong ghi chú."
+
+msgid "Not a condition Kept knows; kept in the notes."
+msgstr "Không phải tình trạng Kept biết; giữ trong ghi chú."
+
+msgid "Not a currency turned on in Kept; the price is kept in the notes."
+msgstr "Không phải tiền tệ đang bật trong Kept; giá được giữ trong ghi chú."
+
+msgid "Not a date written as {format}; kept in the notes."
+msgstr "Không phải ngày viết theo dạng {format}; giữ trong ghi chú."
+
+msgid "Not a field of this row's type; kept in the notes."
+msgstr "Không phải trường của loại của hàng này; giữ trong ghi chú."
+
+msgid "Not a price; kept in the notes."
+msgstr "Không phải giá; giữ trong ghi chú."
+
+msgid "Not a quantity; kept in the notes."
+msgstr "Không phải số lượng; giữ trong ghi chú."
+
+msgid "Not a value this field can hold; kept in the notes."
+msgstr "Không phải giá trị trường này có thể chứa; giữ trong ghi chú."
+
+msgid "Not a web link (http or https); kept in the notes."
+msgstr "Không phải liên kết web (http hoặc https); giữ trong ghi chú."
+
+msgid "Not added as a tag (too long, or too many tags); kept in the notes."
+msgstr "Không thêm làm thẻ (quá dài, hoặc quá nhiều thẻ); giữ trong ghi chú."
+
+msgid "Not added as another name (too long, or too many); kept in the notes."
+msgstr "Không thêm làm tên khác (quá dài, hoặc quá nhiều); giữ trong ghi chú."
+
+msgid "Not checked"
+msgstr "Chưa kiểm tra"
+
+msgid "Nothing to import"
+msgstr "Không có gì để nhập"
+
+msgid "Only a consumable can have quantity 0; kept in the notes."
+msgstr "Chỉ đồ dùng tiêu hao mới có số lượng 0; giữ trong ghi chú."
+
+msgid "Only owners and admins can import"
+msgstr "Chỉ chủ sở hữu và quản trị viên mới được nhập"
+
+msgid "Only owners and admins can import into a location."
+msgstr "Chỉ chủ sở hữu và quản trị viên mới được nhập vào một địa điểm."
+
+msgid "Only owners and admins of this location can import into it."
+msgstr "Chỉ chủ sở hữu và quản trị viên của địa điểm này mới được nhập vào nó."
+
+msgid "Open {locationName}"
+msgstr "Mở {locationName}"
+
+msgid "Partly as text"
+msgstr "Một phần dưới dạng văn bản"
+
+msgid "Place (a path like Garage > Shelf A)"
+msgstr "Địa điểm (đường dẫn kiểu Garage > Shelf A)"
+
+msgid "Prices are in"
+msgstr "Giá tính bằng"
+
+msgid "Purchase date"
+msgstr "Ngày mua"
+
+msgid "Recent imports here"
+msgstr "Các lần nhập gần đây tại đây"
+
+msgid "Resume to carry on from row {done}"
+msgstr "Tiếp tục từ hàng {done}"
+
+msgid "Row {row}, {column}, is longer than {limitCell} characters. Shorten it and try again."
+msgstr "Hàng {row}, {column}, dài hơn {limitCell} ký tự. Rút ngắn lại rồi thử lại."
+
+msgid "Row {rowNo}"
+msgstr "Hàng {rowNo}"
+
+msgid "Row ID (so a re-import skips it)"
+msgstr "ID hàng (để lần nhập lại bỏ qua nó)"
+
+msgid "Row number, column or reason"
+msgstr "Số hàng, cột hoặc lý do"
+
+msgid "Rows"
+msgstr "Các hàng"
+
+msgid "Rows without a place go to"
+msgstr "Các hàng không có địa điểm sẽ vào"
+
+msgid "Search {locationName}"
+msgstr "Tìm kiếm {locationName}"
+
+msgid "Search rows"
+msgstr "Tìm kiếm các hàng"
+
+msgid "Secret fields aren't imported; add it on the thing."
+msgstr "Các trường bí mật không được nhập; hãy thêm nó trên đồ vật."
+
+msgid "Skipped"
+msgstr "Đã bỏ qua"
+
+msgid "Start again"
+msgstr "Bắt đầu lại"
+
+msgid "Stopped"
+msgstr "Đã dừng"
+
+msgid "The check reads every row the way the import will, and changes nothing. It shows what would be added, what would be kept as text, and what would be skipped."
+msgstr "Quá trình kiểm tra đọc mọi hàng đúng như khi nhập, và không thay đổi gì. Nó cho thấy những gì sẽ được thêm, những gì sẽ giữ dưới dạng văn bản, và những gì sẽ bị bỏ qua."
+
+msgid "The checklist is back on Home"
+msgstr "Danh sách kiểm tra đã trở lại Home"
+
+msgid "The date is in the future; kept in the notes."
+msgstr "Ngày nằm trong tương lai; giữ trong ghi chú."
+
+msgid "The dates in the file read more than one way (is 03/04 the 3rd of April or the 4th of March?). Check this one."
+msgstr "Các ngày trong tệp có thể đọc theo nhiều cách (03/04 là ngày 3 tháng 4 hay ngày 4 tháng 3?). Hãy kiểm tra mục này."
+
+msgid "The file has no rows."
+msgstr "Tệp không có hàng nào."
+
+msgid "The import stopped"
+msgstr "Quá trình nhập đã dừng"
+
+msgid "The location's currency ({locationCurrency})"
+msgstr "Tiền tệ của địa điểm ({locationCurrency})"
+
+msgid "The name is longer than {max} characters, so it's skipped."
+msgstr "Tên dài hơn {max} ký tự nên bị bỏ qua."
+
+msgid "The notes are cut to {max} characters."
+msgstr "Ghi chú được cắt còn {max} ký tự."
+
+msgid "The place column separates places with"
+msgstr "Cột địa điểm phân tách các địa điểm bằng"
+
+msgid "The purchase is incomplete; kept in the notes."
+msgstr "Lần mua chưa đầy đủ; giữ trong ghi chú."
+
+msgid "The row has no type, so it has no fields; kept in the notes."
+msgstr "Hàng không có loại nên không có trường nào; giữ trong ghi chú."
+
+msgid "The same as row {row}, so it's skipped."
+msgstr "Giống hàng {row} nên bị bỏ qua."
+
+msgid "This code is already on something else, so it isn't added."
+msgstr "Mã này đã có trên đồ vật khác nên không được thêm."
+
+msgid "This file can't be imported"
+msgstr "Không thể nhập tệp này"
+
+msgid "This file can't be read as CSV. Save it from your spreadsheet as CSV (UTF-8) and try again."
+msgstr "Không thể đọc tệp này dưới dạng CSV. Hãy lưu nó từ bảng tính của bạn dưới dạng CSV (UTF-8) rồi thử lại."
+
+msgid "This file has {columns} columns; an import takes at most {limitColumns}."
+msgstr "Tệp này có {columns} cột; một lần nhập tối đa {limitColumns} cột."
+
+msgid "This file has {rows} rows; an import takes at most {limitRows}. Split it into smaller files."
+msgstr "Tệp này có {rows} hàng; một lần nhập tối đa {limitRows} hàng. Hãy tách thành các tệp nhỏ hơn."
+
+msgid "This file has no rows under its header row."
+msgstr "Tệp này không có hàng nào dưới hàng tiêu đề."
+
+msgid "This file is {mb} MB; an import takes at most {limitMb} MB. Split it into smaller files."
+msgstr "Tệp này nặng {mb} MB; một lần nhập tối đa {limitMb} MB. Hãy tách thành các tệp nhỏ hơn."
+
+msgid "This type is counted one by one; kept in the notes."
+msgstr "Loại này được đếm từng cái một; giữ trong ghi chú."
+
+msgid "Types aren't matched by name; kept in the notes."
+msgstr "Các loại không được khớp theo tên; giữ trong ghi chú."
+
+msgid "Values in {column}"
+msgstr "Các giá trị trong {column}"
+
+msgid "What the import will do"
+msgstr "Quá trình nhập sẽ làm gì"
+
+msgid "Worked out from the dates in the file."
+msgstr "Suy ra từ các ngày trong tệp."
+
+msgid "You can leave this page; the import carries on, and Settings → Import shows how far it got."
+msgstr "Bạn có thể rời khỏi trang này; quá trình nhập vẫn tiếp tục, và Cài đặt → Nhập cho thấy nó đã đi đến đâu."
+
+msgid "{0, plural, one {Shared with 1 location} other {Shared with # locations}}"
+msgstr "{0, plural, one {Đã chia sẻ với 1 địa điểm} other {Đã chia sẻ với # địa điểm}}"
+
+msgid "Also the new thing's name, until you type one."
+msgstr "Cũng là tên của đồ vật mới, cho đến khi bạn nhập một tên."
+
+msgid "Couldn't delete it"
+msgstr "Không thể xóa nó"
+
+msgid "Couldn't save it"
+msgstr "Không thể lưu nó"
+
+msgid "Edit template"
+msgstr "Sửa mẫu"
+
+msgid "From a template"
+msgstr "Từ một mẫu"
+
+msgid "From the template <0>{0}</0>"
+msgstr "Từ mẫu <0>{0}</0>"
+
+msgid "Members of these locations can start new things from it."
+msgstr "Thành viên của các địa điểm này có thể tạo đồ vật mới từ nó."
+
+msgid "New template"
+msgstr "Mẫu mới"
+
+msgid "New things can start from this one's details. Prices and secret fields stay behind."
+msgstr "Đồ vật mới có thể bắt đầu từ thông tin của đồ vật này. Giá và trường bí mật được giữ lại."
+
+msgid "No templates are shared with this location yet. Owners and admins make them in Settings → Account → Templates."
+msgstr "Chưa có mẫu nào được chia sẻ với địa điểm này. Chủ sở hữu và quản trị viên tạo mẫu trong Cài đặt → Tài khoản → Mẫu."
+
+msgid "No templates yet"
+msgstr "Chưa có mẫu nào"
+
+msgid "Prices and secret fields are never part of a template."
+msgstr "Giá và trường bí mật không bao giờ nằm trong mẫu."
+
+msgid "Save as template"
+msgstr "Lưu dưới dạng mẫu"
+
+msgid "Save the details you type again and again, and share them with your locations. Start one here, or use Save as template on a thing."
+msgstr "Lưu những thông tin bạn nhập đi nhập lại, và chia sẻ chúng với các địa điểm của bạn. Tạo một mẫu tại đây, hoặc dùng Lưu dưới dạng mẫu trên một đồ vật."
+
+msgid "Saved {n} as a template"
+msgstr "Đã lưu {n} dưới dạng mẫu"
+
+msgid "Search templates"
+msgstr "Tìm kiếm mẫu"
+
+msgid "Share it with at least one location."
+msgstr "Chia sẻ nó với ít nhất một địa điểm."
+
+msgid "Share with"
+msgstr "Chia sẻ với"
+
+msgid "Start from a template"
+msgstr "Bắt đầu từ một mẫu"
+
+msgid "Template name"
+msgstr "Tên mẫu"
+
+msgid "The type's fields"
+msgstr "Các trường của loại"
+
+msgid "Things already started from it keep their details."
+msgstr "Các đồ vật đã bắt đầu từ nó giữ nguyên thông tin của chúng."
+
+msgid "Kept labels"
+msgstr "Nhãn Kept"
+
+msgid "Saved the label images"
+msgstr "Đã lưu các ảnh nhãn"
+
+msgid "{count, plural, one {# blank label} other {# blank labels}}"
+msgstr "{count, plural, one {# nhãn trống} other {# nhãn trống}}"
+
+msgid "{count, plural, one {# label} other {# labels}}"
+msgstr "{count, plural, one {# nhãn} other {# nhãn}}"
+
+msgid "Back to labels"
+msgstr "Quay lại nhãn"
+
+msgid "Share as images"
+msgstr "Chia sẻ dưới dạng hình ảnh"
+
+msgid "Share into Kept"
+msgstr "Chia sẻ vào Kept"
+
+msgid "Print"
+msgstr "In"
+
+msgid "Printed on {printedOn}. Reprinting prints the same codes."
+msgstr "Đã in vào {printedOn}. In lại sẽ in cùng các mã."
+
+msgid "In the print dialog choose {stockTitle}, scale 100% and no margins, so each label lands in its cell."
+msgstr "Trong hộp thoại in, chọn {stockTitle}, tỉ lệ 100% và không lề, để mỗi nhãn rơi đúng vào ô của nó."
+
+msgid "In the print dialog choose your label printer and this label size."
+msgstr "Trong hộp thoại in, chọn máy in nhãn của bạn và kích thước nhãn này."
+
+msgid "Print labels"
+msgstr "In nhãn"
+
+msgid "Printing labels is for members and admins of this location."
+msgstr "In nhãn chỉ dành cho thành viên và quản trị viên của địa điểm này."
+
+msgid "Labels are switched off here. Turn them on in What to track."
+msgstr "Nhãn đang tắt tại đây. Bật chúng trong mục Cần theo dõi."
+
+msgid "Labels are switched off here. Ask an admin to turn them on."
+msgstr "Nhãn đang tắt tại đây. Hãy nhờ quản trị viên bật chúng."
+
+msgid "No location to print labels for"
+msgstr "Không có địa điểm nào để in nhãn"
+
+msgid "Labels are off, or you can only view, in every location you're in."
+msgstr "Nhãn đang tắt, hoặc bạn chỉ được xem, ở mọi địa điểm bạn tham gia."
+
+msgid "Labels off"
+msgstr "Nhãn đang tắt"
+
+msgid "Label everything unprinted"
+msgstr "Dán nhãn cho mọi thứ chưa in"
+
+msgid "Counting…"
+msgstr "Đang đếm…"
+
+msgid "Every thing here has a printed label"
+msgstr "Mọi đồ vật ở đây đều đã có nhãn in"
+
+msgid "{unprinted, plural, one {# thing has no printed label} other {# things have no printed label}}"
+msgstr "{unprinted, plural, one {# đồ vật chưa có nhãn in} other {# đồ vật chưa có nhãn in}}"
+
+msgid "Blank sheet ({s})"
+msgstr "Tờ trống ({s})"
+
+msgid "Stick them on now, name them on the first scan. {b} unclaimed here."
+msgstr "Dán chúng ngay, đặt tên khi quét lần đầu. {b} chưa được nhận tại đây."
+
+msgid "Loading recent batches"
+msgstr "Đang tải các đợt gần đây"
+
+msgid "{n, plural, one {# blank label} other {# blank labels}}"
+msgstr "{n, plural, one {# nhãn trống} other {# nhãn trống}}"
+
+msgid "{n, plural, one {# label} other {# labels}}"
+msgstr "{n, plural, one {# nhãn} other {# nhãn}}"
+
+msgid "Recent batches"
+msgstr "Các đợt gần đây"
+
+msgid "<0>{where}</0> · {stock} · {when}"
+msgstr "<0>{where}</0> · {stock} · {when}"
+
+msgid "Printed"
+msgstr "Đã in"
+
+msgid "Not confirmed"
+msgstr "Chưa xác nhận"
+
+msgid "Label everything here"
+msgstr "Dán nhãn cho mọi thứ ở đây"
+
+msgid "Print labels for what's in here that never had one printed"
+msgstr "In nhãn cho những thứ trong này chưa từng được in nhãn"
+
+msgid "Print its label"
+msgstr "In nhãn của nó"
+
+msgid "For the shelf or door; a reprint has the same code"
+msgstr "Dành cho kệ hoặc cửa; bản in lại có cùng mã"
+
+msgid "This code stays with {0} for good, so a reprinted label still finds it."
+msgstr "Mã này gắn với {0} mãi mãi, nên nhãn in lại vẫn tìm được nó."
+
+msgid "{pending, plural, one {# thing was left out: its ID is still pending.} other {# things were left out: their IDs are still pending.}}"
+msgstr "{pending, plural, one {# đồ vật bị bỏ qua: ID của nó vẫn đang chờ.} other {# đồ vật bị bỏ qua: ID của chúng vẫn đang chờ.}}"
+
+msgid "Printing {countText}"
+msgstr "Đang in {countText}"
+
+msgid "Nothing to print"
+msgstr "Không có gì để in"
+
+msgid "Everything here already has a printed label."
+msgstr "Mọi đồ vật ở đây đều đã có nhãn in."
+
+msgid "None of these has an ID yet."
+msgstr "Chưa thứ nào trong số này có ID."
+
+msgid "They get their IDs when the phone that captured them syncs. Print them then, from \"Print pending labels\" on that phone."
+msgstr "Chúng sẽ có ID khi điện thoại đã chụp chúng đồng bộ. Hãy in chúng sau đó, từ “In nhãn đang chờ” trên điện thoại đó."
+
+msgid "{count, plural, one {Print # label} other {Print # labels}}"
+msgstr "{count, plural, one {In # nhãn} other {In # nhãn}}"
+
+msgid "Opens the print dialog at {stockTitle}, scale 100%. Afterwards Kept asks \"Printed OK?\" and records the print date."
+msgstr "Mở hộp thoại in với {stockTitle}, tỉ lệ 100%. Sau đó Kept hỏi “Đã in xong?” và ghi lại ngày in."
+
+msgid "Opens the print dialog: choose your label printer and this label size. Afterwards Kept asks \"Printed OK?\" and records the print date."
+msgstr "Mở hộp thoại in: chọn máy in nhãn của bạn và kích thước nhãn này. Sau đó Kept hỏi “Đã in xong?” và ghi lại ngày in."
+
+msgid "Label preview"
+msgstr "Xem trước nhãn"
+
+msgid "Each blank label gets its own code when you print."
+msgstr "Mỗi nhãn trống sẽ có mã riêng khi bạn in."
+
+msgid "Blank labels"
+msgstr "Nhãn trống"
+
+msgid "Fewer"
+msgstr "Ít hơn"
+
+msgid "Stick them on boxes now and name them later: the first scan asks what each one is. This location has {left} unclaimed of at most {cap}."
+msgstr "Dán chúng lên hộp ngay và đặt tên sau: lần quét đầu tiên sẽ hỏi mỗi cái là gì. Địa điểm này có {left} chưa được nhận trên tối đa {cap}."
+
+msgid "Print pending labels ({n})"
+msgstr "In nhãn đang chờ ({n})"
+
+msgid "Things captured on this phone got their IDs when it synced. Print their labels now."
+msgstr "Những đồ vật chụp trên điện thoại này đã có ID khi nó đồng bộ. Hãy in nhãn của chúng ngay."
+
+msgid "Print these"
+msgstr "In những cái này"
+
+msgid "Marked as printed"
+msgstr "Đã đánh dấu là đã in"
+
+msgid "Now stick one on and scan it"
+msgstr "Giờ hãy dán một cái lên và quét nó"
+
+msgid "Tap Scan on Home and point the camera at a label: what it belongs to opens, with what's inside. A label keeps its code for good, so a lost one reprints the same."
+msgstr "Nhấn Quét trên Home và hướng camera vào một nhãn: thứ thuộc về nhãn đó sẽ mở ra, cùng với những gì bên trong. Một nhãn giữ mã của nó mãi mãi, nên nhãn bị mất in lại vẫn giống vậy."
+
+msgid "Printed OK?"
+msgstr "Đã in xong?"
+
+msgid "Check that the labels sit inside their cells and that one scans. Yes records today as their print date."
+msgstr "Kiểm tra xem các nhãn có nằm trong ô của chúng và có một nhãn quét được không. Chọn Có sẽ ghi hôm nay làm ngày in của chúng."
+
+msgid "No, print again"
+msgstr "Không, in lại"
+
+msgid "Yes, printed OK"
+msgstr "Có, đã in xong"
+
+msgid "Sheet {n} of {total}"
+msgstr "Tờ {n} trên {total}"
+
+msgid "Start at label"
+msgstr "Bắt đầu từ nhãn"
+
+msgid "Sheet preview"
+msgstr "Xem trước tờ"
+
+msgid "{usedN} already used"
+msgstr "{usedN} đã dùng"
+
+msgid "Start at label {start} (row {r}, column {c}). Tap any cell to start there."
+msgstr "Bắt đầu từ nhãn {start} (hàng {r}, cột {c}). Nhấn vào ô bất kỳ để bắt đầu tại đó."
+
+msgid "Label {at}, row {rn}, column {cn2}"
+msgstr "Nhãn {at}, hàng {rn}, cột {cn2}"
+
+msgid "These labels take {n} sheets; the next ones start at label 1."
+msgstr "Các nhãn này cần {n} tờ; các nhãn tiếp theo bắt đầu từ nhãn 1."
+
+msgid "{a} × {b} mm"
+msgstr "{a} × {b} mm"
+
+msgid "{cell} roll"
+msgstr "Cuộn {cell}"
+
+msgid "Label printer · one label per thing"
+msgstr "Máy in nhãn · một nhãn cho mỗi đồ vật"
+
+msgid "{width} mm tape"
+msgstr "Băng {width} mm"
+
+msgid "Label maker · QR code, short ID and name"
+msgstr "Máy làm nhãn · mã QR, ID ngắn và tên"
+
+msgid "Label maker · short ID large, and the name"
+msgstr "Máy làm nhãn · ID ngắn lớn, và tên"
+
+msgid "{paper} sheet · {count}"
+msgstr "Tờ {paper} · {count}"
+
+msgid "{cols} × {rows}, each {cell} · QR and code only"
+msgstr "{cols} × {rows}, mỗi ô {cell} · chỉ mã QR và mã"
+
+msgid "{cols} × {rows}, each {cell} · any office printer"
+msgstr "{cols} × {rows}, mỗi ô {cell} · bất kỳ máy in văn phòng nào"
+
+msgid "Label stock"
+msgstr "Loại nhãn"
+
+msgid "At most 80 characters."
+msgstr "Tối đa 80 ký tự."
+
+msgid "merged from <0>{name}</0>"
+msgstr "đã hợp nhất từ <0>{name}</0>"
+
+msgid "merged from a thing with no name"
+msgstr "đã hợp nhất từ một đồ vật không có tên"
+
+msgid "{other, plural, one {# can't be labelled here: it is in the trash or in another location.} other {# can't be labelled here: they are in the trash or in another location.}}"
+msgstr "{other, plural, one {# không thể dán nhãn tại đây: nó đang ở thùng rác hoặc ở địa điểm khác.} other {# không thể dán nhãn tại đây: chúng đang ở thùng rác hoặc ở địa điểm khác.}}"
+
+msgid "{pending, plural, one {# is waiting to sync: its ID is still pending.} other {# are waiting to sync: their IDs are still pending.}}"
+msgstr "{pending, plural, one {# đang chờ đồng bộ: ID của nó vẫn đang chờ.} other {# đang chờ đồng bộ: ID của chúng vẫn đang chờ.}}"
+
+msgid "Everything listed has been printed since."
+msgstr "Mọi thứ đã liệt kê đều đã được in từ đó."
+
+msgid "Nothing here can be labelled now"
+msgstr "Không có gì ở đây có thể dán nhãn lúc này"
+
+msgid "expiry date"
+msgstr "ngày hết hạn"
+
+msgid "manufacture date"
+msgstr "ngày sản xuất"
+
+msgid "number plate"
+msgstr "biển số xe"
+
+msgid "Set this on the thing's page. Here it can only be left out."
+msgstr "Đặt mục này trên trang của đồ vật đó. Tại đây nó chỉ có thể bị bỏ qua."
+
+msgid "VIN"
+msgstr "VIN"
+
+msgid "An account on this server's key"
+msgstr "Một tài khoản dùng khóa của máy chủ này"
+
+msgid "Couldn't get the model list from {provName}: it rejected the key or didn't answer. Check the key, or try again in a minute."
+msgstr "Không lấy được danh sách mô hình từ {provName}: nó đã từ chối khóa hoặc không trả lời. Hãy kiểm tra khóa, hoặc thử lại sau một phút."
+
+msgid "No model list"
+msgstr "Không có danh sách mô hình"
+
+msgid "paid by this server"
+msgstr "do máy chủ này trả"
+
+msgid "paid by you"
+msgstr "do bạn trả"
+
+msgid "Photos: not sent"
+msgstr "Ảnh: chưa gửi"
+
+msgid "The photo request wasn't sent: AI may be paused, or the provider refused the key."
+msgstr "Yêu cầu ảnh chưa được gửi: AI có thể đang tạm dừng, hoặc nhà cung cấp đã từ chối khóa."
+
+msgid "This server"
+msgstr "Máy chủ này"
+
+msgid "{max, plural, one {At most # name. Remove one to add another.} other {At most # names. Remove one to add another.}}"
+msgstr "{max, plural, one {Tối đa # tên. Xóa một tên để thêm tên khác.} other {Tối đa # tên. Xóa một tên để thêm tên khác.}}"
+
+msgid "Barcode lookup"
+msgstr "Tra cứu mã vạch"
+
+msgid "Contact for the lookups"
+msgstr "Liên hệ cho các lần tra cứu"
+
+msgid "Enter a host name only, like kept.home.example: no https:// and no port."
+msgstr "Chỉ nhập tên máy chủ, ví dụ kept.home.example: không có https:// và không có cổng."
+
+msgid "Enter an email address, or leave it empty."
+msgstr "Nhập một địa chỉ email, hoặc để trống."
+
+msgid "Former addresses"
+msgstr "Các địa chỉ cũ"
