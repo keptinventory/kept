@@ -228,3 +228,153 @@ msgstr "{browser} trên {where}"
 
 msgid "{captured, plural, one {# captured} other {# captured}}"
 msgstr "{captured, plural, one {# đã chụp} other {# đã chụp}}"
+
+msgid "{captures} and {photos} were taken on this phone by someone who has signed out. They can't go to your account, so they will be deleted."
+msgstr "{captures} và {photos} đã được chụp trên điện thoại này bởi người đã đăng xuất. Chúng không thể chuyển vào tài khoản của bạn, nên sẽ bị xóa."
+
+msgid "{code} is off"
+msgstr "{code} đang tắt"
+
+msgid "{code} is on"
+msgstr "{code} đang bật"
+
+msgid "{count, plural, one {# file arrived.} other {# files arrived.}}"
+msgstr "{count, plural, one {# tệp đã đến.} other {# tệp đã đến.}}"
+
+msgid "{count, plural, one {Carrying #} other {Carrying #}}"
+msgstr "{count, plural, one {Đang mang #} other {Đang mang #}}"
+
+msgid "{count} drafts"
+msgstr "{count} bản nháp"
+
+msgid "{count} found"
+msgstr "Kết quả: {count}"
+
+msgid "{countText}+"
+msgstr "{countText}+"
+
+msgid "{createdName} is ready"
+msgstr "{createdName} đã sẵn sàng"
+
+msgid "{done} of {total}"
+msgstr "{done} trên {total}"
+
+msgid "{first} will lose sight of {it}."
+msgstr "{first} sẽ không còn thấy {it}."
+
+msgid "{group} group"
+msgstr "Nhóm {group}"
+
+msgid "{group} group · shared by {shared}"
+msgstr "Nhóm {group} · được chia sẻ bởi {shared}"
+
+msgid "{inviter} invites you to"
+msgstr "{inviter} mời bạn tham gia"
+
+msgid "{label} saved"
+msgstr "{label} đã lưu"
+
+msgid "{label}, inherited"
+msgstr "{label}, được kế thừa"
+
+msgid "{label}: {summary}"
+msgstr "{label}: {summary}"
+
+msgid "{label}: not {summary}"
+msgstr "{label}: không phải {summary}"
+
+msgid "{links, plural, one {Accept the receipt and # link} other {Accept the receipt and # links}}"
+msgstr "{links, plural, one {Chấp nhận biên lai và # liên kết} other {Chấp nhận biên lai và # liên kết}}"
+
+msgid "{mb} MB"
+msgstr "{mb} MB"
+
+msgid "{mergedFrom}'s other changes were kept too."
+msgstr "Các thay đổi khác của {mergedFrom} cũng được giữ lại."
+
+msgid "{missing, plural, one {# will be marked not here} other {# will be marked not here}}"
+msgstr "{missing, plural, one {# sẽ được đánh dấu là không ở đây} other {# sẽ được đánh dấu là không ở đây}}"
+
+msgid "{more, plural, one {# more icon matches. Type more to narrow.} other {# more icons match. Type more to narrow.}}"
+msgstr "{more, plural, one {Còn # biểu tượng khớp. Gõ thêm để thu hẹp.} other {Còn # biểu tượng khớp. Gõ thêm để thu hẹp.}}"
+
+msgid "{moved, plural, one {# thing has a place now.} other {# things have a place now.}}"
+msgstr "{moved, plural, one {# đồ vật giờ đã có chỗ.} other {# đồ vật giờ đã có chỗ.}}"
+
+msgid "{n, plural, one {# captured into {where}} other {# captured into {where}}}"
+msgstr "{n, plural, one {# đã chụp vào {where}} other {# đã chụp vào {where}}}"
+
+msgid "{n, plural, one {# captured} other {# captured}}"
+msgstr "{n, plural, one {# đã chụp} other {# đã chụp}}"
+
+msgid "{n, plural, one {# person} other {# people}}"
+msgstr "{n, plural, one {# người} other {# người}}"
+
+msgid "{n, plural, one {# reading needs a look} other {# readings need a look}}"
+msgstr "{n, plural, one {# chỉ số cần xem lại} other {# chỉ số cần xem lại}}"
+
+msgid "{n, plural, one {# selected} other {# selected}}"
+msgstr "{n, plural, one {# đã chọn} other {# đã chọn}}"
+
+msgid "{n, plural, one {# thing} other {# things}}"
+msgstr "{n, plural, one {# đồ vật} other {# đồ vật}}"
+
+msgid "{n, plural, one {Move # here} other {Move # here}}"
+msgstr "{n, plural, one {Chuyển # vào đây} other {Chuyển # vào đây}}"
+
+msgid "{n, plural, one {Naming # photo} other {Naming # photos}}"
+msgstr "{n, plural, one {Đang đặt tên cho # ảnh} other {Đang đặt tên cho # ảnh}}"
+
+msgid "{n, plural, one {Put the thing you're carrying here?} other {Put the # things you're carrying here?}}"
+msgstr "{n, plural, one {Đặt đồ vật bạn đang mang vào đây?} other {Đặt # đồ vật bạn đang mang vào đây?}}"
+
+msgid "{n} failed in the last hour."
+msgstr "{n} đã thất bại trong giờ qua."
+
+msgid "{n} lines to link"
+msgstr "{n} dòng cần liên kết"
+
+msgid "{n} rows in audit_events_default. Move them into their month's partition as kept_owner; the alert then resolves."
+msgstr "{n} hàng trong audit_events_default. Hãy chuyển chúng vào phân vùng theo tháng của chúng với vai trò kept_owner; cảnh báo sẽ được giải quyết sau đó."
+
+msgid "{name} · Location settings"
+msgstr "{name} · Cài đặt địa điểm"
+
+msgid "{name} asks for two-factor. You can join now; it stays hidden until you add a passkey or an authenticator app."
+msgstr "{name} yêu cầu xác thực hai yếu tố. Bạn có thể tham gia ngay; nó vẫn ẩn cho đến khi bạn thêm passkey hoặc ứng dụng xác thực."
+
+msgid "{name} is a box now"
+msgstr "{name} giờ là một hộp"
+
+msgid "{name} is empty"
+msgstr "{name} đang trống"
+
+msgid "{name} is in the trash"
+msgstr "{name} đang ở thùng rác"
+
+msgid "{name} is in use: things or types below it still use it. Merge it into another type instead."
+msgstr "{name} đang được dùng: các đồ vật hoặc loại bên dưới nó vẫn dùng nó. Hãy hợp nhất nó vào một loại khác thay vì vậy."
+
+msgid "{name} is now your account's own"
+msgstr "{name} giờ là của riêng tài khoản của bạn"
+
+msgid "{name} is now your account's own type"
+msgstr "{name} giờ là loại riêng của tài khoản của bạn"
+
+msgid "{name} is still used by some things. Merge it into another instead."
+msgstr "{name} vẫn được một số đồ vật dùng. Hãy hợp nhất nó vào một loại khác thay vì vậy."
+
+msgid "{name} restored"
+msgstr "{name} đã khôi phục"
+
+msgid "{name}, {extra}"
+msgstr "{name}, {extra}"
+
+msgid "{name}: how many you found, out of {total}"
+msgstr "{name}: bạn đã tìm thấy bao nhiêu, trên tổng số {total}"
+
+msgid "{others, plural, one {{first} and # other will lose sight of {it}.} other {{first} and # others will lose sight of {it}.}}"
+msgstr "{others, plural, one {{first} và # người khác sẽ không còn thấy {it}.} other {{first} và # người khác sẽ không còn thấy {it}.}}"
+
+msgid "{others, plural, one {with # other} other {with # others}}"
+msgstr "{others, plural, one {với # người khác} other {với # người khác}}"
