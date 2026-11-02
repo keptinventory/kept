@@ -859,12 +859,20 @@ msgstr "Thêm biên lai và bảo hành, nhắc nhở, cho mượn, giấy tờ 
 msgid "Admin"
 msgstr "Quản trị viên"
 
+msgctxt "settings section"
+msgid "Admin"
+msgstr "Quản trị viên"
+
 msgid "Admin"
 msgstr "Quản trị viên"
 
 msgid "admin in {n}"
 msgstr "quản trị viên trong {n}"
 
+msgid "Admins"
+msgstr "Quản trị viên"
+
+msgctxt "instance admins tab"
 msgid "Admins"
 msgstr "Quản trị viên"
 
@@ -877,6 +885,10 @@ msgstr "Quản trị viên quản lý thành viên, người xem và cài đặt
 msgid "After this, signing in asks for a 6-digit code from an authenticator app (1Password, Google Authenticator, Aegis…) as well as your password or sign-in link."
 msgstr "Sau bước này, khi đăng nhập sẽ yêu cầu mã 6 chữ số từ ứng dụng xác thực (1Password, Google Authenticator, Aegis…) cùng với mật khẩu hoặc liên kết đăng nhập của bạn."
 
+msgid "AI"
+msgstr "AI"
+
+msgctxt "history kind"
 msgid "AI"
 msgstr "AI"
 
@@ -1234,6 +1246,10 @@ msgstr "Đến từ"
 msgid "Camera"
 msgstr "Máy ảnh"
 
+msgctxt "map shape"
+msgid "Camera"
+msgstr "Máy ảnh"
+
 msgid "Camera access is off for Kept."
 msgstr "Quyền truy cập máy ảnh cho Kept đang tắt."
 
@@ -1498,6 +1514,10 @@ msgstr "Sắp ra mắt"
 msgid "Compares your position with your locations on this phone. It is never sent or kept."
 msgstr "So sánh vị trí của bạn với các địa điểm của bạn trên điện thoại này. Nó không bao giờ được gửi đi hay lưu lại."
 
+msgid "Complete"
+msgstr "Hoàn thành"
+
+msgctxt "schedule action"
 msgid "Complete"
 msgstr "Hoàn thành"
 
@@ -1951,6 +1971,10 @@ msgstr "Tài liệu"
 msgid "Doesn't work"
 msgstr "Không hoạt động"
 
+msgid "Done"
+msgstr "Xong"
+
+msgctxt "schedule state"
 msgid "Done"
 msgstr "Xong"
 
@@ -3001,6 +3025,10 @@ msgstr "Nhà bếp"
 msgid "Label"
 msgstr "Nhãn"
 
+msgctxt "field name"
+msgid "Label"
+msgstr "Nhãn"
+
 msgid "Label {0}"
 msgstr "Nhãn {0}"
 
@@ -3067,6 +3095,10 @@ msgstr "Địa điểm gần nhất · chạm để thay đổi"
 msgid "Last saved: {lastName} · ID pending"
 msgstr "Lưu gần nhất: {lastName} · ID đang chờ"
 
+msgid "Last seen"
+msgstr "Lần thấy gần nhất"
+
+msgctxt "Display button"
 msgid "Last seen"
 msgstr "Lần thấy gần nhất"
 
@@ -3471,6 +3503,10 @@ msgstr "mẫu"
 
 msgid "Model"
 msgstr "Mẫu"
+
+msgctxt "ai model"
+msgid "Model"
+msgstr "Mô hình"
 
 msgid "Money"
 msgstr "Tiền bạc"
@@ -4105,6 +4141,14 @@ msgstr "mở"
 msgid "Open"
 msgstr "Mở"
 
+msgctxt "claim status"
+msgid "Open"
+msgstr "Đang mở"
+
+msgctxt "map: go into the room"
+msgid "Open"
+msgstr "Mở"
+
 msgid "Open {name}"
 msgstr "Mở {name}"
 
@@ -4180,6 +4224,10 @@ msgstr "Thứ tự"
 msgid "Original file deleted"
 msgstr "Tệp gốc đã bị xóa"
 
+msgid "Other"
+msgstr "Khác"
+
+msgctxt "incident kind"
 msgid "Other"
 msgstr "Khác"
 
@@ -4264,6 +4312,10 @@ msgstr "Khóa AI cá nhân"
 msgid "Personal is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
 msgstr "Cá nhân chỉ thuộc về bạn: nó không có thành viên, lời mời hay liên kết chia sẻ. Khi một đồ vật trở nên dùng chung, hãy chuyển nó vào một nhà dùng chung."
 
+msgid "Phone"
+msgstr "Điện thoại"
+
+msgctxt "map shape"
 msgid "Phone"
 msgstr "Điện thoại"
 
@@ -4687,6 +4739,10 @@ msgstr "Đặt lại xác thực hai lớp"
 msgid "Reset two-factor for {who}?"
 msgstr "Đặt lại xác thực hai lớp cho {who}?"
 
+msgid "Resolved"
+msgstr "Đã giải quyết"
+
+msgctxt "claim status"
 msgid "Resolved"
 msgstr "Đã giải quyết"
 
@@ -5929,6 +5985,10 @@ msgstr "Tường dụng cụ"
 msgid "Tools"
 msgstr "Dụng cụ"
 
+msgctxt "sidebar group"
+msgid "Tools"
+msgstr "Công cụ"
+
 msgid "Top level"
 msgstr "Cấp cao nhất"
 
@@ -6162,6 +6222,10 @@ msgstr "Tối đa"
 
 msgid "Up to {0}"
 msgstr "Tối đa {0}"
+
+msgctxt "map: go up a floor"
+msgid "Up to {0}"
+msgstr "Lên {0}"
 
 msgid "Update Kept to finish syncing."
 msgstr "Cập nhật Kept để hoàn tất đồng bộ."
@@ -9151,6 +9215,10 @@ msgstr "Thay ảnh"
 msgid "Returned"
 msgstr "Đã trả lại"
 
+msgctxt "loan"
+msgid "Returned"
+msgstr "Đã trả lại"
+
 msgid "Saved {0}"
 msgstr "Đã lưu {0}"
 
@@ -9888,6 +9956,10 @@ msgstr "Đã đăng ký với nhà sản xuất"
 
 msgid "Rejected"
 msgstr "Đã từ chối"
+
+msgctxt "claim status"
+msgid "Rejected"
+msgstr "Bị từ chối"
 
 msgid "Rejected {0}"
 msgstr "Đã từ chối {0}"
@@ -10696,6 +10768,10 @@ msgstr "Thời hạn liên kết"
 msgid "Link revoked"
 msgstr "Liên kết đã bị thu hồi"
 
+msgid "Loss"
+msgstr "Mất mát"
+
+msgctxt "incident kind"
 msgid "Loss"
 msgstr "Mất mát"
 
@@ -13774,6 +13850,10 @@ msgstr "Câu hỏi của bạn và câu trả lời được lưu tại đây, c
 msgid "All threads"
 msgstr "Tất cả cuộc trò chuyện"
 
+msgid "Backups"
+msgstr "Sao lưu"
+
+msgctxt "disk"
 msgid "Backups"
 msgstr "Sao lưu"
 
@@ -19507,6 +19587,10 @@ msgstr "{count, plural, one {# mục bảo dưỡng} other {# mục bảo dưỡ
 msgid "What's unticked stays in the things' notes as text. Notes can't become records later: to keep it as records, tick it now."
 msgstr "Những gì không được tick sẽ ở lại trong ghi chú của đồ vật dưới dạng văn bản. Ghi chú không thể trở thành hồ sơ sau này: để giữ chúng dưới dạng hồ sơ, hãy tick ngay bây giờ."
 
+msgid "Tracking"
+msgstr "Theo dõi"
+
+msgctxt "sidebar group"
 msgid "Tracking"
 msgstr "Theo dõi"
 
