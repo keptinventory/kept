@@ -51,6 +51,12 @@
   white-space: pre;
   pointer-events: none;
 }
+/* #372: a room's size under its name in the plan view. */
+.map-label > small {
+  font: 500 11px / 1.3 var(--sans);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
 .map-label.small {
   font: 500 11px / 1.3 var(--sans);
   padding: 3px 5px;
@@ -694,6 +700,11 @@ fieldset.kmap-floors {
 .kmap-height-help {
   font: 400 12.5px / 1.35 var(--sans);
   color: var(--ink-3);
+}
+/* #372: what keeps a room's typed size off the map. */
+.kmap-height-help.kmap-error {
+  color: var(--danger);
+  font-weight: 500;
 }
 /* #240, #241: a sized shape's numbers, one field under another like Height. */
 .kmap-size {

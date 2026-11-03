@@ -18,10 +18,12 @@
  * its room is on no floor; a place the map doesn't have gets a note and a link instead of a map.
  */
 import {
+  formatRoomSide,
   isMapModel,
   type MapRoomKind,
   type MapShapeKey,
   type MapSurface,
+  mToCm,
   ROOM_KIND_SURFACE,
 } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
@@ -46,6 +48,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from '@/components/ui/toast';
 import { isolate } from '@/lib/bidi';
 import { useFormat } from '@/lib/format';
+import { formatLocale, usePrefs } from '@/lib/prefs';
 import { type CardSel, MapCard } from './card';
 import {
   type EngineState,
@@ -87,6 +90,7 @@ import {
   type Room,
   reshape,
   setHang,
+  sizeRoom,
   takeOff,
   thingItem,
 } from './layout';
@@ -209,6 +213,7 @@ function MapBody({
   scope: (PlaceScope & { at: ScopeAt }) | null;
 }) {
   const { t } = useLingui();
+  const { locale, digits } = usePrefs();
   const f = useFormat();
   const qc = useQueryClient();
   const confirm = useConfirm();
@@ -303,8 +308,15 @@ function MapBody({
       inside: (n: number) => t`${n} inside`,
       openFloor: t`click to open`,
       changeFloor: t`click to change floor`,
+      // #372: under a room's name in the plan view, to the centimetre.
+      roomSize: (wm: number, dm: number) => {
+        const tag = formatLocale(locale, digits);
+        const w = formatRoomSide(mToCm(wm), tag);
+        const d = formatRoomSide(mToCm(dm), tag);
+        return t`${w} × ${d} m`;
+      },
     }),
-    [t],
+    [t, locale, digits],
   );
 
   // The map fills the screen below where it starts, down to the tab bar (and its raised Capture
@@ -707,6 +719,19 @@ function MapBody({
       if (change.surface) r.surface = change.surface;
     });
     engineRef.current?.select({ type: 'room', id });
+  }
+
+  /** #372: a room's width and length typed on its card (centimetres), never over a neighbour. */
+  function setRoomSize(id: string, size: { w: number; d: number }): 'ok' | 'same' | 'overlap' {
+    const e = engineRef.current;
+    const r = e?.plan.rooms.find((x) => x.id === id);
+    if (!e || !r) return 'same';
+    const done = sizeRoom(e.plan, r, size);
+    if (done === 'ok') {
+      e.changed();
+      e.select({ type: 'room', id });
+    }
+    return done;
   }
 
   async function startArranging() {
@@ -1342,6 +1367,7 @@ function MapBody({
               onRemove={removeItem}
               onRoomKind={(id, kind) => setRoom(id, { kind })}
               onSurface={(id, surface) => setRoom(id, { surface })}
+              onRoomSize={setRoomSize}
               onAdd={addThing}
               onPutOn={putThingOn}
               onTakeOff={takeThingOff}

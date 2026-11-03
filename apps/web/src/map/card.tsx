@@ -11,11 +11,13 @@ import {
   baseModel,
   canBeCarried,
   carryOf,
+  formatRoomSide,
   MAP_ROOM_KINDS,
   MAP_SURFACES,
   type MapRoomKind,
   type MapShapeKey,
   type MapSurface,
+  mToCm,
   STAIR_MODELS,
 } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
@@ -28,11 +30,18 @@ import { ThingCount } from '@/components/counts';
 import { useValueWords } from '@/components/history/labels';
 import { CameraIcon } from '@/components/icons';
 import { IdChip, printedCode } from '@/components/id-chip';
+import {
+  type RoomSideErrors,
+  type RoomSides,
+  RoomSizeFields,
+  useRoomSideProblem,
+} from '@/components/places/room-size';
 import { TagChips } from '@/components/tags/chip';
 import { useTypeName } from '@/components/things/names';
 import { QrCode } from '@/components/ui/qr-code';
 import { publicOrigin } from '@/lib/base-path';
 import { useFormat } from '@/lib/format';
+import { formatLocale, usePrefs } from '@/lib/prefs';
 import { HeightField } from './height';
 import { useModelNames, useRoomKindNames, useSurfaceNames } from './labels';
 import {
@@ -80,6 +89,8 @@ export type CardProps = {
   onRemove: (id: string) => void;
   onRoomKind: (id: string, kind: MapRoomKind) => void;
   onSurface: (id: string, surface: MapSurface) => void;
+  /** #372: a room's width and length typed on its card, in whole centimetres. */
+  onRoomSize?: (id: string, size: { w: number; d: number }) => 'ok' | 'same' | 'overlap';
   onAdd: (roomId: string, thing: MapThingView) => void;
   /** #137: put a thing on a holder, take it off onto the floor, put several on a holder. */
   onPutOn: (id: string, hostId: string) => void;
@@ -92,6 +103,51 @@ export type CardProps = {
   /** The place whose page the map is on (#190): its own card doesn't link back to that page. */
   here?: string | null;
 };
+
+/** #372: a room's width and length while arranging, to the centimetre. A size under 50 cm, over
+ * 100 m or running into another room stays in the field, said so, and the room keeps its own. */
+function RoomSize({
+  room,
+  onSize,
+}: {
+  room: Room;
+  onSize: (size: { w: number; d: number }) => 'ok' | 'same' | 'overlap';
+}) {
+  const { t } = useLingui();
+  const problem = useRoomSideProblem();
+  const [draft, setDraft] = useState<RoomSides | null>(null);
+  const [errors, setErrors] = useState<RoomSideErrors>({});
+  const own = { w: mToCm(room.w), d: mToCm(room.d) };
+  return (
+    <RoomSizeFields
+      variant="map"
+      value={draft ?? own}
+      errors={errors}
+      onChange={(next) => {
+        // A side cleared goes back to the room's own.
+        if (next.w === null || next.d === null) {
+          setDraft(null);
+          setErrors({});
+          return;
+        }
+        const bad = { w: problem(next.w), d: problem(next.d) };
+        if (bad.w || bad.d) {
+          setDraft(next);
+          setErrors(bad);
+          return;
+        }
+        if (onSize({ w: next.w, d: next.d }) === 'overlap') {
+          setDraft(next);
+          const said = t`Rooms can’t overlap.`;
+          setErrors(next.w !== own.w ? { w: said } : { d: said });
+          return;
+        }
+        setDraft(null);
+        setErrors({});
+      }}
+    />
+  );
+}
 
 function Dots({ flags }: { flags: MapAttentionKind[] }) {
   return flags.map((k) => <span key={k} className={`kmap-dot ${k}`} aria-hidden="true" />);
@@ -354,6 +410,8 @@ function CompartmentGrid({
 export function MapCard(p: CardProps) {
   const { t } = useLingui();
   const f = useFormat();
+  const { locale, digits } = usePrefs();
+  const tag = formatLocale(locale, digits);
   const models = useModelNames();
   const kinds = useRoomKindNames();
   const surfaces = useSurfaceNames();
@@ -479,8 +537,9 @@ export function MapCard(p: CardProps) {
     const addable = offMapIn(plan, view, r.id)
       .filter((x) => matches(adding, x.name, x.shortCode))
       .slice(0, 30);
-    const w = f.num(Math.round(r.w * 10) / 10);
-    const d = f.num(Math.round(r.d * 10) / 10);
+    // #372: to the centimetre, as typed (0.8 × 3.58 m).
+    const w = formatRoomSide(mToCm(r.w), tag);
+    const d = formatRoomSide(mToCm(r.d), tag);
     return (
       <aside data-map-obstacle className={`kmap-panel${full ? ' full' : ''}`} aria-live="polite">
         <Head
@@ -559,6 +618,13 @@ export function MapCard(p: CardProps) {
                 </button>
               ))}
             </fieldset>
+            {p.onRoomSize ? (
+              <RoomSize
+                key={r.id}
+                room={r}
+                onSize={(size) => p.onRoomSize?.(r.id, size) ?? 'same'}
+              />
+            ) : null}
             <div className="kmap-sub">
               <Trans>Put on the map</Trans>
             </div>
