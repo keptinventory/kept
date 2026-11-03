@@ -48,6 +48,8 @@ const HIDDEN = new Set([
   'filters',
   'scope',
   'layout',
+  // #372: a room made with its size: its rectangle on the map.
+  'map',
   'mode',
   'meter_created',
   'token_hash',

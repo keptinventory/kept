@@ -617,6 +617,9 @@ export type CreatePlaceBody = {
   name: string;
   kindKey: string;
   icon?: IconRef;
+  /** #372: a room's real size in whole centimetres (MAP_LIMITS): it goes on the map with it, in
+   * one transaction and one Undo. Only for a room (at the top of the location or on a floor). */
+  map?: { w: number; d: number };
 };
 
 /** PATCH /api/v1/places/:id (If-Match). Re-parenting stays within the location. */

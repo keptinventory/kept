@@ -3,7 +3,15 @@
  * apps/server/src/map/view.ts (floors, rooms, nodes, things), and an arrange session that
  * replaces the location's layout. No attention pins: the mock has no stock rules or loans here.
  */
-import { draftRooms, firstOverlap, gridOf, newId } from '@kept/shared';
+import {
+  defaultRoomKind,
+  draftRooms,
+  firstOverlap,
+  gridOf,
+  MAP_LIMITS,
+  newId,
+  ROOM_KIND_SURFACE,
+} from '@kept/shared';
 import { SAMPLE_PLAN_SIZE, sampleAnswer } from '@/map/floor-plan/sample-plan';
 import { compartmentsOf, recordEvent, type StoredPlace } from '../inventory/mock/db';
 import type { MockState } from '../mock/fixtures';
@@ -64,6 +72,43 @@ function storeOf(state: MockState, locationId: string): Stored {
     s.set(locationId, loc);
   }
   return loc;
+}
+
+/** A room made with its size (#372), as the server places it (map/service.ts placeNewRoom): to
+ * the right of the rooms arranged on its floor, a metre clear. False when the place isn't a room
+ * (at the top of the location or on a floor). */
+export function placeMockRoom(
+  state: MockState,
+  locationId: string,
+  placeId: string,
+  size: { w: number; d: number },
+): boolean {
+  const places = state.inventory.places.filter((x) => x.locationId === locationId && !x.deletedAt);
+  const byId = new Map(places.map((x) => [x.id, x]));
+  const isFloor = (id: string | null) => {
+    const f = id ? byId.get(id) : undefined;
+    return !!f && f.kindKey === 'floor' && !f.parentId && !f.isUnplaced;
+  };
+  const levelOf = (id: string): string | null | undefined => {
+    const x = byId.get(id);
+    if (!x || x.isUnplaced || isFloor(x.id)) return undefined;
+    if (!x.parentId) return null;
+    return isFloor(x.parentId) ? x.parentId : undefined;
+  };
+  const level = levelOf(placeId);
+  const place = byId.get(placeId);
+  if (level === undefined || !place) return false;
+  const stored = storeOf(state, locationId);
+  let right = -1;
+  for (const [id, r] of stored.rooms) {
+    if (id !== placeId && levelOf(id) === level) right = Math.max(right, r.x + r.w);
+  }
+  const x = right < 0 ? 0 : right + 100;
+  if (x > MAP_LIMITS.maxCoord) return false;
+  const kind = defaultRoomKind(place.name);
+  stored.rooms.set(placeId, { x, z: 0, ...size, kind, surface: ROOM_KIND_SURFACE[kind] });
+  stored.version = new Date().toISOString();
+  return true;
 }
 
 /** The map of a mock location, as the server builds it. */
