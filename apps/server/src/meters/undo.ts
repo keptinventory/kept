@@ -21,7 +21,8 @@ type Before = {
   state?: 'accepted' | 'needs_review';
   review_reason?: string | null;
   note?: string | null;
-  proofs?: { id: string; file_id: string; sort: number }[];
+  /** `name` (#183) is absent in events from before 1.14.4. */
+  proofs?: { id: string; file_id: string; sort: number; name?: string | null }[];
 };
 
 async function undoReadingDelete(args: UndoArgs): Promise<void> {
@@ -70,12 +71,12 @@ async function undoReadingDelete(args: UndoArgs): Promise<void> {
   );
   for (const a of b.proofs ?? []) {
     await client.query(
-      `INSERT INTO public.attachments (id, location_id, file_id, meter_reading_id, role, sort,
+      `INSERT INTO public.attachments (id, location_id, file_id, meter_reading_id, role, sort, name,
                                        created_by)
-       SELECT $1, $2, $3, $4, 'proof', $5, kept.current_user_id()
+       SELECT $1, $2, $3, $4, 'proof', $5, $6, kept.current_user_id()
         WHERE EXISTS (SELECT 1 FROM public.files f WHERE f.id = $3)
        ON CONFLICT DO NOTHING`,
-      [a.id, meter.location_id, a.file_id, id, a.sort],
+      [a.id, meter.location_id, a.file_id, id, a.sort, a.name ?? null],
     );
   }
   await args.audit({
