@@ -28404,3 +28404,79 @@ msgstr "Searched by name only: no embeddings model is set, so \"laptop\" won't f
 #: src/components/admin/embeddings-source.tsx
 msgid "Their AI has no embeddings model, so \"laptop\" won't find a MacBook Pro. Each owner chooses a Search model in Settings → AI → Advanced; a Search model on this server's key covers every location without one."
 msgstr "Their AI has no embeddings model, so \"laptop\" won't find a MacBook Pro. Each owner chooses a Search model in Settings → AI → Advanced; a Search model on this server's key covers every location without one."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "Personal is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
+msgstr "Personal is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
+
+#: src/routes/_app/settings.me.ai.tsx
+msgid "Used for Personal, your private threads, and questions that span owners."
+msgstr "Used for Personal, your private threads, and questions that span owners."
+
+#: src/routes/_app/index.tsx
+msgid "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
+msgstr "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. Your Personal location uses your personal key if you add one."
+msgstr "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. Your Personal location uses your personal key if you add one."
+
+#: src/routes/_app/settings.me.ai.tsx
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for Personal, your private threads, and questions that span owners."
+msgstr "Your own key is for Personal, your private threads, and questions that span owners."
+
+#: src/routes/_app/settings.index.tsx
+msgid "Your Personal location, profile and preferences, and your AI calls, as one file."
+msgstr "Your Personal location, profile and preferences, and your AI calls, as one file."
+
+#: src/components/export/export-sheet.tsx
+msgid "Your Personal location with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
+msgstr "Your Personal location with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
+
+#: src/components/search/semantic-note.tsx
+msgid "Keyword search only here (no embeddings model)"
+msgstr "Keyword search only here (no embeddings model)"
+
+#: src/routes/_app/settings.index.tsx
+msgid "After 30 days, with your Personal location. You can keep it until then."
+msgstr "After 30 days, with your Personal location. You can keep it until then."
+
+#: src/components/delete-account.tsx
+msgid "Your account, your Personal location and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
+msgstr "Your account, your Personal location and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
+
+#: src/components/delete-account.tsx
+msgid "Your Personal location, profile and preferences, as one file."
+msgstr "Your Personal location, profile and preferences, as one file."
+
+#: src/components/delete-account.tsx
+msgid "You asked for it, with your Personal location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
+msgstr "You asked for it, with your Personal location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
+
+#: src/components/import/track-step.tsx
+msgid "Also for Personal"
+msgstr "Also for Personal"
+
+#: src/components/import/track-step.tsx
+msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+
+msgid "Date format"
+msgstr "Date format"
+
+msgctxt "date format"
+msgid "Default"
+msgstr "Default"
+
+msgid "Default leaves the year off this year’s dates. Purchase and warranty dates always show it."
+msgstr "Default leaves the year off this year’s dates. Purchase and warranty dates always show it."
+
+msgid "How dates and times are written in English."
+msgstr "How dates and times are written in English."
+
+msgid "United Kingdom"
+msgstr "United Kingdom"
+
+msgid "United States"
+msgstr "United States"

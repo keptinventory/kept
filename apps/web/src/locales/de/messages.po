@@ -28404,3 +28404,79 @@ msgstr "Nur nach Namen gesucht: Kein Embedding-Modell ist gesetzt, also findet �
 #: src/components/admin/embeddings-source.tsx
 msgid "Their AI has no embeddings model, so \"laptop\" won't find a MacBook Pro. Each owner chooses a Search model in Settings → AI → Advanced; a Search model on this server's key covers every location without one."
 msgstr "Ihre KI hat kein Embedding-Modell, also findet „Laptop“ kein MacBook Pro. Jeder Eigentümer wählt ein Suchmodell unter Einstellungen → KI → Erweitert; ein Suchmodell auf dem Schlüssel dieses Servers deckt jeden Standort ohne eines ab."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "Personal is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
+msgstr "„Persönlich“ gehört nur dir: keine Mitglieder, Einladungen oder Freigabelinks. Verschiebe einen Gegenstand in ein geteiltes Zuhause, sobald er geteilt wird."
+
+#: src/routes/_app/settings.me.ai.tsx
+msgid "Used for Personal, your private threads, and questions that span owners."
+msgstr "Wird für Persönlich, deine privaten Unterhaltungen und Fragen über mehrere Eigentümer hinweg genutzt."
+
+#: src/routes/_app/index.tsx
+msgid "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
+msgstr "Dein Standort „Persönlich“ ist bereit für alles, was du bei dir trägst: Schlüssel, Geldbörse, Handy. Füge jetzt dein Zuhause hinzu. Es kommt mit den üblichen Räumen, und du kannst sie ändern."
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. Your Personal location uses your personal key if you add one."
+msgstr "Dieser Schlüssel bezahlt für alle Zuhause von <0>{ownerName}</0>: <1>{list}</1>. Ihr persönlicher Ort nutzt Ihren persönlichen Schlüssel, wenn Sie einen hinzufügen."
+
+#: src/routes/_app/settings.me.ai.tsx
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for Personal, your private threads, and questions that span owners."
+msgstr "Ihr eigener Schlüssel ist für Persönlich, Ihre privaten Unterhaltungen und Fragen über mehrere Eigentümer hinweg."
+
+#: src/routes/_app/settings.index.tsx
+msgid "Your Personal location, profile and preferences, and your AI calls, as one file."
+msgstr "Dein persönlicher Standort, Profil und Einstellungen und deine KI-Aufrufe, in einer Datei."
+
+#: src/components/export/export-sheet.tsx
+msgid "Your Personal location with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
+msgstr "Dein persönlicher Standort mit seinen Dateien, dein Profil und deine Einstellungen und deine KI-Aufrufe. Standorte, die dir gehören, werden einzeln exportiert."
+
+#: src/components/search/semantic-note.tsx
+msgid "Keyword search only here (no embeddings model)"
+msgstr "Hier nur Stichwortsuche (kein Embedding-Modell)"
+
+#: src/routes/_app/settings.index.tsx
+msgid "After 30 days, with your Personal location. You can keep it until then."
+msgstr "Nach 30 Tagen, zusammen mit deinem persönlichen Standort. Bis dahin kannst du es behalten."
+
+#: src/components/delete-account.tsx
+msgid "Your account, your Personal location and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
+msgstr "Dein Konto, dein persönlicher Standort und alles darin werden in 30 Tagen gelöscht. Bis dahin kannst du dich anmelden und das Konto behalten; sonst öffnet sich nichts."
+
+#: src/components/delete-account.tsx
+msgid "Your Personal location, profile and preferences, as one file."
+msgstr "Dein persönlicher Standort, dein Profil und deine Einstellungen, als eine Datei."
+
+#: src/components/delete-account.tsx
+msgid "You asked for it, with your Personal location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
+msgstr "Du hast es beantragt, zusammen mit deinem persönlichen Standort und allem darin. Bis dahin öffnet sich in Kept nichts anderes. Behalte das Konto, um es so wiederzubekommen, wie es war."
+
+#: src/components/import/track-step.tsx
+msgid "Also for Personal"
+msgstr "Auch für Persönlich"
+
+#: src/components/import/track-step.tsx
+msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "Persönlich, dein eigener Standort, erfasst ab dem Import dasselbe. Das Menü zeigt, was irgendeiner deiner Standorte erfasst."
+
+msgid "Date format"
+msgstr "Datumsformat"
+
+msgctxt "date format"
+msgid "Default"
+msgstr "Standard"
+
+msgid "Default leaves the year off this year’s dates. Purchase and warranty dates always show it."
+msgstr "Standard lässt bei Daten aus diesem Jahr die Jahreszahl weg. Kauf- und Garantiedaten zeigen sie immer."
+
+msgid "How dates and times are written in English."
+msgstr "Wie Datum und Uhrzeit auf Englisch geschrieben werden."
+
+msgid "United Kingdom"
+msgstr "Vereinigtes Königreich"
+
+msgid "United States"
+msgstr "Vereinigte Staaten"

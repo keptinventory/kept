@@ -20469,3 +20469,64 @@ msgstr "Chỉ tìm theo tên: chưa đặt mô hình embeddings nên “laptop�
 #: src/components/admin/embeddings-source.tsx
 msgid "Their AI has no embeddings model, so \"laptop\" won't find a MacBook Pro. Each owner chooses a Search model in Settings → AI → Advanced; a Search model on this server's key covers every location without one."
 msgstr "AI của các địa điểm này không có mô hình embeddings nên “laptop” sẽ không tìm thấy MacBook Pro. Mỗi chủ sở hữu chọn mô hình tìm kiếm trong Cài đặt → AI → Nâng cao; một mô hình tìm kiếm trên khóa của máy chủ này áp dụng cho mọi địa điểm chưa có."
+
+msgid "Personal is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
+msgstr "Cá nhân chỉ thuộc về bạn: nó không có thành viên, lời mời hay liên kết chia sẻ. Khi một đồ vật trở nên dùng chung, hãy chuyển nó vào một nhà dùng chung."
+
+msgid "Used for Personal, your private threads, and questions that span owners."
+msgstr "Dùng cho Cá nhân, các chuỗi riêng tư của bạn và những câu hỏi liên quan đến nhiều chủ sở hữu."
+
+msgid "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
+msgstr "Địa điểm Cá nhân của bạn đã sẵn sàng cho những thứ bạn mang theo người: chìa khóa, ví, điện thoại. Giờ hãy thêm nơi bạn sống. Nơi đó có sẵn các phòng thông thường, và bạn có thể thay đổi chúng."
+
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. Your Personal location uses your personal key if you add one."
+msgstr "Khóa này thanh toán cho tất cả các nhà của <0>{ownerName}</0>: <1>{list}</1>. Địa điểm Cá nhân của bạn sẽ dùng khóa cá nhân của bạn nếu bạn thêm một khóa."
+
+msgid "Your own key is for Personal, your private threads, and questions that span owners."
+msgstr "Khóa của riêng bạn dùng cho Cá nhân, các luồng riêng tư của bạn và các câu hỏi liên quan đến nhiều chủ sở hữu."
+
+msgid "Your Personal location, profile and preferences, and your AI calls, as one file."
+msgstr "Địa điểm Cá nhân, hồ sơ và tùy chọn của bạn, cùng các lần gọi AI của bạn, trong một tệp."
+
+msgid "Your Personal location with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
+msgstr "Địa điểm Cá nhân của bạn cùng các tệp của nó, hồ sơ và tùy chọn của bạn, và các lệnh gọi AI bạn đã thực hiện. Các địa điểm bạn sở hữu được xuất từng cái một."
+
+msgid "Keyword search only here (no embeddings model)"
+msgstr "Chỉ tìm kiếm theo từ khóa tại đây (không có mô hình embedding)"
+
+msgid "After 30 days, with your Personal location. You can keep it until then."
+msgstr "Sau 30 ngày, cùng với địa điểm Cá nhân của bạn. Bạn có thể giữ lại tài khoản cho tới lúc đó."
+
+msgid "Your account, your Personal location and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
+msgstr "Tài khoản của bạn, địa điểm Cá nhân của bạn và mọi thứ trong đó sẽ bị xóa sau 30 ngày nữa. Cho tới lúc đó bạn có thể đăng nhập và giữ tài khoản; không mở được gì khác."
+
+msgid "Your Personal location, profile and preferences, as one file."
+msgstr "Địa điểm Cá nhân, hồ sơ và tùy chọn của bạn, trong một tệp."
+
+msgid "You asked for it, with your Personal location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
+msgstr "Bạn đã yêu cầu việc đó, cùng với địa điểm Cá nhân của bạn và mọi thứ trong đó. Cho đến lúc đó, không có gì khác trong Kept mở được. Hãy giữ tài khoản để quay lại như trước."
+
+msgid "Also for Personal"
+msgstr "Cũng áp dụng cho Cá nhân"
+
+msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "Cá nhân, địa điểm của riêng bạn, sẽ theo dõi giống như vậy kể từ khi lần nhập chạy. Menu sẽ hiển thị những gì mỗi địa điểm của bạn đang theo dõi."
+
+msgid "Date format"
+msgstr "Định dạng ngày"
+
+msgctxt "date format"
+msgid "Default"
+msgstr "Mặc định"
+
+msgid "Default leaves the year off this year’s dates. Purchase and warranty dates always show it."
+msgstr "Mặc định bỏ năm ở các ngày trong năm nay. Ngày mua hàng và ngày bảo hành luôn hiển thị năm."
+
+msgid "How dates and times are written in English."
+msgstr "Cách viết ngày và giờ bằng tiếng Anh."
+
+msgid "United Kingdom"
+msgstr "Vương quốc Anh"
+
+msgid "United States"
+msgstr "Hoa Kỳ"

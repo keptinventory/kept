@@ -28404,3 +28404,79 @@ msgstr "بحث بالاسم فقط: لم يُضبط نموذج تضمين، فك
 #: src/components/admin/embeddings-source.tsx
 msgid "Their AI has no embeddings model, so \"laptop\" won't find a MacBook Pro. Each owner chooses a Search model in Settings → AI → Advanced; a Search model on this server's key covers every location without one."
 msgstr "ليس لدى ذكائها الاصطناعي نموذج تضمين، فكلمة «لابتوب» لن تجد MacBook Pro. يختار كل مالك نموذج البحث من «الإعدادات ← الذكاء الاصطناعي ← متقدم»، ونموذج بحث على مفتاح هذا الخادم يغطي كل موقع ليس لديه نموذج."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "Personal is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
+msgstr "الموقع الشخصي لك وحدك: لا أعضاء فيه ولا دعوات ولا روابط مشاركة. انقل الشيء إلى منزل مشترك عندما يصبح مشتركًا."
+
+#: src/routes/_app/settings.me.ai.tsx
+msgid "Used for Personal, your private threads, and questions that span owners."
+msgstr "يُستخدم لموقعك الشخصي، ومحادثاتك الخاصة، والأسئلة التي تشمل أكثر من مالك."
+
+#: src/routes/_app/index.tsx
+msgid "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
+msgstr "موقعك الشخصي جاهز لما تحمله معك: المفاتيح والمحفظة والهاتف. أضف الآن المكان الذي تسكن فيه. يأتي بالغرف المعتادة، ويمكنك تغييرها."
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. Your Personal location uses your personal key if you add one."
+msgstr "يدفع هذا المفتاح لكل بيوت <0>{ownerName}</0>: <1>{list}</1>. ويستخدم موقعك الشخصي مفتاحك الشخصي إن أضفته."
+
+#: src/routes/_app/settings.me.ai.tsx
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for Personal, your private threads, and questions that span owners."
+msgstr "مفتاحك الخاص للموقع الشخصي، ومحادثاتك الخاصة، والأسئلة التي تشمل أكثر من مالك."
+
+#: src/routes/_app/settings.index.tsx
+msgid "Your Personal location, profile and preferences, and your AI calls, as one file."
+msgstr "موقعك الشخصي وملفك الشخصي وتفضيلاتك واستدعاءاتك للذكاء الاصطناعي، في ملف واحد."
+
+#: src/components/export/export-sheet.tsx
+msgid "Your Personal location with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
+msgstr "موقعك الشخصي بملفاته، وملفك الشخصي وتفضيلاتك، واستدعاءات الذكاء الاصطناعي التي أجريتها. تُصدَّر المواقع التي تملكها واحدًا واحدًا."
+
+#: src/components/search/semantic-note.tsx
+msgid "Keyword search only here (no embeddings model)"
+msgstr "البحث بالكلمات فقط هنا (لا نموذج تضمين)"
+
+#: src/routes/_app/settings.index.tsx
+msgid "After 30 days, with your Personal location. You can keep it until then."
+msgstr "بعد ٣٠ يومًا، ومعه موقعك الشخصي. يمكنك الإبقاء عليه حتى ذلك الحين."
+
+#: src/components/delete-account.tsx
+msgid "Your account, your Personal location and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
+msgstr "يُحذف حسابك وموقعك الشخصي وكل ما فيه بعد ٣٠ يومًا من الآن. وحتى ذلك الحين يمكنك تسجيل الدخول والإبقاء على الحساب، ولا يُفتح شيء غير ذلك."
+
+#: src/components/delete-account.tsx
+msgid "Your Personal location, profile and preferences, as one file."
+msgstr "موقعك الشخصي وملفك الشخصي وتفضيلاتك، في ملف واحد."
+
+#: src/components/delete-account.tsx
+msgid "You asked for it, with your Personal location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
+msgstr "طلبتَ ذلك، ومعه موقعك الشخصي وكل ما فيه. وحتى ذلك الحين لا يُفتح شيء آخر في Kept. أبقِ على الحساب لتعود إليه كما كان."
+
+#: src/components/import/track-step.tsx
+msgid "Also for Personal"
+msgstr "ولموقع \"شخصي\" أيضًا"
+
+#: src/components/import/track-step.tsx
+msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "موقعك \"شخصي\" يتابع الشيء نفسه من لحظة تشغيل الاستيراد. والقائمة تعرض ما يتابعه أي موقع من مواقعك."
+
+msgid "Date format"
+msgstr "صيغة التاريخ"
+
+msgctxt "date format"
+msgid "Default"
+msgstr "الافتراضية"
+
+msgid "Default leaves the year off this year’s dates. Purchase and warranty dates always show it."
+msgstr "الافتراضية تُسقط السنة من تواريخ هذا العام. أما تواريخ الشراء والضمان فتظهر بسنتها دائمًا."
+
+msgid "How dates and times are written in English."
+msgstr "طريقة كتابة التواريخ والأوقات بالإنجليزية."
+
+msgid "United Kingdom"
+msgstr "المملكة المتحدة"
+
+msgid "United States"
+msgstr "الولايات المتحدة"
