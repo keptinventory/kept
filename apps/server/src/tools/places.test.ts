@@ -324,6 +324,18 @@ describe('update_place', () => {
         renumber: false,
       }),
     ).toBe('conflict');
+    // A rename and a turn in one call would answer one Undo for two changes: refused, unwritten.
+    const both = ctx(louis);
+    expect(
+      await refusal(both, 'update_place', {
+        place_id: made.place.id,
+        fields: { name: 'Tall cubes' },
+        turn: 'left',
+        renumber: true,
+      }),
+    ).toBe('validation');
+    expect(await events(both.requestId)).toHaveLength(0);
+    expect((await row(made.place.id))?.name).toBe('Narrow cubes');
   });
 });
 
