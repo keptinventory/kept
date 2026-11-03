@@ -248,6 +248,9 @@ const ON_DEMAND_ENTRIES = [
   // #366: "Set a field…" on a place's List and Grid, staged as the spreadsheet stages it
   // (things/list-bulk-lazy.tsx); it reads and writes the server only.
   '/src/components/sheet/list-bulk.tsx',
+  // #366: a thing's label as it prints, its Label card and sheet (things/label-sheet.tsx); it
+  // reads the builder's dry run from the server.
+  '/src/components/things/label-preview.tsx',
   // 1.x (#209): the tag picker, fetched the first time one opens (tags/lazy.tsx).
   '/src/components/tags/picker.tsx',
   '/src/components/tags/editors.tsx',
