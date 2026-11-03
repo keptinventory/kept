@@ -28711,3 +28711,22 @@ msgstr "اختياري، بدقة السنتيمتر. اتركه فارغًا و
 #: src/map/floor-plan/panel.tsx
 msgid "Under 50 cm: too small for the map."
 msgstr "أقل من ٥٠ سم: أصغر من أن تظهر على الخريطة."
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Decrease {label}"
+msgstr "إنقاص {label}"
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Increase {label}"
+msgstr "زيادة {label}"
+
+#: src/components/places/room-size.tsx
+#: src/map/height.tsx
+msgid "Enter metres, like {example}."
+msgstr "أدخل قيمة بالأمتار، مثل {example}."
+
+#: src/map/size.tsx
+msgid "Enter a whole number."
+msgstr "أدخل عددًا صحيحًا."

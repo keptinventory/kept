@@ -20761,3 +20761,22 @@ msgstr "Không bắt buộc, chính xác đến từng xentimét. Để trống 
 #: src/map/floor-plan/panel.tsx
 msgid "Under 50 cm: too small for the map."
 msgstr "Dưới 50 cm: quá nhỏ cho bản đồ."
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Decrease {label}"
+msgstr "Giảm {label}"
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Increase {label}"
+msgstr "Tăng {label}"
+
+#: src/components/places/room-size.tsx
+#: src/map/height.tsx
+msgid "Enter metres, like {example}."
+msgstr "Nhập giá trị bằng mét, ví dụ {example}."
+
+#: src/map/size.tsx
+msgid "Enter a whole number."
+msgstr "Nhập một số nguyên."

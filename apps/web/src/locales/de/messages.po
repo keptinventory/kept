@@ -28711,3 +28711,22 @@ msgstr "Optional, auf den Zentimeter genau. Leer gelassen, bemisst die Karte den
 #: src/map/floor-plan/panel.tsx
 msgid "Under 50 cm: too small for the map."
 msgstr "Unter 50 cm: zu klein für die Karte."
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Decrease {label}"
+msgstr "{label} verringern"
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Increase {label}"
+msgstr "{label} erhöhen"
+
+#: src/components/places/room-size.tsx
+#: src/map/height.tsx
+msgid "Enter metres, like {example}."
+msgstr "Gib einen Wert in Metern ein, zum Beispiel {example}."
+
+#: src/map/size.tsx
+msgid "Enter a whole number."
+msgstr "Gib eine ganze Zahl ein."
