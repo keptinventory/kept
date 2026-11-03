@@ -107,14 +107,11 @@ export function DisplayPrefs() {
             it.
           </Trans>
         }
+        // Each label may wrap: in an equal-width cell on a phone, Vietnamese's "3 thg 11, 2026"
+        // would otherwise run past its edge and be cut off (the 1.14.4 final review).
         options={DATE_FORMATS.map((f) => ({
           id: f,
-          label:
-            f === 'auto' ? (
-              t({ message: 'Default', context: 'date format' })
-            ) : (
-              <span className="whitespace-nowrap">{sample(f)}</span>
-            ),
+          label: f === 'auto' ? t({ message: 'Default', context: 'date format' }) : sample(f),
         }))}
       />
       <Segmented<ThemePref>

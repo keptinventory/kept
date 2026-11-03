@@ -131,6 +131,20 @@ describe('Settings → Me → Display', () => {
     expect(screen.getByText('18 Jan 2025')).toBeInTheDocument();
   });
 
+  it('lets every date format show whole on a phone, in Vietnamese too', async () => {
+    await renderApp('/settings', { locale: 'vi' });
+    const format = await screen.findByRole('radiogroup', { name: 'Định dạng ngày' });
+    // Four options take two columns on a phone, and no label is kept to one line, where a long
+    // one ("3 thg 11, 2026") would run past its cell and be cut off.
+    const radios = within(format).getAllByRole('radio');
+    expect(radios).toHaveLength(4);
+    const grid = format.querySelector('.auto-cols-fr') as HTMLElement;
+    expect(grid.className).toContain('max-sm:grid-cols-2');
+    expect(
+      format.querySelector('.whitespace-nowrap, .truncate, .text-ellipsis, [class*="nowrap"]'),
+    ).toBeNull();
+  });
+
   it('offers the region only in English', async () => {
     await renderApp('/settings', { locale: 'fr' });
     await findHeading('Paramètres');
