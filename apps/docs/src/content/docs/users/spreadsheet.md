@@ -23,11 +23,11 @@ as a row, for tidying up many things at once. Phones keep the lists.
   checks as the thing's form apply (a name is required; a serialized thing's quantity stays 1).
 - **Select rows** with the box at the start of each row, **Space**, **Shift+↑/↓**,
   **Shift-click** for a range or **⌘/Ctrl-click** for one more. Then **Move to…** (a room, spot
-  or box in this location), **Tags…** (add or remove), **Set a field…** or **Send to Trash**.
-  Moving, tags and fields wait for **Save** like any other change; the Trash happens at once,
-  up to 200 at a time, after asking what happens to what's inside a box and about anything lent
-  out. The list's own **Select** has the same **Move to Trash**
-  ([Locations, rooms and boxes](/users/locations/)).
+  or box in this location), **Tags…** (add or remove), **Set a field…**, **Pick up**, **Print
+  labels**, **Add to incident** and **Claim pack**, or **Move to Trash**. Moving, tags and fields
+  wait for **Save** like any other change; the Trash happens at once, up to 200 at a time, after
+  asking what happens to what's inside a box and about anything lent out. List and Grid share
+  this bar ([Locations, rooms and boxes](/users/locations/)).
 - **Undo**: after a save, one **Undo** takes back every change in it. After **Send to Trash**,
   one Undo brings them all back.
 - **Someone else changed a row** since you opened the table: the other rows save, and that one

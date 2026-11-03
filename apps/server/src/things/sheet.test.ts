@@ -177,6 +177,23 @@ describe('GET /api/v1/things/sheet', () => {
     );
     expect(row?.quantityFixed).toBe(true);
   });
+
+  it('narrows to the things a selection names (ids), and never past what the caller sees', async () => {
+    const loc = await createLocation(t, db, ann, 'complete', 'Sheet ids');
+    const a = await createThing(t, ann, loc, { name: 'Lamp' });
+    const b = await createThing(t, ann, loc, { name: 'Kettle' });
+    await createThing(t, ann, loc, { name: 'Toaster' });
+    const page = await sheet(ann, `ids=${a.id}&ids=${b.id}&limit=50`);
+    expect(page.items.map((r) => r.name)).toEqual(['Kettle', 'Lamp']);
+    expect(page.items.every((r) => r.rowVersion > 0)).toBe(true);
+    // One id alone, and with the list's own filters.
+    expect((await sheet(ann, `ids=${a.id}`)).items.map((r) => r.id)).toEqual([a.id]);
+    expect((await sheet(ann, `ids=${a.id}&q=Kettle`)).items).toEqual([]);
+    // Someone outside the location names them: nothing.
+    expect((await sheet(bob, `ids=${a.id}&ids=${b.id}`)).items).toEqual([]);
+    // Not an id: 400.
+    expect((await call(t, '/api/v1/things/sheet?ids=nope', { as: ann })).statusCode).toBe(400);
+  });
 });
 
 describe('POST /api/v1/things/bulk-edit', () => {

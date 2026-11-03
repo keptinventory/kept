@@ -8,6 +8,10 @@
  *   - a field we both changed, differently, opens the conflict sheet ("Alfred changed this since
  *     you opened it": Keep mine, Keep theirs, or Edit).
  * With no conflict left, it saves again on top of the latest version.
+ *
+ * The type is changed here too (#366): a thing with no type just takes one; from one type to
+ * another, the form says which values will be archived before Save (D92, as Change the type
+ * does), and the old type's fields leave the form until the new type's arrive with the save.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type ReactNode, useCallback, useState } from 'react';
@@ -41,8 +45,15 @@ import {
   validate,
 } from './form-model';
 import { useConditionLabels } from './labels';
-import { useFieldLabel } from './names';
-import { CurrencyPicker, RegistryPicker, useLocationAccountId } from './pickers';
+import { useFieldLabel, useTypeName } from './names';
+import {
+  CurrencyPicker,
+  RegistryPicker,
+  TypePicker,
+  useLocationAccountId,
+  useTypeOptions,
+} from './pickers';
+import { RetypeNotice } from './retype-sheet';
 
 type Session = { base: ThingView; baseValues: FormValues; draft: FormValues };
 type Pending = { conflicts: Conflict[]; changedBy: string | null };
@@ -84,6 +95,11 @@ export function useThingEditor() {
   };
   const change = (path: string, value: FormValue) =>
     setSession((s) => (s ? { ...s, draft: setPath(s.draft, path, value) } : s));
+  /** A new type: the old type's fields go back to how they were (they aren't saved with it). */
+  const changeType = (typeId: string | null) =>
+    setSession((s) =>
+      s ? { ...s, draft: { ...s.draft, typeId, custom: s.baseValues.custom } } : s,
+    );
 
   const attempt = async (s: Session, tries: number, mergedFrom: string | null): Promise<void> => {
     const patch = toPatch(s.baseValues, s.draft, s.base.fields);
@@ -171,6 +187,7 @@ export function useThingEditor() {
     start,
     cancel,
     change,
+    changeType,
     save,
     resolve,
     dismissConflict: () => setPending(null),
@@ -229,6 +246,7 @@ export function EditForm({ editor }: { editor: ThingEditor }) {
   // D10: serialized or metered types, or a thing with a meter, are always one.
   const quantityForced =
     caps.includes('serialized') || caps.includes('metered') || thing.meters.length > 0;
+  const retyped = v.typeId !== session.baseValues.typeId;
 
   return (
     <form
@@ -247,6 +265,13 @@ export function EditForm({ editor }: { editor: ThingEditor }) {
         inputProps={{ dir: 'auto' }}
         {...common('name')}
       />
+      <TypePicker
+        accountId={accountId}
+        label={t`Type`}
+        value={v.typeId}
+        onChange={(id) => editor.changeType(id)}
+      />
+      {retyped ? <RetypeNotice typeId={v.typeId} /> : null}
       {quantityForced ? null : (
         <TextField
           label={t`Quantity`}
@@ -317,7 +342,12 @@ export function EditForm({ editor }: { editor: ThingEditor }) {
         inputProps={{ dir: 'ltr', inputMode: 'url' }}
         {...common('manualUrl')}
       />
-      {editableFields(session.base.fields).map((f) => (
+      {retyped && editableFields(session.base.fields).length ? (
+        <p className="m-0 text-small text-ink-2">
+          <Trans>The new type's own fields show after you save.</Trans>
+        </p>
+      ) : null}
+      {(retyped ? [] : editableFields(session.base.fields)).map((f) => (
         <CustomInput
           key={f.id}
           field={f}
@@ -379,6 +409,7 @@ function useFieldNames(): Record<string, string> {
   const { t } = useLingui();
   return {
     name: t`Name`,
+    typeId: t`Type`,
     quantity: t`Quantity`,
     brandId: t`Brand`,
     model: t`Model`,
@@ -401,9 +432,19 @@ function FormValueText({
   value: unknown;
   fields: readonly ResolvedField[];
 }) {
-  const { thing } = useThingCtx();
+  const { thing, location } = useThingCtx();
   const conditions = useConditionLabels();
   const { t } = useLingui();
+  const typeName = useTypeName();
+  const types = useTypeOptions(useLocationAccountId(location));
+  if (path === 'typeId')
+    return (
+      <bdi>
+        {value === thing.type?.id
+          ? typeName(thing.type)
+          : (types.options.find((o) => o.id === value)?.label ?? typeName(null))}
+      </bdi>
+    );
   if (value === null || value === '' || (Array.isArray(value) && value.length === 0))
     return <span className="text-ink-3">{t`(empty)`}</span>;
   if (path === 'brandId')

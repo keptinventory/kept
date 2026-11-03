@@ -17,18 +17,19 @@
  *   in tiles of the Display menu's Size (Small · Medium · Large, `size`, remembered per person on
  *   the device; #139).
  *
- * With `canEdit`, things can be selected and moved together (D45), picked up together into the
- * carrying tray (D175, design frame 7a: the tray is on this phone, so it works offline), or sent
- * to "Print labels", or moved to the Trash with one Undo (#294); an owner or admin can also add
- * them to an incident or make a claim pack of them (D158). On a pointer device a thing can
- * be dragged onto a place row; the move picker does the same without dragging (WCAG 2.5.7).
+ * With `canEdit`, things can be selected (Shift-click or Shift+Space selects every row from the
+ * one ticked last, #366) and moved together (D45), tagged, given one value for a field ("Set a
+ * field…", staged behind "Save N changes" as the spreadsheet stages it, #366), picked up together
+ * into the carrying tray (D175, design frame 7a: the tray is on this phone, so it works offline),
+ * or sent to "Print labels", or moved to the Trash with one Undo (#294); an owner or admin can
+ * also add them to an incident or make a claim pack of them (D158). The bar is the spreadsheet's
+ * (things/selection-bar.tsx). On a pointer device a thing can be dragged onto a place row; the
+ * move picker does the same without dragging (WCAG 2.5.7).
  */
 import { can } from '@kept/shared';
-import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type InfiniteData, type UseInfiniteQueryResult, useMutation } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
-import { type DragEvent, lazy, type ReactNode, Suspense, useMemo, useState } from 'react';
+import { type DragEvent, lazy, type ReactNode, Suspense, useMemo, useRef, useState } from 'react';
 import { inventoryApi } from '@/api/inventory/queries';
 import type { Page, PlaceNode, ThingListParams, ThingRow } from '@/api/inventory/types';
 import { useLocations } from '@/api/queries';
@@ -37,22 +38,21 @@ import { filterParams } from '@/components/filters/params';
 import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
 import { useOfferUndo } from '@/components/history/undo';
-import { BoxIcon, CheckIcon } from '@/components/icons';
-import { AddToIncidentSheet } from '@/components/incidents/lazy';
+import { BoxIcon } from '@/components/icons';
 import { ListSurface } from '@/components/list-surface';
-import { EmptyState, Notice, useErrorText } from '@/components/page';
-import { useScanStore } from '@/components/scan/use-scan-store';
+import { EmptyState, Notice, Pill, useErrorText } from '@/components/page';
 import { tagGroupOf } from '@/components/tags/chip';
 import { BulkTagButtons } from '@/components/tags/lazy';
 import type { BulkTrashButton as BulkTrash } from '@/components/things/bulk-trash';
+import { ListBulkLazy } from '@/components/things/list-bulk-lazy';
 import { useLocationAccountId } from '@/components/things/pickers';
-import { TrayIcon } from '@/components/tray/tray-icon';
-import { pickUp } from '@/components/tray/use-tray';
+import { SelectionBar } from '@/components/things/selection-bar';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/toast';
 import { useFormat } from '@/lib/format';
 import { SHEET, useMediaQuery } from '@/lib/media';
 import { useOnline } from '@/lib/online';
+import { NO_SELECTION, pickRow, type RowSelection } from '@/lib/selection';
 import { firstOf, useListState } from '@/lib/url-state';
 import { cn } from '@/lib/utils';
 import {
@@ -89,6 +89,22 @@ type Entry = { kind: 'place'; place: PlaceNode } | { kind: 'thing'; thing: Thing
 type EntryQuery = UseInfiniteQueryResult<InfiniteData<Page<Entry>>>;
 
 const DRAG_TYPE = 'application/x-kept-thing';
+
+/** Staged changes are left behind by another page, a layout that isn't this list, or a tab. */
+const leavesList = (
+  current: { pathname: string; search: unknown },
+  next: { pathname: string; search: unknown },
+) => {
+  const view = (next.search as { view?: string }).view;
+  const tab = (l: { search: unknown }) => (l.search as { tab?: string }).tab;
+  return (
+    current.pathname !== next.pathname ||
+    view === 'table' ||
+    view === 'map' ||
+    view === 'graph' ||
+    tab(current) !== tab(next)
+  );
+};
 
 // #294: "Move to Trash" for the selection, on demand: it needs the server anyway.
 const BulkTrashButton = lazy(() =>
@@ -214,62 +230,30 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
   // the checkboxes are.
   const grid = (view ?? list.layout) === 'grid' && parent.kind !== 'container' && !selecting;
   const size = useTileSize(grid);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selection, setSelection] = useState<RowSelection>(NO_SELECTION);
   const [moving, setMoving] = useState<string[] | null>(null);
-  const toggle = (id: string) =>
-    setSelected((s) => {
-      const next = new Set(s);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  // The things in the list's order: a Shift-click selects every one between it and the anchor.
+  const orderKey = things.map((x) => x.id).join(',');
+  const order = useMemo(() => (orderKey ? orderKey.split(',') : []), [orderKey]);
+  const selected = useMemo(
+    () => order.filter((id) => selection.ids.has(id)),
+    [order, selection.ids],
+  );
+  // Shift+Space on a box: the keyboard's Shift-click (the change event doesn't say it was held).
+  const shiftSpace = useRef(false);
+  const pick = (id: string, shift: boolean) => setSelection((s) => pickRow(s, order, id, shift));
   const stopSelecting = () => {
     setSelecting(false);
-    setSelected(new Set());
+    setSelection(NO_SELECTION);
+    setSettingField(false);
   };
-  // "Print labels" for the selection, where the Labels module is on (hidden if not).
-  const navigate = useNavigate();
   const here = useLocations().data?.find((l) => l.id === parent.locationId);
   const accountId = useLocationAccountId(here);
-  const canLabel =
-    !!here &&
-    (here.effectiveModules ?? here.modules).includes('labels') &&
-    can(here.role, 'labels.use');
-  // "Add to incident" and "Claim pack" (D158): owners and admins; online only (their screens read
-  // the server; the sheet loads on demand).
-  const canIncident =
-    !!here &&
-    (here.effectiveModules ?? here.modules).includes('warranties') &&
-    can(here.role, 'incidents.manage');
   const canTrash = !!here && can(here.role, 'things.trash');
   const online = useOnline();
-  const [incidentFor, setIncidentFor] = useState<string[]>([]);
-
-  // "Pick up" for the selection (D175): into this phone's carrying tray.
-  const trayStore = useScanStore();
-  const [pickingUp, setPickingUp] = useState(false);
-  const pickUpSelected = async () => {
-    if (!trayStore || selected.size === 0) return;
-    setPickingUp(true);
-    try {
-      const n = selected.size;
-      const carried = await pickUp(trayStore, [...selected]);
-      toast({
-        title: plural(n, { one: 'Picked up # thing', other: 'Picked up # things' }),
-        description: plural(carried.length, { one: 'Carrying #', other: 'Carrying #' }),
-        tone: 'ok',
-        action: {
-          label: t`Scan destination`,
-          onAction: () => void navigate({ to: '/scan', search: { tray: 1 } }),
-        },
-      });
-      stopSelecting();
-    } catch {
-      toast({ title: t`Couldn't pick them up on this phone.`, tone: 'danger' });
-    } finally {
-      setPickingUp(false);
-    }
-  };
+  // "Set a field…" (#366): staged, then "Save N changes", as the spreadsheet does.
+  const [settingField, setSettingField] = useState(false);
+  const [stagedIds, setStagedIds] = useState<ReadonlySet<string>>(new Set());
 
   const errorText = useErrorText();
   const invalidate = useInvalidateBrowse();
@@ -349,8 +333,23 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
       <label className="grid size-11 shrink-0 cursor-pointer place-items-center ps-2">
         <input
           type="checkbox"
-          checked={selected.has(thing.id)}
-          onChange={() => toggle(thing.id)}
+          checked={selection.ids.has(thing.id)}
+          onChange={(ev) =>
+            pick(thing.id, (ev.nativeEvent as MouseEvent).shiftKey || shiftSpace.current)
+          }
+          onKeyDown={(ev) => {
+            if (ev.key === ' ') shiftSpace.current = ev.shiftKey;
+          }}
+          onKeyUp={() => {
+            // After the change, which the key's release fires.
+            setTimeout(() => {
+              shiftSpace.current = false;
+            });
+          }}
+          // Shift-click selects rows, not the text between them.
+          onMouseDown={(ev) => {
+            if (ev.shiftKey) ev.preventDefault();
+          }}
           aria-label={t`Select ${thing.name ?? ''}`}
           className="size-5 accent-ink"
         />
@@ -370,6 +369,15 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
           showPath={parent.kind === 'location'}
           leading={checkbox}
           contentCount={boxCounts.get(thing.id)}
+          {...(stagedIds.has(thing.id)
+            ? {
+                badge: (
+                  <Pill tone="warn">
+                    <Trans>Not saved yet</Trans>
+                  </Pill>
+                ),
+              }
+            : {})}
         />
       </div>
     );
@@ -408,103 +416,59 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
       ) : null}
 
       {canEdit && things.length && selecting ? (
-        <div
-          role="toolbar"
-          aria-label={t`Selection`}
-          className="flex flex-wrap items-center gap-2 rounded-[10px] border border-line bg-surface p-2"
+        <SelectionBar
+          ids={selected}
+          locationId={parent.locationId}
+          doneLabel={<Trans>Done</Trans>}
+          onDone={stopSelecting}
+          trash={
+            canTrash ? (
+              <Suspense fallback={null}>
+                <BulkTrashButton
+                  thingIds={selected}
+                  holdsThings={things.some((x) => x.isContainer && selection.ids.has(x.id))}
+                  onDone={stopSelecting}
+                />
+              </Suspense>
+            ) : null
+          }
         >
-          <span className="flex flex-1 items-center gap-2 ps-1 text-[14px] font-medium">
-            <CheckIcon className="size-4" />
-            {selected.size === 0 ? (
-              <Trans>Choose things</Trans>
-            ) : (
-              <Trans>
-                <span className="tabular-nums">{fmt.num(selected.size)}</span> selected
-              </Trans>
-            )}
-          </span>
           <Button
             size="small"
-            isDisabled={selected.size === 0}
+            isDisabled={selected.length === 0}
             onPress={() => setMoving([...selected])}
           >
             <Trans>Move</Trans>
           </Button>
-          {trayStore ? (
-            <Button
-              size="small"
-              variant="secondary"
-              isDisabled={selected.size === 0}
-              isPending={pickingUp}
-              onPress={() => void pickUpSelected()}
-              className="[&_svg]:size-4"
-            >
-              <TrayIcon />
-              <Trans>Pick up</Trans>
-            </Button>
-          ) : null}
-          {canLabel ? (
-            <Button
-              size="small"
-              variant="secondary"
-              isDisabled={selected.size === 0}
-              onPress={() =>
-                void navigate({
-                  to: '/labels',
-                  search: { loc: parent.locationId, things: [...selected].join(',') },
-                })
-              }
-            >
-              <Trans>Print labels</Trans>
-            </Button>
-          ) : null}
-          {canIncident ? (
-            <>
-              <Button
-                size="small"
-                variant="secondary"
-                isDisabled={selected.size === 0 || !online}
-                onPress={() => setIncidentFor([...selected])}
-              >
-                <Trans>Add to incident</Trans>
-              </Button>
-              <Button
-                size="small"
-                variant="secondary"
-                isDisabled={selected.size === 0 || !online}
-                onPress={() =>
-                  void navigate({
-                    to: '/reports/$kind',
-                    params: { kind: 'claim-pack' },
-                    search: { loc: parent.locationId, things: [...selected].join(',') },
-                  })
-                }
-              >
-                <Trans>Claim pack</Trans>
-              </Button>
-            </>
-          ) : null}
           {/* #209: tags added to the selection, or taken off, with one Undo. */}
           <BulkTagButtons
-            thingIds={[...selected]}
+            thingIds={selected}
             accountId={accountId}
             canCreate={!!here && can(here.role, 'tags.create')}
             locationId={parent.locationId}
             onDone={stopSelecting}
           />
-          {canTrash ? (
-            <Suspense fallback={null}>
-              <BulkTrashButton
-                thingIds={[...selected]}
-                holdsThings={things.some((x) => x.isContainer && selected.has(x.id))}
-                onDone={stopSelecting}
-              />
-            </Suspense>
-          ) : null}
-          <Button size="small" variant="ghost" onPress={stopSelecting}>
-            <Trans>Done</Trans>
+          <Button
+            size="small"
+            variant="secondary"
+            isDisabled={selected.length === 0 || !online}
+            onPress={() => setSettingField(true)}
+          >
+            <Trans>Set a field…</Trans>
           </Button>
-        </div>
+        </SelectionBar>
+      ) : null}
+
+      {canEdit && (selecting || stagedIds.size > 0) ? (
+        <ListBulkLazy
+          locationId={parent.locationId}
+          selected={selected}
+          order={order}
+          open={settingField}
+          onClose={() => setSettingField(false)}
+          onStaged={setStagedIds}
+          leaves={leavesList}
+        />
       ) : null}
 
       {drop.isPending ? (
@@ -647,15 +611,6 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
         }
         empty={emptyState}
       />
-
-      {incidentFor.length ? (
-        <AddToIncidentSheet
-          locationId={parent.locationId}
-          thingIds={incidentFor}
-          onClose={() => setIncidentFor([])}
-          onAdded={stopSelecting}
-        />
-      ) : null}
 
       {moving ? (
         <MoveThingsDialog

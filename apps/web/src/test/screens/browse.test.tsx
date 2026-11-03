@@ -690,7 +690,8 @@ describe('select and trash (#294)', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Send to Trash' }));
     await waitFor(() =>
       expect(mock.lastCall('POST', inventoryPaths.thingsBulkTrash)?.body).toEqual({
-        thingIds: [T.phone, T.cableBox],
+        // In the list's order (#366), not the order they were ticked in.
+        thingIds: [T.cableBox, T.phone],
         contents: 'trash',
       }),
     );

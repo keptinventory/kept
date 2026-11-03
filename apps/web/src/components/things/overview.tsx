@@ -2,7 +2,8 @@
  * Overview: the thing's own details, then its type's fields (D154), each only when
  * it has a value; its tags (#209), changed in place, the form open or not; archived values
  * collapsed underneath (D92: re-typing archives, never deletes); then passwords and codes, and
- * the purchase. Edit swaps the details for the form in place.
+ * the purchase. Edit swaps the details for the form in place. The label as it prints (#366) is a
+ * card in the side column from md, and a Label row in the details on a phone, which opens it.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
@@ -18,6 +19,7 @@ import { sep, useFormat } from '@/lib/format';
 import { useThingCtx } from './context';
 import { EditForm, type ThingEditor } from './edit-form';
 import { editableFields } from './form-model';
+import { LabelCard } from './label-sheet';
 import { useConditionLabels } from './labels';
 import { useFieldLabel, useTypeName } from './names';
 import { PurchaseSection } from './purchase-section';
@@ -27,14 +29,19 @@ import { Bidi, KeyValues, KV, Printed, useFieldValue } from './values';
 export function Overview({
   editor,
   onSplit,
+  onLabel,
   wide = false,
 }: {
   editor: ThingEditor;
   onSplit?: () => void;
+  /** A phone's Label row: opens the label as it prints. */
+  onLabel?: () => void;
   /** From `md` up the page header carries Edit, so the section doesn't repeat it. */
   wide?: boolean;
 }) {
-  const { thing, can } = useThingCtx();
+  const { thing, can, moduleOn } = useThingCtx();
+  // #366: where labels print, the label as it prints.
+  const labels = moduleOn('labels') && can('labels.use') && !!thing.shortCode;
   const { t } = useLingui();
   const editing = editor.session !== null;
   return (
@@ -51,7 +58,11 @@ export function Overview({
             ) : undefined
           }
         >
-          {editing ? <EditForm editor={editor} /> : <Details onSplit={onSplit} />}
+          {editing ? (
+            <EditForm editor={editor} />
+          ) : (
+            <Details onSplit={onSplit} onLabel={labels && !wide ? onLabel : undefined} />
+          )}
         </Section>
         <ThingTags />
         {!editing && Object.keys(thing.archivedCustom).length ? <Archived /> : null}
@@ -67,6 +78,7 @@ export function Overview({
         ) : null}
       </div>
       <div className="grid min-w-0 gap-5">
+        {labels && wide ? <LabelCard /> : null}
         {/* A consumable's minimum, where Consumables is on. */}
         <KeepAtLeastSection />
         <OwnCodesSection
@@ -82,7 +94,13 @@ export function Overview({
   );
 }
 
-function Details({ onSplit }: { onSplit?: (() => void) | undefined }) {
+function Details({
+  onSplit,
+  onLabel,
+}: {
+  onSplit?: (() => void) | undefined;
+  onLabel?: (() => void) | undefined;
+}) {
   const { thing, can } = useThingCtx();
   const { t } = useLingui();
   const fmt = useFormat();
@@ -161,6 +179,16 @@ function Details({ onSplit }: { onSplit?: (() => void) | undefined }) {
     );
   }
   add('lastSeen', t`Last seen`, thing.lastSeenAt ? fmt.dateTime(thing.lastSeenAt) : null);
+  // A phone's way to the label as it prints (#366); from md it is a card beside the details.
+  add(
+    'label',
+    t({ message: 'Label', context: 'printed label' }),
+    onLabel && thing.shortCode ? (
+      <Button variant="secondary" size="small" onPress={onLabel}>
+        <Trans>Show the label</Trans>
+      </Button>
+    ) : null,
+  );
   if (rows.length === 0)
     return (
       <p className="m-0 text-small text-ink-3">

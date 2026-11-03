@@ -276,10 +276,22 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
         return asVehicle ? (
           vehiclePanel('overview')
         ) : (
-          <Overview editor={editor} onSplit={() => openSheet('split')} wide={wide} />
+          <Overview
+            editor={editor}
+            onSplit={() => openSheet('split')}
+            onLabel={() => openSheet('label')}
+            wide={wide}
+          />
         );
       case 'details':
-        return <Overview editor={editor} onSplit={() => openSheet('split')} wide={wide} />;
+        return (
+          <Overview
+            editor={editor}
+            onSplit={() => openSheet('split')}
+            onLabel={() => openSheet('label')}
+            wide={wide}
+          />
+        );
       case 'paperwork':
         return <PaperworkSection />;
       case 'value':
@@ -381,7 +393,8 @@ function Loaded({ tab, sheet }: { tab: ThingTab | undefined; sheet: SheetName | 
           )
         }
       >
-        <ThingHeader />
+        {/* #366: the type chip opens the type picker, for whoever edits things. */}
+        <ThingHeader onType={can('things.edit') ? () => openSheet('retype') : undefined} />
         {/* At every width: on a phone the header's back arrow is icon-only, and this says where
             it goes (the maintainer couldn't tell how to get back to a thing's place). */}
         <div>
