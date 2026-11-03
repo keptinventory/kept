@@ -188,8 +188,9 @@ pull request.
    git switch -c release-X.Y.Z
    node scripts/changelog.mjs --version X.Y.Z --from vPREVIOUS --highlights .tmp/highlights-X.Y.Z.md \
      --write CHANGELOG.md   # no --from for the first; run again to replace the section
-   # The install pins: the tag in compose.yaml's download URL, and compose.yaml's default image.
-   PINS="README.md compose.yaml apps/docs/src/content/docs/install/compose.md apps/docs/src/content/docs/ar/install/compose.md apps/docs/src/content/docs/install/https.md"
+   # The install pins: the tag in compose.yaml's download URL, and the two Compose files' default
+   # image (scripts/check-compose-files.mjs fails when compose.full.yaml's differs).
+   PINS="README.md compose.yaml compose.full.yaml apps/docs/src/content/docs/install/compose.md apps/docs/src/content/docs/ar/install/compose.md apps/docs/src/content/docs/install/https.md"
    for f in $PINS; do sed -i.bak -E -e 's|keptinventory/kept/v[0-9]+\.[0-9]+\.[0-9]+/|keptinventory/kept/vX.Y.Z/|g' \
      -e 's|(ghcr\.io/keptinventory/kept):[0-9]+\.[0-9]+\.[0-9]+\}|\1:X.Y.Z}|g' "$f" && rm "$f.bak"; done
    git commit -m "chore(release): X.Y.Z" -- CHANGELOG.md $PINS

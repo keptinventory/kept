@@ -89,6 +89,7 @@ describe('scanLine', () => {
     expect(privateIpv4Allowed('apps/web/src/api/mock/fixtures.ts')).toBe(true);
     expect(privateIpv4Allowed('apps/server/test/fixtures/x.json')).toBe(true);
     expect(privateIpv4Allowed('compose.yaml')).toBe(true);
+    expect(privateIpv4Allowed('compose.full.yaml')).toBe(true);
     expect(privateIpv4Allowed('docs/new-page.md')).toBe(false);
     expect(rules('apps/server/src/net/ssrf.test.ts', "['192.168.1.1', true]")).toEqual([]);
   });

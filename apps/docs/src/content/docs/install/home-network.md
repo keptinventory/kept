@@ -70,8 +70,10 @@ trusts it, its browser shows a security warning.
    KEPT_PUBLIC_URL=https://kept.home.arpa
    ```
 
-3. Add `tls internal` to `docker/caddy/Caddyfile` (download it first as in
-   [Put Kept on HTTPS](/install/https/#composes-caddy-profile)):
+3. Caddy comes with `compose.full.yaml`: download it and `docker/caddy/Caddyfile`, and set
+   `COMPOSE_FILE=compose.full.yaml` in `.env`, as in
+   [Put Kept on HTTPS](/install/https/#composes-caddy-profile). Then add `tls internal` to the
+   Caddyfile:
 
    ```caddy
    {$KEPT_DOMAIN} {

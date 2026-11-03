@@ -19,7 +19,7 @@ image=${1:?usage: ha-ingress-e2e.sh <kept-ha image>}
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 export DOCKER_CONFIG=${DOCKER_CONFIG:-/tmp/kept-docker-config}
 BOOT_TIMEOUT=${BOOT_TIMEOUT:-180}
-# compose.yaml's Caddy, pinned by digest.
+# compose.full.yaml's Caddy, pinned by digest.
 CADDY_IMAGE=caddy:2.11.4-alpine@sha256:6aeddd44c3078b0f9a35206472a11420648a79c184603ef95957d0a20044cb2b
 
 run_id="kept-ha-e2e-$$"

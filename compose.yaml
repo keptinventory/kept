@@ -1,26 +1,17 @@
-# Kept for self-hosters. This file works on its own, without the repository:
+# Kept for self-hosters: Kept and its database. This file works on its own, without the repository:
 #
-#   docker compose run --rm init           # asks the address you'll open Kept at; writes .env
-#   docker compose up -d                   # then open that address and enter the setup code
-#   docker compose --profile https up -d   # plus Caddy on 80/443 for KEPT_DOMAIN (Caddyfile below)
-#   docker compose --profile ollama up -d  # plus Ollama, a local AI model server (below)
+#   docker compose run --rm init   # asks the address you'll open Kept at; writes .env
+#   docker compose up -d           # then open that address and enter the setup code
 #
-# Start order: db (healthy) → bootstrap (one-shot `kept bootstrap`: the four database logins and
-# the extensions) → migrate (one-shot `kept migrate`) → kept. Each step exits 0 before the next.
+# What runs: db and kept stay running. bootstrap (the database logins and extensions) and migrate
+# (`kept migrate`) run once on each start, in that order, and exit. init runs only when you run it.
 #
-# Database passwords: none to make. On the first start the bootstrap generates one per login:
-# kept_app, kept_auth and kept_system into the kept-config volume (the serving container reads
-# them there), kept_owner into the kept-owner volume (only migrate and the bootstrap mount it). On
-# every start it sets each login's password to that value, so nothing in .env can lock Postgres
-# out. An install made before 1.13.0 keeps the five KEPT_DB_*_PASSWORD lines in .env: set, they
-# are used as given and nothing is generated.
+# No passwords to make: bootstrap generates the database's into the kept-config and kept-owner
+# volumes, and Kept generates its keys into kept-config. Keep the recovery kit (`docker compose exec
+# kept kept admin recovery-kit`): without the keys, secret values are unreadable.
 #
-# First boot also generates KEPT_SECRET_KEY and KEPT_AUTH_SECRET into kept-config unless .env sets
-# both; `docker compose logs kept` says where. Keep the recovery kit (`docker compose exec kept
-# kept admin recovery-kit`): without the keys, secret values are unreadable.
-#
-# Needs Kept 1.13.0 or later (the bootstrap command). (compose.dev.yaml is the developer
-# database, not this.)
+# Caddy for HTTPS and Ollama for local AI are in compose.full.yaml: this file plus those.
+# Needs Kept 1.13.0 or later. (compose.dev.yaml is the developer database, not this.)
 name: kept
 
 x-kept-image: &kept-image
@@ -190,8 +181,8 @@ services:
       KEPT_PUBLIC_URL: ${KEPT_PUBLIC_URL:-}
       # KEPT_SECRET_KEY and KEPT_AUTH_SECRET come with the backup variables above: both or
       # neither; unset, they are generated into kept-config on first boot (D193).
-      # Only Caddy's fixed address (below) is believed about X-Forwarded-For. Nothing else ever
-      # holds it: it lies outside the network's dynamic range.
+      # Only Caddy's fixed address (compose.full.yaml's https profile) is believed about
+      # X-Forwarded-For. Nothing else ever holds it: it lies outside the network's dynamic range.
       KEPT_TRUSTED_PROXIES: 172.29.72.200
       # HSTS over https (#403): off sends max-age=0, for plain-http services on the same hostname.
       KEPT_HSTS: ${KEPT_HSTS:-}
@@ -253,29 +244,6 @@ services:
         condition: service_completed_successfully
     networks: [kept]
 
-  # A split deployment (D186), for when one process is not enough: replace `kept` above with a
-  # web service and a single worker, both from the same image and environment. The worker serves
-  # no HTTP and publishes no port; it runs the jobs, the nightly backup among them, so it is the
-  # one that needs a backup directory mounted. The image's HEALTHCHECK follows KEPT_ROLE: /readyz
-  # for web, and for worker the liveness file its job loop touches (docker/healthcheck.mjs), so
-  # neither needs a healthcheck override. With local file storage both mount kept-data.
-  #
-  # kept-web:
-  #   <<: *kept-image
-  #   restart: unless-stopped
-  #   environment: { <<: *ops-env, KEPT_ROLE: web, …the kept service's variables… }
-  #   volumes: [kept-data:/data, kept-config:/config]
-  #   ports: ["${KEPT_HTTP_PORT:-8080}:8080"]
-  #   depends_on: { db: { condition: service_healthy }, migrate: { condition: service_completed_successfully } }
-  #   networks: [kept]
-  # kept-worker:
-  #   <<: *kept-image
-  #   restart: unless-stopped
-  #   environment: { <<: *ops-env, KEPT_ROLE: worker, …the kept service's variables… }
-  #   volumes: [kept-data:/data, kept-config:/config]
-  #   depends_on: { db: { condition: service_healthy }, migrate: { condition: service_completed_successfully } }
-  #   networks: [kept]
-
   init:
     # `docker compose run --rm init` (`kept init`): asks the address and writes .env in this
     # folder. `up` never starts it. The only service that sees this folder; it runs as root with
@@ -298,67 +266,12 @@ services:
     healthcheck:
       disable: true
 
-  caddy:
-    profiles: [https]
-    # Tag read from Docker Hub, pinned by its multi-arch index digest (D193: chosen at build
-    # time, tag verified on the registry).
-    image: caddy:2.11.4-alpine@sha256:6aeddd44c3078b0f9a35206472a11420648a79c184603ef95957d0a20044cb2b
-    restart: unless-stopped
-    environment:
-      # Not `:?`: Compose interpolates every service, profile or not, so a required value here
-      # would break plain `docker compose up`. The command refuses to start without it instead.
-      KEPT_DOMAIN: ${KEPT_DOMAIN:-}
-    command:
-      - sh
-      - -c
-      - >-
-        test -n "$$KEPT_DOMAIN" || { echo "caddy: set KEPT_DOMAIN in .env" >&2; exit 1; };
-        exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      # Besides .env, the one file a service reads from this folder, and only with the https
-      # profile. Without the repository: mkdir -p docker/caddy && curl -fsSLo docker/caddy/Caddyfile
-      # https://raw.githubusercontent.com/keptinventory/kept/v1.14.4/docker/caddy/Caddyfile
-      # Missing, the start stops with "bind source path does not exist" and creates nothing.
-      - type: bind
-        source: ./docker/caddy/Caddyfile
-        target: /etc/caddy/Caddyfile
-        read_only: true
-        bind:
-          create_host_path: false
-      - caddy-data:/data
-      - caddy-config:/config
-    depends_on: [kept]
-    networks:
-      kept:
-        ipv4_address: 172.29.72.200
-
-  ollama:
-    # A local model server for Kept's AI features (D85): `docker compose --profile ollama up -d`,
-    # then `docker compose exec ollama ollama pull <model>`. In Settings → AI, add an
-    # OpenAI-compatible provider with the base URL http://ollama:11434/v1 (Compose's network;
-    # Ollama ignores the API key) and the model you pulled. Nothing is published on the host.
-    # That address is a private one: turn on Admin → Settings → Allow private addresses first,
-    # or adding the provider is refused ("That address is on a private network").
-    # Tag read from Docker Hub (the latest stable release on 2026-10-06), pinned by its
-    # multi-arch index digest; about 3.8 GB (amd64) or 2.8 GB (arm64) to pull, before any model.
-    profiles: [ollama]
-    image: ollama/ollama:0.35.1@sha256:292ee7945dfc3d5840a181f3ab86fedb1e66703e02c8af98b50f4da56b7e278c
-    restart: unless-stopped
-    volumes:
-      # The models (Ollama's own Docker instructions mount this path).
-      - ollama:/root/.ollama
-    networks: [kept]
-
 networks:
   kept:
     ipam:
       config:
-        # If 172.29.72.0/24 clashes with your LAN, change the subnet, ip_range, Caddy's
-        # ipv4_address and KEPT_TRUSTED_PROXIES together.
+        # If 172.29.72.0/24 clashes with your LAN, change the subnet, ip_range and
+        # KEPT_TRUSTED_PROXIES together (and Caddy's ipv4_address, in compose.full.yaml).
         - subnet: 172.29.72.0/24
           ip_range: 172.29.72.0/25
 
@@ -367,6 +280,3 @@ volumes:
   kept-data: {}
   kept-config: {}
   kept-owner: {}
-  caddy-data: {}
-  caddy-config: {}
-  ollama: {}

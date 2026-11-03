@@ -5,8 +5,9 @@ sidebar:
   order: 1
 ---
 
-Docker Compose is the way to run Kept on one machine: Kept itself, Postgres 18 with pgvector, and,
-if you want it, Caddy for HTTPS. You need Docker with the Compose plugin. Tested on a machine with
+Docker Compose is the way to run Kept on one machine: Kept itself and Postgres 18 with pgvector.
+Caddy for HTTPS and Ollama for local AI come with a second file
+([Caddy and Ollama](#caddy-and-ollama)). You need Docker with the Compose plugin. Tested on a machine with
 1 GB of RAM and one CPU core; Kept and its database use about 200–400 MB of it
 ([what was tested](/install/hardware/)).
 
@@ -21,6 +22,33 @@ docker compose up -d
 
 `compose.yaml` works on its own, so it also pastes into Portainer, Dockge and the like (see
 [without a terminal](#without-a-terminal)).
+
+## What runs
+
+| Service | Runs |
+|---|---|
+| `db` | Postgres, and stays running |
+| `kept` | Kept on port 8080, and stays running |
+| `bootstrap` | once on each start, then exits: the database logins and extensions |
+| `migrate` | once on each start, then exits: the database migrations |
+| `init` | only when you run it (`docker compose run --rm init`): writes `.env` |
+
+## Caddy and Ollama
+
+`compose.yaml` runs Kept alone. `compose.full.yaml` is the same file plus Caddy for HTTPS (the
+`https` profile), Ollama for local AI (the `ollama` profile) and a split web and worker deployment,
+commented out. It also works on its own. To use it instead:
+
+```sh
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.4/compose.full.yaml
+docker compose -f compose.full.yaml run --rm init
+echo COMPOSE_FILE=compose.full.yaml >> .env
+docker compose up -d
+```
+
+With `COMPOSE_FILE` in `.env`, plain `docker compose` reads `compose.full.yaml`, so every command
+in these docs works as written. Kept's services, network and volumes are the same in both files:
+an install can switch at any time and keep its data.
 
 :::note[Images]
 Releases are published to `ghcr.io/keptinventory/kept`, tagged `1`, `1.2` and `1.2.3`, never
@@ -120,7 +148,7 @@ secret value, AI key or backup setting. See [the recovery kit](/admin/recovery-k
 | `kept-data` | uploaded files (with `KEPT_STORAGE=local`, the default) | through Kept's backup |
 | `kept-config` | the generated `KEPT_SECRET_KEY` and `KEPT_AUTH_SECRET`, and the passwords of the `kept_app`, `kept_auth` and `kept_system` logins | keep the recovery kit; the passwords are made again if lost |
 | `kept-owner` | the password of the `kept_owner` login | no; it is made again if lost |
-| `caddy-data`, `caddy-config` | Caddy's certificates (the `https` profile) | no; Caddy gets new ones |
+| `caddy-data`, `caddy-config` | Caddy's certificates (`compose.full.yaml`'s `https` profile) | no; Caddy gets new ones |
 
 The database's superuser has no password anyone needs: it is reached only from inside the
 database container, as `docker compose exec db psql -U postgres`, and by the bootstrap, which
@@ -136,7 +164,7 @@ create `.env` in your folder and give it to you, and exits.
 
 ## Without a terminal
 
-Portainer, Dockge and similar tools take `compose.yaml` as it is. They don't run `init`, so set two
+Portainer, Dockge and similar tools take `compose.yaml` (or `compose.full.yaml`) as it is. They don't run `init`, so set two
 variables in their environment editor instead: `KEPT_PUBLIC_URL` (the address, as above) and
 `KEPT_SETUP_CODE` (six characters of 0–9 and A–Z without I, L, O and U, such as `KPT-2X9`; or leave
 it empty and read the code from Kept's log). Pin `KEPT_IMAGE` to a release if the tool doesn't.
@@ -156,6 +184,6 @@ if you build your own.
 One container serves the web app and runs the background jobs (`KEPT_ROLE=all`, the default). To
 split them, run a second Kept service with `KEPT_ROLE=worker` beside one with `KEPT_ROLE=web`. A
 worker serves no HTTP; the image's healthcheck follows `KEPT_ROLE` and checks the worker's job loop
-instead, so neither needs an override (`compose.yaml` has the two services commented out). The
+instead, so neither needs an override (`compose.full.yaml` has the two services commented out). The
 worker runs the nightly backup, so it is the one that needs the owner login and a directory
 target's mount.

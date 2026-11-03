@@ -141,7 +141,7 @@ docker compose run --rm init
 docker compose up -d
 ```
 
-1. **`compose.yaml`:** the whole stack in one file; no clone, no passwords to make.
+1. **`compose.yaml`:** Kept and its database in one file; no clone, no passwords to make.
 2. **`init`:** asks the address you'll open Kept at (a name such as `http://kept.home.arpa:8080`
    beats an IP address: printed labels carry it), writes `.env` and shows the setup code.
 3. **Start:** the database, a one-shot bootstrap that makes the database logins and their
@@ -150,9 +150,10 @@ docker compose up -d
    the instance admin. Then keep the keys off this server:
    `docker compose exec kept kept admin recovery-kit` prints them.
 
-The camera, installing the app, push and location need HTTPS:
-`docker compose --profile https up -d` adds Caddy with a certificate for `KEPT_DOMAIN`, from
-the Caddyfile in `docker/caddy/` ([HTTPS](https://keptinventory.info/install/https/)). Every step in full:
+The camera, installing the app, push and location need HTTPS. Caddy, with a certificate for
+`KEPT_DOMAIN`, and Ollama for local AI come with `compose.full.yaml`: the same file plus those
+([Caddy and Ollama](https://keptinventory.info/install/compose/#caddy-and-ollama),
+[HTTPS](https://keptinventory.info/install/https/)). Every step in full:
 [the install guide](https://keptinventory.info/install/compose/).
 
 - **Home Assistant:** on Home Assistant OS, Kept installs as an app with its own database, backed
