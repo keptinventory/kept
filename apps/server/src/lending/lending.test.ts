@@ -502,6 +502,41 @@ describe('PATCH, DELETE and the condition photos of a loan', () => {
     });
     expect((await thingView(bike.id)).derivedState).toEqual(['lent']);
   });
+
+  it('a named condition photo keeps its name through the delete and its undo (#183)', async () => {
+    const drill = await createThing(t, ibrahim, home, { name: 'Drill' });
+    const loan = (await lend(louis, drill.id, { person: { id: murdock } })).loan as Json;
+    const bytes = Buffer.from(`drill-${newId()}`);
+    const [file] = await own<{ id: string }>(
+      db,
+      `INSERT INTO public.files (location_id, storage_key, sha256, bytes, mime, class,
+                                 derivative_state, created_by)
+       VALUES ($1, 'f/x/' || gen_random_uuid(), $2, $3, 'image/jpeg', 'photo', 'unavailable', $4)
+       RETURNING id`,
+      [home.id, createHash('sha256').update(bytes).digest('hex'), bytes.length, louis.userId],
+    );
+    const photo = ok(
+      await post(louis, `/api/v1/loans/${loan.id}/attachments`, {
+        fileId: file?.id,
+        role: 'condition_out',
+      }),
+      201,
+    );
+    ok(
+      await patch(
+        louis,
+        `/api/v1/attachments/${photo.id}`,
+        { name: 'Scratch on the case' },
+        photo.rowVersion as number,
+      ),
+    );
+    const gone = await del(louis, `/api/v1/loans/${loan.id}`, 1);
+    expect(gone.statusCode).toBe(204);
+    ok(await undo(louis, gone.headers['x-kept-audit-event'] as string));
+    expect(await own(db, 'SELECT name FROM public.attachments WHERE id = $1', [photo.id])).toEqual([
+      { name: 'Scratch on the case' },
+    ]);
+  });
 });
 
 describe('GET /api/v1/loans and the person page', () => {

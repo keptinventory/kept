@@ -77,7 +77,15 @@ async function undoLoanUpdate(args: UndoArgs): Promise<void> {
   });
 }
 
-type Photo = { id: string; file_id: string | null; url: string | null; role: string; sort: number };
+type Photo = {
+  id: string;
+  file_id: string | null;
+  url: string | null;
+  role: string;
+  sort: number;
+  /** What people named it (#183); absent in events from before 1.14.4. */
+  name?: string | null;
+};
 
 /** loan.delete: the loan comes back with its id and photos. */
 async function undoLoanDelete(args: UndoArgs): Promise<void> {
@@ -120,13 +128,13 @@ async function undoLoanDelete(args: UndoArgs): Promise<void> {
   );
   for (const a of (b.attachments as Photo[] | null) ?? []) {
     await client.query(
-      `INSERT INTO public.attachments (id, location_id, file_id, url, loan_id, role, sort,
+      `INSERT INTO public.attachments (id, location_id, file_id, url, loan_id, role, sort, name,
                                        created_by)
-       SELECT $1, $2, $3, $4, $5, $6, $7, kept.current_user_id()
+       SELECT $1, $2, $3, $4, $5, $6, $7, $8, kept.current_user_id()
         WHERE $3::uuid IS NULL OR EXISTS (SELECT 1 FROM public.files f WHERE f.id = $3)
            OR kept.undo_holds_file($1, $3)
        ON CONFLICT DO NOTHING`,
-      [a.id, event.locationId, a.file_id, a.url, id, a.role, a.sort],
+      [a.id, event.locationId, a.file_id, a.url, id, a.role, a.sort, a.name ?? null],
     );
   }
   const row = await loanRecord(client, id);
