@@ -72,9 +72,10 @@ export async function moveProofToReading(
   const { rows } = await client.query<{
     location_id: string;
     file_id: string | null;
+    name: string | null;
     read_by: string | null;
   }>(
-    `SELECT a.location_id, a.file_id,
+    `SELECT a.location_id, a.file_id, a.name,
             (SELECT e.id FROM public.extractions e WHERE e.attachment_id = a.id
               ORDER BY e.created_at DESC LIMIT 1) AS read_by
        FROM public.attachments a
@@ -95,12 +96,12 @@ export async function moveProofToReading(
   await client.query('DELETE FROM public.attachments WHERE id = $1', [attachmentId]);
   await client.query(
     `INSERT INTO public.attachments (id, location_id, file_id, meter_reading_id, role, sort,
-                                     created_by)
+                                     name, created_by)
      VALUES ($1, $2, $3, $4, 'proof',
              (SELECT coalesce(max(x.sort) + 1, 0)::int FROM public.attachments x
                WHERE x.meter_reading_id = $4),
-             kept.current_user_id())`,
-    [attachmentId, a.location_id, a.file_id, readingId],
+             $5, kept.current_user_id())`,
+    [attachmentId, a.location_id, a.file_id, readingId, a.name],
   );
   return attachmentId;
 }
