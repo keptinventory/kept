@@ -181,12 +181,12 @@ async function restoreAttachments(
 ): Promise<void> {
   for (const a of held) {
     await client.query(
-      `INSERT INTO public.attachments (id, location_id, file_id, url, ${column}, role, sort,
+      `INSERT INTO public.attachments (id, location_id, file_id, url, ${column}, role, sort, name,
                                        created_by)
-       SELECT $1, $2, $3, $4, $5, $6, $7, kept.current_user_id()
+       SELECT $1, $2, $3, $4, $5, $6, $7, $8, kept.current_user_id()
         WHERE $3::uuid IS NULL OR EXISTS (SELECT 1 FROM public.files f WHERE f.id = $3)
        ON CONFLICT DO NOTHING`,
-      [a.id, locationId, a.file_id, a.url, subject, a.role, a.sort],
+      [a.id, locationId, a.file_id, a.url, subject, a.role, a.sort, a.name ?? null],
     );
   }
 }

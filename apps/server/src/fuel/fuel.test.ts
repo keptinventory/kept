@@ -452,6 +452,46 @@ describe('changing a fill', () => {
     ]);
   });
 
+  it('a named receipt keeps its name through the delete and its undo (#183)', async () => {
+    const car = await newCar('Named receipt car');
+    const out = await fill(louis, car, {
+      takenAt: daysAgo(6),
+      amount: '30',
+      cost: '750',
+      receiptFileId: await receipt(louis),
+    });
+    const id = out.entry.id;
+    const [held] = await own<{ id: string; row_version: number }>(
+      db,
+      `SELECT id, row_version FROM public.attachments WHERE fuel_entry_id = $1`,
+      [id],
+    );
+    ok(
+      await call(t, `/api/v1/attachments/${held?.id}`, {
+        as: louis,
+        method: 'PATCH',
+        body: { name: 'Shell, Ring Road' },
+        headers: { 'if-match': String(held?.row_version) },
+      }),
+    );
+    const [entry] = await own<{ row_version: number }>(
+      db,
+      'SELECT row_version FROM public.fuel_entries WHERE id = $1',
+      [id],
+    );
+    const res = ok(
+      await call(t, `/api/v1/fuel/${id}`, {
+        as: louis,
+        method: 'DELETE',
+        headers: { 'if-match': String(entry?.row_version) },
+      }),
+    ) as unknown as { undo: { eventId: string } };
+    ok(await undo(louis, res.undo.eventId));
+    expect(await own(db, 'SELECT name FROM public.attachments WHERE id = $1', [held?.id])).toEqual([
+      { name: 'Shell, Ring Road' },
+    ]);
+  });
+
   it('refuses to undo a delete whose reading no longer fits', async () => {
     const car = await newCar();
     const out = await fill(louis, car, {
