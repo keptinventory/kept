@@ -96,12 +96,43 @@ place inside it, with its own name, label and, if you like, its own code.
   their codes, as long as nothing was put in them or changed since.
 - **Labels:** on the new furniture, **Label everything here** prints a label for it and for every
   compartment, in counting order.
+- **Its page** shows the compartments as it stands, numbered as their labels are. Tap one to open
+  it. **Print their labels** prints all of them again, in counting order, with the names they
+  have now.
+
+### Turning furniture
+
+**Turn it…** on the furniture's page, for a cube shelf that isn't square.
+
+- **Its top went:** **To the right** or **To the left**, as you face it. Each compartment moves
+  with the unit, with its things and its printed label.
+- **Its compartments** is asked every time, because the labels are already on:
+  - **Renumber:** each compartment gets the number, name and code of where it now stands, counted
+    from the top left again. An old code still works: it opens the compartment now in the place it
+    named. Print the labels again for the new names.
+  - **Keep the codes:** only how it stands changes. Every compartment keeps its number, name and
+    codes.
+- The sheet shows the new grid before you turn it. A name or a code you typed yourself stays with
+  its compartment either way.
+- **Undo** turns it back, numbers, names and codes included, as long as nothing in it changed
+  since.
+
+### Merging and splitting compartments
+
+A cube insert or a removed shelf makes two or more compartments one.
+
+- **Merge or split…**, then tap compartments side by side that make a rectangle, and **Merge**.
+  The top left one stays, with its number, name and code. The others go to the Trash; their codes
+  and printed labels open the merged compartment, and what was in them moves into it.
+- To split a merged compartment, tap it and **Split**. Each cell comes back with its code and its
+  label; things stay in the top left one.
+- **Undo** reverses either.
 - **Your own templates:** **Settings → Account → Templates → Furniture** has the account's own
   place templates: cubes across and up (upright), shelves or drawers, the kinds, the names and
   the code pattern, shared with the locations you choose. Owners and admins make them; anyone who
   can add places uses them.
-- **AI apps** can do the same: `create_place` takes a `template`
-  ([MCP clients](/users/mcp-clients/#the-tools)).
+- **AI apps** can do the same: `create_place` takes a `template`, and `update_place` a `turn`
+  ([MCP clients](/users/mcp-clients/#the-tools)). Merging and splitting stay in the app.
 
 ## Related
 

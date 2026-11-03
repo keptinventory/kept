@@ -74,6 +74,11 @@ you're told what has it. Members, admins and owners can claim; viewers can't.
 To label a place you've already stuck a blank on, open the place and choose **Add a label code**
 (under Manage): the scanner opens, and the blank you scan offers that place first.
 
+A label stays with what it is stuck on. When [compartments are merged](/users/locations/#merging-and-splitting-compartments),
+the labels of the ones merged away open the merged compartment; a split gives each its label
+back. When furniture is [turned](/users/locations/#turning-furniture), each compartment keeps its
+label, whether it is renumbered or not.
+
 The codes Kept reads, and where a new thing keeps them:
 
 | Code | Usually on | Kept keeps it as |
