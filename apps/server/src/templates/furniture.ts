@@ -721,6 +721,21 @@ export async function undoFurniture(args: UndoArgs): Promise<void> {
     );
     if (rows.length > 0) throw undoConflict(['codes']);
   }
+  // A place the undo puts in the trash must hold nothing it didn't bring: a thing or a place put
+  // in a split's piece since would be left live inside the trash (as undoFurnitureCreate refuses).
+  const away = ids.filter((x) => now.places[x]?.live && !before.places[x]?.live);
+  if (away.length > 0) {
+    const { rows: holds } = await client.query<{ n: number }>(
+      `SELECT ((SELECT count(*) FROM public.things t
+                 WHERE t.place_id = ANY ($1::uuid[]) AND t.deleted_at IS NULL
+                   AND NOT (t.id = ANY ($2::uuid[])))
+             + (SELECT count(*) FROM public.places k
+                 WHERE k.parent_id = ANY ($1::uuid[]) AND k.deleted_at IS NULL
+                   AND NOT (k.id = ANY ($1::uuid[])) AND NOT (k.id = ANY ($3::uuid[]))))::int AS n`,
+      [away, Object.keys(before.things), Object.keys(before.children)],
+    );
+    if ((holds[0]?.n ?? 0) > 0) throw undoConflict(['contents']);
+  }
   const { rows: kinds } = await client.query<{ id: string; kind_key: string }>(
     'SELECT id, kind_key FROM public.places WHERE id = ANY ($1::uuid[])',
     [ids],
