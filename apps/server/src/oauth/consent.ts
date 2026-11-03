@@ -190,6 +190,13 @@ export async function decide(
     after: { clientName: app.name, scope: body.scope, locationIds },
     requestId: ctx.requestId,
   });
+  // A consent starts a new refresh token lineage (#411). The grant row is found by person and
+  // client alone (kept.token_oauth_for), so a refresh token left over from an ended grant (an
+  // account claim revokes Kept's tokens only) would otherwise come back to life with this one.
+  await ctx.authPool.query(
+    'DELETE FROM auth.oauth_refresh_token WHERE user_id = $1 AND client_id = $2',
+    [ctx.scope.userId, clientId],
+  );
   const redirectTo = await betterAuthConsent(ctx.auth, ctx.publicUrl, ctx.headers, {
     accept: true,
     scope: oauthScopesOf(

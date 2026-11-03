@@ -45,6 +45,18 @@ const CONNECTOR_METADATA = {
   redirect_uris: [CONNECTOR_REDIRECT],
   grant_types: ['authorization_code', 'refresh_token'],
 };
+// A connector whose metadata document declares its scopes (they're the only ones it may request),
+// and only the authorization_code grant.
+const DECLARED_ID = 'https://declared.example/oauth/kept-client.json';
+const DECLARED_REDIRECT = 'https://declared.example/callback';
+const DECLARED_METADATA = {
+  ...CONNECTOR_METADATA,
+  client_id: DECLARED_ID,
+  client_name: 'Selina’s list',
+  redirect_uris: [DECLARED_REDIRECT],
+  scope: 'kept:read kept:write',
+  grant_types: ['authorization_code'],
+};
 
 let db: TestDb;
 let t: TestApp;
@@ -62,13 +74,14 @@ beforeAll(async () => {
     oauth: {
       publicUrl: 'http://localhost:5173',
       isMetadataDocumentUrlAllowed: (url) =>
-        url === CLIENT_ID || url === OTHER_ID || url === CONNECTOR_ID,
+        url === CLIENT_ID || url === OTHER_ID || url === CONNECTOR_ID || url === DECLARED_ID,
       fetchClientMetadataResource: async (input) => {
         fetched += 1;
         const url = input instanceof Request ? input.url : String(input);
         if (url === CLIENT_ID) return Response.json(METADATA);
         if (url === OTHER_ID) return Response.json(OTHER_METADATA);
         if (url === CONNECTOR_ID) return Response.json(CONNECTOR_METADATA);
+        if (url === DECLARED_ID) return Response.json(DECLARED_METADATA);
         return new Response('not found', { status: 404 });
       },
     },
@@ -533,6 +546,67 @@ describe('OAuth connectors', () => {
       [louis.userId, CONNECTOR_ID],
     );
     expect(left).toHaveLength(0);
+  });
+
+  it('starts a new refresh token lineage with every consent, so an orphaned one never comes back', async () => {
+    // A grant can end without Better Auth's refresh token going with it (an account claim
+    // revokes Kept's tokens only, D197). The next consent for that client must not revive it.
+    const connector = { id: CONNECTOR_ID, redirect: CONNECTOR_REDIRECT };
+    const consentOnce = async () => {
+      const verifier = randomBytes(32).toString('base64url');
+      const query = await authorize(verifier, connector);
+      const decided = ok(
+        await call(t, `/api/v1/oauth/consent?${query}`, {
+          as: louis,
+          body: { accept: true, scope: 'read', locationIds: [home.id] },
+        }),
+      );
+      return redeemTokens(decided.redirectTo as string, verifier, connector);
+    };
+    const orphan = await consentOnce();
+    await db.pools.system.query("SELECT kept.revoke_user_tokens($1, 'account_claimed')", [
+      louis.userId,
+    ]);
+    expect((await listToolsWith(orphan.access_token)).statusCode).toBe(401);
+
+    const fresh = await consentOnce();
+    expect((await listToolsWith(fresh.access_token)).statusCode).toBe(200);
+    const revived = await tokenEndpoint({
+      grant_type: 'refresh_token',
+      refresh_token: orphan.refresh_token as string,
+      client_id: CONNECTOR_ID,
+    });
+    expect(revived.statusCode, revived.body).toBe(400);
+    expect((revived.json() as { error?: string }).error).toBe('invalid_grant');
+    // The new lineage still works.
+    const renewed = await tokenEndpoint({
+      grant_type: 'refresh_token',
+      refresh_token: fresh.refresh_token as string,
+      client_id: CONNECTOR_ID,
+    });
+    expect(renewed.statusCode, renewed.body).toBe(200);
+  });
+
+  it('gives a refresh token to a connector whose metadata declares its scopes', async () => {
+    const declared = { id: DECLARED_ID, redirect: DECLARED_REDIRECT };
+    const verifier = randomBytes(32).toString('base64url');
+    const query = await authorize(verifier, declared);
+    const decided = ok(
+      await call(t, `/api/v1/oauth/consent?${query}`, {
+        as: louis,
+        body: { accept: true, scope: 'read', locationIds: [home.id] },
+      }),
+    );
+    const tokens = await redeemTokens(decided.redirectTo as string, verifier, declared);
+    const stored = await own<{ scopes: unknown }>(
+      db,
+      'SELECT scopes FROM auth.oauth_client WHERE client_id = $1',
+      [DECLARED_ID],
+    );
+    // Its declared scopes are what Better Auth validates the request against.
+    expect(stored[0]?.scopes).toEqual(expect.arrayContaining(['kept:read', 'offline_access']));
+    expect(tokens.refresh_token).toBeTruthy();
+    expect((await listToolsWith(tokens.access_token)).statusCode).toBe(200);
   });
 });
 
