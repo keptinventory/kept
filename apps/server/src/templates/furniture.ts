@@ -630,12 +630,15 @@ export async function splitFurnitureCompartment(
       cell: { row: piece.row, col: piece.col, n: part?.n ?? piece.n },
       live: true,
     };
-    for (const code of part?.codes ?? []) target.codes[code] = placeId;
+    // What it brought, as far as the merged compartment still holds it (a code removed since, or
+    // an import's new short IDs, stay where they are).
+    for (const code of part?.codes ?? [])
+      if (now.codes[code] === one.id) target.codes[code] = placeId;
     if (!part) {
       const code = positionCode(patterns, piece);
       if (code && !(code in target.codes)) fresh.push({ code, placeId });
     }
-    const held = part?.shortIds ?? [];
+    const held = (part?.shortIds ?? []).filter((s) => now.short_ids[s.code]?.place === one.id);
     held.forEach((s, i) => {
       target.short_ids[s.code] = {
         place: placeId,
