@@ -257,7 +257,8 @@ line about it. It imports like any other export; the fields come in empty. Over 
 the only kind (**Include secrets** needs HTTPS, [Kept on a home network](/install/home-network/)).
 
 The export is built in the background; you're notified when it's ready. Each export stays in the
-list, ready to **Download**, for seven days.
+list, ready to **Download**, for seven days. Every file in the ZIP is dated when the export was
+made.
 
 ### Exports and backups
 
