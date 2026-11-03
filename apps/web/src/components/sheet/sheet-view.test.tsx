@@ -217,7 +217,7 @@ describe('bulk actions', () => {
     );
     expect(cellOf(grid, 'Box 3', 'Tags')).toHaveTextContent('winter');
 
-    await user.click(within(bar).getByRole('button', { name: 'Send to Trash' }));
+    await user.click(within(bar).getByRole('button', { name: 'Move to Trash' }));
     const confirm = await screen.findByRole('alertdialog', { name: 'Send 3 things to the Trash?' });
     // Box 3 and the cable box hold things: what happens to what's inside is asked first.
     expect(within(confirm).getByRole('radio', { name: /Move what's inside out/ })).toBeChecked();
@@ -229,6 +229,24 @@ describe('bulk actions', () => {
     });
     // Their staged tags went with them.
     expect(screen.queryByRole('region', { name: 'Changes' })).toBeNull();
+  });
+});
+
+describe('range select by Shift-click (#366)', () => {
+  it('selects every row from the one ticked last, and the shared bar announces the count', async () => {
+    const { grid, user } = await openSheet();
+    // Before anything is selected the announcement is there, empty, so the first tick is heard.
+    expect(screen.getByRole('status')).toHaveTextContent('');
+    const select = (name: string) => within(grid).getByRole('gridcell', { name: `Select ${name}` });
+    await user.click(select('AA batteries'));
+    await user.keyboard('{Shift>}');
+    await user.click(select('Cable box'));
+    await user.keyboard('{/Shift}');
+    expect(within(grid).getAllByRole('row', { selected: true })).toHaveLength(3);
+    expect(screen.getByRole('status')).toHaveTextContent('3 selected');
+    const bar = screen.getByRole('toolbar', { name: 'Selection' });
+    // The List's actions too: one bar for List, Grid and Table.
+    expect(within(bar).getByRole('button', { name: 'Print labels' })).toBeInTheDocument();
   });
 });
 
@@ -249,7 +267,7 @@ describe('bulk trash of something with someone (#294)', () => {
     await user.click(cellOf(grid, 'AA batteries', 'Name'));
     await user.keyboard(' ');
     const bar = screen.getByRole('toolbar', { name: 'Selection' });
-    await user.click(within(bar).getByRole('button', { name: 'Send to Trash' }));
+    await user.click(within(bar).getByRole('button', { name: 'Move to Trash' }));
     const confirm = await screen.findByRole('alertdialog', { name: 'Send 1 thing to the Trash?' });
     await user.click(within(confirm).getByRole('button', { name: 'Send to Trash' }));
     const ask = await screen.findByRole('alertdialog', { name: /This is with .*Sam/ });
