@@ -49,7 +49,7 @@ export function CsvHelp() {
       </p>
       <AiDisclosure title={<Trans>The columns Kept reads</Trans>}>
         <div className="grid gap-3 px-1 pt-1 text-small">
-          <ul aria-label={t`The columns Kept reads`} className="m-0 grid gap-1 ps-5">
+          <ul aria-label={t`The columns Kept reads`} className="m-0 grid list-disc gap-1 ps-5">
             {LISTED.map((f) => (
               <li key={f}>{fieldLabel(f)}</li>
             ))}
@@ -57,7 +57,7 @@ export function CsvHelp() {
               <Trans>A field of your own types, such as Wattage</Trans>
             </li>
           </ul>
-          <ul className="m-0 grid gap-1 ps-5 text-ink-2">
+          <ul className="m-0 grid list-disc gap-1 ps-5 text-ink-2">
             <li>
               <Trans>
                 Place: from the top down, separated by &gt;, like Garage &gt; Shelf A. Another
