@@ -164,7 +164,9 @@ authorization code with PKCE, clients identified by a Client ID Metadata Documen
 through the SSRF guard), no dynamic client registration. Access tokens are JWTs for
 `<public URL>/mcp`, an hour long, and are accepted at `/mcp` only; the grant row holds the scopes
 (`kept:read`, `kept:write`) and locations the person chose on the consent page, and is checked on
-every call. The discovery documents are at `/.well-known/oauth-authorization-server` and
+every call. A connector stays signed in with a refresh token: Kept adds `offline_access` to a PKCE
+request for its scopes and keeps it through the consent, since MCP clients only ask for the
+resource's own scopes; revoking the app in Connections deletes the refresh token too. The discovery documents are at `/.well-known/oauth-authorization-server` and
 `/.well-known/oauth-protected-resource`.
 The tools themselves are on [MCP](/developers/mcp/).
 

@@ -35,6 +35,16 @@ const OTHER_METADATA = {
   client_name: 'Talia’s planner',
   redirect_uris: [OTHER_REDIRECT],
 };
+// A connector as Claude.ai registers itself: refresh_token among its grant types (#411).
+const CONNECTOR_ID = 'https://connector.example/oauth/kept-client.json';
+const CONNECTOR_REDIRECT = 'https://connector.example/callback';
+const CONNECTOR_METADATA = {
+  ...METADATA,
+  client_id: CONNECTOR_ID,
+  client_name: 'Gordon’s assistant',
+  redirect_uris: [CONNECTOR_REDIRECT],
+  grant_types: ['authorization_code', 'refresh_token'],
+};
 
 let db: TestDb;
 let t: TestApp;
@@ -51,12 +61,14 @@ beforeAll(async () => {
   t = await peopleApp(db, {
     oauth: {
       publicUrl: 'http://localhost:5173',
-      isMetadataDocumentUrlAllowed: (url) => url === CLIENT_ID || url === OTHER_ID,
+      isMetadataDocumentUrlAllowed: (url) =>
+        url === CLIENT_ID || url === OTHER_ID || url === CONNECTOR_ID,
       fetchClientMetadataResource: async (input) => {
         fetched += 1;
         const url = input instanceof Request ? input.url : String(input);
         if (url === CLIENT_ID) return Response.json(METADATA);
         if (url === OTHER_ID) return Response.json(OTHER_METADATA);
+        if (url === CONNECTOR_ID) return Response.json(CONNECTOR_METADATA);
         return new Response('not found', { status: 404 });
       },
     },
@@ -148,25 +160,52 @@ async function authorize(
   return consent.search.slice(1);
 }
 
-async function redeem(redirectTo: string, verifier: string): Promise<string> {
-  const code = new URL(redirectTo).searchParams.get('code');
-  expect(code).toBeTruthy();
-  const res = await t.app.inject({
+type TokenResponse = { access_token: string; refresh_token?: string; scope?: string };
+
+/** The token endpoint, as a public client posts to it. */
+const tokenEndpoint = (form: Record<string, string>) =>
+  t.app.inject({
     method: 'POST',
     url: '/api/v1/auth/oauth2/token',
     headers: { host: host(), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams({
-      grant_type: 'authorization_code',
-      code: code as string,
-      redirect_uri: REDIRECT,
-      client_id: CLIENT_ID,
-      code_verifier: verifier,
-      resource: `${t.publicUrl}/mcp`,
-    }).toString(),
+    payload: new URLSearchParams({ ...form, resource: `${t.publicUrl}/mcp` }).toString(),
+  });
+
+async function redeemTokens(
+  redirectTo: string,
+  verifier: string,
+  client: { id: string; redirect: string } = { id: CLIENT_ID, redirect: REDIRECT },
+): Promise<TokenResponse> {
+  const code = new URL(redirectTo).searchParams.get('code');
+  expect(code).toBeTruthy();
+  const res = await tokenEndpoint({
+    grant_type: 'authorization_code',
+    code: code as string,
+    redirect_uri: client.redirect,
+    client_id: client.id,
+    code_verifier: verifier,
   });
   expect(res.statusCode, res.body).toBe(200);
-  return (res.json() as { access_token: string }).access_token;
+  return res.json() as TokenResponse;
 }
+
+async function redeem(redirectTo: string, verifier: string): Promise<string> {
+  return (await redeemTokens(redirectTo, verifier)).access_token;
+}
+
+/** tools/list at /mcp with a bearer: 200 while the grant stands, 401 once it doesn't. */
+const listToolsWith = (bearer: string) =>
+  t.app.inject({
+    method: 'POST',
+    url: '/mcp',
+    headers: {
+      host: host(),
+      authorization: `Bearer ${bearer}`,
+      'content-type': 'application/json',
+      accept: 'application/json, text/event-stream',
+    },
+    payload: { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} },
+  });
 
 describe('OAuth connectors', () => {
   it('serves the discovery documents at the root, with CIMD and no registration endpoint', async () => {
@@ -337,6 +376,13 @@ describe('OAuth connectors', () => {
       [louis.userId, CLIENT_ID],
     );
     expect(consents).toHaveLength(0);
+    // …and so is its refresh token (#411): the app can't renew what it revoked.
+    const refresh = await own(
+      db,
+      'SELECT 1 FROM auth.oauth_refresh_token WHERE user_id = $1 AND client_id = $2',
+      [louis.userId, CLIENT_ID],
+    );
+    expect(refresh).toHaveLength(0);
   });
 
   it('records a refusal and sends the client back without a code', async () => {
@@ -431,6 +477,62 @@ describe('OAuth connectors', () => {
       expect(res.statusCode, aud).toBe(401);
       expect(String(res.headers['www-authenticate']), aud).toContain('invalid_token');
     }
+  });
+
+  it('gives a connector that may refresh a refresh token, which renews access until revoked (#411)', async () => {
+    const connector = { id: CONNECTOR_ID, redirect: CONNECTOR_REDIRECT };
+    const verifier = randomBytes(32).toString('base64url');
+    // The connector asks for Kept's own scopes only, as Claude.ai does.
+    const query = await authorize(verifier, connector);
+    expect(new URLSearchParams(query).get('scope')?.split(' ')).toContain('offline_access');
+    const decided = ok(
+      await call(t, `/api/v1/oauth/consent?${query}`, {
+        as: louis,
+        body: { accept: true, scope: 'read', locationIds: [home.id] },
+      }),
+    );
+    const first = await redeemTokens(decided.redirectTo as string, verifier, connector);
+    expect(first.refresh_token).toBeTruthy();
+    // The scope stays what the person chose: read was granted, write was not.
+    expect(first.scope?.split(' ')).not.toContain('kept:write');
+    expect((await listToolsWith(first.access_token)).statusCode).toBe(200);
+
+    const refreshed = await tokenEndpoint({
+      grant_type: 'refresh_token',
+      refresh_token: first.refresh_token as string,
+      client_id: CONNECTOR_ID,
+    });
+    expect(refreshed.statusCode, refreshed.body).toBe(200);
+    const second = refreshed.json() as TokenResponse;
+    expect(second.access_token).toBeTruthy();
+    expect(second.refresh_token).toBeTruthy();
+    const client = await mcpClient(second.access_token);
+    const tools = (await client.listTools()).tools.map((x) => x.name);
+    expect(tools).toContain('where_is');
+    expect(tools).not.toContain('create_place');
+
+    // Revoking in Connections ends the refresh too, not only the access token in hand.
+    const tokens = ok(await call(t, '/api/v1/tokens?kind=oauth', { as: louis }));
+    const grant = (tokens.items as Json[]).find(
+      (x) => x.clientName === 'Gordon’s assistant' && x.revokedAt === null,
+    ) as Json;
+    expect(
+      (await call(t, `/api/v1/tokens/${grant.id}`, { as: louis, method: 'DELETE' })).statusCode,
+    ).toBe(204);
+    const again = await tokenEndpoint({
+      grant_type: 'refresh_token',
+      refresh_token: second.refresh_token as string,
+      client_id: CONNECTOR_ID,
+    });
+    expect(again.statusCode, again.body).toBe(400);
+    expect((again.json() as { error?: string }).error).toBe('invalid_grant');
+    expect((await listToolsWith(second.access_token)).statusCode).toBe(401);
+    const left = await own(
+      db,
+      'SELECT 1 FROM auth.oauth_refresh_token WHERE user_id = $1 AND client_id = $2',
+      [louis.userId, CONNECTOR_ID],
+    );
+    expect(left).toHaveLength(0);
   });
 });
 
