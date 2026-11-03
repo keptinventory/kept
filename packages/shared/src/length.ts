@@ -7,7 +7,11 @@
  * in French, German, Italian and Vietnamese and 0.80 in English. Grouping is off, so a comma is
  * never read as thousands (a side is at most 100 m).
  */
-import { MAP_LIMITS } from './map.js';
+/** A room's side on the map, in whole centimetres: from 50 cm (a narrow balcony, #372) to
+ * 100 m. MAP_LIMITS.minRoom and maxRoom are these. Here rather than in map.ts, so a screen that
+ * only types a room's size doesn't load the map's model catalogue (the PWA precache keeps map.ts
+ * on demand). */
+export const ROOM_SIDE_CM = Object.freeze({ min: 50, max: 10_000 });
 
 /** The unit the fields show. Metric only for now; #385 adds feet and inches. */
 export type LengthUnit = 'm';
@@ -41,11 +45,11 @@ export function roomSideFromCm(cm: number, _unit: LengthUnit = ROOM_SIDE.unit): 
 
 export type RoomSideProblem = 'missing' | 'too_small' | 'too_large';
 
-/** Why a side can't be a room's: nothing typed, under MAP_LIMITS.minRoom, over maxRoom. */
+/** Why a side can't be a room's: nothing typed, under 50 cm, over 100 m (ROOM_SIDE_CM). */
 export function roomSideProblem(cm: number | null): RoomSideProblem | null {
   if (cm === null) return 'missing';
-  if (cm < MAP_LIMITS.minRoom) return 'too_small';
-  if (cm > MAP_LIMITS.maxRoom) return 'too_large';
+  if (cm < ROOM_SIDE_CM.min) return 'too_small';
+  if (cm > ROOM_SIDE_CM.max) return 'too_large';
   return null;
 }
 

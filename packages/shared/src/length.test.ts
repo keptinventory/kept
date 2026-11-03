@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   formatRoomSide,
   ROOM_SIDE,
+  ROOM_SIDE_CM,
   roomSideFormat,
   roomSideFromCm,
   roomSideProblem,
@@ -15,6 +16,7 @@ describe('the map’s room limits (#372)', () => {
   it('takes a room from 50 cm a side (a narrow balcony) to 100 m', () => {
     expect(MAP_LIMITS.minRoom).toBe(50);
     expect(MAP_LIMITS.maxRoom).toBe(10_000);
+    expect(ROOM_SIDE_CM).toEqual({ min: MAP_LIMITS.minRoom, max: MAP_LIMITS.maxRoom });
   });
 });
 
