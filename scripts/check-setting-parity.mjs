@@ -3,8 +3,9 @@
 // (apps/server/src/config/env.ts) must be:
 //
 //   1. in compose.env.example, where people set it, or on NOT_IN_ENV_EXAMPLE with the reason;
-//   2. passed through by compose.yaml if it is in compose.env.example: a value in `.env` that
-//      compose.yaml doesn't hand to the container never reaches Kept;
+//   2. passed through by compose.yaml (`${KEPT_X…}`) if it is in compose.env.example: a value in
+//      `.env` that compose.yaml doesn't hand to the container, or overrides with a fixed value,
+//      never reaches Kept;
 //   3. mapped by the Home Assistant app (docker/ha/options.mjs, its start script or Dockerfile), or
 //      on NOT_IN_HA_APP with the reason: the app's settings come from its options, not `.env`.
 //
@@ -30,7 +31,6 @@ export const NOT_IN_ENV_EXAMPLE = {
   KEPT_DATA_DIR: 'compose.yaml sets it',
   KEPT_ROLE: 'compose.yaml sets it',
   KEPT_SOURCE_URL: 'compose.yaml sets it',
-  KEPT_TRUSTED_PROXIES: "compose.yaml sets it to Caddy's fixed address",
   // The image's own paths and port.
   KEPT_CONFIG_DIR: "the image's default",
   KEPT_EMBEDDINGS_DIR: "the image's default",
@@ -52,6 +52,12 @@ export const NOT_IN_ENV_EXAMPLE = {
   KEPT_APPRISE_URL: 'not in the example as of 1.14.4',
   KEPT_BACKUP_KEEP: 'not in the example as of 1.14.4',
   KEPT_ERROR_DSN: 'not in the example as of 1.14.4',
+};
+
+/** Settings compose.env.example names that compose.yaml doesn't take from .env, each with why. */
+export const NOT_PASSED_BY_COMPOSE = {
+  KEPT_OWNER_DATABASE_URL:
+    'compose.yaml builds it for migrate only; the serving process gets it from a compose.override.yaml, on purpose',
 };
 
 /** Settings the Home Assistant app doesn't offer or set, each with why. */
@@ -140,6 +146,9 @@ const NOT_SETTINGS = new Set([
 
 const NAME = /\bKEPT_[A-Z0-9_]+\b/g;
 const namesIn = (text) => new Set(text.match(NAME) ?? []);
+/** The settings a compose file takes from .env: `${KEPT_X}`, `${KEPT_X:-…}` and the like. A
+ * fixed value (`KEPT_X: 1.2.3.4`) names the setting but never reads .env (#414). */
+const passedIn = (text) => new Set([...text.matchAll(/\$\{(KEPT_[A-Z0-9_]+)\b/g)].map((m) => m[1]));
 
 /** The settings env.ts declares: its schema's `KEPT_X:` keys. */
 export function settingsIn(envTs) {
@@ -154,10 +163,12 @@ export function problems({
   haFiles,
   notInEnvExample = NOT_IN_ENV_EXAMPLE,
   notInHaApp = NOT_IN_HA_APP,
+  notPassedByCompose = NOT_PASSED_BY_COMPOSE,
 }) {
   const settings = settingsIn(envTs);
   const example = namesIn(envExample);
   const compose = namesIn(composeYaml);
+  const passed = passedIn(composeYaml);
   const ha = namesIn(haFiles.join('\n'));
   const out = [];
   for (const s of [...settings].sort()) {
@@ -169,7 +180,7 @@ export function problems({
       );
   }
   for (const s of [...example].sort()) {
-    if (settings.has(s) && !compose.has(s))
+    if (settings.has(s) && !passed.has(s) && !(s in notPassedByCompose))
       out.push(`${s}: in compose.env.example but compose.yaml doesn't pass it to the container`);
   }
   const named = new Map([
@@ -187,6 +198,9 @@ export function problems({
     if (example.has(s)) out.push(`${s}: in compose.env.example, so take it off NOT_IN_ENV_EXAMPLE`);
   for (const s of Object.keys(notInHaApp))
     if (ha.has(s)) out.push(`${s}: the Home Assistant app sets it, so take it off NOT_IN_HA_APP`);
+  for (const s of Object.keys(notPassedByCompose))
+    if (passed.has(s))
+      out.push(`${s}: compose.yaml takes it from .env, so take it off NOT_PASSED_BY_COMPOSE`);
   return [...new Set(out)];
 }
 

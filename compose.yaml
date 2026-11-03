@@ -181,9 +181,9 @@ services:
       KEPT_PUBLIC_URL: ${KEPT_PUBLIC_URL:-}
       # KEPT_SECRET_KEY and KEPT_AUTH_SECRET come with the backup variables above: both or
       # neither; unset, they are generated into kept-config on first boot (D193).
-      # Only Caddy's fixed address (compose.full.yaml's https profile) is believed about
-      # X-Forwarded-For. Nothing else ever holds it: it lies outside the network's dynamic range.
-      KEPT_TRUSTED_PROXIES: 172.29.72.200
+      # Your reverse proxy's address as Kept sees it, from .env: the only address believed about
+      # X-Forwarded-For. Empty, no proxy is believed (the docs' Reverse proxies page).
+      KEPT_TRUSTED_PROXIES: ${KEPT_TRUSTED_PROXIES:-}
       # HSTS over https (#403): off sends max-age=0, for plain-http services on the same hostname.
       KEPT_HSTS: ${KEPT_HSTS:-}
       KEPT_SMTP_URL: ${KEPT_SMTP_URL:-}
@@ -270,8 +270,8 @@ networks:
   kept:
     ipam:
       config:
-        # If 172.29.72.0/24 clashes with your LAN, change the subnet, ip_range and
-        # KEPT_TRUSTED_PROXIES together (and Caddy's ipv4_address, in compose.full.yaml).
+        # If 172.29.72.0/24 clashes with your LAN, change the subnet and ip_range together (and
+        # Caddy's ipv4_address, in compose.full.yaml).
         - subnet: 172.29.72.0/24
           ip_range: 172.29.72.0/25
 
