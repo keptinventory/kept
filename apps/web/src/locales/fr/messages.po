@@ -28359,7 +28359,7 @@ msgstr "Cette clé paie pour tous les logements de <0>{ownerName}</0> : <1>{list
 
 #: src/components/ai/key-scope.tsx
 msgid "Used for <0>{personal}</0>, your private threads, and questions that span owners."
-msgstr "Utilisée pour <0>{personal}</0>, vos fils privés et les questions qui concernent plusieurs propriétaires."
+msgstr "Utilisée pour <0>{personal}</0>, vos conversations privées et les questions qui concernent plusieurs propriétaires."
 
 #: src/components/delete-account.tsx
 msgid "You asked for it, with your own location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
@@ -28371,7 +28371,7 @@ msgstr "Votre compte, votre propre lieu <0>{personal}</0> et tout ce qu’il con
 
 #: src/components/ai/settings-page.tsx
 msgid "Your own key is for <0>{personal}</0>, your private threads, and questions that span owners."
-msgstr "Votre propre clé sert pour <0>{personal}</0>, vos fils privés et les questions qui concernent plusieurs propriétaires."
+msgstr "Votre propre clé sert pour <0>{personal}</0>, vos conversations privées et les questions qui concernent plusieurs propriétaires."
 
 #: src/components/admin/embeddings-source.tsx
 msgid "{0, plural, one {# location searches by name only} other {# locations search by name only}}"
@@ -28411,7 +28411,7 @@ msgstr "Le lieu Personnel n’appartient qu’à vous : il n’a ni membres, ni
 
 #: src/routes/_app/settings.me.ai.tsx
 msgid "Used for Personal, your private threads, and questions that span owners."
-msgstr "Utilisée pour Personnel, vos fils privés et les questions qui concernent plusieurs propriétaires."
+msgstr "Utilisée pour Personnel, vos conversations privées et les questions qui concernent plusieurs propriétaires."
 
 #: src/routes/_app/index.tsx
 msgid "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
@@ -28424,7 +28424,7 @@ msgstr "Cette clé paie pour tous les logements de <0>{ownerName}</0> : <1>{list
 #: src/routes/_app/settings.me.ai.tsx
 #: src/components/ai/settings-page.tsx
 msgid "Your own key is for Personal, your private threads, and questions that span owners."
-msgstr "Votre propre clé sert pour Personnel, vos fils privés et les questions qui concernent plusieurs propriétaires."
+msgstr "Votre propre clé sert pour Personnel, vos conversations privées et les questions qui concernent plusieurs propriétaires."
 
 #: src/routes/_app/settings.index.tsx
 msgid "Your Personal location, profile and preferences, and your AI calls, as one file."
@@ -28715,12 +28715,12 @@ msgstr "Moins de 50 cm : trop petite pour la carte."
 #: src/components/places/room-size.tsx
 #: src/map/size.tsx
 msgid "Decrease {label}"
-msgstr "Diminuer {label}"
+msgstr "{label} : diminuer"
 
 #: src/components/places/room-size.tsx
 #: src/map/size.tsx
 msgid "Increase {label}"
-msgstr "Augmenter {label}"
+msgstr "{label} : augmenter"
 
 #: src/components/places/room-size.tsx
 #: src/map/height.tsx

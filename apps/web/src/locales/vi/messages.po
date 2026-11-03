@@ -1323,7 +1323,7 @@ msgid "Cards and tabs"
 msgstr "Thẻ và tab"
 
 msgid "carousel"
-msgstr "carousel"
+msgstr "băng chuyền"
 
 msgid "Centered"
 msgstr "Căn giữa"
@@ -20765,12 +20765,12 @@ msgstr "Dưới 50 cm: quá nhỏ cho bản đồ."
 #: src/components/places/room-size.tsx
 #: src/map/size.tsx
 msgid "Decrease {label}"
-msgstr "Giảm {label}"
+msgstr "{label}: giảm"
 
 #: src/components/places/room-size.tsx
 #: src/map/size.tsx
 msgid "Increase {label}"
-msgstr "Tăng {label}"
+msgstr "{label}: tăng"
 
 #: src/components/places/room-size.tsx
 #: src/map/height.tsx

@@ -28359,7 +28359,7 @@ msgstr "Dieser Schlüssel bezahlt für alle Zuhause von <0>{ownerName}</0>: <1>{
 
 #: src/components/ai/key-scope.tsx
 msgid "Used for <0>{personal}</0>, your private threads, and questions that span owners."
-msgstr "Wird für <0>{personal}</0>, deine privaten Unterhaltungen und Fragen über mehrere Eigentümer hinweg genutzt."
+msgstr "Wird für <0>{personal}</0>, deine privaten Verläufe und Fragen über mehrere Eigentümer hinweg genutzt."
 
 #: src/components/delete-account.tsx
 msgid "You asked for it, with your own location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
@@ -28371,7 +28371,7 @@ msgstr "Dein Konto, dein eigener Standort <0>{personal}</0> und alles darin werd
 
 #: src/components/ai/settings-page.tsx
 msgid "Your own key is for <0>{personal}</0>, your private threads, and questions that span owners."
-msgstr "Dein eigener Schlüssel ist für <0>{personal}</0>, deine privaten Unterhaltungen und Fragen über mehrere Eigentümer hinweg."
+msgstr "Dein eigener Schlüssel ist für <0>{personal}</0>, deine privaten Verläufe und Fragen über mehrere Eigentümer hinweg."
 
 #: src/components/admin/embeddings-source.tsx
 msgid "{0, plural, one {# location searches by name only} other {# locations search by name only}}"
@@ -28391,7 +28391,7 @@ msgstr "Anderen Anbieter wählen"
 
 #: src/components/ai/search-by-name.tsx
 msgid "No Search model is chosen, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Choose one under Advanced → Models."
-msgstr "Kein Suchmodell gewählt, also findet die Suche nichts nach Bedeutung: „Laptop“ findet kein MacBook Pro. Wähl eines unter Erweitert → Modelle."
+msgstr "Kein Suchmodell gewählt, also findet die Suche nichts nach Bedeutung: „Laptop“ findet kein MacBook Pro. Wähle eines unter Erweitert → Modelle."
 
 #: src/components/ai/search-by-name.tsx
 msgid "Search matches names only"
@@ -28411,7 +28411,7 @@ msgstr "„Persönlich“ gehört nur dir: keine Mitglieder, Einladungen oder Fr
 
 #: src/routes/_app/settings.me.ai.tsx
 msgid "Used for Personal, your private threads, and questions that span owners."
-msgstr "Wird für Persönlich, deine privaten Unterhaltungen und Fragen über mehrere Eigentümer hinweg genutzt."
+msgstr "Wird für Persönlich, deine privaten Verläufe und Fragen über mehrere Eigentümer hinweg genutzt."
 
 #: src/routes/_app/index.tsx
 msgid "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
@@ -28424,7 +28424,7 @@ msgstr "Dieser Schlüssel bezahlt für alle Zuhause von <0>{ownerName}</0>: <1>{
 #: src/routes/_app/settings.me.ai.tsx
 #: src/components/ai/settings-page.tsx
 msgid "Your own key is for Personal, your private threads, and questions that span owners."
-msgstr "Ihr eigener Schlüssel ist für Persönlich, Ihre privaten Unterhaltungen und Fragen über mehrere Eigentümer hinweg."
+msgstr "Dein eigener Schlüssel ist für Persönlich, deine privaten Verläufe und Fragen über mehrere Eigentümer hinweg."
 
 #: src/routes/_app/settings.index.tsx
 msgid "Your Personal location, profile and preferences, and your AI calls, as one file."

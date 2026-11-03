@@ -28715,12 +28715,12 @@ msgstr "Sotto 50 cm: troppo piccola per la mappa."
 #: src/components/places/room-size.tsx
 #: src/map/size.tsx
 msgid "Decrease {label}"
-msgstr "Riduci {label}"
+msgstr "{label}: riduci"
 
 #: src/components/places/room-size.tsx
 #: src/map/size.tsx
 msgid "Increase {label}"
-msgstr "Aumenta {label}"
+msgstr "{label}: aumenta"
 
 #: src/components/places/room-size.tsx
 #: src/map/height.tsx
