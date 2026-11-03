@@ -28287,3 +28287,6 @@ msgstr "رمز الإعداد في تبويب «السجل» الخاص بالت
 #: src/routes/_app/admin.status.tsx
 msgid "Running as a Home Assistant app"
 msgstr "يعمل كتطبيق في Home Assistant"
+
+msgid "Not saved yet"
+msgstr "لم يُحفظ بعد"

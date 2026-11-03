@@ -28287,3 +28287,6 @@ msgstr "Der Einrichtungscode steht im Tab „Protokoll“ der App in Home Assist
 #: src/routes/_app/admin.status.tsx
 msgid "Running as a Home Assistant app"
 msgstr "Läuft als Home-Assistant-App"
+
+msgid "Not saved yet"
+msgstr "Noch nicht gespeichert"

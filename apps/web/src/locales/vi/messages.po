@@ -20343,3 +20343,6 @@ msgstr "Mã thiết lập của bạn nằm trong tab Nhật ký của ứng d�
 
 msgid "Running as a Home Assistant app"
 msgstr "Đang chạy dưới dạng ứng dụng Home Assistant"
+
+msgid "Not saved yet"
+msgstr "Chưa lưu"
