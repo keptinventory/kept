@@ -28287,3 +28287,37 @@ msgstr "Der Einrichtungscode steht im Tab „Protokoll“ der App in Home Assist
 #: src/routes/_app/admin.status.tsx
 msgid "Running as a Home Assistant app"
 msgstr "Läuft als Home-Assistant-App"
+
+msgid "Not saved yet"
+msgstr "Noch nicht gespeichert"
+
+msgid "{0}, change the type"
+msgstr "{0}, Typ ändern"
+
+msgid "Choose a type"
+msgstr "Typ wählen"
+
+msgid "Couldn't save the label image. Try again."
+msgstr "Das Etikettenbild konnte nicht gespeichert werden. Versuche es erneut."
+
+msgid "Kept label"
+msgstr "Kept-Etikett"
+
+msgid "Loading the label"
+msgstr "Etikett wird geladen"
+
+msgid "Saved the label image"
+msgstr "Etikettenbild gespeichert"
+
+msgid "Show the label"
+msgstr "Etikett zeigen"
+
+msgid "The label as it prints: {0}"
+msgstr "Das Etikett, wie es gedruckt wird: {0}"
+
+msgid "The new type's own fields show after you save."
+msgstr "Die Felder des neuen Typs erscheinen nach dem Speichern."
+
+msgctxt "printed label"
+msgid "Label"
+msgstr "Etikett"

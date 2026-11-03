@@ -441,7 +441,12 @@ describe('where printing starts', () => {
     await findHeading('Box 3');
     await user.click(await screen.findByRole('button', { name: 'Actions' }));
     await user.click(await screen.findByRole('menuitem', { name: /^Label/ }));
-    await user.click(await screen.findByRole('link', { name: 'Print its label' }));
+    // The label as it prints, then Print (#366).
+    const sheet = await screen.findByRole('dialog', { name: 'Label' });
+    expect(
+      await within(sheet).findByRole('img', { name: /^The label as it prints/ }),
+    ).toBeInTheDocument();
+    await user.click(within(sheet).getByRole('link', { name: 'Print' }));
     await waitFor(() => expect(pathOf(router)).toBe('/labels'));
     expect(router.state.location.search).toMatchObject({ loc: IDS.home, things: T.box3 });
   });

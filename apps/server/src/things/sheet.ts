@@ -33,7 +33,7 @@ import { rowsOf, type ThingRow, ThingRowSchema } from './view.js';
 // The spreadsheet view (1.x, D250; D39 item 2, D128, D156, D150), in the shapes of the web
 // contract (apps/web/src/api/inventory/types.ts SheetRow, BulkEditBody, …):
 //
-// GET  /api/v1/things/sheet?<GET /things's filters>&sort&dir&group&limit(≤200)&cursor
+// GET  /api/v1/things/sheet?<GET /things's filters>&ids(≤200)&sort&dir&group&limit(≤200)&cursor
 //                                               → {items: SheetRow[], next_cursor}
 // POST /api/v1/things/bulk-edit {edits: [{id, rowVersion, set}] (≤ 200)}
 //                                               → {results, rows, events}
@@ -46,7 +46,8 @@ import { rowsOf, type ThingRow, ThingRowSchema } from './view.js';
 //   fixed at 1 (D10), and, read-only, the purchase (date, and the unit price and currency only
 //   where the row's location gate shows money: never selected otherwise, as the CSV does) and the
 //   warranty that covers it longest (where Warranties is on). A sheet sorts by more columns than
-//   the list: brand, model, serial, quantity and expiry too.
+//   the list: brand, model, serial, quantity and expiry too. `ids` narrows it to those things
+//   (#366: a place's List and Grid stage "Set a field" on their selection, read as sheet rows).
 // - **Bulk edit** is the "Save N changes" bar (D128): each row's staged change with the version it
 //   was read at (D156), written as the thing's own edit would write it (PATCH's validation, money
 //   gate, audit image and undo window) and, for a new place, the move (a place or box in the
@@ -89,6 +90,11 @@ export const SHEET_SORTS = [
 export type SheetSort = (typeof SHEET_SORTS)[number];
 
 export const SheetQuery = ListQuery.extend({
+  /** Only these things (repeated, at most BULK_MAX): the rows a selection stages edits on. */
+  ids: z
+    .union([z.uuid(), z.array(z.uuid()).max(BULK_MAX)])
+    .transform((v) => [...new Set((Array.isArray(v) ? v : [v]).map((x) => x.toLowerCase()))])
+    .optional(),
   sort: z.enum(SHEET_SORTS).default('name'),
   limit: z.coerce.number().int().min(1).max(PAGE_MAX).default(SHEET_PAGE),
 });
@@ -391,6 +397,7 @@ export async function listSheet(
     return `$${values.length}`;
   };
   const where = await thingListWhere(client, q, p);
+  if (q.ids) where.push(`t.id = ANY (${p(q.ids)}::uuid[])`);
   const { group } = thingListOrder({
     group: q.group,
     sort: 'name',

@@ -92,6 +92,8 @@ export function sheetRoutes(state: MockState): MockRoute[] {
       const f = (name: string) => query.get(name);
       let rows = inv().things.filter((t) => !t.deletedAt && visible.has(t.locationId));
       rows = narrow(rows, query, 'locationId', (t, v) => t.locationId === v);
+      const ids = query.getAll('ids');
+      if (ids.length) rows = rows.filter((t) => ids.includes(t.id));
       if (f('placeId')) rows = rows.filter((t) => t.placeId === f('placeId'));
       if (f('containerId')) rows = rows.filter((t) => t.containerId === f('containerId'));
       rows = narrow(rows, query, 'typeId', (t, v) => t.type?.id === v);

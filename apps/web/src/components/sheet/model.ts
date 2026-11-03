@@ -323,35 +323,16 @@ export function unstage(staged: Staged, ids: Iterable<string>): Staged {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Selection
+// Selection (lib/selection.ts, shared with a place's List and Grid, #366)
 // ---------------------------------------------------------------------------------------------
 
-export type RowSelection = { ids: ReadonlySet<string>; anchor: string | null };
-export const NO_SELECTION: RowSelection = { ids: new Set(), anchor: null };
-
-/** Cmd/Ctrl-click and Space: one row in or out; it becomes the anchor. */
-export function toggleRow(sel: RowSelection, id: string): RowSelection {
-  const ids = new Set(sel.ids);
-  if (ids.has(id)) ids.delete(id);
-  else ids.add(id);
-  return { ids, anchor: id };
-}
-
-/** Shift-click and Shift+arrows: every row from the anchor to `id` is added; the anchor stays. */
-export function selectRange(sel: RowSelection, order: readonly string[], id: string): RowSelection {
-  const anchor = sel.anchor ?? id;
-  const a = order.indexOf(anchor);
-  const b = order.indexOf(id);
-  if (a < 0 || b < 0) return toggleRow(sel, id);
-  const ids = new Set(sel.ids);
-  for (let i = Math.min(a, b); i <= Math.max(a, b); i++) ids.add(order[i] as string);
-  return { ids, anchor };
-}
-
-export const selectAll = (order: readonly string[]): RowSelection => ({
-  ids: new Set(order),
-  anchor: order[0] ?? null,
-});
+export {
+  NO_SELECTION,
+  type RowSelection,
+  selectAll,
+  selectRange,
+  toggleRow,
+} from '@/lib/selection';
 
 // ---------------------------------------------------------------------------------------------
 // Keyboard

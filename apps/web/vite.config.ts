@@ -245,6 +245,12 @@ const ON_DEMAND_ENTRIES = [
   '/src/components/hints/driver-kit.ts',
   // 1.x (D250): the spreadsheet view; it reads and writes the server only (sheet/lazy.tsx).
   '/src/components/sheet/sheet-view.tsx',
+  // #366: "Set a field…" on a place's List and Grid, staged as the spreadsheet stages it
+  // (things/list-bulk-lazy.tsx); it reads and writes the server only.
+  '/src/components/sheet/list-bulk.tsx',
+  // #366: a thing's label as it prints, its Label card and sheet (things/label-sheet.tsx); it
+  // reads the builder's dry run from the server.
+  '/src/components/things/label-preview.tsx',
   // 1.x (#209): the tag picker, fetched the first time one opens (tags/lazy.tsx).
   '/src/components/tags/picker.tsx',
   '/src/components/tags/editors.tsx',
@@ -268,6 +274,13 @@ const ON_DEMAND_ENTRIES = [
  * on demand too. scripts/check-bundle.mjs fails the build if a precached chunk imports one.
  */
 const HOUSEHOLD_SHARED = [
+  // #366: the spreadsheet's staging, its model and its bulk dialogs, shared by the sheet and the
+  // List's "Set a field…" (not lazy.tsx, which the location page loads).
+  '/src/components/sheet/staging.tsx',
+  '/src/components/sheet/model.ts',
+  '/src/components/sheet/bulk.tsx',
+  '/src/components/sheet/editors.tsx',
+  '/src/components/sheet/labels.ts',
   '/src/components/services/',
   // The authenticator app's QR step and backup codes: Turn on and Sign-in and security's
   // Set up again.

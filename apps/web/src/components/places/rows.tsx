@@ -174,12 +174,15 @@ export function ThingRowView({
   showPath = false,
   leading,
   contentCount,
+  badge,
 }: {
   thing: ThingRow;
   /** The list spans depths (a location's things): say where each one is. */
   showPath?: boolean;
   /** A selection checkbox, before the link. */
   leading?: ReactNode;
+  /** A word on the row's own state in the list: "Not saved yet" while a change is staged. */
+  badge?: ReactNode;
   /** A box's count of what is directly in it, as the place tree shows it (#321). */
   contentCount?: number | undefined;
 }) {
@@ -213,8 +216,9 @@ export function ThingRowView({
           </span>
           {/* Names first: the code shows only as the tape of a printed label. The type leads the
               line (#321), so it adds no line of its own where the row has one. */}
-          {hasType || tape || thing.derivedState.length || path ? (
+          {hasType || tape || thing.derivedState.length || path || badge ? (
             <span className="flex flex-wrap items-center gap-1.5">
+              {badge}
               <TypeText thing={thing} before={path && !tape && !thing.derivedState.length} />
               <LabelTape code={thing.shortCode} printed={thing.labelPrinted} />
               {thing.derivedState.map((s) => (

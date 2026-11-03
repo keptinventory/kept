@@ -959,7 +959,11 @@ export type SheetSort =
   | 'quantity'
   | 'expires';
 
-export type SheetParams = Omit<ThingListParams, 'sort'> & { sort?: SheetSort };
+export type SheetParams = Omit<ThingListParams, 'sort'> & {
+  sort?: SheetSort;
+  /** Only these things (at most 200): a List's selection, read as sheet rows (#366). */
+  ids?: string[];
+};
 
 /** A row of the sheet: a list row and the columns it edits or shows. */
 export type SheetRow = ThingRow & {

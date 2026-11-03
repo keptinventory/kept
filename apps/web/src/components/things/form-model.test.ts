@@ -108,6 +108,20 @@ describe('form model', () => {
     });
   });
 
+  it("a new type is sent as typeId, without the old type's fields (#366)", () => {
+    const base = formValues(thing);
+    const mine = {
+      ...base,
+      typeId: 'new-type',
+      name: 'Renamed',
+      custom: { ...base.custom, length: '9' },
+    };
+    expect(toPatch(base, mine, fields)).toEqual({ name: 'Renamed', typeId: 'new-type' });
+    // No type: a type of its own is all it sends.
+    const none = { ...base, typeId: null };
+    expect(toPatch(none, { ...none, typeId: 'new-type' }, fields)).toEqual({ typeId: 'new-type' });
+  });
+
   it('clearing a value sends null, which removes it', () => {
     const base = formValues(thing);
     expect(toPatch(base, { ...base, custom: { ...base.custom, mac_address: [] } }, fields)).toEqual(

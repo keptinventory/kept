@@ -21,7 +21,7 @@
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useBlocker, useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import {
   type KeyboardEvent,
   type MouseEvent,
@@ -35,7 +35,7 @@ import {
 } from 'react';
 import { Dialog as AriaDialog, Popover } from 'react-aria-components';
 import { isApiError } from '@/api/client';
-import { inventoryApi, inventoryKeys, useSheet } from '@/api/inventory/queries';
+import { inventoryApi, useSheet } from '@/api/inventory/queries';
 import type {
   BulkEditRowResult,
   MoveTarget,
@@ -61,9 +61,9 @@ import { BULK_TRASH_MAX, TrashDialog, useBulkTrash } from '@/components/things/b
 import { useConditionLabels } from '@/components/things/labels';
 import { useTypeName } from '@/components/things/names';
 import { useLocationAccountId, useTypeOptions } from '@/components/things/pickers';
+import { SelectionBar } from '@/components/things/selection-bar';
 import { useMoney } from '@/components/things/values';
 import { Button } from '@/components/ui/button';
-import { useConfirm } from '@/components/ui/confirm';
 import { toast } from '@/components/ui/toast';
 import { useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
@@ -72,33 +72,28 @@ import { firstOf, useListState } from '@/lib/url-state';
 import { cn } from '@/lib/utils';
 import { ColumnsDialog, MoveDialog, SetFieldDialog, TagsDialog } from './bulk';
 import { type After, CellEditor, POPOVER_EDITORS } from './editors';
-import { useColumnLabels, useSheetMessages } from './labels';
+import { useColumnLabels } from './labels';
 import {
   type Cell,
   COLUMNS,
   type ColumnDef,
   type ColumnId,
   cellValue,
-  countStaged,
   DEFAULT_COLUMNS,
   type DraftKey,
   moveCell,
   NO_SELECTION,
   type RowSelection,
   readColumns,
-  rebase,
-  type Staged,
   selectAll,
   selectRange,
-  stage,
-  toEdits,
   toggleRow,
   unstage,
-  validateDraft,
   visibleColumns,
   windowOf,
   writeColumns,
 } from './model';
+import { ChangesBar, ProblemActions, ProblemText, type Staging, useStaging } from './staging';
 
 /** A row's height, and the header's, in CSS pixels: the window is computed from it. */
 export const ROW = 40;
@@ -114,12 +109,10 @@ export default function SheetView({ location }: { location: LocationDetail }) {
   const fmt = useFormat();
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const confirm = useConfirm();
   const errorText = useErrorText();
   const offerUndo = useOfferUndo();
   const bulkTrash = useBulkTrash();
   const labels = useColumnLabels();
-  const messages = useSheetMessages();
   const typeName = useTypeName();
   const f = useFilterRegistry();
   const { locale } = usePrefs();
@@ -206,8 +199,14 @@ export default function SheetView({ location }: { location: LocationDetail }) {
     [byId, tree.data, t],
   );
 
-  const [staged, setStaged] = useState<Staged>(new Map());
-  const [failed, setFailed] = useState<ReadonlyMap<string, BulkEditRowResult>>(new Map());
+  const staging = useStaging({
+    byId,
+    order,
+    // Leaving the sheet: another page, or another layout of this one.
+    leaves: (current, next) =>
+      current.pathname !== next.pathname || (next.search as { view?: string }).view !== 'table',
+  });
+  const { staged, setStaged, failed, invalid } = staging;
 
   const text = (row: SheetRow, c: ColumnDef): string => {
     const v = c.field ? cellValue(row, staged, c.field) : undefined;
@@ -294,7 +293,6 @@ export default function SheetView({ location }: { location: LocationDetail }) {
     null,
   );
   const [dialog, setDialog] = useState<Dialog>(null);
-  const [saving, setSaving] = useState(false);
   const [trashing, setTrashing] = useState(false);
   const [problemFor, setProblemFor] = useState<string | null>(null);
   const wantFocus = useRef(false);
@@ -302,17 +300,6 @@ export default function SheetView({ location }: { location: LocationDetail }) {
   const gridRef = useRef<HTMLTableElement>(null);
   const cellRefs = useRef(new Map<string, HTMLTableCellElement>());
   const cols = lead + shown.length;
-
-  const invalid = useMemo(() => {
-    const out = new Map<string, Partial<Record<DraftKey, string>>>();
-    for (const [id, s] of staged) {
-      const row = byId.get(id);
-      if (!row) continue;
-      const e = validateDraft(row, s.draft, messages);
-      if (Object.keys(e).length) out.set(id, e);
-    }
-    return out;
-  }, [staged, byId, messages]);
 
   const rowIndexOf = useCallback(
     (index: number) => {
@@ -360,14 +347,9 @@ export default function SheetView({ location }: { location: LocationDetail }) {
   };
 
   const commit = (row: SheetRow, c: ColumnDef, value: unknown, after: After) => {
-    if (c.field) setStaged((s) => stage(s, row, c.field as DraftKey, value));
+    if (c.field) staging.stageAll([row], c.field, () => value);
     setEditing(null);
-    setFailed((m) => {
-      if (!m.has(row.id)) return m;
-      const next = new Map(m);
-      next.delete(row.id);
-      return next;
-    });
+    staging.clearFailed(row.id);
     const step: Record<Exclude<After, null>, string> = {
       down: 'ArrowDown',
       up: 'ArrowUp',
@@ -469,106 +451,9 @@ export default function SheetView({ location }: { location: LocationDetail }) {
     focusCell(cell);
   };
 
-  // ----- save -----
-  const counts = countStaged(staged);
-  const save = async () => {
-    if (saving || counts.cells === 0) return;
-    if (invalid.size > 0) {
-      toast({
-        title: plural(invalid.size, {
-          one: 'Fix # row before saving',
-          other: 'Fix # rows before saving',
-        }),
-        tone: 'danger',
-      });
-      return;
-    }
-    setSaving(true);
-    const okIds: string[] = [];
-    const fresh: SheetRow[] = [];
-    const events: string[] = [];
-    const problems = new Map<string, BulkEditRowResult>();
-    let cells = 0;
-    try {
-      for (const edits of toEdits(staged, order)) {
-        const r = await inventoryApi.bulkEdit({ edits });
-        for (const res of r.results) {
-          if (res.ok) {
-            okIds.push(res.id);
-            cells += Object.keys(staged.get(res.id)?.draft ?? {}).length;
-          } else problems.set(res.id, res);
-        }
-        fresh.push(...r.rows);
-        events.push(...r.events);
-      }
-    } catch (err) {
-      toast({ title: errorText(err), tone: 'danger' });
-    } finally {
-      setSaving(false);
-    }
-    if (okIds.length === 0 && problems.size === 0) return;
-    setStaged((s) => unstage(s, okIds));
-    setFailed(problems);
-    // The saved rows change in place: a sheet doesn't reorder under the person's eyes.
-    const freshById = new Map(fresh.map((r) => [r.id, r]));
-    qc.setQueriesData<{ pages: { items: SheetRow[]; next_cursor: string | null }[] }>(
-      { queryKey: ['things', 'sheet'] },
-      (old) =>
-        old
-          ? {
-              ...old,
-              pages: old.pages.map((pg) => ({
-                ...pg,
-                items: pg.items.map((r) => freshById.get(r.id) ?? r),
-              })),
-            }
-          : old,
-    );
-    void qc.invalidateQueries({
-      predicate: (q) => !(q.queryKey[0] === 'things' && q.queryKey[1] === 'sheet'),
-    });
-    if (okIds.length)
-      offerUndo(
-        {
-          title: plural(cells, { one: 'Saved # change', other: 'Saved # changes' }),
-          ...(problems.size
-            ? {
-                description: plural(problems.size, {
-                  one: "# row wasn't saved",
-                  other: "# rows weren't saved",
-                }),
-              }
-            : {}),
-        },
-        events,
-        { together: true },
-      );
-    else
-      toast({
-        title: plural(problems.size, { one: "# row wasn't saved", other: "# rows weren't saved" }),
-        tone: 'danger',
-      });
-  };
-
-  const discard = async () => {
-    if (
-      await confirm({
-        title: plural(counts.cells, {
-          one: 'Discard # change?',
-          other: 'Discard # changes?',
-        }),
-        confirmLabel: t`Discard`,
-        destructive: true,
-      })
-    ) {
-      setStaged(new Map());
-      setFailed(new Map());
-    }
-  };
-
   // Cmd/Ctrl+S saves, anywhere in the sheet.
-  const saveRef = useRef(save);
-  saveRef.current = save;
+  const saveRef = useRef(staging.save);
+  saveRef.current = staging.save;
   useEffect(() => {
     const onKey = (e: globalThis.KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
@@ -580,37 +465,12 @@ export default function SheetView({ location }: { location: LocationDetail }) {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // Leaving the sheet with unsaved changes asks first.
-  useBlocker({
-    shouldBlockFn: async ({ current, next }) => {
-      if (staged.size === 0) return false;
-      const leavesSheet =
-        current.pathname !== next.pathname || (next.search as { view?: string }).view !== 'table';
-      if (!leavesSheet) return false;
-      return !(await confirm({
-        title: t`Leave without saving?`,
-        body: plural(counts.cells, {
-          one: "# change isn't saved yet.",
-          other: "# changes aren't saved yet.",
-        }),
-        confirmLabel: t`Leave`,
-        cancelLabel: t`Stay`,
-        destructive: true,
-      }));
-    },
-    enableBeforeUnload: () => staged.size > 0,
-  });
-
   // ----- bulk -----
   const selectedRows = order
     .filter((id) => selection.ids.has(id))
     .map((id) => byId.get(id) as SheetRow);
   const stageAll = (field: DraftKey, valueFor: (row: SheetRow) => unknown) => {
-    setStaged((s) => {
-      let next = s;
-      for (const row of selectedRows) next = stage(next, row, field, valueFor(row));
-      return next;
-    });
+    staging.stageAll(selectedRows, field, valueFor);
     setDialog(null);
   };
   const trash = async (contents: 'move' | 'trash' | undefined) => {
@@ -804,30 +664,12 @@ export default function SheetView({ location }: { location: LocationDetail }) {
                 anchor={{ current: cellRefs.current.get(`${index}:0`) ?? null }}
                 row={row}
                 problem={problem}
+                staging={staging}
                 onClose={() => {
                   setProblemFor(null);
                   focusCell({ row: index, col: 0 });
                 }}
-                onKeepMine={() => {
-                  setStaged((s) => rebase(s, row.id, problem.rowVersion ?? row.rowVersion));
-                  setFailed((m) => {
-                    const next = new Map(m);
-                    next.delete(row.id);
-                    return next;
-                  });
-                  setProblemFor(null);
-                  void qc.invalidateQueries({ queryKey: inventoryKeys.things.all });
-                }}
-                onKeepTheirs={() => {
-                  setStaged((s) => unstage(s, [row.id]));
-                  setFailed((m) => {
-                    const next = new Map(m);
-                    next.delete(row.id);
-                    return next;
-                  });
-                  setProblemFor(null);
-                  void qc.invalidateQueries({ queryKey: inventoryKeys.things.all });
-                }}
+                onChosen={() => setProblemFor(null)}
               />
             ) : null}
           </td>
@@ -942,18 +784,31 @@ export default function SheetView({ location }: { location: LocationDetail }) {
         }
       />
 
-      {canEdit && selection.ids.size > 0 ? (
-        <div
-          role="toolbar"
-          aria-label={t`Selection`}
-          className="flex flex-wrap items-center gap-2 rounded-[10px] border border-line bg-surface p-2"
+      {canEdit ? (
+        <SelectionBar
+          ids={selectedRows.map((r) => r.id)}
+          locationId={location.id}
+          collapsed={selection.ids.size === 0}
+          doneLabel={<Trans>Clear</Trans>}
+          onDone={() => setSelection(NO_SELECTION)}
+          trash={
+            <>
+              <Button
+                size="small"
+                variant="secondary"
+                isDisabled={selection.ids.size > BULK_TRASH_MAX}
+                onPress={() => setDialog('trash')}
+              >
+                <Trans>Move to Trash</Trans>
+              </Button>
+              {selection.ids.size > BULK_TRASH_MAX ? (
+                <p className="m-0 basis-full ps-1 text-small text-ink-2">
+                  <Trans>Send at most 200 to the Trash at a time.</Trans>
+                </p>
+              ) : null}
+            </>
+          }
         >
-          <span className="flex flex-1 items-center gap-2 ps-1 text-[14px] font-medium">
-            <CheckIcon className="size-4" />
-            <Trans>
-              <span className="tabular-nums">{fmt.num(selection.ids.size)}</span> selected
-            </Trans>
-          </span>
           <Button size="small" onPress={() => setDialog('move')}>
             <Trans>Move to…</Trans>
           </Button>
@@ -963,23 +818,7 @@ export default function SheetView({ location }: { location: LocationDetail }) {
           <Button size="small" variant="secondary" onPress={() => setDialog('field')}>
             <Trans>Set a field…</Trans>
           </Button>
-          <Button
-            size="small"
-            variant="secondary"
-            isDisabled={selection.ids.size > BULK_TRASH_MAX}
-            onPress={() => setDialog('trash')}
-          >
-            <Trans>Send to Trash</Trans>
-          </Button>
-          <Button size="small" variant="ghost" onPress={() => setSelection(NO_SELECTION)}>
-            <Trans>Clear</Trans>
-          </Button>
-          {selection.ids.size > BULK_TRASH_MAX ? (
-            <p className="m-0 basis-full ps-1 text-small text-ink-2">
-              <Trans>Send at most 200 to the Trash at a time.</Trans>
-            </p>
-          ) : null}
-        </div>
+        </SelectionBar>
       ) : null}
 
       {query.isPending ? (
@@ -1116,41 +955,7 @@ export default function SheetView({ location }: { location: LocationDetail }) {
         </Button>
       ) : null}
 
-      {counts.cells > 0 || failed.size > 0 ? (
-        <section
-          aria-label={t`Changes`}
-          className="sticky bottom-4 z-30 flex flex-wrap items-center gap-3 rounded-[10px] border border-line bg-surface p-3 shadow-[0_10px_30px_rgba(0,0,0,.14)]"
-        >
-          <p className="m-0 flex-1 text-[14px]">
-            {plural(counts.cells, {
-              one: '# change',
-              other: '# changes',
-            })}
-            {' · '}
-            {plural(counts.rows, { one: 'on # thing', other: 'on # things' })}
-            {failed.size ? (
-              <span className="ms-2 text-danger">
-                {plural(failed.size, { one: "# row wasn't saved", other: "# rows weren't saved" })}
-              </span>
-            ) : null}
-            {invalid.size ? (
-              <span className="ms-2 text-danger">
-                {plural(invalid.size, { one: '# row needs a fix', other: '# rows need a fix' })}
-              </span>
-            ) : null}
-          </p>
-          <Button
-            variant="ghost"
-            isDisabled={saving || counts.cells === 0}
-            onPress={() => void discard()}
-          >
-            <Trans>Discard</Trans>
-          </Button>
-          <Button isPending={saving} isDisabled={counts.cells === 0} onPress={() => void save()}>
-            {plural(counts.cells, { one: 'Save # change', other: 'Save # changes' })}
-          </Button>
-        </section>
-      ) : null}
+      <ChangesBar staging={staging} />
 
       {dialog === 'columns' ? (
         <ColumnsDialog
@@ -1268,30 +1073,18 @@ function Problem({
   anchor,
   row,
   problem,
+  staging,
   onClose,
-  onKeepMine,
-  onKeepTheirs,
+  onChosen,
 }: {
   anchor: { current: HTMLElement | null };
   row: SheetRow;
   problem: BulkEditRowResult;
+  staging: Staging;
   onClose: () => void;
-  onKeepMine: () => void;
-  onKeepTheirs: () => void;
+  onChosen: () => void;
 }) {
   const { t } = useLingui();
-  const who = problem.changedBy?.displayName;
-  const name = row.name ?? '';
-  const why =
-    problem.status === 412
-      ? who
-        ? t`${who} changed this since you opened it.`
-        : t`Someone changed this since you opened it.`
-      : problem.status === 403
-        ? t`You can view this location but not change it.`
-        : problem.status === 404
-          ? t`It's no longer here.`
-          : (problem.hint ?? t`Check the highlighted cells.`);
   return (
     <Popover
       triggerRef={anchor}
@@ -1305,23 +1098,10 @@ function Problem({
         className="grid gap-3 p-3 outline-none"
       >
         <p className="m-0 text-[14px]">
-          <bdi className="font-semibold">{name}</bdi> · {why}
+          <ProblemText row={row} problem={problem} />
         </p>
         <div className="flex flex-wrap justify-end gap-2">
-          {problem.status === 412 ? (
-            <>
-              <Button size="small" variant="secondary" onPress={onKeepTheirs}>
-                <Trans>Keep theirs</Trans>
-              </Button>
-              <Button size="small" onPress={onKeepMine}>
-                <Trans>Keep mine</Trans>
-              </Button>
-            </>
-          ) : (
-            <Button size="small" variant="secondary" onPress={onKeepTheirs}>
-              <Trans>Discard my change</Trans>
-            </Button>
-          )}
+          <ProblemActions row={row} problem={problem} staging={staging} onDone={onChosen} />
         </div>
       </AriaDialog>
     </Popover>
