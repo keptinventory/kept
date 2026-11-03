@@ -302,8 +302,22 @@ Write it with Lingui (`` t`…` `` or `<Trans>`), then:
 pnpm --filter @kept/web i18n:extract
 ```
 
-and fill in its `msgstr` in `apps/web/src/locales/{ar,fr,de,it}/messages.po`, with every plural
+and fill in its `msgstr` in `apps/web/src/locales/{ar,fr,de,it,vi}/messages.po`, with every plural
 form. `pnpm lint` and `node scripts/check-i18n-extract.mjs` say what is missing.
+
+### A setting
+
+A `KEPT_*` setting starts in `apps/server/src/config/env.ts`, then:
+
+- `pnpm --filter @kept/docs gen:config`, and commit the regenerated reference;
+- `compose.env.example`, where people set it, and `compose.yaml`, which passes it to the
+  container (a value in `.env` that compose.yaml doesn't name never reaches Kept);
+- the Home Assistant app: an option in `homeassistant/kept/config.yaml`, mapped in
+  `docker/ha/options.mjs`, with its label in `translations/` and a line in `DOCS.md`;
+- a comment in the Helm chart's `values.yaml` if people on Kubernetes would set it.
+
+A setting that doesn't belong in one of those goes on `NOT_IN_ENV_EXAMPLE` or `NOT_IN_HA_APP` in
+`scripts/check-setting-parity.mjs`, with the reason. `pnpm lint` runs that check.
 
 ### An MCP tool
 
