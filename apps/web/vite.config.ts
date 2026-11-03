@@ -315,6 +315,7 @@ const HOUSEHOLD_SHARED = [
   '/src/components/ai/paste-key.tsx',
   '/src/components/ai/prices.tsx',
   '/src/components/ai/recommended.tsx',
+  '/src/components/ai/search-by-name.tsx',
   '/src/components/ai/settings-page.tsx',
   '/src/components/ai/usage-charts.tsx',
   '/src/components/ai/usage-page.tsx',
