@@ -1,5 +1,5 @@
 /**
- * The five launch languages (D204): each shown in its own name with a flag. Flags are SVG, not
+ * The six launch languages (D204): each shown in its own name with a flag. Flags are SVG, not
  * emoji (Windows has no flag emoji), from country-flag-icons (MIT); only these five are imported,
  * so the rest of the set never reaches the bundle.
  *
@@ -10,6 +10,7 @@ import EG from 'country-flag-icons/react/3x2/EG';
 import FR from 'country-flag-icons/react/3x2/FR';
 import GB from 'country-flag-icons/react/3x2/GB';
 import IT from 'country-flag-icons/react/3x2/IT';
+import VN from 'country-flag-icons/react/3x2/VN';
 import type { Key } from 'react-aria-components';
 import { directionOf, LOCALES, type Locale, localeOfTag } from '@/lib/prefs';
 import { cn } from '@/lib/utils';
@@ -26,9 +27,10 @@ export const LANGUAGE_NAMES: Readonly<Record<Locale, string>> = {
   fr: 'Français',
   de: 'Deutsch',
   it: 'Italiano',
+  vi: 'Tiếng Việt',
 };
 
-const FLAGS: Readonly<Record<Locale, Flag>> = { en: GB, ar: EG, fr: FR, de: DE, it: IT };
+const FLAGS: Readonly<Record<Locale, Flag>> = { en: GB, ar: EG, fr: FR, de: DE, it: IT, vi: VN };
 
 export const LANGUAGES: readonly Language[] = LOCALES.map((id) => ({
   id,
@@ -98,7 +100,7 @@ export function LanguageSelect({
 /**
  * A location's languages (D41): the languages AI writes search aliases in. Several choices. The
  * stored tags can carry a region (`ar-EG`); a chosen language keeps its stored tag, a new one is
- * stored as the bare language, and tags outside the five are kept as they are.
+ * stored as the bare language, and tags outside the six are kept as they are.
  */
 export function LanguagesMultiSelect({
   label,

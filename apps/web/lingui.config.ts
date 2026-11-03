@@ -3,7 +3,7 @@ import { formatter } from '@lingui/format-po';
 
 export default defineConfig({
   sourceLocale: 'en',
-  locales: ['en', 'ar', 'fr', 'de', 'it'],
+  locales: ['en', 'ar', 'fr', 'de', 'it', 'vi'],
   // PO for translators (D96, Weblate). No line numbers, so catalogues don't churn on every edit.
   format: formatter({ lineNumbers: false }),
   catalogs: [
