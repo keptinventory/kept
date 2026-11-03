@@ -28480,3 +28480,15 @@ msgstr "Vereinigtes Königreich"
 
 msgid "United States"
 msgstr "Vereinigte Staaten"
+
+msgid "Name {title}"
+msgstr "{title} benennen"
+
+msgid "Name cleared"
+msgstr "Name entfernt"
+
+msgid "Named {0}"
+msgstr "Benannt: {0}"
+
+msgid "What it is, e.g. Insurance 2026. Leave it empty to show its kind."
+msgstr "Was es ist, z. B. Versicherung 2026. Leer lassen, um seine Art anzuzeigen."

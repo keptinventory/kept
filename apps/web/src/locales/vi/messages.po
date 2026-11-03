@@ -20530,3 +20530,15 @@ msgstr "Vương quốc Anh"
 
 msgid "United States"
 msgstr "Hoa Kỳ"
+
+msgid "Name {title}"
+msgstr "Đặt tên cho {title}"
+
+msgid "Name cleared"
+msgstr "Đã xóa tên"
+
+msgid "Named {0}"
+msgstr "Đã đặt tên: {0}"
+
+msgid "What it is, e.g. Insurance 2026. Leave it empty to show its kind."
+msgstr "Đây là gì, ví dụ Bảo hiểm 2026. Để trống để hiển thị loại của nó."

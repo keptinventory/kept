@@ -28480,3 +28480,15 @@ msgstr "المملكة المتحدة"
 
 msgid "United States"
 msgstr "الولايات المتحدة"
+
+msgid "Name {title}"
+msgstr "تسمية {title}"
+
+msgid "Name cleared"
+msgstr "أُزيل الاسم"
+
+msgid "Named {0}"
+msgstr "صار اسمه {0}"
+
+msgid "What it is, e.g. Insurance 2026. Leave it empty to show its kind."
+msgstr "ما هو، مثلًا تأمين 2026. اتركه فارغًا ليظهر نوعه."
