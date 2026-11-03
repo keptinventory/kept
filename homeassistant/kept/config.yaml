@@ -51,6 +51,8 @@ options:
   ssl: false
   certfile: fullchain.pem
   keyfile: privkey.pem
+  # Quoted: a bare `on` is YAML's true.
+  hsts: "on"
 schema:
   public_url: "url?"
   log_level: "list(debug|info|warn|error)"
@@ -59,6 +61,8 @@ schema:
   ssl: bool
   certfile: str
   keyfile: str
+  # #403: Kept's HSTS covers the host name on every port, Home Assistant's own included.
+  hsts: "list(on|off)"
   # Sign-in, sign-up and uploads, under Kept's own rules (apps/server/src/config/env.ts); what Kept
   # would refuse is left out by options.mjs and said in the Log tab. Not offered on purpose: S3 file
   # storage and Kept's own backups (Home Assistant's backups are the backup here).

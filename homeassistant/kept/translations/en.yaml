@@ -27,6 +27,12 @@ configuration:
   keyfile:
     name: Private key file
     description: The private key's file name in /ssl.
+  hsts:
+    name: HSTS
+    description: >-
+      With https on, Kept tells browsers to use https for this host name on every port for a
+      year, Home Assistant's own included. off: when Home Assistant or another app on this host
+      name is on plain http; browsers forget it on their next https visit to Kept.
   oidc_issuer:
     name: OIDC issuer
     description: >-

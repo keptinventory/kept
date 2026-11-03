@@ -303,6 +303,17 @@ describe('sign-in, sign-up and uploads', () => {
     }
   });
 
+  // #403: Kept's HSTS covers the host name on every port, Home Assistant's own 8123 included.
+  it('turns HSTS off only when asked, and leaves Kept’s default otherwise', () => {
+    expect(run({ hsts: 'off' }).env.KEPT_HSTS).toBe('off');
+    expect(run({ hsts: false }).env.KEPT_HSTS).toBe('off');
+    expect(run({ hsts: 'on' }).env.KEPT_HSTS).toBe('on');
+    expect(run({ hsts: true }).env.KEPT_HSTS).toBe('on');
+    for (const value of [undefined, '', 'maybe', 'OFF']) {
+      expect(run({ hsts: value }).env, String(value)).not.toHaveProperty('KEPT_HSTS');
+    }
+  });
+
   it('passes the upload limit within Kept’s bounds, 1 to 2048 MB', () => {
     expect(run({ max_file_mb: 100 }).env.KEPT_MAX_FILE_MB).toBe('100');
     expect(run({ max_file_mb: 1 }).env.KEPT_MAX_FILE_MB).toBe('1');
