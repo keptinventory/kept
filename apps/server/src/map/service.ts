@@ -3,6 +3,7 @@ import {
   capacityOf,
   carryOf,
   cmToM,
+  defaultRoomKind,
   firstOverlap,
   footprintOf,
   guessModel,
@@ -17,6 +18,7 @@ import {
   mToCm,
   offWall,
   placeInRoom,
+  ROOM_KIND_SURFACE,
   shapeOnAdd,
 } from '@kept/shared';
 import type pg from 'pg';
@@ -455,6 +457,70 @@ export async function addNodes(
     }
   }
   return { added: rows.map((r) => r.id), version: versionOf(before) };
+}
+
+// POST /api/v1/locations/:id/places with `map: {w, d}` (#372): a room made with its real size
+// goes on the map in the same transaction as the place. Its rectangle starts to the right of the
+// rooms arranged on its floor, a metre clear (where the web's own layout puts rooms nobody
+// arranged, so nothing jumps), at the back wall; its kind and floor come from its name, as for a
+// room nobody arranged. The row is the place.create audit's `map`, and that create's Undo takes
+// both away (undo/registry.ts). The caller holds lockLayout, then lockTree.
+
+/** A room's size on the map, in whole centimetres (MAP_LIMITS). */
+export const RoomSize = z.object({
+  w: z.number().int().min(MAP_LIMITS.minRoom).max(MAP_LIMITS.maxRoom),
+  d: z.number().int().min(MAP_LIMITS.minRoom).max(MAP_LIMITS.maxRoom),
+});
+export type RoomSize = z.infer<typeof RoomSize>;
+
+/** A new room's rectangle as the audit keeps it (centimetres). */
+export type NewRoomRect = RoomSize & {
+  x: number;
+  z: number;
+  kind: (typeof MAP_ROOM_KINDS)[number];
+  surface: (typeof MAP_SURFACES)[number];
+};
+
+/** Centimetres between a new room and the arranged rooms beside it (the web's ROOM_GAP). */
+const NEW_ROOM_GAP = 100;
+
+export async function placeNewRoom(
+  client: pg.ClientBase,
+  locationId: string,
+  placeId: string,
+  name: string,
+  size: RoomSize,
+): Promise<NewRoomRect> {
+  const tree = mapTree(await placeRows(client, locationId));
+  if (!tree.rooms.has(placeId)) {
+    throw refuse(
+      'Check body.map: only a room on a floor, or at the top of the location, has a size on the map.',
+    );
+  }
+  const level = tree.rooms.get(placeId) ?? null;
+  const arranged = (await nodeRows(client, locationId)).filter(
+    (r) => r.place_id !== null && r.w !== null && tree.rooms.has(r.place_id),
+  );
+  if (arranged.length >= MAP_LIMITS.rooms) throw refuse('The map holds 400 rooms at most.');
+  const here = arranged.filter((r) => (tree.rooms.get(r.place_id as string) ?? null) === level);
+  const x = here.length ? Math.max(...here.map((r) => r.x + (r.w ?? 0))) + NEW_ROOM_GAP : 0;
+  if (x > MAP_LIMITS.maxCoord) throw refuse('Check body.map: that floor of the map is full.');
+  const kind = defaultRoomKind(name);
+  const rect: NewRoomRect = {
+    x,
+    z: 0,
+    w: size.w,
+    d: size.d,
+    kind,
+    surface: ROOM_KIND_SURFACE[kind],
+  };
+  await client.query(
+    `INSERT INTO public.map_nodes (location_id, place_id, x_cm, z_cm, w_cm, d_cm, rot, room_kind,
+                                   surface, created_by)
+     VALUES ($1, $2, $3, $4, $5, $6, 0, $7, $8, kept.current_user_id())`,
+    [locationId, placeId, rect.x, rect.z, rect.w, rect.d, rect.kind, rect.surface],
+  );
+  return rect;
 }
 
 /** Ten minutes (the arrange session's undo, D237). */

@@ -11,6 +11,7 @@ import {
   undoConflict,
 } from '../audit/undo.js';
 import { AppError, conflict, notFound } from '../http/errors.js';
+import { lockLayout, type NewRoomRect } from '../map/service.js';
 import { gateFor } from '../serialize/gates.js';
 import { undoFurniture } from '../templates/furniture.js';
 import { undoFurnitureCreate } from '../templates/place-templates.js';
@@ -28,7 +29,8 @@ import { undoFields } from '../things/undo.js';
 // - thing.create, place.create, reading.create: here, for step 6's tools (T9, D58, D124), which
 //   write their creates undoable; a create from the app's own screens is written without a
 //   window and never reaches these, except furniture made from a place template (#238), whose
-//   one Undo takes its compartments with it;
+//   one Undo takes its compartments with it, and a room made with its size (#372), whose one
+//   Undo takes its rectangle off the map with it;
 // - place.turn, place.merge_compartments, place.split: furniture's compartments (#238,
 //   templates/furniture.ts).
 // Secret-class diffs are never undoable (audited() writes them without a window, and the route
@@ -276,6 +278,10 @@ async function undoPlaceCreate(args: UndoArgs): Promise<void> {
   const { client, event } = args;
   const id = event.entityId;
   if (event.entityType !== 'place' || !id) throw notUndoable();
+  // #372: a room made with its size. Its rectangle goes too, unless it was moved or resized
+  // since (compared by value, as a floor plan's rooms are: an arrange rewrites every row).
+  const map = (event.diff.map?.after ?? null) as NewRoomRect | null;
+  if (map) await lockLayout(client, event.locationId);
   const { rows } = await client.query<{ deleted_at: Date | null; holds: boolean }>(
     `SELECT p.deleted_at,
             (EXISTS (SELECT 1 FROM public.things t WHERE t.place_id = p.id AND t.deleted_at IS NULL)
@@ -289,6 +295,21 @@ async function undoPlaceCreate(args: UndoArgs): Promise<void> {
   if (now.deleted_at) throw undoConflict(['deleted_at']);
   if (now.holds) throw undoConflict(['contents']);
   await refuseIfChanged(client, args, { type: 'place', id });
+  if (map) {
+    const { rows: node } = await client.query<{ x: number; z: number; w: number; d: number }>(
+      `SELECT x_cm AS x, z_cm AS z, w_cm AS w, d_cm AS d FROM public.map_nodes
+        WHERE location_id = $1 AND place_id = $2`,
+      [event.locationId, id],
+    );
+    const n = node[0];
+    if (!n || n.x !== map.x || n.z !== map.z || n.w !== map.w || n.d !== map.d) {
+      throw undoConflict(['layout']);
+    }
+    await client.query('DELETE FROM public.map_nodes WHERE location_id = $1 AND place_id = $2', [
+      event.locationId,
+      id,
+    ]);
+  }
   const trashBatchId = newId();
   const { rows: stamped } = await client.query<{ deleted_at: Date }>(
     `UPDATE public.places SET deleted_at = now(), trash_batch_id = $2 WHERE id = $1
@@ -298,8 +319,12 @@ async function undoPlaceCreate(args: UndoArgs): Promise<void> {
   await args.audit({
     action: 'place.trash',
     entity: { type: 'place', id },
-    before: { deleted_at: null, trash_batch_id: null },
-    after: { deleted_at: stamped[0]?.deleted_at ?? new Date(), trash_batch_id: trashBatchId },
+    before: { deleted_at: null, trash_batch_id: null, ...(map ? { map } : {}) },
+    after: {
+      deleted_at: stamped[0]?.deleted_at ?? new Date(),
+      trash_batch_id: trashBatchId,
+      ...(map ? { map: null } : {}),
+    },
   });
 }
 

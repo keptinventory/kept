@@ -9,6 +9,7 @@ import { assertClientId, checkVersion } from '../http/conventions.js';
 import { AppError, conflict, forbidden, invalid, notFound } from '../http/errors.js';
 import type { JobQueue } from '../jobs/queue.js';
 import { requireCan, requireMembership } from '../locations/access.js';
+import { lockLayout, placeNewRoom, RoomSize } from '../map/service.js';
 import { enqueueReindex } from '../search/jobs.js';
 import { gateFor } from '../serialize/gates.js';
 import {
@@ -104,6 +105,10 @@ export const CreatePlaceBody = z.object({
   name: NAME,
   kindKey: KIND_KEY,
   icon: ICON.optional(),
+  /** #372: a room's real size, in whole centimetres: it goes on the location's map with it, in
+   * the same transaction, and the create can be undone (both together). Only for a room (a place
+   * at the top of the location or on a floor). */
+  map: RoomSize.optional(),
 });
 export type CreatePlaceBody = z.infer<typeof CreatePlaceBody>;
 
@@ -131,6 +136,8 @@ export async function createPlace(
   if (!ownerAccountId) throw notFound();
   await requireKind(c.client, ownerAccountId, body.kindKey);
   const parentId = body.parentId ? body.parentId.toLowerCase() : null;
+  // The map's lock before the tree's, as a floor plan's rooms take them (map/floor-plans.ts).
+  if (body.map) await lockLayout(c.client, locationId);
   await lockTree(c.client, locationId);
   if (parentId) {
     const parent = await requireParent(c.client, locationId, parentId);
@@ -151,6 +158,9 @@ export async function createPlace(
   );
   await lastInCustomOrder(c.client, id);
   const created = await requirePlace(c.client, id);
+  const map = body.map
+    ? await placeNewRoom(c.client, locationId, id, created.name, body.map)
+    : null;
   await audited(c.tx, {
     locationId,
     actor: actor(c.scope),
@@ -161,9 +171,10 @@ export async function createPlace(
       parent_id: created.parentId,
       kind_key: created.kindKey,
       icon: created.icon,
+      ...(map ? { map } : {}),
     },
     requestId: c.requestId,
-    ...(opts.undoable ? { undoableUntil: undoableUntil() } : {}),
+    ...(opts.undoable || map ? { undoableUntil: undoableUntil() } : {}),
   });
   return created;
 }
