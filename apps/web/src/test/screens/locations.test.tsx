@@ -108,7 +108,18 @@ describe('the location page', () => {
     await findHeading('Personal');
     expect(screen.queryByRole('link', { name: /Members and roles/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Leave this location' })).not.toBeInTheDocument();
-    expect(screen.getByText(/Personal is yours alone/)).toBeInTheDocument();
+    expect(document.body.textContent).toContain('Personal is yours alone');
+  });
+
+  it('Personal renamed: its own name in the heading and the note', async () => {
+    const state = ownerScenario();
+    const personal = state.locations.find((l) => l.kind === 'personal');
+    if (!personal) throw new Error('fixture');
+    personal.name = 'Pocket';
+    await renderApp(`/loc/${IDS.personal}`, { state });
+    await findHeading('Pocket');
+    expect(document.body.textContent).toContain('Pocket is yours alone');
+    expect(document.body.textContent).not.toContain('Personal is yours alone');
   });
 
   it('a member can leave, after a confirm that says what stops working', async () => {

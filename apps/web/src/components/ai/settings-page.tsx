@@ -27,6 +27,7 @@ import { ErrorState, List, LoadingRows, Notice, Section } from '@/components/pag
 import { Button } from '@/components/ui/button';
 import { hashHref } from '@/lib/base-path';
 import { useLocationName } from '@/lib/labels';
+import { usePersonalName } from '@/lib/personal-name';
 import { Advanced } from './advanced';
 import { CapBars } from './cap-bars';
 import { CapSuggest } from './cap-suggest';
@@ -99,6 +100,7 @@ function NotAnOwner() {
   const locations = useLocations();
   const accounts = useAccounts();
   const nameOf = useLocationName();
+  const personal = usePersonalName();
   const shared = (locations.data ?? []).filter((l) => l.kind !== 'personal');
   const statuses = useQueries({
     queries: shared.map((l) => ({
@@ -136,7 +138,8 @@ function NotAnOwner() {
         </List>
         <p className="m-0 text-small text-ink-2">
           <Trans>
-            Your own key is for Personal, your private threads, and questions that span owners.
+            Your own key is for <bdi>{personal}</bdi>, your private threads, and questions that span
+            owners.
           </Trans>{' '}
           <Link
             to="/settings/me/ai"

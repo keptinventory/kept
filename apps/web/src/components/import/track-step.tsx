@@ -16,6 +16,7 @@ import { PresetPicker } from '@/components/preset-picker';
 import { Switch } from '@/components/ui/switch';
 import { TickBox } from '@/components/ui/tick-box';
 import { useModuleLabels } from '@/lib/labels';
+import { usePersonalName } from '@/lib/personal-name';
 
 export type TrackDraft = { preset: Preset; modules: ModuleId[]; alsoPersonal: boolean };
 
@@ -42,6 +43,7 @@ export function TrackStep({
   hints: HomeboxMappingHints | undefined;
 }) {
   const { t } = useLingui();
+  const personal = usePersonalName();
   const labels = useModuleLabels();
   const base = presetModules(draft.preset);
   const uses = homeboxModules(hints ?? {}).filter((m) => !base.has(m.module));
@@ -103,12 +105,14 @@ export function TrackStep({
           isSelected={draft.alsoPersonal}
           onChange={(alsoPersonal) => onChange({ ...draft, alsoPersonal })}
         >
-          <Trans>Also for Personal</Trans>
+          <Trans>
+            Also for <bdi>{personal}</bdi>
+          </Trans>
         </Switch>
         <p className="m-0 text-small text-ink-2">
           <Trans>
-            Personal, your own location, tracks the same from when the import runs. The menu shows
-            what any of your locations tracks.
+            <bdi>{personal}</bdi>, your own location, tracks the same from when the import runs. The
+            menu shows what any of your locations tracks.
           </Trans>
         </p>
       </div>

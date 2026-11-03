@@ -378,8 +378,8 @@ function LocationBody({ location }: { location: LocationDetail }) {
       {personal ? (
         <Notice tone="info">
           <Trans>
-            Personal is yours alone: it has no members, invites or share links. Move a thing into a
-            shared home when it becomes shared.
+            <bdi>{name}</bdi> is yours alone: it has no members, invites or share links. Move a
+            thing into a shared home when it becomes shared.
           </Trans>
         </Notice>
       ) : null}

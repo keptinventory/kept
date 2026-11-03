@@ -51,8 +51,8 @@ away by itself when every step is done. More on Home in [everyday use](/users/ev
 ## 3. Create your first home
 
 Everyone has a **Personal** location from the start: it's yours alone (no members, invites or
-share links) and it's where a capture with no location lands. Shared things belong in a location of
-their own. Choose **Create your first home** (or **New location** on Home):
+share links) and it's where a capture with no location lands. Rename it in **Location settings →
+General**, and Kept shows the new name everywhere. Shared things belong in a location of their own. Choose **Create your first home** (or **New location** on Home):
 
 1. **What's this place called?** A name, like Home or Garage, and its kind: House, Apartment,
    Garage, Storage unit, Office, Vacation home or Other.

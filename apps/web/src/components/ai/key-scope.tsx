@@ -10,6 +10,7 @@ import type { ReactNode } from 'react';
 import type { AiProvider, ProviderScope } from '@/api/capture/types';
 import { List } from '@/components/page';
 import { sep } from '@/lib/format';
+import { usePersonalName } from '@/lib/personal-name';
 import { useProviderName } from './labels';
 
 export function KeyScope({
@@ -24,6 +25,7 @@ export function KeyScope({
   homes: string[];
 }) {
   const list = homes.join(', ');
+  const personal = usePersonalName();
   return (
     <p className="m-0 text-[15px] text-ink">
       {scope === 'instance' ? (
@@ -32,11 +34,13 @@ export function KeyScope({
           account may spend below.
         </Trans>
       ) : scope === 'me' ? (
-        <Trans>Used for Personal, your private threads, and questions that span owners.</Trans>
+        <Trans>
+          Used for <bdi>{personal}</bdi>, your private threads, and questions that span owners.
+        </Trans>
       ) : homes.length > 0 ? (
         <Trans>
-          This key pays for all of <bdi>{ownerName}</bdi>'s homes: <bdi>{list}</bdi>. Your Personal
-          location uses your personal key if you add one.
+          This key pays for all of <bdi>{ownerName}</bdi>'s homes: <bdi>{list}</bdi>.{' '}
+          <bdi>{personal}</bdi> uses your personal key if you add one.
         </Trans>
       ) : (
         <Trans>This key pays for the homes your account owns.</Trans>

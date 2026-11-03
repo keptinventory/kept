@@ -241,9 +241,27 @@ describe('AI settings', () => {
 
   it('Personal AI key carries its note; Admin → AI edits prices in versions', async () => {
     await renderApp('/settings/me/ai');
+    const note = (text: string) => (_: string, el: Element | null) =>
+      el?.tagName === 'P' && el.textContent === text;
     expect(
       await screen.findByText(
-        'Used for Personal, your private threads, and questions that span owners.',
+        note('Used for Personal, your private threads, and questions that span owners.'),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('names the Personal location by its new name once it is renamed (discussion 183)', async () => {
+    const s = ownerScenario();
+    const personal = s.locations.find((l) => l.kind === 'personal');
+    if (!personal) throw new Error('fixture');
+    personal.name = 'Pocket';
+    await renderApp('/settings/me/ai', { state: s });
+    expect(
+      await screen.findByText(
+        (_, el) =>
+          el?.tagName === 'P' &&
+          el.textContent ===
+            'Used for Pocket, your private threads, and questions that span owners.',
       ),
     ).toBeInTheDocument();
   });

@@ -28,6 +28,7 @@ import { Switch } from '@/components/ui/switch';
 import { servedOverHttp } from '@/lib/https';
 import { useLocationName } from '@/lib/labels';
 import { useOnline } from '@/lib/online';
+import { usePersonalName } from '@/lib/personal-name';
 import { type Digits, type Locale, usePrefs } from '@/lib/prefs';
 import { useExportErrorText } from './labels';
 import { type Passphrase, PassphraseFields, passphraseReady } from './passphrase-field';
@@ -53,6 +54,7 @@ export function ExportSheet({
   onStarted?: (run: ExportRun) => void;
 }) {
   const { t } = useLingui();
+  const personal = usePersonalName();
   const qc = useQueryClient();
   const online = useOnline();
   const prefs = usePrefs();
@@ -128,8 +130,8 @@ export function ExportSheet({
           {me ? (
             <p className="m-0 text-small text-ink-2">
               <Trans>
-                Your Personal location with its files, your profile and preferences, and the AI
-                calls you made. Locations you own are exported one by one.
+                <bdi>{personal}</bdi> with its files, your profile and preferences, and the AI calls
+                you made. Locations you own are exported one by one.
               </Trans>
             </p>
           ) : (
