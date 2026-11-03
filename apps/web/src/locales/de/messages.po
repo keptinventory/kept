@@ -28492,3 +28492,39 @@ msgstr "Benannt: {0}"
 
 msgid "What it is, e.g. Insurance 2026. Leave it empty to show its kind."
 msgstr "Was es ist, z. B. Versicherung 2026. Leer lassen, um seine Art anzuzeigen."
+
+msgid "{others, plural, one {This receipt has # other thing on it: the date and shop change for it too.} other {This receipt has # other things on it: the date and shop change for them too.}}"
+msgstr "{others, plural, one {Auf diesem Beleg steht # weiterer Gegenstand: Datum und Geschäft ändern sich auch für ihn.} other {Auf diesem Beleg stehen # weitere Gegenstände: Datum und Geschäft ändern sich auch für sie.}}"
+
+msgid "Add a receipt"
+msgstr "Beleg hinzufügen"
+
+msgid "Add the purchase"
+msgstr "Kauf hinzufügen"
+
+msgid "Add the purchase of {0}"
+msgstr "Kauf von {0} hinzufügen"
+
+msgid "Choose the day it was bought."
+msgstr "Wähle den Tag, an dem es gekauft wurde."
+
+msgid "Edit the purchase"
+msgstr "Kauf bearbeiten"
+
+msgid "No purchase recorded: when and where it was bought, and what it cost."
+msgstr "Kein Kauf erfasst: wann und wo es gekauft wurde und was es gekostet hat."
+
+msgid "Price of one"
+msgstr "Stückpreis"
+
+msgid "Purchase of {0}"
+msgstr "Kauf von {0}"
+
+msgid "Purchase saved"
+msgstr "Kauf gespeichert"
+
+msgid "These are the purchase’s receipts: every thing bought on it shows them. A receipt added under Paperwork is this thing’s own and shows only there."
+msgstr "Das sind die Belege des Kaufs: Jeder damit gekaufte Gegenstand zeigt sie. Ein unter Unterlagen hinzugefügter Beleg gehört nur zu diesem Gegenstand und erscheint nur dort."
+
+msgid "This purchase is kept in another location; change it there."
+msgstr "Dieser Kauf ist an einem anderen Standort gespeichert; ändere ihn dort."
