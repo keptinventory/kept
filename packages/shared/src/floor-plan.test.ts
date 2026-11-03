@@ -306,11 +306,11 @@ describe('draftRooms on the invented plans', () => {
       );
       expect(err, `${d.name} ${d.w}×${d.d} vs ${t.w}×${t.d}`).toBeLessThanOrEqual(c.worst + 1e-9);
     }
-    // The cupboard (0.9 × 0.7 m) is left out, said so; the others stay in.
+    // The cupboard (0.9 × 0.7 m) is a room now that the map takes 50 cm a side (#372).
     const cupboard = drafts.rooms.find((d) => d.name === 'Cupboard');
     if (cupboard) {
-      expect(cupboard.skip).toBe(true);
-      expect(cupboard.notes).toContain('too_small');
+      expect(cupboard.skip).toBe(false);
+      expect(cupboard.notes).not.toContain('too_small');
     }
     // Placed beside the existing rooms: never on them.
     if (c.existing) {
@@ -433,6 +433,28 @@ describe('draftRooms on odd answers', () => {
       { w: 1000, h: 1000 },
     );
     expect(d.rooms[0]?.floor).toBe(0);
+  });
+
+  it('keeps a narrow balcony under a metre, and leaves out what is under 50 cm (#372)', () => {
+    const d = draftRooms(
+      {
+        is_plan: true,
+        rooms: [
+          { box: box(0, 0, 0.4, 0.4), name: { value: 'Living room', confidence: 0.9 } },
+          { box: box(0.45, 0, 0.08, 0.36), name: { value: 'Balcony', confidence: 0.9 } },
+          { box: box(0.6, 0, 0.04, 0.03), name: { value: 'Shelf', confidence: 0.9 } },
+        ],
+      },
+      { w: 1000, h: 1000 },
+      { typed: { key: 'plan:0', w: 4, d: 4 } },
+    );
+    const [living, balcony, shelf] = d.rooms;
+    expect([living?.w, living?.d]).toEqual([4, 4]);
+    expect(balcony?.skip).toBe(false);
+    expect(balcony?.notes).not.toContain('too_small');
+    expect([balcony?.w, balcony?.d]).toEqual([0.8, 3.6]);
+    expect(shelf?.skip).toBe(true);
+    expect(shelf?.notes).toContain('too_small');
   });
 
   it('the model’s kind wins over the name', () => {

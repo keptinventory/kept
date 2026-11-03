@@ -505,8 +505,8 @@ export const MAP_LIMITS = {
   nodes: 3000,
   /** Positions, in centimetres from the floor's corner: up to a kilometre. */
   maxCoord: 100_000,
-  /** A room's side, in centimetres. */
-  minRoom: 100,
+  /** A room's side, in centimetres: from 50 cm (a narrow balcony, #372) to 100 m. */
+  minRoom: 50,
   maxRoom: 10_000,
   /** How high a thing on a wall hangs, in centimetres (HANG_TOP; #138). */
   maxHeight: 300,
