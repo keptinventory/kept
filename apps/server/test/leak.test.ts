@@ -236,6 +236,7 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.convert_place_to_container(uuid,uuid)': { roles: APP, definer: true },
   'kept.customise_type(uuid,uuid)': { roles: APP, definer: true },
   'kept.merge_places(uuid,uuid)': { roles: APP, definer: true },
+  'kept.move_compartment_short_ids(uuid,jsonb)': { roles: APP, definer: true },
   'kept.merge_registry(text,uuid,uuid)': { roles: APP, definer: true },
   'kept.move_things(uuid[],uuid,uuid,uuid)': { roles: APP, definer: true },
   'kept.type_impact(uuid)': { roles: APP, definer: true },
@@ -1905,6 +1906,12 @@ const PROBES: Probe[] = [
     name: 'merge_places',
     sql: 'SELECT kept.merge_places($1, $2)',
     args: (i) => [i.room, i.unplaced],
+    viewer: 'refused',
+  },
+  {
+    name: 'move_compartment_short_ids',
+    sql: `SELECT kept.move_compartment_short_ids($1, '[]'::jsonb)`,
+    args: (i) => [i.room],
     viewer: 'refused',
   },
   {

@@ -1170,6 +1170,13 @@
       "when": 1793668120030,
       "tag": "0166_copy_receipt_names",
       "breakpoints": true
+    },
+    {
+      "idx": 167,
+      "version": "7",
+      "when": 1793668452420,
+      "tag": "0167_compartment_short_ids",
+      "breakpoints": true
     }
   ]
 }

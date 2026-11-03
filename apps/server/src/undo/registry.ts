@@ -12,6 +12,7 @@ import {
 } from '../audit/undo.js';
 import { AppError, conflict, notFound } from '../http/errors.js';
 import { gateFor } from '../serialize/gates.js';
+import { undoFurniture } from '../templates/furniture.js';
 import { undoFurnitureCreate } from '../templates/place-templates.js';
 import { undoFields } from '../things/undo.js';
 
@@ -27,7 +28,9 @@ import { undoFields } from '../things/undo.js';
 // - thing.create, place.create, reading.create: here, for step 6's tools (T9, D58, D124), which
 //   write their creates undoable; a create from the app's own screens is written without a
 //   window and never reaches these, except furniture made from a place template (#238), whose
-//   one Undo takes its compartments with it.
+//   one Undo takes its compartments with it;
+// - place.turn, place.merge_compartments, place.split: furniture's compartments (#238,
+//   templates/furniture.ts).
 // Secret-class diffs are never undoable (audited() writes them without a window, and the route
 // refuses them), and registry events (account-level) never reach the route. There is no redo.
 
@@ -334,5 +337,9 @@ export function registerStep3Undo(): void {
   registerUndo('purchase.extract', undoPurchaseExtract);
   registerUndo('thing.create', undoThingCreate);
   registerUndo('place.create', undoPlaceCreate);
+  // #238 (1.14.4): furniture turned, its compartments merged or split.
+  registerUndo('place.turn', undoFurniture);
+  registerUndo('place.merge_compartments', undoFurniture);
+  registerUndo('place.split', undoFurniture);
   registerUndo('reading.create', undoReadingCreate);
 }

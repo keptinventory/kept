@@ -90,6 +90,10 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'place.convert_to_container': (p) => `Turned ${p.name} into a box`,
   'place.label': (p) => `Labelled ${p.name}`,
   'place.codes': (p) => `Changed the codes of ${p.name}`,
+  // #238 (1.14.4): furniture's compartments.
+  'place.turn': (p) => `Turned ${p.name}`,
+  'place.merge_compartments': (p) => `Merged compartments of ${p.name}`,
+  'place.split': (p) => `Split a compartment of ${p.name}`,
   // D236: a service line took the consumable off the shelf, or gave it back.
   'thing.stock_use': (p) => `Used ${p.name} in a service of ${p.service}`,
   'thing.stock_return': (p) => `Put ${p.name} back from a service of ${p.service}`,

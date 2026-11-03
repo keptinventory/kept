@@ -521,12 +521,14 @@ const refuse = (
 /**
  * The own codes in order (the furniture's first, if any), each as stored, checked against the
  * location's rule, against each other and against the location's codes: the first that fails
- * is refused by name.
+ * is refused by name: 400 `rule`, 400 `duplicate`, 409 `taken`.
  */
-async function checkAllCodes(
+export async function checkAllCodes(
   client: pg.ClientBase,
   locationId: string,
   codes: readonly string[],
+  /** Places whose own codes don't count as taken (furniture being renumbered, #238). */
+  mine: readonly string[] = [],
 ): Promise<void> {
   if (codes.length === 0) return;
   const rule = await ruleFor(client, locationId);
@@ -556,8 +558,11 @@ async function checkAllCodes(
     seen.add(code);
   }
   const { rows } = await client.query<{ code: string }>(
-    'SELECT code FROM public.legacy_codes WHERE location_id = $1 AND code = ANY ($2::text[])',
-    [locationId, codes],
+    `SELECT code FROM public.legacy_codes
+      WHERE location_id = $1 AND code = ANY ($2::text[])
+        AND NOT (source = 'own' AND source_collection = ''
+                 AND coalesce(place_id = ANY ($3::uuid[]), false))`,
+    [locationId, codes, mine],
   );
   if (rows.length > 0) {
     const taken = new Set(rows.map((r) => r.code));

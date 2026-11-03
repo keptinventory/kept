@@ -6,6 +6,14 @@ import { scopedRead, scopedWrite } from '../http/write.js';
 import { PlaceViewSchema, placeView } from '../places/view.js';
 import { writeCtx } from '../registries/routes.js';
 import {
+  MergeCompartmentsBody,
+  mergeFurnitureCompartments,
+  SplitCompartmentBody,
+  splitFurnitureCompartment,
+  TurnBody,
+  turnFurniture,
+} from './furniture.js';
+import {
   AccountPlaceTemplateSchema,
   CompartmentSchema,
   CreatePlaceTemplateBody,
@@ -56,6 +64,12 @@ import {
 //        {template: {builtin} | {id}, name, parentId?, orientation?, count?, compartmentName?,
 //         code?, codePattern?} → 201 {place: PlaceView, compartments: [{id, name, n, row, col,
 //         code}]}; X-Kept-Audit-Event names its one undoable `place.create`.
+//
+// Furniture's compartments (#238, 1.14.4; furniture.ts), each → {place: PlaceView} (the
+// furniture, its `furniture` view after the change) and one undoable event:
+// POST   /api/v1/places/:id/turn {direction: 'right' | 'left', renumber}     → `place.turn`
+// POST   /api/v1/places/:id/merge-compartments {compartmentIds}             → `place.merge_compartments`
+// POST   /api/v1/places/:id/split-compartment {compartmentId}               → `place.split`
 
 const Id = z.object({ id: z.uuid() });
 const AccountParams = z.object({ accountId: z.uuid() });
@@ -255,6 +269,50 @@ export async function templateRoutes(app: KeptApp, deps: InventoryDeps): Promise
             place: await placeView(tx, client, scope, deps.files, made.place),
             compartments: made.compartments,
           },
+        };
+      }),
+  );
+
+  const Furnished = z.object({ place: PlaceViewSchema });
+
+  app.post(
+    '/api/v1/places/:id/turn',
+    { schema: { params: Id, body: TurnBody, response: { 200: Furnished } } },
+    (req, reply) =>
+      scopedWrite(pools, req, reply, async (tx, client, scope) => {
+        const c = { tx, client, scope, jobs: deps.jobs, requestId: req.id };
+        const place = await turnFurniture(c, req.params.id.toLowerCase(), req.body);
+        return {
+          status: 200,
+          body: { place: await placeView(tx, client, scope, deps.files, place) },
+        };
+      }),
+  );
+
+  app.post(
+    '/api/v1/places/:id/merge-compartments',
+    { schema: { params: Id, body: MergeCompartmentsBody, response: { 200: Furnished } } },
+    (req, reply) =>
+      scopedWrite(pools, req, reply, async (tx, client, scope) => {
+        const c = { tx, client, scope, jobs: deps.jobs, requestId: req.id };
+        const place = await mergeFurnitureCompartments(c, req.params.id.toLowerCase(), req.body);
+        return {
+          status: 200,
+          body: { place: await placeView(tx, client, scope, deps.files, place) },
+        };
+      }),
+  );
+
+  app.post(
+    '/api/v1/places/:id/split-compartment',
+    { schema: { params: Id, body: SplitCompartmentBody, response: { 200: Furnished } } },
+    (req, reply) =>
+      scopedWrite(pools, req, reply, async (tx, client, scope) => {
+        const c = { tx, client, scope, jobs: deps.jobs, requestId: req.id };
+        const place = await splitFurnitureCompartment(c, req.params.id.toLowerCase(), req.body);
+        return {
+          status: 200,
+          body: { place: await placeView(tx, client, scope, deps.files, place) },
         };
       }),
   );

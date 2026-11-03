@@ -1,4 +1,12 @@
-import { can, FLOOR_PLAN_STATUSES, MAP_ROOM_KINDS, MAP_SURFACES } from '@kept/shared';
+import {
+  can,
+  compartmentOf,
+  FLOOR_PLAN_STATUSES,
+  gridOf,
+  MAP_ROOM_KINDS,
+  MAP_SURFACES,
+  parseCell,
+} from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
 import type { Tx } from '../db/scope.js';
@@ -7,6 +15,7 @@ import { locationModuleSet } from '../http/modules.js';
 import { labelPrintedSql, shownCodeSql } from '../labels/printed-sql.js';
 import { requireMembership } from '../locations/access.js';
 import { placeOrderSql, thingNameSql } from '../places/order.js';
+import { layoutOf as furnitureLayout } from '../templates/furniture-view.js';
 
 // GET /api/v1/locations/:id/map (1.x, D237): everything the location map draws and its card and
 // list show, in one read under the caller's row-level security.
@@ -23,6 +32,10 @@ import { placeOrderSql, thingNameSql } from '../places/order.js';
 // - Attention: low stock (Consumables on), lent out (Lending on) and due soon (the agenda's
 //   overdue, due and expiring items, each paused with its module by the view itself).
 // A room or node with no layout row comes back with `layout: null`; the web lays it out.
+// - Compartments (#238, 1.14.4): a node that is furniture made from a place template carries its
+//   grid as it stands and its compartments (where each sits, its number and short ID), so the map
+//   draws them in its shape and a compartment can be picked; a thing in one names it
+//   (`compartmentId`).
 
 export const THING_CAP = 5000;
 const ATTENTION_CAP = 1000;
@@ -84,6 +97,21 @@ export const MapViewSchema = z.object({
       isContainer: z.boolean(),
       quantity: z.number(),
       layout: NodeLayout.nullable(),
+      /** Furniture's grid as it stands (#238), or null. */
+      grid: z.object({ columns: z.number().int(), rows: z.number().int() }).nullable(),
+      compartments: z.array(
+        z.object({
+          id: z.uuid(),
+          name: z.string(),
+          shortCode: z.string().nullable(),
+          labelPrinted: z.boolean(),
+          n: z.number().int(),
+          row: z.number().int(),
+          col: z.number().int(),
+          rows: z.number().int(),
+          cols: z.number().int(),
+        }),
+      ),
     }),
   ),
   things: z.array(
@@ -99,6 +127,8 @@ export const MapViewSchema = z.object({
       /** A custom type's own name ("Television"); null for built-in types. */
       typeName: z.string().nullable(),
       isContainer: z.boolean(),
+      /** The furniture's compartment it is in (#238), when its node is furniture. */
+      compartmentId: z.uuid().nullable(),
     }),
   ),
   /** Things in rooms past THING_CAP, not in `things`. */
@@ -127,6 +157,9 @@ type PlaceRow = {
   is_unplaced: boolean;
   short_code: string | null;
   label_printed: boolean;
+  /** Furniture's layout and a compartment's cell (#238). */
+  layout?: unknown;
+  cell?: unknown;
 };
 
 export type MapThingRow = ThingRow;
@@ -225,7 +258,7 @@ export function mapTree(rows: readonly PlaceRow[]): MapTree {
 
 export async function placeRows(client: pg.ClientBase, locationId: string): Promise<PlaceRow[]> {
   const { rows } = await client.query<PlaceRow>(
-    `SELECT p.id, p.parent_id, p.name, p.kind_key, p.is_unplaced,
+    `SELECT p.id, p.parent_id, p.name, p.kind_key, p.is_unplaced, p.layout, p.cell,
             ${shownCodeSql('place_id', 'p.id')} AS short_code,
             ${labelPrintedSql('place_id', 'p.id')} AS label_printed
        FROM public.places p
@@ -463,6 +496,67 @@ export async function mapView(tx: Tx, client: pg.ClientBase, locationId: string)
   }
   for (const f of tree.floors) levels.push({ id: f, name: tree.places.get(f)?.name ?? null });
 
+  // #238: furniture's compartments, and the compartment a place is in (a thing's).
+  const childrenOf = new Map<string, PlaceRow[]>();
+  for (const p of placeList) {
+    if (p.parent_id) childrenOf.set(p.parent_id, [...(childrenOf.get(p.parent_id) ?? []), p]);
+  }
+  const furniture = new Map<string, Pick<MapView['nodes'][number], 'grid' | 'compartments'>>();
+  for (const p of placeList) {
+    if (!nodeIds.has(p.id) || !p.layout) continue;
+    const layout = furnitureLayout(p.layout);
+    if (!layout) continue;
+    const grid = gridOf(layout);
+    const compartments: MapView['nodes'][number]['compartments'] = [];
+    for (const k of childrenOf.get(p.id) ?? []) {
+      const cell = parseCell(k.cell);
+      if (!cell) continue;
+      const c = compartmentOf({ id: k.id, name: k.name, cell }, grid, [], []);
+      compartments.push({
+        id: k.id,
+        name: k.name,
+        shortCode: k.short_code,
+        labelPrinted: k.label_printed === true,
+        n: c.n,
+        row: c.row,
+        col: c.col,
+        rows: c.rows,
+        cols: c.cols,
+      });
+    }
+    furniture.set(p.id, { grid, compartments: compartments.sort((a, b) => a.n - b.n) });
+  }
+  const compartmentMemo = new Map<string, string | null>();
+  const compartmentOfPlace = (id: string): string | null => {
+    if (compartmentMemo.has(id)) return compartmentMemo.get(id) ?? null;
+    const seen = new Set<string>();
+    let cur: string | null = id;
+    let found: string | null = null;
+    while (cur && !seen.has(cur) && !isNodeOrRoom(cur)) {
+      seen.add(cur);
+      const p = tree.places.get(cur);
+      if (!p) break;
+      if (p.parent_id && furniture.has(p.parent_id) && p.cell) {
+        found = p.id;
+        break;
+      }
+      cur = p.parent_id;
+    }
+    compartmentMemo.set(id, found);
+    return found;
+  };
+  const placeOfThing = (id: string): string | null => {
+    const seen = new Set<string>();
+    let cur = thingById.get(id);
+    while (cur && !seen.has(cur.id)) {
+      seen.add(cur.id);
+      if (cur.place_id) return cur.place_id;
+      cur = cur.container_id ? thingById.get(cur.container_id) : undefined;
+    }
+    return null;
+  };
+  const noFurniture = { grid: null, compartments: [] };
+
   const outNodes: MapView['nodes'] = [];
   for (const p of placeList) {
     if (!nodeIds.has(p.id)) continue;
@@ -482,6 +576,7 @@ export async function mapView(tx: Tx, client: pg.ClientBase, locationId: string)
       isContainer: false,
       quantity: 1,
       layout: nodeLayout(p.id),
+      ...(furniture.get(p.id) ?? noFurniture),
     });
   }
   const outThings: MapView['things'] = [];
@@ -506,6 +601,7 @@ export async function mapView(tx: Tx, client: pg.ClientBase, locationId: string)
         isContainer: t.is_container,
         quantity: Number(t.quantity),
         layout: nodeLayout(t.id),
+        ...noFurniture,
       });
     }
     if (outThings.length >= THING_CAP) {
@@ -522,6 +618,9 @@ export async function mapView(tx: Tx, client: pg.ClientBase, locationId: string)
       typeKey: t.type_key,
       typeName: t.type_name,
       isContainer: t.is_container,
+      compartmentId: furniture.has(parentId)
+        ? compartmentOfPlace(placeOfThing(t.id) ?? parentId)
+        : null,
     });
   }
 
