@@ -409,6 +409,63 @@ describe('merging and splitting compartments', () => {
   });
 });
 
+describe('the database door that moves compartment labels (0165)', () => {
+  // kept.move_compartment_short_ids is SECURITY DEFINER: kept_app can't move a short ID itself
+  // (0016). Called straight, as the app's login with someone's scope, it moves only labels of
+  // one piece of furniture's own compartments, for someone who may write in its location.
+  const door = async (as: Person, furniture: string, moves: unknown[]) => {
+    const c = await db.pools.app.connect();
+    try {
+      await c.query('BEGIN');
+      await c.query(
+        "SELECT set_config('app.user_id', $1, true), set_config('app.mfa', 'true', true)",
+        [as.userId],
+      );
+      const r = await c.query<{ n: number }>(
+        'SELECT kept.move_compartment_short_ids($1, $2::jsonb) AS n',
+        [furniture, JSON.stringify(moves)],
+      );
+      return r.rows[0]?.n;
+    } catch (e) {
+      return (e as { code?: string }).code;
+    } finally {
+      await c.query('ROLLBACK');
+      c.release();
+    }
+  };
+
+  it('moves its own compartments’ labels for a member, and nothing for anyone else', async () => {
+    const a = await shelf();
+    const b = await shelf();
+    const fa = (await furnitureOf(a.id)).compartments.sort((x, y) => x.n - y.n);
+    const fb = (await furnitureOf(b.id)).compartments.sort((x, y) => x.n - y.n);
+    const [a1, a2] = fa;
+    const [b1] = fb;
+    if (!a1 || !a2 || !b1) throw new Error('a 2 × 4 shelf has compartments');
+    // A compartment has a short ID once its label is printed.
+    const codeA1 = await label(a1.id);
+    const codeB1 = await label(b1.id);
+    const mine = [{ code: codeA1, place_id: a2.id, is_primary: false }];
+
+    expect(await door(louis, a.id, mine)).toBe(1);
+    // A viewer, and someone from another household, are turned away.
+    expect(await door(talia, a.id, mine)).toBe('42501');
+    expect(await door(alfred, a.id, mine)).toBe('42501');
+    // Another furniture's label, or a label sent to another furniture's compartment.
+    expect(await door(louis, a.id, [{ code: codeB1, place_id: a2.id, is_primary: false }])).toBe(
+      '42501',
+    );
+    expect(await door(louis, a.id, [{ code: codeA1, place_id: b1.id, is_primary: false }])).toBe(
+      '42501',
+    );
+    // The furniture's own label isn't a compartment's.
+    const own = await label(a.id);
+    expect(await door(louis, a.id, [{ code: own, place_id: a2.id, is_primary: false }])).toBe(
+      '42501',
+    );
+  });
+});
+
 describe('the map and the labels', () => {
   it('draws the compartments in the furniture and names the one a thing is in', async () => {
     const s = await shelf('cube_2x2');
