@@ -46,6 +46,7 @@ import {
   PLACE_ORIENTATIONS,
   ROLES,
   SEMANTIC_STATES,
+  TURN_DIRECTIONS,
   WARRANTY_KINDS,
 } from '@kept/shared';
 import { z } from 'zod';
@@ -813,7 +814,7 @@ export const TOOL_DEFS = Object.freeze({
     name: 'update_place',
     title: 'Change a place',
     description:
-      'Change a place: its name, kind, the place it is inside, its fields, or how the places in it are ordered. `move` puts it one step up or down where its parent is in Custom order.',
+      'Change a place: its name, kind, parent, fields or the order inside it. `move` steps it up or down in Custom order; `turn` turns furniture with compartments onto its side or back.',
     scope: 'write',
     module: null,
     since: '1.x',
@@ -846,11 +847,26 @@ export const TOOL_DEFS = Object.freeze({
           .describe(
             'One step up or down among the places beside it; their parent must be in Custom order',
           ),
+        // #238 (1.14.4): the app's "Turn it" on furniture made from a template.
+        turn: z
+          .object({
+            direction: z
+              .enum(TURN_DIRECTIONS)
+              .describe('As you face it, its top went to the right (clockwise) or to the left'),
+            renumber: z
+              .boolean()
+              .describe(
+                'true: number, name and code the compartments by where they now stand; false: keep them',
+              ),
+          })
+          .optional()
+          .describe('Furniture with compartments turned onto its side or back upright'),
       })
-      .refine((i) => Object.keys(i.fields ?? {}).length > 0 || i.move !== undefined, {
-        message: 'a field or a move',
-        path: ['fields'],
-      }),
+      .refine(
+        (i) =>
+          Object.keys(i.fields ?? {}).length > 0 || i.move !== undefined || i.turn !== undefined,
+        { message: 'a field, a move or a turn', path: ['fields'] },
+      ),
     output: writeResult.extend({
       place: placeRef,
       changed_fields: z.array(z.string()),
