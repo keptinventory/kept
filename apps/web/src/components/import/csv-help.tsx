@@ -27,6 +27,9 @@ export const SAMPLE_CSV = [
   'Winter coat,1,Bedroom > Wardrobe,,clothes,,,',
 ].join('\r\n');
 
+/** A byte order mark, so a spreadsheet opens the sample as UTF-8. */
+const BOM = String.fromCharCode(0xfeff);
+
 /** The fields listed: every one a column can go to, except "Don't import". */
 const LISTED = FIELD_ORDER.filter((f) => f !== 'ignore');
 
@@ -79,8 +82,7 @@ export function CsvHelp() {
         <Button
           variant="secondary"
           onPress={() =>
-            // A byte order mark, so a spreadsheet opens it as UTF-8.
-            saveFile(new File([`﻿${SAMPLE_CSV}\r\n`], SAMPLE_CSV_NAME, { type: 'text/csv' }))
+            saveFile(new File([`${BOM}${SAMPLE_CSV}\r\n`], SAMPLE_CSV_NAME, { type: 'text/csv' }))
           }
         >
           <DocumentIcon className="size-4" />
