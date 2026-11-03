@@ -298,3 +298,23 @@ describe('the stored cell', () => {
     expect(c.parts[0]?.codes).toEqual(['KX01-F0201']);
   });
 });
+
+describe('a stored cell out of bounds', () => {
+  it('is outside at once, however large its span (an edited import)', () => {
+    const huge = {
+      id: 'X',
+      name: 'X',
+      row: 1,
+      col: 1,
+      rows: 10_000,
+      cols: 10_000,
+      n: 1,
+      codes: [],
+      shortIds: [],
+      parts: [],
+    };
+    const started = Date.now();
+    expect(coverageProblem([huge], { columns: 2, rows: 4 })).toBe('outside');
+    expect(Date.now() - started).toBeLessThan(100);
+  });
+});
