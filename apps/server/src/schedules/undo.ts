@@ -414,6 +414,8 @@ type AttachmentImage = {
   url: string | null;
   role: string;
   sort: number;
+  /** What people named it (#183); absent in events from before 1.14.4. */
+  name?: string | null;
 };
 
 /** service_record.delete: the record comes back with its id, lines, completions and files. */
@@ -458,11 +460,11 @@ async function undoServiceDelete(args: UndoArgs): Promise<void> {
   for (const a of b.attachments ?? []) {
     await client.query(
       `INSERT INTO public.attachments (id, location_id, file_id, url, service_record_id, role, sort,
-                                       created_by)
-       SELECT $1, $2, $3, $4, $5, $6, $7, kept.current_user_id()
+                                       name, created_by)
+       SELECT $1, $2, $3, $4, $5, $6, $7, $8, kept.current_user_id()
         WHERE $3::uuid IS NULL OR EXISTS (SELECT 1 FROM public.files f WHERE f.id = $3)
        ON CONFLICT DO NOTHING`,
-      [a.id, event.locationId, a.file_id, a.url, id, a.role, a.sort],
+      [a.id, event.locationId, a.file_id, a.url, id, a.role, a.sort, a.name ?? null],
     );
   }
   const restored = await serviceRow(client, id);

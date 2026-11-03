@@ -822,6 +822,44 @@ describe('service records (core)', () => {
     ).toHaveLength(1);
   });
 
+  it('a named file keeps its name through the service’s delete and its undo (#183)', async () => {
+    const car = await newCar('Named file');
+    const record = ok(
+      await post(louis, '/api/v1/service-records', {
+        subject: { thingId: car.thing.id },
+        servicedOn: today,
+        notes: 'Brakes',
+      }),
+      201,
+    );
+    const doc = ok(
+      await post(louis, '/api/v1/attachments', {
+        locationId: home.id,
+        url: 'https://garage.example/jobs/brakes',
+        subject: { serviceRecordId: record.id },
+        role: 'document',
+      }),
+      201,
+    );
+    ok(
+      await patch(
+        louis,
+        `/api/v1/attachments/${doc.id}`,
+        { name: 'Brake job sheet' },
+        doc.rowVersion as number,
+      ),
+    );
+    const gone = await del(louis, `/api/v1/service-records/${record.id}`, 1);
+    expect(gone.statusCode, gone.body).toBe(204);
+    const deleted = (await eventsOf(db, home.id, record.id)).find(
+      (e) => e.action === 'service_record.delete',
+    );
+    ok(await undo(louis, deleted?.id as string));
+    expect(await own(db, 'SELECT name FROM public.attachments WHERE id = $1', [doc.id])).toEqual([
+      { name: 'Brake job sheet' },
+    ]);
+  });
+
   it('a viewer, another household and a member of another location change no service (#296)', async () => {
     const car = await newCar('Guarded');
     const record = ok(

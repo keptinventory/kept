@@ -838,6 +838,8 @@ type AttachmentImage = {
   url: string | null;
   role: string;
   sort: number;
+  /** What people named it (#183); absent in events from before 1.14.4. */
+  name?: string | null;
 };
 
 /**
@@ -851,7 +853,7 @@ export async function deleteService(ctx: Ctx, id: string, expected: number): Pro
   await requireVersion(client, row, expected, []);
   const image = await serviceImage(client, row);
   const { rows: attachments } = await client.query<AttachmentImage>(
-    `SELECT id, file_id, url, role, sort FROM public.attachments WHERE service_record_id = $1
+    `SELECT id, file_id, url, role, sort, name FROM public.attachments WHERE service_record_id = $1
       ORDER BY sort, id`,
     [id],
   );
