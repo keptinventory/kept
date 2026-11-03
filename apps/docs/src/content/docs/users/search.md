@@ -27,6 +27,11 @@ With an embeddings model connected, results "matched by meaning" join the keywor
 example, a query about cutting paper could match scissors even when the word isn't in the query.
 See [AI providers](/users/ai-providers/#search-and-embeddings).
 
+Without one, search matches names and words only: "laptop" doesn't find a MacBook Pro. Search
+says **Searched by name only** above the results, with a link to **Settings → AI**. The assistant
+and MCP clients are told the same (`search_mode` on `search_things` and `where_is`), so an answer
+says it searched by name only instead of that nothing exists.
+
 ## Scanning
 
 **Scan** on Home and Search opens the camera. See [scan sessions](/users/scanning-sessions/) for

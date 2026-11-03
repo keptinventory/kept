@@ -39,6 +39,7 @@ import { PasteKey, type ProviderDraft } from './paste-key';
 import { PausedBanner } from './paused-banner';
 import { NoPriceNotice, Prices } from './prices';
 import { RecommendedCard } from './recommended';
+import { SearchByNameNotice, searchByNameOnly } from './search-by-name';
 import { KeyTrouble, PaidByLine } from './status-line';
 import { WhatUsesAi } from './what-uses-ai';
 
@@ -186,6 +187,8 @@ function KeySettings({ scope, provider }: { scope: ProviderScope; provider: AiPr
   const paused = statuses.map((s) => s.data).filter((s) => s?.pausedUntil);
   const trouble = statuses.map((s) => s.data).find((s) => s?.waitingProvider);
   const missing = statuses.some((s) => s.data?.modelMissing);
+  const statusData = statuses.map((s) => s.data);
+  const embeddingsSource = statusData.find((x) => x?.embeddingsSource)?.embeddingsSource;
   const capScope = scope === 'me' ? 'user' : scope;
 
   const section = (title: ReactNode, body: ReactNode) => <Section title={title}>{body}</Section>;
@@ -225,6 +228,10 @@ function KeySettings({ scope, provider }: { scope: ProviderScope; provider: AiPr
       ) : null}
 
       <NoPriceNotice provider={provider} />
+
+      {provider && searchByNameOnly(provider, statusData, embeddingsSource) ? (
+        <SearchByNameNotice provider={provider} onChoose={() => setAdvanced(true)} />
+      ) : null}
 
       <WhatUsesAi scope={aiScope} whatIsSentId={WHAT_IS_SENT} />
 
@@ -274,12 +281,7 @@ function KeySettings({ scope, provider }: { scope: ProviderScope; provider: AiPr
       {provider
         ? section(
             <Trans>Using</Trans>,
-            <UsingLines
-              provider={provider}
-              embeddingsSource={
-                statuses.find((x) => x.data?.embeddingsSource)?.data?.embeddingsSource
-              }
-            />,
+            <UsingLines provider={provider} embeddingsSource={embeddingsSource} />,
           )
         : null}
 

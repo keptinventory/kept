@@ -146,7 +146,13 @@ places, set by the server's admin with `KEPT_EMBEDDINGS`
 - `provider` (the default): the location's provider, when it has an embeddings model (OpenAI,
   Google, OpenRouter, or an OpenAI-compatible server). Pick one under **Advanced → Models →
   Search**; OpenRouter has no default, and lists free ones. Groq and Anthropic have none, so with
-  those, search stays keyword only and says so.
+  those, search stays keyword only and says so. A key further up the chain with a Search model
+  (this server's) covers a location whose own key has none.
+
+  When a key has an assistant model but no Search model, and nothing further up gives one,
+  **Settings → AI** says **Search matches names only**, with the step: **Choose a Search model**,
+  or for Groq and Anthropic **Choose another provider**. Admin → Status → Search embeddings counts
+  the locations searching by name only, without naming them.
 
   Kept asks OpenAI and Google for 768-number vectors. Other models answer their own length, which
   must be 2,000 or fewer: a model with longer vectors can't be used for search. A request that

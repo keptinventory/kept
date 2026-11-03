@@ -345,6 +345,9 @@ export function aiRoutes(state: MockState): MockRoute[] {
       canResume: owner && s.canResume,
       canManage: owner && s.canManage,
       manager: owner ? null : { displayName: ownerName(locationId) },
+      // #368: the demo's cascade, roughly: any live key with a Search model gives meaning.
+      searchByMeaning:
+        s.searchByMeaning ?? cap().providers.some((pr) => !pr.disabled && !!pr.models.embeddings),
     };
   };
 

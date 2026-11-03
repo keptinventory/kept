@@ -52,6 +52,7 @@ function fixtures(): InstanceMock {
       indexed: 8412,
       total: 10000,
       paused: null,
+      keywordOnly: 0,
       local: { available: true, downloadBytes: 137_000_000, downloadedBytes: null },
     },
   };

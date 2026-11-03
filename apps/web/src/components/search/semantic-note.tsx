@@ -1,11 +1,13 @@
 /**
  * Semantic search's notes (D200, D206): when the server searched by words
  * only, Search says why, quietly, above the results: "Semantic search paused · keyword results"
- * (a cap, until when), the provider's limit, the server's embeddings off, or "Keyword search only
- * here (no embeddings model)". Nothing when meaning was searched too. Offline, search runs on the
+ * (a cap, until when), the provider's limit, the server's embeddings off, or "Searched by name
+ * only" with the way to Settings → AI where the Search model is chosen (#368). Nothing when meaning
+ * was searched too. Offline, search runs on the
  * phone, which never embeds, and this note isn't shown (results.tsx).
  */
 import { Trans } from '@lingui/react/macro';
+import { Link } from '@tanstack/react-router';
 import type { SemanticState } from '@/api/inventory/types';
 import { InfoIcon } from '@/components/icons';
 import { useFormat } from '@/lib/format';
@@ -32,7 +34,12 @@ export function SemanticNote({ semantic }: { semantic: SemanticState | null | un
         ) : semantic.state === 'off' ? (
           <Trans>Semantic search is off on this server · keyword results</Trans>
         ) : (
-          <Trans>Keyword search only here (no embeddings model)</Trans>
+          <Trans>
+            Searched by name only: no embeddings model is set, so "laptop" won't find a MacBook Pro.{' '}
+            <Link to="/settings/ai" className="font-semibold text-ink underline underline-offset-2">
+              Settings → AI
+            </Link>
+          </Trans>
         )}
       </span>
     </p>

@@ -584,6 +584,9 @@ export type EmbeddingsStatus = {
   total: number;
   /** A cap or day budget paused the indexing (D206); search stays on keywords meanwhile. */
   paused: { until: string; reason: AiPauseReason } | null;
+  /** Locations the last indexing run found with no embeddings model, searching by name only
+   * (#368): a count, never which. Absent from an older server. */
+  keywordOnly?: number;
   /**
    * The local model (D207): offered only when the server has its package. `downloadBytes` is its
    * size; `downloadedBytes` counts up while the first download runs, null when there is none.
