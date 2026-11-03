@@ -5,8 +5,7 @@ import { expectLogicalOnly, renderUI } from '@/test/render';
 import { HeightField } from './height';
 import type { Item } from './layout';
 
-// #138: a thing on a wall's Height, on its card while arranging. A React Aria NumberField in
-// metres: arrow keys and the − and + buttons move it by 5 cm, typing sets it, and it keeps to
+// #138: a thing on a wall's Height, on its card while arranging. A text field in metres: arrow keys and the − and + buttons move it by 5 cm, typing sets it, and it keeps to
 // where the thing can hang.
 
 const tv: Item = {
@@ -102,12 +101,45 @@ describe('HeightField', () => {
     const { user } = await renderUI(<HeightField item={tv} onHeight={onHeight} />);
     const field = screen.getByRole('textbox', { name: 'Height' });
     await user.clear(field);
-    await user.type(field, '0,8{Enter}');
+    await user.type(field, '1e3{Enter}');
     expect(onHeight).not.toHaveBeenCalled();
-    expect(field).toHaveValue('0,8');
+    expect(field).toHaveValue('1e3');
     expect(field.getAttribute('aria-invalid')).toBe('true');
     expect(screen.getByText('Enter metres, like 1.2.')).toBeTruthy();
   });
+
+  it('reads "," as the decimal mark in English too (a German-region phone’s keypad)', async () => {
+    const onHeight = vi.fn();
+    const { user } = await renderUI(<HeightField item={tv} onHeight={onHeight} />);
+    const field = screen.getByRole('textbox', { name: 'Height' });
+    await user.clear(field);
+    await user.type(field, '1,75{Enter}');
+    expect(onHeight).toHaveBeenLastCalledWith(1.75);
+  });
+
+  it.each([
+    ['eastern', 1, '١ متر'],
+    ['eastern', 2, '٢ متر'],
+    ['western', 1, '1 متر'],
+    ['western', 2, '2 متر'],
+  ] as const)(
+    'in Arabic with %s digits, shows %s m with its digits, and reads it back',
+    async (d, hang, shown) => {
+      setLocale('ar');
+      setDigits(d);
+      const onHeight = vi.fn();
+      const { user } = await renderUI(<HeightField item={{ ...tv, hang }} onHeight={onHeight} />, {
+        locale: 'ar',
+      });
+      const field = screen.getByRole('textbox', { name: 'الارتفاع' }) as HTMLInputElement;
+      expect(field.value.replace(/\u00a0/g, ' ')).toBe(shown);
+      // Typed over with the same text, it is the same height.
+      await user.clear(field);
+      await user.type(field, `${shown}{Enter}`);
+      expect(onHeight).toHaveBeenLastCalledWith(hang);
+      expect(field.getAttribute('aria-invalid')).not.toBe('true');
+    },
+  );
 
   it('reads in Arabic, right to left, in Arabic digits', async () => {
     setLocale('ar');

@@ -3,8 +3,8 @@
  * across and up, with its outside size, and Turn on its side (lying down is the same unit with the
  * two swapped); a bookcase by its width, depth and height in centimetres and its levels, kept to
  * what its height fits. Fields like Height: arrow keys, typing and the − and + buttons, what is
- * typed read by @kept/shared's `readLength` (Western and Eastern Arabic digits both; what isn't a
- * whole number said so, never another size). Each change is a new model for the shape
+ * typed read by @kept/shared's `readLength`, digits only (Western and Eastern Arabic both; what
+ * isn't a whole number said so, never another size). Each change is a new model for the shape
  * (sizedKey), so the map draws it at its new size and saves it with the arrangement. Digits follow
  * the person's setting (D143).
  */
@@ -13,6 +13,7 @@ import {
   bookcaseMaxLevels,
   CUBE_GRID,
   cubeRunCm,
+  formatLength,
   type MapShapeKey,
   readLength,
   type SizedShape,
@@ -50,16 +51,11 @@ function Field({
   const field = useTypedNumber({
     value,
     show: (v) =>
-      new Intl.NumberFormat(
-        tag,
-        cm
-          ? { style: 'unit', unit: 'centimeter', maximumFractionDigits: 0 }
-          : { maximumFractionDigits: 0 },
-      ).format(v),
-    read: (text) => {
-      const v = readLength(text, tag, cm ? 'centimeter' : null);
-      return v === false || (v !== null && !Number.isInteger(v)) ? false : v;
-    },
+      cm
+        ? formatLength(v, tag, 'centimeter', { max: 0 })
+        : new Intl.NumberFormat(tag, { maximumFractionDigits: 0, useGrouping: false }).format(v),
+    // Digits only: a whole number has no decimal mark to type.
+    read: (text) => readLength(text, tag, cm ? 'centimeter' : null, { whole: true }),
     onCommit: (v) => {
       setNotANumber(v === false);
       if (typeof v === 'number') onChange(clamp(v));

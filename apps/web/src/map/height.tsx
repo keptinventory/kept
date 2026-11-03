@@ -3,11 +3,12 @@
  * the floor, in metres: arrow keys, typing and the − and + buttons (44 px on a phone) work. Steps
  * of 5 cm, kept to where the thing can hang (its bottom on the floor at the lowest, its top under
  * HANG_TOP). Digits follow the person's setting (D143); what is typed is read by @kept/shared's
- * `readLength`, so Western and Eastern Arabic digits both, and what isn't a number is said so
- * rather than turned into another height (the 1.14.4 review: React Aria's NumberField dropped the
- * digits of the other set, and "0,8" in English was 8 m).
+ * `readLength`, so Western and Eastern Arabic digits both, "." or "," as the decimal mark in any
+ * language, and what isn't a number is said so rather than turned into another height (the 1.14.4
+ * review: React Aria's NumberField dropped the digits of the other set, and "0,8" in English was
+ * 8 m).
  */
-import { formatRoomSide, hangRange, readLength } from '@kept/shared';
+import { formatLength, formatRoomSide, hangRange, readLength } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import { Button, FieldError, Group, Input, Label, Text, TextField } from 'react-aria-components';
@@ -47,10 +48,8 @@ export function HeightField({
   const [notANumber, setNotANumber] = useState(false);
   const field = useTypedNumber({
     value: item.hang ?? null,
-    show: (v) =>
-      new Intl.NumberFormat(tag, { style: 'unit', unit: 'meter', maximumFractionDigits: 2 }).format(
-        v,
-      ),
+    // Not Intl's unit style: Arabic writes 1 m and 2 m as a word alone ("متران"), no digits.
+    show: (v) => formatLength(v, tag, 'meter', { max: 2 }),
     read: (text) => readLength(text, tag),
     onCommit: (v) => {
       setNotANumber(v === false);
