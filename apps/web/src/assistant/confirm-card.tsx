@@ -17,7 +17,7 @@
  *   Undo in step 3's toast, undoing every event the writes recorded, newest first (D150, D213).
  * - Offline, Confirm is disabled with "Needs a connection".
  */
-import type { Condition } from '@kept/shared';
+import { type Condition, formatRoomSide } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -220,10 +220,27 @@ function useFieldLabels(): (key: FieldKey, verb: Verb) => string {
         return t`Move`;
       case 'turn':
         return t`Turn`;
+      case 'size':
+        return t`Size on the map`;
       case 'places':
         return t`Places`;
     }
   };
+}
+
+/** A room's size as its map card says it: to the centimetre, in the reader's digits. */
+function RoomSizeView({ w: wCm, d: dCm }: { w: number; d: number }) {
+  const { locale, digits } = usePrefs();
+  const tag = formatLocale(locale, digits);
+  const w = formatRoomSide(wCm, tag);
+  const d = formatRoomSide(dCm, tag);
+  return (
+    <span className="tabular-nums">
+      <Trans>
+        {w} × {d} m
+      </Trans>
+    </span>
+  );
 }
 
 function ValueView({ v }: { v: Val }) {
@@ -265,6 +282,8 @@ function ValueView({ v }: { v: Val }) {
           {v.renumber ? t`Renumber` : t`Keep the codes`}
         </span>
       );
+    case 'roomSize':
+      return <RoomSizeView w={v.w} d={v.d} />;
     case 'text':
       return v.v ? <bdi>{v.v}</bdi> : <span className="text-ink-3">{t`Nothing`}</span>;
     case 'path':

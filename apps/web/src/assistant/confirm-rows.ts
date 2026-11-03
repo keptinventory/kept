@@ -37,7 +37,9 @@ export type Val =
   /** update_place: one step up or down in its parent's Custom order. */
   | { t: 'step'; v: 'up' | 'down' }
   /** update_place (#238): furniture turned, its top to the right or left, renumbered or not. */
-  | { t: 'turn'; v: 'right' | 'left'; renumber: boolean };
+  | { t: 'turn'; v: 'right' | 'left'; renumber: boolean }
+  /** create_place (#372): the room's width and length on the map, in whole centimetres. */
+  | { t: 'roomSize'; w: number; d: number };
 
 export type FieldKey =
   | 'from'
@@ -91,6 +93,7 @@ export type FieldKey =
   | 'order'
   | 'step'
   | 'turn'
+  | 'size'
   | 'places';
 
 export type Field = { key: FieldKey; before?: Val; after: Val };
@@ -395,8 +398,12 @@ export function rowsOf(p: Proposal): CardRow[] {
     }
     case 'mark_seen':
       return [{ ...base, verb: 'seen', target: target(a.thing_id), fields }];
-    case 'create_place':
+    case 'create_place': {
       push('under', pathOf(a.parent_id) ?? (here ? { t: 'path', v: [here] } : undefined));
+      // The rectangle that goes on the map, as the room's card says it (0.8 × 3.58 m).
+      const w = num(a.width_cm);
+      const d = num(a.length_cm);
+      if (w !== undefined && d !== undefined) push('size', { t: 'roomSize', w, d });
       return [
         {
           ...base,
@@ -405,6 +412,7 @@ export function rowsOf(p: Proposal): CardRow[] {
           fields,
         },
       ];
+    }
     case 'attach_link':
       return [{ ...base, verb: 'attach', target: target(a.subject_id), fields }];
     case 'log_reading': {
