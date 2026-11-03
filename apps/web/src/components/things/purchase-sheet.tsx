@@ -23,6 +23,7 @@ import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { FileTrigger } from 'react-aria-components';
+import { isApiError } from '@/api/client';
 import { thingApi } from '@/api/inventory/thing-api';
 import type { AttachmentView, PurchaseView, UpdatePurchaseBody } from '@/api/inventory/types';
 import { DocumentIcon, PencilIcon, TrashIcon } from '@/components/icons';
@@ -71,7 +72,11 @@ export function PurchaseSheet({ isOpen, onClose }: { isOpen: boolean; onClose: (
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
-      title={p ? t`Purchase of ${thing.name ?? ''}` : t`Add the purchase of ${thing.name ?? ''}`}
+      title={
+        p
+          ? t`Purchase of ${isolate(thing.name ?? '')}`
+          : t`Add the purchase of ${isolate(thing.name ?? '')}`
+      }
     >
       {isOpen ? <PurchaseForm onClose={onClose} /> : null}
     </Sheet>
@@ -213,6 +218,9 @@ function PurchaseForm({ onClose }: { onClose: () => void }) {
       toast({ title: t`Purchase saved`, tone: 'ok' });
     } catch (err) {
       setErrors({ form: errorText(err) });
+      // Someone saved it first: read its new version, so the next Save isn't refused again.
+      // What was typed stays; what wasn't now shows theirs.
+      if (isApiError(err) && err.status === 412) void existing.refetch();
     } finally {
       setBusy(false);
     }
@@ -220,7 +228,13 @@ function PurchaseForm({ onClose }: { onClose: () => void }) {
 
   const remove = async () => {
     if (!p?.purchaseId) return;
-    const v = view ?? (await thingApi.purchase(p.purchaseId));
+    let v: PurchaseView;
+    try {
+      v = view ?? (await thingApi.purchase(p.purchaseId));
+    } catch (err) {
+      setErrors({ form: errorText(err) });
+      return;
+    }
     const mine = lineOf(v);
     const alone = !mine || v.lines.length === 1;
     const ok = await confirm(
@@ -232,7 +246,7 @@ function PurchaseForm({ onClose }: { onClose: () => void }) {
             destructive: true,
           }
         : {
-            title: t`Take ${thing.name ?? ''} off this receipt?`,
+            title: t`Take ${isolate(thing.name ?? '')} off this receipt?`,
             body: t`The receipt and its other things stay as they are.`,
             confirmLabel: t`Take it off`,
             destructive: true,
