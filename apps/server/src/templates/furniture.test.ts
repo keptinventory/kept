@@ -409,7 +409,7 @@ describe('merging and splitting compartments', () => {
   });
 });
 
-describe('the database door that moves compartment labels (0165)', () => {
+describe('the database door that moves compartment labels (0167)', () => {
   // kept.move_compartment_short_ids is SECURITY DEFINER: kept_app can't move a short ID itself
   // (0016). Called straight, as the app's login with someone's scope, it moves only labels of
   // one piece of furniture's own compartments, for someone who may write in its location.

@@ -70,7 +70,7 @@ import { checkAllCodes } from './place-templates.js';
 //   there, else a new one named by the pattern, with the codes and short IDs it brought; a cell
 //   nobody recorded gets the code its position gives, when that is free. Things stay where they
 //   are.
-// Short IDs move through kept.move_compartment_short_ids() (0165): kept_app can't write a short
+// Short IDs move through kept.move_compartment_short_ids() (0167): kept_app can't write a short
 // ID's place itself.
 
 const NOT_FURNITURE = 'This place has no compartments to turn, merge or split.';
