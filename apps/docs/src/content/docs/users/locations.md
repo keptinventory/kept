@@ -13,11 +13,18 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
 - Lists have a search box, **+ Filter**, saved **Views**, and a **Display** button for sort order
   and grouping. Filters live in the address, so a filtered list can be bookmarked or shared.
 - **Select** (beside the search box, for anyone who can edit things) ticks things in the list of a
-  location, place or box. Then: **Move**, **Pick up** (into the tray), **Print labels**, **Add
-  tags…** or **Remove tags…**, **Add to incident** and **Claim pack** (owners and admins, where
-  Receipts and warranties is on), or **Move to Trash**. Move to Trash takes up to 200 at a time
-  and needs a connection. It asks first what happens to what's inside a box (move it out, or
-  trash it too) and about anything lent out, then one **Undo** brings them all back.
+  location, place or box, in List or Grid. **Shift-click** a box (or **Shift+Space** on it) to
+  tick every row from the one you ticked last. Then: **Move**, **Add tags…** or **Remove tags…**,
+  **Set a field…**, **Pick up** (into the tray), **Print labels**, **Add to incident** and
+  **Claim pack** (owners and admins, where Receipts and warranties is on), or **Move to Trash**.
+  The bar is the [Table's](/users/spreadsheet/).
+- **Set a field…** gives every ticked thing one value: type, brand, model, condition and the
+  rest. Changes wait, marked **Not saved yet**, until **Save N changes**; one **Undo** takes the
+  whole save back. It needs a connection. If someone changed one of them meanwhile, that one
+  waits: **Keep mine** or **Keep theirs**.
+- **Move to Trash** takes up to 200 at a time and needs a connection. It asks first what happens
+  to what's inside a box (move it out, or trash it too) and about anything lent out, then one
+  **Undo** brings them all back.
 - **Order:** places and things read A to Z with numbers in order (Box 2 before Box 10), the same
   in the app, offline, in exports and for AI apps. Floors keep the order they were made in: the
   first is the ground floor on the map. On a place, **Display → Things: sort by** orders its
