@@ -176,9 +176,21 @@ const tourRow = (page: Page, id: string) => page.locator(`[data-tour-row="${id}"
 async function chaptersOn(page: Page): Promise<string[]> {
   await page.goto('/help');
   await expect(page.getByRole('button', { name: /^(Take|Continue) the tour$/ })).toBeVisible();
-  const listed = await page
-    .locator('[data-tour-row]')
-    .evaluateAll((rows) => rows.map((r) => r.getAttribute('data-tour-row') ?? ''));
+  // The rows can render a beat after the button on a slow runner: read the list once it has
+  // rows and has stopped changing.
+  const rows = page.locator('[data-tour-row]');
+  await expect(rows.first()).toBeVisible();
+  let listed: string[] = [];
+  await expect
+    .poll(async () => {
+      const now = await rows.evaluateAll((r) =>
+        r.map((e) => e.getAttribute('data-tour-row') ?? ''),
+      );
+      const same = now.join() === listed.join();
+      listed = now;
+      return same;
+    })
+    .toBe(true);
   return Object.keys(TITLES).filter((id) => listed.includes(id));
 }
 
