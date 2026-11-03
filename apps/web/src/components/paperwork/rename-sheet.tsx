@@ -107,6 +107,9 @@ function RenameForm({
       className="grid gap-3.5"
       onSubmit={(e) => {
         e.preventDefault();
+        // The sheet is a portal, but React's submit still bubbles up its tree: opened from a form
+        // (the purchase editor's receipts), Enter here would submit that form too.
+        e.stopPropagation();
         void save();
       }}
     >

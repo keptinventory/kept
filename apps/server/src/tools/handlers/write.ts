@@ -68,6 +68,17 @@ async function lastEvent(op: Op, entityType: string, entityId: string) {
   return { audit_event_id: r.id, undo_until: r.undoable_until?.toISOString() ?? null };
 }
 
+/** The newest event this request wrote, whatever it is about; none means nothing changed. */
+async function requestEvent(op: Op) {
+  const { rows } = await op.client.query<{ id: string; undoable_until: Date | null }>(
+    'SELECT id, undoable_until FROM public.audit_events WHERE request_id = $1 ORDER BY id DESC LIMIT 1',
+    [op.requestId],
+  );
+  const r = rows[0];
+  if (!r) throw invalid('Nothing changed: the thing and its purchase already read that.');
+  return { audit_event_id: r.id, undo_until: r.undoable_until?.toISOString() ?? null };
+}
+
 /** The write's result: its first undoable event, else the newest event about the entity. */
 export async function writeResult(op: Op, entityType: string, entityId: string) {
   const ids = undoableEventIds(op.tx);
@@ -348,10 +359,11 @@ export const updateThingTool: Handler<'update_thing'> = {
         if (rule) await deleteStockRule(op, id, rule.row_version);
       } else await putStockRule(op, id, rule?.row_version, f.keep_at_least);
     }
-    // Only the purchase changed: its event is the answer's (the thing's own row is untouched).
+    // Only the purchase changed: its event is the answer's (the thing's own row is untouched),
+    // or its line's when only the receipt's line changed (what it's called, its price).
     const result = await writeResult(op, 'thing', id).catch((err) => {
-      if (purchaseId) return writeResult(op, 'purchase', purchaseId);
-      throw err;
+      if (!purchaseId) throw err;
+      return writeResult(op, 'purchase', purchaseId).catch(() => requestEvent(op));
     });
     return {
       data: {
@@ -412,6 +424,10 @@ async function setPurchase(
   );
   const thing = rows[0];
   if (!thing) throw notFound();
+  if (!thing.line && Object.values(p).every((v) => v === undefined)) {
+    // As the app's sheet: a new purchase says at least when, where or for how much.
+    throw invalid('Check purchase: give at least purchased_on, shop or price.');
+  }
   if (!thing.line) {
     const quantity = Number(thing.quantity) > 0 ? Number(thing.quantity) : 1;
     const made = await createPurchase(ctx, {

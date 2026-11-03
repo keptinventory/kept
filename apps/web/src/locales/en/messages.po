@@ -28711,3 +28711,22 @@ msgstr "Optional, to the centimetre. Leave it empty and the map sizes the room i
 #: src/map/floor-plan/panel.tsx
 msgid "Under 50 cm: too small for the map."
 msgstr "Under 50 cm: too small for the map."
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Decrease {label}"
+msgstr "Decrease {label}"
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Increase {label}"
+msgstr "Increase {label}"
+
+#: src/components/places/room-size.tsx
+#: src/map/height.tsx
+msgid "Enter metres, like {example}."
+msgstr "Enter metres, like {example}."
+
+#: src/map/size.tsx
+msgid "Enter a whole number."
+msgstr "Enter a whole number."

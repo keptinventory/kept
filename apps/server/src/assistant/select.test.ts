@@ -77,6 +77,29 @@ describe('choosing the tools a step offers', () => {
     ['Which tags do we have?', 'list_tags'],
     ['ضع وسم التخييم على الخيمة', 'tag_things'],
     ['Quels tags avons-nous ?', 'list_tags'],
+    ['Turn the Kallax on its side', 'update_place'],
+    ['Add a kitchen, 4 by 3 metres', 'create_place'],
+    ['Tourne la bibliothèque sur le côté', 'update_place'],
+    ['Ajoute une cuisine de 4 mètres sur 3', 'create_place'],
+    ['Leg das Kallax auf die Seite', 'update_place'],
+    ['Füge eine Küche hinzu, 4 mal 3 Meter', 'create_place'],
+    ['Metti il Kallax sul fianco', 'update_place'],
+    ['Aggiungi una cucina di 4 metri per 3', 'create_place'],
+    ['اقلب الكالاكس على جنبه', 'update_place'],
+    ['أضف مطبخ ٤ في ٣ متر', 'create_place'],
+    ['Cho mượn máy khoan cho Louis', 'lend_thing'],
+    ['Louis đã trả cái thang', 'return_thing'],
+    ['Lịch bảo dưỡng nào đến hạn tuần này?', 'upcoming'],
+    ['Hóa đơn của TV ở đâu?', 'find_documents'],
+    ['Hoá đơn của TV ở đâu?', 'find_documents'],
+    ['TV còn bảo hành không?', 'add_warranty'],
+    ['Tôi vừa đổ xăng cho xe máy', 'log_fuel'],
+    ['Thêm một phòng bếp 4 x 3 mét', 'create_place'],
+    ['Xoay tủ sách nằm nghiêng', 'update_place'],
+    ['Chuyển các kệ thành hộp', 'turn_into_boxes'],
+    ['Gắn thẻ cắm trại cho cái lều', 'tag_things'],
+    ['Pin AA còn lại bao nhiêu?', 'adjust_stock'],
+    ['Ai đã chuyển webcam HD?', 'thing_history'],
   ] as const)('“%s” offers %s', (question, tool) => {
     expect(offered(question)).toContain(tool);
     // The core is always there.
@@ -86,6 +109,11 @@ describe('choosing the tools a step offers', () => {
   it('matches a word’s start in Latin scripts: “scarves” is not a car', () => {
     expect(offered('Where are the winter scarves?')).not.toContain('log_fuel');
     expect(offered('Where are the winter scarves?')).not.toContain('log_service');
+  });
+
+  it('matches Vietnamese whole words with their tone marks: “muốn” (want) is not “mượn” (borrow)', () => {
+    expect(offered('Tôi muốn tìm máy khoan')).not.toContain('lend_thing');
+    expect(offered('Tôi muốn tìm máy khoan')).toEqual(offered('Are you working?'));
   });
 
   it('keeps a tool the thread already used, and one the model asked for and was not offered', () => {

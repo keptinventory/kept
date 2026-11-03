@@ -574,6 +574,15 @@ describe('the readable copy', () => {
     expect(index).toContain('SN-TV-0001');
   });
 
+  it('takes a Vietnamese reader’s export, and writes its readable copy in English', async () => {
+    const { id, outcome } = await exported(ibrahim, {
+      scope: { locationId: home.id },
+      options: { locale: 'vi', pdf: false, history: false },
+    });
+    expect(outcome.status, JSON.stringify(outcome)).toBe('done');
+    expect(text(await zipOf(id), 'readable/index.html')).toContain('<html lang="en"');
+  });
+
   it('holds more than the report cap, says why there is no PDF, and lists every thing', async () => {
     const big = await createLocation(t, db, ibrahim, 'essentials', 'Warehouse');
     await own(

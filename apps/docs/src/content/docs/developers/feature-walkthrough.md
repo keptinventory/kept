@@ -7,7 +7,7 @@ This page follows one real, small feature through the code: **"Keep at least N"*
 consumable (step 7, D14). A person sets a minimum on a thing such as a pack of AA batteries, the
 Consumables list shows what is running low, and Adjust changes the quantity. It touches every
 layer: a new table, row-level security, a service and routes, the audit log, the MCP tool set, a
-web screen, five catalogues and tests at each step. Use it as a map for your own feature, and
+web screen, six catalogues and tests at each step. Use it as a map for your own feature, and
 open the files as you go.
 
 | Layer | Files |
@@ -187,9 +187,9 @@ export const Route = createFileRoute('/_app/consumables')({
   "Needs a connection" offline. See [Offline and sync](/developers/offline-sync/#screens-that-need-a-connection).
 - Controls are React Aria components; a confirmation is `useConfirm()`, never `window.confirm`.
 
-## 10. Strings, in five languages
+## 10. Strings, in six languages
 
-Every string goes through Lingui and into `en`, `ar`, `fr`, `de` and `it`, with Arabic written
+Every string goes through Lingui and into `en`, `ar`, `fr`, `de`, `it` and `vi`, with Arabic written
 natively and every plural form. Names inside sentences are isolated: the Adjust sheet's title is
 `Adjust ⁨AA batteries⁩`, built with `isolate()` from `lib/bidi.ts`. Separators come from
 `fmt.sep`. See [Languages and right-to-left](/developers/i18n-rtl/).
