@@ -7,6 +7,10 @@ Photos go on the thing; everything else goes under **Paperwork**, kept as the or
 **Add a file**, then say what it is (Receipt, Invoice, Manual, Warranty, Registration, Proof,
 Document). A file Kept can't preview yet is kept anyway and marked **Preview unavailable**.
 
+A receipt can also go on the thing's **Purchase**: there it belongs to the purchase, and every
+thing bought on the same receipt shows it ([Things](/users/things/)). Under Paperwork it is the
+thing's own.
+
 **Name a file** with the pencil beside it: "Insurance 2026", "Registration card". The list shows
 the name, with its kind under it, and the Paperwork library finds it by its name; leave the name
 empty to show its kind again. Members name the files they added, owners and admins any file. A

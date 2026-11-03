@@ -514,6 +514,32 @@ describe('PATCH /api/v1/purchases/:id', () => {
     });
   });
 
+  it('keeps a line sent back by its id alone, as the thing page sends the others (#348)', async () => {
+    const lamp = await thing(home, 'Desk lamp');
+    const p = await create(mel, {
+      locationId: home,
+      purchasedOn: today(),
+      currency: 'EGP',
+      total: '300',
+      lines: [
+        { description: 'Desk lamp', quantity: 1, unitPrice: '200', thingId: lamp },
+        { description: 'Bulbs', quantity: 4, unitPrice: '25' },
+      ],
+    });
+    const [lampLine, bulbs] = p.lines as [Line, Line];
+    const res = await patch(mel, p.id, p.rowVersion, {
+      lines: [{ id: lampLine.id, unitPrice: '180' }, { id: bulbs.id }],
+    });
+    expect(res.statusCode, res.body).toBe(200);
+    const after = res.json() as Purchase;
+    expect(after.lines.map((l) => [l.id, l.description, l.quantity, l.unitPrice])).toEqual([
+      [lampLine.id, 'Desk lamp', 1, '180'],
+      [bulbs.id, 'Bulbs', 4, '25'],
+    ]);
+    expect(await lineOf(lamp)).toBe(lampLine.id);
+    expect((await auditOf(bulbs.id)).map((e) => e.action)).toEqual(['purchase_line.create']);
+  });
+
   it('keeps amounts tied to a currency and refuses viewers and outsiders', async () => {
     const p = await create(mel, {
       locationId: home,

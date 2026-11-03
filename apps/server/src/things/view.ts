@@ -228,6 +228,11 @@ export type SecretSummary = {
 
 export type ThingPurchase = {
   purchaseId: string | null;
+  /**
+   * The line it comes from (#348: the thing page changes its price), with `purchaseId`: null when
+   * the purchase is where the caller can't open it. A split shares its line.
+   */
+  lineId: string | null;
   purchasedOn: string | null;
   vendor: { id: string; name: string } | null;
   /** Left out with the price when the gate hides money (security review #22). */
@@ -631,12 +636,21 @@ async function purchaseOf(
   );
   const p = rows[0];
   if (!p) return null;
+  const line = p.visible_purchase
+    ? (
+        await client.query<{ line: string | null }>(
+          'SELECT purchase_line_id AS line FROM public.things WHERE id = $1',
+          [thingId],
+        )
+      ).rows[0]?.line
+    : null;
   const vendor: ThingPurchase['vendor'] =
     p.vendor_id !== null && p.vendor_name !== null
       ? { id: p.vendor_id, name: p.vendor_name }
       : null;
   return {
     purchaseId: p.visible_purchase ? p.purchase_id : null,
+    lineId: line ?? null,
     purchasedOn: p.purchased_on,
     vendor,
     lineDescription: p.line_description,
@@ -978,6 +992,7 @@ export const ThingViewSchema = ThingRowSchema.extend({
   purchase: z
     .object({
       purchaseId: z.uuid().nullable(),
+      lineId: z.uuid().nullable().optional(),
       purchasedOn: z.string().nullable(),
       vendor: z.object({ id: z.uuid(), name: z.string() }).nullable(),
       currency: z.string().nullable().optional(),

@@ -111,6 +111,13 @@ export function filesRoutes(state: MockState): MockRoute[] {
           }
         }
       }
+      // A purchase's receipt (#348): every thing bought on it shows it.
+      if ('purchaseId' in b.subject) {
+        const purchaseId = b.subject.purchaseId;
+        const { locationId: _p, ...plain } = view;
+        for (const th of inv().things)
+          if (th.purchase?.purchaseId === purchaseId) th.purchase.receipts.push(plain);
+      }
       const { locationId: _l, ...out } = view;
       return reply(201, out);
     }),

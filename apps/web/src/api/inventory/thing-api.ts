@@ -18,6 +18,7 @@ import type {
   ConvertToPlaceBody,
   ConvertToPlaceResult,
   CreateLinkBody,
+  CreatePurchaseBody,
   CreateThingBody,
   DuplicateBody,
   FileClass,
@@ -27,6 +28,7 @@ import type {
   MovePreviewBody,
   MoveResult,
   Page,
+  PurchaseView,
   Reading,
   RetypeBody,
   RevealResult,
@@ -35,6 +37,7 @@ import type {
   TrashBody,
   TypeDetail,
   UpdateAttachmentBody,
+  UpdatePurchaseBody,
   UpdateReadingBody,
 } from './types';
 
@@ -86,6 +89,12 @@ export const thingApi = {
   attachments: (id: string, params: { role?: string; cursor?: string } = {}) =>
     api.get<Page<AttachmentView>>(p.thingAttachments(id) + qs(params)),
   deleteAttachment: (id: string) => api.del(p.attachment(id)),
+  // a thing's purchase (#348): the purchase routes, as the thing page uses them
+  purchase: (id: string) => api.get<PurchaseView>(p.purchase(id)),
+  createPurchase: (body: CreatePurchaseBody) => api.post<PurchaseView>(p.purchases, body),
+  updatePurchase: (id: string, body: UpdatePurchaseBody, rowVersion: number) =>
+    api.patch<PurchaseView>(p.purchase(id), body, ifMatch(rowVersion)),
+
   /** Rename (#183), re-role or re-sort one; If-Match. */
   updateAttachment: (id: string, body: UpdateAttachmentBody, rowVersion: number) =>
     api.patch<AttachmentView>(p.attachment(id), body, ifMatch(rowVersion)),
