@@ -387,7 +387,8 @@ describe('the plan read (the extract job, mock provider)', () => {
     expect(v.image).toEqual(sentSize(inventedPlan('f1-flat-dims')));
     expect(v.drafts?.scale.from).toBe('sizes');
     expect(v.drafts?.rooms).toHaveLength(7);
-    expect(v.drafts?.rooms.find((r) => r.name === 'Cupboard')).toMatchObject({ skip: true });
+    // The 0.9 × 0.7 m cupboard is a room since the map takes 50 cm a side (#372).
+    expect(v.drafts?.rooms.find((r) => r.name === 'Cupboard')).toMatchObject({ skip: false });
     expect(v.answer?.is_plan).toBe(true);
     const [call0] = await sql<{ task: string; prompt_version: string; extraction_id: string }>(
       `SELECT task, prompt_version, extraction_id FROM public.llm_calls
