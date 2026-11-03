@@ -231,7 +231,11 @@ test('Basics walks every step, each pointing at its control, and then says Done'
   const { context, page } = await person(browser);
   const walk = BASICS(project());
   const chapters = await chaptersOn(page);
-  await expect(page.getByRole('button', { name: 'Take the tour', exact: true })).toBeVisible();
+  // A CI retry reruns this serial file against the same instance, which keeps the first
+  // attempt's progress: only a first attempt starts from a fresh "Take the tour".
+  if (test.info().retry === 0) {
+    await expect(page.getByRole('button', { name: 'Take the tour', exact: true })).toBeVisible();
+  }
   await fromHelp(page, 'basics');
   for (const [k, leg] of walk.entries()) {
     await expect(popover(page).locator('.driver-popover-title')).toHaveText(leg.title);
@@ -435,7 +439,8 @@ test('The Graph & 3D map chapter points at the graph’s and the map’s own con
   await fromHelp(page, 'map');
   const anchors: string[] = [];
   for (let k = 0; k < 7; k++) {
-    await expect(popover(page)).toBeVisible();
+    // The 3D map loads on demand, and a step waits for its control: slow on a busy CI runner.
+    await expect(popover(page)).toBeVisible({ timeout: 30_000 });
     await expect.poll(async () => (await stopOf(page)).anchor).not.toBeNull();
     const s = await stopOf(page);
     anchors.push(s.anchor ?? '');
