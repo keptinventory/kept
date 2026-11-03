@@ -170,7 +170,8 @@ jobs:
   # How long the migrate Job may run, the pre-upgrade snapshot included.
   activeDeadlineSeconds: 1800
 
-# More variables for Kept's containers (the Jobs included), as Kubernetes EnvVar entries.
+# More variables for Kept's containers (the Jobs included), as Kubernetes EnvVar entries, e.g.
+# `- {name: KEPT_HSTS, value: "off"}` when plain-http services share the ingress's host name.
 extraEnv: []
 # More envFrom sources for Kept's containers.
 extraEnvFrom: []
