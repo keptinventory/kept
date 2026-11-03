@@ -41,8 +41,14 @@ import {
 /** One query vector per payer and model, with the locations it searches. */
 export type SemanticGroup = { modelKey: string; locationIds: string[]; vector: number[] };
 
-/** What prepareSemantic() hands search(). `state` is null when meaning was searched. */
-export type SemanticInput = { groups: SemanticGroup[]; state: SemanticState | null };
+/** What prepareSemantic() hands search(). `state` is null when meaning was searched.
+ * `keywordOnly`: the searched locations with no embeddings model anywhere in their cascade, which
+ * matched by words only (all of them when `state` is `keyword_only`; #368's "by name only"). */
+export type SemanticInput = {
+  groups: SemanticGroup[];
+  state: SemanticState | null;
+  keywordOnly?: string[];
+};
 
 export type SemanticDeps = {
   pools: Pick<Pools, 'app' | 'system'>;
@@ -127,6 +133,7 @@ export async function prepareSemantic(
 
   const rt = await deps.ai.runtime(scope);
   const byPayer = new Map<string, { resolved: Resolved; locationIds: string[] }>();
+  const keywordOnly: string[] = [];
   for (const locationId of locations) {
     let resolved: Resolved | null = null;
     try {
@@ -135,13 +142,16 @@ export async function prepareSemantic(
       // A location the principal can't resolve a provider in (a token's narrower reach): keywords.
       resolved = null;
     }
-    if (!resolved) continue;
+    if (!resolved) {
+      keywordOnly.push(locationId);
+      continue;
+    }
     const key = payerKey(resolved);
     const g = byPayer.get(key);
     if (g) g.locationIds.push(locationId);
     else byPayer.set(key, { resolved, locationIds: [locationId] });
   }
-  if (byPayer.size === 0) return { groups: [], state: { state: 'keyword_only' } };
+  if (byPayer.size === 0) return { groups: [], state: { state: 'keyword_only' }, keywordOnly };
 
   const groups: SemanticGroup[] = [];
   let paused: SemanticState | null = null;
@@ -182,7 +192,11 @@ export async function prepareSemantic(
       );
     }
   }
-  return { groups, state: groups.length > 0 ? null : (paused ?? waiting ?? null) };
+  return {
+    groups,
+    state: groups.length > 0 ? null : (paused ?? waiting ?? null),
+    ...(keywordOnly.length > 0 ? { keywordOnly } : {}),
+  };
 }
 
 /** prepareSemantic() bound to its deps: what the tools and the search route take. */

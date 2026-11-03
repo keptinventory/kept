@@ -1,6 +1,6 @@
 import { TOOL_DEFS, type ToolName } from '@kept/mcp';
 import { describe, expect, it } from 'vitest';
-import { compactSchema, toolSpecOf } from './prompt.js';
+import { compactSchema, instructionsFor, languageOf, toolSpecOf } from './prompt.js';
 
 const NAMES = Object.keys(TOOL_DEFS) as ToolName[];
 /** The tools the assistant may be offered (the moving tools are MCP's only). */
@@ -80,5 +80,24 @@ describe('the tools as the model sees them', () => {
   it('still validate with the full contract', () => {
     const spec = toolSpecOf('where_is' as ToolName, { oneLocation: true });
     expect(spec.validate?.({ location_id: 'not-a-uuid', query: 'drill' }).success).toBe(false);
+  });
+});
+
+describe('the instructions', () => {
+  it("answer in each of Kept's six languages", () => {
+    expect(['en', 'ar', 'fr', 'de', 'it', 'vi'].map(languageOf)).toEqual([
+      'English',
+      'Arabic',
+      'French',
+      'German',
+      'Italian',
+      'Vietnamese',
+    ]);
+  });
+
+  it('say a search by name only was by name only, with its note (#368)', () => {
+    const text = instructionsFor({ locale: 'en', locations: [], context: null, writes: false });
+    expect(text).toContain('search_mode.meaning is false');
+    expect(text).toContain('search_mode.note');
   });
 });

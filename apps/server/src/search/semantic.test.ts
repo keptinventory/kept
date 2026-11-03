@@ -4,6 +4,8 @@
 // with keywords, and the switch, the pauses and the leak hold. Ibrahim owns Home; Louis is a member
 // there; Alfred owns بيت العائلة with a Groq-only key (no embeddings model); a stranger's location
 // uses the same model.
+
+import { envelopeSchema, TOOL_DEFS, type ToolName } from '@kept/mcp';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
@@ -15,7 +17,9 @@ import { type Keyring, seal } from '../crypto/envelope.js';
 import { runBackfill } from '../embeddings/backfill.js';
 import { embedThing } from '../embeddings/job.js';
 import { EMBEDDINGS_SOURCE_KEY } from '../embeddings/provider.js';
-import { wantsMeaning } from './semantic.js';
+import { runTool } from '../tools/context.js';
+import type { ToolContext, ToolVia } from '../tools/types.js';
+import { semanticPrep, wantsMeaning } from './semantic.js';
 
 vi.setConfig({ testTimeout: 60_000 });
 
@@ -288,5 +292,128 @@ describe('the source switch', () => {
       body: { source: 'off' },
     });
     expect(forbidden.statusCode).toBe(403);
+  });
+});
+
+describe('the search tools say how they matched (#368)', () => {
+  beforeAll(async () => {
+    await backfill();
+  });
+
+  let seq = 0;
+  /** A tool call as the assistant or an MCP client makes it, with the query side wired in. */
+  async function tool(who: Person, name: ToolName, args: Record<string, unknown>, via: ToolVia) {
+    seq += 1;
+    const ctx: ToolContext = {
+      deps: {
+        pools: db.pools,
+        jobs: null,
+        files: null,
+        providerResolved: async () => true,
+        semantic: semanticPrep({ pools: db.pools, ai: ai(), log: silent }),
+      },
+      principal: { userId: who.userId, mfa: false, scope: 'read' },
+      locale: 'en',
+      requestId: `semantic-tool-${seq}`,
+      via,
+    };
+    const env = await runTool(ctx, name, args);
+    // The answer keeps to its contract, search_mode included.
+    expect(envelopeSchema(TOOL_DEFS[name].output).safeParse(env).success).toBe(true);
+    // biome-ignore lint/suspicious/noExplicitAny: checked against its schema just above
+    return (env as any).data as { items: Row[]; search_mode?: Record<string, unknown> };
+  }
+
+  it('a Groq-only location: nothing found "by name only", with the one step, on both doors', async () => {
+    for (const via of ['assistant', 'mcp'] as const) {
+      const out = await tool(alfred, 'search_things', { query: 'a laptop for work' }, via);
+      expect(out.items).toEqual([]);
+      expect(out.search_mode).toMatchObject({ meaning: false, reason: 'keyword_only' });
+      // Alfred's own locations, بيت العائلة among them, all on the same Groq-only key.
+      expect(out.search_mode?.keyword_only_location_ids).toContain(family.id);
+      expect(out.search_mode?.note).toMatch(/^Searched by name only: no embeddings model/);
+      expect(out.search_mode?.note).toContain('Settings → AI → Advanced → Models');
+      const where = await tool(alfred, 'where_is', { query: 'a laptop for work' }, via);
+      expect(where.search_mode).toEqual(out.search_mode);
+    }
+  });
+
+  it('meaning searched everywhere: says so and nothing more; a short word says nothing', async () => {
+    // Ibrahim's Home and his Personal both fall to his account's OpenAI key.
+    const out = await tool(
+      ibrahim,
+      'search_things',
+      { query: 'the thing for the TV' },
+      'assistant',
+    );
+    expect(out.items.map((r) => r.id)).toContain(hdmi.id);
+    expect(out.search_mode).toEqual({ meaning: true });
+    const short = await tool(ibrahim, 'search_things', { query: 'TV' }, 'assistant');
+    expect(short.search_mode).toBeUndefined();
+  });
+
+  it('names the locations searched by name only beside those with meaning', async () => {
+    // Louis's Personal location has no key of its own: words only there, meaning in Home. (MCP
+    // isn't on in an Essentials Personal location, so an MCP call doesn't search it at all.)
+    const out = await tool(louis, 'search_things', { query: 'the thing for the TV' }, 'assistant');
+    expect(out.items.map((r) => r.id)).toContain(hdmi.id);
+    expect(out.search_mode?.meaning).toBe(true);
+    expect(out.search_mode?.keyword_only_location_ids).toHaveLength(1);
+    expect(out.search_mode?.keyword_only_location_ids).not.toContain(home.id);
+    expect(out.search_mode?.note).toContain('except in one location with no embeddings model');
+    const mcp = await tool(louis, 'search_things', { query: 'the thing for the TV' }, 'mcp');
+    expect(mcp.search_mode).toEqual({ meaning: true });
+  });
+
+  it('embeddings off on the server: by name only, and who turns it on', async () => {
+    await own(db, `INSERT INTO public.instance_settings (key, value) VALUES ($1, '"off"')`, [
+      EMBEDDINGS_SOURCE_KEY,
+    ]);
+    const out = await tool(louis, 'where_is', { query: 'the thing for the TV' }, 'assistant');
+    expect(out.search_mode).toMatchObject({ meaning: false, reason: 'off' });
+    expect(out.search_mode?.note).toContain('Admin → Status');
+  });
+});
+
+describe('AI settings and Admin → Status say when search is by name only (#368)', () => {
+  beforeAll(async () => {
+    await backfill();
+  });
+
+  const status = async (p: Person, locationId: string) =>
+    ok(
+      await call(t, `/api/v1/ai/status?locationId=${locationId}`, { as: p, method: 'GET' }),
+    ) as unknown as { searchByMeaning?: boolean; embeddingsSource?: string };
+
+  it('GET /ai/status: false where the cascade has chat but no embeddings model', async () => {
+    expect(await status(alfred, family.id)).toMatchObject({
+      embeddingsSource: 'provider',
+      searchByMeaning: false,
+    });
+    expect(await status(louis, home.id)).toMatchObject({ searchByMeaning: true });
+    // Off on the server: the source says it, there's no per-location answer.
+    await own(db, `INSERT INTO public.instance_settings (key, value) VALUES ($1, '"off"')`, [
+      EMBEDDINGS_SOURCE_KEY,
+    ]);
+    const off = await status(alfred, family.id);
+    expect(off.embeddingsSource).toBe('off');
+    expect(off.searchByMeaning).toBeUndefined();
+  });
+
+  it('Admin → Status counts the keyword-only locations, never naming them', async () => {
+    await own(
+      db,
+      'INSERT INTO public.instance_admins (user_id) VALUES ($1) ON CONFLICT DO NOTHING',
+      [ibrahim.userId],
+    );
+    const [marked] = await own<{ n: number }>(
+      db,
+      `SELECT count(*)::int AS n FROM public.embedding_state
+        WHERE source = 'provider' AND model_key IS NULL AND paused_reason = 'keyword_only'`,
+    );
+    expect(marked?.n).toBeGreaterThan(0);
+    const res = ok(await call(t, '/api/v1/admin/status', { as: ibrahim, method: 'GET' }));
+    expect(res.embeddings).toMatchObject({ keywordOnly: marked?.n });
+    expect(JSON.stringify(res.embeddings)).not.toContain('بيت العائلة');
   });
 });

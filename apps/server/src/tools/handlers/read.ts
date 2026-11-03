@@ -9,6 +9,7 @@ import { kitView } from '../../kits/service.js';
 import { listPaperwork } from '../../paperwork/library.js';
 import { placeOrderSql } from '../../places/order.js';
 import { SearchQuery } from '../../search/query.js';
+import type { SemanticInput } from '../../search/semantic.js';
 import { search } from '../../search/service.js';
 import { gateFor } from '../../serialize/gates.js';
 import { listThings } from '../../things/service.js';
@@ -94,6 +95,53 @@ export const listLocations: Handler<'list_locations'> = {
 /** How a row was found: keyword search today; T14's merged rows say `meaning`. */
 const matchedByOf = (row: object): 'keyword' | 'meaning' =>
   (row as { matchedBy?: string }).matchedBy === 'meaning' ? 'meaning' : 'keyword';
+
+type SearchMode = NonNullable<ToolOutput<'search_things'>['search_mode']>;
+
+/** The fix for words-only search, in the words of the AI settings screen. */
+const ADD_EMBEDDINGS =
+  'To search by meaning, an owner chooses a Search model under Settings → AI → Advanced → Models; Groq has none, so that takes a key from a provider with one (OpenAI or Google, for example).';
+
+/**
+ * How a search matched (#368), from the query side's answer: absent when meaning didn't apply (no
+ * query, a short code, one short word, a later page), so a reply never blames the settings for
+ * a search that was by words anyway. Only the locations the call searched are named.
+ */
+export function searchModeOf(
+  semantic: SemanticInput | null | undefined,
+  searched: readonly string[],
+): SearchMode | undefined {
+  if (!semantic) return undefined;
+  const within = new Set(searched);
+  const keywordOnly = (semantic.keywordOnly ?? []).filter((id) => within.has(id));
+  const state = semantic.state;
+  if (!state) {
+    if (keywordOnly.length === 0) return { meaning: true };
+    return {
+      meaning: true,
+      keyword_only_location_ids: keywordOnly,
+      note: `Matched by meaning, except in ${keywordOnly.length === 1 ? 'one location' : `${keywordOnly.length} locations`} with no embeddings model, searched by name only. ${ADD_EMBEDDINGS}`,
+    };
+  }
+  const until = state.until ? ` until ${state.until}` : '';
+  const note =
+    state.state === 'keyword_only'
+      ? `Searched by name only: no embeddings model is set in the AI settings, so a word with the same meaning doesn't match ("laptop" doesn't find "MacBook Pro"). ${ADD_EMBEDDINGS}`
+      : state.state === 'off'
+        ? 'Searched by name only: search by meaning is off on this server. An instance admin turns it on in Admin → Status → Search embeddings.'
+        : state.state === 'paused'
+          ? `Searched by name only: an AI spending limit paused search by meaning${until}. An owner can raise the limit under Settings → AI.`
+          : `Searched by name only: the AI provider asked Kept to wait${until}; search by meaning comes back after that.`;
+  return {
+    meaning: false,
+    reason: state.state,
+    ...(state.until ? { until: state.until } : {}),
+    ...(state.state === 'keyword_only' && keywordOnly.length > 0
+      ? { keyword_only_location_ids: keywordOnly }
+      : {}),
+    note,
+  };
+}
 
 const isDerived = (s: string): s is DerivedState =>
   (DERIVED_STATES as readonly string[]).includes(s);
@@ -204,7 +252,11 @@ export const searchThings: Handler<'search_things'> = {
       const res = await search(op.tx, op.client, op.scope, null, q, op.semantic);
       return { items: res.things.items, next: res.things.next_cursor };
     });
-    return { ...page, data: { items: await summaries(op, page.items) } };
+    const mode = searchModeOf(op.semantic, locationIds);
+    return {
+      ...page,
+      data: { items: await summaries(op, page.items), ...(mode ? { search_mode: mode } : {}) },
+    };
   },
 };
 
@@ -224,8 +276,15 @@ export const whereIs: Handler<'where_is'> = {
     });
     const res = await search(op.tx, op.client, op.scope, null, q, op.semantic);
     const items = await summaries(op, res.things.items);
+    const mode = searchModeOf(
+      op.semantic,
+      op.locations.map((l) => l.id),
+    );
     return {
-      data: { items: items.map((t) => ({ ...t, uncertain: t.states.includes('uncertain') })) },
+      data: {
+        items: items.map((t) => ({ ...t, uncertain: t.states.includes('uncertain') })),
+        ...(mode ? { search_mode: mode } : {}),
+      },
     };
   },
 };

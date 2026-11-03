@@ -32,6 +32,11 @@ export const StatusSchema = z.object({
   /** Where this server's search embeddings come from (D207): AI settings' "Search"
    * line. GET /ai/status adds it; statusOf() leaves it out. */
   embeddingsSource: z.enum(EMBEDDINGS_SOURCES).optional(),
+  /** Whether search here can match by meaning (#368): the server's embeddings come from the
+   * providers and this location's cascade has an embeddings model. False is AI settings' "Search
+   * matches names only" warning. GET /ai/status adds it for a location while the source is
+   * `provider`; statusOf() leaves it out. */
+  searchByMeaning: z.boolean().optional(),
 });
 export type Status = z.infer<typeof StatusSchema>;
 
@@ -128,4 +133,17 @@ export async function statusOf(client: pg.ClientBase, locationId: string): Promi
     manager,
     modelMissing,
   };
+}
+
+/** Whether the caller's cascade in `locationId` has an embeddings model (`kept.ai_provider_for`,
+ * the same door semantic search resolves through; only the model is read, never the key). */
+export async function searchByMeaningIn(
+  client: pg.ClientBase,
+  locationId: string,
+): Promise<boolean> {
+  const { rows } = await client.query<{ model: string | null }>(
+    `SELECT model FROM kept.ai_provider_for($1, 'embeddings')`,
+    [locationId],
+  );
+  return rows.some((r) => !!r.model);
 }

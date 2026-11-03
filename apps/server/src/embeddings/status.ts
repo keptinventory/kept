@@ -16,6 +16,8 @@ import { storedSource } from './provider.js';
 // - `paused`: the index is paused when every location the backfill marked is, and the earliest
 //   end among them is a cap's (embedding_state.paused_until, 0099): that end and its reason. A
 //   provider's wait or a failure isn't a pause the person can act on, so it shows as none.
+// - `keywordOnly`: locations the backfill marked keyword-only (no model key: no embeddings model
+//   anywhere in their cascade, `embedding_state.paused_reason = 'keyword_only'`), counted only.
 // - `local`: the on-server model isn't built in 1.0: available only where its runtime is
 //   installed, which no Kept build does yet.
 
@@ -29,6 +31,9 @@ export const EmbeddingsStatusSchema = z.object({
       reason: z.enum(['manual', 'cap_money', 'cap_tokens', 'tokens_day']),
     })
     .nullable(),
+  /** Locations the last backfill found with no embeddings model in their cascade, which search
+   * by name only (#368): a count, never which ones. */
+  keywordOnly: z.number().int(),
   local: z.object({
     available: z.boolean(),
     downloadBytes: z.number().int().nullable(),
@@ -65,6 +70,8 @@ export async function embeddingsStatus(
   source?: EmbeddingsStatus['source'],
 ): Promise<EmbeddingsStatus> {
   const { rows } = await client.query<{
+    source: string;
+    model_key: string | null;
     embedded: string;
     pending: string;
     locations: number;
@@ -72,7 +79,8 @@ export async function embeddingsStatus(
     paused_until: Date | null;
     paused_reason: string | null;
   }>(
-    `SELECT embedded::text, pending::text, locations, paused, paused_until, paused_reason
+    `SELECT source, model_key, embedded::text, pending::text, locations, paused, paused_until,
+            paused_reason
        FROM kept.embedding_status_instance()`,
   );
   const indexed = rows.reduce((n, r) => n + Number(r.embedded), 0);
@@ -82,6 +90,9 @@ export async function embeddingsStatus(
     indexed,
     total: indexed + pending,
     paused: pausedOf(rows),
+    keywordOnly: rows
+      .filter((r) => r.source === 'provider' && r.model_key === null)
+      .reduce((n, r) => n + r.locations, 0),
     local: { available: installed(), downloadBytes: null, downloadedBytes: null },
   };
 }

@@ -109,7 +109,7 @@ import {
   storedModels,
   withTyped,
 } from './settings.js';
-import { NO_PROVIDER, StatusSchema, statusOf } from './status.js';
+import { NO_PROVIDER, StatusSchema, searchByMeaningIn, statusOf } from './status.js';
 import { testConnection } from './test-connection.js';
 import {
   dayTasks,
@@ -380,8 +380,15 @@ export async function registerAiApi(app: KeptApp, deps: InventoryDeps): Promise<
     async (req) => {
       // Step 6 (D207): the server's embeddings source, for AI settings' "Search" line.
       const embeddingsSource = await storedSource(pools);
-      const status = await (req.query.locationId
-        ? scopedRead(pools, req, (_tx, client) => statusOf(client, req.query.locationId as string))
+      const id = req.query.locationId;
+      const status = await (id
+        ? scopedRead(pools, req, async (_tx, client) => {
+            const s = await statusOf(client, id);
+            // #368: search by name only here, said on AI settings with the step to fix it.
+            return embeddingsSource === 'provider'
+              ? { ...s, searchByMeaning: await searchByMeaningIn(client, id) }
+              : s;
+          })
         : scopedRead(pools, req, async () => NO_PROVIDER));
       return { ...status, embeddingsSource };
     },
