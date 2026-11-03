@@ -28585,3 +28585,97 @@ msgstr "أُزيل من الإيصال"
 
 msgid "The receipt and its other things stay as they are."
 msgstr "يبقى الإيصال وأشياؤه الأخرى كما هي."
+
+#: src/components/places/compartments.tsx
+msgid "As you face it."
+msgstr "كما تراه من أمامه."
+
+#: src/components/places/compartments.tsx
+msgid "Choose compartments side by side to merge them, or one merged compartment to split it again."
+msgstr "اختر خانات متجاورة لتدمجها، أو خانة مدموجة واحدة لتقسّمها من جديد."
+
+#: src/components/places/compartments.tsx
+msgid "Compartments after turning"
+msgstr "الخانات بعد التدوير"
+
+#: src/components/places/compartments.tsx
+msgid "Each gets the number and code of where it now stands, top left first. An old code opens the compartment now in its place; printed labels stay with theirs."
+msgstr "تأخذ كل خانة رقم موضعها الجديد ورمزه، بدءًا من الأعلى يسارًا. والرمز القديم يفتح الخانة التي صارت في موضعه، والملصقات المطبوعة تبقى مع خاناتها."
+
+#: src/components/places/compartments.tsx
+msgid "Its compartments"
+msgstr "خاناته"
+
+#: src/components/places/compartments.tsx
+msgid "Its top went"
+msgstr "صار أعلاه"
+
+#: src/components/places/compartments.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Keep the codes"
+msgstr "إبقاء الرموز"
+
+#: src/components/places/compartments.tsx
+msgid "Merge or split…"
+msgstr "دمج أو تقسيم…"
+
+#: src/components/history/labels.ts
+msgid "Merged compartments of {name}"
+msgstr "دُمجت خانات في «{name}»"
+
+#: src/components/places/compartments.tsx
+msgid "Merged into {merged}"
+msgstr "دُمجت في «{merged}»"
+
+#: src/components/places/compartments.tsx
+msgid "Only how it stands changes: each keeps its number, name and codes."
+msgstr "يتغيّر وضعه فقط: تحتفظ كل خانة برقمها واسمها ورموزها."
+
+#: src/components/places/compartments.tsx
+msgid "Print their labels"
+msgstr "اطبع ملصقاتها"
+
+#: src/components/places/compartments.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Renumber"
+msgstr "إعادة الترقيم"
+
+#: src/components/places/compartments.tsx
+msgid "Renumbered. Print their labels again for the new names."
+msgstr "أُعيد الترقيم. اطبع ملصقاتها من جديد بالأسماء الجديدة."
+
+#: src/components/history/labels.ts
+msgid "Split a compartment of {name}"
+msgstr "قُسّمت خانة في «{name}»"
+
+#: src/components/places/compartments.tsx
+msgid "The numbers and codes are as they were."
+msgstr "الأرقام والرموز كما كانت."
+
+#: src/components/places/compartments.tsx
+msgid "To the left"
+msgstr "إلى اليسار"
+
+#: src/components/places/compartments.tsx
+msgid "To the right"
+msgstr "إلى اليمين"
+
+#: src/assistant/confirm-card.tsx
+msgid "Top to the left"
+msgstr "أعلاه إلى اليسار"
+
+#: src/assistant/confirm-card.tsx
+msgid "Top to the right"
+msgstr "أعلاه إلى اليمين"
+
+#: src/components/places/compartments.tsx
+msgid "Turn {unit}"
+msgstr "تدوير «{unit}»"
+
+#: src/components/places/compartments.tsx
+msgid "Turn it…"
+msgstr "تدويره…"
+
+#: src/components/places/compartments.tsx
+msgid "Turned {unit}"
+msgstr "أُدير «{unit}»"

@@ -35,7 +35,9 @@ export type Val =
   /** update_place: how the places inside it are listed. */
   | { t: 'childOrder'; v: 'name' | 'custom' }
   /** update_place: one step up or down in its parent's Custom order. */
-  | { t: 'step'; v: 'up' | 'down' };
+  | { t: 'step'; v: 'up' | 'down' }
+  /** update_place (#238): furniture turned, its top to the right or left, renumbered or not. */
+  | { t: 'turn'; v: 'right' | 'left'; renumber: boolean };
 
 export type FieldKey =
   | 'from'
@@ -88,6 +90,7 @@ export type FieldKey =
   | 'manual'
   | 'order'
   | 'step'
+  | 'turn'
   | 'places';
 
 export type Field = { key: FieldKey; before?: Val; after: Val };
@@ -374,6 +377,8 @@ export function rowsOf(p: Proposal): CardRow[] {
       for (const [k, v] of Object.entries(rec(f.custom)))
         push('custom', { t: 'text', v: `${k}: ${v === null ? '' : String(v)}` });
       if (a.move === 'up' || a.move === 'down') push('step', { t: 'step', v: a.move });
+      if (a.turn === 'right' || a.turn === 'left')
+        push('turn', { t: 'turn', v: a.turn, renumber: a.renumber === true });
       return [{ ...base, verb: 'change', target: target(a.place_id), fields }];
     }
     case 'turn_into_boxes': {

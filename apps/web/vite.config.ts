@@ -258,6 +258,9 @@ const ON_DEMAND_ENTRIES = [
   '/src/components/places/sub-places.tsx',
   // #238: furniture with its compartments from a place template (places/furniture-lazy.tsx).
   '/src/components/places/furniture.tsx',
+  // #238 (1.14.4): a furniture page's compartments, turned, merged or split
+  // (places/compartments-lazy.tsx).
+  '/src/components/places/compartments.tsx',
   // #294: several things to the Trash at once (things/bulk-trash.tsx), from a place's Select and
   // the spreadsheet; it reads and writes the server only.
   '/src/components/things/bulk-trash.tsx',
@@ -294,6 +297,7 @@ const HOUSEHOLD_SHARED = [
   // #238: the furniture form, which Settings → Account → Templates shares (its names).
   '/src/components/places/furniture.tsx',
   '/packages/shared/src/place-templates.ts',
+  '/packages/shared/src/compartments.ts',
   // Account settings' registry lists (and a tag's page, which shares one of its helpers).
   '/src/components/registries/registry-list.tsx',
   '/src/components/agenda/agenda-row.tsx',

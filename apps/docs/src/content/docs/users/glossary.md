@@ -33,7 +33,8 @@ without one, it waits in the Inbox for a name.
 incident, shared with the insurer by a download link. [Reports](/users/reports/)
 
 **Compartment**: a place inside furniture made from a place template: a cube, a shelf or a
-drawer, with its own name, label and, if you like, its own code.
+drawer, with its own name, label and, if you like, its own code. Compartments side by side can
+be merged into one, and split again.
 [Furniture with compartments](/users/locations/#furniture-with-compartments)
 
 **Condition report**: a record of how a rented home was when you moved in and when you moved out,

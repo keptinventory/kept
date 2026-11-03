@@ -41,7 +41,8 @@ describe('the map card on a short screen', () => {
   it('puts every Open link of the app’s card and of Try the map in that row', () => {
     const rows = (src: string) => src.match(/kmap-row kmap-open/g)?.length ?? 0;
     expect(card.match(/<OpenLink /g)?.length).toBe(rows(card));
-    expect(rows(card)).toBe(2);
+    // A thing's card, a node's, and a compartment's (#238).
+    expect(rows(card)).toBe(3);
     // Try the map's card has the install link where the app has Open.
     expect(rows(demo)).toBe(2);
   });

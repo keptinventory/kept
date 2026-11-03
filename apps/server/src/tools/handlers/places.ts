@@ -8,6 +8,7 @@ import {
   updatePlace,
 } from '../../places/service.js';
 import { requirePlace } from '../../places/view.js';
+import { turnFurniture } from '../../templates/furniture.js';
 import { viewOf } from '../../things/view.js';
 import { placeRefOf, thingRefOf } from '../output.js';
 import { locationOfRef, placeIn } from '../resolve.js';
@@ -20,7 +21,9 @@ import { writeResult } from './write.js';
 // (places/service.ts), which checks the role and the row's version and writes the app's audit
 // rows: `place.update` and `place.move` undoable for 7 days, `place.reorder` not (the opposite
 // step is its undo, as in the app), and one undoable `place.convert_to_container` per box, which
-// the app's one Undo (POST /api/v1/audit/undo) turns back together.
+// the app's one Undo (POST /api/v1/audit/undo) turns back together. `turn` is furniture's Turn it
+// (#238, templates/furniture.ts): one undoable `place.turn`. Merging and splitting compartments
+// stay in the app: no tool merges (packages/mcp tools.test.ts), and a split alone only undoes one.
 
 const locationOf = (op: Op) => {
   if (!op.location) throw new Error('a place tool always runs in one location');
@@ -55,6 +58,10 @@ export const updatePlaceTool: Handler<'update_place'> = {
       const expected = op.ifMatch ?? (await requirePlace(op.client, id)).rowVersion;
       await updatePlace(op, id, expected, body).catch(loopRefusal);
     }
+    // #238: furniture turned, as the app's Turn it (one undoable `place.turn`).
+    if (input.turn) {
+      await turnFurniture(op, id, { direction: input.turn, renumber: input.renumber === true });
+    }
     let order: string[] | undefined;
     let parentId: string | null = null;
     if (input.move) {
@@ -79,7 +86,7 @@ export const updatePlaceTool: Handler<'update_place'> = {
     }
     // A field change answers its own undoable event; a step alone, the parent's reorder.
     const event =
-      Object.keys(body).length > 0 || !parentId
+      Object.keys(body).length > 0 || input.turn || !parentId
         ? await writeResult(op, 'place', id)
         : await writeResult(op, 'place', parentId);
     return {

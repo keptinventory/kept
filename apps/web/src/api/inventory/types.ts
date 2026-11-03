@@ -573,8 +573,42 @@ export type PlaceView = {
   secrets: SecretSummary[];
   counts: { places: number; things: number };
   attachments: AttachmentView[];
+  /** Furniture made from a place template (#238): its grid and compartments; null (or missing,
+   * from a server before 1.14.4) for any other place. */
+  furniture?: FurnitureView | null;
   rowVersion: number;
 };
+
+/** A furniture place's compartments, on its grid as it stands (#238; apps/server/src/templates/
+ * furniture-view.ts). */
+export type FurnitureView = {
+  layout: PlaceTemplateLayout & { orientation: 'upright' | 'side' };
+  columns: number;
+  rows: number;
+  canTurn: boolean;
+  compartmentName: string | null;
+  codePattern: string | null;
+  compartments: FurnitureCompartment[];
+};
+
+export type FurnitureCompartment = {
+  id: string;
+  name: string;
+  /** Its number, the one on its label. */
+  n: number;
+  /** Its top left cell, and how many rows and columns it covers (more than one when merged). */
+  row: number;
+  col: number;
+  rows: number;
+  cols: number;
+  shortCode: string | null;
+  /** Its first own code. */
+  code: string | null;
+  things: number;
+};
+
+/** POST /places/:id/turn: as you face it, its top went to the right or the left. */
+export type TurnBody = { direction: 'right' | 'left'; renumber: boolean };
 
 export type CreatePlaceBody = {
   id?: string;

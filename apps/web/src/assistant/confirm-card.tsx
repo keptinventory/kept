@@ -52,7 +52,7 @@ import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { toast } from '@/components/ui/toast';
 import { isolate } from '@/lib/bidi';
-import { useFormat } from '@/lib/format';
+import { sep, useFormat } from '@/lib/format';
 import { useOnline } from '@/lib/online';
 import { formatLocale, usePrefs } from '@/lib/prefs';
 import { cn } from '@/lib/utils';
@@ -218,6 +218,8 @@ function useFieldLabels(): (key: FieldKey, verb: Verb) => string {
         return t`Order`;
       case 'step':
         return t`Move`;
+      case 'turn':
+        return t`Turn`;
       case 'places':
         return t`Places`;
     }
@@ -255,6 +257,14 @@ function ValueView({ v }: { v: Val }) {
       return <span>{v.v === 'custom' ? t`Custom order` : t`A to Z`}</span>;
     case 'step':
       return <span>{v.v === 'up' ? t`One up` : t`One down`}</span>;
+    case 'turn':
+      return (
+        <span>
+          {v.v === 'right' ? t`Top to the right` : t`Top to the left`}
+          {sep()}
+          {v.renumber ? t`Renumber` : t`Keep the codes`}
+        </span>
+      );
     case 'text':
       return v.v ? <bdi>{v.v}</bdi> : <span className="text-ink-3">{t`Nothing`}</span>;
     case 'path':

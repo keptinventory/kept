@@ -60,6 +60,10 @@ export const UNDOABLE_ACTIONS: ReadonlySet<string> = new Set([
   // T17a (D208): own codes added, changed or removed (codes/undo.ts).
   'thing.codes',
   'place.codes',
+  // #238 (1.14.4): furniture turned, compartments merged or split (templates/furniture.ts).
+  'place.turn',
+  'place.merge_compartments',
+  'place.split',
   // Step 4 (D150; the plan's "undoable" rows), as registered so far: an expiring document
   // changed, deleted or renewed (paperwork/undo.ts); an exchange rate set or deleted and a
   // valuation changed or deleted (money/undo.ts); an incident changed, deleted, or its things

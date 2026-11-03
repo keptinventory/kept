@@ -98,6 +98,7 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.map_type(uuid,uuid)': OWNER_ONLY,
   'kept.max_member_expiry(uuid)': APP_ONLY,
   'kept.merge_places(uuid,uuid)': APP_ONLY,
+  'kept.move_compartment_short_ids(uuid,jsonb)': APP_ONLY,
   'kept.merge_registry(text,uuid,uuid)': APP_ONLY,
   'kept.move_things(uuid[],uuid,uuid,uuid)': APP_ONLY,
   'kept.near_thing_names(text,text[],text[],uuid)': APP_ONLY,

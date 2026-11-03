@@ -266,6 +266,7 @@ describe('POST /api/v1/locations/:locationId/places', () => {
       secrets: [],
       counts: { places: 0, things: 0 },
       attachments: [],
+      furniture: null,
       rowVersion: expect.any(Number),
     });
     const [event] = await auditEvents(home.id, 'place.create');

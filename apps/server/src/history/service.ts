@@ -321,6 +321,10 @@ const OWN_FIELDS: Readonly<Record<string, readonly string[]>> = {
   'place.convert_to_container': [],
   'thing.convert_to_place': ['discarded'],
   'place.merge': ['merged_into', 'things_moved'],
+  // #238: furniture's compartments, kept whole for the undo; the sentence says what happened.
+  'place.turn': [],
+  'place.merge_compartments': [],
+  'place.split': [],
 };
 
 /**

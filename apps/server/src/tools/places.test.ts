@@ -293,6 +293,38 @@ describe('update_place', () => {
     ).toBe('tool_unavailable');
     expect((await row(bench))?.name).toBe('Workbench');
   });
+
+  it('turns furniture onto its side and renumbers it, as the app’s Turn it: one undoable place.turn', async () => {
+    const study = await place(db, home, 'Den');
+    const made = ok(
+      await call(t, `/api/v1/locations/${home.id}/places/from-template`, {
+        as: louis,
+        body: { parentId: study, template: { builtin: 'cube_1x4' }, name: 'Narrow cubes' },
+      }),
+      201,
+    ) as unknown as { place: { id: string }; compartments: { id: string }[] };
+    const c = ctx(louis);
+    const d = await data(c, 'update_place', {
+      place_id: made.place.id,
+      turn: 'right',
+      renumber: true,
+    });
+    const [event] = await events(c.requestId);
+    expect(event).toMatchObject({ id: d.audit_event_id, action: 'place.turn' });
+    // Cube 1 was the top; its top went right, so it is the rightmost now: Cube 4.
+    const first = made.compartments[0]?.id as string;
+    expect((await row(first))?.name).toBe('Cube 4');
+    ok(await call(t, `/api/v1/audit/${d.audit_event_id}/undo`, { as: louis, body: {} }));
+    expect((await row(first))?.name).toBe('Cube 1');
+    // A place that isn't furniture can't be turned.
+    expect(
+      await refusal(louis, 'update_place', {
+        place_id: study,
+        turn: 'left',
+        renumber: false,
+      }),
+    ).toBe('conflict');
+  });
 });
 
 describe('turn_into_boxes', () => {

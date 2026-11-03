@@ -64,6 +64,23 @@ export type MapNodeView = {
   isContainer: boolean;
   quantity: number;
   layout: MapNodeLayout | null;
+  /** Furniture made from a place template (#238): its grid as it stands and its compartments.
+   * Missing from a server before 1.14.4. */
+  grid?: { columns: number; rows: number; kind: 'grid' | 'levels' | 'drawers' } | null;
+  compartments?: MapCompartment[];
+};
+
+/** A compartment of furniture on the map (#238): where it sits on the furniture's grid. */
+export type MapCompartment = {
+  id: string;
+  name: string;
+  shortCode: string | null;
+  labelPrinted: boolean;
+  n: number;
+  row: number;
+  col: number;
+  rows: number;
+  cols: number;
 };
 
 export type MapThingView = {
@@ -80,6 +97,8 @@ export type MapThingView = {
   /** A custom type's own name ("Television"). */
   typeName: string | null;
   isContainer: boolean;
+  /** The compartment of its furniture it is in (#238); missing from an older server. */
+  compartmentId?: string | null;
 };
 
 export type MapAttentionKind = 'low' | 'lent' | 'due';

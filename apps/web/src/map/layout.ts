@@ -13,6 +13,8 @@
  * no height, goes on its nearest wall at the height its shape starts at.
  */
 import {
+  BOOKCASE,
+  CUBE_GRID,
   canCarry,
   capacityOf,
   carryOf,
@@ -39,6 +41,7 @@ import {
   type ShapeFrom,
   seatFor,
   shapeOnAdd,
+  sizedKey,
   snapStep,
   turnOffset,
   turnOfWall,
@@ -51,6 +54,7 @@ import type {
   LayoutBody,
   MapAttention,
   MapAttentionKind,
+  MapCompartment,
   MapNodeView,
   MapThingView,
   MapView,
@@ -116,9 +120,30 @@ export type Item = {
   /** Kept put it here by itself (a room photo's accepted thing, #194): Arrange lists it to
    * nudge. Saving the arrangement makes it the person's. */
   placedByKept?: boolean;
+  /** Furniture made from a place template (#238): its grid as it stands and its compartments,
+   * drawn inside its shape and picked on the map. */
+  grid?: NonNullable<MapNodeView['grid']>;
+  compartments?: MapCompartment[];
 };
 
 export type Plan = { levels: Level[]; rooms: Room[]; items: Item[] };
+
+/**
+ * The shape furniture made from a place template takes when nobody picked one (#238): a cube
+ * shelf drawn from its grid as it stands, a bookcase from its levels, a chest of drawers. Null
+ * for a grid too big to draw, which then keeps its guess.
+ */
+export function furnitureModel(grid: NonNullable<MapNodeView['grid']>): MapShapeKey | null {
+  if (grid.kind === 'grid') {
+    if (grid.columns > CUBE_GRID.max || grid.rows > CUBE_GRID.max) return null;
+    return sizedKey({ base: 'cube_grid', across: grid.columns, up: grid.rows });
+  }
+  if (grid.kind === 'levels') {
+    if (grid.rows > BOOKCASE.levels[1]) return null;
+    return sizedKey({ base: 'bookcase', ...BOOKCASE.start, levels: grid.rows });
+  }
+  return 'drawers';
+}
 
 /** What the auto layout and the names need from the page. */
 export type PlanNames = { noFloor: string; location: string };
@@ -132,13 +157,14 @@ export function fp(item: Pick<Item, 'model' | 'rot'>): { w: number; d: number } 
 const modelOf = (n: MapNodeView): MapShapeKey =>
   n.layout?.model && isMapModel(n.layout.model)
     ? n.layout.model
-    : guessModel({
+    : ((n.grid ? furnitureModel(n.grid) : null) ??
+      guessModel({
         name: n.name,
         subject: n.subject,
         kindKey: n.kindKey,
         typeKey: n.typeKey,
         isContainer: n.isContainer,
-      });
+      }));
 
 /** Packs footprints into rows inside `width`, avoiding `taken`; returns positions and depth. */
 function pack(
@@ -344,6 +370,7 @@ function itemOf(n: MapNodeView, model: MapShapeKey, x: number, z: number): Item 
     quantity: n.quantity,
     auto: n.parentId === n.roomId && (n.subject === 'place' || n.isContainer),
     ...(n.layout?.placedByKept ? { placedByKept: true } : {}),
+    ...(n.grid && n.compartments?.length ? { grid: n.grid, compartments: n.compartments } : {}),
   };
 }
 

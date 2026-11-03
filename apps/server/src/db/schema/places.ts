@@ -45,7 +45,9 @@ export const places = pgTable(
      * patterns it was named and coded with, `{kind, across, up | count, orientation,
      * compartmentName, codePattern}` (packages/shared place-templates.ts). */
     layout: jsonb('layout'),
-    /** A compartment of that furniture: where it sits on the grid as it stands, `{row, col}`. */
+    /** A compartment of that furniture: where it sits on the grid as it stands, `{row, col}`;
+     * from 1.14.4 also its number `n`, the span of a merged one (`rows`, `cols`) and the cells it
+     * took in (`parts`), packages/shared compartments.ts. */
     cell: jsonb('cell'),
     deletedAt: tstz('deleted_at'),
     /** Places and things trashed in one action share it, so they are restored together (D162). */
