@@ -94,7 +94,9 @@ export function Page({
       {/* Opaque, in --paper: the same colour as the status bar (index.html's theme-color and the
           iOS status strip), so the two read as one band and nothing scrolls through (D132 kit
           .appbar). */}
-      <header className="sticky top-0 z-20 flex min-h-14 items-center gap-2 border-b border-line bg-paper px-3 py-2 md:min-h-16 md:px-6">
+      {/* From tablets up the tools wrap under the title rather than squeeze it: inside Home
+          Assistant's panel, with Kept's sidebar open, a thing's name was one letter a line. */}
+      <header className="sticky top-0 z-20 flex min-h-14 items-center gap-2 border-b border-line bg-paper px-3 py-2 md:min-h-16 md:flex-wrap md:px-6">
         {backTarget ? (
           <Link
             {...(backTarget as LinkProps)}
@@ -104,13 +106,13 @@ export function Page({
             <ChevronStartIcon />
           </Link>
         ) : null}
-        <div className={cn('grid min-w-0 flex-1 gap-0.5', !backTarget && 'ps-1')}>
+        <div className={cn('grid min-w-0 flex-1 gap-0.5 md:basis-auto', !backTarget && 'ps-1')}>
           {eyebrow ? <div className="hidden text-small text-ink-3 md:block">{eyebrow}</div> : null}
           <h1 className="m-0 font-semibold text-title text-ink [overflow-wrap:anywhere]">
             {title}
           </h1>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2 md:ms-auto">
           <ScanButton />
           <NotificationBell className="md:hidden" />
           <AssistantButton />
