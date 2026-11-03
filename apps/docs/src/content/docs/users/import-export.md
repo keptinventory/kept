@@ -30,7 +30,8 @@ duplicates. An archive (a ZIP) can be up to 5 GB. Imported things arrive confirm
 ### A spreadsheet (CSV)
 
 1. **Choose the file**, and the location it goes into: one you own or administer. A file takes at
-   most 10,000 rows (8 MB); split a bigger one.
+   most 10,000 rows (8 MB); split a bigger one. Under the file, **The columns Kept reads** lists
+   every column it understands, and **Download a sample CSV** gives a small file to start from.
 2. **Match the columns.** For each column, choose the field it goes to, including **A type's
    field…** for your own type fields. One column must be the name: every thing needs one.
 3. **A few choices:**
@@ -42,6 +43,13 @@ duplicates. An archive (a ZIP) can be up to 5 GB. Imported things arrive confirm
    - **Match the type column to your types by name**, in any of Kept's languages; off, the type
      is kept in the notes.
 4. **Check the import**, read the report, and import.
+
+The columns Kept reads: name, quantity, place, type, brand, model, serial number, barcode, colour,
+condition, notes, tags, other names, purchase date, price, currency, shop, manual link, an old
+label's code, your own code, a row ID (so a re-import skips the row), and your types' own fields.
+Headers in any of Kept's languages are matched for you. Tags and other names are separated by
+commas, a price is a number without the currency sign, and dates are written one way through the
+whole file.
 
 #### Homebox's spreadsheet
 

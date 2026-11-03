@@ -1,8 +1,9 @@
 /**
  * The import stepper's first step: the source (CSV here; a
  * Homebox or Kept export moves to the archive flow), the location to import into (only those you own or administer),
- * and the file, read here on the phone or desktop. The location's recent imports are listed under
- * it, so an import that stopped can be opened and resumed.
+ * and the file, read here on the phone or desktop, with what a file can hold and a sample
+ * (csv-help.tsx). The location's recent imports are listed under it, so an import that stopped can
+ * be opened and resumed.
  */
 import { type ArchiveSource, IMPORT_STALE_MINUTES } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
@@ -19,6 +20,7 @@ import { Combobox } from '@/components/ui/combobox';
 import { useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
 import { cn } from '@/lib/utils';
+import { CsvHelp } from './csv-help';
 import { useParseProblemText } from './labels';
 import { type ParsedCsv, ParseError, parseCsvFile } from './parse';
 import { SourceStep } from './source-step';
@@ -132,6 +134,8 @@ export function UploadStep({
           {problem}
         </Notice>
       ) : null}
+
+      <CsvHelp />
 
       {locationId ? <RecentImports locationId={locationId} /> : null}
     </div>

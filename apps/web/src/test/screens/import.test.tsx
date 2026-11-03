@@ -104,6 +104,52 @@ describe('CSV import', () => {
     expectLogicalOnly();
   });
 
+  it('lists the columns it reads, links the docs, and offers a sample that maps by itself', async () => {
+    const app = await renderApp(`/settings/import?location=${IDS.home}`);
+    await findHeading('Choose the file');
+    await app.user.click(screen.getByRole('button', { name: 'The columns Kept reads' }));
+    const columns = screen.getByRole('list', { name: 'The columns Kept reads' });
+    for (const label of ['Name', 'Quantity', 'Place (a path like Garage > Shelf A)', 'Tags']) {
+      expect(within(columns).getByText(label)).toBeInTheDocument();
+    }
+    expect(within(columns).queryByText("Don't import")).toBeNull();
+    expect(screen.getByRole('link', { name: 'How importing works' })).toHaveAttribute(
+      'href',
+      'https://keptinventory.info/users/import-export/#a-spreadsheet-csv',
+    );
+
+    let saved: File | undefined;
+    const created = vi.fn((f: Blob) => {
+      saved = f as File;
+      return 'blob:sample';
+    });
+    Object.assign(URL, { createObjectURL: created, revokeObjectURL: vi.fn() });
+    try {
+      await app.user.click(screen.getByRole('button', { name: 'Download a sample CSV' }));
+    } finally {
+      Object.assign(URL, { createObjectURL: undefined, revokeObjectURL: undefined });
+    }
+    expect(saved?.name).toBe('kept-sample.csv');
+    await waitFor(() => expect(fileInput()).not.toBeNull());
+    await app.user.upload(fileInput() as HTMLInputElement, saved as File);
+    expect(await findHeading('Match the columns')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Name goes to' })).toHaveValue('Name');
+    expect(screen.getByRole('combobox', { name: 'Place goes to' })).toHaveValue(
+      'Place (a path like Garage > Shelf A)',
+    );
+    expect(screen.getByRole('combobox', { name: 'Purchase date goes to' })).toHaveValue(
+      'Purchase date',
+    );
+    for (const box of screen.getAllByRole('combobox', { name: / goes to$/ })) {
+      expect(box).not.toHaveValue("Don't import");
+    }
+    await app.user.click(screen.getByRole('button', { name: 'Next' }));
+    await app.user.click(await screen.findByRole('button', { name: 'Check the import' }));
+    const body = app.mock.lastCall('POST', cp.importsCsv)?.body as CreateImportBody;
+    expect(body.rows).toHaveLength(5);
+    expect(body.choices).toMatchObject({ placeSeparator: '>', dateFormat: 'YYYY-MM-DD' });
+  });
+
   it('refuses a 10,001-row file before anything is sent', async () => {
     const lines = ['Name', ...Array.from({ length: 10_001 }, (_, i) => `Thing ${i}`)].join('\n');
     const { mock } = await openWithFile(lines);
