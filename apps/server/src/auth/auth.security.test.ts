@@ -234,6 +234,8 @@ describe('magic links', () => {
     await seedRefreshToken(db, user.userId);
     const requested = await auth('/request-password-reset', { body: { email: user.email } });
     expect(requested.statusCode).toBe(200);
+    // Asking for a reset ends nothing: anyone who knows the address can ask (#411).
+    expect(await refreshTokenCount(db, user.userId)).toBe(1);
     const mail = t.auth.resets.at(-1);
     expect(mail?.url).toMatch(/\/auth\/reset#token=/);
     const reset = await auth('/reset-password', {
