@@ -107,10 +107,11 @@ test('a tall photo fits the screen whole, top to bottom (#183)', async ({ browse
   const viewer = page.getByRole('dialog', { name: 'Photos' });
   const image = viewer.getByRole('img', { name: 'Photo 1 of 1' });
   await expect(image).toBeVisible();
-  // The seed's photo is wide: a 600 × 2400 picture, drawn in the page, takes its place.
+  // The seed's photo is wide: a 600 × 2400 picture, drawn in the page, takes its place. A blob:
+  // URL, as the CSP's img-src allows blob: and not data:.
   await image.evaluate(
     (img: HTMLImageElement) =>
-      new Promise<void>((done) => {
+      new Promise<void>((done, fail) => {
         const c = document.createElement('canvas');
         c.width = 600;
         c.height = 2400;
@@ -120,7 +121,11 @@ test('a tall photo fits the screen whole, top to bottom (#183)', async ({ browse
           g.fillRect(0, 0, 600, 2400);
         }
         img.onload = () => done();
-        img.src = c.toDataURL('image/png');
+        img.onerror = () => fail(new Error('the tall photo did not load'));
+        c.toBlob((blob) => {
+          if (blob) img.src = URL.createObjectURL(blob);
+          else fail(new Error('no blob'));
+        }, 'image/png');
       }),
   );
   // Fitted, its box is the screen's (object-fit: contain draws it whole inside): before the fix
