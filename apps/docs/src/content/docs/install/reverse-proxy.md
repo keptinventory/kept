@@ -26,6 +26,11 @@ the client. Empty (the default), the socket's address is the client. List the pr
 Kept sees it (on Docker's network, the proxy container's address, not the host's), and nothing
 that a stranger could send requests from.
 
+With Compose, put it in `.env` next to `compose.yaml`. Before 1.14.5, `compose.yaml` set its own
+value and a line in `.env` never reached Kept; on those versions set it for the `kept` service in a
+`compose.override.yaml`. With `compose.full.yaml`'s Caddy, leave it empty (Caddy's address is the
+default) or keep `172.29.72.200` in the list.
+
 ### The setup lockout
 
 Wrong setup codes lock out the address that sent them for a while, and many wrong codes lock out
