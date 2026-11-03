@@ -6,7 +6,7 @@ import { CliError } from '../admin/cli.js';
 import { formatSetupCode, generateSetupCode, isSetupCodeShape } from '../setup/setup-code.js';
 
 // `kept init`: the first step of a Compose install, run as `docker compose run --rm init`.
-// It asks for the address Kept will be opened at and writes `.env` next to compose.yaml with
+// It asks for the address Kept will be opened at and writes `.env` next to the Compose file with
 // that address, the port, the image and a preset setup code, then shows the code. It writes no
 // password: the bootstrap service generates the database's on first start. Run again over an
 // existing `.env`, it changes only the lines it owns and keeps every other one (an operator's
@@ -219,7 +219,7 @@ export async function runInit(opts: InitOptions): Promise<InitResult> {
   if (address.notes.includes('assumed-http')) io.print(`Using ${address.url}.`);
   if (address.notes.includes('https-proxy')) {
     io.print(
-      `Kept itself serves plain HTTP on KEPT_HTTP_PORT (8080); a proxy with the certificate serves ${address.url} (the https profile, or your own).`,
+      `Kept itself serves plain HTTP on KEPT_HTTP_PORT (8080); a proxy with the certificate serves ${address.url}: your own, or Caddy in compose.full.yaml (its https profile).`,
     );
   }
 

@@ -167,6 +167,14 @@ describe('kept init', () => {
     expect(t.shown.join('\n')).toMatch(/proxy/i);
   });
 
+  it('for an https address names where Caddy is: compose.full.yaml, not compose.yaml (#414)', async () => {
+    const t = terminal(['https://kept.example.org']);
+    await runInit({ dir, version: '1.13.0', io: t.io });
+    const proxy = t.shown.find((l) => /proxy/i.test(l)) ?? '';
+    expect(proxy).toContain('your own');
+    expect(proxy).toContain('Caddy in compose.full.yaml');
+  });
+
   it('updates an existing .env in place, keeping every other line, after asking', async () => {
     const before = [
       '# my notes',
