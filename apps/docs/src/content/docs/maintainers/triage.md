@@ -39,7 +39,7 @@ checklist:
 - tests first, on their own database; the leak test and route catalogue updated for a new table
   or route;
 - migrations are additive (a drop or rename takes two releases);
-- new strings in all five catalogues, Arabic in the house style; logical CSS; works at 375 px and
+- new strings in all six catalogues, Arabic in the house style; logical CSS; works at 375 px and
   1280;
 - Conventional Commit messages, and no AI attribution in commits or the description (D173);
 - the CLA signed, once, on the contributor's first pull request ([the CLA](/maintainers/cla/)).

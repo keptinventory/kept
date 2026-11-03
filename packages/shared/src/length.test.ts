@@ -3,6 +3,7 @@ import {
   formatRoomSide,
   ROOM_SIDE,
   ROOM_SIDE_CM,
+  readLength,
   roomSideFormat,
   roomSideFromCm,
   roomSideProblem,
@@ -52,6 +53,7 @@ describe('roomSideToCm and roomSideFromCm', () => {
 describe('roomSideProblem', () => {
   it('says what keeps a side off the map', () => {
     expect(roomSideProblem(null)).toBe('missing');
+    expect(roomSideProblem(Number.NaN)).toBe('not_a_number');
     expect(roomSideProblem(49)).toBe('too_small');
     expect(roomSideProblem(50)).toBeNull();
     expect(roomSideProblem(358)).toBeNull();
@@ -92,5 +94,61 @@ describe('formatRoomSide: a side for reading', () => {
   it('follows the reader’s digits', () => {
     expect(formatRoomSide(358, 'ar-u-nu-arab')).toBe('٣٫٥٨');
     expect(formatRoomSide(358, 'ar-u-nu-latn')).toBe('3.58');
+  });
+});
+
+describe('readLength: what was typed (1.14.4 review)', () => {
+  it('reads the locale’s decimal mark, and the unit the field shows', () => {
+    expect(readLength('0.8', 'en')).toBe(0.8);
+    expect(readLength('0.80 m', 'en')).toBe(0.8);
+    expect(readLength('3.58m', 'en-GB')).toBe(3.58);
+    expect(readLength('.5', 'en')).toBe(0.5);
+    expect(readLength('4', 'en')).toBe(4);
+    for (const l of ['fr', 'de', 'it', 'vi']) {
+      expect(readLength('0,8', l)).toBe(0.8);
+      expect(readLength('0,80\u202fm', l)).toBe(0.8);
+    }
+  });
+
+  it('reads Western and Eastern Arabic digits whichever the setting shows', () => {
+    for (const l of ['ar-u-nu-arab', 'ar-u-nu-latn']) {
+      expect(readLength('٠٫٨', l)).toBe(0.8);
+      expect(readLength('0.8', l)).toBe(0.8);
+      expect(readLength('٣.٥٨', l)).toBe(3.58);
+      expect(readLength('0٫8', l)).toBe(0.8);
+      expect(readLength('٠٫٨٠ متر', l)).toBe(0.8);
+      expect(readLength('\u200f3.58 متر', l)).toBe(3.58);
+    }
+    // The Arabic decimal mark and digits are read in any language.
+    expect(readLength('٣٫٥٨', 'en')).toBe(3.58);
+  });
+
+  it('is false, not a different number, for what a length can’t be', () => {
+    expect(readLength('0,8', 'en')).toBe(false);
+    expect(readLength('1e3', 'en')).toBe(false);
+    expect(readLength('-2', 'en')).toBe(false);
+    expect(readLength('+2', 'en')).toBe(false);
+    expect(readLength('1,000', 'en')).toBe(false);
+    expect(readLength('1.2.3', 'en')).toBe(false);
+    expect(readLength('0.8', 'de')).toBe(false);
+    expect(readLength('two', 'en')).toBe(false);
+    expect(readLength('3 58', 'en')).toBe(false);
+    expect(readLength('1\u202f000', 'fr')).toBe(false);
+    expect(readLength('.', 'en')).toBe(false);
+    expect(readLength('٠٬٨', 'ar-u-nu-arab')).toBe(false);
+  });
+
+  it('is null when nothing is typed', () => {
+    expect(readLength('', 'en')).toBeNull();
+    expect(readLength('  ', 'en')).toBeNull();
+    expect(readLength('m', 'en')).toBeNull();
+  });
+
+  it('reads centimetres where the field is in centimetres', () => {
+    expect(readLength('120 cm', 'en', 'centimeter')).toBe(120);
+    expect(readLength('١٢٠ سم', 'ar-u-nu-arab', 'centimeter')).toBe(120);
+    // A count has no unit.
+    expect(readLength('4', 'ar-u-nu-arab', null)).toBe(4);
+    expect(readLength('4 m', 'en', null)).toBe(false);
   });
 });

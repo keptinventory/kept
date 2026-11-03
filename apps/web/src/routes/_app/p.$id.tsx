@@ -366,7 +366,10 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
         <CompartmentsSection
           place={place}
           canEdit={canEdit}
-          labels={(location.effectiveModules ?? location.modules).includes('labels')}
+          labels={
+            (location.effectiveModules ?? location.modules).includes('labels') &&
+            accessOf(location).can('labels.use')
+          }
         />
       )}
 

@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { setLocale } from '@/lib/prefs';
+import { setDigits, setLocale } from '@/lib/prefs';
 import { expectLogicalOnly, renderUI } from '@/test/render';
 import { HeightField } from './height';
 import type { Item } from './layout';
@@ -27,7 +27,10 @@ const tv: Item = {
   hang: 1.2,
 };
 
-afterEach(() => setLocale('en'));
+afterEach(() => {
+  setLocale('en');
+  setDigits('eastern');
+});
 
 describe('HeightField', () => {
   it('shows how high the middle hangs, in metres, and says what that means', async () => {
@@ -73,6 +76,37 @@ describe('HeightField', () => {
     await user.clear(field);
     await user.type(field, '0.1{Enter}');
     expect(onHeight).toHaveBeenLastCalledWith(0.4);
+  });
+
+  it.each([
+    ['eastern', '1.75'],
+    ['western', '١٫٧٥'],
+  ] as const)(
+    'in Arabic with %s digits, takes the other keyboard’s digits too',
+    async (d, typed) => {
+      setLocale('ar');
+      setDigits(d);
+      const onHeight = vi.fn();
+      const { user } = await renderUI(<HeightField item={tv} onHeight={onHeight} />, {
+        locale: 'ar',
+      });
+      const field = screen.getByRole('textbox', { name: 'الارتفاع' });
+      await user.clear(field);
+      await user.type(field, `${typed}{Enter}`);
+      expect(onHeight).toHaveBeenLastCalledWith(1.75);
+    },
+  );
+
+  it('says what isn’t a height, and keeps the one it has', async () => {
+    const onHeight = vi.fn();
+    const { user } = await renderUI(<HeightField item={tv} onHeight={onHeight} />);
+    const field = screen.getByRole('textbox', { name: 'Height' });
+    await user.clear(field);
+    await user.type(field, '0,8{Enter}');
+    expect(onHeight).not.toHaveBeenCalled();
+    expect(field).toHaveValue('0,8');
+    expect(field.getAttribute('aria-invalid')).toBe('true');
+    expect(screen.getByText('Enter metres, like 1.2.')).toBeTruthy();
   });
 
   it('reads in Arabic, right to left, in Arabic digits', async () => {

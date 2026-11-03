@@ -627,6 +627,44 @@ describe('every field a person can set, through add_thing and update_thing', () 
     );
     expect(n?.n).toBe(1);
   });
+
+  it('update_thing changes only the receipt line, and says so when nothing changes (#348)', async () => {
+    const d = await data(louis, 'add_thing', { location_id: home.id, items: [{ name: 'Kettle' }] });
+    const id = d.things[0].id;
+    // No purchase yet, and nothing to record: refused in words, nothing made.
+    const empty = await tool(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: id,
+      fields: { purchase: {} },
+    });
+    expect(isToolError(empty) ? empty.hint : null).toMatch(/purchased_on, shop or price/);
+    await data(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: id,
+      fields: { purchase: { purchased_on: '2026-02-03', price: '40', currency: 'EGP' } },
+    });
+    // Only what the receipt calls it: the line's event answers.
+    const named = await data(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: id,
+      fields: { purchase: { on_receipt: 'Kettle, red' } },
+    });
+    expect(named.audit_event_id).toEqual(expect.any(String));
+    const [line] = await own<{ description: string }>(
+      db,
+      `SELECT pl.description FROM public.things t
+         JOIN public.purchase_lines pl ON pl.id = t.purchase_line_id WHERE t.id = $1`,
+      [id],
+    );
+    expect(line?.description).toBe('Kettle, red');
+    // The same price again changes nothing, and says so.
+    const same = await tool(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: id,
+      fields: { purchase: { price: '40' } },
+    });
+    expect(isToolError(same) ? same.hint : null).toMatch(/Nothing changed/);
+  });
 });
 
 describe('reads', () => {

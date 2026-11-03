@@ -8,10 +8,11 @@ import type { KeptMessage } from '../ai/convert.js';
 //
 // - the core, always: finding things (where_is, search_things, get_thing, list_contents, the
 //   locations) and the everyday changes (add, update, move, mark seen);
-// - a topic's tools when the thread's last questions name it, by keywords in the five interface
+// - a topic's tools when the thread's last questions name it, by keywords in the six interface
 //   languages (lending, schedules, warranties, documents, vehicles and meters, stock, history,
 //   places and capture links, tags). A Latin-script keyword matches at a word's start; an Arabic one
-//   anywhere (its prefixes join the word: الـ، و، ب، ل);
+//   anywhere (its prefixes join the word: الـ، و، ب، ل); a Vietnamese one as whole words, with its
+//   tone marks kept, since folding them joins different words (mượn "borrow", muốn "want");
 // - any tool the thread already called, or asked for and was not offered, so a follow-up
 //   ("and the drill?") keeps its tools and the model can ask again;
 // - never a tool the person may not call: `available` is already narrowed by module, role and
@@ -34,11 +35,12 @@ export const CORE_TOOLS: readonly ToolName[] = Object.freeze([
   'mark_seen',
 ]);
 
-type Lang = 'en' | 'fr' | 'de' | 'it' | 'ar';
+type Lang = 'en' | 'fr' | 'de' | 'it' | 'ar' | 'vi';
 type Topic = { tools: readonly ToolName[]; words: Readonly<Record<Lang, string>> };
 
-/** Keywords per topic and language, `|` between them, written plainly: `normalise` folds both
- * sides the same way. */
+/** Keywords per topic and language, `|` between them, written plainly: `normalise` (or, for
+ * Vietnamese, `normaliseVi`) folds both sides the same way. Vietnamese writes some syllables
+ * with the tone mark in two places (hóa, hoá); both are listed. */
 const TOPICS: Readonly<Record<string, Topic>> = {
   history: {
     tools: ['thing_history'],
@@ -48,6 +50,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       de: 'verlauf|geschichte|passiert|wer hat|wann',
       it: 'cronologia|storia|successo|chi ha',
       ar: 'سجل|تاريخ|حصل|حدث|من نقل|من غير|متى',
+      vi: 'lịch sử|đã xảy ra|chuyện gì|ai đã|ai chuyển|ai sửa|ai thêm|khi nào|lần cuối',
     },
   },
   documents: {
@@ -58,17 +61,20 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       de: 'beleg|quittung|rechnung|anleitung|handbuch|dokument',
       it: 'ricevuta|scontrino|fattura|manuale|documento|istruzioni',
       ar: 'إيصال|وصل|فاتورة|دليل|كتيب|مستند|وثيقة|ورق',
+      vi: 'hóa đơn|hoá đơn|biên lai|tài liệu|giấy tờ|chứng từ|hướng dẫn sử dụng|sách hướng dẫn',
     },
   },
   // #313: changing a place (its name, kind, parent, order) and turning places into boxes.
+  // #238/#372: turning furniture, and a room's size.
   places: {
     tools: ['create_place', 'update_place', 'turn_into_boxes', 'attach_link'],
     words: {
-      en: 'place|room|shelf|shelves|drawer|cupboard|cabinet|zone|create|photo|picture|scan|link|attach|rename|into a box|into boxes|custom order|move up|move down',
-      fr: 'pièce|étagère|tiroir|placard|armoire|créer|lien|renommer|en boîte|en boîtes|ordre',
-      de: 'raum|zimmer|regal|schublade|schrank|anlegen|erstell|foto|bild|umbenenn|in kisten|in eine kiste|reihenfolge',
-      it: 'stanza|scaffal|cassetto|armadio|crea|collegamento|rinomin|in scatol|ordine',
-      ar: 'غرفة|رف|درج|خزانة|دولاب|مكان|أنشئ|صورة|رابط|تسمية|صندوق|صناديق|ترتيب',
+      en: 'place|room|shelf|shelves|drawer|cupboard|cabinet|zone|create|photo|picture|scan|link|attach|rename|into a box|into boxes|custom order|move up|move down|turn|rotate|on its side|upright|furniture|bookcase|bookshelf|wardrobe|size|width|length|depth|metre|meters',
+      fr: 'pièce|étagère|tiroir|placard|armoire|créer|lien|renommer|en boîte|en boîtes|ordre|tourner|tournez|tourne le|tourne la|tourne l’|pivot|sur le côté|meuble|bibliothèque|taille|dimension|largeur|longueur|profondeur|mètre',
+      de: 'raum|zimmer|regal|schublade|schrank|anlegen|erstell|foto|bild|umbenenn|in kisten|in eine kiste|reihenfolge|dreh|umdreh|auf die seite|auf der seite|möbel|bücherregal|größe|maße|abmessung|breite|tiefe|meter|quadratmeter',
+      it: 'stanza|scaffal|cassetto|armadio|crea|collegamento|rinomin|in scatol|ordine|girare|giralo|girala|gira il|gira la|gira lo|ruota|ruotare|di lato|sul fianco|mobil|libreria|dimension|misur|larghezza|lunghezza|profondità|metri|metro',
+      ar: 'غرفة|رف|درج|خزانة|دولاب|مكان|أنشئ|صورة|رابط|تسمية|صندوق|صناديق|ترتيب|دوّر ال|اقلب|على جنبه|على جنبها|على الجنب|أثاث|مكتبة|مقاس|حجم|عرضه|عرضها|العرض|طوله|طولها|الطول|عمق|متر',
+      vi: 'vị trí|phòng|kệ|giá sách|tủ|ngăn kéo|nội thất|tạo|ảnh|chụp|quét|liên kết|đính kèm|đổi tên|thành hộp|thứ tự|xoay|nằm nghiêng|dựng đứng|kích thước|chiều rộng|chiều dài|chiều sâu|mét',
     },
   },
   schedules: {
@@ -79,6 +85,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       de: 'fällig|termin|erinner|wartung|bald|abgelaufen|läuft ab|nächst|erledigt|verschieb|aufgabe',
       it: 'scadenz|scade|promemoria|manutenzion|presto|prossim|fatto|rimand|posticip|compito',
       ar: 'موعد|مستحق|صيانة|تذكير|قريبا|تنتهي|ينتهي|القادم|خلصت|أجل|تأجيل|مهمة',
+      vi: 'lịch|lịch trình|bảo dưỡng|đến hạn|quá hạn|nhắc|sắp tới|hết hạn|tiếp theo|xong|hoãn|dời|để sau|tác vụ|việc cần làm|tuần này|tháng này',
     },
   },
   lending: {
@@ -89,6 +96,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       de: 'verleih|verlieh|geliehen|ausgeliehen|ausleih|leih|zurück|übergeb|übergab',
       it: 'prest|restitu|ridat|riavut|tornat|consegn|affidat',
       ar: 'أعار|أعرت|استعار|استلف|سلف|إعارة|رجع|أرجع|مع مين|عند مين|عند من|اقترض|سلمت|تسليم',
+      vi: 'cho mượn|mượn|trả|trả lại|lấy lại|nhận lại|ai đang giữ|ai giữ|đang giữ|bàn giao|giao cho',
     },
   },
   warranties: {
@@ -99,6 +107,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       de: 'gewährleistung|reklamation|reparatur|kaputt|defekt',
       it: 'garanzia|reclamo|riparazion|rotto|guasto',
       ar: 'ضمان|كفالة|مطالبة|إصلاح|تصليح|عطل|مكسور|بايظ',
+      vi: 'bảo hành|yêu cầu bảo hành|sửa chữa|đi sửa|hỏng|hư|đổi trả',
     },
   },
   vehicles: {
@@ -109,6 +118,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       de: 'auto|fahrzeug|wagen|inspektion|ölwechsel|reifen|kilometer|tacho|benzin|zähler|getankt',
       it: 'macchina|veicolo|tagliando|olio|gomm|chilometr|contachilometri|benzina|carburante|gasolio|pieno|lettura|contatore',
       ar: 'سيارة|عربية|موتوسيكل|صيانة|زيت|كاوتش|إطار|عداد|كيلو|بنزين|وقود|سولار|فول|تفويل|قراءة|كهرباء',
+      vi: 'xe|ô tô|phương tiện|bảo dưỡng|thay dầu|dầu|nhớt|lốp|số km|cây số|công tơ|công-tơ-mét|nhiên liệu|xăng|đổ xăng|đổ đầy|chỉ số|đồng hồ đo|đồng hồ điện|điện năng|kwh',
     },
   },
   // #209: the tags themselves; tagging one thing is update_thing's, in the core.
@@ -120,6 +130,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       de: 'schlagwort|tag|tags|getaggt',
       it: 'tag|etichetta',
       ar: 'وسم|وسوم|موسوم|تاغ',
+      vi: 'thẻ|gắn thẻ|bỏ thẻ',
     },
   },
   stock: {
@@ -130,6 +141,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       de: 'vorrat|bestand|aufgebraucht|übrig|verbrauch|nachfüll|leer',
       it: 'scorta|scorte|rimast|esaurit|consumabil|usat|finit',
       ar: 'مخزون|متبقي|باقي|نفد|نفذ|خلص|استهلك|كمية',
+      vi: 'tồn kho|còn lại|còn bao nhiêu|sắp hết|dùng hết|hết rồi|vật tư|tiêu hao|bổ sung|nạp thêm|mua thêm|số lượng',
     },
   },
 };
@@ -151,21 +163,31 @@ export function normalise(s: string): string {
     .replace(/[’‘]/g, "'");
 }
 
+/** Vietnamese folded for matching: lower case and composed, tone marks kept. */
+export function normaliseVi(s: string): string {
+  return s.toLowerCase().normalize('NFC').replace(/[’‘]/g, "'");
+}
+
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-/** One pattern per topic: Latin keywords at a word's start, Arabic ones anywhere. */
-const PATTERNS: readonly [Topic, RegExp][] = Object.values(TOPICS).map((topic) => {
-  const list = (langs: Lang[]) =>
-    langs.flatMap((l) => topic.words[l].split('|')).map((w) => escapeRe(normalise(w)));
-  const re = `(?<![\\p{L}\\p{N}])(?:${list(['en', 'fr', 'de', 'it']).join('|')})|${list(['ar']).join('|')}`;
-  return [topic, new RegExp(re, 'u')];
+/** Two patterns per topic: Latin keywords at a word's start and Arabic ones anywhere, on
+ * `normalise`d text; Vietnamese ones as whole words, on `normaliseVi`d text. */
+const PATTERNS: readonly [Topic, RegExp, RegExp][] = Object.values(TOPICS).map((topic) => {
+  const list = (langs: Lang[], fold: (s: string) => string) =>
+    langs.flatMap((l) => topic.words[l].split('|')).map((w) => escapeRe(fold(w)));
+  const re = `(?<![\\p{L}\\p{N}])(?:${list(['en', 'fr', 'de', 'it'], normalise).join('|')})|${list(['ar'], normalise).join('|')}`;
+  const vi = `(?<![\\p{L}\\p{N}])(?:${list(['vi'], normaliseVi).join('|')})(?![\\p{L}\\p{N}])`;
+  return [topic, new RegExp(re, 'u'), new RegExp(vi, 'u')];
 });
 
 /** The tools of every topic `text` names. */
 function topicTools(text: string): Set<ToolName> {
   const folded = normalise(text);
+  const kept = normaliseVi(text);
   const out = new Set<ToolName>();
-  for (const [topic, re] of PATTERNS) if (re.test(folded)) for (const t of topic.tools) out.add(t);
+  for (const [topic, re, vi] of PATTERNS) {
+    if (re.test(folded) || vi.test(kept)) for (const t of topic.tools) out.add(t);
+  }
   return out;
 }
 

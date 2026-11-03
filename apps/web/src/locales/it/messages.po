@@ -28711,3 +28711,22 @@ msgstr "Facoltativo, al centimetro. Lascia vuoto e la mappa dimensiona la stanza
 #: src/map/floor-plan/panel.tsx
 msgid "Under 50 cm: too small for the map."
 msgstr "Sotto 50 cm: troppo piccola per la mappa."
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Decrease {label}"
+msgstr "Riduci {label}"
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Increase {label}"
+msgstr "Aumenta {label}"
+
+#: src/components/places/room-size.tsx
+#: src/map/height.tsx
+msgid "Enter metres, like {example}."
+msgstr "Inserisci un valore in metri, ad esempio {example}."
+
+#: src/map/size.tsx
+msgid "Enter a whole number."
+msgstr "Inserisci un numero intero."

@@ -13,9 +13,9 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
 - Lists have a search box, **+ Filter**, saved **Views**, and a **Display** button for sort order
   and grouping. Filters live in the address, so a filtered list can be bookmarked or shared.
 - **Select** (beside the search box, for anyone who can edit things) ticks things in the list of a
-  location, place or box, in List or Grid. **Shift-click** a box (or **Shift+Space** on it) to
-  tick every row from the one you ticked last. Then: **Move**, **Add tags…** or **Remove tags…**,
-  **Set a field…**, **Pick up** (into the tray), **Print labels**, **Add to incident** and
+  location, place or box, in List or Grid. **Shift-click** a row's checkbox (or **Shift+Space** on
+  it) to tick every row from the one you ticked last. Then: **Move**, **Add tags…** or **Remove
+  tags…**, **Set a field…**, **Pick up** (into the tray), **Print labels**, **Add to incident** and
   **Claim pack** (owners and admins, where Receipts and warranties is on), or **Move to Trash**.
   The bar is the [Table's](/users/spreadsheet/).
 - **Set a field…** gives every ticked thing one value: type, brand, model, condition and the

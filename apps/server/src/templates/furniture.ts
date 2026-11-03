@@ -37,6 +37,7 @@ import { legacyCodeOf } from '../imports/csv.js';
 import { requireCan, requireMembership } from '../locations/access.js';
 import { type Ctx, lockTree } from '../places/service.js';
 import { type PlaceRow, requirePlace } from '../places/view.js';
+import { enqueueReindex } from '../search/jobs.js';
 import { auditRelocations, type Relocation } from '../things/relocate.js';
 import { layoutOf, ownCodes, type Stored } from './furniture-view.js';
 import { checkAllCodes } from './place-templates.js';
@@ -528,6 +529,8 @@ export async function turnFurniture(c: Ctx, id: string, body: TurnBody): Promise
     { turned: body.direction, renumbered: body.renumber },
     moved,
   );
+  // Compartments renamed or moved: the things in them search and read by the new path.
+  await enqueueReindex(c.jobs, c.client, f.place.locationId);
   return requirePlace(c.client, f.place.id);
 }
 
@@ -587,6 +590,8 @@ export async function mergeFurnitureCompartments(
     { merged: [survivor.id, ...gone] },
     moved,
   );
+  // Compartments renamed or moved: the things in them search and read by the new path.
+  await enqueueReindex(c.jobs, c.client, f.place.locationId);
   return requirePlace(c.client, f.place.id);
 }
 
@@ -658,6 +663,8 @@ export async function splitFurnitureCompartment(
   const kind = f.kinds.get(one.id) ?? 'cube';
   const moved = await applyImage(writer(c, f, kind), now, target);
   await record(c, f, 'place.split', now, target, { split: one.id, made: [...made] }, moved);
+  // Compartments renamed or moved: the things in them search and read by the new path.
+  await enqueueReindex(c.jobs, c.client, f.place.locationId);
   return requirePlace(c.client, f.place.id);
 }
 
@@ -742,4 +749,5 @@ export async function undoFurniture(args: UndoArgs): Promise<void> {
     after: { furniture: before },
     ...(moved.length > 0 ? { subjects: moved.map((m) => m.id) } : {}),
   });
+  await enqueueReindex(args.deps.jobs, client, event.locationId);
 }

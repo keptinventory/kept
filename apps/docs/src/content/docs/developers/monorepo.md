@@ -158,7 +158,7 @@ and `pnpm --filter @kept/docs gen:config` (regenerates the
 | Biome (`biome.json`) | Lint and format |
 | `tsc` | Types, per package |
 | Vitest | Unit and integration tests; server tests clone a database per worker. See [testing](/developers/testing/) |
-| Lingui | `scripts/check-i18n.mjs`: every source message is in all five catalogues; `check-i18n-extract.mjs`: a real `lingui extract` finds nothing new |
+| Lingui | `scripts/check-i18n.mjs`: every source message is in all six catalogues; `check-i18n-extract.mjs`: a real `lingui extract` finds nothing new |
 | `scripts/check-logical-css.mjs` | No physical-side CSS in `apps/web/src`, so Arabic mirrors |
 | `scripts/check-no-local-paths.mjs` | No home directories, private addresses or tailnet names in tracked files |
 | `scripts/check-licences.mjs` | Every dependency's licence is on the allowlist |

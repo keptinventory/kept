@@ -341,7 +341,7 @@ msgid "{name} · Location settings"
 msgstr "{name} · Cài đặt địa điểm"
 
 msgid "{name} asks for two-factor. You can join now; it stays hidden until you add a passkey or an authenticator app."
-msgstr "{name} yêu cầu xác thực hai yếu tố. Bạn có thể tham gia ngay; nó vẫn ẩn cho đến khi bạn thêm passkey hoặc ứng dụng xác thực."
+msgstr "{name} yêu cầu xác thực hai yếu tố. Bạn có thể tham gia ngay; nó vẫn ẩn cho đến khi bạn thêm khóa truy cập hoặc ứng dụng xác thực."
 
 msgid "{name} is a box now"
 msgstr "{name} giờ là một hộp"
@@ -383,7 +383,7 @@ msgid "{person} signs in with the username below and this one-time code, then ch
 msgstr "{person} đăng nhập bằng tên người dùng bên dưới và mã dùng một lần này, rồi tự chọn mật khẩu. Bạn không bao giờ thấy mã đó. Mã chỉ dùng được một lần, trong 30 phút."
 
 msgid "{place} asks everyone for two-factor. They can join now; {place} stays hidden for them until they add a passkey or an authenticator."
-msgstr "{place} yêu cầu mọi người dùng xác thực hai yếu tố. Họ có thể tham gia ngay; {place} vẫn ẩn với họ cho đến khi họ thêm passkey hoặc ứng dụng xác thực."
+msgstr "{place} yêu cầu mọi người dùng xác thực hai yếu tố. Họ có thể tham gia ngay; {place} vẫn ẩn với họ cho đến khi họ thêm khóa truy cập hoặc ứng dụng xác thực."
 
 msgid "{places, plural, one {# place} other {# places}}"
 msgstr "{places, plural, one {# vị trí} other {# vị trí}}"
@@ -1534,7 +1534,7 @@ msgid "Confirm it's you"
 msgstr "Xác nhận đó là bạn"
 
 msgid "Confirm it's you. Signed in with a passkey only? Sign out and back in, then change your email within 10 minutes."
-msgstr "Xác nhận đó là bạn. Chỉ đăng nhập bằng passkey? Hãy đăng xuất rồi đăng nhập lại, sau đó đổi email trong vòng 10 phút."
+msgstr "Xác nhận đó là bạn. Chỉ đăng nhập bằng khóa truy cập? Hãy đăng xuất rồi đăng nhập lại, sau đó đổi email trong vòng 10 phút."
 
 msgid "Confirm or reject each suggested value first (Y or N)."
 msgstr "Hãy xác nhận hoặc từ chối từng giá trị gợi ý trước (Y hoặc N)."
@@ -2834,7 +2834,7 @@ msgid "That's the code"
 msgstr "Đó chính là mã"
 
 msgid "It will need your password or passkey to get back in."
-msgstr "Nó sẽ cần mật khẩu hoặc passkey của bạn để vào lại."
+msgstr "Nó sẽ cần mật khẩu hoặc khóa truy cập của bạn để vào lại."
 
 msgid "It won't run again. Whatever it was doing stays undone."
 msgstr "Nó sẽ không chạy lại nữa. Việc nó đang làm sẽ vẫn dang dở."
@@ -2948,7 +2948,7 @@ msgid "Kept can't use the camera"
 msgstr "Kept không thể dùng máy ảnh"
 
 msgid "Kept emails you a sign-in link; opening it confirms the address. Opening it also removes this account's password, passkeys and other sessions, so nobody who set them up before you keeps a way in. Two-factor needs a password, so afterwards set a new one with “Forgot your password?” on the sign-in page, then come back here."
-msgstr "Kept sẽ gửi email cho bạn một liên kết đăng nhập; mở liên kết đó sẽ xác nhận địa chỉ. Mở liên kết đó cũng sẽ xóa mật khẩu, passkey và các phiên khác của tài khoản này, để không ai từng thiết lập chúng trước bạn còn giữ đường vào. Xác thực hai yếu tố cần mật khẩu, vì vậy sau đó hãy đặt mật khẩu mới bằng “Quên mật khẩu của bạn?” trên trang đăng nhập, rồi quay lại đây."
+msgstr "Kept sẽ gửi email cho bạn một liên kết đăng nhập; mở liên kết đó sẽ xác nhận địa chỉ. Mở liên kết đó cũng sẽ xóa mật khẩu, khóa truy cập và các phiên khác của tài khoản này, để không ai từng thiết lập chúng trước bạn còn giữ đường vào. Xác thực hai yếu tố cần mật khẩu, vì vậy sau đó hãy đặt mật khẩu mới bằng “Quên mật khẩu của bạn?” trên trang đăng nhập, rồi quay lại đây."
 
 msgid "Kept from an earlier type. They're not lost; re-type back to use them again."
 msgstr "Được giữ lại từ một loại trước đó. Chúng không bị mất; hãy đổi lại loại cũ để dùng lại."
@@ -4256,7 +4256,7 @@ msgid "Paperwork"
 msgstr "Giấy tờ"
 
 msgid "Passkey sign-in was cancelled."
-msgstr "Đăng nhập bằng passkey đã bị hủy."
+msgstr "Đăng nhập bằng khóa truy cập đã bị hủy."
 
 msgid "Password"
 msgstr "Mật khẩu"
@@ -5257,7 +5257,7 @@ msgid "Sign in with a one-time code"
 msgstr "Đăng nhập bằng mã dùng một lần"
 
 msgid "Sign in with a passkey"
-msgstr "Đăng nhập bằng passkey"
+msgstr "Đăng nhập bằng khóa truy cập"
 
 msgid "Sign in with the new address from now on. Every other device was signed out, and your old address was told about the change."
 msgstr "Từ giờ hãy đăng nhập bằng địa chỉ mới. Mọi thiết bị khác đã bị đăng xuất, và địa chỉ cũ đã được thông báo về thay đổi này."
@@ -5596,10 +5596,10 @@ msgid "That name is already in this list. Merge the two instead."
 msgstr "Tên đó đã có trong danh sách này. Thay vào đó, hãy gộp hai cái lại."
 
 msgid "That passkey couldn't confirm it's you. Use a code instead."
-msgstr "Passkey đó không xác nhận được đó là bạn. Thay vào đó, hãy dùng một mã."
+msgstr "Khóa truy cập đó không xác nhận được đó là bạn. Thay vào đó, hãy dùng một mã."
 
 msgid "That passkey isn't registered here. Sign in another way, then add it."
-msgstr "Passkey đó chưa được đăng ký ở đây. Hãy đăng nhập bằng cách khác, rồi thêm nó."
+msgstr "Khóa truy cập đó chưa được đăng ký ở đây. Hãy đăng nhập bằng cách khác, rồi thêm nó."
 
 msgid "That password isn't right."
 msgstr "Mật khẩu đó không đúng."
@@ -5854,7 +5854,7 @@ msgid "This device has no camera Kept can use."
 msgstr "Thiết bị này không có camera mà Kept có thể dùng."
 
 msgid "This device stays signed in. The others need your password or passkey again."
-msgstr "Thiết bị này vẫn giữ đăng nhập. Các thiết bị khác cần mật khẩu hoặc passkey của bạn lần nữa."
+msgstr "Thiết bị này vẫn giữ đăng nhập. Các thiết bị khác cần mật khẩu hoặc khóa truy cập của bạn lần nữa."
 
 msgid "This draft"
 msgstr "Bản nháp này"
@@ -6240,7 +6240,7 @@ msgid "Use a different way"
 msgstr "Dùng cách khác"
 
 msgid "Use a passkey"
-msgstr "Dùng passkey"
+msgstr "Dùng khóa truy cập"
 
 msgid "Use Add here to put the first thing in <0>{name}</0>."
 msgstr "Dùng Thêm tại đây để đặt đồ vật đầu tiên vào <0>{name}</0>."
@@ -14857,7 +14857,7 @@ msgid "Unlink {name}?"
 msgstr "Hủy liên kết {name}?"
 
 msgid "You won't be able to sign in with {name} until you link it again. Your password and passkeys still work."
-msgstr "Bạn sẽ không thể đăng nhập bằng {name} cho đến khi liên kết lại. Mật khẩu và passkey của bạn vẫn hoạt động."
+msgstr "Bạn sẽ không thể đăng nhập bằng {name} cho đến khi liên kết lại. Mật khẩu và khóa truy cập của bạn vẫn hoạt động."
 
 msgid "Unlink"
 msgstr "Hủy liên kết"
@@ -20424,7 +20424,7 @@ msgstr "Khóa này thanh toán cho tất cả các nhà của <0>{ownerName}</0>
 
 #: src/components/ai/key-scope.tsx
 msgid "Used for <0>{personal}</0>, your private threads, and questions that span owners."
-msgstr "Dùng cho <0>{personal}</0>, các chuỗi riêng tư của bạn và những câu hỏi liên quan đến nhiều chủ sở hữu."
+msgstr "Dùng cho <0>{personal}</0>, các cuộc trò chuyện riêng tư của bạn và những câu hỏi liên quan đến nhiều chủ sở hữu."
 
 #: src/components/delete-account.tsx
 msgid "You asked for it, with your own location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
@@ -20436,7 +20436,7 @@ msgstr "Tài khoản của bạn, địa điểm của riêng bạn <0>{personal
 
 #: src/components/ai/settings-page.tsx
 msgid "Your own key is for <0>{personal}</0>, your private threads, and questions that span owners."
-msgstr "Khóa của riêng bạn dùng cho <0>{personal}</0>, các luồng riêng tư của bạn và các câu hỏi liên quan đến nhiều chủ sở hữu."
+msgstr "Khóa của riêng bạn dùng cho <0>{personal}</0>, các cuộc trò chuyện riêng tư của bạn và các câu hỏi liên quan đến nhiều chủ sở hữu."
 
 #: src/components/admin/embeddings-source.tsx
 msgid "{0, plural, one {# location searches by name only} other {# locations search by name only}}"
@@ -20474,7 +20474,7 @@ msgid "Personal is yours alone: it has no members, invites or share links. Move 
 msgstr "Cá nhân chỉ thuộc về bạn: nó không có thành viên, lời mời hay liên kết chia sẻ. Khi một đồ vật trở nên dùng chung, hãy chuyển nó vào một nhà dùng chung."
 
 msgid "Used for Personal, your private threads, and questions that span owners."
-msgstr "Dùng cho Cá nhân, các chuỗi riêng tư của bạn và những câu hỏi liên quan đến nhiều chủ sở hữu."
+msgstr "Dùng cho Cá nhân, các cuộc trò chuyện riêng tư của bạn và những câu hỏi liên quan đến nhiều chủ sở hữu."
 
 msgid "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
 msgstr "Địa điểm Cá nhân của bạn đã sẵn sàng cho những thứ bạn mang theo người: chìa khóa, ví, điện thoại. Giờ hãy thêm nơi bạn sống. Nơi đó có sẵn các phòng thông thường, và bạn có thể thay đổi chúng."
@@ -20483,7 +20483,7 @@ msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. Your 
 msgstr "Khóa này thanh toán cho tất cả các nhà của <0>{ownerName}</0>: <1>{list}</1>. Địa điểm Cá nhân của bạn sẽ dùng khóa cá nhân của bạn nếu bạn thêm một khóa."
 
 msgid "Your own key is for Personal, your private threads, and questions that span owners."
-msgstr "Khóa của riêng bạn dùng cho Cá nhân, các luồng riêng tư của bạn và các câu hỏi liên quan đến nhiều chủ sở hữu."
+msgstr "Khóa của riêng bạn dùng cho Cá nhân, các cuộc trò chuyện riêng tư của bạn và các câu hỏi liên quan đến nhiều chủ sở hữu."
 
 msgid "Your Personal location, profile and preferences, and your AI calls, as one file."
 msgstr "Địa điểm Cá nhân, hồ sơ và tùy chọn của bạn, cùng các lần gọi AI của bạn, trong một tệp."
@@ -20761,3 +20761,22 @@ msgstr "Không bắt buộc, chính xác đến từng xentimét. Để trống 
 #: src/map/floor-plan/panel.tsx
 msgid "Under 50 cm: too small for the map."
 msgstr "Dưới 50 cm: quá nhỏ cho bản đồ."
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Decrease {label}"
+msgstr "Giảm {label}"
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Increase {label}"
+msgstr "Tăng {label}"
+
+#: src/components/places/room-size.tsx
+#: src/map/height.tsx
+msgid "Enter metres, like {example}."
+msgstr "Nhập giá trị bằng mét, ví dụ {example}."
+
+#: src/map/size.tsx
+msgid "Enter a whole number."
+msgstr "Nhập một số nguyên."

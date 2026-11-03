@@ -2,7 +2,7 @@ import type { LightMyRequestResponse } from 'fastify';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
-import { call, join, type Person, peopleApp, person } from '../../test/people.js';
+import { call, join, type Person, peopleApp, person, type RecordedJob } from '../../test/people.js';
 import { createLocation, createThing, eventsOf, type Loc, ok, own } from '../../test/things.js';
 
 // Furniture's compartments after it is made (#238, 1.14.4): turning it (Renumber or Keep the
@@ -20,11 +20,12 @@ let louis: Person;
 let talia: Person;
 let alfred: Person;
 let home: Loc;
+const sent: RecordedJob[] = [];
 
 beforeAll(async () => {
   db = await testDb();
   await db.reset();
-  t = await peopleApp(db);
+  t = await peopleApp(db, { sent });
   ibrahim = await person(t, db, 'ibrahim');
   louis = await person(t, db, 'louis');
   talia = await person(t, db, 'talia');
@@ -463,6 +464,36 @@ describe('the database door that moves compartment labels (0167)', () => {
     expect(await door(louis, a.id, [{ code: own, place_id: a2.id, is_primary: false }])).toBe(
       '42501',
     );
+  });
+});
+
+describe('search after a change', () => {
+  // A compartment's name and parent are in the things' place path (search, breadcrumbs): each
+  // change, and its undo, queues the location's reindex, as a place rename or move does.
+  const reindexed = () => {
+    const n = sent.filter(
+      (j) => j.name === 'reindex' && (j.data as { locationId?: string }).locationId === home.id,
+    ).length;
+    sent.length = 0;
+    return n;
+  };
+
+  it('reindexes the location after a turn, a merge, a split and each undo', async () => {
+    const s = await shelf();
+    const cells = (await furnitureOf(s.id)).compartments.sort((a, b) => a.n - b.n);
+    reindexed();
+    const turned = await turn(ibrahim, s.id, { direction: 'right', renumber: true });
+    ok(turned);
+    expect(reindexed()).toBeGreaterThan(0);
+    ok(await undo(ibrahim, auditIds(turned)[0] as string));
+    expect(reindexed()).toBeGreaterThan(0);
+    const [a, b] = cells;
+    if (!a || !b) throw new Error('a 2 × 4 shelf has compartments');
+    const merged = await merge(ibrahim, s.id, [a.id, b.id]);
+    ok(merged);
+    expect(reindexed()).toBeGreaterThan(0);
+    ok(await split(ibrahim, s.id, a.id));
+    expect(reindexed()).toBeGreaterThan(0);
   });
 });
 

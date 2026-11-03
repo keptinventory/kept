@@ -3,15 +3,15 @@ title: Languages and right-to-left
 description: How strings are translated with Lingui, what the catalogue checks enforce, and the rules that keep Arabic correct.
 ---
 
-Kept ships in five languages: English, Arabic, French, German and Italian (D204). Arabic is
-right-to-left, so every screen has to mirror without per-screen overrides. The web app uses
-[Lingui](https://lingui.dev/) with PO catalogues (D96); the server has its own small typed tables
-for mail and reports.
+Kept ships in six languages: English, Arabic, French, German and Italian (D204), and Vietnamese.
+Arabic is right-to-left, so every screen has to mirror without per-screen overrides. The web app
+uses [Lingui](https://lingui.dev/) with PO catalogues (D96); the server has its own small typed
+tables for mail and reports.
 
 ## Lingui in the web app
 
 `apps/web/lingui.config.ts` sets the source locale `en`, the locales `en`, `ar`, `fr`, `de`, `it`,
-and one catalogue per locale at `apps/web/src/locales/<locale>/messages.po`, extracted from
+`vi`, and one catalogue per locale at `apps/web/src/locales/<locale>/messages.po`, extracted from
 `src` (tests and `routeTree.gen.ts` excluded). Catalogues have no line numbers, so they don't
 churn on every edit.
 
@@ -34,9 +34,9 @@ t`Needs a connection`;
 ## Adding a string
 
 1. Write it with `` t`…` `` or `<Trans>`.
-2. Add its entry to **all five** catalogues, with a written `msgstr` in `ar`, `fr`, `de` and `it`.
-   `pnpm --filter @kept/web i18n:extract` runs `lingui extract --clean`, which rewrites all five
-   files and drops obsolete entries. When several changes are in flight on the catalogues, the
+2. Add its entry to **all six** catalogues, with a written `msgstr` in `ar`, `fr`, `de`, `it` and
+   `vi`. `pnpm --filter @kept/web i18n:extract` runs `lingui extract --clean`, which rewrites all
+   six files and drops obsolete entries. When several changes are in flight on the catalogues, the
    house practice is to **append** the new entries by hand instead of running a `--clean`
    re-extract, and to commit catalogue changes on their own.
 3. Run the checks below.
@@ -123,8 +123,9 @@ The server doesn't use Lingui:
 
 - **Mail** (`apps/server/src/mail/`): a typed table per language, keyed by the recipient's
   profile locale. English and Arabic are in `messages.ts`; French, German and Italian in
-  `messages-<locale>.ts`. A mail kind missing from a language is a type error, and `mail.test.ts`
-  renders every kind in each. Each language's chrome sets `dir`.
+  `messages-<locale>.ts`. There is no Vietnamese mail: a Vietnamese profile gets English. A mail
+  kind missing from a language is a type error, and `mail.test.ts` renders every kind in each.
+  Each language's chrome sets `dir`.
 - **Reminders** (`apps/server/src/notify/words.ts`): one wording shared by the email, the push
   payload and the calendar feed.
 - **The inventory report PDF** (`apps/server/src/reports/labels.ts`): English or Arabic

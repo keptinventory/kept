@@ -28,7 +28,7 @@ as a row, for tidying up many things at once. Phones keep the lists.
   wait for **Save** like any other change; the Trash happens at once, up to 200 at a time, after
   asking what happens to what's inside a box and about anything lent out. List and Grid share
   this bar ([Locations, rooms and boxes](/users/locations/)).
-- **Undo**: after a save, one **Undo** takes back every change in it. After **Send to Trash**,
+- **Undo**: after a save, one **Undo** takes back every change in it. After **Move to Trash**,
   one Undo brings them all back.
 - **Someone else changed a row** since you opened the table: the other rows save, and that one
   keeps your change with a warning at the start of the row. Open it to **Keep mine** (save yours

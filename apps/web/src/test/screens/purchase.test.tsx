@@ -10,6 +10,7 @@ import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { inventoryPaths as p } from '@/api/inventory/paths';
 import type { CreatePurchaseBody, UpdatePurchaseBody } from '@/api/inventory/types';
 import { IDS, type MockState, ownerScenario } from '@/api/mock/fixtures';
+import { err } from '@/api/mock/kit';
 import { lineTotal } from '@/components/things/purchase-sheet';
 import { nameOfFile } from '@/components/things/upload';
 import { findHeading, renderApp } from '@/test/app';
@@ -34,6 +35,8 @@ function desktop() {
 const T = INV_IDS.thing;
 /** The TV's purchase (fixtures: B.TECH, 18 Jan 2025, EGP 28,999). */
 const TV_PURCHASE = p.purchase('01926f00-0000-7000-8000-0000000f0060');
+/** The editor's title: the thing's name isolated (lib/bidi.ts), so an Arabic name keeps its place. */
+const TV_SHEET = 'Purchase of \u2068Samsung TV, 55″\u2069';
 
 function withHome(patch: (home: MockState['locations'][number]) => void): MockState {
   const s = ownerScenario();
@@ -57,7 +60,7 @@ describe('a thing’s purchase', () => {
     expect(within(section).getByText(/No purchase recorded/)).toBeInTheDocument();
     await user.click(within(section).getByRole('button', { name: 'Add the purchase' }));
     const sheet = await screen.findByRole('dialog', {
-      name: 'Add the purchase of Galaxy S23',
+      name: 'Add the purchase of \u2068Galaxy S23\u2069',
     });
     await user.type(within(sheet).getByRole('combobox', { name: 'Shop' }), 'Amazon');
     await user.click(await screen.findByRole('option', { name: 'Amazon.eg' }));
@@ -84,7 +87,7 @@ describe('a thing’s purchase', () => {
     await findHeading('Samsung TV, 55″');
     const section = await purchase();
     await user.click(within(section).getByRole('button', { name: 'Edit the purchase' }));
-    const sheet = await screen.findByRole('dialog', { name: 'Purchase of Samsung TV, 55″' });
+    const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
     const price = within(sheet).getByLabelText('Price of one');
     await waitFor(() => expect(price).toHaveValue('28999.00'));
     await user.clear(price);
@@ -109,7 +112,7 @@ describe('a thing’s purchase', () => {
     await findHeading('Samsung TV, 55″');
     const section = await purchase();
     await user.click(within(section).getByRole('button', { name: 'Edit the purchase' }));
-    const sheet = await screen.findByRole('dialog', { name: 'Purchase of Samsung TV, 55″' });
+    const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
     expect(within(sheet).queryByLabelText('Price of one')).toBeNull();
     const shop = within(sheet).getByRole('combobox', { name: 'Shop' });
     await waitFor(() => expect(shop).toHaveValue('B.TECH'));
@@ -193,7 +196,7 @@ describe('the purchase editor, everything the purchase routes allow (#348)', () 
     await user.click(screen.getByRole('button', { name: 'Edit' }));
     await screen.findByRole('form', { name: 'Edit Samsung TV, 55″' });
     await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
-    const sheet = await screen.findByRole('dialog', { name: 'Purchase of Samsung TV, 55″' });
+    const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
     const onReceipt = within(sheet).getByLabelText('On the receipt');
     expect(onReceipt).toHaveValue('Samsung 55" QLED');
     await user.clear(onReceipt);
@@ -226,7 +229,7 @@ describe('the purchase editor, everything the purchase routes allow (#348)', () 
     const { user, mock } = await renderApp(`/t/${T.tv}`, { state: withReceipt(false) });
     await findHeading('Samsung TV, 55″');
     await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
-    const sheet = await screen.findByRole('dialog', { name: 'Purchase of Samsung TV, 55″' });
+    const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
     const receipts = await within(sheet).findByRole('group', { name: 'Receipts' });
     expect(within(receipts).getByText('B.TECH invoice 4471')).toBeInTheDocument();
     expect(within(receipts).getByRole('button', { name: 'Replace' })).toBeInTheDocument();
@@ -249,7 +252,7 @@ describe('the purchase editor, everything the purchase routes allow (#348)', () 
     const { user, mock } = await renderApp(`/t/${T.tv}`);
     await findHeading('Samsung TV, 55″');
     await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
-    const sheet = await screen.findByRole('dialog', { name: 'Purchase of Samsung TV, 55″' });
+    const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
     await within(sheet).findByLabelText('On the receipt');
     await user.click(within(sheet).getByRole('button', { name: 'Remove' }));
     const ask = await screen.findByRole('alertdialog', { name: 'Remove this purchase?' });
@@ -269,6 +272,82 @@ describe('the purchase editor, everything the purchase routes allow (#348)', () 
     await renderApp(`/t/${T.phone}`, { state: s });
     await findHeading('Galaxy S23');
     expect(screen.queryByRole('heading', { name: 'Purchase', level: 2 })).toBeNull();
+  });
+});
+
+describe('the purchase editor, from the 1.14.4 review', () => {
+  it('renaming a receipt with Enter saves the name only, and the purchase stays open unsaved', async () => {
+    const { user, mock } = await renderApp(`/t/${T.tv}`, { state: withReceipt(false) });
+    await findHeading('Samsung TV, 55″');
+    await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
+    const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
+    const price = within(sheet).getByLabelText('Price of one');
+    await waitFor(() => expect(price).toHaveValue('28999.00'));
+    await user.clear(price);
+    await user.type(price, '27500');
+    const receipts = await within(sheet).findByRole('group', { name: 'Receipts' });
+    await user.click(within(receipts).getByRole('button', { name: 'Name B.TECH invoice 4471' }));
+    const rename = await screen.findByRole('dialog', { name: 'Name B.TECH invoice 4471' });
+    const name = within(rename).getByLabelText('Name');
+    await user.clear(name);
+    await user.type(name, 'TV invoice{Enter}');
+    await waitFor(() =>
+      expect(
+        mock.lastCall('PATCH', p.attachment('0190a000-0000-7000-8000-0000000f3480')),
+      ).toBeDefined(),
+    );
+    expect(await screen.findByText(/^Named/)).toBeInTheDocument();
+    expect(mock.lastCall('PATCH', TV_PURCHASE)).toBeUndefined();
+    const still = screen.getByRole('dialog', { name: TV_SHEET });
+    expect(within(still).getByLabelText('Price of one')).toHaveValue('27500');
+  });
+
+  it('after someone else saved first (412), reads the purchase again so the next Save works', async () => {
+    const { user, mock } = await renderApp(`/t/${T.tv}`);
+    await findHeading('Samsung TV, 55″');
+    await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
+    const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
+    const price = within(sheet).getByLabelText('Price of one');
+    await waitFor(() => expect(price).toHaveValue('28999.00'));
+    // Alfred saves the purchase while mine is open.
+    const theirs = mock.state.inventory.purchases.find((x) => p.purchase(x.id) === TV_PURCHASE);
+    if (!theirs) throw new Error('fixture');
+    theirs.rowVersion += 1;
+    await user.clear(price);
+    await user.type(price, '27500');
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }));
+    expect(await within(sheet).findByText(/changed since you opened it/)).toBeInTheDocument();
+    expect(mock.lastCall('PATCH', TV_PURCHASE)?.headers?.['if-match']).toBe('1');
+    await waitFor(() =>
+      expect(mock.calls.filter((c) => c.method === 'GET' && c.path === TV_PURCHASE)).toHaveLength(
+        2,
+      ),
+    );
+    expect(price).toHaveValue('27500');
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }));
+    expect(await screen.findByText('Purchase saved')).toBeInTheDocument();
+    expect(mock.lastCall('PATCH', TV_PURCHASE)?.headers?.['if-match']).toBe('2');
+  });
+
+  it('says why Remove failed when the purchase can’t be read', async () => {
+    const { user } = await renderApp(`/t/${T.tv}`, {
+      setup: (mock) =>
+        mock.on('GET', p.purchase(':id'), () => err(500, 'internal', 'The disk is full.')),
+    });
+    await findHeading('Samsung TV, 55″');
+    await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
+    const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
+    await user.click(within(sheet).getByRole('button', { name: 'Remove' }));
+    expect(await within(sheet).findByRole('alert')).toBeInTheDocument();
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+  });
+
+  it('isolates the thing’s name in the sheet’s title', async () => {
+    const { user } = await renderApp(`/t/${T.tv}`);
+    await findHeading('Samsung TV, 55″');
+    await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
+    const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
+    expect(within(sheet).getByRole('heading', { name: TV_SHEET }).textContent).toBe(TV_SHEET);
   });
 });
 
