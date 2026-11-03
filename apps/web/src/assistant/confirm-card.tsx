@@ -202,6 +202,12 @@ function useFieldLabels(): (key: FieldKey, verb: Verb) => string {
         return t`Price`;
       case 'shop':
         return t`Shop`;
+      case 'onReceipt':
+        return t`On the receipt`;
+      case 'currency':
+        return t`Currency`;
+      case 'purchaseNotes':
+        return t`Purchase notes`;
       case 'expires':
         return t`Expires`;
       case 'keepAtLeast':

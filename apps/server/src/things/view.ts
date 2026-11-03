@@ -228,6 +228,11 @@ export type SecretSummary = {
 
 export type ThingPurchase = {
   purchaseId: string | null;
+  /**
+   * The line it comes from (#348: the thing page changes its price), with `purchaseId`: null when
+   * the purchase is where the caller can't open it. A split shares its line.
+   */
+  lineId: string | null;
   purchasedOn: string | null;
   vendor: { id: string; name: string } | null;
   /** Left out with the price when the gate hides money (security review #22). */
@@ -631,12 +636,21 @@ async function purchaseOf(
   );
   const p = rows[0];
   if (!p) return null;
+  const line = p.visible_purchase
+    ? (
+        await client.query<{ line: string | null }>(
+          'SELECT purchase_line_id AS line FROM public.things WHERE id = $1',
+          [thingId],
+        )
+      ).rows[0]?.line
+    : null;
   const vendor: ThingPurchase['vendor'] =
     p.vendor_id !== null && p.vendor_name !== null
       ? { id: p.vendor_id, name: p.vendor_name }
       : null;
   return {
     purchaseId: p.visible_purchase ? p.purchase_id : null,
+    lineId: line ?? null,
     purchasedOn: p.purchased_on,
     vendor,
     lineDescription: p.line_description,
@@ -718,11 +732,23 @@ async function receiptsOf(
       file,
       url: null,
       subject: { thingId },
+      // Its name stays with the purchase the caller can't see.
+      name: null,
       createdBy: { displayName: '' },
       rowVersion: 0,
     });
   }
-  return out;
+  // #348: a receipt whose file is also the thing's own (under Paperwork, or on one of its
+  // warranties) says so, so the page doesn't show what looks like a second receipt. Same bytes in
+  // a location are one file (D177), so the same upload twice is found by its file id.
+  const { rows: twins } = await client.query<{ file_id: string }>(
+    `SELECT DISTINCT a.file_id FROM public.attachments a
+       LEFT JOIN public.warranties w ON w.id = a.warranty_id
+      WHERE a.file_id = ANY ($1::uuid[]) AND (a.thing_id = $2 OR w.thing_id = $2)`,
+    [rows.map((r) => r.file_id), thingId],
+  );
+  const shared = new Set(twins.map((r) => r.file_id));
+  return out.map((a) => (a.file && shared.has(a.file.id) ? { ...a, alsoInPaperwork: true } : a));
 }
 
 /** A row of kept.thing_receipts() (0033). */
@@ -903,6 +929,10 @@ const AttachmentSchema = z.object({
   file: FileViewSchema.nullable(),
   url: z.string().nullable(),
   subject: AttachmentSubjectSchema,
+  /** What people named it (#183); null shows its role. */
+  name: z.string().nullable().optional(),
+  /** A purchase's receipt that is also the thing's own file (#348). */
+  alsoInPaperwork: z.literal(true).optional(),
   createdBy: z.object({ displayName: z.string() }),
   rowVersion: z.number(),
 });
@@ -974,6 +1004,7 @@ export const ThingViewSchema = ThingRowSchema.extend({
   purchase: z
     .object({
       purchaseId: z.uuid().nullable(),
+      lineId: z.uuid().nullable().optional(),
       purchasedOn: z.string().nullable(),
       vendor: z.object({ id: z.uuid(), name: z.string() }).nullable(),
       currency: z.string().nullable().optional(),

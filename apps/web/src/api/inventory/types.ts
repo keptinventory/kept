@@ -443,8 +443,28 @@ export type CreatePurchaseBody = {
   notes?: string;
   lines: PurchaseLineBody[];
 };
-/** PATCH /api/v1/purchases/:id (If-Match). */
-export type UpdatePurchaseBody = Partial<Omit<CreatePurchaseBody, 'id' | 'locationId'>>;
+/**
+ * A line in a PATCH (apps/server/src/purchases/view.ts PatchLineBody): one with an existing line's
+ * `id` changes only what it sends (`unitPrice: null` clears the price); one without needs a
+ * description. Lines the PATCH leaves out are removed.
+ */
+export type UpdatePurchaseLineBody = {
+  id?: string;
+  description?: string;
+  quantity?: number;
+  unitPrice?: string | null;
+  thingId?: string | null;
+};
+/** PATCH /api/v1/purchases/:id (If-Match). Every field optional; `null` clears one. */
+export type UpdatePurchaseBody = {
+  vendorId?: string | null;
+  purchasedOn?: string;
+  currency?: string | null;
+  total?: string | null;
+  tax?: string | null;
+  notes?: string | null;
+  lines?: UpdatePurchaseLineBody[];
+};
 
 export type PurchaseView = {
   id: string;
@@ -670,7 +690,10 @@ export type ThingMeter = {
 };
 
 export type ThingPurchase = {
+  /** Null when the purchase is where the reader can't open it (D115). */
   purchaseId: string | null;
+  /** #348: the line it comes from (null with `purchaseId`); absent from an older server. */
+  lineId?: string | null;
   purchasedOn: string | null;
   vendor: { id: string; name: string } | null;
   /** Left out with the price when money is hidden. */
@@ -1147,6 +1170,10 @@ export type AttachmentView = {
   /** A URL attachment (never fetched by the server, D128). */
   url: string | null;
   subject: AttachmentSubject;
+  /** What people named it (#183): "Insurance 2026". Null or absent: it shows as its role. */
+  name?: string | null;
+  /** #348: a purchase's receipt whose file is also the thing's own (Paperwork, a warranty). */
+  alsoInPaperwork?: true;
   createdBy: ActorRef;
   /** For PATCH /api/v1/attachments/:id (If-Match). */
   rowVersion: number;
@@ -1161,9 +1188,11 @@ export type CreateAttachmentBody = {
   subject: AttachmentSubject;
   role: AttachmentRole;
   sort?: number;
+  /** #183: trimmed, at most 200. */
+  name?: string;
 };
-/** PATCH /api/v1/attachments/:id (If-Match). */
-export type UpdateAttachmentBody = { role?: AttachmentRole; sort?: number };
+/** PATCH /api/v1/attachments/:id (If-Match). `name`: trimmed, at most 200; "" or null clears it. */
+export type UpdateAttachmentBody = { role?: AttachmentRole; sort?: number; name?: string | null };
 
 // ----- secrets ---------------------------------------------------------------------------------
 

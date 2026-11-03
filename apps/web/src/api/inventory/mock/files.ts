@@ -5,8 +5,14 @@
 import type { MockState } from '../../mock/fixtures';
 import { err, forbidden, type MockRoute, notFound, reply, route } from '../../mock/kit';
 import { inventoryPaths as p } from '../paths';
-import type { AttachmentView, CreateAttachmentBody, FileClass, FileView } from '../types';
-import { accessOf, newId, paginate } from './db';
+import type {
+  AttachmentView,
+  CreateAttachmentBody,
+  FileClass,
+  FileView,
+  UpdateAttachmentBody,
+} from '../types';
+import { accessOf, newId, paginate, versionError } from './db';
 
 /** A 1×1 amber PNG, for thumbs and display URLs in tests and the demo. */
 export const PIXEL =
@@ -82,6 +88,7 @@ export function filesRoutes(state: MockState): MockRoute[] {
       const view: AttachmentView & { locationId: string } = {
         id: b.id ?? newId(),
         role: b.role,
+        name: b.name?.trim() || null,
         sort: b.sort ?? 0,
         file: b.fileId ? (inv().files[b.fileId] ?? null) : null,
         url: b.url ?? null,
@@ -105,8 +112,35 @@ export function filesRoutes(state: MockState): MockRoute[] {
           }
         }
       }
+      // A purchase's receipt (#348): every thing bought on it shows it.
+      if ('purchaseId' in b.subject) {
+        const purchaseId = b.subject.purchaseId;
+        const { locationId: _p, ...plain } = view;
+        for (const th of inv().things)
+          if (th.purchase?.purchaseId === purchaseId) th.purchase.receipts.push(plain);
+      }
       const { locationId: _l, ...out } = view;
       return reply(201, out);
+    }),
+
+    // Rename (#183), re-role or re-sort; If-Match like the server.
+    route('PATCH', p.attachment(':id'), ({ params, body, headers }) => {
+      const a = inv().attachments.find((x) => x.id === params.id);
+      if (!a || !access().visible(a.locationId)) return notFound();
+      if (!access().canWrite(a.locationId)) return forbidden();
+      const stale = versionError(headers, a, Object.keys(body as object));
+      if (stale) return reply(stale.status, stale.body);
+      const b = body as UpdateAttachmentBody;
+      if (b.name !== undefined) {
+        const name = b.name?.trim() ?? '';
+        if (name.length > 200) return err(400, 'validation', 'At most 200 characters.');
+        a.name = name === '' ? null : name;
+      }
+      if (b.role !== undefined) a.role = b.role;
+      if (b.sort !== undefined) a.sort = b.sort;
+      a.rowVersion += 1;
+      const { locationId: _l, ...out } = a;
+      return out;
     }),
 
     route('DELETE', p.attachment(':id'), ({ params }) => {

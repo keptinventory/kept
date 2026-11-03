@@ -16,6 +16,7 @@ import {
 import { inventoryPaths as p } from '../paths';
 import type {
   CreateLinkBody,
+  CreatePurchaseBody,
   CreateReadingBody,
   CreateThingBody,
   EmptyIntoBody,
@@ -23,11 +24,13 @@ import type {
   MoveBody,
   MovePreviewBody,
   MoveTarget,
+  PurchaseView,
   Reading,
   RetypeBody,
   SetSecretBody,
   SplitBody,
   ThingView,
+  UpdatePurchaseBody,
   UpdateThingBody,
 } from '../types';
 import {
@@ -64,6 +67,56 @@ function mockCode(seed: number): string {
 export function thingsRoutes(state: MockState): MockRoute[] {
   const inv = () => state.inventory;
   const access = () => accessOf(state);
+
+  // ----- purchases (#348): a thing's `purchase` follows its purchase's line -----
+  const thingName = (id: string) => inv().things.find((x) => x.id === id)?.name ?? '';
+  /** A purchase, or one made from the things that come from it (the fixtures embed those). */
+  const purchaseOf = (id: string): PurchaseView | undefined => {
+    const found = inv().purchases.find((x) => x.id === id);
+    if (found) return found;
+    const from = inv().things.filter((x) => x.purchase?.purchaseId === id);
+    const first = from[0]?.purchase;
+    if (!first || !from[0]) return undefined;
+    const view: PurchaseView = {
+      id,
+      locationId: from[0].locationId,
+      vendor: first.vendor,
+      purchasedOn: first.purchasedOn ?? now().slice(0, 10),
+      currency: first.currency ?? null,
+      notes: null,
+      lines: from.map((x, i) => ({
+        id: `${id.slice(0, -2)}${String(i).padStart(2, '0')}`,
+        description: x.purchase?.lineDescription ?? x.name ?? '',
+        quantity: x.purchase?.quantity ?? 1,
+        ...(x.purchase?.unitPrice ? { unitPrice: x.purchase.unitPrice } : {}),
+        thing: { id: x.id, name: x.name ?? '' },
+      })),
+      receipts: first.receipts,
+      flagged: false,
+      rowVersion: 1,
+    };
+    inv().purchases.push(view);
+    return view;
+  };
+  /** Each linked thing's `purchase`, as kept.thing_purchase() would read it. */
+  const syncThings = (v: PurchaseView) => {
+    for (const l of v.lines) {
+      const th = l.thing ? inv().things.find((x) => x.id === l.thing?.id) : undefined;
+      if (!th) continue;
+      th.purchase = {
+        purchaseId: v.id,
+        lineId: l.id,
+        purchasedOn: v.purchasedOn,
+        vendor: v.vendor,
+        currency: v.currency,
+        lineDescription: l.description,
+        quantity: l.quantity,
+        ...(l.unitPrice ? { unitPrice: l.unitPrice } : {}),
+        receipts: th.purchase?.receipts ?? v.receipts,
+      };
+      th.rowVersion += 1;
+    }
+  };
   const me = () => ({ id: state.me.user.id, displayName: state.me.user.displayName });
   const visibleThing = (id: string | undefined) => {
     const t = liveThing(inv(), id ?? null);
@@ -660,9 +713,103 @@ export function thingsRoutes(state: MockState): MockRoute[] {
       });
     }),
 
-    // ----- purchases (task 12) -----
+    // ----- purchases (task 12; #348 adds and changes one from a thing's page) -----
+    route('POST', p.purchases, ({ body }) => {
+      const b = body as CreatePurchaseBody;
+      if (!access().visible(b.locationId)) return notFound();
+      if (!access().canWrite(b.locationId)) return forbidden();
+      const view: PurchaseView = {
+        id: b.id ?? newId(),
+        locationId: b.locationId,
+        vendor: vendorRef(b.vendorId ?? undefined),
+        purchasedOn: b.purchasedOn,
+        currency: b.currency ?? null,
+        ...(b.total !== undefined ? { total: b.total } : {}),
+        ...(b.tax !== undefined ? { tax: b.tax } : {}),
+        notes: b.notes ?? null,
+        lines: b.lines.map((l) => ({
+          id: l.id ?? newId(),
+          description: l.description,
+          quantity: l.quantity,
+          ...(l.unitPrice !== undefined ? { unitPrice: l.unitPrice } : {}),
+          thing: l.thingId ? { id: l.thingId, name: thingName(l.thingId) } : null,
+        })),
+        receipts: [],
+        flagged: false,
+        rowVersion: 1,
+      };
+      inv().purchases.push(view);
+      syncThings(view);
+      return reply(201, view);
+    }),
+
+    route('PATCH', p.purchase(':id'), ({ params, body, headers }) => {
+      const found = purchaseOf(params.id ?? '');
+      if (!found || !access().visible(found.locationId)) return notFound();
+      if (!access().canWrite(found.locationId)) return forbidden();
+      const stale = versionError(headers, found, Object.keys(body as object));
+      if (stale) return reply(stale.status, stale.body);
+      const b = body as UpdatePurchaseBody;
+      if (b.purchasedOn !== undefined) found.purchasedOn = b.purchasedOn;
+      if (b.vendorId !== undefined) found.vendor = vendorRef(b.vendorId ?? undefined);
+      if (b.currency !== undefined) found.currency = b.currency;
+      if (b.notes !== undefined) found.notes = b.notes;
+      if (b.tax !== undefined) {
+        if (b.tax === null) delete found.tax;
+        else found.tax = b.tax;
+      }
+      if (b.total !== undefined) {
+        if (b.total === null) delete found.total;
+        else found.total = b.total;
+      }
+      if (b.lines) {
+        found.lines = b.lines.flatMap((l) => {
+          const was = found.lines.find((x) => x.id === l.id);
+          if (!was && !l.description) return [];
+          const line = was ?? {
+            id: l.id ?? newId(),
+            description: l.description ?? '',
+            quantity: l.quantity ?? 1,
+            thing: null,
+          };
+          if (l.description !== undefined) line.description = l.description;
+          if (l.quantity !== undefined) line.quantity = l.quantity;
+          if (l.unitPrice === null) delete line.unitPrice;
+          else if (l.unitPrice !== undefined) line.unitPrice = l.unitPrice;
+          return [line];
+        });
+      }
+      found.rowVersion += 1;
+      syncThings(found);
+      return found;
+    }),
+
+    route('DELETE', p.purchase(':id'), ({ params }) => {
+      const found = purchaseOf(params.id ?? '');
+      if (!found || !access().visible(found.locationId)) return notFound();
+      if (!access().canWrite(found.locationId)) return forbidden();
+      inv().purchases = inv().purchases.filter((x) => x.id !== found.id);
+      for (const th of inv().things) if (th.purchase?.purchaseId === found.id) th.purchase = null;
+      return reply(204);
+    }),
+
+    route('DELETE', p.purchaseLineLink(':id'), ({ params, query }) => {
+      const v = inv().purchases.find((x) => x.lines.some((l) => l.id === params.id));
+      const line = v?.lines.find((l) => l.id === params.id);
+      if (!v || !line || !access().visible(v.locationId)) return notFound();
+      if (!access().canWrite(v.locationId)) return forbidden();
+      const thingId = query.get('thingId');
+      for (const th of inv().things)
+        if (th.purchase?.purchaseId === v.id && (!thingId || th.id === thingId)) {
+          th.purchase = null;
+          th.rowVersion += 1;
+        }
+      if (!thingId || line.thing?.id === thingId) line.thing = null;
+      return reply(204);
+    }),
+
     route('GET', p.purchase(':id'), ({ params }) => {
-      const found = inv().purchases.find((x) => x.id === params.id);
+      const found = purchaseOf(params.id ?? '');
       if (!found || !access().visible(found.locationId)) return notFound();
       const loc = state.locations.find((l) => l.id === found.locationId);
       const show =

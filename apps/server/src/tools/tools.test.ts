@@ -587,6 +587,46 @@ describe('every field a person can set, through add_thing and update_thing', () 
     await data(louis, 'update_thing', { thing_id: id, fields: { colour: null, belongs_to: null } });
     expect(await fullRow(id)).toMatchObject({ colour: null, owner: null });
   });
+
+  it('update_thing records a purchase, then changes it as the thing page does (#348, #215)', async () => {
+    const d = await data(louis, 'add_thing', { location_id: home.id, items: [{ name: 'Teapot' }] });
+    const id = d.things[0].id;
+    await data(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: id,
+      fields: {
+        purchase: { purchased_on: '2026-02-03', shop: 'Teashop', price: '40', currency: 'EGP' },
+      },
+    });
+    expect(await fullRow(id)).toMatchObject({
+      bought: '2026-02-03',
+      shop: 'Teashop',
+      price: '40',
+      currency: 'EGP',
+    });
+    await data(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: id,
+      fields: { purchase: { price: '45', on_receipt: 'Teapot, blue', shop: null } },
+    });
+    expect(await fullRow(id)).toMatchObject({ bought: '2026-02-03', shop: null, price: '45' });
+    const [line] = await own<{ description: string; total: string }>(
+      db,
+      `SELECT pl.description, trim_scale(pu.total)::text AS total FROM public.things t
+         JOIN public.purchase_lines pl ON pl.id = t.purchase_line_id
+         JOIN public.purchases pu ON pu.id = pl.purchase_id WHERE t.id = $1`,
+      [id],
+    );
+    expect(line).toEqual({ description: 'Teapot, blue', total: '45' });
+    // The same purchase, changed: never a second one.
+    const [n] = await own<{ n: number }>(
+      db,
+      `SELECT count(*)::int AS n FROM public.purchase_lines pl JOIN public.things t
+          ON t.purchase_line_id = pl.id WHERE t.id = $1`,
+      [id],
+    );
+    expect(n?.n).toBe(1);
+  });
 });
 
 describe('reads', () => {
@@ -704,6 +744,25 @@ describe('reads', () => {
   it('find_documents answers a thing’s attachments (none here) in the contract', async () => {
     const d = await data(louis, 'find_documents', { thing_id: cable.id });
     expect(d.items).toEqual([]);
+  });
+
+  it('find_documents gives a named file’s name as its untrusted title (#183)', async () => {
+    const [a] = await own<{ id: string }>(
+      db,
+      `INSERT INTO public.attachments (location_id, url, thing_id, role, name, created_by)
+       VALUES ($1, 'https://example.com/manual.pdf', $2, 'manual', 'Cable spec sheet', $3)
+       RETURNING id`,
+      [home.id, cable.id, ibrahim.userId],
+    );
+    const d = await data(louis, 'find_documents', { thing_id: cable.id });
+    expect(d.items).toEqual([
+      expect.objectContaining({
+        attachment_id: a?.id,
+        role: 'manual',
+        untrusted: { title: 'Cable spec sheet', subject: 'HDMI cable' },
+      }),
+    ]);
+    await own(db, 'DELETE FROM public.attachments WHERE id = $1', [a?.id]);
   });
 
   it('pages 20 by default, at most 200, under 8 KB, with a cursor that loses nothing', async () => {

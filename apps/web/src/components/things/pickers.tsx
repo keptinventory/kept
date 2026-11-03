@@ -30,6 +30,7 @@ import { TypeIcon } from '@/components/type-icon';
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { toast } from '@/components/ui/toast';
 import { useLocationName } from '@/lib/labels';
+import { withoutCustomised } from '@/lib/type-list';
 import { cn } from '@/lib/utils';
 import { useTypeName } from './names';
 
@@ -82,7 +83,10 @@ function IconItem({ item }: { item: IconOption }) {
 export function useTypeOptions(accountId: string) {
   const types = useTypes(accountId);
   const typeName = useTypeName();
-  const list = (types.data?.types ?? []).filter((t) => !t.isFieldGroup && !t.archivedAt);
+  // A customised built-in shows once: the account's copy (#357).
+  const list = withoutCustomised(types.data?.types ?? []).filter(
+    (t) => !t.isFieldGroup && !t.archivedAt,
+  );
   const byId = new Map(list.map((t) => [t.id, t]));
   const options: IconOption[] = list
     .map((t) => {

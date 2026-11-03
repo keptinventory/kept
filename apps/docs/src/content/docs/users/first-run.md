@@ -123,6 +123,11 @@ holds at most 20 of them.
   right to left. The sign-in pages have the same picker.
 - **Digits in Arabic**: Western (0123) or Eastern (٠١٢٣), shown only while the language is Arabic.
   Short IDs and serial numbers always stay in Western digits.
+- **Region**: **United States** (Oct 29) or **United Kingdom** (29 Oct, 29/10/2026), shown only
+  while the language is English.
+- **Date format**: **Default** (29 Oct, with the year only for other years), 29 Oct 2026,
+  29/10/2026 or 2026-10-29. Each choice shows today's date written that way. Purchase and
+  warranty dates always show the year.
 - **Theme**: **System** (follows the device's light or dark setting), **Light** or **Dark**.
 - **Content width**: **Centered** or **Full width**, on screens 768 px and wider.
 

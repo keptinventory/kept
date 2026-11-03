@@ -7,7 +7,19 @@ Photos go on the thing; everything else goes under **Paperwork**, kept as the or
 **Add a file**, then say what it is (Receipt, Invoice, Manual, Warranty, Registration, Proof,
 Document). A file Kept can't preview yet is kept anyway and marked **Preview unavailable**.
 
-- **A photo full screen:** tap the photo at the top of a thing's page. Swipe, the arrow keys, or
+A receipt can also go on the thing's **Purchase**: there it belongs to the purchase, and every
+thing bought on the same receipt shows it ([Things](/users/things/)). Under Paperwork it is the
+thing's own.
+
+**Name a file** with the pencil beside it: "Insurance 2026", "Registration card". A document or
+receipt keeps its own file name when you add it ("Insurance 2026.pdf" is "Insurance 2026"); a
+photo doesn't. The list shows the name, with its kind under it, and the Paperwork library finds it
+by its name; leave the name empty to show its kind again. Members name the files they added,
+owners and admins any file. A car's papers, a home's lease and a room's manuals are named the
+same way.
+
+- **A photo full screen:** tap the photo at the top of a thing's page. It opens fitted to the
+  screen, the whole photo however tall or wide. Swipe, the arrow keys, or
   **Previous photo** and **Next photo** go through its photos. **+** (Zoom in) or a double-click
   shows the photo at its full size, to pan around; **−** (Zoom out) fits it to the screen again.
   On a phone a pinch uses the browser's own zoom. **×** (Close), Escape or Back closes it, and the

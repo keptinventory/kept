@@ -118,7 +118,7 @@ function CurrentValueCard({ current, count }: { current: Valuation | null; count
   const p = thing.purchase;
   const bought =
     p?.purchasedOn && p.unitPrice && p.currency && !p.moneyHidden
-      ? { on: fmt.day(p.purchasedOn), price: money(p.unitPrice, p.currency), from: p.vendor?.name }
+      ? { on: fmt.date(p.purchasedOn), price: money(p.unitPrice, p.currency), from: p.vendor?.name }
       : null;
   if (!current)
     return (

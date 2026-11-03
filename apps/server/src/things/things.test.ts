@@ -233,6 +233,10 @@ describe('POST /api/v1/things', () => {
     const bought = made.purchase as { purchaseId: string; unitPrice: string };
     const whole = ok(await call(t, `/api/v1/purchases/${bought.purchaseId}`, { as: mo }));
     expect((whole.lines as { unitPrice: string }[])[0]?.unitPrice).toBe(bought.unitPrice);
+    // Its line, so the thing page changes this thing's price (#348).
+    expect((made.purchase as { lineId: string }).lineId).toBe(
+      (whole.lines as { id: string }[])[0]?.id,
+    );
     expect(whole.total).toBe('1250.5');
     const asViewer = await thingOf(vic, made.id);
     const purchase = asViewer.purchase as Record<string, unknown>;
@@ -607,6 +611,7 @@ describe('GET /api/v1/things/:id', () => {
     const view = await thingOf(cy, kettle.id);
     expect(view.purchase).toMatchObject({
       purchaseId: null,
+      lineId: null,
       vendor: { id: bought, name: 'Metro' },
     });
   });

@@ -5,6 +5,7 @@
  */
 import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { IDS, signedOutScenario } from '@/api/mock/fixtures';
 import { paths } from '@/api/paths';
 import { findHeading, renderApp } from '@/test/app';
@@ -94,6 +95,46 @@ describe('Settings → Me → Display', () => {
     expect(document.documentElement.dataset.theme).toBe('dark');
     await user.click(within(theme).getByRole('radio', { name: 'System' }));
     expect(localStorage.getItem('kept.theme')).toBeNull();
+  });
+
+  it('writes dates the UK way, in the chosen format, and the year on a purchase (#362)', async () => {
+    const { user, router } = await renderApp('/settings');
+    await findHeading('Settings');
+    const region = screen.getByRole('radiogroup', { name: 'Region' });
+    expect(within(region).getByRole('radio', { name: 'United States' })).toBeChecked();
+    await user.click(within(region).getByRole('radio', { name: 'United Kingdom' }));
+    expect(localStorage.getItem('kept.region')).toBe('gb');
+    const format = screen.getByRole('radiogroup', { name: 'Date format' });
+    expect(within(format).getByRole('radio', { name: 'Default' })).toBeChecked();
+    // Each choice is today's date written that way.
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, '0');
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const iso = `${now.getFullYear()}-${mm}-${dd}`;
+    expect(
+      within(format).getByRole('radio', { name: `${dd}/${mm}/${now.getFullYear()}` }),
+    ).toBeInTheDocument();
+    await user.click(within(format).getByRole('radio', { name: iso }));
+    expect(localStorage.getItem('kept.dateFormat')).toBe('iso');
+    await router.navigate({ to: '/t/$id', params: { id: INV_IDS.thing.tv } });
+    await findHeading('Samsung TV, 55″');
+    expect(screen.getByText('2025-01-18')).toBeInTheDocument();
+
+    // Back to Default: the purchase date still carries its year, the UK way.
+    await router.navigate({ to: '/settings' });
+    await findHeading('Settings');
+    const again = screen.getByRole('radiogroup', { name: 'Date format' });
+    await user.click(within(again).getByRole('radio', { name: 'Default' }));
+    expect(localStorage.getItem('kept.dateFormat')).toBeNull();
+    await router.navigate({ to: '/t/$id', params: { id: INV_IDS.thing.tv } });
+    await findHeading('Samsung TV, 55″');
+    expect(screen.getByText('18 Jan 2025')).toBeInTheDocument();
+  });
+
+  it('offers the region only in English', async () => {
+    await renderApp('/settings', { locale: 'fr' });
+    await findHeading('Paramètres');
+    expect(screen.queryByRole('radiogroup', { name: 'Region' })).toBeNull();
   });
 
   it('sets the content width for this device, Centered by default', async () => {

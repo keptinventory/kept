@@ -1,5 +1,11 @@
-import type { PlaceRef, ThingRef, ToolOutput } from '@kept/mcp';
-import { BUILTIN_PLACE_TEMPLATE_KEYS, type ModuleId, normalize, parseAmount } from '@kept/shared';
+import type { PlaceRef, ThingRef, ToolInput, ToolOutput } from '@kept/mcp';
+import {
+  AmountError,
+  BUILTIN_PLACE_TEMPLATE_KEYS,
+  type ModuleId,
+  normalize,
+  parseAmount,
+} from '@kept/shared';
 import { undoableEventIds } from '../../audit/audited.js';
 import { undoableUntil } from '../../audit/undo.js';
 import { deleteStockRule, putStockRule } from '../../consumables/service.js';
@@ -8,6 +14,8 @@ import { personFor } from '../../lending/service.js';
 import { createReading } from '../../meters/service.js';
 import { createPlace } from '../../places/service.js';
 import { unplacedOf } from '../../places/view.js';
+import { createPurchase, updatePurchase } from '../../purchases/service.js';
+import { lineRows, type PatchBody } from '../../purchases/view.js';
 import { todayIn } from '../../schedules/service.js';
 import { vendorFor } from '../../schedules/services.js';
 import { createFromTemplate, FromTemplateBody } from '../../templates/place-templates.js';
@@ -327,6 +335,8 @@ export const updateThingTool: Handler<'update_thing'> = {
     // D116), a money value where the gate hides money is `module_off`, and a changed row
     // since the proposal is 412 (D156).
     if (Object.keys(body).length > 0) await updateThing(op, id, expected, body);
+    const purchaseId =
+      f.purchase !== undefined ? await setPurchase(op, loc.id, id, f.purchase) : null;
     if (f.keep_at_least !== undefined) {
       requireModule(loc, 'consumables');
       const { rows } = await op.client.query<{ row_version: number }>(
@@ -338,15 +348,121 @@ export const updateThingTool: Handler<'update_thing'> = {
         if (rule) await deleteStockRule(op, id, rule.row_version);
       } else await putStockRule(op, id, rule?.row_version, f.keep_at_least);
     }
+    // Only the purchase changed: its event is the answer's (the thing's own row is untouched).
+    const result = await writeResult(op, 'thing', id).catch((err) => {
+      if (purchaseId) return writeResult(op, 'purchase', purchaseId);
+      throw err;
+    });
     return {
       data: {
-        ...(await writeResult(op, 'thing', id)),
+        ...result,
         thing: await thingRef(op, id),
         changed_fields: Object.keys(f),
       },
     };
   },
 };
+
+/** `amount × quantity`, exact to 4 decimals (half up): a one-line purchase's total. */
+function lineTotal(amount: string, quantity: number): string {
+  const [int = '0', frac = ''] = amount.split('.');
+  const scaled = BigInt(int) * 10_000n + BigInt(frac.padEnd(4, '0').slice(0, 4) || '0');
+  const total = (scaled * BigInt(Math.round((quantity > 0 ? quantity : 1) * 1000)) + 500n) / 1000n;
+  const rest = (total % 10_000n).toString().padStart(4, '0').replace(/0+$/, '');
+  return rest ? `${total / 10_000n}.${rest}` : `${total / 10_000n}`;
+}
+
+type PurchaseFields = NonNullable<ToolInput<'update_thing'>['fields']['purchase']>;
+
+/**
+ * update_thing's `purchase` (#348, #215): what the thing page's purchase sheet does, through the
+ * purchase service (its access, money gate and audit). With no purchase it records one, one line
+ * for the thing; else it changes the purchase and this thing's line, the other lines kept.
+ */
+async function setPurchase(
+  op: Op,
+  locationId: string,
+  thingId: string,
+  p: PurchaseFields,
+): Promise<string> {
+  const ctx = {
+    tx: op.tx,
+    client: op.client,
+    scope: op.scope,
+    requestId: op.requestId,
+    files: op.files,
+  };
+  const vendorId =
+    p.shop === undefined
+      ? undefined
+      : p.shop === null
+        ? null
+        : ((await vendorNamed(op.client, locationId, p.shop)) ??
+          (await vendorFor(op, locationId, { name: p.shop })));
+  let price: string | null | undefined;
+  try {
+    price = p.price === undefined ? undefined : p.price === null ? null : parseAmount(p.price);
+  } catch (err) {
+    if (!(err instanceof AmountError)) throw err;
+    throw invalid('Check purchase.price: a decimal amount, e.g. 1250.50.');
+  }
+  const { rows } = await op.client.query<{ line: string | null; name: string; quantity: string }>(
+    'SELECT purchase_line_id AS line, name, quantity::text AS quantity FROM public.things WHERE id = $1',
+    [thingId],
+  );
+  const thing = rows[0];
+  if (!thing) throw notFound();
+  if (!thing.line) {
+    const quantity = Number(thing.quantity) > 0 ? Number(thing.quantity) : 1;
+    const made = await createPurchase(ctx, {
+      locationId,
+      purchasedOn: p.purchased_on ?? (await todayIn(op.client, locationId)),
+      ...(vendorId ? { vendorId } : {}),
+      ...(p.currency ? { currency: p.currency } : {}),
+      ...(price ? { total: lineTotal(price, quantity) } : {}),
+      ...(p.notes ? { notes: p.notes } : {}),
+      lines: [
+        {
+          description: p.on_receipt ?? thing.name,
+          quantity,
+          ...(price ? { unitPrice: price } : {}),
+          thingId,
+        },
+      ],
+    });
+    return made.id;
+  }
+  const { rows: found } = await op.client.query<{ id: string; row_version: number }>(
+    `SELECT p.id, p.row_version FROM public.purchase_lines pl
+       JOIN public.purchases p ON p.id = pl.purchase_id WHERE pl.id = $1`,
+    [thing.line],
+  );
+  const purchase = found[0];
+  if (!purchase) throw invalid('Its purchase is kept in another location; change it there.');
+  const lines = await lineRows(op.client, purchase.id);
+  const body: PatchBody = {};
+  if (p.purchased_on !== undefined) body.purchasedOn = p.purchased_on;
+  if (vendorId !== undefined) body.vendorId = vendorId;
+  if (p.notes !== undefined) body.notes = p.notes;
+  if (p.currency !== undefined) body.currency = p.currency;
+  if (price !== undefined || p.on_receipt !== undefined) {
+    body.lines = lines.map((l) =>
+      l.id === thing.line
+        ? {
+            id: l.id,
+            ...(price !== undefined ? { unitPrice: price } : {}),
+            ...(p.on_receipt !== undefined ? { description: p.on_receipt } : {}),
+          }
+        : { id: l.id },
+    );
+    const mine = lines.find((l) => l.id === thing.line);
+    if (price !== undefined && lines.length === 1 && mine)
+      body.total = price === null ? null : lineTotal(price, Number(mine.quantity));
+  }
+  if (Object.keys(body).length > 0)
+    await updatePurchase(ctx, purchase.id, purchase.row_version, body);
+  return purchase.id;
+}
 
 export const moveThing: Handler<'move_thing'> = {
   action: 'things.edit',

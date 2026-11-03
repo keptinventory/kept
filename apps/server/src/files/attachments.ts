@@ -59,6 +59,8 @@ export type CreateAttachment = {
   subject: AttachmentSubject;
   role: string;
   sort?: number | undefined;
+  /** #183: what it is, as people name it; the web sends a document's own file name. */
+  name?: string | null | undefined;
 };
 
 type SubjectColumns = { [C in SubjectColumn]: string | null };
@@ -152,6 +154,7 @@ const auditImage = (
 ) => ({
   role: r.role,
   sort: r.sort,
+  ...('name' in r && r.name ? { name: r.name } : {}),
   fileId: r.file_id,
   url: r.url,
   thingId: r.thing_id,
@@ -197,9 +200,10 @@ export async function createAttachment(
   const columns = SUBJECT_COLUMNS.map(([c]) => c);
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO public.attachments (id, location_id, file_id, url, ${columns.join(', ')}, role,
-                                     sort, created_by)
+                                     sort, name, created_by)
      VALUES ($1, $2, $3, $4, ${columns.map((_, i) => `$${i + 5}`).join(', ')},
-             $${columns.length + 5}, $${columns.length + 6}, kept.current_user_id())
+             $${columns.length + 5}, $${columns.length + 6}, $${columns.length + 7},
+             kept.current_user_id())
      RETURNING id`,
     [
       body.id,
@@ -209,6 +213,7 @@ export async function createAttachment(
       ...columns.map((c) => subject[c]),
       body.role,
       body.sort ?? 0,
+      body.name ?? null,
     ],
   );
   const id = (rows[0] as { id: string }).id;
@@ -235,7 +240,7 @@ export async function updateAttachment(
   userId: string,
   id: string,
   expected: number,
-  patch: { role?: string | undefined; sort?: number | undefined },
+  patch: { role?: string | undefined; sort?: number | undefined; name?: string | null | undefined },
   requestId: string,
 ): Promise<AttachmentView> {
   const seen = await readAttachment(client, id);
@@ -259,10 +264,12 @@ export async function updateAttachment(
       by ? { displayName: by } : null,
     );
   }
+  // A name is set or cleared (null) only when the PATCH names it (#183).
   await client.query(
-    `UPDATE public.attachments SET role = coalesce($2, role), sort = coalesce($3, sort)
+    `UPDATE public.attachments SET role = coalesce($2, role), sort = coalesce($3, sort),
+            name = CASE WHEN $4 THEN $5 ELSE name END
       WHERE id = $1`,
-    [id, patch.role ?? null, patch.sort ?? null],
+    [id, patch.role ?? null, patch.sort ?? null, patch.name !== undefined, patch.name ?? null],
   );
   const after = await readAttachment(client, id);
   await audited(tx, {
@@ -270,8 +277,8 @@ export async function updateAttachment(
     actor: { type: 'user', id: userId },
     action: 'attachment.update',
     entity: { type: 'attachment', id },
-    before: { role: before.role, sort: before.sort },
-    after: { role: after.role, sort: after.sort },
+    before: { role: before.role, sort: before.sort, name: before.name },
+    after: { role: after.role, sort: after.sort, name: after.name },
     subjects: thingSubjects(after),
     rootThingId: after.thing_id,
     requestId,

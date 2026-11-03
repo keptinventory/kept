@@ -239,6 +239,8 @@ export const AttachmentRefSchema = z.object({
   file: z.record(z.string(), z.unknown()).nullable(),
   url: z.string().nullable(),
   subject: z.record(z.string(), z.unknown()),
+  /** What people named it (#183); null shows its role. */
+  name: z.string().nullable().optional(),
   createdBy: z.object({ displayName: z.string() }),
   rowVersion: z.number(),
 });

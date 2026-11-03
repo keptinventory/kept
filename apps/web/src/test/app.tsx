@@ -13,7 +13,15 @@ import { createMockApi, type MockApi } from '@/api/mock/server';
 import { assistantStore } from '@/assistant/store';
 import { toastQueue } from '@/components/ui/toast';
 import { activateLocale } from '@/i18n/i18n';
-import { type Digits, directionOf, type Locale, setDigits, setLocale } from '@/lib/prefs';
+import {
+  type Digits,
+  directionOf,
+  type Locale,
+  setDateFormat,
+  setDigits,
+  setLocale,
+  setRegion,
+} from '@/lib/prefs';
 import { routeTree } from '@/routeTree.gen';
 
 export async function renderApp(
@@ -36,6 +44,9 @@ export async function renderApp(
   await activateLocale(locale, digits);
   setLocale(locale);
   setDigits(digits);
+  // Device choices a test may change (#362): back to the defaults for the next one.
+  setRegion('us');
+  setDateFormat('auto');
   document.documentElement.lang = locale;
   document.documentElement.dir = directionOf(locale);
   const queryClient = new QueryClient({

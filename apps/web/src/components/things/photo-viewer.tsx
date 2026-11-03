@@ -1,9 +1,10 @@
 /**
  * A thing's photo full screen (#295), opened by tapping the header's photo. `React.lazy`
  * (./photos), so it loads only when someone opens it (D80); it's a precached chunk all the same,
- * so it opens offline, on the same image the header shows. Fitted to the screen, or its full size
- * to pan around, centred, after Zoom in or a double-click; zoomed in, the photo takes focus and the
- * arrow keys scroll it. A pinch on a phone is the browser's own zoom.
+ * so it opens offline, on the same image the header shows. Fitted to the screen (a tall photo
+ * whole, top to bottom, #183), or its full size to pan around, centred, after Zoom in or a
+ * double-click; zoomed in, the photo takes focus and the arrow keys scroll it. A pinch on a phone
+ * is the browser's own zoom.
  * The header's moves step through the photos, and Escape or Back (CloseOnBack) close it.
  */
 import { useLingui } from '@lingui/react/macro';
@@ -91,7 +92,7 @@ export default function PhotoViewer({
               'size-full outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-info',
               zoomed
                 ? 'flex cursor-zoom-out overflow-auto'
-                : 'grid place-items-center overflow-hidden',
+                : 'relative grid place-items-center overflow-hidden',
               src && !zoomed && 'cursor-zoom-in',
             )}
           >
@@ -99,7 +100,13 @@ export default function PhotoViewer({
               <img
                 src={src}
                 alt={label}
-                className={zoomed ? 'm-auto max-w-none shrink-0' : 'size-full object-contain'}
+                // Fitted, the photo takes the stage's own box: as a grid item its height grew with
+                // a tall photo's width, and only its top showed (#183).
+                className={
+                  zoomed
+                    ? 'm-auto max-w-none shrink-0'
+                    : 'absolute inset-0 size-full object-contain'
+                }
               />
             ) : (
               <div className="rounded-xl bg-surface p-4">

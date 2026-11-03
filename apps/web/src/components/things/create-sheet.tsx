@@ -35,6 +35,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
 import { sep } from '@/lib/format';
+import { typeOfKey } from '@/lib/type-list';
 import { parseNumber } from './form-model';
 import {
   CurrencyPicker,
@@ -55,9 +56,8 @@ function presetTypeOf(
   types: readonly TypeNode[] | undefined,
   key: string | undefined,
 ): TypeNode | undefined {
-  if (!key || !types) return undefined;
-  const matches = types.filter((x) => x.builtinKey === key && !x.isFieldGroup && !x.archivedAt);
-  return matches.find((x) => x.copiedFromId) ?? matches[0];
+  if (!key) return undefined;
+  return typeOfKey(types, key, (x) => !x.isFieldGroup && !x.archivedAt);
 }
 
 type Errors = Partial<Record<'name' | 'where' | 'quantity' | 'price' | 'currency', string>>;

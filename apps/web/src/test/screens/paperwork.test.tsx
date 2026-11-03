@@ -246,3 +246,85 @@ describe('the Paperwork section', () => {
     ).toBeInTheDocument();
   });
 });
+
+describe('naming a file (#183)', () => {
+  const TV = INV_IDS.thing.tv;
+  /** A document on the TV (or the kitchen), uploaded by Bruce, with no name yet. */
+  function withFile(
+    subject: { thingId: string } | { placeId: string },
+    name: string | null = null,
+  ) {
+    const state = ownerScenario();
+    state.inventory.attachments.push({
+      id: '0190a000-0000-7000-8000-0000000f1830',
+      role: 'document',
+      sort: 0,
+      file: null,
+      url: 'https://example.com/policy.pdf',
+      subject,
+      name,
+      createdBy: { displayName: 'Bruce' },
+      rowVersion: 1,
+      locationId: IDS.home,
+    });
+    return state;
+  }
+
+  it('names a thing’s document, and the row shows the name with its kind under it', async () => {
+    const { user, mock } = await renderApp(`/t/${TV}`, { state: withFile({ thingId: TV }) });
+    await findHeading('Samsung TV, 55″');
+    await user.click(await screen.findByRole('button', { name: 'Name Document' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Name Document' });
+    await user.type(within(sheet).getByLabelText('Name'), '  Insurance 2026 ');
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }));
+    await waitFor(() =>
+      expect(
+        mock.lastCall('PATCH', '/api/v1/attachments/0190a000-0000-7000-8000-0000000f1830')?.body,
+      ).toEqual({
+        name: 'Insurance 2026',
+      }),
+    );
+    expect(await screen.findByText('Insurance 2026', { selector: 'bdi' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Name Insurance 2026' })).toBeInTheDocument();
+  });
+
+  it('clears a name: the row is its kind again', async () => {
+    const { user, mock } = await renderApp(`/t/${TV}`, {
+      state: withFile({ thingId: TV }, 'Old policy'),
+    });
+    await findHeading('Samsung TV, 55″');
+    await user.click(await screen.findByRole('button', { name: 'Name Old policy' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Name Old policy' });
+    await user.clear(within(sheet).getByLabelText('Name'));
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }));
+    await waitFor(() =>
+      expect(mock.state.inventory.attachments[0]).toMatchObject({ name: null, rowVersion: 2 }),
+    );
+    expect(await screen.findByRole('button', { name: 'Name Document' })).toBeInTheDocument();
+  });
+
+  it('a viewer reads the name, with nothing to change', async () => {
+    await renderApp(`/t/${TV}`, { state: asRole('viewer', withFile({ thingId: TV }, 'Policy')) });
+    await findHeading('Samsung TV, 55″');
+    expect(await screen.findByText('Policy', { selector: 'bdi' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Name Policy' })).toBeNull();
+  });
+
+  it('names a place’s document, and the library lists it by its name', async () => {
+    const { user } = await renderApp(`/p/${P.kitchen}`, {
+      state: withFile({ placeId: P.kitchen }),
+    });
+    const paperwork = await section('Paperwork');
+    await user.click(await within(paperwork).findByRole('button', { name: 'Name Document' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Name Document' });
+    await user.type(within(sheet).getByLabelText('Name'), 'Oven manual');
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }));
+    expect(await within(paperwork).findByText('Oven manual')).toBeInTheDocument();
+  });
+
+  it('the library shows a file by its name', async () => {
+    await renderApp('/paperwork', { state: withFile({ placeId: P.kitchen }, 'Oven manual') });
+    await findHeading('Paperwork');
+    expect(await screen.findAllByText('Oven manual')).not.toHaveLength(0);
+  });
+});

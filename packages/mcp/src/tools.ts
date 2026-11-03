@@ -363,6 +363,19 @@ const updateFields = z
     ...nullable(clearable),
     acquired_from: z.string().max(200).nullable().describe('Where it came from'),
     provenance_notes: z.string().max(2000).nullable(),
+    // #348, #215: the purchase as the thing page edits it; changes it or records one.
+    // Plain strings in the schema the model reads (the service checks the date, the amount and
+    // the currency, as the purchase routes do): the assistant's tools have a size budget.
+    purchase: z
+      .object({
+        purchased_on: z.iso.date(),
+        shop: shortText(200).nullable(),
+        on_receipt: shortText(300),
+        price: z.string().max(40).nullable(),
+        currency: z.string().max(8),
+        notes: z.string().max(2000).nullable(),
+      })
+      .partial(),
   })
   .partial()
   .refine((f) => Object.keys(f).length > 0, { message: 'at least one field' });

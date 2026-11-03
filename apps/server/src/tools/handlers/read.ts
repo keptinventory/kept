@@ -597,11 +597,12 @@ async function documentsOf(op: Op, refs: DocRef[]) {
   if (refs.length === 0) return [];
   const { rows } = await op.client.query<{
     id: string;
+    name: string | null;
     mime: string | null;
     bytes: string | null;
     created_at: Date;
   }>(
-    `SELECT a.id, f.mime, f.bytes::text AS bytes, a.created_at
+    `SELECT a.id, a.name, f.mime, f.bytes::text AS bytes, a.created_at
        FROM public.attachments a LEFT JOIN public.files f ON f.id = a.file_id
       WHERE a.id = ANY ($1::uuid[]) AND a.location_id = ANY ($2::uuid[])`,
     [refs.map((r) => r.attachmentId), op.locations.map((l) => l.id)],
@@ -626,7 +627,8 @@ async function documentsOf(op: Op, refs: DocRef[]) {
         bytes: a.bytes === null ? 0 : Number(a.bytes),
         added_at: a.created_at.toISOString(),
         url: subjectLink(op, r.subject, codeOf.get(r.subject.id) ?? null),
-        untrusted: { title: null, subject: r.subjectName },
+        // Its name as people gave it (#183): written by people, so untrusted.
+        untrusted: { title: a.name, subject: r.subjectName },
       },
     ];
   });

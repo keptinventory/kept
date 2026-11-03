@@ -101,6 +101,52 @@ test('the photo opens full screen, zooms, and Escape and Back close it', async (
   await page.context().close();
 });
 
+test('a tall photo fits the screen whole, top to bottom (#183)', async ({ browser }) => {
+  const page = await tvPage(browser);
+  await page.getByRole('button', { name: 'Photo 1 of 1' }).click();
+  const viewer = page.getByRole('dialog', { name: 'Photos' });
+  const image = viewer.getByRole('img', { name: 'Photo 1 of 1' });
+  await expect(image).toBeVisible();
+  // The seed's photo is wide: a 600 × 2400 picture, drawn in the page, takes its place. A blob:
+  // URL, as the CSP's img-src allows blob: and not data:.
+  await image.evaluate(
+    (img: HTMLImageElement) =>
+      new Promise<void>((done, fail) => {
+        const c = document.createElement('canvas');
+        c.width = 600;
+        c.height = 2400;
+        const g = c.getContext('2d');
+        if (g) {
+          g.fillStyle = '#c33';
+          g.fillRect(0, 0, 600, 2400);
+        }
+        img.onload = () => done();
+        img.onerror = () => fail(new Error('the tall photo did not load'));
+        c.toBlob((blob) => {
+          if (blob) img.src = URL.createObjectURL(blob);
+          else fail(new Error('no blob'));
+        }, 'image/png');
+      }),
+  );
+  // Fitted, its box is the screen's (object-fit: contain draws it whole inside): before the fix
+  // it grew with the photo's width, 375 × 1500 on a phone, and only its top showed.
+  const box = await image.boundingBox();
+  const size = page.viewportSize();
+  expect(box && size && Math.round(box.height) <= size.height).toBe(true);
+  expect(box && size && Math.round(box.width) <= size.width).toBe(true);
+  // Zoomed in, it is its full size, and the rest scrolls into view.
+  await viewer.getByRole('button', { name: 'Zoom in' }).click();
+  await expect
+    .poll(() =>
+      image.evaluate((img) => {
+        const stage = img.parentElement as HTMLElement;
+        return stage.scrollHeight > stage.clientHeight;
+      }),
+    )
+    .toBe(true);
+  await page.context().close();
+});
+
 test('offline, the photo already on the page opens full screen', async ({ browser }) => {
   const page = await tvPage(browser);
   await controlled(page);

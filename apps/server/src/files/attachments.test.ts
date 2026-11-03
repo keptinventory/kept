@@ -300,6 +300,57 @@ describe('PATCH and DELETE /api/v1/attachments/:id', () => {
     });
   });
 
+  it('takes a name when the file is attached (#183)', async () => {
+    const res = await attach(bob, {
+      locationId: home,
+      url: `https://example.com/${newId()}`,
+      subject: { thingId: thing },
+      role: 'manual',
+      name: ' Boiler manual ',
+    });
+    expect(res.statusCode, res.body).toBe(201);
+    expect(res.json()).toMatchObject({ role: 'manual', name: 'Boiler manual' });
+    const [event] = (await auditActions(home, 'attachment.create')).slice(-1);
+    expect(event?.diff).toMatchObject({ name: { after: 'Boiler manual' } });
+  });
+
+  it('names a file, clears the name, and audits both (#183)', async () => {
+    const a = await bobsLink();
+    expect(a).toMatchObject({ name: null });
+    const named = await patch(bob, a, { name: '  Insurance 2026 ' }, a.rowVersion);
+    expect(named.statusCode, named.body).toBe(200);
+    const after = named.json() as AttachmentView & { name: string | null };
+    expect(after).toMatchObject({ name: 'Insurance 2026', role: 'document' });
+    const [event] = (await auditActions(home, 'attachment.update')).slice(-1);
+    expect(event?.diff).toMatchObject({ name: { before: null, after: 'Insurance 2026' } });
+    // The thing's paperwork lists it by its name.
+    const list = await call(t, `/api/v1/things/${thing}/attachments`, { as: vic, method: 'GET' });
+    expect((list.json() as { items: { id: string; name: string | null }[] }).items).toContainEqual(
+      expect.objectContaining({ id: a.id, name: 'Insurance 2026' }),
+    );
+    // Empty clears it; too long is a 400.
+    expect((await patch(bob, after, { name: 'x'.repeat(201) }, after.rowVersion)).statusCode).toBe(
+      400,
+    );
+    const cleared = await patch(bob, after, { name: '' }, after.rowVersion);
+    expect(cleared.statusCode, cleared.body).toBe(200);
+    expect(cleared.json()).toMatchObject({ name: null });
+    // A PATCH that leaves the name out keeps it.
+    const again = await patch(
+      bob,
+      cleared.json() as AttachmentView,
+      { name: 'Registration' },
+      (cleared.json() as AttachmentView).rowVersion,
+    );
+    const sorted = await patch(
+      bob,
+      again.json() as AttachmentView,
+      { sort: 3 },
+      (again.json() as AttachmentView).rowVersion,
+    );
+    expect(sorted.json()).toMatchObject({ name: 'Registration', sort: 3 });
+  });
+
   it('names who changed it in a 412, and lets only one of two racing PATCHes through (review #13)', async () => {
     await own('UPDATE public.user_profiles SET display_name = $2 WHERE user_id = $1', [
       ann.userId,

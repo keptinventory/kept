@@ -159,8 +159,14 @@ export function useUploadErrorText() {
 export async function uploadAndAttach({
   subject,
   role,
+  name,
   ...input
-}: UploadInput & { subject: AttachmentSubject; role: AttachmentRole }): Promise<AttachmentView> {
+}: UploadInput & {
+  subject: AttachmentSubject;
+  role: AttachmentRole;
+  /** #183: what it is called; a document keeps its own file name. */
+  name?: string;
+}): Promise<AttachmentView> {
   const file = await putFile(input);
   return api.post<AttachmentView>(inventoryPaths.attachments, {
     id: newId(),
@@ -168,7 +174,14 @@ export async function uploadAndAttach({
     fileId: file.id,
     subject,
     role,
+    ...(name ? { name } : {}),
   });
+}
+
+/** A picked file's name without its extension ("Insurance 2026.pdf" → "Insurance 2026"). */
+export function nameOfFile(file: Pick<File, 'name'>): string | undefined {
+  const base = file.name.replace(/\.[^./]{1,8}$/, '').trim();
+  return base ? base.slice(0, 200) : undefined;
 }
 
 /**
@@ -182,6 +195,7 @@ export function UploadButton({
   label,
   accept,
   variant = 'secondary',
+  nameFromFile = false,
   onUploaded,
 }: {
   locationId: string;
@@ -191,7 +205,9 @@ export function UploadButton({
   label: string;
   accept?: string[];
   variant?: ButtonVariant;
-  onUploaded?: (a: AttachmentView) => void;
+  /** #183, #348: the file keeps its own name ("Insurance 2026"), renamed any time. */
+  nameFromFile?: boolean;
+  onUploaded?: (a: AttachmentView) => void | Promise<void>;
 }) {
   const { t } = useLingui();
   const errorText = useUploadErrorText();
@@ -200,14 +216,16 @@ export function UploadButton({
     for (const file of Array.from(files ?? [])) {
       try {
         setProgress(0);
+        const name = nameFromFile ? nameOfFile(file) : undefined;
         const a = await uploadAndAttach({
           file,
           locationId,
           subject,
           role: attachAs,
           onProgress: setProgress,
+          ...(name ? { name } : {}),
         });
-        onUploaded?.(a);
+        await onUploaded?.(a);
         if (isHeic(file.type) || a.file?.derivativeState === 'unavailable')
           toast({
             title: t`Saved. Preview unavailable`,

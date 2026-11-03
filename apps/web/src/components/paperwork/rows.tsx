@@ -132,7 +132,10 @@ function useRowWords(row: PaperworkRow) {
   const roles = useRoleLabels();
   const kinds = useDocumentKindLabels();
   const f = useFormat();
-  const title = row.expiring ? kinds[row.expiring.kind] : roles[row.attachment.role];
+  // A file's name when it has one (#183), else its kind.
+  const title = row.expiring
+    ? kinds[row.expiring.kind]
+    : row.attachment.name?.trim() || roles[row.attachment.role];
   const e = row.expiring;
   const day = e ? f.day(noonOf(e.expiresOn)) : '';
   const runsOut: ReactNode = e ? (

@@ -28404,3 +28404,184 @@ msgstr "Cercato solo per nome: nessun modello di embedding impostato, quindi «p
 #: src/components/admin/embeddings-source.tsx
 msgid "Their AI has no embeddings model, so \"laptop\" won't find a MacBook Pro. Each owner chooses a Search model in Settings → AI → Advanced; a Search model on this server's key covers every location without one."
 msgstr "La loro IA non ha un modello di embedding, quindi «portatile» non trova un MacBook Pro. Ogni proprietario sceglie un modello di ricerca in Impostazioni → IA → Avanzate; un modello di ricerca sulla chiave di questo server copre ogni luogo che non ne ha uno."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "Personal is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
+msgstr "Personale è solo tuo: non ha membri, inviti né link di condivisione. Sposta un oggetto in una casa condivisa quando diventa condiviso."
+
+#: src/routes/_app/settings.me.ai.tsx
+msgid "Used for Personal, your private threads, and questions that span owners."
+msgstr "Usata per Personale, le tue conversazioni private e le domande che riguardano più proprietari."
+
+#: src/routes/_app/index.tsx
+msgid "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
+msgstr "Il tuo luogo Personale è pronto per ciò che hai con te: chiavi, portafoglio, telefono. Ora aggiungi il luogo in cui vivi. Include le stanze più comuni e puoi modificarle."
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. Your Personal location uses your personal key if you add one."
+msgstr "Questa chiave paga per tutte le case di <0>{ownerName}</0>: <1>{list}</1>. Il tuo luogo Personale usa la tua chiave personale, se ne aggiungi una."
+
+#: src/routes/_app/settings.me.ai.tsx
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for Personal, your private threads, and questions that span owners."
+msgstr "La tua chiave è per Personale, le tue conversazioni private e le domande che riguardano più proprietari."
+
+#: src/routes/_app/settings.index.tsx
+msgid "Your Personal location, profile and preferences, and your AI calls, as one file."
+msgstr "Il tuo luogo Personale, profilo e preferenze, e le tue chiamate all'IA, in un unico file."
+
+#: src/components/export/export-sheet.tsx
+msgid "Your Personal location with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
+msgstr "Il tuo luogo Personale con i suoi file, profilo e preferenze, e le chiamate all'IA che hai fatto. I luoghi di tua proprietà si esportano uno per uno."
+
+#: src/components/search/semantic-note.tsx
+msgid "Keyword search only here (no embeddings model)"
+msgstr "Qui solo ricerca per parole (nessun modello di embedding)"
+
+#: src/routes/_app/settings.index.tsx
+msgid "After 30 days, with your Personal location. You can keep it until then."
+msgstr "Dopo 30 giorni, insieme al tuo luogo personale. Fino ad allora puoi tenerlo."
+
+#: src/components/delete-account.tsx
+msgid "Your account, your Personal location and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
+msgstr "Il tuo account, il tuo luogo personale e tutto ciò che contiene vengono eliminati tra 30 giorni. Fino ad allora puoi accedere e tenere l’account; nient’altro si apre."
+
+#: src/components/delete-account.tsx
+msgid "Your Personal location, profile and preferences, as one file."
+msgstr "Il tuo luogo personale, il profilo e le preferenze, in un unico file."
+
+#: src/components/delete-account.tsx
+msgid "You asked for it, with your Personal location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
+msgstr "L’hai chiesto tu, insieme al tuo luogo personale e a tutto ciò che contiene. Fino ad allora in Kept non si apre nient’altro. Tieni l’account per ritrovarlo com’era."
+
+#: src/components/import/track-step.tsx
+msgid "Also for Personal"
+msgstr "Anche per Personale"
+
+#: src/components/import/track-step.tsx
+msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "Personale, il tuo luogo, monitora lo stesso da quando parte l’importazione. Il menu mostra ciò che monitora uno qualsiasi dei tuoi luoghi."
+
+msgid "Date format"
+msgstr "Formato data"
+
+msgctxt "date format"
+msgid "Default"
+msgstr "Predefinito"
+
+msgid "Default leaves the year off this year’s dates. Purchase and warranty dates always show it."
+msgstr "Predefinito omette l’anno nelle date di quest’anno. Le date di acquisto e di garanzia lo mostrano sempre."
+
+msgid "How dates and times are written in English."
+msgstr "Come si scrivono date e ore in inglese."
+
+msgid "United Kingdom"
+msgstr "Regno Unito"
+
+msgid "United States"
+msgstr "Stati Uniti"
+
+msgid "Name {title}"
+msgstr "Assegna un nome a {title}"
+
+msgid "Name cleared"
+msgstr "Nome rimosso"
+
+msgid "Named {0}"
+msgstr "Nome assegnato: {0}"
+
+msgid "What it is, e.g. Insurance 2026. Leave it empty to show its kind."
+msgstr "Che cos’è, ad es. Assicurazione 2026. Lascia vuoto per mostrarne il tipo."
+
+msgid "{others, plural, one {This receipt has # other thing on it: the date and shop change for it too.} other {This receipt has # other things on it: the date and shop change for them too.}}"
+msgstr "{others, plural, one {Questa ricevuta riporta # altro oggetto: data e negozio cambiano anche per esso.} other {Questa ricevuta riporta altri # oggetti: data e negozio cambiano anche per essi.}}"
+
+msgid "Add a receipt"
+msgstr "Aggiungi una ricevuta"
+
+msgid "Add the purchase"
+msgstr "Aggiungi l’acquisto"
+
+msgid "Add the purchase of {0}"
+msgstr "Aggiungi l’acquisto di {0}"
+
+msgid "Choose the day it was bought."
+msgstr "Scegli il giorno dell’acquisto."
+
+msgid "Edit the purchase"
+msgstr "Modifica l’acquisto"
+
+msgid "No purchase recorded: when and where it was bought, and what it cost."
+msgstr "Nessun acquisto registrato: quando e dove è stato comprato, e quanto è costato."
+
+msgid "Price of one"
+msgstr "Prezzo unitario"
+
+msgid "Purchase of {0}"
+msgstr "Acquisto di {0}"
+
+msgid "Purchase saved"
+msgstr "Acquisto salvato"
+
+msgid "These are the purchase’s receipts: every thing bought on it shows them. A receipt added under Paperwork is this thing’s own and shows only there."
+msgstr "Queste sono le ricevute dell’acquisto: ogni oggetto comprato con esso le mostra. Una ricevuta aggiunta in Documenti è di questo oggetto e compare solo lì."
+
+msgid "This purchase is kept in another location; change it there."
+msgstr "Questo acquisto è registrato in un altro luogo; modificalo lì."
+
+msgid "Also in Paperwork"
+msgstr "Anche in Documenti"
+
+msgid "At most 300 characters."
+msgstr "Al massimo 300 caratteri."
+
+msgid "Couldn't change the receipt"
+msgstr "Impossibile modificare la ricevuta"
+
+msgid "How the receipt names it."
+msgstr "Come lo chiama la ricevuta."
+
+msgid "It comes off the purchase. The file itself stays until it's purged."
+msgstr "Viene tolta dall’acquisto. Il file resta finché non viene eliminato."
+
+msgid "Its date, shop, price and receipts go. The thing stays."
+msgstr "Data, negozio, prezzo e ricevute vengono rimossi. L’oggetto resta."
+
+msgid "Left empty, it is the price times the quantity."
+msgstr "Se vuoto, è il prezzo per la quantità."
+
+msgid "No receipt yet."
+msgstr "Ancora nessuna ricevuta."
+
+msgid "Purchase notes"
+msgstr "Note sull’acquisto"
+
+msgid "Purchase removed"
+msgstr "Acquisto rimosso"
+
+msgid "Receipt replaced"
+msgstr "Ricevuta sostituita"
+
+msgid "Receipt total"
+msgstr "Totale della ricevuta"
+
+msgid "Remove {0}?"
+msgstr "Rimuovere {0}?"
+
+msgid "Remove {label}"
+msgstr "Rimuovi {label}"
+
+msgid "Remove this purchase?"
+msgstr "Rimuovere questo acquisto?"
+
+msgid "Take {0} off this receipt?"
+msgstr "Togliere {0} da questa ricevuta?"
+
+msgid "Take it off"
+msgstr "Toglilo"
+
+msgid "Taken off the receipt"
+msgstr "Tolto dalla ricevuta"
+
+msgid "The receipt and its other things stay as they are."
+msgstr "La ricevuta e gli altri oggetti restano come sono."

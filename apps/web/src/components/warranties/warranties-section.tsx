@@ -99,7 +99,8 @@ function WarrantyCard({
   const kinds = useWarrantyKindLabels();
   const boughtOn = thing.purchase?.purchasedOn ?? null;
   const term = useTermText();
-  const end = w.effectiveEndsOn ? fmt.day(w.effectiveEndsOn) : null;
+  // Warranty dates always carry the year (#362).
+  const end = w.effectiveEndsOn ? fmt.date(w.effectiveEndsOn) : null;
   const pill: { tone: PillTone; text: string } = w.lifetime
     ? { tone: 'ok', text: t`Lifetime` }
     : w.state === 'ended'
@@ -107,13 +108,13 @@ function WarrantyCard({
       : w.state === 'expiring'
         ? { tone: 'warn', text: t`Ends ${end ?? ''}` }
         : { tone: 'ok', text: t`Covered to ${end ?? ''}` };
-  const started = fmt.day(w.startsOn);
+  const started = fmt.date(w.startsOn);
   const length = w.lifetime
     ? t`for life, from ${started}`
     : w.termMonths
       ? t`${term(w.termMonths)} from ${started}`
       : t`from ${started}`;
-  const deadline = w.registrationDeadline ? fmt.day(w.registrationDeadline) : null;
+  const deadline = w.registrationDeadline ? fmt.date(w.registrationDeadline) : null;
   return (
     <article className="grid gap-2 rounded-[10px] border border-line bg-surface p-3">
       <div className="flex flex-wrap items-center gap-2">

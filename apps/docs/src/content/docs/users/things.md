@@ -13,13 +13,28 @@ tracks: **Details**, **Paperwork and warranties**, **Value**, **Meters**, **Loan
 - **Brand**: pick one of the account's brands, or type a new name and choose **Add “…”**. Anyone
   who edits things can add one; owners and admins rename and merge them under **Settings → Account
   → Brands**.
-- **Type**: change it in **Edit**, or tap the type at the top of the page (**No type** until it
-  has one). A thing with no type just takes one. From one type to another, Kept lists the values
-  that will be archived before you save: they stay under **Archived fields** and come back if
-  you switch back.
+- **Type**: Kept's built-in types and the account's own; change it in **Edit**, or tap the type
+  at the top of the page (**No type** until it has one). A thing with no type just takes one. From
+  one type to another, Kept lists the values that will be archived before you save: they stay
+  under **Archived fields** and come back if you switch back. Owners and admins change a built-in
+  under **Settings → Account → Types** with **Customise**, which makes the account's copy; from
+  then on the copy is the one every list offers, so a customised type shows once.
 - **Label**: on a computer, the **Label** card beside the details shows the label as it prints
   (QR code, short ID, name), with **Print** and **Download** (a PNG). On a phone, the **Label**
   row in Details opens it. See [short IDs and labels](/users/short-ids/).
+- **Purchase**: when and where it was bought, how the receipt names it, the price of one, the
+  receipt's total and tax, and notes. Members and above change any of it with **Edit** beside it,
+  also while the thing itself is being edited, or **Add the purchase** when there is none (where
+  the Money module is on). Prices need the Money module and someone who may see them. A purchase
+  can hold several things, as one receipt does: its date and shop are the same for all of them,
+  and the sheet says so. **Remove** deletes a purchase that is this thing's alone, receipts and
+  all, or takes the thing off a receipt it shares. A purchase kept in another location (the thing
+  moved) is changed there.
+- **The purchase's receipts** sit under it by name: a receipt keeps its file's name ("B.TECH
+  invoice 4471"), and **Edit** adds, renames, replaces and removes them. They belong to the
+  purchase, so every thing bought on it shows them. A receipt added under **Paperwork** belongs to
+  this thing alone and shows only there; when the same file is in both, the purchase's says **Also
+  in Paperwork**, so it isn't a second receipt.
 - **Actions** has Move, Lend, Label, Split, Duplicate, Save as template, Mark seen, Not here,
   Change lifecycle (sold, given away, thrown out), Archive, Re-type, Convert to a room or spot,
   and Move to Trash.

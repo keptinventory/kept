@@ -73,7 +73,9 @@ describe('the tools as the model sees them', () => {
   it('every tool together stays well under 20,000 characters (a step offers fewer, select.ts)', () => {
     // Groq's free tier allows 8,000 tokens a minute for openai/gpt-oss-120b, the output
     // allowance included.
-    expect(sizeOf({ oneLocation: true })).toBeLessThan(15_000);
+    // 15,400 since 1.14.4: update_thing's `purchase` (#348, #215), its schema kept to plain
+    // strings, took the one-location set from 14,972 to 15,286 characters.
+    expect(sizeOf({ oneLocation: true })).toBeLessThan(15_400);
     expect(sizeOf()).toBeLessThan(20_000);
   });
 
