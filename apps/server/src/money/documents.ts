@@ -58,13 +58,15 @@ export type DocImage = {
   url: string | null;
   role: string;
   sort: number;
+  /** What people named it (#183); absent in events from before 1.14.4. */
+  name?: string | null;
 };
 
 type DocRow = DocImage & { created_by: string };
 
 async function docRows(client: pg.ClientBase, column: DocColumn, id: string): Promise<DocRow[]> {
   const { rows } = await client.query<DocRow>(
-    `SELECT id, file_id, url, role, sort, created_by FROM public.attachments
+    `SELECT id, file_id, url, role, sort, name, created_by FROM public.attachments
       WHERE ${column} = $1 ORDER BY sort, id`,
     [id],
   );
@@ -115,6 +117,7 @@ export async function auditDeletedDocuments(
         url: d.url,
         role: d.role,
         sort: d.sort,
+        ...(d.name ? { name: d.name } : {}),
       },
       after: null,
       subjects: event.thingId ? [event.thingId] : [],
@@ -149,11 +152,11 @@ export async function restoreDocuments(
       if (!rowCount) continue;
     }
     const { rowCount } = await client.query(
-      `INSERT INTO public.attachments (id, location_id, file_id, url, ${column}, role, sort,
+      `INSERT INTO public.attachments (id, location_id, file_id, url, ${column}, role, sort, name,
                                        created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, kept.current_user_id())
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, kept.current_user_id())
        ON CONFLICT (id) DO NOTHING`,
-      [d.id, locationId, d.file_id, d.url, recordId, d.role, d.sort],
+      [d.id, locationId, d.file_id, d.url, recordId, d.role, d.sort, d.name ?? null],
     );
     if (rowCount) back.push(d.id);
   }

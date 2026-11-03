@@ -460,6 +460,46 @@ describe('warranties, their defaults and the coverage bar', () => {
     expect(ok<{ items: Claim[] }>(await claims(louis, oven.id)).items[0]?.warranty?.id).toBe(w.id);
   });
 
+  it('a named document keeps its name through the delete and its undo (#183)', async () => {
+    const kettle = await createThing(t, louis, home, { name: 'Kettle' });
+    const w = ok<Warranty>(
+      await addWarranty(louis, kettle.id, {
+        kind: 'manufacturer',
+        startsOn: '2026-01-01',
+        termMonths: 12,
+      }),
+      201,
+    );
+    const doc = ok<{ id: string; rowVersion: number }>(
+      await call(t, '/api/v1/attachments', {
+        as: louis,
+        body: {
+          locationId: home.id,
+          url: 'https://maker.example/warranty/kettle',
+          subject: { warrantyId: w.id },
+          role: 'warranty_doc',
+        },
+      }),
+      201,
+    );
+    ok(
+      await call(t, `/api/v1/attachments/${doc.id}`, {
+        as: louis,
+        method: 'PATCH',
+        body: { name: 'Kettle warranty card' },
+        headers: { 'if-match': String(doc.rowVersion) },
+      }),
+    );
+    const res = await delWarranty(louis, w.id, 1);
+    ok(res, 204);
+    const [deleted] = (await eventsOf(doc.id)).filter((e) => e.action === 'attachment.delete');
+    expect(deleted?.diff).toMatchObject({ name: { before: 'Kettle warranty card' } });
+    ok(await undo(louis, res.headers['x-kept-audit-event'] as string));
+    expect(await own('SELECT name FROM public.attachments WHERE id = $1', [doc.id])).toEqual([
+      { name: 'Kettle warranty card' },
+    ]);
+  });
+
   it('undo puts back a document whose file only its uploader could see (the event holds it)', async () => {
     const fridge = await createThing(t, louis, home, { name: 'Fridge' });
     const w = ok<Warranty>(
