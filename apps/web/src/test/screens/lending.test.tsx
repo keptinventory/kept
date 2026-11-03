@@ -8,7 +8,8 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ensureSeeded } from '@/api/household/mock/db';
 import { HOUSEHOLD_IDS } from '@/api/household/mock/state';
-import { ownerScenario } from '@/api/mock/fixtures';
+import { IDS, ownerScenario } from '@/api/mock/fixtures';
+import { paths } from '@/api/paths';
 import { findHeading, renderApp } from '../app';
 
 const H = HOUSEHOLD_IDS;
@@ -111,8 +112,23 @@ describe('the variants', () => {
       l.modules = l.modules.filter((m) => m !== 'lending');
       l.effectiveModules = l.modules;
     }
-    await renderApp('/lending', { state });
+    const { user, mock } = await renderApp('/lending', { state });
     expect(await screen.findByText('Lending is off in your locations')).toBeInTheDocument();
+    const rows = screen.getByRole('list', { name: 'Your locations' });
+    // An owner turns it on in one tap; a member of Alfred's household is told who can.
+    expect(within(rows).getAllByRole('button', { name: 'Turn on Lending here' })).toHaveLength(3);
+    expect(await within(rows).findByText(/^Ask .*بروس.* to turn it on\.$/)).toBeInTheDocument();
+    // The Garage, where Bruce lent Murdock the drill.
+    const garage = within(rows).getByText('Garage').closest('li') as HTMLElement;
+    await user.click(within(garage).getByRole('button', { name: 'Turn on Lending here' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', paths.locationModules(IDS.garage))?.body).toEqual({
+        module: 'lending',
+        enabled: true,
+      }),
+    );
+    expect(await screen.findByRole('article', { name: DRILL })).toBeInTheDocument();
+    expect(screen.queryByText('Lending is off in your locations')).toBeNull();
   });
 
   it('reads right to left in Arabic', async () => {

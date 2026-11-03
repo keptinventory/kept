@@ -267,6 +267,8 @@ export type UpdateLocationBody = {
  * "Save" on What to track is one audited, atomic change rather than a toggle per module.
  */
 export type SetModulesBody = { preset: Preset; modules: ModuleId[] };
+/** One module on or off, the rest as they are (the same route, D61). */
+export type SetModuleBody = { module: ModuleId; enabled: boolean };
 
 // ----- members and invites -------------------------------------------------------------------
 

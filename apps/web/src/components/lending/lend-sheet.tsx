@@ -9,7 +9,8 @@
  * stays here and the toast says so. A kit also lists its parts kept elsewhere, each to lend too
  * or leave. Undo takes the whole hand-over back while nothing of it has changed.
  *
- * With Lending off here, the sheet says so instead of the form.
+ * With Lending off here, the sheet says so instead of the form: an owner or admin turns it on there
+ * in one tap and the form follows; a member is told who can.
  */
 
 import type { Condition } from '@kept/shared';
@@ -61,7 +62,7 @@ export function LendSheet({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
         ) : null
       ) : (
         <div className="grid gap-3.5">
-          <ModuleOff what={<Trans>Lending</Trans>} />
+          <ModuleOff what={<Trans>Lending</Trans>} module="lending" />
           <DialogFooter>
             <Button variant="secondary" onPress={onClose}>
               <Trans>Close</Trans>

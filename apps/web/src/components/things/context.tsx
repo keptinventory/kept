@@ -14,6 +14,7 @@ import { Trans } from '@lingui/react/macro';
 import { createContext, type ReactNode, useContext } from 'react';
 import type { ThingView } from '@/api/inventory/types';
 import type { LocationDetail } from '@/api/types';
+import { TurnOnHere, WhoTurnsOn } from '@/components/module-turn-on';
 import { LinkButton, Notice } from '@/components/page';
 import { sep } from '@/lib/format';
 
@@ -63,9 +64,21 @@ export function makeCtx(
   };
 }
 
-/** A module that is off, said plainly, with the way to turn it on. */
-export function ModuleOff({ what, className }: { what: ReactNode; className?: string }) {
-  const { location, role } = useThingCtx();
+/**
+ * A module that is off, said plainly, with the way to turn it on. Given `module`, an owner or
+ * admin turns it on here in one tap and a member is told who can (module-turn-on.tsx); without
+ * it, "Turn on" opens What to track.
+ */
+export function ModuleOff({
+  what,
+  module,
+  className,
+}: {
+  what: ReactNode;
+  module?: ModuleId;
+  className?: string;
+}) {
+  const { location, role, refresh } = useThingCtx();
   const admin = role === 'owner' || role === 'admin';
   return (
     <Notice
@@ -79,13 +92,21 @@ export function ModuleOff({ what, className }: { what: ReactNode; className?: st
       }
       action={
         admin ? (
-          <LinkButton size="small" to="/settings/location/$id/track" params={{ id: location.id }}>
-            <Trans>Turn on</Trans>
-          </LinkButton>
+          module ? (
+            <TurnOnHere location={location} module={module} onDone={refresh} />
+          ) : (
+            <LinkButton size="small" to="/settings/location/$id/track" params={{ id: location.id }}>
+              <Trans>Turn on</Trans>
+            </LinkButton>
+          )
         ) : undefined
       }
     >
-      {admin ? null : <Trans>Ask an admin of this location to turn it on.</Trans>}
+      {admin ? null : module ? (
+        <WhoTurnsOn locationId={location.id} />
+      ) : (
+        <Trans>Ask an admin of this location to turn it on.</Trans>
+      )}
     </Notice>
   );
 }

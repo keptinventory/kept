@@ -14,6 +14,10 @@ Lending is a module: **Location settings → What to track → Lending**. It's p
 **Essentials**, so turn it on there if you lend from Personal
 ([modules and presets](/users/modules/)).
 
+Where it's off, **Lend** on a thing and the **Lending** page say so. An owner or admin of the
+location gets **Turn on Lending here**: one tap, and the lend form opens. Anyone else sees who can
+turn it on.
+
 ## Lend something
 
 Open the thing and choose **Lend**:

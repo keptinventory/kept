@@ -18,6 +18,7 @@ import type {
   ManagedResetCode,
   MembersPage,
   MembersResponse,
+  SetModuleBody,
   SetModulesBody,
   UpdateLocationBody,
   UpdateMemberBody,
@@ -71,6 +72,9 @@ export const updateLocation = (id: string, body: UpdateLocationBody, rowVersion?
   api.patch<LocationDetail>(paths.location(id), body, ifMatch(rowVersion));
 
 export const setModules = (id: string, body: SetModulesBody) =>
+  api.post<LocationDetail>(paths.locationModules(id), body);
+/** One module switched, e.g. "Turn on Lending here" (needs location.settings: owner or admin). */
+export const setModule = (id: string, body: SetModuleBody) =>
   api.post<LocationDetail>(paths.locationModules(id), body);
 
 export const createInvite = (id: string, body: CreateInviteBody) =>

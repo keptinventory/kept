@@ -37,6 +37,7 @@ import {
   HOSTNAME,
   type LocationDetail,
   MAX_FORMER_HOSTNAMES,
+  type SetModuleBody,
   type SetModulesBody,
   type SetupBody,
   type UpdateMemberBody,
@@ -347,6 +348,19 @@ export function createMockApi(state: MockState): MockApi {
   add('POST', paths.locationModules(':id'), ({ params, body }) => {
     const found = loc(params.id ?? '');
     if (!found) return err(404, 'not_found', 'Not found.');
+    if ('module' in (body as object)) {
+      if (found.role !== 'owner' && found.role !== 'admin') {
+        return err(403, 'forbidden', 'Only owners and admins change what a location tracks.');
+      }
+      // One switch, the rest as they are (as the server's `{module, enabled}`).
+      const one = body as SetModuleBody;
+      const flip = (list: SetModuleBody['module'][]) =>
+        one.enabled ? [...new Set([...list, one.module])] : list.filter((m) => m !== one.module);
+      found.modules = flip(found.modules);
+      if (found.effectiveModules) found.effectiveModules = flip(found.effectiveModules);
+      found.rowVersion = (found.rowVersion ?? 0) + 1;
+      return found;
+    }
     const b = body as SetModulesBody;
     found.preset = b.preset;
     found.modules = [...b.modules];
