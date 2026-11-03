@@ -186,10 +186,10 @@ async function undoDelete(args: UndoArgs): Promise<void> {
     }
     await client.query(
       `INSERT INTO public.attachments
-         (id, location_id, file_id, url, expiring_document_id, role, sort, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, kept.current_user_id())
+         (id, location_id, file_id, url, expiring_document_id, role, sort, name, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, kept.current_user_id())
        ON CONFLICT (id) DO NOTHING`,
-      [a.id, event.locationId, a.file_id, a.url, id, a.role, a.sort],
+      [a.id, event.locationId, a.file_id, a.url, id, a.role, a.sort, a.name ?? null],
     );
     relinked.push(a.id);
   }
