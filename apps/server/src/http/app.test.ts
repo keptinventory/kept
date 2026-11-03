@@ -182,13 +182,24 @@ describe('buildApp()', () => {
     }
   });
 
-  it('sends HSTS when the public URL is https', async () => {
-    const httpsApp = await buildApp({ env: { KEPT_PUBLIC_URL: 'https://kept.test' }, pools });
+  // #403: HSTS covers the whole hostname on every port, so KEPT_HSTS=off sends max-age=0, which
+  // makes a browser that stored the policy forget it; over http there is never a header.
+  it.each([
+    ['https://kept.test', undefined, 'max-age=31536000'],
+    ['https://kept.test', 'on', 'max-age=31536000'],
+    ['https://kept.test', 'off', 'max-age=0'],
+    ['http://kept.test', 'on', undefined],
+    ['http://kept.test', 'off', undefined],
+  ] as const)('HSTS with %s and KEPT_HSTS=%s: %s', async (publicUrl, hsts, header) => {
+    const hstsApp = await buildApp({
+      env: { KEPT_PUBLIC_URL: publicUrl, ...(hsts ? { KEPT_HSTS: hsts } : {}) },
+      pools,
+    });
     try {
-      const res = await httpsApp.inject({ method: 'GET', url: '/healthz' });
-      expect(res.headers['strict-transport-security']).toMatch(/max-age=31536000/);
+      const res = await hstsApp.inject({ method: 'GET', url: '/healthz' });
+      expect(res.headers['strict-transport-security']).toBe(header);
     } finally {
-      await httpsApp.close();
+      await hstsApp.close();
     }
   });
 

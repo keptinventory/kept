@@ -193,6 +193,8 @@ services:
       # Only Caddy's fixed address (below) is believed about X-Forwarded-For. Nothing else ever
       # holds it: it lies outside the network's dynamic range.
       KEPT_TRUSTED_PROXIES: 172.29.72.200
+      # HSTS over https (#403): off sends max-age=0, for plain-http services on the same hostname.
+      KEPT_HSTS: ${KEPT_HSTS:-}
       KEPT_SMTP_URL: ${KEPT_SMTP_URL:-}
       KEPT_SMTP_FROM: ${KEPT_SMTP_FROM:-}
       KEPT_LOG_LEVEL: ${KEPT_LOG_LEVEL:-info}
