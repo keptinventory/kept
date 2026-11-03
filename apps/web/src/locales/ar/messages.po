@@ -6201,10 +6201,6 @@ msgstr "شخصي"
 msgid "Personal AI key"
 msgstr "مفتاح الذكاء الاصطناعي الشخصي"
 
-#: src/routes/_app/loc.$id.tsx
-msgid "Personal is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
-msgstr "الموقع الشخصي لك وحدك: لا أعضاء فيه ولا دعوات ولا روابط مشاركة. انقل الشيء إلى منزل مشترك عندما يصبح مشتركًا."
-
 #: src/components/history/labels.ts
 #: src/components/registries/contact-card.tsx
 #: src/components/registries/registry-edit-sheet.tsx
@@ -9026,10 +9022,6 @@ msgstr "تستخدمه: {0}."
 msgid "Used by imports and the API. Made from the label; English letters, digits and _."
 msgstr "تستخدمه عمليات الاستيراد وواجهة API. يُشتق من الاسم، بحروف إنجليزية وأرقام و_."
 
-#: src/routes/_app/settings.me.ai.tsx
-msgid "Used for Personal, your private threads, and questions that span owners."
-msgstr "يُستخدم لموقعك الشخصي، ومحادثاتك الخاصة، والأسئلة التي تشمل أكثر من مالك."
-
 #: src/components/registries/labels.ts
 msgid "Used up and restocked, like batteries."
 msgstr "يُستهلك ويُعاد تعبئته، مثل البطاريات."
@@ -9570,10 +9562,6 @@ msgstr "كلمة مرورك"
 #: src/components/reports/progress.tsx
 msgid "Your PDF is ready"
 msgstr "ملف PDF جاهز"
-
-#: src/routes/_app/index.tsx
-msgid "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
-msgstr "موقعك الشخصي جاهز لما تحمله معك: المفاتيح والمحفظة والهاتف. أضف الآن المكان الذي تسكن فيه. يأتي بالغرف المعتادة، ويمكنك تغييرها."
 
 #: src/components/page.tsx
 msgid "Your session ended. Sign in again."
@@ -10978,10 +10966,6 @@ msgid "The whole account"
 msgstr "الحساب كله"
 
 #: src/components/ai/key-scope.tsx
-msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. Your Personal location uses your personal key if you add one."
-msgstr "يدفع هذا المفتاح لكل بيوت <0>{ownerName}</0>: <1>{list}</1>. ويستخدم موقعك الشخصي مفتاحك الشخصي إن أضفته."
-
-#: src/components/ai/key-scope.tsx
 msgid "This key pays for the homes your account owns."
 msgstr "يدفع هذا المفتاح للبيوت التي يملكها حسابك."
 
@@ -11148,11 +11132,6 @@ msgstr "مفتاحك"
 #: src/components/ai/caps.tsx
 msgid "Your limit in <0>{0}</0>'s account"
 msgstr "حدّك في حساب <0>{0}</0>"
-
-#: src/routes/_app/settings.me.ai.tsx
-#: src/components/ai/settings-page.tsx
-msgid "Your own key is for Personal, your private threads, and questions that span owners."
-msgstr "مفتاحك الخاص للموقع الشخصي، ومحادثاتك الخاصة، والأسئلة التي تشمل أكثر من مالك."
 
 #: src/components/ai/cap-bars.tsx
 #: src/components/ai/caps.tsx
@@ -16885,10 +16864,6 @@ msgstr "يُنشأ كل رابط تنزيل عند النقر على «تنزي�
 msgid "Your data"
 msgstr "بياناتك"
 
-#: src/routes/_app/settings.index.tsx
-msgid "Your Personal location, profile and preferences, and your AI calls, as one file."
-msgstr "موقعك الشخصي وملفك الشخصي وتفضيلاتك واستدعاءاتك للذكاء الاصطناعي، في ملف واحد."
-
 #: src/components/import/archive-run.tsx
 msgid "Choose where to import it first."
 msgstr "اختر أولًا أين تستورده."
@@ -17680,10 +17655,6 @@ msgstr "نزّل تصدير {name}"
 #: src/components/export/export-list.tsx
 msgid "Export again"
 msgstr "صدّر من جديد"
-
-#: src/components/export/export-sheet.tsx
-msgid "Your Personal location with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
-msgstr "موقعك الشخصي بملفاته، وملفك الشخصي وتفضيلاتك، واستدعاءات الذكاء الاصطناعي التي أجريتها. تُصدَّر المواقع التي تملكها واحدًا واحدًا."
 
 #: src/components/export/export-sheet.tsx
 msgid "What goes in"
@@ -20850,10 +20821,6 @@ msgstr "بعض الملفات مفقودة من مخزن الملفات، فلا
 msgid "Delete my account"
 msgstr "حذف حسابي"
 
-#: src/routes/_app/settings.index.tsx
-msgid "After 30 days, with your Personal location. You can keep it until then."
-msgstr "بعد ٣٠ يومًا، ومعه موقعك الشخصي. يمكنك الإبقاء عليه حتى ذلك الحين."
-
 #: src/components/delete-account.tsx
 msgid "Delete…"
 msgstr "حذف…"
@@ -20883,10 +20850,6 @@ msgid "You own these locations. Hand each one to someone else, or delete it, fir
 msgstr "أنت مالك هذه المواقع. سلّم كلًّا منها لشخص آخر أو احذفه أولًا."
 
 #: src/components/delete-account.tsx
-msgid "Your account, your Personal location and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
-msgstr "يُحذف حسابك وموقعك الشخصي وكل ما فيه بعد ٣٠ يومًا من الآن. وحتى ذلك الحين يمكنك تسجيل الدخول والإبقاء على الحساب، ولا يُفتح شيء غير ذلك."
-
-#: src/components/delete-account.tsx
 msgid "What you added to other people's locations stays there. Your other devices are signed out now."
 msgstr "ما أضفته إلى مواقع الآخرين يبقى فيها. وتُسجَّل أجهزتك الأخرى خروجًا الآن."
 
@@ -20895,20 +20858,12 @@ msgid "Keep a copy first?"
 msgstr "هل تحتفظ بنسخة أولًا؟"
 
 #: src/components/delete-account.tsx
-msgid "Your Personal location, profile and preferences, as one file."
-msgstr "موقعك الشخصي وملفك الشخصي وتفضيلاتك، في ملف واحد."
-
-#: src/components/delete-account.tsx
 msgid "Your account stays"
 msgstr "سيبقى حسابك"
 
 #: src/components/delete-account.tsx
 msgid "Your account will be deleted on {day}"
 msgstr "سيُحذف حسابك في {day}"
-
-#: src/components/delete-account.tsx
-msgid "You asked for it, with your Personal location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
-msgstr "طلبتَ ذلك، ومعه موقعك الشخصي وكل ما فيه. وحتى ذلك الحين لا يُفتح شيء آخر في Kept. أبقِ على الحساب لتعود إليه كما كان."
 
 #: src/components/delete-account.tsx
 msgid "Keep my account"
@@ -27222,14 +27177,6 @@ msgstr "ابدأ بما تحتاج إليه؛ وفعّل أي شيء آخر لا
 msgid "{prices, plural, one {The backup has # price. With Essentials it stays in the notes; Household keeps prices and warranties as their own records.} other {The backup has # prices. With Essentials they stay in the notes; Household keeps prices and warranties as their own records.}}"
 msgstr "{prices, plural, zero {لا أسعار في النسخة الاحتياطية.} one {في النسخة الاحتياطية سعر واحد. مع الأساسيات يبقى في الملاحظات؛ والمنزلية تحفظ الأسعار والضمانات كسجلات خاصة بها.} two {في النسخة الاحتياطية سعران. مع الأساسيات يبقيان في الملاحظات؛ والمنزلية تحفظ الأسعار والضمانات كسجلات خاصة بها.} few {في النسخة الاحتياطية # أسعار. مع الأساسيات تبقى في الملاحظات؛ والمنزلية تحفظ الأسعار والضمانات كسجلات خاصة بها.} many {في النسخة الاحتياطية # سعرًا. مع الأساسيات تبقى في الملاحظات؛ والمنزلية تحفظ الأسعار والضمانات كسجلات خاصة بها.} other {في النسخة الاحتياطية # سعر. مع الأساسيات تبقى في الملاحظات؛ والمنزلية تحفظ الأسعار والضمانات كسجلات خاصة بها.}}"
 
-#: src/components/import/track-step.tsx
-msgid "Also for Personal"
-msgstr "ولموقع \"شخصي\" أيضًا"
-
-#: src/components/import/track-step.tsx
-msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
-msgstr "موقعك \"شخصي\" يتابع الشيء نفسه من لحظة تشغيل الاستيراد. والقائمة تعرض ما يتابعه أي موقع من مواقعك."
-
 #: src/components/history/labels.ts
 msgid "Repaired an import"
 msgstr "أُصلح استيراد"
@@ -28377,3 +28324,55 @@ msgstr "اطلب من {who} تفعيلها."
 #: src/routes/_app/lending.tsx
 msgid "Turn it on where you lend or borrow things: who has what, and when it's due back. Nothing else changes."
 msgstr "فعّلها حيث تُعير الأشياء أو تستعيرها: من معه ماذا، ومتى يحين موعد إرجاعه. لا يتغيّر شيء آخر."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "<0>{name}</0> is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
+msgstr "<0>{name}</0> لك وحدك: لا أعضاء فيه ولا دعوات ولا روابط مشاركة. انقل الشيء إلى منزل مشترك عندما يصبح مشتركًا."
+
+#: src/components/export/export-sheet.tsx
+msgid "<0>{personal}</0> with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
+msgstr "<0>{personal}</0> بملفاته، وملفك الشخصي وتفضيلاتك، واستدعاءات الذكاء الاصطناعي التي أجريتها. تُصدَّر المواقع التي تملكها واحدًا واحدًا."
+
+#: src/routes/_app/index.tsx
+msgid "<0>{personal}</0>, your own location, is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
+msgstr "<0>{personal}</0>، موقعك الخاص، جاهز لما تحمله معك: المفاتيح والمحفظة والهاتف. أضف الآن المكان الذي تسكن فيه. يأتي بالغرف المعتادة، ويمكنك تغييرها."
+
+#: src/components/import/track-step.tsx
+msgid "<0>{personal}</0>, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "<0>{personal}</0>، موقعك الخاص، يتابع الشيء نفسه من لحظة تشغيل الاستيراد. والقائمة تعرض ما يتابعه أي موقع من مواقعك."
+
+#: src/routes/_app/settings.index.tsx
+msgid "<0>{personal}</0>, your profile and preferences, and your AI calls, as one file."
+msgstr "<0>{personal}</0> وملفك الشخصي وتفضيلاتك واستدعاءاتك للذكاء الاصطناعي، في ملف واحد."
+
+#: src/components/delete-account.tsx
+msgid "<0>{personal}</0>, your profile and preferences, as one file."
+msgstr "<0>{personal}</0> وملفك الشخصي وتفضيلاتك، في ملف واحد."
+
+#: src/routes/_app/settings.index.tsx
+msgid "After 30 days, with <0>{personal}</0>. You can keep it until then."
+msgstr "بعد ٣٠ يومًا، ومعه <0>{personal}</0>. يمكنك الإبقاء عليه حتى ذلك الحين."
+
+#: src/components/import/track-step.tsx
+msgid "Also for <0>{personal}</0>"
+msgstr "ولموقع <0>{personal}</0> أيضًا"
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. <2>{personal}</2> uses your personal key if you add one."
+msgstr "يدفع هذا المفتاح لكل بيوت <0>{ownerName}</0>: <1>{list}</1>. ويستخدم <2>{personal}</2> مفتاحك الشخصي إن أضفته."
+
+#: src/components/ai/key-scope.tsx
+msgid "Used for <0>{personal}</0>, your private threads, and questions that span owners."
+msgstr "يُستخدم لموقع <0>{personal}</0>، ومحادثاتك الخاصة، والأسئلة التي تشمل أكثر من مالك."
+
+#: src/components/delete-account.tsx
+msgid "You asked for it, with your own location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
+msgstr "طلبتَ ذلك، ومعه موقعك الخاص وكل ما فيه. وحتى ذلك الحين لا يُفتح شيء آخر في Kept. أبقِ على الحساب لتعود إليه كما كان."
+
+#: src/components/delete-account.tsx
+msgid "Your account, your own location <0>{personal}</0> and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
+msgstr "يُحذف حسابك وموقعك الخاص <0>{personal}</0> وكل ما فيه بعد ٣٠ يومًا من الآن. وحتى ذلك الحين يمكنك تسجيل الدخول والإبقاء على الحساب، ولا يُفتح شيء غير ذلك."
+
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for <0>{personal}</0>, your private threads, and questions that span owners."
+msgstr "مفتاحك الخاص لموقع <0>{personal}</0>، ومحادثاتك الخاصة، والأسئلة التي تشمل أكثر من مالك."
