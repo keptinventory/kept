@@ -33,6 +33,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { Segmented } from '@/components/ui/segmented';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
+import { typeOfKey } from '@/lib/type-list';
 import { useInvalidateBrowse } from './api';
 import { FurnitureForm } from './furniture-lazy';
 import { PLACE_KIND_ICONS, PLACE_KINDS, usePlaceKindLabels } from './labels';
@@ -160,7 +161,7 @@ function useBoxTypeId(): string | undefined {
   const accounts = useAccounts();
   const own = accounts.data?.accounts.find((a) => a.isOwn) ?? accounts.data?.accounts[0];
   const types = useTypes(own?.id ?? '');
-  return types.data?.types.find((ty) => ty.builtinKey === 'box_bin')?.id;
+  return typeOfKey(types.data?.types, 'box_bin')?.id;
 }
 
 function AddThingForm({

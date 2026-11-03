@@ -32,6 +32,7 @@ import { Switch } from '@/components/ui/switch';
 import { TextField } from '@/components/ui/text-field';
 import { TickBox } from '@/components/ui/tick-box';
 import { useFormat } from '@/lib/format';
+import { withoutCustomised } from '@/lib/type-list';
 import { isNot, useListState } from '@/lib/url-state';
 import { useMemoryPages } from './memory-list';
 
@@ -98,7 +99,8 @@ export function useKeptTypes(accountId: string | undefined): KeptType[] | undefi
   const typeName = useTypeName();
   return useMemo(
     () =>
-      types.data?.types
+      types.data &&
+      withoutCustomised(types.data.types)
         .filter((y) => !y.isFieldGroup)
         .map((y) => ({ id: y.id, name: typeName(y) }))
         .sort((a, b) => a.name.localeCompare(b.name)),

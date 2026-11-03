@@ -13,10 +13,12 @@ tracks: **Details**, **Paperwork and warranties**, **Value**, **Meters**, **Loan
 - **Brand**: pick one of the account's brands, or type a new name and choose **Add “…”**. Anyone
   who edits things can add one; owners and admins rename and merge them under **Settings → Account
   → Brands**.
-- **Type**: change it in **Edit**, or tap the type at the top of the page (**No type** until it
-  has one). A thing with no type just takes one. From one type to another, Kept lists the values
-  that will be archived before you save: they stay under **Archived fields** and come back if
-  you switch back.
+- **Type**: Kept's built-in types and the account's own; change it in **Edit**, or tap the type
+  at the top of the page (**No type** until it has one). A thing with no type just takes one. From
+  one type to another, Kept lists the values that will be archived before you save: they stay
+  under **Archived fields** and come back if you switch back. Owners and admins change a built-in
+  under **Settings → Account → Types** with **Customise**, which makes the account's copy; from
+  then on the copy is the one every list offers, so a customised type shows once.
 - **Label**: on a computer, the **Label** card beside the details shows the label as it prints
   (QR code, short ID, name), with **Print** and **Download** (a PNG). On a phone, the **Label**
   row in Details opens it. See [short IDs and labels](/users/short-ids/).

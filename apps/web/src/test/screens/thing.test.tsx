@@ -597,6 +597,27 @@ describe('create sheet', () => {
     expect(screen.queryByRole('option', { name: /^Add “/ })).toBeNull();
   });
 
+  it('lists a customised built-in type once: the account’s copy (#357)', async () => {
+    const s = ownerScenario();
+    const original = s.inventory.types.find((x) => x.id === INV_IDS.type.furniture);
+    if (!original) throw new Error('fixture');
+    const copyId = '0190a000-0000-7000-8000-00000000c0f1';
+    s.inventory.types.push({ ...structuredClone(original), id: copyId, copiedFromId: original.id });
+    const { user, mock } = await renderApp(`/t/${T.cableBox}`, { state: s });
+    await findHeading('Cable box');
+    await user.click(screen.getByRole('button', { name: 'Add a thing' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Add a thing' });
+    await user.type(within(dialog).getByLabelText('Name'), 'Side table');
+    await user.type(within(dialog).getByRole('combobox', { name: 'Type' }), 'Furn');
+    const options = await screen.findAllByRole('option', { name: /^Furniture/ });
+    expect(options).toHaveLength(1);
+    await user.click(options[0] as HTMLElement);
+    await user.click(within(dialog).getByRole('button', { name: 'Add' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', p.things)?.body).toMatchObject({ typeId: copyId }),
+    );
+  });
+
   it('hides quantity for a serialized type and the purchase without Money', async () => {
     const s = withHome((h) => Object.assign(h, { modules: [] }));
     const { user } = await renderApp(`/t/${T.cableBox}`, { state: s });

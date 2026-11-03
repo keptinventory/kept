@@ -48,6 +48,7 @@ import type {
 } from '@/api/inventory/types';
 import { useLocations } from '@/api/queries';
 import type { LocationSummary } from '@/api/types';
+import { withoutCustomised } from '@/lib/type-list';
 
 export type AccountRole = 'owner' | 'admin' | 'member' | 'viewer';
 
@@ -190,8 +191,7 @@ export function switchableAccounts(scope: AccountScope): AccountSummary[] {
 export function useAccountTypes(accountId: string) {
   const q = useTypes(accountId);
   const all = q.data?.types ?? [];
-  const replaced = new Set(all.map((t) => t.copiedFromId).filter((x): x is string => !!x));
-  const types = all.filter((t) => !replaced.has(t.id));
+  const types = withoutCustomised(all);
   return { ...q, types, all };
 }
 
