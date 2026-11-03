@@ -1,12 +1,13 @@
 /**
  * The built-in library's names in French, German and Italian (D204). English and Arabic stay
  * beside each definition in builtin-types.ts; these three live here so that file keeps its shape.
- * The test checks every built-in type and field has all three.
+ * The test checks every built-in type and field has all three. Vietnamese has no table yet, so
+ * it falls back to English (see builtinTypeName/builtinFieldName).
  */
 import { BUILTIN_TYPES, builtinType } from './builtin-types.js';
 
-export type BuiltinNameLocale = 'en' | 'ar' | 'fr' | 'de' | 'it';
-type More = { readonly fr: string; readonly de: string; readonly it: string };
+export type BuiltinNameLocale = 'en' | 'ar' | 'fr' | 'de' | 'it' | 'vi';
+type More = { readonly fr: string; readonly de: string; readonly it: string; readonly vi?: string };
 
 export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
   device: { fr: 'Appareil', de: 'Gerät', it: 'Dispositivo' },
