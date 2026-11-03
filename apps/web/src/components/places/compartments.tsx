@@ -42,6 +42,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { ChoiceCards, Segmented } from '@/components/ui/segmented';
 import { isolate } from '@/lib/bidi';
 import { useFormat } from '@/lib/format';
+import { useOnline } from '@/lib/online';
 import { cn } from '@/lib/utils';
 import { invalidateBrowse } from './api';
 import { useFailedCodeText } from './furniture';
@@ -138,6 +139,8 @@ export function CompartmentsSection({ place, canEdit, labels }: CompartmentsProp
   const errorText = useErrorText();
   const refresh = useRefresh();
   const offerUndo = useOfferUndo();
+  // Every change is the server's: offline, Turn, Merge and Split wait.
+  const online = useOnline();
   const name = place.name;
 
   const merge = useMutation({
@@ -251,13 +254,19 @@ export function CompartmentsSection({ place, canEdit, labels }: CompartmentsProp
           {canEdit && mode === 'view' ? (
             <>
               {furniture.canTurn ? (
-                <Button size="small" variant="secondary" onPress={() => setTurning(true)}>
+                <Button
+                  size="small"
+                  variant="secondary"
+                  isDisabled={!online}
+                  onPress={() => setTurning(true)}
+                >
                   <Trans>Turn it…</Trans>
                 </Button>
               ) : null}
               <Button
                 size="small"
                 variant="secondary"
+                isDisabled={!online}
                 onPress={() => {
                   setMode('pick');
                   setPicked([]);
@@ -271,7 +280,7 @@ export function CompartmentsSection({ place, canEdit, labels }: CompartmentsProp
             <>
               <Button
                 size="small"
-                isDisabled={!canMerge || busy}
+                isDisabled={!canMerge || busy || !online}
                 isPending={merge.isPending}
                 onPress={() => merge.mutate()}
               >
@@ -280,7 +289,7 @@ export function CompartmentsSection({ place, canEdit, labels }: CompartmentsProp
               <Button
                 size="small"
                 variant="secondary"
-                isDisabled={!canSplit || busy}
+                isDisabled={!canSplit || busy || !online}
                 isPending={split.isPending}
                 onPress={() => split.mutate()}
               >
@@ -328,6 +337,7 @@ export function TurnSheet({
   onClose: () => void;
 }) {
   const { t } = useLingui();
+  const online = useOnline();
   const fmt = useFormat();
   const refresh = useRefresh();
   const offerUndo = useOfferUndo();
@@ -439,7 +449,7 @@ export function TurnSheet({
               <Trans>Cancel</Trans>
             </Button>
             <Button
-              isDisabled={!direction || !mode}
+              isDisabled={!direction || !mode || !online}
               isPending={turn.isPending}
               onPress={() => turn.mutate()}
             >

@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 import type { StoredPlace } from '@/api/inventory/mock/db';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { inventoryPaths as p } from '@/api/inventory/paths';
-import { ownerScenario } from '@/api/mock/fixtures';
+import { IDS, ownerScenario } from '@/api/mock/fixtures';
 import { plainText } from '@/lib/bidi';
 import { findHeading, renderApp } from '@/test/app';
 
@@ -207,5 +207,43 @@ describe('a furniture place’s compartments', () => {
     await findHeading('Cube shelf 01');
     const link = await screen.findByRole('link', { name: 'Print their labels' });
     expect(link.getAttribute('href')).toContain('f101%2C01970000-0000-7000-8000-00000000f102');
+  });
+
+  it('offers a viewer no labels to print, as the Label card doesn’t', async () => {
+    const { state, id } = withShelf();
+    const home = state.locations.find((l) => l.id === IDS.home);
+    if (!home) throw new Error('fixture');
+    home.role = 'viewer';
+    await renderApp(`/p/${id}`, { state, digits: 'western' });
+    await findHeading('Cube shelf 01');
+    expect(await screen.findByRole('list', { name: 'Compartments' })).toBeVisible();
+    expect(screen.queryByRole('link', { name: 'Print their labels' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Merge or split…' })).toBeNull();
+  });
+
+  it('turns, merges and splits only with a connection', async () => {
+    const original = Object.getOwnPropertyDescriptor(Navigator.prototype, 'onLine');
+    Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => false });
+    try {
+      const { state, id } = withShelf();
+      const { user } = await renderApp(`/p/${id}`, { state, digits: 'western' });
+      await findHeading('Cube shelf 01');
+      expect(await screen.findByRole('button', { name: 'Turn it…' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Merge or split…' })).toBeDisabled();
+      // Back online with compartments picked, then offline again: Merge and Split wait.
+      Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => true });
+      window.dispatchEvent(new Event('online'));
+      await user.click(await screen.findByRole('button', { name: 'Merge or split…' }));
+      await user.click(screen.getByRole('button', { name: 'Cube 1' }));
+      await user.click(screen.getByRole('button', { name: 'Cube 2' }));
+      expect(screen.getByRole('button', { name: 'Merge' })).toBeEnabled();
+      Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => false });
+      window.dispatchEvent(new Event('offline'));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Merge' })).toBeDisabled());
+      expect(screen.getByRole('button', { name: 'Split' })).toBeDisabled();
+    } finally {
+      if (original) Object.defineProperty(navigator, 'onLine', original);
+      else Reflect.deleteProperty(navigator, 'onLine');
+    }
   });
 });
