@@ -21,8 +21,9 @@ services:
   kept:
     <<: *kept-image
     environment:
-      # Only Caddy's address is believed.
-      KEPT_TRUSTED_PROXIES: 172.29.72.200
+      # A proxy of your own, from .env.
+      KEPT_TRUSTED_PROXIES: \${KEPT_TRUSTED_PROXIES:-}
+      KEPT_LOG_LEVEL: info
     networks: [kept]
 
 networks:
@@ -56,7 +57,8 @@ const caddy = `  caddy:
 const fullOf = (k) =>
   k
     .replace('# Kept only.', '# Kept with the extras: Caddy and Ollama.')
-    .replace('      # Only Caddy’s', '      # Only Caddy’s')
+    .replace('# A proxy of your own, from .env.', '# Caddy, unless .env names another.')
+    .replace('${KEPT_TRUSTED_PROXIES:-}', '${KEPT_TRUSTED_PROXIES:-172.29.72.200}')
     .replace('\nnetworks:', `\n${caddy}\nnetworks:`)
     .replace(
       '  kept-db: {}\n',
@@ -84,16 +86,22 @@ describe('compose.yaml and compose.full.yaml in step', () => {
 
   it('comments and blank lines may differ', () => {
     const other = full
-      .replace('      # Only Caddy', '      # Caddy (below) is the only proxy believed.\n      # x')
+      .replace('      # Caddy, unless', '      # Caddy (below) is believed.\n      # x')
       .replace('  kept:\n    <<:', '\n  kept:\n    <<:');
     expect(problems({ kept, full: other })).toEqual([]);
   });
 
   it('a setting changed in a shared service', () => {
-    const other = full.replace(
-      'KEPT_TRUSTED_PROXIES: 172.29.72.200',
-      'KEPT_TRUSTED_PROXIES: 172.29.72.0/24',
-    );
+    const other = full.replace('KEPT_LOG_LEVEL: info', 'KEPT_LOG_LEVEL: debug');
+    expect(problems({ kept, full: other })).toEqual([
+      'services.kept: differs between compose.yaml and compose.full.yaml',
+    ]);
+  });
+
+  it("the trusted proxy's default is the one line that may differ: Caddy's address in the full file", () => {
+    expect(full).toContain('KEPT_TRUSTED_PROXIES: ${KEPT_TRUSTED_PROXIES:-172.29.72.200}');
+    expect(problems({ kept, full })).toEqual([]);
+    const other = full.replace(':-172.29.72.200}', ':-10.0.0.5}');
     expect(problems({ kept, full: other })).toEqual([
       'services.kept: differs between compose.yaml and compose.full.yaml',
     ]);

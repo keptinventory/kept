@@ -45,6 +45,19 @@ describe('settings in step', () => {
     ]);
   });
 
+  it('a setting compose.yaml writes as a fixed value, so .env never reaches it (#414)', () => {
+    const found = problems({
+      ...base,
+      envTs: env('KEPT_PUBLIC_URL', 'KEPT_AI_MOCK', 'KEPT_TRUSTED_PROXIES'),
+      envExample: 'KEPT_PUBLIC_URL=\nKEPT_TRUSTED_PROXIES=',
+      composeYaml: 'KEPT_PUBLIC_URL: ${KEPT_PUBLIC_URL}\nKEPT_TRUSTED_PROXIES: 172.29.72.200',
+      haFiles: ['env.KEPT_PUBLIC_URL; env.KEPT_TRUSTED_PROXIES'],
+    });
+    expect(found).toEqual([
+      "KEPT_TRUSTED_PROXIES: in compose.env.example but compose.yaml doesn't pass it to the container",
+    ]);
+  });
+
   it('a name env.ts doesn’t know (a typo) in any of the files', () => {
     const found = problems({ ...base, envExample: 'KEPT_PUBLIC_URL=\nKEPT_PUBLC_URL=' });
     expect(found).toContain(

@@ -198,9 +198,10 @@ services:
       KEPT_PUBLIC_URL: ${KEPT_PUBLIC_URL:-}
       # KEPT_SECRET_KEY and KEPT_AUTH_SECRET come with the backup variables above: both or
       # neither; unset, they are generated into kept-config on first boot (D193).
-      # Only Caddy's fixed address (below) is believed about X-Forwarded-For. Nothing else ever
-      # holds it: it lies outside the network's dynamic range.
-      KEPT_TRUSTED_PROXIES: 172.29.72.200
+      # The proxies believed about X-Forwarded-For: Caddy's fixed address (below), which nothing
+      # else ever holds (it lies outside the network's dynamic range), unless .env names others.
+      # Naming others in .env replaces it: keep 172.29.72.200 in the list if Caddy still serves.
+      KEPT_TRUSTED_PROXIES: ${KEPT_TRUSTED_PROXIES:-172.29.72.200}
       # HSTS over https (#403): off sends max-age=0, for plain-http services on the same hostname.
       KEPT_HSTS: ${KEPT_HSTS:-}
       KEPT_SMTP_URL: ${KEPT_SMTP_URL:-}

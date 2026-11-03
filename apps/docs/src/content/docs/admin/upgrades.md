@@ -39,6 +39,12 @@ and once that is gone, Kept is left on plain http. Kept's services, the network 
 (Caddy's certificates in `caddy-data`, the models in `ollama`) are the same in both files, so
 nothing is lost. Without Caddy or Ollama, nothing changes.
 
+**Behind your own proxy**, `KEPT_TRUSTED_PROXIES` in `.env` reaches Kept from 1.14.5. Before,
+`compose.yaml` set its own value, so a line in `.env` was ignored and every visitor shared the
+proxy's sign-in limits. A value already in `.env` takes effect with the upgrade; one in a
+`compose.override.yaml` can move to `.env`. With `compose.full.yaml`'s Caddy, leave it empty or
+keep `172.29.72.200` in the list ([reverse proxies](/install/reverse-proxy/#trust-the-proxy-and-only-the-proxy)).
+
 ### Sign-in links (1.14.0)
 
 1.14.0 moves Kept to better-auth 1.7.13, which fixes an advisory where an OAuth sign-in's state

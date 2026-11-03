@@ -22,6 +22,18 @@ export const ADDED_IN_FULL = {
   volumes: ['caddy-data', 'caddy-config', 'ollama'],
 };
 
+/** The lines a shared entry may word differently, compose.yaml's line → compose.full.yaml's.
+ * compose.yaml trusts the proxy named in .env and nothing else by default; compose.full.yaml
+ * trusts Caddy's fixed address unless .env names another (#414). */
+export const DIFFERS_IN_FULL = {
+  'services.kept': [
+    [
+      '      KEPT_TRUSTED_PROXIES: ${KEPT_TRUSTED_PROXIES:-}',
+      '      KEPT_TRUSTED_PROXIES: ${KEPT_TRUSTED_PROXIES:-172.29.72.200}',
+    ],
+  ],
+};
+
 /** Top-level keys whose entries are compared one by one. */
 const COLLECTIONS = new Set(['services', 'networks', 'volumes']);
 
@@ -60,8 +72,18 @@ export function sections(text) {
   return out;
 }
 
+/** compose.full.yaml's text of an entry with its allowed lines put back as compose.yaml has them. */
+function asKept(where, text, differs) {
+  const lines = text.split('\n');
+  for (const [mine, theirs] of differs[where] ?? []) {
+    const at = lines.indexOf(theirs);
+    if (at !== -1) lines[at] = mine;
+  }
+  return lines.join('\n');
+}
+
 /** Every problem, as one line each; empty when all is well. */
-export function problems({ kept, full, added = ADDED_IN_FULL }) {
+export function problems({ kept, full, added = ADDED_IN_FULL, differs = DIFFERS_IN_FULL }) {
   const a = sections(kept);
   const b = sections(full);
   const isAdded = (key, name) => (added[key] ?? []).includes(name);
@@ -83,7 +105,7 @@ export function problems({ kept, full, added = ADDED_IN_FULL }) {
         out.push(`${where}: in compose.yaml, which is Kept only (it belongs in compose.full.yaml)`);
       } else if (!(other instanceof Map) || !other.has(name)) {
         out.push(`${where}: in compose.yaml but not in compose.full.yaml`);
-      } else if (other.get(name) !== text) {
+      } else if (asKept(where, other.get(name), differs) !== text) {
         out.push(`${where}: differs between compose.yaml and compose.full.yaml`);
       }
     }
