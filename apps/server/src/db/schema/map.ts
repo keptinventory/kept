@@ -69,7 +69,7 @@ export const mapNodes = pgTable(
     check('map_nodes_xz_chk', sql`x_cm BETWEEN 0 AND 100000 AND z_cm BETWEEN 0 AND 100000`),
     check(
       'map_nodes_size_chk',
-      sql`(w_cm IS NULL AND d_cm IS NULL) OR (w_cm BETWEEN 100 AND 10000 AND d_cm BETWEEN 100 AND 10000)`,
+      sql`(w_cm IS NULL AND d_cm IS NULL) OR (w_cm BETWEEN 50 AND 10000 AND d_cm BETWEEN 50 AND 10000)`,
     ),
     check('map_nodes_model_chk', sql`model IS NULL OR model ~ '^[a-z][a-z0-9_]{0,39}$'`),
     check('map_nodes_room_chk', sql`(room_kind IS NULL AND surface IS NULL) OR w_cm IS NOT NULL`),

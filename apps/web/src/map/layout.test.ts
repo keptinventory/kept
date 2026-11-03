@@ -19,10 +19,12 @@ import {
   moveRoom,
   overlapsRoom,
   planOf,
+  type Room,
   rehome,
   reshape,
   resizeRoom,
   roomAt,
+  sizeRoom,
   standingOn,
   turn,
 } from './layout';
@@ -414,10 +416,22 @@ describe('resizing and drawing a room on the 10 cm grid (D267)', () => {
     expect([wc.w, wc.d]).toEqual([1.9, 2.3]);
   });
 
-  it('is never under 1 m a side, the map’s minimum', () => {
+  it('is never under 50 cm a side, the map’s minimum (#372)', () => {
     const wc = room();
     resizeRoom([wc], wc, { x: 0.2, z: 0.4 });
-    expect([wc.w, wc.d]).toEqual([1, 1]);
+    expect([wc.w, wc.d]).toEqual([0.5, 0.5]);
+    resizeRoom([wc], wc, { x: 0.8, z: 0.7 });
+    expect([wc.w, wc.d]).toEqual([0.8, 0.7]);
+  });
+
+  it('keeps a side typed to the centimetre until the corner really moves (#372)', () => {
+    const balcony = room({ w: 0.8, d: 3.58 });
+    // Its corner picked up where it is: nothing jumps to the 10 cm grid.
+    expect(resizeRoom([balcony], balcony, { x: 0.82, z: 3.6 })).toBe(false);
+    expect([balcony.w, balcony.d]).toEqual([0.8, 3.58]);
+    // Dragged on along its length: that side snaps to the grid, the other stays as typed.
+    expect(resizeRoom([balcony], balcony, { x: 0.81, z: 4.04 })).toBe(true);
+    expect([balcony.w, balcony.d]).toEqual([0.8, 4]);
   });
 
   it('never grows over a neighbour, and keeps the side that still fits', () => {
@@ -427,15 +441,82 @@ describe('resizing and drawing a room on the 10 cm grid (D267)', () => {
     expect([wc.w, wc.d]).toEqual([1.6, 2.5]);
   });
 
-  it('draws on the grid, from a 1 m minimum', () => {
+  it('draws on the grid, from a 50 cm minimum (#372)', () => {
     expect(drawnRect({ x: 0.04, z: 1.02 }, { x: 2.37, z: 3.11 })).toEqual({
       x: 0,
       z: 1,
       w: 2.4,
       d: 2.1,
     });
-    expect(drawnRect({ x: 3, z: 3 }, { x: 3.2, z: 3.1 })).toEqual({ x: 3, z: 3, w: 1, d: 1 });
+    expect(drawnRect({ x: 3, z: 3 }, { x: 3.2, z: 3.1 })).toEqual({ x: 3, z: 3, w: 0.5, d: 0.5 });
+    expect(drawnRect({ x: 3, z: 3 }, { x: 3.8, z: 6.6 })).toEqual({ x: 3, z: 3, w: 0.8, d: 3.6 });
     expect(drawnRect({ x: 3, z: 3 }, { x: 1.04, z: 0.96 })).toEqual({ x: 1, z: 1, w: 2, d: 2 });
+  });
+});
+
+describe('a room’s width and length typed on its card (#372)', () => {
+  const room = (id: string, over: Partial<Room> = {}): Room => ({
+    id,
+    levelKey: 'g',
+    name: id,
+    shortCode: null,
+    kindKey: 'room',
+    x: 0,
+    z: 0,
+    w: 4,
+    d: 3,
+    kind: 'room',
+    surface: 'wood',
+    ...over,
+  });
+  const box = (over: Partial<Item> = {}): Item => ({
+    id: 'box',
+    subject: 'thing',
+    roomId: 'b',
+    name: 'Games box',
+    shortCode: null,
+    model: 'box',
+    x: 3,
+    z: 2,
+    rot: 0,
+    on: null,
+    parentId: 'b',
+    isContainer: true,
+    quantity: 1,
+    auto: false,
+    ...over,
+  });
+
+  it('sets it to the centimetre, its corner where it was', () => {
+    const balcony = room('b', { x: 2, z: 1 });
+    expect(sizeRoom({ rooms: [balcony], items: [] }, balcony, { w: 80, d: 358 })).toBe('ok');
+    expect(balcony).toMatchObject({ x: 2, z: 1, w: 0.8, d: 3.58 });
+    expect(bodyOf({ levels: [], rooms: [balcony], items: [] }, null).rooms[0]).toMatchObject({
+      w: 80,
+      d: 358,
+    });
+    expect(sizeRoom({ rooms: [balcony], items: [] }, balcony, { w: 80, d: 358 })).toBe('same');
+  });
+
+  it('never runs into another room on its floor, and changes nothing then', () => {
+    const b = room('b');
+    const k = room('k', { x: 5, w: 3 });
+    const upstairs = room('u', { levelKey: 'f', x: 4.5 });
+    expect(sizeRoom({ rooms: [b, k, upstairs], items: [] }, b, { w: 600, d: 300 })).toBe('overlap');
+    expect([b.w, b.d]).toEqual([4, 3]);
+    // Up to its neighbour's wall is fine, and another floor's room is no neighbour.
+    expect(sizeRoom({ rooms: [b, k, upstairs], items: [] }, b, { w: 500, d: 300 })).toBe('ok');
+  });
+
+  it('keeps what stands in it inside its walls, and what stands on that with it', () => {
+    const b = room('b');
+    const games = box();
+    const lamp = box({ id: 'lamp', name: 'Lamp', model: 'laptop', x: 3.1, z: 2.1, on: 'box' });
+    expect(sizeRoom({ rooms: [b], items: [games, lamp] }, b, { w: 150, d: 120 })).toBe('ok');
+    expect(games.x).toBeLessThan(1.5);
+    expect(games.z).toBeLessThan(1.2);
+    expect(lamp.x - games.x).toBeCloseTo(0.1, 5);
+    expect(lamp.z - games.z).toBeCloseTo(0.1, 5);
   });
 });
 

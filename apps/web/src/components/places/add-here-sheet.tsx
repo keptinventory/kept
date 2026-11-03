@@ -13,16 +13,21 @@
  * "Room or spot" also offers furniture with compartments (#238): a cube shelf, a bookcase or a
  * chest made from a template with a place for each cube, shelf or drawer (furniture.tsx, on
  * demand).
+ *
+ * A room (at the top of the location or on a floor) can be given its width and length (#372): it
+ * goes on the location's map at that size, made with the room in one write, with one Undo.
  */
 
 import { effectiveModules } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { type FormEvent, useId, useState } from 'react';
 import { inventoryApi, useAccounts, useTypes } from '@/api/inventory/queries';
 import type { BuiltinPlaceKind, MoveTarget } from '@/api/inventory/types';
+import { mapKeys } from '@/api/map/queries';
 import { useLocation } from '@/api/queries';
+import { useOfferUndo } from '@/components/history/undo';
 import { BoxIcon, HandoffIcon, PlusIcon } from '@/components/icons';
 import { BorrowSheet } from '@/components/lending/borrow-sheet';
 import { Notice, useErrorText } from '@/components/page';
@@ -37,6 +42,7 @@ import { typeOfKey } from '@/lib/type-list';
 import { useInvalidateBrowse } from './api';
 import { FurnitureForm } from './furniture-lazy';
 import { PLACE_KIND_ICONS, PLACE_KINDS, usePlaceKindLabels } from './labels';
+import { type RoomSides, RoomSizeFields, useRoomSideProblem } from './room-size';
 import { Sheet } from './sheet';
 
 type Kind = 'thing' | 'box' | 'place' | 'furniture' | 'borrowed';
@@ -52,9 +58,18 @@ export type AddHereProps = {
   placeParentId?: string | null;
   /** The name of where things land, for the sheet titles ("Add a thing to Garage"). */
   hereName: string;
+  /** #372: here is a floor, so a place added here is a room on the map (as at the top of the
+   * location) and can be given its size. */
+  onFloor?: boolean;
 };
 
-export function AddHere({ locationId, thingTarget, placeParentId, hereName }: AddHereProps) {
+export function AddHere({
+  locationId,
+  thingTarget,
+  placeParentId,
+  hereName,
+  onFloor = false,
+}: AddHereProps) {
   const { t } = useLingui();
   const [open, setOpen] = useState<Kind | null>(null);
   const headingId = useId();
@@ -135,6 +150,7 @@ export function AddHere({ locationId, thingTarget, placeParentId, hereName }: Ad
             <AddPlaceForm
               locationId={locationId}
               parentId={placeParentId}
+              room={placeParentId === null || onFloor}
               onDone={close}
               onFurniture={() => setOpen('furniture')}
             />
@@ -242,11 +258,14 @@ function AddThingForm({
 function AddPlaceForm({
   locationId,
   parentId,
+  room,
   onDone,
   onFurniture,
 }: {
   locationId: string;
   parentId: string | null;
+  /** #372: what is added here is a room on the map (at the top, or on a floor). */
+  room: boolean;
   onDone: () => void;
   /** #238: a cube shelf, bookcase or chest with its compartments, from a template. */
   onFurniture: () => void;
@@ -254,31 +273,63 @@ function AddPlaceForm({
   const { t } = useLingui();
   const errorText = useErrorText();
   const invalidate = useInvalidateBrowse();
+  const offerUndo = useOfferUndo();
+  const qc = useQueryClient();
+  const sideProblem = useRoomSideProblem();
   const kinds = usePlaceKindLabels();
+  const sizeId = useId();
   const [name, setName] = useState('');
-  // A top-level place is usually a room; inside one, a spot (D33).
-  const [kind, setKind] = useState<BuiltinPlaceKind>(parentId ? 'zone' : 'room');
+  // A top-level place, or one on a floor, is usually a room; inside one, a spot (D33).
+  const [kind, setKind] = useState<BuiltinPlaceKind>(room ? 'room' : 'zone');
   const [error, setError] = useState<string>();
+  // #372: its size on the map, optional; a floor has none.
+  const sized = room && kind !== 'floor';
+  const [sides, setSides] = useState<RoomSides>({ w: null, d: null });
+  const [sideErrors, setSideErrors] = useState<{ w?: string; d?: string }>({});
   const create = useMutation({
-    mutationFn: () =>
-      inventoryApi.createPlace(locationId, {
-        ...(parentId ? { parentId } : {}),
-        name: name.trim(),
-        kindKey: kind,
-      }),
-    onSuccess: async (place) => {
+    mutationFn: async (map: { w: number; d: number } | null) => {
+      const body = { ...(parentId ? { parentId } : {}), name: name.trim(), kindKey: kind };
+      if (!map) return { place: await inventoryApi.createPlace(locationId, body), events: null };
+      const made = await inventoryApi.createSizedRoom(locationId, { ...body, map });
+      return { place: made.body, events: made.auditEvents };
+    },
+    onSuccess: async ({ place, events }) => {
       await invalidate();
       const added = place.name;
-      toast({ title: t`Added ${added}`, tone: 'ok' });
+      if (events) {
+        const map = () => qc.invalidateQueries({ queryKey: mapKeys.map(locationId) });
+        await map();
+        offerUndo({ title: t`Added ${added}`, description: t`On the map at its size.` }, events, {
+          onUndone: () => void map(),
+        });
+      } else toast({ title: t`Added ${added}`, tone: 'ok' });
       onDone();
     },
   });
   const submit = (e: FormEvent) => {
     e.preventDefault();
     const n = name.trim();
-    if (!n) return setError(t`Give it a name, like Shelf A or Balcony.`);
-    if (n.length > 120) return setError(t`Keep the name under 120 characters.`);
-    create.mutate();
+    let bad = false;
+    if (!n) {
+      setError(t`Give it a name, like Shelf A or Balcony.`);
+      bad = true;
+    } else if (n.length > 120) {
+      setError(t`Keep the name under 120 characters.`);
+      bad = true;
+    }
+    let map: { w: number; d: number } | null = null;
+    if (sized && (sides.w !== null || sides.d !== null)) {
+      const both = t`Give the width and the length, or neither.`;
+      const next = {
+        w: sides.w === null ? both : sideProblem(sides.w),
+        d: sides.d === null ? both : sideProblem(sides.d),
+      };
+      setSideErrors(next);
+      if (next.w || next.d) bad = true;
+      else map = { w: sides.w as number, d: sides.d as number };
+    }
+    if (bad) return;
+    create.mutate(map);
   };
   return (
     <form onSubmit={submit} noValidate className="grid gap-4">
@@ -309,6 +360,26 @@ function AddPlaceForm({
           ),
         }))}
       />
+      {sized ? (
+        <section className="grid gap-2" aria-labelledby={`${sizeId}-h`}>
+          <h3 id={`${sizeId}-h`} className="m-0 font-semibold text-[13.5px] text-ink">
+            <Trans>Size on the map</Trans>
+          </h3>
+          <p className="m-0 text-small text-ink-3">
+            <Trans>
+              Optional, to the centimetre. Leave it empty and the map sizes the room itself.
+            </Trans>
+          </p>
+          <RoomSizeFields
+            value={sides}
+            errors={sideErrors}
+            onChange={(next) => {
+              setSides(next);
+              setSideErrors({});
+            }}
+          />
+        </section>
+      ) : null}
       <Button variant="ghost" className="justify-self-start" onPress={onFurniture}>
         <TypeIcon icon="lucide:library-big" className="size-4" />
         <Trans>Furniture with compartments…</Trans>

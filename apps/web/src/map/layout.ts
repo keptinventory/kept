@@ -839,11 +839,13 @@ export function overlapsRoom(
 // ---- Moving a room (#301) ------------------------------------------------------------------
 
 /** Metres a room moves, is resized and drawn by (D267): 10 cm, so a floor plan's rooms keep
- * their walls (it was whole metres). */
+ * their walls (it was whole metres). Its length and width typed on its card go to the
+ * centimetre (#372). */
 export const ROOM_STEP = 0.1;
 /** An arrow key moves a selected room a metre; Shift-arrow, ROOM_STEP (#301, D267). */
 export const ARROW_STEP = 1;
-/** The smallest side a room is resized or drawn to: the map's own minimum (MAP_LIMITS.minRoom). */
+/** The smallest side a room is resized or drawn to: the map's own minimum (MAP_LIMITS.minRoom,
+ * 50 cm since #372). */
 export const MIN_ROOM = MAP_LIMITS.minRoom / 100;
 
 /** On the room grid, without float dust (0.30000000000000004). */
@@ -872,6 +874,11 @@ export function moveRoom(rooms: readonly Room[], r: Room, to: { x: number; z: nu
   return false;
 }
 
+/** A side dragged to `raw`: on the room grid, at least MIN_ROOM; a side typed to the centimetre
+ * (#372) stays as it is until the corner moves more than half a step along it. */
+const sideTo = (raw: number, now: number) =>
+  Math.abs(raw - now) < ROOM_STEP / 2 ? now : Math.max(MIN_ROOM, onGrid(raw));
+
 /**
  * A room's far corner dragged to `corner` (D267): its sides on the room grid, at least MIN_ROOM,
  * never over another room on its floor (it keeps whichever side still fits). True when it
@@ -882,8 +889,8 @@ export function resizeRoom(
   r: Room,
   corner: { x: number; z: number },
 ): boolean {
-  const w = Math.max(MIN_ROOM, onGrid(corner.x - r.x));
-  const d = Math.max(MIN_ROOM, onGrid(corner.z - r.z));
+  const w = sideTo(corner.x - r.x, r.w);
+  const d = sideTo(corner.z - r.z, r.d);
   for (const [cw, cd] of [
     [w, d],
     [w, r.d],
@@ -897,6 +904,37 @@ export function resizeRoom(
     }
   }
   return false;
+}
+
+/** What stands in a room that changed size: inside its walls, a thing on a wall on its wall,
+ * what stands on each going with it. */
+export function keepInside(items: readonly Item[], r: Room): void {
+  for (const it of items.filter((i) => i.roomId === r.id && !i.on)) {
+    const bx = it.x;
+    const bz = it.z;
+    clampIn(it, r);
+    moveStackBy(items, it, it.x - bx, it.z - bz);
+  }
+}
+
+/**
+ * A room's length and width typed on its card (#372), in whole centimetres: its corner stays
+ * where it is, and what stands in it stays inside. `'overlap'` when it would run into another
+ * room on its floor (nothing changes then), `'same'` when it already has that size.
+ */
+export function sizeRoom(
+  plan: Pick<Plan, 'rooms' | 'items'>,
+  r: Room,
+  size: { w: number; d: number },
+): 'ok' | 'same' | 'overlap' {
+  const w = cmToM(size.w);
+  const d = cmToM(size.d);
+  if (mToCm(r.w) === size.w && mToCm(r.d) === size.d) return 'same';
+  if (overlapsRoom(plan.rooms, { x: r.x, z: r.z, w, d }, r.id, r.levelKey)) return 'overlap';
+  r.w = w;
+  r.d = d;
+  keepInside(plan.items, r);
+  return 'ok';
 }
 
 /** The rectangle a drag on empty ground draws (D267): on the room grid, at least MIN_ROOM. */

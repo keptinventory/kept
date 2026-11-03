@@ -24,7 +24,8 @@ const ANSWER: PlanExtraction = {
   rooms: [
     { name: c('Living room'), box: [0.1, 0.1, 0.4, 0.4], size_text: c('4.00 x 4.00 m') },
     { name: c('Kitchen'), box: [0.5, 0.1, 0.3, 0.4], size_text: c('9.00 x 9.00 m') },
-    { name: c('Cupboard'), box: [0.1, 0.5, 0.05, 0.05] },
+    // 0.4 × 0.4 m: under the map's 50 cm a side (#372).
+    { name: c('Cupboard'), box: [0.1, 0.5, 0.04, 0.04] },
     { name: c('Ktchn', 0.3), box: [0.2, 0.5, 0.5, 0.3] },
   ],
 };
@@ -206,7 +207,7 @@ describe('the review’s panel', () => {
     // The cupboard: switched off, said so, never cut short.
     const cupboard = screen.getByRole('switch', { name: 'Add Cupboard' }) as HTMLInputElement;
     expect(cupboard.checked).toBe(false);
-    expect(screen.getByText('Under 1 m: too small for the map.')).toBeTruthy();
+    expect(screen.getByText('Under 50 cm: too small for the map.')).toBeTruthy();
     expect(screen.getByText('Name unclear on the plan.')).toBeTruthy();
     expect(screen.getByRole('button', { name: /The plan says 9\.00 x 9\.00 m/ })).toBeTruthy();
     expect(screen.getAllByRole('radiogroup', { name: 'Kind' })).toHaveLength(4);

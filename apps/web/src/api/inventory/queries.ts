@@ -206,6 +206,12 @@ export const inventoryApi = {
     api.get<PlaceContents>(p.placeContents(id) + qs(params)),
   createPlace: (locationId: string, body: CreatePlaceBody) =>
     api.post<PlaceView>(p.locationPlaces(locationId), body),
+  /** #372: a room with its size on the map (`map`), undoable: the answer carries the audit event
+   * id for the Undo toast. */
+  createSizedRoom: (
+    locationId: string,
+    body: CreatePlaceBody & { map: NonNullable<CreatePlaceBody['map']> },
+  ) => written.post<PlaceView>(p.locationPlaces(locationId), body),
   /** Undoable (D150): the answer carries the audit event ids for the Undo toast. */
   updatePlace: (id: string, body: UpdatePlaceBody, rowVersion: number) =>
     written.patch<PlaceView>(p.place(id), body, ifMatch(rowVersion)),

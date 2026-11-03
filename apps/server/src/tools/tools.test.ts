@@ -1081,6 +1081,50 @@ describe('parity with the routes', () => {
     expect(await placeRow(viaTool.place.id)).toEqual(await placeRow(route.id));
   });
 
+  it('create_place with a size ≡ POST /locations/:id/places with map, one undo (#372)', async () => {
+    const viaTool = await data(louis, 'create_place', {
+      location_id: home.id,
+      name: 'Pantry',
+      width_cm: 80,
+      length_cm: 140,
+    });
+    const node = (id: string) =>
+      own<{ w_cm: number; d_cm: number }>(
+        db,
+        'SELECT w_cm, d_cm FROM public.map_nodes WHERE place_id = $1',
+        [id],
+      );
+    expect(await node(viaTool.place.id)).toEqual([{ w_cm: 80, d_cm: 140 }]);
+    // One undo takes the room and its rectangle away together.
+    ok(await call(t, `/api/v1/audit/${viaTool.audit_event_id}/undo`, { as: louis, body: {} }));
+    expect(await node(viaTool.place.id)).toEqual([]);
+    // Both sides or neither; furniture has no size; under 50 cm is refused.
+    const half = await tool(louis, 'create_place', {
+      location_id: home.id,
+      name: 'Hall',
+      width_cm: 200,
+    });
+    expect(isToolError(half) ? half.hint : null).toMatch(/both, or neither/);
+    const shelfSized = await tool(louis, 'create_place', {
+      location_id: home.id,
+      name: 'Cube shelf',
+      template: 'cube_2x4',
+      width_cm: 80,
+      length_cm: 60,
+    });
+    expect(isToolError(shelfSized) ? shelfSized.hint : null).toMatch(/only a room/);
+    expect(
+      isToolError(
+        await tool(louis, 'create_place', {
+          location_id: home.id,
+          name: 'Nook',
+          width_cm: 40,
+          length_cm: 40,
+        }),
+      ),
+    ).toBe(true);
+  });
+
   it('create_place with a template ≡ POST /locations/:id/places/from-template, one undo', async () => {
     const route = ok(
       await call(t, `/api/v1/locations/${home.id}/places/from-template`, {

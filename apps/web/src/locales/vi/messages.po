@@ -20729,3 +20729,35 @@ msgstr "Xoay…"
 #: src/components/places/compartments.tsx
 msgid "Turned {unit}"
 msgstr "Đã xoay {unit}"
+
+#: src/components/places/room-size.tsx
+msgid "Length"
+msgstr "Chiều dài"
+
+#: src/components/places/room-size.tsx
+msgid "A room is at least {min} m across."
+msgstr "Mỗi cạnh của phòng phải từ {min} m trở lên."
+
+#: src/components/places/room-size.tsx
+msgid "A room is at most {max} m across."
+msgstr "Mỗi cạnh của phòng tối đa {max} m."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Give the width and the length, or neither."
+msgstr "Nhập cả chiều rộng và chiều dài, hoặc để trống cả hai."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "On the map at its size."
+msgstr "Trên bản đồ, đúng kích thước thật."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Size on the map"
+msgstr "Kích thước trên bản đồ"
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Optional, to the centimetre. Leave it empty and the map sizes the room itself."
+msgstr "Không bắt buộc, chính xác đến từng xentimét. Để trống thì bản đồ tự chọn kích thước phòng."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under 50 cm: too small for the map."
+msgstr "Dưới 50 cm: quá nhỏ cho bản đồ."

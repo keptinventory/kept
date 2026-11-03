@@ -357,7 +357,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       const meta = [
         `<span>${esc(pick(ROOM_KIND_NAMES[r.kind]))}</span>`,
         level ? `<span>${esc(level.name)}</span>` : '',
-        `<span>${esc(w.size(f.num(Math.round(r.w * 10) / 10), f.num(Math.round(r.d * 10) / 10)))}</span>`,
+        `<span>${esc(w.size(f.side(r.w), f.side(r.d)))}</span>`,
         `<span>${esc(w.things(total, f.num(total)))}</span>`,
       ].join('');
       let body = `<div class="kmap-row">${es.focused === r.id ? '' : btn('drill', w.open, 'primary', r.id)}${full ? '' : btn('detail', w.whatsHere(f.num(inside.length)))}${kept(w.openPlace)}${es.arranging ? '' : kept(w.photograph)}${kept(w.countRoom)}</div>`;
@@ -1452,7 +1452,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
             quantity: x.quantity,
           })),
         insideCount: (it) => (contents.under.get(it.id) ?? []).length,
-        text: w.engine,
+        text: { ...w.engine, roomSize: (wm, dm) => w.size(f.side(wm), f.side(dm)) },
       },
       events: {
         onState: (s) => {

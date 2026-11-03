@@ -36,6 +36,7 @@ import {
   DERIVED_STATES,
   isShortCode,
   LIFECYCLES,
+  MAP_LIMITS,
   MAX_BOX_PREFIX,
   MAX_MOVE_NAME,
   MODULE_IDS,
@@ -802,6 +803,9 @@ export const TOOL_DEFS = Object.freeze({
       count: z.number().int().min(1).max(PLACE_LAYOUT_LIMITS.count).optional(),
       code: z.string().max(100).optional(),
       code_pattern: z.string().max(100).nullable().optional(),
+      // #372: a room's real size, as the app's Add a room takes it; both or neither.
+      width_cm: z.number().int().min(MAP_LIMITS.minRoom).max(MAP_LIMITS.maxRoom).optional(),
+      length_cm: z.number().int().min(MAP_LIMITS.minRoom).max(MAP_LIMITS.maxRoom).optional(),
     }),
     output: writeResult.extend({
       place: placeRef,

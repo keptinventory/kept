@@ -113,7 +113,8 @@ const overlap = (a: RoomLayout, b: RoomLayout) =>
  * so it is read from where the label is put, not from the label's box.
  */
 async function floorOf(stage: Locator, room: string): Promise<{ x: number; y: number }> {
-  const label = stage.locator('.map-label').filter({ hasText: new RegExp(`^${room}$`) });
+  // The plan view writes the room's size under its name (#372): the name, then its size.
+  const label = stage.locator('.map-label').filter({ hasText: new RegExp(`^${room}(\\s|$)`) });
   await expect(label).toHaveCount(1);
   return label.evaluate((el) => {
     const m = /translate\(([-\d.]+)px, ([-\d.]+)px\)/.exec((el as HTMLElement).style.transform);

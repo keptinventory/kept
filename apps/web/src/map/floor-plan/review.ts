@@ -58,7 +58,7 @@ export type Proposal = {
   d: number;
   notes: PlanNote[];
   printed: PlanDraft['printed'];
-  /** Under 1 m: never added. */
+  /** Under 50 cm a side (MAP_LIMITS.minRoom): never added. */
   skip: boolean;
   /** An existing room of that floor nobody arranged, given this rectangle. */
   use: string | null;

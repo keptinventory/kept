@@ -42,6 +42,7 @@ import {
   hangOn,
   hostAt,
   type Item,
+  keepInside,
   moveBy,
   moveRoom,
   overlapsRoom,
@@ -127,6 +128,9 @@ export type EngineInfo = {
     inside: (n: number) => string;
     openFloor: string;
     changeFloor: string;
+    /** #372: a room's size under its name in the plan view ("0.8 × 3.58 m"), from its sides in
+     * metres; left out, the label is the name alone. */
+    roomSize?: (w: number, d: number) => string;
   };
 };
 
@@ -1393,10 +1397,14 @@ export class MapEngine {
         });
       }
     } else {
+      const size = this.info.text.roomSize;
       for (const r of this.plan.rooms) {
         if (r.levelKey !== levelKey || (focused && focused !== r.id)) continue;
         want.push({
-          html: esc(r.name),
+          html:
+            planView && size
+              ? `${esc(r.name)}\n<small>${esc(size(r.w, r.d))}</small>`
+              : esc(r.name),
           at: new THREE.Vector3(
             r.x + r.w / 2,
             planView ? 0 : this.outdoors(r) ? 1.1 : 1.45,
@@ -2091,20 +2099,9 @@ export class MapEngine {
     } else if (drag.type === 'resize') {
       const r = this.roomOf(drag.id);
       if (!r) return;
-      // D267: to the 10 cm, at least a metre a side, never over a neighbour.
+      // D267: to the 10 cm, at least MIN_ROOM a side (50 cm, #372), never over a neighbour.
       if (!resizeRoom(this.plan.rooms, r, { x: g.x, z: g.z })) return;
-      for (const it of this.plan.items.filter((i) => i.roomId === r.id && !i.on)) {
-        const bx = it.x;
-        const bz = it.z;
-        clampIn(it, r);
-        for (const id of standingOn(this.plan.items, it.id)) {
-          const t = this.itemOf(id);
-          if (t) {
-            t.x += it.x - bx;
-            t.z += it.z - bz;
-          }
-        }
-      }
+      keepInside(this.plan.items, r);
       this.buildRoom(r);
       for (const i of this.plan.items.filter((x) => x.roomId === r.id)) this.placeItem(i);
       this.paint({ type: 'room', id: r.id });

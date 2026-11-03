@@ -7,7 +7,7 @@
  * - One group per plan floor, with the floor it goes to (the app's Select, never a native one).
  * - One row per proposed room: Add (a Switch), its name, its size, its kind, and one note.
  */
-import { MAP_ROOM_KINDS, type MapRoomKind } from '@kept/shared';
+import { MAP_LIMITS, MAP_ROOM_KINDS, type MapRoomKind } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import {
@@ -48,8 +48,8 @@ function MetreField({
     <NumberField
       className="kmap-height"
       value={value}
-      minValue={1}
-      maxValue={100}
+      minValue={MAP_LIMITS.minRoom / 100}
+      maxValue={MAP_LIMITS.maxRoom / 100}
       step={0.1}
       formatOptions={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }}
       onChange={(v) => {
@@ -279,7 +279,7 @@ function ProposalRow(props: PanelProps & { p: Proposal }) {
   // At most one note, the one that matters most.
   const note: ReactNode = p.skip ? (
     <span className="kplan-note warn">
-      <Trans>Under 1 m: too small for the map.</Trans>
+      <Trans>Under 50 cm: too small for the map.</Trans>
     </span>
   ) : p.arranged ? (
     <span className="kplan-note">

@@ -14,10 +14,10 @@
  * 3. Scale (findScale), always said: a typed size, printed sizes (median, 15 % agreement), a
  *    scale bar, doors taken as 80 cm, else a guess (the largest room's long side 4.5 m).
  * 4. Per floor: metres from that floor's own top-left corner.
- * 5. Under 1 m a side (MAP_LIMITS.minRoom): left out, noted `too_small`.
+ * 5. Under 50 cm a side (MAP_LIMITS.minRoom, #372): left out, noted `too_small`.
  * 6. Tidy: overlaps split at their middle along the thinner side; gaps a wall thick (≤ 35 cm)
  *    between rooms facing each other along ≥ 50 cm closed at the middle.
- * 7. Snap to the 10 cm grid with the 1 m minimum (D267), then separate anything that snapping
+ * 7. Snap to the 10 cm grid with the 50 cm minimum (D267), then separate anything that snapping
  *    made touch over an edge.
  *
  * Placing a floor's rooms beside a map floor's own (placeBeside), matching floors and same-name
@@ -277,7 +277,7 @@ export type PlanDraft = {
   /** The size printed for it, paired to the drawing's way round. */
   printed: { w: number; d: number; text: string } | null;
   notes: PlanNote[];
-  /** Under 1 m a side: not added (its row stays, switched off). */
+  /** Under 50 cm a side: not added (its row stays, switched off). */
   skip: boolean;
 };
 
@@ -425,7 +425,7 @@ function meet(a: Live, b: Live, axis: 'x' | 'z', overlap: boolean): void {
 
 const grid = (v: number) => Math.round(v / PLAN_STEP) / (1 / PLAN_STEP);
 
-/** Every corner on the 10 cm grid, each side at least 1 m. */
+/** Every corner on the 10 cm grid, each side at least MAP_LIMITS.minRoom. */
 function snapAll(rooms: Live[]): void {
   for (const r of rooms) {
     if (r.skip) continue;
@@ -438,8 +438,8 @@ function snapAll(rooms: Live[]): void {
   }
 }
 
-/** What snapping (or the 1 m minimum) left overlapping is cut on the grid, or, when a cut would
- * leave a side under 1 m, moved clear to the right of the floor. Ends with no overlap. */
+/** What snapping (or the minimum side) left overlapping is cut on the grid, or, when a cut would
+ * leave a side under the minimum, moved clear to the right of the floor. Ends with no overlap. */
 function separate(rooms: Live[]): void {
   const hit = (a: Live, b: Live) =>
     !a.skip && !b.skip && a.floor === b.floor && a !== b && rectsOverlap(a, b);

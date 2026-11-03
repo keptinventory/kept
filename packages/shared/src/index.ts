@@ -25,6 +25,7 @@ export * from './household.js';
 export * from './ids.js';
 export * from './inventory.js';
 export * from './label-stocks.js';
+export * from './length.js';
 export * from './list-views.js';
 export * from './map.js';
 export * from './map-place.js';

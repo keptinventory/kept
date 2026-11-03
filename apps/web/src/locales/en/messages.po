@@ -28679,3 +28679,35 @@ msgstr "Turn it…"
 #: src/components/places/compartments.tsx
 msgid "Turned {unit}"
 msgstr "Turned {unit}"
+
+#: src/components/places/room-size.tsx
+msgid "Length"
+msgstr "Length"
+
+#: src/components/places/room-size.tsx
+msgid "A room is at least {min} m across."
+msgstr "A room is at least {min} m across."
+
+#: src/components/places/room-size.tsx
+msgid "A room is at most {max} m across."
+msgstr "A room is at most {max} m across."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Give the width and the length, or neither."
+msgstr "Give the width and the length, or neither."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "On the map at its size."
+msgstr "On the map at its size."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Size on the map"
+msgstr "Size on the map"
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Optional, to the centimetre. Leave it empty and the map sizes the room itself."
+msgstr "Optional, to the centimetre. Leave it empty and the map sizes the room itself."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under 50 cm: too small for the map."
+msgstr "Under 50 cm: too small for the map."

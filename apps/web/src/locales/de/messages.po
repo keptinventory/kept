@@ -28679,3 +28679,35 @@ msgstr "Drehen…"
 #: src/components/places/compartments.tsx
 msgid "Turned {unit}"
 msgstr "{unit} gedreht"
+
+#: src/components/places/room-size.tsx
+msgid "Length"
+msgstr "Länge"
+
+#: src/components/places/room-size.tsx
+msgid "A room is at least {min} m across."
+msgstr "Ein Raum misst mindestens {min} m pro Seite."
+
+#: src/components/places/room-size.tsx
+msgid "A room is at most {max} m across."
+msgstr "Ein Raum misst höchstens {max} m pro Seite."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Give the width and the length, or neither."
+msgstr "Gib Breite und Länge an oder keins von beiden."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "On the map at its size."
+msgstr "Auf der Karte in echter Größe."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Size on the map"
+msgstr "Größe auf der Karte"
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Optional, to the centimetre. Leave it empty and the map sizes the room itself."
+msgstr "Optional, auf den Zentimeter genau. Leer gelassen, bemisst die Karte den Raum selbst."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under 50 cm: too small for the map."
+msgstr "Unter 50 cm: zu klein für die Karte."

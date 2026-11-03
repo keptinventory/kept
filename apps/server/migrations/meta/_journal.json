@@ -1177,6 +1177,13 @@
       "when": 1793668452420,
       "tag": "0167_compartment_short_ids",
       "breakpoints": true
+    },
+    {
+      "idx": 168,
+      "version": "7",
+      "when": 1793671858293,
+      "tag": "0168_map_rooms_from_50cm",
+      "breakpoints": true
     }
   ]
 }

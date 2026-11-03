@@ -1,5 +1,6 @@
 /** Mock handlers for places (task 13's routes). Task 25 extends these as its screens need. */
 import { comparePlaceSiblings, naturalCompare, siblingOrder } from '@kept/shared';
+import { placeMockRoom } from '../../map/mock';
 import type { MockState } from '../../mock/fixtures';
 import {
   err,
@@ -161,6 +162,16 @@ export function placesRoutes(state: MockState): MockRoute[] {
         deletedBy: null,
       };
       inv().places.push(created);
+      // #372: a room made with its size goes on the map with it.
+      if (b.map && !placeMockRoom(state, locationId, created.id, b.map)) {
+        inv().places.splice(inv().places.indexOf(created), 1);
+        return err(
+          400,
+          'validation',
+          'The request is not valid.',
+          'Check body.map: only a room on a floor, or at the top of the location, has a size on the map.',
+        );
+      }
       return reply(201, placeViewOf(inv(), created));
     }),
 

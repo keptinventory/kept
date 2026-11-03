@@ -26,6 +26,7 @@
  * node's stored model carries after the shape's key (SizedModelKey). Every other model has one
  * size, its catalogue entry's.
  */
+import { ROOM_SIDE_CM } from './length.js';
 
 export const MAP_ROOM_KINDS = ['room', 'balcony', 'terrace', 'garden'] as const;
 export type MapRoomKind = (typeof MAP_ROOM_KINDS)[number];
@@ -505,9 +506,9 @@ export const MAP_LIMITS = {
   nodes: 3000,
   /** Positions, in centimetres from the floor's corner: up to a kilometre. */
   maxCoord: 100_000,
-  /** A room's side, in centimetres. */
-  minRoom: 100,
-  maxRoom: 10_000,
+  /** A room's side, in centimetres: from 50 cm (a narrow balcony, #372) to 100 m. */
+  minRoom: ROOM_SIDE_CM.min,
+  maxRoom: ROOM_SIDE_CM.max,
   /** How high a thing on a wall hangs, in centimetres (HANG_TOP; #138). */
   maxHeight: 300,
 } as const;

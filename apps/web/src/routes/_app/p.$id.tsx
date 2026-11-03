@@ -294,6 +294,7 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
           thingTarget={{ placeId: place.id }}
           {...(place.isUnplaced ? {} : { placeParentId: place.id })}
           hereName={name}
+          onFloor={place.kindKey === 'floor' && place.parentId === null && !place.isUnplaced}
         />
       ) : null}
       {canEdit && !place.isUnplaced ? (

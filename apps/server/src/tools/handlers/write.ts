@@ -516,6 +516,9 @@ export const createPlaceTool: Handler<'create_place'> = {
   run: async (op, input) => {
     const loc = locationOf(op);
     const parentId = input.parent_id ? await placeIn(op.client, loc.id, input.parent_id) : null;
+    if (input.template !== undefined && (input.width_cm ?? input.length_cm) !== undefined) {
+      throw invalid('Check width_cm and length_cm: only a room has a size, not furniture.');
+    }
     if (input.template !== undefined) {
       // #238: furniture and its compartments, as the app's "Furniture with compartments" makes
       // them, with its one undoable event.
@@ -545,10 +548,18 @@ export const createPlaceTool: Handler<'create_place'> = {
         },
       };
     }
+    // #372: a room's real size goes on the map with it, as the app's Add a room does.
+    if ((input.width_cm === undefined) !== (input.length_cm === undefined)) {
+      throw invalid('Check width_cm and length_cm: give both, or neither.');
+    }
+    const map =
+      input.width_cm !== undefined && input.length_cm !== undefined
+        ? { w: input.width_cm, d: input.length_cm }
+        : undefined;
     const created = await createPlace(
       op,
       loc.id,
-      { name: input.name, kindKey: input.kind ?? DEFAULT_PLACE_KIND, parentId },
+      { name: input.name, kindKey: input.kind ?? DEFAULT_PLACE_KIND, parentId, map },
       { undoable: true },
     );
     return {
