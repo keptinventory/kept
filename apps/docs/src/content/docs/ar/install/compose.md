@@ -5,8 +5,9 @@ sidebar:
   order: 1
 ---
 
-‏Docker Compose هو طريقة تشغيل Kept على جهاز واحد: Kept نفسه، وPostgres 18 مع pgvector، وإن شئت
-Caddy من أجل HTTPS. تحتاج إلى Docker مع إضافة Compose. جُرِّب على جهاز بذاكرة ١ غيغابايت
+‏Docker Compose هو طريقة تشغيل Kept على جهاز واحد: Kept نفسه وPostgres 18 مع pgvector. ويأتي Caddy
+من أجل HTTPS وOllama للذكاء الاصطناعي المحلي في ملف ثانٍ ([Caddy وOllama](#caddy-وollama)). تحتاج
+إلى Docker مع إضافة Compose. جُرِّب على جهاز بذاكرة ١ غيغابايت
 ونواة معالجة واحدة، يستخدم Kept وقاعدة بياناته منها نحو ٢٠٠–٤٠٠ ميغابايت ([ما جُرِّب عليه](/ar/install/hardware/)).
 
 أربع خطوات، بلا نسخة من المستودع وبلا كلمات مرور تصنعها بنفسك:
@@ -20,6 +21,33 @@ docker compose up -d
 
 يعمل `compose.yaml` وحده، فيمكن لصقه أيضًا في Portainer وDockge وأمثالهما (راجع
 [من دون طرفية](#من-دون-طرفية)).
+
+## ما الذي يعمل
+
+| الخدمة | متى تعمل |
+|---|---|
+| `db` | ‏Postgres، وتبقى تعمل |
+| `kept` | ‏Kept على المنفذ 8080، وتبقى تعمل |
+| `bootstrap` | مرة واحدة في كل تشغيل ثم تخرج: حسابات الدخول لقاعدة البيانات وإضافاتها |
+| `migrate` | مرة واحدة في كل تشغيل ثم تخرج: تحديثات مخطط قاعدة البيانات |
+| `init` | حين تشغّلها أنت فقط (`docker compose run --rm init`): تكتب `.env` |
+
+## Caddy وOllama
+
+يشغّل `compose.yaml` ‏Kept وحده. أما `compose.full.yaml` فهو الملف نفسه ومعه Caddy من أجل HTTPS
+(ملف التعريف `https`) وOllama للذكاء الاصطناعي المحلي (ملف التعريف `ollama`) ونشر منفصل للويب
+والعامل في تعليقات. ويعمل هو أيضًا وحده. ولاستخدامه بدلًا من `compose.yaml`:
+
+```sh
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.4/compose.full.yaml
+docker compose -f compose.full.yaml run --rm init
+echo COMPOSE_FILE=compose.full.yaml >> .env
+docker compose up -d
+```
+
+ومع `COMPOSE_FILE` في `.env` يقرأ الأمر `docker compose` وحده الملف `compose.full.yaml`، فتعمل كل
+أوامر هذا الدليل كما هي مكتوبة. وخدمات Kept وشبكته ومجلداته واحدة في الملفين: يمكن للتثبيت أن ينتقل
+بينهما في أي وقت ويحتفظ ببياناته.
 
 :::note[الصور]
 تُنشر الإصدارات على `ghcr.io/keptinventory/kept` بالوسوم `1` و`1.2` و`1.2.3`، ولا يوجد `latest`
@@ -114,7 +142,7 @@ docker compose exec kept kept admin recovery-kit
 | `kept-data` | الملفات المرفوعة (مع `KEPT_STORAGE=local`، الافتراضي) | عبر النسخ الاحتياطي في Kept |
 | `kept-config` | ‏`KEPT_SECRET_KEY` و`KEPT_AUTH_SECRET` المولَّدان، وكلمات مرور الحسابات `kept_app` و`kept_auth` و`kept_system` | احفظ حزمة الاسترداد؛ وتُولَّد كلمات المرور من جديد إن ضاعت |
 | `kept-owner` | كلمة مرور الحساب `kept_owner` | لا؛ تُولَّد من جديد إن ضاعت |
-| `caddy-data` و`caddy-config` | شهادات Caddy (ملف التعريف `https`) | لا؛ يحصل Caddy على شهادات جديدة |
+| `caddy-data` و`caddy-config` | شهادات Caddy (ملف التعريف `https` في `compose.full.yaml`) | لا؛ يحصل Caddy على شهادات جديدة |
 
 ليس للمستخدم الأعلى في قاعدة البيانات كلمة مرور يحتاجها أحد: لا يُوصَل إليه إلا من داخل حاوية
 قاعدة البيانات، بالأمر `docker compose exec db psql -U postgres`، ومن `bootstrap` الذي يشارك تلك
@@ -129,7 +157,7 @@ docker compose exec kept kept admin recovery-kit
 
 ## من دون طرفية
 
-يقبل Portainer وDockge وأمثالهما `compose.yaml` كما هو. ولا يشغّلون `init`، فاضبط بدلًا منه متغيرين
+يقبل Portainer وDockge وأمثالهما `compose.yaml` (أو `compose.full.yaml`) كما هو. ولا يشغّلون `init`، فاضبط بدلًا منه متغيرين
 في محرّر البيئة لديهم: `KEPT_PUBLIC_URL` (العنوان، كما سبق) و`KEPT_SETUP_CODE` (ستة محارف من 0–9 وA–Z
 بلا I وL وO وU، مثل `KPT-2X9`؛ أو اتركه فارغًا واقرأ الرمز من سجل Kept). وثبّت `KEPT_IMAGE` على
 إصدار إن لم تفعل الأداة ذلك.

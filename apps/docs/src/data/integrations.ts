@@ -380,16 +380,16 @@ export const integrationGroups: IntegrationGroup[] = [
         id: 'ollama',
         icon: 'server',
         href: '/admin/ollama/',
-        code: ['apps/server/src/ai/providers.ts', 'compose.yaml'],
+        code: ['apps/server/src/ai/providers.ts', 'compose.full.yaml'],
         en: {
           name: 'Ollama',
           title: 'Ollama (local AI)',
-          body: "A local model on your own machine. Compose's ollama profile.",
+          body: 'A local model on your own machine. The ollama profile in compose.full.yaml.',
         },
         ar: {
           name: 'Ollama',
           title: 'Ollama (ذكاء اصطناعي محلي)',
-          body: 'نموذج محلي على جهازك. ملف التعريف ollama في Compose.',
+          body: 'نموذج محلي على جهازك. ملف التعريف ollama في compose.full.yaml.',
         },
       },
       {

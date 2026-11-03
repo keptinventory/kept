@@ -1,6 +1,6 @@
 ---
 title: Put Kept on HTTPS
-description: Why Kept wants HTTPS, and how to get it - Compose's Caddy profile, Tailscale, NetBird, Twingate, Cloudflare Tunnel or your own proxy.
+description: Why Kept wants HTTPS, and how to get it - Caddy from compose.full.yaml, Tailscale, NetBird, Twingate, Cloudflare Tunnel or your own proxy.
 sidebar:
   order: 2
 ---
@@ -32,18 +32,21 @@ restart Kept.
 ## Compose's Caddy profile
 
 For a domain name that points at this machine, with ports 80 and 443 reachable from the internet
-(Caddy proves the domain to Let's Encrypt or ZeroSSL over them):
+(Caddy proves the domain to Let's Encrypt or ZeroSSL over them). Caddy comes with
+`compose.full.yaml`, not `compose.yaml` ([Caddy and Ollama](/install/compose/#caddy-and-ollama)):
 
 ```sh
 # in .env
+COMPOSE_FILE=compose.full.yaml
 KEPT_DOMAIN=kept.example.org
 KEPT_PUBLIC_URL=https://kept.example.org
 ```
 
-Caddy reads `docker/caddy/Caddyfile` next to `compose.yaml`. A checkout of the repository has it;
-an install from `compose.yaml` alone downloads it once:
+Caddy reads `docker/caddy/Caddyfile` next to the Compose file. A checkout of the repository has
+both files; an install without one downloads them once:
 
 ```sh
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.4/compose.full.yaml
 mkdir -p docker/caddy
 curl -fsSLo docker/caddy/Caddyfile https://raw.githubusercontent.com/keptinventory/kept/v1.14.4/docker/caddy/Caddyfile
 docker compose --profile https up -d
@@ -58,7 +61,7 @@ believes Caddy's `X-Forwarded-For` and nothing else's. You can then bind plain H
 only, with `KEPT_HTTP_PORT=127.0.0.1:8080`.
 
 If `172.29.72.0/24` clashes with your LAN, change the network's subnet, its `ip_range`, Caddy's
-`ipv4_address` and `KEPT_TRUSTED_PROXIES` together in `compose.yaml`.
+`ipv4_address` and `KEPT_TRUSTED_PROXIES` together in `compose.full.yaml`.
 
 ## Tailscale
 

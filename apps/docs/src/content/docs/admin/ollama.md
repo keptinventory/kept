@@ -1,6 +1,6 @@
 ---
 title: Local AI with Ollama
-description: Run the AI model on your own machine with Compose's Ollama profile, and what it costs in memory.
+description: Run the AI model on your own machine with the Ollama profile in compose.full.yaml, and what it costs in memory.
 sidebar:
   order: 10
 ---
@@ -17,7 +17,9 @@ and less accurate than a hosted one at reading receipts.
 
 ## Setting it up
 
-1. Start Kept with the `ollama` profile, then pull a model into it with Ollama's own command:
+1. Ollama comes with `compose.full.yaml`, not `compose.yaml`: download it and set
+   `COMPOSE_FILE=compose.full.yaml` in `.env` ([Caddy and Ollama](/install/compose/#caddy-and-ollama)).
+   Start Kept with the `ollama` profile, then pull a model into it with Ollama's own command:
 
    ```sh
    docker compose --profile ollama up -d

@@ -18,8 +18,26 @@ Your own build from a checkout instead: `git pull`, `docker build -t kept:local 
 `docker compose up -d` with `KEPT_IMAGE=kept:local`.
 
 A release can change `compose.yaml` too; its notes say so. Download the release's file over yours
-(`curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v<version>/compose.yaml`); `.env`
-stays as it is.
+(`curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v<version>/compose.yaml`, or
+`compose.full.yaml` if you run that one); `.env` stays as it is.
+
+### Caddy and Ollama moved to compose.full.yaml
+
+From the release after 1.14.4, `compose.yaml` runs Kept and its database only. Caddy (the `https`
+profile), Ollama (the `ollama` profile) and the commented split deployment are in
+`compose.full.yaml`: the same file plus those. **If you use Caddy or Ollama**, download
+`compose.full.yaml` instead and set `COMPOSE_FILE=compose.full.yaml` in `.env`:
+
+```sh
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v<version>/compose.full.yaml
+echo COMPOSE_FILE=compose.full.yaml >> .env
+docker compose --profile https up -d   # the profiles you use: https, ollama or both
+```
+
+Otherwise the next download of `compose.yaml` drops Caddy: Compose calls its container an orphan,
+and once that is gone, Kept is left on plain http. Kept's services, the network and the volumes
+(Caddy's certificates in `caddy-data`, the models in `ollama`) are the same in both files, so
+nothing is lost. Without Caddy or Ollama, nothing changes.
 
 ### Sign-in links (1.14.0)
 

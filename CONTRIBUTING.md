@@ -310,8 +310,9 @@ form. `pnpm lint` and `node scripts/check-i18n-extract.mjs` say what is missing.
 A `KEPT_*` setting starts in `apps/server/src/config/env.ts`, then:
 
 - `pnpm --filter @kept/docs gen:config`, and commit the regenerated reference;
-- `compose.env.example`, where people set it, and `compose.yaml`, which passes it to the
-  container (a value in `.env` that compose.yaml doesn't name never reaches Kept);
+- `compose.env.example`, where people set it, and `compose.yaml` and `compose.full.yaml`, which
+  pass it to the container (a value in `.env` that the Compose file doesn't name never reaches
+  Kept). Both files' `kept` and `migrate` must stay identical: `pnpm lint` checks it;
 - the Home Assistant app: an option in `homeassistant/kept/config.yaml`, mapped in
   `docker/ha/options.mjs`, with its label in `translations/` and a line in `DOCS.md`;
 - a comment in the Helm chart's `values.yaml` if people on Kubernetes would set it.
