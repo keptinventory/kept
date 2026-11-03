@@ -5,6 +5,7 @@ import {
   gridOf,
   MAP_ROOM_KINDS,
   MAP_SURFACES,
+  PLACE_LAYOUT_KINDS,
   parseCell,
 } from '@kept/shared';
 import type pg from 'pg';
@@ -97,8 +98,14 @@ export const MapViewSchema = z.object({
       isContainer: z.boolean(),
       quantity: z.number(),
       layout: NodeLayout.nullable(),
-      /** Furniture's grid as it stands (#238), or null. */
-      grid: z.object({ columns: z.number().int(), rows: z.number().int() }).nullable(),
+      /** Furniture's grid as it stands and its layout's kind (#238), or null. */
+      grid: z
+        .object({
+          columns: z.number().int(),
+          rows: z.number().int(),
+          kind: z.enum(PLACE_LAYOUT_KINDS),
+        })
+        .nullable(),
       compartments: z.array(
         z.object({
           id: z.uuid(),
@@ -524,7 +531,10 @@ export async function mapView(tx: Tx, client: pg.ClientBase, locationId: string)
         cols: c.cols,
       });
     }
-    furniture.set(p.id, { grid, compartments: compartments.sort((a, b) => a.n - b.n) });
+    furniture.set(p.id, {
+      grid: { ...grid, kind: layout.kind },
+      compartments: compartments.sort((a, b) => a.n - b.n),
+    });
   }
   const compartmentMemo = new Map<string, string | null>();
   const compartmentOfPlace = (id: string): string | null => {

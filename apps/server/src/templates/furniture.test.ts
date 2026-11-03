@@ -425,7 +425,7 @@ describe('the map and the labels', () => {
       things: { id: string; parentId: string; compartmentId: string | null }[];
     };
     const node = map.nodes.find((n) => n.id === s.id);
-    expect(node?.grid).toEqual({ columns: 2, rows: 2 });
+    expect(node?.grid).toEqual({ columns: 2, rows: 2, kind: 'grid' });
     expect(node?.compartments.map((c) => c.n)).toEqual([1, 2, 3, 4]);
     expect(map.things.find((x) => x.id === thing.id)).toMatchObject({
       parentId: s.id,
