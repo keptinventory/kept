@@ -515,7 +515,15 @@ export async function changeIncidentThings(
 }
 
 /** The attachment columns a deleted incident's before-image keeps, for its undo. */
-export const DOCUMENT_COLUMNS = ['id', 'file_id', 'url', 'role', 'sort', 'created_by'] as const;
+export const DOCUMENT_COLUMNS = [
+  'id',
+  'file_id',
+  'url',
+  'role',
+  'sort',
+  'name',
+  'created_by',
+] as const;
 
 export async function deleteIncident(ctx: WriteCtx, id: string, expected: number): Promise<void> {
   const r = await writableIncident(ctx, id, expected, []);

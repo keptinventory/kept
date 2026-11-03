@@ -807,6 +807,32 @@ describe('POST /api/v1/inbox/:id/reading', () => {
     expect(made).toHaveLength(1);
     expect((await itemRow(db, item))?.resolution).toBe('edited');
   });
+
+  it('the photo it was read from proves the typed reading, and keeps its name (#183)', async () => {
+    const proof = await attachment(db, home, ibrahim, { thingId: car }, 'proof');
+    await own(db, `UPDATE public.attachments SET name = 'Odometer at the pump' WHERE id = $1`, [
+      proof,
+    ]);
+    const item = await inboxItem(db, home, ibrahim, {
+      kind: 'reading',
+      thingId: car,
+      payload: {
+        reason: 'needs_value',
+        meterId: meter,
+        takenAt: new Date().toISOString(),
+        attachmentId: proof,
+      },
+    });
+    ok(await act(t, ibrahim, item, 'reading', { action: 'edit', value: '54400' }));
+    const [moved] = await own<{ name: string | null; thing_id: string | null; value: string }>(
+      db,
+      `SELECT a.name, a.thing_id, trim_scale(r.value)::text AS value
+         FROM public.attachments a JOIN public.meter_readings r ON r.id = a.meter_reading_id
+        WHERE a.id = $1`,
+      [proof],
+    );
+    expect(moved).toEqual({ name: 'Odometer at the pump', thing_id: null, value: '54400' });
+  });
 });
 
 describe('POST /api/v1/inbox/:id/restore', () => {

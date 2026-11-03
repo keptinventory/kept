@@ -28730,3 +28730,7 @@ msgstr "Enter metres, like {example}."
 #: src/map/size.tsx
 msgid "Enter a whole number."
 msgstr "Enter a whole number."
+
+#: src/components/things/purchase-sheet.tsx
+msgid "The new receipt is added, but the old one couldn't be removed"
+msgstr "The new receipt is added, but the old one couldn't be removed"

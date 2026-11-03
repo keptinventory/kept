@@ -845,10 +845,11 @@ export function MapCard(p: CardProps) {
   ) : null;
   const shape = p.arranging ? (
     <>
-      <ShapeField item={it} input={shapeInputOf(view, it)} onShape={p.onShape} />
-      <SizeFields model={it.model} onModel={(m) => p.onShape(it.id, m)} />
+      <ShapeField key={it.id} item={it} input={shapeInputOf(view, it)} onShape={p.onShape} />
+      {/* Keyed by the item, so a draft typed for one is never shown on, or saved to, the next. */}
+      <SizeFields key={it.id} model={it.model} onModel={(m) => p.onShape(it.id, m)} />
       {it.hang === undefined ? null : (
-        <HeightField item={it} onHeight={(h) => p.onHeight(it.id, h)} />
+        <HeightField key={it.id} item={it} onHeight={(h) => p.onHeight(it.id, h)} />
       )}
     </>
   ) : null;

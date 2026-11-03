@@ -476,6 +476,8 @@ export type HeldAttachment = {
   url: string | null;
   role: string;
   sort: number;
+  /** What people named it (#183); absent in events from before 1.14.4. */
+  name?: string | null;
 };
 
 export async function deleteDocument(
@@ -496,7 +498,7 @@ export async function deleteDocument(
     throw moneyOff();
   }
   const { rows: attachments } = await client.query<HeldAttachment>(
-    `SELECT id, file_id, url, role, sort FROM public.attachments
+    `SELECT id, file_id, url, role, sort, name FROM public.attachments
       WHERE expiring_document_id = $1 ORDER BY sort, created_at, id`,
     [id],
   );

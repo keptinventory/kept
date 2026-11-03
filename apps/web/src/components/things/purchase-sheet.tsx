@@ -24,6 +24,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { FileTrigger } from 'react-aria-components';
 import { isApiError } from '@/api/client';
+import { householdKeys } from '@/api/household/queries';
 import { thingApi } from '@/api/inventory/thing-api';
 import type { AttachmentView, PurchaseView, UpdatePurchaseBody } from '@/api/inventory/types';
 import { DocumentIcon, PencilIcon, TrashIcon } from '@/components/icons';
@@ -259,6 +260,8 @@ function PurchaseForm({ onClose }: { onClose: () => void }) {
       else if (mine) await thingApi.unlinkLine(mine.id, thing.id);
       await refresh();
       await qc.invalidateQueries({ queryKey: ['purchases'] });
+      // Paperwork lists a purchase's receipts under the first thing bought on it.
+      await qc.invalidateQueries({ queryKey: householdKeys.paperwork.all });
       onClose();
       toast({ title: alone ? t`Purchase removed` : t`Taken off the receipt`, tone: 'ok' });
     } catch (err) {
@@ -392,10 +395,13 @@ function ReceiptsEditor({
 }) {
   const { t } = useLingui();
   const { thing, role, me, refresh } = useThingCtx();
+  const qc = useQueryClient();
   const roles = useRoleLabels();
+  // Paperwork lists the purchase's receipts too: an added, renamed, replaced or removed one
+  // shows there at once.
   const changed = async () => {
     onChanged();
-    await refresh();
+    await Promise.all([refresh(), qc.invalidateQueries({ queryKey: householdKeys.paperwork.all })]);
   };
   return (
     <fieldset className="m-0 grid gap-2 rounded-[10px] border border-line p-3">
@@ -475,11 +481,23 @@ function ReceiptRow({
         role: r.role,
         ...(name ? { name } : {}),
       });
+    } catch (e) {
+      fail(e);
+      setBusy(false);
+      return;
+    }
+    try {
       await thingApi.deleteAttachment(r.id);
       await onChanged();
       toast({ title: t`Receipt replaced`, tone: 'ok' });
     } catch (e) {
-      fail(e);
+      // The new file is on the purchase and the old one stayed: the list shows both, and says so.
+      await onChanged().catch(() => {});
+      toast({
+        title: t`The new receipt is added, but the old one couldn't be removed`,
+        description: errorText(e),
+        tone: 'danger',
+      });
     } finally {
       setBusy(false);
     }

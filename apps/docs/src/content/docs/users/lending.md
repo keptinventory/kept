@@ -35,7 +35,7 @@ doesn't) on its own record. A kit lists its parts kept elsewhere too. See
 ## Borrowed things
 
 Record what you borrowed from someone, with where it is and when it goes back. It shows on the
-same lists, under **In**; what you lent is under **Out**.
+same lists, under **In: borrowed**; what you lent is under **Out: lent**.
 
 ## What's out, and with whom
 

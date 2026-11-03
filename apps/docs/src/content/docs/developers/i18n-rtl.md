@@ -3,7 +3,7 @@ title: Languages and right-to-left
 description: How strings are translated with Lingui, what the catalogue checks enforce, and the rules that keep Arabic correct.
 ---
 
-Kept ships in six languages: English, Arabic, French, German and Italian (D204), and Vietnamese.
+Kept ships in six languages: English, Arabic, French, German, Italian (D204) and Vietnamese.
 Arabic is right-to-left, so every screen has to mirror without per-screen overrides. The web app
 uses [Lingui](https://lingui.dev/) with PO catalogues (D96); the server has its own small typed
 tables for mail and reports.

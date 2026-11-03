@@ -182,6 +182,35 @@ describe('tag_things rows', () => {
   });
 });
 
+describe('create_place rows (#372)', () => {
+  const HOME_ROOMS = '0192f0c3-7c55-7000-8000-000000000009';
+  const make = (args: Record<string, unknown>) =>
+    rowsOf({
+      ...proposal(args, { [HOME_ROOMS]: { kind: 'place', name: 'Ground floor', path: ['Home'] } }),
+      tool: 'create_place',
+    });
+
+  it('shows the size the room goes on the map at, with where it goes', () => {
+    const [row] = make({
+      location_id: LOC,
+      parent_id: HOME_ROOMS,
+      name: 'Balcony',
+      width_cm: 80,
+      length_cm: 358,
+    });
+    expect(row?.verb).toBe('newPlace');
+    expect(row?.fields).toEqual([
+      { key: 'under', after: { t: 'path', v: ['Home', 'Ground floor'] } },
+      { key: 'size', after: { t: 'roomSize', w: 80, d: 358 } },
+    ]);
+  });
+
+  it('shows no size where none was given', () => {
+    const [row] = make({ location_id: LOC, parent_id: HOME_ROOMS, name: 'Hall' });
+    expect(row?.fields.map((f) => f.key)).toEqual(['under']);
+  });
+});
+
 describe('update_place rows (#313)', () => {
   const SHELF = '0192f0c3-7c55-7000-8000-000000000006';
   const HALL = '0192f0c3-7c55-7000-8000-000000000007';

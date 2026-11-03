@@ -52,7 +52,8 @@ away by itself when every step is done. More on Home in [everyday use](/users/ev
 
 Everyone has a **Personal** location from the start: it's yours alone (no members, invites or
 share links) and it's where a capture with no location lands. Rename it in **Location settings →
-General**, and Kept shows the new name everywhere. Shared things belong in a location of their own. Choose **Create your first home** (or **New location** on Home):
+General**, and Kept shows the new name everywhere. Shared things belong in a location of their
+own. Choose **Create your first home** (or **New location** on Home):
 
 1. **What's this place called?** A name, like Home or Garage, and its kind: House, Apartment,
    Garage, Storage unit, Office, Vacation home or Other.
@@ -126,7 +127,8 @@ holds at most 20 of them.
 - **Region**: **United States** (Oct 29) or **United Kingdom** (29 Oct, 29/10/2026), shown only
   while the language is English.
 - **Date format**: **Default** (29 Oct, with the year only for other years), 29 Oct 2026,
-  29/10/2026 or 2026-10-29. Each choice shows today's date written that way. Purchase and
+  29/10/2026 or 2026-10-29 (as the United Kingdom writes them). Each choice shows today's date
+  written that way, in your region. Purchase and
   warranty dates always show the year.
 - **Theme**: **System** (follows the device's light or dark setting), **Light** or **Dark**.
 - **Content width**: **Centered** or **Full width**, on screens 768 px and wider.

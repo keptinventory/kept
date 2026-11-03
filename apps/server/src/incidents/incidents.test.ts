@@ -421,6 +421,43 @@ describe('incidents', () => {
       { incidentId: made.id },
     ]);
   });
+
+  it('a named document keeps its name through the delete and its undo (#183)', async () => {
+    const made = ok(
+      await createIncident(ibrahim, home, { kind: 'other', occurredOn: '2026-07-08' }),
+      201,
+    );
+    const doc = ok(
+      await call(t, '/api/v1/attachments', {
+        as: ibrahim,
+        body: {
+          locationId: home.id,
+          url: 'https://insurer.example/claims/storm',
+          subject: { incidentId: made.id },
+          role: 'document',
+        },
+      }),
+      201,
+    );
+    ok(
+      await call(t, `/api/v1/attachments/${doc.id}`, {
+        as: ibrahim,
+        method: 'PATCH',
+        body: { name: 'Insurer letter' },
+        headers: { 'if-match': String(doc.rowVersion) },
+      }),
+    );
+    const res = await call(t, `/api/v1/incidents/${made.id}`, {
+      as: ibrahim,
+      method: 'DELETE',
+      headers: { 'if-match': String(made.rowVersion) },
+    });
+    expect(res.statusCode).toBe(204);
+    ok(await undo(ibrahim, String(res.headers['x-kept-audit-event'])));
+    expect(await own(db, 'SELECT name FROM public.attachments WHERE id = $1', [doc.id])).toEqual([
+      { name: 'Insurer letter' },
+    ]);
+  });
 });
 
 // ---------------------------------------------------------------------------------------------

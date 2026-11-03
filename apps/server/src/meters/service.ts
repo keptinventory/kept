@@ -858,8 +858,13 @@ export async function deleteReading(
   const { client, tx, scope } = ctx;
   const { reading, meter } = await changeableReading(client, scope, id);
   if (opts.owned !== 'allow') await refuseOwned(client, id);
-  const { rows: proofs } = await client.query<{ id: string; file_id: string; sort: number }>(
-    `SELECT id, file_id, sort FROM public.attachments
+  const { rows: proofs } = await client.query<{
+    id: string;
+    file_id: string;
+    sort: number;
+    name: string | null;
+  }>(
+    `SELECT id, file_id, sort, name FROM public.attachments
       WHERE meter_reading_id = $1 AND file_id IS NOT NULL ORDER BY sort, id`,
     [id],
   );

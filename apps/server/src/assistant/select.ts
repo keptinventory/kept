@@ -69,12 +69,12 @@ const TOPICS: Readonly<Record<string, Topic>> = {
   places: {
     tools: ['create_place', 'update_place', 'turn_into_boxes', 'attach_link'],
     words: {
-      en: 'place|room|shelf|shelves|drawer|cupboard|cabinet|zone|create|photo|picture|scan|link|attach|rename|into a box|into boxes|custom order|move up|move down|turn|rotate|on its side|upright|furniture|bookcase|bookshelf|wardrobe|size|width|length|depth|metre|meters',
-      fr: 'pièce|étagère|tiroir|placard|armoire|créer|lien|renommer|en boîte|en boîtes|ordre|tourner|tournez|tourne le|tourne la|tourne l’|pivot|sur le côté|meuble|bibliothèque|taille|dimension|largeur|longueur|profondeur|mètre',
-      de: 'raum|zimmer|regal|schublade|schrank|anlegen|erstell|foto|bild|umbenenn|in kisten|in eine kiste|reihenfolge|dreh|umdreh|auf die seite|auf der seite|möbel|bücherregal|größe|maße|abmessung|breite|tiefe|meter|quadratmeter',
-      it: 'stanza|scaffal|cassetto|armadio|crea|collegamento|rinomin|in scatol|ordine|girare|giralo|girala|gira il|gira la|gira lo|ruota|ruotare|di lato|sul fianco|mobil|libreria|dimension|misur|larghezza|lunghezza|profondità|metri|metro',
-      ar: 'غرفة|رف|درج|خزانة|دولاب|مكان|أنشئ|صورة|رابط|تسمية|صندوق|صناديق|ترتيب|دوّر ال|اقلب|على جنبه|على جنبها|على الجنب|أثاث|مكتبة|مقاس|حجم|عرضه|عرضها|العرض|طوله|طولها|الطول|عمق|متر',
-      vi: 'vị trí|phòng|kệ|giá sách|tủ|ngăn kéo|nội thất|tạo|ảnh|chụp|quét|liên kết|đính kèm|đổi tên|thành hộp|thứ tự|xoay|nằm nghiêng|dựng đứng|kích thước|chiều rộng|chiều dài|chiều sâu|mét',
+      en: 'place|room|bedroom|bathroom|kitchen|hallway|balcony|attic|basement|shelf|shelves|drawer|cupboard|cabinet|zone|create|photo|picture|scan|link|attach|rename|into a box|into boxes|custom order|move up|move down|rotate|on its side|stand it up|furniture|bookcase|bookshelf|wardrobe|dimensions',
+      fr: 'pièce|chambre|cuisine|salle de bain|couloir|grenier|étagère|tiroir|placard|armoire|créer|lien|renommer|en boîte|en boîtes|ordre|tourner|tournez|tourne le|tourne la|tourne l’|pivot|sur le côté|meuble|bibliothèque',
+      de: 'raum|zimmer|schlafzimmer|badezimmer|wohnzimmer|arbeitszimmer|kinderzimmer|küche|flur|dachboden|keller|regal|schublade|schrank|anlegen|erstell|foto|bild|umbenenn|in kisten|in eine kiste|reihenfolge|drehen|umdreh|auf die seite|auf der seite|möbel|bücherregal',
+      it: 'stanza|camera da letto|bagno|cucina|corridoio|soffitta|cantina|scaffal|cassetto|armadio|crea|collegamento|rinomin|in scatol|ordine|girare|giralo|girala|gira il|gira la|gira lo|ruotare|ruotalo|ruotala|di lato|sul fianco|mobil|libreria',
+      ar: 'غرفة|مطبخ|حمام|ممر|شرفة|بلكونة|رف|درج|خزانة|دولاب|مكان|أنشئ|صورة|رابط|تسمية|صندوق|صناديق|ترتيب|دوّر ال|اقلب|على جنبه|على جنبها|على الجنب|أثاث|مكتبة',
+      vi: 'vị trí|phòng|kệ|giá sách|tủ quần áo|tủ sách|tủ đồ|ngăn kéo|nội thất|tạo|chụp|chụp ảnh|hình ảnh|quét|liên kết|đính kèm|đổi tên|thành hộp|thứ tự|xoay|nằm nghiêng|dựng đứng',
     },
   },
   schedules: {
@@ -85,7 +85,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       de: 'fällig|termin|erinner|wartung|bald|abgelaufen|läuft ab|nächst|erledigt|verschieb|aufgabe',
       it: 'scadenz|scade|promemoria|manutenzion|presto|prossim|fatto|rimand|posticip|compito',
       ar: 'موعد|مستحق|صيانة|تذكير|قريبا|تنتهي|ينتهي|القادم|خلصت|أجل|تأجيل|مهمة',
-      vi: 'lịch|lịch trình|bảo dưỡng|đến hạn|quá hạn|nhắc|sắp tới|hết hạn|tiếp theo|xong|hoãn|dời|để sau|tác vụ|việc cần làm|tuần này|tháng này',
+      vi: 'lịch trình|lịch bảo dưỡng|lịch hẹn|bảo dưỡng|bảo trì|đến hạn|quá hạn|nhắc|sắp tới|hết hạn|tiếp theo|xong|hoãn|dời|để sau|tác vụ|việc cần làm|tuần này|tháng này',
     },
   },
   lending: {
@@ -96,7 +96,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       de: 'verleih|verlieh|geliehen|ausgeliehen|ausleih|leih|zurück|übergeb|übergab',
       it: 'prest|restitu|ridat|riavut|tornat|consegn|affidat',
       ar: 'أعار|أعرت|استعار|استلف|سلف|إعارة|رجع|أرجع|مع مين|عند مين|عند من|اقترض|سلمت|تسليم',
-      vi: 'cho mượn|mượn|trả|trả lại|lấy lại|nhận lại|ai đang giữ|ai giữ|đang giữ|bàn giao|giao cho',
+      vi: 'cho mượn|mượn|trả lại|đã trả|trả cho|trả về|lấy lại|nhận lại|ai đang giữ|ai giữ|đang giữ|bàn giao|giao cho',
     },
   },
   warranties: {
@@ -130,7 +130,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       de: 'schlagwort|tag|tags|getaggt',
       it: 'tag|etichetta',
       ar: 'وسم|وسوم|موسوم|تاغ',
-      vi: 'thẻ|gắn thẻ|bỏ thẻ',
+      vi: 'gắn thẻ|bỏ thẻ|các thẻ|thẻ nào|thẻ này',
     },
   },
   stock: {
@@ -141,7 +141,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       de: 'vorrat|bestand|aufgebraucht|übrig|verbrauch|nachfüll|leer',
       it: 'scorta|scorte|rimast|esaurit|consumabil|usat|finit',
       ar: 'مخزون|متبقي|باقي|نفد|نفذ|خلص|استهلك|كمية',
-      vi: 'tồn kho|còn lại|còn bao nhiêu|sắp hết|dùng hết|hết rồi|vật tư|tiêu hao|bổ sung|nạp thêm|mua thêm|số lượng',
+      vi: 'tồn kho|còn lại|còn bao nhiêu|còn mấy|sắp hết|dùng hết|hết rồi|vật tư|tiêu hao|bổ sung|nạp thêm|mua thêm|số lượng',
     },
   },
 };
@@ -180,6 +180,11 @@ const PATTERNS: readonly [Topic, RegExp, RegExp][] = Object.values(TOPICS).map((
   return [topic, new RegExp(re, 'u'), new RegExp(vi, 'u')];
 });
 
+/** A size said as two numbers, "4 by 3", "2.5 x 2 m", "4 sur 3", "٤ في ٣": a room with its size
+ * (#372). Words such as "size" or "metre" alone say too little (a TV's size, a tape measure). */
+const DIMENSIONS =
+  /\p{Nd}+(?:[.,٫]\p{Nd}+)?\s*(?:cm|m|metres?|meters?|metri|meter)?\s*(?:x|×|by|sur|per|mal|في)\s*\p{Nd}/u;
+
 /** The tools of every topic `text` names. */
 function topicTools(text: string): Set<ToolName> {
   const folded = normalise(text);
@@ -188,6 +193,7 @@ function topicTools(text: string): Set<ToolName> {
   for (const [topic, re, vi] of PATTERNS) {
     if (re.test(folded) || vi.test(kept)) for (const t of topic.tools) out.add(t);
   }
+  if (DIMENSIONS.test(folded)) for (const t of TOPICS.places?.tools ?? []) out.add(t);
   return out;
 }
 

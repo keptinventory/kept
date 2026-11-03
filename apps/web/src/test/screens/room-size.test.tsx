@@ -1,6 +1,6 @@
 /**
  * Rooms with their real size (#372): "Room or spot" takes a room's width and length to the
- * centimetre, in the reader's own decimal mark, and the room goes on the map at that size in one
+ * centimetre, "." or "," as its decimal mark, and the room goes on the map at that size in one
  * request, with one Undo. What can't be a room's size is said on its field and nothing is sent.
  * Against the mock server.
  */
@@ -199,9 +199,10 @@ describe('a room with its real size (#372)', () => {
   );
 
   it.each([
-    ['0,8', 'a comma in English'],
+    ['3 58', 'a space inside'],
     ['1e3', 'an exponent'],
     ['-2', 'a sign'],
+    ['0,8,0', 'two decimal marks'],
   ])('says %s (%s) isn’t a size, and sends nothing', async (typed) => {
     const { user, mock } = await home();
     const dialog = await openAdd(user, 'Room or spot');
@@ -217,6 +218,68 @@ describe('a room with its real size (#372)', () => {
     expect(width).toHaveAttribute('aria-invalid', 'true');
     expect(sent(mock)).toBeUndefined();
   });
+
+  // A phone's decimal keypad offers only its region's mark (an English UI on a German-region
+  // iPhone types only ","), so either mark is read in every language (1.14.4 final review).
+  it.each([
+    ['en', 'Room or spot', 'Width', 'Length', 'Save', '0,8', '3,58', '0.80 m'],
+    ['de', 'Raum oder Platz', 'Breite', 'Länge', 'Speichern', '0.8', '3.58', '0,80 m'],
+  ] as const)(
+    'in %s, reads the other decimal mark too',
+    async (locale, add, w, d, save, typedW, typedD, shown) => {
+      try {
+        const { user, mock } = await home(locale);
+        const dialog = await openAdd(user, add);
+        await user.type(within(dialog).getAllByRole('textbox')[0] as HTMLElement, 'Balkon');
+        const width = within(dialog).getByRole('textbox', { name: w });
+        await user.type(width, typedW);
+        await user.tab();
+        expect((width as HTMLInputElement).value.replace(/[\u00a0\u202f]/g, ' ')).toBe(shown);
+        await user.type(within(dialog).getByRole('textbox', { name: d }), typedD);
+        await user.tab();
+        await user.click(within(dialog).getByRole('button', { name: save }));
+        await expect.poll(() => sent(mock)?.map).toEqual({ w: 80, d: 358 });
+      } finally {
+        setLocale('en');
+      }
+    },
+  );
+
+  // Arabic writes 1 m and 2 m as a word alone ("متران") and inflects it by number: the field
+  // shows the digits, and what it shows reads back (1.14.4 final review).
+  it.each([
+    ['eastern', '٢', '٢٫٠٠ متر', '٣', '٣٫٠٠ متر'],
+    ['western', '1', '1.00 متر', '11', '11.00 متر'],
+  ] as const)(
+    'in Arabic with %s digits, shows whole metres with their digits and keeps them',
+    async (digits, w, shownW, d, shownD) => {
+      try {
+        const { user, mock } = await renderApp(`/loc/${IDS.home}`, { locale: 'ar', digits });
+        const dialog = await openAdd(user, 'غرفة أو مكان');
+        await user.type(within(dialog).getByLabelText('الاسم'), 'شرفة');
+        const width = within(dialog).getByRole('textbox', { name: 'العرض' });
+        const length = within(dialog).getByRole('textbox', { name: 'الطول' });
+        await user.type(width, w);
+        await user.type(length, d);
+        await user.tab();
+        expect((width as HTMLInputElement).value.replace(/\u00a0/g, ' ')).toBe(shownW);
+        expect((length as HTMLInputElement).value.replace(/\u00a0/g, ' ')).toBe(shownD);
+        // Left again without a change: what it shows reads back as the same size.
+        await user.click(width);
+        await user.tab();
+        expect(width).not.toHaveAttribute('aria-invalid', 'true');
+        await user.click(within(dialog).getByRole('button', { name: 'حفظ' }));
+        await expect
+          .poll(() => sent(mock)?.map)
+          .toEqual({
+            w: Number(w.replace('٢', '2')) * 100,
+            d: Number(d.replace('٣', '3')) * 100,
+          });
+      } finally {
+        setLocale('en');
+      }
+    },
+  );
 
   it('reads right to left in Arabic, in Arabic digits', async () => {
     try {

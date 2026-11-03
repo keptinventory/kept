@@ -1,6 +1,6 @@
 import type { PlaceRef, ToolOutput } from '@kept/mcp';
 import { undoableEventIds } from '../../audit/audited.js';
-import { conflict, pgErrorOf } from '../../http/errors.js';
+import { conflict, invalid, pgErrorOf } from '../../http/errors.js';
 import {
   convertChildren,
   reorderChild,
@@ -45,6 +45,12 @@ export const updatePlaceTool: Handler<'update_place'> = {
     const loc = locationOf(op);
     const id = await placeIn(op.client, loc.id, input.place_id);
     const f = input.fields ?? {};
+    // Each change answers with its own Undo: a turn or a step goes in a call of its own, so an
+    // undo never puts back half of what the call did.
+    const asked = [Object.keys(f).length > 0, input.turn !== undefined, input.move !== undefined];
+    if (asked.filter(Boolean).length > 1) {
+      throw invalid('Send fields, turn and move as separate update_place calls, one each.');
+    }
     const body: UpdatePlaceBody = {};
     if (f.name !== undefined) body.name = f.name;
     if (f.kind !== undefined) body.kindKey = f.kind;

@@ -646,9 +646,10 @@ export async function deletePurchase(ctx: Ctx, id: string): Promise<void> {
     url: string | null;
     role: string;
     sort: number;
+    name: string | null;
     created_by: string;
   }>(
-    `SELECT id, file_id, url, role, sort, created_by FROM public.attachments
+    `SELECT id, file_id, url, role, sort, name, created_by FROM public.attachments
       WHERE purchase_id = $1 ORDER BY sort, id`,
     [id],
   );
@@ -668,7 +669,14 @@ export async function deletePurchase(ctx: Ctx, id: string): Promise<void> {
       actor: actor(ctx.scope),
       action: 'attachment.delete',
       entity: { type: 'attachment', id: a.id },
-      before: { purchase_id: id, file_id: a.file_id, url: a.url, role: a.role, sort: a.sort },
+      before: {
+        purchase_id: id,
+        file_id: a.file_id,
+        url: a.url,
+        role: a.role,
+        sort: a.sort,
+        ...(a.name ? { name: a.name } : {}),
+      },
       after: null,
       requestId: ctx.requestId,
     });

@@ -1,11 +1,11 @@
 /**
  * A room's width and length (#372): two fields in metres to the centimetre (0.80 × 3.58), kept
  * as whole centimetres, the map's own units. Typing, arrow keys and the − and + buttons (a
- * centimetre a step) work, and the person's locale reads its decimal mark, so 0,80 in French,
- * German, Italian and Vietnamese. What a side is read and shown as comes from @kept/shared's
+ * centimetre a step) work, and "." or "," is the decimal mark in any language (a phone's decimal
+ * keypad offers only its region's). What a side is read and shown as comes from @kept/shared's
  * length.ts alone (imperial, #385, changes it there): Western and Eastern Arabic digits both, and
- * what isn't a number ("0,8" in English, "1e3", "-2") is NaN for the caller to say so, never a
- * different size (the 1.14.4 review; React Aria's NumberField dropped what it couldn't read).
+ * what isn't a number ("1e3", "-2", "3 58") is NaN for the caller to say so, never a different
+ * size (the 1.14.4 review; React Aria's NumberField dropped what it couldn't read).
  * Width runs across the map, left to right in the plan view; length runs back to front. Digits
  * follow the person's setting.
  *
@@ -14,11 +14,10 @@
  */
 import {
   formatRoomSide,
+  formatRoomSideField,
   ROOM_SIDE,
   ROOM_SIDE_CM,
   readLength,
-  roomSideFormat,
-  roomSideFromCm,
   roomSideProblem,
   roomSideToCm,
 } from '@kept/shared';
@@ -94,7 +93,7 @@ function Side({
   const map = variant === 'map';
   const field = useTypedNumber({
     value: cm,
-    show: (v) => new Intl.NumberFormat(tag, roomSideFormat()).format(roomSideFromCm(v)),
+    show: (v) => formatRoomSideField(v, tag),
     read: (text) => {
       const m = readLength(text, tag);
       return m === null || m === false ? m : roomSideToCm(m);

@@ -581,6 +581,8 @@ export type HeldAttachment = {
   url: string | null;
   role: string;
   sort: number;
+  /** What people named it (#183); absent in events from before 1.14.4. */
+  name?: string | null;
 };
 
 /** A deleted fill's reading, as its event keeps it. */
@@ -608,7 +610,7 @@ export async function deleteFuel(ctx: Ctx, id: string, expected: number): Promis
   const held = async (column: 'fuel_entry_id' | 'meter_reading_id', subject: string) =>
     (
       await client.query<HeldAttachment>(
-        `SELECT id, file_id, url, role, sort FROM public.attachments WHERE ${column} = $1
+        `SELECT id, file_id, url, role, sort, name FROM public.attachments WHERE ${column} = $1
           ORDER BY sort, created_at, id`,
         [subject],
       )

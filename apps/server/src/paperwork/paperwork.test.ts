@@ -134,6 +134,23 @@ const write = (
     headers: { 'if-match': String(rowVersion) },
   });
 
+/** Names an attachment as people do (PATCH /attachments/:id, #183). */
+async function renameAttachment(as: Person, id: string, name: string): Promise<void> {
+  const [row] = await own<{ row_version: number }>(
+    db,
+    'SELECT row_version FROM public.attachments WHERE id = $1',
+    [id],
+  );
+  ok(await write(as, 'PATCH', `/api/v1/attachments/${id}`, row?.row_version ?? 0, { name }));
+}
+
+const attachmentName = async (id: string) =>
+  (
+    await own<{ name: string | null }>(db, 'SELECT name FROM public.attachments WHERE id = $1', [
+      id,
+    ])
+  )[0]?.name;
+
 const undo = (as: Person, eventId: string) =>
   call(t, `/api/v1/audit/${eventId}/undo`, { as, method: 'POST', body: {} });
 
@@ -391,6 +408,57 @@ describe('expiring documents: edit, delete, renew and their undo', () => {
     ) as unknown as Doc;
     expect(back).toMatchObject({ id: doc.id, kind: 'lease', expiresOn: '2027-06-30' });
     expect(back.documents.map((a) => a.id)).toEqual([attachment]);
+  });
+
+  it('a named file keeps its name through the delete and its undo (#183)', async () => {
+    const doc = await createDoc(ibrahim, {
+      subject: { locationId: home.id },
+      kind: 'insurance',
+      expiresOn: '2027-01-31',
+    });
+    const file = await pdf(home, ibrahim, 'Home insurance policy');
+    const attachment = await attach(
+      ibrahim,
+      home,
+      file,
+      { expiringDocumentId: doc.id },
+      'document',
+    );
+    await renameAttachment(ibrahim, attachment, 'Insurance 2026');
+    const res = await write(ibrahim, 'DELETE', `/api/v1/documents/${doc.id}`, doc.rowVersion);
+    expect(res.statusCode, res.body).toBe(204);
+    ok(await undo(ibrahim, auditHeader(res)));
+    expect(await attachmentName(attachment)).toBe('Insurance 2026');
+  });
+
+  it('an older delete event, from before files had names, still undoes (#183)', async () => {
+    const doc = await createDoc(ibrahim, {
+      subject: { locationId: home.id },
+      kind: 'lease',
+      expiresOn: '2027-06-30',
+    });
+    const file = await pdf(home, ibrahim, 'Tenancy agreement');
+    const attachment = await attach(
+      ibrahim,
+      home,
+      file,
+      { expiringDocumentId: doc.id },
+      'document',
+    );
+    await renameAttachment(ibrahim, attachment, 'Lease');
+    const res = await write(ibrahim, 'DELETE', `/api/v1/documents/${doc.id}`, doc.rowVersion);
+    expect(res.statusCode, res.body).toBe(204);
+    // As 1.14.3 wrote it: the held attachments have no `name` key.
+    await own(
+      db,
+      `UPDATE public.audit_events
+          SET diff = jsonb_set(diff, '{attachments,before}',
+                (SELECT jsonb_agg(a - 'name') FROM jsonb_array_elements(diff->'attachments'->'before') a))
+        WHERE id = $1`,
+      [auditHeader(res)],
+    );
+    ok(await undo(ibrahim, auditHeader(res)));
+    expect(await attachmentName(attachment)).toBeNull();
   });
 
   it("undoing someone else's delete brings the document back as theirs, with their file (0056)", async () => {

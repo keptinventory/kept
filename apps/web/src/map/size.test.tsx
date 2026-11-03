@@ -121,7 +121,7 @@ describe('SizeFields: a bookcase (#241)', () => {
     const onModel = vi.fn();
     const { user } = await renderUI(<SizeFields model="bookcase" onModel={onModel} />);
     const width = screen.getByRole('textbox', { name: 'Width' });
-    for (const typed of ['1e3', '-2', '40,5']) {
+    for (const typed of ['1e3', '-2', '40,5', '40.0', '40,0']) {
       await user.clear(width);
       await user.type(width, `${typed}{Enter}`);
       expect(width).toHaveValue(typed);

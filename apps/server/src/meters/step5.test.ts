@@ -196,6 +196,38 @@ describe("POST /api/v1/meters/:id/readings: It's right, proof photos, undo", () 
     expect(refused.statusCode).toBe(409);
     expect((await readings(alfred, car)).map((r) => r.value)).toEqual(['29000']);
   });
+
+  it('a named proof keeps its name through the delete and its undo (#183)', async () => {
+    const car = await newCar();
+    const made = ok(
+      await log(alfred, car.meterId, {
+        value: '31000',
+        takenAt: daysAgo(4),
+        proofFileId: await photo(alfred),
+      }),
+      201,
+    );
+    const id = (made.reading as Json).id;
+    const [proof] = await own<{ id: string; row_version: number }>(
+      db,
+      'SELECT id, row_version FROM public.attachments WHERE meter_reading_id = $1',
+      [id],
+    );
+    ok(
+      await call(t, `/api/v1/attachments/${proof?.id}`, {
+        as: alfred,
+        method: 'PATCH',
+        body: { name: 'Dashboard at the service' },
+        headers: { 'if-match': String(proof?.row_version) },
+      }),
+    );
+    const del = await call(t, `/api/v1/readings/${id}`, { as: alfred, method: 'DELETE' });
+    expect(del.statusCode).toBe(204);
+    ok(await undo(alfred, del.headers['x-kept-audit-event'] as string));
+    expect(await own(db, 'SELECT name FROM public.attachments WHERE id = $1', [proof?.id])).toEqual(
+      [{ name: 'Dashboard at the service' }],
+    );
+  });
 });
 
 describe('owned readings', () => {

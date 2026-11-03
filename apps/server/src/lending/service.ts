@@ -325,6 +325,8 @@ type AttachmentImage = {
   url: string | null;
   role: string;
   sort: number;
+  /** What people named it (#183); absent in events from before 1.14.4. */
+  name?: string | null;
 };
 
 /** DELETE /api/v1/loans/:id (If-Match) → 204: a loan recorded by mistake. Hard; undoable
@@ -334,7 +336,7 @@ export async function deleteLoan(ctx: Ctx, id: string, expected: number): Promis
   const before = await writableLoan(ctx, id);
   await requireLoanVersion(client, before, expected, []);
   const { rows: photos } = await client.query<AttachmentImage>(
-    'SELECT id, file_id, url, role, sort FROM public.attachments WHERE loan_id = $1 ORDER BY sort, id',
+    'SELECT id, file_id, url, role, sort, name FROM public.attachments WHERE loan_id = $1 ORDER BY sort, id',
     [id],
   );
   await client.query('DELETE FROM public.loans WHERE id = $1', [id]);

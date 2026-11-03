@@ -5,7 +5,8 @@ import {
   createRouter,
   RouterProvider,
 } from '@tanstack/react-router';
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
+import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { MapView } from '@/api/map/types';
 import { setLocale } from '@/lib/prefs';
@@ -195,5 +196,68 @@ describe('a thing on a wall’s card (#138)', () => {
     expect(field.value).toMatch(/١٫٢/);
     expect(document.documentElement.dir).toBe('rtl');
     expectLogicalOnly();
+  });
+});
+
+/** The card with its selection held outside it, as the map holds it: `pick` selects another item
+ * without the field being left (a tap on the map's canvas). */
+async function switchable(p: CardProps) {
+  let pick: (id: string) => void = () => {};
+  function Holder() {
+    const [sel, setSel] = useState(p.sel);
+    pick = (id) => setSel({ type: 'item', id });
+    return <MapCard {...p} sel={sel} />;
+  }
+  vi.stubGlobal('fetch', () => new Promise(() => {}));
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const root = createRootRoute({
+    component: () => (
+      <QueryClientProvider client={qc}>
+        <Holder />
+      </QueryClientProvider>
+    ),
+  });
+  const router = createRouter({
+    routeTree: root,
+    history: createMemoryHistory({ initialEntries: ['/'] }),
+  });
+  const r = await renderUI(<RouterProvider router={router} />);
+  return { ...r, pick: (id: string) => act(() => pick(id)) };
+}
+
+describe('another item selected while a field is being typed in (1.14.4 final review)', () => {
+  it('shows the new item’s Height, and saves nothing typed for the first to it', async () => {
+    const { plan, tv, board } = garage();
+    const p = props(plan, tv, true);
+    const { user, pick } = await switchable(p);
+    const field = (await screen.findByRole('textbox', { name: 'Height' })) as HTMLInputElement;
+    await user.clear(field);
+    await user.type(field, '1.75');
+    await pick(board.id);
+    const next = screen.getByRole('textbox', { name: 'Height' }) as HTMLInputElement;
+    expect(next.value).toBe(`${board.hang} m`);
+    await user.click(next);
+    await user.tab();
+    expect(p.onHeight).not.toHaveBeenCalledWith(board.id, expect.anything());
+  });
+
+  it('shows the new bookcase’s size, and saves nothing typed for the first to it', async () => {
+    const { plan } = garage();
+    const small = item({ model: 'bookcase_40x28x106_3', name: 'Low bookcase', x: 3, z: 1 });
+    const tall = item({ model: 'bookcase', name: 'Tall bookcase', x: 4, z: 1 });
+    plan.items.push(small, tall);
+    const onShape = vi.fn();
+    const p = props(plan, small, true, { onShape });
+    const { user, pick } = await switchable(p);
+    const width = (await screen.findByRole('textbox', { name: 'Width' })) as HTMLInputElement;
+    expect(width.value).toBe('40 cm');
+    await user.clear(width);
+    await user.type(width, '60');
+    await pick(tall.id);
+    const next = screen.getByRole('textbox', { name: 'Width' }) as HTMLInputElement;
+    expect(next.value).toBe('80 cm');
+    await user.click(next);
+    await user.tab();
+    expect(onShape).not.toHaveBeenCalled();
   });
 });

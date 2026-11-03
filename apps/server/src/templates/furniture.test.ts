@@ -374,6 +374,28 @@ describe('merging and splitting compartments', () => {
     expect((await split(ibrahim, single.id, single.cells[0]?.id as string)).statusCode).toBe(409);
   });
 
+  it('won’t undo a split once something was put in one of its pieces', async () => {
+    const s = await shelf('cube_1x4');
+    const [a, b] = s.cells.map((x) => x.id) as [string, string];
+    ok(await merge(ibrahim, s.id, [a, b]));
+    const res = await split(ibrahim, s.id, a);
+    ok(res);
+    // A thing put in the second piece: undoing would trash the piece around it.
+    const vase = await createThing(t, ibrahim, home, { name: 'Vase', placeId: b });
+    const refused = await undo(ibrahim, auditIds(res)[0] as string);
+    expect(refused.statusCode, refused.body).toBe(409);
+    const [piece] = await own<{ live: boolean }>(
+      db,
+      'SELECT deleted_at IS NULL AS live FROM public.places WHERE id = $1',
+      [b],
+    );
+    expect(piece?.live).toBe(true);
+    // Moved out again, the undo goes through.
+    await own(db, 'UPDATE public.things SET place_id = $2 WHERE id = $1', [vase.id, s.id]);
+    ok(await undo(ibrahim, auditIds(res)[0] as string));
+    expect(grid(await furnitureOf(s.id))[0]).toBe('1:Cube 1@1,1+2x1');
+  });
+
   it('makes a new place for a cell whose place was deleted for good', async () => {
     const s = await shelf('cube_1x4');
     const [a, b] = s.cells.map((x) => x.id) as [string, string];

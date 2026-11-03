@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  formatLength,
   formatRoomSide,
+  formatRoomSideField,
   ROOM_SIDE,
   ROOM_SIDE_CM,
   readLength,
-  roomSideFormat,
   roomSideFromCm,
   roomSideProblem,
   roomSideToCm,
@@ -62,23 +63,66 @@ describe('roomSideProblem', () => {
   });
 });
 
-describe('roomSideFormat: the field’s number', () => {
+describe('formatRoomSideField: the field’s number', () => {
   // French writes a narrow no-break space before the unit; the others a no-break space.
-  const field = (locale: string, m: number) =>
-    new Intl.NumberFormat(locale, roomSideFormat()).format(m).replace(/[\u00a0\u202f]/g, ' ');
+  const field = (locale: string, cm: number) =>
+    formatRoomSideField(cm, locale).replace(/[\u00a0\u202f]/g, ' ');
 
   it('shows metres with two decimals, in the reader’s own decimal mark', () => {
-    expect(field('en', 0.8)).toBe('0.80 m');
-    expect(field('en', 3.58)).toBe('3.58 m');
-    expect(field('fr', 0.8)).toBe('0,80 m');
-    expect(field('de', 0.8)).toBe('0,80 m');
-    expect(field('it', 0.8)).toBe('0,80 m');
-    expect(field('vi', 0.8)).toBe('0,80 m');
+    expect(field('en', 80)).toBe('0.80 m');
+    expect(field('en', 358)).toBe('3.58 m');
+    expect(field('fr', 80)).toBe('0,80 m');
+    expect(field('de', 80)).toBe('0,80 m');
+    expect(field('it', 80)).toBe('0,80 m');
+    expect(field('vi', 80)).toBe('0,80 m');
   });
 
   it('never groups thousands, so a comma is only ever a decimal', () => {
-    expect(roomSideFormat().useGrouping).toBe(false);
-    expect(field('en', 100)).toBe('100.00 m');
+    expect(field('en', 10_000)).toBe('100.00 m');
+  });
+
+  it('always shows the digits in Arabic, whose ICU writes 1 m and 2 m as a word alone', () => {
+    // Intl's own unit formatting gives "متر" and "متران", without a number, for 1 and 2.
+    expect(field('ar-u-nu-arab', 100)).toBe('١٫٠٠ متر');
+    expect(field('ar-u-nu-arab', 200)).toBe('٢٫٠٠ متر');
+    expect(field('ar-u-nu-latn', 300)).toBe('3.00 متر');
+    expect(field('ar-u-nu-arab', 1100)).toBe('١١٫٠٠ متر');
+  });
+});
+
+/** Every display a field makes, read back, in every UI language and both Arabic digit sets. */
+const LOCALES = ['en', 'fr', 'de', 'it', 'vi', 'ar-u-nu-arab', 'ar-u-nu-latn'];
+
+describe('a field’s own display reads back (1.14.4 final review)', () => {
+  it('for every room side from 50 cm to 100 m', () => {
+    for (const l of LOCALES) {
+      const wrong: string[] = [];
+      for (let cm = ROOM_SIDE_CM.min; cm <= ROOM_SIDE_CM.max; cm++) {
+        const shown = formatRoomSideField(cm, l);
+        const m = readLength(shown, l);
+        if (typeof m !== 'number' || roomSideToCm(m) !== cm) wrong.push(`${cm}: ${shown}`);
+      }
+      expect(wrong.slice(0, 5), l).toEqual([]);
+    }
+  });
+
+  it('for every height, in 5 cm steps to 3 m, shown without trailing zeros', () => {
+    for (const l of LOCALES) {
+      for (let cm = 0; cm <= 300; cm += 5) {
+        const shown = formatLength(cm / 100, l, 'meter', { max: 2 });
+        expect(/[0-9\u0660-\u0669]/.test(shown), `${l} ${shown}`).toBe(true);
+        expect(readLength(shown, l), `${l} ${shown}`).toBe(cm / 100);
+      }
+    }
+  });
+
+  it('for every bookcase size in centimetres', () => {
+    for (const l of LOCALES) {
+      for (let cm = 1; cm <= 300; cm++) {
+        const shown = formatLength(cm, l, 'centimeter', { max: 0 });
+        expect(readLength(shown, l, 'centimeter', { whole: true }), `${l} ${shown}`).toBe(cm);
+      }
+    }
   });
 });
 
@@ -98,7 +142,7 @@ describe('formatRoomSide: a side for reading', () => {
 });
 
 describe('readLength: what was typed (1.14.4 review)', () => {
-  it('reads the locale’s decimal mark, and the unit the field shows', () => {
+  it('reads "." or "," as the decimal mark in every language, and the unit the field shows', () => {
     expect(readLength('0.8', 'en')).toBe(0.8);
     expect(readLength('0.80 m', 'en')).toBe(0.8);
     expect(readLength('3.58m', 'en-GB')).toBe(3.58);
@@ -107,6 +151,23 @@ describe('readLength: what was typed (1.14.4 review)', () => {
     for (const l of ['fr', 'de', 'it', 'vi']) {
       expect(readLength('0,8', l)).toBe(0.8);
       expect(readLength('0,80\u202fm', l)).toBe(0.8);
+    }
+    // A phone's decimal keypad offers only its region's mark: either works in any language.
+    for (const l of LOCALES) {
+      expect(readLength('0,8', l)).toBe(0.8);
+      expect(readLength('0.8', l)).toBe(0.8);
+      expect(readLength('3,58 m', l)).toBe(3.58);
+      expect(readLength('٣٫٥٨', l)).toBe(3.58);
+    }
+  });
+
+  it('reads every form of the Arabic unit word', () => {
+    for (const l of ['ar-u-nu-arab', 'ar-u-nu-latn']) {
+      expect(readLength('١ متر', l)).toBe(1);
+      expect(readLength('٢ متران', l)).toBe(2);
+      expect(readLength('٣ أمتار', l)).toBe(3);
+      expect(readLength('11 مترًا', l)).toBe(11);
+      expect(readLength('100 متر', l)).toBe(100);
     }
   });
 
@@ -124,13 +185,13 @@ describe('readLength: what was typed (1.14.4 review)', () => {
   });
 
   it('is false, not a different number, for what a length can’t be', () => {
-    expect(readLength('0,8', 'en')).toBe(false);
     expect(readLength('1e3', 'en')).toBe(false);
     expect(readLength('-2', 'en')).toBe(false);
     expect(readLength('+2', 'en')).toBe(false);
-    expect(readLength('1,000', 'en')).toBe(false);
     expect(readLength('1.2.3', 'en')).toBe(false);
-    expect(readLength('0.8', 'de')).toBe(false);
+    expect(readLength('1,2.3', 'en')).toBe(false);
+    expect(readLength('0,8,0', 'de')).toBe(false);
+    expect(readLength('1.5٫2', 'ar-u-nu-arab')).toBe(false);
     expect(readLength('two', 'en')).toBe(false);
     expect(readLength('3 58', 'en')).toBe(false);
     expect(readLength('1\u202f000', 'fr')).toBe(false);
@@ -150,5 +211,14 @@ describe('readLength: what was typed (1.14.4 review)', () => {
     // A count has no unit.
     expect(readLength('4', 'ar-u-nu-arab', null)).toBe(4);
     expect(readLength('4 m', 'en', null)).toBe(false);
+  });
+
+  it('reads digits alone where the field takes a whole number', () => {
+    expect(readLength('4', 'en', null, { whole: true })).toBe(4);
+    expect(readLength('٤', 'ar-u-nu-arab', null, { whole: true })).toBe(4);
+    expect(readLength('120 cm', 'de', 'centimeter', { whole: true })).toBe(120);
+    expect(readLength('4,5', 'en', null, { whole: true })).toBe(false);
+    expect(readLength('4.0', 'de', null, { whole: true })).toBe(false);
+    expect(readLength('4٫0', 'ar-u-nu-arab', null, { whole: true })).toBe(false);
   });
 });

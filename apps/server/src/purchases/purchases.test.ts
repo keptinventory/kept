@@ -611,6 +611,23 @@ describe('DELETE /api/v1/purchases/:id', () => {
     );
     expect(attached.map((e) => e.action)).toEqual(['attachment.delete']);
   });
+
+  it('keeps a named receipt’s name in its delete event (#183)', async () => {
+    const p = await create(adam, { locationId: home, purchasedOn: today() });
+    await own(
+      `INSERT INTO public.attachments (location_id, url, purchase_id, role, name, created_by)
+       VALUES ($1, 'https://example.com/r.pdf', $2, 'receipt', 'Till receipt', $3)`,
+      [home, p.id, adam.userId],
+    );
+    const res = await call(t, `/api/v1/purchases/${p.id}`, { as: adam, method: 'DELETE' });
+    expect(res.statusCode, res.body).toBe(204);
+    const [event] = await own<{ diff: Record<string, { before: unknown }> }>(
+      `SELECT diff FROM public.audit_events
+        WHERE entity_type = 'attachment' AND diff->'purchase_id'->>'before' = $1`,
+      [p.id],
+    );
+    expect(event?.diff.name).toMatchObject({ before: 'Till receipt' });
+  });
 });
 
 describe('a thing moved to another location keeps its line', () => {

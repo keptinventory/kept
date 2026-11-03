@@ -174,6 +174,15 @@ const key = (c: PlaceCell) => `${c.row},${c.col}`;
 export function coverageProblem(list: readonly Compartment[], grid: Grid): string | null {
   const seen = new Set<string>();
   for (const c of list) {
+    // Bounds first: a stored cell can claim any span (an edited import), and listing a huge one
+    // cell by cell would never finish.
+    if (
+      c.row < 1 ||
+      c.col < 1 ||
+      c.row + c.rows - 1 > grid.rows ||
+      c.col + c.cols - 1 > grid.columns
+    )
+      return 'outside';
     for (const cell of cellsCovered(c)) {
       if (cell.row > grid.rows || cell.col > grid.columns) return 'outside';
       if (seen.has(key(cell))) return 'overlap';
