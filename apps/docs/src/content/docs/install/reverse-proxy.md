@@ -93,6 +93,9 @@ hostname in each browser that visited it:
   choose **Delete**.
 - **Firefox:** History → Manage History, find the site, right-click it and choose **Forget About
   This Site**. This also removes its history, cookies and saved logins.
-- **Safari:** has no page for HSTS. Remove the site's data (Settings → Privacy → Manage Website
-  Data, select it, **Remove**); if plain http still turns into https, clear the history too
+- **Safari on a Mac:** has no page for HSTS. Remove the site's data (Settings → Privacy → Manage
+  Website Data, select it, **Remove**); if plain http still turns into https, clear the history too
   (History → Clear History).
+- **Safari on an iPhone or iPad:** Settings → Apps → Safari (Settings → Safari before iOS 18) →
+  Advanced → Website Data, find the site and delete it; if that isn't enough, **Clear History and
+  Website Data** on the Safari page.
