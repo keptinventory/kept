@@ -20346,3 +20346,34 @@ msgstr "Đang chạy dưới dạng ứng dụng Home Assistant"
 
 msgid "Not saved yet"
 msgstr "Chưa lưu"
+
+msgid "{0}, change the type"
+msgstr "{0}, đổi loại"
+
+msgid "Choose a type"
+msgstr "Chọn loại"
+
+msgid "Couldn't save the label image. Try again."
+msgstr "Không lưu được ảnh nhãn. Thử lại."
+
+msgid "Kept label"
+msgstr "Nhãn Kept"
+
+msgid "Loading the label"
+msgstr "Đang tải nhãn"
+
+msgid "Saved the label image"
+msgstr "Đã lưu ảnh nhãn"
+
+msgid "Show the label"
+msgstr "Xem nhãn"
+
+msgid "The label as it prints: {0}"
+msgstr "Nhãn như khi in: {0}"
+
+msgid "The new type's own fields show after you save."
+msgstr "Các trường của loại mới hiện ra sau khi lưu."
+
+msgctxt "printed label"
+msgid "Label"
+msgstr "Nhãn"

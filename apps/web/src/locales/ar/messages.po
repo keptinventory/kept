@@ -28290,3 +28290,34 @@ msgstr "يعمل كتطبيق في Home Assistant"
 
 msgid "Not saved yet"
 msgstr "لم يُحفظ بعد"
+
+msgid "{0}, change the type"
+msgstr "{0}، تغيير النوع"
+
+msgid "Choose a type"
+msgstr "اختر نوعًا"
+
+msgid "Couldn't save the label image. Try again."
+msgstr "تعذّر حفظ صورة الملصق. أعد المحاولة."
+
+msgid "Kept label"
+msgstr "ملصق Kept"
+
+msgid "Loading the label"
+msgstr "جارٍ تحميل الملصق"
+
+msgid "Saved the label image"
+msgstr "حُفظت صورة الملصق"
+
+msgid "Show the label"
+msgstr "اعرض الملصق"
+
+msgid "The label as it prints: {0}"
+msgstr "الملصق كما يُطبع: {0}"
+
+msgid "The new type's own fields show after you save."
+msgstr "تظهر حقول النوع الجديد بعد الحفظ."
+
+msgctxt "printed label"
+msgid "Label"
+msgstr "الملصق"

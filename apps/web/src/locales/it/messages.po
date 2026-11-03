@@ -28290,3 +28290,34 @@ msgstr "In esecuzione come app di Home Assistant"
 
 msgid "Not saved yet"
 msgstr "Non ancora salvato"
+
+msgid "{0}, change the type"
+msgstr "{0}, cambia il tipo"
+
+msgid "Choose a type"
+msgstr "Scegli un tipo"
+
+msgid "Couldn't save the label image. Try again."
+msgstr "Impossibile salvare l’immagine dell’etichetta. Riprova."
+
+msgid "Kept label"
+msgstr "Etichetta Kept"
+
+msgid "Loading the label"
+msgstr "Caricamento dell’etichetta"
+
+msgid "Saved the label image"
+msgstr "Immagine dell’etichetta salvata"
+
+msgid "Show the label"
+msgstr "Mostra l’etichetta"
+
+msgid "The label as it prints: {0}"
+msgstr "L’etichetta come viene stampata: {0}"
+
+msgid "The new type's own fields show after you save."
+msgstr "I campi del nuovo tipo compaiono dopo il salvataggio."
+
+msgctxt "printed label"
+msgid "Label"
+msgstr "Etichetta"

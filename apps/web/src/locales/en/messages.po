@@ -28290,3 +28290,34 @@ msgstr "Running as a Home Assistant app"
 
 msgid "Not saved yet"
 msgstr "Not saved yet"
+
+msgid "{0}, change the type"
+msgstr "{0}, change the type"
+
+msgid "Choose a type"
+msgstr "Choose a type"
+
+msgid "Couldn't save the label image. Try again."
+msgstr "Couldn't save the label image. Try again."
+
+msgid "Kept label"
+msgstr "Kept label"
+
+msgid "Loading the label"
+msgstr "Loading the label"
+
+msgid "Saved the label image"
+msgstr "Saved the label image"
+
+msgid "Show the label"
+msgstr "Show the label"
+
+msgid "The label as it prints: {0}"
+msgstr "The label as it prints: {0}"
+
+msgid "The new type's own fields show after you save."
+msgstr "The new type's own fields show after you save."
+
+msgctxt "printed label"
+msgid "Label"
+msgstr "Label"
