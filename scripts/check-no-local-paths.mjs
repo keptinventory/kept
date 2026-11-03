@@ -81,6 +81,7 @@ export const PRIVATE_IPV4_ALLOWED = new Map([
   ['apps/server/src/auth/client-ip.ts', 'a doc-comment example of an IPv4-mapped address'],
   ['apps/web/src/components/import/inspect-step.tsx', 'a LAN address as an input placeholder'],
   ['compose.yaml', "Kept's own Compose network"],
+  ['compose.full.yaml', "Kept's own Compose network, and Caddy's fixed address on it"],
   ['apps/docs/src/content/docs/install/https.md', "Kept's own Compose network"],
   ['apps/docs/src/content/docs/install/reverse-proxy.md', 'an example proxy address'],
   // D273: Home Assistant's own internal network, where ingress comes from (the Supervisor and Core).

@@ -3,6 +3,9 @@
 #
 #   bash scripts/smoke-compose.sh <image>        e.g. kept:dev, kept:ci
 #
+# First, without the image: compose.yaml and compose.full.yaml are valid Compose with every profile,
+# and COMPOSE_FILE=compose.full.yaml in .env makes plain `docker compose` read the full file.
+#
 # Each scenario runs in its own temporary folder and Compose project, with fresh volumes:
 #   1. fresh: only compose.yaml in the folder; `docker compose run --rm init --url …` writes
 #      .env (no password in it) and prints a setup code; `up -d` reaches /readyz 200; setup is
@@ -49,12 +52,12 @@ cleanup() {
     echo "--- $project: logs (last 30 per service) ---" >&2
     (cd "$dir" && compose logs --no-color --tail 30 2>&1 | sed 's/^/  /' >&2) || true
   fi
-  for c in "${extra_containers[@]}"; do docker rm -f "$c" >/dev/null 2>&1 || true; done
-  for p in "${projects[@]}"; do
+  for c in ${extra_containers[@]+"${extra_containers[@]}"}; do docker rm -f "$c" >/dev/null 2>&1 || true; done
+  for p in ${projects[@]+"${projects[@]}"}; do
     (cd "$work/$p" 2>/dev/null && docker compose -p "$p" --profile init down -v --remove-orphans >/dev/null 2>&1) || true
     docker volume ls -q --filter "name=^${p}_" | xargs -r docker volume rm >/dev/null 2>&1 || true
   done
-  for n in "${extra_networks[@]}"; do docker network rm "$n" >/dev/null 2>&1 || true; done
+  for n in ${extra_networks[@]+"${extra_networks[@]}"}; do docker network rm "$n" >/dev/null 2>&1 || true; done
   rm -rf "$work"
   if ((rc == 0)); then echo "smoke-compose: PASS ($image)"; else echo "smoke-compose: FAIL ($image)" >&2; fi
 }
@@ -66,6 +69,23 @@ fail() {
   exit 1
 }
 step() { printf '\n==> %s\n' "$*"; }
+
+# ---------------------------------------------------------------------------------------------
+step "0. compose.yaml and compose.full.yaml are valid Compose"
+check="$work/config-check"
+mkdir -p "$check"
+cp "$repo/compose.yaml" "$repo/compose.full.yaml" "$check/"
+printf 'KEPT_PUBLIC_URL=https://kept.example.org\nKEPT_DOMAIN=kept.example.org\n' >"$check/.env"
+for f in compose.yaml compose.full.yaml; do
+  (cd "$check" && docker compose -f "$f" --profile init --profile https --profile ollama config -q) ||
+    fail "$f is not valid Compose"
+done
+rm "$check/compose.yaml"
+echo 'COMPOSE_FILE=compose.full.yaml' >>"$check/.env"
+services=$(cd "$check" && docker compose --profile https --profile ollama config --services | sort | tr '\n' ' ')
+[[ $services == "bootstrap caddy db kept migrate ollama " ]] ||
+  fail "with COMPOSE_FILE=compose.full.yaml in .env, Compose read: $services"
+echo "both valid; COMPOSE_FILE=compose.full.yaml in .env selects the full file"
 
 docker image inspect "$image" >/dev/null 2>&1 || fail "no local image '$image' (build it with --load)"
 [[ $OLD_IMAGE == "$image" ]] || docker image inspect "$OLD_IMAGE" >/dev/null 2>&1 ||
