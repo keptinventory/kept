@@ -20780,3 +20780,7 @@ msgstr "Nhập giá trị bằng mét, ví dụ {example}."
 #: src/map/size.tsx
 msgid "Enter a whole number."
 msgstr "Nhập một số nguyên."
+
+#: src/components/things/purchase-sheet.tsx
+msgid "The new receipt is added, but the old one couldn't be removed"
+msgstr "Đã thêm biên lai mới, nhưng không gỡ được biên lai cũ"
