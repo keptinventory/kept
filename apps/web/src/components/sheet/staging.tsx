@@ -251,7 +251,8 @@ export function ChangesBar({
   return (
     <section
       aria-label={t`Changes`}
-      className="sticky bottom-4 z-30 grid gap-2 rounded-[10px] border border-line bg-surface p-3 shadow-[0_10px_30px_rgba(0,0,0,.14)]"
+      // Above a phone's tab bar (as the inbox's bulk bar), at the bottom on a desktop.
+      className="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30 grid gap-2 md:bottom-4 rounded-[10px] border border-line bg-surface p-3 shadow-[0_10px_30px_rgba(0,0,0,.14)]"
     >
       <div className="flex flex-wrap items-center gap-3">
         <p className="m-0 flex-1 text-[14px]" aria-live="polite">
