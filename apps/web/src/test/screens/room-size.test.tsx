@@ -175,6 +175,49 @@ describe('a room with its real size (#372)', () => {
     expect(within(inside).queryByRole('textbox', { name: 'Width' })).toBeNull();
   });
 
+  it.each([
+    ['eastern', '0.8', '3.58', /٠٫٨٠/],
+    ['western', '٠٫٨', '٣٫٥٨', /0\.80/],
+  ] as const)(
+    'in Arabic with %s digits, takes the other keyboard’s digits too',
+    async (digits, w, d, shown) => {
+      try {
+        const { user, mock } = await renderApp(`/loc/${IDS.home}`, { locale: 'ar', digits });
+        const dialog = await openAdd(user, 'غرفة أو مكان');
+        await user.type(within(dialog).getByLabelText('الاسم'), 'شرفة');
+        const width = within(dialog).getByRole('textbox', { name: 'العرض' });
+        await user.type(width, w);
+        await user.tab();
+        expect((width as HTMLInputElement).value).toMatch(shown);
+        await user.type(within(dialog).getByRole('textbox', { name: 'الطول' }), d);
+        await user.click(within(dialog).getByRole('button', { name: 'حفظ' }));
+        await expect.poll(() => sent(mock)?.map).toEqual({ w: 80, d: 358 });
+      } finally {
+        setLocale('en');
+      }
+    },
+  );
+
+  it.each([
+    ['0,8', 'a comma in English'],
+    ['1e3', 'an exponent'],
+    ['-2', 'a sign'],
+  ])('says %s (%s) isn’t a size, and sends nothing', async (typed) => {
+    const { user, mock } = await home();
+    const dialog = await openAdd(user, 'Room or spot');
+    await user.type(within(dialog).getByLabelText('Name'), 'Nook');
+    const width = within(dialog).getByRole('textbox', { name: 'Width' });
+    await user.type(width, typed);
+    await user.tab();
+    // Kept as typed, never another number.
+    expect(width).toHaveValue(typed);
+    await user.type(within(dialog).getByRole('textbox', { name: 'Length' }), '2');
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+    expect(within(dialog).getByText('Enter metres, like 3.58.')).toBeVisible();
+    expect(width).toHaveAttribute('aria-invalid', 'true');
+    expect(sent(mock)).toBeUndefined();
+  });
+
   it('reads right to left in Arabic, in Arabic digits', async () => {
     try {
       const { user } = await renderApp(`/loc/${IDS.home}`, { locale: 'ar', digits: 'eastern' });

@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { setLocale } from '@/lib/prefs';
+import { setDigits, setLocale } from '@/lib/prefs';
 import { expectLogicalOnly, renderUI } from '@/test/render';
 import { SizeFields } from './size';
 
@@ -8,7 +8,10 @@ import { SizeFields } from './size';
 // across and up (turned on its side by swapping them); a bookcase by its width, depth and height
 // in centimetres and its levels. Each change is a new model for the shape, its numbers in it.
 
-afterEach(() => setLocale('en'));
+afterEach(() => {
+  setLocale('en');
+  setDigits('eastern');
+});
 
 const value = (name: string) => (screen.getByRole('textbox', { name }) as HTMLInputElement).value;
 
@@ -93,5 +96,38 @@ describe('SizeFields: a bookcase (#241)', () => {
     const across = screen.getAllByRole('textbox')[0] as HTMLInputElement;
     expect(across.value).toBe('١');
     expectLogicalOnly();
+  });
+
+  it.each([
+    ['eastern', '40'],
+    ['western', '٤٠'],
+  ] as const)(
+    'in Arabic with %s digits, takes the other keyboard’s digits too',
+    async (d, typed) => {
+      setLocale('ar');
+      setDigits(d);
+      const onModel = vi.fn();
+      const { user } = await renderUI(<SizeFields model="bookcase" onModel={onModel} />, {
+        locale: 'ar',
+      });
+      const width = screen.getAllByRole('textbox')[0] as HTMLInputElement;
+      await user.clear(width);
+      await user.type(width, `${typed}{Enter}`);
+      expect(onModel).toHaveBeenLastCalledWith('bookcase_40x28x202_6');
+    },
+  );
+
+  it('says what isn’t a whole number, and keeps the size it has', async () => {
+    const onModel = vi.fn();
+    const { user } = await renderUI(<SizeFields model="bookcase" onModel={onModel} />);
+    const width = screen.getByRole('textbox', { name: 'Width' });
+    for (const typed of ['1e3', '-2', '40,5']) {
+      await user.clear(width);
+      await user.type(width, `${typed}{Enter}`);
+      expect(width).toHaveValue(typed);
+      expect(width.getAttribute('aria-invalid')).toBe('true');
+    }
+    expect(screen.getByText('Enter a whole number.')).toBeTruthy();
+    expect(onModel).not.toHaveBeenCalled();
   });
 });
