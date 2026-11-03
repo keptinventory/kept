@@ -20411,3 +20411,19 @@ msgstr "Tải xuống tệp CSV mẫu"
 #: src/components/import/csv-help.tsx
 msgid "How importing works"
 msgstr "Cách nhập hoạt động"
+
+#: src/components/module-turn-on.tsx
+msgid "Turn on {label} here"
+msgstr "Bật {label} tại đây"
+
+#: src/components/module-turn-on.tsx
+msgid "{label} is on in {0}"
+msgstr "Đã bật {label} tại {0}"
+
+#: src/components/module-turn-on.tsx
+msgid "Ask {who} to turn it on."
+msgstr "Hãy nhờ {who} bật nó."
+
+#: src/routes/_app/lending.tsx
+msgid "Turn it on where you lend or borrow things: who has what, and when it's due back. Nothing else changes."
+msgstr "Bật ở địa điểm nơi bạn cho mượn hoặc mượn đồ: ai đang giữ gì và khi nào phải trả. Không có gì khác thay đổi."

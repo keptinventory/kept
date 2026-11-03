@@ -28361,3 +28361,19 @@ msgstr "Télécharger un exemple de CSV"
 #: src/components/import/csv-help.tsx
 msgid "How importing works"
 msgstr "Comment fonctionne l'import"
+
+#: src/components/module-turn-on.tsx
+msgid "Turn on {label} here"
+msgstr "Activer {label} ici"
+
+#: src/components/module-turn-on.tsx
+msgid "{label} is on in {0}"
+msgstr "{label} : activé dans {0}"
+
+#: src/components/module-turn-on.tsx
+msgid "Ask {who} to turn it on."
+msgstr "Demandez à {who} de l’activer."
+
+#: src/routes/_app/lending.tsx
+msgid "Turn it on where you lend or borrow things: who has what, and when it's due back. Nothing else changes."
+msgstr "Activez-les là où vous prêtez ou empruntez des choses : qui a quoi, et quand le rendre. Rien d’autre ne change."

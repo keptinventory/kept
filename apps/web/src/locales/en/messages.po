@@ -28361,3 +28361,19 @@ msgstr "Download a sample CSV"
 #: src/components/import/csv-help.tsx
 msgid "How importing works"
 msgstr "How importing works"
+
+#: src/components/module-turn-on.tsx
+msgid "Turn on {label} here"
+msgstr "Turn on {label} here"
+
+#: src/components/module-turn-on.tsx
+msgid "{label} is on in {0}"
+msgstr "{label} is on in {0}"
+
+#: src/components/module-turn-on.tsx
+msgid "Ask {who} to turn it on."
+msgstr "Ask {who} to turn it on."
+
+#: src/routes/_app/lending.tsx
+msgid "Turn it on where you lend or borrow things: who has what, and when it's due back. Nothing else changes."
+msgstr "Turn it on where you lend or borrow things: who has what, and when it's due back. Nothing else changes."
