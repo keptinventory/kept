@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { fragmentToken, jar, setCookies, type TestApp, testApp } from '../../test/app.js';
 import { enrolTotp, nextTotp, signUp } from '../../test/auth.js';
 import { type TestDb, testDb } from '../../test/db.js';
+import { refreshTokenCount, seedRefreshToken } from '../../test/oauth-tokens.js';
 import { asOwner, userEmail } from '../../test/tenancy.js';
 import { ensureAccount } from '../accounts/ensure-account.js';
 import { AUTH_BASE_PATH, SESSION_DAYS_HTTPS, SESSION_HOURS_HTTP } from './auth.js';
@@ -230,6 +231,7 @@ describe('magic links', () => {
   it('password reset: a fragment link, a POST, every session signed out, and 3 per hour', async () => {
     const user = await newUser('reset');
     const cookie = await signIn(user.email);
+    await seedRefreshToken(db, user.userId);
     const requested = await auth('/request-password-reset', { body: { email: user.email } });
     expect(requested.statusCode).toBe(200);
     const mail = t.auth.resets.at(-1);
@@ -239,6 +241,8 @@ describe('magic links', () => {
     });
     expect(reset.statusCode).toBe(200);
     expect((await call('/api/v1/me/sessions', { cookie })).statusCode).toBe(401);
+    // A connector's refresh token ends with the sessions (#411).
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
 
     for (let i = 0; i < 2; i++) {
       await auth('/request-password-reset', { ip: '203.0.113.77', body: { email: user.email } });
@@ -318,6 +322,7 @@ describe('sessions', () => {
     const user = await newUser('pw');
     const a = await signIn(user.email);
     const b = await signIn(user.email);
+    await seedRefreshToken(db, user.userId);
     const changed = await auth('/change-password', {
       cookie: a,
       body: { currentPassword: PASSWORD, newPassword: 'a brand new password' },
@@ -326,6 +331,7 @@ describe('sessions', () => {
     expect(changed.json()).not.toHaveProperty('token');
     expect((await call('/api/v1/me/sessions', { cookie: b })).statusCode).toBe(401);
     expect((await call('/api/v1/me/sessions', { cookie: jar(changed, a) })).statusCode).toBe(200);
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
   });
 
   it('a two-factor change signs out every other session', async () => {

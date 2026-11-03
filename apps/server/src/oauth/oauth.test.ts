@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
 import { call, join, type Person, peopleApp, person } from '../../test/people.js';
@@ -607,6 +607,50 @@ describe('OAuth connectors', () => {
     expect(stored[0]?.scopes).toEqual(expect.arrayContaining(['kept:read', 'offline_access']));
     expect(tokens.refresh_token).toBeTruthy();
     expect((await listToolsWith(tokens.access_token)).statusCode).toBe(200);
+  });
+
+  it('keeps the refresh tokens a person has when their new consent is refused or expired', async () => {
+    const connector = { id: CONNECTOR_ID, redirect: CONNECTOR_REDIRECT };
+    const verifier = randomBytes(32).toString('base64url');
+    const first = await authorize(verifier, connector);
+    const decided = ok(
+      await call(t, `/api/v1/oauth/consent?${first}`, {
+        as: louis,
+        body: { accept: true, scope: 'read', locationIds: [home.id] },
+      }),
+    );
+    const working = await redeemTokens(decided.redirectTo as string, verifier, connector);
+
+    // A second consent whose signed request was tampered with: Better Auth refuses it.
+    const second = await authorize(randomBytes(32).toString('base64url'), connector);
+    const tampered = second.replace('state=state-1', 'state=state-2');
+    expect(tampered).not.toBe(second);
+    const refused = await call(t, `/api/v1/oauth/consent?${tampered}`, {
+      as: louis,
+      body: { accept: true, scope: 'read', locationIds: [home.id] },
+    });
+    expect(refused.statusCode).toBeGreaterThanOrEqual(400);
+
+    // And one whose signed request has expired by the time the person answers.
+    const third = await authorize(randomBytes(32).toString('base64url'), connector);
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(Date.now() + 2 * 60 * 60 * 1000);
+    let expired: Awaited<ReturnType<typeof call>>;
+    try {
+      expired = await call(t, `/api/v1/oauth/consent?${third}`, {
+        as: louis,
+        body: { accept: true, scope: 'read', locationIds: [home.id] },
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+    expect(expired.statusCode, expired.body).toBeGreaterThanOrEqual(400);
+    const renewed = await tokenEndpoint({
+      grant_type: 'refresh_token',
+      refresh_token: working.refresh_token as string,
+      client_id: CONNECTOR_ID,
+    });
+    expect(renewed.statusCode, renewed.body).toBe(200);
   });
 });
 

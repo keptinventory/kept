@@ -3,6 +3,7 @@ import type { BetterAuthPlugin } from 'better-auth';
 import { APIError, createAuthMiddleware, isAPIError } from 'better-auth/api';
 import { symmetricDecrypt } from 'better-auth/crypto';
 import type pg from 'pg';
+import { endRefreshTokens } from '../oauth/refresh-tokens.js';
 import { requestClientIp } from './client-ip.js';
 import { isUndeliverableEmail } from './emails.js';
 import {
@@ -709,6 +710,9 @@ export function keptSecurity(opts: KeptSecurityOptions): BetterAuthPlugin {
               ctx.context.newSession ?? (ctx.context.session as SessionLike | null | undefined);
             if (!current) return;
             await deleteOtherSessions(pool, current.user.id, current.session.id);
+            // A new password ends connectors' refresh tokens too (#411): one taken before the
+            // change mustn't keep working. Their grants stay; they sign in again.
+            if (ctx.path === CHANGE_PASSWORD_PATH) await endRefreshTokens(pool, current.user.id);
           }),
         },
         {

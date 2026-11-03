@@ -1,5 +1,6 @@
 import type pg from 'pg';
 import { isManagedEmail } from '../auth/managed.js';
+import { endRefreshTokens } from '../oauth/refresh-tokens.js';
 
 // What an instance admin (task 23 routes, on kept_auth) and the operator's `kept admin` CLI (on
 // kept_owner) do to an account in schema auth (D164, D165). Each is one statement or two, on any
@@ -49,6 +50,8 @@ export function mailableAddress(user: Pick<AuthUserRow, 'email'>): string | null
 
 export async function signOutEverywhere(db: Queryable, userId: string): Promise<void> {
   await db.query('DELETE FROM auth.session WHERE user_id = $1', [userId]);
+  // A connector's refresh token outlives the session it was granted in (#411): end it too.
+  await endRefreshTokens(db, userId);
 }
 
 /** Disabled: Better Auth's admin-plugin ban, which refuses every new session, and every

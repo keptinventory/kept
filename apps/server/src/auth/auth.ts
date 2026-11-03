@@ -12,6 +12,7 @@ import type { Env } from '../config/env.js';
 import { betterAuthTables } from '../db/schema/auth.js';
 import { cimdFetch } from '../oauth/cimd-fetch.js';
 import { type OAuthServerOptions, oauthPlugins } from '../oauth/plugin.js';
+import { endRefreshTokens } from '../oauth/refresh-tokens.js';
 import { CLIENT_IP_HEADER } from './client-ip.js';
 import { isUndeliverableEmail } from './emails.js';
 import type { GoogleConfig } from './google.js';
@@ -292,6 +293,9 @@ export function createAuth(deps: AuthDeps) {
       revokeSessionsOnPasswordReset: true,
       // D197: a reset on an unverified address claims the account for the mailbox's owner.
       onPasswordReset: async ({ user }) => {
+        // Sessions end by revokeSessionsOnPasswordReset; connectors' refresh tokens outlive
+        // them, so they end here (#411). Kept's grant rows stay, the connector signs in again.
+        await endRefreshTokens(pool, user.id);
         if (!user.emailVerified && !isUndeliverableEmail(user.email)) {
           await claimUnverifiedAccount(pool, user.id, null, deps.revokeTokensOnClaim);
           notify(user, 'unverified-account-reset');
