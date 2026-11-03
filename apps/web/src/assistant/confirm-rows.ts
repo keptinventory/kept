@@ -80,6 +80,9 @@ export type FieldKey =
   | 'bought'
   | 'price'
   | 'shop'
+  | 'onReceipt'
+  | 'currency'
+  | 'purchaseNotes'
   | 'expires'
   | 'keepAtLeast'
   | 'manual'
@@ -334,6 +337,23 @@ export function rowsOf(p: Proposal): CardRow[] {
       const custom = rec(f.custom);
       for (const [k, v] of Object.entries(custom))
         push('custom', { t: 'text', v: `${k}: ${v === null ? '' : String(v)}` });
+      // #348: its purchase, each part it changes (null clears one).
+      if ('purchase' in f) {
+        const buy = rec(f.purchase);
+        const cleared: Val = { t: 'text', v: '' };
+        push('bought', date(buy.purchased_on));
+        if ('shop' in buy) push('shop', buy.shop === null ? cleared : text(buy.shop));
+        push('onReceipt', text(buy.on_receipt));
+        if ('price' in buy)
+          push(
+            'price',
+            buy.price === null
+              ? cleared
+              : (money({ amount: buy.price, currency: buy.currency }) ?? text(buy.price)),
+          );
+        else push('currency', text(buy.currency));
+        if ('notes' in buy) push('purchaseNotes', buy.notes === null ? cleared : text(buy.notes));
+      }
       return [{ ...base, verb: 'change', target: target(a.thing_id), fields }];
     }
     case 'update_place': {

@@ -1172,6 +1172,8 @@ export type AttachmentView = {
   subject: AttachmentSubject;
   /** What people named it (#183): "Insurance 2026". Null or absent: it shows as its role. */
   name?: string | null;
+  /** #348: a purchase's receipt whose file is also the thing's own (Paperwork, a warranty). */
+  alsoInPaperwork?: true;
   createdBy: ActorRef;
   /** For PATCH /api/v1/attachments/:id (If-Match). */
   rowVersion: number;
@@ -1186,6 +1188,8 @@ export type CreateAttachmentBody = {
   subject: AttachmentSubject;
   role: AttachmentRole;
   sort?: number;
+  /** #183: trimmed, at most 200. */
+  name?: string;
 };
 /** PATCH /api/v1/attachments/:id (If-Match). `name`: trimmed, at most 200; "" or null clears it. */
 export type UpdateAttachmentBody = { role?: AttachmentRole; sort?: number; name?: string | null };

@@ -280,3 +280,35 @@ describe('turn_into_boxes rows (#313)', () => {
     });
   });
 });
+
+describe('update_thing rows', () => {
+  it('shows each part of the purchase it changes, a cleared one as empty (#348)', () => {
+    const [row] = rowsOf({
+      ...proposal(
+        {
+          thing_id: CAR,
+          fields: {
+            purchase: {
+              purchased_on: '2026-02-03',
+              shop: null,
+              on_receipt: 'Corolla 1.6',
+              price: '650000',
+              currency: 'EGP',
+              notes: 'Bought used',
+            },
+          },
+        },
+        { [CAR]: { kind: 'thing', name: 'Corolla', path: [] } },
+      ),
+      tool: 'update_thing',
+    });
+    expect(row?.verb).toBe('change');
+    expect(row?.fields.map((f) => [f.key, f.after])).toEqual([
+      ['bought', { t: 'date', v: '2026-02-03' }],
+      ['shop', { t: 'text', v: '' }],
+      ['onReceipt', { t: 'text', v: 'Corolla 1.6' }],
+      ['price', { t: 'money', amount: '650000', currency: 'EGP' }],
+      ['purchaseNotes', { t: 'text', v: 'Bought used' }],
+    ]);
+  });
+});

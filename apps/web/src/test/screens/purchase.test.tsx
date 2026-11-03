@@ -11,10 +11,25 @@ import { inventoryPaths as p } from '@/api/inventory/paths';
 import type { CreatePurchaseBody, UpdatePurchaseBody } from '@/api/inventory/types';
 import { IDS, type MockState, ownerScenario } from '@/api/mock/fixtures';
 import { lineTotal } from '@/components/things/purchase-sheet';
+import { nameOfFile } from '@/components/things/upload';
 import { findHeading, renderApp } from '@/test/app';
 import { expectLogicalOnly } from '@/test/render';
 
 vi.setConfig({ testTimeout: 20_000 });
+
+/** From `md` up the thing page uses tabs; jsdom has no matchMedia, so a test opts in. */
+function desktop() {
+  vi.stubGlobal('matchMedia', (q: string) => ({
+    matches: q.includes('min-width: 768px'),
+    media: q,
+    onchange: null,
+    addEventListener() {},
+    removeEventListener() {},
+    addListener() {},
+    removeListener() {},
+    dispatchEvent: () => false,
+  }));
+}
 
 const T = INV_IDS.thing;
 /** The TV's purchase (fixtures: B.TECH, 18 Jan 2025, EGP 28,999). */
@@ -145,6 +160,123 @@ describe('a thing’s purchase', () => {
     await user.click(add);
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
     expectLogicalOnly();
+  });
+});
+
+/** The TV's purchase with a named receipt, which is also under the TV's Paperwork. */
+function withReceipt(also = true): MockState {
+  const s = ownerScenario();
+  const tv = s.inventory.things.find((x) => x.id === T.tv);
+  if (!tv?.purchase) throw new Error('fixture');
+  const receipt = {
+    id: '0190a000-0000-7000-8000-0000000f3480',
+    role: 'receipt' as const,
+    sort: 0,
+    file: null,
+    url: 'https://example.com/btech.pdf',
+    subject: { purchaseId: tv.purchase.purchaseId ?? '' },
+    name: 'B.TECH invoice 4471',
+    createdBy: { displayName: 'Bruce' },
+    rowVersion: 1,
+    ...(also ? { alsoInPaperwork: true as const } : {}),
+  };
+  tv.purchase.receipts = [receipt];
+  s.inventory.attachments.push({ ...receipt, locationId: IDS.home });
+  return s;
+}
+
+describe('the purchase editor, everything the purchase routes allow (#348)', () => {
+  it('in the thing’s Edit mode the purchase is editable too: its line on the receipt', async () => {
+    desktop();
+    const { user, mock } = await renderApp(`/t/${T.tv}?tab=details`);
+    await findHeading('Samsung TV, 55″');
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    await screen.findByRole('form', { name: 'Edit Samsung TV, 55″' });
+    await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Purchase of Samsung TV, 55″' });
+    const onReceipt = within(sheet).getByLabelText('On the receipt');
+    expect(onReceipt).toHaveValue('Samsung 55" QLED');
+    await user.clear(onReceipt);
+    await user.type(onReceipt, 'QE55Q60B, 55 inch');
+    await user.type(within(sheet).getByLabelText('Tax'), '3500');
+    await user.type(within(sheet).getByLabelText('Purchase notes'), 'Delivered free');
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(mock.lastCall('PATCH', TV_PURCHASE)).toBeDefined());
+    expect(mock.lastCall('PATCH', TV_PURCHASE)?.body).toEqual({
+      notes: 'Delivered free',
+      lines: [{ id: expect.any(String), description: 'QE55Q60B, 55 inch' }],
+      tax: '3500',
+    });
+    expect(await within(await purchase()).findByText('QE55Q60B, 55 inch')).toBeInTheDocument();
+  });
+
+  it('shows a receipt by its name, says when it is also in Paperwork, and why', async () => {
+    await renderApp(`/t/${T.tv}`, { state: withReceipt() });
+    await findHeading('Samsung TV, 55″');
+    const section = await purchase();
+    expect(
+      within(section).getByRole('button', { name: /B.TECH invoice 4471/ }),
+    ).toBeInTheDocument();
+    expect(within(section).queryByText('Receipt 1')).toBeNull();
+    expect(within(section).getByText('Also in Paperwork')).toBeInTheDocument();
+    expect(within(section).getByText(/These are the purchase’s receipts/)).toBeInTheDocument();
+  });
+
+  it('removes a receipt from the purchase in the editor', async () => {
+    const { user, mock } = await renderApp(`/t/${T.tv}`, { state: withReceipt(false) });
+    await findHeading('Samsung TV, 55″');
+    await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Purchase of Samsung TV, 55″' });
+    const receipts = await within(sheet).findByRole('group', { name: 'Receipts' });
+    expect(within(receipts).getByText('B.TECH invoice 4471')).toBeInTheDocument();
+    expect(within(receipts).getByRole('button', { name: 'Replace' })).toBeInTheDocument();
+    expect(within(receipts).getByRole('button', { name: /Add a receipt/ })).toBeInTheDocument();
+    await user.click(within(receipts).getByRole('button', { name: 'Remove B.TECH invoice 4471' }));
+    const ask = await screen.findByRole('alertdialog');
+    await user.click(within(ask).getByRole('button', { name: 'Remove' }));
+    await waitFor(() =>
+      expect(
+        mock.calls.some(
+          (c) =>
+            c.method === 'DELETE' &&
+            c.path === p.attachment('0190a000-0000-7000-8000-0000000f3480'),
+        ),
+      ).toBe(true),
+    );
+  });
+
+  it('removes a purchase that is the thing’s alone', async () => {
+    const { user, mock } = await renderApp(`/t/${T.tv}`);
+    await findHeading('Samsung TV, 55″');
+    await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Purchase of Samsung TV, 55″' });
+    await within(sheet).findByLabelText('On the receipt');
+    await user.click(within(sheet).getByRole('button', { name: 'Remove' }));
+    const ask = await screen.findByRole('alertdialog', { name: 'Remove this purchase?' });
+    await user.click(within(ask).getByRole('button', { name: 'Remove' }));
+    await waitFor(() =>
+      expect(mock.calls.some((c) => c.method === 'DELETE' && c.path === TV_PURCHASE)).toBe(true),
+    );
+    expect(
+      await within(await purchase()).findByRole('button', { name: 'Add the purchase' }),
+    ).toBeInTheDocument();
+  });
+
+  it('offers no empty Purchase section where the Money module is off', async () => {
+    const s = withHome((h) =>
+      Object.assign(h, { modules: h.modules.filter((m) => m !== 'money') }),
+    );
+    await renderApp(`/t/${T.phone}`, { state: s });
+    await findHeading('Galaxy S23');
+    expect(screen.queryByRole('heading', { name: 'Purchase', level: 2 })).toBeNull();
+  });
+});
+
+describe('nameOfFile', () => {
+  it('keeps a file’s own name, without its extension', () => {
+    expect(nameOfFile({ name: 'Insurance 2026.pdf' })).toBe('Insurance 2026');
+    expect(nameOfFile({ name: 'scan.2026.10.jpeg' })).toBe('scan.2026.10');
+    expect(nameOfFile({ name: '.pdf' })).toBeUndefined();
   });
 });
 

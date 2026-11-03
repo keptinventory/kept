@@ -112,6 +112,7 @@ export function PaperworkSection() {
               subject={{ thingId: thing.id }}
               attachAs={uploadRole}
               label={t`Add a file`}
+              nameFromFile={uploadRole !== 'photo'}
               onUploaded={() => void invalidate(thing.id)}
             />
             {paperless.connected ? (

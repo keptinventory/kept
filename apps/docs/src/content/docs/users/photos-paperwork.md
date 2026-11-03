@@ -11,10 +11,12 @@ A receipt can also go on the thing's **Purchase**: there it belongs to the purch
 thing bought on the same receipt shows it ([Things](/users/things/)). Under Paperwork it is the
 thing's own.
 
-**Name a file** with the pencil beside it: "Insurance 2026", "Registration card". The list shows
-the name, with its kind under it, and the Paperwork library finds it by its name; leave the name
-empty to show its kind again. Members name the files they added, owners and admins any file. A
-car's papers, a home's lease and a room's manuals are named the same way.
+**Name a file** with the pencil beside it: "Insurance 2026", "Registration card". A document or
+receipt keeps its own file name when you add it ("Insurance 2026.pdf" is "Insurance 2026"); a
+photo doesn't. The list shows the name, with its kind under it, and the Paperwork library finds it
+by its name; leave the name empty to show its kind again. Members name the files they added,
+owners and admins any file. A car's papers, a home's lease and a room's manuals are named the
+same way.
 
 - **A photo full screen:** tap the photo at the top of a thing's page. It opens fitted to the
   screen, the whole photo however tall or wide. Swipe, the arrow keys, or

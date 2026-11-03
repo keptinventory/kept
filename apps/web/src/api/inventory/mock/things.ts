@@ -725,6 +725,7 @@ export function thingsRoutes(state: MockState): MockRoute[] {
         purchasedOn: b.purchasedOn,
         currency: b.currency ?? null,
         ...(b.total !== undefined ? { total: b.total } : {}),
+        ...(b.tax !== undefined ? { tax: b.tax } : {}),
         notes: b.notes ?? null,
         lines: b.lines.map((l) => ({
           id: l.id ?? newId(),
@@ -752,6 +753,11 @@ export function thingsRoutes(state: MockState): MockRoute[] {
       if (b.purchasedOn !== undefined) found.purchasedOn = b.purchasedOn;
       if (b.vendorId !== undefined) found.vendor = vendorRef(b.vendorId ?? undefined);
       if (b.currency !== undefined) found.currency = b.currency;
+      if (b.notes !== undefined) found.notes = b.notes;
+      if (b.tax !== undefined) {
+        if (b.tax === null) delete found.tax;
+        else found.tax = b.tax;
+      }
       if (b.total !== undefined) {
         if (b.total === null) delete found.total;
         else found.total = b.total;
@@ -776,6 +782,30 @@ export function thingsRoutes(state: MockState): MockRoute[] {
       found.rowVersion += 1;
       syncThings(found);
       return found;
+    }),
+
+    route('DELETE', p.purchase(':id'), ({ params }) => {
+      const found = purchaseOf(params.id ?? '');
+      if (!found || !access().visible(found.locationId)) return notFound();
+      if (!access().canWrite(found.locationId)) return forbidden();
+      inv().purchases = inv().purchases.filter((x) => x.id !== found.id);
+      for (const th of inv().things) if (th.purchase?.purchaseId === found.id) th.purchase = null;
+      return reply(204);
+    }),
+
+    route('DELETE', p.purchaseLineLink(':id'), ({ params, query }) => {
+      const v = inv().purchases.find((x) => x.lines.some((l) => l.id === params.id));
+      const line = v?.lines.find((l) => l.id === params.id);
+      if (!v || !line || !access().visible(v.locationId)) return notFound();
+      if (!access().canWrite(v.locationId)) return forbidden();
+      const thingId = query.get('thingId');
+      for (const th of inv().things)
+        if (th.purchase?.purchaseId === v.id && (!thingId || th.id === thingId)) {
+          th.purchase = null;
+          th.rowVersion += 1;
+        }
+      if (!thingId || line.thing?.id === thingId) line.thing = null;
+      return reply(204);
     }),
 
     route('GET', p.purchase(':id'), ({ params }) => {

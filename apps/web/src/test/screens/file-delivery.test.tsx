@@ -434,7 +434,7 @@ describe('an uploaded original (a receipt, a manual, a place attachment)', () =>
   it('in the installed iPhone app, a receipt shares too', async () => {
     const share = on({ ua: IPHONE, standalone: true, shares: true });
     const { user } = await render(`/t/${T.tv}`);
-    const button = await screen.findByRole('button', { name: 'Receipt 1' });
+    const button = await screen.findByRole('button', { name: 'Receipt' });
     await waitFor(() => expect(button).not.toHaveAttribute('data-pending'));
     await user.click(button);
     expect(share).toHaveBeenCalledTimes(1);

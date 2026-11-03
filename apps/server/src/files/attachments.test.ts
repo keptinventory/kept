@@ -300,6 +300,20 @@ describe('PATCH and DELETE /api/v1/attachments/:id', () => {
     });
   });
 
+  it('takes a name when the file is attached (#183)', async () => {
+    const res = await attach(bob, {
+      locationId: home,
+      url: `https://example.com/${newId()}`,
+      subject: { thingId: thing },
+      role: 'manual',
+      name: ' Boiler manual ',
+    });
+    expect(res.statusCode, res.body).toBe(201);
+    expect(res.json()).toMatchObject({ role: 'manual', name: 'Boiler manual' });
+    const [event] = (await auditActions(home, 'attachment.create')).slice(-1);
+    expect(event?.diff).toMatchObject({ name: { after: 'Boiler manual' } });
+  });
+
   it('names a file, clears the name, and audits both (#183)', async () => {
     const a = await bobsLink();
     expect(a).toMatchObject({ name: null });

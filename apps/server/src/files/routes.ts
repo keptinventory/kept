@@ -116,6 +116,7 @@ const CreateAttachmentBody = z
     subject: Subject,
     role: z.enum(ATTACHMENT_ROLES),
     sort: Sort.optional(),
+    name: AttachmentName.optional(),
   })
   .refine((b) => (b.fileId === undefined) !== (b.url === undefined), {
     message: 'exactly one of fileId and url',

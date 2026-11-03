@@ -64,7 +64,9 @@ User-written strings in outputs sit under an `untrusted` key. Lists default to 2
 minimum (its own route). `apps/server/src/tools/fields-parity.test.ts` fails when either body gains
 a field the tools don't take; its exclusions (the client id, the per-item location, the template
 shortcut) say why. The handlers write through `insertThing()` and `updateThing()`, so the money
-gate, the type's custom-field validation and the audit are the routes' own.
+gate, the type's custom-field validation and the audit are the routes' own. `update_thing`'s
+`purchase` writes through the purchase service (`createPurchase()`, `updatePurchase()`), as the
+thing page's purchase sheet does with the purchase routes (#348).
 
 **A place's form.** `update_place` takes what the place page changes: its name and kind
 (Rename), the place it is inside (Move; `null` is the top of the location), its kind's fields, and

@@ -109,6 +109,7 @@ export function SubjectPaperwork({
                 subject={upload}
                 attachAs="document"
                 label={t`Add document`}
+                nameFromFile
                 onUploaded={() => {
                   void qc.invalidateQueries({ queryKey: householdKeys.paperwork.all });
                   onChanged?.();

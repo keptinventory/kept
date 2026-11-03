@@ -94,6 +94,11 @@ export const thingApi = {
   createPurchase: (body: CreatePurchaseBody) => api.post<PurchaseView>(p.purchases, body),
   updatePurchase: (id: string, body: UpdatePurchaseBody, rowVersion: number) =>
     api.patch<PurchaseView>(p.purchase(id), body, ifMatch(rowVersion)),
+  /** The purchase and its lines; its receipts go with it. */
+  deletePurchase: (id: string) => api.del(p.purchase(id)),
+  /** Takes one thing off a line (the line stays on the receipt). */
+  unlinkLine: (lineId: string, thingId: string) =>
+    api.del(p.purchaseLineLink(lineId) + qs({ thingId })),
 
   /** Rename (#183), re-role or re-sort one; If-Match. */
   updateAttachment: (id: string, body: UpdateAttachmentBody, rowVersion: number) =>

@@ -88,6 +88,7 @@ export function filesRoutes(state: MockState): MockRoute[] {
       const view: AttachmentView & { locationId: string } = {
         id: b.id ?? newId(),
         role: b.role,
+        name: b.name?.trim() || null,
         sort: b.sort ?? 0,
         file: b.fileId ? (inv().files[b.fileId] ?? null) : null,
         url: b.url ?? null,

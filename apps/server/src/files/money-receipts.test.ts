@@ -267,3 +267,21 @@ describe('receipts after a move within the account (#12)', () => {
     expect((await thingOf(bob, drill.thing)).purchase?.receipts).toEqual([]);
   });
 });
+
+describe('a receipt that is also under Paperwork (#348)', () => {
+  it('says so on the thing’s purchase, and only when the same file is the thing’s own', async () => {
+    const kettle = await bought(ann, home, 'Kettle');
+    const plain = await thingOf(ann, kettle.thing);
+    expect(plain.purchase?.receipts).toEqual([
+      expect.not.objectContaining({ alsoInPaperwork: true }),
+    ]);
+    await attach(ann, home, kettle.receipt, { thingId: kettle.thing }, 'receipt');
+    const twice = await thingOf(ann, kettle.thing);
+    expect(twice.purchase?.receipts).toEqual([
+      expect.objectContaining({
+        file: expect.objectContaining({ id: kettle.receipt }),
+        alsoInPaperwork: true,
+      }),
+    ]);
+  });
+});

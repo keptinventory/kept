@@ -31,7 +31,8 @@ export function PurchaseSection() {
   const [editing, setEditing] = useState(false);
   const p = thing.purchase;
   const canEdit = can('things.edit');
-  if (!p && !canEdit) return null;
+  // No purchase: offered to those who may edit, where the Money module is on (#348).
+  if (!p && !(canEdit && moduleOn('money'))) return null;
   const sheet = <PurchaseSheet isOpen={editing} onClose={() => setEditing(false)} />;
   if (!p)
     return (
@@ -126,6 +127,7 @@ export function PurchaseSection() {
               attachAs="receipt"
               label={t`Add a receipt`}
               variant="ghost"
+              nameFromFile
               onUploaded={() => void refresh()}
             />
           ) : null}
@@ -174,15 +176,22 @@ function Receipts({ receipts }: { receipts: AttachmentView[] }) {
   return (
     <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
       {receipts.map((r, i) => (
-        <li key={r.id}>
-          <ReceiptButton receipt={r} n={i + 1} />
+        <li key={r.id} className="flex flex-wrap items-center gap-1.5">
+          <ReceiptButton receipt={r} n={receipts.length > 1 ? i + 1 : null} />
+          {/* #348: the same file is the thing's own too, not a second receipt. */}
+          {r.alsoInPaperwork ? (
+            <span className="text-small text-ink-3">
+              <Trans>Also in Paperwork</Trans>
+            </span>
+          ) : null}
         </li>
       ))}
     </ul>
   );
 }
 
-function ReceiptButton({ receipt, n }: { receipt: AttachmentView; n: number }) {
+/** Its name (a receipt keeps its file's name, #183), else "Receipt", numbered when there are more. */
+function ReceiptButton({ receipt, n }: { receipt: AttachmentView; n: number | null }) {
   const file = useAttachmentFile(receipt);
   const fmt = useFormat();
   return (
@@ -198,8 +207,13 @@ function ReceiptButton({ receipt, n }: { receipt: AttachmentView; n: number }) {
       ) : (
         <DocumentIcon className="size-4" />
       )}
-      {/* Its name when it has one (#183), else "Receipt 1". */}
-      {receipt.name?.trim() ? <bdi>{receipt.name}</bdi> : <Trans>Receipt {fmt.num(n)}</Trans>}
+      {receipt.name?.trim() ? (
+        <bdi>{receipt.name}</bdi>
+      ) : n === null ? (
+        <Trans>Receipt</Trans>
+      ) : (
+        <Trans>Receipt {fmt.num(n)}</Trans>
+      )}
     </Button>
   );
 }

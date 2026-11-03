@@ -22,14 +22,19 @@ tracks: **Details**, **Paperwork and warranties**, **Value**, **Meters**, **Loan
 - **Label**: on a computer, the **Label** card beside the details shows the label as it prints
   (QR code, short ID, name), with **Print** and **Download** (a PNG). On a phone, the **Label**
   row in Details opens it. See [short IDs and labels](/users/short-ids/).
-- **Purchase**: when and where it was bought, and the price of one. Members and above change it
-  with **Edit** beside it, or **Add the purchase** when there is none; prices need the Money
-  module and someone who may see them. A purchase can hold several things, as one receipt does:
-  its date and shop are the same for all of them, and the sheet says so. A purchase kept in
-  another location (the thing moved) is changed there.
-- **The purchase's receipts** sit under it, with **Add a receipt**. They belong to the purchase,
-  so every thing bought on it shows them. A receipt added under **Paperwork** belongs to this
-  thing alone and shows only there. Both are the original file and open the same way.
+- **Purchase**: when and where it was bought, how the receipt names it, the price of one, the
+  receipt's total and tax, and notes. Members and above change any of it with **Edit** beside it,
+  also while the thing itself is being edited, or **Add the purchase** when there is none (where
+  the Money module is on). Prices need the Money module and someone who may see them. A purchase
+  can hold several things, as one receipt does: its date and shop are the same for all of them,
+  and the sheet says so. **Remove** deletes a purchase that is this thing's alone, receipts and
+  all, or takes the thing off a receipt it shares. A purchase kept in another location (the thing
+  moved) is changed there.
+- **The purchase's receipts** sit under it by name: a receipt keeps its file's name ("B.TECH
+  invoice 4471"), and **Edit** adds, renames, replaces and removes them. They belong to the
+  purchase, so every thing bought on it shows them. A receipt added under **Paperwork** belongs to
+  this thing alone and shows only there; when the same file is in both, the purchase's says **Also
+  in Paperwork**, so it isn't a second receipt.
 - **Actions** has Move, Lend, Label, Split, Duplicate, Save as template, Mark seen, Not here,
   Change lifecycle (sold, given away, thrown out), Archive, Re-type, Convert to a room or spot,
   and Move to Trash.

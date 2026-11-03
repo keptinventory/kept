@@ -82,6 +82,8 @@ export type AttachmentView = {
   subject: AttachmentSubject;
   /** What people named it (#183), or null: the web shows its role. */
   name: string | null;
+  /** A purchase's receipt whose file is also the thing's own under Paperwork (#348). */
+  alsoInPaperwork?: true;
   createdBy: { displayName: string };
   /** For PATCH's If-Match (D156). Not in the web contract's type yet; additive. */
   rowVersion: number;
