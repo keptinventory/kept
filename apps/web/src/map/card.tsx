@@ -66,6 +66,9 @@ export type CardProps = {
   /** A thing picked from an Inside list, shown as its own card. */
   inner: string | null;
   setInner: (id: string | null) => void;
+  /** #238: a compartment of the selected furniture, picked on the map or its card. */
+  part?: string | null;
+  setPart?: (id: string | null) => void;
   detail: boolean;
   setDetail: (on: boolean) => void;
   onClose: () => void;
@@ -294,6 +297,60 @@ function InsideList({
   );
 }
 
+/**
+ * #238: furniture's compartments as it stands, a button each where it sits (a merged one across
+ * its cells), numbered as its label is; the picked one pressed. Top left first in every language.
+ */
+function CompartmentGrid({
+  it,
+  part,
+  onPick,
+}: {
+  it: Item;
+  part: string | null;
+  onPick: (id: string) => void;
+}) {
+  const { t } = useLingui();
+  const f = useFormat();
+  const grid = it.grid;
+  if (!grid || !it.compartments?.length) return null;
+  return (
+    <>
+      <div className="kmap-sub">
+        <Trans>Compartments</Trans>
+      </div>
+      <ol
+        dir="ltr"
+        className="kmap-cells"
+        aria-label={t`Compartments`}
+        style={{
+          gridTemplateColumns: `repeat(${grid.columns}, minmax(0, 1fr))`,
+          gridTemplateRows: `repeat(${grid.rows}, minmax(1.75rem, auto))`,
+        }}
+      >
+        {it.compartments.map((c) => (
+          <li
+            key={c.id}
+            style={{
+              gridRow: `${c.row} / span ${c.rows}`,
+              gridColumn: `${c.col} / span ${c.cols}`,
+            }}
+          >
+            <button
+              type="button"
+              aria-pressed={part === c.id}
+              aria-label={c.name}
+              onClick={() => onPick(c.id)}
+            >
+              {f.num(c.n)}
+            </button>
+          </li>
+        ))}
+      </ol>
+    </>
+  );
+}
+
 export function MapCard(p: CardProps) {
   const { t } = useLingui();
   const f = useFormat();
@@ -343,6 +400,71 @@ export function MapCard(p: CardProps) {
         <ThingFacts id={p.inner} />
         <div className="kmap-row kmap-open">
           <OpenLink id={p.inner} subject="thing" />
+        </div>
+      </aside>
+    );
+  }
+
+  // #238: a compartment of the selected furniture, as its own card.
+  const furniture = p.sel.type === 'item' ? plan.items.find((x) => x.id === p.sel.id) : undefined;
+  const compartment = p.part ? furniture?.compartments?.find((c) => c.id === p.part) : undefined;
+  if (furniture && compartment) {
+    const inside = (contents.under.get(furniture.id) ?? []).filter(
+      (x) => x.compartmentId === compartment.id,
+    );
+    const n = inside.length;
+    const where = [...cardPath(plan, view, furniture), furniture.name].join(' › ');
+    return (
+      <aside data-map-obstacle className="kmap-panel full" aria-live="polite">
+        <div className="kmap-row">
+          <button type="button" className="kmap-btn ghost" onClick={() => p.setPart?.(null)}>
+            <span className="rtl:-scale-x-100" aria-hidden="true">
+              ‹
+            </span>{' '}
+            {furniture.name}
+          </button>
+        </div>
+        <Head
+          title={compartment.name}
+          meta={
+            <>
+              <span>{where}</span>
+              {compartment.shortCode ? (
+                <IdChip
+                  code={compartment.shortCode}
+                  variant={compartment.labelPrinted ? 'tape' : 'quiet'}
+                />
+              ) : null}
+            </>
+          }
+          onClose={p.onClose}
+        />
+        <CompartmentGrid
+          it={furniture}
+          part={compartment.id}
+          onPick={(id) => p.setPart?.(id === compartment.id ? null : id)}
+        />
+        <div className="kmap-sub">
+          <Trans>Inside · {n}</Trans>
+        </div>
+        {inside.length ? (
+          <InsideList
+            things={inside}
+            contents={contents}
+            onPick={(id) => {
+              p.setPart?.(null);
+              p.setInner(id);
+            }}
+            filter=""
+          />
+        ) : (
+          <p className="kmap-empty">
+            <Trans>Nothing in it yet.</Trans>
+          </p>
+        )}
+        <IdBlock code={compartment.shortCode} place />
+        <div className="kmap-row kmap-open">
+          <OpenLink id={compartment.id} subject="place" />
         </div>
       </aside>
     );
@@ -665,6 +787,7 @@ export function MapCard(p: CardProps) {
     </>
   ) : null;
   const hangs = it.hang === undefined ? null : f.num(it.hang);
+  const cells = <CompartmentGrid it={it} part={null} onPick={(id) => p.setPart?.(id)} />;
   if (!p.detail) {
     return (
       <aside data-map-obstacle className="kmap-panel" aria-live="polite">
@@ -673,6 +796,7 @@ export function MapCard(p: CardProps) {
         {insideLine}
         {buttons}
         {shape}
+        {p.arranging ? null : cells}
       </aside>
     );
   }
@@ -699,6 +823,7 @@ export function MapCard(p: CardProps) {
       <StatusRows rows={own} />
       {buttons}
       {shape}
+      {p.arranging ? null : cells}
       <IdBlock code={it.shortCode} place={it.subject === 'place' || it.isContainer} />
       {it.subject === 'thing' ? <ThingFacts id={it.id} /> : null}
       {it.subject === 'place' && p.here === it.id ? null : (

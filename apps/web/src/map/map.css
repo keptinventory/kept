@@ -550,6 +550,38 @@ fieldset.kmap-floors {
   letter-spacing: 0;
   text-transform: none;
 }
+/* #238: furniture's compartments as it stands, a button each where it sits. */
+.kmap-cells {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 3px;
+}
+.kmap-cells li {
+  display: grid;
+  min-width: 0;
+}
+.kmap-cells button {
+  min-height: 28px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--sunken);
+  color: var(--ink);
+  font: 600 12.5px var(--sans);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.kmap-cells button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+.kmap-cells button:focus-visible {
+  outline: 2px solid var(--info);
+  outline-offset: 1px;
+}
 .kmap-inv {
   margin: 0;
   padding: 0;

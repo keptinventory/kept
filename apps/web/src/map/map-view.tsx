@@ -261,6 +261,8 @@ function MapBody({
   const [stats, setStats] = useState<EngineStats | null>(null);
   const [detail, setDetail] = useState(false);
   const [inner, setInner] = useState<string | null>(null);
+  /** #238: the compartment of the selected furniture picked on the map or its card. */
+  const [part, setPart] = useState<string | null>(null);
   const [glError, setGlError] = useState(false);
   const [version, setVersion] = useState(data.version);
 
@@ -375,6 +377,7 @@ function MapBody({
                 selKey.current = key;
                 setDetail(false);
                 setInner(null);
+                setPart(null);
               }
               setEs(s);
             },
@@ -389,6 +392,10 @@ function MapBody({
               }
             },
             onDrawRoom: (rect, levelKey) => void drawRoom(rect, levelKey),
+            onPart: (_itemId, partId) => {
+              setInner(null);
+              setPart(partId);
+            },
             onHint: setHint,
             ...(debug ? { onStats: setStats } : {}),
           },
@@ -438,6 +445,15 @@ function MapBody({
   useEffect(() => {
     engineRef.current?.setPins(pins);
   }, [pins]);
+
+  // #238: the selected furniture's compartments outlined, the picked one lit; none in Arrange.
+  const partItem =
+    es.selected?.type === 'item' && !es.arranging
+      ? plan.items.find((i) => i.id === es.selected?.id && i.compartments?.length)?.id
+      : undefined;
+  useEffect(() => {
+    engineRef.current?.setPart(partItem ?? null, partItem ? part : null);
+  }, [partItem, part]);
 
   // A plan someone opened (here or on another visit) comes back with the map.
   useEffect(() => {
@@ -1313,6 +1329,8 @@ function MapBody({
                 setInner(id);
                 if (id) setDetail(true);
               }}
+              part={part}
+              setPart={setPart}
               detail={detail}
               setDetail={setDetail}
               onClose={() => engine?.select(null)}

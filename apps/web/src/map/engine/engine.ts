@@ -24,6 +24,7 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { MapAttentionKind } from '@/api/map/types';
+import { compartmentAt, compartmentBoxes } from '../compartments';
 import { declutter, LABEL_PRIORITY, type Rect } from '../declutter';
 import {
   ARROW_STEP,
@@ -139,6 +140,8 @@ export type EngineEvents = {
   /** The arrange hint to show. */
   onHint: (hint: Hint) => void;
   onStats?: (s: EngineStats) => void;
+  /** #238: a tap on furniture with compartments, and the compartment it hit (null: none). */
+  onPart?: (itemId: string, partId: string | null) => void;
 };
 
 type Pick = { type: 'room' | 'item' | 'handle'; id: string };
@@ -200,6 +203,15 @@ export class MapEngine {
   private readonly gridMat = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.35 });
   private readonly handleMat = new THREE.MeshStandardMaterial({ emissiveIntensity: 0.35 });
   private readonly pinMats = new Map<MapAttentionKind, THREE.MeshStandardMaterial>();
+  /** #238: furniture's compartments, outlined while it is selected, the picked one lit. */
+  private readonly partLine = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.7 });
+  private readonly partFill = new THREE.MeshBasicMaterial({
+    transparent: true,
+    opacity: 0.35,
+    depthWrite: false,
+  });
+  private part: { item: string; id: string | null } | null = null;
+  private partGroup: THREE.Group | null = null;
   private readonly F: Materials;
   private readonly BUILD: ReturnType<typeof drawnModels>;
   private readonly world = new THREE.Group();
@@ -385,6 +397,8 @@ export class MapEngine {
     this.dropHold();
     for (const off of this.cleanup) off();
     for (const b of this.floorBatches.values()) for (const bm of b.list) bm.dispose();
+    this.partLine.dispose();
+    this.partFill.dispose();
     this.renderer.dispose();
     this.labelsEl.replaceChildren();
   }
@@ -439,6 +453,8 @@ export class MapEngine {
     this.hemi.groundColor.setHex(d ? 0x3a352c : 0xb9ad98);
     for (const k of ['low', 'lent', 'due'] as const)
       this.pinMat(k).color.set(css(PIN_VAR[k]) || '#888');
+    this.partLine.color.set(css('--ink') || (d ? '#F2F1EC' : '#151412'));
+    this.partFill.color.set(css('--info') || '#2F6FB3');
     this.request();
   };
 
@@ -784,6 +800,75 @@ export class MapEngine {
     this.placeItem(it);
     this.paint({ type: 'item', id: it.id });
     this.applyPin(it);
+    if (this.part?.item === it.id) this.drawPart();
+  }
+
+  // ---- Compartments (#238): outlined inside furniture's shape, the picked one lit -----------
+
+  /**
+   * Shows furniture's compartments: each outlined on its front, `partId` lit (null: none). A null
+   * item clears them. Drawn on the item's own group, a few lines and one plane, so it costs
+   * nothing until something is selected.
+   */
+  setPart(itemId: string | null, partId: string | null): void {
+    this.part = itemId ? { item: itemId, id: partId } : null;
+    this.drawPart();
+    this.request();
+  }
+
+  private drawPart(): void {
+    if (this.partGroup) {
+      this.partGroup.removeFromParent();
+      this.partGroup.traverse((o) => {
+        const g = (o as THREE.Mesh).geometry;
+        if (g) g.dispose();
+      });
+      this.partGroup = null;
+    }
+    const sel = this.part;
+    const it = sel ? this.itemOf(sel.item) : undefined;
+    const wrap = it ? this.itemGroups.get(it.id) : undefined;
+    if (!sel || !it?.grid || !it.compartments?.length || !wrap) return;
+    const m = mapModel(it.model);
+    const boxes = compartmentBoxes(it.model, it.grid, it.compartments);
+    const g = new THREE.Group();
+    g.position.set(-m.w / 2, 0, -m.d / 2);
+    const lines: THREE.BufferGeometry[] = [];
+    for (const [id, b] of boxes) {
+      const front = b.z + b.d / 2 + 0.004;
+      const edges = new THREE.EdgesGeometry(new THREE.PlaneGeometry(b.w, b.h));
+      edges.translate(b.x, b.y, front);
+      lines.push(edges);
+      if (id === sel.id) {
+        const fill = new THREE.Mesh(new THREE.PlaneGeometry(b.w, b.h), this.partFill);
+        fill.position.set(b.x, b.y, front);
+        fill.renderOrder = 2;
+        g.add(fill);
+      }
+    }
+    if (lines.length) g.add(new THREE.LineSegments(mergeGeometries(lines), this.partLine));
+    for (const l of lines) l.dispose();
+    g.userData.part = true;
+    wrap.add(g);
+    this.partGroup = g;
+  }
+
+  /** The compartment of `it` under a screen point, from where the ray meets the furniture. */
+  private partAt(x: number, y: number, it: Item): string | null {
+    const wrap = this.itemGroups.get(it.id);
+    if (!wrap || !it.grid || !it.compartments?.length) return null;
+    this.ray.setFromCamera(this.ndc(x, y), this.camera);
+    const hit = this.ray
+      .intersectObject(wrap, true)
+      .find((h) => !(h.object.parent?.userData.part || h.object.userData.part));
+    const at = hit ?? this.ray.intersectObject(wrap, true)[0];
+    if (!at) return null;
+    const m = mapModel(it.model);
+    const local = wrap.worldToLocal(at.point.clone());
+    return compartmentAt(compartmentBoxes(it.model, it.grid, it.compartments), {
+      x: local.x + m.w / 2,
+      y: local.y,
+    });
   }
 
   private placeItem(it: Item | undefined): void {
@@ -2114,6 +2199,11 @@ export class MapEngine {
         if (rid && this.s.focused !== rid) this.drill(rid);
       } else if (!same(sel, this.s.selected)) this.select(sel);
       this.lastTap = { t: now, key };
+      // #238: a tap on furniture picks the compartment it hit, outside Arrange.
+      const furn = sel?.type === 'item' && !this.s.arranging ? this.itemOf(sel.id) : undefined;
+      if (furn?.compartments?.length) {
+        this.events.onPart?.(furn.id, this.partAt(e.clientX, e.clientY, furn));
+      }
     }
     this.request();
   }

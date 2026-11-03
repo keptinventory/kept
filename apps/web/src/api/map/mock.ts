@@ -3,9 +3,9 @@
  * apps/server/src/map/view.ts (floors, rooms, nodes, things), and an arrange session that
  * replaces the location's layout. No attention pins: the mock has no stock rules or loans here.
  */
-import { draftRooms, firstOverlap, newId } from '@kept/shared';
+import { draftRooms, firstOverlap, gridOf, newId } from '@kept/shared';
 import { SAMPLE_PLAN_SIZE, sampleAnswer } from '@/map/floor-plan/sample-plan';
-import { recordEvent, type StoredPlace } from '../inventory/mock/db';
+import { compartmentsOf, recordEvent, type StoredPlace } from '../inventory/mock/db';
 import type { MockState } from '../mock/fixtures';
 import { err, forbidden, type MockRoute, notFound, reply, route } from '../mock/kit';
 import { mapPaths as p } from './paths';
@@ -129,6 +129,43 @@ export function mockMapView(state: MockState, locationId: string): MapView | nul
     }
     return null;
   };
+  // #238: furniture's compartments, and the compartment a thing is in.
+  const furnitureNode = (x: (typeof places)[number]) => {
+    if (!x.layout) return { grid: null, compartments: [] };
+    const grid = gridOf(x.layout);
+    return {
+      grid: { ...grid, kind: x.layout.kind },
+      compartments: compartmentsOf(state.inventory, x.id, grid)
+        .map(({ place, c }) => ({
+          id: c.id,
+          name: c.name,
+          shortCode: place.shortCode,
+          labelPrinted: place.labelPrinted === true,
+          n: c.n,
+          row: c.row,
+          col: c.col,
+          rows: c.rows,
+          cols: c.cols,
+        }))
+        .sort((a, b) => a.n - b.n),
+    };
+  };
+  const compartmentOfThing = (id: string, parentId: string): string | null => {
+    if (!byId.get(parentId)?.layout) return null;
+    let cur = thingById.get(id);
+    for (let i = 0; cur && i < 50; i++) {
+      if (cur.placeId) {
+        let at = byId.get(cur.placeId);
+        for (let j = 0; at && j < 50; j++) {
+          if (at.parentId === parentId) return at.cell ? at.id : null;
+          at = at.parentId ? byId.get(at.parentId) : undefined;
+        }
+        return null;
+      }
+      cur = cur.containerId ? thingById.get(cur.containerId) : undefined;
+    }
+    return null;
+  };
   const view: MapView = {
     locationId,
     canArrange: loc.role !== 'viewer',
@@ -180,6 +217,7 @@ export function mockMapView(state: MockState, locationId: string): MapView | nul
       isContainer: false,
       quantity: 1,
       layout: stored.nodes.get(x.id) ?? null,
+      ...furnitureNode(x),
     });
   }
   for (const x of things) {
@@ -212,6 +250,7 @@ export function mockMapView(state: MockState, locationId: string): MapView | nul
       typeKey: x.type?.builtinKey ?? null,
       typeName: x.type && !x.type.builtinKey ? x.type.name : null,
       isContainer: x.isContainer,
+      compartmentId: compartmentOfThing(x.id, parentId),
     });
   }
   return view;
