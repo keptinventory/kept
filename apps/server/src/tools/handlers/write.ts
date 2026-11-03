@@ -428,13 +428,22 @@ async function setPurchase(
     // As the app's sheet: a new purchase says at least when, where or for how much.
     throw invalid('Check purchase: give at least purchased_on, shop or price.');
   }
+  // A price with no currency takes the location's, as the app's purchase sheet starts with it.
+  const homeCurrency = async () =>
+    (
+      await op.client.query<{ currency: string | null }>(
+        'SELECT currency FROM public.locations WHERE id = $1',
+        [locationId],
+      )
+    ).rows[0]?.currency ?? undefined;
   if (!thing.line) {
     const quantity = Number(thing.quantity) > 0 ? Number(thing.quantity) : 1;
+    const currency = p.currency ?? (price ? await homeCurrency() : undefined);
     const made = await createPurchase(ctx, {
       locationId,
       purchasedOn: p.purchased_on ?? (await todayIn(op.client, locationId)),
       ...(vendorId ? { vendorId } : {}),
-      ...(p.currency ? { currency: p.currency } : {}),
+      ...(currency ? { currency } : {}),
       ...(price ? { total: lineTotal(price, quantity) } : {}),
       ...(p.notes ? { notes: p.notes } : {}),
       lines: [
@@ -448,8 +457,12 @@ async function setPurchase(
     });
     return made.id;
   }
-  const { rows: found } = await op.client.query<{ id: string; row_version: number }>(
-    `SELECT p.id, p.row_version FROM public.purchase_lines pl
+  const { rows: found } = await op.client.query<{
+    id: string;
+    row_version: number;
+    currency: string | null;
+  }>(
+    `SELECT p.id, p.row_version, p.currency FROM public.purchase_lines pl
        JOIN public.purchases p ON p.id = pl.purchase_id WHERE pl.id = $1`,
     [thing.line],
   );
@@ -461,6 +474,10 @@ async function setPurchase(
   if (vendorId !== undefined) body.vendorId = vendorId;
   if (p.notes !== undefined) body.notes = p.notes;
   if (p.currency !== undefined) body.currency = p.currency;
+  else if (price && !purchase.currency) {
+    const home = await homeCurrency();
+    if (home) body.currency = home;
+  }
   if (price !== undefined || p.on_receipt !== undefined) {
     body.lines = lines.map((l) =>
       l.id === thing.line

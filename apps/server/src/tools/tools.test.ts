@@ -665,6 +665,17 @@ describe('every field a person can set, through add_thing and update_thing', () 
     });
     expect(isToolError(same) ? same.hint : null).toMatch(/Nothing changed/);
   });
+
+  it('update_thing takes a price with no currency in the location’s, as the purchase sheet does', async () => {
+    const d = await data(louis, 'add_thing', { location_id: home.id, items: [{ name: 'Fan' }] });
+    const id = d.things[0].id;
+    await data(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: id,
+      fields: { purchase: { price: '12' } },
+    });
+    expect(await fullRow(id)).toMatchObject({ price: '12', currency: 'EGP' });
+  });
 });
 
 describe('reads', () => {
