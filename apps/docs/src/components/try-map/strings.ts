@@ -4,7 +4,14 @@
  * few the app has no use for (the sample note, Reset) are the demo's own. The other docs
  * languages show the English demo, as they show the English pages.
  */
-import type { MapModelKey, MapRoomKind, MapSurface, ShapeGroup } from '@kept/shared';
+import {
+  formatRoomSide,
+  type MapModelKey,
+  type MapRoomKind,
+  type MapSurface,
+  mToCm,
+  type ShapeGroup,
+} from '@kept/shared';
 
 export type Lang = 'en' | 'ar';
 /** English, then Arabic. */
@@ -742,6 +749,8 @@ export function formatter(lang: Lang) {
   const day = new Intl.DateTimeFormat(tag, { day: 'numeric', month: 'short' });
   return {
     num: (n: number) => nf.format(n),
+    /** A room's side (metres), to the centimetre, as the app's card and plan view say it (#372). */
+    side: (m: number) => formatRoomSide(mToCm(m), tag),
     day: (iso: string) => {
       const [y, m, d] = iso.split('-').map(Number);
       return day.format(new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1)).replace(/ /g, ' ');
