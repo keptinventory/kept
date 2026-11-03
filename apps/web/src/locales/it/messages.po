@@ -28679,3 +28679,35 @@ msgstr "Ruotalo…"
 #: src/components/places/compartments.tsx
 msgid "Turned {unit}"
 msgstr "{unit} ruotato"
+
+#: src/components/places/room-size.tsx
+msgid "Length"
+msgstr "Lunghezza"
+
+#: src/components/places/room-size.tsx
+msgid "A room is at least {min} m across."
+msgstr "Una stanza misura almeno {min} m per lato."
+
+#: src/components/places/room-size.tsx
+msgid "A room is at most {max} m across."
+msgstr "Una stanza misura al massimo {max} m per lato."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Give the width and the length, or neither."
+msgstr "Indica larghezza e lunghezza, oppure nessuna delle due."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "On the map at its size."
+msgstr "Sulla mappa, nelle sue misure reali."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Size on the map"
+msgstr "Misure sulla mappa"
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Optional, to the centimetre. Leave it empty and the map sizes the room itself."
+msgstr "Facoltativo, al centimetro. Lascia vuoto e la mappa dimensiona la stanza da sola."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under 50 cm: too small for the map."
+msgstr "Sotto 50 cm: troppo piccola per la mappa."

@@ -28679,3 +28679,35 @@ msgstr "تدويره…"
 #: src/components/places/compartments.tsx
 msgid "Turned {unit}"
 msgstr "أُدير «{unit}»"
+
+#: src/components/places/room-size.tsx
+msgid "Length"
+msgstr "الطول"
+
+#: src/components/places/room-size.tsx
+msgid "A room is at least {min} m across."
+msgstr "لا يقل ضلع الغرفة عن {min} م."
+
+#: src/components/places/room-size.tsx
+msgid "A room is at most {max} m across."
+msgstr "لا يزيد ضلع الغرفة عن {max} م."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Give the width and the length, or neither."
+msgstr "أدخل العرض والطول معًا، أو اتركهما فارغين."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "On the map at its size."
+msgstr "على الخريطة بمقاسها الحقيقي."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Size on the map"
+msgstr "المقاس على الخريطة"
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Optional, to the centimetre. Leave it empty and the map sizes the room itself."
+msgstr "اختياري، بدقة السنتيمتر. اتركه فارغًا وستقدّر الخريطة مقاس الغرفة بنفسها."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under 50 cm: too small for the map."
+msgstr "أقل من ٥٠ سم: أصغر من أن تظهر على الخريطة."
