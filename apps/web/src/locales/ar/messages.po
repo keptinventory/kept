@@ -28528,3 +28528,60 @@ msgstr "هذه إيصالات الشراء: تظهر عند كل شيء اشتُ
 
 msgid "This purchase is kept in another location; change it there."
 msgstr "هذا الشراء محفوظ في موقع آخر؛ عدّله هناك."
+
+msgid "Also in Paperwork"
+msgstr "موجود أيضًا في الأوراق"
+
+msgid "At most 300 characters."
+msgstr "٣٠٠ حرف على الأكثر."
+
+msgid "Couldn't change the receipt"
+msgstr "تعذّر تغيير الإيصال"
+
+msgid "How the receipt names it."
+msgstr "كما يسمّيه الإيصال."
+
+msgid "It comes off the purchase. The file itself stays until it's purged."
+msgstr "يُزال من الشراء. ويبقى الملف نفسه حتى يُحذف نهائيًا."
+
+msgid "Its date, shop, price and receipts go. The thing stays."
+msgstr "يُحذف تاريخه ومتجره وسعره وإيصالاته. ويبقى الشيء."
+
+msgid "Left empty, it is the price times the quantity."
+msgstr "إن تُرك فارغًا فهو السعر مضروبًا في الكمية."
+
+msgid "No receipt yet."
+msgstr "لا إيصال بعد."
+
+msgid "Purchase notes"
+msgstr "ملاحظات الشراء"
+
+msgid "Purchase removed"
+msgstr "أُزيل الشراء"
+
+msgid "Receipt replaced"
+msgstr "استُبدل الإيصال"
+
+msgid "Receipt total"
+msgstr "إجمالي الإيصال"
+
+msgid "Remove {0}?"
+msgstr "إزالة {0}؟"
+
+msgid "Remove {label}"
+msgstr "إزالة {label}"
+
+msgid "Remove this purchase?"
+msgstr "إزالة هذا الشراء؟"
+
+msgid "Take {0} off this receipt?"
+msgstr "إزالة {0} من هذا الإيصال؟"
+
+msgid "Take it off"
+msgstr "أزِله"
+
+msgid "Taken off the receipt"
+msgstr "أُزيل من الإيصال"
+
+msgid "The receipt and its other things stay as they are."
+msgstr "يبقى الإيصال وأشياؤه الأخرى كما هي."

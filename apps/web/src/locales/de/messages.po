@@ -28528,3 +28528,60 @@ msgstr "Das sind die Belege des Kaufs: Jeder damit gekaufte Gegenstand zeigt sie
 
 msgid "This purchase is kept in another location; change it there."
 msgstr "Dieser Kauf ist an einem anderen Standort gespeichert; ändere ihn dort."
+
+msgid "Also in Paperwork"
+msgstr "Auch unter Unterlagen"
+
+msgid "At most 300 characters."
+msgstr "Höchstens 300 Zeichen."
+
+msgid "Couldn't change the receipt"
+msgstr "Der Beleg konnte nicht geändert werden"
+
+msgid "How the receipt names it."
+msgstr "Wie der Beleg es nennt."
+
+msgid "It comes off the purchase. The file itself stays until it's purged."
+msgstr "Er wird vom Kauf entfernt. Die Datei selbst bleibt, bis sie bereinigt wird."
+
+msgid "Its date, shop, price and receipts go. The thing stays."
+msgstr "Datum, Geschäft, Preis und Belege werden entfernt. Der Gegenstand bleibt."
+
+msgid "Left empty, it is the price times the quantity."
+msgstr "Leer gelassen ist es der Preis mal die Menge."
+
+msgid "No receipt yet."
+msgstr "Noch kein Beleg."
+
+msgid "Purchase notes"
+msgstr "Notizen zum Kauf"
+
+msgid "Purchase removed"
+msgstr "Kauf entfernt"
+
+msgid "Receipt replaced"
+msgstr "Beleg ersetzt"
+
+msgid "Receipt total"
+msgstr "Belegsumme"
+
+msgid "Remove {0}?"
+msgstr "{0} entfernen?"
+
+msgid "Remove {label}"
+msgstr "{label} entfernen"
+
+msgid "Remove this purchase?"
+msgstr "Diesen Kauf entfernen?"
+
+msgid "Take {0} off this receipt?"
+msgstr "{0} von diesem Beleg nehmen?"
+
+msgid "Take it off"
+msgstr "Abnehmen"
+
+msgid "Taken off the receipt"
+msgstr "Vom Beleg genommen"
+
+msgid "The receipt and its other things stay as they are."
+msgstr "Der Beleg und seine anderen Gegenstände bleiben, wie sie sind."

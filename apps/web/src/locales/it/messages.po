@@ -28528,3 +28528,60 @@ msgstr "Queste sono le ricevute dell’acquisto: ogni oggetto comprato con esso 
 
 msgid "This purchase is kept in another location; change it there."
 msgstr "Questo acquisto è registrato in un altro luogo; modificalo lì."
+
+msgid "Also in Paperwork"
+msgstr "Anche in Documenti"
+
+msgid "At most 300 characters."
+msgstr "Al massimo 300 caratteri."
+
+msgid "Couldn't change the receipt"
+msgstr "Impossibile modificare la ricevuta"
+
+msgid "How the receipt names it."
+msgstr "Come lo chiama la ricevuta."
+
+msgid "It comes off the purchase. The file itself stays until it's purged."
+msgstr "Viene tolta dall’acquisto. Il file resta finché non viene eliminato."
+
+msgid "Its date, shop, price and receipts go. The thing stays."
+msgstr "Data, negozio, prezzo e ricevute vengono rimossi. L’oggetto resta."
+
+msgid "Left empty, it is the price times the quantity."
+msgstr "Se vuoto, è il prezzo per la quantità."
+
+msgid "No receipt yet."
+msgstr "Ancora nessuna ricevuta."
+
+msgid "Purchase notes"
+msgstr "Note sull’acquisto"
+
+msgid "Purchase removed"
+msgstr "Acquisto rimosso"
+
+msgid "Receipt replaced"
+msgstr "Ricevuta sostituita"
+
+msgid "Receipt total"
+msgstr "Totale della ricevuta"
+
+msgid "Remove {0}?"
+msgstr "Rimuovere {0}?"
+
+msgid "Remove {label}"
+msgstr "Rimuovi {label}"
+
+msgid "Remove this purchase?"
+msgstr "Rimuovere questo acquisto?"
+
+msgid "Take {0} off this receipt?"
+msgstr "Togliere {0} da questa ricevuta?"
+
+msgid "Take it off"
+msgstr "Toglilo"
+
+msgid "Taken off the receipt"
+msgstr "Tolto dalla ricevuta"
+
+msgid "The receipt and its other things stay as they are."
+msgstr "La ricevuta e gli altri oggetti restano come sono."

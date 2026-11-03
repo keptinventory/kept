@@ -28528,3 +28528,60 @@ msgstr "Ce sont les reçus de l’achat : chaque objet acheté avec lui les affi
 
 msgid "This purchase is kept in another location; change it there."
 msgstr "Cet achat est enregistré dans un autre lieu ; modifiez-le là-bas."
+
+msgid "Also in Paperwork"
+msgstr "Aussi dans Documents"
+
+msgid "At most 300 characters."
+msgstr "300 caractères au maximum."
+
+msgid "Couldn't change the receipt"
+msgstr "Impossible de modifier le reçu"
+
+msgid "How the receipt names it."
+msgstr "Comme le reçu le nomme."
+
+msgid "It comes off the purchase. The file itself stays until it's purged."
+msgstr "Il est retiré de l’achat. Le fichier reste jusqu’à sa purge."
+
+msgid "Its date, shop, price and receipts go. The thing stays."
+msgstr "Sa date, sa boutique, son prix et ses reçus disparaissent. L’objet reste."
+
+msgid "Left empty, it is the price times the quantity."
+msgstr "Vide, c’est le prix multiplié par la quantité."
+
+msgid "No receipt yet."
+msgstr "Pas encore de reçu."
+
+msgid "Purchase notes"
+msgstr "Notes d’achat"
+
+msgid "Purchase removed"
+msgstr "Achat retiré"
+
+msgid "Receipt replaced"
+msgstr "Reçu remplacé"
+
+msgid "Receipt total"
+msgstr "Total du reçu"
+
+msgid "Remove {0}?"
+msgstr "Retirer {0} ?"
+
+msgid "Remove {label}"
+msgstr "Retirer {label}"
+
+msgid "Remove this purchase?"
+msgstr "Retirer cet achat ?"
+
+msgid "Take {0} off this receipt?"
+msgstr "Retirer {0} de ce reçu ?"
+
+msgid "Take it off"
+msgstr "Le retirer"
+
+msgid "Taken off the receipt"
+msgstr "Retiré du reçu"
+
+msgid "The receipt and its other things stay as they are."
+msgstr "Le reçu et ses autres objets restent tels quels."

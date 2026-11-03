@@ -20578,3 +20578,60 @@ msgstr "Đây là biên lai của giao dịch mua: mọi đồ vật mua cùng �
 
 msgid "This purchase is kept in another location; change it there."
 msgstr "Giao dịch mua này được lưu ở một địa điểm khác; hãy sửa nó ở đó."
+
+msgid "Also in Paperwork"
+msgstr "Cũng có trong Giấy tờ"
+
+msgid "At most 300 characters."
+msgstr "Tối đa 300 ký tự."
+
+msgid "Couldn't change the receipt"
+msgstr "Không thể thay đổi biên lai"
+
+msgid "How the receipt names it."
+msgstr "Tên của nó trên biên lai."
+
+msgid "It comes off the purchase. The file itself stays until it's purged."
+msgstr "Nó được gỡ khỏi giao dịch mua. Bản thân tệp vẫn còn cho đến khi bị dọn."
+
+msgid "Its date, shop, price and receipts go. The thing stays."
+msgstr "Ngày, cửa hàng, giá và biên lai sẽ bị xóa. Đồ vật vẫn giữ nguyên."
+
+msgid "Left empty, it is the price times the quantity."
+msgstr "Để trống thì bằng giá nhân số lượng."
+
+msgid "No receipt yet."
+msgstr "Chưa có biên lai."
+
+msgid "Purchase notes"
+msgstr "Ghi chú giao dịch mua"
+
+msgid "Purchase removed"
+msgstr "Đã xóa giao dịch mua"
+
+msgid "Receipt replaced"
+msgstr "Đã thay biên lai"
+
+msgid "Receipt total"
+msgstr "Tổng biên lai"
+
+msgid "Remove {0}?"
+msgstr "Xóa {0}?"
+
+msgid "Remove {label}"
+msgstr "Xóa {label}"
+
+msgid "Remove this purchase?"
+msgstr "Xóa giao dịch mua này?"
+
+msgid "Take {0} off this receipt?"
+msgstr "Gỡ {0} khỏi biên lai này?"
+
+msgid "Take it off"
+msgstr "Gỡ ra"
+
+msgid "Taken off the receipt"
+msgstr "Đã gỡ khỏi biên lai"
+
+msgid "The receipt and its other things stay as they are."
+msgstr "Biên lai và các đồ vật khác vẫn giữ nguyên."

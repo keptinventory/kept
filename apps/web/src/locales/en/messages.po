@@ -28528,3 +28528,60 @@ msgstr "These are the purchase’s receipts: every thing bought on it shows them
 
 msgid "This purchase is kept in another location; change it there."
 msgstr "This purchase is kept in another location; change it there."
+
+msgid "Also in Paperwork"
+msgstr "Also in Paperwork"
+
+msgid "At most 300 characters."
+msgstr "At most 300 characters."
+
+msgid "Couldn't change the receipt"
+msgstr "Couldn't change the receipt"
+
+msgid "How the receipt names it."
+msgstr "How the receipt names it."
+
+msgid "It comes off the purchase. The file itself stays until it's purged."
+msgstr "It comes off the purchase. The file itself stays until it's purged."
+
+msgid "Its date, shop, price and receipts go. The thing stays."
+msgstr "Its date, shop, price and receipts go. The thing stays."
+
+msgid "Left empty, it is the price times the quantity."
+msgstr "Left empty, it is the price times the quantity."
+
+msgid "No receipt yet."
+msgstr "No receipt yet."
+
+msgid "Purchase notes"
+msgstr "Purchase notes"
+
+msgid "Purchase removed"
+msgstr "Purchase removed"
+
+msgid "Receipt replaced"
+msgstr "Receipt replaced"
+
+msgid "Receipt total"
+msgstr "Receipt total"
+
+msgid "Remove {0}?"
+msgstr "Remove {0}?"
+
+msgid "Remove {label}"
+msgstr "Remove {label}"
+
+msgid "Remove this purchase?"
+msgstr "Remove this purchase?"
+
+msgid "Take {0} off this receipt?"
+msgstr "Take {0} off this receipt?"
+
+msgid "Take it off"
+msgstr "Take it off"
+
+msgid "Taken off the receipt"
+msgstr "Taken off the receipt"
+
+msgid "The receipt and its other things stay as they are."
+msgstr "The receipt and its other things stay as they are."
