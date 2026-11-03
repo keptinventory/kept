@@ -20,8 +20,14 @@ describe('AI usage', () => {
       'URL',
       Object.assign(URL, { createObjectURL: () => 'blob:x', revokeObjectURL: () => {} }),
     );
+    // The sample calls are hours and days old, and the page opens on "This month so far": in the
+    // first hours of a month they'd all be last month's. Mid-month keeps them in this one.
+    vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-15T12:00:00Z') });
   });
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
 
   it('the owner has Me, each home they run, and Account; a member only Me', async () => {
     await renderApp('/settings/ai/usage');
