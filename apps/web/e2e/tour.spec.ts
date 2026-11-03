@@ -176,9 +176,21 @@ const tourRow = (page: Page, id: string) => page.locator(`[data-tour-row="${id}"
 async function chaptersOn(page: Page): Promise<string[]> {
   await page.goto('/help');
   await expect(page.getByRole('button', { name: /^(Take|Continue) the tour$/ })).toBeVisible();
-  const listed = await page
-    .locator('[data-tour-row]')
-    .evaluateAll((rows) => rows.map((r) => r.getAttribute('data-tour-row') ?? ''));
+  // The rows can render a beat after the button on a slow runner: read the list once it has
+  // rows and has stopped changing.
+  const rows = page.locator('[data-tour-row]');
+  await expect(rows.first()).toBeVisible();
+  let listed: string[] = [];
+  await expect
+    .poll(async () => {
+      const now = await rows.evaluateAll((r) =>
+        r.map((e) => e.getAttribute('data-tour-row') ?? ''),
+      );
+      const same = now.join() === listed.join();
+      listed = now;
+      return same;
+    })
+    .toBe(true);
   return Object.keys(TITLES).filter((id) => listed.includes(id));
 }
 
@@ -231,7 +243,11 @@ test('Basics walks every step, each pointing at its control, and then says Done'
   const { context, page } = await person(browser);
   const walk = BASICS(project());
   const chapters = await chaptersOn(page);
-  await expect(page.getByRole('button', { name: 'Take the tour', exact: true })).toBeVisible();
+  // A CI retry reruns this serial file against the same instance, which keeps the first
+  // attempt's progress: only a first attempt starts from a fresh "Take the tour".
+  if (test.info().retry === 0) {
+    await expect(page.getByRole('button', { name: 'Take the tour', exact: true })).toBeVisible();
+  }
   await fromHelp(page, 'basics');
   for (const [k, leg] of walk.entries()) {
     await expect(popover(page).locator('.driver-popover-title')).toHaveText(leg.title);
@@ -435,7 +451,8 @@ test('The Graph & 3D map chapter points at the graph’s and the map’s own con
   await fromHelp(page, 'map');
   const anchors: string[] = [];
   for (let k = 0; k < 7; k++) {
-    await expect(popover(page)).toBeVisible();
+    // The 3D map loads on demand, and a step waits for its control: slow on a busy CI runner.
+    await expect(popover(page)).toBeVisible({ timeout: 30_000 });
     await expect.poll(async () => (await stopOf(page)).anchor).not.toBeNull();
     const s = await stopOf(page);
     anchors.push(s.anchor ?? '');
