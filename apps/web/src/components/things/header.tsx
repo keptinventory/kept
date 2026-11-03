@@ -2,14 +2,15 @@
  * The thing's header: the photos, its code (the tape of a printed label, else quietly), the full
  * path, the derived-state pills and the lifecycle when it has ended. The name is the page's
  * heading. User text is isolated (`<bdi>`, `dir="auto"`), so an Arabic box name inside an English
- * path keeps its shape; the code is always left to right.
+ * path keeps its shape; the code is always left to right. For someone who edits things, the type
+ * ("No type" until it has one) is a button that opens the type picker (#366).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
 import { Fragment } from 'react';
 import type { PathStep } from '@/api/inventory/types';
 import { ExtractionStatus } from '@/components/ai/extraction-status';
-import { ChevronEndIcon, ClockIcon } from '@/components/icons';
+import { ChevronDownIcon, ChevronEndIcon, ClockIcon } from '@/components/icons';
 import { IdChip } from '@/components/id-chip';
 import { useLoanText } from '@/components/lending/loan-text';
 import { Pill } from '@/components/page';
@@ -79,8 +80,9 @@ export function ThingPath({ path, usually = false }: { path: PathStep[]; usually
   );
 }
 
-export function ThingHeader() {
+export function ThingHeader({ onType }: { onType?: (() => void) | undefined }) {
   const { thing, location, can, moduleOn } = useThingCtx();
+  const { t } = useLingui();
   const fmt = useFormat();
   const lifecycle = useLifecycleLabels();
   const typeName = useTypeName();
@@ -93,10 +95,24 @@ export function ThingHeader() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Its printed label leads, as the tape; a code with no label waits quietly last. */}
           {thing.labelPrinted ? <IdChip code={thing.shortCode} size="large" /> : null}
-          <span className="inline-flex items-center gap-1.5 text-small text-ink-2">
-            <TypeIcon icon={thing.type?.icon} className="size-4" />
-            {typeName(thing.type)}
-          </span>
+          {onType ? (
+            <Button
+              size="small"
+              variant="secondary"
+              onPress={onType}
+              aria-label={t`${typeName(thing.type)}, change the type`}
+              className="rounded-full text-ink-2 [&_svg]:size-4"
+            >
+              <TypeIcon icon={thing.type?.icon} />
+              {typeName(thing.type)}
+              <ChevronDownIcon aria-hidden="true" />
+            </Button>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-small text-ink-2">
+              <TypeIcon icon={thing.type?.icon} className="size-4" />
+              {typeName(thing.type)}
+            </span>
+          )}
           {thing.labelPrinted ? null : <IdChip code={thing.shortCode} variant="quiet" />}
         </div>
         <ThingPath

@@ -15,6 +15,8 @@ export type Money = { amount: string; currency: string };
 export type FormValue = string | boolean | string[] | Money | null;
 export type FormValues = {
   name: string;
+  /** Its type (#366): changing it re-types the thing, as Change the type does (D92). */
+  typeId: string | null;
   quantity: string;
   brandId: string | null;
   model: string;
@@ -30,6 +32,7 @@ export type FormValues = {
 
 export const BUILTIN_KEYS = [
   'name',
+  'typeId',
   'quantity',
   'brandId',
   'model',
@@ -85,6 +88,7 @@ export function formValues(thing: ThingView): FormValues {
   for (const f of editableFields(thing.fields)) custom[f.key] = toForm(f, thing.custom[f.key]);
   return {
     name: thing.name ?? '',
+    typeId: thing.type?.id ?? null,
     quantity: String(thing.quantity),
     brandId: thing.brand?.id ?? null,
     model: thing.model ?? '',
@@ -200,6 +204,10 @@ export function toPatch(
 ): UpdateThingBody {
   const b: UpdateThingBody = {};
   if (differs(from.name, to.name)) b.name = to.name.trim();
+  // A new type re-types the thing on the server (D92): what the new type has carries over, the
+  // rest is archived. The old type's fields aren't edited in the same save (the form hides them).
+  const retyped = differs(from.typeId, to.typeId);
+  if (retyped) b.typeId = to.typeId;
   if (differs(from.quantity, to.quantity)) b.quantity = parseNumber(to.quantity) ?? 0;
   if (differs(from.brandId, to.brandId)) b.brandId = to.brandId;
   if (differs(from.model, to.model)) b.model = blankToNull(to.model);
@@ -215,7 +223,7 @@ export function toPatch(
     const v = to.custom[f.key] ?? null;
     if (differs(from.custom[f.key], v)) custom[f.key] = fromForm(f, v);
   }
-  if (Object.keys(custom).length) b.custom = custom;
+  if (Object.keys(custom).length && !retyped) b.custom = custom;
   return b;
 }
 
