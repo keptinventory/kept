@@ -4,7 +4,7 @@
  */
 import { i18n, type Messages } from '@lingui/core';
 import { useMemo } from 'react';
-import { formatLocale, usePrefs } from './prefs';
+import { type DateFormatPref, formatLocale, usePrefs } from './prefs';
 
 /**
  * The separator between the parts of a line ("Warranties · 2", "Samsung TV · Home"). In Arabic it
@@ -46,11 +46,16 @@ export type Formatter = {
   /** The separator between a line's parts (`separatorFor`). */
   sep: string;
   num: (n: number) => string;
-  /** "12 Oct" (this year) or "12 Oct 2027", with no-break spaces: a date never splits. */
+  /**
+   * "12 Oct" (this year) or "12 Oct 2027", with no-break spaces: a date never splits. In the
+   * person's date format (#362) when they chose one: "12 Oct 2026", 12/10/2026 or 2026-10-12.
+   */
   day: (iso: string) => string;
+  /** `day` with the year always: purchase and warranty dates (#362). */
+  date: (iso: string) => string;
   /** "Sat 31 Oct 2026". */
   longDay: (iso: string) => string;
-  /** "12 Oct, 09:12". */
+  /** "12 Oct, 09:12"; with the year, or as 12/10/2026, 09:12 or 2026-10-12 09:12 when chosen. */
   dateTime: (iso: string) => string;
   /** "Friday 26 September". */
   today: (d?: Date) => string;
@@ -60,7 +65,24 @@ export type Formatter = {
 
 const DAY = 86_400_000;
 
-export function makeFormatter(tag: string): Formatter {
+/** Dates never split across lines: their spaces become no-break spaces. */
+const unbroken = (s: string) => s.replace(/ /g, '\u00a0');
+
+/**
+ * 2026-10-29 in the language's digits. In Arabic it is held left to right (LRI … PDI), so a
+ * right-to-left line can't turn it round.
+ */
+function isoDate(tag: string): (d: Date) => string {
+  const f = new Intl.DateTimeFormat(tag, { year: 'numeric', month: '2-digit', day: '2-digit' });
+  return (d) => {
+    const part = (type: Intl.DateTimeFormatPartTypes) =>
+      f.formatToParts(d).find((p) => p.type === type)?.value ?? '';
+    const out = `${part('year')}-${part('month')}-${part('day')}`;
+    return tag.startsWith('ar') ? `\u2066${out}\u2069` : out;
+  };
+}
+
+export function makeFormatter(tag: string, dateFormat: DateFormatPref = 'auto'): Formatter {
   const nf = new Intl.NumberFormat(tag);
   const sameYear = new Intl.DateTimeFormat(tag, { day: 'numeric', month: 'short' });
   const otherYear = new Intl.DateTimeFormat(tag, {
@@ -81,20 +103,57 @@ export function makeFormatter(tag: string): Formatter {
     minute: '2-digit',
     hourCycle: 'h23',
   });
+  const numeric = new Intl.DateTimeFormat(tag, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+  const iso = isoDate(tag);
+  const time = new Intl.DateTimeFormat(tag, {
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  });
+  const dtYear = new Intl.DateTimeFormat(tag, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  });
+  const dtNumeric = new Intl.DateTimeFormat(tag, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  });
   const weekday = new Intl.DateTimeFormat(tag, { weekday: 'long', day: 'numeric', month: 'long' });
   const rtf = new Intl.RelativeTimeFormat(tag, { numeric: 'auto' });
+  /** A date in the chosen format; `year` keeps the year in the language's own short form. */
+  const formatDay = (d: Date, year: boolean): string => {
+    if (dateFormat === 'iso') return iso(d);
+    if (dateFormat === 'numeric') return numeric.format(d);
+    const withYear =
+      year || dateFormat === 'medium' || d.getFullYear() !== new Date().getFullYear();
+    // "Deleted Sep / 27" wrapped at 375 (the phone pass): the line breaks around a date.
+    return unbroken((withYear ? otherYear : sameYear).format(d));
+  };
   return {
     sep: separatorFor(tag),
     num: (n) => nf.format(n),
-    day: (iso) => {
-      const d = new Date(iso);
-      // "Deleted Sep / 27" wrapped at 375 (the phone pass): the line breaks around a date.
-      return (d.getFullYear() === new Date().getFullYear() ? sameYear : otherYear)
-        .format(d)
-        .replace(/ /g, '\u00a0');
+    day: (value) => formatDay(new Date(value), false),
+    date: (value) => formatDay(new Date(value), true),
+    longDay: (value) => long.format(new Date(value)),
+    dateTime: (value) => {
+      const d = new Date(value);
+      if (dateFormat === 'iso') return `${iso(d)} ${time.format(d)}`;
+      if (dateFormat === 'numeric') return dtNumeric.format(d);
+      if (dateFormat === 'medium') return dtYear.format(d);
+      return dt.format(d);
     },
-    longDay: (iso) => long.format(new Date(iso)),
-    dateTime: (iso) => dt.format(new Date(iso)),
     today: (d = new Date()) => weekday.format(d),
     relative: (iso, now = new Date()) => {
       const diff = new Date(iso).getTime() - now.getTime();
@@ -126,6 +185,9 @@ export function useBytes(): (n: number) => string {
 }
 
 export function useFormat(): Formatter {
-  const { locale, digits } = usePrefs();
-  return useMemo(() => makeFormatter(formatLocale(locale, digits)), [locale, digits]);
+  const { locale, digits, region, dateFormat } = usePrefs();
+  return useMemo(
+    () => makeFormatter(formatLocale(locale, digits, region), dateFormat),
+    [locale, digits, region, dateFormat],
+  );
 }

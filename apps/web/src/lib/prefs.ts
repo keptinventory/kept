@@ -1,5 +1,5 @@
 /**
- * Theme, language, digits, content width and sidebar preferences. The pre-paint script in
+ * Theme, language, digits, region, date format, content width and sidebar preferences. The pre-paint script in
  * index.html applies the stored values before React loads; this module owns changing them
  * afterwards. Keep the keys in step.
  * localStorage may throw (private mode, blocked storage): every access is guarded, and the app
@@ -14,11 +14,26 @@ export type Locale = 'en' | 'ar' | 'fr' | 'de' | 'it' | 'vi';
 export type Digits = 'western' | 'eastern';
 /** D203: page content in the readable column (the default) or across the whole space. */
 export type WidthPref = 'centered' | 'full';
+/**
+ * #362: how English writes its dates: the United States' "Oct 29", or the United Kingdom's
+ * "29 Oct" (and 29/10/2026). Only English has the choice; the other languages have one way.
+ */
+export type EnglishRegion = 'us' | 'gb';
+/**
+ * #362: how dates are written. `auto` is the language's own short form ("29 Oct", with the year
+ * only when it isn't this year); `medium` always has the year ("29 Oct 2026"); `numeric` is the
+ * language's digits-only form (29/10/2026 in the UK, 10/29/2026 in the US, 29.10.2026 in German);
+ * `iso` is 2026-10-29 in every language.
+ */
+export type DateFormatPref = 'auto' | 'medium' | 'numeric' | 'iso';
+export const DATE_FORMATS: readonly DateFormatPref[] = ['auto', 'medium', 'numeric', 'iso'];
 
 export const THEME_KEY = 'kept.theme';
 export const LOCALE_KEY = 'kept.locale';
 export const DIGITS_KEY = 'kept.digits';
 export const WIDTH_KEY = 'kept.width';
+export const REGION_KEY = 'kept.region';
+export const DATE_FORMAT_KEY = 'kept.dateFormat';
 export const LOCALES: readonly Locale[] = ['en', 'ar', 'fr', 'de', 'it', 'vi'];
 
 export function isLocale(value: unknown): value is Locale {
@@ -47,8 +62,29 @@ export function storedDigits(): Digits {
   return WESTERN_DIGIT_REGIONS.has(region) ? 'western' : 'eastern';
 }
 
-/** The BCP 47 tag for Intl formatting: the locale plus, in Arabic, its numbering system. */
-export function formatLocale(locale: Locale, digits: Digits): string {
+/** The stored English region, else the browser's when it is British English, else the US. */
+export function storedRegion(): EnglishRegion {
+  const v = read(REGION_KEY);
+  if (v === 'us' || v === 'gb') return v;
+  const nav = (typeof navigator !== 'undefined' ? navigator.language : 'en') ?? 'en';
+  return /^en[-_]gb$/i.test(nav) ? 'gb' : 'us';
+}
+
+export function storedDateFormat(): DateFormatPref {
+  const v = read(DATE_FORMAT_KEY);
+  return (DATE_FORMATS as readonly string[]).includes(v ?? '') ? (v as DateFormatPref) : 'auto';
+}
+
+/**
+ * The BCP 47 tag for Intl formatting: the locale plus, in Arabic, its numbering system, and in
+ * English its region (`en-GB`, #362). The region defaults to the one chosen on this device.
+ */
+export function formatLocale(
+  locale: Locale,
+  digits: Digits,
+  region: EnglishRegion = state.region,
+): string {
+  if (locale === 'en') return region === 'gb' ? 'en-GB' : 'en';
   if (locale !== 'ar') return locale;
   return digits === 'eastern' ? 'ar-u-nu-arab' : 'ar-u-nu-latn';
 }
@@ -122,6 +158,8 @@ type State = {
   resolvedTheme: 'light' | 'dark';
   locale: Locale;
   digits: Digits;
+  region: EnglishRegion;
+  dateFormat: DateFormatPref;
   width: WidthPref;
   sidebar: SidebarPref;
   /** Whether the desktop sidebar is the icon rail right now (D198). */
@@ -133,6 +171,8 @@ let state: State = {
   resolvedTheme: 'light',
   locale: initialLocale(),
   digits: storedDigits(),
+  region: storedRegion(),
+  dateFormat: storedDateFormat(),
   width: storedWidthPref(),
   sidebar: storedSidebarPref(),
   sidebarCollapsed: false,
@@ -184,6 +224,17 @@ export function setLocale(locale: Locale): void {
 export function setDigits(digits: Digits): void {
   write(DIGITS_KEY, digits);
   set({ digits });
+}
+
+export function setRegion(region: EnglishRegion): void {
+  write(REGION_KEY, region);
+  set({ region });
+}
+
+/** 'auto' is the default, so it forgets the stored choice. */
+export function setDateFormat(dateFormat: DateFormatPref): void {
+  write(DATE_FORMAT_KEY, dateFormat === 'auto' ? null : dateFormat);
+  set({ dateFormat });
 }
 
 /** D203: 'centered' is the default, so it forgets the stored choice. */

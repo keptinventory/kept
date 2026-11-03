@@ -1,17 +1,25 @@
 /**
- * Language, theme, digits and content width: device preferences kept in localStorage
- * (lib/prefs.ts), applied before first paint by index.html. Used on Settings → Me → Display
- * (D203, D204), the sign-in pages (language only) and the gallery.
+ * Language, theme, digits, region, date format and content width: device preferences kept in
+ * localStorage (lib/prefs.ts), applied before first paint by index.html (region and date format
+ * when React draws dates, #362). Used on Settings → Me → Display (D203, D204), the sign-in pages
+ * (language only) and the gallery.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { LanguageSelect } from '@/components/languages';
 import { Segmented } from '@/components/ui/segmented';
 import { activateLocale } from '@/i18n/i18n';
+import { makeFormatter } from '@/lib/format';
 import {
+  DATE_FORMATS,
+  type DateFormatPref,
   type Digits,
+  type EnglishRegion,
+  formatLocale,
   type Locale,
+  setDateFormat,
   setDigits,
   setLocale,
+  setRegion,
   setThemePref,
   setWidthPref,
   type ThemePref,
@@ -45,7 +53,11 @@ export function LanguageToggle() {
 
 export function DisplayPrefs() {
   const { t } = useLingui();
-  const { theme, locale, digits, width } = usePrefs();
+  const { theme, locale, digits, region, dateFormat, width } = usePrefs();
+  // Each format shown as today's date written that way (#362).
+  const today = new Date().toISOString();
+  const tag = formatLocale(locale, digits, region);
+  const sample = (f: DateFormatPref) => makeFormatter(tag, f).date(today);
   return (
     <div className="grid gap-4">
       <LanguageSelect
@@ -72,6 +84,39 @@ export function DisplayPrefs() {
           ]}
         />
       ) : null}
+      {/* #362: only English is written two ways, US and UK. */}
+      {locale === 'en' ? (
+        <Segmented<EnglishRegion>
+          label={t`Region`}
+          value={region}
+          onChange={setRegion}
+          description={<Trans>How dates and times are written in English.</Trans>}
+          options={[
+            { id: 'us', label: t`United States` },
+            { id: 'gb', label: t`United Kingdom` },
+          ]}
+        />
+      ) : null}
+      <Segmented<DateFormatPref>
+        label={t`Date format`}
+        value={dateFormat}
+        onChange={setDateFormat}
+        description={
+          <Trans>
+            Default leaves the year off this year’s dates. Purchase and warranty dates always show
+            it.
+          </Trans>
+        }
+        options={DATE_FORMATS.map((f) => ({
+          id: f,
+          label:
+            f === 'auto' ? (
+              t({ message: 'Default', context: 'date format' })
+            ) : (
+              <span className="whitespace-nowrap">{sample(f)}</span>
+            ),
+        }))}
+      />
       <Segmented<ThemePref>
         label={t`Theme`}
         value={theme}

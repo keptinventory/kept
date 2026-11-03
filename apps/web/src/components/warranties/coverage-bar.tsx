@@ -27,9 +27,10 @@ export function CoverageBar({
   const fmt = useFormat();
   const bought = boughtOn && boughtOn < startsOn ? boughtOn : null;
   const start = bought ?? startsOn;
-  const from = fmt.day(startsOn);
-  const first = fmt.day(start);
-  const until = endsOn ? fmt.day(endsOn) : t`Lifetime`;
+  // Warranty dates always carry the year (#362).
+  const from = fmt.date(startsOn);
+  const first = fmt.date(start);
+  const until = endsOn ? fmt.date(endsOn) : t`Lifetime`;
   const span = endsOn ? Math.max(1, daysBetween(start, endsOn)) : 1;
   const used = endsOn ? Math.min(1, Math.max(0, daysBetween(start, today) / span)) : 1;
   const pct = `${Math.round(used * 100)}%`;

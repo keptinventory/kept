@@ -25,7 +25,7 @@ export function PurchaseSection() {
   return (
     <Section title={<Trans>Purchase</Trans>}>
       <KeyValues label={t`Purchase`}>
-        {p.purchasedOn ? <KV label={t`Bought`}>{fmt.day(p.purchasedOn)}</KV> : null}
+        {p.purchasedOn ? <KV label={t`Bought`}>{fmt.date(p.purchasedOn)}</KV> : null}
         {p.vendor ? (
           <KV label={t`From`}>
             <Bidi>{p.vendor.name}</Bidi>
