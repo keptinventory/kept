@@ -18593,10 +18593,6 @@ msgstr "Kept stops sending to it, and its deliveries are forgotten."
 msgid "Keyword only (semantic search is off on this server)"
 msgstr "Keyword only (semantic search is off on this server)"
 
-#: src/components/search/semantic-note.tsx
-msgid "Keyword search only here (no embeddings model)"
-msgstr "Keyword search only here (no embeddings model)"
-
 #: src/components/webhooks/list.tsx
 msgid "Last: {lastWords} {lastAt}"
 msgstr "Last: {lastWords} {lastAt}"
@@ -28376,3 +28372,35 @@ msgstr "Your account, your own location <0>{personal}</0> and everything in it a
 #: src/components/ai/settings-page.tsx
 msgid "Your own key is for <0>{personal}</0>, your private threads, and questions that span owners."
 msgstr "Your own key is for <0>{personal}</0>, your private threads, and questions that span owners."
+
+#: src/components/admin/embeddings-source.tsx
+msgid "{0, plural, one {# location searches by name only} other {# locations search by name only}}"
+msgstr "{0, plural, one {# location searches by name only} other {# locations search by name only}}"
+
+#: src/components/ai/search-by-name.tsx
+msgid "{providerName} has no embeddings model, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Search by meaning needs a provider with one, such as OpenAI or Google, chosen under Advanced."
+msgstr "{providerName} has no embeddings model, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Search by meaning needs a provider with one, such as OpenAI or Google, chosen under Advanced."
+
+#: src/components/ai/search-by-name.tsx
+msgid "Choose a Search model"
+msgstr "Choose a Search model"
+
+#: src/components/ai/search-by-name.tsx
+msgid "Choose another provider"
+msgstr "Choose another provider"
+
+#: src/components/ai/search-by-name.tsx
+msgid "No Search model is chosen, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Choose one under Advanced → Models."
+msgstr "No Search model is chosen, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Choose one under Advanced → Models."
+
+#: src/components/ai/search-by-name.tsx
+msgid "Search matches names only"
+msgstr "Search matches names only"
+
+#: src/components/search/semantic-note.tsx
+msgid "Searched by name only: no embeddings model is set, so \"laptop\" won't find a MacBook Pro. <0>Settings → AI</0>"
+msgstr "Searched by name only: no embeddings model is set, so \"laptop\" won't find a MacBook Pro. <0>Settings → AI</0>"
+
+#: src/components/admin/embeddings-source.tsx
+msgid "Their AI has no embeddings model, so \"laptop\" won't find a MacBook Pro. Each owner chooses a Search model in Settings → AI → Advanced; a Search model on this server's key covers every location without one."
+msgstr "Their AI has no embeddings model, so \"laptop\" won't find a MacBook Pro. Each owner chooses a Search model in Settings → AI → Advanced; a Search model on this server's key covers every location without one."

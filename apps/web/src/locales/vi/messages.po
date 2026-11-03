@@ -13154,9 +13154,6 @@ msgstr "Kept ngừng gửi tới nó, và lịch sử gửi của nó bị xóa.
 msgid "Keyword only (semantic search is off on this server)"
 msgstr "Chỉ từ khóa (tìm kiếm ngữ nghĩa đang tắt trên máy chủ này)"
 
-msgid "Keyword search only here (no embeddings model)"
-msgstr "Chỉ tìm kiếm theo từ khóa tại đây (không có mô hình embedding)"
-
 msgid "Last: {lastWords} {lastAt}"
 msgstr "Lần cuối: {lastWords} {lastAt}"
 
@@ -20440,3 +20437,35 @@ msgstr "Tài khoản của bạn, địa điểm của riêng bạn <0>{personal
 #: src/components/ai/settings-page.tsx
 msgid "Your own key is for <0>{personal}</0>, your private threads, and questions that span owners."
 msgstr "Khóa của riêng bạn dùng cho <0>{personal}</0>, các luồng riêng tư của bạn và các câu hỏi liên quan đến nhiều chủ sở hữu."
+
+#: src/components/admin/embeddings-source.tsx
+msgid "{0, plural, one {# location searches by name only} other {# locations search by name only}}"
+msgstr "{0, plural, one {# địa điểm chỉ tìm theo tên} other {# địa điểm chỉ tìm theo tên}}"
+
+#: src/components/ai/search-by-name.tsx
+msgid "{providerName} has no embeddings model, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Search by meaning needs a provider with one, such as OpenAI or Google, chosen under Advanced."
+msgstr "{providerName} không có mô hình embeddings nên tìm kiếm không khớp theo nghĩa được: “laptop” sẽ không tìm thấy MacBook Pro. Tìm theo nghĩa cần một nhà cung cấp có mô hình đó, như OpenAI hoặc Google, chọn trong mục Nâng cao."
+
+#: src/components/ai/search-by-name.tsx
+msgid "Choose a Search model"
+msgstr "Chọn mô hình tìm kiếm"
+
+#: src/components/ai/search-by-name.tsx
+msgid "Choose another provider"
+msgstr "Chọn nhà cung cấp khác"
+
+#: src/components/ai/search-by-name.tsx
+msgid "No Search model is chosen, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Choose one under Advanced → Models."
+msgstr "Chưa chọn mô hình tìm kiếm nên tìm kiếm không khớp theo nghĩa được: “laptop” sẽ không tìm thấy MacBook Pro. Hãy chọn một mô hình trong Nâng cao → Mô hình."
+
+#: src/components/ai/search-by-name.tsx
+msgid "Search matches names only"
+msgstr "Tìm kiếm chỉ khớp theo tên"
+
+#: src/components/search/semantic-note.tsx
+msgid "Searched by name only: no embeddings model is set, so \"laptop\" won't find a MacBook Pro. <0>Settings → AI</0>"
+msgstr "Chỉ tìm theo tên: chưa đặt mô hình embeddings nên “laptop” sẽ không tìm thấy MacBook Pro. <0>Cài đặt → AI</0>"
+
+#: src/components/admin/embeddings-source.tsx
+msgid "Their AI has no embeddings model, so \"laptop\" won't find a MacBook Pro. Each owner chooses a Search model in Settings → AI → Advanced; a Search model on this server's key covers every location without one."
+msgstr "AI của các địa điểm này không có mô hình embeddings nên “laptop” sẽ không tìm thấy MacBook Pro. Mỗi chủ sở hữu chọn mô hình tìm kiếm trong Cài đặt → AI → Nâng cao; một mô hình tìm kiếm trên khóa của máy chủ này áp dụng cho mọi địa điểm chưa có."
