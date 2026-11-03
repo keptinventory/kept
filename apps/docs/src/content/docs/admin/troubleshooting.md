@@ -73,12 +73,18 @@ about two minutes for a database that is still starting before it gives up.
 password (above). On managed Postgres, check the four logins exist
 ([managed Postgres](/install/managed-postgres/#the-four-logins)).
 
-## Saving anything fails with "The request did not come from this site."
+## "This Kept is set up for …" or "The request did not come from this site."
+
+- **The app:** "This Kept is set up for *address*. Open it there.", on the sign-in page or as a
+  strip above the app when a save is refused.
+- **The API:** 403, "The request did not come from this site."
 
 **Cause:** a write that carries Kept's cookie must come from the exact origin of
-`KEPT_PUBLIC_URL`: scheme, host and port. Opening Kept at another address (an IP instead of the
-name, `http` instead of `https`, a different port) makes every write a 403. Links, QR codes and
-invitation mails are built from the same value, and passkeys are registered for its host name.
+`KEPT_PUBLIC_URL`: scheme, host and port. Kept compares it with the browser's `Origin` header,
+which is the address in the address bar; a reverse proxy in between changes nothing. Opening Kept
+at another address (an IP instead of the name, `http` instead of `https`, a different port, the
+proxy's internal address) makes every write a 403. Links, QR codes and invitation mails are built
+from the same value, and passkeys are registered for its host name.
 
 **Fix:** set `KEPT_PUBLIC_URL` to exactly what the browser's address bar shows, restart, and
 always open Kept there.

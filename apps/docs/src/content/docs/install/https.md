@@ -14,7 +14,8 @@ stop working:
 - **location**.
 
 `localhost` counts as safe; a LAN address over HTTP does not. With an `https:` `KEPT_PUBLIC_URL`,
-Kept also marks its cookies `Secure` and sends HSTS.
+Kept also marks its cookies `Secure` and sends HSTS; `KEPT_HSTS=off` clears it when plain-http
+services share the hostname ([HSTS](/install/reverse-proxy/#hsts)).
 
 Some things Kept refuses outright while `KEPT_PUBLIC_URL` is `http:`, even on `localhost`, because
 they hand out or change a secret: showing a secret value, an export with secret values, opening

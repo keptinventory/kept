@@ -1,13 +1,14 @@
 ---
 title: Behind a reverse proxy
-description: The settings that matter when Kept sits behind nginx, Traefik, Caddy or another proxy - trusted addresses, upload sizes, and which hostname to use.
+description: The settings that matter when Kept sits behind nginx, Traefik, Caddy or another proxy - trusted addresses, upload sizes, which hostname to use, the address error and HSTS.
 sidebar:
   order: 3
 ---
 
 Kept listens on port 8080 and speaks plain HTTP; the proxy in front of it terminates TLS. Point the
-proxy at port 8080, set `KEPT_PUBLIC_URL` to the address people open, and check the three things
-below. Compose's own [Caddy profile](/install/https/#composes-caddy-profile) already does all three.
+proxy at port 8080, set `KEPT_PUBLIC_URL` to the address people open, and check the things
+below. Compose's own [Caddy profile](/install/https/#composes-caddy-profile) already does the first
+three.
 
 ## Trust the proxy, and only the proxy
 
@@ -52,3 +53,46 @@ own. Over HTTPS Kept's session cookie is `__Secure-` prefixed, which still lets 
 **sibling** subdomain (`other.example.org` beside `kept.example.org`) set a cookie for
 `example.org` that browsers also send to Kept. A sibling run by someone else could use that to
 fixate a session. Your own other services on sibling subdomains are fine.
+
+## "This Kept is set up for …"
+
+The app says "This Kept is set up for *address*. Open it there." when it is opened at another
+address than `KEPT_PUBLIC_URL`.
+
+- **Why:** Kept accepts writes only from the address in `KEPT_PUBLIC_URL`, by the browser's
+  `Origin`: scheme, host and port, exactly. The proxy plays no part; its own address and
+  `X-Forwarded-*` headers don't change it.
+- **Fix:** set `KEPT_PUBLIC_URL` to exactly the address people open (`https://kept.example.org`,
+  not the proxy's upstream `http://kept:8080`), and restart Kept.
+
+More in [Troubleshooting](/admin/troubleshooting/#this-kept-is-set-up-for--or-the-request-did-not-come-from-this-site).
+
+## HSTS
+
+With an `https:` `KEPT_PUBLIC_URL`, Kept sends `Strict-Transport-Security: max-age=31536000`:
+browsers then open this hostname only over https, for a year. Over `http:` it sends nothing.
+
+- **Whole hostname, every port:** a browser applies the policy to the hostname, not to Kept's
+  port. A plain-http service on the same name, such as `http://server.lan:8081` beside Kept on
+  `https://server.lan`, is then forced to https and stops loading. Browsers ignore HSTS from an IP
+  address.
+- **Turn it off:** set `KEPT_HSTS=off` when other plain-http services share Kept's hostname, and
+  restart. Kept then sends `max-age=0`, so a browser that stored the policy forgets it on its next
+  https visit to Kept. Leaving the header out wouldn't clear it.
+- **Your proxy:** if it adds its own `Strict-Transport-Security` header, turn that off there too.
+- **Preloaded domains:** under a top-level domain on the browsers' HSTS preload list, such as
+  `.dev` or `.app`, every name is https only, whatever Kept sends.
+
+### Clear a stored policy by hand
+
+When Kept is no longer reachable over https, `max-age=0` can't reach the browser. Clear the
+hostname in each browser that visited it:
+
+- **Chrome, Edge and other Chromium browsers:** open `chrome://net-internals/#hsts` (in Edge,
+  `edge://net-internals/#hsts`), enter the hostname under **Delete domain security policies**, and
+  choose **Delete**.
+- **Firefox:** History → Manage History, find the site, right-click it and choose **Forget About
+  This Site**. This also removes its history, cookies and saved logins.
+- **Safari:** has no page for HSTS. Remove the site's data (Settings → Privacy → Manage Website
+  Data, select it, **Remove**); if plain http still turns into https, clear the history too
+  (History → Clear History).

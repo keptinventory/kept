@@ -157,6 +157,11 @@ export function appEnv({ options, info, self }) {
   const signup = String(opts.signup_open ?? '').trim();
   if (signup === 'true' || signup === 'false') env.KEPT_SIGNUP_OPEN = signup;
 
+  // HSTS (#403): Kept on https here shares Home Assistant's host name, and a browser applies HSTS
+  // to every port on it, 8123 included. off sends max-age=0; unset, Kept's default (on) holds.
+  const hsts = opts.hsts === true ? 'on' : opts.hsts === false ? 'off' : text(opts.hsts);
+  if (hsts === 'on' || hsts === 'off') env.KEPT_HSTS = hsts;
+
   const maxFile = opts.max_file_mb;
   if (maxFile !== undefined && maxFile !== null && maxFile !== '') {
     const mb = Number(maxFile);

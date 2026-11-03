@@ -56,6 +56,7 @@ phone app then don't open.
 | Mail sender | `Kept <no-reply@your host>` | The From of Kept's mail. |
 | https on Kept's port | off | Serve the port over https with a certificate in `/ssl` (the DuckDNS or Let's Encrypt apps put one there). Restart the app after the certificate renews. |
 | Certificate file, Private key file | `fullchain.pem`, `privkey.pem` | File names in `/ssl`. |
+| HSTS | `on` | With https on, browsers use https for the host name on every port. `off` when Home Assistant itself, or another app on that host name, is on plain http ([below](#hsts-and-home-assistant-on-plain-http)). |
 | OIDC issuer, client id, client secret | empty: off | Sign-in with your own identity provider. Issuer and client id turn it on; the secret is for a confidential client. |
 | OIDC button name, sign-up by email domain or group, groups claim, scopes | `OIDC`, invite only, `groups`, `openid email profile` | As Kept's `KEPT_OIDC_*` settings. Domains and groups are comma-separated. |
 | Google client id, Google client secret | empty: off | Sign-in with Google, both set. Existing accounts and invited people only. Needs Kept's address on https with a public domain name. |
@@ -65,6 +66,18 @@ phone app then don't open.
 
 An option Kept would refuse (an OIDC issuer without its client id, Google with only one of its
 two) is left out, and the **Log** tab says why: Kept still starts, with that sign-in off.
+
+### HSTS and Home Assistant on plain http
+
+With **https on Kept's port**, Kept sends HSTS: browsers then open its host name only over https,
+for a year, on every port. Kept shares Home Assistant's host name, so after one visit to Kept's
+https address, a Home Assistant on plain http (`http://homeassistant.local:8123`) is forced to
+https and stops loading.
+
+- **Fix:** set **HSTS** to `off` and restart the app. Kept then sends `max-age=0`, and a browser
+  forgets the policy on its next https visit to Kept.
+- **Kept no longer on https:** clear it in the browser by hand
+  ([how](https://keptinventory.info/install/reverse-proxy/#clear-a-stored-policy-by-hand)).
 
 ### OIDC and Google sign-in
 

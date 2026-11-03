@@ -877,6 +877,26 @@ describe('KEPT_HA and KEPT_TLS_* (the Home Assistant app, D272)', () => {
   });
 });
 
+describe('KEPT_HSTS (#403)', () => {
+  const load = async (extra: Record<string, string>) =>
+    loadEnv({ ...validEnv, ...extra }, { configDir: await unusedConfigDir() });
+
+  it('is on unless set to off', async () => {
+    expect((await load({})).KEPT_HSTS).toBe('on');
+    expect((await load({ KEPT_HSTS: 'on' })).KEPT_HSTS).toBe('on');
+    expect((await load({ KEPT_HSTS: 'off' })).KEPT_HSTS).toBe('off');
+  });
+
+  it('stops startup on any other value, naming the variable', async () => {
+    for (const bad of ['false', 'OFF', '0', 'no']) {
+      await expect(load({ KEPT_HSTS: bad }), bad).rejects.toMatchObject({
+        code: 'invalid_env',
+        message: expect.stringContaining('KEPT_HSTS'),
+      });
+    }
+  });
+});
+
 describe('embeddings and OIDC (S6.7)', () => {
   const load = async (extra: Record<string, string>, available?: () => boolean) =>
     loadEnv(

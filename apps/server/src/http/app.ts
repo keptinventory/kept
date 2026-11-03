@@ -75,6 +75,7 @@ export type AppEnv = Pick<Env, 'KEPT_PUBLIC_URL'> &
       | 'KEPT_METRICS_TOKEN'
       | 'KEPT_SOURCE_URL'
       | 'KEPT_TRUSTED_PROXIES'
+      | 'KEPT_HSTS'
       | 'KEPT_SIGNUP_OPEN'
       | 'KEPT_BARCODE_LOOKUP'
       | 'KEPT_BARCODE_CONTACT'
@@ -289,7 +290,10 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
     },
     // HSTS only when the public URL is https (D181, D193): over plain HTTP it would lock
     // browsers out of an instance that has no certificate.
-    strictTransportSecurity: https ? { maxAge: 31_536_000, includeSubDomains: false } : false,
+    // KEPT_HSTS=off (#403) sends max-age=0, so a browser that stored the policy forgets it.
+    strictTransportSecurity: https
+      ? { maxAge: opts.env.KEPT_HSTS === 'off' ? 0 : 31_536_000, includeSubDomains: false }
+      : false,
   });
   // Under ingress only, Home Assistant's own page frames Kept (same origin, D273).
   app.addHook('onSend', ingressFraming);

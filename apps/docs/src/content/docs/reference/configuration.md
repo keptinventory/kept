@@ -50,6 +50,7 @@ The Compose file passes the common ones through from `.env`; the rest go in a
 | `KEPT_S3_SECRET_ACCESS_KEY` |  | S3 secret access key (required with `KEPT_STORAGE=s3`); never logged |
 | `KEPT_S3_FORCE_PATH_STYLE` |  | `true` for path-style URLs (RustFS, MinIO, most self-hosted S3) |
 | `KEPT_TRUSTED_PROXIES` |  | comma-separated IPs/CIDRs of reverse proxies whose `X-Forwarded-For` is believed; empty: the socket address is the client |
+| `KEPT_HSTS` | `on` | `on` · `off`; over https Kept sends HSTS for a year; `off` sends `max-age=0`, so browsers forget a stored policy (other plain-http services on the same hostname); over http never sent |
 | `KEPT_METRICS_TOKEN` |  | optional bearer token required to read `/metrics` |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` |  | optional; your OpenTelemetry collector (OTLP over HTTP): traces requests and queries there, with the image's `--import` preload; the other `OTEL_*` variables apply; unset, nothing is loaded or sent (D84) |
 | `KEPT_ERROR_DSN` |  | optional; a Sentry-compatible DSN: a request that fails with a 5xx is reported with its request id, route and stack, never a body, header, message or user; unset, nothing is sent (D84) |

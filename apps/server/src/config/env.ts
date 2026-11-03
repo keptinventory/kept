@@ -238,6 +238,14 @@ const schema = z.object({
     .describe(
       'comma-separated IPs/CIDRs of reverse proxies whose `X-Forwarded-For` is believed; empty: the socket address is the client',
     ),
+  // #403: HSTS applies to the whole hostname on every port, so a plain-http service next to Kept
+  // on the same name breaks once a browser has stored it. `off` sends max-age=0 (http/app.ts).
+  KEPT_HSTS: z
+    .enum(['on', 'off'])
+    .default('on')
+    .describe(
+      '`on` · `off`; over https Kept sends HSTS for a year; `off` sends `max-age=0`, so browsers forget a stored policy (other plain-http services on the same hostname); over http never sent',
+    ),
   KEPT_METRICS_TOKEN: z
     .string()
     .optional()
