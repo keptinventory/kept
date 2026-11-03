@@ -40,7 +40,7 @@ same lists, under **In**; what you lent is under **Out**.
 ## What's out, and with whom
 
 - **Lending**, in the menu: everything lent out and borrowed in, across your locations, overdue
-  first. Filter by person, location or state (open, overdue, returned), and group by person or
+  first. Filter by person, location or state (out now, overdue, returned), and group by person or
   location.
 - **Home**: the **Lent out** tile counts what's out; tap it for the list.
 - **A person's page**: what they have of yours, what they lent you, and the history.
