@@ -53,6 +53,7 @@ import { TwoFactorHiddenCard, useTwoFactorHidden } from '@/components/two-factor
 import { toast } from '@/components/ui/toast';
 import { sep, useFormat } from '@/lib/format';
 import { servedOverHttp } from '@/lib/https';
+import { usePersonalName } from '@/lib/personal-name';
 import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/_app/')({
@@ -301,6 +302,7 @@ function FirstRun({
 }) {
   const { t } = useLingui();
   const words = useThenSteps();
+  const personal = usePersonalName();
   const name = me.user.displayName;
   // Invited members and Essentials have fewer steps; the server knows which (D191).
   const after = (steps ?? [])
@@ -326,8 +328,9 @@ function FirstRun({
         </h2>
         <p className="m-0 max-w-[34rem] text-ink-2">
           <Trans>
-            Your Personal location is ready for what's on you: keys, wallet, phone. Now add the
-            place you live. It comes with the usual rooms, and you can change them.
+            <bdi>{personal}</bdi>, your own location, is ready for what's on you: keys, wallet,
+            phone. Now add the place you live. It comes with the usual rooms, and you can change
+            them.
           </Trans>
         </p>
         <LinkButton

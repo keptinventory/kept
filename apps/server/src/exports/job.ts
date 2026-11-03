@@ -431,12 +431,14 @@ export async function buildExport(
       return rows.map((r) => ({ name: r.name ?? '', role: r.role }));
     });
 
+    // One time for the manifest and every entry in the ZIP, so an unzipped export shows its day.
+    const createdAt = now();
     const manifest: ExportManifest = {
       format: EXPORT_FORMAT,
       version: EXPORT_VERSION,
       keptVersion: KEPT_VERSION,
       exportId: id,
-      createdAt: now().toISOString(),
+      createdAt: createdAt.toISOString(),
       createdBy: { displayName: run.display_name ?? '' },
       scope: kind,
       location: {
@@ -464,37 +466,41 @@ export async function buildExport(
     const zipPath = path.join(work, 'export.zip');
     let packed = 0;
     let stopped = false;
-    const written = await writeArchive(zipPath, (zip) => {
-      zip.addBuffer(EXPORT_PATHS.manifest, `${JSON.stringify(manifest, null, 2)}\n`);
-      for (const entity of EXPORTED_ENTITIES) {
-        if (entity === HISTORY_ENTITY && !options.history) continue;
-        const name = EXPORT_PATHS.data(entity);
-        zip.addStream(name, () => createReadStream(path.join(work, name)));
-      }
-      for (const extra of extras) zip.addStream(extra.name, () => createReadStream(extra.file));
-      for (const rel of readable.written) {
-        zip.addStream(`${EXPORT_PATHS.readableDir}/${rel}`, () =>
-          createReadStream(path.join(work, EXPORT_PATHS.readableDir, rel)),
-        );
-      }
-      for (const f of refs) {
-        zip.addStream(
-          f.path,
-          async () => {
-            if (stopped) throw new Stopped();
-            packed += 1;
-            if (packed % PROGRESS_FILES === 0) {
-              await progress().catch((err: unknown) => {
-                stopped = true;
-                throw err;
-              });
-            }
-            return files.blobs.stream(f.key);
-          },
-          { contentType: f.mime, size: f.bytes },
-        );
-      }
-    });
+    const written = await writeArchive(
+      zipPath,
+      (zip) => {
+        zip.addBuffer(EXPORT_PATHS.manifest, `${JSON.stringify(manifest, null, 2)}\n`);
+        for (const entity of EXPORTED_ENTITIES) {
+          if (entity === HISTORY_ENTITY && !options.history) continue;
+          const name = EXPORT_PATHS.data(entity);
+          zip.addStream(name, () => createReadStream(path.join(work, name)));
+        }
+        for (const extra of extras) zip.addStream(extra.name, () => createReadStream(extra.file));
+        for (const rel of readable.written) {
+          zip.addStream(`${EXPORT_PATHS.readableDir}/${rel}`, () =>
+            createReadStream(path.join(work, EXPORT_PATHS.readableDir, rel)),
+          );
+        }
+        for (const f of refs) {
+          zip.addStream(
+            f.path,
+            async () => {
+              if (stopped) throw new Stopped();
+              packed += 1;
+              if (packed % PROGRESS_FILES === 0) {
+                await progress().catch((err: unknown) => {
+                  stopped = true;
+                  throw err;
+                });
+              }
+              return files.blobs.stream(f.key);
+            },
+            { contentType: f.mime, size: f.bytes },
+          );
+        }
+      },
+      { mtime: createdAt },
+    );
     await checkpoint();
 
     // 9. Stored, and finished.

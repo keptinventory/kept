@@ -863,9 +863,6 @@ msgctxt "settings section"
 msgid "Admin"
 msgstr "Quản trị"
 
-msgid "Admin"
-msgstr "Quản trị viên"
-
 msgid "admin in {n}"
 msgstr "quản trị viên trong {n}"
 
@@ -873,9 +870,6 @@ msgid "Admins"
 msgstr "Quản trị viên"
 
 msgctxt "instance admins tab"
-msgid "Admins"
-msgstr "Quản trị viên"
-
 msgid "Admins"
 msgstr "Quản trị viên"
 
@@ -4309,9 +4303,6 @@ msgstr "Cá nhân"
 msgid "Personal AI key"
 msgstr "Khóa AI cá nhân"
 
-msgid "Personal is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
-msgstr "Cá nhân chỉ thuộc về bạn: nó không có thành viên, lời mời hay liên kết chia sẻ. Khi một đồ vật trở nên dùng chung, hãy chuyển nó vào một nhà dùng chung."
-
 msgid "Phone"
 msgstr "Điện thoại"
 
@@ -6278,9 +6269,6 @@ msgstr "Được dùng bởi {0}."
 msgid "Used by imports and the API. Made from the label; English letters, digits and _."
 msgstr "Được dùng bởi tính năng nhập và API. Tạo từ nhãn; chỉ gồm chữ cái tiếng Anh, chữ số và _."
 
-msgid "Used for Personal, your private threads, and questions that span owners."
-msgstr "Dùng cho Cá nhân, các chuỗi riêng tư của bạn và những câu hỏi liên quan đến nhiều chủ sở hữu."
-
 msgid "Used up and restocked, like batteries."
 msgstr "Dùng hết rồi bổ sung lại, như pin."
 
@@ -6670,9 +6658,6 @@ msgstr "Mật khẩu của bạn"
 
 msgid "Your PDF is ready"
 msgstr "PDF của bạn đã sẵn sàng"
-
-msgid "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
-msgstr "Địa điểm Cá nhân của bạn đã sẵn sàng cho những thứ bạn mang theo người: chìa khóa, ví, điện thoại. Giờ hãy thêm nơi bạn sống. Nơi đó có sẵn các phòng thông thường, và bạn có thể thay đổi chúng."
 
 msgid "Your session ended. Sign in again."
 msgstr "Phiên của bạn đã kết thúc. Hãy đăng nhập lại."
@@ -7625,9 +7610,6 @@ msgstr "Lần kiểm tra đã không chạy"
 msgid "The whole account"
 msgstr "Toàn bộ tài khoản"
 
-msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. Your Personal location uses your personal key if you add one."
-msgstr "Khóa này thanh toán cho tất cả các nhà của <0>{ownerName}</0>: <1>{list}</1>. Địa điểm Cá nhân của bạn sẽ dùng khóa cá nhân của bạn nếu bạn thêm một khóa."
-
 msgid "This key pays for the homes your account owns."
 msgstr "Khóa này thanh toán cho các nhà mà tài khoản của bạn sở hữu."
 
@@ -7744,9 +7726,6 @@ msgstr "Khóa của bạn"
 
 msgid "Your limit in <0>{0}</0>'s account"
 msgstr "Giới hạn của bạn trong tài khoản của <0>{0}</0>"
-
-msgid "Your own key is for Personal, your private threads, and questions that span owners."
-msgstr "Khóa của riêng bạn dùng cho Cá nhân, các luồng riêng tư của bạn và các câu hỏi liên quan đến nhiều chủ sở hữu."
 
 msgid "Your personal key"
 msgstr "Khóa cá nhân của bạn"
@@ -11885,9 +11864,6 @@ msgstr "Mỗi liên kết tải xuống được tạo khi bạn nhấn Tải xu
 msgid "Your data"
 msgstr "Dữ liệu của bạn"
 
-msgid "Your Personal location, profile and preferences, and your AI calls, as one file."
-msgstr "Địa điểm Cá nhân, hồ sơ và tùy chọn của bạn, cùng các lần gọi AI của bạn, trong một tệp."
-
 msgid "Choose where to import it first."
 msgstr "Trước tiên, hãy chọn nơi nhập nó vào."
 
@@ -12478,9 +12454,6 @@ msgstr "Tải xuống bản xuất của {name}"
 
 msgid "Export again"
 msgstr "Xuất lại"
-
-msgid "Your Personal location with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
-msgstr "Địa điểm Cá nhân của bạn cùng các tệp của nó, hồ sơ và tùy chọn của bạn, và các lệnh gọi AI bạn đã thực hiện. Các địa điểm bạn sở hữu được xuất từng cái một."
 
 msgid "What goes in"
 msgstr "Gồm những gì"
@@ -13180,9 +13153,6 @@ msgstr "Kept ngừng gửi tới nó, và lịch sử gửi của nó bị xóa.
 
 msgid "Keyword only (semantic search is off on this server)"
 msgstr "Chỉ từ khóa (tìm kiếm ngữ nghĩa đang tắt trên máy chủ này)"
-
-msgid "Keyword search only here (no embeddings model)"
-msgstr "Chỉ tìm kiếm theo từ khóa tại đây (không có mô hình embedding)"
 
 msgid "Last: {lastWords} {lastAt}"
 msgstr "Lần cuối: {lastWords} {lastAt}"
@@ -14811,9 +14781,6 @@ msgstr "Một số tệp bị thiếu trong bộ nhớ tệp, nên không bản 
 msgid "Delete my account"
 msgstr "Xóa tài khoản của tôi"
 
-msgid "After 30 days, with your Personal location. You can keep it until then."
-msgstr "Sau 30 ngày, cùng với địa điểm Cá nhân của bạn. Bạn có thể giữ lại tài khoản cho tới lúc đó."
-
 msgid "Delete…"
 msgstr "Xóa…"
 
@@ -14835,26 +14802,17 @@ msgstr "Bạn là người duy nhất quản lý Kept này. Hãy đặt một ng
 msgid "You own these locations. Hand each one to someone else, or delete it, first."
 msgstr "Bạn sở hữu các địa điểm này. Hãy bàn giao từng địa điểm cho người khác, hoặc xóa nó, trước."
 
-msgid "Your account, your Personal location and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
-msgstr "Tài khoản của bạn, địa điểm Cá nhân của bạn và mọi thứ trong đó sẽ bị xóa sau 30 ngày nữa. Cho tới lúc đó bạn có thể đăng nhập và giữ tài khoản; không mở được gì khác."
-
 msgid "What you added to other people's locations stays there. Your other devices are signed out now."
 msgstr "Những gì bạn đã thêm vào địa điểm của người khác vẫn ở đó. Các thiết bị khác của bạn vừa được đăng xuất."
 
 msgid "Keep a copy first?"
 msgstr "Giữ một bản sao trước?"
 
-msgid "Your Personal location, profile and preferences, as one file."
-msgstr "Địa điểm Cá nhân, hồ sơ và tùy chọn của bạn, trong một tệp."
-
 msgid "Your account stays"
 msgstr "Tài khoản của bạn vẫn còn"
 
 msgid "Your account will be deleted on {day}"
 msgstr "Tài khoản của bạn sẽ bị xóa vào {day}"
-
-msgid "You asked for it, with your Personal location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
-msgstr "Bạn đã yêu cầu việc đó, cùng với địa điểm Cá nhân của bạn và mọi thứ trong đó. Cho đến lúc đó, không có gì khác trong Kept mở được. Hãy giữ tài khoản để quay lại như trước."
 
 msgid "Keep my account"
 msgstr "Giữ tài khoản của tôi"
@@ -19554,12 +19512,6 @@ msgstr "Bắt đầu với những gì bạn cần; bật thêm những thứ kh
 msgid "{prices, plural, one {The backup has # price. With Essentials it stays in the notes; Household keeps prices and warranties as their own records.} other {The backup has # prices. With Essentials they stay in the notes; Household keeps prices and warranties as their own records.}}"
 msgstr "{prices, plural, one {Bản sao lưu có # giá. Với Thiết yếu, giá sẽ ở trong ghi chú; Hộ gia đình giữ giá và bảo hành dưới dạng hồ sơ riêng.} other {Bản sao lưu có # giá. Với Thiết yếu, giá sẽ ở trong ghi chú; Hộ gia đình giữ giá và bảo hành dưới dạng hồ sơ riêng.}}"
 
-msgid "Also for Personal"
-msgstr "Cũng áp dụng cho Cá nhân"
-
-msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
-msgstr "Cá nhân, địa điểm của riêng bạn, sẽ theo dõi giống như vậy kể từ khi lần nhập chạy. Menu sẽ hiển thị những gì mỗi địa điểm của bạn đang theo dõi."
-
 msgid "Repaired an import"
 msgstr "Đã sửa một lần nhập"
 
@@ -20377,3 +20329,143 @@ msgstr "Các trường của loại mới hiện ra sau khi lưu."
 msgctxt "printed label"
 msgid "Label"
 msgstr "Nhãn"
+
+#: src/components/import/csv-help.tsx
+msgid "What the file can hold"
+msgstr "Tệp có thể chứa gì"
+
+#: src/components/import/csv-help.tsx
+msgid "The first row names the columns, in any of Kept's languages. Kept matches the names it knows, and you choose the rest in the next step. Only a name is needed."
+msgstr "Hàng đầu tiên ghi tên các cột, bằng bất kỳ ngôn ngữ nào của Kept. Kept tự khớp những tên nó biết, phần còn lại bạn chọn ở bước tiếp theo. Chỉ cần có tên."
+
+#: src/components/import/csv-help.tsx
+msgid "The columns Kept reads"
+msgstr "Các cột Kept đọc được"
+
+#: src/components/import/csv-help.tsx
+msgid "A field of your own types, such as Wattage"
+msgstr "Một trường trong các loại của riêng bạn, như Công suất"
+
+#: src/components/import/csv-help.tsx
+msgid "Place: from the top down, separated by >, like Garage > Shelf A. Another separator can be chosen."
+msgstr "Vị trí: từ trên xuống, ngăn cách bằng >, như Gara > Kệ A. Có thể chọn dấu ngăn cách khác."
+
+#: src/components/import/csv-help.tsx
+msgid "Tags and other names: separated by commas."
+msgstr "Thẻ và tên khác: ngăn cách bằng dấu phẩy."
+
+#: src/components/import/csv-help.tsx
+msgid "Dates: written the same way all through the file, like 2026-10-29 or 29/10/2026."
+msgstr "Ngày: viết cùng một kiểu trong cả tệp, như 2026-10-29 hoặc 29/10/2026."
+
+#: src/components/import/csv-help.tsx
+msgid "Prices: a number, without the currency sign."
+msgstr "Giá: một con số, không kèm ký hiệu tiền tệ."
+
+#: src/components/import/csv-help.tsx
+msgid "Download a sample CSV"
+msgstr "Tải xuống tệp CSV mẫu"
+
+#: src/components/import/csv-help.tsx
+msgid "How importing works"
+msgstr "Cách nhập hoạt động"
+
+#: src/components/module-turn-on.tsx
+msgid "Turn on {label} here"
+msgstr "Bật {label} tại đây"
+
+#: src/components/module-turn-on.tsx
+msgid "{label} is on in {0}"
+msgstr "Đã bật {label} tại {0}"
+
+#: src/components/module-turn-on.tsx
+msgid "Ask {who} to turn it on."
+msgstr "Hãy nhờ {who} bật nó."
+
+#: src/routes/_app/lending.tsx
+msgid "Turn it on where you lend or borrow things: who has what, and when it's due back. Nothing else changes."
+msgstr "Bật ở địa điểm nơi bạn cho mượn hoặc mượn đồ: ai đang giữ gì và khi nào phải trả. Không có gì khác thay đổi."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "<0>{name}</0> is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
+msgstr "<0>{name}</0> chỉ thuộc về bạn: nó không có thành viên, lời mời hay liên kết chia sẻ. Khi một đồ vật trở nên dùng chung, hãy chuyển nó vào một nhà dùng chung."
+
+#: src/components/export/export-sheet.tsx
+msgid "<0>{personal}</0> with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
+msgstr "<0>{personal}</0> cùng các tệp của nó, hồ sơ và tùy chọn của bạn, và các lệnh gọi AI bạn đã thực hiện. Các địa điểm bạn sở hữu được xuất từng cái một."
+
+#: src/routes/_app/index.tsx
+msgid "<0>{personal}</0>, your own location, is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
+msgstr "<0>{personal}</0>, địa điểm của riêng bạn, đã sẵn sàng cho những thứ bạn mang theo người: chìa khóa, ví, điện thoại. Giờ hãy thêm nơi bạn sống. Nơi đó có sẵn các phòng thông thường, và bạn có thể thay đổi chúng."
+
+#: src/components/import/track-step.tsx
+msgid "<0>{personal}</0>, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "<0>{personal}</0>, địa điểm của riêng bạn, sẽ theo dõi giống như vậy kể từ khi lần nhập chạy. Menu sẽ hiển thị những gì mỗi địa điểm của bạn đang theo dõi."
+
+#: src/routes/_app/settings.index.tsx
+msgid "<0>{personal}</0>, your profile and preferences, and your AI calls, as one file."
+msgstr "<0>{personal}</0>, hồ sơ và tùy chọn của bạn, cùng các lần gọi AI của bạn, trong một tệp."
+
+#: src/components/delete-account.tsx
+msgid "<0>{personal}</0>, your profile and preferences, as one file."
+msgstr "<0>{personal}</0>, hồ sơ và tùy chọn của bạn, trong một tệp."
+
+#: src/routes/_app/settings.index.tsx
+msgid "After 30 days, with <0>{personal}</0>. You can keep it until then."
+msgstr "Sau 30 ngày, cùng với <0>{personal}</0>. Bạn có thể giữ lại tài khoản cho tới lúc đó."
+
+#: src/components/import/track-step.tsx
+msgid "Also for <0>{personal}</0>"
+msgstr "Cũng áp dụng cho <0>{personal}</0>"
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. <2>{personal}</2> uses your personal key if you add one."
+msgstr "Khóa này thanh toán cho tất cả các nhà của <0>{ownerName}</0>: <1>{list}</1>. <2>{personal}</2> sẽ dùng khóa cá nhân của bạn nếu bạn thêm một khóa."
+
+#: src/components/ai/key-scope.tsx
+msgid "Used for <0>{personal}</0>, your private threads, and questions that span owners."
+msgstr "Dùng cho <0>{personal}</0>, các chuỗi riêng tư của bạn và những câu hỏi liên quan đến nhiều chủ sở hữu."
+
+#: src/components/delete-account.tsx
+msgid "You asked for it, with your own location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
+msgstr "Bạn đã yêu cầu việc đó, cùng với địa điểm của riêng bạn và mọi thứ trong đó. Cho đến lúc đó, không có gì khác trong Kept mở được. Hãy giữ tài khoản để quay lại như trước."
+
+#: src/components/delete-account.tsx
+msgid "Your account, your own location <0>{personal}</0> and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
+msgstr "Tài khoản của bạn, địa điểm của riêng bạn <0>{personal}</0> và mọi thứ trong đó sẽ bị xóa sau 30 ngày nữa. Cho tới lúc đó bạn có thể đăng nhập và giữ tài khoản; không mở được gì khác."
+
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for <0>{personal}</0>, your private threads, and questions that span owners."
+msgstr "Khóa của riêng bạn dùng cho <0>{personal}</0>, các luồng riêng tư của bạn và các câu hỏi liên quan đến nhiều chủ sở hữu."
+
+#: src/components/admin/embeddings-source.tsx
+msgid "{0, plural, one {# location searches by name only} other {# locations search by name only}}"
+msgstr "{0, plural, one {# địa điểm chỉ tìm theo tên} other {# địa điểm chỉ tìm theo tên}}"
+
+#: src/components/ai/search-by-name.tsx
+msgid "{providerName} has no embeddings model, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Search by meaning needs a provider with one, such as OpenAI or Google, chosen under Advanced."
+msgstr "{providerName} không có mô hình embeddings nên tìm kiếm không khớp theo nghĩa được: “laptop” sẽ không tìm thấy MacBook Pro. Tìm theo nghĩa cần một nhà cung cấp có mô hình đó, như OpenAI hoặc Google, chọn trong mục Nâng cao."
+
+#: src/components/ai/search-by-name.tsx
+msgid "Choose a Search model"
+msgstr "Chọn mô hình tìm kiếm"
+
+#: src/components/ai/search-by-name.tsx
+msgid "Choose another provider"
+msgstr "Chọn nhà cung cấp khác"
+
+#: src/components/ai/search-by-name.tsx
+msgid "No Search model is chosen, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Choose one under Advanced → Models."
+msgstr "Chưa chọn mô hình tìm kiếm nên tìm kiếm không khớp theo nghĩa được: “laptop” sẽ không tìm thấy MacBook Pro. Hãy chọn một mô hình trong Nâng cao → Mô hình."
+
+#: src/components/ai/search-by-name.tsx
+msgid "Search matches names only"
+msgstr "Tìm kiếm chỉ khớp theo tên"
+
+#: src/components/search/semantic-note.tsx
+msgid "Searched by name only: no embeddings model is set, so \"laptop\" won't find a MacBook Pro. <0>Settings → AI</0>"
+msgstr "Chỉ tìm theo tên: chưa đặt mô hình embeddings nên “laptop” sẽ không tìm thấy MacBook Pro. <0>Cài đặt → AI</0>"
+
+#: src/components/admin/embeddings-source.tsx
+msgid "Their AI has no embeddings model, so \"laptop\" won't find a MacBook Pro. Each owner chooses a Search model in Settings → AI → Advanced; a Search model on this server's key covers every location without one."
+msgstr "AI của các địa điểm này không có mô hình embeddings nên “laptop” sẽ không tìm thấy MacBook Pro. Mỗi chủ sở hữu chọn mô hình tìm kiếm trong Cài đặt → AI → Nâng cao; một mô hình tìm kiếm trên khóa của máy chủ này áp dụng cho mọi địa điểm chưa có."

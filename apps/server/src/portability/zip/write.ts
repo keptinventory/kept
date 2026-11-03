@@ -14,11 +14,9 @@ import yazl from 'yazl';
 //   `attachments/<uuid>`); yazl refuses an absolute path or `..` itself.
 // - Files that are already compressed (photos, PDFs) are stored; text (JSON, CSV, HTML) is
 //   deflated. A caller that knows better passes `compress`.
-// - Every entry has the same fixed mtime and mode 0600, so two exports of the same data are the
-//   same bytes, and an unzipped export is readable by its owner only.
-
-/** Every entry's modification time: fixed, so the archive depends on its contents alone. */
-export const ARCHIVE_MTIME = new Date(Date.UTC(2026, 0, 1));
+// - Every entry has the caller's `mtime` (an export's own creation time) and mode 0600: an
+//   unzipped export shows the day it was made and is readable by its owner only. One archive
+//   uses one time for all its entries, so the same contents at the same time are the same bytes.
 /** A regular file, owner read and write (yazl's `mode` carries the file type bits). */
 export const ARCHIVE_MODE = 0o100600;
 
@@ -61,14 +59,21 @@ export type ArchiveBuilder = {
 
 export type WrittenArchive = { bytes: number; sha256: string };
 
+export type ArchiveOptions = {
+  /** Every entry's modification time: when the archive was made (an export's `createdAt`). */
+  mtime: Date;
+};
+
 /**
- * Writes the archive `build` describes to `file` and returns its size and SHA-256. On any error
- * the partial file is removed and the error rethrown.
+ * Writes the archive `build` describes to `file`, every entry dated `opts.mtime`, and returns its
+ * size and SHA-256. On any error the partial file is removed and the error rethrown.
  */
 export async function writeArchive(
   file: string,
   build: (zip: ArchiveBuilder) => Promise<void> | void,
+  opts: ArchiveOptions,
 ): Promise<WrittenArchive> {
+  const { mtime } = opts;
   const zip = new yazl.ZipFile();
   const hash = createHash('sha256');
   let bytes = 0;
@@ -89,7 +94,7 @@ export async function writeArchive(
 
   const entry = (name: string, opts: EntryOptions = {}) => ({
     compress: opts.compress ?? shouldCompress(name, opts.contentType),
-    mtime: ARCHIVE_MTIME,
+    mtime,
     mode: ARCHIVE_MODE,
     ...(opts.size === undefined ? {} : { size: opts.size }),
   });

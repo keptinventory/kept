@@ -242,6 +242,34 @@ describe('variants', () => {
     expect(lend).toHaveTextContent('Off in this location');
   });
 
+  it('with Lending off, the lend sheet turns it on here for an owner, and the form follows', async () => {
+    const s = withLocation(IDS.home, (h) =>
+      Object.assign(h, { preset: 'essentials', modules: [], effectiveModules: [] }),
+    );
+    const { user, mock } = await renderApp(`/t/${T.hdmiCable}?sheet=lend`, { state: s });
+    const dialog = await screen.findByRole('dialog', { name: 'Lend HDMI cable, 2 m' });
+    expect(within(dialog).getByText(/Off in this location/)).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Turn on Lending here' }));
+    expect(await within(dialog).findByRole('combobox', { name: 'Lend to' })).toBeInTheDocument();
+    expect(mock.lastCall('POST', `/api/v1/locations/${IDS.home}/modules`)?.body).toEqual({
+      module: 'lending',
+      enabled: true,
+    });
+    expect(await screen.findByText(/^Lending is on in .*Home/)).toBeInTheDocument();
+  });
+
+  it('with Lending off, a member is told who can turn it on', async () => {
+    const s = withLocation(IDS.home, (h) =>
+      Object.assign(h, { role: 'member', preset: 'essentials', modules: [], effectiveModules: [] }),
+    );
+    await renderApp(`/t/${T.hdmiCable}?sheet=lend`, { state: s });
+    const dialog = await screen.findByRole('dialog', { name: 'Lend HDMI cable, 2 m' });
+    expect(within(dialog).queryByRole('button', { name: 'Turn on Lending here' })).toBeNull();
+    expect(
+      await within(dialog).findByText(/^Ask .*Ibrahim.* or .*Bruce.* to turn it on\.$/),
+    ).toBeInTheDocument();
+  });
+
   it('with Lending off, a thing still on loan can be marked returned', async () => {
     desktop();
     const s = withLocation(IDS.home, (h) =>

@@ -127,6 +127,27 @@ describe('Admin → Status, connections and embeddings', () => {
     expect(await screen.findByText('Downloading the local model')).toBeInTheDocument();
   });
 
+  it('counts the locations searching by name only, with the fix, never naming them (#368)', async () => {
+    const state = ownerScenario();
+    instanceMock(state).embeddings.keywordOnly = 2;
+    await renderApp('/admin/status', { state });
+    const title = await screen.findByText('2 locations search by name only');
+    const notice = title.closest('div.flex') as HTMLElement;
+    expect(notice).toHaveTextContent('Settings → AI → Advanced');
+    expect(within(notice).getByRole('link', { name: "This server's key" })).toHaveAttribute(
+      'href',
+      '/admin/ai',
+    );
+  });
+
+  it('says nothing of it when every location has a Search model', async () => {
+    const state = ownerScenario();
+    instanceMock(state).embeddings.keywordOnly = 0;
+    await renderApp('/admin/status', { state });
+    await screen.findByText('Indexed 8,412 of 10,000 things');
+    expect(screen.queryByText(/search by name only/)).toBeNull();
+  });
+
   it("doesn't offer the local model when the server hasn't got it", async () => {
     const state = ownerScenario();
     instanceMock(state).embeddings.local.available = false;
@@ -221,9 +242,16 @@ describe('semantic search in Search', () => {
     const state = ownerScenario();
     semanticMock(state).state = { state: 'keyword_only' };
     await renderApp('/search?q=hdmi', { state });
-    expect(
-      await screen.findByText('Keyword search only here (no embeddings model)'),
-    ).toBeInTheDocument();
+    const note = await screen.findByText(
+      (_, el) => el?.tagName === 'SPAN' && !!el.textContent?.startsWith('Searched by name only:'),
+    );
+    expect(note).toHaveTextContent(
+      'Searched by name only: no embeddings model is set, so "laptop" won\'t find a MacBook Pro. Settings → AI',
+    );
+    expect(within(note).getByRole('link', { name: 'Settings → AI' })).toHaveAttribute(
+      'href',
+      '/settings/ai',
+    );
   });
 
   it('says when semantic search is paused', async () => {

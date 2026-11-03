@@ -42,6 +42,7 @@ import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
 import { toast } from '@/components/ui/toast';
 import { sep, useFormat } from '@/lib/format';
+import { usePersonalName } from '@/lib/personal-name';
 import { describeUserAgent } from '@/lib/user-agent';
 
 /** `via` and `error`: a link to an outside sign-in that came back refused (D226). */
@@ -59,6 +60,7 @@ export const Route = createFileRoute('/_app/settings/')({
 
 function MePage() {
   const { t } = useLingui();
+  const personal = usePersonalName();
   const me = useMe();
   const { via, error } = Route.useSearch();
   const user = me.data?.user;
@@ -120,7 +122,8 @@ function MePage() {
               title={<Trans>Export my data</Trans>}
               subtitle={
                 <Trans>
-                  Your Personal location, profile and preferences, and your AI calls, as one file.
+                  <bdi>{personal}</bdi>, your profile and preferences, and your AI calls, as one
+                  file.
                 </Trans>
               }
               trailing={
@@ -140,7 +143,7 @@ function MePage() {
               title={<Trans>Delete my account</Trans>}
               subtitle={
                 <Trans>
-                  After 30 days, with your Personal location. You can keep it until then.
+                  After 30 days, with <bdi>{personal}</bdi>. You can keep it until then.
                 </Trans>
               }
               trailing={<DeleteAccount />}

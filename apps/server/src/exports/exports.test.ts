@@ -421,6 +421,35 @@ describe('a location export', () => {
     expect(JSON.stringify(audit)).not.toContain(SECRET);
   });
 
+  it("dates every file in the ZIP by the export's own time, as its manifest does", async () => {
+    const made = new Date('2026-10-29T14:30:10Z');
+    const res = await createExport(bruce, {
+      scope: { locationId: home.id },
+      options: { pdf: false },
+    });
+    const { id } = res.json() as ExportRunView;
+    const outcome = await buildExport(
+      { ...deps(), now: () => made },
+      { userId: bruce.userId, mfa: false },
+      { exportId: id },
+    );
+    expect(outcome.status, JSON.stringify(outcome)).toBe('done');
+    const chunks: Buffer[] = [];
+    for await (const c of await files.blobs.stream(exportKey(id))) chunks.push(c as Buffer);
+    const z = await yauzl.fromBufferPromise(Buffer.concat(chunks), { lazyEntries: true });
+    const dates = new Set<number>();
+    let n = 0;
+    for await (const e of z.eachEntry()) {
+      n += 1;
+      dates.add(e.getLastModDate().getTime());
+    }
+    z.close();
+    expect(n).toBeGreaterThan(5);
+    expect([...dates]).toEqual([made.getTime()]);
+    const manifest = JSON.parse(text(await zipOf(id), 'manifest.json')) as ExportManifest;
+    expect(manifest.createdAt).toBe(made.toISOString());
+  });
+
   it('is gone for a creator who stops administering the location', async () => {
     const { id } = await exported(bruce, {
       scope: { locationId: home.id },

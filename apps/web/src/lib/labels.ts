@@ -176,13 +176,17 @@ export function initialOf(name: string): string {
   return Array.from(name.trim())[0]?.toUpperCase() ?? '?';
 }
 
+/** The name the server gives every Personal location (kept.ensure_account), in English. */
+export const PERSONAL_DEFAULT_NAME = 'Personal';
+
 /**
  * A location's display name. Personal is created by the server with the English name
- * "Personal"; it's a system location, so it's shown in the reader's language.
+ * "Personal", shown in the reader's language while it keeps that name; once its owner renames it
+ * (discussion 183), the new name is shown everywhere, as any location's is.
  */
 export function useLocationName() {
   const { t } = useLingui();
   // `kind` may be missing where a list only names the location (an older server's answer).
   return (l: { kind?: LocationKind | string; name: string }) =>
-    l.kind === 'personal' ? t`Personal` : l.name;
+    l.kind === 'personal' && l.name.trim() === PERSONAL_DEFAULT_NAME ? t`Personal` : l.name;
 }

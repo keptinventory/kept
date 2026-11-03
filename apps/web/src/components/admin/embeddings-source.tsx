@@ -5,10 +5,12 @@
  * only when the server says its package is there, with the model's download size and "runs on
  * this server; no key; no per-call cost"; while the first download runs, its progress shows.
  * Switching is audited by the server; with `off` (or nothing indexed) search stays on keywords.
+ * Locations with no embeddings model (#368) are counted, never named, with the step to fix it.
  */
 import type { EmbeddingsSource } from '@kept/shared';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { ProgressBar } from 'react-aria-components';
 import { putEmbeddingsSource } from '@/api/admin';
 import { keys } from '@/api/queries';
@@ -80,6 +82,32 @@ export function EmbeddingsSourceSection({ embeddings: e }: { embeddings: Embeddi
   const got = mb(e.local.downloadedBytes ?? 0);
   return (
     <Section title={<Trans>Search embeddings</Trans>}>
+      {e.source === 'provider' && (e.keywordOnly ?? 0) > 0 ? (
+        <Notice
+          tone="warn"
+          title={
+            <Plural
+              value={e.keywordOnly ?? 0}
+              one="# location searches by name only"
+              other="# locations search by name only"
+            />
+          }
+          action={
+            <Link
+              to="/admin/ai"
+              className="font-semibold text-small text-ink underline underline-offset-2"
+            >
+              <Trans>This server's key</Trans>
+            </Link>
+          }
+        >
+          <Trans>
+            Their AI has no embeddings model, so "laptop" won't find a MacBook Pro. Each owner
+            chooses a Search model in Settings → AI → Advanced; a Search model on this server's key
+            covers every location without one.
+          </Trans>
+        </Notice>
+      ) : null}
       {e.paused ? (
         <Notice tone="warn" title={pausedUntil(e.paused.until)}>
           <Trans>Search finds things by their words until then. Indexing carries on after.</Trans>

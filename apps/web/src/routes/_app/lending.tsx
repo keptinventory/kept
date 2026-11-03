@@ -7,6 +7,9 @@
  * filter's values, each with its count, not a second row of tabs (D211); pinning a saved view of
  * each gives them as the strip's tabs. The Display button sorts by due (overdue first), since
  * when, or the thing's name, and groups by person or location. All of it is in the URL.
+ *
+ * With Lending off in every location, each location is listed with "Turn on Lending here" for
+ * its owners and admins, and who to ask for everyone else (module-turn-on.tsx).
  */
 import { SURFACE_FILTER_KEYS } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -20,8 +23,9 @@ import type { FilterDef } from '@/components/filters/types';
 import { ActivityIcon, HandoffIcon, PersonIcon } from '@/components/icons';
 import { LoanRowView } from '@/components/lending/loan-row';
 import { ListSurface } from '@/components/list-surface';
+import { TurnOnHere, WhoTurnsOn } from '@/components/module-turn-on';
 import { StepFourRouteError } from '@/components/notifications/route-error';
-import { EmptyState, Notice, Page } from '@/components/page';
+import { EmptyState, List, Notice, Page, Row } from '@/components/page';
 import { accessOf, useModuleAnywhere } from '@/components/schedules/access';
 import { oneValue, passes, useOrderedQuery } from '@/components/schedules/list-query';
 import { useFormat } from '@/lib/format';
@@ -151,11 +155,30 @@ function LendingPage() {
   return (
     <Page title={t`Lending`} wide>
       {module.loaded && !module.on ? (
-        <EmptyState icon={<HandoffIcon />} title={<Trans>Lending is off in your locations</Trans>}>
-          <Trans>
-            An owner or admin turns it on in the location's settings, under What to track.
-          </Trans>
-        </EmptyState>
+        <div className="grid gap-4">
+          <EmptyState
+            icon={<HandoffIcon />}
+            title={<Trans>Lending is off in your locations</Trans>}
+          >
+            <Trans>
+              Turn it on where you lend or borrow things: who has what, and when it's due back.
+              Nothing else changes.
+            </Trans>
+          </EmptyState>
+          <List aria-label={t`Your locations`}>
+            {(locations.data ?? []).map((l) => (
+              <li key={l.id}>
+                <Row
+                  className="flex-wrap"
+                  title={<bdi>{locationName(l)}</bdi>}
+                  {...(l.role === 'owner' || l.role === 'admin'
+                    ? { trailing: <TurnOnHere location={l} module="lending" /> }
+                    : { subtitle: <WhoTurnsOn locationId={l.id} /> })}
+                />
+              </li>
+            ))}
+          </List>
+        </div>
       ) : (
         <>
           {!online ? (

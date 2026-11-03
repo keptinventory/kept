@@ -177,20 +177,24 @@ export async function forgeKeptExport(db: TestDb, opts: ForgeOptions): Promise<F
   for (const f of fileEntries) entries.set(f.name, null);
   opts.mutate?.(manifest, entries);
   const file = path.join(dir, 'export.zip');
-  const written = await writeArchive(file, async (zip) => {
-    zip.addBuffer(EXPORT_PATHS.manifest, JSON.stringify(manifest));
-    for (const [name, data] of entries) {
-      if (data) {
-        zip.addBuffer(name, data);
-        continue;
+  const written = await writeArchive(
+    file,
+    async (zip) => {
+      zip.addBuffer(EXPORT_PATHS.manifest, JSON.stringify(manifest));
+      for (const [name, data] of entries) {
+        if (data) {
+          zip.addBuffer(name, data);
+          continue;
+        }
+        const f = fileEntries.find((x) => x.name === name);
+        if (!f) continue;
+        zip.addStream(name, () => opts.files.blobs.stream(f.key), {
+          contentType: f.mime,
+        });
       }
-      const f = fileEntries.find((x) => x.name === name);
-      if (!f) continue;
-      zip.addStream(name, () => opts.files.blobs.stream(f.key), {
-        contentType: f.mime,
-      });
-    }
-  });
+    },
+    { mtime: new Date(manifest.createdAt) },
+  );
   return {
     file,
     ...written,

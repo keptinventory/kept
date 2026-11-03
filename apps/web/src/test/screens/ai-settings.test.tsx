@@ -239,11 +239,58 @@ describe('AI settings', () => {
     }
   });
 
+  it('says search matches names only when the key has chat but no Search model (#368)', async () => {
+    const s = ownerScenario();
+    for (const p of s.capture.providers) p.models = { vision: 'qwen/qwen3.8-27b', chat: 'gpt-oss' };
+    const { user } = await renderApp('/settings/ai', { state: s });
+    const title = await screen.findByText('Search matches names only');
+    const notice = title.closest('div.flex') as HTMLElement;
+    // Groq has no embeddings model: the step is another provider.
+    expect(notice).toHaveTextContent('Groq has no embeddings model');
+    await user.click(within(notice).getByRole('button', { name: 'Choose another provider' }));
+    expect(await screen.findByRole('combobox', { name: 'Provider' })).toBeInTheDocument();
+  });
+
+  it('a provider with embeddings models: choose a Search model; none once one is set', async () => {
+    const s = ownerScenario();
+    for (const p of s.capture.providers) {
+      p.kind = 'openai';
+      p.models = { vision: 'gpt-6-luna', chat: 'gpt-6-sol' };
+    }
+    const first = await renderApp('/settings/ai', { state: s });
+    expect(
+      await screen.findByRole('button', { name: 'Choose a Search model' }),
+    ).toBeInTheDocument();
+    first.unmount();
+    for (const p of s.capture.providers) p.models.embeddings = 'text-embedding-3-small';
+    await renderApp('/settings/ai', { state: s });
+    await screen.findByText('Using');
+    expect(screen.queryByText('Search matches names only')).toBeNull();
+  });
+
   it('Personal AI key carries its note; Admin → AI edits prices in versions', async () => {
     await renderApp('/settings/me/ai');
+    const note = (text: string) => (_: string, el: Element | null) =>
+      el?.tagName === 'P' && el.textContent === text;
     expect(
       await screen.findByText(
-        'Used for Personal, your private threads, and questions that span owners.',
+        note('Used for Personal, your private threads, and questions that span owners.'),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('names the Personal location by its new name once it is renamed (discussion 183)', async () => {
+    const s = ownerScenario();
+    const personal = s.locations.find((l) => l.kind === 'personal');
+    if (!personal) throw new Error('fixture');
+    personal.name = 'Pocket';
+    await renderApp('/settings/me/ai', { state: s });
+    expect(
+      await screen.findByText(
+        (_, el) =>
+          el?.tagName === 'P' &&
+          el.textContent ===
+            'Used for Pocket, your private threads, and questions that span owners.',
       ),
     ).toBeInTheDocument();
   });

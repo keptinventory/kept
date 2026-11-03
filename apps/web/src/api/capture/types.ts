@@ -785,6 +785,12 @@ export type AiStatus = {
    * line: `local` and `off` override the provider's embeddings model. Absent before step 6.
    */
   embeddingsSource?: EmbeddingsSource;
+  /**
+   * Whether search here can match by meaning (#368): this location's cascade has an embeddings
+   * model. Present for a location while the source is `provider`; false is AI settings' "Search
+   * matches names only".
+   */
+  searchByMeaning?: boolean;
 };
 
 export type AiModels = { vision?: string; chat?: string; embeddings?: string };

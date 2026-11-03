@@ -404,31 +404,39 @@ describe('inflateCounter: the rule on the bytes that came out', () => {
 });
 
 describe('writeArchive', () => {
+  const MADE = new Date('2026-10-29T14:30:10Z');
+
   it('writes an archive that reads back through openArchive with identical bytes', async () => {
     const store = local();
     const id = newId();
     const photo = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff]), randomBytes(200_000)]);
     const csv = '﻿name\r\nمثقاب\r\n';
     const file = path.join(scratch, `${newId()}.zip`);
-    const out = await writeArchive(file, async (zip) => {
-      zip.addBuffer('manifest.json', MANIFEST.data);
-      zip.addBuffer('data/things.ndjson', '{"id":"1"}\n');
-      zip.addStream(`attachments/${id}`, () => Readable.from([photo]), {
-        contentType: 'image/jpeg',
-      });
-      zip.addBuffer('readable/things.csv', csv);
-    });
+    const out = await writeArchive(
+      file,
+      async (zip) => {
+        zip.addBuffer('manifest.json', MANIFEST.data);
+        zip.addBuffer('data/things.ndjson', '{"id":"1"}\n');
+        zip.addStream(`attachments/${id}`, () => Readable.from([photo]), {
+          contentType: 'image/jpeg',
+        });
+        zip.addBuffer('readable/things.csv', csv);
+      },
+      { mtime: MADE },
+    );
     const bytes = await readFile(file);
     expect(out.bytes).toBe(bytes.length);
     expect(out.sha256).toBe(createHash('sha256').update(bytes).digest('hex'));
     expect((await stat(file)).mode & 0o777).toBe(0o600);
 
-    // Stored or deflated by type; the same mtime and mode 0600 on every entry.
+    // Stored or deflated by type; the archive's own time and mode 0600 on every entry.
     const zip = await yauzl.fromBufferPromise(bytes, { lazyEntries: true });
     const methods: Record<string, number> = {};
     for await (const e of zip.eachEntry()) {
       methods[e.fileName] = e.compressionMethod;
       expect((e.externalFileAttributes >>> 16) & 0o777).toBe(0o600);
+      // The DOS field is local time to 2 s; the extended timestamp yazl adds is UTC to the second.
+      expect(e.getLastModDate().getTime()).toBe(MADE.getTime());
     }
     zip.close();
     expect(methods).toEqual({
@@ -452,25 +460,33 @@ describe('writeArchive', () => {
     archive.close();
   });
 
-  it('writes the same bytes for the same contents', async () => {
+  it('writes the same bytes for the same contents at the same time, other bytes at another', async () => {
     const build = (zip: Parameters<Parameters<typeof writeArchive>[1]>[0]) => {
       zip.addBuffer('manifest.json', MANIFEST.data);
       zip.addBuffer('a.json', '[]');
     };
-    const a = await writeArchive(path.join(scratch, `${newId()}.zip`), build);
-    const b = await writeArchive(path.join(scratch, `${newId()}.zip`), build);
+    const at = { mtime: MADE };
+    const a = await writeArchive(path.join(scratch, `${newId()}.zip`), build, at);
+    const b = await writeArchive(path.join(scratch, `${newId()}.zip`), build, at);
     expect(a.sha256).toBe(b.sha256);
+    const later = { mtime: new Date(MADE.getTime() + 86_400_000) };
+    const c = await writeArchive(path.join(scratch, `${newId()}.zip`), build, later);
+    expect(c.sha256).not.toBe(a.sha256);
   });
 
   it('removes the partial file when a source fails', async () => {
     const file = path.join(scratch, `${newId()}.zip`);
     await expect(
-      writeArchive(file, (zip) => {
-        zip.addBuffer('manifest.json', MANIFEST.data);
-        zip.addStream(`attachments/${newId()}`, () => {
-          throw new Error('the blob is gone');
-        });
-      }),
+      writeArchive(
+        file,
+        (zip) => {
+          zip.addBuffer('manifest.json', MANIFEST.data);
+          zip.addStream(`attachments/${newId()}`, () => {
+            throw new Error('the blob is gone');
+          });
+        },
+        { mtime: MADE },
+      ),
     ).rejects.toThrow('the blob is gone');
     await expect(stat(file)).rejects.toMatchObject({ code: 'ENOENT' });
   });

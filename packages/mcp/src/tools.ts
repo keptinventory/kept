@@ -45,6 +45,7 @@ import {
   PLACE_LAYOUT_LIMITS,
   PLACE_ORIENTATIONS,
   ROLES,
+  SEMANTIC_STATES,
   WARRANTY_KINDS,
 } from '@kept/shared';
 import { z } from 'zod';
@@ -153,6 +154,32 @@ const thingSummary = thingRef.extend({
   loan: loan.optional(),
   matched_by: z.enum(['keyword', 'meaning']).optional(),
 });
+
+/**
+ * How a search matched (#368): by meaning as well as by words, or by words only and why. Present
+ * when the query was one meaning could apply to (not a short code or one short word) on its first
+ * page. `note` is the sentence to pass on when it matters, such as when nothing was found: with
+ * no embeddings model, "laptop" doesn't find "MacBook Pro".
+ */
+const searchMode = z.object({
+  meaning: z.boolean().describe('true: matched by meaning as well as by words'),
+  reason: z
+    .enum(SEMANTIC_STATES)
+    .optional()
+    .describe(
+      'Why words only: `keyword_only` no embeddings model in the AI settings, `off` the server has search by meaning off, `paused` an AI limit, `waiting` the provider asked to wait',
+    ),
+  until: z.string().optional(),
+  keyword_only_location_ids: z
+    .array(uuid)
+    .optional()
+    .describe('Locations searched by words only (no embeddings model) while others had meaning'),
+  note: z.string().optional(),
+});
+
+/** What search_things and where_is answer: the things, and how they were matched. */
+const searchList = <T extends z.ZodType>(item: T) =>
+  z.object({ items: z.array(item), search_mode: searchMode.optional() });
 
 /** A tag as the tag tools cite it (#209): its name is people's words. */
 const tagRef = z.object({
@@ -403,7 +430,7 @@ export const TOOL_DEFS = Object.freeze({
       cursor,
       limit,
     }),
-    output: list(thingSummary),
+    output: searchList(thingSummary),
   }),
   where_is: tool({
     name: 'where_is',
@@ -414,7 +441,7 @@ export const TOOL_DEFS = Object.freeze({
     module: null,
     since: 6,
     input: z.object({ location_id: locationId, query: shortText(200) }),
-    output: list(thingSummary.extend({ uncertain: z.boolean() })),
+    output: searchList(thingSummary.extend({ uncertain: z.boolean() })),
   }),
   get_thing: tool({
     name: 'get_thing',

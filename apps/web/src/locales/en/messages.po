@@ -6201,10 +6201,6 @@ msgstr "Personal"
 msgid "Personal AI key"
 msgstr "Personal AI key"
 
-#: src/routes/_app/loc.$id.tsx
-msgid "Personal is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
-msgstr "Personal is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
-
 #: src/components/history/labels.ts
 #: src/components/registries/contact-card.tsx
 #: src/components/registries/registry-edit-sheet.tsx
@@ -9026,10 +9022,6 @@ msgstr "Used by {0}."
 msgid "Used by imports and the API. Made from the label; English letters, digits and _."
 msgstr "Used by imports and the API. Made from the label; English letters, digits and _."
 
-#: src/routes/_app/settings.me.ai.tsx
-msgid "Used for Personal, your private threads, and questions that span owners."
-msgstr "Used for Personal, your private threads, and questions that span owners."
-
 #: src/components/registries/labels.ts
 msgid "Used up and restocked, like batteries."
 msgstr "Used up and restocked, like batteries."
@@ -9570,10 +9562,6 @@ msgstr "Your password"
 #: src/components/reports/progress.tsx
 msgid "Your PDF is ready"
 msgstr "Your PDF is ready"
-
-#: src/routes/_app/index.tsx
-msgid "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
-msgstr "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
 
 #: src/components/page.tsx
 msgid "Your session ended. Sign in again."
@@ -10978,10 +10966,6 @@ msgid "The whole account"
 msgstr "The whole account"
 
 #: src/components/ai/key-scope.tsx
-msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. Your Personal location uses your personal key if you add one."
-msgstr "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. Your Personal location uses your personal key if you add one."
-
-#: src/components/ai/key-scope.tsx
 msgid "This key pays for the homes your account owns."
 msgstr "This key pays for the homes your account owns."
 
@@ -11148,11 +11132,6 @@ msgstr "Your key"
 #: src/components/ai/caps.tsx
 msgid "Your limit in <0>{0}</0>'s account"
 msgstr "Your limit in <0>{0}</0>'s account"
-
-#: src/routes/_app/settings.me.ai.tsx
-#: src/components/ai/settings-page.tsx
-msgid "Your own key is for Personal, your private threads, and questions that span owners."
-msgstr "Your own key is for Personal, your private threads, and questions that span owners."
 
 #: src/components/ai/cap-bars.tsx
 #: src/components/ai/caps.tsx
@@ -16885,10 +16864,6 @@ msgstr "Each download link is made when you click Download and lasts 5 minutes; 
 msgid "Your data"
 msgstr "Your data"
 
-#: src/routes/_app/settings.index.tsx
-msgid "Your Personal location, profile and preferences, and your AI calls, as one file."
-msgstr "Your Personal location, profile and preferences, and your AI calls, as one file."
-
 #: src/components/import/archive-run.tsx
 msgid "Choose where to import it first."
 msgstr "Choose where to import it first."
@@ -17680,10 +17655,6 @@ msgstr "Download the export of {name}"
 #: src/components/export/export-list.tsx
 msgid "Export again"
 msgstr "Export again"
-
-#: src/components/export/export-sheet.tsx
-msgid "Your Personal location with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
-msgstr "Your Personal location with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
 
 #: src/components/export/export-sheet.tsx
 msgid "What goes in"
@@ -18621,10 +18592,6 @@ msgstr "Kept stops sending to it, and its deliveries are forgotten."
 #: src/components/ai/key-scope.tsx
 msgid "Keyword only (semantic search is off on this server)"
 msgstr "Keyword only (semantic search is off on this server)"
-
-#: src/components/search/semantic-note.tsx
-msgid "Keyword search only here (no embeddings model)"
-msgstr "Keyword search only here (no embeddings model)"
 
 #: src/components/webhooks/list.tsx
 msgid "Last: {lastWords} {lastAt}"
@@ -20850,10 +20817,6 @@ msgstr "Some files are missing from the file storage, so no backup holds them. T
 msgid "Delete my account"
 msgstr "Delete my account"
 
-#: src/routes/_app/settings.index.tsx
-msgid "After 30 days, with your Personal location. You can keep it until then."
-msgstr "After 30 days, with your Personal location. You can keep it until then."
-
 #: src/components/delete-account.tsx
 msgid "Delete…"
 msgstr "Delete…"
@@ -20883,10 +20846,6 @@ msgid "You own these locations. Hand each one to someone else, or delete it, fir
 msgstr "You own these locations. Hand each one to someone else, or delete it, first."
 
 #: src/components/delete-account.tsx
-msgid "Your account, your Personal location and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
-msgstr "Your account, your Personal location and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
-
-#: src/components/delete-account.tsx
 msgid "What you added to other people's locations stays there. Your other devices are signed out now."
 msgstr "What you added to other people's locations stays there. Your other devices are signed out now."
 
@@ -20895,20 +20854,12 @@ msgid "Keep a copy first?"
 msgstr "Keep a copy first?"
 
 #: src/components/delete-account.tsx
-msgid "Your Personal location, profile and preferences, as one file."
-msgstr "Your Personal location, profile and preferences, as one file."
-
-#: src/components/delete-account.tsx
 msgid "Your account stays"
 msgstr "Your account stays"
 
 #: src/components/delete-account.tsx
 msgid "Your account will be deleted on {day}"
 msgstr "Your account will be deleted on {day}"
-
-#: src/components/delete-account.tsx
-msgid "You asked for it, with your Personal location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
-msgstr "You asked for it, with your Personal location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
 
 #: src/components/delete-account.tsx
 msgid "Keep my account"
@@ -27222,14 +27173,6 @@ msgstr "Start with what you need; turn anything else on later in Location settin
 msgid "{prices, plural, one {The backup has # price. With Essentials it stays in the notes; Household keeps prices and warranties as their own records.} other {The backup has # prices. With Essentials they stay in the notes; Household keeps prices and warranties as their own records.}}"
 msgstr "{prices, plural, one {The backup has # price. With Essentials it stays in the notes; Household keeps prices and warranties as their own records.} other {The backup has # prices. With Essentials they stay in the notes; Household keeps prices and warranties as their own records.}}"
 
-#: src/components/import/track-step.tsx
-msgid "Also for Personal"
-msgstr "Also for Personal"
-
-#: src/components/import/track-step.tsx
-msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
-msgstr "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
-
 #: src/components/history/labels.ts
 msgid "Repaired an import"
 msgstr "Repaired an import"
@@ -28321,3 +28264,143 @@ msgstr "The new type's own fields show after you save."
 msgctxt "printed label"
 msgid "Label"
 msgstr "Label"
+
+#: src/components/import/csv-help.tsx
+msgid "What the file can hold"
+msgstr "What the file can hold"
+
+#: src/components/import/csv-help.tsx
+msgid "The first row names the columns, in any of Kept's languages. Kept matches the names it knows, and you choose the rest in the next step. Only a name is needed."
+msgstr "The first row names the columns, in any of Kept's languages. Kept matches the names it knows, and you choose the rest in the next step. Only a name is needed."
+
+#: src/components/import/csv-help.tsx
+msgid "The columns Kept reads"
+msgstr "The columns Kept reads"
+
+#: src/components/import/csv-help.tsx
+msgid "A field of your own types, such as Wattage"
+msgstr "A field of your own types, such as Wattage"
+
+#: src/components/import/csv-help.tsx
+msgid "Place: from the top down, separated by >, like Garage > Shelf A. Another separator can be chosen."
+msgstr "Place: from the top down, separated by >, like Garage > Shelf A. Another separator can be chosen."
+
+#: src/components/import/csv-help.tsx
+msgid "Tags and other names: separated by commas."
+msgstr "Tags and other names: separated by commas."
+
+#: src/components/import/csv-help.tsx
+msgid "Dates: written the same way all through the file, like 2026-10-29 or 29/10/2026."
+msgstr "Dates: written the same way all through the file, like 2026-10-29 or 29/10/2026."
+
+#: src/components/import/csv-help.tsx
+msgid "Prices: a number, without the currency sign."
+msgstr "Prices: a number, without the currency sign."
+
+#: src/components/import/csv-help.tsx
+msgid "Download a sample CSV"
+msgstr "Download a sample CSV"
+
+#: src/components/import/csv-help.tsx
+msgid "How importing works"
+msgstr "How importing works"
+
+#: src/components/module-turn-on.tsx
+msgid "Turn on {label} here"
+msgstr "Turn on {label} here"
+
+#: src/components/module-turn-on.tsx
+msgid "{label} is on in {0}"
+msgstr "{label} is on in {0}"
+
+#: src/components/module-turn-on.tsx
+msgid "Ask {who} to turn it on."
+msgstr "Ask {who} to turn it on."
+
+#: src/routes/_app/lending.tsx
+msgid "Turn it on where you lend or borrow things: who has what, and when it's due back. Nothing else changes."
+msgstr "Turn it on where you lend or borrow things: who has what, and when it's due back. Nothing else changes."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "<0>{name}</0> is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
+msgstr "<0>{name}</0> is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
+
+#: src/components/export/export-sheet.tsx
+msgid "<0>{personal}</0> with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
+msgstr "<0>{personal}</0> with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
+
+#: src/routes/_app/index.tsx
+msgid "<0>{personal}</0>, your own location, is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
+msgstr "<0>{personal}</0>, your own location, is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
+
+#: src/components/import/track-step.tsx
+msgid "<0>{personal}</0>, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "<0>{personal}</0>, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+
+#: src/routes/_app/settings.index.tsx
+msgid "<0>{personal}</0>, your profile and preferences, and your AI calls, as one file."
+msgstr "<0>{personal}</0>, your profile and preferences, and your AI calls, as one file."
+
+#: src/components/delete-account.tsx
+msgid "<0>{personal}</0>, your profile and preferences, as one file."
+msgstr "<0>{personal}</0>, your profile and preferences, as one file."
+
+#: src/routes/_app/settings.index.tsx
+msgid "After 30 days, with <0>{personal}</0>. You can keep it until then."
+msgstr "After 30 days, with <0>{personal}</0>. You can keep it until then."
+
+#: src/components/import/track-step.tsx
+msgid "Also for <0>{personal}</0>"
+msgstr "Also for <0>{personal}</0>"
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. <2>{personal}</2> uses your personal key if you add one."
+msgstr "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. <2>{personal}</2> uses your personal key if you add one."
+
+#: src/components/ai/key-scope.tsx
+msgid "Used for <0>{personal}</0>, your private threads, and questions that span owners."
+msgstr "Used for <0>{personal}</0>, your private threads, and questions that span owners."
+
+#: src/components/delete-account.tsx
+msgid "You asked for it, with your own location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
+msgstr "You asked for it, with your own location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
+
+#: src/components/delete-account.tsx
+msgid "Your account, your own location <0>{personal}</0> and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
+msgstr "Your account, your own location <0>{personal}</0> and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
+
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for <0>{personal}</0>, your private threads, and questions that span owners."
+msgstr "Your own key is for <0>{personal}</0>, your private threads, and questions that span owners."
+
+#: src/components/admin/embeddings-source.tsx
+msgid "{0, plural, one {# location searches by name only} other {# locations search by name only}}"
+msgstr "{0, plural, one {# location searches by name only} other {# locations search by name only}}"
+
+#: src/components/ai/search-by-name.tsx
+msgid "{providerName} has no embeddings model, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Search by meaning needs a provider with one, such as OpenAI or Google, chosen under Advanced."
+msgstr "{providerName} has no embeddings model, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Search by meaning needs a provider with one, such as OpenAI or Google, chosen under Advanced."
+
+#: src/components/ai/search-by-name.tsx
+msgid "Choose a Search model"
+msgstr "Choose a Search model"
+
+#: src/components/ai/search-by-name.tsx
+msgid "Choose another provider"
+msgstr "Choose another provider"
+
+#: src/components/ai/search-by-name.tsx
+msgid "No Search model is chosen, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Choose one under Advanced → Models."
+msgstr "No Search model is chosen, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Choose one under Advanced → Models."
+
+#: src/components/ai/search-by-name.tsx
+msgid "Search matches names only"
+msgstr "Search matches names only"
+
+#: src/components/search/semantic-note.tsx
+msgid "Searched by name only: no embeddings model is set, so \"laptop\" won't find a MacBook Pro. <0>Settings → AI</0>"
+msgstr "Searched by name only: no embeddings model is set, so \"laptop\" won't find a MacBook Pro. <0>Settings → AI</0>"
+
+#: src/components/admin/embeddings-source.tsx
+msgid "Their AI has no embeddings model, so \"laptop\" won't find a MacBook Pro. Each owner chooses a Search model in Settings → AI → Advanced; a Search model on this server's key covers every location without one."
+msgstr "Their AI has no embeddings model, so \"laptop\" won't find a MacBook Pro. Each owner chooses a Search model in Settings → AI → Advanced; a Search model on this server's key covers every location without one."

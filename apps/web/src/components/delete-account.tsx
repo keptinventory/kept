@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogFooter, Modal } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/toast';
 import { useFormat } from '@/lib/format';
+import { usePersonalName } from '@/lib/personal-name';
 
 const deletionKey = ['me', 'deletion'] as const;
 
@@ -37,6 +38,7 @@ export function DeleteAccount() {
 
 function DeleteAccountSheet({ onClose }: { onClose: () => void }) {
   const { t } = useLingui();
+  const personal = usePersonalName();
   const qc = useQueryClient();
   const state = useQuery({ queryKey: deletionKey, queryFn: getAccountDeletion });
 
@@ -130,8 +132,8 @@ function DeleteAccountSheet({ onClose }: { onClose: () => void }) {
       <div className="grid gap-3">
         <p>
           <Trans>
-            Your account, your Personal location and everything in it are deleted 30 days from now.
-            Until then you can sign in and keep the account; nothing else opens.
+            Your account, your own location <bdi>{personal}</bdi> and everything in it are deleted
+            30 days from now. Until then you can sign in and keep the account; nothing else opens.
           </Trans>
         </p>
         <p className="text-ink-2">
@@ -149,7 +151,9 @@ function DeleteAccountSheet({ onClose }: { onClose: () => void }) {
             </LinkButton>
           }
         >
-          <Trans>Your Personal location, profile and preferences, as one file.</Trans>
+          <Trans>
+            <bdi>{personal}</bdi>, your profile and preferences, as one file.
+          </Trans>
         </Notice>
       </div>
     </ReauthSheet>
@@ -190,8 +194,8 @@ export function AccountDeletionPending({ purgeAfter }: { purgeAfter: string }) {
         </h1>
         <p className="text-ink-2">
           <Trans>
-            You asked for it, with your Personal location and everything in it. Until then nothing
-            else in Kept opens. Keep the account to go back to it as it was.
+            You asked for it, with your own location and everything in it. Until then nothing else
+            in Kept opens. Keep the account to go back to it as it was.
           </Trans>
         </p>
         <div className="grid gap-2">

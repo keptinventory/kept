@@ -6201,10 +6201,6 @@ msgstr "Persönlich"
 msgid "Personal AI key"
 msgstr "Persönlicher KI-Schlüssel"
 
-#: src/routes/_app/loc.$id.tsx
-msgid "Personal is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
-msgstr "„Persönlich“ gehört nur dir: keine Mitglieder, Einladungen oder Freigabelinks. Verschiebe einen Gegenstand in ein geteiltes Zuhause, sobald er geteilt wird."
-
 #: src/components/history/labels.ts
 #: src/components/registries/contact-card.tsx
 #: src/components/registries/registry-edit-sheet.tsx
@@ -9026,10 +9022,6 @@ msgstr "Verwendet von {0}."
 msgid "Used by imports and the API. Made from the label; English letters, digits and _."
 msgstr "Wird von Importen und der API verwendet. Aus der Bezeichnung erzeugt; englische Buchstaben, Ziffern und _."
 
-#: src/routes/_app/settings.me.ai.tsx
-msgid "Used for Personal, your private threads, and questions that span owners."
-msgstr "Wird für Persönlich, deine privaten Unterhaltungen und Fragen über mehrere Eigentümer hinweg genutzt."
-
 #: src/components/registries/labels.ts
 msgid "Used up and restocked, like batteries."
 msgstr "Wird verbraucht und nachgekauft, wie Batterien."
@@ -9570,10 +9562,6 @@ msgstr "Dein Passwort"
 #: src/components/reports/progress.tsx
 msgid "Your PDF is ready"
 msgstr "Dein PDF ist fertig"
-
-#: src/routes/_app/index.tsx
-msgid "Your Personal location is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
-msgstr "Dein Standort „Persönlich“ ist bereit für alles, was du bei dir trägst: Schlüssel, Geldbörse, Handy. Füge jetzt dein Zuhause hinzu. Es kommt mit den üblichen Räumen, und du kannst sie ändern."
 
 #: src/components/page.tsx
 msgid "Your session ended. Sign in again."
@@ -10978,10 +10966,6 @@ msgid "The whole account"
 msgstr "Das ganze Konto"
 
 #: src/components/ai/key-scope.tsx
-msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. Your Personal location uses your personal key if you add one."
-msgstr "Dieser Schlüssel bezahlt für alle Zuhause von <0>{ownerName}</0>: <1>{list}</1>. Ihr persönlicher Ort nutzt Ihren persönlichen Schlüssel, wenn Sie einen hinzufügen."
-
-#: src/components/ai/key-scope.tsx
 msgid "This key pays for the homes your account owns."
 msgstr "Dieser Schlüssel bezahlt für die Zuhause Ihres Kontos."
 
@@ -11148,11 +11132,6 @@ msgstr "Ihr Schlüssel"
 #: src/components/ai/caps.tsx
 msgid "Your limit in <0>{0}</0>'s account"
 msgstr "Ihr Limit im Konto von <0>{0}</0>"
-
-#: src/routes/_app/settings.me.ai.tsx
-#: src/components/ai/settings-page.tsx
-msgid "Your own key is for Personal, your private threads, and questions that span owners."
-msgstr "Ihr eigener Schlüssel ist für Persönlich, Ihre privaten Unterhaltungen und Fragen über mehrere Eigentümer hinweg."
 
 #: src/components/ai/cap-bars.tsx
 #: src/components/ai/caps.tsx
@@ -16885,10 +16864,6 @@ msgstr "Jeder Download-Link entsteht beim Klick auf Herunterladen und gilt 5 Min
 msgid "Your data"
 msgstr "Deine Daten"
 
-#: src/routes/_app/settings.index.tsx
-msgid "Your Personal location, profile and preferences, and your AI calls, as one file."
-msgstr "Dein persönlicher Standort, Profil und Einstellungen und deine KI-Aufrufe, in einer Datei."
-
 #: src/components/import/archive-run.tsx
 msgid "Choose where to import it first."
 msgstr "Wähle zuerst, wohin importiert wird."
@@ -17680,10 +17655,6 @@ msgstr "Export von {name} herunterladen"
 #: src/components/export/export-list.tsx
 msgid "Export again"
 msgstr "Erneut exportieren"
-
-#: src/components/export/export-sheet.tsx
-msgid "Your Personal location with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
-msgstr "Dein persönlicher Standort mit seinen Dateien, dein Profil und deine Einstellungen und deine KI-Aufrufe. Standorte, die dir gehören, werden einzeln exportiert."
 
 #: src/components/export/export-sheet.tsx
 msgid "What goes in"
@@ -18621,10 +18592,6 @@ msgstr "Kept sendet nicht mehr dorthin, und seine Zustellungen werden vergessen.
 #: src/components/ai/key-scope.tsx
 msgid "Keyword only (semantic search is off on this server)"
 msgstr "Nur Stichwörter (semantische Suche ist auf diesem Server aus)"
-
-#: src/components/search/semantic-note.tsx
-msgid "Keyword search only here (no embeddings model)"
-msgstr "Hier nur Stichwortsuche (kein Embedding-Modell)"
 
 #: src/components/webhooks/list.tsx
 msgid "Last: {lastWords} {lastAt}"
@@ -20850,10 +20817,6 @@ msgstr "Einige Dateien fehlen im Dateispeicher, also enthält keine Sicherung si
 msgid "Delete my account"
 msgstr "Mein Konto löschen"
 
-#: src/routes/_app/settings.index.tsx
-msgid "After 30 days, with your Personal location. You can keep it until then."
-msgstr "Nach 30 Tagen, zusammen mit deinem persönlichen Standort. Bis dahin kannst du es behalten."
-
 #: src/components/delete-account.tsx
 msgid "Delete…"
 msgstr "Löschen…"
@@ -20883,10 +20846,6 @@ msgid "You own these locations. Hand each one to someone else, or delete it, fir
 msgstr "Dir gehören diese Standorte. Übergib jeden zuerst an jemand anderen oder lösche ihn."
 
 #: src/components/delete-account.tsx
-msgid "Your account, your Personal location and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
-msgstr "Dein Konto, dein persönlicher Standort und alles darin werden in 30 Tagen gelöscht. Bis dahin kannst du dich anmelden und das Konto behalten; sonst öffnet sich nichts."
-
-#: src/components/delete-account.tsx
 msgid "What you added to other people's locations stays there. Your other devices are signed out now."
 msgstr "Was du an den Standorten anderer hinzugefügt hast, bleibt dort. Deine anderen Geräte werden jetzt abgemeldet."
 
@@ -20895,20 +20854,12 @@ msgid "Keep a copy first?"
 msgstr "Vorher eine Kopie behalten?"
 
 #: src/components/delete-account.tsx
-msgid "Your Personal location, profile and preferences, as one file."
-msgstr "Dein persönlicher Standort, dein Profil und deine Einstellungen, als eine Datei."
-
-#: src/components/delete-account.tsx
 msgid "Your account stays"
 msgstr "Dein Konto bleibt"
 
 #: src/components/delete-account.tsx
 msgid "Your account will be deleted on {day}"
 msgstr "Dein Konto wird am {day} gelöscht"
-
-#: src/components/delete-account.tsx
-msgid "You asked for it, with your Personal location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
-msgstr "Du hast es beantragt, zusammen mit deinem persönlichen Standort und allem darin. Bis dahin öffnet sich in Kept nichts anderes. Behalte das Konto, um es so wiederzubekommen, wie es war."
 
 #: src/components/delete-account.tsx
 msgid "Keep my account"
@@ -27222,14 +27173,6 @@ msgstr "Fang mit dem an, was du brauchst; alles andere schaltest du später in S
 msgid "{prices, plural, one {The backup has # price. With Essentials it stays in the notes; Household keeps prices and warranties as their own records.} other {The backup has # prices. With Essentials they stay in the notes; Household keeps prices and warranties as their own records.}}"
 msgstr "{prices, plural, one {Die Sicherung enthält # Preis. Mit Basis bleibt er in den Notizen; Haushalt führt Preise und Garantien als eigene Einträge.} other {Die Sicherung enthält # Preise. Mit Basis bleiben sie in den Notizen; Haushalt führt Preise und Garantien als eigene Einträge.}}"
 
-#: src/components/import/track-step.tsx
-msgid "Also for Personal"
-msgstr "Auch für Persönlich"
-
-#: src/components/import/track-step.tsx
-msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
-msgstr "Persönlich, dein eigener Standort, erfasst ab dem Import dasselbe. Das Menü zeigt, was irgendeiner deiner Standorte erfasst."
-
 #: src/components/history/labels.ts
 msgid "Repaired an import"
 msgstr "Einen Import repariert"
@@ -28321,3 +28264,143 @@ msgstr "Die Felder des neuen Typs erscheinen nach dem Speichern."
 msgctxt "printed label"
 msgid "Label"
 msgstr "Etikett"
+
+#: src/components/import/csv-help.tsx
+msgid "What the file can hold"
+msgstr "Was die Datei enthalten kann"
+
+#: src/components/import/csv-help.tsx
+msgid "The first row names the columns, in any of Kept's languages. Kept matches the names it knows, and you choose the rest in the next step. Only a name is needed."
+msgstr "Die erste Zeile benennt die Spalten, in jeder Sprache von Kept. Kept ordnet die Namen zu, die es kennt, den Rest wählst du im nächsten Schritt. Nur ein Name ist nötig."
+
+#: src/components/import/csv-help.tsx
+msgid "The columns Kept reads"
+msgstr "Die Spalten, die Kept liest"
+
+#: src/components/import/csv-help.tsx
+msgid "A field of your own types, such as Wattage"
+msgstr "Ein Feld deiner eigenen Typen, etwa Leistung"
+
+#: src/components/import/csv-help.tsx
+msgid "Place: from the top down, separated by >, like Garage > Shelf A. Another separator can be chosen."
+msgstr "Ort: von oben nach unten, getrennt durch >, wie Garage > Regal A. Ein anderes Trennzeichen kann gewählt werden."
+
+#: src/components/import/csv-help.tsx
+msgid "Tags and other names: separated by commas."
+msgstr "Schlagwörter und andere Namen: durch Kommas getrennt."
+
+#: src/components/import/csv-help.tsx
+msgid "Dates: written the same way all through the file, like 2026-10-29 or 29/10/2026."
+msgstr "Daten: in der ganzen Datei gleich geschrieben, wie 2026-10-29 oder 29/10/2026."
+
+#: src/components/import/csv-help.tsx
+msgid "Prices: a number, without the currency sign."
+msgstr "Preise: eine Zahl, ohne Währungszeichen."
+
+#: src/components/import/csv-help.tsx
+msgid "Download a sample CSV"
+msgstr "Beispiel-CSV herunterladen"
+
+#: src/components/import/csv-help.tsx
+msgid "How importing works"
+msgstr "So funktioniert der Import"
+
+#: src/components/module-turn-on.tsx
+msgid "Turn on {label} here"
+msgstr "{label} hier einschalten"
+
+#: src/components/module-turn-on.tsx
+msgid "{label} is on in {0}"
+msgstr "{label} ist in {0} eingeschaltet"
+
+#: src/components/module-turn-on.tsx
+msgid "Ask {who} to turn it on."
+msgstr "Bitte {who}, es zu aktivieren."
+
+#: src/routes/_app/lending.tsx
+msgid "Turn it on where you lend or borrow things: who has what, and when it's due back. Nothing else changes."
+msgstr "Schalte es dort ein, wo du Dinge verleihst oder leihst: wer was hat und wann es zurückkommt. Sonst ändert sich nichts."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "<0>{name}</0> is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
+msgstr "<0>{name}</0> gehört nur dir: keine Mitglieder, Einladungen oder Freigabelinks. Verschiebe einen Gegenstand in ein geteiltes Zuhause, sobald er geteilt wird."
+
+#: src/components/export/export-sheet.tsx
+msgid "<0>{personal}</0> with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
+msgstr "<0>{personal}</0> mit seinen Dateien, dein Profil und deine Einstellungen und deine KI-Aufrufe. Standorte, die dir gehören, werden einzeln exportiert."
+
+#: src/routes/_app/index.tsx
+msgid "<0>{personal}</0>, your own location, is ready for what's on you: keys, wallet, phone. Now add the place you live. It comes with the usual rooms, and you can change them."
+msgstr "<0>{personal}</0>, dein eigener Standort, ist bereit für alles, was du bei dir trägst: Schlüssel, Geldbörse, Handy. Füge jetzt dein Zuhause hinzu. Es kommt mit den üblichen Räumen, und du kannst sie ändern."
+
+#: src/components/import/track-step.tsx
+msgid "<0>{personal}</0>, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "<0>{personal}</0>, dein eigener Standort, erfasst ab dem Import dasselbe. Das Menü zeigt, was irgendeiner deiner Standorte erfasst."
+
+#: src/routes/_app/settings.index.tsx
+msgid "<0>{personal}</0>, your profile and preferences, and your AI calls, as one file."
+msgstr "<0>{personal}</0>, dein Profil und deine Einstellungen und deine KI-Aufrufe, in einer Datei."
+
+#: src/components/delete-account.tsx
+msgid "<0>{personal}</0>, your profile and preferences, as one file."
+msgstr "<0>{personal}</0>, dein Profil und deine Einstellungen, als eine Datei."
+
+#: src/routes/_app/settings.index.tsx
+msgid "After 30 days, with <0>{personal}</0>. You can keep it until then."
+msgstr "Nach 30 Tagen, zusammen mit <0>{personal}</0>. Bis dahin kannst du es behalten."
+
+#: src/components/import/track-step.tsx
+msgid "Also for <0>{personal}</0>"
+msgstr "Auch für <0>{personal}</0>"
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. <2>{personal}</2> uses your personal key if you add one."
+msgstr "Dieser Schlüssel bezahlt für alle Zuhause von <0>{ownerName}</0>: <1>{list}</1>. <2>{personal}</2> nutzt deinen persönlichen Schlüssel, wenn du einen hinzufügst."
+
+#: src/components/ai/key-scope.tsx
+msgid "Used for <0>{personal}</0>, your private threads, and questions that span owners."
+msgstr "Wird für <0>{personal}</0>, deine privaten Unterhaltungen und Fragen über mehrere Eigentümer hinweg genutzt."
+
+#: src/components/delete-account.tsx
+msgid "You asked for it, with your own location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
+msgstr "Du hast es beantragt, zusammen mit deinem eigenen Standort und allem darin. Bis dahin öffnet sich in Kept nichts anderes. Behalte das Konto, um es so wiederzubekommen, wie es war."
+
+#: src/components/delete-account.tsx
+msgid "Your account, your own location <0>{personal}</0> and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
+msgstr "Dein Konto, dein eigener Standort <0>{personal}</0> und alles darin werden in 30 Tagen gelöscht. Bis dahin kannst du dich anmelden und das Konto behalten; sonst öffnet sich nichts."
+
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for <0>{personal}</0>, your private threads, and questions that span owners."
+msgstr "Dein eigener Schlüssel ist für <0>{personal}</0>, deine privaten Unterhaltungen und Fragen über mehrere Eigentümer hinweg."
+
+#: src/components/admin/embeddings-source.tsx
+msgid "{0, plural, one {# location searches by name only} other {# locations search by name only}}"
+msgstr "{0, plural, one {# Standort sucht nur nach Namen} other {# Standorte suchen nur nach Namen}}"
+
+#: src/components/ai/search-by-name.tsx
+msgid "{providerName} has no embeddings model, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Search by meaning needs a provider with one, such as OpenAI or Google, chosen under Advanced."
+msgstr "{providerName} hat kein Embedding-Modell, also findet die Suche nichts nach Bedeutung: „Laptop“ findet kein MacBook Pro. Suche nach Bedeutung braucht einen Anbieter mit einem, etwa OpenAI oder Google, gewählt unter Erweitert."
+
+#: src/components/ai/search-by-name.tsx
+msgid "Choose a Search model"
+msgstr "Suchmodell wählen"
+
+#: src/components/ai/search-by-name.tsx
+msgid "Choose another provider"
+msgstr "Anderen Anbieter wählen"
+
+#: src/components/ai/search-by-name.tsx
+msgid "No Search model is chosen, so search can't match by meaning: \"laptop\" won't find a MacBook Pro. Choose one under Advanced → Models."
+msgstr "Kein Suchmodell gewählt, also findet die Suche nichts nach Bedeutung: „Laptop“ findet kein MacBook Pro. Wähl eines unter Erweitert → Modelle."
+
+#: src/components/ai/search-by-name.tsx
+msgid "Search matches names only"
+msgstr "Die Suche findet nur nach Namen"
+
+#: src/components/search/semantic-note.tsx
+msgid "Searched by name only: no embeddings model is set, so \"laptop\" won't find a MacBook Pro. <0>Settings → AI</0>"
+msgstr "Nur nach Namen gesucht: Kein Embedding-Modell ist gesetzt, also findet „Laptop“ kein MacBook Pro. <0>Einstellungen → KI</0>"
+
+#: src/components/admin/embeddings-source.tsx
+msgid "Their AI has no embeddings model, so \"laptop\" won't find a MacBook Pro. Each owner chooses a Search model in Settings → AI → Advanced; a Search model on this server's key covers every location without one."
+msgstr "Ihre KI hat kein Embedding-Modell, also findet „Laptop“ kein MacBook Pro. Jeder Eigentümer wählt ein Suchmodell unter Einstellungen → KI → Erweitert; ein Suchmodell auf dem Schlüssel dieses Servers deckt jeden Standort ohne eines ab."
