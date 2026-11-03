@@ -193,6 +193,6 @@ Each uses the mock unless `--provider` and `--model` are given. A real run reads
    `callSettingsFor` and, if it has embeddings, `embeddingModelFor`.
 4. Its model listing in `ai/models.ts` and its rate-limit headers in `ai/pacing.ts` (a provider
    without such headers is paced by Kept's budgets and the breaker only).
-5. The web labels in `apps/web/src/components/ai/` and strings in all five catalogues
+5. The web labels in `apps/web/src/components/ai/` and strings in all six catalogues
    ([i18n](/developers/i18n-rtl/)).
 6. Mock-backed tests for the new paths; a real smoke run is the maintainer's step.

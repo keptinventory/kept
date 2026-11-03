@@ -62,7 +62,7 @@ a location turns them on in **Location settings → What to track**
   and an optional end date; managed accounts for people without email; read-only share links for
   someone without an account.
 - **[Sign-in and security](/users/sign-in-security/)**: passkeys and two-factor sign-in.
-- **Five languages**: English, Arabic (right to left), French, German and Italian.
+- **Six languages**: English, Arabic (right to left), French, German, Italian and Vietnamese.
 
 ## On your phone
 
