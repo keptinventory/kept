@@ -28585,3 +28585,97 @@ msgstr "Vom Beleg genommen"
 
 msgid "The receipt and its other things stay as they are."
 msgstr "Der Beleg und seine anderen Gegenstände bleiben, wie sie sind."
+
+#: src/components/places/compartments.tsx
+msgid "As you face it."
+msgstr "Von vorn gesehen."
+
+#: src/components/places/compartments.tsx
+msgid "Choose compartments side by side to merge them, or one merged compartment to split it again."
+msgstr "Wähle nebeneinanderliegende Fächer, um sie zusammenzuführen, oder ein zusammengeführtes Fach, um es wieder aufzuteilen."
+
+#: src/components/places/compartments.tsx
+msgid "Compartments after turning"
+msgstr "Fächer nach dem Drehen"
+
+#: src/components/places/compartments.tsx
+msgid "Each gets the number and code of where it now stands, top left first. An old code opens the compartment now in its place; printed labels stay with theirs."
+msgstr "Jedes Fach bekommt die Nummer und den Code der Stelle, an der es jetzt steht, oben links zuerst. Ein alter Code öffnet das Fach, das jetzt an seiner Stelle ist; gedruckte Etiketten bleiben bei ihrem Fach."
+
+#: src/components/places/compartments.tsx
+msgid "Its compartments"
+msgstr "Seine Fächer"
+
+#: src/components/places/compartments.tsx
+msgid "Its top went"
+msgstr "Die Oberseite zeigt jetzt"
+
+#: src/components/places/compartments.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Keep the codes"
+msgstr "Codes behalten"
+
+#: src/components/places/compartments.tsx
+msgid "Merge or split…"
+msgstr "Zusammenführen oder aufteilen…"
+
+#: src/components/history/labels.ts
+msgid "Merged compartments of {name}"
+msgstr "Fächer von {name} zusammengeführt"
+
+#: src/components/places/compartments.tsx
+msgid "Merged into {merged}"
+msgstr "Zusammengeführt zu {merged}"
+
+#: src/components/places/compartments.tsx
+msgid "Only how it stands changes: each keeps its number, name and codes."
+msgstr "Nur wie es steht, ändert sich: Jedes Fach behält Nummer, Namen und Codes."
+
+#: src/components/places/compartments.tsx
+msgid "Print their labels"
+msgstr "Ihre Etiketten drucken"
+
+#: src/components/places/compartments.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Renumber"
+msgstr "Neu nummerieren"
+
+#: src/components/places/compartments.tsx
+msgid "Renumbered. Print their labels again for the new names."
+msgstr "Neu nummeriert. Drucke ihre Etiketten neu, damit die neuen Namen draufstehen."
+
+#: src/components/history/labels.ts
+msgid "Split a compartment of {name}"
+msgstr "Ein Fach von {name} aufgeteilt"
+
+#: src/components/places/compartments.tsx
+msgid "The numbers and codes are as they were."
+msgstr "Nummern und Codes sind wie vorher."
+
+#: src/components/places/compartments.tsx
+msgid "To the left"
+msgstr "Nach links"
+
+#: src/components/places/compartments.tsx
+msgid "To the right"
+msgstr "Nach rechts"
+
+#: src/assistant/confirm-card.tsx
+msgid "Top to the left"
+msgstr "Oben nach links"
+
+#: src/assistant/confirm-card.tsx
+msgid "Top to the right"
+msgstr "Oben nach rechts"
+
+#: src/components/places/compartments.tsx
+msgid "Turn {unit}"
+msgstr "{unit} drehen"
+
+#: src/components/places/compartments.tsx
+msgid "Turn it…"
+msgstr "Drehen…"
+
+#: src/components/places/compartments.tsx
+msgid "Turned {unit}"
+msgstr "{unit} gedreht"

@@ -20635,3 +20635,97 @@ msgstr "Đã gỡ khỏi biên lai"
 
 msgid "The receipt and its other things stay as they are."
 msgstr "Biên lai và các đồ vật khác vẫn giữ nguyên."
+
+#: src/components/places/compartments.tsx
+msgid "As you face it."
+msgstr "Nhìn từ phía trước."
+
+#: src/components/places/compartments.tsx
+msgid "Choose compartments side by side to merge them, or one merged compartment to split it again."
+msgstr "Chọn các ngăn nằm cạnh nhau để gộp, hoặc một ngăn đã gộp để tách lại."
+
+#: src/components/places/compartments.tsx
+msgid "Compartments after turning"
+msgstr "Các ngăn sau khi xoay"
+
+#: src/components/places/compartments.tsx
+msgid "Each gets the number and code of where it now stands, top left first. An old code opens the compartment now in its place; printed labels stay with theirs."
+msgstr "Mỗi ngăn nhận số và mã của vị trí hiện tại, bắt đầu từ góc trên bên trái. Mã cũ sẽ mở ngăn đang ở vị trí đó; nhãn đã in vẫn đi theo ngăn của nó."
+
+#: src/components/places/compartments.tsx
+msgid "Its compartments"
+msgstr "Các ngăn của nó"
+
+#: src/components/places/compartments.tsx
+msgid "Its top went"
+msgstr "Phần trên giờ ở"
+
+#: src/components/places/compartments.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Keep the codes"
+msgstr "Giữ nguyên mã"
+
+#: src/components/places/compartments.tsx
+msgid "Merge or split…"
+msgstr "Gộp hoặc tách…"
+
+#: src/components/history/labels.ts
+msgid "Merged compartments of {name}"
+msgstr "Đã gộp các ngăn của {name}"
+
+#: src/components/places/compartments.tsx
+msgid "Merged into {merged}"
+msgstr "Đã gộp vào {merged}"
+
+#: src/components/places/compartments.tsx
+msgid "Only how it stands changes: each keeps its number, name and codes."
+msgstr "Chỉ cách đặt thay đổi: mỗi ngăn giữ nguyên số, tên và mã."
+
+#: src/components/places/compartments.tsx
+msgid "Print their labels"
+msgstr "In nhãn của chúng"
+
+#: src/components/places/compartments.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Renumber"
+msgstr "Đánh số lại"
+
+#: src/components/places/compartments.tsx
+msgid "Renumbered. Print their labels again for the new names."
+msgstr "Đã đánh số lại. Hãy in lại nhãn để có tên mới."
+
+#: src/components/history/labels.ts
+msgid "Split a compartment of {name}"
+msgstr "Đã tách một ngăn của {name}"
+
+#: src/components/places/compartments.tsx
+msgid "The numbers and codes are as they were."
+msgstr "Số và mã vẫn như cũ."
+
+#: src/components/places/compartments.tsx
+msgid "To the left"
+msgstr "Bên trái"
+
+#: src/components/places/compartments.tsx
+msgid "To the right"
+msgstr "Bên phải"
+
+#: src/assistant/confirm-card.tsx
+msgid "Top to the left"
+msgstr "Phần trên sang trái"
+
+#: src/assistant/confirm-card.tsx
+msgid "Top to the right"
+msgstr "Phần trên sang phải"
+
+#: src/components/places/compartments.tsx
+msgid "Turn {unit}"
+msgstr "Xoay {unit}"
+
+#: src/components/places/compartments.tsx
+msgid "Turn it…"
+msgstr "Xoay…"
+
+#: src/components/places/compartments.tsx
+msgid "Turned {unit}"
+msgstr "Đã xoay {unit}"
