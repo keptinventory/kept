@@ -4,7 +4,15 @@
  * the way the server does), pagination over `next_cursor`, If-Match checks with the D156 412
  * body, and a small Arabic-aware fold for search. Test and demo data only.
  */
-import { isAuditAction, naturalCompare } from '@kept/shared';
+import {
+  canTurn,
+  compartmentOf,
+  type FurnitureLayout,
+  gridOf,
+  isAuditAction,
+  naturalCompare,
+  type StoredCell,
+} from '@kept/shared';
 import type { LocationDetail } from '../../types';
 import type {
   AccountSummary,
@@ -35,10 +43,16 @@ import type {
 
 export type StoredPlace = Omit<
   PlaceView,
-  'path' | 'counts' | 'attachments' | 'labelPrinted' | 'childOrder'
+  'path' | 'counts' | 'attachments' | 'labelPrinted' | 'childOrder' | 'furniture'
 > & {
   /** A label of it was confirmed printed (the labels mock sets it). */
   labelPrinted?: boolean;
+  /** Furniture made from a place template (#238): its layout as it stands, and its patterns. */
+  layout?: FurnitureLayout & { compartmentName: string | null; codePattern: string | null };
+  /** A compartment of furniture: where it sits (packages/shared compartments.ts). */
+  cell?: StoredCell;
+  /** Its own codes (the furniture mock keeps them; the codes mock has its own). */
+  ownCodes?: string[];
   sort: number;
   /** Absent: A to Z. */
   childOrder?: PlaceView['childOrder'];
@@ -280,7 +294,16 @@ export function boxNodesOf(inv: InventoryState, locationId: string): BoxNode[] {
 }
 
 export function placeViewOf(inv: InventoryState, p: StoredPlace): PlaceView {
-  const { deletedAt: _d, trashBatchId: _b, deletedBy: _by, sort: _s, ...own } = p;
+  const {
+    deletedAt: _d,
+    trashBatchId: _b,
+    deletedBy: _by,
+    sort: _s,
+    layout: _l,
+    cell: _c,
+    ownCodes: _o,
+    ...own
+  } = p;
   const node = placeNodeOf(inv, p);
   return {
     ...own,
@@ -291,7 +314,55 @@ export function placeViewOf(inv: InventoryState, p: StoredPlace): PlaceView {
     attachments: inv.attachments.filter(
       (a) => 'placeId' in a.subject && a.subject.placeId === p.id,
     ),
+    furniture: furnitureOf(inv, p),
   };
+}
+
+/** Furniture's compartments as the server's place view has them (#238), or null. */
+export function furnitureOf(inv: InventoryState, p: StoredPlace): PlaceView['furniture'] {
+  if (!p.layout) return null;
+  const grid = gridOf(p.layout);
+  const compartments = compartmentsOf(inv, p.id, grid).map(({ place, c }) => ({
+    id: c.id,
+    name: c.name,
+    n: c.n,
+    row: c.row,
+    col: c.col,
+    rows: c.rows,
+    cols: c.cols,
+    shortCode: place.shortCode,
+    code: c.codes[0] ?? null,
+    things: inv.things.filter((t) => t.placeId === c.id && !t.deletedAt).length,
+  }));
+  const { compartmentName, codePattern, orientation, ...size } = p.layout;
+  return {
+    layout: { ...size, orientation },
+    columns: grid.columns,
+    rows: grid.rows,
+    canTurn: canTurn(p.layout),
+    compartmentName,
+    codePattern,
+    compartments: compartments.sort((a, b) => a.n - b.n),
+  };
+}
+
+/** Furniture's live compartments, with the rules' view of each. */
+export function compartmentsOf(
+  inv: InventoryState,
+  furnitureId: string,
+  grid: { columns: number; rows: number },
+) {
+  return inv.places
+    .filter((k) => k.parentId === furnitureId && !k.deletedAt && k.cell)
+    .map((place) => ({
+      place,
+      c: compartmentOf(
+        { id: place.id, name: place.name, cell: place.cell as StoredCell },
+        grid,
+        place.ownCodes ?? [],
+        [],
+      ),
+    }));
 }
 
 // ----- lists -----------------------------------------------------------------------------------

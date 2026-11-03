@@ -6,6 +6,7 @@ import type { MockState } from '../../mock/fixtures';
 import type { MockRoute } from '../../mock/kit';
 import { codesRoutes } from './codes';
 import { filesRoutes } from './files';
+import { furnitureRoutes } from './furniture';
 import { homeRoutes } from './home';
 import { placeTemplatesRoutes } from './place-templates';
 import { placesRoutes } from './places';
@@ -21,6 +22,7 @@ export function inventoryMockRoutes(state: MockState): MockRoute[] {
     ...placesRoutes(state),
     // #238: place templates, and furniture made from one.
     ...placeTemplatesRoutes(state),
+    ...furnitureRoutes(state),
     ...thingsRoutes(state),
     ...filesRoutes(state),
     ...searchRoutes(state),

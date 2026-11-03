@@ -159,16 +159,34 @@ export function placeTemplatesRoutes(state: MockState): MockRoute[] {
         deletedBy: null,
         ...over,
       });
-      const furniture = base({ id: b.id ?? newId(), name: b.name.trim(), childOrder: 'custom' });
+      const furniture = base({
+        id: b.id ?? newId(),
+        name: b.name.trim(),
+        childOrder: 'custom',
+        layout: {
+          ...layout,
+          orientation: b.orientation ?? 'upright',
+          compartmentName: pattern,
+          codePattern: codePattern ?? null,
+        },
+        ...(b.code ? { ownCodes: [b.code.toUpperCase()] } : {}),
+      });
       const cells = cellsOf(layout, b.orientation ?? 'upright');
-      const kids = cells.map((cell) =>
-        base({
+      const codeAt = (cell: (typeof cells)[number]) =>
+        codePattern
+          ? fillPattern(codePattern, { ...cell, parent: b.code ?? null }).toUpperCase()
+          : null;
+      const kids = cells.map((cell) => {
+        const code = codeAt(cell);
+        return base({
           parentId: furniture.id,
           name: fillPattern(pattern, cell),
           kindKey: source.compartmentKindKey,
           sort: cell.n - 1,
-        }),
-      );
+          cell: { row: cell.row, col: cell.col, n: cell.n },
+          ...(code ? { ownCodes: [code] } : {}),
+        });
+      });
       inv().places.push(furniture, ...kids);
       const ids = new Set([furniture.id, ...kids.map((k) => k.id)]);
       recordEvent(inv(), me(), {
@@ -189,9 +207,7 @@ export function placeTemplatesRoutes(state: MockState): MockRoute[] {
           n: cell.n,
           row: cell.row,
           col: cell.col,
-          code: codePattern
-            ? fillPattern(codePattern, { ...cell, parent: b.code ?? null }).toUpperCase()
-            : null,
+          code: codeAt(cell),
         })),
       };
       return reply(201, result);

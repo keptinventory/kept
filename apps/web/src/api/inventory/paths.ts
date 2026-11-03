@@ -58,6 +58,10 @@ export const inventoryPaths = {
   /** #238: furniture and its compartments from a place template, in one step. */
   placesFromTemplate: (locationId: string) =>
     `${V1}/locations/${seg(locationId)}/places/from-template`,
+  /** #238 (1.14.4): furniture turned, compartments merged or split → `{place}`. */
+  placeTurn: (id: string) => `${V1}/places/${seg(id)}/turn`,
+  placeMergeCompartments: (id: string) => `${V1}/places/${seg(id)}/merge-compartments`,
+  placeSplitCompartment: (id: string) => `${V1}/places/${seg(id)}/split-compartment`,
   /** GET `?locationId`: the account's place templates usable there. */
   placeTemplates: `${V1}/place-templates`,
   placeTemplate: (id: string) => `${V1}/place-templates/${seg(id)}`,
@@ -181,6 +185,9 @@ export const METHODS: Record<keyof typeof inventoryPaths, readonly Method[]> = {
   placeConvertChildren: ['POST'],
   placeReorder: ['POST'],
   placesFromTemplate: ['POST'],
+  placeTurn: ['POST'],
+  placeMergeCompartments: ['POST'],
+  placeSplitCompartment: ['POST'],
   placeTemplates: ['GET'],
   placeTemplate: ['PATCH', 'DELETE'],
   accountPlaceTemplates: ['GET', 'POST'],

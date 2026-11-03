@@ -57,6 +57,7 @@ import { ActionRow } from '@/components/places/action-row';
 import { AddHere } from '@/components/places/add-here-sheet';
 import { placeApi, subtreeOf, useInvalidateBrowse, usePlaceTree } from '@/components/places/api';
 import { Breadcrumb } from '@/components/places/breadcrumb';
+import { CompartmentsSection } from '@/components/places/compartments-lazy';
 import { ContentsList } from '@/components/places/contents-list';
 import { placeSearch } from '@/components/places/contents-search';
 import { ConvertToContainerDialog } from '@/components/places/convert-dialog';
@@ -358,6 +359,15 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
           }
         />
       </List>
+
+      {/* #238: furniture's compartments, as it stands: turned, merged or split here. */}
+      {map || graph || !place.furniture ? null : (
+        <CompartmentsSection
+          place={place}
+          canEdit={canEdit}
+          labels={(location.effectiveModules ?? location.modules).includes('labels')}
+        />
+      )}
 
       {map || graph ? null : (
         <ContentsList
