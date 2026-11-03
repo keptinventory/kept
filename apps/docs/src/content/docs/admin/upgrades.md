@@ -23,7 +23,7 @@ A release can change `compose.yaml` too; its notes say so. Download the release'
 
 ### Caddy and Ollama moved to compose.full.yaml
 
-From the release after 1.14.4, `compose.yaml` runs Kept and its database only. Caddy (the `https`
+From 1.14.5, `compose.yaml` runs Kept and its database only. Caddy (the `https`
 profile), Ollama (the `ollama` profile) and the commented split deployment are in
 `compose.full.yaml`: the same file plus those. **If you use Caddy or Ollama**, download
 `compose.full.yaml` instead and set `COMPOSE_FILE=compose.full.yaml` in `.env`:
