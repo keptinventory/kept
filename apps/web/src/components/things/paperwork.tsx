@@ -15,7 +15,7 @@ import { useMemo, useState } from 'react';
 import { thingApi, useInvalidateThing, useThingAttachments } from '@/api/inventory/thing-api';
 import type { AttachmentRole, AttachmentView, Page } from '@/api/inventory/types';
 import type { PaperlessLink } from '@/api/paperless/types';
-import { DocumentIcon, ShareIcon, TrashIcon } from '@/components/icons';
+import { DocumentIcon, PencilIcon, ShareIcon, TrashIcon } from '@/components/icons';
 import { ListSurface } from '@/components/list-surface';
 import { EmptyState, Row, Section, useErrorText } from '@/components/page';
 import {
@@ -24,6 +24,11 @@ import {
   PaperlessLinkRow,
   usePaperlessPaperwork,
 } from '@/components/paperless/documents';
+import {
+  attachmentTitle,
+  mayChangeAttachment,
+  RenameFileSheet,
+} from '@/components/paperwork/rename-sheet';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { useConfirm } from '@/components/ui/confirm';
@@ -164,7 +169,7 @@ export function PaperworkSection() {
 }
 
 function AttachmentRow({ attachment: a }: { attachment: AttachmentView }) {
-  const { thing, can, me } = useThingCtx();
+  const { thing, can, me, role } = useThingCtx();
   const { t } = useLingui();
   const fmt = useFormat();
   const roles = useRoleLabels();
@@ -174,6 +179,10 @@ function AttachmentRow({ attachment: a }: { attachment: AttachmentView }) {
   const invalidate = useInvalidateThing();
   const mayDelete =
     a.createdBy.displayName === me ? can('attachments.delete-own') : can('attachments.delete-any');
+  const [renaming, setRenaming] = useState(false);
+  // Its name when it has one (#183), its kind under it.
+  const title = attachmentTitle(a, roles[a.role]);
+  const named = title !== roles[a.role];
   const size = a.file ? `${fmt.num(Math.max(1, Math.round(a.file.bytes / 1024)))} KB` : null;
   return (
     <Row
@@ -186,9 +195,15 @@ function AttachmentRow({ attachment: a }: { attachment: AttachmentView }) {
           </span>
         )
       }
-      title={roles[a.role]}
+      title={named ? <bdi>{title}</bdi> : title}
       subtitle={
         <>
+          {named ? (
+            <>
+              {roles[a.role]}
+              {sep()}
+            </>
+          ) : null}
           {a.file?.derivativeState === 'unavailable' ? (
             <>
               <Trans>Preview unavailable</Trans>
@@ -216,6 +231,16 @@ function AttachmentRow({ attachment: a }: { attachment: AttachmentView }) {
               <Trans>Open</Trans>
             )}
           </Button>
+          {mayChangeAttachment(a, role, me) ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={t`Name ${title}`}
+              onPress={() => setRenaming(true)}
+            >
+              <PencilIcon />
+            </Button>
+          ) : null}
           {mayDelete ? (
             <Button
               variant="ghost"
@@ -246,6 +271,12 @@ function AttachmentRow({ attachment: a }: { attachment: AttachmentView }) {
               <TrashIcon />
             </Button>
           ) : null}
+          <RenameFileSheet
+            attachment={renaming ? a : null}
+            what={title}
+            onClose={() => setRenaming(false)}
+            onRenamed={() => invalidate(thing.id)}
+          />
         </span>
       }
     />

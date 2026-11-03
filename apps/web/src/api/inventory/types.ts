@@ -1147,6 +1147,8 @@ export type AttachmentView = {
   /** A URL attachment (never fetched by the server, D128). */
   url: string | null;
   subject: AttachmentSubject;
+  /** What people named it (#183): "Insurance 2026". Null or absent: it shows as its role. */
+  name?: string | null;
   createdBy: ActorRef;
   /** For PATCH /api/v1/attachments/:id (If-Match). */
   rowVersion: number;
@@ -1162,8 +1164,8 @@ export type CreateAttachmentBody = {
   role: AttachmentRole;
   sort?: number;
 };
-/** PATCH /api/v1/attachments/:id (If-Match). */
-export type UpdateAttachmentBody = { role?: AttachmentRole; sort?: number };
+/** PATCH /api/v1/attachments/:id (If-Match). `name`: trimmed, at most 200; "" or null clears it. */
+export type UpdateAttachmentBody = { role?: AttachmentRole; sort?: number; name?: string | null };
 
 // ----- secrets ---------------------------------------------------------------------------------
 

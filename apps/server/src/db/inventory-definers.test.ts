@@ -308,7 +308,7 @@ describe('kept.move_things() across accounts', () => {
     );
     const receipt = await file(m, m.userId);
     await own(
-      `INSERT INTO public.attachments (location_id, file_id, purchase_id, role, created_by) VALUES ($1, $2, $3, 'receipt', $4)`,
+      `INSERT INTO public.attachments (location_id, file_id, purchase_id, role, name, created_by) VALUES ($1, $2, $3, 'receipt', 'Phone shop receipt', $4)`,
       [m.locationId, receipt, purchase, m.userId],
     );
     const phone = await thing(m, { name: 'Phone', typeId: foldable });
@@ -382,12 +382,15 @@ describe('kept.move_things() across accounts', () => {
       own<{ storage_key: string }>('SELECT storage_key FROM public.files WHERE id = $1', [id]).then(
         (r) => r[0]?.storage_key,
       );
-    const [receiptCopy] = await own<{ file_id: string; location_id: string }>(
-      `SELECT a.file_id, f.location_id FROM public.attachments a JOIN public.files f ON f.id = a.file_id
+    const [receiptCopy] = await own<{ file_id: string; location_id: string; name: string }>(
+      `SELECT a.file_id, f.location_id, a.name FROM public.attachments a
+         JOIN public.files f ON f.id = a.file_id
         WHERE a.purchase_id = $1`,
       [copied?.purchase_id],
     );
     expect(receiptCopy?.location_id).toBe(b.locationId);
+    // Its name goes with it (#183).
+    expect(receiptCopy?.name).toBe('Phone shop receipt');
     expect(await storage(receiptCopy?.file_id as string)).toBe(await storage(receipt));
     const [photoCopy] = await own<{ file_id: string; location_id: string }>(
       `SELECT a.file_id, f.location_id FROM public.attachments a JOIN public.files f ON f.id = a.file_id

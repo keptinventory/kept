@@ -112,7 +112,8 @@ function ReceiptButton({ receipt, n }: { receipt: AttachmentView; n: number }) {
       ) : (
         <DocumentIcon className="size-4" />
       )}
-      <Trans>Receipt {fmt.num(n)}</Trans>
+      {/* Its name when it has one (#183), else "Receipt 1". */}
+      {receipt.name?.trim() ? <bdi>{receipt.name}</bdi> : <Trans>Receipt {fmt.num(n)}</Trans>}
     </Button>
   );
 }

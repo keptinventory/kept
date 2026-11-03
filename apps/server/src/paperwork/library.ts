@@ -141,7 +141,7 @@ export async function listPaperwork(
       SELECT kept.search_file_ids((SELECT tsq FROM terms), ${loc}) AS id
       UNION
       SELECT kept.search_file_ids((SELECT ptsq FROM terms), ${loc}))`);
-    const doc = `to_tsvector('simple', kept.search_text(concat_ws(' ', j.subject->>'name', d.title)))`;
+    const doc = `to_tsvector('simple', kept.search_text(concat_ws(' ', j.subject->>'name', d.title, a.name)))`;
     where.push(`(a.file_id IN (SELECT id FROM hits)
                  OR (terms.tsq IS NOT NULL AND ${doc} @@ terms.tsq)
                  OR (terms.ptsq IS NOT NULL AND ${doc} @@ terms.ptsq))`);

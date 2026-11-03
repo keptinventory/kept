@@ -80,6 +80,8 @@ export type AttachmentView = {
   file: FileView | null;
   url: string | null;
   subject: AttachmentSubject;
+  /** What people named it (#183), or null: the web shows its role. */
+  name: string | null;
   createdBy: { displayName: string };
   /** For PATCH's If-Match (D156). Not in the web contract's type yet; additive. */
   rowVersion: number;
@@ -201,6 +203,7 @@ export type AttachmentRow = { [C in SubjectColumn]: string | null } & {
   file_id: string | null;
   url: string | null;
   role: AttachmentRole;
+  name: string | null;
   sort: number;
   created_by: string;
   row_version: number;
@@ -209,7 +212,7 @@ export type AttachmentRow = { [C in SubjectColumn]: string | null } & {
 
 export const ATTACHMENT_SELECT = `SELECT a.id, a.location_id, a.file_id, a.url,
        ${SUBJECT_COLUMNS.map(([c]) => `a.${c}`).join(', ')},
-       a.role, a.sort, a.created_by, a.row_version, up.display_name
+       a.role, a.name, a.sort, a.created_by, a.row_version, up.display_name
   FROM public.attachments a
   LEFT JOIN public.user_profiles up ON up.user_id = a.created_by`;
 
@@ -251,6 +254,7 @@ export async function attachmentViews(
         file: file ? await fileViewOf(files, file, keys) : null,
         url: r.url,
         subject: subjectOf(r),
+        name: r.name,
         createdBy: { displayName: r.display_name ?? '' },
         rowVersion: r.row_version,
       };

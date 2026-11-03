@@ -706,6 +706,25 @@ describe('reads', () => {
     expect(d.items).toEqual([]);
   });
 
+  it('find_documents gives a named file’s name as its untrusted title (#183)', async () => {
+    const [a] = await own<{ id: string }>(
+      db,
+      `INSERT INTO public.attachments (location_id, url, thing_id, role, name, created_by)
+       VALUES ($1, 'https://example.com/manual.pdf', $2, 'manual', 'Cable spec sheet', $3)
+       RETURNING id`,
+      [home.id, cable.id, ibrahim.userId],
+    );
+    const d = await data(louis, 'find_documents', { thing_id: cable.id });
+    expect(d.items).toEqual([
+      expect.objectContaining({
+        attachment_id: a?.id,
+        role: 'manual',
+        untrusted: { title: 'Cable spec sheet', subject: 'HDMI cable' },
+      }),
+    ]);
+    await own(db, 'DELETE FROM public.attachments WHERE id = $1', [a?.id]);
+  });
+
   it('pages 20 by default, at most 200, under 8 KB, with a cursor that loses nothing', async () => {
     const pad = 'x'.repeat(150);
     await data(ibrahim, 'add_thing', {

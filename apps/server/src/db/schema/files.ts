@@ -149,6 +149,8 @@ export const attachments = pgTable(
     /** 1.14.3 (D266): a floor plan's upload while it is reviewed (role `document`, under review). */
     floorPlanId: uuid('floor_plan_id'),
     role: attachmentRole.col().notNull(),
+    /** 1.14.4 (#183): what the file is, as people name it ("Insurance 2026"); null shows its role. */
+    name: text('name'),
     sort: integer('sort').notNull().default(0),
     /**
      * A room photo (#194) whose Room card is still open: only the location's members and up
@@ -169,6 +171,7 @@ export const attachments = pgTable(
                        expiring_document_id, fuel_entry_id, condition_room_id,
                        floor_plan_id) <= 1`,
     ),
+    check('attachments_name_chk', sql`name IS NULL OR char_length(name) BETWEEN 1 AND 200`),
     check(
       'attachments_url_chk',
       sql`url IS NULL OR (url ~ '^https?://' AND char_length(url) <= 2000)`,

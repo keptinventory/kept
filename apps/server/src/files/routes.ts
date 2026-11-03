@@ -34,7 +34,7 @@ import { AttachmentSubjectSchema } from './views.js';
 // DELETE /api/v1/files/:id {reason}                  "delete original", owners and admins → 204;
 //                                                    its blobs go after the commit unless shared
 // POST   /api/v1/attachments                         → 201 AttachmentView
-// PATCH  /api/v1/attachments/:id (If-Match)          → 200 AttachmentView
+// PATCH  /api/v1/attachments/:id (If-Match)          → 200 AttachmentView {role?, sort?, name?}
 // DELETE /api/v1/attachments/:id                     → 204
 // GET    /api/v1/{things|places|purchases|locations}/:id/attachments?role&cursor&limit
 // GET    /f/<token>                                  the bytes; no session is read
@@ -88,9 +88,18 @@ const AttachmentViewSchema = z.object({
   file: FileViewSchema.nullable(),
   url: z.string().nullable(),
   subject: AttachmentSubjectSchema,
+  name: z.string().nullable(),
   createdBy: z.object({ displayName: z.string() }),
   rowVersion: z.number(),
 });
+
+/** A file's name as people type it (#183): trimmed; empty clears it. */
+export const AttachmentName = z
+  .string()
+  .trim()
+  .max(200)
+  .transform((s) => (s === '' ? null : s))
+  .nullable();
 
 const Sort = z.number().int().min(-1_000_000).max(1_000_000);
 
@@ -116,6 +125,7 @@ const CreateAttachmentBody = z
 const UpdateAttachmentBody = z.strictObject({
   role: z.enum(ATTACHMENT_ROLES).optional(),
   sort: Sort.optional(),
+  name: AttachmentName.optional(),
 });
 
 const ListQuery = paginationQuery.extend({ role: z.enum(ATTACHMENT_ROLES).optional() });

@@ -112,6 +112,8 @@ const AttachmentSchema = z.object({
   file: FileViewSchema.nullable(),
   url: z.string().nullable(),
   subject: AttachmentSubjectSchema,
+  /** What people named it (#183); null shows its role. */
+  name: z.string().nullable().optional(),
   createdBy: z.object({ displayName: z.string() }),
   rowVersion: z.number().optional(),
 });

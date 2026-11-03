@@ -19,8 +19,9 @@ import { useMemo, useState } from 'react';
 import { householdApi, householdKeys, useDocuments, usePaperwork } from '@/api/household/queries';
 import type { ExpiringDocument, PaperworkRow, SubjectInput } from '@/api/household/types';
 import type { AttachmentSubject } from '@/api/inventory/types';
+import { useMe } from '@/api/queries';
 import { useOfferUndo } from '@/components/history/undo';
-import { ClockIcon, DocumentIcon } from '@/components/icons';
+import { ClockIcon, DocumentIcon, PencilIcon } from '@/components/icons';
 import { OverflowActions } from '@/components/inbox/overflow-actions';
 import { List, Pill, Row, Section, useErrorText } from '@/components/page';
 import {
@@ -29,6 +30,11 @@ import {
   PaperlessLinkRow,
   usePaperlessPaperwork,
 } from '@/components/paperless/documents';
+import {
+  attachmentTitle,
+  mayChangeAttachment,
+  RenameFileSheet,
+} from '@/components/paperwork/rename-sheet';
 import { FileOpenButton } from '@/components/paperwork/rows';
 import { useRoleLabels } from '@/components/things/labels';
 import { UploadButton } from '@/components/things/upload';
@@ -164,7 +170,7 @@ export function SubjectPaperwork({
           ))}
           {plain.map((r) => (
             <li key={r.attachment.id}>
-              <FileRow row={r} original={original} />
+              <FileRow row={r} original={original} role={role} onRenamed={onCopied} />
             </li>
           ))}
           {links.map((l) => (
@@ -301,10 +307,26 @@ function DocumentRow({
   );
 }
 
-function FileRow({ row, original }: { row: PaperworkRow; original: boolean }) {
+function FileRow({
+  row,
+  original,
+  role,
+  onRenamed,
+}: {
+  row: PaperworkRow;
+  original: boolean;
+  role: Role;
+  onRenamed: () => void;
+}) {
+  const { t } = useLingui();
   const roles = useRoleLabels();
+  const me = useMe().data?.user.displayName ?? '';
+  const online = useOnline();
+  const [renaming, setRenaming] = useState(false);
   const a = row.attachment;
-  const title = roles[a.role];
+  // Its name when it has one (#183), its kind under it.
+  const title = attachmentTitle(a, roles[a.role]);
+  const named = title !== roles[a.role];
   return (
     <Row
       leading={
@@ -316,9 +338,40 @@ function FileRow({ row, original }: { row: PaperworkRow; original: boolean }) {
           </span>
         )
       }
-      title={title}
-      subtitle={<bdi>{a.createdBy.displayName}</bdi>}
-      trailing={<FileOpenButton attachment={a} original={original} what={title} />}
+      title={named ? <bdi>{title}</bdi> : title}
+      subtitle={
+        <>
+          {named ? (
+            <>
+              {roles[a.role]}
+              {sep()}
+            </>
+          ) : null}
+          <bdi>{a.createdBy.displayName}</bdi>
+        </>
+      }
+      trailing={
+        <span className="flex gap-1">
+          <FileOpenButton attachment={a} original={original} what={title} />
+          {mayChangeAttachment(a, role, me) ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={t`Name ${title}`}
+              isDisabled={!online}
+              onPress={() => setRenaming(true)}
+            >
+              <PencilIcon />
+            </Button>
+          ) : null}
+          <RenameFileSheet
+            attachment={renaming ? a : null}
+            what={title}
+            onClose={() => setRenaming(false)}
+            onRenamed={onRenamed}
+          />
+        </span>
+      }
     />
   );
 }

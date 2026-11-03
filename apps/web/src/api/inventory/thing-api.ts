@@ -34,6 +34,7 @@ import type {
   ThingView,
   TrashBody,
   TypeDetail,
+  UpdateAttachmentBody,
   UpdateReadingBody,
 } from './types';
 
@@ -85,6 +86,9 @@ export const thingApi = {
   attachments: (id: string, params: { role?: string; cursor?: string } = {}) =>
     api.get<Page<AttachmentView>>(p.thingAttachments(id) + qs(params)),
   deleteAttachment: (id: string) => api.del(p.attachment(id)),
+  /** Rename (#183), re-role or re-sort one; If-Match. */
+  updateAttachment: (id: string, body: UpdateAttachmentBody, rowVersion: number) =>
+    api.patch<AttachmentView>(p.attachment(id), body, ifMatch(rowVersion)),
 };
 
 /** The upload URL: `PUT /files/:id?locationId=&class=` (task 17). */
