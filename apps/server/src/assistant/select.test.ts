@@ -100,10 +100,44 @@ describe('choosing the tools a step offers', () => {
     ['Gắn thẻ cắm trại cho cái lều', 'tag_things'],
     ['Pin AA còn lại bao nhiêu?', 'adjust_stock'],
     ['Ai đã chuyển webcam HD?', 'thing_history'],
+    // A room with its size, said as people say it.
+    ['Add a bedroom, 4 by 3', 'create_place'],
+    ['Add a bathroom 2.5 x 2 m', 'create_place'],
+    ['Add a kitchen, 4m by 3m', 'create_place'],
+    ['Ajoute une chambre de 4 sur 3', 'create_place'],
+    ['Füge ein Schlafzimmer hinzu, 4 x 3 m', 'create_place'],
+    ['Leg ein Badezimmer an', 'create_place'],
+    ['Aggiungi una camera da letto 4x3', 'create_place'],
+    ['un bagno di 3 per 2 m', 'create_place'],
+    ['أضف مطبخ ٤ في ٣', 'create_place'],
+    ['Pin AA còn mấy cái?', 'adjust_stock'],
+    ['Lịch bảo trì của máy lọc nước', 'upcoming'],
   ] as const)('“%s” offers %s', (question, tool) => {
     expect(offered(question)).toContain(tool);
     // The core is always there.
     for (const t of CORE_TOOLS) expect(offered(question)).toContain(t);
+  });
+
+  it.each([
+    ['What size is the TV?', 'create_place'],
+    ['How long is the HDMI cable? What length?', 'create_place'],
+    ['Who turned the heater on?', 'update_place'],
+    ['Where is the upright vacuum?', 'update_place'],
+    ['Where is the 5 metre tape measure?', 'create_place'],
+    ['Dov’è il metro a nastro?', 'create_place'],
+    ['Dov’è la ruota di scorta?', 'update_place'],
+    ['Wo ist der Drehmomentschlüssel?', 'update_place'],
+    ['Où est le mètre ruban ?', 'create_place'],
+    ['Where is my camera?', 'create_place'],
+    ['كم كيلومتر على العداد؟', 'create_place'],
+    ['Máy ảnh ở đâu?', 'create_place'],
+    ['Tủ lạnh mua khi nào?', 'create_place'],
+    ['Trả lời giúp tôi: cái khoan ở đâu?', 'return_thing'],
+    ['Thẻ nhớ ở đâu?', 'tag_things'],
+    ['Lịch sử của cái TV', 'upcoming'],
+    ['Đồ du lịch để ở đâu?', 'upcoming'],
+  ] as const)('“%s” is an ordinary question: no %s', (question, tool) => {
+    expect(offered(question)).not.toContain(tool);
   });
 
   it('matches a word’s start in Latin scripts: “scarves” is not a car', () => {
