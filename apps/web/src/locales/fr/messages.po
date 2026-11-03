@@ -28710,4 +28710,4 @@ msgstr "Facultatif, au centimètre près. Laissez vide et la carte dimensionne l
 
 #: src/map/floor-plan/panel.tsx
 msgid "Under 50 cm: too small for the map."
-msgstr "Moins de 50 cm : trop petite pour le plan."
+msgstr "Moins de 50 cm : trop petite pour la carte."
