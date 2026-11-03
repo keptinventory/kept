@@ -114,8 +114,8 @@ own rate limit is not a pause: progress lines say "Waiting for Groq · about 20 
 named it (Groq's free tier: 8,000 tokens a minute). Each request carries the tools the question is
 about: finding things and the everyday changes always, and lending, schedules, warranties,
 documents, vehicles, stock, history or places when the question (or the thread's last ones) names
-them, in any of Kept's five languages; a tool the model asks for that wasn't sent is sent on its
-next step. A first question with every module on comes to about 2,900 tokens before its answer's
+them, in any of Kept's six languages; a tool the model asks for that wasn't sent is sent on its
+next step. A first question with every module on comes to about 3,100 tokens before its answer's
 allowance. If a request is still too big, Kept sends fewer tools, then asks for a shorter answer,
 then leaves out the oldest tool results from what it sends; the thread keeps them. A question that
 still can't fit fails with "too large": a model or plan with a higher limit answers it.
