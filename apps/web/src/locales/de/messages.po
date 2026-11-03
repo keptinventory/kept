@@ -28578,7 +28578,7 @@ msgid "Take {0} off this receipt?"
 msgstr "{0} von diesem Beleg nehmen?"
 
 msgid "Take it off"
-msgstr "Abnehmen"
+msgstr "Vom Beleg nehmen"
 
 msgid "Taken off the receipt"
 msgstr "Vom Beleg genommen"
