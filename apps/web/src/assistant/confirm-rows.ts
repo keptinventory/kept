@@ -377,9 +377,8 @@ export function rowsOf(p: Proposal): CardRow[] {
       for (const [k, v] of Object.entries(rec(f.custom)))
         push('custom', { t: 'text', v: `${k}: ${v === null ? '' : String(v)}` });
       if (a.move === 'up' || a.move === 'down') push('step', { t: 'step', v: a.move });
-      const turn = rec(a.turn);
-      if (turn.direction === 'right' || turn.direction === 'left')
-        push('turn', { t: 'turn', v: turn.direction, renumber: turn.renumber === true });
+      if (a.turn === 'right' || a.turn === 'left')
+        push('turn', { t: 'turn', v: a.turn, renumber: a.renumber === true });
       return [{ ...base, verb: 'change', target: target(a.place_id), fields }];
     }
     case 'turn_into_boxes': {

@@ -306,7 +306,8 @@ describe('update_place', () => {
     const c = ctx(louis);
     const d = await data(c, 'update_place', {
       place_id: made.place.id,
-      turn: { direction: 'right', renumber: true },
+      turn: 'right',
+      renumber: true,
     });
     const [event] = await events(c.requestId);
     expect(event).toMatchObject({ id: d.audit_event_id, action: 'place.turn' });
@@ -319,7 +320,8 @@ describe('update_place', () => {
     expect(
       await refusal(louis, 'update_place', {
         place_id: study,
-        turn: { direction: 'left', renumber: false },
+        turn: 'left',
+        renumber: false,
       }),
     ).toBe('conflict');
   });

@@ -59,7 +59,9 @@ export const updatePlaceTool: Handler<'update_place'> = {
       await updatePlace(op, id, expected, body).catch(loopRefusal);
     }
     // #238: furniture turned, as the app's Turn it (one undoable `place.turn`).
-    if (input.turn) await turnFurniture(op, id, input.turn);
+    if (input.turn) {
+      await turnFurniture(op, id, { direction: input.turn, renumber: input.renumber === true });
+    }
     let order: string[] | undefined;
     let parentId: string | null = null;
     if (input.move) {

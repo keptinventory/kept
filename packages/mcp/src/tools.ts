@@ -814,7 +814,7 @@ export const TOOL_DEFS = Object.freeze({
     name: 'update_place',
     title: 'Change a place',
     description:
-      'Change a place: its name, kind, parent, fields or the order inside it. `move` steps it up or down in Custom order; `turn` turns furniture with compartments onto its side or back.',
+      'Change a place: its name, kind, parent, fields or the order inside it. `move` steps it up or down in Custom order; `turn` (where its top went) turns furniture, with `renumber`.',
     scope: 'write',
     module: null,
     since: '1.x',
@@ -829,12 +829,8 @@ export const TOOL_DEFS = Object.freeze({
               .string()
               .max(40)
               .describe(`A place kind: ${BUILTIN_PLACE_KINDS.join(', ')} or the account’s own`),
-            parent_id: idOrCode
-              .nullable()
-              .describe('The place it goes inside; null: the top of the location'),
-            child_order: z
-              .enum(CHILD_ORDERS)
-              .describe('The places inside it: `name` A to Z, or `custom`, their own order'),
+            parent_id: idOrCode.nullable().describe('null: the top of the location'),
+            child_order: z.enum(CHILD_ORDERS).describe('`name`: A to Z; `custom`: their own order'),
             custom: z
               .record(z.string().max(64), z.unknown())
               .describe('Its kind’s own fields, by key; null clears one'),
@@ -844,29 +840,21 @@ export const TOOL_DEFS = Object.freeze({
         move: z
           .enum(['up', 'down'])
           .optional()
-          .describe(
-            'One step up or down among the places beside it; their parent must be in Custom order',
-          ),
+          .describe('One step up or down; its parent must be in Custom order'),
         // #238 (1.14.4): the app's "Turn it" on furniture made from a template.
-        turn: z
-          .object({
-            direction: z
-              .enum(TURN_DIRECTIONS)
-              .describe('As you face it, its top went to the right (clockwise) or to the left'),
-            renumber: z
-              .boolean()
-              .describe(
-                'true: number, name and code the compartments by where they now stand; false: keep them',
-              ),
-          })
-          .optional()
-          .describe('Furniture with compartments turned onto its side or back upright'),
+        turn: z.enum(TURN_DIRECTIONS).optional(),
+        renumber: z.boolean().optional(),
       })
       .refine(
         (i) =>
           Object.keys(i.fields ?? {}).length > 0 || i.move !== undefined || i.turn !== undefined,
         { message: 'a field, a move or a turn', path: ['fields'] },
-      ),
+      )
+      // Renumbering is asked every time furniture turns, as in the app.
+      .refine((i) => (i.turn === undefined) === (i.renumber === undefined), {
+        message: '`turn` and `renumber` together',
+        path: ['renumber'],
+      }),
     output: writeResult.extend({
       place: placeRef,
       changed_fields: z.array(z.string()),
