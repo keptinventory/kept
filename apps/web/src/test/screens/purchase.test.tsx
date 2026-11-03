@@ -6,6 +6,7 @@
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { householdKeys } from '@/api/household/queries';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { inventoryPaths as p } from '@/api/inventory/paths';
 import type { CreatePurchaseBody, UpdatePurchaseBody } from '@/api/inventory/types';
@@ -245,6 +246,61 @@ describe('the purchase editor, everything the purchase routes allow (#348)', () 
             c.path === p.attachment('0190a000-0000-7000-8000-0000000f3480'),
         ),
       ).toBe(true),
+    );
+  });
+
+  it('refreshes Paperwork, which lists the purchase’s receipts, when one is removed', async () => {
+    const { user, queryClient } = await renderApp(`/t/${T.tv}`, { state: withReceipt(false) });
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    await findHeading('Samsung TV, 55″');
+    await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
+    const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
+    const receipts = await within(sheet).findByRole('group', { name: 'Receipts' });
+    await user.click(within(receipts).getByRole('button', { name: 'Remove B.TECH invoice 4471' }));
+    await user.click(
+      within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Remove' }),
+    );
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: householdKeys.paperwork.all }),
+    );
+  });
+
+  it('when Replace can’t remove the old receipt, shows both and says so', async () => {
+    const { user, mock } = await renderApp(`/t/${T.tv}`, { state: withReceipt(false) });
+    mock.on('DELETE', p.attachment(':id'), () => err(409, 'conflict', 'Someone changed it.'));
+    await findHeading('Samsung TV, 55″');
+    await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
+    const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
+    const receipts = await within(sheet).findByRole('group', { name: 'Receipts' });
+    const row = within(receipts).getByText('B.TECH invoice 4471').closest('li') as HTMLElement;
+    const input = row.querySelector('input[type="file"]') as HTMLInputElement;
+    await user.upload(
+      input,
+      new File(['%PDF'], 'B.TECH invoice 4472.pdf', { type: 'application/pdf' }),
+    );
+    const region = screen.getByRole('region', { name: 'Notifications' });
+    expect(
+      await within(region).findByText(
+        "The new receipt is added, but the old one couldn't be removed",
+      ),
+    ).toBeVisible();
+    // The list was read again: the new file shows next to the old one.
+    expect(await within(receipts).findByText('B.TECH invoice 4472')).toBeInTheDocument();
+    expect(within(receipts).getByText('B.TECH invoice 4471')).toBeInTheDocument();
+  });
+
+  it('refreshes Paperwork when the purchase is removed', async () => {
+    const { user, queryClient } = await renderApp(`/t/${T.tv}`);
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    await findHeading('Samsung TV, 55″');
+    await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
+    const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
+    await within(sheet).findByLabelText('On the receipt');
+    await user.click(within(sheet).getByRole('button', { name: 'Remove' }));
+    const ask = await screen.findByRole('alertdialog', { name: 'Remove this purchase?' });
+    await user.click(within(ask).getByRole('button', { name: 'Remove' }));
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: householdKeys.paperwork.all }),
     );
   });
 
