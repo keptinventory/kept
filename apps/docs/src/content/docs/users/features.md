@@ -11,10 +11,15 @@ a location turns them on in **Location settings → What to track**
 
 - **[Locations, rooms and boxes](/users/locations/)**: homes, garages, storage units; places
   inside places. Move a box and what's in it moves too.
+- **[Furniture with compartments](/users/locations/#furniture-with-compartments)**: a cube shelf or
+  a chest of drawers, each compartment its own place. Turn it on its side, merge or split
+  compartments; their labels keep working.
 - **[Things](/users/things/)**: types, custom fields, quantities, condition, an archive, and a
   trash you restore from.
 - **[Photos, receipts, manuals and warranties](/users/photos-paperwork/)**: on each thing, with a
-  paperwork library. Module: Receipts and warranties, Paperwork.
+  paperwork library; files keep a name you choose. Module: Receipts and warranties, Paperwork.
+- **[Purchases](/users/things/)**: when and where a thing was bought, the price, the receipt's
+  total and tax, and its receipts, edited from the thing's page.
 - **[Room photos](/users/room-photos/)**: photograph a room, a cupboard or a shelf; Kept lists
   what's in it as drafts for you to confirm. Needs an AI provider.
 - **[The spreadsheet view](/users/spreadsheet/)**: many things at once, edited in a table.
@@ -23,8 +28,9 @@ a location turns them on in **Location settings → What to track**
 
 ## Finding things
 
-- **[The location map](/users/location-map/)**: each location in 3D, with floors, rooms,
-  furniture and what's inside. Starts from a floor plan if you have one.
+- **[The location map](/users/location-map/)**: each location in 3D, with floors, rooms at their
+  real size (from 50 cm), furniture and its compartments, and what's inside. Starts from a floor
+  plan if you have one.
 - **[The graph](/users/graph/)**: a location's places, boxes and things in 2D or 3D.
 - **[Short IDs and labels](/users/short-ids/)**: a short ID and a QR code on every box; scan one to
   open it. Label-maker rolls or office sheets. Module: Labels and QR codes.
@@ -62,7 +68,8 @@ a location turns them on in **Location settings → What to track**
   and an optional end date; managed accounts for people without email; read-only share links for
   someone without an account.
 - **[Sign-in and security](/users/sign-in-security/)**: passkeys and two-factor sign-in.
-- **Six languages**: English, Arabic (right to left), French, German, Italian and Vietnamese.
+- **Six languages**: English, Arabic (right to left), French, German, Italian and Vietnamese;
+  dates in your region's style, or as you choose.
 
 ## On your phone
 
