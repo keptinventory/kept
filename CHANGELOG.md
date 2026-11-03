@@ -3,6 +3,53 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.14.4 (2026-11-03)
+
+### Highlights
+
+- **Edit a purchase from its thing.** Date, shop, price, total, tax, notes and receipts by name, on the thing's page (#348).
+  <!-- whats-new ![things](purchase.mp4) -->
+- **Furniture you can turn, merge and split.** A cube shelf on its side, renumbered or keeping its codes; merged and split compartments keep their labels, and show on the map (#238).
+  <!-- whats-new ![places](furniture.mp4) -->
+- **Rooms at their real size.** Width and length to the centimetre when you add a room or arrange the map, from 50 cm (#372).
+  <!-- whats-new ![map](room-size.webp) -->
+- **Vietnamese, and your date format.** Kept in a sixth language; dates in your region's style, ISO included (#391, #362).
+  <!-- whats-new ![settings](date-format.webp) -->
+
+### Fixes
+
+- **deps:** seroval 1.6.11 (five advisories); dev compose on 127.0.0.1 (#371) (90bd0bc)
+
+### Translations
+
+- **vi:** review fixes for the Vietnamese catalogue (#395) (5340093)
+- add Vietnamese (vi) translation (#391) (25d69bf)
+
+### Other
+
+- Final review fixes for 1.14.4: furniture undo, Arabic sizes, file names on undo, assistant words (#408) (a859bab)
+- Checks: every setting reaches compose and the Home Assistant app, or says why not (#407) (614528d)
+- Behind a proxy: turn HSTS off, and docs for the address error (#406, closes #403) (99f2efa)
+- Pre-release review fixes for 1.14.4 (#402) (6e8f7b0)
+- Map: real room sizes, rooms from 50 cm (#372) (#401, closes #372) (88a9537)
+- Furniture: turn it, merge and split compartments, compartments on the map (#238) (#400, closes #238, reported by @strausmann) (b84e6f9)
+- From the discussions (part 1): edit a purchase, date format, one Furniture type, file names, tall photos, page titles (#397) (0453de7)
+- From the discussions (part 2): search by name only, the embeddings warning, Personal's name, CSV help, export dates, Lending in one tap (#396) (64a3d6a)
+- Faster editing and selecting: range select, one bulk bar, type from Edit, the label card (#398, closes #366) (6842ab1)
+- Docs: the Home Assistant app and the integration, with the diagram (#370) (20b4ce4)
+- Kept on Home Assistant: list the app (#289) (#367) (bcdb809)
+
+### Documentation
+
+- units for vehicles' meters and fuel (#386) (120e283)
+- all features on one page, a lending page, and the README list (#384) (82c4601)
+- created-by line; testing ongoing; chart resources comment (#380) (d179b7a)
+- **release:** the 1.14.3 record (#365) (413ea97)
+
+### Contributors
+
+@ibrahimroshdy · @thanhtupppp
+
 ## 1.14.3 (2026-10-29)
 
 ### Highlights

@@ -1,0 +1,22 @@
+{
+  "date-format.webp": {
+    "width": 960,
+    "height": 600
+  },
+  "furniture.mp4": {
+    "width": 960,
+    "height": 600,
+    "poster": "furniture.webp",
+    "webm": "furniture.webm"
+  },
+  "purchase.mp4": {
+    "width": 960,
+    "height": 600,
+    "poster": "purchase.webp",
+    "webm": "purchase.webm"
+  },
+  "room-size.webp": {
+    "width": 960,
+    "height": 600
+  }
+}
