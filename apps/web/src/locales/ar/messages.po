@@ -28321,3 +28321,43 @@ msgstr "تظهر حقول النوع الجديد بعد الحفظ."
 msgctxt "printed label"
 msgid "Label"
 msgstr "الملصق"
+
+#: src/components/import/csv-help.tsx
+msgid "What the file can hold"
+msgstr "ما يمكن أن يحويه الملف"
+
+#: src/components/import/csv-help.tsx
+msgid "The first row names the columns, in any of Kept's languages. Kept matches the names it knows, and you choose the rest in the next step. Only a name is needed."
+msgstr "الصف الأول يسمّي الأعمدة، بأي لغة من لغات Kept. يطابق Kept الأسماء التي يعرفها، وتختار أنت الباقي في الخطوة التالية. لا يلزم سوى الاسم."
+
+#: src/components/import/csv-help.tsx
+msgid "The columns Kept reads"
+msgstr "الأعمدة التي يقرؤها Kept"
+
+#: src/components/import/csv-help.tsx
+msgid "A field of your own types, such as Wattage"
+msgstr "حقل من أنواعك الخاصة، مثل القدرة بالواط"
+
+#: src/components/import/csv-help.tsx
+msgid "Place: from the top down, separated by >, like Garage > Shelf A. Another separator can be chosen."
+msgstr "المكان: من الأعلى إلى الأسفل، مفصولًا بـ >، مثل الجراج > الرف أ. يمكن اختيار فاصل آخر."
+
+#: src/components/import/csv-help.tsx
+msgid "Tags and other names: separated by commas."
+msgstr "الوسوم والأسماء الأخرى: مفصولة بفواصل."
+
+#: src/components/import/csv-help.tsx
+msgid "Dates: written the same way all through the file, like 2026-10-29 or 29/10/2026."
+msgstr "التواريخ: مكتوبة بالطريقة نفسها في الملف كله، مثل 2026-10-29 أو 29/10/2026."
+
+#: src/components/import/csv-help.tsx
+msgid "Prices: a number, without the currency sign."
+msgstr "الأسعار: رقم، بلا رمز العملة."
+
+#: src/components/import/csv-help.tsx
+msgid "Download a sample CSV"
+msgstr "تنزيل ملف CSV نموذجي"
+
+#: src/components/import/csv-help.tsx
+msgid "How importing works"
+msgstr "كيف يعمل الاستيراد"

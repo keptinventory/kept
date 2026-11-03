@@ -863,9 +863,6 @@ msgctxt "settings section"
 msgid "Admin"
 msgstr "Quản trị"
 
-msgid "Admin"
-msgstr "Quản trị viên"
-
 msgid "admin in {n}"
 msgstr "quản trị viên trong {n}"
 
@@ -873,9 +870,6 @@ msgid "Admins"
 msgstr "Quản trị viên"
 
 msgctxt "instance admins tab"
-msgid "Admins"
-msgstr "Quản trị viên"
-
 msgid "Admins"
 msgstr "Quản trị viên"
 
@@ -20377,3 +20371,43 @@ msgstr "Các trường của loại mới hiện ra sau khi lưu."
 msgctxt "printed label"
 msgid "Label"
 msgstr "Nhãn"
+
+#: src/components/import/csv-help.tsx
+msgid "What the file can hold"
+msgstr "Tệp có thể chứa gì"
+
+#: src/components/import/csv-help.tsx
+msgid "The first row names the columns, in any of Kept's languages. Kept matches the names it knows, and you choose the rest in the next step. Only a name is needed."
+msgstr "Hàng đầu tiên ghi tên các cột, bằng bất kỳ ngôn ngữ nào của Kept. Kept tự khớp những tên nó biết, phần còn lại bạn chọn ở bước tiếp theo. Chỉ cần có tên."
+
+#: src/components/import/csv-help.tsx
+msgid "The columns Kept reads"
+msgstr "Các cột Kept đọc được"
+
+#: src/components/import/csv-help.tsx
+msgid "A field of your own types, such as Wattage"
+msgstr "Một trường trong các loại của riêng bạn, như Công suất"
+
+#: src/components/import/csv-help.tsx
+msgid "Place: from the top down, separated by >, like Garage > Shelf A. Another separator can be chosen."
+msgstr "Vị trí: từ trên xuống, ngăn cách bằng >, như Gara > Kệ A. Có thể chọn dấu ngăn cách khác."
+
+#: src/components/import/csv-help.tsx
+msgid "Tags and other names: separated by commas."
+msgstr "Thẻ và tên khác: ngăn cách bằng dấu phẩy."
+
+#: src/components/import/csv-help.tsx
+msgid "Dates: written the same way all through the file, like 2026-10-29 or 29/10/2026."
+msgstr "Ngày: viết cùng một kiểu trong cả tệp, như 2026-10-29 hoặc 29/10/2026."
+
+#: src/components/import/csv-help.tsx
+msgid "Prices: a number, without the currency sign."
+msgstr "Giá: một con số, không kèm ký hiệu tiền tệ."
+
+#: src/components/import/csv-help.tsx
+msgid "Download a sample CSV"
+msgstr "Tải xuống tệp CSV mẫu"
+
+#: src/components/import/csv-help.tsx
+msgid "How importing works"
+msgstr "Cách nhập hoạt động"

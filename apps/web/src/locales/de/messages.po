@@ -28321,3 +28321,43 @@ msgstr "Die Felder des neuen Typs erscheinen nach dem Speichern."
 msgctxt "printed label"
 msgid "Label"
 msgstr "Etikett"
+
+#: src/components/import/csv-help.tsx
+msgid "What the file can hold"
+msgstr "Was die Datei enthalten kann"
+
+#: src/components/import/csv-help.tsx
+msgid "The first row names the columns, in any of Kept's languages. Kept matches the names it knows, and you choose the rest in the next step. Only a name is needed."
+msgstr "Die erste Zeile benennt die Spalten, in jeder Sprache von Kept. Kept ordnet die Namen zu, die es kennt, den Rest wählst du im nächsten Schritt. Nur ein Name ist nötig."
+
+#: src/components/import/csv-help.tsx
+msgid "The columns Kept reads"
+msgstr "Die Spalten, die Kept liest"
+
+#: src/components/import/csv-help.tsx
+msgid "A field of your own types, such as Wattage"
+msgstr "Ein Feld deiner eigenen Typen, etwa Leistung"
+
+#: src/components/import/csv-help.tsx
+msgid "Place: from the top down, separated by >, like Garage > Shelf A. Another separator can be chosen."
+msgstr "Ort: von oben nach unten, getrennt durch >, wie Garage > Regal A. Ein anderes Trennzeichen kann gewählt werden."
+
+#: src/components/import/csv-help.tsx
+msgid "Tags and other names: separated by commas."
+msgstr "Schlagwörter und andere Namen: durch Kommas getrennt."
+
+#: src/components/import/csv-help.tsx
+msgid "Dates: written the same way all through the file, like 2026-10-29 or 29/10/2026."
+msgstr "Daten: in der ganzen Datei gleich geschrieben, wie 2026-10-29 oder 29/10/2026."
+
+#: src/components/import/csv-help.tsx
+msgid "Prices: a number, without the currency sign."
+msgstr "Preise: eine Zahl, ohne Währungszeichen."
+
+#: src/components/import/csv-help.tsx
+msgid "Download a sample CSV"
+msgstr "Beispiel-CSV herunterladen"
+
+#: src/components/import/csv-help.tsx
+msgid "How importing works"
+msgstr "So funktioniert der Import"
