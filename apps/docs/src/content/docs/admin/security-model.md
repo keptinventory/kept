@@ -94,7 +94,7 @@ the password again, or a sign-in in the last ten minutes.
 origin of `KEPT_PUBLIC_URL`, or it gets 403 before the session is even read. So must first-run
 setup, which has no cookie yet, before its setup code is tried. The pages are served
 with a `default-src 'self'` content security policy, may not be framed, and get HSTS when the
-public URL is HTTPS.
+public URL is HTTPS, unless `KEPT_HSTS=off` ([HSTS](/install/reverse-proxy/#hsts)).
 
 ## Rate limits
 
