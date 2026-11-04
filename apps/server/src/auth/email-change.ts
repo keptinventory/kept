@@ -6,6 +6,7 @@ import type { Pools } from '../db/pools.js';
 import type { KeptApp } from '../http/app.js';
 import { AppError, forbidden, invalid } from '../http/errors.js';
 import type { Mailer } from '../mail/mailer.js';
+import { endRefreshTokens } from '../oauth/refresh-tokens.js';
 import { AUTH_BASE_PATH, type Auth, linkUrl } from './auth.js';
 import { isUndeliverableEmail } from './emails.js';
 import { ANONYMOUS_BODY_LIMIT, authHeaders, requireScope, reserveTokenAttempt } from './http.js';
@@ -179,6 +180,8 @@ export async function emailChangeRoutes(app: KeptApp, opts: EmailChangeOptions):
         'DELETE FROM auth.session WHERE user_id = $1 AND ($2::uuid IS NULL OR id <> $2::uuid)',
         [pending.userId, keep],
       );
+      // So do connectors' refresh tokens (#411); their grants stay and they sign in again.
+      await endRefreshTokens(pools.auth, pending.userId);
       // A reset link mailed to the old address must not outlive the move (security review M2).
       // Identifiers keep their kind prefix when hashed (auth.ts hashVerificationIdentifier).
       await pools.auth.query(

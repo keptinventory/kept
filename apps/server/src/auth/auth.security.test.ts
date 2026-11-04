@@ -230,6 +230,11 @@ describe('magic links', () => {
 
   it('password reset: a fragment link, a POST, every session signed out, and 3 per hour', async () => {
     const user = await newUser('reset');
+    // Verified, so the reset is not also an account claim (D197): the claim ends refresh tokens
+    // on its own and would hide whether the reset does.
+    await db.pools.auth.query('UPDATE auth."user" SET email_verified = true WHERE id = $1', [
+      user.userId,
+    ]);
     const cookie = await signIn(user.email);
     await seedRefreshToken(db, user.userId);
     const requested = await auth('/request-password-reset', { body: { email: user.email } });
@@ -340,6 +345,7 @@ describe('sessions', () => {
     const user = await newUser('tfa');
     const a = await signIn(user.email);
     const b = await signIn(user.email);
+    await seedRefreshToken(db, user.userId);
     // Kept's route (Better Auth's own is off over HTTP), which starts it through Better Auth.
     const enabled = await call('/api/v1/me/two-factor/enable', {
       cookie: a,
@@ -348,6 +354,7 @@ describe('sessions', () => {
     expect(enabled.statusCode).toBe(200);
     expect((await call('/api/v1/me/sessions', { cookie: b })).statusCode).toBe(401);
     expect((await call('/api/v1/me/sessions', { cookie: jar(enabled, a) })).statusCode).toBe(200);
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
   });
 });
 
@@ -565,6 +572,7 @@ describe('email change: the old address confirms, then the new one verifies', ()
       code: 'token_invalid',
     });
 
+    await seedRefreshToken(db, user.userId);
     const done = await auth('/email-change/confirm', {
       cookie: a,
       body: { token: fragmentToken((toNew as { url: string }).url) },
@@ -583,6 +591,8 @@ describe('email change: the old address confirms, then the new one verifies', ()
     // The confirming device stays signed in; the other one is out.
     expect((await call('/api/v1/me/sessions', { cookie: a })).statusCode).toBe(200);
     expect((await call('/api/v1/me/sessions', { cookie: b })).statusCode).toBe(401);
+    // So does every connector's refresh token (#411).
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
     // And the new address signs in.
     await signIn(target);
   });

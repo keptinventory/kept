@@ -235,7 +235,9 @@ async function satisfiedMethod(pool: pg.Pool, sessionId: string): Promise<string
   return rows[0]?.method ?? null;
 }
 
-/** Deletes every session of `userId` except `keepSessionId` (session_mfa rows go by cascade). */
+/** Deletes every session of `userId` except `keepSessionId` (session_mfa rows go by cascade),
+ * and every refresh token: whatever signs out the person's other devices ends their connectors'
+ * refresh tokens too (#411). The grant rows stay, so a connector signs in again. */
 async function deleteOtherSessions(
   pool: pg.Pool,
   userId: string,
@@ -245,6 +247,7 @@ async function deleteOtherSessions(
     userId,
     keepSessionId,
   ]);
+  await endRefreshTokens(pool, userId);
 }
 
 async function markMfaSatisfied(pool: pg.Pool, sessionId: string, method: string): Promise<void> {
@@ -710,9 +713,6 @@ export function keptSecurity(opts: KeptSecurityOptions): BetterAuthPlugin {
               ctx.context.newSession ?? (ctx.context.session as SessionLike | null | undefined);
             if (!current) return;
             await deleteOtherSessions(pool, current.user.id, current.session.id);
-            // A new password ends connectors' refresh tokens too (#411): one taken before the
-            // change mustn't keep working. Their grants stay; they sign in again.
-            if (ctx.path === CHANGE_PASSWORD_PATH) await endRefreshTokens(pool, current.user.id);
           }),
         },
         {
