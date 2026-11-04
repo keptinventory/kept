@@ -544,15 +544,19 @@ export async function updateFuel(
       body.note ?? null,
     ],
   );
+  // The receipts before and after a replace, for its undo (#425).
+  const receipts: { before?: HeldAttachment[]; after?: HeldAttachment[] } = {};
   if (body.receiptFileId !== undefined) {
     // A receipt is money: replacing it is a money write (createAttachment refuses it where money
     // is hidden, and so does this).
     if (!(await gateFor(ctx.tx, locationId, ctx.scope)).showMoney) throw moneyOff();
+    receipts.before = await heldAttachments(client, 'fuel_entry_id', id, 'receipt');
     await client.query(
       `DELETE FROM public.attachments WHERE fuel_entry_id = $1 AND role = 'receipt'`,
       [id],
     );
     await attach(ctx, locationId, body.receiptFileId, { fuelEntryId: id }, 'receipt');
+    receipts.after = await heldAttachments(client, 'fuel_entry_id', id, 'receipt');
   }
   const after = imageOf(await entryRecord(client, id));
   await audited(ctx.tx, {
@@ -560,8 +564,13 @@ export async function updateFuel(
     actor: actor(ctx),
     action: 'fuel.update',
     entity: { type: FUEL_ENTITY, id },
-    before,
-    after: { ...after, ...(readingCreated ? { reading_created: true } : {}) },
+    before: { ...before, ...(receipts.before ? { attachments: receipts.before } : {}) },
+    after: {
+      ...after,
+      ...(readingCreated ? { reading_created: true } : {}),
+      ...(receipts.after ? { attachments: receipts.after } : {}),
+    },
+    fieldClasses: { attachments: 'money' },
     subjects: [row.thing_id],
     rootThingId: row.thing_id,
     requestId: ctx.requestId,
@@ -585,6 +594,22 @@ export type HeldAttachment = {
   name?: string | null;
 };
 
+/** A fill's or a reading's attachments as an event keeps them. */
+async function heldAttachments(
+  client: pg.ClientBase,
+  column: 'fuel_entry_id' | 'meter_reading_id',
+  subject: string,
+  role?: string,
+): Promise<HeldAttachment[]> {
+  const { rows } = await client.query<HeldAttachment>(
+    `SELECT id, file_id, url, role, sort, name FROM public.attachments
+      WHERE ${column} = $1 AND ($2::text IS NULL OR role = $2)
+      ORDER BY sort, created_at, id`,
+    [subject, role ?? null],
+  );
+  return rows;
+}
+
 /** A deleted fill's reading, as its event keeps it. */
 export type HeldReading = {
   id: string;
@@ -607,15 +632,7 @@ export async function deleteFuel(ctx: Ctx, id: string, expected: number): Promis
   const row = await changeableEntry(ctx, id);
   await requireVersion(client, row, expected, []);
   const image = imageOf(row);
-  const held = async (column: 'fuel_entry_id' | 'meter_reading_id', subject: string) =>
-    (
-      await client.query<HeldAttachment>(
-        `SELECT id, file_id, url, role, sort, name FROM public.attachments WHERE ${column} = $1
-          ORDER BY sort, created_at, id`,
-        [subject],
-      )
-    ).rows;
-  const attachments = await held('fuel_entry_id', id);
+  const attachments = await heldAttachments(client, 'fuel_entry_id', id);
   if (row.cost !== null || attachments.some((a) => (MONEY_ROLES as string[]).includes(a.role))) {
     if (!(await gateFor(ctx.tx, row.location_id, ctx.scope)).showMoney) throw moneyOff();
   }
@@ -633,7 +650,7 @@ export async function deleteFuel(ctx: Ctx, id: string, expected: number): Promis
       reading = {
         ...r,
         taken_at: r.taken_at.toISOString(),
-        proofs: await held('meter_reading_id', r.id),
+        proofs: await heldAttachments(client, 'meter_reading_id', r.id),
       };
     }
   }
