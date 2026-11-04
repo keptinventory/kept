@@ -92,7 +92,8 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
 
 - **Inventory.** Locations, places, boxes and things, with photos, documents, purchases, tags,
   custom fields, quantities, saved views, search, an archive for what you no longer use and a trash
-  you can restore from. Furniture with compartments you can turn, merge and split.
+  you can restore from. Furniture with compartments you can turn, merge and split. Hide your
+  Personal location if you don't use it.
 - **3D map and graph.** Each location in 3D, rooms at their real size, started from a floor plan
   if you have one; its places and things as a graph
   ([the map](https://keptinventory.info/users/location-map/)).

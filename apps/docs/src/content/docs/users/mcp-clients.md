@@ -116,7 +116,8 @@ Things that stop a connector:
 
 ## The tools
 
-An app sees only the tools it may call in each location; `capabilities` lists them. **Read** tools
+An app sees only the tools it may call in each location; `capabilities` lists them. [Hiding
+Personal](/users/locations/#hide-personal) doesn't change what an app was given. **Read** tools
 work with either kind of access; **change** tools need **Read and change** and a role of member or
 higher. The part of Kept a tool needs is the name under **What to track**.
 

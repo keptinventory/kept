@@ -527,6 +527,72 @@ describe('a location export', () => {
 });
 
 describe('export my data', () => {
+  describe('with Personal hidden (#392)', () => {
+    it('carries the location they own instead, and says so in me.json', async () => {
+      const owner = await person(t, db, 'hides-personal');
+      const flat = await createLocation(t, db, owner, 'household', 'Flat');
+      expect(
+        (await call(t, '/api/v1/me', { as: owner, method: 'PATCH', body: { hidePersonal: true } }))
+          .statusCode,
+      ).toBe(200);
+      const { id, outcome } = await exported(owner, {
+        scope: { me: true },
+        options: { readable: false },
+      });
+      expect(outcome.status, JSON.stringify(outcome)).toBe('done');
+      const zip = await zipOf(id);
+      const manifest = JSON.parse(text(zip, 'manifest.json')) as ExportManifest;
+      expect(manifest).toMatchObject({ scope: 'me' });
+      expect(manifest.location.id).toBe(flat.id);
+      const me = JSON.parse(text(zip, 'me.json')) as { profile: { hidePersonal: boolean } };
+      expect(me.profile.hidePersonal).toBe(true);
+    });
+
+    it('stays on Personal for someone who only belongs to the other location', async () => {
+      const member = await person(t, db, 'only-member');
+      await join(db, home.id, member.userId, 'viewer');
+      expect(
+        (await call(t, '/api/v1/me', { as: member, method: 'PATCH', body: { hidePersonal: true } }))
+          .statusCode,
+      ).toBe(200);
+      const { id, outcome } = await exported(member, {
+        scope: { me: true },
+        options: { readable: false },
+      });
+      expect(outcome.status, JSON.stringify(outcome)).toBe('done');
+      const manifest = JSON.parse(text(await zipOf(id), 'manifest.json')) as ExportManifest;
+      expect(manifest.location.id).toBe(member.personalLocationId);
+    });
+
+    it('still lets them export the hidden location itself', async () => {
+      const owner = await person(t, db, 'exports-hidden');
+      await createLocation(t, db, owner, 'household', 'Flat');
+      await call(t, '/api/v1/me', { as: owner, method: 'PATCH', body: { hidePersonal: true } });
+      const { id, outcome } = await exported(owner, {
+        scope: { locationId: owner.personalLocationId },
+        options: { readable: false },
+      });
+      expect(outcome.status, JSON.stringify(outcome)).toBe('done');
+      const manifest = JSON.parse(text(await zipOf(id), 'manifest.json')) as ExportManifest;
+      expect(manifest).toMatchObject({ scope: 'location' });
+      expect(manifest.location.id).toBe(owner.personalLocationId);
+    });
+
+    it('a "me" run on anything but Personal is refused while Personal shows', async () => {
+      const owner = await person(t, db, 'not-hidden');
+      const flat = await createLocation(t, db, owner, 'household', 'Flat');
+      await expect(
+        withScope(db.pools.app, { userId: owner.userId, mfa: false }, (_tx, c) =>
+          c.query(
+            `INSERT INTO public.export_runs (location_id, kind, created_by, expires_at)
+             VALUES ($1, 'me', $2, now() + interval '1 day')`,
+            [flat.id, owner.userId],
+          ),
+        ),
+      ).rejects.toThrow(/row-level security/);
+    });
+  });
+
   it('exports the Personal location with me.json', async () => {
     // A place folded in the place tree (#358) is the person's own, so it is in me.json.
     const shelf = await place(db, { id: louis.personalLocationId } as Loc, 'Shelf');

@@ -99,6 +99,7 @@ function CapturePage() {
     <CaptureScreen
       store={store}
       personalLocationId={me.data.personalLocationId}
+      hiddenLocationId={me.data.personalHidden ? me.data.personalLocationId : null}
       {...(into ? { into } : {})}
       {...(place ? { placeId: place } : {})}
       {...(label ? { labelFor: label } : {})}

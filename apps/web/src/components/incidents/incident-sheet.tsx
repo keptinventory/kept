@@ -23,7 +23,7 @@ import { Checkbox, TextArea, TextField as TextFieldPrimitive } from 'react-aria-
 import { householdApi, householdKeys, useIncidents } from '@/api/household/queries';
 import type { Incident, IncidentLifecycle, IncidentRow } from '@/api/household/types';
 import { inventoryKeys } from '@/api/inventory/queries';
-import { useLocations } from '@/api/queries';
+import { useAllLocations, useLocations } from '@/api/queries';
 import { useOfferUndo } from '@/components/history/undo';
 import { CheckIcon } from '@/components/icons';
 import { LoadingRows, Notice, useErrorText } from '@/components/page';
@@ -346,7 +346,7 @@ function EditIncidentForm({ incident, onDone }: { incident: Incident; onDone: ()
   const invalidate = useInvalidateIncidents();
   const fieldErrors = useFieldErrors();
   const nameIncident = useIncidentName();
-  const location = useLocations().data?.find((l) => l.id === incident.locationId);
+  const location = useAllLocations().data?.find((l) => l.id === incident.locationId);
   const today = dayIn(location?.timezone);
   const [fields, setFields] = useState<Fields>({
     kind: incident.kind,

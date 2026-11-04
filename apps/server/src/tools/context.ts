@@ -15,6 +15,7 @@ import { type Scope, type Tx, withScope } from '../db/scope.js';
 import { AppError } from '../http/errors.js';
 import { dbProviderResolved, locationModuleSet } from '../http/modules.js';
 import { callerMembership } from '../locations/access.js';
+import { notHidden } from '../locations/hidden.js';
 import { handlerOf } from './registry.js';
 import type {
   Handler,
@@ -119,17 +120,22 @@ export async function reachable(
   return { id: locationId, name: loc.name, timeZone: loc.timezone, role: me.role, modules };
 }
 
-/** Every location the caller reaches, in name order. */
+/** Every location the caller reaches, in name order: a hidden Personal only when `also` names it
+ * (a thread opened on it, #392). A tool asked for it by id, or for a thing in it, still gets there
+ * through reachable(). */
 export async function reachableAll(
   tx: Tx,
   client: pg.ClientBase,
   providerResolved = dbProviderResolved,
+  also: string | null = null,
 ): Promise<ReachableLocation[]> {
   const { rows } = await client.query<{ id: string }>(
     `SELECT l.id FROM public.locations l
       WHERE l.id IN (SELECT v.id FROM kept.visible_location_ids() AS v(id))
         AND l.deleted_at IS NULL
+        AND (l.id = $1::uuid OR ${notHidden('l.id')})
       ORDER BY lower(l.name), l.id`,
+    [also],
   );
   const out: ReachableLocation[] = [];
   for (const { id } of rows) {
@@ -145,11 +151,12 @@ export async function reachableAll(
 export async function toolsFor(
   ctx: Pick<ToolContext, 'deps' | 'principal' | 'via'>,
   locationIds?: readonly string[],
+  also: string | null = null,
 ): Promise<{ location: ReachableLocation; tools: ToolName[] }[]> {
   const scope = principalScope(ctx.principal);
   const resolver = ctx.deps.providerResolved ?? dbProviderResolved;
   return withScope(ctx.deps.pools.app, scope, async (tx, client) => {
-    const all = await reachableAll(tx, client, resolver);
+    const all = await reachableAll(tx, client, resolver, also);
     const wanted = locationIds ? new Set(locationIds.map((id) => id.toLowerCase())) : null;
     return all
       .filter((l) => !wanted || wanted.has(l.id))

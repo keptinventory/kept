@@ -28,12 +28,35 @@ import { Switch } from '@/components/ui/switch';
 import { servedOverHttp } from '@/lib/https';
 import { useLocationName } from '@/lib/labels';
 import { useOnline } from '@/lib/online';
-import { usePersonalName } from '@/lib/personal-name';
+import { useMyDataLocation, usePersonalName } from '@/lib/personal-name';
 import { type Digits, type Locale, usePrefs } from '@/lib/prefs';
 import { useExportErrorText } from './labels';
 import { type Passphrase, PassphraseFields, passphraseReady } from './passphrase-field';
 
 export type ExportScopeChoice = { me: true } | { locationId: string };
+
+/** What "Export my data" holds, and, while Personal is hidden, that Personal isn't in it (#392). */
+function MyDataNote() {
+  const { name: personal, insteadOfPersonal } = useMyDataLocation();
+  const hiddenName = usePersonalName();
+  return (
+    <p className="m-0 text-small text-ink-2">
+      <Trans>
+        <bdi>{personal}</bdi> with its files, your profile and preferences, and the AI calls you
+        made. Locations you own are exported one by one.
+      </Trans>
+      {insteadOfPersonal ? (
+        <>
+          {' '}
+          <Trans>
+            <bdi>{hiddenName}</bdi> is hidden, so it isn't in this file. To export it, choose it
+            under Export a location.
+          </Trans>
+        </>
+      ) : null}
+    </p>
+  );
+}
 
 export function ExportSheet({
   isOpen,
@@ -54,7 +77,6 @@ export function ExportSheet({
   onStarted?: (run: ExportRun) => void;
 }) {
   const { t } = useLingui();
-  const personal = usePersonalName();
   const qc = useQueryClient();
   const online = useOnline();
   const prefs = usePrefs();
@@ -128,12 +150,7 @@ export function ExportSheet({
           }}
         >
           {me ? (
-            <p className="m-0 text-small text-ink-2">
-              <Trans>
-                <bdi>{personal}</bdi> with its files, your profile and preferences, and the AI calls
-                you made. Locations you own are exported one by one.
-              </Trans>
-            </p>
+            <MyDataNote />
           ) : (
             <Combobox
               label={t`Location`}

@@ -25,7 +25,7 @@ import { type FormEvent, useState } from 'react';
 import { ApiError, isApiError } from '@/api/client';
 import { householdApi, useIncident } from '@/api/household/queries';
 import type { InsuranceReportBody, RateMissing } from '@/api/household/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations, useLocations } from '@/api/queries';
 import { DocumentIcon, PrinterIcon, ShareIcon } from '@/components/icons';
 import { useIncidentName } from '@/components/incidents/labels';
 import { EmptyState, LoadingRows, Notice, Page, useErrorText } from '@/components/page';
@@ -175,7 +175,7 @@ function InsuranceForm({
   const online = useOnline();
   const prefs = usePrefs();
   const locationName = useLocationName();
-  const all = useLocations().data ?? [];
+  const all = useAllLocations().data ?? [];
   const [locationId, setLocationId] = useState(
     search.loc && locationIds.includes(search.loc) ? search.loc : (locationIds[0] ?? ''),
   );

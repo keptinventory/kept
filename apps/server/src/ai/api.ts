@@ -177,7 +177,11 @@ async function resendWaiting(
       ? 'true'
       : scope === 'account'
         ? 'l.owner_account_id = $1'
-        : `l.owner_account_id = $1 AND l.kind = 'personal'`;
+        : // Also where the personal key takes over from a hidden Personal (kept.ai_cascade, 0170).
+          // The second query checks kept.ai_provider_resolved() row by row; the first is a retry.
+          `l.owner_account_id = $1 AND (l.kind = 'personal' OR EXISTS (
+             SELECT 1 FROM public.user_profiles up
+              WHERE up.user_id = kept.current_user_id() AND up.hide_personal))`;
   const params = scope === 'instance' ? [] : [who.accountId];
   const { rows: rejected } = opts.rejected
     ? await client.query<{ id: string }>(

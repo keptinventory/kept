@@ -18,7 +18,7 @@ import { Button as AriaButton, Dialog, DialogTrigger, Popover } from 'react-aria
 import { isApiError } from '@/api/client';
 import { useSavedViews } from '@/api/inventory/queries';
 import type { SavedView, SavedViewPrefs } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations, useLocations } from '@/api/queries';
 import {
   BookmarkIcon,
   ChevronDownIcon,
@@ -295,7 +295,7 @@ function ViewsMenu({
   onOpened: () => void;
 }) {
   const { t } = useLingui();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const nameOf = useLocationName();
   const confirm = useConfirm();
   const errorText = useErrorText();

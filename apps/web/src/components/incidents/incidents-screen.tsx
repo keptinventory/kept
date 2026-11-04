@@ -16,7 +16,7 @@ import { Link } from '@tanstack/react-router';
 import { useCallback, useState } from 'react';
 import { useIncidents } from '@/api/household/queries';
 import type { IncidentRow, IncidentsParams } from '@/api/household/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations, useLocations } from '@/api/queries';
 import { dateBounds } from '@/components/filters/params';
 import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
@@ -42,7 +42,7 @@ const localDay = (day: string) => {
 function IncidentRowView({ incident }: { incident: IncidentRow }) {
   const nameOf = useIncidentName();
   const locationName = useLocationName();
-  const location = useLocations().data?.find((l) => l.id === incident.locationId);
+  const location = useAllLocations().data?.find((l) => l.id === incident.locationId);
   const name = nameOf(incident);
   const refs = [
     incident.policeReference ? { key: 'police', value: incident.policeReference } : null,

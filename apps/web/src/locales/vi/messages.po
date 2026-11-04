@@ -20784,3 +20784,47 @@ msgstr "Nhập một số nguyên."
 #: src/components/things/purchase-sheet.tsx
 msgid "The new receipt is added, but the old one couldn't be removed"
 msgstr "Đã thêm biên lai mới, nhưng không gỡ được biên lai cũ"
+
+#: src/components/export/export-sheet.tsx
+msgid "<0>{hiddenName}</0> is hidden, so it isn't in this file. To export it, choose it under Export a location."
+msgstr "<0>{hiddenName}</0> đang bị ẩn nên không có trong tệp này. Để xuất địa điểm đó, hãy chọn trong Xuất một địa điểm."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "<0>{name}</0> is hidden from your menu, Home, lists and search. This link still opens it."
+msgstr "<0>{name}</0> đã được ẩn khỏi menu, Trang chủ, danh sách và tìm kiếm của bạn. Liên kết này vẫn mở được."
+
+#: src/components/ai/call-detail.tsx
+msgid "<0>{payer}</0>'s personal key"
+msgstr "Khóa cá nhân của <0>{payer}</0>"
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is showing because it's your only location. It hides again when you have another."
+msgstr "<0>{personal}</0> đang hiện vì đây là địa điểm duy nhất của bạn. Nó sẽ ẩn lại khi bạn có địa điểm khác."
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is your only location, so it stays. Add or join another first."
+msgstr "<0>{personal}</0> là địa điểm duy nhất của bạn nên vẫn được giữ lại. Hãy thêm hoặc tham gia một địa điểm khác trước."
+
+#: src/components/hide-personal.tsx
+msgid "Hide <0>{personal}</0>"
+msgstr "Ẩn <0>{personal}</0>"
+
+#: src/components/hide-personal.tsx
+msgid "It leaves the menu, Home, lists and search, for you only. Nothing in it changes, a link to it still opens it, and its reminders still reach you. Show it again here any time."
+msgstr "Địa điểm này rời khỏi menu, Trang chủ, danh sách và tìm kiếm, chỉ với riêng bạn. Không có gì bên trong thay đổi, liên kết vẫn mở được và lời nhắc của nó vẫn đến với bạn. Bạn có thể hiện lại ở đây bất cứ lúc nào."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "Show it again"
+msgstr "Hiện lại"
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>."
+msgstr "Khóa này thanh toán cho tất cả các nhà của <0>{ownerName}</0>: <1>{list}</1>."
+
+#: src/components/ai/key-scope.tsx
+msgid "Used for your private threads, questions that span owners, <0>{personal}</0>, and a location you own and use alone that has no account key."
+msgstr "Dùng cho các cuộc trò chuyện riêng tư của bạn, những câu hỏi liên quan đến nhiều chủ sở hữu, <0>{personal}</0> và địa điểm bạn sở hữu, chỉ mình bạn dùng và chưa có khóa tài khoản."
+
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for your private threads and questions that span owners."
+msgstr "Khóa của riêng bạn dùng cho các cuộc trò chuyện riêng tư của bạn và các câu hỏi liên quan đến nhiều chủ sở hữu."

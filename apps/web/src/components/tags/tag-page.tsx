@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import type { Tag, ThingListParams, ThingRow } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations, useLocations } from '@/api/queries';
 import { filterParams } from '@/components/filters/params';
 import { useFilterRegistry } from '@/components/filters/registry';
 import { useOfferUndo } from '@/components/history/undo';
@@ -76,7 +76,7 @@ function Loaded({ tag }: { tag: Tag }) {
   const offerUndo = useOfferUndo();
   const errorText = useErrorText();
   const inUseText = useInUseText();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const locationName = useLocationName();
   const scope = useAccountScope(tag.ownerAccountId);
   const [editing, setEditing] = useState(false);

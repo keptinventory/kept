@@ -1184,6 +1184,20 @@
       "when": 1793671858293,
       "tag": "0168_map_rooms_from_50cm",
       "breakpoints": true
+    },
+    {
+      "idx": 169,
+      "version": "7",
+      "when": 1793825289810,
+      "tag": "0169_hide_personal",
+      "breakpoints": true
+    },
+    {
+      "idx": 170,
+      "version": "7",
+      "when": 1793825326178,
+      "tag": "0170_hide_personal_rls",
+      "breakpoints": true
     }
   ]
 }

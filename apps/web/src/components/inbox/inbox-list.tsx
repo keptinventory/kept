@@ -26,7 +26,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Checkbox, Dialog, DialogTrigger, Popover, Radio, RadioGroup } from 'react-aria-components';
 import { captureApi, captureKeys, useInbox } from '@/api/capture/queries';
 import type { AiStatus, InboxItem, InboxParams } from '@/api/capture/types';
-import { useLocations, useMe } from '@/api/queries';
+import { useAllLocations, useLocations, useMe } from '@/api/queries';
 import { PausedBanner } from '@/components/ai/paused-banner';
 import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
@@ -668,7 +668,7 @@ function useGroupOf() {
   const fmt = useFormat();
   const me = useMe();
   const placeName = usePlaceName();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const locationName = useLocationName();
   const { accept, busy } = useAcceptNames();
   const online = useOnline();

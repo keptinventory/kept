@@ -6,7 +6,9 @@
  *
  * - A **Personal** location: its owner's user key → their account key → the instance key.
  * - Any **other** location: its owner account's key → the instance key. A member's personal
- *   key never pays for someone else's home, nor for a shared home they belong to.
+ *   key never pays for someone else's home, nor for a shared home they belong to. One exception
+ *   (#392): while its owner has Personal hidden and nobody else is in it, their personal key comes
+ *   after the account's key: account → user → instance.
  * - No location (a private thread, a turn spanning owners, D167): the asker's own key → their
  *   account's key → the instance key.
  * - Per task, the first scope with a model **for that task** wins (Groq has no embeddings model,
@@ -38,6 +40,8 @@ export type LocationFacts = {
   ownerAccountId: string;
   ownerUserId: string;
   personal: boolean;
+  /** Its owner hid Personal and is the only one here (kept.ai_cascade, 0170). */
+  ownerAloneWithPersonalHidden?: boolean;
 };
 
 const MODEL_FOR_TASK = {
@@ -96,7 +100,9 @@ export function cascade(input: {
     ownerAccountId = location.ownerAccountId;
     order = location.personal
       ? [find('user', location.ownerUserId), find('account', location.ownerAccountId), instance]
-      : [find('account', location.ownerAccountId), instance];
+      : location.ownerAloneWithPersonalHidden
+        ? [find('account', location.ownerAccountId), find('user', location.ownerUserId), instance]
+        : [find('account', location.ownerAccountId), instance];
   } else {
     ownerAccountId = userAccountId;
     order = [find('user', userId), find('account', userAccountId), instance];

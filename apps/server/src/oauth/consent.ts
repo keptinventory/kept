@@ -8,6 +8,7 @@ import type { Scope, Tx } from '../db/scope.js';
 import { AppError, invalid, notFound } from '../http/errors.js';
 import { withoutBidiControls } from '../http/untrusted.js';
 import { requireMembership } from '../locations/access.js';
+import { notHidden } from '../locations/hidden.js';
 import { ownAccount } from '../tokens/service.js';
 
 // The consent step (D179, D180). Better Auth's authorize sends
@@ -88,7 +89,7 @@ export async function consentView(
        JOIN public.locations l ON l.id = m.location_id
       WHERE m.user_id = kept.current_user_id()
         AND (m.expires_at IS NULL OR m.expires_at > now())
-        AND l.id IN (SELECT kept.visible_location_ids())
+        AND l.id IN (SELECT kept.visible_location_ids()) AND ${notHidden('l.id')}
       ORDER BY lower(l.name), l.id`,
   );
   return {

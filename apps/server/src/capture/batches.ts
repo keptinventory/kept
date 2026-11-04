@@ -1,6 +1,7 @@
 import type pg from 'pg';
 import { type PageRequest, pageOf } from '../http/conventions.js';
 import { invalid } from '../http/errors.js';
+import { namedOrShown } from '../locations/hidden.js';
 import { pathSql } from '../search/query.js';
 import type { PathStep } from '../things/view.js';
 
@@ -57,7 +58,7 @@ export async function listBatches(
               (array_agg(t.id ORDER BY t.created_at, t.id))[1] AS first_id
          FROM public.things t
         WHERE t.capture_batch_id IS NOT NULL AND t.deleted_at IS NULL
-          AND ($1::uuid IS NULL OR t.location_id = $1::uuid)
+          AND ${namedOrShown('t.location_id', '$1')}
           AND (NOT $2::boolean OR t.created_by = kept.current_user_id())
         GROUP BY t.capture_batch_id, t.location_id
      )

@@ -23,7 +23,7 @@ import { Link, type LinkProps } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { householdApi, useThingLoans } from '@/api/household/queries';
 import type { Notification } from '@/api/household/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { STATE_TONE, useAgendaStateLabels } from '@/components/agenda/agenda-row';
 import { noonOf, useDocumentKindLabels } from '@/components/documents/labels';
 import { useOfferUndo } from '@/components/history/undo';
@@ -469,7 +469,7 @@ function LoanActions({
 function NoticeRow({ n, actions }: { n: Notification; actions: RowActions }) {
   const { t } = useLingui();
   const roles = useRoleLabels().one;
-  const locations = useLocations();
+  const locations = useAllLocations();
   const nameOf = useLocationName();
   const location = (locations.data ?? []).find((l) => l.id === n.locationId);
   const here = location ? nameOf(location) : null;

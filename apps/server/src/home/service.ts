@@ -13,6 +13,7 @@ import { audited } from '../audit/audited.js';
 import { lowStockCount } from '../consumables/service.js';
 import type { Tx } from '../db/scope.js';
 import { LIVE_SUBJECT } from '../inbox/view.js';
+import { notHidden } from '../locations/hidden.js';
 import { switchedOn } from '../locations/views.js';
 
 // Home (D138, D185, D191, D193): the Get-started checklist,
@@ -155,7 +156,7 @@ async function locationRows(client: pg.ClientBase): Promise<LocationRow[]> {
           WHERE t.deleted_at IS NULL
           GROUP BY t.location_id
        ) c ON c.location_id = l.id
-      WHERE l.id IN (SELECT kept.visible_location_ids())
+      WHERE l.id IN (SELECT kept.visible_location_ids()) AND ${notHidden('l.id')}
       ORDER BY CASE WHEN l.kind = 'personal' THEN 0 ELSE 1 END, lower(l.name), l.id`,
   );
   return rows;
@@ -223,7 +224,8 @@ async function facts(client: pg.ClientBase, labelsOn: readonly string[]): Promis
        coalesce((SELECT h.dismissed FROM public.user_hints h
                   WHERE h.user_id = kept.current_user_id() AND h.hint_key = $2), false)
          AS dismissed,
-       (SELECT count(*)::int FROM public.inbox_items i WHERE ${LIVE_SUBJECT}) AS inbox,
+       (SELECT count(*)::int FROM public.inbox_items i
+         WHERE ${LIVE_SUBJECT} AND ${notHidden('i.location_id')}) AS inbox,
        (SELECT count(*)::int FROM public.things t
          WHERE t.deleted_at IS NULL AND t.location_id = ANY ($4::uuid[])
            AND EXISTS (SELECT 1 FROM public.short_ids s
@@ -234,6 +236,7 @@ async function facts(client: pg.ClientBase, labelsOn: readonly string[]): Promis
        (SELECT count(*)::int FROM public.things t
          WHERE t.deleted_at IS NULL AND t.lifecycle = 'in_use'
            AND t.location_id IN (SELECT kept.writable_location_ids())
+           AND ${notHidden('t.location_id')}
            AND EXISTS (SELECT 1 FROM public.meters m WHERE m.thing_id = t.id)) AS metered,
        a.to_review, a.uncertain, a.long_unseen, a.unplaced
      FROM (
@@ -255,7 +258,7 @@ async function facts(client: pg.ClientBase, labelsOn: readonly string[]): Promis
        FROM public.things t
        JOIN public.locations l ON l.id = t.location_id
        LEFT JOIN public.places pl ON pl.id = t.place_id
-      WHERE t.deleted_at IS NULL
+      WHERE t.deleted_at IS NULL AND ${notHidden('t.location_id')}
      ) a`,
     [INSTALLED_HINT, CHECKLIST_HINT, AI_SETTINGS_HINT, labelsOn],
   );
@@ -272,7 +275,7 @@ async function openLoans(client: pg.ClientBase): Promise<{ out: number; in: numb
        FROM public.loans o
        JOIN public.things t ON t.id = o.thing_id
       WHERE o.returned_at IS NULL AND t.deleted_at IS NULL
-        AND kept.module_on(o.location_id, 'lending')`,
+        AND kept.module_on(o.location_id, 'lending') AND ${notHidden('o.location_id')}`,
   );
   return rows[0] ?? { out: 0, in: 0 };
 }

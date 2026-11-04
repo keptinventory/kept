@@ -18,7 +18,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { isApiError } from '@/api/client';
 import { movingApi, movingKeys, useMoves } from '@/api/moving/queries';
 import type { MoveRow, MovesParams } from '@/api/moving/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations, useLocations } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
 import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
@@ -319,7 +319,7 @@ function StartForm({
 }) {
   const { t } = useLingui();
   const writable = useMoveLocations();
-  const all = useLocations().data ?? [];
+  const all = useAllLocations().data ?? [];
   const locationName = useLocationName();
   const errorText = useErrorText();
   const online = useOnline();

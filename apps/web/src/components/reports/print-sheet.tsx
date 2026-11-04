@@ -25,7 +25,7 @@ import { isApiError } from '@/api/client';
 import { useNotificationSettings } from '@/api/household/queries';
 import { reportKeys, reportsApi } from '@/api/inventory/reports';
 import type { InventoryReportBody, ReportScope } from '@/api/inventory/types';
-import { useLocations, useMe } from '@/api/queries';
+import { useAllLocations, useMe } from '@/api/queries';
 import { FieldEditor } from '@/components/filters/panel';
 import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
@@ -66,7 +66,7 @@ type MailBlock = 'server' | 'address' | null;
 function useMailBlock(locationIds: string[]): { block: MailBlock; canSetUp: boolean } {
   const settings = useNotificationSettings();
   const me = useMe();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const user = me.data?.user;
   const block: MailBlock =
     settings.data?.smtpConfigured === false
