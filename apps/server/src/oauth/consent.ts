@@ -16,8 +16,11 @@ import { OFFLINE_ACCESS } from './plugin.js';
 // (read, or read and change) and the locations (one by default), then posts here. One request:
 // kept.token_oauth_grant() writes the `oauth` grant row (as the consenting user, no token), and
 // Better Auth's own consent endpoint, given the same signed query and the narrowed scope,
-// answers the redirect back to the client with its code. Either failing undoes both: the grant
-// is written in this transaction, which rolls back if Better Auth refuses.
+// answers the redirect back to the client with its code. The grant is written in this
+// transaction, which rolls back if Better Auth refuses. Better Auth's consent and the refresh
+// token delete after it (#411) run on their own connections and commit at once, so a failure
+// after Better Auth accepted (the delete, or this transaction's commit) leaves Better Auth's
+// consent row and an undelivered code behind: the client gets an error, not the code.
 //
 // The client's name and URI are as it calls itself (its metadata document): untrusted text the
 // page bidi-isolates and marks (D179). Its logo is never fetched or shown.
@@ -198,15 +201,16 @@ export async function decide(
     ),
     oauth_query: oauthQuery,
   });
-  // Only once Better Auth accepted the consent, and before the client gets its code.
+  // Only once Better Auth accepted the answer, and before the client gets its code.
   await endRefreshLineages(ctx.authPool, ctx.scope.userId, clientId);
   return { redirectTo };
 }
 
-/** A consent starts a new refresh token lineage (#411). The grant row is found by person and
- * client alone (kept.token_oauth_for), so a refresh token left over from an ended grant (an
- * account claim revokes Kept's tokens only) would otherwise come back to life with this one.
- * The new consent's own lineage doesn't exist yet: its code hasn't been exchanged. */
+/** Answering the consent page starts a new refresh token lineage (#411). The grant row is found
+ * by person and client alone (kept.token_oauth_for), so a refresh token left over from an ended
+ * grant would otherwise come back to life with this one. Only the page's answer does this: an
+ * authorization Better Auth's consent row already covers skips the page, and decide(). The new
+ * lineage doesn't exist yet: its code hasn't been exchanged. */
 export async function endRefreshLineages(
   authPool: pg.Pool,
   userId: string,

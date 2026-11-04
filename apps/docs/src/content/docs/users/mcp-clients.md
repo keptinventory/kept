@@ -86,8 +86,12 @@ endpoint and either **Available** or **Needs an https public URL**.
    needs), then **Allow** or **Deny**.
 4. The app appears under **Connected apps** in **Settings → Connections**.
 
-Each access token the app gets lasts an hour, and Kept checks your grant on every call, so
-revoking it works at once.
+The app stays connected until you remove it. Each access token it gets lasts an hour and the app
+renews it without asking you again; Kept checks your grant on every call, so removing the app in
+**Settings → Connections** works at once. The app has to sign in again (and you answer Kept's
+page once more) after anything that signs out your other devices: a new password or a password
+reset, a change to two-factor, backup codes or passkeys, unlinking an outside sign-in, a new email
+address, or an admin signing you out everywhere or disabling your account.
 
 Things that stop a connector:
 
