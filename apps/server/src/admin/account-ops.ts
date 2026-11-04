@@ -55,7 +55,9 @@ export async function signOutEverywhere(db: Queryable, userId: string): Promise<
 }
 
 /** Disabled: Better Auth's admin-plugin ban, which refuses every new session, and every
- * session there is now is ended. */
+ * session there is now is ended, with every connector's refresh token (#411). Enabling gives the
+ * grants back but not the refresh tokens: a possibly compromised account's connectors sign in
+ * again. */
 export async function disableUser(db: Queryable, userId: string): Promise<void> {
   await db.query(
     `UPDATE auth."user" SET banned = true, ban_reason = 'Disabled by an instance admin',

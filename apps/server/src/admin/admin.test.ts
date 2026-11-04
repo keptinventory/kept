@@ -141,9 +141,12 @@ describe('actions on an account, each audited and mailed', () => {
   // catalogue: POST /api/v1/admin/users/:id/disable
   // catalogue: POST /api/v1/admin/users/:id/enable
   it('disable: signs them out and refuses sign-in; enable lets them back', async () => {
+    await seedRefreshToken(db, bob.userId);
     const res = await call(t, `/api/v1/admin/users/${bob.userId}/disable`, { as: admin, body: {} });
     expect(res.statusCode).toBe(204);
     expect((await call(t, '/api/v1/me', { as: bob })).statusCode).toBe(401);
+    // A connector's refresh token ends too (#411)…
+    expect(await refreshTokenCount(db, bob.userId)).toBe(0);
     expect((await signIn(bob.email)).statusCode).toBe(403);
     await vi.waitFor(
       () =>
@@ -161,6 +164,8 @@ describe('actions on an account, each audited and mailed', () => {
         .statusCode,
     ).toBe(204);
     expect((await signIn(bob.email)).statusCode).toBe(200);
+    // …and enabling doesn't bring it back: the connector signs in again.
+    expect(await refreshTokenCount(db, bob.userId)).toBe(0);
     expect((await instanceAudit()).map((e) => e.action)).toEqual([
       'admin.user_disable',
       'admin.user_enable',
