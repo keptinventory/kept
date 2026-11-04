@@ -62,6 +62,16 @@ describe('the OAuth consent page', () => {
     await waitFor(() => expect(to).toHaveBeenCalledWith(expect.stringContaining('access_denied')));
   });
 
+  it('says the app stays signed in after signing out here, and what makes it sign in again', async () => {
+    await renderApp(at);
+    await findHeading('Claude wants to use your Kept');
+    expect(
+      screen.getByText(
+        /It stays signed in after you sign out of this browser; anything that signs out all your other devices makes it sign in again\./,
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("names the Personal location in the reader's language", async () => {
     await renderApp(at, { locale: 'ar' });
     await screen.findAllByRole('checkbox');
