@@ -4,7 +4,8 @@
 --      OAuth connector: neither door checked the ban, so /api/v1 and /mcp still answered. Both
 --      doors now answer nothing while the ban stands, as the calendar feed already did (0055);
 --      enabling the user gives the tokens back, as it gives back sign-in (D210: a banned account
---      sees a plain 401).
+--      sees a plain 401). A connector's grant comes back, but not its refresh token: disabling
+--      ends those (#411), so the connector signs in again.
 --   2. D197's claim (a reset or a first magic link proving the mailbox of an unverified account)
 --      removed passkeys, TOTP and sessions but not tokens, so whoever signed up with the address
 --      first kept a working token. kept.revoke_user_tokens() ends every live token of a user;

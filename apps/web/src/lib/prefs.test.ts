@@ -5,13 +5,24 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import indexHtml from '../../index.html?raw';
 import {
+  clampPlaceTreeWidth,
   formatLocale,
   initialLocale,
   isLocale,
   LOCALES,
   localeOfTag,
+  PLACE_TREE_DEFAULT,
+  PLACE_TREE_KEY,
+  PLACE_TREE_MAX,
+  PLACE_TREE_MIN,
+  PLACE_TREE_WIDTH_KEY,
+  parsePlaceTreeWidth,
+  setPlaceTreeCollapsed,
+  setPlaceTreeWidth,
   setThemePref,
   setWidthPref,
+  storedPlaceTreeCollapsed,
+  storedPlaceTreeWidth,
   storedWidthPref,
   THEME_KEY,
   WIDTH_KEY,
@@ -23,6 +34,8 @@ afterEach(() => {
   localStorage.clear();
   setWidthPref('centered');
   setThemePref('system');
+  setPlaceTreeWidth(PLACE_TREE_DEFAULT);
+  setPlaceTreeCollapsed(false);
 });
 
 describe('languages', () => {
@@ -102,6 +115,64 @@ describe('theme', () => {
   });
 });
 
+describe('the place tree (#427)', () => {
+  it('clamps a width to its bounds, and to a smaller limit when the page is narrow', () => {
+    expect(clampPlaceTreeWidth(PLACE_TREE_DEFAULT)).toBe(PLACE_TREE_DEFAULT);
+    expect(clampPlaceTreeWidth(1)).toBe(PLACE_TREE_MIN);
+    expect(clampPlaceTreeWidth(99_999)).toBe(PLACE_TREE_MAX);
+    expect(clampPlaceTreeWidth(300, 280)).toBe(280);
+    // A narrow page never pushes the tree under its minimum.
+    expect(clampPlaceTreeWidth(300, 50)).toBe(PLACE_TREE_MIN);
+    expect(clampPlaceTreeWidth(300.6)).toBe(301);
+  });
+
+  it('reads a stored width clamped; anything bad or missing is the default', () => {
+    expect(parsePlaceTreeWidth('320')).toBe(320);
+    expect(parsePlaceTreeWidth('3')).toBe(PLACE_TREE_MIN);
+    expect(parsePlaceTreeWidth('99999')).toBe(PLACE_TREE_MAX);
+    for (const bad of [null, '', 'wide', '12.5', '-300', '300px', '1e3', 'NaN', 'Infinity', ' '])
+      expect(parsePlaceTreeWidth(bad), String(bad)).toBe(PLACE_TREE_DEFAULT);
+  });
+
+  it('remembers the width and the fold; the defaults forget them', () => {
+    setPlaceTreeWidth(320);
+    expect(localStorage.getItem(PLACE_TREE_WIDTH_KEY)).toBe('320');
+    expect(storedPlaceTreeWidth()).toBe(320);
+    expect(document.documentElement.style.getPropertyValue('--place-tree-width')).toBe('320px');
+    setPlaceTreeWidth(PLACE_TREE_DEFAULT);
+    expect(localStorage.getItem(PLACE_TREE_WIDTH_KEY)).toBeNull();
+
+    setPlaceTreeCollapsed(true);
+    expect(localStorage.getItem(PLACE_TREE_KEY)).toBe('collapsed');
+    expect(storedPlaceTreeCollapsed()).toBe(true);
+    expect(document.documentElement.getAttribute('data-place-tree')).toBe('collapsed');
+    setPlaceTreeCollapsed(false);
+    expect(localStorage.getItem(PLACE_TREE_KEY)).toBeNull();
+    expect(document.documentElement.getAttribute('data-place-tree')).toBe('expanded');
+
+    localStorage.setItem(PLACE_TREE_KEY, 'sideways');
+    expect(storedPlaceTreeCollapsed()).toBe(false);
+  });
+
+  it('still works when storage throws: the choice lasts for this page', () => {
+    const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
+    try {
+      expect(storedPlaceTreeWidth()).toBe(PLACE_TREE_DEFAULT);
+      expect(storedPlaceTreeCollapsed()).toBe(false);
+      expect(() => setPlaceTreeWidth(320)).not.toThrow();
+      expect(document.documentElement.style.getPropertyValue('--place-tree-width')).toBe('320px');
+    } finally {
+      getItem.mockRestore();
+      setItem.mockRestore();
+    }
+  });
+});
+
 describe('the pre-paint script (index.html)', () => {
   // The inline script that reads the stored preferences (index.html also has zod's config).
   const script =
@@ -143,5 +214,39 @@ describe('the pre-paint script (index.html)', () => {
     expect(prePaint({}, 'it').lang).toBe('it');
     expect(prePaint({}, 'es-ES').lang).toBe('en');
     expect(prePaint({ 'kept.width': 'wide' }).width).toBe('centered');
+  });
+
+  it('makes the same place tree choices as prefs.ts, before React loads', () => {
+    const d = document.documentElement;
+    const tree = (stored: Record<string, string>) => {
+      prePaint(stored);
+      return [d.getAttribute('data-place-tree'), d.style.getPropertyValue('--place-tree-width')];
+    };
+    const px = (n: number) => `${n}px`;
+    expect(tree({})).toEqual(['expanded', px(PLACE_TREE_DEFAULT)]);
+    expect(tree({ 'kept.placeTree': 'collapsed', 'kept.placeTreeWidth': '320' })).toEqual([
+      'collapsed',
+      '320px',
+    ]);
+    expect(tree({ 'kept.placeTree': 'sideways' })[0]).toBe('expanded');
+    for (const raw of ['3', '99999', 'wide', '12.5', '-300', '300px', '1e3', ''])
+      expect(tree({ 'kept.placeTreeWidth': raw })[1], raw).toBe(px(parsePlaceTreeWidth(raw)));
+  });
+
+  it('a blocked storage leaves the place tree at its defaults', () => {
+    const d = document.documentElement;
+    const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
+    try {
+      prePaint({});
+      expect(d.getAttribute('data-place-tree')).toBe('expanded');
+      expect(d.style.getPropertyValue('--place-tree-width')).toBe(px240());
+    } finally {
+      getItem.mockRestore();
+    }
+    function px240() {
+      return `${PLACE_TREE_DEFAULT}px`;
+    }
   });
 });

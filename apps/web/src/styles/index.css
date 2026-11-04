@@ -18,6 +18,9 @@
 /* `rail:` while the desktop sidebar is the icon rail (D198); the pre-paint script sets it first. */
 @custom-variant rail (&:where([data-sidebar="collapsed"] *));
 
+/* `tree-folded:` while the place tree beside a page is its rail (#427); the pre-paint script sets it first. */
+@custom-variant tree-folded (&:where([data-place-tree="collapsed"] *));
+
 /*
  * Tailwind names for the designs' tokens. The tokens stay the source (tokens.css); these only
  * expose them as utilities: bg-surface, text-ink-2, border-line, bg-amber, text-amber-ink, ...
@@ -311,6 +314,12 @@ html[data-pull] {
     ) {
     max-inline-size: 48rem;
   }
+}
+
+/* #427: dragging the place tree's edge keeps its cursor wherever the pointer goes, past the bounds
+   and over the page. */
+:root:has([data-place-tree-edge][data-resizing]) * {
+  cursor: col-resize !important;
 }
 
 /* D237: the Map option shines until someone has opened a map: a soft light crosses it three

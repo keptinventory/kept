@@ -28758,3 +28758,15 @@ msgstr "عبر HTTP العادي، يحددها <0/>. تتجدد مع الاست
 #: src/routes/_app/admin.status.tsx
 msgid "{h, plural, one {# hour} other {# hours}}"
 msgstr "{h, plural, zero {لا ساعات} one {ساعة واحدة} two {ساعتان} few {# ساعات} many {# ساعة} other {# ساعة}}"
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "طيّ الأماكن"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "توسيع الأماكن"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "تغيير عرض الأماكن"

@@ -28758,3 +28758,15 @@ msgstr "Over plain HTTP, set by <0/>. Renewed as it is used."
 #: src/routes/_app/admin.status.tsx
 msgid "{h, plural, one {# hour} other {# hours}}"
 msgstr "{h, plural, one {# hour} other {# hours}}"
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "Collapse places"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "Expand places"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "Resize places"

@@ -20808,3 +20808,15 @@ msgstr "Qua HTTP thường, do <0/> đặt. Được gia hạn khi sử dụng."
 #: src/routes/_app/admin.status.tsx
 msgid "{h, plural, one {# hour} other {# hours}}"
 msgstr "{h, plural, one {# giờ} other {# giờ}}"
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "Thu gọn vị trí"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "Mở rộng vị trí"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "Đổi độ rộng danh sách vị trí"

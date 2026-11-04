@@ -3,6 +3,7 @@ import type { BetterAuthPlugin } from 'better-auth';
 import { APIError, createAuthMiddleware, isAPIError } from 'better-auth/api';
 import { symmetricDecrypt } from 'better-auth/crypto';
 import type pg from 'pg';
+import { endRefreshTokens } from '../oauth/refresh-tokens.js';
 import { requestClientIp } from './client-ip.js';
 import { isUndeliverableEmail } from './emails.js';
 import {
@@ -234,7 +235,9 @@ async function satisfiedMethod(pool: pg.Pool, sessionId: string): Promise<string
   return rows[0]?.method ?? null;
 }
 
-/** Deletes every session of `userId` except `keepSessionId` (session_mfa rows go by cascade). */
+/** Deletes every session of `userId` except `keepSessionId` (session_mfa rows go by cascade),
+ * and every refresh token: whatever signs out the person's other devices ends their connectors'
+ * refresh tokens too (#411). The grant rows stay, so a connector signs in again. */
 async function deleteOtherSessions(
   pool: pg.Pool,
   userId: string,
@@ -244,6 +247,7 @@ async function deleteOtherSessions(
     userId,
     keepSessionId,
   ]);
+  await endRefreshTokens(pool, userId);
 }
 
 async function markMfaSatisfied(pool: pg.Pool, sessionId: string, method: string): Promise<void> {
@@ -803,6 +807,11 @@ export async function claimUnverifiedAccount(
       'DELETE FROM auth.session WHERE user_id = $1 AND ($2::uuid IS NULL OR id <> $2::uuid)',
       [userId, keepSessionId],
     );
+    // The planter's connectors: their refresh tokens, and the consent rows that would let the
+    // next authorization skip the consent page. Without the consent page no new grant is
+    // written, and the connector would get 401 at /mcp with no way back (#411).
+    await endRefreshTokens(client, userId);
+    await client.query('DELETE FROM auth.oauth_consent WHERE user_id = $1', [userId]);
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});

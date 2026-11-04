@@ -28758,3 +28758,15 @@ msgstr "Über einfaches HTTP, festgelegt durch <0/>. Verlängert sich bei Nutzun
 #: src/routes/_app/admin.status.tsx
 msgid "{h, plural, one {# hour} other {# hours}}"
 msgstr "{h, plural, one {# Stunde} other {# Stunden}}"
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "Orte einklappen"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "Orte ausklappen"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "Breite der Orte ändern"

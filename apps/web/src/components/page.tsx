@@ -26,6 +26,7 @@ import {
   SearchIcon,
 } from '@/components/icons';
 import { NotificationBell } from '@/components/notification-bell';
+import { PAGE_WITH_ASIDE, PageAside } from '@/components/page-aside';
 import { ScanButton } from '@/components/scan-button';
 import { openPalette } from '@/components/search/palette-host';
 import { Button, type ButtonSize, type ButtonVariant, buttonClass } from '@/components/ui/button';
@@ -74,7 +75,10 @@ export function Page({
   actions?: ReactNode;
   /** A small line above the title on desktop, e.g. the location name. */
   eyebrow?: ReactNode;
-  /** A column beside the page that stays in view (1.1: a location's places, from 1280 px). */
+  /**
+   * A column beside the page that stays in view (1.1: a location's places, from 1280 px). Its
+   * width can be dragged and it folds to a rail (#427): see PageAside.
+   */
   aside?: ReactNode;
   children: ReactNode;
   /** A wider column when centered: lists, grids and dashboards. */
@@ -137,16 +141,10 @@ export function Page({
           {/* The same elements with or without the panel, so the page's body isn't mounted
               again when the panel arrives after it (a selection, a typed search, an open sheet
               would start over, #336): without it the wrappers are `display: contents`. */}
-          <div
-            className={
-              aside ? 'grid min-w-0 grid-cols-[15rem_minmax(0,1fr)] items-start gap-6' : 'contents'
-            }
-          >
-            {/* Not an <aside>: beside the sidebar's, a second complementary landmark fails axe's
-                landmark-unique; the panel's own <nav> names it. */}
-            {aside ? (
-              <div className="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto">{aside}</div>
-            ) : null}
+          <div className={aside ? PAGE_WITH_ASIDE : 'contents'}>
+            {/* Resizing and folding it happen inside PageAside and on the document's root (#427):
+                nothing here renders again, so the page's body keeps its state through them too. */}
+            {aside ? <PageAside>{aside}</PageAside> : null}
             <div className={aside ? 'grid min-w-0 content-start gap-5' : 'contents'}>
               {children}
             </div>

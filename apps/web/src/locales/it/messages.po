@@ -28758,3 +28758,15 @@ msgstr "Su HTTP semplice, impostata da <0/>. Si rinnova con l'uso."
 #: src/routes/_app/admin.status.tsx
 msgid "{h, plural, one {# hour} other {# hours}}"
 msgstr "{h, plural, one {# ora} other {# ore}}"
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "Comprimi posti"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "Espandi posti"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "Ridimensiona posti"
