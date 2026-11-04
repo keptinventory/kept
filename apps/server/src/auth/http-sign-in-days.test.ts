@@ -139,7 +139,7 @@ const METHODS: Record<string, (t: TestApp) => Promise<SignedIn>> = {
       displayName: 'Peter',
       password: PASSWORD,
     });
-    const code = await issueResetCode(t.auth, userId);
+    const code = await issueResetCode(t.auth, db.pools.auth, userId);
     const newPassword = 'a password of his own';
     const redeemed = await send(t, '/api/v1/auth/reset-code', {
       body: { username, code, newPassword },
