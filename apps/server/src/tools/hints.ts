@@ -10,7 +10,6 @@ const PURCHASE: Readonly<Record<string, string>> = {
   vendorId: 'purchase.shop',
   currency: 'purchase.currency',
   total: 'purchase.price',
-  notes: 'purchase.notes',
   lines: 'purchase',
   'lines.description': 'purchase.on_receipt',
   'lines.unitPrice': 'purchase.price',
