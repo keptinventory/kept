@@ -158,6 +158,10 @@ export const DISABLED_AUTH_PATHS = [
   // Both expose session tokens to the page; the device list is GET /api/v1/me/sessions.
   '/list-sessions',
   '/revoke-session',
+  // Kept's web app doesn't call these, and they'd sign out other devices without ending their
+  // refresh tokens, which everything else that signs out other devices does (endRefreshTokens).
+  '/revoke-other-sessions',
+  '/revoke-sessions',
   // Public sign-up answers 422 USER_ALREADY_EXISTS for a taken address and writes rows per
   // request. People sign up through Kept's POST /api/v1/auth/sign-up (accounts/sign-up.ts),
   // which is closed unless sign-up is open or an invite comes with it, and answers the same for

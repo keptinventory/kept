@@ -103,6 +103,16 @@ describe('the Better Auth mount', () => {
     ).toBe(404);
   });
 
+  it("keeps Better Auth's bulk sign-outs off, so they cannot sign out devices and leave refresh tokens", async () => {
+    const user = await newUser('bulk-off');
+    const cookie = await signIn(user.email);
+    const other = await signIn(user.email);
+    expect((await auth('/revoke-other-sessions', { cookie, body: {} })).statusCode).toBe(404);
+    expect((await auth('/revoke-sessions', { cookie, body: {} })).statusCode).toBe(404);
+    // Neither call reached Better Auth: the other device is still signed in.
+    expect((await auth('/get-session', { cookie: other })).json()?.user?.id).toBe(user.userId);
+  });
+
   it('applies the per-IP sign-in limit (5/min, shared through the database)', async () => {
     const ip = uniqueIp();
     const statuses: number[] = [];
