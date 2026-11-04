@@ -28734,3 +28734,27 @@ msgstr "أدخل عددًا صحيحًا."
 #: src/components/things/purchase-sheet.tsx
 msgid "The new receipt is added, but the old one couldn't be removed"
 msgstr "أُضيف الإيصال الجديد، لكن تعذّرت إزالة القديم"
+
+#: src/routes/_app/admin.status.tsx
+msgid "Sign-in length"
+msgstr "مدة تسجيل الدخول"
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used."
+msgstr "تتجدد مع الاستخدام."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used. <0/> has no effect over HTTPS."
+msgstr "تتجدد مع الاستخدام. لا أثر لـ <0/> عبر HTTPS."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, not renewed. <0/> makes it longer."
+msgstr "عبر HTTP العادي، بلا تجديد. يطيلها <0/>."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, set by <0/>. Renewed as it is used."
+msgstr "عبر HTTP العادي، يحددها <0/>. تتجدد مع الاستخدام."
+
+#: src/routes/_app/admin.status.tsx
+msgid "{h, plural, one {# hour} other {# hours}}"
+msgstr "{h, plural, zero {لا ساعات} one {ساعة واحدة} two {ساعتان} few {# ساعات} many {# ساعة} other {# ساعة}}"
