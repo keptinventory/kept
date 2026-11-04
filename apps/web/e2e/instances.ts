@@ -90,12 +90,14 @@ export const HOMEBOX_INSTANCE: TlsInstance = {
 };
 
 /** Step 8 (e2e/step8.spec.ts): Admin → Backups (with the owner login a run needs), the app lock. */
-export const OPERATIONS_INSTANCE: TlsInstance = {
+export const OPERATIONS_INSTANCE: TlsInstance & { httpSignInDays: number } = {
   name: 'operations',
   port: 8197,
   seed: true,
   https: true,
   owner: true,
+  // Does nothing over https; e2e/http-sign-in.spec.ts holds this instance to that.
+  httpSignInDays: 7,
 };
 
 /**
@@ -145,6 +147,27 @@ export const LAN_INSTANCE: Instance & { publicHost: string } = {
   port: 8213,
   seed: true,
   publicHost: 'kept.lan',
+};
+
+/**
+ * `lan` with longer sign-ins over plain HTTP on (e2e/http-sign-in.spec.ts, its own project):
+ * KEPT_HTTP_SIGN_IN_DAYS=7 at http://kept.lan:8214, not a secure context. It mails through the dev
+ * Mailpit for the sign-in link, and believes X-Forwarded-For so each sign-in has an address of its
+ * own. Key for KEPT_E2E_INSTANCES: `lanWeek`.
+ */
+export const LAN_WEEK_INSTANCE: Instance & {
+  publicHost: string;
+  trustProxy: true;
+  mail: true;
+  httpSignInDays: number;
+} = {
+  name: 'lan-week',
+  port: 8214,
+  seed: true,
+  publicHost: 'kept.lan',
+  trustProxy: true,
+  mail: true,
+  httpSignInDays: 7,
 };
 
 export const urlOf = (i: Instance & { https?: boolean }) =>
