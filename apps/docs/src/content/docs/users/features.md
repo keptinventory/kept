@@ -67,7 +67,8 @@ a location turns them on in **Location settings → What to track**
 - **[Sharing a location](/users/sharing/)**: invite people with a role (admin, member, viewer)
   and an optional end date; managed accounts for people without email; read-only share links for
   someone without an account.
-- **[Sign-in and security](/users/sign-in-security/)**: passkeys and two-factor sign-in.
+- **[Sign-in and security](/users/sign-in-security/)**: passkeys and two-factor sign-in; on a home
+  network over plain http, [sign-ins as long as the admin sets](/install/home-network/#staying-on-your-network).
 - **Six languages**: English, Arabic (right to left), French, German, Italian and Vietnamese;
   dates in your region's style, or as you choose.
 
