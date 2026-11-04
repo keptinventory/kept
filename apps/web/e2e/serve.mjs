@@ -4,6 +4,7 @@
 //
 //   node --conditions=kept-dist e2e/serve.mjs <name> <port> [--seed] [--ai-mock] [--https] [--owner]
 //     [--trust-proxy] [--mail] [--google] [--public-host=<name>] [--http-sign-in-days=<days>]
+//     [--extra-addresses=<list>]
 //
 // 1. Creates a scratch database `kept_e2e_<name>_<pid>` on the dev Postgres (localhost:5452,
 //    compose.dev.yaml), never the dev `kept` database, and migrates it as kept_owner.
@@ -37,6 +38,7 @@
 //    context. The browser maps the name to 127.0.0.1 (--host-resolver-rules), so nothing is
 //    published beyond this machine.
 //    With --http-sign-in-days=<days>, the server runs with KEPT_HTTP_SIGN_IN_DAYS set.
+//    With --extra-addresses=<list>, with KEPT_EXTRA_ADDRESSES set.
 // 4. On SIGTERM or SIGINT (Playwright's gracefulShutdown), stops the server and drops the
 //    database. A database left behind by a run that was killed outright is dropped by the next
 //    run of the same instance.
@@ -54,7 +56,7 @@ const [name, portArg, ...flags] = process.argv.slice(2);
 const port = Number(portArg);
 if (!name || !/^[a-z-]+$/.test(name) || !Number.isInteger(port)) {
   console.error(
-    'usage: node --conditions=kept-dist e2e/serve.mjs <name> <port> [--seed] [--ai-mock] [--https] [--owner] [--trust-proxy] [--mail] [--google] [--public-host=<name>] [--http-sign-in-days=<days>]',
+    'usage: node --conditions=kept-dist e2e/serve.mjs <name> <port> [--seed] [--ai-mock] [--https] [--owner] [--trust-proxy] [--mail] [--google] [--public-host=<name>] [--http-sign-in-days=<days>] [--extra-addresses=<list>]',
   );
   process.exit(2);
 }
@@ -75,6 +77,9 @@ if (publicHost !== undefined && !/^[a-z][a-z0-9.-]*$/.test(publicHost)) {
 const httpSignInDays = flags
   .find((f) => f.startsWith('--http-sign-in-days='))
   ?.slice('--http-sign-in-days='.length);
+const extraAddresses = flags
+  .find((f) => f.startsWith('--extra-addresses='))
+  ?.slice('--extra-addresses='.length);
 // Behind the TLS proxy the server itself listens 1000 above the public port.
 const serverPort = tls ? port + 1000 : port;
 
@@ -254,6 +259,7 @@ const env = {
   ...(trustProxy ? { KEPT_TRUSTED_PROXIES: '127.0.0.1,::1' } : {}),
   ...(mailpit ? { KEPT_SMTP_URL: 'smtp://localhost:1025' } : {}),
   ...(httpSignInDays ? { KEPT_HTTP_SIGN_IN_DAYS: httpSignInDays } : {}),
+  ...(extraAddresses ? { KEPT_EXTRA_ADDRESSES: extraAddresses } : {}),
   ...(google
     ? {
         KEPT_GOOGLE_CLIENT_ID: 'e2e-not-a-google-client',
