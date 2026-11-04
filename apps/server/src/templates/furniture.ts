@@ -69,8 +69,8 @@ import { checkAllCodes } from './place-templates.js';
 //   code is checked against the location's rule and against codes elsewhere in the location.
 // - Merging puts the other compartments in the trash (one batch, their cell cleared, so a restore
 //   from the Trash brings back a plain place), moves their own codes and short IDs (not primary)
-//   to the one at the top left, and their things and places into it (each thing's move audited,
-//   as a trash's are). The merged compartment records each part: where it sat, the place it was,
+//   to the one at the top left, and their things and places into it (each one's move audited in
+//   its own history). The merged compartment records each part: where it sat, the place it was,
 //   its codes and short IDs.
 // - Splitting brings each recorded part back: the same place out of the trash when it is still
 //   there, else a new one named by the pattern, with the codes and short IDs it brought; a cell
