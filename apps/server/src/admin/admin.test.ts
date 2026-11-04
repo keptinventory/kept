@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TestApp } from '../../test/app.js';
 import { enrolTotp } from '../../test/auth.js';
 import { type TestDb, testDb } from '../../test/db.js';
+import { refreshTokenCount, seedRefreshToken } from '../../test/oauth-tokens.js';
 import { call, join, PASSWORD, type Person, peopleApp, person } from '../../test/people.js';
 import { asOwner, ownerTx } from '../../test/tenancy.js';
 import { allowPrivateAddresses } from '../ai/runtime.js';
@@ -140,9 +141,12 @@ describe('actions on an account, each audited and mailed', () => {
   // catalogue: POST /api/v1/admin/users/:id/disable
   // catalogue: POST /api/v1/admin/users/:id/enable
   it('disable: signs them out and refuses sign-in; enable lets them back', async () => {
+    await seedRefreshToken(db, bob.userId);
     const res = await call(t, `/api/v1/admin/users/${bob.userId}/disable`, { as: admin, body: {} });
     expect(res.statusCode).toBe(204);
     expect((await call(t, '/api/v1/me', { as: bob })).statusCode).toBe(401);
+    // A connector's refresh token ends too (#411)…
+    expect(await refreshTokenCount(db, bob.userId)).toBe(0);
     expect((await signIn(bob.email)).statusCode).toBe(403);
     await vi.waitFor(
       () =>
@@ -160,6 +164,8 @@ describe('actions on an account, each audited and mailed', () => {
         .statusCode,
     ).toBe(204);
     expect((await signIn(bob.email)).statusCode).toBe(200);
+    // …and enabling doesn't bring it back: the connector signs in again.
+    expect(await refreshTokenCount(db, bob.userId)).toBe(0);
     expect((await instanceAudit()).map((e) => e.action)).toEqual([
       'admin.user_disable',
       'admin.user_enable',
@@ -182,6 +188,7 @@ describe('actions on an account, each audited and mailed', () => {
   // catalogue: POST /api/v1/admin/users/:id/reset-2fa
   it('reset-2fa: clears TOTP and backup codes and signs out', async () => {
     await enrolTotp(t.auth, bob, PASSWORD);
+    await seedRefreshToken(db, bob.userId);
     const res = await call(t, `/api/v1/admin/users/${bob.userId}/reset-2fa`, {
       as: admin,
       body: {},
@@ -196,6 +203,7 @@ describe('actions on an account, each audited and mailed', () => {
       ),
     );
     expect(rows.rows[0]).toEqual({ two_factor_enabled: false, n: 0, sessions: 0 });
+    expect(await refreshTokenCount(db, bob.userId)).toBe(0);
     // A plain password sign-in works again, with no challenge.
     const back = await signIn(bob.email);
     expect(back.json()).not.toHaveProperty('twoFactorRedirect');
@@ -213,12 +221,14 @@ describe('actions on an account, each audited and mailed', () => {
 
   // catalogue: POST /api/v1/admin/users/:id/sign-out-everywhere
   it('sign-out-everywhere: every session ends; your own is not mailed about', async () => {
+    await seedRefreshToken(db, bob.userId);
     const res = await call(t, `/api/v1/admin/users/${bob.userId}/sign-out-everywhere`, {
       as: admin,
       body: {},
     });
     expect(res.statusCode).toBe(204);
     expect((await call(t, '/api/v1/me', { as: bob })).statusCode).toBe(401);
+    expect(await refreshTokenCount(db, bob.userId)).toBe(0);
     const self = await call(t, `/api/v1/admin/users/${admin.userId}/sign-out-everywhere`, {
       as: admin,
       body: {},

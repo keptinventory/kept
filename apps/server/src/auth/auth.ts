@@ -12,6 +12,7 @@ import type { Env } from '../config/env.js';
 import { betterAuthTables } from '../db/schema/auth.js';
 import { cimdFetch } from '../oauth/cimd-fetch.js';
 import { type OAuthServerOptions, oauthPlugins } from '../oauth/plugin.js';
+import { endRefreshTokens } from '../oauth/refresh-tokens.js';
 import { CLIENT_IP_HEADER } from './client-ip.js';
 import { isUndeliverableEmail } from './emails.js';
 import type { GoogleConfig } from './google.js';
@@ -157,6 +158,10 @@ export const DISABLED_AUTH_PATHS = [
   // Both expose session tokens to the page; the device list is GET /api/v1/me/sessions.
   '/list-sessions',
   '/revoke-session',
+  // Kept's web app doesn't call these, and they'd sign out other devices without ending their
+  // refresh tokens, which everything else that signs out other devices does (endRefreshTokens).
+  '/revoke-other-sessions',
+  '/revoke-sessions',
   // Public sign-up answers 422 USER_ALREADY_EXISTS for a taken address and writes rows per
   // request. People sign up through Kept's POST /api/v1/auth/sign-up (accounts/sign-up.ts),
   // which is closed unless sign-up is open or an invite comes with it, and answers the same for
@@ -292,6 +297,9 @@ export function createAuth(deps: AuthDeps) {
       revokeSessionsOnPasswordReset: true,
       // D197: a reset on an unverified address claims the account for the mailbox's owner.
       onPasswordReset: async ({ user }) => {
+        // Sessions end by revokeSessionsOnPasswordReset; connectors' refresh tokens outlive
+        // them, so they end here (#411). Kept's grant rows stay, the connector signs in again.
+        await endRefreshTokens(pool, user.id);
         if (!user.emailVerified && !isUndeliverableEmail(user.email)) {
           await claimUnverifiedAccount(pool, user.id, null, deps.revokeTokensOnClaim);
           notify(user, 'unverified-account-reset');

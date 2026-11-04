@@ -8,6 +8,7 @@ import type { Pools } from '../db/pools.js';
 import { withSystem } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
 import { AppError, conflict, forbidden, invalid, notFound, pgErrorOf } from '../http/errors.js';
+import { endRefreshTokens } from '../oauth/refresh-tokens.js';
 import type { Auth } from './auth.js';
 import { isUndeliverableEmail } from './emails.js';
 import { authHeaders, forwardCookies, rateLimited, requireScope } from './http.js';
@@ -620,11 +621,13 @@ export async function signInSecurityRoutes(
           [scope.userId, staged.secret, encryptedCodes],
         );
         if (!swapped.rowCount) throw conflict('Two-factor is off. Turn it on instead.');
-        // A credential change: every other session is signed out.
+        // A credential change: every other session is signed out, and every refresh token
+        // ends (#411).
         await client.query('DELETE FROM auth.session WHERE user_id = $1 AND id <> $2', [
           scope.userId,
           sessionId,
         ]);
+        await endRefreshTokens(client, scope.userId);
         await client.query('COMMIT');
       } catch (err) {
         await client.query('ROLLBACK').catch(() => {});
@@ -642,12 +645,14 @@ export async function signInSecurityRoutes(
 const lastWayIn = () =>
   new AppError('last_sign_in_method', 409, 'Add another passkey or link another sign-in first.');
 
-/** A credential change signs out every other session of the person (the one making it stays). */
+/** A credential change signs out every other session of the person (the one making it stays),
+ * and ends their connectors' refresh tokens (#411). */
 async function signOutOthers(client: pg.ClientBase, userId: string, keep: string | null) {
   await client.query(
     'DELETE FROM auth.session WHERE user_id = $1 AND ($2::uuid IS NULL OR id <> $2::uuid)',
     [userId, keep],
   );
+  await endRefreshTokens(client, userId);
 }
 
 type AuditAction =

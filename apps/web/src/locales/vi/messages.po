@@ -20784,3 +20784,15 @@ msgstr "Nhập một số nguyên."
 #: src/components/things/purchase-sheet.tsx
 msgid "The new receipt is added, but the old one couldn't be removed"
 msgstr "Đã thêm biên lai mới, nhưng không gỡ được biên lai cũ"
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "Thu gọn vị trí"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "Mở rộng vị trí"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "Đổi độ rộng danh sách vị trí"
