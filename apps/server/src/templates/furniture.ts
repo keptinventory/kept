@@ -38,7 +38,12 @@ import { requireCan, requireMembership } from '../locations/access.js';
 import { type Ctx, lockTree } from '../places/service.js';
 import { type PlaceRow, requirePlace } from '../places/view.js';
 import { enqueueReindex } from '../search/jobs.js';
-import { auditRelocations, type Relocation } from '../things/relocate.js';
+import {
+  auditPlaceRelocations,
+  auditRelocations,
+  type PlaceRelocation,
+  type Relocation,
+} from '../things/relocate.js';
 import { layoutOf, ownCodes, type Stored } from './furniture-view.js';
 import { checkAllCodes } from './place-templates.js';
 
@@ -278,12 +283,15 @@ type Writer = {
   kindOf: (id: string) => string;
 };
 
+/** What applyImage moved, for each one's own history line. */
+type Moved = { things: Relocation[]; places: PlaceRelocation[] };
+
 /**
  * Writes `target` over `now` (both images of the same furniture): places brought back or made
  * first, then things and places moved, then places put in the trash, then codes and short IDs.
- * Returns the things it moved, for their `thing.move` rows.
+ * Returns what it moved, for their `thing.move` and `place.move` rows.
  */
-async function applyImage(w: Writer, now: Image, target: Image): Promise<Relocation[]> {
+async function applyImage(w: Writer, now: Image, target: Image): Promise<Moved> {
   const { client } = w;
   if (!same(now.layout, target.layout)) {
     await client.query('UPDATE public.places SET layout = $2 WHERE id = $1', [
@@ -322,7 +330,7 @@ async function applyImage(w: Writer, now: Image, target: Image): Promise<Relocat
     );
   }
   // Things and places moved.
-  const moved: Relocation[] = [];
+  const things: Relocation[] = [];
   const thingIds = Object.keys({ ...now.things, ...target.things });
   if (thingIds.length > 0) {
     const { rows } = await client.query<{
@@ -337,16 +345,18 @@ async function applyImage(w: Writer, now: Image, target: Image): Promise<Relocat
       const to = target.things[r.id];
       if (!to || to === r.place_id) continue;
       await client.query('UPDATE public.things SET place_id = $2 WHERE id = $1', [r.id, to]);
-      moved.push({
+      things.push({
         id: r.id,
         before: { place_id: r.place_id, container_id: r.container_id },
         after: { place_id: to, container_id: r.container_id },
       });
     }
   }
+  const places: PlaceRelocation[] = [];
   for (const [id, parent] of Object.entries(target.children)) {
     if (now.children[id] === parent) continue;
     await client.query('UPDATE public.places SET parent_id = $2 WHERE id = $1', [id, parent]);
+    places.push({ id, before: now.children[id] ?? null, after: parent });
   }
   // Places the target has in the trash, or not at all (made by what is undone): one batch.
   const away = [
@@ -409,7 +419,13 @@ async function applyImage(w: Writer, now: Image, target: Image): Promise<Relocat
       JSON.stringify(shortMoves),
     ]);
   }
-  return moved;
+  return { things, places };
+}
+
+/** Each thing and place moved gets its own line in its history. */
+async function auditMoved(tx: Ctx['tx'], at: Parameters<typeof auditRelocations>[1], moved: Moved) {
+  await auditRelocations(tx, at, moved.things);
+  await auditPlaceRelocations(tx, at, moved.places);
 }
 
 /** 409 unless the image now is still the one an event left (the furniture's undo). */
@@ -476,14 +492,10 @@ async function record(
   before: Image,
   after: Image,
   what: Record<string, unknown>,
-  moved: Relocation[],
+  moved: Moved,
 ) {
   const actor = actorOf(c.scope);
-  await auditRelocations(
-    c.tx,
-    { locationId: f.place.locationId, actor, requestId: c.requestId },
-    moved,
-  );
+  await auditMoved(c.tx, { locationId: f.place.locationId, actor, requestId: c.requestId }, moved);
   await audited(c.tx, {
     locationId: f.place.locationId,
     actor,
@@ -491,7 +503,7 @@ async function record(
     entity: { type: 'place', id: f.place.id },
     before: { furniture: before },
     after: { furniture: after, ...what },
-    ...(moved.length > 0 ? { subjects: moved.map((m) => m.id) } : {}),
+    ...(moved.things.length > 0 ? { subjects: moved.things.map((m) => m.id) } : {}),
     requestId: c.requestId,
     undoableUntil: undoableUntil(),
   });
@@ -644,10 +656,13 @@ export async function splitFurnitureCompartment(
       if (code && !(code in target.codes)) fresh.push({ code, placeId });
     }
     const held = (part?.shortIds ?? []).filter((s) => now.short_ids[s.code]?.place === one.id);
+    // A place back from the trash can have a primary of its own by now (restored, labelled and
+    // trashed again): that one stays primary, and the one coming back opens it too (#425).
+    const hasPrimary = Object.values(now.short_ids).some((s) => s.place === placeId && s.primary);
     held.forEach((s, i) => {
       target.short_ids[s.code] = {
         place: placeId,
-        primary: back.has(placeId) ? s.primary : i === 0,
+        primary: back.has(placeId) ? s.primary && !hasPrimary : i === 0,
       };
     });
   }
@@ -752,7 +767,7 @@ export async function undoFurniture(args: UndoArgs): Promise<void> {
     now,
     before,
   );
-  await auditRelocations(
+  await auditMoved(
     args.tx,
     { locationId: event.locationId, actor: actorOf(args.scope), requestId: args.requestId },
     moved,
@@ -762,7 +777,7 @@ export async function undoFurniture(args: UndoArgs): Promise<void> {
     entity: { type: 'place', id },
     before: { furniture: now },
     after: { furniture: before },
-    ...(moved.length > 0 ? { subjects: moved.map((m) => m.id) } : {}),
+    ...(moved.things.length > 0 ? { subjects: moved.things.map((m) => m.id) } : {}),
   });
   await enqueueReindex(args.deps.jobs, client, event.locationId);
 }

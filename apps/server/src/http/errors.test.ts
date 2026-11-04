@@ -99,6 +99,7 @@ describe('toErrorReply()', () => {
       /Personal/,
     );
     expect(toErrorReply(pg('23505', 'memberships_location_user_uq')).body.hint).toMatch(/already/);
+    expect(toErrorReply(pg('23505', 'short_ids_primary_place_uq')).body.hint).toMatch(/main label/);
     expect(toErrorReply(pg('23514', 'warranties_quantity_one')).body).toMatchObject({
       code: 'quantity_not_one',
       error: 'A warranty is for a single thing.',

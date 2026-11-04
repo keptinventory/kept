@@ -38,6 +38,34 @@ export async function auditRelocations(
   );
 }
 
+/** A place that changed parent as a side effect of another write (a merge's child places). */
+export type PlaceRelocation = { id: string; before: string | null; after: string | null };
+
+/**
+ * A `place.move` row for each, so a place's own history says where it went (#425). Like a thing's,
+ * not undoable on its own: the write that caused it is what undo reverses.
+ */
+export async function auditPlaceRelocations(
+  tx: Tx,
+  at: { locationId: string; actor: AuditActor; requestId: string | null },
+  moves: readonly PlaceRelocation[],
+): Promise<void> {
+  const real = moves.filter((m) => m.before !== m.after);
+  if (real.length === 0) return;
+  await auditedMany(
+    tx,
+    real.map((m) => ({
+      locationId: at.locationId,
+      actor: at.actor,
+      action: 'place.move',
+      entity: { type: 'place', id: m.id },
+      before: { parent_id: m.before },
+      after: { parent_id: m.after },
+      requestId: at.requestId,
+    })),
+  );
+}
+
 /** A thing a restore sent to the Unplaced area, with where it was (Postgres 18's RETURNING old). */
 export type Orphan = {
   id: string;
