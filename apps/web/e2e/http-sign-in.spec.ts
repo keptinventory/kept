@@ -1,7 +1,7 @@
 /**
  * How long a sign-in lasts in a real browser (#404): `lan-week` (plain HTTP on a network name,
- * KEPT_HTTP_SIGN_IN_DAYS=7), `lan` (the same, unset), `portability` (HTTPS, unset) and `operations`
- * (HTTPS, set, which does nothing). Each row's expiry is read from the Set-Cookie header, the
+ * KEPT_HTTP_SIGN_IN_DAYS=7), `lan-off` (the same, unset), `https-off` (HTTPS, unset) and `https-week`
+ * (HTTPS, set, which does nothing), none shared with another spec. Each row's expiry is read from the Set-Cookie header, the
  * browser's own cookie store and the database, time is moved by editing the session row, and a
  * sign-in that ran out lands on the sign-in page. Plain HTTP on a network name is not a secure
  * context, so no passkeys there; passkeys on a secure address are e2e/sign-in-security.spec.ts's.
@@ -12,20 +12,24 @@ import { randomUUID } from 'node:crypto';
 import {
   type Browser,
   type BrowserContext,
-  expect,
+  expect as baseExpect,
   type Page,
   type Response,
   test,
 } from '@playwright/test';
 import {
+  HTTPS_OFF_INSTANCE,
+  HTTPS_WEEK_INSTANCE,
   type Instance,
-  LAN_INSTANCE,
+  LAN_OFF_INSTANCE,
   LAN_WEEK_INSTANCE,
-  OPERATIONS_INSTANCE,
-  PORTABILITY_INSTANCE,
 } from './instances';
 import { go, signInKit } from './sign-in-kit';
 import { freshCode } from './totp';
+
+// These instances share their Postgres with every other test run on the machine: Admin → Status
+// was still loading after 10 s under load. 30 s, as e2e/tls-people.ts has it.
+const expect = baseExpect.configure({ timeout: 30_000 });
 
 test.describe.configure({ mode: 'serial' });
 
@@ -65,8 +69,8 @@ const ROWS: Row[] = [
   },
   {
     name: 'http, unset',
-    instance: LAN_INSTANCE,
-    url: `http://${LAN_INSTANCE.publicHost}:${LAN_INSTANCE.port}`,
+    instance: LAN_OFF_INSTANCE,
+    url: `http://${LAN_OFF_INSTANCE.publicHost}:${LAN_OFF_INSTANCE.port}`,
     https: false,
     lifetime: 12 * HOUR,
     renewsAfter: null,
@@ -75,8 +79,8 @@ const ROWS: Row[] = [
   },
   {
     name: 'https, unset',
-    instance: PORTABILITY_INSTANCE,
-    url: `https://localhost:${PORTABILITY_INSTANCE.port}`,
+    instance: HTTPS_OFF_INSTANCE,
+    url: `https://localhost:${HTTPS_OFF_INSTANCE.port}`,
     https: true,
     lifetime: 30 * DAY,
     renewsAfter: DAY,
@@ -85,8 +89,8 @@ const ROWS: Row[] = [
   },
   {
     name: 'https, set to 7',
-    instance: OPERATIONS_INSTANCE,
-    url: `https://localhost:${OPERATIONS_INSTANCE.port}`,
+    instance: HTTPS_WEEK_INSTANCE,
+    url: `https://localhost:${HTTPS_WEEK_INSTANCE.port}`,
     https: true,
     lifetime: 30 * DAY,
     renewsAfter: DAY,

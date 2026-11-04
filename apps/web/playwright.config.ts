@@ -31,9 +31,12 @@ import { CAPTURE_INSTANCE, fakeCameraArgs } from './e2e/camera';
 import {
   ASSISTANT_INSTANCE,
   HOMEBOX_INSTANCE,
+  HTTPS_OFF_INSTANCE,
+  HTTPS_WEEK_INSTANCE,
   INSTANCES,
   type Instance,
   LAN_INSTANCE,
+  LAN_OFF_INSTANCE,
   LAN_WEEK_INSTANCE,
   OPERATIONS_INSTANCE,
   PORTABILITY_INSTANCE,
@@ -98,6 +101,9 @@ const ALL: Record<string, Served> = {
   signInMail: SIGN_IN_MAIL_INSTANCE,
   lan: LAN_INSTANCE,
   lanWeek: LAN_WEEK_INSTANCE,
+  lanOff: LAN_OFF_INSTANCE,
+  httpsOff: HTTPS_OFF_INSTANCE,
+  httpsWeek: HTTPS_WEEK_INSTANCE,
 };
 
 /** The instances to start: all, or those KEPT_E2E_INSTANCES names (e.g. `capture`). */
@@ -255,8 +261,8 @@ export default defineConfig({
       },
     },
     {
-      // How long a sign-in lasts, on `lan-week` (http, the setting on 7), `lan` (http, off),
-      // `portability` (https, off) and `operations` (https, the setting on, ignored).
+      // How long a sign-in lasts, on `lan-week` (http, the setting on 7), `lan-off` (http, off),
+      // `https-off` and `https-week` (https, the setting on, ignored): instances no other spec uses.
       name: 'http-sign-in',
       testMatch: HTTP_SIGN_IN_SPEC,
       testIgnore: ignored,
