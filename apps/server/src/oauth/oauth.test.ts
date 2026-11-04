@@ -1,9 +1,9 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import type { TestApp } from '../../test/app.js';
+import { jar, type TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
-import { call, join, type Person, peopleApp, person } from '../../test/people.js';
+import { call, freshIp, join, type Person, peopleApp, person } from '../../test/people.js';
 import { createLocation, createThing, type Json, type Loc, ok, own } from '../../test/things.js';
 import { withScope } from '../db/scope.js';
 import { cimdFetch } from './cimd-fetch.js';
@@ -45,8 +45,9 @@ const CONNECTOR_METADATA = {
   redirect_uris: [CONNECTOR_REDIRECT],
   grant_types: ['authorization_code', 'refresh_token'],
 };
-// A connector whose metadata document declares its scopes (they're the only ones it may request),
-// and only the authorization_code grant.
+// A connector whose metadata document declares its scopes and only the authorization_code grant.
+// Better Auth stores the server's scopes for a CIMD client, not the declared ones, so the
+// declaration doesn't keep offline_access out.
 const DECLARED_ID = 'https://declared.example/oauth/kept-client.json';
 const DECLARED_REDIRECT = 'https://declared.example/callback';
 const DECLARED_METADATA = {
@@ -145,30 +146,58 @@ async function mcpClient(accessToken: string): Promise<Client> {
   return client;
 }
 
-/** authorize → the consent page's signed query (Better Auth answers a script with JSON). */
-async function authorize(
+type AuthorizeOptions = {
+  as?: Person | { cookie: string };
+  scope?: string;
+  /** Better Auth takes the request as a query (GET) or a form (POST). */
+  method?: 'GET' | 'POST';
+};
+
+/** authorize → where Better Auth sends the browser: the consent page, or straight back to the
+ * client with a code when a consent row already covers the request. */
+async function authorizeTarget(
   verifier: string,
   client: { id: string; redirect: string } = { id: CLIENT_ID, redirect: REDIRECT },
-): Promise<string> {
+  opts: AuthorizeOptions = {},
+): Promise<URL> {
   const challenge = createHash('sha256').update(verifier).digest('base64url');
   const q = new URLSearchParams({
     response_type: 'code',
     client_id: client.id,
     redirect_uri: client.redirect,
-    scope: 'kept:read kept:write',
+    scope: opts.scope ?? 'kept:read kept:write',
     state: 'state-1',
     code_challenge: challenge,
     code_challenge_method: 'S256',
     resource: `${t.publicUrl}/mcp`,
   });
-  const res = await call(t, `/api/v1/auth/oauth2/authorize?${q}`, {
-    as: louis,
-    headers: { accept: 'application/json' },
-  });
+  const res =
+    opts.method === 'POST'
+      ? await call(t, '/api/v1/auth/oauth2/authorize', {
+          as: opts.as ?? louis,
+          headers: {
+            accept: 'application/json',
+            'content-type': 'application/x-www-form-urlencoded',
+          },
+          body: q.toString(),
+        })
+      : await call(t, `/api/v1/auth/oauth2/authorize?${q}`, {
+          as: opts.as ?? louis,
+          headers: { accept: 'application/json' },
+        });
   expect(res.statusCode, res.body).toBeLessThan(400);
   const target =
     (res.headers.location as string | undefined) ?? (res.json() as { url: string }).url;
-  const consent = new URL(target, t.publicUrl);
+  return new URL(target, t.publicUrl);
+}
+
+/** authorize → the consent page's signed query (Better Auth answers a script with JSON). */
+async function authorize(
+  verifier: string,
+  client: { id: string; redirect: string } = { id: CLIENT_ID, redirect: REDIRECT },
+  opts: AuthorizeOptions = {},
+): Promise<string> {
+  const consent = await authorizeTarget(verifier, client, opts);
   expect(consent.pathname).toBe('/oauth/consent');
   return consent.search.slice(1);
 }
@@ -180,6 +209,8 @@ const tokenEndpoint = (form: Record<string, string>) =>
   t.app.inject({
     method: 'POST',
     url: '/api/v1/auth/oauth2/token',
+    // A fresh address per call, so Better Auth's per-IP limit doesn't cross requests.
+    remoteAddress: freshIp(),
     headers: { host: host(), 'content-type': 'application/x-www-form-urlencoded' },
     payload: new URLSearchParams({ ...form, resource: `${t.publicUrl}/mcp` }).toString(),
   });
@@ -548,9 +579,9 @@ describe('OAuth connectors', () => {
     expect(left).toHaveLength(0);
   });
 
-  it('starts a new refresh token lineage with every consent, so an orphaned one never comes back', async () => {
-    // A grant can end without Better Auth's refresh token going with it (an account claim
-    // revokes Kept's tokens only, D197). The next consent for that client must not revive it.
+  it('starts a new refresh token lineage with every answer to the consent page, so an orphaned one never comes back', async () => {
+    // A grant can end without Better Auth's refresh token going with it (kept.revoke_user_tokens
+    // on its own). The next answer to the consent page for that client must not revive it.
     const connector = { id: CONNECTOR_ID, redirect: CONNECTOR_REDIRECT };
     const consentOnce = async () => {
       const verifier = randomBytes(32).toString('base64url');
@@ -603,7 +634,7 @@ describe('OAuth connectors', () => {
       'SELECT scopes FROM auth.oauth_client WHERE client_id = $1',
       [DECLARED_ID],
     );
-    // Its declared scopes are what Better Auth validates the request against.
+    // Better Auth stored the server's scopes, not the declared ones.
     expect(stored[0]?.scopes).toEqual(expect.arrayContaining(['kept:read', 'offline_access']));
     expect(tokens.refresh_token).toBeTruthy();
     expect((await listToolsWith(tokens.access_token)).statusCode).toBe(200);
@@ -651,6 +682,154 @@ describe('OAuth connectors', () => {
       client_id: CONNECTOR_ID,
     });
     expect(renewed.statusCode, renewed.body).toBe(200);
+  });
+});
+
+describe('connectors that stay signed in (#411)', () => {
+  const connector = { id: CONNECTOR_ID, redirect: CONNECTOR_REDIRECT };
+
+  /** A new member of the home, so each test starts with no grant, consent or refresh token. */
+  async function member(label: string): Promise<Person> {
+    const p = await person(t, db, label);
+    await join(db, home.id, p.userId, 'member');
+    return p;
+  }
+
+  /** authorize → answer the consent page → redeem the code. */
+  async function connect(
+    as: { cookie: string },
+    scope: 'read' | 'write',
+    opts: AuthorizeOptions = {},
+  ): Promise<TokenResponse> {
+    const verifier = randomBytes(32).toString('base64url');
+    const query = await authorize(verifier, connector, { ...opts, as });
+    const decided = ok(
+      await call(t, `/api/v1/oauth/consent?${query}`, {
+        as,
+        body: { accept: true, scope, locationIds: [home.id] },
+      }),
+    );
+    return redeemTokens(decided.redirectTo as string, verifier, connector);
+  }
+
+  const refresh = (token: string | undefined) =>
+    tokenEndpoint({
+      grant_type: 'refresh_token',
+      refresh_token: token as string,
+      client_id: CONNECTOR_ID,
+    });
+
+  const refused = (res: Awaited<ReturnType<typeof refresh>>) => {
+    expect(res.statusCode, res.body).toBe(400);
+    expect((res.json() as { error?: string }).error).toBe('invalid_grant');
+  };
+
+  it('renews access after the browser session it was granted in has ended', async () => {
+    const gina = await member('gina');
+    const first = await connect(gina, 'read');
+    const out = await call(t, '/api/v1/auth/sign-out', { as: gina, body: {} });
+    expect(out.statusCode, out.body).toBe(200);
+    expect((await call(t, '/api/v1/me', { as: gina })).statusCode).toBe(401);
+
+    const renewed = await refresh(first.refresh_token);
+    expect(renewed.statusCode, renewed.body).toBe(200);
+    const next = renewed.json() as TokenResponse;
+    expect((await listToolsWith(next.access_token)).statusCode).toBe(200);
+    expect((await refresh(next.refresh_token)).statusCode).toBe(200);
+  });
+
+  it('answers a refresh replayed within 30 seconds with the same tokens, and ends the lineage after', async () => {
+    const hana = await member('hana');
+    // Within 30 seconds of the rotation (the mcp() plugin's refreshTokenReuseInterval): a client
+    // that lost the answer gets the same one again, and nothing new is issued.
+    const a = await connect(hana, 'read');
+    const rotated = await refresh(a.refresh_token);
+    expect(rotated.statusCode, rotated.body).toBe(200);
+    const replayed = await refresh(a.refresh_token);
+    expect(replayed.statusCode, replayed.body).toBe(200);
+    const first = rotated.json() as TokenResponse;
+    expect((replayed.json() as TokenResponse).refresh_token).toBe(first.refresh_token);
+    expect((replayed.json() as TokenResponse).access_token).toBe(first.access_token);
+    expect(
+      await own(
+        db,
+        'SELECT 1 FROM auth.oauth_refresh_token WHERE user_id = $1 AND revoked IS NULL',
+        [hana.userId],
+      ),
+    ).toHaveLength(1);
+
+    // Past those 30 seconds a replay is refused and ends the lineage, the token the rotation
+    // handed out included.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(Date.now() + 31_000);
+    let late: Awaited<ReturnType<typeof refresh>>;
+    let after: Awaited<ReturnType<typeof refresh>>;
+    try {
+      late = await refresh(a.refresh_token);
+      after = await refresh(first.refresh_token);
+    } finally {
+      vi.useRealTimers();
+    }
+    refused(late);
+    refused(after);
+  });
+
+  it('adds offline_access to an authorization request posted as a form', async () => {
+    const ines = await member('ines');
+    const verifier = randomBytes(32).toString('base64url');
+    const query = await authorize(verifier, connector, { as: ines, method: 'POST' });
+    expect(new URLSearchParams(query).get('scope')?.split(' ')).toContain('offline_access');
+    const decided = ok(
+      await call(t, `/api/v1/oauth/consent?${query}`, {
+        as: ines,
+        body: { accept: true, scope: 'read', locationIds: [home.id] },
+      }),
+    );
+    const tokens = await redeemTokens(decided.redirectTo as string, verifier, connector);
+    expect(tokens.refresh_token).toBeTruthy();
+    expect((await refresh(tokens.refresh_token)).statusCode).toBe(200);
+  });
+
+  it('keeps the lineage when a write grant reconnects without the consent page', async () => {
+    const jana = await member('jana');
+    const first = await connect(jana, 'write');
+    // Better Auth's consent row covers the request, so the page doesn't show and decide()
+    // doesn't run: the client gets its code straight away.
+    const verifier = randomBytes(32).toString('base64url');
+    const target = await authorizeTarget(verifier, connector, { as: jana });
+    expect(`${target.origin}${target.pathname}`).toBe(CONNECTOR_REDIRECT);
+    const second = await redeemTokens(target.toString(), verifier, connector);
+    expect(second.refresh_token).toBeTruthy();
+    const client = await mcpClient(second.access_token);
+    expect((await client.listTools()).tools.map((x) => x.name)).toContain('create_place');
+    // Only answering the consent page starts a new lineage: the first one still renews.
+    expect((await refresh(first.refresh_token)).statusCode).toBe(200);
+  });
+
+  it('lets a connector with write access reconnect after an account claim', async () => {
+    // Signed up with the address and never proved it: a magic link claims the account (D197).
+    const kim = await member('kim');
+    const planted = await connect(kim, 'write');
+    await call(t, '/api/v1/auth/sign-in/magic-link', { body: { email: kim.email } });
+    const token = t.auth.mails.at(-1)?.token ?? '';
+    const claimed = await call(t, '/api/v1/auth/magic-link/verify', { body: { token } });
+    expect(claimed.statusCode, claimed.body).toBe(200);
+
+    // What was granted before the claim is gone: the grant, the refresh token and Better
+    // Auth's consent row.
+    expect((await listToolsWith(planted.access_token)).statusCode).toBe(401);
+    refused(await refresh(planted.refresh_token));
+    expect(
+      await own(db, 'SELECT 1 FROM auth.oauth_consent WHERE user_id = $1', [kim.userId]),
+    ).toHaveLength(0);
+
+    // The owner reconnects with write access: the consent page shows again (connect() checks
+    // it), and the new grant works.
+    const owner = { cookie: jar(claimed) };
+    const fresh = await connect(owner, 'write');
+    const client = await mcpClient(fresh.access_token);
+    expect((await client.listTools()).tools.map((x) => x.name)).toContain('create_place');
+    expect((await refresh(fresh.refresh_token)).statusCode).toBe(200);
   });
 });
 
