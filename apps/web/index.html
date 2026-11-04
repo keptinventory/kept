@@ -36,10 +36,10 @@
       });
     </script>
     <!--
-      Before first paint: theme, language, direction, content width (D203) and the sidebar's
-      width (D198). Must stay inline and synchronous so the first frame is already right (no
-      light flash in dark mode, no LTR flash in Arabic, no sidebar jumping to the rail, no page
-      widening after load).
+      Before first paint: theme, language, direction, content width (D203), the sidebar's
+      width (D198) and the place tree's width and fold (#427). Must stay inline and synchronous so
+      the first frame is already right (no light flash in dark mode, no LTR flash in Arabic, no
+      sidebar jumping to the rail, no page widening after load, no tree changing its width).
       Keep the storage keys in step with src/lib/prefs.ts. localStorage can throw (private mode,
       blocked storage), so every read is inside try/catch and the fallback is the OS setting.
     -->
@@ -50,11 +50,15 @@
         let locale = null;
         let sidebar = null;
         let width = null;
+        let placeTree = null;
+        let placeTreeWidth = null;
         try {
           theme = localStorage.getItem('kept.theme');
           locale = localStorage.getItem('kept.locale');
           sidebar = localStorage.getItem('kept.sidebar');
           width = localStorage.getItem('kept.width');
+          placeTree = localStorage.getItem('kept.placeTree');
+          placeTreeWidth = localStorage.getItem('kept.placeTreeWidth');
         } catch {}
         if (theme !== 'light' && theme !== 'dark') {
           let dark = false;
@@ -84,6 +88,12 @@
         }
         d.setAttribute('data-sidebar', sidebar);
         d.setAttribute('data-width', width === 'full' ? 'full' : 'centered');
+        d.setAttribute('data-place-tree', placeTree === 'collapsed' ? 'collapsed' : 'expanded');
+        // prefs.ts parsePlaceTreeWidth: within 208 to 512 px, and anything else is the default.
+        const treePx = /^\d{1,5}$/.test(placeTreeWidth)
+          ? Math.min(512, Math.max(208, Number(placeTreeWidth)))
+          : 240;
+        d.style.setProperty('--place-tree-width', `${treePx}px`);
         d.setAttribute('lang', locale);
         d.setAttribute('dir', locale === 'ar' ? 'rtl' : 'ltr');
       })();

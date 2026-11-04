@@ -3,10 +3,18 @@
  * the scenario back. What the app keeps in the browser about the household (the Get started
  * card hidden, recent places and searches, the last capture target, folded groups, the label
  * stock) goes too, at every start and on Reset, so each visit starts from the same household.
- * The display preferences stay (theme, language, digits, width, the sidebar, the map's detailed
- * models): they are the visitor's, not the household's.
+ * The display preferences stay (theme, language, digits, width, the sidebar, the place tree, the
+ * map's detailed models): they are the visitor's, not the household's.
  */
-import { DIGITS_KEY, LOCALE_KEY, SIDEBAR_KEY, THEME_KEY, WIDTH_KEY } from '@/lib/prefs';
+import {
+  DIGITS_KEY,
+  LOCALE_KEY,
+  PLACE_TREE_KEY,
+  PLACE_TREE_WIDTH_KEY,
+  SIDEBAR_KEY,
+  THEME_KEY,
+  WIDTH_KEY,
+} from '@/lib/prefs';
 import { appBase } from './flag';
 
 const KEEP = new Set([
@@ -15,6 +23,8 @@ const KEEP = new Set([
   DIGITS_KEY,
   WIDTH_KEY,
   SIDEBAR_KEY,
+  PLACE_TREE_KEY,
+  PLACE_TREE_WIDTH_KEY,
   'kept.map.quality',
 ]);
 

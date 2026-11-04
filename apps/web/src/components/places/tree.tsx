@@ -258,7 +258,8 @@ export function PlaceTree({
  * The location's places as a panel beside the page (1.1, the maintainer's "railing" sidebar):
  * always open, the location heading it and the current place marked. Pages show it from 1280 px
  * (`useMediaQuery(DOCKED)`), and the collapsed outline below that. Each place folds (#358), and
- * the header folds or opens them all.
+ * the header folds or opens them all. Page's column gives it a width to drag and a rail to fold
+ * to (#427, PageAside).
  */
 export function PlacesPanel({
   places,
@@ -277,12 +278,14 @@ export function PlacesPanel({
   const name = location.name;
   return (
     <nav aria-label={t`Places in ${name}`} className="grid gap-1">
-      <div className="flex items-center gap-1">
+      {/* Stays in view as the rows scroll under it. The room at its start is for the column's
+          fold button (PageAside), which holds its place whether the panel is open or not. */}
+      <div className="sticky top-0 z-[1] flex items-center gap-1 bg-paper ps-10 pointer-coarse:ps-11">
         <Link
           to="/loc/$id"
           params={{ id: location.address ?? location.id }}
           aria-current={currentId === undefined ? 'page' : undefined}
-          className="flex min-h-10 min-w-0 flex-1 items-center rounded-lg px-3.5 font-semibold text-[14px] text-ink outline-none hover:bg-sunken focus-visible:outline-2 focus-visible:outline-info aria-[current=page]:bg-sunken"
+          className="flex min-h-10 min-w-0 flex-1 items-center rounded-lg px-2 font-semibold text-[14px] text-ink outline-none hover:bg-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-info aria-[current=page]:bg-sunken"
         >
           <bdi className="[overflow-wrap:anywhere]">{name}</bdi>
         </Link>
