@@ -807,6 +807,11 @@ export async function claimUnverifiedAccount(
       'DELETE FROM auth.session WHERE user_id = $1 AND ($2::uuid IS NULL OR id <> $2::uuid)',
       [userId, keepSessionId],
     );
+    // The planter's connectors: their refresh tokens, and the consent rows that would let the
+    // next authorization skip the consent page. Without the consent page no new grant is
+    // written, and the connector would get 401 at /mcp with no way back (#411).
+    await endRefreshTokens(client, userId);
+    await client.query('DELETE FROM auth.oauth_consent WHERE user_id = $1', [userId]);
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
