@@ -67,7 +67,7 @@ also serves Kept on **port 8080**. The **Log** tab names it, for example
 | https on Kept's port | Serves the port over https with Home Assistant's certificate from `/ssl` (from the DuckDNS or Let's Encrypt apps). Restart the app after the certificate renews. |
 | HSTS | `on` by default. `off` when Home Assistant itself, or another app on that host name, is on plain http: Kept's HSTS covers the host name on every port, 8123 included ([HSTS](/install/reverse-proxy/#hsts)). |
 | Sign-in length over http | Empty: 12 hours, not renewed. Days a sign-in lasts over plain http, 1 to 30, renewed as it is used. No effect with https on; the cost is in [Staying on your network](/install/home-network/#staying-on-your-network). |
-| Extra addresses | Other addresses this Kept answers on, comma-separated, like `http://100.64.0.7:8080`. Empty: one. Added to Home Assistant's own, never in its place ([more than one address](/install/home-network/#more-than-one-address)). |
+| Extra addresses | Other addresses this Kept answers on, comma-separated, like `http://192.0.2.20:8080`. Empty: one. Added to Home Assistant's own, never in its place ([more than one address](/install/home-network/#more-than-one-address)). |
 | Outgoing mail | An `smtps://` URL: sign-in links, invites and reminders by mail. |
 | OIDC, Google | Sign-in with your own identity provider or with Google. Empty: off. |
 | Apprise server | The Apprise API server for Apprise notification channels. Empty: none. |

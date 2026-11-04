@@ -87,7 +87,7 @@ a Tailscale name next to a LAN name, or an IP next to a name, says "This Kept is
 
 ```sh
 KEPT_PUBLIC_URL=http://kept.lan:8080
-KEPT_EXTRA_ADDRESSES=http://100.64.0.7:8080,http://kept.tailnet.ts.net:8080
+KEPT_EXTRA_ADDRESSES=http://192.0.2.20:8080,http://<machine>.<tailnet>.ts.net:8080
 ```
 
 Then `docker compose up -d`. In the Home Assistant app it's the **Extra addresses** option. It works

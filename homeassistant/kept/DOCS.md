@@ -85,7 +85,7 @@ that many days, renewed as it is used; restart the app after changing it.
 ### More than one address
 
 Kept accepts sign-ins and saves from **Kept's address** only. **Extra addresses** adds others, such
-as `http://100.64.0.7:8080` for Tailscale. Restart the app after changing it.
+as `http://192.0.2.20:8080` or a Tailscale name. Restart the app after changing it.
 
 - **Exact:** comma-separated, as the browser shows them. No wildcards, and the same `http` or
   `https` as Kept's address. One that doesn't fit is left out, and the **Log** tab says why.

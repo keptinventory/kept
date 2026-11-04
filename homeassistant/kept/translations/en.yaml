@@ -44,7 +44,7 @@ configuration:
     name: Extra addresses
     description: >-
       Other addresses this Kept answers on, comma-separated, exactly as the browser shows them:
-      http://100.64.0.7:8080. No wildcards, and the same http or https as Kept's address. Each
+      http://192.0.2.20:8080. No wildcards, and the same http or https as Kept's address. Each
       signs in separately. Links, mail, passkeys and AI apps stay on Kept's address. List only
       addresses that reach this Kept.
   oidc_issuer:

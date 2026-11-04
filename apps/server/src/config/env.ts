@@ -272,7 +272,7 @@ const schema = z.object({
       }
     })
     .describe(
-      'comma-separated exact addresses (scheme, host, port) this Kept also answers on, like `http://100.64.0.7:8080`; no wildcards, and the same `http` or `https` as `KEPT_PUBLIC_URL`, or Kept stops at startup. Each signs in separately; links, mail, passkeys and AI apps stay on `KEPT_PUBLIC_URL` ([Staying on your network](/install/home-network/#staying-on-your-network))',
+      'comma-separated exact addresses (scheme, host, port) this Kept also answers on, like `http://192.0.2.20:8080`; no wildcards, and the same `http` or `https` as `KEPT_PUBLIC_URL`, or Kept stops at startup. Each signs in separately; links, mail, passkeys and AI apps stay on `KEPT_PUBLIC_URL` ([Staying on your network](/install/home-network/#staying-on-your-network))',
     ),
   KEPT_METRICS_TOKEN: z
     .string()
