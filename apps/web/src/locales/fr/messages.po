@@ -28734,3 +28734,15 @@ msgstr "Saisissez un nombre entier."
 #: src/components/things/purchase-sheet.tsx
 msgid "The new receipt is added, but the old one couldn't be removed"
 msgstr "Le nouveau reçu est ajouté, mais l’ancien n’a pas pu être retiré"
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "Réduire les emplacements"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "Développer les emplacements"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "Redimensionner les emplacements"

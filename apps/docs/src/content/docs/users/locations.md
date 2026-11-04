@@ -46,6 +46,10 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
   beside a place folds what's under it; **Fold all** and **Open all** do every place at once.
   Kept remembers your folds for your account, on every device. The places above the page you're
   on stay open, even after **Fold all**.
+- **Its width** (on a computer, from 1280 px wide): drag the line along the tree's edge, or focus it
+  and use the arrow keys, Home and End. **Collapse places**, the button at the top of the tree,
+  folds it to leave the page all the room; **Expand places** brings it back. This device remembers
+  both.
 - On a location, **Sort them** goes through Unplaced one thing at a time with a place picker.
 - A box opened from its label shows a photo grid of what's inside.
 - **Layouts:** a location's page switches between **List**, **Grid**, **Graph**, **Table** and
