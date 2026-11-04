@@ -164,8 +164,19 @@ authorization code with PKCE, clients identified by a Client ID Metadata Documen
 through the SSRF guard), no dynamic client registration. Access tokens are JWTs for
 `<public URL>/mcp`, an hour long, and are accepted at `/mcp` only; the grant row holds the scopes
 (`kept:read`, `kept:write`) and locations the person chose on the consent page, and is checked on
-every call. The discovery documents are at `/.well-known/oauth-authorization-server` and
-`/.well-known/oauth-protected-resource`.
+every call. A connector stays signed in with a refresh token: Kept adds `offline_access` to a
+PKCE request for its scopes and keeps it through the consent, since MCP clients only ask for the
+resource's own scopes. Answering the consent page starts a new lineage (the person's earlier
+refresh tokens for that client go); a reconnect that Better Auth's consent row already covers
+skips the page and keeps them. Revoking the app in Connections deletes its refresh token. One
+rule for the rest: whatever signs out the person's other devices deletes all of their refresh
+tokens too, and the connector signs in again. That is a password reset or change (a managed
+account's reset code included, when it is issued and when it is redeemed), turning two-factor on
+or off or replacing it, new backup codes, adding or removing a passkey, unlinking an outside
+sign-in, an email change, signing out everywhere and disabling the account. An account claim
+(D197) deletes the person's refresh tokens and Better Auth's consent rows, so a connector meets
+the consent page again and gets a new grant. The discovery documents are at
+`/.well-known/oauth-authorization-server` and `/.well-known/oauth-protected-resource`.
 The tools themselves are on [MCP](/developers/mcp/).
 
 ## Roles in a location

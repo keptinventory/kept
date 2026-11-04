@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { fragmentToken, jar, setCookies, type TestApp, testApp } from '../../test/app.js';
 import { enrolTotp, nextTotp, signUp } from '../../test/auth.js';
 import { type TestDb, testDb } from '../../test/db.js';
+import { refreshTokenCount, seedRefreshToken } from '../../test/oauth-tokens.js';
 import { asOwner, userEmail } from '../../test/tenancy.js';
 import { ensureAccount } from '../accounts/ensure-account.js';
 import { AUTH_BASE_PATH, SESSION_DAYS_HTTPS, SESSION_HOURS_HTTP } from './auth.js';
@@ -100,6 +101,16 @@ describe('the Better Auth mount', () => {
     expect(
       (await auth('/change-email', { cookie, body: { newEmail: email('x') } })).statusCode,
     ).toBe(404);
+  });
+
+  it("keeps Better Auth's bulk sign-outs off, so they cannot sign out devices and leave refresh tokens", async () => {
+    const user = await newUser('bulk-off');
+    const cookie = await signIn(user.email);
+    const other = await signIn(user.email);
+    expect((await auth('/revoke-other-sessions', { cookie, body: {} })).statusCode).toBe(404);
+    expect((await auth('/revoke-sessions', { cookie, body: {} })).statusCode).toBe(404);
+    // Neither call reached Better Auth: the other device is still signed in.
+    expect((await auth('/get-session', { cookie: other })).json()?.user?.id).toBe(user.userId);
   });
 
   it('applies the per-IP sign-in limit (5/min, shared through the database)', async () => {
@@ -229,9 +240,17 @@ describe('magic links', () => {
 
   it('password reset: a fragment link, a POST, every session signed out, and 3 per hour', async () => {
     const user = await newUser('reset');
+    // Verified, so the reset is not also an account claim (D197): the claim ends refresh tokens
+    // on its own and would hide whether the reset does.
+    await db.pools.auth.query('UPDATE auth."user" SET email_verified = true WHERE id = $1', [
+      user.userId,
+    ]);
     const cookie = await signIn(user.email);
+    await seedRefreshToken(db, user.userId);
     const requested = await auth('/request-password-reset', { body: { email: user.email } });
     expect(requested.statusCode).toBe(200);
+    // Asking for a reset ends nothing: anyone who knows the address can ask (#411).
+    expect(await refreshTokenCount(db, user.userId)).toBe(1);
     const mail = t.auth.resets.at(-1);
     expect(mail?.url).toMatch(/\/auth\/reset#token=/);
     const reset = await auth('/reset-password', {
@@ -239,6 +258,8 @@ describe('magic links', () => {
     });
     expect(reset.statusCode).toBe(200);
     expect((await call('/api/v1/me/sessions', { cookie })).statusCode).toBe(401);
+    // A connector's refresh token ends with the sessions (#411).
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
 
     for (let i = 0; i < 2; i++) {
       await auth('/request-password-reset', { ip: '203.0.113.77', body: { email: user.email } });
@@ -318,6 +339,7 @@ describe('sessions', () => {
     const user = await newUser('pw');
     const a = await signIn(user.email);
     const b = await signIn(user.email);
+    await seedRefreshToken(db, user.userId);
     const changed = await auth('/change-password', {
       cookie: a,
       body: { currentPassword: PASSWORD, newPassword: 'a brand new password' },
@@ -326,12 +348,14 @@ describe('sessions', () => {
     expect(changed.json()).not.toHaveProperty('token');
     expect((await call('/api/v1/me/sessions', { cookie: b })).statusCode).toBe(401);
     expect((await call('/api/v1/me/sessions', { cookie: jar(changed, a) })).statusCode).toBe(200);
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
   });
 
   it('a two-factor change signs out every other session', async () => {
     const user = await newUser('tfa');
     const a = await signIn(user.email);
     const b = await signIn(user.email);
+    await seedRefreshToken(db, user.userId);
     // Kept's route (Better Auth's own is off over HTTP), which starts it through Better Auth.
     const enabled = await call('/api/v1/me/two-factor/enable', {
       cookie: a,
@@ -340,6 +364,7 @@ describe('sessions', () => {
     expect(enabled.statusCode).toBe(200);
     expect((await call('/api/v1/me/sessions', { cookie: b })).statusCode).toBe(401);
     expect((await call('/api/v1/me/sessions', { cookie: jar(enabled, a) })).statusCode).toBe(200);
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
   });
 });
 
@@ -557,6 +582,7 @@ describe('email change: the old address confirms, then the new one verifies', ()
       code: 'token_invalid',
     });
 
+    await seedRefreshToken(db, user.userId);
     const done = await auth('/email-change/confirm', {
       cookie: a,
       body: { token: fragmentToken((toNew as { url: string }).url) },
@@ -575,6 +601,8 @@ describe('email change: the old address confirms, then the new one verifies', ()
     // The confirming device stays signed in; the other one is out.
     expect((await call('/api/v1/me/sessions', { cookie: a })).statusCode).toBe(200);
     expect((await call('/api/v1/me/sessions', { cookie: b })).statusCode).toBe(401);
+    // So does every connector's refresh token (#411).
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
     // And the new address signs in.
     await signIn(target);
   });
