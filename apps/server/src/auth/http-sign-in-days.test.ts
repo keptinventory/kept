@@ -13,13 +13,19 @@ import { oidcInvites } from './oidc.js';
 // KEPT_HTTP_SIGN_IN_DAYS (#404, D274), the whole table: each address and setting, with each way to
 // sign in, through the Fastify app the way a browser reaches it. Time is moved by editing the
 // session row. Every number is written out here, not read from auth.ts, so a change to a lifetime
-// has to change this table too.
+// has to change this table too. The table runs twice: on the main address, and (#405, D275) on an
+// extra one in KEPT_EXTRA_ADDRESSES, with Better Auth's own Origin check on, where a sign-in lasts
+// exactly as long. No passkey on the second: they belong to the main address.
 
 vi.setConfig({ testTimeout: 180_000, hookTimeout: 180_000 });
 
 const HOUR = 3600;
 const DAY = 86_400;
 const HTTPS_URL = 'https://kept.example.test';
+/** Where the browser is, by app, when that isn't the public URL (#405). */
+const browserAt = new WeakMap<TestApp, string>();
+const extraAddressOf = (publicUrl: string) =>
+  publicUrl === HTTPS_URL ? 'https://kept-ts.example.test' : 'http://kept-ts.lan:5173';
 const PASSWORD = 'correct horse battery';
 
 type Row = {
@@ -62,7 +68,7 @@ function freshIp(): string {
 type Send = { method?: 'GET' | 'POST' | 'DELETE'; cookie?: string; body?: unknown };
 
 function send(t: TestApp, url: string, opts: Send = {}): Promise<LightMyRequestResponse> {
-  const headers: Record<string, string> = { origin: t.publicUrl };
+  const headers: Record<string, string> = { origin: browserAt.get(t) ?? t.publicUrl };
   if (opts.cookie) headers.cookie = opts.cookie;
   return t.app.inject({
     method: opts.method ?? (opts.body === undefined ? 'GET' : 'POST'),
@@ -213,20 +219,30 @@ beforeAll(async () => {
   await db.reset();
 });
 
-describe.each(ROWS)('$name', (row) => {
+describe.each(
+  ROWS.flatMap((row) => [
+    { ...row, where: 'the main address', extra: false },
+    { ...row, where: 'an extra address', extra: true },
+  ]),
+)('$name, on $where', (row) => {
   let t: TestApp;
 
   beforeAll(async () => {
     t = await testApp(db, {
       publicUrl: row.publicUrl,
       ...(row.setting !== undefined ? { httpSignInDays: row.setting } : {}),
+      ...(row.extra
+        ? { extraAddresses: [extraAddressOf(row.publicUrl)], authOriginCheck: true }
+        : {}),
     });
+    if (row.extra) browserAt.set(t, extraAddressOf(row.publicUrl));
   });
   afterAll(async () => {
     await t.app.close();
   });
 
-  it.each(Object.keys(METHODS))('with %s', async (method) => {
+  const methods = Object.keys(METHODS).filter((m) => !(row.extra && m === 'passkey'));
+  it.each(methods)('with %s', async (method) => {
     const signIn = METHODS[method] as (t: TestApp) => Promise<SignedIn>;
     const { userId, cookie, line } = await signIn(t);
 

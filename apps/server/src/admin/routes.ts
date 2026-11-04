@@ -21,6 +21,7 @@ import { AppError, conflict, forbidden, invalid, notFound } from '../http/errors
 import { scopedRead, scopedWrite } from '../http/write.js';
 import type { JobAdmin } from '../jobs/failed.js';
 import {
+  extraHostnames,
   FORMER_HOSTNAMES_KEY,
   FormerHostnames,
   forgetFormerHostnames,
@@ -135,6 +136,8 @@ const AdminStatus = z.object({
     https: z.boolean(),
     setting: z.number().int().nullable(),
   }),
+  /** D275: the addresses in force: KEPT_PUBLIC_URL's origin, and KEPT_EXTRA_ADDRESSES. */
+  addresses: z.object({ main: z.string(), extra: z.array(z.string()) }),
   /** Step 6 (D125): the MCP URL, and whether OAuth connectors can be offered (https). */
   connectors: z.object({ mcpUrl: z.string(), oauth: z.enum(['available', 'needs_https']) }),
   /** The reminder scan's last pass (reminders/status.ts); null before the first. */
@@ -492,6 +495,11 @@ export async function adminRoutes(app: KeptApp, deps: AdminDeps): Promise<void> 
             if (formerHostnames.includes(own)) {
               throw invalid("formerHostnames: the public URL's own host can't be a former one.");
             }
+            // An address Kept answers on now (D275) is no former one, either.
+            const inUse = extraHostnames(env.KEPT_EXTRA_ADDRESSES);
+            if (formerHostnames.some((host) => inUse.includes(host))) {
+              throw invalid('formerHostnames: a host in KEPT_EXTRA_ADDRESSES is in use.');
+            }
             await put(FORMER_HOSTNAMES_KEY, [...new Set(formerHostnames)]);
           }
           if (ssrfAllowPrivate !== undefined) await put(SSRF_ALLOW_PRIVATE_KEY, ssrfAllowPrivate);
@@ -725,6 +733,10 @@ export async function adminRoutes(app: KeptApp, deps: AdminDeps): Promise<void> 
           google: googleStatus(),
           connectors: connectorsStatus(env.KEPT_PUBLIC_URL),
           signIn: signInStatus(env.KEPT_PUBLIC_URL, env.KEPT_HTTP_SIGN_IN_DAYS),
+          addresses: {
+            main: new URL(env.KEPT_PUBLIC_URL).origin,
+            extra: [...(env.KEPT_EXTRA_ADDRESSES ?? [])],
+          },
           ...(env.KEPT_HA ? { homeAssistant: true as const } : {}),
         };
         try {

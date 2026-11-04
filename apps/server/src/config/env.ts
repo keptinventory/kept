@@ -2,6 +2,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { link, mkdir, open, readFile, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
+import { mixedSchemes, parseExtraAddresses, withoutMainAddress } from '../auth/addresses.js';
 import { parseTrustedProxies } from '../auth/client-ip.js';
 import { isCrockford, normaliseCrockford } from '../crypto/crockford.js';
 import { completeDatabaseUrls } from './db-passwords.js';
@@ -256,6 +257,22 @@ const schema = z.object({
     .optional()
     .describe(
       'whole days, 1 to 30: how long a sign-in lasts over plain http, renewed as it is used; unset: 12 hours, not renewed. No effect over https (30 days). Anyone who can see the traffic can copy a sign-in cookie, and a copied one then works for days ([Staying on your network](/install/home-network/#staying-on-your-network))',
+    ),
+  // #405 (D275): beside the public URL, never in the app, as it widens where a sign-in is accepted.
+  // Exact origins, read once (auth/addresses.ts); loadEnv() checks them against the public URL.
+  KEPT_EXTRA_ADDRESSES: z
+    .string()
+    .optional()
+    .transform((value, ctx) => {
+      try {
+        return Object.freeze(parseExtraAddresses(value)) as readonly string[];
+      } catch (err) {
+        ctx.issues.push({ code: 'custom', message: (err as Error).message, input: value });
+        return z.NEVER;
+      }
+    })
+    .describe(
+      'comma-separated exact addresses (scheme, host, port) this Kept also answers on, like `http://100.64.0.7:8080`; no wildcards, and the same `http` or `https` as `KEPT_PUBLIC_URL`, or Kept stops at startup. Each signs in separately; links, mail, passkeys and AI apps stay on `KEPT_PUBLIC_URL` ([Staying on your network](/install/home-network/#staying-on-your-network))',
     ),
   KEPT_METRICS_TOKEN: z
     .string()
@@ -771,9 +788,21 @@ const SETTING_RULES: Record<string, string> = {
   KEPT_HTTP_SIGN_IN_DAYS: 'a whole number of days from 1 to 30; leave it out for 12 hours',
 };
 
+/** Settings whose refusal says what is wrong with the value: their messages are written not to
+ * repeat a secret. Other settings' messages are left out, as a value may be one. */
+const SAYS_WHY = new Set(['KEPT_EXTRA_ADDRESSES']);
+
 function issuePaths(error: z.ZodError): string {
+  const why = new Map(
+    error.issues
+      .filter((issue) => SAYS_WHY.has(issue.path.join('.')))
+      .map((issue) => [issue.path.join('.'), issue.message]),
+  );
   return [...new Set(error.issues.map((issue) => issue.path.join('.')))]
-    .map((name) => (SETTING_RULES[name] ? `${name} (${SETTING_RULES[name]})` : name))
+    .map((name) => {
+      const rule = why.get(name) ?? SETTING_RULES[name];
+      return rule ? `${name} (${rule})` : name;
+    })
     .join(', ');
 }
 
@@ -1047,6 +1076,19 @@ export async function loadEnv(
     KEPT_IMAGE_CONCURRENCY: imageConcurrency,
     ...env
   } = parsed.data;
+
+  // #405 (D275): cookies, HSTS and the https-only gates follow the main address, so one scheme.
+  const otherScheme = mixedSchemes(env.KEPT_PUBLIC_URL, env.KEPT_EXTRA_ADDRESSES);
+  if (otherScheme) {
+    const scheme = new URL(env.KEPT_PUBLIC_URL).protocol.replace(':', '');
+    throw new EnvError(
+      `invalid environment: KEPT_EXTRA_ADDRESSES: ${otherScheme} is not on ${scheme}, as KEPT_PUBLIC_URL is. Every address uses the same one.`,
+      'invalid_env',
+    );
+  }
+  env.KEPT_EXTRA_ADDRESSES = Object.freeze(
+    withoutMainAddress(env.KEPT_PUBLIC_URL, env.KEPT_EXTRA_ADDRESSES),
+  );
 
   // Step 6 (D207): the local model runs only where its runtime is installed.
   if (

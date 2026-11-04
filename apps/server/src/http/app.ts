@@ -77,6 +77,7 @@ export type AppEnv = Pick<Env, 'KEPT_PUBLIC_URL'> &
       | 'KEPT_TRUSTED_PROXIES'
       | 'KEPT_HSTS'
       | 'KEPT_HTTP_SIGN_IN_DAYS'
+      | 'KEPT_EXTRA_ADDRESSES'
       | 'KEPT_SIGNUP_OPEN'
       | 'KEPT_BARCODE_LOOKUP'
       | 'KEPT_BARCODE_CONTACT'
@@ -244,7 +245,7 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
   app.addHook('onRequest', shareGuard);
 
   // A cookie-bearing write from another site is refused before anything else (auth/http.ts).
-  app.addHook('onRequest', csrfHook(opts.env.KEPT_PUBLIC_URL));
+  app.addHook('onRequest', csrfHook(opts.env.KEPT_PUBLIC_URL, opts.env.KEPT_EXTRA_ADDRESSES));
 
   // A personal token (`Authorization: Bearer kpt_…`): its scope, or 401/403/429, before
   // the session hook, which then leaves the request alone (tokens/verify.ts).
@@ -381,6 +382,7 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
       pools: opts.pools,
       publicUrl,
       trustedProxies,
+      ...(opts.env.KEPT_EXTRA_ADDRESSES ? { extraAddresses: opts.env.KEPT_EXTRA_ADDRESSES } : {}),
       ...(hasOAuthProvider(auth)
         ? { revokeOAuthAccess: oauthRevoker({ auth, pools: opts.pools, publicUrl }) }
         : {}),
@@ -397,6 +399,8 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
       auth,
       pools: opts.pools,
       trustedProxies,
+      publicUrl,
+      ...(opts.env.KEPT_EXTRA_ADDRESSES ? { extraAddresses: opts.env.KEPT_EXTRA_ADDRESSES } : {}),
       mailConfigured: opts.mailConfigured ?? false,
     });
     await accountDeletionRoutes(app, {

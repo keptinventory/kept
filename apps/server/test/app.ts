@@ -65,14 +65,17 @@ export type TestAppOptions = {
   trustedProxies?: readonly string[];
   /** KEPT_HTTP_SIGN_IN_DAYS; default unset. */
   httpSignInDays?: number;
+  /** KEPT_EXTRA_ADDRESSES, as loadEnv leaves it; default none. */
+  extraAddresses?: readonly string[];
 };
 
 export async function testApp(db: TestDb, opts: TestAppOptions = {}): Promise<TestApp> {
   const publicUrl = opts.publicUrl ?? PUBLIC_URL;
   const httpSignInDays =
     opts.httpSignInDays !== undefined ? { KEPT_HTTP_SIGN_IN_DAYS: opts.httpSignInDays } : {};
+  const extraAddresses = opts.extraAddresses ? { KEPT_EXTRA_ADDRESSES: opts.extraAddresses } : {};
   const auth = testAuth(db, {
-    env: { KEPT_PUBLIC_URL: publicUrl, ...httpSignInDays } as AuthDeps['env'],
+    env: { KEPT_PUBLIC_URL: publicUrl, ...httpSignInDays, ...extraAddresses } as AuthDeps['env'],
     ...(opts.rateLimitEnabled !== undefined ? { rateLimitEnabled: opts.rateLimitEnabled } : {}),
     ...(opts.authOriginCheck !== undefined ? { originCheck: opts.authOriginCheck } : {}),
     ...(opts.onUserCreated ? { onUserCreated: opts.onUserCreated } : {}),
@@ -87,6 +90,7 @@ export async function testApp(db: TestDb, opts: TestAppOptions = {}): Promise<Te
       KEPT_PUBLIC_URL: publicUrl,
       KEPT_TRUSTED_PROXIES: opts.trustedProxies ?? [],
       ...httpSignInDays,
+      ...extraAddresses,
       ...(opts.appMode ? { KEPT_HA: true } : {}),
       ...(opts.haTrustGroups ? { KEPT_HA_TRUST_GROUPS: true } : {}),
       ...(opts.signupOpenEnv !== undefined ? { KEPT_SIGNUP_OPEN: opts.signupOpenEnv } : {}),
