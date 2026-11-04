@@ -76,6 +76,7 @@ export type AppEnv = Pick<Env, 'KEPT_PUBLIC_URL'> &
       | 'KEPT_SOURCE_URL'
       | 'KEPT_TRUSTED_PROXIES'
       | 'KEPT_HSTS'
+      | 'KEPT_HTTP_SIGN_IN_DAYS'
       | 'KEPT_SIGNUP_OPEN'
       | 'KEPT_BARCODE_LOOKUP'
       | 'KEPT_BARCODE_CONTACT'
