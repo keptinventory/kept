@@ -171,7 +171,9 @@ jobs:
   activeDeadlineSeconds: 1800
 
 # More variables for Kept's containers (the Jobs included), as Kubernetes EnvVar entries, e.g.
-# `- {name: KEPT_HSTS, value: "off"}` when plain-http services share the ingress's host name.
+# `- {name: KEPT_HSTS, value: "off"}` when plain-http services share the ingress's host name, or
+# `- {name: KEPT_HTTP_SIGN_IN_DAYS, value: "7"}` for sign-ins of that many days (1 to 30) over plain
+# http; a copied sign-in cookie then works that long. No effect over https.
 extraEnv: []
 # More envFrom sources for Kept's containers.
 extraEnvFrom: []

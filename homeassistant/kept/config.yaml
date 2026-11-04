@@ -63,6 +63,8 @@ schema:
   keyfile: str
   # #403: Kept's HSTS covers the host name on every port, Home Assistant's own included.
   hsts: "list(on|off)"
+  # #404: how long a sign-in lasts over plain http. Unset: 12 hours, not renewed.
+  http_sign_in_days: "int(1,30)?"
   # Sign-in, sign-up and uploads, under Kept's own rules (apps/server/src/config/env.ts); what Kept
   # would refuse is left out by options.mjs and said in the Log tab. Not offered on purpose: S3 file
   # storage and Kept's own backups (Home Assistant's backups are the backup here).
