@@ -10,14 +10,18 @@ import { withoutBidiControls } from '../http/untrusted.js';
 import { requireMembership } from '../locations/access.js';
 import { notHidden } from '../locations/hidden.js';
 import { ownAccount } from '../tokens/service.js';
+import { OFFLINE_ACCESS } from './plugin.js';
 
 // The consent step (D179, D180). Better Auth's authorize sends
 // the browser to Kept's `/oauth/consent?<signed query>`; that page asks for the scope
 // (read, or read and change) and the locations (one by default), then posts here. One request:
 // kept.token_oauth_grant() writes the `oauth` grant row (as the consenting user, no token), and
 // Better Auth's own consent endpoint, given the same signed query and the narrowed scope,
-// answers the redirect back to the client with its code. Either failing undoes both: the grant
-// is written in this transaction, which rolls back if Better Auth refuses.
+// answers the redirect back to the client with its code. The grant is written in this
+// transaction, which rolls back if Better Auth refuses. Better Auth's consent and the refresh
+// token delete after it (#411) run on their own connections and commit at once, so a failure
+// after Better Auth accepted (the delete, or this transaction's commit) leaves Better Auth's
+// consent row and an undelivered code behind: the client gets an error, not the code.
 //
 // The client's name and URI are as it calls itself (its metadata document): untrusted text the
 // page bidi-isolates and marks (D179). Its logo is never fetched or shown.
@@ -51,9 +55,14 @@ export type ConsentBody = z.infer<typeof ConsentBody>;
 
 export const ConsentResultSchema = z.object({ redirectTo: z.string() });
 
-/** The OAuth scopes a Kept scope grants. */
-export const oauthScopesOf = (scope: TokenScope): string =>
-  scope === 'write' ? `${OAUTH_SCOPES.read} ${OAUTH_SCOPES.write}` : OAUTH_SCOPES.read;
+/** The OAuth scopes a Kept scope grants, keeping `offline_access` when the request asked for it
+ * (oauth/plugin.ts adds it, #411): Better Auth's consent can only narrow what was requested. */
+export const oauthScopesOf = (scope: TokenScope, requested: readonly string[] = []): string => {
+  const granted: string[] =
+    scope === 'write' ? [OAUTH_SCOPES.read, OAUTH_SCOPES.write] : [OAUTH_SCOPES.read];
+  if (requested.includes(OFFLINE_ACCESS)) granted.push(OFFLINE_ACCESS);
+  return granted.join(' ');
+};
 
 type Client = { name: string; uri: string | null };
 
@@ -187,8 +196,29 @@ export async function decide(
   });
   const redirectTo = await betterAuthConsent(ctx.auth, ctx.publicUrl, ctx.headers, {
     accept: true,
-    scope: oauthScopesOf(body.scope),
+    scope: oauthScopesOf(
+      body.scope,
+      (new URLSearchParams(oauthQuery).get('scope') ?? '').split(' '),
+    ),
     oauth_query: oauthQuery,
   });
+  // Only once Better Auth accepted the answer, and before the client gets its code.
+  await endRefreshLineages(ctx.authPool, ctx.scope.userId, clientId);
   return { redirectTo };
+}
+
+/** Answering the consent page starts a new refresh token lineage (#411). The grant row is found
+ * by person and client alone (kept.token_oauth_for), so a refresh token left over from an ended
+ * grant would otherwise come back to life with this one. Only the page's answer does this: an
+ * authorization Better Auth's consent row already covers skips the page, and decide(). The new
+ * lineage doesn't exist yet: its code hasn't been exchanged. */
+export async function endRefreshLineages(
+  authPool: pg.Pool,
+  userId: string,
+  clientId: string,
+): Promise<void> {
+  await authPool.query(
+    'DELETE FROM auth.oauth_refresh_token WHERE user_id = $1 AND client_id = $2',
+    [userId, clientId],
+  );
 }

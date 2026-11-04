@@ -28778,3 +28778,15 @@ msgstr "Used for your private threads, questions that span owners, <0>{personal}
 #: src/components/ai/settings-page.tsx
 msgid "Your own key is for your private threads and questions that span owners."
 msgstr "Your own key is for your private threads and questions that span owners."
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "Collapse places"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "Expand places"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "Resize places"

@@ -28778,3 +28778,15 @@ msgstr "Wird für deine privaten Verläufe, Fragen über mehrere Eigentümer hin
 #: src/components/ai/settings-page.tsx
 msgid "Your own key is for your private threads and questions that span owners."
 msgstr "Dein eigener Schlüssel ist für deine privaten Verläufe und Fragen über mehrere Eigentümer hinweg."
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "Orte einklappen"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "Orte ausklappen"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "Breite der Orte ändern"

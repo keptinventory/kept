@@ -20828,3 +20828,15 @@ msgstr "Dùng cho các cuộc trò chuyện riêng tư của bạn, những câu
 #: src/components/ai/settings-page.tsx
 msgid "Your own key is for your private threads and questions that span owners."
 msgstr "Khóa của riêng bạn dùng cho các cuộc trò chuyện riêng tư của bạn và các câu hỏi liên quan đến nhiều chủ sở hữu."
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "Thu gọn vị trí"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "Mở rộng vị trí"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "Đổi độ rộng danh sách vị trí"

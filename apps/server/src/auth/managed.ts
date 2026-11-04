@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { isIP } from 'node:net';
 import type pg from 'pg';
 import { normaliseCrockford, randomCrockford } from '../crypto/crockford.js';
+import { endRefreshTokens } from '../oauth/refresh-tokens.js';
 import type { Auth } from './auth.js';
 import { MANAGED_EMAIL_DOMAIN, managedEmail } from './emails.js';
 import { clearSignInFailures, limiterKey, reserveSignInAttempt } from './sign-in-limiter.js';
@@ -93,6 +94,7 @@ function sameHash(storedHex: string, givenHex: string): boolean {
  */
 export async function issueResetCode(
   auth: Auth,
+  authPool: pg.Pool,
   userId: string,
   opts: { revokeSessions?: boolean } = {},
 ): Promise<string> {
@@ -109,14 +111,28 @@ export async function issueResetCode(
     value: hashCode(ctx.secret, userId, code),
     expiresAt: new Date(Date.now() + RESET_CODE_TTL_SECONDS * 1000),
   });
-  if (opts.revokeSessions ?? true) await ctx.internalAdapter.deleteUserSessions(userId);
+  if (opts.revokeSessions ?? true) await signOutEverywhere(ctx, authPool, userId);
   return code;
 }
 
 /** Signs a user out everywhere (after a reset code is issued, once its audit event commits). */
-export async function revokeUserSessions(auth: Auth, userId: string): Promise<void> {
-  const ctx = await auth.$context;
+export async function revokeUserSessions(
+  auth: Auth,
+  authPool: pg.Pool,
+  userId: string,
+): Promise<void> {
+  await signOutEverywhere(await auth.$context, authPool, userId);
+}
+
+/** Every session, and every connector's refresh token (#411): a reset code goes around Better
+ * Auth's password reset and its onPasswordReset, so it ends them itself. The grant rows stay. */
+async function signOutEverywhere(
+  ctx: Awaited<Auth['$context']>,
+  authPool: pg.Pool,
+  userId: string,
+): Promise<void> {
   await ctx.internalAdapter.deleteUserSessions(userId);
+  await endRefreshTokens(authPool, userId);
 }
 
 /**
@@ -185,7 +201,7 @@ export async function redeemResetCode(
       password: hash,
     });
   }
-  await ctx.internalAdapter.deleteUserSessions(userId);
+  await signOutEverywhere(ctx, authPool, userId);
   await clearSignInFailures(authPool, key);
   return { userId };
 }

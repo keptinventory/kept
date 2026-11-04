@@ -28778,3 +28778,15 @@ msgstr "Usata per le tue conversazioni private, le domande che riguardano più p
 #: src/components/ai/settings-page.tsx
 msgid "Your own key is for your private threads and questions that span owners."
 msgstr "La tua chiave è per le tue conversazioni private e le domande che riguardano più proprietari."
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "Comprimi posti"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "Espandi posti"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "Ridimensiona posti"

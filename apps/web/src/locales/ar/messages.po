@@ -28778,3 +28778,15 @@ msgstr "يُستخدم لمحادثاتك الخاصة، والأسئلة الت
 #: src/components/ai/settings-page.tsx
 msgid "Your own key is for your private threads and questions that span owners."
 msgstr "مفتاحك الخاص لمحادثاتك الخاصة والأسئلة التي تشمل أكثر من مالك."
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "طيّ الأماكن"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "توسيع الأماكن"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "تغيير عرض الأماكن"

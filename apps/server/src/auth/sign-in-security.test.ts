@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jar, type TestApp, type TestAppOptions, testApp } from '../../test/app.js';
 import { cookieHeader, nextTotp, requestHeaders, signUp, totp } from '../../test/auth.js';
 import { type TestDb, testDb } from '../../test/db.js';
+import { refreshTokenCount, seedRefreshToken } from '../../test/oauth-tokens.js';
 import { freshIp } from '../../test/people.js';
 import { addMember, ownerTx, seedTenant, userEmail } from '../../test/tenancy.js';
 import { registerSoftPasskey, softRegistration } from '../../test/webauthn.js';
@@ -410,8 +411,11 @@ describe('adding a passkey', () => {
   it('signs out every other session and mails the owner', async () => {
     const user = await newUser('added');
     const other = await otherDevice(user);
+    await seedRefreshToken(db, user.userId);
     expect((await addPasskey(user.cookie, { name: 'Laptop' })).statusCode).toBe(200);
     expect(await alive(other)).toBe(false);
+    // A connector's refresh token ends with the other sessions (#411).
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
     expect(await alive(user.cookie)).toBe(true);
     await vi.waitFor(() =>
       expect(noticesFor(user.email)).toEqual([{ email: user.email, event: 'passkey-added' }]),
@@ -489,6 +493,7 @@ describe('renaming and removing a passkey', () => {
     await addPasskey(user.cookie, { name: 'Phone' });
     const [laptop, phone] = await passkeyRows(user.userId);
     const other = await otherDevice(user);
+    await seedRefreshToken(db, user.userId);
     t.auth.notices.length = 0;
 
     const missing = await kept(`/me/passkeys/${laptop?.id}`, {
@@ -508,6 +513,7 @@ describe('renaming and removing a passkey', () => {
     expect(removed.statusCode).toBe(204);
     expect(await passkeyRows(user.userId)).toEqual([{ id: phone?.id, name: 'Phone' }]);
     expect(await alive(other)).toBe(false);
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
     expect(await alive(user.cookie)).toBe(true);
     await vi.waitFor(() =>
       expect(noticesFor(user.email)).toEqual([{ email: user.email, event: 'passkey-removed' }]),
@@ -662,11 +668,14 @@ describe('the last way in', () => {
     await withGoogle();
     const user = await newUser('unlink-pw');
     const google = await linkGoogle(user.userId);
+    await seedRefreshToken(db, user.userId);
     const missing = await unlink(user.cookie, google);
     expect(missing.statusCode).toBe(403);
     expect(missing.json()).toMatchObject({ code: 'reauth_required', reauth: 'password' });
     const done = await unlink(user.cookie, google, PASSWORD);
     expect(done.statusCode).toBe(204);
+    // Unlinking signs out the other sessions, and ends the refresh tokens with them (#411).
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
     expect(await accountAudit(user.userId)).toContainEqual({
       action: 'sign_in.unlink',
       entity_type: 'account',
@@ -981,10 +990,12 @@ describe('turning the authenticator app on', () => {
     expect(wrong.json()).toMatchObject({ code: 'reauth_required' });
 
     const other = await otherDevice(user);
+    await seedRefreshToken(db, user.userId);
     const { secret, backupCodes, cookie } = await turnOn(user);
     expect(secret).not.toBe('');
     expect(backupCodes).toHaveLength(10);
     expect(await alive(other)).toBe(false);
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
     expect(await alive(cookie)).toBe(true);
     expect((await signInView(cookie)).twoFactor.enabled).toBe(true);
     await vi.waitFor(() =>
@@ -1087,6 +1098,7 @@ describe('setting the authenticator app up again', () => {
 
     // Started again and finished: the new app signs in, the old one and its codes don't.
     const other = await otherDevice(user);
+    await seedRefreshToken(db, user.userId);
     const second = await kept('/me/two-factor/set-up-again', {
       cookie,
       body: { password: PASSWORD },
@@ -1117,6 +1129,7 @@ describe('setting the authenticator app up again', () => {
     expect(backupCodes).toHaveLength(10);
     expect(backupCodes.some((c) => on.backupCodes.includes(c))).toBe(false);
     expect(await alive(other)).toBe(false);
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
     expect(await alive(cookie)).toBe(true);
     expect(await signInWith(user.email, { code: await nextTotp(fresh, user.userId) })).toBe(200);
     expect(await signInWith(user.email, { code: totp(on.secret) })).toBe(401);
@@ -1229,6 +1242,7 @@ describe('new backup codes', () => {
     const user = await newUser('codes');
     const on = await turnOn(user);
     const other = await otherDevice(user);
+    await seedRefreshToken(db, user.userId);
     const missing = await kept('/me/two-factor/backup-codes', { cookie: on.cookie, body: {} });
     expect(missing.statusCode).toBe(403);
     expect(missing.json()).toMatchObject({ code: 'reauth_required', reauth: 'password' });
@@ -1241,6 +1255,7 @@ describe('new backup codes', () => {
     const { backupCodes } = made.json() as { backupCodes: string[] };
     expect(backupCodes).toHaveLength(10);
     expect(await alive(other)).toBe(false);
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
     expect(await signInWith(user.email, { backupCode: on.backupCodes[0] ?? '' })).toBe(401);
     expect(await signInWith(user.email, { backupCode: backupCodes[0] ?? '' })).toBe(200);
     expect((await signInView(on.cookie)).twoFactor.backupCodesLeft).toBe(9);
@@ -1278,6 +1293,7 @@ describe('turning the authenticator app off', () => {
     const user = await newUser('off');
     const on = await turnOn(user);
     const other = await otherDevice(user);
+    await seedRefreshToken(db, user.userId);
     const missing = await kept('/me/two-factor/disable', { cookie: on.cookie, body: {} });
     expect(missing.statusCode).toBe(403);
     expect(missing.json()).toMatchObject({ code: 'reauth_required', reauth: 'password' });
@@ -1290,6 +1306,7 @@ describe('turning the authenticator app off', () => {
     const cookie = jar(off, on.cookie);
     expect(await alive(cookie)).toBe(true);
     expect(await alive(other)).toBe(false);
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
     expect((await signInView(cookie)).twoFactor).toEqual({ enabled: false, backupCodesLeft: null });
     const signedIn = await auth('/sign-in/email', {
       body: { email: user.email, password: PASSWORD },
