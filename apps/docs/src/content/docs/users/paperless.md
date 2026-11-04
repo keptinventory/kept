@@ -35,8 +35,10 @@ empty to keep the saved one.
 ## Link documents
 
 On a thing's page, under **Paperwork**, **Link from Paperless** sits beside **Add a file** (on a
-place's page, beside **Add document**). It opens a search of your Paperless: words from the title or the text, a correspondent, a type or a tag, as
-Paperless's own search finds them. Tick one or more and **Link**.
+place's page, beside **Add document**). It opens a search of your Paperless: words from the title or
+the text, a correspondent, a type or a tag. The start of a word is enough: `Camel` finds "Camelot".
+Paperless's own search syntax goes through as you type it, such as `title:manual` or `*amel*` for the
+middle of a word. Tick one or more and **Link**.
 
 Linked documents are in the same Paperwork list as the files. Each shows its thumbnail, its title,
 Paperless's type and correspondent, and its date, with:
