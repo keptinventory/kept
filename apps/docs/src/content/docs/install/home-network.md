@@ -44,8 +44,8 @@ top of each page can be dismissed too.
 
 ## Staying on your network
 
-If you won't add HTTPS, whoever runs Kept can loosen these on the server. Neither can be changed
-from the app, and Admin → Status shows what is in force.
+If you won't add HTTPS, whoever runs Kept can change this on the server. It can't be changed from
+the app, and Admin → Status shows what is in force.
 
 ### Longer sign-ins over plain HTTP
 
