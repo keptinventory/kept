@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
 import { jar } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
+import { refreshTokenCount, seedRefreshToken } from '../../test/oauth-tokens.js';
 import {
   auditOf,
   call,
@@ -155,6 +156,7 @@ describe('POST /api/v1/managed-accounts/:userId/reset-code', () => {
     });
     const managedCookie = jar(signIn);
     expect((await call(t, '/api/v1/me', { as: { cookie: managedCookie } })).statusCode).toBe(200);
+    await seedRefreshToken(db, created.userId);
 
     const byOwner = await call(t, `/api/v1/managed-accounts/${created.userId}/reset-code`, {
       as: owner,
@@ -163,6 +165,9 @@ describe('POST /api/v1/managed-accounts/:userId/reset-code', () => {
     expect(byOwner.statusCode, byOwner.body).toBe(200);
     expect(byOwner.json().code).toHaveLength(RESET_CODE_LENGTH);
     expect((await call(t, '/api/v1/me', { as: { cookie: managedCookie } })).statusCode).toBe(401);
+    // A reset code goes around Better Auth's password reset: issuing one ends a connector's
+    // refresh token itself (#411).
+    expect(await refreshTokenCount(db, created.userId)).toBe(0);
 
     const byCreator = await call(t, `/api/v1/managed-accounts/${created.userId}/reset-code`, {
       as: admin,
@@ -171,7 +176,10 @@ describe('POST /api/v1/managed-accounts/:userId/reset-code', () => {
     expect(byCreator.statusCode).toBe(200);
     // Only the newest code works.
     expect((await redeem(created.username, byOwner.json().code)).statusCode).toBe(400);
+    // A refresh token made between issuing and redeeming ends when the code is redeemed.
+    await seedRefreshToken(db, created.userId);
     expect((await redeem(created.username, byCreator.json().code)).statusCode).toBe(204);
+    expect(await refreshTokenCount(db, created.userId)).toBe(0);
     expect((await auditOf(db, homeId)).map((e) => e.action)).toContain(
       'managed_account.reset_code',
     );
