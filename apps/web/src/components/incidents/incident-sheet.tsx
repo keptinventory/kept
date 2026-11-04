@@ -23,7 +23,7 @@ import { Checkbox, TextArea, TextField as TextFieldPrimitive } from 'react-aria-
 import { householdApi, householdKeys, useIncidents } from '@/api/household/queries';
 import type { Incident, IncidentLifecycle, IncidentRow } from '@/api/household/types';
 import { inventoryKeys } from '@/api/inventory/queries';
-import { useAllLocations, useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { useOfferUndo } from '@/components/history/undo';
 import { CheckIcon } from '@/components/icons';
 import { LoadingRows, Notice, useErrorText } from '@/components/page';
@@ -59,10 +59,13 @@ export function useInvalidateIncidents() {
 }
 
 /** The locations where you may record incidents: Warranties & claims on, owner or admin. */
-export function useManagedLocations() {
-  const locations = useLocations();
+export function useManagedLocations(also?: string | null) {
+  const locations = useAllLocations();
   return (locations.data ?? []).filter(
-    (l) => accessOf(l).moduleOn('warranties') && can(l.role, 'incidents.manage'),
+    (l) =>
+      (!l.hidden || l.id === also) &&
+      accessOf(l).moduleOn('warranties') &&
+      can(l.role, 'incidents.manage'),
   );
 }
 
@@ -229,7 +232,7 @@ function NewIncidentForm({
   const marks = useMarkLabels();
   const nameOf = useLocationName();
   const nameIncident = useIncidentName();
-  const managed = useManagedLocations();
+  const managed = useManagedLocations(fixedLocation);
   const fieldErrors = useFieldErrors();
   const [locationId, setLocationId] = useState(fixedLocation ?? managed[0]?.id ?? '');
   const location = managed.find((l) => l.id === locationId);

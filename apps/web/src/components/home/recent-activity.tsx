@@ -21,7 +21,7 @@ import { Radio, RadioGroup } from 'react-aria-components';
 import { useInbox } from '@/api/capture/queries';
 import type { InboxItem } from '@/api/capture/types';
 import { useActivity } from '@/api/inventory/queries';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { EventRow } from '@/components/history/timeline';
 import { BoxIcon, ChevronEndIcon } from '@/components/icons';
 import { useKindLabels } from '@/components/inbox/labels';
@@ -128,7 +128,7 @@ export function RecentActivity({
   const wide = useMediaQuery(WIDE);
   const [chip, setChip] = useState<Chip>('all');
   const query = useActivity({ limit: RECENT_DESKTOP, ...(chip === 'all' ? {} : { kind: chip }) });
-  const locations = useLocations().data ?? [];
+  const locations = useAllLocations().data ?? [];
   const nameOf = useLocationName();
   const events = (query.data?.pages[0]?.items ?? []).slice(0, wide ? RECENT_DESKTOP : RECENT_PHONE);
   if (query.error && !query.data) return null;

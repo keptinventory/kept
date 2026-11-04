@@ -100,7 +100,10 @@ export function PlacePicker({
   const nameOf = usePlaceName();
   const locationName = useLocationName();
   const searchId = useId();
-  const { trees, isPending } = useAllPlaceTrees();
+  const { trees, isPending } = useAllPlaceTrees([
+    ...(locationIds ?? []),
+    ...(firstLocationId ? [firstLocationId] : []),
+  ]);
   const [q, setQ] = useState('');
 
   const usable = trees

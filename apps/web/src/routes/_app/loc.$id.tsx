@@ -266,6 +266,17 @@ function LocationBody({ location }: { location: LocationDetail }) {
           }
         : {})}
     >
+      {location.hidden ? (
+        <Notice tone="info">
+          <Trans>
+            <bdi>{name}</bdi> is hidden from your menu, Home, lists and search. This link still
+            opens it.
+          </Trans>{' '}
+          <Link to="/settings" className="font-semibold text-ink underline underline-offset-2">
+            <Trans>Show it again</Trans>
+          </Link>
+        </Notice>
+      ) : null}
       {layout === 'map' || layout === 'graph' ? (
         <>
           {/* D237: the map leads, under a one-line header; the rest follows it. So does the
@@ -375,17 +386,6 @@ function LocationBody({ location }: { location: LocationDetail }) {
       ) : null}
 
       {!personal && location.role !== 'owner' ? <LeaveLocation location={location} /> : null}
-      {location.hidden ? (
-        <Notice tone="info">
-          <Trans>
-            <bdi>{name}</bdi> is hidden from your menu, Home, lists and search. This link still
-            opens it.
-          </Trans>{' '}
-          <Link to="/settings" className="font-semibold text-ink underline underline-offset-2">
-            <Trans>Show it again</Trans>
-          </Link>
-        </Notice>
-      ) : null}
       {personal ? (
         <Notice tone="info">
           <Trans>

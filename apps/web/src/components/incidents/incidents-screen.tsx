@@ -16,7 +16,7 @@ import { Link } from '@tanstack/react-router';
 import { useCallback, useState } from 'react';
 import { useIncidents } from '@/api/household/queries';
 import type { IncidentRow, IncidentsParams } from '@/api/household/types';
-import { useAllLocations, useLocations } from '@/api/queries';
+import { useAllLocations, useLocationsInView } from '@/api/queries';
 import { dateBounds } from '@/components/filters/params';
 import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
@@ -96,15 +96,15 @@ export function IncidentsScreen() {
   const [list] = useListState();
   const f = useFilterRegistry();
   const kinds = useIncidentKindLabels();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const locationName = useLocationName();
-  const managed = useManagedLocations();
   const online = useOnline();
   const [creating, setCreating] = useState(false);
   const all = locations.data ?? [];
   const names = new Map(all.map((l) => [l.id, locationName(l)]));
 
   const location = oneValue(list, 'location');
+  const managed = useManagedLocations(location);
   const kind = oneValue(list, 'kind');
   const params: IncidentsParams = {
     ...(location ? { locationId: location } : {}),

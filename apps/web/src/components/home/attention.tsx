@@ -27,7 +27,7 @@ import { Link } from '@tanstack/react-router';
 import { useId } from 'react';
 import { useAgenda, useLoans } from '@/api/household/queries';
 import type { HomeOverview, HomeResponse, OverviewTile, OverviewTop } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { useModuleAnywhere } from '@/components/schedules/access';
 import { useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
@@ -209,7 +209,7 @@ function daysFrom(iso: string): number {
 function useTopLine(): (tile: Tile, top: OverviewTop) => string {
   const { t } = useLingui();
   const f = useFormat();
-  const locations = useLocations().data ?? [];
+  const locations = useAllLocations().data ?? [];
   const nameOf = useLocationName();
   return (tile, top) => {
     const name = top.name ?? '';

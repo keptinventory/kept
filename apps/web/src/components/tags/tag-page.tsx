@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import type { Tag, ThingListParams, ThingRow } from '@/api/inventory/types';
-import { useAllLocations, useLocations } from '@/api/queries';
+import { useAllLocations, useLocationsInView } from '@/api/queries';
 import { filterParams } from '@/components/filters/params';
 import { useFilterRegistry } from '@/components/filters/registry';
 import { useOfferUndo } from '@/components/history/undo';
@@ -180,7 +180,7 @@ function Things({
   const { t } = useLingui();
   const fmt = useFormat();
   const [list] = useListState();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const f = useFilterRegistry();
   const typeName = useTypeName();
   const tagThings = useTagThings();

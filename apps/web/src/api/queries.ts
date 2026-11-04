@@ -4,6 +4,7 @@
  */
 
 import { QueryClient, useQuery } from '@tanstack/react-query';
+import { useSearch } from '@tanstack/react-router';
 import { getMe, getSetupStatus, getVersion, listMySessions } from './account';
 import {
   getAdminSettings,
@@ -81,7 +82,19 @@ const shownLocations = (all: LocationDetail[]) => all.filter((l) => !l.hidden);
  * hidden one, use useAllLocations. */
 export const useLocations = () =>
   useQuery({ queryKey: keys.locations, queryFn: listLocations, select: shownLocations });
-/** Every location the session can see, a hidden Personal too (its `hidden` says so). */
+/** For a list page: what useLocations() gives, and a hidden Personal while the address narrows the
+ * list to it (`f.location`, `loc`: the links on its own page), so its filter, name and actions hold. */
+export const useLocationsInView = () => {
+  const search = useSearch({ strict: false }) as Record<string, unknown>;
+  const named = JSON.stringify([search['f.location'], search.loc]);
+  return useQuery({
+    queryKey: keys.locations,
+    queryFn: listLocations,
+    select: (all: LocationDetail[]) => all.filter((l) => !l.hidden || named.includes(l.id)),
+  });
+};
+/** Every location the session can see, a hidden Personal too (its `hidden` says so). What a record's
+ * location is looked up in: a direct link can lead to one in a hidden Personal. */
 export const useAllLocations = () => useQuery({ queryKey: keys.locations, queryFn: listLocations });
 /** The caller's own deleted locations still in their grace period (D149). */
 export const useDeletedLocations = () =>

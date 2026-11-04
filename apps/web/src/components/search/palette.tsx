@@ -119,7 +119,7 @@ export default function Palette({
     ? trees
         .flatMap((tr) => {
           const byId = new Map(tr.places.map((pl) => [pl.id, pl]));
-          const loc = locs.find((l) => l.id === tr.location.id);
+          const loc = allLocs.find((l) => l.id === tr.location.id);
           const where = loc ? nameOf(loc) : tr.location.name;
           return tr.places
             .filter((pl) => !pl.isUnplaced && nameMatches(pl.name, q))
@@ -228,7 +228,7 @@ export default function Palette({
   const all = [...thingEntries, ...locationEntries, ...placeEntries, ...shownActions];
   const byId = new Map(all.map((e) => [e.id, e]));
   const locName = (id: string) => {
-    const l = locs.find((x) => x.id === id);
+    const l = allLocs.find((x) => x.id === id);
     return l ? nameOf(l) : '';
   };
 

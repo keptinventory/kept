@@ -26,7 +26,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Checkbox, Dialog, DialogTrigger, Popover, Radio, RadioGroup } from 'react-aria-components';
 import { captureApi, captureKeys, useInbox } from '@/api/capture/queries';
 import type { AiStatus, InboxItem, InboxParams } from '@/api/capture/types';
-import { useAllLocations, useLocations, useMe } from '@/api/queries';
+import { useAllLocations, useLocationsInView, useMe } from '@/api/queries';
 import { PausedBanner } from '@/components/ai/paused-banner';
 import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
@@ -77,7 +77,7 @@ export function focusInboxItem(id: string): number {
 export function InboxList({ local }: { local?: LocalQueue | null }) {
   const { t } = useLingui();
   const [list, setList] = useListState();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const f = useFilterRegistry();
   const online = useOnline();
   const split = useMediaQuery(SPLIT);

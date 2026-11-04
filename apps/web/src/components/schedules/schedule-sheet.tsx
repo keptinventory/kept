@@ -20,7 +20,7 @@ import { isApiError } from '@/api/client';
 import { householdApi } from '@/api/household/queries';
 import type { CreateScheduleBody, Schedule, UpdateScheduleBody } from '@/api/household/types';
 import { inventoryApi, inventoryKeys, nextCursor } from '@/api/inventory/queries';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { useOfferUndo } from '@/components/history/undo';
 import { useErrorText } from '@/components/page';
 import { decimalOf } from '@/components/services/fields';
@@ -378,10 +378,15 @@ function SubjectPicker({
 }) {
   const { t } = useLingui();
   const locationName = useLocationName();
-  const locations = useLocations();
+  const locations = useAllLocations();
+  // A hidden Personal only for a subject already in it.
   const usable = (locations.data ?? []).filter((l) => {
     const a = accessOf(l);
-    return a.moduleOn('schedules') && a.can('schedules-claims.manage');
+    return (
+      (!l.hidden || l.id === locationId) &&
+      a.moduleOn('schedules') &&
+      a.can('schedules-claims.manage')
+    );
   });
   const current = locationId ?? (usable.length === 1 ? (usable[0]?.id ?? null) : null);
   const places = useQuery({

@@ -25,7 +25,7 @@ import { type FormEvent, useState } from 'react';
 import { ApiError, isApiError } from '@/api/client';
 import { householdApi, useIncident } from '@/api/household/queries';
 import type { InsuranceReportBody, RateMissing } from '@/api/household/types';
-import { useAllLocations, useLocations } from '@/api/queries';
+import { useAllLocations, useLocationsInView } from '@/api/queries';
 import { DocumentIcon, PrinterIcon, ShareIcon } from '@/components/icons';
 import { useIncidentName } from '@/components/incidents/labels';
 import { EmptyState, LoadingRows, Notice, Page, useErrorText } from '@/components/page';
@@ -104,10 +104,11 @@ function MissingRates({
 
 export function InsuranceReportScreen({ search }: { search: ReportSearch }) {
   const { t } = useLingui();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const incident = useIncident(search.incident ?? '');
   const nameIncident = useIncidentName();
   const all = locations.data ?? [];
+  const everyLocation = useAllLocations().data ?? [];
   const withMoney = all.filter((l) => accessOf(l).money);
 
   if (locations.isPending || (search.incident && incident.isPending))
@@ -117,7 +118,7 @@ export function InsuranceReportScreen({ search }: { search: ReportSearch }) {
       </Page>
     );
   const scopeLocation = search.incident
-    ? all.find((l) => l.id === incident.data?.locationId)
+    ? everyLocation.find((l) => l.id === incident.data?.locationId)
     : undefined;
   if (search.incident && (!incident.data || !scopeLocation || !accessOf(scopeLocation).money))
     return (

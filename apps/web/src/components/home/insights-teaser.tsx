@@ -11,7 +11,7 @@
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { HomeOverview, OverviewAmount } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { useMoney } from '@/components/things/values';
 import { useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
@@ -52,7 +52,7 @@ export function InsightsTeaser({ insights, className }: { insights: Teaser; clas
   const { t } = useLingui();
   const f = useFormat();
   const money = useMoney();
-  const locations = useLocations().data ?? [];
+  const locations = useAllLocations().data ?? [];
   const nameOf = useLocationName();
   const nameList = (ids: readonly string[]) =>
     ids
