@@ -99,7 +99,7 @@ the same over HTTPS.
 | An email link or password reset | Opens here | Opens at `KEPT_PUBLIC_URL` |
 | Passkeys | Yes, over HTTPS | No; a passkey belongs to one address |
 | Google and OIDC sign-in | Yes | The button opens `KEPT_PUBLIC_URL` |
-| AI apps (MCP, OAuth) | Yes | No |
+| AI apps (MCP, OAuth) | Yes | Connect them at `KEPT_PUBLIC_URL`: `/mcp` refuses this address, and OAuth's consent is refused here |
 | Links, labels, QR codes, mail, calendar feeds | Point here | Still point at `KEPT_PUBLIC_URL` |
 
 - **Each address signs in separately and installs as its own app,** because browsers keep cookies

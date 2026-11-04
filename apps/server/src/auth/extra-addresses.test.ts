@@ -1,11 +1,11 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import type { LightMyRequestResponse } from 'fastify';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { jar, setCookies, type TestApp, testApp } from '../../test/app.js';
-import { enrolTotp, nextTotp, signUp } from '../../test/auth.js';
+import { enrolTotp, nextTotp, requestHeaders, signUp, testAuth } from '../../test/auth.js';
 import { type TestDb, testDb } from '../../test/db.js';
 import { ownerTx, userEmail } from '../../test/tenancy.js';
 import { registerSoftPasskey, softRegistration } from '../../test/webauthn.js';
@@ -13,7 +13,8 @@ import { ensureAccount } from '../accounts/ensure-account.js';
 import { HA_SUPERVISOR_ADDRESS } from '../http/ingress.js';
 import { loadWebBundle, type WebBundle } from '../http/web.js';
 import { ensureSetupCode } from '../setup/setup-code.js';
-import { AUTH_BASE_PATH } from './auth.js';
+import { AUTH_BASE_PATH, type AuthDeps } from './auth.js';
+import { INGRESS_ORIGIN_HEADER } from './ingress-origin.js';
 
 // KEPT_EXTRA_ADDRESSES (#405, D275) through the front door: Kept's own Origin check and Better
 // Auth's, both on, as in production. Each case says what the browser sends. The sign-in length
@@ -27,6 +28,8 @@ const EXTRA = 'http://kept-ts.lan:8080';
 const EXTRA_IP = 'http://100.64.0.7:8080';
 const HTTPS_MAIN = 'https://kept.example.test';
 const HTTPS_EXTRA = 'https://kept-ts.example.test';
+const OAUTH_CLIENT = 'https://client.example/oauth/kept-client.json';
+const OAUTH_REDIRECT = 'https://client.example/callback';
 
 const LOOKALIKES = [
   'http://kept-ts.lan.example.com:8080',
@@ -176,6 +179,27 @@ describe('a listed address', () => {
     const bare = await newLocation(t, null, cookie);
     expect(bare.statusCode).toBe(403);
     expect(bare.json()).toMatchObject({ code: 'forbidden' });
+
+    const withFetchSite = (origin: string | null, site: string) =>
+      send(t, '/api/v1/locations', {
+        origin,
+        cookie,
+        headers: { 'idempotency-key': randomUUID(), 'sec-fetch-site': site },
+        body: LOCATION(),
+      });
+    for (const origin of ['null', null]) {
+      const same = await withFetchSite(origin, 'same-origin');
+      expect(same.statusCode, `${origin} ${same.body}`).toBe(201);
+      for (const site of ['same-site', 'cross-site', 'none']) {
+        const other = await withFetchSite(origin, site);
+        expect(other.statusCode, `${origin} ${site}`).toBe(403);
+        expect(other.json()).toMatchObject({ code: 'forbidden' });
+      }
+    }
+    // A listed address gets no pass from the header either way round: a named Origin decides.
+    const named = await withFetchSite('http://evil.example', 'same-origin');
+    expect(named.statusCode).toBe(403);
+    expect(named.json()).toMatchObject({ code: 'origin_mismatch' });
   });
 });
 
@@ -326,6 +350,44 @@ describe('what stays as it is on an extra address', () => {
     expect(line).toMatch(/^__Secure-/);
     expect(line).toMatch(/;\s*Secure/i);
     await https.app.close();
+  });
+});
+
+describe('Better Auth reads the ingress header in app mode only', () => {
+  // Straight at Better Auth, under auth/http.ts authHeaders(), which removes a client's copy: this
+  // gate is what holds if a request ever reaches it another way. KEPT_EXTRA_ADDRESSES makes the
+  // trustedOrigins function exist outside app mode, where before #405 there was none to reach.
+  const EVIL = 'http://evil.example';
+  const answerTo = async (ingress: boolean) => {
+    const auth = testAuth(db, {
+      env: {
+        KEPT_PUBLIC_URL: MAIN,
+        KEPT_EXTRA_ADDRESSES: [EXTRA],
+      } as unknown as AuthDeps['env'],
+      originCheck: true,
+      ...(ingress ? { ingress: true } : {}),
+    });
+    const headers = requestHeaders('', freshIp());
+    headers.set('origin', EVIL);
+    headers.set('content-type', 'application/json');
+    headers.set(INGRESS_ORIGIN_HEADER, EVIL);
+    const res = await auth.handler(
+      new Request(`${MAIN}${AUTH_BASE_PATH}/sign-in/email`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ email: email('nobody'), password: PASSWORD }),
+      }),
+    );
+    return { status: res.status, code: ((await res.json()) as { code?: string }).code };
+  };
+
+  it('outside app mode, the header names nothing', async () => {
+    expect(await answerTo(false)).toEqual({ status: 403, code: 'INVALID_ORIGIN' });
+  });
+
+  it('in app mode it is believed, which is why authHeaders() removes a client’s copy', async () => {
+    const { code } = await answerTo(true);
+    expect(code).not.toBe('INVALID_ORIGIN');
   });
 });
 
@@ -701,8 +763,19 @@ describe('AI apps (MCP, OAuth): the main address only', () => {
       authOriginCheck: true,
       oauth: {
         publicUrl: HTTPS_MAIN,
-        isMetadataDocumentUrlAllowed: () => false,
-        fetchClientMetadataResource: async () => new Response('not found', { status: 404 }),
+        isMetadataDocumentUrlAllowed: (url) => url === OAUTH_CLIENT,
+        fetchClientMetadataResource: async (input) => {
+          const url = input instanceof Request ? input.url : String(input);
+          if (url !== OAUTH_CLIENT) return new Response('not found', { status: 404 });
+          return Response.json({
+            client_id: OAUTH_CLIENT,
+            client_name: 'Murdock’s notebook',
+            redirect_uris: [OAUTH_REDIRECT],
+            token_endpoint_auth_method: 'none',
+            grant_types: ['authorization_code'],
+            response_types: ['code'],
+          });
+        },
       },
     });
   });
@@ -719,6 +792,101 @@ describe('AI apps (MCP, OAuth): the main address only', () => {
       expect(res.json().issuer).toBe(`${HTTPS_MAIN}${AUTH_BASE_PATH}`);
       expect(res.body).not.toContain('kept-ts');
     }
+  });
+
+  // A GET has no Origin, so an extra address's name reaching /oauth2/authorize isn't refused. It
+  // gains nothing: the issuer's consent page is next, consent from that address is refused, and a
+  // code only ever goes to the client's registered redirect URI.
+  it('/oauth2/* reached at an extra address: what really happens, step by step', async () => {
+    const { cookie } = await account(t);
+    const made = await newLocation(t, HTTPS_MAIN, cookie);
+    expect(made.statusCode, made.body).toBe(201);
+    const verifier = randomUUID() + randomUUID();
+    const request = new URLSearchParams({
+      response_type: 'code',
+      client_id: OAUTH_CLIENT,
+      redirect_uri: OAUTH_REDIRECT,
+      scope: 'kept:read',
+      state: 'state-1',
+      code_challenge: createHash('sha256').update(verifier).digest('base64url'),
+      code_challenge_method: 'S256',
+      resource: `${HTTPS_MAIN}/mcp`,
+    });
+    const authorize = `${AUTH_BASE_PATH}/oauth2/authorize`;
+    const atExtra = { host: 'kept-ts.example.test', 'x-forwarded-host': 'kept-ts.example.test' };
+
+    // With an Origin to go by: refused.
+    const posted = await send(t, authorize, {
+      origin: HTTPS_EXTRA,
+      cookie,
+      headers: { ...atExtra, 'content-type': 'application/x-www-form-urlencoded' },
+      body: request.toString(),
+    });
+    expect(posted.statusCode, posted.body).toBe(403);
+    expect(posted.json()).toMatchObject({ code: 'origin_mismatch', expectedOrigin: HTTPS_MAIN });
+
+    // A GET has none: it goes through, and answers as on the main address, with no code.
+    const got = await send(t, `${authorize}?${request}`, {
+      cookie,
+      headers: { ...atExtra, accept: 'application/json' },
+    });
+    expect(got.statusCode, got.body).toBeLessThan(400);
+    const target = String(got.headers.location ?? got.json().url);
+    expect(target).not.toContain('kept-ts');
+    const consentPage = new URL(target, HTTPS_MAIN);
+    expect(consentPage.origin).toBe(HTTPS_MAIN);
+    expect(consentPage.pathname).toBe('/oauth/consent');
+    expect(consentPage.searchParams.has('code')).toBe(false);
+
+    // Consent is where a code would come from: refused from the extra address, signed query and all.
+    const consent = `/api/v1/oauth/consent${consentPage.search}`;
+    const accept = { accept: true, scope: 'read', locationIds: [made.json().id] };
+    const refused = await send(t, consent, {
+      origin: HTTPS_EXTRA,
+      cookie,
+      headers: atExtra,
+      body: accept,
+    });
+    expect(refused.statusCode, refused.body).toBe(403);
+    expect(refused.json()).toMatchObject({ code: 'origin_mismatch', expectedOrigin: HTTPS_MAIN });
+    expect(refused.body).not.toContain('code=');
+
+    // From the main address, the code goes to the client's registered redirect URI and nowhere else.
+    const given = await send(t, consent, { origin: HTTPS_MAIN, cookie, body: accept });
+    expect(given.statusCode, given.body).toBe(200);
+    const redirect = new URL(given.json().redirectTo);
+    expect(`${redirect.origin}${redirect.pathname}`).toBe(OAUTH_REDIRECT);
+    const code = redirect.searchParams.get('code');
+    expect(code).toBeTruthy();
+
+    // The token endpoint is a client's, not a page's: an extra address's page is refused...
+    const form = new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: OAUTH_CLIENT,
+      redirect_uri: OAUTH_REDIRECT,
+      code: code as string,
+      code_verifier: verifier,
+      resource: `${HTTPS_MAIN}/mcp`,
+    }).toString();
+    const asForm = { 'content-type': 'application/x-www-form-urlencoded' };
+    const fromPage = await send(t, `${AUTH_BASE_PATH}/oauth2/token`, {
+      origin: HTTPS_EXTRA,
+      headers: asForm,
+      body: form,
+    });
+    expect(fromPage.statusCode, fromPage.body).toBe(403);
+    expect(fromPage.json()).toMatchObject({ code: 'origin_mismatch' });
+    // ...and with no Origin the Host plays no part: the token is the main address's all the same.
+    const token = await send(t, `${AUTH_BASE_PATH}/oauth2/token`, {
+      headers: { ...asForm, ...atExtra },
+      body: form,
+    });
+    expect(token.statusCode, token.body).toBe(200);
+    const claims = JSON.parse(
+      Buffer.from(String(token.json().access_token).split('.')[1] ?? '', 'base64url').toString(),
+    );
+    expect(claims.iss).toBe(`${HTTPS_MAIN}${AUTH_BASE_PATH}`);
+    expect(claims.aud).toContain(`${HTTPS_MAIN}/mcp`);
   });
 
   it('consent from an extra address is refused', async () => {
@@ -875,6 +1043,24 @@ describe('Home Assistant ingress and extra addresses together (D273)', () => {
       body: LOCATION(),
     });
     expect(made.statusCode, made.body).toBe(201);
+  });
+
+  it('under ingress, Better Auth’s list holds the extra addresses too: added, never replaced', async () => {
+    for (const origin of [EXTRA, EXTRA_IP, MAIN, HA]) {
+      const res = await throughHa(`${AUTH_BASE_PATH}/sign-in/email`, {
+        origin,
+        headers: { 'x-forwarded-for': `${freshIp()}, 172.30.32.1` },
+        body: { email: address, password: PASSWORD },
+      });
+      expect(res.statusCode, `${origin} ${res.body}`).toBe(200);
+    }
+    const refused = await throughHa(`${AUTH_BASE_PATH}/sign-in/email`, {
+      origin: 'http://kept-ts.lan.example.com:8080',
+      headers: { 'x-forwarded-for': `${freshIp()}, 172.30.32.1` },
+      body: { email: address, password: PASSWORD },
+    });
+    expect(refused.statusCode, refused.body).toBe(403);
+    expect(refused.json()).toMatchObject({ code: 'origin_mismatch', expectedOrigin: HA });
   });
 
   it('under ingress, a write from an extra address is refused: the page there is Home Assistant’s', async () => {

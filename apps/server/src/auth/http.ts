@@ -152,8 +152,11 @@ export function assertFromThisSite(
  * What works on the main address only (D275), asked for from an extra one: passkeys, because a
  * browser ties one to a single host name, and outside sign-ins and OAuth, because they come back
  * to KEPT_PUBLIC_URL. Answered as `origin_mismatch`, so the page offers the main address. Goes by
- * `Origin` alone, so a same-origin GET (which has none) isn't refused here; a passkey ceremony
- * still ends in a POST, and its signed `origin` is checked against the main address regardless.
+ * `Origin` alone, so a request with none isn't refused here: a same-origin GET, or an app's call to
+ * the token endpoint. Neither gains anything. A passkey ceremony still ends in a POST, and its signed
+ * `origin` is checked against the main address regardless. `GET /oauth2/authorize` at an extra
+ * address's name answers as the main address would, sending the browser to its consent page; consent
+ * from an extra address is refused, and a code goes only to the client's registered redirect URI.
  */
 export function assertNotOnExtraAddress(
   req: FastifyRequest,
