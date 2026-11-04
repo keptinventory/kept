@@ -326,9 +326,13 @@ function EntryLink({
         className={className}
       >
         <TypeIcon icon={box.icon ?? 'lucide:package'} className="size-4 shrink-0 text-ink-3" />
-        <bdi className="min-w-0 [overflow-wrap:anywhere]">{box.name ?? t`Untitled`}</bdi>
-        <span className="ms-auto shrink-0 ps-2 text-small text-ink-3">
-          {plural(n, { one: '# thing', other: '# things' })}
+        {/* #426: wrapping, so the count goes under the name when both don't fit, and the name
+            keeps the whole line. overflow-wrap:anywhere is for a word too long for that line. */}
+        <span className="flex min-w-0 flex-1 flex-wrap items-baseline justify-between gap-x-2 py-1">
+          <bdi className="min-w-0 [overflow-wrap:anywhere]">{box.name ?? t`Untitled`}</bdi>
+          <span className="min-w-0 text-small text-ink-3 [overflow-wrap:anywhere]">
+            {plural(n, { one: '# thing', other: '# things' })}
+          </span>
         </span>
       </Link>
     );
