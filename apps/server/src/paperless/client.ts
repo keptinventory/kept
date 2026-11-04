@@ -10,7 +10,8 @@
  *   profile). An authenticated answer carries `X-Api-Version` and `X-Version` (the server's
  *   version, which "Test connection" shows).
  * - `GET /api/documents/?page=&page_size=&fields=…` lists, newest first with `ordering=-created`;
- *   `query=` adds Paperless's full-text search (title, content, correspondent, type and tags).
+ *   `query=` adds Paperless's full-text search (title, content, correspondent, type and tags),
+ *   which matches whole words; `partialWords` asks for the start of one too (#420).
  *   `fields=` trims each document to what the picker shows.
  * - `GET /api/documents/<id>/?fields=…`: one document's metadata.
  * - `GET /api/document_types/`, `/api/correspondents/`, `/api/tags/` with `id__in=1,2,3`: the
@@ -142,6 +143,28 @@ async function readCapped(res: Response, max: number): Promise<Buffer> {
   return Buffer.concat(chunks);
 }
 
+/** Paperless's own search syntax: fields, quotes, wildcards, groups, ranges, boosts and operators. */
+const QUERY_SYNTAX = /[:"*?()[\]{}~^\\]|(?:^|\s)[-+]|\b(?:AND|OR|NOT)\b/;
+
+/**
+ * What the person typed, asking for each word whole or as a word's start, so `Camel` finds
+ * "Camelot" as it does in Paperless's own search box (#420). `query=` is the one way that holds
+ * across the versions Kept connects to: `text=` is 3.x's, and 2.x ignores it and answers every
+ * document; `title_content=` is deprecated in 3.x and skips correspondents, types and tags.
+ *
+ * Whole as well as a start because 3.x indexes stems: `universit*` misses "university", stored as
+ * `univers`, while `university` finds it. Checked against real 2.16.3 and 3.4.2 servers, Arabic,
+ * CJK and `A-1312/B` included. Anything already in Paperless's syntax goes through as written.
+ */
+export function partialWords(q: string): string {
+  if (QUERY_SYNTAX.test(q)) return q;
+  return q
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => `(${word} OR ${word}*)`)
+    .join(' ');
+}
+
 /** A Paperless document as version 9 answers it, trimmed to what Kept reads. */
 const Doc = z.object({
   id: z.number().int().positive(),
@@ -266,7 +289,7 @@ export class PaperlessClient {
       page_size: PAGE_SIZE,
       fields: DOC_FIELDS,
     };
-    if (q) query.query = q;
+    if (q) query.query = partialWords(q);
     else query.ordering = '-created';
     const { data } = await this.#json(this.url('/api/documents/', query), Page);
     return data;

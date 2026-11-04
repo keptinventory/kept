@@ -186,7 +186,13 @@ export class FakePaperless {
           ]
             .join(' ')
             .toLowerCase();
-          return q.split(/\s+/).every((w) => words.includes(w));
+          // As the real search reads it: a bare term is a whole word, `(w OR w*)` also a word's start.
+          const indexed = words.split(/[^\p{L}\p{N}]+/u);
+          const terms = q.match(/\((\S+) or \1\*\)|\S+/g) ?? [];
+          return terms.every((term) => {
+            const start = /^\((\S+) or /.exec(term)?.[1];
+            return start ? indexed.some((w) => w.startsWith(start)) : indexed.includes(term);
+          });
         })
         .sort((a, b) => b.created.localeCompare(a.created) || b.id - a.id);
       const size = Number(url.searchParams.get('page_size') ?? 25);
