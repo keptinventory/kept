@@ -1043,6 +1043,7 @@ describe('KEPT_EXTRA_ADDRESSES (#405)', () => {
 
   it.each([
     ['http://*.lan', 'no wildcards'],
+    ['http://＊.lan', 'no wildcards'],
     ['*', 'no wildcards'],
     ['http://kept.lan/app', 'no path'],
     ['http://kept.lan.', 'no dot'],
@@ -1050,7 +1051,7 @@ describe('KEPT_EXTRA_ADDRESSES (#405)', () => {
   ])('stops startup on %s, saying why', async (value, why) => {
     const refused = load({ KEPT_EXTRA_ADDRESSES: value });
     await expect(refused).rejects.toMatchObject({ code: 'invalid_env' });
-    await expect(refused).rejects.toThrow(`KEPT_EXTRA_ADDRESSES (${value}: `);
+    await expect(refused).rejects.toThrow('KEPT_EXTRA_ADDRESSES (address 1: ');
     await expect(refused).rejects.toThrow(why);
   });
 
@@ -1058,6 +1059,9 @@ describe('KEPT_EXTRA_ADDRESSES (#405)', () => {
     const refused = load({ KEPT_EXTRA_ADDRESSES: 'http://alfred:hunter2@kept.lan' });
     await expect(refused).rejects.toMatchObject({ code: 'invalid_env' });
     await expect(refused).rejects.not.toThrow(/alfred|hunter2/);
+    const split = load({ KEPT_EXTRA_ADDRESSES: 'http://alfred:hun,ter2@kept.lan' });
+    await expect(split).rejects.toMatchObject({ code: 'invalid_env' });
+    await expect(split).rejects.not.toThrow(/alfred|hun|ter2/);
   });
 
   it('stops startup on a mix of http and https, either way round', async () => {

@@ -62,10 +62,12 @@ function originOnly(value) {
 /** One entry of KEPT_EXTRA_ADDRESSES as Kept reads it, or null for what Kept would refuse
  * (apps/server/src/auth/addresses.ts; scripts/ha-options.test.mjs holds the two together). */
 function extraAddress(value) {
-  if (!/^https?:\/\/[^\s%@*?#\\/]+\/?$/i.test(value)) return null;
+  if (!/^https?:\/\/[^\s%*?#\\/]+\/?$/i.test(value)) return null;
   try {
     const url = new URL(value);
-    return url.hostname && !url.hostname.endsWith('.') ? url.origin : null;
+    // After parsing too: IDNA maps forms such as U+FF0A to `*`.
+    if (!url.hostname || url.hostname.endsWith('.') || /[*?]/.test(url.origin)) return null;
+    return url.origin;
   } catch {
     return null;
   }
@@ -189,17 +191,24 @@ export function appEnv({ options, info, self }) {
   }
 
   // More than one address (#405): Kept stops at startup on a bad one or a mix of http and https,
-  // so each is left out and said in the Log tab. A login is never repeated in a line.
+  // so each is left out and said in the Log tab, by its place in the list, never its text: a value
+  // this wrong may hold half a password. A login may hold a comma, so it's looked for before
+  // anything splits the value (`@`, and the forms IDNA maps to it).
   const extraList = text(opts.extra_addresses);
-  if (extraList) {
+  if (/[@＠﹫]/.test(extraList)) {
+    lines.push(
+      'Extra addresses are ignored: one has a login. Write each address alone, with no user or password.',
+    );
+  } else if (extraList) {
     const extras = [];
     const main = new URL(env.KEPT_PUBLIC_URL);
-    for (const entry of extraList.split(',').map((e) => e.trim())) {
-      if (!entry) continue;
+    const entries = extraList
+      .split(',')
+      .map((e) => e.trim())
+      .filter(Boolean);
+    for (const [i, entry] of entries.entries()) {
       const origin = extraAddress(entry);
-      const shown = entry.includes('@')
-        ? 'An extra address with a login'
-        : `Extra address "${entry}"`;
+      const shown = `Extra address ${i + 1}`;
       if (!origin) {
         lines.push(
           `${shown} is ignored: it must be exactly http(s)://host[:port], with no wildcard or path.`,

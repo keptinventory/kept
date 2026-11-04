@@ -351,8 +351,9 @@ describe('sign-in, sign-up and uploads', () => {
     }
     const some = run({ extra_addresses: 'http://*.lan,http://a.lan,http://b.lan/app' });
     expect(some.env.KEPT_EXTRA_ADDRESSES).toBe('http://a.lan');
-    expect(some.lines.join('\n')).toContain('Extra address "http://*.lan" is ignored');
-    expect(some.lines.join('\n')).toContain('Extra address "http://b.lan/app" is ignored');
+    expect(some.lines.join('\n')).toContain('Extra address 1 is ignored');
+    expect(some.lines.join('\n')).toContain('Extra address 3 is ignored');
+    expect(some.lines.join('\n')).not.toContain('b.lan');
   });
 
   it('leaves out an address on another scheme than Kept’s, and Kept’s own', () => {
@@ -361,18 +362,48 @@ describe('sign-in, sign-up and uploads', () => {
       extra_addresses: 'https://a.lan,http://kept.lan:8080,http://b.lan',
     });
     expect(http.env.KEPT_EXTRA_ADDRESSES).toBe('http://b.lan');
-    expect(http.lines.join('\n')).toContain('Extra address "https://a.lan" is ignored');
+    expect(http.lines.join('\n')).toContain('Extra address 1 is ignored');
     const https = run({ public_url: 'https://kept.lan', extra_addresses: 'http://a.lan' });
     expect(https.env).not.toHaveProperty('KEPT_EXTRA_ADDRESSES');
-    expect(https.lines.join('\n')).toContain('Extra address "http://a.lan" is ignored');
+    expect(https.lines.join('\n')).toContain('Extra address 1 is ignored');
   });
 
   it('never repeats a login in a log line', () => {
     const { env, lines } = run({ extra_addresses: 'http://alfred:hunter2@kept.lan' });
     expect(env).not.toHaveProperty('KEPT_EXTRA_ADDRESSES');
-    expect(lines.join('\n')).toContain('An extra address with a login is ignored');
+    expect(lines.join('\n')).toContain('Extra addresses are ignored: one has a login');
     expect(lines.join('\n')).not.toMatch(/alfred|hunter2/);
   });
+
+  it.each([
+    'http://alfred:pa,ss@kept.lan',
+    // The part before the comma would be an address of its own.
+    'http://alfred:80,ss@kept.lan',
+    'http://a.lan,http://alfred:pa,ss@kept.lan',
+    'http://alfred:80,ss＠kept.lan',
+  ])('leaves out all of %j and prints none of it', (value) => {
+    const { env, lines } = run({ extra_addresses: value });
+    expect(env).not.toHaveProperty('KEPT_EXTRA_ADDRESSES');
+    expect(lines.join('\n')).toContain('Extra addresses are ignored: one has a login');
+    expect(lines.join('\n')).not.toMatch(/alfred|pa,ss|80,ss|a\.lan/);
+  });
+
+  it('prints no entry it leaves out, by its place only', () => {
+    const { env, lines } = run({ extra_addresses: 'http://a.lan,http://alfred:hunter2' });
+    expect(env.KEPT_EXTRA_ADDRESSES).toBe('http://a.lan');
+    expect(lines.join('\n')).toContain('Extra address 2 is ignored');
+    expect(lines.join('\n')).not.toMatch(/alfred|hunter2/);
+  });
+
+  it.each(['http://＊.example.com', 'http://﹡.example.com', 'https://＊.kept.lan'])(
+    'leaves out %s, which IDNA would turn into a wildcard',
+    (value) => {
+      const { env, lines } = run({ public_url: 'http://other.lan', extra_addresses: value });
+      expect(env).not.toHaveProperty('KEPT_EXTRA_ADDRESSES');
+      expect(lines.join('\n')).toContain('Extra address 1 is ignored');
+      expect(lines.join('\n')).not.toContain('*');
+    },
+  );
 
   // The app must never hand Kept what stops it at startup: the two readers agree, entry by entry.
   it('accepts exactly what Kept accepts', () => {
@@ -388,7 +419,14 @@ describe('sign-in, sign-up and uploads', () => {
       'http://*.lan',
       'http://kept.*',
       'http://ke?t.lan',
+      'http://＊.example.com',
+      'http://﹡.example.com',
+      'http://？.example.com',
+      'http://﹖.example.com',
       'http://user@kept.lan',
+      'http://user:pa,ss@kept.lan',
+      'http://user:80,ss@kept.lan',
+      'http://user:80,ss＠kept.lan',
       'http://kept.lan/app',
       'http://kept.lan//',
       'http://kept.lan/?',

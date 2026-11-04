@@ -56,6 +56,12 @@ describe('parseExtraAddresses', () => {
     ['http://kept.lan:*', 'wildcard'],
     ['https://*.ts.net', 'wildcard'],
     ['http://ke?t.lan', 'wildcard'],
+    // Forms IDNA maps to `*` while parsing, which Better Auth would then read as a wildcard.
+    ['http://＊.example.com', 'wildcard'],
+    ['http://﹡.example.com', 'wildcard'],
+    ['https://＊.kept.lan:8443', 'wildcard'],
+    ['http://？.example.com', 'valid'],
+    ['http://﹖.example.com', 'valid'],
     ['http://user@kept.lan', 'login'],
     ['http://user:secret@kept.lan', 'login'],
     ['http://kept.lan@evil.example', 'login'],
@@ -99,6 +105,43 @@ describe('parseExtraAddresses', () => {
       message = (err as Error).message;
     }
     expect(message).toContain('login');
+    expect(message).not.toContain('alfred');
+    expect(message).not.toContain('hunter2');
+  });
+
+  const messageOf = (value: string) => {
+    try {
+      parseExtraAddresses(value);
+    } catch (err) {
+      return (err as Error).message;
+    }
+    throw new Error(`${value} was accepted`);
+  };
+
+  it.each([
+    'http://alfred:hun,ter2@kept.lan',
+    // The part before the comma would be an address of its own: port 80 on a host named alfred.
+    'http://alfred:80,ter2@kept.lan',
+    'http://kept.lan,http://alfred:hun,ter2@kept.lan',
+    // Forms IDNA maps to `@`.
+    'http://alfred:hun,ter2＠kept.lan',
+    'http://alfred:hun,ter2﹫kept.lan',
+  ])('refuses all of %j without printing any of it', (value) => {
+    const message = messageOf(value);
+    expect(message).toContain('login');
+    for (const word of ['alfred', 'hun', 'ter2', 'kept.lan']) expect(message).not.toContain(word);
+  });
+
+  it.each([
+    'http://alfred:hunter2',
+    'alfred:hunter2',
+    'http://alfred:hunter2/',
+    'http://alfred:hunter2/x',
+    'http://*.alfred:hunter2',
+    'http://alfred.hunter2.',
+  ])('names the entry by its place, never its text: %j', (value) => {
+    const message = messageOf(`http://kept.lan,${value}`);
+    expect(message).toMatch(/^address 2: /);
     expect(message).not.toContain('alfred');
     expect(message).not.toContain('hunter2');
   });
@@ -171,7 +214,6 @@ describe('isMainAddressOnly', () => {
       '/oauth2/authorize',
       '/oauth2/consent',
       '/oauth2/token',
-      '/callback/google',
     ]) {
       expect(isMainAddressOnly(path), path).toBe(true);
     }
@@ -188,6 +230,8 @@ describe('isMainAddressOnly', () => {
       '/two-factor/verify-totp',
       '/two-factor/verify-backup-code',
       '/change-password',
+      // A provider comes back by a GET with no Origin: nothing to go by, so nothing listed.
+      '/callback/google',
     ]) {
       expect(isMainAddressOnly(path), path).toBe(false);
     }

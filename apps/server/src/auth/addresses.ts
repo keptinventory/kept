@@ -14,45 +14,54 @@ const HTTP_SCHEME = /^https?:\/\//i;
  * Other control characters it refuses by itself. */
 const NOT_AN_ADDRESS = /[\s%]/;
 
-function originOf(entry: string): string {
-  // First, because a login must never reach a message.
-  if (entry.includes('@')) {
-    throw new Error('an address with a login: write the address alone, with no user or password');
-  }
+/** `@`, and the forms IDNA maps to it. */
+const LOGIN = /[@＠﹫]/;
+
+/** One entry as the origin a browser sends. A refusal says where the entry is in the list, never
+ * what it says: a value this wrong may hold half a password. */
+function originOf(entry: string, place: number): string {
+  const refused = (why: string) => new Error(`address ${place}: ${why}`);
   // Better Auth reads `*` and `?` as wildcards; here a `?` after a slash is a query, refused below.
   if (entry.includes('*') || /^[^/]*(\/\/[^/]*)?\?/.test(entry)) {
-    throw new Error(`${entry}: no wildcards; list each address exactly`);
+    throw refused('no wildcards; list each address exactly');
   }
   if (!HTTP_SCHEME.test(entry)) {
-    throw new Error(`${entry}: starts with http:// or https://, like http://kept.lan:8080`);
+    throw refused('starts with http:// or https://, like http://kept.lan:8080');
   }
   const rest = entry.replace(HTTP_SCHEME, '');
   if (/[/?#\\]/.test(rest.replace(/\/$/, ''))) {
-    throw new Error(`${entry}: the address alone, with no path or query`);
+    throw refused('the address alone, with no path or query');
   }
-  if (NOT_AN_ADDRESS.test(entry)) throw new Error(`${entry}: not a valid address`);
+  if (NOT_AN_ADDRESS.test(entry)) throw refused('not a valid address');
   let url: URL;
   try {
     url = new URL(entry);
   } catch {
-    throw new Error(`${entry}: not a valid address`);
+    throw refused('not a valid address');
   }
-  if (url.hostname === '') throw new Error(`${entry}: not a valid address`);
+  if (url.hostname === '') throw refused('not a valid address');
   // Browsers treat `kept.lan.` as an address of its own, which nobody means to list.
-  if (url.hostname.endsWith('.')) {
-    throw new Error(`${entry}: no dot at the end of the name`);
-  }
+  if (url.hostname.endsWith('.')) throw refused('no dot at the end of the name');
+  // After parsing too: IDNA maps forms such as U+FF0A to `*`, and what's returned here is handed to
+  // Better Auth, which would read it as a pattern (an open redirect through `callbackURL`).
+  if (/[*?]/.test(url.origin)) throw refused('no wildcards; list each address exactly');
   return url.origin;
 }
 
 /** The value's addresses, each as the origin a browser sends, once each. Throws on the first bad
- * entry, saying what's wrong with it; a message never repeats a login. Empty entries are dropped. */
+ * entry, saying where it is and what's wrong with it. Empty entries are dropped. */
 export function parseExtraAddresses(value: string | undefined): readonly string[] {
-  const entries = (value ?? '')
+  const text = value ?? '';
+  // Before anything splits it: a password may hold a comma, which would make two "entries", one of
+  // them perhaps a valid address. Nothing of the value is repeated.
+  if (LOGIN.test(text)) {
+    throw new Error('an address has a login: write each address alone, with no user or password');
+  }
+  const entries = text
     .split(',')
     .map((entry) => entry.trim())
     .filter(Boolean);
-  return [...new Set(entries.map(originOf))];
+  return [...new Set(entries.map((entry, i) => originOf(entry, i + 1)))];
 }
 
 /** The first address on another scheme than the public URL's, or null. Cookies, HSTS and the
@@ -76,15 +85,11 @@ export function isExtraAddress(
   return !!origin && !!extras && extras.includes(origin);
 }
 
-/** Better Auth's paths (under AUTH_BASE_PATH) that work on the main address only: a passkey belongs
- * to one host name, and an outside sign-in and OAuth come back to KEPT_PUBLIC_URL. */
-const MAIN_ADDRESS_ONLY = [
-  '/passkey/',
-  '/sign-in/social',
-  '/link-social',
-  '/callback/',
-  '/oauth2/',
-];
+/** Better Auth's paths (under AUTH_BASE_PATH) refused when the request's `Origin` is an extra address:
+ * a passkey belongs to one host name, and an outside sign-in and OAuth come back to KEPT_PUBLIC_URL.
+ * Not `/callback/*`: a provider comes back by a redirect, a GET with no `Origin` to go by, and neither
+ * of Kept's asks for a form post (auth/google.ts, auth/oidc.ts), so a check there would never fire. */
+const MAIN_ADDRESS_ONLY = ['/passkey/', '/sign-in/social', '/link-social', '/oauth2/'];
 
 export function isMainAddressOnly(authPath: string): boolean {
   return MAIN_ADDRESS_ONLY.some((path) =>
