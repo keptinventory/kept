@@ -59,6 +59,18 @@ function originOnly(value) {
   }
 }
 
+/** One entry of KEPT_EXTRA_ADDRESSES as Kept reads it, or null for what Kept would refuse
+ * (apps/server/src/auth/addresses.ts; scripts/ha-options.test.mjs holds the two together). */
+function extraAddress(value) {
+  if (!/^https?:\/\/[^\s%@*?#\\/]+\/?$/i.test(value)) return null;
+  try {
+    const url = new URL(value);
+    return url.hostname && !url.hostname.endsWith('.') ? url.origin : null;
+  } catch {
+    return null;
+  }
+}
+
 /** The first Supervisor that removes a client's X-Remote-User-Groups and sets its own
  * (home-assistant/supervisor #7398): setup without the code trusts that header. */
 export const TRUSTED_GROUPS_SUPERVISOR = [2026, 10, 4];
@@ -173,6 +185,34 @@ export function appEnv({ options, info, self }) {
       lines.push(
         `The sign-in length is ignored: a whole number of days from ${HTTP_SIGN_IN_DAYS[0]} to ${HTTP_SIGN_IN_DAYS[1]}. Kept's default (12 hours over http) holds.`,
       );
+    }
+  }
+
+  // More than one address (#405): Kept stops at startup on a bad one or a mix of http and https,
+  // so each is left out and said in the Log tab. A login is never repeated in a line.
+  const extraList = text(opts.extra_addresses);
+  if (extraList) {
+    const extras = [];
+    const main = new URL(env.KEPT_PUBLIC_URL);
+    for (const entry of extraList.split(',').map((e) => e.trim())) {
+      if (!entry) continue;
+      const origin = extraAddress(entry);
+      const shown = entry.includes('@')
+        ? 'An extra address with a login'
+        : `Extra address "${entry}"`;
+      if (!origin) {
+        lines.push(
+          `${shown} is ignored: it must be exactly http(s)://host[:port], with no wildcard or path.`,
+        );
+      } else if (new URL(origin).protocol !== main.protocol) {
+        lines.push(`${shown} is ignored: every address uses ${main.protocol}//, as Kept's does.`);
+      } else if (origin !== main.origin && !extras.includes(origin)) {
+        extras.push(origin);
+      }
+    }
+    if (extras.length > 0) {
+      env.KEPT_EXTRA_ADDRESSES = extras.join(',');
+      lines.push(`Kept also answers at ${extras.join(', ')}`);
     }
   }
 
