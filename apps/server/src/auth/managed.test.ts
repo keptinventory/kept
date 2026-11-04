@@ -3,6 +3,7 @@ import pg from 'pg';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { cookieHeader, requestHeaders, signUp, type TestAuth, testAuth } from '../../test/auth.js';
 import { type TestDb, testDb } from '../../test/db.js';
+import { refreshTokenCount, seedRefreshToken } from '../../test/oauth-tokens.js';
 import { hashVerificationIdentifier } from './auth.js';
 import {
   createManagedUser,
@@ -123,10 +124,10 @@ describe('managed accounts', () => {
 
   it('refuses to issue a reset code for an account that is not managed', async () => {
     const person = await signUp(auth, `p-${randomUUID()}@example.com`, PASSWORD);
-    await expect(issueResetCode(auth, person.userId)).rejects.toMatchObject({
+    await expect(issueResetCode(auth, db.pools.auth, person.userId)).rejects.toMatchObject({
       code: 'not_managed',
     });
-    await expect(issueResetCode(auth, randomUUID())).rejects.toMatchObject({
+    await expect(issueResetCode(auth, db.pools.auth, randomUUID())).rejects.toMatchObject({
       code: 'not_managed',
     });
     // Nothing was stored and nobody was signed out.
@@ -152,10 +153,13 @@ describe('managed accounts', () => {
     it('is an 8-character code, stored only as a hash, that signs the account out', async () => {
       await signIn(PASSWORD);
       expect(await sessions(userId)).toBe(1);
+      await seedRefreshToken(db, userId);
 
-      const code = await issueResetCode(auth, userId);
+      const code = await issueResetCode(auth, db.pools.auth, userId);
       expect(code).toMatch(new RegExp(`^[0-9A-HJKMNP-TV-Z]{${RESET_CODE_LENGTH}}$`));
       expect(await sessions(userId)).toBe(0);
+      // A connector's refresh token goes with the sessions (#411).
+      expect(await refreshTokenCount(db, userId)).toBe(0);
 
       const { rows } = await db.pools.auth.query(
         `SELECT value, expires_at - now() AS ttl FROM auth.verification WHERE identifier = $1`,
@@ -168,7 +172,7 @@ describe('managed accounts', () => {
     });
 
     it('sets the new password, signs out every session, and works exactly once', async () => {
-      const code = await issueResetCode(auth, userId);
+      const code = await issueResetCode(auth, db.pools.auth, userId);
       // A session made between issue and redeem (with the old password) is signed out too.
       const between = await signIn(PASSWORD);
       const cookie = cookieHeader(between.headers);
@@ -199,7 +203,7 @@ describe('managed accounts', () => {
     });
 
     it('refuses a wrong code, then delays repeated guesses', async () => {
-      const code = await issueResetCode(auth, userId);
+      const code = await issueResetCode(auth, db.pools.auth, userId);
       const wrong = code.startsWith('0') ? `1${code.slice(1)}` : `0${code.slice(1)}`;
       const attempt = (c: string) =>
         redeemResetCode(auth, db.pools.auth, {
@@ -221,9 +225,10 @@ describe('managed accounts', () => {
 
     it('accepts Crockford look-alikes: O for 0, I and L for 1', async () => {
       expect(normaliseResetCode(' o1il-2k0 ')).toBe('01112K0');
-      let code = await issueResetCode(auth, userId);
+      let code = await issueResetCode(auth, db.pools.auth, userId);
       // Make sure the code has a 0 or a 1 to mistype.
-      for (let i = 0; i < 100 && !/[01]/.test(code); i++) code = await issueResetCode(auth, userId);
+      for (let i = 0; i < 100 && !/[01]/.test(code); i++)
+        code = await issueResetCode(auth, db.pools.auth, userId);
       expect(code).toMatch(/[01]/);
       const typed = code.replace(/0/g, 'O').replace(/1/g, 'l').toLowerCase();
       await expect(
@@ -237,7 +242,7 @@ describe('managed accounts', () => {
     });
 
     it('two redeems racing: exactly one wins', async () => {
-      const code = await issueResetCode(auth, userId);
+      const code = await issueResetCode(auth, db.pools.auth, userId);
       const results = await Promise.allSettled(
         ['one password 1', 'two password 2'].map((newPassword) =>
           redeemResetCode(auth, db.pools.auth, { username, code, newPassword, ip: '203.0.113.12' }),
@@ -250,7 +255,7 @@ describe('managed accounts', () => {
     });
 
     it('30 parallel wrong codes never get more than the free attempts', async () => {
-      const code = await issueResetCode(auth, userId);
+      const code = await issueResetCode(auth, db.pools.auth, userId);
       const wrong = code.startsWith('0') ? `1${code.slice(1)}` : `0${code.slice(1)}`;
       const results = await Promise.allSettled(
         Array.from({ length: 30 }, () =>
@@ -281,7 +286,7 @@ describe('managed accounts', () => {
     });
 
     it('expires after 30 minutes', async () => {
-      const code = await issueResetCode(auth, userId);
+      const code = await issueResetCode(auth, db.pools.auth, userId);
       const owner = new pg.Client({ connectionString: db.urls.owner });
       await owner.connect();
       try {
@@ -304,8 +309,8 @@ describe('managed accounts', () => {
     });
 
     it('a new code replaces the old one', async () => {
-      const first = await issueResetCode(auth, userId);
-      const second = await issueResetCode(auth, userId);
+      const first = await issueResetCode(auth, db.pools.auth, userId);
+      const second = await issueResetCode(auth, db.pools.auth, userId);
       const redeem = (code: string) =>
         redeemResetCode(auth, db.pools.auth, {
           username,

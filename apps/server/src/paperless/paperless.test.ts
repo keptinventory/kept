@@ -23,7 +23,7 @@ import { limiterKey } from '../auth/sign-in-limiter.js';
 import type { Keyring, MasterKey } from '../crypto/envelope.js';
 import { fixedSecretKeys } from '../crypto/keyring.js';
 import { runTool } from '../tools/context.js';
-import { PaperlessClient, PaperlessError } from './client.js';
+import { PaperlessClient, PaperlessError, partialWords } from './client.js';
 import { paperlessRoot, paperlessToken } from './config.js';
 import { kindOf } from './kinds.js';
 
@@ -118,6 +118,41 @@ afterAll(async () => {
   await t.app.close();
   await fake.stop();
   await files.cleanup();
+});
+
+describe('partly typed words (#420)', () => {
+  it.each([
+    ['Camel', '(Camel OR Camel*)'],
+    ['washing machine', '(washing OR washing*) (machine OR machine*)'],
+    ['  two   spaces ', '(two OR two*) (spaces OR spaces*)'],
+    // Punctuation inside a word and other scripts: both Paperless versions read these.
+    ['A-1312/B', '(A-1312/B OR A-1312/B*)'],
+    ['رص', '(رص OR رص*)'],
+    ['東京', '(東京 OR 東京*)'],
+  ])("asks for %j whole or as a word's start", (q, query) => {
+    expect(partialWords(q)).toBe(query);
+  });
+
+  // Paperless's own search syntax is the person's: it goes through as they wrote it.
+  it.each([
+    'title:Camel',
+    '"washing machine"',
+    'Camel*',
+    'Cam?l',
+    'shop AND (drill OR saw)',
+    'invoice NOT draft',
+    'a OR b',
+    'invoice -secret',
+    '20[12]?',
+  ])('leaves %j alone', (q) => {
+    expect(partialWords(q)).toBe(q);
+  });
+
+  it('reads "and", "or" and "not" in lower case as ordinary words', () => {
+    expect(partialWords('salt and pepper')).toBe(
+      '(salt OR salt*) (and OR and*) (pepper OR pepper*)',
+    );
+  });
 });
 
 describe('the Paperless client', () => {
@@ -357,7 +392,14 @@ describe('searching and linking', () => {
     );
     expect((found.items as Json[]).map((d) => d.documentId)).toEqual([14, 13]);
     const searched = fake.requests.filter((r) => r.path === '/api/documents/').at(-1);
-    expect(searched?.query.get('query')).toBe('bosch');
+    expect(searched?.query.get('query')).toBe('(bosch OR bosch*)');
+    // A partly typed word finds it, and so does the start of a correspondent's name (#420).
+    for (const q of ['recei', 'Hardw']) {
+      const part = ok(
+        await call(t, `/api/v1/locations/${home.id}/paperless/documents?q=${q}`, { as: louis }),
+      );
+      expect((part.items as Json[]).map((d) => d.documentId)).toContain(12);
+    }
     expect(
       (await call(t, `/api/v1/locations/${home.id}/paperless/documents`, { as: talia })).statusCode,
     ).toBe(403);

@@ -223,7 +223,9 @@ export async function managedRoutes(app: KeptApp, opts: ManagedRoutesOptions): P
               req.log.warn({ locationId }, 'no job queue: the owner was not notified');
             }
             // A brand-new user has no sessions to sign out.
-            const code = await issueResetCode(auth, user.userId, { revokeSessions: false });
+            const code = await issueResetCode(auth, pools.auth, user.userId, {
+              revokeSessions: false,
+            });
             return {
               status: 201,
               body: {
@@ -296,7 +298,7 @@ export async function managedRoutes(app: KeptApp, opts: ManagedRoutesOptions): P
           // commit, so a rolled-back request signs nobody out (review M3).
           let code: string;
           try {
-            code = await issueResetCode(auth, userId, { revokeSessions: false });
+            code = await issueResetCode(auth, pools.auth, userId, { revokeSessions: false });
           } catch (err) {
             if (err instanceof ManagedAccountError && err.code === 'not_managed') throw notFound();
             throw err;
@@ -304,7 +306,7 @@ export async function managedRoutes(app: KeptApp, opts: ManagedRoutesOptions): P
           return {
             status: 200,
             body: { code, expiresAt: codeExpiry() },
-            afterCommit: () => revokeUserSessions(auth, userId),
+            afterCommit: () => revokeUserSessions(auth, pools.auth, userId),
           };
         },
         { redact: (body) => ({ ...(body as object), code: null }) },

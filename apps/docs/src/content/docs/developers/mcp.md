@@ -125,6 +125,11 @@ plugins (`apps/server/src/oauth/plugin.ts`):
   (`kept:read`, `kept:write`) and the locations;
 - access tokens are JWTs for `<public URL>/mcp`, an hour long. The grant row holds the scope and
   locations and is read on every call, so revoking it in Connections works at once;
+- a connector stays signed in until it's removed: Kept adds `offline_access` so the client gets a
+  refresh token. Removing the app in Connections ends it, and so does whatever signs out the
+  person's other devices (password, second factor, passkeys, outside sign-ins, email change,
+  signing out everywhere, disabling the account); the connector then signs in again. Details on
+  [Authentication](/developers/auth/);
 - discovery documents are served at `/.well-known/oauth-authorization-server` and
   `/.well-known/oauth-protected-resource` (and `/.well-known/oauth-protected-resource/mcp`).
 
