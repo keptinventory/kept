@@ -4,7 +4,7 @@
  * meters. Conflicts are in conflict.test.tsx; uploads in upload.test.tsx.
  */
 import { screen, waitFor, within } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { inventoryPaths as p } from '@/api/inventory/paths';
 import { IDS, type MockState, ownerScenario } from '@/api/mock/fixtures';
@@ -205,6 +205,52 @@ describe('the action menu', () => {
         headers: { 'if-match': '1' },
       }),
     );
+  });
+
+  // 00:30 on the 5th in Cairo, the location's zone, and still the 4th in UTC (#417).
+  describe('just after midnight where the location is', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('a lifecycle change defaults to that day', async () => {
+      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-11-04T22:30:00Z') });
+      const { user, mock } = await renderApp(`/t/${T.drill}`);
+      await findHeading('Bosch drill, 18 V');
+      await user.click(screen.getByRole('button', { name: 'Actions' }));
+      await user.click(await screen.findByRole('menuitem', { name: 'Change lifecycle…' }));
+      const dialog = await screen.findByRole('dialog', { name: 'Change lifecycle' });
+      const box = within(dialog).getByRole('combobox', { name: 'What happened to it' });
+      await user.clear(box);
+      await user.type(box, 'Given');
+      await user.click(await screen.findByRole('option', { name: 'Given away' }));
+      await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+      await waitFor(() =>
+        expect(mock.lastCall('POST', p.thingLifecycle(T.drill))?.body).toMatchObject({
+          endedOn: '2026-11-05',
+        }),
+      );
+    });
+
+    it('a new thing with a price is bought that day', async () => {
+      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-11-04T22:30:00Z') });
+      const { user, mock } = await renderApp(`/t/${T.cableBox}`);
+      await findHeading('Cable box');
+      await user.click(screen.getByRole('button', { name: 'Add a thing' }));
+      const dialog = await screen.findByRole('dialog', { name: 'Add a thing' });
+      await user.type(within(dialog).getByLabelText('Name'), 'USB-C cable');
+      await user.type(within(dialog).getByRole('combobox', { name: 'Type' }), 'Cable');
+      await user.click(await screen.findByRole('option', { name: /^Cable/ }));
+      await user.type(within(dialog).getByLabelText('Price'), '100');
+      await user.type(within(dialog).getByRole('combobox', { name: 'Currency' }), 'EGP');
+      await user.click(await screen.findByRole('option', { name: /^EGP/ }));
+      await user.click(within(dialog).getByRole('button', { name: 'Add' }));
+      await waitFor(() =>
+        expect(mock.lastCall('POST', p.things)?.body).toMatchObject({
+          purchase: { purchasedOn: '2026-11-05' },
+        }),
+      );
+    });
   });
 
   it('Archive puts it away in one tap, with Undo; the Archived badge has Unarchive', async () => {
