@@ -37,6 +37,7 @@ import { toast } from '@/components/ui/toast';
 import { sep } from '@/lib/format';
 import { typeOfKey } from '@/lib/type-list';
 import { parseNumber } from './form-model';
+import { todayIn } from './household';
 import {
   CurrencyPicker,
   isChosen,
@@ -48,8 +49,6 @@ import {
 } from './pickers';
 import { Sheet } from './sheet';
 import { isHeic, uploadAndAttach, useUploadErrorText } from './upload';
-
-const today = () => new Date().toISOString().slice(0, 10);
 
 /** The type a preset key names: the account's copy of the built-in first, then the built-in. */
 function presetTypeOf(
@@ -215,7 +214,7 @@ export function CreateThingSheet({
       ...(showMoney && amount && currency
         ? {
             purchase: {
-              purchasedOn: boughtOn ?? today(),
+              purchasedOn: boughtOn ?? todayIn(location?.timezone),
               currency,
               price: amount,
               ...(vendorId ? { vendorId } : {}),
@@ -428,7 +427,7 @@ export function CreateThingSheet({
               label={t`Bought on`}
               value={boughtOn}
               onChange={setBoughtOn}
-              maxValue={today()}
+              maxValue={todayIn(location?.timezone)}
             />
             <RegistryPicker
               kind="vendors"

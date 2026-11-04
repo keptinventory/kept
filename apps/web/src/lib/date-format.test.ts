@@ -96,3 +96,39 @@ describe('date format', () => {
     expect(storedDateFormat()).toBe('auto');
   });
 });
+
+// The suite runs in Cairo (vitest.config.ts), east of UTC, where reading a bare date as midnight
+// UTC still lands on the right day. West of UTC it lands on the day before (#417).
+describe('a date with no time', () => {
+  const zone = process.env.TZ;
+  afterEach(() => {
+    process.env.TZ = zone;
+  });
+
+  it.each(['America/Toronto', 'Pacific/Honolulu', 'Africa/Cairo', 'Pacific/Auckland'])(
+    'is that day in %s, in every format and across a new year',
+    (tz) => {
+      process.env.TZ = tz;
+      const f = makeFormatter('en-GB');
+      expect(nbsp(f.date('2023-11-25'))).toBe('25 Nov 2023');
+      expect(nbsp(f.day('2023-11-25'))).toBe('25 Nov 2023');
+      expect(nbsp(f.date('2024-01-01'))).toBe('1 Jan 2024');
+      expect(f.longDay('2023-11-25')).toContain('25 Nov 2023');
+      expect(makeFormatter('en-GB', 'iso').date('2023-11-25')).toBe('2023-11-25');
+      expect(makeFormatter('en-GB', 'numeric').date('2023-11-25')).toBe('25/11/2023');
+      expect(nbsp(makeFormatter('en-GB', 'medium').day('2023-11-25'))).toBe('25 Nov 2023');
+    },
+  );
+
+  it('counts whole days from the same day, wherever it is read', () => {
+    process.env.TZ = 'America/Toronto';
+    const f = makeFormatter('en-GB');
+    expect(f.relative('2023-11-25', new Date(2023, 10, 23, 12))).toBe('in 2 days');
+  });
+
+  it('leaves a real moment in time alone', () => {
+    process.env.TZ = 'America/Toronto';
+    const f = makeFormatter('en-GB');
+    expect(nbsp(f.date('2023-11-25T00:00:00Z'))).toBe('24 Nov 2023');
+  });
+});

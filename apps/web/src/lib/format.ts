@@ -65,6 +65,15 @@ export type Formatter = {
 
 const DAY = 86_400_000;
 
+/**
+ * A value to show. A date with no time (a purchase, a warranty's end, a loan's due date) is that
+ * calendar day wherever it's read: JavaScript would read it as midnight UTC, the day before
+ * anywhere west of UTC (#417). Noon, so a clock change at midnight can't move it. A moment in time
+ * stays a moment.
+ */
+const toDate = (value: string): Date =>
+  new Date(/^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T12:00:00` : value);
+
 /** Dates never split across lines: their spaces become no-break spaces. */
 const unbroken = (s: string) => s.replace(/ /g, '\u00a0');
 
@@ -144,11 +153,11 @@ export function makeFormatter(tag: string, dateFormat: DateFormatPref = 'auto'):
   return {
     sep: separatorFor(tag),
     num: (n) => nf.format(n),
-    day: (value) => formatDay(new Date(value), false),
-    date: (value) => formatDay(new Date(value), true),
-    longDay: (value) => long.format(new Date(value)),
+    day: (value) => formatDay(toDate(value), false),
+    date: (value) => formatDay(toDate(value), true),
+    longDay: (value) => long.format(toDate(value)),
     dateTime: (value) => {
-      const d = new Date(value);
+      const d = toDate(value);
       if (dateFormat === 'iso') return `${iso(d)} ${time.format(d)}`;
       if (dateFormat === 'numeric') return dtNumeric.format(d);
       if (dateFormat === 'medium') return dtYear.format(d);
@@ -156,7 +165,7 @@ export function makeFormatter(tag: string, dateFormat: DateFormatPref = 'auto'):
     },
     today: (d = new Date()) => weekday.format(d),
     relative: (iso, now = new Date()) => {
-      const diff = new Date(iso).getTime() - now.getTime();
+      const diff = toDate(iso).getTime() - now.getTime();
       const abs = Math.abs(diff);
       if (abs < 60_000) return rtf.format(0, 'second');
       if (abs < 3_600_000) return rtf.format(Math.round(diff / 60_000), 'minute');

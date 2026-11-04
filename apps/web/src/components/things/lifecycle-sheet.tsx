@@ -17,11 +17,10 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
 import { useThingCtx } from './context';
+import { todayIn } from './household';
 import { useLifecycleLabels } from './labels';
 import { CurrencyPicker } from './pickers';
 import { Sheet } from './sheet';
-
-const today = () => new Date().toISOString().slice(0, 10);
 
 export function LifecycleSheet({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { thing, location, moduleOn, can, refresh } = useThingCtx();
@@ -30,7 +29,7 @@ export function LifecycleSheet({ isOpen, onClose }: { isOpen: boolean; onClose: 
   const errorText = useErrorText();
   const offerUndo = useOfferUndo();
   const [lifecycle, setLifecycle] = useState<Lifecycle>(thing.lifecycle);
-  const [on, setOn] = useState<string | null>(thing.ended?.on ?? today());
+  const [on, setOn] = useState<string | null>(thing.ended?.on ?? todayIn(location.timezone));
   const [to, setTo] = useState(thing.ended?.to ?? '');
   const [notes, setNotes] = useState(thing.ended?.notes ?? '');
   const [price, setPrice] = useState('');
@@ -106,7 +105,12 @@ export function LifecycleSheet({ isOpen, onClose }: { isOpen: boolean; onClose: 
         />
         {ending ? (
           <>
-            <DatePicker label={t`When`} value={on} onChange={setOn} maxValue={today()} />
+            <DatePicker
+              label={t`When`}
+              value={on}
+              onChange={setOn}
+              maxValue={todayIn(location.timezone)}
+            />
             {recipient ? (
               <TextField
                 label={lifecycle === 'sold' ? t`Sold to` : t`Given to`}
