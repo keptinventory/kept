@@ -124,10 +124,17 @@ except a rename signs out the other sessions and mails the owner.
 
 A request that carries a cookie and isn't a safe method must come from Kept's own pages
 (`csrfHook` in [`auth/http.ts`](https://github.com/keptinventory/kept/blob/main/apps/server/src/auth/http.ts)):
-its `Origin` is the origin of `KEPT_PUBLIC_URL`, or, when the browser sent no usable `Origin`,
-`Sec-Fetch-Site: same-origin`. Anything else is 403 `forbidden` before the session is looked up
-or the body read. This is why `KEPT_PUBLIC_URL` must be exactly the address the browser shows. A
-request with a bearer token carries no cookie authority and skips it.
+its `Origin` is the origin of `KEPT_PUBLIC_URL`, or exactly one of `KEPT_EXTRA_ADDRESSES`
+([`auth/addresses.ts`](https://github.com/keptinventory/kept/blob/main/apps/server/src/auth/addresses.ts)),
+or, when the browser sent no usable `Origin`, `Sec-Fetch-Site: same-origin`. Anything else is 403
+before the session is looked up or the body read. This is why `KEPT_PUBLIC_URL` must be exactly the
+address the browser shows. A request with a bearer token carries no cookie authority and skips it.
+
+Better Auth's `trustedOrigins` holds the same list. From an extra address Kept refuses what works on
+the main one only, `/passkey/*`, `/sign-in/social`, `/link-social`, `/callback/*`, `/oauth2/*` and
+the consent route, as `origin_mismatch` naming `KEPT_PUBLIC_URL`. Under Home Assistant ingress the
+page is Home Assistant's, so the check stays that one origin: the list applies on Kept's own port.
+No link or relying party comes from a request's `Host` or `X-Forwarded-*`.
 
 ## How a route declares who may call it
 

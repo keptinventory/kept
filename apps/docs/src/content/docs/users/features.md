@@ -68,7 +68,9 @@ a location turns them on in **Location settings → What to track**
   and an optional end date; managed accounts for people without email; read-only share links for
   someone without an account.
 - **[Sign-in and security](/users/sign-in-security/)**: passkeys and two-factor sign-in; on a home
-  network over plain http, [sign-ins as long as the admin sets](/install/home-network/#staying-on-your-network).
+  network over plain http, [sign-ins as long as the admin sets](/install/home-network/#staying-on-your-network);
+  one Kept on [more than one address](/install/home-network/#more-than-one-address), such as a LAN
+  name and a Tailscale name.
 - **Six languages**: English, Arabic (right to left), French, German, Italian and Vietnamese;
   dates in your region's style, or as you choose.
 

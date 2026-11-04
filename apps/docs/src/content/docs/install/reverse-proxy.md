@@ -69,6 +69,8 @@ address than `KEPT_PUBLIC_URL`.
   `X-Forwarded-*` headers don't change it.
 - **Fix:** set `KEPT_PUBLIC_URL` to exactly the address people open (`https://kept.example.org`,
   not the proxy's upstream `http://kept:8080`), and restart Kept.
+- **More than one address:** `KEPT_EXTRA_ADDRESSES` lists the others, and each must also reach
+  Kept through your proxy ([More than one address](/install/home-network/#more-than-one-address)).
 
 More in [Troubleshooting](/admin/troubleshooting/#this-kept-is-set-up-for--or-the-request-did-not-come-from-this-site).
 
