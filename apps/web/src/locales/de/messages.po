@@ -28770,3 +28770,35 @@ msgstr "Orte ausklappen"
 #: src/components/page-aside.tsx
 msgid "Resize places"
 msgstr "Breite der Orte ändern"
+
+#: src/routes/signin/index.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
+msgstr "Passkeys funktionieren nur unter <0/>, weil Browser einen Passkey an eine einzige Adresse binden. Hier nutzt du dein Passwort oder einen Link per E-Mail."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/> and signs you in there, not on this address. Can't reach it from here? Use your password."
+msgstr "Der Link öffnet sich unter <0/> und meldet dich dort an, nicht auf dieser Adresse. Von hier nicht erreichbar? Nutze dein Passwort."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/>. Set the new password there, then sign in here with it."
+msgstr "Der Link öffnet sich unter <0/>. Lege dort das neue Passwort fest und melde dich dann hier damit an."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Add one there."
+msgstr "Passkeys funktionieren nur unter <0/>, weil Browser einen Passkey an eine einzige Adresse binden. Füge dort einen hinzu."
+
+#: src/components/sign-in-methods.tsx
+msgid "To link one, go to <0/>: outside sign-ins come back to that address."
+msgstr "Zum Verknüpfen geh zu <0/>: Externe Anmeldungen kehren zu dieser Adresse zurück."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Addresses"
+msgstr "Adressen"
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address. <0/> adds more."
+msgstr "Die Hauptadresse. <0/> fügt weitere hinzu."
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
+msgstr "Die Hauptadresse, bei der Links, E-Mails und Passkeys bleiben. Außerdem, festgelegt durch <0/>:"

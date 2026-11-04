@@ -28770,3 +28770,35 @@ msgstr "توسيع الأماكن"
 #: src/components/page-aside.tsx
 msgid "Resize places"
 msgstr "تغيير عرض الأماكن"
+
+#: src/routes/signin/index.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
+msgstr "مفاتيح المرور تعمل فقط على <0/>، لأن المتصفحات تربط مفتاح المرور بعنوان واحد. هنا، استخدم كلمة المرور أو رابطًا بالبريد."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/> and signs you in there, not on this address. Can't reach it from here? Use your password."
+msgstr "يُفتح الرابط على <0/> ويسجّل دخولك هناك، لا على هذا العنوان. لا يمكنك الوصول إليه من هنا؟ استخدم كلمة المرور."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/>. Set the new password there, then sign in here with it."
+msgstr "يُفتح الرابط على <0/>. عيّن كلمة المرور الجديدة هناك، ثم سجّل الدخول بها هنا."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Add one there."
+msgstr "مفاتيح المرور تعمل فقط على <0/>، لأن المتصفحات تربط مفتاح المرور بعنوان واحد. أضف مفتاحًا هناك."
+
+#: src/components/sign-in-methods.tsx
+msgid "To link one, go to <0/>: outside sign-ins come back to that address."
+msgstr "لربط واحدة، انتقل إلى <0/>: تسجيلات الدخول الخارجية تعود إلى ذلك العنوان."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Addresses"
+msgstr "العناوين"
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address. <0/> adds more."
+msgstr "العنوان الرئيسي. يضيف <0/> المزيد."
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
+msgstr "العنوان الرئيسي، وعليه تبقى الروابط والبريد ومفاتيح المرور. وأيضًا، بتحديد <0/>:"
