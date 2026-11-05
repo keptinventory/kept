@@ -222,9 +222,10 @@ export async function runTool(
     // to no provider of a location where the door is off (D113).
     const meaningOf = handler.meaning as ((i: unknown) => string | undefined) | undefined;
     const asked0 = (input as LocationInput).location_id?.toLowerCase();
-    const prep = meaningOf ? ctx.deps.semantic : undefined;
+    const prep = ctx.deps.semantic;
+    const meaning = prep ? meaningOf?.(input) : undefined;
     const over =
-      meaningOf && prep
+      prep && meaning
         ? asked0
           ? [asked0]
           : await withScope(ctx.deps.pools.app, scope, async (tx, client) =>
@@ -232,8 +233,8 @@ export async function runTool(
             )
         : [];
     const semantic =
-      meaningOf && prep && over.length > 0
-        ? await prep(scope, meaningOf(input), { locationIds: over }).catch((err: unknown) => {
+      prep && over.length > 0
+        ? await prep(scope, meaning, { locationIds: over }).catch((err: unknown) => {
             // Meaning is a bonus: its trouble leaves the call on keywords, never failing it.
             ctx.deps.log?.error({ err, tool: name }, 'query embedding failed');
             return null;
