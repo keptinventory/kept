@@ -12,12 +12,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error: a plain .mjs script, without types
-import { checkPrecache } from '../../scripts/check-bundle.mjs';
+import { checkPrecache, OFFLINE_FONTS } from '../../scripts/check-bundle.mjs';
 
 const web = fileURLToPath(new URL('../../', import.meta.url));
 
-/** A built dist/ whose service worker precaches `urls` (and index.html). */
-function dist(urls: string[]) {
+const FONTS: string[] = OFFLINE_FONTS.map((font: string) => `${font}a.woff2`);
+
+/** A built dist/ whose service worker precaches `urls`, `fonts` (and index.html). */
+function dist(only: string[], fonts = FONTS) {
+  const urls = [...fonts, ...only];
   const dir = mkdtempSync(path.join(tmpdir(), 'kept-precache-'));
   const html = '<!doctype html><script type="module" src="/assets/index-a.js"></script>';
   writeFileSync(path.join(dir, 'index.html'), html);
@@ -60,5 +63,30 @@ describe("What's new media and the precache", () => {
     const config = readFileSync(path.join(web, 'vite.config.ts'), 'utf8');
     const ignores = config.slice(config.indexOf('globIgnores:'));
     expect(ignores.slice(0, ignores.indexOf(']'))).toContain("'whats-new/**'");
+  });
+});
+
+describe('the fonts a language needs offline and the precache', () => {
+  it('fails a build whose precache lost a Cyrillic weight', () => {
+    const missing = 'assets/ibm-plex-sans-cyrillic-500-normal-';
+    const dir = dist(
+      ['assets/index-a.js'],
+      FONTS.filter((f) => !f.startsWith(missing)),
+    );
+    try {
+      expect(checkPrecache(dir).problems).toEqual([
+        `font not precached, so it won't read right offline: ${missing}`,
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('leaves Cyrillic out of the service worker’s font ignores, and ignores only what it doesn’t need', () => {
+    const config = readFileSync(path.join(web, 'vite.config.ts'), 'utf8');
+    const ignores = config.slice(config.indexOf('globIgnores:'));
+    expect(ignores.slice(0, ignores.indexOf(']'))).toContain(
+      "'assets/ibm-plex-*-{cyrillic-ext,greek}-*.woff2'",
+    );
   });
 });
