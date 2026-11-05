@@ -1,7 +1,7 @@
 /**
- * Theme, language, digits, region, date format, content width and sidebar preferences. The pre-paint script in
- * index.html applies the stored values before React loads; this module owns changing them
- * afterwards. Keep the keys in step.
+ * Theme, language, digits, region, date format, content width, sidebar and place tree preferences.
+ * The pre-paint script in index.html applies the stored values before React loads; this module
+ * owns changing them afterwards. Keep the keys in step.
  * localStorage may throw (private mode, blocked storage): every access is guarded, and the app
  * works without it, falling back to the OS colour scheme and the browser language.
  */
@@ -50,6 +50,30 @@ export const SIDEBAR_KEY = 'kept.sidebar';
 export type SidebarPref = 'collapsed' | 'expanded' | 'auto';
 /** With no stored choice the rail is the default below this width (tablets), D198. */
 export const SIDEBAR_WIDE_QUERY = '(min-width: 1024px)';
+
+/** #427: the place tree beside a page, folded to a rail or not, remembered per device. */
+export const PLACE_TREE_KEY = 'kept.placeTree';
+/** #427: its width in CSS pixels, remembered per device. index.html reads the same bounds. */
+export const PLACE_TREE_WIDTH_KEY = 'kept.placeTreeWidth';
+/** The width before anyone drags it: 15rem, what the column always was. */
+export const PLACE_TREE_DEFAULT = 240;
+/** Under this a row four levels deep (indent, fold button, icon) has no room left for its name. */
+export const PLACE_TREE_MIN = 208;
+/** Enough for five levels and a long name. The column also stops at 40% of the page's area. */
+export const PLACE_TREE_MAX = 512;
+
+/** A width within the bounds. `limit` is what fits this page now; it never beats the minimum. */
+export function clampPlaceTreeWidth(px: number, limit: number = PLACE_TREE_MAX): number {
+  const max = Math.max(PLACE_TREE_MIN, Math.min(limit, PLACE_TREE_MAX));
+  return Math.round(Math.min(max, Math.max(PLACE_TREE_MIN, px)));
+}
+
+/** A stored width, clamped; anything else is the default. The pre-paint script does the same. */
+export function parsePlaceTreeWidth(raw: string | null): number {
+  return raw !== null && /^\d{1,5}$/.test(raw)
+    ? clampPlaceTreeWidth(Number(raw))
+    : PLACE_TREE_DEFAULT;
+}
 
 // Maghreb Arabic writes Western digits; elsewhere Eastern Arabic is the default (D143).
 const WESTERN_DIGIT_REGIONS = new Set(['ma', 'dz', 'tn', 'ly', 'eh', 'mr']);
@@ -140,6 +164,14 @@ export function storedSidebarPref(): SidebarPref {
   return v === 'collapsed' || v === 'expanded' ? v : 'auto';
 }
 
+export function storedPlaceTreeCollapsed(): boolean {
+  return read(PLACE_TREE_KEY) === 'collapsed';
+}
+
+export function storedPlaceTreeWidth(): number {
+  return parsePlaceTreeWidth(read(PLACE_TREE_WIDTH_KEY));
+}
+
 function wideScreen(): boolean {
   try {
     return window.matchMedia(SIDEBAR_WIDE_QUERY).matches;
@@ -164,6 +196,8 @@ type State = {
   sidebar: SidebarPref;
   /** Whether the desktop sidebar is the icon rail right now (D198). */
   sidebarCollapsed: boolean;
+  placeTreeCollapsed: boolean;
+  placeTreeWidth: number;
 };
 
 let state: State = {
@@ -176,6 +210,8 @@ let state: State = {
   width: storedWidthPref(),
   sidebar: storedSidebarPref(),
   sidebarCollapsed: false,
+  placeTreeCollapsed: storedPlaceTreeCollapsed(),
+  placeTreeWidth: storedPlaceTreeWidth(),
 };
 state = {
   ...state,
@@ -203,6 +239,8 @@ function applyToDocument(s: State): void {
   d.setAttribute('dir', directionOf(s.locale));
   d.setAttribute('data-width', s.width);
   d.setAttribute('data-sidebar', s.sidebarCollapsed ? 'collapsed' : 'expanded');
+  d.setAttribute('data-place-tree', s.placeTreeCollapsed ? 'collapsed' : 'expanded');
+  showPlaceTreeWidth(s.placeTreeWidth);
 }
 
 function set(next: Partial<State>): void {
@@ -252,6 +290,31 @@ export function setSidebarPref(sidebar: SidebarPref): void {
 /** Collapse to the rail or expand it (the foot button and ⌘\ / Ctrl+\). */
 export function toggleSidebar(): void {
   setSidebarPref(state.sidebarCollapsed ? 'expanded' : 'collapsed');
+}
+
+/** Fold the place tree to its rail or open it; expanded is the default, so it forgets the choice. */
+export function setPlaceTreeCollapsed(placeTreeCollapsed: boolean): void {
+  write(PLACE_TREE_KEY, placeTreeCollapsed ? 'collapsed' : null);
+  set({ placeTreeCollapsed });
+}
+
+/**
+ * The column's width, on the root as the pre-paint script sets it, and nothing else: a drag calls
+ * this on every move, and setPlaceTreeWidth once at its end. Going through `set` on each move
+ * would render everything that reads the preferences, and write to storage, per pointer event.
+ */
+export function showPlaceTreeWidth(px: number): void {
+  document.documentElement.style.setProperty('--place-tree-width', `${px}px`);
+}
+
+/** Keep a place tree width; the default forgets the stored one. */
+export function setPlaceTreeWidth(px: number): void {
+  const placeTreeWidth = clampPlaceTreeWidth(px);
+  write(
+    PLACE_TREE_WIDTH_KEY,
+    placeTreeWidth === PLACE_TREE_DEFAULT ? null : String(placeTreeWidth),
+  );
+  set({ placeTreeWidth });
 }
 
 /**

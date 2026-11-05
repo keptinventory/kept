@@ -28738,3 +28738,15 @@ msgstr "أدخل عددًا صحيحًا."
 #: src/components/things/purchase-sheet.tsx
 msgid "The new receipt is added, but the old one couldn't be removed"
 msgstr "أُضيف الإيصال الجديد، لكن تعذّرت إزالة القديم"
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "طيّ الأماكن"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "توسيع الأماكن"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "تغيير عرض الأماكن"
