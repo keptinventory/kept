@@ -17,6 +17,7 @@ import {
   auditRelocations,
   ORPHAN_RETURNING,
   type Orphan,
+  type PlaceRelocation,
   relocationOf,
 } from '../things/relocate.js';
 import { lastInCustomOrder, placeOrderSql } from './order.js';
@@ -469,6 +470,7 @@ export async function trashPlace(
     moved_place_ids: string[];
     moved_to: { place_id: string | null; container_id: string | null; parent_id: string | null };
   } | null = null;
+  const movedPlaces: PlaceRelocation[] = [];
 
   if (hasContents && body?.contents === 'trash') {
     const live = (await subtreeOf(c.client, id)).filter((x) => x !== id);
@@ -527,6 +529,7 @@ export async function trashPlace(
     );
     moved.push(...things.map((r) => r.id), ...places.map((r) => r.id));
     subjects.push(...things.map((r) => r.id));
+    movedPlaces.push(...places.map((r) => ({ id: r.id, before: id, after: childParent })));
     movedOut = {
       moved_thing_ids: things.map((r) => r.id),
       moved_place_ids: places.map((r) => r.id),
@@ -556,6 +559,12 @@ export async function trashPlace(
     requestId: c.requestId,
     undoableUntil: undoableUntil(),
   });
+  // Each child place moved out gets its own line; the trash's Undo is what reverses them (#441).
+  await auditPlaceRelocations(
+    c.tx,
+    { locationId: loc, actor: actor(c.scope), requestId: c.requestId },
+    movedPlaces,
+  );
   if (moved.length > 0) await enqueueReindex(c.jobs, c.client, loc);
   return { trashed, moved, trashBatchId: batch };
 }
@@ -596,12 +605,12 @@ export async function restorePlace(c: Ctx, id: string): Promise<RestoreResult> {
   // the top level (places never go inside the Unplaced area), a thing to the Unplaced area.
   const restoredPlaces = places.map((r) => r.id);
   const restoredThings = things.map((r) => r.id);
-  const { rows: orphanPlaces } = await c.client.query<{ id: string }>(
+  const { rows: orphanPlaces } = await c.client.query<{ id: string; was_parent: string }>(
     `UPDATE public.places p SET parent_id = NULL
       WHERE p.id = ANY ($1::uuid[])
         AND EXISTS (SELECT 1 FROM public.places q
                      WHERE q.id = p.parent_id AND q.deleted_at IS NOT NULL)
-      RETURNING p.id`,
+      RETURNING p.id, old.parent_id AS was_parent`,
     [restoredPlaces],
   );
   const unplaced = await unplacedOf(c.client, loc);
@@ -634,11 +643,14 @@ export async function restorePlace(c: Ctx, id: string): Promise<RestoreResult> {
     subjects: restoredThings,
     requestId: c.requestId,
   });
-  // Each thing sent to the Unplaced area gets its own move row (security review #30).
-  await auditRelocations(
+  // Each thing sent to the Unplaced area gets its own move row (security review #30), and each
+  // place sent to the top level (#441).
+  const at = { locationId: loc, actor: actor(c.scope), requestId: c.requestId };
+  await auditRelocations(c.tx, at, orphanThings.map(relocationOf));
+  await auditPlaceRelocations(
     c.tx,
-    { locationId: loc, actor: actor(c.scope), requestId: c.requestId },
-    orphanThings.map(relocationOf),
+    at,
+    orphanPlaces.map((r) => ({ id: r.id, before: r.was_parent, after: null })),
   );
   if (orphanPlaces.length + orphanThings.length > 0) {
     await enqueueReindex(c.jobs, c.client, loc);
