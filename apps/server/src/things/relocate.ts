@@ -38,12 +38,15 @@ export async function auditRelocations(
   );
 }
 
-/** A place that changed parent as a side effect of another write (a merge's child places). */
+/**
+ * A place that changed parent as a side effect of another write: a merge's child places, a trash's
+ * (moved out), a restore's (sent to the top level) and the undo that puts them back.
+ */
 export type PlaceRelocation = { id: string; before: string | null; after: string | null };
 
 /**
- * A `place.move` row for each, so a place's own history says where it went (#425). Like a thing's,
- * not undoable on its own: the write that caused it is what undo reverses.
+ * A `place.move` row for each, so a place's own history says where it went (#425, #441). Like a
+ * thing's, not undoable on its own: the write that caused it is what undo reverses.
  */
 export async function auditPlaceRelocations(
   tx: Tx,
