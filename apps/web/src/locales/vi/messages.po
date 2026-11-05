@@ -20843,3 +20843,7 @@ msgstr "Mở rộng vị trí"
 #: src/components/page-aside.tsx
 msgid "Resize places"
 msgstr "Đổi độ rộng danh sách vị trí"
+
+#: src/components/import/labels.ts
+msgid "{count, plural, one {# link keeps its Homebox title: Kept couldn't get one from Paperless.} other {# links keep their Homebox titles: Kept couldn't get them from Paperless.}}"
+msgstr "{count, plural, one {# liên kết giữ tiêu đề từ Homebox: Kept không lấy được tiêu đề từ Paperless.} other {# liên kết giữ tiêu đề từ Homebox: Kept không lấy được tiêu đề từ Paperless.}}"

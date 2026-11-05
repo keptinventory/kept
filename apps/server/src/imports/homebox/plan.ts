@@ -173,7 +173,8 @@ export type AttachmentOp = {
 };
 
 /** A Homebox link to a document of the location's Paperless-ngx: the link "Link from Paperless"
- * makes (#347), with Homebox's title and its type as the kind until Paperless is next asked. */
+ * makes (#347), with its type as the kind. `title` is Homebox's, or the link's address: what the
+ * link keeps unless the job gets its title from Paperless (#422, paperless-titles.ts). */
 export type PaperlessLinkOp = {
   op: 'paperless_link';
   key: string;

@@ -92,3 +92,33 @@ describe('the Homebox reasons, before and after the import (#320)', () => {
     }
   });
 });
+
+function TitlesKept({ count }: { count: number }) {
+  const issue = useIssueText();
+  return (
+    <p>
+      {issue({
+        column: '',
+        code: 'hb_paperless_titles_kept',
+        params: { count },
+        message: FALLBACK,
+      })}
+    </p>
+  );
+}
+
+describe('the note on Paperless titles a Homebox import kept (#422)', () => {
+  it('says how many', async () => {
+    const one = await renderUI(<TitlesKept count={1} />);
+    expect(
+      screen.getByText("1 link keeps its Homebox title: Kept couldn't get one from Paperless."),
+    ).toBeTruthy();
+    one.unmount();
+    await renderUI(<TitlesKept count={12} />);
+    expect(
+      screen.getByText(
+        "12 links keep their Homebox titles: Kept couldn't get them from Paperless.",
+      ),
+    ).toBeTruthy();
+  });
+});

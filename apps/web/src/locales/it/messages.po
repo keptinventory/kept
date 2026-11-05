@@ -28794,3 +28794,7 @@ msgstr "Espandi posti"
 #: src/components/page-aside.tsx
 msgid "Resize places"
 msgstr "Ridimensiona posti"
+
+#: src/components/import/labels.ts
+msgid "{count, plural, one {# link keeps its Homebox title: Kept couldn't get one from Paperless.} other {# links keep their Homebox titles: Kept couldn't get them from Paperless.}}"
+msgstr "{count, plural, one {# link mantiene il titolo di Homebox: Kept non è riuscito a ottenerlo da Paperless.} other {# link mantengono il titolo di Homebox: Kept non è riuscito a ottenerli da Paperless.}}"

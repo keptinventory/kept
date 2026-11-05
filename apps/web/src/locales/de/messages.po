@@ -28794,3 +28794,7 @@ msgstr "Orte ausklappen"
 #: src/components/page-aside.tsx
 msgid "Resize places"
 msgstr "Breite der Orte ändern"
+
+#: src/components/import/labels.ts
+msgid "{count, plural, one {# link keeps its Homebox title: Kept couldn't get one from Paperless.} other {# links keep their Homebox titles: Kept couldn't get them from Paperless.}}"
+msgstr "{count, plural, one {# Link behält seinen Homebox-Titel: Kept konnte ihn nicht von Paperless abrufen.} other {# Links behalten ihre Homebox-Titel: Kept konnte sie nicht von Paperless abrufen.}}"

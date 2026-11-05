@@ -99,6 +99,8 @@ export type ImportIssueParams = {
   kind?: string;
   /** `code_format`: the location's own message for its format rule. */
   rule?: string;
+  /** `hb_paperless_titles_kept`: how many links. */
+  count?: number;
 };
 
 /** What an archive import's issue is about: an entity (a Homebox item or location, a

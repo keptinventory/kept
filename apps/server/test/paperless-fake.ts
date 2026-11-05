@@ -30,6 +30,8 @@ export class FakePaperless {
   requests: { path: string; query: URLSearchParams; headers: IncomingMessage['headers'] }[] = [];
   /** When true, every connection is cut before an answer. */
   down = false;
+  /** Documents its user may not see: 403, the token otherwise good. */
+  forbidden = new Set<number>();
   documentTypes = new Map<number, string>([
     [1, 'Receipt'],
     [2, 'Manual'],
@@ -215,6 +217,9 @@ export class FakePaperless {
       );
     }
     if (one) {
+      if (this.forbidden.has(Number(one[1]))) {
+        return this.#json(res, 403, { detail: 'You do not have permission.' }, true);
+      }
       const d = this.docs.get(Number(one[1]));
       if (!d) return this.#json(res, 404, { detail: 'No Document matches the given query.' }, true);
       if (!one[2]) return this.#json(res, 200, this.#docOut(d, fields), true);
