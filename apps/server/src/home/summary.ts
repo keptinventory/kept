@@ -2,6 +2,7 @@ import type pg from 'pg';
 import { z } from 'zod';
 import { LISTED_SOURCES } from '../agenda/query.js';
 import { LOW } from '../consumables/service.js';
+import { notHidden } from '../locations/hidden.js';
 
 // GET /api/v1/summary (1.x, D244; builds D59, D240): Home's "Needs you" counts per location, for
 // what reads Kept from outside: the Home Assistant integration's sensors and dashboard widgets
@@ -81,7 +82,7 @@ export async function summaryOf(client: pg.ClientBase): Promise<SummaryResponse>
               kept.module_on(l.id, 'lending') AS lending,
               kept.module_on(l.id, 'consumables') AS consumables
          FROM public.locations l
-        WHERE l.id IN (SELECT kept.visible_location_ids())
+        WHERE l.id IN (SELECT kept.visible_location_ids()) AND ${notHidden('l.id')}
      ),
      th AS (
        SELECT t.location_id,

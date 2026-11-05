@@ -11,7 +11,7 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ApiError } from '@/api/client';
-import { useLocation, useLocations } from '@/api/queries';
+import { useAllLocations, useLocation } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
 import { PeopleCount, ThingCount } from '@/components/counts';
 import { SubjectPaperwork } from '@/components/documents/subject-paperwork';
@@ -72,7 +72,7 @@ function LocationPage() {
   const { id: param } = Route.useParams();
   const { t } = useLingui();
   // A readable address (`/loc/garage-3f9c2a1b`, D224) resolves among the person's locations.
-  const locations = useLocations();
+  const locations = useAllLocations();
   const id = locationIdOf(param, locations.data);
   const location = useLocation(id ?? '');
   useCanonicalLocationAddress(param, location.data);
@@ -266,6 +266,17 @@ function LocationBody({ location }: { location: LocationDetail }) {
           }
         : {})}
     >
+      {location.hidden ? (
+        <Notice tone="info">
+          <Trans>
+            <bdi>{name}</bdi> is hidden from your menu, Home, lists and search. This link still
+            opens it.
+          </Trans>{' '}
+          <Link to="/settings" className="font-semibold text-ink underline underline-offset-2">
+            <Trans>Show it again</Trans>
+          </Link>
+        </Notice>
+      ) : null}
       {layout === 'map' || layout === 'graph' ? (
         <>
           {/* D237: the map leads, under a one-line header; the rest follows it. So does the

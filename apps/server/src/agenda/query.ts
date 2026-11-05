@@ -10,6 +10,7 @@ import type pg from 'pg';
 import { z } from 'zod';
 import { pageOf } from '../http/conventions.js';
 import { invalid } from '../http/errors.js';
+import { notHidden } from '../locations/hidden.js';
 import { type SubjectRef, subjectRefSql } from '../paperwork/view.js';
 import { type AgendaCounts, type AgendaItem, WRITER_ACTIONS } from './view.js';
 
@@ -87,6 +88,7 @@ function itemsCte(q: AgendaQuery, values: unknown[]): string {
     `a.source_type = ANY (${add(q.sourceType?.length ? q.sourceType : LISTED_SOURCES)}::text[])`,
   );
   if (q.locationId) where.push(`a.location_id = ${add(q.locationId.toLowerCase())}::uuid`);
+  else where.push(notHidden('a.location_id'));
   if (q.from) where.push(`a.due_on IS NOT NULL AND a.due_on >= ${add(q.from)}::date`);
   if (q.to) where.push(`(a.due_on IS NULL OR a.due_on <= ${add(q.to)}::date)`);
   return `items AS (
@@ -139,6 +141,7 @@ export async function agendaCountsBySource(
   const { rows } = await client.query<{ state: string; source_type: ActiveSourceType; n: number }>(
     `SELECT a.state, a.source_type, count(*)::int AS n FROM public.agenda_items a
       WHERE a.state IN ('overdue', 'due', 'expiring') AND a.source_type = ANY ($1::text[])
+        AND ${notHidden('a.location_id')}
       GROUP BY a.state, a.source_type ORDER BY a.state, a.source_type`,
     [LISTED_SOURCES],
   );

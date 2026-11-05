@@ -15,7 +15,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useSchedules } from '@/api/household/queries';
 import type { Schedule, SchedulesParams } from '@/api/household/types';
-import { useLocations } from '@/api/queries';
+import { useLocationsInView } from '@/api/queries';
 import { defaultDir } from '@/components/filters/display';
 import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
@@ -52,7 +52,7 @@ function SchedulesPage() {
   const { t } = useLingui();
   const [list] = useListState();
   const f = useFilterRegistry();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const locationName = useLocationName();
   const stateLabels = useScheduleStateLabels();
   const module = useModuleAnywhere('schedules');
@@ -166,7 +166,7 @@ function SchedulesPage() {
         ) : undefined
       }
     >
-      {module.loaded && !module.on ? (
+      {module.loaded && !module.on && withModule.length === 0 ? (
         <EmptyState
           icon={<ScheduleIcon />}
           title={<Trans>Schedules are off in your locations</Trans>}

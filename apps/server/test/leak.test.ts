@@ -163,6 +163,7 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.fellow_member_ids()': { roles: APP, definer: true },
   'kept.is_instance_admin()': { roles: APP, definer: true },
   'kept.owns_location(uuid)': { roles: APP, definer: true },
+  'kept.hidden_location_ids()': { roles: APP, definer: true },
   'kept.visible_location_ids()': { roles: APP, definer: true },
   'kept.writable_location_ids()': { roles: APP, definer: true },
   // Paths past the policies (0006 §5): each checks its caller itself.
@@ -2331,6 +2332,7 @@ const UNPROBED_DOORS: Record<string, string> = {
   'kept.fellow_member_ids()': 'no argument: people who share a location with the caller',
   'kept.is_instance_admin()': 'no argument: whether the caller is one',
   'kept.owns_location(uuid)': "a boolean about the caller's own ownership; no row data",
+  'kept.hidden_location_ids()': "no argument: the caller's own Personal",
   'kept.visible_location_ids()': "no argument: the caller's own memberships",
   'kept.writable_location_ids()': "no argument: the caller's own memberships",
   'kept.admin_account_ids()': "no argument: the caller's own memberships",

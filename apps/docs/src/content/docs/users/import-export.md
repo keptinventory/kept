@@ -249,7 +249,8 @@ location's languages, the way captured things get them ([AI providers](/users/ai
 - **Export a location**, one you own or administer: every thing, place, photo, document,
   condition report and move is always in it.
 - **Export my data**: your Personal location with its files, your profile and preferences, and
-  your own AI calls.
+  your own AI calls. With [Personal hidden](/users/locations/#hide-personal) it carries the first
+  other location you own, and Personal is on **Export a location**.
 
 **What goes in** besides: archived and ended things (sold, given away, thrown out), the Trash, the history, the
 AI calls, and **A copy you can read without Kept**: web pages, spreadsheets, thumbnails and

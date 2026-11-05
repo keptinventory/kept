@@ -16,7 +16,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 import { inventoryApi } from '@/api/inventory/queries';
-import { useLocations } from '@/api/queries';
+import { useLocationsInView } from '@/api/queries';
 import { useVehicles } from '@/api/vehicles/queries';
 import type { VehicleRow, VehiclesParams } from '@/api/vehicles/types';
 import { useFilterRegistry } from '@/components/filters/registry';
@@ -82,7 +82,7 @@ export function VehiclesList() {
   const [list] = useListState();
   const f = useFilterRegistry();
   const lifecycle = useLifecycleLabels();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const locationName = useLocationName();
   const online = useOnline();
   const [adding, setAdding] = useState(false);

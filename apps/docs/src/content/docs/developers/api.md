@@ -86,6 +86,14 @@ opaque; don't build them. A filter parameter may repeat (`?typeId=a&typeId=b`, "
 ([`http/list-filters.ts`](https://github.com/keptinventory/kept/blob/main/apps/server/src/http/list-filters.ts)).
 Each list's own parameters are in the reference.
 
+A person can [hide their Personal location](/users/locations/#hide-personal):
+`PATCH /api/v1/me {hidePersonal}`, 409 while it's the only location the session can see. `GET
+/api/v1/me` answers `profile.hidePersonal` (what they set) and `personalHidden` (whether it applies
+now), and each location in `GET /api/v1/locations` says `hidden`. A list across locations leaves a
+hidden location out unless a location filter or a place in it names it, and a read by id still
+answers: this is a preference, in `kept.hidden_location_ids()`, and no policy reads it. A token's
+requests are never affected.
+
 ## Money
 
 Amounts travel as strings in one canonical form (`"150"`, `"1250.5"`), with a three-letter

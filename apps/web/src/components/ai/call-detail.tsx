@@ -152,6 +152,11 @@ export function CallFields({ call }: { call: AiCall }) {
           <Trans>
             <bdi>{payer}</bdi>'s account (the server's key would have been next)
           </Trans>
+        ) : call.paidBy.fellBack ? (
+          // Past the account's key: a location its owner has alone, with Personal hidden (#392).
+          <Trans>
+            <bdi>{payer}</bdi>'s personal key
+          </Trans>
         ) : (
           <Trans>
             <bdi>{payer}</bdi>'s personal key (their account's key would have been next)

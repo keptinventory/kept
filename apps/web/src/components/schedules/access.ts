@@ -9,7 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { householdKeys } from '@/api/household/queries';
 import { inventoryKeys } from '@/api/inventory/queries';
-import { useLocations } from '@/api/queries';
+import { useAllLocations, useLocations } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
 
 /** A calendar date in a time zone, YYYY-MM-DD. */
@@ -72,7 +72,7 @@ export function accessOf(location: LocationDetail | undefined): LocationAccess {
 
 /** `accessOf` for every location the reader has, by id. */
 export function useLocationAccess(): (locationId: string) => LocationAccess {
-  const locations = useLocations();
+  const locations = useAllLocations();
   const list = locations.data ?? [];
   return useCallback((id: string) => accessOf(list.find((l) => l.id === id)), [list]);
 }

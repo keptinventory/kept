@@ -25,7 +25,7 @@ import type {
   PlaceTemplateBody,
   PlaceTemplateLayout,
 } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { CopyIcon, PlusIcon, TrashIcon } from '@/components/icons';
 import { ListSurface } from '@/components/list-surface';
 import { EmptyState, useErrorText } from '@/components/page';
@@ -259,7 +259,7 @@ function PlaceTemplateForm({
   const kindName = usePlaceKindName();
   const defaultName = useDefaultCompartmentName();
   const locationName = useLocationName();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const kinds = usePlaceKinds(accountId);
   const [d, setD] = useState<Draft>(() => draftOf(template));
   const [errors, setErrors] = useState<
@@ -269,8 +269,12 @@ function PlaceTemplateForm({
     setD((prev) => ({ ...prev, ...patch }));
     setErrors({});
   };
+  // A hidden Personal only while it's already chosen, so saving can't quietly unshare it.
   const shareable = (locations.data ?? []).filter(
-    (l) => l.ownerAccountId === accountId && (l.role === 'owner' || l.role === 'admin'),
+    (l) =>
+      l.ownerAccountId === accountId &&
+      (l.role === 'owner' || l.role === 'admin') &&
+      (!l.hidden || d.locationIds.includes(l.id)),
   );
   const locationItems = shareable.map((l) => ({ id: l.id, name: locationName(l) }));
   const kindItems = (kinds.data?.placeKinds ?? [])

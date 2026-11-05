@@ -13,7 +13,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import * as z from 'zod/mini';
 import { usePaperwork } from '@/api/household/queries';
 import type { PaperworkParams, PaperworkRow } from '@/api/household/types';
-import { useLocations } from '@/api/queries';
+import { useLocationsInView } from '@/api/queries';
 import type { FilterDef } from '@/components/filters/types';
 import { BoxIcon, ClockIcon, DocumentIcon, HomeIcon } from '@/components/icons';
 import { ListSurface } from '@/components/list-surface';
@@ -45,7 +45,7 @@ export const Route = createFileRoute('/_app/paperwork')({
 function PaperworkPage() {
   const { t } = useLingui();
   const [list] = useListState();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const nameOf = useLocationName();
   const roles = useRoleLabels();
   const withPaperwork = (locations.data ?? []).filter((l) =>

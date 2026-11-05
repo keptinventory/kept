@@ -13,6 +13,7 @@ import type { DeviceSession } from '@/api/types';
 import { ChangeEmail } from '@/components/change-email';
 import { DeleteAccount } from '@/components/delete-account';
 import { DisplayPrefs } from '@/components/display-prefs';
+import { HidePersonal } from '@/components/hide-personal';
 import {
   BellIcon,
   LaptopIcon,
@@ -42,7 +43,7 @@ import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
 import { toast } from '@/components/ui/toast';
 import { sep, useFormat } from '@/lib/format';
-import { usePersonalName } from '@/lib/personal-name';
+import { useMyDataLocation, usePersonalName } from '@/lib/personal-name';
 import { describeUserAgent } from '@/lib/user-agent';
 
 /** `via` and `error`: a link to an outside sign-in that came back refused (D226). */
@@ -57,6 +58,16 @@ export const Route = createFileRoute('/_app/settings/')({
   validateSearch: meSearch,
   component: MePage,
 });
+
+/** What "Export my data" holds: Personal, or the location that takes over while it is hidden. */
+function MyDataLine() {
+  const { name: personal } = useMyDataLocation();
+  return (
+    <Trans>
+      <bdi>{personal}</bdi>, your profile and preferences, and your AI calls, as one file.
+    </Trans>
+  );
+}
 
 function MePage() {
   const { t } = useLingui();
@@ -110,6 +121,10 @@ function MePage() {
         </List>
       </Section>
 
+      <Section title={<Trans>Your locations</Trans>}>
+        <HidePersonal />
+      </Section>
+
       <Section title={<Trans>Your data</Trans>}>
         <List>
           <li>
@@ -120,12 +135,7 @@ function MePage() {
                 </IconTile>
               }
               title={<Trans>Export my data</Trans>}
-              subtitle={
-                <Trans>
-                  <bdi>{personal}</bdi>, your profile and preferences, and your AI calls, as one
-                  file.
-                </Trans>
-              }
+              subtitle={<MyDataLine />}
               trailing={
                 <LinkButton to="/settings/export" search={{ sheet: 'me' }} size="small">
                   <Trans>Export</Trans>

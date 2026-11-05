@@ -27,7 +27,7 @@ import type {
   ArchiveImportRun,
   HomeboxConnection,
 } from '@/api/portability/types';
-import { keys } from '@/api/queries';
+import { keys, useAllLocations } from '@/api/queries';
 import type { LocationSummary } from '@/api/types';
 import { CheckCircleIcon } from '@/components/icons';
 import { ErrorState, LoadingRows, Notice, useErrorText } from '@/components/page';
@@ -138,7 +138,7 @@ export function ArchiveRunView({
   const location = importable.find((l) => l.id === run?.locationId);
   // A new location Import will make is the caller's own account's, like their Personal one.
   const pending = run?.locationId ? null : (run?.newLocation ?? null);
-  const own = importable.find((l) => l.kind === 'personal');
+  const own = useAllLocations().data?.find((l) => l.kind === 'personal');
   const keptTypes = useKeptTypes(
     location?.ownerAccountId ?? (pending ? own?.ownerAccountId : undefined),
   );

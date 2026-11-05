@@ -18,7 +18,7 @@ import { Link } from '@tanstack/react-router';
 import { useCallback, useState } from 'react';
 import { useConsumables } from '@/api/portability/queries';
 import type { ConsumableRow } from '@/api/portability/types';
-import { useLocations } from '@/api/queries';
+import { useLocationsInView } from '@/api/queries';
 import { useFilterRegistry } from '@/components/filters/registry';
 import { FilterStrip } from '@/components/filters/strip';
 import type { FilterDef } from '@/components/filters/types';
@@ -41,7 +41,7 @@ export function StockList() {
   const { t } = useLingui();
   const [list] = useListState();
   const f = useFilterRegistry();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const locationName = useLocationName();
   const all = locations.data ?? [];
   const chosen = oneValue(list, 'location');

@@ -7,6 +7,7 @@ import type { Scope, Tx } from '../db/scope.js';
 import { checkVersion, pageOf } from '../http/conventions.js';
 import { AppError, conflict, invalid, notFound } from '../http/errors.js';
 import { requireCan, requireMembership } from '../locations/access.js';
+import { notHidden } from '../locations/hidden.js';
 import { gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { moneyOff, requireCurrencies } from '../things/validate.js';
@@ -294,6 +295,7 @@ export async function listDocuments(
   ];
   if (!q.includeSuperseded) where.push('d.superseded_by_id IS NULL');
   if (q.locationId) where.push(`d.location_id = ${add(q.locationId.toLowerCase())}::uuid`);
+  else if (!q.subjectId && !q.thingId) where.push(notHidden('d.location_id'));
   if (q.kind) where.push(`d.kind = ${add(q.kind)}`);
   if (q.subjectType === 'thing') where.push('d.thing_id IS NOT NULL');
   if (q.subjectType === 'place') where.push('d.place_id IS NOT NULL');

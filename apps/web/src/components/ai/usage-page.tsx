@@ -16,7 +16,7 @@ import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { type ReactNode, useRef } from 'react';
 import { captureApi, captureKeys, useAiUsage } from '@/api/capture/queries';
 import type { AiScope } from '@/api/capture/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import type { LocationSummary } from '@/api/types';
 import { stripTabClass, tabStripClass, useCurrentTabInView } from '@/components/link-tabs';
 import { ErrorState, LoadingRows } from '@/components/page';
@@ -266,7 +266,7 @@ function UsageBody({
 /** Settings → AI usage: Me, each administered location, Account. */
 export function UsagePage() {
   const search = useSearch({ strict: false }) as UsageSearch;
-  const locations = useLocations();
+  const locations = useAllLocations();
   const tabs = useUsageScopes(locations.data ?? []);
   if (locations.isPending) return <LoadingRows rows={3} />;
   const wanted =
