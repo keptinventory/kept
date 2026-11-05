@@ -18728,6 +18728,10 @@ msgstr "اختر موقعًا واحدًا على الأقل."
 msgid "Pick only what it needs. You can disconnect it in Settings → Connections."
 msgstr "اختر ما يحتاجه فقط. يمكنك قطع اتصاله في الإعدادات ← الربط."
 
+#: src/routes/oauth/consent.tsx
+msgid "It stays signed in after you sign out of this browser; anything that signs out all your other devices makes it sign in again."
+msgstr "يبقى مسجّلًا للدخول بعد تسجيل خروجك من هذا المتصفح؛ وكل ما يسجّل خروجك من جميع أجهزتك الأخرى يُلزمه بتسجيل الدخول مجددًا."
+
 #: src/components/connections/words.tsx
 msgid "Read and change"
 msgstr "قراءة وتغيير"

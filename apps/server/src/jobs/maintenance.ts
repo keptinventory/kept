@@ -23,7 +23,8 @@ export async function ensureAuditPartitions(pools: Pick<Pools, 'system'>): Promi
 export type Pruned = Record<string, number>;
 
 /** `prune-stale-rows`: expired sign-in limiter rows, the second-factor flags of expired
- * sessions, and idempotency keys past 30 days. Returns the count removed per table. */
+ * sessions, idempotency keys past 30 days, expired refresh tokens and the other tables
+ * kept.prune_stale_rows() names (latest in migration 0169). Returns the count removed per table. */
 export async function pruneStaleRows(pools: Pick<Pools, 'system'>): Promise<Pruned> {
   return withSystem(pools.system, async (_tx, client) => {
     const { rows } = await client.query<{ what: string; removed: string }>(

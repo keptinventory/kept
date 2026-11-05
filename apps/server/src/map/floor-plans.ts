@@ -29,6 +29,7 @@ import {
 } from '../capture/service.js';
 import type { Scope, Tx } from '../db/scope.js';
 import { renderPdfPage } from '../files/pdf-text.js';
+import { AttachmentName } from '../files/routes.js';
 import { AppError, conflict, invalid, notFound } from '../http/errors.js';
 import type { JobQueue } from '../jobs/queue.js';
 import { requireCan, requireMembership } from '../locations/access.js';
@@ -76,6 +77,8 @@ export const StartBody = z.object({
     .regex(/^[0-9a-f]{64}$/)
     .optional(),
   turn: Turn.optional(),
+  /** The file's own name, for the document it can be kept as (#425). */
+  name: AttachmentName.optional(),
 });
 export type StartBody = z.infer<typeof StartBody>;
 
@@ -125,6 +128,7 @@ type PlanRow = {
   created_at: Date;
   attachment_id: string | null;
   file_id: string | null;
+  file_name: string | null;
   mime: string | null;
   read_status: (typeof EXTRACTION_STATUSES)[number] | null;
   status_reason: string | null;
@@ -137,7 +141,7 @@ const iso = (d: Date | null) => (d ? new Date(d).toISOString() : null);
 async function planRow(client: pg.ClientBase, id: string, lock = false): Promise<PlanRow> {
   const { rows } = await client.query<PlanRow>(
     `SELECT f.id, f.location_id, f.status, f.turn, f.keep_plan, f.result, f.created_at,
-            a.id AS attachment_id, a.file_id, fl.mime,
+            a.id AS attachment_id, a.file_id, a.name AS file_name, fl.mime,
             e.status AS read_status, e.status_reason, e.paused_until, e.attempt
        FROM public.floor_plans f
        LEFT JOIN public.attachments a ON a.floor_plan_id = f.id
@@ -227,9 +231,9 @@ export async function startFloorPlan(
   const attachmentId = newId();
   await c.client.query(
     `INSERT INTO public.attachments (id, location_id, file_id, floor_plan_id, role, in_review,
-                                     created_by)
-     VALUES ($1, $2, $3, $4, 'document', true, kept.current_user_id())`,
-    [attachmentId, locationId, fileId, id],
+                                     name, created_by)
+     VALUES ($1, $2, $3, $4, 'document', true, $5, kept.current_user_id())`,
+    [attachmentId, locationId, fileId, id, body.name ?? null],
   );
   await queueExtraction(
     { ...c, jobs: c.jobs, files: c.files },
@@ -517,9 +521,9 @@ export async function applyFloorPlan(c: Ctx, id: string, body: ApplyBody): Promi
   // The plan file: kept as the location's own document when asked; the upload let go either way.
   if (body.keepPlan && row.file_id) {
     await c.client.query(
-      `INSERT INTO public.attachments (location_id, file_id, role, created_by)
-       VALUES ($1, $2, 'document', kept.current_user_id())`,
-      [locationId, row.file_id],
+      `INSERT INTO public.attachments (location_id, file_id, role, name, created_by)
+       VALUES ($1, $2, 'document', $3, kept.current_user_id())`,
+      [locationId, row.file_id, row.file_name],
     );
   }
   await c.client.query('DELETE FROM public.attachments WHERE floor_plan_id = $1', [row.id]);

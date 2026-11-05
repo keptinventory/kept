@@ -388,6 +388,102 @@ describe('changing a fill', () => {
     });
   });
 
+  it('undoes replacing a receipt: the old one comes back with its name, the new one goes (#425)', async () => {
+    const car = await newCar('Receipt swap car');
+    const out = await fill(louis, car, {
+      takenAt: daysAgo(4),
+      amount: '30',
+      cost: '750',
+      receiptFileId: await receipt(louis),
+    });
+    const id = out.entry.id;
+    const receipts = () =>
+      own<{ id: string; file_id: string; name: string | null; row_version: number }>(
+        db,
+        `SELECT id, file_id, name, row_version FROM public.attachments
+          WHERE fuel_entry_id = $1 AND role = 'receipt'`,
+        [id],
+      );
+    const version = async () =>
+      String(
+        (
+          await own<{ row_version: number }>(
+            db,
+            'SELECT row_version FROM public.fuel_entries WHERE id = $1',
+            [id],
+          )
+        )[0]?.row_version,
+      );
+    const replace = async (fileId: string) => {
+      const res = await call(t, `/api/v1/fuel/${id}`, {
+        as: louis,
+        method: 'PATCH',
+        body: { receiptFileId: fileId },
+        headers: { 'if-match': await version() },
+      });
+      ok(res);
+      const events = await eventsOf(db, garage.id, id);
+      return events.filter((e) => e.action === 'fuel.update').at(-1)?.id as string;
+    };
+
+    const [first] = await receipts();
+    ok(
+      await call(t, `/api/v1/attachments/${first?.id}`, {
+        as: louis,
+        method: 'PATCH',
+        body: { name: 'Shell, Ring Road' },
+        headers: { 'if-match': String(first?.row_version) },
+      }),
+    );
+    const eventId = await replace(await receipt(louis));
+    const [second] = await receipts();
+    expect(second?.file_id).not.toBe(first?.file_id);
+
+    // A viewer sees no money, so the event's receipts are hidden from Activity with the cost.
+    const [row] = await eventsOf(db, garage.id, id).then((all) =>
+      all.filter((e) => e.id === eventId),
+    );
+    expect(row?.diff.attachments).toMatchObject({ class: 'money' });
+
+    ok(await undo(louis, eventId));
+    const [back, ...rest] = await receipts();
+    expect(rest).toEqual([]);
+    expect(back).toMatchObject({
+      id: first?.id,
+      file_id: first?.file_id,
+      name: 'Shell, Ring Road',
+    });
+
+    // Replaced again since: the undo of the earlier one is refused and changes nothing.
+    const earlier = await replace(await receipt(louis));
+    const [third] = await receipts();
+    await replace(await receipt(louis));
+    const [fourth] = await receipts();
+    expect(fourth?.id).not.toBe(third?.id);
+    const refused = await undo(louis, earlier);
+    expect(refused.statusCode, refused.body).toBe(409);
+    expect((await receipts())[0]?.id).toBe(fourth?.id);
+  });
+
+  it('undoes a first receipt added to a fill: it goes again (#425)', async () => {
+    const car = await newCar('First receipt car');
+    const out = await fill(louis, car, { takenAt: daysAgo(3), amount: '30', cost: '750' });
+    const id = out.entry.id;
+    ok(
+      await call(t, `/api/v1/fuel/${id}`, {
+        as: louis,
+        method: 'PATCH',
+        body: { receiptFileId: await receipt(louis) },
+        headers: { 'if-match': '1' },
+      }),
+    );
+    const events = await eventsOf(db, garage.id, id);
+    ok(await undo(louis, events.filter((e) => e.action === 'fuel.update').at(-1)?.id as string));
+    expect(
+      await own(db, 'SELECT 1 FROM public.attachments WHERE fuel_entry_id = $1', [id]),
+    ).toEqual([]);
+  });
+
   it("lets Alfred change his own fill and not Bruce's; Bruce, an admin, removes Alfred's", async () => {
     const car = await newCar();
     const mine = await fill(alfred, car, { takenAt: daysAgo(4), amount: '10' });

@@ -169,6 +169,8 @@ const CONFLICT_HINTS: Record<string, string> = {
     'The merge would change who may reveal a secret; only the location owner may merge these.',
   // Step 3 (0042): labels and duplicate merges.
   short_ids_blank_cap: 'This place already has 1,000 unclaimed blank labels; claim some first.',
+  // #425: a compartment's labels moved onto a place that keeps its own primary.
+  short_ids_primary_place_uq: 'That place already has a main label. Try again.',
   things_merge_meters: 'Both things have a meter; remove one before merging them.',
   // Step 3 (0046): own codes' numbering.
   own_code_numbers_taken:

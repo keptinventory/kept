@@ -410,6 +410,55 @@ describe('merging and splitting compartments', () => {
     expect(second?.code).toBe(`${s.code}-F0102`);
   });
 
+  it('splits when the place a label goes back to got a label of its own since (#425)', async () => {
+    const s = await shelf('cube_2x2');
+    const [a, b] = s.cells.map((x) => x.id) as [string, string];
+    const shortB = await label(b);
+    ok(await merge(ibrahim, s.id, [a, b]));
+    // The trashed compartment came back as a plain place, got its own label and went back to the
+    // trash: that label is its primary now, and the split brings back the one it had before too.
+    ok(await call(t, `/api/v1/places/${b}/restore`, { as: ibrahim, body: {} }));
+    const newer = await label(b);
+    ok(await call(t, `/api/v1/places/${b}/trash`, { as: ibrahim, body: {} }));
+
+    const res = await split(ibrahim, s.id, a);
+    expect(res.statusCode).toBe(200);
+    expect(await opens(ibrahim, shortB)).toBe(b);
+    expect(await opens(ibrahim, newer)).toBe(b);
+    const rows = await own<{ code: string; is_primary: boolean }>(
+      db,
+      'SELECT code, is_primary FROM public.short_ids WHERE place_id = $1',
+      [b],
+    );
+    expect(rows.find((r) => r.code === newer)?.is_primary).toBe(true);
+    expect(rows.find((r) => r.code === shortB)?.is_primary).toBe(false);
+  });
+
+  it('writes a history line for each child place a merge moves, and for its undo (#425)', async () => {
+    const s = await shelf('cube_2x2');
+    const [a, b] = s.cells.map((x) => x.id) as [string, string];
+    const tray = ok(
+      await call(t, `/api/v1/locations/${home.id}/places`, {
+        as: ibrahim,
+        body: { name: 'Tray', kindKey: 'zone', parentId: b },
+      }),
+      201,
+    ).id as string;
+    const res = await merge(ibrahim, s.id, [a, b]);
+    ok(res);
+    const moves = async () =>
+      (await eventsOf(db, home.id, tray)).filter((e) => e.action === 'place.move');
+    const [line] = await moves();
+    expect(line?.diff.parent_id).toMatchObject({ before: b, after: a });
+    // The merge's own Undo reverses it: the line isn't a second way to undo.
+    expect(line?.undoable_until).toBeNull();
+
+    ok(await undo(ibrahim, auditIds(res)[0] as string));
+    const after = await moves();
+    expect(after).toHaveLength(2);
+    expect(after.at(-1)?.diff.parent_id).toMatchObject({ before: a, after: b });
+  });
+
   it('turns a merged compartment with the unit', async () => {
     const s = await shelf();
     const [a, , c] = s.cells.map((x) => x.id) as [string, string, string];
