@@ -1,0 +1,94 @@
+{
+  "media": [
+    {
+      "file": "addresses.webp",
+      "path": "/admin/status",
+      "steps": [
+        {
+          "waitFor": {
+            "text": "Sign-in length"
+          }
+        },
+        {
+          "waitFor": {
+            "text": "Addresses"
+          }
+        },
+        {
+          "scroll": 385
+        }
+      ],
+      "crop": [
+        248,
+        70,
+        1024,
+        640
+      ]
+    },
+    {
+      "file": "place-tree.mp4",
+      "path": "/p/01926f00-0000-7000-8000-0000000c0004",
+      "setup": [
+        {
+          "waitFor": {
+            "role": "separator",
+            "name": "Resize places"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "click": {
+            "role": "separator",
+            "name": "Resize places"
+          }
+        },
+        {
+          "press": "ArrowRight"
+        },
+        {
+          "press": "ArrowRight"
+        },
+        {
+          "press": "ArrowRight"
+        },
+        {
+          "press": "ArrowRight"
+        },
+        {
+          "press": "ArrowRight"
+        },
+        {
+          "press": "ArrowRight"
+        },
+        {
+          "wait": 900
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Collapse places"
+          }
+        },
+        {
+          "wait": 1200
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Expand places"
+          }
+        },
+        {
+          "wait": 900
+        }
+      ],
+      "crop": [
+        248,
+        70,
+        1024,
+        640
+      ]
+    }
+  ]
+}
