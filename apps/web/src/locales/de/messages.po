@@ -18728,6 +18728,10 @@ msgstr "Wähle mindestens einen Ort."
 msgid "Pick only what it needs. You can disconnect it in Settings → Connections."
 msgstr "Wähle nur, was sie braucht. Du kannst sie unter Einstellungen → Verbindungen trennen."
 
+#: src/routes/oauth/consent.tsx
+msgid "It stays signed in after you sign out of this browser; anything that signs out all your other devices makes it sign in again."
+msgstr "Sie bleibt angemeldet, auch wenn du dich in diesem Browser abmeldest; nach allem, was dich von allen anderen Geräten abmeldet, muss sie sich erneut anmelden."
+
 #: src/components/connections/words.tsx
 msgid "Read and change"
 msgstr "Lesen und ändern"
