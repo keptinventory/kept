@@ -23,6 +23,15 @@ docker compose up -d
 `compose.yaml` works on its own, so it also pastes into Portainer, Dockge and the like (see
 [without a terminal](#without-a-terminal)).
 
+:::note[Images]
+Releases are published to `ghcr.io/keptinventory/kept`, tagged `1`, `1.2` and `1.2.3`, never
+`latest`; `1.0.0` is the first signed one. The same images, signed with the same key, are on Docker
+Hub as `keptinventory/kept`. `compose.yaml` runs the release it was published with unless
+`KEPT_IMAGE` in `.env` names another; `init` writes the version it ran as there.
+[Verify it](/admin/verify-release/) first if you like. To run your own build, in a checkout:
+`docker build -t kept:local .` and `KEPT_IMAGE=kept:local`.
+:::
+
 ## What runs
 
 | Service | Runs |
@@ -49,15 +58,6 @@ docker compose up -d
 With `COMPOSE_FILE` in `.env`, plain `docker compose` reads `compose.full.yaml`, so every command
 in these docs works as written. Kept's services, network and volumes are the same in both files:
 an install can switch at any time and keep its data.
-
-:::note[Images]
-Releases are published to `ghcr.io/keptinventory/kept`, tagged `1`, `1.2` and `1.2.3`, never
-`latest`; `1.0.0` is the first signed one. The same images, signed with the same key, are on Docker
-Hub as `keptinventory/kept`. `compose.yaml` runs the release it was published with unless
-`KEPT_IMAGE` in `.env` names another; `init` writes the version it ran as there.
-[Verify it](/admin/verify-release/) first if you like. To run your own build, in a checkout:
-`docker build -t kept:local .` and `KEPT_IMAGE=kept:local`.
-:::
 
 ## 1. Write `.env`
 

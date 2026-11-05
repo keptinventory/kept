@@ -59,6 +59,10 @@ KEPT_HTTP_SIGN_IN_DAYS=7
 
 Then `docker compose up -d`. In the Home Assistant app it's the **Sign-in length over http** option.
 
+An install upgraded from 1.14.4 by changing `KEPT_IMAGE` alone still has the old `compose.yaml`,
+which doesn't pass this setting: [download the new one](/admin/upgrades/#settings-that-need-the-new-composeyaml)
+first.
+
 **The cost:** over plain HTTP a sign-in cookie can be copied by anyone who can see the traffic.
 With the setting on, a copied one keeps working for as long as it's used, until that device signs out or your other devices are signed out. So keep it to a network you
 trust, and sign out on a device you lose.
@@ -92,6 +96,10 @@ KEPT_EXTRA_ADDRESSES=http://192.0.2.20:8080,http://<machine>.<tailnet>.ts.net:80
 
 Then `docker compose up -d`. In the Home Assistant app it's the **Extra addresses** option. It works
 the same over HTTPS.
+
+An install upgraded from 1.14.4 by changing `KEPT_IMAGE` alone still has the old `compose.yaml`,
+which doesn't pass this setting: [download the new one](/admin/upgrades/#settings-that-need-the-new-composeyaml)
+first.
 
 | | `KEPT_PUBLIC_URL` | An extra address |
 |---|---|---|
