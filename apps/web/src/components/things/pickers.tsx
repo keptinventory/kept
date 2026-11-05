@@ -21,7 +21,7 @@ import {
   useTypes,
 } from '@/api/inventory/queries';
 import type { MoveTarget, TypeNode } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import type { LocationDetail, LocationSummary } from '@/api/types';
 import { CheckIcon } from '@/components/icons';
 import { useErrorText } from '@/components/page';
@@ -263,8 +263,11 @@ export function WherePicker({
 }) {
   const { t } = useLingui();
   const locationName = useLocationName();
-  const locations = useLocations();
-  const writable = (locations.data ?? []).filter((l) => l.role !== 'viewer');
+  const locations = useAllLocations();
+  // A hidden Personal (#392) only for a thing already in it.
+  const writable = (locations.data ?? []).filter(
+    (l) => l.role !== 'viewer' && (!l.hidden || l.id === value.locationId),
+  );
   const places = usePlaces(value.locationId);
   // The location's containers, every page: the server's container filter, so a box is offered
   // however many other things the location has.

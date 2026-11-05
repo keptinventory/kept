@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { Input, SearchField } from 'react-aria-components';
 import { assistantApi, assistantKeys, useThreads } from '@/api/assistant/queries';
 import type { ThreadSummary } from '@/api/assistant/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { SearchIcon, TrashIcon } from '@/components/icons';
 import { EmptyState, ErrorState, LoadingRows, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
@@ -56,7 +56,7 @@ export function useDeleteThread(onDeleted?: (id: string) => void) {
 /** Where a thread was asked from, and when it was last used. */
 export function useThreadMeta() {
   const f = useFormat();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const locationName = useLocationName();
   return (thread: ThreadSummary): string => {
     const l = thread.context.locationId

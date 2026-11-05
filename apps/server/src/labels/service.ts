@@ -5,6 +5,7 @@ import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { assertClientId, encodeCursor, type PageRequest } from '../http/conventions.js';
 import { AppError, invalid, notFound, pgErrorOf } from '../http/errors.js';
+import { namedOrShown } from '../locations/hidden.js';
 import { placeOrderSql, treeWalk } from '../places/order.js';
 import { allocateShortId, SHORT_ID_TRIES } from '../places/short-id.js';
 import { type Ctx, requireRole } from '../things/service.js';
@@ -257,7 +258,7 @@ export async function listBatches(
   const after = page.after;
   const { rows } = await client.query<BatchRow>(
     `SELECT ${BATCH_COLUMNS} FROM public.label_batches b
-      WHERE ($1::uuid IS NULL OR b.location_id = $1::uuid)
+      WHERE ${namedOrShown('b.location_id', '$1')}
         AND ($2::timestamptz IS NULL OR (b.created_at, b.id) < ($2::timestamptz, $3::uuid))
       ORDER BY b.created_at DESC, b.id DESC
       LIMIT $4`,
@@ -673,14 +674,14 @@ export async function labelSummary(
                        WHERE s.thing_id = t.id AND s.state = 'assigned'
                          AND s.printed_at IS NOT NULL) AS printed
          FROM public.things t
-        WHERE t.deleted_at IS NULL AND ($1::uuid IS NULL OR t.location_id = $1::uuid)
+        WHERE t.deleted_at IS NULL AND ${namedOrShown('t.location_id', '$1')}
           AND ($2::uuid IS NULL OR t.id IN (SELECT id FROM inside))
           AND EXISTS (SELECT 1 FROM public.short_ids s
                        WHERE s.thing_id = t.id AND s.state = 'assigned'))
      SELECT (SELECT count(*) FILTER (WHERE NOT printed)::int FROM coded) AS unprinted,
             (SELECT count(*)::int FROM coded) AS things,
             (SELECT count(*)::int FROM public.short_ids s
-              WHERE s.state = 'blank' AND ($1::uuid IS NULL OR s.location_id = $1::uuid)) AS blank`,
+              WHERE s.state = 'blank' AND ${namedOrShown('s.location_id', '$1')}) AS blank`,
     [locationId, placeId],
   );
   return {

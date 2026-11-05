@@ -17,7 +17,7 @@ import { householdApi, useIncident } from '@/api/household/queries';
 import type { Incident } from '@/api/household/types';
 import { inventoryApi } from '@/api/inventory/queries';
 import type { ThingRow } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { useClaimStatusLabels } from '@/components/claims/labels';
 import { useOfferUndo } from '@/components/history/undo';
 import { DocumentIcon, PencilIcon, PrinterIcon, TrashIcon } from '@/components/icons';
@@ -67,7 +67,7 @@ async function endEach(
 
 function Details({ incident }: { incident: Incident }) {
   const locationName = useLocationName();
-  const location = useLocations().data?.find((l) => l.id === incident.locationId);
+  const location = useAllLocations().data?.find((l) => l.id === incident.locationId);
   const row = (label: ReactNode, value: ReactNode) => (
     <div className="grid gap-0.5 px-3.5 py-3 not-first:border-t not-first:border-line">
       <dt className="text-small text-ink-2">{label}</dt>
@@ -112,7 +112,7 @@ export function IncidentScreen({ id }: { id: string }) {
   const query = useIncident(id);
   const incident = query.data;
   const nameOf = useIncidentName();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const access = accessOf(locations.data?.find((l) => l.id === incident?.locationId));
   const manage = access.moduleOn('warranties') && access.can('incidents.manage');
   const title = incident ? nameOf(incident) : t`Incident`;
@@ -155,7 +155,7 @@ function IncidentBody({
   const inUse = incident.things.filter((th) => th.lifecycle === 'in_use');
   const thingName = (thingId: string) =>
     incident.things.find((th) => th.id === thingId)?.name ?? t`A thing`;
-  const location = useLocations().data?.find((l) => l.id === incident.locationId);
+  const location = useAllLocations().data?.find((l) => l.id === incident.locationId);
   // Originals for members and above (D117); a viewer gets the display copy.
   const mayOriginal = !!location && location.role !== 'viewer';
   const roles = useRoleLabels();

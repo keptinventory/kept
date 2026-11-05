@@ -11,7 +11,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { inventoryApi, inventoryKeys } from '@/api/inventory/queries';
 import type { SheetRow } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { useErrorText } from '@/components/page';
 import { useLocationAccess } from '@/components/schedules/access';
 import { useLocationAccountId } from '@/components/things/pickers';
@@ -48,7 +48,7 @@ export default function ListBulk({
 }: ListBulkProps) {
   const qc = useQueryClient();
   const errorText = useErrorText();
-  const here = useLocations().data?.find((l) => l.id === locationId);
+  const here = useAllLocations().data?.find((l) => l.id === locationId);
   const accountId = useLocationAccountId(here);
   const access = useLocationAccess()(locationId);
   const offered = visibleColumns(

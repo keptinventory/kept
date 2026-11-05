@@ -16,7 +16,7 @@ import { PresetPicker } from '@/components/preset-picker';
 import { Switch } from '@/components/ui/switch';
 import { TickBox } from '@/components/ui/tick-box';
 import { useModuleLabels } from '@/lib/labels';
-import { usePersonalName } from '@/lib/personal-name';
+import { usePersonalHidden, usePersonalName } from '@/lib/personal-name';
 
 export type TrackDraft = { preset: Preset; modules: ModuleId[]; alsoPersonal: boolean };
 
@@ -44,6 +44,7 @@ export function TrackStep({
 }) {
   const { t } = useLingui();
   const personal = usePersonalName();
+  const hidden = usePersonalHidden();
   const labels = useModuleLabels();
   const base = presetModules(draft.preset);
   const uses = homeboxModules(hints ?? {}).filter((m) => !base.has(m.module));
@@ -100,22 +101,25 @@ export function TrackStep({
           ) : null}
         </section>
       ) : null}
-      <div className="grid gap-1">
-        <Switch
-          isSelected={draft.alsoPersonal}
-          onChange={(alsoPersonal) => onChange({ ...draft, alsoPersonal })}
-        >
-          <Trans>
-            Also for <bdi>{personal}</bdi>
-          </Trans>
-        </Switch>
-        <p className="m-0 text-small text-ink-2">
-          <Trans>
-            <bdi>{personal}</bdi>, your own location, tracks the same from when the import runs. The
-            menu shows what any of your locations tracks.
-          </Trans>
-        </p>
-      </div>
+      {/* A hidden Personal (#392) isn't offered: it stays as it is. */}
+      {hidden ? null : (
+        <div className="grid gap-1">
+          <Switch
+            isSelected={draft.alsoPersonal}
+            onChange={(alsoPersonal) => onChange({ ...draft, alsoPersonal })}
+          >
+            <Trans>
+              Also for <bdi>{personal}</bdi>
+            </Trans>
+          </Switch>
+          <p className="m-0 text-small text-ink-2">
+            <Trans>
+              <bdi>{personal}</bdi>, your own location, tracks the same from when the import runs.
+              The menu shows what any of your locations tracks.
+            </Trans>
+          </p>
+        </div>
+      )}
     </div>
   );
 }

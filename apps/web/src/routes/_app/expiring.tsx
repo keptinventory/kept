@@ -15,7 +15,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useAgenda } from '@/api/household/queries';
 import type { AgendaItem, AgendaParams } from '@/api/household/types';
-import { useLocations } from '@/api/queries';
+import { useLocationsInView } from '@/api/queries';
 import { AgendaRow, useAgendaStateLabels } from '@/components/agenda/agenda-row';
 import { sourcesOf } from '@/components/agenda/sources';
 import { RenewSheet, type RenewTarget } from '@/components/documents/document-sheets';
@@ -38,7 +38,7 @@ const STATES = ['overdue', 'due', 'expiring', 'upcoming'] as const;
 function ExpiringPage() {
   const { t } = useLingui();
   const [list] = useListState();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const nameOf = useLocationName();
   const states = useAgendaStateLabels();
   const [renewing, setRenewing] = useState<RenewTarget | null>(null);

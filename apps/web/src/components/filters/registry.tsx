@@ -30,7 +30,7 @@ import type {
   SearchStateFilter,
   TypeNode,
 } from '@/api/inventory/types';
-import { useLocations, useMe } from '@/api/queries';
+import { useLocations, useLocationsInView, useMe } from '@/api/queries';
 import {
   ActivityIcon,
   BoxIcon,
@@ -71,7 +71,7 @@ export function useCanSeeMoney(): boolean {
 
 export function useFilterRegistry() {
   const { t } = useLingui();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const me = useMe();
   const nameOf = useLocationName();
   const typeName = useTypeName();

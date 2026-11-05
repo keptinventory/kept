@@ -18,7 +18,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { isApiError } from '@/api/client';
 import { movingApi, movingKeys, useMoves } from '@/api/moving/queries';
 import type { MoveRow, MovesParams } from '@/api/moving/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations, useLocationsInView } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
 import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
@@ -45,14 +45,14 @@ const movingOn = (l: LocationDetail) => (l.effectiveModules ?? l.modules).includ
 
 /** Where you may start a move: Moving mode on, members and above. */
 export function useMoveLocations(): LocationDetail[] {
-  const locations = useLocations();
+  const locations = useLocationsInView();
   return (locations.data ?? []).filter((l) => movingOn(l) && can(l.role, 'things.edit'));
 }
 
 function MoveRowView({ move }: { move: MoveRow }) {
   const locationName = useLocationName();
   const states = useBoxStateLabels();
-  const locations = useLocations().data ?? [];
+  const locations = useAllLocations().data ?? [];
   const from = locations.find((l) => l.id === move.locationId);
   const c = move.counts;
   return (
@@ -124,7 +124,7 @@ export function MovesScreen() {
   const [list] = useListState();
   const f = useFilterRegistry();
   const statuses = useMoveStatusLabels();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const locationName = useLocationName();
   const writable = useMoveLocations();
   const online = useOnline();
@@ -319,7 +319,7 @@ function StartForm({
 }) {
   const { t } = useLingui();
   const writable = useMoveLocations();
-  const all = useLocations().data ?? [];
+  const all = useAllLocations().data ?? [];
   const locationName = useLocationName();
   const errorText = useErrorText();
   const online = useOnline();

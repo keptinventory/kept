@@ -138,7 +138,7 @@ transfer and deletion. There is one owner.
 ## P
 
 **Personal location**: your own location, made with your account. It's never shared: no members,
-invites or share links.
+invites or share links. You can [hide it](/users/locations/#hide-personal) once you have another.
 
 **Place**: a room or a spot inside a location: a floor, a room, a shelf, a drawer. A box is a
 container, not a place.

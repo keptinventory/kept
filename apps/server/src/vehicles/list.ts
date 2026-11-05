@@ -2,6 +2,7 @@ import { consumption, type FuelUnit } from '@kept/shared';
 import type pg from 'pg';
 import { decodeCursor, encodeCursor } from '../http/conventions.js';
 import { invalid } from '../http/errors.js';
+import { notHidden } from '../locations/hidden.js';
 import type { Estimate } from '../meters/estimate.js';
 import type { Ctx } from '../schedules/service.js';
 import { gateFor } from '../serialize/gates.js';
@@ -131,6 +132,8 @@ export async function listVehicles(
     const ids = page['f.location'].map((v) => v.toLowerCase());
     filter(base, 'location', `t.location_id = ANY (${arg(ids)}::uuid[])`);
   }
+  // Every location: all but a hidden Personal (#392).
+  if (!page['f.location']?.length || not.has('location')) base.push(notHidden('t.location_id'));
   if (page['f.type']?.length) {
     const ids = page['f.type'].map((v) => v.toLowerCase());
     filter(base, 'type', `t.type_id = ANY (${arg(ids)}::uuid[])`);
