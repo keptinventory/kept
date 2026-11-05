@@ -11,7 +11,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation } from '@tanstack/react-query';
 import { useSavedViews } from '@/api/inventory/queries';
 import type { SavedView } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { savedViewApi, useInvalidateViews } from '@/components/filters/views-api';
 import { PeopleIcon, PersonIcon, TrashIcon } from '@/components/icons';
 import { List, Section, useErrorText } from '@/components/page';
@@ -25,7 +25,7 @@ import { useLocationName } from '@/lib/labels';
 export function SavedViews({ onOpen }: { onOpen: (view: SavedView) => void }) {
   const { t } = useLingui();
   const views = useSavedViews('search');
-  const locations = useLocations();
+  const locations = useAllLocations();
   const nameOf = useLocationName();
   const confirm = useConfirm();
   const errorText = useErrorText();

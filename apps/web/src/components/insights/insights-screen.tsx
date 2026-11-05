@@ -19,7 +19,7 @@ import { Link } from '@tanstack/react-router';
 import { type ReactNode, useState } from 'react';
 import { useInsights } from '@/api/insights/queries';
 import type { Amount, CostAmounts, Insights } from '@/api/insights/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { ChartTable } from '@/components/charts/chart-table';
 import { type BarSeries, BarsChart } from '@/components/charts/lazy';
 import { useFilterRegistry } from '@/components/filters/registry';
@@ -120,7 +120,7 @@ function CurrencySwitch({
 /** "Amounts leave out Garage: money is hidden from you there." */
 function HiddenNotice({ ids }: { ids: string[] }) {
   const { t } = useLingui();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const nameOf = useLocationName();
   const fmt = useFormat();
   if (ids.length === 0) return null;
@@ -339,7 +339,7 @@ function Value({ data }: { data: Insights }) {
   const { t } = useLingui();
   const fmt = useFormat();
   const money = useMoney();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const nameOf = useLocationName();
   const { locations: locs, hiddenIn } = data.value;
   const currencies = currenciesOf(
@@ -677,7 +677,7 @@ function Warranties({
   const fmt = useFormat();
   const money = useMoney();
   const n = useNumbers();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const nameOf = useLocationName();
   const parts = [
     { key: 'covered', label: t`Under warranty`, n: data.covered, colour: 'var(--s1)' },

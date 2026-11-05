@@ -28739,6 +28739,50 @@ msgstr "Saisissez un nombre entier."
 msgid "The new receipt is added, but the old one couldn't be removed"
 msgstr "Le nouveau reçu est ajouté, mais l’ancien n’a pas pu être retiré"
 
+#: src/components/export/export-sheet.tsx
+msgid "<0>{hiddenName}</0> is hidden, so it isn't in this file. To export it, choose it under Export a location."
+msgstr "<0>{hiddenName}</0> est masqué, il n’est donc pas dans ce fichier. Pour l’exporter, choisissez-le dans Exporter un lieu."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "<0>{name}</0> is hidden from your menu, Home, lists and search. This link still opens it."
+msgstr "<0>{name}</0> est masqué de votre menu, de l’accueil, des listes et de la recherche. Ce lien l’ouvre quand même."
+
+#: src/components/ai/call-detail.tsx
+msgid "<0>{payer}</0>'s personal key"
+msgstr "Clé personnelle de <0>{payer}</0>"
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is showing because it's your only location. It hides again when you have another."
+msgstr "<0>{personal}</0> est affiché parce que c’est votre seul lieu. Il sera de nouveau masqué quand vous en aurez un autre."
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is your only location, so it stays. Add or join another first."
+msgstr "<0>{personal}</0> est votre seul lieu, il reste donc affiché. Ajoutez-en ou rejoignez-en d’abord un autre."
+
+#: src/components/hide-personal.tsx
+msgid "Hide <0>{personal}</0>"
+msgstr "Masquer <0>{personal}</0>"
+
+#: src/components/hide-personal.tsx
+msgid "It leaves the menu, Home, lists and search, for you only. Nothing in it changes, a link to it still opens it, and its reminders still reach you. Show it again here any time."
+msgstr "Il disparaît du menu, de l’accueil, des listes et de la recherche, pour vous seulement. Rien n’y change, un lien vers lui l’ouvre toujours et ses rappels vous parviennent toujours. Réaffichez-le ici quand vous voulez."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "Show it again"
+msgstr "Le réafficher"
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>."
+msgstr "Cette clé paie pour tous les logements de <0>{ownerName}</0> : <1>{list}</1>."
+
+#: src/components/ai/key-scope.tsx
+msgid "Used for your private threads, questions that span owners, <0>{personal}</0>, and a location you own and use alone that has no account key."
+msgstr "Utilisée pour vos conversations privées, les questions qui concernent plusieurs propriétaires, <0>{personal}</0> et un lieu dont vous êtes propriétaire, que vous utilisez seul et qui n’a pas de clé de compte."
+
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for your private threads and questions that span owners."
+msgstr "Votre propre clé sert pour vos conversations privées et les questions qui concernent plusieurs propriétaires."
+
 #: src/components/page-aside.tsx
 msgid "Collapse places"
 msgstr "Réduire les emplacements"

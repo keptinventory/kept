@@ -14,7 +14,7 @@ import { captureApi, captureKeys } from '@/api/capture/queries';
 import { type AccountTemplate, TEMPLATE_NAME_MAX, type TemplatePayload } from '@/api/capture/types';
 import { inventoryApi, inventoryKeys } from '@/api/inventory/queries';
 import type { ResolvedField } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { useErrorText } from '@/components/page';
 import { Sheet } from '@/components/places/sheet';
 import { useFieldLabel } from '@/components/things/names';
@@ -105,14 +105,18 @@ function TemplateForm({
   const errorText = useErrorText();
   const fieldLabel = useFieldLabel();
   const locationName = useLocationName();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const [d, setD] = useState<Draft>(() => draftOf(template));
   const [errors, setErrors] = useState<{ name?: string; locations?: string }>({});
   const set = (patch: Partial<Draft>) => setD((prev) => ({ ...prev, ...patch }));
 
   // Shared only with locations of this account you administer (the policy).
+  // A hidden Personal only while it's already chosen, so saving can't quietly unshare it.
   const shareable = (locations.data ?? []).filter(
-    (l) => l.ownerAccountId === accountId && (l.role === 'owner' || l.role === 'admin'),
+    (l) =>
+      l.ownerAccountId === accountId &&
+      (l.role === 'owner' || l.role === 'admin') &&
+      (!l.hidden || d.locationIds.includes(l.id)),
   );
   const type = useQuery({
     queryKey: inventoryKeys.types.detail(d.typeId ?? ''),
@@ -316,12 +320,17 @@ export function SaveAsTemplateSheet({
   const qc = useQueryClient();
   const errorText = useErrorText();
   const locationName = useLocationName();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const [name, setName] = useState(thingName);
   const [locationIds, setLocationIds] = useState<string[]>([locationId]);
   const [error, setError] = useState<string | null>(null);
   const shareable = (locations.data ?? [])
-    .filter((l) => l.ownerAccountId === accountId && (l.role === 'owner' || l.role === 'admin'))
+    .filter(
+      (l) =>
+        l.ownerAccountId === accountId &&
+        (l.role === 'owner' || l.role === 'admin') &&
+        (!l.hidden || locationIds.includes(l.id)),
+    )
     .map((l) => ({ id: l.id, name: locationName(l) }));
   const save = useMutation({
     mutationFn: () => captureApi.saveAsTemplate(thingId, { name: name.trim(), locationIds }),

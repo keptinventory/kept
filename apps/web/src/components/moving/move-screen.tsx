@@ -26,7 +26,7 @@ import { useState } from 'react';
 import type { Page as PageOf } from '@/api/inventory/types';
 import { movingApi } from '@/api/moving/queries';
 import type { Move, MoveBox } from '@/api/moving/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import type { FilterDef } from '@/components/filters/types';
 import {
   CheckCircleIcon,
@@ -268,7 +268,7 @@ function BoardView({ board }: { board: Board }) {
   const errorText = useErrorText();
   const f = useFormat();
   const refresh = useRefreshBoard();
-  const locations = useLocations().data ?? [];
+  const locations = useAllLocations().data ?? [];
   const locationName = useLocationName();
   const statuses = useMoveStatusLabels();
   const states = useBoxStateLabels();

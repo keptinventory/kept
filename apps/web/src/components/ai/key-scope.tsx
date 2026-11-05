@@ -10,7 +10,7 @@ import type { ReactNode } from 'react';
 import type { AiProvider, ProviderScope } from '@/api/capture/types';
 import { List } from '@/components/page';
 import { sep } from '@/lib/format';
-import { usePersonalName } from '@/lib/personal-name';
+import { usePersonalHidden, usePersonalName } from '@/lib/personal-name';
 import { useProviderName } from './labels';
 
 export function KeyScope({
@@ -26,6 +26,7 @@ export function KeyScope({
 }) {
   const list = homes.join(', ');
   const personal = usePersonalName();
+  const hidden = usePersonalHidden();
   return (
     <p className="m-0 text-[15px] text-ink">
       {scope === 'instance' ? (
@@ -33,9 +34,18 @@ export function KeyScope({
           This server's key pays for every location and person with no closer key. Limit what each
           account may spend below.
         </Trans>
+      ) : scope === 'me' && hidden ? (
+        <Trans>
+          Used for your private threads, questions that span owners, <bdi>{personal}</bdi>, and a
+          location you own and use alone that has no account key.
+        </Trans>
       ) : scope === 'me' ? (
         <Trans>
           Used for <bdi>{personal}</bdi>, your private threads, and questions that span owners.
+        </Trans>
+      ) : homes.length > 0 && hidden ? (
+        <Trans>
+          This key pays for all of <bdi>{ownerName}</bdi>'s homes: <bdi>{list}</bdi>.
         </Trans>
       ) : homes.length > 0 ? (
         <Trans>

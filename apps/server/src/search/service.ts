@@ -13,6 +13,7 @@ import { decodeCursor, encodeCursor } from '../http/conventions.js';
 import { invalid } from '../http/errors.js';
 import { filterOf, lowerIds, type Many } from '../http/list-filters.js';
 import { requireMembership } from '../locations/access.js';
+import { shownFilter } from '../locations/hidden.js';
 import { gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { SIGNED_URL_TTL_SECONDS } from '../storage/signed-url.js';
@@ -325,7 +326,9 @@ export async function search(
   // not an empty result that reads as "nothing there": any of them, "any of" or "none of".
   const locationIds = lowerIds(query.locationId);
   for (const id of locationIds) await requireMembership(client, id);
-  const location = filterOf(locationIds, 'locationId', query.not);
+  // Everything but a hidden Personal (#392), unless the search names it or a place in it.
+  const asked = filterOf(locationIds, 'locationId', query.not);
+  const location = query.placeId?.length ? asked : await shownFilter(client, asked);
   const terms = termsOf(query.q);
   const kind = query.kind;
   const withQ = terms.raw !== '';

@@ -28739,6 +28739,50 @@ msgstr "Gib eine ganze Zahl ein."
 msgid "The new receipt is added, but the old one couldn't be removed"
 msgstr "Der neue Beleg ist hinzugefügt, aber der alte konnte nicht entfernt werden"
 
+#: src/components/export/export-sheet.tsx
+msgid "<0>{hiddenName}</0> is hidden, so it isn't in this file. To export it, choose it under Export a location."
+msgstr "<0>{hiddenName}</0> ist ausgeblendet und deshalb nicht in dieser Datei. Um ihn zu exportieren, wähle ihn unter Einen Standort exportieren."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "<0>{name}</0> is hidden from your menu, Home, lists and search. This link still opens it."
+msgstr "<0>{name}</0> ist in deinem Menü, auf der Startseite, in Listen und in der Suche ausgeblendet. Dieser Link öffnet ihn trotzdem."
+
+#: src/components/ai/call-detail.tsx
+msgid "<0>{payer}</0>'s personal key"
+msgstr "Persönlicher Schlüssel von <0>{payer}</0>"
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is showing because it's your only location. It hides again when you have another."
+msgstr "<0>{personal}</0> wird angezeigt, weil es dein einziger Standort ist. Er wird wieder ausgeblendet, sobald du einen weiteren hast."
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is your only location, so it stays. Add or join another first."
+msgstr "<0>{personal}</0> ist dein einziger Standort und bleibt deshalb. Füge zuerst einen weiteren hinzu oder tritt einem bei."
+
+#: src/components/hide-personal.tsx
+msgid "Hide <0>{personal}</0>"
+msgstr "<0>{personal}</0> ausblenden"
+
+#: src/components/hide-personal.tsx
+msgid "It leaves the menu, Home, lists and search, for you only. Nothing in it changes, a link to it still opens it, and its reminders still reach you. Show it again here any time."
+msgstr "Er verschwindet aus Menü, Startseite, Listen und Suche, nur für dich. Darin ändert sich nichts, ein Link öffnet ihn weiterhin und seine Erinnerungen erreichen dich weiter. Du kannst ihn hier jederzeit wieder anzeigen."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "Show it again"
+msgstr "Wieder anzeigen"
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>."
+msgstr "Dieser Schlüssel bezahlt für alle Zuhause von <0>{ownerName}</0>: <1>{list}</1>."
+
+#: src/components/ai/key-scope.tsx
+msgid "Used for your private threads, questions that span owners, <0>{personal}</0>, and a location you own and use alone that has no account key."
+msgstr "Wird für deine privaten Verläufe, Fragen über mehrere Eigentümer hinweg, <0>{personal}</0> und einen Standort genutzt, der dir gehört, den nur du nutzt und der keinen Kontoschlüssel hat."
+
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for your private threads and questions that span owners."
+msgstr "Dein eigener Schlüssel ist für deine privaten Verläufe und Fragen über mehrere Eigentümer hinweg."
+
 #: src/components/page-aside.tsx
 msgid "Collapse places"
 msgstr "Orte einklappen"

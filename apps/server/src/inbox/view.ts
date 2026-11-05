@@ -13,6 +13,7 @@ import { CALL_COLUMNS, type CallRow, CallSummary, callSummaryOf } from '../extra
 import { type PageRequest, pageOf } from '../http/conventions.js';
 import { forbidden, invalid } from '../http/errors.js';
 import { requireCan, requireMembership } from '../locations/access.js';
+import { namedOrShown } from '../locations/hidden.js';
 import { RoomViewSchema, roomViews } from '../room/view.js';
 import { thumbKeysOf, thumbUrlOf } from '../search/service.js';
 import { type Gate, gateFor } from '../serialize/gates.js';
@@ -336,7 +337,7 @@ export async function listInbox(
               min(i.created_at) OVER (PARTITION BY coalesce(i.batch_id, i.id)) AS sort_at
          FROM public.inbox_items i
         WHERE ${LIVE_SUBJECT}
-          AND ($1::uuid IS NULL OR i.location_id = $1::uuid)
+          AND ${namedOrShown('i.location_id', '$1')}
           AND (NOT $2::boolean OR i.created_by = kept.current_user_id())
      ),
      filtered AS MATERIALIZED (
@@ -387,7 +388,7 @@ async function countsOf(
             count(*)::int AS everyone
        FROM public.inbox_items i
       WHERE ${LIVE_SUBJECT}
-        AND ($1::uuid IS NULL OR i.location_id = $1::uuid)
+        AND ${namedOrShown('i.location_id', '$1')}
       GROUP BY i.kind`,
     [locationId, mine],
   );

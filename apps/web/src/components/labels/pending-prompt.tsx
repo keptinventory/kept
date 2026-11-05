@@ -8,7 +8,7 @@
 import type { SnapThing } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery } from '@tanstack/react-query';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { PrinterIcon } from '@/components/icons';
 import { IdChip } from '@/components/id-chip';
 import { LinkButton } from '@/components/page';
@@ -36,7 +36,7 @@ export function PendingPrompt() {
   const offline = useOffline();
   const status = useSyncStatus();
   const locationName = useLocationName();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const count = status?.printPending ?? 0;
   const things = useQuery({
     queryKey: ['labels', 'pending', count],

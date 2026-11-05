@@ -85,7 +85,7 @@ one file per area. This page is the map.
 | Table | File | What it is |
 |---|---|---|
 | `auth.user`, `auth.session`, `auth.account`, `auth.passkey`, `auth.two_factor`, … | `auth.ts` | Better Auth's tables, in schema `auth`, plus Kept's `auth.session_mfa` and `auth.sign_in_failures` |
-| `user_profiles` | `tenancy.ts` | Display name, locale, time zone, units, digits, quiet hours, `managed` |
+| `user_profiles` | `tenancy.ts` | Display name, locale, time zone, units, digits, quiet hours, `managed`, `hide_personal` |
 | `owner_accounts` | `tenancy.ts` | One per user; owns locations and the account registries |
 | `locations` | `tenancy.ts` | A household: kind, currency, time zone, `require_2fa`, `deleted_at` (30-day grace) |
 | `memberships` | `tenancy.ts` | (`location_id`, `user_id`, `role`: owner · admin · member · viewer, `expires_at`) |

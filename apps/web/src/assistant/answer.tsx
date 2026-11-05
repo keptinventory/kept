@@ -14,7 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import { inventoryApi, inventoryKeys } from '@/api/inventory/queries';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { IdChip } from '@/components/id-chip';
 import { usePlaceName } from '@/components/places/labels';
 import { isolate } from '@/lib/bidi';
@@ -88,7 +88,7 @@ function ThingRef({
 }) {
   const { t } = useLingui();
   const f = useFormat();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const locationName = useLocationName();
   const placeName = usePlaceName();
   const thing = useQuery({
@@ -200,7 +200,7 @@ export function ToolStep({
   pending: boolean;
 }) {
   const { t, i18n } = useLingui();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const locationName = useLocationName();
   const names = (locationIds ?? [])
     .map((id) => locations.data?.find((l) => l.id === id))

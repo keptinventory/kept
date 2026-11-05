@@ -11,6 +11,7 @@ import { Trans } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
 import { type ReactNode, useState } from 'react';
 import { Button as AriaButton } from 'react-aria-components';
+import { useMe } from '@/api/queries';
 import type { LocationSummary } from '@/api/types';
 import { CameraIcon, PlusIcon, QrIcon } from '@/components/icons';
 import { CreateThingSheet } from '@/components/things/create-sheet';
@@ -44,7 +45,9 @@ export function Shortcuts({
   className?: string;
 }) {
   const [adding, setAdding] = useState(false);
-  const addTo = addTargetOf(locations);
+  // Personal hidden and nothing else you can add to (#392): it still takes the thing.
+  const me = useMe();
+  const addTo = addTargetOf(locations) ?? me.data?.personalLocationId ?? undefined;
   // The same rule as QuickLog's: online, Home's count; offline, the phone's snapshot.
   const online = useOnline();
   const offline = useQuickLogTargets(!online && meteredThings === undefined);

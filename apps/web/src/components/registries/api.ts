@@ -46,7 +46,7 @@ import type {
   UpdateRegistryBody,
   UpdateTypeFieldBody,
 } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import type { LocationSummary } from '@/api/types';
 import { withoutCustomised } from '@/lib/type-list';
 
@@ -154,7 +154,7 @@ export type AccountScope = {
 /** The account `requested` names, or your own; with your role in it. */
 export function useAccountScope(requested?: string): AccountScope {
   const accounts = useAccounts();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const list = accounts.data?.accounts ?? [];
   const account =
     list.find((a) => a.id === requested) ?? list.find((a) => a.isOwn) ?? list[0] ?? undefined;

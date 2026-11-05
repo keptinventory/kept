@@ -28739,6 +28739,50 @@ msgstr "أدخل عددًا صحيحًا."
 msgid "The new receipt is added, but the old one couldn't be removed"
 msgstr "أُضيف الإيصال الجديد، لكن تعذّرت إزالة القديم"
 
+#: src/components/export/export-sheet.tsx
+msgid "<0>{hiddenName}</0> is hidden, so it isn't in this file. To export it, choose it under Export a location."
+msgstr "<0>{hiddenName}</0> مخفي، لذا ليس في هذا الملف. لتصديره، اختره من تصدير موقع."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "<0>{name}</0> is hidden from your menu, Home, lists and search. This link still opens it."
+msgstr "<0>{name}</0> مخفي من قائمتك والصفحة الرئيسية والقوائم والبحث. هذا الرابط يفتحه مع ذلك."
+
+#: src/components/ai/call-detail.tsx
+msgid "<0>{payer}</0>'s personal key"
+msgstr "المفتاح الشخصي لـ<0>{payer}</0>"
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is showing because it's your only location. It hides again when you have another."
+msgstr "<0>{personal}</0> ظاهر لأنه موقعك الوحيد. سيُخفى من جديد حين يصبح لديك موقع آخر."
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is your only location, so it stays. Add or join another first."
+msgstr "<0>{personal}</0> هو موقعك الوحيد، لذا يبقى ظاهرًا. أضف موقعًا آخر أو انضم إلى واحد أولًا."
+
+#: src/components/hide-personal.tsx
+msgid "Hide <0>{personal}</0>"
+msgstr "إخفاء <0>{personal}</0>"
+
+#: src/components/hide-personal.tsx
+msgid "It leaves the menu, Home, lists and search, for you only. Nothing in it changes, a link to it still opens it, and its reminders still reach you. Show it again here any time."
+msgstr "يختفي من القائمة والصفحة الرئيسية والقوائم والبحث، لك وحدك. لا يتغير شيء فيه، ويظل الرابط إليه يفتحه، وتظل تذكيراته تصلك. أظهره من هنا متى شئت."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "Show it again"
+msgstr "إظهاره من جديد"
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>."
+msgstr "يدفع هذا المفتاح لكل بيوت <0>{ownerName}</0>: <1>{list}</1>."
+
+#: src/components/ai/key-scope.tsx
+msgid "Used for your private threads, questions that span owners, <0>{personal}</0>, and a location you own and use alone that has no account key."
+msgstr "يُستخدم لمحادثاتك الخاصة، والأسئلة التي تشمل أكثر من مالك، وموقع <0>{personal}</0>، وأي موقع تملكه وتستخدمه وحدك وليس له مفتاح حساب."
+
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for your private threads and questions that span owners."
+msgstr "مفتاحك الخاص لمحادثاتك الخاصة والأسئلة التي تشمل أكثر من مالك."
+
 #: src/components/page-aside.tsx
 msgid "Collapse places"
 msgstr "طيّ الأماكن"

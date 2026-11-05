@@ -68,6 +68,21 @@ describe('cascade', () => {
     expect(r?.payer).toEqual({ scope: 'instance', accountId: null, userId: null, fellBack: true });
   });
 
+  it('with Personal hidden, a home its owner has alone: account, then their key (#392)', () => {
+    const alone = { ...shared, ownerAloneWithPersonalHidden: true };
+    const run = (list: typeof providers) =>
+      cascade({
+        providers: list,
+        location: alone,
+        userId: 'alfred',
+        userAccountId: 'acct-alfred',
+        task: 'extraction',
+      });
+    expect(run([instance, alfredUser])?.provider.id).toBe(alfredUser.id);
+    expect(run([instance, alfredUser])?.payer.fellBack).toBe(true);
+    expect(run(providers)?.provider.id).toBe('alfred-acct');
+  });
+
   it('a Personal location: the owner’s key, then their account, then the instance', () => {
     expect(
       cascade({

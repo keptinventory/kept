@@ -566,7 +566,8 @@ async function readMe(client: pg.ClientBase): Promise<Record<string, unknown>> {
   const all = async (sql: string) => (await client.query(sql)).rows;
   const [profile] = await all(
     `SELECT display_name AS "displayName", timezone, locale, units, theme, digits,
-            suggest_location AS "suggestLocation", digest_time::text AS "digestTime",
+            suggest_location AS "suggestLocation", hide_personal AS "hidePersonal",
+            digest_time::text AS "digestTime",
             quiet_from::text AS "quietFrom", quiet_to::text AS "quietTo"
        FROM public.user_profiles WHERE user_id = kept.current_user_id()`,
   );

@@ -14,7 +14,7 @@ import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useConnectionChanges, useTokens } from '@/api/connections/queries';
 import type { ConnectionChange } from '@/api/connections/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { EventRow } from '@/components/history/timeline';
 import { type Refusal, undoApi, useUndoRefusal } from '@/components/history/undo';
 import { ActivityIcon } from '@/components/icons';
@@ -35,7 +35,7 @@ export function RecentChanges() {
   const tokenId = search.changes || undefined;
   const changes = useConnectionChanges(tokenId);
   const tokens = useTokens();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const nameOf = useLocationName();
   const items = changes.data?.pages.flatMap((p) => p.items) ?? [];
   const options = [

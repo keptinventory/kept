@@ -22,6 +22,7 @@ import { decodeCursor, encodeCursor, PAGE_DEFAULT, PAGE_MAX } from '../http/conv
 import { invalid, notFound } from '../http/errors.js';
 import { filterOf, lowerIds, manyOf, matchOf, notOf, When } from '../http/list-filters.js';
 import { requireMembership } from '../locations/access.js';
+import { shownFilter } from '../locations/hidden.js';
 import { gateFor } from '../serialize/gates.js';
 import { arrangedIds, type NodeName } from './arrange.js';
 import { type Summary, summarise } from './summary.js';
@@ -1031,7 +1032,7 @@ export async function activity(
   // location named either way must be one the caller can see (404, review #36).
   const locationIds = lowerIds(query.locationId);
   for (const id of locationIds) await requireMembership(client, id);
-  const location = filterOf(locationIds, 'locationId', query.not);
+  const location = await shownFilter(client, filterOf(locationIds, 'locationId', query.not));
   if (location && !location.not) {
     where.add((v) => `e.location_id = ANY (${v(location.values)}::uuid[])`);
   } else {
