@@ -7,7 +7,7 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { revokeMySession } from '@/api/account';
+import { revokeMySession, signOutOtherSessions } from '@/api/account';
 import { keys, useMe, useMySessions } from '@/api/queries';
 import type { DeviceSession } from '@/api/types';
 import { ChangeEmail } from '@/components/change-email';
@@ -228,9 +228,7 @@ function Sessions() {
   const errorText = useErrorText();
   const others = sessions.data?.filter((s) => !s.current) ?? [];
   const revokeOthers = useMutation({
-    mutationFn: async () => {
-      for (const s of others) await revokeMySession(s.id);
-    },
+    mutationFn: signOutOtherSessions,
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: keys.sessions });
       toast({ title: t`Signed out of your other devices`, tone: 'ok' });

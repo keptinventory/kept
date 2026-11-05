@@ -519,6 +519,53 @@ describe('devices: GET /api/v1/me/sessions, DELETE /api/v1/me/sessions/:id', () 
     });
   });
 
+  // catalogue: POST /api/v1/me/sessions/sign-out-others
+  it('signs out every other device and ends the connectors, audited per session', async () => {
+    const user = await newUser('others');
+    await ensureAccount(db.pools, user.userId);
+    const a = await signIn(user.email);
+    const b = await signIn(user.email);
+    await seedRefreshToken(db, user.userId);
+    const someoneElse = await newUser('bystander');
+    const theirCookie = await signIn(someoneElse.email);
+    await seedRefreshToken(db, someoneElse.userId);
+
+    const listed = await call('/api/v1/me/sessions', { cookie: a });
+    const all = listed.json().sessions as { id: string; current: boolean }[];
+    const otherIds = all.filter((s) => !s.current).map((s) => s.id);
+    // Sign-up signed in too: two others.
+    expect(otherIds).toHaveLength(2);
+
+    const res = await call('/api/v1/me/sessions/sign-out-others', { cookie: a, body: {} });
+    expect(res.statusCode, res.body).toBe(204);
+
+    expect((await call('/api/v1/me/sessions', { cookie: b })).statusCode).toBe(401);
+    const left = await call('/api/v1/me/sessions', { cookie: a });
+    expect(left.statusCode).toBe(200);
+    expect(left.json().sessions).toHaveLength(1);
+    expect(await refreshTokenCount(db, user.userId)).toBe(0);
+    const audit = await accountAudit(user.userId);
+    for (const id of otherIds) {
+      expect(audit).toContainEqual({ action: 'session.revoke', entity_id: id });
+    }
+
+    // Nobody else's sign-ins move.
+    expect((await call('/api/v1/me/sessions', { cookie: theirCookie })).statusCode).toBe(200);
+    expect(await refreshTokenCount(db, someoneElse.userId)).toBe(1);
+  });
+
+  it('signing out one chosen device leaves the connectors signed in', async () => {
+    const user = await newUser('one-device');
+    await ensureAccount(db.pools, user.userId);
+    const a = await signIn(user.email);
+    await signIn(user.email);
+    await seedRefreshToken(db, user.userId);
+    const [row] = await sessionRows(user.userId);
+    const res = await call(`/api/v1/me/sessions/${row?.id}`, { method: 'DELETE', cookie: a });
+    expect(res.statusCode).toBe(204);
+    expect(await refreshTokenCount(db, user.userId)).toBe(1);
+  });
+
   it("404s on another user's session, and leaves it alone", async () => {
     const mine = await newUser('mine');
     const theirs = await newUser('theirs');

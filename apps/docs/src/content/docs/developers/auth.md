@@ -38,8 +38,10 @@ again on every signed-in request (cached), and from the hourly `repair-orphans` 
 - **Cookies** are Better Auth's, HttpOnly, with `Secure` and the `__Secure-` prefix exactly when
   `KEPT_PUBLIC_URL` is `https`. Kept strips any `token` field from Better Auth's JSON bodies, so a
   page script never sees a session token.
-- **Your devices** are listed with `GET /api/v1/me/sessions` and signed out with
-  `DELETE /api/v1/me/sessions/:id`.
+- **Your devices** are listed with `GET /api/v1/me/sessions`. `DELETE /api/v1/me/sessions/:id`
+  signs out one and leaves connectors signed in. `POST /api/v1/me/sessions/sign-out-others` signs
+  out every other device and ends the connectors' refresh tokens, in one transaction. Each session
+  it ends is audited as `session.revoke`.
 - **Client address.** Kept decides it from the socket, walking `X-Forwarded-For` only through
   `KEPT_TRUSTED_PROXIES` (`auth/client-ip.ts`), and hands Better Auth that one value. Every per-IP
   limit uses it. See [reverse proxies](/install/reverse-proxy/).
@@ -186,7 +188,11 @@ rule for the rest: whatever signs out the person's other devices deletes all of 
 tokens too, and the connector signs in again. That is a password reset or change (a managed
 account's reset code included, when it is issued and when it is redeemed), turning two-factor on
 or off or replacing it, new backup codes, adding or removing a passkey, unlinking an outside
-sign-in, an email change, signing out everywhere and disabling the account. An account claim
+sign-in, an email change, **Sign out of all other devices**, signing out everywhere and disabling
+the account. Signing out one chosen device (`DELETE /api/v1/me/sessions/:id`) ends that session
+only. The exception: asking to delete the account (`POST /api/v1/me/deletion`) signs out the other
+devices but keeps the refresh tokens. Connectors answer nothing while the account waits (migration
+`0114`), and keeping the account gives them back with no new sign-in. An account claim
 (D197) deletes the person's refresh tokens and Better Auth's consent rows, so a connector meets
 the consent page again and gets a new grant. Each refresh keeps the old row, revoked, because
 replaying it ends the lineage; the nightly `prune-stale-rows` job removes a row once it has

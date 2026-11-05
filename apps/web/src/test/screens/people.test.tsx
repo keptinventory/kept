@@ -345,6 +345,20 @@ describe('Settings → Me', () => {
     await waitFor(() => expect(mock.lastCall('DELETE', paths.mySession('s-3'))).toBeTruthy());
   });
 
+  it('signs out every other device in one call, not one at a time', async () => {
+    const { user, mock } = await renderApp('/settings');
+    await screen.findByText('Chrome on Windows');
+    await user.click(screen.getByRole('button', { name: 'Sign out of all other devices' }));
+    await user.click(
+      within(
+        screen.getByRole('alertdialog', { name: 'Sign out of every other device?' }),
+      ).getByRole('button', { name: 'Sign out others' }),
+    );
+    await waitFor(() => expect(mock.lastCall('POST', paths.myOtherSessions)).toBeTruthy());
+    expect(mock.lastCall('DELETE', paths.mySession('s-3'))).toBeFalsy();
+    expect(await screen.findByText('Signed out of your other devices')).toBeInTheDocument();
+  });
+
   it('says when the devices could not load', async () => {
     await renderApp('/settings', {
       setup: (m) =>

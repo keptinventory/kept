@@ -2,12 +2,17 @@ import { z } from 'zod';
 import { auditAccountEvent } from '../accounts/account-audit.js';
 import type { Pools } from '../db/pools.js';
 import type { KeptApp } from '../http/app.js';
-import { notFound } from '../http/errors.js';
+import { notFound, unauthenticated } from '../http/errors.js';
+import { endRefreshTokens } from '../oauth/refresh-tokens.js';
 import { requireScope } from './http.js';
 
-// The signed-in user's devices: every live session, and revoking one. Sessions are
-// Better Auth's rows in schema auth, so these read and write through kept_auth; the audit event
-// goes through kept_app like any other.
+// The signed-in user's devices: every live session, revoking one, and signing out all the others.
+// Sessions are Better Auth's rows in schema auth, so these read and write through kept_auth; the
+// audit event goes through kept_app like any other.
+//
+// Signing out one chosen device ends that session and nothing else. Signing out all the others is
+// the same act as every other "signs out your other devices", so it ends the connectors' refresh
+// tokens too (endRefreshTokens): the sessions and the tokens go in one transaction.
 
 const SessionView = z.object({
   id: z.uuid(),
@@ -64,6 +69,38 @@ export async function meSessionRoutes(
       };
     },
   );
+
+  app.post('/api/v1/me/sessions/sign-out-others', async (req, reply) => {
+    const scope = requireScope(req);
+    const keep = req.authSession?.sessionId;
+    // Tokens never reach this route (tokens/access.ts); with no session there is no "this device".
+    if (!keep) throw unauthenticated();
+    const client = await pools.auth.connect();
+    let ended: string[];
+    try {
+      await client.query('BEGIN');
+      const { rows } = await client.query<{ id: string }>(
+        'DELETE FROM auth.session WHERE user_id = $1 AND id <> $2 RETURNING id',
+        [scope.userId, keep],
+      );
+      await endRefreshTokens(client, scope.userId);
+      await client.query('COMMIT');
+      ended = rows.map((r) => r.id);
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => {});
+      throw err;
+    } finally {
+      client.release();
+    }
+    for (const id of ended) {
+      await auditAccountEvent(pools.app, scope.userId, {
+        action: 'session.revoke',
+        entity: { type: 'session', id },
+        requestId: req.id,
+      });
+    }
+    return reply.code(204).send();
+  });
 
   app.delete(
     '/api/v1/me/sessions/:id',
