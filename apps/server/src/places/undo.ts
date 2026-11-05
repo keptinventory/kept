@@ -15,9 +15,11 @@ import { enqueueReindex } from '../search/jobs.js';
 import { gateFor } from '../serialize/gates.js';
 import { conversionLosses } from '../things/losses.js';
 import {
+  auditPlaceRelocations,
   auditRelocations,
   ORPHAN_RETURNING,
   type Orphan,
+  type PlaceRelocation,
   relocationOf,
 } from '../things/relocate.js';
 import { findPlace, type PlaceRow, placeKindOf } from './view.js';
@@ -154,7 +156,8 @@ async function undoPlace(args: UndoArgs): Promise<void> {
  * with it, as a restore brings it back (restorePlace): anything whose parent place or container
  * is still in the trash goes to the top level (a place) or the Unplaced area (a thing). What the
  * trash moved out (`moved_thing_ids`, `moved_place_ids`, `moved_to`) goes back in, where it is
- * still where the trash put it; anything moved on since stays where it is now.
+ * still where the trash put it; anything moved on since stays where it is now. Every place and
+ * thing that moves gets its own line, as the trash's did (#441).
  */
 async function undoPlaceTrash(args: UndoArgs): Promise<void> {
   const { event, client } = args;
@@ -190,11 +193,12 @@ async function undoPlaceTrash(args: UndoArgs): Promise<void> {
     : { rows: [] };
   const restoredPlaces = places.map((r) => r.id);
   const restoredThings = things.map((r) => r.id);
-  await client.query(
+  const { rows: orphanPlaces } = await client.query<{ id: string; was_parent: string }>(
     `UPDATE public.places p SET parent_id = NULL
       WHERE p.id = ANY ($1::uuid[])
         AND EXISTS (SELECT 1 FROM public.places q
-                     WHERE q.id = p.parent_id AND q.deleted_at IS NOT NULL)`,
+                     WHERE q.id = p.parent_id AND q.deleted_at IS NOT NULL)
+      RETURNING p.id, old.parent_id AS was_parent`,
     [restoredPlaces],
   );
   const { rows: orphans } = await client.query<Orphan>(
@@ -220,6 +224,7 @@ async function undoPlaceTrash(args: UndoArgs): Promise<void> {
     return Array.isArray(v) ? (v as string[]) : [];
   };
   let back: Orphan[] = [];
+  let placesBack: PlaceRelocation[] = [];
   if (to) {
     ({ rows: back } = await client.query<Orphan>(
       `UPDATE public.things t SET place_id = $2, container_id = NULL
@@ -229,12 +234,14 @@ async function undoPlaceTrash(args: UndoArgs): Promise<void> {
         RETURNING ${ORPHAN_RETURNING}`,
       [ids('moved_thing_ids'), id, to.place_id, to.container_id, loc],
     ));
-    await client.query(
+    const { rows } = await client.query<{ id: string }>(
       `UPDATE public.places SET parent_id = $2
         WHERE id = ANY ($1::uuid[]) AND location_id = $4 AND deleted_at IS NULL
-          AND parent_id IS NOT DISTINCT FROM $3::uuid`,
+          AND parent_id IS NOT DISTINCT FROM $3::uuid
+        RETURNING id`,
       [ids('moved_place_ids'), id, to.parent_id, loc],
     );
+    placesBack = rows.map((r) => ({ id: r.id, before: to.parent_id, after: id }));
   }
 
   await args.audit({
@@ -248,11 +255,12 @@ async function undoPlaceTrash(args: UndoArgs): Promise<void> {
     },
     subjects: [...restoredThings, ...back.map((b) => b.id)],
   });
-  await auditRelocations(
-    args.tx,
-    { locationId: loc, actor: actorOf(args.scope), requestId: args.requestId },
-    [...orphans, ...back].map(relocationOf),
-  );
+  const at = { locationId: loc, actor: actorOf(args.scope), requestId: args.requestId };
+  await auditRelocations(args.tx, at, [...orphans, ...back].map(relocationOf));
+  await auditPlaceRelocations(args.tx, at, [
+    ...orphanPlaces.map((r) => ({ id: r.id, before: r.was_parent, after: null })),
+    ...placesBack,
+  ]);
   await enqueueReindex(args.deps.jobs, client, loc);
 }
 
