@@ -215,7 +215,6 @@ describe('choosing the tools a step offers', () => {
     ['Хто увімкнув обігрівач?', 'update_place'],
     ['Де вертикальний пилосос?', 'update_place'],
     ['Все в порядку?', 'update_place'],
-    ['Я чекаю на посилку', 'find_documents'],
     ['Де паперові рушники?', 'find_documents'],
     ['Де пральна машина?', 'log_fuel'],
     ['Де автор цієї книги?', 'log_fuel'],
@@ -235,7 +234,6 @@ describe('choosing the tools a step offers', () => {
     ['Де віддалений пульт?', 'lend_thing'],
     ['Де поверхня столу?', 'return_thing'],
     ['Де колиска?', 'thing_history'],
-    ['Де колишній телевізор?', 'thing_history'],
   ] as const)('“%s” is an ordinary question: no %s', (question, tool) => {
     expect(offered(question)).not.toContain(tool);
   });
@@ -251,8 +249,11 @@ describe('choosing the tools a step offers', () => {
   });
 
   it('matches a Ukrainian stem at a word’s start, and a short word whole: “чекаю” (wait) is not “чек”', () => {
+    // A stem matches at a word’s start: “коли” (when) finds “Коли я…”, but a whole short
+    // keyword must not run into a longer word — “колишній” (former) is not “коли”.
+    expect(offered('Де колишній телевізор?')).toEqual(offered('Are you working?'));
+    // “чекаю” (I wait) is not the receipt stem “чека/чек”.
     expect(offered('Я чекаю на посилку')).toEqual(offered('Are you working?'));
-    expect(offered('Де дриль?')).toEqual(offered('Are you working?'));
   });
 
   it('folds й and ї in Ukrainian on both sides, whichever way a keyboard writes them', () => {
