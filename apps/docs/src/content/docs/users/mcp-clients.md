@@ -88,13 +88,19 @@ endpoint and either **Available** or **Needs an https public URL**.
    again.
 4. The app appears under **Connected apps** in **Settings → Connections**.
 
-The app stays connected until you remove it, or until it goes 30 days without being used; then it
-has to sign in again. Each access token it gets lasts an hour and the app
-renews it without asking you again; Kept checks your grant on every call, so removing the app in
-**Settings → Connections** works at once. The app has to sign in again after anything that signs
-out your other devices: a new password or a password
-reset, a change to two-factor, backup codes or passkeys, unlinking an outside sign-in, a new email
-address, or an admin signing you out everywhere or disabling your account.
+The app stays connected until you press **Revoke** on it and confirm (Kept asks **Disconnect
+_App_?**), or until it goes 30 days without being used; then it has to sign in again. Each access token it gets lasts
+an hour and the app renews it without asking you again; Kept checks your grant on every call, so
+**Revoke** in **Settings → Connections** works at once.
+
+The app has to sign in again after anything that signs out your other devices: **Sign out of all
+other devices**, a new password or a password reset, a change to two-factor, backup codes or
+passkeys, unlinking an outside sign-in, a new email address, or an admin signing you out everywhere
+or disabling your account. Signing out one chosen device leaves the app signed in.
+
+One exception: asking to delete your account signs out your other devices but keeps the app's
+sign-in. The app stops working while the account waits, and if you keep the account, it works again
+without signing in.
 
 Things that stop a connector:
 

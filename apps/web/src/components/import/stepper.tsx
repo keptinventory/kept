@@ -106,10 +106,11 @@ export function ImportStepper({
   const [step, setStep] = useState<Step>('file');
   const [showProblems, setShowProblems] = useState(false);
 
-  // A hidden Personal only when the address names it.
-  const importable = (locations.data ?? []).filter(
-    (l) => (l.role === 'owner' || l.role === 'admin') && (!l.hidden || l.id === locationParam),
-  );
+  // A hidden Personal only when the address names it, or when nothing else takes an import, as
+  // Capture starts there when it can write nowhere else (#392).
+  const adminned = (locations.data ?? []).filter((l) => l.role === 'owner' || l.role === 'admin');
+  const shown = adminned.filter((l) => !l.hidden || l.id === locationParam);
+  const importable = shown.length > 0 ? shown : adminned;
   const locationId =
     locationParam && importable.some((l) => l.id === locationParam)
       ? locationParam
@@ -144,19 +145,8 @@ export function ImportStepper({
 
   if (locations.isPending) return <LoadingRows rows={4} />;
   if (locations.isError) return <ErrorState error={locations.error} />;
-  if (importable.length === 0) {
-    return (
-      <EmptyState title={<Trans>Only owners and admins can import</Trans>}>
-        <Trans>
-          Importing adds things to a location, so it's for its owners and admins. Ask one of them,
-          or import into a location of your own.
-        </Trans>
-      </EmptyState>
-    );
-  }
 
-  const name = location ? locationName(location) : '';
-
+  // A run opens first: someone's own past import stays theirs to read wherever they import now.
   if (runId) {
     return (
       <RunSwitch
@@ -166,7 +156,6 @@ export function ImportStepper({
         csv={
           <RunView
             runId={runId}
-            locationName={name}
             hasFile={!!draft}
             onAdjust={() => {
               go({ location: locationId });
@@ -194,6 +183,19 @@ export function ImportStepper({
       />
     );
   }
+
+  if (importable.length === 0) {
+    return (
+      <EmptyState title={<Trans>Only owners and admins can import</Trans>}>
+        <Trans>
+          Importing adds things to a location, so it's for its owners and admins. Ask one of them,
+          or import into a location of your own.
+        </Trans>
+      </EmptyState>
+    );
+  }
+
+  const name = location ? locationName(location) : '';
 
   if (sourceParam) {
     return (
@@ -357,14 +359,12 @@ function RunSwitch({
 
 function RunView({
   runId,
-  locationName,
   hasFile,
   onAdjust,
   onAnother,
   nameOf,
 }: {
   runId: string;
-  locationName: string;
   hasFile: boolean;
   onAdjust: () => void;
   onAnother: () => void;
@@ -376,6 +376,10 @@ function RunView({
   const errorText = useImportErrorText();
   const query = useImportRun(runId);
   const run = query.data;
+  // The run's own location, wherever the person can import now (it may be a hidden Personal).
+  const nameOfLocation = useLocationName();
+  const own = useAllLocations().data?.find((l) => l.id === run?.locationId);
+  const locationName = own ? nameOfLocation(own) : '';
   const [failure, setFailure] = useState<string | null>(null);
   const key = captureKeys.imports.run(runId);
   const put = (next: ImportRun) => {

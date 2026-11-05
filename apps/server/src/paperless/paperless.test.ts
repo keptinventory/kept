@@ -23,7 +23,7 @@ import { limiterKey } from '../auth/sign-in-limiter.js';
 import type { Keyring, MasterKey } from '../crypto/envelope.js';
 import { fixedSecretKeys } from '../crypto/keyring.js';
 import { runTool } from '../tools/context.js';
-import { PaperlessClient, PaperlessError, partialWords } from './client.js';
+import { PaperlessClient, PaperlessError, paperlessTitle, partialWords } from './client.js';
 import { paperlessRoot, paperlessToken } from './config.js';
 import { kindOf } from './kinds.js';
 
@@ -152,6 +152,32 @@ describe('partly typed words (#420)', () => {
     expect(partialWords('salt and pepper')).toBe(
       '(salt OR salt*) (and OR and*) (pepper OR pepper*)',
     );
+  });
+});
+
+describe('a document title as Kept stores it', () => {
+  const POO = '\u{1F4A9}';
+
+  it('trims and cuts at 300, and empty is null', () => {
+    expect(paperlessTitle('  Drill receipt ')).toBe('Drill receipt');
+    expect(paperlessTitle('x'.repeat(400))).toBe('x'.repeat(300));
+    expect(paperlessTitle('   ')).toBeNull();
+  });
+
+  it("takes out what Postgres can't store, anywhere in it", () => {
+    expect(paperlessTitle('Drill\u0000 receipt\u0000')).toBe('Drill receipt');
+    expect(paperlessTitle('\u0000  ')).toBeNull();
+  });
+
+  it('never leaves half a character behind', () => {
+    // A character made of two UTF-16 units, across the cut at 300.
+    const cut = paperlessTitle(`${'x'.repeat(299)}${POO}y`);
+    expect(cut).toBe('x'.repeat(299));
+    expect(cut?.isWellFormed()).toBe(true);
+    // One that fits stays, and a lone unit from the source goes.
+    expect(paperlessTitle(`a${POO}b`)).toBe(`a${POO}b`);
+    expect(paperlessTitle('a\uD83Db')).toBe('ab');
+    expect(paperlessTitle('\uDCA9')).toBeNull();
   });
 });
 

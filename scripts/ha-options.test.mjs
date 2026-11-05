@@ -405,6 +405,16 @@ describe('sign-in, sign-up and uploads', () => {
     },
   );
 
+  it.each(['http://a，b.lan', 'http://a﹐b.lan', 'http://kept，evil.lan'])(
+    'leaves out %s, which IDNA would turn into a comma and so two addresses',
+    (value) => {
+      const { env, lines } = run({ public_url: 'http://other.lan', extra_addresses: value });
+      expect(env).not.toHaveProperty('KEPT_EXTRA_ADDRESSES');
+      expect(lines.join('\n')).toContain('Extra address 1 is ignored');
+      expect(lines.join('\n')).not.toContain('b.lan');
+    },
+  );
+
   // The app must never hand Kept what stops it at startup: the two readers agree, entry by entry.
   it('accepts exactly what Kept accepts', () => {
     for (const value of [
@@ -423,6 +433,8 @@ describe('sign-in, sign-up and uploads', () => {
       'http://﹡.example.com',
       'http://？.example.com',
       'http://﹖.example.com',
+      'http://a，b.lan',
+      'http://a﹐b.lan',
       'http://user@kept.lan',
       'http://user:pa,ss@kept.lan',
       'http://user:80,ss@kept.lan',

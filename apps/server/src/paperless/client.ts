@@ -181,10 +181,16 @@ const Doc = z.object({
 });
 export type PaperlessDocument = z.infer<typeof Doc>;
 
-/** A document's title as Kept caches it: trimmed and cut to 300 characters; empty is null. */
+/** Half of a character made of two UTF-16 units: the `u` flag leaves a whole pair alone. */
+const LONE_SURROGATE = /[\uD800-\uDFFF]/gu;
+/** Without NUL, which Postgres text can't hold, and without half a character. */
+const storable = (text: string) => text.replaceAll('\u0000', '').replace(LONE_SURROGATE, '');
+
+/** A document's title as Kept caches it: what Postgres can't store taken out, trimmed and cut to
+ * 300 characters; empty is null. The cut can leave half a character, so it's cleaned again. */
 export function paperlessTitle(raw: string): string | null {
-  const title = raw.trim();
-  return title ? title.slice(0, 300) : null;
+  const title = storable(raw).trim();
+  return title ? storable(title.slice(0, 300)) : null;
 }
 
 const Page = z.object({ count: z.number().int(), results: z.array(Doc) });

@@ -7,6 +7,7 @@ import {
   TOOL_DEFS,
   type ToolError,
   type ToolName,
+  type ToolOutput,
   toolError,
 } from '@kept/mcp';
 import { can, type ModuleId, type Role } from '@kept/shared';
@@ -20,6 +21,7 @@ import { toolHint } from './hints.js';
 import { handlerOf } from './registry.js';
 import type {
   Handler,
+  HandlerResult,
   Op,
   ReachableLocation,
   ToolContext,
@@ -39,7 +41,8 @@ import type {
 //    is on (`ai_assistant` for the assistant, `mcp` for MCP), the tool's own module is on, and
 //    their role allows the handler's action. A location that fails any of these is
 //    `tool_unavailable`, the same answer for each, so nothing tells an outsider which modules a
-//    location has.
+//    location has. A global tool with no location left answers nothing: an empty list reads as
+//    "every location" to search(), so it never gets that far (D113, D121).
 // 4. The handler calls the route's own operation, which re-checks what it always checks.
 // 5. The answer is fit() under 8 KB, with `as_of` and a cursor that resumes inside a shortened
 //    page.
@@ -211,23 +214,33 @@ export async function runTool(
   const base = (ctx.deps.baseUrl ?? '').replace(/\/+$/, '');
   try {
     const scope = principalScope(ctx.principal);
+    const also = ctx.threadLocation ?? null;
+    const eligible = (l: ReachableLocation): boolean =>
+      toolsIn(ctx.principal, ctx.via, l.role, l.modules).includes(name);
     // Semantic search's query embedding, before the transaction: no model call runs inside
-    // one (D166). Over the asked location, else every visible one; search() filters the rest.
+    // one (D166). Over the asked location, else the ones this tool may run in: the question goes
+    // to no provider of a location where the door is off (D113).
     const meaningOf = handler.meaning as ((i: unknown) => string | undefined) | undefined;
     const asked0 = (input as LocationInput).location_id?.toLowerCase();
+    const prep = ctx.deps.semantic;
+    const meaning = prep ? meaningOf?.(input) : undefined;
+    const over =
+      prep && meaning
+        ? asked0
+          ? [asked0]
+          : await withScope(ctx.deps.pools.app, scope, async (tx, client) =>
+              (await reachableAll(tx, client, resolver, also)).filter(eligible).map((l) => l.id),
+            )
+        : [];
     const semantic =
-      meaningOf && ctx.deps.semantic
-        ? await ctx.deps
-            .semantic(scope, meaningOf(input), asked0 ? { locationIds: [asked0] } : null)
-            .catch((err: unknown) => {
-              // Meaning is a bonus: its trouble leaves the call on keywords, never failing it.
-              ctx.deps.log?.error({ err, tool: name }, 'query embedding failed');
-              return null;
-            })
+      prep && over.length > 0
+        ? await prep(scope, meaning, { locationIds: over }).catch((err: unknown) => {
+            // Meaning is a bonus: its trouble leaves the call on keywords, never failing it.
+            ctx.deps.log?.error({ err, tool: name }, 'query embedding failed');
+            return null;
+          })
         : null;
     const result = await withScope(ctx.deps.pools.app, scope, async (tx, client) => {
-      const eligible = (l: ReachableLocation): boolean =>
-        toolsIn(ctx.principal, ctx.via, l.role, l.modules).includes(name);
       /** A location that fails eligible(): a 403 when the caller sees it with the tool's
        * modules on (their role can't, as the routes answer), else unavailable. */
       const refuse = (l: ReachableLocation) =>
@@ -255,7 +268,7 @@ export async function runTool(
           location = l;
           locations = [l];
         } else {
-          const all = (await reachableAll(tx, client, resolver)).filter(eligible);
+          const all = (await reachableAll(tx, client, resolver, also)).filter(eligible);
           if (handler.global) {
             locations = all;
           } else if (all.length === 1) {
@@ -272,6 +285,11 @@ export async function runTool(
         }
       }
       ctx.onLocations?.(locations.map((l) => l.id));
+      // Nowhere this tool may run. Only capabilities answers in another shape than a list, and it
+      // reads nothing but `op.locations`.
+      if (locations.length === 0 && name !== 'capabilities') {
+        return { data: { items: [] } } as HandlerResult<ToolOutput<ToolName>>;
+      }
       const op: Op = {
         tx,
         client,

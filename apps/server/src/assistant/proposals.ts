@@ -616,7 +616,9 @@ export async function confirmProposals(
         via: 'assistant',
         ...(typeof rowVersion === 'number' ? { ifMatch: rowVersion } : {}),
         now,
-        // The card's location, and no other: a call that resolves elsewhere writes nothing.
+        // The card's location, and no other: a call that resolves elsewhere writes nothing. A
+        // card on a hidden Personal came from a thread on it, and resolves there as it did then.
+        threadLocation: row.location_id,
         onLocations: (locationIds) => {
           if (locationIds.length !== 1 || locationIds[0] !== row.location_id) {
             throw unavailableRefusal();

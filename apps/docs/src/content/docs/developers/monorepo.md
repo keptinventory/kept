@@ -22,7 +22,8 @@ Inside the workspace `@kept/shared` and `@kept/mcp` resolve to their TypeScript 
 way).
 
 Outside the packages: `charts/kept` (the Helm chart), `docker/` (database bootstrap scripts, the
-Caddyfile, the image's health check), `compose.yaml` and `compose.dev.yaml`, `Dockerfile`,
+Caddyfile, the image's health check), `compose.yaml`, `compose.full.yaml` and `compose.dev.yaml`,
+`Dockerfile`,
 `docs/` (runbooks, release records and the repository's images) and `scripts/`.
 
 ## `apps/server/src`

@@ -9,7 +9,7 @@ import 'fake-indexeddb/auto';
 import { newId } from '@kept/shared';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { IDS } from '@/api/mock/fixtures';
+import { IDS, ownerScenario } from '@/api/mock/fixtures';
 import { opsPaths } from '@/api/ops/paths';
 import { paths } from '@/api/paths';
 import { deviceDb, readLock, saveLock } from '@/offline/app-lock-db';
@@ -196,6 +196,50 @@ describe('This device', () => {
     expect(dialog).toHaveTextContent(/About .+ to download/);
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(await db.keptOffline.count()).toBe(0);
+  });
+});
+
+describe('a hidden Personal on this device', () => {
+  const hiddenPersonal = () => {
+    const state = ownerScenario();
+    state.me.personalHidden = true;
+    state.locations = state.locations.map((l) =>
+      l.kind === 'personal' ? { ...l, hidden: true } : l,
+    );
+    return state;
+  };
+
+  it('keeps its row and its Off switch while its copy is on this device', async () => {
+    await setLock();
+    await db.keptOffline.put({
+      locationId: IDS.personal,
+      state: 'ready',
+      things: 2,
+      documents: 1,
+      bytes: 2048,
+      tooLarge: 0,
+      updatedAt: Date.now(),
+    });
+    const { user } = await renderApp('/settings/device', { state: hiddenPersonal() });
+    await screen.findByRole('heading', { name: 'Enter your PIN' });
+    await typePin(user, PIN);
+    const off = await screen.findByRole(
+      'switch',
+      { name: 'Keep Personal available offline' },
+      { timeout: 5000 },
+    );
+    expect(off).toBeChecked();
+  });
+
+  it('is not offered when nothing of it is kept here', async () => {
+    await setLock();
+    const { user } = await renderApp('/settings/device', { state: hiddenPersonal() });
+    await screen.findByRole('heading', { name: 'Enter your PIN' });
+    await typePin(user, PIN);
+    await screen.findByRole('switch', { name: 'Keep Home available offline' }, { timeout: 5000 });
+    expect(
+      screen.queryByRole('switch', { name: 'Keep Personal available offline' }),
+    ).not.toBeInTheDocument();
   });
 });
 

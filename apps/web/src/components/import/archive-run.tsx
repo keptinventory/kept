@@ -135,10 +135,12 @@ export function ArchiveRunView({
     inspect.mutate();
   }, [needsInspect, inspect]);
 
-  const location = importable.find((l) => l.id === run?.locationId);
+  // The run's own location, wherever the person can import now (it may be a hidden Personal).
+  const everywhere = useAllLocations().data;
+  const location = everywhere?.find((l) => l.id === run?.locationId);
   // A new location Import will make is the caller's own account's, like their Personal one.
   const pending = run?.locationId ? null : (run?.newLocation ?? null);
-  const own = useAllLocations().data?.find((l) => l.kind === 'personal');
+  const own = everywhere?.find((l) => l.kind === 'personal');
   const keptTypes = useKeptTypes(
     location?.ownerAccountId ?? (pending ? own?.ownerAccountId : undefined),
   );
