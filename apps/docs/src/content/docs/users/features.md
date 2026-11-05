@@ -87,14 +87,16 @@ a location turns them on in **Location settings → What to track**
   OpenRouter, Groq, or a local server such as [Ollama](/admin/ollama/). Capture drafts a thing
   from a photo; you confirm it.
 - **The assistant**: ask in plain words; changes wait for your OK.
-- **[Claude and other AI apps](/users/mcp-clients/)**: an MCP server at `/mcp`. Module: Connect
-  ChatGPT or Claude.
+- **[Claude and other AI apps](/users/mcp-clients/)**: an MCP server at `/mcp`; a connected app
+  stays connected until you revoke it. Module: Connect ChatGPT or Claude.
 
 ## Works with
 
 - **[Home Assistant](/users/home-assistant/)**: Kept as a Home Assistant app, and an integration
   for dashboards, automations and the calendar.
-- **[Paperless-ngx](/users/paperless/)**: link documents instead of copying them.
+- **[Paperless-ngx](/users/paperless/)**: link documents instead of copying them; the start of a
+  word finds one in **Link from Paperless**. A [Homebox import](/users/import-export/) takes its
+  links' titles from Paperless.
 - **[Dashboards](/users/dashboards/)** and **[webhooks](/users/webhooks/)**: a summary for your
   own dashboards; events posted to your own services.
 - **[Import and export](/users/import-export/)**: from Homebox, a spreadsheet (CSV) or another
