@@ -8,12 +8,11 @@ import type { KeptMessage } from '../ai/convert.js';
 //
 // - the core, always: finding things (where_is, search_things, get_thing, list_contents, the
 //   locations) and the everyday changes (add, update, move, mark seen);
-// - a topic's tools when the thread's last questions name it, by keywords in the six interface
-//   languages and Ukrainian, ready for its catalogue (lending, schedules, warranties, documents,
-//   vehicles and meters, stock, history, places and capture links, tags). A Latin or Cyrillic
-//   keyword matches at a word's start, so a stem takes its inflected forms, or as a whole word when
-//   it ends in `$`, where a stem would take other words too (чек$ is not чекаю); an Arabic one
-//   anywhere (its prefixes join the word: الـ، و، ب، ل); a Vietnamese one as whole words, with its
+// - a topic's tools when the thread's last questions name it, by keywords in the interface
+//   languages (lending, schedules, warranties, documents, vehicles and meters, stock, history,
+//   places and capture links, tags). A Latin or Cyrillic keyword matches at a word's start, so a
+//   stem takes its inflected forms, or as a whole word when it ends in `$`, where a stem would take
+//   other words too (чек$ is not чекаю); an Arabic one anywhere (its prefixes join the word: الـ، و، ب، ل); a Vietnamese one as whole words, with its
 //   tone marks kept, since folding them joins different words (mượn "borrow", muốn "want");
 // - any tool the thread already called, or asked for and was not offered, so a follow-up
 //   ("and the drill?") keeps its tools and the model can ask again;

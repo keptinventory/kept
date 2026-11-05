@@ -1,5 +1,5 @@
 /**
- * Device preferences: the five languages, their Intl tags, content width, and
+ * Device preferences: the languages, their Intl tags, content width, and
  * the pre-paint script in index.html, which must make the same choices before React loads.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -39,7 +39,7 @@ afterEach(() => {
 });
 
 describe('languages', () => {
-  it('has the six languages, and knows a tag by its language', () => {
+  it('has the languages, and knows a tag by its language', () => {
     expect(LOCALES).toEqual(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk']);
     expect(isLocale('it')).toBe(true);
     expect(isLocale('vi')).toBe(true);

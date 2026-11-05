@@ -67,9 +67,8 @@
           } catch {}
           theme = dark ? 'dark' : 'light';
         }
-        // The app's languages (D204, and Vietnamese since 1.14.4); the browser's language when it
-        // is one of them. Ukrainian is here ahead of its catalogue: until prefs.ts's LOCALES has it,
-        // main.tsx sets the page's language to its fallback before anything is drawn.
+        // The app's languages (D204, and later Vietnamese and Ukrainian); the browser's language
+        // when it is one of them.
         const locales = ['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk'];
         if (!locales.includes(locale)) {
           const nav = (navigator.language || 'en').toLowerCase().split(/[-_]/)[0];

@@ -445,8 +445,8 @@ export default defineConfig(({ command }) => ({
           'whats-new/**',
           // Font subsets no language of Kept's needs: they are Latin-script (Vietnamese among them,
           // whose subset is precached so it reads right offline), Arabic (D204) and Cyrillic
-          // (Ukrainian, ready for its catalogue). cyrillic-ext holds no Ukrainian letter, and the
-          // ₴ it holds also comes in latin-ext, which is declared later and so is what's used.
+          // (Ukrainian). cyrillic-ext holds no Ukrainian letter, and the ₴ it holds also comes in
+          // latin-ext, which is declared later and so is what's used.
           'assets/ibm-plex-*-{cyrillic-ext,greek}-*.woff2',
         ],
       }),

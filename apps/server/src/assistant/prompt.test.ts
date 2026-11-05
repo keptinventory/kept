@@ -87,7 +87,7 @@ describe('the tools as the model sees them', () => {
 });
 
 describe('the instructions', () => {
-  it("answer in each of Kept's languages, and in Ukrainian ahead of its catalogue", () => {
+  it("answer in each of Kept's languages", () => {
     expect(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk'].map(languageOf)).toEqual([
       'English',
       'Arabic',

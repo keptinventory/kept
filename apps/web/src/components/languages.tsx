@@ -110,7 +110,7 @@ export function LanguageSelect({
 /**
  * A location's languages (D41): the languages AI writes search aliases in. Several choices. The
  * stored tags can carry a region (`ar-EG`); a chosen language keeps its stored tag, a new one is
- * stored as the bare language, and tags outside the six are kept as they are.
+ * stored as the bare language, and tags outside the list are kept as they are.
  */
 export function LanguagesMultiSelect({
   label,
