@@ -45,6 +45,8 @@ function originOf(entry: string, place: number): string {
   // After parsing too: IDNA maps forms such as U+FF0A to `*`, and what's returned here is handed to
   // Better Auth, which would read it as a pattern (an open redirect through `callbackURL`).
   if (/[*?]/.test(url.origin)) throw refused('no wildcards; list each address exactly');
+  // IDNA maps U+FF0C and U+FE50 to `,` too, which would read as two addresses.
+  if (url.origin.includes(',')) throw refused('not a valid address');
   return url.origin;
 }
 

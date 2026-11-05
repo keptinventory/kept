@@ -151,6 +151,10 @@ preference: nobody else sees a change.
 - **Reminders still reach you**, as notifications, in the digest and in the calendar feed. Turn
   them off in **Settings → Me → Notifications**, where Personal is still listed.
 - **Capture** starts in your other location, or in Personal if you can't add things anywhere else.
+- **Import** offers the other locations you own or administer, or Personal if there are none. A
+  past import still opens from Activity, wherever it went.
+- **Keep available offline** in **Settings → This device** keeps Personal's row while its copy is
+  on the device, so you can turn it off.
 - **Export my data** carries the first other location you own, and Personal stays on **Export a
   location**. If you own no other location, it carries Personal.
 - **Your personal AI key** also pays for a location you own and use alone, when that location's

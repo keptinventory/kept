@@ -572,6 +572,71 @@ describe('writes are proposals the person confirms', () => {
     expect(loan).toEqual({ returned: true });
   });
 
+  it('a thread on a hidden Personal: reads stay in it, and a card confirms there', async () => {
+    const me = await person(t, db, 'hidden-thread');
+    const shared = await createLocation(t, db, me, 'complete', 'Shared');
+    const sofa = await createThing(t, me, shared, { name: 'Sofa' });
+    ok(
+      await call(t, `/api/v1/locations/${shared.id}/modules`, {
+        as: me,
+        body: { module: 'ai_assistant', enabled: false },
+      }),
+    );
+    ok(await call(t, '/api/v1/me', { as: me, method: 'PATCH', body: { hidePersonal: true } }));
+    const personal = me.personalLocationId;
+
+    const { turnId } = await ask(me, 'Find the sofa and add a thermos', {
+      kind: 'location',
+      id: personal,
+    });
+    script.push(
+      calls({ id: 'look', name: 'search_things', input: { query: 'sofa' } }),
+      calls({ id: 'add', name: 'add_thing', input: { items: [{ name: 'Thermos' }] } }),
+    );
+    expect(await run(me, turnId)).toEqual({ status: 'done' });
+
+    // The read ran over Personal, stored by it, and sent nothing of Shared to the model.
+    const [stored] = await own<{ location_id: string | null; output: unknown }>(
+      db,
+      `SELECT r.location_id, r.output FROM public.assistant_tool_results r
+         JOIN public.assistant_messages m ON m.id = r.message_id
+        WHERE m.turn_id = $1 AND r.tool = 'search_things'`,
+      [turnId],
+    );
+    expect(stored?.location_id).toBe(personal);
+    expect(JSON.stringify(stored?.output)).not.toContain(sofa.id);
+    expect(JSON.stringify(prompts)).not.toContain('Sofa');
+
+    const [card] = await own<{
+      id: string;
+      batch_id: string;
+      args_hash: string;
+      location_id: string;
+    }>(
+      db,
+      'SELECT id, batch_id, args_hash, location_id FROM public.assistant_proposals WHERE turn_id = $1',
+      [turnId],
+    );
+    expect(card?.location_id).toBe(personal);
+    const r = await confirmProposals(
+      { tools: loop.tools },
+      scopeOf(me),
+      {
+        batchId: card?.batch_id as string,
+        proposals: [{ id: card?.id as string, argsHash: card?.args_hash as string }],
+      },
+      'req-hidden-thread',
+      'en',
+    );
+    expect(r.results).toEqual([expect.objectContaining({ id: card?.id, status: 'confirmed' })]);
+    const thermos = await own<{ location_id: string }>(
+      db,
+      `SELECT location_id FROM public.things WHERE name = 'Thermos' AND location_id = $1`,
+      [personal],
+    );
+    expect(thermos).toHaveLength(1);
+  });
+
   it('after ten minutes a proposal is expired, never applied', async () => {
     const { proposal } = await proposeMove();
     const later = new Date(Date.now() + 11 * 60_000);

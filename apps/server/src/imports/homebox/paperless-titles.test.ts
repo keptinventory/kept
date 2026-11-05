@@ -259,6 +259,34 @@ describe('a Homebox link to a Paperless document, during the import (#422)', () 
   );
 
   it(
+    "cleans a title Postgres can't store, and keeps Homebox's when nothing is left of it",
+    async () => {
+      const loc = await fresh('Cellar');
+      await connect(loc);
+      const doc12 = fake.docs.get(12);
+      const doc13 = fake.docs.get(13);
+      if (!doc12 || !doc13) throw new Error('the fake has no such documents');
+      fake.docs.set(12, { ...doc12, title: 'Drill\u0000 receipt' });
+      fake.docs.set(13, { ...doc13, title: ' \u0000 ' });
+      try {
+        const id = await prepare(
+          loc,
+          await exportLinking([
+            { title: 'Homebox says receipt', path: docUrl(12) },
+            { title: 'Homebox says manual', path: docUrl(13) },
+          ]),
+        );
+        await run(id);
+        expect(await titlesIn(loc)).toEqual({ 12: 'Drill receipt', 13: 'Homebox says manual' });
+      } finally {
+        fake.docs.set(12, doc12);
+        fake.docs.set(13, doc13);
+      }
+    },
+    LONG,
+  );
+
+  it(
     "keeps Homebox's title for a document Paperless doesn't have or won't show, and carries on",
     async () => {
       const loc = await fresh('Attic');

@@ -115,9 +115,12 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   provider (OpenAI, Anthropic, Google, OpenRouter, Groq, or an OpenAI-compatible server such as
   Ollama) suggests the details and you confirm them. Without one, you type them.
 - **AI assistant and MCP server.** Ask in plain words; changes wait for your OK. Claude and other
-  AI agents connect at `/mcp` ([how](https://keptinventory.info/users/mcp-clients/)).
+  AI agents connect at `/mcp` and stay connected ([how](https://keptinventory.info/users/mcp-clients/)).
 - **Home Assistant.** Install Kept as a Home Assistant app; an integration brings what's due into
   dashboards and automations ([Home Assistant](https://keptinventory.info/users/home-assistant/)).
+- **Paperless-ngx.** Link documents instead of copying them; the start of a word finds one, and a
+  Homebox import takes its links' titles from Paperless
+  ([Paperless](https://keptinventory.info/users/paperless/)).
 - **Backups you can read.** Nightly restic backups to a directory, S3 or SFTP, each with a copy
   that opens in a browser without Kept; imports from Homebox (a past import can be repaired) and
   CSV, full exports.

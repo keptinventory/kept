@@ -65,8 +65,8 @@ function extraAddress(value) {
   if (!/^https?:\/\/[^\s%*?#\\/]+\/?$/i.test(value)) return null;
   try {
     const url = new URL(value);
-    // After parsing too: IDNA maps forms such as U+FF0A to `*`.
-    if (!url.hostname || url.hostname.endsWith('.') || /[*?]/.test(url.origin)) return null;
+    // After parsing too: IDNA maps forms such as U+FF0A to `*`, and U+FF0C to `,`.
+    if (!url.hostname || url.hostname.endsWith('.') || /[*?,]/.test(url.origin)) return null;
     return url.origin;
   } catch {
     return null;
