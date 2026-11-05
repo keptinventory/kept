@@ -23,6 +23,7 @@ describe('fieldShown (#140)', () => {
     ['layout', 'location', false],
     ['name', 'location', true],
     ['mime', 'file', false],
+    ['attachments', 'fuel_entry', false],
   ])('%s on a %s: %s', (key, entity, shown) => {
     expect(fieldShown(key, entity)).toBe(shown);
   });

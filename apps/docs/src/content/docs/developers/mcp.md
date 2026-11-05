@@ -126,7 +126,8 @@ plugins (`apps/server/src/oauth/plugin.ts`):
 - access tokens are JWTs for `<public URL>/mcp`, an hour long. The grant row holds the scope and
   locations and is read on every call, so revoking it in Connections works at once;
 - a connector stays signed in until it's removed: Kept adds `offline_access` so the client gets a
-  refresh token. Removing the app in Connections ends it, and so does whatever signs out the
+  refresh token, good for 30 days and renewed each time it's used, so a connector idle for 30 days
+  signs in again. Removing the app in Connections ends it, and so does whatever signs out the
   person's other devices (password, second factor, passkeys, outside sign-ins, email change,
   signing out everywhere, disabling the account); the connector then signs in again. Details on
   [Authentication](/developers/auth/);

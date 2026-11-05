@@ -508,12 +508,30 @@ async function applyLocation(c: ApplyCtx, def: EntityDef, row: Row): Promise<App
 // Location rows that need a rule of their own
 // ---------------------------------------------------------------------------------------------
 
+/**
+ * A merged compartment's cell with each part's place as an id of this import. A part's place is in
+ * the trash, so an export without the trash doesn't hold it: its id still becomes a new one, of no
+ * place, and a split makes the place again (#425). No id of the old server stays in the cell.
+ */
+export function cellImported(cell: unknown, ids: IdMap): unknown {
+  const parts = (cell as { parts?: unknown } | null)?.parts;
+  if (!Array.isArray(parts)) return cell;
+  return {
+    ...(cell as object),
+    parts: parts.map((p) =>
+      isUuid((p as { placeId?: unknown } | null)?.placeId)
+        ? { ...p, placeId: ids.of(p.placeId) }
+        : p,
+    ),
+  };
+}
+
 async function applyPlace(c: ApplyCtx, def: EntityDef, row: Row): Promise<Applied> {
   if (row.isUnplaced === true) {
     c.ids.match(String(row.id), c.unplacedId);
     return { status: 'matched', newId: c.unplacedId };
   }
-  return writeGeneric(c, def, row);
+  return writeGeneric(c, def, { ...row, cell: cellImported(row.cell, c.ids) });
 }
 
 async function applyThing(c: ApplyCtx, def: EntityDef, row: Row): Promise<Applied> {

@@ -61,6 +61,8 @@ export type ForgeOptions = {
   keys?: SecretKeys;
   /** With it, `secrets.json` holds the location's secret values under this passphrase. */
   passphrase?: string;
+  /** Trashed things and places come along, as the export's option says. */
+  trashed?: boolean;
   /** Changes the manifest or drops entries before the archive is written. */
   mutate?: (m: ExportManifest, entries: Map<string, Buffer | null>) => void;
 };
@@ -95,7 +97,7 @@ export async function forgeKeptExport(db: TestDb, opts: ForgeOptions): Promise<F
       accountId: loc.account,
       showMoney: true,
       ended: true,
-      trashed: false,
+      trashed: opts.trashed ?? false,
     };
     const counts = Object.fromEntries(EXPORT_ENTITIES.map((e) => [e, 0])) as Record<
       ExportEntity,

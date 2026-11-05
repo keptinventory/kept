@@ -15,6 +15,7 @@ import { type Scope, type Tx, withScope } from '../db/scope.js';
 import { AppError } from '../http/errors.js';
 import { dbProviderResolved, locationModuleSet } from '../http/modules.js';
 import { callerMembership } from '../locations/access.js';
+import { toolHint } from './hints.js';
 import { handlerOf } from './registry.js';
 import type {
   Handler,
@@ -168,12 +169,12 @@ function parseHint(error: { issues: { path: PropertyKey[]; message: string }[] }
   return path ? `Check ${path}: ${issue.message}` : issue.message;
 }
 
-function refusalOf(err: unknown): ToolError | null {
+function refusalOf(name: ToolName, err: unknown): ToolError | null {
   if (err instanceof ToolRefusal) return toolError(err.code, err.hint);
   if (err instanceof AppError) {
     // A module that is off answers the same as an unknown location (D113).
     if (err.code === 'module_off') return toolError('tool_unavailable', UNAVAILABLE_HINT);
-    return toolError(err.code, err.hint ?? err.message);
+    return toolError(err.code, toolHint(name, err.hint ?? err.message));
   }
   return null;
 }
@@ -288,7 +289,7 @@ export async function runTool(
     // client would retry (fitCommitted).
     return def.scope === 'write' ? fitCommitted(envelope, opts) : fit(envelope, opts);
   } catch (err) {
-    const refusal = refusalOf(err);
+    const refusal = refusalOf(name, err);
     if (refusal) return refusal;
     ctx.deps.log?.error({ err, tool: name, requestId: ctx.requestId }, 'tool failed');
     return toolError('internal', 'Something went wrong in Kept; try again.');

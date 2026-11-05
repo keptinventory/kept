@@ -134,7 +134,12 @@ const run = async (as: Person, planId: string) => {
 };
 
 /** Uploads an invented plan, answers it as the fixtures say, reads it, and returns the review. */
-async function readPlan(id = 'f1-flat-dims', as: Person = louis, loc: Loc = home): Promise<View> {
+async function readPlan(
+  id = 'f1-flat-dims',
+  as: Person = louis,
+  loc: Loc = home,
+  extra: Record<string, unknown> = {},
+): Promise<View> {
   const bytes = await planPng(id);
   const fileId = await uploaded(as, bytes, loc);
   const p = inventedPlan(id);
@@ -142,7 +147,7 @@ async function readPlan(id = 'f1-flat-dims', as: Person = louis, loc: Loc = home
   answers[await keyOf(fileId, 'image/png', 0, loc)] = {
     output: answerFor(p, size.w, size.h, { noise: 0.01, corners: 'none' }),
   };
-  const out = await json<View>(start(as, { fileId }, loc), 201);
+  const out = await json<View>(start(as, { fileId, ...extra }, loc), 201);
   await run(as, out.id);
   return json<View>(view(as, out.id));
 }
@@ -659,6 +664,19 @@ describe('POST /api/v1/floor-plans/:id/apply', () => {
       [v.file?.id],
     );
     expect(docs).toEqual([{ role: 'document', in_review: false, floor_plan_id: null }]);
+  });
+
+  it('keeps the name the upload came with on the document (#425)', async () => {
+    const loc = await createLocation(t, db, ibrahim, 'household');
+    await join(db, loc.id, louis.userId, 'member');
+    const v = await readPlan('f5-sideways', louis, loc, { name: 'Ground floor plan' });
+    const res = await apply(louis, v.id, bodyOf(v, null, null, { keepPlan: true }));
+    expect(res.statusCode, res.body).toBe(200);
+    const docs = await sql<{ name: string | null; floor_plan_id: string | null }>(
+      'SELECT name, floor_plan_id FROM public.attachments WHERE file_id = $1 AND location_id = $2',
+      [v.file?.id, loc.id],
+    );
+    expect(docs).toEqual([{ name: 'Ground floor plan', floor_plan_id: null }]);
   });
 
   it('is 409 arranged_since on a stale version and rooms_overlap over a room drawn meanwhile', async () => {

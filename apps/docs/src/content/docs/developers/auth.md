@@ -188,7 +188,9 @@ account's reset code included, when it is issued and when it is redeemed), turni
 or off or replacing it, new backup codes, adding or removing a passkey, unlinking an outside
 sign-in, an email change, signing out everywhere and disabling the account. An account claim
 (D197) deletes the person's refresh tokens and Better Auth's consent rows, so a connector meets
-the consent page again and gets a new grant. The discovery documents are at
+the consent page again and gets a new grant. Each refresh keeps the old row, revoked, because
+replaying it ends the lineage; the nightly `prune-stale-rows` job removes a row once it has
+expired, when it is refused either way. The discovery documents are at
 `/.well-known/oauth-authorization-server` and `/.well-known/oauth-protected-resource`.
 The tools themselves are on [MCP](/developers/mcp/).
 
