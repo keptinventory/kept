@@ -3,7 +3,8 @@ title: Languages and right-to-left
 description: How strings are translated with Lingui, what the catalogue checks enforce, and the rules that keep Arabic correct.
 ---
 
-Kept ships in English, Arabic, French, German, Italian (D204), Vietnamese and Ukrainian.
+Kept ships in English, Arabic, French, German, Italian (D204), Vietnamese, Ukrainian and
+Spanish.
 Arabic is right-to-left, so every screen has to mirror without per-screen overrides. The web app
 uses [Lingui](https://lingui.dev/) with PO catalogues (D96); the server has its own small typed
 tables for mail and reports.
@@ -11,7 +12,7 @@ tables for mail and reports.
 ## Lingui in the web app
 
 `apps/web/lingui.config.ts` sets the source locale `en`, the locales `en`, `ar`, `fr`, `de`, `it`,
-`vi`, `uk`, and one catalogue per locale at `apps/web/src/locales/<locale>/messages.po`, extracted from
+`vi`, `uk`, `es`, and one catalogue per locale at `apps/web/src/locales/<locale>/messages.po`, extracted from
 `src` (tests and `routeTree.gen.ts` excluded). Catalogues have no line numbers, so they don't
 churn on every edit.
 
@@ -123,8 +124,9 @@ The server doesn't use Lingui:
 
 - **Mail** (`apps/server/src/mail/`): a typed table per language, keyed by the recipient's
   profile locale. English and Arabic are in `messages.ts`; French, German and Italian in
-  `messages-<locale>.ts`. There is no Vietnamese or Ukrainian mail: those profiles get English. A
-  mail kind missing from a language is a type error, and `mail.test.ts` renders every kind in each.
+  `messages-<locale>.ts`. There is no Vietnamese, Ukrainian or Spanish mail: those profiles get
+  English. A mail kind missing from a language is a type error, and `mail.test.ts` renders every
+  kind in each.
   Each language's chrome sets `dir`.
 - **Reminders** (`apps/server/src/notify/words.ts`): one wording shared by the email, the push
   payload and the calendar feed.
