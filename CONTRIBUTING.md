@@ -177,8 +177,9 @@ Each of these has a check that fails; the PR template repeats them.
   `alert` or `prompt`.
 - **Phones.** Every screen works at 375 px wide and at 1280, and nothing is cut short with "…" on a
   phone.
-- **Five catalogues.** Every user-facing string goes through Lingui and into `en`, `ar`, `fr`, `de`
-  and `it`; `pnpm lint` and ci-local's `catalogues` step fail on a missing or empty one. Arabic
+- **Every catalogue.** Every user-facing string goes through Lingui and into each catalogue in
+  `apps/web/src/locales`; `pnpm lint` and ci-local's `catalogues` step fail on a missing or empty
+  one. Arabic
   follows the house style: written natively (not translated word for word), every plural form,
   Eastern Arabic digits where the reader chose them. Separators come from `fmt.sep`
   (`apps/web/src/lib/format.ts`, "، " in Arabic), names inside sentences are bidi-isolated
