@@ -12,8 +12,9 @@ import type { KeptMessage } from '../ai/convert.js';
 //   languages (lending, schedules, warranties, documents, vehicles and meters, stock, history,
 //   places and capture links, tags). A Latin or Cyrillic keyword matches at a word's start, so a
 //   stem takes its inflected forms, or as a whole word when it ends in `$`, where a stem would take
-//   other words too (чек$ is not чекаю); an Arabic one anywhere (its prefixes join the word: الـ، و، ب، ل); a Vietnamese one as whole words, with its
-//   tone marks kept, since folding them joins different words (mượn "borrow", muốn "want");
+//   other words too (чек$ is not чекаю); an Arabic one anywhere (its prefixes join the word: الـ،
+//   و، ب، ل); a Vietnamese one as whole words, with its tone marks kept, since folding them joins
+//   different words (mượn "borrow", muốn "want");
 // - any tool the thread already called, or asked for and was not offered, so a follow-up
 //   ("and the drill?") keeps its tools and the model can ask again;
 // - never a tool the person may not call: `available` is already narrowed by module, role and
