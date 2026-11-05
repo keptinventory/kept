@@ -6,6 +6,7 @@ import { type TestDb, testDb } from '../../test/db.js';
 import { call, freshIp, join, type Person, peopleApp, person } from '../../test/people.js';
 import { createLocation, createThing, type Json, type Loc, ok, own } from '../../test/things.js';
 import { withScope } from '../db/scope.js';
+import { pruneStaleRows } from '../jobs/maintenance.js';
 import { cimdFetch } from './cimd-fetch.js';
 import { decide } from './consent.js';
 
@@ -772,6 +773,141 @@ describe('connectors that stay signed in (#411)', () => {
     }
     refused(late);
     refused(after);
+  });
+
+  /** The ids of a person's refresh tokens, to tell which row a rotation added. */
+  const refreshRowIds = async (p: Person) =>
+    new Set(
+      (
+        await own<{ id: string }>(
+          db,
+          'SELECT id FROM auth.oauth_refresh_token WHERE user_id = $1',
+          [p.userId],
+        )
+      ).map((r) => r.id),
+    );
+
+  /** Refreshes `token`, and returns the answer and the id of the row it added. */
+  async function rotate(p: Person, token: string | undefined) {
+    const before = await refreshRowIds(p);
+    const res = await refresh(token);
+    expect(res.statusCode, res.body).toBe(200);
+    const added = [...(await refreshRowIds(p))].filter((id) => !before.has(id));
+    expect(added).toHaveLength(1);
+    return { tokens: res.json() as TokenResponse, id: added[0] as string };
+  }
+
+  const expire = (id: string) =>
+    own(
+      db,
+      `UPDATE auth.oauth_refresh_token SET expires_at = now() - interval '1 minute' WHERE id = $1`,
+      [id],
+    );
+
+  it('the nightly cleanup removes an expired refresh token and leaves the rest of the lineage working (#424)', async () => {
+    const jude = await member('jude');
+    const first = await connect(jude, 'read');
+    const [expiredId] = await refreshRowIds(jude);
+    const second = await rotate(jude, first.refresh_token);
+    const third = await rotate(jude, second.tokens.refresh_token);
+    await expire(expiredId as string);
+
+    // Run as the job runs it: kept_system, which has no rights in schema auth of its own.
+    const pruned = await pruneStaleRows(db.pools);
+    expect(pruned['auth.oauth_refresh_token']).toBe(1);
+    const left = await own<{ id: string; revoked: Date | null }>(
+      db,
+      'SELECT id, revoked FROM auth.oauth_refresh_token WHERE user_id = $1',
+      [jude.userId],
+    );
+    // The revoked but unexpired one stays, and so does the live one.
+    expect(left.map((r) => r.id).sort()).toEqual([second.id, third.id].sort());
+    expect(left.find((r) => r.id === second.id)?.revoked).not.toBeNull();
+    expect(left.find((r) => r.id === third.id)?.revoked).toBeNull();
+
+    // The live token still refreshes with its expired ancestor gone.
+    const fourth = await rotate(jude, third.tokens.refresh_token);
+
+    // The revoked row is why it stays: past the 30 seconds, replaying it ends the lineage.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(Date.now() + 31_000);
+    try {
+      refused(await refresh(second.tokens.refresh_token));
+      refused(await refresh(fourth.tokens.refresh_token));
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('refuses an expired token with or without its row, and neither answer ends the lineage (#424)', async () => {
+    const kira = await member('kira');
+    const first = await connect(kira, 'read');
+    const [expiredId] = await refreshRowIds(kira);
+    const second = await rotate(kira, first.refresh_token);
+    await expire(expiredId as string);
+
+    // Past the 30 seconds, when a revoked and unexpired token would end the lineage. An expired
+    // one is refused before Better Auth looks at whether it was revoked.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(Date.now() + 31_000);
+    let third: Awaited<ReturnType<typeof rotate>>;
+    let fourth: Awaited<ReturnType<typeof rotate>>;
+    try {
+      refused(await refresh(first.refresh_token));
+      third = await rotate(kira, second.tokens.refresh_token);
+
+      await pruneStaleRows(db.pools);
+      expect(await refreshRowIds(kira)).not.toContain(expiredId);
+      refused(await refresh(first.refresh_token));
+      fourth = await rotate(kira, third.tokens.refresh_token);
+
+      // At the revocation endpoint the gone token is an unknown one: refused, and nothing happens.
+      const revoked = await t.app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/oauth2/revoke',
+        remoteAddress: freshIp(),
+        headers: { host: host(), 'content-type': 'application/x-www-form-urlencoded' },
+        payload: new URLSearchParams({
+          token: first.refresh_token as string,
+          client_id: CONNECTOR_ID,
+        }).toString(),
+      });
+      expect(revoked.statusCode, revoked.body).toBe(400);
+      expect((revoked.json() as { error?: string }).error).toBe('invalid_request');
+      await rotate(kira, fourth.tokens.refresh_token);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("the cleanup takes an expired refresh token's access tokens with it, and no one else's (#424)", async () => {
+    const lena = await member('lena');
+    const first = await connect(lena, 'read');
+    const [expiredId] = await refreshRowIds(lena);
+    const second = await rotate(lena, first.refresh_token);
+    // Kept's access tokens are JWTs it doesn't store. Better Auth stores opaque ones, linked by
+    // refresh_id ON DELETE CASCADE and an hour long against the refresh token's 30 days.
+    const seedAccess = (token: string, refreshId: string) =>
+      own(
+        db,
+        `INSERT INTO auth.oauth_access_token
+           (token, client_id, user_id, refresh_id, expires_at, created_at, scopes)
+         VALUES ($1, $2, $3, $4, now() + interval '1 hour', now(), ARRAY['kept:read'])`,
+        [token, CONNECTOR_ID, lena.userId, refreshId],
+      );
+    await seedAccess('of-the-expired', expiredId as string);
+    await seedAccess('of-the-live', second.id);
+    await expire(expiredId as string);
+
+    await pruneStaleRows(db.pools);
+
+    const left = await own<{ token: string }>(
+      db,
+      'SELECT token FROM auth.oauth_access_token WHERE user_id = $1',
+      [lena.userId],
+    );
+    expect(left.map((r) => r.token)).toEqual(['of-the-live']);
+    expect(await refreshRowIds(lena)).toEqual(new Set([second.id]));
   });
 
   it('adds offline_access to an authorization request posted as a form', async () => {

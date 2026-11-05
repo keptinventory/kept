@@ -3,7 +3,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { screen, within } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { mapApi } from '@/api/map/queries';
 import type { FloorPlanView, MapView } from '@/api/map/types';
+import { putFile } from '@/components/things/upload';
 import { setLocale } from '@/lib/prefs';
 import { expectLogicalOnly, renderUI } from '@/test/render';
 import { NO_FLOOR, planOf } from '../layout';
@@ -14,6 +16,11 @@ import { planUpload, StartPlanSheet } from './start-sheet';
 
 // The floor plan's screens on the map (D266, spec §16.3): the empty state, an open plan's state,
 // the upload sheet and the review's panel, in English and Arabic. Invented plans only.
+
+vi.mock('@/components/things/upload', async (original) => ({
+  ...(await original<typeof import('@/components/things/upload')>()),
+  putFile: vi.fn(),
+}));
 
 afterEach(() => setLocale('en'));
 
@@ -285,6 +292,29 @@ describe('the upload sheet', () => {
     expect(
       screen.getByRole('button', { name: 'Read the plan' }).getAttribute('data-disabled'),
     ).toBeNull();
+  });
+
+  it('sends the name of the file you chose, for the document it can be kept as (#425)', async () => {
+    vi.mocked(putFile).mockResolvedValue({ id: 'file-1', sha256: 'abc' } as never);
+    const startPlan = vi.spyOn(mapApi, 'startPlan').mockResolvedValue({ id: 'plan-1' } as never);
+    const { user } = await renderUI(
+      withQuery(
+        <StartPlanSheet
+          isOpen
+          onOpenChange={vi.fn()}
+          locationId="loc-1"
+          provider="groq"
+          onStarted={vi.fn()}
+        />,
+      ),
+    );
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    await user.upload(input, new File(['%PDF-1.4'], 'Upstairs.pdf', { type: 'application/pdf' }));
+    await screen.findByText('Only the first page is read.');
+    await user.click(screen.getByRole('button', { name: 'Read the plan' }));
+    await vi.waitFor(() => expect(startPlan).toHaveBeenCalled());
+    expect(startPlan.mock.calls[0]?.[1]).toMatchObject({ name: 'Upstairs' });
+    startPlan.mockRestore();
   });
 
   it('sends a PDF as it is (the server renders it)', async () => {

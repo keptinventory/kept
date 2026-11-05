@@ -961,6 +961,39 @@ describe('writes', () => {
   });
 });
 
+describe('refusals (#425)', () => {
+  it('name the tool’s fields, not the route’s', async () => {
+    const hint = async (name: ToolName, args: Record<string, unknown>) => {
+      const env = await tool(louis, name, { location_id: home.id, ...args });
+      return isToolError(env) ? env.hint : `${name} answered`;
+    };
+    const d = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [{ name: 'Hint car', type: 'Car' }, { name: 'Hint drill' }],
+    });
+    const [car, drill] = d.things.map((x: { id: string }) => x.id);
+
+    expect(
+      await hint('update_thing', {
+        thing_id: drill,
+        fields: { purchase: { purchased_on: '2099-01-01' } },
+      }),
+    ).toMatch(/^Check purchase\.purchased_on:/);
+    expect(await hint('create_place', { name: 'Odd', kind: 'spaceship' })).toMatch(/^Check kind:/);
+    expect(
+      await hint('log_fuel', {
+        thing_id: car,
+        amount: 10,
+        unit: 'L',
+        cost: { amount: '100', currency: 'ZZZ' },
+      }),
+    ).toMatch(/^Check cost\.currency:/);
+    expect(
+      await hint('lend_thing', { thing_id: drill, person: 'Murdock', due_on: '2000-01-01' }),
+    ).toMatch(/^Check due_on:/);
+  });
+});
+
 describe('log_fuel', () => {
   it('logs a fill with its odometer through the fill route’s operation, undoable', async () => {
     const d = await data(louis, 'add_thing', {
