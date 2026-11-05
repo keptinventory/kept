@@ -121,8 +121,8 @@ holds at most 20 of them.
 
 **Settings → Me → Display** holds the device's display choices, applied before the page draws:
 
-- **Language**: English, العربية, Français, Deutsch, Italiano or Tiếng Việt. Arabic lays the whole
-  app out right to left. The sign-in pages have the same picker.
+- **Language**: English, العربية, Français, Deutsch, Italiano, Tiếng Việt or Українська. Arabic lays
+  the whole app out right to left. The sign-in pages have the same picker.
 - **Digits in Arabic**: Western (0123) or Eastern (٠١٢٣), shown only while the language is Arabic.
   Short IDs and serial numbers always stay in Western digits.
 - **Region**: **United States** (Oct 29) or **United Kingdom** (29 Oct, 29/10/2026), shown only

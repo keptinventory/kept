@@ -43,8 +43,8 @@ export type HbLookups = {
   showMoney: boolean;
   modules: ReadonlySet<string>;
   currencies: ReadonlySet<string>;
-  /** Type ids by normalised name: the account's own first, then the built-ins in five
-   * languages (imports/dry-run.ts loadTypes). */
+  /** Type ids by normalised name: the account's own first, then the built-ins in each language
+   * that names them (imports/dry-run.ts loadTypes). */
   types: Map<string, string>;
   typeInfo: Map<string, HbTypeInfo>;
   /** The built-in "Box / bin", for a container whose mapped type can't hold things. */

@@ -8,11 +8,13 @@ import type { KeptMessage } from '../ai/convert.js';
 //
 // - the core, always: finding things (where_is, search_things, get_thing, list_contents, the
 //   locations) and the everyday changes (add, update, move, mark seen);
-// - a topic's tools when the thread's last questions name it, by keywords in the six interface
+// - a topic's tools when the thread's last questions name it, by keywords in the interface
 //   languages (lending, schedules, warranties, documents, vehicles and meters, stock, history,
-//   places and capture links, tags). A Latin-script keyword matches at a word's start; an Arabic one
-//   anywhere (its prefixes join the word: الـ، و، ب، ل); a Vietnamese one as whole words, with its
-//   tone marks kept, since folding them joins different words (mượn "borrow", muốn "want");
+//   places and capture links, tags). A Latin or Cyrillic keyword matches at a word's start, so a
+//   stem takes its inflected forms, or as a whole word when it ends in `$`, where a stem would take
+//   other words too (чек$ is not чекаю); an Arabic one anywhere (its prefixes join the word: الـ،
+//   و، ب، ل); a Vietnamese one as whole words, with its tone marks kept, since folding them joins
+//   different words (mượn "borrow", muốn "want");
 // - any tool the thread already called, or asked for and was not offered, so a follow-up
 //   ("and the drill?") keeps its tools and the model can ask again;
 // - never a tool the person may not call: `available` is already narrowed by module, role and
@@ -35,12 +37,15 @@ export const CORE_TOOLS: readonly ToolName[] = Object.freeze([
   'mark_seen',
 ]);
 
-type Lang = 'en' | 'fr' | 'de' | 'it' | 'ar' | 'vi';
+type Lang = 'en' | 'fr' | 'de' | 'it' | 'ar' | 'vi' | 'uk';
 type Topic = { tools: readonly ToolName[]; words: Readonly<Record<Lang, string>> };
 
 /** Keywords per topic and language, `|` between them, written plainly: `normalise` (or, for
  * Vietnamese, `normaliseVi`) folds both sides the same way. Vietnamese writes some syllables
- * with the tone mark in two places (hóa, hoá); both are listed. */
+ * with the tone mark in two places (hóa, hoá); both are listed. Ukrainian folds й as и and ї as і,
+ * so a stem is written once; it inflects heavily, so its keywords are stems, whole words only
+ * where a stem would run on into another word (`$`, or the forms listed one by one: кухня, кухні
+ * but never кухонний). */
 const TOPICS: Readonly<Record<string, Topic>> = {
   history: {
     tools: ['thing_history'],
@@ -51,6 +56,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       it: 'cronologia|storia|successo|chi ha',
       ar: 'سجل|تاريخ|حصل|حدث|من نقل|من غير|متى',
       vi: 'lịch sử|đã xảy ra|chuyện gì|ai đã|ai chuyển|ai sửa|ai thêm|khi nào|lần cuối',
+      uk: 'історі|сталос|трапил|хто перемі|хто перест|хто перен|хто пересун|хто змін|хто дода|коли$|востаннє|останній раз|минулого разу',
     },
   },
   documents: {
@@ -62,6 +68,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       it: 'ricevuta|scontrino|fattura|manuale|documento|istruzioni',
       ar: 'إيصال|وصل|فاتورة|دليل|كتيب|مستند|وثيقة|ورق',
       vi: 'hóa đơn|hoá đơn|biên lai|tài liệu|giấy tờ|chứng từ|hướng dẫn sử dụng|sách hướng dẫn',
+      uk: 'квитанці|чек$|чека$|чеку$|чеки$|чеків$|чеком$|рахунок|рахунк|фактур|інструкці|посібник|керівництв|документ|папери|паперів|пдф',
     },
   },
   // #313: changing a place (its name, kind, parent, order) and turning places into boxes.
@@ -75,6 +82,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       it: 'stanza|camera da letto|bagno|cucina|corridoio|soffitta|cantina|scaffal|cassetto|armadio|crea|collegamento|rinomin|in scatol|ordine|girare|giralo|girala|gira il|gira la|gira lo|ruotare|ruotalo|ruotala|di lato|sul fianco|mobil|libreria',
       ar: 'غرفة|مطبخ|حمام|ممر|شرفة|بلكونة|رف|درج|خزانة|دولاب|مكان|أنشئ|صورة|رابط|تسمية|صندوق|صناديق|ترتيب|دوّر ال|اقلب|على جنبه|على جنبها|على الجنب|أثاث|مكتبة',
       vi: 'vị trí|phòng|kệ|giá sách|tủ quần áo|tủ sách|tủ đồ|ngăn kéo|nội thất|tạo|chụp|chụp ảnh|hình ảnh|quét|liên kết|đính kèm|đổi tên|thành hộp|thứ tự|xoay|nằm nghiêng|dựng đứng',
+      uk: 'кімната|кімнати|кімнату|кімнаті|кімнатою|кімнат$|спальня|спальню|спальні|спальнею|спалень|ванна|ванну|ванні|ванною|кухня|кухні|кухню|кухнею|вітальня|вітальні|вітальню|вітальнею|коридор|передпок|балкон|лоджі|горищ|підвал|льох|комор|полиц|поличк|поличц|шухляд|шафа|шафи|шафу|шафі|шафою|шаф$|шафк|шафц|комод|стелаж|гардероб|мебл|зона|зони|зону|зоні|зоною|місце$|місця$|місці$|місцем$|місць$|місцях$|приміщен|створ|фото$|фотограф|фотк|фоток|сфотограф|знімок|знімк|зображен|картинк|картинц|скану|відскан|посилан|лінк$|лінка$|лінку$|лінки$|прикріп|переймену|на коробк|на ящик|у коробк|в коробк|у ящик|в ящик|порядок$|власному порядку|упорядк|впорядк|перемісти вгору|перемісти вниз|перемісти вище|перемісти нижче|посунь вище|посунь нижче|розверн|розверт|оберн|оберт|на бік|набік|на боку|вертикально$|сторч|габарит',
     },
   },
   schedules: {
@@ -86,6 +94,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       it: 'scadenz|scade|promemoria|manutenzion|presto|prossim|fatto|rimand|posticip|compito',
       ar: 'موعد|مستحق|صيانة|تذكير|قريبا|تنتهي|ينتهي|القادم|خلصت|أجل|تأجيل|مهمة',
       vi: 'lịch trình|lịch bảo dưỡng|lịch hẹn|bảo dưỡng|bảo trì|đến hạn|quá hạn|nhắc|sắp tới|hết hạn|tiếp theo|xong|hoãn|dời|để sau|tác vụ|việc cần làm|tuần này|tháng này',
+      uk: 'термін$|терміну$|терміни$|терміном$|простроч|розклад$|розкладу$|розкладі$|розкладом$|графік$|графіку$|графіки$|графіком$|нагад|обслуговуван|найближч|наступн|скоро$|незабаром|невдовзі|сплив|закінчується|закінчиться|зроблено|викона|готово$|відклад|відклас|відстроч|пізніше|завдан|задач|цього тижня|цей тиждень|цьому тижні|цього місяця|цей місяць|цьому місяці',
     },
   },
   lending: {
@@ -97,6 +106,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       it: 'prest|restitu|ridat|riavut|tornat|consegn|affidat',
       ar: 'أعار|أعرت|استعار|استلف|سلف|إعارة|رجع|أرجع|مع مين|عند مين|عند من|اقترض|سلمت|تسليم',
       vi: 'cho mượn|mượn|trả lại|đã trả|trả cho|trả về|lấy lại|nhận lại|ai đang giữ|ai giữ|đang giữ|bàn giao|giao cho',
+      uk: 'позич|запозич|одолж|борг|дав$|дала$|дали$|віддав|віддала$|віддали$|віддай|передав$|передала|передали|передати$|передай|передано|поверн|верну|назад$|забра|у кого|в кого|хто взяв|хто взяла|хто має|взяв у$|взяла у$|взяли у$|взяв в$|взяла в$|взяли в$',
     },
   },
   warranties: {
@@ -108,6 +118,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       it: 'garanzia|reclamo|riparazion|rotto|guasto',
       ar: 'ضمان|كفالة|مطالبة|إصلاح|تصليح|عطل|مكسور|بايظ',
       vi: 'bảo hành|yêu cầu bảo hành|sửa chữa|đi sửa|hỏng|hư|đổi trả',
+      uk: 'гаранті|рекламаці|претензі|страхов|ремонт|відремонт|полагод|лагод|злама|полама|розбит|розбив|розбил|несправн|дефект|не працює',
     },
   },
   vehicles: {
@@ -119,6 +130,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       it: 'macchina|veicolo|tagliando|olio|gomm|chilometr|contachilometri|benzina|carburante|gasolio|pieno|lettura|contatore',
       ar: 'سيارة|عربية|موتوسيكل|صيانة|زيت|كاوتش|إطار|عداد|كيلو|بنزين|وقود|سولار|فول|تفويل|قراءة|كهرباء',
       vi: 'xe|ô tô|phương tiện|bảo dưỡng|thay dầu|dầu|nhớt|lốp|số km|cây số|công tơ|công-tơ-mét|nhiên liệu|xăng|đổ xăng|đổ đầy|chỉ số|đồng hồ đo|đồng hồ điện|điện năng|kwh',
+      uk: 'автомобіл|авто$|автівк|автівц|транспортн|моя машин|мою машин|моєї машин|моїй машин|наша машин|нашу машин|нашої машин|на машині$|у машині$|в машині$|мотоцикл|скутер|мопед|велосипед|байк$|сервіс|техогляд|техобслугов|заміна масла|заміну масла|заміни масла|замінив масло|замінила масло|замінили масло|моторн|мастил|шина|шини|шину|шині|шин$|покришк|покришок|шиномонтаж|пробіг|одометр|спідометр|кілометр|км$|миль$|пальне|пального|пальним|пальному|бензин|бензобак|дизел|солярк|заправ|повний бак|лічильник|показання|показань|показник|мотогодин|електроенерг|кіловат|квт',
     },
   },
   // #209: the tags themselves; tagging one thing is update_thing's, in the core.
@@ -131,6 +143,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       it: 'tag|etichetta',
       ar: 'وسم|وسوم|موسوم|تاغ',
       vi: 'gắn thẻ|bỏ thẻ|các thẻ|thẻ nào|thẻ này',
+      uk: 'тег|протег|мітк|мітц|міток|ярлик|ярлич',
     },
   },
   stock: {
@@ -142,14 +155,15 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       it: 'scorta|scorte|rimast|esaurit|consumabil|usat|finit',
       ar: 'مخزون|متبقي|باقي|نفد|نفذ|خلص|استهلك|كمية',
       vi: 'tồn kho|còn lại|còn bao nhiêu|còn mấy|sắp hết|dùng hết|hết rồi|vật tư|tiêu hao|bổ sung|nạp thêm|mua thêm|số lượng',
+      uk: 'запас$|запасу$|запаси$|запасів$|запасом$|запасах$|припас|залишилос|залишилас|залишилис|залишився|залишок|залишк|лишилос|лишилас|лишилис|лишився|закінч|скінч|вичерп|більше немає|немає більше|використав|використала|використали|використано|поповн|докуп|витратн|кількіст|кількост',
     },
   },
 };
 
 /**
- * Text folded for matching: lower case, accents off (é → e, ä → a), Arabic's alef forms as ا,
- * ta marbuta as ه, alef maqsura as ي, no tatweel or short vowels, and the curly apostrophe as
- * the straight one.
+ * Text folded for matching: lower case, accents off (é → e, ä → a, й → и, ї → і), Arabic's alef
+ * forms as ا, ta marbuta as ه, alef maqsura as ي, no tatweel or short vowels, and the curly
+ * apostrophe as the straight one.
  */
 export function normalise(s: string): string {
   return s
@@ -170,20 +184,25 @@ export function normaliseVi(s: string): string {
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-/** Two patterns per topic: Latin keywords at a word's start and Arabic ones anywhere, on
- * `normalise`d text; Vietnamese ones as whole words, on `normaliseVi`d text. */
+/** A word-start keyword: to the end of the word when it ends in `$`, else any word it begins. */
+const atStart = (w: string) =>
+  w.endsWith('$') ? `${escapeRe(w.slice(0, -1))}(?![\\p{L}\\p{N}])` : escapeRe(w);
+
+/** Two patterns per topic: Latin and Cyrillic keywords at a word's start and Arabic ones anywhere,
+ * on `normalise`d text; Vietnamese ones as whole words, on `normaliseVi`d text. */
 const PATTERNS: readonly [Topic, RegExp, RegExp][] = Object.values(TOPICS).map((topic) => {
-  const list = (langs: Lang[], fold: (s: string) => string) =>
-    langs.flatMap((l) => topic.words[l].split('|')).map((w) => escapeRe(fold(w)));
-  const re = `(?<![\\p{L}\\p{N}])(?:${list(['en', 'fr', 'de', 'it'], normalise).join('|')})|${list(['ar'], normalise).join('|')}`;
+  const list = (langs: Lang[], fold: (s: string) => string, source = escapeRe) =>
+    langs.flatMap((l) => topic.words[l].split('|')).map((w) => source(fold(w)));
+  const re = `(?<![\\p{L}\\p{N}])(?:${list(['en', 'fr', 'de', 'it', 'uk'], normalise, atStart).join('|')})|${list(['ar'], normalise).join('|')}`;
   const vi = `(?<![\\p{L}\\p{N}])(?:${list(['vi'], normaliseVi).join('|')})(?![\\p{L}\\p{N}])`;
   return [topic, new RegExp(re, 'u'), new RegExp(vi, 'u')];
 });
 
-/** A size said as two numbers, "4 by 3", "2.5 x 2 m", "4 sur 3", "٤ في ٣": a room with its size
- * (#372). Words such as "size" or "metre" alone say too little (a TV's size, a tape measure). */
+/** A size said as two numbers, "4 by 3", "2.5 x 2 m", "4 sur 3", "٤ في ٣", "4 на 3" (or "4х3",
+ * the Cyrillic letter): a room with its size (#372). Words such as "size" or "metre" alone say too
+ * little (a TV's size, a tape measure). */
 const DIMENSIONS =
-  /\p{Nd}+(?:[.,٫]\p{Nd}+)?\s*(?:cm|m|metres?|meters?|metri|meter)?\s*(?:x|×|by|sur|per|mal|في)\s*\p{Nd}/u;
+  /\p{Nd}+(?:[.,٫]\p{Nd}+)?\s*(?:cm|m|metres?|meters?|metri|meter|см|м|метр(?:и|а|ів)?)?\s*(?:x|×|by|sur|per|mal|في|на|х)\s*\p{Nd}/u;
 
 /** The tools of every topic `text` names. */
 function topicTools(text: string): Set<ToolName> {

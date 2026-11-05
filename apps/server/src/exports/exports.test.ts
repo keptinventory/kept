@@ -649,6 +649,15 @@ describe('the readable copy', () => {
     expect(text(await zipOf(id), 'readable/index.html')).toContain('<html lang="en"');
   });
 
+  it('takes a Ukrainian reader’s export, and writes its readable copy in English', async () => {
+    const { id, outcome } = await exported(ibrahim, {
+      scope: { locationId: home.id },
+      options: { locale: 'uk', pdf: false, history: false },
+    });
+    expect(outcome.status, JSON.stringify(outcome)).toBe('done');
+    expect(text(await zipOf(id), 'readable/index.html')).toContain('<html lang="en"');
+  });
+
   it('holds more than the report cap, says why there is no PDF, and lists every thing', async () => {
     const big = await createLocation(t, db, ibrahim, 'essentials', 'Warehouse');
     await own(

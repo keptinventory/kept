@@ -36,6 +36,7 @@ describe('Settings → Me → Display', () => {
       'Deutsch',
       'Italiano',
       'Tiếng Việt',
+      'Українська',
     ]);
     // A flag (SVG, never an emoji) beside every name, marked decorative.
     for (const o of options) {

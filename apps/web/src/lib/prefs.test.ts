@@ -1,5 +1,5 @@
 /**
- * Device preferences: the five languages, their Intl tags, content width, and
+ * Device preferences: the languages, their Intl tags, content width, and
  * the pre-paint script in index.html, which must make the same choices before React loads.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -39,10 +39,11 @@ afterEach(() => {
 });
 
 describe('languages', () => {
-  it('has the six languages, and knows a tag by its language', () => {
-    expect(LOCALES).toEqual(['en', 'ar', 'fr', 'de', 'it', 'vi']);
+  it('has the languages, and knows a tag by its language', () => {
+    expect(LOCALES).toEqual(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk']);
     expect(isLocale('it')).toBe(true);
     expect(isLocale('vi')).toBe(true);
+    expect(isLocale('uk')).toBe(true);
     expect(isLocale('es')).toBe(false);
     expect(localeOfTag('ar-EG')).toBe('ar');
     expect(localeOfTag('fr_CA')).toBe('fr');
@@ -214,6 +215,11 @@ describe('the pre-paint script (index.html)', () => {
     expect(prePaint({}, 'it').lang).toBe('it');
     expect(prePaint({}, 'es-ES').lang).toBe('en');
     expect(prePaint({ 'kept.width': 'wide' }).width).toBe('centered');
+  });
+
+  it('knows Ukrainian, left to right, whether stored or the browser’s', () => {
+    expect(prePaint({ 'kept.locale': 'uk' })).toMatchObject({ lang: 'uk', dir: 'ltr' });
+    expect(prePaint({}, 'uk-UA')).toMatchObject({ lang: 'uk', dir: 'ltr' });
   });
 
   it('makes the same place tree choices as prefs.ts, before React loads', () => {

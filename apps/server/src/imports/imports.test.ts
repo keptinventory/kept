@@ -477,6 +477,21 @@ describe('POST /api/v1/imports/:id/dry-run', () => {
     expect(mower).toMatchObject({ name: 'Mower', purchased_on: null });
     expect(mower?.notes).toBe('Bought: 01/02/2025\nPrice: 5000');
   });
+
+  it('finds a built-in type by its Ukrainian name', async () => {
+    const workshop = await createLocation(t, db, ann, 'household', 'Workshop');
+    const { run } = await importRows(ann, workshop, [
+      row({ Name: 'Дриль', Type: 'Електроінструмент' }),
+    ]);
+    expect(run.status).toBe('done');
+    const [drill] = await own<{ builtin_key: string | null }>(
+      db,
+      `SELECT ty.builtin_key FROM public.things t JOIN public.types ty ON ty.id = t.type_id
+        WHERE t.location_id = $1`,
+      [workshop.id],
+    );
+    expect(drill?.builtin_key).toBe('power_tool');
+  });
 });
 
 describe('POST /api/v1/imports/:id/run', () => {
