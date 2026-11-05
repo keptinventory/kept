@@ -1,8 +1,8 @@
 /**
  * The built-in library's names in French, German and Italian (D204) and Ukrainian. English and
  * Arabic stay beside each definition in builtin-types.ts; these live here so that file keeps its
- * shape. The test checks every built-in type and field has French, German and Italian. Vietnamese
- * has no table, so it falls back to English; Ukrainian has one (builtinTypeName/builtinFieldName).
+ * shape. The test checks every built-in type and field has all four. Vietnamese has no table, so
+ * it falls back to English (see builtinTypeName/builtinFieldName).
  */
 import { BUILTIN_TYPES, builtinType } from './builtin-types.js';
 
@@ -11,8 +11,8 @@ type More = {
   readonly fr: string;
   readonly de: string;
   readonly it: string;
+  readonly uk: string;
   readonly vi?: string;
-  readonly uk?: string;
 };
 
 export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
