@@ -216,6 +216,11 @@ describe('the pre-paint script (index.html)', () => {
     expect(prePaint({ 'kept.width': 'wide' }).width).toBe('centered');
   });
 
+  it('knows Ukrainian, left to right, whether stored or the browser’s', () => {
+    expect(prePaint({ 'kept.locale': 'uk' })).toMatchObject({ lang: 'uk', dir: 'ltr' });
+    expect(prePaint({}, 'uk-UA')).toMatchObject({ lang: 'uk', dir: 'ltr' });
+  });
+
   it('makes the same place tree choices as prefs.ts, before React loads', () => {
     const d = document.documentElement;
     const tree = (stored: Record<string, string>) => {
