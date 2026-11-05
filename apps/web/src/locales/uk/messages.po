@@ -13115,7 +13115,7 @@ msgstr "Воно залишиться у ваших збережених под�
 
 #: src/routes/oauth/consent.tsx
 msgid "It stays signed in after you sign out of this browser; anything that signs out all your other devices makes it sign in again."
-msgstr "Воно залишається увійшеним, навіть після виходу з цього браузера; якщо будь-що виходить з усіх інших ваших пристроїв, воно входить знову."
+msgstr "Він залишається увійшовшим у систему навіть після того, як ви вийдете з цього браузера; будь-яка дія, що виводить вас із системи на всіх інших пристроях, змушує його знову увійти."
 
 #: src/components/places/trash-contents-dialog.tsx
 msgid "It stays there for 30 days."
