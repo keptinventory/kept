@@ -31,7 +31,7 @@ There are three places for a key, and no per-location key:
 | Key | Set in | Pays for |
 |---|---|---|
 | **The account's key** | **Settings → AI**, by the account's owner | Every location that account owns |
-| **Your personal key** | **Settings → AI → Personal AI key** | Your Personal location, your private assistant threads, and questions that span owners |
+| **Your personal key** | **Settings → AI → Personal AI key** | Your Personal location, your private assistant threads, and questions that span owners. With [Personal hidden](/users/locations/#hide-personal), also a location you own and use alone, when its account has no key |
 | **This server's key** | **Admin → AI**, by an instance admin | Anyone whose account has no key of its own |
 
 Work in a location (naming a photo, an assistant answer about it) is paid by the **location's

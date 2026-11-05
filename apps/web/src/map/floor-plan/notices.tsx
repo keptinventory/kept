@@ -9,7 +9,7 @@ import { Trans } from '@lingui/react/macro';
 import { useQuery } from '@tanstack/react-query';
 import { captureApi, captureKeys } from '@/api/capture/queries';
 import type { FloorPlanView } from '@/api/map/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { useFormat } from '@/lib/format';
 import { TRY } from '@/try/flag';
 
@@ -26,7 +26,7 @@ export function usePlanAi(
 ): { ai: PlanAi; provider: ProviderKind | null } {
   // As the room tray decides it (capture-screen.tsx): AI capture effective here, else no provider
   // (the status says so) or off; then the budget.
-  const locations = useLocations();
+  const locations = useAllLocations();
   const loc = locations.data?.find((l) => l.id === locationId);
   const aiOn = loc?.effectiveModules?.includes('ai_capture') ?? false;
   const status = useQuery({

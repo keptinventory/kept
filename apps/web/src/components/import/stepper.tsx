@@ -29,7 +29,7 @@ import { type ReactNode, useEffect, useState } from 'react';
 import { captureApi, captureKeys, useImportRun } from '@/api/capture/queries';
 import type { ImportChoices, ImportRun } from '@/api/capture/types';
 import { isApiError } from '@/api/client';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import type { LocationSummary } from '@/api/types';
 import { EmptyState, ErrorState, LoadingRows, Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
@@ -99,14 +99,17 @@ export function ImportStepper({
   go: (next: { location?: string; run?: string; source?: ArchiveSource }) => void;
 }) {
   const locationName = useLocationName();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const qc = useQueryClient();
   const errorText = useImportErrorText();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [step, setStep] = useState<Step>('file');
   const [showProblems, setShowProblems] = useState(false);
 
-  const importable = (locations.data ?? []).filter((l) => l.role === 'owner' || l.role === 'admin');
+  // A hidden Personal only when the address names it.
+  const importable = (locations.data ?? []).filter(
+    (l) => (l.role === 'owner' || l.role === 'admin') && (!l.hidden || l.id === locationParam),
+  );
   const locationId =
     locationParam && importable.some((l) => l.id === locationParam)
       ? locationParam

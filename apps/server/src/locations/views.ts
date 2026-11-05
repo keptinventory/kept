@@ -55,6 +55,8 @@ export const LocationView = z.object({
   effectiveModules: z.array(ModuleIdSchema),
   /** An AI provider resolves for this location (D113, D191). Step 3 wires the real check. */
   providerResolved: z.boolean(),
+  /** The caller's own Personal, hidden from their lists (#392). A direct link still opens it. */
+  hidden: z.boolean(),
   /** For If-Match on PATCH. */
   rowVersion: z.number().int(),
   createdAt: Iso,
@@ -77,6 +79,7 @@ type LocationRow = {
   keep_room_photos: boolean;
   successor_user_id: string | null;
   provider_resolved: boolean;
+  hidden: boolean;
   row_version: number;
   created_at: Date;
   updated_at: Date;
@@ -147,6 +150,7 @@ async function locationRows(
     `SELECT l.id, l.owner_account_id, l.name, l.kind, l.preset, l.timezone, l.currency, l.languages, l.require_2fa,
             l.money_visible_to_viewers, l.long_unseen_months, l.keep_room_photos,
             l.successor_user_id, l.row_version,
+            l.id IN (SELECT kept.hidden_location_ids()) AS hidden,
             l.created_at, l.updated_at, m.role, m.expires_at AS membership_expires_at,
             lower(l.name) AS sort_name,
             kept.ai_provider_resolved(l.id) AS provider_resolved,
@@ -212,6 +216,7 @@ async function locationRows(
       ],
       // Step 3 (D191): AI capture follows a provider that resolves for the caller here.
       providerResolved: r.provider_resolved === true,
+      hidden: r.hidden === true,
       rowVersion: r.row_version,
       createdAt: r.created_at.toISOString(),
       updatedAt: r.updated_at.toISOString(),

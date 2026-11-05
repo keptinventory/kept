@@ -7,6 +7,7 @@ import { checkVersion, decodeCursor, encodeCursor } from '../http/conventions.js
 import { AppError, invalid, notFound } from '../http/errors.js';
 import type { JobQueue } from '../jobs/queue.js';
 import { requireMembership } from '../locations/access.js';
+import { notHidden } from '../locations/hidden.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { typeCapabilities } from '../things/fields.js';
 import { liveThing, updateThing, writableThing } from '../things/service.js';
@@ -326,7 +327,7 @@ export async function lowStockCount(client: pg.ClientBase): Promise<number> {
     `SELECT count(*)::int AS n
        FROM public.stock_rules r JOIN public.things t ON t.id = r.thing_id
       WHERE t.deleted_at IS NULL AND t.lifecycle = 'in_use' AND ${LOW}
-        AND kept.module_on(r.location_id, 'consumables')`,
+        AND kept.module_on(r.location_id, 'consumables') AND ${notHidden('r.location_id')}`,
   );
   return rows[0]?.n ?? 0;
 }

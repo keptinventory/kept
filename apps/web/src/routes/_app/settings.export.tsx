@@ -9,7 +9,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import * as z from 'zod/mini';
 import type { ExportRun } from '@/api/portability/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { ExportList } from '@/components/export/export-list';
 import { type ExportScopeChoice, ExportSheet } from '@/components/export/export-sheet';
 import { ErrorState, LoadingRows, Notice, Page } from '@/components/page';
@@ -34,10 +34,12 @@ function ExportPage() {
   const online = useOnline();
   const navigate = useNavigate();
   const search = Route.useSearch() as { sheet?: 'me' | 'location' };
-  const locations = useLocations();
+  const locations = useAllLocations();
   const [again, setAgain] = useState<Open>(null);
+  // Personal is what "Export my data" carries, unless it is hidden (#392): then that carries another
+  // location, and Personal is offered here so it can still be exported.
   const exportable = (locations.data ?? []).filter(
-    (l) => (l.role === 'owner' || l.role === 'admin') && l.kind !== 'personal',
+    (l) => (l.role === 'owner' || l.role === 'admin') && (l.kind !== 'personal' || l.hidden),
   );
   const close = () => {
     setAgain(null);

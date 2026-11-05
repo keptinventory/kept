@@ -1,10 +1,12 @@
+import type pg from 'pg';
 import { z } from 'zod';
 import type { Pools } from '../db/pools.js';
 import { DIGITS, THEMES, UNITS } from '../db/schema/index.js';
 import { withSystem } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
-import { unauthenticated } from '../http/errors.js';
+import { conflict, unauthenticated } from '../http/errors.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
+import { hiddenLocationIds } from '../locations/hidden.js';
 import { Iso, LocationKind, RoleSchema } from '../locations/views.js';
 import { auditMine } from '../notify/prefs.js';
 import { RECOVERY_KIT_KEY } from '../setup/recovery-kit.js';
@@ -12,9 +14,12 @@ import { RECOVERY_KIT_KEY } from '../setup/recovery-kit.js';
 // GET /api/v1/me (the web shell's first query): who is signed in, their
 // display preferences, whether they are an instance admin, and the locations they belong to.
 //
-// PATCH /api/v1/me {suggestLocation}: "Suggest where I am" (the phone's
-// location suggestion) is the person's, across devices, in user_profiles.suggest_location.
-// Audited `me.preferences` on the person's own account. → 200 {suggestLocation}.
+// PATCH /api/v1/me {suggestLocation?, hidePersonal?}: "Suggest where I am" (the phone's
+// location suggestion) and "Hide Personal" (#392) are the person's, across devices, in
+// user_profiles. Audited `me.preferences` on the person's own account.
+// → 200 {suggestLocation, hidePersonal}. Hiding Personal while it is the only location the session
+// can see is 409; hidden already and left with nothing else, it shows by itself
+// (kept.hidden_location_ids, read on every request), and that is what `personalHidden` reports.
 //
 // GET /me also answers an account in its 30 days before deletion (D225), with `deletion` set: the
 // web shows only "this account will be deleted" with Keep it and Sign out (accounts/deletion.ts).
@@ -35,6 +40,8 @@ const Me = z.object({
   mfa: z.boolean(),
   /** Null only while it is hidden from this session (require_2fa without a second factor). */
   personalLocationId: z.uuid().nullable(),
+  /** Personal is out of this person's lists right now: they asked, and they have another. */
+  personalHidden: z.boolean(),
   profile: z.object({
     timezone: z.string(),
     locale: z.string(),
@@ -43,6 +50,8 @@ const Me = z.object({
     digits: z.enum(DIGITS),
     /** "Suggest where I am" (D39's phone suggestion), off by default. */
     suggestLocation: z.boolean(),
+    /** "Hide Personal" as they set it; `personalHidden` is whether it applies right now. */
+    hidePersonal: z.boolean(),
   }),
   /** The locations this session can see, with the user's role and end date in each. */
   memberships: z.array(
@@ -87,9 +96,11 @@ export async function meRoutes(
           theme: (typeof THEMES)[number];
           digits: (typeof DIGITS)[number];
           suggest_location: boolean;
+          hide_personal: boolean;
           managed: boolean;
         }>(
-          `SELECT display_name, timezone, locale, units, theme, digits, suggest_location, managed
+          `SELECT display_name, timezone, locale, units, theme, digits, suggest_location,
+                  hide_personal, managed
            FROM public.user_profiles WHERE user_id = kept.current_user_id()`,
         );
         const memberships = await client.query<{
@@ -117,6 +128,7 @@ export async function meRoutes(
         }
         return {
           profile: profile.rows[0],
+          hidden: await hiddenLocationIds(client),
           memberships: memberships.rows,
           instanceAdmin,
           recoveryKitAcknowledged,
@@ -148,6 +160,7 @@ export async function meRoutes(
         },
         mfa: scope.mfa,
         personalLocationId: personal?.location_id ?? null,
+        personalHidden: personal ? kept.hidden.includes(personal.location_id) : false,
         profile: {
           timezone: kept.profile?.timezone ?? 'UTC',
           locale: kept.profile?.locale ?? 'en',
@@ -155,6 +168,7 @@ export async function meRoutes(
           theme: kept.profile?.theme ?? 'system',
           digits: kept.profile?.digits ?? 'western',
           suggestLocation: kept.profile?.suggest_location === true,
+          hidePersonal: kept.profile?.hide_personal === true,
         },
         memberships: kept.memberships.map((m) => ({
           locationId: m.location_id,
@@ -172,40 +186,75 @@ export async function meRoutes(
     },
   );
 
-  const Patch = z.object({ suggestLocation: z.boolean() }).strict();
+  const Patch = z
+    .object({ suggestLocation: z.boolean().optional(), hidePersonal: z.boolean().optional() })
+    .strict()
+    .refine((b) => b.suggestLocation !== undefined || b.hidePersonal !== undefined, {
+      message: 'Send suggestLocation or hidePersonal.',
+    });
   app.patch(
     '/api/v1/me',
     {
       schema: {
         body: Patch,
-        response: { 200: z.object({ suggestLocation: z.boolean() }) },
+        response: { 200: z.object({ suggestLocation: z.boolean(), hidePersonal: z.boolean() }) },
       },
     },
     (req, reply) =>
       scopedWrite(pools, req, reply, async (tx, client, scope) => {
-        const { rows } = await client.query<{ suggest_location: boolean }>(
-          `SELECT suggest_location FROM public.user_profiles
+        const { rows } = await client.query<{ suggest_location: boolean; hide_personal: boolean }>(
+          `SELECT suggest_location, hide_personal FROM public.user_profiles
             WHERE user_id = kept.current_user_id() FOR UPDATE`,
         );
-        const before = rows[0]?.suggest_location;
-        if (before === undefined) throw unauthenticated();
-        const want = req.body.suggestLocation;
-        if (before !== want) {
+        const before = rows[0];
+        if (!before) throw unauthenticated();
+        const want = {
+          suggest_location: req.body.suggestLocation ?? before.suggest_location,
+          hide_personal: req.body.hidePersonal ?? before.hide_personal,
+        };
+        if (want.hide_personal && !before.hide_personal && !(await hasAnotherLocation(client))) {
+          throw conflict('Personal is your only location, so it stays. Add or join another first.');
+        }
+        if (
+          before.suggest_location !== want.suggest_location ||
+          before.hide_personal !== want.hide_personal
+        ) {
           await client.query(
-            'UPDATE public.user_profiles SET suggest_location = $1 WHERE user_id = kept.current_user_id()',
-            [want],
+            `UPDATE public.user_profiles SET suggest_location = $1, hide_personal = $2
+              WHERE user_id = kept.current_user_id()`,
+            [want.suggest_location, want.hide_personal],
           );
           await auditMine(tx, scope.userId, {
             action: 'me.preferences',
             entity: { type: 'user', id: scope.userId },
-            before: { suggest_location: before },
-            after: { suggest_location: want },
+            before: changed(before, want),
+            after: changed(want, before),
             requestId: req.id,
           });
         }
-        return { status: 200, body: { suggestLocation: want } };
+        return {
+          status: 200,
+          body: { suggestLocation: want.suggest_location, hidePersonal: want.hide_personal },
+        };
       }),
   );
+}
+
+/** The fields of `a` that differ from `b`, for the audit row. */
+function changed<T extends Record<string, unknown>>(a: T, b: T): Partial<T> {
+  return Object.fromEntries(Object.entries(a).filter(([k, v]) => v !== b[k])) as Partial<T>;
+}
+
+/** Whether this session can see a location other than the caller's Personal one. */
+async function hasAnotherLocation(client: pg.ClientBase): Promise<boolean> {
+  const { rows } = await client.query<{ other: boolean }>(
+    `SELECT EXISTS (
+       SELECT 1 FROM public.locations l
+        WHERE l.id IN (SELECT kept.visible_location_ids()) AND l.deleted_at IS NULL
+          AND NOT (l.kind = 'personal' AND l.owner_account_id = kept.current_owner_account_id())
+     ) AS other`,
+  );
+  return rows[0]?.other === true;
 }
 
 /** The user's live memberships in live locations that ask for two-factor, by name. kept_system

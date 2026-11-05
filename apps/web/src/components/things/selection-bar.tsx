@@ -13,7 +13,7 @@ import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useNavigate } from '@tanstack/react-router';
 import { type ReactNode, useState } from 'react';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { CheckIcon } from '@/components/icons';
 import { AddToIncidentSheet } from '@/components/incidents/lazy';
 import { useScanStore } from '@/components/scan/use-scan-store';
@@ -51,7 +51,7 @@ export function SelectionBar({
   const fmt = useFormat();
   const navigate = useNavigate();
   const online = useOnline();
-  const here = useLocations().data?.find((l) => l.id === locationId);
+  const here = useAllLocations().data?.find((l) => l.id === locationId);
   const modules = here ? (here.effectiveModules ?? here.modules) : [];
   const canLabel = !!here && modules.includes('labels') && can(here.role, 'labels.use');
   const canIncident =

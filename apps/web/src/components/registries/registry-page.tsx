@@ -14,7 +14,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { type ReactNode, useState } from 'react';
 import type { RegistryPathKind } from '@/api/inventory/paths';
 import type { Brand, RegistryItem, ThingListParams, Vendor } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useLocationsInView } from '@/api/queries';
 import { ListExport } from '@/components/filters/list-export';
 import { filterParams } from '@/components/filters/params';
 import { useFilterRegistry } from '@/components/filters/registry';
@@ -205,7 +205,7 @@ function Things({
 }) {
   const { t } = useLingui();
   const [list] = useListState();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const f = useFilterRegistry();
   const params: ThingListParams = {
     ...filterParams(list, {

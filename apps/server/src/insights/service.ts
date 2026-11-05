@@ -1,5 +1,6 @@
 import type pg from 'pg';
 import type { Scope, Tx } from '../db/scope.js';
+import { notHidden } from '../locations/hidden.js';
 import { type Gate, gateFor } from '../serialize/gates.js';
 
 // Insights (1.x, D234; builds D39 item 8, D54, D113, D158): what was spent on things
@@ -199,7 +200,7 @@ async function locationsInScope(
             to_char(now() AT TIME ZONE l.timezone, 'YYYY-MM') AS this_month
        FROM public.locations l
       WHERE l.id IN (SELECT kept.visible_location_ids()) AND l.deleted_at IS NULL
-        AND ($1::uuid[] IS NULL OR l.id = ANY ($1::uuid[]))
+        AND (l.id = ANY ($1::uuid[]) OR ($1::uuid[] IS NULL AND ${notHidden('l.id')}))
       ORDER BY l.created_at, l.id`,
     [ids],
   );

@@ -31,7 +31,7 @@ import {
 } from 'react';
 import { signOut } from '@/api/auth';
 import { isApiError } from '@/api/client';
-import { useLocations, useMe } from '@/api/queries';
+import { useAllLocations, useMe } from '@/api/queries';
 import { assistantStore } from '@/assistant/store';
 import { useConfirm } from '@/components/ui/confirm';
 import {
@@ -113,7 +113,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
   // The frame's last-known state, for a cold start offline (shell.ts): saved each time `/me` and
   // the locations answer. Only a success: after a failed refetch (a 401 included) the status is
   // `error`, so nothing is written back over a cleared cache.
-  const locations = useLocations();
+  const locations = useAllLocations();
   useEffect(() => {
     if (!offline || !me.isSuccess || !locations.isSuccess) return;
     if (me.data.user.id !== offline.userId) return;

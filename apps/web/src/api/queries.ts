@@ -2,7 +2,9 @@
  * TanStack Query keys and hooks. Screens read through these; mutations invalidate by key prefix.
  * A 401 or 403 mfa_required is never retried: the session gate turns it into a redirect.
  */
+
 import { QueryClient, useQuery } from '@tanstack/react-query';
+import { useSearch } from '@tanstack/react-router';
 import { getMe, getSetupStatus, getVersion, listMySessions } from './account';
 import {
   getAdminSettings,
@@ -22,6 +24,7 @@ import {
   listDeletedLocations,
   listLocations,
 } from './locations';
+import type { LocationDetail } from './types';
 
 export const keys = {
   version: ['version'] as const,
@@ -73,7 +76,26 @@ export const useVersion = () =>
 export const useSetupStatus = () => useQuery({ queryKey: keys.setup, queryFn: getSetupStatus });
 export const useMe = () => useQuery({ queryKey: keys.me, queryFn: getMe });
 export const useMySessions = () => useQuery({ queryKey: keys.sessions, queryFn: listMySessions });
-export const useLocations = () => useQuery({ queryKey: keys.locations, queryFn: listLocations });
+const shownLocations = (all: LocationDetail[]) => all.filter((l) => !l.hidden);
+/** The locations the person works in: a hidden Personal (#392) left out. What a menu, a picker, a
+ * filter or a list offers. To look up a location by id, where a direct link may have led to the
+ * hidden one, use useAllLocations. */
+export const useLocations = () =>
+  useQuery({ queryKey: keys.locations, queryFn: listLocations, select: shownLocations });
+/** For a list page: what useLocations() gives, and a hidden Personal while the address narrows the
+ * list to it (`f.location`, `loc`: the links on its own page), so its filter, name and actions hold. */
+export const useLocationsInView = () => {
+  const search = useSearch({ strict: false }) as Record<string, unknown>;
+  const named = JSON.stringify([search['f.location'], search.loc]);
+  return useQuery({
+    queryKey: keys.locations,
+    queryFn: listLocations,
+    select: (all: LocationDetail[]) => all.filter((l) => !l.hidden || named.includes(l.id)),
+  });
+};
+/** Every location the session can see, a hidden Personal too (its `hidden` says so). What a record's
+ * location is looked up in: a direct link can lead to one in a hidden Personal. */
+export const useAllLocations = () => useQuery({ queryKey: keys.locations, queryFn: listLocations });
 /** The caller's own deleted locations still in their grace period (D149). */
 export const useDeletedLocations = () =>
   useQuery({ queryKey: keys.deletedLocations, queryFn: listDeletedLocations });

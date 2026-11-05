@@ -131,6 +131,8 @@ export type Me = {
   twoFactorHidden?: TwoFactorHiddenLocation[];
   /** Null only while it's hidden from this session (require_2fa without a second factor). */
   personalLocationId: string | null;
+  /** Personal is out of this person's lists right now (#392). */
+  personalHidden?: boolean;
   /** Display preferences. `locale` is `en` or `ar`. */
   profile: {
     timezone: string;
@@ -140,6 +142,8 @@ export type Me = {
     digits: 'western' | 'eastern';
     /** "Suggest where I am" (D153): the person's choice, on every device. */
     suggestLocation?: boolean;
+    /** "Hide Personal" as they set it; `personalHidden` is whether it applies right now. */
+    hidePersonal?: boolean;
   };
   /** The locations this session can see, with the user's role and end date in each. */
   memberships: {
@@ -216,6 +220,8 @@ export type LocationSummary = {
  * step 2's mock fixtures (api/inventory/mock) predate them; read them with a fallback.
  */
 export type LocationDetail = LocationSummary & {
+  /** The caller's own Personal, hidden from their lists (#392). A direct link still opens it. */
+  hidden?: boolean;
   /** Modules switched on here (location_modules), before dependencies and provider gating. */
   modules: ModuleId[];
   /** An AI provider resolves for this location (D113, D191). */

@@ -22,7 +22,7 @@ import { inventoryApi } from '@/api/inventory/queries';
 import { reportsApi } from '@/api/inventory/reports';
 import type { ReportScope, ThingListParams } from '@/api/inventory/types';
 import { portabilityApi } from '@/api/portability/queries';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
 import { DocumentIcon, PrinterIcon, ShareIcon } from '@/components/icons';
 import { Notice, useErrorText } from '@/components/page';
@@ -249,7 +249,7 @@ function PrintList({ params, onClose }: ListExportProps & { onClose: () => void 
   const { t } = useLingui();
   const fmt = useFormat();
   const errorText = useErrorText();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const [state, setState] = useState<PrintState>({ step: 'reading' });
 
   const start = async (known: ListedThing[] | null) => {

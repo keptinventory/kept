@@ -22,6 +22,7 @@ import { AppError, forbidden, invalid, notFound } from '../http/errors.js';
 import { filterOf, isNot, lowerIds, matchOf } from '../http/list-filters.js';
 import type { JobQueue } from '../jobs/queue.js';
 import { requireMembership } from '../locations/access.js';
+import { notHidden } from '../locations/hidden.js';
 import { lastInCustomOrder, NATURAL, thingNameSql } from '../places/order.js';
 import { allocateShortId } from '../places/short-id.js';
 import { enqueueReindex } from '../search/jobs.js';
@@ -1358,6 +1359,9 @@ export async function thingListWhere(
   if (locationIds.length === 1 && !isNot(q.not, 'locationId'))
     where.push(`t.location_id = ${p(locationIds[0])}::uuid`);
   else many(locationIds, 'locationId', (ids) => `t.location_id = ANY (${ids})`);
+  // Every location: all but a hidden Personal (#392). Naming it, or a place in it, still lists it.
+  if ((!locationIds.length || isNot(q.not, 'locationId')) && !q.placeId && !q.containerId)
+    where.push(notHidden('t.location_id'));
   if (q.placeId) where.push(`t.place_id = ${p(q.placeId)}::uuid`);
   if (q.containerId) where.push(`t.container_id = ${p(q.containerId)}::uuid`);
   many(q.typeId, 'typeId', (ids) => `t.type_id = ANY (${ids})`);

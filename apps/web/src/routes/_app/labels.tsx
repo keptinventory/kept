@@ -21,7 +21,7 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { captureApi, captureKeys, useLabelBatches, useLabelSummary } from '@/api/capture/queries';
 import type { LabelBatch } from '@/api/capture/types';
-import { useLocation, useLocations } from '@/api/queries';
+import { useLocation, useLocationsInView } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
 import { BoxIcon, PrinterIcon, QrIcon, TagIcon } from '@/components/icons';
 import { BatchBuilder, type BatchSource, MAX_BLANK } from '@/components/labels/batch-builder';
@@ -176,7 +176,7 @@ function LabelsOff({ location }: { location: LocationDetail }) {
 }
 
 function LabelsHome() {
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const locationName = useLocationName();
   if (locations.isPending) return <LoadingRows />;
   if (locations.isError)

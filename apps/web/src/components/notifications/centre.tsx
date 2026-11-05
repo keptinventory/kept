@@ -17,7 +17,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 import { householdApi, householdKeys, useNotifications } from '@/api/household/queries';
 import type { Notification, NotificationsParams, Schedule } from '@/api/household/types';
-import { useLocations } from '@/api/queries';
+import { useLocationsInView } from '@/api/queries';
 import { RenewSheet, type RenewTarget } from '@/components/documents/document-sheets';
 import type { FilterDef } from '@/components/filters/types';
 import { ActivityIcon, BellIcon, CheckIcon, HomeIcon } from '@/components/icons';
@@ -59,7 +59,7 @@ export function NotificationCentre() {
   const f = useFormat();
   const [list] = useListState();
   const qc = useQueryClient();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const nameOf = useLocationName();
   const labels = useGroupLabels();
   const sources = useReminderSources();
