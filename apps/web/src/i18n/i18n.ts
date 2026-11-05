@@ -13,6 +13,7 @@ const loaders: Record<Locale, () => Promise<{ messages: Messages }>> = {
   de: () => import('../locales/de/messages.po'),
   it: () => import('../locales/it/messages.po'),
   vi: () => import('../locales/vi/messages.po'),
+  uk: () => import('../locales/uk/messages.po'),
 };
 
 /**

@@ -1,6 +1,6 @@
 /**
- * The six launch languages (D204): each shown in its own name with a flag. Flags are SVG, not
- * emoji (Windows has no flag emoji), from country-flag-icons (MIT); only these five are imported,
+ * The launch languages (D204): each shown in its own name with a flag. Flags are SVG, not
+ * emoji (Windows has no flag emoji), from country-flag-icons (MIT); only these are imported,
  * so the rest of the set never reaches the bundle.
  *
  * The flag for each language is the maintainer's choice and changes here, in one line each.
@@ -10,6 +10,7 @@ import EG from 'country-flag-icons/react/3x2/EG';
 import FR from 'country-flag-icons/react/3x2/FR';
 import GB from 'country-flag-icons/react/3x2/GB';
 import IT from 'country-flag-icons/react/3x2/IT';
+import UA from 'country-flag-icons/react/3x2/UA';
 import VN from 'country-flag-icons/react/3x2/VN';
 import type { Key } from 'react-aria-components';
 import { directionOf, LOCALES, type Locale, localeOfTag } from '@/lib/prefs';
@@ -28,9 +29,18 @@ export const LANGUAGE_NAMES: Readonly<Record<Locale, string>> = {
   de: 'Deutsch',
   it: 'Italiano',
   vi: 'Tiếng Việt',
+  uk: 'Українська',
 };
 
-const FLAGS: Readonly<Record<Locale, Flag>> = { en: GB, ar: EG, fr: FR, de: DE, it: IT, vi: VN };
+const FLAGS: Readonly<Record<Locale, Flag>> = {
+  en: GB,
+  ar: EG,
+  fr: FR,
+  de: DE,
+  it: IT,
+  vi: VN,
+  uk: UA,
+};
 
 export const LANGUAGES: readonly Language[] = LOCALES.map((id) => ({
   id,
