@@ -138,6 +138,71 @@ describe('Settings → Me, before and without a Personal', () => {
   });
 });
 
+describe('Import with Personal hidden', () => {
+  it('someone who can import nowhere else imports into Personal, not a dead end', async () => {
+    await renderApp('/settings/import', { state: hideIn(memberScenario()) });
+    await findHeading('Choose the file');
+    expect(screen.queryByText('Only owners and admins can import')).not.toBeInTheDocument();
+    const box = screen.getByRole('combobox', { name: 'Import into' });
+    await waitFor(() => expect(box).toHaveValue('Personal'));
+  });
+
+  it('with somewhere else to import, Personal is still left out', async () => {
+    await renderApp('/settings/import', { state: hidden() });
+    await findHeading('Choose the file');
+    const box = screen.getByRole('combobox', { name: 'Import into' });
+    expect(box).not.toHaveValue('Personal');
+  });
+
+  it('their own past import from Activity opens, naming Personal', async () => {
+    const state = hideIn(memberScenario());
+    const run = pt(state).archiveRuns.find((r) => r.id === PORTABILITY_IDS.homeboxDone);
+    if (!run) throw new Error('no run');
+    run.locationId = IDS.alfredPersonal;
+    await renderApp(`/settings/import?run=${run.id}`, { state });
+    expect(await findHeading('Done')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Imported into Personal' })).toBeVisible();
+    expect(screen.queryByText('Only owners and admins can import')).not.toBeInTheDocument();
+  });
+
+  it('someone who adminned elsewhere sees a past archive import named, not blank', async () => {
+    const state = hidden();
+    const run = pt(state).archiveRuns.find((r) => r.id === PORTABILITY_IDS.homeboxDone);
+    if (!run) throw new Error('no run');
+    run.locationId = IDS.personal;
+    await renderApp(`/settings/import?run=${run.id}`, { state });
+    expect(await screen.findByRole('heading', { name: 'Imported into Personal' })).toBeVisible();
+  });
+
+  it('a past spreadsheet import names its own location, whatever else the person adminned', async () => {
+    const state = hidden();
+    const run = csvRun(IDS.personal);
+    state.capture.imports.unshift(run);
+    await renderApp(`/settings/import?run=${run.id}`, { state });
+    expect(await findHeading('Importing into Personal')).toBeInTheDocument();
+  });
+
+  it('a run opens before the check for somewhere to import', async () => {
+    // Nothing of theirs takes an import any more; the run they could read still opens.
+    const state = memberScenario();
+    state.locations = state.locations.filter((l) => l.kind !== 'personal');
+    const run = csvRun(IDS.home);
+    await renderApp(`/settings/import?run=${run.id}`, {
+      state,
+      setup: (m) => m.on('GET', capturePaths.importRun(':id'), () => run),
+    });
+    expect(await findHeading('Importing into Home')).toBeInTheDocument();
+    expect(screen.queryByText('Only owners and admins can import')).not.toBeInTheDocument();
+  });
+
+  it('with no run and nowhere to import, it says who can', async () => {
+    const state = memberScenario();
+    state.locations = state.locations.filter((l) => l.kind !== 'personal');
+    await renderApp('/settings/import', { state });
+    expect(await screen.findByText('Only owners and admins can import')).toBeInTheDocument();
+  });
+});
+
 describe('with Personal hidden', () => {
   it("leaves Settings → Locations and the location filter's reach", async () => {
     await renderApp('/settings/locations', { state: hidden() });
