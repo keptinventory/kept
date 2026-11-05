@@ -27,7 +27,8 @@ import {
 //
 // - fuel.create: the fill goes, with the reading it made.
 // - fuel.update: the fields go back; a reading the edit made goes, and the fill's own reading
-//   gets its value and time back.
+//   gets its value and time back. A replaced receipt comes back and its replacement goes, unless
+//   the receipt changed again since (a file already purged stays gone, as below).
 // - fuel.delete: the reading comes back first, with its id and proof photos, refused when it no
 //   longer fits the series (a reading logged since runs past it, D112); then the fill, with its
 //   id and receipt (a file already purged, a day after it lost its last attachment, stays gone).
@@ -128,9 +129,13 @@ async function undoUpdate(args: UndoArgs): Promise<void> {
   const image = imageOf(row) as Record<string, unknown>;
   const diff = compared(event.diff);
   const conflicts = changedSince(diff, image);
+  const after = afterOf(event.diff);
+  const receipts = event.diff.attachments ? receiptsOf(event.diff) : null;
+  if (receipts && !(await sameReceipts(client, id, receipts.after))) {
+    conflicts.push('receipt');
+  }
   if (conflicts.length > 0) await refuse(args, id, conflicts);
   const back = { ...image, ...beforeOf(diff) } as FuelImage;
-  const after = afterOf(event.diff);
   await client.query(
     `UPDATE public.fuel_entries
         SET taken_at = $2, amount = $3, unit = $4, currency = $5, cost = $6, is_full = $7,
@@ -161,15 +166,43 @@ async function undoUpdate(args: UndoArgs): Promise<void> {
       [back.meter_reading_id, back.reading_value, back.taken_at],
     );
   }
+  if (receipts) {
+    await client.query(
+      `DELETE FROM public.attachments WHERE fuel_entry_id = $1 AND role = 'receipt'`,
+      [id],
+    );
+    await restoreAttachments(client, event.locationId, 'fuel_entry_id', id, receipts.before);
+  }
   const now = imageOf(await entryRecord(client, id));
   await args.audit({
     action: 'fuel.update',
     entity: { type: FUEL_ENTITY, id },
-    before: image,
-    after: now,
+    before: { ...image, ...(receipts ? { attachments: receipts.after } : {}) },
+    after: { ...now, ...(receipts ? { attachments: receipts.before } : {}) },
+    fieldClasses: { attachments: 'money' },
     subjects: [row.thing_id],
     rootThingId: row.thing_id,
   });
+}
+
+/** The receipts a `fuel.update` replaced and the ones it left. */
+function receiptsOf(diff: Diff): { before: HeldAttachment[]; after: HeldAttachment[] } {
+  const list = (v: unknown) => (Array.isArray(v) ? (v as HeldAttachment[]) : []);
+  return { before: list(diff.attachments?.before), after: list(diff.attachments?.after) };
+}
+
+/** Whether the fill's receipts are still the ones the event left (a rename doesn't count). */
+async function sameReceipts(
+  client: pg.ClientBase,
+  id: string,
+  left: readonly HeldAttachment[],
+): Promise<boolean> {
+  const { rows } = await client.query<{ id: string }>(
+    `SELECT id FROM public.attachments WHERE fuel_entry_id = $1 AND role = 'receipt'`,
+    [id],
+  );
+  const now = new Set(rows.map((r) => r.id));
+  return now.size === left.length && left.every((a) => now.has(a.id));
 }
 
 async function restoreAttachments(

@@ -13253,6 +13253,9 @@ msgstr "Chọn ít nhất một địa điểm."
 msgid "Pick only what it needs. You can disconnect it in Settings → Connections."
 msgstr "Chỉ chọn những gì nó cần. Bạn có thể ngắt kết nối nó trong Cài đặt → Kết nối."
 
+msgid "It stays signed in after you sign out of this browser; anything that signs out all your other devices makes it sign in again."
+msgstr "Nó vẫn giữ đăng nhập sau khi bạn đăng xuất khỏi trình duyệt này; bất cứ điều gì đăng xuất tất cả các thiết bị khác của bạn sẽ khiến nó phải đăng nhập lại."
+
 msgid "Read and change"
 msgstr "Đọc và thay đổi"
 

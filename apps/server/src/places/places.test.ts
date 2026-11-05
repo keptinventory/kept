@@ -1040,6 +1040,16 @@ describe('POST /api/v1/places/:id/merge-into', () => {
     });
     expect(row?.summary).toBe('Merged Kitchen (dup) into another place');
     expect(row?.linkTo).toEqual({ type: 'place', id: kitchen, shortCode: dst.shortCode ?? null });
+
+    // #425: the child place it moved says so in its own history.
+    const moved = await own<{ diff: unknown; undoable_until: Date | null }>(
+      `SELECT diff, undoable_until FROM public.audit_events
+        WHERE action = 'place.move' AND entity_id = $1`,
+      [cabinet],
+    );
+    expect(moved).toHaveLength(1);
+    expect(moved[0]?.diff).toMatchObject({ parent_id: { before: dup, after: kitchen } });
+    expect(moved[0]?.undoable_until).toBeNull();
   });
 
   it('refuses a target elsewhere (404) and one inside the source (409)', async () => {

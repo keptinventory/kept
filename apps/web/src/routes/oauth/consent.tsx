@@ -182,7 +182,11 @@ function ConsentForm({ query, consent }: { query: string; consent: OAuthConsent 
             <Trans>Where</Trans>
           </Label>
           <Description>
-            <Trans>Pick only what it needs. You can disconnect it in Settings → Connections.</Trans>
+            <Trans>Pick only what it needs. You can disconnect it in Settings → Connections.</Trans>{' '}
+            <Trans>
+              It stays signed in after you sign out of this browser; anything that signs out all
+              your other devices makes it sign in again.
+            </Trans>
           </Description>
           <fieldset aria-labelledby="consent-locations" className="m-0 grid border-0 p-0">
             {locations.map((l) => (

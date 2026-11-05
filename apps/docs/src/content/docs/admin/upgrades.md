@@ -123,6 +123,10 @@ Kept records each release's migrations in the database, and checks at start:
   [restore](/admin/restore/) the pre-upgrade snapshot instead. `KEPT_ALLOW_DOWNGRADE=1` forces the
   start, and the force is audited.
 
+From 1.14.4 back to 1.14.3: 1.14.3's map has a 1 m minimum. A room under 1 m a side keeps its size
+until someone taps **Done** in **Arrange**, which saves it at 1 m (or refuses, if that makes it
+overlap the next room). To keep those sizes, don't arrange the map until you are back on 1.14.4.
+
 ## Postgres major upgrades
 
 Kept's Compose file pins Postgres 18 by digest, and its dependency updates never propose a major
