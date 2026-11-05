@@ -8,7 +8,7 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { createFileRoute } from '@tanstack/react-router';
 import { useCallback, useEffect, useState } from 'react';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { useAppLock } from '@/components/device/app-lock';
 import { AppLockSettings } from '@/components/device/app-lock-settings';
 import { KeepOffline } from '@/components/device/keep-offline';
@@ -24,7 +24,7 @@ export const Route = createFileRoute('/_app/settings/device')({
 function DevicePage() {
   const { t } = useLingui();
   const lock = useAppLock();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const [kept, setKept] = useState<KeptOfflineRow[]>([]);
   const db = lock?.db ?? null;
   const record = lock?.record ?? null;
@@ -49,7 +49,14 @@ function DevicePage() {
       {lock?.supported ? (
         <Section title={<Trans>Keep available offline</Trans>}>
           {locations.data ? (
-            <KeepOffline locations={locations.data} kept={kept} reload={reload} />
+            <KeepOffline
+              // A hidden Personal stays while its copy is here: its row is the only Off switch.
+              locations={locations.data.filter(
+                (l) => !l.hidden || kept.some((r) => r.locationId === l.id),
+              )}
+              kept={kept}
+              reload={reload}
+            />
           ) : (
             <LoadingRows rows={2} label={t`Loading your locations`} />
           )}

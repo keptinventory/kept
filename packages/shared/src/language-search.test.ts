@@ -9,7 +9,7 @@ const LANGUAGES = [
   { id: 'it', name: 'Italiano' },
   { id: 'vi', name: 'Tiếng Việt' },
 ];
-/** A language the list doesn't have yet: nothing here is specific to the six. */
+/** One more language: its names come from Intl, so nothing here needs an entry for it. */
 const WITH_UKRAINIAN = [...LANGUAGES, { id: 'uk', name: 'Українська' }];
 
 function find(query: string, interfaceTag = 'en', languages = LANGUAGES): string[] {

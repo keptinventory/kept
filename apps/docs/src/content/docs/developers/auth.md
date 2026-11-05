@@ -38,8 +38,10 @@ again on every signed-in request (cached), and from the hourly `repair-orphans` 
 - **Cookies** are Better Auth's, HttpOnly, with `Secure` and the `__Secure-` prefix exactly when
   `KEPT_PUBLIC_URL` is `https`. Kept strips any `token` field from Better Auth's JSON bodies, so a
   page script never sees a session token.
-- **Your devices** are listed with `GET /api/v1/me/sessions` and signed out with
-  `DELETE /api/v1/me/sessions/:id`.
+- **Your devices** are listed with `GET /api/v1/me/sessions`. `DELETE /api/v1/me/sessions/:id`
+  signs out one and leaves connectors signed in. `POST /api/v1/me/sessions/sign-out-others` signs
+  out every other device and ends the connectors' refresh tokens, in one transaction. Each session
+  it ends is audited as `session.revoke`.
 - **Client address.** Kept decides it from the socket, walking `X-Forwarded-For` only through
   `KEPT_TRUSTED_PROXIES` (`auth/client-ip.ts`), and hands Better Auth that one value. Every per-IP
   limit uses it. See [reverse proxies](/install/reverse-proxy/).
@@ -124,10 +126,23 @@ except a rename signs out the other sessions and mails the owner.
 
 A request that carries a cookie and isn't a safe method must come from Kept's own pages
 (`csrfHook` in [`auth/http.ts`](https://github.com/keptinventory/kept/blob/main/apps/server/src/auth/http.ts)):
-its `Origin` is the origin of `KEPT_PUBLIC_URL`, or, when the browser sent no usable `Origin`,
-`Sec-Fetch-Site: same-origin`. Anything else is 403 `forbidden` before the session is looked up
-or the body read. This is why `KEPT_PUBLIC_URL` must be exactly the address the browser shows. A
-request with a bearer token carries no cookie authority and skips it.
+its `Origin` is the origin of `KEPT_PUBLIC_URL`, or exactly one of `KEPT_EXTRA_ADDRESSES`
+([`auth/addresses.ts`](https://github.com/keptinventory/kept/blob/main/apps/server/src/auth/addresses.ts)),
+or, when the browser sent no usable `Origin`, `Sec-Fetch-Site: same-origin`. Anything else is 403
+before the session is looked up or the body read. This is why `KEPT_PUBLIC_URL` must be exactly the
+address the browser shows. A request with a bearer token carries no cookie authority and skips it.
+
+Better Auth's `trustedOrigins` holds the same list. A request whose `Origin` is an extra address is
+refused on `/passkey/*`, `/sign-in/social`, `/link-social`, `/oauth2/*` and the consent route, as
+`origin_mismatch` naming `KEPT_PUBLIC_URL`. This goes by `Origin`, so a request with none isn't
+refused: `GET /oauth2/authorize` at an extra address's name answers as on the main address, sending
+the browser to the consent page there, and an app's call to the token endpoint gets the main
+address's issuer. A code goes only to the client's registered redirect URI. `/callback/*` isn't on
+the list: a provider comes back by a GET, with no `Origin`, to `KEPT_PUBLIC_URL`.
+
+Under Home Assistant ingress the page is Home Assistant's, so the check stays that one origin: the
+list applies on Kept's own port. No link or relying party comes from a request's `Host` or
+`X-Forwarded-*`.
 
 ## How a route declares who may call it
 
@@ -173,7 +188,11 @@ rule for the rest: whatever signs out the person's other devices deletes all of 
 tokens too, and the connector signs in again. That is a password reset or change (a managed
 account's reset code included, when it is issued and when it is redeemed), turning two-factor on
 or off or replacing it, new backup codes, adding or removing a passkey, unlinking an outside
-sign-in, an email change, signing out everywhere and disabling the account. An account claim
+sign-in, an email change, **Sign out of all other devices**, signing out everywhere and disabling
+the account. Signing out one chosen device (`DELETE /api/v1/me/sessions/:id`) ends that session
+only. The exception: asking to delete the account (`POST /api/v1/me/deletion`) signs out the other
+devices but keeps the refresh tokens. Connectors answer nothing while the account waits (migration
+`0114`), and keeping the account gives them back with no new sign-in. An account claim
 (D197) deletes the person's refresh tokens and Better Auth's consent rows, so a connector meets
 the consent page again and gets a new grant. Each refresh keeps the old row, revoked, because
 replaying it ends the lineage; the nightly `prune-stale-rows` job removes a row once it has

@@ -8,6 +8,7 @@ import type { Scope } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
 import { AppError, invalid, unauthenticated } from '../http/errors.js';
 import { proxiesFor, scopeCookieToIngress } from '../http/ingress.js';
+import { isExtraAddress, isMainAddressOnly } from './addresses.js';
 import { AUTH_BASE_PATH, type Auth } from './auth.js';
 import { authRequestHeaders, ClientIpError, requestClientIp } from './client-ip.js';
 import { INGRESS_ORIGIN_HEADER } from './ingress-origin.js';
@@ -71,7 +72,8 @@ const NOT_THIS_SITE = 'The request did not come from this site.';
  * 403 `origin_mismatch`: a page at another address than KEPT_PUBLIC_URL's (http://127.0.0.1:8080
  * when Kept is set up for http://kept.lan:8080, say). The body names the address Kept is set up
  * for (`expectedOrigin`), which every label and mail already prints, so the page can say "Open it
- * there" instead of "You don't have permission".
+ * there" instead of "You don't have permission". Never KEPT_EXTRA_ADDRESSES: an address not on the
+ * list learns nothing of the list.
  */
 export function originMismatch(expectedOrigin: string): AppError {
   return new AppError(
@@ -93,19 +95,19 @@ export function originMismatch(expectedOrigin: string): AppError {
  * reaches a handler with the victim's cookie.
  *
  * Better Auth's mount runs its own origin check on the same requests (cookie + unsafe method →
- * Origin, or Referer, must be a trusted origin, which is exactly KEPT_PUBLIC_URL's). This hook
- * runs first and is the stricter of the two (no Referer fallback), so the two never disagree in
- * the permissive direction. A request without a cookie has no ambient authority to abuse and is
+ * Origin, or Referer, must be a trusted origin: KEPT_PUBLIC_URL's and KEPT_EXTRA_ADDRESSES). This
+ * hook runs first and is the stricter of the two (no Referer fallback), so the two never disagree
+ * in the permissive direction. A request without a cookie has no ambient authority to abuse and is
  * left to the route.
  */
-export function csrfHook(publicUrl: string) {
+export function csrfHook(publicUrl: string, extraAddresses?: readonly string[]) {
   const publicOrigin = new URL(publicUrl).origin;
   return async function checkRequestOrigin(req: FastifyRequest) {
     if (SAFE_METHODS.has(req.method) || !req.headers.cookie) return;
     // A personal token's request ignores cookies (tokens/verify.ts): no ambient authority to
     // abuse, and another site can't set Authorization without a CORS preflight Kept never answers.
     if (PERSONAL_BEARER.test(String(req.headers.authorization ?? ''))) return;
-    assertFromThisSite(req, expectedOrigin(req, publicOrigin));
+    assertFromThisSite(req, expectedOrigin(req, publicOrigin), alsoAccepted(req, extraAddresses));
   };
 }
 
@@ -116,20 +118,59 @@ export function expectedOrigin(req: FastifyRequest, publicOrigin: string): strin
   return req.ingress ? req.ingress.origin : publicOrigin;
 }
 
+/** KEPT_EXTRA_ADDRESSES (D275), for a request on Kept's own port. An ingress request's page is
+ * Home Assistant's, whatever the list says: there the one origin stays the only one. */
+export function alsoAccepted(
+  req: FastifyRequest,
+  extraAddresses: readonly string[] | undefined,
+): readonly string[] | undefined {
+  return req.ingress ? undefined : extraAddresses;
+}
+
 /**
- * csrfHook's rule for one request, cookie or not: its `Origin` is `expected` (else 403
- * `origin_mismatch`), or with no usable Origin, `Sec-Fetch-Site: same-origin` (else 403
- * `forbidden`). First-run setup applies it too: it carries no cookie, but it makes the instance
- * admin and signs them in, so it must come from Kept's own setup page (Home Assistant's, through ingress).
+ * csrfHook's rule for one request, cookie or not: its `Origin` is `expected`, or exactly one of
+ * `extraAddresses` (else 403 `origin_mismatch`, naming `expected` only), or with no usable Origin,
+ * `Sec-Fetch-Site: same-origin` (else 403 `forbidden`). First-run setup applies it too: it carries
+ * no cookie, but it makes the instance admin and signs them in, so it must come from Kept's own
+ * setup page (Home Assistant's, through ingress).
  */
-export function assertFromThisSite(req: FastifyRequest, expected: string): void {
+export function assertFromThisSite(
+  req: FastifyRequest,
+  expected: string,
+  extraAddresses?: readonly string[],
+): void {
   const origin = req.headers.origin;
   if (origin && origin !== 'null') {
-    if (origin === expected) return;
+    if (origin === expected || isExtraAddress(origin, extraAddresses)) return;
     throw originMismatch(expected);
   }
   if (req.headers['sec-fetch-site'] === 'same-origin') return;
   throw new AppError('forbidden', 403, NOT_THIS_SITE);
+}
+
+/**
+ * What works on the main address only (D275), asked for from an extra one: passkeys, because a
+ * browser ties one to a single host name, and outside sign-ins and OAuth, because they come back
+ * to KEPT_PUBLIC_URL. Answered as `origin_mismatch`, so the page offers the main address. Goes by
+ * `Origin` alone, so a request with none isn't refused here: a same-origin GET, or an app's call to
+ * the token endpoint. Neither gains anything. A passkey ceremony still ends in a POST, and its signed
+ * `origin` is checked against the main address regardless. `GET /oauth2/authorize` at an extra
+ * address's name answers as the main address would, sending the browser to its consent page; consent
+ * from an extra address is refused, and a code goes only to the client's registered redirect URI.
+ */
+export function assertNotOnExtraAddress(
+  req: FastifyRequest,
+  publicOrigin: string,
+  extraAddresses: readonly string[] | undefined,
+): void {
+  if (!isExtraAddress(req.headers.origin, extraAddresses)) return;
+  throw new AppError(
+    'origin_mismatch',
+    403,
+    `This works only at ${publicOrigin}.`,
+    { expectedOrigin: publicOrigin },
+    `This works only at ${publicOrigin}.`,
+  );
 }
 
 /** The scope of a route that required a session. */
@@ -197,7 +238,8 @@ export function sessionHook(opts: SessionHookOptions) {
     if (opts.auth && req.headers.cookie) {
       headers = authHeaders(req, opts.trustedProxies);
       const resolved = await resolveSession(opts.auth, opts.pools.auth, headers);
-      // A sliding refresh re-issues the cookie (D181: never over plain HTTP).
+      // A sliding refresh re-issues the cookie (D181: over plain HTTP only with
+      // KEPT_HTTP_SIGN_IN_DAYS, D274).
       forwardCookies(reply, resolved.responseHeaders);
       session = resolved.session;
     }
@@ -226,6 +268,8 @@ export type AuthRoutesOptions = {
   pools: Pick<Pools, 'auth' | 'app'>;
   publicUrl: string;
   trustedProxies: readonly string[];
+  /** KEPT_EXTRA_ADDRESSES: passkeys and outside sign-ins are refused from these (D275). */
+  extraAddresses?: readonly string[];
   /** With OAuth connectors on: ends the grant behind an access token its client revokes
    * (oauth/revoke.ts). The form body, the Authorization header and the request id; true when
    * it did. */
@@ -339,6 +383,8 @@ export async function authRoutes(app: KeptApp, opts: AuthRoutesOptions): Promise
         const headers = authHeaders(req, trustedProxies);
         // Our origin, never the Host header the client sent.
         const url = new URL(req.url, origin);
+        const authPath = url.pathname.slice(AUTH_BASE_PATH.length).replace(/\/{2,}/g, '/');
+        if (isMainAddressOnly(authPath)) assertNotOnExtraAddress(req, origin, opts.extraAddresses);
         const init: RequestInit = { method: req.method, headers };
         if (req.method === 'POST' && req.body !== undefined) {
           init.body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);

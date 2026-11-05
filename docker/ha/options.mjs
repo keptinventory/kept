@@ -32,6 +32,7 @@ export const SECRET_VARIABLES = [
 
 /** Kept's bounds for KEPT_MAX_FILE_MB (apps/server/src/config/env.ts). */
 const MAX_FILE_MB = [1, 2048];
+const HTTP_SIGN_IN_DAYS = [1, 30];
 /** The OIDC options: any of them set without a working issuer and client id is said in the log. */
 const OIDC_OPTIONS = [
   'oidc_issuer',
@@ -52,6 +53,20 @@ function originOnly(value) {
     const url = new URL(value);
     if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
     if (url.pathname !== '/' || url.search || url.hash || url.username || url.password) return null;
+    return url.origin;
+  } catch {
+    return null;
+  }
+}
+
+/** One entry of KEPT_EXTRA_ADDRESSES as Kept reads it, or null for what Kept would refuse
+ * (apps/server/src/auth/addresses.ts; scripts/ha-options.test.mjs holds the two together). */
+function extraAddress(value) {
+  if (!/^https?:\/\/[^\s%*?#\\/]+\/?$/i.test(value)) return null;
+  try {
+    const url = new URL(value);
+    // After parsing too: IDNA maps forms such as U+FF0A to `*`, and U+FF0C to `,`.
+    if (!url.hostname || url.hostname.endsWith('.') || /[*?,]/.test(url.origin)) return null;
     return url.origin;
   } catch {
     return null;
@@ -161,6 +176,54 @@ export function appEnv({ options, info, self }) {
   // to every port on it, 8123 included. off sends max-age=0; unset, Kept's default (on) holds.
   const hsts = opts.hsts === true ? 'on' : opts.hsts === false ? 'off' : text(opts.hsts);
   if (hsts === 'on' || hsts === 'off') env.KEPT_HSTS = hsts;
+
+  // Sign-in length over plain http (#404). Most app installs are on http://<host>.local:<port>.
+  const signInDays = opts.http_sign_in_days;
+  if (signInDays !== undefined && signInDays !== null && signInDays !== '') {
+    const days = Number(signInDays);
+    if (Number.isInteger(days) && days >= HTTP_SIGN_IN_DAYS[0] && days <= HTTP_SIGN_IN_DAYS[1]) {
+      env.KEPT_HTTP_SIGN_IN_DAYS = String(days);
+    } else {
+      lines.push(
+        `The sign-in length is ignored: a whole number of days from ${HTTP_SIGN_IN_DAYS[0]} to ${HTTP_SIGN_IN_DAYS[1]}. Kept's default (12 hours over http) holds.`,
+      );
+    }
+  }
+
+  // More than one address (#405): Kept stops at startup on a bad one or a mix of http and https,
+  // so each is left out and said in the Log tab, by its place in the list, never its text: a value
+  // this wrong may hold half a password. A login may hold a comma, so it's looked for before
+  // anything splits the value (`@`, and the forms IDNA maps to it).
+  const extraList = text(opts.extra_addresses);
+  if (/[@＠﹫]/.test(extraList)) {
+    lines.push(
+      'Extra addresses are ignored: one has a login. Write each address alone, with no user or password.',
+    );
+  } else if (extraList) {
+    const extras = [];
+    const main = new URL(env.KEPT_PUBLIC_URL);
+    const entries = extraList
+      .split(',')
+      .map((e) => e.trim())
+      .filter(Boolean);
+    for (const [i, entry] of entries.entries()) {
+      const origin = extraAddress(entry);
+      const shown = `Extra address ${i + 1}`;
+      if (!origin) {
+        lines.push(
+          `${shown} is ignored: it must be exactly http(s)://host[:port], with no wildcard or path.`,
+        );
+      } else if (new URL(origin).protocol !== main.protocol) {
+        lines.push(`${shown} is ignored: every address uses ${main.protocol}//, as Kept's does.`);
+      } else if (origin !== main.origin && !extras.includes(origin)) {
+        extras.push(origin);
+      }
+    }
+    if (extras.length > 0) {
+      env.KEPT_EXTRA_ADDRESSES = extras.join(',');
+      lines.push(`Kept also answers at ${extras.join(', ')}`);
+    }
+  }
 
   const maxFile = opts.max_file_mb;
   if (maxFile !== undefined && maxFile !== null && maxFile !== '') {

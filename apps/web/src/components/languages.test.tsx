@@ -5,7 +5,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { LanguageSelect, LanguagesMultiSelect } from '@/components/languages';
+import { LANGUAGES, LanguageSelect, LanguagesMultiSelect } from '@/components/languages';
 import type { Locale } from '@/lib/prefs';
 import { expectLogicalOnly, renderUI } from '@/test/render';
 
@@ -77,6 +77,7 @@ describe('LanguageSelect', () => {
       'Deutsch',
       'Italiano',
       'Tiếng Việt',
+      'Українська',
     ]);
     const arabic = screen.getByRole('option', { name: 'العربية' });
     expect(arabic.querySelector('[lang="ar"]')).toHaveAttribute('dir', 'rtl');
@@ -92,7 +93,7 @@ describe('LanguageSelect', () => {
     await user.tab();
     expect(screen.queryByRole('listbox')).toBeNull();
     await user.keyboard('{ArrowDown}');
-    expect(optionNames()).toHaveLength(6);
+    expect(optionNames()).toHaveLength(LANGUAGES.length);
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('listbox')).toBeNull();
     expect(screen.getByRole('combobox')).toHaveFocus();
@@ -241,7 +242,7 @@ describe('LanguageSelect on a phone', () => {
     await user.click(screen.getByRole('combobox'));
     fireEvent.scroll(window);
     await waitFor(() => expect(screen.getByRole('listbox')).toBeInTheDocument());
-    expect(optionNames()).toHaveLength(6);
+    expect(optionNames()).toHaveLength(LANGUAGES.length);
   });
 
   it('closes after a quick tap on an option, and stays closed', async () => {

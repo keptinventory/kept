@@ -115,15 +115,19 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   provider (OpenAI, Anthropic, Google, OpenRouter, Groq, or an OpenAI-compatible server such as
   Ollama) suggests the details and you confirm them. Without one, you type them.
 - **AI assistant and MCP server.** Ask in plain words; changes wait for your OK. Claude and other
-  AI agents connect at `/mcp` ([how](https://keptinventory.info/users/mcp-clients/)).
+  AI agents connect at `/mcp` and stay connected ([how](https://keptinventory.info/users/mcp-clients/)).
 - **Home Assistant.** Install Kept as a Home Assistant app; an integration brings what's due into
   dashboards and automations ([Home Assistant](https://keptinventory.info/users/home-assistant/)).
+- **Paperless-ngx.** Link documents instead of copying them; the start of a word finds one, and a
+  Homebox import takes its links' titles from Paperless
+  ([Paperless](https://keptinventory.info/users/paperless/)).
 - **Backups you can read.** Nightly restic backups to a directory, S3 or SFTP, each with a copy
   that opens in a browser without Kept; imports from Homebox (a past import can be repaired) and
   CSV, full exports.
-- **Your own network or HTTPS.** Works over plain http at home; an export with secret values needs
-  HTTPS.
-- **Six languages:** English, Arabic (right to left), French, German, Italian and Vietnamese; type to find yours.
+- **Your own network or HTTPS.** Works over plain http at home, with sign-ins as long as you set
+  and more than one address; an export with secret values needs HTTPS.
+- **Languages:** English, Arabic (right to left), French, German, Italian, Vietnamese and Ukrainian;
+  type to find yours.
 
 <p align="center">
   <img src="docs/assets/claude-mcp.webp" alt="Claude Code connected to Kept over MCP: asked to add a TV with its serial number, it puts it in Home › Living room" width="720">
@@ -137,7 +141,7 @@ included; Kept and its database use about 200–400 MB
 
 ```sh
 mkdir kept && cd kept
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.4/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.5/compose.yaml
 docker compose run --rm init
 docker compose up -d
 ```

@@ -22,7 +22,8 @@ Inside the workspace `@kept/shared` and `@kept/mcp` resolve to their TypeScript 
 way).
 
 Outside the packages: `charts/kept` (the Helm chart), `docker/` (database bootstrap scripts, the
-Caddyfile, the image's health check), `compose.yaml` and `compose.dev.yaml`, `Dockerfile`,
+Caddyfile, the image's health check), `compose.yaml`, `compose.full.yaml` and `compose.dev.yaml`,
+`Dockerfile`,
 `docs/` (runbooks, release records and the repository's images) and `scripts/`.
 
 ## `apps/server/src`
@@ -158,7 +159,7 @@ and `pnpm --filter @kept/docs gen:config` (regenerates the
 | Biome (`biome.json`) | Lint and format |
 | `tsc` | Types, per package |
 | Vitest | Unit and integration tests; server tests clone a database per worker. See [testing](/developers/testing/) |
-| Lingui | `scripts/check-i18n.mjs`: every source message is in all six catalogues; `check-i18n-extract.mjs`: a real `lingui extract` finds nothing new |
+| Lingui | `scripts/check-i18n.mjs`: every source message is in every catalogue; `check-i18n-extract.mjs`: a real `lingui extract` finds nothing new |
 | `scripts/check-logical-css.mjs` | No physical-side CSS in `apps/web/src`, so Arabic mirrors |
 | `scripts/check-no-local-paths.mjs` | No home directories, private addresses or tailnet names in tracked files |
 | `scripts/check-licences.mjs` | Every dependency's licence is on the allowlist |

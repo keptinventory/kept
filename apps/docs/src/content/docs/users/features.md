@@ -69,9 +69,12 @@ a location turns them on in **Location settings → What to track**
 - **[Sharing a location](/users/sharing/)**: invite people with a role (admin, member, viewer)
   and an optional end date; managed accounts for people without email; read-only share links for
   someone without an account.
-- **[Sign-in and security](/users/sign-in-security/)**: passkeys and two-factor sign-in.
-- **Six languages**: English, Arabic (right to left), French, German, Italian and Vietnamese; type
-  to find yours in the picker, and dates in your region's style, or as you choose.
+- **[Sign-in and security](/users/sign-in-security/)**: passkeys and two-factor sign-in; on a home
+  network over plain http, [sign-ins as long as the admin sets](/install/home-network/#staying-on-your-network);
+  one Kept on [more than one address](/install/home-network/#more-than-one-address), such as a LAN
+  name and a Tailscale name.
+- **Languages**: English, Arabic (right to left), French, German, Italian, Vietnamese and
+  Ukrainian; type to find yours in the picker, and dates in your region's style, or as you choose.
 
 ## On your phone
 
@@ -84,14 +87,16 @@ a location turns them on in **Location settings → What to track**
   OpenRouter, Groq, or a local server such as [Ollama](/admin/ollama/). Capture drafts a thing
   from a photo; you confirm it.
 - **The assistant**: ask in plain words; changes wait for your OK.
-- **[Claude and other AI apps](/users/mcp-clients/)**: an MCP server at `/mcp`. Module: Connect
-  ChatGPT or Claude.
+- **[Claude and other AI apps](/users/mcp-clients/)**: an MCP server at `/mcp`; a connected app
+  stays connected until you revoke it. Module: Connect ChatGPT or Claude.
 
 ## Works with
 
 - **[Home Assistant](/users/home-assistant/)**: Kept as a Home Assistant app, and an integration
   for dashboards, automations and the calendar.
-- **[Paperless-ngx](/users/paperless/)**: link documents instead of copying them.
+- **[Paperless-ngx](/users/paperless/)**: link documents instead of copying them; the start of a
+  word finds one in **Link from Paperless**. A [Homebox import](/users/import-export/) takes its
+  links' titles from Paperless.
 - **[Dashboards](/users/dashboards/)** and **[webhooks](/users/webhooks/)**: a summary for your
   own dashboards; events posted to your own services.
 - **[Import and export](/users/import-export/)**: from Homebox, a spreadsheet (CSV) or another

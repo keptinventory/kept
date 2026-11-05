@@ -1,7 +1,9 @@
 import { rm } from 'node:fs/promises';
 import { HomeboxChoices, type ImportIssueCode, newId } from '@kept/shared';
 import type pg from 'pg';
+import { allowPrivateAddresses } from '../../ai/runtime.js';
 import { audited } from '../../audit/audited.js';
+import type { SecretKeys } from '../../crypto/keyring.js';
 import type { Pools } from '../../db/pools.js';
 import { type Scope, type Tx, withScope } from '../../db/scope.js';
 import { ingestFile } from '../../files/ingest.js';
@@ -11,6 +13,8 @@ import { defineJob, type JobDefinition } from '../../jobs/boss.js';
 import { JOB_POLICIES } from '../../jobs/policies.js';
 import type { JobQueue } from '../../jobs/queue.js';
 import type { SystemJobDeps } from '../../jobs/system.js';
+import { PaperlessClient } from '../../paperless/client.js';
+import { openConnection } from '../../paperless/connection.js';
 import { ArchiveContentError, ArchiveError } from '../../portability/zip/limits.js';
 import type { OpenArchive } from '../../portability/zip/read.js';
 import { type FileStorage, importArchiveKey } from '../../storage/blob-store.js';
@@ -20,6 +24,7 @@ import { readArchiveRun } from '../archive.js';
 import type { ArchiveRunRow } from '../archive-types.js';
 import { type ApplyCtx, applyOp, MissingRef } from './apply.js';
 import { loadHomeboxLookups } from './lookups.js';
+import { PaperlessTitles, type TitleSource, withTitlesKept } from './paperless-titles.js';
 import { type AttachmentOp, type HbOp, planHomebox } from './plan.js';
 import { type HomeboxData, openHomebox, readHomebox } from './read.js';
 
@@ -36,6 +41,8 @@ import { type HomeboxData, openHomebox, readHomebox } from './read.js';
 // - the chunk's files go in outside any transaction: each attachment's entry is streamed to the
 //   temp directory (cut at the file size limit) and through ingestFile(), the upload's own path
 //   (sniffing, per-location dedupe, derivatives, `pdf-text`), as a new file;
+// - the chunk's Paperless links get their titles, also outside any transaction, and bounded
+//   (paperless-titles.ts): Paperless being slow or down costs titles, never the import;
 // - then one transaction, the run locked: each step through the step-2 services in its own
 //   savepoint, remembered in import_source_ids; a step that fails is rolled back and listed in
 //   the chunk's `import.run` audit event, which has the things made as its subjects;
@@ -54,6 +61,8 @@ export type HomeboxJobDeps = {
   files: FileStorage | null | undefined;
   jobs: JobQueue | null;
   log: SystemJobDeps['log'];
+  /** Opens the location's Paperless token, to ask for its links' titles. Omitted: Homebox's. */
+  secretKeys?: SecretKeys | null;
   /** Tests: steps per transaction. */
   chunk?: number;
   /** Tests: called after each chunk commits; throwing stops the job there (a crash). */
@@ -138,6 +147,22 @@ async function ingestChunk(
   }
 }
 
+/** The location's Paperless to ask, if its connection is still the one the links were planned
+ * against: `baseUrl`, the address their documents were read from. */
+async function paperlessSource(
+  deps: HomeboxJobDeps,
+  locationId: string,
+  baseUrl: string | undefined,
+): Promise<TitleSource | null> {
+  const keys = deps.secretKeys;
+  if (!keys || !baseUrl) return null;
+  const conn = await openConnection(deps.pools.system, () => keys, locationId);
+  if (conn?.config.baseUrl !== baseUrl) return null;
+  return new PaperlessClient(conn.config, {
+    allowPrivate: await allowPrivateAddresses(deps.pools),
+  });
+}
+
 async function applyChunk(
   tx: Tx,
   client: pg.PoolClient,
@@ -150,6 +175,7 @@ async function applyChunk(
   if (run?.status !== 'running') return false;
   const c: ApplyCtx = { ...base, tx, client };
   const made: string[] = [];
+  let titlesKept = 0;
   for (const op of steps) {
     if (op.op !== 'type' && c.ids.has(op.key)) continue;
     if (failed.some((f) => f.key === op.key)) continue;
@@ -163,6 +189,7 @@ async function applyChunk(
       const done = await applyOp(c, op);
       await client.query('RELEASE SAVEPOINT import_step');
       if (done.thingId) made.push(done.thingId);
+      if (done.titleKept) titlesKept += 1;
     } catch (err) {
       await client.query('ROLLBACK TO SAVEPOINT import_step');
       // Forget what the step remembered before it failed: its ids, and the brands and vendors it
@@ -178,6 +205,7 @@ async function applyChunk(
       });
     }
   }
+  const note = titlesKept > 0 ? withTitlesKept(run.dry_run_report, titlesKept) : null;
   await client.query(
     `UPDATE public.import_runs
         SET progress = least(progress + $2, coalesce(total, progress + $2)),
@@ -185,9 +213,10 @@ async function applyChunk(
             finished_at = CASE WHEN $3 THEN now() ELSE finished_at END,
             archive_bytes = CASE WHEN $3 THEN NULL ELSE archive_bytes END,
             archive_sha256 = CASE WHEN $3 THEN NULL ELSE archive_sha256 END,
-            archive_ready_at = CASE WHEN $3 THEN NULL ELSE archive_ready_at END
+            archive_ready_at = CASE WHEN $3 THEN NULL ELSE archive_ready_at END,
+            dry_run_report = coalesce($4::jsonb, dry_run_report)
       WHERE id = $1`,
-    [base.runId, steps.length, last],
+    [base.runId, steps.length, last, note ? JSON.stringify(note) : null],
   );
   await audited(tx, {
     locationId: base.locationId,
@@ -199,6 +228,7 @@ async function applyChunk(
       things: made.length,
       failed: failed.length,
       ...(failed.length > 0 ? { failed_steps: failed.slice(0, FAILED_LISTED) } : {}),
+      ...(titlesKept > 0 ? { paperless_titles_kept: titlesKept } : {}),
       ...(last ? { status: 'done' } : {}),
     },
     subjects: made,
@@ -246,6 +276,9 @@ export async function runHomeboxImport(
 
     const limiter = new ImageLimiter(Math.max(1, files.imageConcurrency));
     const fileIds = new Map<string, string>();
+    const titles = new PaperlessTitles(() =>
+      paperlessSource(deps, locationId, look.paperless?.baseUrl),
+    );
     const base: Omit<ApplyCtx, 'tx' | 'client'> = {
       scope,
       requestId: `import:${runId}`,
@@ -258,6 +291,7 @@ export async function runHomeboxImport(
       ids: new Map(look.sourceIds),
       fileIds,
       made: { brands: new Map(), vendors: new Map() },
+      paperlessTitle: (documentId) => titles.titleOf(documentId),
     };
     const chunk = deps.chunk ?? CHUNK;
     for (let start = 0, index = 0; ; start += chunk, index++) {
@@ -277,11 +311,16 @@ export async function runHomeboxImport(
         fileIds,
         failed,
       );
+      await titles.fetch(steps);
       const more = await withScope(pools.app, scope, (tx, client) =>
         applyChunk(tx, client, base, steps, failed, last),
       );
       await deps.afterChunk?.(index);
       if (!more) break;
+    }
+    // A code, never the error: the reader of the log learns why titles stopped, and nothing else.
+    if (titles.stopped) {
+      deps.log.info({ runId, stopped: titles.stopped }, 'import-homebox: stopped asking Paperless');
     }
     archive.close();
     archive = null;
@@ -344,6 +383,7 @@ export function homeboxImportJobs(deps: SystemJobDeps): JobDefinition[] {
             files: deps.files,
             jobs: tenantQueue(deps),
             log: deps.log,
+            secretKeys: deps.secretKeys ?? null,
           },
           scope,
           runId.toLowerCase(),

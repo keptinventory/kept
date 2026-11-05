@@ -1,6 +1,6 @@
 import { oauthProviderAuthServerMetadata } from '@better-auth/oauth-provider';
 import type { FastifyRequest } from 'fastify';
-import { authHeaders } from '../auth/http.js';
+import { assertNotOnExtraAddress, authHeaders } from '../auth/http.js';
 import type { KeptApp } from '../http/app.js';
 import { notFound } from '../http/errors.js';
 import type { InventoryDeps } from '../http/routes.js';
@@ -96,6 +96,8 @@ export async function oauthRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
     },
     (req, reply) => {
       if (!auth) throw notFound(OFF_HINT);
+      // OAuth stays on the main address (D275): the issuer, and where a client's sign-in lands.
+      assertNotOnExtraAddress(req, new URL(publicUrl).origin, deps.env.KEPT_EXTRA_ADDRESSES);
       const headers = authHeaders(req, trustedProxies);
       return scopedWrite(pools, req, reply, async (tx, client, scope) => ({
         status: 200,

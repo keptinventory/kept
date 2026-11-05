@@ -9,7 +9,8 @@
 // wasm on its own under WASM_BUDGET, index.html precached at its current content, and nothing
 // authenticated, no icon chunk (per-icon or the DynamicIcon map) and no Lingui catalogue in it:
 // those are cached on first use (vite.config.ts, sw.ts). Nor What's new's pictures and clips
-// (public/whats-new/): fetched when the card opens.
+// (public/whats-new/): fetched when the card opens. And the font subsets a language needs offline
+// beyond Latin and Arabic are in it (OFFLINE_FONTS).
 //
 // The on-demand rule for new screens: the precache holds only what the offline promise needs
 // (the shell, Home, browsing places and things, capture, the inbox, scan and old
@@ -42,6 +43,16 @@ export const PRECACHE_BUDGET = 3500 * 1024;
 /** The scanner's wasm, precached so scanning works offline on iOS (D101); 1.09 MB in T0. */
 export const WASM_BUDGET = 1_200_000;
 const WASM = /(?:^|\/)zxing_reader[^/]*\.wasm$/;
+/**
+ * Vietnamese's and Ukrainian's letters, in every weight styles/index.css imports: vite.config.ts
+ * ignores some of @fontsource's subsets, and one ignored by mistake shows only offline, as the
+ * system's font.
+ */
+export const OFFLINE_FONTS = ['sans', 'mono'].flatMap((family) =>
+  ['vietnamese', 'cyrillic'].flatMap((subset) =>
+    [400, 500, 600].map((weight) => `assets/ibm-plex-${family}-${subset}-${weight}-normal-`),
+  ),
+);
 
 /** The entry script's path relative to dist/, read from the built index.html (relative, `./`,
  * since the build's base is relative, D273; absolute `/` in older builds). */
@@ -94,6 +105,9 @@ export function checkPrecache(dist) {
     if (e.url.endsWith('.js') && STATIC_HOUSEHOLD.test(readFileSync(join(dist, e.url), 'utf8')))
       problems.push(`precached chunk imports an on-demand household chunk: ${e.url}`);
   }
+  for (const font of OFFLINE_FONTS)
+    if (!entries.some((e) => e.url.startsWith(font) && e.url.endsWith('.woff2')))
+      problems.push(`font not precached, so it won't read right offline: ${font}`);
   const index = entries.find((e) => e.url === 'index.html');
   const md5 = createHash('md5')
     .update(readFileSync(join(dist, 'index.html')))

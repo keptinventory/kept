@@ -14,13 +14,21 @@ sidebar:
 
 ```sh
 mkdir kept && cd kept
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.4/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.5/compose.yaml
 docker compose run --rm init
 docker compose up -d
 ```
 
 يعمل `compose.yaml` وحده، فيمكن لصقه أيضًا في Portainer وDockge وأمثالهما (راجع
 [من دون طرفية](#من-دون-طرفية)).
+
+:::note[الصور]
+تُنشر الإصدارات على `ghcr.io/keptinventory/kept` بالوسوم `1` و`1.2` و`1.2.3`، ولا يوجد `latest`
+أبدًا، والإصدار `1.0.0` أول إصدار موقَّع. والصور نفسها، موقَّعة بالمفتاح نفسه، موجودة على Docker Hub باسم
+`keptinventory/kept`. يشغّل `compose.yaml` الإصدار الذي نُشر معه ما لم يحدد `KEPT_IMAGE` في `.env`
+غيره، ويكتب `init` هناك الإصدار الذي عمل به. ويمكنك [التحقق منه](/ar/admin/verify-release/) أولًا.
+ولتشغيل صورة تبنيها بنفسك، في نسخة من المستودع: `docker build -t kept:local .` ثم `KEPT_IMAGE=kept:local`.
+:::
 
 ## ما الذي يعمل
 
@@ -39,7 +47,7 @@ docker compose up -d
 والعامل في تعليقات. ويعمل هو أيضًا وحده. ولاستخدامه بدلًا من `compose.yaml`:
 
 ```sh
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.4/compose.full.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.5/compose.full.yaml
 docker compose -f compose.full.yaml run --rm init
 echo COMPOSE_FILE=compose.full.yaml >> .env
 docker compose up -d
@@ -48,14 +56,6 @@ docker compose up -d
 ومع `COMPOSE_FILE` في `.env` يقرأ الأمر `docker compose` وحده الملف `compose.full.yaml`، فتعمل كل
 أوامر هذا الدليل كما هي مكتوبة. وخدمات Kept وشبكته ومجلداته واحدة في الملفين: يمكن للتثبيت أن ينتقل
 بينهما في أي وقت ويحتفظ ببياناته.
-
-:::note[الصور]
-تُنشر الإصدارات على `ghcr.io/keptinventory/kept` بالوسوم `1` و`1.2` و`1.2.3`، ولا يوجد `latest`
-أبدًا، والإصدار `1.0.0` أول إصدار موقَّع. والصور نفسها، موقَّعة بالمفتاح نفسه، موجودة على Docker Hub باسم
-`keptinventory/kept`. يشغّل `compose.yaml` الإصدار الذي نُشر معه ما لم يحدد `KEPT_IMAGE` في `.env`
-غيره، ويكتب `init` هناك الإصدار الذي عمل به. ويمكنك [التحقق منه](/ar/admin/verify-release/) أولًا.
-ولتشغيل صورة تبنيها بنفسك، في نسخة من المستودع: `docker build -t kept:local .` ثم `KEPT_IMAGE=kept:local`.
-:::
 
 ## ١. اكتب ملف ‎`.env`‎
 

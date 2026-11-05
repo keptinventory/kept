@@ -25,6 +25,8 @@ export function HidePersonal() {
   const locations = useAllLocations();
   const asked = me.data?.profile.hidePersonal === true;
   const another = (locations.data ?? []).some((l) => l.kind !== 'personal');
+  // While they load, or if they failed, nothing is known about what else there is.
+  const known = locations.data !== undefined;
   const save = useMutation({
     mutationFn: setHidePersonal,
     // Every list, Home and the menu read it: nothing cached still holds.
@@ -46,23 +48,26 @@ export function HidePersonal() {
           </Trans>
         </span>
       </Switch>
-      <p className="m-0 text-small text-ink-2">
-        {another ? (
-          <Trans>
-            It leaves the menu, Home, lists and search, for you only. Nothing in it changes, a link
-            to it still opens it, and its reminders still reach you. Show it again here any time.
-          </Trans>
-        ) : asked ? (
-          <Trans>
-            <bdi>{personal}</bdi> is showing because it's your only location. It hides again when
-            you have another.
-          </Trans>
-        ) : (
-          <Trans>
-            <bdi>{personal}</bdi> is your only location, so it stays. Add or join another first.
-          </Trans>
-        )}
-      </p>
+      {known ? (
+        <p className="m-0 text-small text-ink-2">
+          {another ? (
+            <Trans>
+              It leaves the menu, Home, lists and search, for you only. Nothing in it changes, a
+              link to it still opens it, and its reminders still reach you. Show it again here any
+              time.
+            </Trans>
+          ) : asked ? (
+            <Trans>
+              <bdi>{personal}</bdi> is showing because it's your only location. It hides again when
+              you have another.
+            </Trans>
+          ) : (
+            <Trans>
+              <bdi>{personal}</bdi> is your only location, so it stays. Add or join another first.
+            </Trans>
+          )}
+        </p>
+      ) : null}
     </div>
   );
 }

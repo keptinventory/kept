@@ -1,6 +1,6 @@
 ---
 title: Add a shape
-description: Add a shape to the location map - the files it touches, its words in five languages, its drawing or detailed model, the thumbnail script and the tests.
+description: Add a shape to the location map - the files it touches, the words that find it, its drawing or detailed model, the thumbnail script and the tests.
 ---
 
 A shape is one entry in the location map's catalogue: a size, a group, the words that find it,
@@ -15,7 +15,7 @@ catalogue, so a new shape shows up in both once these steps are done. To ask for
 | `packages/shared/src/map.ts` | The shape's entry in `MAP_MODELS`: its key, size and kind (see below) |
 | `packages/shared/src/map-shapes.ts` | Its group in `SHAPE_GROUP`, its words in `SHAPE_WORDS`, its French, German and Italian words again in `SHAPE_WORD_LANGS`; optionally a built-in type that suggests it in `TYPE_SHAPES` |
 | `apps/web/src/map/labels.ts` | Its name in the picker, a `` t`…` `` string |
-| `apps/web/src/locales/*/messages.po` | That name in all five catalogues ([adding a string](/developers/i18n-rtl/#adding-a-string)) |
+| `apps/web/src/locales/*/messages.po` | That name in every catalogue ([adding a string](/developers/i18n-rtl/#adding-a-string)) |
 | `apps/docs/src/components/try-map/strings.ts` | Its English and Arabic name for Try the map and the shape library |
 | `apps/web/src/map/engine/draw.ts` | Its drawing, for a shape drawn in code |
 | `apps/web/src/map/models/` | Its `.glb` file and a line in `NOTICE.txt`, for a detailed model |
@@ -66,7 +66,7 @@ first size is only ever the bare key), `sizedKey` writes them, `mapModel` gives 
 `apps/web/src/map/size.tsx` is the card's fields. A new sized shape goes in all of these, and in
 `isMapModel`'s tests and the server's layout test.
 
-## Words in five languages
+## The words that find it
 
 `SHAPE_WORDS` lists what people call the thing, lower case, in English, Arabic, French, German and
 Italian, written as people type them (accents and Arabic letter forms are folded when matching).

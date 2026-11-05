@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { parseExtraAddresses } from '../apps/server/src/auth/addresses.ts';
 import { appEnv, shellExports } from '../docker/ha/options.mjs';
 
 // The Home Assistant app's options (homeassistant/kept/config.yaml `schema`) as Kept's environment,
@@ -311,6 +312,157 @@ describe('sign-in, sign-up and uploads', () => {
     expect(run({ hsts: true }).env.KEPT_HSTS).toBe('on');
     for (const value of [undefined, '', 'maybe', 'OFF']) {
       expect(run({ hsts: value }).env, String(value)).not.toHaveProperty('KEPT_HSTS');
+    }
+  });
+
+  // #404: Kept stops at startup on a bad value, so a bad option is left out and said in the Log tab.
+  it('passes the sign-in length within Kept’s bounds, 1 to 30 days', () => {
+    expect(run({ http_sign_in_days: 1 }).env.KEPT_HTTP_SIGN_IN_DAYS).toBe('1');
+    expect(run({ http_sign_in_days: 7 }).env.KEPT_HTTP_SIGN_IN_DAYS).toBe('7');
+    expect(run({ http_sign_in_days: 30 }).env.KEPT_HTTP_SIGN_IN_DAYS).toBe('30');
+    for (const value of [undefined, null, '']) {
+      const { env, lines } = run({ http_sign_in_days: value });
+      expect(env, String(value)).not.toHaveProperty('KEPT_HTTP_SIGN_IN_DAYS');
+      expect(lines.join('\n')).not.toContain('sign-in length');
+    }
+    for (const value of [0, 31, -1, 1.5, '7d']) {
+      const { env, lines } = run({ http_sign_in_days: value });
+      expect(env, String(value)).not.toHaveProperty('KEPT_HTTP_SIGN_IN_DAYS');
+      expect(lines.join('\n')).toContain('The sign-in length is ignored');
+    }
+  });
+
+  // #405: Kept stops at startup on a bad address or a mix of http and https.
+  it('passes extra addresses as Kept reads them, and says what it left out', () => {
+    expect(run({ extra_addresses: 'http://100.64.0.7:8080' }).env.KEPT_EXTRA_ADDRESSES).toBe(
+      'http://100.64.0.7:8080',
+    );
+    const many = run({
+      extra_addresses: ' HTTP://Kept-TS.lan:8080/ , http://a.lan,, http://a.lan',
+    });
+    expect(many.env.KEPT_EXTRA_ADDRESSES).toBe('http://kept-ts.lan:8080,http://a.lan');
+    expect(many.lines.join('\n')).toContain(
+      'Kept also answers at http://kept-ts.lan:8080, http://a.lan',
+    );
+    for (const value of [undefined, null, '', ' , ']) {
+      const { env, lines } = run({ extra_addresses: value });
+      expect(env, String(value)).not.toHaveProperty('KEPT_EXTRA_ADDRESSES');
+      expect(lines.join('\n')).not.toContain('xtra address');
+    }
+    const some = run({ extra_addresses: 'http://*.lan,http://a.lan,http://b.lan/app' });
+    expect(some.env.KEPT_EXTRA_ADDRESSES).toBe('http://a.lan');
+    expect(some.lines.join('\n')).toContain('Extra address 1 is ignored');
+    expect(some.lines.join('\n')).toContain('Extra address 3 is ignored');
+    expect(some.lines.join('\n')).not.toContain('b.lan');
+  });
+
+  it('leaves out an address on another scheme than Kept’s, and Kept’s own', () => {
+    const http = run({
+      public_url: 'http://kept.lan:8080',
+      extra_addresses: 'https://a.lan,http://kept.lan:8080,http://b.lan',
+    });
+    expect(http.env.KEPT_EXTRA_ADDRESSES).toBe('http://b.lan');
+    expect(http.lines.join('\n')).toContain('Extra address 1 is ignored');
+    const https = run({ public_url: 'https://kept.lan', extra_addresses: 'http://a.lan' });
+    expect(https.env).not.toHaveProperty('KEPT_EXTRA_ADDRESSES');
+    expect(https.lines.join('\n')).toContain('Extra address 1 is ignored');
+  });
+
+  it('never repeats a login in a log line', () => {
+    const { env, lines } = run({ extra_addresses: 'http://alfred:hunter2@kept.lan' });
+    expect(env).not.toHaveProperty('KEPT_EXTRA_ADDRESSES');
+    expect(lines.join('\n')).toContain('Extra addresses are ignored: one has a login');
+    expect(lines.join('\n')).not.toMatch(/alfred|hunter2/);
+  });
+
+  it.each([
+    'http://alfred:pa,ss@kept.lan',
+    // The part before the comma would be an address of its own.
+    'http://alfred:80,ss@kept.lan',
+    'http://a.lan,http://alfred:pa,ss@kept.lan',
+    'http://alfred:80,ss＠kept.lan',
+  ])('leaves out all of %j and prints none of it', (value) => {
+    const { env, lines } = run({ extra_addresses: value });
+    expect(env).not.toHaveProperty('KEPT_EXTRA_ADDRESSES');
+    expect(lines.join('\n')).toContain('Extra addresses are ignored: one has a login');
+    expect(lines.join('\n')).not.toMatch(/alfred|pa,ss|80,ss|a\.lan/);
+  });
+
+  it('prints no entry it leaves out, by its place only', () => {
+    const { env, lines } = run({ extra_addresses: 'http://a.lan,http://alfred:hunter2' });
+    expect(env.KEPT_EXTRA_ADDRESSES).toBe('http://a.lan');
+    expect(lines.join('\n')).toContain('Extra address 2 is ignored');
+    expect(lines.join('\n')).not.toMatch(/alfred|hunter2/);
+  });
+
+  it.each(['http://＊.example.com', 'http://﹡.example.com', 'https://＊.kept.lan'])(
+    'leaves out %s, which IDNA would turn into a wildcard',
+    (value) => {
+      const { env, lines } = run({ public_url: 'http://other.lan', extra_addresses: value });
+      expect(env).not.toHaveProperty('KEPT_EXTRA_ADDRESSES');
+      expect(lines.join('\n')).toContain('Extra address 1 is ignored');
+      expect(lines.join('\n')).not.toContain('*');
+    },
+  );
+
+  it.each(['http://a，b.lan', 'http://a﹐b.lan', 'http://kept，evil.lan'])(
+    'leaves out %s, which IDNA would turn into a comma and so two addresses',
+    (value) => {
+      const { env, lines } = run({ public_url: 'http://other.lan', extra_addresses: value });
+      expect(env).not.toHaveProperty('KEPT_EXTRA_ADDRESSES');
+      expect(lines.join('\n')).toContain('Extra address 1 is ignored');
+      expect(lines.join('\n')).not.toContain('b.lan');
+    },
+  );
+
+  // The app must never hand Kept what stops it at startup: the two readers agree, entry by entry.
+  it('accepts exactly what Kept accepts', () => {
+    for (const value of [
+      'http://kept.lan',
+      'http://kept.lan/',
+      'HTTP://KEPT.LAN:8080',
+      'http://kept.lan:80',
+      'http://192.0.2.20:8080',
+      'http://[2001:db8::1]:8080',
+      'http://küche.lan',
+      '*',
+      'http://*.lan',
+      'http://kept.*',
+      'http://ke?t.lan',
+      'http://＊.example.com',
+      'http://﹡.example.com',
+      'http://？.example.com',
+      'http://﹖.example.com',
+      'http://a，b.lan',
+      'http://a﹐b.lan',
+      'http://user@kept.lan',
+      'http://user:pa,ss@kept.lan',
+      'http://user:80,ss@kept.lan',
+      'http://user:80,ss＠kept.lan',
+      'http://kept.lan/app',
+      'http://kept.lan//',
+      'http://kept.lan/?',
+      'http://kept.lan#top',
+      'http://kept.lan\\',
+      'http://kept.lan.',
+      'http://kept.lan。',
+      'kept.lan',
+      'null',
+      'ftp://kept.lan',
+      'http:kept.lan',
+      'http:/kept.lan',
+      'http://',
+      'http://kept lan',
+      'http://ke%70t.lan',
+      'http://kept.lan:99999',
+      'http://[::1',
+    ]) {
+      let kept = null;
+      try {
+        kept = parseExtraAddresses(value).join(',');
+      } catch {}
+      const { env } = run({ public_url: 'http://other.lan', extra_addresses: value });
+      expect(env.KEPT_EXTRA_ADDRESSES ?? null, value).toBe(kept);
     }
   });
 

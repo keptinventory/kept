@@ -162,7 +162,7 @@ export default {
     }
     if (failed) {
       console.error(
-        'check-i18n-extract: run `pnpm --filter @kept/web i18n:extract`, translate every new message in all five catalogues, and commit them.',
+        'check-i18n-extract: run `pnpm --filter @kept/web i18n:extract`, translate every new message in every catalogue, and commit them.',
       );
       process.exit(1);
     }

@@ -24,12 +24,12 @@ import { keys } from '@/api/queries';
 import { AuthFrame } from '@/components/auth-frame';
 import { KeyIcon, MailIcon } from '@/components/icons';
 import { OidcError, OidcSignInButton, useGoogleOn, useOidcName } from '@/components/oidc-sign-in';
-import { OriginMismatchNotice } from '@/components/origin-mismatch';
+import { MainAddress, OriginMismatchNotice } from '@/components/origin-mismatch';
 import { LinkButton, Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { PasswordField } from '@/components/ui/password-field';
 import { TextField } from '@/components/ui/text-field';
-import { appHref, publicOrigin, underIngress } from '@/lib/base-path';
+import { appHref, mainAddressElsewhere, publicOrigin, underIngress } from '@/lib/base-path';
 import { nextSearch } from '@/lib/next';
 import { expectedOriginOf } from '@/lib/origin-mismatch';
 
@@ -70,8 +70,10 @@ const WRONG_CREDENTIALS = new Set([
 const looksLikeEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
 /** A passkey belongs to Kept's own host name (its rpID). Under Home Assistant ingress (D273) the
- * page is on Home Assistant's, so passkey sign-in is offered only when the two are the same. */
+ * page is on Home Assistant's, so passkey sign-in is offered only when the two are the same. On
+ * one of KEPT_EXTRA_ADDRESSES (D275) it isn't offered: the server checks the main address. */
 function passkeysHere(): boolean {
+  if (mainAddressElsewhere()) return false;
   if (!underIngress()) return true;
   try {
     return new URL(publicOrigin()).hostname === window.location.hostname;
@@ -160,6 +162,9 @@ function SignInPage() {
     },
   });
 
+  // On one of KEPT_EXTRA_ADDRESSES (D275).
+  const main = mainAddressElsewhere();
+
   if (linkSentTo) {
     const to = linkSentTo.to;
     return (
@@ -190,6 +195,21 @@ function SignInPage() {
             email is set up.
           </Trans>
         </Notice>
+        {main ? (
+          <Notice tone="info">
+            {linkSentTo.kind === 'reset' ? (
+              <Trans>
+                The link opens at <MainAddress main={main} />. Set the new password there, then sign
+                in here with it.
+              </Trans>
+            ) : (
+              <Trans>
+                The link opens at <MainAddress main={main} /> and signs you in there, not on this
+                address. Can't reach it from here? Use your password.
+              </Trans>
+            )}
+          </Notice>
+        ) : null}
       </AuthFrame>
     );
   }
@@ -299,6 +319,14 @@ function SignInPage() {
           <OidcSignInButton provider="google" name="Google" {...(next ? { next } : {})} />
         ) : null}
       </div>
+      {main ? (
+        <p className="m-0 text-small text-ink-2">
+          <Trans>
+            Passkeys work only at <MainAddress main={main} />, because browsers tie a passkey to one
+            address. Here, use your password or an email link.
+          </Trans>
+        </p>
+      ) : null}
       <LinkButton to="/signin/code" variant="ghost">
         <Trans>I have a one-time code</Trans>
       </LinkButton>

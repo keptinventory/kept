@@ -274,6 +274,10 @@ export function createMockApi(state: MockState): MockApi {
     state.sessions = state.sessions.filter((s) => s.id !== params.id);
     return reply(204);
   });
+  add('POST', paths.myOtherSessions, () => {
+    state.sessions = state.sessions.filter((s) => s.current);
+    return reply(204);
+  });
 
   // ----- locations -------------------------------------------------------------------------------
   add('GET', paths.locations, () => requireSession() ?? { locations: state.locations });

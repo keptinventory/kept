@@ -58,6 +58,9 @@ export type ToolContext = {
    * `precondition_failed`. Absent, the row's current version is used. */
   ifMatch?: number;
   now?: () => Date;
+  /** The assistant thread's location: a hidden Personal counts as reachable for a call in a thread
+   * opened on it (#392), as it did when the thread's tools were offered (toolsFor's `also`). */
+  threadLocation?: string | null;
   /** Told the locations the call ran over, once resolved (the assistant stores a result by them,
    * so losing one redacts it even when the output names no location id: D164). */
   onLocations?: (locationIds: string[]) => void;

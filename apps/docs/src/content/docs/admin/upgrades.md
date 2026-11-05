@@ -21,6 +21,13 @@ A release can change `compose.yaml` too; its notes say so. Download the release'
 (`curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v<version>/compose.yaml`, or
 `compose.full.yaml` if you run that one); `.env` stays as it is.
 
+### Settings that need the new compose.yaml
+
+`compose.yaml` hands Kept the settings it names, and no others. An upgrade to 1.14.5 that only
+changes `KEPT_IMAGE` keeps 1.14.4's file, which doesn't pass `KEPT_HTTP_SIGN_IN_DAYS` or
+`KEPT_EXTRA_ADDRESSES` and sets `KEPT_TRUSTED_PROXIES` itself. Those lines in `.env` do nothing until
+you download 1.14.5's `compose.yaml` (or `compose.full.yaml`) and run `docker compose up -d`.
+
 ### Caddy and Ollama moved to compose.full.yaml
 
 From 1.14.5, `compose.yaml` runs Kept and its database only. Caddy (the `https`
@@ -41,7 +48,8 @@ nothing is lost. Without Caddy or Ollama, nothing changes.
 
 **Behind your own proxy**, `KEPT_TRUSTED_PROXIES` in `.env` reaches Kept from 1.14.5. Before,
 `compose.yaml` set its own value, so a line in `.env` was ignored and every visitor shared the
-proxy's sign-in limits. A value already in `.env` takes effect with the upgrade; one in a
+proxy's sign-in limits. A value already in `.env` takes effect once you've downloaded 1.14.5's
+`compose.yaml` ([above](#settings-that-need-the-new-composeyaml)); one in a
 `compose.override.yaml` can move to `.env`. With `compose.full.yaml`'s Caddy, leave it empty or
 keep `172.29.72.200` in the list ([reverse proxies](/install/reverse-proxy/#trust-the-proxy-and-only-the-proxy)).
 

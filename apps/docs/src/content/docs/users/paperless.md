@@ -58,9 +58,15 @@ and the linked documents together.
 
 **From a [Homebox import](/users/import-export/#a-homebox-export):** a Homebox link to one of
 your Paperless documents (`…/documents/123`, or the API's `…/api/documents/123/download/`) at the
-address this location is connected to comes in as a linked document on the thing or place, with
-Homebox's title and its attachment type as the kind. Connect Paperless before you import; any
-other link stays a plain link.
+address this location is connected to comes in as a linked document on the thing or place. Its
+title comes from Paperless, its kind from its Homebox attachment type. Connect Paperless before you
+import; any other link stays a plain link.
+
+Kept asks Paperless for the titles when the import runs, not when it checks the export. If Paperless
+can't be reached, or doesn't have a document or won't show it to its user, the import still finishes
+and that link keeps Homebox's title, or its address if Homebox has none. The import's report says how
+many. To get Paperless's title later, **Unlink** the document and use **Link from Paperless**, or
+**Copy into Kept**.
 
 ## Linked or copied
 

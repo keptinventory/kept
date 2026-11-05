@@ -1,4 +1,5 @@
 /** First run, the signed-in person, their devices, and the build info (D147). */
+import { noteMainAddress } from '@/lib/base-path';
 import { api } from './client';
 import { paths } from './paths';
 import type {
@@ -15,7 +16,11 @@ import type {
 
 export const getVersion = () => api.get<VersionInfo>(paths.version);
 
-export const getSetupStatus = () => api.get<SetupStatus>(paths.setup);
+export const getSetupStatus = () =>
+  api.get<SetupStatus>(paths.setup).then((status) => {
+    noteMainAddress(status.mainAddress);
+    return status;
+  });
 export const completeSetup = (body: SetupBody) => api.post<SetupResult>(paths.setup, body);
 
 export const getMe = () => api.get<Me>(paths.me);
@@ -28,6 +33,8 @@ export const setHidePersonal = (hidePersonal: boolean) =>
 export const listMySessions = () =>
   api.get<{ sessions: DeviceSession[] }>(paths.mySessions).then((r) => r.sessions);
 export const revokeMySession = (id: string) => api.del(paths.mySession(id));
+/** Every other device and every connector's sign-in, in one step on the server. */
+export const signOutOtherSessions = () => api.post(paths.myOtherSessions, {});
 
 /**
  * Starts an email change: a link to the current address first (202 `{stage: 'confirm_old'}`).
