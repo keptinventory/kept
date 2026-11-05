@@ -10,6 +10,7 @@ import {
   type ImportIssue,
   type MappableField,
 } from '@kept/shared';
+import { plural } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import type { ImportRowStatus } from '@/api/capture/types';
 import { useFormat } from '@/lib/format';
@@ -200,6 +201,13 @@ export function useIssueText(when: 'before' | 'after' = 'after') {
         return before
           ? t`A location that comes in as a box, as chosen.`
           : t`A location that came in as a box, as chosen.`;
+      case 'hb_paperless_titles_kept': {
+        const count = issue.params?.count ?? 0;
+        return plural(count, {
+          one: "# link keeps its Homebox title: Kept couldn't get one from Paperless.",
+          other: "# links keep their Homebox titles: Kept couldn't get them from Paperless.",
+        });
+      }
       case 'hb_sold_date_only':
         return t`A sold date with no buyer or price isn't a sale: it stays in use, with the date in its notes.`;
       case 'hb_place_notes_dropped':

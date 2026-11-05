@@ -28819,6 +28819,10 @@ msgstr "Orte ausklappen"
 msgid "Resize places"
 msgstr "Breite der Orte ändern"
 
+#: src/components/import/labels.ts
+msgid "{count, plural, one {# link keeps its Homebox title: Kept couldn't get one from Paperless.} other {# links keep their Homebox titles: Kept couldn't get them from Paperless.}}"
+msgstr "{count, plural, one {# Link behält seinen Homebox-Titel: Kept konnte ihn nicht von Paperless abrufen.} other {# Links behalten ihre Homebox-Titel: Kept konnte sie nicht von Paperless abrufen.}}"
+
 #: src/routes/signin/index.tsx
 msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
 msgstr "Passkeys funktionieren nur unter <0/>, weil Browser einen Passkey an eine einzige Adresse binden. Hier nutzt du dein Passwort oder einen Link per E-Mail."

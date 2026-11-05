@@ -206,7 +206,9 @@ export const HB_SEEDED_TAGS = [
  *   out: places come from the items' location column;
  * - `hb_place_tags_dropped`: a location's tags, not kept: in Kept only things have tags (#209);
  * - `hb_sold_date_only`: a sold date with no buyer and no price, which isn't a sale (Homebox
- *   fills empty dates on some upgrades, #346): the thing stays in use, the date is in its notes.
+ *   fills empty dates on some upgrades, #346): the thing stays in use, the date is in its notes;
+ * - `hb_paperless_titles_kept`: Paperless links that kept Homebox's title because Paperless gave
+ *   none during the import (#422); one row for the run, `params.count` links.
  */
 export const HB_ISSUE_CODES = [
   'hb_archived_skipped',
@@ -232,6 +234,8 @@ export const HB_ISSUE_CODES = [
   'hb_place_notes_dropped',
   // 1.14.1
   'hb_sold_date_only',
+  // 1.14.5
+  'hb_paperless_titles_kept',
 ] as const;
 export type HomeboxIssueCode = (typeof HB_ISSUE_CODES)[number];
 

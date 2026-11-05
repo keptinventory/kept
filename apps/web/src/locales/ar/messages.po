@@ -28819,6 +28819,10 @@ msgstr "توسيع الأماكن"
 msgid "Resize places"
 msgstr "تغيير عرض الأماكن"
 
+#: src/components/import/labels.ts
+msgid "{count, plural, one {# link keeps its Homebox title: Kept couldn't get one from Paperless.} other {# links keep their Homebox titles: Kept couldn't get them from Paperless.}}"
+msgstr "{count, plural, zero {لا روابط تحتفظ بعناوينها من Homebox.} one {رابط واحد يحتفظ بعنوانه من Homebox: تعذّر على Kept الحصول عليه من Paperless.} two {رابطان يحتفظان بعنوانيهما من Homebox: تعذّر على Kept الحصول عليهما من Paperless.} few {# روابط تحتفظ بعناوينها من Homebox: تعذّر على Kept الحصول عليها من Paperless.} many {# رابطًا يحتفظ بعناوينه من Homebox: تعذّر على Kept الحصول عليها من Paperless.} other {# رابط يحتفظ بعناوينه من Homebox: تعذّر على Kept الحصول عليها من Paperless.}}"
+
 #: src/routes/signin/index.tsx
 msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
 msgstr "مفاتيح المرور تعمل فقط على <0/>، لأن المتصفحات تربط مفتاح المرور بعنوان واحد. هنا، استخدم كلمة المرور أو رابطًا بالبريد."

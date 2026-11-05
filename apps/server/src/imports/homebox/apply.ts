@@ -42,10 +42,17 @@ export type ApplyCtx = {
   fileIds: Map<string, string>;
   /** Brands and vendors made by name in this run. */
   made: { brands: Map<string, string>; vendors: Map<string, string> };
+  /** A document's title as Paperless gave it (paperless-titles.ts), asked before the chunk's
+   * transaction began. Undefined: Homebox's. */
+  paperlessTitle: (documentId: number) => string | undefined;
 };
 
-/** What one step made, for the chunk's audit event. */
-export type Applied = { thingId?: string };
+/** What one step made, for the chunk's audit event and the report. */
+export type Applied = {
+  thingId?: string;
+  /** A Paperless link was made with Homebox's title: Paperless gave none. */
+  titleKept?: boolean;
+};
 
 /** A step whose target an earlier step didn't make (it failed): reported, not applied. */
 export class MissingRef extends Error {
@@ -325,9 +332,11 @@ export async function applyOp(c: ApplyCtx, op: HbOp): Promise<Applied> {
       return {};
     }
     case 'paperless_link': {
-      // The record "Link from Paperless" makes (paperless/routes.ts), with Homebox's title and
-      // kind as its cache. Not remembered in import_source_ids: the link is unique per subject and
-      // document, so a resumed run makes nothing twice.
+      // The record "Link from Paperless" makes (paperless/routes.ts), with Paperless's title if
+      // it gave one, else Homebox's, and Homebox's kind. Not remembered in import_source_ids: the
+      // link is unique per subject and document, so a resumed run makes nothing twice.
+      const given = c.paperlessTitle(op.documentId);
+      const title = given ?? op.title;
       const owner = 'thing' in op.owner ? op.owner.thing : op.owner.place;
       const ownerId = resolve(c, owner);
       const column = 'thing' in op.owner ? 'thing_id' : 'place_id';
@@ -342,7 +351,7 @@ export async function applyOp(c: ApplyCtx, op: HbOp): Promise<Applied> {
          VALUES ($1, $2, $3, $4, $5, $6, kept.current_user_id())
          ON CONFLICT (${column}, document_id) DO NOTHING
          RETURNING id`,
-        [c.locationId, conn[0].id, ownerId, op.documentId, op.title, op.kind],
+        [c.locationId, conn[0].id, ownerId, op.documentId, title, op.kind],
       );
       const id = rows[0]?.id;
       if (id) {
@@ -353,7 +362,7 @@ export async function applyOp(c: ApplyCtx, op: HbOp): Promise<Applied> {
           entity: { type: 'paperless_link', id },
           after: {
             paperless_document_id: op.documentId,
-            title: op.title,
+            title,
             kind: op.kind,
             [column]: ownerId,
           },
@@ -361,7 +370,7 @@ export async function applyOp(c: ApplyCtx, op: HbOp): Promise<Applied> {
           requestId: c.requestId,
         });
       }
-      return {};
+      return id && !given ? { titleKept: true } : {};
     }
     case 'service': {
       const owner = 'thing' in op.owner ? op.owner.thing : op.owner.place;

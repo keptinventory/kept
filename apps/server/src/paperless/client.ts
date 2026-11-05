@@ -78,7 +78,11 @@ const HINTS: Record<PaperlessErrorCode, string> = {
 
 /** A call that failed: 502 `paperless_unreachable`, or 404 for a document Paperless doesn't have. */
 export class PaperlessError extends AppError {
-  constructor(readonly reason: PaperlessErrorCode) {
+  /** `upstreamStatus`: `auth_failed`'s 401 (the token) or 403 (this document). */
+  constructor(
+    readonly reason: PaperlessErrorCode,
+    readonly upstreamStatus?: number,
+  ) {
     super(
       reason === 'not_found' ? 'not_found' : 'paperless_unreachable',
       reason === 'not_found' ? 404 : 502,
@@ -177,6 +181,12 @@ const Doc = z.object({
 });
 export type PaperlessDocument = z.infer<typeof Doc>;
 
+/** A document's title as Kept caches it: trimmed and cut to 300 characters; empty is null. */
+export function paperlessTitle(raw: string): string | null {
+  const title = raw.trim();
+  return title ? title.slice(0, 300) : null;
+}
+
 const Page = z.object({ count: z.number().int(), results: z.array(Doc) });
 const Names = z.object({
   results: z.array(z.object({ id: z.number().int(), name: z.string().max(10_000) })),
@@ -248,7 +258,9 @@ export class PaperlessClient {
     }
     if (res.status >= 200 && res.status < 300) return res;
     await res.body?.cancel().catch(() => {});
-    if (res.status === 401 || res.status === 403) throw new PaperlessError('auth_failed');
+    if (res.status === 401 || res.status === 403) {
+      throw new PaperlessError('auth_failed', res.status);
+    }
     if (res.status === 404) throw new PaperlessError('not_found');
     if (res.status === 406) throw new PaperlessError('too_old');
     throw new PaperlessError('failed');

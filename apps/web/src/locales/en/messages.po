@@ -28819,6 +28819,10 @@ msgstr "Expand places"
 msgid "Resize places"
 msgstr "Resize places"
 
+#: src/components/import/labels.ts
+msgid "{count, plural, one {# link keeps its Homebox title: Kept couldn't get one from Paperless.} other {# links keep their Homebox titles: Kept couldn't get them from Paperless.}}"
+msgstr "{count, plural, one {# link keeps its Homebox title: Kept couldn't get one from Paperless.} other {# links keep their Homebox titles: Kept couldn't get them from Paperless.}}"
+
 #: src/routes/signin/index.tsx
 msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
 msgstr "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
