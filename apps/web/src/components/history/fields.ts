@@ -16,6 +16,8 @@ const HIDDEN = new Set([
   // Step 4 (T29): what a delete keeps so undo can put it back (its documents, a service's lines
   // and the schedules it completed), not a change anyone made.
   'documents',
+  // A fill's receipts as a delete or a replace keeps them.
+  'attachments',
   'lines',
   'completes',
   // Step 5: what a service or a fill keeps for its undo, and a starter set's or a draft's ids.

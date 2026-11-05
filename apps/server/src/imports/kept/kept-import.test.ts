@@ -734,3 +734,116 @@ describe('templates', () => {
     }
   });
 });
+
+describe('merged compartments (#425)', () => {
+  type Cell = { cols?: number; parts?: { placeId: string; name: string; codes: string[] }[] };
+
+  /** A shelf with its first two cubes merged. */
+  async function mergedShelf() {
+    const source = await createLocation(t, db, ibrahim, 'complete', 'Workshop');
+    const room = ok(
+      await call(t, `/api/v1/locations/${source.id}/places`, {
+        as: ibrahim,
+        body: { parentId: null, name: 'Workshop room', kindKey: 'room' },
+      }),
+      201,
+    ).id as string;
+    const made = ok(
+      await call(t, `/api/v1/locations/${source.id}/places/from-template`, {
+        as: ibrahim,
+        body: {
+          parentId: room,
+          template: { builtin: 'cube_2x2' },
+          name: 'Cube shelf',
+          code: 'WS01',
+          codePattern: '{parent}-F{col:02}{row:02}',
+        },
+      }),
+      201,
+    ) as unknown as { place: { id: string }; compartments: { id: string; n: number }[] };
+    const [a, b] = made.compartments.sort((x, y) => x.n - y.n);
+    ok(
+      await call(t, `/api/v1/places/${made.place.id}/merge-compartments`, {
+        as: ibrahim,
+        body: { compartmentIds: [a?.id, b?.id] },
+      }),
+    );
+    return { source, absorbed: b?.id as string };
+  }
+
+  async function imported(source: Loc, trashed: boolean, name: string) {
+    const target = await newTarget(name);
+    const forged = await forgeKeptExport(db, {
+      userId: ibrahim.userId,
+      locationId: source.id,
+      files,
+      trashed,
+    });
+    try {
+      const runId = await stageKeptRun(db, files, forged, {
+        userId: alfred.userId,
+        locationId: target.id,
+      });
+      await runKeptImport(deps(), scopeOf(alfred), runId);
+      expect(await runOf(runId)).toMatchObject({ status: 'done', error: null });
+    } finally {
+      await forged.cleanup();
+    }
+    const [merged] = await own<{ id: string; parent_id: string; cell: Cell }>(
+      db,
+      `SELECT id, parent_id, cell FROM public.places
+        WHERE location_id = $1 AND cell ? 'parts' AND deleted_at IS NULL`,
+      [target.id],
+    );
+    if (!merged) throw new Error('the merged compartment was imported');
+    return { target, merged };
+  }
+
+  const split = (furniture: string, compartmentId: string) =>
+    call(t, `/api/v1/places/${furniture}/split-compartment`, {
+      as: alfred,
+      body: { compartmentId },
+    });
+
+  it('names no id of the old server when the trash stays behind, and splits', async () => {
+    const { source, absorbed } = await mergedShelf();
+    const { target, merged } = await imported(source, false, 'Workshop, no trash');
+    expect(merged.cell.cols).toBe(2);
+    const part = merged.cell.parts?.[0];
+    expect(part?.name).toBe('Cube 2');
+    expect(part?.placeId).not.toBe(absorbed);
+
+    // The part's place isn't here: the split makes it again, with its name and its own code.
+    ok(await split(merged.parent_id, merged.id));
+    const pieces = await own<{ id: string; name: string }>(
+      db,
+      `SELECT p.id, p.name FROM public.places p JOIN public.legacy_codes c ON c.place_id = p.id
+        WHERE c.code = $1 AND p.location_id = $2 AND p.deleted_at IS NULL`,
+      [part?.codes[0], target.id],
+    );
+    expect(pieces).toHaveLength(1);
+    expect(pieces[0]).toMatchObject({ name: 'Cube 2' });
+    expect(pieces[0]?.id).not.toBe(merged.id);
+  });
+
+  it('points at the imported place when the trash comes along, and splits back to it', async () => {
+    const { source, absorbed } = await mergedShelf();
+    const { target, merged } = await imported(source, true, 'Workshop, with trash');
+    const part = merged.cell.parts?.[0];
+    expect(part?.placeId).not.toBe(absorbed);
+    const [row] = await own<{ deleted: boolean }>(
+      db,
+      'SELECT deleted_at IS NOT NULL AS deleted FROM public.places WHERE id = $1 AND location_id = $2',
+      [part?.placeId, target.id],
+    );
+    expect(row?.deleted).toBe(true);
+
+    ok(await split(merged.parent_id, merged.id));
+    const [back] = await own<{ deleted: boolean }>(
+      db,
+      'SELECT deleted_at IS NOT NULL AS deleted FROM public.places WHERE id = $1',
+      [part?.placeId],
+    );
+    expect(back?.deleted).toBe(false);
+  });
+});

@@ -175,7 +175,13 @@ export type FloorPlanView = {
 };
 
 /** POST /api/v1/locations/:id/floor-plans */
-export type StartPlanBody = { fileId: string; sha256?: string; turn?: 0 | 90 | 180 | 270 };
+export type StartPlanBody = {
+  fileId: string;
+  sha256?: string;
+  turn?: 0 | 90 | 180 | 270;
+  /** The file's own name, for the document it can be kept as. */
+  name?: string;
+};
 
 /** POST /api/v1/floor-plans/:id/apply: whole centimetres, MAP_LIMITS. */
 export type ApplyPlanBody = {

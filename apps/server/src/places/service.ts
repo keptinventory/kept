@@ -13,6 +13,7 @@ import { lockLayout, placeNewRoom, RoomSize } from '../map/service.js';
 import { enqueueReindex } from '../search/jobs.js';
 import { gateFor } from '../serialize/gates.js';
 import {
+  auditPlaceRelocations,
   auditRelocations,
   ORPHAN_RETURNING,
   type Orphan,
@@ -734,6 +735,10 @@ export async function mergePlace(
     'SELECT id FROM public.things WHERE place_id = $1',
     [id],
   );
+  const { rows: movedPlaces } = await c.client.query<{ id: string }>(
+    'SELECT id FROM public.places WHERE parent_id = $1',
+    [id],
+  );
   const { rows } = await c.client.query<{ n: number }>('SELECT kept.merge_places($1, $2) AS n', [
     id,
     targetId,
@@ -748,6 +753,11 @@ export async function mergePlace(
     subjects: movedThings.map((r) => r.id),
     requestId: c.requestId,
   });
+  await auditPlaceRelocations(
+    c.tx,
+    { locationId: source.locationId, actor: actor(c.scope), requestId: c.requestId },
+    movedPlaces.map((r) => ({ id: r.id, before: id, after: targetId })),
+  );
   await enqueueReindex(c.jobs, c.client, source.locationId);
   return requirePlace(c.client, targetId);
 }
