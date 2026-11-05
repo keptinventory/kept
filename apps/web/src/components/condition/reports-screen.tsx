@@ -25,7 +25,7 @@ import { useCallback, useState } from 'react';
 import { TextArea, TextField as TextFieldPrimitive } from 'react-aria-components';
 import { conditionApi, conditionKeys, useConditionReports } from '@/api/condition/queries';
 import type { ConditionReportRow, ConditionReportsParams } from '@/api/condition/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations, useLocations, useLocationsInView } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
 import { dateBounds } from '@/components/filters/params';
 import { useFilterRegistry } from '@/components/filters/registry';
@@ -61,7 +61,7 @@ function ReportRowView({ report }: { report: ConditionReportRow }) {
   const kinds = useConditionKindLabels();
   const dates = useConditionDates();
   const locationName = useLocationName();
-  const location = useLocations().data?.find((l) => l.id === report.locationId);
+  const location = useAllLocations().data?.find((l) => l.id === report.locationId);
   const title = `${kinds[report.kind]}${sep()}${dates.day(report.heldOn)}`;
   return (
     <article aria-label={title}>
@@ -107,7 +107,7 @@ export function ConditionReportsScreen() {
   const [list] = useListState();
   const f = useFilterRegistry();
   const kinds = useConditionKindLabels();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const locationName = useLocationName();
   const writable = useWritableLocations();
   const online = useOnline();

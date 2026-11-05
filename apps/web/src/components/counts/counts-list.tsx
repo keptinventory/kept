@@ -9,7 +9,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
 import { useCounts } from '@/api/counts/queries';
 import type { CountSummary, CountsParams } from '@/api/counts/types';
-import { useLocations } from '@/api/queries';
+import { useLocationsInView } from '@/api/queries';
 import { dateBounds } from '@/components/filters/params';
 import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
@@ -26,7 +26,7 @@ export function CountsList() {
   const { t } = useLingui();
   const [list] = useListState();
   const f = useFilterRegistry();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const locationName = useLocationName();
   const all = locations.data ?? [];
   const locationId = oneValue(list, 'location') ?? all[0]?.id ?? null;

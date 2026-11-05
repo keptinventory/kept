@@ -31,7 +31,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { type ReactNode, useState } from 'react';
 import { householdApi, householdKeys } from '@/api/household/queries';
 import type { Channel, KindPreference, NotificationSettings } from '@/api/household/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { useErrorText } from '@/components/page';
 import { accessOf } from '@/components/schedules/access';
 import { Button } from '@/components/ui/button';
@@ -110,7 +110,7 @@ type Row = {
 export function KindsByLocation({ settings }: { settings: NotificationSettings }) {
   const { t } = useLingui();
   const qc = useQueryClient();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const nameOf = useLocationName();
   const moduleLabels = useModuleLabels();
   const kindLabels = useNotifyKindLabels();

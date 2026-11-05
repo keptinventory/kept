@@ -16,6 +16,7 @@ import { assertClientId, checkVersion, pageOf } from '../http/conventions.js';
 import { invalid, notFound } from '../http/errors.js';
 import { locationModuleSet } from '../http/modules.js';
 import { requireCan, requireMembership } from '../locations/access.js';
+import { namedOrShown } from '../locations/hidden.js';
 import { gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { readImage } from '../things/audit-image.js';
@@ -263,7 +264,7 @@ export async function listIncidents(
   // is paused, not listed.
   const { rows: locs } = await client.query<{ id: string }>(
     `SELECT id FROM public.locations
-      WHERE deleted_at IS NULL AND ($1::uuid IS NULL OR id = $1)`,
+      WHERE deleted_at IS NULL AND ${namedOrShown('id', '$1')}`,
     [q.locationId?.toLowerCase() ?? null],
   );
   const on: string[] = [];

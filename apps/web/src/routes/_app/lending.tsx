@@ -16,7 +16,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { createFileRoute } from '@tanstack/react-router';
 import { useLoans } from '@/api/household/queries';
 import type { LoanRow, LoansParams } from '@/api/household/types';
-import { useLocations } from '@/api/queries';
+import { useLocationsInView } from '@/api/queries';
 import { defaultDir } from '@/components/filters/display';
 import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
@@ -47,7 +47,7 @@ function LendingPage() {
   const { t } = useLingui();
   const [list] = useListState();
   const f = useFilterRegistry();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const locationName = useLocationName();
   const module = useModuleAnywhere('lending');
   const online = useOnline();
@@ -154,7 +154,7 @@ function LendingPage() {
 
   return (
     <Page title={t`Lending`} wide>
-      {module.loaded && !module.on ? (
+      {module.loaded && !module.on && withModule.length === 0 ? (
         <div className="grid gap-4">
           <EmptyState
             icon={<HandoffIcon />}

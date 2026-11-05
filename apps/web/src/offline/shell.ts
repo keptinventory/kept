@@ -39,6 +39,7 @@ export function shellMe(me: Me): Me {
     },
     mfa: me.mfa,
     personalLocationId: me.personalLocationId,
+    ...(me.personalHidden ? { personalHidden: true } : {}),
     profile: {
       timezone: me.profile.timezone,
       locale: me.profile.locale,
@@ -76,6 +77,7 @@ export function shellLocation(l: LocationDetail): LocationDetail {
     require2fa: l.require2fa,
     modules: [...l.modules],
     providerResolved: l.providerResolved,
+    ...(l.hidden ? { hidden: true } : {}),
     ...(l.effectiveModules ? { effectiveModules: [...l.effectiveModules] } : {}),
     ...(l.languages ? { languages: [...l.languages] } : {}),
   };

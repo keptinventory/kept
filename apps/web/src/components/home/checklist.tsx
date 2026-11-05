@@ -168,7 +168,10 @@ export function GetStarted({
   // Where "Add" puts a thing: a shared location you can add to, else your Personal one (D114).
   const addTo =
     shared.find((l) => can(l.role, 'things.edit'))?.id ??
-    locations.find((l) => l.kind === 'personal')?.id;
+    locations.find((l) => l.kind === 'personal')?.id ??
+    // Personal hidden and nothing else you can add to (#392): it still takes the thing.
+    me?.personalLocationId ??
+    undefined;
 
   // "Print" opens Labels where it's on and the person may print (the list sends every field).
   const labelsOn = locations.some((l) => {

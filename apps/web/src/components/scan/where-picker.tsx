@@ -17,6 +17,7 @@ import { usePlaceName } from '@/components/places/labels';
 import { type PickedPlace, PlacePicker, placeMatches } from '@/components/places/move-picker';
 import { TextField } from '@/components/ui/text-field';
 import { useLocationName } from '@/lib/labels';
+import { useHiddenLocationId } from '@/lib/personal-name';
 import type { OfflineStore } from '@/offline/store';
 
 type World = { locations: SnapLocation[]; places: Record<string, SnapPlace[]> };
@@ -25,13 +26,14 @@ type World = { locations: SnapLocation[]; places: Record<string, SnapPlace[]> };
 export function usePhoneWorld(store: OfflineStore | null, locationIds?: readonly string[]) {
   const [world, setWorld] = useState<World | null>(null);
   const key = locationIds?.join(',') ?? '';
+  const hidden = useHiddenLocationId();
   useEffect(() => {
     if (!store) return;
     let live = true;
     void (async () => {
       const only = key ? new Set(key.split(',')) : null;
       const locations = (await store.locations()).filter(
-        (l) => can(l.role, 'things.edit') && (!only || only.has(l.id)),
+        (l) => can(l.role, 'things.edit') && (only ? only.has(l.id) : l.id !== hidden),
       );
       const places: Record<string, SnapPlace[]> = {};
       for (const l of locations)
@@ -41,7 +43,7 @@ export function usePhoneWorld(store: OfflineStore | null, locationIds?: readonly
     return () => {
       live = false;
     };
-  }, [store, key]);
+  }, [store, key, hidden]);
   return world;
 }
 

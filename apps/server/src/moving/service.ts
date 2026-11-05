@@ -28,6 +28,7 @@ import { AppError, invalid, notFound } from '../http/errors.js';
 import { locationModuleSet } from '../http/modules.js';
 import { labelPrintedSql, shownCodeSql } from '../labels/printed-sql.js';
 import { callerMembership, requireCan, requireMembership } from '../locations/access.js';
+import { namedOrShown } from '../locations/hidden.js';
 import { moveBackForUndo, moveThings } from '../things/move.js';
 import { type Ctx, insertThing, liveThing } from '../things/service.js';
 
@@ -395,7 +396,7 @@ export async function listMoves(
                 || to_char(m.created_at AT TIME ZONE 'UTC', 'YYYYMMDDHH24MISSUS') AS k
          FROM public.moves m
          JOIN public.locations l ON l.id = m.location_id AND l.deleted_at IS NULL
-        WHERE ($1::uuid IS NULL OR m.location_id = $1)
+        WHERE ${namedOrShown('m.location_id', '$1')}
           AND ($2::text IS NULL OR m.status = $2)
      ) x
      WHERE ($3::text IS NULL OR (x.k, x.id) < ($3::text, $4::uuid))

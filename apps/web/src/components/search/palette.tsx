@@ -17,13 +17,13 @@
  * - Actions: Search for the words, Add a thing (the create sheet), Activity, Trash, Settings.
  * - Ask the assistant: hands the words typed so far to the assistant (assistant/open.ts, D42).
  */
-import { normalize, stripPrefixes } from '@kept/shared';
+import { can, normalize, stripPrefixes } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { type KeyboardEvent, type ReactNode, useEffect, useId, useRef, useState } from 'react';
 import { Dialog, Modal, ModalOverlay } from 'react-aria-components';
 import type { ThingRow } from '@/api/inventory/types';
-import { useLocations, useMe } from '@/api/queries';
+import { useAllLocations, useLocations, useMe } from '@/api/queries';
 import { useOpenAssistant } from '@/assistant/open';
 import {
   ActivityIcon,
@@ -105,6 +105,7 @@ export default function Palette({
 
   // ----- entries -----
   const locs = locations.data ?? [];
+  const allLocs = useAllLocations().data ?? locs;
   const locationEntries: Entry[] = locs
     .filter((l) => (q ? nameMatches(nameOf(l), q) : true))
     .map((l) => ({
@@ -118,7 +119,7 @@ export default function Palette({
     ? trees
         .flatMap((tr) => {
           const byId = new Map(tr.places.map((pl) => [pl.id, pl]));
-          const loc = locs.find((l) => l.id === tr.location.id);
+          const loc = allLocs.find((l) => l.id === tr.location.id);
           const where = loc ? nameOf(loc) : tr.location.name;
           return tr.places
             .filter((pl) => !pl.isUnplaced && nameMatches(pl.name, q))
@@ -145,11 +146,16 @@ export default function Palette({
   const herePath = /^\/loc\/([^/]+)/.exec(pathname)?.[1];
   // The address is readable (D224) or an id: resolve it among the person's locations.
   const here = herePath
-    ? (locationIdOf(decodeURIComponent(herePath), locs) ?? undefined)
+    ? (locationIdOf(decodeURIComponent(herePath), allLocs) ?? undefined)
     : undefined;
-  const addTo = here ?? me.data?.personalLocationId ?? locs[0]?.id;
+  // Personal hidden (#392): the first you can add to, and Personal only if there is none.
+  const addTo =
+    here ??
+    (me.data?.personalHidden ? locs.find((l) => can(l.role, 'things.edit'))?.id : undefined) ??
+    me.data?.personalLocationId ??
+    locs[0]?.id;
   const addToName = (() => {
-    const l = locs.find((x) => x.id === addTo);
+    const l = allLocs.find((x) => x.id === addTo);
     return l ? nameOf(l) : '';
   })();
   const actions: Extract<Entry, { kind: 'action' }>[] = [
@@ -222,7 +228,7 @@ export default function Palette({
   const all = [...thingEntries, ...locationEntries, ...placeEntries, ...shownActions];
   const byId = new Map(all.map((e) => [e.id, e]));
   const locName = (id: string) => {
-    const l = locs.find((x) => x.id === id);
+    const l = allLocs.find((x) => x.id === id);
     return l ? nameOf(l) : '';
   };
 

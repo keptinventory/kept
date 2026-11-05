@@ -23,6 +23,7 @@ import { EmptyState, List, Section } from '@/components/page';
 import { tagsOfSnap } from '@/components/tags/offline';
 import { sep, useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
+import { useHiddenLocationId } from '@/lib/personal-name';
 import { formatLocale, usePrefs } from '@/lib/prefs';
 import { asOfTime } from '@/offline/as-of';
 import type { OfflineStore } from '@/offline/store';
@@ -106,7 +107,11 @@ type Found = {
 };
 
 /** The phone's answer to `params`: rows with their paths, best match first. */
-export async function searchPhone(store: OfflineStore, params: SearchParams): Promise<Found> {
+export async function searchPhone(
+  store: OfflineStore,
+  params: SearchParams,
+  hiddenLocationId: string | null = null,
+): Promise<Found> {
   const q = params.q?.trim() ?? '';
   const [hits, asOf, locations, tags] = await Promise.all([
     q
@@ -121,7 +126,10 @@ export async function searchPhone(store: OfflineStore, params: SearchParams): Pr
   ]);
   const places = new Map<string, SnapPlace[]>();
   const rows: ThingRow[] = [];
-  for (const t of hits.filter(passesOffline(params)).slice(0, OFFLINE_LIMIT)) {
+  // A hidden Personal (#392) only for a search that names it.
+  const named = many(params.locationId).includes(hiddenLocationId ?? '');
+  const shown = hits.filter((t) => named || t.locationId !== hiddenLocationId);
+  for (const t of shown.filter(passesOffline(params)).slice(0, OFFLINE_LIMIT)) {
     let inLocation = places.get(t.locationId);
     if (!inLocation) {
       inLocation = await store.placesOf(t.locationId);
@@ -153,11 +161,12 @@ export function OfflineResults({
   const { locale, digits } = usePrefs();
   const nameOf = useLocationName();
   const [found, setFound] = useState<Found | null>(null);
+  const hidden = useHiddenLocationId();
   const key = JSON.stringify(params);
   // biome-ignore lint/correctness/useExhaustiveDependencies: `key` is `params`, by value
   useEffect(() => {
     let live = true;
-    void searchPhone(store, params)
+    void searchPhone(store, params, hidden)
       .then((r) => {
         if (live) setFound(r);
       })
@@ -167,7 +176,7 @@ export function OfflineResults({
     return () => {
       live = false;
     };
-  }, [store, key]);
+  }, [store, key, hidden]);
 
   if (!found) return null;
   const q = params.q?.trim() ?? '';

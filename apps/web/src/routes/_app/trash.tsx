@@ -14,7 +14,7 @@ import { useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { type TrashParams, useTrash } from '@/api/inventory/queries';
 import type { TrashItem } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useLocationsInView } from '@/api/queries';
 import type { LocationSummary } from '@/api/types';
 import { dateBounds, filterParams } from '@/components/filters/params';
 import { useFilterRegistry } from '@/components/filters/registry';
@@ -43,7 +43,7 @@ export const Route = createFileRoute('/_app/trash')({
 function TrashPage() {
   const { t } = useLingui();
   const [list] = useListState();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const f = useFilterRegistry();
   const params: TrashParams = {
     ...(list.q ? { q: list.q } : {}),

@@ -14,7 +14,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { createFileRoute } from '@tanstack/react-router';
 import { useActivity } from '@/api/inventory/queries';
 import type { ActivityParams, HistoryEvent } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useLocationsInView } from '@/api/queries';
 import { dateBounds, filterParams } from '@/components/filters/params';
 import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
@@ -35,7 +35,7 @@ export const Route = createFileRoute('/_app/activity')({
 function ActivityPage() {
   const { t } = useLingui();
   const [list] = useListState();
-  const locations = useLocations();
+  const locations = useLocationsInView();
   const nameOf = useLocationName();
   const f = useFilterRegistry();
   const all = locations.data ?? [];

@@ -32,7 +32,7 @@ import type {
   ThingRow,
   VendorResult,
 } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { BuildingIcon, ChevronEndIcon, PersonIcon, SearchIcon } from '@/components/icons';
 import { LabelTape } from '@/components/id-chip';
 import { ListSurface } from '@/components/list-surface';
@@ -105,7 +105,7 @@ export function SearchResults({ params, onOpen, onSuggest }: SearchResultsProps)
   const first = query.data?.pages[0];
   const things = query.data?.pages.flatMap((pg) => pg.things.items) ?? [];
   const forms = queryForms(params.q ?? '');
-  const locations = useLocations();
+  const locations = useAllLocations();
   const nameOf = useLocationName();
   const store = useOffline()?.store ?? null;
   const locName = (id: string) => {

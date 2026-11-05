@@ -22,6 +22,7 @@ import {
 import { AppError, conflict, invalid, notFound } from '../http/errors.js';
 import type { JobQueue } from '../jobs/queue.js';
 import { requireMembership } from '../locations/access.js';
+import { namedOrShown } from '../locations/hidden.js';
 import { gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { requireRole } from '../things/service.js';
@@ -349,7 +350,7 @@ export async function listSchedules(
     LEFT JOIN public.meters m ON m.id = s.meter_id
     LEFT JOIN public.things t ON t.id = s.thing_id
     LEFT JOIN public.places p ON p.id = s.place_id
-   WHERE ($1::uuid IS NULL OR a.location_id = $1)
+   WHERE ${namedOrShown('a.location_id', '$1')}
      AND ($2::text IS NULL OR (CASE WHEN s.thing_id IS NULL THEN 'place' ELSE 'thing' END) = $2)
      AND ($3::text IS NULL
           OR strpos(kept.normalize(s.name), kept.normalize($3)) > 0

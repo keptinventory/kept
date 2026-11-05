@@ -27,7 +27,8 @@ import { SIGNED_URL_TTL_SECONDS } from '../storage/signed-url.js';
 // it is ready (kept.purge_expired_exports, the hourly `purge-exports` job).
 //
 // - POST /exports: owners and admins export a location (`location.export-import`); anyone exports
-//   their own data (`me`: their Personal location, plus me.json). "Include secrets" is the
+//   their own data (`me`: their Personal location, plus me.json; while Personal is hidden, the
+//   first other location they own, or Personal if they own none, #392). "Include secrets" is the
 //   owner's, needs the recovery kit acknowledged (D193) and the passphrase twice; the key is
 //   derived here, sealed under the keyring with the run's own AAD and inserted with the row,
 //   and the passphrase goes no further. Five an hour per person, one running per location.
@@ -143,12 +144,17 @@ export const optionsOf = (stored: Partial<ExportOptions> | null | undefined): Ex
 // POST /api/v1/exports
 // ---------------------------------------------------------------------------------------------
 
-async function personalLocation(client: pg.ClientBase): Promise<string> {
+/** The location "Export my data" carries: Personal, or while it is hidden the first other location
+ * the person owns. Never one they only belong to: `me` asks for no export role. */
+async function myDataLocation(client: pg.ClientBase): Promise<string> {
   const { rows } = await client.query<{ id: string }>(
     `SELECT l.id FROM public.locations l
-      WHERE l.owner_account_id = kept.current_owner_account_id() AND l.kind = 'personal'
-        AND l.deleted_at IS NULL
-      ORDER BY l.created_at, l.id LIMIT 1`,
+      WHERE l.owner_account_id = kept.current_owner_account_id() AND l.deleted_at IS NULL
+        AND (l.kind = 'personal'
+             OR (EXISTS (SELECT 1 FROM kept.hidden_location_ids())
+                 AND l.id IN (SELECT kept.visible_location_ids())))
+      ORDER BY l.id IN (SELECT kept.hidden_location_ids()), lower(l.name), l.id
+      LIMIT 1`,
   );
   const id = rows[0]?.id;
   if (!id) throw notFound('You have no Personal location to export.');
@@ -212,9 +218,7 @@ export async function createExport(
 ): Promise<ExportRunView> {
   const kind: 'location' | 'me' = 'me' in body.scope ? 'me' : 'location';
   const locationId =
-    'locationId' in body.scope
-      ? body.scope.locationId.toLowerCase()
-      : await personalLocation(client);
+    'locationId' in body.scope ? body.scope.locationId.toLowerCase() : await myDataLocation(client);
   const me = await requireMembership(client, locationId);
   if (kind === 'location') {
     requireCan(me.role, 'location.export-import', 'Only owners and admins can export a location.');

@@ -138,6 +138,30 @@ A cube insert or a removed shelf makes two or more compartments one.
 - **AI apps** can do the same: `create_place` takes a `template`, and `update_place` a `turn`
   ([MCP clients](/users/mcp-clients/#the-tools)). Merging and splitting stay in the app.
 
+## Hide Personal
+
+Everyone gets a **Personal** location. If you have no use for it, turn on **Hide Personal** in
+**Settings → Me → Your locations**, and turn it off to show it again any time. It's your own
+preference: nobody else sees a change.
+
+- **Gone from:** the locations in the menu, Home, lists, search and their filters. A module only
+  Personal tracks (Vehicles, say) leaves the menu with it.
+- **Unchanged:** everything in it. A link to Personal or to a thing in it still opens it. Hiding
+  is tidying up, not protection: it locks nothing.
+- **Reminders still reach you**, as notifications, in the digest and in the calendar feed. Turn
+  them off in **Settings → Me → Notifications**, where Personal is still listed.
+- **Capture** starts in your other location, or in Personal if you can't add things anywhere else.
+- **Export my data** carries the first other location you own, and Personal stays on **Export a
+  location**. If you own no other location, it carries Personal.
+- **Your personal AI key** also pays for a location you own and use alone, when that location's
+  account has no key of its own. It never pays for a shared location.
+- **The assistant** leaves Personal out, unless you open it from Personal. **Connections** (personal
+  tokens and connected apps) keep the locations you gave them, hidden or not.
+
+You can't hide it while it's your only location. If it becomes your only location later (you
+leave, you're removed, the other location is deleted), it shows again by itself, and hides again
+when you have another.
+
 ## Related
 
 - [Everyday use](/users/everyday-use/) for the wider picture.

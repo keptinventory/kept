@@ -9,7 +9,7 @@ import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { useAiStatus } from '@/api/capture/queries';
 import { isApiError } from '@/api/client';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { usePausedUntil, usePauseReason } from '@/components/ai/paused-banner';
 import { AssistantIcon } from '@/components/icons';
 import { Notice, useErrorText } from '@/components/page';
@@ -49,7 +49,7 @@ export function Conversation({
     (context.kind !== 'none' ? page?.locationId : undefined) ??
     thread.data?.thread.context.locationId ??
     null;
-  const locations = useLocations();
+  const locations = useAllLocations();
   const location = locationId ? locations.data?.find((l) => l.id === locationId) : undefined;
   const ai = useAiStatus(locationId);
 

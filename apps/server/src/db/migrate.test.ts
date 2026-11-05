@@ -151,6 +151,8 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.type_impact(uuid)': APP_ONLY,
   'kept.unreferenced_storage_keys(text[])': SYSTEM_ONLY,
   'kept.visible_account_ids()': APP_ONLY,
+  // Migration 0171: the caller's hidden Personal (#392).
+  'kept.hidden_location_ids()': APP_ONLY,
   'kept.visible_location_ids()': APP_ONLY,
   'kept.writable_account_ids()': APP_ONLY,
   'kept.writable_location_ids()': APP_ONLY,

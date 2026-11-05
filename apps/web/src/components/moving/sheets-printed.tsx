@@ -17,7 +17,7 @@ import { mapKeys } from '@/api/map/queries';
 import { movingPaths } from '@/api/moving/paths';
 import { movingKeys } from '@/api/moving/queries';
 import type { Move, SheetsPrintedBody } from '@/api/moving/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { markJustPrinted } from '@/components/labels/just-printed';
 import { Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
@@ -35,7 +35,7 @@ export function SheetsPrinted({ runId, move, containerIds }: SheetsPrintedProps)
   const qc = useQueryClient();
   const errorText = useErrorText();
   const run = useReportRun(runId).data;
-  const here = useLocations().data?.find((l) => l.id === move.locationId);
+  const here = useAllLocations().data?.find((l) => l.id === move.locationId);
   // Ids only for a sheet of chosen boxes; a whole move's sheets send none, and the server marks
   // the boxes they printed (the same first MAX_SHEET_BOXES the report holds).
   const body: SheetsPrintedBody = containerIds?.length ? { containerIds } : {};
