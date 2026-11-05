@@ -68,8 +68,8 @@ a location turns them on in **Location settings → What to track**
   and an optional end date; managed accounts for people without email; read-only share links for
   someone without an account.
 - **[Sign-in and security](/users/sign-in-security/)**: passkeys and two-factor sign-in.
-- **Six languages**: English, Arabic (right to left), French, German, Italian and Vietnamese;
-  dates in your region's style, or as you choose.
+- **Six languages**: English, Arabic (right to left), French, German, Italian and Vietnamese; type
+  to find yours in the picker, and dates in your region's style, or as you choose.
 
 ## On your phone
 

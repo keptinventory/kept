@@ -3307,6 +3307,10 @@ msgstr "ابحث عن علامة تجارية"
 msgid "Find a filter"
 msgstr "ابحث عن عامل تصفية"
 
+#: src/components/languages.tsx
+msgid "Find a language"
+msgstr "ابحث عن لغة"
+
 #: src/components/filters/registry.tsx
 msgid "Find a location"
 msgstr "ابحث عن موقع"

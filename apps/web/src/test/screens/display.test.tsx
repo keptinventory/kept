@@ -1,6 +1,6 @@
 /**
- * Settings → Me → Display and a location's languages: the language
- * dropdown with flags and each language's own name, the theme with System first, digits only in
+ * Settings → Me → Display and a location's languages: the searchable language
+ * list with flags and each language's own name, the theme with System first, digits only in
  * Arabic, the content width, the sign-in pages' picker, and French, German and Italian screens.
  */
 import { cleanup, screen, waitFor, within } from '@testing-library/react';
@@ -20,13 +20,14 @@ function expectNoVisibleNativeSelect() {
 }
 
 describe('Settings → Me → Display', () => {
-  it('picks the interface language from a dropdown of flags and own names', async () => {
+  it('picks the interface language from a searchable list of flags and own names', async () => {
     const { user } = await renderApp('/settings');
     await findHeading('Settings');
     expect(screen.getByRole('heading', { name: 'Display' })).toBeInTheDocument();
-    const trigger = screen.getByRole('button', { name: /Language/ });
-    expect(within(trigger).getByText('English')).toHaveAttribute('lang', 'en');
-    await user.click(trigger);
+    const box = screen.getByRole('combobox', { name: 'Language' });
+    expect(box).toHaveValue('English');
+    expect(box).toHaveAttribute('lang', 'en');
+    await user.click(box);
     const list = await screen.findByRole('listbox');
     const options = within(list).getAllByRole('option');
     expect(options.map((o) => o.textContent)).toEqual([
@@ -56,16 +57,52 @@ describe('Settings → Me → Display', () => {
   it('switches to German and Italian, and back to Arabic right to left', async () => {
     const { user } = await renderApp('/settings');
     await findHeading('Settings');
-    await user.click(screen.getByRole('button', { name: /Language/ }));
+    await user.click(screen.getByRole('combobox', { name: 'Language' }));
     await user.click(await screen.findByRole('option', { name: 'Deutsch' }));
     await findHeading('Einstellungen');
-    await user.click(screen.getByRole('button', { name: /Sprache/ }));
+    await user.click(screen.getByRole('combobox', { name: 'Sprache' }));
     await user.click(await screen.findByRole('option', { name: 'Italiano' }));
     await findHeading('Impostazioni');
-    await user.click(screen.getByRole('button', { name: /Lingua/ }));
+    await user.click(screen.getByRole('combobox', { name: 'Lingua' }));
     await user.click(await screen.findByRole('option', { name: 'العربية' }));
     await findHeading('الإعدادات');
     expect(document.documentElement.dir).toBe('rtl');
+  });
+
+  it('finds a language by typing, and the screen re-renders only once one is chosen', async () => {
+    const { user } = await renderApp('/settings');
+    await findHeading('Settings');
+    const box = screen.getByRole('combobox', { name: 'Language' });
+    await user.click(box);
+    await user.keyboard('allemand');
+    expect(screen.getByRole('option')).toHaveTextContent('No matches');
+    await user.clear(box);
+    await user.keyboard('german');
+    expect(screen.getByRole('option')).toHaveTextContent('Deutsch');
+    // Nothing has changed yet.
+    expect(localStorage.getItem('kept.locale')).not.toBe('de');
+    expect(document.documentElement.lang).toBe('en');
+    await user.keyboard('{ArrowDown}{Enter}');
+    await findHeading('Einstellungen');
+    expect(localStorage.getItem('kept.locale')).toBe('de');
+    // The interface's own words for a language now work too.
+    const german = screen.getByRole('combobox', { name: 'Sprache' });
+    expect(german).toHaveValue('Deutsch');
+    await user.click(german);
+    await user.keyboard('Französisch');
+    expect(screen.getByRole('option')).toHaveTextContent('Français');
+  });
+
+  it('keeps the interface language when the box is cleared and left', async () => {
+    const { user } = await renderApp('/settings', { locale: 'fr' });
+    await findHeading('Paramètres');
+    const box = screen.getByRole('combobox', { name: 'Langue' });
+    await user.click(box);
+    await user.clear(box);
+    await user.click(document.querySelector('h1') as HTMLElement);
+    expect(box).toHaveValue('Français');
+    expect(document.documentElement.lang).toBe('fr');
+    await findHeading('Paramètres');
   });
 
   it('shows the digits choice only when the interface is Arabic', async () => {
@@ -205,11 +242,12 @@ describe('Settings → Me → Display', () => {
 });
 
 describe('the sign-in pages', () => {
-  it('pick the language from the same dropdown, in a small trigger', async () => {
+  it('pick the language from the same searchable list, in a small box', async () => {
     const { user } = await renderApp('/signin', { state: signedOutScenario() });
     await findHeading('Sign in to Kept');
-    const trigger = await screen.findByRole('button', { name: /Language/ });
-    await user.click(trigger);
+    const box = await screen.findByRole('combobox', { name: 'Language' });
+    await user.click(box);
+    await user.keyboard('deutsch');
     await user.click(await screen.findByRole('option', { name: 'Deutsch' }));
     await waitFor(() => expect(document.documentElement.lang).toBe('de'));
     expect(localStorage.getItem('kept.locale')).toBe('de');
@@ -252,15 +290,16 @@ describe('Location settings → General: languages', () => {
       },
     });
     await findHeading('General');
-    const trigger = screen.getByRole('button', { name: /Languages spoken here/ });
-    await user.click(trigger);
+    const box = screen.getByRole('combobox', { name: 'Languages spoken here' });
+    await user.click(box);
     const list = await screen.findByRole('listbox');
     expect(list).toHaveAttribute('aria-multiselectable', 'true');
     await user.click(within(list).getByRole('option', { name: 'Français' }));
     await user.click(within(list).getByRole('option', { name: 'العربية' }));
     await user.keyboard('{Escape}');
-    expect(within(trigger).getByText('Français')).toBeInTheDocument();
-    expect(trigger.querySelectorAll('svg[data-flag]')).toHaveLength(2);
+    const chosen = box.closest('[data-slot="combobox"]') as HTMLElement;
+    expect(within(chosen).getByText('Français')).toBeInTheDocument();
+    expect(chosen.querySelectorAll('svg[data-flag]')).toHaveLength(2);
     // The languages' Save, the first on the page (own codes have their own below).
     await user.click(screen.getAllByRole('button', { name: 'Save' })[0] as HTMLElement);
     await waitFor(() => expect(mock.lastCall('PATCH', paths.location(IDS.home))).toBeDefined());
@@ -279,9 +318,11 @@ describe('Location settings → General: languages', () => {
       },
     });
     await findHeading('General');
-    const trigger = screen.getByRole('button', { name: /Languages spoken here/ });
-    expect(within(trigger).getByText('العربية')).toBeInTheDocument();
-    await user.click(trigger);
+    const box = screen.getByRole('combobox', { name: 'Languages spoken here' });
+    expect(
+      within(box.closest('[data-slot="combobox"]') as HTMLElement).getByText('العربية'),
+    ).toBeInTheDocument();
+    await user.click(box);
     await user.click(await screen.findByRole('option', { name: 'Italiano' }));
     await user.keyboard('{Escape}');
     // The languages' Save, the first on the page (own codes have their own below).

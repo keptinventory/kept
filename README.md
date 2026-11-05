@@ -123,7 +123,7 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   CSV, full exports.
 - **Your own network or HTTPS.** Works over plain http at home; an export with secret values needs
   HTTPS.
-- **Six languages:** English, Arabic (right to left), French, German, Italian and Vietnamese.
+- **Six languages:** English, Arabic (right to left), French, German, Italian and Vietnamese; type to find yours.
 
 <p align="center">
   <img src="docs/assets/claude-mcp.webp" alt="Claude Code connected to Kept over MCP: asked to add a TV with its serial number, it puts it in Home › Living room" width="720">
