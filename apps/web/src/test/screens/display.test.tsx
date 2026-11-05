@@ -93,6 +93,35 @@ describe('Settings → Me → Display', () => {
     expect(screen.getByRole('option')).toHaveTextContent('Français');
   });
 
+  it('changes the language from a quick tap on a phone, and the page is there to read', async () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query === '(pointer: coarse)',
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+    try {
+      const { user } = await renderApp('/settings');
+      await findHeading('Settings');
+      await user.pointer({
+        keys: '[TouchA]',
+        target: screen.getByRole('combobox', { name: 'Language' }),
+      });
+      await user.pointer({
+        keys: '[TouchA]',
+        target: await screen.findByRole('option', { name: 'العربية' }),
+      });
+      // By role: an open list hides the rest of the page from screen readers, and from this.
+      await findHeading('الإعدادات');
+      expect(document.documentElement.dir).toBe('rtl');
+      expect(localStorage.getItem('kept.locale')).toBe('ar');
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(screen.queryByRole('listbox')).toBeNull();
+      expect(screen.getByRole('heading', { name: 'الإعدادات' })).toBeInTheDocument();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('keeps the interface language when the box is cleared and left', async () => {
     const { user } = await renderApp('/settings', { locale: 'fr' });
     await findHeading('Paramètres');

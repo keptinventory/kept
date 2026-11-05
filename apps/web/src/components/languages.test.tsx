@@ -244,6 +244,36 @@ describe('LanguageSelect on a phone', () => {
     expect(optionNames()).toHaveLength(6);
   });
 
+  it('closes after a quick tap on an option, and stays closed', async () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: query === '(pointer: coarse)' }));
+    const onChange = vi.fn();
+    const { user } = await renderUI(<Picker onChange={onChange} />);
+    const box = screen.getByRole('combobox');
+    // Touch, not a mouse: a tap on the box, then one straight away on an option.
+    await user.pointer({ keys: '[TouchA]', target: box });
+    await user.pointer({
+      keys: '[TouchA]',
+      target: screen.getByRole('option', { name: 'Deutsch' }),
+    });
+    expect(onChange).toHaveBeenCalledExactlyOnceWith('de');
+    await waitFor(() => expect(box).toHaveValue('Deutsch'));
+    // Long enough for a wrongful reopen to have happened.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.queryByRole('listbox')).toBeNull();
+    // Nothing left hiding the page from screen readers.
+    expect(screen.getByRole('button', { name: 'Elsewhere' })).toBeInTheDocument();
+  });
+
+  it('closes with Escape straight after a tap', async () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: query === '(pointer: coarse)' }));
+    const { user } = await renderUI(<Picker />);
+    await user.pointer({ keys: '[TouchA]', target: screen.getByRole('combobox') });
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
   it('still closes when the page is scrolled later on', async () => {
     vi.stubGlobal('matchMedia', (query: string) => ({ matches: query === '(pointer: coarse)' }));
     const now = vi.spyOn(performance, 'now').mockReturnValue(1000);

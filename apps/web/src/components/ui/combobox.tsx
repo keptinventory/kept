@@ -63,20 +63,39 @@ export type ComboboxProps<T extends ComboboxOption, M extends SelectionMode = 's
 
 /** How long after a tap into the box a scroll counts as the keyboard coming up. */
 const KEYBOARD_SETTLES_MS = 700;
+/** A close this soon after a scroll was caused by it, not by a choice or Escape. */
+const CLOSED_BY_SCROLL_MS = 100;
 
 /** The box of a `showsChoice` Combobox. */
 function ChoiceInput(props: InputProps) {
   const state = useContext(ComboBoxStateContext);
   const focused = useRef<{ input: HTMLInputElement; at: number } | null>(null);
+  const scrolledAt = useRef(Number.NEGATIVE_INFINITY);
   const wasOpen = useRef(false);
-  // A tap brings up the keyboard and the browser scrolls the box clear of it, and React Aria closes
-  // this kind of popover on any scroll around it, so the list would vanish as it opens.
+  const isOpen = !!state?.isOpen;
   useEffect(() => {
-    const justClosed = wasOpen.current && !state?.isOpen;
-    wasOpen.current = !!state?.isOpen;
+    if (!isOpen) return;
+    const note = () => {
+      scrolledAt.current = performance.now();
+    };
+    window.addEventListener('scroll', note, true);
+    return () => window.removeEventListener('scroll', note, true);
+  }, [isOpen]);
+  // A tap brings up the keyboard and the browser scrolls the box clear of it, and React Aria closes
+  // this kind of popover on any scroll around it, so the list would vanish as it opens. Only that
+  // close is undone: an open list hides the page from screen readers, so one that came back after
+  // a choice or Escape would leave the page unreadable.
+  useEffect(() => {
+    const justClosed = wasOpen.current && !isOpen;
+    wasOpen.current = isOpen;
     if (!justClosed || !focused.current) return;
     const { input, at } = focused.current;
-    if (document.activeElement === input && performance.now() - at < KEYBOARD_SETTLES_MS)
+    const now = performance.now();
+    if (
+      document.activeElement === input &&
+      now - at < KEYBOARD_SETTLES_MS &&
+      now - scrolledAt.current < CLOSED_BY_SCROLL_MS
+    )
       state?.open(null, 'manual');
   });
   return (
